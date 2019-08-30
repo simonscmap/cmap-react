@@ -1,0 +1,67 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 40vmin;
+  pointer-events: none;
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ag-react-container {
+  height: 100%;
+}
+
+// Get font awesome css pseudo to work
+.fa-icon-cmap::after {
+  display: inline-block;
+  font-style: normal;
+  font-variant: normal;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  font-family: "Font Awesome 5 Free"; 
+  font-weight: 900; 
+}
+
+// Ag-grid theme styles
+$ag-icons-path: '~../node_modules/ag-grid-community/src/styles/ag-theme-material/icons/';
+$primary-color: #FF8000;
+$background-color: #424242;
+$border-color: black;
+$header-background-color: #424242;
+$foreground-color: rgb(255, 246, 236);
+$secondary-foreground-color: #FF8000;
+$chip-background-color: lighten(#424242, 10%);
+$hover-color: darken(#FF8000, 25%);
+$panel-background-color: darken(#424242, 5%);
+$row-stub-background-color: #22A3B9;
+
+// $menu-option-active-color: #22A3B9;
+@import "../node_modules/ag-grid-community/src/styles/ag-grid.scss";
+@import "../node_modules/ag-grid-community/src/styles/ag-theme-material/sass/ag-theme-material.scss";
+
+// teal #22A3B9;

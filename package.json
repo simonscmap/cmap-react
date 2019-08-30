@@ -1,0 +1,49 @@
+{
+  "name": "cmap_react",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@date-io/date-fns": "^1.3.8",
+    "@esri/react-arcgis": "^4.0.0",
+    "@material-ui/core": "^4.0.0-rc.0",
+    "@material-ui/icons": "^4.2.1",
+    "@material-ui/lab": "^4.0.0-alpha.13",
+    "@material-ui/pickers": "^3.2.0",
+    "ag-grid-community": "^20.2.0",
+    "ag-grid-enterprise": "^20.2.0",
+    "ag-grid-react": "^20.2.0",
+    "colormap": "^2.3.1",
+    "date-fns": "^2.0.0-beta.2",
+    "js-cookie": "^2.2.0",
+    "js-search": "^1.4.3",
+    "ndjson": "^1.5.0",
+    "node-sass": "^4.12.0",
+    "plotly.js": "^1.48.3",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-plotly.js": "^2.3.0",
+    "react-redux": "^7.0.2",
+    "react-router-dom": "^5.0.0",
+    "react-scripts": "2.1.8",
+    "react-select": "^3.0.4",
+    "react-window": "^1.8.5",
+    "reduce-reducers": "^1.0.1",
+    "redux": "^4.0.1",
+    "redux-saga": "^1.0.2"
+  },
+  "scripts": {
+    "start": "react-scripts --max_old_space_size=4096 start",
+    "build": "react-scripts --max_old_space_size=4096 build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+}
