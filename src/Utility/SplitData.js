@@ -12,7 +12,8 @@ const splitData = (data, changeInterval, numDistinct) => {
     }
 
     for(let i = 0; i < data.length; i++){
-        splitData[Math.floor(i / changeInterval) % numDistinct].push(data[i]);
+        let index = Math.floor(i / changeInterval) % numDistinct;
+        splitData[index].push(data[i]);
     }
 
     return splitData;

@@ -15,20 +15,14 @@ const handleContourMap = (subsets, infoObject, splitByDate, splitByDepth) => {
     const depths = Array.from(infoObject.depths);
     const dates = Array.from(infoObject.dates);
 
-    console.log(infoObject.lons);
-    console.log(infoObject.lats);
-
-    const height = subsets.length > 4 ? 300 : 450
-    const width = subsets.length > 4 ? 450 : 700
-
     return subsets.map((subset, index) => {
 
         const variableName = infoObject.parameters.fields;
         const date = !splitByDate ? 'Mean Over Time' : 
-            splitByDepth ? dates[Math.floor(index/depths.length)] : dates[index];
+            splitByDepth ? dates[Math.floor(index/depths.length)].slice(0, 10) : dates[index].slice(0, 10);
         const depth = !infoObject.hasDepth ? 'Surface' : 
             !splitByDepth ? 'Mean Over Depth' : 
-            splitByDate ? depths[index % depths.length].toFixed(2) + 'm' : depths[index].toFixed(2) + 'm';
+            splitByDate ? depths[index % depths.length].toFixed(2) + 'm depth' : depths[index].toFixed(2) + 'm depth';
 
         return (
         <Plot
@@ -37,33 +31,32 @@ const handleContourMap = (subsets, infoObject, splitByDate, splitByDepth) => {
                 display:'inline-block'
             }}
 
-                data={[
-                    {
-                        x: infoObject.lons,
-                        y: infoObject.lats,
-                        z: subset,
-                        name: infoObject.parameters.fields,
-                        type: 'contour',
-                        contours: {
-                            coloring: 'heatmap',
-                            showlabels: true,
-                            labelfont: {
-                                family: 'Raleway',
-                                size: 12,
-                                color: 'white',
-                            }
-                        },
-                        colorbar: {
-                            title: {
-                                text: `${infoObject.metadata.unit}`
-                            }
+            data={[
+                {
+                    x: infoObject.lons,
+                    y: infoObject.lats,
+                    z: subset,
+                    name: infoObject.parameters.fields,
+                    type: 'contour',
+                    contours: {
+                        coloring: 'heatmap',
+                        showlabels: true,
+                        labelfont: {
+                            family: 'Raleway',
+                            size: 12,
+                            color: 'white',
+                        }
+                    },
+                    colorbar: {
+                        title: {
+                            text: `${infoObject.metadata.unit}`
                         }
                     }
-                ]}
+                }
+            ]}
+            
             key={index}
             layout= {{
-                // height,
-                // width,
                 font: {color: '#ffffff'},
                 title: `${variableName} - ${depth}  - ${date}`,
                 xaxis: {title: 'Longitude', color: '#ffffff'},
@@ -90,46 +83,132 @@ const handleContourMap = (subsets, infoObject, splitByDate, splitByDepth) => {
     })
 }
 
-const handleHistogram = (chart) => ({     
-        parameters: chart.parameters,
-        metadata: chart.metadata,   
-        subType: chart.subType,
-        data: [
-            {
-            x: chart.data.map(row => row[chart.parameters.fields]),
-            name: chart.parameters.fields,
-            type: 'histogram',
-            marker: {color: '#17becf'}
-            }
-        ],
-        layout: {
-            xaxis: {title: `${chart.metadata.unit}`}
-        }          
-})
+const handleHistogram = (subsets, infoObject, splitByDate, splitByDepth) => {
 
-const handleHeatmap = (chart) => ({
-    parameters: chart.parameters,
-    metadata: chart.metadata,
-    subType: chart.subType,
-    data:[
-        {
-            x: chart.data.map(row => row.lon),
-            y: chart.data.map(row => row.lat),
-            z: chart.data.map(row => row[chart.parameters.fields]),
-            name: chart.parameters.fields,
-            type: 'heatmap',
-            colorbar: {
-                title: {
-                    text: `${chart.metadata.unit}`
+    const depths = Array.from(infoObject.depths);
+    const dates = Array.from(infoObject.dates);
+
+    console.log(subsets);
+
+    return subsets.map((subset, index) => {
+
+        const variableName = infoObject.parameters.fields;
+        const date = !splitByDate ? 'Aggregated Time' : 
+            splitByDepth ? dates[Math.floor(index/depths.length)].slice(0, 10) : dates[index].slice(0, 10);
+        const depth = !infoObject.hasDepth ? 'Surface' : 
+            !splitByDepth ? 'Aggregated Depth' : 
+            splitByDate ? depths[index % depths.length].toFixed(2) + 'm depth' : depths[index].toFixed(2) + 'm depth';
+
+        return (
+        <Plot
+            style= {{
+                position: 'relative',
+                display:'inline-block'
+            }}
+
+            data={[
+                {
+                    x: subset,
+                    name: infoObject.parameters.fields,
+                    type: 'histogram'
                 }
-            }
+            ]}
+            
+            key={index}
+            layout= {{
+                font: {color: '#ffffff'},
+                title: `${variableName} - ${depth}  - ${date}`,
+                xaxis: {title: `${infoObject.parameters.fields} ${infoObject.metadata.unit}`, color: '#ffffff'},
+                paper_bgcolor: colors.backgroundGray,
+                annotations: [
+                    {
+                        text: `Source: ${infoObject.metadata.distributor.length < 30 ? 
+                            infoObject.metadata.distributor : 
+                            infoObject.metadata.distributor.slice(0,30)} -- Provided by Simons CMAP`,
+                        font: {
+                            color: 'white',
+                            size: 10
+                        },
+                        xref: 'paper',
+                        yref: 'paper',
+                        yshift: -202,
+                        showarrow: false,
+                    }
+                ]
+
+            }}   
+        />)
+    })
+}
+
+const handleHeatmap = (subsets, infoObject, splitByDate, splitByDepth) => {
+
+    const depths = Array.from(infoObject.depths);
+    const dates = Array.from(infoObject.dates);
+
+    return subsets.map((subset, index) => {
+
+        const variableName = infoObject.parameters.fields;
+        const date = !splitByDate ? 'Mean Over Time' : 
+            splitByDepth ? dates[Math.floor(index/depths.length)].slice(0, 10) : dates[index].slice(0, 10);
+        const depth = !infoObject.hasDepth ? 'Surface' : 
+            !splitByDepth ? 'Mean Over Depth' : 
+            splitByDate ? depths[index % depths.length].toFixed(2) + 'm depth' : depths[index].toFixed(2) + 'm depth';
+
+        try {
+            return (
+            <Plot
+                style= {{
+                    position: 'relative',
+                    display:'inline-block'
+                }}
+    
+                data={[
+                    {
+                        x: infoObject.lons,
+                        y: infoObject.lats,
+                        z: subset,
+                        name: infoObject.parameters.fields,
+                        type: 'heatmap',
+                        colorbar: {
+                            title: {
+                                text: `${infoObject.metadata.unit}`
+                            }
+                        }
+                    }
+                ]}
+                
+                key={index}
+                layout= {{
+                    font: {color: '#ffffff'},
+                    title: `${variableName} - ${depth}  - ${date}`,
+                    xaxis: {title: 'Longitude', color: '#ffffff'},
+                    yaxis: {title: 'Latitude', color: '#ffffff'},
+                    paper_bgcolor: colors.backgroundGray,
+                    annotations: [
+                        {
+                            text: `Source: ${infoObject.metadata.distributor.length < 30 ? 
+                                infoObject.metadata.distributor : 
+                                infoObject.metadata.distributor.slice(0,30)} -- Provided by Simons CMAP`,
+                            font: {
+                                color: 'white',
+                                size: 10
+                            },
+                            xref: 'paper',
+                            yref: 'paper',
+                            yshift: -202,
+                            showarrow: false,
+                        }
+                    ]
+    
+                }}   
+            />)
+        } catch (e) {
+            console.log('Failed to plot subset');
+            console.log(subset);
         }
-    ],
-    layout: {
-        xaxis: {title: 'Longitude'},
-        yaxis: {title: 'Latitude'}
-    }    
-})
+    })
+}
 
 const styles = theme => ({
     chartWrapper: {
@@ -161,7 +240,7 @@ const SpaceTimeChart = (props) => {
     const [splitByDepth, setSplitByDepth] = useState(false);
     const [subTypeState, setSubTypeState] = useState(subType);
 
-    const subSets = data.generatePlotData(splitByDate, splitByDepth);
+    const subSets = data.generatePlotData(subTypeState, splitByDate, splitByDepth);
 
     var plots;
 
@@ -191,7 +270,7 @@ const SpaceTimeChart = (props) => {
                 <Button {...buttonProps} disabled={dates.size===1} onClick={() => setSplitByDate(!splitByDate)}>{splitByDate ? 'Merge Dates' : 'Split By Date'}</Button>
                 <Button {...buttonProps} disabled={depths.size===1} onClick={() => setSplitByDepth(!splitByDepth)}>{splitByDepth ? 'Merge Depths' : 'Split By Depth'}</Button>
                 
-                {/* {subTypeState == vizSubTypes.heatmap ? '' : 
+                {subTypeState == vizSubTypes.heatmap ? '' : 
                     <Button {...buttonProps} 
                         onClick={() => setSubTypeState(vizSubTypes.heatmap)}
                         >Switch to Heatmap
@@ -210,7 +289,7 @@ const SpaceTimeChart = (props) => {
                         onClick={() => setSubTypeState(vizSubTypes.histogram)}
                         >Switch to Histogram
                     </Button>
-                } */}
+                }
             </div>
             {plots}      
         </div>

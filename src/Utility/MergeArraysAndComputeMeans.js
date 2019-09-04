@@ -1,6 +1,6 @@
 // mergeTargetDistance - number of hops between arrays being merged
 // mergeTargetNumber - number of arrays being merged - implicit
-// nextStartDistance - once a merge is complete how many hows to next start
+// nextStartDistance - once a merge is complete how many hops to next start
 const mergeArraysAndComputeMeans = (data, mergeTargetDistance, nextMergeStartDistance, numArraysPerMerge) => {
     let mergedArrays = [];
 
@@ -23,7 +23,7 @@ const mergeArraysAndComputeMeans = (data, mergeTargetDistance, nextMergeStartDis
                     count ++;
                 };
             }
-            subArray.push(sum / (count));
+            subArray.push(count < 1 ? null : sum / (count));
         }
 
         mergedArrays.push(subArray)

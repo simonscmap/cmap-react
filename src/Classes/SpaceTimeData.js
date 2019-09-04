@@ -3,6 +3,9 @@ import generateSpatialArray from '../Utility/GenerateSpatialArray';
 import flattenArray from '../Utility/FlattenArray';
 import splitData from '../Utility/SplitData';
 import mergeArraysAndComputeMeans from '../Utility/MergeArraysAndComputeMeans';
+import mergeArrays from '../Utility/MergeArrays';
+
+import vizSubTypes from '../Enums/visualizationSubTypes';
 
 class SpaceTimeData {
     constructor(payload) {
@@ -14,6 +17,8 @@ class SpaceTimeData {
         this.variableValues = [];
         this.lonStart = null;
         this.latStart = null;
+        this.lonCount = null;
+        this.latCount = null;
     }
 
     add(row) {
@@ -36,60 +41,103 @@ class SpaceTimeData {
     finalize() {
         const spatialResolution = mapSpatialResolutionToNumber(this.metadata.spatialResolution);
 
-        // Arrays of lons and lats
-        this.lons = generateSpatialArray(this.lonStart, spatialResolution, this.parameters.lon2);
-        this.lats = generateSpatialArray(this.latStart, spatialResolution, this.parameters.lat2);
+        // Simple arrays of lats and lons
+        let lonsList = generateSpatialArray(this.lonStart, spatialResolution, this.parameters.lon2);
+        let latsList = generateSpatialArray(this.latStart, spatialResolution, this.parameters.lat2);
+
+        this.lonCount = lonsList.length;
+        this.latCount = latsList.length;
+
+        // Expanded arrays to be used in plots
+        let lats = [];
+        let lons = []
+
+        for(let i = 0; i < latsList.length; i ++){
+            for(let j = 0; j < lonsList.length; j++){
+                lats.push(latsList[i]);
+                lons.push(lonsList[j]);
+            }
+        }
+
+        this.lats = lats;
+        this.lons = lons;
     }
 
-    generatePlotData(splitByDate, splitByDepth) {
+    generatePlotData(subType, splitByDate, splitByDepth) {
         if(this.depths.size === 0) this.depths.add('Surface');
 
         // Intervals are the number of indices between each change for that parameter
         // Intervals can change if you split out of order
         const lonInterval = 1;
-        const latInterval = this.lons.length;
-        const depthInterval = latInterval * this.lats.length;
+        const latInterval = this.lonCount;
+        const depthInterval = latInterval * this.latCount;
         const dateInterval = depthInterval * this.depths.size;
 
         // an array of arrays containing variable values, each of which will become a chart
         var variableValueSubsets;
         
         variableValueSubsets = splitData(this.variableValues, dateInterval, this.dates.size);
-        variableValueSubsets = variableValueSubsets.map(subset => splitData(subset, depthInterval, this.depths.size))
+        variableValueSubsets = variableValueSubsets.map(subset => splitData(subset, depthInterval, this.depths.size));
         variableValueSubsets = flattenArray(variableValueSubsets);
 
-        // data, 
-        // mergeTargetDistance, 
-        // nextMergeStartDistance, 
-        // numArraysPerMerge, 
-
-        if(splitByDate && splitByDepth) {
-            // pass
-        } else if (splitByDate){
-            variableValueSubsets = mergeArraysAndComputeMeans(
-                variableValueSubsets, 
-                1, 
-                this.depths.size, 
-                this.depths.size
+        // Contour and heatmap compute mean variable values per lat and lon
+        // when not split by date and/or time
+        if(subType === vizSubTypes.contourMap || subType === vizSubTypes.heatmap) {
+            if(splitByDate && splitByDepth) {
+                // pass
+            } else if (splitByDate){
+                variableValueSubsets = mergeArraysAndComputeMeans(
+                    variableValueSubsets, 
+                    1, 
+                    this.depths.size, 
+                    this.depths.size
+                    );
+    
+            } else if (splitByDepth){
+                variableValueSubsets = mergeArraysAndComputeMeans(
+                    variableValueSubsets, 
+                    this.depths.size, 
+                    1, 
+                    this.dates.size
+                    );
+    
+            } else {
+                variableValueSubsets = mergeArraysAndComputeMeans(
+                    variableValueSubsets, 
+                    1, 
+                    variableValueSubsets.length, 
+                    variableValueSubsets.length
+                    );            
+            }
+        } 
+        
+        // Histograms split and aggregate without computing means
+        else if (subType === vizSubTypes.histogram) {
+            if(splitByDate && splitByDepth) {
+                // pass
+            } else if (splitByDate){
+                variableValueSubsets = mergeArrays(
+                    variableValueSubsets, 
+                    1,
+                    this.depths.size,
+                    this.depths.size
+                    );
+            } else if (splitByDepth){
+                variableValueSubsets = mergeArrays(
+                    variableValueSubsets,
+                    this.depths.size,
+                    1,
+                    this.dates.size
                 );
-
-        } else if (splitByDepth){
-            variableValueSubsets = mergeArraysAndComputeMeans(
-                variableValueSubsets, 
-                this.depths.size, 
-                1, 
-                this.dates.size
-                );
-
-        } else {
-            variableValueSubsets = mergeArraysAndComputeMeans(
-                variableValueSubsets, 
-                1, 
-                variableValueSubsets.length, 
-                variableValueSubsets.length
-                );            
+            } else {
+                variableValueSubsets = [this.variableValues];
+            }
         }
 
+        // Nothing here yet
+        else {}
+
+        console.log(variableValueSubsets);
         return variableValueSubsets;
     }    
 }

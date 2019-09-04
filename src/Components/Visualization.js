@@ -101,9 +101,6 @@ const parseDate = (date) => {
     var mm = date.getUTCMonth() + 1; // getMonth() is zero-based
     var dd = date.getUTCDate();
 
-    console.log(date.getUTCDate());
-    console.log(date.getDate());
-
     return [date.getUTCFullYear(),
         (mm>9 ? '' : '0') + mm,
         (dd>9 ? '' : '0') + dd
@@ -128,9 +125,9 @@ class Visualization extends Component {
             tableName: '',
             fields: null,
             depth1: '0',
-            depth2: '5',
+            depth2: '3',
             dt1: '2012-05-05',
-            dt2: '2012-05-23',
+            dt2: '2012-05-12',
             lat1: '38',
             lat2: '40',
             lon1: '-52',
