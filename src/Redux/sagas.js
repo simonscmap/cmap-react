@@ -120,7 +120,6 @@ function* storedProcedureRequest(action){
         if(result.variableValues.length > 0){
             yield put(visualizationActions.storedProcedureRequestSuccess());
             yield put(interfaceActions.snackbarOpen(`${action.payload.subType} ${action.payload.parameters.fields} is ready`));
-            console.log(action);
             yield put(visualizationActions.addChart({subType: action.payload.subType, data:result}));
            
         } else {

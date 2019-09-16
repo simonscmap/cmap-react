@@ -29,11 +29,11 @@ const buttonProps = {
     variant: 'contained'
 }
 
-const TimeSeriesChart = (props) => {
+const DepthProfileChart = (props) => {
 
     const { classes } = props;
     const { data, subType } = props.chart;
-    const { stds, variableValues, dates, parameters, metadata, zMin, zMax } = data;
+    const { stds, variableValues, depths, parameters, metadata } = data;
 
     return (
         <div>
@@ -47,7 +47,7 @@ const TimeSeriesChart = (props) => {
 
                 data={[
                   {
-                  x: dates,
+                  x: depths,
                   y: variableValues,
                   error_y: {
                     type: 'data',
@@ -63,19 +63,19 @@ const TimeSeriesChart = (props) => {
                 ]}
 
                 layout= {{
-                    title: `${parameters.fields}[${metadata.Unit}]  ${parameters.dt1} to ${parameters.dt2}`,
+                    title: `${parameters.fields}[${metadata.Unit}]  ${parameters.depth1} to ${parameters.depth2} meters`,
 
                     paper_bgcolor: colors.backgroundGray,
                     font: {
                         color: '#ffffff'
                     },
                   xaxis: {
-                      title: 'Time',
+                      title: 'Depth[m]',
                       color: '#ffffff',
                       exponentformat: 'power'
                     },
                   yaxis: {
-                      title: parameters.fields,
+                      title: `${parameters.fields}[${metadata.Unit}]`,
                       color: '#ffffff',
                       exponentformat: 'power'
                     },
@@ -101,4 +101,4 @@ const TimeSeriesChart = (props) => {
     )
 }
 
-export default withStyles(styles)(TimeSeriesChart);
+export default withStyles(styles)(DepthProfileChart);

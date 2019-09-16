@@ -1,9 +1,13 @@
 import ndjson from 'ndjson';
+import CSVParser from 'csv-parse';
 
 import { apiUrl } from './config';
 import SpaceTimeData from './Classes/SpaceTimeData';
 
 import storedProcedures from './Enums/storedProcedures';
+import TimeSeriesData from './Classes/TimeSeriesData';
+import DepthProfileData from './Classes/DepthProfileData';
+import SectionMapData from './Classes/SectionMapData';
 
 const fetchOptions = {
     credentials: 'include'
@@ -57,12 +61,20 @@ api.catalog.retrieve = async() => {
     const decoder = new TextDecoder();
     let catalog = [];
 
-    let ndjsonParser = ndjson.parse();
-    ndjsonParser.on('data', data => {
-        catalog.push(data);
+    // let ndjsonParser = ndjson.parse();
+    // ndjsonParser.on('data', data => {
+    //     catalog.push(data);
+    // })
+    let csvParser = CSVParser({columns:true});
+
+    csvParser.on('readable', function(){
+        let record
+        while (record = csvParser.read()) {
+            catalog.push(record)
+        }
     })
 
-    let response = await fetch(apiUrl + '/catalog/', fetchOptions);
+    let response = await fetch(apiUrl + '/catalog/new', fetchOptions);
 
     if(!response.ok) return false;
 
@@ -76,7 +88,7 @@ api.catalog.retrieve = async() => {
             readerIsDone = true;
         }
         else {
-            ndjsonParser.write(decoder.decode(chunk.value));
+            csvParser.write(decoder.decode(chunk.value));
         };
     }
     return catalog;
@@ -92,38 +104,37 @@ api.user.keyCreation = async(description) => {
     return await fetch(apiUrl + `/user/generateapikey?description=${description.trim()}`, fetchOptions);
 }
 
-api.visualization.queryRequest = async(query) => {
-    const decoder = new TextDecoder();
-    let vizData = [];
+// api.visualization.queryRequest = async(query) => {
+//     const decoder = new TextDecoder();
+//     let vizData = [];
 
-    let ndjsonParser = ndjson.parse();
+//     let ndjsonParser = ndjson.parse();
 
-    ndjsonParser.on('data', data => {
-        vizData.push(data);
-    })
+//     ndjsonParser.on('data', data => {
+//         vizData.push(data);
+//     })
 
-    let response = await fetch(apiUrl + '/dataretrieval/query?query=' + query, fetchOptions);
+//     let response = await fetch(apiUrl + '/dataretrieval/query?query=' + query, fetchOptions);
 
-    if(!response.ok) return false;
+//     if(!response.ok) return false;
 
-    let body = response.body;
-    let reader = body.getReader();
-    let readerIsDone = false;
+//     let body = response.body;
+//     let reader = body.getReader();
+//     let readerIsDone = false;
 
-    while(!readerIsDone){
-        let chunk = await reader.read();
-        if(chunk.done) {
-            readerIsDone = true;
-        }
-        else {
-            ndjsonParser.write(decoder.decode(chunk.value));
-        };
-    }
-    return vizData;
-}
+//     while(!readerIsDone){
+//         let chunk = await reader.read();
+//         if(chunk.done) {
+//             readerIsDone = true;
+//         }
+//         else {
+//             ndjsonParser.write(decoder.decode(chunk.value));
+//         };
+//     }
+//     return vizData;
+// }
 
 api.visualization.storedProcedureRequest = async(payload) => {
-    console.log(payload);
     const decoder = new TextDecoder();
     var vizData;
 
@@ -131,19 +142,35 @@ api.visualization.storedProcedureRequest = async(payload) => {
         case storedProcedures.spaceTime:
             vizData = new SpaceTimeData(payload);
             break;
+
+        case storedProcedures.timeSeries:
+            vizData = new TimeSeriesData(payload);
+            break;
+
+        case storedProcedures.depthProfile:
+            vizData = new DepthProfileData(payload);
+            break;
+
+        case storedProcedures.sectionMap:
+            vizData = new SectionMapData(payload);
+            break;
+
         default:
-            console.log('Default sproc name?');
+            console.log('Unknown sproc name');
     }
 
-    let ndjsonParser = ndjson.parse();
-
-    ndjsonParser.on('data', data => {
-        vizData.add(data);
-    })
-
-    let response = await fetch(apiUrl + '/dataretrieval/sp?' + storedProcedureParametersToUri(payload.parameters), fetchOptions);
+    let response = await fetch(apiUrl + '/api/data/sp?' + storedProcedureParametersToUri(payload.parameters), fetchOptions);
 
     if(!response.ok) return false;
+
+    let csvParser = CSVParser({from: 2});
+
+    csvParser.on('readable', function(){
+        let record;
+        while (record = csvParser.read()) {
+            vizData.add(record);
+        }
+    })
 
     let body = response.body;
     let reader = body.getReader();
@@ -155,13 +182,16 @@ api.visualization.storedProcedureRequest = async(payload) => {
             readerIsDone = true;
         }
         else {
-            ndjsonParser.write(decoder.decode(chunk.value));
+            csvParser.write(decoder.decode(chunk.value));
         };
     }
 
     vizData.finalize();
+    // console.log(vizData);
+    // throw new Error();
     return vizData;
 }
+
 
 api.visualization.getTableStats = async(tableName) => {
     let response = await fetch(apiUrl + '/dataretrieval/tablestats?table=' + tableName, fetchOptions);

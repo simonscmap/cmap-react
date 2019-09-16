@@ -15,7 +15,7 @@ import DebugButton from './DebugButton';
 import ClearVisualizationsButton from  './ClearVisualizationsButton';
 
 import { showLoginDialog, snackbarOpen } from '../Redux/actions/ui';
-import { queryRequestSend, storedProcedureRequestSend, getTableStats } from '../Redux/actions/visualization';
+import { queryRequestSend, storedProcedureRequestSend } from '../Redux/actions/visualization';
 import { retrievalRequestSend } from '../Redux/actions/catalog';
 
 import states from '../asyncRequestStates';
@@ -73,7 +73,6 @@ const mapStateToProps = (state, ownProps) => ({
     charts: state.charts,
     data: state.data,
     storedProcedureRequestState: state.storedProcedureRequestState,
-    tableStats: state.tableStats
 })
 
 const mapDispatchToProps = {
@@ -82,7 +81,6 @@ const mapDispatchToProps = {
     retrievalRequestSend,
     storedProcedureRequestSend,
     snackbarOpen,
-    getTableStats
 }
 
 const styles = (theme) => ({
@@ -263,9 +261,9 @@ class Visualization extends Component {
     // Update the "fields" state piece when the variables input changes
     // Field in this case refers to a react-select option, which contains catalog metadata
     updateFields = (fields) => {
+        console.log('UpdateFields')
         if(fields) {
-            this.props.getTableStats(fields.data.tableName);
-            this.setState({...this.state, spParams: {...this.state.spParams, fields, tableName: fields.data.tableName}});
+            this.setState({...this.state, spParams: {...this.state.spParams, fields, tableName: fields.data.Table_Name}});
         } else {
             this.setState({...this.state, spParams: {...this.state.spParams, fields, tableName: ''}})
         }
@@ -308,7 +306,7 @@ class Visualization extends Component {
     }
 
     render(){
-        const { classes, tableStats } = this.props;
+        const { classes } = this.props;
 
         // const { lon1, lon2, lat1, lat2 } = this.state;
 

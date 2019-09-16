@@ -1,3 +1,5 @@
+import { quantile } from 'd3-array';
+
 import mapSpatialResolutionToNumber from '../Utility/MapSpatialResolutionToNumber';
 import generateSpatialArray from '../Utility/GenerateSpatialArray';
 import flattenArray from '../Utility/FlattenArray';
@@ -6,6 +8,7 @@ import mergeArraysAndComputeMeans from '../Utility/MergeArraysAndComputeMeans';
 import mergeArrays from '../Utility/MergeArrays';
 
 import vizSubTypes from '../Enums/visualizationSubTypes';
+
 
 class SpaceTimeData {
     constructor(payload) {
@@ -19,27 +22,31 @@ class SpaceTimeData {
         this.latStart = null;
         this.lonCount = null;
         this.latCount = null;
+        this.zMin = null;
+        this.zMax = null;
+        this.depthIndexAdjust = null;
     }
 
     add(row) {
         // Only on first row
         if(this.hasDepth === null) {
-            this.hasDepth = Boolean(row.depth);
-            this.lonStart = row.lon;
-            this.latStart = row.lat;
+            this.hasDepth = row.length === 5;
+            this.lonStart = parseFloat(row[2]);
+            this.latStart = parseFloat(row[1]);
+            this.depthIndexAdjust = this.hasDepth ? 1 : 0;
         }
 
         if(this.hasDepth){
-            this.depths.add(row.depth);
+            this.depths.add(row[3]);
         }
 
-        this.dates.add(row.time);
+        this.dates.add(row[0]);
 
-        this.variableValues.push(row[this.parameters.fields])
+        this.variableValues.push(parseFloat(row[3 + this.depthIndexAdjust]));
     }
 
     finalize() {
-        const spatialResolution = mapSpatialResolutionToNumber(this.metadata.spatialResolution);
+        const spatialResolution = mapSpatialResolutionToNumber(this.metadata.Spatial_Resolution);
 
         // Simple arrays of lats and lons
         let lonsList = generateSpatialArray(this.lonStart, spatialResolution, this.parameters.lon2);
@@ -48,10 +55,20 @@ class SpaceTimeData {
         this.lonCount = lonsList.length;
         this.latCount = latsList.length;
 
+        console.log('Calculating quantiles');
+        let start = new Date();
+        this.zMin = quantile(this.variableValues, .08);
+        console.log(new Date() - start);
+        start = new Date();
+        this.zMax = quantile(this.variableValues, .92);
+        console.log(new Date() - start);
+
         // Expanded arrays to be used in plots
         let lats = [];
         let lons = []
 
+        console.log('Generating spatial arrays');
+        start = new Date();
         for(let i = 0; i < latsList.length; i ++){
             for(let j = 0; j < lonsList.length; j++){
                 lats.push(latsList[i]);
@@ -61,6 +78,7 @@ class SpaceTimeData {
 
         this.lats = lats;
         this.lons = lons;
+        console.log(new Date() - start);
     }
 
     generatePlotData(subType, splitByDate, splitByDepth) {
@@ -137,7 +155,6 @@ class SpaceTimeData {
         // Nothing here yet
         else {}
 
-        console.log(variableValueSubsets);
         return variableValueSubsets;
     }    
 }

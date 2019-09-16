@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
+import { Link as RouterLink } from 'react-router-dom';
+
+import Link from '@material-ui/core/Link';
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
@@ -71,7 +74,7 @@ class LoginDialog extends Component{
                 <DialogTitle id="form-dialog-title">Login</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                    Please enter your username and password to log in.
+                    Please enter your username and password, or <Link onClick={this.handleClose} component={RouterLink} to={{pathname: '/register'}}>Register.</Link>
                     </DialogContentText>
                     <form onSubmit={e => (e.preventDefault())}>
                         <TextField

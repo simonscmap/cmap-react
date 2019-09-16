@@ -31,12 +31,10 @@ class Home extends Component {
     }
 
     render(){
-        if(!this.props.user) return <LoginRequiredPrompt/>;
-
         return (
             <React.Fragment>
                 <TopNavBar/>
-                {this.props.user && <ApiKeyManagement/>}
+                {this.props.user ? <ApiKeyManagement/> : <LoginRequiredPrompt/>}
             </React.Fragment>
             
         )

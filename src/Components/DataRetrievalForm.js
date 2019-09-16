@@ -99,7 +99,6 @@ const mapStateToProps = (state, ownProps) => ({
     storedProcedureRequestState: state.storedProcedureRequestState,
     catalog: state.catalog,
     catalogRequestState: state.catalogRequestState,
-    tableStats: state.tableStats
 })
 
 const mapDispatchToProps = {
@@ -163,15 +162,15 @@ class DataRetrievalForm extends Component {
     constructor(props){
         super(props);
 
-        var search = new JsSearch.Search('variable');
+        var search = new JsSearch.Search('Variable');
         search.searchIndex = new JsSearch.UnorderedSearchIndex();
-        search.addIndex('variable');
-        search.addIndex('make');
-        search.addIndex('sensor');
-        search.addIndex('dataSource');
-        search.addIndex('processLevel');
-        search.addIndex('longName');
-        search.addIndex('keywords');
+        search.addIndex('Variable');
+        search.addIndex('Make');
+        search.addIndex('Sensor');
+        search.addIndex('Data_Source');
+        search.addIndex('Process_Level');
+        search.addIndex('Long_Name');
+        search.addIndex('Keywords');
         if(props.catalog) search.addDocuments(props.catalog);
 
         this.state = {
@@ -228,8 +227,8 @@ class DataRetrievalForm extends Component {
 
     getSelectOptionsFromCatalogItems = (items) => {
         return items.map(item => ({
-            value: item.variable,
-            label: item.variable === item.longName ? item.variable : item.variable + ' : ' + item.longName,
+            value: item.Variable,
+            label: item.Variable === item.Long_Name ? item.Variable : item.Variable + ' : ' + item.Long_Name,
             data: item
         })) || []
     }
@@ -263,19 +262,13 @@ class DataRetrievalForm extends Component {
         const options = searchField && catalog ? this.getSelectOptionsFromCatalogItems(search.search(searchField)) 
             : catalog ? this.getSelectOptionsFromCatalogItems(catalog) 
             : []
-                
-        const tableStats = {
-            tableName,
-            tableStats: tableName && this.props.tableStats[tableName],
-            variableInfo: fields && fields.data
-        }
 
         return (
             <div className={this.props.showUI ? '' : classes.displayNone}>
                 <TableStatsDialog
                     open={this.state.tableStatsDialogIsOpen}
                     onClose={this.handleTableStatsDialogClose}
-                    {...tableStats}
+                    data={fields && fields.data}
                 />
                 <Paper className={classes.dataRetrievalFormPaper}>
                     <Grid container spacing={2}>
@@ -330,20 +323,20 @@ class DataRetrievalForm extends Component {
 
                                     option: (provided, state) => ({...provided,
                                         backgroundColor: '#424242',
-                                        color: state.data.data.sensor === 'Satellite' ? '#1acf02' : state.data.data.sensor === 'Blend' ? '#fce803' : '#009fd4',
+                                        color: state.data.data.Sensor === 'Satellite' ? '#1acf02' : state.data.data.Sensor === 'Blend' ? '#fce803' : '#009fd4',
                                         '&:hover': { backgroundColor: '#383838' },
                                         '&:after': { 
-                                            content: state.data.data.sensor === 'Satellite' ? "'\f7bf'" : state.data.data.sensor === 'Blend' ? "'\f109'" : "'\f21a'",
+                                            content: state.data.data.Sensor === 'Satellite' ? "'\f7bf'" : state.data.data.Sensor === 'Blend' ? "'\f109'" : "'\f21a'",
                                             float: 'left'
                                         },
                                     }),
 
                                     singleValue: (provided, state) => ({...provided,
-                                        fontFamily: state.data.data.sensor === 'Satellite' ? 'Font Awesome 5 Free': '"Lato", sans-serif',
-                                        color: state.data.data.sensor === 'Satellite' ? '#1acf02' : state.data.data.sensor === 'Blend' ? '#fce803' : '#009fd4',
+                                        fontFamily: state.data.data.Sensor === 'Satellite' ? 'Font Awesome 5 Free': '"Lato", sans-serif',
+                                        color: state.data.data.Sensor === 'Satellite' ? '#1acf02' : state.data.data.Sensor === 'Blend' ? '#fce803' : '#009fd4',
                                         paddingRight: '20px',
                                         '&:after': { 
-                                            content: state.data.data.sensor === 'Satellite' ? "'\f7bf'" : state.data.data.sensor === 'Blend' ? "'\f109'" : "'\f21a'",
+                                            content: state.data.data.Sensor === 'Satellite' ? "'\f7bf'" : state.data.data.Sensor === 'Blend' ? "'\f109'" : "'\f21a'",
                                             fontSize: '18px',
                                             position: 'relative',
                                             left: '8px',
@@ -365,7 +358,7 @@ class DataRetrievalForm extends Component {
                         
                         <Grid item xs={1}>
                             <IconButton
-                                disabled={!this.props.tableStats[this.props.tableName]}
+                                disabled={this.props.fields === null}
                                 onClick={this.handleTableStatsDialogOpen}
                             >
                                 <LibraryBooks/>

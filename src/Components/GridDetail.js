@@ -16,13 +16,13 @@ import { apiUrl } from '../config';
 const imageSource = apiUrl + '/images/catalog/'
 
 const tableMapping = [
-    ['Variable Name', 'variable'],
-    ['Spatial Resolution', 'spatialResolution'],
-    ['Temporal Resolution', 'temporalResolution'],
-    ['Unit', 'unit'],
-    ['Process Level', 'processLevel'],
-    ['Study Domain', 'studyDomain'],
-    ['SQL Table Name', 'tableName']
+    ['Variable Name', 'Variable'],
+    ['Spatial Resolution', 'Spatial_Resolution'],
+    ['Temporal Resolution', 'Temporal_Resolution'],
+    ['Unit', 'Unit'],
+    ['Process Level', 'Process_Level'],
+    ['Study Domain', 'Study_Domain'],
+    ['SQL Table Name', 'Table_Name']
 ]
 
 const styles = (theme) => ({
@@ -76,7 +76,6 @@ const styles = (theme) => ({
 
 const GridDetail = (props) => {
     const {classes} = props;
-    console.log(props.data);
     return (
         <div className={classes.wrapper}>
             <Grid container spacing={8} className={classes.gridClass}>
@@ -86,13 +85,13 @@ const GridDetail = (props) => {
                 <Grid item xs={4} className={classes.gridItem}>
                     <div className={classes.datasetDescriptionWrapper}>
                         <Typography variant='body2' className={classes.datasetDescription}>
-                            {props.data.datasetDescription}
+                            {props.data.Dataset_Description}
                         </Typography>
                         <Typography variant='caption'>
-                            Source: {props.data.dataSource}
+                            Source: {props.data.Data_Source}
                         </Typography> <br></br>
                         <Typography variant='caption'>
-                            Distributor: {props.data.distributor}
+                            Distributor: {props.data.Distributor}
                         </Typography>
                     </div>
                 </Grid>

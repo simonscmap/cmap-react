@@ -16,74 +16,74 @@ const styles = theme => ({
 })
 
 const TableStatsDialog = (props) => {
-    const { classes, variableInfo, tableStats } = props;
+    const { classes, data } = props;
 
-    if(!variableInfo || !tableStats) return '';
+    if(!data) return '';
 
     return (
         <Dialog
             open={props.open}
             onClose={props.onClose}
         >
-            <DialogTitle>{variableInfo.variable}</DialogTitle>
+            <DialogTitle>{data.Variable}</DialogTitle>
             <DialogContent>
                 <DialogContentText>
-                    {variableInfo.longName}
+                    {data.Long_Name}
                 </DialogContentText>
                 <Table size='small'>
                     <TableBody>
                             <TableRow>
                                 <TableCell>Sensor</TableCell>
-                                <TableCell>{variableInfo.sensor}</TableCell>
+                                <TableCell>{data.Sensor}</TableCell>
                             </TableRow>
 
                             <TableRow>
                                 <TableCell>Spatial Resolution</TableCell>
-                                <TableCell>{variableInfo.spatialResolution}</TableCell>
+                                <TableCell>{data.Spatial_Resolution}</TableCell>
                             </TableRow>
 
                             <TableRow>
                                 <TableCell>Temporal Resolution</TableCell>
-                                <TableCell>{variableInfo.temporalResolution}</TableCell>
+                                <TableCell>{data.Temporal_Resolution}</TableCell>
                             </TableRow>
 
                             <TableRow>
                                 <TableCell>Temporal Coverage Begin</TableCell>
-                                <TableCell>{tableStats.time && tableStats.time.min ? tableStats.time.min.slice(0,10) : 'Irregular'}</TableCell>
+                                <TableCell>{data.Time_Min ? data.Time_Min.slice(0,10) : 'Irregular'}</TableCell>
                             </TableRow>
 
                             <TableRow>
                                 <TableCell>Temporal Coverage End</TableCell>
-                                <TableCell>{tableStats.time && tableStats.time.max ? tableStats.time.max.slice(0,10) : 'Irregular'}</TableCell>
+                                <TableCell>{data.Time_Max ? data.Time_Max.slice(0,10) : 'Irregular'}</TableCell>
                             </TableRow>
 
                             <TableRow>
                                 <TableCell>Lat Coverage Begin</TableCell>
-                                <TableCell>{tableStats.lat.min}</TableCell>
+                                <TableCell>{data.Lat_Min}</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell>Lat Coverage End</TableCell>
-                                <TableCell>{tableStats.lat.max}</TableCell>
+                                <TableCell>{data.Lat_Max}</TableCell>
                             </TableRow>
 
                             <TableRow>
                                 <TableCell>Lon Coverage Begin</TableCell>
-                                <TableCell>{tableStats.lon.min}</TableCell>
+                                <TableCell>{data.Lon_Min}</TableCell>
                             </TableRow>
 
                             <TableRow>
                                 <TableCell>Lon Coverage End</TableCell>
-                                <TableCell>{tableStats.lon.max}</TableCell>
+                                <TableCell>{data.Lon_Max}</TableCell>
                             </TableRow>
 
                             <TableRow>
                                 <TableCell>Depth Coverage Begin</TableCell>
-                                <TableCell>{tableStats.depth.min === null ? 'Surface Only' : tableStats.depth.min}</TableCell>
+                                <TableCell>{data.Depth_Min || 'Surface Only'}</TableCell>
                             </TableRow>
 
                             <TableRow>
                                 <TableCell>Depth Coverage End</TableCell>
-                                <TableCell>{tableStats.depth.min === null ? 'Surface Only' : tableStats.depth.max}</TableCell>
+                                <TableCell>{data.Depth_Max || 'Surface Only'}</TableCell>
                             </TableRow>
                     </TableBody>
                 </Table>

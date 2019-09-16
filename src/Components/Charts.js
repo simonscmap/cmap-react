@@ -12,6 +12,9 @@ import colors from '../Enums/colors';
 import storedProcedures from '../Enums/storedProcedures';
 
 import SpaceTimeChart from './ChartTypes/SpaceTimeChart';
+import TimeSeriesChart from './ChartTypes/TimeSeriesChart';
+import DepthProfileChart from './ChartTypes/DepthProfileChart';
+import SectionMapChart from './ChartTypes/SectionMapChart';
 
 const mapStateToProps = (state, ownProps) => ({
     charts: state.charts
@@ -121,10 +124,19 @@ class Charts extends Component {
                 {charts.map((chart, index) => {
                     switch(chart.data.parameters.spName){
                         case storedProcedures.spaceTime:
-                            return <SpaceTimeChart chart={chart} key={index}/>
+                          return <SpaceTimeChart chart={chart} key={index}/>
 
+                        case storedProcedures.timeSeries:
+                          return <TimeSeriesChart chart={chart} key={index}/>
+
+                        case storedProcedures.depthProfile:
+                          return <DepthProfileChart chart={chart} key={index}/>
+
+                        case storedProcedures.sectionMap:
+                          return <SectionMapChart chart={chart} key={index}/>
+                        
                         default:
-                            break;
+                          break;
                   }
                 })}
             </div>

@@ -22,7 +22,7 @@ const detailCellRendererParams = {
 const columnDefs = [
   {
     headerName: "Long Name", 
-    field: "longName",
+    field: "Long_Name",
     sortable: true,
     filter: true,
     tooltipField: 'longName',
@@ -33,14 +33,14 @@ const columnDefs = [
   },
   {
     headerName: "Variable", 
-    field: "variable",
+    field: "Variable",
     sortable: true,
     filter: true,
     hide: true
   },
   {
     headerName: "Table Name", 
-    field: "tableName",
+    field: "Table_Name",
     sortable: true,
     filter: true,
     hide: true,
@@ -48,7 +48,7 @@ const columnDefs = [
   }, 
   {
     headerName: "Dataset Name", 
-    field: "datasetName",
+    field: "Dataset_Name",
     sortable: true,
     filter: true,
     enableRowGroup: true,
@@ -56,21 +56,21 @@ const columnDefs = [
   }, 
   {
     headerName: "Make", 
-    field: "make",
+    field: "Make",
     sortable: true,
     filter: true,
     enableRowGroup: true
   },
   {
     headerName: "Sensor", 
-    field: "sensor",
+    field: "Sensor",
     sortable: true,
     filter: true,
     enableRowGroup: true
   }, 
   {
     headerName: "Study Domain", 
-    field: "studyDomain",
+    field: "Study_Domain",
     sortable: true,
     filter: true,
     hide: true,
@@ -78,7 +78,7 @@ const columnDefs = [
   }, 
   {
     headerName: "Process Level", 
-    field: "processLevel",
+    field: "Process_Level",
     sortable: true,
     filter: true,
     hide: true,
@@ -86,7 +86,7 @@ const columnDefs = [
   },
   {
     headerName: "Spatial Resolution", 
-    field: "spatialResolution",
+    field: "Spatial_Resolution",
     sortable: true,
     filter: true,
     hide: true,
@@ -94,7 +94,7 @@ const columnDefs = [
   },
   {
     headerName: "Temporal Resolution", 
-    field: "temporalResolution",
+    field: "Temporal_Resolution",
     sortable: true,
     filter: true,
     hide: true,
@@ -102,14 +102,14 @@ const columnDefs = [
   },
   {
     headerName: "Unit", 
-    field: "unit",
+    field: "Unit",
     sortable: true,
     filter: true,
     hide: true
   },
   {
     headerName: "Key Words",
-    field: 'keywords',
+    field: 'Keywords',
     hide: true
   }
 ]

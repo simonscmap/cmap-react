@@ -9,8 +9,6 @@ import grey from '@material-ui/core/colors/grey';
 import './App.scss';
 import Routes from './routes';
 
-import GlobalUIComponentWrapper from './Components/GlobalUIComponentWrapper';
-
 import colors from './Enums/colors';
 
 const theme = createMuiTheme({
@@ -117,7 +115,6 @@ class App extends Component {
       <MuiPickersUtilsProvider utils={DateFnsUtils}>
         <div className="App">
           <MuiThemeProvider theme={theme}>
-            <GlobalUIComponentWrapper/>
             <Routes />
           </MuiThemeProvider>
         </div>
