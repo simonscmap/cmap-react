@@ -31,6 +31,16 @@ class TimeSeriesData {
     generatePlotData() {
         return this.variableValues;
     }    
+
+    generateCsv() {
+        let csvString = `time,${this.parameters.fields},${this.parameters.fields}_std`;
+
+        for(let i = 0; i < this.variableValues.length; i++){
+            csvString += `\n${this.dates[i]},${isNaN(this.variableValues[i]) ? '' : this.variableValues[i]},${isNaN(this.stds[i]) ? '' : this.stds[i]}`;
+        }
+
+        return csvString;
+    }
 }
 
 export default TimeSeriesData;

@@ -13,16 +13,56 @@ import Tab from '@material-ui/core/Tab';
 
 import { showLoginDialog, restoreInterfaceDefaults, snackbarOpen } from '../Redux/actions/ui';
 import { logOut } from '../Redux/actions/user';
+import { Typography } from '@material-ui/core';
 
 const styles = theme => ({
-    inlineBlock: {
-        display: 'inline-block'
+    appBar: {
+        backgroundColor: 'transparent',
+        boxShadow: 'none'
+    },
+
+    toolBar: {
+        backgroundColor: 'transparent',
+        boxShadow: 'none'
+    },
+
+    navWrapper: {
+        position: 'fixed',
+        width: '100vw',
+        top: '0px',
+        backgroundColor: 'transparent',
+        zIndex: 50,
+        paddingTop: '10px',
+        paddingLeft: '20px',
+        textAlign: 'left',
+        boxSizing: 'border-box'
+    },
+
+    navLink: {
+        cursor: 'pointer',
+        marginRight: 20,
+        color: 'white',
+        '&:hover': {
+            textDecoration: 'underline'
+        },
+        fontSize: '13px',
+        fontWeight: 100,
+        display: 'inline-block'     
+    },
+
+    rightNavLink: {
+        float: 'right'
+    },
+
+    rightLinkWrapper: {
+        display:'inline-block',
+        textAlign: 'right'
     }
 })
 
-const mapStateToProps = (state, ownProps) => {
-    return state;
-}
+const mapStateToProps = (state, ownProps) => ({
+    user: state.user
+})
 
 const mapDispatchToProps = {
     showLoginDialog,
@@ -60,43 +100,59 @@ class TopNavBar extends Component {
         })
     }
 
-    getCurrentPath = () => {
-        switch(this.props.location.pathname){
-            case '/apikeymanagement': return 0;
-            case '/': return 1;
-            case '/visualization': return 2;
-            case '/register': return 3;
-            default: return 0;
-        }
-    };
+    // getCurrentPath = () => {
+    //     switch(this.props.location.pathname){
+    //         case '/apikeymanagement': return 1;
+    //         case '/catalog': return 2;
+    //         case '/visualization': return 3;
+    //         default: return 0;
+    //     }
+    // };
 
-    // Debug button
-    beepBoop = () => {
-        console.log(this.props);
-        Cookies.set('hi','there');
-        Cookies.get();
-    };
+    handleNavigate = (route) => {
+        this.props.restoreInterfaceDefaults()
+        this.props.history.push(route);
+    }
+
+    handleOutsideNavigate = (url) => {
+        window.open(url, '_blank')
+    }
 
     render(){
-
-        // const { classes } = this.props;
+        const { classes, history } = this.props;
+        const { pathname } = history.location;
 
         return (
-            <AppBar position="sticky">
-                <Toolbar>
-                    <Tabs value={this.getCurrentPath() || 0} onChange={this.handleChange}>
-                        <Tab key='0' component={Link} to={{pathname: '/apikeymanagement'}} label='API Keys' onClick={this.props.restoreInterfaceDefaults}/>
-                        <Tab key='1' component={Link} to={{pathname: '/'}} label='Catalog' onClick={this.props.restoreInterfaceDefaults}/>
-                        <Tab key='2' component={Link} to={{pathname: '/visualization'}} label='Visualization' onClick={this.props.restoreInterfaceDefaults}/>
-                        {this.props.user ? '' : <Tab key='3' component={Link} to={{pathname: '/register'}} label='Register' onClick={this.props.restoreInterfaceDefaults}/>}
-                        {this.props.user ? '' : <Tab key='4' label='Log In' onClick={this.props.showLoginDialog}/>}
-                        {this.props.user ? <Tab key='5' label={`Welcome ${this.props.user.firstName} ${this.props.user.lastName}!`}/> : ''}
-                        {this.props.user ? <Tab key='4' label='Log Out' onClick={this.handleLogOut}/> : ''}                        
-                        <Tab key='6' label='Debug' onClick={this.beepBoop}/>
-                    </Tabs>                    
-                </Toolbar>
-                {/* <LoginDialog clearState={this.clearState} username={this.state.username} password={this.state.password} handleChange={this.handleChange}/> */}
-            </AppBar>            
+            // <AppBar position="fixed" className={classes.appBar}>
+            //     <Toolbar>
+            //         {/* <Tabs value={this.getCurrentPath() || 0} onChange={this.handleChange}>
+            //             <Tab key='0' component={Link} to={{pathname: '/'}} label='Home' onClick={this.props.restoreInterfaceDefaults}/>
+            //             <Tab key='1' component={Link} to={{pathname: '/apikeymanagement'}} label='API Keys' onClick={this.props.restoreInterfaceDefaults}/>
+            //             <Tab key='2' component={Link} to={{pathname: '/catalog'}} label='Catalog' onClick={this.props.restoreInterfaceDefaults}/>
+            //             <Tab key='3' component={Link} to={{pathname: '/visualization'}} label='Visualization' onClick={this.props.restoreInterfaceDefaults}/>
+            //             {this.props.user ? '' : <Tab key='4' component={Link} to={{pathname: '/register'}} label='Register' onClick={this.props.restoreInterfaceDefaults}/>}
+            //             {this.props.user ? '' : <Tab key='5' label='Log In' onClick={this.props.showLoginDialog}/>}
+            //             {this.props.user ? <Tab key='6' label={`Welcome ${this.props.user.firstName} ${this.props.user.lastName}!`}/> : ''}
+            //             {this.props.user ? <Tab key='7' label='Log Out' onClick={this.handleLogOut}/> : ''}                        
+            //         </Tabs>                     */}
+            //         {/* <Link label='Home' to={{pathname: '/'}} onClick={this.props.restoreInterfaceDefaults}/>
+            //         <Link label='API Keys' to={{pathname: '/apikeymanagement'}} onClick={this.props.restoreInterfaceDefaults}/>
+            //         <Link label='Catalog' to={{pathname: '/catalog'}} onClick={this.props.restoreInterfaceDefaults}/>
+            //         <Link label='Visualization' to={{pathname: '/visualization'}} onClick={this.props.restoreInterfaceDefaults}/> */}
+            //         <Typography variant='body2' onClick={() => this.handleNavigate('/')} className={classes.navLink}>Home</Typography>
+            //         <Typography variant='body2' onClick={() => this.handleNavigate('/catalog')} className={classes.navLink}>Catalog</Typography>
+            //         <Typography variant='body2' onClick={() => this.handleNavigate('/apikeymanagement')} className={classes.navLink}>API Keys</Typography>
+            //     </Toolbar>
+            // </AppBar>    
+            <div className={classes.navWrapper}>
+                <Typography variant='caption' onClick={() => this.handleNavigate('/')} className={classes.navLink}>Home</Typography>
+                <Typography variant='caption' onClick={() => this.handleNavigate('/catalog')} className={classes.navLink}>Catalog</Typography>
+                {pathname !== '/visualization' && <Typography variant='caption' onClick={() => this.handleNavigate('/apikeymanagement')} className={classes.navLink}>API Keys</Typography>}
+                {pathname !== '/visualization' && <Typography variant='caption' onClick={() => this.handleNavigate('/visualization')} className={classes.navLink}>Visualization</Typography>}
+                {this.props.user && <Typography variant='caption' onClick={() => this.handleLogOut()} className={`${classes.navLink} ${pathname === '/visualization' ? '' : classes.rightNavLink}`}>Log Out</Typography>}
+                {(!this.props.user && pathname !== '/visualization') && <Typography variant='caption' onClick={() => this.props.showLoginDialog()} className={`${classes.navLink} ${classes.rightNavLink}`}>Log In</Typography>}
+                {(!this.props.user && pathname !== '/visualization') && <Typography variant='caption' onClick={() => this.handleNavigate('/register')} className={`${classes.navLink} ${classes.rightNavLink}`}>Register</Typography>}
+            </div>        
         )
     }
 }

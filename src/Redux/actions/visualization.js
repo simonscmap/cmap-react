@@ -95,3 +95,48 @@ export const storeTableStats = (tableStats) => ({
         tableStats
     }
 })
+
+export const cruiseTrajectoryRequestSend = (id) => ({
+    type: visualizationActionTypes.CRUISE_TRAJECTORY_REQUEST_SEND,
+    payload: {
+        id
+    }
+})
+
+export const cruiseTrajectoryRequestSuccess = (trajectory) => ({
+    type: visualizationActionTypes.CRUISE_TRAJECTORY_REQUEST_SUCCESS,
+    payload: {
+        trajectory
+    }
+})
+
+export const cruiseTrajectoryRequestFailure = () => ({
+    type: visualizationActionTypes.CRUISE_TRAJECTORY_REQUEST_FAILURE,
+})
+
+export const cruiseTrajectoryRequestProcessing = () => ({
+    type: visualizationActionTypes.CRUISE_TRAJECTORY_REQUEST_PROCESSING,
+})
+
+export const cruiseTrajectoryClear = () => ({
+    type: visualizationActionTypes.CRUISE_TRAJECTORY_CLEAR
+})
+
+export const cruiseListRequestSend = (id) => ({
+    type: visualizationActionTypes.CRUISE_LIST_REQUEST_SEND,
+})
+
+export const cruiseListRequestSuccess = (cruiseList) => ({
+    type: visualizationActionTypes.CRUISE_LIST_REQUEST_SUCCESS,
+    payload: {
+        cruiseList
+    }
+})
+
+export const cruiseListRequestFailure = () => ({
+    type: visualizationActionTypes.CRUISE_LIST_REQUEST_FAILURE,
+})
+
+export const cruiseListRequestProcessing = () => ({
+    type: visualizationActionTypes.CRUISE_LIST_REQUEST_PROCESSING,
+})

@@ -1,14 +1,10 @@
-import { quantile } from 'd3-array';
+import { quantile, extent } from 'd3-array';
 
-import mapSpatialResolutionToNumber from '../Utility/MapSpatialResolutionToNumber';
+import mapSpatialResolutionToNumber from '../Utility/mapSpatialResolutionToNumber';
 import generateSpatialArray from '../Utility/GenerateSpatialArray';
-import flattenArray from '../Utility/FlattenArray';
-import splitData from '../Utility/SplitData';
-import mergeArraysAndComputeMeans from '../Utility/MergeArraysAndComputeMeans';
-import mergeArrays from '../Utility/MergeArrays';
-
-import vizSubTypes from '../Enums/visualizationSubTypes';
-
+import flattenArray from '../Utility/flattenArray';
+import splitData from '../Utility/splitData';
+import mergeArraysAndComputeMeans from '../Utility/mergeArraysAndComputeMeans';
 
 class SectionMapData {
     constructor(payload) {
@@ -26,12 +22,15 @@ class SectionMapData {
         
         this.zMin = null;
         this.zMax = null;
+        this.extent = [null, null];
+
         this.orientation = null;
+        
         this.latsDistinct = null;
         this.lonsDistinct = null;
 
-        this.plotLats = null;
-        this.plotLons = null;
+        this.lats = null;
+        this.lons = null;
         this.zonalPlotDepths = null;
         this.meridionalPlotDepths = null;
     }
@@ -63,20 +62,16 @@ class SectionMapData {
         this.lonsDistinct = lonsList;
         this.latsDistinct = latsList;
 
-        console.log('Calculating quantiles');
-        let start = new Date();
-        this.zMin = quantile(this.variableValues, .08);
-        console.log(new Date() - start);
-        start = new Date();
-        this.zMax = quantile(this.variableValues, .92);
-        console.log(new Date() - start);
+        let quantile1 = quantile(this.variableValues, .05);
+        let quantile2 = quantile(this.variableValues, .95);
+        this.zMin = quantile1 === undefined ? null : quantile1.toPrecision(4);
+        this.zMax = quantile2 === undefined ? null : quantile2.toPrecision(4);
+
+        this.extent = extent(this.variableValues);
 
         // Expanded arrays to be used in plots
         let lats = [];
         let lons = []
-
-        console.log('Generating spatial arrays');
-        start = new Date();
 
         for(let i = 0; i < latsList.length; i ++){
             for(let j = 0; j < this.depths.size; j++){
@@ -90,8 +85,8 @@ class SectionMapData {
             }
         }
 
-        this.plotLats = lats;
-        this.plotLons = lons;
+        this.lats = lats;
+        this.lons = lons;
 
         let zonalPlotDepths = [];
         let meridionalPlotDepths = [];
@@ -113,7 +108,6 @@ class SectionMapData {
         this.meridionalPlotDepths = meridionalPlotDepths;
         
         this.orientation = this.lonCount > this.latCount ? 'zonal' : 'meridional';
-        console.log(new Date() - start);
     }
 
     // Direction is meridional or zonal
@@ -121,7 +115,6 @@ class SectionMapData {
 
         // Intervals are the number of indices between each change for that parameter
         // Intervals can change if you split out of order
-        const depthInterval = 1;
         const lonInterval = this.depths.size;
         const latInterval = lonInterval * this.lonCount;
         const dateInterval = latInterval * this.latCount;
@@ -134,7 +127,7 @@ class SectionMapData {
         // either latCount or lonCount depending on orientation
         let spaceCount;
 
-        if(orientation == 'zonal') {
+        if(orientation === 'zonal') {
             variableValueSubsets = variableValueSubsets.map(subset => splitData(subset, latInterval, this.latCount));
             variableValueSubsets = flattenArray(variableValueSubsets);
             spaceCount = this.latCount;
@@ -172,7 +165,20 @@ class SectionMapData {
         }
 
         return variableValueSubsets;
-    }    
+    }
+
+    generateCsv = () => {
+        let dates = Array.from(this.dates);
+        let depths = Array.from(this.depths);
+
+        var csvArray = [`time,lat,lon,depth,${this.parameters.fields}`];
+
+        for(let i = 0; i < this.variableValues.length; i++){
+            csvArray.push(`${dates[Math.floor(i / (this.variableValues.length / dates.length))]},${this.lats[i]},${this.lons[i]},${depths[i % depths.length]},${isNaN(this.variableValues[i]) ? '' : this.variableValues[i]}`);
+        }
+
+        return csvArray.join('\n');
+    }
 }
 
 export default SectionMapData;

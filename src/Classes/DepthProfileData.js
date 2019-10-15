@@ -26,7 +26,17 @@ class DepthProfileData {
 
     generatePlotData() {
         return this.variableValues;
-    }    
+    }
+    
+    generateCsv() {
+        let csvString = `depth,${this.parameters.fields},${this.parameters.fields}_std`;
+
+        for(let i = 0; i < this.variableValues.length; i++){
+            csvString += `\n${this.depths[i]},${isNaN(this.variableValues[i]) ? '' : this.variableValues[i]},${isNaN(this.stds[i]) ? '' : this.stds[i]}`;
+        }
+
+        return csvString;
+    }
 }
 
 export default DepthProfileData;

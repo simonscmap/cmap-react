@@ -19,7 +19,7 @@ import { keyRetrievalRequestSend, keyCreationRequestSend } from '../Redux/action
 
 import LoadingSpinner from './LoadingSpinner';
 import states from '../asyncRequestStates';
-import TopNavBar from './TopNavBar';
+import colors from '../Enums/colors';
 
 const mapStateToProps = (state, ownProps) => ({
     apiKeys: state.apiKeys,
@@ -51,6 +51,15 @@ const styles = theme => ({
         '&:hover span': {
             visibility: 'visible'
           },
+    },
+    warningCaption: {
+        color: colors.orange,
+        fontSize: '11px',
+        marginTop: theme.spacing(2),
+        marginBottom: theme.spacing(2)
+    },
+    wrapper: {
+        marginTop: theme.spacing(16)
     }
 })
 
@@ -79,11 +88,12 @@ class ApiKeyManagement extends Component {
         const { classes } = this.props;
 
         return (
-            <React.Fragment>       
+            
+            <div className={classes.wrapper}>
                 {this.props.apiKeys ?
                     <Paper className={classes.root} elevation={6}>             
                         <Typography variant="subtitle1" className={classes.apiKeyTableHeader}>
-                            Your API Keys
+                            Your API Key
                         </Typography>
                         <Divider/>
                         <Table className={classes.table}>
@@ -103,11 +113,14 @@ class ApiKeyManagement extends Component {
                                 }  
                             </TableBody>
                         </Table>
+                        <Typography variant='caption' className={classes.warningCaption}>
+                            This API key is a unique identifier, and should not be shared.
+                        </Typography>
                     </Paper>
                     : ''
                 }
                 <Paper className={classes.root} elevation={6}>
-                    <Typography variant="subtitle1">
+                    <Typography variant="body2">
                         Generate a new API key
                     </Typography>
                     <Grid container={true} alignItems='center' justify='center' spacing={4}>
@@ -133,10 +146,8 @@ class ApiKeyManagement extends Component {
                     
                     {this.props.apiKeyCreationState === states.inProgress ? <LoadingSpinner size={18}/> : ''}
                     {this.props.apiKeyCreationState === states.failed ? <span>Key creation failed</span> : ''}
-            </Paper>
-            </React.Fragment>
-
-            
+                </Paper>
+            </div>    
         )
     }
 }

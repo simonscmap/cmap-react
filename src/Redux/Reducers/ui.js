@@ -34,6 +34,7 @@ export default function(state, action) {
       snackbarMessage: action.payload.message
     }
     case interfaceActionTypes.SNACKBAR_CLOSE: return {...state, snackbarIsOpen: false}
+    case interfaceActionTypes.SET_LOADING_MESSAGE: return {...state, loadingMessage: action.payload.message}
     default: return state;
   }
 }

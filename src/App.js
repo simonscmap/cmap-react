@@ -1,15 +1,25 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
-import { shadows } from '@material-ui/system';
-import grey from '@material-ui/core/colors/grey';
 
 import './App.scss';
-import Routes from './routes';
 
 import colors from './Enums/colors';
+
+import { Route, BrowserRouter, Switch } from 'react-router-dom'
+
+import Home from './Components/Home';
+import Catalog from './Components/Catalog';
+import Register from './Components/Register';
+import Visualization from './Components/Visualization';
+import GlobalUIComponentWrapper from './Components/GlobalUIComponentWrapper';
+import LandingPage from './Components/LandingPage';
+import NavDrawer from './Components/NavDrawer';
+import TopNavBar from './Components/TopNavBar';
+
 
 const theme = createMuiTheme({
   // aqua: #22A3B9
@@ -35,8 +45,8 @@ const theme = createMuiTheme({
     },
 
     background: {
-      default: grey[800],
-      paper: grey[800]
+      default: colors.backgroundGray,
+      paper: colors.backgroundGray
     },
 
     text: {
@@ -52,9 +62,27 @@ const theme = createMuiTheme({
       }
     },
 
+    MuiListItemIcon: {
+      root: {
+        minWidth: '40px'
+      }
+    },
+
+    MuiListItem: {
+      gutters: {
+        paddingLeft: '6px',
+        paddingRight: '10px'
+      },
+
+      root: {
+        paddingTop: '4px',
+        paddingBottom: '4px'
+      }
+    },
+
     MuiToolbar: {
       root: {
-        backgroundColor: grey[800],
+        backgroundColor: 'transparent',
         color: colors.orange
       }
     },
@@ -93,34 +121,56 @@ const theme = createMuiTheme({
       root: {
         color: colors.orange
       }
+    },
+
+    MuiFilledInput: {
+      input: {
+        paddingLeft: '6px',
+      },
+
+      inputSelect: {
+        paddingBottom: '6px'
+      },
+
+      adornedEnd: {
+        paddingRight: '6px'
+      }
     }
   }
 });
 
+const mapStateToProps = (state, ownProps) => ({
+  loadingMessage: state.loadingMessage
+})
+
 class App extends Component {
 
-  componentDidCatch = (error, info) => {
-    console.log('Error:');
-    console.log(error);
-    console.log('Info');
-    console.log(info);
+  constructor(props){
+    super(props);
+    this.vizRef = React.createRef();
   }
 
-  static getDerivedStateFromError(error) {
-    return { hasError: true };
-  }
-
-  render() {
-    return (
-      <MuiPickersUtilsProvider utils={DateFnsUtils}>
-        <div className="App">
-          <MuiThemeProvider theme={theme}>
-            <Routes />
-          </MuiThemeProvider>
-        </div>
-      </MuiPickersUtilsProvider>
-    );
-  }
+render() {
+  return (
+    <MuiPickersUtilsProvider utils={DateFnsUtils}>
+      <div className="App">
+        <MuiThemeProvider theme={theme}>
+        <BrowserRouter>
+          <GlobalUIComponentWrapper/>
+          <TopNavBar/>
+          <Switch>          
+            <Route exact path='/apikeymanagement' component={ Home } />
+            <Route exact path='/' component={ LandingPage } />
+            <Route exact path='/catalog' component={ Catalog } />
+            <Route exact path='/register' component={ Register } />
+            <Route exact path='/visualization' component={Visualization} />
+          </Switch>
+        </BrowserRouter>
+        </MuiThemeProvider>
+      </div>
+    </MuiPickersUtilsProvider>
+  );
+}
 }
 
-export default App;
+export default connect(mapStateToProps, null)(App);

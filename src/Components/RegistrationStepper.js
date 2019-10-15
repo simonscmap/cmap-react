@@ -171,7 +171,7 @@ class RegistrationStepper extends Component {
                 pattern = /^[A-Za-z0-9 ]{6,20}$/;
                 break;
             case 'email':
-                pattern = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
+                pattern = /^([a-zA-Z0-9_\-.]+)@([a-zA-Z0-9_\-.]+)\.([a-zA-Z]{2,5})$/;
                 break;
             case 'institute':
                 pattern = /^.{0,150}$/

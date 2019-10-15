@@ -8,7 +8,8 @@ import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 
 import LoginDialog from './LoginDialog';
-import SnackbarWrapper from './SnackbarWrapper'
+import SnackbarWrapper from './SnackbarWrapper';
+import LoadingOverlay from './LoadingOverlay';
 
 import { loginDialogWasCleared } from '../Redux/actions/user';
 
@@ -19,7 +20,8 @@ const styles = theme => ({
 })
 
 const mapStateToProps = (state, ownProps) => ({
-    clearLoginDialog: state.clearLoginDialog
+    clearLoginDialog: state.clearLoginDialog,
+    loadingMessage: state.loadingMessage
 })
 
 const mapDispatchToProps = {
@@ -65,6 +67,7 @@ class GlobalUIComponentWrapper extends Component {
             <React.Fragment>    
                 <LoginDialog clearState={this.clearState} username={this.state.username} password={this.state.password} handleChange={this.handleChange}/>
                 <SnackbarWrapper/>
+                <LoadingOverlay loadingMessage={this.props.loadingMessage}/>
             </React.Fragment>
         )
     }

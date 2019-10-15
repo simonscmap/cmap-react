@@ -1,5 +1,7 @@
-import { put, takeLatest, all, call } from 'redux-saga/effects';
+import { put, takeLatest, all, call, delay } from 'redux-saga/effects';
+// import { eventChannel } from 'redux-saga';
 import Cookies from 'js-cookie';
+// import worker from '../worker';
 
 import * as userActions from './actions/user';
 import * as catalogActions from './actions/catalog';
@@ -105,37 +107,55 @@ function* queryRequest(action){
 }
 
 function* storedProcedureRequest(action){
-    console.log(action);
-    console.log(`Retrieving ${action.payload.parameters.fields}`);
     yield put(visualizationActions.storedProcedureRequestProcessing());
-    
+    yield put(interfaceActions.setLoadingMessage('Fetching Data'));
     let result = yield call(api.visualization.storedProcedureRequest, action.payload);
-    console.log(`Got ${action.payload.parameters.fields}`);
+    yield delay(50);
+    yield put(interfaceActions.setLoadingMessage('Processing Data'));
+    yield delay(70);
     
     // Result will be an object containing variable values and describing date shape
     if(!result){
+        yield put(interfaceActions.setLoadingMessage(''));
         yield put(visualizationActions.storedProcedureRequestFailure());
         yield put(interfaceActions.snackbarOpen("Request failed"));
     } else {
         if(result.variableValues.length > 0){
+            result.finalize();
+            yield put(interfaceActions.setLoadingMessage(''));
             yield put(visualizationActions.storedProcedureRequestSuccess());
             yield put(interfaceActions.snackbarOpen(`${action.payload.subType} ${action.payload.parameters.fields} is ready`));
             yield put(visualizationActions.addChart({subType: action.payload.subType, data:result}));
            
         } else {
+            yield put(interfaceActions.setLoadingMessage(''));
             yield put(interfaceActions.snackbarOpen(`No data found for ${action.payload.parameters.fields} in the requested ranges. Try selecting a different date or depth range.`));
         }
     }
 }
 
-function* getTableStats(action){
-    yield put(visualizationActions.getTableStatsRequestProcessing());
-    let result = yield call(api.visualization.getTableStats, action.payload.tableName);
-    
-    if(result) {
-        yield put(visualizationActions.storeTableStats({[action.payload.tableName]:result}));
+function* cruiseTrajectoryRequest(action) {
+    yield put(visualizationActions.cruiseTrajectoryRequestProcessing());
+    yield put(interfaceActions.setLoadingMessage('Fetching Cruise Data'));
+    let result = yield call(api.visualization.cruiseTrajectoryRequest, action.payload);
+
+    if(!result || !result.lats.length){
+        yield put(interfaceActions.setLoadingMessage(''));
+        yield put(interfaceActions.snackbarOpen(`Unable to Fetch Cruise Data`));
     } else {
-        yield put(interfaceActions.snackbarOpen(`Failed to retrieve table stats for ${action.payload.tableName}`)); 
+        yield put(visualizationActions.cruiseTrajectoryRequestSuccess(result));
+        yield put(interfaceActions.setLoadingMessage(''));
+    }
+}
+
+function* cruiseListRequest() {
+    yield put(visualizationActions.cruiseListRequestProcessing());
+    let cruiseList = yield call(api.visualization.cruiseList);
+
+    if(!cruiseList) {
+        yield put(visualizationActions.cruiseListRequestFailure());
+    } else{
+        yield put(visualizationActions.cruiseListRequestSuccess(cruiseList));
     }
 }
 
@@ -175,10 +195,39 @@ function* watchStoredProcedureRequest(){
     yield takeLatest(visualizationActionTypes.STORED_PROCEDURE_REQUEST_SEND, storedProcedureRequest);
 }
 
-function* watchGetTableStats(){
-    yield takeLatest(visualizationActionTypes.GET_TABLE_STATS, getTableStats);
+function* watchCruiseTrajectoryRequest(){
+    yield takeLatest(visualizationActionTypes.CRUISE_TRAJECTORY_REQUEST_SEND, cruiseTrajectoryRequest);
 }
-  
+
+function* watchCruiseListRequest(){
+    yield takeLatest(visualizationActionTypes.CRUISE_LIST_REQUEST_SEND, cruiseListRequest);
+}
+
+// function createWorkerChannel(worker) {
+//     return eventChannel(emit => {
+//         worker.onmessage = message => {
+//             emit(message);
+//         }
+
+//         const unsubscribe = () => {
+//             worker.teminate();
+//         }
+      
+//         return unsubscribe;
+//     })
+// }
+
+// function* watchWorkerChannel(){
+//     const workerChannel = yield call(createWorkerChannel, worker);
+
+//     while (true) {
+//         const message = yield take(workerChannel);
+//         yield put(message.data.type, message.data.payload);
+//         //   yield put({ type: INCOMING_PONG_PAYLOAD, payload })
+//         //   yield fork(pong, socket)
+//       }
+// }
+
 export default function* rootSaga() {
     yield all([
         watchUserLogin(),
@@ -190,7 +239,9 @@ export default function* rootSaga() {
         watchKeyCreationRequest(),
         watchQueryRequest(),
         watchStoredProcedureRequest(),
-        watchGetTableStats()
+        watchCruiseTrajectoryRequest(),
+        watchCruiseListRequest()
+        // watchWorkerChannel(),
     ])
 }
   

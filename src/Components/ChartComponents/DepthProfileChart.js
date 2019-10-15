@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { connect } from 'react-redux';
 
 import { withStyles } from '@material-ui/core/styles';
 
 import Plot from 'react-plotly.js';
 
-import { Paper, Typography } from '@material-ui/core';
-import { Button } from '@material-ui/core';
+import ChartControlPanel from './ChartControlPanel';
+
+import { setLoadingMessage } from '../../Redux/actions/ui';
 
 import colors from '../../Enums/colors';
 
@@ -15,30 +17,47 @@ const styles = theme => ({
         backgroundColor: colors.backgroundGray,
         boxShadow: "0px 6px 6px -3px rgba(0,0,0,0.2),0px 10px 14px 1px rgba(0,0,0,0.14),0px 4px 18px 3px rgba(0,0,0,0.12)",
         margin: '20px',
-        color: 'white',
-        backgroundColor: colors.backgroundGray
+        color: 'white'
     },
     buttonBlock: {
         display:'block'
     }
 })
 
-const buttonProps = {
-    size: 'small',
-    color: 'primary',
-    variant: 'contained'
+const mapDispatchToProps = {
+    setLoadingMessage
 }
 
-const TimeSeriesChart = (props) => {
+const DepthProfileChart = (props) => {
 
-    const { classes } = props;
-    const { data, subType } = props.chart;
-    const { stds, variableValues, dates, parameters, metadata, zMin, zMax } = data;
+    const { classes, setLoadingMessage } = props;
+    const { data } = props.chart;
+    const { stds, variableValues, depths, parameters, metadata } = data;
+
+    const downloadCsv = () => {
+        setLoadingMessage('Processing Data');
+    
+        setTimeout(() => {
+            window.requestAnimationFrame(() => setLoadingMessage(''));
+    
+            let csv = data.generateCsv();
+            const blob = new Blob([csv], {type: 'text/csv'});
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('hidden', '');
+            a.setAttribute('href', url);
+            a.setAttribute('download', `${data.parameters.fields}.csv`);
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }, 100)
+    }    
 
     return (
         <div>
-            <div className={classes.buttonBlock}>
-            </div>
+            <ChartControlPanel
+                downloadCsv={downloadCsv}
+            />
             <Plot
                 style= {{
                     position: 'relative',
@@ -47,7 +66,7 @@ const TimeSeriesChart = (props) => {
 
                 data={[
                   {
-                  x: dates,
+                  x: depths,
                   y: variableValues,
                   error_y: {
                     type: 'data',
@@ -63,19 +82,19 @@ const TimeSeriesChart = (props) => {
                 ]}
 
                 layout= {{
-                    title: `${parameters.fields}[${metadata.Unit}]  ${parameters.dt1} to ${parameters.dt2}`,
+                    title: `${parameters.fields}[${metadata.Unit}]  ${parameters.depth1} to ${parameters.depth2} meters`,
 
                     paper_bgcolor: colors.backgroundGray,
                     font: {
                         color: '#ffffff'
                     },
                   xaxis: {
-                      title: 'Time',
+                      title: 'Depth[m]',
                       color: '#ffffff',
                       exponentformat: 'power'
                     },
                   yaxis: {
-                      title: parameters.fields,
+                      title: `${parameters.fields}[${metadata.Unit}]`,
                       color: '#ffffff',
                       exponentformat: 'power'
                     },
@@ -101,4 +120,4 @@ const TimeSeriesChart = (props) => {
     )
 }
 
-export default withStyles(styles)(TimeSeriesChart);
+export default connect(null, mapDispatchToProps)(withStyles(styles)(DepthProfileChart));

@@ -22,12 +22,18 @@ export const restoreInterfaceDefaults = () => ({
 
 export const snackbarOpen = (message) => ({
     type: interfaceActionTypes.SNACKBAR_OPEN,
-    payload:
-    {
+    payload: {
         message
     }
 })
 
 export const snackbarClose = () => ({
     type: interfaceActionTypes.SNACKBAR_CLOSE
+})
+
+export const setLoadingMessage = (message) => ({
+    type:interfaceActionTypes.SET_LOADING_MESSAGE,
+    payload: {
+        message
+    }
 })

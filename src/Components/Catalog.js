@@ -33,14 +33,12 @@ class Catalog extends Component {
         if(this.props.catalog) return <AGGridWrapper catalog={this.props.catalog}/>
         else if(this.props.catalogRequestState === states.inProgress) return <LoadingSpinner size={24}/>
         else if(this.props.catalogRequestState === states.failed) return <p>Failed to get catalog. Have you tried turning it off and then on again?</p>
-        else return <p>I don't know how we got here. Please debug the catalog retrieval process.</p>
     }
 
     render(){
         let content = this.determineContent();
         return (
             <React.Fragment>
-                <TopNavBar/>
                 {content}
             </React.Fragment>
         )

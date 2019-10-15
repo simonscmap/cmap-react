@@ -16,7 +16,7 @@ const styles = theme => ({
 })
 
 const TableStatsDialog = (props) => {
-    const { classes, data } = props;
+    const { data } = props;
 
     if(!data) return '';
 
@@ -59,31 +59,31 @@ const TableStatsDialog = (props) => {
 
                             <TableRow>
                                 <TableCell>Lat Coverage Begin</TableCell>
-                                <TableCell>{data.Lat_Min}</TableCell>
+                                <TableCell>{`${data.Lat_Min}\xB0`}</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell>Lat Coverage End</TableCell>
-                                <TableCell>{data.Lat_Max}</TableCell>
+                                <TableCell>{`${data.Lat_Max}\xB0`}</TableCell>
                             </TableRow>
 
                             <TableRow>
                                 <TableCell>Lon Coverage Begin</TableCell>
-                                <TableCell>{data.Lon_Min}</TableCell>
+                                <TableCell>{`${data.Lon_Min}\xB0`}</TableCell>
                             </TableRow>
 
                             <TableRow>
                                 <TableCell>Lon Coverage End</TableCell>
-                                <TableCell>{data.Lon_Max}</TableCell>
+                                <TableCell>{`${data.Lon_Min}\xB0`}</TableCell>
                             </TableRow>
 
                             <TableRow>
                                 <TableCell>Depth Coverage Begin</TableCell>
-                                <TableCell>{data.Depth_Min || 'Surface Only'}</TableCell>
+                                <TableCell>{data.Depth_Min ? `${data.Depth_Min}(m)` : 'Surface Only'}</TableCell>
                             </TableRow>
 
                             <TableRow>
                                 <TableCell>Depth Coverage End</TableCell>
-                                <TableCell>{data.Depth_Max || 'Surface Only'}</TableCell>
+                                <TableCell>{data.Depth_Max ? `${data.Depth_Max}(m)` : 'Surface Only'}</TableCell>
                             </TableRow>
                     </TableBody>
                 </Table>

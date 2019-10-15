@@ -1,4 +1,3 @@
-import ndjson from 'ndjson';
 import CSVParser from 'csv-parse';
 
 import { apiUrl } from './config';
@@ -8,6 +7,7 @@ import storedProcedures from './Enums/storedProcedures';
 import TimeSeriesData from './Classes/TimeSeriesData';
 import DepthProfileData from './Classes/DepthProfileData';
 import SectionMapData from './Classes/SectionMapData';
+import SparseData from './Classes/SparseData';
 
 const fetchOptions = {
     credentials: 'include'
@@ -61,10 +61,6 @@ api.catalog.retrieve = async() => {
     const decoder = new TextDecoder();
     let catalog = [];
 
-    // let ndjsonParser = ndjson.parse();
-    // ndjsonParser.on('data', data => {
-    //     catalog.push(data);
-    // })
     let csvParser = CSVParser({columns:true});
 
     csvParser.on('readable', function(){
@@ -74,7 +70,7 @@ api.catalog.retrieve = async() => {
         }
     })
 
-    let response = await fetch(apiUrl + '/catalog/new', fetchOptions);
+    let response = await fetch(apiUrl + '/api/catalog', fetchOptions);
 
     if(!response.ok) return false;
 
@@ -104,43 +100,14 @@ api.user.keyCreation = async(description) => {
     return await fetch(apiUrl + `/user/generateapikey?description=${description.trim()}`, fetchOptions);
 }
 
-// api.visualization.queryRequest = async(query) => {
-//     const decoder = new TextDecoder();
-//     let vizData = [];
-
-//     let ndjsonParser = ndjson.parse();
-
-//     ndjsonParser.on('data', data => {
-//         vizData.push(data);
-//     })
-
-//     let response = await fetch(apiUrl + '/dataretrieval/query?query=' + query, fetchOptions);
-
-//     if(!response.ok) return false;
-
-//     let body = response.body;
-//     let reader = body.getReader();
-//     let readerIsDone = false;
-
-//     while(!readerIsDone){
-//         let chunk = await reader.read();
-//         if(chunk.done) {
-//             readerIsDone = true;
-//         }
-//         else {
-//             ndjsonParser.write(decoder.decode(chunk.value));
-//         };
-//     }
-//     return vizData;
-// }
-
 api.visualization.storedProcedureRequest = async(payload) => {
     const decoder = new TextDecoder();
     var vizData;
 
     switch(payload.parameters.spName) {
         case storedProcedures.spaceTime:
-            vizData = new SpaceTimeData(payload);
+            if(payload.subType === 'Sparse') vizData = new SparseData(payload);
+            else vizData = new SpaceTimeData(payload);
             break;
 
         case storedProcedures.timeSeries:
@@ -186,9 +153,6 @@ api.visualization.storedProcedureRequest = async(payload) => {
         };
     }
 
-    vizData.finalize();
-    // console.log(vizData);
-    // throw new Error();
     return vizData;
 }
 
@@ -198,6 +162,50 @@ api.visualization.getTableStats = async(tableName) => {
     if(response.ok){
         return await response.json();
     } else return false;
+}
+
+api.visualization.cruiseTrajectoryRequest = async(payload) => {
+    const cruiseId = payload.id;
+    const decoder = new TextDecoder();
+    let trajectory = {lats: [], lons: []};
+
+    let response = await fetch(apiUrl + '/api/data/cruisetrajectory?' + `id=${payload.id}`, fetchOptions);
+
+    if(!response.ok) return false;
+
+    let csvParser = CSVParser({from: 2});
+
+    csvParser.on('readable', function(){
+        let record;
+        while (record = csvParser.read()) {
+            trajectory.lats.push(parseFloat(record[1]));
+            trajectory.lons.push(parseFloat(record[2]));
+        }
+    })
+
+    let body = response.body;
+    let reader = body.getReader();
+    let readerIsDone = false;
+
+    while(!readerIsDone){
+        let chunk = await reader.read();
+        if(chunk.done) {
+            readerIsDone = true;
+        }
+        else {
+            csvParser.write(decoder.decode(chunk.value));
+        };
+    }
+
+    return trajectory;
+}
+
+api.visualization.cruiseList = async() => {
+    let response = await fetch(apiUrl + '/api/data/cruiselist', fetchOptions);
+
+    if(response.ok){
+        return await response.json();
+    } else return false;   
 }
 
 export default api;

@@ -1,11 +1,11 @@
-import { quantile } from 'd3-array';
+import { quantile, extent } from 'd3-array';
 
-import mapSpatialResolutionToNumber from '../Utility/MapSpatialResolutionToNumber';
+import mapSpatialResolutionToNumber from '../Utility/mapSpatialResolutionToNumber';
 import generateSpatialArray from '../Utility/GenerateSpatialArray';
-import flattenArray from '../Utility/FlattenArray';
-import splitData from '../Utility/SplitData';
-import mergeArraysAndComputeMeans from '../Utility/MergeArraysAndComputeMeans';
-import mergeArrays from '../Utility/MergeArrays';
+import flattenArray from '../Utility/flattenArray';
+import splitData from '../Utility/splitData';
+import mergeArraysAndComputeMeans from '../Utility/mergeArraysAndComputeMeans';
+import mergeArrays from '../Utility/mergeArrays';
 
 import vizSubTypes from '../Enums/visualizationSubTypes';
 
@@ -24,6 +24,7 @@ class SpaceTimeData {
         this.latCount = null;
         this.zMin = null;
         this.zMax = null;
+        this.extent = [null, null];
         this.depthIndexAdjust = null;
     }
 
@@ -55,20 +56,16 @@ class SpaceTimeData {
         this.lonCount = lonsList.length;
         this.latCount = latsList.length;
 
-        console.log('Calculating quantiles');
-        let start = new Date();
-        this.zMin = quantile(this.variableValues, .08);
-        console.log(new Date() - start);
-        start = new Date();
-        this.zMax = quantile(this.variableValues, .92);
-        console.log(new Date() - start);
+        let quantile1 = quantile(this.variableValues, .05);
+        let quantile2 = quantile(this.variableValues, .95);
+        this.zMin = quantile1 === undefined ? null : quantile1.toPrecision(4);
+        this.zMax = quantile2 === undefined ? null : quantile2.toPrecision(4);
+        this.extent = extent(this.variableValues);
 
         // Expanded arrays to be used in plots
         let lats = [];
         let lons = []
 
-        console.log('Generating spatial arrays');
-        start = new Date();
         for(let i = 0; i < latsList.length; i ++){
             for(let j = 0; j < lonsList.length; j++){
                 lats.push(latsList[i]);
@@ -78,7 +75,6 @@ class SpaceTimeData {
 
         this.lats = lats;
         this.lons = lons;
-        console.log(new Date() - start);
     }
 
     generatePlotData(subType, splitByDate, splitByDepth) {
@@ -86,7 +82,6 @@ class SpaceTimeData {
 
         // Intervals are the number of indices between each change for that parameter
         // Intervals can change if you split out of order
-        const lonInterval = 1;
         const latInterval = this.lonCount;
         const depthInterval = latInterval * this.latCount;
         const dateInterval = depthInterval * this.depths.size;
@@ -156,7 +151,29 @@ class SpaceTimeData {
         else {}
 
         return variableValueSubsets;
-    }    
+    }
+
+    generateCsv = () => {
+        let dates = Array.from(this.dates);
+        let depths = Array.from(this.depths);
+
+        if(this.hasDepth){
+            var csvArray = [`time,lat,lon,depth,${this.parameters.fields}`];
+
+            for(let i = 0; i < this.variableValues.length; i++){
+                csvArray.push(`${dates[Math.floor(i / (this.variableValues.length / dates.length))]},${this.lats[i]},${this.lons[i]},${depths[Math.floor(i / (this.variableValues.length / (dates.length * depths.length))) % depths.length]},${isNaN(this.variableValues[i]) ? '' : this.variableValues[i]}`);
+            }
+
+        } else {
+            var csvArray = [`time,lat,lon,${this.parameters.fields}`];
+
+            for(let i = 0; i < this.variableValues.length; i++){
+                csvArray.push(`${dates[Math.floor(i / (this.variableValues.length / dates.length))]},${this.lats[i]},${this.lons[i]},${isNaN(this.variableValues[i]) ? '' : this.variableValues[i]}`);
+            }
+        }
+
+        return csvArray.join('\n');
+    }
 }
 
 export default SpaceTimeData;

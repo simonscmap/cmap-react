@@ -19,6 +19,7 @@ const initialState = {
     registrationActiveStep: 0,
     snackbarIsOpen: false,
     snackbarMessage: null,
+    loadingMessage: '',
 
     // User state pieces
     user: JSON.parse(Cookies.get('UserInfo') || null),
@@ -38,11 +39,14 @@ const initialState = {
     // Visualization state pieces
     maps: [],
     charts: [],
+    getCruiseTrajectoryRequestState: null,
+    cruiseTrajectory: null,
     sampleData: null,
     queryRequestState: null,
     storedProcedureRequestState: null,
     getTableStatsRequestState: null,
-    tableStats: {}
+    cruiseList: [],
+    getCruiseListRequestState: null
 }
 
 const reducedReducer = reduceReducers(initialState, catalog, user, ui, visualization);

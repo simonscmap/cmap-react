@@ -36,14 +36,23 @@ export default function(state, action) {
 
         case visualizationActionTypes.CLEAR_MAPS: return {...state, maps: []}
 
-        case visualizationActionTypes.GET_TABLE_STATS_REQUEST_PROCESSING: return {...state, getTableStatsRequestState: states.inProgress}
+        case visualizationActionTypes.CRUISE_TRAJECTORY_REQUEST_PROCESSING: return {...state, getCruiseTrajectoryRequestState: states.inProgress}
 
-        case visualizationActionTypes.STORE_TABLE_STATS: return {...state,
-            getTableStatsRequestState: states.succeeded,
-            tableStats: {
-                ...state.tableStats,
-                ...action.payload.tableStats
-            }
+        case visualizationActionTypes.CRUISE_TRAJECTORY_REQUEST_SUCCESS: return {...state,
+            cruiseTrajectory: action.payload.trajectory,
+            getCruiseTrajectoryRequestState: states.succeeded
+        }
+
+        case visualizationActionTypes.CRUISE_TRAJECTORY_CLEAR: return {...state, cruiseTrajectory: null}
+
+        case visualizationActionTypes.CRUISE_TRAJECTORY_REQUEST_FAILURE: return {...state, getCruiseTrajectoryRequestState: states.failed}
+
+        case visualizationActionTypes.CRUISE_LIST_REQUEST_PROCESSING: return {...state, getCruiseListRequestState: states.inProgress}
+
+        case visualizationActionTypes.CRUISE_LIST_REQUEST_SUCCESS: return {
+            ...state,
+            getCruiseListRequestState: states.succeeded,
+            cruiseList: action.payload.cruiseList
         }
 
         default: return state;

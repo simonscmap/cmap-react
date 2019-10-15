@@ -8,7 +8,7 @@ const mergeArrays = (data, mergeTargetDistance, nextMergeStartDistance, numArray
         let subArray = [];
 
         for(let j = i; j <= i + travelDistance; j += mergeTargetDistance){
-            subArray = [...subArray, ... data[j]];
+            subArray = [...subArray, ...data[j]];
         }
 
         mergedArrays.push(subArray);
