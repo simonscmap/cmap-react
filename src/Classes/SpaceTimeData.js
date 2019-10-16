@@ -26,6 +26,7 @@ class SpaceTimeData {
         this.zMax = null;
         this.extent = [null, null];
         this.depthIndexAdjust = null;
+        this.next = null;
     }
 
     add(row) {

@@ -124,7 +124,8 @@ function* storedProcedureRequest(action){
             result.finalize();
             yield put(interfaceActions.setLoadingMessage(''));
             yield put(visualizationActions.storedProcedureRequestSuccess());
-            yield put(interfaceActions.snackbarOpen(`${action.payload.subType} ${action.payload.parameters.fields} is ready`));
+            // yield put(interfaceActions.snackbarOpen(`${action.payload.subType} ${action.payload.parameters.fields} is ready`));
+            yield put(visualizationActions.triggerShowCharts());
             yield put(visualizationActions.addChart({subType: action.payload.subType, data:result}));
            
         } else {

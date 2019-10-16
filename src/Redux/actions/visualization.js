@@ -140,3 +140,11 @@ export const cruiseListRequestFailure = () => ({
 export const cruiseListRequestProcessing = () => ({
     type: visualizationActionTypes.CRUISE_LIST_REQUEST_PROCESSING,
 })
+
+export const triggerShowCharts = () => ({
+    type: visualizationActionTypes.TRIGGER_SHOW_CHARTS
+})
+
+export const completedShowCharts = () => ({
+    type: visualizationActionTypes.COMPLETED_SHOW_CHARTS
+})

@@ -146,9 +146,6 @@ api.visualization.storedProcedureRequest = async(payload) => {
     while(!readerIsDone){
         let chunk = await reader.read();
         if(chunk.done) {
-            readerIsDone = true;
-        }
-        else {
             csvParser.write(decoder.decode(chunk.value));
         };
     }

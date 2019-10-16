@@ -46,7 +46,8 @@ const initialState = {
     storedProcedureRequestState: null,
     getTableStatsRequestState: null,
     cruiseList: [],
-    getCruiseListRequestState: null
+    getCruiseListRequestState: null,
+    showChartsOnce: null
 }
 
 const reducedReducer = reduceReducers(initialState, catalog, user, ui, visualization);

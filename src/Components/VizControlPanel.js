@@ -32,6 +32,8 @@ import spatialResolutions from '../Enums/spatialResolutions';
 
 import { cruiseTrajectoryRequestSend, clearCharts } from '../Redux/actions/visualization';
 
+import utcDateStringToLocal from '../Utility/utcDateStringToLocal';
+
 const navDrawerWidth = 230;
 
 const styles = theme => ({
@@ -39,6 +41,7 @@ const styles = theme => ({
     width: navDrawerWidth,
     // height: 'calc(100% - 120px)',
     top: 32,
+    bottom: 'auto',
     overflow: 'visible'
   },
 
@@ -194,7 +197,7 @@ class VizControlPanel extends React.Component {
     constructor(props){
         super(props);
 
-        var search = new JsSearch.Search('Variable');
+        var search = new JsSearch.Search('ID');
         search.searchIndex = new JsSearch.UnorderedSearchIndex();
         search.addIndex('Variable');
         search.addIndex('Make');
@@ -216,7 +219,7 @@ class VizControlPanel extends React.Component {
     componentDidUpdate = (prevProps) => {
         if(!(prevProps.catalog && prevProps.catalog.length) && (this.props.catalog && this.props.catalog.length)){
             this.state.search.addDocuments(this.props.catalog);
-            this.setState({search: this.state.search})
+            this.setState({search: this.state.search});
         }
     }
 
@@ -533,7 +536,7 @@ class VizControlPanel extends React.Component {
                         </Tooltip>
                     </ButtonGroup>
 
-                    <Tooltip title='Clear Visualizations' placement='right'>
+                    <Tooltip title='Clear Charts' placement='right'>
                         <IconButton color='inherit' onClick={this.props.clearCharts} className={classes.clearChartsButton}>
                             <Delete/>
                         </IconButton>
@@ -656,8 +659,8 @@ class VizControlPanel extends React.Component {
                                     label="Start Date"
                                     name="dt1"
                                     format='yyyy-MM-dd'
-                                    minDate={fields ? fields.data.Time_Min : ''}
-                                    maxDate={fields ? fields.data.Time_Max : ''}
+                                    minDate={fields ? utcDateStringToLocal(fields.data.Time_Min) : ''}
+                                    maxDate={fields ? utcDateStringToLocal(fields.data.Time_Max) : ''}
                                     autoOk
                                     value={dt1}
                                     onChange={this.props.handleStartDateChange}
@@ -676,8 +679,8 @@ class VizControlPanel extends React.Component {
                                     label="End Date"
                                     name="dt2"
                                     format='yyyy-MM-dd'
-                                    minDate={fields ? fields.data.Time_Min : ''}
-                                    maxDate={fields ? fields.data.Time_Max : ''}
+                                    minDate={fields ? utcDateStringToLocal(fields.data.Time_Min) : ''}
+                                    maxDate={fields ? utcDateStringToLocal(fields.data.Time_Max) : ''}
                                     autoOk
                                     value={dt2}
                                     onChange={this.props.handleEndDateChange}

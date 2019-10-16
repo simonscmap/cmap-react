@@ -14,7 +14,7 @@ import DataRetrievalForm from './DataRetrievalForm';
 import VizControlPanel from './VizControlPanel';
 
 import { showLoginDialog, snackbarOpen } from '../Redux/actions/ui';
-import { queryRequestSend, storedProcedureRequestSend, cruiseListRequestSend } from '../Redux/actions/visualization';
+import { queryRequestSend, storedProcedureRequestSend, cruiseListRequestSend, triggerShowCharts, completedShowCharts } from '../Redux/actions/visualization';
 import { retrievalRequestSend } from '../Redux/actions/catalog';
 
 import states from '../asyncRequestStates';
@@ -80,7 +80,8 @@ const mapStateToProps = (state, ownProps) => ({
     storedProcedureRequestState: state.storedProcedureRequestState,
     loadingMessage: state.loadingMessage,
     cruiseTrajectory: state.cruiseTrajectory,
-    cruiseList: state.cruiseList
+    cruiseList: state.cruiseList,
+    showChartsOnce: state.showChartsOnce
 })
 
 const mapDispatchToProps = {
@@ -89,7 +90,8 @@ const mapDispatchToProps = {
     retrievalRequestSend,
     storedProcedureRequestSend,
     snackbarOpen,
-    cruiseListRequestSend
+    cruiseListRequestSend,
+    completedShowCharts
 }
 
 const styles = (theme) => ({
@@ -163,7 +165,10 @@ class Visualization extends Component {
     }
 
     componentDidUpdate(prevProps){
-
+        if(this.props.showChartsOnce) {
+            this.props.completedShowCharts();
+            this.setState({...this.state, showCharts: true})
+        }
     }
 
     handleChange = (event) => {
@@ -235,7 +240,7 @@ class Visualization extends Component {
             let lat2 = irregularSpatialResolution ? fields.data.Lat_Max : this.state.spParams.lat2;
             let lon1 = irregularSpatialResolution ? fields.data.Lon_Min : this.state.spParams.lon1;
             let lon2 = irregularSpatialResolution ? fields.data.Lon_Max : this.state.spParams.lon2;
-            let depth1 = fields.data.Depth_Min ? (fields.data.Depth_Min - .001).toFixed(3) : 0;
+            let depth1 = fields.data.Depth_Min && fields.data.Depth_Min > 0 ? (fields.data.Depth_Min - .001).toFixed(3) : 0;
             let depth2 = irregularSpatialResolution ? (Number.parseFloat(fields.data.Depth_Max) + .001).toFixed(3) : 
                 fields.data.Depth_Min ? (Number.parseFloat(fields.data.Depth_Min) + .001).toFixed(3) : 0;
 

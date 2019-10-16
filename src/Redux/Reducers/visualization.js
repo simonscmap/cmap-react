@@ -55,6 +55,9 @@ export default function(state, action) {
             cruiseList: action.payload.cruiseList
         }
 
+        case visualizationActionTypes.TRIGGER_SHOW_CHARTS: return {...state, showChartsOnce: true}
+        case visualizationActionTypes.COMPLETED_SHOW_CHARTS: return {...state, showChartsOnce: false}
+
         default: return state;
     }
 }

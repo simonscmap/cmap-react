@@ -19,7 +19,8 @@ const handleContourMap = (subsets, infoObject, splitByDate, splitByDepth, palett
     return subsets.map((subset, index) => {
 
         const variableName = infoObject.parameters.fields;
-        const date = !splitByDate ? 'Merged Dates' : 
+        const date = dates.length <=1 ? dates[0].slice(0,10) :
+            !splitByDate ? 'Merged Dates' : 
             splitByDepth ? dates[Math.floor(index/depths.length)].slice(0, 10) : dates[index].slice(0, 10);
         
         const depth = !infoObject.hasDepth ? 'Surface' : 
@@ -102,7 +103,8 @@ const handleHistogram = (subsets, infoObject, splitByDate, splitByDepth, palette
     return subsets.map((subset, index) => {
 
         const variableName = infoObject.parameters.fields;
-        const date = !splitByDate ? 'Aggregated Time' : 
+        const date = dates.length <=1 ? dates[0].slice(0,10) :
+            !splitByDate ? 'Merged Dates' : 
             splitByDepth ? dates[Math.floor(index/depths.length)].slice(0, 10) : dates[index].slice(0, 10);
         const depth = !infoObject.hasDepth ? 'Surface' : 
             !splitByDepth ? 'Aggregated Depth' : 
@@ -166,7 +168,8 @@ const handleHeatmap = (subsets, infoObject, splitByDate, splitByDepth, palette, 
     return subsets.map((subset, index) => {
 
         const variableName = infoObject.parameters.fields;
-        const date = !splitByDate ? 'Merged Dates' : 
+        const date = dates.length <=1 ? dates[0].slice(0,10) :
+            !splitByDate ? 'Merged Dates' : 
             splitByDepth ? dates[Math.floor(index/depths.length)].slice(0, 10) : dates[index].slice(0, 10);
         const depth = !infoObject.hasDepth ? 'Surface' : 
             !splitByDepth ? 'Merged Depths' : 

@@ -1,15 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
 import { withRouter } from "react-router";
 
 import Cookies from 'js-cookie';
 
-import Toolbar from '@material-ui/core/Toolbar';
-import AppBar from '@material-ui/core/AppBar';
 import { withStyles } from '@material-ui/core/styles';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
 
 import { showLoginDialog, restoreInterfaceDefaults, snackbarOpen } from '../Redux/actions/ui';
 import { logOut } from '../Redux/actions/user';
@@ -100,15 +95,6 @@ class TopNavBar extends Component {
         })
     }
 
-    // getCurrentPath = () => {
-    //     switch(this.props.location.pathname){
-    //         case '/apikeymanagement': return 1;
-    //         case '/catalog': return 2;
-    //         case '/visualization': return 3;
-    //         default: return 0;
-    //     }
-    // };
-
     handleNavigate = (route) => {
         this.props.restoreInterfaceDefaults()
         this.props.history.push(route);
@@ -123,27 +109,6 @@ class TopNavBar extends Component {
         const { pathname } = history.location;
 
         return (
-            // <AppBar position="fixed" className={classes.appBar}>
-            //     <Toolbar>
-            //         {/* <Tabs value={this.getCurrentPath() || 0} onChange={this.handleChange}>
-            //             <Tab key='0' component={Link} to={{pathname: '/'}} label='Home' onClick={this.props.restoreInterfaceDefaults}/>
-            //             <Tab key='1' component={Link} to={{pathname: '/apikeymanagement'}} label='API Keys' onClick={this.props.restoreInterfaceDefaults}/>
-            //             <Tab key='2' component={Link} to={{pathname: '/catalog'}} label='Catalog' onClick={this.props.restoreInterfaceDefaults}/>
-            //             <Tab key='3' component={Link} to={{pathname: '/visualization'}} label='Visualization' onClick={this.props.restoreInterfaceDefaults}/>
-            //             {this.props.user ? '' : <Tab key='4' component={Link} to={{pathname: '/register'}} label='Register' onClick={this.props.restoreInterfaceDefaults}/>}
-            //             {this.props.user ? '' : <Tab key='5' label='Log In' onClick={this.props.showLoginDialog}/>}
-            //             {this.props.user ? <Tab key='6' label={`Welcome ${this.props.user.firstName} ${this.props.user.lastName}!`}/> : ''}
-            //             {this.props.user ? <Tab key='7' label='Log Out' onClick={this.handleLogOut}/> : ''}                        
-            //         </Tabs>                     */}
-            //         {/* <Link label='Home' to={{pathname: '/'}} onClick={this.props.restoreInterfaceDefaults}/>
-            //         <Link label='API Keys' to={{pathname: '/apikeymanagement'}} onClick={this.props.restoreInterfaceDefaults}/>
-            //         <Link label='Catalog' to={{pathname: '/catalog'}} onClick={this.props.restoreInterfaceDefaults}/>
-            //         <Link label='Visualization' to={{pathname: '/visualization'}} onClick={this.props.restoreInterfaceDefaults}/> */}
-            //         <Typography variant='body2' onClick={() => this.handleNavigate('/')} className={classes.navLink}>Home</Typography>
-            //         <Typography variant='body2' onClick={() => this.handleNavigate('/catalog')} className={classes.navLink}>Catalog</Typography>
-            //         <Typography variant='body2' onClick={() => this.handleNavigate('/apikeymanagement')} className={classes.navLink}>API Keys</Typography>
-            //     </Toolbar>
-            // </AppBar>    
             <div className={classes.navWrapper}>
                 <Typography variant='caption' onClick={() => this.handleNavigate('/')} className={classes.navLink}>Home</Typography>
                 <Typography variant='caption' onClick={() => this.handleNavigate('/catalog')} className={classes.navLink}>Catalog</Typography>
