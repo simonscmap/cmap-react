@@ -17,7 +17,6 @@ import Register from './Components/Register';
 import Visualization from './Components/Visualization';
 import GlobalUIComponentWrapper from './Components/GlobalUIComponentWrapper';
 import LandingPage from './Components/LandingPage';
-import NavDrawer from './Components/NavDrawer';
 import TopNavBar from './Components/TopNavBar';
 
 
@@ -39,6 +38,10 @@ const theme = createMuiTheme({
       main: colors.orange
     },
 
+    error: {
+      main: colors.errorYellow
+    },
+
     secondary: {
       main: colors.aqua,
       // contrastText: '#fff700',
@@ -58,13 +61,22 @@ const theme = createMuiTheme({
   overrides: {
     MuiIconButton: {
       root: {
-        color: colors.orange
+        color: colors.orange,
+        borderRadius: '10%'
       }
     },
 
     MuiListItemIcon: {
       root: {
         minWidth: '40px'
+      }
+    },
+
+    MuiFormHelperText: {
+      filled: {
+        paddingLeft: '1px',
+        paddingRight: '1px',
+        fontSize: '13px'
       }
     },
 
@@ -97,7 +109,15 @@ const theme = createMuiTheme({
           "borderColor": colors.orange
         }
       }
-    },    
+    },
+
+    MuiButtonGroup: {
+      groupedOutlined: {
+        '&:not(:first-child)': {
+          marginLeft: 0
+        }
+      }
+    },
 
     MuiTableCell: {
       root: {
@@ -134,6 +154,16 @@ const theme = createMuiTheme({
 
       adornedEnd: {
         paddingRight: '6px'
+      },
+
+      root: {
+        backgroundColor: 'transparent',
+        '&:hover': {
+          backgroundColor: 'transparent',
+        },
+        '&:disabled': {
+          backgroundColor: 'transparent',
+        }
       }
     }
   }

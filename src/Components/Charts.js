@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 import { withStyles } from '@material-ui/core/styles';
+import Plot from 'react-plotly.js';
 
 import colors from '../Enums/colors';
 import storedProcedures from '../Enums/storedProcedures';
@@ -12,6 +13,10 @@ import TimeSeriesChart from './ChartComponents/TimeSeriesChart';
 import DepthProfileChart from './ChartComponents/DepthProfileChart';
 import SectionMapChart from './ChartComponents/SectionMapChart';
 import SparseMap from './ChartComponents/SparseMap';
+
+import Paper from '@material-ui/core/Paper';
+import spatialResolutions from '../Enums/spatialResolutions';
+import SparseHistogram from './ChartComponents/SparseHistogram';
 
 const mapStateToProps = (state, ownProps) => ({
     charts: state.charts
@@ -26,6 +31,12 @@ const styles = (theme) => ({
         margin: '300px 0 0 100px'
     },
 
+    chartPaper: {
+      margin: '60px auto 0px auto',
+      width: '1000px',
+      paddingTop: '16px'
+  },
+
     chartWrapper: {
         display: 'inline-block',
         backgroundColor: colors.backgroundGray,
@@ -35,33 +46,141 @@ const styles = (theme) => ({
     }
 })
 
+const SamplePlot = () => {
+  let x = [0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,4,4,4,4,4];
+  let y = [0,1,2,5,9,0,1,2,5,9,0,1,2,5,9,0,1,2,5,9,0,1,2,5,9,];
+  let z = [0,1,2,3,4,0,1,2,3,4,0,1,2,3,4,0,1,2,3,4,0,1,2,3,4,1,2,3,4,5,6,7,8,9];
+  // z = z.map(() => Math.floor(Math.random() * 100));
+  return (
+
+      <Plot
+      style= {{
+          position: 'relative',
+          display:'inline-block',
+          marginTop: '50px'
+      }}
+      
+      data={[
+          {   
+              x,
+              y,
+              z,
+              connectgaps: false,
+              zsmooth: 'best',
+              
+              name: 'Test',
+              type: 'heatmap',
+              contours: {
+                  showlabels: true,
+                  labelfont: {
+                      family: 'Raleway',
+                      size: 12,
+                      color: 'white',
+                  },
+                  labelformat: '.2e'
+              },
+              colorbar: {
+                  title: {
+                      text: `test`
+                  },
+                  exponentformat: 'power'
+              }
+          }
+      ]}
+      
+      layout= {{
+          font: {color: '#ffffff'},
+          margin: {
+            t: 50
+          },
+          title: {
+              text: `A sample chart title`,
+              // yanchor: 'bottom',
+              // y: .9,
+              // yref: 'container',
+              font: {
+                size: 18
+              }
+          },
+          paper_bgcolor: colors.backgroundGray,
+          xaxis: {title: 'Longitude', color: '#ffffff'},
+          yaxis: {title: 'Latitude', color: '#ffffff'},
+          annotations: [
+              {
+                  text: `test`,
+                      font: {
+                          color: 'white',
+                          size: 10
+                      },
+                      xref: 'paper',
+                      yref: 'paper',
+                      yshift: -202,
+                      showarrow: false,
+                  }
+              ]
+              
+          }}   
+          />
+          )
+      }
+      
+
 class Charts extends Component {
 
     render(){
         const { classes, charts } = this.props;
-
         return (
-            <div className={classes.chartsContainer}>
+            <React.Fragment>
+              {/* <SamplePlot/>  */}
                 {charts.map((chart, index) => {
                     switch(chart.data.parameters.spName){
+
                         case storedProcedures.spaceTime:
-                          if(chart.subType === vizSubTypes.sparse) return <SparseMap chart={chart} key={index}/>
-                          else return <SpaceTimeChart chart={chart} key={index}/>
+                          if(chart.subType === vizSubTypes.sparse) {
+                            return (
+                              <Paper elevation={12} className={classes.chartPaper} key={index}>
+                                <SparseMap chart={chart}/>
+                              </Paper>
+                            )
+                          } else if(chart.data.metadata.Spatial_Resolution === spatialResolutions.irregular) {
+                            return (
+                              <Paper elevation={12} className={classes.chartPaper} key={index}>
+                                <SparseHistogram chart={chart}/>
+                              </Paper>
+                            )
+                          }
+                          else return (
+                            <Paper elevation={12} className={classes.chartPaper} key={index}>
+                              <SpaceTimeChart chart={chart}/>
+                            </Paper>
+                          )
 
                         case storedProcedures.timeSeries:
-                          return <TimeSeriesChart chart={chart} key={index}/>
+                          return (
+                            <Paper elevation={12} className={classes.chartPaper} key={index}>
+                              <TimeSeriesChart chart={chart}/>
+                            </Paper>
+                          )
 
                         case storedProcedures.depthProfile:
-                          return <DepthProfileChart chart={chart} key={index}/>
+                          return (
+                            <Paper elevation={12} className={classes.chartPaper} key={index}>
+                              <DepthProfileChart chart={chart}/>
+                            </Paper>
+                          )
 
                         case storedProcedures.sectionMap:
-                          return <SectionMapChart chart={chart} key={index}/>
+                          return (
+                            <Paper elevation={12} className={classes.chartPaper} key={index}>
+                              <SectionMapChart chart={chart}/>
+                            </Paper>
+                          )
                         
                         default:
                           return '';
                   }
                 })}
-            </div>
+            </React.Fragment>
         )
     }
 }

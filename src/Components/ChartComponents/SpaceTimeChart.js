@@ -8,24 +8,59 @@ import Plot from 'react-plotly.js';
 import colors from '../../Enums/colors';
 import vizSubTypes from '../../Enums/visualizationSubTypes';
 
+import handleXTicks from '../../Utility/handleXTicks';
+import handleDateString from '../../Utility/handleChartDatestring';
+import chartBase from '../../Utility/chartBase';
+
 import { setLoadingMessage } from '../../Redux/actions/ui'; 
 import ChartControlPanel from './ChartControlPanel';
+
+import { format } from 'd3-format';
+
+const determineHeight = (infoObject) => {
+    const latRange = infoObject.latMax - infoObject.latMin;
+    const lonRange = infoObject.lonMax - infoObject.lonMin;
+    return (((latRange / lonRange) * 800) * .83) + 60;
+}
+// equal 608 wide, 670 high
+// height half 608 / 267
 
 const handleContourMap = (subsets, infoObject, splitByDate, splitByDepth, palette, zMin, zMax) => {
 
     const depths = Array.from(infoObject.depths).map(depth => parseFloat(depth));
     const dates = Array.from(infoObject.dates);
+    
+    // Handle axis labels when crossing 180th meridian
+    let xTicks = infoObject.parameters.lon1 > infoObject.parameters.lon2 ? handleXTicks(infoObject) : {};
+
+    // let height = determineHeight(infoObject);
 
     return subsets.map((subset, index) => {
 
         const variableName = infoObject.parameters.fields;
-        const date = dates.length <=1 ? dates[0].slice(0,10) :
-            !splitByDate ? 'Merged Dates' : 
-            splitByDepth ? dates[Math.floor(index/depths.length)].slice(0, 10) : dates[index].slice(0, 10);
-        
-        const depth = !infoObject.hasDepth ? 'Surface' : 
+
+        const date = dates.length <= 1 ? handleDateString(dates[0], infoObject.hasHour, infoObject.isMonthly) :
+            !splitByDate ? infoObject.hasHour ? 'Merged times' : 'Merged Dates' : 
+            splitByDepth ? handleDateString(dates[Math.floor(index/depths.length)], infoObject.hasHour, infoObject.isMonthly) : 
+            handleDateString(dates[index], infoObject.hasHour, infoObject.isMonthly);
+
+        const depth = !infoObject.hasDepth ? 'Surface' :
+            depths.length === 1 ? depths[0] + 'm depth':
             !splitByDepth ? 'Merged Depths' : 
-            depths[index % depths.length].toFixed(2) + 'm depth';
+            splitByDate ? depths[index % depths.length].toFixed(2) + 'm depth' : depths[index].toFixed(2) + 'm depth';
+
+        var hovertext = subset.map((value, i) => {
+            let formatter = value > 1 && value < 1000 ? '.2f' : '.2e';
+            if(isNaN(value)) return `Lat: ${format('.2f')(infoObject.lats[i])}\xb0` +
+                `<br>` +
+                `Lon: ${infoObject.lons[i] > 180 ? format('.2f')(infoObject.lons[i] - 360) : format('.2f')(infoObject.lons[i])}\xb0`
+
+            return `Lat: ${format('.2f')(infoObject.lats[i])}\xb0` +
+            `<br>` +
+            `Lon: ${infoObject.lons[i] > 180 ? format('.2f')(infoObject.lons[i] - 360) : format('.2f')(infoObject.lons[i])}\xb0` + 
+            '<br>' +
+            `${infoObject.parameters.fields}: ${format(formatter)(value)} [${infoObject.metadata.Unit}]`;
+        });
 
         return (
         <Plot
@@ -45,6 +80,9 @@ const handleContourMap = (subsets, infoObject, splitByDate, splitByDepth, palett
                     connectgaps: false,
                     autocolorscale: false,
                     colorscale: palette,
+
+                    hoverinfo: 'text',
+                    hovertext,
                     
                     name: infoObject.parameters.fields,
                     type: 'contour',
@@ -56,7 +94,7 @@ const handleContourMap = (subsets, infoObject, splitByDate, splitByDepth, palett
                             size: 12,
                             color: 'white',
                         },
-                        labelformat: '.2e'
+                        labelformat: infoObject.zMin > 1 && infoObject.zMin < 1000 ? '.2f' : '.2e'
                     },
                     colorbar: {
                         title: {
@@ -66,30 +104,21 @@ const handleContourMap = (subsets, infoObject, splitByDate, splitByDepth, palett
                     }
                 }
             ]}
+
+            config={{...chartBase.config}}
             
             key={index}
             layout= {{
-                font: {color: '#ffffff'},
-                title: `${variableName}[${infoObject.metadata.Unit}]  ${depth}  ${date}`,
-                xaxis: {title: 'Longitude', color: '#ffffff'},
+                ...chartBase.layout,
+                width: 800,
+                height: 570,
+                title: {
+                    text: `${variableName} [${infoObject.metadata.Unit}]  ${depth}  ${date}`,
+                },
+                xaxis: {title: 'Longitude', color: '#ffffff', ...xTicks},
                 yaxis: {title: 'Latitude', color: '#ffffff'},
-                paper_bgcolor: colors.backgroundGray,
-                annotations: [
-                    {
-                        text: `Source: ${infoObject.metadata.Distributor.length < 30 ? 
-                            infoObject.metadata.Distributor : 
-                            infoObject.metadata.Distributor.slice(0,30)} -- Provided by Simons CMAP`,
-                        font: {
-                            color: 'white',
-                            size: 10
-                        },
-                        xref: 'paper',
-                        yref: 'paper',
-                        yshift: -202,
-                        showarrow: false,
-                    }
-                ]
-
+                // annotations: chartBase.annotations(infoObject.metadata.Distributor, height)
+                annotations: chartBase.annotations(infoObject.metadata.Distributor)
             }}   
         />)
     })
@@ -103,11 +132,15 @@ const handleHistogram = (subsets, infoObject, splitByDate, splitByDepth, palette
     return subsets.map((subset, index) => {
 
         const variableName = infoObject.parameters.fields;
-        const date = dates.length <=1 ? dates[0].slice(0,10) :
-            !splitByDate ? 'Merged Dates' : 
-            splitByDepth ? dates[Math.floor(index/depths.length)].slice(0, 10) : dates[index].slice(0, 10);
-        const depth = !infoObject.hasDepth ? 'Surface' : 
-            !splitByDepth ? 'Aggregated Depth' : 
+
+        const date = dates.length <= 1 ? handleDateString(dates[0], infoObject.hasHour, infoObject.isMonthly) :
+            !splitByDate ? infoObject.hasHour ? 'Merged times' : 'Merged Dates' : 
+            splitByDepth ? handleDateString(dates[Math.floor(index/depths.length)], infoObject.hasHour, infoObject.isMonthly) : 
+            handleDateString(dates[index], infoObject.hasHour, infoObject.isMonthly);
+
+        const depth = !infoObject.hasDepth ? 'Surface' :
+            depths.length === 1 ? depths[0] + 'm depth':
+            !splitByDepth ? 'Merged Depths' : 
             splitByDate ? depths[index % depths.length].toFixed(2) + 'm depth' : depths[index].toFixed(2) + 'm depth';
 
         return (
@@ -127,8 +160,10 @@ const handleHistogram = (subsets, infoObject, splitByDate, splitByDepth, palette
             
             key={index}
             layout= {{
-                font: {color: '#ffffff'},
-                title: `${variableName}[${infoObject.metadata.Unit}]  ${depth}  ${date}`,
+                width: 800,
+                height: 570,
+                ...chartBase.layout,
+                title: `${variableName} [${infoObject.metadata.Unit}]  ${depth}  ${date}`,
                 xaxis: {
                     title: `${infoObject.parameters.fields} [${infoObject.metadata.Unit}]`,
                     exponentformat: 'power',
@@ -138,24 +173,9 @@ const handleHistogram = (subsets, infoObject, splitByDate, splitByDepth, palette
                     color: '#ffffff',
                     title: 'Frequency'
                 },
-                paper_bgcolor: colors.backgroundGray,
-                annotations: [
-                    {
-                        text: `Source: ${infoObject.metadata.Distributor.length < 30 ? 
-                            infoObject.metadata.Distributor : 
-                            infoObject.metadata.Distributor.slice(0,30)} -- Provided by Simons CMAP`,
-                        font: {
-                            color: 'white',
-                            size: 10
-                        },
-                        xref: 'paper',
-                        yref: 'paper',
-                        yshift: -202,
-                        showarrow: false,
-                    }
-                ]
-
-            }}   
+                annotations: chartBase.annotations(infoObject.metadata.Distributor)             
+            }}
+            config={{...chartBase.config}}
         />)
     })
 }
@@ -165,13 +185,21 @@ const handleHeatmap = (subsets, infoObject, splitByDate, splitByDepth, palette, 
     const depths = Array.from(infoObject.depths).map(depth => parseFloat(depth));
     const dates = Array.from(infoObject.dates);
 
+    let xTicks = infoObject.parameters.lon1 > infoObject.parameters.lon2 ? handleXTicks(infoObject) : {};
+
+    // let height = determineHeight(infoObject);
+
     return subsets.map((subset, index) => {
 
         const variableName = infoObject.parameters.fields;
-        const date = dates.length <=1 ? dates[0].slice(0,10) :
-            !splitByDate ? 'Merged Dates' : 
-            splitByDepth ? dates[Math.floor(index/depths.length)].slice(0, 10) : dates[index].slice(0, 10);
-        const depth = !infoObject.hasDepth ? 'Surface' : 
+
+        const date = dates.length <= 1 ? handleDateString(dates[0], infoObject.hasHour, infoObject.isMonthly) :
+            !splitByDate ? infoObject.hasHour ? 'Merged times' : 'Merged Dates' : 
+            splitByDepth ? handleDateString(dates[Math.floor(index/depths.length)], infoObject.hasHour, infoObject.isMonthly) : 
+            handleDateString(dates[index], infoObject.hasHour, infoObject.isMonthly);
+
+        const depth = !infoObject.hasDepth ? 'Surface' :
+            depths.length === 1 ? depths[0] + 'm depth':
             !splitByDepth ? 'Merged Depths' : 
             splitByDate ? depths[index % depths.length].toFixed(2) + 'm depth' : depths[index].toFixed(2) + 'm depth';
 
@@ -196,6 +224,10 @@ const handleHeatmap = (subsets, infoObject, splitByDate, splitByDepth, palette, 
                     type: 'heatmapgl',
                     colorscale: palette,
                     autocolorscale: false,
+
+                    // hoverinfo: 'text',
+                    // hovertext,
+
                     colorbar: {
                         title: {
                             text: `[${infoObject.metadata.Unit}]`
@@ -207,36 +239,31 @@ const handleHeatmap = (subsets, infoObject, splitByDate, splitByDepth, palette, 
             ]}                
             key={index}
 
+            config={{...chartBase.config}}
+
             layout= {{
-                font: {color: '#ffffff'},
-                title: `${variableName}[${infoObject.metadata.Unit}]  ${depth}   ${date}`,
+                ...chartBase.layout,
+                width: 800,
+                height: 570,
+                title: {
+                    text: `${variableName} [${infoObject.metadata.Unit}]  ${depth}  ${date}`,
+                    font: {
+                        size: 16
+                    }
+                },
                 xaxis: {
                     title: 'Longitude[\xB0]', 
                     color: '#ffffff',
-                    exponentformat: 'power'
+                    exponentformat: 'power',
+                    ...xTicks
                 },
                 yaxis: {
                     title: 'Latitude[\xB0]', 
                     color: '#ffffff',
                     exponentformat: 'power'
                 },
-                paper_bgcolor: colors.backgroundGray,
-                annotations: [
-                    {
-                        text: `Source: ${infoObject.metadata.Distributor.length < 30 ? 
-                            infoObject.metadata.Distributor : 
-                            infoObject.metadata.Distributor.slice(0,30)} -- Provided by Simons CMAP`,
-                        font: {
-                            color: 'white',
-                            size: 10
-                        },
-                        xref: 'paper',
-                        yref: 'paper',
-                        yshift: -202,
-                        showarrow: false,
-                    }
-                ]
-
+                annotations: chartBase.annotations(infoObject.metadata.Distributor)
+                // annotations: chartBase.annotations(infoObject.metadata.Distributor, height)
             }}   
         />)
     })
@@ -255,7 +282,7 @@ const styles = theme => ({
     },
     iconButtonWrapper: {
         display: 'inline-block'
-    }
+    },    
 })
 
 const mapDispatchToProps = {
@@ -349,7 +376,7 @@ const SpaceTimeChart = (props) => {
     }
 
     return (
-        <div>
+        <React.Fragment>
             <ChartControlPanel
                 handlePaletteChoice={handlePaletteChoice}
                 onToggleSplitByDepth={depths.size===1 ? null : onToggleSplitByDepth}
@@ -361,8 +388,8 @@ const SpaceTimeChart = (props) => {
                 extent={extent}
                 downloadCsv={downloadCsv}
             />
-            {plots}      
-        </div>
+            {plots}     
+        </React.Fragment>
     )
 }
 

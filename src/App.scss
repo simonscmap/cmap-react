@@ -65,3 +65,9 @@ $row-stub-background-color: #22A3B9;
 @import "../node_modules/ag-grid-community/src/styles/ag-theme-material/sass/ag-theme-material.scss";
 
 // teal #22A3B9;
+
+// React-select scrollbar styles
+#custom-scroll::-webkit-scrollbar {
+  width: 6px;
+  background-color: #F5F5F5;
+} 

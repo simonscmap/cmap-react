@@ -1,143 +1,100 @@
 import { quantile, extent } from 'd3-array';
 
-import mapSpatialResolutionToNumber from '../Utility/mapSpatialResolutionToNumber';
-import generateSpatialArray from '../Utility/GenerateSpatialArray';
 import flattenArray from '../Utility/flattenArray';
 import splitData from '../Utility/splitData';
 import mergeArraysAndComputeMeans from '../Utility/mergeArraysAndComputeMeans';
+import temporalResolutions from '../Enums/temporalResolutions';
+
+import months from '../Enums/months';
 
 class SectionMapData {
     constructor(payload) {
         this.parameters = payload.parameters;
         this.metadata = payload.metadata;
+        this.subType = payload.subType
         
-        this.depths = new Set();
         this.dates = new Set();
+        this.depths = new Set();
+        this.lats = new Set();
+        this.lons = new Set();
+
+        this.lonMin = null;
+        this.lonMax = null;
+
         this.variableValues = [];
-        
-        this.lonStart = null;
-        this.latStart = null;
-        this.lonCount = null;
-        this.latCount = null;
         
         this.zMin = null;
         this.zMax = null;
         this.extent = [null, null];
 
         this.orientation = null;
-        
-        this.latsDistinct = null;
-        this.lonsDistinct = null;
-
-        this.lats = null;
-        this.lons = null;
-        this.zonalPlotDepths = null;
-        this.meridionalPlotDepths = null;
     }
 
     // time, lat, lon, depth, value
-    add(row) {
-        // Only on first row
-        if(this.latStart === null) {
-            this.latStart = parseFloat(row[1]);
-            this.lonStart = parseFloat(row[2]);
-        }
+    add(row) {        
+        const time = row[0];
+        const lat = parseFloat(row[1]);
+        var _lon = parseFloat(row[2]);
+        const lon = _lon < this.parameters.lon1 ? _lon + 360 : _lon;
+        const depth = parseFloat(row[3]);
+        const value = parseFloat(row[4]);
 
-        this.depths.add(row[3]);
-        this.dates.add(row[0]);
+        if(this.variableValues.length === 0) {
+            this.isMonthly = this.metadata.Temporal_Resolution === temporalResolutions.monthlyClimatology;
+        }        
 
-        this.variableValues.push(parseFloat(row[4]));
+        this.depths.add(depth);
+        this.dates.add(this.isMonthly ? months[time] : time);
+        this.lats.add(lat);
+        this.lons.add(lon);
+
+        this.variableValues.push(value);
     }
 
     finalize() {
-        const spatialResolution = mapSpatialResolutionToNumber(this.metadata.Spatial_Resolution);
-
-        // Simple arrays of lats and lons
-        let lonsList = generateSpatialArray(this.lonStart, spatialResolution, this.parameters.lon2);
-        let latsList = generateSpatialArray(this.latStart, spatialResolution, this.parameters.lat2);
-
-        this.lonCount = lonsList.length;
-        this.latCount = latsList.length;
-
-        this.lonsDistinct = lonsList;
-        this.latsDistinct = latsList;
-
         let quantile1 = quantile(this.variableValues, .05);
         let quantile2 = quantile(this.variableValues, .95);
-        this.zMin = quantile1 === undefined ? null : quantile1.toPrecision(4);
-        this.zMax = quantile2 === undefined ? null : quantile2.toPrecision(4);
+        this.zMin = quantile1 === undefined ? null : parseFloat(quantile1.toPrecision(4));
+        this.zMax = quantile2 === undefined ? null : parseFloat(quantile2.toPrecision(4));
 
         this.extent = extent(this.variableValues);
 
-        // Expanded arrays to be used in plots
-        let lats = [];
-        let lons = []
+        this.orientation = this.lons.size > this.lats.size ? 'zonal' : 'meridional';
 
-        for(let i = 0; i < latsList.length; i ++){
-            for(let j = 0; j < this.depths.size; j++){
-                lats.push(latsList[i]);
-            }
-        }
-
-        for(let i = 0; i < lonsList.length; i ++){
-            for(let j = 0; j < this.depths.size; j++){
-                lons.push(lonsList[i]);
-            }
-        }
-
-        this.lats = lats;
-        this.lons = lons;
-
-        let zonalPlotDepths = [];
-        let meridionalPlotDepths = [];
-        let depthsList = Array.from(this.depths).map(depth => parseFloat(depth));
-
-        for(let i = 0; i < this.latsDistinct.length; i++){
-            for(let j = depthsList.length - 1; j > -1; j--){
-                meridionalPlotDepths.push(depthsList[j]);
-            }
-        }
-
-        for(let i = 0; i < this.lonsDistinct.length; i++){
-            for(let j = depthsList.length - 1; j > -1; j--){
-                zonalPlotDepths.push(depthsList[j]);
-            }
-        }
-
-        this.zonalPlotDepths = zonalPlotDepths;
-        this.meridionalPlotDepths = meridionalPlotDepths;
-        
-        this.orientation = this.lonCount > this.latCount ? 'zonal' : 'meridional';
+        let lonArray = Array.from(this.lons);
+        this.lonMax = Math.max(...lonArray);
+        this.lonMin = Math.min(...lonArray);
     }
 
     // Direction is meridional or zonal
     generatePlotData(orientation, splitByDate, splitBySpace) {
+        let latCount = this.lats.size;
+        let lonCount = this.lons.size;
 
         // Intervals are the number of indices between each change for that parameter
         // Intervals can change if you split out of order
         const lonInterval = this.depths.size;
-        const latInterval = lonInterval * this.lonCount;
-        const dateInterval = latInterval * this.latCount;
+        const latInterval = lonInterval * lonCount;
+        const dateInterval = latInterval * latCount;
 
-        // // an array of arrays containing variable values, each of which will become a chart
-        var variableValueSubsets;
-        
-        variableValueSubsets = splitData(this.variableValues, dateInterval, this.dates.size);
+        var variableValueSubsets = splitData(this.variableValues, dateInterval, this.dates.size);
 
-        // either latCount or lonCount depending on orientation
-        let spaceCount;
+        var spaceCount;
 
         if(orientation === 'zonal') {
-            variableValueSubsets = variableValueSubsets.map(subset => splitData(subset, latInterval, this.latCount));
+            variableValueSubsets = variableValueSubsets.map(subset => splitData(subset, latInterval, latCount));
             variableValueSubsets = flattenArray(variableValueSubsets);
-            spaceCount = this.latCount;
+            spaceCount = latCount;
         }
 
         else {
-            variableValueSubsets = variableValueSubsets.map(subset => splitData(subset, lonInterval, this.lonCount));
+            variableValueSubsets = variableValueSubsets.map(subset => splitData(subset, lonInterval, lonCount));
             variableValueSubsets = flattenArray(variableValueSubsets);
-            spaceCount = this.lonCount;
+            spaceCount = lonCount;
         }
+
+        // console.log('Split by space');
+        // console.log(variableValueSubsets);
 
         if(splitByDate && splitBySpace){
             // pass
@@ -170,11 +127,16 @@ class SectionMapData {
     generateCsv = () => {
         let dates = Array.from(this.dates);
         let depths = Array.from(this.depths);
+        let lons = Array.from(this.lons);
+        let lats = Array.from(this.lats);
+
+        const lonInterval = depths.length;
+        const latInterval = lonInterval * lons.length;
 
         var csvArray = [`time,lat,lon,depth,${this.parameters.fields}`];
 
         for(let i = 0; i < this.variableValues.length; i++){
-            csvArray.push(`${dates[Math.floor(i / (this.variableValues.length / dates.length))]},${this.lats[i]},${this.lons[i]},${depths[i % depths.length]},${isNaN(this.variableValues[i]) ? '' : this.variableValues[i]}`);
+            csvArray.push(`${dates[Math.floor(i / (this.variableValues.length / dates.length))]},${lats[Math.floor(i / latInterval) % lats.length]},${lons[Math.floor(i / lonInterval) % lons.length]},${depths[i % depths.length]},${isNaN(this.variableValues[i]) ? '' : this.variableValues[i]}`);
         }
 
         return csvArray.join('\n');

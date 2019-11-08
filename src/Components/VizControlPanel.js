@@ -33,13 +33,15 @@ import spatialResolutions from '../Enums/spatialResolutions';
 import { cruiseTrajectoryRequestSend, clearCharts } from '../Redux/actions/visualization';
 
 import utcDateStringToLocal from '../Utility/utcDateStringToLocal';
+import depthCounter from '../Utility/depthCounter';
 
-const navDrawerWidth = 230;
+import ConnectedTooltip from './ConnectedTooltip';
+
+const navDrawerWidth = 260;
 
 const styles = theme => ({
   drawer: {
     width: navDrawerWidth,
-    // height: 'calc(100% - 120px)',
     top: 32,
     bottom: 'auto',
     overflow: 'visible'
@@ -52,7 +54,8 @@ const styles = theme => ({
     borderRadius: '0 4px 4px 0',
     boxShadow: '2px 2px  2px 2px #242424',
     border: 'none',
-    overflow: 'visible'
+    overflow: 'visible',
+    backgroundColor: '#424242'
   },
 
   openPanelChevron: {
@@ -72,7 +75,8 @@ const styles = theme => ({
   groupedButtons: {
       width: '50%',
       border: '1px solid #313131',
-      borderRadius: 0
+      borderRadius: 0,
+      backgroundColor: '#3c3c3c'
   },
 
   controlPanelForm: {
@@ -82,16 +86,19 @@ const styles = theme => ({
   tableStatsButton: {
       borderRadius: 0,
       paddingTop: '11px',
-      backgroundColor: '#3C3C3C'
+      backgroundColor: '#424242'
   },
 
     formGridItem: {
         borderLeft: '1px solid #313131',
-        backgroundColor: '#3C3C3C'
+        backgroundColor: '#424242'
     },
 
   vizTypeSelectFormControl: {
-      width: '100%'
+      width: '100%',
+      '&:disabled': {
+        backgroundColor: 'transparent'
+    }
   },
 
   depressed: {
@@ -105,10 +112,21 @@ const styles = theme => ({
   visualizeButton: {
       height: '56px',
       borderRadius: 0,
-      backgroundColor: '#3C3C3C',
+      backgroundColor: '#424242',
       color: theme.palette.primary.main,
       fontVariant: 'normal',
+      '&:disabled': {
+        backgroundColor: 'transparent'
+    },
       '&:hover': {backgroundColor: '#874400'}
+  },
+
+  helperText: {
+    color: 'yellow'
+  },
+
+  vizButtonTooltip: {
+    color: 'yellow'
   },
 
   datePickerInputAdornment: {
@@ -116,17 +134,27 @@ const styles = theme => ({
   },
 
   clearChartsButton: {
-      borderRadius: 0
+      borderRadius: 0,
+      backgroundColor: '#3c3c3c'
+  },
+
+  datePicker: {
+      width: '100%'
   }
 
 });
+
+const overrideDisabledStyle = {
+    backgroundColor: 'transparent'
+}
 
 const mapStateToProps = (state, ownProps) => ({
     data: state.data,
     storedProcedureRequestState: state.storedProcedureRequestState,
     catalog: state.catalog,
     catalogRequestState: state.catalogRequestState,
-    cruiseTrajectory: state.cruiseTrajectory
+    cruiseTrajectory: state.cruiseTrajectory,
+    showHelp: state.showHelp
 })
 
 const mapDispatchToProps = {
@@ -149,10 +177,9 @@ class MenuList extends Component {
         const { options, children, maxHeight, getValue } = this.props;
         const [value] = getValue();
         const initialOffset = options.indexOf(value) * height;
-        
+
         return (
             <ReactWindowList
-                style={{backgroundColor: colors.backgroundGray}}
                 height={(options.length == 0 ? 35 : maxHeight > height * options.length ? height * options.length : maxHeight) || 35}
                 itemCount={children.length}
                 itemSize={height}
@@ -206,6 +233,13 @@ class VizControlPanel extends React.Component {
         search.addIndex('Process_Level');
         search.addIndex('Long_Name');
         search.addIndex('Keywords');
+        search.addIndex('Table_Name');
+        search.addIndex('Dataset_Name');
+        search.addIndex('Study_Domain');
+        search.addIndex('Spatial_Resolution');
+        search.addIndex('Temporal_Resolution');
+        search.addIndex('Keywords');
+
         if(props.catalog) search.addDocuments(props.catalog);
 
         this.state = {
@@ -253,9 +287,27 @@ class VizControlPanel extends React.Component {
     }
 
     getSelectOptionsFromCatalogItems = (items) => {
+        // var options = {};
+
+        // items.forEach(item => {
+        //     if(!options[item.Dataset_Name]){
+        //         options[item.Dataset_Name] = {
+        //             label: item.Dataset_Name,
+        //             options: []
+        //         }
+        //     }
+
+        //     options[item.Dataset_Name].options.push({
+        //         value: item.Variable,
+        //         label: item.Long_Name.length < 80 ? item.Long_Name : item.Long_Name.slice(0,78) + '...',
+        //         data: item
+        //     })
+        // });
+
+        // return Object.values(options) || [];
         return items.map(item => ({
             value: item.Variable,
-            label: item.Variable === item.Long_Name ? (item.Variable.length > 48 ? item.Variable.slice(0,45) + '...' : item.Variable) : (item.Variable.length > 23 ? item.Variable.slice(0,23) : item.Variable) + ' : ' + (item.Long_Name.length > 38 ? item.Long_Name.slice(0,35) + '...' : item.Long_Name),
+            label: item.Long_Name.length < 80 ? item.Long_Name : item.Long_Name.slice(0,78) + '...',
             data: item
         })) || []
     }
@@ -266,7 +318,7 @@ class VizControlPanel extends React.Component {
     }
 
     estimateDataSize = () => {
-        const { dt1, dt2, lat1, lat2, lon1, lon2, fields, selectedVizType } = this.props;
+        const { dt1, dt2, lat1, lat2, lon1, lon2, fields, depth1, depth2, selectedVizType } = this.props;
         if(!fields) return 0;
         if(fields.data.Spatial_Resolution === spatialResolutions.irregular) return 0;
         if(selectedVizType === vizSubTypes.timeSeries || selectedVizType === vizSubTypes.depthProfile) return 0;
@@ -278,10 +330,11 @@ class VizControlPanel extends React.Component {
         const dayDiff = (date2 - date1) / 86400000;
 
         const dateCount = Math.floor(dayDiff / mapTemporalResolutionToNumber(fields.data.Temporal_Resolution)) || 1;
+        const depthCount = depthCounter(fields, depth1, depth2) || 1;
         const latCount = (lat2 - lat1) / res;
         const lonCount = (lon2 - lon1) / res;
 
-        const pointCount = lonCount * latCount * dateCount;
+        const pointCount = lonCount * latCount * depthCount * dateCount;
         return pointCount;
     }
 
@@ -327,7 +380,7 @@ class VizControlPanel extends React.Component {
         if(!/^[-+]?[0-9]*\.?[0-9]+$/.test(this.props.lat2)) return validation.generic.invalid;
         if(parseFloat(this.props.lat2) < -90 || parseFloat(this.props.lat2) > 90) return validation.generic.invalid;
         if(parseFloat(this.props.lat1) > parseFloat(this.props.lat2)) return validation.lat.latOneIsHigher;
-        if(parseFloat(this.props.lat2) < parseFloat(this.props.fields.data.Lat_Min)) return validation.lat.latTwoOutOfBounds.replace('$', this.props.fields.data.Lat_Max);
+        if(parseFloat(this.props.lat2) < parseFloat(this.props.fields.data.Lat_Min)) return validation.lat.latTwoOutOfBounds.replace('$', this.props.fields.data.Lat_Min);
         return '';
     }
 
@@ -363,10 +416,9 @@ class VizControlPanel extends React.Component {
     }
 
     checkHistogram = () => {
-        if(this.props.irregularSpatialResolution) return validation.type.dataIsIrregular.replace('$', 'Histogram');
         return '';
     }
-
+    
     checkTimeSeries = () => {
         if(this.props.irregularSpatialResolution) return validation.type.dataIsIrregular.replace('$', 'Time Series');
         if(this.props.dt1 === this.props.dt2) return validation.type.dateRangeRequired.replace('$', 'Time Series');
@@ -375,7 +427,6 @@ class VizControlPanel extends React.Component {
 
     checkDepthProfile = () => {
         if(this.props.surfaceOnly) return validation.type.surfaceOnlyDataset.replace('$', this.props.fields.value);
-        if(this.props.irregularSpatialResolution) return validation.type.dataIsIrregular.replace('$', 'Depth Profile');
         if(this.props.depth1 === this.props.depth2) return validation.type.depthRangeRequired.replace('$', 'Depth Profile');
         return '';
     }
@@ -385,14 +436,24 @@ class VizControlPanel extends React.Component {
         return '';
     }
 
-    checkGeneralWarn = () => {
-        if(this.estimateDataSize() > 1200000) return validation.generic.dataSizeWarning;
+    checkGeneralWarn = (dataSize) => {
+        if(!this.props.selectedVizType) return '';
+        if(dataSize > 1200000) return validation.generic.dataSizeWarning;
         return ''
     }
 
-    checkGeneralPrevent = () => {
-        if(this.estimateDataSize() > 50000000) return validation.generic.dataSizePrevent;
-        return ''
+    checkGeneralPrevent = (dataSize) => {
+        if(this.props.selectedVizType !== vizSubTypes.histogram && this.props.selectedVizType !== vizSubTypes.heatmap && dataSize > 1200000){
+            return validation.generic.dataSizePrevent;
+        }
+        if(dataSize > 6000000) return validation.generic.dataSizePrevent;
+        if(!this.props.fields) return validation.generic.variableMissing;
+        if(!this.props.selectedVizType) return validation.generic.vizTypeMissing;
+        return ''}
+
+    handleShowChartsAndResize = () => {
+        setTimeout(() => window.dispatchEvent(new Event('resize')), 30);
+        this.props.handleShowCharts();     
     }
     
     render() {      
@@ -413,7 +474,6 @@ class VizControlPanel extends React.Component {
             catalogRequestState,
             surfaceOnly,
             showCharts,
-            handleShowCharts,
             handleShowGlobe,
             handleChange,
             handleLatLonChange
@@ -424,6 +484,8 @@ class VizControlPanel extends React.Component {
             : []
 
         let validations;
+
+        const dataSize = this.estimateDataSize();
 
         if(fields) {
             validations = [
@@ -442,8 +504,8 @@ class VizControlPanel extends React.Component {
                 this.checkTimeSeries(),
                 this.checkDepthProfile(),
                 this.checkSparseMap(),
-                this.checkGeneralWarn(),
-                this.checkGeneralPrevent()
+                this.checkGeneralWarn(dataSize),
+                this.checkGeneralPrevent(dataSize)
             ];
         } else validations = Array(17).fill('');
 
@@ -467,7 +529,7 @@ class VizControlPanel extends React.Component {
             generalPreventMessage
         ] = validations;
 
-        const parametersAreInvalid = [
+        const checkDisableVisualizeList = [
             startDepthMessage,
             endDepthMessage,
             startLatMessage,
@@ -475,7 +537,19 @@ class VizControlPanel extends React.Component {
             startLonMessage,
             endLonMessage,
             generalPreventMessage
-        ].some(message => message.length);
+        ];
+
+        const checkDisableVisualize = () => {
+            for(let i = 0; i < checkDisableVisualizeList.length; i++){
+                if(checkDisableVisualizeList[i]) return checkDisableVisualizeList[i];
+            }
+
+            return false;
+        }
+
+        const disableVisualizeMessage = checkDisableVisualize();
+
+        const visualizeButtonTooltip = disableVisualizeMessage ? disableVisualizeMessage : generalWarnMessage ? generalWarnMessage : '';
 
         return (
             <div>
@@ -528,7 +602,7 @@ class VizControlPanel extends React.Component {
                         <Tooltip title='Show Charts' placement='top'>
                             <IconButton 
                                 className={`${classes.groupedButtons} ${showCharts && classes.depressed}`}
-                                onClick={handleShowCharts}
+                                onClick={this.handleShowChartsAndResize}
                                 color='inherit'
                             >
                                 <InsertChartOutlined/>
@@ -545,102 +619,104 @@ class VizControlPanel extends React.Component {
                     <form>
                         <Grid container>
                             <Grid item xs={10}>
-                                <Select
-                                    formatOptionLabel={formatOptionLabel}
-                                    handleTableStatsDialogOpen={this.handleTableStatsDialogOpen}
-                                    isLoading = {catalogRequestState === states.inProgress}
-                                    components={{
-                                        IndicatorSeparator:'',
-                                        DropdownIndicator,
-                                        Option,
-                                        MenuList,
-                                        SingleValue,
-                                    }}
-                                    onInputChange={this.onAutoSuggestChange}
-                                    filterOption={null}
-                                    className={classes.variableSelect}
-                                    escapeClearsValue
-                                    name="fields"
-                                    label="Variables"
-                                    options={options}
-                                    onChange={this.props.updateFields}
-                                    value={fields}
-                                    placeholder="Variable Search"
-                                    styles={{
-                                        menu: provided => ({
-                                            ...provided, 
-                                            zIndex: 1300, 
-                                            top: '-8px',
-                                            left: '230px',
-                                            width: '580px',
-                                            borderRadius: '4px',
-                                            boxShadow: '2px 2px  2px 2px #242424',
-                                            overflow: 'hidden'                                
-                                        }),
+                                <ConnectedTooltip placement='top' title='Enter one or more search terms.'>
+                                    <Select
+                                        formatOptionLabel={formatOptionLabel}
+                                        handleTableStatsDialogOpen={this.handleTableStatsDialogOpen}
+                                        isLoading = {catalogRequestState === states.inProgress}
+                                        components={{
+                                            IndicatorSeparator:'',
+                                            DropdownIndicator,
+                                            Option,
+                                            MenuList,
+                                            SingleValue,
+                                        }}
+                                        onInputChange={this.onAutoSuggestChange}
+                                        filterOption={null}
+                                        className={classes.variableSelect}
+                                        escapeClearsValue
+                                        name="fields"
+                                        label="Variables"
+                                        options={options}
+                                        onChange={this.props.updateFields}
+                                        value={fields}
+                                        placeholder="Variable Search"
+                                        styles={{
+                                            menu: provided => ({
+                                                ...provided, 
+                                                zIndex: 1300, 
+                                                top: '-8px',
+                                                left: navDrawerWidth,
+                                                width: '980px',
+                                                borderRadius: '4px',
+                                                boxShadow: '2px 2px  2px 2px #242424',
+                                                overflow: 'hidden',
+                                                backgroundColor: 'rgba(0,0,0,.5)',
+                                                backdropFilter: 'blur(5px)',
+                                            }),
 
-                                        valueContainer: provided => ({
-                                            ...provided,
-                                            padding: '0 0 0 6px',
-                                            fontWeight: 100
-                                        }),
+                                            valueContainer: provided => ({
+                                                ...provided,
+                                                padding: '0 0 0 6px',
+                                                fontWeight: 100
+                                            }),
 
-                                        input: provided => ({...provided,
-                                            color: 'white',
-                                            fontFamily: '"Lato", sans-serif'
-                                        }),
+                                            input: provided => ({...provided,
+                                                color: 'white',
+                                                fontFamily: '"Lato", sans-serif'
+                                            }),
 
-                                        control: provided => ({...provided,
-                                            backgroundColor: '#3C3C3C',
-                                            border: 'none',
-                                            borderBottom: '1px solid #333333',
-                                            borderRadius: 0,
-                                            '&:hover': { borderColor: 'white' },
-                                            '&:focus-within': { borderColor: colors.orange },
-                                            height: '56px'
-                                        }),
+                                            control: provided => ({...provided,
+                                                backgroundColor: '#424242',
+                                                border: 'none',
+                                                borderBottom: '1px solid #333333',
+                                                borderRadius: 0,
+                                                '&:hover': { borderColor: 'white' },
+                                                '&:focus-within': { borderColor: colors.orange },
+                                                height: '56px'
+                                            }),
 
-                                        placeholder: provided => ({...provided,
-                                            fontFamily: '"Lato", sans-serif',
-                                            color: colors.orange,
-                                            fontSize: '14px',
-                                            fontWeight: 300
-                                        }),
+                                            placeholder: provided => ({...provided,
+                                                fontFamily: '"Lato", sans-serif',
+                                                color: colors.orange,
+                                                fontSize: '14px',
+                                                fontWeight: 300
+                                            }),
 
-                                        noOptionsMessage: provided => ({...provided,
-                                            fontFamily: '"Lato", sans-serif',
-                                            color: colors.orange,
-                                            backgroundColor: colors.backgroundGray
-                                        }),
+                                            noOptionsMessage: provided => ({...provided,
+                                                fontFamily: '"Lato", sans-serif',
+                                                color: colors.orange,
+                                                backgroundColor: colors.backgroundGray
+                                            }),
 
-                                        option: (provided, { data, isFocused }) => {
-                                            return ({...provided,
-                                                fontWeight: 400,
-                                                fontSize: '16px',
-                                                backgroundColor: isFocused ? '#383838' : '#424242',
-                                                // color: data.data.Sensor === 'Satellite' ? '#1acf02' : data.data.Sensor === 'Blend' ? '#fce803' : '#009fd4',
-                                                '&:hover': { backgroundColor: '#383838' },
-                                                ':active': { backgroundColor: '#383838' },
-                                                '&:after': { 
-                                                    content: data.data.Sensor === 'Satellite' ? "'\f7bf'" : data.data.Sensor === 'Blend' ? "'\f109'" : "'\f21a'",
-                                                    float: 'left'
-                                                },
-                                        })},
+                                            option: (provided, { data, isFocused }) => {
+                                                return ({...provided,
+                                                    fontWeight: 400,
+                                                    fontSize: '16px',
+                                                    backgroundColor: 'transparent',
+                                                    color: isFocused ? colors.orange : 'white',
+                                                    // color: data.data.Sensor === 'Satellite' ? '#1acf02' : data.data.Sensor === 'Blend' ? '#fce803' : '#009fd4',
+                                                    '&:hover': { color: colors.orange },
+                                                    '&:active': { backgroundColor: 'rgba(0,0,0,.5)', color: colors.orange},
+                                                    '&:after': { 
+                                                        content: data.data.Sensor === 'Satellite' ? "'\f7bf'" : data.data.Sensor === 'Blend' ? "'\f109'" : "'\f21a'",
+                                                        float: 'left'
+                                                    },
+                                            })},
 
-                                        singleValue: (provided, state) => ({...provided,
-                                            color: 'white',
-                                            fontWeight: 400
-                                        })
-                                    }}
-                                    theme={theme => ({
-                                        ...theme,
-                                        colors: {
-                                        ...theme.colors,
-                                        // Background color of hovered options
-                                        primary25: '#e0e0e0',
-                                        primary: '#212121',
-                                        },
-                                    })}
-                                />
+                                            singleValue: (provided, state) => ({...provided,
+                                                color: 'white',
+                                                fontWeight: 400
+                                            })
+                                        }}
+                                        theme={theme => ({
+                                            ...theme,
+                                            colors: {
+                                            ...theme.colors,
+                                            },
+                                        })}
+                                    />
+                                </ConnectedTooltip>
                             </Grid>
                             <Grid item xs={2} className={classes.tableStatsButton}>
                                 <IconButton 
@@ -654,12 +730,12 @@ class VizControlPanel extends React.Component {
 
                             <Grid item xs={12}>
                                 <KeyboardDatePicker
+                                    className={classes.datePicker}
                                     placeholder='yyyy-MM-dd'
                                     id="startDate"
                                     label="Start Date"
                                     name="dt1"
                                     format='yyyy-MM-dd'
-                                    minDate={fields ? utcDateStringToLocal(fields.data.Time_Min) : ''}
                                     maxDate={fields ? utcDateStringToLocal(fields.data.Time_Max) : ''}
                                     autoOk
                                     value={dt1}
@@ -674,13 +750,13 @@ class VizControlPanel extends React.Component {
 
                             <Grid item xs={12}>
                                 <KeyboardDatePicker
+                                    className={classes.datePicker}
                                     placeholder='yyyy-MM-dd'
                                     id="endDate"
                                     label="End Date"
                                     name="dt2"
                                     format='yyyy-MM-dd'
                                     minDate={fields ? utcDateStringToLocal(fields.data.Time_Min) : ''}
-                                    maxDate={fields ? utcDateStringToLocal(fields.data.Time_Max) : ''}
                                     autoOk
                                     value={dt2}
                                     onChange={this.props.handleEndDateChange}
@@ -700,6 +776,7 @@ class VizControlPanel extends React.Component {
                                     className={classes.textField}
                                     value={lat1}
                                     onChange={handleLatLonChange}
+                                    FormHelperTextProps={{className: classes.helperText}}
                                     helperText={startLatMessage}
                                     name='lat1'
                                     InputProps={{className:classes.padLeft}}
@@ -716,6 +793,7 @@ class VizControlPanel extends React.Component {
                                     className={classes.textField}
                                     value={lat2}
                                     onChange={handleLatLonChange}
+                                    FormHelperTextProps={{className: classes.helperText}}
                                     helperText={endLatMessage}
                                     name='lat2'
                                     InputProps={{className:classes.padLeft}}
@@ -732,6 +810,7 @@ class VizControlPanel extends React.Component {
                                     className={classes.textField}
                                     value={lon1}
                                     onChange={handleLatLonChange}
+                                    FormHelperTextProps={{className: classes.helperText}}
                                     helperText={startLonMessage}
                                     name='lon1'
                                     InputProps={{className:classes.padLeft}}
@@ -748,6 +827,7 @@ class VizControlPanel extends React.Component {
                                     className={classes.textField}
                                     value={lon2}
                                     onChange={handleLatLonChange}
+                                    FormHelperTextProps={{className: classes.helperText}}
                                     helperText={endLonMessage}
                                     name='lon2'
                                     InputProps={{className:classes.padLeft}}
@@ -765,6 +845,7 @@ class VizControlPanel extends React.Component {
                                     className={classes.textField}
                                     value={depth1}
                                     onChange={handleChange}
+                                    FormHelperTextProps={{className: classes.helperText}}
                                     helperText={startDepthMessage}
                                     name='depth1'
                                     InputProps={{className:classes.padLeft}}
@@ -782,6 +863,7 @@ class VizControlPanel extends React.Component {
                                     className={classes.textField}
                                     value={depth2}
                                     onChange={handleChange}
+                                    FormHelperTextProps={{className: classes.helperText}}
                                     helperText={endDepthMessage}
                                     name='depth2'
                                     InputProps={{className:classes.padLeft}}
@@ -794,6 +876,8 @@ class VizControlPanel extends React.Component {
                                 <FormControl variant='filled' className={classes.vizTypeSelectFormControl} disabled={!fields}>
                                     <InputLabel shrink htmlFor="vizSelector" >Type</InputLabel>
                                     <MUISelect
+                                        className={classes.vizTypeSelectFormControl}
+                                        style={overrideDisabledStyle}
                                         value={selectedVizType}
                                         variant='filled'
                                         onChange={this.props.handleChange}
@@ -803,28 +887,31 @@ class VizControlPanel extends React.Component {
                                             variant: 'filled'
                                         }}
                                         >
-                                        <MenuItem disabled={Boolean(heatmapMessage)} value={vizSubTypes.heatmap} title={heatmapMessage}>Heatmap</MenuItem>
-                                        <MenuItem disabled={Boolean(contourMessage)} value={vizSubTypes.contourMap}>Contour</MenuItem>
-                                        <MenuItem disabled={Boolean(sectionMapMessage)} value={vizSubTypes.sectionMap}>Section Map</MenuItem>
-                                        <MenuItem disabled={Boolean(histogramMessage)} value={vizSubTypes.histogram}>Histogram</MenuItem>                                    
-                                        <MenuItem disabled={Boolean(timeSeriesMessage)} value={vizSubTypes.timeSeries}>Time Series</MenuItem>
-                                        <MenuItem disabled={Boolean(depthProfileMessage)} value={vizSubTypes.depthProfile}>Depth Profile</MenuItem>
-                                        <MenuItem disabled={Boolean(sparseMapMessage)} value={vizSubTypes.sparse}>Sparse Map</MenuItem>
+                                        {!heatmapMessage && <MenuItem value={vizSubTypes.heatmap} title={heatmapMessage}>Heatmap</MenuItem>}
+                                        {!contourMessage && <MenuItem value={vizSubTypes.contourMap}>Contour Heatmap</MenuItem>}
+                                        {!sectionMapMessage && <MenuItem value={vizSubTypes.sectionMap}>Section Map</MenuItem>}
+                                        {!sectionMapMessage && <MenuItem value={vizSubTypes.contourSectionMap}>Contour Section Map</MenuItem>}
+                                        {!histogramMessage && <MenuItem value={vizSubTypes.histogram}>Histogram</MenuItem>}                      
+                                        {!timeSeriesMessage && <MenuItem value={vizSubTypes.timeSeries}>Time Series</MenuItem>}
+                                        {!depthProfileMessage && <MenuItem value={vizSubTypes.depthProfile}>Depth Profile</MenuItem>}
+                                        {!sparseMapMessage && <MenuItem value={vizSubTypes.sparse}>Sparse Map</MenuItem>}
                                     </MUISelect>
                                 </FormControl>
                             </Grid>
 
-                            <Grid item xs={12}>
-                                <Button
-                                    className={classes.visualizeButton}
-                                    variant='contained'
-                                    onClick={() => this.props.onVisualize()}
-                                    disabled={!selectedVizType || parametersAreInvalid || !fields}
-                                    fullWidth
-                                >
-                                    Visualize
-                                </Button>
-                            </Grid>
+                            <Tooltip placement='right' title={visualizeButtonTooltip} className={classes.vizButtonTooltip}>
+                                <Grid item xs={12}>
+                                    <Button
+                                        className={classes.visualizeButton}
+                                        variant='contained'
+                                        onClick={() => this.props.onVisualize()}
+                                        disabled={Boolean(disableVisualizeMessage) || !fields || !selectedVizType}
+                                        fullWidth
+                                    >
+                                        Visualize
+                                    </Button>
+                                </Grid>
+                            </Tooltip>
                         </Grid>
                     </form>                    
                 </Drawer>
@@ -834,201 +921,3 @@ class VizControlPanel extends React.Component {
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(VizControlPanel));
-
-// import { makeStyles, useTheme } from '@material-ui/core/styles';
-// import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-
-// const useStyles = makeStyles(theme => ({
-//   root: {
-//     display: 'flex',
-//   },
-//   appBar: {
-//     transition: theme.transitions.create(['margin', 'width'], {
-//       easing: theme.transitions.easing.sharp,
-//       duration: theme.transitions.duration.leavingScreen,
-//     }),
-//   },
-//   appBarShift: {
-//     width: `calc(100% - ${drawerWidth}px)`,
-//     marginLeft: drawerWidth,
-//     transition: theme.transitions.create(['margin', 'width'], {
-//       easing: theme.transitions.easing.easeOut,
-//       duration: theme.transitions.duration.enteringScreen,
-//     }),
-//   },
-//   menuButton: {
-//     marginRight: theme.spacing(2),
-//   },
-//   hide: {
-//     display: 'none',
-//   },
-//   drawer: {
-//     width: drawerWidth,
-//     flexShrink: 0,
-//   },
-//   drawerPaper: {
-//     width: drawerWidth,
-//   },
-//   drawerHeader: {
-//     display: 'flex',
-//     alignItems: 'center',
-//     padding: theme.spacing(0, 1),
-//     ...theme.mixins.toolbar,
-//     justifyContent: 'flex-end',
-//   },
-//   content: {
-//     flexGrow: 1,
-//     padding: theme.spacing(3),
-//     transition: theme.transitions.create('margin', {
-//       easing: theme.transitions.easing.sharp,
-//       duration: theme.transitions.duration.leavingScreen,
-//     }),
-//     marginLeft: -drawerWidth,
-//   },
-//   contentShift: {
-//     transition: theme.transitions.create('margin', {
-//       easing: theme.transitions.easing.easeOut,
-//       duration: theme.transitions.duration.enteringScreen,
-//     }),
-//     marginLeft: 0,
-//   },
-// }));
-
-// export default function PersistentDrawerLeft() {
-//   const classes = useStyles();
-//   const theme = useTheme();
-//   const [open, setOpen] = React.useState(false);
-
-//   const handleDrawerOpen = () => {
-//     setOpen(true);
-//   };
-
-//   const handleDrawerClose = () => {
-//     setOpen(false);
-//   };
-
-//   return (
-//     <div className={classes.root}>
-//       <Drawer
-//         className={classes.drawer}
-//         variant="persistent"
-//         anchor="left"
-//         open={open}
-//         classes={{
-//           paper: classes.drawerPaper,
-//         }}
-//       >
-//         <div className={classes.drawerHeader}>
-//           <IconButton onClick={handleDrawerClose}>
-//             {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-//           </IconButton>
-//         </div>
-//         <Divider />
-//         <List>
-//           {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-//             <ListItem button key={text}>
-//               <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-//               <ListItemText primary={text} />
-//             </ListItem>
-//           ))}
-//         </List>
-//         <Divider />
-//         <List>
-//           {['All mail', 'Trash', 'Spam'].map((text, index) => (
-//             <ListItem button key={text}>
-//               <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-//               <ListItemText primary={text} />
-//             </ListItem>
-//           ))}
-//         </List>
-//       </Drawer>
-//     </div>
-//   );
-// }
-
-// import React from 'react';
-// import { connect } from 'react-redux';
-
-// import { withStyles } from '@material-ui/core/styles';
-
-// import Paper from '@material-ui/core/Paper';
-// import Grid from '@material-ui/core/Grid';
-// import Tooltip from '@material-ui/core/Tooltip';
-// import IconButton from '@material-ui/core/IconButton';
-// import { InsertChartOutlined, Delete, Web, Language } from '@material-ui/icons';
-
-// import { clearCharts } from '../Redux/actions/visualization';
-
-// const mapStateToProps = (state, ownProps) => ({
-//     charts: state.charts
-// })
-
-// const mapDispatchToProps = {
-//     clearCharts
-// }
-
-// const styles = (theme) => ({
-
-//     panelPaper: {
-//         width: '27px',
-//         // height: '240px',
-//         padding: theme.spacing(0.3),
-//         position:'fixed',
-//         left: '80vw',
-//         bottom: '15px',
-//         zIndex: 2,
-//         textDecoration:'none',
-//         cursor: 'pointer',
-//         borderRadius: '5%',
-//         backgroundColor: 'transparent'
-//     },
-
-//     iconButton: {
-//         padding: theme.spacing(0.4),
-//         marginLeft: '-2px',
-//         marginTop: '-1px'
-//     }
-// })
-
-// const VizControlPanel = (props) => {
-//     const { classes } = props;
-
-//     return (
-//         <div>
-//             <Paper className={classes.panelPaper}>
-//                 <Grid container direction='column'>
-
-//                     <Tooltip title={props.showUI ? 'Hide UI' : 'Show UI'}>
-//                         <IconButton color='secondary' onClick={props.toggleShowUI} className={classes.iconButton}>
-//                             <Web/>
-//                         </IconButton>
-//                     </Tooltip>
-
-//                     {props.showCharts? 
-//                         <Tooltip title='Show Globe'>
-//                             <IconButton color='secondary' onClick={props.toggleChartView} className={classes.iconButton}>
-//                                 <Language/>
-//                             </IconButton>
-//                         </Tooltip>                
-//                     :
-//                         <Tooltip title='Show Charts'>
-//                             <IconButton color={props.charts.length ? 'primary' : 'secondary'} onClick={props.toggleChartView} className={classes.iconButton}>
-//                                 <InsertChartOutlined/>
-//                             </IconButton>
-//                         </Tooltip>            
-//                     }
-
-//                     <Tooltip title='Clear Visualizations'>
-//                         <IconButton color='secondary' onClick={props.clearCharts} className={classes.iconButton}>
-//                             <Delete/>
-//                         </IconButton>
-//                     </Tooltip>
-
-//                 </Grid>
-//             </Paper>
-//         </div>
-//     )
-// }
-
-
-// export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(VizControlPanel));

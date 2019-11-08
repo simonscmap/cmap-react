@@ -1,5 +1,6 @@
 const subTypes= {
     sectionMap: 'Section Map',
+    contourSectionMap: 'Contour Section Map',
     timeSeries: 'Time Series',
     histogram: 'Histogram',
     depthProfile: 'Depth Profile',

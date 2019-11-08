@@ -139,6 +139,10 @@ api.visualization.storedProcedureRequest = async(payload) => {
         }
     })
 
+    csvParser.on('error', (e) => {
+        console.log(e);
+    })
+
     let body = response.body;
     let reader = body.getReader();
     let readerIsDone = false;
@@ -146,6 +150,9 @@ api.visualization.storedProcedureRequest = async(payload) => {
     while(!readerIsDone){
         let chunk = await reader.read();
         if(chunk.done) {
+            readerIsDone = true;
+        }
+        else {
             csvParser.write(decoder.decode(chunk.value));
         };
     }
@@ -206,36 +213,3 @@ api.visualization.cruiseList = async() => {
 }
 
 export default api;
-
-// Test for splitData
-// let depthMap = {};
-//     let dateMap = {};
-
-//     let depthCount = 0;
-//     vizData.depths.forEach(depth => {
-//         depthMap[depth] = depthCount;
-//         depthCount ++;
-//     })
-
-//     let dateCount = 0;
-//     vizData.dates.forEach(date => {
-//         dateMap[date] = dateCount;
-//         dateCount ++;
-//     })
-    
-//     let splitData = vizData.generatePlotData(true,true);
-//     console.log(splitData);
-//     for(let i = 0; i < tempArr.length; i++){
-//         let theValue = tempArr[i].Fe
-//         let theIndex = dateMap[tempArr[i].time] * vizData.depths.size + depthMap[tempArr[i].depth];
-//         console.log(splitData[theIndex]);
-//         console.log(theValue);
-//         if(splitData[theIndex].includes(theValue)) console.log('correct');
-//         else {
-//             console.log('Incorrect'); 
-//             return;
-//         }
-//     }
-
-//     console.log(depthMap);
-//     console.log(dateMap);

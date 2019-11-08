@@ -36,7 +36,9 @@ const validation = {
     generic: {
         invalid: 'Invalid input',
         dataSizeWarning: 'Wait time and application performance may be poor due to size of data.',
-        dataSizePrevent: 'Data set is too large. Please reduce date range or area size.'
+        dataSizePrevent: 'Data set is too large. Please reduce date range or area size.',
+        variableMissing: 'Please select a variable',
+        vizTypeMissing: 'Please select a visualization type'
     }
 }
 

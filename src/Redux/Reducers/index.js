@@ -20,6 +20,7 @@ const initialState = {
     snackbarIsOpen: false,
     snackbarMessage: null,
     loadingMessage: '',
+    showHelp: false,
 
     // User state pieces
     user: JSON.parse(Cookies.get('UserInfo') || null),

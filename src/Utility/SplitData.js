@@ -1,4 +1,4 @@
-// Interval number of indices between changes in this parameter, or in order words
+// Interval is number of indices between changes in this parameter, or in order words
 // how many times will we see the same value for this parameter in a row before it changes
 // as we iterate through the values array.
 // We use modulo for cases where data.length / interval is larger than the number of 

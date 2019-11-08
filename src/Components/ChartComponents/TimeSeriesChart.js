@@ -6,10 +6,13 @@ import { withStyles } from '@material-ui/core/styles';
 import Plot from 'react-plotly.js';
 
 import colors from '../../Enums/colors';
+import chartBase from '../../Utility/chartBase';
 
 import ChartControlPanel from './ChartControlPanel';
 
 import { setLoadingMessage } from '../../Redux/actions/ui';
+
+import { format } from 'd3-format';
 
 const styles = theme => ({
     chartWrapper: {
@@ -34,6 +37,8 @@ const TimeSeriesChart = (props) => {
     const { data } = props.chart;
     const { stds, variableValues, dates, parameters, metadata } = data;
 
+    const [markerOptions, setMarkerOptions] = React.useState({opacity: .2, color:'#ff1493', size: 12})
+
     const downloadCsv = () => {
         setLoadingMessage('Processing Data');
     
@@ -51,12 +56,26 @@ const TimeSeriesChart = (props) => {
             a.click();
             document.body.removeChild(a);
         }, 100)
-    }  
+    }
+
+    const handleMarkerOptionsConfirm = (values) => {
+        props.setLoadingMessage('Re-rendering');
+        setTimeout(() => {
+            window.requestAnimationFrame(() => props.setLoadingMessage(''));
+            setMarkerOptions(values);
+        }, 100)
+    }
+
+    let hovertext = variableValues.map((value, i) => {
+        return `Time: ${dates[i].slice(0,10)}<br>${parameters.fields}: ${format('.2e')(value)} \xb1 ${format('.2e')(stds[i])} [${metadata.Unit}]`;
+    })
 
     return (
         <div>
             <ChartControlPanel
                 downloadCsv={downloadCsv}
+                handleMarkerOptionsConfirm={handleMarkerOptionsConfirm}
+                markerOptions={markerOptions}
             />
             <Plot
                 style= {{
@@ -66,28 +85,35 @@ const TimeSeriesChart = (props) => {
 
                 data={[
                   {
-                  x: dates,
-                  y: variableValues,
-                  error_y: {
-                    type: 'data',
-                    array: stds,
-                    opacity: 0.2,
-                    color: 'gray',
-                    visible: true
-                  },
-                  name: parameters.fields,
-                  type: 'scatter',
-                  line: {color: '#e377c2'},
+                        mode: 'lines+markers',
+                    x: dates,
+                    y: variableValues,
+                    error_y: {
+                        type: 'data',
+                        array: stds,
+                        opacity: 0.3,
+                        color: '#f2f2f2',
+                        visible: true
+                    },
+                    name: parameters.fields,
+                    type: 'scatter',
+                    line: {color: markerOptions.color},
+                    marker: {
+                        opacity: markerOptions.opacity,
+                        size: markerOptions.size,
+                        color: markerOptions.color
+                    },
+                    hoverinfo: 'text',
+                    hovertext
                   },
                 ]}
-
+                config={{...chartBase.config}}
                 layout= {{
-                    title: `${parameters.fields}[${metadata.Unit}]  ${parameters.dt1} to ${parameters.dt2}`,
-
-                    paper_bgcolor: colors.backgroundGray,
-                    font: {
-                        color: '#ffffff'
-                    },
+                    ...chartBase.layout,
+                    plot_bgcolor: 'transparent',
+                    width: 800,
+                    height: 570,
+                    title: `${parameters.fields} [${metadata.Unit}]  ${parameters.dt1} to ${parameters.dt2}`,
                   xaxis: {
                       title: 'Time',
                       color: '#ffffff',
@@ -98,21 +124,7 @@ const TimeSeriesChart = (props) => {
                       color: '#ffffff',
                       exponentformat: 'power'
                     },
-                  annotations: [
-                    {
-                        text: `Source: ${metadata.Distributor.length < 30 ? 
-                                metadata.Distributor : 
-                                metadata.Distributor.slice(0,30)} -- Provided by Simons CMAP`,
-                        font: {
-                            color: 'white',
-                            size: 10
-                        },
-                        xref: 'paper',
-                        yref: 'paper',
-                        yshift: -202,
-                        showarrow: false,
-                    }
-                ]
+                  annotations: chartBase.annotations(metadata.Distributor)
                 }}
                 
             />

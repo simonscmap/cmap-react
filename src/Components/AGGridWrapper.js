@@ -11,6 +11,8 @@ import { withStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import { Paper } from '@material-ui/core';
 
+import ConnectedTooltip from './ConnectedTooltip';
+
 const detailCellRendererParams = {
   template:
     '<div style="height: 100%; box-sizing: border-box" class="testClass">' +
@@ -171,21 +173,23 @@ class AGGridWrapper extends Component {
 
     return (
         <Paper elevation={12} className={classes.gridPaper}>
-          <TextField
-            className={classes.gridSearch}
-            autoFocus={true}
-            margin="normal"
-            id="name"
-            type="text"
-            variant='outlined'
-            name='filterText'
-            value={this.state.filterText}
-            onChange={this.handleChange}
-            label="Variable Search"
-            InputLabelProps={{
-                shrink: true,
-            }}
-          />
+          <ConnectedTooltip placement title='Enter one or more search terms.' placement='top'>
+            <TextField
+              className={classes.gridSearch}
+              autoFocus={true}
+              margin="normal"
+              id="name"
+              type="text"
+              variant='outlined'
+              name='filterText'
+              value={this.state.filterText}
+              onChange={this.handleChange}
+              label="Variable Search"
+              InputLabelProps={{
+                  shrink: true,
+              }}
+            />
+          </ConnectedTooltip>
           <div className={classes.gridWrapper + " ag-theme-material"}>
             <AgGridReact
               // General settings

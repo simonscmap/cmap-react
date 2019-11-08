@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 
 import vizSubTypes from '../Enums/visualizationSubTypes';
 import storedProcedures from '../Enums/storedProcedures';
-import regionRenderModes from '../Enums/regionRenderModes';
 
 import { withStyles } from '@material-ui/core/styles';
 
@@ -33,6 +32,7 @@ import cleanSPParams from '../Utility/cleanSPParams';
 import localDateToString from '../Utility/localDateToString';
 import utcDateStringToLocal from '../Utility/utcDateStringToLocal';
 import TopNavBar from './TopNavBar';
+import temporalResolutions from '../Enums/temporalResolutions';
 // import subTypes from '../Enums/visualizationSubTypes';
 
 const mapVizType = (vizType) => {
@@ -40,7 +40,11 @@ const mapVizType = (vizType) => {
         [vizSubTypes.sectionMap]: {
             sp: storedProcedures.sectionMap,
             subType: vizSubTypes.sectionMap
-        }, 
+        },
+        [vizSubTypes.contourSectionMap]: {
+            sp: storedProcedures.sectionMap,
+            subType: vizSubTypes.contourSectionMap
+        },
         [vizSubTypes.timeSeries]: {
             sp: storedProcedures.timeSeries,
             subType: vizSubTypes.timeSeries
@@ -101,6 +105,10 @@ const styles = (theme) => ({
 
     background: {
         backgroundColor: colors.backgroundGray
+    },
+
+    showCharts: {
+        display: 'inline-block'
     }
 })
 
@@ -115,8 +123,6 @@ class Visualization extends Component {
         surfaceOnly: false,
         irregularSpatialResolution: false,
 
-        regionRenderMode: regionRenderModes.draw,
-        
         spParams: {
             tableName: '',
             fields: null,
@@ -143,7 +149,6 @@ class Visualization extends Component {
             'SketchViewModel',
             'Utils',
             'Graphic',
-            'Sketch'
         ];
 
         var loadedModules = await loadModules([
@@ -153,8 +158,7 @@ class Visualization extends Component {
             'esri/widgets/Sketch/SketchViewModel',
             'esri/geometry/support/webMercatorUtils',
             'esri/Graphic',
-            "esri/widgets/Sketch",
-        ]);
+        ], {version: 'next'});
 
         var esriModules = esriModuleNames.reduce((accumulator, currentValue, currentIndex) => {
             accumulator[currentValue] = loadedModules[currentIndex];
@@ -179,7 +183,6 @@ class Visualization extends Component {
         this.setState({
             ...this.state, 
             spParams: {...this.state.spParams, [event.target.name]: event.target.value},
-            regionRenderMode: regionRenderModes.form
         })
     }
 
@@ -233,16 +236,29 @@ class Visualization extends Component {
             let surfaceOnly = !fields.data.Depth_Min;
             let irregularSpatialResolution = fields.data.Spatial_Resolution === 'Irregular';
 
-            let selectedVizType = irregularSpatialResolution ? vizSubTypes.sparse : '';
-            let dt1 = utcDateStringToLocal(fields.data.Time_Min);
-            let dt2 = irregularSpatialResolution ? utcDateStringToLocal(fields.data.Time_Max) : utcDateStringToLocal(fields.data.Time_Min);
+            let dt1 = fields.data.Temporal_Resolution === temporalResolutions.monthlyClimatology ?
+                this.state.spParams.dt1 : utcDateStringToLocal(fields.data.Time_Min);
+            let dt2 = fields.data.Temporal_Resolution === temporalResolutions.monthlyClimatology ?
+                this.state.spParams.dt2 : 
+                irregularSpatialResolution ? utcDateStringToLocal(fields.data.Time_Max) :
+                utcDateStringToLocal(fields.data.Time_Min);
+
             let lat1 = irregularSpatialResolution ? fields.data.Lat_Min : this.state.spParams.lat1;
             let lat2 = irregularSpatialResolution ? fields.data.Lat_Max : this.state.spParams.lat2;
             let lon1 = irregularSpatialResolution ? fields.data.Lon_Min : this.state.spParams.lon1;
             let lon2 = irregularSpatialResolution ? fields.data.Lon_Max : this.state.spParams.lon2;
-            let depth1 = fields.data.Depth_Min && fields.data.Depth_Min > 0 ? (fields.data.Depth_Min - .001).toFixed(3) : 0;
-            let depth2 = irregularSpatialResolution ? (Number.parseFloat(fields.data.Depth_Max) + .001).toFixed(3) : 
-                fields.data.Depth_Min ? (Number.parseFloat(fields.data.Depth_Min) + .001).toFixed(3) : 0;
+            let depth1 = irregularSpatialResolution ? fields.data.Depth_Min : this.state.spParams.depth1;
+            let depth2 = irregularSpatialResolution ? fields.data.Depth_Max : this.state.spParams.depth2;
+
+            if(irregularSpatialResolution){
+                this.globeUIRef.current.props.view.goTo({
+                    target: [(parseFloat(lon1) + parseFloat(lon2)) / 2, (parseFloat(lat1) + parseFloat(lat2)) / 2],
+                    zoom: 3
+                }, {
+                    maxDuration: 2500,
+                    speedFactor: .5
+                }); 
+            }
 
             let tableName = fields.data.Table_Name;
             
@@ -259,8 +275,8 @@ class Visualization extends Component {
                     lon2,
                     depth1,
                     depth2,
-                    selectedVizType,
-                    tableName
+                    tableName,
+                    selectedVizType: ''
                 }
             });
         } else {
@@ -280,28 +296,15 @@ class Visualization extends Component {
         this.setState({...this.state, showUI: !this.state.showUI});
     }
 
-    updateDomainFromMap = (coordinates) => {
-        if(!coordinates || !coordinates.length) return null;
-        
-        var lons = coordinates.map(a => a[0]);
-        var lats = coordinates.map(a => a[1]);
-
-        var newCoordinates = {
-            lat1: Math.min(...lats).toFixed(3),
-            lat2: Math.max(...lats).toFixed(3),
-            lon1: Math.min(...lons).toFixed(3),
-            lon2: Math.max(...lons).toFixed(3)
-        };
-
-        this.setState({...this.state, spParams: {...this.state.spParams, ...newCoordinates}});
-    }
-
     updateDomainFromGraphicExtent = (extent) => {
+        var _lon1 = extent.xmin > -180 ? extent.xmin : extent.xmin + 360;
+        var _lon2 = extent.xmax < 180 ? extent.xmax : extent.xmax - 360;
+
         var newCoordinates = {
             lat1: extent.ymin.toFixed(3),
             lat2: extent.ymax.toFixed(3),
-            lon1: extent.xmin.toFixed(3),
-            lon2: extent.xmax.toFixed(3)
+            lon1: _lon1.toFixed(3),
+            lon2: _lon2.toFixed(3)
         };
 
         this.setState({...this.state, spParams: {...this.state.spParams, ...newCoordinates}});
@@ -313,7 +316,7 @@ class Visualization extends Component {
         if(!this.props.user) return <LoginRequiredPrompt/>
 
         return (
-            <div className={classes.background}>
+            <div>
                 <TopNavBar/>
                 <DataRetrievalForm 
                     handleChange={this.handleChange}
@@ -349,18 +352,15 @@ class Visualization extends Component {
                     <div className={`${this.state.showCharts ? classes.displayNone : ''}`}>
                         <MapContainer
                             globeUIRef={this.globeUIRef}
-                            updateDomainFromMap={this.updateDomainFromMap}
                             updateDomainFromGraphicExtent={this.updateDomainFromGraphicExtent}
-                            drawMode={() => this.setState({...this.state, regionRenderMode: regionRenderModes.draw})}
                             esriModules={this.state.esriModules}
-                            regionRenderMode={this.state.regionRenderMode}
                             spParams={this.state.spParams}
                             cruiseTrajectory={this.props.cruiseTrajectory}
                         />
                     </div>
                 }
 
-                <div className={this.state.showCharts ? '' : classes.displayNone}>
+                <div className={this.state.showCharts ? classes.showCharts : classes.displayNone}>
                     <Charts/>
                 </div>
             </div>

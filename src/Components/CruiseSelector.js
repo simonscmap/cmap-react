@@ -36,29 +36,40 @@ const styles = theme => ({
     outerDiv: {
         padding:'12px',
         maxWidth: '260px',
-        // backgroundColor: esriBackgroundColor,
         backgroundColor: 'transparent',
         color: esriFontColor,
         borderRadius: '4px',
-        boxShadow: '2px'
+        boxShadow: '2px',
+        position: 'relative',
+        backdropFilter: 'blur(2px)'
     },
 
     cruiseSelect: {
         width: '260px',
-        borderRadius: '4px'
+        borderRadius: '4px',
     },
 
     cruiseInfo: {
         color: esriFontColor,
         fontFamily: esriFonts,
-        margin: '12px auto 0 auto'
+        margin: '12px auto 0 auto',
     },
 
     cruiseInfoCell: {
         color: esriFontColor,
         fontFamily: esriFonts,
-        borderStyle: 'none'
-    }
+        borderStyle: 'none',
+    },
+
+    // blurEffectDiv: {
+    //     filter: 'blur(5px)',
+    //     position: 'absolute',
+    //     top: '0px',
+    //     left: '0px',
+    //     right: '0px',
+    //     bottom: '0px',
+    //     zIndex: 99999999
+    // }
 })
 
 // Replace react-select selected option
@@ -74,6 +85,8 @@ const Option = (props) => {
         <components.Option {...props} className={props.className}/>
     )
 }
+
+const cruiseSort =  (a,b) => a.Name < b.Name ? -1 : 1;
 
 class CruiseSelector extends Component {
     
@@ -106,8 +119,8 @@ class CruiseSelector extends Component {
 
     getSelectOptionsFromCruiseList = (list) => {
         return list.map(item => ({
-            value: item.Nickname,
-            label: item.Nickname,
+            value: item.Name,
+            label: item.Name,
             data: item
         })) || []
     }
@@ -139,12 +152,13 @@ class CruiseSelector extends Component {
 
         const { classes, cruiseList} = this.props;
 
-        const options = searchField && cruiseList ? this.getSelectOptionsFromCruiseList(search.search(searchField)) 
+        const options = searchField && cruiseList ? this.getSelectOptionsFromCruiseList(search.search(searchField).sort(cruiseSort)) 
             : cruiseList ? this.getSelectOptionsFromCruiseList(cruiseList) 
             : []
 
         return (
             <div id='cruise-selector' className={classes.outerDiv}>
+                <div className={classes.blurEffectDiv}></div>
                 <Select
                     isLoading={this.props.getCruiseListState === states.inProgress}
                     components={{
@@ -257,6 +271,18 @@ class CruiseSelector extends Component {
                             }
 
                             {
+                                selectedCruise.data.End_Time &&
+                                <TableRow>
+                                    <TableCell className={classes.cruiseInfoCell}>
+                                        End Date:
+                                    </TableCell>
+                                    <TableCell className={classes.cruiseInfoCell}>
+                                        {selectedCruise.data.End_Time.slice(0,10)}
+                                    </TableCell>
+                                </TableRow>
+                            }
+
+                            {
                                 selectedCruise.data.Chief_Name &&
                                 <TableRow>
                                     <TableCell className={classes.cruiseInfoCell}>
@@ -281,11 +307,6 @@ class CruiseSelector extends Component {
                             }
                         </TableBody>
                     </Table>
-                    // <div>                    
-                    //     <p>Cruise {selectedCruise.data.Name}</p>
-                    //     <p>Disembarked {selectedCruise.data.Start_Time.slice(0,10)}</p>
-                    //     <p>Chief Scientist {selectedCruise.data.Chief_Name}</p>    
-                    // </div>            
                 }
             </div>
         )

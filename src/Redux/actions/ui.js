@@ -37,3 +37,7 @@ export const setLoadingMessage = (message) => ({
         message
     }
 })
+
+export const toggleShowHelp = () => ({
+    type: interfaceActionTypes.TOGGLE_SHOW_HELP
+})

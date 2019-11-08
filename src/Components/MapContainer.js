@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 
 import { Scene } from '@esri/react-arcgis';
-import regionRenderModes from '../Enums/regionRenderModes';
 
 import CruiseSelector from './CruiseSelector';
 import colors from '../Enums/colors';
@@ -92,30 +91,49 @@ const polygonSymbol = {
 
 class UiComponents extends React.Component {
 
+    constructor(props) {
+        super(props);
+        this.sketchModel = new props.esriModules.SketchViewModel({
+            layer: props.regionLayer,
+            view: props.view,
+            polygonSymbol,
+            defaultUpdateOptions: {
+                toggleToolOnClick: false,
+                tool: "transform"
+            }
+        })
+    }
+
     shouldComponentUpdate = (nextProps, nextState) => {
         return false;
     }
 
     render() {
-        const { view, esriModules, regionLayer, setShowHelp, drawMode } = this.props;
+        const { view, esriModules, regionLayer, setShowHelp } = this.props;
+        var { sketchModel } = this;
 
-        const updateOptions = {
-            toggleToolOnClick: false,
-            tool: "transform"
-        }
+        // const updateOptions = {
 
-        var sketchModel = new esriModules.SketchViewModel({
-            layer: regionLayer,
-            view,
-            polygonSymbol,
-            defaultUpdateOptions: updateOptions
-        })
+        // }
+
+        // var sketchModel = new esriModules.SketchViewModel({
+        //     layer: regionLayer,
+        //     view,
+        //     polygonSymbol,
+        //     defaultUpdateOptions: updateOptions
+        // })
 
         var drawButton = document.getElementById('draw-button');
         var cancelButton = document.getElementById('cancel-button');
 
         sketchModel.on("create", (event) => {
-            if (event.state === "complete") {
+            if(event.state === 'cancel'){
+                setShowHelp(false);
+                drawButton.style.display = 'inline-block';
+                cancelButton.style.display = 'none';
+            }
+
+            if(event.state === "complete") {
                 setShowHelp(false);
                 this.props.updateDomainFromGraphicExtent(esriModules.Utils.webMercatorToGeographic(event.graphic.geometry.extent));
                 drawButton.style.display = 'inline-block';
@@ -124,13 +142,16 @@ class UiComponents extends React.Component {
         });        
 
         sketchModel.on('update', (event) => {
-            this.props.updateDomainFromGraphicExtent(esriModules.Utils.webMercatorToGeographic(event.graphics[0].geometry.extent));
-            drawButton.style.display = 'inline-block';
-            cancelButton.style.display = 'none';
-        })       
+            if(event.toolEventInfo && event.toolEventInfo.type === 'move-stop'){
+                if(event.state === 'cancel') return;
+                // this.props.updateDomainFromGraphicExtent(esriModules.Utils.webMercatorToGeographic(event.graphics[0].geometry.extent));
+                this.props.updateDomainFromGraphicExtent(event.graphics[0].geometry.extent);
+                drawButton.style.display = 'inline-block';
+                cancelButton.style.display = 'none';
+            }
+        });   
         
         drawButton.addEventListener("click", (event) => {
-                drawMode();
                 regionLayer.removeAll();
                 setShowHelp(true);
                 sketchModel.create('rectangle', {
@@ -161,16 +182,44 @@ class UiComponents extends React.Component {
 
 const TrajectoryController = React.memo((props) => {
     const { cruiseTrajectory, trajectoryLayer, esriModules } = props;
-
+    
     if(cruiseTrajectory){
+        const { lons, lats } = cruiseTrajectory;
+
         trajectoryLayer.removeAll();
 
-        const paths = cruiseTrajectory.lons.map((lon, i) => [lon, cruiseTrajectory.lats[i]]);
+        var polyLines = [[]];
+        var lineIndex = 0;
 
-        var cruiseTrajectoryGeometry = {
-            type: 'polyline',
-            paths
-        }
+        let lonStart = lons[0];
+        let latStart = lats[0];
+        let maxDistance = 0;
+
+        // Create a new path array each time 180 lon is crossed
+        lons.forEach((lon, i) => {
+            let lat = lats[i];
+
+            let latDistance = Math.abs(lat - latStart);
+            let _lonDistance = Math.abs(lon - lonStart);
+            let lonDistance = _lonDistance > 180? 360 - _lonDistance : _lonDistance;
+
+            let distance = Math.sqrt(latDistance * latDistance + lonDistance * lonDistance);
+            maxDistance = distance > maxDistance ? distance : maxDistance;
+
+            polyLines[lineIndex].push([lon, lat]);
+
+            if(i < lons.length - 1){
+                if((lon > 160 && lon < 180) && (lons[i + 1] > -180 && lons[i + 1] < -160)){
+                    polyLines.push([]);
+                    lineIndex ++;
+                }
+
+                if((lon > -180 && lon < -160) && (lon[i + 1] > 160 && lon[i + 1] < 180)){
+                    polyLines.push([]);
+                    lineIndex ++;
+                }
+            }
+        })
 
         var cruiseTrajectorySymbol = {
             type: 'line-3d',
@@ -183,23 +232,25 @@ const TrajectoryController = React.memo((props) => {
             }]
         }
 
-        let graphic = new esriModules.Graphic({
-            geometry: cruiseTrajectoryGeometry,
-            symbol: cruiseTrajectorySymbol
-        });
+        polyLines.forEach(line => {
 
-        trajectoryLayer.add(graphic);
+            let cruiseTrajectoryGeometry = {
+                type: 'polyline',
+                paths: line
+            }
+
+            let graphic = new esriModules.Graphic({
+                geometry: cruiseTrajectoryGeometry,
+                symbol: cruiseTrajectorySymbol
+            });
+
+            trajectoryLayer.add(graphic);
+        })
 
         try {
-            const { extent } = graphic.geometry;
-            const center = [extent.center.x,extent.center.y];
+            const center = [lons[0], lats[0]];
 
-            const xSize = extent.xmax - extent.xmin;
-            const ySize = extent.ymax - extent.ymin;
-            var graphicSize = xSize > ySize ? xSize : ySize;
-            graphicSize = graphicSize > 60 ? 60 : graphicSize;
-
-            var zoom = 7 - Math.floor(graphicSize / 10);            
+            var zoom = 7 - Math.floor(maxDistance / 10);            
     
             props.view.goTo({
                 target: center,
@@ -236,32 +287,35 @@ class MapContainer extends Component {
     }
 
     render = () => {
-        const { classes, esriModules, regionRenderMode, spParams, cruiseTrajectory } = this.props;
+        const { classes, esriModules, spParams, cruiseTrajectory, globeUIRef } = this.props;
+
+
         const lat1 = parseFloat(spParams.lat1);
         const lat2 = parseFloat(spParams.lat2);
         const lon1 = parseFloat(spParams.lon1);
-        const lon2 = parseFloat(spParams.lon2);
+        let _lon2 = parseFloat(spParams.lon2);
+        const lon2 = _lon2 < lon1 ? _lon2 + 360 : _lon2;
 
-        if(regionRenderMode === regionRenderModes.form){
-            this.regionLayer.removeAll();
+        this.regionLayer.removeAll();
 
-            var polygon = {
-                type: 'polygon', 
-                rings: [
-                    [lon1, lat1],
-                    [lon2, lat1],
-                    [lon2, lat2],
-                    [lon1, lat2],
-                    [lon1, lat1]
-                ]
-            };
+        var polygon = {
+            type: 'polygon', 
+            rings: [
+                [lon1, lat1],
+                [lon2, lat1],
+                [lon2, lat2],
+                [lon1, lat2],
+                [lon1, lat1]
+            ]
+        };
 
-            this.regionLayer.add(new esriModules.Graphic({
-                geometry: polygon,
-                symbol: polygonSymbol
-            }))
-        }
-        
+        let regionGraphic = new esriModules.Graphic({
+            geometry: polygon,
+            symbol: polygonSymbol
+        })
+
+        this.regionLayer.add(regionGraphic);
+
         return (
             <div className={classes.container}>
                 <Scene
@@ -283,14 +337,12 @@ class MapContainer extends Component {
                         esriModules={esriModules}
                     />
                     <UiComponents
-                        updateDomainFromMap={this.props.updateDomainFromMap}
                         updateDomainFromGraphicExtent = {this.props.updateDomainFromGraphicExtent}
                         esriModules={esriModules}
                         measurementPositions={this.props.measurementPositions}
                         regionLayer={this.regionLayer}
                         setShowHelp={(showHelp) => this.setState({...this.state, showHelp})}
                         ref={this.props.globeUIRef}
-                        drawMode={this.props.drawMode}
                     />
                 </Scene>
                 <DrawButton showHelp={this.state.showHelp}/>

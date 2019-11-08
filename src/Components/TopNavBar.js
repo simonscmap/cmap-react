@@ -6,7 +6,7 @@ import Cookies from 'js-cookie';
 
 import { withStyles } from '@material-ui/core/styles';
 
-import { showLoginDialog, restoreInterfaceDefaults, snackbarOpen } from '../Redux/actions/ui';
+import { showLoginDialog, restoreInterfaceDefaults, snackbarOpen, toggleShowHelp } from '../Redux/actions/ui';
 import { logOut } from '../Redux/actions/user';
 import { Typography } from '@material-ui/core';
 
@@ -56,14 +56,16 @@ const styles = theme => ({
 })
 
 const mapStateToProps = (state, ownProps) => ({
-    user: state.user
+    user: state.user,
+    showHelp: state.showHelp
 })
 
 const mapDispatchToProps = {
     showLoginDialog,
     logOut,
     restoreInterfaceDefaults,
-    snackbarOpen
+    snackbarOpen,
+    toggleShowHelp
 }
 
 class TopNavBar extends Component {
@@ -105,7 +107,7 @@ class TopNavBar extends Component {
     }
 
     render(){
-        const { classes, history } = this.props;
+        const { classes, history, showHelp } = this.props;
         const { pathname } = history.location;
 
         return (
@@ -115,6 +117,7 @@ class TopNavBar extends Component {
                 {pathname !== '/visualization' && <Typography variant='caption' onClick={() => this.handleNavigate('/apikeymanagement')} className={classes.navLink}>API Keys</Typography>}
                 {pathname !== '/visualization' && <Typography variant='caption' onClick={() => this.handleNavigate('/visualization')} className={classes.navLink}>Visualization</Typography>}
                 {this.props.user && <Typography variant='caption' onClick={() => this.handleLogOut()} className={`${classes.navLink} ${pathname === '/visualization' ? '' : classes.rightNavLink}`}>Log Out</Typography>}
+                {/* <Typography variant='caption' onClick={this.props.toggleShowHelp} className={classes.navLink}>{showHelp ? 'Hide Help' : 'Help(beta) '}</Typography> */}
                 {(!this.props.user && pathname !== '/visualization') && <Typography variant='caption' onClick={() => this.props.showLoginDialog()} className={`${classes.navLink} ${classes.rightNavLink}`}>Log In</Typography>}
                 {(!this.props.user && pathname !== '/visualization') && <Typography variant='caption' onClick={() => this.handleNavigate('/register')} className={`${classes.navLink} ${classes.rightNavLink}`}>Register</Typography>}
             </div>        
