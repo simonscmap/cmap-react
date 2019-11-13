@@ -16,6 +16,7 @@ import { setLoadingMessage } from '../../Redux/actions/ui';
 import ChartControlPanel from './ChartControlPanel';
 
 import { format } from 'd3-format';
+import subTypes from '../../Enums/visualizationSubTypes';
 
 const determineHeight = (infoObject) => {
     const latRange = infoObject.latMax - infoObject.latMin;
@@ -378,14 +379,14 @@ const SpaceTimeChart = (props) => {
     return (
         <React.Fragment>
             <ChartControlPanel
-                handlePaletteChoice={handlePaletteChoice}
+                handlePaletteChoice={subTypeState !== subTypes.histogram && handlePaletteChoice}
                 onToggleSplitByDepth={depths.size===1 ? null : onToggleSplitByDepth}
                 onToggleSplitByDate={dates.size===1 ? null : onToggleSplitByDate}
                 splitByDepth={splitByDepth}
                 splitByDate={splitByDate}
-                handleZValueConfirm={handleZValueConfirm}
-                zValues={zValues}
-                extent={extent}
+                handleZValueConfirm={subTypeState !== subTypes.histogram && handleZValueConfirm}
+                zValues={subTypeState !== subTypes.histogram && zValues}
+                extent={subTypeState !== subTypes.histogram && extent}
                 downloadCsv={downloadCsv}
             />
             {plots}     

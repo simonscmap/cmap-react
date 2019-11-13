@@ -551,6 +551,26 @@ class VizControlPanel extends React.Component {
 
         const visualizeButtonTooltip = disableVisualizeMessage ? disableVisualizeMessage : generalWarnMessage ? generalWarnMessage : '';
 
+        let minDate = fields ? utcDateStringToLocal(fields.data.Time_Min) : '';
+        let minDateMessage = 'End cannot be before dataset start date';
+        var maxDateMessage;
+        var maxDate;
+
+        if(!fields){
+            maxDate = dt2;
+            maxDateMessage = 'Start cannot be after end';
+        } else {
+            var catalogMaxDate = utcDateStringToLocal(fields.data.Time_Max);
+
+            if(catalogMaxDate < dt2){
+                maxDate = catalogMaxDate;
+                maxDateMessage = 'Start cannot be after dataset end date';
+            } else {
+                maxDate = dt2;
+                maxDateMessage = 'Start cannot be after end'
+            }
+        }
+
         return (
             <div>
                 <TableStatsDialog
@@ -634,7 +654,7 @@ class VizControlPanel extends React.Component {
                                         onInputChange={this.onAutoSuggestChange}
                                         filterOption={null}
                                         className={classes.variableSelect}
-                                        escapeClearsValue
+                                        isClearable
                                         name="fields"
                                         label="Variables"
                                         options={options}
@@ -736,7 +756,8 @@ class VizControlPanel extends React.Component {
                                     label="Start Date"
                                     name="dt1"
                                     format='yyyy-MM-dd'
-                                    maxDate={fields ? utcDateStringToLocal(fields.data.Time_Max) : ''}
+                                    maxDate={maxDate}
+                                    maxDateMessage={maxDateMessage}
                                     autoOk
                                     value={dt1}
                                     onChange={this.props.handleStartDateChange}
@@ -756,7 +777,8 @@ class VizControlPanel extends React.Component {
                                     label="End Date"
                                     name="dt2"
                                     format='yyyy-MM-dd'
-                                    minDate={fields ? utcDateStringToLocal(fields.data.Time_Min) : ''}
+                                    minDate={minDate}
+                                    minDateMessage={minDateMessage}
                                     autoOk
                                     value={dt2}
                                     onChange={this.props.handleEndDateChange}
