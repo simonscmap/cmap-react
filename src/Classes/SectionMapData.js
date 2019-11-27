@@ -64,6 +64,7 @@ class SectionMapData {
         let lonArray = Array.from(this.lons);
         this.lonMax = Math.max(...lonArray);
         this.lonMin = Math.min(...lonArray);
+        // console.log(this.variableValues);
     }
 
     // Direction is meridional or zonal

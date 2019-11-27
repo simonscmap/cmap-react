@@ -90,6 +90,39 @@ api.catalog.retrieve = async() => {
     return catalog;
 }
 
+api.catalog.datasets = async() => {
+    const decoder = new TextDecoder();
+    let datasets = {};
+
+    let csvParser = CSVParser({columns:true});
+
+    csvParser.on('readable', function(){
+        let record
+        while (record = csvParser.read()) {
+            datasets[record.Dataset_Long_Name] = record;
+        }
+    })
+
+    let response = await fetch(apiUrl + '/api/catalog/datasets', fetchOptions);
+
+    if(!response.ok) return false;
+
+    let body = response.body;
+    let reader = body.getReader();
+    let readerIsDone = false;
+
+    while(!readerIsDone){
+        let chunk = await reader.read();
+        if(chunk.done) {
+            readerIsDone = true;
+        }
+        else {
+            csvParser.write(decoder.decode(chunk.value));
+        };
+    }
+    return datasets;
+}
+
 api.user.keyRetrieval = async() => {
     let response = await fetch(apiUrl + '/user/retrieveapikeys', fetchOptions);
     if(!response.ok) return false;
@@ -128,7 +161,7 @@ api.visualization.storedProcedureRequest = async(payload) => {
 
     let response = await fetch(apiUrl + '/api/data/sp?' + storedProcedureParametersToUri(payload.parameters), fetchOptions);
 
-    if(!response.ok) return false;
+    if(!response.ok) return {failed: true, status: response.status};
 
     let csvParser = CSVParser({from: 2});
 
@@ -175,7 +208,7 @@ api.visualization.cruiseTrajectoryRequest = async(payload) => {
 
     let response = await fetch(apiUrl + '/api/data/cruisetrajectory?' + `id=${payload.id}`, fetchOptions);
 
-    if(!response.ok) return false;
+    if(!response.ok) return {failed: true, status: response.status};
 
     let csvParser = CSVParser({from: 2});
 
@@ -210,6 +243,12 @@ api.visualization.cruiseList = async() => {
     if(response.ok){
         return await response.json();
     } else return false;   
+}
+
+api.visualization.csvDownload = async(payload) => {
+    let response = await fetch(apiUrl + `/api/data/query?query=${payload.query}`, fetchOptions);
+    if(response.ok) return await response.text();
+    else return {failed: true, status: response.status}
 }
 
 export default api;

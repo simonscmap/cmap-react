@@ -13,41 +13,51 @@ import { withStyles } from '@material-ui/core/styles';
 
 import { apiUrl } from '../config';
 
-const imageSource = apiUrl + '/images/catalog/'
-
-const tableMapping = [
-    ['Variable Name', 'Variable'],
-    ['Spatial Resolution', 'Spatial_Resolution'],
-    ['Temporal Resolution', 'Temporal_Resolution'],
-    ['Unit', 'Unit'],
-    ['Process Level', 'Process_Level'],
+const tableMapping1 = [
+    ['Long Name', 'Long_Name'],
+    ['Short Name', 'Variable'],
+    ['Dataset Name', 'Dataset_Name'],
     ['Study Domain', 'Study_Domain'],
-    ['SQL Table Name', 'Table_Name']
-]
+    ['Process Level', 'Process_Level'],
+    ['SQL Table Name', 'Table_Name'],
+    ['Temporal Resolution', 'Temporal_Resolution']
+];
+
+const tableMapping2 = [
+    ['Unit', 'Unit'],
+    ['Mean Value', 'Variable_Mean'],
+    ['Value Std', 'Variable_Std'],
+    ['Spatial Resolution', 'Spatial_Resolution'],
+    ['Start Latitude[\xb0]', 'Lat_Min'],
+    ['End Latitude[\xb0]', 'Lat_Max'],
+    ['Start Longitude[\xb0]', 'Lon_Min'],
+    ['End Longitude[\xb0]', 'Lon_Max']
+];
 
 const styles = (theme) => ({
     title:{
         marginBottom: theme.spacing(1)
     },
     wrapper: {
-        width: '90%',
-        margin: '-10px auto 0px auto',
+        // width: '90%',
+        // margin: '0px auto 5px 10px',
+        padding: '10px',
         height: '100%'
     },
     infoCard: {
-        padding: theme.spacing(2),
+        padding: theme.spacing(1),
         width: '100%',
         height: '100%'
     },
     gridClass: {
-        marginTop: theme.spacing(2),
         height: '100%'
     },
     gridItem: {
-        height: '90%',
+        // height: '90%',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        verticalAlign: 'middle'
     },
     datasetDescriptionWrapper: {
         whiteSpace: 'normal',
@@ -59,54 +69,89 @@ const styles = (theme) => ({
         marginTop: theme.spacing(1)
     },
     vizSampleImage: {
-        width: '90%'
+        maxWidth: '90%',
+        maxHeight: '90%'
     },
     variableDetailTable: {
-        marginLeft: theme.spacing(2),
-        marginRight: theme.spacing(2)
+        marginLeft: theme.spacing(1),
+        marginRight: theme.spacing(1),
+        width: '100%',
+        tableLayout: 'fixed',
+        marginBottom: theme.spacing(1)
     },
     variableDetailTableRow: {
-        height: '32px'
+        height: '24px',
+        width: '100%'
     },
     variableDetailTableCell: {
         color: '#FFF6EC',
-        borderBottomColor: 'black'
+        borderBottomColor: 'black',
+        fontSize: '11px',
+        maxWidth: '100%',
+        textOverflow: 'ellipsis',
+        overflow: 'hidden',
+        whiteSpace: 'nowrap',
+        paddingRight: '14px'
     }
 })
 
 const GridDetail = (props) => {
+
     const {classes} = props;
+
     return (
         <div className={classes.wrapper}>
-            <Grid container spacing={8} className={classes.gridClass}>
-                <Grid item xs={3} className={classes.gridItem}>
-                    <img src={imageSource + 'viz_sample.png'} alt="Sample Visualization" className={classes.vizSampleImage}/>
+            <Grid>
+                <Grid container item xs={10}>
+                    <Grid container spacing={2} className={classes.gridClass}>
+                        <Grid item xs={4} className={classes.gridItem}>
+                            <img src={props.context.datasets[props.data.Dataset_Name].Icon_URL} alt="Mission Icon" className={classes.vizSampleImage}/>
+                        </Grid>
+
+                        <Grid item xs={4} className={classes.gridItem}>
+                            <Table className={classes.variableDetailTable} size='small'>
+                                <TableBody>
+                                    {tableMapping1.map((row, index) => (
+                                        <TableRow key={index} className={classes.variableDetailTableRow}>
+                                            <TableCell className={classes.variableDetailTableCell}>{row[0]}</TableCell>
+                                            <TableCell className={classes.variableDetailTableCell}>{props.data[row[1]]}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                        <TableRow key={tableMapping1.length + 1} className={classes.variableDetailTableRow}>
+                                            <TableCell className={classes.variableDetailTableCell}>Start Date</TableCell>
+                                            <TableCell className={classes.variableDetailTableCell}>{props.data.Time_Min.slice(0,10)}</TableCell>
+                                        </TableRow>
+                                        <TableRow key={tableMapping1.length + 2} className={classes.variableDetailTableRow}>
+                                            <TableCell className={classes.variableDetailTableCell}>End Date</TableCell>
+                                            <TableCell className={classes.variableDetailTableCell}>{props.data.Time_Max.slice(0,10)}</TableCell>
+                                        </TableRow>
+                                </TableBody>
+                            </Table>
+                        </Grid>
+
+                        <Grid item xs={4} className={classes.gridItem}>
+                            <Table className={classes.variableDetailTable} size='small'>
+                                <TableBody>
+                                    {tableMapping2.map((row, index) => (
+                                        <TableRow key={index} className={classes.variableDetailTableRow}>
+                                            <TableCell className={classes.variableDetailTableCell}>{row[0]}</TableCell>
+                                            <TableCell className={classes.variableDetailTableCell}>{props.data[row[1]]}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                        <TableRow key={tableMapping2.length + 1} className={classes.variableDetailTableRow}>
+                                            <TableCell className={classes.variableDetailTableCell}>Maximum Depth[m]</TableCell>
+                                            <TableCell className={classes.variableDetailTableCell}>{props.data.Depth_Max || 'Surface Only'}</TableCell>
+                                        </TableRow>
+                                </TableBody>
+                            </Table>
+                        </Grid>
+                    </Grid>
+                    <Grid container item xs={2}>
+
+                    </Grid>
+
                 </Grid>
-                <Grid item xs={4} className={classes.gridItem}>
-                    <div className={classes.datasetDescriptionWrapper}>
-                        <Typography variant='body2' className={classes.datasetDescription}>
-                            {props.data.Dataset_Description}
-                        </Typography>
-                        <Typography variant='caption'>
-                            Source: {props.data.Data_Source}
-                        </Typography> <br></br>
-                        <Typography variant='caption'>
-                            Distributor: {props.data.Distributor}
-                        </Typography>
-                    </div>
-                </Grid>
-                <Grid item xs={5} className={classes.gridItem}>
-                    <Table className={classes.variableDetailTable} size='small'>
-                        <TableBody>
-                            {tableMapping.map((row, index) => (
-                                <TableRow key={index} className={classes.variableDetailTableRow}>
-                                    <TableCell className={classes.variableDetailTableCell}>{row[0]}</TableCell>
-                                    <TableCell className={classes.variableDetailTableCell}>{props.data[row[1]]}</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </Grid>
+
             </Grid>
         </div>
     )

@@ -13,6 +13,8 @@ const initialState = {
     // Catalog state pieces
     catalogRequestState: null,
     catalog: null,
+    datasetRequestState: null,
+    datasets: null,
 
     // Interface state pieces
     loginDialogIsOpen: false,

@@ -118,3 +118,7 @@ export const keyCreationRequestFailure = () => ({
 export const keyCreationRequestSuccess = () => ({
     type: userActionTypes.KEY_CREATION_REQUEST_SUCCESS
 })
+
+export const refreshLogin = () => ({
+    type: userActionTypes.REFRESH_LOGIN
+})

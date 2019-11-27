@@ -82,7 +82,15 @@ const SingleValue = (props) => {
 // Replace react-select option
 const Option = (props) => {
     return (
-        <components.Option {...props} className={props.className}/>
+      <components.Option 
+        {...props} 
+        innerProps={{
+            ...props.innerProps, 
+            // Prevent focus / scroll events when mousing over options
+            onMouseMove: (e) => e.preventDefault(), 
+            onMouseOver: (e) => e.preventDefault()
+        }}>
+    </components.Option>
     )
 }
 
@@ -132,6 +140,7 @@ class CruiseSelector extends Component {
         } else {this.props.cruiseTrajectoryClear()}
 
         this.setState({...this.state, selectedCruise: selection});
+        this.props.updateParametersFromCruiseBoundary(selection);
     }
 
     componentDidUpdate = (prevProps) => {
@@ -148,10 +157,9 @@ class CruiseSelector extends Component {
 
     render(){
 
-        const { search, searchField, selectedCruise } = this.state;
-
+        const { search, searchField, selectedCruise } = this.state;        
         const { classes, cruiseList} = this.props;
-
+        
         const options = searchField && cruiseList ? this.getSelectOptionsFromCruiseList(search.search(searchField).sort(cruiseSort)) 
             : cruiseList ? this.getSelectOptionsFromCruiseList(cruiseList) 
             : []
@@ -168,6 +176,7 @@ class CruiseSelector extends Component {
                     }}
                     isClearable
                     onInputChange={this.onAutoSuggestChange}
+                    // inputValue={this.state.searchField}
                     filterOption={null}
                     className={classes.cruiseSelect}
                     escapeClearsValue
@@ -214,11 +223,8 @@ class CruiseSelector extends Component {
 
                         option: (provided, state) => ({...provided,
                             backgroundColor: esriBackgroundColor,
-                            color: esriFontColor,
-                            '&:hover': { 
-                                color: '#242424',
-                                backgroundColor: '#949393'
-                            },
+                            color: state.isFocused ? colors.orange : 'white',
+                            '&:hover': { backgroundColor: 'rgba(122,67,0,.5)'}
                         }),
 
                         singleValue: (provided, state) => ({...provided,

@@ -6,20 +6,14 @@ import { AgGridReact } from 'ag-grid-react';
 
 import GridDetail from './GridDetail';
 
+import stringify from 'csv-stringify/lib/sync';
+
 import { withStyles } from '@material-ui/core/styles';
 
 import TextField from '@material-ui/core/TextField';
-import { Paper } from '@material-ui/core';
+import { Paper, Button, Grid, Tooltip } from '@material-ui/core';
 
 import ConnectedTooltip from './ConnectedTooltip';
-
-const detailCellRendererParams = {
-  template:
-    '<div style="height: 100%; box-sizing: border-box" class="testClass">' +
-      '  <div style="height: 10%;">Call Details</div>' +
-      '  <div ref="eDetailGrid" style="height: 90%;"></div>' +
-    "</div>"
-}
 
 const columnDefs = [
   {
@@ -130,6 +124,11 @@ const styles = (theme) => ({
   gridPaper: {
     margin: '60px 5vw',
     padding: '30px'
+  },
+
+  downloadButton: {
+    margin: '6px 0 0 0',
+    textTransform: 'none'
   }
 })
 
@@ -162,34 +161,80 @@ class AGGridWrapper extends Component {
     this.gridApi.sizeColumnsToFit();
   }
 
+  onGridSizeChanged = (params) => {
+    this.gridApi.sizeColumnsToFit();
+  }
+
   handleColumnRowGroupChanged = (event) => {
     event.columns.forEach(column => {
       column.columnApi.setColumnVisible(column.colId, false);
     })
   }
 
+  handleDownloadCatalog = () => {
+    let csv = stringify(this.props.catalog, {
+      header: true
+    });
+
+    const blob = new Blob([csv], {type: 'text/csv'});
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('hidden', '');
+    a.setAttribute('href', url);
+    a.setAttribute('download', `CMAP_Catalog.csv`);
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
   render = () => {
     const {classes} = this.props;
 
     return (
-        <Paper elevation={12} className={classes.gridPaper}>
-          <ConnectedTooltip placement title='Enter one or more search terms.' placement='top'>
-            <TextField
-              className={classes.gridSearch}
-              autoFocus={true}
-              margin="normal"
-              id="name"
-              type="text"
-              variant='outlined'
-              name='filterText'
-              value={this.state.filterText}
-              onChange={this.handleChange}
-              label="Variable Search"
-              InputLabelProps={{
+      <Paper elevation={12} className={classes.gridPaper}>
+        <Grid container>
+          <Grid item xs={3}>
+
+          </Grid>
+          <Grid item xs={6}>
+            <ConnectedTooltip placement title='Enter one or more search terms.' placement='top'>
+              <TextField              
+                className={classes.gridSearch}
+                autoFocus={true}
+                margin="normal"
+                id="name"
+                type="text"
+                variant='outlined'
+                name='filterText'
+                value={this.state.filterText}
+                onChange={this.handleChange}
+                label="Search Variables"
+                InputLabelProps={{
                   shrink: true,
-              }}
-            />
-          </ConnectedTooltip>
+                }}
+              />
+            </ConnectedTooltip>
+
+          </Grid>
+          <Grid item xs={2}>
+            <Tooltip placement='top' title='Download the full catalog in CSV format'>
+              <Button 
+                className={classes.downloadButton}
+                variant='contained'
+                color='primary'
+                onClick={this.handleDownloadCatalog}            
+              >
+                  Download
+              </Button>
+            </Tooltip>
+          </Grid>
+
+          <Grid item xs={1}>
+
+          </Grid>
+        </Grid>
+
+          
           <div className={classes.gridWrapper + " ag-theme-material"}>
             <AgGridReact
               // General settings
@@ -197,7 +242,22 @@ class AGGridWrapper extends Component {
               defaultColDef={defaultColDef}
               rowData={this.props.catalog}
               onGridReady={this.onGridReady}
+              onGridSizeChanged={this.onGridSizeChanged}
               suppressDragLeaveHidesColumns= {true}
+              enableCellTextSelection={true}
+              suppressContextMenu={true}
+
+              // Additional props
+              context={{
+                datasets: this.props.datasets
+              }}
+
+              // Setting related to styling
+              getRowStyle= {function(params) {
+                if (params.node.detail) {
+                    return { background: 'transparent' }
+                }
+              }}
 
               //Settings related to grouping functionality
               rowGroupPanelShow='always'
@@ -211,7 +271,10 @@ class AGGridWrapper extends Component {
               frameworkComponents= {{ myDetailCellRenderer: GridDetail }}
               detailCellRenderer="myDetailCellRenderer"
               detailRowHeight={280}
-              detailCellRendererParams={detailCellRendererParams}
+              // detailGrid
+              detailGridOptions= {{
+                enableCellTextSelection:true
+              }}
             />
           </div>
         </Paper>

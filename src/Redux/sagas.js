@@ -15,7 +15,6 @@ import * as visualizationActionTypes from './actionTypes/visualization';
 import api from '../api';
 
 function* userLogin(action) {
-
     yield put(userActions.userLoginRequestProcessing());
     let result = yield call(api.user.login, action.payload);
     
@@ -65,7 +64,7 @@ function* userValidation(action){
     }
 }
 
-function* catalogRetrieval(action){
+function* catalogRetrieval(){
     yield put(catalogActions.retrievalRequestProcessing());
     let catalog = yield call(api.catalog.retrieve);
     
@@ -73,6 +72,17 @@ function* catalogRetrieval(action){
         yield put(catalogActions.retrievalRequestFailure());
     } else{
         yield put(catalogActions.retrievalRequestSuccess(catalog));
+    }
+}
+
+function* datasetRetrieval(){
+    yield put(catalogActions.datasetRetrievalRequestProcessing());
+    let datasets = yield call(api.catalog.datasets);
+
+    if(!datasets){
+        yield put(catalogActions.retrievalRequestFailure());
+    } else {
+        yield put(catalogActions.datasetRetrievalRequestSuccess(datasets));
     }
 }
 
@@ -115,10 +125,14 @@ function* storedProcedureRequest(action){
     yield delay(70);
     
     // Result will be an object containing variable values and describing date shape
-    if(!result){
+    if(result.failed){
         yield put(interfaceActions.setLoadingMessage(''));
         yield put(visualizationActions.storedProcedureRequestFailure());
-        yield put(interfaceActions.snackbarOpen("Request failed"));
+        if(result.status == 401){
+            yield put(userActions.refreshLogin());
+        } else {
+            yield put(interfaceActions.snackbarOpen("An error occurred. Please try again."));
+        }
     } else {
         if(result.variableValues.length > 0){
             result.finalize();
@@ -139,10 +153,14 @@ function* cruiseTrajectoryRequest(action) {
     yield put(visualizationActions.cruiseTrajectoryRequestProcessing());
     yield put(interfaceActions.setLoadingMessage('Fetching Cruise Data'));
     let result = yield call(api.visualization.cruiseTrajectoryRequest, action.payload);
+    yield put(interfaceActions.setLoadingMessage(''));
 
-    if(!result || !result.lats.length){
-        yield put(interfaceActions.setLoadingMessage(''));
-        yield put(interfaceActions.snackbarOpen(`Unable to Fetch Cruise Data`));
+    if(result.failed){
+        if(result.status == 401){
+            yield put(userActions.refreshLogin());
+        } else {
+            yield put(interfaceActions.snackbarOpen(`Unable to Fetch Cruise Data`));
+        }
     } else {
         yield put(visualizationActions.cruiseTrajectoryRequestSuccess(result));
         yield put(interfaceActions.setLoadingMessage(''));
@@ -159,6 +177,45 @@ function* cruiseListRequest() {
         yield put(visualizationActions.cruiseListRequestSuccess(cruiseList));
     }
 }
+
+function* csvDownloadRequest(action){
+    yield put(visualizationActions.csvDownloadRequestProcessing());
+    yield put(interfaceActions.setLoadingMessage('Fetching Data'));
+    let response = yield call(api.visualization.csvDownload, action.payload);
+    yield put(interfaceActions.setLoadingMessage(''))
+    if(response.failed) {
+        if(response.status == 401){
+            yield put(userActions.refreshLogin());
+        } else {
+            yield put(interfaceActions.snackbarOpen('An error occurred. Please try again.'))
+        }
+    } else {
+        yield put(visualizationActions.downloadTextAsCsv(response, action.payload.datasetName));
+    }
+}
+
+function* downloadTextAsCsv(action){
+    yield put(interfaceActions.setLoadingMessage('Processing Data'))
+    let csv = action.payload.text;
+    const blob = new Blob([csv], {type: 'text/csv'});
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('hidden', '');
+    a.setAttribute('href', url);
+    a.setAttribute('download', `${action.payload.datasetName}.csv`);
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    yield put(interfaceActions.setLoadingMessage(''));
+}
+
+function* refreshLogin(){
+    yield call(api.user.logout);
+    yield put(userActions.destroyInfo());
+    yield put(interfaceActions.showLoginDialog());
+    yield put(interfaceActions.snackbarOpen("Your session has expired. Please log in again."));
+}
+
 
 function* watchUserLogin() {
     yield takeLatest(userActionTypes.LOGIN_REQUEST_SEND, userLogin);
@@ -178,6 +235,10 @@ function* watchUserValidation(){
 
 function* watchCatalogRetrieval(){
     yield takeLatest(catalogActionTypes.RETRIEVAL_REQUEST_SEND, catalogRetrieval);
+}
+
+function* watchDatasetRetrieval(){
+    yield takeLatest(catalogActionTypes.DATASET_RETRIEVAL_REQUEST_SEND, datasetRetrieval);
 }
 
 function* watchKeyRetrieval(){
@@ -202,6 +263,18 @@ function* watchCruiseTrajectoryRequest(){
 
 function* watchCruiseListRequest(){
     yield takeLatest(visualizationActionTypes.CRUISE_LIST_REQUEST_SEND, cruiseListRequest);
+}
+
+function* watchCsvDownloadRequest(){
+    yield takeLatest(visualizationActionTypes.CSV_DOWNLOAD_REQUEST_SEND, csvDownloadRequest);
+}
+
+function* watchDownloadTextAsCsv(){
+    yield takeLatest(visualizationActionTypes.DOWNLOAD_TEXT_AS_CSV, downloadTextAsCsv);
+}
+
+function* watchRefreshLogin(){
+    yield takeLatest(userActionTypes.REFRESH_LOGIN, refreshLogin);
 }
 
 // function createWorkerChannel(worker) {
@@ -236,13 +309,17 @@ export default function* rootSaga() {
         watchUserValidation(),
         watchUserLogout(),
         watchCatalogRetrieval(),
+        watchDatasetRetrieval(),
         watchKeyRetrieval(),
         watchKeyCreationRequest(),
         watchQueryRequest(),
         watchStoredProcedureRequest(),
         watchCruiseTrajectoryRequest(),
-        watchCruiseListRequest()
+        watchCruiseListRequest(),
         // watchWorkerChannel(),
+        watchCsvDownloadRequest(),
+        watchDownloadTextAsCsv(),
+        watchRefreshLogin()
     ])
 }
   

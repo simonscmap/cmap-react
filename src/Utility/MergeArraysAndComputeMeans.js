@@ -18,10 +18,12 @@ const mergeArraysAndComputeMeans = (data, mergeTargetDistance, nextMergeStartDis
 
             // Aggregate values of all merge targets
             for(let k = i; k < i + (mergeTargetDistance * numArraysPerMerge); k += mergeTargetDistance){
-                if(data[k][j] !== null) {
+                if(isNaN(data[k][j])) {
+                    continue;
+                } else {                    
                     sum += data[k][j];
                     count ++;
-                };
+                }
             }
             subArray.push(count < 1 ? null : sum / (count));
         }

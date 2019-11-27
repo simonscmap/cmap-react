@@ -20,6 +20,8 @@ import states from '../asyncRequestStates';
 
 import { loadModules } from 'esri-loader';
 
+import depthUtils from '../Utility/depthCounter';
+
 // import {COORDINATE_SYSTEM} from '@deck.gl/core';
 // import DeckGL, {GeoJsonLayer, ColumnLayer, GridLayer, PointCloudLayer} from 'deck.gl';
 // import {AmbientLight, LightingEffect} from '@deck.gl/core';
@@ -247,8 +249,15 @@ class Visualization extends Component {
             let lat2 = irregularSpatialResolution ? fields.data.Lat_Max : this.state.spParams.lat2;
             let lon1 = irregularSpatialResolution ? fields.data.Lon_Min : this.state.spParams.lon1;
             let lon2 = irregularSpatialResolution ? fields.data.Lon_Max : this.state.spParams.lon2;
-            let depth1 = irregularSpatialResolution ? fields.data.Depth_Min : this.state.spParams.depth1;
-            let depth2 = irregularSpatialResolution ? fields.data.Depth_Max : this.state.spParams.depth2;
+            let depth1 = irregularSpatialResolution ? fields.data.Depth_Min : 
+                depthUtils.piscesTable.has(fields.data.Table_Name) ? 0 :
+                depthUtils.darwinTable.has(fields.data.Table_Name) ? 0 : 
+                this.state.spParams.depth1;
+
+            let depth2 = irregularSpatialResolution ? fields.data.Depth_Max : 
+                depthUtils.piscesTable.has(fields.data.Table_Name) ? ((depthUtils.piscesDepths[0] + depthUtils.piscesDepths[1]) / 2).toFixed(2) :
+                depthUtils.darwinTable.has(fields.data.Table_Name) ? (depthUtils.darwinDepths[0] + depthUtils.darwinDepths[1]) : 
+                this.state.spParams.depth2;
 
             if(irregularSpatialResolution){
                 this.globeUIRef.current.props.view.goTo({
@@ -281,6 +290,22 @@ class Visualization extends Component {
             });
         } else {
             this.setState({...this.state, spParams: {...this.state.spParams, fields, tableName: ''}})
+        }
+    }
+
+    updateParametersFromCruiseBoundary = (cruise) => {
+        if(cruise && this.state.spParams.fields){
+            this.props.snackbarOpen('Setting chart parameters to cruise boundaries.')
+            this.setState({...this.state,
+                spParams: {...this.state.spParams,
+                    lat1: cruise.data.Lat_Min,
+                    lat2: cruise.data.Lat_Max,
+                    lon1: cruise.data.Lon_Min,
+                    lon2: cruise.data.Lon_Max,
+                    dt1: utcDateStringToLocal(cruise.data.Start_Time),
+                    dt2: utcDateStringToLocal(cruise.data.End_Time)
+                }
+            })
         }
     }
 
@@ -353,6 +378,7 @@ class Visualization extends Component {
                         <MapContainer
                             globeUIRef={this.globeUIRef}
                             updateDomainFromGraphicExtent={this.updateDomainFromGraphicExtent}
+                            updateParametersFromCruiseBoundary={this.updateParametersFromCruiseBoundary}
                             esriModules={this.state.esriModules}
                             spParams={this.state.spParams}
                             cruiseTrajectory={this.props.cruiseTrajectory}

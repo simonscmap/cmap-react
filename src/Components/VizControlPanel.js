@@ -5,20 +5,25 @@ import { withStyles } from '@material-ui/core/styles';
 
 import Select, { components } from 'react-select';
 import * as JsSearch from 'js-search';
-import { FixedSizeList as ReactWindowList } from "react-window";
+import { VariableSizeList as ReactWindowList } from "react-window";
 
 import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
+import Icon from '@material-ui/core/Icon';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
 import MenuItem from '@material-ui/core/MenuItem';
 import MUISelect from '@material-ui/core/Select';
+import Typography from '@material-ui/core/Typography';
 import Drawer from '@material-ui/core/Drawer';
 import TextField from '@material-ui/core/TextField';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import Button from '@material-ui/core/Button';
 import Tooltip from '@material-ui/core/Tooltip';
+import Collapse from '@material-ui/core/Collapse';
 import { KeyboardDatePicker } from "@material-ui/pickers";
-import { LibraryBooks, ArrowRight, ChevronLeft, ChevronRight, InsertChartOutlined, Language, Delete } from '@material-ui/icons';
+import { LibraryBooks, ArrowRight, ChevronLeft, ChevronRight, InsertChartOutlined, Language, Delete, CloudDownload, Info } from '@material-ui/icons';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 
 import vizSubTypes from '../Enums/visualizationSubTypes';
@@ -30,33 +35,56 @@ import mapTemporalResolutionToNumber from '../Utility/mapTemporalResolutionToNum
 import mapSpatialResolutionToNumber from '../Utility/mapSpatialResolutionToNumber';
 import spatialResolutions from '../Enums/spatialResolutions';
 
-import { cruiseTrajectoryRequestSend, clearCharts } from '../Redux/actions/visualization';
+import { cruiseTrajectoryRequestSend, clearCharts, csvDownloadRequestSend } from '../Redux/actions/visualization';
+import { snackbarOpen } from '../Redux/actions/ui';
 
 import utcDateStringToLocal from '../Utility/utcDateStringToLocal';
-import depthCounter from '../Utility/depthCounter';
+import depthUtils from '../Utility/depthCounter';
 
 import ConnectedTooltip from './ConnectedTooltip';
 
-const navDrawerWidth = 260;
+const navDrawerWidth = 320;
+
+const errorHeightAdjust = 23;
 
 const styles = theme => ({
-  drawer: {
-    width: navDrawerWidth,
-    top: 32,
-    bottom: 'auto',
-    overflow: 'visible'
-  },
+    drawer: {
+        width: navDrawerWidth,
+        top: 32,
+        bottom: 'auto',
+        overflow: 'visible'
+    },
 
-  drawerPaper: {
-    width: navDrawerWidth,
-    height: '540px',
-    top: 'calc(50% - 270px)',
-    borderRadius: '0 4px 4px 0',
-    boxShadow: '2px 2px  2px 2px #242424',
-    border: 'none',
-    overflow: 'visible',
-    backgroundColor: '#424242'
-  },
+    drawerPaper: {
+        width: navDrawerWidth,
+        height: '540px',
+        top: 'calc(50% - 270px)',
+        borderRadius: '0 4px 4px 0',
+        boxShadow: '2px 2px  2px 2px #242424',
+        border: 'none',
+        overflow: 'visible',
+        backgroundColor: '#424242'
+    },
+
+    drawerPaperError1: {
+        height: `${540 + errorHeightAdjust}px`
+    },
+
+    drawerPaperError2: {
+        height: `${540 + errorHeightAdjust * 2}px`
+    },
+
+    drawerPaperError3: {
+        height: `${540 + errorHeightAdjust * 3}px`
+    },
+
+    drawerPaperError4: {
+        height: `${540 + errorHeightAdjust * 4}px`
+    },
+
+    drawerPaperError5: {
+        height: `${540 + errorHeightAdjust * 5}px`
+    },
 
   openPanelChevron: {
     position: 'fixed',
@@ -159,38 +187,178 @@ const mapStateToProps = (state, ownProps) => ({
 
 const mapDispatchToProps = {
     cruiseTrajectoryRequestSend,
-    clearCharts
+    clearCharts,
+    csvDownloadRequestSend,
+    snackbarOpen
 }
 
-// Replace react-select menulist with react-window (virtualized) fixed size list
+const getDatePlaceholder = (date) => {
+    if(isNaN(new Date(date)).valueOf()) return 'yyyy-MM-dd';
+    
+    let month  = date.getMonth() + 1;
+    let day = date.getDate();
+    let year = date.getFullYear();
+    return [year, month < 10 ? '0' + month : month, day < 10 ? '0' + day : day].join('-');
+}
+
+const groupHeaderHeight = 37;
 const height = 35;
+
 const reactWindowListRef = React.createRef();
+const selectRef = React.createRef();
+
 class MenuList extends Component {
 
+  constructor(props){
+    super(props)
+  }
+
     componentDidUpdate = (prevProps, prevState) => {
-        if(!(this.props.children && this.props.children.length)) return;
-        let index = this.props.children.findIndex(child => child.props && child.props.isFocused);
-        reactWindowListRef.current.scrollToItem(index);
+      if(reactWindowListRef.current) reactWindowListRef.current.resetAfterIndex(0);
+      if(!(this.props.children && this.props.children.length)) return;
+      let scrollOffset = 0;
+      let foundFocus = false;
+      this.props.children.forEach(child => {
+        if(foundFocus) return;
+
+        let count = groupHeaderHeight;
+        let groupHasFocus= false;
+        for(let i = 0; i < child.props.children.length; i++){
+          if(child.props.children[i].props.isFocused) {
+            foundFocus = true;
+            groupHasFocus = true;
+            break;
+          }
+          count += 37.6;
+        }
+
+        if(groupHasFocus) scrollOffset += count;
+        else scrollOffset += 37.6;
+      })
+      if(foundFocus) reactWindowListRef.current.scrollTo(scrollOffset > 150 ? scrollOffset - 150 : 0);
     }
 
     render() {
         const { options, children, maxHeight, getValue } = this.props;
+
+        if(!children || !children.length) return '';
         const [value] = getValue();
         const initialOffset = options.indexOf(value) * height;
+        const groupHeights = children.map(child => {
+          return child.props.children.some(grandChild => grandChild.props.isFocused) ? child.props.children.length * 37.6 + groupHeaderHeight : groupHeaderHeight;
+        });
+        const totalHeight = groupHeights.reduce((acc, cur) => acc + cur, 0);
+        const estimatedItemSize = totalHeight / children.length;
+        const getItemSize = index => groupHeights[index];
 
         return (
             <ReactWindowList
-                height={(options.length == 0 ? 35 : maxHeight > height * options.length ? height * options.length : maxHeight) || 35}
+                // height={(options.length == 0 ? 35 : maxHeight > height * options.length ? height * options.length : maxHeight) || 35}
+                height={totalHeight < 400 ? totalHeight :  400}
+                estimatedItemSize={estimatedItemSize}
                 itemCount={children.length}
-                itemSize={height}
+                itemSize={getItemSize}
                 initialScrollOffset={initialOffset || 0}
                 ref={reactWindowListRef}
             >
-                {({ index, style }) => <div style={style}>{children[index]}</div>}
+                {({ index, style }) => <div style={{...style}}>{children[index]}</div>}
             </ReactWindowList>
         );
     }
 }
+
+class Group extends Component {
+    render() {
+        const hasFocus = this.props.children.some(element => element.props.isFocused);
+        const sensor = this.props.children[0].props.data.data.Sensor;
+
+      return (
+          <React.Fragment>
+            <CustomHeading 
+              {...this.props.headingProps} 
+              headingLabel={this.props.data.label} 
+              firstChild={this.props.children[0].props.data}
+              hasFocus={hasFocus}
+              sensor={sensor}
+              tableName={this.props.children[0].props.data.data.Table_Name}
+              selectProps={this.props.selectProps}
+            />
+            <div hidden={!hasFocus}>
+              {this.props.children.map(child => child)}
+            </div>
+          </React.Fragment>
+        );
+    }    
+}
+
+const customHeadingStyles = (theme) => ({
+    customHeading: {
+        backgroundColor: 'rgba(0,0,0,.5)',
+        height: groupHeaderHeight,
+        '&:hover': {
+            backgroundColor: 'rgba(122,67,0,.5)',
+        },
+        boxShadow: '0px 1px 1px 1px #242424'
+    },
+
+    icon: {
+        marginRight: '10px',
+        width: '30px'
+    },
+
+    typography: {
+        width: '650px'
+    }
+})
+
+const _CustomHeading = props => {
+    const { classes, sensor, tableName, selectProps } = props;
+    let iconClass;
+
+    if(sensor === 'Satellite') iconClass = 'fa-satellite';
+    else if(sensor === 'Blend') iconClass = 'fa-laptop';
+    else iconClass = 'fa-ship';
+
+    return (
+      <React.Fragment>
+        <ListItem 
+          button 
+          alignItems='center' 
+          onClick={() => selectRef.current.select.setState({focusedOption: props.hasFocus ? null : props.firstChild})}
+          className={classes.customHeading}
+        >
+            <Icon fontSize='small' color='inherit' className={`fas ${iconClass} ${classes.icon}`}></Icon>
+        <Typography className={classes.typography}>
+            {props.headingLabel.length > 70 ? props.headingLabel.slice(0,67) + '...' : props.headingLabel}
+        </Typography>
+
+        <Tooltip title='Download Data' placement='right'>
+            <IconButton 
+                color='inherit' 
+                onClick={(e) => {
+                    selectProps.handleDownloadCsvClick(tableName, props.headingLabel);
+                    e.stopPropagation();
+                }}>
+                <CloudDownload/>
+            </IconButton>
+        </Tooltip>
+
+        {/* <Tooltip title='Dataset Info' placement='right'>
+            <IconButton 
+                color='inherit' 
+                onClick={(e) => {
+                    e.stopPropagation();
+                }}
+            >
+                <Info/>
+            </IconButton>
+        </Tooltip> */}
+        </ListItem>
+      </React.Fragment>
+    )
+  }
+
+const CustomHeading = withStyles(customHeadingStyles)(_CustomHeading);
 
 // Replace react-select dropdown area with material version
 const DropdownIndicator = (props) => {
@@ -201,22 +369,25 @@ const DropdownIndicator = (props) => {
     );
 };
 
-// Replace react-select selected option
-const SingleValue = (props) => {
-    return (
-        <components.SingleValue {...props} className={props.className + ' fa-icon-cmap'}></components.SingleValue>
-    )
-}
-
 // Replace react-select option
 const Option = (props) => {
     return (
-        <components.Option {...props} className={props.className + ' fa-icon-cmap'}/>
+      <components.Option 
+        {...props} 
+        innerProps={{
+            ...props.innerProps, 
+            // Prevent focus / scroll events when mousing over options
+            onMouseMove: (e) => e.preventDefault(), 
+            onMouseOver: (e) => e.preventDefault()
+        }}>
+    </components.Option>
     )
 }
 
+const GroupHeading = (props) => '';
+
 const formatOptionLabel = (option, meta) => {
-    return meta.context === 'value' ? option.value : option.label;
+    return option.label;
 }
 
 class VizControlPanel extends React.Component {
@@ -225,6 +396,7 @@ class VizControlPanel extends React.Component {
         super(props);
 
         var search = new JsSearch.Search('ID');
+        search.indexStrategy = new JsSearch.AllSubstringsIndexStrategy()
         search.searchIndex = new JsSearch.UnorderedSearchIndex();
         search.addIndex('Variable');
         search.addIndex('Make');
@@ -238,7 +410,6 @@ class VizControlPanel extends React.Component {
         search.addIndex('Study_Domain');
         search.addIndex('Spatial_Resolution');
         search.addIndex('Temporal_Resolution');
-        search.addIndex('Keywords');
 
         if(props.catalog) search.addDocuments(props.catalog);
 
@@ -274,47 +445,59 @@ class VizControlPanel extends React.Component {
         this.setState({...this.state, tableStatsDialogIsOpen: true});
     }
 
-    handleVisualizationSpeedDialClose = () => {
-        this.setState({visualizationSpeedDialOpen: false});
-    }
-
-    handleVisualizationSpeedDialOpen = () => {
-        this.setState({visualizationSpeedDialOpen: true});
-    }
-
-    handleVisualizationSpeedDialClick = () => {
-        this.setState({visualizationSpeedDialOpen: !this.state.visualizationSpeedDialOpen});
-    }
-
     getSelectOptionsFromCatalogItems = (items) => {
-        // var options = {};
+        var options = {};
 
-        // items.forEach(item => {
-        //     if(!options[item.Dataset_Name]){
-        //         options[item.Dataset_Name] = {
-        //             label: item.Dataset_Name,
-        //             options: []
-        //         }
-        //     }
+        items.forEach(item => {
+            if(!options[item.Dataset_Name]){
+                options[item.Dataset_Name] = {
+                    label: item.Dataset_Name,
+                    options: []
+                }
+            }
 
-        //     options[item.Dataset_Name].options.push({
-        //         value: item.Variable,
-        //         label: item.Long_Name.length < 80 ? item.Long_Name : item.Long_Name.slice(0,78) + '...',
-        //         data: item
-        //     })
-        // });
+            options[item.Dataset_Name].options.push({
+                value: item.Variable,
+                label: item.Long_Name.length < 80 ? item.Long_Name : item.Long_Name.slice(0,78) + '...',
+                data: item
+            })
+        });
 
-        // return Object.values(options) || [];
-        return items.map(item => ({
-            value: item.Variable,
-            label: item.Long_Name.length < 80 ? item.Long_Name : item.Long_Name.slice(0,78) + '...',
-            data: item
-        })) || []
+        let sortedOptions = Object.values(options).sort((opt1, opt2) => {
+            return opt1.label < opt2.label ? -1 : 1;
+        })
+
+        return sortedOptions;
+    }
+
+    estimateCsvSize = (datasetName) => {
+        // let members = [];
+        let count = 0;
+        this.props.catalog.forEach((member, i) => {
+            if(member.Dataset_Name === datasetName){
+                count += parseInt(member.Variable_Count) || 0;
+                // members.push(member);
+            }
+        })
+        return count;
+    }
+
+    handleDownloadCsvClick = (tableName, datasetName) => {
+        let query = `select%20*%20from%20${tableName}`;
+        let count = this.estimateCsvSize(datasetName);
+        if(count < 3000000){
+            this.props.csvDownloadRequestSend(query, datasetName);
+        } else {
+            this.props.snackbarOpen('Data set too large');
+        }
     }
 
     onAutoSuggestChange = (searchString, action) => {
-        if(action.action === 'input-change') this.setState({...this.state, searchField: searchString});
-        if(action.action ==='set-value' || action.action === 'menu-close') this.setState({...this.state, searchField: ''});
+        if(action.action === 'input-change') {
+            this.setState({...this.state, searchField: searchString});
+            selectRef.current.select.setState({focusedOption: null})
+        }
+        if(action.action ==='set-value') this.setState({...this.state, searchField: ''});
     }
 
     estimateDataSize = () => {
@@ -330,7 +513,7 @@ class VizControlPanel extends React.Component {
         const dayDiff = (date2 - date1) / 86400000;
 
         const dateCount = Math.floor(dayDiff / mapTemporalResolutionToNumber(fields.data.Temporal_Resolution)) || 1;
-        const depthCount = depthCounter(fields, depth1, depth2) || 1;
+        const depthCount = depthUtils.count(fields, depth1, depth2) || 1;
         const latCount = (lat2 - lat1) / res;
         const lonCount = (lon2 - lon1) / res;
 
@@ -356,14 +539,21 @@ class VizControlPanel extends React.Component {
         return ''; 
     }
 
+    checkStartDateValid = () => {
+        if(isNaN(new Date(this.props.dt1)).valueOf() || !this.props.dt1) return 'Start date is invalid';
+    }
+
+    checkEndDateValid = () => {
+        if(isNaN(new Date(this.props.dt2)).valueOf() || !this.props.dt1) return 'End date is invalid';
+    }
+
     checkStartDate = () => {
-        if(this.props.dt1 < this.props.dt2) return validation.date.dateOneIsLater;
+        if(this.props.dt1 > this.props.dt2) return validation.date.dateOneIsLater;
         if(this.props.dt1 > this.props.fields.data.Time_Max) return validation.date.dateOneOutOfBounds.replace('$', this.props.fields.data.Time_Max);
         return '';
     }
 
     checkEndDate = () => {
-        if(this.props.dt1 < this.props.dt2) return validation.date.dateOneIsLater;
         if(this.props.dt2 < this.props.fields.data.Time_Min) return validation.date.dateTwoOutOfBounds.replace('$', this.props.fields.data.Time_Min);
         return '';
     }
@@ -379,7 +569,6 @@ class VizControlPanel extends React.Component {
     checkEndLat = () => {
         if(!/^[-+]?[0-9]*\.?[0-9]+$/.test(this.props.lat2)) return validation.generic.invalid;
         if(parseFloat(this.props.lat2) < -90 || parseFloat(this.props.lat2) > 90) return validation.generic.invalid;
-        if(parseFloat(this.props.lat1) > parseFloat(this.props.lat2)) return validation.lat.latOneIsHigher;
         if(parseFloat(this.props.lat2) < parseFloat(this.props.fields.data.Lat_Min)) return validation.lat.latTwoOutOfBounds.replace('$', this.props.fields.data.Lat_Min);
         return '';
     }
@@ -487,12 +676,36 @@ class VizControlPanel extends React.Component {
 
         const dataSize = this.estimateDataSize();
 
+        var catalogMinDate = fields && utcDateStringToLocal(fields.data.Time_Min).setHours(0,0,0,0);
+        var catalogMaxDate = fields && utcDateStringToLocal(fields.data.Time_Max).setHours(0,0,0,0);
+        var zeroedDT1 = dt1.setHours(0,0,0,0);
+        var zeroedDT2 = dt2.setHours(0,0,0,0);
+        
+        var minDate = fields ? catalogMinDate : '';
+
+        let minDateMessage = fields && zeroedDT2 < catalogMinDate ? 'End cannot be before dataset start date' : '';
+        var maxDateMessage;
+        var maxDate;
+
+        if(!fields){
+            maxDate = zeroedDT2;
+            maxDateMessage = zeroedDT1 > maxDate ? 'Start cannot be after end' : '';
+        } else {
+            
+
+            if(catalogMaxDate < zeroedDT2){
+                maxDate = catalogMaxDate;
+                maxDateMessage = zeroedDT1 > maxDate ? 'Start cannot be after dataset end date' : '';
+            } else {
+                maxDate = zeroedDT2;
+                maxDateMessage = zeroedDT1 > maxDate ? 'Start cannot be after end' : '';
+            }
+        }
+
         if(fields) {
             validations = [
                 this.checkStartDepth(),
                 this.checkEndDepth(),
-                this.checkStartDate(),
-                this.checkEndDate(),
                 this.checkStartLat(),
                 this.checkEndLat(),
                 this.checkStartLon(),
@@ -505,15 +718,15 @@ class VizControlPanel extends React.Component {
                 this.checkDepthProfile(),
                 this.checkSparseMap(),
                 this.checkGeneralWarn(dataSize),
-                this.checkGeneralPrevent(dataSize)
+                this.checkGeneralPrevent(dataSize),
+                this.checkStartDateValid(),
+                this.checkEndDateValid()
             ];
-        } else validations = Array(17).fill('');
+        } else validations = Array(16).fill('');
 
         const [
             startDepthMessage,
             endDepthMessage,
-            startDateMessage,
-            endDateMessage,
             startLatMessage,
             endLatMessage,
             startLonMessage,
@@ -526,7 +739,9 @@ class VizControlPanel extends React.Component {
             depthProfileMessage,
             sparseMapMessage,
             generalWarnMessage,
-            generalPreventMessage
+            generalPreventMessage,
+            startDateValidMessage,
+            endDateValidMessage
         ] = validations;
 
         const checkDisableVisualizeList = [
@@ -536,8 +751,23 @@ class VizControlPanel extends React.Component {
             endLatMessage,
             startLonMessage,
             endLonMessage,
-            generalPreventMessage
+            generalPreventMessage,
+            minDateMessage,
+            maxDateMessage,
+            startDateValidMessage,
+            endDateValidMessage
         ];
+
+        let cdvl = checkDisableVisualizeList;
+        let errorCount = 0;
+        
+        if(cdvl[0] || cdvl[1]) errorCount ++;
+        if(cdvl[2] || cdvl[3]) errorCount ++;
+        if(cdvl[4] || cdvl[5]) errorCount ++;
+        if(cdvl[7] || cdvl[9]) errorCount ++;
+        if(cdvl[8] || cdvl[10]) errorCount ++;
+
+        const errorSizeAdjust = errorCount > 0 ? 'drawerPaperError' + errorCount : '';
 
         const checkDisableVisualize = () => {
             for(let i = 0; i < checkDisableVisualizeList.length; i++){
@@ -550,26 +780,6 @@ class VizControlPanel extends React.Component {
         const disableVisualizeMessage = checkDisableVisualize();
 
         const visualizeButtonTooltip = disableVisualizeMessage ? disableVisualizeMessage : generalWarnMessage ? generalWarnMessage : '';
-
-        let minDate = fields ? utcDateStringToLocal(fields.data.Time_Min) : '';
-        let minDateMessage = 'End cannot be before dataset start date';
-        var maxDateMessage;
-        var maxDate;
-
-        if(!fields){
-            maxDate = dt2;
-            maxDateMessage = 'Start cannot be after end';
-        } else {
-            var catalogMaxDate = utcDateStringToLocal(fields.data.Time_Max);
-
-            if(catalogMaxDate < dt2){
-                maxDate = catalogMaxDate;
-                maxDateMessage = 'Start cannot be after dataset end date';
-            } else {
-                maxDate = dt2;
-                maxDateMessage = 'Start cannot be after end'
-            }
-        }
 
         return (
             <div>
@@ -604,7 +814,7 @@ class VizControlPanel extends React.Component {
                     variant="persistent"
                     open={showControlPanel}
                     classes={{
-                        paper: classes.drawerPaper,
+                        paper: `${classes.drawerPaper} ${classes[errorSizeAdjust]}`,
                     }}
                     anchor="left"
                 >
@@ -641,20 +851,30 @@ class VizControlPanel extends React.Component {
                             <Grid item xs={10}>
                                 <ConnectedTooltip placement='top' title='Enter one or more search terms.'>
                                     <Select
+                                        // onMenuOpen={() => {
+                                        //     setTimeout(() => selectRef.current.select.setState({...selectRef.current.select.state, focusedOption: null}), 1)
+                                            
+                                        // }}
                                         formatOptionLabel={formatOptionLabel}
                                         handleTableStatsDialogOpen={this.handleTableStatsDialogOpen}
                                         isLoading = {catalogRequestState === states.inProgress}
                                         components={{
                                             IndicatorSeparator:'',
                                             DropdownIndicator,
+                                            GroupHeading,
+                                            Group,
                                             Option,
                                             MenuList,
-                                            SingleValue,
+                                            // SingleValue
                                         }}
+                                        handleDownloadCsvClick = {this.handleDownloadCsvClick}
+                                        escapeClearsValue
+                                        ref={selectRef}
                                         onInputChange={this.onAutoSuggestChange}
                                         filterOption={null}
                                         className={classes.variableSelect}
                                         isClearable
+                                        inputValue={this.state.searchField}
                                         name="fields"
                                         label="Variables"
                                         options={options}
@@ -669,7 +889,7 @@ class VizControlPanel extends React.Component {
                                                 left: navDrawerWidth,
                                                 width: '980px',
                                                 borderRadius: '4px',
-                                                boxShadow: '2px 2px  2px 2px #242424',
+                                                boxShadow: '2px 2px 2px 2px #242424',
                                                 overflow: 'hidden',
                                                 backgroundColor: 'rgba(0,0,0,.5)',
                                                 backdropFilter: 'blur(5px)',
@@ -715,13 +935,8 @@ class VizControlPanel extends React.Component {
                                                     fontSize: '16px',
                                                     backgroundColor: 'transparent',
                                                     color: isFocused ? colors.orange : 'white',
-                                                    // color: data.data.Sensor === 'Satellite' ? '#1acf02' : data.data.Sensor === 'Blend' ? '#fce803' : '#009fd4',
-                                                    '&:hover': { color: colors.orange },
-                                                    '&:active': { backgroundColor: 'rgba(0,0,0,.5)', color: colors.orange},
-                                                    '&:after': { 
-                                                        content: data.data.Sensor === 'Satellite' ? "'\f7bf'" : data.data.Sensor === 'Blend' ? "'\f109'" : "'\f21a'",
-                                                        float: 'left'
-                                                    },
+                                                    '&:hover': { backgroundColor: 'rgba(122,67,0,.5)'},
+                                                    // '&:active': { backgroundColor: 'rgba(0,0,0,.5)', color: colors.orange},
                                             })},
 
                                             singleValue: (provided, state) => ({...provided,
@@ -751,12 +966,13 @@ class VizControlPanel extends React.Component {
                             <Grid item xs={12}>
                                 <KeyboardDatePicker
                                     className={classes.datePicker}
-                                    placeholder='yyyy-MM-dd'
+                                    placeholder={getDatePlaceholder(dt1)}
                                     id="startDate"
                                     label="Start Date"
                                     name="dt1"
                                     format='yyyy-MM-dd'
                                     maxDate={maxDate}
+                                    minDate={null}
                                     maxDateMessage={maxDateMessage}
                                     autoOk
                                     value={dt1}
@@ -772,12 +988,13 @@ class VizControlPanel extends React.Component {
                             <Grid item xs={12}>
                                 <KeyboardDatePicker
                                     className={classes.datePicker}
-                                    placeholder='yyyy-MM-dd'
+                                    placeholder={getDatePlaceholder(dt2)}
                                     id="endDate"
                                     label="End Date"
                                     name="dt2"
                                     format='yyyy-MM-dd'
                                     minDate={minDate}
+                                    maxDate={null}
                                     minDateMessage={minDateMessage}
                                     autoOk
                                     value={dt2}

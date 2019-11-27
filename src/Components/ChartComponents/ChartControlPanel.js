@@ -249,7 +249,7 @@ const ChartControlPanel = (props) => {
                         </IconButton>
                     </Tooltip>
                 }
-
+{/* 
                 {Boolean(onToggleSplitByDepth) && 
                     <Tooltip placement='top' title='Split By Depth'>
                         <IconButton color='inherit' className={`${classes.iconButton} ${splitByDepth && classes.depressed}`} 
@@ -258,7 +258,7 @@ const ChartControlPanel = (props) => {
                             <Waves/>
                         </IconButton>
                     </Tooltip>
-                }
+                } */}
 
                 {Boolean(onToggleSplitBySpace) && 
                     <Tooltip placement='top' title={orientation === 'zonal' ? 'Split by Latitude' : 'Split by Longitude'}>
@@ -270,7 +270,7 @@ const ChartControlPanel = (props) => {
                     </Tooltip>
                 }
 
-                {Boolean(switchOrientation) && 
+                {/* {Boolean(switchOrientation) && 
                     <Tooltip placement='top' title={orientation === 'zonal' ? 'Switch to Meridional' : 'Switch to Zonal'}>
                         <IconButton color='inherit' className={classes.iconButton} 
                             onClick={switchOrientation}
@@ -278,7 +278,7 @@ const ChartControlPanel = (props) => {
                             <Rotate90DegreesCcw/>
                         </IconButton>
                     </Tooltip>
-                }
+                } */}
 
                 <Tooltip placement='top' title='Download CSV'>
                     <IconButton color='inherit' onClick={downloadCsv} className={classes.iconButton} >
@@ -310,11 +310,11 @@ const ChartControlPanel = (props) => {
                     </Tooltip>
                 }
 
-                <Tooltip title='Plot Info' placement='top'>
+                {/* <Tooltip title='Plot Info' placement='top'>
                     <IconButton color='inherit' onClick={() => console.log('Info!')} className={`${classes.iconButton}`} >
                         <Info/>
                     </IconButton>                
-                </Tooltip>
+                </Tooltip> */}
                 
             </ButtonGroup>
             

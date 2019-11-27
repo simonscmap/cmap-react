@@ -346,7 +346,7 @@ class MapContainer extends Component {
                     />
                 </Scene>
                 <DrawButton showHelp={this.state.showHelp}/>
-                <CruiseSelector/>
+                <CruiseSelector updateParametersFromCruiseBoundary={this.props.updateParametersFromCruiseBoundary}/>
             </div>            
         )
     }

@@ -11,6 +11,13 @@ export default function(state, action) {
     }
     case catalogActionTypes.RETRIEVAL_REQUEST_FAILURE: return {...state, catalogRequestState: states.failed}
     case catalogActionTypes.RETRIEVAL_REQUEST_PROCESSING: return {...state, catalogRequestState: states.inProgress}
+
+    case catalogActionTypes.DATASET_RETRIEVAL_REQUEST_SUCCESS: return {...state,
+      datasetsRequestState: states.succeeded, 
+      datasets: action.payload.datasets
+    }
+    case catalogActionTypes.DATASET_RETRIEVAL_REQUEST_FAILURE: return {...state, datasetsRequestState: states.failed}
+    case catalogActionTypes.DATASET_RETRIEVAL_REQUEST_PROCESSING: return {...state, datasetsRequestState: states.inProgress}
     
     default:
       return state;

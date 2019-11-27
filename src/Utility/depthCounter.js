@@ -123,20 +123,29 @@ const _darwinTable = [
 const piscesTable = new Set(_piscesTables);
 const darwinTable = new Set(_darwinTable);
 
-export default (field, depth1, depth2) => {
-    const { Table_Name: table } = field.data;
-    var count = 0;
+const exports = {
+    count: (field, depth1, depth2) => {
+        const { Table_Name: table } = field.data;
+        var count = 0;
+    
+        if(piscesTable.has(table)) {
+            for(let i = 0; i < piscesDepths.length; i++){
+                if(piscesDepths[i] > depth2) break;
+                if(piscesDepths[i] > depth1) count ++; 
+            }
+        } else if (darwinTable.has(table)) {
+            for(let i = 0; i < darwinDepths.length; i++){
+                if(darwinDepths[i] > depth2) break;
+                if(darwinDepths[i] > depth1) count ++; 
+            }
+        } else {}
+        return count;
+    },
 
-    if(piscesTable.has(table)) {
-        for(let i = 0; i < piscesDepths.length; i++){
-            if(piscesDepths[i] > depth2) break;
-            if(piscesDepths[i] > depth1) count ++; 
-        }
-    } else if (darwinTable.has(table)) {
-        for(let i = 0; i < darwinDepths.length; i++){
-            if(darwinDepths[i] > depth2) break;
-            if(darwinDepths[i] > depth1) count ++; 
-        }
-    } else {}
-    return count;
+    piscesTable,
+    darwinTable,
+    piscesDepths,
+    darwinDepths
 }
+
+export default exports;

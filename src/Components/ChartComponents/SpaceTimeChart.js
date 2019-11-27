@@ -297,7 +297,7 @@ const SpaceTimeChart = (props) => {
     const { dates, depths, extent } = data;
 
     const [splitByDate, setSplitByDate] = useState(false);
-    const [splitByDepth, setSplitByDepth] = useState(false);
+    const [splitByDepth, setSplitByDepth] = useState(true);
     const [subTypeState, setSubTypeState] = useState(subType);
     const [palette, setPalette] = useState('heatmap');
     const [zValues, setZValues] = useState([data.zMin, data.zMax]);

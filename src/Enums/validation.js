@@ -1,27 +1,27 @@
 const validation = {
     depth: {
-        depthOneIsLower: 'Start cannot be larger than end',
-        depthOneOutOfBounds: 'Start must be smaller than $',
-        depthTwoOutOfBounds: 'End must be larger than $',
-        negative: 'Depth cannot be negative'
+        depthOneIsLower: 'Cannot be larger than end',
+        depthOneOutOfBounds: 'Must be smaller than $',
+        depthTwoOutOfBounds: 'Must be larger than $',
+        negative: 'Cannot be negative'
     },
 
     date: {
-        dateOneIsLater: 'Start cannot be later than end',
-        dateOneOutOfBounds: 'Start must be before $',
-        dateTwoOutOfBounds: 'End must be after $'
+        dateOneIsLater: 'Cannot be after end',
+        dateOneOutOfBounds: 'Must be before $',
+        dateTwoOutOfBounds: 'Must be after $'
     },
 
     lat: {
-        latOneIsHigher: 'Start cannot be larger than end.',
-        latOneOutOfBounds: 'Start must be less than $',
-        latTwoOutOfBounds: 'End must be greater than $'
+        latOneIsHigher: 'Cannot be larger than end.',
+        latOneOutOfBounds: 'Must be less than $',
+        latTwoOutOfBounds: 'Must be greater than $'
     },
 
     lon: {
-        lonOneIsHigher: 'Start cannot be larger than end.',
-        lonOneOutOfBounds: 'Start must be less than $',
-        lonTwoOutOfBounds: 'End must be greater than $'
+        lonOneIsHigher: 'Cannot be larger than end.',
+        lonOneOutOfBounds: 'Must be less than $',
+        lonTwoOutOfBounds: 'Must be greater than $'
     },
 
     type: {

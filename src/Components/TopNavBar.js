@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from "react-router";
-
-import Cookies from 'js-cookie';
+import { Link } from "react-router-dom";
 
 import { withStyles } from '@material-ui/core/styles';
 
@@ -34,7 +33,7 @@ const styles = theme => ({
     },
 
     navLink: {
-        cursor: 'pointer',
+        textDecoration: 'none',
         marginRight: 20,
         color: 'white',
         '&:hover': {
@@ -42,7 +41,8 @@ const styles = theme => ({
         },
         fontSize: '13px',
         fontWeight: 100,
-        display: 'inline-block'     
+        display: 'inline-block',
+        cursor: 'pointer' 
     },
 
     rightNavLink: {
@@ -112,14 +112,14 @@ class TopNavBar extends Component {
 
         return (
             <div className={classes.navWrapper}>
-                <Typography variant='caption' onClick={() => this.handleNavigate('/')} className={classes.navLink}>Home</Typography>
-                <Typography variant='caption' onClick={() => this.handleNavigate('/catalog')} className={classes.navLink}>Catalog</Typography>
-                {pathname !== '/visualization' && <Typography variant='caption' onClick={() => this.handleNavigate('/apikeymanagement')} className={classes.navLink}>API Keys</Typography>}
-                {pathname !== '/visualization' && <Typography variant='caption' onClick={() => this.handleNavigate('/visualization')} className={classes.navLink}>Visualization</Typography>}
+                <Typography variant='caption' href='/' component='a' className={classes.navLink}>Home</Typography>
+                <Typography variant='caption' to='/catalog' component={Link} className={classes.navLink}>Catalog</Typography>
+                {pathname !== '/visualization' && <Typography variant='caption' to='/apikeymanagement' component={Link} className={classes.navLink}>API Keys</Typography>}
+                {pathname !== '/visualization' && <Typography variant='caption' to='/visualization' component={Link} className={classes.navLink}>Visualization</Typography>}
                 {this.props.user && <Typography variant='caption' onClick={() => this.handleLogOut()} className={`${classes.navLink} ${pathname === '/visualization' ? '' : classes.rightNavLink}`}>Log Out</Typography>}
                 {/* <Typography variant='caption' onClick={this.props.toggleShowHelp} className={classes.navLink}>{showHelp ? 'Hide Help' : 'Help(beta) '}</Typography> */}
                 {(!this.props.user && pathname !== '/visualization') && <Typography variant='caption' onClick={() => this.props.showLoginDialog()} className={`${classes.navLink} ${classes.rightNavLink}`}>Log In</Typography>}
-                {(!this.props.user && pathname !== '/visualization') && <Typography variant='caption' onClick={() => this.handleNavigate('/register')} className={`${classes.navLink} ${classes.rightNavLink}`}>Register</Typography>}
+                {(!this.props.user && pathname !== '/visualization') && <Typography variant='caption' to='/register' component={Link} className={classes.navLink}>Register</Typography>}
             </div>        
         )
     }
