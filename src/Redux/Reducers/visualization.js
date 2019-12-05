@@ -36,6 +36,13 @@ export default function(state, action) {
 
         case visualizationActionTypes.CLEAR_MAPS: return {...state, maps: []}
 
+        case visualizationActionTypes.DELETE_CHART: return {...state, 
+            charts: [
+                ...state.charts.slice(0, action.payload.chartIndex),
+                ...state.charts.slice(action.payload.chartIndex + 1)
+            ]
+        }
+
         case visualizationActionTypes.CRUISE_TRAJECTORY_REQUEST_PROCESSING: return {...state, getCruiseTrajectoryRequestState: states.inProgress}
 
         case visualizationActionTypes.CRUISE_TRAJECTORY_REQUEST_SUCCESS: return {...state,
@@ -57,6 +64,16 @@ export default function(state, action) {
 
         case visualizationActionTypes.TRIGGER_SHOW_CHARTS: return {...state, showChartsOnce: true}
         case visualizationActionTypes.COMPLETED_SHOW_CHARTS: return {...state, showChartsOnce: false}
+
+        case visualizationActionTypes.TABLE_STATS_REQUEST_SUCCESS: return {
+            ... state, 
+            datasets: {
+                ...state.datasets,
+                [action.payload.datasetLongName]: {
+                    ...state.datasets[action.payload.datasetLongName],
+                    tableStats: action.payload.tableStats
+                }
+            }}
 
         default: return state;
     }

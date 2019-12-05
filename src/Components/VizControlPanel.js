@@ -7,24 +7,10 @@ import Select, { components } from 'react-select';
 import * as JsSearch from 'js-search';
 import { VariableSizeList as ReactWindowList } from "react-window";
 
-import Grid from '@material-ui/core/Grid';
-import IconButton from '@material-ui/core/IconButton';
-import Icon from '@material-ui/core/Icon';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import MenuItem from '@material-ui/core/MenuItem';
+import { Divider, ButtonGroup, Grid, IconButton, Icon, ListItem, MenuItem, Typography, Drawer, TextField, FormControl, InputLabel, Button, Tooltip} from '@material-ui/core';
 import MUISelect from '@material-ui/core/Select';
-import Typography from '@material-ui/core/Typography';
-import Drawer from '@material-ui/core/Drawer';
-import TextField from '@material-ui/core/TextField';
-import FormControl from '@material-ui/core/FormControl';
-import InputLabel from '@material-ui/core/InputLabel';
-import Button from '@material-ui/core/Button';
-import Tooltip from '@material-ui/core/Tooltip';
-import Collapse from '@material-ui/core/Collapse';
 import { KeyboardDatePicker } from "@material-ui/pickers";
-import { LibraryBooks, ArrowRight, ChevronLeft, ChevronRight, InsertChartOutlined, Language, Delete, CloudDownload, Info } from '@material-ui/icons';
-import ButtonGroup from '@material-ui/core/ButtonGroup';
+import { Cached, LibraryBooks, ArrowRight, ChevronLeft, ChevronRight, InsertChartOutlined, Language, Delete, CloudDownload, Info } from '@material-ui/icons';
 
 import vizSubTypes from '../Enums/visualizationSubTypes';
 import states from '../asyncRequestStates';
@@ -40,6 +26,7 @@ import { snackbarOpen } from '../Redux/actions/ui';
 
 import utcDateStringToLocal from '../Utility/utcDateStringToLocal';
 import depthUtils from '../Utility/depthCounter';
+import countWebGLContexts from '../Utility/countWebGLContexts';
 
 import ConnectedTooltip from './ConnectedTooltip';
 
@@ -163,7 +150,16 @@ const styles = theme => ({
 
   clearChartsButton: {
       borderRadius: 0,
-      backgroundColor: '#3c3c3c'
+      backgroundColor: '#3c3c3c',
+      width: '100%',
+      borderRight: '1px solid #313131'
+
+  },
+
+  resetSPParamsButton: {
+    borderRadius: 0,
+    backgroundColor: '#3c3c3c',
+    width: '100%',
   },
 
   datePicker: {
@@ -182,7 +178,9 @@ const mapStateToProps = (state, ownProps) => ({
     catalog: state.catalog,
     catalogRequestState: state.catalogRequestState,
     cruiseTrajectory: state.cruiseTrajectory,
-    showHelp: state.showHelp
+    showHelp: state.showHelp,
+    datasets: state.datasets,
+    charts: state.charts
 })
 
 const mapDispatchToProps = {
@@ -312,7 +310,7 @@ const customHeadingStyles = (theme) => ({
 })
 
 const _CustomHeading = props => {
-    const { classes, sensor, tableName, selectProps } = props;
+    const { classes, sensor, selectProps } = props;
     let iconClass;
 
     if(sensor === 'Satellite') iconClass = 'fa-satellite';
@@ -336,23 +334,28 @@ const _CustomHeading = props => {
             <IconButton 
                 color='inherit' 
                 onClick={(e) => {
-                    selectProps.handleDownloadCsvClick(tableName, props.headingLabel);
+                    // selectProps.handleDownloadCsvClick(tableName, props.headingLabel);
+                    selectProps.handleSetDownloadTarget({dataset: props.headingLabel})
+                    selectProps.onAutoSuggestChange(props.headingLabel, {action: 'input-change'})
                     e.stopPropagation();
                 }}>
                 <CloudDownload/>
             </IconButton>
         </Tooltip>
 
-        {/* <Tooltip title='Dataset Info' placement='right'>
-            <IconButton 
-                color='inherit' 
-                onClick={(e) => {
-                    e.stopPropagation();
-                }}
-            >
-                <Info/>
-            </IconButton>
-        </Tooltip> */}
+        { selectProps.datasets[props.headingLabel] &&
+            <Tooltip title='Dataset Info' placement='right'>
+                <IconButton 
+                    color='inherit' 
+                    onClick={(e) => {
+                        window.open(selectProps.datasets[props.headingLabel].Doc_URL);
+                        e.stopPropagation();
+                    }}
+                >
+                    <Info/>
+                </IconButton>
+            </Tooltip>
+        }
         </ListItem>
       </React.Fragment>
     )
@@ -492,6 +495,11 @@ class VizControlPanel extends React.Component {
         }
     }
 
+    handleResetSPParams = () => {
+        this.props.resetSPParams();
+        this.setState({...this.state, searchField: ''});
+    }
+
     onAutoSuggestChange = (searchString, action) => {
         if(action.action === 'input-change') {
             this.setState({...this.state, searchField: searchString});
@@ -508,12 +516,14 @@ class VizControlPanel extends React.Component {
 
         const date1 = Date.parse(dt1);
         const date2 = Date.parse(dt2);
-        const res = mapSpatialResolutionToNumber(fields.data.Spatial_Resolution);
-
+        
         const dayDiff = (date2 - date1) / 86400000;
-
+        
+        const res = mapSpatialResolutionToNumber(fields.data.Spatial_Resolution);
+        
         const dateCount = Math.floor(dayDiff / mapTemporalResolutionToNumber(fields.data.Temporal_Resolution)) || 1;
         const depthCount = depthUtils.count(fields, depth1, depth2) || 1;
+        
         const latCount = (lat2 - lat1) / res;
         const lonCount = (lon2 - lon1) / res;
 
@@ -632,6 +642,11 @@ class VizControlPanel extends React.Component {
     }
 
     checkGeneralPrevent = (dataSize) => {
+        const webGLCount = countWebGLContexts(this.props.charts);
+        if(this.props.selectedVizType === vizSubTypes.heatmap && webGLCount > 14) return validation.type.webGLContextLimit;
+        if(this.props.selectedVizType === vizSubTypes.sparse && webGLCount > 11) return validation.type.webGLContextLimit;
+
+
         if(this.props.selectedVizType !== vizSubTypes.histogram && this.props.selectedVizType !== vizSubTypes.heatmap && dataSize > 1200000){
             return validation.generic.dataSizePrevent;
         }
@@ -665,7 +680,9 @@ class VizControlPanel extends React.Component {
             showCharts,
             handleShowGlobe,
             handleChange,
-            handleLatLonChange
+            handleLatLonChange,
+            datasets,
+            charts
         } = this.props;
 
         const options = searchField && catalog ? this.getSelectOptionsFromCatalogItems(search.search(searchField)) 
@@ -839,12 +856,24 @@ class VizControlPanel extends React.Component {
                             </IconButton>
                         </Tooltip>
                     </ButtonGroup>
+                    
+                    <Grid container>
+                        <Grid item xs={6}>
+                            <Tooltip title='Clear Charts' placement='bottom'>
+                                <IconButton color='inherit' onClick={this.props.clearCharts} className={classes.clearChartsButton}>
+                                    <Delete/>
+                                </IconButton>
+                            </Tooltip>
+                        </Grid>
 
-                    <Tooltip title='Clear Charts' placement='right'>
-                        <IconButton color='inherit' onClick={this.props.clearCharts} className={classes.clearChartsButton}>
-                            <Delete/>
-                        </IconButton>
-                    </Tooltip>
+                        <Grid item xs={6}>
+                            <Tooltip title='Reset Parameters' placement='right'>
+                                <IconButton color='inherit' onClick={this.handleResetSPParams} className={classes.resetSPParamsButton}>
+                                    <Cached/>
+                                </IconButton>
+                            </Tooltip>                            
+                        </Grid>
+                    </Grid>
 
                     <form>
                         <Grid container>
@@ -856,8 +885,11 @@ class VizControlPanel extends React.Component {
                                             
                                         // }}
                                         formatOptionLabel={formatOptionLabel}
+                                        handleSetDownloadTarget={this.props.handleSetDownloadTarget}
                                         handleTableStatsDialogOpen={this.handleTableStatsDialogOpen}
                                         isLoading = {catalogRequestState === states.inProgress}
+                                        onAutoSuggestChange = {this.onAutoSuggestChange}
+                                        datasets = {datasets}
                                         components={{
                                             IndicatorSeparator:'',
                                             DropdownIndicator,
@@ -1077,7 +1109,6 @@ class VizControlPanel extends React.Component {
 
                             <Grid item xs={6} className={classes.formGridItem}>
                                 <TextField
-                                    disabled={!fields || surfaceOnly}
                                     id="depth1-input"
                                     error={Boolean(startDepthMessage)}
                                     label="Start Depth(m)"
@@ -1095,7 +1126,6 @@ class VizControlPanel extends React.Component {
 
                             <Grid item xs={6} className={classes.formGridItem}>
                                 <TextField
-                                    disabled={!fields || surfaceOnly}
                                     id="depth2-input"
                                     error={Boolean(endDepthMessage)}
                                     label="End Depth(m)"

@@ -196,9 +196,8 @@ api.visualization.storedProcedureRequest = async(payload) => {
 
 api.visualization.getTableStats = async(tableName) => {
     let response = await fetch(apiUrl + '/dataretrieval/tablestats?table=' + tableName, fetchOptions);
-    if(response.ok){
-        return await response.json();
-    } else return false;
+    if(!response.ok) return {failed: true, status: response.status};
+    return await response.json();
 }
 
 api.visualization.cruiseTrajectoryRequest = async(payload) => {

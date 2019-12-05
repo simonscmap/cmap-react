@@ -78,22 +78,35 @@ export const clearMaps = () => ({
     type: visualizationActionTypes.CLEAR_MAPS
 })
 
-export const getTableStats = (tableName) => ({
-    type: visualizationActionTypes.GET_TABLE_STATS,
+export const deleteChart = (chartIndex) => ({
+    type: visualizationActionTypes.DELETE_CHART,
     payload: {
-        tableName
+        chartIndex
     }
 })
 
-export const getTableStatsRequestProcessing = () => ({
-    type: visualizationActionTypes.GET_TABLE_STATS_REQUEST_PROCESSING
+export const tableStatsRequestSend = (tableName, datasetLongName) => ({
+    type: visualizationActionTypes.TABLE_STATS_REQUEST_SEND,
+    payload: {
+        tableName,
+        datasetLongName
+    }
 })
 
-export const storeTableStats = (tableStats) => ({
-    type: visualizationActionTypes.STORE_TABLE_STATS,
+export const tableStatsRequestProcessing = () => ({
+    type: visualizationActionTypes.TABLE_STATS_REQUEST_PROCESSING
+})
+
+export const tableStatsRequestSuccess = (tableStats, datasetLongName) => ({
+    type: visualizationActionTypes.TABLE_STATS_REQUEST_SUCCESS,
     payload: {
-        tableStats
+        tableStats,
+        datasetLongName
     }
+})
+
+export const tableStatsRequestFailure = () => ({
+    type: visualizationActionTypes.TABLE_STATS_REQUEST_FAILURE
 })
 
 export const cruiseTrajectoryRequestSend = (id) => ({
@@ -149,11 +162,11 @@ export const completedShowCharts = () => ({
     type: visualizationActionTypes.COMPLETED_SHOW_CHARTS
 })
 
-export const csvDownloadRequestSend = (query, datasetName) => ({
+export const csvDownloadRequestSend = (query, fileName) => ({
     type: visualizationActionTypes.CSV_DOWNLOAD_REQUEST_SEND,
     payload: {
         query,
-        datasetName
+        fileName
     }
 })
 

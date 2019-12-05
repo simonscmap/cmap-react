@@ -1,17 +1,8 @@
 import React from 'react';
 
-import Typography from '@material-ui/core/Typography';
-import Grid from '@material-ui/core/Grid';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableRow from '@material-ui/core/TableRow';
-// import Card from '@material-ui/core/Card';
-// import Divider from '@material-ui/core/Divider';
+import { Typography, Grid, Table, TableBody, TableCell, TableRow, Button } from '@material-ui/core';
 
 import { withStyles } from '@material-ui/core/styles';
-
-import { apiUrl } from '../config';
 
 const tableMapping1 = [
     ['Long Name', 'Long_Name'],
@@ -50,14 +41,16 @@ const styles = (theme) => ({
         height: '100%'
     },
     gridClass: {
-        height: '100%'
+        height: '100%',
+        maxHeight: '280px'
     },
     gridItem: {
         // height: '90%',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        verticalAlign: 'middle'
+        verticalAlign: 'middle',
+        maxHeight: '280px'
     },
     datasetDescriptionWrapper: {
         whiteSpace: 'normal',
@@ -69,8 +62,8 @@ const styles = (theme) => ({
         marginTop: theme.spacing(1)
     },
     vizSampleImage: {
-        maxWidth: '90%',
-        maxHeight: '90%'
+        maxWidth: '80%',
+        maxHeight: '260px'
     },
     variableDetailTable: {
         marginLeft: theme.spacing(1),
@@ -92,6 +85,39 @@ const styles = (theme) => ({
         overflow: 'hidden',
         whiteSpace: 'nowrap',
         paddingRight: '14px'
+    },
+
+    gridDetailTypography: {
+        fontSize: '11px',
+        whiteSpace: 'normal',
+        width: '100%',
+        display: 'block',
+    },
+
+    boldText: {
+        fontWeight: 'bold'
+    },
+
+    rightGridItem: {
+        maxWidth: '100%',
+        paddingTop: '10px',
+        boxSizing: 'border-box'
+    },
+
+    datasetDescriptionButton: {
+        backgroundColor: '#FF8000',
+        color: 'white',
+        '&:hover': {
+            backgroundColor: '#ab5600',
+        },
+        fontSize: '12px',
+        maxWidth: '100%',
+    },
+    
+    buttonTextWrapper: {
+        textOverflow: 'ellipsis',
+        maxWidth: '100%',
+        overflow: 'hidden'
     }
 })
 
@@ -101,9 +127,8 @@ const GridDetail = (props) => {
 
     return (
         <div className={classes.wrapper}>
-            <Grid>
-                <Grid container item xs={10}>
-                    <Grid container spacing={2} className={classes.gridClass}>
+                <Grid container className={classes.gridClass}>
+                    <Grid container item xs={10} spacing={2}>
                         <Grid item xs={4} className={classes.gridItem}>
                             <img src={props.context.datasets[props.data.Dataset_Name].Icon_URL} alt="Mission Icon" className={classes.vizSampleImage}/>
                         </Grid>
@@ -114,7 +139,7 @@ const GridDetail = (props) => {
                                     {tableMapping1.map((row, index) => (
                                         <TableRow key={index} className={classes.variableDetailTableRow}>
                                             <TableCell className={classes.variableDetailTableCell}>{row[0]}</TableCell>
-                                            <TableCell className={classes.variableDetailTableCell}>{props.data[row[1]]}</TableCell>
+                                            <TableCell className={classes.variableDetailTableCell} title={props.data[row[1]]}>{props.data[row[1]]}</TableCell>
                                         </TableRow>
                                     ))}
                                         <TableRow key={tableMapping1.length + 1} className={classes.variableDetailTableRow}>
@@ -146,10 +171,35 @@ const GridDetail = (props) => {
                             </Table>
                         </Grid>
                     </Grid>
-                    <Grid container item xs={2}>
 
+                <Grid container direction='column' item xs={2} alignContent='center' alignItems='center'>
+                    <Grid item xs={4} className={classes.rightGridItem}>
+                        <Typography variant='caption' className={`${classes.gridDetailTypography} ${classes.boldText}`}>
+                            Source:
+                        </Typography>
+                        <Typography variant='caption' className={classes.gridDetailTypography}>
+                            {props.data.Data_Source}
+                        </Typography>
                     </Grid>
 
+                    <Grid item xs={4} className={classes.rightGridItem}>
+                        <Typography variant='caption' className={`${classes.gridDetailTypography} ${classes.boldText}`}>
+                            Distributor:
+                        </Typography>
+                        <Typography variant='caption' className={classes.gridDetailTypography}>
+                            {props.data.Distributor}
+                        </Typography>
+                    </Grid>
+
+                    <Grid item xs={4} className={classes.rightGridItem}>
+                        <Button 
+                            variant='contained' 
+                            className={classes.datasetDescriptionButton} 
+                            onClick={() => props.context.handleDescribeDataset(props.data.Dataset_Name)}
+                        >
+                            <span className={classes.buttonTextWrapper}>Dataset Details</span>
+                        </Button>
+                    </Grid>
                 </Grid>
 
             </Grid>

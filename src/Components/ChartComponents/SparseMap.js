@@ -129,7 +129,6 @@ function tabProps(index) {
 
 const SparseTabPanel = (props) => {
     const { children, selectedTab, index, controlPanelProps, } = props;
-    console.log('A tab panel re-rendered');
     console.log(controlPanelProps)
 
     return (
@@ -246,56 +245,64 @@ const SparseMap = (props) => {
                 {data.hasDepth && <Tab label="By Depth" {...tabProps(4)} className={classes.tab}/>}
             </Tabs>
             <SparseTabPanel selectedTab={tab} index={0} controlPanelProps={controlPanelProps.map}>
-                {plot}
+                {tab === 0 && plot}
             </SparseTabPanel>
             
             <SparseTabPanel selectedTab={tab} index={1} controlPanelProps={controlPanelProps.scatter}>
-                <SparseScatter
-                    xValues={data.times}
-                    yValues={data.variableValues}
-                    markerOptions={markerOptions}
-                    infoObject={data}
-                    xTitle='Time'
-                    yTitle={data.parameters.fields}
-                    type='time'
-                />
+                {tab === 1 &&
+                    <SparseScatter
+                        xValues={data.times}
+                        yValues={data.variableValues}
+                        markerOptions={markerOptions}
+                        infoObject={data}
+                        xTitle='Time'
+                        yTitle={data.parameters.fields}
+                        type='time'
+                    />
+                }
             </SparseTabPanel>
 
             <SparseTabPanel selectedTab={tab} index={2} controlPanelProps={controlPanelProps.scatter}>
-                <SparseScatter
-                    xValues={data.lats}
-                    yValues={data.variableValues}
-                    markerOptions={markerOptions}
-                    infoObject={data}
-                    xTitle='Latitude'
-                    yTitle={data.parameters.fields}
-                    type='latitude'
-                />
+                {tab === 2 &&
+                    <SparseScatter
+                        xValues={data.lats}
+                        yValues={data.variableValues}
+                        markerOptions={markerOptions}
+                        infoObject={data}
+                        xTitle='Latitude'
+                        yTitle={data.parameters.fields}
+                        type='latitude'
+                    />                
+                }
             </SparseTabPanel>
 
             <SparseTabPanel selectedTab={tab} index={3} controlPanelProps={controlPanelProps.scatter}>
-                <SparseScatter
-                    xValues={data.lons}
-                    yValues={data.variableValues}
-                    markerOptions={markerOptions}
-                    infoObject={data}
-                    xTitle='Longitude'
-                    yTitle={data.parameters.fields}
-                    type='longitude'
-                />
+                {tab === 3 && 
+                    <SparseScatter
+                        xValues={data.lons}
+                        yValues={data.variableValues}
+                        markerOptions={markerOptions}
+                        infoObject={data}
+                        xTitle='Longitude'
+                        yTitle={data.parameters.fields}
+                        type='longitude'
+                    />                
+                }
             </SparseTabPanel>
 
             {data.hasDepth &&
                 <SparseTabPanel selectedTab={tab} index={4} controlPanelProps={controlPanelProps.scatter}>
-                    <SparseScatter
-                        xValues={data.variableValues}
-                        yValues={data.depths}
-                        markerOptions={markerOptions}
-                        infoObject={data}
-                        xTitle={data.parameters.fields}
-                        yTitle='Depth'
-                        type='depth'
-                    />
+                    {tab === 4 &&
+                        <SparseScatter
+                            xValues={data.variableValues}
+                            yValues={data.depths}
+                            markerOptions={markerOptions}
+                            infoObject={data}
+                            xTitle={data.parameters.fields}
+                            yTitle='Depth'
+                            type='depth'
+                        />                    
+                    }
                 </SparseTabPanel>            
             }
                 

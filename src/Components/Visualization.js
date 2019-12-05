@@ -8,15 +8,12 @@ import { withStyles } from '@material-ui/core/styles';
 
 import LoginRequiredPrompt from './LoginRequiredPrompt';
 // import VisualizationController from './VisualizationController';
-import LoadingSpinner from './LoadingSpinner';
-import DataRetrievalForm from './DataRetrievalForm';
 import VizControlPanel from './VizControlPanel';
+import DownloadConfirmationDialog from './DownloadConfirmationDialog';
 
 import { showLoginDialog, snackbarOpen } from '../Redux/actions/ui';
-import { queryRequestSend, storedProcedureRequestSend, cruiseListRequestSend, triggerShowCharts, completedShowCharts } from '../Redux/actions/visualization';
-import { retrievalRequestSend } from '../Redux/actions/catalog';
-
-import states from '../asyncRequestStates';
+import { queryRequestSend, storedProcedureRequestSend, cruiseListRequestSend, completedShowCharts } from '../Redux/actions/visualization';
+import { retrievalRequestSend, datasetRetrievalRequestSend } from '../Redux/actions/catalog';
 
 import { loadModules } from 'esri-loader';
 
@@ -87,7 +84,8 @@ const mapStateToProps = (state, ownProps) => ({
     loadingMessage: state.loadingMessage,
     cruiseTrajectory: state.cruiseTrajectory,
     cruiseList: state.cruiseList,
-    showChartsOnce: state.showChartsOnce
+    showChartsOnce: state.showChartsOnce,
+    datasets: state.datasets
 })
 
 const mapDispatchToProps = {
@@ -97,7 +95,8 @@ const mapDispatchToProps = {
     storedProcedureRequestSend,
     snackbarOpen,
     cruiseListRequestSend,
-    completedShowCharts
+    completedShowCharts,
+    datasetRetrievalRequestSend
 }
 
 const styles = (theme) => ({
@@ -114,6 +113,20 @@ const styles = (theme) => ({
     }
 })
 
+const baseSPParams = {
+    tableName: '',
+    fields: null,
+    depth1: 0,
+    depth2: 0,
+    dt1: new Date(),
+    dt2: new Date(),
+    lat1: 0,
+    lat2: 0,
+    lon1: 0,
+    lon2: 0,
+    selectedVizType: ''
+}
+
 class Visualization extends Component {
     globeUIRef = React.createRef();
 
@@ -124,25 +137,15 @@ class Visualization extends Component {
         showUI: false,
         surfaceOnly: false,
         irregularSpatialResolution: false,
+        downloadTarget: null,
 
-        spParams: {
-            tableName: '',
-            fields: null,
-            depth1: 0,
-            depth2: 0,
-            dt1: new Date(),
-            dt2: new Date(),
-            lat1: 0,
-            lat2: 0,
-            lon1: 0,
-            lon2: 0,
-            selectedVizType: ''
-        }
+        spParams: baseSPParams
     }
     
     async componentDidMount(){
         if(!this.props.catalog) this.props.retrievalRequestSend();
         if(!this.props.cruiseList) this.props.cruiseListRequestSend();
+        if(!this.props.datasets) this.props.datasetRetrievalRequestSend();
 
         const esriModuleNames = [
             'AreaMeasurement3D',
@@ -168,6 +171,10 @@ class Visualization extends Component {
         }, {});
 
         this.setState({...this.state, esriModules});
+    }
+
+    handleSetDownloadTarget = (downloadTarget) => {
+        this.setState({...this.state, downloadTarget})
     }
 
     componentDidUpdate(prevProps){
@@ -249,12 +256,12 @@ class Visualization extends Component {
             let lat2 = irregularSpatialResolution ? fields.data.Lat_Max : this.state.spParams.lat2;
             let lon1 = irregularSpatialResolution ? fields.data.Lon_Min : this.state.spParams.lon1;
             let lon2 = irregularSpatialResolution ? fields.data.Lon_Max : this.state.spParams.lon2;
-            let depth1 = irregularSpatialResolution ? fields.data.Depth_Min : 
+            let depth1 = irregularSpatialResolution ? fields.data.Depth_Min || 0 : 
                 depthUtils.piscesTable.has(fields.data.Table_Name) ? 0 :
                 depthUtils.darwinTable.has(fields.data.Table_Name) ? 0 : 
                 this.state.spParams.depth1;
 
-            let depth2 = irregularSpatialResolution ? fields.data.Depth_Max : 
+            let depth2 = irregularSpatialResolution ? fields.data.Depth_Max || 0 : 
                 depthUtils.piscesTable.has(fields.data.Table_Name) ? ((depthUtils.piscesDepths[0] + depthUtils.piscesDepths[1]) / 2).toFixed(2) :
                 depthUtils.darwinTable.has(fields.data.Table_Name) ? (depthUtils.darwinDepths[0] + depthUtils.darwinDepths[1]) : 
                 this.state.spParams.depth2;
@@ -335,6 +342,10 @@ class Visualization extends Component {
         this.setState({...this.state, spParams: {...this.state.spParams, ...newCoordinates}});
     }
 
+    resetSPParams = () => {
+        this.setState({...this.state, spParams: baseSPParams})
+    }
+
     render(){
         const { classes } = this.props;
 
@@ -343,19 +354,14 @@ class Visualization extends Component {
         return (
             <div>
                 <TopNavBar/>
-                <DataRetrievalForm 
-                    handleChange={this.handleChange}
-                    handleLatLonChange={this.handleLatLonChange}
-                    handleStartDateChange={this.handleStartDateChange} 
-                    handleEndDateChange={this.handleEndDateChange} 
-                    showUI={this.state.showUI}
-                    onVisualize={this.onVisualize}
-                    updateFields={this.updateFields}
-                   {...this.state.spParams}
-                   surfaceOnly={this.state.surfaceOnly}
-                   irregularSpatialResolution={this.state.irregularSpatialResolution}
+                <DownloadConfirmationDialog
+                    {...this.state.spParams}
+                    downloadTarget={this.state.downloadTarget}
+                    handleSetDownloadTarget={this.handleSetDownloadTarget}
                 />
+
                 <VizControlPanel
+                    handleSetDownloadTarget={this.handleSetDownloadTarget}
                     toggleChartView={this.toggleChartView}
                     toggleShowUI={this.toggleShowUI}
                     showCharts={this.state.showCharts}
@@ -372,6 +378,7 @@ class Visualization extends Component {
                     showCharts={this.state.showCharts}
                     handleShowCharts={this.handleShowCharts}
                     handleShowGlobe={this.handleShowGlobe}
+                    resetSPParams={this.resetSPParams}
                 />
                 { this.state.esriModules &&
                     <div className={`${this.state.showCharts ? classes.displayNone : ''}`}>

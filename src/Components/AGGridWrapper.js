@@ -5,6 +5,7 @@ import { AgGridReact } from 'ag-grid-react';
 // import 'ag-grid-community/dist/styles/ag-theme-material.css';
 
 import GridDetail from './GridDetail';
+import DatasetDescriptionDialog from './DatasetDescriptionDialog';
 
 import stringify from 'csv-stringify/lib/sync';
 
@@ -112,8 +113,8 @@ const columnDefs = [
 
 const styles = (theme) => ({
   gridWrapper: {
-    height: '60vh', 
-    width: '90%',
+    height: '70vh', 
+    width: '92%',
     margin: '0 auto'
   },
 
@@ -122,13 +123,18 @@ const styles = (theme) => ({
   },
 
   gridPaper: {
-    margin: '60px 5vw',
-    padding: '30px'
+    margin: '70px 2vw 30px 2vw',
+    padding: '20px'
   },
 
   downloadButton: {
     margin: '6px 0 0 0',
-    textTransform: 'none'
+    textTransform: 'none',
+    color: 'black',
+    backgroundColor: '#FF8000',
+    '&:hover': {
+      backgroundColor: '#ab5600',
+  }
   }
 })
 
@@ -146,7 +152,12 @@ class AGGridWrapper extends Component {
   // const { classes } = props;
 
   state = {
-    filterText: ''
+    filterText: '',
+    describedDataset: ''
+  }
+
+  handleDescribeDataset = (dataset) => {
+    this.setState({...this.state, describedDataset: dataset})
   }
 
   handleChange = (event) => {
@@ -188,10 +199,17 @@ class AGGridWrapper extends Component {
   }
 
   render = () => {
-    const {classes} = this.props;
+    const { classes, datasets } = this.props;
+    const { describedDataset } = this.state;
+    const description = !datasets ? '' : !datasets[describedDataset] ? '' : datasets[describedDataset].Description;
 
     return (
       <Paper elevation={12} className={classes.gridPaper}>
+        <DatasetDescriptionDialog 
+          description={description}
+          clearDescription={() => this.handleDescribeDataset('')}
+          datasetName={describedDataset}
+        />
         <Grid container>
           <Grid item xs={3}>
 
@@ -249,7 +267,8 @@ class AGGridWrapper extends Component {
 
               // Additional props
               context={{
-                datasets: this.props.datasets
+                datasets,
+                handleDescribeDataset: this.handleDescribeDataset
               }}
 
               // Setting related to styling

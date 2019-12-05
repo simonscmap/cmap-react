@@ -40,6 +40,11 @@ const TableStatsDialog = (props) => {
                             </TableRow>
 
                             <TableRow>
+                                <TableCell>Table Name</TableCell>
+                                <TableCell title={data.Table_Name}>{data.Table_Name > 25 ? data.Table_Name.slice(0,23) + '...' : data.Table_Name}</TableCell>
+                            </TableRow>
+
+                            <TableRow>
                                 <TableCell>Source</TableCell>
                                 <TableCell title={data.Data_Source}>{data.Data_Source > 25 ? data.Data_Source.slice(0,23) + '...' : data.Data_Source}</TableCell>
                             </TableRow>

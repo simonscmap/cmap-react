@@ -75,7 +75,8 @@ const SparseScatter = (props) => {
                     y: yValues,
                     mode: 'markers',
                     name: parameters.fields,
-                    type: variableValues.length > 1000 ? 'scattergl' : 'scatter',
+                    type: variableValues.length > 10000 ? 'scattergl' : 'scatter',
+                    // type: 'scatter',
                     marker: {
                         opacity: markerOptions.opacity,
                         size: markerOptions.size,

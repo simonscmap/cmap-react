@@ -178,6 +178,23 @@ function* cruiseListRequest() {
     }
 }
 
+function* tableStatsRequest(action){
+    yield put(visualizationActions.tableStatsRequestProcessing());
+    yield put(interfaceActions.setLoadingMessage('Fetching Dataset Information'));
+    let result = yield call(api.visualization.getTableStats, action.payload.tableName);
+    yield put(interfaceActions.setLoadingMessage(''));
+
+    if(result.failed){
+        if(result.status == 401){
+            yield put(userActions.refreshLogin());
+        } else {
+            yield put(interfaceActions.snackbarOpen(`Unable to Fetch Dataset Information`));
+        }
+    } else {
+        yield put(visualizationActions.tableStatsRequestSuccess(result, action.payload.datasetLongName));
+    }
+}
+
 function* csvDownloadRequest(action){
     yield put(visualizationActions.csvDownloadRequestProcessing());
     yield put(interfaceActions.setLoadingMessage('Fetching Data'));
@@ -190,7 +207,7 @@ function* csvDownloadRequest(action){
             yield put(interfaceActions.snackbarOpen('An error occurred. Please try again.'))
         }
     } else {
-        yield put(visualizationActions.downloadTextAsCsv(response, action.payload.datasetName));
+        yield put(visualizationActions.downloadTextAsCsv(response, action.payload.fileName));
     }
 }
 
@@ -215,7 +232,6 @@ function* refreshLogin(){
     yield put(interfaceActions.showLoginDialog());
     yield put(interfaceActions.snackbarOpen("Your session has expired. Please log in again."));
 }
-
 
 function* watchUserLogin() {
     yield takeLatest(userActionTypes.LOGIN_REQUEST_SEND, userLogin);
@@ -263,6 +279,10 @@ function* watchCruiseTrajectoryRequest(){
 
 function* watchCruiseListRequest(){
     yield takeLatest(visualizationActionTypes.CRUISE_LIST_REQUEST_SEND, cruiseListRequest);
+}
+
+function* watchTableStatsRequest(){
+    yield takeLatest(visualizationActionTypes.TABLE_STATS_REQUEST_SEND, tableStatsRequest)
 }
 
 function* watchCsvDownloadRequest(){
@@ -316,6 +336,7 @@ export default function* rootSaga() {
         watchStoredProcedureRequest(),
         watchCruiseTrajectoryRequest(),
         watchCruiseListRequest(),
+        watchTableStatsRequest(),
         // watchWorkerChannel(),
         watchCsvDownloadRequest(),
         watchDownloadTextAsCsv(),

@@ -30,7 +30,8 @@ const validation = {
         depthRangeRequired: '$ requires a range of depths',
         surfaceOnlyDataset: '$ contains only surface data',
         irregularOnly: 'Sparse map is only available for sparse data',
-        dataSizeTooLarge: 'Data set is too large for this visualization type.'
+        dataSizeTooLarge: 'Data set is too large for this visualization type.',
+        webGLContextLimit: 'Limit exceeded for sparse and heatmaps. Please delete one or more to proceed.'
     },
 
     generic: {

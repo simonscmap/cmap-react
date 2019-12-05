@@ -7,6 +7,8 @@ import { Scene } from '@esri/react-arcgis';
 import CruiseSelector from './CruiseSelector';
 import colors from '../Enums/colors';
 
+import { throttle } from 'throttle-debounce';
+
 const styles = (theme) => ({
     container: {
         margin: '0 auto 0 auto',
@@ -89,6 +91,31 @@ const polygonSymbol = {
     ]
 };
 
+const polylineSymbol = {
+    type: "line-3d",
+        symbolLayers: [
+            {
+                type: "line",
+                size: "3px",
+                material: {
+                    color: {
+                        r: 51,
+                        g: 51,
+                        b: 204,
+                        a: 0
+                    }
+                },
+            }
+        ]
+}
+
+const emptyExtent = {
+    xmin: 0,
+    xmax: 0,
+    ymin: 0,
+    ymax: 0
+}
+
 class UiComponents extends React.Component {
 
     constructor(props) {
@@ -97,6 +124,7 @@ class UiComponents extends React.Component {
             layer: props.regionLayer,
             view: props.view,
             polygonSymbol,
+            polylineSymbol,
             defaultUpdateOptions: {
                 toggleToolOnClick: false,
                 tool: "transform"
@@ -126,7 +154,18 @@ class UiComponents extends React.Component {
         var drawButton = document.getElementById('draw-button');
         var cancelButton = document.getElementById('cancel-button');
 
+        let cr = this;
+
+        const throttledUpdate = throttle(75, (event) => {
+            if(event.state === 'active'){
+                this.props.updateDomainFromGraphicExtent(esriModules.Utils.webMercatorToGeographic(event.graphic.geometry.extent));
+            }
+        })
+
         sketchModel.on("create", (event) => {
+            if(event.graphic && event.graphic.visible) {
+                event.graphic.visible = false;
+            }
             if(event.state === 'cancel'){
                 setShowHelp(false);
                 drawButton.style.display = 'inline-block';
@@ -139,7 +178,9 @@ class UiComponents extends React.Component {
                 drawButton.style.display = 'inline-block';
                 cancelButton.style.display = 'none';
             }
-        });        
+        });    
+
+        sketchModel.on('create', throttledUpdate)
 
         sketchModel.on('update', (event) => {
             if(event.toolEventInfo && event.toolEventInfo.type === 'move-stop'){
@@ -324,11 +365,18 @@ class MapContainer extends Component {
                         layers: [
                             this.regionLayer,
                             this.trajectoryLayer
-                        ]
+                        ],
+
                     }}
                     viewProperties={{
                         center: [-140, 30],
-                        zoom: 3
+                        zoom: 3,
+                        highlightOptions: {
+                            haloOpacity: 0,
+                            haloColor: 'rgba(0, 0, 0, 0)',
+                            fillOpacity: 0,
+                            color: "rgba(0, 0, 0, 0)"
+                        }
                     }}
                 >
                     <TrajectoryController 

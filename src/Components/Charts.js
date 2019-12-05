@@ -4,6 +4,9 @@ import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import Plot from 'react-plotly.js';
 
+import { IconButton, Paper } from '@material-ui/core';
+import { Close } from '@material-ui/icons';
+
 import colors from '../Enums/colors';
 import storedProcedures from '../Enums/storedProcedures';
 import vizSubTypes from '../Enums/visualizationSubTypes';
@@ -13,17 +16,18 @@ import TimeSeriesChart from './ChartComponents/TimeSeriesChart';
 import DepthProfileChart from './ChartComponents/DepthProfileChart';
 import SectionMapChart from './ChartComponents/SectionMapChart';
 import SparseMap from './ChartComponents/SparseMap';
-
-import Paper from '@material-ui/core/Paper';
-import spatialResolutions from '../Enums/spatialResolutions';
 import SparseHistogram from './ChartComponents/SparseHistogram';
+
+import spatialResolutions from '../Enums/spatialResolutions';
+
+import { deleteChart } from '../Redux/actions/visualization';
 
 const mapStateToProps = (state, ownProps) => ({
     charts: state.charts
 })
 
 const mapDispatchToProps = {
-
+  deleteChart
 }
 
 const styles = (theme) => ({
@@ -123,9 +127,32 @@ const SamplePlot = () => {
           />
           )
       }
-      
+
+const closeChartStyles = {
+    closeChartIcon: {
+      float: 'right',
+      marginTop: '-16px'
+    }
+}
+
+const _CloseChartIcon = (props) => {
+  const { classes } = props;
+  return (
+    <React.Fragment>
+      <IconButton className={classes.closeChartIcon} color="inherit" onClick={() => props.handleDeleteChart(props.chartIndex)} disableFocusRipple disableRipple>
+        <Close/>
+      </IconButton>
+    </React.Fragment>
+  )
+}
+
+const CloseChartIcon = withStyles(closeChartStyles)(_CloseChartIcon);
 
 class Charts extends Component {
+
+  handleDeleteChart = (chartIndex) => {
+    this.props.deleteChart(chartIndex);
+  }
 
     render(){
         const { classes, charts } = this.props;
@@ -139,18 +166,21 @@ class Charts extends Component {
                           if(chart.subType === vizSubTypes.sparse) {
                             return (
                               <Paper elevation={12} className={classes.chartPaper} key={index}>
+                                <CloseChartIcon chartIndex={index} handleDeleteChart={this.handleDeleteChart}/>
                                 <SparseMap chart={chart}/>
                               </Paper>
                             )
                           } else if(chart.data.metadata.Spatial_Resolution === spatialResolutions.irregular) {
                             return (
                               <Paper elevation={12} className={classes.chartPaper} key={index}>
+                                <CloseChartIcon chartIndex={index} handleDeleteChart={this.handleDeleteChart}/>
                                 <SparseHistogram chart={chart}/>
                               </Paper>
                             )
                           }
                           else return (
                             <Paper elevation={12} className={classes.chartPaper} key={index}>
+                              <CloseChartIcon chartIndex={index} handleDeleteChart={this.handleDeleteChart}/>
                               <SpaceTimeChart chart={chart}/>
                             </Paper>
                           )
@@ -158,6 +188,7 @@ class Charts extends Component {
                         case storedProcedures.timeSeries:
                           return (
                             <Paper elevation={12} className={classes.chartPaper} key={index}>
+                              <CloseChartIcon chartIndex={index} handleDeleteChart={this.handleDeleteChart}/>
                               <TimeSeriesChart chart={chart}/>
                             </Paper>
                           )
@@ -165,6 +196,7 @@ class Charts extends Component {
                         case storedProcedures.depthProfile:
                           return (
                             <Paper elevation={12} className={classes.chartPaper} key={index}>
+                              <CloseChartIcon chartIndex={index} handleDeleteChart={this.handleDeleteChart}/>
                               <DepthProfileChart chart={chart}/>
                             </Paper>
                           )
@@ -172,6 +204,7 @@ class Charts extends Component {
                         case storedProcedures.sectionMap:
                           return (
                             <Paper elevation={12} className={classes.chartPaper} key={index}>
+                              <CloseChartIcon chartIndex={index} handleDeleteChart={this.handleDeleteChart}/>
                               <SectionMapChart chart={chart}/>
                             </Paper>
                           )
