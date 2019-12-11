@@ -6,6 +6,7 @@ import { AgGridReact } from 'ag-grid-react';
 
 import GridDetail from './GridDetail';
 import DatasetDescriptionDialog from './DatasetDescriptionDialog';
+import VariableDescriptionDialog from './VariableDescriptionDialog';
 
 import stringify from 'csv-stringify/lib/sync';
 
@@ -24,9 +25,7 @@ const columnDefs = [
     filter: true,
     tooltipField: 'longName',
     cellRenderer: "agGroupCellRenderer",
-    cellStyle: {
-      textAlign:'left'
-    }
+
   },
   {
     headerName: "Variable", 
@@ -56,21 +55,24 @@ const columnDefs = [
     field: "Make",
     sortable: true,
     filter: true,
-    enableRowGroup: true
+    enableRowGroup: true,
+    maxWidth: 160
   },
   {
     headerName: "Sensor", 
     field: "Sensor",
     sortable: true,
     filter: true,
-    enableRowGroup: true
+    enableRowGroup: true,
+    maxWidth: 160
   }, 
   {
     headerName: "Study Domain", 
     field: "Study_Domain",
     sortable: true,
     filter: true,
-    hide: true,
+    // hide: true,
+    maxWidth: 160,
     enableRowGroup: true
   }, 
   {
@@ -140,12 +142,15 @@ const styles = (theme) => ({
 
 const defaultColDef = {
   resizable: true,
+  cellStyle: {
+    textAlign:'left'
+  }
 }
 
 const autoGroupColumnDef = {
   cellStyle: {
     textAlign:'left'
-  }
+  },
 }
 
 class AGGridWrapper extends Component {
@@ -153,11 +158,18 @@ class AGGridWrapper extends Component {
 
   state = {
     filterText: '',
-    describedDataset: ''
+    //dataset long name
+    describedDataset: '',
+    //variable index
+    describedVariable: null
   }
 
   handleDescribeDataset = (dataset) => {
     this.setState({...this.state, describedDataset: dataset})
+  }
+
+  handleDescribeVariable = (variable) => {
+    this.setState({...this.state, describedVariable: variable})
   }
 
   handleChange = (event) => {
@@ -177,6 +189,7 @@ class AGGridWrapper extends Component {
   }
 
   handleColumnRowGroupChanged = (event) => {
+    this.gridApi.sizeColumnsToFit()
     event.columns.forEach(column => {
       column.columnApi.setColumnVisible(column.colId, false);
     })
@@ -200,7 +213,7 @@ class AGGridWrapper extends Component {
 
   render = () => {
     const { classes, datasets } = this.props;
-    const { describedDataset } = this.state;
+    const { describedDataset, describedVariable } = this.state;
     const description = !datasets ? '' : !datasets[describedDataset] ? '' : datasets[describedDataset].Description;
 
     return (
@@ -209,6 +222,10 @@ class AGGridWrapper extends Component {
           description={description}
           clearDescription={() => this.handleDescribeDataset('')}
           datasetName={describedDataset}
+        />
+        <VariableDescriptionDialog
+          clearDescription={() => this.handleDescribeVariable(null)}
+          describedVariable={describedVariable}
         />
         <Grid container>
           <Grid item xs={3}>
@@ -268,7 +285,8 @@ class AGGridWrapper extends Component {
               // Additional props
               context={{
                 datasets,
-                handleDescribeDataset: this.handleDescribeDataset
+                handleDescribeDataset: this.handleDescribeDataset,
+                handleDescribeVariable: this.handleDescribeVariable
               }}
 
               // Setting related to styling
@@ -290,10 +308,6 @@ class AGGridWrapper extends Component {
               frameworkComponents= {{ myDetailCellRenderer: GridDetail }}
               detailCellRenderer="myDetailCellRenderer"
               detailRowHeight={280}
-              // detailGrid
-              detailGridOptions= {{
-                enableCellTextSelection:true
-              }}
             />
           </div>
         </Paper>

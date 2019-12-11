@@ -18,6 +18,7 @@ import Visualization from './Components/Visualization';
 import GlobalUIComponentWrapper from './Components/GlobalUIComponentWrapper';
 import LandingPage from './Components/LandingPage';
 import TopNavBar from './Components/TopNavBar';
+import Login from './Components/Login';
 
 
 const theme = createMuiTheme({
@@ -192,6 +193,7 @@ render() {
             <Route exact path='/apikeymanagement' component={ Home } />
             <Route exact path='/' component={ LandingPage } />
             <Route exact path='/catalog' component={ Catalog } />
+            <Route exact path='/login' component={ Login } />
             <Route exact path='/register' component={ Register } />
             <Route exact path='/visualization' component={Visualization} />
           </Switch>

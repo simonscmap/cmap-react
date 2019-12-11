@@ -24,4 +24,3 @@ const LoginRequiredPrompt = (props) => {
 }
 
 export default connect(null, mapDispatchToProps)(LoginRequiredPrompt);
-

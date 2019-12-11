@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 
+import SparseHistogram from './SparseHistogram';
+
 import { withStyles } from '@material-ui/core/styles';
 
 import Plot from 'react-plotly.js';
@@ -9,24 +11,23 @@ import colors from '../../Enums/colors';
 import vizSubTypes from '../../Enums/visualizationSubTypes';
 
 import handleXTicks from '../../Utility/handleXTicks';
-import handleDateString from '../../Utility/handleChartDatestring';
 import chartBase from '../../Utility/chartBase';
+import getChartDimensions from '../../Utility/getChartDimensions';
+import handleChartDateString from '../../Utility/handleChartDatestring';
+import countWebGLContexts from '../../Utility/countWebGLContexts';
 
-import { setLoadingMessage } from '../../Redux/actions/ui'; 
+import { setLoadingMessage, snackbarOpen } from '../../Redux/actions/ui'; 
 import ChartControlPanel from './ChartControlPanel';
 
 import { format } from 'd3-format';
 import subTypes from '../../Enums/visualizationSubTypes';
 
-const determineHeight = (infoObject) => {
-    const latRange = infoObject.latMax - infoObject.latMin;
-    const lonRange = infoObject.lonMax - infoObject.lonMin;
-    return (((latRange / lonRange) * 800) * .83) + 60;
-}
-// equal 608 wide, 670 high
-// height half 608 / 267
+const mapStateToProps = (state, ownProps) => ({
+    charts: state.charts
+})
 
 const handleContourMap = (subsets, infoObject, splitByDate, splitByDepth, palette, zMin, zMax) => {
+    const { parameters, metadata } = infoObject;
 
     const depths = Array.from(infoObject.depths).map(depth => parseFloat(depth));
     const dates = Array.from(infoObject.dates);
@@ -34,21 +35,27 @@ const handleContourMap = (subsets, infoObject, splitByDate, splitByDepth, palett
     // Handle axis labels when crossing 180th meridian
     let xTicks = infoObject.parameters.lon1 > infoObject.parameters.lon2 ? handleXTicks(infoObject) : {};
 
-    // let height = determineHeight(infoObject);
+    const [ height, width ] = getChartDimensions(infoObject);
 
     return subsets.map((subset, index) => {
 
         const variableName = infoObject.parameters.fields;
 
-        const date = dates.length <= 1 ? handleDateString(dates[0], infoObject.hasHour, infoObject.isMonthly) :
-            !splitByDate ? infoObject.hasHour ? 'Merged times' : 'Merged Dates' : 
-            splitByDepth ? handleDateString(dates[Math.floor(index/depths.length)], infoObject.hasHour, infoObject.isMonthly) : 
-            handleDateString(dates[index], infoObject.hasHour, infoObject.isMonthly);
+        const date = dates.length <= 1 ? handleChartDateString(dates[0], infoObject.hasHour, infoObject.isMonthly) :
+            !splitByDate ? `Averaged Values ${handleChartDateString(dates[0], infoObject.hasHour, infoObject.isMonthly)} to ${handleChartDateString(dates[dates.length - 1], infoObject.hasHour, infoObject.isMonthly)}` :  
+            splitByDepth ? handleChartDateString(dates[Math.floor(index/depths.length)], infoObject.hasHour, infoObject.isMonthly) : 
+            handleChartDateString(dates[index], infoObject.hasHour, infoObject.isMonthly);
 
         const depth = !infoObject.hasDepth ? 'Surface' :
-            depths.length === 1 ? depths[0] + 'm depth':
-            !splitByDepth ? 'Merged Depths' : 
-            splitByDate ? depths[index % depths.length].toFixed(2) + 'm depth' : depths[index].toFixed(2) + 'm depth';
+            depths.length === 1 ? depths[0] + '[m]':
+            !splitByDepth ? `Averaged Values ${parameters.depth1} to ${parameters.depth2}` : 
+            splitByDate ? depths[index % depths.length].toFixed(2) + '[m]' : depths[index].toFixed(2) + '[m]';
+
+        const latTitle = parameters.lat1 === parameters.lat2 ? `${parameters.lat1}\xb0` :
+            `${parameters.lat1}\xb0 to ${parameters.lat2}\xb0`;
+
+        const lonTitle = parameters.lon1 === parameters.lon2 ? `${parameters.lon1}\xb0` :
+            `${parameters.lon1}\xb0 to ${parameters.lon2}\xb0`; 
 
         var hovertext = subset.map((value, i) => {
             let formatter = value > 1 && value < 1000 ? '.2f' : '.2e';
@@ -67,8 +74,12 @@ const handleContourMap = (subsets, infoObject, splitByDate, splitByDepth, palett
         <Plot
             style= {{
                 position: 'relative',
-                display:'inline-block'
+                // display:'inline-block',
+                width: `${width}vw`,
+                height: `${height}vw`,
             }}
+
+            useResizeHandler={true}
             
             data={[
                 {   
@@ -111,15 +122,21 @@ const handleContourMap = (subsets, infoObject, splitByDate, splitByDepth, palett
             key={index}
             layout= {{
                 ...chartBase.layout,
-                width: 800,
-                height: 570,
+                // autosize: true,
                 title: {
-                    text: `${variableName} [${infoObject.metadata.Unit}]  ${depth}  ${date}`,
+                    text: `${parameters.fields} [${metadata.Unit}]` + 
+                        `<br>${date}, ` + 
+                        `${depth} <br>` + 
+                        `Lat: ${latTitle}, ` +
+                        `Lon: ${lonTitle}`,
+                    font: {
+                        size: 13
+                    }
                 },
                 xaxis: {title: 'Longitude', color: '#ffffff', ...xTicks},
                 yaxis: {title: 'Latitude', color: '#ffffff'},
                 // annotations: chartBase.annotations(infoObject.metadata.Distributor, height)
-                annotations: chartBase.annotations(infoObject.metadata.Distributor)
+                annotations: chartBase.annotations(infoObject.metadata.Distributor, height)
             }}   
         />)
     })
@@ -129,42 +146,62 @@ const handleHistogram = (subsets, infoObject, splitByDate, splitByDepth, palette
 
     const depths = Array.from(infoObject.depths).map(depth => parseFloat(depth));
     const dates = Array.from(infoObject.dates);
+    const { parameters, metadata } = infoObject;
 
     return subsets.map((subset, index) => {
 
         const variableName = infoObject.parameters.fields;
 
-        const date = dates.length <= 1 ? handleDateString(dates[0], infoObject.hasHour, infoObject.isMonthly) :
-            !splitByDate ? infoObject.hasHour ? 'Merged times' : 'Merged Dates' : 
-            splitByDepth ? handleDateString(dates[Math.floor(index/depths.length)], infoObject.hasHour, infoObject.isMonthly) : 
-            handleDateString(dates[index], infoObject.hasHour, infoObject.isMonthly);
+        const date = parameters.dt1 === parameters.dt2 ? handleChartDateString(parameters.dt1) :
+            handleChartDateString(parameters.dt1) + ' to ' + handleChartDateString(parameters.dt2);
+
+        const latTitle = parameters.lat1 === parameters.lat2 ? parameters.lat1 + '\xb0' :
+            parameters.lat1 + '\xb0 to ' + parameters.lat2 + '\xb0';
+
+        const lonTitle = parameters.lon1 === parameters.lon2 ? parameters.lon1 + '\xb0' :
+            parameters.lon1 + '\xb0 to ' + parameters.lon2 + '\xb0';
 
         const depth = !infoObject.hasDepth ? 'Surface' :
-            depths.length === 1 ? depths[0] + 'm depth':
-            !splitByDepth ? 'Merged Depths' : 
-            splitByDate ? depths[index % depths.length].toFixed(2) + 'm depth' : depths[index].toFixed(2) + 'm depth';
+            parameters.depth1 === parameters.depth2 ? `${parameters.depth1}[m]` :
+            `${parameters.depth1}[m] to ${parameters.depth2}[m]`;
 
         return (
         <Plot
             style= {{
                 position: 'relative',
-                display:'inline-block'
+                // display:'inline-block',
+                width: '60vw',
+                height: '40vw'
             }}
+
+            useResizeHandler={true}
 
             data={[
                 {
                     x: subset,
                     name: infoObject.parameters.fields,
-                    type: 'histogram'
+                    type: 'histogram',
+                    marker: {
+                        color: '#00FFFF'
+                    }
                 }
             ]}
             
             key={index}
             layout= {{
-                width: 800,
-                height: 570,
                 ...chartBase.layout,
-                title: `${variableName} [${infoObject.metadata.Unit}]  ${depth}  ${date}`,
+                plot_bgcolor: 'transparent',
+                // autosize: true,
+                title: {
+                    text: `${parameters.fields} [${metadata.Unit}]` + 
+                        `<br>${date}, ` + 
+                        `${depth} <br>` + 
+                        `Lat: ${latTitle}, ` +
+                        `Lon: ${lonTitle}`,
+                    font: {
+                        size: 13
+                    }
+                },
                 xaxis: {
                     title: `${infoObject.parameters.fields} [${infoObject.metadata.Unit}]`,
                     exponentformat: 'power',
@@ -182,34 +219,45 @@ const handleHistogram = (subsets, infoObject, splitByDate, splitByDepth, palette
 }
 
 const handleHeatmap = (subsets, infoObject, splitByDate, splitByDepth, palette, zMin, zMax) => {
+    const { parameters, metadata } = infoObject;
 
     const depths = Array.from(infoObject.depths).map(depth => parseFloat(depth));
     const dates = Array.from(infoObject.dates);
 
     let xTicks = infoObject.parameters.lon1 > infoObject.parameters.lon2 ? handleXTicks(infoObject) : {};
 
-    // let height = determineHeight(infoObject);
+    const [ height, width ] = getChartDimensions(infoObject);
 
     return subsets.map((subset, index) => {
 
         const variableName = infoObject.parameters.fields;
 
-        const date = dates.length <= 1 ? handleDateString(dates[0], infoObject.hasHour, infoObject.isMonthly) :
-            !splitByDate ? infoObject.hasHour ? 'Merged times' : 'Merged Dates' : 
-            splitByDepth ? handleDateString(dates[Math.floor(index/depths.length)], infoObject.hasHour, infoObject.isMonthly) : 
-            handleDateString(dates[index], infoObject.hasHour, infoObject.isMonthly);
+        const date = dates.length <= 1 ? handleChartDateString(dates[0], infoObject.hasHour, infoObject.isMonthly) :
+            !splitByDate ? `Averaged Values ${handleChartDateString(dates[0], infoObject.hasHour, infoObject.isMonthly)} to ${handleChartDateString(dates[dates.length - 1], infoObject.hasHour, infoObject.isMonthly)}` :  
+            splitByDepth ? handleChartDateString(dates[Math.floor(index/depths.length)], infoObject.hasHour, infoObject.isMonthly) : 
+            handleChartDateString(dates[index], infoObject.hasHour, infoObject.isMonthly);
 
         const depth = !infoObject.hasDepth ? 'Surface' :
-            depths.length === 1 ? depths[0] + 'm depth':
-            !splitByDepth ? 'Merged Depths' : 
-            splitByDate ? depths[index % depths.length].toFixed(2) + 'm depth' : depths[index].toFixed(2) + 'm depth';
+            depths.length === 1 ? depths[0] + '[m]':
+            !splitByDepth ? `Averaged Values ${parameters.depth1} to ${parameters.depth2}` : 
+            splitByDate ? depths[index % depths.length].toFixed(2) + '[m]' : depths[index].toFixed(2) + '[m]';
+
+        const latTitle = parameters.lat1 === parameters.lat2 ? `${parameters.lat1}\xb0` :
+            `${parameters.lat1}\xb0 to ${parameters.lat2}\xb0`;
+
+        const lonTitle = parameters.lon1 === parameters.lon2 ? `${parameters.lon1}\xb0` :
+            `${parameters.lon1}\xb0 to ${parameters.lon2}\xb0`; 
 
         return (
         <Plot
             style= {{
                 position: 'relative',
-                display:'inline-block'
+                // display:'inline-block',
+                width: `${width}vw`,
+                height: `${height}vw`,
             }}
+
+            useResizeHandler={true}
 
             data={[
                 {   
@@ -244,12 +292,17 @@ const handleHeatmap = (subsets, infoObject, splitByDate, splitByDepth, palette, 
 
             layout= {{
                 ...chartBase.layout,
-                width: 800,
-                height: 570,
+                // width: `${width}vw`,
+                // height: `${height}vw`,
+                // autosize: true,
                 title: {
-                    text: `${variableName} [${infoObject.metadata.Unit}]  ${depth}  ${date}`,
+                    text: `${parameters.fields} [${metadata.Unit}]` + 
+                        `<br>${date}, ` + 
+                        `${depth} <br>` + 
+                        `Lat: ${latTitle}, ` +
+                        `Lon: ${lonTitle}`,
                     font: {
-                        size: 16
+                        size: 13
                     }
                 },
                 xaxis: {
@@ -263,7 +316,7 @@ const handleHeatmap = (subsets, infoObject, splitByDate, splitByDepth, palette, 
                     color: '#ffffff',
                     exponentformat: 'power'
                 },
-                annotations: chartBase.annotations(infoObject.metadata.Distributor)
+                annotations: chartBase.annotations(infoObject.metadata.Distributor, height)
                 // annotations: chartBase.annotations(infoObject.metadata.Distributor, height)
             }}   
         />)
@@ -287,12 +340,13 @@ const styles = theme => ({
 })
 
 const mapDispatchToProps = {
-    setLoadingMessage
+    setLoadingMessage,
+    snackbarOpen
 }
 
 const SpaceTimeChart = (props) => {
 
-    const { classes } = props;
+    const { classes, snackbarOpen } = props;
     const { data, subType } = props.chart;
     const { dates, depths, extent } = data;
 
@@ -305,7 +359,6 @@ const SpaceTimeChart = (props) => {
 
     const subSets = data.generatePlotData(subTypeState, splitByDate, splitByDepth);
     var plots;
-
     switch(subTypeState){
         case vizSubTypes.contourMap:
             plots = handleContourMap(subSets, data, splitByDate, splitByDepth, palette, zMin, zMax);
@@ -316,7 +369,8 @@ const SpaceTimeChart = (props) => {
             break;
 
         case vizSubTypes.histogram:
-            plots = handleHistogram(subSets, data, splitByDate, splitByDepth, palette, zMin, zMax);
+            // plots = handleHistogram(subSets, data, splitByDate, splitByDepth, palette, zMin, zMax);
+            return <SparseHistogram chart={{data}}/>;
             break;
 
         default:
@@ -326,6 +380,24 @@ const SpaceTimeChart = (props) => {
     }
 
     const onToggleSplitByDate = () => {
+        let chartCount = depths ? depths.size : 1;
+
+        if(subType === vizSubTypes.heatmap){
+            let availableWGLContexts = 15 - countWebGLContexts(props.charts);
+
+            if(!splitByDate && chartCount * dates.size > availableWGLContexts){
+                snackbarOpen('Unable to split. Rendering limit exceeded.');
+                return;
+            }
+        }
+
+        if(subType === vizSubTypes.contourMap){
+            if(!splitByDate && chartCount * dates.size > 20){
+            snackbarOpen('Unable to split. Rendering limit exceeded.');
+            return;
+            }
+        }
+
         props.setLoadingMessage('Processing Data');
         setTimeout(() => {
             window.requestAnimationFrame(() => props.setLoadingMessage(''));
@@ -333,6 +405,17 @@ const SpaceTimeChart = (props) => {
         }, 100)
     }
 
+    // let chartCount = splitBySpace ? spaces.size : 1;
+    //     if(!splitByDate && chartCount * dates.size > 20){
+    //         return;
+    //     }
+    //     else {
+    //         props.setLoadingMessage('Re-rendering');
+    //         setTimeout(() => {
+    //             window.requestAnimationFrame(() => props.setLoadingMessage(''));
+    //             setSplitByDate(!splitByDate);
+    //         }, 100)
+    //     }  
     const onToggleSplitByDepth = () => {
         props.setLoadingMessage('Processing Data');
         setTimeout(() => {
@@ -394,4 +477,4 @@ const SpaceTimeChart = (props) => {
     )
 }
 
-export default connect(null, mapDispatchToProps)(withStyles(styles)(SpaceTimeChart));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(SpaceTimeChart));

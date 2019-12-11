@@ -1,77 +1,18 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
+
+import handleChartDateString from '../../Utility/handleChartDatestring';
 
 import { withStyles } from '@material-ui/core/styles';
 
 import Plot from 'react-plotly.js';
 
 import colors from '../../Enums/colors';
-import vizSubTypes from '../../Enums/visualizationSubTypes';
 
-import handleXTicks from '../../Utility/handleXTicks';
-import handleDateString from '../../Utility/handleChartDatestring';
 import chartBase from '../../Utility/chartBase';
 
 import { setLoadingMessage } from '../../Redux/actions/ui'; 
 import ChartControlPanel from './ChartControlPanel';
-
-import { format } from 'd3-format';
-
-const handleHistogram = (subsets, infoObject, splitByDate, splitByDepth, palette) => {
-
-    const depths = Array.from(infoObject.depths).map(depth => parseFloat(depth));
-    const dates = Array.from(infoObject.dates);
-
-    return subsets.map((subset, index) => {
-
-        const variableName = infoObject.parameters.fields;
-
-        const date = dates.length <= 1 ? handleDateString(dates[0], infoObject.hasHour, infoObject.isMonthly) :
-            !splitByDate ? infoObject.hasHour ? 'Merged times' : 'Merged Dates' : 
-            splitByDepth ? handleDateString(dates[Math.floor(index/depths.length)], infoObject.hasHour, infoObject.isMonthly) : 
-            handleDateString(dates[index], infoObject.hasHour, infoObject.isMonthly);
-
-        const depth = !infoObject.hasDepth ? 'Surface' :
-            depths.length === 1 ? depths[0] + 'm depth':
-            !splitByDepth ? 'Merged Depths' : 
-            splitByDate ? depths[index % depths.length].toFixed(2) + 'm depth' : depths[index].toFixed(2) + 'm depth';
-
-        return (
-        <Plot
-            style= {{
-                position: 'relative',
-                display:'inline-block'
-            }}
-
-            data={[
-                {
-                    x: subset,
-                    name: infoObject.parameters.fields,
-                    type: 'histogram'
-                }
-            ]}
-            
-            key={index}
-            layout= {{
-                width: 800,
-                height: 570,
-                ...chartBase.layout,
-                title: `${variableName}[${infoObject.metadata.Unit}]  ${depth}  ${date}`,
-                xaxis: {
-                    title: `${infoObject.parameters.fields} [${infoObject.metadata.Unit}]`,
-                    exponentformat: 'power',
-                    color: '#ffffff'
-                },
-                yaxis:{
-                    color: '#ffffff',
-                    title: 'Frequency'
-                },
-                annotations: chartBase.annotations(infoObject.metadata.Distributor)             
-            }}
-            config={{...chartBase.config}}
-        />)
-    })
-}
 
 const styles = theme => ({
     chartWrapper: {
@@ -95,11 +36,8 @@ const mapDispatchToProps = {
 
 const SparseHistogram = (props) => {
 
-    const { classes } = props;
     const { data } = props.chart;
     const { metadata, parameters } = data;
-    const { dates, depths, extent } = data;
-
     const downloadCsv = () => {
         props.setLoadingMessage('Processing Data');
 
@@ -119,6 +57,19 @@ const SparseHistogram = (props) => {
         }, 100)
     }
 
+    const date = parameters.dt1 === parameters.dt2 ? handleChartDateString(parameters.dt1) :
+        handleChartDateString(parameters.dt1) + ' to ' + handleChartDateString(parameters.dt2);
+
+    const lat = parameters.lat1 === parameters.lat2 ? parameters.lat1 + '\xb0' :
+        parameters.lat1 + '\xb0 to ' + parameters.lat2 + '\xb0';
+
+    const lon = parameters.lon1 === parameters.lon2 ? parameters.lon1 + '\xb0' :
+        parameters.lon1 + '\xb0 to ' + parameters.lon2 + '\xb0';
+
+    const depth = !data.hasDepth ? 'Surface' :
+        parameters.depth1 === parameters.depth2 ? `${parameters.depth1}[m]` :
+        `${parameters.depth1}[m] to ${parameters.depth2}[m]`;
+
     return (
         <React.Fragment>
             <ChartControlPanel
@@ -127,22 +78,37 @@ const SparseHistogram = (props) => {
         <Plot
             style= {{
                 position: 'relative',
-                display:'inline-block'
+                // display:'inline-block',
+                width: '60vw',
+                height: '40vw'
             }}
+
+            useResizeHandler={true}
 
             data={[
                 {
                     x: data.variableValues,
                     name: data.parameters.fields,
-                    type: 'histogram'
+                    type: 'histogram',
+                    marker: {
+                        color: '#00FFFF'
+                    }
                 }
             ]}
             
             layout= {{
-                width: 800,
-                height: 570,
                 ...chartBase.layout,
-                title: `${parameters.fields} [${metadata.Unit}]`,
+                plot_bgcolor: 'transparent',
+                title: {
+                    text: `${parameters.fields} [${metadata.Unit}]` + 
+                        `<br>${date}, ` + 
+                        depth + 
+                        `<br>Lat: ${lat}, ` +
+                        `Lon: ${lon}`,
+                    font: {
+                        size: 13
+                    }
+                },
                 xaxis: {
                     title: `${parameters.fields} [${metadata.Unit}]`,
                     exponentformat: 'power',

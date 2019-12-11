@@ -1,3 +1,5 @@
+import temporalResolutions from '../Enums/temporalResolutions';
+
 class TimeSeriesData {
     constructor(payload) {
         this.parameters = payload.parameters;
@@ -17,6 +19,8 @@ class TimeSeriesData {
             this.lat = row[1];
             this.lon = row[2];
             this.depth = row.length === 6 ? row[3] : false;
+            this.hasHour = this.metadata.Table_Name === 'tblWind_NRT';
+            this.isMonthly = this.metadata.Temporal_Resolution === temporalResolutions.monthlyClimatology;
         }
 
         this.variableValues.push(row[3 + this.depthIndexAdjust]);

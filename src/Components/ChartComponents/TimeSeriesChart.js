@@ -6,7 +6,9 @@ import { withStyles } from '@material-ui/core/styles';
 import Plot from 'react-plotly.js';
 
 import colors from '../../Enums/colors';
+import months from '../../Enums/months';
 import chartBase from '../../Utility/chartBase';
+import handleChartDateString from '../../Utility/handleChartDatestring';
 
 import ChartControlPanel from './ChartControlPanel';
 
@@ -70,6 +72,21 @@ const TimeSeriesChart = (props) => {
         return `Time: ${dates[i].slice(0,10)}<br>${parameters.fields}: ${format('.2e')(value)} \xb1 ${format('.2e')(stds[i])} [${metadata.Unit}]`;
     })
 
+    const date = parameters.dt1 === parameters.dt2 ? handleChartDateString(dates[0], data.hasHour, data.isMonthly) :
+        handleChartDateString(dates[0], data.hasHour, data.isMonthly) + ' to ' + handleChartDateString(dates[dates.length - 1], data.hasHour, data.isMonthly);
+
+    const lat = parameters.lat1 === parameters.lat2 ? parameters.lat1 + '\xb0' :
+        parameters.lat1 + '\xb0 to ' + parameters.lat2 + '\xb0';
+
+    const lon = parameters.lon1 === parameters.lon2 ? parameters.lon1 + '\xb0' :
+        parameters.lon1 + '\xb0 to ' + parameters.lon2 + '\xb0';
+
+    const depth = parameters.depth2 === 0 ? 'Surface' :
+        parameters.depth1 === parameters.depth2 ? `${parameters.depth1}[m]` :
+        `${parameters.depth1}[m] to ${parameters.depth2}[m]`;
+
+    const x = data.isMonthly ? dates.map(date => months[parseInt(date)]) : dates;
+
     return (
         <div>
             <ChartControlPanel
@@ -80,13 +97,17 @@ const TimeSeriesChart = (props) => {
             <Plot
                 style= {{
                     position: 'relative',
-                    display:'inline-block'
+                    // display:'inline-block',
+                    width: '60vw',
+                    height: '40vw'
                 }}
+
+                useResizeHandler={true}
 
                 data={[
                   {
-                        mode: 'lines+markers',
-                    x: dates,
+                    mode: 'lines+markers',
+                    x: x,
                     y: variableValues,
                     error_y: {
                         type: 'data',
@@ -111,16 +132,23 @@ const TimeSeriesChart = (props) => {
                 layout= {{
                     ...chartBase.layout,
                     plot_bgcolor: 'transparent',
-                    width: 800,
-                    height: 570,
-                    title: `${parameters.fields} [${metadata.Unit}]  ${parameters.dt1} to ${parameters.dt2}`,
+                    title: {
+                        text: `${parameters.fields} [${metadata.Unit}]` + 
+                            `<br>${date}, ` + 
+                            depth + 
+                            `<br>Lat: ${lat}, ` +
+                            `Lon: ${lon}`,
+                        font: {
+                            size: 13
+                        }
+                    },
                   xaxis: {
-                      title: 'Time',
+                      title: data.isMonthy? 'Month' : 'Time',
                       color: '#ffffff',
                       exponentformat: 'power'
                     },
                   yaxis: {
-                      title: parameters.fields,
+                      title: `${parameters.fields}[${metadata.Unit}]`,
                       color: '#ffffff',
                       exponentformat: 'power'
                     },

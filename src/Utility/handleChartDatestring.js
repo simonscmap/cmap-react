@@ -1,3 +1,5 @@
 import months from '../Enums/months';
 
-export default (dateString, hasHour, isMonthly) => isMonthly ? months[parseInt(dateString)] : hasHour ? dateString.slice(0,10) + ' ' + dateString.slice(11,16): dateString.slice(0,10);
+export default (dateString, hasHour, isMonthly) => {
+    return isMonthly ? months[parseInt(dateString)] : hasHour ? dateString.slice(0,10) + ' ' + dateString.slice(11,16): dateString.slice(0,10);
+}

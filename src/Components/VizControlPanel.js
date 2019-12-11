@@ -7,7 +7,7 @@ import Select, { components } from 'react-select';
 import * as JsSearch from 'js-search';
 import { VariableSizeList as ReactWindowList } from "react-window";
 
-import { Divider, ButtonGroup, Grid, IconButton, Icon, ListItem, MenuItem, Typography, Drawer, TextField, FormControl, InputLabel, Button, Tooltip} from '@material-ui/core';
+import { ButtonGroup, Grid, IconButton, Icon, ListItem, MenuItem, Typography, Drawer, TextField, FormControl, InputLabel, Button, Tooltip} from '@material-ui/core';
 import MUISelect from '@material-ui/core/Select';
 import { KeyboardDatePicker } from "@material-ui/pickers";
 import { Cached, LibraryBooks, ArrowRight, ChevronLeft, ChevronRight, InsertChartOutlined, Language, Delete, CloudDownload, Info } from '@material-ui/icons';
@@ -164,8 +164,24 @@ const styles = theme => ({
 
   datePicker: {
       width: '100%'
-  }
+  },
 
+  singleValueReplacement: {
+      display: 'inline',
+      position: 'relative',
+      width: 0,
+      height: 0
+  },
+
+  singleValueReplacement2: {
+      position: 'absolute',
+      zIndex: 9999999999,
+      width: '220px',
+      top: '14px',
+      textAlign: 'left',
+      paddingLeft: '8px',
+      pointerEvents: 'none'
+  }
 });
 
 const overrideDisabledStyle = {
@@ -336,7 +352,6 @@ const _CustomHeading = props => {
                 onClick={(e) => {
                     // selectProps.handleDownloadCsvClick(tableName, props.headingLabel);
                     selectProps.handleSetDownloadTarget({dataset: props.headingLabel})
-                    selectProps.onAutoSuggestChange(props.headingLabel, {action: 'input-change'})
                     e.stopPropagation();
                 }}>
                 <CloudDownload/>
@@ -503,9 +518,14 @@ class VizControlPanel extends React.Component {
     onAutoSuggestChange = (searchString, action) => {
         if(action.action === 'input-change') {
             this.setState({...this.state, searchField: searchString});
-            selectRef.current.select.setState({focusedOption: null})
+            selectRef.current.select.setState({focusedOption: -1})
         }
-        if(action.action ==='set-value') this.setState({...this.state, searchField: ''});
+
+        if(action.action === 'escape-clear'){
+            this.setState({...this.state, searchField: searchString});
+            selectRef.current.select.setState({focusedOption: -1})
+        }
+        // if(action.action ==='set-value') this.setState({...this.state, searchField: ''});
     }
 
     estimateDataSize = () => {
@@ -646,7 +666,11 @@ class VizControlPanel extends React.Component {
         if(this.props.selectedVizType === vizSubTypes.heatmap && webGLCount > 14) return validation.type.webGLContextLimit;
         if(this.props.selectedVizType === vizSubTypes.sparse && webGLCount > 11) return validation.type.webGLContextLimit;
 
-
+        if(this.props.selectedVizType === vizSubTypes.heatmap){
+            let availableContexts = 16 - webGLCount;
+            const depthCount = depthUtils.count(this.props.fields, this.props.depth1, this.props.depth2) || 1;
+            if(availableContexts - depthCount < 1) return 'Too many distinct depths to render heatmap. Please reduce depth range or select section map.';
+        }
         if(this.props.selectedVizType !== vizSubTypes.histogram && this.props.selectedVizType !== vizSubTypes.heatmap && dataSize > 1200000){
             return validation.generic.dataSizePrevent;
         }
@@ -879,6 +903,11 @@ class VizControlPanel extends React.Component {
                         <Grid container>
                             <Grid item xs={10}>
                                 <ConnectedTooltip placement='top' title='Enter one or more search terms.'>
+                                {/* <div className={classes.singleValueReplacement}>
+                                    <div className={classes.singleValueReplacement2}>
+                                        Hi there, I'm 100px.
+                                    </div>
+                                </div> */}
                                     <Select
                                         // onMenuOpen={() => {
                                         //     setTimeout(() => selectRef.current.select.setState({...selectRef.current.select.state, focusedOption: null}), 1)
@@ -897,7 +926,10 @@ class VizControlPanel extends React.Component {
                                             Group,
                                             Option,
                                             MenuList,
-                                            // SingleValue
+                                            // SingleValue: () => {
+                                            //     console.log('hi')
+                                            //        return ''
+                                            // }
                                         }}
                                         handleDownloadCsvClick = {this.handleDownloadCsvClick}
                                         escapeClearsValue

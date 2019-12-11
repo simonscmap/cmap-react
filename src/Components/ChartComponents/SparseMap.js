@@ -12,6 +12,7 @@ import ChartControlPanel from './ChartControlPanel';
 
 import colors from '../../Enums/colors';
 import chartBase from '../../Utility/chartBase';
+import handleChartDateString from '../../Utility/handleChartDatestring';
 
 import { setLoadingMessage } from '../../Redux/actions/ui'; 
 import SparseScatter from './SparseScatter';
@@ -19,6 +20,8 @@ import SparseScatter from './SparseScatter';
 import { format } from 'd3-format';
 
 const handleSparseMap = (infoObject, palette, zValues) => {
+
+    const { parameters, metadata } = infoObject;
 
     var hovertext = infoObject.variableValues.map((value, i) => {
         let formatter = value > 1 && value < 1000 ? '.2f' : '.2e';
@@ -30,12 +33,29 @@ const handleSparseMap = (infoObject, palette, zValues) => {
         `${infoObject.parameters.fields}: ${format(formatter)(value)} [${infoObject.metadata.Unit}]`;
     });
 
+    const date = parameters.dt1 === parameters.dt2 ? handleChartDateString(parameters.dt1) :
+        handleChartDateString(parameters.dt1) + ' to ' + handleChartDateString(parameters.dt2);
+
+    const lat = parameters.lat1 === parameters.lat2 ? parameters.lat1 + '\xb0' :
+        parameters.lat1 + '\xb0 to ' + parameters.lat2 + '\xb0';
+
+    const lon = parameters.lon1 === parameters.lon2 ? parameters.lon1 + '\xb0' :
+        parameters.lon1 + '\xb0 to ' + parameters.lon2 + '\xb0';
+
+    const depth = !infoObject.hasDepth ? 'Surface' :
+        parameters.depth1 === parameters.depth2 ? `${parameters.depth1}[m]` :
+        `${parameters.depth1}[m] to ${parameters.depth2}[m]`;
+
     return (
         <Plot
             style= {{
                 position: 'relative',
-                display:'inline-block'
+                // display:'inline-block',
+                width: '60vw',
+                height: '40vw'
             }}
+            
+            useResizeHandler={true}
             
             data={[
                 {   
@@ -63,9 +83,16 @@ const handleSparseMap = (infoObject, palette, zValues) => {
 
             layout= {{
                 ...chartBase.layout,
-                width: 800,
-                height: 570,
-                title: `${infoObject.parameters.fields} [${infoObject.metadata.Unit}]`,
+                title: {
+                    text: `${parameters.fields} [${metadata.Unit}]` + 
+                        `<br>${date}, ` + 
+                        depth + 
+                        `<br>Lat: ${lat}, ` +
+                        `Lon: ${lon}`,
+                    font: {
+                        size: 13
+                    }
+                },
                 mapbox: {
                     style: "white-bg",
                     layers: [
@@ -129,7 +156,6 @@ function tabProps(index) {
 
 const SparseTabPanel = (props) => {
     const { children, selectedTab, index, controlPanelProps, } = props;
-    console.log(controlPanelProps)
 
     return (
         <div hidden={selectedTab !== index}>
@@ -256,7 +282,7 @@ const SparseMap = (props) => {
                         markerOptions={markerOptions}
                         infoObject={data}
                         xTitle='Time'
-                        yTitle={data.parameters.fields}
+                        yTitle={`${data.parameters.fields}[${data.metadata.Unit}]`}
                         type='time'
                     />
                 }

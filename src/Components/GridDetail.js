@@ -33,7 +33,8 @@ const styles = (theme) => ({
         // width: '90%',
         // margin: '0px auto 5px 10px',
         padding: '10px',
-        height: '100%'
+        height: '100%',
+        userSelect: 'auto'
     },
     infoCard: {
         padding: theme.spacing(1),
@@ -101,7 +102,10 @@ const styles = (theme) => ({
     rightGridItem: {
         maxWidth: '100%',
         paddingTop: '10px',
-        boxSizing: 'border-box'
+        boxSizing: 'border-box',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
     },
 
     datasetDescriptionButton: {
@@ -122,11 +126,10 @@ const styles = (theme) => ({
 })
 
 const GridDetail = (props) => {
-
     const {classes} = props;
 
     return (
-        <div className={classes.wrapper}>
+        <div className={`ag-selectable ${classes.wrapper}`}>
                 <Grid container className={classes.gridClass}>
                     <Grid container item xs={10} spacing={2}>
                         <Grid item xs={4} className={classes.gridItem}>
@@ -173,25 +176,8 @@ const GridDetail = (props) => {
                     </Grid>
 
                 <Grid container direction='column' item xs={2} alignContent='center' alignItems='center'>
-                    <Grid item xs={4} className={classes.rightGridItem}>
-                        <Typography variant='caption' className={`${classes.gridDetailTypography} ${classes.boldText}`}>
-                            Source:
-                        </Typography>
-                        <Typography variant='caption' className={classes.gridDetailTypography}>
-                            {props.data.Data_Source}
-                        </Typography>
-                    </Grid>
 
-                    <Grid item xs={4} className={classes.rightGridItem}>
-                        <Typography variant='caption' className={`${classes.gridDetailTypography} ${classes.boldText}`}>
-                            Distributor:
-                        </Typography>
-                        <Typography variant='caption' className={classes.gridDetailTypography}>
-                            {props.data.Distributor}
-                        </Typography>
-                    </Grid>
-
-                    <Grid item xs={4} className={classes.rightGridItem}>
+                    <Grid item xs={props.data.Acknowledgement ? 3 : 6} className={classes.rightGridItem}>
                         <Button 
                             variant='contained' 
                             className={classes.datasetDescriptionButton} 
@@ -200,6 +186,26 @@ const GridDetail = (props) => {
                             <span className={classes.buttonTextWrapper}>Dataset Details</span>
                         </Button>
                     </Grid>
+
+                    <Grid item xs={props.data.Acknowledgement ? 3 : 6} className={classes.rightGridItem}>
+                        <Button 
+                            variant='contained' 
+                            className={classes.datasetDescriptionButton} 
+                            onClick={() => props.context.handleDescribeVariable(props.data.ID)}
+                        >
+                            <span className={classes.buttonTextWrapper}>Variable Details</span>
+                        </Button>
+                    </Grid>
+                    {   props.data.Acknowledgement &&
+                        <Grid item xs={6} className={classes.rightGridItem}>
+                            <Typography variant='caption' className={`${classes.gridDetailTypography} ${classes.boldText}`}>
+                                Acknowlegement:
+                            </Typography>
+                            <Typography variant='caption' className={classes.gridDetailTypography} title={props.data.Acknowledgement}>
+                                {props.data.Acknowledgement}
+                            </Typography>
+                        </Grid>
+                    }
                 </Grid>
 
             </Grid>

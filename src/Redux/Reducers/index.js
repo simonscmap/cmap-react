@@ -50,7 +50,8 @@ const initialState = {
     getTableStatsRequestState: null,
     cruiseList: [],
     getCruiseListRequestState: null,
-    showChartsOnce: null
+    showChartsOnce: null,
+    chartID: 0
 }
 
 const reducedReducer = reduceReducers(initialState, catalog, user, ui, visualization);

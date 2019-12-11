@@ -5,7 +5,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Plot from 'react-plotly.js';
 
 import { IconButton, Paper } from '@material-ui/core';
-import { Close } from '@material-ui/icons';
+import { Close, StarHalf } from '@material-ui/icons';
 
 import colors from '../Enums/colors';
 import storedProcedures from '../Enums/storedProcedures';
@@ -31,23 +31,12 @@ const mapDispatchToProps = {
 }
 
 const styles = (theme) => ({
-    chartsContainer: {
-        margin: '300px 0 0 100px'
-    },
-
     chartPaper: {
-      margin: '60px auto 0px auto',
-      width: '1000px',
-      paddingTop: '16px'
+      margin: '60px auto 20px auto',
+      // width: '90%'
+      paddingTop: '16px',
+      display: 'inline-block'
   },
-
-    chartWrapper: {
-        display: 'inline-block',
-        backgroundColor: colors.backgroundGray,
-        boxShadow: "0px 6px 6px -3px rgba(0,0,0,0.2),0px 10px 14px 1px rgba(0,0,0,0.14),0px 4px 18px 3px rgba(0,0,0,0.12)",
-        margin: '20px',
-        color: 'white',
-    }
 })
 
 const SamplePlot = () => {
@@ -55,13 +44,29 @@ const SamplePlot = () => {
   let y = [0,1,2,5,9,0,1,2,5,9,0,1,2,5,9,0,1,2,5,9,0,1,2,5,9,];
   let z = [0,1,2,3,4,0,1,2,3,4,0,1,2,3,4,0,1,2,3,4,0,1,2,3,4,1,2,3,4,5,6,7,8,9];
   // z = z.map(() => Math.floor(Math.random() * 100));
+  const xRange = x[x.length - 1] - x[0];
+  const yRange = y[y.length - 1] - y[0];
+  const ratio = xRange / yRange;
+
+  let height = 44;
+  let width = 66;
+
+  if(ratio > 1) height = height / ratio;
+  else width = width * ratio;
+  
   return (
 
       <Plot
+      useResizeHandler={true}
       style= {{
           position: 'relative',
           display:'inline-block',
-          marginTop: '50px'
+          marginTop: '30px',
+          width: '66vw',
+          height: '44vw'
+
+          // width: '1200px',
+          // height: '100%'
       }}
       
       data={[
@@ -93,6 +98,8 @@ const SamplePlot = () => {
       ]}
       
       layout= {{
+        autosize: true,
+        // width: '100%',
           font: {color: '#ffffff'},
           margin: {
             t: 50
@@ -100,10 +107,11 @@ const SamplePlot = () => {
           title: {
               text: `A sample chart title`,
               // yanchor: 'bottom',
-              // y: .9,
+              // y: 'auto',
+              // y: .5,
               // yref: 'container',
               font: {
-                size: 18
+                size: 16
               }
           },
           paper_bgcolor: colors.backgroundGray,
@@ -111,15 +119,18 @@ const SamplePlot = () => {
           yaxis: {title: 'Latitude', color: '#ffffff'},
           annotations: [
               {
-                  text: `test`,
-                      font: {
-                          color: 'white',
-                          size: 10
-                      },
-                      xref: 'paper',
-                      yref: 'paper',
-                      yshift: -202,
-                      showarrow: false,
+                  text: `Brought to you by chef boyardee`,
+                    font: {
+                        color: 'white',
+                        size: 10
+                    },
+                  // xref: 'paper',
+                  yref: 'paper',
+                  y: -.24,
+                  // yshift: 0,
+                  showarrow: false,
+                  xref: 'paper',
+                  x: .5
                   }
               ]
               
@@ -158,55 +169,69 @@ class Charts extends Component {
         const { classes, charts } = this.props;
         return (
             <React.Fragment>
-              {/* <SamplePlot/>  */}
+              {/* <Paper elevation={12} className={classes.chartPaper}>
+              <SamplePlot/> 
+              </Paper> */}
                 {charts.map((chart, index) => {
                     switch(chart.data.parameters.spName){
 
                         case storedProcedures.spaceTime:
                           if(chart.subType === vizSubTypes.sparse) {
                             return (
-                              <Paper elevation={12} className={classes.chartPaper} key={index}>
-                                <CloseChartIcon chartIndex={index} handleDeleteChart={this.handleDeleteChart}/>
-                                <SparseMap chart={chart}/>
-                              </Paper>
+                              <div key={chart.id}>
+                                <Paper elevation={12} className={classes.chartPaper} key={chart.id}>
+                                  <CloseChartIcon chartIndex={index} handleDeleteChart={this.handleDeleteChart}/>
+                                  <SparseMap chart={chart}/>
+                                </Paper>
+                              </div>
                             )
                           } else if(chart.data.metadata.Spatial_Resolution === spatialResolutions.irregular) {
                             return (
-                              <Paper elevation={12} className={classes.chartPaper} key={index}>
-                                <CloseChartIcon chartIndex={index} handleDeleteChart={this.handleDeleteChart}/>
-                                <SparseHistogram chart={chart}/>
-                              </Paper>
+                              <div key={chart.id}>
+                                <Paper elevation={12} className={classes.chartPaper} key={chart.id}>
+                                  <CloseChartIcon chartIndex={index} handleDeleteChart={this.handleDeleteChart}/>
+                                  <SparseHistogram chart={chart}/>
+                                </Paper>
+                              </div>
                             )
                           }
                           else return (
-                            <Paper elevation={12} className={classes.chartPaper} key={index}>
-                              <CloseChartIcon chartIndex={index} handleDeleteChart={this.handleDeleteChart}/>
-                              <SpaceTimeChart chart={chart}/>
-                            </Paper>
+                            <div key={chart.id}>
+                              <Paper elevation={12} className={classes.chartPaper} key={chart.id}>
+                                <CloseChartIcon chartIndex={index} handleDeleteChart={this.handleDeleteChart}/>
+                                <SpaceTimeChart chart={chart}/>
+                              </Paper>
+                            </div>
                           )
 
                         case storedProcedures.timeSeries:
                           return (
-                            <Paper elevation={12} className={classes.chartPaper} key={index}>
-                              <CloseChartIcon chartIndex={index} handleDeleteChart={this.handleDeleteChart}/>
-                              <TimeSeriesChart chart={chart}/>
-                            </Paper>
+                            <div key={chart.id}>
+                              <Paper elevation={12} className={classes.chartPaper} key={chart.id}>
+                                <CloseChartIcon chartIndex={index} handleDeleteChart={this.handleDeleteChart}/>
+                                <TimeSeriesChart chart={chart}/>
+                              </Paper>
+                            </div>
                           )
 
                         case storedProcedures.depthProfile:
                           return (
-                            <Paper elevation={12} className={classes.chartPaper} key={index}>
-                              <CloseChartIcon chartIndex={index} handleDeleteChart={this.handleDeleteChart}/>
-                              <DepthProfileChart chart={chart}/>
-                            </Paper>
+                            <div key={chart.id}>
+                              <Paper elevation={12} className={classes.chartPaper} key={chart.id}>
+                                <CloseChartIcon chartIndex={index} handleDeleteChart={this.handleDeleteChart}/>
+                                <DepthProfileChart chart={chart}/>
+                              </Paper>
+                            </div>
                           )
 
                         case storedProcedures.sectionMap:
                           return (
-                            <Paper elevation={12} className={classes.chartPaper} key={index}>
-                              <CloseChartIcon chartIndex={index} handleDeleteChart={this.handleDeleteChart}/>
-                              <SectionMapChart chart={chart}/>
-                            </Paper>
+                            <div key={chart.id}>
+                              <Paper elevation={12} className={classes.chartPaper} key={chart.id}>
+                                <CloseChartIcon chartIndex={index} handleDeleteChart={this.handleDeleteChart}/>
+                                <SectionMapChart chart={chart}/>
+                              </Paper>
+                            </div>
                           )
                         
                         default:

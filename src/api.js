@@ -9,6 +9,9 @@ import DepthProfileData from './Classes/DepthProfileData';
 import SectionMapData from './Classes/SectionMapData';
 import SparseData from './Classes/SparseData';
 
+import encoding from 'text-encoding';
+// const decoder = new encoding.TextDecoder();
+
 const fetchOptions = {
     credentials: 'include'
 }
@@ -58,7 +61,7 @@ api.user.validate = (user) => {
 
 api.catalog.retrieve = async() => {
 
-    const decoder = new TextDecoder();
+    const decoder = new encoding.TextDecoder();
     let catalog = [];
 
     let csvParser = CSVParser({columns:true});
@@ -91,7 +94,7 @@ api.catalog.retrieve = async() => {
 }
 
 api.catalog.datasets = async() => {
-    const decoder = new TextDecoder();
+    const decoder = new encoding.TextDecoder();
     let datasets = {};
 
     let csvParser = CSVParser({columns:true});
@@ -99,7 +102,7 @@ api.catalog.datasets = async() => {
     csvParser.on('readable', function(){
         let record
         while (record = csvParser.read()) {
-            datasets[record.Dataset_Long_Name] = record;
+            datasets[record.Dataset_Long_Name.trim()] = record;
         }
     })
 
@@ -134,7 +137,7 @@ api.user.keyCreation = async(description) => {
 }
 
 api.visualization.storedProcedureRequest = async(payload) => {
-    const decoder = new TextDecoder();
+    const decoder = new encoding.TextDecoder();
     var vizData;
 
     switch(payload.parameters.spName) {
@@ -202,7 +205,7 @@ api.visualization.getTableStats = async(tableName) => {
 
 api.visualization.cruiseTrajectoryRequest = async(payload) => {
     const cruiseId = payload.id;
-    const decoder = new TextDecoder();
+    const decoder = new encoding.TextDecoder();
     let trajectory = {lats: [], lons: []};
 
     let response = await fetch(apiUrl + '/api/data/cruisetrajectory?' + `id=${payload.id}`, fetchOptions);

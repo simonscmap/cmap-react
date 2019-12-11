@@ -107,7 +107,7 @@ class TopNavBar extends Component {
     }
 
     render(){
-        const { classes, history, showHelp } = this.props;
+        const { classes, history } = this.props;
         const { pathname } = history.location;
 
         return (

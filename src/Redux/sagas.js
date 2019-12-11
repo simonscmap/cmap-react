@@ -24,6 +24,7 @@ function* userLogin(action) {
         yield put(interfaceActions.hideLoginDialog());
         yield put(userActions.storeInfo(userInfo));
         yield put(interfaceActions.snackbarOpen('Login was successful!'))
+        if(window.location.pathname === '/login') window.location.href = "/catalog";
     } else {
         yield put(userActions.userLoginRequestFailure());
         yield put(interfaceActions.snackbarOpen('Login failed.'));
@@ -207,7 +208,8 @@ function* csvDownloadRequest(action){
             yield put(interfaceActions.snackbarOpen('An error occurred. Please try again.'))
         }
     } else {
-        yield put(visualizationActions.downloadTextAsCsv(response, action.payload.fileName));
+        if(response.length > 1) yield put(visualizationActions.downloadTextAsCsv(response, action.payload.fileName));
+        else yield put(interfaceActions.snackbarOpen('No data found. Please expand query range.'))        
     }
 }
 

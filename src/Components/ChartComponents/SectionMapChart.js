@@ -5,7 +5,7 @@ import { withStyles } from '@material-ui/core/styles';
 
 import Plot from 'react-plotly.js';
 
-import { setLoadingMessage } from '../../Redux/actions/ui';
+import { setLoadingMessage, snackbarOpen } from '../../Redux/actions/ui';
 
 import colors from '../../Enums/colors';
 import visualizationSubTypes from '../../Enums/visualizationSubTypes';
@@ -15,8 +15,11 @@ import ChartControlPanel from './ChartControlPanel';
 import { format } from 'd3-format';
 
 import handleXTicks from '../../Utility/handleXTicks';
+import handleChartDateString from '../../Utility/handleChartDatestring';
+import chartBase from '../../Utility/chartBase';
 
 const handleSectionMap = (subsets, infoObject, splitByDate, splitBySpace, orientation, palette, zMin, zMax) => {
+    const { parameters, metadata } = infoObject;
 
     const dates = Array.from(infoObject.dates);
     const depths = Array.from(infoObject.depths);
@@ -28,16 +31,11 @@ const handleSectionMap = (subsets, infoObject, splitByDate, splitBySpace, orient
         lats : 
         lons;
 
-    const mergedOrSplitAxis = 
-        orientation === 'zonal' ?
-        'Latitude' :
-        'Longitude';
-
     const xAxis = orientation === 'zonal' ?
         'Longitude' :
         'Latitude';
 
-    let xTicks = infoObject.parameters.lon1 > infoObject.parameters.lon2 && orientation === 'zonal' ? handleXTicks(infoObject) : {};
+    let xTicks = parameters.lon1 > parameters.lon2 && orientation === 'zonal' ? handleXTicks(infoObject) : {};
 
 
     return subsets.map((subset, index) => {
@@ -59,18 +57,18 @@ const handleSectionMap = (subsets, infoObject, splitByDate, splitBySpace, orient
             y.push(depths[i % depths.length]);
         }
 
-        const variableName = infoObject.parameters.fields;
-        const date = dates.length < 2 ?
-            dates[0].slice(0,10) :
-            !splitByDate ? 
-                'Merged Dates' : 
-                splitBySpace ? 
-                    dates[Math.floor(index/distinctMeridiansOrParallelsForSplitting.length)].slice(0, 10) : 
-                    dates[index].slice(0,10);
-                
-        const spaceTitle = distinctMeridiansOrParallelsForSplitting.length <= 1 ? `${orientation === 'zonal' ? 'Lat' : 'Lon'} ${distinctMeridiansOrParallelsForSplitting[0]}\xb0` : 
-            !splitBySpace ? `Merged ${mergedOrSplitAxis}s` : 
-            `${orientation === 'zonal' ? 'Lat' : 'Lon'} ${distinctMeridiansOrParallelsForSplitting[index % distinctMeridiansOrParallelsForSplitting.length]}\xb0`;
+        const latTitle = orientation === 'meridional' ? `${parameters.lat1}\xb0 to ${parameters.lat2}\xb0` :
+            splitBySpace ? distinctMeridiansOrParallelsForSplitting[index % distinctMeridiansOrParallelsForSplitting.length] + '\xb0' : 
+            `Averaged Values ${parameters.lat1}\xb0 to ${parameters.lat2}\xb0`;
+
+        const lonTitle = orientation === 'zonal' ? `${parameters.lon1}\xb0 to ${parameters.lon2}\xb0` :
+            splitBySpace ? distinctMeridiansOrParallelsForSplitting[index % distinctMeridiansOrParallelsForSplitting.length] + '\xb0' : 
+            `Averaged Values ${parameters.lon1}\xb0 to ${parameters.lon2}\xb0`;
+
+        const date = dates.length < 2 ? handleChartDateString(dates[0], infoObject.hasHour, infoObject.isMonthly) :
+            splitByDate && splitBySpace ? handleChartDateString(dates[Math.floor(index / distinctMeridiansOrParallelsForSplitting.length)], infoObject.hasHour, infoObject.isMonthly) : 
+            splitByDate ? handleChartDateString(dates[index], infoObject.hasHour, infoObject.isMonthly) :
+            'Averaged Values ' + handleChartDateString(dates[0], infoObject.hasHour, infoObject.isMonthly) + ' to ' + handleChartDateString(dates[dates.length - 1], infoObject.hasHour, infoObject.isMonthly);
 
         let hovertext = z.map((value, i) => {
             
@@ -84,7 +82,7 @@ const handleSectionMap = (subsets, infoObject, splitByDate, splitBySpace, orient
                 `<br>` +
                 `Lon: ${format('.2f')(x[i] > 180 ? x[i] - 360 : x[i])}\xb0` + 
                 '<br>' +
-                `${infoObject.parameters.fields}: ${format(formatter)(value)} [${infoObject.metadata.Unit}]`;
+                `${parameters.fields}: ${format(formatter)(value)} [${metadata.Unit}]`;
             } else {
                 let formatter = value > 1 && value < 1000 ? '.2f' : '.2e';
                 if(isNaN(value)) return `Depth: ${format('.2f')(y[i])} [m]` +
@@ -95,7 +93,7 @@ const handleSectionMap = (subsets, infoObject, splitByDate, splitBySpace, orient
                 `<br>` +
                 `Lat: ${format('.2f')(x[i])}\xb0` + 
                 '<br>' +
-                `${infoObject.parameters.fields}: ${format(formatter)(value)} [${infoObject.metadata.Unit}]`;
+                `${parameters.fields}: ${format(formatter)(value)} [${metadata.Unit}]`;
             }
         });
 
@@ -103,8 +101,12 @@ const handleSectionMap = (subsets, infoObject, splitByDate, splitBySpace, orient
         <Plot
             style= {{
                 position: 'relative',
-                display:'inline-block'
+                // display:'inline-block',
+                width: '60vw',
+                height: '40vw'
             }}
+
+            useResizeHandler={true}
 
             data={[
                 {   
@@ -119,11 +121,11 @@ const handleSectionMap = (subsets, infoObject, splitByDate, splitBySpace, orient
                     x,
                     y,
                     z,
-                    name: infoObject.parameters.fields,
+                    name: parameters.fields,
                     type: infoObject.subType === visualizationSubTypes.contourSectionMap ? 'contour' : 'heatmap',
                     colorbar: {
                         title: {
-                            text: `[${infoObject.metadata.Unit}]`
+                            text: `[${metadata.Unit}]`
                         },
                         exponentformat:'power'
                     },
@@ -147,9 +149,18 @@ const handleSectionMap = (subsets, infoObject, splitByDate, splitBySpace, orient
 
             layout= {{
                 font: {color: '#ffffff'},
-                title: `${variableName} [${infoObject.metadata.Unit}] ${spaceTitle} ${date}`,
+                title: {
+                    text: `${parameters.fields} [${metadata.Unit}]` + 
+                        `<br>${date}, ` + 
+                        `${parameters.depth1}[m] to ${parameters.depth2}[m] <br>` + 
+                        `Lat: ${latTitle}, ` +
+                        `Lon: ${lonTitle}`,
+                    font: {
+                        size: 13
+                    }
+                },
                 xaxis: {
-                    title: `${xAxis}[\xB0]`, 
+                    title: `${xAxis}[\xB0]`,
                     color: '#ffffff',
                     exponentformat: 'power',
                     ...xTicks
@@ -161,21 +172,7 @@ const handleSectionMap = (subsets, infoObject, splitByDate, splitBySpace, orient
                     autorange: 'reversed'
                 },
                 paper_bgcolor: colors.backgroundGray,
-                annotations: [
-                    {
-                        text: `Source: ${infoObject.metadata.Distributor.length < 30 ? 
-                            infoObject.metadata.Distributor : 
-                            infoObject.metadata.Distributor.slice(0,30)} -- Provided by Simons CMAP`,
-                        font: {
-                            color: 'white',
-                            size: 10
-                        },
-                        xref: 'paper',
-                        yref: 'paper',
-                        yshift: -202,
-                        showarrow: false,
-                    }
-                ]
+                annotations: chartBase.annotations(metadata.Distributor)
 
             }}   
         />
@@ -197,12 +194,13 @@ const styles = theme => ({
 })
 
 const mapDispatchToProps = {
-    setLoadingMessage
+    setLoadingMessage,
+    snackbarOpen
 }
 
 const SectionMapChart = (props) => {
 
-    const { classes } = props;
+    const { classes, snackbarOpen } = props;
     const { data } = props.chart;
     const { dates, extent, lats, lons } = data;
 
@@ -254,19 +252,33 @@ const SectionMapChart = (props) => {
     }
 
     const onToggleSplitBySpace = () => {
-        props.setLoadingMessage('Re-rendering');
-        setTimeout(() => {
-            window.requestAnimationFrame(() => props.setLoadingMessage(''));
-            setSplitBySpace(!splitBySpace);
-        }, 100)
+        let chartCount = splitByDate ? dates.size : 1;
+        if(!splitBySpace && chartCount * spaces.size > 20){
+            snackbarOpen('Unable to split. Rendering limit exceeded.');
+            return;
+        }
+        else {
+            props.setLoadingMessage('Re-rendering');
+            setTimeout(() => {
+                window.requestAnimationFrame(() => props.setLoadingMessage(''));
+                setSplitBySpace(!splitBySpace);
+            }, 100)
+        }
     }
 
     const onToggleSplitByDate = () => {
-        props.setLoadingMessage('Re-rendering');
-        setTimeout(() => {
-            window.requestAnimationFrame(() => props.setLoadingMessage(''));
-            setSplitByDate(!splitByDate);
-        }, 100)
+        let chartCount = splitBySpace ? spaces.size : 1;
+        if(!splitByDate && chartCount * dates.size > 20){
+            snackbarOpen('Unable to split. Rendering limit exceeded.');
+            return;
+        }
+        else {
+            props.setLoadingMessage('Re-rendering');
+            setTimeout(() => {
+                window.requestAnimationFrame(() => props.setLoadingMessage(''));
+                setSplitByDate(!splitByDate);
+            }, 100)
+        }     
     }
 
     const switchOrientation = () => {

@@ -31,13 +31,14 @@
     "react-plotly.js": "^2.3.0",
     "react-redux": "^7.0.2",
     "react-router-dom": "^5.0.0",
-    "react-scripts": "2.1.8",
-    "react-select": "^3.0.4",
+    "react-scripts": "^3.3.0",
+    "react-select": "^3.0.8",
     "react-spinkit": "^3.0.0",
     "react-window": "^1.8.5",
     "reduce-reducers": "^1.0.1",
     "redux": "^4.0.1",
     "redux-saga": "^1.0.2",
+    "text-encoding": "^0.7.0",
     "throttle-debounce": "^2.1.0"
   },
   "scripts": {

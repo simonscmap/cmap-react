@@ -29,7 +29,8 @@ export default function(state, action) {
 
         case visualizationActionTypes.ADD_CHART: return {
             ...state,
-            charts: [...state.charts, action.payload.chartInfo]
+            charts: [{...action.payload.chartInfo, id: state.chartID}, ...state.charts],
+            chartID: state.chartID + 1
         }
 
         case visualizationActionTypes.CLEAR_CHARTS: return {...state, charts: []}

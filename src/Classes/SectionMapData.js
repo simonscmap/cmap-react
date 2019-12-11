@@ -44,7 +44,7 @@ class SectionMapData {
         }        
 
         this.depths.add(depth);
-        this.dates.add(this.isMonthly ? months[time] : time);
+        this.dates.add(time);
         this.lats.add(lat);
         this.lons.add(lon);
 

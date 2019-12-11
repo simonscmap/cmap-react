@@ -62,8 +62,6 @@ class SparseData {
         let lonDistance = Math.abs(this.lonMax - this.lonMin);
         let distance = Math.sqrt(latDistance * latDistance + lonDistance * lonDistance);
 
-        console.log('Distance: ', distance);
-
         let _zoom = 4 - Math.floor(distance / 12);
         this.zoom = _zoom < 0 ? 0 : _zoom;
 
@@ -73,8 +71,6 @@ class SparseData {
             lon: lonCenter, 
             lat: latCenter
         }
-
-        console.log(this);
     }
 
     generatePlotData(subType, splitByDate, splitByDepth) {

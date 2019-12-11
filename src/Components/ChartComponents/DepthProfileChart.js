@@ -14,6 +14,8 @@ import chartBase from '../../Utility/chartBase';
 
 import { format } from 'd3-format';
 
+import handleChartDateString from '../../Utility/handleChartDatestring';
+
 const styles = theme => ({
     chartWrapper: {
         display: 'inline-block',
@@ -36,6 +38,7 @@ const DepthProfileChart = (props) => {
     const { classes, setLoadingMessage } = props;
     const { data } = props.chart;
     const { stds, variableValues, depths, parameters, metadata } = data;
+    var infoObject = data;
 
     const [markerOptions, setMarkerOptions] = React.useState({opacity: .2, color:'#ff1493', size: 12})
 
@@ -70,7 +73,12 @@ const DepthProfileChart = (props) => {
         }, 100)
     }
 
+    const date1 = infoObject.isMonthly ? new Date(parameters.dt1).getMonth() + 1 : parameters.dt1;
+    const date2 = infoObject.isMonthly ? new Date(parameters.dt2).getMonth() + 1 : parameters.dt2;
 
+    const date = date1 === date2 ? handleChartDateString(date1, infoObject.hasHour, infoObject.isMonthly) :
+            handleChartDateString(date1, infoObject.hasHour, infoObject.isMonthly) + ' to ' + handleChartDateString(date2, infoObject.hasHour, infoObject.isMonthly);
+    
     return (
         <div>
             <ChartControlPanel
@@ -81,8 +89,12 @@ const DepthProfileChart = (props) => {
             <Plot
                 style= {{
                     position: 'relative',
-                    display:'inline-block'
+                    // display:'inline-block',
+                    width: '60vw',
+                    height: '40vw'
                 }}
+
+                useResizeHandler={true}
 
                 data={[
                     {   
@@ -114,9 +126,17 @@ const DepthProfileChart = (props) => {
                 layout= {{
                     ...chartBase.layout,
                     plot_bgcolor: 'transparent',
-                    width: 800,
-                    height: 570,
-                    title: `${parameters.fields} [${metadata.Unit}]  ${parameters.depth1} to ${parameters.depth2} meters`,
+                    title: {
+                        text: `${parameters.fields} [${metadata.Unit}]` + 
+                            `<br>${date}, ` + 
+                            `${parameters.depth1}[m] to ${parameters.depth2}[m] <br>` + 
+                            `Lat: ${parameters.lat1}\xb0 to ${parameters.lat2}\xb0, ` +
+                            `Lon: ${parameters.lon1}\xb0 to ${parameters.lon2}\xb0`,
+                        font: {
+                            size: 13
+                        }
+                    },
+                        
                   yaxis: {
                       title: 'Depth[m]',
                       color: '#ffffff',

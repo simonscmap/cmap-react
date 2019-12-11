@@ -51,7 +51,7 @@ class DownloadConfirmationDialog extends Component {
         let query = `select * from ${tableName} where time between '${dt1}' and '${dt2}' and ` +
             `lat between ${lat1} and ${lat2} and ` +
             `lon between ${lon1} and ${lon2}`
-        console.log(query);
+        // console.log(query);
         const fileName = this.props.downloadTarget.variable || this.props.downloadTarget.dataset;
         this.props.csvDownloadRequestSend(query, fileName);
     }
@@ -121,7 +121,7 @@ class DownloadConfirmationDialog extends Component {
         const totalColumns = variableColumns + depthColumns + fixedColumns;
 
         const totalDataPoints = totalRows * totalColumns;
-        const fullDataAvailable = totalDataPoints < 40000000;
+        const fullDataAvailable = totalDataPoints < 20000000;
 
         var dateRatio;
 
@@ -145,13 +145,10 @@ class DownloadConfirmationDialog extends Component {
         var depthRatio = 1;
 
         if(sampleMember.Depth_Max) {
-            console.log('Found Depth_Max');
             if(depthUtils.piscesTable.has(sampleMember.Table_Name)){
-                console.log('Found Pisces')
                 let depthCount = depthUtils.count({data: sampleMember}, subsetDepth1, subsetDepth2);
                 depthRatio = depthCount / depthUtils.piscesDepths.length || 1;
             } else if (depthUtils.darwinTable.has(sampleMember.Table_Name)){
-                console.log('Found darwin');
                 let depthCount = depthUtils.count({data: sampleMember}, subsetDepth1, subsetDepth2);
                 depthRatio = depthCount / depthUtils.darwinDepths.length || 1;
             } else {
@@ -174,14 +171,14 @@ class DownloadConfirmationDialog extends Component {
         const timeStringMax = sampleMember.Temporal_Resolution === temporalResolutions.monthlyClimatology ? 
             'Monthly' : new Date(timeMax).toISOString().slice(0,10);
 
-        console.log('Total data points: ', totalDataPoints);
-        console.log('Total rows: ', totalRows);
-        console.log('Total columns: ', totalColumns)
-        console.log('Subset data points: ', subsetDataPoints);
-        console.log('Date Ratio: ', dateRatio);
-        console.log('Lat Ratio: ', latRatio);
-        console.log('Lon ratio: ', lonRatio);
-        console.log('Depth Ratio: ', depthRatio)
+        // console.log('Total data points: ', totalDataPoints);
+        // console.log('Total rows: ', totalRows);
+        // console.log('Total columns: ', totalColumns)
+        // console.log('Subset data points: ', subsetDataPoints);
+        // console.log('Date Ratio: ', dateRatio);
+        // console.log('Lat Ratio: ', latRatio);
+        // console.log('Lon ratio: ', lonRatio);
+        // console.log('Depth Ratio: ', depthRatio)
         
         return (
             <React.Fragment>
@@ -197,8 +194,10 @@ class DownloadConfirmationDialog extends Component {
                     
                     <DialogContent>
                         <Typography>
-                            The described subset contains approximately {subsetDataPoints} data points:
-                            {!subsetAvailable && 'This is over the limit of 20,000,000 data points. Please reduce lat, lon, time, or depth range to enable download.'}
+                            {subsetAvailable ? 
+                                'The described subset is available for download' :
+                                `The described subset contains approximately ${subsetDataPoints} data points. Maximum download size is 20000000. Please reduce subset size.`
+                            }
                         </Typography>
 
                         <Table size='small'>

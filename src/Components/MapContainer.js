@@ -163,6 +163,10 @@ class UiComponents extends React.Component {
         })
 
         sketchModel.on("create", (event) => {
+            if(event.state === 'active' && event.toolEventInfo && event.toolEventInfo.type === 'vertex-add'){
+                sketchModel.complete();
+            }
+
             if(event.graphic && event.graphic.visible) {
                 event.graphic.visible = false;
             }
@@ -195,7 +199,7 @@ class UiComponents extends React.Component {
         drawButton.addEventListener("click", (event) => {
                 regionLayer.removeAll();
                 setShowHelp(true);
-                sketchModel.create('rectangle', {
+                sketchModel.create('polyline', {
                     mode:'click'            
                 });
                 drawButton.style.display = 'none';
@@ -227,6 +231,8 @@ const TrajectoryController = React.memo((props) => {
     if(cruiseTrajectory){
         const { lons, lats } = cruiseTrajectory;
 
+        let midIndex = Math.floor(lons.length / 2);
+
         trajectoryLayer.removeAll();
 
         var polyLines = [[]];
@@ -235,6 +241,10 @@ const TrajectoryController = React.memo((props) => {
         let lonStart = lons[0];
         let latStart = lats[0];
         let maxDistance = 0;
+        // var lonMin = lons[0];
+        // var lonMax = lons[0];
+        // var latMin = lats[0];
+        // var latMax = lats[0];
 
         // Create a new path array each time 180 lon is crossed
         lons.forEach((lon, i) => {
@@ -289,9 +299,9 @@ const TrajectoryController = React.memo((props) => {
         })
 
         try {
-            const center = [lons[0], lats[0]];
+            const center = [lons[midIndex], lats[midIndex]];
 
-            var zoom = 7 - Math.floor(maxDistance / 10);            
+            var zoom = 7 - Math.floor(maxDistance / 6);            
     
             props.view.goTo({
                 target: center,

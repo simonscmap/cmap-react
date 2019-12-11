@@ -86,25 +86,28 @@ const colorscaleOptions = [
     'Cividis'];
 
 function usePreviousSize(value) {
+    let size = value ? value.size : null;
     const ref = useRef();
     useEffect(() => {
-        ref.current = value;
+        ref.current = size;
     });
     return ref.current;
 }
 
 function usePreviousColor(value) {
+    let color = value ? value.color : null;
     const ref = useRef();
     useEffect(() => {
-        ref.current = value;
+        ref.current = color;
     });
     return ref.current;
 }
 
 function usePreviousOpacity(value) {
+    let opacity = value ? value.opacity : null;
     const ref = useRef();
     useEffect(() => {
-        ref.current = value;
+        ref.current = opacity;
     });
     return ref.current;
 }
@@ -181,12 +184,11 @@ const ChartControlPanel = (props) => {
     const [localMarkerColor, setLocalMarkerColor] = React.useState(markerOptions && markerOptions.color);
     const [localMarkerSize, setLocalMarkerSize] = React.useState(markerOptions && markerOptions.size);
 
-    if(markerOptions){
-        var previousOpacity = usePreviousOpacity(markerOptions.opacity);
-        var previousColor = usePreviousColor(markerOptions.color);
-        var previousSize = usePreviousSize(markerOptions.size);
-        
-        useEffect(() => {
+    var previousOpacity = usePreviousOpacity(markerOptions);
+    var previousColor = usePreviousColor(markerOptions);
+    var previousSize = usePreviousSize(markerOptions);
+    useEffect(() => {
+        if(markerOptions){
             if(markerOptions.opacity !== previousOpacity){
                 setLocalMarkerOpacity(markerOptions.opacity);
             }
@@ -198,9 +200,8 @@ const ChartControlPanel = (props) => {
             if(markerOptions.size !== previousSize){
                 setLocalMarkerSize(markerOptions.size);
             }
-        })
-    }
-
+        }
+    })
 
     const markerPopoverOpen = Boolean(markerOptionsAnchorElement);
     const markerPopoverID = markerPopoverOpen ? 'marker-popover' : undefined;

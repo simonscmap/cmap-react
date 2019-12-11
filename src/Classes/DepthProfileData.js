@@ -1,3 +1,5 @@
+import temporalResolutions from '../Enums/temporalResolutions';
+
 class DepthProfileData {
     constructor(payload) {
         this.parameters = payload.parameters;
@@ -13,6 +15,7 @@ class DepthProfileData {
         if(this.lat === null){
             this.lat = parseFloat(row[0]);
             this.lon = parseFloat(row[1]);
+            this.isMonthly = this.metadata.Temporal_Resolution === temporalResolutions.monthlyClimatology;
         }
 
         this.variableValues.push(parseFloat(row[2]));

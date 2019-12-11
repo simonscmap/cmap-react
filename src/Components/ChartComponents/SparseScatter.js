@@ -2,6 +2,7 @@ import React from 'react';
 import Plot from 'react-plotly.js';
 
 import chartBase from '../../Utility/chartBase';
+import handleChartDateString from '../../Utility/handleChartDatestring';
 
 import { format } from 'd3-format';
 
@@ -18,7 +19,7 @@ const SparseScatter = (props) => {
 
     const { parameters, metadata, hasDepth, variableValues, times, lats, lons, depths } = infoObject;
 
-    const title = `${parameters.fields} [${metadata.Unit}]`;
+    // const title = `${parameters.fields} [${metadata.Unit}]`;
     
     var hovertext;
 
@@ -62,12 +63,29 @@ const SparseScatter = (props) => {
             })
         }
 
+    const date = parameters.dt1 === parameters.dt2 ? handleChartDateString(parameters.dt1) :
+        handleChartDateString(parameters.dt1) + ' to ' + handleChartDateString(parameters.dt2);
+
+    const lat = parameters.lat1 === parameters.lat2 ? parameters.lat1 + '\xb0' :
+        parameters.lat1 + '\xb0 to ' + parameters.lat2 + '\xb0';
+
+    const lon = parameters.lon1 === parameters.lon2 ? parameters.lon1 + '\xb0' :
+        parameters.lon1 + '\xb0 to ' + parameters.lon2 + '\xb0';
+
+    const depth = !hasDepth ? 'Surface' :
+        parameters.depth1 === parameters.depth2 ? `${parameters.depth1}[m]` :
+        `${parameters.depth1}[m] to ${parameters.depth2}[m]`;
+
     return (
         <Plot
             style= {{
                 position: 'relative',
-                display:'inline-block'
+                // display:'inline-block',
+                width: '60vw',
+                height: '40vw'
             }}
+
+            useResizeHandler={true}
     
             data={[
                 {
@@ -90,9 +108,18 @@ const SparseScatter = (props) => {
             layout= {{
                 ...chartBase.layout,
                 plot_bgcolor: 'transparent',
-                width: 800,
-                height: 570,
-                title,
+                // width: 800,
+                // height: 570,
+                title: {
+                    text: `${parameters.fields} [${metadata.Unit}]` + 
+                        `<br>${date}, ` + 
+                        depth + 
+                        `<br>Lat: ${lat}, ` +
+                        `Lon: ${lon}`,
+                    font: {
+                        size: 13
+                    }
+                },
                 xaxis: {
                     title: xTitle,
                     color: '#ffffff',

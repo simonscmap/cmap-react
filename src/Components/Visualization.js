@@ -109,7 +109,8 @@ const styles = (theme) => ({
     },
 
     showCharts: {
-        display: 'inline-block'
+        display: 'inline-block',
+        // width: '90%'
     }
 })
 
@@ -263,7 +264,7 @@ class Visualization extends Component {
 
             let depth2 = irregularSpatialResolution ? fields.data.Depth_Max || 0 : 
                 depthUtils.piscesTable.has(fields.data.Table_Name) ? ((depthUtils.piscesDepths[0] + depthUtils.piscesDepths[1]) / 2).toFixed(2) :
-                depthUtils.darwinTable.has(fields.data.Table_Name) ? (depthUtils.darwinDepths[0] + depthUtils.darwinDepths[1]) : 
+                depthUtils.darwinTable.has(fields.data.Table_Name) ? ((depthUtils.darwinDepths[0] + depthUtils.darwinDepths[1]) / 2) : 
                 this.state.spParams.depth2;
 
             if(irregularSpatialResolution){
