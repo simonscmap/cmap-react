@@ -365,7 +365,6 @@ class Visualization extends Component {
                     handleSetDownloadTarget={this.handleSetDownloadTarget}
                     toggleChartView={this.toggleChartView}
                     toggleShowUI={this.toggleShowUI}
-                    showCharts={this.state.showCharts}
                     handleChange={this.handleChange}
                     handleLatLonChange={this.handleLatLonChange}
                     handleStartDateChange={this.handleStartDateChange} 

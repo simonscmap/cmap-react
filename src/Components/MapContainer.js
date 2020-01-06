@@ -109,13 +109,6 @@ const polylineSymbol = {
         ]
 }
 
-const emptyExtent = {
-    xmin: 0,
-    xmax: 0,
-    ymin: 0,
-    ymax: 0
-}
-
 class UiComponents extends React.Component {
 
     constructor(props) {
@@ -140,21 +133,8 @@ class UiComponents extends React.Component {
         const { view, esriModules, regionLayer, setShowHelp } = this.props;
         var { sketchModel } = this;
 
-        // const updateOptions = {
-
-        // }
-
-        // var sketchModel = new esriModules.SketchViewModel({
-        //     layer: regionLayer,
-        //     view,
-        //     polygonSymbol,
-        //     defaultUpdateOptions: updateOptions
-        // })
-
         var drawButton = document.getElementById('draw-button');
         var cancelButton = document.getElementById('cancel-button');
-
-        let cr = this;
 
         const throttledUpdate = throttle(75, (event) => {
             if(event.state === 'active'){
@@ -400,7 +380,7 @@ class MapContainer extends Component {
                         measurementPositions={this.props.measurementPositions}
                         regionLayer={this.regionLayer}
                         setShowHelp={(showHelp) => this.setState({...this.state, showHelp})}
-                        ref={this.props.globeUIRef}
+                        ref={globeUIRef}
                     />
                 </Scene>
                 <DrawButton showHelp={this.state.showHelp}/>

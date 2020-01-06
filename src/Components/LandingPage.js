@@ -3,10 +3,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 
-import TopNavBar from './TopNavBar';
-
 import Typography from '@material-ui/core/Typography';
-import Paper from '@material-ui/core/Paper';
 
 const mapStateToProps = (state, ownProps) => ({
     user : state.user,
@@ -36,6 +33,7 @@ class LandingPage extends Component {
             <div className={classes.landingWrapper}>
                 <img 
                     src='/images/large_cmap_logo.png'
+                    alt='Simons CMAP Logo'
                     height='290'
                     width='600'
                 />

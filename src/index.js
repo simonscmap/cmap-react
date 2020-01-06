@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import './index.css';
+import './Stylesheets/index.css';
 import 'ag-grid-enterprise';
 
 import * as serviceWorker from './serviceWorker';

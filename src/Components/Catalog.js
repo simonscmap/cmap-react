@@ -5,7 +5,7 @@ import AGGridWrapper from './AGGridWrapper';
 import LoadingSpinner from './LoadingSpinner';
 
 import { retrievalRequestSend, datasetRetrievalRequestSend } from '../Redux/actions/catalog';
-import states from '../asyncRequestStates';
+import states from '../Enums/asyncRequestStates';
 
 import { withStyles } from '@material-ui/core/styles';
 

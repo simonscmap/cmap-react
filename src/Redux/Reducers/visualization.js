@@ -1,4 +1,4 @@
-import states from '../../asyncRequestStates';
+import states from '../../Enums/asyncRequestStates';
 import * as visualizationActionTypes from '../actionTypes/visualization';
 
 export default function(state, action) {
@@ -67,7 +67,7 @@ export default function(state, action) {
         case visualizationActionTypes.COMPLETED_SHOW_CHARTS: return {...state, showChartsOnce: false}
 
         case visualizationActionTypes.TABLE_STATS_REQUEST_SUCCESS: return {
-            ... state, 
+            ...state, 
             datasets: {
                 ...state.datasets,
                 [action.payload.datasetLongName]: {

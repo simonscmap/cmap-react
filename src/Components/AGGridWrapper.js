@@ -154,13 +154,10 @@ const autoGroupColumnDef = {
 }
 
 class AGGridWrapper extends Component {
-  // const { classes } = props;
 
   state = {
     filterText: '',
-    //dataset long name
     describedDataset: '',
-    //variable index
     describedVariable: null
   }
 
@@ -232,7 +229,7 @@ class AGGridWrapper extends Component {
 
           </Grid>
           <Grid item xs={6}>
-            <ConnectedTooltip placement title='Enter one or more search terms.' placement='top'>
+            <ConnectedTooltip title='Enter one or more search terms.' placement='top'>
               <TextField              
                 className={classes.gridSearch}
                 autoFocus={true}

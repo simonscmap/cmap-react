@@ -10,7 +10,6 @@ import SectionMapData from './Classes/SectionMapData';
 import SparseData from './Classes/SparseData';
 
 import encoding from 'text-encoding';
-// const decoder = new encoding.TextDecoder();
 
 const fetchOptions = {
     credentials: 'include'
@@ -204,7 +203,6 @@ api.visualization.getTableStats = async(tableName) => {
 }
 
 api.visualization.cruiseTrajectoryRequest = async(payload) => {
-    const cruiseId = payload.id;
     const decoder = new encoding.TextDecoder();
     let trajectory = {lats: [], lons: []};
 

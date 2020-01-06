@@ -129,7 +129,7 @@ function* storedProcedureRequest(action){
     if(result.failed){
         yield put(interfaceActions.setLoadingMessage(''));
         yield put(visualizationActions.storedProcedureRequestFailure());
-        if(result.status == 401){
+        if(result.status === 401){
             yield put(userActions.refreshLogin());
         } else {
             yield put(interfaceActions.snackbarOpen("An error occurred. Please try again."));
@@ -157,7 +157,7 @@ function* cruiseTrajectoryRequest(action) {
     yield put(interfaceActions.setLoadingMessage(''));
 
     if(result.failed){
-        if(result.status == 401){
+        if(result.status === 401){
             yield put(userActions.refreshLogin());
         } else {
             yield put(interfaceActions.snackbarOpen(`Unable to Fetch Cruise Data`));
@@ -186,7 +186,7 @@ function* tableStatsRequest(action){
     yield put(interfaceActions.setLoadingMessage(''));
 
     if(result.failed){
-        if(result.status == 401){
+        if(result.status === 401){
             yield put(userActions.refreshLogin());
         } else {
             yield put(interfaceActions.snackbarOpen(`Unable to Fetch Dataset Information`));
@@ -202,7 +202,7 @@ function* csvDownloadRequest(action){
     let response = yield call(api.visualization.csvDownload, action.payload);
     yield put(interfaceActions.setLoadingMessage(''))
     if(response.failed) {
-        if(response.status == 401){
+        if(response.status === 401){
             yield put(userActions.refreshLogin());
         } else {
             yield put(interfaceActions.snackbarOpen('An error occurred. Please try again.'))

@@ -1,1 +1,1 @@
-export default new Worker('workerScript.js');
+// export default new Worker('workerScript.js');

@@ -12,7 +12,7 @@ import TableRow from '@material-ui/core/TableRow';
 
 import { cruiseListRequestSend, cruiseTrajectoryRequestSend, cruiseTrajectoryClear } from '../Redux/actions/visualization';
 
-import states from '../asyncRequestStates';
+import states from '../Enums/asyncRequestStates';
 import colors from '../Enums/colors';
 
 const mapStateToProps = (state, ownProps) => ({
@@ -29,8 +29,6 @@ const mapDispatchToProps = {
 const esriFonts = '"Avenir Next W00","Helvetica Neue",Helvetica,Arial,sans-serif';
 const esriFontColor = 'white';
 const esriBackgroundColor = '#424242';
-const esriHoverFontColor = '#242424';
-const esriHoverBackgroundColor = '#949393';
 
 const styles = theme => ({
     outerDiv: {
@@ -60,16 +58,6 @@ const styles = theme => ({
         fontFamily: esriFonts,
         borderStyle: 'none',
     },
-
-    // blurEffectDiv: {
-    //     filter: 'blur(5px)',
-    //     position: 'absolute',
-    //     top: '0px',
-    //     left: '0px',
-    //     right: '0px',
-    //     bottom: '0px',
-    //     zIndex: 99999999
-    // }
 })
 
 // Replace react-select selected option
@@ -176,7 +164,6 @@ class CruiseSelector extends Component {
                     }}
                     isClearable
                     onInputChange={this.onAutoSuggestChange}
-                    // inputValue={this.state.searchField}
                     filterOption={null}
                     className={classes.cruiseSelect}
                     escapeClearsValue

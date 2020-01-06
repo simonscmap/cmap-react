@@ -18,7 +18,7 @@ import Grid from '@material-ui/core/Grid';
 import { keyRetrievalRequestSend, keyCreationRequestSend } from '../Redux/actions/user';
 
 import LoadingSpinner from './LoadingSpinner';
-import states from '../asyncRequestStates';
+import states from '../Enums/asyncRequestStates';
 import colors from '../Enums/colors';
 
 const mapStateToProps = (state, ownProps) => ({

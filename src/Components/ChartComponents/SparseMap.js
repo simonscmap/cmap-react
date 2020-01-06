@@ -17,21 +17,9 @@ import handleChartDateString from '../../Utility/handleChartDatestring';
 import { setLoadingMessage } from '../../Redux/actions/ui'; 
 import SparseScatter from './SparseScatter';
 
-import { format } from 'd3-format';
-
 const handleSparseMap = (infoObject, palette, zValues) => {
 
     const { parameters, metadata } = infoObject;
-
-    var hovertext = infoObject.variableValues.map((value, i) => {
-        let formatter = value > 1 && value < 1000 ? '.2f' : '.2e';
-
-        return `Lat: ${format('.2f')(infoObject.lats[i])}\xb0` +
-        `<br>` +
-        `Lon: ${format('.2f')(infoObject.lons[i])}\xb0` + 
-        '<br>' +
-        `${infoObject.parameters.fields}: ${format(formatter)(value)} [${infoObject.metadata.Unit}]`;
-    });
 
     const date = parameters.dt1 === parameters.dt2 ? handleChartDateString(parameters.dt1) :
         handleChartDateString(parameters.dt1) + ' to ' + handleChartDateString(parameters.dt2);
@@ -65,7 +53,6 @@ const handleSparseMap = (infoObject, palette, zValues) => {
                     lon: infoObject.lons,
                     lat: infoObject.lats,
                     z: infoObject.variableValues,
-                    zmin:'',
                     autocolorscale: false,
                     colorscale: palette,
                     radius: 6,                    

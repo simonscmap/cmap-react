@@ -35,7 +35,6 @@ const mapDispatchToProps = {
 
 const TimeSeriesChart = (props) => {
 
-    const { classes } = props;
     const { data } = props.chart;
     const { stds, variableValues, dates, parameters, metadata } = data;
 

@@ -5,8 +5,6 @@ import splitData from '../Utility/splitData';
 import mergeArraysAndComputeMeans from '../Utility/mergeArraysAndComputeMeans';
 import temporalResolutions from '../Enums/temporalResolutions';
 
-import months from '../Enums/months';
-
 class SectionMapData {
     constructor(payload) {
         this.parameters = payload.parameters;

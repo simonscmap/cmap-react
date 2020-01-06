@@ -14,7 +14,7 @@ import TopNavBar from './TopNavBar';
 import { registrationNextActiveStep, registrationPreviousActiveStep } from '../Redux/actions/ui';
 import { userRegistrationRequestSend, userValidationRequestSend } from '../Redux/actions/user';
 
-import states from '../asyncRequestStates';
+import states from '../Enums/asyncRequestStates';
 
 const styles = theme => ({
     root: {

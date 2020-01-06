@@ -1,7 +1,6 @@
 import { quantile, extent } from 'd3-array';
 
 import mapSpatialResolutionToNumber from '../Utility/mapSpatialResolutionToNumber';
-import generateSpatialArray from '../Utility/GenerateSpatialArray';
 import flattenArray from '../Utility/flattenArray';
 import splitData from '../Utility/splitData';
 import mergeArraysAndComputeMeans from '../Utility/mergeArraysAndComputeMeans';
@@ -9,7 +8,6 @@ import mergeArrays from '../Utility/mergeArrays';
 
 import vizSubTypes from '../Enums/visualizationSubTypes';
 import temporalResolutions from '../Enums/temporalResolutions';
-import spatialResolutions from '../Enums/spatialResolutions';
 
 class SpaceTimeData {
     constructor(payload) {
@@ -180,16 +178,17 @@ class SpaceTimeData {
     generateCsv = () => {
         let dates = Array.from(this.dates);
         let depths = Array.from(this.depths);
+        var csvArray;
 
         if(this.hasDepth){
-            var csvArray = [`time,lat,lon,depth,${this.parameters.fields}`];
+            csvArray = [`time,lat,lon,depth,${this.parameters.fields}`];
 
             for(let i = 0; i < this.variableValues.length; i++){
                 csvArray.push(`${dates[Math.floor(i / (this.variableValues.length / dates.length))]},${this.lats[i]},${this.lons[i] > 180 ? this.lons[i] - 360 : this.lons[i]},${depths[Math.floor(i / (this.variableValues.length / (dates.length * depths.length))) % depths.length]},${isNaN(this.variableValues[i]) ? '' : this.variableValues[i]}`);
             }
 
         } else {
-            var csvArray = [`time,lat,lon,${this.parameters.fields}`];
+            csvArray = [`time,lat,lon,${this.parameters.fields}`];
 
             for(let i = 0; i < this.variableValues.length; i++){
                 csvArray.push(`${dates[Math.floor(i / (this.variableValues.length / dates.length))]},${this.lats[i]},${this.lons[i] > 180 ? this.lons[i] - 360 : this.lons[i]},${isNaN(this.variableValues[i]) ? '' : this.variableValues[i]}`);

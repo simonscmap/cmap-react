@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 
 import { withStyles } from '@material-ui/core/styles';
 
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, Table, TableBody, TableCell, TableRow, TableHead, TableFooter } from '@material-ui/core';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, Table, TableBody, TableCell, TableRow, TableHead } from '@material-ui/core';
 
 import { tableStatsRequestSend, csvDownloadRequestSend } from '../Redux/actions/visualization';
 

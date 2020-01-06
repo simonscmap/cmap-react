@@ -35,7 +35,7 @@ const mapDispatchToProps = {
 
 const DepthProfileChart = (props) => {
 
-    const { classes, setLoadingMessage } = props;
+    const { setLoadingMessage } = props;
     const { data } = props.chart;
     const { stds, variableValues, depths, parameters, metadata } = data;
     var infoObject = data;

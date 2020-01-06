@@ -78,16 +78,17 @@ class SparseData {
     }
 
     generateCsv(){
+        var csvArray;
 
         if(this.hasDepth){
-            var csvArray = [`time,lat,lon,depth,${this.parameters.fields}`];
+            csvArray = [`time,lat,lon,depth,${this.parameters.fields}`];
 
             for(let i = 0; i < this.variableValues.length; i++){
                 csvArray.push(`${this.times[i]},${this.lats[i]},${this.lons[i]},${this.depths[i]},${isNaN(this.variableValues[i]) ? '' : this.variableValues[i]}`);
             }
 
         } else {
-            var csvArray = [`time,lat,lon,${this.parameters.fields}`];
+            csvArray = [`time,lat,lon,${this.parameters.fields}`];
 
             for(let i = 0; i < this.variableValues.length; i++){
                 csvArray.push(`${this.times[i]},${this.lats[i]},${this.lons[i]},${isNaN(this.variableValues[i]) ? '' : this.variableValues[i]}`);

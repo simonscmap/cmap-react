@@ -13,7 +13,7 @@ import { KeyboardDatePicker } from "@material-ui/pickers";
 import { Cached, LibraryBooks, ArrowRight, ChevronLeft, ChevronRight, InsertChartOutlined, Language, Delete, CloudDownload, Info } from '@material-ui/icons';
 
 import vizSubTypes from '../Enums/visualizationSubTypes';
-import states from '../asyncRequestStates';
+import states from '../Enums/asyncRequestStates';
 import colors from '../Enums/colors';
 import validation from '../Enums/validation';
 import TableStatsDialog from './TableStatsDialog';
@@ -223,10 +223,6 @@ const selectRef = React.createRef();
 
 class MenuList extends Component {
 
-  constructor(props){
-    super(props)
-  }
-
     componentDidUpdate = (prevProps, prevState) => {
       if(reactWindowListRef.current) reactWindowListRef.current.resetAfterIndex(0);
       if(!(this.props.children && this.props.children.length)) return;
@@ -253,7 +249,7 @@ class MenuList extends Component {
     }
 
     render() {
-        const { options, children, maxHeight, getValue } = this.props;
+        const { options, children, getValue } = this.props;
 
         if(!children || !children.length) return '';
         const [value] = getValue();
@@ -267,7 +263,6 @@ class MenuList extends Component {
 
         return (
             <ReactWindowList
-                // height={(options.length == 0 ? 35 : maxHeight > height * options.length ? height * options.length : maxHeight) || 35}
                 height={totalHeight < 400 ? totalHeight :  400}
                 estimatedItemSize={estimatedItemSize}
                 itemCount={children.length}
@@ -700,13 +695,11 @@ class VizControlPanel extends React.Component {
             selectedVizType,
             catalog,
             catalogRequestState,
-            surfaceOnly,
             showCharts,
             handleShowGlobe,
             handleChange,
             handleLatLonChange,
             datasets,
-            charts
         } = this.props;
 
         const options = searchField && catalog ? this.getSelectOptionsFromCatalogItems(search.search(searchField)) 

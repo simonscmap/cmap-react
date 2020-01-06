@@ -1,5 +1,5 @@
 import * as userActionTypes from '../actionTypes/user';
-import states from '../../asyncRequestStates';
+import states from '../../Enums/asyncRequestStates';
 
 export default function(state, action) {
   switch (action.type) {    

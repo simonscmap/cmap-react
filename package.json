@@ -24,11 +24,12 @@
     "js-search": "^1.4.3",
     "ndjson": "^1.5.0",
     "node-sass": "^4.12.0",
-    "plotly.js": "^1.49.5",
+    "plotly.js": "^1.51.3",
+    "prop-types": "^15.7.2",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-markdown": "^4.2.2",
-    "react-plotly.js": "^2.3.0",
+    "react-plotly.js": "^2.4.0",
     "react-redux": "^7.0.2",
     "react-router-dom": "^5.0.0",
     "react-scripts": "^3.3.0",
@@ -39,7 +40,8 @@
     "redux": "^4.0.1",
     "redux-saga": "^1.0.2",
     "text-encoding": "^0.7.0",
-    "throttle-debounce": "^2.1.0"
+    "throttle-debounce": "^2.1.0",
+    "typescript": "^3.7.4"
   },
   "scripts": {
     "start": "react-scripts --max_old_space_size=4096 start",

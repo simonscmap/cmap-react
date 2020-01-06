@@ -300,7 +300,6 @@ const SectionMapChart = (props) => {
                 onToggleSplitByDate={dates.size === 1 ? null : onToggleSplitByDate}
                 splitByDate={splitByDate}
                 handlePaletteChoice={handlePaletteChoice}
-                downloadCsv={downloadCsv}
                 handleZValueConfirm={handleZValueConfirm}
                 zValues={zValues}
                 extent={extent}

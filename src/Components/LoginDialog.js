@@ -14,7 +14,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-import states from '../asyncRequestStates';
+import states from '../Enums/asyncRequestStates';
 
 import { showLoginDialog, hideLoginDialog, restoreInterfaceDefaults } from '../Redux/actions/ui';
 import { logOut, userLoginRequestSend } from '../Redux/actions/user';
@@ -74,7 +74,7 @@ class LoginDialog extends Component{
                 <DialogTitle id="form-dialog-title">Login</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                    Please enter your username and password, or <Link onClick={this.handleClose} component={RouterLink} to={{pathname: '/register'}}>Register.</Link>
+                        Please enter your username and password, or <Link onClick={this.handleClose} component={RouterLink} to={{pathname: '/register'}}>Register.</Link>
                     </DialogContentText>
                     <form onSubmit={e => (e.preventDefault())}>
                         <TextField

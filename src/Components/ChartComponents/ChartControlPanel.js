@@ -12,7 +12,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import Button from '@material-ui/core/Button';
-import { DateRange, Waves, CloudDownload, Palette, SwapVert, Gamepad, LineWeight, Rotate90DegreesCcw, Info } from '@material-ui/icons';
+import { DateRange, CloudDownload, Palette, SwapVert, Gamepad, LineWeight, } from '@material-ui/icons';
 
 import colors from '../../Enums/colors';
 
@@ -118,11 +118,8 @@ const ChartControlPanel = (props) => {
         classes, 
         onToggleSplitByDate,
         splitByDate,
-        onToggleSplitByDepth,
-        splitByDepth,
         onToggleSplitBySpace,
         splitBySpace,
-        switchOrientation,
         orientation, 
         downloadCsv, 
         handleZValueConfirm,

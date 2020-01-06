@@ -39,8 +39,6 @@ const handleContourMap = (subsets, infoObject, splitByDate, splitByDepth, palett
 
     return subsets.map((subset, index) => {
 
-        const variableName = infoObject.parameters.fields;
-
         const date = dates.length <= 1 ? handleChartDateString(dates[0], infoObject.hasHour, infoObject.isMonthly) :
             !splitByDate ? `Averaged Values ${handleChartDateString(dates[0], infoObject.hasHour, infoObject.isMonthly)} to ${handleChartDateString(dates[dates.length - 1], infoObject.hasHour, infoObject.isMonthly)}` :  
             splitByDepth ? handleChartDateString(dates[Math.floor(index/depths.length)], infoObject.hasHour, infoObject.isMonthly) : 
@@ -142,81 +140,79 @@ const handleContourMap = (subsets, infoObject, splitByDate, splitByDepth, palett
     })
 }
 
-const handleHistogram = (subsets, infoObject, splitByDate, splitByDepth, palette) => {
+// const handleHistogram = (subsets, infoObject, splitByDate, splitByDepth, palette) => {
 
-    const depths = Array.from(infoObject.depths).map(depth => parseFloat(depth));
-    const dates = Array.from(infoObject.dates);
-    const { parameters, metadata } = infoObject;
+//     const depths = Array.from(infoObject.depths).map(depth => parseFloat(depth));
+//     const dates = Array.from(infoObject.dates);
+//     const { parameters, metadata } = infoObject;
 
-    return subsets.map((subset, index) => {
+//     return subsets.map((subset, index) => {
 
-        const variableName = infoObject.parameters.fields;
+//         const date = parameters.dt1 === parameters.dt2 ? handleChartDateString(parameters.dt1) :
+//             handleChartDateString(parameters.dt1) + ' to ' + handleChartDateString(parameters.dt2);
 
-        const date = parameters.dt1 === parameters.dt2 ? handleChartDateString(parameters.dt1) :
-            handleChartDateString(parameters.dt1) + ' to ' + handleChartDateString(parameters.dt2);
+//         const latTitle = parameters.lat1 === parameters.lat2 ? parameters.lat1 + '\xb0' :
+//             parameters.lat1 + '\xb0 to ' + parameters.lat2 + '\xb0';
 
-        const latTitle = parameters.lat1 === parameters.lat2 ? parameters.lat1 + '\xb0' :
-            parameters.lat1 + '\xb0 to ' + parameters.lat2 + '\xb0';
+//         const lonTitle = parameters.lon1 === parameters.lon2 ? parameters.lon1 + '\xb0' :
+//             parameters.lon1 + '\xb0 to ' + parameters.lon2 + '\xb0';
 
-        const lonTitle = parameters.lon1 === parameters.lon2 ? parameters.lon1 + '\xb0' :
-            parameters.lon1 + '\xb0 to ' + parameters.lon2 + '\xb0';
+//         const depth = !infoObject.hasDepth ? 'Surface' :
+//             parameters.depth1 === parameters.depth2 ? `${parameters.depth1}[m]` :
+//             `${parameters.depth1}[m] to ${parameters.depth2}[m]`;
 
-        const depth = !infoObject.hasDepth ? 'Surface' :
-            parameters.depth1 === parameters.depth2 ? `${parameters.depth1}[m]` :
-            `${parameters.depth1}[m] to ${parameters.depth2}[m]`;
+//         return (
+//         <Plot
+//             style= {{
+//                 position: 'relative',
+//                 // display:'inline-block',
+//                 width: '60vw',
+//                 height: '40vw'
+//             }}
 
-        return (
-        <Plot
-            style= {{
-                position: 'relative',
-                // display:'inline-block',
-                width: '60vw',
-                height: '40vw'
-            }}
+//             useResizeHandler={true}
 
-            useResizeHandler={true}
-
-            data={[
-                {
-                    x: subset,
-                    name: infoObject.parameters.fields,
-                    type: 'histogram',
-                    marker: {
-                        color: '#00FFFF'
-                    }
-                }
-            ]}
+//             data={[
+//                 {
+//                     x: subset,
+//                     name: infoObject.parameters.fields,
+//                     type: 'histogram',
+//                     marker: {
+//                         color: '#00FFFF'
+//                     }
+//                 }
+//             ]}
             
-            key={index}
-            layout= {{
-                ...chartBase.layout,
-                plot_bgcolor: 'transparent',
-                // autosize: true,
-                title: {
-                    text: `${parameters.fields} [${metadata.Unit}]` + 
-                        `<br>${date}, ` + 
-                        `${depth} <br>` + 
-                        `Lat: ${latTitle}, ` +
-                        `Lon: ${lonTitle}`,
-                    font: {
-                        size: 13
-                    }
-                },
-                xaxis: {
-                    title: `${infoObject.parameters.fields} [${infoObject.metadata.Unit}]`,
-                    exponentformat: 'power',
-                    color: '#ffffff'
-                },
-                yaxis:{
-                    color: '#ffffff',
-                    title: 'Frequency'
-                },
-                annotations: chartBase.annotations(infoObject.metadata.Distributor)             
-            }}
-            config={{...chartBase.config}}
-        />)
-    })
-}
+//             key={index}
+//             layout= {{
+//                 ...chartBase.layout,
+//                 plot_bgcolor: 'transparent',
+//                 // autosize: true,
+//                 title: {
+//                     text: `${parameters.fields} [${metadata.Unit}]` + 
+//                         `<br>${date}, ` + 
+//                         `${depth} <br>` + 
+//                         `Lat: ${latTitle}, ` +
+//                         `Lon: ${lonTitle}`,
+//                     font: {
+//                         size: 13
+//                     }
+//                 },
+//                 xaxis: {
+//                     title: `${infoObject.parameters.fields} [${infoObject.metadata.Unit}]`,
+//                     exponentformat: 'power',
+//                     color: '#ffffff'
+//                 },
+//                 yaxis:{
+//                     color: '#ffffff',
+//                     title: 'Frequency'
+//                 },
+//                 annotations: chartBase.annotations(infoObject.metadata.Distributor)             
+//             }}
+//             config={{...chartBase.config}}
+//         />)
+//     })
+// }
 
 const handleHeatmap = (subsets, infoObject, splitByDate, splitByDepth, palette, zMin, zMax) => {
     const { parameters, metadata } = infoObject;
@@ -229,8 +225,6 @@ const handleHeatmap = (subsets, infoObject, splitByDate, splitByDepth, palette, 
     const [ height, width ] = getChartDimensions(infoObject);
 
     return subsets.map((subset, index) => {
-
-        const variableName = infoObject.parameters.fields;
 
         const date = dates.length <= 1 ? handleChartDateString(dates[0], infoObject.hasHour, infoObject.isMonthly) :
             !splitByDate ? `Averaged Values ${handleChartDateString(dates[0], infoObject.hasHour, infoObject.isMonthly)} to ${handleChartDateString(dates[dates.length - 1], infoObject.hasHour, infoObject.isMonthly)}` :  
@@ -346,20 +340,19 @@ const mapDispatchToProps = {
 
 const SpaceTimeChart = (props) => {
 
-    const { classes, snackbarOpen } = props;
+    const { snackbarOpen } = props;
     const { data, subType } = props.chart;
     const { dates, depths, extent } = data;
 
     const [splitByDate, setSplitByDate] = useState(false);
     const [splitByDepth, setSplitByDepth] = useState(true);
-    const [subTypeState, setSubTypeState] = useState(subType);
     const [palette, setPalette] = useState('heatmap');
     const [zValues, setZValues] = useState([data.zMin, data.zMax]);
     const [zMin, zMax] = zValues;
 
-    const subSets = data.generatePlotData(subTypeState, splitByDate, splitByDepth);
+    const subSets = data.generatePlotData(subType, splitByDate, splitByDepth);
     var plots;
-    switch(subTypeState){
+    switch(subType){
         case vizSubTypes.contourMap:
             plots = handleContourMap(subSets, data, splitByDate, splitByDepth, palette, zMin, zMax);
             break;
@@ -371,7 +364,6 @@ const SpaceTimeChart = (props) => {
         case vizSubTypes.histogram:
             // plots = handleHistogram(subSets, data, splitByDate, splitByDepth, palette, zMin, zMax);
             return <SparseHistogram chart={{data}}/>;
-            break;
 
         default:
             plots = '';
@@ -462,14 +454,14 @@ const SpaceTimeChart = (props) => {
     return (
         <React.Fragment>
             <ChartControlPanel
-                handlePaletteChoice={subTypeState !== subTypes.histogram && handlePaletteChoice}
+                handlePaletteChoice={subType !== subTypes.histogram && handlePaletteChoice}
                 onToggleSplitByDepth={depths.size===1 ? null : onToggleSplitByDepth}
                 onToggleSplitByDate={dates.size===1 ? null : onToggleSplitByDate}
                 splitByDepth={splitByDepth}
                 splitByDate={splitByDate}
-                handleZValueConfirm={subTypeState !== subTypes.histogram && handleZValueConfirm}
-                zValues={subTypeState !== subTypes.histogram && zValues}
-                extent={subTypeState !== subTypes.histogram && extent}
+                handleZValueConfirm={subType !== subTypes.histogram && handleZValueConfirm}
+                zValues={subType !== subTypes.histogram && zValues}
+                extent={subType !== subTypes.histogram && extent}
                 downloadCsv={downloadCsv}
             />
             {plots}     
