@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { connect } from 'react-redux';
 
-import { showLoginDialog } from '../Redux/actions/ui';
+import { showLoginDialog } from '../../Redux/actions/ui';
 
 const mapDispatchToProps = {
     showLoginDialog

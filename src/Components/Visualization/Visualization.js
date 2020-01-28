@@ -1,23 +1,23 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
-import vizSubTypes from '../Enums/visualizationSubTypes';
-import storedProcedures from '../Enums/storedProcedures';
+import vizSubTypes from '../../Enums/visualizationSubTypes';
+import storedProcedures from '../../Enums/storedProcedures';
 
 import { withStyles } from '@material-ui/core/styles';
 
-import LoginRequiredPrompt from './LoginRequiredPrompt';
+import LoginRequiredPrompt from '../User/LoginRequiredPrompt';
 // import VisualizationController from './VisualizationController';
 import VizControlPanel from './VizControlPanel';
 import DownloadConfirmationDialog from './DownloadConfirmationDialog';
 
-import { showLoginDialog, snackbarOpen } from '../Redux/actions/ui';
-import { queryRequestSend, storedProcedureRequestSend, cruiseListRequestSend, completedShowCharts } from '../Redux/actions/visualization';
-import { retrievalRequestSend, datasetRetrievalRequestSend } from '../Redux/actions/catalog';
+import { showLoginDialog, snackbarOpen } from '../../Redux/actions/ui';
+import { queryRequestSend, storedProcedureRequestSend, cruiseListRequestSend, completedShowCharts } from '../../Redux/actions/visualization';
+import { retrievalRequestSend, datasetRetrievalRequestSend } from '../../Redux/actions/catalog';
 
 import { loadModules } from 'esri-loader';
 
-import depthUtils from '../Utility/depthCounter';
+import depthUtils from '../../Utility/depthCounter';
 
 // import {COORDINATE_SYSTEM} from '@deck.gl/core';
 // import DeckGL, {GeoJsonLayer, ColumnLayer, GridLayer, PointCloudLayer} from 'deck.gl';
@@ -26,12 +26,11 @@ import depthUtils from '../Utility/depthCounter';
 
 import Charts from './Charts';
 import MapContainer from './MapContainer';
-import colors from '../Enums/colors'
-import cleanSPParams from '../Utility/cleanSPParams';
-import localDateToString from '../Utility/localDateToString';
-import utcDateStringToLocal from '../Utility/utcDateStringToLocal';
-import TopNavBar from './TopNavBar';
-import temporalResolutions from '../Enums/temporalResolutions';
+import colors from '../../Enums/colors'
+import cleanSPParams from '../../Utility/cleanSPParams';
+import localDateToString from '../../Utility/localDateToString';
+import utcDateStringToLocal from '../../Utility/utcDateStringToLocal';
+import temporalResolutions from '../../Enums/temporalResolutions';
 // import subTypes from '../Enums/visualizationSubTypes';
 
 const mapVizType = (vizType) => {
@@ -354,7 +353,6 @@ class Visualization extends Component {
 
         return (
             <div>
-                <TopNavBar/>
                 <DownloadConfirmationDialog
                     {...this.state.spParams}
                     downloadTarget={this.state.downloadTarget}

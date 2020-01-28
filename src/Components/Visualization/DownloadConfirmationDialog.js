@@ -5,10 +5,10 @@ import { withStyles } from '@material-ui/core/styles';
 
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, Table, TableBody, TableCell, TableRow, TableHead } from '@material-ui/core';
 
-import { tableStatsRequestSend, csvDownloadRequestSend } from '../Redux/actions/visualization';
+import { tableStatsRequestSend, csvDownloadRequestSend } from '../../Redux/actions/visualization';
 
-import temporalResolutions from '../Enums/temporalResolutions';
-import depthUtils from '../Utility/depthCounter';
+import temporalResolutions from '../../Enums/temporalResolutions';
+import depthUtils from '../../Utility/depthCounter';
 
 const styles = (theme) => ({
     tableFooter: {

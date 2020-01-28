@@ -58,6 +58,15 @@ api.user.validate = (user) => {
     })
 }
 
+api.user.googleLoginRequest = async(userIDToken) => {
+    let response = await fetch(apiUrl + '/user/googleauth', {
+        ...postOptions,
+        body: JSON.stringify({userIDToken}),
+    })
+
+    return response;
+}
+
 api.catalog.retrieve = async() => {
 
     const decoder = new encoding.TextDecoder();
@@ -133,6 +142,27 @@ api.user.keyRetrieval = async() => {
 
 api.user.keyCreation = async(description) => {
     return await fetch(apiUrl + `/user/generateapikey?description=${description.trim()}`, fetchOptions);
+}
+
+api.user.updateUserInfo = async(userInfo) => {
+    return await fetch(apiUrl + '/api/user/updateinfo', {
+        ...postOptions,
+        body: JSON.stringify(userInfo),
+    });
+}
+
+api.user.recoverPassword = async(email) => {
+    fetch(apiUrl + '/api/user/forgotpassword', {
+        ...postOptions,
+        body: JSON.stringify({email})
+    })
+}
+
+api.user.choosePassword = async({password, token}) => {
+    return await fetch(apiUrl + '/api/user/choosepassword', {
+        ...postOptions,
+        body: JSON.stringify({password, token})
+    })
 }
 
 api.visualization.storedProcedureRequest = async(payload) => {

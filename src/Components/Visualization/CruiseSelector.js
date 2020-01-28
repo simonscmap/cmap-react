@@ -10,10 +10,10 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 
-import { cruiseListRequestSend, cruiseTrajectoryRequestSend, cruiseTrajectoryClear } from '../Redux/actions/visualization';
+import { cruiseListRequestSend, cruiseTrajectoryRequestSend, cruiseTrajectoryClear } from '../../Redux/actions/visualization';
 
-import states from '../Enums/asyncRequestStates';
-import colors from '../Enums/colors';
+import states from '../../Enums/asyncRequestStates';
+import colors from '../../Enums/colors';
 
 const mapStateToProps = (state, ownProps) => ({
     cruiseList: state.cruiseList,

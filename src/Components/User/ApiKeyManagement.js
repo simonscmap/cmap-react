@@ -15,11 +15,11 @@ import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 import Grid from '@material-ui/core/Grid';
 
-import { keyRetrievalRequestSend, keyCreationRequestSend } from '../Redux/actions/user';
+import { keyRetrievalRequestSend, keyCreationRequestSend } from '../../Redux/actions/user';
 
-import LoadingSpinner from './LoadingSpinner';
-import states from '../Enums/asyncRequestStates';
-import colors from '../Enums/colors';
+import LoadingSpinner from '../UI/LoadingSpinner';
+import states from '../../Enums/asyncRequestStates';
+import colors from '../../Enums/colors';
 
 const mapStateToProps = (state, ownProps) => ({
     apiKeys: state.apiKeys,

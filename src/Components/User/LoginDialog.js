@@ -14,10 +14,12 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-import states from '../Enums/asyncRequestStates';
+import states from '../../Enums/asyncRequestStates';
 
-import { showLoginDialog, hideLoginDialog, restoreInterfaceDefaults } from '../Redux/actions/ui';
-import { logOut, userLoginRequestSend } from '../Redux/actions/user';
+import { showLoginDialog, hideLoginDialog, restoreInterfaceDefaults, snackbarOpen } from '../../Redux/actions/ui';
+import { logOut, userLoginRequestSend, googleLoginRequestSend } from '../../Redux/actions/user';
+
+import GoogleSignInButton from './GoogleSignInButton';
 
 const mapStateToProps = (state, ownProps) => {
     return {
@@ -32,7 +34,9 @@ const mapDispatchToProps = {
     showLoginDialog,
     logOut,
     userLoginRequestSend,
-    restoreInterfaceDefaults
+    restoreInterfaceDefaults,
+    googleLoginRequestSend,
+    snackbarOpen
 }
 
 const styles = theme => ({
@@ -47,8 +51,15 @@ const styles = theme => ({
         left: '50%',
         marginTop: -12,
         marginLeft: -12,
+    },
+
+    googleIconWrapper: {
+        marginRight: '100px',
+        marginLeft: '-8px'
     }
 })
+
+const loginClickHandlerTarget = 'g-signin';
 
 class LoginDialog extends Component{
     // Text input state is managed in the TopNavBar component
@@ -63,6 +74,28 @@ class LoginDialog extends Component{
         this.props.restoreInterfaceDefaults();
     }
 
+    onGoogleSignin = (user) => {
+        let token = user.getAuthResponse(true).id_token;
+        this.props.googleLoginRequestSend(token);
+    }
+
+    onDialogEnter = () => {
+        // clean up listener on unmount
+        let _this = this;
+        let auth = window.gapi.auth2
+        if(auth){
+            let authInstance = auth.getAuthInstance();
+            authInstance.attachClickHandler(
+                loginClickHandlerTarget, 
+                null, 
+                _this.onGoogleSignin,
+                () => _this.props.snackbarOpen('There was a problem accessing your google account')
+            );
+        } else {
+            setTimeout(_this.onDialogEnter, 200);
+        }
+    }
+
     render(){
         const { classes } = this.props;
         return (
@@ -70,6 +103,7 @@ class LoginDialog extends Component{
                 open={this.props.loginDialogIsOpen}
                 onClose={this.handleClose}
                 aria-labelledby="form-dialog-title"
+                onEnter={this.onDialogEnter}
             >
                 <DialogTitle id="form-dialog-title">Login</DialogTitle>
                 <DialogContent>
@@ -89,7 +123,7 @@ class LoginDialog extends Component{
                             onChange={this.props.handleChange}
                             InputLabelProps={{
                                 shrink: true,
-                            }}
+                            }}                            
                         />
 
                         <TextField
@@ -104,9 +138,14 @@ class LoginDialog extends Component{
                             InputLabelProps={{
                                 shrink: true,
                             }}
+                            helperText={<Link onClick={this.handleClose} component={RouterLink} to={{pathname: '/forgotpass'}}>Forgot Username or Password</Link>}
                         />
 
                         <DialogActions>
+                            <div className={classes.googleIconWrapper}>
+                                <GoogleSignInButton clickHandlerTarget={loginClickHandlerTarget} text='Sign in with Google'/>
+                            </div>
+
                             <Button onClick={this.handleClose} color="primary">
                                 Cancel
                             </Button>

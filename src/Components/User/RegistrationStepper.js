@@ -1,20 +1,15 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
-import Stepper from '@material-ui/core/Stepper';
-import Step from '@material-ui/core/Step';
-import StepLabel from '@material-ui/core/StepLabel';
-import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
-import CircularProgress from '@material-ui/core/CircularProgress';
+
+import { Stepper, Step, StepLabel, Button, Typography, CircularProgress, Paper } from '@material-ui/core';
 
 import RegistrationCard from './RegistrationCard';
-import TopNavBar from './TopNavBar';
 
-import { registrationNextActiveStep, registrationPreviousActiveStep } from '../Redux/actions/ui';
-import { userRegistrationRequestSend, userValidationRequestSend } from '../Redux/actions/user';
+import { registrationNextActiveStep, registrationPreviousActiveStep } from '../../Redux/actions/ui';
+import { userRegistrationRequestSend, userValidationRequestSend } from '../../Redux/actions/user';
 
-import states from '../Enums/asyncRequestStates';
+import states from '../../Enums/asyncRequestStates';
 
 const styles = theme => ({
     root: {
@@ -26,7 +21,12 @@ const styles = theme => ({
     },
     instructions: {
         marginTop: theme.spacing(1),
-        marginBottom: theme.spacing(1),
+        marginBottom: theme.spacing(1)
+    },
+    instructionsPaper: {
+        width: '60%',
+        margin: '5% auto',
+        padding: '24px'
     },
     registrationCard: {
         marginTop: theme.spacing(1),
@@ -44,6 +44,11 @@ const styles = theme => ({
         left: '50%',
         marginTop: -12,
         marginLeft: -12,
+    },
+
+    bottomError: {
+        color: theme.palette.primary.main,
+        marginTop: theme.spacing(1)
     }
 });
 
@@ -62,7 +67,8 @@ const mapDispatchToProps = {
     userValidationRequestSend
 }
 
-const getSteps = () => ['Your Information', 'Optional Organization Info', 'Security'];
+// const getSteps = () => ['Your Information', 'Optional Organization Info', 'Security'];
+const getSteps = () => ['Your Information', 'Optional Organization Info'];
 const getCardInfo = () => ([
     {
         firstName: {
@@ -116,23 +122,23 @@ const getCardInfo = () => ([
             requirement: 'Maximum length is 150 characters.',
             optional: true
         }
-    },
-    {
-        password: {
-            label:'Password*',
-            name: 'password',
-            type: 'password',            
-            requirement: 'Must be 8 to 32 characters with 1 number and 1 special character.',
-            optional: false
-        },
-        confirmPassword: {
-            label:'Confirm Password*',
-            name: 'confirmPassword',
-            type: 'password',            
-            requirement: 'Passwords must match.',
-            optional: false
-        }
     }
+    // {
+    //     password: {
+    //         label:'Password*',
+    //         name: 'password',
+    //         type: 'password',            
+    //         requirement: 'Must be 8 to 32 characters with 1 number and 1 special character.',
+    //         optional: false
+    //     },
+    //     confirmPassword: {
+    //         label:'Confirm Password*',
+    //         name: 'confirmPassword',
+    //         type: 'password',            
+    //         requirement: 'Passwords must match.',
+    //         optional: false
+    //     }
+    // }
 ])
 
 class RegistrationStepper extends Component {
@@ -205,8 +211,6 @@ class RegistrationStepper extends Component {
                 actionPayload[cardKey] = card[cardKey].value;
             })
         })
-        console.log('action payload')
-        console.log(actionPayload)
         return actionPayload;
     }
 
@@ -229,10 +233,10 @@ class RegistrationStepper extends Component {
                 let email= this.state.cards[0].email.value;
                 this.props.userValidationRequestSend(username, email);
                 break;
+            // case 1:
+            //     this.props.registrationNextActiveStep();
+            //     break;
             case 1:
-                this.props.registrationNextActiveStep();
-                break;
-            case 2:
                 // API request to register user
                 this.props.userRegistrationRequestSend(this.processStateToActionPayload())
                 break;
@@ -271,7 +275,6 @@ class RegistrationStepper extends Component {
 
         return (
             <React.Fragment>
-                <TopNavBar/>
                 <div className={classes.root}>
                     
                     <Stepper activeStep={activeStep}>
@@ -285,11 +288,11 @@ class RegistrationStepper extends Component {
                     </Stepper>
                     <div>
                     {activeStep === steps.length ? (
-                        <div>
-                        <Typography className={classes.instructions}>
-                            Registration Completed!
-                        </Typography>
-                        </div>
+                        <Paper className={classes.instructionsPaper}>
+                            <Typography className={classes.instructions}>
+                                We've sent you an email with a link for finalizing your registration and choosing a password. If you don't receive the email within the next few minute please check your spam folder.
+                            </Typography>
+                        </Paper>
                     ) : (
                         <div>
                             <RegistrationCard 
@@ -299,8 +302,7 @@ class RegistrationStepper extends Component {
                             />
                             <div>
                                 <Button
-                                disabled={activeStep === 0}
-                                onClick={this.handleBack}
+                                onClick={activeStep === 0 ? this.props.handleHideStepper : this.handleBack}
                                 className={classes.button}
                                 >
                                     Back
@@ -316,8 +318,8 @@ class RegistrationStepper extends Component {
                                     {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
                                 </Button>
                                 {this.props.userValidationState === states.inProgress && <CircularProgress size={24} className= {classes.buttonProgress} />}
-                                {this.props.userValidationState === states.failed && <p>That username or email is already in use. Please enter a different username or email address.</p>}
-                                {this.props.userRegistrationState === states.failed && <p>Registration failed. Please try again.</p>}
+                                {this.props.userValidationState === states.failed && <Typography className={classes.bottomError}>That username or email is already in use.</Typography>}
+                                {this.props.userRegistrationState === states.failed && <Typography className={classes.bottomError}>Registration failed. Please try again.</Typography>}
                             </div>
                         </div>
                     )}

@@ -12,14 +12,18 @@ import colors from './Enums/colors';
 import { Route, BrowserRouter, Switch } from 'react-router-dom'
 
 import Home from './Components/Home';
-import Catalog from './Components/Catalog';
-import Register from './Components/Register';
-import Visualization from './Components/Visualization';
-import GlobalUIComponentWrapper from './Components/GlobalUIComponentWrapper';
+import Catalog from './Components/Catalog/Catalog';
+import Register from './Components/User/Register';
+import Visualization from './Components/Visualization/Visualization';
+import GlobalUIComponentWrapper from './Components/UI/GlobalUIComponentWrapper';
 import LandingPage from './Components/LandingPage';
-import TopNavBar from './Components/TopNavBar';
-import Login from './Components/Login';
+import TopNavBar from './Components/UI/TopNavBar';
+import Login from './Components/User/Login';
+import Profile from './Components/User/Profile';
 
+import { initializeGoogleAuth } from './Redux/actions/user';
+import ForgotPass from './Components/User/ForgotPass';
+import ChoosePassword from './Components/User/ChoosePassword';
 
 const theme = createMuiTheme({
   // aqua: #22A3B9
@@ -172,37 +176,39 @@ const theme = createMuiTheme({
 
 const mapStateToProps = (state, ownProps) => ({
   loadingMessage: state.loadingMessage
-})
+});
+
+const mapDispatchToProps = {
+  initializeGoogleAuth
+};
 
 class App extends Component {
 
-  constructor(props){
-    super(props);
-    this.vizRef = React.createRef();
+  render() {
+    return (
+      <MuiPickersUtilsProvider utils={DateFnsUtils}>
+        <div className="App">
+          <MuiThemeProvider theme={theme}>
+          <BrowserRouter>
+            <GlobalUIComponentWrapper/>
+            <TopNavBar/>
+            <Switch>          
+              <Route exact path='/apikeymanagement' component={ Home } />
+              <Route exact path='/' component={ LandingPage } />
+              <Route exact path='/catalog' component={ Catalog } />
+              <Route exact path='/login' component={ Login } />
+              <Route exact path='/register' component={ Register } />
+              <Route exact path='/visualization' component={Visualization} />
+              <Route exact path='/profile' component={Profile} />
+              <Route exact path='/forgotpass' component={ForgotPass} />
+              <Route path='/choosepassword' component={ChoosePassword} />
+            </Switch>
+          </BrowserRouter>
+          </MuiThemeProvider>
+        </div>
+      </MuiPickersUtilsProvider>
+    );
   }
-
-render() {
-  return (
-    <MuiPickersUtilsProvider utils={DateFnsUtils}>
-      <div className="App">
-        <MuiThemeProvider theme={theme}>
-        <BrowserRouter>
-          <GlobalUIComponentWrapper/>
-          <TopNavBar/>
-          <Switch>          
-            <Route exact path='/apikeymanagement' component={ Home } />
-            <Route exact path='/' component={ LandingPage } />
-            <Route exact path='/catalog' component={ Catalog } />
-            <Route exact path='/login' component={ Login } />
-            <Route exact path='/register' component={ Register } />
-            <Route exact path='/visualization' component={Visualization} />
-          </Switch>
-        </BrowserRouter>
-        </MuiThemeProvider>
-      </div>
-    </MuiPickersUtilsProvider>
-  );
-}
 }
 
-export default connect(mapStateToProps, null)(App);
+export default connect(mapStateToProps, mapDispatchToProps)(App);

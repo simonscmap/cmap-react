@@ -10,13 +10,9 @@
     <link rel="manifest" href="/site.webmanifest?v=2">
     <link rel="mask-icon" href="/safari-pinned-tab.svg?v=2" color="#5bbad5">
     <meta name="msapplication-TileColor" content="#da532c">
-    <meta name="theme-color" content="#ffffff">
+    <meta name="theme-color" content="#ffffff">    
     
-    
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, shrink-to-fit=no"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
     <meta name="Description" content="A platform for sharing and visualizing scientific data.">
     <meta name="theme-color" content="#000000" />
     <meta name="google-site-verification" content="sbn3azRXCc2yYuIuKJTiSWkc0IWnHjdLFPtLTDkz6Yo" />
@@ -32,6 +28,12 @@
     <!-- Font awesome -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.10.1/css/all.css" integrity="sha384-wxqG4glGB3nlqX0bi23nmgwCSjWIW13BdLUEYC4VIMehfbcro/ATkyDsF/AbIOVe" crossorigin="anonymous">
 
+    <!-- Google OAuth -->
+    <script src="https://apis.google.com/js/platform.js"></script>
+    <meta name="google-signin-client_id" content="YOUR_CLIENT_ID.apps.googleusercontent.com">
+    <script>
+      window.gapi.load('auth2', () => window.gapi.auth2.init({client_id: '739716651449-7d1e8iijue6srr9l5mi2iogp982sqoa0.apps.googleusercontent.com'}));      
+    </script>
     <title>Simons CMAP</title>
   </head>
   <body>

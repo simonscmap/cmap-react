@@ -3,6 +3,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 
+import { googleLoginRequestSend } from '../Redux/actions/user';
+
 import Typography from '@material-ui/core/Typography';
 
 const mapStateToProps = (state, ownProps) => ({
@@ -10,6 +12,7 @@ const mapStateToProps = (state, ownProps) => ({
 })
 
 const mapDispatchToProps = {
+    googleLoginRequestSend
 }
 
 const styles = theme => ({

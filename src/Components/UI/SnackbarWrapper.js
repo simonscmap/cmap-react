@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import Snackbar from '@material-ui/core/Snackbar';
 import { withStyles } from '@material-ui/core/styles';
 
-import { snackbarClose } from '../Redux/actions/ui';
+import { snackbarClose } from '../../Redux/actions/ui';
 
 const mapStateToProps = (state, ownProps) => ({
     snackbarIsOpen: state.snackbarIsOpen,

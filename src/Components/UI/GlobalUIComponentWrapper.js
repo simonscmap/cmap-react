@@ -7,11 +7,11 @@ import { connect } from 'react-redux';
 
 import { withStyles } from '@material-ui/core/styles';
 
-import LoginDialog from './LoginDialog';
+import LoginDialog from '../User/LoginDialog';
 import SnackbarWrapper from './SnackbarWrapper';
 import LoadingOverlay from './LoadingOverlay';
 
-import { loginDialogWasCleared } from '../Redux/actions/user';
+import { loginDialogWasCleared } from '../../Redux/actions/user';
 
 const styles = theme => ({
     inlineBlock: {

@@ -12,23 +12,23 @@ import MUISelect from '@material-ui/core/Select';
 import { KeyboardDatePicker } from "@material-ui/pickers";
 import { Cached, LibraryBooks, ArrowRight, ChevronLeft, ChevronRight, InsertChartOutlined, Language, Delete, CloudDownload, Info } from '@material-ui/icons';
 
-import vizSubTypes from '../Enums/visualizationSubTypes';
-import states from '../Enums/asyncRequestStates';
-import colors from '../Enums/colors';
-import validation from '../Enums/validation';
+import vizSubTypes from '../../Enums/visualizationSubTypes';
+import states from '../../Enums/asyncRequestStates';
+import colors from '../../Enums/colors';
+import validation from '../../Enums/validation';
 import TableStatsDialog from './TableStatsDialog';
-import mapTemporalResolutionToNumber from '../Utility/mapTemporalResolutionToNumber';
-import mapSpatialResolutionToNumber from '../Utility/mapSpatialResolutionToNumber';
-import spatialResolutions from '../Enums/spatialResolutions';
+import mapTemporalResolutionToNumber from '../../Utility/mapTemporalResolutionToNumber';
+import mapSpatialResolutionToNumber from '../../Utility/mapSpatialResolutionToNumber';
+import spatialResolutions from '../../Enums/spatialResolutions';
 
-import { cruiseTrajectoryRequestSend, clearCharts, csvDownloadRequestSend } from '../Redux/actions/visualization';
-import { snackbarOpen } from '../Redux/actions/ui';
+import { cruiseTrajectoryRequestSend, clearCharts, csvDownloadRequestSend } from '../../Redux/actions/visualization';
+import { snackbarOpen } from '../../Redux/actions/ui';
 
-import utcDateStringToLocal from '../Utility/utcDateStringToLocal';
-import depthUtils from '../Utility/depthCounter';
-import countWebGLContexts from '../Utility/countWebGLContexts';
+import utcDateStringToLocal from '../../Utility/utcDateStringToLocal';
+import depthUtils from '../../Utility/depthCounter';
+import countWebGLContexts from '../../Utility/countWebGLContexts';
 
-import ConnectedTooltip from './ConnectedTooltip';
+import ConnectedTooltip from '../UI/ConnectedTooltip';
 
 const navDrawerWidth = 320;
 
@@ -171,16 +171,6 @@ const styles = theme => ({
       position: 'relative',
       width: 0,
       height: 0
-  },
-
-  singleValueReplacement2: {
-      position: 'absolute',
-      zIndex: 9999999999,
-      width: '220px',
-      top: '14px',
-      textAlign: 'left',
-      paddingLeft: '8px',
-      pointerEvents: 'none'
   }
 });
 
@@ -896,16 +886,7 @@ class VizControlPanel extends React.Component {
                         <Grid container>
                             <Grid item xs={10}>
                                 <ConnectedTooltip placement='top' title='Enter one or more search terms.'>
-                                {/* <div className={classes.singleValueReplacement}>
-                                    <div className={classes.singleValueReplacement2}>
-                                        Hi there, I'm 100px.
-                                    </div>
-                                </div> */}
                                     <Select
-                                        // onMenuOpen={() => {
-                                        //     setTimeout(() => selectRef.current.select.setState({...selectRef.current.select.state, focusedOption: null}), 1)
-                                            
-                                        // }}
                                         formatOptionLabel={formatOptionLabel}
                                         handleSetDownloadTarget={this.props.handleSetDownloadTarget}
                                         handleTableStatsDialogOpen={this.handleTableStatsDialogOpen}
@@ -918,11 +899,7 @@ class VizControlPanel extends React.Component {
                                             GroupHeading,
                                             Group,
                                             Option,
-                                            MenuList,
-                                            // SingleValue: () => {
-                                            //     console.log('hi')
-                                            //        return ''
-                                            // }
+                                            MenuList
                                         }}
                                         handleDownloadCsvClick = {this.handleDownloadCsvClick}
                                         escapeClearsValue
@@ -998,7 +975,8 @@ class VizControlPanel extends React.Component {
 
                                             singleValue: (provided, state) => ({...provided,
                                                 color: 'white',
-                                                fontWeight: 400
+                                                fontWeight: 400,
+                                                zIndex: 1290
                                             })
                                         }}
                                         theme={theme => ({

@@ -32,6 +32,8 @@ function* userLogin(action) {
 }
 
 function* userLogout(){    
+    let authInstance = yield window.gapi.auth2.getAuthInstance();
+    yield authInstance.signOut();
     yield call(api.user.logout);
     yield put(userActions.destroyInfo());
     yield put(interfaceActions.snackbarOpen('You have logged out.'))
@@ -43,12 +45,12 @@ function* userRegistration(action){
     
     if(result.ok){
         yield put(interfaceActions.registrationNextActiveStep());
-        yield put(userActions.userRegistrationRequestSuccess());
-        yield put(interfaceActions.snackbarOpen('Registration was successful. Please log in.'));
-        yield put(interfaceActions.showLoginDialog());
+        // yield put(userActions.userRegistrationRequestSuccess());
+        // yield put(interfaceActions.snackbarOpen('Registration was successful. Please log in.'));
+        // yield put(interfaceActions.showLoginDialog());
     } else {
         yield put(userActions.userRegistrationRequestFailure());
-        yield put(interfaceActions.snackbarOpen('Registration failed.'))
+        yield put(interfaceActions.snackbarOpen('Registration failed. Please try again later.'))
     }
 }
 
@@ -62,6 +64,23 @@ function* userValidation(action){
         yield put(interfaceActions.registrationNextActiveStep());
     } else {
         yield put(userActions.userValidationRequestFailure());
+    }
+}
+
+function* googleLoginRequest(action){
+    yield put(userActions.googleLoginRequestProcessing());
+    let result = yield call(api.user.googleLoginRequest, action.payload.userIDToken);
+
+    if(result.ok){
+        var userInfo = JSON.parse(Cookies.get('UserInfo'));
+        yield put(userActions.userLoginRequestSuccess());
+        yield put(interfaceActions.hideLoginDialog());
+        yield put(userActions.storeInfo(userInfo));
+        // yield put(interfaceActions.snackbarOpen('Login was successful!'))
+        if(window.location.pathname === '/login') window.location.href = "/catalog";
+    } else {
+        yield put(userActions.userLoginRequestFailure());
+        yield put(interfaceActions.snackbarOpen('Login failed.'));
     }
 }
 
@@ -235,13 +254,52 @@ function* refreshLogin(){
     yield put(interfaceActions.snackbarOpen("Your session has expired. Please log in again."));
 }
 
+function* updateUserInfoRequest(action){
+    yield put(interfaceActions.setLoadingMessage('Updating your information'));
+
+    let result = yield call(api.user.updateUserInfo, action.payload);
+
+    if(result.failed){
+        yield put(interfaceActions.setLoadingMessage(''));
+        if(result.status === 401){
+            yield put(userActions.refreshLogin());
+        } else {
+            yield put(interfaceActions.snackbarOpen("An error occurred. Please try again."));
+        }
+    } else {
+        yield put(interfaceActions.snackbarOpen("Your information was updated"));
+        yield put(userActions.storeInfo(JSON.parse(Cookies.get('UserInfo'))));
+    }
+
+    yield put(interfaceActions.setLoadingMessage(''));
+}
+
+function* initializeGoogleAuth(){
+    let authInstance = yield window.gapi.auth2.getAuthInstance();
+    let user = yield authInstance.currentUser.get();
+    let authResponse = yield user.getAuthResponse(true);
+    if(authResponse) yield put(userActions.googleLoginRequestSend(authResponse.id_token));
+}
+
+function* recoverPasswordRequest(action){
+    yield call(api.user.recoverPassword, action.payload.email);
+}
+
+function* choosePasswordRequest(action){
+    yield put(interfaceActions.setLoadingMessage('Confirming change'));
+    let result = yield call(api.user.choosePassword, action.payload);
+    yield put(interfaceActions.setLoadingMessage(''));
+    if(result.ok){
+        yield put(userActions.choosePasswordRequestSuccess());
+    } else {
+        yield put(userActions.choosePasswordRequestFailure());
+    }
+}
+
 function* watchUserLogin() {
     yield takeLatest(userActionTypes.LOGIN_REQUEST_SEND, userLogin);
 }
 
-function * watchUserLogout() {
-    yield takeLatest(userActionTypes.LOG_OUT, userLogout)
-}
 
 function* watchUserRegistration() {
     yield takeLatest(userActionTypes.REGISTRATION_REQUEST_SEND, userRegistration);
@@ -249,6 +307,14 @@ function* watchUserRegistration() {
 
 function* watchUserValidation(){
     yield takeLatest(userActionTypes.VALIDATION_REQUEST_SEND, userValidation);
+}
+
+function* watchUserLogout() {
+    yield takeLatest(userActionTypes.LOG_OUT, userLogout)
+}
+
+function* watchGoogleLoginRequest(){
+    yield takeLatest(userActionTypes.GOOGLE_LOGIN_REQUEST_SEND, googleLoginRequest);
 }
 
 function* watchCatalogRetrieval(){
@@ -299,6 +365,21 @@ function* watchRefreshLogin(){
     yield takeLatest(userActionTypes.REFRESH_LOGIN, refreshLogin);
 }
 
+function* watchUpdateUserInfoRequest(){
+    yield takeLatest(userActionTypes.UPDATE_USER_INFO_REQUEST_SEND, updateUserInfoRequest);
+}
+
+function* watchInitializeGoogleAuth(){
+    yield takeLatest(userActionTypes.INITIALIZE_GOOGLE_AUTH, initializeGoogleAuth);
+}
+
+function* watchRecoverPasswordRequest(){
+    yield takeLatest(userActionTypes.RECOVER_PASSWORD_REQUEST_SEND, recoverPasswordRequest);
+}
+
+function* watchChoosePasswordRequest(){
+    yield takeLatest(userActionTypes.CHOOSE_PASSWORD_REQUEST_SEND, choosePasswordRequest)
+}
 // function createWorkerChannel(worker) {
 //     return eventChannel(emit => {
 //         worker.onmessage = message => {
@@ -330,6 +411,7 @@ export default function* rootSaga() {
         watchUserRegistration(),
         watchUserValidation(),
         watchUserLogout(),
+        watchGoogleLoginRequest(),
         watchCatalogRetrieval(),
         watchDatasetRetrieval(),
         watchKeyRetrieval(),
@@ -342,7 +424,11 @@ export default function* rootSaga() {
         // watchWorkerChannel(),
         watchCsvDownloadRequest(),
         watchDownloadTextAsCsv(),
-        watchRefreshLogin()
+        watchRefreshLogin(),
+        watchUpdateUserInfoRequest(),
+        watchInitializeGoogleAuth(),
+        watchRecoverPasswordRequest(),
+        watchChoosePasswordRequest()
     ])
 }
   

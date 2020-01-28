@@ -6,7 +6,9 @@ const spatialResolutions = {
     fourKm: '4km X 4km',
     twelfthDegree: '1/12° X 1/12°',
     seventyKm: '70km X 70km',
-    oneDegree: '1° X 1°'
+    oneDegree: '1° X 1°',
+    nineKm: '9km X 9km',
+    twentyFiveKm: '25km X 25km'
 }
 
 export default spatialResolutions;

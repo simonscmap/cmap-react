@@ -39,6 +39,8 @@ const initialState = {
 
     userRegistrationState: null,
 
+    choosePasswordState: null,
+
     // Visualization state pieces
     maps: [],
     charts: [],

@@ -5,7 +5,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { Link, Typography } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 
-import { showLoginDialog } from '../Redux/actions/ui';
+import { showLoginDialog } from '../../Redux/actions/ui';
 
 const mapDispatchToProps = {
     showLoginDialog

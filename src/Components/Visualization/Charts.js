@@ -8,19 +8,19 @@ import { IconButton, Paper } from '@material-ui/core';
 import { Close } from '@material-ui/icons';
 
 // import colors from '../Enums/colors';
-import storedProcedures from '../Enums/storedProcedures';
-import vizSubTypes from '../Enums/visualizationSubTypes';
+import storedProcedures from '../../Enums/storedProcedures';
+import vizSubTypes from '../../Enums/visualizationSubTypes';
 
-import SpaceTimeChart from './ChartComponents/SpaceTimeChart';
-import TimeSeriesChart from './ChartComponents/TimeSeriesChart';
-import DepthProfileChart from './ChartComponents/DepthProfileChart';
-import SectionMapChart from './ChartComponents/SectionMapChart';
-import SparseMap from './ChartComponents/SparseMap';
-import SparseHistogram from './ChartComponents/SparseHistogram';
+import SpaceTimeChart from './SpaceTimeChart';
+import TimeSeriesChart from './TimeSeriesChart';
+import DepthProfileChart from './DepthProfileChart';
+import SectionMapChart from './SectionMapChart';
+import SparseMap from './SparseMap';
+import SparseHistogram from './SparseHistogram';
 
-import spatialResolutions from '../Enums/spatialResolutions';
+import spatialResolutions from '../../Enums/spatialResolutions';
 
-import { deleteChart } from '../Redux/actions/visualization';
+import { deleteChart } from '../../Redux/actions/visualization';
 
 const mapStateToProps = (state, ownProps) => ({
     charts: state.charts

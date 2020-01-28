@@ -28,6 +28,10 @@ export default function(state, action) {
     case userActionTypes.KEY_CREATION_REQUEST_FAILURE: return {...state, apiKeyCreationState: states.failed}
     case userActionTypes.KEY_CREATION_REQUEST_SUCCESS: return {...state, apiKeyCreationState: states.succeeded}
 
+    case userActionTypes.CHOOSE_PASSWORD_REQUEST_SUCCESS: return {...state, choosePasswordState: states.succeeded}
+    case userActionTypes.CHOOSE_PASSWORD_REQUEST_FAILURE: return {...state, choosePasswordState: states.failed}
+    case userActionTypes.CHOOSE_PASSWORD_REQUEST_RESET: return {...state, choosePasswordState: null}
+
     default: return state;
     }
 }

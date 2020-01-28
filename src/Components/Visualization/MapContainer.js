@@ -5,7 +5,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { Scene } from '@esri/react-arcgis';
 
 import CruiseSelector from './CruiseSelector';
-import colors from '../Enums/colors';
+import colors from '../../Enums/colors';
 
 import { throttle } from 'throttle-debounce';
 

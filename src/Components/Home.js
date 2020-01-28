@@ -6,8 +6,8 @@ import { withStyles } from '@material-ui/core/styles';
 
 import { showLoginDialog } from '../Redux/actions/ui';
 
-import ApiKeyManagement from './ApiKeyManagement';
-import LoginRequiredPrompt from './LoginRequiredPrompt';
+import ApiKeyManagement from './User/ApiKeyManagement';
+import LoginRequiredPrompt from './User/LoginRequiredPrompt';
 
 const mapStateToProps = (state, ownProps) => ({
     user : state.user,
@@ -28,7 +28,6 @@ class Home extends Component {
 
         return (
             <React.Fragment>
-                {/* <TopNavBar/> */}
                 <ApiKeyManagement/>
             </React.Fragment>
             

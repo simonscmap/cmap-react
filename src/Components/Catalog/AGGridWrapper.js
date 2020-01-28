@@ -15,7 +15,7 @@ import { withStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import { Paper, Button, Grid, Tooltip } from '@material-ui/core';
 
-import ConnectedTooltip from './ConnectedTooltip';
+import ConnectedTooltip from '../UI/ConnectedTooltip';
 
 const columnDefs = [
   {

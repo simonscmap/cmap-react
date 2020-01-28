@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 import AGGridWrapper from './AGGridWrapper';
-import LoadingSpinner from './LoadingSpinner';
+import LoadingSpinner from '../UI/LoadingSpinner';
 
-import { retrievalRequestSend, datasetRetrievalRequestSend } from '../Redux/actions/catalog';
-import states from '../Enums/asyncRequestStates';
+import { retrievalRequestSend, datasetRetrievalRequestSend } from '../../Redux/actions/catalog';
+import states from '../../Enums/asyncRequestStates';
 
 import { withStyles } from '@material-ui/core/styles';
 

@@ -5,9 +5,11 @@ import { Link } from "react-router-dom";
 
 import { withStyles } from '@material-ui/core/styles';
 
-import { showLoginDialog, restoreInterfaceDefaults, snackbarOpen, toggleShowHelp } from '../Redux/actions/ui';
-import { logOut } from '../Redux/actions/user';
+import { showLoginDialog, restoreInterfaceDefaults, snackbarOpen, toggleShowHelp } from '../../Redux/actions/ui';
+import { logOut } from '../../Redux/actions/user';
 import { Typography } from '@material-ui/core';
+
+import UserNavbarDropdown from '../User/UserNavbarDropdown';
 
 const styles = theme => ({
     appBar: {
@@ -47,11 +49,6 @@ const styles = theme => ({
 
     rightNavLink: {
         float: 'right'
-    },
-
-    rightLinkWrapper: {
-        display:'inline-block',
-        textAlign: 'right'
     }
 })
 
@@ -107,19 +104,18 @@ class TopNavBar extends Component {
     }
 
     render(){
-        const { classes, history } = this.props;
+        const { classes, history, user } = this.props;
         const { pathname } = history.location;
 
         return (
             <div className={classes.navWrapper}>
                 <Typography variant='caption' href='/' component='a' className={classes.navLink}>Home</Typography>
                 <Typography variant='caption' to='/catalog' component={Link} className={classes.navLink}>Catalog</Typography>
-                {pathname !== '/visualization' && <Typography variant='caption' to='/apikeymanagement' component={Link} className={classes.navLink}>API Keys</Typography>}
                 {pathname !== '/visualization' && <Typography variant='caption' to='/visualization' component={Link} className={classes.navLink}>Visualization</Typography>}
-                {this.props.user && <Typography variant='caption' onClick={() => this.handleLogOut()} className={`${classes.navLink} ${pathname === '/visualization' ? '' : classes.rightNavLink}`}>Log Out</Typography>}
+                {user && <UserNavbarDropdown pathname={pathname} user={user}/>}
                 {/* <Typography variant='caption' onClick={this.props.toggleShowHelp} className={classes.navLink}>{showHelp ? 'Hide Help' : 'Help(beta) '}</Typography> */}
-                {(!this.props.user && pathname !== '/visualization') && <Typography variant='caption' onClick={() => this.props.showLoginDialog()} className={`${classes.navLink} ${classes.rightNavLink}`}>Log In</Typography>}
-                {(!this.props.user && pathname !== '/visualization') && <Typography variant='caption' to='/register' component={Link} className={classes.navLink}>Register</Typography>}
+                {(!user && pathname !== '/visualization') && <Typography variant='caption' onClick={() => this.props.showLoginDialog()} className={`${classes.navLink} ${classes.rightNavLink}`}>Log In</Typography>}
+                {(!user && pathname !== '/visualization') && <Typography variant='caption' to='/register' component={Link} className={`${classes.navLink} ${classes.rightNavLink}`}>Register</Typography>}
             </div>        
         )
     }
