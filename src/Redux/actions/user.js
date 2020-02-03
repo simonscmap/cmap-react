@@ -192,3 +192,13 @@ export const choosePasswordRequestFailure = () => ({
 export const choosePasswordRequestReset = () => ({
     type: userActionTypes.CHOOSE_PASSWORD_REQUEST_RESET
 });
+
+export const contactUsRequestSend = ({name, email, subject, message}) => ({
+    type: userActionTypes.CONTACT_US_REQUEST_SEND,
+    payload: {
+        name,
+        email,
+        subject,
+        message
+    }
+});

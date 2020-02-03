@@ -10,6 +10,7 @@ import { logOut } from '../../Redux/actions/user';
 import { Typography } from '@material-ui/core';
 
 import UserNavbarDropdown from '../User/UserNavbarDropdown';
+import DataSubmissionNavbarDropdown from '../DataSubmission/DataSubmissionNavbarDropdown';
 
 const styles = theme => ({
     appBar: {
@@ -112,6 +113,8 @@ class TopNavBar extends Component {
                 <Typography variant='caption' href='/' component='a' className={classes.navLink}>Home</Typography>
                 <Typography variant='caption' to='/catalog' component={Link} className={classes.navLink}>Catalog</Typography>
                 {pathname !== '/visualization' && <Typography variant='caption' to='/visualization' component={Link} className={classes.navLink}>Visualization</Typography>}
+                <DataSubmissionNavbarDropdown/>
+                <Typography variant='caption' to='/contact' component={Link} className={classes.navLink}>Contact</Typography>
                 {user && <UserNavbarDropdown pathname={pathname} user={user}/>}
                 {/* <Typography variant='caption' onClick={this.props.toggleShowHelp} className={classes.navLink}>{showHelp ? 'Hide Help' : 'Help(beta) '}</Typography> */}
                 {(!user && pathname !== '/visualization') && <Typography variant='caption' onClick={() => this.props.showLoginDialog()} className={`${classes.navLink} ${classes.rightNavLink}`}>Log In</Typography>}

@@ -7,6 +7,21 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #363636;
+  /* background-image: linear-gradient(to bottom,#164360, rgb(45, 114, 151), #235272,  rgb(45, 114, 151));
+
+  overflow: auto;
+  height: 100%;
+  margin: 0;
+  background-repeat: no-repeat;
+  background-attachment: fixed; */
+}
+
+/* .paper-gradient{
+  background-image: linear-gradient(to bottom right,#143f5c, #225a80);
+} */
+
+html {
+  height: 100%;
 }
 
 code {

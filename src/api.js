@@ -67,6 +67,14 @@ api.user.googleLoginRequest = async(userIDToken) => {
     return response;
 }
 
+api.user.contactUs = async(payload) => {
+    console.log(payload);
+    return await fetch(apiUrl + '/api/user/contactus', {
+        ...postOptions,
+        body: JSON.stringify(payload)
+    })
+}
+
 api.catalog.retrieve = async() => {
 
     const decoder = new encoding.TextDecoder();

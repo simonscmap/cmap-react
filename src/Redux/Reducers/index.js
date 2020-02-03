@@ -2,6 +2,7 @@ import catalog from './catalog';
 import user from './user';
 import ui from './ui';
 import visualization from './visualization';
+import dataSubmission from './dataSubmission.js';
 import reduceReducers from 'reduce-reducers';
 import Cookies from 'js-cookie';
 
@@ -54,6 +55,8 @@ const initialState = {
     getCruiseListRequestState: null,
     showChartsOnce: null,
     chartID: 0
+
+    // Data Submission state pieces
 }
 
 const reducedReducer = reduceReducers(initialState, catalog, user, ui, visualization);

@@ -20,6 +20,8 @@ import LandingPage from './Components/LandingPage';
 import TopNavBar from './Components/UI/TopNavBar';
 import Login from './Components/User/Login';
 import Profile from './Components/User/Profile';
+import DataSubmission from './Components/DataSubmission/DataSubmission';
+import ContactUs from './Components/ContactUs';
 
 import { initializeGoogleAuth } from './Redux/actions/user';
 import ForgotPass from './Components/User/ForgotPass';
@@ -70,6 +72,12 @@ const theme = createMuiTheme({
         borderRadius: '10%'
       }
     },
+    
+    // MuiPaper: {
+    //   root: {
+    //     backgroundColor: 'rgba(0,0,0,.3)',
+    //   }
+    // },
 
     MuiListItemIcon: {
       root: {
@@ -201,7 +209,9 @@ class App extends Component {
               <Route exact path='/visualization' component={Visualization} />
               <Route exact path='/profile' component={Profile} />
               <Route exact path='/forgotpass' component={ForgotPass} />
+              <Route path='/datasubmission' component={DataSubmission} />
               <Route path='/choosepassword' component={ChoosePassword} />
+              <Route exact path='/contact' component={ContactUs}/>
             </Switch>
           </BrowserRouter>
           </MuiThemeProvider>

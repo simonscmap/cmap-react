@@ -296,6 +296,17 @@ function* choosePasswordRequest(action){
     }
 }
 
+function* contactUsRequest(action){
+    yield put(interfaceActions.setLoadingMessage('Sending'));
+    let result = yield call(api.user.contactUs, action.payload);
+    yield put(interfaceActions.setLoadingMessage(''));
+    if(result.ok){
+        yield put(interfaceActions.snackbarOpen('Your message was successfully sent!'));
+    } else {
+        yield put(interfaceActions.snackbarOpen('Message failed. Please try again or contact simonscmap@uw.edu'));
+    }
+}
+
 function* watchUserLogin() {
     yield takeLatest(userActionTypes.LOGIN_REQUEST_SEND, userLogin);
 }
@@ -380,6 +391,11 @@ function* watchRecoverPasswordRequest(){
 function* watchChoosePasswordRequest(){
     yield takeLatest(userActionTypes.CHOOSE_PASSWORD_REQUEST_SEND, choosePasswordRequest)
 }
+
+function* watchContactUs(){
+    yield takeLatest(userActionTypes.CONTACT_US_REQUEST_SEND, contactUsRequest);
+}
+
 // function createWorkerChannel(worker) {
 //     return eventChannel(emit => {
 //         worker.onmessage = message => {
@@ -428,7 +444,7 @@ export default function* rootSaga() {
         watchUpdateUserInfoRequest(),
         watchInitializeGoogleAuth(),
         watchRecoverPasswordRequest(),
-        watchChoosePasswordRequest()
+        watchChoosePasswordRequest(),
+        watchContactUs()
     ])
 }
-  

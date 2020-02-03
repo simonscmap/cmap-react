@@ -25,11 +25,6 @@ const styles = (theme) => ({
         cursor: 'pointer'
     },
 
-    floatRight: {
-        float: 'right',
-        marginRight: 30,
-    },
-
     icon: {
         display: 'inline-flex',
         verticalAlign: 'middle'
@@ -48,7 +43,7 @@ const mapDispatchToProps = {
     logOut
 }
 
-const UserNavbarDropdown = (props) => {
+const DataSubmissionNavbarDropdown = (props) => {
     const { classes, user, pathname, logOut } = props;
 
     const [anchorEl, setAnchorEl] = React.useState(null);
@@ -63,8 +58,8 @@ const UserNavbarDropdown = (props) => {
 
     return (
         <React.Fragment>
-            <Typography variant='caption' className={`${classes.navLink} ${pathname === '/visualization' ? '' : classes.floatRight}`} onClick={handleClick}>
-                {user.email}{anchorEl ? <ExpandLess className={classes.icon} color='primary' fontSize='small'/> : <ExpandMore className={classes.icon} color='primary' fontSize='small'/>}
+            <Typography variant='caption' className={`${classes.navLink}`} onClick={handleClick}>
+                Data Submission{anchorEl ? <ExpandLess className={classes.icon} color='primary' fontSize='small'/> : <ExpandMore className={classes.icon} color='primary' fontSize='small'/>}
             </Typography>
             <Popper open={Boolean(anchorEl)} anchorEl={anchorEl} role={undefined} transition className={classes.dropdown}>
                 {({ TransitionProps, placement }) => (
@@ -75,9 +70,8 @@ const UserNavbarDropdown = (props) => {
                         <Paper>
                             <ClickAwayListener onClickAway={handleClose}>
                                 <MenuList id="menu-list-grow">
-                                    <MenuItem onClick={handleClose} component={Link} to='/profile'>Profile</MenuItem>
-                                    <MenuItem onClick={handleClose} component={Link} to='/apikeymanagement'>API Access</MenuItem>
-                                    <MenuItem onClick={logOut}>Logout</MenuItem>
+                                    <MenuItem onClick={handleClose} component={Link} to='/datasubmission/guide'>About</MenuItem>
+                                    <MenuItem onClick={handleClose} component={Link} to='/datasubmission/validationtool'>Validation Tool</MenuItem>
                                 </MenuList>
                             </ClickAwayListener>
                         </Paper>
@@ -88,4 +82,4 @@ const UserNavbarDropdown = (props) => {
     )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withRouter(withStyles(styles)(UserNavbarDropdown)));
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(withStyles(styles)(DataSubmissionNavbarDropdown)));
