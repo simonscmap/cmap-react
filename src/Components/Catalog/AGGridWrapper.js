@@ -16,6 +16,7 @@ import TextField from '@material-ui/core/TextField';
 import { Paper, Button, Grid, Tooltip } from '@material-ui/core';
 
 import ConnectedTooltip from '../UI/ConnectedTooltip';
+import GroupedDatasetRow from './GroupedDatasetRow';
 
 const columnDefs = [
   {
@@ -47,8 +48,9 @@ const columnDefs = [
     field: "Dataset_Name",
     sortable: true,
     filter: true,
-    enableRowGroup: true,
-    tooltipField: 'datasetName'
+    tooltipField: 'datasetName',
+    rowGroup: true,
+    enableRowGroup: true
   }, 
   {
     headerName: "Make", 
@@ -115,7 +117,7 @@ const columnDefs = [
 
 const styles = (theme) => ({
   gridWrapper: {
-    height: '70vh', 
+    height: '72vh', 
     width: '92%',
     margin: '0 auto'
   },
@@ -151,6 +153,12 @@ const autoGroupColumnDef = {
   cellStyle: {
     textAlign:'left'
   },
+}
+
+const getRowHeight = (params) => {
+  if(params.node.group && params.node.field === 'Dataset_Name') return 280;
+  if(params.node.detail) return 280;
+  return 48;
 }
 
 class AGGridWrapper extends Component {
@@ -278,6 +286,7 @@ class AGGridWrapper extends Component {
               suppressDragLeaveHidesColumns= {true}
               enableCellTextSelection={true}
               suppressContextMenu={true}
+              getRowHeight={getRowHeight}
 
               // Additional props
               context={{
@@ -299,18 +308,19 @@ class AGGridWrapper extends Component {
               onColumnRowGroupChanged={this.handleColumnRowGroupChanged}
               autoGroupColumnDef={autoGroupColumnDef}
               enableBrowserTooltips={true}
+              groupUseEntireRow={true}
 
               // Settings related to master/detail
               masterDetail={true}
-              frameworkComponents= {{ myDetailCellRenderer: GridDetail }}
+              frameworkComponents= {{ myDetailCellRenderer: GridDetail, datasetGroupRowRenderer: GroupedDatasetRow}}
+              groupRowRenderer='datasetGroupRowRenderer'
               detailCellRenderer="myDetailCellRenderer"
               detailRowHeight={280}
             />
           </div>
         </Paper>
     )
-  }
-  
+  }  
 }
 
 export default (withStyles(styles)(AGGridWrapper));
