@@ -28,8 +28,6 @@ import ForgotPass from './Components/User/ForgotPass';
 import ChoosePassword from './Components/User/ChoosePassword';
 
 const theme = createMuiTheme({
-  // aqua: #22A3B9
-  // orange: #FF8000
 
   typography: {
     useNextVariants: true,
@@ -42,7 +40,7 @@ const theme = createMuiTheme({
   palette: {
     primary: {
       contrastText: '#000000',
-      main: colors.orange
+      main: colors.primary
     },
 
     error: {
@@ -50,7 +48,7 @@ const theme = createMuiTheme({
     },
 
     secondary: {
-      main: colors.aqua,
+      main: colors.secondary,
       // contrastText: '#fff700',
     },
 
@@ -61,23 +59,23 @@ const theme = createMuiTheme({
 
     text: {
       primary: '#ffffff',
-      secondary: colors.orange
+      secondary: colors.primary
     }
   },
 
   overrides: {
     MuiIconButton: {
       root: {
-        color: colors.orange,
+        color: colors.primary,
         borderRadius: '10%'
       }
     },
     
-    // MuiPaper: {
-    //   root: {
-    //     backgroundColor: 'rgba(0,0,0,.3)',
-    //   }
-    // },
+    MuiPaper: {
+      root: {
+        backgroundColor: 'rgba(0,0,0,.3)',
+      }
+    },
 
     MuiListItemIcon: {
       root: {
@@ -108,7 +106,15 @@ const theme = createMuiTheme({
     MuiToolbar: {
       root: {
         backgroundColor: 'transparent',
-        color: colors.orange
+        color: colors.primary
+      }
+    },
+
+    MuiMenuItem: {
+      root: {
+        '&:hover': {
+          backgroundColor: colors.greenHover,
+        },
       }
     },
 
@@ -119,7 +125,7 @@ const theme = createMuiTheme({
 
       root: {
         "&$focused": {
-          "borderColor": colors.orange
+          "borderColor": colors.primary
         }
       }
     },
@@ -152,7 +158,7 @@ const theme = createMuiTheme({
 
     MuiDialogTitle: {
       root: {
-        color: colors.orange
+        color: colors.primary
       }
     },
 

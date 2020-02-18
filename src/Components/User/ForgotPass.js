@@ -10,7 +10,7 @@ import { recoverPasswordRequestSend } from '../../Redux/actions/user';
 const styles = (theme) => ({
     paper: {
         width: '60%',
-        margin: '5% auto',
+        margin: '10% auto',
         height: '40vh'
     },
 

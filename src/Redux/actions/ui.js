@@ -41,3 +41,19 @@ export const setLoadingMessage = (message) => ({
 export const toggleShowHelp = () => ({
     type: interfaceActionTypes.TOGGLE_SHOW_HELP
 })
+
+export const showChangePasswordDialog = () => ({
+    type: interfaceActionTypes.SHOW_CHANGE_PASSWORD_DIALOG
+})
+
+export const hideChangePasswordDialog = () => ({
+    type: interfaceActionTypes.HIDE_CHANGE_PASSWORD_DIALOG
+})
+
+export const showChangeEmailDialog = () => ({
+    type: interfaceActionTypes.SHOW_CHANGE_EMAIL_DIALOG
+})
+
+export const hideChangeEmailDialog = () => ({
+    type: interfaceActionTypes.HIDE_CHANGE_EMAIL_DIALOG
+})

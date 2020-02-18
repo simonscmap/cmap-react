@@ -12,22 +12,14 @@ import { ExpandLess, ExpandMore } from '@material-ui/icons';
 
 import { Typography, MenuItem, ClickAwayListener, Grow, Paper, Popper, MenuList } from '@material-ui/core';
 
+import JSS from '../../Stylesheets/JSS';
+
 const styles = (theme) => ({
-    navLink: {
-        textDecoration: 'none',
-        color: 'white',
-        '&:hover': {
-            textDecoration: 'underline'
-        },
-        fontSize: '13px',
-        fontWeight: 100,
-        display: 'inline-block',
-        cursor: 'pointer'
-    },
+    navLink: JSS.navLink(theme),
 
     floatRight: {
-        float: 'right',
-        marginRight: 30,
+        // float: 'right',
+        // marginRight: 30,
     },
 
     icon: {
@@ -36,7 +28,14 @@ const styles = (theme) => ({
     },
 
     dropdown: {
-        zIndex: 1300
+        zIndex: 1300,
+        marginTop: '21px'
+    },
+
+    popperPaper: {
+        borderTopLeftRadius: 0,
+        borderTopRightRadius: 0,
+        backgroundColor: '#133345'
     }
 });
 
@@ -72,7 +71,7 @@ const UserNavbarDropdown = (props) => {
                     {...TransitionProps}
                     style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}
                     >
-                        <Paper>
+                        <Paper className={classes.popperPaper}>
                             <ClickAwayListener onClickAway={handleClose}>
                                 <MenuList id="menu-list-grow">
                                     <MenuItem onClick={handleClose} component={Link} to='/profile'>Profile</MenuItem>

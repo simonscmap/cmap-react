@@ -6,7 +6,13 @@ import { Dialog, DialogTitle, DialogContent } from '@material-ui/core';
 
 import ReactMarkdown from 'react-markdown';
 
+import colors from '../../Enums/colors';
+
 const styles = (theme) => ({
+    dialogPaper: {
+        backgroundColor: colors.solidPaper
+    },
+
     markdown: {
         '& img': {
             maxWidth: '100%',
@@ -33,7 +39,14 @@ class DatasetDescriptionDialog extends Component {
         return (
             <React.Fragment>
                 { description ?
-                <Dialog open={Boolean(description)} onClose={clearDescription} maxWidth={false}>
+                <Dialog 
+                    open={Boolean(description)} 
+                    onClose={clearDescription} 
+                    maxWidth={false}
+                    PaperProps={{
+                        className: classes.dialogPaper
+                    }}
+                >
                     <DialogTitle>{datasetName}</DialogTitle>
                     <DialogContent>
                         <ReactMarkdown source={description} className={classes.markdown}/>

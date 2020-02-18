@@ -19,11 +19,6 @@ import { loadModules } from 'esri-loader';
 
 import depthUtils from '../../Utility/depthCounter';
 
-// import {COORDINATE_SYSTEM} from '@deck.gl/core';
-// import DeckGL, {GeoJsonLayer, ColumnLayer, GridLayer, PointCloudLayer} from 'deck.gl';
-// import {AmbientLight, LightingEffect} from '@deck.gl/core';
-// import {HexagonLayer} from '@deck.gl/aggregation-layers';
-
 import Charts from './Charts';
 import MapContainer from './MapContainer';
 import colors from '../../Enums/colors'
@@ -31,7 +26,7 @@ import cleanSPParams from '../../Utility/cleanSPParams';
 import localDateToString from '../../Utility/localDateToString';
 import utcDateStringToLocal from '../../Utility/utcDateStringToLocal';
 import temporalResolutions from '../../Enums/temporalResolutions';
-// import subTypes from '../Enums/visualizationSubTypes';
+import stars from '../../Utility/starsBase64';
 
 const mapVizType = (vizType) => {
     const mapping = {
@@ -109,7 +104,15 @@ const styles = (theme) => ({
 
     showCharts: {
         display: 'inline-block',
+        paddingTop: theme.spacing(6)
         // width: '90%'
+    },
+
+    vizWrapper: {
+        minHeight: '100vh',
+        // overflow: 'hidden',
+        // width: '100vw',
+        background: `url(${stars})`
     }
 })
 
@@ -163,7 +166,7 @@ class Visualization extends Component {
             'esri/widgets/Sketch/SketchViewModel',
             'esri/geometry/support/webMercatorUtils',
             'esri/Graphic',
-        ], {version: 'next'});
+        ], {version: '4.14'});
 
         var esriModules = esriModuleNames.reduce((accumulator, currentValue, currentIndex) => {
             accumulator[currentValue] = loadedModules[currentIndex];
@@ -352,7 +355,7 @@ class Visualization extends Component {
         if(!this.props.user) return <LoginRequiredPrompt/>
 
         return (
-            <div>
+            <div className={classes.vizWrapper}>
                 <DownloadConfirmationDialog
                     {...this.state.spParams}
                     downloadTarget={this.state.downloadTarget}

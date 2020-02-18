@@ -30,7 +30,7 @@ const drawButtonStyles = (theme) => ({
         // border: '1px solid #333333',
         border: `1px solid #333333`,
         borderRadius: '4px',
-        color: colors.orange,
+        color: colors.primary,
         cursor: 'pointer',
         padding: '6px',
         width: '160px',
@@ -81,10 +81,10 @@ const polygonSymbol = {
         {
             type: "fill",
             material: {
-            color: [255, 128, 0, .3]
+            color: [0, 255, 255, .3]
             },
             outline: {
-                color: [255, 128, 0, 1],
+                color: [0, 255, 255, 1],
                 size: '2px'
             }
         }
@@ -99,9 +99,9 @@ const polylineSymbol = {
                 size: "3px",
                 material: {
                     color: {
-                        r: 51,
-                        g: 51,
-                        b: 204,
+                        r: 0,
+                        g: 255,
+                        b: 255,
                         a: 0
                     }
                 },
@@ -256,7 +256,7 @@ const TrajectoryController = React.memo((props) => {
             type: 'line-3d',
             symbolLayers: [{
                 type: 'line',
-                material: { color: [255, 128, 0, 1] },
+                material: { color: [0, 255, 255, 1] },
                 cap:  'round',
                 join: 'round',
                 size: 2

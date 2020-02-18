@@ -7,6 +7,7 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, 
 
 import { tableStatsRequestSend, csvDownloadRequestSend } from '../../Redux/actions/visualization';
 
+import colors from '../../Enums/colors';
 import temporalResolutions from '../../Enums/temporalResolutions';
 import depthUtils from '../../Utility/depthCounter';
 
@@ -18,6 +19,10 @@ const styles = (theme) => ({
 
     table: {
         marginTop: '9px'
+    },
+
+    dialogPaper: {
+        backgroundColor: colors.backgroundGray
     }
 })
 
@@ -51,7 +56,6 @@ class DownloadConfirmationDialog extends Component {
         let query = `select * from ${tableName} where time between '${dt1}' and '${dt2}' and ` +
             `lat between ${lat1} and ${lat2} and ` +
             `lon between ${lon1} and ${lon2}`
-        // console.log(query);
         const fileName = this.props.downloadTarget.variable || this.props.downloadTarget.dataset;
         this.props.csvDownloadRequestSend(query, fileName);
     }
@@ -158,8 +162,6 @@ class DownloadConfirmationDialog extends Component {
             }
         }
 
-        // console.log(depthRatio);
-
         const subsetDataPoints = Math.floor(totalDataPoints * dateRatio * latRatio * lonRatio * depthRatio);
 
         const subsetAvailable = subsetDataPoints <= 20000000;
@@ -170,19 +172,17 @@ class DownloadConfirmationDialog extends Component {
             'Monthly' : new Date(timeMin).toISOString().slice(0,10);
         const timeStringMax = sampleMember.Temporal_Resolution === temporalResolutions.monthlyClimatology ? 
             'Monthly' : new Date(timeMax).toISOString().slice(0,10);
-
-        // console.log('Total data points: ', totalDataPoints);
-        // console.log('Total rows: ', totalRows);
-        // console.log('Total columns: ', totalColumns)
-        // console.log('Subset data points: ', subsetDataPoints);
-        // console.log('Date Ratio: ', dateRatio);
-        // console.log('Lat Ratio: ', latRatio);
-        // console.log('Lon ratio: ', lonRatio);
-        // console.log('Depth Ratio: ', depthRatio)
         
         return (
             <React.Fragment>
-                <Dialog open={Boolean(downloadTarget)} onClose={() => this.props.handleSetDownloadTarget(null)} maxWidth={false}>
+                <Dialog
+                    PaperProps={{
+                        className:classes.dialogPaper
+                    }}
+                    open={Boolean(downloadTarget)} 
+                    onClose={() => this.props.handleSetDownloadTarget(null)} 
+                    maxWidth={false}
+                >
                     <DialogTitle>Downloading {downloadTarget.variable && `${downloadTarget.variable} from `} {downloadTarget.dataset}</DialogTitle>
                     
                     <DialogContent>

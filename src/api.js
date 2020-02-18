@@ -68,8 +68,22 @@ api.user.googleLoginRequest = async(userIDToken) => {
 }
 
 api.user.contactUs = async(payload) => {
-    console.log(payload);
     return await fetch(apiUrl + '/api/user/contactus', {
+        ...postOptions,
+        body: JSON.stringify(payload)
+    })
+}
+
+api.user.changePassword = async(payload) => {
+    return await fetch(apiUrl + '/api/user/changepassword', {
+        ...postOptions,
+        body: JSON.stringify(payload)
+    })
+}
+
+api.user.changeEmail = async(payload) => {
+    console.log(payload);
+    return await fetch(apiUrl + '/api/user/changeemail', {
         ...postOptions,
         body: JSON.stringify(payload)
     })

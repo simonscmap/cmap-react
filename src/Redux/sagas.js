@@ -85,7 +85,7 @@ function* googleLoginRequest(action){
 }
 
 function* catalogRetrieval(){
-    yield put(catalogActions.retrievalRequestProcessing());
+    yield put(interfaceActions.setLoadingMessage('Fetching Data'));
     let catalog = yield call(api.catalog.retrieve);
     
     if(!catalog) {
@@ -93,6 +93,8 @@ function* catalogRetrieval(){
     } else{
         yield put(catalogActions.retrievalRequestSuccess(catalog));
     }
+
+    yield put(interfaceActions.setLoadingMessage(''));
 }
 
 function* datasetRetrieval(){
@@ -267,8 +269,8 @@ function* updateUserInfoRequest(action){
             yield put(interfaceActions.snackbarOpen("An error occurred. Please try again."));
         }
     } else {
-        yield put(interfaceActions.snackbarOpen("Your information was updated"));
         yield put(userActions.storeInfo(JSON.parse(Cookies.get('UserInfo'))));
+        yield put(interfaceActions.snackbarOpen("Your information was updated"));
     }
 
     yield put(interfaceActions.setLoadingMessage(''));
@@ -305,6 +307,40 @@ function* contactUsRequest(action){
     } else {
         yield put(interfaceActions.snackbarOpen('Message failed. Please try again or contact simonscmap@uw.edu'));
     }
+}
+
+function* changePasswordRequest(action){
+    yield put(interfaceActions.setLoadingMessage('Confirming Changes'));
+    let result = yield call(api.user.changePassword, action.payload);
+    yield put(interfaceActions.setLoadingMessage(''));
+    
+    if(result.ok){
+        yield put(interfaceActions.hideChangePasswordDialog());
+        yield put(interfaceActions.snackbarOpen('Your password has been updated.'));
+    } else if(result.status === 401) {
+        yield put(interfaceActions.snackbarOpen('The current password you entered is not correct.'));
+    } else {
+        yield put(interfaceActions.snackbarOpen('An error occurred with your request.'));
+    }
+}
+
+function* changeEmailRequest(action){
+    yield put(interfaceActions.setLoadingMessage('Confirming Changes'));
+    let result = yield call(api.user.changeEmail, action.payload);
+
+    if(result.ok){
+        yield put(userActions.storeInfo(JSON.parse(Cookies.get('UserInfo'))));
+        yield put(interfaceActions.hideChangeEmailDialog());
+        yield put(interfaceActions.snackbarOpen('Your email address has been updated.'));
+    } else if(result.status === 401) {
+        yield put(interfaceActions.snackbarOpen('The current password you entered is not correct.'));
+    } else if(result.status === 409) {
+        yield put(interfaceActions.snackbarOpen('That email address is already in use.'));
+    } else {
+        yield put(interfaceActions.snackbarOpen('We were not able to update your email address.'));
+    }
+
+    yield put(interfaceActions.setLoadingMessage(''));
 }
 
 function* watchUserLogin() {
@@ -396,6 +432,14 @@ function* watchContactUs(){
     yield takeLatest(userActionTypes.CONTACT_US_REQUEST_SEND, contactUsRequest);
 }
 
+function* watchChangePasswordRequest(){
+    yield takeLatest(userActionTypes.CHANGE_PASSWORD_REQUEST_SEND, changePasswordRequest);
+}
+
+function* watchChangeEmailRequest(){
+    yield takeLatest(userActionTypes.CHANGE_EMAIL_REQUEST_SEND, changeEmailRequest);
+}
+
 // function createWorkerChannel(worker) {
 //     return eventChannel(emit => {
 //         worker.onmessage = message => {
@@ -445,6 +489,8 @@ export default function* rootSaga() {
         watchInitializeGoogleAuth(),
         watchRecoverPasswordRequest(),
         watchChoosePasswordRequest(),
-        watchContactUs()
+        watchContactUs(),
+        watchChangePasswordRequest(),
+        watchChangeEmailRequest()
     ])
 }

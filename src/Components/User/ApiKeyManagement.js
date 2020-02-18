@@ -17,7 +17,6 @@ import Grid from '@material-ui/core/Grid';
 
 import { keyRetrievalRequestSend, keyCreationRequestSend } from '../../Redux/actions/user';
 
-import LoadingSpinner from '../UI/LoadingSpinner';
 import states from '../../Enums/asyncRequestStates';
 import colors from '../../Enums/colors';
 
@@ -53,7 +52,7 @@ const styles = theme => ({
           },
     },
     warningCaption: {
-        color: colors.orange,
+        color: colors.primary,
         fontSize: '11px',
         marginTop: theme.spacing(2),
         marginBottom: theme.spacing(2)
@@ -144,7 +143,6 @@ class ApiKeyManagement extends Component {
                         </Grid>
                     </Grid>
                     
-                    {this.props.apiKeyCreationState === states.inProgress ? <LoadingSpinner size={18}/> : ''}
                     {this.props.apiKeyCreationState === states.failed ? <span>Key creation failed</span> : ''}
                 </Paper>
             </div>    

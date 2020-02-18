@@ -28,7 +28,6 @@ const mapDispatchToProps = {
 
 const esriFonts = '"Avenir Next W00","Helvetica Neue",Helvetica,Arial,sans-serif';
 const esriFontColor = 'white';
-const esriBackgroundColor = '#424242';
 
 const styles = theme => ({
     outerDiv: {
@@ -39,7 +38,8 @@ const styles = theme => ({
         borderRadius: '4px',
         boxShadow: '2px',
         position: 'relative',
-        backdropFilter: 'blur(2px)'
+        backdropFilter: 'blur(2px)',
+        transform: 'translateY(35px)'
     },
 
     cruiseSelect: {
@@ -175,7 +175,7 @@ class CruiseSelector extends Component {
                     styles={{
                         menu: provided => ({ ...provided, zIndex: 9999 }),
 
-                        menuList: provided => ({...provided, backgroundColor: esriBackgroundColor}),
+                        menuList: provided => ({...provided, backgroundColor: colors.backgroundGray}),
 
                         input: provided => ({...provided,
                             color: 'inherit',
@@ -183,7 +183,7 @@ class CruiseSelector extends Component {
                         }),
 
                         control: provided => ({...provided,
-                            backgroundColor: esriBackgroundColor,
+                            backgroundColor: colors.backgroundGray,
                             border: 'none',
                             boxShadow: '1px 1px 1px 1px #242424',
                             color: esriFontColor,
@@ -192,26 +192,26 @@ class CruiseSelector extends Component {
                                 border: `1px solid white`,
                             },
                             '&:focus-within': {
-                                borderColor: colors.orange
+                                borderColor: colors.primary
                             }
                         }),
 
                         placeholder: provided => ({...provided,
                             fontFamily: esriFonts,
-                            color: colors.orange,
+                            color: colors.primary,
                             fontSize: '14px'
                         }),
 
                         noOptionsMessage: provided => ({...provided,
                             fontFamily: esriFonts,
                             color: esriFontColor,
-                            backgroundColor: esriBackgroundColor
+                            backgroundColor: colors.backgroundGray
                         }),
 
                         option: (provided, state) => ({...provided,
-                            backgroundColor: esriBackgroundColor,
-                            color: state.isFocused ? colors.orange : 'white',
-                            '&:hover': { backgroundColor: 'rgba(122,67,0,.5)'}
+                            backgroundColor: colors.backgroundGray,
+                            color: state.isFocused ? colors.primary : 'white',
+                            '&:hover': { backgroundColor: colors.greenHover}
                         }),
 
                         singleValue: (provided, state) => ({...provided,

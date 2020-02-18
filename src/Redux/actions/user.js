@@ -202,3 +202,21 @@ export const contactUsRequestSend = ({name, email, subject, message}) => ({
         message
     }
 });
+
+export const changePasswordRequestSend = (oldPassword, newPassword, username) => ({
+    type: userActionTypes.CHANGE_PASSWORD_REQUEST_SEND,
+    payload: {
+        password: oldPassword,
+        newPassword,
+        username
+    }
+});
+
+export const changeEmailRequestSend = (email, password, username) => ({
+    type: userActionTypes.CHANGE_EMAIL_REQUEST_SEND,
+    payload: {
+        email,
+        password,
+        username
+    }
+});

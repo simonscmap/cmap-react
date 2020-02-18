@@ -15,14 +15,16 @@ import { Typography, MenuItem, ClickAwayListener, Grow, Paper, Popper, MenuList 
 const styles = (theme) => ({
     navLink: {
         textDecoration: 'none',
+        marginRight: 20,
         color: 'white',
         '&:hover': {
-            textDecoration: 'underline'
+            color: theme.palette.primary.main
         },
-        fontSize: '13px',
+        fontSize: '15px',
         fontWeight: 100,
         display: 'inline-block',
-        cursor: 'pointer'
+        cursor: 'pointer' ,
+        verticalAlign: 'middle'
     },
 
     icon: {
@@ -31,7 +33,15 @@ const styles = (theme) => ({
     },
 
     dropdown: {
-        zIndex: 1300
+        zIndex: 1300,
+        marginTop: '23px',
+        borderRadius: 0
+    },
+
+    popperPaper: {
+        borderTopLeftRadius: 0,
+        borderTopRightRadius: 0,
+        backgroundColor: '#1C4964'
     }
 });
 
@@ -67,7 +77,7 @@ const DataSubmissionNavbarDropdown = (props) => {
                     {...TransitionProps}
                     style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}
                     >
-                        <Paper>
+                        <Paper className={classes.popperPaper}>
                             <ClickAwayListener onClickAway={handleClose}>
                                 <MenuList id="menu-list-grow">
                                     <MenuItem onClick={handleClose} component={Link} to='/datasubmission/guide'>About</MenuItem>

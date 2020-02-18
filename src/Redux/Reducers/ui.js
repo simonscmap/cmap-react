@@ -37,6 +37,12 @@ export default function(state, action) {
     case interfaceActionTypes.SET_LOADING_MESSAGE: return {...state, loadingMessage: action.payload.message}
     
     case interfaceActionTypes.TOGGLE_SHOW_HELP: return {...state, showHelp: !state.showHelp}
+
+    case interfaceActionTypes.SHOW_CHANGE_EMAIL_DIALOG: return {...state, changeEmailDialogIsOpen: true}
+    case interfaceActionTypes.HIDE_CHANGE_EMAIL_DIALOG: return {...state, changeEmailDialogIsOpen: false}
+
+    case interfaceActionTypes.SHOW_CHANGE_PASSWORD_DIALOG: return {...state, changePasswordDialogIsOpen: true}
+    case interfaceActionTypes.HIDE_CHANGE_PASSWORD_DIALOG: return {...state, changePasswordDialogIsOpen: false}
     
     default: return state;
   }

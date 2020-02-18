@@ -11,16 +11,20 @@ import { Typography } from '@material-ui/core';
 
 import UserNavbarDropdown from '../User/UserNavbarDropdown';
 import DataSubmissionNavbarDropdown from '../DataSubmission/DataSubmissionNavbarDropdown';
+import JSS from '../../Stylesheets/JSS';
 
 const styles = theme => ({
-    appBar: {
-        backgroundColor: 'transparent',
-        boxShadow: 'none'
-    },
 
-    toolBar: {
-        backgroundColor: 'transparent',
-        boxShadow: 'none'
+    simonsLogo: {
+        verticalAlign: 'middle',
+        display: 'inline-block',
+    },
+    
+    simonsLogoWrapper: {
+        pointerEvents: 'all',
+        display: 'inline-block',
+        marginRight: '60px !important',     
+        verticalAlign: 'middle',   
     },
 
     navWrapper: {
@@ -29,27 +33,32 @@ const styles = theme => ({
         top: '0px',
         backgroundColor: 'transparent',
         zIndex: 50,
-        paddingTop: '10px',
+        paddingTop: '14px',
+        paddingBottom: '14px',
         paddingLeft: '20px',
+        paddingRight: '20px',
         textAlign: 'left',
-        boxSizing: 'border-box'
+        boxSizing: 'border-box',
+        display: 'flex',
+        justifyContent: 'space-between',
+        pointerEvents: 'none'
     },
 
-    navLink: {
-        textDecoration: 'none',
-        marginRight: 20,
-        color: 'white',
-        '&:hover': {
-            textDecoration: 'underline'
-        },
-        fontSize: '13px',
-        fontWeight: 100,
-        display: 'inline-block',
-        cursor: 'pointer' 
+    navWrapperGradient: {
+        backgroundImage: 'linear-gradient(270deg, rgba(0, 0, 0, 0.48), rgba(0, 0, 0, 0.1))'
     },
+
+    rightSectionWrapper: {
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-around'
+
+    },
+
+    navLink: JSS.navLink(theme),
 
     rightNavLink: {
-        float: 'right'
+        marginRight: 20
     }
 })
 
@@ -109,16 +118,28 @@ class TopNavBar extends Component {
         const { pathname } = history.location;
 
         return (
-            <div className={classes.navWrapper}>
-                <Typography variant='caption' href='/' component='a' className={classes.navLink}>Home</Typography>
-                <Typography variant='caption' to='/catalog' component={Link} className={classes.navLink}>Catalog</Typography>
-                {pathname !== '/visualization' && <Typography variant='caption' to='/visualization' component={Link} className={classes.navLink}>Visualization</Typography>}
-                <DataSubmissionNavbarDropdown/>
-                <Typography variant='caption' to='/contact' component={Link} className={classes.navLink}>Contact</Typography>
-                {user && <UserNavbarDropdown pathname={pathname} user={user}/>}
-                {/* <Typography variant='caption' onClick={this.props.toggleShowHelp} className={classes.navLink}>{showHelp ? 'Hide Help' : 'Help(beta) '}</Typography> */}
-                {(!user && pathname !== '/visualization') && <Typography variant='caption' onClick={() => this.props.showLoginDialog()} className={`${classes.navLink} ${classes.rightNavLink}`}>Log In</Typography>}
-                {(!user && pathname !== '/visualization') && <Typography variant='caption' to='/register' component={Link} className={`${classes.navLink} ${classes.rightNavLink}`}>Register</Typography>}
+            <div className={`${classes.navWrapper} ${pathname !== '/visualization' && classes.navWrapperGradient}`}>
+
+                {/* Left side of navbar */}
+                <div>
+                    <Typography variant='caption' href='/' component='a' className={`${classes.navLink} ${classes.simonsLogoWrapper}`}>
+                        <img src='images/CMAP_white_logo_2.png' width='40' alt='CMAP logo' className={classes.simonsLogo}/>
+                    </Typography>
+                    <Typography variant='caption' to='/catalog' component={Link} className={classes.navLink}>Catalog</Typography>
+                    {pathname !== '/visualization' && <Typography variant='caption' to='/visualization' component={Link} className={classes.navLink}>Visualization</Typography>}
+                    {/* <DataSubmissionNavbarDropdown/> */}
+                    {/* <Typography variant='caption' to='/contact' component={Link} className={classes.navLink}>Contact</Typography> */}
+                </div>
+
+                {/* Right side of navbar */}
+                <div className={classes.rightSectionWrapper}>
+                    <div>
+                        {user && pathname !== '/visualization' && <UserNavbarDropdown pathname={pathname} user={user}/>}
+                        {/* <Typography variant='caption' onClick={this.props.toggleShowHelp} className={classes.navLink}>{showHelp ? 'Hide Help' : 'Help(beta) '}</Typography> */}
+                        {(!user && pathname !== '/visualization') && <Typography variant='caption' onClick={() => this.props.showLoginDialog()} className={`${classes.navLink} ${classes.rightNavLink}`}>Log In</Typography>}
+                        {(!user && pathname !== '/visualization') && <Typography variant='caption' to='/register' component={Link} className={`${classes.navLink} ${classes.rightNavLink}`}>Register</Typography>}
+                    </div>
+                </div>
             </div>        
         )
     }

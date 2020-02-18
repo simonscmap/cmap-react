@@ -62,6 +62,10 @@ const styles = theme => ({
     colorscaleMenu: {
         maxHeight: '400px'
     },
+
+    grayBackground: {
+        backgroundColor: colors.backgroundGray
+    }
 })
 
 const colorscaleOptions = [
@@ -184,6 +188,7 @@ const ChartControlPanel = (props) => {
     var previousOpacity = usePreviousOpacity(markerOptions);
     var previousColor = usePreviousColor(markerOptions);
     var previousSize = usePreviousSize(markerOptions);
+
     useEffect(() => {
         if(markerOptions){
             if(markerOptions.opacity !== previousOpacity){
@@ -247,16 +252,6 @@ const ChartControlPanel = (props) => {
                         </IconButton>
                     </Tooltip>
                 }
-{/* 
-                {Boolean(onToggleSplitByDepth) && 
-                    <Tooltip placement='top' title='Split By Depth'>
-                        <IconButton color='inherit' className={`${classes.iconButton} ${splitByDepth && classes.depressed}`} 
-                            onClick={onToggleSplitByDepth}
-                        >
-                            <Waves/>
-                        </IconButton>
-                    </Tooltip>
-                } */}
 
                 {Boolean(onToggleSplitBySpace) && 
                     <Tooltip placement='top' title={orientation === 'zonal' ? 'Split by Latitude' : 'Split by Longitude'}>
@@ -267,16 +262,6 @@ const ChartControlPanel = (props) => {
                         </IconButton>
                     </Tooltip>
                 }
-
-                {/* {Boolean(switchOrientation) && 
-                    <Tooltip placement='top' title={orientation === 'zonal' ? 'Switch to Meridional' : 'Switch to Zonal'}>
-                        <IconButton color='inherit' className={classes.iconButton} 
-                            onClick={switchOrientation}
-                        >
-                            <Rotate90DegreesCcw/>
-                        </IconButton>
-                    </Tooltip>
-                } */}
 
                 <Tooltip placement='top' title='Download CSV'>
                     <IconButton color='inherit' onClick={downloadCsv} className={classes.iconButton} >
@@ -307,12 +292,6 @@ const ChartControlPanel = (props) => {
                         </IconButton>                
                     </Tooltip>
                 }
-
-                {/* <Tooltip title='Plot Info' placement='top'>
-                    <IconButton color='inherit' onClick={() => console.log('Info!')} className={`${classes.iconButton}`} >
-                        <Info/>
-                    </IconButton>                
-                </Tooltip> */}
                 
             </ButtonGroup>
             
@@ -323,6 +302,9 @@ const ChartControlPanel = (props) => {
                 open={Boolean(paletteAnchorElement)}
                 onClose={() => setPaletteAnchorElement(null)}
                 className={classes.colorscaleMenu}
+                MenuListProps= {{
+                    className: classes.grayBackground
+                }}
             >
                 {colorscaleOptions.map((option, index) => (
                     <MenuItem onClick={() => handlePaletteChoice(option === 'Default' ? 'heatmap' : option)} key={index}>{option}</MenuItem>
@@ -343,6 +325,9 @@ const ChartControlPanel = (props) => {
                 transformOrigin={{
                     vertical: 'top',
                     horizontal: 'center',
+                }}
+                PaperProps={{
+                    className: classes.grayBackground
                 }}
             >
                 <div className={classes.popover}>
@@ -422,6 +407,9 @@ const ChartControlPanel = (props) => {
                 transformOrigin={{
                     vertical: 'top',
                     horizontal: 'center',
+                }}
+                PaperProps={{
+                    className: classes.grayBackground
                 }}
             >
                 <div className={classes.popover}>

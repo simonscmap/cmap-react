@@ -2,21 +2,18 @@ import React from 'react';
 
 import { withStyles } from '@material-ui/core/styles';
 
-import Dialog from '@material-ui/core/Dialog';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import Table from '@material-ui/core/Table';
-import TableRow from '@material-ui/core/TableRow';
-import TableCell from '@material-ui/core/TableCell';
-import TableBody from '@material-ui/core/TableBody';
+import { Dialog, DialogTitle, DialogContent, DialogContentText, Table, TableRow, TableCell, TableBody } from '@material-ui/core';
+
+import colors from '../../Enums/colors';
 
 const styles = theme => ({
-
+    dialogPaper: {
+        backgroundColor: colors.backgroundGray
+    }
 })
 
 const TableStatsDialog = (props) => {
-    const { data } = props;
+    const { data, classes } = props;
 
     if(!data) return '';
 
@@ -24,6 +21,9 @@ const TableStatsDialog = (props) => {
         <Dialog
             open={props.open}
             onClose={props.onClose}
+            PaperProps={{
+                className: classes.dialogPaper
+            }}
         >
             <DialogTitle>{data.Long_Name}</DialogTitle>
             <DialogContent>

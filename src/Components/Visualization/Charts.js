@@ -7,7 +7,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { IconButton, Paper } from '@material-ui/core';
 import { Close } from '@material-ui/icons';
 
-// import colors from '../Enums/colors';
+import colors from '../../Enums/colors';
 import storedProcedures from '../../Enums/storedProcedures';
 import vizSubTypes from '../../Enums/visualizationSubTypes';
 
@@ -31,12 +31,13 @@ const mapDispatchToProps = {
 }
 
 const styles = (theme) => ({
-    chartPaper: {
-      margin: '60px auto 20px auto',
-      // width: '90%'
-      paddingTop: '16px',
-      display: 'inline-block'
-  },
+  chartPaper: {
+    backgroundColor: colors.backgroundGray,
+    marginTop: '5vh',
+    marginBottom: '2vh',
+    padding: theme.spacing(1),
+    boxShadow: '2px 2px 2px 2px #242424',
+  }
 })
 
 // const SamplePlot = () => {
@@ -122,7 +123,8 @@ const styles = (theme) => ({
 const closeChartStyles = {
     closeChartIcon: {
       float: 'right',
-      marginTop: '-16px'
+      marginTop: '-12px',
+      marginRight: '-8px'
     }
 }
 

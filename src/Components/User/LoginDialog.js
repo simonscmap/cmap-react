@@ -15,6 +15,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import states from '../../Enums/asyncRequestStates';
+import colors from '../../Enums/colors';
 
 import { showLoginDialog, hideLoginDialog, restoreInterfaceDefaults, snackbarOpen } from '../../Redux/actions/ui';
 import { logOut, userLoginRequestSend, googleLoginRequestSend } from '../../Redux/actions/user';
@@ -56,6 +57,10 @@ const styles = theme => ({
     googleIconWrapper: {
         marginRight: '100px',
         marginLeft: '-8px'
+    },
+
+    dialogWrapper: {
+        backgroundColor: colors.solidPaper
     }
 })
 
@@ -104,9 +109,12 @@ class LoginDialog extends Component{
                 onClose={this.handleClose}
                 aria-labelledby="form-dialog-title"
                 onEnter={this.onDialogEnter}
+                PaperProps={{
+                    className: classes.dialogWrapper
+                }}
             >
                 <DialogTitle id="form-dialog-title">Login</DialogTitle>
-                <DialogContent>
+                <DialogContent>                
                     <DialogContentText>
                         Please enter your username and password, or <Link onClick={this.handleClose} component={RouterLink} to={{pathname: '/register'}}>Register.</Link>
                     </DialogContentText>
@@ -154,7 +162,6 @@ class LoginDialog extends Component{
                                 <Button color="primary" type='submit' onClick={this.handleLogin} disabled={!this.props.username || !this.props.password}>
                                     Log In
                                 </Button>
-                                {this.props.userLoginState === states.inProgress && <CircularProgress size={24} className= {classes.buttonProgress} />}
                             </div>
                         </DialogActions>
                     </form>

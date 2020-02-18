@@ -5,8 +5,13 @@ import { withStyles } from '@material-ui/core/styles';
 
 import { Dialog, DialogTitle, DialogContent } from '@material-ui/core';
 
-const styles = (theme) => ({
+import colors from '../../Enums/colors';
 
+const styles = (theme) => ({
+    dialogPaper: {
+        backgroundColor: colors.solidPaper,
+        padding: '8px 16px 16px 16px'
+    }
 })
 
 const mapStateToProps = (state, ownProps) => ({
@@ -18,27 +23,26 @@ const mapDispatchToProps = {
 }
 
 const VariableDescriptionDialog = (props) => {
-    const { catalog, describedVariable } = props;
+    const { catalog, describedVariable, classes } = props;
     let variable = catalog.find((item) => item.ID === describedVariable);
 
     return (
         <React.Fragment>
             { describedVariable ?
-            <Dialog open={Boolean(describedVariable)} onClose={props.clearDescription} maxWidth={false}>
+            <Dialog 
+                open={Boolean(describedVariable)} 
+                onClose={props.clearDescription} 
+                maxWidth={false}
+                PaperProps={{
+                    className: classes.dialogPaper
+                }}
+            >
                 <DialogTitle>{variable.Long_Name}</DialogTitle>
                 { variable.Comment &&
                 <DialogContent>
                     {variable.Comment}
                 </DialogContent>
                 }
-                
-                <DialogContent>
-                    <strong>Source:</strong> {variable.Data_Source}
-                </DialogContent>
-
-                <DialogContent>
-                <strong>Distributor:</strong> {variable.Distributor}
-                </DialogContent>
             </Dialog> :
             ''
             }

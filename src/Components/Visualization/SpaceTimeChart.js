@@ -75,6 +75,7 @@ const handleContourMap = (subsets, infoObject, splitByDate, splitByDepth, palett
                 // display:'inline-block',
                 width: `${width}vw`,
                 height: `${height}vw`,
+                margin: '0 auto'
             }}
 
             useResizeHandler={true}

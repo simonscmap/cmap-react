@@ -19,6 +19,8 @@ const initialState = {
 
     // Interface state pieces
     loginDialogIsOpen: false,
+    changePasswordDialogIsOpen: false,
+    changeEmailDialogIsOpen: false,
     registrationActiveStep: 0,
     snackbarIsOpen: false,
     snackbarMessage: null,

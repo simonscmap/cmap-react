@@ -50,7 +50,8 @@ const columnDefs = [
     filter: true,
     tooltipField: 'datasetName',
     rowGroup: true,
-    enableRowGroup: true
+    enableRowGroup: true,
+    hide: true
   }, 
   {
     headerName: "Make", 
@@ -117,27 +118,30 @@ const columnDefs = [
 
 const styles = (theme) => ({
   gridWrapper: {
-    height: '72vh', 
-    width: '92%',
+    height: '80vh', 
+    width: '96%',
     margin: '0 auto'
   },
 
   gridSearch: {
-    margin: '0 auto 30px auto'
+    margin: '0 auto 20px auto',
+    width: '60%'
   },
 
   gridPaper: {
-    margin: '70px 2vw 30px 2vw',
-    padding: '20px'
+    marginTop: '68px',
+    padding: '20px',
+    height: 'calc(100vh - 68px)',
+    boxSizing: 'border-box'
   },
 
   downloadButton: {
     margin: '6px 0 0 0',
     textTransform: 'none',
-    color: 'black',
-    backgroundColor: '#FF8000',
+    color: 'white',
+    backgroundColor: theme.palette.primary.main,
     '&:hover': {
-      backgroundColor: '#ab5600',
+      backgroundColor: theme.palette.primary.dark,
   }
   }
 })
@@ -156,8 +160,8 @@ const autoGroupColumnDef = {
 }
 
 const getRowHeight = (params) => {
-  if(params.node.group && params.node.field === 'Dataset_Name') return 280;
-  if(params.node.detail) return 280;
+  if(params.node.group && params.node.field === 'Dataset_Name') return 200;
+  if(params.node.detail) return 180;
   return 48;
 }
 
@@ -223,6 +227,7 @@ class AGGridWrapper extends Component {
 
     return (
       <Paper elevation={12} className={classes.gridPaper}>
+      {/* // <div className={classes.gridPaper}> */}
         <DatasetDescriptionDialog 
           description={description}
           clearDescription={() => this.handleDescribeDataset('')}
@@ -248,7 +253,7 @@ class AGGridWrapper extends Component {
                 name='filterText'
                 value={this.state.filterText}
                 onChange={this.handleChange}
-                label="Search Variables"
+                label="Filter Variables"
                 InputLabelProps={{
                   shrink: true,
                 }}
@@ -264,7 +269,7 @@ class AGGridWrapper extends Component {
                 color='primary'
                 onClick={this.handleDownloadCatalog}            
               >
-                  Download
+                  Download Catalog
               </Button>
             </Tooltip>
           </Grid>
@@ -287,6 +292,7 @@ class AGGridWrapper extends Component {
               enableCellTextSelection={true}
               suppressContextMenu={true}
               getRowHeight={getRowHeight}
+              // getRowClass={getRowClass}
 
               // Additional props
               context={{
@@ -297,9 +303,14 @@ class AGGridWrapper extends Component {
 
               // Setting related to styling
               getRowStyle= {function(params) {
+                let styles = {};
                 if (params.node.detail) {
-                    return { background: 'transparent' }
+                    styles.background = 'transparent' 
                 }
+                if(params.node.level > 0){
+                  styles.marginLeft = '32px'
+                }
+                return styles;
               }}
 
               //Settings related to grouping functionality
@@ -309,16 +320,17 @@ class AGGridWrapper extends Component {
               autoGroupColumnDef={autoGroupColumnDef}
               enableBrowserTooltips={true}
               groupUseEntireRow={true}
+              // groupColumnDef={groupColumnDef}
+              groupRowRenderer='datasetGroupRowRenderer'
 
               // Settings related to master/detail
               masterDetail={true}
               frameworkComponents= {{ myDetailCellRenderer: GridDetail, datasetGroupRowRenderer: GroupedDatasetRow}}
-              groupRowRenderer='datasetGroupRowRenderer'
               detailCellRenderer="myDetailCellRenderer"
-              detailRowHeight={280}
+              detailRowHeight={200}
             />
           </div>
-        </Paper>
+          </Paper>
     )
   }  
 }

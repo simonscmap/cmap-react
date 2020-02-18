@@ -16,7 +16,7 @@ import states from '../../Enums/asyncRequestStates';
 const styles = (theme) => ({
     paper: {
         width: '60%',
-        margin: '5% auto',
+        margin: '10% auto',
         // height: '40vh',
         padding: '24px 12px'
     },
@@ -50,6 +50,7 @@ const mapStateToProps = (state, ownProps) => ({
     choosePasswordState: state.choosePasswordState,
   });
 
+// Used with forgot password link from email
 class ChoosePassword extends Component {
 
     constructor(props){

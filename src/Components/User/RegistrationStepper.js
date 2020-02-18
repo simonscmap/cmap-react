@@ -14,7 +14,7 @@ import states from '../../Enums/asyncRequestStates';
 const styles = theme => ({
     root: {
         width: '60%',
-        margin: '5% auto'
+        margin: '10% auto'
     },
     button: {
         marginRight: theme.spacing(1),
@@ -123,23 +123,9 @@ const getCardInfo = () => ([
             optional: true
         }
     }
-    // {
-    //     password: {
-    //         label:'Password*',
-    //         name: 'password',
-    //         type: 'password',            
-    //         requirement: 'Must be 8 to 32 characters with 1 number and 1 special character.',
-    //         optional: false
-    //     },
-    //     confirmPassword: {
-    //         label:'Confirm Password*',
-    //         name: 'confirmPassword',
-    //         type: 'password',            
-    //         requirement: 'Passwords must match.',
-    //         optional: false
-    //     }
-    // }
 ])
+
+const buttonRef = React.createRef();
 
 class RegistrationStepper extends Component {
     constructor(props){
@@ -299,6 +285,7 @@ class RegistrationStepper extends Component {
                                 inputFieldState={{...this.state.cards[this.props.registrationActiveStep]}} 
                                 inputFieldInfo={{...cardInfoArray[this.props.registrationActiveStep]}}
                                 onChange={this.handleChange}
+                                buttonRef={buttonRef}
                             />
                             <div>
                                 <Button
@@ -314,6 +301,7 @@ class RegistrationStepper extends Component {
                                     onClick={this.handleNext}
                                     className={classes.button}
                                     disabled={!this.currentCardIsValid() || this.props.userValidationState === states.inProgress}
+                                    ref={buttonRef}
                                 >
                                     {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
                                 </Button>

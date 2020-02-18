@@ -50,7 +50,7 @@ const styles = theme => ({
         boxShadow: '2px 2px  2px 2px #242424',
         border: 'none',
         overflow: 'visible',
-        backgroundColor: '#424242'
+        backgroundColor: colors.backgroundGray
     },
 
     drawerPaperError1: {
@@ -101,12 +101,12 @@ const styles = theme => ({
   tableStatsButton: {
       borderRadius: 0,
       paddingTop: '11px',
-      backgroundColor: '#424242'
+      backgroundColor: colors.backgroundGray
   },
 
     formGridItem: {
         borderLeft: '1px solid #313131',
-        backgroundColor: '#424242'
+        backgroundColor: colors.backgroundGray
     },
 
   vizTypeSelectFormControl: {
@@ -127,13 +127,16 @@ const styles = theme => ({
   visualizeButton: {
       height: '56px',
       borderRadius: 0,
-      backgroundColor: '#424242',
+      backgroundColor: colors.backgroundGray,
       color: theme.palette.primary.main,
       fontVariant: 'normal',
       '&:disabled': {
         backgroundColor: 'transparent'
     },
-      '&:hover': {backgroundColor: '#874400'}
+      '&:hover': {
+          backgroundColor: colors.greenHover,
+            color: 'white'
+        }
   },
 
   helperText: {
@@ -171,6 +174,14 @@ const styles = theme => ({
       position: 'relative',
       width: 0,
       height: 0
+  },
+
+  vizTypeMenu: {
+      backgroundColor: colors.backgroundGray
+  },
+
+  vizTypeMenuItem: {
+    '&:hover': {backgroundColor: colors.greenHover}
   }
 });
 
@@ -295,7 +306,8 @@ const customHeadingStyles = (theme) => ({
         backgroundColor: 'rgba(0,0,0,.5)',
         height: groupHeaderHeight,
         '&:hover': {
-            backgroundColor: 'rgba(122,67,0,.5)',
+            // backgroundColor: 'rgba(122,67,0,.5)',
+            backgroundColor: colors.greenHover
         },
         boxShadow: '0px 1px 1px 1px #242424'
     },
@@ -914,7 +926,7 @@ class VizControlPanel extends React.Component {
                                         options={options}
                                         onChange={this.props.updateFields}
                                         value={fields}
-                                        placeholder="Variable Search"
+                                        placeholder="Variable Filter"
                                         styles={{
                                             menu: provided => ({
                                                 ...provided, 
@@ -941,25 +953,25 @@ class VizControlPanel extends React.Component {
                                             }),
 
                                             control: provided => ({...provided,
-                                                backgroundColor: '#424242',
+                                                backgroundColor: colors.backgroundGray,
                                                 border: 'none',
                                                 borderBottom: '1px solid #333333',
                                                 borderRadius: 0,
                                                 '&:hover': { borderColor: 'white' },
-                                                '&:focus-within': { borderColor: colors.orange },
+                                                '&:focus-within': { borderColor: colors.primary },
                                                 height: '56px'
                                             }),
 
                                             placeholder: provided => ({...provided,
                                                 fontFamily: '"Lato", sans-serif',
-                                                color: colors.orange,
+                                                color: colors.primary,
                                                 fontSize: '14px',
                                                 fontWeight: 300
                                             }),
 
                                             noOptionsMessage: provided => ({...provided,
                                                 fontFamily: '"Lato", sans-serif',
-                                                color: colors.orange,
+                                                color: colors.primary,
                                                 backgroundColor: colors.backgroundGray
                                             }),
 
@@ -968,9 +980,8 @@ class VizControlPanel extends React.Component {
                                                     fontWeight: 400,
                                                     fontSize: '16px',
                                                     backgroundColor: 'transparent',
-                                                    color: isFocused ? colors.orange : 'white',
-                                                    '&:hover': { backgroundColor: 'rgba(122,67,0,.5)'},
-                                                    // '&:active': { backgroundColor: 'rgba(0,0,0,.5)', color: colors.orange},
+                                                    color: isFocused ? colors.primary : 'white',
+                                                    '&:hover': { backgroundColor: colors.greenHover},
                                             })},
 
                                             singleValue: (provided, state) => ({...provided,
@@ -1158,15 +1169,20 @@ class VizControlPanel extends React.Component {
                                             id: 'vizSelector',
                                             variant: 'filled'
                                         }}
+                                        MenuProps={{
+                                            MenuListProps: {
+                                                className: classes.vizTypeMenu
+                                            }
+                                        }}
                                         >
-                                        {!heatmapMessage && <MenuItem value={vizSubTypes.heatmap} title={heatmapMessage}>Heatmap</MenuItem>}
-                                        {!contourMessage && <MenuItem value={vizSubTypes.contourMap}>Contour Heatmap</MenuItem>}
-                                        {!sectionMapMessage && <MenuItem value={vizSubTypes.sectionMap}>Section Map</MenuItem>}
-                                        {!sectionMapMessage && <MenuItem value={vizSubTypes.contourSectionMap}>Contour Section Map</MenuItem>}
-                                        {!histogramMessage && <MenuItem value={vizSubTypes.histogram}>Histogram</MenuItem>}                      
-                                        {!timeSeriesMessage && <MenuItem value={vizSubTypes.timeSeries}>Time Series</MenuItem>}
-                                        {!depthProfileMessage && <MenuItem value={vizSubTypes.depthProfile}>Depth Profile</MenuItem>}
-                                        {!sparseMapMessage && <MenuItem value={vizSubTypes.sparse}>Sparse Map</MenuItem>}
+                                        {!heatmapMessage && <MenuItem className={classes.vizTypeMenuItem} value={vizSubTypes.heatmap} title={heatmapMessage}>Heatmap</MenuItem>}
+                                        {!contourMessage && <MenuItem className={classes.vizTypeMenuItem} value={vizSubTypes.contourMap}>Contour Heatmap</MenuItem>}
+                                        {!sectionMapMessage && <MenuItem className={classes.vizTypeMenuItem} value={vizSubTypes.sectionMap}>Section Map</MenuItem>}
+                                        {!sectionMapMessage && <MenuItem className={classes.vizTypeMenuItem} value={vizSubTypes.contourSectionMap}>Contour Section Map</MenuItem>}
+                                        {!histogramMessage && <MenuItem className={classes.vizTypeMenuItem} value={vizSubTypes.histogram}>Histogram</MenuItem>}                      
+                                        {!timeSeriesMessage && <MenuItem className={classes.vizTypeMenuItem} value={vizSubTypes.timeSeries}>Time Series</MenuItem>}
+                                        {!depthProfileMessage && <MenuItem className={classes.vizTypeMenuItem} value={vizSubTypes.depthProfile}>Depth Profile</MenuItem>}
+                                        {!sparseMapMessage && <MenuItem className={classes.vizTypeMenuItem} value={vizSubTypes.sparse}>Sparse Map</MenuItem>}
                                     </MUISelect>
                                 </FormControl>
                             </Grid>

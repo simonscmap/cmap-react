@@ -12,7 +12,7 @@ const styles = (theme) => ({
     root: {
         color: 'white',
         width: '65vw',
-        marginTop: theme.spacing(12),
+        marginTop: theme.spacing(18),
         marginLeft: 'auto',
         marginRight: 'auto',
         marginBottom: theme.spacing(8),

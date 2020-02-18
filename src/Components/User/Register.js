@@ -13,7 +13,7 @@ import { snackbarOpen } from '../../Redux/actions/ui';
 const styles = (theme) => ({
     paper: {
         width: '60%',
-        margin: '5% auto',
+        margin: '10% auto',
         padding: '24px'
         // height: '40vh'
     },

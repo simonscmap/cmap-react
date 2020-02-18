@@ -1,5 +1,7 @@
 import React from 'react';
 
+import React from 'react';
+
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
@@ -22,27 +24,6 @@ const styles = theme => ({
         width: '100vw',
         height: '100vh',
         zIndex: 9998
-    },
-
-    loaderContent: {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItem: 'center',
-        justifyContent: 'center',
-        zIndex: 9999,
-        opacity: 1
-    },
-
-    spinnerText: {
-        zIndex: 10000,
-        color: theme.palette.primary.main,
-        // color: '#FF8000',
-        marginTop: '25px',
-        opacity: 1
-    },
-
-    spinner: {
-        opacity: 1
     }
 })
 

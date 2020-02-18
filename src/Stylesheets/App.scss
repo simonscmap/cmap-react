@@ -49,15 +49,15 @@
 
 // Ag-grid theme styles
 $ag-icons-path: '~../../node_modules/ag-grid-community/src/styles/ag-theme-material/icons/';
-$primary-color: #FF8000;
-$background-color: #424242;
+$primary-color: #9dd162;
+$background-color: #184562;
 $border-color: black;
-$header-background-color: #424242;
+$header-background-color: #184562;
 $foreground-color: rgb(255, 246, 236);
-$secondary-foreground-color: #FF8000;
-$chip-background-color: lighten(#424242, 10%);
-$hover-color: darken(#FF8000, 25%);
-$panel-background-color: darken(#424242, 5%);
+$secondary-foreground-color: #9dd162;
+$chip-background-color: lighten(#184562, 10%);
+$hover-color: darken(#9dd162, 35%);
+$panel-background-color: darken(#184562, 5%);
 $row-stub-background-color: #22A3B9;
 
 // $menu-option-active-color: #22A3B9;
