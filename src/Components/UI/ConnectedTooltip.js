@@ -5,11 +5,17 @@ import { withStyles } from '@material-ui/core/styles';
 
 import Tooltip from '@material-ui/core/Tooltip';
 
+import colors from '../../Enums/colors';
+
 const styles = theme => ({
-  tooltip: {
-      color: theme.palette.secondary.main,
-      opacity: 1
-  }
+    tooltip: {
+        color: '#00FFFF',
+        fontSize: '13px',
+        boxShadow: '0px 1px 1px 1px #242424',
+        padding: '12px',
+        borderRadius: '7px',
+        textAlign: 'center'
+    }
 })
 
 const mapStateToProps = (state, ownProps) => ({
@@ -31,10 +37,7 @@ const ConnectedTooltip = (props) => {
                 placement={props.placement} 
                 open={showHelp} 
                 title={props.title} 
-                className={classes.tooltip}
-                classes={{
-                    popper: classes.tooltip
-                }}
+                classes={{tooltip: classes.tooltip}}
             >
                 {props.children}
             </Tooltip>

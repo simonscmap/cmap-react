@@ -297,8 +297,8 @@ api.visualization.cruiseList = async() => {
     } else return false;   
 }
 
-api.visualization.csvDownload = async(payload) => {
-    let response = await fetch(apiUrl + `/api/data/query?query=${payload.query}`, fetchOptions);
+api.visualization.csvDownload = async(query) => {
+    let response = await fetch(apiUrl + `/api/data/query?query=${query}`, fetchOptions);
     if(response.ok) return await response.text();
     else return {failed: true, status: response.status}
 }

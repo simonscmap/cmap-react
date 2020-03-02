@@ -2,7 +2,7 @@ const jss = {
     // styles for top navbar links
     navLink: theme => ({
         textDecoration: 'none',
-        marginRight: 20,
+        marginRight: 40,
         color: 'white',
         '&:hover': {
             color: theme.palette.primary.main

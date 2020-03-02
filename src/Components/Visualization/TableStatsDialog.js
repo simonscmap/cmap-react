@@ -8,7 +8,8 @@ import colors from '../../Enums/colors';
 
 const styles = theme => ({
     dialogPaper: {
-        backgroundColor: colors.backgroundGray
+        backgroundColor: colors.backgroundGray,
+        width: '700px'
     }
 })
 

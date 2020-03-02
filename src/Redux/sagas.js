@@ -220,17 +220,24 @@ function* tableStatsRequest(action){
 function* csvDownloadRequest(action){
     yield put(visualizationActions.csvDownloadRequestProcessing());
     yield put(interfaceActions.setLoadingMessage('Fetching Data'));
-    let response = yield call(api.visualization.csvDownload, action.payload);
+    const metadataQuery = `exec uspDatasetMetadata '${action.payload.tableName}'`;
+    // let response = yield call(api.visualization.csvDownload, action.payload);
+    let [ dataResponse, metadataResponse ] = yield all([
+        call(api.visualization.csvDownload, action.payload.query),
+        call(api.visualization.csvDownload, metadataQuery)
+    ]);
     yield put(interfaceActions.setLoadingMessage(''))
-    if(response.failed) {
-        if(response.status === 401){
+    if(dataResponse.failed || metadataResponse.failed) {
+        if(dataResponse.status === 401 || metadataResponse.status === 401){
             yield put(userActions.refreshLogin());
         } else {
             yield put(interfaceActions.snackbarOpen('An error occurred. Please try again.'))
         }
     } else {
-        if(response.length > 1) yield put(visualizationActions.downloadTextAsCsv(response, action.payload.fileName));
-        else yield put(interfaceActions.snackbarOpen('No data found. Please expand query range.'))        
+        if(dataResponse.length > 1) {
+            yield put(visualizationActions.downloadTextAsCsv(dataResponse, action.payload.fileName));
+            yield put(visualizationActions.downloadTextAsCsv(metadataResponse, action.payload.fileName + '_METADATA'));
+        } else yield put(interfaceActions.snackbarOpen('No data found. Please expand query range.'))        
     }
 }
 

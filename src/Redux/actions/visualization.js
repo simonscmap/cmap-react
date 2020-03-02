@@ -162,11 +162,12 @@ export const completedShowCharts = () => ({
     type: visualizationActionTypes.COMPLETED_SHOW_CHARTS
 })
 
-export const csvDownloadRequestSend = (query, fileName) => ({
+export const csvDownloadRequestSend = (query, fileName, tableName) => ({
     type: visualizationActionTypes.CSV_DOWNLOAD_REQUEST_SEND,
     payload: {
         query,
-        fileName
+        fileName,
+        tableName
     }
 })
 

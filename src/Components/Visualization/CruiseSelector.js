@@ -12,8 +12,11 @@ import TableRow from '@material-ui/core/TableRow';
 
 import { cruiseListRequestSend, cruiseTrajectoryRequestSend, cruiseTrajectoryClear } from '../../Redux/actions/visualization';
 
+import ConnectedTooltip from '../UI/ConnectedTooltip';
+
 import states from '../../Enums/asyncRequestStates';
 import colors from '../../Enums/colors';
+import tooltips from '../../Utility/tooltips';
 
 const mapStateToProps = (state, ownProps) => ({
     cruiseList: state.cruiseList,
@@ -39,7 +42,8 @@ const styles = theme => ({
         boxShadow: '2px',
         position: 'relative',
         backdropFilter: 'blur(2px)',
-        transform: 'translateY(35px)'
+        transform: 'translateY(35px)',
+        marginTop: '24px'
     },
 
     cruiseSelect: {
@@ -155,81 +159,83 @@ class CruiseSelector extends Component {
         return (
             <div id='cruise-selector' className={classes.outerDiv}>
                 <div className={classes.blurEffectDiv}></div>
-                <Select
-                    isLoading={this.props.getCruiseListState === states.inProgress}
-                    components={{
-                        IndicatorSeparator:'',
-                        Option,
-                        SingleValue,
-                    }}
-                    isClearable
-                    onInputChange={this.onAutoSuggestChange}
-                    filterOption={null}
-                    className={classes.cruiseSelect}
-                    escapeClearsValue
-                    label="Cruise"
-                    options={options}
-                    onChange={this.handleCruiseSelect}
-                    value={this.state.selectedCruise}
-                    placeholder="Search Cruises"
-                    styles={{
-                        menu: provided => ({ ...provided, zIndex: 9999 }),
+                <ConnectedTooltip placement='left' title={tooltips.visualization.cruiseSelector}>
+                    <Select
+                        isLoading={this.props.getCruiseListState === states.inProgress}
+                        components={{
+                            IndicatorSeparator:'',
+                            Option,
+                            SingleValue,
+                        }}
+                        isClearable
+                        onInputChange={this.onAutoSuggestChange}
+                        filterOption={null}
+                        className={classes.cruiseSelect}
+                        escapeClearsValue
+                        label="Cruise"
+                        options={options}
+                        onChange={this.handleCruiseSelect}
+                        value={this.state.selectedCruise}
+                        placeholder="Search Cruises"
+                        styles={{
+                            menu: provided => ({ ...provided, zIndex: 9999 }),
 
-                        menuList: provided => ({...provided, backgroundColor: colors.backgroundGray}),
+                            menuList: provided => ({...provided, backgroundColor: colors.backgroundGray}),
 
-                        input: provided => ({...provided,
-                            color: 'inherit',
-                            fontFamily: esriFonts
-                        }),
+                            input: provided => ({...provided,
+                                color: 'inherit',
+                                fontFamily: esriFonts
+                            }),
 
-                        control: provided => ({...provided,
-                            backgroundColor: colors.backgroundGray,
-                            border: 'none',
-                            boxShadow: '1px 1px 1px 1px #242424',
-                            color: esriFontColor,
-                            borderRadius: 4,
-                            '&:hover': { 
-                                border: `1px solid white`,
+                            control: provided => ({...provided,
+                                backgroundColor: colors.backgroundGray,
+                                border: 'none',
+                                boxShadow: '1px 1px 1px 1px #242424',
+                                color: esriFontColor,
+                                borderRadius: 4,
+                                '&:hover': { 
+                                    border: `1px solid white`,
+                                },
+                                '&:focus-within': {
+                                    borderColor: colors.primary
+                                }
+                            }),
+
+                            placeholder: provided => ({...provided,
+                                fontFamily: esriFonts,
+                                color: colors.primary,
+                                fontSize: '14px'
+                            }),
+
+                            noOptionsMessage: provided => ({...provided,
+                                fontFamily: esriFonts,
+                                color: esriFontColor,
+                                backgroundColor: colors.backgroundGray
+                            }),
+
+                            option: (provided, state) => ({...provided,
+                                backgroundColor: colors.backgroundGray,
+                                color: state.isFocused ? colors.primary : 'white',
+                                '&:hover': { backgroundColor: colors.greenHover}
+                            }),
+
+                            singleValue: (provided, state) => ({...provided,
+                                fontFamily: esriFonts,
+                                color: 'inherit',
+                                paddingRight: '20px',
+                            })
+                        }}
+                        theme={theme => ({
+                            ...theme,
+                            colors: {
+                                ...theme.colors,
+                                // Background color of hovered options
+                                primary25: '#e0e0e0',
+                                primary: '#212121',
                             },
-                            '&:focus-within': {
-                                borderColor: colors.primary
-                            }
-                        }),
-
-                        placeholder: provided => ({...provided,
-                            fontFamily: esriFonts,
-                            color: colors.primary,
-                            fontSize: '14px'
-                        }),
-
-                        noOptionsMessage: provided => ({...provided,
-                            fontFamily: esriFonts,
-                            color: esriFontColor,
-                            backgroundColor: colors.backgroundGray
-                        }),
-
-                        option: (provided, state) => ({...provided,
-                            backgroundColor: colors.backgroundGray,
-                            color: state.isFocused ? colors.primary : 'white',
-                            '&:hover': { backgroundColor: colors.greenHover}
-                        }),
-
-                        singleValue: (provided, state) => ({...provided,
-                            fontFamily: esriFonts,
-                            color: 'inherit',
-                            paddingRight: '20px',
-                        })
-                    }}
-                    theme={theme => ({
-                        ...theme,
-                        colors: {
-                            ...theme.colors,
-                            // Background color of hovered options
-                            primary25: '#e0e0e0',
-                            primary: '#212121',
-                        },
-                    })}
-                />
+                        })}
+                    />
+                </ConnectedTooltip>
                 {selectedCruise &&
                     <Table size='small' className={classes.cruiseInfo}>
                         <TableBody>

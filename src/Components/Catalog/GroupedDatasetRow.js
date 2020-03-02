@@ -1,18 +1,14 @@
 import React from 'react';
 
-import { Typography, Grid, Table, TableBody, TableCell, TableRow, Button, IconButton } from '@material-ui/core';
+import { Typography, Grid, Table, TableBody, TableCell, TableRow, Button, IconButton, Tooltip } from '@material-ui/core';
 import { ChevronRight, ExpandMore } from '@material-ui/icons';
 
 import { withStyles } from '@material-ui/core/styles';
 
 import colors from '../../Enums/colors';
 
-const tableMapping2 = [
-    ['Temporal Resolution', 'Temporal_Resolution'],
-    ['Spatial Resolution', 'Spatial_Resolution']
-];
-
 const styles = (theme) => ({
+
     title:{
         marginBottom: theme.spacing(1)
     },
@@ -73,7 +69,7 @@ const styles = (theme) => ({
         marginTop: theme.spacing(1)
     },
     vizSampleImage: {
-        maxWidth: '80%',
+        maxWidth: '270px',
         maxHeight: '180px'
     },
     variableDetailTable: {
@@ -210,12 +206,21 @@ const styles = (theme) => ({
     },
 
     buttonMarginLeft: {
-        marginLeft: '60px',
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        display: 'block'
     },
 
     buttonMarginTop: {
-        marginTop: '36px',
-        marginLeft: '20px'
+        marginTop: '-60px',
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        display: 'block'
+    },
+
+    tooltip: {
+        backgroundColor: colors.solidPaper,
+        color: colors.primary
     }
 })
 
@@ -232,18 +237,19 @@ const GroupedDatasetRow = (props) => {
     
     if(props.node.field === 'Dataset_Name') {    
         return (
-            <div className={`ag-selectable ${classes.datasetGroupWrapper}`}>            
+            <div className={`ag-selectable ${classes.datasetGroupWrapper}`} onDoubleClick={toggleExpand}>            
                 <Grid container className={classes.datasetGridClass}>
                     <Grid xs={1} item className={classes.datasetButtonWrapper}>
-                        {expanded ? 
+                        {expanded ?
                             <IconButton onClick={toggleExpand} size='small' className={`${classes.datasetChevronButton}`}>
                                 <ExpandMore className={classes.chevronIcon}/>
-                            </IconButton> 
+                            </IconButton>
                         :
-
+                        <Tooltip title='Show member variables' enterDelay={300}>
                             <IconButton onClick={toggleExpand} size='small' className={`${classes.datasetChevronButton}`}>
                                 <ChevronRight className={classes.chevronIcon}/>
-                            </IconButton>                
+                            </IconButton>
+                        </Tooltip>
                         }
                     </Grid>
 
@@ -292,20 +298,21 @@ const GroupedDatasetRow = (props) => {
                                 </Grid>
 
                                 <Grid item xs={4} container direction='column' className={classes.tableGridSection}>
-                                    <Grid item xs={12}></Grid>
+                                        <div style={{height: '70%', justifyContent: 'center', width: '100%'}}>
                                     { data.Acknowledgement &&
-                                        <div style={{height: '70%', justifyContent: 'center'}}>
-                                            <Typography className={classes.acknowledgementHeader}>
-                                                <strong>Acknowledgement:</strong>
-                                            </Typography>
+                                        <div>
+                                                <Typography className={classes.acknowledgementHeader}>
+                                                    <strong>Acknowledgement:</strong>
+                                                </Typography>
 
-                                            <Typography title={data.Acknowledgement} className={classes.acknowledgement}>
-                                                {data.Acknowledgement}
-                                            </Typography>                                            
+                                                <Typography title={data.Acknowledgement} className={classes.acknowledgement}>
+                                                    {data.Acknowledgement}
+                                                </Typography>
                                         </div>
                                     }
+                                        </div>
 
-                                        <div style={{height: '30%', justifyContent: 'center'}}>
+                                        <div style={{height: '30%', justifyContent: 'center', width: '100%'}}>
                                             <Button 
                                                 variant='contained'
                                                 className={`${classes.datasetDescriptionButton} ${data.Acknowledgement ? classes.buttonMarginLeft : classes.buttonMarginTop}`} 

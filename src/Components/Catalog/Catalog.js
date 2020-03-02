@@ -36,6 +36,7 @@ class Catalog extends Component {
 
     render(){
         let content = this.determineContent();
+        
         return (
             <React.Fragment>
                 {content}

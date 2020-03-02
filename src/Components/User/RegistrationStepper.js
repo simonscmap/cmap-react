@@ -2,12 +2,14 @@ import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 
-import { Stepper, Step, StepLabel, Button, Typography, CircularProgress, Paper } from '@material-ui/core';
+import { Link as RouterLink } from 'react-router-dom';
+
+import { Stepper, Step, StepLabel, Button, Typography, CircularProgress, Paper, Link } from '@material-ui/core';
 
 import RegistrationCard from './RegistrationCard';
 
 import { registrationNextActiveStep, registrationPreviousActiveStep } from '../../Redux/actions/ui';
-import { userRegistrationRequestSend, userValidationRequestSend } from '../../Redux/actions/user';
+import { userRegistrationRequestSend, userValidationRequestSend, userValidationRequestSuccess } from '../../Redux/actions/user';
 
 import states from '../../Enums/asyncRequestStates';
 
@@ -47,8 +49,8 @@ const styles = theme => ({
     },
 
     bottomError: {
-        color: theme.palette.primary.main,
-        marginTop: theme.spacing(1)
+        color: 'white',
+        marginTop: theme.spacing(2)
     }
 });
 
@@ -147,6 +149,11 @@ class RegistrationStepper extends Component {
         this.state = {
             cards
         }
+    }
+
+    componentDidMount = () => {
+        // Prevents validation failure message from appearing again if user navigates here to try again
+        if(this.props.userValidationState === states.failed) this.props.userValidationRequestSuccess();
     }
 
     validateField = (name, rawValue) => {
@@ -306,7 +313,7 @@ class RegistrationStepper extends Component {
                                     {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
                                 </Button>
                                 {this.props.userValidationState === states.inProgress && <CircularProgress size={24} className= {classes.buttonProgress} />}
-                                {this.props.userValidationState === states.failed && <Typography className={classes.bottomError}>That username or email is already in use.</Typography>}
+                                {this.props.userValidationState === states.failed && <Typography className={classes.bottomError}>That username or email address is already in use. If you previously registered you can recover your password <Link onClick={this.handleClose} component={RouterLink} to={{pathname: '/forgotpass'}}>here</Link>.</Typography>}
                                 {this.props.userRegistrationState === states.failed && <Typography className={classes.bottomError}>Registration failed. Please try again.</Typography>}
                             </div>
                         </div>

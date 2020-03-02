@@ -29,13 +29,20 @@ const styles = (theme) => ({
 
     dropdown: {
         zIndex: 1300,
-        marginTop: '21px'
+        marginTop: '21px',
+        width: '200px'
     },
 
-    popperPaper: {
+    popperPaperBlue: {
         borderTopLeftRadius: 0,
         borderTopRightRadius: 0,
         backgroundColor: '#133345'
+    },
+
+    popperPaperBlack: {
+        borderTopLeftRadius: 0,
+        borderTopRightRadius: 0,
+        backgroundColor: 'black'
     }
 });
 
@@ -60,6 +67,8 @@ const UserNavbarDropdown = (props) => {
       setAnchorEl(null);
     };
 
+    const paperClass = window.location.pathname === '/visualization' ? classes.popperPaperBlack : classes.popperPaperBlue;
+
     return (
         <React.Fragment>
             <Typography variant='caption' className={`${classes.navLink} ${pathname === '/visualization' ? '' : classes.floatRight}`} onClick={handleClick}>
@@ -71,7 +80,7 @@ const UserNavbarDropdown = (props) => {
                     {...TransitionProps}
                     style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}
                     >
-                        <Paper className={classes.popperPaper}>
+                        <Paper className={paperClass}>
                             <ClickAwayListener onClickAway={handleClose}>
                                 <MenuList id="menu-list-grow">
                                     <MenuItem onClick={handleClose} component={Link} to='/profile'>Profile</MenuItem>

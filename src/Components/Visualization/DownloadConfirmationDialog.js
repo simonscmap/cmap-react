@@ -49,15 +49,27 @@ class DownloadConfirmationDialog extends Component {
     handleFullDatasetDownload = (tableName) => {
         let query = `select%20*%20from%20${tableName}`;
         const fileName = this.props.downloadTarget.variable || this.props.downloadTarget.dataset;
-        this.props.csvDownloadRequestSend(query, fileName);
+        this.props.csvDownloadRequestSend(query, fileName, tableName);
     }
 
     handleSubsetDownload = (tableName, dt1, dt2, lat1, lat2, lon1, lon2, depth1, depth2) => {
-        let query = `select * from ${tableName} where time between '${dt1}' and '${dt2}' and ` +
+        const sampleMember = this.props.catalog.find(item => item.Dataset_Name === this.props.downloadTarget.dataset);
+        let isMonthyClimatology = Boolean(sampleMember.Temporal_Resolution === temporalResolutions.monthlyClimatology);
+
+        const timeUnit = isMonthyClimatology ? 'month' : 'time';
+        const timeStart = isMonthyClimatology ? new Date(dt1).getMonth() + 1 : dt1;
+        const timeEnd = isMonthyClimatology ? new Date(dt2).getMonth() + 1 : dt2;
+
+        let query = `select * from ${tableName} where ${timeUnit} between '${timeStart}' and '${timeEnd}' and ` +
             `lat between ${lat1} and ${lat2} and ` +
-            `lon between ${lon1} and ${lon2}`
+            `lon between ${lon1} and ${lon2}`;
+
+        if(Boolean(sampleMember.Depth_Max)){
+            query += `and depth between ${depth1} and ${depth2}`
+        }
+
         const fileName = this.props.downloadTarget.variable || this.props.downloadTarget.dataset;
-        this.props.csvDownloadRequestSend(query, fileName);
+        this.props.csvDownloadRequestSend(query, fileName, tableName);
     }
 
     render() {
@@ -70,7 +82,7 @@ class DownloadConfirmationDialog extends Component {
         if(!tableStats) return '';
 
         const sampleMember = catalog.find(item => item.Dataset_Name === downloadTarget.dataset);
-        const { Lat_Min, Lat_Max, Lon_Min, Lon_Max, Time_Min, Time_Max, Depth_Min, Depth_Max } = sampleMember;
+        const { Lat_Min, Lat_Max, Lon_Min, Lon_Max, Time_Min, Time_Max, Depth_Min, Depth_Max, Table_Name } = sampleMember;
         const latMin = parseFloat(Lat_Min);
         const latMax = parseFloat(Lat_Max);
         const lonMin = parseFloat(Lon_Min);

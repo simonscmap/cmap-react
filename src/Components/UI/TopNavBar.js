@@ -58,7 +58,7 @@ const styles = theme => ({
     navLink: JSS.navLink(theme),
 
     rightNavLink: {
-        marginRight: 20
+        marginRight: 30
     }
 })
 
@@ -114,7 +114,7 @@ class TopNavBar extends Component {
     }
 
     render(){
-        const { classes, history, user } = this.props;
+        const { classes, history, user, showHelp } = this.props;
         const { pathname } = history.location;
 
         return (
@@ -126,18 +126,24 @@ class TopNavBar extends Component {
                         <img src='images/CMAP_white_logo_2.png' width='40' alt='CMAP logo' className={classes.simonsLogo}/>
                     </Typography>
                     <Typography variant='caption' to='/catalog' component={Link} className={classes.navLink}>Catalog</Typography>
-                    {pathname !== '/visualization' && <Typography variant='caption' to='/visualization' component={Link} className={classes.navLink}>Visualization</Typography>}
+                    <Typography variant='caption' to='/visualization' component={Link} className={classes.navLink}>Visualization</Typography>
                     {/* <DataSubmissionNavbarDropdown/> */}
                     {/* <Typography variant='caption' to='/contact' component={Link} className={classes.navLink}>Contact</Typography> */}
                 </div>
 
                 {/* Right side of navbar */}
                 <div className={classes.rightSectionWrapper}>
-                    <div>
+                    {/* <div>
                         {user && pathname !== '/visualization' && <UserNavbarDropdown pathname={pathname} user={user}/>}
-                        {/* <Typography variant='caption' onClick={this.props.toggleShowHelp} className={classes.navLink}>{showHelp ? 'Hide Help' : 'Help(beta) '}</Typography> */}
+                        <Typography variant='caption' onClick={this.props.toggleShowHelp} className={classes.navLink}>{showHelp ? 'Hide Help' : 'Help(beta) '}</Typography>
                         {(!user && pathname !== '/visualization') && <Typography variant='caption' onClick={() => this.props.showLoginDialog()} className={`${classes.navLink} ${classes.rightNavLink}`}>Log In</Typography>}
                         {(!user && pathname !== '/visualization') && <Typography variant='caption' to='/register' component={Link} className={`${classes.navLink} ${classes.rightNavLink}`}>Register</Typography>}
+                    </div> */}
+                    <div>
+                        <Typography variant='caption' onClick={this.props.toggleShowHelp} className={classes.navLink}>{showHelp ? 'Hide Help' : 'Show Help'}</Typography>
+                        {user && <UserNavbarDropdown pathname={pathname} user={user}/>}
+                        {!user && <Typography variant='caption' onClick={() => this.props.showLoginDialog()} className={`${classes.navLink} ${classes.rightNavLink}`}>Log In</Typography>}
+                        {!user && <Typography variant='caption' to='/register' component={Link} className={`${classes.navLink} ${classes.rightNavLink}`}>Register</Typography>}
                     </div>
                 </div>
             </div>        

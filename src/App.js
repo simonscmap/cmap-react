@@ -24,6 +24,8 @@ import DataSubmission from './Components/DataSubmission/DataSubmission';
 import ContactUs from './Components/ContactUs';
 
 import { initializeGoogleAuth } from './Redux/actions/user';
+import { toggleShowHelp } from './Redux/actions/ui';
+
 import ForgotPass from './Components/User/ForgotPass';
 import ChoosePassword from './Components/User/ChoosePassword';
 
@@ -118,6 +120,12 @@ const theme = createMuiTheme({
       }
     },
 
+    MuiPickersBasePicker: {
+      container: {
+        backgroundColor: colors.backgroundGray
+      }
+    },
+    
     MuiOutlinedInput: {
       input: {
         padding: '12px 14px'
@@ -193,11 +201,16 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 const mapDispatchToProps = {
-  initializeGoogleAuth
+  initializeGoogleAuth,
+  toggleShowHelp
 };
 
 class App extends Component {
-
+  // componentDidMount = () => {
+  //   window.addEventListener('keydown', (e) => {
+  //     if(e.keyCode === 65 && e.ctrlKey) this.props.toggleShowHelp();
+  //   })
+  // }
   render() {
     return (
       <MuiPickersUtilsProvider utils={DateFnsUtils}>
