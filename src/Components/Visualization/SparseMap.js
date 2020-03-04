@@ -14,7 +14,9 @@ import colors from '../../Enums/colors';
 import chartBase from '../../Utility/chartBase';
 import handleChartDateString from '../../Utility/handleChartDatestring';
 
-import { setLoadingMessage } from '../../Redux/actions/ui'; 
+import { setLoadingMessage } from '../../Redux/actions/ui';
+import { csvFromVizRequestSend } from '../../Redux/actions/visualization';
+
 import SparseScatter from './SparseScatter';
 
 const handleSparseMap = (infoObject, palette, zValues) => {
@@ -131,7 +133,8 @@ const styles = theme => ({
 })
 
 const mapDispatchToProps = {
-    setLoadingMessage
+    setLoadingMessage,
+    csvFromVizRequestSend
 }
 
 function tabProps(index) {
@@ -147,11 +150,6 @@ const SparseTabPanel = (props) => {
     return (
         <div hidden={selectedTab !== index}>
             <ChartControlPanel
-                // handlePaletteChoice={handlePaletteChoice}
-                // handleZValueConfirm={handleZValueConfirm}
-                // zValues={zValues}
-                // extent={data.extent}
-                // downloadCsv={downloadCsv}
                 {...controlPanelProps}
             />
             {children}
@@ -162,9 +160,9 @@ const SparseTabPanel = (props) => {
 
 const SparseMap = (props) => {
 
-    const { classes } = props;
-
+    const { classes, csvFromVizRequestSend } = props;
     const { data } = props.chart;
+    const { metadata } = data;
 
     const [palette, setPalette] = useState('Heatmap');
     const [zValues, setZValues] = useState([data.zMin, data.zMax]);
@@ -194,22 +192,7 @@ const SparseMap = (props) => {
     }
 
     const downloadCsv = () => {
-        props.setLoadingMessage('Processing Data');
-
-        setTimeout(() => {
-            window.requestAnimationFrame(() => props.setLoadingMessage(''));
-
-            let csv = data.generateCsv();
-            const blob = new Blob([csv], {type: 'text/csv'});
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.setAttribute('hidden', '');
-            a.setAttribute('href', url);
-            a.setAttribute('download', `${data.parameters.fields}.csv`);
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        }, 100)
+        csvFromVizRequestSend(data, metadata.Table_Name, metadata.Variable, metadata.Long_Name);
     }
 
     const handleMarkerOptionsConfirm = (values) => {
@@ -269,7 +252,7 @@ const SparseMap = (props) => {
                         markerOptions={markerOptions}
                         infoObject={data}
                         xTitle='Time'
-                        yTitle={`${data.parameters.fields}[${data.metadata.Unit}]`}
+                        yTitle={`${data.parameters.fields}[${metadata.Unit}]`}
                         type='time'
                     />
                 }

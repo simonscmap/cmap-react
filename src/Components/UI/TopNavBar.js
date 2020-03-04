@@ -133,14 +133,8 @@ class TopNavBar extends Component {
 
                 {/* Right side of navbar */}
                 <div className={classes.rightSectionWrapper}>
-                    {/* <div>
-                        {user && pathname !== '/visualization' && <UserNavbarDropdown pathname={pathname} user={user}/>}
-                        <Typography variant='caption' onClick={this.props.toggleShowHelp} className={classes.navLink}>{showHelp ? 'Hide Help' : 'Help(beta) '}</Typography>
-                        {(!user && pathname !== '/visualization') && <Typography variant='caption' onClick={() => this.props.showLoginDialog()} className={`${classes.navLink} ${classes.rightNavLink}`}>Log In</Typography>}
-                        {(!user && pathname !== '/visualization') && <Typography variant='caption' to='/register' component={Link} className={`${classes.navLink} ${classes.rightNavLink}`}>Register</Typography>}
-                    </div> */}
                     <div>
-                        <Typography variant='caption' onClick={this.props.toggleShowHelp} className={classes.navLink}>{showHelp ? 'Hide Help' : 'Show Help'}</Typography>
+                        {/* <Typography variant='caption' onClick={this.props.toggleShowHelp} className={classes.navLink}>{showHelp ? 'Hide Help' : 'Show Help'}</Typography> */}
                         {user && <UserNavbarDropdown pathname={pathname} user={user}/>}
                         {!user && <Typography variant='caption' onClick={() => this.props.showLoginDialog()} className={`${classes.navLink} ${classes.rightNavLink}`}>Log In</Typography>}
                         {!user && <Typography variant='caption' to='/register' component={Link} className={`${classes.navLink} ${classes.rightNavLink}`}>Register</Typography>}

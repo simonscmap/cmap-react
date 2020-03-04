@@ -8,6 +8,7 @@ import Plot from 'react-plotly.js';
 import ChartControlPanel from './ChartControlPanel';
 
 import { setLoadingMessage } from '../../Redux/actions/ui';
+import { csvFromVizRequestSend } from '../../Redux/actions/visualization';
 
 import colors from '../../Enums/colors';
 import chartBase from '../../Utility/chartBase';
@@ -30,12 +31,13 @@ const styles = theme => ({
 })
 
 const mapDispatchToProps = {
-    setLoadingMessage
+    setLoadingMessage,
+    csvFromVizRequestSend
 }
 
 const DepthProfileChart = (props) => {
 
-    const { setLoadingMessage } = props;
+    const { setLoadingMessage, csvFromVizRequestSend } = props;
     const { data } = props.chart;
     const { stds, variableValues, depths, parameters, metadata } = data;
     var infoObject = data;
@@ -47,22 +49,7 @@ const DepthProfileChart = (props) => {
     })
 
     const downloadCsv = () => {
-        setLoadingMessage('Processing Data');
-    
-        setTimeout(() => {
-            window.requestAnimationFrame(() => setLoadingMessage(''));
-    
-            let csv = data.generateCsv();
-            const blob = new Blob([csv], {type: 'text/csv'});
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.setAttribute('hidden', '');
-            a.setAttribute('href', url);
-            a.setAttribute('download', `${data.parameters.fields}.csv`);
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        }, 100)
+        csvFromVizRequestSend(data, metadata.Table_Name, metadata.Variable, metadata.Long_Name);
     }    
 
     const handleMarkerOptionsConfirm = (values) => {
@@ -78,7 +65,7 @@ const DepthProfileChart = (props) => {
 
     const date = date1 === date2 ? handleChartDateString(date1, infoObject.hasHour, infoObject.isMonthly) :
             handleChartDateString(date1, infoObject.hasHour, infoObject.isMonthly) + ' to ' + handleChartDateString(date2, infoObject.hasHour, infoObject.isMonthly);
-    
+    console.log(data);
     return (
         <div>
             <ChartControlPanel

@@ -16,7 +16,8 @@ import getChartDimensions from '../../Utility/getChartDimensions';
 import handleChartDateString from '../../Utility/handleChartDatestring';
 import countWebGLContexts from '../../Utility/countWebGLContexts';
 
-import { setLoadingMessage, snackbarOpen } from '../../Redux/actions/ui'; 
+import { setLoadingMessage, snackbarOpen } from '../../Redux/actions/ui';
+import { csvFromVizRequestSend } from '../../Redux/actions/visualization';
 import ChartControlPanel from './ChartControlPanel';
 
 import { format } from 'd3-format';
@@ -134,86 +135,11 @@ const handleContourMap = (subsets, infoObject, splitByDate, splitByDepth, palett
                 },
                 xaxis: {title: 'Longitude', color: '#ffffff', ...xTicks},
                 yaxis: {title: 'Latitude', color: '#ffffff'},
-                // annotations: chartBase.annotations(infoObject.metadata.Distributor, height)
                 annotations: chartBase.annotations(infoObject.metadata.Distributor, height)
             }}   
         />)
     })
 }
-
-// const handleHistogram = (subsets, infoObject, splitByDate, splitByDepth, palette) => {
-
-//     const depths = Array.from(infoObject.depths).map(depth => parseFloat(depth));
-//     const dates = Array.from(infoObject.dates);
-//     const { parameters, metadata } = infoObject;
-
-//     return subsets.map((subset, index) => {
-
-//         const date = parameters.dt1 === parameters.dt2 ? handleChartDateString(parameters.dt1) :
-//             handleChartDateString(parameters.dt1) + ' to ' + handleChartDateString(parameters.dt2);
-
-//         const latTitle = parameters.lat1 === parameters.lat2 ? parameters.lat1 + '\xb0' :
-//             parameters.lat1 + '\xb0 to ' + parameters.lat2 + '\xb0';
-
-//         const lonTitle = parameters.lon1 === parameters.lon2 ? parameters.lon1 + '\xb0' :
-//             parameters.lon1 + '\xb0 to ' + parameters.lon2 + '\xb0';
-
-//         const depth = !infoObject.hasDepth ? 'Surface' :
-//             parameters.depth1 === parameters.depth2 ? `${parameters.depth1}[m]` :
-//             `${parameters.depth1}[m] to ${parameters.depth2}[m]`;
-
-//         return (
-//         <Plot
-//             style= {{
-//                 position: 'relative',
-//                 // display:'inline-block',
-//                 width: '60vw',
-//                 height: '40vw'
-//             }}
-
-//             useResizeHandler={true}
-
-//             data={[
-//                 {
-//                     x: subset,
-//                     name: infoObject.parameters.fields,
-//                     type: 'histogram',
-//                     marker: {
-//                         color: '#00FFFF'
-//                     }
-//                 }
-//             ]}
-            
-//             key={index}
-//             layout= {{
-//                 ...chartBase.layout,
-//                 plot_bgcolor: 'transparent',
-//                 // autosize: true,
-//                 title: {
-//                     text: `${parameters.fields} [${metadata.Unit}]` + 
-//                         `<br>${date}, ` + 
-//                         `${depth} <br>` + 
-//                         `Lat: ${latTitle}, ` +
-//                         `Lon: ${lonTitle}`,
-//                     font: {
-//                         size: 13
-//                     }
-//                 },
-//                 xaxis: {
-//                     title: `${infoObject.parameters.fields} [${infoObject.metadata.Unit}]`,
-//                     exponentformat: 'power',
-//                     color: '#ffffff'
-//                 },
-//                 yaxis:{
-//                     color: '#ffffff',
-//                     title: 'Frequency'
-//                 },
-//                 annotations: chartBase.annotations(infoObject.metadata.Distributor)             
-//             }}
-//             config={{...chartBase.config}}
-//         />)
-//     })
-// }
 
 const handleHeatmap = (subsets, infoObject, splitByDate, splitByDepth, palette, zMin, zMax) => {
     const { parameters, metadata } = infoObject;
@@ -287,9 +213,6 @@ const handleHeatmap = (subsets, infoObject, splitByDate, splitByDepth, palette, 
 
             layout= {{
                 ...chartBase.layout,
-                // width: `${width}vw`,
-                // height: `${height}vw`,
-                // autosize: true,
                 title: {
                     text: `${parameters.fields} [${metadata.Unit}]` + 
                         `<br>${date}, ` + 
@@ -312,7 +235,6 @@ const handleHeatmap = (subsets, infoObject, splitByDate, splitByDepth, palette, 
                     exponentformat: 'power'
                 },
                 annotations: chartBase.annotations(infoObject.metadata.Distributor, height)
-                // annotations: chartBase.annotations(infoObject.metadata.Distributor, height)
             }}   
         />)
     })
@@ -336,14 +258,15 @@ const styles = theme => ({
 
 const mapDispatchToProps = {
     setLoadingMessage,
-    snackbarOpen
+    snackbarOpen,
+    csvFromVizRequestSend
 }
 
 const SpaceTimeChart = (props) => {
 
-    const { snackbarOpen } = props;
+    const { snackbarOpen, csvFromVizRequestSend } = props;
     const { data, subType } = props.chart;
-    const { dates, depths, extent } = data;
+    const { dates, depths, extent, metadata } = data;
 
     const [splitByDate, setSplitByDate] = useState(false);
     const [splitByDepth, setSplitByDepth] = useState(true);
@@ -363,7 +286,6 @@ const SpaceTimeChart = (props) => {
             break;
 
         case vizSubTypes.histogram:
-            // plots = handleHistogram(subSets, data, splitByDate, splitByDepth, palette, zMin, zMax);
             return <SparseHistogram chart={{data}}/>;
 
         default:
@@ -397,18 +319,7 @@ const SpaceTimeChart = (props) => {
             setSplitByDate(!splitByDate);
         }, 100)
     }
-
-    // let chartCount = splitBySpace ? spaces.size : 1;
-    //     if(!splitByDate && chartCount * dates.size > 20){
-    //         return;
-    //     }
-    //     else {
-    //         props.setLoadingMessage('Re-rendering');
-    //         setTimeout(() => {
-    //             window.requestAnimationFrame(() => props.setLoadingMessage(''));
-    //             setSplitByDate(!splitByDate);
-    //         }, 100)
-    //     }  
+ 
     const onToggleSplitByDepth = () => {
         props.setLoadingMessage('Processing Data');
         setTimeout(() => {
@@ -434,22 +345,7 @@ const SpaceTimeChart = (props) => {
     }
 
     const downloadCsv = () => {
-        props.setLoadingMessage('Processing Data');
-
-        setTimeout(() => {
-            window.requestAnimationFrame(() => props.setLoadingMessage(''));
-
-            let csv = data.generateCsv();
-            const blob = new Blob([csv], {type: 'text/csv'});
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.setAttribute('hidden', '');
-            a.setAttribute('href', url);
-            a.setAttribute('download', `${data.parameters.fields}.csv`);
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        }, 100)
+        csvFromVizRequestSend(data, metadata.Table_Name, metadata.Variable, metadata.Long_Name);
     }
 
     return (

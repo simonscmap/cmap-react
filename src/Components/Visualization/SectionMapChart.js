@@ -6,6 +6,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Plot from 'react-plotly.js';
 
 import { setLoadingMessage, snackbarOpen } from '../../Redux/actions/ui';
+import { csvFromVizRequestSend } from '../../Redux/actions/visualization';
 
 import colors from '../../Enums/colors';
 import visualizationSubTypes from '../../Enums/visualizationSubTypes';
@@ -195,14 +196,15 @@ const styles = theme => ({
 
 const mapDispatchToProps = {
     setLoadingMessage,
-    snackbarOpen
+    snackbarOpen,
+    csvFromVizRequestSend
 }
 
 const SectionMapChart = (props) => {
 
-    const { classes, snackbarOpen } = props;
+    const { classes, snackbarOpen, csvFromVizRequestSend } = props;
     const { data } = props.chart;
-    const { dates, extent, lats, lons } = data;
+    const { dates, extent, lats, lons, metadata } = data;
 
     const [splitByDate, setSplitByDate] = useState(false);
     const [splitBySpace, setSplitBySpace] = useState(false);
@@ -217,22 +219,7 @@ const SectionMapChart = (props) => {
     var plots = handleSectionMap(subsets, data, splitByDate, splitBySpace, orientation, palette, zMin, zMax);
 
     const downloadCsv = () => {
-        setLoadingMessage('Processing Data');
-    
-        setTimeout(() => {
-            window.requestAnimationFrame(() => setLoadingMessage(''));
-    
-            let csv = data.generateCsv();
-            const blob = new Blob([csv], {type: 'text/csv'});
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.setAttribute('hidden', '');
-            a.setAttribute('href', url);
-            a.setAttribute('download', `${data.parameters.fields}.csv`);
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        }, 100)
+        csvFromVizRequestSend(data, metadata.Table_Name, metadata.Variable, metadata.Long_Name);
     }
 
     const handlePaletteChoice = (option) => {

@@ -298,6 +298,7 @@ api.visualization.cruiseList = async() => {
 }
 
 api.visualization.csvDownload = async(query) => {
+    if(!query) return null;
     let response = await fetch(apiUrl + `/api/data/query?query=${query}`, fetchOptions);
     if(response.ok) return await response.text();
     else return {failed: true, status: response.status}

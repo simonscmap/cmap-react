@@ -175,10 +175,6 @@ const theme = createMuiTheme({
         paddingLeft: '6px',
       },
 
-      inputSelect: {
-        paddingBottom: '6px'
-      },
-
       adornedEnd: {
         paddingRight: '6px'
       },

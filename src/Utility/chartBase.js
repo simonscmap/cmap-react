@@ -16,7 +16,7 @@ export default {
         return (
             [
                 {
-                    text: `Source: ${distributor.length < 35 ? 
+                    text: `Data Source: ${distributor.length < 35 ? 
                         distributor : 
                         distributor.slice(0,32) + '...'} -- Provided by Simons CMAP`,
                     font: {

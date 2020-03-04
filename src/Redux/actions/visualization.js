@@ -187,10 +187,20 @@ export const csvDownloadRequestSuccess = (text) => ({
 })
 
 //dataset download
-export const downloadTextAsCsv = (text, datasetName) => ({
+export const downloadTextAsCsv = (text, fileName) => ({
     type: visualizationActionTypes.DOWNLOAD_TEXT_AS_CSV,
     payload: {
         text,
-        datasetName
+        fileName
+    }
+})
+
+export const csvFromVizRequestSend = (vizObject, tableName, shortName, longName) => ({
+    type: visualizationActionTypes.CSV_FROM_VIZ_REQUEST_SEND,
+    payload: {
+        vizObject,
+        tableName,
+        shortName,
+        longName
     }
 })

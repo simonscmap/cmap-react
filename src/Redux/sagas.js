@@ -221,11 +221,12 @@ function* csvDownloadRequest(action){
     yield put(visualizationActions.csvDownloadRequestProcessing());
     yield put(interfaceActions.setLoadingMessage('Fetching Data'));
     const metadataQuery = `exec uspDatasetMetadata '${action.payload.tableName}'`;
-    // let response = yield call(api.visualization.csvDownload, action.payload);
+
     let [ dataResponse, metadataResponse ] = yield all([
         call(api.visualization.csvDownload, action.payload.query),
         call(api.visualization.csvDownload, metadataQuery)
     ]);
+
     yield put(interfaceActions.setLoadingMessage(''))
     if(dataResponse.failed || metadataResponse.failed) {
         if(dataResponse.status === 401 || metadataResponse.status === 401){
@@ -241,6 +242,22 @@ function* csvDownloadRequest(action){
     }
 }
 
+
+function* csvFromVizRequest(action){
+    yield put(interfaceActions.setLoadingMessage('Processing Data'));
+    const csvData = yield action.payload.vizObject.generateCsv();
+
+    yield put(interfaceActions.setLoadingMessage('Fetching metadata'));
+    const metadataQuery = `exec uspVariableMetadata '${action.payload.tableName}', '${action.payload.shortName}'`;
+    let metadataResponse = yield call(api.visualization.csvDownload, metadataQuery);
+    yield put(interfaceActions.setLoadingMessage(''))
+
+    if(metadataResponse.failed) yield put(interfaceActions.snackbarOpen('Failed to download variable metadata'));
+
+    yield put(visualizationActions.downloadTextAsCsv(csvData, action.payload.longName));
+    yield put(visualizationActions.downloadTextAsCsv(metadataResponse, action.payload.longName + '_Metadata'));
+}
+
 function* downloadTextAsCsv(action){
     yield put(interfaceActions.setLoadingMessage('Processing Data'))
     let csv = action.payload.text;
@@ -249,7 +266,7 @@ function* downloadTextAsCsv(action){
     const a = document.createElement('a');
     a.setAttribute('hidden', '');
     a.setAttribute('href', url);
-    a.setAttribute('download', `${action.payload.datasetName}.csv`);
+    a.setAttribute('download', `${action.payload.fileName}.csv`);
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -447,6 +464,10 @@ function* watchChangeEmailRequest(){
     yield takeLatest(userActionTypes.CHANGE_EMAIL_REQUEST_SEND, changeEmailRequest);
 }
 
+function* watchCsvFromVizRequest(){
+    yield takeLatest(visualizationActionTypes.CSV_FROM_VIZ_REQUEST_SEND, csvFromVizRequest);
+}
+
 // function createWorkerChannel(worker) {
 //     return eventChannel(emit => {
 //         worker.onmessage = message => {
@@ -498,6 +519,7 @@ export default function* rootSaga() {
         watchChoosePasswordRequest(),
         watchContactUs(),
         watchChangePasswordRequest(),
-        watchChangeEmailRequest()
+        watchChangeEmailRequest(),
+        watchCsvFromVizRequest(),
     ])
 }

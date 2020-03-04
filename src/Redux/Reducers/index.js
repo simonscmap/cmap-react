@@ -44,6 +44,10 @@ const initialState = {
 
     choosePasswordState: null,
 
+    preferences: {
+        
+    },
+
     // Visualization state pieces
     maps: [],
     charts: [],

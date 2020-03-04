@@ -79,7 +79,8 @@ const mapStateToProps = (state, ownProps) => ({
     cruiseTrajectory: state.cruiseTrajectory,
     cruiseList: state.cruiseList,
     showChartsOnce: state.showChartsOnce,
-    datasets: state.datasets
+    datasets: state.datasets,
+    catalog: state.catalog
 })
 
 const mapDispatchToProps = {

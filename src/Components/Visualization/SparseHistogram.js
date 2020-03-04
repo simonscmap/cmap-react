@@ -11,7 +11,8 @@ import colors from '../../Enums/colors';
 
 import chartBase from '../../Utility/chartBase';
 
-import { setLoadingMessage } from '../../Redux/actions/ui'; 
+import { csvFromVizRequestSend } from '../../Redux/actions/visualization';
+
 import ChartControlPanel from './ChartControlPanel';
 
 const styles = theme => ({
@@ -31,30 +32,16 @@ const styles = theme => ({
 })
 
 const mapDispatchToProps = {
-    setLoadingMessage
+    csvFromVizRequestSend
 }
 
 const SparseHistogram = (props) => {
-
+    const { csvFromVizRequestSend } = props;
     const { data } = props.chart;
     const { metadata, parameters } = data;
+
     const downloadCsv = () => {
-        props.setLoadingMessage('Processing Data');
-
-        setTimeout(() => {
-            window.requestAnimationFrame(() => props.setLoadingMessage(''));
-
-            let csv = data.generateCsv();
-            const blob = new Blob([csv], {type: 'text/csv'});
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.setAttribute('hidden', '');
-            a.setAttribute('href', url);
-            a.setAttribute('download', `${data.parameters.fields}.csv`);
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        }, 100)
+        csvFromVizRequestSend(data, metadata.Table_Name, metadata.Variable, metadata.Long_Name);
     }
 
     const date = parameters.dt1 === parameters.dt2 ? handleChartDateString(parameters.dt1) :
