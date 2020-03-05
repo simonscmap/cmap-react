@@ -13,6 +13,7 @@ import handleChartDateString from '../../Utility/handleChartDatestring';
 import ChartControlPanel from './ChartControlPanel';
 
 import { setLoadingMessage } from '../../Redux/actions/ui';
+import { csvFromVizRequestSend } from '../../Redux/actions/visualization';
 
 import { format } from 'd3-format';
 
@@ -30,33 +31,19 @@ const styles = theme => ({
 })
 
 const mapDispatchToProps = {
-    setLoadingMessage
+    setLoadingMessage,
+    csvFromVizRequestSend
 }
 
 const TimeSeriesChart = (props) => {
-
+    const { csvFromVizRequestSend } = props;
     const { data } = props.chart;
     const { stds, variableValues, dates, parameters, metadata } = data;
 
     const [markerOptions, setMarkerOptions] = React.useState({opacity: .2, color:'#ff1493', size: 12})
 
     const downloadCsv = () => {
-        setLoadingMessage('Processing Data');
-    
-        setTimeout(() => {
-            window.requestAnimationFrame(() => setLoadingMessage(''));
-    
-            let csv = data.generateCsv();
-            const blob = new Blob([csv], {type: 'text/csv'});
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.setAttribute('hidden', '');
-            a.setAttribute('href', url);
-            a.setAttribute('download', `${data.parameters.fields}.csv`);
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        }, 100)
+        csvFromVizRequestSend(data, metadata.Table_Name, metadata.Variable, metadata.Long_Name);
     }
 
     const handleMarkerOptionsConfirm = (values) => {

@@ -433,7 +433,7 @@ class VizControlPanel extends React.Component {
             search,
             searchField: '',
             showControlPanel: true,
-            lastSelectedField: null
+            lastSelectedFieldId: null
         }
     }
 
@@ -497,16 +497,6 @@ class VizControlPanel extends React.Component {
         })
         return count;
     }
-
-    // handleDownloadCsvClick = (tableName, datasetName) => {
-    //     let query = `select%20*%20from%20${tableName}`;
-    //     let count = this.estimateCsvSize(datasetName);
-    //     if(count < 3000000){
-    //         this.props.csvDownloadRequestSend(query, datasetName);
-    //     } else {
-    //         this.props.snackbarOpen('Data set too large');
-    //     }
-    // }
 
     handleResetSPParams = () => {
         this.props.resetSPParams();
@@ -684,7 +674,7 @@ class VizControlPanel extends React.Component {
 
     handleUpdateFields = (newValue, action) => {
         this.props.updateFields(newValue);
-        this.setState({...this.state, searchField: '', lastSelectedField: newValue});
+        this.setState({...this.state, searchField: '', lastSelectedFieldId: newValue ? newValue.data.ID : this.state.lastSelectedFieldId});
     }
     
     render() {      
@@ -710,7 +700,6 @@ class VizControlPanel extends React.Component {
             datasets,
         } = this.props;
 
-        console.log(selectRef.current);
 
         const options = searchField && catalog ? this.getSelectOptionsFromCatalogItems(search.search(searchField)) 
             : catalog ? this.getSelectOptionsFromCatalogItems(catalog) 
@@ -719,7 +708,6 @@ class VizControlPanel extends React.Component {
         let validations;
 
         const dataSize = this.estimateDataSize();
-
         var catalogMinDate = fields && utcDateStringToLocal(fields.data.Time_Min).setHours(0,0,0,0);
         var catalogMaxDate = fields && utcDateStringToLocal(fields.data.Time_Max).setHours(0,0,0,0);
         var zeroedDT1 = dt1.setHours(0,0,0,0);
@@ -913,6 +901,7 @@ class VizControlPanel extends React.Component {
                                         isLoading = {catalogRequestState === states.inProgress}
                                         onAutoSuggestChange = {this.onAutoSuggestChange}
                                         datasets = {datasets}
+                                        
                                         components={{
                                             IndicatorSeparator:'',
                                             DropdownIndicator,
@@ -922,6 +911,7 @@ class VizControlPanel extends React.Component {
                                             MenuList
                                         }}
                                         // handleDownloadCsvClick = {this.handleDownloadCsvClick}
+                                        lastSelectedFieldId={this.state.lastSelectedFieldId}
                                         escapeClearsValue
                                         ref={selectRef}
                                         onInputChange={this.onAutoSuggestChange}
