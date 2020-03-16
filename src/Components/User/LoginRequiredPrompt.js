@@ -11,12 +11,12 @@ const mapDispatchToProps = {
     showLoginDialog
 }
 
-const styles = {
+const styles = (theme) =>  ({
     loginRequiredMessage: {
-        marginTop: '60px',
+        marginTop: theme.spacing(10),
         color: 'white'
     }
-}
+})
 
 const LoginRequiredPrompt = (props) => {
     const { classes, showLoginDialog } = props;

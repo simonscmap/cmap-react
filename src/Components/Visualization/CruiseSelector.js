@@ -159,7 +159,7 @@ class CruiseSelector extends Component {
         return (
             <div id='cruise-selector' className={classes.outerDiv}>
                 <div className={classes.blurEffectDiv}></div>
-                <ConnectedTooltip placement='left' title={tooltips.visualization.cruiseSelector}>
+                {/* <ConnectedTooltip placement='left' title={tooltips.visualization.cruiseSelector}> */}
                     <Select
                         isLoading={this.props.getCruiseListState === states.inProgress}
                         components={{
@@ -235,7 +235,7 @@ class CruiseSelector extends Component {
                             },
                         })}
                     />
-                </ConnectedTooltip>
+                {/* </ConnectedTooltip> */}
                 {selectedCruise &&
                     <Table size='small' className={classes.cruiseInfo}>
                         <TableBody>

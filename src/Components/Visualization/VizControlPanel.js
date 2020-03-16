@@ -893,7 +893,7 @@ class VizControlPanel extends React.Component {
                     <form>
                         <Grid container>
                             <Grid item xs={10}>
-                                <ConnectedTooltip placement='top' title='Enter one or more search terms.'>
+                                {/* <ConnectedTooltip placement='top' title='Enter one or more search terms.'> */}
                                     <Select
                                         formatOptionLabel={formatOptionLabel}
                                         handleSetDownloadTarget={this.props.handleSetDownloadTarget}
@@ -995,7 +995,7 @@ class VizControlPanel extends React.Component {
                                             },
                                         })}
                                     />
-                                </ConnectedTooltip>
+                                {/* </ConnectedTooltip> */}
                             </Grid>
                             <Grid item xs={2} className={classes.tableStatsButton}>
                                 <IconButton 
@@ -1057,7 +1057,7 @@ class VizControlPanel extends React.Component {
                                     error={Boolean(startLatMessage)}
                                     label={"Start Lat(\xB0)"}
                                     className={classes.textField}
-                                    value={Math.floor(lat1 * 1000) / 1000}
+                                    value={isNaN(Math.floor(lat1 * 1000) / 1000) ? lat1 : Math.floor(lat1 * 1000) / 1000}
                                     onChange={handleLatLonChange}
                                     FormHelperTextProps={{className: classes.helperText}}
                                     helperText={startLatMessage}
@@ -1074,7 +1074,7 @@ class VizControlPanel extends React.Component {
                                     error={Boolean(endLatMessage)}
                                     label={"End Lat(\xB0)"}
                                     className={classes.textField}
-                                    value={Math.ceil(lat2 * 1000) / 1000}
+                                    value={isNaN(Math.ceil(lat2 * 1000) / 1000) ? lat2 : Math.ceil(lat2 * 1000) / 1000}
                                     onChange={handleLatLonChange}
                                     FormHelperTextProps={{className: classes.helperText}}
                                     helperText={endLatMessage}
@@ -1091,7 +1091,7 @@ class VizControlPanel extends React.Component {
                                     error={Boolean(startLonMessage)}
                                     label={"Start Lon(\xB0)"}
                                     className={classes.textField}
-                                    value={Math.floor(lon1 * 1000) / 1000}
+                                    value={isNaN(Math.floor(lon1 * 1000) / 1000) ? lon1 : Math.ceil(lon1 * 1000) / 1000}
                                     onChange={handleLatLonChange}
                                     FormHelperTextProps={{className: classes.helperText}}
                                     helperText={startLonMessage}
@@ -1108,7 +1108,7 @@ class VizControlPanel extends React.Component {
                                     error={Boolean(endLonMessage)}
                                     label={"End Lon(\xB0)"}
                                     className={classes.textField}
-                                    value={Math.ceil(lon2 * 1000) / 1000}
+                                    value={isNaN(Math.ceil(lon2 * 1000) / 1000) ? lon2 : Math.ceil(lon2 * 1000) / 1000}
                                     onChange={handleLatLonChange}
                                     FormHelperTextProps={{className: classes.helperText}}
                                     helperText={endLonMessage}
@@ -1125,7 +1125,7 @@ class VizControlPanel extends React.Component {
                                     error={Boolean(startDepthMessage)}
                                     label="Start Depth(m)"
                                     className={classes.textField}
-                                    value={Math.floor(depth1 * 1000) / 1000}
+                                    value={isNaN(Math.floor(depth1 * 1000) / 1000) ? depth1 : Math.ceil(depth1 * 1000) / 1000}
                                     onChange={handleChange}
                                     FormHelperTextProps={{className: classes.helperText}}
                                     helperText={startDepthMessage}
@@ -1142,7 +1142,7 @@ class VizControlPanel extends React.Component {
                                     error={Boolean(endDepthMessage)}
                                     label="End Depth(m)"
                                     className={classes.textField}
-                                    value={Math.ceil(depth2 * 1000) / 1000}
+                                    value={isNaN(Math.ceil(depth2 * 1000) / 1000) ? depth2 : Math.ceil(depth2 * 1000) / 1000}
                                     onChange={handleChange}
                                     FormHelperTextProps={{className: classes.helperText}}
                                     helperText={endDepthMessage}

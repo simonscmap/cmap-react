@@ -242,7 +242,7 @@ class AGGridWrapper extends Component {
 
           </Grid>
           <Grid item xs={6}>
-            <ConnectedTooltip title='Enter one or more search terms.' placement='top'>
+            {/* <ConnectedTooltip title='Enter one or more search terms.' placement='top'> */}
               <TextField              
                 className={classes.gridSearch}
                 autoFocus={true}
@@ -258,7 +258,7 @@ class AGGridWrapper extends Component {
                   shrink: true,
                 }}
               />
-            </ConnectedTooltip>
+            {/* </ConnectedTooltip> */}
 
           </Grid>
           <Grid item xs={2}>

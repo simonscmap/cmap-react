@@ -58,7 +58,7 @@ const handleContourMap = (subsets, infoObject, splitByDate, splitByDepth, palett
 
         var hovertext = subset.map((value, i) => {
             let formatter = value > 1 && value < 1000 ? '.2f' : '.2e';
-            if(isNaN(value)) return `Lat: ${format('.2f')(infoObject.lats[i])}\xb0` +
+            if(value === null) return `Lat: ${format('.2f')(infoObject.lats[i])}\xb0` +
                 `<br>` +
                 `Lon: ${infoObject.lons[i] > 180 ? format('.2f')(infoObject.lons[i] - 360) : format('.2f')(infoObject.lons[i])}\xb0`
 
@@ -167,7 +167,20 @@ const handleHeatmap = (subsets, infoObject, splitByDate, splitByDepth, palette, 
             `${parameters.lat1}\xb0 to ${parameters.lat2}\xb0`;
 
         const lonTitle = parameters.lon1 === parameters.lon2 ? `${parameters.lon1}\xb0` :
-            `${parameters.lon1}\xb0 to ${parameters.lon2}\xb0`; 
+            `${parameters.lon1}\xb0 to ${parameters.lon2}\xb0`;
+        
+        var hovertext = subset.map((value, i) => {
+            let formatter = value > 1 && value < 1000 ? '.2f' : '.2e';
+            if(value === null) return `Lat: ${format('.2f')(infoObject.lats[i])}\xb0` +
+                `<br>` +
+                `Lon: ${infoObject.lons[i] > 180 ? format('.2f')(infoObject.lons[i] - 360) : format('.2f')(infoObject.lons[i])}\xb0`
+
+            return `Lat: ${format('.2f')(infoObject.lats[i])}\xb0` +
+            `<br>` +
+            `Lon: ${infoObject.lons[i] > 180 ? format('.2f')(infoObject.lons[i] - 360) : format('.2f')(infoObject.lons[i])}\xb0` + 
+            '<br>' +
+            `${infoObject.parameters.fields}: ${format(formatter)(value)} [${infoObject.metadata.Unit}]`;
+        });
 
         return (
         <Plot
@@ -191,12 +204,12 @@ const handleHeatmap = (subsets, infoObject, splitByDate, splitByDepth, palette, 
                     z: subset,
                     connectgaps: false,
                     name: infoObject.parameters.fields,
-                    type: 'heatmapgl',
+                    type: 'heatmap',
                     colorscale: palette,
                     autocolorscale: false,
-
-                    // hoverinfo: 'text',
-                    // hovertext,
+                    
+                    hoverinfo: 'text',
+                    text: hovertext,
 
                     colorbar: {
                         title: {
@@ -205,7 +218,22 @@ const handleHeatmap = (subsets, infoObject, splitByDate, splitByDepth, palette, 
                         exponentformat:'power'
                     },
                     
-                }
+                },
+                // // Mask null values - currently tooltips aren't working
+                // {
+                //     x: infoObject.lons,
+                //     y: infoObject.lats,
+                //     z: subset.map(value => value === null ? 0 : 1),
+                //     type: 'heatmap',
+
+                //     colorscale: [
+                //         [0, 'rgba(255,255,255,1)'],
+                //         [0.5, 'rgba(255,255,255,1)'],
+                //         [0.5, 'rgba(0,0,0,0)'],
+                //         [1.0, 'rgba(0,0,0,0)'],
+                //     ],
+                //     showscale: false
+                // }
             ]}                
             key={index}
 

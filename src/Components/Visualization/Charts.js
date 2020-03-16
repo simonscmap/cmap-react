@@ -42,8 +42,8 @@ const styles = (theme) => ({
 
 // const SamplePlot = () => {
 //   let x = [0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,4,4,4,4,4];
-//   let y = [0,1,2,5,9,0,1,2,5,9,0,1,2,5,9,0,1,2,5,9,0,1,2,5,9,];
-//   let z = [0,1,2,3,4,0,1,2,3,4,0,1,2,3,4,0,1,2,3,4,0,1,2,3,4,1,2,3,4,5,6,7,8,9];
+//   let y = [0,1,2,3,4,0,1,2,3,4,0,1,2,3,4,0,1,2,3,4,0,1,2,3,4,];
+//   let z = [0,1,2,3,4,0,1,2,3,4,0,1,2,3,4,0,1,2,3,4,0,1,2,3,4];
   
 //   return (
 
@@ -64,9 +64,11 @@ const styles = (theme) => ({
 //               z,
 //               connectgaps: false,
 //               zsmooth: 'best',
+
+//               hoverinfo: 'text',
               
 //               name: 'Test',
-//               type: 'heatmap',
+//               type: 'heatmapgl',
 //               contours: {
 //                   showlabels: true,
 //                   labelfont: {
