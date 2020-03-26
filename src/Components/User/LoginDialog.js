@@ -61,6 +61,10 @@ const styles = theme => ({
 
     dialogWrapper: {
         backgroundColor: colors.solidPaper
+    },
+
+    colorCorrection: {
+        color: colors.primary
     }
 })
 
@@ -97,12 +101,14 @@ class LoginDialog extends Component{
                 () => _this.props.snackbarOpen('There was a problem accessing your google account')
             );
         } else {
-            setTimeout(_this.onDialogEnter, 200);
+            setTimeout(_this.onDialogEnter, 20);
         }
     }
 
     render(){
         const { classes } = this.props;
+        let loginDisabled = !this.props.username || !this.props.password;
+
         return (
             <Dialog
                 open={this.props.loginDialogIsOpen}
@@ -116,7 +122,7 @@ class LoginDialog extends Component{
                 <DialogTitle id="form-dialog-title">Login</DialogTitle>
                 <DialogContent>                
                     <DialogContentText>
-                        Please enter your username and password, or <Link onClick={this.handleClose} component={RouterLink} to={{pathname: '/register'}}>Register.</Link>
+                        Please enter your username and password, or <Link className={classes.colorCorrection} onClick={this.handleClose} component={RouterLink} to={{pathname: '/register'}}>Register.</Link>
                     </DialogContentText>
                     <form onSubmit={e => (e.preventDefault())}>
                         <TextField
@@ -146,7 +152,7 @@ class LoginDialog extends Component{
                             InputLabelProps={{
                                 shrink: true,
                             }}
-                            helperText={<Link onClick={this.handleClose} component={RouterLink} to={{pathname: '/forgotpass'}}>Forgot Username or Password</Link>}
+                            helperText={<Link className={classes.colorCorrection} onClick={this.handleClose} component={RouterLink} to={{pathname: '/forgotpass'}}>Forgot Username or Password</Link>}
                         />
 
                         <DialogActions>
@@ -154,12 +160,18 @@ class LoginDialog extends Component{
                                 <GoogleSignInButton clickHandlerTarget={loginClickHandlerTarget} text='Sign in with Google'/>
                             </div>
 
-                            <Button onClick={this.handleClose} color="primary">
+                            <Button onClick={this.handleClose}>
                                 Cancel
                             </Button>
 
                             <div className={classes.wrapper}>
-                                <Button color="primary" type='submit' onClick={this.handleLogin} disabled={!this.props.username || !this.props.password}>
+                                <Button 
+                                    color="primary" 
+                                    type='submit' 
+                                    onClick={this.handleLogin} 
+                                    disabled={loginDisabled}
+                                    className={loginDisabled ? '' : classes.colorCorrection}
+                                >
                                     Log In
                                 </Button>
                             </div>

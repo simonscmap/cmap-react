@@ -123,7 +123,7 @@ class TopNavBar extends Component {
                 {/* Left side of navbar */}
                 <div>
                     <Typography variant='caption' href='/' component='a' className={`${classes.navLink} ${classes.simonsLogoWrapper}`}>
-                        <img src='images/CMAP_white_logo_2.png' width='40' alt='CMAP logo' className={classes.simonsLogo}/>
+                        <img src='/images/CMAP_white_logo_2.png' width='40' alt='CMAP logo' className={classes.simonsLogo}/>
                     </Typography>
                     <Typography variant='caption' to='/catalog' component={Link} className={classes.navLink}>Catalog</Typography>
                     <Typography variant='caption' to='/visualization' component={Link} className={classes.navLink}>Visualization</Typography>

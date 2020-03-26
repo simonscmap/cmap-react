@@ -130,7 +130,6 @@ const styles = (theme) => ({
 
 const GridDetail = (props) => {
     const {classes} = props;
-    console.log(props);
 
     return (
         <div className={`ag-selectable ${classes.wrapper}`}>

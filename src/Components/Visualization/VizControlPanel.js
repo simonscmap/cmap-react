@@ -28,8 +28,6 @@ import utcDateStringToLocal from '../../Utility/utcDateStringToLocal';
 import depthUtils from '../../Utility/depthCounter';
 import countWebGLContexts from '../../Utility/countWebGLContexts';
 
-import ConnectedTooltip from '../UI/ConnectedTooltip';
-
 const navDrawerWidth = 320;
 
 const errorHeightAdjust = 23;
@@ -167,13 +165,6 @@ const styles = theme => ({
 
   datePicker: {
       width: '100%'
-  },
-
-  singleValueReplacement: {
-      display: 'inline',
-      position: 'relative',
-      width: 0,
-      height: 0
   },
 
   vizTypeMenu: {
@@ -318,7 +309,10 @@ const customHeadingStyles = (theme) => ({
     },
 
     typography: {
-        width: '650px'
+        width: '650px',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
     }
 })
 
@@ -347,7 +341,6 @@ const _CustomHeading = props => {
             <IconButton 
                 color='inherit' 
                 onClick={(e) => {
-                    // selectProps.handleDownloadCsvClick(tableName, props.headingLabel);
                     selectProps.handleSetDownloadTarget({dataset: props.headingLabel})
                     e.stopPropagation();
                 }}>
@@ -384,6 +377,17 @@ const DropdownIndicator = (props) => {
     );
 };
 
+const Menu = (props) => {
+    return (
+        <components.Menu
+        {...props}
+        className='react-select-menu-cmap'
+        >
+
+        </components.Menu>
+    )
+}
+
 // Replace react-select option
 const Option = (props) => {
     return (
@@ -401,8 +405,50 @@ const Option = (props) => {
 
 const GroupHeading = (props) => '';
 
+const SingleValue = (props) => {
+    return (
+        <components.SingleValue
+            {...props}
+            children={null}
+        >
+            {props.data.label}
+        </components.SingleValue>
+    )
+}
+
+const optionLabelSpanStyleLeft = {
+    display: 'inline-block',
+    boxSizing: 'border-box',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    fontSize: '15px',
+    marginRight: '32px',
+    width: 'calc(60% - 32px)',
+    textAlign: 'left'
+}
+
+const optionLabelSpanStyleMid = {
+    ...optionLabelSpanStyleLeft,
+    marginRight: '24px',
+    width: 'calc(15% - 24px)'
+}
+
+const optionLabelSpanStyleRight = {
+    ...optionLabelSpanStyleLeft,
+    textAlign: 'right',
+    marginRight: '0px',
+    width: '25%'
+}
+
 const formatOptionLabel = (option, meta) => {
-    return option.label;
+    return (
+        <React.Fragment>
+            <span style={optionLabelSpanStyleLeft}>{option.label}</span>
+            <span style={optionLabelSpanStyleMid}>{option.data.Spatial_Resolution === 'Irregular' ? 'Irregular' : 'Gridded'}</span>
+            <span style={optionLabelSpanStyleRight}>{option.data.Data_Source}</span>
+        </React.Fragment>
+    )
 }
 
 class VizControlPanel extends React.Component {
@@ -713,7 +759,7 @@ class VizControlPanel extends React.Component {
         var zeroedDT1 = dt1.setHours(0,0,0,0);
         var zeroedDT2 = dt2.setHours(0,0,0,0);
         
-        var minDate = fields ? catalogMinDate : '';
+        var minDate = fields ? catalogMinDate : utcDateStringToLocal('1900-01-01').setHours(0,0,0,0);
 
         let minDateMessage = fields && zeroedDT2 < catalogMinDate ? 'End cannot be before dataset start date' : '';
         var maxDateMessage;
@@ -908,14 +954,16 @@ class VizControlPanel extends React.Component {
                                             GroupHeading,
                                             Group,
                                             Option,
-                                            MenuList
+                                            MenuList,
+                                            SingleValue,
+                                            Menu
                                         }}
-                                        // handleDownloadCsvClick = {this.handleDownloadCsvClick}
                                         lastSelectedFieldId={this.state.lastSelectedFieldId}
                                         escapeClearsValue
                                         ref={selectRef}
                                         onInputChange={this.onAutoSuggestChange}
                                         filterOption={null}
+                                        // menuIsOpen={true}
                                         className={classes.variableSelect}
                                         isClearable
                                         inputValue={this.state.searchField}
@@ -929,9 +977,8 @@ class VizControlPanel extends React.Component {
                                             menu: provided => ({
                                                 ...provided, 
                                                 zIndex: 1300, 
-                                                top: '-8px',
-                                                left: navDrawerWidth,
                                                 width: '980px',
+                                                maxWidth: '80vw',
                                                 borderRadius: '4px',
                                                 boxShadow: '2px 2px 2px 2px #242424',
                                                 overflow: 'hidden',
@@ -1016,7 +1063,7 @@ class VizControlPanel extends React.Component {
                                     name="dt1"
                                     format='yyyy-MM-dd'
                                     maxDate={maxDate}
-                                    minDate={null}
+                                    // minDate={null}
                                     maxDateMessage={maxDateMessage}
                                     autoOk
                                     value={dt1}
@@ -1038,7 +1085,7 @@ class VizControlPanel extends React.Component {
                                     name="dt2"
                                     format='yyyy-MM-dd'
                                     minDate={minDate}
-                                    maxDate={null}
+                                    // maxDate={null}
                                     minDateMessage={minDateMessage}
                                     autoOk
                                     value={dt2}

@@ -68,6 +68,7 @@ function* userValidation(action){
 }
 
 function* googleLoginRequest(action){
+    console.log('hi');
     yield put(userActions.googleLoginRequestProcessing());
     let result = yield call(api.user.googleLoginRequest, action.payload.userIDToken);
 
@@ -163,6 +164,7 @@ function* storedProcedureRequest(action){
             // yield put(interfaceActions.snackbarOpen(`${action.payload.subType} ${action.payload.parameters.fields} is ready`));
             yield put(visualizationActions.triggerShowCharts());
             yield put(visualizationActions.addChart({subType: action.payload.subType, data:result}));
+            window.scrollTo(0,0);
            
         } else {
             yield put(interfaceActions.setLoadingMessage(''));

@@ -158,7 +158,8 @@ const styles = (theme) => ({
     },
 
     chevronIcon: {
-        transform: 'scale(0.8)'
+        transform: 'scale(0.8)',
+        color: colors.primary
     },
 
     datasetButtonWrapper: {

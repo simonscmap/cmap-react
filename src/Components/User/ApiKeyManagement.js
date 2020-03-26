@@ -58,7 +58,7 @@ const styles = theme => ({
         marginBottom: theme.spacing(2)
     },
     wrapper: {
-        marginTop: theme.spacing(100)
+        marginTop: theme.spacing(15)
     }
 })
 

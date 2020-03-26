@@ -9,6 +9,7 @@ import RegistrationStepper from './RegistrationStepper';
 import GoogleSignInButton from './GoogleSignInButton';
 
 import { snackbarOpen } from '../../Redux/actions/ui';
+import { googleLoginRequestSend } from '../../Redux/actions/user';
 
 const styles = (theme) => ({
     paper: {
@@ -39,7 +40,8 @@ const styles = (theme) => ({
 })
 
 const mapDispatchToProps = {
-    snackbarOpen
+    snackbarOpen,
+    googleLoginRequestSend
 }
 
 const registerClickHandlerTarget = 'g-signup';
@@ -54,8 +56,7 @@ class Register extends Component {
         this.props.googleLoginRequestSend(token);
     }
 
-    componentDidMount = () => {
-        // clean up listener on unmount
+    registerGoogleClickHandler = () => {
         let _this = this;
         let auth = window.gapi.auth2
         if(auth){
@@ -63,13 +64,16 @@ class Register extends Component {
             authInstance.attachClickHandler(
                 registerClickHandlerTarget, 
                 null, 
-                _this.onGoogleSignin,
+                _this.onGoogleSignup,
                 () => _this.props.snackbarOpen('There was a problem accessing your google account')
             );
         } else {
-            setTimeout(_this.onDialogEnter, 200);
-            console.log("didn't find auth");
+            setTimeout(_this.registerGoogleClickHandler, 20);
         }
+    }
+
+    componentDidMount = () => {
+        this.registerGoogleClickHandler();
     }
 
     handleShowStepper = () => {

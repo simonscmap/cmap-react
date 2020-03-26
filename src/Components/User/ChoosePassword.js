@@ -16,7 +16,7 @@ import states from '../../Enums/asyncRequestStates';
 const styles = (theme) => ({
     paper: {
         width: '60%',
-        margin: '10% auto',
+        margin: '120px auto',
         // height: '40vh',
         padding: '24px 12px'
     },
@@ -49,6 +49,9 @@ const mapDispatchToProps = {
 const mapStateToProps = (state, ownProps) => ({
     choosePasswordState: state.choosePasswordState,
   });
+
+
+const choosePasswordButtonRef = React.createRef();
 
 // Used with forgot password link from email
 class ChoosePassword extends Component {
@@ -92,7 +95,7 @@ class ChoosePassword extends Component {
 
     handleKeyPress = event => {
         if (event.key === 'Enter') {
-          this.handleSubmit();
+            choosePasswordButtonRef.current.click();
         }
     }
 
@@ -183,7 +186,14 @@ class ChoosePassword extends Component {
                     </Grid>
     
                     <Grid item>
-                        <Button fullWidth variant='outlined' color='primary' disabled={disabled} onClick={this.handleSubmit}>
+                        <Button 
+                            fullWidth 
+                            variant='outlined' 
+                            color='primary' 
+                            disabled={disabled} 
+                            onClick={this.handleSubmit}
+                            ref={choosePasswordButtonRef}
+                        >
                             Submit
                         </Button>
                     </Grid>

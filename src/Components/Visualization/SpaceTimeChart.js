@@ -57,7 +57,8 @@ const handleContourMap = (subsets, infoObject, splitByDate, splitByDepth, palett
             `${parameters.lon1}\xb0 to ${parameters.lon2}\xb0`; 
 
         var hovertext = subset.map((value, i) => {
-            let formatter = value > 1 && value < 1000 ? '.2f' : '.2e';
+            let abs = Math.abs(value);
+            let formatter = abs > .01 && abs < 1000 ? '.2f' : '.2e';
             if(value === null) return `Lat: ${format('.2f')(infoObject.lats[i])}\xb0` +
                 `<br>` +
                 `Lon: ${infoObject.lons[i] > 180 ? format('.2f')(infoObject.lons[i] - 360) : format('.2f')(infoObject.lons[i])}\xb0`
@@ -170,8 +171,9 @@ const handleHeatmap = (subsets, infoObject, splitByDate, splitByDepth, palette, 
             `${parameters.lon1}\xb0 to ${parameters.lon2}\xb0`;
         
         var hovertext = subset.map((value, i) => {
-            let formatter = value > 1 && value < 1000 ? '.2f' : '.2e';
-            if(value === null) return `Lat: ${format('.2f')(infoObject.lats[i])}\xb0` +
+            let abs = Math.abs(value);
+            let formatter = abs > .01 && abs < 1000 ? '.2f' : '.2e';
+            if(value === null || isNaN(value)) return `Lat: ${format('.2f')(infoObject.lats[i])}\xb0` +
                 `<br>` +
                 `Lon: ${infoObject.lons[i] > 180 ? format('.2f')(infoObject.lons[i] - 360) : format('.2f')(infoObject.lons[i])}\xb0`
 

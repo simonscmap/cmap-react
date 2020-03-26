@@ -132,7 +132,8 @@ const styles = (theme) => ({
     marginTop: '68px',
     padding: '20px',
     height: 'calc(100vh - 68px)',
-    boxSizing: 'border-box'
+    boxSizing: 'border-box',
+    overflow: 'hidden'
   },
 
   downloadButton: {

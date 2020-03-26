@@ -36,6 +36,13 @@
   height: 100%;
 }
 
+.react-select-menu-cmap {
+  @media screen and (min-width: 1200px) {
+    top: -8px !important;
+    left: 320px;
+  }
+}
+
 // Get font awesome css pseudo to work
 .fa-icon-cmap::after {
   display: inline-block;
