@@ -157,9 +157,7 @@ api.catalog.datasets = async() => {
 }
 
 api.user.keyRetrieval = async() => {
-    let response = await fetch(apiUrl + '/user/retrieveapikeys', fetchOptions);
-    if(!response.ok) return false;
-    return await response.json();
+    return await fetch(apiUrl + '/user/retrieveapikeys', fetchOptions);
 }
 
 api.user.keyCreation = async(description) => {

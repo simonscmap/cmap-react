@@ -104,7 +104,9 @@ const handleSectionMap = (subsets, infoObject, splitByDate, splitBySpace, orient
                 position: 'relative',
                 // display:'inline-block',
                 width: '60vw',
-                height: '40vw'
+                height: '40vw',
+                minWidth: '510px',
+                minHeight: '340px'
             }}
 
             useResizeHandler={true}

@@ -11,6 +11,8 @@ import { Typography } from '@material-ui/core';
 
 import UserNavbarDropdown from '../User/UserNavbarDropdown';
 import DataSubmissionNavbarDropdown from '../DataSubmission/DataSubmissionNavbarDropdown';
+import MobileNavbarMenu from './MobileNavbarMenu';
+
 import JSS from '../../Stylesheets/JSS';
 
 const styles = theme => ({
@@ -52,14 +54,13 @@ const styles = theme => ({
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-around'
-
     },
 
     navLink: JSS.navLink(theme),
 
     rightNavLink: {
         marginRight: 30
-    }
+    },    
 })
 
 const mapStateToProps = (state, ownProps) => ({
@@ -81,11 +82,28 @@ class TopNavBar extends Component {
         super(props);
         this.state = {
             username: '',
-            password: ''
+            password: '',
+            layout: window.innerWidth >= 860 ? 'desktop' : 'mobile'
         }
         
     }
     
+    componentDidMount = () => {
+        window.addEventListener("resize", this.handleResize);
+    }
+
+    handleResize = (e) => {
+        let w = e.target.innerWidth;
+
+        if(w < 860 && this.state.layout === 'desktop'){
+            this.setState({...this.state, layout:'mobile'});
+        }
+
+        else if(w >= 860 && this.state.layout === 'mobile'){
+            this.setState({...this.state, layout:'desktop'});
+        }
+    }
+
     // Controls login dialog text fields to allow reset from logout button
     handleChange = (event) => {
         this.setState({[event.target.name]: event.target.value})
@@ -104,42 +122,49 @@ class TopNavBar extends Component {
         })
     }
 
-    handleNavigate = (route) => {
-        this.props.restoreInterfaceDefaults()
-        this.props.history.push(route);
-    }
-
-    handleOutsideNavigate = (url) => {
-        window.open(url, '_blank')
-    }
-
     render(){
         const { classes, history, user, showHelp } = this.props;
         const { pathname } = history.location;
 
         return (
             <div className={`${classes.navWrapper} ${pathname !== '/visualization' && classes.navWrapperGradient}`}>
+                {
+                    this.state.layout === 'desktop' ?
 
-                {/* Left side of navbar */}
-                <div>
-                    <Typography variant='caption' href='/' component='a' className={`${classes.navLink} ${classes.simonsLogoWrapper}`}>
-                        <img src='/images/CMAP_white_logo_2.png' width='40' alt='CMAP logo' className={classes.simonsLogo}/>
-                    </Typography>
-                    <Typography variant='caption' to='/catalog' component={Link} className={classes.navLink}>Catalog</Typography>
-                    <Typography variant='caption' to='/visualization' component={Link} className={classes.navLink}>Visualization</Typography>
-                    {/* <DataSubmissionNavbarDropdown/> */}
-                    {/* <Typography variant='caption' to='/contact' component={Link} className={classes.navLink}>Contact</Typography> */}
-                </div>
+                    <React.Fragment>
+                        {/* Left side of navbar */}
+                        <div>
+                            <Typography variant='caption' href='/' component='a' className={`${classes.navLink} ${classes.simonsLogoWrapper}`}>
+                                <img src='/images/CMAP_white_logo_2.png' width='40' alt='CMAP logo' className={classes.simonsLogo}/>
+                            </Typography>
+                            <Typography variant='caption' to='/catalog' component={Link} className={classes.navLink}>Catalog</Typography>
+                            <Typography variant='caption' to='/visualization' component={Link} className={classes.navLink}>Visualization</Typography>
+                            <Typography variant='caption' to='/community' component={Link} className={classes.navLink}>Community</Typography>
+                            <Typography variant='caption' to='/datasubmission' component={Link} className={classes.navLink}>Data Submission</Typography>
 
-                {/* Right side of navbar */}
-                <div className={classes.rightSectionWrapper}>
-                    <div>
-                        {/* <Typography variant='caption' onClick={this.props.toggleShowHelp} className={classes.navLink}>{showHelp ? 'Hide Help' : 'Show Help'}</Typography> */}
-                        {user && <UserNavbarDropdown pathname={pathname} user={user}/>}
-                        {!user && <Typography variant='caption' onClick={() => this.props.showLoginDialog()} className={`${classes.navLink} ${classes.rightNavLink}`}>Log In</Typography>}
-                        {!user && <Typography variant='caption' to='/register' component={Link} className={`${classes.navLink} ${classes.rightNavLink}`}>Register</Typography>}
-                    </div>
-                </div>
+                        </div>
+
+                        {/* Right side of navbar */}
+                        <div className={classes.rightSectionWrapper}>
+                            <div>
+                                {/* <Typography variant='caption' onClick={this.props.toggleShowHelp} className={classes.navLink}>{showHelp ? 'Hide Help' : 'Show Help'}</Typography> */}
+                                {user && <UserNavbarDropdown pathname={pathname} user={user}/>}
+                                {!user && <Typography variant='caption' onClick={() => this.props.showLoginDialog()} className={`${classes.navLink} ${classes.rightNavLink}`}>Log In</Typography>}
+                                {!user && <Typography variant='caption' to='/register' component={Link} className={`${classes.navLink} ${classes.rightNavLink}`}>Register</Typography>}
+                            </div>
+                        </div>
+                    </React.Fragment>
+
+                    :
+
+                    <React.Fragment>
+                        <Typography variant='caption' href='/' component='a' className={`${classes.navLink} ${classes.simonsLogoWrapper}`}>
+                            <img src='/images/CMAP_white_logo_2.png' width='40' alt='CMAP logo' className={classes.simonsLogo}/>
+                        </Typography>
+                        <MobileNavbarMenu handleLogOut={this.handleLogOut} showLoginDialog={this.props.showLoginDialog} user={user}/>
+                    </React.Fragment>
+                }
+
             </div>        
         )
     }

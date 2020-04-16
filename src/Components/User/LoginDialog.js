@@ -63,8 +63,12 @@ const styles = theme => ({
         backgroundColor: colors.solidPaper
     },
 
-    colorCorrection: {
+    colorCorrectionPrimary: {
         color: colors.primary
+    },
+
+    colorCorrectionWhite: {
+        color: 'white'
     }
 })
 
@@ -122,7 +126,7 @@ class LoginDialog extends Component{
                 <DialogTitle id="form-dialog-title">Login</DialogTitle>
                 <DialogContent>                
                     <DialogContentText>
-                        Please enter your username and password, or <Link className={classes.colorCorrection} onClick={this.handleClose} component={RouterLink} to={{pathname: '/register'}}>Register.</Link>
+                        Please enter your username and password, or <Link className={classes.colorCorrectionPrimary} onClick={this.handleClose} component={RouterLink} to={{pathname: '/register'}}>Register.</Link>
                     </DialogContentText>
                     <form onSubmit={e => (e.preventDefault())}>
                         <TextField
@@ -152,7 +156,7 @@ class LoginDialog extends Component{
                             InputLabelProps={{
                                 shrink: true,
                             }}
-                            helperText={<Link className={classes.colorCorrection} onClick={this.handleClose} component={RouterLink} to={{pathname: '/forgotpass'}}>Forgot Username or Password</Link>}
+                            helperText={<Link className={classes.colorCorrectionPrimary} onClick={this.handleClose} component={RouterLink} to={{pathname: '/forgotpass'}}>Forgot Username or Password</Link>}
                         />
 
                         <DialogActions>
@@ -161,7 +165,7 @@ class LoginDialog extends Component{
                             </div>
 
                             <Button onClick={this.handleClose}>
-                                Cancel
+                                <span className={classes.colorCorrectionWhite}>Cancel</span>
                             </Button>
 
                             <div className={classes.wrapper}>

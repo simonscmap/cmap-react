@@ -77,6 +77,8 @@ const handleContourMap = (subsets, infoObject, splitByDate, splitByDepth, palett
                 // display:'inline-block',
                 width: `${width}vw`,
                 height: `${height}vw`,
+                minWidth: `${width * 10}px`,
+                minHeight: `${height * 10}px`,
                 margin: '0 auto'
             }}
 
@@ -191,6 +193,8 @@ const handleHeatmap = (subsets, infoObject, splitByDate, splitByDepth, palette, 
                 // display:'inline-block',
                 width: `${width}vw`,
                 height: `${height}vw`,
+                minWidth: `${width * 10}px`,
+                minHeight: `${height * 10}px`,
             }}
 
             useResizeHandler={true}

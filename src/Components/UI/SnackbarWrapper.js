@@ -17,9 +17,7 @@ const mapDispatchToProps = {
 
 const styles = (theme) => {
     return ({
-        centerText: {
-            textAlign: 'center'
-        }
+
     })
 }
 
@@ -28,9 +26,8 @@ const SnackbarWrapper = (props) => {
     return (
         
         <React.Fragment>
-            <Snackbar 
-                className={classes.centerText}
-                autoHideDuration={4000} 
+            <Snackbar
+                autoHideDuration={2500} 
                 message={props.snackbarMessage}
                 onClose={props.snackbarClose}
                 open={props.snackbarIsOpen}

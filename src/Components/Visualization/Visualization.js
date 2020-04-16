@@ -255,11 +255,16 @@ class Visualization extends Component {
                 this.state.spParams.dt2 : 
                 irregularSpatialResolution ? utcDateStringToLocal(fields.data.Time_Max) :
                 utcDateStringToLocal(fields.data.Time_Min);
+            
+            let latMin = Math.floor(fields.data.Lat_Min * 1000) /1000;
+            let latMax = Math.ceil(fields.data.Lat_Max * 1000) /1000;
+            let lonMin = Math.floor(fields.data.Lon_Min * 1000) /1000;
+            let lonMax = Math.ceil(fields.data.Lon_Max * 1000) /1000;
 
-            let lat1 = irregularSpatialResolution ? fields.data.Lat_Min : this.state.spParams.lat1;
-            let lat2 = irregularSpatialResolution ? fields.data.Lat_Max : this.state.spParams.lat2;
-            let lon1 = irregularSpatialResolution ? fields.data.Lon_Min : this.state.spParams.lon1;
-            let lon2 = irregularSpatialResolution ? fields.data.Lon_Max : this.state.spParams.lon2;
+            let lat1 = irregularSpatialResolution ? latMin : this.state.spParams.lat1;
+            let lat2 = irregularSpatialResolution ? latMax : this.state.spParams.lat2;
+            let lon1 = irregularSpatialResolution ? lonMin : this.state.spParams.lon1;
+            let lon2 = irregularSpatialResolution ? lonMax : this.state.spParams.lon2;
             let depth1 = irregularSpatialResolution ? fields.data.Depth_Min || 0 : 
                 depthUtils.piscesTable.has(fields.data.Table_Name) ? 0 :
                 depthUtils.darwinTable.has(fields.data.Table_Name) ? 0 : 
@@ -306,13 +311,18 @@ class Visualization extends Component {
 
     updateParametersFromCruiseBoundary = (cruise) => {
         if(cruise && this.state.spParams.fields){
-            this.props.snackbarOpen('Setting chart parameters to cruise boundaries.')
+            this.props.snackbarOpen('Setting chart parameters to cruise boundaries.');
+            let lat1 = Math.floor(cruise.data.Lat_Min * 1000) / 1000;
+            let lat2 = Math.ceil(cruise.data.Lat_Max * 1000) / 1000;
+            let lon1 = Math.floor(cruise.data.Lon_Min * 1000) / 1000;
+            let lon2 = Math.ceil(cruise.data.Lon_Max * 1000) / 1000;
+
             this.setState({...this.state,
                 spParams: {...this.state.spParams,
-                    lat1: cruise.data.Lat_Min,
-                    lat2: cruise.data.Lat_Max,
-                    lon1: cruise.data.Lon_Min,
-                    lon2: cruise.data.Lon_Max,
+                    lat1,
+                    lat2,
+                    lon1,
+                    lon2,
                     dt1: utcDateStringToLocal(cruise.data.Start_Time),
                     dt2: utcDateStringToLocal(cruise.data.End_Time)
                 }
@@ -333,8 +343,15 @@ class Visualization extends Component {
     }
 
     updateDomainFromGraphicExtent = (extent) => {
-        var _lon1 = extent.xmin > -180 ? extent.xmin : extent.xmin + 360;
-        var _lon2 = extent.xmax < 180 ? extent.xmax : extent.xmax - 360;
+        var _lon1 = extent.xmin;
+
+        while(_lon1 < -180) _lon1 += 360;
+        while (_lon1 > 180) _lon1 -= 360;
+
+        var _lon2 = extent.xmax;
+
+        while(_lon2 < -180) _lon2 += 360;
+        while(_lon2 > 180) _lon2 -= 360;
 
         var newCoordinates = {
             lat1: extent.ymin.toFixed(3),

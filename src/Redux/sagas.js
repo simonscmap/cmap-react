@@ -11,6 +11,7 @@ import * as visualizationActions from './actions/visualization';
 import * as userActionTypes from './actionTypes/user';
 import * as catalogActionTypes from './actionTypes/catalog';
 import * as visualizationActionTypes from './actionTypes/visualization';
+import * as interfaceActionTypes from './actionTypes/ui';
 
 import api from '../api';
 
@@ -19,9 +20,9 @@ function* userLogin(action) {
     let result = yield call(api.user.login, action.payload);
     
     if(result.ok){
+        yield put(interfaceActions.hideLoginDialog());
         var userInfo = JSON.parse(Cookies.get('UserInfo'));
         yield put(userActions.userLoginRequestSuccess());
-        yield put(interfaceActions.hideLoginDialog());
         yield put(userActions.storeInfo(userInfo));
         yield put(interfaceActions.snackbarOpen('Login was successful!'))
         if(window.location.pathname === '/login') window.location.href = "/catalog";
@@ -37,6 +38,7 @@ function* userLogout(){
     yield call(api.user.logout);
     yield put(userActions.destroyInfo());
     yield put(interfaceActions.snackbarOpen('You have logged out.'))
+    // window.location.href = "/";
 }
 
 function* userRegistration(action){
@@ -45,9 +47,6 @@ function* userRegistration(action){
     
     if(result.ok){
         yield put(interfaceActions.registrationNextActiveStep());
-        // yield put(userActions.userRegistrationRequestSuccess());
-        // yield put(interfaceActions.snackbarOpen('Registration was successful. Please log in.'));
-        // yield put(interfaceActions.showLoginDialog());
     } else {
         yield put(userActions.userRegistrationRequestFailure());
         yield put(interfaceActions.snackbarOpen('Registration failed. Please try again later.'))
@@ -68,14 +67,13 @@ function* userValidation(action){
 }
 
 function* googleLoginRequest(action){
-    console.log('hi');
     yield put(userActions.googleLoginRequestProcessing());
     let result = yield call(api.user.googleLoginRequest, action.payload.userIDToken);
 
     if(result.ok){
+        yield put(interfaceActions.hideLoginDialog());
         var userInfo = JSON.parse(Cookies.get('UserInfo'));
         yield put(userActions.userLoginRequestSuccess());
-        yield put(interfaceActions.hideLoginDialog());
         yield put(userActions.storeInfo(userInfo));
         // yield put(interfaceActions.snackbarOpen('Login was successful!'))
         if(window.location.pathname === '/login') window.location.href = "/catalog";
@@ -111,18 +109,28 @@ function* datasetRetrieval(){
 
 function* keyRetrieval(action){
     let result = yield call(api.user.keyRetrieval);
+
+    if(result.status === 401){
+        yield put(userActions.refreshLogin());
+    }
     
-    if(!result){
+    if(!result.ok){
         yield put(userActions.keyRetrievalRequestFailure());
         yield put(interfaceActions.snackbarOpen('API Key Retrieval Failed'));
     } else {
-        yield put(userActions.keyRetrievalRequestSuccess(result.keys));
+        let response = yield result.json();
+        yield put(userActions.keyRetrievalRequestSuccess(response.keys));
     }
 }
 
 function* keyCreation(action){
     yield put(userActions.keyCreationRequestProcessing());
     let result = yield call(api.user.keyCreation, action.payload.description);
+
+    if(result.status === 401){
+        yield put(userActions.refreshLogin());
+        return;
+    }
     
     if(!result.ok) yield put(interfaceActions.snackbarOpen("We were unable to create a new API key."));
     else {
@@ -303,7 +311,16 @@ function* updateUserInfoRequest(action){
 }
 
 function* initializeGoogleAuth(){
-    let authInstance = yield window.gapi.auth2.getAuthInstance();
+    try {
+        var authInstance = yield window.gapi.auth2.getAuthInstance();
+    }
+
+    catch(e) {
+        yield delay(100);
+        yield put(userActions.initializeGoogleAuth());
+        return;
+    }
+
     let user = yield authInstance.currentUser.get();
     let authResponse = yield user.getAuthResponse(true);
     if(authResponse) yield put(userActions.googleLoginRequestSend(authResponse.id_token));
@@ -367,6 +384,16 @@ function* changeEmailRequest(action){
     }
 
     yield put(interfaceActions.setLoadingMessage(''));
+}
+
+function* copyTextToClipboard(action) {
+    var textArea = document.createElement("textarea");
+    textArea.value = action.payload.text;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand("Copy");
+    textArea.remove();
+    yield put(interfaceActions.snackbarOpen('Copied to Clipboard'));
 }
 
 function* watchUserLogin() {
@@ -470,6 +497,10 @@ function* watchCsvFromVizRequest(){
     yield takeLatest(visualizationActionTypes.CSV_FROM_VIZ_REQUEST_SEND, csvFromVizRequest);
 }
 
+function* watchCopyTextToClipboard(){
+    yield takeLatest(interfaceActionTypes.COPY_TEXT_TO_CLIPBOARD, copyTextToClipboard);
+}
+
 // function createWorkerChannel(worker) {
 //     return eventChannel(emit => {
 //         worker.onmessage = message => {
@@ -523,5 +554,6 @@ export default function* rootSaga() {
         watchChangePasswordRequest(),
         watchChangeEmailRequest(),
         watchCsvFromVizRequest(),
+        watchCopyTextToClipboard(),
     ])
 }

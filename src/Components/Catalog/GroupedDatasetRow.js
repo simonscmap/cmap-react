@@ -69,7 +69,7 @@ const styles = (theme) => ({
         marginTop: theme.spacing(1)
     },
     vizSampleImage: {
-        maxWidth: '270px',
+        maxWidth: '15vw',
         maxHeight: '180px'
     },
     variableDetailTable: {

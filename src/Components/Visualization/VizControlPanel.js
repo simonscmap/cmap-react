@@ -10,7 +10,7 @@ import { VariableSizeList as ReactWindowList } from "react-window";
 import { ButtonGroup, Grid, IconButton, Icon, ListItem, MenuItem, Typography, Drawer, TextField, FormControl, InputLabel, Button, Tooltip} from '@material-ui/core';
 import MUISelect from '@material-ui/core/Select';
 import { KeyboardDatePicker } from "@material-ui/pickers";
-import { Cached, LibraryBooks, ArrowRight, ChevronLeft, ChevronRight, InsertChartOutlined, Language, Delete, CloudDownload, Info } from '@material-ui/icons';
+import { Search, Cached, LibraryBooks, ArrowRight, ChevronLeft, ChevronRight, InsertChartOutlined, Language, Delete, CloudDownload, Info } from '@material-ui/icons';
 
 import vizSubTypes from '../../Enums/visualizationSubTypes';
 import states from '../../Enums/asyncRequestStates';
@@ -451,6 +451,15 @@ const formatOptionLabel = (option, meta) => {
     )
 }
 
+const ValueContainer = (props) => {
+    return (
+        <components.ValueContainer {...props}>
+            <Search color='primary' style={{ position: "absolute", left: 6 }}/>
+            {props.children}
+        </components.ValueContainer>
+    )
+}
+
 class VizControlPanel extends React.Component {
 
     constructor(props){
@@ -460,6 +469,7 @@ class VizControlPanel extends React.Component {
         search.indexStrategy = new JsSearch.AllSubstringsIndexStrategy()
         search.searchIndex = new JsSearch.UnorderedSearchIndex();
         search.addIndex('Variable');
+        search.addIndex('Unit');
         search.addIndex('Make');
         search.addIndex('Sensor');
         search.addIndex('Data_Source');
@@ -640,6 +650,7 @@ class VizControlPanel extends React.Component {
     checkStartLon = () => {
         if(!/^[-+]?[0-9]*\.?[0-9]+$/.test(this.props.lon1)) return validation.generic.invalid;
         if(parseFloat(this.props.lon1) < -180 || parseFloat(this.props.lon1) > 180) return validation.generic.invalid;
+        if(this.props.lon1 > this.props.lon2) return '';
         if(parseFloat(this.props.lon1) > parseFloat(this.props.fields.data.Lon_Max)) return validation.lon.lonOneOutOfBounds.replace('$', this.props.fields.data.Lon_Max);
         return '';
     }
@@ -956,7 +967,8 @@ class VizControlPanel extends React.Component {
                                             Option,
                                             MenuList,
                                             SingleValue,
-                                            Menu
+                                            Menu,
+                                            ValueContainer
                                         }}
                                         lastSelectedFieldId={this.state.lastSelectedFieldId}
                                         escapeClearsValue
@@ -972,13 +984,13 @@ class VizControlPanel extends React.Component {
                                         options={options}
                                         onChange={this.handleUpdateFields}
                                         value={fields}
-                                        placeholder="Variable Filter"
+                                        placeholder="Search Catalog"
                                         styles={{
                                             menu: provided => ({
                                                 ...provided, 
                                                 zIndex: 1300, 
                                                 width: '980px',
-                                                maxWidth: '80vw',
+                                                maxWidth: '90vw',
                                                 borderRadius: '4px',
                                                 boxShadow: '2px 2px 2px 2px #242424',
                                                 overflow: 'hidden',
@@ -988,7 +1000,7 @@ class VizControlPanel extends React.Component {
 
                                             valueContainer: provided => ({
                                                 ...provided,
-                                                padding: '0 0 0 6px',
+                                                padding: '0 0 0 34px',
                                                 fontWeight: 100
                                             }),
 
@@ -1045,13 +1057,25 @@ class VizControlPanel extends React.Component {
                                 {/* </ConnectedTooltip> */}
                             </Grid>
                             <Grid item xs={2} className={classes.tableStatsButton}>
-                                <IconButton 
-                                    size='small' 
-                                    onClick={this.handleTableStatsDialogOpen}                                     
-                                    disabled={!fields}
-                                >
-                                    <LibraryBooks/>
-                                </IconButton>
+                                {
+                                    fields ? 
+                                    <Tooltip placement='right' title='View Variable Summary Statistics'>
+                                        <IconButton 
+                                            size='small' 
+                                            onClick={this.handleTableStatsDialogOpen}                                     
+                                            disabled={!fields}
+                                        >
+                                            <LibraryBooks/>
+                                        </IconButton>
+                                    </Tooltip> :
+                                    <IconButton 
+                                        size='small' 
+                                        onClick={this.handleTableStatsDialogOpen}                                     
+                                        disabled={!fields}
+                                    >
+                                        <LibraryBooks/>
+                                    </IconButton>
+                                }
                             </Grid>
 
                             <Grid item xs={12}>
@@ -1104,7 +1128,7 @@ class VizControlPanel extends React.Component {
                                     error={Boolean(startLatMessage)}
                                     label={"Start Lat(\xB0)"}
                                     className={classes.textField}
-                                    value={isNaN(Math.floor(lat1 * 1000) / 1000) ? lat1 : Math.floor(lat1 * 1000) / 1000}
+                                    value={lat1}
                                     onChange={handleLatLonChange}
                                     FormHelperTextProps={{className: classes.helperText}}
                                     helperText={startLatMessage}
@@ -1121,7 +1145,7 @@ class VizControlPanel extends React.Component {
                                     error={Boolean(endLatMessage)}
                                     label={"End Lat(\xB0)"}
                                     className={classes.textField}
-                                    value={isNaN(Math.ceil(lat2 * 1000) / 1000) ? lat2 : Math.ceil(lat2 * 1000) / 1000}
+                                    value={lat2}
                                     onChange={handleLatLonChange}
                                     FormHelperTextProps={{className: classes.helperText}}
                                     helperText={endLatMessage}
@@ -1138,7 +1162,7 @@ class VizControlPanel extends React.Component {
                                     error={Boolean(startLonMessage)}
                                     label={"Start Lon(\xB0)"}
                                     className={classes.textField}
-                                    value={isNaN(Math.floor(lon1 * 1000) / 1000) ? lon1 : Math.ceil(lon1 * 1000) / 1000}
+                                    value={lon1}
                                     onChange={handleLatLonChange}
                                     FormHelperTextProps={{className: classes.helperText}}
                                     helperText={startLonMessage}
@@ -1155,7 +1179,7 @@ class VizControlPanel extends React.Component {
                                     error={Boolean(endLonMessage)}
                                     label={"End Lon(\xB0)"}
                                     className={classes.textField}
-                                    value={isNaN(Math.ceil(lon2 * 1000) / 1000) ? lon2 : Math.ceil(lon2 * 1000) / 1000}
+                                    value={lon2}
                                     onChange={handleLatLonChange}
                                     FormHelperTextProps={{className: classes.helperText}}
                                     helperText={endLonMessage}

@@ -42,7 +42,9 @@ const handleSparseMap = (infoObject, palette, zValues) => {
                 position: 'relative',
                 // display:'inline-block',
                 width: '60vw',
-                height: '40vw'
+                height: '40vw',
+                minWidth: '510px',
+                minHeight: '340px'
             }}
             
             useResizeHandler={true}
@@ -128,7 +130,8 @@ const styles = theme => ({
     tab: {
         boxShadow: '1px 1px 1px 1px #242424',
         fontSize: '15px',
-        textTransform: 'none'
+        textTransform: 'none',
+        color: theme.palette.primary.main
     }
 })
 

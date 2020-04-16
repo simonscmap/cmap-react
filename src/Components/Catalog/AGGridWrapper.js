@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 
 import { AgGridReact } from 'ag-grid-react';
-// import 'ag-grid-community/dist/styles/ag-grid.css';
-// import 'ag-grid-community/dist/styles/ag-theme-material.css';
 
 import GridDetail from './GridDetail';
 import DatasetDescriptionDialog from './DatasetDescriptionDialog';
@@ -13,14 +11,17 @@ import stringify from 'csv-stringify/lib/sync';
 import { withStyles } from '@material-ui/core/styles';
 
 import TextField from '@material-ui/core/TextField';
-import { Paper, Button, Grid, Tooltip } from '@material-ui/core';
+import { Paper, Button, Grid, Tooltip, InputAdornment } from '@material-ui/core';
+import { Search } from '@material-ui/icons';
 
 import ConnectedTooltip from '../UI/ConnectedTooltip';
 import GroupedDatasetRow from './GroupedDatasetRow';
 
+import colors from '../../Enums/colors';
+
 const columnDefs = [
   {
-    headerName: "Long Name", 
+    headerName: "Long Name", //
     field: "Long_Name",
     sortable: true,
     filter: true,
@@ -29,14 +30,14 @@ const columnDefs = [
 
   },
   {
-    headerName: "Variable", 
+    headerName: "Variable",
     field: "Variable",
     sortable: true,
     filter: true,
     hide: true
   },
   {
-    headerName: "Table Name", 
+    headerName: "Table Name",
     field: "Table_Name",
     sortable: true,
     filter: true,
@@ -44,7 +45,7 @@ const columnDefs = [
     enableRowGroup: true
   }, 
   {
-    headerName: "Dataset Name", 
+    headerName: "Dataset Name",
     field: "Dataset_Name",
     sortable: true,
     filter: true,
@@ -54,7 +55,7 @@ const columnDefs = [
     hide: true
   }, 
   {
-    headerName: "Make", 
+    headerName: "Make",
     field: "Make",
     sortable: true,
     filter: true,
@@ -62,7 +63,7 @@ const columnDefs = [
     maxWidth: 160
   },
   {
-    headerName: "Sensor", 
+    headerName: "Sensor",
     field: "Sensor",
     sortable: true,
     filter: true,
@@ -70,7 +71,7 @@ const columnDefs = [
     maxWidth: 160
   }, 
   {
-    headerName: "Study Domain", 
+    headerName: "Study Domain",
     field: "Study_Domain",
     sortable: true,
     filter: true,
@@ -79,7 +80,7 @@ const columnDefs = [
     enableRowGroup: true
   }, 
   {
-    headerName: "Process Level", 
+    headerName: "Process Level",
     field: "Process_Level",
     sortable: true,
     filter: true,
@@ -87,7 +88,7 @@ const columnDefs = [
     enableRowGroup: true
   },
   {
-    headerName: "Spatial Resolution", 
+    headerName: "Spatial Resolution",
     field: "Spatial_Resolution",
     sortable: true,
     filter: true,
@@ -95,7 +96,7 @@ const columnDefs = [
     enableRowGroup: true
   },
   {
-    headerName: "Temporal Resolution", 
+    headerName: "Temporal Resolution",
     field: "Temporal_Resolution",
     sortable: true,
     filter: true,
@@ -112,6 +113,11 @@ const columnDefs = [
   {
     headerName: "Key Words",
     field: 'Keywords',
+    hide: true
+  },
+  {
+    headerName: "Data Source",
+    field: 'Data_Source',
     hide: true
   }
 ]
@@ -228,7 +234,6 @@ class AGGridWrapper extends Component {
 
     return (
       <Paper elevation={12} className={classes.gridPaper}>
-      {/* // <div className={classes.gridPaper}> */}
         <DatasetDescriptionDialog 
           description={description}
           clearDescription={() => this.handleDescribeDataset('')}
@@ -254,9 +259,13 @@ class AGGridWrapper extends Component {
                 name='filterText'
                 value={this.state.filterText}
                 onChange={this.handleChange}
-                label="Filter Variables"
-                InputLabelProps={{
-                  shrink: true,
+                placeholder='Search Catalog'
+                InputProps={{
+                  startAdornment: (
+                  <InputAdornment position="start">
+                    <Search style={{color:colors.primary}}/>
+                  </InputAdornment>
+                ),
                 }}
               />
             {/* </ConnectedTooltip> */}

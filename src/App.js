@@ -20,8 +20,9 @@ import LandingPage from './Components/LandingPage';
 import TopNavBar from './Components/UI/TopNavBar';
 import Login from './Components/User/Login';
 import Profile from './Components/User/Profile';
-import DataSubmission from './Components/DataSubmission/DataSubmission';
+import DataSubmissionTemp from './Components/DataSubmission/DataSubmissionTemp';
 import ContactUs from './Components/ContactUs';
+import CommunityTemp from './Components/Community/CommunityTemp';
 
 import { initializeGoogleAuth } from './Redux/actions/user';
 import { toggleShowHelp } from './Redux/actions/ui';
@@ -138,6 +139,12 @@ const theme = createMuiTheme({
       }
     },
 
+    MuiSnackbarContent: {
+      message: {
+        margin: 'auto'
+      }
+    },
+
     MuiButtonGroup: {
       groupedOutlined: {
         '&:not(:first-child)': {
@@ -202,11 +209,9 @@ const mapDispatchToProps = {
 };
 
 class App extends Component {
-  // componentDidMount = () => {
-  //   window.addEventListener('keydown', (e) => {
-  //     if(e.keyCode === 65 && e.ctrlKey) this.props.toggleShowHelp();
-  //   })
-  // }
+  componentDidMount = () => {
+    this.props.initializeGoogleAuth();
+  }
   render() {
     return (
       <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -224,9 +229,10 @@ class App extends Component {
               <Route exact path='/visualization' component={Visualization} />
               <Route exact path='/profile' component={Profile} />
               <Route exact path='/forgotpass' component={ForgotPass} />
-              <Route path='/datasubmission' component={DataSubmission} />
-              <Route path='/choosepassword' component={ChoosePassword} />
+              <Route path='/datasubmission' component={DataSubmissionTemp} />
+              <Route exact path='/choosepassword' component={ChoosePassword} />
               <Route exact path='/contact' component={ContactUs}/>
+              <Route path='/community' component={CommunityTemp} />
             </Switch>
           </BrowserRouter>
           </MuiThemeProvider>

@@ -3,19 +3,12 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 
-import Paper from '@material-ui/core/Paper';
-import Button from '@material-ui/core/Button';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import TextField from '@material-ui/core/TextField';
-import Typography from '@material-ui/core/Typography';
-import Divider from '@material-ui/core/Divider';
-import Grid from '@material-ui/core/Grid';
+import { Paper, Button, Table, TableBody, TableCell, TableHead, TableRow, TextField, Typography, Divider, Grid, Tooltip} from '@material-ui/core';
 
 import { keyRetrievalRequestSend, keyCreationRequestSend } from '../../Redux/actions/user';
+import { snackbarOpen } from '../../Redux/actions/ui';
+
+import CopyableText from '../UI/CopyableText';
 
 import states from '../../Enums/asyncRequestStates';
 import colors from '../../Enums/colors';
@@ -27,7 +20,8 @@ const mapStateToProps = (state, ownProps) => ({
 
 const mapDispatchToProps = {
     keyRetrievalRequestSend,
-    keyCreationRequestSend
+    keyCreationRequestSend,
+    snackbarOpen
 }
 
 const styles = theme => ({
@@ -43,14 +37,16 @@ const styles = theme => ({
     apiKeyTableHeader: {
         marginBottom: theme.spacing(2),
     },
-    keyTableCell : {
-        visibility: 'hidden'
-    },
+
     showChildOnHover: {
+        '& span': {
+            visibility: 'hidden',
+        },
         '&:hover span': {
             visibility: 'visible'
-          },
+        },
     },
+
     warningCaption: {
         color: colors.primary,
         fontSize: '11px',
@@ -66,7 +62,7 @@ class ApiKeyManagement extends Component {
     constructor(props){
         super(props);
         this.state = {
-            description: ''
+            description: 'API Access'
         }
     }
 
@@ -106,7 +102,9 @@ class ApiKeyManagement extends Component {
                                 {this.props.apiKeys.map((apiKey, index) => (
                                     <TableRow key={index}>
                                         <TableCell align='center'>{apiKey.Description}</TableCell>
-                                        <TableCell align='center' className={classes.showChildOnHover}><span className={classes.keyTableCell}>{apiKey.Api_Key}</span></TableCell>
+                                        <TableCell align='center' className={classes.showChildOnHover}>
+                                            <CopyableText text={apiKey.Api_Key} tooltipPlacement='right'/>
+                                        </TableCell>
                                     </TableRow>
                                 ))   
                                 }  
@@ -124,17 +122,20 @@ class ApiKeyManagement extends Component {
                     </Typography>
                     <Grid container={true} alignItems='center' justify='center' spacing={4}>
                         <Grid item>
-                            <TextField
-                                margin="normal"
-                                id="description"
-                                type="text"
-                                variant='outlined'
-                                name='filterText'
-                                value={this.state.description}
-                                onChange={this.handleChange}
-                                placeholder='Key Description'
-                                className={classes.descriptionField}
-                            />
+                            <Tooltip placement='bottom' title='Optionally Add a Custom Description'>
+                                <TextField
+                                    margin="normal"
+                                    id="description"
+                                    type="text"
+                                    variant='outlined'
+                                    name='description'
+                                    value={this.state.description}
+                                    onChange={this.handleChange}
+                                    placeholder='Key Description'
+                                    className={classes.descriptionField}
+                                    autoComplete='off'
+                                />
+                            </Tooltip>
                         </Grid>
                         <Grid item>
                             <Button variant="contained" disabled={this.state.description.length < 1} color="primary" onClick={this.handleClick}>

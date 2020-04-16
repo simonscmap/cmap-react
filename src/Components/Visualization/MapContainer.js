@@ -162,14 +162,13 @@ class UiComponents extends React.Component {
                 drawButton.style.display = 'inline-block';
                 cancelButton.style.display = 'none';
             }
-        });    
+        });
 
         sketchModel.on('create', throttledUpdate)
 
         sketchModel.on('update', (event) => {
             if(event.toolEventInfo && event.toolEventInfo.type === 'move-stop'){
                 if(event.state === 'cancel') return;
-                // this.props.updateDomainFromGraphicExtent(esriModules.Utils.webMercatorToGeographic(event.graphics[0].geometry.extent));
                 this.props.updateDomainFromGraphicExtent(event.graphics[0].geometry.extent);
                 drawButton.style.display = 'inline-block';
                 cancelButton.style.display = 'none';
@@ -221,10 +220,6 @@ const TrajectoryController = React.memo((props) => {
         let lonStart = lons[0];
         let latStart = lats[0];
         let maxDistance = 0;
-        // var lonMin = lons[0];
-        // var lonMax = lons[0];
-        // var latMin = lats[0];
-        // var latMax = lats[0];
 
         // Create a new path array each time 180 lon is crossed
         lons.forEach((lon, i) => {

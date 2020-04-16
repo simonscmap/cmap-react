@@ -35,6 +35,7 @@ const mapDispatchToProps = {
     csvFromVizRequestSend
 }
 
+// User for all histograms sparse or otherwise
 const SparseHistogram = (props) => {
     const { csvFromVizRequestSend } = props;
     const { data } = props.chart;

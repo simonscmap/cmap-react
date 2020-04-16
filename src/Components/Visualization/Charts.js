@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 import { withStyles } from '@material-ui/core/styles';
-// import Plot from 'react-plotly.js';
+import Plot from 'react-plotly.js';
 
 import { IconButton, Paper } from '@material-ui/core';
 import { Close } from '@material-ui/icons';
@@ -40,87 +40,87 @@ const styles = (theme) => ({
   }
 })
 
-// const SamplePlot = () => {
-//   let x = [0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,4,4,4,4,4];
-//   let y = [0,1,2,3,4,0,1,2,3,4,0,1,2,3,4,0,1,2,3,4,0,1,2,3,4,];
-//   let z = [0,1,2,3,4,0,1,2,3,4,0,1,2,3,4,0,1,2,3,4,0,1,2,3,4];
+const SamplePlot = () => {
+  let x = [0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,4,4,4,4,4];
+  let y = [0,1,2,3,4,0,1,2,3,4,0,1,2,3,4,0,1,2,3,4,0,1,2,3,4,];
+  let z = [0,1,2,3,4,0,1,2,3,4,0,1,2,3,4,0,1,2,3,4,0,1,2,3,4];
   
-//   return (
+  return (
 
-//       <Plot
-//       useResizeHandler={true}
-//       style= {{
-//           position: 'relative',
-//           display:'inline-block',
-//           marginTop: '30px',
-//           width: '66vw',
-//           height: '44vw'
-//       }}
+      <Plot
+      useResizeHandler={true}
+      style= {{
+          position: 'relative',
+          display:'inline-block',
+          // marginTop: '30px',
+          width: '66vw',
+          height: '44vw'
+      }}
       
-//       data={[
-//           {   
-//               x,
-//               y,
-//               z,
-//               connectgaps: false,
-//               zsmooth: 'best',
+      data={[
+          {   
+              x,
+              y,
+              z,
+              connectgaps: false,
+              zsmooth: 'best',
 
-//               hoverinfo: 'text',
-              
-//               name: 'Test',
-//               type: 'heatmapgl',
-//               contours: {
-//                   showlabels: true,
-//                   labelfont: {
-//                       family: 'Raleway',
-//                       size: 12,
-//                       color: 'white',
-//                   },
-//                   labelformat: '.2e'
-//               },
-//               colorbar: {
-//                   title: {
-//                       text: `test`
-//                   },
-//                   exponentformat: 'power'
-//               }
-//           }
-//       ]}
+              name: 'Test',
+              type: 'heatmap',
+              contours: {
+                  showlabels: true,
+                  labelfont: {
+                      family: 'Raleway',
+                      size: 12,
+                      color: 'white',
+                  },
+                  labelformat: '.2e'
+              },
+              colorbar: {
+                  title: {
+                      text: `test`
+                  },
+                  exponentformat: 'power'
+              }
+          }
+      ]}
+
+      config={{responsive: true}}
       
-//       layout= {{
-//         autosize: true,
-//           font: {color: '#ffffff'},
-//           margin: {
-//             t: 50
-//           },
-//           title: {
-//               text: `A sample chart title`,
-//               font: {
-//                 size: 16
-//               }
-//           },
-//           paper_bgcolor: colors.backgroundGray,
-//           xaxis: {title: 'Longitude', color: '#ffffff'},
-//           yaxis: {title: 'Latitude', color: '#ffffff'},
-//           annotations: [
-//               {
-//                   text: `Brought to you by chef boyardee`,
-//                     font: {
-//                         color: 'white',
-//                         size: 10
-//                     },
-//                   yref: 'paper',
-//                   y: -.24,
-//                   showarrow: false,
-//                   xref: 'paper',
-//                   x: .5
-//                   }
-//               ]
+      layout= {{
+        autosize: true,
+          font: {color: '#ffffff'},
+          margin: {
+            t: 50
+          },
+          title: {
+              text: `A sample chart title`,
+              font: {
+                size: 16
+              }
+          },
+          paper_bgcolor: colors.backgroundGray,
+          xaxis: {title: 'Longitude', color: '#ffffff'},
+          yaxis: {title: 'Latitude', color: '#ffffff'},
+          annotations: [
+              {
+                  text: `Brought to you by chef boyardee`,
+                    font: {
+                        color: 'white',
+                        size: 10
+                    },
+                  yref: 'paper',
+                  y: -.24,
+                  showarrow: false,
+                  xref: 'paper',
+                  x: .5
+                  }
+              ]
               
-//           }}   
-//           />
-//           )
-// }
+          }}   
+          />
+          )
+}
 
 const closeChartStyles = {
     closeChartIcon: {

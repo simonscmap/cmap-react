@@ -64,7 +64,7 @@ const ForgotPass = (props) => {
         <Paper className={classes.paper}>
             {emailWasSent ? 
                 <Typography className={classes.emailSentDescription}>
-                    An email has been sent to {email}. If you don't received anything from us within the next few minutes please check your spam folder.
+                    An email has been sent to {email}. If you don't receive anything from us within the next few minutes please check your spam folder.
                 </Typography>
             :
                 <React.Fragment>

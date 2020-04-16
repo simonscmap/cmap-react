@@ -5,18 +5,13 @@ import Select, { components } from 'react-select';
 import * as JsSearch from 'js-search';
 
 import { withStyles } from '@material-ui/core/styles';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableRow from '@material-ui/core/TableRow';
+import { Search } from '@material-ui/icons';
+import { Table, TableBody, TableCell, TableRow, Icon } from '@material-ui/core';
 
 import { cruiseListRequestSend, cruiseTrajectoryRequestSend, cruiseTrajectoryClear } from '../../Redux/actions/visualization';
 
-import ConnectedTooltip from '../UI/ConnectedTooltip';
-
 import states from '../../Enums/asyncRequestStates';
 import colors from '../../Enums/colors';
-import tooltips from '../../Utility/tooltips';
 
 const mapStateToProps = (state, ownProps) => ({
     cruiseList: state.cruiseList,
@@ -88,6 +83,15 @@ const Option = (props) => {
 
 const cruiseSort =  (a,b) => a.Name < b.Name ? -1 : 1;
 
+const ValueContainer = (props) => {
+    return (
+        <components.ValueContainer {...props}>
+            <Search color='primary' style={{ position: "absolute", left: 6 }}/>
+            {props.children}
+        </components.ValueContainer>
+    )
+}
+
 class CruiseSelector extends Component {
     
     constructor(props){
@@ -115,6 +119,14 @@ class CruiseSelector extends Component {
 
     componentDidMount = () => {
         if(!this.props.cruiseList || !this.props.cruiseList.length) this.props.cruiseListRequestSend();
+    }
+
+    formatOptionLabel = (option) => {
+        let label = option.data.Name === option.data.Nickname ?
+            option.data.Name :
+            `${option.data.Name} - ${option.data.Nickname}`;
+
+        return label;
     }
 
     getSelectOptionsFromCruiseList = (list) => {
@@ -166,8 +178,10 @@ class CruiseSelector extends Component {
                             IndicatorSeparator:'',
                             Option,
                             SingleValue,
+                            ValueContainer
                         }}
                         isClearable
+                        formatOptionLabel={this.formatOptionLabel}
                         onInputChange={this.onAutoSuggestChange}
                         filterOption={null}
                         className={classes.cruiseSelect}
@@ -223,7 +237,13 @@ class CruiseSelector extends Component {
                                 fontFamily: esriFonts,
                                 color: 'inherit',
                                 paddingRight: '20px',
-                            })
+                            }),
+
+                            valueContainer: provided => ({
+                                ...provided,
+                                padding: '0 0 0 34px',
+                                fontWeight: 100
+                            }),
                         }}
                         theme={theme => ({
                             ...theme,
