@@ -37,8 +37,7 @@ function* userLogout(){
     yield authInstance.signOut();
     yield call(api.user.logout);
     yield put(userActions.destroyInfo());
-    yield put(interfaceActions.snackbarOpen('You have logged out.'))
-    // window.location.href = "/";
+    yield window.location.href = "/";
 }
 
 function* userRegistration(action){
