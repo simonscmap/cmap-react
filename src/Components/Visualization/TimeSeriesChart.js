@@ -40,7 +40,9 @@ const TimeSeriesChart = (props) => {
     const { data } = props.chart;
     const { stds, variableValues, dates, parameters, metadata } = data;
 
-    const [markerOptions, setMarkerOptions] = React.useState({opacity: .2, color:'#ff1493', size: 12})
+    const [ markerOptions, setMarkerOptions ] = React.useState({opacity: .2, color:'#ff1493', size: 12});
+    const [ showLines, setShowLines ] = React.useState(true);
+    const [ showErrorBars, setShowErrorBars ] = React.useState(variableValues && variableValues.length <= 40 ? true : false);
 
     const downloadCsv = () => {
         csvFromVizRequestSend(data, metadata.Table_Name, metadata.Variable, metadata.Long_Name);
@@ -51,7 +53,23 @@ const TimeSeriesChart = (props) => {
         setTimeout(() => {
             window.requestAnimationFrame(() => props.setLoadingMessage(''));
             setMarkerOptions(values);
-        }, 100)
+        }, 50)
+    }
+
+    const handleSetShowLines = (value) => {
+        props.setLoadingMessage('Re-rendering');
+        setTimeout(() => {
+            window.requestAnimationFrame(() => props.setLoadingMessage(''));
+            setShowLines(value);
+        }, 50)
+    }
+
+    const handleSetShowErrorBars = (value) => {
+        props.setLoadingMessage('Re-rendering');
+        setTimeout(() => {
+            window.requestAnimationFrame(() => props.setLoadingMessage(''));
+            setShowErrorBars(value);
+        }, 50)
     }
 
     let hovertext = variableValues.map((value, i) => {
@@ -79,11 +97,14 @@ const TimeSeriesChart = (props) => {
                 downloadCsv={downloadCsv}
                 handleMarkerOptionsConfirm={handleMarkerOptionsConfirm}
                 markerOptions={markerOptions}
+                showErrorBars={showErrorBars}
+                handleSetShowErrorBars={handleSetShowErrorBars}
+                showLines={showLines}
+                handleSetShowLines={handleSetShowLines}
             />
             <Plot
                 style= {{
                     position: 'relative',
-                    // display:'inline-block',
                     width: '60vw',
                     height: '40vw'
                 }}
@@ -92,16 +113,18 @@ const TimeSeriesChart = (props) => {
 
                 data={[
                   {
-                    mode: 'lines+markers',
+                    // mode: 'lines+markers',
+                    mode: showLines ? 'lines+markers' : 'markers',
                     x: x,
                     y: variableValues,
                     error_y: {
                         type: 'data',
                         array: stds,
                         opacity: 0.3,
-                        color: '#f2f2f2',
+                        color: showErrorBars ? '#f2f2f2' : 'transparent',
                         visible: true
                     },
+
                     name: parameters.fields,
                     type: 'scatter',
                     line: {color: markerOptions.color},

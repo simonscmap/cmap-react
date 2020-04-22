@@ -12,7 +12,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import Button from '@material-ui/core/Button';
-import { DateRange, CloudDownload, Palette, SwapVert, Gamepad, LineWeight, } from '@material-ui/icons';
+import { DateRange, CloudDownload, Palette, SwapVert, Gamepad, LineWeight, ShowChart, Tune } from '@material-ui/icons';
 
 import colors from '../../Enums/colors';
 
@@ -130,6 +130,10 @@ const ChartControlPanel = (props) => {
         zValues,
         markerOptions,
         handleMarkerOptionsConfirm,
+        showErrorBars,
+        handleSetShowErrorBars,
+        showLines,
+        handleSetShowLines
     } = props;
 
     const [paletteAnchorElement, setPaletteAnchorElement] = useState(null);
@@ -273,6 +277,22 @@ const ChartControlPanel = (props) => {
                     <Tooltip title='Change Colorscale Range' placement='top'>
                         <IconButton color='inherit' onClick={(event) => setZScalePopoverAnchorElement(event.currentTarget)} className={classes.iconButton}>
                             <SwapVert/>
+                        </IconButton>
+                    </Tooltip>
+                }
+
+                {Boolean(handleSetShowLines) &&
+                    <Tooltip title={showLines ? 'Hide Plot Line' : 'Show Plot Line'} placement='top'>
+                        <IconButton color='inherit' onClick={() => handleSetShowLines(!showLines)} className={`${classes.iconButton} ${showLines && classes.depressed}`}>
+                            <ShowChart/>
+                        </IconButton>
+                    </Tooltip>
+                }
+
+                {Boolean(handleSetShowErrorBars) &&
+                    <Tooltip title={showErrorBars ? 'Hide Error Bars' : 'Show Error Bars'} placement='top'>
+                        <IconButton color='inherit' onClick={() => handleSetShowErrorBars(!showErrorBars)} className={`${classes.iconButton} ${showErrorBars && classes.depressed}`}>
+                            <Tune/>
                         </IconButton>
                     </Tooltip>
                 }

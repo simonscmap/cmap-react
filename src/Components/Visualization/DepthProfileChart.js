@@ -40,6 +40,10 @@ const DepthProfileChart = (props) => {
     const { setLoadingMessage, csvFromVizRequestSend } = props;
     const { data } = props.chart;
     const { stds, variableValues, depths, parameters, metadata } = data;
+
+    const [ showLines, setShowLines ] = React.useState(true);
+    const [ showErrorBars, setShowErrorBars ] = React.useState(variableValues && variableValues.length <= 40 ? true : false);
+
     var infoObject = data;
 
     const [markerOptions, setMarkerOptions] = React.useState({opacity: .2, color:'#ff1493', size: 12})
@@ -60,6 +64,22 @@ const DepthProfileChart = (props) => {
         }, 100)
     }
 
+    const handleSetShowLines = (value) => {
+        props.setLoadingMessage('Re-rendering');
+        setTimeout(() => {
+            window.requestAnimationFrame(() => props.setLoadingMessage(''));
+            setShowLines(value);
+        }, 50)
+    }
+
+    const handleSetShowErrorBars = (value) => {
+        props.setLoadingMessage('Re-rendering');
+        setTimeout(() => {
+            window.requestAnimationFrame(() => props.setLoadingMessage(''));
+            setShowErrorBars(value);
+        }, 50)
+    }
+
     const date1 = infoObject.isMonthly ? new Date(parameters.dt1).getMonth() + 1 : parameters.dt1;
     const date2 = infoObject.isMonthly ? new Date(parameters.dt2).getMonth() + 1 : parameters.dt2;
 
@@ -72,11 +92,14 @@ const DepthProfileChart = (props) => {
                 downloadCsv={downloadCsv}
                 handleMarkerOptionsConfirm={handleMarkerOptionsConfirm}
                 markerOptions={markerOptions}
+                showErrorBars={showErrorBars}
+                handleSetShowErrorBars={handleSetShowErrorBars}
+                showLines={showLines}
+                handleSetShowLines={handleSetShowLines}
             />
             <Plot
                 style= {{
                     position: 'relative',
-                    // display:'inline-block',
                     width: '60vw',
                     height: '40vw'
                 }}
@@ -85,14 +108,15 @@ const DepthProfileChart = (props) => {
 
                 data={[
                     {   
-                        mode: 'lines+markers',
+                        // mode: 'lines+markers',
+                        mode: showLines ? 'lines+markers' : 'markers',
                         y: depths,
                         x: variableValues,
                         error_x: {
                             type: 'data',
                             array: stds,
                             opacity: 0.3,
-                            color: '#f2f2f2',
+                            color: showErrorBars ? '#f2f2f2' : 'transparent',
                             visible: true
                         },
                         name: parameters.fields,

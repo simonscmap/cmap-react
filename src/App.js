@@ -230,7 +230,7 @@ class App extends Component {
               <Route exact path='/profile' component={Profile} />
               <Route exact path='/forgotpass' component={ForgotPass} />
               <Route path='/datasubmission' component={DataSubmissionTemp} />
-              <Route exact path='/choosepassword' component={ChoosePassword} />
+              <Route path='/choosepassword' component={ChoosePassword} />
               <Route exact path='/contact' component={ContactUs}/>
               <Route path='/community' component={CommunityTemp} />
             </Switch>
