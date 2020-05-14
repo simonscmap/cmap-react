@@ -32,6 +32,7 @@ api.user = {};
 api.dataRetrieval = {};
 api.catalog = {};
 api.visualization = {};
+api.dataSubmission = {};
 
 api.user.login = (user) => {
     return fetch(apiUrl + '/user/signin', {
@@ -301,5 +302,49 @@ api.visualization.csvDownload = async(query) => {
     if(response.ok) return await response.text();
     else return {failed: true, status: response.status}
 }
+
+api.dataSubmission.retrieveSubmissionByUser = async() => {
+    return await fetch(apiUrl + `/api/datasubmission/submissionsbyuser`, fetchOptions);
+}
+
+api.dataSubmission.retrieveAllSubmissions = async() => {
+    return await fetch(apiUrl + `/api/datasubmission/submissions`, fetchOptions);
+}
+
+api.dataSubmission.addSubmissionComment = async(payload) => {
+    return await fetch(apiUrl + '/api/datasubmission/addcomment', {
+        ...postOptions,
+        body: JSON.stringify(payload),
+    });
+}
+
+api.dataSubmission.beginUploadSession = async() => {
+    return await fetch(apiUrl + '/api/datasubmission/beginuploadsession', fetchOptions);
+}
+
+api.dataSubmission.uploadPart = async(formData) => {
+    return await fetch(apiUrl + '/api/datasubmission/uploadfilepart', {
+        ...postOptions,
+        body: formData
+    });
+}
+
+api.dataSubmission.commitUpload = async(formData) => {
+    return await fetch(apiUrl + '/api/datasubmission/commitupload', {
+        ...postOptions,
+        body: formData
+    })
+}
+
+api.dataSubmission.setPhase = async(formData) => {
+    return await fetch(apiUrl + '/api/datasubmission/setphase', {
+        ...postOptions,
+        body: formData
+    });
+}
+
+api.dataSubmission.retrieveCommentHistory = async(payload) => {
+    return await fetch(`${apiUrl}/api/datasubmission/commenthistory?submissionID=${payload.submissionID}`, fetchOptions);
+};
 
 export default api;

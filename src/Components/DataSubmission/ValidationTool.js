@@ -193,7 +193,7 @@ class ValidationTool extends React.Component {
                     />
                     <label htmlFor="contained-button-file">
                         <Button variant="contained" color="primary" component="span">
-                        Upload
+                            Upload
                         </Button>
                     </label>
 

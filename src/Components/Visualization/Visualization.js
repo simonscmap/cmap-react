@@ -249,11 +249,14 @@ class Visualization extends Component {
             let surfaceOnly = !fields.data.Depth_Min;
             let irregularSpatialResolution = fields.data.Spatial_Resolution === 'Irregular';
 
+            let sparseMaxDate = utcDateStringToLocal(fields.data.Time_Max);
+            sparseMaxDate.setDate(sparseMaxDate.getDate() + 1);
+
             let dt1 = fields.data.Temporal_Resolution === temporalResolutions.monthlyClimatology ?
                 this.state.spParams.dt1 : utcDateStringToLocal(fields.data.Time_Min);
             let dt2 = fields.data.Temporal_Resolution === temporalResolutions.monthlyClimatology ?
                 this.state.spParams.dt2 : 
-                irregularSpatialResolution ? utcDateStringToLocal(fields.data.Time_Max) :
+                irregularSpatialResolution ? sparseMaxDate :
                 utcDateStringToLocal(fields.data.Time_Min);
             
             let latMin = Math.floor(fields.data.Lat_Min * 1000) /1000;

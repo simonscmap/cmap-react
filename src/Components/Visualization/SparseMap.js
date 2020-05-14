@@ -298,7 +298,7 @@ const SparseMap = (props) => {
                             markerOptions={markerOptions}
                             infoObject={data}
                             xTitle={data.parameters.fields}
-                            yTitle='Depth'
+                            yTitle='Depth[m]'
                             type='depth'
                         />                    
                     }

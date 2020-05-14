@@ -1,4 +1,4 @@
-import { put, takeLatest, all, call, delay } from 'redux-saga/effects';
+import { put, takeLatest, all, call, delay, select } from 'redux-saga/effects';
 // import { eventChannel } from 'redux-saga';
 import Cookies from 'js-cookie';
 // import worker from '../worker';
@@ -7,13 +7,16 @@ import * as userActions from './actions/user';
 import * as catalogActions from './actions/catalog';
 import * as interfaceActions from './actions/ui';
 import * as visualizationActions from './actions/visualization';
+import * as dataSubmissionActions from './actions/dataSubmission';
 
 import * as userActionTypes from './actionTypes/user';
 import * as catalogActionTypes from './actionTypes/catalog';
 import * as visualizationActionTypes from './actionTypes/visualization';
 import * as interfaceActionTypes from './actionTypes/ui';
+import * as dataSubmissionActionTypes from './actionTypes/dataSubmission';
 
 import api from '../api';
+import states from '../Enums/asyncRequestStates';
 
 function* userLogin(action) {
     yield put(userActions.userLoginRequestProcessing());
@@ -395,10 +398,228 @@ function* copyTextToClipboard(action) {
     yield put(interfaceActions.snackbarOpen('Copied to Clipboard'));
 }
 
+function* retrieveSubmissionsByUser() {
+    let response = yield call(api.dataSubmission.retrieveSubmissionByUser);
+    if(response.ok){
+        let jsonResponse = yield response.json();
+        yield put(dataSubmissionActions.storeSubmissions(jsonResponse));
+    } 
+    
+    else if (response.status === 401) {
+        yield put(userActions.refreshLogin());
+    }
+
+    else {
+        yield put(interfaceActions.snackbarOpen('Unable to retrieve submissions'));
+    }
+}
+
+function* retrieveAllSubmissions() {
+    let response = yield call(api.dataSubmission.retrieveAllSubmissions);
+    if(response.ok){
+        let jsonResponse = yield response.json();
+
+        if(jsonResponse.length < 1){
+            yield put(interfaceActions.snackbarOpen('No submissions found'));
+        }
+
+        else {
+            yield put(dataSubmissionActions.storeSubmissions(jsonResponse));
+        }
+    } 
+    
+    else if (response.status === 401) {
+        yield put(userActions.refreshLogin());
+    }
+
+    else {
+        yield put(interfaceActions.snackbarOpen('Unable to retrieve submissions'));
+    }
+}
+
+function* addSubmissionComment(action) {
+    let response = yield call(api.dataSubmission.addSubmissionComment, action.payload);
+    console.log(response);
+
+    if(response.ok){
+        yield put(dataSubmissionActions.retrieveSubmissionCommentHistory(action.payload.submissionID));
+    } 
+    
+    else if (response.status === 401) {
+        yield put(userActions.refreshLogin());
+    }
+
+    else {
+        yield put(interfaceActions.snackbarOpen('Failed to submit comment. Please try again.'));
+    }
+}
+
+function* retrieveSubmissionCommentHistory(action) {
+    yield put(dataSubmissionActions.setSubmissionCommentHistoryRetrievalState(states.inProgress));
+
+    let response = yield call(api.dataSubmission.retrieveCommentHistory, action.payload);
+
+    if(response.ok){
+        let jsonResponse = yield response.json();        
+
+        if(jsonResponse.length < 1){
+            yield put(interfaceActions.snackbarOpen('No comments found'));
+        }
+
+        else {
+            let payload = {
+                comments: jsonResponse,
+                submissionID: action.payload.submissionID
+            }
+            yield put(dataSubmissionActions.storeSubmissionComments(payload));
+        }
+    } 
+    
+    else if (response.status === 401) {
+        yield put(userActions.refreshLogin());
+    }
+
+    else {
+        yield put(interfaceActions.snackbarOpen('Failed to retrieve comment history.'));
+    }
+
+    yield put(dataSubmissionActions.setSubmissionCommentHistoryRetrievalState(states.succeeded));
+}
+
+function* uploadSubmission(action) {
+    let { file } = action.payload;
+    let fileSize = file.size;
+    let fileName = file.name;
+
+    let chunkSize = 5 * 1024 * 1024;
+    let offset = 0;
+
+    let retries = 0;
+    let sessionID;
+
+    if(fileSize <= 0){
+        yield put(interfaceActions.snackbarOpen('The selected file is empty'));
+        return;
+    }
+    
+    while(retries < 3 && !sessionID){
+        let beginSessionResponse = yield call(api.dataSubmission.beginUploadSession);
+
+        if(beginSessionResponse.ok){
+            let jsonResponse = yield beginSessionResponse.json();
+            sessionID = jsonResponse.sessionID;
+        }
+
+        else {
+            retries ++;
+            yield delay(2000);
+        }
+    }
+
+    if(!sessionID){
+        yield put(interfaceActions.snackbarOpen('Failed to begin upload session'));
+        return;
+    }
+
+    else console.log('Got session ID');
+    retries = 0;
+
+    var currentPartSucceeded = false;
+
+    console.log('Starting upload');
+
+    while(offset < fileSize){
+        currentPartSucceeded = false;
+
+        while(currentPartSucceeded === false && retries < 3){
+            console.log('attempting to upload a part, offset: ' + offset);
+            let part = file.slice(offset, offset + chunkSize);
+
+            let formData = new FormData();
+            formData.append('part', part);
+            formData.append('offset', offset);
+            formData.append('sessionID', sessionID);
+
+            let uploadPartResponse = yield call(api.dataSubmission.uploadPart, formData);
+
+            if(uploadPartResponse.ok){
+                currentPartSucceeded = true;
+            }
+
+            else {
+                console.log('Retrying part upload, offset: ' + offset);
+                retries ++;
+                yield delay(2000);
+            }
+        }
+        
+        if(currentPartSucceeded === false){
+            yield put(interfaceActions.snackbarOpen('Upload failed'));
+            return;
+        }
+
+        else {
+            console.log('Completing part upload, offset: ' + offset);
+            offset += chunkSize;
+        }
+    }
+
+    retries = 0;
+
+    let formData = new FormData();
+    formData.append('fileName', fileName);
+    formData.append('offset', fileSize);
+    formData.append('sessionID', sessionID);
+
+    var commitSucceeded = false;
+
+    while(retries < 4 && commitSucceeded === false) {
+        let commitFileResponse = yield call(api.dataSubmission.commitUpload, formData);        
+
+        if(commitFileResponse.ok){
+            commitSucceeded = true;
+        }
+
+        else {
+            console.log('Retrying commit');
+            retries ++;
+            yield delay(2000);
+        }
+    }
+
+    if(commitSucceeded === true){
+        console.log('Successfully committed');
+    }
+
+    else {
+        yield put(interfaceActions.snackbarOpen('Failed to upload'));
+        return;
+    }
+}
+
+function* setDataSubmissionPhase(action) {
+    let formData = new FormData();
+    formData.append('phaseID', action.payload.phaseID);
+    formData.append('submissionID', action.payload.submissionID);
+    
+    let response = yield call(api.dataSubmission.setPhase, formData);
+
+    if(response.ok){
+        yield put(dataSubmissionActions.retrieveAllSubmissions);
+    } 
+    
+    else if (response.status === 401) {
+        yield put(userActions.refreshLogin());
+    }
+
+    else {
+        yield put(interfaceActions.snackbarOpen('Failed to retrieve submissions'));
+    }
+}
+
 function* watchUserLogin() {
     yield takeLatest(userActionTypes.LOGIN_REQUEST_SEND, userLogin);
 }
-
 
 function* watchUserRegistration() {
     yield takeLatest(userActionTypes.REGISTRATION_REQUEST_SEND, userRegistration);
@@ -500,6 +721,30 @@ function* watchCopyTextToClipboard(){
     yield takeLatest(interfaceActionTypes.COPY_TEXT_TO_CLIPBOARD, copyTextToClipboard);
 }
 
+function* watchRetrieveSubmissionsByUser() {
+    yield takeLatest(dataSubmissionActionTypes.RETRIEVE_SUBMISSIONS_BY_USER, retrieveSubmissionsByUser);
+}
+
+function* watchRetrieveAllSubmissions() {
+    yield takeLatest(dataSubmissionActionTypes.RETRIEVE_ALL_SUBMISSIONS, retrieveAllSubmissions);
+}
+
+function* watchAddSubmissionComment() {
+    yield takeLatest(dataSubmissionActionTypes.ADD_SUBMISSION_COMMENT, addSubmissionComment);
+}
+
+function* watchRetrieveSubmissionCommentHistory() {
+    yield takeLatest(dataSubmissionActionTypes.RETRIEVE_SUBMISSION_COMMENT_HISTORY, retrieveSubmissionCommentHistory);
+}
+
+function* watchUploadSubmission() {
+    yield takeLatest(dataSubmissionActionTypes.UPLOAD_SUBMISSION, uploadSubmission);
+}
+
+function* watchSetDataSubmissionPhase() {
+    yield takeLatest(dataSubmissionActionTypes.SET_SUBMISSION_PHASE, setDataSubmissionPhase);
+}
+
 // function createWorkerChannel(worker) {
 //     return eventChannel(emit => {
 //         worker.onmessage = message => {
@@ -554,5 +799,11 @@ export default function* rootSaga() {
         watchChangeEmailRequest(),
         watchCsvFromVizRequest(),
         watchCopyTextToClipboard(),
+        watchRetrieveSubmissionsByUser(),
+        watchRetrieveAllSubmissions(),
+        watchAddSubmissionComment(),
+        watchRetrieveSubmissionCommentHistory(),
+        watchUploadSubmission(),
+        watchSetDataSubmissionPhase()
     ])
 }

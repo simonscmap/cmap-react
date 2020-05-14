@@ -519,26 +519,28 @@ class VizControlPanel extends React.Component {
 
     getSelectOptionsFromCatalogItems = (items) => {
         var options = {};
+        let count = 0;
 
         items.forEach(item => {
-            if(!options[item.Dataset_Name]){
-                options[item.Dataset_Name] = {
-                    label: item.Dataset_Name,
-                    options: []
+            if(item.Visualize == 1) {
+                if(!options[item.Dataset_Name]){
+                    options[item.Dataset_Name] = {
+                        label: item.Dataset_Name,
+                        options: []
+                    }
                 }
+                // TODO use css textoverflow for this if possible
+                options[item.Dataset_Name].options.push({
+                    value: item.Variable,
+                    label: item.Long_Name.length < 80 ? item.Long_Name : item.Long_Name.slice(0,78) + '...',
+                    data: item
+                })
             }
-
-            options[item.Dataset_Name].options.push({
-                value: item.Variable,
-                label: item.Long_Name.length < 80 ? item.Long_Name : item.Long_Name.slice(0,78) + '...',
-                data: item
-            })
         });
 
         let sortedOptions = Object.values(options).sort((opt1, opt2) => {
             return opt1.label < opt2.label ? -1 : 1;
         })
-
         return sortedOptions;
     }
 

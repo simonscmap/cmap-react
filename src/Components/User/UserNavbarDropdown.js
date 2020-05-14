@@ -32,7 +32,7 @@ const styles = (theme) => ({
     popperPaperBlue: {
         borderTopLeftRadius: 0,
         borderTopRightRadius: 0,
-        backgroundColor: '#133345'
+        backgroundColor: '#1D4962'
     },
 
     popperPaperBlack: {

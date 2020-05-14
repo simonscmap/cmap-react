@@ -5,6 +5,7 @@ import visualization from './visualization';
 import dataSubmission from './dataSubmission.js';
 import reduceReducers from 'reduce-reducers';
 import Cookies from 'js-cookie';
+import states from '../../Enums/asyncRequestStates';
 
 // Consider building this object from initial states from each reducer
 // ** When adding new keys to redux store consider whether they need to be
@@ -60,11 +61,15 @@ const initialState = {
     cruiseList: [],
     getCruiseListRequestState: null,
     showChartsOnce: null,
-    chartID: 0
+    chartID: 0,
 
     // Data Submission state pieces
+
+    dataSubmissions: [],
+    submissionComments: [],
+    submissionCommentHistoryRetrievalState: states.succeeded
 }
 
-const reducedReducer = reduceReducers(initialState, catalog, user, ui, visualization);
+const reducedReducer = reduceReducers(initialState, catalog, user, ui, visualization, dataSubmission);
 
 export default reducedReducer;

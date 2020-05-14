@@ -46,8 +46,8 @@ const styles = theme => ({
         pointerEvents: 'none'
     },
 
-    navWrapperGradient: {
-        backgroundImage: 'linear-gradient(270deg, rgba(0, 0, 0, 0.48), rgba(0, 0, 0, 0.1))'
+    navWrapperBlue: {
+        backgroundColor: '#1D4962'
     },
 
     rightSectionWrapper: {
@@ -127,7 +127,7 @@ class TopNavBar extends Component {
         const { pathname } = history.location;
 
         return (
-            <div className={`${classes.navWrapper} ${pathname !== '/visualization' && classes.navWrapperGradient}`}>
+            <div className={`${classes.navWrapper} ${pathname !== '/visualization' && classes.navWrapperBlue}`}>
                 {
                     this.state.layout === 'desktop' ?
 
@@ -141,7 +141,7 @@ class TopNavBar extends Component {
                             <Typography variant='caption' to='/visualization' component={Link} className={classes.navLink}>Visualization</Typography>
                             <Typography variant='caption' to='/community' component={Link} className={classes.navLink}>Community</Typography>
                             <Typography variant='caption' to='/datasubmission' component={Link} className={classes.navLink}>Data Submission</Typography>
-
+                            {/* <DataSubmissionNavbarDropdown/> */}
                         </div>
 
                         {/* Right side of navbar */}

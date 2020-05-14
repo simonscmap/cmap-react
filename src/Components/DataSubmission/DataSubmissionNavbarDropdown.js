@@ -12,41 +12,44 @@ import { ExpandLess, ExpandMore } from '@material-ui/icons';
 
 import { Typography, MenuItem, ClickAwayListener, Grow, Paper, Popper, MenuList } from '@material-ui/core';
 
+import JSS from '../../Stylesheets/JSS';
+import colors from '../../Enums/colors';
+
 const styles = (theme) => ({
-    navLink: {
-        textDecoration: 'none',
-        marginRight: 20,
-        color: 'white',
-        '&:hover': {
-            color: theme.palette.primary.main
-        },
-        fontSize: '15px',
-        fontWeight: 100,
-        display: 'inline-block',
-        cursor: 'pointer' ,
-        verticalAlign: 'middle'
-    },
+    navLink: JSS.navLink(theme),
 
     icon: {
         display: 'inline-flex',
         verticalAlign: 'middle'
     },
 
-    dropdown: {
-        zIndex: 1300,
-        marginTop: '23px',
-        borderRadius: 0
+    icon: {
+        display: 'inline-flex',
+        verticalAlign: 'middle',
+        color: colors.primary
     },
 
-    popperPaper: {
+    dropdown: {
+        zIndex: 1300,
+        marginTop: '21px',
+        width: '200px'
+    },
+
+    popperPaperBlue: {
         borderTopLeftRadius: 0,
         borderTopRightRadius: 0,
-        backgroundColor: '#1C4964'
+        backgroundColor: '#1D4962'
+    },
+
+    popperPaperBlack: {
+        borderTopLeftRadius: 0,
+        borderTopRightRadius: 0,
+        backgroundColor: 'black'
     }
 });
 
 const mapStateToProps = (state, ownProps) => ({
-
+    user: state.user
 })
 
 const mapDispatchToProps = {
@@ -58,6 +61,8 @@ const DataSubmissionNavbarDropdown = (props) => {
 
     const [anchorEl, setAnchorEl] = React.useState(null);
 
+    const paperClass = window.location.pathname === '/visualization' ? classes.popperPaperBlack : classes.popperPaperBlue;
+
     const handleClick = event => {
         setAnchorEl(event.currentTarget);
     };
@@ -65,7 +70,7 @@ const DataSubmissionNavbarDropdown = (props) => {
     const handleClose = () => {
       setAnchorEl(null);
     };
-
+    
     return (
         <React.Fragment>
             <Typography variant='caption' className={`${classes.navLink}`} onClick={handleClick}>
@@ -77,11 +82,15 @@ const DataSubmissionNavbarDropdown = (props) => {
                     {...TransitionProps}
                     style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}
                     >
-                        <Paper className={classes.popperPaper}>
+                        <Paper className={paperClass}>
                             <ClickAwayListener onClickAway={handleClose}>
                                 <MenuList id="menu-list-grow">
                                     <MenuItem onClick={handleClose} component={Link} to='/datasubmission/guide'>About</MenuItem>
-                                    <MenuItem onClick={handleClose} component={Link} to='/datasubmission/validationtool'>Validation Tool</MenuItem>
+                                    <MenuItem onClick={handleClose} component={Link} to='/datasubmission/validationtool'>Submit Data</MenuItem>
+                                    <MenuItem onClick={handleClose} component={Link} to='/datasubmission/userdashboard'>User Dashboard</MenuItem>
+                                    {user.isDataSubmissionAdmin &&
+                                        <MenuItem onClick={handleClose} component={Link} to='/datasubmission/admindashboard'>Admin Dashboard</MenuItem>
+                                    }
                                 </MenuList>
                             </ClickAwayListener>
                         </Paper>

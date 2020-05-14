@@ -21,6 +21,7 @@ import TopNavBar from './Components/UI/TopNavBar';
 import Login from './Components/User/Login';
 import Profile from './Components/User/Profile';
 import DataSubmissionTemp from './Components/DataSubmission/DataSubmissionTemp';
+import DataSubmission from './Components/DataSubmission/DataSubmission';
 import ContactUs from './Components/ContactUs';
 import CommunityTemp from './Components/Community/CommunityTemp';
 
@@ -171,6 +172,14 @@ const theme = createMuiTheme({
       }
     },
 
+    MuiExpansionPanel: {
+      root: {
+        "&$expanded": {
+          margin: 0
+        }
+      }
+    },
+    
     MuiDialogTitle: {
       root: {
         color: colors.primary
@@ -230,6 +239,7 @@ class App extends Component {
               <Route exact path='/profile' component={Profile} />
               <Route exact path='/forgotpass' component={ForgotPass} />
               <Route path='/datasubmission' component={DataSubmissionTemp} />
+              {/* <Route path='/datasubmission' component={DataSubmission} /> */}
               <Route path='/choosepassword' component={ChoosePassword} />
               <Route exact path='/contact' component={ContactUs}/>
               <Route path='/community' component={CommunityTemp} />
