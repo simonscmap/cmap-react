@@ -80,10 +80,8 @@ const CommunityTemp = (props) => {
                     </Grid>
 
                     <Grid item xs={12} md={6} lg={3}>
-                        <a>
-                            <Tooltip placement='top' title='Coming Soon'>
-                                <img src="images/cmap-sdk-julia-COLORED.png" width="176" alt="" className={classes.softwareIcon}/>                
-                            </Tooltip>
+                        <a href='https://github.com/simonscmap/CMAP.jl' target='_blank'>
+                            <img src="images/cmap-sdk-julia-COLORED.png" width="176" alt="" className={classes.softwareIcon}/>                
                         </a>
                     </Grid>
 

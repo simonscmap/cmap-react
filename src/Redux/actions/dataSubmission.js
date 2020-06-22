@@ -56,3 +56,17 @@ export const setSubmissionCommentHistoryRetrievalState = (state) => ({
         state
     }
 });
+
+export const retrieveMostRecentFile = (submissionID) => ({
+    type: dataSubmissionActionTypes.RETRIEVE_MOST_RECENT_FILE,
+    payload: {
+        submissionID
+    }
+});
+
+export const storeSubmissionFile = (file) => ({
+    type: dataSubmissionActionTypes.STORE_SUBMISSION_FILE,
+    payload: {
+        file
+    }
+});

@@ -9,7 +9,8 @@ const styles = (theme) => ({
         width: '70vw',
         margin: "0 auto",
         padding: '12px 16px',
-        textAlign: 'left'
+        textAlign: 'left',
+        whiteSpace: 'pre-wrap'
     },
 
     commenterAndDateTime: {
@@ -26,11 +27,13 @@ const styles = (theme) => ({
 const Comment = (props) => {
     const { classes } = props;
     const { Comment, Commenter, Comment_Date_Time } = props.comment;
+    
+    let dateTime = new Date(Comment_Date_Time).toLocaleString();
 
     return (
         <React.Fragment>
             <div className={classes.commenterAndDateTime}>
-                {Commenter} at {Comment_Date_Time}
+                {Commenter} at {dateTime}
             </div>
 
             <div className={classes.commentArea}>              
@@ -41,7 +44,3 @@ const Comment = (props) => {
 }
 
 export default withStyles(styles)(Comment);
-
-//Commenter
-//Comment_Date_Time
-//Comment

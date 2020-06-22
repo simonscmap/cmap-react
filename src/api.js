@@ -83,7 +83,6 @@ api.user.changePassword = async(payload) => {
 }
 
 api.user.changeEmail = async(payload) => {
-    console.log(payload);
     return await fetch(apiUrl + '/api/user/changeemail', {
         ...postOptions,
         body: JSON.stringify(payload)
@@ -211,7 +210,7 @@ api.visualization.storedProcedureRequest = async(payload) => {
         default:
             console.log('Unknown sproc name');
     }
-
+    
     let response = await fetch(apiUrl + '/api/data/sp?' + storedProcedureParametersToUri(payload.parameters), fetchOptions);
 
     if(!response.ok) return {failed: true, status: response.status};
@@ -324,27 +323,37 @@ api.dataSubmission.beginUploadSession = async() => {
 
 api.dataSubmission.uploadPart = async(formData) => {
     return await fetch(apiUrl + '/api/datasubmission/uploadfilepart', {
-        ...postOptions,
+        method: 'POST',
+        credentials: 'include',
         body: formData
     });
 }
 
 api.dataSubmission.commitUpload = async(formData) => {
     return await fetch(apiUrl + '/api/datasubmission/commitupload', {
-        ...postOptions,
+        method: 'POST',
+        credentials: 'include',
         body: formData
-    })
+    });
 }
 
 api.dataSubmission.setPhase = async(formData) => {
     return await fetch(apiUrl + '/api/datasubmission/setphase', {
         ...postOptions,
-        body: formData
+        body: JSON.stringify(formData)
     });
 }
 
 api.dataSubmission.retrieveCommentHistory = async(payload) => {
     return await fetch(`${apiUrl}/api/datasubmission/commenthistory?submissionID=${payload.submissionID}`, fetchOptions);
 };
+
+api.dataSubmission.retrieveMostRecentFile = async(submissionID) => {
+    return await fetch(`${apiUrl}/api/datasubmission/retrievemostrecentfile?submissionID=${submissionID}`, fetchOptions)
+}
+
+api.dataSubmission.getFileFromLink = async(link) => {
+    return await fetch(link);
+}
 
 export default api;

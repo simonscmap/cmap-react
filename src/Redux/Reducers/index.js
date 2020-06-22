@@ -67,7 +67,8 @@ const initialState = {
 
     dataSubmissions: [],
     submissionComments: [],
-    submissionCommentHistoryRetrievalState: states.succeeded
+    submissionCommentHistoryRetrievalState: states.succeeded,
+    submissionFile: null
 }
 
 const reducedReducer = reduceReducers(initialState, catalog, user, ui, visualization, dataSubmission);

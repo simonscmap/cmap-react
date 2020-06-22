@@ -54,6 +54,8 @@
   font-weight: 900; 
 }
 
+
+
 // Ag-grid theme styles
 $ag-icons-path: '~../../node_modules/ag-grid-community/src/styles/ag-theme-material/icons/';
 $primary-color: #9dd162;
@@ -67,6 +69,7 @@ $hover-color: darken(#9dd162, 35%);
 $panel-background-color: darken(#184562, 5%);
 $row-stub-background-color: #22A3B9;
 
+
 // $menu-option-active-color: #22A3B9;
 @import "../../node_modules/ag-grid-community/src/styles/ag-grid.scss";
 @import "../../node_modules/ag-grid-community/src/styles/ag-theme-material/sass/ag-theme-material.scss";
@@ -77,4 +80,13 @@ $row-stub-background-color: #22A3B9;
 #custom-scroll::-webkit-scrollbar {
   width: 6px;
   background-color: #F5F5F5;
-} 
+}
+
+.ag-theme-material .ag-popup-editor {
+  background-color: #184562;
+}
+
+.ag-theme-material .ag-cell-inline-editing {
+  background-color: #184562;
+  height: auto
+}

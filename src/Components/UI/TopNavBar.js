@@ -140,8 +140,8 @@ class TopNavBar extends Component {
                             <Typography variant='caption' to='/catalog' component={Link} className={classes.navLink}>Catalog</Typography>
                             <Typography variant='caption' to='/visualization' component={Link} className={classes.navLink}>Visualization</Typography>
                             <Typography variant='caption' to='/community' component={Link} className={classes.navLink}>Community</Typography>
-                            <Typography variant='caption' to='/datasubmission' component={Link} className={classes.navLink}>Data Submission</Typography>
-                            {/* <DataSubmissionNavbarDropdown/> */}
+                            {/* <Typography variant='caption' to='/datasubmission' component={Link} className={classes.navLink}>Data Submission</Typography> */}
+                            <DataSubmissionNavbarDropdown/>
                         </div>
 
                         {/* Right side of navbar */}

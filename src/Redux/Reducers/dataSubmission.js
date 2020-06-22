@@ -14,6 +14,8 @@ export default function(state, action) {
         ...state,
         submissionComments: updatedComments
       }
+
+    case dataSubmissionActionTypes.STORE_SUBMISSION_FILE: return {...state, submissionFile: action.payload.file}
       
     default: return state;
     }

@@ -85,10 +85,10 @@ const DataSubmissionNavbarDropdown = (props) => {
                         <Paper className={paperClass}>
                             <ClickAwayListener onClickAway={handleClose}>
                                 <MenuList id="menu-list-grow">
-                                    <MenuItem onClick={handleClose} component={Link} to='/datasubmission/guide'>About</MenuItem>
+                                    <MenuItem onClick={handleClose} component={Link} to='/datasubmission/guide'>Getting Started</MenuItem>
                                     <MenuItem onClick={handleClose} component={Link} to='/datasubmission/validationtool'>Submit Data</MenuItem>
                                     <MenuItem onClick={handleClose} component={Link} to='/datasubmission/userdashboard'>User Dashboard</MenuItem>
-                                    {user.isDataSubmissionAdmin &&
+                                    {user && user.isDataSubmissionAdmin &&
                                         <MenuItem onClick={handleClose} component={Link} to='/datasubmission/admindashboard'>Admin Dashboard</MenuItem>
                                     }
                                 </MenuList>

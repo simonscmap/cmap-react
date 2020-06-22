@@ -204,6 +204,12 @@ const theme = createMuiTheme({
           backgroundColor: 'transparent',
         }
       }
+    },
+
+    MuiPopover: {
+      paper: {
+        backgroundColor: '#1B4156'
+      }
     }
   }
 });
@@ -238,8 +244,8 @@ class App extends Component {
               <Route exact path='/visualization' component={Visualization} />
               <Route exact path='/profile' component={Profile} />
               <Route exact path='/forgotpass' component={ForgotPass} />
-              <Route path='/datasubmission' component={DataSubmissionTemp} />
-              {/* <Route path='/datasubmission' component={DataSubmission} /> */}
+              {/* <Route path='/datasubmission' component={DataSubmissionTemp} /> */}
+              <Route path='/datasubmission' component={DataSubmission} />
               <Route path='/choosepassword' component={ChoosePassword} />
               <Route exact path='/contact' component={ContactUs}/>
               <Route path='/community' component={CommunityTemp} />

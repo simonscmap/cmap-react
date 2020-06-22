@@ -1,11 +1,12 @@
 import React, { useEffect } from 'react';
-
 import { connect } from 'react-redux';
+import { Link as RouterLink } from "react-router-dom";
+
 import { withStyles } from '@material-ui/core/styles';
 
-import { ExpansionPanelDetails, TextField, Button, Select, MenuItem } from '@material-ui/core';
+import { ExpansionPanelDetails, TextField, Button, Typography, Link, Step, StepLabel, Stepper } from '@material-ui/core';
 
-import { retrieveSubmissionCommentHistory, addSubmissionComment, setSubmissionPhase } from '../../Redux/actions/dataSubmission';
+import { retrieveSubmissionCommentHistory, addSubmissionComment } from '../../Redux/actions/dataSubmission';
 
 import Comment from './Comment';
 
@@ -13,7 +14,8 @@ import states from '../../Enums/asyncRequestStates';
 
 const styles = (theme) => ({
     panelDetails: {
-        display: 'block'
+        display: 'block',
+        textAlign: 'left'
     },
 
     newCommentDiv: {
@@ -36,13 +38,13 @@ const styles = (theme) => ({
         marginLeft: '12px'
     },
 
-    phaseControlWrapper: {
-        textAlign: 'left',
-        margin: '12px 0 32px 0'
+    stepper: {
+        borderRadius: '4px',
+        margin: '16px 2vw 24px 2vw'
     },
 
-    phaseSelect: {
-        width: '190px'
+    newUpload: {
+        marginLeft: '2vw'
     }
 });
 
@@ -54,17 +56,56 @@ const mapStateToProps = (state, ownProps) => ({
 const mapDispatchToProps = {
     retrieveSubmissionCommentHistory,
     addSubmissionComment,
-    setSubmissionPhase
 };
 
-const AdminDashboardPanelDetails = (props) => {
-    const { classes, submission, setSubmissionPhase } = props;
+const steps = [
+    {
+        label: 'Submission'
+    },
+
+    {
+        label: 'Admin Approval'
+    },
+
+    {
+        label: 'DOI'
+    },
+
+    {
+        label: 'Ingestion'
+    }
+]
+
+const UserDashboardPanelDetails = (props) => {
+    const { classes, submission } = props;
 
     const [ comment, setComment ] = React.useState();
-    const [ phase, setPhase ] = React.useState(submission.Phase_ID);
 
     let comments = props.submissionComments[submission.Submission_ID];
     let renderComments = Boolean(comments && comments.length);
+
+    let activeStep;
+
+    switch(submission.Phase){
+        case 'Awaiting admin action':
+            activeStep = 1;
+            break;
+
+        case 'Awaiting user update':
+            activeStep = 1;
+            break;  
+
+        case 'Awaiting DOI':
+            activeStep = 2;
+            break;
+
+        case 'Awaiting ingestion':
+            activeStep = 3;
+            break;
+
+        default:
+            activeStep = 1;        
+    }
 
     useEffect(() => {
         props.retrieveSubmissionCommentHistory(submission.Submission_ID);
@@ -75,37 +116,28 @@ const AdminDashboardPanelDetails = (props) => {
         props.addSubmissionComment(submission.Submission_ID, comment);
         setComment('');
     }
-    
-    const handlePhaseChange = (e) => {
-        setPhase(e.target.value);
-    }
-
-    const handleCommitPhase = () => {
-        props.handleResetExpandedPanel();
-        setSubmissionPhase(submission.Submission_ID, phase);
-    }
 
     return (
         <ExpansionPanelDetails className={classes.panelDetails}>
-            <div className={classes.phaseControlWrapper}>
-                <Select value={phase} onChange={handlePhaseChange} className={classes.phaseSelect}>
-                    <MenuItem value={2}>Awaiting admin action</MenuItem>
-                    <MenuItem value={3}>Awaiting user update</MenuItem>
-                    <MenuItem value={4}>Awaiting DOI</MenuItem>
-                    <MenuItem value={5}>Awaiting ingestion</MenuItem>
-                    <MenuItem value={6}>Complete</MenuItem>
-                </Select>
+            <Stepper 
+                className={classes.stepper} 
+                alternativeLabel 
+                activeStep={activeStep}
+            >
+                {steps.map((item, i) => {
+                        return (
+                            <Step key={i}>
+                                <StepLabel>
+                                    {item.label}
+                                </StepLabel>
+                            </Step>
+                        )
+                    })} 
+            </Stepper>
 
-                <Button
-                    variant='contained' 
-                    color='primary' 
-                    onClick={handleCommitPhase}
-                    className={classes.setPhaseButton}
-                    disabled={Boolean(phase === submission.Phase_ID)}
-                >
-                    Set Phase
-                </Button>
-            </div>
+            <Typography className={classes.newUpload}>
+                <Link component={RouterLink} to={`/datasubmission/validationtool?submissionID=${encodeURIComponent(submission.Submission_ID)}`}>Update</Link> this submission.
+            </Typography>
 
             {
                 props.submissionCommentHistoryRetrievalState === states.inProgress ?
@@ -126,7 +158,6 @@ const AdminDashboardPanelDetails = (props) => {
                     variant='outlined'
                     onChange={(e) => setComment(e.target.value)}
                     value={comment}
-                    // className={classes.newCommentTextField}
                     fullWidth
                 />
 
@@ -143,4 +174,4 @@ const AdminDashboardPanelDetails = (props) => {
     )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(AdminDashboardPanelDetails));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(UserDashboardPanelDetails));

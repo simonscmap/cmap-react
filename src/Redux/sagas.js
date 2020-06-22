@@ -439,7 +439,6 @@ function* retrieveAllSubmissions() {
 
 function* addSubmissionComment(action) {
     let response = yield call(api.dataSubmission.addSubmissionComment, action.payload);
-    console.log(response);
 
     if(response.ok){
         yield put(dataSubmissionActions.retrieveSubmissionCommentHistory(action.payload.submissionID));
@@ -489,7 +488,7 @@ function* retrieveSubmissionCommentHistory(action) {
 function* uploadSubmission(action) {
     let { file } = action.payload;
     let fileSize = file.size;
-    let fileName = file.name;
+    let fileName = file.name.slice(0, file.name.length - 5);
 
     let chunkSize = 5 * 1024 * 1024;
     let offset = 0;
@@ -589,6 +588,7 @@ function* uploadSubmission(action) {
 
     if(commitSucceeded === true){
         console.log('Successfully committed');
+        window.location.href = "/datasubmission/userdashboard";
     }
 
     else {
@@ -598,14 +598,15 @@ function* uploadSubmission(action) {
 }
 
 function* setDataSubmissionPhase(action) {
-    let formData = new FormData();
-    formData.append('phaseID', action.payload.phaseID);
-    formData.append('submissionID', action.payload.submissionID);
-    
+    let formData = {
+        phaseID: action.payload.phaseID,
+        submissionID: action.payload.submissionID
+    };
+
     let response = yield call(api.dataSubmission.setPhase, formData);
 
     if(response.ok){
-        yield put(dataSubmissionActions.retrieveAllSubmissions);
+        yield put(dataSubmissionActions.retrieveAllSubmissions());
     } 
     
     else if (response.status === 401) {
@@ -615,6 +616,38 @@ function* setDataSubmissionPhase(action) {
     else {
         yield put(interfaceActions.snackbarOpen('Failed to retrieve submissions'));
     }
+}
+// TODO block drag behavior when a workbook is loaded
+function* retrieveMostRecentFile(action) {
+    const { submissionID } = action.payload;
+
+    yield put(interfaceActions.setLoadingMessage('Fetching the latest submission'));
+
+    let linkResponse = yield call(api.dataSubmission.retrieveMostRecentFile, submissionID);
+
+    if(linkResponse.ok){
+        let jsonResponse = yield linkResponse.json();
+
+        let { link, dataset } = jsonResponse;
+
+        let getFileResponse = yield call(api.dataSubmission.getFileFromLink, link);
+        let blob = yield getFileResponse.blob();
+        let file = new File([blob], `${dataset}.xlsx`);
+
+        yield put(dataSubmissionActions.storeSubmissionFile(file));
+    }
+
+    else if (linkResponse.status === 401) {
+        yield put(interfaceActions.setLoadingMessage(''));
+        yield put(userActions.refreshLogin());
+    }
+
+    else {
+        yield put(interfaceActions.setLoadingMessage(''));
+        yield put(interfaceActions.snackbarOpen('Failed to retrieve submissions'));
+    }
+
+    
 }
 
 function* watchUserLogin() {
@@ -745,6 +778,10 @@ function* watchSetDataSubmissionPhase() {
     yield takeLatest(dataSubmissionActionTypes.SET_SUBMISSION_PHASE, setDataSubmissionPhase);
 }
 
+function* watchRetrieveMostRecentFile() {
+    yield takeLatest(dataSubmissionActionTypes.RETRIEVE_MOST_RECENT_FILE, retrieveMostRecentFile);
+}
+
 // function createWorkerChannel(worker) {
 //     return eventChannel(emit => {
 //         worker.onmessage = message => {
@@ -804,6 +841,7 @@ export default function* rootSaga() {
         watchAddSubmissionComment(),
         watchRetrieveSubmissionCommentHistory(),
         watchUploadSubmission(),
-        watchSetDataSubmissionPhase()
+        watchSetDataSubmissionPhase(),
+        watchRetrieveMostRecentFile()
     ])
 }

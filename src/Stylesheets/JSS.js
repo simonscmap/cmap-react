@@ -3,6 +3,7 @@ const jss = {
     navLink: theme => ({
         textDecoration: 'none',
         marginRight: 40,
+        fontFamily: '"Lato",sans-serif',
         color: 'white',
         '&:hover': {
             color: theme.palette.primary.main
@@ -13,7 +14,8 @@ const jss = {
         cursor: 'pointer' ,
         verticalAlign: 'middle',
         pointerEvents: 'all',
-        fontWeight: 500
+        fontWeight: 500,
+        letterSpacing: 'normal'
     }),
 }
 
