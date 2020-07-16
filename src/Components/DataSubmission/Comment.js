@@ -1,8 +1,6 @@
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 
-import { Grid } from '@material-ui/core';
-
 const styles = (theme) => ({
     commentArea: {
         backgroundColor: 'rgba(0,0,0,.2)',
@@ -10,7 +8,8 @@ const styles = (theme) => ({
         margin: "0 auto",
         padding: '12px 16px',
         textAlign: 'left',
-        whiteSpace: 'pre-wrap'
+        whiteSpace: 'pre-wrap',
+        overflow: 'auto'
     },
 
     commenterAndDateTime: {

@@ -69,6 +69,9 @@ class AdminDashboard extends Component {
     constructor(props){
         super(props);
 
+        let params = new URLSearchParams(window.location.search)
+        let datasetName = params.get('datasetName') && params.get('datasetName').trim();
+
         var search = new JsSearch.Search('Submission_ID');
         search.indexStrategy = new JsSearch.AllSubstringsIndexStrategy()
         search.searchIndex = new JsSearch.UnorderedSearchIndex();
@@ -78,7 +81,7 @@ class AdminDashboard extends Component {
         if(props.dataSubmissions) search.addDocuments(props.dataSubmissions);
 
         this.state = {
-            searchString: '',
+            searchString: datasetName || '',
             search,
             expandedPanel: false,
             filters: initialFilterState,
@@ -91,6 +94,8 @@ class AdminDashboard extends Component {
             this.state.search.addDocuments(this.props.dataSubmissions);
             this.setState({search: this.state.search});
         }
+
+        if(!prevProps.user && this.props.user) this.props.retrieveAllSubmissions();
     }
 
     componentDidMount = () => {

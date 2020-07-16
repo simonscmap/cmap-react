@@ -1,20 +1,23 @@
 import React from 'react';
 
-import checkCell from '../../Utility/DataSubmission/checkCell';
 import { ClickAwayListener } from '@material-ui/core';
 
 import colors from '../../Enums/colors';
 
 class DSCellEditor extends React.Component {
     constructor(props){
-        const { auditReport, sheet } = props.context;
+        const { getAuditReport, sheet } = props.context;
         const { rowIndex } = props;
         const { colId } = props.column;
+        let auditReport = getAuditReport();
         super(props);
         this.inputRef = React.createRef();
         this.parseValue = props.parseValue;
+        let checkAgainst = new Set(props.context.selectOptions[colId]);
+        let value = props.value ? props.value.toLowerCase() : '';
+        value = checkAgainst.has(value) ? value : '';
         this.state = {
-            value: props.value || '',
+            value,
             errors: auditReport[sheet][rowIndex] && auditReport[sheet][rowIndex][colId] ? auditReport[sheet][rowIndex][colId] : [],
             attached: false
         }
@@ -27,8 +30,7 @@ class DSCellEditor extends React.Component {
     handleChange = (e) => {
         const { value } = e.target;
 
-        let errors = checkCell(value, this.props.column.colId);
-        this.setState({...this.state, value, errors});
+        this.setState({...this.state, value}, () => this.props.stopEditing());
     }
 
     afterGuiAttached = () => {
@@ -48,12 +50,12 @@ class DSCellEditor extends React.Component {
 
     render() {
         const { errors } = this.state;
-        const { column, context } = this.props;
+        const { column, context } = this.props;       
 
-        const opts = context.selectOptions[column.colId].map( (e, i) => (
+        let dynamicOpts = context.selectOptions[column.colId].map( (e, i) => (
             <option
-                key={i} 
-                value={e}
+                key={i + 1} 
+                value={e.toLowerCase()}
                 className='ds-cell-editor-select-option'
                 style={{
                     backgroundColor: '#184562',
@@ -63,9 +65,7 @@ class DSCellEditor extends React.Component {
             </option>
         ));
 
-        opts.push(
-            <option key={opts.length} disabled style={{display: 'none'}} value=''></option>
-        )
+        let opts = [<option key={0} disabled style={{display: 'none'}} value=''></option>, ...dynamicOpts];
 
         return (
             <div

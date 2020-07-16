@@ -1,10 +1,10 @@
 export default (metadata, workbook) => {
-    let sample = metadata[0];
-    let type = typeof sample.dataset_release_date;
-
-    let is1904 = !!(((workbook.Workbook||{}).WBProps||{}).date1904);
-
     try {
+        var sample = metadata[0];
+        var type = typeof sample.dataset_release_date;
+
+        var is1904 = !!(((workbook.Workbook||{}).WBProps||{}).date1904);
+
         if(type === 'number') {
             if(is1904){
                 sample.dataset_release_date = new Date(((sample.dataset_release_date - (25567))*86400*1000) + 1000 * 60 * 60 * 24 * 365 * 4).toISOString().slice(0, -14);
@@ -21,21 +21,24 @@ export default (metadata, workbook) => {
     }
 
     catch{
-        return metadata;
+        
     }
 
-    let collapsedRow = {...sample};
+    let cols = Object.keys(metadata[0]);
+    let keysContaining__EMPTY = [];
+    cols.forEach(e => {
+        if(e.indexOf('__EMPTY') !== -1) keysContaining__EMPTY.push(e);
+    })
 
-    for(let i = 1; i < metadata.length; i++){
-        Object.keys(sample).forEach(e => {
-            if(metadata[i][e]){
-                collapsedRow[e] += '\n\n';
-                collapsedRow[e] += metadata[i][e];
-            }
-        });
+    if(keysContaining__EMPTY.length){
+        metadata.forEach(e => {
+            keysContaining__EMPTY.forEach(key => {
+                delete e[key];
+            })
+        })
     }
 
-    return [collapsedRow];
+    return metadata;
 }
 
 // Format must match 2016-04-21T15:22:00

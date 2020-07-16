@@ -3,9 +3,9 @@ import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 
-import { ExpansionPanelDetails, TextField, Button, Select, MenuItem } from '@material-ui/core';
+import { ExpansionPanelDetails, TextField, Button, Select, MenuItem, Typography, Link } from '@material-ui/core';
 
-import { retrieveSubmissionCommentHistory, addSubmissionComment, setSubmissionPhase } from '../../Redux/actions/dataSubmission';
+import { retrieveSubmissionCommentHistory, addSubmissionComment, setSubmissionPhase, downloadMostRecentFile } from '../../Redux/actions/dataSubmission';
 
 import Comment from './Comment';
 
@@ -28,7 +28,8 @@ const styles = (theme) => ({
 
     postButton: {
         color: 'white',
-        marginTop: '16px'
+        marginTop: '16px',
+        textTransform: 'none'
     },
 
     setPhaseButton: {
@@ -43,6 +44,12 @@ const styles = (theme) => ({
 
     phaseSelect: {
         width: '190px'
+    },
+
+    newUpload: {
+        marginBottom: '2vw',
+        cursor: 'pointer',
+        textAlign: 'left'
     }
 });
 
@@ -54,7 +61,8 @@ const mapStateToProps = (state, ownProps) => ({
 const mapDispatchToProps = {
     retrieveSubmissionCommentHistory,
     addSubmissionComment,
-    setSubmissionPhase
+    setSubmissionPhase,
+    downloadMostRecentFile
 };
 
 const AdminDashboardPanelDetails = (props) => {
@@ -87,6 +95,10 @@ const AdminDashboardPanelDetails = (props) => {
 
     return (
         <ExpansionPanelDetails className={classes.panelDetails}>
+            <Typography className={classes.newUpload}>
+                <Link component='span' onClick={() => props.downloadMostRecentFile(submission.Submission_ID)}>Download</Link> the most recent version.
+            </Typography>
+
             <div className={classes.phaseControlWrapper}>
                 <Select value={phase} onChange={handlePhaseChange} className={classes.phaseSelect}>
                     <MenuItem value={2}>Awaiting admin action</MenuItem>
@@ -136,7 +148,7 @@ const AdminDashboardPanelDetails = (props) => {
                     className={classes.postButton}
                     onClick={handlePostComment}
                 >
-                    Post Comment
+                    Post Message
                 </Button>
             </div>
         </ExpansionPanelDetails>

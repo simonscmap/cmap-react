@@ -1,16 +1,16 @@
 import React from 'react';
 
-import checkCell from '../../Utility/DataSubmission/checkCell';
 import { ClickAwayListener } from '@material-ui/core';
 
 import colors from '../../Enums/colors';
 
-class DSCellEditor extends React.Component {
+class DSCellEditorTextArea extends React.Component {
     constructor(props){
-        const { auditReport, sheet } = props.context;
+        const { getAuditReport, sheet } = props.context;
         const { rowIndex } = props;
         const { colId } = props.column;
         super(props);
+        let auditReport = getAuditReport();
         this.inputRef = React.createRef();
         this.parseValue = props.parseValue;
         this.state = {
@@ -27,13 +27,12 @@ class DSCellEditor extends React.Component {
     handleChange = (e) => {
         const { value } = e.target;
 
-        let errors = checkCell(value, this.props.column.colId);
+        let errors = this.props.context.auditCell(value, this.props.column.colId, this.props.rowIndex);
         this.setState({...this.state, value, errors});
     }
 
     afterGuiAttached = () => {
         this.inputRef.current.focus();
-        this.inputRef.current.select();
         setTimeout(() => {
             this.setState({...this.state, attached: true})
         }, 20);
@@ -74,11 +73,9 @@ class DSCellEditor extends React.Component {
                             style={{
                                 backgroundColor: 'transparent',
                                 color: 'white',
-                                // height: '28px',
                                 border: `1px solid ${colors.primary}`,
                                 borderRadius: '2px',
                                 padding: '2px 6px',
-                                // maxWidth: '100%'
                             }}
                         />
                         {
@@ -106,4 +103,4 @@ class DSCellEditor extends React.Component {
     }
 }
 
-export default DSCellEditor;
+export default DSCellEditorTextArea;

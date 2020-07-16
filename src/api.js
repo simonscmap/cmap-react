@@ -156,6 +156,10 @@ api.catalog.datasets = async() => {
     return datasets;
 }
 
+api.catalog.submissionOptions = async() => {
+    return await fetch(apiUrl + '/api/catalog/submissionoptions');
+}
+
 api.user.keyRetrieval = async() => {
     return await fetch(apiUrl + '/user/retrieveapikeys', fetchOptions);
 }
@@ -317,8 +321,12 @@ api.dataSubmission.addSubmissionComment = async(payload) => {
     });
 }
 
-api.dataSubmission.beginUploadSession = async() => {
-    return await fetch(apiUrl + '/api/datasubmission/beginuploadsession', fetchOptions);
+api.dataSubmission.beginUploadSession = async(formData) => {
+    return await fetch(apiUrl + '/api/datasubmission/beginuploadsession', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData
+    });
 }
 
 api.dataSubmission.uploadPart = async(formData) => {

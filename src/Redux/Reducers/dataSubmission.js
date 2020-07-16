@@ -1,5 +1,4 @@
 import * as dataSubmissionActionTypes from '../actionTypes/dataSubmission';
-import states from '../../Enums/asyncRequestStates';
 
 export default function(state, action) {
   
@@ -16,6 +15,7 @@ export default function(state, action) {
       }
 
     case dataSubmissionActionTypes.STORE_SUBMISSION_FILE: return {...state, submissionFile: action.payload.file}
+    case dataSubmissionActionTypes.SET_UPLOAD_STATE: return {...state, submissionUploadState: action.payload.state}
       
     default: return state;
     }

@@ -282,6 +282,7 @@ function* downloadTextAsCsv(action){
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+    // URL.revokeObjectURL(url); // TODO test this
     yield put(interfaceActions.setLoadingMessage(''));
 }
 
@@ -399,6 +400,7 @@ function* copyTextToClipboard(action) {
 }
 
 function* retrieveSubmissionsByUser() {
+    yield put(interfaceActions.setLoadingMessage('Fetching submission information'));
     let response = yield call(api.dataSubmission.retrieveSubmissionByUser);
     if(response.ok){
         let jsonResponse = yield response.json();
@@ -412,6 +414,7 @@ function* retrieveSubmissionsByUser() {
     else {
         yield put(interfaceActions.snackbarOpen('Unable to retrieve submissions'));
     }
+    yield put(interfaceActions.setLoadingMessage(''));
 }
 
 function* retrieveAllSubmissions() {
@@ -442,6 +445,7 @@ function* addSubmissionComment(action) {
 
     if(response.ok){
         yield put(dataSubmissionActions.retrieveSubmissionCommentHistory(action.payload.submissionID));
+        yield put(dataSubmissionActions.retrieveDataSubmissionsByUser());
     } 
     
     else if (response.status === 401) {
@@ -461,9 +465,7 @@ function* retrieveSubmissionCommentHistory(action) {
     if(response.ok){
         let jsonResponse = yield response.json();        
 
-        if(jsonResponse.length < 1){
-            yield put(interfaceActions.snackbarOpen('No comments found'));
-        }
+        if(jsonResponse.length < 1){}
 
         else {
             let payload = {
@@ -486,9 +488,9 @@ function* retrieveSubmissionCommentHistory(action) {
 }
 
 function* uploadSubmission(action) {
-    let { file } = action.payload;
+    yield put(interfaceActions.setLoadingMessage('Uploading Workbook'));
+    let { file, datasetName } = action.payload;
     let fileSize = file.size;
-    let fileName = file.name.slice(0, file.name.length - 5);
 
     let chunkSize = 5 * 1024 * 1024;
     let offset = 0;
@@ -500,9 +502,12 @@ function* uploadSubmission(action) {
         yield put(interfaceActions.snackbarOpen('The selected file is empty'));
         return;
     }
+
+    let beginSessionFormData = new FormData();
+    beginSessionFormData.append('datasetName', datasetName);
     
     while(retries < 3 && !sessionID){
-        let beginSessionResponse = yield call(api.dataSubmission.beginUploadSession);
+        let beginSessionResponse = yield call(api.dataSubmission.beginUploadSession, beginSessionFormData);
 
         if(beginSessionResponse.ok){
             let jsonResponse = yield beginSessionResponse.json();
@@ -510,8 +515,17 @@ function* uploadSubmission(action) {
         }
 
         else {
-            retries ++;
-            yield delay(2000);
+            let message = yield beginSessionResponse.text();
+            if(message === 'wrongUser'){
+                yield put(dataSubmissionActions.setUploadState(states.failed));
+                yield put(interfaceActions.setLoadingMessage(''));
+                return;
+            }
+
+            else {
+                retries ++;
+                yield delay(2000);
+            }
         }
     }
 
@@ -520,18 +534,14 @@ function* uploadSubmission(action) {
         return;
     }
 
-    else console.log('Got session ID');
     retries = 0;
 
     var currentPartSucceeded = false;
-
-    console.log('Starting upload');
 
     while(offset < fileSize){
         currentPartSucceeded = false;
 
         while(currentPartSucceeded === false && retries < 3){
-            console.log('attempting to upload a part, offset: ' + offset);
             let part = file.slice(offset, offset + chunkSize);
 
             let formData = new FormData();
@@ -546,7 +556,6 @@ function* uploadSubmission(action) {
             }
 
             else {
-                console.log('Retrying part upload, offset: ' + offset);
                 retries ++;
                 yield delay(2000);
             }
@@ -558,7 +567,6 @@ function* uploadSubmission(action) {
         }
 
         else {
-            console.log('Completing part upload, offset: ' + offset);
             offset += chunkSize;
         }
     }
@@ -566,7 +574,7 @@ function* uploadSubmission(action) {
     retries = 0;
 
     let formData = new FormData();
-    formData.append('fileName', fileName);
+    formData.append('fileName', datasetName);
     formData.append('offset', fileSize);
     formData.append('sessionID', sessionID);
 
@@ -580,18 +588,18 @@ function* uploadSubmission(action) {
         }
 
         else {
-            console.log('Retrying commit');
             retries ++;
             yield delay(2000);
         }
     }
 
     if(commitSucceeded === true){
-        console.log('Successfully committed');
-        window.location.href = "/datasubmission/userdashboard";
+        yield put(interfaceActions.setLoadingMessage(''));
+        yield put(dataSubmissionActions.setUploadState(states.succeeded));
     }
 
     else {
+        yield put(interfaceActions.setLoadingMessage(''));
         yield put(interfaceActions.snackbarOpen('Failed to upload'));
         return;
     }
@@ -617,7 +625,7 @@ function* setDataSubmissionPhase(action) {
         yield put(interfaceActions.snackbarOpen('Failed to retrieve submissions'));
     }
 }
-// TODO block drag behavior when a workbook is loaded
+
 function* retrieveMostRecentFile(action) {
     const { submissionID } = action.payload;
 
@@ -632,9 +640,9 @@ function* retrieveMostRecentFile(action) {
 
         let getFileResponse = yield call(api.dataSubmission.getFileFromLink, link);
         let blob = yield getFileResponse.blob();
-        let file = new File([blob], `${dataset}.xlsx`);
+        blob.name = `${dataset}.xlsx`;
 
-        yield put(dataSubmissionActions.storeSubmissionFile(file));
+        yield put(dataSubmissionActions.checkSubmissionOptionsAndStoreFile(blob));
     }
 
     else if (linkResponse.status === 401) {
@@ -645,10 +653,71 @@ function* retrieveMostRecentFile(action) {
     else {
         yield put(interfaceActions.setLoadingMessage(''));
         yield put(interfaceActions.snackbarOpen('Failed to retrieve submissions'));
+    }    
+}
+
+function* checkSubmissionOptionsAndStoreFile(action) {
+    let storedOptions = yield select((state) => state.submissionOptions);
+    let options;
+
+    if(storedOptions){
+        options = storedOptions;
     }
 
+    else {
+        let result = yield call(api.catalog.submissionOptions);
+        if(!result.ok){
+            return put(interfaceActions.snackbarOpen('Unable to retrieve validation options'));
+        }
+
+        else {
+            options = yield result.json();
+            yield put(catalogActions.storeSubmissionOptions(options));
+        }
+    }
     
+    yield put(dataSubmissionActions.storeSubmissionFile(action.payload.file));
 }
+
+function* downloadMostRecentFile(action) {
+    const { submissionID } = action.payload;
+
+    yield put(interfaceActions.setLoadingMessage('Downloading the latest submission'));
+
+    let linkResponse = yield call(api.dataSubmission.retrieveMostRecentFile, submissionID);
+
+    if(linkResponse.ok){
+        let jsonResponse = yield linkResponse.json();
+
+        let { link, dataset } = jsonResponse;
+
+        let getFileResponse = yield call(api.dataSubmission.getFileFromLink, link);
+        let blob = yield getFileResponse.blob();
+
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.setAttribute('hidden', '');
+        a.setAttribute('href', url);
+        a.setAttribute('download', `${dataset}.xlsx`);
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        // URL.revokeObjectURL(url); // TODO test this
+        yield put(interfaceActions.setLoadingMessage(''));
+    }
+
+    else if (linkResponse.status === 401) {
+        yield put(interfaceActions.setLoadingMessage(''));
+        yield put(userActions.refreshLogin());
+    }
+
+    else {
+        yield put(interfaceActions.setLoadingMessage(''));
+        yield put(interfaceActions.snackbarOpen('Unable to download'));
+    } 
+}
+
+
 
 function* watchUserLogin() {
     yield takeLatest(userActionTypes.LOGIN_REQUEST_SEND, userLogin);
@@ -782,6 +851,13 @@ function* watchRetrieveMostRecentFile() {
     yield takeLatest(dataSubmissionActionTypes.RETRIEVE_MOST_RECENT_FILE, retrieveMostRecentFile);
 }
 
+function* watchCheckSubmissionOptionsAndStoreFile() {
+    yield takeLatest(dataSubmissionActionTypes.CHECK_SUBMISSION_OPTIONS_AND_STORE_FILE, checkSubmissionOptionsAndStoreFile);
+}
+
+function* watchDownloadMostRecentFile(){
+    yield takeLatest(dataSubmissionActionTypes.DOWNLOAD_MOST_RECENT_FILE, downloadMostRecentFile);
+}
 // function createWorkerChannel(worker) {
 //     return eventChannel(emit => {
 //         worker.onmessage = message => {
@@ -842,6 +918,8 @@ export default function* rootSaga() {
         watchRetrieveSubmissionCommentHistory(),
         watchUploadSubmission(),
         watchSetDataSubmissionPhase(),
-        watchRetrieveMostRecentFile()
+        watchRetrieveMostRecentFile(),
+        watchCheckSubmissionOptionsAndStoreFile(),
+        watchDownloadMostRecentFile()
     ])
 }

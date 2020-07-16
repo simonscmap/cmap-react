@@ -6,25 +6,29 @@ import { withRouter } from "react-router";
 import XLSX from 'xlsx';
 
 import { withStyles } from '@material-ui/core/styles';
-import { Typography, Paper, Button, Link, IconButton, Tooltip } from '@material-ui/core';
-import { ChevronLeft, ChevronRight } from "@material-ui/icons";
+import { Typography, Paper, Button, Link, IconButton, Tooltip, List, ListItem, ListItemIcon, ListItemText, Divider, Tabs, Tab, Badge } from '@material-ui/core';
+import { ErrorOutline, ArrowBack, ArrowForward, Done } from "@material-ui/icons";
 
-import { Close } from '@material-ui/icons';
-
-import { uploadSubmission, retrieveMostRecentFile, storeSubmissionFile } from '../../Redux/actions/dataSubmission';
+import { uploadSubmission, retrieveMostRecentFile, storeSubmissionFile, checkSubmissionOptionsAndStoreFile, setUploadState } from '../../Redux/actions/dataSubmission';
 import { snackbarOpen, setLoadingMessage } from '../../Redux/actions/ui';
 
-import dataSubmissionAudit from '../../Utility/DataSubmission/dataSubmissionAudit';
-import ErrorNavigator from './ErrorNavigator';
-
 import ValidationGrid from './ValidationGrid';
+import LoginRequiredPrompt from '../User/LoginRequiredPrompt';
 
-import checkCell from '../../Utility/DataSubmission/checkCell';
+import colors from '../../Enums/colors';
+
 import formatDataSheet from '../../Utility/DataSubmission/formatDataSheet';
 import formatDatasetMetadataSheet from '../../Utility/DataSubmission/formatDatasetMetadataSheet';
+import formatVariableMetadataSheet from '../../Utility/DataSubmission/formatVariableMetadataSheet';
+import generateAudits from '../../Utility/DataSubmission/generateAudits';
+import workbookAudits from '../../Utility/DataSubmission/workbookAudits';
+import states from '../../Enums/asyncRequestStates';
 
 const mapStateToProps = (state, ownProps) => ({
-    submissionFile: state.submissionFile
+    submissionFile: state.submissionFile,
+    submissionOptions: state.submissionOptions,
+    submissionUploadState: state.submissionUploadState,
+    user: state.user
 });
 
 const mapDispatchToProps = {
@@ -32,7 +36,8 @@ const mapDispatchToProps = {
     uploadSubmission,
     setLoadingMessage,
     retrieveMostRecentFile,
-    storeSubmissionFile
+    storeSubmissionFile,
+    checkSubmissionOptionsAndStoreFile
 }
 
 const styles = (theme) => ({
@@ -70,14 +75,26 @@ const styles = (theme) => ({
 
     needHelpLink: {
         letterSpacing: 'normal',
-        color: theme.palette.primary.main
+        color: theme.palette.primary.main,
+        cursor: 'pointer'
     },
 
     fileSelectPaper: {
-        margin: '80px auto 24px auto',
+        margin: '70px auto 24px auto',
         maxWidth: '50vw',
         padding: '16px',        
-        padding: '12px'
+        padding: '12px',
+        whiteSpace: 'pre-wrap'
+    },
+
+    workbookAuditPaper: {
+        margin: '70px auto 24px auto',
+        maxWidth: '50vw',
+        padding: '16px',        
+        padding: '12px',
+        minHeight: '110px',
+        whiteSpace: 'pre-wrap',
+        textAlign: 'left'
     },
 
     addBorder: {
@@ -89,10 +106,26 @@ const styles = (theme) => ({
         letterSpacing: 'normal'
     },
 
-    clearFileIcon: {
-        float: 'right',
-        marginTop: '-12px',
-        marginRight: '-8px'
+    chooseNewFileLabel: {
+        display: 'inline',
+        position: 'absolute',
+        marginTop: '10px',
+        marginLeft : '14px',
+        fontSize: '11px',
+        borderRadius: '2px',
+        color: colors.primary,
+        cursor: 'pointer',
+        '&:hover': {
+            backgroundColor: 'rgba(0,0,0,.2)'
+        }
+    },
+
+    linkLabel: {
+        color: colors.primary,
+        cursor: 'pointer',
+        '&:hover': {
+            backgroundColor: 'rgba(0,0,0,.2)'
+        }
     },
 
     dataTable: {
@@ -106,12 +139,13 @@ const styles = (theme) => ({
     },
 
     submitButton: {
-        color: 'white'
+        color: 'white',
+        margin: '24px 0 12px 0'
     },
 
     tabPaper: {
         maxWidth: '80vw',
-        height: '80vh',
+        height: '70vh',
         margin: '0 auto 24px auto'
     },
 
@@ -121,7 +155,7 @@ const styles = (theme) => ({
     },
 
     currentlyViewingTypography: {
-        letterSpacing: 'normal'
+        marginLeft: '4px'
     },
 
     ilb: {
@@ -131,9 +165,43 @@ const styles = (theme) => ({
     findNextButton: {
         textTransform: 'none',
         marginBottom: '12px'
+    },
+
+    link: {
+        cursor: 'pointer'
+    },
+
+    currentSectionSpan: {
+        margin: '4px 8px 0 8px',
+        width: '200px',
+        display: 'inline-block'
+    },
+
+    divider: {
+        margin: '8px 0'
+    },
+
+    workbookTab: {
+        textTransform: 'none'
+    },
+
+    submittedTypography: {
+        marginBottom: '12px'
     }
 
 });
+
+const _CleanupDummy = (props) => {
+    React.useEffect(() => {
+        return function cleanup() {
+            props.setUploadState(null);
+        };
+    });
+
+    return '';
+}
+
+const CleanupDummy = connect(null, {setUploadState})(_CleanupDummy);
 
 const textAreaLookup = {
     var_keywords: 4,
@@ -142,102 +210,86 @@ const textAreaLookup = {
     dataset_references: 8,
     dataset_description: 14,
     dataset_acknowledgement: 8,
-    'official_cruise_name(s)': 5,
+    cruise_names: 5,
     dataset_long_name: 3,
     dataset_history: 3,
     dataset_distributor: 3
 };
 
-const selectOptions = {
-    var_temporal_res: [
-        'Three Minutes',
-        'Six Hourly',
-        'Daily',
-        'Weekly',
-        'Monthly',
-        'Annual',
-        'Irregular',
-        'Monthly Climatology',
-        'Three Days',
-        'Eight Day Running',
-        'Eight Days',
-        'One Second'
-    ],
-
-    var_discipline: [
-        'Physics', 
-        'Chemistry', 
-        'Biology', 
-        'Biogeochemistry', 
-        'Physics+Biogeochemistry', 
-        'Chemistry+Biology+Biogeochemistry', 
-        'Biosample', 
-        'Biology+BioGeoChemistry+Biogeography', 
-        'Physics+Chemistry', 
-        'Genomics', 
-        'Chemistry+Biogeochemistry'
-    ],
-
-    var_sensor: [
-        'Satellite', 
-        'In-Situ', 
-        'Blend', 
-        'Flow Cytometry', 
-        'CTD', 
-        'Underway CTD', 
-        'Optical', 
-        'Float', 
-        'Drifter', 
-        'AUV', 
-        'Bottle', 
-        'Sediment Trap', 
-        'CPR', 
-        'Towfish', 
-        'fluorometer', 
-        'Seaglider'
-    ],
-
-    var_spatial_res: [
-        'Irregular',
-        '1/2° X 1/2°',
-        '1/4° X 1/4°',
-        '1/25° X 1/25°',
-        '4km X 4km',
-        '1/12° X 1/12°',
-        '70km X 70km',
-        '1° X 1°',
-        '9km X 9km',
-        '25km X 25km'
-    ],
-
-    dataset_make: [
-        'Observation', 
-        'Model', 
-        'Assimilation'
-    ]
-    
-};
-
 const validationSteps = [
     {
-        // before selecting file?
+        // before selecting file
     },
 
     {
-        label: 'Data',
+        label: 'Workbook Validation',
+        sheet: 'workbook'
+    },
+
+    {
+        label: 'Data Sheet',
         sheet: 'data'
     },
 
     {
-        label: 'Dataset Metadata',
+        label: 'Dataset Metadata Sheet',
         sheet: 'dataset_meta_data'
     },
 
     {
-        label: 'Variable Metadata',
+        label: 'Variable Metadata Sheet',
         sheet: 'vars_meta_data'
     },
-]
+
+    {
+        label: 'Submission',
+        sheet: 'submission'
+    }
+];
+
+let orderedColumns = {
+    data: ['time', 'lat', 'lon', 'depth'],
+    dataset_meta_data: ['dataset_short_name', 'dataset_long_name', 'dataset_version', 'dataset_release_date', 'dataset_make', 'cruise_names', 'dataset_source', 'dataset_distributor', 'dataset_acknowledgement', //'contact_email'
+    , 'dataset_doi', 'dataset_history', 'dataset_description', 'dataset_references', 'climatology'],
+    vars_meta_data: ['var_short_name', 'var_long_name', 'var_unit', 'var_sensor', 'var_spatial_res', 'var_temporal_res', 'var_discipline', 'visualize',	'var_keywords', 'var_comment']
+}
+
+const generateSelectOptions = (reduxStoreOptions) => ({
+    var_temporal_res: reduxStoreOptions.Temporal_Resolution,
+    var_discipline: reduxStoreOptions.Study_Domain,
+    var_sensor: reduxStoreOptions.Sensor,
+    var_spatial_res: reduxStoreOptions.Spatial_Resolution,
+    dataset_make: reduxStoreOptions.Make
+});
+
+const StyledBadgeRed = withStyles((theme) => ({
+    badge: {
+        right: -11,
+        top: 1,
+        backgroundColor: 'rgba(255, 0, 0, .6)'
+    },
+}))(Badge);
+
+const StyledBadgeGreen = withStyles((theme) => ({
+    badge: {
+        right: -11,
+        top: 1,
+        backgroundColor: 'green'
+    },
+}))(Badge);
+
+let fileSizeTooLargeDummyState = {
+    auditReport: {
+        workbook: {
+            errors: ['This workbook exceeds the file size limit of this application. Please contact our data curation team at cmap-data-submission@uw.edu for assistance.'],
+            warnings: []
+        },
+        data: [],
+        dataset_meta_data: [],
+        vars_meta_data: []
+    },
+    validationStep: 1,
+};
 
 class ValidationTool extends React.Component {
 
@@ -267,7 +319,6 @@ class ValidationTool extends React.Component {
         data: null,
         dataset_meta_data: null,
         vars_meta_data: null,
-        errorIndex: 0,
         auditReport: null,
         defaultColumnDef: {
             menuTabs: [],
@@ -279,8 +330,71 @@ class ValidationTool extends React.Component {
         }
     }
 
+    handleGridSizeChanged = () => {
+        if(this.state.validationStep === 2){
+            this.gridApi.sizeColumnsToFit()
+        }
+    }
+
     handleDragOver = (e) => {
         e.preventDefault();
+    }
+
+    auditCell = (value, col, row) => {
+        let cellAudit = [];
+        let auditFuncs = this.audits[col];
+    
+        if(auditFuncs){
+            auditFuncs.forEach(func => {
+                let result = func(value, row);
+    
+                if(result) {
+                    cellAudit.push(result);
+                }
+            });
+        }
+    
+        return cellAudit;
+    }
+
+    auditWorkbook = (params) => {
+        return workbookAudits(params);
+    }
+
+    auditRows = (rows) => {
+        let audit = [];
+
+        rows.forEach((row, i) => {
+            let rowAudit = {};
+
+            let columns = Object.keys(row);
+
+            columns.forEach((col) => {
+                let cellAudit = this.auditCell(row[col], col, i);
+
+                if(cellAudit.length){
+                    rowAudit[col] = cellAudit;
+                }
+            });
+
+            if(Object.keys(rowAudit).length){
+                audit[i] = rowAudit;
+            }
+        });
+
+        return audit;
+    }
+
+    // Takes a workbook and returns an audit report
+    performAudit = (info) => {
+        let report = {
+            workbook: this.auditWorkbook(info),
+            data: this.auditRows(info.data),
+            dataset_meta_data: this.auditRows(info.dataset_meta_data),
+            vars_meta_data: this.auditRows(info.vars_meta_data),
+        };
+
+        return report;
     }
 
     handleResetState = () => {
@@ -291,19 +405,22 @@ class ValidationTool extends React.Component {
             data: null,
             dataset_meta_data: null,
             vars_meta_data: null,
-            errorIndex: 0
+            validationStep: 0
         });
-        //TODO track first and last row ?
     }
 
     handleChangeValidationStep = (validationStep) => {
-        this.setState({...this.state, validationStep}, this.gridApi.sizeColumnsToFit());
+        this.setState({...this.state, validationStep}, () => {
+            if(this.gridApi && validationStep == 2) this.gridApi.sizeColumnsToFit()
+        });
     }
     
-    handleCellValueChanged = ({rowIndex, newValue, column, node, context}) => {
+    handleCellValueChanged = ({rowIndex, newValue, column, node, context, oldValue}) => {
+        if(oldValue === newValue) return;
+
         let { sheet } = context;
 
-        let newAudit = checkCell(newValue, column.colId);
+        let newAudit = this.auditCell(newValue, column.colId, rowIndex);
         
         let auditReport = {...this.state.auditReport};
 
@@ -327,44 +444,28 @@ class ValidationTool extends React.Component {
 
     handleReadFile = (file) => {
         var reader = new FileReader();
-
-        reader.onload = (file) => {
-            var readFile = new Uint8Array(file.target.result);
-            var workbook = XLSX.read(readFile, {type: 'array'});
-            
-            if(!workbook.Sheets['data']){
-                this.props.snackbarOpen('Unable to parse file. Missing sheet "data"');
-                this.handleResetState();
-            } 
-            
-            else if (!workbook.Sheets['dataset_meta_data']) {
-                this.props.snackbarOpen('Unable to parse file. Missing sheet "dataset_meta_data"');
-                this.handleResetState();
-            } 
-            
-            else if(!workbook.Sheets['dataset_meta_data']){
-                this.props.snackbarOpen('Unable to parse file. Missing sheet "dataset_meta_data"');
-                this.handleResetState();
-            }
-
-            else {
-                let _data = XLSX.utils.sheet_to_json(workbook.Sheets['data'], {defval: null});
-                let data = formatDataSheet(_data, workbook);
-
-                let _dataset_meta_data = XLSX.utils.sheet_to_json(workbook.Sheets['dataset_meta_data'], {defval: null});
-                let dataset_meta_data = formatDatasetMetadataSheet(_dataset_meta_data, workbook);
-
-                let vars_meta_data = XLSX.utils.sheet_to_json(workbook.Sheets['vars_meta_data'], {defval: null});
-
-                var auditReport = dataSubmissionAudit({data, dataset_meta_data, vars_meta_data});
-
-                this.setState({...this.state, data, dataset_meta_data, vars_meta_data, auditReport, validationStep: 1});
-            }
+        if(file.size > 150000000){
+            this.setState({...this.state, ...fileSizeTooLargeDummyState}, () => this.props.setLoadingMessage(''));
+            return;
         }
+        
+        reader.onload = (progressEvent) => {
+            var readFile = new Uint8Array(progressEvent.target.result);
+            var workbook = XLSX.read(readFile, {type: 'array'});
+            let _data = XLSX.utils.sheet_to_json(workbook.Sheets['data'], {defval: null});
+            let data = _data ? formatDataSheet(_data, workbook) : _data;
 
-        setTimeout(() => {
-            window.requestAnimationFrame(() => this.props.setLoadingMessage(''));
-        }, 50)
+            let _dataset_meta_data = XLSX.utils.sheet_to_json(workbook.Sheets['dataset_meta_data'], {defval: null});
+            let dataset_meta_data = _dataset_meta_data ? formatDatasetMetadataSheet(_dataset_meta_data, workbook) : _dataset_meta_data;
+            
+            let _vars_meta_data = XLSX.utils.sheet_to_json(workbook.Sheets['vars_meta_data'], {defval: null});
+            let vars_meta_data = _vars_meta_data ? formatVariableMetadataSheet(_vars_meta_data) : _vars_meta_data;
+
+            var auditReport = this.performAudit({workbook, data, dataset_meta_data, vars_meta_data});
+
+            let validationStep = (auditReport.workbook.errors.length || auditReport.workbook.warnings.length) ? 1 : 2;
+            this.setState({...this.state, data, dataset_meta_data, vars_meta_data, auditReport, validationStep}, () => this.props.setLoadingMessage(''));
+        }
 
         reader.readAsArrayBuffer(file);        
     }
@@ -373,17 +474,15 @@ class ValidationTool extends React.Component {
         e.preventDefault();        
         var file = e.dataTransfer.items[0].getAsFile();
         this.props.setLoadingMessage('Reading Workbook');
-        this.props.storeSubmissionFile(file);
+        this.props.checkSubmissionOptionsAndStoreFile(file);
     }
 
     handleFileSelect = (e) => {
         var file = e.target.files[0];
+        if(!file) return;
         this.props.setLoadingMessage('Reading Workbook');
-        this.props.storeSubmissionFile(file);
-    }
-
-    handleClearState = () => {
-        this.setState({})
+        this.props.checkSubmissionOptionsAndStoreFile(file);
+        e.target.value = null;
     }
 
     handleUploadSubmission = () => {
@@ -391,16 +490,29 @@ class ValidationTool extends React.Component {
         XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(this.state.data), 'data');
         XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(this.state.dataset_meta_data), 'dataset_meta_data');
         XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(this.state.vars_meta_data), 'vars_meta_data');
-
+        
         let wbArray = XLSX.write(workbook, {bookType:'xlsx', type:'array'});
-        let file = new File([wbArray], `${this.state.dataset_meta_data[0].dataset_short_name}.xlsx`);
-        this.props.uploadSubmission(file);
+        let file = new Blob([wbArray]);
+        file.name = `${this.state.dataset_meta_data[0].dataset_short_name}.xlsx`;
+        this.props.uploadSubmission({file, datasetName: this.state.dataset_meta_data[0].dataset_short_name});
+    }
+
+    handleDownload = () => {
+        this.props.setLoadingMessage('Downloading');
+        setTimeout(() => {
+            window.requestAnimationFrame(() => this.props.setLoadingMessage(''));
+        }, 50)
+        let workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(this.state.data), 'data');
+        XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(this.state.dataset_meta_data), 'dataset_meta_data');
+        XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(this.state.vars_meta_data), 'vars_meta_data');
+        XLSX.writeFile(workbook, this.state.dataset_meta_data[0].dataset_short_name + '.xlsx');
     }
 
     onGridReady = (params) => {
         this.gridApi = params.api;
         this.columnApi = params.columnApi;
-        this.gridApi.sizeColumnsToFit();
+        if(this.state.validationStep === 2) this.gridApi.sizeColumnsToFit();
     }
 
     onModelUpdated = (params) => {
@@ -412,48 +524,95 @@ class ValidationTool extends React.Component {
     scrollGridTo = (index) => {
         this.gridApi.ensureIndexVisible(index, 'middle')
     }
-  
-    // onGridSizeChanged = (params) => {
-    //   this.gridApi.sizeColumnsToFit();
-    // }
 
-    stepForward = () => {
-        let errors = Object.values(this.state.auditReport.data.errors);
-        this.setState({...this.state, errorIndex: this.state.errorIndex + 1});
-        this.scrollGridTo(errors[this.state.errorIndex + 1].row);
-    }
-
-    stepBackward = () => {
-        let errors = Object.values(this.state.auditReport.data.errors);
-        this.setState({...this.state, errorIndex: this.state.errorIndex - 1});
-        this.scrollGridTo(errors[this.state.errorIndex - 1].row);
-    }
-
+    //TODO clean this up when it's not late at night
     handleFindNext = () => {
         let lastFocused = this.gridApi.getFocusedCell();
         let { sheet } = validationSteps[this.state.validationStep];
         let { auditReport } = this.state;
         
-        let start = lastFocused ? lastFocused.rowIndex : 0;
-        let end = start === 0 ? auditReport[sheet].length : start - 1;
+        let cols = orderedColumns[sheet];
+        var startRow = lastFocused ? lastFocused.rowIndex : -1;
+        var startColIndex = lastFocused ? cols.findIndex(e => e === lastFocused.column.colId) : 0;
 
-        for(let i = start; i !== end; i++){
-            if(auditReport[sheet][i]){
-                let keys = Object.keys(auditReport[sheet][i]);
-                this.gridApi.ensureColumnVisible(keys[0]);
-                this.gridApi.startEditingCell({
-                    rowIndex: i,
-                    colKey: keys[0]
-                })
-                return;
-            }
-
-            if(i === auditReport[sheet].length) {
-                i = -1;
+        // Search the remaining columns in focused row
+        if(lastFocused){
+            for(let i = startColIndex + 1; i < cols.length && i > -1; i++){
+                if(auditReport[sheet][startRow] && auditReport[sheet][startRow][cols[i]]){
+                    this.gridApi.ensureColumnVisible(cols[i]);
+                    this.gridApi.startEditingCell({
+                        rowIndex: startRow,
+                        colKey: cols[i]
+                    });
+                    return;
+                }
             }
         }
 
-        this.props.snackbarOpen(`Found no errors in ${sheet}`);
+        // Start from startRow + 1, end at beginning of startRow
+        for(let i = startRow + 1; i != startRow; i++){
+            if(auditReport[sheet][i]){
+                for(let j = 0; j < cols.length; j++){
+                    if(auditReport[sheet][i][cols[j]]){
+                        this.gridApi.ensureColumnVisible(cols[j]);
+                        this.gridApi.startEditingCell({
+                            rowIndex: i,
+                            colKey: cols[j]
+                        });
+                        return;
+                    }
+                }
+            }
+
+            if(i === auditReport[sheet].length) i = -1;
+        }
+
+        // Search the rest of start row
+        if(lastFocused){
+            for(let i = 0; i <= startColIndex && i < cols.length; i++){
+                if(auditReport[sheet][startRow] && auditReport[sheet][startRow][cols[i]]){
+                    this.gridApi.ensureColumnVisible(cols[i]);
+                    this.gridApi.startEditingCell({
+                        rowIndex: startRow,
+                        colKey: cols[i]
+                    });
+                    return;
+                }
+            }
+        }
+    }
+
+    countErrors = () => {
+        let counts = {
+            workbook: this.state.auditReport.workbook.errors.length,
+            data: 0,
+            dataset_meta_data: 0,
+            vars_meta_data: 0
+        };        
+
+        this.state.auditReport['data'].forEach(e => {
+            if(e){
+                counts.data += Object.keys(e).length;
+            }
+        })
+
+        this.state.auditReport['dataset_meta_data'].forEach(e => {
+            if(e){
+                counts.dataset_meta_data += Object.keys(e).length;
+            }
+        })
+
+        this.state.auditReport['vars_meta_data'].forEach(e => {
+            if(e){
+                counts.vars_meta_data += Object.keys(e).length;
+            }
+        })
+
+        return counts;
+    }
+
+    handleClickTab = (event, newValue) => {
+        this.setState({...this.state, validationStep: newValue});
     }
 
     componentDidMount = () => {
@@ -463,17 +622,35 @@ class ValidationTool extends React.Component {
         }
     }
 
+    componentWillUnmount = () => {
+        this.props.storeSubmissionFile(null);
+    }
+
     componentDidUpdate = (prevProps, prevState) => {
-        if(prevProps.submissionFile !== this.props.submissionFile && this.props.submissionFile !== null){
+        if((!prevProps.submissionOptions && this.props.submissionOptions) || (!this.audits && this.props.submissionOptions)){
+            this.audits = generateAudits(this.props.submissionOptions);
+        }
+        if(prevProps.submissionFile !== this.props.submissionFile && this.props.submissionFile){
             this.handleReadFile(this.props.submissionFile);
         }
+
     }
 
     render = () => {
+        if(!this.props.user) return <LoginRequiredPrompt/>
+
         const { classes } = this.props;
         const { validationStep } = this.state;
 
+        const datasetName = this.state.dataset_meta_data && this.state.dataset_meta_data.length ? this.state.dataset_meta_data[0].dataset_short_name : null;
+
         const sheet = validationSteps[validationStep].sheet;
+
+        var errorCount;
+
+        if(validationStep > 0 && validationStep < 5){
+            errorCount = this.countErrors();
+        }       
 
         return (
             <React.Fragment>
@@ -490,46 +667,56 @@ class ValidationTool extends React.Component {
                     &nbsp;a blank template, or view the <Link className={classes.needHelpLink} component={RouterLink} to='/datasubmission/guide'>Data Submission Guide</Link>.
                 </Typography>
 
-                <Paper className={`${classes.fileSelectPaper} ${!this.state.file && classes.addBorder}`} onDragOver={this.handleDragOver} onDrop={this.handleDrop}>
+                <Paper elevation={2} className={`${classes.fileSelectPaper} ${!this.props.submissionFile && classes.addBorder}`} onDragOver={this.handleDragOver} onDrop={this.handleDrop}>
                     {
                         this.props.submissionFile ?
                         <React.Fragment>
-                            <IconButton className={classes.clearFileIcon} color="inherit" onClick={this.handleResetState} disableFocusRipple disableRipple>
-                                <Close/>
-                            </IconButton>
 
-                            <Typography className={classes.currentlyViewingTypography}>
-                                Currently viewing: <span className={classes.fileName}>{this.props.submissionFile.name}</span>
+                            <Typography variant='h6' className={classes.currentlyViewingTypography}>
+
+                                {datasetName ? `${datasetName}` : ''} 
+                                <label htmlFor="select-file-input" className={classes.chooseNewFileLabel}>
+                                    Select a Different File
+                                </label> {'\n'}
                             </Typography>
 
-                            <Typography className={classes.currentlyViewingTypography}>
-                                {validationSteps[validationStep].label}
-                            </Typography>
+                            <div>
+                                <Tooltip title='Previous Section'>
+                                    <div className={classes.ilb}>
+                                        <IconButton 
+                                            size='small'
+                                            onClick={() => this.handleChangeValidationStep(this.state.validationStep - 1)}
+                                            disabled={Boolean(this.state.validationStep <= 1)}
+                                        >
+                                            <ArrowBack/>
+                                        </IconButton>
+                                    </div>
+                                </Tooltip>
 
-                            <Tooltip title='Previous Sheet'>
-                                <div className={classes.ilb}>
-                                    <IconButton 
-                                        size='small'
-                                        onClick={() => this.handleChangeValidationStep(this.state.validationStep - 1)}
-                                        disabled={Boolean(this.state.validationStep <= 1)}
-                                    >
-                                        <ChevronLeft />
-                                    </IconButton>
-                                </div>
-                            </Tooltip>
+                                <span className={classes.currentSectionSpan}>{validationSteps[validationStep].label}</span>
 
-                            <Tooltip title='Next Sheet'>
-                                <div className={classes.ilb}>
-                                    <IconButton 
-                                        size='small'
-                                        onClick={() => this.handleChangeValidationStep(this.state.validationStep + 1)}
-                                        disabled={Boolean(this.state.validationStep >= 3)}
-                                    >
-                                        <ChevronRight/>
-                                    </IconButton>
-                                </div>
-                            </Tooltip>
-                                
+                                <Tooltip title='Next Section'>
+                                    <div className={classes.ilb}>
+                                        <IconButton 
+                                            size='small'
+                                            onClick={() => this.handleChangeValidationStep(this.state.validationStep + 1)}
+                                            disabled={
+                                                Boolean(
+                                                    validationStep >= 5 || 
+                                                    (validationStep === 1 && errorCount.workbook) ||
+                                                    (validationStep === 4 && (
+                                                        errorCount.data > 0 || 
+                                                        errorCount.dataset_meta_data > 0 ||
+                                                        errorCount.vars_meta_data > 0
+                                                    ))
+                                                )
+                                            }
+                                        >
+                                            <ArrowForward/>
+                                        </IconButton>
+                                    </div>
+                                </Tooltip>
+                            </div>
                         </React.Fragment>
 
                         :
@@ -545,60 +732,233 @@ class ValidationTool extends React.Component {
                                 </label>                                
                             </Typography>
 
-                            <input
-                                onChange={this.handleFileSelect}
-                                className={classes.input}
-                                accept='.xlsx'
-                                id="select-file-input"
-                                type="file"
-                            />
+                            
+                        </React.Fragment>
+                    }
+
+                    {
+                        (validationStep > 1 && validationStep < 5) &&
+                        <React.Fragment>
+                            <Divider className={classes.divider}/>
+                            {
+                                Boolean(errorCount[sheet] > 0) ?
+
+                                <Typography variant='body2'>
+                                    <ErrorOutline style={{color: 'rgba(255, 0, 0, .7)', margin: '0 2px -5px 0', fontSize: '1.4em'}}/> 
+                                    We found {errorCount[sheet]} cell{errorCount[sheet] > 1 ? 's' : ''} with errors on this sheet. 
+                                    <span className={classes.linkLabel} onClick={this.handleFindNext}> Find Errors</span>
+                                </Typography>
+
+                                :
+
+                                Boolean(sheet === 'vars_meta_data' && (errorCount['data'] || errorCount['dataset_meta_data'])) ?
+
+                                <Typography variant='body2'>
+                                    <ErrorOutline style={{color: 'rgba(255, 0, 0, .7)', margin: '0 2px -5px 0', fontSize: '1.4em'}}/> 
+                                    Please correct errors from the previous sheets before moving forward. 
+                                </Typography>
+                                
+                                :
+                                
+                                <Typography variant='body2'>
+                                    <Done style={{color: colors.primary, margin: '0 2px -5px 0', fontSize: '1.4em'}}/>All set! Click the arrow above to move to the next step.
+                                </Typography>
+                            }
                         </React.Fragment>
                     }
                 </Paper>
 
-                {/* { Boolean(auditReport) && */}
-                {
-                    Boolean(this.state.data) &&
+                {Boolean(validationStep === 1) &&
+                    <Paper elevation={2} className={`${classes.workbookAuditPaper}`}>
+                        <Typography style={{marginBottom: '24px'}}>
+                            {
+                                Boolean(this.state.auditReport.workbook.errors.length) &&
+
+                                <React.Fragment>
+                                    One or more parts of your submission did not match CMAP's requirements. 
+                                    Please review the information below, update your workbook, 
+                                    and <label className={classes.linkLabel} htmlFor='select-file-input'>try again</label>.
+                                </React.Fragment>
+                            }
+
+                            {
+                                Boolean(!this.state.auditReport.workbook.errors.length && this.state.auditReport.workbook.warnings.length) &&
+                                'We found some potential issues with your submission.'
+                            }
+
+                            {
+                                Boolean(this.state.auditReport.workbook.warnings.length) &&
+                                    <React.Fragment>
+                                        {'\n'}
+                                        {'\n'}
+                                        Messages marked with a yellow icon
+                                        <ErrorOutline style={{color: 'rgba(255, 255, 0, .7)', fontSize: '18px', margin: '0 3px -4px 3px'}}/>
+                                        are warnings. These should be reviewed and corrected if necessary, but will not prevent you 
+                                        from moving to the next validation step.
+                                    </React.Fragment>
+                            }
+                        </Typography>
+
+                        {
+
+                        <List dense={true}>
+                            {
+                                this.state.auditReport.workbook.errors.map((e,i) => (
+                                    <ListItem key={i}>
+                                        <ListItemIcon style={{color: 'rgba(255, 0, 0, .7)'}}>
+                                            <ErrorOutline/>
+                                        </ListItemIcon>
+                                        <ListItemText
+                                            primary={e}
+                                        />
+                                    </ListItem>
+                                ))
+                            }
+
+                            {
+                                this.state.auditReport.workbook.warnings.map((e,i) => (
+                                    <ListItem key={i}>
+                                        <ListItemIcon style={{color: 'rgba(255, 255, 0, .7)'}}>
+                                            <ErrorOutline/>
+                                        </ListItemIcon>
+                                        <ListItemText
+                                            primary={e}
+                                        />
+                                    </ListItem>
+                                    ))
+                            }
+                            
+                        </List>
+                        }
+                    </Paper>
+                }
+
+                {Boolean((this.state.data && this.state.data.length) && (validationStep >= 2 && validationStep < 5)) &&
                     <React.Fragment>
-                        
-                        {/* <ErrorNavigator
-                            errors={auditReport.data}
-                            errorIndex={errorIndex}
-                            stepForward={this.stepForward}
-                            stepBackward={this.stepBackward}
-                        /> */}
-                        <Button 
-                            variant='contained' 
-                            onClick={this.handleFindNext} 
-                            color='primary' 
-                            className={classes.findNextButton}
-                        >
-                            Find Errors
-                        </Button>
 
-                        <Paper className={classes.tabPaper + " ag-theme-material"}>
+                        <Paper elevation={2} className={classes.tabPaper + " ag-theme-material"}>
+                            <Tabs value={validationStep} onChange={this.handleClickTab}>
+                                <Tab 
+                                    value={2}
+                                    label={ 
+                                        errorCount['data'] > 0 ?
+                                        <StyledBadgeRed badgeContent={errorCount['data']}>Data</StyledBadgeRed>
+                                        :                              
+                                        <StyledBadgeGreen badgeContent={'\u2713'}>Data</StyledBadgeGreen>
+                                    } 
+                                    className={classes.workbookTab}
+                                />
 
-                            {Boolean(this.state.data && this.state.data.length) &&
+                                <Tab 
+                                    value={3}
+                                    label={ 
+                                        errorCount['dataset_meta_data'] > 0 ?
+                                        <StyledBadgeRed badgeContent={errorCount['dataset_meta_data']}>Dataset Metadata</StyledBadgeRed>
+                                        :                              
+                                        <StyledBadgeGreen badgeContent={'\u2713'}>Dataset Metadata</StyledBadgeGreen>
+                                    } 
+                                    className={classes.workbookTab}
+                                />
+
+                                <Tab 
+                                    value={4}
+                                    label={ 
+                                        errorCount['vars_meta_data'] > 0 ?
+                                        <StyledBadgeRed badgeContent={errorCount['vars_meta_data']}>Variable Metadata</StyledBadgeRed>
+                                        :                              
+                                        <StyledBadgeGreen badgeContent={'\u2713'}>Variable Metadata</StyledBadgeGreen>
+                                    } 
+                                    className={classes.workbookTab}
+                                />
+                            </Tabs>
+
+                            <div style={{height: 'calc(100% - 48px)'}}>
                                 <ValidationGrid
                                     onGridReady={this.onGridReady}
                                     rowData={this.state[sheet]}
                                     defaultColumnDef={this.state.defaultColumnDef}
-                                    // onGridSizeChanged={this.onGridSizeChanged}      
                                     handleCellValueChanged={this.handleCellValueChanged}
-                                    gridContext={{sheet, auditReport: this.state.auditReport, textAreaLookup, selectOptions}}
+                                    handleGridSizeChanged={this.handleGridSizeChanged}
+                                    gridContext={{
+                                        sheet, 
+                                        getAuditReport: () => this.state.auditReport, 
+                                        textAreaLookup, 
+                                        selectOptions: generateSelectOptions(this.props.submissionOptions),
+                                        auditCell: this.auditCell
+                                    }}
                                     onModelUpdated={this.onModelUpdated}
-                                />                            
-                            }
-
+                                />
+                            </div>
                         </Paper>
                     </React.Fragment>
-
                 }
 
-                    <Button variant='contained' color='primary' className={classes.submitButton} onClick={this.handleUploadSubmission}>
-                        Submit
-                    </Button>
+                {Boolean(validationStep === 5) && 
+                    <Paper elevation={2} className={`${classes.fileSelectPaper}`}>
+                        <CleanupDummy/>                        
+                        {
+                            this.props.submissionUploadState === states.succeeded ?
+                                <React.Fragment>
+                                    <Typography className={classes.submittedTypography}>
+                                        Your dataset has been successfully submitted, and will be reviewed by our data curation team.
+                                    </Typography>
 
+                                    <Typography className={classes.submittedTypography}>
+                                        You can view the status of your submission <Link style={{display: 'inline-block'}} className={classes.needHelpLink} component={RouterLink} to={`/datasubmission/userdashboard?datasetName=${encodeURI(datasetName)}`}>here</Link>.
+                                    </Typography>
+
+                                    <Typography className={classes.submittedTypography}>                                    
+                                        If you made any changes during this process you can download the edited workbook <Link style={{display: 'inline-block'}} className={classes.needHelpLink} onClick={this.handleDownload} component='span'>here</Link>.
+                                    </Typography>
+
+                                    <Typography className={classes.submittedTypography}>
+                                        A detailed description of remaining steps in the submission process can be found in the <Link style={{display: 'inline-block'}} className={classes.needHelpLink} component={RouterLink} to='/datasubmission/guide'>Data Submission Guide</Link>.
+                                    </Typography>
+                                </React.Fragment>
+
+                            :
+
+                            this.props.submissionUploadState === states.failed ?
+
+                            <React.Fragment>
+                                <List>
+                                    <ListItem>
+                                        <ListItemIcon style={{color: 'rgba(255, 0, 0, .7)'}}>
+                                            <ErrorOutline/>
+                                        </ListItemIcon>
+                                        <ListItemText
+                                            primary="A dataset with this name has already been submitted by another user. If you believe you're receiving this message in error please contact us at cmap-data-submission@uw.edu."
+                                        />
+                                    </ListItem>
+                                </List>
+                                    
+                                <Typography className={classes.submittedTypography}>                                    
+                                    If you made any changes during this process you can download the edited workbook <Link style={{display: 'inline-block'}} className={classes.needHelpLink} onClick={this.handleDownload} component='span'>here</Link>.
+                                </Typography>
+
+                            </React.Fragment>
+
+                            :
+
+                            <React.Fragment>
+                                <Typography>
+                                    You've completed dataset validation! Click the button below to upload your workbook.
+                                </Typography>
+
+                                <Button variant='contained' color='primary' className={classes.submitButton} onClick={this.handleUploadSubmission}>
+                                    Submit
+                                </Button>
+                            </React.Fragment>
+                        }
+                    </Paper>
+                }
+                <input
+                    onChange={this.handleFileSelect}
+                    className={classes.input}
+                    accept='.xlsx'
+                    id="select-file-input"
+                    type="file"
+                />
             </React.Fragment>
         )
     }
@@ -606,11 +966,6 @@ class ValidationTool extends React.Component {
 
 export default connect(mapStateToProps, mapDispatchToProps)(withRouter(withStyles(styles)(ValidationTool)));
 
-// startEditingCell(params): Starts editing the provided cell. If another cell is editing, the editing will be stopped in that other cell. Parameters are as follows:
-// rowIndex: The row index of the row to start editing.
-// colKey: The column key of the column to start editing.
-// rowPinned: Set to 'top' or 'bottom' to started editing a pinned row.
-// keyPress, charPress: The keyPress and charPress that are passed to the cell editor.
-
 //Undo / redo
 // https://www.ag-grid.com/javascript-grid-undo-redo-edits/
+

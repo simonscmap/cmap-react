@@ -19,10 +19,11 @@ export const retrieveSubmissionCommentHistory = (submissionID) => ({
     }
 });
 
-export const uploadSubmission = (file) => ({
+export const uploadSubmission = ({ file, datasetName }) => ({
     type: dataSubmissionActionTypes.UPLOAD_SUBMISSION,
     payload: {
-        file
+        file,
+        datasetName
     }
 });
 
@@ -70,3 +71,24 @@ export const storeSubmissionFile = (file) => ({
         file
     }
 });
+
+export const checkSubmissionOptionsAndStoreFile = (file) => ({
+    type: dataSubmissionActionTypes.CHECK_SUBMISSION_OPTIONS_AND_STORE_FILE,
+    payload: {
+        file
+    }
+});
+
+export const setUploadState = (state) => ({
+    type: dataSubmissionActionTypes.SET_UPLOAD_STATE,
+    payload: {
+        state
+    }
+});
+
+export const downloadMostRecentFile = (submissionID) => ({
+    type: dataSubmissionActionTypes.DOWNLOAD_MOST_RECENT_FILE,
+    payload: {
+        submissionID
+    }
+})

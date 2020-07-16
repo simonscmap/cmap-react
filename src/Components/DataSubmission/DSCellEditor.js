@@ -1,13 +1,14 @@
 import React from 'react';
 
-import checkCell from '../../Utility/DataSubmission/checkCell';
 import { ClickAwayListener } from '@material-ui/core';
 
 class DSCellEditor extends React.Component {
     constructor(props){
-        const { auditReport, sheet } = props.context;
+        const { getAuditReport, sheet } = props.context;
         const { rowIndex } = props;
         const { colId } = props.column;
+        let auditReport = getAuditReport();
+
         super(props);
         this.inputRef = React.createRef();
         this.parseValue = props.parseValue;
@@ -25,7 +26,7 @@ class DSCellEditor extends React.Component {
     handleChange = (e) => {
         const { value } = e.target;
 
-        let errors = checkCell(value, this.props.column.colId);
+        let errors = this.props.context.auditCell(value, this.props.column.colId, this.props.rowIndex);
         this.setState({...this.state, value, errors});
     }
 

@@ -17,6 +17,7 @@ const initialState = {
     catalog: null,
     datasetRequestState: null,
     datasets: null,
+    submissionOptions: null,
 
     // Interface state pieces
     loginDialogIsOpen: false,
@@ -68,7 +69,8 @@ const initialState = {
     dataSubmissions: [],
     submissionComments: [],
     submissionCommentHistoryRetrievalState: states.succeeded,
-    submissionFile: null
+    submissionFile: null,
+    submissionUploadState: null
 }
 
 const reducedReducer = reduceReducers(initialState, catalog, user, ui, visualization, dataSubmission);

@@ -6,7 +6,7 @@ import { withStyles } from '@material-ui/core/styles';
 
 import { ExpansionPanelDetails, TextField, Button, Typography, Link, Step, StepLabel, Stepper } from '@material-ui/core';
 
-import { retrieveSubmissionCommentHistory, addSubmissionComment } from '../../Redux/actions/dataSubmission';
+import { retrieveSubmissionCommentHistory, addSubmissionComment, downloadMostRecentFile } from '../../Redux/actions/dataSubmission';
 
 import Comment from './Comment';
 
@@ -30,7 +30,8 @@ const styles = (theme) => ({
 
     postButton: {
         color: 'white',
-        marginTop: '16px'
+        marginTop: '16px',
+        textTransform: 'none'
     },
 
     setPhaseButton: {
@@ -44,7 +45,8 @@ const styles = (theme) => ({
     },
 
     newUpload: {
-        marginLeft: '2vw'
+        marginLeft: '2vw',
+        cursor: 'pointer'
     }
 });
 
@@ -56,6 +58,7 @@ const mapStateToProps = (state, ownProps) => ({
 const mapDispatchToProps = {
     retrieveSubmissionCommentHistory,
     addSubmissionComment,
+    downloadMostRecentFile
 };
 
 const steps = [
@@ -139,6 +142,10 @@ const UserDashboardPanelDetails = (props) => {
                 <Link component={RouterLink} to={`/datasubmission/validationtool?submissionID=${encodeURIComponent(submission.Submission_ID)}`}>Update</Link> this submission.
             </Typography>
 
+            <Typography className={classes.newUpload}>
+                <Link component='span' onClick={() => props.downloadMostRecentFile(submission.Submission_ID)}>Download</Link> the most recent version.
+            </Typography>
+
             {
                 props.submissionCommentHistoryRetrievalState === states.inProgress ?
                 'Loading Comments.....' : 
@@ -167,7 +174,7 @@ const UserDashboardPanelDetails = (props) => {
                     className={classes.postButton}
                     onClick={handlePostComment}
                 >
-                    Post Comment
+                    Post Message
                 </Button>
             </div>
         </ExpansionPanelDetails>

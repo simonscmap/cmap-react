@@ -6,9 +6,7 @@ import DSCellEditor from './DSCellEditor';
 import DSCellEditorTextArea from './DSCellEditorTextArea';
 import DSCellEditorSelect from './DSCellEditorSelect';
 
-const numberParser = ({newValue}) => {
-    return !newValue && newValue !== 0 ? null : Number(newValue);
-}
+const numberParser = ({newValue}) => isNaN(newValue) ? null : Number(newValue);
 
 const columnDefs = {
     data: [
@@ -79,10 +77,10 @@ const columnDefs = {
         },
 
         {
-            headerName: 'Official Cruise Names',
-            field: 'official_cruise_name(s)',
+            headerName: 'Cruise Names',
+            field: 'cruise_names',
             autoHeight: true,
-            tooltipField: 'official_cruise_name(s)',
+            tooltipField: 'cruise_names',
             cellEditor: 'DSCellEditorTextArea'
         },
 
@@ -101,11 +99,11 @@ const columnDefs = {
             cellEditor: 'DSCellEditorTextArea'
         },
 
-        {
-            headerName: 'Contact Email',
-            field: 'contact_email',
-            autoHeight: true
-        },
+        // {
+        //     headerName: 'Contact Email',
+        //     field: 'contact_email',
+        //     autoHeight: true
+        // },
 
         {
             headerName: 'History',
@@ -185,7 +183,7 @@ const columnDefs = {
             headerName: 'Discipline',
             field: 'var_discipline',
             autoHeight: true,
-            cellEditor: 'DSCellEditorSelect'
+            cellEditor: 'DSCellEditor'
         },
 
         {
@@ -213,7 +211,7 @@ const columnDefs = {
     ]
 }
 
-class ValidationGrid extends React.PureComponent {
+class ValidationGrid extends React.Component {
 
     render = () => {
         const { gridContext } = this.props;
@@ -233,6 +231,7 @@ class ValidationGrid extends React.PureComponent {
                 suppressContextMenu={true}
                 onCellValueChanged={this.props.handleCellValueChanged}
                 context={gridContext}
+                onGridSizeChanged={this.props.handleGridSizeChanged}
                 frameworkComponents={{
                     DSCellEditor,
                     DSCellEditorSelect,
