@@ -88,7 +88,7 @@ export default (submissionOptions) => {
     }
     
     const binary = (value) => {
-        if(!value || value === 1){
+        if(!value || value == 1 || value == 0){
             return;
         }
     

@@ -4,7 +4,7 @@ import { ClickAwayListener } from '@material-ui/core';
 
 import colors from '../../Enums/colors';
 
-class DSCellEditor extends React.Component {
+class DSCellEditorSelect extends React.Component {
     constructor(props){
         const { getAuditReport, sheet } = props.context;
         const { rowIndex } = props;
@@ -132,4 +132,4 @@ class DSCellEditor extends React.Component {
     }
 }
 
-export default DSCellEditor;
+export default DSCellEditorSelect;

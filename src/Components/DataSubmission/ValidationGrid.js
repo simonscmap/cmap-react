@@ -189,7 +189,8 @@ const columnDefs = {
         {
             headerName: 'Visualize',
             field: 'visualize',
-            autoHeight: true
+            autoHeight: true,
+            valueParser: numberParser
         },
 
         {

@@ -62,7 +62,7 @@ const SparseScatter = (props) => {
                 return `Time: ${time}<br>${parameters.fields}: ${format(formatter)(value)} [${metadata.Unit}]`
             })
         }
-
+        
     const date = parameters.dt1 === parameters.dt2 ? handleChartDateString(parameters.dt1) :
         handleChartDateString(parameters.dt1) + ' to ' + handleChartDateString(parameters.dt2);
 

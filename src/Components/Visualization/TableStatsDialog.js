@@ -144,8 +144,3 @@ const TableStatsDialog = (props) => {
 }
 
 export default withStyles(styles)(TableStatsDialog);
-
-// Variable_Max: "4.999"
-// Variable_Mean: "-0.0000008547"
-// Variable_Min: "-4.9956"
-// Variable_Std: "0.1428013424"

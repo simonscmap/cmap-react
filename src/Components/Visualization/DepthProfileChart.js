@@ -85,8 +85,8 @@ const DepthProfileChart = (props) => {
 
     const date = date1 === date2 ? handleChartDateString(date1, infoObject.hasHour, infoObject.isMonthly) :
             handleChartDateString(date1, infoObject.hasHour, infoObject.isMonthly) + ' to ' + handleChartDateString(date2, infoObject.hasHour, infoObject.isMonthly);
-    console.log(data);
-    return (
+    
+            return (
         <div>
             <ChartControlPanel
                 downloadCsv={downloadCsv}

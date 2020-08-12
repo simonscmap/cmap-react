@@ -60,7 +60,6 @@ class ChoosePassword extends Component {
         super(props);
         let token = props.location.pathname.split('/')[2];
         let decodedToken = jwtDecode(token)
-        console.log(decodedToken);
         let expiration = new Date(0);
         expiration.setUTCSeconds(decodedToken.exp);
 

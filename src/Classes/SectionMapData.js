@@ -62,7 +62,6 @@ class SectionMapData {
         let lonArray = Array.from(this.lons);
         this.lonMax = Math.max(...lonArray);
         this.lonMin = Math.min(...lonArray);
-        // console.log(this.variableValues);
     }
 
     // Direction is meridional or zonal
@@ -91,9 +90,6 @@ class SectionMapData {
             variableValueSubsets = flattenArray(variableValueSubsets);
             spaceCount = lonCount;
         }
-
-        // console.log('Split by space');
-        // console.log(variableValueSubsets);
 
         if(splitByDate && splitBySpace){
             // pass
