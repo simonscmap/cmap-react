@@ -13,6 +13,7 @@ import { Route, BrowserRouter, Switch } from 'react-router-dom'
 
 import Home from './Components/Home';
 import Catalog from './Components/Catalog/Catalog';
+import SearchResults from './Components/Catalog/SearchResults';
 import Register from './Components/User/Register';
 import Visualization from './Components/Visualization/Visualization';
 import GlobalUIComponentWrapper from './Components/UI/GlobalUIComponentWrapper';
@@ -23,12 +24,13 @@ import Profile from './Components/User/Profile';
 import DataSubmission from './Components/DataSubmission/DataSubmission';
 import ContactUs from './Components/ContactUs';
 import CommunityTemp from './Components/Community/CommunityTemp';
+import CatalogNew from './Components/Catalog/CatalogNew';
+import DatasetFullPage from './Components/Catalog/DatasetFullPage';
+import ForgotPass from './Components/User/ForgotPass';
+import ChoosePassword from './Components/User/ChoosePassword';
 
 import { initializeGoogleAuth } from './Redux/actions/user';
 import { toggleShowHelp } from './Redux/actions/ui';
-
-import ForgotPass from './Components/User/ForgotPass';
-import ChoosePassword from './Components/User/ChoosePassword';
 
 const theme = createMuiTheme({
 
@@ -237,7 +239,7 @@ class App extends Component {
             <Switch>          
               <Route exact path='/apikeymanagement' component={ Home } />
               <Route exact path='/' component={ LandingPage } />
-              <Route exact path='/catalog' component={ Catalog } />
+              <Route exact path='/catalog' component={ CatalogNew } />
               <Route exact path='/login' component={ Login } />
               <Route exact path='/register' component={ Register } />
               <Route exact path='/visualization' component={Visualization} />
@@ -247,6 +249,8 @@ class App extends Component {
               <Route path='/choosepassword' component={ChoosePassword} />
               <Route exact path='/contact' component={ContactUs}/>
               <Route path='/community' component={CommunityTemp} />
+              <Route path='/catalog/searchresults' component={SearchResults}/>
+              <Route path='/catalog/datasets/:dataset' component={DatasetFullPage}/>
             </Switch>
           </BrowserRouter>
           </MuiThemeProvider>

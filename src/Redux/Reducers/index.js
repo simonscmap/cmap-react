@@ -18,6 +18,12 @@ const initialState = {
     datasetRequestState: null,
     datasets: null,
     submissionOptions: null,
+    keywords: [],
+    searchOptions: {},
+    searchResults: [],
+    searchResultsLoadingState: states.succeeded,
+    datasetFullPageData: {},
+    datasetFullPageDataLoadingState: states.succeeded,
 
     // Interface state pieces
     loginDialogIsOpen: false,

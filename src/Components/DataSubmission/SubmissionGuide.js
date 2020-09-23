@@ -1229,6 +1229,18 @@ const SubmissionGuide = (props) => {
                                 Sample Dataset - amt01_extracted_cholorphyll
                             </Link>
                         </Typography>
+
+                        <Typography>
+                            <Link href='https://github.com/simonscmap/DBIngest/raw/master/template/Influx_Stations_Gradients_2016_example_2020_08_13.xlsx' download='Influx_Stations_Gradients_2016_example.xlsx'>
+                                Sample Dataset - Influx_Stations_Gradients_2016
+                            </Link>
+                        </Typography>
+
+                        <Typography>
+                            <Link href='https://github.com/simonscmap/DBIngest/raw/master/template/SCOPE_HOT224-238_omics_cmap_example_2020_08_13.xlsx' download='SCOPE_HOT224-238_omics_cmap_example_2020_08_13.xlsx'>
+                                Sample Dataset - SCOPE_HOT224-238_omics
+                            </Link>
+                        </Typography>
                     </Paper>
                 </Grid>
             </Grid>

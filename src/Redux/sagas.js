@@ -1,4 +1,4 @@
-import { put, takeLatest, all, call, delay, select } from 'redux-saga/effects';
+import { put, takeLatest, all, call, delay, select, debounce } from 'redux-saga/effects';
 // import { eventChannel } from 'redux-saga';
 import Cookies from 'js-cookie';
 // import worker from '../worker';
@@ -498,11 +498,6 @@ function* uploadSubmission(action) {
     let retries = 0;
     let sessionID;
 
-    if(fileSize <= 0){
-        yield put(interfaceActions.snackbarOpen('The selected file is empty'));
-        return;
-    }
-
     let beginSessionFormData = new FormData();
     beginSessionFormData.append('datasetName', datasetName);
     
@@ -531,6 +526,7 @@ function* uploadSubmission(action) {
 
     if(!sessionID){
         yield put(interfaceActions.snackbarOpen('Failed to begin upload session'));
+        yield put(interfaceActions.setLoadingMessage(''));
         return;
     }
 
@@ -563,6 +559,7 @@ function* uploadSubmission(action) {
         
         if(currentPartSucceeded === false){
             yield put(interfaceActions.snackbarOpen('Upload failed'));
+            yield put(interfaceActions.setLoadingMessage(''));
             return;
         }
 
@@ -717,7 +714,58 @@ function* downloadMostRecentFile(action) {
     } 
 }
 
+function* keywordsFetch() {
+    let keywordsFetchResponse = yield call(api.catalog.fetchKeywords);
 
+    if(keywordsFetchResponse.ok){
+        let jsonResponse = yield keywordsFetchResponse.json();
+        yield put(catalogActions.keywordsStore(jsonResponse));
+    }
+}
+
+function* searchOptionsFetch(){
+    let result = yield call(api.catalog.submissionOptions);
+
+    if(result.ok){
+        let options = yield result.json();
+        yield put(catalogActions.storeSubmissionOptions(options));
+    }
+
+    else {
+        console.log('Failed to retrieve search options');
+    }
+}
+
+// This saga is debounced in its watch function
+function* searchResultsFetch(action){
+    let result = yield call(api.catalog.searchResults, action.payload.queryString);
+
+    if(result.ok){
+        let results = yield result.json();
+        yield put(catalogActions.searchResultsStore(results));
+    }
+
+    else {
+        yield put(interfaceActions.snackbarOpen('Failed to retrieve search results. Please try again later.'));
+    }
+    yield put(catalogActions.searchResultsSetLoadingState(states.succeeded));
+}
+
+function* datasetFullPageDataFetch(action) {
+    yield put(catalogActions.datasetFullPageDataSetLoadingState(states.inProgress));
+    let result = yield call(api.catalog.datasetFullPageDataFetch, action.payload.shortname);
+
+    if(result.ok){
+        let results = yield result.json();
+        yield put(catalogActions.datasetFullPageDataStore(results));
+        yield put(catalogActions.datasetFullPageDataSetLoadingState(states.succeeded));
+    }
+
+    else {
+        yield put(interfaceActions.snackbarOpen('Failed to retrieve information. Please try again later.'));
+        yield put(catalogActions.datasetFullPageDataSetLoadingState(states.succeeded));
+    }
+}
 
 function* watchUserLogin() {
     yield takeLatest(userActionTypes.LOGIN_REQUEST_SEND, userLogin);
@@ -858,6 +906,23 @@ function* watchCheckSubmissionOptionsAndStoreFile() {
 function* watchDownloadMostRecentFile(){
     yield takeLatest(dataSubmissionActionTypes.DOWNLOAD_MOST_RECENT_FILE, downloadMostRecentFile);
 }
+
+function* watchKeywordsFetch(){
+    yield takeLatest(catalogActionTypes.KEYWORDS_FETCH, keywordsFetch);
+}
+
+function* watchSearchOptionsFetch(){
+    yield takeLatest(catalogActionTypes.SEARCH_OPTIONS_FETCH, searchOptionsFetch);
+}
+
+function* watchSearchResultsFetch() {
+    yield debounce(450, catalogActionTypes.SEARCH_RESULTS_FETCH, searchResultsFetch);
+}
+
+function* watchDatasetFullPageDataFetch(){
+    yield takeLatest(catalogActionTypes.DATASET_FULL_PAGE_DATA_FETCH, datasetFullPageDataFetch);
+}
+
 // function createWorkerChannel(worker) {
 //     return eventChannel(emit => {
 //         worker.onmessage = message => {
@@ -920,6 +985,10 @@ export default function* rootSaga() {
         watchSetDataSubmissionPhase(),
         watchRetrieveMostRecentFile(),
         watchCheckSubmissionOptionsAndStoreFile(),
-        watchDownloadMostRecentFile()
+        watchDownloadMostRecentFile(),
+        watchKeywordsFetch(),
+        watchSearchOptionsFetch(),
+        watchSearchResultsFetch(),
+        watchDatasetFullPageDataFetch()
     ])
 }

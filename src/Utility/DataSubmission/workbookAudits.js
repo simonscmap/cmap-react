@@ -18,6 +18,11 @@ let checkVariableNameMismatches = (data, vars_meta_data, userVariables) => {
     return shortNames.filter(e => !userVariables.has(e));
 }
 
+const checkMissingVarMetadataRows = (data, vars_meta_data, userVariables) => {
+    let shortNames = new Set(vars_meta_data.map(e => e.var_short_name));
+    return Array.from(userVariables).filter(e => !shortNames.has(e));
+}
+
 let checkEmptyColumns = (data, userVariables) => {
     let emptyColumns = [];
 
@@ -269,6 +274,13 @@ export default ({ data, dataset_meta_data, vars_meta_data, workbook }) => {
         errors.push(`The following value${variableNameMismatches.length > 1 ? 's' : ''} ` +
         `for var_short_name on the vars_meta_data sheet did not match a column header on the data sheet:\n` +
         `${variableNameMismatches.join(', ')}.`);
+    }
+
+    let missingVarMetadataRows = checkMissingVarMetadataRows(data, vars_meta_data, userVariables);
+    if(missingVarMetadataRows.length){
+        errors.push(`The following column header${missingVarMetadataRows.length > 1 ? 's' : ''} on the data sheet ` +
+            `did not match any value for var_short_name on the vars_meta_data sheet: \n` +
+            `${missingVarMetadataRows.join(', ')}.`);
     }
 
     let emptyColumns = checkEmptyColumns(data, userVariables);

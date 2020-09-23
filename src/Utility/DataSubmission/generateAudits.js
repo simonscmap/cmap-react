@@ -3,7 +3,7 @@ export default (submissionOptions) => {
     
     const number = (value) => {
         if(!value && value !== 0) return null;
-        if(isNaN(value) || value === '') return 'Must be a number';
+        if(isNaN(value) || isNaN(parseInt(value))) return 'Must be a number';
     }
     
     const validLat = (value) => {

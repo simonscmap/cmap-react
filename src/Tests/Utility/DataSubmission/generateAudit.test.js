@@ -11,7 +11,7 @@ var validations = generateAudits({
 // These functions are awkward to test like this and will break if their positions in
 // the function array changes. Individual functions from generateAudits should be exported,
 // and assembled in a separately exported function.
-// Functions are truthy when validations fails
+// Function return truthy values when validations fails
 describe('Validations work as expected', () => {
     let number = validations.lat[0];
     let length = validations.var_short_name[1];
@@ -70,6 +70,3 @@ describe('Validations work as expected', () => {
         expect(releaseDate('2016-05-03T18:43:12', 0)).toBeTruthy();
     });
 })
-
-
-// const { Make, Sensor, Spatial_Resolution, Study_Domain, Temporal_Resolution } = submissionOptions;

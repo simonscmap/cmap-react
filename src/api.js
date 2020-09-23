@@ -160,6 +160,10 @@ api.catalog.submissionOptions = async() => {
     return await fetch(apiUrl + '/api/catalog/submissionoptions');
 }
 
+api.catalog.searchResults = async(queryString) => {
+    return await fetch(apiUrl + '/api/catalog/searchcatalog' + queryString, fetchOptions);
+}
+
 api.user.keyRetrieval = async() => {
     return await fetch(apiUrl + '/user/retrieveapikeys', fetchOptions);
 }
@@ -173,6 +177,14 @@ api.user.updateUserInfo = async(userInfo) => {
         ...postOptions,
         body: JSON.stringify(userInfo),
     });
+}
+
+api.catalog.fetchKeywords = async() => {
+    return await fetch(apiUrl + '/api/catalog/keywords');
+}
+
+api.catalog.datasetFullPageDataFetch = async(shortname) => {
+    return await fetch(apiUrl + `/api/catalog/datasetfullpage?shortname=${shortname}`, fetchOptions);
 }
 
 api.user.recoverPassword = async(email) => {
