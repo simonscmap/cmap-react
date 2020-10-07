@@ -1,13 +1,50 @@
 import React, { useState } from 'react';
 import ReactDOMServer from 'react-dom/server';
-import { withStyles, TextField, InputAdornment } from '@material-ui/core';
-import { Search, Menu, ArrowUpward, ArrowDownward, ViewComfy } from '@material-ui/icons';
+
+import { withStyles, TextField, InputAdornment, Link, Dialog } from '@material-ui/core';
+import { Search, Menu, ArrowUpward, ArrowDownward } from '@material-ui/icons';
+
 import { AgGridReact } from 'ag-grid-react';
+
+import ReactMarkdown from 'react-markdown';
 
 import HelpButtonAndDialog from '../UI/HelpButtonAndDialog';
 import VariableGridHelpContents from './VariableGridHelpContents';
 
 import colors from '../../Enums/colors';
+
+const rendererStyles = (theme) => ({
+    dialogPaper: {
+        backgroundColor: colors.solidPaper,
+        color: 'white',
+        padding: '12px'
+    }
+})
+
+const CommentCellRenderer = withStyles(rendererStyles)((props) => {
+    const { value, classes } = props;
+
+    const [ open, setOpen ] = React.useState(false);
+
+    return !props.value || (props.value && props.value.length) < 20 ? 
+    (
+        props.value
+    ) 
+
+    :
+
+    (
+        <React.Fragment>
+            <Link component='button' style={{color: colors.primary, fontSize: '12px', lineHeight: '38px'}} onClick={() => setOpen(true)}>
+                View Comment
+            </Link>
+
+            <Dialog open={open} onClose={() => setOpen(false)} classes={{paper: classes.dialogPaper}}>
+                <ReactMarkdown source={value}/>
+            </Dialog>
+        </React.Fragment>
+    )
+})
 
 const columnDefs = [
     {
@@ -15,9 +52,9 @@ const columnDefs = [
         children: [
             {headerName: 'Variable Name', field: 'Long_Name', tooltipField: 'Long_Name'},
             {headerName: 'Short Name', field: 'Variable'},
-            {headerName: 'Sensor', field: 'Sensor'}, //, enableRowGroup: true, menuTabs: ['generalMenuTab']},
-            {headerName: 'Unit', field: 'Unit'}, //, menuTabs: ['generalMenuTab']},
-            {headerName: 'Comment', field: 'Comment', tooltipField: "Comment"}
+            {headerName: 'Sensor', field: 'Sensor'},
+            {headerName: 'Unit', field: 'Unit'},
+            {headerName: 'Comment', field: 'Comment', tooltipField: "Comment", cellRenderer: 'commentCellRenderer'}
         ]
     },
 
@@ -111,7 +148,6 @@ const DatasetPageAGGrid = React.memo((props) => {
                     enableCellTextSelection={true}
                     rowHeight={38}
                     enableBrowserTooltips={true}
-                    // getMainMenuItems={getMainMenuItems}
                     cacheQuickFilter={true}
                     quickFilterText={quickSearch}
                     getContextMenuItems={() => ['copy', 'csvExport']}
@@ -119,9 +155,8 @@ const DatasetPageAGGrid = React.memo((props) => {
                         menu: ReactDOMServer.renderToString(<Menu style={{fontSize: '1.2rem', color: colors.primary}}/>),
                         sortAscending: ReactDOMServer.renderToString(<ArrowUpward style={{fontSize: '1.2rem', color: colors.primary}}/>),
                         sortDescending: ReactDOMServer.renderToString(<ArrowDownward style={{fontSize: '1.2rem', color: colors.primary}}/>),
-                        // menuAddRowGroup: ReactDOMServer.renderToString(<ViewComfy style={{fontSize: '1.2rem', color: colors.primary}}/>),
-                        // menuRemoveRowGroup: ReactDOMServer.renderToString(<ViewComfy style={{fontSize: '1.2rem', color: colors.primary}}/>)
                     }}
+                    frameworkComponents={{commentCellRenderer: CommentCellRenderer}}
                 />
             </div>
         </div>

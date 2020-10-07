@@ -7,13 +7,20 @@ import { Skeleton } from '@material-ui/lab';
 import ReactMarkdown from 'react-markdown';
 import XLSX from 'xlsx';
 
-// import VariableDetails from './VariableDetails';
 import DatasetPageAGGrid from './DatasetPageAGGrid';
+import DatasetJSONLD from './DatasetJSONLD';
+import DownloadDialog from './DownloadDialog';
 
 import { datasetFullPageDataFetch, datasetFullPageDataStore } from '../../Redux/actions/catalog';
 
 import states from '../../Enums/asyncRequestStates';
 import HelpButtonAndDialog from '../UI/HelpButtonAndDialog';
+
+import colors from '../../Enums/colors';
+import metaTags from '../../Enums/metaTags';
+
+// Text on this page has inline styling for font color because ag-grid's theme classes override mui classes when a dialog is opened
+// from inside the grid
 
 
 const mapStateToProps = (state, ownProps) => ({
@@ -133,7 +140,8 @@ const styles = (theme) => ({
     },
 
     outerContainer: {
-        marginTop: '70px'
+        marginTop: '70px',
+        color: 'white'
     },
 
     markdown: {
@@ -239,6 +247,8 @@ const DatasetFullPage = (props) => {
 
     const loading = datasetFullPageDataLoadingState === states.inProgress;
 
+    const [ downloadDialogOpen, setDownloadDialogOpen ] = React.useState(false);
+
     useEffect(() => {
         datasetFullPageDataFetch(props.match.params.dataset);
 
@@ -246,9 +256,13 @@ const DatasetFullPage = (props) => {
     }, []);
 
     useEffect(() => {
-        document.title = Long_Name || 'Simons Collaborative Marine Ocean Atlas';
+        document.title = Long_Name || metaTags.defaultTitle;
+        document.description = Description || metaTags.defaultDescription;
 
-        return (() => document.title = 'Simons Collaborative Marine Ocean Atlas')
+        return (() => {
+            document.title = metaTags.default.title;
+            document.description = metaTags.default.descriptionescription;
+        })
     }, [Long_Name])
 
     const downloadMetadata = () => {
@@ -263,96 +277,22 @@ const DatasetFullPage = (props) => {
 
     return (
         <Grid container className={classes.outerContainer}>
-            {/* <Grid item xs={2}>
-                <Paper className={classes.stickyPaper} elevation={6}>
-                    <List dense={true}>
-                        <ListItem component='a' href='#description' className={classes.navListItem}>
-                            <ListItemText
-                                primary="Description"
-                                classes={{primary: classes.navListItemText}}
-                                className={classes.navListItemtextWrapper}
-                            />
-                        </ListItem>
-
-                        <ListItem component='a' href='#info-table' className={classes.navListItem}>
-                            <ListItemText
-                                primary="Info Table"
-                                classes={{primary: classes.navListItemText}}
-                                className={classes.navListItemtextWrapper}
-                            />
-                        </ListItem>
-
-                        <ListItem component='a' href='#variables' className={classes.navListItem}>
-                            <ListItemText
-                                primary="Variables"
-                                classes={{primary: classes.navListItemText}}
-                                className={classes.navListItemtextWrapper}
-                            />
-                        </ListItem>
-
-                        {
-                            Distributor ?
-                            <ListItem component='a' href='#distributor' className={classes.navListItem}>
-                                <ListItemText
-                                    primary="Distributor"
-                                    classes={{primary: classes.navListItemText}}
-                                    className={classes.navListItemtextWrapper}
-                                />
-                            </ListItem> : ''                 
-                        }
-
-                        {
-                            Acknowledgement ?
-                            <ListItem component='a' href='#acknowledgement' className={classes.navListItem}>
-                                <ListItemText
-                                    primary="Acknowledgement"
-                                    classes={{primary: classes.navListItemText}}
-                                    className={classes.navListItemtextWrapper}
-                                />
-                            </ListItem> : ''
-                        }
-
-                        {
-                        References && References.length ? 
-                            <ListItem component='a' href='#references' className={classes.navListItem}>
-                                <ListItemText
-                                    primary="References"
-                                    classes={{primary: classes.navListItemText}}
-                                    className={classes.navListItemtextWrapper}
-                                />
-                            </ListItem> : ''
-                        }
-                    </List>
-                </Paper>
-            </Grid> */}
-
+            {downloadDialogOpen ? 
+            
+            <DownloadDialog
+                dialogOpen={downloadDialogOpen}
+                dataset={datasetFullPageData}
+                handleClose={() => setDownloadDialogOpen(false)}
+            />       
+            : ''}
+            
             <Grid item xs={12}>
                 <Paper className={classes.guideSection} elevation={4}>
                     <SkeletonWrapper loading={loading}>
                         <a className={classes.anchor} id='description'></a>
-                        <Typography variant={'h4'} className={classes.pageHeader}>
+                        <Typography variant={'h4'} className={classes.pageHeader} style={{color: 'white'}}>
                             {Long_Name}                    
-                        </Typography>
-
-                        <Link
-                            component='button'
-                            onClick={downloadMetadata}
-                        >
-                            Download Dataset Metadata
-                        </Link>
-
-                        <HelpButtonAndDialog
-                            title='Downloading Metadata'
-                            content={
-                                <Typography>
-                                    This link will download an xlsx workbook with a page containing
-                                    the dataset's metadata, and a second page containing the metadata
-                                    of its member variables.
-                                </Typography>
-                            }
-                            iconClass={classes.helpIcon}
-                            buttonClass={classes.helpButton}
-                        />
+                        </Typography>                        
 
                         <ReactMarkdown source={Description} className={classes.markdown}/>                        
 
@@ -497,25 +437,16 @@ const DatasetFullPage = (props) => {
                                 </TableRow>                                
                             </TableBody>
                         </Table>
-                        <Typography variant='caption' style={{margin: '4px 0 14px 4px', display: 'inline-block'}}>
+                        <Typography variant='caption' style={{margin: '4px 0 14px 4px', display: 'inline-block', color: 'white'}}>
                             *Temporal and spatial coverage may differ between member variables
                         </Typography>
 
                         {/* <iframe src={Icon_URL ? Icon_URL.slice(0, -4) + '.html' : ''}/> */}
 
-                        <Typography variant='h5' className={classes.sectionHeader} style={{marginBottom: '16px'}}>
+                        <Typography variant='h5' className={classes.sectionHeader} style={{marginBottom: '16px', color: 'white'}}>
                             <a className={classes.anchor} id='variables'></a>
                             Variables
                         </Typography>
-
-                        {/* {Variables ? Variables.map((variable, i) => (
-                            <Accordion key={i}>
-                                <AccordionSummary classes={{expandIcon: classes.expandIcon}} expandIcon={<ExpandMore/>}>
-                                    <Typography className={classes.variableLongName}>{variable.Long_Name}</Typography>
-                                </AccordionSummary>
-                                <VariableDetails variable={variable}/>
-                            </Accordion>  
-                        )) : ''} */}
 
                         {
                             Variables ? <DatasetPageAGGrid Variables={Variables}/> : ''
@@ -524,12 +455,12 @@ const DatasetFullPage = (props) => {
                         {(Data_Source) || loading ?
                         
                         <React.Fragment>
-                                <Typography variant='h5' className={classes.sectionHeader}>
+                                <Typography variant='h5' className={classes.sectionHeader} style={{color: 'white'}}>
                                     <a className={classes.anchor} id='data-source'></a>
                                     Data Source
                                 </Typography>
 
-                                <Typography className={classes.smallText}>
+                                <Typography className={classes.smallText} style={{color: 'white'}}>
                                     {Data_Source}
                                 </Typography>
                         </React.Fragment>
@@ -541,12 +472,12 @@ const DatasetFullPage = (props) => {
                             Distributor || loading ?
 
                             <React.Fragment>
-                                <Typography variant='h5' className={classes.sectionHeader}>
+                                <Typography variant='h5' className={classes.sectionHeader} style={{color: 'white'}}>
                                     <a className={classes.anchor} id='distributor'></a>
                                     Distributor
                                 </Typography>
 
-                                <Typography className={classes.smallText}>
+                                <Typography className={classes.smallText} style={{color: 'white'}}>
                                     {Distributor}
                                 </Typography>
                             </React.Fragment>
@@ -558,12 +489,12 @@ const DatasetFullPage = (props) => {
                         {Acknowledgement || loading ?
                         
                             <React.Fragment>
-                                    <Typography variant='h5' className={classes.sectionHeader}>
+                                    <Typography variant='h5' className={classes.sectionHeader} style={{color: 'white'}}>
                                         <a className={classes.anchor} id='acknowledgement'></a>
                                         Acknowledgement
                                     </Typography>
 
-                                    <Typography className={classes.smallText}>
+                                    <Typography className={classes.smallText} style={{color: 'white'}}>
                                         {Acknowledgement}
                                     </Typography>
                                 </React.Fragment>
@@ -575,23 +506,58 @@ const DatasetFullPage = (props) => {
                         {(References && References.length) || loading ?
                         
                             <React.Fragment>
-                                    <Typography variant='h5' className={classes.sectionHeader}>
+                                    <Typography variant='h5' className={classes.sectionHeader} style={{color: 'white'}}>
                                         <a className={classes.anchor} id='references'></a>
                                         References
                                     </Typography>
 
                                     {!loading ?
                                         References.map((reference, i) => (
-                                            <Typography className={classes.smallText} key={i}>
+                                            <Typography className={classes.smallText} key={i} style={{color: 'white'}}>
                                                 {reference}
                                             </Typography>
                                         )) : ''}                            
                             </React.Fragment>
 
                             : ''
-                        }                       
-                    
-                    </SkeletonWrapper>                    
+                        }
+
+                        <Typography variant='h5' className={classes.sectionHeader} style={{color: 'white'}}>
+                            <a className={classes.anchor} id='data-access'></a>
+                            Data Access
+                        </Typography>
+
+                        <Link
+                            component='button'
+                            onClick={downloadMetadata}
+                            style={{color: colors.primary}}
+                        >
+                            Download Dataset Metadata
+                        </Link>
+
+                        <HelpButtonAndDialog
+                            title='Downloading Metadata'
+                            content={
+                                <Typography>
+                                    This link will download an xlsx workbook with a page containing
+                                    the dataset's metadata, and a second page containing the metadata
+                                    of its member variables.
+                                </Typography>
+                            }
+                            iconClass={classes.helpIcon}
+                            buttonClass={classes.helpButton}
+                        />
+                        
+                        <Link
+                            component='button'
+                            onClick={() => setDownloadDialogOpen(true)}
+                            style={{color: colors.primary, display: 'block'}}
+                        >
+                            Download Data
+                        </Link>
+
+                    {!loading && datasetFullPageData && Object.keys(datasetFullPageData).length ? <DatasetJSONLD {...datasetFullPageData}/> : ''}
+                    </SkeletonWrapper>              
                 </Paper>
             </Grid>
         </Grid>
@@ -599,5 +565,3 @@ const DatasetFullPage = (props) => {
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(DatasetFullPage));
-
-{/* <Divider variant='fullWidth' classes={{root: classes.divider}}/> */}

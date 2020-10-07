@@ -93,7 +93,7 @@ const VariableDetails = (props) => {
         Variable_50th, 
         Variable_75th, 
         Variable_Count, 
-        Variable_MAX, 
+        Variable_Max, 
         Variable_Min, 
         Variable_STD,
         Comment
@@ -278,13 +278,13 @@ const VariableDetails = (props) => {
                         }
                         
                         {   
-                            Variable_MAX || Variable_MAX === 0 ?
+                            Variable_Max || Variable_Max === 0 ?
                             <TableRow className={classes.sampleTableRow}>
                                 <TableCell className={classes.tableHead}>
                                     Maximum Value
                                 </TableCell>
                                 <TableCell>
-                                    {Variable_MAX}
+                                    {Variable_Max}
                                 </TableCell>
                             </TableRow>
                             : ''

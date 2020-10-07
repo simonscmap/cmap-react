@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { Route, Switch } from 'react-router-dom'
 
@@ -12,6 +12,8 @@ import ValidationTool from './ValidationTool';
 import SubmissionGuide from './SubmissionGuide';
 import UserDashboard from './UserDashboard';
 import AdminDashboard from './AdminDashboard';
+
+import metaTags from '../../Enums/metaTags';
 
 const styles = (theme) => ({
     root: {
@@ -27,26 +29,30 @@ const mapDispatchToProps = {
     snackbarOpen
 }
 
-class DataSubmission extends React.Component {
+const DataSubmission = (props) => {
+    const { classes, match, user } = props;
 
-    // componentDidCatch = () => {
-    //     this.props.snackbarOpen('An error occurred');
-    // }
+    useEffect(() => {
+        document.title = metaTags.dataSubmission.title;
+        document.description = metaTags.dataSubmission.description;
 
-    render = () => {
-        const { classes, match, user } = this.props;
-        return (
-            <div className={classes.root}>
-            <Switch>
-                <Route exact path={match.url + '/'} component={ SubmissionGuide } />
-                <Route exact path={match.url + '/guide'} component={ SubmissionGuide } />
-                <Route exact path={match.url + '/validationtool'} component={ ValidationTool } />
-                <Route exact path={match.url + '/userdashboard'} component={ UserDashboard } />
-                <Route exact path={match.url + '/admindashboard'} component={ AdminDashboard } /> 
-            </Switch>
-            </div>
-        )
-    }
+        return () => {
+            document.title = metaTags.default.title;
+            document.title = metaTags.default.description;
+        }
+    })
+
+    return (
+        <div className={classes.root}>
+        <Switch>
+            <Route exact path={match.url + '/'} component={ SubmissionGuide } />
+            <Route exact path={match.url + '/guide'} component={ SubmissionGuide } />
+            <Route exact path={match.url + '/validationtool'} component={ ValidationTool } />
+            <Route exact path={match.url + '/userdashboard'} component={ UserDashboard } />
+            <Route exact path={match.url + '/admindashboard'} component={ AdminDashboard } /> 
+        </Switch>
+        </div>
+    )
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(DataSubmission));

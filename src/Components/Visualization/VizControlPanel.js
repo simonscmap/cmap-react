@@ -337,23 +337,17 @@ const _CustomHeading = props => {
             {props.headingLabel.length > 70 ? props.headingLabel.slice(0,67) + '...' : props.headingLabel}
         </Typography>
 
-        <Tooltip title='Download Data' placement='right'>
-            <IconButton 
-                color='inherit' 
-                onClick={(e) => {
-                    selectProps.handleSetDownloadTarget({dataset: props.headingLabel})
-                    e.stopPropagation();
-                }}>
-                <CloudDownload/>
-            </IconButton>
-        </Tooltip>
-
         { selectProps.datasets[props.headingLabel] &&
             <Tooltip title='Dataset Info' placement='right'>
                 <IconButton 
                     color='inherit' 
                     onClick={(e) => {
-                        window.open(selectProps.datasets[props.headingLabel].Doc_URL);
+                        window.open(
+                            window.location.protocol + 
+                            '//' + 
+                            window.location.host + 
+                            '/catalog/datasets/' + 
+                            selectProps.datasets[props.headingLabel].Dataset_Name);
                         e.stopPropagation();
                     }}
                 >
@@ -454,7 +448,7 @@ const formatOptionLabel = (option, meta) => {
 const ValueContainer = (props) => {
     return (
         <components.ValueContainer {...props}>
-            <Search color='primary' style={{ position: "absolute", left: 6 }}/>
+            <Search style={{ position: "absolute", left: 6, color: colors.primary }}/>
             {props.children}
         </components.ValueContainer>
     )
@@ -955,7 +949,6 @@ class VizControlPanel extends React.Component {
                                 {/* <ConnectedTooltip placement='top' title='Enter one or more search terms.'> */}
                                     <Select
                                         formatOptionLabel={formatOptionLabel}
-                                        handleSetDownloadTarget={this.props.handleSetDownloadTarget}
                                         handleTableStatsDialogOpen={this.handleTableStatsDialogOpen}
                                         isLoading = {catalogRequestState === states.inProgress}
                                         onAutoSuggestChange = {this.onAutoSuggestChange}

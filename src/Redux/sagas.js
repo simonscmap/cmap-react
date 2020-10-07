@@ -232,16 +232,12 @@ function* tableStatsRequest(action){
 function* csvDownloadRequest(action){
     yield put(visualizationActions.csvDownloadRequestProcessing());
     yield put(interfaceActions.setLoadingMessage('Fetching Data'));
-    const metadataQuery = `exec uspDatasetMetadata '${action.payload.tableName}'`;
-
-    let [ dataResponse, metadataResponse ] = yield all([
-        call(api.visualization.csvDownload, action.payload.query),
-        call(api.visualization.csvDownload, metadataQuery)
-    ]);
+    
+    let dataResponse = yield call(api.visualization.csvDownload, action.payload.query);
 
     yield put(interfaceActions.setLoadingMessage(''))
-    if(dataResponse.failed || metadataResponse.failed) {
-        if(dataResponse.status === 401 || metadataResponse.status === 401){
+    if(dataResponse.failed) {
+        if(dataResponse.status === 401){
             yield put(userActions.refreshLogin());
         } else {
             yield put(interfaceActions.snackbarOpen('An error occurred. Please try again.'))
@@ -249,7 +245,6 @@ function* csvDownloadRequest(action){
     } else {
         if(dataResponse.length > 1) {
             yield put(visualizationActions.downloadTextAsCsv(dataResponse, action.payload.fileName));
-            yield put(visualizationActions.downloadTextAsCsv(metadataResponse, action.payload.fileName + '_METADATA'));
         } else yield put(interfaceActions.snackbarOpen('No data found. Please expand query range.'))        
     }
 }

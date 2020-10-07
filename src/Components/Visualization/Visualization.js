@@ -9,7 +9,6 @@ import { withStyles } from '@material-ui/core/styles';
 import LoginRequiredPrompt from '../User/LoginRequiredPrompt';
 // import VisualizationController from './VisualizationController';
 import VizControlPanel from './VizControlPanel';
-import DownloadConfirmationDialog from './DownloadConfirmationDialog';
 
 import { showLoginDialog, snackbarOpen } from '../../Redux/actions/ui';
 import { queryRequestSend, storedProcedureRequestSend, cruiseListRequestSend, completedShowCharts } from '../../Redux/actions/visualization';
@@ -27,6 +26,7 @@ import localDateToString from '../../Utility/localDateToString';
 import utcDateStringToLocal from '../../Utility/utcDateStringToLocal';
 import temporalResolutions from '../../Enums/temporalResolutions';
 import stars from '../../Utility/starsBase64';
+import metaTags from '../../Enums/metaTags';
 
 const mapVizType = (vizType) => {
     const mapping = {
@@ -141,12 +141,14 @@ class Visualization extends Component {
         showUI: false,
         surfaceOnly: false,
         irregularSpatialResolution: false,
-        downloadTarget: null,
 
         spParams: baseSPParams
     }
     
     async componentDidMount(){
+        document.title = metaTags.visualization.title;
+        document.description = metaTags.visualization.description;
+        
         if(!this.props.catalog) this.props.retrievalRequestSend();
         if(!this.props.cruiseList) this.props.cruiseListRequestSend();
         if(!this.props.datasets) this.props.datasetRetrievalRequestSend();
@@ -174,11 +176,12 @@ class Visualization extends Component {
             return accumulator;
         }, {});
 
-        this.setState({...this.state, esriModules});
+        this.setState({...this.state, esriModules});        
     }
 
-    handleSetDownloadTarget = (downloadTarget) => {
-        this.setState({...this.state, downloadTarget})
+    componentWillUnmount = () => {
+        document.title = metaTags.default.title;
+        document.description = metaTags.default.description;
     }
 
     componentDidUpdate(prevProps){
@@ -377,14 +380,8 @@ class Visualization extends Component {
 
         return (
             <div className={classes.vizWrapper}>
-                <DownloadConfirmationDialog
-                    {...this.state.spParams}
-                    downloadTarget={this.state.downloadTarget}
-                    handleSetDownloadTarget={this.handleSetDownloadTarget}
-                />
 
                 <VizControlPanel
-                    handleSetDownloadTarget={this.handleSetDownloadTarget}
                     toggleChartView={this.toggleChartView}
                     toggleShowUI={this.toggleShowUI}
                     handleChange={this.handleChange}

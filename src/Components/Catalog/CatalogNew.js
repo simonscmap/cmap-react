@@ -7,6 +7,8 @@ import { keywordsFetch, searchOptionsFetch, searchResultsStore } from '../../Red
 import CatalogSearch from './CatalogSearch';
 import SearchResults from './SearchResults';
 
+import metaTags from '../../Enums/metaTags';
+
 const mapStateToProps = (state, ownProps) => ({
 
 })
@@ -41,6 +43,16 @@ const CatalogNew = (props) => {
     useEffect(() => {
         props.searchOptionsFetch();        
     }, []);
+
+    useEffect(() => {
+        document.title = metaTags.catalog.title;
+        document.description = metaTags.catalog.description;
+
+        return () => {
+            document.title = metaTags.default.title;
+            document.description = metaTags.default.description;
+        }
+    });
 
     return (
         <div className={props.classes.wrapperDiv}>
