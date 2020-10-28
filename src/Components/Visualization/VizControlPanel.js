@@ -10,7 +10,7 @@ import { VariableSizeList as ReactWindowList } from "react-window";
 import { ButtonGroup, Grid, IconButton, Icon, ListItem, MenuItem, Typography, Drawer, TextField, FormControl, InputLabel, Button, Tooltip} from '@material-ui/core';
 import MUISelect from '@material-ui/core/Select';
 import { KeyboardDatePicker } from "@material-ui/pickers";
-import { Search, Cached, LibraryBooks, ArrowRight, ChevronLeft, ChevronRight, InsertChartOutlined, Language, Delete, CloudDownload, Info } from '@material-ui/icons';
+import { Search, Cached, LibraryBooks, ArrowRight, ChevronLeft, ChevronRight, InsertChartOutlined, Language, Delete, ShoppingCart, Info } from '@material-ui/icons';
 
 import vizSubTypes from '../../Enums/visualizationSubTypes';
 import states from '../../Enums/asyncRequestStates';
@@ -188,7 +188,8 @@ const mapStateToProps = (state, ownProps) => ({
     cruiseTrajectory: state.cruiseTrajectory,
     showHelp: state.showHelp,
     datasets: state.datasets,
-    charts: state.charts
+    charts: state.charts,
+    cart: state.cart
 })
 
 const mapDispatchToProps = {
@@ -338,7 +339,7 @@ const _CustomHeading = props => {
         </Typography>
 
         { selectProps.datasets[props.headingLabel] &&
-            <Tooltip title='Dataset Info' placement='right'>
+            <Tooltip title='Dataset Info' placement='left'>
                 <IconButton 
                     color='inherit' 
                     onClick={(e) => {
@@ -354,6 +355,15 @@ const _CustomHeading = props => {
                     <Info/>
                 </IconButton>
             </Tooltip>
+        }
+
+        {
+            selectProps.cart[props.headingLabel] ?
+            <Tooltip title='This Dataset Is in Your Cart' placement='right'>
+                <ShoppingCart/>
+            </Tooltip>
+             :
+            ''
         }
         </ListItem>
       </React.Fragment>
@@ -512,6 +522,7 @@ class VizControlPanel extends React.Component {
     }
 
     getSelectOptionsFromCatalogItems = (items) => {
+        const { cart } = this.props;
         var options = {};
         let count = 0;
 
@@ -533,8 +544,12 @@ class VizControlPanel extends React.Component {
         });
 
         let sortedOptions = Object.values(options).sort((opt1, opt2) => {
-            return opt1.label < opt2.label ? -1 : 1;
+            if(cart[opt1.label] && cart[opt2.label]) return opt1.label < opt2.label ? -1 : 1;
+            else if(cart[opt1.label]) return -1;
+            else if (cart[opt2.label]) return 1;
+            else return opt1.label < opt2.label ? -1 : 1;
         })
+
         return sortedOptions;
     }
 
@@ -953,6 +968,7 @@ class VizControlPanel extends React.Component {
                                         isLoading = {catalogRequestState === states.inProgress}
                                         onAutoSuggestChange = {this.onAutoSuggestChange}
                                         datasets = {datasets}
+                                        cart={this.props.cart}
                                         
                                         components={{
                                             IndicatorSeparator:'',

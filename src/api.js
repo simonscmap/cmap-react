@@ -369,11 +369,45 @@ api.dataSubmission.retrieveCommentHistory = async(payload) => {
 };
 
 api.dataSubmission.retrieveMostRecentFile = async(submissionID) => {
-    return await fetch(`${apiUrl}/api/datasubmission/retrievemostrecentfile?submissionID=${submissionID}`, fetchOptions)
+    return await fetch(`${apiUrl}/api/datasubmission/retrievemostrecentfile?submissionID=${submissionID}`, fetchOptions);
 }
 
 api.dataSubmission.getFileFromLink = async(link) => {
     return await fetch(link);
 }
+
+api.user.cartPersistAddItem = async(formData) => {
+    return await fetch(apiUrl + '/api/user/addcartitem', {
+        ...postOptions,
+        body: JSON.stringify(formData)
+    });
+}
+
+api.user.cartPersistRemoveItem = async(formData) => {
+    return await fetch(apiUrl + '/api/user/removecartitem', {
+        ...postOptions,
+        body: JSON.stringify(formData)
+    });
+}
+
+api.user.cartPersistClear = async() => {
+    return await fetch(`${apiUrl}/api/user/clearcart`, fetchOptions);
+}
+
+api.user.getCart = async() => {
+    return await fetch(`${apiUrl}/api/user/getcart`, fetchOptions);
+}
+
+// function* cartPersistAddItem(action){
+    
+// }
+
+// function* cartPersistRemoveItem(action){
+    
+// }
+
+// function* cartPersistClear(){
+    
+// }
 
 export default api;

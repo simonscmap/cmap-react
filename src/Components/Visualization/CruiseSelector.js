@@ -86,7 +86,7 @@ const cruiseSort =  (a,b) => a.Name < b.Name ? -1 : 1;
 const ValueContainer = (props) => {
     return (
         <components.ValueContainer {...props}>
-            <Search color='primary' style={{ position: "absolute", left: 6 }}/>
+            <Search style={{ position: "absolute", left: 6, color: colors.primary }}/>
             {props.children}
         </components.ValueContainer>
     )

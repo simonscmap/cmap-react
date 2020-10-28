@@ -3,6 +3,8 @@ import { connect } from 'react-redux';
 import { withStyles, IconButton, Dialog, DialogTitle, DialogContent } from '@material-ui/core';
 import { Help } from '@material-ui/icons';
 
+import colors from '../../Enums/colors';
+
 const mapStateToProps = (state, ownProps) => ({
 
 })
@@ -19,6 +21,10 @@ const styles = (theme) => ({
     dialogPaper: {
         backgroundColor: '#1B445C'
     },
+
+    dialogPaperViz: {
+        backgroundColor: colors.backgroundGray
+    }
 });
 
 const HelpButtonAndDialog = (props) => {
@@ -36,7 +42,7 @@ const HelpButtonAndDialog = (props) => {
                 onClose={() => setOpen(false)} 
                 open={open}
                 PaperProps={{
-                    className: classes.dialogPaper
+                    className: window.location.pathname === '/visualization' ? classes.dialogPaperViz : classes.dialogPaper
                 }}
             >
                 <DialogTitle>{title}</DialogTitle>

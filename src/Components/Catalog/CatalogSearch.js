@@ -44,8 +44,6 @@ const styles = (theme) => ({
     },
 
     resetButton: {
-        // color: '#2E3D19',
-        // margin: '0 0 -20px 16px',
         textTransform: 'none',
         width: '160px',
         height: '37px',

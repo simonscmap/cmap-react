@@ -24,6 +24,8 @@ const initialState = {
     searchResultsLoadingState: states.succeeded,
     datasetFullPageData: {},
     datasetFullPageDataLoadingState: states.succeeded,
+    cart: {},
+    showCart: false,
 
     // Interface state pieces
     loginDialogIsOpen: false,

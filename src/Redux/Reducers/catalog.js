@@ -29,6 +29,11 @@ export default function(state, action) {
 
     case catalogActionTypes.DATASET_FULL_PAGE_DATA_STORE: return {...state, datasetFullPageData: action.payload.datasetFullPageData}
     case catalogActionTypes.DATASET_FULL_PAGE_DATA_SET_LOADING_STATE: return {...state, datasetFullPageDataLoadingState: action.payload.state}
+
+    case catalogActionTypes.CART_ADD_ITEM: return {...state, cart: {...state.cart, [action.payload.item.Long_Name]: action.payload.item}}
+    case catalogActionTypes.CART_REMOVE_ITEM: return {...state, cart: (() => {let newCart = {...state.cart}; delete newCart[action.payload.item.Long_Name]; return newCart})()}
+    case catalogActionTypes.CART_CLEAR: return {...state, cart: {}}
+    case catalogActionTypes.CART_ADD_MULTIPLE: return {...state, cart: {...state.cart, ...action.payload.items}}
     
     default:
       return state;

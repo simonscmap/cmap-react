@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 
-import { withStyles, Link, Accordion, AccordionSummary, AccordionDetails, Typography, Grid, Paper, Table, TableRow, TableCell, TableBody } from '@material-ui/core';
+import { withStyles, Link, Typography, Grid, Paper, Table, TableRow, TableCell, TableBody } from '@material-ui/core';
 import { Skeleton } from '@material-ui/lab';
 
 import ReactMarkdown from 'react-markdown';
@@ -18,6 +18,7 @@ import HelpButtonAndDialog from '../UI/HelpButtonAndDialog';
 
 import colors from '../../Enums/colors';
 import metaTags from '../../Enums/metaTags';
+import CartAddOrRemove from './CartAddOrRemove';
 
 // Text on this page has inline styling for font color because ag-grid's theme classes override mui classes when a dialog is opened
 // from inside the grid
@@ -189,6 +190,12 @@ const styles = (theme) => ({
 
     helpButton: {
         padding: '12px 12px 12px 8px'
+    },
+
+    cartButtonClass: {
+        textTransform: 'none',
+        color: theme.palette.primary.main,
+        marginTop: '16px'
     }
 });
 
@@ -294,7 +301,7 @@ const DatasetFullPage = (props) => {
                             {Long_Name}                    
                         </Typography>                        
 
-                        <ReactMarkdown source={Description} className={classes.markdown}/>                        
+                        <ReactMarkdown source={Description} className={classes.markdown}/>
 
                         <a className={classes.anchor} id='info-table'></a>
 
@@ -555,6 +562,8 @@ const DatasetFullPage = (props) => {
                         >
                             Download Data
                         </Link>
+
+                        <CartAddOrRemove dataset={datasetFullPageData} cartButtonClass={classes.cartButtonClass}/>  
 
                     {!loading && datasetFullPageData && Object.keys(datasetFullPageData).length ? <DatasetJSONLD {...datasetFullPageData}/> : ''}
                     </SkeletonWrapper>              

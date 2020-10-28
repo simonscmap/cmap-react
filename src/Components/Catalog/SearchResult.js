@@ -1,15 +1,20 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { withStyles, Grid, Typography, Paper, Tooltip, Link, Button } from '@material-ui/core';
-import { Info } from '@material-ui/icons';
+import { Info, ErrorOutline } from '@material-ui/icons';
 import { Link as RouterLink } from 'react-router-dom';
+import CartAddOrRemove from './CartAddOrRemove';
+
+import { setShowCart } from '../../Redux/actions/ui';
+
+import colors from '../../Enums/colors';
 
 const mapStateToProps = (state, ownProps) => ({
-
+    cart: state.cart
 })
 
 const mapDispatchToProps = {
-
+    setShowCart
 }
 
 const styles = (theme) => ({
@@ -39,7 +44,8 @@ const styles = (theme) => ({
         textOverflow: 'ellipsis',
         fontSize: '1.15rem',
         display: 'block',
-        margin: '6px 0'
+        margin: '6px 0',
+        color: colors.primary
     },
 
     resultPaper: {
@@ -57,12 +63,26 @@ const styles = (theme) => ({
         textTransform: 'none',
         color: theme.palette.primary.main,
         paddingLeft: '4px'
+    },
+
+    cartButtonClass: {
+        textTransform: 'none',
+        color: theme.palette.primary.main,
+        paddingLeft: '4px',
+        marginLeft: '16px'
+    },
+
+    warningIcon: {
+        color: '#e3e61a',
+        marginLeft: '14px',
+        marginBottom: '-7px',
+        fontSize: '1.45rem'
     }
 
 });
 
 const SearchResult = (props) => {
-    const { classes } = props;
+    const { classes, cart } = props;
     const {
         Spatial_Resolution,
         Temporal_Resolution,
@@ -75,7 +95,8 @@ const SearchResult = (props) => {
         Time_Min, 
         Time_Max, 
         Dataset_ID,
-        Sensors
+        Sensors,
+        Visualize
     } = props.dataset;
     
     return (
@@ -88,6 +109,7 @@ const SearchResult = (props) => {
                             component={RouterLink} 
                             to={`/catalog/datasets/${Short_Name}`}
                             className={classes.longName}
+                            onClick={() => props.setShowCart(false)}
                         >
                             {Long_Name}
                         </Link>
@@ -131,9 +153,20 @@ const SearchResult = (props) => {
                         startIcon={<Info/>}
                         component={RouterLink} 
                         to={`/catalog/datasets/${Short_Name}`}
+                        onClick={() => props.setShowCart(false)}
                     >
                         More Info
                     </Button>
+
+                    <CartAddOrRemove dataset={props.dataset} cartButtonClass={classes.cartButtonClass}/>
+
+                    {
+                            !Visualize && cart[Long_Name] ? 
+                            <Tooltip title='This dataset contains no visualizable variables, and will not appear on the visualization page.' placement='top'>
+                                <ErrorOutline className={classes.warningIcon}/>
+                            </Tooltip>
+                            : ''                            
+                    }
 
                 </Grid>
 

@@ -43,6 +43,8 @@ export default function(state, action) {
 
     case interfaceActionTypes.SHOW_CHANGE_PASSWORD_DIALOG: return {...state, changePasswordDialogIsOpen: true}
     case interfaceActionTypes.HIDE_CHANGE_PASSWORD_DIALOG: return {...state, changePasswordDialogIsOpen: false}
+
+    case interfaceActionTypes.SET_SHOW_CART: return {...state, showCart: action.payload.showCart}
     
     default: return state;
   }

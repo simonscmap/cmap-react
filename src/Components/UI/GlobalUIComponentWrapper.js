@@ -10,14 +10,9 @@ import { withStyles } from '@material-ui/core/styles';
 import LoginDialog from '../User/LoginDialog';
 import SnackbarWrapper from './SnackbarWrapper';
 import LoadingOverlay from './LoadingOverlay';
+import Cart from './Cart';
 
 import { loginDialogWasCleared } from '../../Redux/actions/user';
-
-const styles = theme => ({
-    inlineBlock: {
-        display: 'inline-block'
-    }
-})
 
 const mapStateToProps = (state, ownProps) => ({
     clearLoginDialog: state.clearLoginDialog,
@@ -61,16 +56,15 @@ class GlobalUIComponentWrapper extends Component {
 
     render(){
 
-        // const { classes } = this.props;
-
         return (
             <React.Fragment>    
                 <LoginDialog clearState={this.clearState} username={this.state.username} password={this.state.password} handleChange={this.handleChange}/>
                 <SnackbarWrapper/>
                 <LoadingOverlay loadingMessage={this.props.loadingMessage}/>
+                <Cart/>
             </React.Fragment>
         )
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(GlobalUIComponentWrapper));
+export default connect(mapStateToProps, mapDispatchToProps)(GlobalUIComponentWrapper);

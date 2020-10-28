@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 
 import { withStyles } from '@material-ui/core/styles';
 
-import { showLoginDialog, restoreInterfaceDefaults, snackbarOpen, toggleShowHelp } from '../../Redux/actions/ui';
+import { showLoginDialog, restoreInterfaceDefaults, snackbarOpen, toggleShowHelp, setShowCart } from '../../Redux/actions/ui';
 import { logOut } from '../../Redux/actions/user';
 import { Typography } from '@material-ui/core';
 
@@ -65,7 +65,8 @@ const styles = theme => ({
 
 const mapStateToProps = (state, ownProps) => ({
     user: state.user,
-    showHelp: state.showHelp
+    showHelp: state.showHelp,
+    cart: state.cart
 })
 
 const mapDispatchToProps = {
@@ -73,7 +74,8 @@ const mapDispatchToProps = {
     logOut,
     restoreInterfaceDefaults,
     snackbarOpen,
-    toggleShowHelp
+    toggleShowHelp,
+    setShowCart
 }
 
 class TopNavBar extends Component {
@@ -123,8 +125,10 @@ class TopNavBar extends Component {
     }
 
     render(){
-        const { classes, history, user, showHelp } = this.props;
+        const { classes, history, user, showHelp, cart } = this.props;
         const { pathname } = history.location;
+
+        let cartSize = cart && Object.keys(cart).length ? Object.keys(cart).length : 0;
 
         return (
             <div className={`${classes.navWrapper} ${pathname !== '/visualization' && classes.navWrapperBlue}`}>
@@ -148,6 +152,12 @@ class TopNavBar extends Component {
                         <div className={classes.rightSectionWrapper}>
                             <div>
                                 {/* <Typography variant='caption' onClick={this.props.toggleShowHelp} className={classes.navLink}>{showHelp ? 'Hide Help' : 'Show Help'}</Typography> */}
+                                {
+                                    cartSize > 0 ?
+                                    <Typography variant='caption' onClick={() => this.props.setShowCart(true)} className={`${classes.navLink} ${classes.rightNavLink}`}>Cart ({cartSize})</Typography> :
+                                    ''
+                                }
+
                                 {user && <UserNavbarDropdown pathname={pathname} user={user}/>}
                                 {!user && <Typography variant='caption' onClick={() => this.props.showLoginDialog()} className={`${classes.navLink} ${classes.rightNavLink}`}>Log In</Typography>}
                                 {!user && <Typography variant='caption' to='/register' component={Link} className={`${classes.navLink} ${classes.rightNavLink}`}>Register</Typography>}

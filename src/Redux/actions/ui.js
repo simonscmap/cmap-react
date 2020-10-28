@@ -64,3 +64,10 @@ export const copyTextToClipboard = (text) => ({
         text
     }
 });
+
+export const setShowCart = (showCart) => ({
+    type: interfaceActionTypes.SET_SHOW_CART,
+    payload: {
+        showCart
+    }
+});

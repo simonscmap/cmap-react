@@ -27,7 +27,8 @@ function* userLogin(action) {
         var userInfo = JSON.parse(Cookies.get('UserInfo'));
         yield put(userActions.userLoginRequestSuccess());
         yield put(userActions.storeInfo(userInfo));
-        yield put(interfaceActions.snackbarOpen('Login was successful!'))
+        yield put(interfaceActions.snackbarOpen('Login was successful!'));
+        yield put(userActions.cartGetAndStore());
         if(window.location.pathname === '/login') window.location.href = "/catalog";
     } else {
         yield put(userActions.userLoginRequestFailure());
@@ -77,8 +78,8 @@ function* googleLoginRequest(action){
         var userInfo = JSON.parse(Cookies.get('UserInfo'));
         yield put(userActions.userLoginRequestSuccess());
         yield put(userActions.storeInfo(userInfo));
-        // yield put(interfaceActions.snackbarOpen('Login was successful!'))
-        if(window.location.pathname === '/login') window.location.href = "/catalog";
+        yield put(userActions.cartGetAndStore());
+        if(window.location.pathname === '/login') window.location.href = "/";
     } else {
         yield put(userActions.userLoginRequestFailure());
         yield put(interfaceActions.snackbarOpen('Login failed.'));
@@ -762,6 +763,38 @@ function* datasetFullPageDataFetch(action) {
     }
 }
 
+function* cartPersistAddItem(action){
+    let formData = {itemID: action.payload.datasetID};
+    yield call(api.user.cartPersistAddItem, formData);
+}
+
+function* cartPersistRemoveItem(action){
+    let formData = {itemID: action.payload.datasetID};
+    yield call(api.user.cartPersistRemoveItem, formData);
+}
+
+function* cartPersistClear(){
+    yield call(api.user.cartPersistClear);
+}
+
+function* cartGetAndStore(){
+    let result = yield call(api.user.getCart);
+
+    if(result.ok){
+        let results = yield result.json();
+        let formattedResults = results.reduce((acc, dataset) => {
+            acc[dataset.Long_Name] = dataset;
+            return acc;
+        }, {});
+        
+        yield put(catalogActions.cartAddMultiple(formattedResults));
+    }
+
+    else {
+        yield put(interfaceActions.snackbarOpen('Unable to retrieve cart information'));
+    }
+}
+
 function* watchUserLogin() {
     yield takeLatest(userActionTypes.LOGIN_REQUEST_SEND, userLogin);
 }
@@ -918,6 +951,22 @@ function* watchDatasetFullPageDataFetch(){
     yield takeLatest(catalogActionTypes.DATASET_FULL_PAGE_DATA_FETCH, datasetFullPageDataFetch);
 }
 
+function* watchCartPersistAddItem(){
+    yield takeLatest(userActionTypes.CART_PERSIST_ADD_ITEM, cartPersistAddItem)
+}
+
+function* watchCartPersistRemoveItem(){
+    yield takeLatest(userActionTypes.CART_PERSIST_REMOVE_ITEM, cartPersistRemoveItem)
+}
+
+function* watchCartPersistClear(){
+    yield takeLatest(userActionTypes.CART_PERSIST_CLEAR, cartPersistClear);
+}
+
+function* watchCartGetAndStore(){
+    yield takeLatest(userActionTypes.CART_GET_AND_STORE, cartGetAndStore);
+}
+
 // function createWorkerChannel(worker) {
 //     return eventChannel(emit => {
 //         worker.onmessage = message => {
@@ -984,6 +1033,10 @@ export default function* rootSaga() {
         watchKeywordsFetch(),
         watchSearchOptionsFetch(),
         watchSearchResultsFetch(),
-        watchDatasetFullPageDataFetch()
+        watchDatasetFullPageDataFetch(),
+        watchCartPersistAddItem(),
+        watchCartPersistRemoveItem(),
+        watchCartPersistClear(),
+        watchCartGetAndStore()
     ])
 }

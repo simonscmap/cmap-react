@@ -105,3 +105,28 @@ export const datasetFullPageDataSetLoadingState = (state) => ({
         state
     }
 });
+
+export const cartAddItem = (item) => ({
+    type: catalogActionTypes.CART_ADD_ITEM,
+    payload: {
+        item
+    }
+});
+
+export const cartRemoveItem = (item) => ({
+    type: catalogActionTypes.CART_REMOVE_ITEM,
+    payload: {
+        item
+    }
+});
+
+export const cartClear = () => ({
+    type: catalogActionTypes.CART_CLEAR
+});
+
+export const cartAddMultiple = (items) => ({
+    type: catalogActionTypes.CART_ADD_MULTIPLE,
+    payload: {
+        items
+    }
+});

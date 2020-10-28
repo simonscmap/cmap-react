@@ -220,3 +220,25 @@ export const changeEmailRequestSend = (email, password, username) => ({
         username
     }
 });
+
+export const cartPersistAddItem = (datasetID) => ({
+    type: userActionTypes.CART_PERSIST_ADD_ITEM,
+    payload: {
+        datasetID
+    }
+});
+
+export const cartPersistRemoveItem = (datasetID) => ({
+    type: userActionTypes.CART_PERSIST_REMOVE_ITEM,
+    payload: {
+        datasetID
+    }
+});
+
+export const cartPersistClear = () => ({
+    type: userActionTypes.CART_PERSIST_CLEAR
+});
+
+export const cartGetAndStore = () => ({
+    type: userActionTypes.CART_GET_AND_STORE
+});

@@ -3,7 +3,8 @@ import { connect } from 'react-redux';
 
 import { withStyles } from '@material-ui/core/styles';
 
-import { TextField, Grid, Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, Table, TableBody, TableCell, TableRow, TableHead, Slider } from '@material-ui/core';
+import { TextField, Grid, Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, Slider, IconButton } from '@material-ui/core';
+import { Close } from '@material-ui/icons';
 
 import HelpButtonAndDialog from '../UI/HelpButtonAndDialog';
 import DownloadingDataHelpContents from './DownloadingDataHelpContents';
@@ -18,7 +19,8 @@ const styles = (theme) => ({
     dialogPaper: {
         backgroundColor: colors.solidPaper,
         '@media (max-width: 600px)': {
-            width: '100vw'
+            width: '100vw',
+            margin: '12px'
         },
         width: '60vw'
     },
@@ -69,6 +71,12 @@ const styles = (theme) => ({
 
     helpButton: {
         marginTop: '-2px'
+    },
+
+    closeDialogIcon: {
+        float: 'right',
+        marginTop: '-12px',
+        marginRight: '-8px'
     }
 })
 
@@ -277,6 +285,9 @@ class DownloadDialog extends Component {
                     onClose={handleClose} 
                     maxWidth={false}
                 >
+                    {/* <IconButton className={classes.closeDialogIcon} color="inherit" onClick={handleClose} disableFocusRipple disableRipple>
+                        <Close/>
+                    </IconButton> */}
                     <DialogTitle>Downloading {dataset.Long_Name} 
                         <HelpButtonAndDialog
                             title='Downloading Data'
