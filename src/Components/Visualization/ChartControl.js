@@ -59,7 +59,8 @@ const styles = (theme) => ({
         bottom: '20px',
         backgroundColor: colors.backgroundGray,
         boxShadow: '2px 2px 2px 2px #242424',
-        borderRadius: '4px'
+        borderRadius: '4px',
+        width: '305px'
     }
 });
 
