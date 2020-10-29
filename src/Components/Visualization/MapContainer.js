@@ -7,6 +7,8 @@ import { Scene } from '@esri/react-arcgis';
 import CruiseSelector from './CruiseSelector';
 import colors from '../../Enums/colors';
 
+import Draggable from 'react-draggable';
+
 import { throttle } from 'throttle-debounce';
 
 const styles = (theme) => ({
@@ -17,63 +19,68 @@ const styles = (theme) => ({
     }
 })
 
-const drawButtonStyles = (theme) => ({
-    outerDiv: {
-        // padding:'12px 0 12px 0',
-        backgroundColor: 'transparent',
-        // width: '180px',
-        borderRadius: '4px',
-        marginRight: '20px'
-    },
+// const drawButtonStyles = (theme) => ({
+//     outerDiv: {
+//         // padding:'12px 0 12px 0',
+//         backgroundColor: 'transparent',
+//         // width: '180px',
+//         borderRadius: '4px',
+//         marginRight: '20px',
+//         position: 'fixed',
+//         top: '60px',
+//         right: '12px',
+//     },
 
-    drawButton: {
-        // border: '1px solid #333333',
-        border: `1px solid #333333`,
-        borderRadius: '4px',
-        color: colors.primary,
-        cursor: 'pointer',
-        padding: '6px',
-        width: '160px',
-        fontSize:'14px',
-        backgroundColor: colors.backgroundGray,
-        boxShadow: '1px 1px 1px 1px #242424',
-        // backgroundColor: 'rgba(255, 128, 0, .8)',
-        // backgroundColor: 'transparent',
-        fontFamily: '"Avenir Next W00","Helvetica Neue",Helvetica,Arial,sans-serif',
-        '&:hover': { 
-            borderColor: 'white'
-        },
-    },
+//     drawButton: {
+//         // border: '1px solid #333333',
+//         border: `1px solid #333333`,
+//         borderRadius: '4px',
+//         color: colors.primary,        
+//         cursor: 'pointer',
+//         padding: '6px',
+//         width: '160px',
+//         fontSize:'14px',
+//         backgroundColor: colors.backgroundGray,
+//         boxShadow: '1px 1px 1px 1px #242424',
+//         // backgroundColor: 'rgba(255, 128, 0, .8)',
+//         // backgroundColor: 'transparent',
+//         fontFamily: '"Avenir Next W00","Helvetica Neue",Helvetica,Arial,sans-serif',
+//         '&:hover': { 
+//             borderColor: 'white'
+//         },
+//     },
 
-    helpText: {
-        marginTop: 0,
-        color: 'white',
-        fontFamily: '"Avenir Next W00","Helvetica Neue",Helvetica,Arial,sans-serif'
-    },
+//     helpText: {
+//         marginTop: 0,
+//         color: 'white',
+//         fontFamily: '"Avenir Next W00","Helvetica Neue",Helvetica,Arial,sans-serif'
+//     },
 
-    cancelButton: {
-        display: 'none',
-        color: 'white'
-    }
-})
+//     cancelButton: {
+//         display: 'none',
+//         color: 'white'
+//     }
+// })
 
-const DrawButtonRaw = (props) => {
-    const { classes, showHelp } = props;
+// const DrawButtonRaw = (props) => {
+//     const { classes, showHelp } = props;
 
-    return (
-        <div className={classes.outerDiv} id='draw-region-div'>
-            {showHelp && <p className={classes.helpText}>Click once to draw <br/>and again to finish</p>}
-            <button id='draw-button' className={classes.drawButton}>
-                Select Region
-            </button>
-            <button id='cancel-button' className={`${classes.drawButton} ${classes.cancelButton}`}>
-                Cancel
-            </button>
-        </div>
-    )
-}
+//     return (
+//         <Draggable>
+//             <div className={classes.outerDiv} id='draw-region-div'>
+//                 {showHelp && <p className={classes.helpText}>Click once to draw <br/>and again to finish</p>}
+//                 <button id='draw-button' className={classes.drawButton}>
+//                     Select Region
+//                 </button>
+//                 <button id='cancel-button' className={`${classes.drawButton} ${classes.cancelButton}`}>
+//                     Cancel
+//                 </button>
+//             </div>
+//         </Draggable>
+//     )
+// }
 
-const DrawButton = withStyles(drawButtonStyles)(DrawButtonRaw);
+// const DrawButton = withStyles(drawButtonStyles)(DrawButtonRaw);
 
 const polygonSymbol = {
     type: "polygon-3d",
@@ -133,8 +140,8 @@ class UiComponents extends React.Component {
         const { view, esriModules, regionLayer, setShowHelp } = this.props;
         var { sketchModel } = this;
 
-        var drawButton = document.getElementById('draw-button');
-        var cancelButton = document.getElementById('cancel-button');
+        // var drawButton = document.getElementById('draw-button');
+        // var cancelButton = document.getElementById('cancel-button');
 
         const throttledUpdate = throttle(75, (event) => {
             if(event.state === 'active'){
@@ -152,15 +159,15 @@ class UiComponents extends React.Component {
             }
             if(event.state === 'cancel'){
                 setShowHelp(false);
-                drawButton.style.display = 'inline-block';
-                cancelButton.style.display = 'none';
+                // drawButton.style.display = 'inline-block';
+                // cancelButton.style.display = 'none';
             }
 
             if(event.state === "complete") {
                 setShowHelp(false);
                 this.props.updateDomainFromGraphicExtent(esriModules.Utils.webMercatorToGeographic(event.graphic.geometry.extent));
-                drawButton.style.display = 'inline-block';
-                cancelButton.style.display = 'none';
+                // drawButton.style.display = 'inline-block';
+                // cancelButton.style.display = 'none';
             }
         });
 
@@ -170,30 +177,30 @@ class UiComponents extends React.Component {
             if(event.toolEventInfo && event.toolEventInfo.type === 'move-stop'){
                 if(event.state === 'cancel') return;
                 this.props.updateDomainFromGraphicExtent(event.graphics[0].geometry.extent);
-                drawButton.style.display = 'inline-block';
-                cancelButton.style.display = 'none';
+                // drawButton.style.display = 'inline-block';
+                // cancelButton.style.display = 'none';
             }
         });   
         
-        drawButton.addEventListener("click", (event) => {
-                regionLayer.removeAll();
-                setShowHelp(true);
-                sketchModel.create('polyline', {
-                    mode:'click'            
-                });
-                drawButton.style.display = 'none';
-                cancelButton.style.display = 'inline-block';
-        });
+        // drawButton.addEventListener("click", (event) => {
+        //         regionLayer.removeAll();
+        //         setShowHelp(true);
+        //         sketchModel.create('polyline', {
+        //             mode:'click'            
+        //         });
+        //         drawButton.style.display = 'none';
+        //         cancelButton.style.display = 'inline-block';
+        // });
 
-        cancelButton.addEventListener('click', (event) => {
-            sketchModel.cancel();
-            setShowHelp(false);
-            drawButton.style.display = 'inline-block';
-            cancelButton.style.display = 'none';
-        })
+        // cancelButton.addEventListener('click', (event) => {
+        //     sketchModel.cancel();
+        //     setShowHelp(false);
+        //     // drawButton.style.display = 'inline-block';
+        //     cancelButton.style.display = 'none';
+        // })
 
-        view.ui.add('draw-region-div', 'bottom-right');
-        view.ui.add('cruise-selector', 'top-right');
+        // view.ui.add('draw-region-div', 'bottom-right');
+        // view.ui.add('cruise-selector', 'top-right');
 
         view.ui.remove('zoom');
         view.ui.remove('navigation-toggle');
@@ -343,7 +350,7 @@ class MapContainer extends Component {
         this.regionLayer.add(regionGraphic);
 
         return (
-            <div className={classes.container}>
+            <div className={classes.container} id='found-you'>
                 <Scene
                     mapProperties={{ 
                         basemap: 'satellite',
@@ -378,8 +385,9 @@ class MapContainer extends Component {
                         ref={globeUIRef}
                     />
                 </Scene>
-                <DrawButton showHelp={this.state.showHelp}/>
-                <CruiseSelector updateParametersFromCruiseBoundary={this.props.updateParametersFromCruiseBoundary}/>
+
+                {/* <DrawButton showHelp={this.state.showHelp}/> */}
+                <CruiseSelector updateParametersFromCruiseBoundary={this.props.updateParametersFromCruiseBoundary} showCruiseControl={this.props.showCruiseControl}/>
             </div>            
         )
     }

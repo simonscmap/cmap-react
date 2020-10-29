@@ -141,6 +141,7 @@ class Visualization extends Component {
         showUI: false,
         surfaceOnly: false,
         irregularSpatialResolution: false,
+        showCruiseControl: false,
 
         spParams: baseSPParams
     }
@@ -344,6 +345,10 @@ class Visualization extends Component {
         this.setState({...this.state, showCharts: false})
     }
 
+    handleShowCruiseControl = () => {
+        this.setState({...this.state, showCruiseControl: !this.state.showCruiseControl});
+    }
+
     toggleShowUI = () => {
         this.setState({...this.state, showUI: !this.state.showUI});
     }
@@ -398,6 +403,8 @@ class Visualization extends Component {
                     handleShowCharts={this.handleShowCharts}
                     handleShowGlobe={this.handleShowGlobe}
                     resetSPParams={this.resetSPParams}
+                    handleShowCruiseControl={this.handleShowCruiseControl}
+                    showCruiseControl={this.state.showCruiseControl}
                 />
                 { this.state.esriModules &&
                     <div className={`${this.state.showCharts ? classes.displayNone : ''}`}>
@@ -408,6 +415,7 @@ class Visualization extends Component {
                             esriModules={this.state.esriModules}
                             spParams={this.state.spParams}
                             cruiseTrajectory={this.props.cruiseTrajectory}
+                            showCruiseControl={this.state.showCruiseControl}
                         />
                     </div>
                 }

@@ -7,10 +7,10 @@ import Select, { components } from 'react-select';
 import * as JsSearch from 'js-search';
 import { VariableSizeList as ReactWindowList } from "react-window";
 
-import { ButtonGroup, Grid, IconButton, Icon, ListItem, MenuItem, Typography, Drawer, TextField, FormControl, InputLabel, Button, Tooltip} from '@material-ui/core';
+import { Paper, ButtonGroup, Grid, IconButton, Icon, ListItem, MenuItem, Typography, Drawer, TextField, FormControl, InputLabel, Button, Tooltip} from '@material-ui/core';
 import MUISelect from '@material-ui/core/Select';
 import { KeyboardDatePicker } from "@material-ui/pickers";
-import { Search, Cached, LibraryBooks, ArrowRight, ChevronLeft, ChevronRight, InsertChartOutlined, Language, Delete, ShoppingCart, Info } from '@material-ui/icons';
+import { Settings, Fastfood, ShowChart, Search, Cached, LibraryBooks, ArrowRight, ChevronLeft, ChevronRight, InsertChartOutlined, Language, Delete, ShoppingCart, Info, DirectionsBoat } from '@material-ui/icons';
 
 import vizSubTypes from '../../Enums/visualizationSubTypes';
 import states from '../../Enums/asyncRequestStates';
@@ -28,6 +28,8 @@ import utcDateStringToLocal from '../../Utility/utcDateStringToLocal';
 import depthUtils from '../../Utility/depthCounter';
 import countWebGLContexts from '../../Utility/countWebGLContexts';
 
+import ChartControl from './ChartControl';
+
 const navDrawerWidth = 320;
 
 const errorHeightAdjust = 23;
@@ -42,7 +44,7 @@ const styles = theme => ({
 
     drawerPaper: {
         width: navDrawerWidth,
-        height: '540px',
+        height: '386px',
         top: 'calc(50% - 270px)',
         borderRadius: '0 4px 4px 0',
         boxShadow: '2px 2px  2px 2px #242424',
@@ -86,7 +88,7 @@ const styles = theme => ({
   },
 
   groupedButtons: {
-      width: '50%',
+      width: '25%',
       border: '1px solid #313131',
       borderRadius: 0,
       backgroundColor: '#3c3c3c'
@@ -173,6 +175,28 @@ const styles = theme => ({
 
   vizTypeMenuItem: {
     '&:hover': {backgroundColor: colors.greenHover}
+  },
+
+  dataBitesContainer: {
+    position: 'fixed',
+    right: '12px',
+    bottom: '12px',
+    height: '400px',
+    width: '260px',
+    backgroundColor: colors.backgroundGray,
+    boxShadow: '2px 2px  2px 2px #242424',
+    paddingTop: '12px'
+  },
+
+  bottomControlContainer: {
+    position: 'fixed',
+    height: '50px',
+    width: '300px',
+    bottom: '8px',
+    right: 'calc(50% - 150px)',
+    backgroundColor: colors.backgroundGray,
+    boxShadow: '2px 2px  2px 2px #242424',
+    paddingTop: '12px'
   }
 });
 
@@ -493,7 +517,10 @@ class VizControlPanel extends React.Component {
             search,
             searchField: '',
             showControlPanel: true,
-            lastSelectedFieldId: null
+            lastSelectedFieldId: null,
+            showChartControl: false,
+            showDataBites: false,
+            showBottomControl: false
         }
     }
 
@@ -918,7 +945,50 @@ class VizControlPanel extends React.Component {
                     }}
                     anchor="left"
                 >
+
                     <ButtonGroup>
+                        <Tooltip title='Show Chart Control' placement='top'>
+                            <IconButton 
+                                className={`${classes.groupedButtons} ${this.state.showChartControl && classes.depressed}`} 
+                                onClick={() => this.setState({...this.state, showChartControl: !this.state.showChartControl})} 
+                                color='inherit'
+                            >
+                                <ShowChart/>
+                            </IconButton>
+                        </Tooltip>
+                        
+                        <Tooltip title='Show Cruise Control' placement='top'>
+                            <IconButton 
+                                color='inherit' 
+                                onClick={this.props.handleShowCruiseControl} 
+                                className={`${classes.groupedButtons} ${this.props.showCruiseControl && classes.depressed}`} 
+                            >
+                                <DirectionsBoat/>
+                            </IconButton>
+                        </Tooltip>
+
+                        <Tooltip title='Show Data Bytes' placement='top'>
+                            <IconButton 
+                                color='inherit' 
+                                onClick={() => this.setState({...this.state, showDataBites: !this.state.showDataBites})} 
+                                className={`${classes.groupedButtons} ${this.state.showDataBites && classes.depressed}`} 
+                            >
+                                <Fastfood/>
+                            </IconButton>
+                        </Tooltip> 
+
+                        <Tooltip title='Show Bottom Control' placement='top'>
+                            <IconButton 
+                                color='inherit' 
+                                onClick={() => this.setState({...this.state, showBottomControl: !this.state.showBottomControl})} 
+                                className={`${classes.groupedButtons} ${this.state.showBottomControl && classes.depressed}`} 
+                            >
+                                <Settings/>
+                            </IconButton>
+                        </Tooltip>                          
+                    </ButtonGroup>
+
+                    {/* <ButtonGroup>
                         <Tooltip title='Show Globe' placement='top'>
                             <IconButton 
                                 className={`${classes.groupedButtons} ${!showCharts && classes.depressed}`} 
@@ -956,7 +1026,7 @@ class VizControlPanel extends React.Component {
                                 </IconButton>
                             </Tooltip>                            
                         </Grid>
-                    </Grid>
+                    </Grid> */}
 
                     <form>
                         <Grid container>
@@ -1235,7 +1305,36 @@ class VizControlPanel extends React.Component {
                                 </TextField>
                             </Grid>
 
-                            <Grid item xs={12}>
+                            <ChartControl
+                                fields={fields}
+                                overrideDisabledStyle={overrideDisabledStyle}
+                                selectedVizType={selectedVizType}
+                                heatmapMessage={heatmapMessage}
+                                heatmapMessage={heatmapMessage}
+                                contourMessage={contourMessage}
+                                sectionMapMessage={sectionMapMessage}
+                                sectionMapMessage={sectionMapMessage}
+                                histogramMessage={histogramMessage}
+                                timeSeriesMessage={timeSeriesMessage}
+                                depthProfileMessage={depthProfileMessage}
+                                sparseMapMessage={sparseMapMessage}
+                                visualizeButtonTooltip={visualizeButtonTooltip}
+                                disableVisualizeMessage={disableVisualizeMessage}
+                                selectedVizType={selectedVizType}
+                                handleChange={this.props.handleChange}
+                                onVisualize={this.props.onVisualize}
+                                showChartControl={this.state.showChartControl}
+                            />
+
+                            <Paper className={classes.dataBitesContainer} style={this.state.showDataBites ? {} : {display: 'none'}}>
+                                Data Bites
+                            </Paper>
+
+                            <Paper className={classes.bottomControlContainer} style={this.state.showBottomControl ? {} : {display: 'none'}}>
+                                Bottom Control
+                            </Paper>
+
+                            {/* <Grid item xs={12}>
                                 <FormControl variant='filled' className={classes.vizTypeSelectFormControl} disabled={!fields}>
                                     <InputLabel shrink htmlFor="vizSelector" >Type</InputLabel>
                                     <MUISelect
@@ -1279,7 +1378,7 @@ class VizControlPanel extends React.Component {
                                         Visualize
                                     </Button>
                                 </Grid>
-                            </Tooltip>
+                            </Tooltip> */}
                         </Grid>
                     </form>                    
                 </Drawer>

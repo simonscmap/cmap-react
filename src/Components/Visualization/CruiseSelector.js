@@ -5,13 +5,16 @@ import Select, { components } from 'react-select';
 import * as JsSearch from 'js-search';
 
 import { withStyles } from '@material-ui/core/styles';
-import { Search } from '@material-ui/icons';
-import { Table, TableBody, TableCell, TableRow, Icon } from '@material-ui/core';
+import { Search, ZoomOutMap } from '@material-ui/icons';
+import { Table, TableBody, TableCell, TableRow, Icon, Tooltip } from '@material-ui/core';
 
 import { cruiseListRequestSend, cruiseTrajectoryRequestSend, cruiseTrajectoryClear } from '../../Redux/actions/visualization';
 
 import states from '../../Enums/asyncRequestStates';
 import colors from '../../Enums/colors';
+import Draggable from 'react-draggable';
+import HelpButtonAndDialog from '../UI/HelpButtonAndDialog';
+import DragIcon from './DragIcon';
 
 const mapStateToProps = (state, ownProps) => ({
     cruiseList: state.cruiseList,
@@ -30,7 +33,7 @@ const esriFontColor = 'white';
 const styles = theme => ({
     outerDiv: {
         padding:'12px',
-        maxWidth: '260px',
+        maxWidth: '360px',
         backgroundColor: 'transparent',
         color: esriFontColor,
         borderRadius: '4px',
@@ -38,12 +41,16 @@ const styles = theme => ({
         position: 'relative',
         backdropFilter: 'blur(2px)',
         transform: 'translateY(35px)',
-        marginTop: '24px'
+        marginTop: '24px',
+        position: 'fixed',
+        right: '0px',
+        top: '60px'
     },
 
     cruiseSelect: {
         width: '260px',
         borderRadius: '4px',
+        display: 'inline-block'
     },
 
     cruiseInfo: {
@@ -57,6 +64,12 @@ const styles = theme => ({
         fontFamily: esriFonts,
         borderStyle: 'none',
     },
+
+    dragIcon: {
+        padding: '12px 12px 12px 0',
+        color: colors.primary,
+        verticalAlign: 'middle'
+    }
 })
 
 // Replace react-select selected option
@@ -169,165 +182,173 @@ class CruiseSelector extends Component {
             : []
 
         return (
-            <div id='cruise-selector' className={classes.outerDiv}>
-                <div className={classes.blurEffectDiv}></div>
-                {/* <ConnectedTooltip placement='left' title={tooltips.visualization.cruiseSelector}> */}
-                    <Select
-                        isLoading={this.props.getCruiseListState === states.inProgress}
-                        components={{
-                            IndicatorSeparator:'',
-                            Option,
-                            SingleValue,
-                            ValueContainer
-                        }}
-                        isClearable
-                        formatOptionLabel={this.formatOptionLabel}
-                        onInputChange={this.onAutoSuggestChange}
-                        filterOption={null}
-                        className={classes.cruiseSelect}
-                        escapeClearsValue
-                        label="Cruise"
-                        options={options}
-                        onChange={this.handleCruiseSelect}
-                        value={this.state.selectedCruise}
-                        placeholder="Search Cruises"
-                        styles={{
-                            menu: provided => ({ ...provided, zIndex: 9999 }),
+            <Draggable handle='#drag-icon-cruise'>
+                <div id='cruise-selector' className={classes.outerDiv} style={this.props.showCruiseControl ? {} : {display: 'none'}}>
+                    {/* <ConnectedTooltip placement='left' title={tooltips.visualization.cruiseSelector}> */}
+                        <Select
+                            isLoading={this.props.getCruiseListState === states.inProgress}
+                            components={{
+                                IndicatorSeparator:'',
+                                Option,
+                                SingleValue,
+                                ValueContainer
+                            }}
+                            isClearable
+                            formatOptionLabel={this.formatOptionLabel}
+                            onInputChange={this.onAutoSuggestChange}
+                            filterOption={null}
+                            className={classes.cruiseSelect}
+                            escapeClearsValue
+                            label="Cruise"
+                            options={options}
+                            onChange={this.handleCruiseSelect}
+                            value={this.state.selectedCruise}
+                            placeholder="Search Cruises"
+                            styles={{
+                                menu: provided => ({ ...provided, zIndex: 9999 }),
 
-                            menuList: provided => ({...provided, backgroundColor: colors.backgroundGray}),
+                                menuList: provided => ({...provided, backgroundColor: colors.backgroundGray}),
 
-                            input: provided => ({...provided,
-                                color: 'inherit',
-                                fontFamily: esriFonts
-                            }),
+                                input: provided => ({...provided,
+                                    color: 'inherit',
+                                    fontFamily: esriFonts
+                                }),
 
-                            control: provided => ({...provided,
-                                backgroundColor: colors.backgroundGray,
-                                border: 'none',
-                                boxShadow: '1px 1px 1px 1px #242424',
-                                color: esriFontColor,
-                                borderRadius: 4,
-                                '&:hover': { 
-                                    border: `1px solid white`,
+                                control: provided => ({...provided,
+                                    backgroundColor: colors.backgroundGray,
+                                    border: 'none',
+                                    boxShadow: '1px 1px 1px 1px #242424',
+                                    color: esriFontColor,
+                                    borderRadius: 4,
+                                    '&:hover': { 
+                                        border: `1px solid white`,
+                                    },
+                                    '&:focus-within': {
+                                        borderColor: colors.primary
+                                    }
+                                }),
+
+                                placeholder: provided => ({...provided,
+                                    fontFamily: esriFonts,
+                                    color: colors.primary,
+                                    fontSize: '14px'
+                                }),
+
+                                noOptionsMessage: provided => ({...provided,
+                                    fontFamily: esriFonts,
+                                    color: esriFontColor,
+                                    backgroundColor: colors.backgroundGray
+                                }),
+
+                                option: (provided, state) => ({...provided,
+                                    backgroundColor: colors.backgroundGray,
+                                    color: state.isFocused ? colors.primary : 'white',
+                                    '&:hover': { backgroundColor: colors.greenHover}
+                                }),
+
+                                singleValue: (provided, state) => ({...provided,
+                                    fontFamily: esriFonts,
+                                    color: 'inherit',
+                                    paddingRight: '20px',
+                                }),
+
+                                valueContainer: provided => ({
+                                    ...provided,
+                                    padding: '0 0 0 34px',
+                                    fontWeight: 100
+                                }),
+                            }}
+                            theme={theme => ({
+                                ...theme,
+                                colors: {
+                                    ...theme.colors,
+                                    // Background color of hovered options
+                                    primary25: '#e0e0e0',
+                                    primary: '#212121',
                                 },
-                                '&:focus-within': {
-                                    borderColor: colors.primary
+                            })}
+                        />
+
+                        <HelpButtonAndDialog
+                            title='Cruise Help'
+                            content='Cruise Help Content'
+                        />
+
+                        <DragIcon iconID='drag-icon-cruise'/>
+
+                    {selectedCruise &&
+                        <Table size='small' className={classes.cruiseInfo}>
+                            <TableBody>
+                                <TableRow>
+                                    <TableCell className={classes.cruiseInfoCell}>
+                                        Cruise:
+                                    </TableCell>
+                                    <TableCell className={classes.cruiseInfoCell}>
+                                        {selectedCruise.data.Name}
+                                    </TableCell>
+                                </TableRow>
+
+                                <TableRow>
+                                    <TableCell className={classes.cruiseInfoCell}>
+                                        Nickname:
+                                    </TableCell>
+                                    <TableCell className={classes.cruiseInfoCell}>
+                                        {selectedCruise.data.Nickname}
+                                    </TableCell>
+                                </TableRow>
+
+                                {
+                                    selectedCruise.data.Start_Time &&
+                                    <TableRow>
+                                        <TableCell className={classes.cruiseInfoCell}>
+                                            Start Date:
+                                        </TableCell>
+                                        <TableCell className={classes.cruiseInfoCell}>
+                                            {selectedCruise.data.Start_Time.slice(0,10)}
+                                        </TableCell>
+                                    </TableRow>
                                 }
-                            }),
 
-                            placeholder: provided => ({...provided,
-                                fontFamily: esriFonts,
-                                color: colors.primary,
-                                fontSize: '14px'
-                            }),
+                                {
+                                    selectedCruise.data.End_Time &&
+                                    <TableRow>
+                                        <TableCell className={classes.cruiseInfoCell}>
+                                            End Date:
+                                        </TableCell>
+                                        <TableCell className={classes.cruiseInfoCell}>
+                                            {selectedCruise.data.End_Time.slice(0,10)}
+                                        </TableCell>
+                                    </TableRow>
+                                }
 
-                            noOptionsMessage: provided => ({...provided,
-                                fontFamily: esriFonts,
-                                color: esriFontColor,
-                                backgroundColor: colors.backgroundGray
-                            }),
+                                {
+                                    selectedCruise.data.Chief_Name &&
+                                    <TableRow>
+                                        <TableCell className={classes.cruiseInfoCell}>
+                                            Chief Scientist:
+                                        </TableCell>
+                                        <TableCell className={classes.cruiseInfoCell}>
+                                            {selectedCruise.data.Chief_Name}
+                                        </TableCell>
+                                    </TableRow>
+                                }
 
-                            option: (provided, state) => ({...provided,
-                                backgroundColor: colors.backgroundGray,
-                                color: state.isFocused ? colors.primary : 'white',
-                                '&:hover': { backgroundColor: colors.greenHover}
-                            }),
-
-                            singleValue: (provided, state) => ({...provided,
-                                fontFamily: esriFonts,
-                                color: 'inherit',
-                                paddingRight: '20px',
-                            }),
-
-                            valueContainer: provided => ({
-                                ...provided,
-                                padding: '0 0 0 34px',
-                                fontWeight: 100
-                            }),
-                        }}
-                        theme={theme => ({
-                            ...theme,
-                            colors: {
-                                ...theme.colors,
-                                // Background color of hovered options
-                                primary25: '#e0e0e0',
-                                primary: '#212121',
-                            },
-                        })}
-                    />
-                {/* </ConnectedTooltip> */}
-                {selectedCruise &&
-                    <Table size='small' className={classes.cruiseInfo}>
-                        <TableBody>
-                            <TableRow>
-                                <TableCell className={classes.cruiseInfoCell}>
-                                    Cruise:
-                                </TableCell>
-                                <TableCell className={classes.cruiseInfoCell}>
-                                    {selectedCruise.data.Name}
-                                </TableCell>
-                            </TableRow>
-
-                            <TableRow>
-                                <TableCell className={classes.cruiseInfoCell}>
-                                    Nickname:
-                                </TableCell>
-                                <TableCell className={classes.cruiseInfoCell}>
-                                    {selectedCruise.data.Nickname}
-                                </TableCell>
-                            </TableRow>
-
-                            {
-                                selectedCruise.data.Start_Time &&
-                                <TableRow>
-                                    <TableCell className={classes.cruiseInfoCell}>
-                                        Start Date:
-                                    </TableCell>
-                                    <TableCell className={classes.cruiseInfoCell}>
-                                        {selectedCruise.data.Start_Time.slice(0,10)}
-                                    </TableCell>
-                                </TableRow>
-                            }
-
-                            {
-                                selectedCruise.data.End_Time &&
-                                <TableRow>
-                                    <TableCell className={classes.cruiseInfoCell}>
-                                        End Date:
-                                    </TableCell>
-                                    <TableCell className={classes.cruiseInfoCell}>
-                                        {selectedCruise.data.End_Time.slice(0,10)}
-                                    </TableCell>
-                                </TableRow>
-                            }
-
-                            {
-                                selectedCruise.data.Chief_Name &&
-                                <TableRow>
-                                    <TableCell className={classes.cruiseInfoCell}>
-                                        Chief Scientist:
-                                    </TableCell>
-                                    <TableCell className={classes.cruiseInfoCell}>
-                                        {selectedCruise.data.Chief_Name}
-                                    </TableCell>
-                                </TableRow>
-                            }
-
-                            {
-                                selectedCruise.data.Ship_Name &&
-                                <TableRow>
-                                    <TableCell className={classes.cruiseInfoCell}>
-                                        Ship:
-                                    </TableCell>
-                                    <TableCell className={classes.cruiseInfoCell}>
-                                        {selectedCruise.data.Ship_Name}
-                                    </TableCell>
-                                </TableRow>
-                            }
-                        </TableBody>
-                    </Table>
-                }
-            </div>
+                                {
+                                    selectedCruise.data.Ship_Name &&
+                                    <TableRow>
+                                        <TableCell className={classes.cruiseInfoCell}>
+                                            Ship:
+                                        </TableCell>
+                                        <TableCell className={classes.cruiseInfoCell}>
+                                            {selectedCruise.data.Ship_Name}
+                                        </TableCell>
+                                    </TableRow>
+                                }
+                            </TableBody>
+                        </Table>
+                    }
+                </div>
+            </Draggable>
         )
     }
 }
