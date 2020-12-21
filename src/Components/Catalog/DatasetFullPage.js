@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
+import { Link as RouterLink } from 'react-router-dom';
 
 import { withStyles, Link, Typography, Grid, Paper, Table, TableRow, TableCell, TableBody } from '@material-ui/core';
-import { Skeleton } from '@material-ui/lab';
 
 import ReactMarkdown from 'react-markdown';
 import XLSX from 'xlsx';
@@ -19,6 +19,8 @@ import HelpButtonAndDialog from '../UI/HelpButtonAndDialog';
 import colors from '../../Enums/colors';
 import metaTags from '../../Enums/metaTags';
 import CartAddOrRemove from './CartAddOrRemove';
+import SkeletonWrapper from '../UI/SkeletonWrapper';
+import LoadProductOnVizPageButton from '../Visualization/LoadProductOnVizPageButton';
 
 // Text on this page has inline styling for font color because ag-grid's theme classes override mui classes when a dialog is opened
 // from inside the grid
@@ -196,33 +198,14 @@ const styles = (theme) => ({
         textTransform: 'none',
         color: theme.palette.primary.main,
         marginTop: '16px'
+    },
+
+    cruiseLink: {
+        display: 'block',
+        marginBottom: '3px',
+        color: colors.primary
     }
 });
-
-const SkeletonWrapper = (props) => {
-    return props.loading ?
-    (
-        <React.Fragment>
-            {props.children.map((child, i) => (
-                <Skeleton key={i}>
-                    {child}
-                </Skeleton>
-            ))}
-        </React.Fragment>
-    )
-
-    :
-
-    (
-        <React.Fragment>
-            {props.children.map((child, i) => (
-                <React.Fragment key={i}>
-                    {child}
-                </React.Fragment>
-            ))}
-        </React.Fragment>
-    )
-}
 
 const DatasetFullPage = (props) => {
     const { classes, datasetFullPageDataFetch, datasetFullPageDataStore, datasetFullPageData, datasetFullPageDataLoadingState } = props;
@@ -249,7 +232,8 @@ const DatasetFullPage = (props) => {
         Process_Level,
         Spatial_Resolution,
         Temporal_Resolution,
-        Sensors
+        Sensors,
+        Cruises
     } = datasetFullPageData;
 
     const loading = datasetFullPageDataLoadingState === states.inProgress;
@@ -264,11 +248,11 @@ const DatasetFullPage = (props) => {
 
     useEffect(() => {
         document.title = Long_Name || metaTags.defaultTitle;
-        document.description = Description || metaTags.defaultDescription;
+        document.description = Description || metaTags.default.description;
 
         return (() => {
             document.title = metaTags.default.title;
-            document.description = metaTags.default.descriptionescription;
+            document.description = metaTags.default.description;
         })
     }, [Long_Name])
 
@@ -529,6 +513,31 @@ const DatasetFullPage = (props) => {
                             : ''
                         }
 
+                        {
+                            (Cruises && Cruises.length ?
+                                <>
+                                    <Typography variant='h5' className={classes.sectionHeader} style={{color: 'white'}}>
+                                        Cruises contributing data to this dataset:
+                                    </Typography>
+
+                                    {
+                                        Cruises.map((e) => (
+                                            <Link 
+                                                component={RouterLink} 
+                                                to={`/catalog/cruises/${e.Name}`}
+                                                key={e.Name}
+                                                className={classes.cruiseLink}
+                                            >
+                                                {e.Name}
+                                            </Link>
+                                        ))
+                                    }
+                                </>                                   
+                            
+                            : ''
+                            )
+                        }
+
                         <Typography variant='h5' className={classes.sectionHeader} style={{color: 'white'}}>
                             <a className={classes.anchor} id='data-access'></a>
                             Data Access
@@ -563,7 +572,11 @@ const DatasetFullPage = (props) => {
                             Download Data
                         </Link>
 
-                        <CartAddOrRemove dataset={datasetFullPageData} cartButtonClass={classes.cartButtonClass}/>  
+                        <CartAddOrRemove dataset={datasetFullPageData} cartButtonClass={classes.cartButtonClass}/>
+
+                        {/* <div style={{marginLeft: '-11px'}}>
+                            <LoadProductOnVizPageButton product={datasetFullPageData}/>
+                        </div> */}
 
                     {!loading && datasetFullPageData && Object.keys(datasetFullPageData).length ? <DatasetJSONLD {...datasetFullPageData}/> : ''}
                     </SkeletonWrapper>              

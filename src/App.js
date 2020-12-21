@@ -28,6 +28,7 @@ import CatalogNew from './Components/Catalog/CatalogNew';
 import DatasetFullPage from './Components/Catalog/DatasetFullPage';
 import ForgotPass from './Components/User/ForgotPass';
 import ChoosePassword from './Components/User/ChoosePassword';
+import CruiseFullPage from './Components/Catalog/CruiseFullPage';
 
 import { initializeGoogleAuth } from './Redux/actions/user';
 import { toggleShowHelp } from './Redux/actions/ui';
@@ -242,7 +243,7 @@ class App extends Component {
               <Route exact path='/catalog' component={ CatalogNew } />
               <Route exact path='/login' component={ Login } />
               <Route exact path='/register' component={ Register } />
-              <Route exact path='/visualization' component={Visualization} />
+              <Route path='/visualization' component={Visualization} />
               <Route exact path='/profile' component={Profile} />
               <Route exact path='/forgotpass' component={ForgotPass} />
               <Route path='/datasubmission' component={DataSubmission} />
@@ -251,6 +252,7 @@ class App extends Component {
               <Route path='/community' component={CommunityTemp} />
               <Route path='/catalog/searchresults' component={SearchResults}/>
               <Route path='/catalog/datasets/:dataset' component={DatasetFullPage}/>
+              <Route path='/catalog/cruises/:cruiseName' component={CruiseFullPage}/>
             </Switch>
           </BrowserRouter>
           </MuiThemeProvider>

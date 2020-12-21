@@ -42,7 +42,7 @@ const HelpButtonAndDialog = (props) => {
                 onClose={() => setOpen(false)} 
                 open={open}
                 PaperProps={{
-                    className: window.location.pathname === '/visualization' ? classes.dialogPaperViz : classes.dialogPaper
+                    className: window.location.pathname.includes('/visualization') ? classes.dialogPaperViz : classes.dialogPaper
                 }}
             >
                 <DialogTitle>{title}</DialogTitle>

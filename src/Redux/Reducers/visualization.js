@@ -76,6 +76,20 @@ export default function(state, action) {
                 }
             }}
 
+        case visualizationActionTypes.VIZ_PAGE_DATA_TARGET_SET: return {...state, vizPageDataTarget: action.payload.target}
+
+        case visualizationActionTypes.VIZ_SEARCH_RESULTS_STORE_AND_UPDATE_OPTIONS: return {...state, vizSearchResults: action.payload.searchResults, submissionOptions: action.payload.options}
+        case visualizationActionTypes.VIZ_SEARCH_RESULTS_STORE: return {...state, vizSearchResults: action.payload.searchResults}
+        case visualizationActionTypes.VIZ_SEARCH_RESULTS_SET_LOADING_STATE: return {...state, vizSearchResultsLoadingState: action.payload.state}
+
+        case visualizationActionTypes.MEMBER_VARIABLES_STORE: return {...state, memberVariables: action.payload.variables}
+        case visualizationActionTypes.MEMBER_VARIABLES_SET_LOADING_STATE: return {...state, memberVariablesLoadingState: action.payload.state}
+
+        case visualizationActionTypes.RELATED_DATA_STORE: return {...state, relatedData: action.payload.data}
+        case visualizationActionTypes.RELATED_DATA_SET_LOADING_STATE: return {...state, relatedDataLoadingState: action.payload.state}
+        
+        case visualizationActionTypes.VARIABLE_NAME_AUTOCOMPLETE_STORE: return {...state, autocompleteVariableNames: action.payload.autocompleteVariableNames}
+        
         default: return state;
     }
 }

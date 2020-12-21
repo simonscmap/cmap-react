@@ -1,6 +1,7 @@
 import { put, takeLatest, all, call, delay, select, debounce } from 'redux-saga/effects';
 // import { eventChannel } from 'redux-saga';
 import Cookies from 'js-cookie';
+import queryString from 'query-string';
 // import worker from '../worker';
 
 import * as userActions from './actions/user';
@@ -17,6 +18,9 @@ import * as dataSubmissionActionTypes from './actionTypes/dataSubmission';
 
 import api from '../api';
 import states from '../Enums/asyncRequestStates';
+import groupVariablesByDataset from '../Utility/Catalog/groupVariablesByDataset';
+import groupDatasetsByMake from '../Utility/Catalog/groupDatasetsByMake';
+import buildSearchOptionsFromVariablesList from '../Utility/Catalog/buildSearchOptionsFromVariablesList';
 
 function* userLogin(action) {
     yield put(userActions.userLoginRequestProcessing());
@@ -721,9 +725,14 @@ function* keywordsFetch() {
 
 function* searchOptionsFetch(){
     let result = yield call(api.catalog.submissionOptions);
-
     if(result.ok){
         let options = yield result.json();
+        options.Temporal_Resolution.unshift('Any');
+        options.Spatial_Resolution.unshift('Any');
+        options.Data_Source.unshift('Any');
+        options.Distributor.unshift('Any');
+        options.Sensor.unshift('Any');
+        options.Process_Level.unshift('Any');
         yield put(catalogActions.storeSubmissionOptions(options));
     }
 
@@ -763,6 +772,22 @@ function* datasetFullPageDataFetch(action) {
     }
 }
 
+function* cruiseFullPageDataFetch(action) {
+    yield put(catalogActions.cruiseFullPageDataSetLoadingState(states.inProgress));
+    let result = yield call(api.catalog.cruiseFullPageDataFetch, action.payload.name);
+
+    if(result.ok){
+        let results = yield result.json();
+        yield put(catalogActions.cruiseFullPageDataStore(results));
+        yield put(catalogActions.cruiseFullPageDataSetLoadingState(states.succeeded));
+    }
+
+    else {
+        yield put(interfaceActions.snackbarOpen('Failed to retrieve information. Please try again later.'));
+        yield put(catalogActions.datasetFullPageDataSetLoadingState(states.succeeded));
+    }
+}
+
 function* cartPersistAddItem(action){
     let formData = {itemID: action.payload.datasetID};
     yield call(api.user.cartPersistAddItem, formData);
@@ -792,6 +817,53 @@ function* cartGetAndStore(){
 
     else {
         yield put(interfaceActions.snackbarOpen('Unable to retrieve cart information'));
+    }
+}
+
+function* vizSearchResultsFetch(action){
+    let start = new Date();
+    const qString = '?' + queryString.stringify(action.payload.params);
+    const variablesResponse = yield call(api.visualization.variableSearch, qString);
+
+    if(variablesResponse.ok){
+        const variables = yield variablesResponse.json();
+        let options = buildSearchOptionsFromVariablesList(variables);
+
+        let datasets = groupVariablesByDataset(variables);
+        let makes = groupDatasetsByMake(datasets);
+        yield put(visualizationActions.vizSearchResultsStoreAndUpdateOptions(makes, options));
+        yield put(visualizationActions.vizSearchResultsSetLoadingState(states.succeeded));
+    }
+
+    else {
+        yield put(interfaceActions.snackbarOpen('Search failed. Please try again.'));
+    }
+}
+
+function* memberVariablesFetch(action){
+    let response = yield call(api.visualization.memberVariablesFetch, action.payload.datasetID);
+
+    if(response.ok){
+        let variables = yield response.json();
+        yield put(visualizationActions.memberVariablesStore(variables));
+    }
+
+    else {
+        yield put(interfaceActions.snackbarOpen('Unable to get variables at this time'));
+    }
+}
+
+function* autocompleteVariableNamesFetch(action) {
+    if(!action.payload.terms) {
+        yield put(visualizationActions.variableNameAutocompleteStore([]));
+        return;
+    }        
+
+    let response = yield call(api.visualization.autocompleteVariableNamesFetch, encodeURIComponent(action.payload.terms));
+
+    if(response.ok){
+        let jsonResponse = yield response.json();
+        yield put(visualizationActions.variableNameAutocompleteStore(jsonResponse));
     }
 }
 
@@ -951,6 +1023,10 @@ function* watchDatasetFullPageDataFetch(){
     yield takeLatest(catalogActionTypes.DATASET_FULL_PAGE_DATA_FETCH, datasetFullPageDataFetch);
 }
 
+function* watchCruiseFullPageDataFetch(){
+    yield takeLatest(catalogActionTypes.CRUISE_FULL_PAGE_DATA_FETCH, cruiseFullPageDataFetch);
+}
+
 function* watchCartPersistAddItem(){
     yield takeLatest(userActionTypes.CART_PERSIST_ADD_ITEM, cartPersistAddItem)
 }
@@ -965,6 +1041,18 @@ function* watchCartPersistClear(){
 
 function* watchCartGetAndStore(){
     yield takeLatest(userActionTypes.CART_GET_AND_STORE, cartGetAndStore);
+}
+
+function* watchVizSearchResultsFetch(){
+    yield debounce(450, visualizationActionTypes.VIZ_SEARCH_RESULTS_FETCH, vizSearchResultsFetch);
+}
+
+function* watchMemberVariablesFetch(){
+    yield takeLatest(visualizationActionTypes.MEMBER_VARIABLES_FETCH, memberVariablesFetch);
+}
+
+function* watchAutocompleteVariableNamesFetch() {
+    yield debounce(300, visualizationActionTypes.VARIABLE_NAME_AUTOCOMPLETE_FETCH, autocompleteVariableNamesFetch);
 }
 
 // function createWorkerChannel(worker) {
@@ -1034,9 +1122,13 @@ export default function* rootSaga() {
         watchSearchOptionsFetch(),
         watchSearchResultsFetch(),
         watchDatasetFullPageDataFetch(),
+        watchCruiseFullPageDataFetch(),
         watchCartPersistAddItem(),
         watchCartPersistRemoveItem(),
         watchCartPersistClear(),
-        watchCartGetAndStore()
+        watchCartGetAndStore(),
+        watchVizSearchResultsFetch(),
+        watchMemberVariablesFetch(),
+        watchAutocompleteVariableNamesFetch()
     ])
 }

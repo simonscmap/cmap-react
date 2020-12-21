@@ -3,6 +3,8 @@ import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { Accordion, AccordionSummary, AccordionDetails, AccordionActions, Grid } from '@material-ui/core';
 
+import RegionSelector from '../Components/UI/RegionSelector';
+
 import Draggable from 'react-draggable';
 
 const styles = theme => ({
@@ -81,6 +83,7 @@ class LandingPage extends Component {
         return (
             <div className={classes.parent}>
                 <div className={classes.gridSection}>
+                    <RegionSelector/>
                             {/* <Accordion draggable={true}  className={classes.accordion}>
                                 <AccordionSummary>
                                     I'm an accordion summary.
@@ -108,7 +111,7 @@ class LandingPage extends Component {
                                 </AccordionDetails>
                             </Accordion> */}
 
-                            <Draggable>
+                            {/* <Draggable>
                                 <Accordion className={classes.accordion}>
                                     <AccordionSummary>
                                         I'm an accordion summary 1.
@@ -142,7 +145,7 @@ class LandingPage extends Component {
                                         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin iaculis risus sit amet ipsum vestibulum tempor. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tincidunt dolor in porta interdum.
                                     </AccordionDetails>
                                 </Accordion>                                
-                            </Draggable>
+                            </Draggable> */}
                     </div>
             </div>
         )

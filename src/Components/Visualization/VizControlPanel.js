@@ -44,7 +44,7 @@ const styles = theme => ({
 
     drawerPaper: {
         width: navDrawerWidth,
-        height: '386px',
+        height: 'auto',
         top: 'calc(50% - 270px)',
         borderRadius: '0 4px 4px 0',
         boxShadow: '2px 2px  2px 2px #242424',
@@ -213,7 +213,8 @@ const mapStateToProps = (state, ownProps) => ({
     showHelp: state.showHelp,
     datasets: state.datasets,
     charts: state.charts,
-    cart: state.cart
+    cart: state.cart,
+    cruiseList: state.cruiseList
 })
 
 const mapDispatchToProps = {
@@ -488,6 +489,13 @@ const ValueContainer = (props) => {
     )
 }
 
+const controlPanelModes = {
+    charts: 'charts',
+    cruises: 'cruises',
+    bites: 'bites',
+    bottomControl: 'bottomControl'
+}
+
 class VizControlPanel extends React.Component {
 
     constructor(props){
@@ -509,8 +517,13 @@ class VizControlPanel extends React.Component {
         search.addIndex('Study_Domain');
         search.addIndex('Spatial_Resolution');
         search.addIndex('Temporal_Resolution');
+        search.addIndex('Chief_Name');
+        search.addIndex('Name');
+        search.addIndex('Nickname');
+        search.addIndex('Ship_Name');
 
         if(props.catalog) search.addDocuments(props.catalog);
+        if(props.cruiseList) search.addDocuments(props.cruiseList);
 
         this.state = {
             tableStatsDialogIsOpen: false,
@@ -520,14 +533,20 @@ class VizControlPanel extends React.Component {
             lastSelectedFieldId: null,
             showChartControl: false,
             showDataBites: false,
-            showBottomControl: false
+            showBottomControl: false,
+            controlPanelMode: controlPanelModes.bottomControl
         }
     }
 
     componentDidUpdate = (prevProps) => {
         if(!(prevProps.catalog && prevProps.catalog.length) && (this.props.catalog && this.props.catalog.length)){
             this.state.search.addDocuments(this.props.catalog);
-            this.setState({search: this.state.search});
+            // this.setState({search: this.state.search});
+        }
+
+        if(!(prevProps.cruiseList && prevProps.cruiseList.length) && (this.props.cruiseList && this.props.cruiseList.length)){
+            this.state.search.addDocuments(this.props.cruiseList);
+            // this.setState({search: this.state.search});
         }
     }
 
@@ -793,6 +812,7 @@ class VizControlPanel extends React.Component {
             handleChange,
             handleLatLonChange,
             datasets,
+            cruiseList
         } = this.props;
 
 
@@ -949,8 +969,9 @@ class VizControlPanel extends React.Component {
                     <ButtonGroup>
                         <Tooltip title='Show Chart Control' placement='top'>
                             <IconButton 
-                                className={`${classes.groupedButtons} ${this.state.showChartControl && classes.depressed}`} 
-                                onClick={() => this.setState({...this.state, showChartControl: !this.state.showChartControl})} 
+                                className={`${classes.groupedButtons} ${this.state.controlPanelMode === controlPanelModes.charts && classes.depressed}`} 
+                                // onClick={() => this.setState({...this.state, showChartControl: !this.state.showChartControl})}
+                                onClick={() => this.setState({...this.state, controlPanelMode: controlPanelModes.charts})}
                                 color='inherit'
                             >
                                 <ShowChart/>
@@ -960,8 +981,9 @@ class VizControlPanel extends React.Component {
                         <Tooltip title='Show Cruise Control' placement='top'>
                             <IconButton 
                                 color='inherit' 
-                                onClick={this.props.handleShowCruiseControl} 
-                                className={`${classes.groupedButtons} ${this.props.showCruiseControl && classes.depressed}`} 
+                                // onClick={this.props.handleShowCruiseControl}
+                                onClick={() => this.setState({...this.state, controlPanelMode: controlPanelModes.cruises})}
+                                className={`${classes.groupedButtons} ${this.state.controlPanelMode === controlPanelModes.cruises && classes.depressed}`} 
                             >
                                 <DirectionsBoat/>
                             </IconButton>
@@ -970,8 +992,8 @@ class VizControlPanel extends React.Component {
                         <Tooltip title='Show Data Bytes' placement='top'>
                             <IconButton 
                                 color='inherit' 
-                                onClick={() => this.setState({...this.state, showDataBites: !this.state.showDataBites})} 
-                                className={`${classes.groupedButtons} ${this.state.showDataBites && classes.depressed}`} 
+                                onClick={() => this.setState({...this.state, controlPanelMode: controlPanelModes.bites})} 
+                                className={`${classes.groupedButtons} ${this.state.controlPanelMode === controlPanelModes.bites && classes.depressed}`} 
                             >
                                 <Fastfood/>
                             </IconButton>
@@ -980,8 +1002,8 @@ class VizControlPanel extends React.Component {
                         <Tooltip title='Show Bottom Control' placement='top'>
                             <IconButton 
                                 color='inherit' 
-                                onClick={() => this.setState({...this.state, showBottomControl: !this.state.showBottomControl})} 
-                                className={`${classes.groupedButtons} ${this.state.showBottomControl && classes.depressed}`} 
+                                onClick={() => this.setState({...this.state, controlPanelMode: controlPanelModes.bottomControl})} 
+                                className={`${classes.groupedButtons} ${this.state.controlPanelMode === controlPanelModes.bottomControl && classes.depressed}`} 
                             >
                                 <Settings/>
                             </IconButton>
@@ -1065,7 +1087,11 @@ class VizControlPanel extends React.Component {
                                         options={options}
                                         onChange={this.handleUpdateFields}
                                         value={fields}
-                                        placeholder="Search Catalog"
+                                        placeholder={
+                                            this.state.controlPanelMode === controlPanelModes.cruises ? 'Search Cruises' : 
+                                            this.state.controlPanelMode === controlPanelModes.bites ? 'Explore Bites' : 
+                                            "Search Catalog"
+                                        }
                                         styles={{
                                             menu: provided => ({
                                                 ...provided, 
@@ -1159,172 +1185,182 @@ class VizControlPanel extends React.Component {
                                 }
                             </Grid>
 
-                            <Grid item xs={12}>
-                                <KeyboardDatePicker
-                                    className={classes.datePicker}
-                                    placeholder={getDatePlaceholder(dt1)}
-                                    id="startDate"
-                                    label="Start Date"
-                                    name="dt1"
-                                    format='yyyy-MM-dd'
-                                    maxDate={maxDate}
-                                    // minDate={null}
-                                    maxDateMessage={maxDateMessage}
-                                    autoOk
-                                    value={dt1}
-                                    onChange={this.props.handleStartDateChange}
-                                    inputVariant='filled'
-                                    variant='inline'
-                                    KeyboardButtonProps={{
-                                        className: classes.datePickerInputAdornment
-                                    }}
-                                />
-                            </Grid>  
+                            {
+                                this.state.controlPanelMode !== controlPanelModes.bites ?
+                                <>
+                                    <Grid item xs={12}>
+                                        <KeyboardDatePicker
+                                            className={classes.datePicker}
+                                            placeholder={getDatePlaceholder(dt1)}
+                                            id="startDate"
+                                            label="Start Date"
+                                            name="dt1"
+                                            format='yyyy-MM-dd'
+                                            maxDate={maxDate}
+                                            // minDate={null}
+                                            maxDateMessage={maxDateMessage}
+                                            autoOk
+                                            value={dt1}
+                                            onChange={this.props.handleStartDateChange}
+                                            inputVariant='filled'
+                                            variant='inline'
+                                            KeyboardButtonProps={{
+                                                className: classes.datePickerInputAdornment
+                                            }}
+                                        />
+                                    </Grid>  
 
-                            <Grid item xs={12}>
-                                <KeyboardDatePicker
-                                    className={classes.datePicker}
-                                    placeholder={getDatePlaceholder(dt2)}
-                                    id="endDate"
-                                    label="End Date"
-                                    name="dt2"
-                                    format='yyyy-MM-dd'
-                                    minDate={minDate}
-                                    // maxDate={null}
-                                    minDateMessage={minDateMessage}
-                                    autoOk
-                                    value={dt2}
-                                    onChange={this.props.handleEndDateChange}
-                                    inputVariant='filled'
-                                    variant='inline'
-                                    KeyboardButtonProps={{
-                                        className: classes.datePickerInputAdornment
-                                    }}
-                                />
-                            </Grid>
+                                    <Grid item xs={12}>
+                                        <KeyboardDatePicker
+                                            className={classes.datePicker}
+                                            placeholder={getDatePlaceholder(dt2)}
+                                            id="endDate"
+                                            label="End Date"
+                                            name="dt2"
+                                            format='yyyy-MM-dd'
+                                            minDate={minDate}
+                                            // maxDate={null}
+                                            minDateMessage={minDateMessage}
+                                            autoOk
+                                            value={dt2}
+                                            onChange={this.props.handleEndDateChange}
+                                            inputVariant='filled'
+                                            variant='inline'
+                                            KeyboardButtonProps={{
+                                                className: classes.datePickerInputAdornment
+                                            }}
+                                        />
+                                    </Grid>
 
-                            <Grid item xs={6} className={classes.formGridItem}>
-                                <TextField
-                                    id="lat1-input"
-                                    error={Boolean(startLatMessage)}
-                                    label={"Start Lat(\xB0)"}
-                                    className={classes.textField}
-                                    value={lat1}
-                                    onChange={handleLatLonChange}
-                                    FormHelperTextProps={{className: classes.helperText}}
-                                    helperText={startLatMessage}
-                                    name='lat1'
-                                    InputProps={{className:classes.padLeft}}
-                                    InputLabelProps={{className:classes.padLeft}}
-                                >
-                                </TextField>
-                            </Grid>
+                                    <Grid item xs={6} className={classes.formGridItem}>
+                                        <TextField
+                                            id="lat1-input"
+                                            error={Boolean(startLatMessage)}
+                                            label={"Start Lat(\xB0)"}
+                                            className={classes.textField}
+                                            value={lat1}
+                                            onChange={handleLatLonChange}
+                                            FormHelperTextProps={{className: classes.helperText}}
+                                            helperText={startLatMessage}
+                                            name='lat1'
+                                            InputProps={{className:classes.padLeft}}
+                                            InputLabelProps={{className:classes.padLeft}}
+                                        >
+                                        </TextField>
+                                    </Grid>
 
-                            <Grid item xs={6} className={classes.formGridItem}>
-                                <TextField
-                                    id="lat2-input"
-                                    error={Boolean(endLatMessage)}
-                                    label={"End Lat(\xB0)"}
-                                    className={classes.textField}
-                                    value={lat2}
-                                    onChange={handleLatLonChange}
-                                    FormHelperTextProps={{className: classes.helperText}}
-                                    helperText={endLatMessage}
-                                    name='lat2'
-                                    InputProps={{className:classes.padLeft}}
-                                    InputLabelProps={{className:classes.padLeft}}
-                                >
-                                </TextField>
-                            </Grid>
+                                    <Grid item xs={6} className={classes.formGridItem}>
+                                        <TextField
+                                            id="lat2-input"
+                                            error={Boolean(endLatMessage)}
+                                            label={"End Lat(\xB0)"}
+                                            className={classes.textField}
+                                            value={lat2}
+                                            onChange={handleLatLonChange}
+                                            FormHelperTextProps={{className: classes.helperText}}
+                                            helperText={endLatMessage}
+                                            name='lat2'
+                                            InputProps={{className:classes.padLeft}}
+                                            InputLabelProps={{className:classes.padLeft}}
+                                        >
+                                        </TextField>
+                                    </Grid>
 
-                            <Grid item xs={6} className={classes.formGridItem}>
-                                <TextField
-                                    id="lon1-input"
-                                    error={Boolean(startLonMessage)}
-                                    label={"Start Lon(\xB0)"}
-                                    className={classes.textField}
-                                    value={lon1}
-                                    onChange={handleLatLonChange}
-                                    FormHelperTextProps={{className: classes.helperText}}
-                                    helperText={startLonMessage}
-                                    name='lon1'
-                                    InputProps={{className:classes.padLeft}}
-                                    InputLabelProps={{className:classes.padLeft}}
-                                >
-                                </TextField>
-                            </Grid>
+                                    <Grid item xs={6} className={classes.formGridItem}>
+                                        <TextField
+                                            id="lon1-input"
+                                            error={Boolean(startLonMessage)}
+                                            label={"Start Lon(\xB0)"}
+                                            className={classes.textField}
+                                            value={lon1}
+                                            onChange={handleLatLonChange}
+                                            FormHelperTextProps={{className: classes.helperText}}
+                                            helperText={startLonMessage}
+                                            name='lon1'
+                                            InputProps={{className:classes.padLeft}}
+                                            InputLabelProps={{className:classes.padLeft}}
+                                        >
+                                        </TextField>
+                                    </Grid>
 
-                            <Grid item xs={6} className={classes.formGridItem}>
-                                <TextField
-                                    id="lon2-input"
-                                    error={Boolean(endLonMessage)}
-                                    label={"End Lon(\xB0)"}
-                                    className={classes.textField}
-                                    value={lon2}
-                                    onChange={handleLatLonChange}
-                                    FormHelperTextProps={{className: classes.helperText}}
-                                    helperText={endLonMessage}
-                                    name='lon2'
-                                    InputProps={{className:classes.padLeft}}
-                                    InputLabelProps={{className:classes.padLeft}}
-                                >
-                                </TextField>
-                            </Grid>
+                                    <Grid item xs={6} className={classes.formGridItem}>
+                                        <TextField
+                                            id="lon2-input"
+                                            error={Boolean(endLonMessage)}
+                                            label={"End Lon(\xB0)"}
+                                            className={classes.textField}
+                                            value={lon2}
+                                            onChange={handleLatLonChange}
+                                            FormHelperTextProps={{className: classes.helperText}}
+                                            helperText={endLonMessage}
+                                            name='lon2'
+                                            InputProps={{className:classes.padLeft}}
+                                            InputLabelProps={{className:classes.padLeft}}
+                                        >
+                                        </TextField>
+                                    </Grid>
 
-                            <Grid item xs={6} className={classes.formGridItem}>
-                                <TextField
-                                    id="depth1-input"
-                                    error={Boolean(startDepthMessage)}
-                                    label="Start Depth(m)"
-                                    className={classes.textField}
-                                    value={isNaN(Math.floor(depth1 * 1000) / 1000) ? depth1 : Math.ceil(depth1 * 1000) / 1000}
-                                    onChange={handleChange}
-                                    FormHelperTextProps={{className: classes.helperText}}
-                                    helperText={startDepthMessage}
-                                    name='depth1'
-                                    InputProps={{className:classes.padLeft}}
-                                    InputLabelProps={{className:classes.padLeft}}
-                                >
-                                </TextField>
-                            </Grid>
+                                    <Grid item xs={6} className={classes.formGridItem}>
+                                        <TextField
+                                            id="depth1-input"
+                                            error={Boolean(startDepthMessage)}
+                                            label="Start Depth(m)"
+                                            className={classes.textField}
+                                            value={isNaN(Math.floor(depth1 * 1000) / 1000) ? depth1 : Math.ceil(depth1 * 1000) / 1000}
+                                            onChange={handleChange}
+                                            FormHelperTextProps={{className: classes.helperText}}
+                                            helperText={startDepthMessage}
+                                            name='depth1'
+                                            InputProps={{className:classes.padLeft}}
+                                            InputLabelProps={{className:classes.padLeft}}
+                                        >
+                                        </TextField>
+                                    </Grid>
 
-                            <Grid item xs={6} className={classes.formGridItem}>
-                                <TextField
-                                    id="depth2-input"
-                                    error={Boolean(endDepthMessage)}
-                                    label="End Depth(m)"
-                                    className={classes.textField}
-                                    value={isNaN(Math.ceil(depth2 * 1000) / 1000) ? depth2 : Math.ceil(depth2 * 1000) / 1000}
-                                    onChange={handleChange}
-                                    FormHelperTextProps={{className: classes.helperText}}
-                                    helperText={endDepthMessage}
-                                    name='depth2'
-                                    InputProps={{className:classes.padLeft}}
-                                    InputLabelProps={{className:classes.padLeft}}
-                                >
-                                </TextField>
-                            </Grid>
+                                    <Grid item xs={6} className={classes.formGridItem}>
+                                        <TextField
+                                            id="depth2-input"
+                                            error={Boolean(endDepthMessage)}
+                                            label="End Depth(m)"
+                                            className={classes.textField}
+                                            value={isNaN(Math.ceil(depth2 * 1000) / 1000) ? depth2 : Math.ceil(depth2 * 1000) / 1000}
+                                            onChange={handleChange}
+                                            FormHelperTextProps={{className: classes.helperText}}
+                                            helperText={endDepthMessage}
+                                            name='depth2'
+                                            InputProps={{className:classes.padLeft}}
+                                            InputLabelProps={{className:classes.padLeft}}
+                                        >
+                                        </TextField>
+                                    </Grid>
+                                </> : ''
+                            }
 
-                            <ChartControl
-                                fields={fields}
-                                overrideDisabledStyle={overrideDisabledStyle}
-                                selectedVizType={selectedVizType}
-                                heatmapMessage={heatmapMessage}
-                                heatmapMessage={heatmapMessage}
-                                contourMessage={contourMessage}
-                                sectionMapMessage={sectionMapMessage}
-                                sectionMapMessage={sectionMapMessage}
-                                histogramMessage={histogramMessage}
-                                timeSeriesMessage={timeSeriesMessage}
-                                depthProfileMessage={depthProfileMessage}
-                                sparseMapMessage={sparseMapMessage}
-                                visualizeButtonTooltip={visualizeButtonTooltip}
-                                disableVisualizeMessage={disableVisualizeMessage}
-                                selectedVizType={selectedVizType}
-                                handleChange={this.props.handleChange}
-                                onVisualize={this.props.onVisualize}
-                                showChartControl={this.state.showChartControl}
-                            />
+                            {
+                                this.state.controlPanelMode === controlPanelModes.charts ?
+                                <ChartControl
+                                    fields={fields}
+                                    overrideDisabledStyle={overrideDisabledStyle}
+                                    selectedVizType={selectedVizType}
+                                    heatmapMessage={heatmapMessage}
+                                    heatmapMessage={heatmapMessage}
+                                    contourMessage={contourMessage}
+                                    sectionMapMessage={sectionMapMessage}
+                                    sectionMapMessage={sectionMapMessage}
+                                    histogramMessage={histogramMessage}
+                                    timeSeriesMessage={timeSeriesMessage}
+                                    depthProfileMessage={depthProfileMessage}
+                                    sparseMapMessage={sparseMapMessage}
+                                    visualizeButtonTooltip={visualizeButtonTooltip}
+                                    disableVisualizeMessage={disableVisualizeMessage}
+                                    selectedVizType={selectedVizType}
+                                    handleChange={this.props.handleChange}
+                                    onVisualize={this.props.onVisualize}
+                                    showChartControl={this.state.showChartControl}
+                                /> : ''
+                            }
+
+
 
                             <Paper className={classes.dataBitesContainer} style={this.state.showDataBites ? {} : {display: 'none'}}>
                                 Data Bites

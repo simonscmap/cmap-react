@@ -9,7 +9,8 @@ import colors from '../../Enums/colors';
 const styles = theme => ({
     dialogPaper: {
         backgroundColor: colors.backgroundGray,
-        width: '700px'
+        width: '700px',
+        // zIndex: 3000
     }
 })
 
@@ -20,6 +21,7 @@ const TableStatsDialog = (props) => {
 
     return (
         <Dialog
+        style={{zIndex: 5000}}
             open={props.open}
             onClose={props.onClose}
             PaperProps={{
@@ -35,41 +37,47 @@ const TableStatsDialog = (props) => {
                 }
                 <Table size='small'>
                     <TableBody>
-                            <TableRow>
-                                <TableCell>Dataset</TableCell>
-                                <TableCell title={data.Dataset_Name}>{data.Dataset_Name.length > 25 ? data.Dataset_Name.slice(0,23) + '...' : data.Dataset_Name}</TableCell>
-                            </TableRow>
+                        {
+                            data.Product_Type === 'Cruise' ? '' :
+                            <>
+                                <TableRow>
+                                    <TableCell>Dataset</TableCell>
+                                    <TableCell title={data.Dataset_Name}>{data.Dataset_Name.length > 25 ? data.Dataset_Name.slice(0,23) + '...' : data.Dataset_Name}</TableCell>
+                                </TableRow>
 
-                            <TableRow>
-                                <TableCell>Table Name</TableCell>
-                                <TableCell title={data.Table_Name}>{data.Table_Name > 25 ? data.Table_Name.slice(0,23) + '...' : data.Table_Name}</TableCell>
-                            </TableRow>
+                                <TableRow>
+                                    <TableCell>Table Name</TableCell>
+                                    <TableCell title={data.Table_Name}>{data.Table_Name > 25 ? data.Table_Name.slice(0,23) + '...' : data.Table_Name}</TableCell>
+                                </TableRow>
 
-                            <TableRow>
-                                <TableCell>Source</TableCell>
-                                <TableCell title={data.Data_Source}>{data.Data_Source > 25 ? data.Data_Source.slice(0,23) + '...' : data.Data_Source}</TableCell>
-                            </TableRow>
+                                <TableRow>
+                                    <TableCell>Source</TableCell>
+                                    <TableCell title={data.Data_Source}>{data.Data_Source > 25 ? data.Data_Source.slice(0,23) + '...' : data.Data_Source}</TableCell>
+                                </TableRow>
 
-                            <TableRow>
-                                <TableCell>Distributor</TableCell>
-                                <TableCell title={data.Distributor}>{data.Distributor.length > 25 ? data.Distributor.slice(0,23) + '...' : data.Distributor}</TableCell>
-                            </TableRow>
+                                <TableRow>
+                                    <TableCell>Distributor</TableCell>
+                                    <TableCell title={data.Distributor}>{data.Distributor.length > 25 ? data.Distributor.slice(0,23) + '...' : data.Distributor}</TableCell>
+                                </TableRow>
 
-                            <TableRow>
-                                <TableCell>Sensor</TableCell>
-                                <TableCell>{data.Sensor}</TableCell>
-                            </TableRow>
+                                <TableRow>
+                                    <TableCell>Sensor</TableCell>
+                                    <TableCell>{data.Sensor}</TableCell>
+                                </TableRow>
 
-                            <TableRow>
-                                <TableCell>Spatial Resolution</TableCell>
-                                <TableCell>{data.Spatial_Resolution}</TableCell>
-                            </TableRow>
+                                <TableRow>
+                                    <TableCell>Spatial Resolution</TableCell>
+                                    <TableCell>{data.Spatial_Resolution}</TableCell>
+                                </TableRow>
 
-                            <TableRow>
-                                <TableCell>Temporal Resolution</TableCell>
-                                <TableCell>{data.Temporal_Resolution}</TableCell>
-                            </TableRow>
+                                <TableRow>
+                                    <TableCell>Temporal Resolution</TableCell>
+                                    <TableCell>{data.Temporal_Resolution}</TableCell>
+                                </TableRow>
 
+                            </>
+                        }
+                            
                             <TableRow>
                                 <TableCell>Temporal Coverage Begin</TableCell>
                                 <TableCell>{data.Time_Min ? data.Time_Min.slice(0,10) : 'Irregular'}</TableCell>
@@ -99,15 +107,20 @@ const TableStatsDialog = (props) => {
                                 <TableCell>{`${data.Lon_Max}\xB0`}</TableCell>
                             </TableRow>
 
-                            <TableRow>
-                                <TableCell>Depth Coverage Begin</TableCell>
-                                <TableCell>{data.Depth_Min ? `${data.Depth_Min}(m)` : 'Surface Only'}</TableCell>
-                            </TableRow>
+                            {
+                                data.Product_Type === 'Cruise' ? '' :
+                                <>
+                                    <TableRow>
+                                        <TableCell>Depth Coverage Begin</TableCell>
+                                        <TableCell>{data.Depth_Min ? `${data.Depth_Min}(m)` : 'Surface Only'}</TableCell>
+                                    </TableRow>
 
-                            <TableRow>
-                                <TableCell>Depth Coverage End</TableCell>
-                                <TableCell>{data.Depth_Max ? `${data.Depth_Max}(m)` : 'Surface Only'}</TableCell>
-                            </TableRow>
+                                    <TableRow>
+                                        <TableCell>Depth Coverage End</TableCell>
+                                        <TableCell>{data.Depth_Max ? `${data.Depth_Max}(m)` : 'Surface Only'}</TableCell>
+                                    </TableRow>
+                                </>
+                            }                            
 
                             {data.Variable_Min &&
                                 <TableRow>

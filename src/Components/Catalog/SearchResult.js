@@ -8,6 +8,7 @@ import CartAddOrRemove from './CartAddOrRemove';
 import { setShowCart } from '../../Redux/actions/ui';
 
 import colors from '../../Enums/colors';
+import LoadProductOnVizPageButton from '../Visualization/LoadProductOnVizPageButton';
 
 const mapStateToProps = (state, ownProps) => ({
     cart: state.cart
@@ -82,7 +83,7 @@ const styles = (theme) => ({
 });
 
 const SearchResult = (props) => {
-    const { classes, cart } = props;
+    const { classes, cart, dataset } = props;
     const {
         Spatial_Resolution,
         Temporal_Resolution,
@@ -97,7 +98,7 @@ const SearchResult = (props) => {
         Dataset_ID,
         Sensors,
         Visualize
-    } = props.dataset;
+    } = dataset;
     
     return (
         <Paper className={classes.resultPaper} elevation={4}>
@@ -158,7 +159,9 @@ const SearchResult = (props) => {
                         More Info
                     </Button>
 
-                    <CartAddOrRemove dataset={props.dataset} cartButtonClass={classes.cartButtonClass}/>
+                    <CartAddOrRemove dataset={dataset} cartButtonClass={classes.cartButtonClass}/>
+
+                    {/* <LoadProductOnVizPageButton product={dataset}/> */}
 
                     {
                             !Visualize && cart[Long_Name] ? 

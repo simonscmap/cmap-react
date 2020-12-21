@@ -86,7 +86,7 @@ const ChartControl = (props) => {
 
     return (
         <React.Fragment>
-            <Paper className={classes.chartControlContainer} style={showChartControl ? {} : {display: 'none'}}>
+            {/* <Paper className={classes.chartControlContainer} style={showChartControl ? {} : {display: 'none'}}> */}
                 <Grid container>
                     <Grid item xs={12}>
                         <FormControl variant='filled' className={classes.vizTypeSelectFormControl} disabled={!fields}>
@@ -135,7 +135,7 @@ const ChartControl = (props) => {
                     </Tooltip>
 
                 </Grid>
-            </Paper>
+            {/* </Paper> */}
         </React.Fragment>
     )
 }

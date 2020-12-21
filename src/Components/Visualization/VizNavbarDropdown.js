@@ -4,18 +4,22 @@ import { Link } from "react-router-dom";
 import { connect } from 'react-redux';
 import { withRouter } from "react-router";
 
-import { ExpandLess, ExpandMore } from '@material-ui/icons';
-import { Typography, MenuItem, ClickAwayListener, Grow, Paper, Popper, MenuList } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 
-import { logOut } from '../../Redux/actions/user';
+import { ExpandLess, ExpandMore } from '@material-ui/icons';
 
-import colors from '../../Enums/colors';
+import { Typography, MenuItem, ClickAwayListener, Grow, Paper, Popper, MenuList } from '@material-ui/core';
 
 import JSS from '../../Stylesheets/JSS';
+import colors from '../../Enums/colors';
 
 const styles = (theme) => ({
     navLink: JSS.navLink(theme),
+
+    icon: {
+        display: 'inline-flex',
+        verticalAlign: 'middle'
+    },
 
     icon: {
         display: 'inline-flex',
@@ -43,17 +47,15 @@ const styles = (theme) => ({
 });
 
 const mapStateToProps = (state, ownProps) => ({
-
+    user: state.user
 })
 
-const mapDispatchToProps = {
-    logOut
-}
-
-const UserNavbarDropdown = (props) => {
+const VizNavbarDropdown = (props) => {
     const { classes, user, pathname, logOut } = props;
 
     const [anchorEl, setAnchorEl] = React.useState(null);
+
+    const paperClass = window.location.pathname.includes('/visualization') ? classes.popperPaperBlack : classes.popperPaperBlue;
 
     const handleClick = event => {
         setAnchorEl(event.currentTarget);
@@ -62,13 +64,11 @@ const UserNavbarDropdown = (props) => {
     const handleClose = () => {
       setAnchorEl(null);
     };
-
-    const paperClass = window.location.pathname.includes('/visualization') ? classes.popperPaperBlack : classes.popperPaperBlue;
-
+    
     return (
         <React.Fragment>
             <Typography variant='caption' className={`${classes.navLink}`} onClick={handleClick}>
-                {user.email}{anchorEl ? <ExpandLess className={classes.icon} color='primary' fontSize='small'/> : <ExpandMore className={classes.icon} color='primary' fontSize='small'/>}
+                Visualization{anchorEl ? <ExpandLess className={classes.icon} color='primary' fontSize='small'/> : <ExpandMore className={classes.icon} color='primary' fontSize='small'/>}
             </Typography>
             <Popper open={Boolean(anchorEl)} anchorEl={anchorEl} role={undefined} transition className={classes.dropdown}>
                 {({ TransitionProps, placement }) => (
@@ -79,9 +79,8 @@ const UserNavbarDropdown = (props) => {
                         <Paper className={paperClass}>
                             <ClickAwayListener onClickAway={handleClose}>
                                 <MenuList id="menu-list-grow">
-                                    <MenuItem onClick={handleClose} component={Link} to='/profile'>Profile</MenuItem>
-                                    <MenuItem onClick={handleClose} component={Link} to='/apikeymanagement'>API Access</MenuItem>
-                                    <MenuItem onClick={logOut}>Logout</MenuItem>
+                                    <MenuItem onClick={handleClose} component={Link} to='/visualization/charts'>Charts and Plots</MenuItem>
+                                    <MenuItem onClick={handleClose} component={Link} to='/visualization/cruises'>Explore Cruises</MenuItem>
                                 </MenuList>
                             </ClickAwayListener>
                         </Paper>
@@ -92,4 +91,4 @@ const UserNavbarDropdown = (props) => {
     )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withRouter(withStyles(styles)(UserNavbarDropdown)));
+export default connect(mapStateToProps, null)(withRouter(withStyles(styles)(VizNavbarDropdown)));

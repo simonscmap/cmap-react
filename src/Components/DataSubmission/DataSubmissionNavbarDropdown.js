@@ -61,7 +61,7 @@ const DataSubmissionNavbarDropdown = (props) => {
 
     const [anchorEl, setAnchorEl] = React.useState(null);
 
-    const paperClass = window.location.pathname === '/visualization' ? classes.popperPaperBlack : classes.popperPaperBlue;
+    const paperClass = window.location.pathname.includes('/visualization') ? classes.popperPaperBlack : classes.popperPaperBlue;
 
     const handleClick = event => {
         setAnchorEl(event.currentTarget);

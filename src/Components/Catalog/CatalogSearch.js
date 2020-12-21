@@ -8,22 +8,26 @@ import { Link, IconButton, Typography, FormControl, Select, MenuItem, FormHelper
 import { Search, Help } from '@material-ui/icons';
 
 import matchSorter from 'match-sorter';
+import queryString from 'query-string';
 
-import { keywordsFetch } from '../../Redux/actions/catalog';
+import { keywordsFetch, submissionOptionsRetrieval } from '../../Redux/actions/catalog';
 
 import colors from '../../Enums/colors';
 
 import uriEncodeSearchQuery from '../../Utility/Catalog/uriEncodeSearchQuery';
 import SearchHelpContents from './SearchHelpContent';
 import HelpButtonAndDialog from '../UI/HelpButtonAndDialog';
+import RegionSelector from '../UI/RegionSelector';
 
 const mapStateToProps = (state, ownProps) => ({
     keywords: state.keywords,
-    searchResults: state.searchResults
+    searchResults: state.searchResults,
+    submissionOptions: state.submissionOptions
 })
 
 const mapDispatchToProps = {
-    keywordsFetch
+    keywordsFetch,
+    submissionOptionsRetrieval
 }
 
 const styles = (theme) => ({
@@ -53,7 +57,7 @@ const styles = (theme) => ({
     },
 
     searchPanelRow: {
-        marginTop: '14px',
+        marginTop: '10px',
     },
 
     autocompletePopperPaper: {
@@ -83,6 +87,19 @@ const styles = (theme) => ({
         textAlign: 'left',
         marginTop: '4px',
         width: '100%'
+    },
+
+    regionSelectorInput: {
+        fontSize: '13px',
+        // padding: '4px 0px'
+    },
+
+    sensorInputLabel: {
+        fontSize: '21px'
+    },
+
+    sensorTextField: {
+        paddingTop: '8px'
     }
 });
 
@@ -97,8 +114,6 @@ const filterOptions = (options, { inputValue }) => {
     return result.sort((a,b) => a.length - b.length);
 }
 
-const searchRef = React.createRef();
-
 const defaultState = {
     searchInputValue: '',
     searchWords: [],
@@ -108,7 +123,8 @@ const defaultState = {
     latStart: -90,
     latEnd: 90,
     lonStart: -180,
-    lonEnd: 180
+    lonEnd: 180,
+    sensor: 'Any'
 }
 
 class CatalogSearch extends React.Component {
@@ -129,9 +145,13 @@ class CatalogSearch extends React.Component {
         this.setState({...this.state, showAdvanced: !this.state.showAdvanced});
     }
 
-    handleChangeSearchValue = (e, valueArray) => {
-        const target = e.target.name === undefined ? 'searchWords' : e.target.name;
-        let value = e.target.name === 'searchWords'  || e.target.name === undefined ? valueArray : e.target.value;
+    handleChangeSearchValue = (e, altTypeValue) => {
+        const target = e.target.name === undefined ? 
+            typeof altTypeValue === 'string' || altTypeValue === null ? 'sensor' : 'searchWords' : e.target.name;
+
+        let value = e.target.name === 'searchWords'  || e.target.name === undefined || e.target.name === 'sensor' ? altTypeValue : e.target.value;
+        
+        if(target === 'sensor' && value === null) value = 'Any';
 
         this.setState({...this.state, [target]: value});
         
@@ -144,6 +164,7 @@ class CatalogSearch extends React.Component {
             latEnd: this.state.latEnd,
             lonStart: this.state.lonStart,
             lonEnd: this.state.lonEnd,
+            sensor: this.state.sensor,
             [target]: value
         }));
     }
@@ -155,6 +176,31 @@ class CatalogSearch extends React.Component {
     handleResetSearch = () => {
         this.setState({...this.state, ...defaultState});
         this.props.history.push('/catalog');
+    }
+
+    handleSelectRegion = (option) => {
+        let coverageArray = option ? 
+            option.value.split(' ').map(e => parseFloat(e)) :
+            [-90, 90, -180, 180];
+
+        let latStart = coverageArray[0];
+        let latEnd = coverageArray[1];
+        let lonStart = coverageArray[2];
+        let lonEnd = coverageArray[3];
+        
+        this.props.history.push('/catalog?' + uriEncodeSearchQuery({
+            searchWords: this.state.searchWords,
+            hasDepth: this.state.hasDepth,
+            timeStart: this.state.timeStart,
+            timeEnd: this.state.timeEnd,
+            latStart,
+            latEnd,
+            lonStart,
+            lonEnd,
+            sensor: this.state.sensor
+        }));
+
+        this.setState({...this.state, latStart, latEnd, lonStart, lonEnd});
     }
 
     render = () => {
@@ -273,11 +319,19 @@ class CatalogSearch extends React.Component {
                             </Grid>
                         </Grid>                        
 
-                        <Grid item container xs={12} className={classes.searchPanelRow} style={{marginTop: '24px'}}>
+                        <Grid item container xs={12} className={classes.searchPanelRow} style={{marginTop: '14px'}}>
                             <Grid item xs={12}>
-                                <Typography className={classes.searchSectionHeader}>
+                                <Typography className={classes.searchSectionHeader} style={{marginBottom: 0}}>
                                     Spatial Coverage
                                 </Typography>
+                            </Grid>
+
+                            <Grid item xs={12} style={{textAlign: 'left', margin: '-3px 0 8px 10px'}}>
+                                <RegionSelector
+                                    onSelect={this.handleSelectRegion}
+                                    paperClass={classes.autocompletePopperPaper}
+                                    inputClass={classes.regionSelectorInput}
+                                />
                             </Grid>
 
                             <Grid item xs={6}>
@@ -350,7 +404,7 @@ class CatalogSearch extends React.Component {
                                     value={lonEnd}
                                     onChange={this.handleChangeSearchValue}
                                 />
-                            </Grid>
+                            </Grid>                            
 
                             <Grid item xs={6}>
                                 <FormControl className={classes.formControl}>
@@ -367,8 +421,35 @@ class CatalogSearch extends React.Component {
                                 </FormControl>
                             </Grid>
 
-                            <Grid item xs={6}></Grid>
-
+                            <Grid item xs={12}>
+                                <Autocomplete
+                                    options={this.props.submissionOptions ? this.props.submissionOptions.Sensor : []}
+                                    renderInput={(params) => (
+                                            <TextField 
+                                                {...params}
+                                                margin='dense'
+                                                name='sensor' 
+                                                label="Sensor" 
+                                                InputLabelProps={{style:{fontSize: '16px'}}}
+                                                fullWidth
+                                                classes={{
+                                                    root: classes.sensorTextField
+                                                }}
+                                                InputLabelProps={{
+                                                    classes: {
+                                                        root: classes.sensorInputLabel
+                                                    }
+                                                }}
+                                        />)}
+                                    // getOptionLabel={(option) => option.label}
+                                    value={this.state.sensor}
+                                    onChange={this.handleChangeSearchValue}
+                                    classes={{
+                                        paper: classes.autocompletePopperPaper,
+                                        // input: props.inputClass
+                                    }}
+                                />
+                                </Grid>
                             </Grid>
 
                         <Grid item xs={12} className={classes.searchPanelRow}>

@@ -41,7 +41,7 @@ const DataSubmission = (props) => {
             document.title = metaTags.default.description;
         }
     })
-
+    
     return (
         <div className={classes.root}>
         <Switch>

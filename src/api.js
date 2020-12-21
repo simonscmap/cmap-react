@@ -1,4 +1,5 @@
 import CSVParser from 'csv-parse';
+import queryString from 'query-string';
 
 import { apiUrl } from './config';
 import SpaceTimeData from './Classes/SpaceTimeData';
@@ -187,6 +188,14 @@ api.catalog.datasetFullPageDataFetch = async(shortname) => {
     return await fetch(apiUrl + `/api/catalog/datasetfullpage?shortname=${shortname}`, fetchOptions);
 }
 
+api.catalog.cruiseFullPageDataFetch = async(name) => {
+    return await fetch(apiUrl + `/api/catalog/cruisefullpage?name=${name}`, fetchOptions);
+}
+
+api.catalog.cruiseSearch = async(qString) => {
+    return await fetch(apiUrl + `/api/catalog/searchcruises` + qString, fetchOptions)
+}
+
 api.user.recoverPassword = async(email) => {
     fetch(apiUrl + '/api/user/forgotpassword', {
         ...postOptions,
@@ -318,6 +327,18 @@ api.visualization.csvDownload = async(query) => {
     else return {failed: true, status: response.status}
 }
 
+api.visualization.memberVariablesFetch = async(datasetID) => {
+    return await fetch(apiUrl + `/api/catalog/membervariables?datasetID=${datasetID}`);
+}
+
+api.visualization.autocompleteVariableNamesFetch = async(terms) => {
+    return await fetch(apiUrl + `/api/catalog/autocompletevariablesnames?searchTerms=${terms}`);
+}
+
+api.visualization.variableSearch = async(qString) => {
+    return await fetch(apiUrl + `/api/catalog/variablesearch${qString}`);
+}
+
 api.dataSubmission.retrieveSubmissionByUser = async() => {
     return await fetch(apiUrl + `/api/datasubmission/submissionsbyuser`, fetchOptions);
 }
@@ -397,17 +418,5 @@ api.user.cartPersistClear = async() => {
 api.user.getCart = async() => {
     return await fetch(`${apiUrl}/api/user/getcart`, fetchOptions);
 }
-
-// function* cartPersistAddItem(action){
-    
-// }
-
-// function* cartPersistRemoveItem(action){
-    
-// }
-
-// function* cartPersistClear(){
-    
-// }
 
 export default api;

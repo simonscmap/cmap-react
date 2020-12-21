@@ -61,19 +61,18 @@ const styles = (theme) => ({
 
 const Cart = (props) => {
     const { classes, cart } = props;
-
     let cartItems = Object.values(cart);
 
     const handleCartClear = () => {
         props.cartClear();
         props.cartPersistClear();
     }
-
+    
     return (
         <React.Fragment>
             <Dialog
                 PaperProps={{
-                    className: window.location.pathname === '/visualization' ? classes.dialogPaperViz : classes.dialogPaper
+                    className: window.location.pathname.includes('/visualization') ? classes.dialogPaperViz : classes.dialogPaper
                 }}
                 open={props.showCart} 
                 onClose={() => props.setShowCart(false)} 

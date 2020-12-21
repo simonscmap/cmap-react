@@ -176,13 +176,15 @@ const SearchResults = (props) => {
                 <FixedSizeList
                     itemData={searchResults}
                     itemCount={itemCount}
-                    height={itemCount * 222 || 500}
+                    // height={itemCount * 222 || 500}
+                    height={window.innerHeight - 140}
                     width='100%'
-                    itemSize={200}
-                    style={{overflow: 'visible'}}
+                    itemSize={222}
                 >
                     {({ index, style }) => (
-                        <SearchResult dataset={searchResults[index]}/>
+                        <div style={style}>
+                            <SearchResult dataset={searchResults[index]}/>
+                        </div>                        
                     )}
                 </FixedSizeList>
 

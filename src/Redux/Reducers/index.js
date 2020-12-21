@@ -12,6 +12,7 @@ import states from '../../Enums/asyncRequestStates';
 // reset on navigation for UI purposes. If so, add them with a default state
 // to the uiResetState in the ui reducer **
 const initialState = {
+
     // Catalog state pieces
     catalogRequestState: null,
     catalog: null,
@@ -23,6 +24,8 @@ const initialState = {
     searchResults: [],
     searchResultsLoadingState: states.succeeded,
     datasetFullPageData: {},
+    datasetFullPageDataLoadingState: states.succeeded,
+    cruiseFullPageData: {},
     datasetFullPageDataLoadingState: states.succeeded,
     cart: {},
     showCart: false,
@@ -71,6 +74,14 @@ const initialState = {
     getCruiseListRequestState: null,
     showChartsOnce: null,
     chartID: 0,
+    vizPageDataTarget: null,
+    vizSearchResults: {Observation: [], Model: []},
+    vizSearchResultsLoadingState: states.succeeded,
+    memberVariables: [],
+    memberVariablesLoadingState: states.succeeded,
+    relatedData: [],
+    relatedDataLoadingState: states.succeeded,
+    autocompleteVariableNames: [],
 
     // Data Submission state pieces
 

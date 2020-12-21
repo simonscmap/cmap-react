@@ -14,6 +14,7 @@ import DataSubmissionNavbarDropdown from '../DataSubmission/DataSubmissionNavbar
 import MobileNavbarMenu from './MobileNavbarMenu';
 
 import JSS from '../../Stylesheets/JSS';
+import VizNavbarDropdown from '../Visualization/VizNavbarDropdown';
 
 const styles = theme => ({
 
@@ -131,7 +132,7 @@ class TopNavBar extends Component {
         let cartSize = cart && Object.keys(cart).length ? Object.keys(cart).length : 0;
 
         return (
-            <div className={`${classes.navWrapper} ${pathname !== '/visualization' && classes.navWrapperBlue}`}>
+            <div className={`${classes.navWrapper} ${!pathname.includes('/visualization') && classes.navWrapperBlue}`}>
                 {
                     this.state.layout === 'desktop' ?
 
@@ -142,16 +143,15 @@ class TopNavBar extends Component {
                                 <img src='/images/CMAP_white_logo_2.png' width='40' alt='CMAP logo' className={classes.simonsLogo}/>
                             </Typography>
                             <Typography variant='caption' to='/catalog' component={Link} className={classes.navLink}>Catalog</Typography>
-                            <Typography variant='caption' to='/visualization' component={Link} className={classes.navLink}>Visualization</Typography>
+                            <VizNavbarDropdown/>
+                            {/* <Typography variant='caption' to='/visualization' component={Link} className={classes.navLink}>Visualization</Typography> */}
                             <Typography variant='caption' to='/community' component={Link} className={classes.navLink}>Community</Typography>
-                            {/* <Typography variant='caption' to='/datasubmission' component={Link} className={classes.navLink}>Data Submission</Typography> */}
                             <DataSubmissionNavbarDropdown/>
                         </div>
 
                         {/* Right side of navbar */}
                         <div className={classes.rightSectionWrapper}>
                             <div>
-                                {/* <Typography variant='caption' onClick={this.props.toggleShowHelp} className={classes.navLink}>{showHelp ? 'Hide Help' : 'Show Help'}</Typography> */}
                                 {
                                     cartSize > 0 ?
                                     <Typography variant='caption' onClick={() => this.props.setShowCart(true)} className={`${classes.navLink} ${classes.rightNavLink}`}>Cart ({cartSize})</Typography> :

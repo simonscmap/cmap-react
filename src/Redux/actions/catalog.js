@@ -106,6 +106,27 @@ export const datasetFullPageDataSetLoadingState = (state) => ({
     }
 });
 
+export const cruiseFullPageDataFetch = (name) => ({
+    type: catalogActionTypes.CRUISE_FULL_PAGE_DATA_FETCH,
+    payload: {
+        name
+    }
+});
+
+export const cruiseFullPageDataStore = (cruiseFullPageData) => ({
+    type: catalogActionTypes.CRUISE_FULL_PAGE_DATA_STORE,
+    payload: {
+        cruiseFullPageData
+    }
+});
+
+export const cruiseFullPageDataSetLoadingState = (state) => ({
+    type: catalogActionTypes.CRUISE_FULL_PAGE_DATA_SET_LOADING_STATE,
+    payload: {
+        state
+    }
+});
+
 export const cartAddItem = (item) => ({
     type: catalogActionTypes.CART_ADD_ITEM,
     payload: {

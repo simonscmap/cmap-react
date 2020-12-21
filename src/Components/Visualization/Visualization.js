@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Route, BrowserRouter, Switch } from 'react-router-dom'
 
 import vizSubTypes from '../../Enums/visualizationSubTypes';
 import storedProcedures from '../../Enums/storedProcedures';
@@ -9,6 +10,7 @@ import { withStyles } from '@material-ui/core/styles';
 import LoginRequiredPrompt from '../User/LoginRequiredPrompt';
 // import VisualizationController from './VisualizationController';
 import VizControlPanel from './VizControlPanel';
+import NewVizControlPanel from './NewVizControlPanel';
 
 import { showLoginDialog, snackbarOpen } from '../../Redux/actions/ui';
 import { queryRequestSend, storedProcedureRequestSend, cruiseListRequestSend, completedShowCharts } from '../../Redux/actions/visualization';
@@ -27,6 +29,7 @@ import utcDateStringToLocal from '../../Utility/utcDateStringToLocal';
 import temporalResolutions from '../../Enums/temporalResolutions';
 import stars from '../../Utility/starsBase64';
 import metaTags from '../../Enums/metaTags';
+import ModuleSelector from './ModuleSelector';
 
 const mapVizType = (vizType) => {
     const mapping = {
@@ -150,9 +153,9 @@ class Visualization extends Component {
         document.title = metaTags.visualization.title;
         document.description = metaTags.visualization.description;
         
-        if(!this.props.catalog) this.props.retrievalRequestSend();
-        if(!this.props.cruiseList) this.props.cruiseListRequestSend();
-        if(!this.props.datasets) this.props.datasetRetrievalRequestSend();
+        // if(!this.props.catalog) this.props.retrievalRequestSend();
+        // if(!this.props.cruiseList) this.props.cruiseListRequestSend();
+        // if(!this.props.datasets) this.props.datasetRetrievalRequestSend();
 
         const esriModuleNames = [
             'AreaMeasurement3D',
@@ -386,7 +389,7 @@ class Visualization extends Component {
         return (
             <div className={classes.vizWrapper}>
 
-                <VizControlPanel
+                {/* <VizControlPanel
                     toggleChartView={this.toggleChartView}
                     toggleShowUI={this.toggleShowUI}
                     handleChange={this.handleChange}
@@ -405,7 +408,8 @@ class Visualization extends Component {
                     resetSPParams={this.resetSPParams}
                     handleShowCruiseControl={this.handleShowCruiseControl}
                     showCruiseControl={this.state.showCruiseControl}
-                />
+                /> */}
+
                 { this.state.esriModules &&
                     <div className={`${this.state.showCharts ? classes.displayNone : ''}`}>
                         <MapContainer
@@ -419,6 +423,34 @@ class Visualization extends Component {
                         />
                     </div>
                 }
+
+                <Switch>          
+                    <Route exact path='/visualization' component={ModuleSelector} />
+                    <Route path='/visualization/charts' component={NewVizControlPanel}
+                            // <NewVizControlPanel
+                            toggleChartView={this.toggleChartView}
+                            toggleShowUI={this.toggleShowUI}
+                            handleChange={this.handleChange}
+                            handleLatLonChange={this.handleLatLonChange}
+                            handleStartDateChange={this.handleStartDateChange} 
+                            handleEndDateChange={this.handleEndDateChange} 
+                            showUI={this.state.showUI}
+                            onVisualize={this.onVisualize}
+                            updateFields={this.updateFields}
+                            {...this.state.spParams}
+                            surfaceOnly={this.state.surfaceOnly}
+                            irregularSpatialResolution={this.state.irregularSpatialResolution}
+                            showCharts={this.state.showCharts}
+                            handleShowCharts={this.handleShowCharts}
+                            handleShowGlobe={this.handleShowGlobe}
+                            resetSPParams={this.resetSPParams}
+                            handleShowCruiseControl={this.handleShowCruiseControl}
+                            showCruiseControl={this.state.showCruiseControl}
+                    //     />
+                    // }
+                    />
+                    <Route path='/visualization/cruises' component={''}/>
+                </Switch>              
 
                 <div className={this.state.showCharts ? classes.showCharts : classes.displayNone}>
                     <Charts/>
