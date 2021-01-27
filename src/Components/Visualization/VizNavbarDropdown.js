@@ -28,7 +28,7 @@ const styles = (theme) => ({
     },
 
     dropdown: {
-        zIndex: 1300,
+        zIndex: 40000,
         marginTop: '21px',
         width: '200px'
     },

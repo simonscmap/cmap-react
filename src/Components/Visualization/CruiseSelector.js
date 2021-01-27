@@ -1,20 +1,19 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Link as RouterLink } from 'react-router-dom';
 
 import Select, { components } from 'react-select';
 import * as JsSearch from 'js-search';
 
 import { withStyles } from '@material-ui/core/styles';
 import { Search, ZoomOutMap } from '@material-ui/icons';
-import { Table, TableBody, TableCell, TableRow, Icon, Tooltip } from '@material-ui/core';
+import { Table, TableBody, TableCell, TableRow, Link, Icon, Tooltip } from '@material-ui/core';
 
 import { cruiseListRequestSend, cruiseTrajectoryRequestSend, cruiseTrajectoryClear } from '../../Redux/actions/visualization';
 
 import states from '../../Enums/asyncRequestStates';
 import colors from '../../Enums/colors';
-import Draggable from 'react-draggable';
 import HelpButtonAndDialog from '../UI/HelpButtonAndDialog';
-import DragIcon from './DragIcon';
 
 const mapStateToProps = (state, ownProps) => ({
     cruiseList: state.cruiseList,
@@ -38,13 +37,15 @@ const styles = theme => ({
         color: esriFontColor,
         borderRadius: '4px',
         boxShadow: '2px',
-        position: 'relative',
+        // position: 'relative',
         backdropFilter: 'blur(2px)',
         transform: 'translateY(35px)',
         marginTop: '24px',
         position: 'fixed',
-        right: '0px',
-        top: '60px'
+        // right: '0px',
+        left: 0,
+        // top: '60px'
+        top: 140
     },
 
     cruiseSelect: {
@@ -69,6 +70,10 @@ const styles = theme => ({
         padding: '12px 12px 12px 0',
         color: colors.primary,
         verticalAlign: 'middle'
+    },
+
+    linkWrapper: {
+        padding: '12px'
     }
 })
 
@@ -157,7 +162,7 @@ class CruiseSelector extends Component {
         } else {this.props.cruiseTrajectoryClear()}
 
         this.setState({...this.state, selectedCruise: selection});
-        this.props.updateParametersFromCruiseBoundary(selection);
+        // this.props.updateParametersFromCruiseBoundary(selection);
     }
 
     componentDidUpdate = (prevProps) => {
@@ -173,7 +178,6 @@ class CruiseSelector extends Component {
     }
 
     render(){
-
         const { search, searchField, selectedCruise } = this.state;        
         const { classes, cruiseList} = this.props;
         
@@ -182,8 +186,7 @@ class CruiseSelector extends Component {
             : []
 
         return (
-            <Draggable handle='#drag-icon-cruise'>
-                <div id='cruise-selector' className={classes.outerDiv} style={this.props.showCruiseControl ? {} : {display: 'none'}}>
+                <div id='cruise-selector' className={classes.outerDiv}>
                     {/* <ConnectedTooltip placement='left' title={tooltips.visualization.cruiseSelector}> */}
                         <Select
                             isLoading={this.props.getCruiseListState === states.inProgress}
@@ -269,14 +272,13 @@ class CruiseSelector extends Component {
                             })}
                         />
 
-                        <HelpButtonAndDialog
+                        {/* <HelpButtonAndDialog
                             title='Cruise Help'
                             content='Cruise Help Content'
-                        />
-
-                        <DragIcon iconID='drag-icon-cruise'/>
+                        /> */}
 
                     {selectedCruise &&
+                        <>
                         <Table size='small' className={classes.cruiseInfo}>
                             <TableBody>
                                 <TableRow>
@@ -346,9 +348,19 @@ class CruiseSelector extends Component {
                                 }
                             </TableBody>
                         </Table>
+                        
+                            <div className={classes.linkWrapper}>
+                                <Link 
+                                    component={RouterLink} 
+                                    to={`/catalog/cruises/${selectedCruise.data.Name}`}
+                                    target='_blank'
+                                >
+                                    Open Cruise Catalog Page
+                                </Link>
+                            </div>
+                        </>
                     }
                 </div>
-            </Draggable>
         )
     }
 }

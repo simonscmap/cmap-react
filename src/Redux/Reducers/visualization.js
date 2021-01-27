@@ -76,9 +76,15 @@ export default function(state, action) {
                 }
             }}
 
-        case visualizationActionTypes.VIZ_PAGE_DATA_TARGET_SET: return {...state, vizPageDataTarget: action.payload.target}
+        case visualizationActionTypes.VIZ_PAGE_DATA_TARGET_SET: return {...state, vizPageDataTarget: action.payload.target, vizPageDataTargetDetails: null}
+        case visualizationActionTypes.VIZ_PAGE_DATA_TARGET_DETAILS_STORE: return {...state, vizPageDataTargetDetails: action.payload.vizPageDataTargetDetails}
 
-        case visualizationActionTypes.VIZ_SEARCH_RESULTS_STORE_AND_UPDATE_OPTIONS: return {...state, vizSearchResults: action.payload.searchResults, submissionOptions: action.payload.options}
+        case visualizationActionTypes.VIZ_SEARCH_RESULTS_STORE_AND_UPDATE_OPTIONS: return {
+            ...state, 
+            vizSearchResults: action.payload.searchResults, 
+            submissionOptions: action.payload.options,
+            vizSearchResultsFullCounts: action.payload.counts
+        }
         case visualizationActionTypes.VIZ_SEARCH_RESULTS_STORE: return {...state, vizSearchResults: action.payload.searchResults}
         case visualizationActionTypes.VIZ_SEARCH_RESULTS_SET_LOADING_STATE: return {...state, vizSearchResultsLoadingState: action.payload.state}
 
@@ -89,6 +95,11 @@ export default function(state, action) {
         case visualizationActionTypes.RELATED_DATA_SET_LOADING_STATE: return {...state, relatedDataLoadingState: action.payload.state}
         
         case visualizationActionTypes.VARIABLE_NAME_AUTOCOMPLETE_STORE: return {...state, autocompleteVariableNames: action.payload.autocompleteVariableNames}
+
+        case visualizationActionTypes.VARIABLE_STORE: return {...state, variableFetchLoadingState: states.succeeded, variableDetails: action.payload.variableDetails}
+        case visualizationActionTypes.VARIABLE_FETCH_SET_LOADING_STATE: return {...state, variableFetchLoadingState: action.payload.state}
+
+        case visualizationActionTypes.DATASET_SUMMARY_STORE: return {...state, datasetSummary: action.payload.datasetSummary}
         
         default: return state;
     }

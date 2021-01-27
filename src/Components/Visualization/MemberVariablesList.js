@@ -5,8 +5,6 @@ import { Close, Info, InsertChart } from '@material-ui/icons';
 
 import { FixedSizeList } from 'react-window';
 
-import TableStatsDialog from './TableStatsDialog';
-
 import colors from '../../Enums/colors';
 
 import { memberVariablesFetch } from '../../Redux/actions/visualization';

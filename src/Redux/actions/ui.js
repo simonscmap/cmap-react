@@ -71,3 +71,11 @@ export const setShowCart = (showCart) => ({
         showCart
     }
 });
+
+export const windowResize = (height, width) => ({
+    type: interfaceActionTypes.WINDOW_RESIZE,
+    payload: {
+        height,
+        width
+    }
+});

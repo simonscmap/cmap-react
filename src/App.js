@@ -1,37 +1,38 @@
-import React, { Component } from 'react';
+import React, { Suspense, lazy, Component } from 'react';
 import { connect } from 'react-redux';
 
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
+import { initializeGoogleAuth } from './Redux/actions/user';
+import { toggleShowHelp, windowResize } from './Redux/actions/ui';
 
 import './Stylesheets/App.scss';
 
 import colors from './Enums/colors';
 
 import { Route, BrowserRouter, Switch } from 'react-router-dom'
+import { debounce } from 'throttle-debounce';
 
-import Home from './Components/Home';
-import Catalog from './Components/Catalog/Catalog';
-import SearchResults from './Components/Catalog/SearchResults';
-import Register from './Components/User/Register';
-import Visualization from './Components/Visualization/Visualization';
+// import Catalog from './Components/Catalog/Catalog';
 import GlobalUIComponentWrapper from './Components/UI/GlobalUIComponentWrapper';
-import LandingPage from './Components/LandingPage';
 import TopNavBar from './Components/UI/TopNavBar';
-import Login from './Components/User/Login';
-import Profile from './Components/User/Profile';
-import DataSubmission from './Components/DataSubmission/DataSubmission';
-import ContactUs from './Components/ContactUs';
-import CommunityTemp from './Components/Community/CommunityTemp';
-import CatalogNew from './Components/Catalog/CatalogNew';
-import DatasetFullPage from './Components/Catalog/DatasetFullPage';
-import ForgotPass from './Components/User/ForgotPass';
-import ChoosePassword from './Components/User/ChoosePassword';
-import CruiseFullPage from './Components/Catalog/CruiseFullPage';
 
-import { initializeGoogleAuth } from './Redux/actions/user';
-import { toggleShowHelp } from './Redux/actions/ui';
+const Home = lazy(() => import('./Components/Home'));
+const SearchResults = lazy(() => import('./Components/Catalog/SearchResults'));
+const Register = lazy(() => import('./Components/User/Register'));
+const Visualization = lazy(() => import('./Components/Visualization/Visualization'));
+const LandingPage = lazy(() => import('./Components/LandingPage'));
+const Login = lazy(() => import('./Components/User/Login'));
+const Profile = lazy(() => import('./Components/User/Profile'));
+const DataSubmission = lazy(() => import('./Components/DataSubmission/DataSubmission'));
+const ContactUs = lazy(() => import('./Components/ContactUs'));
+const CommunityTemp = lazy(() => import('./Components/Community/CommunityTemp'));
+const CatalogNew = lazy(() => import('./Components/Catalog/CatalogNew'));
+const DatasetFullPage = lazy(() => import('./Components/Catalog/DatasetFullPage'));
+const ForgotPass = lazy(() => import('./Components/User/ForgotPass'));
+const ChoosePassword = lazy(() => import('./Components/User/ChoosePassword'));
+const CruiseFullPage = lazy(() => import('./Components/Catalog/CruiseFullPage'));
 
 const theme = createMuiTheme({
 
@@ -216,20 +217,26 @@ const theme = createMuiTheme({
   }
 });
 
-const mapStateToProps = (state, ownProps) => ({
-  loadingMessage: state.loadingMessage
-});
-
 const mapDispatchToProps = {
   initializeGoogleAuth,
-  toggleShowHelp
+  toggleShowHelp,
+  windowResize
 };
 
 class App extends Component {
   componentDidMount = () => {
     this.props.initializeGoogleAuth();
+    window.onresize = this.handleResize;
   }
+
+  debouncedResize = debounce(200, this.props.windowResize);
+
+  handleResize = () => {
+    this.debouncedResize(window.innerHeight, window.innerWidth);
+  }
+
   render() {
+
     return (
       <MuiPickersUtilsProvider utils={DateFnsUtils}>
         <div className="App">
@@ -237,23 +244,25 @@ class App extends Component {
           <BrowserRouter>
             <GlobalUIComponentWrapper/>
             <TopNavBar/>
-            <Switch>          
-              <Route exact path='/apikeymanagement' component={ Home } />
-              <Route exact path='/' component={ LandingPage } />
-              <Route exact path='/catalog' component={ CatalogNew } />
-              <Route exact path='/login' component={ Login } />
-              <Route exact path='/register' component={ Register } />
-              <Route path='/visualization' component={Visualization} />
-              <Route exact path='/profile' component={Profile} />
-              <Route exact path='/forgotpass' component={ForgotPass} />
-              <Route path='/datasubmission' component={DataSubmission} />
-              <Route path='/choosepassword' component={ChoosePassword} />
-              <Route exact path='/contact' component={ContactUs}/>
-              <Route path='/community' component={CommunityTemp} />
-              <Route path='/catalog/searchresults' component={SearchResults}/>
-              <Route path='/catalog/datasets/:dataset' component={DatasetFullPage}/>
-              <Route path='/catalog/cruises/:cruiseName' component={CruiseFullPage}/>
-            </Switch>
+            <Suspense fallback={''}>
+              <Switch>          
+                <Route exact path='/apikeymanagement' component={ Home } />
+                <Route exact path='/' component={ LandingPage } />
+                <Route exact path='/catalog' component={ CatalogNew } />
+                <Route exact path='/login' component={ Login } />
+                <Route exact path='/register' component={ Register } />
+                <Route path='/visualization' component={Visualization} />
+                <Route exact path='/profile' component={Profile} />
+                <Route exact path='/forgotpass' component={ForgotPass} />
+                <Route path='/datasubmission' component={DataSubmission} />
+                <Route path='/choosepassword' component={ChoosePassword} />
+                <Route exact path='/contact' component={ContactUs}/>
+                <Route path='/community' component={CommunityTemp} />
+                <Route path='/catalog/searchresults' component={SearchResults}/>
+                <Route path='/catalog/datasets/:dataset' component={DatasetFullPage}/>
+                <Route path='/catalog/cruises/:cruiseName' component={CruiseFullPage}/>
+              </Switch>
+            </Suspense>
           </BrowserRouter>
           </MuiThemeProvider>
         </div>
@@ -262,4 +271,4 @@ class App extends Component {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default connect(null, mapDispatchToProps)(App);

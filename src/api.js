@@ -336,7 +336,15 @@ api.visualization.autocompleteVariableNamesFetch = async(terms) => {
 }
 
 api.visualization.variableSearch = async(qString) => {
-    return await fetch(apiUrl + `/api/catalog/variablesearch${qString}`);
+    return await fetch(apiUrl + `/api/catalog/variablesearch${qString}`, fetchOptions);
+}
+
+api.visualization.variableFetch = async(id) => {
+    return await fetch(apiUrl + `/api/catalog/variable?id=${id}`, fetchOptions);
+}
+
+api.visualization.datasetSummaryFetch = async(id) => {
+    return await fetch(apiUrl + `/api/catalog/datasetsummary?id=${id}`, fetchOptions)
 }
 
 api.dataSubmission.retrieveSubmissionByUser = async() => {

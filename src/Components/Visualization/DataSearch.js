@@ -1,22 +1,23 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
-import { withStyles, Chip, TextField, MenuList, MenuItem, InputAdornment, Grid, Tooltip, IconButton, Link, Typography, FormControl, Select, FormHelperText, Button } from '@material-ui/core';
+import { withStyles, Chip, TextField, MenuList, MenuItem, InputAdornment, Grid, Tooltip, IconButton, Link, Typography, FormControl, Select, FormHelperText, Button, Popper, Checkbox, FormControlLabel, FormGroup } from '@material-ui/core';
 import { Autocomplete } from '@material-ui/lab';
-import { Search, Layers, DirectionsBoat, CallMissedOutgoing, Info, InsertChart } from '@material-ui/icons';
+import { ExpandMore, ChevronRight, Search, Layers, DirectionsBoat, CallMissedOutgoing, Info, InsertChart, Close } from '@material-ui/icons';
 
 import matchSorter from 'match-sorter';
 // import * as JsSearch from 'js-search';
 // import { FixedSizeList } from 'react-window';
 
 import ProductList from './ProductList';
-import MemberVariablesList from './MemberVariablesList';
-import RegionSelector from '../UI/RegionSelector';
+import MultiCheckboxDrowndown from '../UI/MultiCheckboxDropdown';
+// import RegionSelector from '../UI/RegionSelector';
 
 import { vizSearchResultsFetch, vizSearchResultsSetLoadingState, variableNameAutocompleteFetch, vizSearchResultsStore } from '../../Redux/actions/visualization';
 import { keywordsFetch, searchOptionsFetch } from '../../Redux/actions/catalog';
 
 import colors from '../../Enums/colors';
 import states from '../../Enums/asyncRequestStates';
+// import regions from '../../Enums/regions';
 import zIndex from '@material-ui/core/styles/zIndex';
 
 const mapStateToProps = (state, ownProps) => ({
@@ -26,7 +27,8 @@ const mapStateToProps = (state, ownProps) => ({
     // keywords: state.keywords,
     vizSearchResultsLoadingState: state.vizSearchResultsLoadingState,
     autocompleteVariableNames: state.autocompleteVariableNames,
-    submissionOptions: state.submissionOptions
+    submissionOptions: state.submissionOptions,
+    windowHeight: state.windowHeight
 })
 
 const mapDispatchToProps = {
@@ -117,7 +119,7 @@ const styles = (theme) => ({
 
     showAdvancedWrapper: {
         textAlign: 'left',
-        marginTop: '4px',
+        marginTop: '16px',
         width: '100%'
     },
 
@@ -140,6 +142,54 @@ const styles = (theme) => ({
 
     addBorder: {
         border: `1px solid ${colors.primary}`
+    },
+
+    denseGridItem: {
+        marginTop: '4px',
+        padding: '0px 6px'
+    },
+
+    shiftedAutocompletePopper: {
+        height: '400px',
+        width: '500px',
+        position: 'absolute',
+        bottom: '190px',
+    },
+
+    shiftedAutocompletePaper: {
+        minHeight : '400px',
+    },
+
+    shiftedAutocompleteListbox: {
+        maxHeight: 0,
+        minHeight : '400px',
+        overflowX: 'hidden'
+    },
+
+    checkboxGroupHeader: {
+        '&:hover': {
+            backgroundColor: colors.greenHover
+        },
+
+        cursor: 'pointer',
+        height: '38px',
+        boxShadow: '0px 0px 0px 1px #242424',
+        backgroundColor: 'rgba(0,0,0,.4)',
+        marginTop: '8px'
+    },
+
+    formControlLabelRoot: {
+        height: '30px'
+    },
+
+    formControlLabelLabel: {
+        fontSize: '14px'
+    },
+
+    closeIcon: {
+        float: 'right',
+        display: 'inline',
+        cursor: 'pointer'
     }
 });
 
@@ -162,15 +212,16 @@ const defaultState = {
     latEnd: 90,
     lonStart: -180,
     lonEnd: 180,
-    sensor: 'Any',
-    searchTerms: [],
-    searchInputValue: '',
+    sensor: new Set(),
+    searchTerms: '',
     sensorInputValue: '',
     temporalResolution: 'Any',
     spatialResolution: 'Any',
     dataSource: 'Any',
     distributor: 'Any',
-    processLevel: 'Any'
+    processLevel: 'Any',
+    make: new Set(),
+    region: new Set()
 }
 
 class DataSearch extends React.Component {
@@ -178,6 +229,9 @@ class DataSearch extends React.Component {
     state = {
         memberVariablesDataset: null,
         showAdvanced: false,
+        sensorsMenuOpen: false,
+        regionsMenuOpen: false,
+        makesMenuOpen: false,
         ...defaultState
     }
 
@@ -188,26 +242,39 @@ class DataSearch extends React.Component {
         // }
     }
 
-    handleSearchInputValueChange = (e) => {
-        this.props.variableNameAutocompleteFetch((e && e.target && e.target.value) || '');
-        this.setState({...this.state, searchInputValue: (e && e.target && e.target.value) || ''});
+    // handleSearchInputValueChange = (e) => {
+    //     this.props.variableNameAutocompleteFetch((e && e.target && e.target.value) || '');
+    //     this.setState({...this.state, searchInputValue: (e && e.target && e.target.value) || ''});
+    // }
+
+    handleChangeSearchValue = (e) => {      
+        this.updateStateAndSearch({...this.state, [e.target.name]: e.target.value});
     }
 
-    handleChangeSearchValue = (e, altTypeValue) => {
+    handleChangeAutocomplete = (statePiece) => {
+        return (e, v) => {
+            let newState = {...this.state, [statePiece]: v}
+            this.updateStateAndSearch(newState);
+        }
+    }
+
+    updateStateAndSearch = (newState) => {
         this.props.vizSearchResultsSetLoadingState(states.inProgress);
         this.props.vizSearchResultsStore({Observation: [], Model: []});
 
-        const target = e.target.name === undefined ? 
-            typeof altTypeValue === 'string' || altTypeValue === null ? 'sensor' : 'searchTerms' : e.target.name;
-
-        let value = e.target.name === 'searchTerms'  || e.target.name === undefined || e.target.name === 'sensor' ? altTypeValue : e.target.value;
-        
-        if(target === 'sensor' && value === null) value = 'Any';
-
-        let newState = {...this.state, [target]: value};
-
         this.setState(newState);
-        newState.keywords = newState.searchTerms;
+        this.props.vizSearchResultsFetch(newState);
+    }
+
+    handleChangeSensor = (e, altTypeValue) => {
+        let newState = {...this.state, sensor: altTypeValue};
+        this.setState(newState);
+        this.props.vizSearchResultsFetch(newState);
+    }
+
+    handleChangeMake = (e, altTypeValue) => {
+        let newState = {...this.state, make: altTypeValue};
+        this.setState(newState);
         this.props.vizSearchResultsFetch(newState);
     }
 
@@ -215,33 +282,47 @@ class DataSearch extends React.Component {
         this.setState({...this.state, showAdvanced: !this.state.showAdvanced});
     }
 
-    handleShowMemberVariables = (dataset) => {
-        this.setState({...this.state, memberVariablesDataset: dataset});
-    }
+    // handleShowMemberVariables = (dataset) => {
+    //     this.setState({...this.state, memberVariablesDataset: dataset});
+    // }
 
-    handleSelectRegion = (option) => {
-        let coverageArray = option ? 
-            option.value.split(' ').map(e => parseFloat(e)) :
-            [-90, 90, -180, 180];
+    // handleSelectRegion = (event, option) => {
+    //     console.log(option);
+    //     let coverageArray = option ? 
+    //         option.value.split(' ').map(e => parseFloat(e)) :
+    //         [-90, 90, -180, 180];
 
-        let latStart = coverageArray[0];
-        let latEnd = coverageArray[1];
-        let lonStart = coverageArray[2];
-        let lonEnd = coverageArray[3];
+    //     let latStart = coverageArray[0];
+    //     let latEnd = coverageArray[1];
+    //     let lonStart = coverageArray[2];
+    //     let lonEnd = coverageArray[3];
 
-        let newState = {...this.state, latStart, latEnd, lonStart, lonEnd};
-        this.setState({...newState});
-        this.props.vizSearchResultsFetch(newState);
-        this.props.vizSearchResultsSetLoadingState(states.inProgress);
-        this.props.vizSearchResultsStore({Observation: [], Model: []});
-
-    }
+    //     let newState = {...this.state, latStart, latEnd, lonStart, lonEnd, region: option};
+    //     this.updateStateAndSearch(newState);
+    // }
 
     handleResetSearch = () => {
-        this.setState({...this.state, ...defaultState});
-        this.props.vizSearchResultsStore({Observation: [], Model: []});
-        this.props.vizSearchResultsFetch({});
-        this.props.vizSearchResultsSetLoadingState(states.inProgress);
+        let newState = {...this.state, ...defaultState};
+        this.updateStateAndSearch(newState);
+    }
+
+    handleToggleMenu = (menu) => {
+        this.setState({...this.state, [menu]: !this.state[menu]})
+    }
+
+    handleClickCheckbox = (e, checked) => {
+        let [ column, value ] = e.target.name.split('!!');
+        let newSet = new Set(this.state[column]);
+
+        checked ? newSet.add(value) : newSet.delete(value);
+
+        this.updateStateAndSearch({...this.state, [column]: newSet});
+    }
+
+    handleClearMultiSelect = (param) => {
+        let newState = {...this.state};
+        newState[param] = defaultState[param];
+        this.updateStateAndSearch(newState);
     }
 
     render = () => {
@@ -251,12 +332,14 @@ class DataSearch extends React.Component {
             // keywords,
             vizSearchResults,
             // vizSearchResultsSetLoadingState,
-            autocompleteVariableNames
+            autocompleteVariableNames,
+            submissionOptions,
+            windowHeight
         } = this.props;
 
         const { 
             searchTerms, 
-            searchInputValue, 
+            // searchInputValue, 
             memberVariablesDataset,
             hasDepth, 
             timeStart, 
@@ -269,14 +352,26 @@ class DataSearch extends React.Component {
             spatialResolution,
             dataSource,
             distributor,
-            processLevel
+            processLevel,
+            make,
+            region,
+            sensor,
+            sensorsMenuOpen,
+            makesMenuOpen,
+            regionsMenuOpen
         } = this.state;
         
         return (
             <React.Fragment>
                 <Grid container>
-                    <Grid item xs={5} style={{padding: '16px', backgroundColor: 'rgba(0,0,0,.4)', display: memberVariablesDataset ? 'none' : ''}}>
-                        <Autocomplete
+                    <Grid item xs={12}>
+                        <Typography style={{display: 'inline-block'}}>
+                            Search and filter using the controls on the left. Select a variable to plot from the list on the right.
+                        </Typography>
+                        <Close color='primary' onClick={this.props.handleCloseDataSearch} className={classes.closeIcon}/>
+                    </Grid>
+                    <Grid item xs={4} style={{overflowY: 'auto', maxHeight: windowHeight - 204, padding: '16px', backgroundColor: 'rgba(0,0,0,.4)', display: memberVariablesDataset ? 'none' : ''}}>
+                        {/* <Autocomplete
                             className={classes.autoComplete}
                             value={searchTerms}
                             onChange={this.handleChangeSearchValue}
@@ -327,20 +422,296 @@ class DataSearch extends React.Component {
                                     variant="outlined"                            
                                 />
                             )}
-                        />  
+                        />   */}
+
+                                <TextField
+                                    fullWidth
+                                    name='searchTerms'
+                                    onChange={this.handleChangeSearchValue}
+                                    placeholder='Search'
+                                    value={searchTerms}
+                                    InputProps={{
+                                        classes: {
+                                            root: classes.inputRoot
+                                        },
+                                        startAdornment: (
+                                            <React.Fragment>
+                                                <InputAdornment position="start">
+                                                    <Search style={{color: colors.primary}}/>
+                                                </InputAdornment>
+                                            </React.Fragment>
+                                        )
+                                    }}
+                                    variant="outlined"                            
+                                />
+
+                        <MultiCheckboxDrowndown
+                            options={submissionOptions.Make}
+                            selectedOptions={make}
+                            handleClear={() => this.handleClearMultiSelect('make')}
+                            parentStateKey={'make'}
+                            handleClickCheckbox={this.handleClickCheckbox}
+                        />
+
+{/* <Grid 
+                            item xs={12} 
+                            container 
+                            alignItems='center' 
+                            className={classes.checkboxGroupHeader} 
+                            onClick={() => this.handleToggleMenu('makesMenuOpen')}
+                            >
+                            {makesMenuOpen ? 
+                                <ExpandMore className={classes.menuOpenIcon}/> : 
+                                <ChevronRight className={classes.menuOpenIcon}/>
+                            }
+                            Makes
+                        </Grid> */}
+                        
+                        {/* {
+                            makesMenuOpen ?
+
+                            <Grid item xs={12} className={classes.formGroupWrapper}>
+                                {
+                                    make.size ?
+
+                                    <Grid item container cs={12} justify='flex-start' className={classes.multiSelectHeader}>
+                                        <span style={{marginRight: '8px'}}>{make.size} Selected </span>
+                                        <Link component='button' onClick={() => this.handleClearMultiSelect('make')}>Reset</Link>
+                                    </Grid> : ''
+                                }                                
+                                
+                                <FormGroup>
+                                    {submissionOptions.Make.map((e, i) => (
+                                        <Grid item xs={12}>
+                                            <FormControlLabel
+                                                key={i}
+                                                control={
+                                                    <Checkbox 
+                                                        color='primary' 
+                                                        onChange={this.handleClickCheckbox} 
+                                                        className={classes.checkbox} 
+                                                        size='small'
+                                                        name={'make' + '!!' + e}
+                                                        checked={make.has(e)}
+                                                    />
+                                                }
+                                                label={e}
+                                                classes={{
+                                                    root: classes.formControlLabelRoot,
+                                                    label: classes.formControlLabelLabel
+                                                }}
+                                            />
+                                        </Grid>
+                                    ))}
+                                </FormGroup>
+                            </Grid>
+
+                            : ''
+                        } */}
+
+                    <Grid container>
+                        <Grid 
+                            item xs={12} 
+                            container 
+                            alignItems='center' 
+                            className={classes.checkboxGroupHeader} 
+                            onClick={() => this.handleToggleMenu('sensorsMenuOpen')}
+                            >
+                            {sensorsMenuOpen ? 
+                                <ExpandMore className={classes.menuOpenIcon}/> : 
+                                <ChevronRight className={classes.menuOpenIcon}/>
+                            }
+                            Sensors
+                        </Grid>
+
+                        {
+                            sensorsMenuOpen ?
+
+                            <Grid item xs={12} className={classes.formGroupWrapper}>
+                                {
+                                    sensor.size ?
+
+                                    <Grid item container cs={12} justify='flex-start' className={classes.multiSelectHeader}>
+                                        <span style={{marginRight: '8px'}}>{sensor.size} Selected </span>
+                                        <Link component='button' onClick={() => this.handleClearMultiSelect('sensor')}>Reset</Link>
+                                    </Grid> : ''
+                                }
+
+                                <FormGroup>
+                                    {submissionOptions.Sensor.map((e, i) => (
+                                        <Grid item xs={12}>
+                                            <FormControlLabel
+                                                key={i}
+                                                control={
+                                                    <Checkbox 
+                                                        color='primary' 
+                                                        onChange={this.handleClickCheckbox} 
+                                                        className={classes.checkbox} 
+                                                        size='small'
+                                                        name={'sensor' + '!!' + e}
+                                                        checked={sensor.has(e)}
+                                                    />
+                                                }
+                                                label={e}
+                                                classes={{
+                                                    root: classes.formControlLabelRoot,
+                                                    label: classes.formControlLabelLabel
+                                                }}
+                                            />
+                                        </Grid>
+                                    ))}
+                                </FormGroup>
+                            </Grid>
+
+                            : ''
+                        }
+
+                        <Grid 
+                            item xs={12} 
+                            container 
+                            alignItems='center' 
+                            className={classes.checkboxGroupHeader} 
+                            onClick={() => this.handleToggleMenu('regionsMenuOpen')}
+                            >
+                            {regionsMenuOpen ? 
+                                <ExpandMore className={classes.menuOpenIcon}/> : 
+                                <ChevronRight className={classes.menuOpenIcon}/>
+                            }
+                            Regions
+                        </Grid>
+
+                        {
+                            regionsMenuOpen ?
+
+                            <Grid item xs={12} className={classes.formGroupWrapper}>
+                                {
+                                    region.size ?
+
+                                    <Grid item container cs={12} justify='flex-start' className={classes.multiSelectHeader}>
+                                        <span style={{marginRight: '8px'}}>{region.size} Selected </span>
+                                        <Link component='button' onClick={() => this.handleClearMultiSelect('region')}>Reset</Link>
+                                    </Grid> : ''
+                                }
+
+                                <FormGroup>
+                                    {submissionOptions.Region.map((e, i) => (
+                                        <Grid item xs={12}>
+                                            <FormControlLabel
+                                                key={i}
+                                                control={
+                                                    <Checkbox 
+                                                        color='primary' 
+                                                        onChange={this.handleClickCheckbox} 
+                                                        className={classes.checkbox} 
+                                                        size='small'
+                                                        name={'region' + '!!' + e}
+                                                        checked={region.has(e)}
+                                                    />
+                                                }
+                                                label={e}
+                                                classes={{
+                                                    root: classes.formControlLabelRoot,
+                                                    label: classes.formControlLabelLabel
+                                                }}
+                                            />
+                                        </Grid>
+                                    ))}
+                                </FormGroup>
+                            </Grid>
+
+                            : ''
+                        }
+
+                            {/* <FormGroup>
+                                
+                                <FormControlLabel
+                                    control={<Checkbox checked={jason} onChange={handleChange} name="jason" />}
+                                    label="Jason Killian"
+                                />
+                                <FormControlLabel
+                                    control={<Checkbox checked={antoine} onChange={handleChange} name="antoine" />}
+                                    label="Antoine Llorca"
+                                />
+                            </FormGroup> */}
+
+                        {/* <Grid item xs={6} className={classes.denseGridItem}>
+                            <Autocomplete
+                                options={this.props.submissionOptions ? this.props.submissionOptions.Make : []}
+                                value={make}
+                                renderInput={(params) => 
+                                    <TextField 
+                                        {...params}
+                                        name='make'
+                                        margin='none' 
+                                        label="Make" 
+                                        InputLabelProps={{style:{fontSize: '12px', marginTop: '4px'}}}/>
+                                }
+                                getOptionLabel={option => option}
+                                onChange={this.handleChangeAutocomplete('make')}
+                                // inputValue={this.state.sensorInputValue}
+                                // onInputChange={(e, v) => this.setState({...this.state, sensorInputValue: v})}
+                                disablePortal
+                                classes={{
+                                    paper: `${classes.autocompletePopperPaper} ${classes.addBorder}`,
+                                    input: classes.regionSelectorInput,
+                                    option: classes.autocompleteOptions
+                                }}
+                            />
+                        </Grid>
+
+                        <Grid item xs={6} className={classes.denseGridItem}>
+                            <Autocomplete
+                                value={sensor}
+                                options={this.props.submissionOptions ? this.props.submissionOptions.Sensor : []}
+                                renderInput={(params) => 
+                                    <TextField 
+                                        {...params}
+                                        name='sensor'
+                                        margin='none' 
+                                        label="Sensor" 
+                                        InputLabelProps={{style:{fontSize: '12px', marginTop: '4px'}}}/>
+                                }
+                                getOptionLabel={option => option}
+                                onChange={this.handleChangeAutocomplete('sensor')}
+                                inputValue={this.state.sensorInputValue}
+                                onInputChange={(e, v) => this.setState({...this.state, sensorInputValue: v})}
+                                disablePortal
+                                classes={{
+                                    paper: `${classes.autocompletePopperPaper} ${classes.addBorder}`,
+                                    input: classes.regionSelectorInput,
+                                    option: classes.autocompleteOptions
+                                }}
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} className={classes.denseGridItem}>
+                            <Autocomplete
+                                options={regions}
+                                renderInput={(params) => <TextField margin='none' {...params} label="Ocean Region" InputLabelProps={{style:{fontSize: '12px', marginTop: '4px'}}}/>}
+                                getOptionLabel={(option) => option.label}
+                                onChange={this.handleSelectRegion}
+                                disablePortal
+                                classes={{
+                                    paper: `${classes.autocompletePopperPaper} ${classes.addBorder}`,
+                                    input: classes.regionSelectorInput,
+                                    option: classes.autocompleteOptions
+                                }}
+                                value={region}
+                            />
+                        </Grid> */}
+                    </Grid>
 
                     <div className={classes.showAdvancedWrapper}>
                         <Link
                             component='button'
                             onClick={this.handleToggleShowAdvanced}
                         >
-                            {this.state.showAdvanced ? 'Hide Advanced Search' : 'Advanced Search'}
+                            {this.state.showAdvanced ? 'Hide Additional Filters' : 'Additional Filters'}
                         </Link>
                     </div>
 
 
-                    {   this.state.showAdvanced ?
-                    <>
+                    <div style={this.state.showAdvanced ? {} : {display: 'none'}}>
 
                         <Grid item container xs={12} className={classes.searchPanelRow}>
                             <Grid item xs={6}>
@@ -375,15 +746,6 @@ class DataSearch extends React.Component {
                         </Grid>                        
 
                         <Grid item container xs={12} className={classes.searchPanelRow}>
-                            <Grid item xs={12} style={{textAlign: 'left', margin: '-20px 0 8px 10px'}}>
-                                <RegionSelector
-                                    onSelect={this.handleSelectRegion}
-                                    paperClass={`${classes.autocompletePopperPaper} ${classes.addBorder}`}
-                                    inputClass={classes.regionSelectorInput}
-                                    optionClass={classes.autocompleteOptions}
-                                    addTopMargin={false}
-                                />
-                            </Grid>
 
                             <Grid item xs={6}>
                                 <TextField
@@ -477,42 +839,6 @@ class DataSearch extends React.Component {
                                 </Select>                            
                                 </FormControl>
                             </Grid>
-
-                            <Grid item xs={6}>
-                                <Autocomplete
-                                    options={this.props.submissionOptions ? this.props.submissionOptions.Sensor : []}
-                                    disablePortal
-                                    renderInput={(params) => (
-                                            <TextField 
-                                                {...params}
-                                                margin='dense'
-                                                name='sensor' 
-                                                label="Sensor" 
-                                                InputLabelProps={{style:{fontSize: '16px'}}}
-                                                fullWidth
-                                                classes={{
-                                                    root: classes.sensorTextField,
-                                                }}
-                                                InputLabelProps={{
-                                                    shrink: true,
-                                                    classes: {
-                                                        root: classes.sensorInputLabel,
-                                                    }
-                                                }}
-                                        />)}
-                                    // getOptionLabel={(option) => option.label}
-                                    value={this.state.sensor}
-                                    onChange={this.handleChangeSearchValue}
-                                    inputValue={this.state.sensor}
-                                    onInputChange={(e, v) => ''}
-                                    classes={{
-                                        paper: `${classes.autocompletePopperPaper} ${classes.addBorder}`,
-                                        popperDisablePortal: classes.popperDisablePortal,
-                                        option: classes.autocompleteOptions
-                                        // input: props.inputClass
-                                    }}
-                                />
-                                </Grid>
                                 
                                 <Grid item xs={6}>
                                     <FormControl className={classes.formControl}>
@@ -583,8 +909,24 @@ class DataSearch extends React.Component {
                                     </FormControl>
                                 </Grid>
 
-                                <Grid item xs={6}>
-                                    <FormControl className={classes.formControl}>
+                                <Grid item xs={12}>
+                                    <Autocomplete
+                                        options={this.props.submissionOptions.Data_Source}
+                                        renderInput={(params) => <TextField margin='none' {...params} label="Data Source" InputLabelProps={{style:{fontSize: '12px', marginTop: '4px'}}}/>}
+                                        getOptionLabel={option => option}
+                                        onChange={this.handleChangeAutocomplete('dataSource')}
+                                        disablePortal
+                                        classes={{
+                                            paper: `${classes.shiftedAutocompletePaper} ${classes.autocompletePopperPaper} ${classes.addBorder} `,
+                                            input: classes.regionSelectorInput,
+                                            option: classes.autocompleteOptions,
+                                            popperDisablePortal: classes.shiftedAutocompletePopper,
+                                            listbox: classes.shiftedAutocompleteListbox
+                                        }}
+                                        // PopperComponent={(props) => <Popper {...props}/>}
+                                        value={dataSource}
+                                    />
+                                    {/* <FormControl className={classes.formControl}>
                                         <FormHelperText>Data Source</FormHelperText>
                                         <Select
                                             value={dataSource}
@@ -603,11 +945,27 @@ class DataSearch extends React.Component {
                                                 ))
                                             }
                                         </Select>                            
-                                    </FormControl>
+                                    </FormControl> */}
                                 </Grid>
 
-                                <Grid item xs={6}>
-                                    <FormControl className={classes.formControl}>
+                                <Grid item xs={12}>
+                                <Autocomplete
+                                        options={this.props.submissionOptions.Distributor}
+                                        renderInput={(params) => <TextField margin='none' {...params} label="Distributor" InputLabelProps={{style:{fontSize: '12px', marginTop: '4px'}}}/>}
+                                        getOptionLabel={option => option}
+                                        onChange={this.handleChangeAutocomplete('distributor')}
+                                        disablePortal
+                                        classes={{
+                                            paper: `${classes.shiftedAutocompletePaper} ${classes.autocompletePopperPaper} ${classes.addBorder} `,
+                                            input: classes.regionSelectorInput,
+                                            option: classes.autocompleteOptions,
+                                            popperDisablePortal: classes.shiftedAutocompletePopper,
+                                            listbox: classes.shiftedAutocompleteListbox
+                                        }}
+                                        value={distributor}
+                                    />
+
+                                    {/* <FormControl className={classes.formControl}>
                                         <FormHelperText>Distributor</FormHelperText>
                                         <Select
                                             value={distributor}
@@ -626,33 +984,26 @@ class DataSearch extends React.Component {
                                                 ))
                                             }
                                         </Select>                            
-                                    </FormControl>
+                                    </FormControl> */}
                                 </Grid>
-                            </Grid>
+                            </Grid>                        
+                        </div>
 
                         <Grid item xs={12} className={classes.searchPanelRow}>
                             <Button variant='outlined' onClick={this.handleResetSearch} className={classes.resetButton}>
                                 Reset Filters
                             </Button>
                         </Grid>
-                        </>
-                        : ''
-                    }
-                                          
                     </Grid>
 
-                    {/* <Grid item xs={5} style={memberVariablesDataset ? {} : {display: 'none'}}> */}
-                        {/* <MemberVariablesList
-                            handleHideMemberVariables={() => this.setState({...this.state, memberVariablesDataset: null})}
-                            dataset={memberVariablesDataset}
-                        /> */}
-                    {/* </Grid> */}
-
-                    <Grid item xs={7}>
+                    <Grid item xs={8} style={{paddingTop: '12px'}}>
                         <ProductList 
                             options={vizSearchResults}
                             handleSelectDataTarget={handleSelectDataTarget}
                             handleShowMemberVariables={this.handleShowMemberVariables}
+                            make={make}
+                            variableDetailsID={this.props.variableDetailsID}
+                            handleSetVariableDetailsID={this.props.handleSetVariableDetailsID}
                         />
                     </Grid>
                 </Grid>

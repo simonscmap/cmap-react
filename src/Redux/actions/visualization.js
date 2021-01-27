@@ -289,10 +289,60 @@ export const variableNameAutocompleteStore = (autocompleteVariableNames) => ({
     }
 });
 
-export const vizSearchResultsStoreAndUpdateOptions = (searchResults, options) => ({
+export const vizSearchResultsStoreAndUpdateOptions = (searchResults, options, counts) => ({
     type: visualizationActionTypes.VIZ_SEARCH_RESULTS_STORE_AND_UPDATE_OPTIONS,
     payload: {
         searchResults,
-        options
+        options,
+        counts
     }
 })
+
+export const variableFetch = (id) => ({
+    type: visualizationActionTypes.VARIABLE_FETCH,
+    payload: {
+        id
+    }
+});
+
+export const variableStore = (variableDetails) => ({
+    type: visualizationActionTypes.VARIABLE_STORE,
+    payload: {
+        variableDetails
+    }
+})
+
+export const variableFetchSetLoadingState = (state) => ({
+    type: visualizationActionTypes.VARIABLE_FETCH_SET_LOADING_STATE,
+    payload: {
+        state
+    }
+});
+
+export const datasetSummaryFetch = (id) => ({
+    type: visualizationActionTypes.DATASET_SUMMARY_FETCH,
+    payload: {
+        id
+    }
+});
+
+export const datasetSummaryStore = (datasetSummary) => ({
+    type: visualizationActionTypes.DATASET_SUMMARY_STORE,
+    payload: {
+        datasetSummary
+    }
+});
+
+export const vizPageDataTargetDetailsStore = (vizPageDataTargetDetails) => ({
+    type: visualizationActionTypes.VIZ_PAGE_DATA_TARGET_DETAILS_STORE,
+    payload: {
+        vizPageDataTargetDetails
+    }
+});
+
+export const vizPageDataTargetSetAndFetchDetails = (vizPageDataTarget) => ({
+    type: visualizationActionTypes.VIZ_PAGE_DATA_TARGET_SET_AND_FETCH_DETAILS,
+    payload: {
+        vizPageDataTarget
+    }
+});

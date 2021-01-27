@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 
 import Select, { components } from 'react-select';
-import * as JsSearch from 'js-search';
+// import * as JsSearch from 'js-search';
 import { VariableSizeList as ReactWindowList } from "react-window";
 
 import { Paper, ButtonGroup, Grid, IconButton, Icon, ListItem, MenuItem, Typography, Drawer, TextField, FormControl, InputLabel, Button, Tooltip} from '@material-ui/core';
@@ -16,7 +16,7 @@ import vizSubTypes from '../../Enums/visualizationSubTypes';
 import states from '../../Enums/asyncRequestStates';
 import colors from '../../Enums/colors';
 import validation from '../../Enums/validation';
-import TableStatsDialog from './TableStatsDialog';
+import VariableDetailsDialog from './VariableDetailsDialog';
 import mapTemporalResolutionToNumber from '../../Utility/mapTemporalResolutionToNumber';
 import mapSpatialResolutionToNumber from '../../Utility/mapSpatialResolutionToNumber';
 import spatialResolutions from '../../Enums/spatialResolutions';
@@ -501,33 +501,33 @@ class VizControlPanel extends React.Component {
     constructor(props){
         super(props);
 
-        var search = new JsSearch.Search('ID');
-        search.indexStrategy = new JsSearch.AllSubstringsIndexStrategy()
-        search.searchIndex = new JsSearch.UnorderedSearchIndex();
-        search.addIndex('Variable');
-        search.addIndex('Unit');
-        search.addIndex('Make');
-        search.addIndex('Sensor');
-        search.addIndex('Data_Source');
-        search.addIndex('Process_Level');
-        search.addIndex('Long_Name');
-        search.addIndex('Keywords');
-        search.addIndex('Table_Name');
-        search.addIndex('Dataset_Name');
-        search.addIndex('Study_Domain');
-        search.addIndex('Spatial_Resolution');
-        search.addIndex('Temporal_Resolution');
-        search.addIndex('Chief_Name');
-        search.addIndex('Name');
-        search.addIndex('Nickname');
-        search.addIndex('Ship_Name');
+        // var search = new JsSearch.Search('ID');
+        // search.indexStrategy = new JsSearch.AllSubstringsIndexStrategy()
+        // search.searchIndex = new JsSearch.UnorderedSearchIndex();
+        // search.addIndex('Variable');
+        // search.addIndex('Unit');
+        // search.addIndex('Make');
+        // search.addIndex('Sensor');
+        // search.addIndex('Data_Source');
+        // search.addIndex('Process_Level');
+        // search.addIndex('Long_Name');
+        // search.addIndex('Keywords');
+        // search.addIndex('Table_Name');
+        // search.addIndex('Dataset_Name');
+        // search.addIndex('Study_Domain');
+        // search.addIndex('Spatial_Resolution');
+        // search.addIndex('Temporal_Resolution');
+        // search.addIndex('Chief_Name');
+        // search.addIndex('Name');
+        // search.addIndex('Nickname');
+        // search.addIndex('Ship_Name');
 
-        if(props.catalog) search.addDocuments(props.catalog);
-        if(props.cruiseList) search.addDocuments(props.cruiseList);
+        // if(props.catalog) search.addDocuments(props.catalog);
+        // if(props.cruiseList) search.addDocuments(props.cruiseList);
 
         this.state = {
-            tableStatsDialogIsOpen: false,
-            search,
+            VariableDetailsDialogIsOpen: false,
+            // search,
             searchField: '',
             showControlPanel: true,
             lastSelectedFieldId: null,
@@ -558,13 +558,13 @@ class VizControlPanel extends React.Component {
         this.setState({...this.state, showControlPanel: false})
     }      
     
-    handleTableStatsDialogClose = () => {
-        this.setState({...this.state, tableStatsDialogIsOpen: false})
+    handleVariableDetailsDialogClose = () => {
+        this.setState({...this.state, VariableDetailsDialogIsOpen: false})
     }
 
-    handleTableStatsDialogOpen = (event) => {
+    handleVariableDetailsDialogOpen = (event) => {
         event.stopPropagation();
-        this.setState({...this.state, tableStatsDialogIsOpen: true});
+        this.setState({...this.state, VariableDetailsDialogIsOpen: true});
     }
 
     getSelectOptionsFromCatalogItems = (items) => {
@@ -930,9 +930,9 @@ class VizControlPanel extends React.Component {
 
         return (
             <div>
-                <TableStatsDialog
-                    open={this.state.tableStatsDialogIsOpen}
-                    onClose={this.handleTableStatsDialogClose}
+                <VariableDetailsDialog
+                    open={this.state.VariableDetailsDialogIsOpen}
+                    onClose={this.handleVariableDetailsDialogClose}
                     data={fields && fields.data}
                 />
 
@@ -1056,7 +1056,7 @@ class VizControlPanel extends React.Component {
                                 {/* <ConnectedTooltip placement='top' title='Enter one or more search terms.'> */}
                                     <Select
                                         formatOptionLabel={formatOptionLabel}
-                                        handleTableStatsDialogOpen={this.handleTableStatsDialogOpen}
+                                        handleVariableDetailsDialogOpen={this.handleVariableDetailsDialogOpen}
                                         isLoading = {catalogRequestState === states.inProgress}
                                         onAutoSuggestChange = {this.onAutoSuggestChange}
                                         datasets = {datasets}
@@ -1169,7 +1169,7 @@ class VizControlPanel extends React.Component {
                                     <Tooltip placement='right' title='View Variable Summary Statistics'>
                                         <IconButton 
                                             size='small' 
-                                            onClick={this.handleTableStatsDialogOpen}                                     
+                                            onClick={this.handleVariableDetailsDialogOpen}                                     
                                             disabled={!fields}
                                         >
                                             <LibraryBooks/>
@@ -1177,7 +1177,7 @@ class VizControlPanel extends React.Component {
                                     </Tooltip> :
                                     <IconButton 
                                         size='small' 
-                                        onClick={this.handleTableStatsDialogOpen}                                     
+                                        onClick={this.handleVariableDetailsDialogOpen}                                     
                                         disabled={!fields}
                                     >
                                         <LibraryBooks/>

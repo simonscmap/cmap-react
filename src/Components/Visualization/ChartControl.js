@@ -77,11 +77,11 @@ const ChartControl = (props) => {
         sparseMapMessage,
         visualizeButtonTooltip,
         disableVisualizeMessage,
-        fields,
         selectedVizType,
-        handleChange,
-        onVisualize,
-        showChartControl
+        handleChangeInputValue,
+        handleVisualize,
+        showChartControl,
+        disabled
     } = props;
 
     return (
@@ -89,14 +89,16 @@ const ChartControl = (props) => {
             {/* <Paper className={classes.chartControlContainer} style={showChartControl ? {} : {display: 'none'}}> */}
                 <Grid container>
                     <Grid item xs={12}>
-                        <FormControl variant='filled' className={classes.vizTypeSelectFormControl} disabled={!fields}>
-                            <InputLabel shrink htmlFor="vizSelector" >Type</InputLabel>
+                        <FormControl variant='filled' className={classes.vizTypeSelectFormControl}>
+                            <InputLabel shrink htmlFor="vizSelector" style={disabled ? {color: 'rgba(0,0,0,.38)'} : {}}>Select Chart Type</InputLabel>
                             <MUISelect
+                                disabled={disabled}
                                 className={classes.vizTypeSelectFormControl}
                                 style={overrideDisabledStyle}
                                 value={selectedVizType}
                                 variant='filled'
-                                onChange={handleChange}
+                                // onChange={handleChangeInputValue}
+                                onChange={handleChangeInputValue}
                                 inputProps={{
                                     name: 'selectedVizType',
                                     id: 'vizSelector',
@@ -125,8 +127,8 @@ const ChartControl = (props) => {
                             <Button
                                 className={classes.visualizeButton}
                                 variant='contained'
-                                onClick={() => onVisualize()}
-                                disabled={Boolean(disableVisualizeMessage) || !fields || !selectedVizType}
+                                onClick={() => handleVisualize()}
+                                disabled={Boolean(disableVisualizeMessage) || !selectedVizType}
                                 fullWidth
                             >
                                 Create Visualization

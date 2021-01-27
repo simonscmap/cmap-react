@@ -1,25 +1,56 @@
-const buildSearchOptionsFromVariableList = (variables) => {
+// Creates an object describing distinct values for each column
+// Is run for each search result
+// 
+
+const buildSearchOptionsFromVariableList = (variables, storedOptions = {}, params = {}) => {
     let options = {
-        Sensor: new Set(['Any']),
+        Sensor: new Set(),
         Temporal_Resolution: new Set(['Any']),
         Spatial_Resolution: new Set(['Any']),
         Data_Source: new Set(['Any']),
         Distributor: new Set(['Any']),
-        Process_Level: new Set(['Any'])
+        Process_Level: new Set(['Any']),
+        Make: new Set()
     };
 
-    const keys = Object.keys(options);
+    const columns = Object.keys(options);
 
     variables.forEach(v => {
-        keys.forEach(k => {
+        columns.forEach(k => {
             options[k].add(v[k]);
         })
     })
 
-    Object.keys(options).forEach(cat => {
-        options[cat] = Array.from(options[cat]);
+    columns.forEach(col => {
+        options[col] = Array.from(options[col]).sort(function (a, b) {
+            return a.toLowerCase().localeCompare(b.toLowerCase());
+        });
     });
 
+    if(params.sensor && params.sensor.size){
+        options.Sensor = storedOptions.Sensor;
+    }
+
+    if(params.make && params.make.size){
+        options.Make = storedOptions.Make
+    }
+
+    if(params.region && params.region.size){
+        options.Region = storedOptions.Region
+    }
+
+    else {
+        let regions = new Set();
+        variables.forEach(v => {
+            if(v.Regions){
+                v.Regions.split(',').forEach(r => regions.add(r));
+            }
+        })
+
+        options.Region = Array.from(regions).sort(function (a, b) {
+            return a.toLowerCase().localeCompare(b.toLowerCase());
+        });
+    }
     return options;
 }
 

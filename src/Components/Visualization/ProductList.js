@@ -4,16 +4,16 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { withStyles, TextField, MenuList, MenuItem, InputAdornment, Grid, Tooltip, IconButton, Accordion, AccordionSummary, AccordionDetails, Typography } from '@material-ui/core';
-import { Search, List, Layers, DirectionsBoat, CallMissedOutgoing, Info, InsertChart, ExpandMore, Visibility, Computer } from '@material-ui/icons';
+import { Search, List, Layers, DirectionsBoat, CallMissedOutgoing, Info, InsertChart, ExpandMore, Visibility, Computer, ExpandLess, ChevronRight } from '@material-ui/icons';
 
-import * as JsSearch from 'js-search';
+// import * as JsSearch from 'js-search';
 import { VariableSizeList } from 'react-window';
 
 import colors from '../../Enums/colors';
 import states from '../../Enums/asyncRequestStates';
 import { vizSearchResultsSetLoadingState } from '../../Redux/actions/visualization';
 
-import TableStatsDialog from './TableStatsDialog';
+import DatasetInfoDialog from './DatasetInfoDialog';
 
 const makeGroupStyles = {
     searchOptionsMenuList: {
@@ -40,21 +40,23 @@ const makeGroupStyles = {
     searchOptionsMenuItemText: {
         whiteSpace: 'nowrap',
         overflow: 'hidden',
-        textOverflow: 'ellipsis'
+        textOverflow: 'ellipsis',
+        width: 'calc(100% - 36px)',
+        textAlign: 'left'
     },
 
     heading: {
         textAlign: 'left',
-        padding: '16px 6px',
+        padding: '8px 6px',
         color: colors.primary,
-        fontSize: '18px',
+        fontSize: '16px',
         marginTop: '5px',
         backgroundColor: 'rgba(0,0,0,.4)'
     },
 
     variableItem: {
         height: '32px',
-        paddingLeft: '24px', 
+        // paddingLeft: '48px', 
         textAlign: 'left',
         fontSize: '14px',
         cursor: 'pointer',
@@ -71,6 +73,27 @@ const makeGroupStyles = {
     memberCount: {
         color: colors.primary,
         fontWeight: 'bold'
+    },
+
+    datasetOpenIcon:{
+        color:colors.primary, 
+        margin: '0 8px 0 4px',
+        // display: 'inline-block'
+    },
+
+    infoIcon: {
+        color: colors.primary,
+        cursor: 'pointer'
+    },
+
+    listHeader: {
+        color: colors.primary,
+        backgroundColor: 'rgba(0,0,0,.2)',
+        textAlign: 'left'
+    },
+
+    variableName: {
+        paddingLeft: '48px'
     }
 };
 
@@ -84,7 +107,7 @@ const mapDispatchToProps = {
 
 const MakeGroup = connect(mapStateToProps, mapDispatchToProps)(withStyles(makeGroupStyles)(React.memo((props) => {
 
-    const { classes, options, vizSearchResultsLoadingState, handleSelectDataTarget, setTableStatsTarget, listRef, make } = props;
+    const { classes, options, vizSearchResultsLoadingState, handleSelectDataTarget, handleSetVariableDetailsID, setdatasetSummaryID, listRef, make, fullCount } = props;
     const [ openIndex, setOpenIndex ] = React.useState(null);
 
     const handleSetOpenClick = (i) => {
@@ -97,17 +120,36 @@ const MakeGroup = connect(mapStateToProps, mapDispatchToProps)(withStyles(makeGr
     }, [options])
 
     const varCount = options.reduce((acc, cur) => acc + cur.variables.length, 0);
+    const nonvisualizableDatasetCount = fullCount - options.length;
+    const nonvisualizableString = nonvisualizableDatasetCount === 0 ?
+        '' :
+        ` (${nonvisualizableDatasetCount} hidden)`
 
     return (
         <>
-        <Typography className={classes.heading}>
-        {
-            vizSearchResultsLoadingState === states.inProgress ?
-            'Searching....' :
-            varCount ? `${make} Data - Showing ${varCount} variables in ${options.length} datasets`
-            : `${make} Data - No variables found for current search parameters`
-        }
-        </Typography>
+        <Grid container>
+            <Grid item xs={9}>
+                <Typography className={classes.heading}>
+                    {
+                        vizSearchResultsLoadingState === states.inProgress ?
+                        'Searching....' :
+                        varCount ? <>{make} Data - Showing {options.length} datasets 
+                                <Tooltip enterDelay={50} placement='top' title='Variables and datasets which are not flagged as visualizable are not shown on this list, but can be found on the catalog page.'>
+                                    <span>{nonvisualizableString}</span>
+                                </Tooltip>
+                            </>
+                        : `${make} Data - No variables found for current search parameters`
+                    }
+                </Typography>
+            </Grid>
+
+            <Grid item xs={3} container justify='flex-start' alignItems='center'>
+                <Typography variant='caption' style={{color: colors.primary, marginBottom: '-16px'}}>
+                    Variable Count
+                </Typography>
+            </Grid>
+        </Grid>
+        
             <VariableSizeList
                 ref={listRef}
                 itemData={options}
@@ -124,8 +166,12 @@ const MakeGroup = connect(mapStateToProps, mapDispatchToProps)(withStyles(makeGr
                             container 
                             className={classes.searchOption}
                             onClick={() => index === openIndex ? handleSetOpenClick(null) : handleSetOpenClick(index)}
-                        >                                
-                            <Grid item xs={9} container alignItems='center' style={{paddingLeft: '8px'}}>
+                        >            
+                            <Grid item xs={9} container alignItems='center'>
+                                {openIndex === index ? 
+                                    <ExpandMore className={classes.datasetOpenIcon}/> : 
+                                    <ChevronRight className={classes.datasetOpenIcon}/>
+                                }
                                 <span className={classes.searchOptionsMenuItemText}>{options[index].Dataset_Name || options[index].Dataset_Name}</span>
                             </Grid>
 
@@ -136,8 +182,14 @@ const MakeGroup = connect(mapStateToProps, mapDispatchToProps)(withStyles(makeGr
                             </Tooltip>
 
                             <Grid item xs={2} style={{paddingLeft: '12px'}} container alignItems='center'>
-                                <Tooltip title='Open Product Page'>
-                                    <Info style={{color: colors.primary}}/>
+                                <Tooltip title='View Dataset Details'>
+                                    <Info 
+                                        className={classes.infoIcon}
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            setdatasetSummaryID(options[index].variables[0].Dataset_ID);
+                                        }}
+                                    />
                                 </Tooltip>
                             </Grid>                            
                         </Grid>
@@ -155,14 +207,16 @@ const MakeGroup = connect(mapStateToProps, mapDispatchToProps)(withStyles(makeGr
                                         alignItems='center'
                                         onClick={() => handleSelectDataTarget(e)}
                                     >
-                                        <Grid item xs={9}>{e.Long_Name}</Grid>
-                                        <Grid item xs={3}>
-                                            <Tooltip title='View Product Information'>
+                                        <Grid item xs={10} className={classes.variableName}>{e.Long_Name}</Grid>
+                                        <Grid item xs={2}>
+                                            <Tooltip title='View Variable Details'>
                                                 <Info onClick={(event) => {
                                                         event.stopPropagation();
-                                                        setTableStatsTarget(e);
+                                                        handleSetVariableDetailsID(e.ID);
                                                     }}
-                                                    style={{marginLeft: '6px', color: colors.primary}}/>
+                                                    style={{paddingLeft: '12px'}}
+                                                    className={classes.infoIcon}
+                                                    />
                                             </Tooltip>
                                         </Grid>
                                     </Grid>
@@ -184,45 +238,73 @@ const styles = (theme) => ({
 const observationListRef = React.createRef();
 const modelListRef = React.createRef();
 
+const plMapStateToProps = (state, ownProps) => ({
+    windowHeight: state.windowHeight,
+    windowWidth: state.windowWidth,
+    vizSearchResultsFullCounts: state.vizSearchResultsFullCounts
+});
 // const sortCartFirst
 
 const ProductList = (props) => {
 
-    const { options, classes, handleSelectDataTarget, handleShowMemberVariables, vizSearchResultsLoadingState } = props;
+    const { options, classes, handleSelectDataTarget, handleShowMemberVariables, vizSearchResultsLoadingState, make, windowWidth, windowHeight, handleSetVariableDetailsID, vizSearchResultsFullCounts } = props;
     
-    const [ tableStatsTarget, setTableStatsTarget ] = React.useState(null);
+    const [ datasetSummaryID, setDatasetSummaryID ] = React.useState(null);
 
     return (
-        <React.Fragment>
+        <React.Fragment>                
+                <DatasetInfoDialog datasetSummaryID={datasetSummaryID} setDatasetSummaryID={setDatasetSummaryID}/>
 
             {
-                tableStatsTarget ? 
-                <TableStatsDialog
-                    open={Boolean(tableStatsTarget)}
-                    onClose={() => setTableStatsTarget(null)}
-                    data={tableStatsTarget}
-                /> : ''
+                (make.has('Observation') && make.has('Model')) || make.size === 0 ?
+                <>
+                    <MakeGroup
+                        make='Observation'
+                        options={options.Observation}
+                        handleSetVariableDetailsID={handleSetVariableDetailsID}
+                        listRef = {observationListRef}
+                        handleSelectDataTarget={handleSelectDataTarget}
+                        height={(windowHeight - 204) / 2 - 45}
+                        setdatasetSummaryID={setDatasetSummaryID}
+                        fullCount={vizSearchResultsFullCounts.Observation}
+                    />
+
+                    <MakeGroup
+                        make='Model'
+                        options={options.Model}
+                        handleSetVariableDetailsID={handleSetVariableDetailsID}
+                        listRef={modelListRef}
+                        handleSelectDataTarget={handleSelectDataTarget}
+                        height={(windowHeight - 204) / 2 - 45}
+                        setdatasetSummaryID={setDatasetSummaryID}
+                        fullCount={vizSearchResultsFullCounts.Model}
+                    />
+                </> : make.has("Observation") ?
+
+                <MakeGroup
+                    make='Observation'
+                    options={options.Observation}
+                    handleSetVariableDetailsID={handleSetVariableDetailsID}
+                    listRef = {observationListRef}
+                    handleSelectDataTarget={handleSelectDataTarget}
+                    height={windowHeight - 249}
+                    setdatasetSummaryID={setDatasetSummaryID}
+                    fullCount={vizSearchResultsFullCounts.Observation}
+                /> : 
+
+                <MakeGroup
+                    make='Model'
+                    options={options.Model}
+                    handleSetVariableDetailsID={handleSetVariableDetailsID}
+                    listRef={modelListRef}
+                    height={windowHeight - 249}
+                    handleSelectDataTarget={handleSelectDataTarget}
+                    setdatasetSummaryID={setDatasetSummaryID}
+                    fullCount={vizSearchResultsFullCounts.Model}
+                />        
             }
-
-            <MakeGroup
-                make='Observation'
-                options={options.Observation}
-                setTableStatsTarget={setTableStatsTarget}
-                listRef = {observationListRef}
-                handleSelectDataTarget={handleSelectDataTarget}
-            />
-
-            <MakeGroup
-                make='Model'
-                options={options.Model}
-                setTableStatsTarget={setTableStatsTarget}
-                listRef={modelListRef}
-                handleSelectDataTarget={handleSelectDataTarget}
-            />
-
-
         </React.Fragment>
     )
 }
 
-export default withStyles(styles)(ProductList);
+export default connect(plMapStateToProps, null)(withStyles(styles)(ProductList));

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, withRouter } from 'react-router-dom';
 
 import Link from '@material-ui/core/Link';
 import { withStyles } from '@material-ui/core/styles';
@@ -112,7 +112,7 @@ class LoginDialog extends Component{
     render(){
         const { classes } = this.props;
         let loginDisabled = !this.props.username || !this.props.password;
-
+        
         return (
             <Dialog
                 open={this.props.loginDialogIsOpen}
@@ -194,4 +194,4 @@ class LoginDialog extends Component{
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(LoginDialog));
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(LoginDialog)));

@@ -5,7 +5,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Plot from 'react-plotly.js';
 
 import { IconButton, Paper } from '@material-ui/core';
-import { Close } from '@material-ui/icons';
+import { Delete } from '@material-ui/icons';
 
 import colors from '../../Enums/colors';
 import storedProcedures from '../../Enums/storedProcedures';
@@ -135,7 +135,7 @@ const _CloseChartIcon = (props) => {
   return (
     <React.Fragment>
       <IconButton className={classes.closeChartIcon} color="inherit" onClick={() => props.handleDeleteChart(props.chartIndex)} disableFocusRipple disableRipple>
-        <Close/>
+        <Delete/>
       </IconButton>
     </React.Fragment>
   )

@@ -6,7 +6,7 @@ import dataSubmission from './dataSubmission.js';
 import reduceReducers from 'reduce-reducers';
 import Cookies from 'js-cookie';
 import states from '../../Enums/asyncRequestStates';
-
+import buildSearchOptionsFromVariableList from '../../Utility/Catalog/buildSearchOptionsFromVariablesList';
 // Consider building this object from initial states from each reducer
 // ** When adding new keys to redux store consider whether they need to be
 // reset on navigation for UI purposes. If so, add them with a default state
@@ -18,7 +18,7 @@ const initialState = {
     catalog: null,
     datasetRequestState: null,
     datasets: null,
-    submissionOptions: null,
+    submissionOptions: buildSearchOptionsFromVariableList([]),
     keywords: [],
     searchOptions: {},
     searchResults: [],
@@ -39,6 +39,8 @@ const initialState = {
     snackbarMessage: null,
     loadingMessage: '',
     showHelp: false,
+    windowHeight: window.innerHeight,
+    windowWidth: window.innerWidth,
 
     // User state pieces
     user: JSON.parse(Cookies.get('UserInfo') || null),
@@ -75,13 +77,17 @@ const initialState = {
     showChartsOnce: null,
     chartID: 0,
     vizPageDataTarget: null,
+    vizPageDataTargetDetails: null,
     vizSearchResults: {Observation: [], Model: []},
+    vizSearchResultsFullCounts: {Observation: 0, Model: 0},
     vizSearchResultsLoadingState: states.succeeded,
     memberVariables: [],
     memberVariablesLoadingState: states.succeeded,
     relatedData: [],
     relatedDataLoadingState: states.succeeded,
     autocompleteVariableNames: [],
+    variableDetails: null,
+    datasetSummary: null,
 
     // Data Submission state pieces
 

@@ -137,50 +137,51 @@ class UiComponents extends React.Component {
     }
 
     render() {
-        const { view, esriModules, regionLayer, setShowHelp } = this.props;
-        var { sketchModel } = this;
+        // const { view, esriModules, regionLayer, setShowHelp } = this.props;
+        // var { sketchModel } = this;
+        const { view } = this.props;
 
         // var drawButton = document.getElementById('draw-button');
         // var cancelButton = document.getElementById('cancel-button');
 
-        const throttledUpdate = throttle(75, (event) => {
-            if(event.state === 'active'){
-                this.props.updateDomainFromGraphicExtent(esriModules.Utils.webMercatorToGeographic(event.graphic.geometry.extent));
-            }
-        })
+        // const throttledUpdate = throttle(75, (event) => {
+        //     if(event.state === 'active'){
+        //         this.props.updateDomainFromGraphicExtent(esriModules.Utils.webMercatorToGeographic(event.graphic.geometry.extent));
+        //     }
+        // })
 
-        sketchModel.on("create", (event) => {
-            if(event.state === 'active' && event.toolEventInfo && event.toolEventInfo.type === 'vertex-add'){
-                sketchModel.complete();
-            }
+        // sketchModel.on("create", (event) => {
+        //     if(event.state === 'active' && event.toolEventInfo && event.toolEventInfo.type === 'vertex-add'){
+        //         sketchModel.complete();
+        //     }
 
-            if(event.graphic && event.graphic.visible) {
-                event.graphic.visible = false;
-            }
-            if(event.state === 'cancel'){
-                setShowHelp(false);
-                // drawButton.style.display = 'inline-block';
-                // cancelButton.style.display = 'none';
-            }
+        //     if(event.graphic && event.graphic.visible) {
+        //         event.graphic.visible = false;
+        //     }
+        //     if(event.state === 'cancel'){
+        //         setShowHelp(false);
+        //         // drawButton.style.display = 'inline-block';
+        //         // cancelButton.style.display = 'none';
+        //     }
 
-            if(event.state === "complete") {
-                setShowHelp(false);
-                this.props.updateDomainFromGraphicExtent(esriModules.Utils.webMercatorToGeographic(event.graphic.geometry.extent));
-                // drawButton.style.display = 'inline-block';
-                // cancelButton.style.display = 'none';
-            }
-        });
+        //     if(event.state === "complete") {
+        //         setShowHelp(false);
+        //         this.props.updateDomainFromGraphicExtent(esriModules.Utils.webMercatorToGeographic(event.graphic.geometry.extent));
+        //         // drawButton.style.display = 'inline-block';
+        //         // cancelButton.style.display = 'none';
+        //     }
+        // });
 
-        sketchModel.on('create', throttledUpdate)
+        // sketchModel.on('create', throttledUpdate)
 
-        sketchModel.on('update', (event) => {
-            if(event.toolEventInfo && event.toolEventInfo.type === 'move-stop'){
-                if(event.state === 'cancel') return;
-                this.props.updateDomainFromGraphicExtent(event.graphics[0].geometry.extent);
-                // drawButton.style.display = 'inline-block';
-                // cancelButton.style.display = 'none';
-            }
-        });   
+        // sketchModel.on('update', (event) => {
+        //     if(event.toolEventInfo && event.toolEventInfo.type === 'move-stop'){
+        //         if(event.state === 'cancel') return;
+        //         this.props.updateDomainFromGraphicExtent(event.graphics[0].geometry.extent);
+        //         // drawButton.style.display = 'inline-block';
+        //         // cancelButton.style.display = 'none';
+        //     }
+        // });   
         
         // drawButton.addEventListener("click", (event) => {
         //         regionLayer.removeAll();
@@ -322,32 +323,31 @@ class MapContainer extends Component {
     render = () => {
         const { classes, esriModules, spParams, cruiseTrajectory, globeUIRef } = this.props;
 
+        // const lat1 = parseFloat(spParams.lat1);
+        // const lat2 = parseFloat(spParams.lat2);
+        // const lon1 = parseFloat(spParams.lon1);
+        // let _lon2 = parseFloat(spParams.lon2);
+        // const lon2 = _lon2 < lon1 ? _lon2 + 360 : _lon2;
 
-        const lat1 = parseFloat(spParams.lat1);
-        const lat2 = parseFloat(spParams.lat2);
-        const lon1 = parseFloat(spParams.lon1);
-        let _lon2 = parseFloat(spParams.lon2);
-        const lon2 = _lon2 < lon1 ? _lon2 + 360 : _lon2;
+        // this.regionLayer.removeAll();
 
-        this.regionLayer.removeAll();
+        // var polygon = {
+        //     type: 'polygon', 
+        //     rings: [
+        //         [lon1, lat1],
+        //         [lon2, lat1],
+        //         [lon2, lat2],
+        //         [lon1, lat2],
+        //         [lon1, lat1]
+        //     ]
+        // };
 
-        var polygon = {
-            type: 'polygon', 
-            rings: [
-                [lon1, lat1],
-                [lon2, lat1],
-                [lon2, lat2],
-                [lon1, lat2],
-                [lon1, lat1]
-            ]
-        };
+        // let regionGraphic = new esriModules.Graphic({
+        //     geometry: polygon,
+        //     symbol: polygonSymbol
+        // })
 
-        let regionGraphic = new esriModules.Graphic({
-            geometry: polygon,
-            symbol: polygonSymbol
-        })
-
-        this.regionLayer.add(regionGraphic);
+        // this.regionLayer.add(regionGraphic);
 
         return (
             <div className={classes.container} id='found-you'>
@@ -387,7 +387,7 @@ class MapContainer extends Component {
                 </Scene>
 
                 {/* <DrawButton showHelp={this.state.showHelp}/> */}
-                <CruiseSelector updateParametersFromCruiseBoundary={this.props.updateParametersFromCruiseBoundary} showCruiseControl={this.props.showCruiseControl}/>
+                {/* <CruiseSelector updateParametersFromCruiseBoundary={this.props.updateParametersFromCruiseBoundary} showCruiseControl={this.props.showCruiseControl}/> */}
             </div>            
         )
     }

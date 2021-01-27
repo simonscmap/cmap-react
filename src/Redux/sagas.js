@@ -731,7 +731,6 @@ function* searchOptionsFetch(){
         options.Spatial_Resolution.unshift('Any');
         options.Data_Source.unshift('Any');
         options.Distributor.unshift('Any');
-        options.Sensor.unshift('Any');
         options.Process_Level.unshift('Any');
         yield put(catalogActions.storeSubmissionOptions(options));
     }
@@ -821,17 +820,24 @@ function* cartGetAndStore(){
 }
 
 function* vizSearchResultsFetch(action){
-    let start = new Date();
-    const qString = '?' + queryString.stringify(action.payload.params);
-    const variablesResponse = yield call(api.visualization.variableSearch, qString);
+    const { params } = action.payload;
+    
+    const qString = '?' + queryString.stringify({
+        ...params, 
+        sensor: Array.from(params.sensor || new Set()),
+        make: Array.from(params.make || new Set()),
+        region: Array.from(params.region || new Set())
+    });
 
-    if(variablesResponse.ok){
-        const variables = yield variablesResponse.json();
-        let options = buildSearchOptionsFromVariablesList(variables);
+    const searchResponse = yield call(api.visualization.variableSearch, qString);
+    const storedOptions = yield select((state) => state.submissionOptions);
 
+    if(searchResponse.ok){
+        const { counts, variables } = yield searchResponse.json();
+        let options = buildSearchOptionsFromVariablesList(variables, storedOptions, params);
         let datasets = groupVariablesByDataset(variables);
         let makes = groupDatasetsByMake(datasets);
-        yield put(visualizationActions.vizSearchResultsStoreAndUpdateOptions(makes, options));
+        yield put(visualizationActions.vizSearchResultsStoreAndUpdateOptions(makes, options, counts));
         yield put(visualizationActions.vizSearchResultsSetLoadingState(states.succeeded));
     }
 
@@ -864,6 +870,62 @@ function* autocompleteVariableNamesFetch(action) {
     if(response.ok){
         let jsonResponse = yield response.json();
         yield put(visualizationActions.variableNameAutocompleteStore(jsonResponse));
+    }
+}
+
+function* variableFetch(action) {
+    if(action.payload.id === null){
+        yield put(visualizationActions.variableNameAutocompleteStore(null));
+    }
+
+    else {
+        yield put(visualizationActions.variableFetchSetLoadingState(states.inProgress));
+    
+        let response = yield call(api.visualization.variableFetch, action.payload.id);
+    
+        if(response.ok){
+            let variableDetails = yield response.json();
+            yield put(visualizationActions.variableStore(variableDetails));
+        }
+    
+        else {
+            yield put(interfaceActions.snackbarOpen('Unable to fetch variable details. Please try again later'));
+        }
+    }
+}
+
+function* datasetSummaryFetch(action) {
+    if(action.payload.id === null){
+        yield put(visualizationActions.datasetSummaryStore(null));
+    }
+
+    else {
+        let response = yield call(api.visualization.datasetSummaryFetch, action.payload.id);
+
+        if(response.ok){
+            let datasetSummary = yield response.json();
+            yield put(visualizationActions.datasetSummaryStore(datasetSummary))
+        }
+
+        else {
+            yield put(interfaceActions.snackbarOpen('Unable to fetch dataset summary. Please try again later'));
+        }
+    }
+}
+
+function* vizPageDataTargetSetAndFetchDetails(action) {
+    // The action below also resets vizPageDataTargetDetails to null
+    yield put(visualizationActions.vizPageDataTargetSet(action.payload.vizPageDataTarget));
+    
+    let response = yield call(api.visualization.variableFetch, action.payload.vizPageDataTarget.ID);
+    
+    if(response.ok){
+        let variableDetails = yield response.json();
+        yield put(visualizationActions.vizPageDataTargetDetailsStore(variableDetails));
+    }
+
+    else {
+        yield put(interfaceActions.snackbarOpen('Unable to fetch variable details. Please try again later'));
     }
 }
 
@@ -1055,6 +1117,18 @@ function* watchAutocompleteVariableNamesFetch() {
     yield debounce(300, visualizationActionTypes.VARIABLE_NAME_AUTOCOMPLETE_FETCH, autocompleteVariableNamesFetch);
 }
 
+function* watchVariableFetch(){
+    yield takeLatest(visualizationActionTypes.VARIABLE_FETCH, variableFetch);
+}
+
+function* watchDatasetSummaryFetch() {
+    yield takeLatest(visualizationActionTypes.DATASET_SUMMARY_FETCH, datasetSummaryFetch);
+}
+
+function* watchVizPageDataTargetSetAndFetchDetails() {
+    yield takeLatest(visualizationActionTypes.VIZ_PAGE_DATA_TARGET_SET_AND_FETCH_DETAILS, vizPageDataTargetSetAndFetchDetails);
+}
+
 // function createWorkerChannel(worker) {
 //     return eventChannel(emit => {
 //         worker.onmessage = message => {
@@ -1129,6 +1203,9 @@ export default function* rootSaga() {
         watchCartGetAndStore(),
         watchVizSearchResultsFetch(),
         watchMemberVariablesFetch(),
-        watchAutocompleteVariableNamesFetch()
+        watchAutocompleteVariableNamesFetch(),
+        watchVariableFetch(),
+        watchDatasetSummaryFetch(),
+        watchVizPageDataTargetSetAndFetchDetails()
     ])
 }

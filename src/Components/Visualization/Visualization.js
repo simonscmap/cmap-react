@@ -23,13 +23,14 @@ import depthUtils from '../../Utility/depthCounter';
 import Charts from './Charts';
 import MapContainer from './MapContainer';
 import colors from '../../Enums/colors'
-import cleanSPParams from '../../Utility/cleanSPParams';
+import cleanSPParams from '../../Utility/Visualization/cleanSPParams';
 import localDateToString from '../../Utility/localDateToString';
 import utcDateStringToLocal from '../../Utility/utcDateStringToLocal';
 import temporalResolutions from '../../Enums/temporalResolutions';
 import stars from '../../Utility/starsBase64';
 import metaTags from '../../Enums/metaTags';
 import ModuleSelector from './ModuleSelector';
+import CruiseSelector from './CruiseSelector';
 
 const mapVizType = (vizType) => {
     const mapping = {
@@ -136,6 +137,7 @@ const baseSPParams = {
 
 class Visualization extends Component {
     globeUIRef = React.createRef();
+    mapContainerRef = React.createRef();
 
     state = {
         filteredData: [],
@@ -253,7 +255,7 @@ class Visualization extends Component {
     // Field in this case refers to a react-select option, which contains catalog metadata
     updateFields = (fields) => {
         if(fields) {
-            let surfaceOnly = !fields.data.Depth_Min;
+            let surfaceOnly = !fields.data.Depth_Max;
             let irregularSpatialResolution = fields.data.Spatial_Resolution === 'Irregular';
 
             let sparseMaxDate = utcDateStringToLocal(fields.data.Time_Max);
@@ -319,26 +321,26 @@ class Visualization extends Component {
         }
     }
 
-    updateParametersFromCruiseBoundary = (cruise) => {
-        if(cruise && this.state.spParams.fields){
-            this.props.snackbarOpen('Setting chart parameters to cruise boundaries.');
-            let lat1 = Math.floor(cruise.data.Lat_Min * 1000) / 1000;
-            let lat2 = Math.ceil(cruise.data.Lat_Max * 1000) / 1000;
-            let lon1 = Math.floor(cruise.data.Lon_Min * 1000) / 1000;
-            let lon2 = Math.ceil(cruise.data.Lon_Max * 1000) / 1000;
+    // updateParametersFromCruiseBoundary = (cruise) => {
+    //     if(cruise && this.state.spParams.fields){
+    //         this.props.snackbarOpen('Setting chart parameters to cruise boundaries.');
+    //         let lat1 = Math.floor(cruise.data.Lat_Min * 1000) / 1000;
+    //         let lat2 = Math.ceil(cruise.data.Lat_Max * 1000) / 1000;
+    //         let lon1 = Math.floor(cruise.data.Lon_Min * 1000) / 1000;
+    //         let lon2 = Math.ceil(cruise.data.Lon_Max * 1000) / 1000;
 
-            this.setState({...this.state,
-                spParams: {...this.state.spParams,
-                    lat1,
-                    lat2,
-                    lon1,
-                    lon2,
-                    dt1: utcDateStringToLocal(cruise.data.Start_Time),
-                    dt2: utcDateStringToLocal(cruise.data.End_Time)
-                }
-            })
-        }
-    }
+    //         this.setState({...this.state,
+    //             spParams: {...this.state.spParams,
+    //                 lat1,
+    //                 lat2,
+    //                 lon1,
+    //                 lon2,
+    //                 dt1: utcDateStringToLocal(cruise.data.Start_Time),
+    //                 dt2: utcDateStringToLocal(cruise.data.End_Time)
+    //             }
+    //         })
+    //     }
+    // }
 
     handleShowCharts = () => {
         this.setState({...this.state, showCharts: true})
@@ -415,19 +417,24 @@ class Visualization extends Component {
                         <MapContainer
                             globeUIRef={this.globeUIRef}
                             updateDomainFromGraphicExtent={this.updateDomainFromGraphicExtent}
-                            updateParametersFromCruiseBoundary={this.updateParametersFromCruiseBoundary}
+                            // updateParametersFromCruiseBoundary={this.updateParametersFromCruiseBoundary}
                             esriModules={this.state.esriModules}
                             spParams={this.state.spParams}
                             cruiseTrajectory={this.props.cruiseTrajectory}
                             showCruiseControl={this.state.showCruiseControl}
+                            chartControlPanelRef={this.chartControlPanelRef}
+                            ref={this.mapContainerRef}
                         />
                     </div>
                 }
 
                 <Switch>          
                     <Route exact path='/visualization' component={ModuleSelector} />
-                    <Route path='/visualization/charts' component={NewVizControlPanel}
-                            // <NewVizControlPanel
+                    <Route 
+                        path='/visualization/charts'
+                        render={(props) => (
+                            <NewVizControlPanel
+                            {...props}
                             toggleChartView={this.toggleChartView}
                             toggleShowUI={this.toggleShowUI}
                             handleChange={this.handleChange}
@@ -446,10 +453,18 @@ class Visualization extends Component {
                             resetSPParams={this.resetSPParams}
                             handleShowCruiseControl={this.handleShowCruiseControl}
                             showCruiseControl={this.state.showCruiseControl}
-                    //     />
+                            globeUIRef={this.globeUIRef}
+                            mapContainerRef={this.mapContainerRef}
+                        />
+                        )}
                     // }
                     />
-                    <Route path='/visualization/cruises' component={''}/>
+                    <Route 
+                        path='/visualization/cruises'
+                        render={(props) => (
+                            <CruiseSelector/>
+                        )}
+                    />
                 </Switch>              
 
                 <div className={this.state.showCharts ? classes.showCharts : classes.displayNone}>

@@ -11,20 +11,20 @@ import regions from '../../Enums/regions';
 // takes inputClass prop
 const RegionSelector = (props) => {
 
-    const [ anchorEl, setAnchorEl ] = React.useState(null);
+    // const [ anchorEl, setAnchorEl ] = React.useState(null);
 
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
+    // const handleClose = () => {
+    //     setAnchorEl(null);
+    // };
 
     const handleChange = (event, option) => {
         props.onSelect(option)
-        handleClose();
+        // handleClose();
     }
 
-    const handleButtonLinkClick = (e) => {
-        setAnchorEl(e.currentTarget);
-    }
+    // const handleButtonLinkClick = (e) => {
+    //     setAnchorEl(e.currentTarget);
+    // }
     
     return (
         <React.Fragment>
@@ -43,18 +43,18 @@ const RegionSelector = (props) => {
                     >
                         <Paper className={props.paperClass} style={{width: '300px'}}>
                             <ClickAwayListener onClickAway={handleClose}> */}
-                                <Autocomplete
-                                    options={regions}
-                                    renderInput={(params) => <TextField margin='dense' {...params} label="Ocean Region" InputLabelProps={{style:{fontSize: '12px'}}}/>}
-                                    getOptionLabel={(option) => option.label}
-                                    onChange={handleChange}
-                                    disablePortal
-                                    classes={{
-                                        paper: props.paperClass,
-                                        input: props.inputClass,
-                                        option: props.optionClass
-                                    }}
-                                />
+            <Autocomplete
+                options={regions}
+                renderInput={(params) => <TextField margin='none' {...params} label="Ocean Region" InputLabelProps={{style:{fontSize: '12px', marginTop: '4px'}}}/>}
+                getOptionLabel={(option) => option.label}
+                onChange={handleChange}
+                disablePortal
+                classes={{
+                    paper: props.paperClass,
+                    input: props.inputClass,
+                    option: props.optionClass
+                }}
+            />
                             {/* </ClickAwayListener>
                         </Paper>
                     </Grow>

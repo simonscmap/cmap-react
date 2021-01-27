@@ -5,7 +5,7 @@ class SparseData {
         this.parameters = payload.parameters;
         this.metadata = payload.metadata;
         this.hasDepth = null;
-        this.variableIndex = payload.metadata.Depth_Min ? 4 : 3;
+        this.variableIndex = payload.metadata.Depth_Max ? 4 : 3;
         this.depths = [];
         this.times = [];
         this.variableValues = [];
@@ -26,7 +26,7 @@ class SparseData {
         let lon = parseFloat(row[2]);
 
         if(this.hasDepth === null){
-            this.hasDepth = Boolean(this.metadata.Depth_Min);
+            this.hasDepth = Boolean(this.metadata.Depth_Max);
             this.latMin = lat;
             this.latMax = lat;
             this.lonMin = lon;

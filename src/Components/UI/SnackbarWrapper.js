@@ -27,7 +27,7 @@ const SnackbarWrapper = (props) => {
         
         <React.Fragment>
             <Snackbar
-                autoHideDuration={2500} 
+                autoHideDuration={null} 
                 message={props.snackbarMessage}
                 onClose={props.snackbarClose}
                 open={props.snackbarIsOpen}
