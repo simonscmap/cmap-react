@@ -153,13 +153,14 @@ const handleSectionMap = (subsets, infoObject, splitByDate, splitBySpace, orient
             layout= {{
                 font: {color: '#ffffff'},
                 title: {
-                    text: `${parameters.fields} [${metadata.Unit}]` + 
+                    text: `${metadata.Dataset_Name}` +
+                        `<br>${metadata.Long_Name.length > 60 ? metadata.Long_Name.slice(0, 60) + '...': metadata.Long_Name} [${metadata.Unit}]` + 
                         `<br>${date}, ` + 
                         `${parameters.depth1}[m] to ${parameters.depth2}[m] <br>` + 
                         `Lat: ${latTitle}, ` +
                         `Lon: ${lonTitle}`,
                     font: {
-                        size: 13
+                        size: 12
                     }
                 },
                 xaxis: {

@@ -19,8 +19,8 @@ const CartHelpContents = (props) => {
     return (
             <React.Fragment>
                 <Typography>
-                    Adding datasets to your cart allows quick and easy access without returning to the catalog. Additionally, datasets in your cart will appear
-                    first when searching on the visualization page, and will be marked with a cart icon as below.
+                    Adding datasets to your favorites list allows quick and easy access without returning to the catalog. Additionally, these datasets will appear
+                    first when searching on the visualization page, and will be marked with a star icon as below.
                 </Typography>
 
                 <img 
@@ -31,12 +31,12 @@ const CartHelpContents = (props) => {
                         width: '480px',
                         maxWidth: '80vw'
                     }}
-                    alt='Dataset With Cart Icon Example'
+                    alt='Dataset With Favorites Icon Example'
                 />
 
                 <Typography>
                     Some datasets do not contain any variables intended for visualization. These can be identified by a yellow icon on the catalog page
-                    or in the cart, and can be added to your cart for easier access, but won't appear on the visualization page.
+                    or on the favorites list, and can be added for easy access, but won't appear on the visualization page.
                 </Typography>
 
                 <img 
@@ -58,11 +58,11 @@ const CartHelpContents = (props) => {
                         width: '480px',
                         maxWidth: '80vw'
                     }}
-                    alt='Dataset With Yellow Cart Icon'
+                    alt='Dataset With Yellow Star Icon'
                 />
 
                 <Typography>
-                    Items will remain in your cart on subsequent visits as long as you are logged in.
+                    Items will remain on your favorites list on subsequent visits as long as you are logged in.
                 </Typography>
             </React.Fragment>
         )

@@ -117,7 +117,7 @@ const ChartControl = (props) => {
                                 {!histogramMessage && <MenuItem className={classes.vizTypeMenuItem} value={vizSubTypes.histogram}>Histogram</MenuItem>}                      
                                 {!timeSeriesMessage && <MenuItem className={classes.vizTypeMenuItem} value={vizSubTypes.timeSeries}>Time Series</MenuItem>}
                                 {!depthProfileMessage && <MenuItem className={classes.vizTypeMenuItem} value={vizSubTypes.depthProfile}>Depth Profile</MenuItem>}
-                                {!sparseMapMessage && <MenuItem className={classes.vizTypeMenuItem} value={vizSubTypes.sparse}>Sparse Map</MenuItem>}
+                                {!sparseMapMessage && <MenuItem className={classes.vizTypeMenuItem} value={vizSubTypes.sparse}>Time and Space Plots</MenuItem>}
                             </MUISelect>
                         </FormControl>
                     </Grid>
@@ -128,7 +128,7 @@ const ChartControl = (props) => {
                                 className={classes.visualizeButton}
                                 variant='contained'
                                 onClick={() => handleVisualize()}
-                                disabled={Boolean(disableVisualizeMessage) || !selectedVizType}
+                                disabled={Boolean(disableVisualizeMessage) || !selectedVizType || disabled}
                                 fullWidth
                             >
                                 Create Visualization

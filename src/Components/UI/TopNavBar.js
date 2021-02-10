@@ -98,11 +98,11 @@ class TopNavBar extends Component {
     handleResize = (e) => {
         let w = e.target.innerWidth;
 
-        if(w < 860 && this.state.layout === 'desktop'){
+        if(w < 980 && this.state.layout === 'desktop'){
             this.setState({...this.state, layout:'mobile'});
         }
 
-        else if(w >= 860 && this.state.layout === 'mobile'){
+        else if(w >= 980 && this.state.layout === 'mobile'){
             this.setState({...this.state, layout:'desktop'});
         }
     }
@@ -154,7 +154,7 @@ class TopNavBar extends Component {
                             <div>
                                 {
                                     cartSize > 0 ?
-                                    <Typography variant='caption' onClick={() => this.props.setShowCart(true)} className={`${classes.navLink} ${classes.rightNavLink}`}>Cart ({cartSize})</Typography> :
+                                    <Typography variant='caption' onClick={() => this.props.setShowCart(true)} className={`${classes.navLink} ${classes.rightNavLink}`}>Favorites ({cartSize})</Typography> :
                                     ''
                                 }
 

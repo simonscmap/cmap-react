@@ -92,7 +92,7 @@ const SparseScatter = (props) => {
                     x: xValues,
                     y: yValues,
                     mode: 'markers',
-                    name: parameters.fields,
+                    name: `${metadata.Long_Name.length > 60 ? metadata.Long_Name.slice(0, 60) + '...': metadata.Long_Name}`,
                     type: variableValues.length > 10000 ? 'scattergl' : 'scatter',
                     // type: 'scatter',
                     marker: {
@@ -111,13 +111,14 @@ const SparseScatter = (props) => {
                 // width: 800,
                 // height: 570,
                 title: {
-                    text: `${parameters.fields} [${metadata.Unit}]` + 
+                    text: `${metadata.Dataset_Name}` +
+                        `<br>${metadata.Long_Name.length > 60 ? metadata.Long_Name.slice(0, 60) + '...': metadata.Long_Name} [${metadata.Unit}]` + 
                         `<br>${date}, ` + 
                         depth + 
                         `<br>Lat: ${lat}, ` +
                         `Lon: ${lon}`,
                     font: {
-                        size: 13
+                        size: 12
                     }
                 },
                 xaxis: {

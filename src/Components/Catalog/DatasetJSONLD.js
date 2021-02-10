@@ -1,7 +1,7 @@
 import React from 'react';
 
 const DatasetJSONLD = (props) => {
-    const keywords = [...Array.from(new Set(props.Keywords.split(','))).map(e => e.trim()), 'oceanography'];
+    const keywords = props.keywords && props.keywords.length ? [...Array.from(new Set(props.Keywords.split(','))).map(e => e.trim()), 'oceanography'] : [];
 
     let data = {
         "@context":"https://schema.org/",

@@ -91,4 +91,15 @@ export const downloadMostRecentFile = (submissionID) => ({
     payload: {
         submissionID
     }
-})
+});
+
+export const dataSubmissionSelectOptionsFetch = () => ({
+    type: dataSubmissionActionTypes.DATA_SUBMISSION_SELECT_OPTIONS_FETCH
+});
+
+export const dataSubmissionSelectOptionsStore = (dataSubmissionSelectOptions) => ({
+    type: dataSubmissionActionTypes.DATA_SUBMISSION_SELECT_OPTION_STORE,
+    payload: {
+        dataSubmissionSelectOptions
+    }
+});

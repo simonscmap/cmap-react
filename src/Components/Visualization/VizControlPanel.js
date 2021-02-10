@@ -206,7 +206,6 @@ const overrideDisabledStyle = {
 
 const mapStateToProps = (state, ownProps) => ({
     data: state.data,
-    storedProcedureRequestState: state.storedProcedureRequestState,
     catalog: state.catalog,
     catalogRequestState: state.catalogRequestState,
     cruiseTrajectory: state.cruiseTrajectory,
@@ -384,7 +383,7 @@ const _CustomHeading = props => {
 
         {
             selectProps.cart[props.headingLabel] ?
-            <Tooltip title='This Dataset Is in Your Cart' placement='right'>
+            <Tooltip title='This Dataset Is on Your Favorites List' placement='right'>
                 <ShoppingCart/>
             </Tooltip>
              :

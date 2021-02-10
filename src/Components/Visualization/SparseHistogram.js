@@ -76,7 +76,7 @@ const SparseHistogram = (props) => {
             data={[
                 {
                     x: data.variableValues,
-                    name: data.parameters.fields,
+                    name: `${metadata.Long_Name.length > 60 ? metadata.Long_Name.slice(0, 60) + '...': metadata.Long_Name}`,
                     type: 'histogram',
                     marker: {
                         color: '#00FFFF'
@@ -88,17 +88,18 @@ const SparseHistogram = (props) => {
                 ...chartBase.layout,
                 plot_bgcolor: 'transparent',
                 title: {
-                    text: `${parameters.fields} [${metadata.Unit}]` + 
+                    text: `${metadata.Dataset_Name}` +
+                        `<br>${metadata.Long_Name.length > 60 ? metadata.Long_Name.slice(0, 60) + '...': metadata.Long_Name} [${metadata.Unit}]` + 
                         `<br>${date}, ` + 
                         depth + 
                         `<br>Lat: ${lat}, ` +
                         `Lon: ${lon}`,
                     font: {
-                        size: 13
+                        size: 12
                     }
                 },
                 xaxis: {
-                    title: `${parameters.fields} [${metadata.Unit}]`,
+                    title: `${metadata.Long_Name.length > 35 ? metadata.Long_Name.slice(0, 35) + '...' : metadata.Long_Name} [${metadata.Unit}]`,
                     exponentformat: 'power',
                     color: '#ffffff'
                 },

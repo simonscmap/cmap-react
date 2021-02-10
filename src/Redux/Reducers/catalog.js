@@ -24,7 +24,7 @@ export default function(state, action) {
 
     case catalogActionTypes.SEARCH_OPTIONS_STORE: return {...state, searchOptions: action.payload.searchOptions}
 
-    case catalogActionTypes.SEARCH_RESULTS_STORE: return {...state, searchResults: action.payload.searchResults}
+    case catalogActionTypes.SEARCH_RESULTS_STORE: return {...state, searchResults: action.payload.searchResults, submissionOptions: action.payload.submissionOptions}
     case catalogActionTypes.SEARCH_RESULTS_SET_LOADING_STATE: return {...state, searchResultsLoadingState: action.payload.state}
 
     case catalogActionTypes.DATASET_FULL_PAGE_DATA_STORE: return {...state, datasetFullPageData: action.payload.datasetFullPageData}

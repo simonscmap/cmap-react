@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 
 import { throttle } from 'throttle-debounce';
 
-import { withStyles, Collapse, Paper, Badge, ButtonGroup, Grid, IconButton, Icon, ListItem, MenuItem, Typography, Drawer, TextField, FormControl, InputLabel, Button, Tooltip, ClickAwayListener, Slide} from '@material-ui/core';
+import { withStyles, Tabs, Collapse, Paper, Badge, ButtonGroup, Grid, IconButton, Icon, ListItem, MenuItem, Typography, Drawer, TextField, FormControl, InputLabel, Button, Tooltip, ClickAwayListener, Slide} from '@material-ui/core';
 import { Edit, PlayArrow, ControlCamera , Settings, Fastfood, ShowChart, Search, Cached, LibraryBooks, ArrowRight, ChevronLeft, ChevronRight, InsertChartOutlined, Language, Delete, ShoppingCart, Info, DirectionsBoat } from '@material-ui/icons';
 import { KeyboardDatePicker } from "@material-ui/pickers";
 
@@ -23,15 +23,16 @@ import depthUtils from '../../Utility/depthCounter';
 import countWebGLContexts from '../../Utility/countWebGLContexts';
 import mapVizType from '../../Utility/Visualization/mapVizType';
 import cleanSPParams from '../../Utility/Visualization/cleanSPParams'
+import aggregateChartDataSize from '../../Utility/Visualization/aggregateChartDataSize';
 
 import DataSearch from './DataSearch';
 import ChartControl from './ChartControl';
 import VariableDetailsDialog from './VariableDetailsDialog';
+import ChartControlTabs from './ChartControlTabs';
 import HelpButtonAndDialog from '../UI/HelpButtonAndDialog';
 
 const mapStateToProps = (state, ownProps) => ({
     data: state.data,
-    storedProcedureRequestState: state.storedProcedureRequestState,
     catalog: state.catalog,
     catalogRequestState: state.catalogRequestState,
     cruiseTrajectory: state.cruiseTrajectory,
@@ -52,7 +53,7 @@ const mapDispatchToProps = {
     storedProcedureRequestSend
 }
 
-const drawerWidth = 300;
+const drawerWidth = 280;
 
 const overrideDisabledStyle = {
     backgroundColor: 'transparent'
@@ -96,6 +97,20 @@ const styles = (theme) => ({
         backgroundColor: colors.backgroundGray
     },
 
+    openPanelChevron: {
+        position: 'fixed',
+        left: '5px',
+        top: '380px',
+        zIndex: 1100
+      },
+    
+      closePanelChevron: {
+        position: 'fixed',
+        left: drawerWidth + 5,
+        top: '380px',
+        zIndex: 1100
+      },
+
     dataSearchMenuPaper: {
         position: 'fixed',
         top: 120,
@@ -131,7 +146,9 @@ const styles = (theme) => ({
   },
 
   padLeft: {
-      padding: '6px 0 2px 7px'
+    padding: '6px 0 2px 7px',
+    // transform: 'translate(0, 1.5px) scale(0.75)',
+    // transformOrigin: 'top left'
   },
 
   dateTimeInput: {
@@ -155,7 +172,8 @@ const styles = (theme) => ({
   },
 
   helperText: {
-    color: 'yellow'
+    color: 'yellow',
+    fontSize: '12px'
   },
 
   vizButtonTooltip: {
@@ -270,7 +288,13 @@ class NewVizControlPanel extends React.Component {
         showDrawHelp: false
     }
 
+    searchInputRef = React.createRef();
+
     componentDidUpdate = (prevProps, prevState) => {
+        if(prevProps.charts.length && !this.props.charts.length){
+            this.props.handleShowGlobe();
+        }
+
         if((this.props.mapContainerRef.current) && (prevState.lat1 !== this.state.lat1 || prevState.lat2 !== this.state.lat2 || prevState.lon1 !== this.state.lon1 || prevState.lon2 !== this.state.lon2)){
             
             const lat1 = parseFloat(this.state.lat1);
@@ -308,16 +332,21 @@ class NewVizControlPanel extends React.Component {
             let dt1 = data.Temporal_Resolution === temporalResolutions.monthlyClimatology ?
                 1 : data.Time_Min.slice(0, 10);
             let dt2 = data.Temporal_Resolution === temporalResolutions.monthlyClimatology ?
-                1 : data.Time_Max.slice(0, 10);
+                12 : data.Time_Max.slice(0, 10);
+                // 1: data.Time_Min.slice(0, 10);
 
-            let lat1 = irregularSpatialResolution ? Math.floor(data.Lat_Min * 1000) /1000 : this.state.lat1;
-            let lat2 = irregularSpatialResolution ? Math.ceil(data.Lat_Max * 1000) /1000 : this.state.lat2;
-            let lon1 = irregularSpatialResolution ? Math.floor(data.Lon_Min * 1000) /1000 : this.state.lon1;
-            let lon2 = irregularSpatialResolution ? Math.ceil(data.Lon_Max * 1000) /1000 : this.state.lon2;
+            // let lat1 = irregularSpatialResolution ? Math.floor(data.Lat_Min * 1000) /1000 : this.state.lat1;
+            // let lat2 = irregularSpatialResolution ? Math.ceil(data.Lat_Max * 1000) /1000 : this.state.lat2;
+            // let lon1 = irregularSpatialResolution ? Math.floor(data.Lon_Min * 1000) /1000 : this.state.lon1;
+            // let lon2 = irregularSpatialResolution ? Math.ceil(data.Lon_Max * 1000) /1000 : this.state.lon2;
+            let lat1 = Math.floor(Math.floor(data.Lat_Min * 1000) /1000);
+            let lat2 = Math.ceil(data.Lat_Max * 1000) /1000;
+            let lon1 = Math.floor(data.Lon_Min * 1000) /1000;
+            let lon2 = Math.ceil(data.Lon_Max * 1000) /1000;
 
-            let depth1 = surfaceOnly ? 0 : irregularSpatialResolution ? data.Depth_Min || 0 : this.state.depth1;
+            let depth1 = surfaceOnly ? 0 : irregularSpatialResolution ? Math.floor(data.Depth_Min * 1000) / 1000 || 0 : 0;
 
-            let depth2 = surfaceOnly ? 0 : irregularSpatialResolution ? data.Depth_Max || 0 : 
+            let depth2 = surfaceOnly ? 0 : irregularSpatialResolution ? Math.ceil(data.Depth_Max * 1000) / 1000|| 0 : 
                 depthUtils.piscesTable.has(data.Table_Name) ? ((depthUtils.piscesDepths[0] + depthUtils.piscesDepths[1]) / 2).toFixed(2) :
                 depthUtils.darwinTable.has(data.Table_Name) ? ((depthUtils.darwinDepths[0] + depthUtils.darwinDepths[1]) / 2).toFixed(2) : 
                 this.state.depth2;
@@ -349,6 +378,11 @@ class NewVizControlPanel extends React.Component {
         }
     }
 
+    componentWillUnmount = () => {
+        this.props.vizPageDataTargetSetAndFetchDetails(null);
+        this.props.mapContainerRef.current && this.props.mapContainerRef.current.regionLayer && this.props.mapContainerRef.current.regionLayer.removeAll();
+    }
+
     updateDomainFromGraphicExtent = (extent) => {
         var _lon1 = extent.xmin;
 
@@ -361,10 +395,10 @@ class NewVizControlPanel extends React.Component {
         while(_lon2 > 180) _lon2 -= 360;
 
         var newCoordinates = {
-            lat1: extent.ymin.toFixed(3),
-            lat2: extent.ymax.toFixed(3),
-            lon1: _lon1.toFixed(3),
-            lon2: _lon2.toFixed(3)
+            lat1: parseFloat(extent.ymin.toFixed(3)),
+            lat2: parseFloat(extent.ymax.toFixed(3)),
+            lon1: parseFloat(_lon1.toFixed(3)),
+            lon2: parseFloat(_lon2.toFixed(3))
         };
 
         this.setState({...this.state, ...newCoordinates});
@@ -392,7 +426,7 @@ class NewVizControlPanel extends React.Component {
                 dt1,
             dt2: this.props.vizPageDataTargetDetails.Temporal_Resolution === temporalResolutions.monthlyClimatology ?
                 dt2 + '-01-1900' :
-                dt2,
+                dt2 + 'T23:59:59',
             lat1,
             lat2,
             lon1,
@@ -483,7 +517,23 @@ class NewVizControlPanel extends React.Component {
     }
 
     handleChangeInputValue = (e) => {
-        this.setState({...this.state, [e.target.name]: e.target.value});
+        let parseThese = ['lat1', 'lat2', 'lon1', 'lon2', 'depth1', 'depth2'];
+        let parsed = parseFloat(e.target.value);
+        let value;
+
+        if(parseThese.includes(e.target.name)){
+            if(isNaN(parsed)){
+                value = e.target.value;
+            }
+
+            else value = parsed;
+        }
+
+        else {
+            value = e.target.value;
+        }
+
+        this.setState({...this.state, [e.target.name]: value});        
     }
 
     handleToggleCharts = () => {
@@ -493,92 +543,190 @@ class NewVizControlPanel extends React.Component {
     estimateDataSize = () => {
         const { vizPageDataTargetDetails } = this.props;
         const { dt1, dt2, lat1, lat2, lon1, lon2, depth1, depth2, selectedVizType } = this.state;
+        
+        if(!vizPageDataTargetDetails) return 0;        
 
-        if(!vizPageDataTargetDetails) return 0;
-        if(vizPageDataTargetDetails.Spatial_Resolution === spatialResolutions.irregular) return 0;
-        if(selectedVizType === vizSubTypes.timeSeries || selectedVizType === vizSubTypes.depthProfile) return 0;
+        if(vizPageDataTargetDetails.Spatial_Resolution === spatialResolutions.irregular) {
+            let sparseDataUncertaintyMultiplier = 4;
+            let totalCount = vizPageDataTargetDetails.Lat_Count;
+            let totalTime = Date.parse(vizPageDataTargetDetails.Time_Max) - Date.parse(vizPageDataTargetDetails.Time_Min);
+            let subsetTime = Date.parse(dt2) - Date.parse(dt1) + 86400000;
+            let timeRatio = totalTime === 0 ? 1
+                : subsetTime === 0 ? 86400000 / totalTime
+                : subsetTime / totalTime;
+            
+            let totalLat = vizPageDataTargetDetails.Lat_Max - vizPageDataTargetDetails.Lat_Min;
+            let subsetLat = lat2 - lat1;
+            let latRatio = totalLat === 0 ? 1
+                : subsetLat === 0 ? 1/totalLat
+                : subsetLat/totalLat;
+            latRatio = latRatio > 1 ? 1 : latRatio;
 
-        const date1 = Date.parse(dt1);
-        const date2 = Date.parse(dt2);
-        
-        const dayDiff = (date2 - date1) / 86400000;
-        
-        const res = mapSpatialResolutionToNumber(vizPageDataTargetDetails.Spatial_Resolution);
-        
-        const dateCount = Math.floor(dayDiff / mapTemporalResolutionToNumber(vizPageDataTargetDetails.Temporal_Resolution)) || 1;
-        const depthCount = depthUtils.count({data: vizPageDataTargetDetails}, depth1, depth2) || 1;
-        
-        const latCount = (lat2 - lat1) / res;
-        const lonCount = (lon2 - lon1) / res;
+            let totalLon = vizPageDataTargetDetails.Lon_Max - vizPageDataTargetDetails.Lon_Min;
+            let subsetLon = lon2 >= lon1 ? lon2 - lon1 :
+                (180 - lon1) + (lon2 + 180)
+            let lonRatio = totalLon === 0 ? 1
+                : subsetLon === 0 ? 1/totalLon
+                : subsetLon / totalLon;
+            lonRatio = lonRatio > 1 ? 1 : lonRatio;
 
-        const pointCount = lonCount * latCount * depthCount * dateCount;
-        return pointCount;
+            let depthRatio;
+
+            if(vizPageDataTargetDetails.Depth_Max){
+                let totalDepth = vizPageDataTargetDetails.Depth_Max - vizPageDataTargetDetails.Depth_Min;
+                let subsetDepth = depth2 - depth1;
+                depthRatio = totalDepth === 0 ? 1
+                    : subsetDepth === 0 ? 1/totalDepth
+                    : subsetDepth / totalDepth;
+            }
+
+            else depthRatio = 1;
+            let final = totalCount * timeRatio * latRatio * lonRatio * depthRatio * sparseDataUncertaintyMultiplier;
+            
+            if(selectedVizType === vizSubTypes.timeSeries || selectedVizType === vizSubTypes.depthProfile) return final / 2;
+
+            return final;
+        }
+        
+        else {
+            const date1 = vizPageDataTargetDetails.Temporal_Resolution === temporalResolutions.monthlyClimatology ? dt1 : Date.parse(dt1);
+            const date2 = vizPageDataTargetDetails.Temporal_Resolution === temporalResolutions.monthlyClimatology ? dt2 : Date.parse(dt2);
+            
+            const dayDiff = (date2 - date1) / 86400000;
+            
+            const res = mapSpatialResolutionToNumber(vizPageDataTargetDetails.Spatial_Resolution);
+            const dateCount = vizPageDataTargetDetails.Temporal_Resolution === temporalResolutions.monthlyClimatology ? date2 - date1 + 1
+                : Math.floor(dayDiff / mapTemporalResolutionToNumber(vizPageDataTargetDetails.Temporal_Resolution)) || 1;
+            const depthCount = depthUtils.count({data: vizPageDataTargetDetails}, depth1, depth2) || 1;
+            
+            const latCount = (lat2 - lat1) / res;
+            const lonCount = lon2 > lon1 ? (lon2 - lon1) / res
+                : ((180 - lon1) + (lon2 + 180)) / res;
+            const pointCount = lonCount * latCount * depthCount * dateCount;
+            if(selectedVizType === vizSubTypes.timeSeries || selectedVizType === vizSubTypes.depthProfile) return pointCount / 200;
+
+            return pointCount;
+        }
+
     }
 
     checkStartDepth = () => {
-        if(this.state.surfaceOnly) return '';
-        if(!/^[-+]?[0-9]*\.?[0-9]+$/.test(this.props.depth1)) return validation.generic.invalid;
-        if(parseFloat(this.state.depth1) < 0) return validation.depth.negative;
-        if(parseFloat(this.state.depth1) > parseFloat(this.state.depth2)) return validation.depth.depthOneIsLower;
-        if(parseFloat(this.state.depth1) > parseFloat(this.props.vizPageDataTargetDetails.Depth_Max)) return validation.depth.depthOneOutOfBounds.replace('$', parseFloat(this.props.vizPageDataTargetDetails.Depth_Max).toFixed(2));
+        // if(this.state.surfaceOnly) return '';
+        // if(!/^[-+]?[0-9]*\.?[0-9]+$/.test(this.props.depth1)) return 'Invalid value';
+        // if(parseFloat(this.state.depth1) < 0) return validation.depth.negative;
+        // if(parseFloat(this.state.depth1) > parseFloat(this.state.depth2)) return validation.depth.depthOneIsLower;
+        // if(parseFloat(this.state.depth) < Math.floor(parseFloat(this.props.vizPageDataTargetDetails.Depth_Min))) return `Minimum depth is ${this.props.vizPageDataTargetDetails.Depth_Min}`;
+        // if(parseFloat(this.state.depth1) > parseFloat(this.props.vizPageDataTargetDetails.Depth_Max)) return validation.depth.depthOneOutOfBounds.replace('$', parseFloat(this.props.vizPageDataTargetDetails.Depth_Max).toFixed(2));
+        if(this.state.depth1 < 0) return 'Depth cannot be negative';
+        if(this.state.depth1 > this.state.depth2) return 'Start cannot be greater than end';
+        if(this.state.depth1 > this.props.vizPageDataTargetDetails.Depth_Max) return `Maximum depth start is ${this.props.vizPageDataTargetDetails.Depth_Max}`
         return ''; 
     }
 
     checkEndDepth = () => {
-        if(this.state.surfaceOnly) return '';
-        if(!/^[-+]?[0-9]*\.?[0-9]+$/.test(this.state.depth2)) return validation.generic.invalid;
-        if(parseFloat(this.state.depth2) < 0) return validation.depth.negative;
-        if(parseFloat(this.state.depth1) > parseFloat(this.state.depth2)) return validation.depth.depthOneIsLower;
-        if(parseFloat(this.state.depth2) < parseFloat(this.props.vizPageDataTargetDetails.Depth_Min)) return validation.depth.depthTwoOutOfBounds.replace('$', parseFloat(this.props.vizPageDataTargetDetails.Depth_Min).toFixed(2));
+        // if(this.state.surfaceOnly) return '';
+        // if(!/^[-+]?[0-9]*\.?[0-9]+$/.test(this.state.depth2)) return validation.generic.invalid;
+        // if(parseFloat(this.state.depth2) < 0) return validation.depth.negative;
+        // if(parseFloat(this.state.depth1) > parseFloat(this.state.depth2)) return validation.depth.depthOneIsLower;
+        // if(parseFloat(this.state.depth2) < parseFloat(this.props.vizPageDataTargetDetails.Depth_Min)) return validation.depth.depthTwoOutOfBounds.replace('$', parseFloat(this.props.vizPageDataTargetDetails.Depth_Min).toFixed(2));
+        if(this.state.depth2 < 0) return 'Depth cannot be negative';
+        if(this.state.depth1 > this.state.depth2) return 'Start cannot be greater than end';
+        if(this.state.depth2 < this.props.vizPageDataTargetDetails.Depth_Min) return `Minimum depth end is ${this.props.vizPageDataTargetDetails.Depth_Min}`;
         return ''; 
     }
 
-    checkStartDateValid = () => {
-        if(isNaN(new Date(this.props.dt1)).valueOf() || !this.props.dt1) return 'Start date is invalid';
-    }
+    // checkStartDateValid = () => {
+    //     if(isNaN(new Date(this.props.dt1)).valueOf() || !this.props.dt1) return 'Start date is invalid';
+    // }
 
-    checkEndDateValid = () => {
-        if(isNaN(new Date(this.props.dt2)).valueOf() || !this.props.dt1) return 'End date is invalid';
-    }
+    // checkEndDateValid = () => {
+    //     if(isNaN(new Date(this.props.dt2)).valueOf() || !this.props.dt1) return 'End date is invalid';
+    // }
 
     checkStartDate = () => {
-        if(this.props.dt1 > this.props.dt2) return validation.date.dateOneIsLater;
-        if(this.props.dt1 > this.props.vizPageDataTargetDetails.Time_Max) return validation.date.dateOneOutOfBounds.replace('$', this.props.vizPageDataTargetDetails.Time_Max);
-        return '';
+        if(this.props.vizPageDataTargetDetails.Temporal_Resolution === temporalResolutions.monthlyClimatology) {
+            if(this.state.dt1 > this.state.dt2) return 'Start cannot be greater than end';
+            return '';
+        }
+
+        else {
+            if(!this.state.dt1) return "Invalid date"
+            if(this.state.dt1 > this.state.dt2) return 'Start cannot be greater than end';
+            if(this.state.dt1 < this.props.vizPageDataTargetDetails.Time_Min.slice(0,10)) {
+                return `Minimum start date is ${this.props.vizPageDataTargetDetails.Time_Min.slice(5, 10) + '-' + this.props.vizPageDataTargetDetails.Time_Min.slice(0, 4)}`
+            };
+            return '';
+        }
+        // if(this.props.dt1 > this.props.dt2) return validation.date.dateOneIsLater;
+        // if(this.props.dt1 > this.props.vizPageDataTargetDetails.Time_Max) return validation.date.dateOneOutOfBounds.replace('$', this.props.vizPageDataTargetDetails.Time_Max);
+        // return '';
     }
 
     checkEndDate = () => {
-        if(this.props.dt2 < this.props.vizPageDataTargetDetails.Time_Min) return validation.date.dateTwoOutOfBounds.replace('$', this.props.vizPageDataTargetDetails.Time_Min);
-        return '';
+        if(this.props.vizPageDataTargetDetails.Temporal_Resolution === temporalResolutions.monthlyClimatology) {
+            if(this.state.dt1 > this.state.dt2) return 'Start cannot be greater than end';
+            return '';
+        }
+
+        else {
+            if(!this.state.dt2) return "Invalid date"
+            if(this.state.dt1 > this.state.dt2) return 'Start cannot be greater than end';
+            if(this.state.dt2 > this.props.vizPageDataTargetDetails.Time_Max.slice(0,10)) {
+                return `Maximum end date is ${this.props.vizPageDataTargetDetails.Time_Max.slice(5, 10) + '-' + this.props.vizPageDataTargetDetails.Time_Max.slice(0, 4)}`
+            };
+            return '';
+        }
     }
 
     checkStartLat = () => {
-        if(!/^[-+]?[0-9]*\.?[0-9]+$/.test(this.props.lat1)) return validation.generic.invalid;
-        if(parseFloat(this.props.lat1) < -90 || parseFloat(this.props.lat1) > 90) return validation.generic.invalid;
-        if(parseFloat(this.props.lat1) > parseFloat(this.props.lat2)) return validation.lat.latOneIsHigher;
-        if(parseFloat(this.props.lat1) > parseFloat(this.props.vizPageDataTargetDetails.Lat_Max)) return validation.lat.latOneOutOfBounds.replace('$', this.props.vizPageDataTargetDetails.Lat_Max);
+        const { lat1, lat2 } = this.state;
+        const { Lat_Min, Lat_Max } = this.props;
+        // if(!/^[-+]?[0-9]*\.?[0-9]+$/.test(this.props.lat1)) return validation.generic.invalid;
+        // if(parseFloat(this.props.lat1) < -90 || parseFloat(this.props.lat1) > 90) return validation.generic.invalid;
+        // if(parseFloat(this.props.lat1) > parseFloat(this.props.lat2)) return validation.lat.latOneIsHigher;
+        // if(parseFloat(this.props.lat1) > parseFloat(this.props.vizPageDataTargetDetails.Lat_Max)) return validation.lat.latOneOutOfBounds.replace('$', this.props.vizPageDataTargetDetails.Lat_Max);
+        if(this.state.lat1 > this.props.vizPageDataTargetDetails.Lat_Max) return `Maximum start lat is ${this.props.vizPageDataTargetDetails.Lat_Max}`;
+        if(this.state.lat1 > this.state.lat2) return `Start cannot be greater than end`;
         return '';
     }
 
     checkEndLat = () => {
-        if(!/^[-+]?[0-9]*\.?[0-9]+$/.test(this.props.lat2)) return validation.generic.invalid;
-        if(parseFloat(this.props.lat2) < -90 || parseFloat(this.props.lat2) > 90) return validation.generic.invalid;
-        if(parseFloat(this.props.lat2) < parseFloat(this.props.vizPageDataTargetDetails.Lat_Min)) return validation.lat.latTwoOutOfBounds.replace('$', this.props.vizPageDataTargetDetails.Lat_Min);
+        // if(!/^[-+]?[0-9]*\.?[0-9]+$/.test(this.props.lat2)) return validation.generic.invalid;
+        // if(parseFloat(this.props.lat2) < -90 || parseFloat(this.props.lat2) > 90) return validation.generic.invalid;
+        // if(parseFloat(this.props.lat2) < parseFloat(this.props.vizPageDataTargetDetails.Lat_Min)) return validation.lat.latTwoOutOfBounds.replace('$', this.props.vizPageDataTargetDetails.Lat_Min);
+        if(this.state.lat2 < this.props.vizPageDataTargetDetails.Lat_Min) return `Minimum end lat is ${this.props.vizPageDataTargetDetails.Lat_Min}`;
+        if(this.state.lat1 > this.state.lat2) return `Start cannot be greater than end`;
         return '';
     }
 
     checkStartLon = () => {
-        if(!/^[-+]?[0-9]*\.?[0-9]+$/.test(this.props.lon1)) return validation.generic.invalid;
-        if(parseFloat(this.props.lon1) < -180 || parseFloat(this.props.lon1) > 180) return validation.generic.invalid;
-        if(this.props.lon1 > this.props.lon2) return '';
-        if(parseFloat(this.props.lon1) > parseFloat(this.props.vizPageDataTargetDetails.Lon_Max)) return validation.lon.lonOneOutOfBounds.replace('$', this.props.vizPageDataTargetDetails.Lon_Max);
+        const { lon1, lon2 } = this.state;
+        const { Lon_Min, Lon_Max } = this.props.vizPageDataTargetDetails;
+        // if(!/^[-+]?[0-9]*\.?[0-9]+$/.test(this.props.lon1)) return validation.generic.invalid;
+        // if(parseFloat(this.props.lon1) < -180 || parseFloat(this.props.lon1) > 180) return validation.generic.invalid;
+        // if(this.props.lon1 > this.props.lon2) return '';
+        // if(parseFloat(this.props.lon1) > parseFloat(this.props.vizPageDataTargetDetails.Lon_Max)) return validation.lon.lonOneOutOfBounds.replace('$', this.props.vizPageDataTargetDetails.Lon_Max);
+        if(lon2 >= lon1){
+            if(lon1 > Lon_Max) return `Maximum start lon is ${Lon_Max}` 
+        }
+
+        else {
+            if(Lon_Min > lon1 || Lon_Max > lon1 || Lon_Min < lon2 || Lon_Max < lon2){}
+            else return `Longitude outside dataset coverage`
+        }
         return '';
     }
 
     checkEndLon = () => {
-        if(!/^[-+]?[0-9]*\.?[0-9]+$/.test(this.props.lon2)) return validation.generic.invalid;
-        if(parseFloat(this.props.lon2) < -180 || parseFloat(this.props.lon2) > 180) return validation.generic.invalid;
-        if(parseFloat(this.props.lon2) < parseFloat(this.props.vizPageDataTargetDetails.Lon_Min)) return validation.lon.lonTwoOutOfBounds.replace('$', this.props.vizPageDataTargetDetails.Lon_Max);
+        const { lon1, lon2 } = this.state;
+        const { Lon_Min, Lon_Max } = this.props.vizPageDataTargetDetails;
+        // if(!/^[-+]?[0-9]*\.?[0-9]+$/.test(this.props.lon2)) return validation.generic.invalid;
+        // if(parseFloat(this.props.lon2) < -180 || parseFloat(this.props.lon2) > 180) return validation.generic.invalid;
+        // if(parseFloat(this.props.lon2) < parseFloat(this.props.vizPageDataTargetDetails.Lon_Min)) return validation.lon.lonTwoOutOfBounds.replace('$', this.props.vizPageDataTargetDetails.Lon_Max);
+        if(lon2 >= lon1) {
+            if(lon2 < Lon_Min) return `Minimum end lon is ${Lon_Min}`
+        }
+        
         return '';
     }
 
@@ -595,7 +743,6 @@ class NewVizControlPanel extends React.Component {
     checkSection = () => {
         if(this.state.surfaceOnly) return validation.type.surfaceOnlyDataset.replace('$', 'variable');
         if(this.state.irregularSpatialResolution) return validation.type.dataIsIrregular.replace('$', 'Section Map');
-        if(this.state.depth1 === this.props.depth2) return validation.type.depthRangeRequired.replace('$', "Section Map");
         return '';
     }
 
@@ -605,7 +752,7 @@ class NewVizControlPanel extends React.Component {
     
     checkTimeSeries = () => {
         if(this.state.irregularSpatialResolution) return validation.type.dataIsIrregular.replace('$', 'Time Series');
-        if(this.state.dt1 === this.state.dt2) return validation.type.dateRangeRequired.replace('$', 'Time Series');
+        // if(this.state.dt1 === this.state.dt2) return validation.type.dateRangeRequired.replace('$', 'Time Series');
         return '';
     }
 
@@ -628,9 +775,11 @@ class NewVizControlPanel extends React.Component {
 
     checkGeneralPrevent = (dataSize) => {
         const webGLCount = countWebGLContexts(this.props.charts);
-        if(this.props.selectedVizType === vizSubTypes.heatmap && webGLCount > 14) return validation.type.webGLContextLimit;
-        if(this.props.selectedVizType === vizSubTypes.sparse && webGLCount > 11) return validation.type.webGLContextLimit;
-
+        const aggregateSize = aggregateChartDataSize(this.props.charts);
+        if(!this.state.selectedVizType) return validation.generic.vizTypeMissing;
+        if(this.state.selectedVizType === vizSubTypes.heatmap && webGLCount > 14) return validation.type.webGLContextLimit;
+        if(this.state.selectedVizType === vizSubTypes.sparse && webGLCount > 11) return validation.type.webGLContextLimit;
+        
         if(this.props.selectedVizType === vizSubTypes.heatmap){
             let availableContexts = 16 - webGLCount;
             const depthCount = depthUtils.count({data: this.props.vizPageDataTargetDetails}, this.props.depth1, this.props.depth2) || 1;
@@ -641,7 +790,9 @@ class NewVizControlPanel extends React.Component {
         }
         if(dataSize > 6000000) return validation.generic.dataSizePrevent;
         if(!this.props.vizPageDataTargetDetails) return validation.generic.variableMissing;
-        if(!this.state.selectedVizType) return validation.generic.vizTypeMissing;
+        if(this.props.charts.length > 9) return 'Total number of plots is too large. Please delete 1 or more'
+        if(aggregateSize + dataSize > 4000000) return 'Total rendered data amount is too large. Please delete 1 or more plots.'
+        if(this.state.selectedVizType !== vizSubTypes.timeSeries && (Date.parse(this.state.dt2) - Date.parse(this.state.dt1) > 86400000 * 365)) return "Maximum date range for non-time series plots is 1 year";
         return ''
     }
 
@@ -675,24 +826,21 @@ class NewVizControlPanel extends React.Component {
         } = this.state;
 
         let details = vizPageDataTargetDetails;
-
         let validations;
 
         const dataSize = this.estimateDataSize();
 
         // review these
-        let minDateMessage = '';
-        let maxDateMessage = '';
-
+        // let minDateMessage = '';
+        // let maxDateMessage = '';
         if(details) {
             validations = [
-                // this.checkStartDepth(),
-                // this.checkEndDepth(),
-                // this.checkStartLat(),
-                // this.checkEndLat(),
-                // this.checkStartLon(),
-                // this.checkEndLon(),
-                '','','','','','',
+                this.checkStartDepth(),
+                this.checkEndDepth(),
+                this.checkStartLat(),
+                this.checkEndLat(),
+                this.checkStartLon(),
+                this.checkEndLon(),
                 this.checkHeatmap(),
                 this.checkContour(),
                 this.checkSection(),
@@ -702,11 +850,11 @@ class NewVizControlPanel extends React.Component {
                 this.checkSparseMap(),
                 this.checkGeneralWarn(dataSize),
                 this.checkGeneralPrevent(dataSize),
-                this.checkStartDateValid(),
-                this.checkEndDateValid()
+                this.checkStartDate(),
+                this.checkEndDate()
             ];
         } else 
-        validations = Array(16).fill('');
+        validations = Array(14).fill('');
         
         const [
             startDepthMessage,
@@ -724,18 +872,20 @@ class NewVizControlPanel extends React.Component {
             sparseMapMessage,
             generalWarnMessage,
             generalPreventMessage,
-            startDateValidMessage,
-            endDateValidMessage
+            startDateMessage,
+            endDateMessage
         ] = validations;
 
         const checkDisableVisualizeList = [
-            // startDepthMessage,
-            // endDepthMessage,
-            // startLatMessage,
-            // endLatMessage,
-            // startLonMessage,
-            // endLonMessage,
+            startDepthMessage,
+            endDepthMessage,
+            startLatMessage,
+            endLatMessage,
+            startLonMessage,
+            endLonMessage,
             generalPreventMessage,
+            startDateMessage,
+            endDateMessage
             // minDateMessage,
             // maxDateMessage,
             // startDateValidMessage,
@@ -757,6 +907,8 @@ class NewVizControlPanel extends React.Component {
         return (
             <React.Fragment>
 
+                <ChartControlTabs handlePlotsSetActiveTab={this.props.handlePlotsSetActiveTab} plotsActiveTab={this.props.plotsActiveTab}/>
+
                 <VariableDetailsDialog variableDetailsID={variableDetailsID} handleSetVariableDetailsID={this.handleSetVariableDetailsID}/>
                     {
                         this.state.showDrawHelp ? 
@@ -767,16 +919,45 @@ class NewVizControlPanel extends React.Component {
 
                         : ''
                     }
+
+                { showControlPanel ?
+
+                <div>
+                    <Tooltip title="Hide control panel" placement='right'>
+                        <IconButton 
+                            className={classes.closePanelChevron} 
+                            aria-label="toggle-panel" 
+                            color="primary" 
+                            onClick={() => this.setState({...this.state, showControlPanel: false})}>
+                            <ChevronLeft />
+                        </IconButton>
+                    </Tooltip>
+                </div>
+
+                :
+                
+                <Tooltip title='Show control panel' placement='right'>
+                    <IconButton 
+                        className={classes.openPanelChevron} 
+                        aria-label="toggle-panel" 
+                        color="primary" 
+                        onClick={() => this.setState({...this.state, showControlPanel: true})}>
+                        <ChevronRight style={{fontSize: 32}}/>
+                    </IconButton>
+                </Tooltip>
+                }
+
                 <Drawer
                     className={classes.drawer}
                     variant="persistent"
-                    // open={showControlPanel}
+                    open={showControlPanel}
                     classes={{
                         paper: `${classes.drawerPaper}`,
                     }}
-                    open={showControlPanel}
                     anchor="left"
                 >
+
+
                     {/* <Button
                         fullWidth={true}
                         // startIcon={<Search/>}
@@ -816,23 +997,25 @@ class NewVizControlPanel extends React.Component {
                                             label: classes.controlPanelItemLabel,
                                             startIcon: classes.controlPanelItemStartIcon
                                         }}
-                                        disabled={this.state.showDrawHelp}
+                                        disabled={this.state.showDrawHelp || !vizPageDataTargetDetails}
                                     >
                                         <span style={{color: this.state.showDrawHelp ? 'rgba(0, 0, 0, 0.38)' : 'white'}}>{dataTarget.Long_Name}</span>
                                     </Button>
                                 </Grid>
 
                                 <Grid item xs={2} style={{borderLeft: '1px solid black'}}>
-                                    <Tooltip title='Show Product Information' placement='top'>
-                                        <IconButton 
-                                            onClick={(e) => {
-                                                this.handleSetVariableDetailsID(dataTarget.ID);
-                                                e.stopPropagation();
-                                            }}
-                                            disabled={this.state.showDrawHelp}
-                                        >
-                                            <Info style={{fontSize: '26px', marginTop: '3px'}}/>
-                                        </IconButton>                                            
+                                    <Tooltip title='Show variable details' placement='top'>
+                                        <span>
+                                            <IconButton 
+                                                onClick={(e) => {
+                                                    this.handleSetVariableDetailsID(dataTarget.ID);
+                                                    e.stopPropagation();
+                                                }}
+                                                disabled={this.state.showDrawHelp || !vizPageDataTargetDetails}
+                                            >
+                                                <Info style={{fontSize: '26px', marginTop: '3px'}}/>
+                                            </IconButton>                                   
+                                        </span>
                                     </Tooltip>
                                 </Grid>
                             </Grid> 
@@ -855,14 +1038,15 @@ class NewVizControlPanel extends React.Component {
                     </Button>
                     }                    
 
-                    <Collapse in={Boolean(dataTarget && details)} timeout={900}>
+                    {/* <Collapse in={Boolean(dataTarget && details)} timeout={900}> */}
+                    <>
 
-                    {
-                        dataTarget && details ?
+                    {/* {
+                        dataTarget && details ? */}
 
                             <Grid container>
                                 {
-                                    details.Temporal_Resolution === temporalResolutions.monthlyClimatology ? 
+                                    details && details.Temporal_Resolution === temporalResolutions.monthlyClimatology ? 
                                     <>
                                         <Grid item xs={6} className={classes.formGridItem}>
                                             <TextField
@@ -872,9 +1056,9 @@ class NewVizControlPanel extends React.Component {
                                                 label="Start Month"
                                                 type="number"
                                                 value={dt1}
-                                                // error={Boolean(startDateValidMessage)}
+                                                error={Boolean(startDateMessage)}
                                                 FormHelperTextProps={{className: classes.helperText}}
-                                                // helperText={startDateValidMessage}
+                                                helperText={startDateMessage}
                                                 InputProps={{
                                                     className:classes.dateTimeInput,
                                                     inputProps: {
@@ -882,9 +1066,12 @@ class NewVizControlPanel extends React.Component {
                                                         max: 12
                                                     },
                                                 }}
-                                                InputLabelProps={{className:classes.padLeft}}
+                                                InputLabelProps={{
+                                                    shrink: true,
+                                                    className:classes.padLeft
+                                                }}
                                                 onChange={this.handleChangeInputValue}
-                                                disabled={this.state.showDrawHelp}
+                                                disabled={this.state.showDrawHelp || !vizPageDataTargetDetails}
                                             />
                                         </Grid>
 
@@ -902,19 +1089,22 @@ class NewVizControlPanel extends React.Component {
                                                 //     shrink: true,
                                                 // }}
                                                 value={dt2}
-                                                // error={Boolean(startDateValidMessage)}
+                                                error={Boolean(startDateMessage)}
                                                 FormHelperTextProps={{className: classes.helperText}}
-                                                // helperText={startDateValidMessage}
+                                                helperText={startDateMessage}
                                                 InputProps={{
                                                     className:classes.dateTimeInput,
                                                     inputProps: {
                                                         min: 1,
                                                         max: 12,
-                                                    }
+                                                    },
                                                 }}
-                                                InputLabelProps={{className:classes.padLeft}}
+                                                InputLabelProps={{
+                                                    shrink: true,
+                                                    className:classes.padLeft
+                                                }}
                                                 onChange={this.handleChangeInputValue}
-                                                disabled={this.state.showDrawHelp}
+                                                disabled={this.state.showDrawHelp || !vizPageDataTargetDetails}
                                             />
                                         </Grid>
                                     </>
@@ -931,19 +1121,22 @@ class NewVizControlPanel extends React.Component {
                                                 step={1}
                                                 type="date"
                                                 value={dt1}
-                                                error={Boolean(startDateValidMessage)}
+                                                error={Boolean(startDateMessage)}
                                                 FormHelperTextProps={{className: classes.helperText}}
-                                                helperText={startDateValidMessage}
+                                                helperText={startDateMessage}
                                                 InputProps={{
                                                     className:classes.dateTimeInput,
-                                                    inputProps: {
+                                                    inputProps: details ? {
                                                         min: details.Time_Min.slice(0,10),
                                                         max: details.Time_Max.slice(0,10)
-                                                    }
+                                                    } : {}
                                                 }}
-                                                InputLabelProps={{className:classes.padLeft}}
+                                                InputLabelProps={{
+                                                    shrink: true,
+                                                    className:classes.padLeft
+                                                }}
                                                 onChange={this.handleChangeInputValue}
-                                                disabled={this.state.showDrawHelp}
+                                                disabled={this.state.showDrawHelp || !vizPageDataTargetDetails}
                                             />
                                         </Grid>  
 
@@ -955,19 +1148,22 @@ class NewVizControlPanel extends React.Component {
                                                 label="End Date(m/d/y)"
                                                 type="date"
                                                 value={dt2}
-                                                error={Boolean(endDateValidMessage)}
+                                                error={Boolean(endDateMessage)}
                                                 FormHelperTextProps={{className: classes.helperText}}
-                                                helperText={endDateValidMessage}
+                                                helperText={endDateMessage}
                                                 InputProps={{
                                                     className:classes.dateTimeInput,
-                                                    inputProps: {
+                                                    inputProps: details ? {
                                                         min: details.Time_Min.slice(0,10),
                                                         max: details.Time_Max.slice(0,10)
-                                                    }
+                                                    } : {}
                                                 }}
-                                                InputLabelProps={{className:classes.padLeft}}
+                                                InputLabelProps={{
+                                                    shrink: true,
+                                                    className:classes.padLeft
+                                                }}
                                                 onChange={this.handleChangeInputValue}
-                                                disabled={this.state.showDrawHelp}
+                                                disabled={this.state.showDrawHelp || !vizPageDataTargetDetails}
                                             />
                                         </Grid>
                                     </>
@@ -988,22 +1184,23 @@ class NewVizControlPanel extends React.Component {
                                         helperText={startLatMessage}
                                         InputProps={{
                                             className:classes.padLeft,
-                                            inputProps: {
-                                                min: -90,
-                                                max: 90,
+                                            inputProps: details ? {
+                                                min: details.Lat_Min,
+                                                max: details.Lat_Max,
                                                 step: .001
-                                            }
+                                            } : {}
                                         }}
                                         InputLabelProps={{className:classes.padLeft}}
                                         name='lat1'
                                         onChange={this.handleChangeInputValue}
-                                        disabled={this.state.showDrawHelp}
+                                        disabled={this.state.showDrawHelp || !vizPageDataTargetDetails}
                                     >
                                     </TextField>
                                 </Grid>
 
                                 <Grid item xs={6} className={classes.formGridItem}>
                                     <TextField
+                                        type='number'
                                         id="lat2-input"
                                         error={Boolean(endLatMessage)}
                                         label={"End Lat(\xB0)"}
@@ -1015,21 +1212,22 @@ class NewVizControlPanel extends React.Component {
                                         name='lat2'
                                         InputProps={{
                                             className:classes.padLeft,
-                                            inputProps: {
-                                                min: -90,
-                                                max: 90,
+                                            inputProps: details ? {
+                                                min: details.Lat_Min,
+                                                max: details.Lat_Max,
                                                 step: .001
-                                            }
+                                            } : {}
                                         }}
                                         InputLabelProps={{className:classes.padLeft}}
                                         onChange={this.handleChangeInputValue}
-                                        disabled={this.state.showDrawHelp}
+                                        disabled={this.state.showDrawHelp || !vizPageDataTargetDetails}
                                     >
                                     </TextField>
                                 </Grid>
 
                                 <Grid item xs={6} className={classes.formGridItem}>
                                     <TextField
+                                        type='number'
                                         id="lon1-input"
                                         error={Boolean(startLonMessage)}
                                         label={"Start Lon(\xB0)"}
@@ -1041,21 +1239,22 @@ class NewVizControlPanel extends React.Component {
                                         name='lon1'
                                         InputProps={{
                                             className:classes.padLeft,
-                                            inputProps: {
-                                                min: -180,
-                                                max: 180,
+                                            inputProps: details ? {
+                                                min: details.Lon_Min,
+                                                max: details.Lon_Max,
                                                 step: .001
-                                            }
+                                            } : {}
                                         }}
                                         InputLabelProps={{className:classes.padLeft}}
                                         onChange={this.handleChangeInputValue}
-                                        disabled={this.state.showDrawHelp}
+                                        disabled={this.state.showDrawHelp || !vizPageDataTargetDetails}
                                     >
                                     </TextField>
                                 </Grid>
 
                                 <Grid item xs={6} className={classes.formGridItem}>
                                     <TextField
+                                        type='number'
                                         id="lon2-input"
                                         error={Boolean(endLonMessage)}
                                         label={"End Lon(\xB0)"}
@@ -1065,53 +1264,87 @@ class NewVizControlPanel extends React.Component {
                                         FormHelperTextProps={{className: classes.helperText}}
                                         helperText={endLonMessage}
                                         name='lon2'
-                                        InputProps={{className:classes.padLeft}}
+                                        InputProps={{
+                                            className:classes.padLeft,
+                                            inputProps: details ? {
+                                                min: details.Lon_Min,
+                                                max: details.Lon_Max,
+                                                step: .001
+                                            } : {}
+                                        }}
                                         InputLabelProps={{className:classes.padLeft}}
                                         onChange={this.handleChangeInputValue}
-                                        disabled={this.state.showDrawHelp}
+                                        disabled={this.state.showDrawHelp || !vizPageDataTargetDetails}
                                     >
                                     </TextField>
-                                    <Paper className={classes.popoutButtonPaper} style={{left: '301px', top: '146px'}}>
-                                        <Tooltip title='Draw Region on Globe'>
-                                            <IconButton className={classes.popoutButtonBase} onClick={this.handleDrawClick}><Edit className={classes.popoutButtonIcon}/></IconButton>
-                                        </Tooltip>
-                                    </Paper>
+
+                                    {showControlPanel ? 
+                                        <Paper className={classes.popoutButtonPaper} style={{left: drawerWidth + 1, top: '146px'}}>
+                                            <Tooltip title='Draw Region on Globe'>
+                                                <span>
+                                                    <IconButton 
+                                                        className={classes.popoutButtonBase} 
+                                                        onClick={this.handleDrawClick}
+                                                        disabled={!details || showCharts}
+                                                    >
+                                                        <Edit className={classes.popoutButtonIcon}/>                                            
+                                                    </IconButton>
+                                                </span>
+                                            </Tooltip>
+                                        </Paper>                                   
+                                    : ''}
                                 </Grid>
 
                                 <Grid item xs={6} className={classes.formGridItem}>
                                     <TextField
+                                        type='number'
                                         id="depth1-input"
                                         error={Boolean(startDepthMessage)}
                                         label="Start Depth(m)"
                                         className={classes.textField}
-                                        value={isNaN(Math.floor(depth1 * 1000) / 1000) ? depth1 : Math.ceil(depth1 * 1000) / 1000}
-                                        onChange={handleChange}
+                                        // value={isNaN(Math.floor(depth1 * 1000) / 1000) ? depth1 : Math.ceil(depth1 * 1000) / 1000}
+                                        value={depth1}
                                         FormHelperTextProps={{className: classes.helperText}}
                                         helperText={startDepthMessage}
                                         name='depth1'
-                                        InputProps={{className:classes.padLeft}}
+                                        InputProps={{
+                                            className:classes.padLeft,
+                                            inputProps: details ? {
+                                                min: details.Depth_Max ? details.Depth_Min : 0,
+                                                max: details.Depth_Max ? details.Depth_Max : 0,
+                                                step: .1
+                                            } : {}
+                                        }}
                                         InputLabelProps={{className:classes.padLeft}}
                                         onChange={this.handleChangeInputValue}
-                                        disabled={this.state.showDrawHelp}
+                                        disabled={this.state.showDrawHelp || this.state.surfaceOnly || !vizPageDataTargetDetails}
                                     >
                                     </TextField>
                                 </Grid>
 
                                 <Grid item xs={6} className={classes.formGridItem}>
                                     <TextField
+                                        type='number'
                                         id="depth2-input"
                                         error={Boolean(endDepthMessage)}
                                         label="End Depth(m)"
                                         className={classes.textField}
-                                        value={isNaN(Math.ceil(depth2 * 1000) / 1000) ? depth2 : Math.ceil(depth2 * 1000) / 1000}
-                                        onChange={handleChange}
+                                        // value={isNaN(Math.ceil(depth2 * 1000) / 1000) ? depth2 : Math.ceil(depth2 * 1000) / 1000}
+                                        value={depth2}
                                         FormHelperTextProps={{className: classes.helperText}}
                                         helperText={endDepthMessage}
                                         name='depth2'
-                                        InputProps={{className:classes.padLeft}}
+                                        InputProps={{
+                                            className:classes.padLeft,
+                                            inputProps: details ? {
+                                                min: details.Depth_Max ? details.Depth_Min : 0,
+                                                max: details.Depth_Max ? details.Depth_Max : 0,
+                                                step: .1
+                                            } : {}
+                                        }}
                                         InputLabelProps={{className:classes.padLeft}}
                                         onChange={this.handleChangeInputValue}
-                                        disabled={this.state.showDrawHelp}
+                                        disabled={this.state.showDrawHelp || this.state.surfaceOnly || !vizPageDataTargetDetails}
                                     >
                                     </TextField>
                                 </Grid>
@@ -1133,28 +1366,34 @@ class NewVizControlPanel extends React.Component {
                                     showChartControl={this.state.showChartControl}
                                     variableDetails={this.props.vizPageDataTargetDetails}
                                     handleVisualize={this.handleVisualize}
-                                    disabled={this.state.showDrawHelp}
+                                    disabled={this.state.showDrawHelp || !vizPageDataTargetDetails}
                                 />  
 
-                                {
-                                    charts.length ?
+                                {/* {
+                                    charts.length && showControlPanel ?
                                     
                                     <Paper className={classes.popoutButtonPaper} style={{left: '301px', top: '343px'}}>
-                                        <Tooltip title='Open Charts'>
+                                        <Tooltip title={showCharts ? 'Return to Globe' : 'Show Charts'}>
                                             <IconButton disabled={this.state.showDrawHelp} className={classes.popoutButtonBase} onClick={this.handleShowChartsClick}>
-                                                <Badge badgeContent={charts.length} color='primary'>
-                                                    <ShowChart className={classes.popoutButtonIcon} style={{color:colors.primary}}/>
-                                                </Badge>
+                                                {
+                                                    showCharts ?
+                                                    <Language className={classes.popoutButtonIcon} style={{color:colors.primary}}/> 
+                                                    :                                                    
+                                                    <Badge badgeContent={charts.length} color='primary'>
+                                                        <ShowChart className={classes.popoutButtonIcon} style={{color:colors.primary}}/>
+                                                    </Badge>
+                                                }                                                
                                             </IconButton>
                                         </Tooltip>
                                     </Paper>
 
                                     : ''
-                                }                                    
+                                }                                     */}
                             </Grid>
-                                : ''
-                            }
-                            </Collapse>
+                                {/* : ''
+                            } */}
+                            </>
+                            {/* </Collapse> */}
 
                 </Drawer>
                     <Paper className={classes.dataSearchMenuPaper} style={dataSearchMenuOpen ? {} : {display: 'none'}}>
@@ -1162,6 +1401,7 @@ class NewVizControlPanel extends React.Component {
                             handleSelectDataTarget={this.handleSelectDataTarget}
                             handleSetVariableDetailsID={this.handleSetVariableDetailsID}
                             handleCloseDataSearch={this.handleCloseDataSearch}
+                            searchInputRef={this.searchInputRef}
                         />
                     </Paper>
             </React.Fragment>

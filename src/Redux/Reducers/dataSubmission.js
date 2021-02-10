@@ -16,6 +16,8 @@ export default function(state, action) {
 
     case dataSubmissionActionTypes.STORE_SUBMISSION_FILE: return {...state, submissionFile: action.payload.file}
     case dataSubmissionActionTypes.SET_UPLOAD_STATE: return {...state, submissionUploadState: action.payload.state}
+
+    case dataSubmissionActionTypes.DATA_SUBMISSION_SELECT_OPTION_STORE: return {...state, dataSubmissionSelectOptions: action.payload.dataSubmissionSelectOptions}
       
     default: return state;
     }

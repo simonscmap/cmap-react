@@ -73,7 +73,8 @@ const styles = theme => ({
     },
 
     linkWrapper: {
-        padding: '12px'
+        padding: '12px',
+        fontSize: '14px'
     }
 })
 
@@ -136,7 +137,12 @@ class CruiseSelector extends Component {
     }
 
     componentDidMount = () => {
+        this.props.handleShowGlobe();
         if(!this.props.cruiseList || !this.props.cruiseList.length) this.props.cruiseListRequestSend();
+    }
+
+    componentWillUnmount = () => {
+        this.props.cruiseTrajectoryClear()
     }
 
     formatOptionLabel = (option) => {

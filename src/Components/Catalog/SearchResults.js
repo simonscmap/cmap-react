@@ -6,6 +6,7 @@ import { withStyles, Paper, Typography, Link } from '@material-ui/core';
 import { CloudDownload } from '@material-ui/icons';
 
 import stringify from 'csv-stringify/lib/sync';
+import queryString from 'query-string';
 
 import { FixedSizeList } from 'react-window';
 
@@ -16,6 +17,7 @@ import { searchResultsFetch, searchResultsStore, searchResultsSetLoadingState } 
 import states from '../../Enums/asyncRequestStates';
 
 import HelpButtonAndDialog from '../UI/HelpButtonAndDialog';
+import buildSearchOptionsFromDatasetList from '../../Utility/Catalog/buildSearchOptionsFromDatasetList';
 
 const mapStateToProps = (state, ownProps) => ({
     searchResults: state.searchResults,
@@ -122,7 +124,7 @@ const SearchResults = (props) => {
         searchResultsSetLoadingState(states.inProgress);
         searchResultsFetch(props.location.search);
 
-        return () => searchResultsStore([]);
+        // return () => searchResultsStore([], buildSearchOptionsFromDatasetList([]));
     }, [props.location.search]);
 
     const handleDownloadSearchResults = () => {

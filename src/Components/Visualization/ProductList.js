@@ -4,7 +4,7 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { withStyles, TextField, MenuList, MenuItem, InputAdornment, Grid, Tooltip, IconButton, Accordion, AccordionSummary, AccordionDetails, Typography } from '@material-ui/core';
-import { Search, List, Layers, DirectionsBoat, CallMissedOutgoing, Info, InsertChart, ExpandMore, Visibility, Computer, ExpandLess, ChevronRight } from '@material-ui/icons';
+import { Search, List, Layers, DirectionsBoat, CallMissedOutgoing, Info, InsertChart, ExpandMore, Visibility, Computer, ExpandLess, ChevronRight, Star } from '@material-ui/icons';
 
 // import * as JsSearch from 'js-search';
 import { VariableSizeList } from 'react-window';
@@ -98,7 +98,8 @@ const makeGroupStyles = {
 };
 
 const mapStateToProps = (state, ownProps) => ({
-    vizSearchResultsLoadingState: state.vizSearchResultsLoadingState
+    vizSearchResultsLoadingState: state.vizSearchResultsLoadingState,
+    cart: state.cart
 });
 
 const mapDispatchToProps = {
@@ -107,7 +108,7 @@ const mapDispatchToProps = {
 
 const MakeGroup = connect(mapStateToProps, mapDispatchToProps)(withStyles(makeGroupStyles)(React.memo((props) => {
 
-    const { classes, options, vizSearchResultsLoadingState, handleSelectDataTarget, handleSetVariableDetailsID, setdatasetSummaryID, listRef, make, fullCount } = props;
+    const { classes, options, vizSearchResultsLoadingState, handleSelectDataTarget, handleSetVariableDetailsID, setdatasetSummaryID, listRef, make, fullCount, cart } = props;
     const [ openIndex, setOpenIndex ] = React.useState(null);
 
     const handleSetOpenClick = (i) => {
@@ -181,7 +182,7 @@ const MakeGroup = connect(mapStateToProps, mapDispatchToProps)(withStyles(makeGr
                                 </Grid>
                             </Tooltip>
 
-                            <Grid item xs={2} style={{paddingLeft: '12px'}} container alignItems='center'>
+                            <Grid item xs={1} style={{paddingLeft: '12px'}} container alignItems='center'>
                                 <Tooltip title='View Dataset Details'>
                                     <Info 
                                         className={classes.infoIcon}
@@ -191,7 +192,19 @@ const MakeGroup = connect(mapStateToProps, mapDispatchToProps)(withStyles(makeGr
                                         }}
                                     />
                                 </Tooltip>
-                            </Grid>                            
+                            </Grid>
+
+                            <Grid item xs={1} container alignItems='center'>
+                                {
+                                    cart[options[index].Dataset_Name] ?
+
+                                    <Tooltip title='This dataset is on your favorites list'>
+                                        <Star/>
+                                    </Tooltip> 
+                                    
+                                    : ''
+                                }
+                            </Grid>                           
                         </Grid>
                         
                         {

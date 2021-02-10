@@ -24,6 +24,10 @@ const styles = (theme) => ({
 
     dialogPaperViz: {
         backgroundColor: colors.backgroundGray
+    },
+
+    dialogRoot: {
+        zIndex: '31100 !important'
     }
 });
 
@@ -43,6 +47,9 @@ const HelpButtonAndDialog = (props) => {
                 open={open}
                 PaperProps={{
                     className: window.location.pathname.includes('/visualization') ? classes.dialogPaperViz : classes.dialogPaper
+                }}
+                classes={{
+                    root: classes.dialogRoot
                 }}
             >
                 <DialogTitle>{title}</DialogTitle>

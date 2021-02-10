@@ -42,13 +42,6 @@ export const storedProcedureRequestProcessing = () => ({
     type: visualizationActionTypes.STORED_PROCEDURE_REQUEST_PROCESSING
 });
 
-export const addLayer = (newLayer) => ({
-    type: visualizationActionTypes.ADD_LAYER,
-    payload: {
-        newLayer
-    }
-});
-
 export const storeSampleData = sampleData => ({
     type: visualizationActionTypes.STORE_SAMPLE_DATA,
     payload: {
@@ -344,5 +337,12 @@ export const vizPageDataTargetSetAndFetchDetails = (vizPageDataTarget) => ({
     type: visualizationActionTypes.VIZ_PAGE_DATA_TARGET_SET_AND_FETCH_DETAILS,
     payload: {
         vizPageDataTarget
+    }
+});
+
+export const plotsActiveTabSet = (tab) => ({
+    type: visualizationActionTypes.PLOTS_ACTIVE_TAB_SET,
+    payload: {
+        tab
     }
 });

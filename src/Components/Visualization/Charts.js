@@ -33,10 +33,15 @@ const mapDispatchToProps = {
 const styles = (theme) => ({
   chartPaper: {
     backgroundColor: colors.backgroundGray,
-    marginTop: '5vh',
-    marginBottom: '2vh',
-    padding: theme.spacing(1),
-    boxShadow: '2px 2px 2px 2px #242424',
+    marginBottom: '5h',
+    paddingTop: theme.spacing(1),
+    boxShadow: '2px 2px 2px 2px #242424',    
+    width: 'max-content',
+    margin: '0 auto 5vh auto',
+    '@media (min-width: 1280px)': {
+      textAlign: 'left',
+      margin: '0 0 5vh 360px'
+    }
   }
 })
 
@@ -151,11 +156,12 @@ class Charts extends Component {
 
     render(){
         const { classes, charts } = this.props;
+        
         return (
             <React.Fragment>
-              {/* <Paper elevation={12} className={classes.chartPaper}>
-              <SamplePlot/> 
-              </Paper> */}
+              {/* <Paper elevation={12} className={classes.chartPaper}> */}
+              {/* <SamplePlot/>  */}
+              {/* </Paper> */}
                 {charts.map((chart, index) => {
                     switch(chart.data.parameters.spName){
 

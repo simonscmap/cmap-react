@@ -60,7 +60,7 @@ const handleSparseMap = (infoObject, palette, zValues) => {
                     autocolorscale: false,
                     colorscale: palette,
                     radius: 6,                    
-                    name: infoObject.parameters.fields,
+                    name: `${metadata.Long_Name.length > 60 ? metadata.Long_Name.slice(0, 60) + '...': metadata.Long_Name}`,
                     type: 'densitymapbox',
                     
                     colorbar: {
@@ -75,13 +75,14 @@ const handleSparseMap = (infoObject, palette, zValues) => {
             layout= {{
                 ...chartBase.layout,
                 title: {
-                    text: `${parameters.fields} [${metadata.Unit}]` + 
+                    text: `${metadata.Dataset_Name}` +
+                        `<br>${metadata.Long_Name.length > 60 ? metadata.Long_Name.slice(0, 60) + '...': metadata.Long_Name} [${metadata.Unit}]` + 
                         `<br>${date}, ` + 
                         depth + 
                         `<br>Lat: ${lat}, ` +
                         `Lon: ${lon}`,
                     font: {
-                        size: 13
+                        size: 12
                     }
                 },
                 mapbox: {
@@ -161,7 +162,7 @@ const SparseTabPanel = (props) => {
 }
 
 
-const SparseMap = (props) => {
+const SparseMap = React.memo((props) => {
 
     const { classes, csvFromVizRequestSend } = props;
     const { data } = props.chart;
@@ -255,7 +256,7 @@ const SparseMap = (props) => {
                         markerOptions={markerOptions}
                         infoObject={data}
                         xTitle='Time'
-                        yTitle={`${data.parameters.fields}[${metadata.Unit}]`}
+                        yTitle={`${metadata.Long_Name.length > 60 ? metadata.Long_Name.slice(0, 60) + '...': metadata.Long_Name} [${metadata.Unit}]`}
                         type='time'
                     />
                 }
@@ -269,7 +270,7 @@ const SparseMap = (props) => {
                         markerOptions={markerOptions}
                         infoObject={data}
                         xTitle='Latitude'
-                        yTitle={data.parameters.fields}
+                        yTitle={`${metadata.Long_Name.length > 60 ? metadata.Long_Name.slice(0, 60) + '...': metadata.Long_Name}`}
                         type='latitude'
                     />                
                 }
@@ -283,7 +284,7 @@ const SparseMap = (props) => {
                         markerOptions={markerOptions}
                         infoObject={data}
                         xTitle='Longitude'
-                        yTitle={data.parameters.fields}
+                        yTitle={`${metadata.Long_Name.length > 60 ? metadata.Long_Name.slice(0, 60) + '...': metadata.Long_Name}`}
                         type='longitude'
                     />                
                 }
@@ -297,7 +298,7 @@ const SparseMap = (props) => {
                             yValues={data.depths}
                             markerOptions={markerOptions}
                             infoObject={data}
-                            xTitle={data.parameters.fields}
+                            xTitle={`${metadata.Long_Name.length > 60 ? metadata.Long_Name.slice(0, 60) + '...': metadata.Long_Name}`}
                             yTitle='Depth[m]'
                             type='depth'
                         />                    
@@ -307,6 +308,6 @@ const SparseMap = (props) => {
                 
         </div>
     )
-}
+})
 
 export default connect(null, mapDispatchToProps)(withStyles(styles)(SparseMap));

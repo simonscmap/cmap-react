@@ -7,6 +7,10 @@ import { Autocomplete } from '@material-ui/lab';
 import { Link, IconButton, Typography, FormControl, Select, MenuItem, FormHelperText, Chip, TextField, InputAdornment, Paper, Tooltip, Button, Grid } from '@material-ui/core';
 import { Search, Help } from '@material-ui/icons';
 
+import { debounce } from 'throttle-debounce';
+
+import MultiCheckboxDropdown from '../UI/MultiCheckboxDropdown';
+
 import matchSorter from 'match-sorter';
 import queryString from 'query-string';
 
@@ -20,23 +24,28 @@ import HelpButtonAndDialog from '../UI/HelpButtonAndDialog';
 import RegionSelector from '../UI/RegionSelector';
 
 const mapStateToProps = (state, ownProps) => ({
-    keywords: state.keywords,
+    // keywords: state.keywords,
     searchResults: state.searchResults,
     submissionOptions: state.submissionOptions
 })
 
 const mapDispatchToProps = {
-    keywordsFetch,
+    // keywordsFetch,
     submissionOptionsRetrieval
 }
 
 const styles = (theme) => ({
     
     searchWrapper: {
-        position: '-webkit-sticky',
-        position: 'sticky',
-        top: '152px',
-        padding: '14px 20px'
+        position: 'fixed',
+        top: 152,        
+        left: 12
+    },
+
+    searchPaper: {
+        padding: '14px 20px',
+        maxHeight: 'calc(100vh - 200px)',
+        overflow: 'auto'
     },
 
     chip: {
@@ -83,9 +92,9 @@ const styles = (theme) => ({
         marginBottom: '8px'
     },
 
-    showAdvancedWrapper: {
+    showAdditionalFiltersWrapper: {
         textAlign: 'left',
-        marginTop: '4px',
+        marginTop: '12px',
         width: '100%'
     },
 
@@ -103,20 +112,20 @@ const styles = (theme) => ({
     }
 });
 
-const filterOptions = (options, { inputValue }) => {
-    let values = inputValue.replace('_',' ').split(' ');
-    let result = options;
+// const filterOptions = (options, { inputValue }) => {
+//     let values = inputValue.replace('_',' ').split(' ');
+//     let result = options;
 
-    values.forEach(value => {
-        result = matchSorter(result, value);
-    });
+//     values.forEach(value => {
+//         result = matchSorter(result, value);
+//     });
 
-    return result.sort((a,b) => a.length - b.length);
-}
+//     return result.sort((a,b) => a.length - b.length);
+// }
 
 const defaultState = {
-    searchInputValue: '',
-    searchWords: [],
+    // searchInputValue: '',
+    keywords: '',
     hasDepth: 'any',
     timeStart: '1900-01-01',
     timeEnd: new Date().toISOString().slice(0,10),
@@ -124,94 +133,212 @@ const defaultState = {
     latEnd: 90,
     lonStart: -180,
     lonEnd: 180,
-    sensor: 'Any'
+    sensor: new Set(),
+    make: new Set(),
+    region: new Set()
 }
 
 class CatalogSearch extends React.Component {
 
     state = {
-        showAdvanced: false,
+        showAdditionalFilters: false,
         helpDialogOpen: false,
         ...defaultState
     }
 
+    // componentDidMount = () => {
+    //     if(!this.props.keywords || !this.props.keywords.length){
+    //         this.props.keywordsFetch()
+    //     }
+    // }
+
     componentDidMount = () => {
-        if(!this.props.keywords || !this.props.keywords.length){
-            this.props.keywordsFetch()
+        if(this.props.location.search) {
+            let params = queryString.parse(this.props.location.search);
+            
+            ['region', 'sensor', 'make'].forEach(s => {
+                if(typeof params[s] === 'string') params[s] = [params[s]];
+            })
+
+            let newState = {
+                ...params,
+                sensor: new Set(params.sensor || []),
+                region: new Set(params.region || []),
+                make: new Set(params.make || []),
+                keywords: typeof params.keywords === 'string' ? params.keywords : params.keywords.join(' ')
+            };
+            this.setState({...this.state, ...newState});
         }
     }
 
-    handleToggleShowAdvanced = () => {
-        this.setState({...this.state, showAdvanced: !this.state.showAdvanced});
+    handleToggleshowAdditionalFilters = () => {
+        this.setState({...this.state, showAdditionalFilters: !this.state.showAdditionalFilters});
     }
 
     handleChangeSearchValue = (e, altTypeValue) => {
-        const target = e.target.name === undefined ? 
-            typeof altTypeValue === 'string' || altTypeValue === null ? 'sensor' : 'searchWords' : e.target.name;
+        // const target = e.target.name === undefined ? 
+        //     typeof altTypeValue === 'string' || altTypeValue === null ? 'sensor' : 'searchWords' : e.target.name;
 
-        let value = e.target.name === 'searchWords'  || e.target.name === undefined || e.target.name === 'sensor' ? altTypeValue : e.target.value;
-        
-        if(target === 'sensor' && value === null) value = 'Any';
+        // let value = e.target.name === 'searchWords'  || e.target.name === undefined || e.target.name === 'sensor' ? altTypeValue : e.target.value;
 
-        this.setState({...this.state, [target]: value});
+        const target = e.target.name;
+        const value = e.target.value;
         
-        this.props.history.push('/catalog?' + uriEncodeSearchQuery({
-            searchWords: this.state.searchWords,
-            hasDepth: this.state.hasDepth,
-            timeStart: this.state.timeStart,
-            timeEnd: this.state.timeEnd,
-            latStart: this.state.latStart,
-            latEnd: this.state.latEnd,
-            lonStart: this.state.lonStart,
-            lonEnd: this.state.lonEnd,
-            sensor: this.state.sensor,
-            [target]: value
-        }));
+        // if(target === 'sensor' && value === null) value = 'Any';
+        let newState = {...this.state, [target]: value};
+
+        this.setState(newState);
+
+        let qstring = queryString.stringify({
+            keywords: newState.keywords.split(' '),
+            hasDepth: newState.hasDepth,
+            timeStart: newState.timeStart,
+            timeEnd: newState.timeEnd,
+            latStart: newState.latStart,
+            latEnd: newState.latEnd,
+            lonStart: newState.lonStart,
+            lonEnd: newState.lonEnd,
+            sensor: Array.from(newState.sensor),
+            region: Array.from(newState.region),
+            make: Array.from(newState.make)
+        });
+
+        this.pushHistory(qstring);
+
+        // this.props.history.push('/catalog?' + qstring);
+        
+        // this.props.history.push('/catalog?' + uriEncodeSearchQuery({
+        //     keywords: this.state.keywords,
+        //     hasDepth: this.state.hasDepth,
+        //     timeStart: this.state.timeStart,
+        //     timeEnd: this.state.timeEnd,
+        //     latStart: this.state.latStart,
+        //     latEnd: this.state.latEnd,
+        //     lonStart: this.state.lonStart,
+        //     lonEnd: this.state.lonEnd,
+        //     sensor: this.state.sensor,
+        //     region: this.state.region,
+        //     make: this.state.make,
+        //     [target]: value
+        // }));
     }
 
-    handleSearchInputValueChange = (e) => {
-        this.setState({...this.state, searchInputValue: (e && e.target && e.target.value) || ''});
+    handleClickCheckbox = (e, checked) => {
+        let [ column, value ] = e.target.name.split('!!');
+        let newSet = new Set(this.state[column]);
+
+        checked ? newSet.add(value) : newSet.delete(value);
+        
+        this.handleChangeSearchValue({target: {name: column, value: newSet}});
     }
+
+    // handleSearchInputValueChange = (e) => {
+    //     this.setState({...this.state, searchInputValue: (e && e.target && e.target.value) || ''});
+    // }
 
     handleResetSearch = () => {
         this.setState({...this.state, ...defaultState});
         this.props.history.push('/catalog');
     }
 
-    handleSelectRegion = (option) => {
-        let coverageArray = option ? 
-            option.value.split(' ').map(e => parseFloat(e)) :
-            [-90, 90, -180, 180];
+    
 
-        let latStart = coverageArray[0];
-        let latEnd = coverageArray[1];
-        let lonStart = coverageArray[2];
-        let lonEnd = coverageArray[3];
+    // handleSelectRegion = (option) => {
+    //     let coverageArray = option ? 
+    //         option.value.split(' ').map(e => parseFloat(e)) :
+    //         [-90, 90, -180, 180];
+
+    //     let latStart = coverageArray[0];
+    //     let latEnd = coverageArray[1];
+    //     let lonStart = coverageArray[2];
+    //     let lonEnd = coverageArray[3];
         
-        this.props.history.push('/catalog?' + uriEncodeSearchQuery({
-            searchWords: this.state.searchWords,
-            hasDepth: this.state.hasDepth,
-            timeStart: this.state.timeStart,
-            timeEnd: this.state.timeEnd,
-            latStart,
-            latEnd,
-            lonStart,
-            lonEnd,
-            sensor: this.state.sensor
-        }));
+    //     this.props.history.push('/catalog?' + uriEncodeSearchQuery({
+    //         searchWords: this.state.searchWords,
+    //         hasDepth: this.state.hasDepth,
+    //         timeStart: this.state.timeStart,
+    //         timeEnd: this.state.timeEnd,
+    //         latStart,
+    //         latEnd,
+    //         lonStart,
+    //         lonEnd,
+    //         sensor: this.state.sensor
+    //     }));
 
-        this.setState({...this.state, latStart, latEnd, lonStart, lonEnd});
+    //     this.setState({...this.state, latStart, latEnd, lonStart, lonEnd});
+    // }
+
+    handleClearMultiSelect = (statePiece) => {
+        this.handleChangeSearchValue({target: {name: statePiece, value: new Set()}});
     }
 
+    _pushHistory = (qstring) => {
+        this.props.history.push('/catalog?' + qstring);
+    }
+
+    pushHistory = debounce(150, this._pushHistory);
+
     render = () => {
-        const { classes, keywords } = this.props;
-        const { searchInputValue, searchWords, hasDepth, timeStart, timeEnd, latStart, latEnd, lonStart, lonEnd } = this.state;
+        // const { classes, keywords } = this.props;
+        const { classes, submissionOptions } = this.props;
+        const { searchInputValue, keywords, hasDepth, timeStart, timeEnd, latStart, latEnd, lonStart, lonEnd, make, sensor, region } = this.state;
 
         return (
-            <Paper className={classes.searchWrapper} elevation={4}>
+            // <Grid container>
+                // <Grid item xs={12} md={4} className={classes.searchWrapper} >         
+            <Paper elevation={4} className={classes.searchPaper}>
                 <Grid container justify='center' alignItems='center'>
-                    <div style={{display: 'flex', justifyContent:'space-between', width: '100%', alignItems: 'center'}}>        
-                        <Autocomplete
+                    {/* <div style={{display: 'flex', justifyContent:'space-between', width: '100%', alignItems: 'center'}}> */}
+                    <Grid item xs={12}>
+                        <TextField
+                            autoFocus
+                            name='keywords'
+                            placeholder='Search'
+                            InputProps={{
+                                startAdornment: (
+                                    <React.Fragment>
+                                        <InputAdornment position="start">
+                                            <Search style={{color: colors.primary}}/>
+                                        </InputAdornment>
+                                    </React.Fragment>
+                                )
+                            }}
+                            value={keywords}
+                            variant="outlined"
+                            onChange={this.handleChangeSearchValue}
+                            fullWidth                      
+                        />
+                    </Grid>
+
+                    <MultiCheckboxDropdown
+                        options={submissionOptions.Make}
+                        selectedOptions={make}
+                        handleClear={() => this.handleClearMultiSelect('make')}
+                        parentStateKey={'make'}
+                        handleClickCheckbox={this.handleClickCheckbox}
+                        groupHeaderLabel='Makes'
+                    />
+
+                    <MultiCheckboxDropdown
+                        options={submissionOptions.Sensor}
+                        selectedOptions={sensor}
+                        handleClear={() => this.handleClearMultiSelect('sensor')}
+                        parentStateKey={'sensor'}
+                        handleClickCheckbox={this.handleClickCheckbox}
+                        groupHeaderLabel='Sensors'
+                    />
+
+                    <MultiCheckboxDropdown
+                        options={submissionOptions.Region}
+                        selectedOptions={region}
+                        handleClear={() => this.handleClearMultiSelect('region')}
+                        parentStateKey={'region'}
+                        handleClickCheckbox={this.handleClickCheckbox}
+                        groupHeaderLabel='Regions'
+                    />
+
+
+                        {/* <Autocomplete
                             className={classes.autoComplete}
                             value={searchWords}
                             onChange={this.handleChangeSearchValue}
@@ -257,29 +384,29 @@ class CatalogSearch extends React.Component {
                                     variant="outlined"                            
                                 />
                             )}
-                        />
+                        /> */}
 
-                        <HelpButtonAndDialog
+                        {/* <HelpButtonAndDialog
                             title='Catalog Search'
                             content={<SearchHelpContents/>}
-                        />
+                        /> */}
 
                         {/* <IconButton className={classes.showHelpButton} onClick={() => this.setState({...this.state, helpDialogOpen: true})}>
                             <Help/>
                         </IconButton> */}
-                    </div>
+                    {/* </div> */}
 
-                    <div className={classes.showAdvancedWrapper}>
+                    <div className={classes.showAdditionalFiltersWrapper}>
                         <Link
                             component='button'
-                            onClick={this.handleToggleShowAdvanced}
+                            onClick={this.handleToggleshowAdditionalFilters}
                         >
-                            {this.state.showAdvanced ? 'Hide Advanced Search' : 'Advanced Search'}
+                            {this.state.showAdditionalFilters ? 'Hide Additional Filters' : 'Show Additional Filters'}
                         </Link>
                     </div>
 
 
-                    {   this.state.showAdvanced ?
+                    {   this.state.showAdditionalFilters ?
                     <>
 
                         <Grid item container xs={12} className={classes.searchPanelRow}>
@@ -326,13 +453,13 @@ class CatalogSearch extends React.Component {
                                 </Typography>
                             </Grid>
 
-                            <Grid item xs={12} style={{textAlign: 'left', margin: '-3px 0 8px 10px'}}>
+                            {/* <Grid item xs={12} style={{textAlign: 'left', margin: '-3px 0 8px 10px'}}>
                                 <RegionSelector
                                     onSelect={this.handleSelectRegion}
                                     paperClass={classes.autocompletePopperPaper}
                                     inputClass={classes.regionSelectorInput}
                                 />
-                            </Grid>
+                            </Grid> */}
 
                             <Grid item xs={6}>
                                 <TextField
@@ -421,7 +548,7 @@ class CatalogSearch extends React.Component {
                                 </FormControl>
                             </Grid>
 
-                            <Grid item xs={12}>
+                            {/* <Grid item xs={12}>
                                 <Autocomplete
                                     options={this.props.submissionOptions ? this.props.submissionOptions.Sensor : []}
                                     renderInput={(params) => (
@@ -449,21 +576,25 @@ class CatalogSearch extends React.Component {
                                         // input: props.inputClass
                                     }}
                                 />
-                                </Grid>
-                            </Grid>
-
-                        <Grid item xs={12} className={classes.searchPanelRow}>
-                            <Button variant='outlined' onClick={this.handleResetSearch} className={classes.resetButton}>
-                                Reset Filters
-                            </Button>
-                        </Grid>
+                                </Grid> */}
+                            </Grid>                        
                         </>
                         : ''
                     }
 
+                    <Grid item xs={12} className={classes.searchPanelRow}>
+                        <Button variant='outlined' onClick={this.handleResetSearch} className={classes.resetButton}>
+                            Reset Filters
+                        </Button>
+                    </Grid>
+
                 </Grid>
-            </Paper>            
+            </Paper>
         )
+        // </Grid>
+    
+        {/* <Grid item xs={12} md={8}></Grid> */}
+        // </Grid>          
     }
 }
 

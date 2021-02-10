@@ -9,7 +9,7 @@ import matchSorter from 'match-sorter';
 // import { FixedSizeList } from 'react-window';
 
 import ProductList from './ProductList';
-import MultiCheckboxDrowndown from '../UI/MultiCheckboxDropdown';
+import MultiCheckboxDropdown from '../UI/MultiCheckboxDropdown';
 // import RegionSelector from '../UI/RegionSelector';
 
 import { vizSearchResultsFetch, vizSearchResultsSetLoadingState, variableNameAutocompleteFetch, vizSearchResultsStore } from '../../Redux/actions/visualization';
@@ -166,18 +166,6 @@ const styles = (theme) => ({
         overflowX: 'hidden'
     },
 
-    checkboxGroupHeader: {
-        '&:hover': {
-            backgroundColor: colors.greenHover
-        },
-
-        cursor: 'pointer',
-        height: '38px',
-        boxShadow: '0px 0px 0px 1px #242424',
-        backgroundColor: 'rgba(0,0,0,.4)',
-        marginTop: '8px'
-    },
-
     formControlLabelRoot: {
         height: '30px'
     },
@@ -188,8 +176,10 @@ const styles = (theme) => ({
 
     closeIcon: {
         float: 'right',
-        display: 'inline',
-        cursor: 'pointer'
+        cursor: 'pointer',
+        color: colors.primary,
+        textTransform: 'none',
+        fontSize: '15px'
     }
 });
 
@@ -214,7 +204,6 @@ const defaultState = {
     lonEnd: 180,
     sensor: new Set(),
     searchTerms: '',
-    sensorInputValue: '',
     temporalResolution: 'Any',
     spatialResolution: 'Any',
     dataSource: 'Any',
@@ -235,8 +224,10 @@ class DataSearch extends React.Component {
         ...defaultState
     }
 
+
     componentDidMount = () => {
         this.props.vizSearchResultsFetch({});
+
         // if(!this.props.submissionOptions || !this.props.submissionOptions.length){
         //     this.props.searchOptionsFetch();
         // }
@@ -287,7 +278,6 @@ class DataSearch extends React.Component {
     // }
 
     // handleSelectRegion = (event, option) => {
-    //     console.log(option);
     //     let coverageArray = option ? 
     //         option.value.split(' ').map(e => parseFloat(e)) :
     //         [-90, 90, -180, 180];
@@ -356,11 +346,8 @@ class DataSearch extends React.Component {
             make,
             region,
             sensor,
-            sensorsMenuOpen,
-            makesMenuOpen,
-            regionsMenuOpen
         } = this.state;
-        
+
         return (
             <React.Fragment>
                 <Grid container>
@@ -368,7 +355,16 @@ class DataSearch extends React.Component {
                         <Typography style={{display: 'inline-block'}}>
                             Search and filter using the controls on the left. Select a variable to plot from the list on the right.
                         </Typography>
-                        <Close color='primary' onClick={this.props.handleCloseDataSearch} className={classes.closeIcon}/>
+
+                        <Button
+                            startIcon={<Close style={{fontSize: '22px'}}/>}
+                            onClick={this.props.handleCloseDataSearch}
+                            className={classes.closeIcon}
+                        >
+                            Close
+                        </Button>
+
+                        {/* <Close onClick={this.props.handleCloseDataSearch} className={classes.closeIcon}/> */}
                     </Grid>
                     <Grid item xs={4} style={{overflowY: 'auto', maxHeight: windowHeight - 204, padding: '16px', backgroundColor: 'rgba(0,0,0,.4)', display: memberVariablesDataset ? 'none' : ''}}>
                         {/* <Autocomplete
@@ -442,264 +438,36 @@ class DataSearch extends React.Component {
                                             </React.Fragment>
                                         )
                                     }}
-                                    variant="outlined"                            
+                                    variant="outlined"
+                                    inputRef={this.props.searchInputRef}                        
                                 />
 
-                        <MultiCheckboxDrowndown
+                        <MultiCheckboxDropdown
                             options={submissionOptions.Make}
                             selectedOptions={make}
                             handleClear={() => this.handleClearMultiSelect('make')}
                             parentStateKey={'make'}
                             handleClickCheckbox={this.handleClickCheckbox}
+                            groupHeaderLabel='Makes'
                         />
 
-{/* <Grid 
-                            item xs={12} 
-                            container 
-                            alignItems='center' 
-                            className={classes.checkboxGroupHeader} 
-                            onClick={() => this.handleToggleMenu('makesMenuOpen')}
-                            >
-                            {makesMenuOpen ? 
-                                <ExpandMore className={classes.menuOpenIcon}/> : 
-                                <ChevronRight className={classes.menuOpenIcon}/>
-                            }
-                            Makes
-                        </Grid> */}
-                        
-                        {/* {
-                            makesMenuOpen ?
+                        <MultiCheckboxDropdown
+                            options={submissionOptions.Sensor}
+                            selectedOptions={sensor}
+                            handleClear={() => this.handleClearMultiSelect('sensor')}
+                            parentStateKey={'sensor'}
+                            handleClickCheckbox={this.handleClickCheckbox}
+                            groupHeaderLabel='Sensors'
+                        />
 
-                            <Grid item xs={12} className={classes.formGroupWrapper}>
-                                {
-                                    make.size ?
-
-                                    <Grid item container cs={12} justify='flex-start' className={classes.multiSelectHeader}>
-                                        <span style={{marginRight: '8px'}}>{make.size} Selected </span>
-                                        <Link component='button' onClick={() => this.handleClearMultiSelect('make')}>Reset</Link>
-                                    </Grid> : ''
-                                }                                
-                                
-                                <FormGroup>
-                                    {submissionOptions.Make.map((e, i) => (
-                                        <Grid item xs={12}>
-                                            <FormControlLabel
-                                                key={i}
-                                                control={
-                                                    <Checkbox 
-                                                        color='primary' 
-                                                        onChange={this.handleClickCheckbox} 
-                                                        className={classes.checkbox} 
-                                                        size='small'
-                                                        name={'make' + '!!' + e}
-                                                        checked={make.has(e)}
-                                                    />
-                                                }
-                                                label={e}
-                                                classes={{
-                                                    root: classes.formControlLabelRoot,
-                                                    label: classes.formControlLabelLabel
-                                                }}
-                                            />
-                                        </Grid>
-                                    ))}
-                                </FormGroup>
-                            </Grid>
-
-                            : ''
-                        } */}
-
-                    <Grid container>
-                        <Grid 
-                            item xs={12} 
-                            container 
-                            alignItems='center' 
-                            className={classes.checkboxGroupHeader} 
-                            onClick={() => this.handleToggleMenu('sensorsMenuOpen')}
-                            >
-                            {sensorsMenuOpen ? 
-                                <ExpandMore className={classes.menuOpenIcon}/> : 
-                                <ChevronRight className={classes.menuOpenIcon}/>
-                            }
-                            Sensors
-                        </Grid>
-
-                        {
-                            sensorsMenuOpen ?
-
-                            <Grid item xs={12} className={classes.formGroupWrapper}>
-                                {
-                                    sensor.size ?
-
-                                    <Grid item container cs={12} justify='flex-start' className={classes.multiSelectHeader}>
-                                        <span style={{marginRight: '8px'}}>{sensor.size} Selected </span>
-                                        <Link component='button' onClick={() => this.handleClearMultiSelect('sensor')}>Reset</Link>
-                                    </Grid> : ''
-                                }
-
-                                <FormGroup>
-                                    {submissionOptions.Sensor.map((e, i) => (
-                                        <Grid item xs={12}>
-                                            <FormControlLabel
-                                                key={i}
-                                                control={
-                                                    <Checkbox 
-                                                        color='primary' 
-                                                        onChange={this.handleClickCheckbox} 
-                                                        className={classes.checkbox} 
-                                                        size='small'
-                                                        name={'sensor' + '!!' + e}
-                                                        checked={sensor.has(e)}
-                                                    />
-                                                }
-                                                label={e}
-                                                classes={{
-                                                    root: classes.formControlLabelRoot,
-                                                    label: classes.formControlLabelLabel
-                                                }}
-                                            />
-                                        </Grid>
-                                    ))}
-                                </FormGroup>
-                            </Grid>
-
-                            : ''
-                        }
-
-                        <Grid 
-                            item xs={12} 
-                            container 
-                            alignItems='center' 
-                            className={classes.checkboxGroupHeader} 
-                            onClick={() => this.handleToggleMenu('regionsMenuOpen')}
-                            >
-                            {regionsMenuOpen ? 
-                                <ExpandMore className={classes.menuOpenIcon}/> : 
-                                <ChevronRight className={classes.menuOpenIcon}/>
-                            }
-                            Regions
-                        </Grid>
-
-                        {
-                            regionsMenuOpen ?
-
-                            <Grid item xs={12} className={classes.formGroupWrapper}>
-                                {
-                                    region.size ?
-
-                                    <Grid item container cs={12} justify='flex-start' className={classes.multiSelectHeader}>
-                                        <span style={{marginRight: '8px'}}>{region.size} Selected </span>
-                                        <Link component='button' onClick={() => this.handleClearMultiSelect('region')}>Reset</Link>
-                                    </Grid> : ''
-                                }
-
-                                <FormGroup>
-                                    {submissionOptions.Region.map((e, i) => (
-                                        <Grid item xs={12}>
-                                            <FormControlLabel
-                                                key={i}
-                                                control={
-                                                    <Checkbox 
-                                                        color='primary' 
-                                                        onChange={this.handleClickCheckbox} 
-                                                        className={classes.checkbox} 
-                                                        size='small'
-                                                        name={'region' + '!!' + e}
-                                                        checked={region.has(e)}
-                                                    />
-                                                }
-                                                label={e}
-                                                classes={{
-                                                    root: classes.formControlLabelRoot,
-                                                    label: classes.formControlLabelLabel
-                                                }}
-                                            />
-                                        </Grid>
-                                    ))}
-                                </FormGroup>
-                            </Grid>
-
-                            : ''
-                        }
-
-                            {/* <FormGroup>
-                                
-                                <FormControlLabel
-                                    control={<Checkbox checked={jason} onChange={handleChange} name="jason" />}
-                                    label="Jason Killian"
-                                />
-                                <FormControlLabel
-                                    control={<Checkbox checked={antoine} onChange={handleChange} name="antoine" />}
-                                    label="Antoine Llorca"
-                                />
-                            </FormGroup> */}
-
-                        {/* <Grid item xs={6} className={classes.denseGridItem}>
-                            <Autocomplete
-                                options={this.props.submissionOptions ? this.props.submissionOptions.Make : []}
-                                value={make}
-                                renderInput={(params) => 
-                                    <TextField 
-                                        {...params}
-                                        name='make'
-                                        margin='none' 
-                                        label="Make" 
-                                        InputLabelProps={{style:{fontSize: '12px', marginTop: '4px'}}}/>
-                                }
-                                getOptionLabel={option => option}
-                                onChange={this.handleChangeAutocomplete('make')}
-                                // inputValue={this.state.sensorInputValue}
-                                // onInputChange={(e, v) => this.setState({...this.state, sensorInputValue: v})}
-                                disablePortal
-                                classes={{
-                                    paper: `${classes.autocompletePopperPaper} ${classes.addBorder}`,
-                                    input: classes.regionSelectorInput,
-                                    option: classes.autocompleteOptions
-                                }}
-                            />
-                        </Grid>
-
-                        <Grid item xs={6} className={classes.denseGridItem}>
-                            <Autocomplete
-                                value={sensor}
-                                options={this.props.submissionOptions ? this.props.submissionOptions.Sensor : []}
-                                renderInput={(params) => 
-                                    <TextField 
-                                        {...params}
-                                        name='sensor'
-                                        margin='none' 
-                                        label="Sensor" 
-                                        InputLabelProps={{style:{fontSize: '12px', marginTop: '4px'}}}/>
-                                }
-                                getOptionLabel={option => option}
-                                onChange={this.handleChangeAutocomplete('sensor')}
-                                inputValue={this.state.sensorInputValue}
-                                onInputChange={(e, v) => this.setState({...this.state, sensorInputValue: v})}
-                                disablePortal
-                                classes={{
-                                    paper: `${classes.autocompletePopperPaper} ${classes.addBorder}`,
-                                    input: classes.regionSelectorInput,
-                                    option: classes.autocompleteOptions
-                                }}
-                            />
-                        </Grid>
-
-                        <Grid item xs={12} className={classes.denseGridItem}>
-                            <Autocomplete
-                                options={regions}
-                                renderInput={(params) => <TextField margin='none' {...params} label="Ocean Region" InputLabelProps={{style:{fontSize: '12px', marginTop: '4px'}}}/>}
-                                getOptionLabel={(option) => option.label}
-                                onChange={this.handleSelectRegion}
-                                disablePortal
-                                classes={{
-                                    paper: `${classes.autocompletePopperPaper} ${classes.addBorder}`,
-                                    input: classes.regionSelectorInput,
-                                    option: classes.autocompleteOptions
-                                }}
-                                value={region}
-                            />
-                        </Grid> */}
-                    </Grid>
+                        <MultiCheckboxDropdown
+                            options={submissionOptions.Region}
+                            selectedOptions={region}
+                            handleClear={() => this.handleClearMultiSelect('region')}
+                            parentStateKey={'region'}
+                            handleClickCheckbox={this.handleClickCheckbox}
+                            groupHeaderLabel='Regions'
+                        />
 
                     <div className={classes.showAdvancedWrapper}>
                         <Link

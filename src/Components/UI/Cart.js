@@ -33,7 +33,7 @@ const styles = (theme) => ({
             width: '100vw',
             margin: '12px'
         },
-        width: '60vw',
+        width: '60vw'
     },
 
     dialogPaperViz: {
@@ -56,6 +56,10 @@ const styles = (theme) => ({
 
     helpButton: {
         marginTop: '-4px'
+    },
+
+    dialogRoot: {
+        zIndex: '31000 !important'
     }
 });
 
@@ -74,14 +78,19 @@ const Cart = (props) => {
                 PaperProps={{
                     className: window.location.pathname.includes('/visualization') ? classes.dialogPaperViz : classes.dialogPaper
                 }}
+                classes={{
+                    root: classes.dialogRoot
+                }}
                 open={props.showCart} 
                 onClose={() => props.setShowCart(false)} 
                 maxWidth={false}
+                disableScrollLock
+                // onEntered={() => setTimeout(() => props.setShowCart(false), 2000)}
             >
                 <DialogTitle>
-                    Your Cart 
+                    Favorites 
                     <HelpButtonAndDialog
-                        title='Dataset Cart'
+                        title='Favorites'
                         content={<CartHelpContents/>}
                         iconClass={classes.helpIcon}
                         buttonClass={classes.helpButton}
@@ -98,17 +107,17 @@ const Cart = (props) => {
                             }
 
                             <DialogActions className={classes.dialogActions}>
-                                <Button
+                                {/* <Button
                                     variant="text"
                                     color="primary"
                                     className={props.cartButtonClass}
                                     startIcon={<ShowChart/>}
                                     component={RouterLink} 
-                                    to={`/visualization`}
+                                    to={`/visualization/charts`}
                                     onClick={() => props.setShowCart(false)}
                                 >
                                     Visualization
-                                </Button>
+                                </Button> */}
 
                                 <Button
                                     variant="text"
@@ -117,13 +126,13 @@ const Cart = (props) => {
                                     startIcon={<Delete/>}
                                     onClick={handleCartClear}
                                 >
-                                    Clear Cart
+                                    Clear Favorites
                                 </Button>
                             </DialogActions>                      
 
                         </>
 
-                        : 'Nothing in your cart. Visit the catalog page to add datasets.'
+                        : 'Nothing on your favorites list. Visit the catalog page to add datasets.'
                     }
                 </DialogContent>
             </Dialog>

@@ -69,6 +69,10 @@ const styles = theme => ({
 
     colorCorrectionWhite: {
         color: 'white'
+    },
+
+    dialogRoot: {
+        zIndex: '31000 !important'
     }
 })
 
@@ -121,6 +125,9 @@ class LoginDialog extends Component{
                 onEnter={this.onDialogEnter}
                 PaperProps={{
                     className: classes.dialogWrapper
+                }}
+                classes={{
+                    root: classes.dialogRoot
                 }}
             >
                 <DialogTitle id="form-dialog-title">Login</DialogTitle>

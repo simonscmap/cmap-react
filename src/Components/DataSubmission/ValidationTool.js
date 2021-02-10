@@ -26,7 +26,7 @@ import states from '../../Enums/asyncRequestStates';
 
 const mapStateToProps = (state, ownProps) => ({
     submissionFile: state.submissionFile,
-    submissionOptions: state.submissionOptions,
+    dataSubmissionSelectOptions: state.dataSubmissionSelectOptions,
     submissionUploadState: state.submissionUploadState,
     user: state.user
 });
@@ -627,8 +627,8 @@ class ValidationTool extends React.Component {
     }
 
     componentDidUpdate = (prevProps, prevState) => {
-        if((!prevProps.submissionOptions && this.props.submissionOptions) || (!this.audits && this.props.submissionOptions)){
-            this.audits = generateAudits(this.props.submissionOptions);
+        if((!prevProps.dataSubmissionSelectOptions && this.props.dataSubmissionSelectOptions) || (!this.audits && this.props.dataSubmissionSelectOptions) || (prevProps.dataSubmissionSelectOptions !== this.props.dataSubmissionSelectOptions && this.props.dataSubmissionSelectOptions)){
+            this.audits = generateAudits(this.props.dataSubmissionSelectOptions);
         }
         if(prevProps.submissionFile !== this.props.submissionFile && this.props.submissionFile){
             this.handleReadFile(this.props.submissionFile);
@@ -883,7 +883,7 @@ class ValidationTool extends React.Component {
                                         sheet, 
                                         getAuditReport: () => this.state.auditReport, 
                                         textAreaLookup, 
-                                        selectOptions: generateSelectOptions(this.props.submissionOptions),
+                                        selectOptions: generateSelectOptions(this.props.dataSubmissionSelectOptions),
                                         auditCell: this.auditCell
                                     }}
                                     onModelUpdated={this.onModelUpdated}

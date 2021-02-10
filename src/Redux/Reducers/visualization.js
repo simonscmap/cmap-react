@@ -6,16 +6,6 @@ export default function(state, action) {
         case visualizationActionTypes.QUERY_REQUEST_PROCESSING: return {...state, queryRequestState: states.inProgress};
         case visualizationActionTypes.QUERY_REQUEST_FAILURE: return {...state, queryRequestState: states.failed};
         case visualizationActionTypes.QUERY_REQUEST_SUCCESS: return {...state, queryRequestState: states.succeeded};
-        
-        case visualizationActionTypes.STORED_PROCEDURE_REQUEST_PROCESSING: return {...state, storedProcedureRequestState: states.inProgress}
-        case visualizationActionTypes.STORED_PROCEDURE_REQUEST_FAILURE: return {...state, storedProcedureRequestState: states.failed}
-        case visualizationActionTypes.STORED_PROCEDURE_REQUEST_SUCCESS: return {...state, storedProcedureRequestState: states.succeeded}
-
-
-        case visualizationActionTypes.ADD_LAYER: return { // Not currently in use
-            ...state,
-            layers: [...state.layers, action.payload.newLayer]
-        }
 
         case visualizationActionTypes.STORE_SAMPLE_DATA: return {
             ...state,
@@ -100,6 +90,8 @@ export default function(state, action) {
         case visualizationActionTypes.VARIABLE_FETCH_SET_LOADING_STATE: return {...state, variableFetchLoadingState: action.payload.state}
 
         case visualizationActionTypes.DATASET_SUMMARY_STORE: return {...state, datasetSummary: action.payload.datasetSummary}
+
+        case visualizationActionTypes.PLOTS_ACTIVE_TAB_SET: return {...state, plotsActiveTab: action.payload.tab}
         
         default: return state;
     }

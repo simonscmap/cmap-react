@@ -70,7 +70,6 @@ const initialState = {
     cruiseTrajectory: null,
     sampleData: null,
     queryRequestState: null,
-    storedProcedureRequestState: null,
     getTableStatsRequestState: null,
     cruiseList: [],
     getCruiseListRequestState: null,
@@ -88,6 +87,7 @@ const initialState = {
     autocompleteVariableNames: [],
     variableDetails: null,
     datasetSummary: null,
+    plotsActiveTab: 0,
 
     // Data Submission state pieces
 
@@ -95,7 +95,8 @@ const initialState = {
     submissionComments: [],
     submissionCommentHistoryRetrievalState: states.succeeded,
     submissionFile: null,
-    submissionUploadState: null
+    submissionUploadState: null,
+    dataSubmissionSelectOptions: null
 }
 
 const reducedReducer = reduceReducers(initialState, catalog, user, ui, visualization, dataSubmission);

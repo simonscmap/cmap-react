@@ -99,7 +99,7 @@ const handleContourMap = (subsets, infoObject, splitByDate, splitByDepth, palett
                     hoverinfo: 'text',
                     hovertext,
                     
-                    name: infoObject.parameters.fields,
+                    name: `${metadata.Long_Name.length > 60 ? metadata.Long_Name.slice(0, 60) + '...': metadata.Long_Name}`,
                     type: 'contour',
                     contours: {
                         coloring: palette,
@@ -127,13 +127,14 @@ const handleContourMap = (subsets, infoObject, splitByDate, splitByDepth, palett
                 ...chartBase.layout,
                 // autosize: true,
                 title: {
-                    text: `${parameters.fields} [${metadata.Unit}]` + 
+                    text: `${metadata.Dataset_Name}` +
+                        `<br>${metadata.Long_Name.length > 60 ? metadata.Long_Name.slice(0, 60) + '...': metadata.Long_Name} [${metadata.Unit}]` + 
                         `<br>${date}, ` + 
                         `${depth} <br>` + 
                         `Lat: ${latTitle}, ` +
                         `Lon: ${lonTitle}`,
                     font: {
-                        size: 13
+                        size: 12
                     }
                 },
                 xaxis: {title: 'Longitude', color: '#ffffff', ...xTicks},
@@ -209,7 +210,7 @@ const handleHeatmap = (subsets, infoObject, splitByDate, splitByDepth, palette, 
                     y: infoObject.lats,
                     z: subset,
                     connectgaps: false,
-                    name: infoObject.parameters.fields,
+                    name: `${metadata.Long_Name.length > 60 ? metadata.Long_Name.slice(0, 60) + '...': metadata.Long_Name}`,
                     type: 'heatmap',
                     colorscale: palette,
                     autocolorscale: false,
@@ -248,7 +249,8 @@ const handleHeatmap = (subsets, infoObject, splitByDate, splitByDepth, palette, 
             layout= {{
                 ...chartBase.layout,
                 title: {
-                    text: `${parameters.fields} [${metadata.Unit}]` + 
+                    text: `${metadata.Dataset_Name}` +
+                        `<br>${metadata.Long_Name.length > 60 ? metadata.Long_Name.slice(0, 60) + '...': metadata.Long_Name} [${metadata.Unit}]` + 
                         `<br>${date}, ` + 
                         `${depth} <br>` + 
                         `Lat: ${latTitle}, ` +

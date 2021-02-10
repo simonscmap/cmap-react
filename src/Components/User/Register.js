@@ -92,7 +92,7 @@ class Register extends Component {
                 {!this.state.showStepper &&
                     <Paper className={classes.paper}>
                         <Typography className={classes.description}>
-                            Create an account to visualize data, and access the Simons CMAP API.
+                            Create an account to access your favorites list between sessions and devices, or submit data to CMAP.
                         </Typography>
 
                         <div className={classes.googleWrapper}>

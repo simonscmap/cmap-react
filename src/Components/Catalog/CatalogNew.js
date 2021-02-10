@@ -37,12 +37,20 @@ const styles = (theme) => ({
         margin: '0 auto',
         transition: 'marginTop 2s'
     },
+    
+    searchGrid: {
+        '@media (min-width: 960px)': {
+            paddingTop: '62px'
+        },
+    }
 });
 
 const CatalogNew = (props) => {
-    useEffect(() => {
-        props.searchOptionsFetch();        
-    }, []);
+    // useEffect(() => {
+    //     props.searchOptionsFetch();        
+    // }, []);
+
+    const { classes } = props;
 
     useEffect(() => {
         document.title = metaTags.catalog.title;
@@ -63,8 +71,9 @@ const CatalogNew = (props) => {
     return (
         <div className={props.classes.wrapperDiv}>
             <Grid container justify='center'>
-                <Grid item xs={12} md={4}>
-                    <CatalogSearch/>
+                
+                <Grid item xs={12} md={4} className={classes.searchGrid}>
+                    <CatalogSearch/>                    
                 </Grid>
 
                 <Grid item xs={12} md={8}>

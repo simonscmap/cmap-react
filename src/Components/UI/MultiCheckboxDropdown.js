@@ -37,9 +37,9 @@ const styles = (theme) => ({
         cursor: 'pointer',
         height: '38px',
         boxShadow: '0px 0px 0px 1px #242424',
-        backgroundColor: 'rgba(0,0,0,.4)',
+        // backgroundColor: 'rgba(0,0,0,.15)',
         marginTop: '8px'
-    },
+    }
 });
 
 //component expects to be wrapped in a grid
@@ -51,7 +51,8 @@ const MultiCheckboxDrowndown = (props) => {
         handleClear,
         options,
         parentStateKey,
-        handleClickCheckbox
+        handleClickCheckbox,
+        groupHeaderLabel
     } = props;
 
     const [ open, setOpen ] = React.useState(false);
@@ -69,7 +70,7 @@ const MultiCheckboxDrowndown = (props) => {
                     <ExpandMore className={classes.menuOpenIcon}/> : 
                     <ChevronRight className={classes.menuOpenIcon}/>
                 }
-                Makes
+                {groupHeaderLabel}
             </Grid>
 
             {
@@ -87,9 +88,8 @@ const MultiCheckboxDrowndown = (props) => {
                     
                     <FormGroup>
                         {options.map((e, i) => (
-                            <Grid item xs={12}>
+                            <Grid item xs={12} key={i}>
                                 <FormControlLabel
-                                    key={i}
                                     control={
                                         <Checkbox 
                                             color='primary' 

@@ -8,6 +8,9 @@ export default (charts) => {
             count ++;
             if(chart.data.variableValues.length > 10000) count +=3;
         }
+        if(chart.subType === visualizationSubTypes.depthProfile && chart.data.variableValues.length > 10000) count ++;
+        if(chart.subType === visualizationSubTypes.timeSeries && chart.data.variableValues.length > 10000) count ++;
+
     })
     return count;
 }

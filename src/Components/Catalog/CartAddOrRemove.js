@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from "react-router";
 import { withStyles, Button, Tooltip, Menu, MenuItem } from '@material-ui/core';
-import { AddShoppingCart, RemoveShoppingCart } from '@material-ui/icons';
+import { Star, StarBorder } from '@material-ui/icons';
 
 import { cartAddItem, cartRemoveItem } from '../../Redux/actions/catalog';
 import { cartPersistAddItem, cartPersistRemoveItem } from '../../Redux/actions/user';
@@ -32,6 +32,12 @@ const CartAddOrRemove = (props) => {
 
     const [ anchorElement, setAnchorElement ] = useState(null);
 
+    const addAndRemain = () => {
+        cartAddItem(dataset);
+        cartPersistAddItem(dataset.Dataset_ID);
+        // setAnchorElement(null);
+    }
+
     const handleClick = (e) => {
         if(cart[dataset.Long_Name]){
             cartRemoveItem(dataset);
@@ -39,46 +45,41 @@ const CartAddOrRemove = (props) => {
         }
 
         else {
-            setAnchorElement(e.currentTarget);
+            cartAddItem(dataset);
+            cartPersistAddItem(dataset.Dataset_ID);
         }
     }
 
-    const addAndVisualize = () => {
-        cartAddItem(dataset);
-        cartPersistAddItem(dataset.Dataset_ID);
-        setAnchorElement(null);
-        props.history.push('/visualization');
-    }
-
-    const addAndRemain = () => {
-        cartAddItem(dataset);
-        cartPersistAddItem(dataset.Dataset_ID);
-        setAnchorElement(null);
-    }
+    // const addAndVisualize = () => {
+    //     cartAddItem(dataset);
+    //     cartPersistAddItem(dataset.Dataset_ID);
+    //     setAnchorElement(null);
+    //     props.history.push('/visualization/charts');
+    // }
 
     return (
         <React.Fragment>
-            <Tooltip title={dataset.Visualize ? 'Items in your cart will appear first on the visualization page' : 'This dataset contains no visualizable variables, and will not appear on the visualization page.'} placement='right'>
+            <Tooltip title={dataset.Visualize ? 'Favorites will appear first on the visualization page' : 'This dataset contains no visualizable variables, and will not appear on the visualization page.'} placement='right'>
                 <Button
                     style={!dataset.Visualize && !cart[dataset.Long_Name] ? {color: '#e3e61a'} : {}}
                     variant="text"
                     color="primary"
                     className={props.cartButtonClass}
-                    startIcon={cart[dataset.Long_Name] ? <RemoveShoppingCart/> : <AddShoppingCart/>}
+                    startIcon={cart[dataset.Long_Name] ? <Star/> : <StarBorder/>}
                     onClick={handleClick}
                 >
-                    {cart[dataset.Long_Name] ? 'Remove From Cart' : 'Add To Cart'}
+                    {cart[dataset.Long_Name] ? 'Remove From Favorites' : 'Add To Favorites'}
                 </Button>
             </Tooltip>
 
-            <Menu
+            {/* <Menu
                 anchorEl={anchorElement}
                 open={Boolean(anchorElement)}
                 onClose={() => setAnchorElement(null)}
             >
                 <MenuItem onClick={() => addAndRemain()}>Add to Cart</MenuItem>
                 <MenuItem onClick={() => addAndVisualize()}>Add to Cart and Visualize</MenuItem>
-            </Menu>
+            </Menu> */}
         </React.Fragment>
     )
 }

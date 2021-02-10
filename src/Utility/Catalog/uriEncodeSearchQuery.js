@@ -1,7 +1,6 @@
-export default ({searchWords = [], hasDepth, timeStart, timeEnd, latStart, latEnd, lonStart, lonEnd, sensor}) => {
+export default ({keywords = '', hasDepth, timeStart, timeEnd, latStart, latEnd, lonStart, lonEnd, sensor}) => {
     let qString = '';
-    console.log(searchWords);
-    searchWords.forEach((keyword, i) => qString += `${i > 0 ? '&' : ''}keywords=${encodeURIComponent(keyword)}`);
+    keywords.split(' ').forEach((keyword, i) => qString += `${i > 0 ? '&' : ''}keywords=${encodeURIComponent(keyword)}`);
     
     qString += hasDepth === 'yes' || hasDepth === 'no' ? `&hasDepth=${hasDepth}` : `&hasDepth=any`; 
     if(timeStart) qString += `&timeStart=${encodeURIComponent(timeStart)}`;

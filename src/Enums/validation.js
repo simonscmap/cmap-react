@@ -31,7 +31,7 @@ const validation = {
         surfaceOnlyDataset: '$ contains only surface data',
         irregularOnly: 'Sparse map is only available for sparse data',
         dataSizeTooLarge: 'Data set is too large for this visualization type.',
-        webGLContextLimit: 'Limit exceeded for sparse and heatmaps. Please delete one or more to proceed.'
+        webGLContextLimit: 'Rendering limit exceeded for plots. Please delete one or more.'
     },
 
     generic: {

@@ -71,10 +71,11 @@ export const searchResultsFetch = (queryString) => ({
     }
 });
 
-export const searchResultsStore = (searchResults) => ({
+export const searchResultsStore = (searchResults, submissionOptions) => ({
     type: catalogActionTypes.SEARCH_RESULTS_STORE,
     payload: {
-        searchResults
+        searchResults,
+        submissionOptions
     }
 });
 

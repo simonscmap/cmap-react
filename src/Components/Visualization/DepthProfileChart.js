@@ -85,7 +85,6 @@ const DepthProfileChart = (props) => {
 
     const date = date1 === date2 ? handleChartDateString(date1, infoObject.hasHour, infoObject.isMonthly) :
             handleChartDateString(date1, infoObject.hasHour, infoObject.isMonthly) + ' to ' + handleChartDateString(date2, infoObject.hasHour, infoObject.isMonthly);
-    
             return (
         <div>
             <ChartControlPanel
@@ -119,8 +118,9 @@ const DepthProfileChart = (props) => {
                             color: showErrorBars ? '#f2f2f2' : 'transparent',
                             visible: true
                         },
-                        name: parameters.fields,
-                        type: 'scatter',
+                        name: `${metadata.Long_Name.length > 60 ? metadata.Long_Name.slice(0, 60) + '...': metadata.Long_Name}`,
+                        // type: 'scatter',
+                        type: variableValues.length > 10000 ? 'scattergl' : 'scatter',
 
                         marker: {
                             line: {color: markerOptions.color},
@@ -138,13 +138,14 @@ const DepthProfileChart = (props) => {
                     ...chartBase.layout,
                     plot_bgcolor: 'transparent',
                     title: {
-                        text: `${parameters.fields} [${metadata.Unit}]` + 
+                        text: `${metadata.Dataset_Name}` +
+                            `<br>${metadata.Long_Name.length > 60 ? metadata.Long_Name.slice(0, 60) + '...': metadata.Long_Name} [${metadata.Unit}]` + 
                             `<br>${date}, ` + 
                             `${parameters.depth1}[m] to ${parameters.depth2}[m] <br>` + 
                             `Lat: ${parameters.lat1}\xb0 to ${parameters.lat2}\xb0, ` +
                             `Lon: ${parameters.lon1}\xb0 to ${parameters.lon2}\xb0`,
                         font: {
-                            size: 13
+                            size: 12
                         }
                     },
                         
@@ -155,7 +156,7 @@ const DepthProfileChart = (props) => {
                       autorange:'reversed'
                     },
                   xaxis: {
-                      title: `${parameters.fields}[${metadata.Unit}]`,
+                      title: `${metadata.Long_Name.length > 35 ? metadata.Long_Name.slice(0, 35) + '...' : metadata.Long_Name} [${metadata.Unit}]`,
                       color: '#ffffff',
                       exponentformat: 'power'
                     },

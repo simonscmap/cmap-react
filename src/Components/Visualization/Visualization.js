@@ -13,7 +13,7 @@ import VizControlPanel from './VizControlPanel';
 import NewVizControlPanel from './NewVizControlPanel';
 
 import { showLoginDialog, snackbarOpen } from '../../Redux/actions/ui';
-import { queryRequestSend, storedProcedureRequestSend, cruiseListRequestSend, completedShowCharts } from '../../Redux/actions/visualization';
+import { queryRequestSend, storedProcedureRequestSend, cruiseListRequestSend, completedShowCharts, plotsActiveTabSet } from '../../Redux/actions/visualization';
 import { retrievalRequestSend, datasetRetrievalRequestSend } from '../../Redux/actions/catalog';
 
 import { loadModules } from 'esri-loader';
@@ -78,13 +78,13 @@ const mapStateToProps = (state, ownProps) => ({
     maps: state.maps,
     charts: state.charts,
     data: state.data,
-    storedProcedureRequestState: state.storedProcedureRequestState,
     loadingMessage: state.loadingMessage,
     cruiseTrajectory: state.cruiseTrajectory,
     cruiseList: state.cruiseList,
     showChartsOnce: state.showChartsOnce,
     datasets: state.datasets,
-    catalog: state.catalog
+    catalog: state.catalog,
+    plotsActiveTab: state.plotsActiveTab
 })
 
 const mapDispatchToProps = {
@@ -95,7 +95,8 @@ const mapDispatchToProps = {
     snackbarOpen,
     cruiseListRequestSend,
     completedShowCharts,
-    datasetRetrievalRequestSend
+    datasetRetrievalRequestSend,
+    plotsActiveTabSet
 }
 
 const styles = (theme) => ({
@@ -109,8 +110,9 @@ const styles = (theme) => ({
 
     showCharts: {
         display: 'inline-block',
-        paddingTop: theme.spacing(6)
-        // width: '90%'
+        paddingTop: '180px',
+        width: '100vw', //new
+        textAlign: 'left' //new
     },
 
     vizWrapper: {
@@ -147,7 +149,6 @@ class Visualization extends Component {
         surfaceOnly: false,
         irregularSpatialResolution: false,
         showCruiseControl: false,
-
         spParams: baseSPParams
     }
     
@@ -249,6 +250,10 @@ class Visualization extends Component {
         }
     
         this.props.storedProcedureRequestSend(payload);
+    }
+
+    handlePlotsSetActiveTab = (event, newValue) => {
+        this.props.plotsActiveTabSet(newValue);
     }
 
     // Update the "fields" state piece when the variables input changes
@@ -386,7 +391,7 @@ class Visualization extends Component {
     render(){
         const { classes } = this.props;
 
-        if(!this.props.user) return <LoginRequiredPrompt/>
+        // if(!this.props.user) return <LoginRequiredPrompt/>
 
         return (
             <div className={classes.vizWrapper}>
@@ -413,7 +418,7 @@ class Visualization extends Component {
                 /> */}
 
                 { this.state.esriModules &&
-                    <div className={`${this.state.showCharts ? classes.displayNone : ''}`}>
+                    <div className={`${this.props.plotsActiveTab === 0 ? '' : classes.displayNone}`}>
                         <MapContainer
                             globeUIRef={this.globeUIRef}
                             updateDomainFromGraphicExtent={this.updateDomainFromGraphicExtent}
@@ -455,6 +460,8 @@ class Visualization extends Component {
                             showCruiseControl={this.state.showCruiseControl}
                             globeUIRef={this.globeUIRef}
                             mapContainerRef={this.mapContainerRef}
+                            handlePlotsSetActiveTab={this.handlePlotsSetActiveTab}
+                            plotsActiveTab={this.props.plotsActiveTab}
                         />
                         )}
                     // }
@@ -462,12 +469,13 @@ class Visualization extends Component {
                     <Route 
                         path='/visualization/cruises'
                         render={(props) => (
-                            <CruiseSelector/>
+                            <CruiseSelector handleShowGlobe={this.handleShowGlobe}/>
                         )}
                     />
                 </Switch>              
 
-                <div className={this.state.showCharts ? classes.showCharts : classes.displayNone}>
+                {/* <div className={this.state.showCharts ? classes.showCharts : classes.displayNone}> */}
+                <div className={this.props.plotsActiveTab === 0 ? classes.displayNone : classes.showCharts}>
                     <Charts/>
                 </div>
             </div>

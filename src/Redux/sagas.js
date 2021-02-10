@@ -21,6 +21,7 @@ import states from '../Enums/asyncRequestStates';
 import groupVariablesByDataset from '../Utility/Catalog/groupVariablesByDataset';
 import groupDatasetsByMake from '../Utility/Catalog/groupDatasetsByMake';
 import buildSearchOptionsFromVariablesList from '../Utility/Catalog/buildSearchOptionsFromVariablesList';
+import buildSearchOptionsFromDatasetList from '../Utility/Catalog/buildSearchOptionsFromDatasetList';
 
 function* userLogin(action) {
     yield put(userActions.userLoginRequestProcessing());
@@ -169,7 +170,7 @@ function* storedProcedureRequest(action){
         if(result.status === 401){
             yield put(userActions.refreshLogin());
         } else {
-            yield put(interfaceActions.snackbarOpen("An error occurred. Please try again."));
+            yield put(interfaceActions.snackbarOpen("An unexpected error occurred. Please reduce the size of your query and try again."));
         }
     } else {
         if(result.variableValues.length > 0){
@@ -290,7 +291,7 @@ function* refreshLogin(){
     yield call(api.user.logout);
     yield put(userActions.destroyInfo());
     yield put(interfaceActions.showLoginDialog());
-    yield put(interfaceActions.snackbarOpen("Your session has expired. Please log in again."));
+    // yield put(interfaceActions.snackbarOpen("Your session has expired. Please log in again."));
 }
 
 function* updateUserInfoRequest(action){
@@ -654,7 +655,7 @@ function* retrieveMostRecentFile(action) {
 }
 
 function* checkSubmissionOptionsAndStoreFile(action) {
-    let storedOptions = yield select((state) => state.submissionOptions);
+    let storedOptions = yield select((state) => state.dataSubmissionSelectOptions);
     let options;
 
     if(storedOptions){
@@ -669,7 +670,11 @@ function* checkSubmissionOptionsAndStoreFile(action) {
 
         else {
             options = yield result.json();
-            yield put(catalogActions.storeSubmissionOptions(options));
+            let tempRemoveInSituOptions = {
+                ...options,
+                Sensor: options.Sensor.filter(item => item !== 'In-Situ')
+            }
+            yield put(dataSubmissionActions.dataSubmissionSelectOptionsStore(tempRemoveInSituOptions));
         }
     }
     
@@ -745,8 +750,12 @@ function* searchResultsFetch(action){
     let result = yield call(api.catalog.searchResults, action.payload.queryString);
 
     if(result.ok){
+        const storedOptions = yield select((state) => state.submissionOptions);
+        const params = queryString.parse(action.payload.queryString);
+
         let results = yield result.json();
-        yield put(catalogActions.searchResultsStore(results));
+        let options = buildSearchOptionsFromDatasetList(results, storedOptions, params);
+        yield put(catalogActions.searchResultsStore(results, options));
     }
 
     else {
@@ -754,6 +763,33 @@ function* searchResultsFetch(action){
     }
     yield put(catalogActions.searchResultsSetLoadingState(states.succeeded));
 }
+
+// function* vizSearchResultsFetch(action){
+//     const { params } = action.payload;
+    
+//     const qString = '?' + queryString.stringify({
+//         ...params, 
+//         sensor: Array.from(params.sensor || new Set()),
+//         make: Array.from(params.make || new Set()),
+//         region: Array.from(params.region || new Set())
+//     });
+
+//     const searchResponse = yield call(api.visualization.variableSearch, qString);
+//     const storedOptions = yield select((state) => state.submissionOptions);
+
+//     if(searchResponse.ok){
+//         const { counts, variables } = yield searchResponse.json();
+//         let options = buildSearchOptionsFromVariablesList(variables, storedOptions, params);
+//         let datasets = groupVariablesByDataset(variables);
+//         let makes = groupDatasetsByMake(datasets);
+//         yield put(visualizationActions.vizSearchResultsStoreAndUpdateOptions(makes, options, counts));
+//         yield put(visualizationActions.vizSearchResultsSetLoadingState(states.succeeded));
+//     }
+
+//     else {
+//         yield put(interfaceActions.snackbarOpen('Search failed. Please try again.'));
+//     }
+// }
 
 function* datasetFullPageDataFetch(action) {
     yield put(catalogActions.datasetFullPageDataSetLoadingState(states.inProgress));
@@ -831,11 +867,12 @@ function* vizSearchResultsFetch(action){
 
     const searchResponse = yield call(api.visualization.variableSearch, qString);
     const storedOptions = yield select((state) => state.submissionOptions);
+    const cart = yield select((state) => state.cart);
 
     if(searchResponse.ok){
         const { counts, variables } = yield searchResponse.json();
         let options = buildSearchOptionsFromVariablesList(variables, storedOptions, params);
-        let datasets = groupVariablesByDataset(variables);
+        let datasets = groupVariablesByDataset(variables, cart);
         let makes = groupDatasetsByMake(datasets);
         yield put(visualizationActions.vizSearchResultsStoreAndUpdateOptions(makes, options, counts));
         yield put(visualizationActions.vizSearchResultsSetLoadingState(states.succeeded));
@@ -873,9 +910,10 @@ function* autocompleteVariableNamesFetch(action) {
     }
 }
 
+// variable stats dialog
 function* variableFetch(action) {
     if(action.payload.id === null){
-        yield put(visualizationActions.variableNameAutocompleteStore(null));
+        yield put(visualizationActions.variableStore(null));
     }
 
     else {
@@ -914,8 +952,8 @@ function* datasetSummaryFetch(action) {
 }
 
 function* vizPageDataTargetSetAndFetchDetails(action) {
-    // The action below also resets vizPageDataTargetDetails to null
     yield put(visualizationActions.vizPageDataTargetSet(action.payload.vizPageDataTarget));
+    if(action.payload.vizPageDataTarget === null) return;
     
     let response = yield call(api.visualization.variableFetch, action.payload.vizPageDataTarget.ID);
     
@@ -927,6 +965,10 @@ function* vizPageDataTargetSetAndFetchDetails(action) {
     else {
         yield put(interfaceActions.snackbarOpen('Unable to fetch variable details. Please try again later'));
     }
+}
+
+function* dataSubmissionSelectOptionsFetch(action){
+    
 }
 
 function* watchUserLogin() {
@@ -1129,6 +1171,10 @@ function* watchVizPageDataTargetSetAndFetchDetails() {
     yield takeLatest(visualizationActionTypes.VIZ_PAGE_DATA_TARGET_SET_AND_FETCH_DETAILS, vizPageDataTargetSetAndFetchDetails);
 }
 
+function* watchDataSubmissionSelectOptionsFetch(){
+    yield takeLatest(dataSubmissionActionTypes.DATA_SUBMISSION_SELECT_OPTIONS_FETCH, dataSubmissionSelectOptionsFetch);
+}
+
 // function createWorkerChannel(worker) {
 //     return eventChannel(emit => {
 //         worker.onmessage = message => {
@@ -1206,6 +1252,7 @@ export default function* rootSaga() {
         watchAutocompleteVariableNamesFetch(),
         watchVariableFetch(),
         watchDatasetSummaryFetch(),
-        watchVizPageDataTargetSetAndFetchDetails()
-    ])
+        watchVizPageDataTargetSetAndFetchDetails(),
+        watchDataSubmissionSelectOptionsFetch()
+    ]);
 }
