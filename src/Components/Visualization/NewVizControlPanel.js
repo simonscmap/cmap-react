@@ -440,22 +440,22 @@ class NewVizControlPanel extends React.Component {
         this.setState({...this.state, lat1, lat2, lon1, lon2, depth1, depth2, dt1, dt2});
     }
 
-    handleShowChartsClick = () => {
-        // if(this.props.showCharts){
-        //     this.props.handleShowGlobe();
-        // }
+    // handleShowChartsClick = () => {
+    //     // if(this.props.showCharts){
+    //     //     this.props.handleShowGlobe();
+    //     // }
 
-        // else {
-        //     this.props.handleShowCharts();
-        // }
-        if(this.props.plotsActiveTab === 0){
-            this.props.handlePlotsSetActiveTab(null, 1);
-        }
+    //     // else {
+    //     //     this.props.handleShowCharts();
+    //     // }
+    //     if(this.props.plotsActiveTab === 0){
+    //         this.props.handlePlotsSetActiveTab(null, 1);
+    //     }
 
-        else {
-            this.props.handlePlotsSetActiveTab(null, 0);
-        }
-    }
+    //     else {
+    //         this.props.handlePlotsSetActiveTab(null, 0);
+    //     }
+    // }
 
     handleVisualize = () => {
         const { depth1, depth2, dt1, dt2, lat1, lat2, lon1, lon2, selectedVizType } = this.state;
@@ -950,12 +950,12 @@ class NewVizControlPanel extends React.Component {
 
         return (
             <React.Fragment>
-                {/* <StoredParametersDropdown 
+                <StoredParametersDropdown 
                     handleUpdateParameters={this.handleUpdateParameters}
                     disableButton={this.state.showDrawHelp || !vizPageDataTargetDetails}
-                /> */}
+                />
 
-                {/* <ChartControlTabs handlePlotsSetActiveTab={this.props.handlePlotsSetActiveTab} plotsActiveTab={plotsActiveTab}/> */}
+                <ChartControlTabs handlePlotsSetActiveTab={this.props.handlePlotsSetActiveTab} plotsActiveTab={plotsActiveTab}/>
 
                 <VariableDetailsDialog variableDetailsID={variableDetailsID} handleSetVariableDetailsID={this.handleSetVariableDetailsID}/>
                     {
@@ -1418,25 +1418,25 @@ class NewVizControlPanel extends React.Component {
                                 />  
 
                                 {
-                                    charts.length && showControlPanel ?
+                                    // charts.length && showControlPanel ?
                                     
-                                    <Paper className={classes.popoutButtonPaper} style={{left: '281px', top: '343px'}}>
-                                        {/* <Tooltip title={showCharts ? 'Return to Globe' : 'Show Charts'}> */}
-                                        <Tooltip title={plotsActiveTab !== 0 ? 'Return to Globe' : 'Show Charts'}>
-                                            <IconButton disabled={this.state.showDrawHelp} className={classes.popoutButtonBase} onClick={this.handleShowChartsClick}>
-                                                {
-                                                    plotsActiveTab !== 0 ?
-                                                    <Language className={classes.popoutButtonIcon} style={{color:colors.primary}}/> 
-                                                    :                                                    
-                                                    <Badge badgeContent={charts.length} color='primary'>
-                                                        <ShowChart className={classes.popoutButtonIcon} style={{color:colors.primary}}/>
-                                                    </Badge>
-                                                }                                                
-                                            </IconButton>
-                                        </Tooltip>
-                                    </Paper>
+                                    // <Paper className={classes.popoutButtonPaper} style={{left: '281px', top: '343px'}}>
+                                    //     {/* <Tooltip title={showCharts ? 'Return to Globe' : 'Show Charts'}> */}
+                                    //     <Tooltip title={plotsActiveTab !== 0 ? 'Return to Globe' : 'Show Charts'}>
+                                    //         <IconButton disabled={this.state.showDrawHelp} className={classes.popoutButtonBase} onClick={this.handleShowChartsClick}>
+                                    //             {
+                                    //                 plotsActiveTab !== 0 ?
+                                    //                 <Language className={classes.popoutButtonIcon} style={{color:colors.primary}}/> 
+                                    //                 :                                                    
+                                    //                 <Badge badgeContent={charts.length} color='primary'>
+                                    //                     <ShowChart className={classes.popoutButtonIcon} style={{color:colors.primary}}/>
+                                    //                 </Badge>
+                                    //             }                                                
+                                    //         </IconButton>
+                                    //     </Tooltip>
+                                    // </Paper>
 
-                                    : ''
+                                    // : ''
                                 }                                    
                             </Grid>
                                 {/* : ''
