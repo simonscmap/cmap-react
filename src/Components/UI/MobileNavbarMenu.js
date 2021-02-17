@@ -4,9 +4,7 @@ import { Link } from "react-router-dom";
 
 import { withStyles } from '@material-ui/core/styles';
 
-import { logOut } from '../../Redux/actions/user';
-
-import { Typography, IconButton, Drawer, List, ListItem, ListItemIcon, ListItemText, Divider } from '@material-ui/core';
+import { IconButton, Drawer, List, ListItem, Divider } from '@material-ui/core';
 import { Menu } from '@material-ui/icons';
 
 import JSS from '../../Stylesheets/JSS';
@@ -26,7 +24,8 @@ const styles = theme => ({
 
     drawerPaper: {
         backgroundColor: colors.solidPaper,
-        paddingLeft: '8px'
+        paddingLeft: '8px',
+        zIndex: 30000
     },
 
     listItem: {
@@ -62,7 +61,8 @@ const MobileNavbarMenu = (props) => {
                 open={drawerState} 
                 onClose={() => setDrawerState(false)}
                 PaperProps={{
-                    className: classes.drawerPaper
+                    className: classes.drawerPaper,
+                    style: window.location.pathname.includes('visualization') ? {backgroundColor: 'black'} : {}
                 }}
             >
                 <List>

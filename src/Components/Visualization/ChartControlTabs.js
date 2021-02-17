@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { withStyles, Tabs, Tab, Paper } from '@material-ui/core';
+import { withStyles, Tabs, Tab, Paper, Tooltip } from '@material-ui/core';
 import { Language } from '@material-ui/icons';
 
 import colors from '../../Enums/colors';
@@ -20,6 +20,11 @@ const styles = (theme) => ({
         // backgroundColor: colors.backgroundGray,
         backgroundColor: 'rgba(0,0,0,.6)',
         boxShadow: '2px 2px  2px 2px #242424',
+        zIndex: 39000
+    },
+
+    tabs: {
+        maxWidth: '100vw'
     },
 
     tab: {
@@ -28,6 +33,11 @@ const styles = (theme) => ({
         boxShadow: '0px 0px  2px 0px #242424',
         color: 'white',
         opacity: 1,
+        maxWidth: '240px',
+        maxHeight: '48px',
+        // textOverflow: 'ellipsis',
+        // overflow: 'hidden',
+        // whiteSpace: 'nowrap',
         '&:not(:first-child)': {
             borderLeft: '3px solid #242424'
         }
@@ -46,14 +56,18 @@ const ChartControlTabs = (props) => {
 
             <Paper className={classes.tabsWrapper}>
                 <Tabs 
-                    // className={classes.tabs}
+                    className={classes.tabs}
                     value={plotsActiveTab}
                     onChange={handlePlotsSetActiveTab}
                     indicatorColor='primary'
+                    variant="scrollable"
+                    scrollButtons="auto"
                 >
-                    <Tab icon={<Language/>} className={classes.tab} classes={{selected: classes.greenHightlight}}/>
+                    <Tab icon={<Language/>} className={classes.tab} classes={{selected: classes.greenHightlight}} wrapped={true}/>
                     {charts.map((e, i) => (
-                        <Tab label={e.data.metadata.Long_Name} className={classes.tab} classes={{selected: classes.greenHightlight}} key={i}/>
+                        <Tooltip enterDelay={300} key={e.id} title={<><p>{e.data.metadata.Dataset_Name}</p> <p>{e.data.metadata.Long_Name}</p> <p>{e.subType}</p> </>}>
+                            <Tab label={e.data.metadata.Long_Name} className={classes.tab} classes={{selected: classes.greenHightlight}}/>
+                        </Tooltip>
                     ))}
                 </Tabs>
             </Paper>

@@ -111,7 +111,7 @@ const styles = (theme) => ({
     showCharts: {
         display: 'inline-block',
         paddingTop: '180px',
-        width: '100vw', //new
+        width: 'calc(100vw - 10px)', //new
         textAlign: 'left' //new
     },
 

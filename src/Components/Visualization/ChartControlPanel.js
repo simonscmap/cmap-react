@@ -52,7 +52,8 @@ const styles = theme => ({
     buttonGroup: {
         display: 'block',
         margin: '0px auto 8px auto',
-        maxWidth: '700px'
+        maxWidth: '700px',
+        textAlign: 'center'
     },
 
     depressed: {

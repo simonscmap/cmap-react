@@ -30,7 +30,7 @@ const styles = (theme) => ({
     },
 
     dropdown: {
-        zIndex: 1300,
+        zIndex: 30000,
         marginTop: '21px',
         width: '200px'
     },

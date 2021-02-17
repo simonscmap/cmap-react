@@ -23,7 +23,8 @@ import spatialResolutions from '../../Enums/spatialResolutions';
 import { deleteChart } from '../../Redux/actions/visualization';
 
 const mapStateToProps = (state, ownProps) => ({
-    charts: state.charts
+    charts: state.charts,
+    plotsActiveTab: state.plotsActiveTab
 })
 
 const mapDispatchToProps = {
@@ -155,7 +156,7 @@ class Charts extends Component {
   }
 
     render(){
-        const { classes, charts } = this.props;
+        const { classes, charts, plotsActiveTab } = this.props;
         
         return (
             <React.Fragment>
@@ -169,7 +170,7 @@ class Charts extends Component {
                           if(chart.subType === vizSubTypes.sparse) {
                             return (
                               <div key={chart.id}>
-                                <Paper elevation={12} className={classes.chartPaper} key={chart.id}>
+                                <Paper elevation={12} className={classes.chartPaper} key={chart.id} style={index === plotsActiveTab - 1 ? {} : {display: 'none'}}>
                                   <CloseChartIcon chartIndex={index} handleDeleteChart={this.handleDeleteChart}/>
                                   <SparseMap chart={chart}/>
                                 </Paper>
@@ -178,7 +179,7 @@ class Charts extends Component {
                           } else if(chart.data.metadata.Spatial_Resolution === spatialResolutions.irregular) {
                             return (
                               <div key={chart.id}>
-                                <Paper elevation={12} className={classes.chartPaper} key={chart.id}>
+                                <Paper elevation={12} className={classes.chartPaper} key={chart.id} style={index === plotsActiveTab - 1 ? {} : {display: 'none'}}>
                                   <CloseChartIcon chartIndex={index} handleDeleteChart={this.handleDeleteChart}/>
                                   <SparseHistogram chart={chart}/>
                                 </Paper>
@@ -187,7 +188,7 @@ class Charts extends Component {
                           }
                           else return (
                             <div key={chart.id}>
-                              <Paper elevation={12} className={classes.chartPaper} key={chart.id}>
+                              <Paper elevation={12} className={classes.chartPaper} key={chart.id} style={index === plotsActiveTab - 1 ? {} : {display: 'none'}}>
                                 <CloseChartIcon chartIndex={index} handleDeleteChart={this.handleDeleteChart}/>
                                 <SpaceTimeChart chart={chart}/>
                               </Paper>
@@ -197,7 +198,7 @@ class Charts extends Component {
                         case storedProcedures.timeSeries:
                           return (
                             <div key={chart.id}>
-                              <Paper elevation={12} className={classes.chartPaper} key={chart.id}>
+                              <Paper elevation={12} className={classes.chartPaper} key={chart.id} style={index === plotsActiveTab - 1 ? {} : {display: 'none'}}>
                                 <CloseChartIcon chartIndex={index} handleDeleteChart={this.handleDeleteChart}/>
                                 <TimeSeriesChart chart={chart}/>
                               </Paper>
@@ -207,7 +208,7 @@ class Charts extends Component {
                         case storedProcedures.depthProfile:
                           return (
                             <div key={chart.id}>
-                              <Paper elevation={12} className={classes.chartPaper} key={chart.id}>
+                              <Paper elevation={12} className={classes.chartPaper} key={chart.id} style={index === plotsActiveTab - 1 ? {} : {display: 'none'}}>
                                 <CloseChartIcon chartIndex={index} handleDeleteChart={this.handleDeleteChart}/>
                                 <DepthProfileChart chart={chart}/>
                               </Paper>
@@ -217,7 +218,7 @@ class Charts extends Component {
                         case storedProcedures.sectionMap:
                           return (
                             <div key={chart.id}>
-                              <Paper elevation={12} className={classes.chartPaper} key={chart.id}>
+                              <Paper elevation={12} className={classes.chartPaper} key={chart.id} style={index === plotsActiveTab - 1 ? {} : {display: 'none'}}>
                                 <CloseChartIcon chartIndex={index} handleDeleteChart={this.handleDeleteChart}/>
                                 <SectionMapChart chart={chart}/>
                               </Paper>

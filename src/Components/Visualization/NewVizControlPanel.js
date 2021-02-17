@@ -24,12 +24,14 @@ import countWebGLContexts from '../../Utility/countWebGLContexts';
 import mapVizType from '../../Utility/Visualization/mapVizType';
 import cleanSPParams from '../../Utility/Visualization/cleanSPParams'
 import aggregateChartDataSize from '../../Utility/Visualization/aggregateChartDataSize';
+import generateVariableSampleRangeParams from '../../Utility/Visualization/generateVariableSampleRangeParams';
 
 import DataSearch from './DataSearch';
 import ChartControl from './ChartControl';
 import VariableDetailsDialog from './VariableDetailsDialog';
 import ChartControlTabs from './ChartControlTabs';
 import HelpButtonAndDialog from '../UI/HelpButtonAndDialog';
+import StoredParametersDropdown from './StoredParametersDropdown';
 
 const mapStateToProps = (state, ownProps) => ({
     data: state.data,
@@ -285,15 +287,49 @@ class NewVizControlPanel extends React.Component {
         surfaceOnly: false,
         irregularSpatialResolution: false,
         addedGlobeUIListeners: false,
-        showDrawHelp: false
+        showDrawHelp: false,
+        storedParams: {
+            depth1: 0,
+            depth2: 0,
+            dt1: '1900-01-01',
+            dt2: new Date().toISOString().slice(0,10),
+            lat1: 0,
+            lat2: 0,
+            lon1: 0,
+            lon2: 0,
+        }
     }
 
     searchInputRef = React.createRef();
 
     componentDidUpdate = (prevProps, prevState) => {
+
+        if(prevProps.plotsActiveTab !== this.props.plotsActiveTab){
+            if(this.props.plotsActiveTab === 0){
+                this.setState({...this.state, ...this.state.storedParams});
+            }
+
+            else {
+                let chartParams = this.props.charts[this.props.plotsActiveTab - 1] ? this.props.charts[this.props.plotsActiveTab - 1].data.parameters : null;
+                if(chartParams !== null) {
+                    this.setState({...this.state,
+                        lat1: chartParams.lat1,
+                        lat2: chartParams.lat2,
+                        lon1: chartParams.lon1,
+                        lon2: chartParams.lon2,
+                        depth1: chartParams.depth1,
+                        depth2: chartParams.depth2,
+                        dt1: chartParams.dt1,
+                        dt2: chartParams.dt2.slice(0,10)
+                    })
+                }
+            }
+        }
+
+
         if(prevProps.charts.length && !this.props.charts.length){
             this.props.handleShowGlobe();
-        }
+        } // this should be removed when deletion saga is fixed
 
         if((this.props.mapContainerRef.current) && (prevState.lat1 !== this.state.lat1 || prevState.lat2 !== this.state.lat2 || prevState.lon1 !== this.state.lon1 || prevState.lon2 !== this.state.lon2)){
             
@@ -329,27 +365,9 @@ class NewVizControlPanel extends React.Component {
             let surfaceOnly = !data.Depth_Max;
             let irregularSpatialResolution = data.Spatial_Resolution === 'Irregular';
 
-            let dt1 = data.Temporal_Resolution === temporalResolutions.monthlyClimatology ?
-                1 : data.Time_Min.slice(0, 10);
-            let dt2 = data.Temporal_Resolution === temporalResolutions.monthlyClimatology ?
-                12 : data.Time_Max.slice(0, 10);
-                // 1: data.Time_Min.slice(0, 10);
+            let derivedParams = generateVariableSampleRangeParams(data);
 
-            // let lat1 = irregularSpatialResolution ? Math.floor(data.Lat_Min * 1000) /1000 : this.state.lat1;
-            // let lat2 = irregularSpatialResolution ? Math.ceil(data.Lat_Max * 1000) /1000 : this.state.lat2;
-            // let lon1 = irregularSpatialResolution ? Math.floor(data.Lon_Min * 1000) /1000 : this.state.lon1;
-            // let lon2 = irregularSpatialResolution ? Math.ceil(data.Lon_Max * 1000) /1000 : this.state.lon2;
-            let lat1 = Math.floor(Math.floor(data.Lat_Min * 1000) /1000);
-            let lat2 = Math.ceil(data.Lat_Max * 1000) /1000;
-            let lon1 = Math.floor(data.Lon_Min * 1000) /1000;
-            let lon2 = Math.ceil(data.Lon_Max * 1000) /1000;
-
-            let depth1 = surfaceOnly ? 0 : irregularSpatialResolution ? Math.floor(data.Depth_Min * 1000) / 1000 || 0 : 0;
-
-            let depth2 = surfaceOnly ? 0 : irregularSpatialResolution ? Math.ceil(data.Depth_Max * 1000) / 1000|| 0 : 
-                depthUtils.piscesTable.has(data.Table_Name) ? ((depthUtils.piscesDepths[0] + depthUtils.piscesDepths[1]) / 2).toFixed(2) :
-                depthUtils.darwinTable.has(data.Table_Name) ? ((depthUtils.darwinDepths[0] + depthUtils.darwinDepths[1]) / 2).toFixed(2) : 
-                this.state.depth2;
+            let { lat1, lat2, lon1, lon2 } = derivedParams;
 
             if(irregularSpatialResolution){
                 this.props.globeUIRef.current.props.view.goTo({
@@ -365,15 +383,28 @@ class NewVizControlPanel extends React.Component {
             this.setState({...this.state,
                 surfaceOnly,
                 irregularSpatialResolution,
-                dt1,
-                dt2,
-                lat1,
-                lat2,
-                lon1,
-                lon2,
-                depth1,
-                depth2,
-                selectedVizType: ''
+                // dt1,
+                // dt2,
+                // lat1,
+                // lat2,
+                // lon1,
+                // lon2,
+                // depth1,
+                // depth2,
+                ...derivedParams,
+                selectedVizType: '',
+                storedParams: {
+                    ...this.state.storedParams,
+                    ...derivedParams
+                    // dt1,
+                    // dt2,
+                    // lat1,
+                    // lat2,
+                    // lon1,
+                    // lon2,
+                    // depth1,
+                    // depth2,
+                }
             });
         }
     }
@@ -401,7 +432,12 @@ class NewVizControlPanel extends React.Component {
             lon2: parseFloat(_lon2.toFixed(3))
         };
 
-        this.setState({...this.state, ...newCoordinates});
+        this.setState({...this.state, ...newCoordinates, storedParams: {...this.state.storedParams, ...newCoordinates}});
+    }
+
+    handleUpdateParameters = (parameters) => {
+        const { lat1, lat2, lon1, lon2, depth1, depth2, dt1, dt2} = parameters;
+        this.setState({...this.state, lat1, lat2, lon1, lon2, depth1, depth2, dt1, dt2});
     }
 
     handleShowChartsClick = () => {
@@ -533,7 +569,7 @@ class NewVizControlPanel extends React.Component {
             value = e.target.value;
         }
 
-        this.setState({...this.state, [e.target.name]: value});        
+        this.setState({...this.state, [e.target.name]: value, storedParams: {...this.state.storedParams, [e.target.name]: value}});        
     }
 
     handleToggleCharts = () => {
@@ -906,6 +942,10 @@ class NewVizControlPanel extends React.Component {
 
         return (
             <React.Fragment>
+                <StoredParametersDropdown 
+                    handleUpdateParameters={this.handleUpdateParameters}
+                    disableButton={this.state.showDrawHelp || !vizPageDataTargetDetails}
+                />
 
                 <ChartControlTabs handlePlotsSetActiveTab={this.props.handlePlotsSetActiveTab} plotsActiveTab={this.props.plotsActiveTab}/>
 
@@ -1285,7 +1325,7 @@ class NewVizControlPanel extends React.Component {
                                                     <IconButton 
                                                         className={classes.popoutButtonBase} 
                                                         onClick={this.handleDrawClick}
-                                                        disabled={!details || showCharts}
+                                                        disabled={!details || this.props.plotsActiveTab !== 0}
                                                     >
                                                         <Edit className={classes.popoutButtonIcon}/>                                            
                                                     </IconButton>

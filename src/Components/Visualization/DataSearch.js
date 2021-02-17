@@ -17,8 +17,6 @@ import { keywordsFetch, searchOptionsFetch } from '../../Redux/actions/catalog';
 
 import colors from '../../Enums/colors';
 import states from '../../Enums/asyncRequestStates';
-// import regions from '../../Enums/regions';
-import zIndex from '@material-ui/core/styles/zIndex';
 
 const mapStateToProps = (state, ownProps) => ({
     // datasets: state.datasets,
