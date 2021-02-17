@@ -22,6 +22,8 @@ import CartAddOrRemove from './CartAddOrRemove';
 import SkeletonWrapper from '../UI/SkeletonWrapper';
 import LoadProductOnVizPageButton from '../Visualization/LoadProductOnVizPageButton';
 
+import datasetMetadataToDownloadFormat from '../../Utility/Catalog/datasetMetadataToDownloadFormat';
+
 // Text on this page has inline styling for font color because ag-grid's theme classes override mui classes when a dialog is opened
 // from inside the grid
 
@@ -257,15 +259,16 @@ const DatasetFullPage = (props) => {
     }, [Long_Name])
 
     const downloadMetadata = () => {
-        let fullPageData = {...datasetFullPageData};
-        delete fullPageData.Variables;
-
+        // let fullPageData = {...datasetFullPageData};
+        let fullPageData = datasetMetadataToDownloadFormat(datasetFullPageData);
+        // delete fullPageData.Variables;
         let workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet([fullPageData]), 'Dataset Metadata');
-        XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(Variables), 'Variable Metadata');
+        XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(fullPageData.datasetRows), 'Dataset Metadata');
+        XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(fullPageData.variableRows), 'Variable Metadata');
+        XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(fullPageData.summaryStatisticsRows), 'Variable Summary Statistics');
         XLSX.writeFile(workbook, `${Short_Name}_Metadata'.xlsx`);
-    }    
-
+    }
+    
     return (
         <Grid container className={classes.outerContainer}>
             {downloadDialogOpen ? 

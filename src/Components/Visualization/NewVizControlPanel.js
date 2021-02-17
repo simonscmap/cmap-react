@@ -304,27 +304,27 @@ class NewVizControlPanel extends React.Component {
 
     componentDidUpdate = (prevProps, prevState) => {
 
-        if(prevProps.plotsActiveTab !== this.props.plotsActiveTab){
-            if(this.props.plotsActiveTab === 0){
-                this.setState({...this.state, ...this.state.storedParams});
-            }
+        // if(prevProps.plotsActiveTab !== this.props.plotsActiveTab){
+        //     if(this.props.plotsActiveTab === 0){
+        //         this.setState({...this.state, ...this.state.storedParams});
+        //     }
 
-            else {
-                let chartParams = this.props.charts[this.props.plotsActiveTab - 1] ? this.props.charts[this.props.plotsActiveTab - 1].data.parameters : null;
-                if(chartParams !== null) {
-                    this.setState({...this.state,
-                        lat1: chartParams.lat1,
-                        lat2: chartParams.lat2,
-                        lon1: chartParams.lon1,
-                        lon2: chartParams.lon2,
-                        depth1: chartParams.depth1,
-                        depth2: chartParams.depth2,
-                        dt1: chartParams.dt1,
-                        dt2: chartParams.dt2.slice(0,10)
-                    })
-                }
-            }
-        }
+        //     else {
+        //         let chartParams = this.props.charts[this.props.plotsActiveTab - 1] ? this.props.charts[this.props.plotsActiveTab - 1].data.parameters : null;
+        //         if(chartParams !== null) {
+        //             this.setState({...this.state,
+        //                 lat1: chartParams.lat1,
+        //                 lat2: chartParams.lat2,
+        //                 lon1: chartParams.lon1,
+        //                 lon2: chartParams.lon2,
+        //                 depth1: chartParams.depth1,
+        //                 depth2: chartParams.depth2,
+        //                 dt1: chartParams.dt1,
+        //                 dt2: chartParams.dt2.slice(0,10)
+        //             })
+        //         }
+        //     }
+        // }
 
 
         if(prevProps.charts.length && !this.props.charts.length){
@@ -441,12 +441,19 @@ class NewVizControlPanel extends React.Component {
     }
 
     handleShowChartsClick = () => {
-        if(this.props.showCharts){
-            this.props.handleShowGlobe();
+        // if(this.props.showCharts){
+        //     this.props.handleShowGlobe();
+        // }
+
+        // else {
+        //     this.props.handleShowCharts();
+        // }
+        if(this.props.plotsActiveTab === 0){
+            this.props.handlePlotsSetActiveTab(null, 1);
         }
 
         else {
-            this.props.handleShowCharts();
+            this.props.handlePlotsSetActiveTab(null, 0);
         }
     }
 
@@ -843,7 +850,8 @@ class NewVizControlPanel extends React.Component {
             dataTarget,
             vizPageDataTargetDetails,
             globeUIRef,
-            charts
+            charts,
+            plotsActiveTab
         } = this.props;
 
         const {
@@ -942,12 +950,12 @@ class NewVizControlPanel extends React.Component {
 
         return (
             <React.Fragment>
-                <StoredParametersDropdown 
+                {/* <StoredParametersDropdown 
                     handleUpdateParameters={this.handleUpdateParameters}
                     disableButton={this.state.showDrawHelp || !vizPageDataTargetDetails}
-                />
+                /> */}
 
-                <ChartControlTabs handlePlotsSetActiveTab={this.props.handlePlotsSetActiveTab} plotsActiveTab={this.props.plotsActiveTab}/>
+                {/* <ChartControlTabs handlePlotsSetActiveTab={this.props.handlePlotsSetActiveTab} plotsActiveTab={plotsActiveTab}/> */}
 
                 <VariableDetailsDialog variableDetailsID={variableDetailsID} handleSetVariableDetailsID={this.handleSetVariableDetailsID}/>
                     {
@@ -1325,7 +1333,7 @@ class NewVizControlPanel extends React.Component {
                                                     <IconButton 
                                                         className={classes.popoutButtonBase} 
                                                         onClick={this.handleDrawClick}
-                                                        disabled={!details || this.props.plotsActiveTab !== 0}
+                                                        disabled={!details || plotsActiveTab !== 0}
                                                     >
                                                         <Edit className={classes.popoutButtonIcon}/>                                            
                                                     </IconButton>
@@ -1409,14 +1417,15 @@ class NewVizControlPanel extends React.Component {
                                     disabled={this.state.showDrawHelp || !vizPageDataTargetDetails}
                                 />  
 
-                                {/* {
+                                {
                                     charts.length && showControlPanel ?
                                     
-                                    <Paper className={classes.popoutButtonPaper} style={{left: '301px', top: '343px'}}>
-                                        <Tooltip title={showCharts ? 'Return to Globe' : 'Show Charts'}>
+                                    <Paper className={classes.popoutButtonPaper} style={{left: '281px', top: '343px'}}>
+                                        {/* <Tooltip title={showCharts ? 'Return to Globe' : 'Show Charts'}> */}
+                                        <Tooltip title={plotsActiveTab !== 0 ? 'Return to Globe' : 'Show Charts'}>
                                             <IconButton disabled={this.state.showDrawHelp} className={classes.popoutButtonBase} onClick={this.handleShowChartsClick}>
                                                 {
-                                                    showCharts ?
+                                                    plotsActiveTab !== 0 ?
                                                     <Language className={classes.popoutButtonIcon} style={{color:colors.primary}}/> 
                                                     :                                                    
                                                     <Badge badgeContent={charts.length} color='primary'>
@@ -1428,7 +1437,7 @@ class NewVizControlPanel extends React.Component {
                                     </Paper>
 
                                     : ''
-                                }                                     */}
+                                }                                    
                             </Grid>
                                 {/* : ''
                             } */}

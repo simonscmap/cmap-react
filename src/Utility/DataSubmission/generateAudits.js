@@ -173,6 +173,8 @@ export default (submissionOptions) => {
     }
 }
 
+
+
 // match data column names to data_metadata
 // there should be at least 1 additional column 
 // check resolutions against time and lat/lon increments

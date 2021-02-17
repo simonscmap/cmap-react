@@ -19,7 +19,8 @@ export default function(state, action) {
 
         case visualizationActionTypes.ADD_CHART: return {
             ...state,
-            charts: [...state.charts, {...action.payload.chartInfo, id: state.chartID}],
+            // charts: [...state.charts, {...action.payload.chartInfo, id: state.chartID}],
+            charts: [{...action.payload.chartInfo, id: state.chartID}, ...state.charts],
             chartID: state.chartID + 1,
             plotsActiveTab: state.charts.length + 1
         }
@@ -35,9 +36,10 @@ export default function(state, action) {
             ],
             plotsActiveTab: state.charts.length === 1 ?
                 0 :
-                action.payload.chartIndex === state.charts.length - 1 ?
-                state.charts.length - 2 :
-                state.plotsActiveTab
+                // action.payload.chartIndex === state.charts.length - 1 ?
+                // state.charts.length - 2 :
+                // state.plotsActiveTab
+                1
         }
 
         case visualizationActionTypes.CRUISE_TRAJECTORY_REQUEST_PROCESSING: return {...state, getCruiseTrajectoryRequestState: states.inProgress}
