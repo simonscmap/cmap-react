@@ -12,6 +12,8 @@ import { cartClear } from '../../Redux/actions/catalog';
 import { cartPersistClear } from '../../Redux/actions/user';
 
 import colors from '../../Enums/colors';
+import z from '../../Enums/zIndex';
+
 import HelpButtonAndDialog from './HelpButtonAndDialog';
 import CartHelpContents from './CartHelpContents';
 
@@ -59,7 +61,8 @@ const styles = (theme) => ({
     },
 
     dialogRoot: {
-        zIndex: '31000 !important'
+        zIndex: `${z.NON_HELP_DIALOG} !important`
+        // zIndex: '31000 !important'
     }
 });
 

@@ -1,4 +1,6 @@
 export default (metadata, workbook) => {
+    if(!metadata || !metadata.length) return;
+    
     try {
         var sample = metadata[0];
         var type = typeof sample.dataset_release_date;

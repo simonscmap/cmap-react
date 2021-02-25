@@ -77,14 +77,6 @@ const columnDefs = {
         },
 
         {
-            headerName: 'Cruise Names',
-            field: 'cruise_names',
-            autoHeight: true,
-            tooltipField: 'cruise_names',
-            cellEditor: 'DSCellEditorTextArea'
-        },
-
-        {
             headerName: 'Distributor',
             field: 'dataset_distributor',
             autoHeight: true,
@@ -98,12 +90,6 @@ const columnDefs = {
             tooltipField: 'dataset_acknowledgement',
             cellEditor: 'DSCellEditorTextArea'
         },
-
-        // {
-        //     headerName: 'Contact Email',
-        //     field: 'contact_email',
-        //     autoHeight: true
-        // },
 
         {
             headerName: 'History',
@@ -133,6 +119,14 @@ const columnDefs = {
             headerName: 'climatology',
             field: 'climatology',
             valueParser: numberParser
+        },
+
+        {
+            headerName: 'Cruise Names',
+            field: 'cruise_names',
+            autoHeight: true,
+            tooltipField: 'cruise_names',
+            cellEditor: 'DSCellEditorTextArea'
         },
     ],
 
@@ -183,7 +177,7 @@ const columnDefs = {
             headerName: 'Discipline',
             field: 'var_discipline',
             autoHeight: true,
-            cellEditor: 'DSCellEditor'
+            cellEditor: 'DSCellEditorSelect'
         },
 
         {

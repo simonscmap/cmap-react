@@ -34,12 +34,19 @@ export default function(state, action) {
                 ...state.charts.slice(0, action.payload.chartIndex),
                 ...state.charts.slice(action.payload.chartIndex + 1)
             ],
-            plotsActiveTab: state.charts.length === 1 ?
+            plotsActiveTab: state.plotsActiveTab - 1 === action.payload.chartIndex ?
                 0 :
+                state.plotsActiveTab - 1 > action.payload.chartIndex ?
+                state.plotsActiveTab - 1 :
+                state.plotsActiveTab
+            
+            
+                // state.charts.length === 1 ?
+                // 0 :
                 // action.payload.chartIndex === state.charts.length - 1 ?
                 // state.charts.length - 2 :
                 // state.plotsActiveTab
-                1
+                // 1
         }
 
         case visualizationActionTypes.CRUISE_TRAJECTORY_REQUEST_PROCESSING: return {...state, getCruiseTrajectoryRequestState: states.inProgress}
@@ -75,7 +82,7 @@ export default function(state, action) {
             }}
 
         case visualizationActionTypes.VIZ_PAGE_DATA_TARGET_SET: return {...state, vizPageDataTarget: action.payload.target, vizPageDataTargetDetails: null}
-        case visualizationActionTypes.VIZ_PAGE_DATA_TARGET_DETAILS_STORE: return {...state, vizPageDataTargetDetails: action.payload.vizPageDataTargetDetails}
+        case visualizationActionTypes.VIZ_PAGE_DATA_TARGET_DETAILS_STORE: return {...state, vizPageDataTargetDetails: action.payload.vizPageDataTargetDetails, vizPageDataTarget: action.payload.vizPageDataTargetDetails}
 
         case visualizationActionTypes.VIZ_SEARCH_RESULTS_STORE_AND_UPDATE_OPTIONS: return {
             ...state, 

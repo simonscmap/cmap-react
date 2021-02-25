@@ -10,6 +10,7 @@ import { Menu } from '@material-ui/icons';
 import JSS from '../../Stylesheets/JSS';
 
 import colors from '../../Enums/colors';
+import z from '../../Enums/zIndex';
 
 const styles = theme => ({
     menuIcon: {
@@ -25,7 +26,8 @@ const styles = theme => ({
     drawerPaper: {
         backgroundColor: colors.solidPaper,
         paddingLeft: '8px',
-        zIndex: 30000
+        zIndex: z.NAVBAR_DROPDOWN,
+        // zIndex: 30000
     },
 
     listItem: {

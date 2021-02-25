@@ -10,6 +10,7 @@ import { Skeleton } from '@material-ui/lab';
 import { variableFetch } from '../../Redux/actions/visualization';
 
 import colors from '../../Enums/colors';
+import z from '../../Enums/zIndex';
 
 const styles = theme => ({
     dialogPaper: {
@@ -48,7 +49,8 @@ const VariableDetailsDialog = (props) => {
 
     return variableDetailsID ? (
         <Dialog
-            style={{zIndex: 5000}}
+            // style={{zIndex: 5000}}
+            style={{zIndex: z.NON_HELP_DIALOG}}
             open={Boolean(variableDetailsID)}
             onClose={handleClose}
             PaperProps={{

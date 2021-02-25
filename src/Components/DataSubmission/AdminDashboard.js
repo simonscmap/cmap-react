@@ -6,7 +6,7 @@ import { Search } from '@material-ui/icons';
 
 import * as JsSearch from 'js-search';
 
-import { ExpansionPanel, ExpansionPanelSummary, Typography, FormGroup, FormControlLabel, Checkbox, TextField, InputAdornment } from '@material-ui/core';
+import { Accordion, AccordionSummary, Typography, FormGroup, FormControlLabel, Checkbox, TextField, InputAdornment } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 import AdminDashboardPanelDetails from './AdminDashboardPanelDetails';
@@ -223,14 +223,14 @@ class AdminDashboard extends Component {
                 <React.Fragment>                    
                     {
                         submissions.map((e, i) => (
-                            <ExpansionPanel 
+                            <Accordion 
                                 // expanded={e.expandPanel} 
                                 expanded={this.state.expandedPanel === i}
                                 onChange={() => this.handleExpansion(i)} 
                                 key={i}
                                 TransitionProps={{ unmountOnExit: true }}
                             >
-                                <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+                                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                     <Typography noWrap className={classes.panelSummaryText}>
                                         {e.Dataset}
                                     </Typography>
@@ -238,12 +238,12 @@ class AdminDashboard extends Component {
                                     <Typography noWrap className={classes.panelSummaryText}>
                                         {e.Phase}
                                     </Typography>
-                                </ExpansionPanelSummary>
+                                </AccordionSummary>
                                 <AdminDashboardPanelDetails 
                                     submission={e} 
                                     handleResetExpandedPanel={this.handleResetExpandedPanel}
                                 />
-                            </ExpansionPanel>
+                            </Accordion>
                         ))
                     }
                 </React.Fragment>

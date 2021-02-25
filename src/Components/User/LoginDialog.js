@@ -16,6 +16,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 
 import states from '../../Enums/asyncRequestStates';
 import colors from '../../Enums/colors';
+import z from '../../Enums/zIndex';
 
 import { showLoginDialog, hideLoginDialog, restoreInterfaceDefaults, snackbarOpen } from '../../Redux/actions/ui';
 import { logOut, userLoginRequestSend, googleLoginRequestSend } from '../../Redux/actions/user';
@@ -72,7 +73,8 @@ const styles = theme => ({
     },
 
     dialogRoot: {
-        zIndex: '31000 !important'
+        // zIndex: '31000 !important'
+        zIndex: `${z.NON_HELP_DIALOG + 1} !important`
     }
 })
 

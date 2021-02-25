@@ -1,20 +1,23 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { withStyles, Paper, Tooltip, IconButton, Popper, Grow, ClickAwayListener, MenuList, MenuItem } from '@material-ui/core';
-import { Sync } from '@material-ui/icons';
+import { Transform } from '@material-ui/icons';
 
 import generateVariableFullRangeParams from '../../Utility/Visualization/generateVariableFullRangeParams';
 import generateVariableSampleRangeParams from '../../Utility/Visualization/generateVariableSampleRangeParams';
 
 import colors from '../../Enums/colors';
+import z from '../../Enums/zIndex';
 
 const styles = (theme) => ({
     popoutButtonPaper: {
-        position: 'absolute',
+        position: 'fixed',
         display: 'flex',
         borderRadius: '2px',
         boxShadow: '2px 2px  2px 2px #242424',
-        backgroundColor: colors.backgroundGray
+        backgroundColor: colors.backgroundGray,
+        // zIndex: 1490
+        zIndex: z.CONTROL_PRIMARY
     },
 
     popoutButtonIcon: {
@@ -27,12 +30,13 @@ const styles = (theme) => ({
     },
 
     popperPaper: {
-        backgroundColor: 'rgba(0,0,0,.6)',
+        backgroundColor: 'rgba(0,0,0,.9)',
         backdropFilter: 'blur(5px)',
     },
 
     dropdown: {
-        zIndex: 40000,
+        // zIndex: 40000,
+        zIndex: z.CONTROL_PRIMARY,
         top: '28px !important',
         left: '22px !important',
         // width: '200px'
@@ -78,14 +82,14 @@ const StoredParametersDropdown = (props) => {
 
     return (
         <>
-            <Paper className={classes.popoutButtonPaper} style={{left: 281, top: '250px'}}>
-                <Tooltip title='Sync Parameters'>
+            <Paper className={classes.popoutButtonPaper} style={{left: 281, top: 270}}>
+                <Tooltip title='Parameter Quick Set Options'>
                     <span>
                         <IconButton 
                             className={classes.popoutButtonBase}
                             disabled={props.disableButton}
                         >
-                            <Sync onClick={handleOpenMenu} className={classes.popoutButtonIcon}/>                                            
+                            <Transform onClick={handleOpenMenu} className={classes.popoutButtonIcon}/>                                            
                         </IconButton>
                     </span>
                 </Tooltip>
@@ -100,12 +104,12 @@ const StoredParametersDropdown = (props) => {
                         <Paper className={classes.popperPaper}>
                             <ClickAwayListener onClickAway={handleCloseMenu}>
                                 <MenuList>
-                                    <MenuItem onClick={() => handleSelect(generateVariableSampleRangeParams(vizPageDataTargetDetails))}>Sync to Variable Sample Range</MenuItem>
-                                    <MenuItem onClick={() => handleSelect(generateVariableFullRangeParams(vizPageDataTargetDetails))}>Sync to Variable Full Range</MenuItem>
-                                    <MenuItem>Sync to Cruise: Cruise Name (this doesn't work yet)</MenuItem>
+                                    <MenuItem onClick={() => handleSelect(generateVariableSampleRangeParams(vizPageDataTargetDetails))}>Set Parameters to Preliminary Variable Range</MenuItem>
+                                    <MenuItem onClick={() => handleSelect(generateVariableFullRangeParams(vizPageDataTargetDetails))}>Set Parameters to Maximum Variable Range</MenuItem>
+                                    <MenuItem>Set Parameters to Match Cruise Boundaries: </MenuItem>
                                     {
                                         charts.map(e => (
-                                            <MenuItem onClick={() => handleSelect(syncPlotParams(e))} key={e.id}>{'Sync to ' + e.subType + ': ' + e.data.metadata.Long_Name}</MenuItem>
+                                            <MenuItem onClick={() => handleSelect(syncPlotParams(e))} key={e.id}>{'Set Parameters to Match ' + e.subType + ': ' + e.data.metadata.Long_Name}</MenuItem>
                                         ))
                                     }
                                     {/* Item for each stored set of parameters */}

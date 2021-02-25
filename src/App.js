@@ -175,7 +175,7 @@ const theme = createMuiTheme({
       }
     },
 
-    MuiExpansionPanel: {
+    MuiAccordion: {
       root: {
         "&$expanded": {
           margin: 0

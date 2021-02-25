@@ -1,4 +1,5 @@
 export default (data, workbook) => {
+    if(!data || !data.length) return;
 
     try {
         let sample = data[0].time;

@@ -446,7 +446,9 @@ function* addSubmissionComment(action) {
 
     if(response.ok){
         yield put(dataSubmissionActions.retrieveSubmissionCommentHistory(action.payload.submissionID));
-        yield put(dataSubmissionActions.retrieveDataSubmissionsByUser());
+        if(action.payload.source === 'admin') yield put(dataSubmissionActions.retrieveAllSubmissions());
+        else yield put(dataSubmissionActions.retrieveDataSubmissionsByUser());
+        
     } 
     
     else if (response.status === 401) {
@@ -952,6 +954,7 @@ function* datasetSummaryFetch(action) {
 }
 
 function* vizPageDataTargetSetAndFetchDetails(action) {
+    console.log(action.payload.vizPageDataTarget)
     yield put(visualizationActions.vizPageDataTargetSet(action.payload.vizPageDataTarget));
     if(action.payload.vizPageDataTarget === null) return;
     
@@ -959,6 +962,7 @@ function* vizPageDataTargetSetAndFetchDetails(action) {
     
     if(response.ok){
         let variableDetails = yield response.json();
+        console.log(variableDetails);
         yield put(visualizationActions.vizPageDataTargetDetailsStore(variableDetails));
     }
 

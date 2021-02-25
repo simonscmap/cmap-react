@@ -57,8 +57,9 @@ export default (submissionOptions) => {
     const makes = Make.map(e => e.toLowerCase());
     const makesSet = new Set(makes);
     
-    const validMake = (value) => {
-        if(value && value !== 0 && !makesSet.has(value.toLowerCase())) {
+    const validMake = (value, row) => {
+        if(row !== 0) return;
+        if(!value || !makesSet.has(value.toLowerCase())) {
             return `Must be one of the above options.`;
         }
     }
@@ -67,7 +68,7 @@ export default (submissionOptions) => {
     const disciplinesSet = new Set(disciplines);
     
     const validDiscipline = (value) => {
-        if(value && value !== 0 && !disciplinesSet.has(value.toLowerCase())) {
+        if(!value || !disciplinesSet.has(value.toLowerCase())) {
             return `Must be one of the above options.`;
         }
     }
@@ -76,7 +77,7 @@ export default (submissionOptions) => {
     const sensorsSet = new Set(sensors);
     
     const validSensor = (value) => {
-        if(value && value !== 0 && !sensorsSet.has(value.toLowerCase())) {
+        if(!value || !sensorsSet.has(value.toLowerCase())) {
             return `Must be one of the above options.`;
         }
     }
@@ -108,7 +109,7 @@ export default (submissionOptions) => {
     const spatialResolutions = Spatial_Resolution.map(e => e.toLowerCase());
     const spatialResolutionSet = new Set(spatialResolutions);
     const validSpatialResolution = (value) => {
-        if(value && value !== 0 && !spatialResolutionSet.has(value.toLowerCase())) {
+        if(!value || !spatialResolutionSet.has(value.toLowerCase())) {
             return `Must be one of the above options.`;
         }
     }
@@ -116,7 +117,7 @@ export default (submissionOptions) => {
     const temporalResolutions = Temporal_Resolution.map(e => e.toLowerCase());
     const temporalResolutionsSet = new Set(temporalResolutions);
     const validTemporalResolution = (value) => {
-        if(value && value !== 0 && !temporalResolutionsSet.has(value.toLowerCase())) {
+        if(!value || !temporalResolutionsSet.has(value.toLowerCase())) {
             return `Must be one of the above options.`;
         }
     }
@@ -146,30 +147,31 @@ export default (submissionOptions) => {
         lon: [number, required, validLon],
         depth: [number, positive, maxDepth],
     
-        dataset_short_name: [codeFriendly, datasetLength(1, 50), firstRowOnly],
-        dataset_long_name: [datasetLength(1, 130), firstRowOnly],
+        dataset_short_name: [datasetRequired, codeFriendly, datasetLength(1, 50), firstRowOnly],
+        dataset_long_name: [datasetRequired, datasetLength(1, 200), firstRowOnly],
         dataset_version: [length(0, 50), firstRowOnly],
         dataset_release_date: [releaseDate, firstRowOnly],
         dataset_make: [datasetRequired, validMake, firstRowOnly],
-        dataset_source: [datasetLength(1, 100), firstRowOnly],
+        dataset_source: [datasetRequired, datasetLength(1, 100), firstRowOnly],
         dataset_distributor: [length(0, 100), firstRowOnly],
-        dataset_acknowledgement: [datasetLength(1, 10000)],
+        dataset_acknowledgement: [datasetRequired, datasetLength(1, 10000)],
         dataset_history: [length(0, 500), firstRowOnly],
-        dataset_description: [datasetLength(50, 10000), firstRowOnly],
-        dataset_references: [datasetLength(1, 500)],
+        dataset_description: [datasetRequired, datasetLength(50, 10000), firstRowOnly],
+        dataset_references: [datasetRequired, datasetLength(1, 500)],
         climatology: [binary, firstRowOnly],
         // contact_email: [validEmail, firstRowOnly],
         cruise_names: [datasetLength(0, 200)],
         
-        var_short_name: [codeFriendly, length(1, 50)],
-        var_long_name: [length(1, 200)],
-        var_sensor: [validSensor],
-        var_unit: [],
+        var_short_name: [required, codeFriendly, length(1, 50)],
+        var_long_name: [required, length(1, 200)],
+        var_sensor: [required, validSensor],
+        var_unit: [length(0, 50)],
         var_spatial_res: [required, validSpatialResolution],
         var_temporal_res: [required, validTemporalResolution],
-        var_discipline: [],
+        var_discipline: [validDiscipline],
         visualize: [binary],
-        var_keywords: []
+        var_keywords: [],
+        var_comment: []
     }
 }
 

@@ -3,9 +3,11 @@ import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
-import colors from '../../Enums/colors';
-
 import * as Spinner from 'react-spinkit';
+
+import colors from '../../Enums/colors';
+import z from '../../Enums/zIndex';
+
 
 const styles = theme => ({
     loader: {
@@ -21,7 +23,8 @@ const styles = theme => ({
         justifyContent: 'center',
         width: '100vw',
         height: '100vh',
-        zIndex: 9998
+        zIndex: z.LOADING_OVERLAY,
+        // zIndex: 9998
     },
 
     loaderContent: {
@@ -29,12 +32,14 @@ const styles = theme => ({
         flexDirection: 'column',
         alignItem: 'center',
         justifyContent: 'center',
-        zIndex: 9999,
+        zIndex: z.LOADING_OVERLAY + 1,
+        // zIndex: 9999
         opacity: 1
     },
 
     spinnerText: {
-        zIndex: 10000,
+        zIndex: z.LOADING_OVERLAY + 2,
+        // zIndex: 10000,
         color: theme.palette.primary.main,
         // color: '#FF8000',
         marginTop: '25px',

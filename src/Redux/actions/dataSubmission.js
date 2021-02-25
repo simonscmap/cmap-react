@@ -4,11 +4,12 @@ export const retrieveDataSubmissionsByUser = () => ({
     type: dataSubmissionActionTypes.RETRIEVE_SUBMISSIONS_BY_USER
 });
 
-export const addSubmissionComment = (submissionID, comment) => ({
+export const addSubmissionComment = (submissionID, comment, source) => ({
     type: dataSubmissionActionTypes.ADD_SUBMISSION_COMMENT,
     payload: {
         submissionID,
-        comment
+        comment,
+        source
     }
 });
 

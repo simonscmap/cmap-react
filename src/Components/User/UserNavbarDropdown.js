@@ -11,6 +11,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { logOut } from '../../Redux/actions/user';
 
 import colors from '../../Enums/colors';
+import z from '../../Enums/zIndex';
 
 import JSS from '../../Stylesheets/JSS';
 
@@ -24,7 +25,8 @@ const styles = (theme) => ({
     },
 
     dropdown: {
-        zIndex: 40000,
+        zIndex: z.NAVBAR_DROPDOWN,
+        // zIndex: 40000,
         marginTop: '21px',
         width: '200px'
     },

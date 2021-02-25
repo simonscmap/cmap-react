@@ -22,7 +22,10 @@ import formatDatasetMetadataSheet from '../../Utility/DataSubmission/formatDatas
 import formatVariableMetadataSheet from '../../Utility/DataSubmission/formatVariableMetadataSheet';
 import generateAudits from '../../Utility/DataSubmission/generateAudits';
 import workbookAudits from '../../Utility/DataSubmission/workbookAudits';
+import auditReference from '../../Utility/DataSubmission/auditReference';
+
 import states from '../../Enums/asyncRequestStates';
+import validation from '../../Enums/validation';
 
 const mapStateToProps = (state, ownProps) => ({
     submissionFile: state.submissionFile,
@@ -343,7 +346,7 @@ class ValidationTool extends React.Component {
     auditCell = (value, col, row) => {
         let cellAudit = [];
         let auditFuncs = this.audits[col];
-    
+        
         if(auditFuncs){
             auditFuncs.forEach(func => {
                 let result = func(value, row);
@@ -353,7 +356,7 @@ class ValidationTool extends React.Component {
                 }
             });
         }
-    
+   
         return cellAudit;
     }
 
@@ -361,13 +364,12 @@ class ValidationTool extends React.Component {
         return workbookAudits(params);
     }
 
-    auditRows = (rows) => {
+    auditRows = (rows, sheet) => {
         let audit = [];
-
         rows.forEach((row, i) => {
             let rowAudit = {};
 
-            let columns = Object.keys(row);
+            let columns = auditReference[sheet];
 
             columns.forEach((col) => {
                 let cellAudit = this.auditCell(row[col], col, i);
@@ -386,12 +388,20 @@ class ValidationTool extends React.Component {
     }
 
     // Takes a workbook and returns an audit report
-    performAudit = (info) => {
+    performAudit = (workbook) => {
+        let workbookAudit = this.auditWorkbook(workbook);
+        if(workbookAudit.errors.length) return {
+            workbook: workbookAudit,
+            data: [],
+            dataset_meta_data: [],
+            vars_meta_data: []
+        };
+
         let report = {
-            workbook: this.auditWorkbook(info),
-            data: this.auditRows(info.data),
-            dataset_meta_data: this.auditRows(info.dataset_meta_data),
-            vars_meta_data: this.auditRows(info.vars_meta_data),
+            workbook: workbookAudit,
+            data: this.auditRows(workbook.data, 'data'),
+            dataset_meta_data: this.auditRows(workbook.dataset_meta_data, 'dataset_meta_data'),
+            vars_meta_data: this.auditRows(workbook.vars_meta_data, 'vars_meta_data'),
         };
 
         return report;
@@ -650,7 +660,22 @@ class ValidationTool extends React.Component {
 
         if(validationStep > 0 && validationStep < 5){
             errorCount = this.countErrors();
-        }       
+        }
+        
+        const preventSubmission = Boolean(
+            validationStep >= 5 || 
+            (validationStep === 1 && errorCount.workbook) ||
+            (validationStep === 4 && (
+                errorCount.data > 0 || 
+                errorCount.dataset_meta_data > 0 ||
+                errorCount.vars_meta_data > 0
+            ))
+        )
+
+        const forwardArrowTooltip = validationStep === 0 || validationStep >= 5 ? '' :
+            (errorCount.data > 0 || errorCount.dataset_meta_data > 0 || errorCount.vars_meta_data > 0) && validationStep === 4 ?
+            'Please Correct Errors to Proceed' :
+            'Next Section';
 
         return (
             <React.Fragment>
@@ -674,7 +699,7 @@ class ValidationTool extends React.Component {
 
                             <Typography variant='h6' className={classes.currentlyViewingTypography}>
 
-                                {datasetName ? `${datasetName}` : ''} 
+                                {datasetName ? `${datasetName}` : 'Dataset Short Name Not Found'} 
                                 <label htmlFor="select-file-input" className={classes.chooseNewFileLabel}>
                                     Select a Different File
                                 </label> {'\n'}
@@ -695,22 +720,12 @@ class ValidationTool extends React.Component {
 
                                 <span className={classes.currentSectionSpan}>{validationSteps[validationStep].label}</span>
 
-                                <Tooltip title='Next Section'>
+                                <Tooltip title= {forwardArrowTooltip}>
                                     <div className={classes.ilb}>
                                         <IconButton 
                                             size='small'
                                             onClick={() => this.handleChangeValidationStep(this.state.validationStep + 1)}
-                                            disabled={
-                                                Boolean(
-                                                    validationStep >= 5 || 
-                                                    (validationStep === 1 && errorCount.workbook) ||
-                                                    (validationStep === 4 && (
-                                                        errorCount.data > 0 || 
-                                                        errorCount.dataset_meta_data > 0 ||
-                                                        errorCount.vars_meta_data > 0
-                                                    ))
-                                                )
-                                            }
+                                            disabled={preventSubmission}
                                         >
                                             <ArrowForward/>
                                         </IconButton>

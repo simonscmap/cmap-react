@@ -12,6 +12,7 @@ import { Typography, MenuItem, ClickAwayListener, Grow, Paper, Popper, MenuList 
 
 import JSS from '../../Stylesheets/JSS';
 import colors from '../../Enums/colors';
+import z from '../../Enums/zIndex';
 
 const styles = (theme) => ({
     navLink: JSS.navLink(theme),
@@ -28,7 +29,8 @@ const styles = (theme) => ({
     },
 
     dropdown: {
-        zIndex: 40000,
+        // zIndex: 40000,
+        zIndex: z.NAVBAR_DROPDOWN,
         marginTop: '21px',
         width: '200px'
     },

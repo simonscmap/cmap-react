@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 
-import { ExpansionPanelDetails, TextField, Button, Select, MenuItem, Typography, Link } from '@material-ui/core';
+import { AccordionDetails, TextField, Button, Select, MenuItem, Typography, Link } from '@material-ui/core';
 
 import { retrieveSubmissionCommentHistory, addSubmissionComment, setSubmissionPhase, downloadMostRecentFile } from '../../Redux/actions/dataSubmission';
 
@@ -80,7 +80,7 @@ const AdminDashboardPanelDetails = (props) => {
 
     // control this input from redux so we can reset properly, also create connected "NewComment" component
     const handlePostComment = () => {
-        props.addSubmissionComment(submission.Submission_ID, comment);
+        props.addSubmissionComment(submission.Submission_ID, comment, 'admin');
         setComment('');
     }
     
@@ -94,7 +94,7 @@ const AdminDashboardPanelDetails = (props) => {
     }
 
     return (
-        <ExpansionPanelDetails className={classes.panelDetails}>
+        <AccordionDetails className={classes.panelDetails}>
             <Typography className={classes.newUpload}>
                 <Link component='span' onClick={() => props.downloadMostRecentFile(submission.Submission_ID)}>Download</Link> the most recent version.
             </Typography>
@@ -151,7 +151,7 @@ const AdminDashboardPanelDetails = (props) => {
                     Post Message
                 </Button>
             </div>
-        </ExpansionPanelDetails>
+        </AccordionDetails>
     )
 }
 

@@ -5,7 +5,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { withRouter } from "react-router";
 import { Link as RouterLink } from "react-router-dom";
 
-import { Link, ExpansionPanel, ExpansionPanelSummary, Typography } from '@material-ui/core';
+import { Link, Accordion, AccordionSummary, Typography } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 import { retrieveDataSubmissionsByUser } from '../../Redux/actions/dataSubmission';
@@ -104,13 +104,13 @@ class UserDashboard extends React.Component {
             <React.Fragment>                    
                 {
                     dataSubmissions.map((e, i) => (
-                        <ExpansionPanel 
+                        <Accordion 
                             expanded={expandedPanel === i}
                             onChange={() => this.handleExpansion(i)} 
                             key={i}
                             TransitionProps={{ unmountOnExit: true }}
                         >
-                            <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+                            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                 
                                 <Typography noWrap className={classes.panelSummaryText}>
                                     {e.Dataset}
@@ -119,12 +119,12 @@ class UserDashboard extends React.Component {
                                 <Typography noWrap className={classes.panelSummaryText}>
                                     {e.Phase}
                                 </Typography>
-                            </ExpansionPanelSummary>
+                            </AccordionSummary>
 
                             <UserDashboardPanelDetails 
                                 submission={e} 
                             />
-                        </ExpansionPanel>
+                        </Accordion>
                     ))
                 }
             </React.Fragment>

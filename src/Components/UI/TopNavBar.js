@@ -16,6 +16,8 @@ import MobileNavbarMenu from './MobileNavbarMenu';
 import JSS from '../../Stylesheets/JSS';
 import VizNavbarDropdown from '../Visualization/VizNavbarDropdown';
 
+import z from '../../Enums/zIndex';
+
 const styles = theme => ({
 
     simonsLogo: {
@@ -35,7 +37,8 @@ const styles = theme => ({
         width: '100vw',
         top: '0px',
         backgroundColor: 'transparent',
-        zIndex: 50,
+        zIndex: z.NAVBAR,
+        // zIndex: 50,
         paddingTop: '14px',
         paddingBottom: '14px',
         paddingLeft: '20px',

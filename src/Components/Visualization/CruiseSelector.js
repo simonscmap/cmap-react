@@ -13,6 +13,7 @@ import { cruiseListRequestSend, cruiseTrajectoryRequestSend, cruiseTrajectoryCle
 
 import states from '../../Enums/asyncRequestStates';
 import colors from '../../Enums/colors';
+import z from '../../Enums/zIndex';
 import HelpButtonAndDialog from '../UI/HelpButtonAndDialog';
 
 const mapStateToProps = (state, ownProps) => ({
@@ -214,7 +215,8 @@ class CruiseSelector extends Component {
                             value={this.state.selectedCruise}
                             placeholder="Search Cruises"
                             styles={{
-                                menu: provided => ({ ...provided, zIndex: 9999 }),
+                                // menu: provided => ({ ...provided, zIndex: 9999 }),
+                                menu: provided => ({ ...provided, zIndex: z.CONTROL_PRIMARY }),
 
                                 menuList: provided => ({...provided, backgroundColor: colors.backgroundGray}),
 

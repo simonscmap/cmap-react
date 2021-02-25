@@ -4,6 +4,7 @@ import { withStyles, IconButton, Dialog, DialogTitle, DialogContent } from '@mat
 import { Help } from '@material-ui/icons';
 
 import colors from '../../Enums/colors';
+import z from '../../Enums/zIndex';
 
 const mapStateToProps = (state, ownProps) => ({
 
@@ -27,7 +28,8 @@ const styles = (theme) => ({
     },
 
     dialogRoot: {
-        zIndex: '31100 !important'
+        zIndex: `${z.HELP_DIALOG} !important`,
+        // zIndex: '31100 !important'
     }
 });
 

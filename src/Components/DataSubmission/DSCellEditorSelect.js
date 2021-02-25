@@ -13,8 +13,8 @@ class DSCellEditorSelect extends React.Component {
         super(props);
         this.inputRef = React.createRef();
         this.parseValue = props.parseValue;
-        let checkAgainst = new Set(props.context.selectOptions[colId]);
-        let value = props.value ? props.value.toLowerCase() : '';
+        let checkAgainst = new Set(props.context.selectOptions[colId].map(e => e.toLowerCase()));
+        let value = (props.value !== null && props.value !== undefined) ? props.value : '';
         value = checkAgainst.has(value) ? value : '';
         this.state = {
             value,
@@ -79,6 +79,18 @@ class DSCellEditorSelect extends React.Component {
             >
                 <ClickAwayListener onClickAway={this.handleClickAway}>
                     <div>
+                        <p 
+                            style={{
+                                lineHeight: 1.2,
+                                margin: '10px auto',
+                                textAlign: 'left',
+                                maxWidth: '100%',
+                                whiteSpace: 'pre-wrap'
+                            }}
+                        >
+                            If you don't see the correct value on this list please contact us at: {'\n'}<a style={{color:colors.primary, textDecoration: 'none'}} href="mailto:cmap-data-submission@uw.edu">cmap-data-submission@uw.edu</a>.
+                        </p>
+
                         <select
                             ref={this.inputRef}
                             value={this.state.value}
@@ -90,7 +102,7 @@ class DSCellEditorSelect extends React.Component {
                                 border: `1px solid ${colors.primary}`,
                                 borderRadius: '2px',
                                 padding: '2px 6px',
-                                // maxWidth: '100%'
+                                maxWidth: '100%'
                             }}
                         >
                             {opts}
@@ -112,19 +124,7 @@ class DSCellEditorSelect extends React.Component {
                                     </p>
                                 )
                             })
-                        }
-
-                        <p 
-                            style={{
-                                lineHeight: 1.2,
-                                margin: '10px auto',
-                                textAlign: 'left',
-                                maxWidth: '100%',
-                                whiteSpace: 'pre-wrap'
-                            }}
-                        >
-                            If you don't see the correct value on this list please contact us at: {'\n'}<a style={{color:colors.primary, textDecoration: 'none'}} href="mailto:cmap-data-submission@uw.edu">cmap-data-submission@uw.edu</a>.
-                        </p>
+                        }                        
                     </div>
                 </ClickAwayListener>
             </div>

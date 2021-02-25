@@ -4,7 +4,7 @@ import { Link as RouterLink } from "react-router-dom";
 
 import { withStyles } from '@material-ui/core/styles';
 
-import { ExpansionPanelDetails, TextField, Button, Typography, Link, Step, StepLabel, Stepper } from '@material-ui/core';
+import { AccordionDetails, TextField, Button, Typography, Link, Step, StepLabel, Stepper } from '@material-ui/core';
 
 import { retrieveSubmissionCommentHistory, addSubmissionComment, downloadMostRecentFile } from '../../Redux/actions/dataSubmission';
 
@@ -116,12 +116,12 @@ const UserDashboardPanelDetails = (props) => {
 
     // control this input from redux so we can reset properly, also create connected "NewComment" component
     const handlePostComment = () => {
-        props.addSubmissionComment(submission.Submission_ID, comment);
+        props.addSubmissionComment(submission.Submission_ID, comment, 'user');
         setComment('');
     }
 
     return (
-        <ExpansionPanelDetails className={classes.panelDetails}>
+        <AccordionDetails className={classes.panelDetails}>
             <Stepper 
                 className={classes.stepper} 
                 alternativeLabel 
@@ -177,7 +177,7 @@ const UserDashboardPanelDetails = (props) => {
                     Post Message
                 </Button>
             </div>
-        </ExpansionPanelDetails>
+        </AccordionDetails>
     )
 }
 

@@ -1,4 +1,5 @@
 export default (metadata) => {
+    if(!metadata || !metadata.length) return;
     let cols = Object.keys(metadata[0]);
     let keysContaining__EMPTY = [];
     cols.forEach(e => {

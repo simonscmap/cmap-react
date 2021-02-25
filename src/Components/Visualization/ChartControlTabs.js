@@ -1,16 +1,21 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { withStyles, Tabs, Tab, Paper, Tooltip } from '@material-ui/core';
-import { Language } from '@material-ui/icons';
+import { withStyles, Tabs, Tab, Paper, Tooltip, IconButton } from '@material-ui/core';
+import { Language, Close } from '@material-ui/icons';
+
+import { deleteChart } from '../../Redux/actions/visualization';
 
 import colors from '../../Enums/colors';
+import z from '../../Enums/zIndex';
 
 const mapStateToProps = (state, ownProps) => ({
     charts: state.charts
 });
 
-const mapDispatchToProps = {};
+const mapDispatchToProps = {
+    deleteChart
+};
 
 const styles = (theme) => ({
     tabsWrapper: {
@@ -20,7 +25,8 @@ const styles = (theme) => ({
         // backgroundColor: colors.backgroundGray,
         backgroundColor: 'rgba(0,0,0,.6)',
         boxShadow: '2px 2px  2px 2px #242424',
-        zIndex: 39000
+        zIndex: z.CONTROL_PRIMARY,
+        // zIndex: 39000
     },
 
     tabs: {
@@ -33,7 +39,7 @@ const styles = (theme) => ({
         boxShadow: '0px 0px  2px 0px #242424',
         color: 'white',
         opacity: 1,
-        maxWidth: '240px',
+        width: '180px',
         maxHeight: '48px',
         // textOverflow: 'ellipsis',
         // overflow: 'hidden',
@@ -45,11 +51,29 @@ const styles = (theme) => ({
 
     greenHightlight: {
         color: colors.primary
-    }
+    },
+
+    closeIcon: {
+        fontSize: '20px',
+        position: 'absolute',
+        left: 156,
+        bottom: 28,
+        color: 'white',
+        borderRadius: '20%',
+        '&:hover': {
+            backgroundColor: colors.greenHover
+        }
+    },
 })
 
 const ChartControlTabs = (props) => {
     const { classes, plotsActiveTab, handlePlotsSetActiveTab, charts } = props;
+
+    const handleDeleteChart = (e, chartIndex) => {
+        console.log(e);
+        e.stopPropagation();
+        props.deleteChart(chartIndex);
+    }
 
     return (
             charts && charts.length ?
@@ -63,10 +87,31 @@ const ChartControlTabs = (props) => {
                     variant="scrollable"
                     scrollButtons="auto"
                 >
-                    <Tab icon={<Language/>} className={classes.tab} classes={{selected: classes.greenHightlight}} wrapped={true}/>
+                    <Tooltip title='Return to Globe View'>
+                        <Tab icon={<Language/>} className={classes.tab} classes={{selected: classes.greenHightlight}} wrapped={true}/>
+                    </Tooltip>
+
                     {charts.map((e, i) => (
-                        <Tooltip enterDelay={300} key={e.id} title={<><p>{e.data.metadata.Dataset_Name}</p> <p>{e.data.metadata.Long_Name}</p> <p>{e.subType}</p> </>}>
-                            <Tab label={e.data.metadata.Long_Name} className={classes.tab} classes={{selected: classes.greenHightlight}}/>
+                        <Tooltip enterDelay={500} key={e.id} title={e.subType + ' of ' + e.data.metadata.Long_Name + ' from ' + e.data.metadata.Dataset_Name}>
+                            {/* <div> */}
+                                
+
+                                <Tab 
+                                    label={
+                                        <span style={{maxWidth: '140px'}}>
+                                            {e.data.metadata.Long_Name.length > 32 ? e.data.metadata.Long_Name.slice(0,30) + '...' : e.data.metadata.Long_Name}
+
+                                            {/* <IconButton  className={classes.closeIconButton}> */}
+                                            <Tooltip title='Delete plot' placement='top'>
+                                                <Close className={classes.closeIcon} onClick={(e) => handleDeleteChart(e, i)}/>
+                                            </Tooltip>
+                                            {/* </IconButton> */}
+                                        </span>
+                                    } 
+                                    className={classes.tab} 
+                                    classes={{selected: classes.greenHightlight}}
+                                />
+                            {/* </div> */}
                         </Tooltip>
                     ))}
                 </Tabs>

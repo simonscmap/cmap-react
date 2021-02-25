@@ -17,6 +17,7 @@ import { keywordsFetch, searchOptionsFetch } from '../../Redux/actions/catalog';
 
 import colors from '../../Enums/colors';
 import states from '../../Enums/asyncRequestStates';
+import z from '../../Enums/zIndex';
 
 const mapStateToProps = (state, ownProps) => ({
     // datasets: state.datasets,
@@ -51,14 +52,10 @@ const styles = (theme) => ({
         height: '28px'
     },
 
-    // autoComplete: {
-    //     // width: 'calc(100% - 48px)',
-    //     zIndex: 2000
-    // },
-
     autocompletePopperPaper: {
         backgroundColor: 'black',
-        zIndex: 30000
+        // zIndex: 30000
+        zIndex: z.CONTROL_SECONDARY
     },
 
     autocompleteOptions: {
@@ -345,7 +342,7 @@ class DataSearch extends React.Component {
             region,
             sensor,
         } = this.state;
-
+        
         return (
             <React.Fragment>
                 <Grid container>
@@ -596,7 +593,8 @@ class DataSearch extends React.Component {
                                         PopoverClasses: {
                                             paper: `${classes.autocompletePopperPaper} ${classes.addBorder}`
                                         },
-                                        style:{zIndex: 8000}
+                                        // style:{zIndex: 8000}
+                                        style: {zIndex: z.CONTROL_SECONDARY}
                                     }}
                                 >
                                     <MenuItem value='any'>Any</MenuItem>
@@ -617,7 +615,8 @@ class DataSearch extends React.Component {
                                                 PopoverClasses: {
                                                     paper: `${classes.autocompletePopperPaper} ${classes.addBorder}`
                                                 },
-                                                style:{zIndex: 8000}
+                                                // style:{zIndex: 8000}
+                                                style: {zIndex: z.CONTROL_SECONDARY}
                                             }}
                                         >
                                             {
@@ -640,7 +639,8 @@ class DataSearch extends React.Component {
                                                 PopoverClasses: {
                                                     paper: `${classes.autocompletePopperPaper} ${classes.addBorder}`
                                                 },
-                                                style:{zIndex: 8000}
+                                                // style:{zIndex: 8000}
+                                                style: {zIndex: z.CONTROL_SECONDARY}
                                             }}
                                         >
                                             {
@@ -663,7 +663,8 @@ class DataSearch extends React.Component {
                                                 PopoverClasses: {
                                                     paper: `${classes.autocompletePopperPaper} ${classes.addBorder}`
                                                 },
-                                                style:{zIndex: 8000}
+                                                // style:{zIndex: 8000}
+                                                style: {zIndex: z.CONTROL_SECONDARY}
                                             }}
                                         >
                                             {
