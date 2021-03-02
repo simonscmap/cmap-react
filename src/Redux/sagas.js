@@ -954,7 +954,6 @@ function* datasetSummaryFetch(action) {
 }
 
 function* vizPageDataTargetSetAndFetchDetails(action) {
-    console.log(action.payload.vizPageDataTarget)
     yield put(visualizationActions.vizPageDataTargetSet(action.payload.vizPageDataTarget));
     if(action.payload.vizPageDataTarget === null) return;
     
@@ -962,7 +961,6 @@ function* vizPageDataTargetSetAndFetchDetails(action) {
     
     if(response.ok){
         let variableDetails = yield response.json();
-        console.log(variableDetails);
         yield put(visualizationActions.vizPageDataTargetDetailsStore(variableDetails));
     }
 

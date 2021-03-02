@@ -373,11 +373,10 @@ class NewVizControlPanel extends React.Component {
         // When a variable is selected from the product list in the search component
         if(this.props.vizPageDataTargetDetails && this.props.vizPageDataTargetDetails !== prevProps.vizPageDataTargetDetails && this.props.plotsActiveTab === 0){
 
-            let data = this.props.vizPageDataTargetDetails;
-            let surfaceOnly = !data.Depth_Max;
-            let irregularSpatialResolution = data.Spatial_Resolution === 'Irregular';
+            let surfaceOnly = !this.props.vizPageDataTargetDetails.Depth_Max;
+            let irregularSpatialResolution = this.props.vizPageDataTargetDetails.Spatial_Resolution === 'Irregular';
 
-            let derivedParams = generateVariableSampleRangeParams(data);
+            let derivedParams = generateVariableSampleRangeParams(this.props.vizPageDataTargetDetails);
 
             let { lat1, lat2, lon1, lon2 } = derivedParams;
 
@@ -417,7 +416,7 @@ class NewVizControlPanel extends React.Component {
                     // depth1,
                     // depth2,
                 },
-                storedMetadata: data
+                storedMetadata: this.props.vizPageDataTargetDetails
             });
         }
     }
