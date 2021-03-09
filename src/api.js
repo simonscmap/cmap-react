@@ -405,6 +405,10 @@ api.dataSubmission.getFileFromLink = async(link) => {
     return await fetch(link);
 }
 
+api.dataSubmission.deleteSubmission = async(submissionID) => {
+    return await fetch(`${apiUrl}/api/datasubmission/deletesubmission?submissionID=${submissionID}`, fetchOptions);
+}
+
 api.user.cartPersistAddItem = async(formData) => {
     return await fetch(apiUrl + '/api/user/addcartitem', {
         ...postOptions,

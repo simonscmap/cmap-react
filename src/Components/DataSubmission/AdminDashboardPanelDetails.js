@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 
-import { AccordionDetails, TextField, Button, Select, MenuItem, Typography, Link } from '@material-ui/core';
+import { FormHelperText, AccordionDetails, TextField, Button, Select, MenuItem, Typography, Link } from '@material-ui/core';
 
 import { retrieveSubmissionCommentHistory, addSubmissionComment, setSubmissionPhase, downloadMostRecentFile } from '../../Redux/actions/dataSubmission';
 
@@ -34,7 +34,15 @@ const styles = (theme) => ({
 
     setPhaseButton: {
         color: 'white',
-        marginLeft: '12px'
+        marginLeft: '12px',
+        textTransform: 'none'
+    },
+
+    deleteButton: {
+        display: 'block',
+        textTransform: 'none',
+        color: 'white',
+        marginTop: '28px'
     },
 
     phaseControlWrapper: {
@@ -50,6 +58,11 @@ const styles = (theme) => ({
         marginBottom: '2vw',
         cursor: 'pointer',
         textAlign: 'left'
+    },
+
+    helperText: {
+        color: 'rgba(255, 255, 255, .6)',
+        marginTop: '-1px !important'
     }
 });
 
@@ -89,10 +102,10 @@ const AdminDashboardPanelDetails = (props) => {
     }
 
     const handleCommitPhase = () => {
-        props.handleResetExpandedPanel();
+        // props.handleResetExpandedPanel();
         setSubmissionPhase(submission.Submission_ID, phase);
     }
-
+    
     return (
         <AccordionDetails className={classes.panelDetails}>
             <Typography className={classes.newUpload}>
@@ -100,13 +113,14 @@ const AdminDashboardPanelDetails = (props) => {
             </Typography>
 
             <div className={classes.phaseControlWrapper}>
-                <Select value={phase} onChange={handlePhaseChange} className={classes.phaseSelect}>
+                <Select value={phase} onChange={handlePhaseChange} className={classes.phaseSelect} >
                     <MenuItem value={2}>Awaiting admin action</MenuItem>
                     <MenuItem value={3}>Awaiting user update</MenuItem>
+                    <MenuItem value={7}>Awaiting QC2</MenuItem>
                     <MenuItem value={4}>Awaiting DOI</MenuItem>
                     <MenuItem value={5}>Awaiting ingestion</MenuItem>
                     <MenuItem value={6}>Complete</MenuItem>
-                </Select>
+                </Select>               
 
                 <Button
                     variant='contained' 
@@ -116,6 +130,17 @@ const AdminDashboardPanelDetails = (props) => {
                     disabled={Boolean(phase === submission.Phase_ID)}
                 >
                     Set Phase
+                </Button>
+
+                <FormHelperText className={classes.helperText}>Update Submission Phase</FormHelperText>
+
+                <Button
+                    variant='contained' 
+                    color='primary' 
+                    onClick={() => props.handleSelectDeleteTarget(submission)}
+                    className={classes.deleteButton}
+                >
+                    Delete This Submission
                 </Button>
             </div>
 

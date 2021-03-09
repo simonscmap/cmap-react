@@ -26,6 +26,7 @@ const styles = theme => ({
     drawerPaper: {
         backgroundColor: colors.solidPaper,
         paddingLeft: '8px',
+        paddingTop: '60px',
         zIndex: z.NAVBAR_DROPDOWN,
         // zIndex: 30000
     },
@@ -38,7 +39,7 @@ const styles = theme => ({
 })
 
 const MobileNavbarMenu = (props) => {
-    const { classes, user, handleLogOut, showLoginDialog } = props;
+    const { classes, user, handleLogOut, showLoginDialog, cartSize } = props;
 
     const [drawerState, setDrawerState] = React.useState(false);
 
@@ -49,6 +50,11 @@ const MobileNavbarMenu = (props) => {
 
     const handleLogoutClick = () => {
         handleLogOut();
+        setDrawerState(false);
+    }
+
+    const handleShowCart = () => {
+        props.handleShowCart();
         setDrawerState(false);
     }
 
@@ -83,6 +89,18 @@ const MobileNavbarMenu = (props) => {
                     <ListItem button component={Link} to='/datasubmission' onClick={() => setDrawerState(false)}>
                         Data Submission
                     </ListItem>
+
+                    <ListItem button component='a' href='/about' onClick={() => setDrawerState(false)}>
+                        About
+                    </ListItem>
+
+                    {
+                        cartSize ? 
+                        <ListItem button onClick={handleShowCart}>
+                            Favorites
+                        </ListItem>
+                        : ''
+                    }
                 </List>
                 <Divider/>
                 {user &&

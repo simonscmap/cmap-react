@@ -14,6 +14,7 @@ import { snackbarOpen, setLoadingMessage } from '../../Redux/actions/ui';
 
 import ValidationGrid from './ValidationGrid';
 import LoginRequiredPrompt from '../User/LoginRequiredPrompt';
+import DSCustomGridHeader from './DSCustomGridHeader';
 
 import colors from '../../Enums/colors';
 
@@ -143,12 +144,15 @@ const styles = (theme) => ({
 
     submitButton: {
         color: 'white',
-        margin: '24px 0 12px 0'
+        margin: '24px 0 12px 0',
+        textTransform: 'none'
     },
 
     tabPaper: {
         maxWidth: '80vw',
-        height: '70vh',
+        // height: '70vh',
+        height: 'calc(100vh - 320px)',
+        minHeight: '300px',
         margin: '0 auto 24px auto'
     },
 
@@ -294,6 +298,13 @@ let fileSizeTooLargeDummyState = {
     validationStep: 1,
 };
 
+// validationSteps:
+// 1 - workbook,
+// 2 - data,
+// 3 - dataset metadata
+// 4 - variable metadata
+// 5 - submission
+
 class ValidationTool extends React.Component {
 
     checkCellStyle = (params) => {
@@ -310,7 +321,7 @@ class ValidationTool extends React.Component {
         };
         
         if(this.state.auditReport && this.state.auditReport[sheet] && this.state.auditReport[sheet][row] && this.state.auditReport[sheet][row][colId]){
-            styles.boxShadow = 'inset 0 0 3px 2px rgba(255, 0, 0, .5)'
+            styles.boxShadow = 'inset 0 0 1px 1px rgba(255, 0, 0, .5)'
         }
 
         return styles;
@@ -329,7 +340,8 @@ class ValidationTool extends React.Component {
             editable: true,
             cellStyle: this.checkCellStyle,
             cellEditor: 'DSCellEditor',
-            width: 270
+            width: 270,
+            headerComponentFramework: DSCustomGridHeader
         }
     }
 
@@ -500,11 +512,15 @@ class ValidationTool extends React.Component {
         XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(this.state.data), 'data');
         XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(this.state.dataset_meta_data), 'dataset_meta_data');
         XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(this.state.vars_meta_data), 'vars_meta_data');
-        
         let wbArray = XLSX.write(workbook, {bookType:'xlsx', type:'array'});
         let file = new Blob([wbArray]);
         file.name = `${this.state.dataset_meta_data[0].dataset_short_name}.xlsx`;
-        this.props.uploadSubmission({file, datasetName: this.state.dataset_meta_data[0].dataset_short_name});
+        this.props.uploadSubmission({
+            file, 
+            datasetName: this.state.dataset_meta_data[0].dataset_short_name,
+            dataSource: this.state.dataset_meta_data[0].dataset_source,
+            datasetLongName: this.state.dataset_meta_data[0].dataset_long_name
+        });
     }
 
     handleDownload = () => {
@@ -677,6 +693,8 @@ class ValidationTool extends React.Component {
             'Please Correct Errors to Proceed' :
             'Next Section';
 
+        const hideSelectDifferentFile = validationStep >= 5;
+
         return (
             <React.Fragment>
 
@@ -699,10 +717,14 @@ class ValidationTool extends React.Component {
 
                             <Typography variant='h6' className={classes.currentlyViewingTypography}>
 
-                                {datasetName ? `${datasetName}` : 'Dataset Short Name Not Found'} 
-                                <label htmlFor="select-file-input" className={classes.chooseNewFileLabel}>
-                                    Select a Different File
-                                </label> {'\n'}
+                                {datasetName ? `${datasetName}` : 'Dataset Short Name Not Found'}
+                                { hideSelectDifferentFile ? '' :
+                                    <>
+                                        <label htmlFor="select-file-input" className={classes.chooseNewFileLabel}>
+                                            Select a Different File
+                                        </label> {'\n'}
+                                    </>
+                                }
                             </Typography>
 
                             <div>
@@ -929,6 +951,10 @@ class ValidationTool extends React.Component {
                                     <Typography className={classes.submittedTypography}>
                                         A detailed description of remaining steps in the submission process can be found in the <Link style={{display: 'inline-block'}} className={classes.needHelpLink} component={RouterLink} to='/datasubmission/guide'>Data Submission Guide</Link>.
                                     </Typography>
+
+                                    <Typography className={classes.submittedTypography}>
+                                        To start over and submit another dataset click <Link style={{display: 'inline-block'}} className={classes.needHelpLink} onClick={() =>this.handleResetState()} component='span'>here</Link>.
+                                    </Typography>
                                 </React.Fragment>
 
                             :
@@ -944,6 +970,10 @@ class ValidationTool extends React.Component {
                                         <ListItemText
                                             primary="A dataset with this name has already been submitted by another user. If you believe you're receiving this message in error please contact us at cmap-data-submission@uw.edu."
                                         />
+
+                                    <Typography className={classes.submittedTypography}>
+                                        To start over and submit another dataset click <Link style={{display: 'inline-block'}} className={classes.needHelpLink} onClick={() =>this.handleResetState()} component='span'>here</Link>.
+                                    </Typography>
                                     </ListItem>
                                 </List>
                                     

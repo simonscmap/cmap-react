@@ -13,9 +13,9 @@ class DSCellEditorSelect extends React.Component {
         super(props);
         this.inputRef = React.createRef();
         this.parseValue = props.parseValue;
-        let checkAgainst = new Set(props.context.selectOptions[colId].map(e => e.toLowerCase()));
+        // let checkAgainst = new Set(props.context.selectOptions[colId].map(e => e.toLowerCase()));
         let value = (props.value !== null && props.value !== undefined) ? props.value : '';
-        value = checkAgainst.has(value) ? value : '';
+        // value = checkAgainst.has(value) ? value : '';
         this.state = {
             value,
             errors: auditReport[sheet][rowIndex] && auditReport[sheet][rowIndex][colId] ? auditReport[sheet][rowIndex][colId] : [],
@@ -49,7 +49,7 @@ class DSCellEditorSelect extends React.Component {
     isPopup = () => true;
 
     render() {
-        const { errors } = this.state;
+        const { errors, value } = this.state;
         const { column, context } = this.props;       
 
         let dynamicOpts = context.selectOptions[column.colId].map( (e, i) => (
@@ -66,6 +66,9 @@ class DSCellEditorSelect extends React.Component {
         ));
 
         let opts = [<option key={0} disabled style={{display: 'none'}} value=''></option>, ...dynamicOpts];
+
+        let validOpts = new Set(this.props.context.selectOptions[this.props.column.colId].map(e => e.toLowerCase()));
+        if(!validOpts.has(value)) opts.push(<option key={value} value={value} style={{display: 'none'}}></option>)
 
         return (
             <div

@@ -1,5 +1,8 @@
 import { mean, deviation } from 'd3-array';
 
+const datasetMetadataSampleRowValue = '< short name of your dataset (<50 chars) >';
+const variableMetadataSampleRowValue = '< variable short name (<50 chars) >';
+
 let checkSheets = (workbook) => {
     let expected = ['data', 'vars_meta_data', 'dataset_meta_data'];
     let missingSheets = [];
@@ -44,6 +47,8 @@ let checkMissingCruiseNames = (dataset_meta_data, vars_meta_data) => {
     let hasCruise = (dataset_meta_data[0]['cruise_names']);
     return Boolean(shouldHaveCruise && !hasCruise);
 }
+
+let checkMultipleCruisesOneCell = (dataset_meta_data) =>  Boolean(typeof dataset_meta_data[0].cruise_names === 'string' && dataset_meta_data[0].cruise_names.includes(','));
 
 let checkRadians = (data) => {
     let lonMin = data[0].lon;
@@ -183,6 +188,20 @@ let checkDepthAllOrNone = (data) => {
     return true;
 }
 
+let datasetMetadataIncludesSampleRow = (datasetMetadata) => {
+    for(let i = 0; i < datasetMetadata.length; i++){
+        if(typeof datasetMetadata[i]['dataset_short_name'] === 'string' && datasetMetadata[i]['dataset_short_name'].includes(datasetMetadataSampleRowValue)) return true;
+    }
+    return false;
+}
+
+let variableMetadataIncludesSampleRow = (variableMetadata) => {
+    for(let i = 0; i < variableMetadata.length; i++){
+        if(typeof variableMetadata[i]['var_short_name'] === 'string' && variableMetadata[i]['var_short_name'].includes(variableMetadataSampleRowValue)) return true;
+    }
+    return false;
+}
+
 let nanVariants = new Set(['nan', 'NaN', 'NAN', 'Nan', 'null', 'Null', 'NULL'])
 let checkNans = (data, userVariables) => {
     let result = []; // {row, column}
@@ -290,6 +309,23 @@ export default ({ data, dataset_meta_data, vars_meta_data, workbook }) => {
 
     if(!checkDepthAllOrNone(data)){
         errors.push('The depth column on the data sheet must contain a value for every row, or be empty.');
+    }
+
+    if(datasetMetadataIncludesSampleRow(dataset_meta_data)){
+        errors.push('The value "< short name of your dataset (<50 chars) >" was found in the dataset_short_name column ' +
+        'of the dataset_meta_data sheet. Please delete the template sample row and re-select the workbook by clicking ' + 
+        '"select a different file" above.');
+    }
+
+    if(variableMetadataIncludesSampleRow(vars_meta_data)){
+        errors.push('The value "< variable short name (<50 chars) >" was found in the var_short_name column ' +
+        'of the vars_meta_data sheet. Please delete the template sample row and re-select the workbook by clicking ' + 
+        '"select a different file" above.');
+    }
+    
+    if(checkMultipleCruisesOneCell(dataset_meta_data)) {
+        warnings.push(`The cruise_names column of the dataset_meta_data sheet may contain multiple cruises in one cell. Please separate ` +
+        `cruise names beyond the first into separate rows in this column.`);
     }
 
     if(checkMissingCruiseNames(dataset_meta_data, vars_meta_data)){

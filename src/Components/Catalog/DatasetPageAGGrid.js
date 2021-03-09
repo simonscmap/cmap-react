@@ -62,7 +62,7 @@ const columnDefs = [
         headerName: 'Coverage',
         children: [
             {headerName: 'Lat Start', field: 'Lat_Min'},
-            {headerName: 'Lat_End', field: 'Lat_Max'},
+            {headerName: 'Lat End', field: 'Lat_Max'},
             {headerName: 'Lon Start', field: 'Lon_Min'},
             {headerName: 'Long End', field: 'Lon_Max'},
             {headerName: 'Time Start', field: 'Time_Min'},

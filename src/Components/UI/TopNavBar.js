@@ -82,6 +82,8 @@ const mapDispatchToProps = {
     setShowCart
 }
 
+const breakpoint = 1000;
+
 class TopNavBar extends Component {
 
     constructor(props){
@@ -89,7 +91,7 @@ class TopNavBar extends Component {
         this.state = {
             username: '',
             password: '',
-            layout: window.innerWidth >= 860 ? 'desktop' : 'mobile'
+            layout: window.innerWidth >= breakpoint ? 'desktop' : 'mobile'
         }
         
     }
@@ -101,11 +103,11 @@ class TopNavBar extends Component {
     handleResize = (e) => {
         let w = e.target.innerWidth;
 
-        if(w < 980 && this.state.layout === 'desktop'){
+        if(w < breakpoint && this.state.layout === 'desktop'){
             this.setState({...this.state, layout:'mobile'});
         }
 
-        else if(w >= 980 && this.state.layout === 'mobile'){
+        else if(w >= breakpoint && this.state.layout === 'mobile'){
             this.setState({...this.state, layout:'desktop'});
         }
     }
@@ -150,6 +152,7 @@ class TopNavBar extends Component {
                             {/* <Typography variant='caption' to='/visualization' component={Link} className={classes.navLink}>Visualization</Typography> */}
                             <Typography variant='caption' to='/community' component={Link} className={classes.navLink}>Community</Typography>
                             <DataSubmissionNavbarDropdown/>
+                            <Typography variant='caption' href='/about' component='a' className={classes.navLink}>About</Typography>
                         </div>
 
                         {/* Right side of navbar */}
@@ -174,7 +177,13 @@ class TopNavBar extends Component {
                         <Typography variant='caption' href='/' component='a' className={`${classes.navLink} ${classes.simonsLogoWrapper}`}>
                             <img src='/images/CMAP_white_logo_2.png' width='40' alt='CMAP logo' className={classes.simonsLogo}/>
                         </Typography>
-                        <MobileNavbarMenu handleLogOut={this.handleLogOut} showLoginDialog={this.props.showLoginDialog} user={user}/>
+                        <MobileNavbarMenu 
+                            handleLogOut={this.handleLogOut} 
+                            showLoginDialog={this.props.showLoginDialog} 
+                            user={user}
+                            cartSize={cartSize}
+                            handleShowCart={() => this.props.setShowCart(true)}
+                        />
                     </React.Fragment>
                 }
 

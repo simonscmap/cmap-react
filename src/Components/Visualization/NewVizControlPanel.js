@@ -3,10 +3,11 @@ import { connect } from 'react-redux';
 
 import { throttle } from 'throttle-debounce';
 
-import { withStyles, Paper, Grid, IconButton, Typography, Drawer, TextField, Button, Tooltip } from '@material-ui/core';
-import { Edit, Search, ChevronLeft, ChevronRight, Info } from '@material-ui/icons';
+import { withStyles, Tabs, Collapse, Paper, Badge, ButtonGroup, Grid, IconButton, Icon, ListItem, MenuItem, Typography, Drawer, TextField, FormControl, InputLabel, Button, Tooltip, ClickAwayListener, Slide} from '@material-ui/core';
+import { Edit, PlayArrow, ControlCamera , Settings, Fastfood, ShowChart, Search, Cached, LibraryBooks, ArrowRight, ChevronLeft, ChevronRight, InsertChartOutlined, Language, Delete, ShoppingCart, Info, DirectionsBoat } from '@material-ui/icons';
+import { KeyboardDatePicker } from "@material-ui/pickers";
 
-import { cruiseTrajectoryRequestSend, clearCharts, csvDownloadRequestSend, vizPageDataTargetSetAndFetchDetails, storedProcedureRequestSend, vizPageDataTargetDetailsStore } from '../../Redux/actions/visualization';
+import { cruiseTrajectoryRequestSend, clearCharts, csvDownloadRequestSend, vizPageDataTargetSetAndFetchDetails, storedProcedureRequestSend } from '../../Redux/actions/visualization';
 import { snackbarOpen } from '../../Redux/actions/ui';
 
 import colors from '../../Enums/colors';
@@ -14,10 +15,10 @@ import vizSubTypes from '../../Enums/visualizationSubTypes';
 import validation from '../../Enums/validation';
 import spatialResolutions from '../../Enums/spatialResolutions';
 import temporalResolutions from '../../Enums/temporalResolutions';
-import z from '../../Enums/zIndex';
 
 import mapTemporalResolutionToNumber from '../../Utility/mapTemporalResolutionToNumber';
 import mapSpatialResolutionToNumber from '../../Utility/mapSpatialResolutionToNumber';
+import utcDateStringToLocal from '../../Utility/utcDateStringToLocal';
 import depthUtils from '../../Utility/depthCounter';
 import countWebGLContexts from '../../Utility/countWebGLContexts';
 import mapVizType from '../../Utility/Visualization/mapVizType';
@@ -51,8 +52,7 @@ const mapDispatchToProps = {
     csvDownloadRequestSend,
     snackbarOpen,
     vizPageDataTargetSetAndFetchDetails,
-    storedProcedureRequestSend,
-    vizPageDataTargetDetailsStore
+    storedProcedureRequestSend
 }
 
 const drawerWidth = 280;
@@ -103,16 +103,14 @@ const styles = (theme) => ({
         position: 'fixed',
         left: '5px',
         top: '380px',
-        // zIndex: 1100
-        zIndex: z.CONTROL_PRIMARY
+        zIndex: 1100
       },
     
       closePanelChevron: {
         position: 'fixed',
         left: drawerWidth + 5,
         top: '380px',
-        // zIndex: 1100
-        zIndex: z.CONTROL_PRIMARY,
+        zIndex: 1100
       },
 
     dataSearchMenuPaper: {
@@ -122,8 +120,7 @@ const styles = (theme) => ({
         left: 0,
         width: '98vw',
         height: 'auto',
-        // zIndex: 1500,
-        zIndex: z.CONTROL_PRIMARY,
+        zIndex: 1500,
         backgroundColor: 'rgba(0,0,0,.6)',
         backdropFilter: 'blur(5px)',
     },
@@ -244,8 +241,7 @@ const styles = (theme) => ({
         position: 'fixed',
         top: 120,
         margin: '0 calc(50vw - 226px)',
-        // zIndex: 1500,
-        zIndex: z.HELP_DIALOG,
+        zIndex: 1500,
         color: 'white',
         fontSize: '18px',
         backgroundColor: 'rgba(0, 0, 0, .6)',
@@ -269,10 +265,6 @@ const styles = (theme) => ({
 
     popoutButtonBase: {
         padding: '9px'
-    },
-
-    visibleDisabledText: {
-        color: 'rgba(255,255,255,.75) !important'
     }
 });
 
@@ -305,36 +297,34 @@ class NewVizControlPanel extends React.Component {
             lat2: 0,
             lon1: 0,
             lon2: 0,
-        },
-        storedMetadata: null
+        }
     }
 
     searchInputRef = React.createRef();
 
     componentDidUpdate = (prevProps, prevState) => {
-        if(prevProps.plotsActiveTab !== this.props.plotsActiveTab){
-            if(this.props.plotsActiveTab === 0){
-                this.setState({...this.state, ...this.state.storedParams});
-                this.props.vizPageDataTargetDetailsStore(this.state.storedMetadata);
-            }
 
-            else {
-                let chartParams = this.props.charts[this.props.plotsActiveTab - 1] ? this.props.charts[this.props.plotsActiveTab - 1].data.parameters : null;
-                this.props.vizPageDataTargetDetailsStore(this.props.charts[this.props.plotsActiveTab - 1].data.metadata);
-                if(chartParams !== null) {
-                    this.setState({...this.state,
-                        lat1: chartParams.lat1,
-                        lat2: chartParams.lat2,
-                        lon1: chartParams.lon1,
-                        lon2: chartParams.lon2,
-                        depth1: chartParams.depth1,
-                        depth2: chartParams.depth2,
-                        dt1: chartParams.dt1,
-                        dt2: chartParams.dt2.slice(0,10)
-                    })
-                }
-            }
-        }
+        // if(prevProps.plotsActiveTab !== this.props.plotsActiveTab){
+        //     if(this.props.plotsActiveTab === 0){
+        //         this.setState({...this.state, ...this.state.storedParams});
+        //     }
+
+        //     else {
+        //         let chartParams = this.props.charts[this.props.plotsActiveTab - 1] ? this.props.charts[this.props.plotsActiveTab - 1].data.parameters : null;
+        //         if(chartParams !== null) {
+        //             this.setState({...this.state,
+        //                 lat1: chartParams.lat1,
+        //                 lat2: chartParams.lat2,
+        //                 lon1: chartParams.lon1,
+        //                 lon2: chartParams.lon2,
+        //                 depth1: chartParams.depth1,
+        //                 depth2: chartParams.depth2,
+        //                 dt1: chartParams.dt1,
+        //                 dt2: chartParams.dt2.slice(0,10)
+        //             })
+        //         }
+        //     }
+        // }
 
 
         if(prevProps.charts.length && !this.props.charts.length){
@@ -369,9 +359,7 @@ class NewVizControlPanel extends React.Component {
             this.props.mapContainerRef.current.regionLayer.add(regionGraphic);
         }
 
-
-        // When a variable is selected from the product list in the search component
-        if(this.props.vizPageDataTargetDetails && this.props.vizPageDataTargetDetails !== prevProps.vizPageDataTargetDetails && this.props.plotsActiveTab === 0){
+        if(this.props.vizPageDataTargetDetails && this.props.vizPageDataTargetDetails !== prevProps.vizPageDataTargetDetails){
 
             let data = this.props.vizPageDataTargetDetails;
             let surfaceOnly = !data.Depth_Max;
@@ -407,7 +395,7 @@ class NewVizControlPanel extends React.Component {
                 selectedVizType: '',
                 storedParams: {
                     ...this.state.storedParams,
-                    ...derivedParams,
+                    ...derivedParams
                     // dt1,
                     // dt2,
                     // lat1,
@@ -416,8 +404,7 @@ class NewVizControlPanel extends React.Component {
                     // lon2,
                     // depth1,
                     // depth2,
-                },
-                storedMetadata: data
+                }
             });
         }
     }
@@ -453,22 +440,22 @@ class NewVizControlPanel extends React.Component {
         this.setState({...this.state, lat1, lat2, lon1, lon2, depth1, depth2, dt1, dt2});
     }
 
-    // handleShowChartsClick = () => {
-    //     // if(this.props.showCharts){
-    //     //     this.props.handleShowGlobe();
-    //     // }
+    handleShowChartsClick = () => {
+        // if(this.props.showCharts){
+        //     this.props.handleShowGlobe();
+        // }
 
-    //     // else {
-    //     //     this.props.handleShowCharts();
-    //     // }
-    //     if(this.props.plotsActiveTab === 0){
-    //         this.props.handlePlotsSetActiveTab(null, 1);
-    //     }
+        // else {
+        //     this.props.handleShowCharts();
+        // }
+        if(this.props.plotsActiveTab === 0){
+            this.props.handlePlotsSetActiveTab(null, 1);
+        }
 
-    //     else {
-    //         this.props.handlePlotsSetActiveTab(null, 0);
-    //     }
-    // }
+        else {
+            this.props.handlePlotsSetActiveTab(null, 0);
+        }
+    }
 
     handleVisualize = () => {
         const { depth1, depth2, dt1, dt2, lat1, lat2, lon1, lon2, selectedVizType } = this.state;
@@ -836,19 +823,23 @@ class NewVizControlPanel extends React.Component {
         if(this.state.selectedVizType === vizSubTypes.heatmap && webGLCount > 14) return validation.type.webGLContextLimit;
         if(this.state.selectedVizType === vizSubTypes.sparse && webGLCount > 11) return validation.type.webGLContextLimit;
         
-        if(this.props.selectedVizType === vizSubTypes.heatmap){
+        if(this.state.selectedVizType === vizSubTypes.heatmap){
             let availableContexts = 16 - webGLCount;
             const depthCount = depthUtils.count({data: this.props.vizPageDataTargetDetails}, this.props.depth1, this.props.depth2) || 1;
             if(availableContexts - depthCount < 1) return 'Too many distinct depths to render heatmap. Please reduce depth range or select section map.';
         }
-        if(this.props.selectedVizType !== vizSubTypes.histogram && this.props.selectedVizType !== vizSubTypes.heatmap && dataSize > 1200000){
+        if(this.state.selectedVizType !== vizSubTypes.histogram && this.props.selectedVizType !== vizSubTypes.heatmap && dataSize > 1200000){
             return validation.generic.dataSizePrevent;
         }
         if(dataSize > 6000000) return validation.generic.dataSizePrevent;
         if(!this.props.vizPageDataTargetDetails) return validation.generic.variableMissing;
         if(this.props.charts.length > 9) return 'Total number of plots is too large. Please delete 1 or more'
         if(aggregateSize + dataSize > 4000000) return 'Total rendered data amount is too large. Please delete 1 or more plots.'
-        if(this.state.selectedVizType !== vizSubTypes.timeSeries && (Date.parse(this.state.dt2) - Date.parse(this.state.dt1) > 86400000 * 365)) return "Maximum date range for non-time series plots is 1 year";
+        if(
+            !this.state.irregularSpatialResolution && 
+            this.state.selectedVizType !== vizSubTypes.timeSeries && 
+            (Date.parse(this.state.dt2) - Date.parse(this.state.dt1) > 86400000 * 365)
+            ) return "Maximum date range for non-time series plots of gridded data is 1 year";
         return ''
     }
 
@@ -962,13 +953,13 @@ class NewVizControlPanel extends React.Component {
         const visualizeButtonTooltip = disableVisualizeMessage ? disableVisualizeMessage : generalWarnMessage ? generalWarnMessage : '';
 
         return (
-            <React.Fragment>            
+            <React.Fragment>
                 {/* <StoredParametersDropdown 
                     handleUpdateParameters={this.handleUpdateParameters}
                     disableButton={this.state.showDrawHelp || !vizPageDataTargetDetails}
                 /> */}
 
-                <ChartControlTabs handlePlotsSetActiveTab={this.props.handlePlotsSetActiveTab} plotsActiveTab={plotsActiveTab}/>
+                {/* <ChartControlTabs handlePlotsSetActiveTab={this.props.handlePlotsSetActiveTab} plotsActiveTab={plotsActiveTab}/> */}
 
                 <VariableDetailsDialog variableDetailsID={variableDetailsID} handleSetVariableDetailsID={this.handleSetVariableDetailsID}/>
                     {
@@ -1018,8 +1009,7 @@ class NewVizControlPanel extends React.Component {
                     anchor="left"
                 >
 
-                <Tooltip placement='right-start' title={plotsActiveTab !== 0 ? 'Return to the globe view to create new plots' : ''}>
-                    <div>
+
                     {/* <Button
                         fullWidth={true}
                         // startIcon={<Search/>}
@@ -1057,12 +1047,11 @@ class NewVizControlPanel extends React.Component {
                                         onClick={() => this.setState({...this.state, dataSearchMenuOpen: true})}
                                         classes={{
                                             label: classes.controlPanelItemLabel,
-                                            startIcon: classes.controlPanelItemStartIcon,
-                                            disabled: classes.visibleDisabledText
+                                            startIcon: classes.controlPanelItemStartIcon
                                         }}
-                                        disabled={this.state.showDrawHelp || !vizPageDataTargetDetails || plotsActiveTab !== 0}
+                                        disabled={this.state.showDrawHelp || !vizPageDataTargetDetails}
                                     >
-                                        <span style={{color: this.state.showDrawHelp ? 'rgba(0, 0, 0, 0.38)' : plotsActiveTab!==0 ? 'rgba(255,255,255,.75)' : 'white'}}>{dataTarget.Long_Name}</span>
+                                        <span style={{color: this.state.showDrawHelp ? 'rgba(0, 0, 0, 0.38)' : 'white'}}>{dataTarget.Long_Name}</span>
                                     </Button>
                                 </Grid>
 
@@ -1128,16 +1117,13 @@ class NewVizControlPanel extends React.Component {
                                                         min: 1,
                                                         max: 12
                                                     },
-                                                    classes: {
-                                                        disabled: plotsActiveTab !== 0 ? classes.visibleDisabledText : ''
-                                                    }
                                                 }}
                                                 InputLabelProps={{
                                                     shrink: true,
                                                     className:classes.padLeft
                                                 }}
                                                 onChange={this.handleChangeInputValue}
-                                                disabled={this.state.showDrawHelp || !vizPageDataTargetDetails || plotsActiveTab !== 0}
+                                                disabled={this.state.showDrawHelp || !vizPageDataTargetDetails}
                                             />
                                         </Grid>
 
@@ -1164,16 +1150,13 @@ class NewVizControlPanel extends React.Component {
                                                         min: 1,
                                                         max: 12,
                                                     },
-                                                    classes: {
-                                                        disabled: plotsActiveTab !== 0 ? classes.visibleDisabledText : ''
-                                                    }
                                                 }}
                                                 InputLabelProps={{
                                                     shrink: true,
                                                     className:classes.padLeft
                                                 }}
                                                 onChange={this.handleChangeInputValue}
-                                                disabled={this.state.showDrawHelp || !vizPageDataTargetDetails || plotsActiveTab !== 0}
+                                                disabled={this.state.showDrawHelp || !vizPageDataTargetDetails}
                                             />
                                         </Grid>
                                     </>
@@ -1198,17 +1181,14 @@ class NewVizControlPanel extends React.Component {
                                                     inputProps: details ? {
                                                         min: details.Time_Min.slice(0,10),
                                                         max: details.Time_Max.slice(0,10)
-                                                    } : {},
-                                                    classes: {
-                                                        disabled: plotsActiveTab !== 0 ? classes.visibleDisabledText : ''
-                                                    }
+                                                    } : {}
                                                 }}
                                                 InputLabelProps={{
                                                     shrink: true,
                                                     className:classes.padLeft
                                                 }}
                                                 onChange={this.handleChangeInputValue}
-                                                disabled={this.state.showDrawHelp || !vizPageDataTargetDetails || plotsActiveTab !== 0}
+                                                disabled={this.state.showDrawHelp || !vizPageDataTargetDetails}
                                             />
                                         </Grid>  
 
@@ -1228,17 +1208,14 @@ class NewVizControlPanel extends React.Component {
                                                     inputProps: details ? {
                                                         min: details.Time_Min.slice(0,10),
                                                         max: details.Time_Max.slice(0,10)
-                                                    } : {},
-                                                    classes: {
-                                                        disabled: plotsActiveTab !== 0 ? classes.visibleDisabledText : ''
-                                                    }
+                                                    } : {}
                                                 }}
                                                 InputLabelProps={{
                                                     shrink: true,
                                                     className:classes.padLeft
                                                 }}
                                                 onChange={this.handleChangeInputValue}
-                                                disabled={this.state.showDrawHelp || !vizPageDataTargetDetails || plotsActiveTab !== 0}
+                                                disabled={this.state.showDrawHelp || !vizPageDataTargetDetails}
                                             />
                                         </Grid>
                                     </>
@@ -1263,15 +1240,12 @@ class NewVizControlPanel extends React.Component {
                                                 min: details.Lat_Min,
                                                 max: details.Lat_Max,
                                                 step: .001
-                                            } : {},
-                                            classes: {
-                                                disabled: plotsActiveTab !== 0 ? classes.visibleDisabledText : ''
-                                            }
+                                            } : {}
                                         }}
                                         InputLabelProps={{className:classes.padLeft}}
                                         name='lat1'
                                         onChange={this.handleChangeInputValue}
-                                        disabled={this.state.showDrawHelp || !vizPageDataTargetDetails || plotsActiveTab !== 0}
+                                        disabled={this.state.showDrawHelp || !vizPageDataTargetDetails}
                                     >
                                     </TextField>
                                 </Grid>
@@ -1294,14 +1268,11 @@ class NewVizControlPanel extends React.Component {
                                                 min: details.Lat_Min,
                                                 max: details.Lat_Max,
                                                 step: .001
-                                            } : {},
-                                            classes: {
-                                                disabled: plotsActiveTab !== 0 ? classes.visibleDisabledText : ''
-                                            }
+                                            } : {}
                                         }}
                                         InputLabelProps={{className:classes.padLeft}}
                                         onChange={this.handleChangeInputValue}
-                                        disabled={this.state.showDrawHelp || !vizPageDataTargetDetails || plotsActiveTab !== 0}
+                                        disabled={this.state.showDrawHelp || !vizPageDataTargetDetails}
                                     >
                                     </TextField>
                                 </Grid>
@@ -1324,14 +1295,11 @@ class NewVizControlPanel extends React.Component {
                                                 min: details.Lon_Min,
                                                 max: details.Lon_Max,
                                                 step: .001
-                                            } : {},
-                                            classes: {
-                                                disabled: plotsActiveTab !== 0 ? classes.visibleDisabledText : ''
-                                            }
+                                            } : {}
                                         }}
                                         InputLabelProps={{className:classes.padLeft}}
                                         onChange={this.handleChangeInputValue}
-                                        disabled={this.state.showDrawHelp || !vizPageDataTargetDetails || plotsActiveTab !== 0}
+                                        disabled={this.state.showDrawHelp || !vizPageDataTargetDetails}
                                     >
                                     </TextField>
                                 </Grid>
@@ -1354,14 +1322,11 @@ class NewVizControlPanel extends React.Component {
                                                 min: details.Lon_Min,
                                                 max: details.Lon_Max,
                                                 step: .001
-                                            } : {},
-                                            classes: {
-                                                disabled: plotsActiveTab !== 0 ? classes.visibleDisabledText : ''
-                                            }
+                                            } : {}
                                         }}
                                         InputLabelProps={{className:classes.padLeft}}
                                         onChange={this.handleChangeInputValue}
-                                        disabled={this.state.showDrawHelp || !vizPageDataTargetDetails || plotsActiveTab !== 0}
+                                        disabled={this.state.showDrawHelp || !vizPageDataTargetDetails}
                                     >
                                     </TextField>
 
@@ -1400,14 +1365,11 @@ class NewVizControlPanel extends React.Component {
                                                 min: details.Depth_Max ? details.Depth_Min : 0,
                                                 max: details.Depth_Max ? details.Depth_Max : 0,
                                                 step: .1
-                                            } : {},
-                                            classes: {
-                                                disabled: plotsActiveTab !== 0 ? classes.visibleDisabledText : ''
-                                            }
+                                            } : {}
                                         }}
                                         InputLabelProps={{className:classes.padLeft}}
                                         onChange={this.handleChangeInputValue}
-                                        disabled={this.state.showDrawHelp || this.state.surfaceOnly || !vizPageDataTargetDetails || plotsActiveTab !== 0}
+                                        disabled={this.state.showDrawHelp || this.state.surfaceOnly || !vizPageDataTargetDetails}
                                     >
                                     </TextField>
                                 </Grid>
@@ -1430,14 +1392,11 @@ class NewVizControlPanel extends React.Component {
                                                 min: details.Depth_Max ? details.Depth_Min : 0,
                                                 max: details.Depth_Max ? details.Depth_Max : 0,
                                                 step: .1
-                                            } : {},
-                                            classes: {
-                                                disabled: plotsActiveTab !== 0 ? classes.visibleDisabledText : ''
-                                            }
+                                            } : {}
                                         }}
                                         InputLabelProps={{className:classes.padLeft}}
                                         onChange={this.handleChangeInputValue}
-                                        disabled={this.state.showDrawHelp || this.state.surfaceOnly || !vizPageDataTargetDetails || plotsActiveTab !== 0}
+                                        disabled={this.state.showDrawHelp || this.state.surfaceOnly || !vizPageDataTargetDetails}
                                     >
                                     </TextField>
                                 </Grid>
@@ -1459,37 +1418,36 @@ class NewVizControlPanel extends React.Component {
                                     showChartControl={this.state.showChartControl}
                                     variableDetails={this.props.vizPageDataTargetDetails}
                                     handleVisualize={this.handleVisualize}
-                                    disabled={this.state.showDrawHelp || !vizPageDataTargetDetails || plotsActiveTab !== 0}
+                                    disabled={this.state.showDrawHelp || !vizPageDataTargetDetails}
                                 />  
 
                                 {
-                                    // charts.length && showControlPanel ?
+                                    charts.length && showControlPanel ?
                                     
-                                    // <Paper className={classes.popoutButtonPaper} style={{left: '281px', top: '343px'}}>
-                                    //     {/* <Tooltip title={showCharts ? 'Return to Globe' : 'Show Charts'}> */}
-                                    //     <Tooltip title={plotsActiveTab !== 0 ? 'Return to Globe' : 'Show Charts'}>
-                                    //         <IconButton disabled={this.state.showDrawHelp} className={classes.popoutButtonBase} onClick={this.handleShowChartsClick}>
-                                    //             {
-                                    //                 plotsActiveTab !== 0 ?
-                                    //                 <Language className={classes.popoutButtonIcon} style={{color:colors.primary}}/> 
-                                    //                 :                                                    
-                                    //                 <Badge badgeContent={charts.length} color='primary'>
-                                    //                     <ShowChart className={classes.popoutButtonIcon} style={{color:colors.primary}}/>
-                                    //                 </Badge>
-                                    //             }                                                
-                                    //         </IconButton>
-                                    //     </Tooltip>
-                                    // </Paper>
+                                    <Paper className={classes.popoutButtonPaper} style={{left: '281px', top: '343px'}}>
+                                        {/* <Tooltip title={showCharts ? 'Return to Globe' : 'Show Charts'}> */}
+                                        <Tooltip title={plotsActiveTab !== 0 ? 'Return to Globe' : 'Show Charts'}>
+                                            <IconButton disabled={this.state.showDrawHelp} className={classes.popoutButtonBase} onClick={this.handleShowChartsClick}>
+                                                {
+                                                    plotsActiveTab !== 0 ?
+                                                    <Language className={classes.popoutButtonIcon} style={{color:colors.primary}}/> 
+                                                    :                                                    
+                                                    <Badge badgeContent={charts.length} color='primary'>
+                                                        <ShowChart className={classes.popoutButtonIcon} style={{color:colors.primary}}/>
+                                                    </Badge>
+                                                }                                                
+                                            </IconButton>
+                                        </Tooltip>
+                                    </Paper>
 
-                                    // : ''
+                                    : ''
                                 }                                    
                             </Grid>
                                 {/* : ''
                             } */}
                             </>
                             {/* </Collapse> */}
-                            </div>
-                </Tooltip>
+
                 </Drawer>
                     <Paper className={classes.dataSearchMenuPaper} style={dataSearchMenuOpen ? {} : {display: 'none'}}>
                         <DataSearch
@@ -1499,8 +1457,7 @@ class NewVizControlPanel extends React.Component {
                             searchInputRef={this.searchInputRef}
                         />
                     </Paper>
-                    </React.Fragment>
-                    
+            </React.Fragment>
         )
 
     }

@@ -391,7 +391,7 @@ class Visualization extends Component {
     render(){
         const { classes } = this.props;
 
-        // if(!this.props.user) return <LoginRequiredPrompt/>
+        if(!this.props.user) return <LoginRequiredPrompt/>
 
         return (
             <div className={classes.vizWrapper}>

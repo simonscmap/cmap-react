@@ -1,4 +1,5 @@
 import * as dataSubmissionActionTypes from '../actionTypes/dataSubmission';
+import dataSubmission from '../Reducers/dataSubmission';
 
 export const retrieveDataSubmissionsByUser = () => ({
     type: dataSubmissionActionTypes.RETRIEVE_SUBMISSIONS_BY_USER
@@ -20,11 +21,13 @@ export const retrieveSubmissionCommentHistory = (submissionID) => ({
     }
 });
 
-export const uploadSubmission = ({ file, datasetName }) => ({
+export const uploadSubmission = ({ file, datasetName, datasetLongName, dataSource }) => ({
     type: dataSubmissionActionTypes.UPLOAD_SUBMISSION,
     payload: {
         file,
-        datasetName
+        datasetName,
+        datasetLongName,
+        dataSource
     }
 });
 
@@ -102,5 +105,12 @@ export const dataSubmissionSelectOptionsStore = (dataSubmissionSelectOptions) =>
     type: dataSubmissionActionTypes.DATA_SUBMISSION_SELECT_OPTION_STORE,
     payload: {
         dataSubmissionSelectOptions
+    }
+});
+
+export const dataSubmissionDelete = (submission) => ({
+    type: dataSubmissionActionTypes.DATA_SUBMISSION_DELETE,
+    payload: {
+        submission
     }
 });

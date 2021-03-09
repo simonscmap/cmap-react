@@ -6,14 +6,6 @@ import { Help } from '@material-ui/icons';
 import colors from '../../Enums/colors';
 import z from '../../Enums/zIndex';
 
-const mapStateToProps = (state, ownProps) => ({
-
-})
-
-const mapDispatchToProps = {
-
-}
-
 const styles = (theme) => ({
     showHelpButton: {
         marginRight: '-4px'
@@ -64,4 +56,4 @@ const HelpButtonAndDialog = (props) => {
     )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(HelpButtonAndDialog));
+export default withStyles(styles)(HelpButtonAndDialog);

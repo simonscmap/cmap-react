@@ -2,6 +2,7 @@ import { put, takeLatest, all, call, delay, select, debounce } from 'redux-saga/
 // import { eventChannel } from 'redux-saga';
 import Cookies from 'js-cookie';
 import queryString from 'query-string';
+import XLSX from 'xlsx';
 // import worker from '../worker';
 
 import * as userActions from './actions/user';
@@ -259,16 +260,29 @@ function* csvDownloadRequest(action){
 function* csvFromVizRequest(action){
     yield put(interfaceActions.setLoadingMessage('Processing Data'));
     const csvData = yield action.payload.vizObject.generateCsv();
+    let dataWB = XLSX.read(csvData, {type: 'string'});
 
     yield put(interfaceActions.setLoadingMessage('Fetching metadata'));
+
     const metadataQuery = `exec uspVariableMetadata '${action.payload.tableName}', '${action.payload.shortName}'`;
     let metadataResponse = yield call(api.visualization.csvDownload, metadataQuery);
-    yield put(interfaceActions.setLoadingMessage(''))
+    let metadataWB = XLSX.read(metadataResponse, {type: 'string'});
+
+    let workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, dataWB.Sheets.Sheet1, 'Data');
+    XLSX.utils.book_append_sheet(workbook, metadataWB.Sheets.Sheet1, 'Variable Metadata');
+    XLSX.writeFile(workbook, `${action.payload.longName}.xlsx`);
+    
+
+
+    yield put(interfaceActions.setLoadingMessage(''));
+
+    
 
     if(metadataResponse.failed) yield put(interfaceActions.snackbarOpen('Failed to download variable metadata'));
 
-    yield put(visualizationActions.downloadTextAsCsv(csvData, action.payload.longName));
-    yield put(visualizationActions.downloadTextAsCsv(metadataResponse, action.payload.longName + '_Metadata'));
+    // yield put(visualizationActions.downloadTextAsCsv(csvData, action.payload.longName));
+    // yield put(visualizationActions.downloadTextAsCsv(metadataResponse, action.payload.longName + '_Metadata'));
 }
 
 function* downloadTextAsCsv(action){
@@ -492,7 +506,7 @@ function* retrieveSubmissionCommentHistory(action) {
 
 function* uploadSubmission(action) {
     yield put(interfaceActions.setLoadingMessage('Uploading Workbook'));
-    let { file, datasetName } = action.payload;
+    let { file, datasetName, dataSource, datasetLongName } = action.payload;
     let fileSize = file.size;
 
     let chunkSize = 5 * 1024 * 1024;
@@ -577,6 +591,8 @@ function* uploadSubmission(action) {
     formData.append('fileName', datasetName);
     formData.append('offset', fileSize);
     formData.append('sessionID', sessionID);
+    formData.append('dataSource', dataSource);
+    formData.append('datasetLongName', datasetLongName);
 
     var commitSucceeded = false;
 
@@ -954,7 +970,6 @@ function* datasetSummaryFetch(action) {
 }
 
 function* vizPageDataTargetSetAndFetchDetails(action) {
-    console.log(action.payload.vizPageDataTarget)
     yield put(visualizationActions.vizPageDataTargetSet(action.payload.vizPageDataTarget));
     if(action.payload.vizPageDataTarget === null) return;
     
@@ -962,12 +977,24 @@ function* vizPageDataTargetSetAndFetchDetails(action) {
     
     if(response.ok){
         let variableDetails = yield response.json();
-        console.log(variableDetails);
         yield put(visualizationActions.vizPageDataTargetDetailsStore(variableDetails));
     }
 
     else {
         yield put(interfaceActions.snackbarOpen('Unable to fetch variable details. Please try again later'));
+    }
+}
+
+function* dataSubmissionDelete(action){
+    let result = yield call(api.dataSubmission.deleteSubmission, action.payload.submission.Submission_ID);
+    
+    if(result.ok){
+        yield put(dataSubmissionActions.retrieveAllSubmissions());
+        yield put(interfaceActions.snackbarOpen(`Successfully deleted ${action.payload.submission.Dataset}`));
+    }
+
+    else {
+        yield put(interfaceActions.snackbarOpen(`Failed to delete ${action.payload.submission.Dataset}`))
     }
 }
 
@@ -1179,6 +1206,10 @@ function* watchDataSubmissionSelectOptionsFetch(){
     yield takeLatest(dataSubmissionActionTypes.DATA_SUBMISSION_SELECT_OPTIONS_FETCH, dataSubmissionSelectOptionsFetch);
 }
 
+function* watchDataSubmissionDelete(){
+    yield takeLatest(dataSubmissionActionTypes.DATA_SUBMISSION_DELETE, dataSubmissionDelete);
+}
+
 // function createWorkerChannel(worker) {
 //     return eventChannel(emit => {
 //         worker.onmessage = message => {
@@ -1257,6 +1288,7 @@ export default function* rootSaga() {
         watchVariableFetch(),
         watchDatasetSummaryFetch(),
         watchVizPageDataTargetSetAndFetchDetails(),
-        watchDataSubmissionSelectOptionsFetch()
+        watchDataSubmissionSelectOptionsFetch(),
+        watchDataSubmissionDelete()
     ]);
 }

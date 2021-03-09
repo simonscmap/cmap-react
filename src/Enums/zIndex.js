@@ -1,5 +1,6 @@
 
 const options = {
+    SNACKBAR: 10000,
     LOADING_OVERLAY: 9000,
     NAVBAR_DROPDOWN: 8000,
     HELP_DIALOG: 7000,

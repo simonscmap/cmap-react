@@ -6,6 +6,8 @@ import { withStyles } from '@material-ui/core/styles';
 
 import { snackbarClose } from '../../Redux/actions/ui';
 
+import z from '../../Enums/zIndex';
+
 const mapStateToProps = (state, ownProps) => ({
     snackbarIsOpen: state.snackbarIsOpen,
     snackbarMessage: state.snackbarMessage
@@ -17,7 +19,9 @@ const mapDispatchToProps = {
 
 const styles = (theme) => {
     return ({
-
+        snackbar: {
+            zIndex: z.SNACKBAR
+        }
     })
 }
 
@@ -32,6 +36,7 @@ const SnackbarWrapper = (props) => {
                 onClose={props.snackbarClose}
                 open={props.snackbarIsOpen}
                 anchorOrigin={{horizontal:'center', vertical:'top'}}
+                className={classes.snackbar}
             />
         </React.Fragment>
     )

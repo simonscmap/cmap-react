@@ -149,17 +149,18 @@ export default (submissionOptions) => {
     
         dataset_short_name: [datasetRequired, codeFriendly, datasetLength(1, 50), firstRowOnly],
         dataset_long_name: [datasetRequired, datasetLength(1, 200), firstRowOnly],
-        dataset_version: [length(0, 50), firstRowOnly],
-        dataset_release_date: [releaseDate, firstRowOnly],
+        dataset_version: [datasetRequired, length(0, 50), firstRowOnly],
+        dataset_release_date: [datasetRequired, releaseDate, firstRowOnly],
         dataset_make: [datasetRequired, validMake, firstRowOnly],
         dataset_source: [datasetRequired, datasetLength(1, 100), firstRowOnly],
         dataset_distributor: [length(0, 100), firstRowOnly],
         dataset_acknowledgement: [datasetRequired, datasetLength(1, 10000)],
-        dataset_history: [length(0, 500), firstRowOnly],
+        dataset_history: [firstRowOnly],
         dataset_description: [datasetRequired, datasetLength(50, 10000), firstRowOnly],
-        dataset_references: [datasetRequired, datasetLength(1, 500)],
+
+        // Issue warning if no references
+        dataset_references: [datasetLength(1, 500)],
         climatology: [binary, firstRowOnly],
-        // contact_email: [validEmail, firstRowOnly],
         cruise_names: [datasetLength(0, 200)],
         
         var_short_name: [required, codeFriendly, length(1, 50)],
@@ -174,10 +175,3 @@ export default (submissionOptions) => {
         var_comment: []
     }
 }
-
-
-
-// match data column names to data_metadata
-// there should be at least 1 additional column 
-// check resolutions against time and lat/lon increments
-// keyword validation

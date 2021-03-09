@@ -40,6 +40,13 @@ export default (metadata, workbook) => {
         })
     }
 
+    cols.forEach(col => {
+        metadata.forEach((row) => {
+            let cellValue = row[col];
+            if(typeof cellValue === 'string') row[col] = cellValue.trim();
+        });
+    });
+
     return metadata;
 }
 

@@ -1,19 +1,22 @@
 import React, { Component } from 'react';
+import { withRouter } from "react-router";
 
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import { Search } from '@material-ui/icons';
 
 import * as JsSearch from 'js-search';
+import queryString from 'query-string';
 
-import { Accordion, AccordionSummary, Typography, FormGroup, FormControlLabel, Checkbox, TextField, InputAdornment } from '@material-ui/core';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { Button, Dialog, DialogContent, DialogActions,DialogTitle, Accordion, AccordionSummary, Typography, FormGroup, FormControlLabel, Checkbox, TextField, InputAdornment } from '@material-ui/core';
+import { ExpandMore, Delete } from '@material-ui/icons';
 
 import AdminDashboardPanelDetails from './AdminDashboardPanelDetails';
 
-import { retrieveAllSubmissions } from '../../Redux/actions/dataSubmission';
+import { retrieveAllSubmissions, dataSubmissionDelete } from '../../Redux/actions/dataSubmission';
 
 import colors from '../../Enums/colors';
+import z from '../../Enums/zIndex';
 
 const mapStateToProps = (state, ownProps) => ({
     user : state.user,
@@ -21,17 +24,17 @@ const mapStateToProps = (state, ownProps) => ({
 })
 
 const mapDispatchToProps = {
-    retrieveAllSubmissions
+    retrieveAllSubmissions,
+    dataSubmissionDelete
 }
 
 const styles = theme => ({
     wrapperDiv: {
-        width: '90vw',
+        width: '96vw',
         margin: '24px auto'
     },
 
     panelSummaryText: {
-        flexBasis: '40%',
         textAlign: 'left',
         paddingRight: '20px',
         fontSize: '.8rem'
@@ -53,39 +56,64 @@ const styles = theme => ({
     searchFieldWrapper: {
         flexBasis: '100%',
         textAlign: 'left'
-    }
+    },
+
+    preserveBackgroundWhenDisabled: {
+        backgroundColor: 'rgba(0,0,0,.3) !important'
+    },
+
+    dialogRoot: {
+        zIndex: `${z.HELP_DIALOG} !important`,
+        // zIndex: '31100 !important'
+    },
+
+    dialogPaper: {
+        backgroundColor: colors.solidPaper
+    },
+
+    button: {
+        textTransform: 'none',
+        color: 'white'
+    },
+
+
 })
 
 const initialFilterState = {
     'Awaiting admin action': true,
+    'Awaiting QC2': true,
     'Awaiting user update': true,
     'Awaiting DOI': true,
     'Awaiting ingestion': true,
     'Complete': false
-}
+};
 
 class AdminDashboard extends Component {
 
     constructor(props){
         super(props);
 
-        let params = new URLSearchParams(window.location.search)
-        let datasetName = params.get('datasetName') && params.get('datasetName').trim();
+        let params = queryString.parse(this.props.location.search);
+        let paramsIncludeFilterStates = Object.keys(params).some(e => initialFilterState[e] !== undefined);
 
         var search = new JsSearch.Search('Submission_ID');
         search.indexStrategy = new JsSearch.AllSubstringsIndexStrategy()
         search.searchIndex = new JsSearch.UnorderedSearchIndex();
         search.addIndex('Dataset');
         search.addIndex('Name');
+        search.addIndex('Dataset_Long_Name');
 
         if(props.dataSubmissions) search.addDocuments(props.dataSubmissions);
 
+        let filters = Object.fromEntries(Object.keys(initialFilterState).map(e => [e, paramsIncludeFilterStates ? params[e] === 'true' : initialFilterState[e]]));
+
         this.state = {
-            searchString: datasetName || '',
+            searchString: params.datasetName || '',
             search,
             expandedPanel: false,
-            filters: initialFilterState,
-            modifiedDatasetID: null
+            filters,
+            modifiedDatasetID: null,
+            deleteTarget: null
         }
     }
 
@@ -115,7 +143,9 @@ class AdminDashboard extends Component {
     handleChangeFilter = (e) => {
         let newFilterState = {...this.state.filters};
         newFilterState[e.target.name] = !newFilterState[e.target.name];
+
         this.setState({...this.state, filters: {...newFilterState}});
+        this.props.history.push(`/datasubmission/admindashboard?${queryString.stringify(newFilterState)}`);
     }
 
     handleChangeSearchString = (e) => {
@@ -126,9 +156,22 @@ class AdminDashboard extends Component {
         this.setState({...this.state, expandedPanel: false});
     }
 
+    handleSelectDeleteTarget = (submissionID) => {
+        this.setState({...this.state, deleteTarget: submissionID})
+    }
+
+    handleCloseDeleteDialog = () => {
+        this.setState({...this.state, deleteTarget: null});
+    }
+
+    handleConfirmDelete = () => {
+        this.props.dataSubmissionDelete(this.state.deleteTarget);
+        this.setState({...this.state, deleteTarget: null, expandedPanel: false});
+    }
+
     render = () => {
         const { classes, dataSubmissions } = this.props;
-        const { search, searchString } = this.state;
+        const { search, searchString, deleteTarget } = this.state;
         
         let submissions = searchString ? 
             search.search(searchString).filter(item => this.state.filters[item.Phase]) :
@@ -136,6 +179,47 @@ class AdminDashboard extends Component {
 
         return (
             <div className={classes.wrapperDiv}>
+
+                <Dialog 
+                    onClose={this.handleCloseDeleteDialog} 
+                    open={Boolean(deleteTarget)}
+                    PaperProps={{
+                        className: classes.dialogPaper
+                    }}
+                    classes={{
+                        root: classes.dialogRoot
+                    }}
+                >
+                    <DialogTitle>Deleting {deleteTarget ? deleteTarget.Dataset : ''}</DialogTitle>
+
+                    <DialogContent>
+                        This action will permanently delete all database records of this submission including references to all uploaded versions, and comments. Workbooks in dropbox
+                        will not be affected.
+                    </DialogContent>
+                        
+                    <DialogActions>
+                        <Button
+                            color='primary'
+                            className={classes.button}
+                            variant='outlined'
+                            onClick={this.handleCloseDeleteDialog}
+                        >
+                            Cancel
+                        </Button>
+
+                        <Button
+                            variant='contained'
+                            color='primary'
+                            startIcon={<Delete/>}
+                            className={classes.button}
+                            onClick={this.handleConfirmDelete}
+                        >
+                            Confirm Delete {deleteTarget ? deleteTarget.Dataset : ''} Forever
+                        </Button>
+
+                    </DialogActions>
+                </Dialog>
+
                 <FormGroup row className={classes.filterFormGroup}>
                     <div className={classes.searchFieldWrapper}>
                         <TextField
@@ -152,7 +236,24 @@ class AdminDashboard extends Component {
                         }}
                         />
                     </div>
-                        <FormControlLabel
+                    {
+                        Object.keys(initialFilterState).map(e => (
+                            <FormControlLabel
+                            key={e}
+                            control={
+                                <Checkbox
+                                    checked={this.state.filters[e]}
+                                    onChange={this.handleChangeFilter}
+                                    name={e}
+                                    color="primary"
+                                />
+                            }
+                            label={e}
+                            className={classes.filterFormControl}
+                        />
+                        ))
+                    }
+                        {/* <FormControlLabel
                             control={
                                 <Checkbox
                                     checked={this.state.filters["Awaiting admin action"]}
@@ -162,6 +263,19 @@ class AdminDashboard extends Component {
                                 />
                             }
                             label="Awaiting admin action"
+                            className={classes.filterFormControl}
+                        />
+
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={this.state.filters["Awaiting QC2"]}
+                                    onChange={this.handleChangeFilter}
+                                    name="Awaiting QC2"
+                                    color="primary"
+                                />
+                            }
+                            label="Awaiting QC2"
                             className={classes.filterFormControl}
                         />
 
@@ -215,33 +329,90 @@ class AdminDashboard extends Component {
                             }
                             label="Complete"
                             className={classes.filterFormControl}
-                            />
+                            /> */}
                     </FormGroup>
 
                 {submissions && submissions.length ?
 
-                <React.Fragment>                    
+                <React.Fragment>
+                    <Accordion
+                        disabled={true}
+                        classes={{
+                            disabled: classes.preserveBackgroundWhenDisabled
+                        }}
+                    >
+                        <AccordionSummary expandIcon={<ExpandMore/>}>
+                            <Typography noWrap className={classes.panelSummaryText} style={{flexBasis:'23%'}}>
+                                Dataset Long Name
+                            </Typography>
+
+                            <Typography noWrap className={classes.panelSummaryText} style={{flexBasis:'15%'}}>
+                                Dataset Short Name
+                            </Typography>
+
+                            <Typography noWrap className={classes.panelSummaryText} style={{flexBasis:'15%'}}>
+                                Data Source
+                            </Typography>
+
+                            <Typography noWrap className={classes.panelSummaryText} style={{flexBasis:'15%'}}>
+                                Submitter Name
+                            </Typography>
+
+                            <Typography noWrap className={classes.panelSummaryText} style={{flexBasis:'12%'}}>
+                                Submission Phase
+                            </Typography>
+
+                            <Typography noWrap className={classes.panelSummaryText} style={{flexBasis:'10%'}}>
+                                Date of Submission
+                            </Typography>
+
+                            <Typography noWrap className={classes.panelSummaryText} style={{flexBasis:'10%'}}>
+                                Date of Ingestion
+                            </Typography>
+                        </AccordionSummary>
+                    </Accordion>                  
                     {
                         submissions.map((e, i) => (
                             <Accordion 
                                 // expanded={e.expandPanel} 
-                                expanded={this.state.expandedPanel === i}
-                                onChange={() => this.handleExpansion(i)} 
+                                expanded={this.state.expandedPanel === e.Submission_ID}
+                                onChange={() => this.handleExpansion(e.Submission_ID)} 
                                 key={i}
                                 TransitionProps={{ unmountOnExit: true }}
                             >
-                                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                                    <Typography noWrap className={classes.panelSummaryText}>
+                                <AccordionSummary expandIcon={<ExpandMore/>}>
+                                    <Typography noWrap className={classes.panelSummaryText} style={{flexBasis:'23%'}}>
+                                        {e.Dataset_Long_Name}
+                                    </Typography>
+
+                                    <Typography noWrap className={classes.panelSummaryText} style={{flexBasis:'15%'}}>
                                         {e.Dataset}
                                     </Typography>
+
+                                    <Typography noWrap className={classes.panelSummaryText} style={{flexBasis:'15%'}}>
+                                        {e.Data_Source}
+                                    </Typography>
+
+                                    <Typography noWrap className={classes.panelSummaryText} style={{flexBasis:'15%'}}>
+                                        {e.Name}
+                                    </Typography>
     
-                                    <Typography noWrap className={classes.panelSummaryText}>
+                                    <Typography noWrap className={classes.panelSummaryText} style={{flexBasis:'12%'}}>
                                         {e.Phase}
+                                    </Typography>
+
+                                    <Typography noWrap className={classes.panelSummaryText} style={{flexBasis:'10%'}}>
+                                        {e.Start_Date_Time.slice(0,10)}
+                                    </Typography>
+
+                                    <Typography noWrap className={classes.panelSummaryText} style={{flexBasis:'10%'}}>
+                                        {e.Ingestion_Date_Time ? e.Ingestion_Date_Time.slice(0,10) : 'NA'}
                                     </Typography>
                                 </AccordionSummary>
                                 <AdminDashboardPanelDetails 
                                     submission={e} 
                                     handleResetExpandedPanel={this.handleResetExpandedPanel}
+                                    handleSelectDeleteTarget={this.handleSelectDeleteTarget}
                                 />
                             </Accordion>
                         ))
@@ -259,4 +430,4 @@ class AdminDashboard extends Component {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(AdminDashboard));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withRouter(AdminDashboard)));

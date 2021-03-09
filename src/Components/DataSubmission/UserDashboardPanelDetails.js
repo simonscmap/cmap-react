@@ -47,6 +47,12 @@ const styles = (theme) => ({
     newUpload: {
         marginLeft: '2vw',
         cursor: 'pointer'
+    },
+
+    labelTimeStamp: {
+        opacity: .9,
+        fontSize: '11px',
+        display: 'block'
     }
 });
 
@@ -63,19 +69,28 @@ const mapDispatchToProps = {
 
 const steps = [
     {
-        label: 'Submission'
+        label: 'Submission',
+        timeStampKey: 'Start_Date_Time'
     },
 
     {
-        label: 'Admin Approval'
+        label: 'Admin Review and Feedback',
+        timeStampKey: 'QC1_Completion_Date_Time'
     },
 
     {
-        label: 'DOI'
+        label: 'Secondary Admin Review',
+        timeStampKey: 'QC2_Completion_Date_Time'
     },
 
     {
-        label: 'Ingestion'
+        label: 'DOI',
+        timeStampKey: 'DOI_Accepted_Date_Time'
+    },
+
+    {
+        label: 'Ingestion',
+        timeStampKey: 'Ingestion_Date_Time'
     }
 ]
 
@@ -96,14 +111,22 @@ const UserDashboardPanelDetails = (props) => {
 
         case 'Awaiting user update':
             activeStep = 1;
-            break;  
+            break;
 
-        case 'Awaiting DOI':
+        case 'Awaiting QC2':
             activeStep = 2;
             break;
 
-        case 'Awaiting ingestion':
+        case 'Awaiting DOI':
             activeStep = 3;
+            break;
+
+        case 'Awaiting ingestion':
+            activeStep = 4;
+            break;
+
+        case 'Complete':
+            activeStep = 6;
             break;
 
         default:
@@ -119,7 +142,7 @@ const UserDashboardPanelDetails = (props) => {
         props.addSubmissionComment(submission.Submission_ID, comment, 'user');
         setComment('');
     }
-
+    
     return (
         <AccordionDetails className={classes.panelDetails}>
             <Stepper 
@@ -132,6 +155,7 @@ const UserDashboardPanelDetails = (props) => {
                             <Step key={i}>
                                 <StepLabel>
                                     {item.label}
+                                    <span className={classes.labelTimeStamp}>{submission[item.timeStampKey] && activeStep > i ? submission[item.timeStampKey].slice(0, 10) : ''}</span>
                                 </StepLabel>
                             </Step>
                         )
