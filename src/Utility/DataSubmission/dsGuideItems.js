@@ -473,13 +473,13 @@ const guideItems = {
             text: [
                 <React.Fragment>
                     Indicates in which disciplines (such as Physics, Biology …) this variable is commonly studied. You can specify more than one 
-                    discipline. If you list multiple disciplines per variable, please separate them by comma. var_discipline will be visible in 
+                    discipline. If you list multiple disciplines per variable, please separate them by +. var_discipline will be visible in 
                     the Simons CMAP catalog (referred to as “Study Domain” in <Link href='#fig-9'>Fig. 9</Link>).
                 </React.Fragment>
             ],
             plainText: [`
                 Indicates in which disciplines (such as Physics, Biology …) this variable is commonly studied. You can specify more than one 
-                discipline. If you list multiple disciplines per variable, please separate them by comma. var_discipline will be visible in 
+                discipline. If you list multiple disciplines per variable, please separate them by +. var_discipline will be visible in 
                 the Simons CMAP catalog (referred to as “Study Domain”).
             `],
             bullets: [
