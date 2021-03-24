@@ -160,11 +160,10 @@ class DownloadDialog extends Component {
 
     handleSubsetDownload = (tableName, dt1, dt2, lat1, lat2, lon1, lon2, depth1, depth2) => {
         let isMonthyClimatology = Boolean(this.props.dataset.Temporal_Resolution === temporalResolutions.monthlyClimatology);
-
         const timeUnit = isMonthyClimatology ? 'month' : 'time';
         const timeStart = isMonthyClimatology ? new Date(dt1).getMonth() + 1 : dt1;
         const timeEnd = isMonthyClimatology ? new Date(dt2).getMonth() + 1 : dt2;
-
+        // + 'T23:59:59Z'
         let query = `select * from ${tableName} where ${timeUnit} between '${timeStart}' and '${timeEnd}' and ` +
             `lat between ${lat1} and ${lat2} and ` +
             `lon between ${lon1} and ${lon2}`;

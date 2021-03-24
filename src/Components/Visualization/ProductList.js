@@ -112,7 +112,17 @@ const MakeGroup = connect(mapStateToProps, mapDispatchToProps)(withStyles(makeGr
     const [ openIndex, setOpenIndex ] = React.useState(null);
 
     const handleSetOpenClick = (i) => {
-        if(listRef.current) listRef.current.resetAfterIndex(0);
+        if(listRef.current) {
+            listRef.current.resetAfterIndex(0);
+            
+            // Make sure the group being opened is in view
+            let currentOffset = listRef.current.state.scrollOffset;
+            let targetOffset = i * 38;
+
+            if(i !== null && (targetOffset < currentOffset - 10 || targetOffset > currentOffset + props.height - 20)){
+                setTimeout(() => listRef.current.scrollToItem(i, 'start'), 10);
+            }
+        }
         setOpenIndex(i);
     }
 

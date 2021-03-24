@@ -371,7 +371,7 @@ class NewVizControlPanel extends React.Component {
 
             let { lat1, lat2, lon1, lon2 } = derivedParams;
 
-            if(irregularSpatialResolution){
+            if(irregularSpatialResolution && this.props.globeUIRef.current){
                 this.props.globeUIRef.current.props.view.goTo({
                     target: [(parseFloat(lon1) + parseFloat(lon2)) / 2, (parseFloat(lat1) + parseFloat(lat2)) / 2],
                     zoom: 3
@@ -381,6 +381,11 @@ class NewVizControlPanel extends React.Component {
                 }); 
             }
 
+            // console.log(irregularSpatialResolution)
+            // console.log()
+            if(!irregularSpatialResolution && data.temporalResolution !== temporalResolutions.monthlyClimatology){
+                this.props.snackbarOpen('Default parameters for satellite and model data will exceed the maximum visualizable size. Please reduce the time range or region size.')
+            }
             
             this.setState({...this.state,
                 surfaceOnly,
@@ -595,45 +600,46 @@ class NewVizControlPanel extends React.Component {
         if(!vizPageDataTargetDetails) return 0;        
 
         if(vizPageDataTargetDetails.Spatial_Resolution === spatialResolutions.irregular) {
-            let sparseDataUncertaintyMultiplier = 4;
-            let totalCount = vizPageDataTargetDetails.Lat_Count;
-            let totalTime = Date.parse(vizPageDataTargetDetails.Time_Max) - Date.parse(vizPageDataTargetDetails.Time_Min);
-            let subsetTime = Date.parse(dt2) - Date.parse(dt1) + 86400000;
-            let timeRatio = totalTime === 0 ? 1
-                : subsetTime === 0 ? 86400000 / totalTime
-                : subsetTime / totalTime;
+            return 1;
+            // let sparseDataUncertaintyMultiplier = 4;
+            // let totalCount = vizPageDataTargetDetails.Lat_Count;
+            // let totalTime = Date.parse(vizPageDataTargetDetails.Time_Max) - Date.parse(vizPageDataTargetDetails.Time_Min);
+            // let subsetTime = Date.parse(dt2) - Date.parse(dt1) + 86400000;
+            // let timeRatio = totalTime === 0 ? 1
+            //     : subsetTime === 0 ? 86400000 / totalTime
+            //     : subsetTime / totalTime;
             
-            let totalLat = vizPageDataTargetDetails.Lat_Max - vizPageDataTargetDetails.Lat_Min;
-            let subsetLat = lat2 - lat1;
-            let latRatio = totalLat === 0 ? 1
-                : subsetLat === 0 ? 1/totalLat
-                : subsetLat/totalLat;
-            latRatio = latRatio > 1 ? 1 : latRatio;
+            // let totalLat = vizPageDataTargetDetails.Lat_Max - vizPageDataTargetDetails.Lat_Min;
+            // let subsetLat = lat2 - lat1;
+            // let latRatio = totalLat === 0 ? 1
+            //     : subsetLat === 0 ? 1/totalLat
+            //     : subsetLat/totalLat;
+            // latRatio = latRatio > 1 ? 1 : latRatio;
 
-            let totalLon = vizPageDataTargetDetails.Lon_Max - vizPageDataTargetDetails.Lon_Min;
-            let subsetLon = lon2 >= lon1 ? lon2 - lon1 :
-                (180 - lon1) + (lon2 + 180)
-            let lonRatio = totalLon === 0 ? 1
-                : subsetLon === 0 ? 1/totalLon
-                : subsetLon / totalLon;
-            lonRatio = lonRatio > 1 ? 1 : lonRatio;
+            // let totalLon = vizPageDataTargetDetails.Lon_Max - vizPageDataTargetDetails.Lon_Min;
+            // let subsetLon = lon2 >= lon1 ? lon2 - lon1 :
+            //     (180 - lon1) + (lon2 + 180)
+            // let lonRatio = totalLon === 0 ? 1
+            //     : subsetLon === 0 ? 1/totalLon
+            //     : subsetLon / totalLon;
+            // lonRatio = lonRatio > 1 ? 1 : lonRatio;
 
-            let depthRatio;
+            // let depthRatio;
 
-            if(vizPageDataTargetDetails.Depth_Max){
-                let totalDepth = vizPageDataTargetDetails.Depth_Max - vizPageDataTargetDetails.Depth_Min;
-                let subsetDepth = depth2 - depth1;
-                depthRatio = totalDepth === 0 ? 1
-                    : subsetDepth === 0 ? 1/totalDepth
-                    : subsetDepth / totalDepth;
-            }
+            // if(vizPageDataTargetDetails.Depth_Max){
+            //     let totalDepth = vizPageDataTargetDetails.Depth_Max - vizPageDataTargetDetails.Depth_Min;
+            //     let subsetDepth = depth2 - depth1;
+            //     depthRatio = totalDepth === 0 ? 1
+            //         : subsetDepth === 0 ? 1/totalDepth
+            //         : subsetDepth / totalDepth;
+            // }
 
-            else depthRatio = 1;
-            let final = totalCount * timeRatio * latRatio * lonRatio * depthRatio * sparseDataUncertaintyMultiplier;
+            // else depthRatio = 1;
+            // let final = totalCount * timeRatio * latRatio * lonRatio * depthRatio * sparseDataUncertaintyMultiplier;
             
-            if(selectedVizType === vizSubTypes.timeSeries || selectedVizType === vizSubTypes.depthProfile) return final / 2;
+            // if(selectedVizType === vizSubTypes.timeSeries || selectedVizType === vizSubTypes.depthProfile) return final / 2;
 
-            return final;
+            // return final;
         }
         
         else {
