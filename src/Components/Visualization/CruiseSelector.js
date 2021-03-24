@@ -241,7 +241,7 @@ const defaultSearchAndFilterState = {
     selectedChiefScientists: new Set(), 
     selectedRegions: new Set(), 
     searchField: '',
-    openYearGroupIndex: null,
+    openYearGroup: null,
     selectedSeries: new Set()
 };
 
@@ -310,7 +310,7 @@ class CruiseSelector extends Component {
         this.setState({...this.state, selectedCruise: selection, searchMenuOpen: false});
     }
 
-    componentDidUpdate = (prevProps) => {
+    componentDidUpdate = (prevProps, prevState) => {
         if(!(prevProps.cruiseList && prevProps.cruiseList.length) && (this.props.cruiseList && this.props.cruiseList.length)){
             this.state.search.addDocuments(this.props.cruiseList);         
             let { cruisesGroupedByYear, cruises } = searchFilterGroupCruises(this.props.cruiseList, '', new Set(), new Set(), new Set(), new Set(), this.state.search);
@@ -318,6 +318,8 @@ class CruiseSelector extends Component {
 
             this.setState({...this.state, cruisesGroupedByYear, cruises, optionSets});
         }
+
+        if(prevState.cruisesGroupedByYear !== this.state.cruisesGroupedByYear) listRef.current.resetAfterIndex(0);
     }
 
     handleChangeSearchValue = (e) => {
@@ -341,7 +343,7 @@ class CruiseSelector extends Component {
             Regions: this.state.selectedRegions.size ? oldOptionSets.Regions : newOptionSets.Regions,
             Series: this.state.selectedSeries.size ? oldOptionSets.Series : newOptionSets.Series
         };
-
+        
         this.setState({...this.state, searchField: e.target.value, cruisesGroupedByYear, cruises, optionSets});
     }
 
@@ -415,22 +417,22 @@ class CruiseSelector extends Component {
         this.setState({...tempNewState, cruisesGroupedByYear, cruises, optionSets});
     }
 
-    handleSetOpenYearGroupIndex = (i) => {
+    handleSetopenYearGroup = (index, year) => {
         if(listRef.current) {
 
             // Make sure the group being opened is in view
             let listHeight = this.props.windowHeight - 249;
             let currentOffset = listRef.current.state.scrollOffset;
-            let targetOffset = i * 38;
+            let targetOffset = index * 38;
 
-            if(i !== null && (targetOffset < currentOffset - 10 || targetOffset > currentOffset + listHeight - 20)){
-                setTimeout(() => listRef.current.scrollToItem(i, 'start'), 10);
+            if(index !== null && (targetOffset < currentOffset - 10 || targetOffset > currentOffset + listHeight - 20)){
+                setTimeout(() => listRef.current.scrollToItem(index, 'start'), 10);
             }
 
             listRef.current.resetAfterIndex(0);
         }
 
-        this.setState({...this.state, openYearGroupIndex: this.state.openYearGroupIndex === i ? null : i});
+        this.setState({...this.state, openYearGroup: this.state.openYearGroup === year ? null : year});
     }
 
     render(){
@@ -442,7 +444,7 @@ class CruiseSelector extends Component {
             selectedChiefScientists, 
             selectedRegions,
             selectedSeries,
-            openYearGroupIndex ,
+            openYearGroup,
             optionSets,
             cruisesGroupedByYear,
             cruises
@@ -559,7 +561,7 @@ class CruiseSelector extends Component {
                             width='100%'
                             estimatedItemSize={38}
                             style={{overflowY: 'scroll'}}
-                            itemSize={(i) => openYearGroupIndex === i ? cruisesGroupedByYear[i].cruises.length * 32 + 38 + 4 + 10 : 38}
+                            itemSize={(i) => openYearGroup === cruisesGroupedByYear[i].year ? cruisesGroupedByYear[i].cruises.length * 32 + 38 + 4 + 10 : 38}
                         >
 
                             {({ index, style }) => (
@@ -567,22 +569,18 @@ class CruiseSelector extends Component {
                                     <Grid 
                                         container 
                                         className={classes.searchOption}
-                                        onClick={() => this.handleSetOpenYearGroupIndex(index)}
+                                        onClick={() => this.handleSetopenYearGroup(index, cruisesGroupedByYear[index].year)}
                                     >            
                                         <Grid item xs={2} container alignItems='center'>
-                                            {openYearGroupIndex === index ? 
+                                            {openYearGroup === cruisesGroupedByYear[index].year ? 
                                                 <ExpandMore className={classes.datasetOpenIcon}/> : 
                                                 <ChevronRight className={classes.datasetOpenIcon}/>
                                             }
                                             <span className={classes.searchOptionsMenuItemText}>{cruisesGroupedByYear[index].year}</span>
                                         </Grid>
 
-                                        <Grid item xs={3} md={2}>
+                                        <Grid item xs={7}>
 
-                                        </Grid>
-
-                                        <Grid item xs={3}>
-                                            
                                         </Grid>
 
                                         <Tooltip title={`${cruisesGroupedByYear[index].cruises.length} cruises from this year match the search criteria`}>
@@ -593,10 +591,10 @@ class CruiseSelector extends Component {
                                     </Grid>
                                     
                                     {
-                                        index === openYearGroupIndex ?
+                                        cruisesGroupedByYear[index].year === openYearGroup ?
                                         <Grid container className={classes.variablesWrapper}>
                                             <Grid item container alignItems='center'>
-                                                <Grid item xs={2} md={1}> </Grid>
+                                                <Grid item xs={1}> </Grid>
 
                                                 <Grid item xs={2} className={classes.cruiseYearHeader}>
                                                     Official Designation
@@ -617,7 +615,7 @@ class CruiseSelector extends Component {
                                                     alignItems='center'
                                                     onClick={() => this.handleCruiseSelect(e)}
                                                 >   
-                                                    <Grid item xs={2} md={1}></Grid>
+                                                    <Grid item xs={1}></Grid>
 
                                                     <Grid item xs={2} className={classes.cruiseName}>{e.Name}</Grid>
 
