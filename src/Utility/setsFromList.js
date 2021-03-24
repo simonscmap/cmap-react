@@ -6,7 +6,11 @@ const setsFromList = (list, setKeys) => {
 
     list.forEach(item => {
         setKeys.forEach(key => {
-            if(item[key]) result[key].add(item[key]);
+            if(Array.isArray(item[key])){
+                item[key].forEach(subItem => result[key].add(subItem));
+            }
+
+            else if(item[key]) result[key].add(item[key]);
         })
     });
 

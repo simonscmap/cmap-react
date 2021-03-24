@@ -36,7 +36,7 @@ const mapDispatchToProps = {
 }
 
 // User for all histograms sparse or otherwise
-const SparseHistogram = (props) => {
+const SparseHistogram = React.memo((props) => {
     const { csvFromVizRequestSend } = props;
     const { data } = props.chart;
     const { metadata, parameters } = data;
@@ -57,7 +57,7 @@ const SparseHistogram = (props) => {
     const depth = !data.hasDepth ? 'Surface' :
         parameters.depth1 === parameters.depth2 ? `${parameters.depth1}[m]` :
         `${parameters.depth1}[m] to ${parameters.depth2}[m]`;
-
+    console.log('rendering a sparse histogram');
     return (
         <React.Fragment>
             <ChartControlPanel
@@ -69,6 +69,16 @@ const SparseHistogram = (props) => {
                 // display:'inline-block',
                 width: '60vw',
                 height: '40vw'
+            }}
+
+            onHover={(e, e2) => {
+                console.log(e);
+                console.log(e2)
+            }}
+
+            onUnhover={(e, e2) => {
+                console.log(e);
+                console.log(e2)
             }}
 
             useResizeHandler={true}
@@ -113,6 +123,6 @@ const SparseHistogram = (props) => {
         />
         </React.Fragment>
     )
-}
+})
 
 export default connect(null, mapDispatchToProps)(withStyles(styles)(SparseHistogram));

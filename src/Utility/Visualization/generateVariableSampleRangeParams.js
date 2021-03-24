@@ -7,7 +7,8 @@ const generateVariableSampleRangeParams = (varDetails) => {
         varDetails.Time_Min.slice(0, 10);
     let dt2 = varDetails.Temporal_Resolution === temporalResolutions.monthlyClimatology ?
         1 : 
-        varDetails.Time_Min.slice(0, 10);
+        // varDetails.Time_Min.slice(0, 10);
+        varDetails.Time_Max.slice(0, 10);
 
     let lat1 = Math.floor(varDetails.Lat_Min * 1000) /1000;
     let lat2 = Math.ceil(varDetails.Lat_Max * 1000) /1000;

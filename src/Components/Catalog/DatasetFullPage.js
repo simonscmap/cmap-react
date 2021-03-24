@@ -508,7 +508,7 @@ const DatasetFullPage = (props) => {
                                     {!loading ?
                                         References.map((reference, i) => (
                                             <Typography className={classes.smallText} key={i} style={{color: 'white'}}>
-                                                {reference}
+                                                {reference.match(/^\b(https?|ftp|file):\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;]*[\-A-Za-z0-9+&@#\/%=~_|]$/) ? <Link href={reference} target='_blank' style={{color: colors.primary}}>{reference}</Link>: reference}
                                             </Typography>
                                         )) : ''}                            
                             </React.Fragment>

@@ -8,7 +8,7 @@ import { Search } from '@material-ui/icons';
 import * as JsSearch from 'js-search';
 import queryString from 'query-string';
 
-import { Button, Dialog, DialogContent, DialogActions,DialogTitle, Accordion, AccordionSummary, Typography, FormGroup, FormControlLabel, Checkbox, TextField, InputAdornment } from '@material-ui/core';
+import { Button, Dialog, DialogContent, DialogActions,DialogTitle, Accordion, AccordionSummary, Typography, FormGroup, FormControlLabel, Checkbox, TextField, InputAdornment, Tooltip } from '@material-ui/core';
 import { ExpandMore, Delete } from '@material-ui/icons';
 
 import AdminDashboardPanelDetails from './AdminDashboardPanelDetails';
@@ -381,21 +381,29 @@ class AdminDashboard extends Component {
                                 TransitionProps={{ unmountOnExit: true }}
                             >
                                 <AccordionSummary expandIcon={<ExpandMore/>}>
-                                    <Typography noWrap className={classes.panelSummaryText} style={{flexBasis:'23%'}}>
-                                        {e.Dataset_Long_Name}
-                                    </Typography>
+                                    <Tooltip title={e.Dataset_Long_Name} enterDelay={500}>
+                                        <Typography noWrap className={classes.panelSummaryText} style={{flexBasis:'23%'}}>
+                                            {e.Dataset_Long_Name}
+                                        </Typography>
+                                    </Tooltip>
 
-                                    <Typography noWrap className={classes.panelSummaryText} style={{flexBasis:'15%'}}>
-                                        {e.Dataset}
-                                    </Typography>
+                                    <Tooltip title={e.Dataset} enterDelay={500}>
+                                        <Typography noWrap className={classes.panelSummaryText} style={{flexBasis:'15%'}}>
+                                            {e.Dataset}
+                                        </Typography>
+                                    </Tooltip>
 
-                                    <Typography noWrap className={classes.panelSummaryText} style={{flexBasis:'15%'}}>
-                                        {e.Data_Source}
-                                    </Typography>
+                                    <Tooltip title={e.Data_Source} enterDelay={500}>
+                                        <Typography noWrap className={classes.panelSummaryText} style={{flexBasis:'15%'}}>
+                                            {e.Data_Source}
+                                        </Typography>
+                                    </Tooltip>
 
-                                    <Typography noWrap className={classes.panelSummaryText} style={{flexBasis:'15%'}}>
-                                        {e.Name}
-                                    </Typography>
+                                    <Tooltip title={e.Name} enterDelay={500}>
+                                        <Typography noWrap className={classes.panelSummaryText} style={{flexBasis:'15%'}}>
+                                            {e.Name}
+                                        </Typography>
+                                    </Tooltip>
     
                                     <Typography noWrap className={classes.panelSummaryText} style={{flexBasis:'12%'}}>
                                         {e.Phase}
@@ -408,7 +416,9 @@ class AdminDashboard extends Component {
                                     <Typography noWrap className={classes.panelSummaryText} style={{flexBasis:'10%'}}>
                                         {e.Ingestion_Date_Time ? e.Ingestion_Date_Time.slice(0,10) : 'NA'}
                                     </Typography>
+
                                 </AccordionSummary>
+                                
                                 <AdminDashboardPanelDetails 
                                     submission={e} 
                                     handleResetExpandedPanel={this.handleResetExpandedPanel}
