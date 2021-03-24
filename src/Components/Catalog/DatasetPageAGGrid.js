@@ -18,6 +18,18 @@ const rendererStyles = (theme) => ({
         backgroundColor: colors.solidPaper,
         color: 'white',
         padding: '12px'
+    },
+
+    markdown: {
+        '& img': {
+            maxWidth: '100%',
+            margin: '20px auto 20px auto',
+            display: 'block'
+        },
+        '& a': {
+            color: colors.primary,
+            textDecoration: 'none'
+        }
     }
 })
 
@@ -40,7 +52,7 @@ const CommentCellRenderer = withStyles(rendererStyles)((props) => {
             </Link>
 
             <Dialog open={open} onClose={() => setOpen(false)} classes={{paper: classes.dialogPaper}}>
-                <ReactMarkdown source={value}/>
+                <ReactMarkdown source={value} className={classes.markdown}/>
             </Dialog>
         </React.Fragment>
     )

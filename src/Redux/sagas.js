@@ -215,6 +215,7 @@ function* cruiseListRequest() {
     if(!cruiseList) {
         yield put(visualizationActions.cruiseListRequestFailure());
     } else{
+        cruiseList.forEach(cruise => cruise.Regions = cruise.Regions.split(','))
         yield put(visualizationActions.cruiseListRequestSuccess(cruiseList));
     }
 }

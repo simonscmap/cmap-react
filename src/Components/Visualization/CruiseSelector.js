@@ -4,21 +4,27 @@ import { Link as RouterLink } from 'react-router-dom';
 
 import Select, { components } from 'react-select';
 import * as JsSearch from 'js-search';
+import { VariableSizeList } from 'react-window';
 
 import { withStyles } from '@material-ui/core/styles';
 import { Search, ZoomOutMap } from '@material-ui/icons';
-import { Table, TableBody, TableCell, TableRow, Link, Icon, Tooltip } from '@material-ui/core';
+import { Table, TableBody, TableCell, TableRow, Link, Icon, Tooltip, Grid, Typography, TextField, InputAdornment, Paper, Button } from '@material-ui/core';
+import { Close, ExpandMore, ChevronRight } from '@material-ui/icons';
 
 import { cruiseListRequestSend, cruiseTrajectoryRequestSend, cruiseTrajectoryClear } from '../../Redux/actions/visualization';
+
+import HelpButtonAndDialog from '../UI/HelpButtonAndDialog';
+import MultiCheckboxDropdown from '../UI/MultiCheckboxDropdown';
 
 import states from '../../Enums/asyncRequestStates';
 import colors from '../../Enums/colors';
 import z from '../../Enums/zIndex';
-import HelpButtonAndDialog from '../UI/HelpButtonAndDialog';
+import setsFromList from '../../Utility/setsFromList';
 
 const mapStateToProps = (state, ownProps) => ({
     cruiseList: state.cruiseList,
-    getCruiseListState: state.getCruiseListState
+    getCruiseListState: state.getCruiseListState,
+    windowHeight: state.windowHeight
 })
 
 const mapDispatchToProps = {
@@ -76,42 +82,177 @@ const styles = theme => ({
     linkWrapper: {
         padding: '12px',
         fontSize: '14px'
+    },
+
+    searchMenuPaper: {
+        position: 'fixed',
+        top: 120,
+        bottom: 60,
+        left: 0,
+        width: '98vw',
+        height: 'auto',
+        zIndex: 1500,
+        backgroundColor: 'rgba(0,0,0,.6)',
+        backdropFilter: 'blur(5px)',
+    },
+
+    closeIcon: {
+        float: 'right',
+        cursor: 'pointer',
+        color: colors.primary,
+        textTransform: 'none',
+        fontSize: '15px'
+    },
+
+    inputRoot: {
+        border: `1px solid ${colors.primary}`
+    },
+
+    openSearchButtonPaper: {
+        backgroundColor: colors.backgroundGray,
+        // border: 'none',
+        boxShadow: '1px 1px 1px 1px #242424',
+        // color: esriFontColor,
+        // borderRadius: 4,
+        // '&:hover': { 
+        //     border: `1px solid white`,
+        // },
+        // '&:focus-within': {
+        //     borderColor: colors.primary
+        // }
+    },
+
+    openSearchButton: {
+        // width: 260,
+        textTransform: 'none',
+        color: colors.primary,
+        fontSize: '15px',
+        padding: '6px 42px'
+    },
+
+    resetButton: {
+        textTransform: 'none',
+        width: '160px',
+        height: '37px',
+        color: theme.palette.primary.main,
+        borderColor: theme.palette.primary.main,
+        marginTop: '12px'
+    },
+
+    searchResult: {
+        display: 'flex',
+        alignItems: 'center',
+        height: '32px',
+        textAlign: 'left',
+        fontSize: '14px',
+        cursor: 'pointer',
+        paddingLeft: '12px',
+        '&:hover': {
+            backgroundColor: colors.greenHover
+        },
+    },
+
+    yearHeader: {
+        backgroundColor: 'rgba(0, 0, 0, .7)',
+        height: '36px',
+        fontSize: '17px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyCOntent: 'center'
+        // paddingLeft: '12px'
+    },
+
+    searchOption: {
+        '&:hover': {
+            backgroundColor: colors.greenHover
+        },
+
+        cursor: 'pointer',
+        height: '38px',
+        boxShadow: '0px 1px 1px 1px #242424',
+        backgroundColor: 'rgba(0,0,0,.4)'
+    },
+
+    memberCount: {
+        color: colors.primary,
+        fontWeight: 'bold'
+    },
+
+    variablesWrapper: {
+        backgroundColor: 'rgba(0,0,0,.2)',
+        paddingTop: '6px'
+    },
+
+    variableItem: {
+        height: '32px',
+        textAlign: 'left',
+        fontSize: '14px',
+        cursor: 'pointer',
+        '&:hover': {
+            backgroundColor: colors.greenHover
+        },
+    },
+
+    cruiseName: {
+        // paddingLeft: '48px',
+        width: '100%',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+    },
+
+    heading: {
+        textAlign: 'left',
+        padding: '8px 6px',
+        color: colors.primary,
+        fontSize: '16px',
+        marginTop: '5px',
+        backgroundColor: 'rgba(0,0,0,.4)'
+    },
+
+    cruiseYearHeader: {
+        textAlign: 'left',
+        fontSize: '9px',
+        color: colors.primary
     }
 })
 
-// Replace react-select selected option
-const SingleValue = (props) => {
-    return (
-        <components.SingleValue {...props} className={props.className}/>
-    )
+const searchFilterGroupCruises = (cruises, searchField, selectedYears, selectedChiefScientists, selectedRegions, selectedSeries, search) => {
+    cruises = [...cruises];
+    if(searchField) cruises = search.search(searchField);
+    if(selectedYears && selectedYears.size) cruises = cruises.filter(e => selectedYears.has(e.Year));
+    if(selectedChiefScientists && selectedChiefScientists.size) cruises = cruises.filter(e => selectedChiefScientists.has(e.Chief_Name));
+    if(selectedRegions && selectedRegions.size) cruises = cruises.filter(e => e.Regions.some(region => selectedRegions.has(region)));
+    if(selectedSeries && selectedSeries.size) cruises = cruises.filter(e => selectedSeries.has(e.Series));
+
+    let cruisesGroupedByYear = cruises.reduce((acc, cur) => {
+        if(!acc[cur.Year]) acc[cur.Year] = [];    
+        acc[cur.Year].push(cur);    
+        return acc;
+    }, {});
+
+    cruisesGroupedByYear = Object.keys(cruisesGroupedByYear).map(key => ({year: key, cruises: cruisesGroupedByYear[key]})).sort((a, b) => a.year < b.year ? 1 : -1);
+
+    return {cruisesGroupedByYear, cruises};
 }
 
-// Replace react-select option
-const Option = (props) => {
-    return (
-      <components.Option 
-        {...props} 
-        innerProps={{
-            ...props.innerProps, 
-            // Prevent focus / scroll events when mousing over options
-            onMouseMove: (e) => e.preventDefault(), 
-            onMouseOver: (e) => e.preventDefault()
-        }}>
-    </components.Option>
-    )
+const defaultSearchAndFilterState = {
+    selectedYears: new Set(), 
+    selectedChiefScientists: new Set(), 
+    selectedRegions: new Set(), 
+    searchField: '',
+    openYearGroup: null,
+    selectedSeries: new Set()
+};
+
+const defaultOptionSets = {
+    Regions: new Set(),
+    Year: new Set(),
+    Chief_Name: new Set(),
+    Series: new Set()
 }
 
-const cruiseSort =  (a,b) => a.Name < b.Name ? -1 : 1;
-
-const ValueContainer = (props) => {
-    return (
-        <components.ValueContainer {...props}>
-            <Search style={{ position: "absolute", left: 6, color: colors.primary }}/>
-            {props.children}
-        </components.ValueContainer>
-    )
-}
-
+const listRef = React.createRef();
 class CruiseSelector extends Component {
     
     constructor(props){
@@ -123,17 +264,32 @@ class CruiseSelector extends Component {
         search.addIndex('Name');
         search.addIndex('Chief_Name');
         search.addIndex('Keywords');
+
         try{
-            if(props.cruiseList && props.cruiseList.length) search.addDocuments(props.cruiseList);
+            if(props.cruiseList && props.cruiseList.length) {
+                search.addDocuments(props.cruiseList);
+            }
         } catch(e) {
             console.log(e);
             console.log(props.cruiseList);
         }
+        // cruises, searchField, selectedYears, selectedChiefScientists, selectedRegions, search
+        let { cruisesGroupedByYear, cruises } = this.props.cruiseList && this.props.cruiseList.length ? 
+            searchFilterGroupCruises(
+                props.cruiseList, '', new Set(), new Set(), new Set(), new Set(), search
+            ) : 
+            {cruisesGroupedByYear: [], cruises: []};
+
+        let optionSets = setsFromList(cruises, ['Chief_Name', 'Year', 'Regions', 'Series']);
 
         this.state = {
             search,
-            searchField: '',
-            selectedCruise: null
+            selectedCruise: null,
+            searchMenuOpen: false,
+            cruisesGroupedByYear,
+            cruises,
+            optionSets,
+            ...defaultSearchAndFilterState
         }
     }
 
@@ -146,145 +302,350 @@ class CruiseSelector extends Component {
         this.props.cruiseTrajectoryClear()
     }
 
-    formatOptionLabel = (option) => {
-        let label = option.data.Name === option.data.Nickname ?
-            option.data.Name :
-            `${option.data.Name} - ${option.data.Nickname}`;
-
-        return label;
-    }
-
-    getSelectOptionsFromCruiseList = (list) => {
-        return list.map(item => ({
-            value: item.Name,
-            label: item.Name,
-            data: item
-        })) || []
-    }
-
     handleCruiseSelect = (selection) => {
-        if(selection && selection.data){
-            const id = selection.data.ID;
-            this.props.cruiseTrajectoryRequestSend(id);
-        } else {this.props.cruiseTrajectoryClear()}
-
-        this.setState({...this.state, selectedCruise: selection});
-        // this.props.updateParametersFromCruiseBoundary(selection);
-    }
-
-    componentDidUpdate = (prevProps) => {
-        if(!(prevProps.cruiseList && prevProps.cruiseList.length) && (this.props.cruiseList && this.props.cruiseList.length)){
-            this.state.search.addDocuments(this.props.cruiseList);
-            this.setState({search: this.state.search})
+        if(selection){
+            this.props.cruiseTrajectoryRequestSend(selection.ID);
         }
+
+        this.setState({...this.state, selectedCruise: selection, searchMenuOpen: false});
     }
 
-    onAutoSuggestChange = (searchString, action) => {
-        if(action.action === 'input-change') this.setState({...this.state, searchField: searchString});
-        if(action.action ==='set-value' || action.action === 'menu-close') this.setState({...this.state, searchField: ''});
+    componentDidUpdate = (prevProps, prevState) => {
+        if(!(prevProps.cruiseList && prevProps.cruiseList.length) && (this.props.cruiseList && this.props.cruiseList.length)){
+            this.state.search.addDocuments(this.props.cruiseList);         
+            let { cruisesGroupedByYear, cruises } = searchFilterGroupCruises(this.props.cruiseList, '', new Set(), new Set(), new Set(), new Set(), this.state.search);
+            let optionSets = setsFromList(cruises, ['Chief_Name', 'Year', 'Regions', 'Series']);
+
+            this.setState({...this.state, cruisesGroupedByYear, cruises, optionSets});
+        }
+
+        if(prevState.cruisesGroupedByYear !== this.state.cruisesGroupedByYear) listRef.current.resetAfterIndex(0);
+    }
+
+    handleChangeSearchValue = (e) => {
+        // cruises, searchField, selectedYears, selectedChiefScientists, selectedRegions, search
+        let { cruisesGroupedByYear, cruises } = searchFilterGroupCruises(
+            this.props.cruiseList, 
+            e.target.value, 
+            this.state.selectedYears, 
+            this.state.selectedChiefScientists, 
+            this.state.selectedRegions,
+            this.state.selectedSeries,
+            this.state.search
+        );
+
+        let newOptionSets = setsFromList(cruises, ['Chief_Name', 'Year', 'Regions', 'Series']);
+        let oldOptionSets = {...this.state.optionSets};
+
+        let optionSets = {
+            Chief_Name: this.state.selectedChiefScientists.size ? oldOptionSets.Chief_Name : newOptionSets.Chief_Name,
+            Year: this.state.selectedYears.size ? oldOptionSets.Year : newOptionSets.Year,
+            Regions: this.state.selectedRegions.size ? oldOptionSets.Regions : newOptionSets.Regions,
+            Series: this.state.selectedSeries.size ? oldOptionSets.Series : newOptionSets.Series
+        };
+        
+        this.setState({...this.state, searchField: e.target.value, cruisesGroupedByYear, cruises, optionSets});
+    }
+
+    handleCloseSearch = () => {
+        this.setState({...this.state, searchMenuOpen: false});
+    }
+
+    handleClearMultiSelect = (statePiece) => {
+        let tempNewState = {...this.state, [statePiece]: new Set()};
+        let { cruisesGroupedByYear, cruises } = searchFilterGroupCruises(
+            this.props.cruiseList, 
+            tempNewState.searchField, 
+            tempNewState.selectedYears, 
+            tempNewState.selectedChiefScientists, 
+            tempNewState.selectedRegions,
+            tempNewState.selectedSeries,
+            this.state.search
+        );
+
+        let optionSets = setsFromList(cruises, ['Chief_Name', 'Year', 'Regions', 'Series']);
+
+        this.setState({...tempNewState, cruisesGroupedByYear, cruises, optionSets});
+    }
+
+    handleResetSearch = () => {
+        let tempNewState = {...this.state, ...defaultSearchAndFilterState};
+
+        let { cruisesGroupedByYear, cruises } = searchFilterGroupCruises(
+            this.props.cruiseList, 
+            tempNewState.searchField, 
+            tempNewState.selectedYears, 
+            tempNewState.selectedChiefScientists, 
+            tempNewState.selectedRegions,
+            tempNewState.selectedSeries,
+            this.state.search
+        );
+
+        let optionSets = setsFromList(cruises, ['Chief_Name', 'Year', 'Regions', 'Series']);
+
+        this.setState({...tempNewState, cruisesGroupedByYear, cruises, optionSets});
+    }
+
+    handleClickCheckbox = (e, checked) => {
+        let [ column, value ] = e.target.name.split('!!');
+        let newSet = new Set(this.state[column]);
+
+        checked ? newSet.add(value) : newSet.delete(value);
+
+        let tempNewState = {...this.state, [column]: newSet};
+
+        let { cruisesGroupedByYear, cruises } = searchFilterGroupCruises(
+            this.props.cruiseList, 
+            e.target.value, 
+            tempNewState.selectedYears, 
+            tempNewState.selectedChiefScientists, 
+            tempNewState.selectedRegions,
+            tempNewState.selectedSeries,
+            this.state.search
+        );
+
+        let newOptionSets = setsFromList(cruises, ['Chief_Name', 'Year', 'Regions', 'Series']);
+        let oldOptionSets = {...this.state.optionSets};
+
+        let optionSets = {
+            Chief_Name: tempNewState.selectedChiefScientists.size ? oldOptionSets.Chief_Name : newOptionSets.Chief_Name,
+            Year: tempNewState.selectedYears.size ? oldOptionSets.Year : newOptionSets.Year,
+            Regions: tempNewState.selectedRegions.size ? oldOptionSets.Regions : newOptionSets.Regions,
+            Series: tempNewState.selectedSeries.size ? oldOptionSets.Series : newOptionSets.Series
+        };
+
+        this.setState({...tempNewState, cruisesGroupedByYear, cruises, optionSets});
+    }
+
+    handleSetopenYearGroup = (index, year) => {
+        if(listRef.current) {
+
+            // Make sure the group being opened is in view
+            let listHeight = this.props.windowHeight - 249;
+            let currentOffset = listRef.current.state.scrollOffset;
+            let targetOffset = index * 38;
+
+            if(index !== null && (targetOffset < currentOffset - 10 || targetOffset > currentOffset + listHeight - 20)){
+                setTimeout(() => listRef.current.scrollToItem(index, 'start'), 10);
+            }
+
+            listRef.current.resetAfterIndex(0);
+        }
+
+        this.setState({...this.state, openYearGroup: this.state.openYearGroup === year ? null : year});
     }
 
     render(){
-        const { search, searchField, selectedCruise } = this.state;        
-        const { classes, cruiseList} = this.props;
-        
-        const options = searchField && cruiseList ? this.getSelectOptionsFromCruiseList(search.search(searchField).sort(cruiseSort)) 
-            : cruiseList ? this.getSelectOptionsFromCruiseList(cruiseList) 
-            : []
+        const { 
+            searchField, 
+            selectedCruise, 
+            searchMenuOpen, 
+            selectedYears, 
+            selectedChiefScientists, 
+            selectedRegions,
+            selectedSeries,
+            openYearGroup,
+            optionSets,
+            cruisesGroupedByYear,
+            cruises
+        } = this.state;
+
+        const { classes, windowHeight } = this.props;
 
         return (
-                <div id='cruise-selector' className={classes.outerDiv}>
-                    {/* <ConnectedTooltip placement='left' title={tooltips.visualization.cruiseSelector}> */}
-                        <Select
-                            isLoading={this.props.getCruiseListState === states.inProgress}
-                            components={{
-                                IndicatorSeparator:'',
-                                Option,
-                                SingleValue,
-                                ValueContainer
-                            }}
-                            isClearable
-                            formatOptionLabel={this.formatOptionLabel}
-                            onInputChange={this.onAutoSuggestChange}
-                            filterOption={null}
-                            className={classes.cruiseSelect}
-                            escapeClearsValue
-                            label="Cruise"
-                            options={options}
-                            onChange={this.handleCruiseSelect}
-                            value={this.state.selectedCruise}
-                            placeholder="Search Cruises"
-                            styles={{
-                                // menu: provided => ({ ...provided, zIndex: 9999 }),
-                                menu: provided => ({ ...provided, zIndex: z.CONTROL_PRIMARY }),
+            <>
+                <Paper className={classes.searchMenuPaper} style={searchMenuOpen ? {} : {display: 'none'}}>
+                    <Grid container>
+                        <Grid item xs={12}>
+                            <Typography style={{display: 'inline-block'}}>
+                                Search and filter using the controls on the left. Select a cruise from the list on the right.
+                            </Typography>
 
-                                menuList: provided => ({...provided, backgroundColor: colors.backgroundGray}),
+                            <Button
+                                startIcon={<Close style={{fontSize: '22px'}}/>}
+                                onClick={this.handleCloseSearch}
+                                className={classes.closeIcon}
+                            >
+                                Close
+                            </Button>
 
-                                input: provided => ({...provided,
-                                    color: 'inherit',
-                                    fontFamily: esriFonts
-                                }),
+                            {/* <Close onClick={this.props.handleCloseDataSearch} className={classes.closeIcon}/> */}
+                        </Grid>
 
-                                control: provided => ({...provided,
-                                    backgroundColor: colors.backgroundGray,
-                                    border: 'none',
-                                    boxShadow: '1px 1px 1px 1px #242424',
-                                    color: esriFontColor,
-                                    borderRadius: 4,
-                                    '&:hover': { 
-                                        border: `1px solid white`,
-                                    },
-                                    '&:focus-within': {
-                                        borderColor: colors.primary
+                        <Grid item xs={4} style={{overflowY: 'auto', maxHeight: windowHeight - 204, padding: '16px', backgroundColor: 'rgba(0,0,0,.4)'}}>
+                                <TextField
+                                    fullWidth
+                                    name='searchTerms'
+                                    onChange={this.handleChangeSearchValue}
+                                    placeholder='Search'
+                                    value={searchField}
+                                    InputProps={{
+                                        classes: {
+                                            root: classes.inputRoot
+                                        },
+                                        startAdornment: (
+                                            <React.Fragment>
+                                                <InputAdornment position="start">
+                                                    <Search style={{color: colors.primary}}/>
+                                                </InputAdornment>
+                                            </React.Fragment>
+                                        )
+                                    }}
+                                    variant="outlined"
+                                />
+
+                            <MultiCheckboxDropdown
+                                options={Array.from(optionSets.Regions).sort()}
+                                selectedOptions={selectedRegions}
+                                handleClear={() => this.handleClearMultiSelect('selectedRegions')}
+                                parentStateKey={'selectedRegions'}
+                                handleClickCheckbox={this.handleClickCheckbox}
+                                groupHeaderLabel='Region'
+                            />
+
+                            <MultiCheckboxDropdown
+                                options={Array.from(optionSets.Year).sort((a, b) => a < b ? 1 : -1)}
+                                selectedOptions={selectedYears}
+                                handleClear={() => this.handleClearMultiSelect('selectedYears')}
+                                parentStateKey={'selectedYears'}
+                                handleClickCheckbox={this.handleClickCheckbox}
+                                groupHeaderLabel='Year'
+                            />
+
+                            <MultiCheckboxDropdown
+                                options={Array.from(optionSets.Chief_Name).sort()}
+                                selectedOptions={selectedChiefScientists}
+                                handleClear={() => this.handleClearMultiSelect('selectedChiefScientists')}
+                                parentStateKey={'selectedChiefScientists'}
+                                handleClickCheckbox={this.handleClickCheckbox}
+                                groupHeaderLabel='Chief Scientist'
+                            />
+
+                            <MultiCheckboxDropdown
+                                options={Array.from(optionSets.Series).sort()}
+                                selectedOptions={selectedSeries}
+                                handleClear={() => this.handleClearMultiSelect('selectedSeries')}
+                                parentStateKey={'selectedSeries'}
+                                handleClickCheckbox={this.handleClickCheckbox}
+                                groupHeaderLabel='Cruise Series'
+                            />
+
+                            <Grid item xs={12} className={classes.searchPanelRow}>
+                                <Button variant='outlined' onClick={this.handleResetSearch} className={classes.resetButton}>
+                                    Reset Filters
+                                </Button>
+                            </Grid>
+                        </Grid>
+
+                        <Grid item xs={8} style={{paddingTop: '12px'}}>
+
+                        <Grid container>
+                            <Grid item xs={9}>
+                                <Typography className={classes.heading}>
+                                    Showing {cruises.length} cruises (grouped by year)
+                                </Typography>
+                            </Grid>
+
+                            <Grid item xs={3} container justify='flex-start' alignItems='center'>
+                                <Typography variant='caption' style={{color: colors.primary, marginBottom: '-16px'}}>
+                                    Cruise Count
+                                </Typography>
+                            </Grid>
+                        </Grid>
+        
+                        <VariableSizeList
+                            ref={listRef}
+                            itemData={cruisesGroupedByYear}
+                            itemCount={cruisesGroupedByYear.length}
+                            height={windowHeight - 249}
+                            width='100%'
+                            estimatedItemSize={38}
+                            style={{overflowY: 'scroll'}}
+                            itemSize={(i) => openYearGroup === cruisesGroupedByYear[i].year ? cruisesGroupedByYear[i].cruises.length * 32 + 38 + 4 + 10 : 38}
+                        >
+
+                            {({ index, style }) => (
+                                <div style={style}>
+                                    <Grid 
+                                        container 
+                                        className={classes.searchOption}
+                                        onClick={() => this.handleSetopenYearGroup(index, cruisesGroupedByYear[index].year)}
+                                    >            
+                                        <Grid item xs={2} container alignItems='center'>
+                                            {openYearGroup === cruisesGroupedByYear[index].year ? 
+                                                <ExpandMore className={classes.datasetOpenIcon}/> : 
+                                                <ChevronRight className={classes.datasetOpenIcon}/>
+                                            }
+                                            <span className={classes.searchOptionsMenuItemText}>{cruisesGroupedByYear[index].year}</span>
+                                        </Grid>
+
+                                        <Grid item xs={7}>
+
+                                        </Grid>
+
+                                        <Tooltip title={`${cruisesGroupedByYear[index].cruises.length} cruises from this year match the search criteria`}>
+                                            <Grid item xs={1} className={classes.memberCount} container alignItems='center' justify='center'>
+                                                {cruisesGroupedByYear[index].cruises.length}
+                                            </Grid>
+                                        </Tooltip>
+                                    </Grid>
+                                    
+                                    {
+                                        cruisesGroupedByYear[index].year === openYearGroup ?
+                                        <Grid container className={classes.variablesWrapper}>
+                                            <Grid item container alignItems='center'>
+                                                <Grid item xs={1}> </Grid>
+
+                                                <Grid item xs={2} className={classes.cruiseYearHeader}>
+                                                    Official Designation
+                                                </Grid>
+
+                                                <Grid item xs={8} className={classes.cruiseYearHeader}>
+                                                    Nickname
+                                                </Grid>
+                                            </Grid>
+
+                                            {cruisesGroupedByYear[index].cruises.map((e, i) => (
+                                                <Grid 
+                                                    item 
+                                                    xs={12} 
+                                                    key={e.Name} 
+                                                    className={classes.variableItem} 
+                                                    container 
+                                                    alignItems='center'
+                                                    onClick={() => this.handleCruiseSelect(e)}
+                                                >   
+                                                    <Grid item xs={1}></Grid>
+
+                                                    <Grid item xs={2} className={classes.cruiseName}>{e.Name}</Grid>
+
+                                                    <Tooltip title={e.Nickname} enterDelay={300}>
+                                                        <Grid item xs={8} className={classes.cruiseName}>{e.Nickname}</Grid>
+                                                    </Tooltip>                                                    
+                                                </Grid>
+                                            ))}
+                                        </Grid>
+                                        : ''
                                     }
-                                }),
+                                </div>
+                            )}
+                        </VariableSizeList>
+                        </Grid>
+                    </Grid>
+                </Paper>
 
-                                placeholder: provided => ({...provided,
-                                    fontFamily: esriFonts,
-                                    color: colors.primary,
-                                    fontSize: '14px'
-                                }),
+                <div id='cruise-selector' className={classes.outerDiv}>
 
-                                noOptionsMessage: provided => ({...provided,
-                                    fontFamily: esriFonts,
-                                    color: esriFontColor,
-                                    backgroundColor: colors.backgroundGray
-                                }),
-
-                                option: (provided, state) => ({...provided,
-                                    backgroundColor: colors.backgroundGray,
-                                    color: state.isFocused ? colors.primary : 'white',
-                                    '&:hover': { backgroundColor: colors.greenHover}
-                                }),
-
-                                singleValue: (provided, state) => ({...provided,
-                                    fontFamily: esriFonts,
-                                    color: 'inherit',
-                                    paddingRight: '20px',
-                                }),
-
-                                valueContainer: provided => ({
-                                    ...provided,
-                                    padding: '0 0 0 34px',
-                                    fontWeight: 100
-                                }),
-                            }}
-                            theme={theme => ({
-                                ...theme,
-                                colors: {
-                                    ...theme.colors,
-                                    // Background color of hovered options
-                                    primary25: '#e0e0e0',
-                                    primary: '#212121',
-                                },
-                            })}
-                        />
-
-                        {/* <HelpButtonAndDialog
-                            title='Cruise Help'
-                            content='Cruise Help Content'
-                        /> */}
-
+                    <Paper className={classes.openSearchButtonPaper}>
+                        <Button
+                            startIcon={<Search/>}
+                            className={classes.openSearchButton}
+                            onClick={() => this.setState({...this.state, searchMenuOpen: true})}
+                        >
+                            Search Cruises
+                        </Button>
+                    </Paper>
+                    
                     {selectedCruise &&
                         <>
                         <Table size='small' className={classes.cruiseInfo}>
@@ -294,7 +655,7 @@ class CruiseSelector extends Component {
                                         Cruise:
                                     </TableCell>
                                     <TableCell className={classes.cruiseInfoCell}>
-                                        {selectedCruise.data.Name}
+                                        {selectedCruise.Name}
                                     </TableCell>
                                 </TableRow>
 
@@ -303,54 +664,54 @@ class CruiseSelector extends Component {
                                         Nickname:
                                     </TableCell>
                                     <TableCell className={classes.cruiseInfoCell}>
-                                        {selectedCruise.data.Nickname}
+                                        {selectedCruise.Nickname}
                                     </TableCell>
                                 </TableRow>
 
                                 {
-                                    selectedCruise.data.Start_Time &&
+                                    selectedCruise.Start_Time &&
                                     <TableRow>
                                         <TableCell className={classes.cruiseInfoCell}>
                                             Start Date:
                                         </TableCell>
                                         <TableCell className={classes.cruiseInfoCell}>
-                                            {selectedCruise.data.Start_Time.slice(0,10)}
+                                            {selectedCruise.Start_Time.slice(0,10)}
                                         </TableCell>
                                     </TableRow>
                                 }
 
                                 {
-                                    selectedCruise.data.End_Time &&
+                                    selectedCruise.End_Time &&
                                     <TableRow>
                                         <TableCell className={classes.cruiseInfoCell}>
                                             End Date:
                                         </TableCell>
                                         <TableCell className={classes.cruiseInfoCell}>
-                                            {selectedCruise.data.End_Time.slice(0,10)}
+                                            {selectedCruise.End_Time.slice(0,10)}
                                         </TableCell>
                                     </TableRow>
                                 }
 
                                 {
-                                    selectedCruise.data.Chief_Name &&
+                                    selectedCruise.Chief_Name &&
                                     <TableRow>
                                         <TableCell className={classes.cruiseInfoCell}>
                                             Chief Scientist:
                                         </TableCell>
                                         <TableCell className={classes.cruiseInfoCell}>
-                                            {selectedCruise.data.Chief_Name}
+                                            {selectedCruise.Chief_Name}
                                         </TableCell>
                                     </TableRow>
                                 }
 
                                 {
-                                    selectedCruise.data.Ship_Name &&
+                                    selectedCruise.Ship_Name &&
                                     <TableRow>
                                         <TableCell className={classes.cruiseInfoCell}>
                                             Ship:
                                         </TableCell>
                                         <TableCell className={classes.cruiseInfoCell}>
-                                            {selectedCruise.data.Ship_Name}
+                                            {selectedCruise.Ship_Name}
                                         </TableCell>
                                     </TableRow>
                                 }
@@ -360,7 +721,7 @@ class CruiseSelector extends Component {
                             <div className={classes.linkWrapper}>
                                 <Link 
                                     component={RouterLink} 
-                                    to={`/catalog/cruises/${selectedCruise.data.Name}`}
+                                    to={`/catalog/cruises/${selectedCruise.Name}`}
                                     target='_blank'
                                 >
                                     Open Cruise Catalog Page
@@ -369,6 +730,7 @@ class CruiseSelector extends Component {
                         </>
                     }
                 </div>
+            </>
         )
     }
 }

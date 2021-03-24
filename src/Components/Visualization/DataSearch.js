@@ -222,16 +222,7 @@ class DataSearch extends React.Component {
 
     componentDidMount = () => {
         this.props.vizSearchResultsFetch({});
-
-        // if(!this.props.submissionOptions || !this.props.submissionOptions.length){
-        //     this.props.searchOptionsFetch();
-        // }
     }
-
-    // handleSearchInputValueChange = (e) => {
-    //     this.props.variableNameAutocompleteFetch((e && e.target && e.target.value) || '');
-    //     this.setState({...this.state, searchInputValue: (e && e.target && e.target.value) || ''});
-    // }
 
     handleChangeSearchValue = (e) => {      
         this.updateStateAndSearch({...this.state, [e.target.name]: e.target.value});
@@ -267,24 +258,6 @@ class DataSearch extends React.Component {
     handleToggleShowAdvanced = () => {
         this.setState({...this.state, showAdvanced: !this.state.showAdvanced});
     }
-
-    // handleShowMemberVariables = (dataset) => {
-    //     this.setState({...this.state, memberVariablesDataset: dataset});
-    // }
-
-    // handleSelectRegion = (event, option) => {
-    //     let coverageArray = option ? 
-    //         option.value.split(' ').map(e => parseFloat(e)) :
-    //         [-90, 90, -180, 180];
-
-    //     let latStart = coverageArray[0];
-    //     let latEnd = coverageArray[1];
-    //     let lonStart = coverageArray[2];
-    //     let lonEnd = coverageArray[3];
-
-    //     let newState = {...this.state, latStart, latEnd, lonStart, lonEnd, region: option};
-    //     this.updateStateAndSearch(newState);
-    // }
 
     handleResetSearch = () => {
         let newState = {...this.state, ...defaultState};
@@ -362,59 +335,6 @@ class DataSearch extends React.Component {
                         {/* <Close onClick={this.props.handleCloseDataSearch} className={classes.closeIcon}/> */}
                     </Grid>
                     <Grid item xs={4} style={{overflowY: 'auto', maxHeight: windowHeight - 204, padding: '16px', backgroundColor: 'rgba(0,0,0,.4)', display: memberVariablesDataset ? 'none' : ''}}>
-                        {/* <Autocomplete
-                            className={classes.autoComplete}
-                            value={searchTerms}
-                            onChange={this.handleChangeSearchValue}
-                            clearOnBlur={true}
-                            size='small'
-                            classes={{
-                                paper: classes.autocompletePopperPaper,
-                                option: classes.autocompleteOptions
-                            }}
-                            disablePortal
-                            fullWidth={false}
-                            filterOptions={options => options}
-                            handleHomeEndKeys={true}
-                            open={Boolean(autocompleteVariableNames && autocompleteVariableNames.length) && Boolean(searchInputValue && searchInputValue.length)}
-                            multiple
-                            id="catalog-search-autocomplete"
-                            options={autocompleteVariableNames}
-                            clearOnEscape
-                            freeSolo
-                            inputValue={searchInputValue}
-                            onInputChange={this.handleSearchInputValueChange}
-                            renderTags={(value, getTagProps) => (
-                                value.map((option, index) => (
-                                    <Tooltip title={option} key={option}>
-                                        <Chip variant='outlined' label={option} {...getTagProps({ index })} className={classes.chip}/>
-                                    </Tooltip>
-                                ))
-                            )}
-                            renderInput={(params) => (
-                                <TextField
-                                    {...params}
-                                    name='searchTerms'
-                                    placeholder={searchTerms.length > 0 ? '' : 'Search'}
-                                    InputProps={{
-                                        ...params.InputProps,
-                                        classes: {
-                                            root: classes.inputRoot
-                                        },
-                                        startAdornment: (
-                                            <React.Fragment>
-                                                <InputAdornment position="start">
-                                                    <Search style={{color: colors.primary}}/>
-                                                </InputAdornment>
-                                                {params.InputProps.startAdornment}
-                                            </React.Fragment>
-                                        )
-                                    }}
-                                    variant="outlined"                            
-                                />
-                            )}
-                        />   */}
-
                                 <TextField
                                     fullWidth
                                     name='searchTerms'

@@ -226,21 +226,7 @@ const handleHeatmap = (subsets, infoObject, splitByDate, splitByDepth, palette, 
                     },
                     
                 },
-                // // Mask null values - currently tooltips aren't working
-                // {
-                //     x: infoObject.lons,
-                //     y: infoObject.lats,
-                //     z: subset.map(value => value === null ? 0 : 1),
-                //     type: 'heatmap',
 
-                //     colorscale: [
-                //         [0, 'rgba(255,255,255,1)'],
-                //         [0.5, 'rgba(255,255,255,1)'],
-                //         [0.5, 'rgba(0,0,0,0)'],
-                //         [1.0, 'rgba(0,0,0,0)'],
-                //     ],
-                //     showscale: false
-                // }
             ]}                
             key={index}
 
@@ -300,8 +286,8 @@ const mapDispatchToProps = {
 
 const SpaceTimeChart = (props) => {
 
-    const { snackbarOpen, csvFromVizRequestSend } = props;
-    const { data, subType } = props.chart;
+    const { snackbarOpen, csvFromVizRequestSend, chart } = props;
+    const { data, subType } = chart;
     const { dates, depths, extent, metadata } = data;
 
     const [splitByDate, setSplitByDate] = useState(false);
@@ -383,7 +369,7 @@ const SpaceTimeChart = (props) => {
     const downloadCsv = () => {
         csvFromVizRequestSend(data, metadata.Table_Name, metadata.Variable, metadata.Long_Name);
     }
-
+    console.log('rendering a spacetime chart')
     return (
         <React.Fragment>
             <ChartControlPanel
