@@ -7,7 +7,7 @@ import { withStyles, Tabs, Collapse, Paper, Badge, ButtonGroup, Grid, IconButton
 import { Edit, PlayArrow, ControlCamera , Settings, Fastfood, ShowChart, Search, Cached, LibraryBooks, ArrowRight, ChevronLeft, ChevronRight, InsertChartOutlined, Language, Delete, ShoppingCart, Info, DirectionsBoat } from '@material-ui/icons';
 import { KeyboardDatePicker } from "@material-ui/pickers";
 
-import { cruiseTrajectoryRequestSend, clearCharts, csvDownloadRequestSend, vizPageDataTargetSetAndFetchDetails, storedProcedureRequestSend } from '../../Redux/actions/visualization';
+import { cruiseTrajectoryRequestSend, clearCharts, csvDownloadRequestSend, vizPageDataTargetSetAndFetchDetails, storedProcedureRequestSend, sparseDataQuerySend } from '../../Redux/actions/visualization';
 import { snackbarOpen } from '../../Redux/actions/ui';
 
 import colors from '../../Enums/colors';
@@ -32,6 +32,7 @@ import VariableDetailsDialog from './VariableDetailsDialog';
 import ChartControlTabs from './ChartControlTabs';
 import HelpButtonAndDialog from '../UI/HelpButtonAndDialog';
 import StoredParametersDropdown from './StoredParametersDropdown';
+import storedProcedures from '../../Enums/storedProcedures';
 
 const mapStateToProps = (state, ownProps) => ({
     data: state.data,
@@ -52,7 +53,8 @@ const mapDispatchToProps = {
     csvDownloadRequestSend,
     snackbarOpen,
     vizPageDataTargetSetAndFetchDetails,
-    storedProcedureRequestSend
+    storedProcedureRequestSend,
+    sparseDataQuerySend
 }
 
 const drawerWidth = 280;
@@ -460,6 +462,8 @@ class NewVizControlPanel extends React.Component {
     handleVisualize = () => {
         const { depth1, depth2, dt1, dt2, lat1, lat2, lon1, lon2, selectedVizType } = this.state;
 
+        let isSparseVariable = this.props.vizPageDataTargetDetails.Spatial_Resolution === spatialResolutions.irregular;
+
         let mapping = mapVizType(selectedVizType);
         let parameters = cleanSPParams({
             depth1,
@@ -484,8 +488,9 @@ class NewVizControlPanel extends React.Component {
             subType: mapping.subType,
             metadata: this.props.vizPageDataTargetDetails
         }
-    
-        this.props.storedProcedureRequestSend(payload);
+
+        if(isSparseVariable && mapping.sp !== storedProcedures.depthProfile) this.props.sparseDataQuerySend(payload);
+        else this.props.storedProcedureRequestSend(payload);
     }
 
     handleDrawClick = () => {

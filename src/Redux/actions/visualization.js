@@ -346,3 +346,8 @@ export const plotsActiveTabSet = (tab) => ({
         tab
     }
 });
+
+export const sparseDataQuerySend = (payload) => ({
+    type: visualizationActionTypes.SPARSE_DATA_QUERY_SEND,
+    payload
+});
