@@ -5,7 +5,9 @@ const sparseDataQueryFromPayload = (payload) => {
     let depthWherePart = metadata.Depth_Max ? `\nAND depth BETWEEN ${depth1} AND ${depth2}` : '';
     let depthOrderPart = metadata.Depth_Max ? ', depth' : '';
 
-    return `SELECT TOP 1200000 time, lat, lon, ${depthSelectPart}${fields} FROM ${parameters.tableName} WHERE time BETWEEN '${dt1}' AND '${dt2}' AND lat BETWEEN ${lat1} AND ${lat2} AND lon BETWEEN ${lon1} AND ${lon2}${depthWherePart} ORDER BY time, lat, lon${depthOrderPart}`;
+    let query =  `SELECT TOP 1200000 time, lat, lon, ${depthSelectPart}${fields} FROM ${parameters.tableName} WHERE time BETWEEN '${dt1}' AND '${dt2}' AND lat BETWEEN ${lat1} AND ${lat2} AND lon BETWEEN ${lon1} AND ${lon2}${depthWherePart} ORDER BY time, lat, lon${depthOrderPart}`;
+    console.log(query);
+    return query;
 }
 
 export default sparseDataQueryFromPayload;
