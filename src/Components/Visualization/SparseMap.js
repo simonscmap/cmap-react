@@ -149,12 +149,13 @@ function tabProps(index) {
   }
 
 const SparseTabPanel = (props) => {
-    const { children, selectedTab, index, controlPanelProps, } = props;
+    const { children, selectedTab, index, controlPanelProps } = props;
 
     return (
         <div hidden={selectedTab !== index}>
             <ChartControlPanel
                 {...controlPanelProps}
+                chart={props.chart}
             />
             {children}
         </div>
@@ -227,7 +228,7 @@ const SparseMap = React.memo((props) => {
             handleMarkerOptionsConfirm
         }
     }
-
+    
     return (
         <div>
             <Tabs 
@@ -244,11 +245,11 @@ const SparseMap = React.memo((props) => {
                 <Tab label="By Lon" {...tabProps(3)} className={classes.tab}/>
                 {data.hasDepth && <Tab label="By Depth" {...tabProps(4)} className={classes.tab}/>}
             </Tabs>
-            <SparseTabPanel selectedTab={tab} index={0} controlPanelProps={controlPanelProps.map}>
+            <SparseTabPanel selectedTab={tab} index={0} controlPanelProps={controlPanelProps.map} chart={props.chart}>
                 {tab === 0 && plot}
             </SparseTabPanel>
             
-            <SparseTabPanel selectedTab={tab} index={1} controlPanelProps={controlPanelProps.scatter}>
+            <SparseTabPanel selectedTab={tab} index={1} controlPanelProps={controlPanelProps.scatter} chart={props.chart}>
                 {tab === 1 &&
                     <SparseScatter
                         xValues={data.times}
@@ -262,7 +263,7 @@ const SparseMap = React.memo((props) => {
                 }
             </SparseTabPanel>
 
-            <SparseTabPanel selectedTab={tab} index={2} controlPanelProps={controlPanelProps.scatter}>
+            <SparseTabPanel selectedTab={tab} index={2} controlPanelProps={controlPanelProps.scatter} chart={props.chart}>
                 {tab === 2 &&
                     <SparseScatter
                         xValues={data.lats}
@@ -276,7 +277,7 @@ const SparseMap = React.memo((props) => {
                 }
             </SparseTabPanel>
 
-            <SparseTabPanel selectedTab={tab} index={3} controlPanelProps={controlPanelProps.scatter}>
+            <SparseTabPanel selectedTab={tab} index={3} controlPanelProps={controlPanelProps.scatter} chart={props.chart}>
                 {tab === 3 && 
                     <SparseScatter
                         xValues={data.lons}
@@ -291,7 +292,7 @@ const SparseMap = React.memo((props) => {
             </SparseTabPanel>
 
             {data.hasDepth &&
-                <SparseTabPanel selectedTab={tab} index={4} controlPanelProps={controlPanelProps.scatter}>
+                <SparseTabPanel selectedTab={tab} index={4} controlPanelProps={controlPanelProps.scatter} chart={props.chart}>
                     {tab === 4 &&
                         <SparseScatter
                             xValues={data.variableValues}

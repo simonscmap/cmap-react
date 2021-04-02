@@ -1,22 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { connect } from 'react-redux';
 
-import { withStyles } from '@material-ui/core/styles';
-import Tooltip from '@material-ui/core/Tooltip';
-import IconButton from '@material-ui/core/IconButton';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
-import Popover from '@material-ui/core/Popover';
-import Grid from '@material-ui/core/Grid';
-import FormControl from '@material-ui/core/FormControl';
-import InputLabel from '@material-ui/core/InputLabel';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
-import FormHelperText from '@material-ui/core/FormHelperText';
-import Button from '@material-ui/core/Button';
-import { DateRange, CloudDownload, Palette, SwapVert, Gamepad, LineWeight, ShowChart, Tune } from '@material-ui/icons';
+import { withStyles, Tooltip, IconButton, Menu, MenuItem, Popover, Grid, FormControl, InputLabel, OutlinedInput, FormHelperText, Button, ButtonGroup } from '@material-ui/core';
+import { DateRange, CloudDownload, Palette, SwapVert, Gamepad, LineWeight, ShowChart, Tune, Warning } from '@material-ui/icons';
+
+import { sparseDataMaxSizeNotificationUpdate } from '../../Redux/actions/visualization';
 
 import colors from '../../Enums/colors';
+import SPARSE_DATA_QUERY_MAX_SIZE from '../../Enums/sparseDataQueryMaxSize';
+import lastRowTimeSpaceDataFromChart from '../../Utility/Visualization/lastRowTimeSpaceDataFromChart';
+import spatialResolutions from '../../Enums/spatialResolutions';
+import temporalResolutions from '../../Enums/temporalResolutions';
 
-import { ButtonGroup } from '@material-ui/core';
+const mapDispatchToProps = {
+    sparseDataMaxSizeNotificationUpdate
+}
 
 const styles = theme => ({
     chartWrapper: {
@@ -66,6 +64,13 @@ const styles = theme => ({
 
     grayBackground: {
         backgroundColor: colors.backgroundGray
+    },
+
+    sparseDataMaxSizeWarningIcon: {
+        color: colors.errorYellow,
+        position: 'absolute',
+        top: '20px',
+        cursor: 'pointer'
     }
 })
 
@@ -134,7 +139,8 @@ const ChartControlPanel = (props) => {
         showErrorBars,
         handleSetShowErrorBars,
         showLines,
-        handleSetShowLines
+        handleSetShowLines,
+        chart
     } = props;
 
     const [paletteAnchorElement, setPaletteAnchorElement] = useState(null);
@@ -183,6 +189,10 @@ const ChartControlPanel = (props) => {
     const handleLocalZConfirm = () => {
         handleZValueConfirm([localZMin, localZMax]);
         handleZScalePopoverClose();
+    }
+
+    const showMaxSizeWarningAndInfo = () => {
+        props.sparseDataMaxSizeNotificationUpdate(lastRowTimeSpaceDataFromChart(props.chart.data));
     }
 
     const [markerOptionsAnchorElement, setMarkerOptionsAnchorElement] = React.useState(null);
@@ -244,8 +254,18 @@ const ChartControlPanel = (props) => {
         handleMarkerOptionsClose();
     }
 
+    const showSparseDataSizeWarning = Boolean(chart && 
+        (chart.data.metadata.Spatial_Resolution === spatialResolutions.irregular || chart.data.metadata.Temporal_Resolution === temporalResolutions.irregular) &&
+        chart.data && chart.data.variableValues && chart.data.variableValues.length >= SPARSE_DATA_QUERY_MAX_SIZE);
+
     return (
         <React.Fragment>
+
+            {showSparseDataSizeWarning ?
+                <Warning className={classes.sparseDataMaxSizeWarningIcon}/> :
+                ''
+            }
+            
             <ButtonGroup className={classes.buttonGroup}>
 
                 {Boolean(onToggleSplitByDate) && 
@@ -314,7 +334,7 @@ const ChartControlPanel = (props) => {
                     </Tooltip>
                 }
                 
-            </ButtonGroup>
+            </ButtonGroup>            
             
             <Menu
                 id="simple-menu"
@@ -518,4 +538,4 @@ const ChartControlPanel = (props) => {
     )
 }
 
-export default withStyles(styles)(ChartControlPanel);
+export default connect(null, mapDispatchToProps)(withStyles(styles)(ChartControlPanel));

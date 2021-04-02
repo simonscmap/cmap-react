@@ -36,6 +36,7 @@ api.dataRetrieval = {};
 api.catalog = {};
 api.visualization = {};
 api.dataSubmission = {};
+api.community = {};
 
 api.user.login = (user) => {
     return fetch(apiUrl + '/user/signin', {
@@ -281,7 +282,7 @@ api.visualization.sparseDataQuerysend = async(payload) => {
     // build the query
     let query = sparseDataQueryFromPayload(payload);
     
-    switch(payload.parameters.spName) {
+    switch(parameters.spName) {
         case storedProcedures.spaceTime:
             if(payload.subType === 'Sparse') vizData = new SparseData(payload);
             else vizData = new SpaceTimeData(payload);
@@ -322,7 +323,7 @@ api.visualization.sparseDataQuerysend = async(payload) => {
             csvParser.write(decoder.decode(chunk.value));
         };
     }
-
+    
     return vizData;
 }
 
@@ -487,4 +488,10 @@ api.user.getCart = async() => {
     return await fetch(`${apiUrl}/api/user/getcart`, fetchOptions);
 }
 
+api.community.errorReport = async(formData) => {
+    return await fetch(apiUrl + '/api/community/errorreport', {
+        ...postOptions,
+        body: JSON.stringify(formData),
+    });
+}
 export default api;

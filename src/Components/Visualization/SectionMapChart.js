@@ -294,6 +294,7 @@ const SectionMapChart = (props) => {
                 zValues={zValues}
                 extent={extent}
                 downloadCsv={downloadCsv}
+                chart={props.chart}
             />
             </div>
             {plots}      

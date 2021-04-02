@@ -16,13 +16,17 @@ import * as catalogActionTypes from './actionTypes/catalog';
 import * as visualizationActionTypes from './actionTypes/visualization';
 import * as interfaceActionTypes from './actionTypes/ui';
 import * as dataSubmissionActionTypes from './actionTypes/dataSubmission';
+import * as communityActionTypes from './actionTypes/community';
 
 import api from '../api';
-import states from '../Enums/asyncRequestStates';
 import groupVariablesByDataset from '../Utility/Catalog/groupVariablesByDataset';
 import groupDatasetsByMake from '../Utility/Catalog/groupDatasetsByMake';
 import buildSearchOptionsFromVariablesList from '../Utility/Catalog/buildSearchOptionsFromVariablesList';
 import buildSearchOptionsFromDatasetList from '../Utility/Catalog/buildSearchOptionsFromDatasetList';
+import lastRowTimeSpaceDataFromChart from '../Utility/Visualization/lastRowTimeSpaceDataFromChart';
+
+import states from '../Enums/asyncRequestStates';
+import SPARSE_DATA_QUERY_MAX_SIZE from '../Enums/sparseDataQueryMaxSize';
 
 function* userLogin(action) {
     yield put(userActions.userLoginRequestProcessing());
@@ -1005,8 +1009,6 @@ function* sparseDataQuerySend(action) {
     yield put(interfaceActions.setLoadingMessage('Fetching Data'));
 
     let result = yield call(api.visualization.sparseDataQuerysend, action.payload);
-    console.log(result);
-    throw new Error();
     yield delay(50);
     yield put(interfaceActions.setLoadingMessage('Processing Data'));
     yield delay(70);
@@ -1028,6 +1030,7 @@ function* sparseDataQuerySend(action) {
             // yield put(interfaceActions.snackbarOpen(`${action.payload.subType} ${action.payload.parameters.fields} is ready`));
             yield put(visualizationActions.triggerShowCharts());
             yield put(visualizationActions.addChart({subType: action.payload.subType, data:result}));
+            if(result.variableValues.length >= SPARSE_DATA_QUERY_MAX_SIZE) yield put(visualizationActions.sparseDataMaxSizeNotificationUpdate(lastRowTimeSpaceDataFromChart(result)));
             window.scrollTo(0,0);
            
         } else {
@@ -1035,6 +1038,10 @@ function* sparseDataQuerySend(action) {
             yield put(interfaceActions.snackbarOpen(`No data found for ${action.payload.parameters.fields} in the requested ranges. Try selecting a different date or depth range.`));
         }
     }
+}
+
+function* errorReportSend(action){
+    yield call(api.community.errorReport, action.payload);
 }
 
 function* dataSubmissionSelectOptionsFetch(action){
@@ -1253,6 +1260,10 @@ function* watchSparseDataQuerySend() {
     yield takeLatest(visualizationActionTypes.SPARSE_DATA_QUERY_SEND, sparseDataQuerySend);
 }
 
+function* watchErrorReportSend(){
+    yield takeLatest(communityActionTypes.ERROR_REPORT_SEND, errorReportSend)
+}
+
 // function createWorkerChannel(worker) {
 //     return eventChannel(emit => {
 //         worker.onmessage = message => {
@@ -1333,6 +1344,7 @@ export default function* rootSaga() {
         watchVizPageDataTargetSetAndFetchDetails(),
         watchDataSubmissionSelectOptionsFetch(),
         watchDataSubmissionDelete(),
-        watchSparseDataQuerySend()
+        watchSparseDataQuerySend(),
+        watchErrorReportSend()
     ]);
 }

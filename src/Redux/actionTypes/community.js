@@ -1,0 +1,1 @@
+export const ERROR_REPORT_SEND = 'ERROR_REPORT_SEND';

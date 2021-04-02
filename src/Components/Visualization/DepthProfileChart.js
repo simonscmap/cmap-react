@@ -95,6 +95,7 @@ const DepthProfileChart = (props) => {
                 handleSetShowErrorBars={handleSetShowErrorBars}
                 showLines={showLines}
                 handleSetShowLines={handleSetShowLines}
+                chart={props.chart}
             />
             <Plot
                 style= {{

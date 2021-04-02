@@ -88,6 +88,7 @@ const initialState = {
     variableDetails: null,
     datasetSummary: null,
     plotsActiveTab: 0,
+    sparseDataMaxSizeNotificationData: null,
 
     // Data Submission state pieces
 

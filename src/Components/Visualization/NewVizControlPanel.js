@@ -15,6 +15,7 @@ import vizSubTypes from '../../Enums/visualizationSubTypes';
 import validation from '../../Enums/validation';
 import spatialResolutions from '../../Enums/spatialResolutions';
 import temporalResolutions from '../../Enums/temporalResolutions';
+import storedProcedures from '../../Enums/storedProcedures';
 
 import mapTemporalResolutionToNumber from '../../Utility/mapTemporalResolutionToNumber';
 import mapSpatialResolutionToNumber from '../../Utility/mapSpatialResolutionToNumber';
@@ -32,7 +33,7 @@ import VariableDetailsDialog from './VariableDetailsDialog';
 import ChartControlTabs from './ChartControlTabs';
 import HelpButtonAndDialog from '../UI/HelpButtonAndDialog';
 import StoredParametersDropdown from './StoredParametersDropdown';
-import storedProcedures from '../../Enums/storedProcedures';
+import SparseDataMaxSizeNotification from './SparseDataMaxSizeNotification';
 
 const mapStateToProps = (state, ownProps) => ({
     data: state.data,
@@ -973,6 +974,8 @@ class NewVizControlPanel extends React.Component {
                 {/* <ChartControlTabs handlePlotsSetActiveTab={this.props.handlePlotsSetActiveTab} plotsActiveTab={plotsActiveTab}/> */}
 
                 <VariableDetailsDialog variableDetailsID={variableDetailsID} handleSetVariableDetailsID={this.handleSetVariableDetailsID}/>
+                <SparseDataMaxSizeNotification/>
+
                     {
                         this.state.showDrawHelp ? 
 

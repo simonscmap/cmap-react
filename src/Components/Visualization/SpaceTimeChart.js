@@ -382,6 +382,7 @@ const SpaceTimeChart = (props) => {
                 zValues={subType !== subTypes.histogram && zValues}
                 extent={subType !== subTypes.histogram && extent}
                 downloadCsv={downloadCsv}
+                chart={chart}
             />
             {plots}     
         </React.Fragment>

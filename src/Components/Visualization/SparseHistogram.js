@@ -57,11 +57,12 @@ const SparseHistogram = React.memo((props) => {
     const depth = !data.hasDepth ? 'Surface' :
         parameters.depth1 === parameters.depth2 ? `${parameters.depth1}[m]` :
         `${parameters.depth1}[m] to ${parameters.depth2}[m]`;
-    console.log('rendering a sparse histogram');
+        
     return (
         <React.Fragment>
             <ChartControlPanel
                 downloadCsv={downloadCsv}
+                chart={props.chart}
             />
         <Plot
             style= {{
@@ -71,15 +72,15 @@ const SparseHistogram = React.memo((props) => {
                 height: '40vw'
             }}
 
-            onHover={(e, e2) => {
-                console.log(e);
-                console.log(e2)
-            }}
+            // onHover={(e, e2) => {
+            //     console.log(e);
+            //     console.log(e2)
+            // }}
 
-            onUnhover={(e, e2) => {
-                console.log(e);
-                console.log(e2)
-            }}
+            // onUnhover={(e, e2) => {
+            //     console.log(e);
+            //     console.log(e2)
+            // }}
 
             useResizeHandler={true}
 
