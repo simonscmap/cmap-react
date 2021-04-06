@@ -30,7 +30,7 @@ class ErrorBoundary extends React.Component {
     render() {
 
         return this.state.caughtError ?
-            <Paper style={{margin: '140px auto', width: '60vw', padding: '16px'}} elevation={4}>
+            <Paper style={{margin: '90px auto', width: '60vw', padding: '16px'}} elevation={4}>
                 <img src="/images/cmap-logo2.png" alt="CMAP Logo" style={{maxWidth: '90%'}}/>
                 <Typography variant='h6'>
                     Something went wrong. The issue has been reported to our development team. Please reload the page and try again.

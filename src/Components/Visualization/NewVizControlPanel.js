@@ -11,6 +11,7 @@ import { cruiseTrajectoryRequestSend, clearCharts, csvDownloadRequestSend, vizPa
 import { snackbarOpen } from '../../Redux/actions/ui';
 
 import colors from '../../Enums/colors';
+import z from '../../Enums/zIndex';
 import vizSubTypes from '../../Enums/visualizationSubTypes';
 import validation from '../../Enums/validation';
 import spatialResolutions from '../../Enums/spatialResolutions';
@@ -106,14 +107,14 @@ const styles = (theme) => ({
         position: 'fixed',
         left: '5px',
         top: '380px',
-        zIndex: 1100
+        zIndex: z.CONTROL_PRIMARY
       },
     
       closePanelChevron: {
         position: 'fixed',
         left: drawerWidth + 5,
         top: '380px',
-        zIndex: 1100
+        zIndex: z.CONTROL_PRIMARY
       },
 
     dataSearchMenuPaper: {
@@ -123,7 +124,7 @@ const styles = (theme) => ({
         left: 0,
         width: '98vw',
         height: 'auto',
-        zIndex: 1500,
+        zIndex: z.CONTROL_PRIMARY,
         backgroundColor: 'rgba(0,0,0,.6)',
         backdropFilter: 'blur(5px)',
     },
@@ -244,7 +245,7 @@ const styles = (theme) => ({
         position: 'fixed',
         top: 120,
         margin: '0 calc(50vw - 226px)',
-        zIndex: 1500,
+        zIndex: z.CONTROL_PRIMARY,
         color: 'white',
         fontSize: '18px',
         backgroundColor: 'rgba(0, 0, 0, .6)',

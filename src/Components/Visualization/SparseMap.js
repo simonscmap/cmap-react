@@ -98,7 +98,7 @@ const handleSparseMap = (infoObject, palette, zValues) => {
                     zoom: infoObject.zoom
                 },
 
-                annotations: chartBase.annotations(infoObject.metadata.Distributor)
+                annotations: chartBase.annotations(infoObject.metadata.Distributor, metadata.Data_Source)
             }}
             
             config={{

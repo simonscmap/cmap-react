@@ -164,7 +164,7 @@ const TimeSeriesChart = (props) => {
                       color: '#ffffff',
                       exponentformat: 'power'
                     },
-                  annotations: chartBase.annotations(metadata.Distributor)
+                  annotations: chartBase.annotations(metadata.Distributor, metadata.Data_Source)
                 }}
                 
             />

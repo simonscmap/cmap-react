@@ -468,7 +468,7 @@ class Visualization extends Component {
                     <Route 
                         path='/visualization/cruises'
                         render={(props) => (
-                            <CruiseSelector handleShowGlobe={this.handleShowGlobe}/>
+                            <CruiseSelector handleShowGlobe={() => this.handlePlotsSetActiveTab(null, 0)}/>
                         )}
                     />
                 </Switch>              

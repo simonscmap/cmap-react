@@ -118,7 +118,7 @@ const SparseHistogram = React.memo((props) => {
                     color: '#ffffff',
                     title: 'Frequency'
                 },
-                annotations: chartBase.annotations(metadata.Distributor)             
+                annotations: chartBase.annotations(metadata.Distributor, metadata.Data_Source)             
             }}
             config={{...chartBase.config}}
         />
