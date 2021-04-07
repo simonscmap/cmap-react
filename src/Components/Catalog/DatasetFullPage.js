@@ -249,7 +249,7 @@ const DatasetFullPage = (props) => {
     }, []);
 
     useEffect(() => {
-        document.title = Long_Name || metaTags.defaultTitle;
+        document.title = Long_Name || metaTags.default.title;
         document.description = Description || metaTags.default.description;
 
         return (() => {

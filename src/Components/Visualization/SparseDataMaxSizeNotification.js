@@ -29,7 +29,7 @@ const styles = theme => ({
     },
 
     lastPointValueText: {
-        fontSize: '12px'
+        fontSize: '13px'
     },
 
     lastPointValueWrapper: {
@@ -52,8 +52,8 @@ const styles = theme => ({
     },
 
     listItem: {
-        fontSize: '12px',
-        padding: '2px 0px 2px 24px'
+        fontSize: '13px',
+        padding: '3px 0px 2px 24px'
     }
 })
 
