@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 
 import { throttle } from 'throttle-debounce';
+import Cookies from 'js-cookie';
 
 import { withStyles, Tabs, Collapse, Paper, Badge, ButtonGroup, Grid, IconButton, Icon, ListItem, MenuItem, Typography, Drawer, TextField, FormControl, InputLabel, Button, Tooltip, ClickAwayListener, Slide} from '@material-ui/core';
 import { Edit, PlayArrow, ControlCamera , Settings, Fastfood, ShowChart, Search, Cached, LibraryBooks, ArrowRight, ChevronLeft, ChevronRight, InsertChartOutlined, Language, Delete, ShoppingCart, Info, DirectionsBoat } from '@material-ui/icons';
@@ -47,6 +48,7 @@ const mapStateToProps = (state, ownProps) => ({
     cart: state.cart,
     dataTarget: state.vizPageDataTarget,
     vizPageDataTargetDetails: state.vizPageDataTargetDetails,
+    user: state.user
 })
 
 const mapDispatchToProps = {
@@ -832,6 +834,12 @@ class NewVizControlPanel extends React.Component {
     checkGeneralPrevent = (dataSize) => {
         const webGLCount = countWebGLContexts(this.props.charts);
         const aggregateSize = aggregateChartDataSize(this.props.charts);
+
+        if(!this.props.user){
+            let guestPlotCount = parseInt(Cookies.get('guestPlotCount'));
+            if(guestPlotCount && guestPlotCount >= 5) return validation.generic.guestMaximumReached;
+        }
+
         if(!this.state.selectedVizType) return validation.generic.vizTypeMissing;
         if(this.state.selectedVizType === vizSubTypes.heatmap && webGLCount > 14) return validation.type.webGLContextLimit;
         if(this.state.selectedVizType === vizSubTypes.sparse && webGLCount > 11) return validation.type.webGLContextLimit;
@@ -841,13 +849,16 @@ class NewVizControlPanel extends React.Component {
             const depthCount = depthUtils.count({data: this.props.vizPageDataTargetDetails}, this.props.depth1, this.props.depth2) || 1;
             if(availableContexts - depthCount < 1) return 'Too many distinct depths to render heatmap. Please reduce depth range or select section map.';
         }
+
         if(this.state.selectedVizType !== vizSubTypes.histogram && this.props.selectedVizType !== vizSubTypes.heatmap && dataSize > 1200000){
             return validation.generic.dataSizePrevent;
         }
+
         if(dataSize > 6000000) return validation.generic.dataSizePrevent;
         if(!this.props.vizPageDataTargetDetails) return validation.generic.variableMissing;
         if(this.props.charts.length > 9) return 'Total number of plots is too large. Please delete 1 or more'
         if(aggregateSize + dataSize > 4000000) return 'Total rendered data amount is too large. Please delete 1 or more plots.'
+        
         if(
             !this.state.irregularSpatialResolution && 
             this.state.selectedVizType !== vizSubTypes.timeSeries && 

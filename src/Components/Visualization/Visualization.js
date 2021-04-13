@@ -11,6 +11,7 @@ import LoginRequiredPrompt from '../User/LoginRequiredPrompt';
 // import VisualizationController from './VisualizationController';
 import VizControlPanel from './VizControlPanel';
 import NewVizControlPanel from './NewVizControlPanel';
+import GuestPlotLimitNotification from './GuestPlotLimitNotification';
 
 import { showLoginDialog, snackbarOpen } from '../../Redux/actions/ui';
 import { queryRequestSend, storedProcedureRequestSend, cruiseListRequestSend, completedShowCharts, plotsActiveTabSet } from '../../Redux/actions/visualization';
@@ -390,11 +391,12 @@ class Visualization extends Component {
 
     render(){
         const { classes } = this.props;
-        if(!this.props.user) return <LoginRequiredPrompt/>
+        // if(!this.props.user) return <LoginRequiredPrompt/>
         
         return (
             <div className={classes.vizWrapper}>
 
+                <GuestPlotLimitNotification/>
                 {/* <VizControlPanel
                     toggleChartView={this.toggleChartView}
                     toggleShowUI={this.toggleShowUI}

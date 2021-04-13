@@ -89,6 +89,7 @@ const initialState = {
     datasetSummary: null,
     plotsActiveTab: 0,
     sparseDataMaxSizeNotificationData: null,
+    guestPlotLimitNotificationIsVisible: false,
 
     // Data Submission state pieces
 

@@ -180,6 +180,7 @@ function* storedProcedureRequest(action){
     } else {
         if(result.variableValues.length > 0){
             result.finalize();
+            yield put(visualizationActions.handleGuestVisualization());
             yield put(interfaceActions.setLoadingMessage(''));
             yield put(visualizationActions.storedProcedureRequestSuccess());
             // yield put(interfaceActions.snackbarOpen(`${action.payload.subType} ${action.payload.parameters.fields} is ready`));
@@ -1025,6 +1026,7 @@ function* sparseDataQuerySend(action) {
     } else {
         if(result.variableValues.length > 0){
             result.finalize();
+            yield put(visualizationActions.handleGuestVisualization());
             yield put(interfaceActions.setLoadingMessage(''));
             yield put(visualizationActions.storedProcedureRequestSuccess());
             // yield put(interfaceActions.snackbarOpen(`${action.payload.subType} ${action.payload.parameters.fields} is ready`));
@@ -1046,6 +1048,21 @@ function* errorReportSend(action){
 
 function* dataSubmissionSelectOptionsFetch(action){
     
+}
+
+function* handleGuestVisualization(action){
+    // Checks for user. Increments guest plot count. Shows dialog when limit reached
+    var userInfo = Cookies.get('UserInfo');
+    if(userInfo) return;
+
+    let guestPlotCount = parseInt(Cookies.get('guestPlotCount'));
+    let expires = new Date();
+    expires.setHours(24, 0, 0, 0);
+    Cookies.set('guestPlotCount', guestPlotCount ? guestPlotCount + 1 : 1, {expires});
+
+    if(guestPlotCount >= 4){
+        yield put(visualizationActions.guestPlotLimitNotificationSetIsVisible(true));
+    }
 }
 
 function* watchUserLogin() {
@@ -1261,7 +1278,11 @@ function* watchSparseDataQuerySend() {
 }
 
 function* watchErrorReportSend(){
-    yield takeLatest(communityActionTypes.ERROR_REPORT_SEND, errorReportSend)
+    yield takeLatest(communityActionTypes.ERROR_REPORT_SEND, errorReportSend);
+}
+
+function* watchHandleGuestVisualization(){
+    yield takeLatest(visualizationActionTypes.HANDLE_GUEST_VISUALIZATION, handleGuestVisualization);
 }
 
 // function createWorkerChannel(worker) {
@@ -1345,6 +1366,7 @@ export default function* rootSaga() {
         watchDataSubmissionSelectOptionsFetch(),
         watchDataSubmissionDelete(),
         watchSparseDataQuerySend(),
-        watchErrorReportSend()
+        watchErrorReportSend(),
+        watchHandleGuestVisualization()
     ]);
 }

@@ -27,7 +27,8 @@ const mapStateToProps = (state, ownProps) => {
     return {
         loginDialogIsOpen: state.loginDialogIsOpen,
         userLoginState: state.userLoginState,
-        userLoginError: state.userLoginError
+        userLoginError: state.userLoginError,
+        user: state.user
     }
 }
 
@@ -98,6 +99,13 @@ class LoginDialog extends Component{
         this.props.googleLoginRequestSend(token);
     }
 
+    componentDidUpdate = (prevProps, prevState) => {
+        if(!prevProps.user && this.props.user){
+            console.log('detected user and closed login dialog')
+            this.handleClose();
+        }
+    }
+
     onDialogEnter = () => {
         // clean up listener on unmount
         let _this = this;
@@ -118,7 +126,7 @@ class LoginDialog extends Component{
     render(){
         const { classes } = this.props;
         let loginDisabled = !this.props.username || !this.props.password;
-        
+
         return (
             <Dialog
                 open={this.props.loginDialogIsOpen}

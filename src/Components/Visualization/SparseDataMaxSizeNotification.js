@@ -97,7 +97,7 @@ const SparseDataMaxSizeNotification = (props) => {
                         <ListItem>
                             <List className={classes.list}>
                                 <ListItem className={classes.listItem}>
-                                {'\xb7'}All latitudes before {lat}{'\xb0'}
+                                {'\xb7'}All latitudes between - 90{'\xb0'} and {lat}{'\xb0'}
                                 </ListItem>
 
                                 <ListItem className={classes.listItem}>
@@ -107,7 +107,7 @@ const SparseDataMaxSizeNotification = (props) => {
                                 <ListItem>
                                     <List className={classes.list}>
                                         <ListItem className={classes.listItem}>
-                                        {'\xb7'}All longitudes before {lon}{'\xb0'}
+                                        {'\xb7'}All longitudes between -180{'\xb0'} and {lon}{'\xb0'}
                                         </ListItem>
 
                                         <ListItem className={classes.listItem}>
@@ -117,7 +117,7 @@ const SparseDataMaxSizeNotification = (props) => {
                                         <ListItem>
                                             <List className={classes.list}>
                                                 <ListItem className={classes.listItem}>
-                                                {'\xb7'}All depths up to and including {depth}[m]
+                                                {'\xb7'}All depths between 0[m] and {depth}[m]
                                                 </ListItem>
                                             </List>
                                         </ListItem>

@@ -358,3 +358,12 @@ export const sparseDataMaxSizeNotificationUpdate = (lastRowData) => ({
         lastRowData
     }
 });
+
+export const handleGuestVisualization = () => ({type: visualizationActionTypes.HANDLE_GUEST_VISUALIZATION});
+
+export const guestPlotLimitNotificationSetIsVisible = (isVisible) => ({
+    type: visualizationActionTypes.GUEST_PLOT_LIMIT_NOTIFICATION_SET_IS_VISIBLE,
+    payload: {
+        isVisible
+    }
+});

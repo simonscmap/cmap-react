@@ -103,6 +103,8 @@ export default function(state, action) {
 
         case visualizationActionTypes.SPARSE_DATA_MAX_SIZE_NOTIFICATION_UPDATE: return {...state, sparseDataMaxSizeNotificationData: action.payload.lastRowData}
         
+        case visualizationActionTypes.GUEST_PLOT_LIMIT_NOTIFICATION_SET_IS_VISIBLE: return {...state, guestPlotLimitNotificationIsVisible: action.payload.isVisible}
+
         default: return state;
     }
 }
