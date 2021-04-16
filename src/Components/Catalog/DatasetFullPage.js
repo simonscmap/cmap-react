@@ -38,10 +38,11 @@ const mapDispatchToProps = {
     datasetFullPageDataStore
 }
 
-const urlify = (str) => {
-    console.log(str.split(/(\bhttps?|ftp|file:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;]*[\-A-Za-z0-9+&@#\/%=~_|])/g))
+// const urlify = (str) => {
+    // console.log(str.split(/\b(https?|ftp|file):\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;]*[\-A-Za-z0-9+&@#\/%=~_|]/g))
 {/* <>{str.replace(/\b(https?|ftp|file):\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;]*[\-A-Za-z0-9+&@#\/%=~_|]/g, url => <Link href={url} target='_blank' style={{color: colors.primary}}>{url}</Link>)}</> */}
-}
+// }
+
 const styles = (theme) => ({
     stickyPaper: {
         position: '-webkit-sticky',
@@ -518,8 +519,8 @@ const DatasetFullPage = (props) => {
                                     {!loading ?
                                         References.map((reference, i) => (
                                             <Typography className={classes.referenceTypography} key={i}>
-                                                {urlify(reference)}
-                                                {/* {reference.match(/^\b(https?|ftp|file):\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;]*[\-A-Za-z0-9+&@#\/%=~_|]$/) ? <Link href={reference} target='_blank' style={{color: colors.primary}}>{reference}</Link>: reference} */}
+                                                {/* {urlify(reference)} */}
+                                                {reference.match(/^\b(https?|ftp|file):\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;]*[\-A-Za-z0-9+&@#\/%=~_|]$/) ? <Link href={reference} target='_blank' style={{color: colors.primary}}>{reference}</Link>: reference}
                                             </Typography>
                                         )) : ''}                            
                             </React.Fragment>
