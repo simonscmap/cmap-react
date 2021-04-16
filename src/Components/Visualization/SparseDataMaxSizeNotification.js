@@ -82,7 +82,7 @@ const SparseDataMaxSizeNotification = (props) => {
                 </Typography>
 
                 <Typography style={{marginTop: '16px'}}>
-                    The visualization includes all requested data with a time before {time.replace('T', ' ').replace('Z', '')} UTC. Data with a time of {time.replace('T', ' ').replace('Z', '')} may be incomplete.              
+                    The visualization includes all requested data with a time before {time.replace('T', ' ').replace('Z', '')} UTC. Some data with time of exactly {time.replace('T', ' ').replace('Z', '')} may not be included.              
                 </Typography>
 
                 {/* <div className={classes.lastPointValueWrapper}>
