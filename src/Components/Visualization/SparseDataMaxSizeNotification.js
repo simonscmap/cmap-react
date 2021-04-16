@@ -77,13 +77,15 @@ const SparseDataMaxSizeNotification = (props) => {
 
             <DialogContent className={classes.dialogContent}>
                 <Typography>
-                    The data requested exceeds the maximum retrievable amount. A visualization has been created from a subset of the data.
+                    The data requested exceeds the maximum retrievable amount. A visualization has been created from a subset* of the data.
                     If this does not include your data of interest, please reduce the range of the parameters in the control panel and create another visualization.
-                </Typography>
+                </Typography>    
 
-                <Typography style={{marginTop: '16px'}}>
-                    The visualization includes all requested data with a time before {time.replace('T', ' ').replace('Z', '')} UTC. Some data with time of exactly {time.replace('T', ' ').replace('Z', '')} may not be included.              
-                </Typography>
+                <div className={classes.lastPointValueWrapper}>
+                    <Typography style={{fontSize: '13px'}}>
+                        *The subset includes all requested data with a time before {time.replace('T', ' ').replace('Z', '')} UTC. Some data with time of exactly {time.replace('T', ' ').replace('Z', '')} may not be included.              
+                    </Typography>
+                </div>       
 
                 {/* <div className={classes.lastPointValueWrapper}>
                     <Typography className={classes.lastPointValueText}>
