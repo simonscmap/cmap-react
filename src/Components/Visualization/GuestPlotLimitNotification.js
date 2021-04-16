@@ -45,7 +45,7 @@ const GuestPlotLimitNotification = (props) => {
     return (
         <Dialog
             open={props.guestPlotLimitNotificationIsVisible}
-            // open={true}
+            open={true}
             onClose={() => props.guestPlotLimitNotificationSetIsVisible(false)}
             PaperProps={{
                 className: classes.dialogWrapper

@@ -38,6 +38,10 @@ const mapDispatchToProps = {
     datasetFullPageDataStore
 }
 
+const urlify = (str) => {
+    console.log(str.split(/(\bhttps?|ftp|file:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;]*[\-A-Za-z0-9+&@#\/%=~_|])/g))
+{/* <>{str.replace(/\b(https?|ftp|file):\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;]*[\-A-Za-z0-9+&@#\/%=~_|]/g, url => <Link href={url} target='_blank' style={{color: colors.primary}}>{url}</Link>)}</> */}
+}
 const styles = (theme) => ({
     stickyPaper: {
         position: '-webkit-sticky',
@@ -172,6 +176,12 @@ const styles = (theme) => ({
 
     smallText: {
         fontSize: '.8rem'
+    },
+
+    referenceTypography: {
+        fontSize: '.8rem',
+        paddingTop: '12px',
+        color: 'white'
     },
 
     tableHead: {
@@ -507,8 +517,9 @@ const DatasetFullPage = (props) => {
 
                                     {!loading ?
                                         References.map((reference, i) => (
-                                            <Typography className={classes.smallText} key={i} style={{color: 'white'}}>
-                                                {reference.match(/^\b(https?|ftp|file):\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;]*[\-A-Za-z0-9+&@#\/%=~_|]$/) ? <Link href={reference} target='_blank' style={{color: colors.primary}}>{reference}</Link>: reference}
+                                            <Typography className={classes.referenceTypography} key={i}>
+                                                {urlify(reference)}
+                                                {/* {reference.match(/^\b(https?|ftp|file):\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;]*[\-A-Za-z0-9+&@#\/%=~_|]$/) ? <Link href={reference} target='_blank' style={{color: colors.primary}}>{reference}</Link>: reference} */}
                                             </Typography>
                                         )) : ''}                            
                             </React.Fragment>
