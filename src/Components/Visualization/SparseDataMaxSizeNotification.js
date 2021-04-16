@@ -83,7 +83,7 @@ const SparseDataMaxSizeNotification = (props) => {
 
                 <div className={classes.lastPointValueWrapper}>
                     <Typography style={{fontSize: '13px'}}>
-                        *The subset includes all requested data with a time before {time.replace('T', ' ').replace('Z', '')} UTC. Some data with time of exactly {time.replace('T', ' ').replace('Z', '')} may not be included.              
+                        *The subset includes all requested data with a time before {time.replace('T', ' ').replace('Z', '')} UTC. Some data with a time of exactly {time.replace('T', ' ').replace('Z', '')} may not be included.              
                     </Typography>
                 </div>       
 
