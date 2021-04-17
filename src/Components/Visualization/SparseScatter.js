@@ -132,7 +132,7 @@ const SparseScatter = (props) => {
                     exponentformat: 'power',
                     autorange: type === 'depth' ? 'reversed' : true
                 },
-                annotations: chartBase.annotations(metadata.Distributor)
+                annotations: chartBase.annotations(metadata.Distributor, metadata.Data_Source)
             }}            
         />
     )

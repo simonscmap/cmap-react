@@ -12,6 +12,8 @@ import SparseData from './Classes/SparseData';
 
 import encoding from 'text-encoding';
 
+import sparseDataQueryFromPayload from './Utility/Visualization/sparseDataQueryFromPayload';
+
 const fetchOptions = {
     credentials: 'include'
 }
@@ -34,6 +36,7 @@ api.dataRetrieval = {};
 api.catalog = {};
 api.visualization = {};
 api.dataSubmission = {};
+api.community = {};
 
 api.user.login = (user) => {
     return fetch(apiUrl + '/user/signin', {
@@ -270,6 +273,60 @@ api.visualization.storedProcedureRequest = async(payload) => {
     return vizData;
 }
 
+api.visualization.sparseDataQuerysend = async(payload) => {
+    const { parameters, metadata } = payload;
+
+    const decoder = new encoding.TextDecoder();
+    var vizData;
+
+    // build the query
+    let query = sparseDataQueryFromPayload(payload);
+    
+    switch(parameters.spName) {
+        case storedProcedures.spaceTime:
+            if(payload.subType === 'Sparse') vizData = new SparseData(payload);
+            else vizData = new SpaceTimeData(payload);
+            break;
+
+        default:
+            console.log('Unknown sproc name');
+    }
+
+    // let response = await fetch(apiUrl + '/api/data/sp?' + storedProcedureParametersToUri(payload.parameters), fetchOptions);
+    let response = await fetch(apiUrl + '/api/data/query?query=' + encodeURI(query), fetchOptions);
+
+    if(!response.ok) return {failed: true, status: response.status};
+
+    let csvParser = CSVParser({from: 2});
+
+    csvParser.on('readable', function(){
+        let record;
+        while (record = csvParser.read()) {
+            vizData.add(record);
+        }
+    })
+
+    csvParser.on('error', (e) => {
+        console.log(e);
+    })
+
+    let body = response.body;
+    let reader = body.getReader();
+    let readerIsDone = false;
+
+    while(!readerIsDone){
+        let chunk = await reader.read();
+        if(chunk.done) {
+            readerIsDone = true;
+        }
+        else {
+            csvParser.write(decoder.decode(chunk.value));
+        };
+    }
+    
+    return vizData;
+}
+
 
 api.visualization.getTableStats = async(tableName) => {
     let response = await fetch(apiUrl + '/dataretrieval/tablestats?table=' + tableName, fetchOptions);
@@ -431,4 +488,10 @@ api.user.getCart = async() => {
     return await fetch(`${apiUrl}/api/user/getcart`, fetchOptions);
 }
 
+api.community.errorReport = async(formData) => {
+    return await fetch(apiUrl + '/api/community/errorreport', {
+        ...postOptions,
+        body: JSON.stringify(formData),
+    });
+}
 export default api;

@@ -17,6 +17,7 @@ import { debounce } from 'throttle-debounce';
 // import Catalog from './Components/Catalog/Catalog';
 import GlobalUIComponentWrapper from './Components/UI/GlobalUIComponentWrapper';
 import TopNavBar from './Components/UI/TopNavBar';
+import ErrorBoundary from './Components/UI/ErrorBoundary';
 
 const Home = lazy(() => import('./Components/Home'));
 const SearchResults = lazy(() => import('./Components/Catalog/SearchResults'));
@@ -241,29 +242,31 @@ class App extends Component {
       <MuiPickersUtilsProvider utils={DateFnsUtils}>
         <div className="App">
           <MuiThemeProvider theme={theme}>
-          <BrowserRouter>
-            <GlobalUIComponentWrapper/>
-            <TopNavBar/>
-            <Suspense fallback={''}>
-              <Switch>          
-                <Route exact path='/apikeymanagement' component={ Home } />
-                <Route exact path='/' component={ LandingPage } />
-                <Route exact path='/catalog' component={ CatalogNew } />
-                <Route exact path='/login' component={ Login } />
-                <Route exact path='/register' component={ Register } />
-                <Route path='/visualization' component={Visualization} />
-                <Route exact path='/profile' component={Profile} />
-                <Route exact path='/forgotpass' component={ForgotPass} />
-                <Route path='/datasubmission' component={DataSubmission} />
-                <Route path='/choosepassword' component={ChoosePassword} />
-                <Route exact path='/contact' component={ContactUs}/>
-                <Route path='/community' component={CommunityTemp} />
-                <Route path='/catalog/searchresults' component={SearchResults}/>
-                <Route path='/catalog/datasets/:dataset' component={DatasetFullPage}/>
-                <Route path='/catalog/cruises/:cruiseName' component={CruiseFullPage}/>
-              </Switch>
-            </Suspense>
-          </BrowserRouter>
+            <ErrorBoundary>
+              <BrowserRouter>
+                <GlobalUIComponentWrapper/>
+                <TopNavBar/>
+                <Suspense fallback={''}>
+                  <Switch>          
+                    <Route exact path='/apikeymanagement' component={ Home } />
+                    <Route exact path='/' component={ LandingPage } />
+                    <Route exact path='/catalog' component={ CatalogNew } />
+                    <Route exact path='/login' component={ Login } />
+                    <Route exact path='/register' component={ Register } />
+                    <Route path='/visualization' component={Visualization} />
+                    <Route exact path='/profile' component={Profile} />
+                    <Route exact path='/forgotpass' component={ForgotPass} />
+                    <Route path='/datasubmission' component={DataSubmission} />
+                    <Route path='/choosepassword' component={ChoosePassword} />
+                    <Route exact path='/contact' component={ContactUs}/>
+                    <Route path='/community' component={CommunityTemp} />
+                    <Route path='/catalog/searchresults' component={SearchResults}/>
+                    <Route path='/catalog/datasets/:dataset' component={DatasetFullPage}/>
+                    <Route path='/catalog/cruises/:cruiseName' component={CruiseFullPage}/>
+                  </Switch>
+                </Suspense>
+              </BrowserRouter>
+            </ErrorBoundary>
           </MuiThemeProvider>
         </div>
       </MuiPickersUtilsProvider>

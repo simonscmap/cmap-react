@@ -390,9 +390,8 @@ class Visualization extends Component {
 
     render(){
         const { classes } = this.props;
-
         if(!this.props.user) return <LoginRequiredPrompt/>
-
+        
         return (
             <div className={classes.vizWrapper}>
 
@@ -469,7 +468,7 @@ class Visualization extends Component {
                     <Route 
                         path='/visualization/cruises'
                         render={(props) => (
-                            <CruiseSelector handleShowGlobe={this.handleShowGlobe}/>
+                            <CruiseSelector handleShowGlobe={() => this.handlePlotsSetActiveTab(null, 0)}/>
                         )}
                     />
                 </Switch>              

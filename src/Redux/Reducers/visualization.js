@@ -100,6 +100,8 @@ export default function(state, action) {
         case visualizationActionTypes.DATASET_SUMMARY_STORE: return {...state, datasetSummary: action.payload.datasetSummary}
 
         case visualizationActionTypes.PLOTS_ACTIVE_TAB_SET: return {...state, plotsActiveTab: action.payload.tab}
+
+        case visualizationActionTypes.SPARSE_DATA_MAX_SIZE_NOTIFICATION_UPDATE: return {...state, sparseDataMaxSizeNotificationData: action.payload.lastRowData}
         
         default: return state;
     }

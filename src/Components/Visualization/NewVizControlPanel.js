@@ -7,14 +7,16 @@ import { withStyles, Tabs, Collapse, Paper, Badge, ButtonGroup, Grid, IconButton
 import { Edit, PlayArrow, ControlCamera , Settings, Fastfood, ShowChart, Search, Cached, LibraryBooks, ArrowRight, ChevronLeft, ChevronRight, InsertChartOutlined, Language, Delete, ShoppingCart, Info, DirectionsBoat } from '@material-ui/icons';
 import { KeyboardDatePicker } from "@material-ui/pickers";
 
-import { cruiseTrajectoryRequestSend, clearCharts, csvDownloadRequestSend, vizPageDataTargetSetAndFetchDetails, storedProcedureRequestSend } from '../../Redux/actions/visualization';
+import { cruiseTrajectoryRequestSend, clearCharts, csvDownloadRequestSend, vizPageDataTargetSetAndFetchDetails, storedProcedureRequestSend, sparseDataQuerySend } from '../../Redux/actions/visualization';
 import { snackbarOpen } from '../../Redux/actions/ui';
 
 import colors from '../../Enums/colors';
+import z from '../../Enums/zIndex';
 import vizSubTypes from '../../Enums/visualizationSubTypes';
 import validation from '../../Enums/validation';
 import spatialResolutions from '../../Enums/spatialResolutions';
 import temporalResolutions from '../../Enums/temporalResolutions';
+import storedProcedures from '../../Enums/storedProcedures';
 
 import mapTemporalResolutionToNumber from '../../Utility/mapTemporalResolutionToNumber';
 import mapSpatialResolutionToNumber from '../../Utility/mapSpatialResolutionToNumber';
@@ -32,6 +34,7 @@ import VariableDetailsDialog from './VariableDetailsDialog';
 import ChartControlTabs from './ChartControlTabs';
 import HelpButtonAndDialog from '../UI/HelpButtonAndDialog';
 import StoredParametersDropdown from './StoredParametersDropdown';
+import SparseDataMaxSizeNotification from './SparseDataMaxSizeNotification';
 
 const mapStateToProps = (state, ownProps) => ({
     data: state.data,
@@ -52,7 +55,8 @@ const mapDispatchToProps = {
     csvDownloadRequestSend,
     snackbarOpen,
     vizPageDataTargetSetAndFetchDetails,
-    storedProcedureRequestSend
+    storedProcedureRequestSend,
+    sparseDataQuerySend
 }
 
 const drawerWidth = 280;
@@ -103,14 +107,14 @@ const styles = (theme) => ({
         position: 'fixed',
         left: '5px',
         top: '380px',
-        zIndex: 1100
+        zIndex: z.CONTROL_PRIMARY
       },
     
       closePanelChevron: {
         position: 'fixed',
         left: drawerWidth + 5,
         top: '380px',
-        zIndex: 1100
+        zIndex: z.CONTROL_PRIMARY
       },
 
     dataSearchMenuPaper: {
@@ -120,7 +124,7 @@ const styles = (theme) => ({
         left: 0,
         width: '98vw',
         height: 'auto',
-        zIndex: 1500,
+        zIndex: z.CONTROL_PRIMARY,
         backgroundColor: 'rgba(0,0,0,.6)',
         backdropFilter: 'blur(5px)',
     },
@@ -241,7 +245,7 @@ const styles = (theme) => ({
         position: 'fixed',
         top: 120,
         margin: '0 calc(50vw - 226px)',
-        zIndex: 1500,
+        zIndex: z.CONTROL_PRIMARY,
         color: 'white',
         fontSize: '18px',
         backgroundColor: 'rgba(0, 0, 0, .6)',
@@ -465,6 +469,8 @@ class NewVizControlPanel extends React.Component {
     handleVisualize = () => {
         const { depth1, depth2, dt1, dt2, lat1, lat2, lon1, lon2, selectedVizType } = this.state;
 
+        let isSparseVariable = this.props.vizPageDataTargetDetails.Spatial_Resolution === spatialResolutions.irregular;
+
         let mapping = mapVizType(selectedVizType);
         let parameters = cleanSPParams({
             depth1,
@@ -489,8 +495,9 @@ class NewVizControlPanel extends React.Component {
             subType: mapping.subType,
             metadata: this.props.vizPageDataTargetDetails
         }
-    
-        this.props.storedProcedureRequestSend(payload);
+
+        if(isSparseVariable && mapping.sp !== storedProcedures.depthProfile) this.props.sparseDataQuerySend(payload);
+        else this.props.storedProcedureRequestSend(payload);
     }
 
     handleDrawClick = () => {
@@ -968,6 +975,8 @@ class NewVizControlPanel extends React.Component {
                 {/* <ChartControlTabs handlePlotsSetActiveTab={this.props.handlePlotsSetActiveTab} plotsActiveTab={plotsActiveTab}/> */}
 
                 <VariableDetailsDialog variableDetailsID={variableDetailsID} handleSetVariableDetailsID={this.handleSetVariableDetailsID}/>
+                <SparseDataMaxSizeNotification/>
+
                     {
                         this.state.showDrawHelp ? 
 

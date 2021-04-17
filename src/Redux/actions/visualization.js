@@ -346,3 +346,15 @@ export const plotsActiveTabSet = (tab) => ({
         tab
     }
 });
+
+export const sparseDataQuerySend = (payload) => ({
+    type: visualizationActionTypes.SPARSE_DATA_QUERY_SEND,
+    payload
+});
+
+export const sparseDataMaxSizeNotificationUpdate = (lastRowData) => ({
+    type: visualizationActionTypes.SPARSE_DATA_MAX_SIZE_NOTIFICATION_UPDATE,
+    payload: {
+        lastRowData
+    }
+});

@@ -176,7 +176,7 @@ const handleSectionMap = (subsets, infoObject, splitByDate, splitBySpace, orient
                     autorange: 'reversed'
                 },
                 paper_bgcolor: colors.backgroundGray,
-                annotations: chartBase.annotations(metadata.Distributor)
+                annotations: chartBase.annotations(metadata.Distributor, metadata.Data_Source)
 
             }}   
         />
@@ -294,6 +294,7 @@ const SectionMapChart = (props) => {
                 zValues={zValues}
                 extent={extent}
                 downloadCsv={downloadCsv}
+                chart={props.chart}
             />
             </div>
             {plots}      

@@ -101,6 +101,7 @@ const TimeSeriesChart = (props) => {
                 handleSetShowErrorBars={handleSetShowErrorBars}
                 showLines={showLines}
                 handleSetShowLines={handleSetShowLines}
+                chart={props.chart}
             />
             <Plot
                 style= {{
@@ -163,7 +164,7 @@ const TimeSeriesChart = (props) => {
                       color: '#ffffff',
                       exponentformat: 'power'
                     },
-                  annotations: chartBase.annotations(metadata.Distributor)
+                  annotations: chartBase.annotations(metadata.Distributor, metadata.Data_Source)
                 }}
                 
             />

@@ -57,11 +57,12 @@ const SparseHistogram = props => {
     const depth = !data.hasDepth ? 'Surface' :
         parameters.depth1 === parameters.depth2 ? `${parameters.depth1}[m]` :
         `${parameters.depth1}[m] to ${parameters.depth2}[m]`;
-
+        
     return (
         <React.Fragment>
             <ChartControlPanel
                 downloadCsv={downloadCsv}
+                chart={props.chart}
             />
         <Plot
             style= {{
@@ -117,7 +118,7 @@ const SparseHistogram = props => {
                     color: '#ffffff',
                     title: 'Frequency'
                 },
-                annotations: chartBase.annotations(metadata.Distributor)             
+                annotations: chartBase.annotations(metadata.Distributor, metadata.Data_Source)             
             }}
             config={{...chartBase.config}}
         />

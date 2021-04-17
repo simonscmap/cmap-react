@@ -1,22 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { connect } from 'react-redux';
 
-import { withStyles } from '@material-ui/core/styles';
-import Tooltip from '@material-ui/core/Tooltip';
-import IconButton from '@material-ui/core/IconButton';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
-import Popover from '@material-ui/core/Popover';
-import Grid from '@material-ui/core/Grid';
-import FormControl from '@material-ui/core/FormControl';
-import InputLabel from '@material-ui/core/InputLabel';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
-import FormHelperText from '@material-ui/core/FormHelperText';
-import Button from '@material-ui/core/Button';
-import { DateRange, CloudDownload, Palette, SwapVert, Gamepad, LineWeight, ShowChart, Tune } from '@material-ui/icons';
+import { withStyles, Tooltip, IconButton, Menu, MenuItem, Popover, Grid, FormControl, InputLabel, OutlinedInput, FormHelperText, Button, ButtonGroup } from '@material-ui/core';
+import { DateRange, CloudDownload, Palette, SwapVert, Gamepad, LineWeight, ShowChart, Tune, Warning } from '@material-ui/icons';
+
+import { sparseDataMaxSizeNotificationUpdate } from '../../Redux/actions/visualization';
 
 import colors from '../../Enums/colors';
+import z from '../../Enums/zIndex';
+import SPARSE_DATA_QUERY_MAX_SIZE from '../../Enums/sparseDataQueryMaxSize';
+import lastRowTimeSpaceDataFromChart from '../../Utility/Visualization/lastRowTimeSpaceDataFromChart';
+import spatialResolutions from '../../Enums/spatialResolutions';
+import temporalResolutions from '../../Enums/temporalResolutions';
 
-import { ButtonGroup } from '@material-ui/core';
+const mapDispatchToProps = {
+    sparseDataMaxSizeNotificationUpdate
+}
 
 const styles = theme => ({
     chartWrapper: {
@@ -33,7 +32,8 @@ const styles = theme => ({
         paddingTop: theme.spacing(3),
         paddingBottom: theme.spacing(1),
         paddingLeft: theme.spacing(2.5),
-        paddingRight: theme.spacing(2.5)
+        paddingRight: theme.spacing(2.5),
+        zIndex: z.CONTROL_PRIMARY
     },
 
     iconButton: {
@@ -53,7 +53,8 @@ const styles = theme => ({
         display: 'block',
         margin: '0px auto 8px auto',
         maxWidth: '700px',
-        textAlign: 'center'
+        textAlign: 'center',
+        pointerEvents: 'auto'
     },
 
     depressed: {
@@ -61,11 +62,26 @@ const styles = theme => ({
     },
 
     colorscaleMenu: {
-        maxHeight: '400px'
+        maxHeight: '400px',
+        zIndex: z.CONTROL_PRIMARY
+    },
+
+    setPopoverZ: {
+        zIndex: `${z.CONTROL_PRIMARY} !important`
     },
 
     grayBackground: {
         backgroundColor: colors.backgroundGray
+    },
+
+    sparseDataMaxSizeWarningIcon: {
+        color: colors.errorYellow,
+        position: 'absolute',
+        top: '60px',
+        left: 'calc(50% - 12px)',
+        cursor: 'pointer',
+        zIndex: z.CONTROL_PRIMARY - 1,
+        pointerEvents: 'auto'
     }
 })
 
@@ -134,7 +150,8 @@ const ChartControlPanel = (props) => {
         showErrorBars,
         handleSetShowErrorBars,
         showLines,
-        handleSetShowLines
+        handleSetShowLines,
+        chart
     } = props;
 
     const [paletteAnchorElement, setPaletteAnchorElement] = useState(null);
@@ -183,6 +200,10 @@ const ChartControlPanel = (props) => {
     const handleLocalZConfirm = () => {
         handleZValueConfirm([localZMin, localZMax]);
         handleZScalePopoverClose();
+    }
+
+    const showMaxSizeWarningAndInfo = () => {
+        props.sparseDataMaxSizeNotificationUpdate(lastRowTimeSpaceDataFromChart(props.chart.data));
     }
 
     const [markerOptionsAnchorElement, setMarkerOptionsAnchorElement] = React.useState(null);
@@ -244,77 +265,90 @@ const ChartControlPanel = (props) => {
         handleMarkerOptionsClose();
     }
 
+    const showSparseDataSizeWarning = Boolean(chart && 
+        (chart.data.metadata.Spatial_Resolution === spatialResolutions.irregular || chart.data.metadata.Temporal_Resolution === temporalResolutions.irregular) &&
+        chart.data && chart.data.variableValues && chart.data.variableValues.length >= SPARSE_DATA_QUERY_MAX_SIZE);
+
     return (
         <React.Fragment>
-            <ButtonGroup className={classes.buttonGroup}>
+            <div style={{position: 'relative', pointerEvents: 'none', margin: 'auto', maxWidth: '80%'}}>
+                {showSparseDataSizeWarning ?
+                    <Tooltip title='Visualization does not contain all requested data. Click for more info.'>
+                        <Warning className={classes.sparseDataMaxSizeWarningIcon} onClick={showMaxSizeWarningAndInfo}/>
+                    </Tooltip>  :
+                    ''
+                }
 
-                {Boolean(onToggleSplitByDate) && 
-                    <Tooltip placement='top' title='Split By Date'>
-                        <IconButton color='inherit' className={`${classes.iconButton} ${splitByDate && classes.depressed}`} 
-                            onClick={onToggleSplitByDate}
-                        >
-                            <DateRange/>
+                <ButtonGroup className={classes.buttonGroup}>
+
+                    {Boolean(onToggleSplitByDate) && 
+                        <Tooltip placement='top' title='Split By Date'>
+                            <IconButton color='inherit' className={`${classes.iconButton} ${splitByDate && classes.depressed}`} 
+                                onClick={onToggleSplitByDate}
+                            >
+                                <DateRange/>
+                            </IconButton>
+                        </Tooltip>
+                    }
+
+                    {Boolean(onToggleSplitBySpace) && 
+                        <Tooltip placement='top' title={orientation === 'zonal' ? 'Split by Latitude' : 'Split by Longitude'}>
+                            <IconButton color='inherit' className={`${classes.iconButton} ${splitBySpace && classes.depressed}`} 
+                                onClick={onToggleSplitBySpace}
+                            >
+                                <LineWeight/>
+                            </IconButton>
+                        </Tooltip>
+                    }
+
+                    <Tooltip placement='top' title='Download CSV'>
+                        <IconButton color='inherit' onClick={downloadCsv} className={classes.iconButton} >
+                            <CloudDownload/>
                         </IconButton>
                     </Tooltip>
-                }
 
-                {Boolean(onToggleSplitBySpace) && 
-                    <Tooltip placement='top' title={orientation === 'zonal' ? 'Split by Latitude' : 'Split by Longitude'}>
-                        <IconButton color='inherit' className={`${classes.iconButton} ${splitBySpace && classes.depressed}`} 
-                            onClick={onToggleSplitBySpace}
-                        >
-                            <LineWeight/>
-                        </IconButton>
-                    </Tooltip>
-                }
+                    {Boolean(handleZValueConfirm) &&
+                        <Tooltip title='Change Colorscale Range' placement='top'>
+                            <IconButton color='inherit' onClick={(event) => setZScalePopoverAnchorElement(event.currentTarget)} className={classes.iconButton}>
+                                <SwapVert/>
+                            </IconButton>
+                        </Tooltip>
+                    }
 
-                <Tooltip placement='top' title='Download CSV'>
-                    <IconButton color='inherit' onClick={downloadCsv} className={classes.iconButton} >
-                        <CloudDownload/>
-                    </IconButton>
-                </Tooltip>
+                    {Boolean(handleSetShowLines) &&
+                        <Tooltip title={showLines ? 'Hide Plot Line' : 'Show Plot Line'} placement='top'>
+                            <IconButton color='inherit' onClick={() => handleSetShowLines(!showLines)} className={`${classes.iconButton} ${showLines && classes.depressed}`}>
+                                <ShowChart/>
+                            </IconButton>
+                        </Tooltip>
+                    }
 
-                {Boolean(handleZValueConfirm) &&
-                    <Tooltip title='Change Colorscale Range' placement='top'>
-                        <IconButton color='inherit' onClick={(event) => setZScalePopoverAnchorElement(event.currentTarget)} className={classes.iconButton}>
-                            <SwapVert/>
-                        </IconButton>
-                    </Tooltip>
-                }
+                    {Boolean(handleSetShowErrorBars) &&
+                        <Tooltip title={showErrorBars ? 'Hide Error Bars' : 'Show Error Bars'} placement='top'>
+                            <IconButton color='inherit' onClick={() => handleSetShowErrorBars(!showErrorBars)} className={`${classes.iconButton} ${showErrorBars && classes.depressed}`}>
+                                <Tune/>
+                            </IconButton>
+                        </Tooltip>
+                    }
 
-                {Boolean(handleSetShowLines) &&
-                    <Tooltip title={showLines ? 'Hide Plot Line' : 'Show Plot Line'} placement='top'>
-                        <IconButton color='inherit' onClick={() => handleSetShowLines(!showLines)} className={`${classes.iconButton} ${showLines && classes.depressed}`}>
-                            <ShowChart/>
-                        </IconButton>
-                    </Tooltip>
-                }
+                    {Boolean(props.handlePaletteChoice) &&
+                        <Tooltip title='Change Palette' placement='top'>
+                            <IconButton disabled={!Boolean(props.handlePaletteChoice)} color='inherit' onClick={handleOpenPalette} className={classes.iconButton}>
+                                <Palette/>
+                            </IconButton>                
+                        </Tooltip>      
+                    }
 
-                {Boolean(handleSetShowErrorBars) &&
-                    <Tooltip title={showErrorBars ? 'Hide Error Bars' : 'Show Error Bars'} placement='top'>
-                        <IconButton color='inherit' onClick={() => handleSetShowErrorBars(!showErrorBars)} className={`${classes.iconButton} ${showErrorBars && classes.depressed}`}>
-                            <Tune/>
-                        </IconButton>
-                    </Tooltip>
-                }
-
-                {Boolean(props.handlePaletteChoice) &&
-                    <Tooltip title='Change Palette' placement='top'>
-                        <IconButton disabled={!Boolean(props.handlePaletteChoice)} color='inherit' onClick={handleOpenPalette} className={classes.iconButton}>
-                            <Palette/>
-                        </IconButton>                
-                    </Tooltip>      
-                }
-
-                {Boolean(props.handleMarkerOptionsConfirm) &&
-                    <Tooltip title='Marker Options' placement='top'>
-                        <IconButton color='inherit' onClick={(event) => setMarkerOptionsAnchorElement(event.currentTarget)} className={`${classes.iconButton} ${classes.lastIcon}`} >
-                            <Gamepad/>
-                        </IconButton>                
-                    </Tooltip>
-                }
-                
-            </ButtonGroup>
+                    {Boolean(props.handleMarkerOptionsConfirm) &&
+                        <Tooltip title='Marker Options' placement='top'>
+                            <IconButton color='inherit' onClick={(event) => setMarkerOptionsAnchorElement(event.currentTarget)} className={`${classes.iconButton} ${classes.lastIcon}`} >
+                                <Gamepad/>
+                            </IconButton>                
+                        </Tooltip>
+                    }
+                    
+                </ButtonGroup>   
+            </div>
             
             <Menu
                 id="simple-menu"
@@ -349,6 +383,10 @@ const ChartControlPanel = (props) => {
                 }}
                 PaperProps={{
                     className: classes.grayBackground
+                }}
+
+                classes={{
+                    root: classes.setPopoverZ
                 }}
             >
                 <div className={classes.popover}>
@@ -428,6 +466,9 @@ const ChartControlPanel = (props) => {
                 transformOrigin={{
                     vertical: 'top',
                     horizontal: 'center',
+                }}
+                classes={{
+                    root: classes.setPopoverZ
                 }}
                 PaperProps={{
                     className: classes.grayBackground
@@ -518,4 +559,4 @@ const ChartControlPanel = (props) => {
     )
 }
 
-export default withStyles(styles)(ChartControlPanel);
+export default connect(null, mapDispatchToProps)(withStyles(styles)(ChartControlPanel));

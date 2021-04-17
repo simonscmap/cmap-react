@@ -139,7 +139,7 @@ const handleContourMap = (subsets, infoObject, splitByDate, splitByDepth, palett
                 },
                 xaxis: {title: 'Longitude', color: '#ffffff', ...xTicks},
                 yaxis: {title: 'Latitude', color: '#ffffff'},
-                annotations: chartBase.annotations(infoObject.metadata.Distributor, height)
+                annotations: chartBase.annotations(infoObject.metadata.Distributor, metadata.Data_Source)
             }}   
         />)
     })
@@ -233,7 +233,8 @@ const handleHeatmap = (subsets, infoObject, splitByDate, splitByDepth, palette, 
             config={{...chartBase.config}}
 
             layout= {{
-                ...chartBase.layout,
+                ...chartBase.layout,               
+
                 title: {
                     text: `${metadata.Dataset_Name}` +
                         `<br>${metadata.Long_Name.length > 60 ? metadata.Long_Name.slice(0, 60) + '...': metadata.Long_Name} [${metadata.Unit}]` + 
@@ -256,7 +257,7 @@ const handleHeatmap = (subsets, infoObject, splitByDate, splitByDepth, palette, 
                     color: '#ffffff',
                     exponentformat: 'power'
                 },
-                annotations: chartBase.annotations(infoObject.metadata.Distributor, height)
+                annotations: chartBase.annotations(infoObject.metadata.Distributor, metadata.Data_Source)
             }}   
         />)
     })
@@ -382,6 +383,7 @@ const SpaceTimeChart = (props) => {
                 zValues={subType !== subTypes.histogram && zValues}
                 extent={subType !== subTypes.histogram && extent}
                 downloadCsv={downloadCsv}
+                chart={chart}
             />
             {plots}     
         </React.Fragment>
