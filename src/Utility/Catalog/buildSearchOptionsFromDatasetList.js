@@ -22,7 +22,13 @@ const buildSearchOptionsFromDatasetList = (datasets, storedOptions = {}, params 
 
     columns.forEach(col => {
         options[col] = Array.from(options[col]).sort(function (a, b) {
-            return a.toLowerCase().localeCompare(b.toLowerCase());
+            try {
+                return a.toLowerCase().localeCompare(b.toLowerCase());
+            }
+
+            catch {
+                console.log(col)
+            }
         });
     });
 

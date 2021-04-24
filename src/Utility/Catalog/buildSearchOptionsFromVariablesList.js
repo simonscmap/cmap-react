@@ -3,6 +3,7 @@
 // 
 
 const buildSearchOptionsFromVariableList = (variables, storedOptions = {}, params = {}) => {
+    console.log(variables);
     let options = {
         Sensor: new Set(),
         Temporal_Resolution: new Set(['Any']),
@@ -23,7 +24,14 @@ const buildSearchOptionsFromVariableList = (variables, storedOptions = {}, param
 
     columns.forEach(col => {
         options[col] = Array.from(options[col]).sort(function (a, b) {
-            return a.toLowerCase().localeCompare(b.toLowerCase());
+            try {
+
+                return a.toLowerCase().localeCompare(b.toLowerCase());
+            }
+
+            catch{
+
+            }
         });
     });
 
