@@ -171,7 +171,7 @@ const SparseMap = React.memo((props) => {
 
     const [palette, setPalette] = useState('Heatmap');
     const [zValues, setZValues] = useState([data.zMin, data.zMax]);
-    const [markerOptions, setMarkerOptions] = useState({opacity: .7, color:'#ff1493', size: 12});
+    const [markerOptions, setMarkerOptions] = useState({opacity: .7, color:'#ff1493', size: 6});
     const [tab, setTab] = useState(0);
 
     const plot = handleSparseMap(data, palette, zValues)

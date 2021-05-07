@@ -70,7 +70,6 @@ const ChartControlTabs = (props) => {
     const { classes, plotsActiveTab, handlePlotsSetActiveTab, charts } = props;
 
     const handleDeleteChart = (e, chartIndex) => {
-        console.log(e);
         e.stopPropagation();
         props.deleteChart(chartIndex);
     }

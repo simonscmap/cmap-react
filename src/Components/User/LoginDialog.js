@@ -19,7 +19,7 @@ import colors from '../../Enums/colors';
 import z from '../../Enums/zIndex';
 
 import { showLoginDialog, hideLoginDialog, restoreInterfaceDefaults, snackbarOpen } from '../../Redux/actions/ui';
-import { logOut, userLoginRequestSend, googleLoginRequestSend } from '../../Redux/actions/user';
+import { logOut, userLoginRequestSend, googleLoginRequestSend, guestTokenRequestSend } from '../../Redux/actions/user';
 
 import GoogleSignInButton from './GoogleSignInButton';
 
@@ -39,7 +39,8 @@ const mapDispatchToProps = {
     userLoginRequestSend,
     restoreInterfaceDefaults,
     googleLoginRequestSend,
-    snackbarOpen
+    snackbarOpen,
+    guestTokenRequestSend
 }
 
 const styles = theme => ({
@@ -101,7 +102,6 @@ class LoginDialog extends Component{
 
     componentDidUpdate = (prevProps, prevState) => {
         if(!prevProps.user && this.props.user){
-            console.log('detected user and closed login dialog')
             this.handleClose();
         }
     }

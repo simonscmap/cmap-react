@@ -16,7 +16,7 @@ const buildSearchOptionsFromDatasetList = (datasets, storedOptions = {}, params 
 
     datasets.forEach(v => {
         columns.forEach(k => {
-            options[k].add(v[k]);
+            if(v[k]) options[k].add(v[k]);
         })
     })
 

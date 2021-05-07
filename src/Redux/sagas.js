@@ -1060,9 +1060,42 @@ function* handleGuestVisualization(action){
     expires.setHours(24, 0, 0, 0);
     Cookies.set('guestPlotCount', guestPlotCount ? guestPlotCount + 1 : 1, {expires});
 
-    if(guestPlotCount >= 4){
+    if(guestPlotCount >= 9){
         yield put(visualizationActions.guestPlotLimitNotificationSetIsVisible(true));
     }
+}
+
+function* guestTokenRequestSend(action){
+    let userIsGuest = yield select((state) => state.userIsGuest);
+
+    if(userIsGuest){
+        yield put(visualizationActions.guestPlotLimitNotificationSetIsVisible(false));
+    }
+
+    else {
+        let expires = new Date();
+        expires.setHours(24, 0, 0, 0);
+    
+        let result = yield call(api.user.getGuestToken, expires.valueOf());
+        
+        if(result.status === 200){
+            yield put(interfaceActions.hideLoginDialog());
+            yield put(userActions.userIsGuestSet(true));
+            yield put(visualizationActions.guestPlotLimitNotificationSetIsVisible(false));
+        }
+    
+        else {
+            yield put(interfaceActions.snackbarOpen('Guest login is currently unavailable. Please try again later, log in, or register a new account. '));
+        }
+    }
+
+}
+
+function* ingestCookies(){
+    let state = {};
+
+    if(Cookies.get('guestToken')) state['userIsGuest'] = true;
+    yield put(userActions.updateStateFromCookies(state));
 }
 
 function* watchUserLogin() {
@@ -1285,6 +1318,14 @@ function* watchHandleGuestVisualization(){
     yield takeLatest(visualizationActionTypes.HANDLE_GUEST_VISUALIZATION, handleGuestVisualization);
 }
 
+function* watchGuestTokenRequestSend(){
+    yield takeLatest(userActionTypes.GUEST_TOKEN_REQUEST_SEND, guestTokenRequestSend);
+}
+
+function* watchIngestCookies(){
+    yield takeLatest(userActionTypes.INGEST_COOKIES, ingestCookies);
+}
+
 // function createWorkerChannel(worker) {
 //     return eventChannel(emit => {
 //         worker.onmessage = message => {
@@ -1367,6 +1408,8 @@ export default function* rootSaga() {
         watchDataSubmissionDelete(),
         watchSparseDataQuerySend(),
         watchErrorReportSend(),
-        watchHandleGuestVisualization()
+        watchHandleGuestVisualization(),
+        watchGuestTokenRequestSend(),
+        watchIngestCookies()
     ]);
 }

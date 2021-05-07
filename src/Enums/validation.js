@@ -40,7 +40,7 @@ const validation = {
         dataSizePrevent: 'Data set is too large. Please reduce date range or area size.',
         variableMissing: 'Please select a variable',
         vizTypeMissing: 'Please select a visualization type',
-        guestMaximumReached: 'Guests are limited to creating 5 plots per day. Please log in or register.'
+        guestMaximumReached: 'Guests are limited to creating 10 plots per day. Please log in or register.'
     }
 }
 

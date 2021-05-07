@@ -4,12 +4,13 @@ import { connect } from 'react-redux';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
-import { initializeGoogleAuth } from './Redux/actions/user';
+import { initializeGoogleAuth, ingestCookies } from './Redux/actions/user';
 import { toggleShowHelp, windowResize } from './Redux/actions/ui';
 
 import './Stylesheets/App.scss';
 
 import colors from './Enums/colors';
+import z from './Enums/zIndex';
 
 import { Route, BrowserRouter, Switch } from 'react-router-dom'
 import { debounce } from 'throttle-debounce';
@@ -126,6 +127,15 @@ const theme = createMuiTheme({
       }
     },
 
+    MuiTooltip: {
+      // root: {
+      //   zIndex: z.TOOLTIP
+      // }
+      popper: {
+        zIndex: z.TOOLTIP
+      }
+    },
+
     MuiPickersBasePicker: {
       container: {
         backgroundColor: colors.backgroundGray
@@ -221,13 +231,15 @@ const theme = createMuiTheme({
 const mapDispatchToProps = {
   initializeGoogleAuth,
   toggleShowHelp,
-  windowResize
+  windowResize,
+  ingestCookies
 };
 
 class App extends Component {
   componentDidMount = () => {
     this.props.initializeGoogleAuth();
     window.onresize = this.handleResize;
+    this.props.ingestCookies();
   }
 
   debouncedResize = debounce(200, this.props.windowResize);

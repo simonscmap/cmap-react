@@ -37,7 +37,7 @@ const datasetMetadataToDownloadFormat = (metadata) => {
 
     let variableRows = [];
     let summaryStatisticsRows = [];
-    console.log(metadata);
+    
     metadata.Variables.forEach((e, i) => {
         variableRows.push({
             var_short_name: e.Variable,

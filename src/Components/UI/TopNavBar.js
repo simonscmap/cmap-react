@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { withStyles } from '@material-ui/core/styles';
 
 import { showLoginDialog, restoreInterfaceDefaults, snackbarOpen, toggleShowHelp, setShowCart } from '../../Redux/actions/ui';
+import { guestPlotLimitNotificationSetIsVisible } from '../../Redux/actions/visualization';
 import { logOut } from '../../Redux/actions/user';
 import { Typography } from '@material-ui/core';
 
@@ -28,7 +29,7 @@ const styles = theme => ({
     simonsLogoWrapper: {
         pointerEvents: 'all',
         display: 'inline-block',
-        marginRight: '60px !important',     
+        marginRight: '40px !important',     
         verticalAlign: 'middle',   
     },
 
@@ -63,14 +64,15 @@ const styles = theme => ({
     navLink: JSS.navLink(theme),
 
     rightNavLink: {
-        marginRight: 30
+        marginRight: 24
     },    
 })
 
 const mapStateToProps = (state, ownProps) => ({
     user: state.user,
     showHelp: state.showHelp,
-    cart: state.cart
+    cart: state.cart,
+    userIsGuest: state.userIsGuest
 })
 
 const mapDispatchToProps = {
@@ -79,10 +81,11 @@ const mapDispatchToProps = {
     restoreInterfaceDefaults,
     snackbarOpen,
     toggleShowHelp,
-    setShowCart
+    setShowCart,
+    guestPlotLimitNotificationSetIsVisible
 }
 
-const breakpoint = 1000;
+const breakpoint = 940;
 
 class TopNavBar extends Component {
 
@@ -131,8 +134,13 @@ class TopNavBar extends Component {
     }
 
     render(){
-        const { classes, history, user, showHelp, cart } = this.props;
+        const { classes, history, user, showHelp, cart, userIsGuest } = this.props;
         const { pathname } = history.location;
+
+        const showUserDropdownMenu = Boolean(user);
+        const showLogin = Boolean(!user);
+        const showRegister = Boolean(!user);
+        const showGuest = Boolean(!user && userIsGuest && history.location.pathname.includes('visualization'));
 
         let cartSize = cart && Object.keys(cart).length ? Object.keys(cart).length : 0;
 
@@ -164,9 +172,10 @@ class TopNavBar extends Component {
                                     ''
                                 }
 
-                                {user && <UserNavbarDropdown pathname={pathname} user={user}/>}
-                                {!user && <Typography variant='caption' onClick={() => this.props.showLoginDialog()} className={`${classes.navLink} ${classes.rightNavLink}`}>Log In</Typography>}
-                                {!user && <Typography variant='caption' to='/register' component={Link} className={`${classes.navLink} ${classes.rightNavLink}`}>Register</Typography>}
+                                {showUserDropdownMenu ? <UserNavbarDropdown pathname={pathname} user={user}/> : ''}
+                                {showLogin ? <Typography variant='caption' onClick={() => this.props.showLoginDialog()} className={`${classes.navLink} ${classes.rightNavLink}`}>Log In</Typography> : ''}
+                                {showRegister ? <Typography variant='caption' to='/register' component={Link} className={`${classes.navLink} ${classes.rightNavLink}`}>Register</Typography> : ''}
+                                {showGuest ? <Typography variant='caption' onClick={() => this.props.guestPlotLimitNotificationSetIsVisible(true)} className={`${classes.navLink} ${classes.rightNavLink}`}>Guest</Typography> : ''}
                             </div>
                         </div>
                     </React.Fragment>

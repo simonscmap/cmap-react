@@ -1,11 +1,14 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
+import Cookies from 'js-cookie';
+import { withRouter } from "react-router";
 
-import { Dialog, DialogContent, Link, Typography, withStyles } from '@material-ui/core';
+import { Dialog, DialogContent, DialogActions, Button, Link, Typography, withStyles } from '@material-ui/core';
 
 import { guestPlotLimitNotificationSetIsVisible } from '../../Redux/actions/visualization';
 import { showLoginDialog } from '../../Redux/actions/ui';
+import { guestTokenRequestSend } from '../../Redux/actions/user';
 
 import z from '../../Enums/zIndex';
 import colors from '../../Enums/colors';
@@ -21,32 +24,49 @@ const styles = (theme) => ({
 
     link: {
         fontSize: '16px',
-        lineHeight: '24px'
+        whiteSpace: 'pre-wrap',
+        display: 'inline-block',
+        paddingBottom: '1px'
+    },
+
+    dialogActionButton: {
+        textTransform: 'none',
     }
 });
 
 const mapStateToProps = (state) => ({
-    guestPlotLimitNotificationIsVisible: state.guestPlotLimitNotificationIsVisible
+    guestPlotLimitNotificationIsVisible: state.guestPlotLimitNotificationIsVisible,
+    user: state.user,
+    userIsGuest: state.userIsGuest
 });
 
 const mapDispatchToProps = {
     guestPlotLimitNotificationSetIsVisible,
-    showLoginDialog
+    showLoginDialog,
+    guestTokenRequestSend
 }
 
 const GuestPlotLimitNotification = (props) => {
     const { classes } = props;
 
     const handleLoginButtonClick = () => {
-        props.guestPlotLimitNotificationSetIsVisible(false);
+        // props.guestPlotLimitNotificationSetIsVisible(false);
         props.showLoginDialog();
     }
 
+    const handleOnClose = () => {
+        if(props.userIsGuest) props.guestPlotLimitNotificationSetIsVisible(false)
+    }
+
+    let guestPlotCount = parseInt(Cookies.get('guestPlotCount')) || 0;
+
+    let dialogIsOpen = Boolean(props.guestPlotLimitNotificationIsVisible && !props.user)
+    // let dialogIsOpen = Boolean(!props.userIsGuest && !props.user)
+
     return (
         <Dialog
-            open={props.guestPlotLimitNotificationIsVisible}
-            open={true}
-            onClose={() => props.guestPlotLimitNotificationSetIsVisible(false)}
+            open={dialogIsOpen}
+            onClose={handleOnClose}
             PaperProps={{
                 className: classes.dialogWrapper
             }}
@@ -54,18 +74,64 @@ const GuestPlotLimitNotification = (props) => {
                 root: classes.dialogRoot
             }}
         >
-            <DialogContent>
-                <Typography>
-                    Guests are limited to 5 plots per day.
-                </Typography>
 
-                <Typography>
-                    Please <Link component='button' onClick={handleLoginButtonClick} className={classes.link}>log 
-                    in </Link> or <Link component={RouterLink} to={'/register'} className={classes.link}> register </Link> to continue.
-                </Typography>
+            <DialogContent>
+                {
+                    guestPlotCount >= 10 ?
+
+                    <>
+                        <Typography style={{marginBottom: '14px'}}>
+                            You have 0 of 10 guest plots remaining for today. 
+                        </Typography>
+                        
+                        <Typography style={{marginBottom: '14px'}}>
+                            To continue plotting and for access 
+                            to data submission tools and the Simons CMAP API please <Link component={RouterLink} to={'/register'} className={classes.link}>Register </Link> 
+                            or<Link component='button' onClick={handleLoginButtonClick} className={classes.link}> Log in </Link>to an existing account.
+                        </Typography>
+                    </>
+
+                    :
+
+                    <>
+                        <Typography style={{marginBottom: '14px'}}>
+                            {/* Guests are limited to creating 10 plots per day, and do not have access to data submission tools, or the Simons CMAP API.
+                            <Link component='button' onClick={props.guestTokenRequestSend} className={classes.link}> Continue as a guest </Link> 
+                            to use the application with limited access. */}
+                            You are using Simons CMAP as a guest. Guests are limited to creating 10 plots per day and cannot access data submission tools or the Simons CMAP API.
+                        </Typography>
+
+                        <Typography style={{marginBottom: '14px'}}>
+                            {/* <Link component={RouterLink} to={'/register'} className={classes.link}>Register </Link>or
+                            <Link component='button' onClick={handleLoginButtonClick} className={classes.link}> log in </Link>to an existing account
+                            for full access. */}
+                            For full access please<Link component={RouterLink} to={'/register'} className={classes.link}> Register </Link>or
+                            <Link component='button' onClick={handleLoginButtonClick} className={classes.link}> Log in </Link>to an existing account.
+                        </Typography>                
+
+                        <Typography style={{marginBottom: '14px'}}>
+                            You have {10 - guestPlotCount} of 10 plots remaining.
+                        </Typography>
+                    </>
+
+                }
+
+                <DialogActions>
+                    <Button variant='outlined' className={classes.dialogActionButton} onClick={handleLoginButtonClick}>
+                        Login
+                    </Button>
+
+                    <Button onClick variant='outlined' onClick={() => props.history.push('/register')} className={classes.dialogActionButton}>
+                        Register
+                    </Button>
+
+                    <Button variant='outlined' className={classes.dialogActionButton} onClick={props.guestTokenRequestSend}>
+                        Continue As Guest
+                    </Button>
+                </DialogActions>
             </DialogContent>
         </Dialog>
     )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(GuestPlotLimitNotification));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withRouter(GuestPlotLimitNotification)));

@@ -46,7 +46,7 @@ const DepthProfileChart = (props) => {
 
     var infoObject = data;
 
-    const [markerOptions, setMarkerOptions] = React.useState({opacity: .2, color:'#ff1493', size: 12})
+    const [markerOptions, setMarkerOptions] = React.useState({opacity: .2, color:'#ff1493', size: 6})
 
     let hovertext = variableValues.map((value, i) => {
         return `Depth: ${format('.2f')(depths[i])} [m] <br>${parameters.fields}: ${format('.2e')(value)} \xb1 ${format('.2e')(stds[i])} [${metadata.Unit}]`;

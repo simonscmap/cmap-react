@@ -44,6 +44,7 @@ const initialState = {
 
     // User state pieces
     user: JSON.parse(Cookies.get('UserInfo') || null),
+    userIsGuest: false,
 
     apiKeys: null,
     apiKeyRetrievalState: null,

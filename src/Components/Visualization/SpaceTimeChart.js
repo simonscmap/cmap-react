@@ -370,7 +370,7 @@ const SpaceTimeChart = (props) => {
     const downloadCsv = () => {
         csvFromVizRequestSend(data, metadata.Table_Name, metadata.Variable, metadata.Long_Name);
     }
-    console.log('rendering a spacetime chart')
+    
     return (
         <React.Fragment>
             <ChartControlPanel

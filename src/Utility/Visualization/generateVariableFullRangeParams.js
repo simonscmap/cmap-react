@@ -1,5 +1,5 @@
 const generateVariableFullRangeParams = (varDetails) => {
-    console.log(varDetails);
+    
     return {
         lat1: Math.floor(varDetails.Lat_Min * 1000) / 1000,
         lat2: Math.ceil(varDetails.Lat_Max * 1000) / 1000,

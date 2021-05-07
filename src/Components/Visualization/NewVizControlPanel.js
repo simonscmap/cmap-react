@@ -8,7 +8,7 @@ import { withStyles, Tabs, Collapse, Paper, Badge, ButtonGroup, Grid, IconButton
 import { Edit, PlayArrow, ControlCamera , Settings, Fastfood, ShowChart, Search, Cached, LibraryBooks, ArrowRight, ChevronLeft, ChevronRight, InsertChartOutlined, Language, Delete, ShoppingCart, Info, DirectionsBoat } from '@material-ui/icons';
 import { KeyboardDatePicker } from "@material-ui/pickers";
 
-import { cruiseTrajectoryRequestSend, clearCharts, csvDownloadRequestSend, vizPageDataTargetSetAndFetchDetails, storedProcedureRequestSend, sparseDataQuerySend } from '../../Redux/actions/visualization';
+import { cruiseTrajectoryRequestSend, clearCharts, csvDownloadRequestSend, vizPageDataTargetSetAndFetchDetails, storedProcedureRequestSend, sparseDataQuerySend, guestPlotLimitNotificationSetIsVisible } from '../../Redux/actions/visualization';
 import { snackbarOpen } from '../../Redux/actions/ui';
 
 import colors from '../../Enums/colors';
@@ -58,7 +58,8 @@ const mapDispatchToProps = {
     snackbarOpen,
     vizPageDataTargetSetAndFetchDetails,
     storedProcedureRequestSend,
-    sparseDataQuerySend
+    sparseDataQuerySend,
+    guestPlotLimitNotificationSetIsVisible
 }
 
 const drawerWidth = 280;
@@ -307,6 +308,10 @@ class NewVizControlPanel extends React.Component {
     }
 
     searchInputRef = React.createRef();
+
+    componentDidMount = () => {
+        if(!this.props.user) this.props.guestPlotLimitNotificationSetIsVisible(true);
+    }
 
     componentDidUpdate = (prevProps, prevState) => {
 
@@ -653,8 +658,11 @@ class NewVizControlPanel extends React.Component {
             const dayDiff = (date2 - date1) / 86400000;
             
             const res = mapSpatialResolutionToNumber(vizPageDataTargetDetails.Spatial_Resolution);
-            const dateCount = vizPageDataTargetDetails.Temporal_Resolution === temporalResolutions.monthlyClimatology ? date2 - date1 + 1
+            var dateCount = vizPageDataTargetDetails.Temporal_Resolution === temporalResolutions.monthlyClimatology ? date2 - date1 + 1
                 : Math.floor(dayDiff / mapTemporalResolutionToNumber(vizPageDataTargetDetails.Temporal_Resolution)) || 1;
+
+            dateCount *= 1.4 // add more weight to date because of sql indexing
+
             const depthCount = depthUtils.count({data: vizPageDataTargetDetails}, depth1, depth2) || 1;
             
             const latCount = (lat2 - lat1) / res;
@@ -837,7 +845,7 @@ class NewVizControlPanel extends React.Component {
 
         if(!this.props.user){
             let guestPlotCount = parseInt(Cookies.get('guestPlotCount'));
-            if(guestPlotCount && guestPlotCount >= 5) return validation.generic.guestMaximumReached;
+            if(guestPlotCount && guestPlotCount >= 10) return validation.generic.guestMaximumReached;
         }
 
         if(!this.state.selectedVizType) return validation.generic.vizTypeMissing;

@@ -488,6 +488,10 @@ api.user.getCart = async() => {
     return await fetch(`${apiUrl}/api/user/getcart`, fetchOptions);
 }
 
+api.user.getGuestToken = async(expires) => {
+    return await fetch(`${apiUrl}/api/user/getguesttoken?expires=${expires}`, {...fetchOptions});
+}
+
 api.community.errorReport = async(formData) => {
     return await fetch(apiUrl + '/api/community/errorreport', {
         ...postOptions,

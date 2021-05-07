@@ -6,6 +6,7 @@ import { withStyles, Link, Typography, Grid, Paper, Table, TableRow, TableCell, 
 
 import ReactMarkdown from 'react-markdown';
 import XLSX from 'xlsx';
+import reactStringReplace from 'react-string-replace';
 
 import DatasetPageAGGrid from './DatasetPageAGGrid';
 import DatasetJSONLD from './DatasetJSONLD';
@@ -37,11 +38,6 @@ const mapDispatchToProps = {
     datasetFullPageDataFetch,
     datasetFullPageDataStore
 }
-
-// const urlify = (str) => {
-    // console.log(str.split(/\b(https?|ftp|file):\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;]*[\-A-Za-z0-9+&@#\/%=~_|]/g))
-{/* <>{str.replace(/\b(https?|ftp|file):\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;]*[\-A-Za-z0-9+&@#\/%=~_|]/g, url => <Link href={url} target='_blank' style={{color: colors.primary}}>{url}</Link>)}</> */}
-// }
 
 const styles = (theme) => ({
     stickyPaper: {
@@ -248,7 +244,7 @@ const DatasetFullPage = (props) => {
         Sensors,
         Cruises
     } = datasetFullPageData;
-
+    
     const loading = datasetFullPageDataLoadingState === states.inProgress;
 
     const [ downloadDialogOpen, setDownloadDialogOpen ] = React.useState(false);
@@ -466,7 +462,14 @@ const DatasetFullPage = (props) => {
                                 </Typography>
 
                                 <Typography className={classes.smallText} style={{color: 'white'}}>
-                                    {Data_Source}
+                                    {
+                                        reactStringReplace(Data_Source, 
+                                            /\b(https?:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|])/g, 
+                                            (match, i) => (
+                                                <Link key={i} href={match} target='_blank' style={{color: colors.primary}}>{match}</Link>
+                                        ))  
+                                    }
+                                    {/* {Data_Source} */}
                                 </Typography>
                         </React.Fragment>
 
@@ -483,7 +486,14 @@ const DatasetFullPage = (props) => {
                                 </Typography>
 
                                 <Typography className={classes.smallText} style={{color: 'white'}}>
-                                    {Distributor}
+                                    {
+                                        reactStringReplace(Distributor, 
+                                            /\b(https?:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|])/g, 
+                                            (match, i) => (
+                                                <Link key={i} href={match} target='_blank' style={{color: colors.primary}}>{match}</Link>
+                                        ))  
+                                    }
+                                    {/* {Distributor} */}
                                 </Typography>
                             </React.Fragment>
 
@@ -499,8 +509,15 @@ const DatasetFullPage = (props) => {
                                         Acknowledgement
                                     </Typography>
 
-                                    <Typography className={classes.smallText} style={{color: 'white'}}>
-                                        {Acknowledgement}
+                                    <Typography className={classes.smallText} style={{color: 'white'}}>                                        
+                                        {
+                                            reactStringReplace(Acknowledgement, 
+                                                /\b(https?:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|])/g, 
+                                                (match, i) => (
+                                                    <Link key={i} href={match} target='_blank' style={{color: colors.primary}}>{match}</Link>
+                                            ))  
+                                        }
+                                        {/* {Acknowledgement} */}
                                     </Typography>
                                 </React.Fragment>
 
@@ -518,11 +535,18 @@ const DatasetFullPage = (props) => {
 
                                     {!loading ?
                                         References.map((reference, i) => (
-                                            <Typography className={classes.referenceTypography} key={i}>
-                                                {/* {urlify(reference)} */}
-                                                {reference.match(/^\b(https?|ftp|file):\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;]*[\-A-Za-z0-9+&@#\/%=~_|]$/) ? <Link href={reference} target='_blank' style={{color: colors.primary}}>{reference}</Link>: reference}
+                                            <Typography className={classes.smallText} style={{color: 'white', marginTop: '6px'}} key={i}>
+                                                {
+                                                    reactStringReplace(reference, 
+                                                        /\b(https?:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|])/g, 
+                                                        (match, i) => (
+                                                          <Link key={i} href={match} target='_blank' style={{color: colors.primary}}>{match}</Link>
+                                                    ))  
+                                                }
                                             </Typography>
-                                        )) : ''}                            
+                                        ))
+                                                                              
+                                        : ''}                            
                             </React.Fragment>
 
                             : ''
@@ -588,10 +612,6 @@ const DatasetFullPage = (props) => {
                         </Link>
 
                         <CartAddOrRemove dataset={datasetFullPageData} cartButtonClass={classes.cartButtonClass}/>
-
-                        {/* <div style={{marginLeft: '-11px'}}>
-                            <LoadProductOnVizPageButton product={datasetFullPageData}/>
-                        </div> */}
 
                     {!loading && datasetFullPageData && Object.keys(datasetFullPageData).length ? <DatasetJSONLD {...datasetFullPageData}/> : ''}
                     </SkeletonWrapper>              
