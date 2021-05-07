@@ -25,12 +25,11 @@ const buildSearchOptionsFromVariableList = (variables, storedOptions = {}, param
     columns.forEach(col => {
         options[col] = Array.from(options[col]).sort(function (a, b) {
             try {
-
                 return a.toLowerCase().localeCompare(b.toLowerCase());
             }
 
-            catch{
-
+            catch (e){
+                console.log(e);
             }
         });
     });

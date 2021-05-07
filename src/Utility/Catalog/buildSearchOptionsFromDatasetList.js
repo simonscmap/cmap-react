@@ -26,11 +26,8 @@ const buildSearchOptionsFromDatasetList = (datasets, storedOptions = {}, params 
                 return a.toLowerCase().localeCompare(b.toLowerCase());
             }
 
-            catch {
-                console.log(col)
-                console.log(a)
-                console.log(b)
-                throw new Error();
+            catch(e) {
+                console.log(e);
             }
         });
     });
