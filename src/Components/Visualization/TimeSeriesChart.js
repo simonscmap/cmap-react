@@ -40,7 +40,7 @@ const TimeSeriesChart = (props) => {
     const { data } = props.chart;
     const { stds, variableValues, dates, parameters, metadata } = data;
 
-    const [ markerOptions, setMarkerOptions ] = React.useState({opacity: .2, color:'#ff1493', size: 12});
+    const [ markerOptions, setMarkerOptions ] = React.useState({opacity: .2, color:'#ff1493', size: 6});
     const [ showLines, setShowLines ] = React.useState(true);
     const [ showErrorBars, setShowErrorBars ] = React.useState(variableValues && variableValues.length <= 40 ? true : false);
 

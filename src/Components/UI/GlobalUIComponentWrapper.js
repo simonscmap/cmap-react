@@ -11,6 +11,7 @@ import LoginDialog from '../User/LoginDialog';
 import SnackbarWrapper from './SnackbarWrapper';
 import LoadingOverlay from './LoadingOverlay';
 import Cart from './Cart';
+import GuestPlotLimitNotification from '../Visualization/GuestPlotLimitNotification';
 
 import { loginDialogWasCleared } from '../../Redux/actions/user';
 
@@ -61,7 +62,7 @@ class GlobalUIComponentWrapper extends Component {
                 <LoginDialog clearState={this.clearState} username={this.state.username} password={this.state.password} handleChange={this.handleChange}/>
                 <SnackbarWrapper/>
                 <LoadingOverlay loadingMessage={this.props.loadingMessage}/>
-                <Cart/>
+                <Cart/>                
             </React.Fragment>
         )
     }

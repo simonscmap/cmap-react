@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Route, BrowserRouter, Switch } from 'react-router-dom'
+import Cookies from 'js-cookie';
 
 import vizSubTypes from '../../Enums/visualizationSubTypes';
 import storedProcedures from '../../Enums/storedProcedures';
@@ -11,9 +12,10 @@ import LoginRequiredPrompt from '../User/LoginRequiredPrompt';
 // import VisualizationController from './VisualizationController';
 import VizControlPanel from './VizControlPanel';
 import NewVizControlPanel from './NewVizControlPanel';
+import GuestPlotLimitNotification from './GuestPlotLimitNotification';
 
 import { showLoginDialog, snackbarOpen } from '../../Redux/actions/ui';
-import { queryRequestSend, storedProcedureRequestSend, cruiseListRequestSend, completedShowCharts, plotsActiveTabSet } from '../../Redux/actions/visualization';
+import { queryRequestSend, storedProcedureRequestSend, cruiseListRequestSend, completedShowCharts, plotsActiveTabSet, guestPlotLimitNotificationSetIsVisible } from '../../Redux/actions/visualization';
 import { retrievalRequestSend, datasetRetrievalRequestSend } from '../../Redux/actions/catalog';
 
 import { loadModules } from 'esri-loader';
@@ -84,7 +86,8 @@ const mapStateToProps = (state, ownProps) => ({
     showChartsOnce: state.showChartsOnce,
     datasets: state.datasets,
     catalog: state.catalog,
-    plotsActiveTab: state.plotsActiveTab
+    plotsActiveTab: state.plotsActiveTab,
+    userIsGuest: state.userIsGuest
 })
 
 const mapDispatchToProps = {
@@ -96,7 +99,8 @@ const mapDispatchToProps = {
     cruiseListRequestSend,
     completedShowCharts,
     datasetRetrievalRequestSend,
-    plotsActiveTabSet
+    plotsActiveTabSet,
+    guestPlotLimitNotificationSetIsVisible
 }
 
 const styles = (theme) => ({
@@ -182,7 +186,7 @@ class Visualization extends Component {
             accumulator[currentValue] = loadedModules[currentIndex];
             return accumulator;
         }, {});
-
+        
         this.setState({...this.state, esriModules});        
     }
 
@@ -390,11 +394,11 @@ class Visualization extends Component {
 
     render(){
         const { classes } = this.props;
-        if(!this.props.user) return <LoginRequiredPrompt/>
+        // if(!this.props.user && !this.props.userIsGuest) return <LoginRequiredPrompt/>
         
         return (
             <div className={classes.vizWrapper}>
-
+                <GuestPlotLimitNotification/>
                 {/* <VizControlPanel
                     toggleChartView={this.toggleChartView}
                     toggleShowUI={this.toggleShowUI}

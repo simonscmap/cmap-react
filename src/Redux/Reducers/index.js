@@ -44,6 +44,7 @@ const initialState = {
 
     // User state pieces
     user: JSON.parse(Cookies.get('UserInfo') || null),
+    userIsGuest: false,
 
     apiKeys: null,
     apiKeyRetrievalState: null,
@@ -89,6 +90,7 @@ const initialState = {
     datasetSummary: null,
     plotsActiveTab: 0,
     sparseDataMaxSizeNotificationData: null,
+    guestPlotLimitNotificationIsVisible: false,
 
     // Data Submission state pieces
 

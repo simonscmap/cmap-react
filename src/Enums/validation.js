@@ -39,7 +39,8 @@ const validation = {
         dataSizeWarning: 'Wait time and application performance may be poor due to size of data.',
         dataSizePrevent: 'Data set is too large. Please reduce date range or area size.',
         variableMissing: 'Please select a variable',
-        vizTypeMissing: 'Please select a visualization type'
+        vizTypeMissing: 'Please select a visualization type',
+        guestMaximumReached: 'Guests are limited to creating 10 plots per day. Please log in or register.'
     }
 }
 

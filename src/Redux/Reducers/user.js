@@ -32,6 +32,10 @@ export default function(state, action) {
     case userActionTypes.CHOOSE_PASSWORD_REQUEST_FAILURE: return {...state, choosePasswordState: states.failed}
     case userActionTypes.CHOOSE_PASSWORD_REQUEST_RESET: return {...state, choosePasswordState: null}
 
+    case userActionTypes.USER_IS_GUEST_SET: return {...state, userIsGuest: action.payload.userIsGuest}
+
+    case userActionTypes.UPDATE_STATE_FROM_COOKIES: return {...state, ...action.payload.state}
+
     default: return state;
     }
 }

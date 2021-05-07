@@ -242,3 +242,21 @@ export const cartPersistClear = () => ({
 export const cartGetAndStore = () => ({
     type: userActionTypes.CART_GET_AND_STORE
 });
+
+export const guestTokenRequestSend = () => ({type: userActionTypes.GUEST_TOKEN_REQUEST_SEND});
+
+export const userIsGuestSet = (userIsGuest) => ({
+    type: userActionTypes.USER_IS_GUEST_SET,
+    payload: {
+        userIsGuest
+    }
+});
+
+export const ingestCookies = () => ({type: userActionTypes.INGEST_COOKIES});
+
+export const updateStateFromCookies = (state) => ({
+    type: userActionTypes.UPDATE_STATE_FROM_COOKIES,
+    payload: {
+        state
+    }
+});

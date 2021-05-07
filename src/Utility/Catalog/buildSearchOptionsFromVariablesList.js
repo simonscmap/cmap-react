@@ -18,7 +18,7 @@ const buildSearchOptionsFromVariableList = (variables, storedOptions = {}, param
 
     variables.forEach(v => {
         columns.forEach(k => {
-            options[k].add(v[k]);
+            if(v[k]) options[k].add(v[k]);
         })
     })
 
