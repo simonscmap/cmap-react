@@ -1,8 +1,8 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import CatalogNew from '../../../Components/Catalog/CatalogNew';
+import DatasetPageAGGrid from '../../../Components/Catalog/DatasetPageAGGrid';
 import mockReduxStore from '../../TestUtils/mockReduxStore'
 
 test('Renders without crashing', () => {
-    const wrapper = shallow(<CatalogNew store={mockReduxStore({})}/>);
+    const wrapper = shallow(<DatasetPageAGGrid store={mockReduxStore({})}/>);
 });

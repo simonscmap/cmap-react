@@ -1,13 +1,7 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { withStyles, Typography } from '@material-ui/core';
-
-const styles = (theme) => ({
-
-});
+import { Typography } from '@material-ui/core';
 
 const DownloadingDataHelpContents = (props) => {
-    const { classes } = props;
 
     return (
         <React.Fragment>
@@ -50,4 +44,4 @@ const DownloadingDataHelpContents = (props) => {
     )
 }
 
-export default withStyles(styles)(DownloadingDataHelpContents);
+export default DownloadingDataHelpContents;

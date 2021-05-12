@@ -8,11 +8,8 @@ import { cruiseFullPageDataFetch, cruiseFullPageDataStore } from '../../Redux/ac
 
 import states from '../../Enums/asyncRequestStates';
 
-import colors from '../../Enums/colors';
 import metaTags from '../../Enums/metaTags';
-import CartAddOrRemove from './CartAddOrRemove';
 import SkeletonWrapper from '../UI/SkeletonWrapper';
-import LoadProductOnVizPageButton from '../Visualization/LoadProductOnVizPageButton';
 
 const mapStateToProps = (state, ownProps) => ({
     cruiseFullPageDataLoadingState: state.cruiseFullPageDataLoadingState,
@@ -36,7 +33,6 @@ const styles = (theme) => ({
             width: '90%'
         },
         fontFamily: '"roboto", Serif',
-        // maxWidth: '1000px',
         backgroundColor: 'rgba(0,0,0,.4)',
         marginBottom: '20px'
     },
@@ -72,12 +68,6 @@ const styles = (theme) => ({
         display: 'block',
         marginBottom: '3px'
     }
-
-    // cartButtonClass: {
-    //     textTransform: 'none',
-    //     color: theme.palette.primary.main,
-    //     marginTop: '16px'
-    // }
 });
 
 const CruiseFullPage = (props) => {
@@ -235,14 +225,6 @@ return (
 
                             : ''
                         }
-
-                        {/* <div style={{margin: '12px 0 0 -11px'}}>
-                            <LoadProductOnVizPageButton product={cruiseFullPageData}/>
-                        </div> */}
-                        
-                        {/* <CartAddOrRemove dataset={datasetFullPageData} cartButtonClass={classes.cartButtonClass}/>   */}
-
-                    {/* {!loading && datasetFullPageData && Object.keys(datasetFullPageData).length ? <DatasetJSONLD {...datasetFullPageData}/> : ''} */}
                     </SkeletonWrapper>              
                 </Paper>
             </Grid>
@@ -250,7 +232,5 @@ return (
         </React.Fragment>
     )
 }
-
-
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(CruiseFullPage));   

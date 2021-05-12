@@ -1,3 +1,5 @@
+import mockVariableMetaData from './mockVariableMetadata';
+
 export default () => {
     return {
         infoObject: {
@@ -5,9 +7,7 @@ export default () => {
                 dt1: new Date().toISOString(),
                 dt2: new Date().toISOString()
             },
-            metadata: {
-                Distributor: 'UW'
-            },
+            metadata: mockVariableMetaData(),
             hasDepth: true,
             times: [],
             lats: [],

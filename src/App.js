@@ -30,7 +30,7 @@ const Profile = lazy(() => import('./Components/User/Profile'));
 const DataSubmission = lazy(() => import('./Components/DataSubmission/DataSubmission'));
 const ContactUs = lazy(() => import('./Components/ContactUs'));
 const CommunityTemp = lazy(() => import('./Components/Community/CommunityTemp'));
-const CatalogNew = lazy(() => import('./Components/Catalog/CatalogNew'));
+const Catalog = lazy(() => import('./Components/Catalog/Catalog'));
 const DatasetFullPage = lazy(() => import('./Components/Catalog/DatasetFullPage'));
 const ForgotPass = lazy(() => import('./Components/User/ForgotPass'));
 const ChoosePassword = lazy(() => import('./Components/User/ChoosePassword'));
@@ -262,7 +262,7 @@ class App extends Component {
                   <Switch>          
                     <Route exact path='/apikeymanagement' component={ Home } />
                     <Route exact path='/' component={ LandingPage } />
-                    <Route exact path='/catalog' component={ CatalogNew } />
+                    <Route exact path='/catalog' component={ Catalog } />
                     <Route exact path='/login' component={ Login } />
                     <Route exact path='/register' component={ Register } />
                     <Route path='/visualization' component={Visualization} />

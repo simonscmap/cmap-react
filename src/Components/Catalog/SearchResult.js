@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { withStyles, Grid, Typography, Paper, Tooltip, Link, Button } from '@material-ui/core';
 import { Info, ErrorOutline } from '@material-ui/icons';
@@ -8,7 +8,6 @@ import CartAddOrRemove from './CartAddOrRemove';
 import { setShowCart } from '../../Redux/actions/ui';
 
 import colors from '../../Enums/colors';
-import LoadProductOnVizPageButton from '../Visualization/LoadProductOnVizPageButton';
 
 const mapStateToProps = (state, ownProps) => ({
     cart: state.cart
@@ -160,8 +159,6 @@ const SearchResult = (props) => {
                     </Button>
 
                     <CartAddOrRemove dataset={dataset} cartButtonClass={classes.cartButtonClass}/>
-
-                    {/* <LoadProductOnVizPageButton product={dataset}/> */}
 
                     {
                             !Visualize && cart[Long_Name] ? 

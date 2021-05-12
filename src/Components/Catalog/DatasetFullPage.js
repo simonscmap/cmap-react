@@ -21,7 +21,6 @@ import colors from '../../Enums/colors';
 import metaTags from '../../Enums/metaTags';
 import CartAddOrRemove from './CartAddOrRemove';
 import SkeletonWrapper from '../UI/SkeletonWrapper';
-import LoadProductOnVizPageButton from '../Visualization/LoadProductOnVizPageButton';
 
 import datasetMetadataToDownloadFormat from '../../Utility/Catalog/datasetMetadataToDownloadFormat';
 
@@ -40,17 +39,6 @@ const mapDispatchToProps = {
 }
 
 const styles = (theme) => ({
-    stickyPaper: {
-        position: '-webkit-sticky',
-        maxHeight: 'calc(100vh - 128px)',
-        position: 'sticky',
-        top: '90px',
-        width: '160px',
-        marginLeft: '20px',
-        paddingLeft: '12px',
-        backgroundColor: 'rgba(0,0,0,.4)',
-        overflow: 'auto'
-    },
 
     guideSection: {
         width: '80%',
@@ -63,7 +51,6 @@ const styles = (theme) => ({
             width: '90%'
         },
         fontFamily: '"roboto", Serif',
-        // maxWidth: '1000px',
         backgroundColor: 'rgba(0,0,0,.4)',
         marginBottom: '20px'
     },
@@ -72,58 +59,6 @@ const styles = (theme) => ({
         margin: '16px 0 2px 0',
         fontWeight: 100,
         fontFamily: '"roboto", Serif', 
-    },
-
-    '@media screen and (max-width: 1300px)': {
-        stickyPaper: {
-          display: 'none',
-        },
-    },
-
-    navListItem: {
-        color: theme.palette.primary.main,
-        padding: '2px 10px 2px 6px'
-    },
-
-    navListItemText: {
-        '&:hover': {
-            textDecoration: 'underline'
-        }
-    },
-
-    doiListItem: {
-        color: theme.palette.primary.main,
-        padding: '0 10px 0 6px',
-        width: 'max-content'
-    },
-
-    doiListItemText: {
-        fontSize: '16px',
-        '&:hover': {
-            textDecoration: 'underline'
-        }
-    },
-
-    doiListItemtextWrapper: {
-        margin: '0'
-    },
-
-    navListItemtextWrapper: {
-        margin: '2px 0'
-    },
-
-    subListText: {
-        margin: 0,
-        '&:hover': {
-            textDecoration: 'underline'
-        }
-    },
-
-    anchor: {
-        display: 'block',
-        position: 'relative',
-        top: '-120px',
-        visibility: 'hidden'
     },
 
     divider: {
@@ -175,18 +110,8 @@ const styles = (theme) => ({
         fontSize: '.8rem'
     },
 
-    referenceTypography: {
-        fontSize: '.8rem',
-        paddingTop: '12px',
-        color: 'white'
-    },
-
     tableHead: {
         fontWeight: 600
-    },
-
-    variableLongName: {
-        color: theme.palette.primary.main
     },
 
     pageHeader: {
@@ -266,9 +191,7 @@ const DatasetFullPage = (props) => {
     }, [Long_Name])
 
     const downloadMetadata = () => {
-        // let fullPageData = {...datasetFullPageData};
         let fullPageData = datasetMetadataToDownloadFormat(datasetFullPageData);
-        // delete fullPageData.Variables;
         let workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(fullPageData.datasetRows), 'Dataset Metadata');
         XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(fullPageData.variableRows), 'Variable Metadata');
@@ -290,14 +213,11 @@ const DatasetFullPage = (props) => {
             <Grid item xs={12}>
                 <Paper className={classes.guideSection} elevation={4}>
                     <SkeletonWrapper loading={loading}>
-                        <a className={classes.anchor} id='description'></a>
                         <Typography variant={'h4'} className={classes.pageHeader} style={{color: 'white'}}>
                             {Long_Name}                    
                         </Typography>                        
 
                         <ReactMarkdown source={Description} className={classes.markdown}/>
-
-                        <a className={classes.anchor} id='info-table'></a>
 
                         <Table size='small' style={{marginTop: '24px', maxWidth: '800px'}}>
                             <TableBody>
@@ -445,7 +365,6 @@ const DatasetFullPage = (props) => {
                         {/* <iframe src={Icon_URL ? Icon_URL.slice(0, -4) + '.html' : ''}/> */}
 
                         <Typography variant='h5' className={classes.sectionHeader} style={{marginBottom: '16px', color: 'white'}}>
-                            <a className={classes.anchor} id='variables'></a>
                             Variables
                         </Typography>
 
@@ -457,7 +376,6 @@ const DatasetFullPage = (props) => {
                         
                         <React.Fragment>
                                 <Typography variant='h5' className={classes.sectionHeader} style={{color: 'white'}}>
-                                    <a className={classes.anchor} id='data-source'></a>
                                     Data Source
                                 </Typography>
 
@@ -481,7 +399,6 @@ const DatasetFullPage = (props) => {
 
                             <React.Fragment>
                                 <Typography variant='h5' className={classes.sectionHeader} style={{color: 'white'}}>
-                                    <a className={classes.anchor} id='distributor'></a>
                                     Distributor
                                 </Typography>
 
@@ -505,7 +422,6 @@ const DatasetFullPage = (props) => {
                         
                             <React.Fragment>
                                     <Typography variant='h5' className={classes.sectionHeader} style={{color: 'white'}}>
-                                        <a className={classes.anchor} id='acknowledgement'></a>
                                         Acknowledgement
                                     </Typography>
 
@@ -529,7 +445,6 @@ const DatasetFullPage = (props) => {
                         
                             <React.Fragment>
                                     <Typography variant='h5' className={classes.sectionHeader} style={{color: 'white'}}>
-                                        <a className={classes.anchor} id='references'></a>
                                         References
                                     </Typography>
 
@@ -578,7 +493,6 @@ const DatasetFullPage = (props) => {
                         }
 
                         <Typography variant='h5' className={classes.sectionHeader} style={{color: 'white'}}>
-                            <a className={classes.anchor} id='data-access'></a>
                             Data Access
                         </Typography>
 

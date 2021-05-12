@@ -3,8 +3,7 @@ import { connect } from 'react-redux';
 
 import { withStyles } from '@material-ui/core/styles';
 
-import { TextField, Grid, Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, Slider, IconButton } from '@material-ui/core';
-import { Close } from '@material-ui/icons';
+import { TextField, Grid, Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, Slider } from '@material-ui/core';
 
 import HelpButtonAndDialog from '../UI/HelpButtonAndDialog';
 import DownloadingDataHelpContents from './DownloadingDataHelpContents';

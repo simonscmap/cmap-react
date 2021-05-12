@@ -1,21 +1,7 @@
-import React, { useEffect } from 'react';
-import { connect } from 'react-redux';
-import { withStyles, Typography } from '@material-ui/core';
-
-const mapStateToProps = (state, ownProps) => ({
-
-})
-
-const mapDispatchToProps = {
-
-}
-
-const styles = (theme) => ({
-
-});
+import React from 'react';
+import { Typography } from '@material-ui/core';
 
 const SearchHelpContents = (props) => {
-    const { classes } = props;
 
     return (
         <React.Fragment>
@@ -88,4 +74,4 @@ const SearchHelpContents = (props) => {
     )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(SearchHelpContents));
+export default SearchHelpContents;

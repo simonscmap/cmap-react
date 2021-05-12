@@ -2,11 +2,10 @@ import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from "react-router";
 
-import { withStyles, Paper, Typography, Link } from '@material-ui/core';
+import { withStyles, Paper, Typography } from '@material-ui/core';
 import { CloudDownload } from '@material-ui/icons';
 
 import stringify from 'csv-stringify/lib/sync';
-import queryString from 'query-string';
 
 import { FixedSizeList } from 'react-window';
 
@@ -17,7 +16,6 @@ import { searchResultsFetch, searchResultsStore, searchResultsSetLoadingState } 
 import states from '../../Enums/asyncRequestStates';
 
 import HelpButtonAndDialog from '../UI/HelpButtonAndDialog';
-import buildSearchOptionsFromDatasetList from '../../Utility/Catalog/buildSearchOptionsFromDatasetList';
 
 const mapStateToProps = (state, ownProps) => ({
     searchResults: state.searchResults,
@@ -39,14 +37,6 @@ const styles = (theme) => ({
             padding: '0 0 20px 0'
         },
       },
-    
-      root: {
-        width: '60vw',
-        maxWidth: '1200px',
-        minWidth: '480px',
-        padding: '16px 24px',
-        margin: '8px auto 24px auto',
-    },
 
     resultsWrapper: {
         width: '60vw',
@@ -178,7 +168,6 @@ const SearchResults = (props) => {
                 <FixedSizeList
                     itemData={searchResults}
                     itemCount={itemCount}
-                    // height={itemCount * 222 || 500}
                     height={window.innerHeight - 140}
                     width='100%'
                     itemSize={222}
@@ -189,13 +178,6 @@ const SearchResults = (props) => {
                         </div>                        
                     )}
                 </FixedSizeList>
-
-                {/* <div style={{minHeight: '70vh'}}>
-                    {
-                        searchResults.map(result => <SearchResult dataset={result} key={result.Short_Name}/>)
-                    }
-                </div> */}
-
             </Paper>
         </div>
     )

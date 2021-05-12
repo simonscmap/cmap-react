@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from "react-router";
-import { withStyles, Button, Tooltip, Menu, MenuItem } from '@material-ui/core';
+import { withStyles, Button, Tooltip } from '@material-ui/core';
 import { Star, StarBorder } from '@material-ui/icons';
 
 import { cartAddItem, cartRemoveItem } from '../../Redux/actions/catalog';
@@ -19,24 +19,11 @@ const mapDispatchToProps = {
 }
 
 const styles = (theme) => ({
-    cartButton: {
-        textTransform: 'none',
-        color: theme.palette.primary.main,
-        paddingLeft: '4px',
-        marginLeft: '14px'
-    }
+
 });
 
 const CartAddOrRemove = (props) => {
     const { classes, cart, cartAddItem, cartRemoveItem, dataset, cartPersistAddItem, cartPersistRemoveItem } = props;
-
-    const [ anchorElement, setAnchorElement ] = useState(null);
-
-    const addAndRemain = () => {
-        cartAddItem(dataset);
-        cartPersistAddItem(dataset.Dataset_ID);
-        // setAnchorElement(null);
-    }
 
     const handleClick = (e) => {
         if(cart[dataset.Long_Name]){
@@ -49,13 +36,6 @@ const CartAddOrRemove = (props) => {
             cartPersistAddItem(dataset.Dataset_ID);
         }
     }
-
-    // const addAndVisualize = () => {
-    //     cartAddItem(dataset);
-    //     cartPersistAddItem(dataset.Dataset_ID);
-    //     setAnchorElement(null);
-    //     props.history.push('/visualization/charts');
-    // }
 
     return (
         <React.Fragment>
@@ -72,14 +52,6 @@ const CartAddOrRemove = (props) => {
                 </Button>
             </Tooltip>
 
-            {/* <Menu
-                anchorEl={anchorElement}
-                open={Boolean(anchorElement)}
-                onClose={() => setAnchorElement(null)}
-            >
-                <MenuItem onClick={() => addAndRemain()}>Add to Cart</MenuItem>
-                <MenuItem onClick={() => addAndVisualize()}>Add to Cart and Visualize</MenuItem>
-            </Menu> */}
         </React.Fragment>
     )
 }

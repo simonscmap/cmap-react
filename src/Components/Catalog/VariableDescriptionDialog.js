@@ -18,10 +18,6 @@ const mapStateToProps = (state, ownProps) => ({
     catalog: state.catalog
 })
 
-const mapDispatchToProps = {
-
-}
-
 const VariableDescriptionDialog = (props) => {
     const { catalog, describedVariable, classes } = props;
     let variable = catalog.find((item) => item.ID === describedVariable);
@@ -50,4 +46,4 @@ const VariableDescriptionDialog = (props) => {
     )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(VariableDescriptionDialog));
+export default connect(mapStateToProps, null)(withStyles(styles)(VariableDescriptionDialog));
