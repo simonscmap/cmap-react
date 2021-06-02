@@ -1,15 +1,10 @@
+// Container for ArcGIS globe. The "scene" component injects control props into its children
+
 import React, { Component } from 'react';
 
 import { withStyles } from '@material-ui/core/styles';
 
 import { Scene } from '@esri/react-arcgis';
-
-import CruiseSelector from './CruiseSelector';
-import colors from '../../Enums/colors';
-
-import Draggable from 'react-draggable';
-
-import { throttle } from 'throttle-debounce';
 
 const styles = (theme) => ({
     container: {
@@ -18,69 +13,6 @@ const styles = (theme) => ({
         height: '100vh',
     }
 })
-
-// const drawButtonStyles = (theme) => ({
-//     outerDiv: {
-//         // padding:'12px 0 12px 0',
-//         backgroundColor: 'transparent',
-//         // width: '180px',
-//         borderRadius: '4px',
-//         marginRight: '20px',
-//         position: 'fixed',
-//         top: '60px',
-//         right: '12px',
-//     },
-
-//     drawButton: {
-//         // border: '1px solid #333333',
-//         border: `1px solid #333333`,
-//         borderRadius: '4px',
-//         color: colors.primary,        
-//         cursor: 'pointer',
-//         padding: '6px',
-//         width: '160px',
-//         fontSize:'14px',
-//         backgroundColor: colors.backgroundGray,
-//         boxShadow: '1px 1px 1px 1px #242424',
-//         // backgroundColor: 'rgba(255, 128, 0, .8)',
-//         // backgroundColor: 'transparent',
-//         fontFamily: '"Avenir Next W00","Helvetica Neue",Helvetica,Arial,sans-serif',
-//         '&:hover': { 
-//             borderColor: 'white'
-//         },
-//     },
-
-//     helpText: {
-//         marginTop: 0,
-//         color: 'white',
-//         fontFamily: '"Avenir Next W00","Helvetica Neue",Helvetica,Arial,sans-serif'
-//     },
-
-//     cancelButton: {
-//         display: 'none',
-//         color: 'white'
-//     }
-// })
-
-// const DrawButtonRaw = (props) => {
-//     const { classes, showHelp } = props;
-
-//     return (
-//         <Draggable>
-//             <div className={classes.outerDiv} id='draw-region-div'>
-//                 {showHelp && <p className={classes.helpText}>Click once to draw <br/>and again to finish</p>}
-//                 <button id='draw-button' className={classes.drawButton}>
-//                     Select Region
-//                 </button>
-//                 <button id='cancel-button' className={`${classes.drawButton} ${classes.cancelButton}`}>
-//                     Cancel
-//                 </button>
-//             </div>
-//         </Draggable>
-//     )
-// }
-
-// const DrawButton = withStyles(drawButtonStyles)(DrawButtonRaw);
 
 const polygonSymbol = {
     type: "polygon-3d",
@@ -137,71 +69,7 @@ class UiComponents extends React.Component {
     }
 
     render() {
-        // const { view, esriModules, regionLayer, setShowHelp } = this.props;
-        // var { sketchModel } = this;
         const { view } = this.props;
-
-        // var drawButton = document.getElementById('draw-button');
-        // var cancelButton = document.getElementById('cancel-button');
-
-        // const throttledUpdate = throttle(75, (event) => {
-        //     if(event.state === 'active'){
-        //         this.props.updateDomainFromGraphicExtent(esriModules.Utils.webMercatorToGeographic(event.graphic.geometry.extent));
-        //     }
-        // })
-
-        // sketchModel.on("create", (event) => {
-        //     if(event.state === 'active' && event.toolEventInfo && event.toolEventInfo.type === 'vertex-add'){
-        //         sketchModel.complete();
-        //     }
-
-        //     if(event.graphic && event.graphic.visible) {
-        //         event.graphic.visible = false;
-        //     }
-        //     if(event.state === 'cancel'){
-        //         setShowHelp(false);
-        //         // drawButton.style.display = 'inline-block';
-        //         // cancelButton.style.display = 'none';
-        //     }
-
-        //     if(event.state === "complete") {
-        //         setShowHelp(false);
-        //         this.props.updateDomainFromGraphicExtent(esriModules.Utils.webMercatorToGeographic(event.graphic.geometry.extent));
-        //         // drawButton.style.display = 'inline-block';
-        //         // cancelButton.style.display = 'none';
-        //     }
-        // });
-
-        // sketchModel.on('create', throttledUpdate)
-
-        // sketchModel.on('update', (event) => {
-        //     if(event.toolEventInfo && event.toolEventInfo.type === 'move-stop'){
-        //         if(event.state === 'cancel') return;
-        //         this.props.updateDomainFromGraphicExtent(event.graphics[0].geometry.extent);
-        //         // drawButton.style.display = 'inline-block';
-        //         // cancelButton.style.display = 'none';
-        //     }
-        // });   
-        
-        // drawButton.addEventListener("click", (event) => {
-        //         regionLayer.removeAll();
-        //         setShowHelp(true);
-        //         sketchModel.create('polyline', {
-        //             mode:'click'            
-        //         });
-        //         drawButton.style.display = 'none';
-        //         cancelButton.style.display = 'inline-block';
-        // });
-
-        // cancelButton.addEventListener('click', (event) => {
-        //     sketchModel.cancel();
-        //     setShowHelp(false);
-        //     // drawButton.style.display = 'inline-block';
-        //     cancelButton.style.display = 'none';
-        // })
-
-        // view.ui.add('draw-region-div', 'bottom-right');
-        // view.ui.add('cruise-selector', 'top-right');
 
         view.ui.remove('zoom');
         view.ui.remove('navigation-toggle');
@@ -321,33 +189,7 @@ class MapContainer extends Component {
     }
 
     render = () => {
-        const { classes, esriModules, spParams, cruiseTrajectory, globeUIRef } = this.props;
-
-        // const lat1 = parseFloat(spParams.lat1);
-        // const lat2 = parseFloat(spParams.lat2);
-        // const lon1 = parseFloat(spParams.lon1);
-        // let _lon2 = parseFloat(spParams.lon2);
-        // const lon2 = _lon2 < lon1 ? _lon2 + 360 : _lon2;
-
-        // this.regionLayer.removeAll();
-
-        // var polygon = {
-        //     type: 'polygon', 
-        //     rings: [
-        //         [lon1, lat1],
-        //         [lon2, lat1],
-        //         [lon2, lat2],
-        //         [lon1, lat2],
-        //         [lon1, lat1]
-        //     ]
-        // };
-
-        // let regionGraphic = new esriModules.Graphic({
-        //     geometry: polygon,
-        //     symbol: polygonSymbol
-        // })
-
-        // this.regionLayer.add(regionGraphic);
+        const { classes, esriModules, cruiseTrajectory, globeUIRef } = this.props;
 
         return (
             <div className={classes.container} id='found-you'>
@@ -385,9 +227,6 @@ class MapContainer extends Component {
                         ref={globeUIRef}
                     />
                 </Scene>
-
-                {/* <DrawButton showHelp={this.state.showHelp}/> */}
-                {/* <CruiseSelector updateParametersFromCruiseBoundary={this.props.updateParametersFromCruiseBoundary} showCruiseControl={this.props.showCruiseControl}/> */}
             </div>            
         )
     }

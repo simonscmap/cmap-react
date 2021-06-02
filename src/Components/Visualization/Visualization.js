@@ -1,17 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Route, BrowserRouter, Switch } from 'react-router-dom'
-import Cookies from 'js-cookie';
+import { Route, Switch } from 'react-router-dom'
 
 import vizSubTypes from '../../Enums/visualizationSubTypes';
 import storedProcedures from '../../Enums/storedProcedures';
 
 import { withStyles } from '@material-ui/core/styles';
 
-import LoginRequiredPrompt from '../User/LoginRequiredPrompt';
-// import VisualizationController from './VisualizationController';
 import VizControlPanel from './VizControlPanel';
-import NewVizControlPanel from './NewVizControlPanel';
 import GuestPlotLimitNotification from './GuestPlotLimitNotification';
 
 import { showLoginDialog, snackbarOpen } from '../../Redux/actions/ui';
@@ -121,8 +117,6 @@ const styles = (theme) => ({
 
     vizWrapper: {
         minHeight: '100vh',
-        // overflow: 'hidden',
-        // width: '100vw',
         background: `url(${stars})`
     }
 })
@@ -159,10 +153,6 @@ class Visualization extends Component {
     async componentDidMount(){
         document.title = metaTags.visualization.title;
         document.description = metaTags.visualization.description;
-        
-        // if(!this.props.catalog) this.props.retrievalRequestSend();
-        // if(!this.props.cruiseList) this.props.cruiseListRequestSend();
-        // if(!this.props.datasets) this.props.datasetRetrievalRequestSend();
 
         const esriModuleNames = [
             'AreaMeasurement3D',
@@ -260,8 +250,6 @@ class Visualization extends Component {
         this.props.plotsActiveTabSet(newValue);
     }
 
-    // Update the "fields" state piece when the variables input changes
-    // Field in this case refers to a react-select option, which contains catalog metadata
     updateFields = (fields) => {
         if(fields) {
             let surfaceOnly = !fields.data.Depth_Max;
@@ -330,27 +318,6 @@ class Visualization extends Component {
         }
     }
 
-    // updateParametersFromCruiseBoundary = (cruise) => {
-    //     if(cruise && this.state.spParams.fields){
-    //         this.props.snackbarOpen('Setting chart parameters to cruise boundaries.');
-    //         let lat1 = Math.floor(cruise.data.Lat_Min * 1000) / 1000;
-    //         let lat2 = Math.ceil(cruise.data.Lat_Max * 1000) / 1000;
-    //         let lon1 = Math.floor(cruise.data.Lon_Min * 1000) / 1000;
-    //         let lon2 = Math.ceil(cruise.data.Lon_Max * 1000) / 1000;
-
-    //         this.setState({...this.state,
-    //             spParams: {...this.state.spParams,
-    //                 lat1,
-    //                 lat2,
-    //                 lon1,
-    //                 lon2,
-    //                 dt1: utcDateStringToLocal(cruise.data.Start_Time),
-    //                 dt2: utcDateStringToLocal(cruise.data.End_Time)
-    //             }
-    //         })
-    //     }
-    // }
-
     handleShowCharts = () => {
         this.setState({...this.state, showCharts: true})
     }
@@ -394,38 +361,16 @@ class Visualization extends Component {
 
     render(){
         const { classes } = this.props;
-        // if(!this.props.user && !this.props.userIsGuest) return <LoginRequiredPrompt/>
         
         return (
             <div className={classes.vizWrapper}>
                 <GuestPlotLimitNotification/>
-                {/* <VizControlPanel
-                    toggleChartView={this.toggleChartView}
-                    toggleShowUI={this.toggleShowUI}
-                    handleChange={this.handleChange}
-                    handleLatLonChange={this.handleLatLonChange}
-                    handleStartDateChange={this.handleStartDateChange} 
-                    handleEndDateChange={this.handleEndDateChange} 
-                    showUI={this.state.showUI}
-                    onVisualize={this.onVisualize}
-                    updateFields={this.updateFields}
-                    {...this.state.spParams}
-                    surfaceOnly={this.state.surfaceOnly}
-                    irregularSpatialResolution={this.state.irregularSpatialResolution}
-                    showCharts={this.state.showCharts}
-                    handleShowCharts={this.handleShowCharts}
-                    handleShowGlobe={this.handleShowGlobe}
-                    resetSPParams={this.resetSPParams}
-                    handleShowCruiseControl={this.handleShowCruiseControl}
-                    showCruiseControl={this.state.showCruiseControl}
-                /> */}
 
                 { this.state.esriModules &&
                     <div className={`${this.props.plotsActiveTab === 0 ? '' : classes.displayNone}`}>
                         <MapContainer
                             globeUIRef={this.globeUIRef}
                             updateDomainFromGraphicExtent={this.updateDomainFromGraphicExtent}
-                            // updateParametersFromCruiseBoundary={this.updateParametersFromCruiseBoundary}
                             esriModules={this.state.esriModules}
                             spParams={this.state.spParams}
                             cruiseTrajectory={this.props.cruiseTrajectory}
@@ -441,7 +386,7 @@ class Visualization extends Component {
                     <Route 
                         path='/visualization/charts'
                         render={(props) => (
-                            <NewVizControlPanel
+                            <VizControlPanel
                             {...props}
                             toggleChartView={this.toggleChartView}
                             toggleShowUI={this.toggleShowUI}
@@ -477,7 +422,6 @@ class Visualization extends Component {
                     />
                 </Switch>              
 
-                {/* <div className={this.state.showCharts ? classes.showCharts : classes.displayNone}> */}
                 <div className={this.props.plotsActiveTab === 0 ? classes.displayNone : classes.showCharts}>
                     <Charts/>
                 </div>

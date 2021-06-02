@@ -1,3 +1,5 @@
+// Not currently in use
+
 import React from 'react';
 import { connect } from 'react-redux';
 import { withStyles, Paper, Tooltip, IconButton, Popper, Grow, ClickAwayListener, MenuList, MenuItem } from '@material-ui/core';

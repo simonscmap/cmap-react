@@ -1,3 +1,5 @@
+// Popup showing table stats for selected variable on viz page
+
 import React from 'react';
 import { connect } from 'react-redux';
 
@@ -16,7 +18,6 @@ const styles = theme => ({
     dialogPaper: {
         backgroundColor: colors.backgroundGray,
         width: '700px',
-        // zIndex: 3000
     },
 
     closeIcon: {

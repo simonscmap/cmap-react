@@ -1,3 +1,5 @@
+// guest login pop-up
+
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
@@ -61,12 +63,10 @@ const GuestPlotLimitNotification = (props) => {
     let guestPlotCount = parseInt(Cookies.get('guestPlotCount')) || 0;
 
     let dialogIsOpen = Boolean(props.guestPlotLimitNotificationIsVisible && !props.user)
-    // let dialogIsOpen = Boolean(!props.userIsGuest && !props.user)
 
     return (
         <Dialog
             open={dialogIsOpen}
-            // open={true}
             onClose={handleOnClose}
             PaperProps={{
                 className: classes.dialogWrapper

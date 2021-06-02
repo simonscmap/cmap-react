@@ -1,19 +1,7 @@
-// Landing page is server separately in production
+// Landing page is server separately in production. This is a placeholder for local navigation to /
 
-import React, { Component } from 'react';
-
-import { withStyles } from '@material-ui/core/styles';
+import React from 'react';
 
 const LandingPage = () => '';
 
-// class LandingPage extends Component {
-
-//     render(){
-//         return (
-//             ''
-//         )
-//     }
-// }
-
-// export default withStyles(styles)(LandingPage);
 export default LandingPage;

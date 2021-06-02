@@ -1,3 +1,5 @@
+// Not widely used
+
 const jss = {
     // styles for top navbar links
     navLink: theme => ({

@@ -3,24 +3,17 @@
 
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
-import { withStyles, TextField, MenuList, MenuItem, InputAdornment, Grid, Tooltip, IconButton, Accordion, AccordionSummary, AccordionDetails, Typography } from '@material-ui/core';
-import { Search, List, Layers, DirectionsBoat, CallMissedOutgoing, Info, InsertChart, ExpandMore, Visibility, Computer, ExpandLess, ChevronRight, Star } from '@material-ui/icons';
+import { withStyles, Grid, Tooltip, Typography } from '@material-ui/core';
+import { Info, ExpandMore, ChevronRight, Star } from '@material-ui/icons';
 
-// import * as JsSearch from 'js-search';
 import { VariableSizeList } from 'react-window';
 
 import colors from '../../Enums/colors';
 import states from '../../Enums/asyncRequestStates';
-import { vizSearchResultsSetLoadingState } from '../../Redux/actions/visualization';
 
 import DatasetInfoDialog from './DatasetInfoDialog';
 
 const makeGroupStyles = {
-    searchOptionsMenuList: {
-        marginTop: '10px',
-        maxHeight: '440px',
-        overflow: 'auto'
-    },
 
     searchOption: {
         '&:hover': {
@@ -31,10 +24,6 @@ const makeGroupStyles = {
         height: '38px',
         boxShadow: '0px 1px 1px 1px #242424',
         backgroundColor: 'rgba(0,0,0,.4)'
-    },
-
-    searchOptionsMenuItem: {
-        fontSize: '14px'
     },
 
     searchOptionsMenuItemText: {
@@ -78,7 +67,6 @@ const makeGroupStyles = {
     datasetOpenIcon:{
         color:colors.primary, 
         margin: '0 8px 0 4px',
-        // display: 'inline-block'
     },
 
     infoIcon: {
@@ -106,6 +94,7 @@ const mapDispatchToProps = {
 
 }
 
+// One section of the product list corresponding to one make
 const MakeGroup = connect(mapStateToProps, mapDispatchToProps)(withStyles(makeGroupStyles)(React.memo((props) => {
 
     const { classes, options, vizSearchResultsLoadingState, handleSelectDataTarget, handleSetVariableDetailsID, setdatasetSummaryID, listRef, make, fullCount, cart } = props;
@@ -254,10 +243,6 @@ const MakeGroup = connect(mapStateToProps, mapDispatchToProps)(withStyles(makeGr
     )
 })));
 
-const styles = (theme) => ({
-
-});
-
 const observationListRef = React.createRef();
 const modelListRef = React.createRef();
 
@@ -330,4 +315,4 @@ const ProductList = (props) => {
     )
 }
 
-export default connect(plMapStateToProps, null)(withStyles(styles)(ProductList));
+export default connect(plMapStateToProps, null)(ProductList);

@@ -1,5 +1,6 @@
+// API calls are made here. Primarily called in sagas
+
 import CSVParser from 'csv-parse';
-import queryString from 'query-string';
 
 import { apiUrl } from './config';
 import SpaceTimeData from './Classes/SpaceTimeData';

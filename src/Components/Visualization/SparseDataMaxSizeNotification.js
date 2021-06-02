@@ -1,7 +1,9 @@
+// Modal notification for when sparse data queries is of max size
+
 import React from 'react';
 
 import { connect } from 'react-redux';
-import { Dialog, DialogContent, Typography, List, ListItem, withStyles } from '@material-ui/core';
+import { Dialog, DialogContent, Typography, withStyles } from '@material-ui/core';
 import { Close } from '@material-ui/icons';
 
 import z from '../../Enums/zIndex';
@@ -87,52 +89,6 @@ const SparseDataMaxSizeNotification = (props) => {
                     </Typography>
                 </div>       
 
-                {/* <div className={classes.lastPointValueWrapper}>
-                    <Typography className={classes.lastPointValueText}>
-                        
-                    </Typography>
-                    <List className={classes.list}>
-                        <ListItem className={classes.listItem}>
-                            {'\xb7'}All times before {time.replace('T', ' ').replace('Z', '')} UTC
-                        </ListItem>
-
-                        <ListItem className={classes.listItem}>
-                        {'\xb7'}Where time is exactly {time.replace('T', ' ').replace('Z', '')}:
-                        </ListItem>
-
-                        <ListItem>
-                            <List className={classes.list}>
-                                <ListItem className={classes.listItem}>
-                                {'\xb7'}All latitudes between - 90{'\xb0'} and {lat}{'\xb0'}
-                                </ListItem>
-
-                                <ListItem className={classes.listItem}>
-                                {'\xb7'}Where latitude is exactly {lat}{'\xb0'}:
-                                </ListItem>
-
-                                <ListItem>
-                                    <List className={classes.list}>
-                                        <ListItem className={classes.listItem}>
-                                        {'\xb7'}All longitudes between -180{'\xb0'} and {lon}{'\xb0'}
-                                        </ListItem>
-
-                                        <ListItem className={classes.listItem}>
-                                        {'\xb7'}Where longitude is exactly {lon}{'\xb0'}:
-                                        </ListItem>
-
-                                        <ListItem>
-                                            <List className={classes.list}>
-                                                <ListItem className={classes.listItem}>
-                                                {'\xb7'}All depths between 0[m] and {depth}[m]
-                                                </ListItem>
-                                            </List>
-                                        </ListItem>
-                                    </List>
-                                </ListItem>
-                            </List>
-                        </ListItem>
-                    </List>
-                </div> */}
             </DialogContent>
         </Dialog>
     )

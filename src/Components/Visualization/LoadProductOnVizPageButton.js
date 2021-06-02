@@ -1,4 +1,6 @@
-import React, { useEffect } from 'react';
+// Not currently in use
+
+import React from 'react';
 import { connect } from 'react-redux';
 import { withStyles, Button } from '@material-ui/core';
 import { Map } from '@material-ui/icons';

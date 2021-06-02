@@ -1,3 +1,5 @@
+// Dialog opened when clicking the info icon next to a dataset in viz search
+
 import React from 'react';
 import { connect } from 'react-redux';
 
@@ -15,10 +17,8 @@ import z from '../../Enums/zIndex';
 const styles = theme => ({
     dialogPaper: {
         backgroundColor: colors.backgroundGray,
-        // width: '700px',
         minWidth: '700px',
         maxWidth: '60vw',
-        // zIndex: 3000
     },
 
     markdown: {
@@ -60,7 +60,6 @@ const DatasetInfoDialog = (props) => {
 
     return (
         <Dialog
-            // style={{zIndex: 5000}}
             style={{zIndex: z.NON_HELP_DIALOG}}
             open={Boolean(datasetSummaryID)}
             onClose={handleClose}
@@ -94,11 +93,6 @@ const DatasetInfoDialog = (props) => {
             </DialogContent>
         </Dialog>
     )
-    // <>
-    //     <Skeleton><Typography variant='h3'></Typography></Skeleton>
-    //     <Skeleton><Typography variant='h1'></Typography></Skeleton>
-    //     <Skeleton width={500} height={800}></Skeleton>
-    // </> 
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(DatasetInfoDialog));

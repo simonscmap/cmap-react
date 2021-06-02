@@ -1,3 +1,5 @@
+// Wrapper for scatter / line plots
+
 import React from 'react';
 import Plot from 'react-plotly.js';
 
@@ -19,8 +21,6 @@ const SparseScatter = (props) => {
 
     const { parameters, metadata, hasDepth, variableValues, times, lats, lons, depths } = infoObject;
 
-    // const title = `${parameters.fields} [${metadata.Unit}]`;
-    
     var hovertext;
 
     switch(type){

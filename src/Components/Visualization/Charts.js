@@ -18,7 +18,7 @@ import TimeSeriesChart from './TimeSeriesChart';
 import DepthProfileChart from './DepthProfileChart';
 import SectionMapChart from './SectionMapChart';
 import SparseMap from './SparseMap';
-import SparseHistogram from './SparseHistogram';
+import Histogram from './Histogram';
 
 import spatialResolutions from '../../Enums/spatialResolutions';
 
@@ -182,7 +182,7 @@ class Charts extends Component {
                                 <Paper elevation={12} className={classes.chartPaper} key={chart.id}>
                                 {/* <Paper elevation={12} className={classes.chartPaper} key={chart.id} style={index === plotsActiveTab - 1 ? {} : {display: 'none'}}> */}
                                   <CloseChartIcon chartIndex={index} handleDeleteChart={this.handleDeleteChart}/>
-                                  <SparseHistogram chart={chart}/>
+                                  <Histogram chart={chart}/>
                                 </Paper>
                               </div>
                             )

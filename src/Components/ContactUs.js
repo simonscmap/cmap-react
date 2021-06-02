@@ -1,3 +1,5 @@
+// This was moved to the landing page only, but kept for reference.
+
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 

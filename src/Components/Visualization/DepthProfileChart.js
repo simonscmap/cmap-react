@@ -1,3 +1,5 @@
+// Wrapper component for depth profile
+
 import React from 'react';
 import { connect } from 'react-redux';
 

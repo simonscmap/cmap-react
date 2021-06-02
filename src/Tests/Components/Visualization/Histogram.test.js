@@ -1,8 +1,8 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import SparseHistogram from '../../../Components/Visualization/SparseHistogram';
+import Histogram from '../../../Components/Visualization/Histogram';
 import mockReduxStore from '../../TestUtils/mockReduxStore'
 
 test('Renders without crashing', () => {
-    const wrapper = shallow(<SparseHistogram store={mockReduxStore({})}/>);
+    const wrapper = shallow(<Histogram store={mockReduxStore({})}/>);
 });

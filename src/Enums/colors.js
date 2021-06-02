@@ -1,6 +1,4 @@
 const colors = {
-    // orange: '#FF8000',
-    // orange: '#93B968',
     primary: '#9dd162',
     solidPaper: '#184562',
     backgroundGray: '#424242',

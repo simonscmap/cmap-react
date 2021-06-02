@@ -1,16 +1,16 @@
-import React, { useEffect } from 'react';
-import { connect } from 'react-redux';
-import { withStyles, Chip, TextField, MenuList, MenuItem, InputAdornment, Grid, Tooltip, IconButton, Link, Typography, FormControl, Select, FormHelperText, Button, Popper, Checkbox, FormControlLabel, FormGroup } from '@material-ui/core';
-import { Autocomplete } from '@material-ui/lab';
-import { ExpandMore, ChevronRight, Search, Layers, DirectionsBoat, CallMissedOutgoing, Info, InsertChart, Close } from '@material-ui/icons';
+// Search overlay for viz page
 
-import matchSorter from 'match-sorter';
+import React from 'react';
+import { connect } from 'react-redux';
+import { withStyles, TextField, MenuItem, InputAdornment, Grid, Link, Typography, FormControl, Select, FormHelperText, Button, } from '@material-ui/core';
+import { Autocomplete } from '@material-ui/lab';
+import { Search, Close } from '@material-ui/icons';
 
 import ProductList from './ProductList';
 import MultiCheckboxDropdown from '../UI/MultiCheckboxDropdown';
 
 import { vizSearchResultsFetch, vizSearchResultsSetLoadingState, variableNameAutocompleteFetch, vizSearchResultsStore } from '../../Redux/actions/visualization';
-import { keywordsFetch, searchOptionsFetch } from '../../Redux/actions/catalog';
+import { searchOptionsFetch } from '../../Redux/actions/catalog';
 
 import colors from '../../Enums/colors';
 import states from '../../Enums/asyncRequestStates';
@@ -37,14 +37,6 @@ const styles = (theme) => ({
         border: `1px solid ${colors.primary}`
     },
 
-    chip: {
-        maxWidth: '160px',
-        color: 'white',
-        borderColor: theme.palette.primary.main,
-        marginRight: '6px',
-        height: '28px'
-    },
-
     autocompletePopperPaper: {
         backgroundColor: 'black',
         zIndex: z.CONTROL_SECONDARY
@@ -55,21 +47,6 @@ const styles = (theme) => ({
             backgroundColor: colors.greenHover,
           },
           textAlign: 'left'
-    },
-
-    searchWrapper: {
-        position: '-webkit-sticky',
-        position: 'sticky',
-        top: '152px',
-        padding: '14px 20px'
-    },
-
-    chip: {
-        maxWidth: '160px',
-        color: 'white',
-        borderColor: theme.palette.primary.main,
-        marginRight: '6px',
-        height: '28px'
     },
 
     resetButton: {
@@ -85,10 +62,6 @@ const styles = (theme) => ({
         marginTop: '10px',
     },
 
-    depthFormControlRoot: {
-        textAlign: 'left'
-    },
-
     formControl: {
         width: '90%',
         marginBottom: '6px'
@@ -96,12 +69,6 @@ const styles = (theme) => ({
 
     autoComplete: {
         width: 'calc(100% - 48px)'
-    },
-
-    searchSectionHeader: {
-        color: theme.palette.primary.main,
-        textAlign: 'left',
-        marginBottom: '8px'
     },
 
     showAdvancedWrapper: {
@@ -114,25 +81,8 @@ const styles = (theme) => ({
         fontSize: '13px',
     },
 
-    sensorInputLabel: {
-        fontSize: '21px'
-    },
-
-    sensorTextField: {
-        paddingTop: '8px'
-    },
-
-    popperDisablePortal: {
-        bottom: 130
-    },
-
     addBorder: {
         border: `1px solid ${colors.primary}`
-    },
-
-    denseGridItem: {
-        marginTop: '4px',
-        padding: '0px 6px'
     },
 
     shiftedAutocompletePopper: {
@@ -150,14 +100,6 @@ const styles = (theme) => ({
         maxHeight: 0,
         minHeight : '400px',
         overflowX: 'hidden'
-    },
-
-    formControlLabelRoot: {
-        height: '30px'
-    },
-
-    formControlLabelLabel: {
-        fontSize: '14px'
     },
 
     closeIcon: {

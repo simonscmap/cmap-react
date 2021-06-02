@@ -15,7 +15,6 @@ import z from './Enums/zIndex';
 import { Route, BrowserRouter, Switch } from 'react-router-dom'
 import { debounce } from 'throttle-debounce';
 
-// import Catalog from './Components/Catalog/Catalog';
 import GlobalUIComponentWrapper from './Components/UI/GlobalUIComponentWrapper';
 import TopNavBar from './Components/UI/TopNavBar';
 import ErrorBoundary from './Components/UI/ErrorBoundary';
@@ -36,6 +35,7 @@ const ForgotPass = lazy(() => import('./Components/User/ForgotPass'));
 const ChoosePassword = lazy(() => import('./Components/User/ChoosePassword'));
 const CruiseFullPage = lazy(() => import('./Components/Catalog/CruiseFullPage'));
 
+// Changes to default styles of MUI components
 const theme = createMuiTheme({
 
   typography: {

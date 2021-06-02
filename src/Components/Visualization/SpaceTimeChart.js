@@ -1,7 +1,9 @@
+// Wrapper for heatmaps and non-sparse histograms
+
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 
-import SparseHistogram from './SparseHistogram';
+import Histogram from './Histogram';
 
 import { withStyles } from '@material-ui/core/styles';
 
@@ -309,7 +311,7 @@ const SpaceTimeChart = (props) => {
             break;
 
         case vizSubTypes.histogram:
-            return <SparseHistogram chart={{data}}/>;
+            return <Histogram chart={{data}}/>;
 
         default:
             plots = '';

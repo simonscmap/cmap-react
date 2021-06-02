@@ -1,3 +1,5 @@
+// Wrapper for histogram plots
+
 import React from 'react';
 import { connect } from 'react-redux';
 
@@ -36,7 +38,7 @@ const mapDispatchToProps = {
 }
 
 // User for all histograms sparse or otherwise
-const SparseHistogram = props => {
+const Histogram = props => {
     const { csvFromVizRequestSend } = props;
     const { data } = props.chart;
     const { metadata, parameters } = data;
@@ -126,4 +128,4 @@ const SparseHistogram = props => {
     )
 }
 
-export default connect(null, mapDispatchToProps)(withStyles(styles)(SparseHistogram));
+export default connect(null, mapDispatchToProps)(withStyles(styles)(Histogram));

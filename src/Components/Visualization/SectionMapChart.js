@@ -1,3 +1,5 @@
+// Wrapper for section map charts
+
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 

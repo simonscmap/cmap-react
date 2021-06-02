@@ -1,3 +1,5 @@
+// Container for grouped plots for sparse data
+
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 

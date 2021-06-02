@@ -1,3 +1,5 @@
+// Wrapper for time series
+
 import React from 'react';
 import { connect } from 'react-redux';
 

@@ -1,3 +1,5 @@
+// Popup appearing at /visualization to direct to cruises or plots
+
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 
