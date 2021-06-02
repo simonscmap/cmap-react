@@ -16,7 +16,6 @@ const styles = (theme) => ({
         width: '60%',
         margin: '10% auto',
         padding: '24px'
-        // height: '40vh'
     },
 
     emailSignUpButton: {

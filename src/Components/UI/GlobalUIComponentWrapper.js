@@ -5,13 +5,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
-import { withStyles } from '@material-ui/core/styles';
-
 import LoginDialog from '../User/LoginDialog';
 import SnackbarWrapper from './SnackbarWrapper';
 import LoadingOverlay from './LoadingOverlay';
 import Cart from './Cart';
-import GuestPlotLimitNotification from '../Visualization/GuestPlotLimitNotification';
 
 import { loginDialogWasCleared } from '../../Redux/actions/user';
 
@@ -27,7 +24,6 @@ const mapDispatchToProps = {
 class GlobalUIComponentWrapper extends Component {
 
     state = {
-        // Login dialog
         username: '',
         password: ''
     }

@@ -1,3 +1,5 @@
+// Cruise information (linked from explore cruises or dataset pages)
+
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
@@ -147,7 +149,7 @@ return (
 
                                 <TableRow className={classes.sampleTableRow}>
                                     <TableCell className={classes.tableHead}>
-                                        Start Time
+                                        Start Date
                                     </TableCell>
                                     <TableCell>
                                         {Start_Time ? Start_Time.slice(0, 10) : 'NA'}
@@ -156,7 +158,7 @@ return (
 
                                 <TableRow className={classes.sampleTableRow}>
                                     <TableCell className={classes.tableHead}>
-                                        End Time
+                                        End Date
                                     </TableCell>
                                     <TableCell>
                                         {End_Time ? End_Time.slice(0, 10) : 'NA'}

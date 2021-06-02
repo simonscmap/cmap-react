@@ -1,3 +1,5 @@
+// Used with forgot password link from email
+
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from "react-router";
@@ -17,13 +19,7 @@ const styles = (theme) => ({
     paper: {
         width: '60%',
         margin: '120px auto',
-        // height: '40vh',
         padding: '24px 12px'
-    },
-
-    textFields: {
-        display: 'block',
-        width: '380px'
     },
 
     description: {
@@ -35,10 +31,6 @@ const styles = (theme) => ({
         padding: '0 90px'
 
     },
-
-    button: {
-        width: '120px'
-    }
 })
 
 const mapDispatchToProps = {
@@ -53,7 +45,6 @@ const mapStateToProps = (state, ownProps) => ({
 
 const choosePasswordButtonRef = React.createRef();
 
-// Used with forgot password link from email
 class ChoosePassword extends Component {
 
     constructor(props){

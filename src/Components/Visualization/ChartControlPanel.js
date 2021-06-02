@@ -1,3 +1,5 @@
+// Wrapper for chart controls
+
 import React, { useState, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 
@@ -18,14 +20,6 @@ const mapDispatchToProps = {
 }
 
 const styles = theme => ({
-    chartWrapper: {
-        display: 'inline-block',
-        backgroundColor: colors.backgroundGray,
-        boxShadow: "0px 6px 6px -3px rgba(0,0,0,0.2),0px 10px 14px 1px rgba(0,0,0,0.14),0px 4px 18px 3px rgba(0,0,0,0.12)",
-        margin: '20px',
-        color: 'white'
-    },
-
     popover: {
         width: '470px',
         height: '120px',

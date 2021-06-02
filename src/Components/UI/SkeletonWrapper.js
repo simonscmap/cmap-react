@@ -1,3 +1,5 @@
+// Wraps a loading skeleton around children
+
 import React from 'react';
 
 import { Skeleton } from '@material-ui/lab';

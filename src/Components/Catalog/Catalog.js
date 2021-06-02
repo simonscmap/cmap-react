@@ -1,3 +1,5 @@
+// Wrapper and layout for the catalog page
+
 import React, { useEffect } from 'react';
 import { withStyles, Grid } from '@material-ui/core';
 

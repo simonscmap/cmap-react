@@ -1,3 +1,5 @@
+// Expandable list of checkboxes used in search components
+
 import React from 'react';
 
 import { withStyles, Grid, FormGroup, Checkbox, Link, FormControlLabel } from '@material-ui/core';
@@ -37,7 +39,6 @@ const styles = (theme) => ({
         cursor: 'pointer',
         height: '38px',
         boxShadow: '0px 0px 0px 1px #242424',
-        // backgroundColor: 'rgba(0,0,0,.15)',
         marginTop: '8px'
     }
 });

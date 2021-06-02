@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { connect } from 'react-redux';
+// Reuseable icon that shows help when clicked. Accepts help contents as a prop
+
+import React from 'react';
 import { withStyles, IconButton, Dialog, DialogTitle, DialogContent } from '@material-ui/core';
 import { Help } from '@material-ui/icons';
 
@@ -7,10 +8,6 @@ import colors from '../../Enums/colors';
 import z from '../../Enums/zIndex';
 
 const styles = (theme) => ({
-    showHelpButton: {
-        marginRight: '-4px'
-    },
-
     dialogPaper: {
         backgroundColor: '#1B445C'
     },
@@ -21,7 +18,6 @@ const styles = (theme) => ({
 
     dialogRoot: {
         zIndex: `${z.HELP_DIALOG} !important`,
-        // zIndex: '31100 !important'
     }
 });
 

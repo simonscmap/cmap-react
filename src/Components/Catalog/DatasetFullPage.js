@@ -1,3 +1,7 @@
+// Individual dataset and member variable info page
+// Text on this page has inline styling for font color because ag-grid's theme classes override mui classes when a dialog is opened
+// from inside the grid
+
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
@@ -23,10 +27,6 @@ import CartAddOrRemove from './CartAddOrRemove';
 import SkeletonWrapper from '../UI/SkeletonWrapper';
 
 import datasetMetadataToDownloadFormat from '../../Utility/Catalog/datasetMetadataToDownloadFormat';
-
-// Text on this page has inline styling for font color because ag-grid's theme classes override mui classes when a dialog is opened
-// from inside the grid
-
 
 const mapStateToProps = (state, ownProps) => ({
     datasetFullPageDataLoadingState: state.datasetFullPageDataLoadingState,
@@ -278,7 +278,7 @@ const DatasetFullPage = (props) => {
 
                                 <TableRow className={classes.sampleTableRow}>
                                     <TableCell className={classes.tableHead}>
-                                        Time Start*
+                                        Date Start*
                                     </TableCell>
                                     <TableCell>
                                         {Time_Min ? Time_Min.slice(0, 10) : 'NA'}
@@ -287,7 +287,7 @@ const DatasetFullPage = (props) => {
 
                                 <TableRow className={classes.sampleTableRow}>
                                     <TableCell className={classes.tableHead}>
-                                        Time End*
+                                        Date End*
                                     </TableCell>
                                     <TableCell>
                                         {Time_Max ? Time_Max.slice(0, 10) : 'NA'}
@@ -305,7 +305,7 @@ const DatasetFullPage = (props) => {
 
                                 <TableRow className={classes.sampleTableRow}>
                                     <TableCell className={classes.tableHead}>
-                                        Lat Start*
+                                        Lat Min*
                                     </TableCell>
                                     <TableCell>
                                         {Lat_Min}&deg;
@@ -314,7 +314,7 @@ const DatasetFullPage = (props) => {
 
                                 <TableRow className={classes.sampleTableRow}>
                                     <TableCell className={classes.tableHead}>
-                                        Lat End*
+                                        Lat Max*
                                     </TableCell>
                                     <TableCell>
                                         {Lat_Max}&deg;
@@ -323,7 +323,7 @@ const DatasetFullPage = (props) => {
 
                                 <TableRow className={classes.sampleTableRow}>
                                     <TableCell className={classes.tableHead}>
-                                        Lon Start*
+                                        Lon Min*
                                     </TableCell>
                                     <TableCell>
                                         {Lon_Min}&deg;
@@ -332,7 +332,7 @@ const DatasetFullPage = (props) => {
 
                                 <TableRow className={classes.sampleTableRow}>
                                     <TableCell className={classes.tableHead}>
-                                        Lon End*
+                                        Lon Max*
                                     </TableCell>
                                     <TableCell>
                                         {Lon_Max}&deg;
@@ -341,7 +341,7 @@ const DatasetFullPage = (props) => {
 
                                 <TableRow className={classes.sampleTableRow}>
                                     <TableCell className={classes.tableHead}>
-                                        Depth Start*
+                                        Depth Min*
                                     </TableCell>
                                     <TableCell>
                                         {Depth_Max ? Depth_Min + 'm' : 'Surface Only'}
@@ -350,7 +350,7 @@ const DatasetFullPage = (props) => {
 
                                 <TableRow className={classes.sampleTableRow}>
                                     <TableCell className={classes.tableHead}>
-                                        Depth End*
+                                        Depth Max*
                                     </TableCell>
                                     <TableCell>
                                         {Depth_Max ? Depth_Max + 'm' : 'Surface Only'}
@@ -361,8 +361,6 @@ const DatasetFullPage = (props) => {
                         <Typography variant='caption' style={{margin: '4px 0 14px 4px', display: 'inline-block', color: 'white'}}>
                             *Temporal and spatial coverage may differ between member variables
                         </Typography>
-
-                        {/* <iframe src={Icon_URL ? Icon_URL.slice(0, -4) + '.html' : ''}/> */}
 
                         <Typography variant='h5' className={classes.sectionHeader} style={{marginBottom: '16px', color: 'white'}}>
                             Variables

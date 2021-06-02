@@ -1,5 +1,6 @@
+// Select viz type and create viz button
+
 import React from 'react';
-import { connect } from 'react-redux';
 
 import { withStyles } from '@material-ui/core/styles';
 
@@ -8,14 +9,6 @@ import MUISelect from '@material-ui/core/Select';
 
 import vizSubTypes from '../../Enums/visualizationSubTypes';
 import colors from '../../Enums/colors';
-
-const mapStateToProps = (state, ownProps) => ({
-
-})
-
-const mapDispatchToProps = {
-
-}
 
 const styles = (theme) => ({
     vizTypeSelectFormControl: {
@@ -52,16 +45,6 @@ const styles = (theme) => ({
     vizButtonTooltip: {
         color: 'yellow'
     },
-
-    chartControlContainer: {
-        position: 'fixed',
-        left: '16px',
-        bottom: '20px',
-        backgroundColor: colors.backgroundGray,
-        boxShadow: '2px 2px 2px 2px #242424',
-        borderRadius: '4px',
-        width: '305px'
-    }
 });
 
 const ChartControl = (props) => {
@@ -80,13 +63,11 @@ const ChartControl = (props) => {
         selectedVizType,
         handleChangeInputValue,
         handleVisualize,
-        showChartControl,
         disabled
     } = props;
 
     return (
         <React.Fragment>
-            {/* <Paper className={classes.chartControlContainer} style={showChartControl ? {} : {display: 'none'}}> */}
                 <Grid container>
                     <Grid item xs={12}>
                         <FormControl variant='filled' className={classes.vizTypeSelectFormControl}>
@@ -137,9 +118,8 @@ const ChartControl = (props) => {
                     </Tooltip>
 
                 </Grid>
-            {/* </Paper> */}
         </React.Fragment>
     )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(ChartControl));
+export default withStyles(styles)(ChartControl);

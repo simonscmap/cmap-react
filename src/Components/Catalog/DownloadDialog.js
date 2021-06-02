@@ -1,3 +1,5 @@
+// Pop-up dialog for downloading data on catalog pages
+
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 

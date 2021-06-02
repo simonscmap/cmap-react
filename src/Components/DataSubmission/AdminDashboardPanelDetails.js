@@ -1,3 +1,5 @@
+// Individual data submission. 
+
 import React, { useEffect } from 'react';
 
 import { connect } from 'react-redux';
@@ -91,7 +93,6 @@ const AdminDashboardPanelDetails = (props) => {
         props.retrieveSubmissionCommentHistory(submission.Submission_ID);
     }, []);
 
-    // control this input from redux so we can reset properly, also create connected "NewComment" component
     const handlePostComment = () => {
         props.addSubmissionComment(submission.Submission_ID, comment, 'admin');
         setComment('');
@@ -102,7 +103,6 @@ const AdminDashboardPanelDetails = (props) => {
     }
 
     const handleCommitPhase = () => {
-        // props.handleResetExpandedPanel();
         setSubmissionPhase(submission.Submission_ID, phase);
     }
     
@@ -163,7 +163,6 @@ const AdminDashboardPanelDetails = (props) => {
                     variant='outlined'
                     onChange={(e) => setComment(e.target.value)}
                     value={comment}
-                    // className={classes.newCommentTextField}
                     fullWidth
                 />
 

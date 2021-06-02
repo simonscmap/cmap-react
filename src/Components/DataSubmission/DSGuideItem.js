@@ -1,3 +1,5 @@
+// Renders data submission guide items
+
 import React from 'react';
 
 import { withStyles, Typography } from '@material-ui/core';

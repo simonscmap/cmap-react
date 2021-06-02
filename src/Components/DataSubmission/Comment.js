@@ -1,3 +1,5 @@
+// Comment component used in user and admin dashboard
+
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 

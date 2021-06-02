@@ -1,18 +1,5 @@
-import React, { useEffect } from 'react';
-import { connect } from 'react-redux';
-import { withStyles, Typography } from '@material-ui/core';
-
-const mapStateToProps = (state, ownProps) => ({
-
-})
-
-const mapDispatchToProps = {
-
-}
-
-const styles = (theme) => ({
-
-});
+import React from 'react';
+import { Typography } from '@material-ui/core';
 
 const CartHelpContents = (props) => {
 
@@ -68,4 +55,4 @@ const CartHelpContents = (props) => {
         )
     }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(CartHelpContents));
+export default CartHelpContents;

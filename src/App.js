@@ -20,7 +20,7 @@ import GlobalUIComponentWrapper from './Components/UI/GlobalUIComponentWrapper';
 import TopNavBar from './Components/UI/TopNavBar';
 import ErrorBoundary from './Components/UI/ErrorBoundary';
 
-const Home = lazy(() => import('./Components/Home'));
+const ApiKeyManagement = lazy(() => import('./Components/User/ApiKeyManagement'));
 const SearchResults = lazy(() => import('./Components/Catalog/SearchResults'));
 const Register = lazy(() => import('./Components/User/Register'));
 const Visualization = lazy(() => import('./Components/Visualization/Visualization'));
@@ -260,7 +260,7 @@ class App extends Component {
                 <TopNavBar/>
                 <Suspense fallback={''}>
                   <Switch>          
-                    <Route exact path='/apikeymanagement' component={ Home } />
+                    <Route exact path='/apikeymanagement' component={ ApiKeyManagement } />
                     <Route exact path='/' component={ LandingPage } />
                     <Route exact path='/catalog' component={ Catalog } />
                     <Route exact path='/login' component={ Login } />

@@ -5,12 +5,9 @@ import { Autocomplete } from '@material-ui/lab';
 import { ExpandMore, ChevronRight, Search, Layers, DirectionsBoat, CallMissedOutgoing, Info, InsertChart, Close } from '@material-ui/icons';
 
 import matchSorter from 'match-sorter';
-// import * as JsSearch from 'js-search';
-// import { FixedSizeList } from 'react-window';
 
 import ProductList from './ProductList';
 import MultiCheckboxDropdown from '../UI/MultiCheckboxDropdown';
-// import RegionSelector from '../UI/RegionSelector';
 
 import { vizSearchResultsFetch, vizSearchResultsSetLoadingState, variableNameAutocompleteFetch, vizSearchResultsStore } from '../../Redux/actions/visualization';
 import { keywordsFetch, searchOptionsFetch } from '../../Redux/actions/catalog';
@@ -20,10 +17,7 @@ import states from '../../Enums/asyncRequestStates';
 import z from '../../Enums/zIndex';
 
 const mapStateToProps = (state, ownProps) => ({
-    // datasets: state.datasets,
-    // cruiseList: state.cruiseList,
     vizSearchResults: state.vizSearchResults,
-    // keywords: state.keywords,
     vizSearchResultsLoadingState: state.vizSearchResultsLoadingState,
     autocompleteVariableNames: state.autocompleteVariableNames,
     submissionOptions: state.submissionOptions,
@@ -32,7 +26,6 @@ const mapStateToProps = (state, ownProps) => ({
 
 const mapDispatchToProps = {
     vizSearchResultsFetch,
-    // keywordsFetch,
     vizSearchResultsSetLoadingState,
     variableNameAutocompleteFetch,
     vizSearchResultsStore,
@@ -54,7 +47,6 @@ const styles = (theme) => ({
 
     autocompletePopperPaper: {
         backgroundColor: 'black',
-        // zIndex: 30000
         zIndex: z.CONTROL_SECONDARY
     },
 
@@ -120,7 +112,6 @@ const styles = (theme) => ({
 
     regionSelectorInput: {
         fontSize: '13px',
-        // padding: '4px 0px'
     },
 
     sensorInputLabel: {
@@ -177,17 +168,6 @@ const styles = (theme) => ({
         fontSize: '15px'
     }
 });
-
-// const filterOptions = (options, { inputValue }) => {
-//     let values = inputValue.replace('_',' ').split(' ');
-//     let result = options;
-
-//     values.forEach(value => {
-//         result = matchSorter(result, value);
-//     });
-
-//     return result.sort((a,b) => a.length - b.length);
-// }
 
 const defaultState = {
     hasDepth: 'any',
@@ -287,9 +267,7 @@ class DataSearch extends React.Component {
         const {
             classes,
             handleSelectDataTarget,
-            // keywords,
             vizSearchResults,
-            // vizSearchResultsSetLoadingState,
             autocompleteVariableNames,
             submissionOptions,
             windowHeight
@@ -297,7 +275,6 @@ class DataSearch extends React.Component {
 
         const { 
             searchTerms, 
-            // searchInputValue, 
             memberVariablesDataset,
             hasDepth, 
             timeStart, 
@@ -332,7 +309,6 @@ class DataSearch extends React.Component {
                             Close
                         </Button>
 
-                        {/* <Close onClick={this.props.handleCloseDataSearch} className={classes.closeIcon}/> */}
                     </Grid>
                     <Grid item xs={4} style={{overflowY: 'auto', maxHeight: windowHeight - 204, padding: '16px', backgroundColor: 'rgba(0,0,0,.4)', display: memberVariablesDataset ? 'none' : ''}}>
                                 <TextField
@@ -513,7 +489,6 @@ class DataSearch extends React.Component {
                                         PopoverClasses: {
                                             paper: `${classes.autocompletePopperPaper} ${classes.addBorder}`
                                         },
-                                        // style:{zIndex: 8000}
                                         style: {zIndex: z.CONTROL_SECONDARY}
                                     }}
                                 >
@@ -535,7 +510,6 @@ class DataSearch extends React.Component {
                                                 PopoverClasses: {
                                                     paper: `${classes.autocompletePopperPaper} ${classes.addBorder}`
                                                 },
-                                                // style:{zIndex: 8000}
                                                 style: {zIndex: z.CONTROL_SECONDARY}
                                             }}
                                         >
@@ -559,7 +533,6 @@ class DataSearch extends React.Component {
                                                 PopoverClasses: {
                                                     paper: `${classes.autocompletePopperPaper} ${classes.addBorder}`
                                                 },
-                                                // style:{zIndex: 8000}
                                                 style: {zIndex: z.CONTROL_SECONDARY}
                                             }}
                                         >
@@ -583,7 +556,6 @@ class DataSearch extends React.Component {
                                                 PopoverClasses: {
                                                     paper: `${classes.autocompletePopperPaper} ${classes.addBorder}`
                                                 },
-                                                // style:{zIndex: 8000}
                                                 style: {zIndex: z.CONTROL_SECONDARY}
                                             }}
                                         >
@@ -610,29 +582,9 @@ class DataSearch extends React.Component {
                                             popperDisablePortal: classes.shiftedAutocompletePopper,
                                             listbox: classes.shiftedAutocompleteListbox
                                         }}
-                                        // PopperComponent={(props) => <Popper {...props}/>}
                                         value={dataSource}
                                     />
-                                    {/* <FormControl className={classes.formControl}>
-                                        <FormHelperText>Data Source</FormHelperText>
-                                        <Select
-                                            value={dataSource}
-                                            onChange={this.handleChangeSearchValue}
-                                            name='dataSource'
-                                            MenuProps={{
-                                                PopoverClasses: {
-                                                    paper: `${classes.autocompletePopperPaper} ${classes.addBorder}`
-                                                },
-                                                style:{zIndex: 8000}
-                                            }}
-                                        >
-                                            {
-                                                this.props.submissionOptions.Data_Source.map((e) => (
-                                                    <MenuItem key={e} value={e}>{e}</MenuItem>
-                                                ))
-                                            }
-                                        </Select>                            
-                                    </FormControl> */}
+
                                 </Grid>
 
                                 <Grid item xs={12}>
@@ -651,27 +603,6 @@ class DataSearch extends React.Component {
                                         }}
                                         value={distributor}
                                     />
-
-                                    {/* <FormControl className={classes.formControl}>
-                                        <FormHelperText>Distributor</FormHelperText>
-                                        <Select
-                                            value={distributor}
-                                            onChange={this.handleChangeSearchValue}
-                                            name='distributor'
-                                            MenuProps={{
-                                                PopoverClasses: {
-                                                    paper: `${classes.autocompletePopperPaper} ${classes.addBorder}`
-                                                },
-                                                style:{zIndex: 8000}
-                                            }}
-                                        >
-                                            {
-                                                this.props.submissionOptions.Distributor.map((e) => (
-                                                    <MenuItem key={e} value={e}>{e}</MenuItem>
-                                                ))
-                                            }
-                                        </Select>                            
-                                    </FormControl> */}
                                 </Grid>
                             </Grid>                        
                         </div>

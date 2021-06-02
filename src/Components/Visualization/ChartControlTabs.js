@@ -1,3 +1,5 @@
+// Not currently in use
+
 import React from 'react';
 import { connect } from 'react-redux';
 
@@ -22,11 +24,9 @@ const styles = (theme) => ({
         position: 'fixed',
         left: 0,
         top: 70,
-        // backgroundColor: colors.backgroundGray,
         backgroundColor: 'rgba(0,0,0,.6)',
         boxShadow: '2px 2px  2px 2px #242424',
         zIndex: z.CONTROL_PRIMARY,
-        // zIndex: 39000
     },
 
     tabs: {
@@ -41,9 +41,6 @@ const styles = (theme) => ({
         opacity: 1,
         width: '180px',
         maxHeight: '48px',
-        // textOverflow: 'ellipsis',
-        // overflow: 'hidden',
-        // whiteSpace: 'nowrap',
         '&:not(:first-child)': {
             borderLeft: '3px solid #242424'
         }
@@ -92,25 +89,19 @@ const ChartControlTabs = (props) => {
 
                     {charts.map((e, i) => (
                         <Tooltip enterDelay={500} key={e.id} title={e.subType + ' of ' + e.data.metadata.Long_Name + ' from ' + e.data.metadata.Dataset_Name}>
-                            {/* <div> */}
-                                
-
                                 <Tab 
                                     label={
                                         <span style={{maxWidth: '140px'}}>
                                             {e.data.metadata.Long_Name.length > 32 ? e.data.metadata.Long_Name.slice(0,30) + '...' : e.data.metadata.Long_Name}
 
-                                            {/* <IconButton  className={classes.closeIconButton}> */}
                                             <Tooltip title='Delete plot' placement='top'>
                                                 <Close className={classes.closeIcon} onClick={(e) => handleDeleteChart(e, i)}/>
                                             </Tooltip>
-                                            {/* </IconButton> */}
                                         </span>
                                     } 
                                     className={classes.tab} 
                                     classes={{selected: classes.greenHightlight}}
                                 />
-                            {/* </div> */}
                         </Tooltip>
                     ))}
                 </Tabs>

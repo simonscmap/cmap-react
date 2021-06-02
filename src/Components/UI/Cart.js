@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+// Favorites
+
+import React from 'react';
 import { connect } from 'react-redux';
-import { Link as RouterLink } from 'react-router-dom';
 
 import { withStyles, Dialog, DialogTitle, DialogContent, Button, DialogActions } from '@material-ui/core';
-import { ShowChart, Delete } from '@material-ui/icons';
+import { Delete } from '@material-ui/icons';
 
 import SearchResult from '../Catalog/SearchResult';
 
@@ -47,11 +48,6 @@ const styles = (theme) => ({
         width: '60vw',
     },
 
-    dialogTitle: {
-        paddingBottom: '8px',
-        color: colors.primary
-    },
-
     dialogActions: {
         marginTop: '12px'
     },
@@ -62,7 +58,6 @@ const styles = (theme) => ({
 
     dialogRoot: {
         zIndex: `${z.NON_HELP_DIALOG} !important`
-        // zIndex: '31000 !important'
     }
 });
 
@@ -88,7 +83,6 @@ const Cart = (props) => {
                 onClose={() => props.setShowCart(false)} 
                 maxWidth={false}
                 disableScrollLock
-                // onEntered={() => setTimeout(() => props.setShowCart(false), 2000)}
             >
                 <DialogTitle>
                     Favorites 
@@ -110,18 +104,6 @@ const Cart = (props) => {
                             }
 
                             <DialogActions className={classes.dialogActions}>
-                                {/* <Button
-                                    variant="text"
-                                    color="primary"
-                                    className={props.cartButtonClass}
-                                    startIcon={<ShowChart/>}
-                                    component={RouterLink} 
-                                    to={`/visualization/charts`}
-                                    onClick={() => props.setShowCart(false)}
-                                >
-                                    Visualization
-                                </Button> */}
-
                                 <Button
                                     variant="text"
                                     color="primary"

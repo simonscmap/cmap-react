@@ -1,3 +1,5 @@
+// spinner
+
 import React from 'react';
 
 import { withStyles } from '@material-ui/core/styles';
@@ -24,7 +26,6 @@ const styles = theme => ({
         width: '100vw',
         height: '100vh',
         zIndex: z.LOADING_OVERLAY,
-        // zIndex: 9998
     },
 
     loaderContent: {
@@ -33,15 +34,12 @@ const styles = theme => ({
         alignItem: 'center',
         justifyContent: 'center',
         zIndex: z.LOADING_OVERLAY + 1,
-        // zIndex: 9999
         opacity: 1
     },
 
     spinnerText: {
         zIndex: z.LOADING_OVERLAY + 2,
-        // zIndex: 10000,
         color: theme.palette.primary.main,
-        // color: '#FF8000',
         marginTop: '25px',
         opacity: 1
     },

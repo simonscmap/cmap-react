@@ -1,3 +1,5 @@
+// Form for updating user password in profile
+
 import React from 'react';
 import { connect } from 'react-redux';
 

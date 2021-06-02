@@ -26,7 +26,6 @@ const styles = (theme) => ({
 
     dropdown: {
         zIndex: z.NAVBAR_DROPDOWN,
-        // zIndex: 40000,
         marginTop: '21px',
         width: '200px'
     },

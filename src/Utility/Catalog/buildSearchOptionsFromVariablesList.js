@@ -3,7 +3,6 @@
 // 
 
 const buildSearchOptionsFromVariableList = (variables, storedOptions = {}, params = {}) => {
-    console.log(variables);
     let options = {
         Sensor: new Set(),
         Temporal_Resolution: new Set(['Any']),

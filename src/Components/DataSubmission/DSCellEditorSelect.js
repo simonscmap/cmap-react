@@ -1,3 +1,5 @@
+// Custom dropdown cell editor for data submission ag-grid
+
 import React from 'react';
 
 import { ClickAwayListener } from '@material-ui/core';
@@ -13,9 +15,7 @@ class DSCellEditorSelect extends React.Component {
         super(props);
         this.inputRef = React.createRef();
         this.parseValue = props.parseValue;
-        // let checkAgainst = new Set(props.context.selectOptions[colId].map(e => e.toLowerCase()));
         let value = (props.value !== null && props.value !== undefined) ? props.value : '';
-        // value = checkAgainst.has(value) ? value : '';
         this.state = {
             value,
             errors: auditReport[sheet][rowIndex] && auditReport[sheet][rowIndex][colId] ? auditReport[sheet][rowIndex][colId] : [],

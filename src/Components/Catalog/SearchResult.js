@@ -1,3 +1,5 @@
+// An individual result from catalog search
+
 import React from 'react';
 import { connect } from 'react-redux';
 import { withStyles, Grid, Typography, Paper, Tooltip, Link, Button } from '@material-ui/core';

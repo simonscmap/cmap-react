@@ -28,15 +28,8 @@ const styles = theme => ({
         paddingLeft: '8px',
         paddingTop: '60px',
         zIndex: z.NAVBAR_DROPDOWN,
-        // zIndex: 30000
     },
-
-    listItem: {
-        '&:hover': {
-            color: theme.palette.primary.main
-        }
-    }
-})
+});
 
 const MobileNavbarMenu = (props) => {
     const { classes, user, handleLogOut, showLoginDialog, cartSize } = props;

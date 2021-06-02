@@ -1,3 +1,6 @@
+// Wrapper for search results
+// uses react-window for windowing/occlusion culling to improve performance
+
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from "react-router";

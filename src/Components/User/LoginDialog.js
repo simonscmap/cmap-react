@@ -49,14 +49,6 @@ const styles = theme => ({
         position: 'relative',
     },
 
-    buttonProgress: {
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        marginTop: -12,
-        marginLeft: -12,
-    },
-
     googleIconWrapper: {
         marginRight: '100px',
         marginLeft: '-8px'
@@ -75,7 +67,6 @@ const styles = theme => ({
     },
 
     dialogRoot: {
-        // zIndex: '31000 !important'
         zIndex: `${z.NON_HELP_DIALOG + 1} !important`
     }
 })

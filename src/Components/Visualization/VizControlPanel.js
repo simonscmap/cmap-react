@@ -1052,7 +1052,6 @@ class VizControlPanel extends React.Component {
                     <form>
                         <Grid container>
                             <Grid item xs={10}>
-                                {/* <ConnectedTooltip placement='top' title='Enter one or more search terms.'> */}
                                     <Select
                                         formatOptionLabel={formatOptionLabel}
                                         handleVariableDetailsDialogOpen={this.handleVariableDetailsDialogOpen}
@@ -1160,7 +1159,6 @@ class VizControlPanel extends React.Component {
                                             },
                                         })}
                                     />
-                                {/* </ConnectedTooltip> */}
                             </Grid>
                             <Grid item xs={2} className={classes.tableStatsButton}>
                                 {

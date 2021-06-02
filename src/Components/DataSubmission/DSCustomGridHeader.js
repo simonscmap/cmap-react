@@ -1,7 +1,9 @@
+// Custom grid header to add tooltip from data submission guide to data sub ag-grid columns
+
 import React from 'react';
 
 import { withStyles, Tooltip } from '@material-ui/core';
-import { Help, IndeterminateCheckBox } from '@material-ui/icons';
+import { Help } from '@material-ui/icons';
 
 import dsGuideItems from '../../Utility/DataSubmission/dsGuideItems';
 

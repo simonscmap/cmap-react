@@ -19,7 +19,7 @@ const buildSearchOptionsFromDatasetList = (datasets, storedOptions = {}, params 
             if(v[k]) options[k].add(v[k]);
         })
     })
-    console.log(options);
+    
     columns.forEach(col => {
         options[col] = Array.from(options[col]).sort(function (a, b) {
             try {

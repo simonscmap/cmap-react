@@ -1,3 +1,5 @@
+// View and edit user information
+
 import React, { Component } from 'react';
 
 import { connect } from 'react-redux';
@@ -67,11 +69,6 @@ const styles = theme => ({
         marginTop: '-4px',
         float: 'left'
     },
-
-    accountEditButton: {
-        float: 'left',
-        marginTop: '6px'
-    }
 })
 
 const userProperties = {

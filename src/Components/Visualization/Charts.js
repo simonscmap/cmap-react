@@ -1,3 +1,5 @@
+// Wrapper for charts
+
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
@@ -160,9 +162,6 @@ class Charts extends Component {
         
         return (
             <React.Fragment>
-              {/* <Paper elevation={12} className={classes.chartPaper}> */}
-              {/* <SamplePlot/>  */}
-              {/* </Paper> */}
                 {charts.map((chart, index) => {
                     switch(chart.data.parameters.spName){
 

@@ -1,3 +1,6 @@
+// imbedded in dataset pages primarily for google dataset search
+// https://json-ld.org/
+
 import React from 'react';
 
 const DatasetJSONLD = (props) => {

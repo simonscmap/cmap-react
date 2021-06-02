@@ -30,15 +30,6 @@ const styles = theme => ({
         margin: '5% auto',
         padding: '24px'
     },
-    registrationCard: {
-        marginTop: theme.spacing(1),
-        marginBottom: theme.spacing(1),
-    },
-
-    textField: {
-        margin:theme.spacing(1),
-        width: 200
-    },
 
     buttonProgress: {
         position: 'absolute',
@@ -69,7 +60,6 @@ const mapDispatchToProps = {
     userValidationRequestSend
 }
 
-// const getSteps = () => ['Your Information', 'Optional Organization Info', 'Security'];
 const getSteps = () => ['Your Information', 'Optional Organization Info'];
 const getCardInfo = () => ([
     {
@@ -226,9 +216,6 @@ class RegistrationStepper extends Component {
                 let email= this.state.cards[0].email.value;
                 this.props.userValidationRequestSend(username, email);
                 break;
-            // case 1:
-            //     this.props.registrationNextActiveStep();
-            //     break;
             case 1:
                 // API request to register user
                 this.props.userRegistrationRequestSend(this.processStateToActionPayload())

@@ -1,3 +1,5 @@
+// Admininstrator dashboard for data submission.
+
 import React, { Component } from 'react';
 import { withRouter } from "react-router";
 
@@ -64,7 +66,6 @@ const styles = theme => ({
 
     dialogRoot: {
         zIndex: `${z.HELP_DIALOG} !important`,
-        // zIndex: '31100 !important'
     },
 
     dialogPaper: {
@@ -253,83 +254,7 @@ class AdminDashboard extends Component {
                         />
                         ))
                     }
-                        {/* <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={this.state.filters["Awaiting admin action"]}
-                                    onChange={this.handleChangeFilter}
-                                    name="Awaiting admin action"
-                                    color="primary"
-                                />
-                            }
-                            label="Awaiting admin action"
-                            className={classes.filterFormControl}
-                        />
-
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={this.state.filters["Awaiting QC2"]}
-                                    onChange={this.handleChangeFilter}
-                                    name="Awaiting QC2"
-                                    color="primary"
-                                />
-                            }
-                            label="Awaiting QC2"
-                            className={classes.filterFormControl}
-                        />
-
-                        <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        checked={this.state.filters["Awaiting user update"]}
-                                        onChange={this.handleChangeFilter}
-                                        name="Awaiting user update"
-                                        color="primary"
-                                    />
-                                }
-                                label="Awaiting user update"
-                                className={classes.filterFormControl}
-                            />
-
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                checked={this.state.filters["Awaiting DOI"]}
-                                onChange={this.handleChangeFilter}
-                                name="Awaiting DOI"
-                                color="primary"
-                                />
-                            }
-                            label="Awaiting DOI"
-                            className={classes.filterFormControl}
-                            />
-
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                checked={this.state.filters["Awaiting ingestion"]}
-                                onChange={this.handleChangeFilter}
-                                name="Awaiting ingestion"
-                                color="primary"
-                                />
-                            }
-                            label="Awaiting ingestion"
-                            className={classes.filterFormControl}
-                            />
-
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                checked={this.state.filters["Complete"]}
-                                onChange={this.handleChangeFilter}
-                                name="Complete"
-                                color="primary"
-                                />
-                            }
-                            label="Complete"
-                            className={classes.filterFormControl}
-                            /> */}
+                      
                     </FormGroup>
 
                 {submissions && submissions.length ?
@@ -374,7 +299,6 @@ class AdminDashboard extends Component {
                     {
                         submissions.map((e, i) => (
                             <Accordion 
-                                // expanded={e.expandPanel} 
                                 expanded={this.state.expandedPanel === e.Submission_ID}
                                 onChange={() => this.handleExpansion(e.Submission_ID)} 
                                 key={i}

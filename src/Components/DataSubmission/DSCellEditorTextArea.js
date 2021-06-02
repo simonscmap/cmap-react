@@ -1,3 +1,5 @@
+// Custom large text area cell editor for data submission ag-grid
+
 import React from 'react';
 
 import { ClickAwayListener } from '@material-ui/core';

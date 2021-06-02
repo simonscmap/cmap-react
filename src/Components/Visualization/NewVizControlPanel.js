@@ -156,8 +156,6 @@ const styles = (theme) => ({
 
   padLeft: {
     padding: '6px 0 2px 7px',
-    // transform: 'translate(0, 1.5px) scale(0.75)',
-    // transformOrigin: 'top left'
   },
 
   dateTimeInput: {
@@ -390,8 +388,6 @@ class NewVizControlPanel extends React.Component {
                 }); 
             }
 
-            // console.log(irregularSpatialResolution)
-            // console.log()
             if(!irregularSpatialResolution && data.temporalResolution !== temporalResolutions.monthlyClimatology){
                 this.props.snackbarOpen('Default parameters for satellite and model data will exceed the maximum visualizable size. Please reduce the time range or region size.')
             }
@@ -399,27 +395,11 @@ class NewVizControlPanel extends React.Component {
             this.setState({...this.state,
                 surfaceOnly,
                 irregularSpatialResolution,
-                // dt1,
-                // dt2,
-                // lat1,
-                // lat2,
-                // lon1,
-                // lon2,
-                // depth1,
-                // depth2,
                 ...derivedParams,
                 selectedVizType: '',
                 storedParams: {
                     ...this.state.storedParams,
                     ...derivedParams
-                    // dt1,
-                    // dt2,
-                    // lat1,
-                    // lat2,
-                    // lon1,
-                    // lon2,
-                    // depth1,
-                    // depth2,
                 }
             });
         }
@@ -610,45 +590,6 @@ class NewVizControlPanel extends React.Component {
 
         if(vizPageDataTargetDetails.Spatial_Resolution === spatialResolutions.irregular) {
             return 1;
-            // let sparseDataUncertaintyMultiplier = 4;
-            // let totalCount = vizPageDataTargetDetails.Lat_Count;
-            // let totalTime = Date.parse(vizPageDataTargetDetails.Time_Max) - Date.parse(vizPageDataTargetDetails.Time_Min);
-            // let subsetTime = Date.parse(dt2) - Date.parse(dt1) + 86400000;
-            // let timeRatio = totalTime === 0 ? 1
-            //     : subsetTime === 0 ? 86400000 / totalTime
-            //     : subsetTime / totalTime;
-            
-            // let totalLat = vizPageDataTargetDetails.Lat_Max - vizPageDataTargetDetails.Lat_Min;
-            // let subsetLat = lat2 - lat1;
-            // let latRatio = totalLat === 0 ? 1
-            //     : subsetLat === 0 ? 1/totalLat
-            //     : subsetLat/totalLat;
-            // latRatio = latRatio > 1 ? 1 : latRatio;
-
-            // let totalLon = vizPageDataTargetDetails.Lon_Max - vizPageDataTargetDetails.Lon_Min;
-            // let subsetLon = lon2 >= lon1 ? lon2 - lon1 :
-            //     (180 - lon1) + (lon2 + 180)
-            // let lonRatio = totalLon === 0 ? 1
-            //     : subsetLon === 0 ? 1/totalLon
-            //     : subsetLon / totalLon;
-            // lonRatio = lonRatio > 1 ? 1 : lonRatio;
-
-            // let depthRatio;
-
-            // if(vizPageDataTargetDetails.Depth_Max){
-            //     let totalDepth = vizPageDataTargetDetails.Depth_Max - vizPageDataTargetDetails.Depth_Min;
-            //     let subsetDepth = depth2 - depth1;
-            //     depthRatio = totalDepth === 0 ? 1
-            //         : subsetDepth === 0 ? 1/totalDepth
-            //         : subsetDepth / totalDepth;
-            // }
-
-            // else depthRatio = 1;
-            // let final = totalCount * timeRatio * latRatio * lonRatio * depthRatio * sparseDataUncertaintyMultiplier;
-            
-            // if(selectedVizType === vizSubTypes.timeSeries || selectedVizType === vizSubTypes.depthProfile) return final / 2;
-
-            // return final;
         }
         
         else {
@@ -677,12 +618,6 @@ class NewVizControlPanel extends React.Component {
     }
 
     checkStartDepth = () => {
-        // if(this.state.surfaceOnly) return '';
-        // if(!/^[-+]?[0-9]*\.?[0-9]+$/.test(this.props.depth1)) return 'Invalid value';
-        // if(parseFloat(this.state.depth1) < 0) return validation.depth.negative;
-        // if(parseFloat(this.state.depth1) > parseFloat(this.state.depth2)) return validation.depth.depthOneIsLower;
-        // if(parseFloat(this.state.depth) < Math.floor(parseFloat(this.props.vizPageDataTargetDetails.Depth_Min))) return `Minimum depth is ${this.props.vizPageDataTargetDetails.Depth_Min}`;
-        // if(parseFloat(this.state.depth1) > parseFloat(this.props.vizPageDataTargetDetails.Depth_Max)) return validation.depth.depthOneOutOfBounds.replace('$', parseFloat(this.props.vizPageDataTargetDetails.Depth_Max).toFixed(2));
         if(this.state.depth1 < 0) return 'Depth cannot be negative';
         if(this.state.depth1 > this.state.depth2) return 'Start cannot be greater than end';
         if(this.state.depth1 > this.props.vizPageDataTargetDetails.Depth_Max) return `Maximum depth start is ${this.props.vizPageDataTargetDetails.Depth_Max}`
@@ -690,24 +625,11 @@ class NewVizControlPanel extends React.Component {
     }
 
     checkEndDepth = () => {
-        // if(this.state.surfaceOnly) return '';
-        // if(!/^[-+]?[0-9]*\.?[0-9]+$/.test(this.state.depth2)) return validation.generic.invalid;
-        // if(parseFloat(this.state.depth2) < 0) return validation.depth.negative;
-        // if(parseFloat(this.state.depth1) > parseFloat(this.state.depth2)) return validation.depth.depthOneIsLower;
-        // if(parseFloat(this.state.depth2) < parseFloat(this.props.vizPageDataTargetDetails.Depth_Min)) return validation.depth.depthTwoOutOfBounds.replace('$', parseFloat(this.props.vizPageDataTargetDetails.Depth_Min).toFixed(2));
         if(this.state.depth2 < 0) return 'Depth cannot be negative';
         if(this.state.depth1 > this.state.depth2) return 'Start cannot be greater than end';
         if(this.state.depth2 < this.props.vizPageDataTargetDetails.Depth_Min) return `Minimum depth end is ${this.props.vizPageDataTargetDetails.Depth_Min}`;
         return ''; 
     }
-
-    // checkStartDateValid = () => {
-    //     if(isNaN(new Date(this.props.dt1)).valueOf() || !this.props.dt1) return 'Start date is invalid';
-    // }
-
-    // checkEndDateValid = () => {
-    //     if(isNaN(new Date(this.props.dt2)).valueOf() || !this.props.dt1) return 'End date is invalid';
-    // }
 
     checkStartDate = () => {
         if(this.props.vizPageDataTargetDetails.Temporal_Resolution === temporalResolutions.monthlyClimatology) {
@@ -723,9 +645,6 @@ class NewVizControlPanel extends React.Component {
             };
             return '';
         }
-        // if(this.props.dt1 > this.props.dt2) return validation.date.dateOneIsLater;
-        // if(this.props.dt1 > this.props.vizPageDataTargetDetails.Time_Max) return validation.date.dateOneOutOfBounds.replace('$', this.props.vizPageDataTargetDetails.Time_Max);
-        // return '';
     }
 
     checkEndDate = () => {
@@ -745,21 +664,12 @@ class NewVizControlPanel extends React.Component {
     }
 
     checkStartLat = () => {
-        const { lat1, lat2 } = this.state;
-        const { Lat_Min, Lat_Max } = this.props;
-        // if(!/^[-+]?[0-9]*\.?[0-9]+$/.test(this.props.lat1)) return validation.generic.invalid;
-        // if(parseFloat(this.props.lat1) < -90 || parseFloat(this.props.lat1) > 90) return validation.generic.invalid;
-        // if(parseFloat(this.props.lat1) > parseFloat(this.props.lat2)) return validation.lat.latOneIsHigher;
-        // if(parseFloat(this.props.lat1) > parseFloat(this.props.vizPageDataTargetDetails.Lat_Max)) return validation.lat.latOneOutOfBounds.replace('$', this.props.vizPageDataTargetDetails.Lat_Max);
         if(this.state.lat1 > this.props.vizPageDataTargetDetails.Lat_Max) return `Maximum start lat is ${this.props.vizPageDataTargetDetails.Lat_Max}`;
         if(this.state.lat1 > this.state.lat2) return `Start cannot be greater than end`;
         return '';
     }
 
     checkEndLat = () => {
-        // if(!/^[-+]?[0-9]*\.?[0-9]+$/.test(this.props.lat2)) return validation.generic.invalid;
-        // if(parseFloat(this.props.lat2) < -90 || parseFloat(this.props.lat2) > 90) return validation.generic.invalid;
-        // if(parseFloat(this.props.lat2) < parseFloat(this.props.vizPageDataTargetDetails.Lat_Min)) return validation.lat.latTwoOutOfBounds.replace('$', this.props.vizPageDataTargetDetails.Lat_Min);
         if(this.state.lat2 < this.props.vizPageDataTargetDetails.Lat_Min) return `Minimum end lat is ${this.props.vizPageDataTargetDetails.Lat_Min}`;
         if(this.state.lat1 > this.state.lat2) return `Start cannot be greater than end`;
         return '';
@@ -768,10 +678,7 @@ class NewVizControlPanel extends React.Component {
     checkStartLon = () => {
         const { lon1, lon2 } = this.state;
         const { Lon_Min, Lon_Max } = this.props.vizPageDataTargetDetails;
-        // if(!/^[-+]?[0-9]*\.?[0-9]+$/.test(this.props.lon1)) return validation.generic.invalid;
-        // if(parseFloat(this.props.lon1) < -180 || parseFloat(this.props.lon1) > 180) return validation.generic.invalid;
-        // if(this.props.lon1 > this.props.lon2) return '';
-        // if(parseFloat(this.props.lon1) > parseFloat(this.props.vizPageDataTargetDetails.Lon_Max)) return validation.lon.lonOneOutOfBounds.replace('$', this.props.vizPageDataTargetDetails.Lon_Max);
+
         if(lon2 >= lon1){
             if(lon1 > Lon_Max) return `Maximum start lon is ${Lon_Max}` 
         }
@@ -786,9 +693,7 @@ class NewVizControlPanel extends React.Component {
     checkEndLon = () => {
         const { lon1, lon2 } = this.state;
         const { Lon_Min, Lon_Max } = this.props.vizPageDataTargetDetails;
-        // if(!/^[-+]?[0-9]*\.?[0-9]+$/.test(this.props.lon2)) return validation.generic.invalid;
-        // if(parseFloat(this.props.lon2) < -180 || parseFloat(this.props.lon2) > 180) return validation.generic.invalid;
-        // if(parseFloat(this.props.lon2) < parseFloat(this.props.vizPageDataTargetDetails.Lon_Min)) return validation.lon.lonTwoOutOfBounds.replace('$', this.props.vizPageDataTargetDetails.Lon_Max);
+        
         if(lon2 >= lon1) {
             if(lon2 < Lon_Min) return `Minimum end lon is ${Lon_Min}`
         }
@@ -818,13 +723,11 @@ class NewVizControlPanel extends React.Component {
     
     checkTimeSeries = () => {
         if(this.state.irregularSpatialResolution) return validation.type.dataIsIrregular.replace('$', 'Time Series');
-        // if(this.state.dt1 === this.state.dt2) return validation.type.dateRangeRequired.replace('$', 'Time Series');
         return '';
     }
 
     checkDepthProfile = () => {
         if(this.state.surfaceOnly) return validation.type.surfaceOnlyDataset.replace('$', 'variable');
-        // if(this.state.depth1 === this.state.depth2) return validation.type.depthRangeRequired.replace('$', 'Depth Profile');
         return '';
     }
 
@@ -858,7 +761,7 @@ class NewVizControlPanel extends React.Component {
             if(availableContexts - depthCount < 1) return 'Too many distinct depths to render heatmap. Please reduce depth range or select section map.';
         }
 
-        if(this.state.selectedVizType !== vizSubTypes.histogram && this.props.selectedVizType !== vizSubTypes.heatmap && dataSize > 1200000){
+        if(this.state.selectedVizType !== vizSubTypes.histogram && this.props.selectedVizType !== vizSubTypes.heatmap && dataSize > 1500000){
             return validation.generic.dataSizePrevent;
         }
 
@@ -878,14 +781,9 @@ class NewVizControlPanel extends React.Component {
     render = () => {
         const { 
             classes,            
-            showCharts,
-            handleShowGlobe,
-            handleChange,
             handleLatLonChange,
-            datasets,
             dataTarget,
             vizPageDataTargetDetails,
-            globeUIRef,
             charts,
             plotsActiveTab
         } = this.props;
@@ -910,9 +808,6 @@ class NewVizControlPanel extends React.Component {
 
         const dataSize = this.estimateDataSize();
 
-        // review these
-        // let minDateMessage = '';
-        // let maxDateMessage = '';
         if(details) {
             validations = [
                 this.checkStartDepth(),
@@ -966,10 +861,6 @@ class NewVizControlPanel extends React.Component {
             generalPreventMessage,
             startDateMessage,
             endDateMessage
-            // minDateMessage,
-            // maxDateMessage,
-            // startDateValidMessage,
-            // endDateValidMessage
         ];
 
         const checkDisableVisualize = () => {

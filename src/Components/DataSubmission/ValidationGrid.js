@@ -1,3 +1,5 @@
+// Wrapper for grid used for each of data, dataset_meta_data, variable_meta_data sections of data submission
+
 import React from 'react';
 
 import { AgGridReact } from 'ag-grid-react';

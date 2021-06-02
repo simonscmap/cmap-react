@@ -1,3 +1,5 @@
+// Variable grid appearing on dataset pages
+
 import React, { useState } from 'react';
 import ReactDOMServer from 'react-dom/server';
 

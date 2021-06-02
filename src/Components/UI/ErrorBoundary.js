@@ -1,3 +1,5 @@
+// Catches uncaught errors in front end and transmits to api
+
 import React from 'react';
 import { connect } from 'react-redux';
 

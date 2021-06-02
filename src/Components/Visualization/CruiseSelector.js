@@ -1,8 +1,9 @@
+// Cruise exploration component
+
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
 
-import Select, { components } from 'react-select';
 import * as JsSearch from 'js-search';
 import { VariableSizeList } from 'react-window';
 
@@ -13,12 +14,9 @@ import { Close, ExpandMore, ChevronRight } from '@material-ui/icons';
 
 import { cruiseListRequestSend, cruiseTrajectoryRequestSend, cruiseTrajectoryClear } from '../../Redux/actions/visualization';
 
-import HelpButtonAndDialog from '../UI/HelpButtonAndDialog';
 import MultiCheckboxDropdown from '../UI/MultiCheckboxDropdown';
 
-import states from '../../Enums/asyncRequestStates';
 import colors from '../../Enums/colors';
-import z from '../../Enums/zIndex';
 import setsFromList from '../../Utility/setsFromList';
 
 const mapStateToProps = (state, ownProps) => ({
@@ -44,21 +42,12 @@ const styles = theme => ({
         color: esriFontColor,
         borderRadius: '4px',
         boxShadow: '2px',
-        // position: 'relative',
         backdropFilter: 'blur(2px)',
         transform: 'translateY(35px)',
         marginTop: '24px',
         position: 'fixed',
-        // right: '0px',
         left: 0,
-        // top: '60px'
         top: 140
-    },
-
-    cruiseSelect: {
-        width: '260px',
-        borderRadius: '4px',
-        display: 'inline-block'
     },
 
     cruiseInfo: {
@@ -71,12 +60,6 @@ const styles = theme => ({
         color: esriFontColor,
         fontFamily: esriFonts,
         borderStyle: 'none',
-    },
-
-    dragIcon: {
-        padding: '12px 12px 12px 0',
-        color: colors.primary,
-        verticalAlign: 'middle'
     },
 
     linkWrapper: {
@@ -110,20 +93,10 @@ const styles = theme => ({
 
     openSearchButtonPaper: {
         backgroundColor: colors.backgroundGray,
-        // border: 'none',
         boxShadow: '1px 1px 1px 1px #242424',
-        // color: esriFontColor,
-        // borderRadius: 4,
-        // '&:hover': { 
-        //     border: `1px solid white`,
-        // },
-        // '&:focus-within': {
-        //     borderColor: colors.primary
-        // }
     },
 
     openSearchButton: {
-        // width: 260,
         textTransform: 'none',
         color: colors.primary,
         fontSize: '15px',
@@ -139,19 +112,6 @@ const styles = theme => ({
         marginTop: '12px'
     },
 
-    searchResult: {
-        display: 'flex',
-        alignItems: 'center',
-        height: '32px',
-        textAlign: 'left',
-        fontSize: '14px',
-        cursor: 'pointer',
-        paddingLeft: '12px',
-        '&:hover': {
-            backgroundColor: colors.greenHover
-        },
-    },
-
     yearHeader: {
         backgroundColor: 'rgba(0, 0, 0, .7)',
         height: '36px',
@@ -159,7 +119,6 @@ const styles = theme => ({
         display: 'flex',
         alignItems: 'center',
         justifyCOntent: 'center'
-        // paddingLeft: '12px'
     },
 
     searchOption: {
@@ -194,7 +153,6 @@ const styles = theme => ({
     },
 
     cruiseName: {
-        // paddingLeft: '48px',
         width: '100%',
         whiteSpace: 'nowrap',
         overflow: 'hidden',
@@ -468,8 +426,6 @@ class CruiseSelector extends Component {
                             >
                                 Close
                             </Button>
-
-                            {/* <Close onClick={this.props.handleCloseDataSearch} className={classes.closeIcon}/> */}
                         </Grid>
 
                         <Grid item xs={4} style={{overflowY: 'auto', maxHeight: windowHeight - 204, padding: '16px', backgroundColor: 'rgba(0,0,0,.4)'}}>

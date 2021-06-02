@@ -1,3 +1,7 @@
+
+// In order to have addressable searches, this component modifies the location querystring in response
+// to user interaction. The search results component reads the query string and calls the API to search
+
 import React from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from "react-router";
@@ -77,7 +81,6 @@ const defaultState = {
     make: new Set(),
     region: new Set()
 }
-
 class CatalogSearch extends React.Component {
 
     state = {

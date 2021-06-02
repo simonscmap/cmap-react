@@ -39,7 +39,6 @@ const styles = theme => ({
         top: '0px',
         backgroundColor: 'transparent',
         zIndex: z.NAVBAR,
-        // zIndex: 50,
         paddingTop: '14px',
         paddingBottom: '14px',
         paddingLeft: '20px',

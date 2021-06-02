@@ -66,6 +66,7 @@ const GuestPlotLimitNotification = (props) => {
     return (
         <Dialog
             open={dialogIsOpen}
+            // open={true}
             onClose={handleOnClose}
             PaperProps={{
                 className: classes.dialogWrapper
@@ -76,45 +77,23 @@ const GuestPlotLimitNotification = (props) => {
         >
 
             <DialogContent>
-                {
-                    guestPlotCount >= 10 ?
+                <Typography style={{marginBottom: '14px'}}>
+                    Welcome to the Simons CMAP visualization tools. You can explore the visualization features as a guest without 
+                    registering and create up to 10 plots per day. Registration provides access to the full suite of data submission tools, 
+                    the data visualization tools and the Simons CMAP API.
+                </Typography>
 
-                    <>
-                        <Typography style={{marginBottom: '14px'}}>
-                            You have 0 of 10 guest plots remaining for today. 
-                        </Typography>
-                        
-                        <Typography style={{marginBottom: '14px'}}>
-                            To continue plotting and for access 
-                            to data submission tools and the Simons CMAP API please <Link component={RouterLink} to={'/register'} className={classes.link}>Register </Link> 
-                            or<Link component='button' onClick={handleLoginButtonClick} className={classes.link}> Log in </Link>to an existing account.
-                        </Typography>
-                    </>
+                <Typography style={{marginBottom: '14px'}}>
+                    You can <Link component='button' onClick={props.guestTokenRequestSend} className={classes.link}>Continue as a Guest</Link>, 
+                    with {10 - guestPlotCount}/10 plots remaining,
+                </Typography>
 
-                    :
-
-                    <>
-                        <Typography style={{marginBottom: '14px'}}>
-                            {/* Guests are limited to creating 10 plots per day, and do not have access to data submission tools, or the Simons CMAP API.
-                            <Link component='button' onClick={props.guestTokenRequestSend} className={classes.link}> Continue as a guest </Link> 
-                            to use the application with limited access. */}
-                            You are using Simons CMAP as a guest. Guests are limited to creating 10 plots per day and cannot access data submission tools or the Simons CMAP API.
-                        </Typography>
-
-                        <Typography style={{marginBottom: '14px'}}>
-                            {/* <Link component={RouterLink} to={'/register'} className={classes.link}>Register </Link>or
-                            <Link component='button' onClick={handleLoginButtonClick} className={classes.link}> log in </Link>to an existing account
-                            for full access. */}
-                            For full access please<Link component={RouterLink} to={'/register'} className={classes.link}> Register </Link>or
-                            <Link component='button' onClick={handleLoginButtonClick} className={classes.link}> Log in </Link>to an existing account.
-                        </Typography>                
-
-                        <Typography style={{marginBottom: '14px'}}>
-                            You have {10 - guestPlotCount} of 10 plots remaining.
-                        </Typography>
-                    </>
-
-                }
+                <Typography style={{marginBottom: '14px'}}>
+                    Or you can
+                    <Link component={RouterLink} to={'/register'} className={classes.link}> Register</Link> or
+                    <Link component='button' onClick={handleLoginButtonClick} className={classes.link}> Log in</Link> to your existing account 
+                    for expanded access to CMAP.
+                </Typography>
 
                 <DialogActions>
                     <Button variant='outlined' className={classes.dialogActionButton} onClick={handleLoginButtonClick}>

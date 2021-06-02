@@ -1,3 +1,5 @@
+// Wrapper for data submission process
+
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link as RouterLink } from "react-router-dom";
@@ -26,7 +28,6 @@ import workbookAudits from '../../Utility/DataSubmission/workbookAudits';
 import auditReference from '../../Utility/DataSubmission/auditReference';
 
 import states from '../../Enums/asyncRequestStates';
-import validation from '../../Enums/validation';
 
 const mapStateToProps = (state, ownProps) => ({
     submissionFile: state.submissionFile,
@@ -45,18 +46,6 @@ const mapDispatchToProps = {
 }
 
 const styles = (theme) => ({
-    paper: {
-        width: '40vw',
-        // height: '30vh',
-        margin:'40px auto'
-    },
-
-    dragTarget: {
-        border: '1px solid red',
-        width: '100px',
-        height: '100px',
-        margin:'40px auto'
-    },
 
     input: {
         display: 'none'
@@ -105,11 +94,6 @@ const styles = (theme) => ({
         border: `1px dashed ${theme.palette.primary.main}`
     },
 
-    fileName: {
-        color: theme.palette.primary.main,
-        letterSpacing: 'normal'
-    },
-
     chooseNewFileLabel: {
         display: 'inline',
         position: 'absolute',
@@ -132,16 +116,6 @@ const styles = (theme) => ({
         }
     },
 
-    dataTable: {
-        maxWidth: '80vw',
-        margin: '0 auto 24px auto'
-    },
-
-    tableWrapper: {
-        maxWidth: '80vw',
-        margin: '24px auto'
-    },
-
     submitButton: {
         color: 'white',
         margin: '24px 0 12px 0',
@@ -150,14 +124,8 @@ const styles = (theme) => ({
 
     tabPaper: {
         maxWidth: '80vw',
-        // height: '70vh',
         height: 'calc(100vh - 320px)',
         minHeight: '300px',
-        margin: '0 auto 24px auto'
-    },
-
-    errorStepperPaper: {
-        width: '80vw',
         margin: '0 auto 24px auto'
     },
 
@@ -167,15 +135,6 @@ const styles = (theme) => ({
 
     ilb: {
         display: 'inline-block'
-    },
-
-    findNextButton: {
-        textTransform: 'none',
-        marginBottom: '12px'
-    },
-
-    link: {
-        cursor: 'pointer'
     },
 
     currentSectionSpan: {
@@ -312,13 +271,7 @@ class ValidationTool extends React.Component {
         let colId = params.column.colId; 
         let { sheet } = params.context;
 
-        let styles = {
-            //TODO fix view of long strings as below but better
-            // whiteSpace: 'pre-wrap !important',
-            // paddingLeft: '10px',
-            // paddingRight: '10px',
-            // overflow: 'visible'
-        };
+        let styles = {};
         
         if(this.state.auditReport && this.state.auditReport[sheet] && this.state.auditReport[sheet][row] && this.state.auditReport[sheet][row][colId]){
             styles.boxShadow = 'inset 0 0 1px 1px rgba(255, 0, 0, .5)'
