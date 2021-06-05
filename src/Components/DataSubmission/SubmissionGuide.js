@@ -132,6 +132,10 @@ const styles = (theme) => ({
 
     navListSubSubItemText: {
         fontSize: '.7rem'
+    },
+
+    bodyListItem: {
+        padding: '0px 0px 0px 28px'
     }
 })
 // toggle display from none to block
@@ -303,6 +307,13 @@ const SubmissionGuide = (props) => {
                                         className={classes.subListText}
                                     />
                                 </ListItem>
+
+                                <ListItem component='a' href='#faq-preliminary' className={classes.navListItem}>
+                                    <ListItemText
+                                        primary="Preliminary Datasets"
+                                        className={classes.subListText}
+                                    />
+                                </ListItem>
                             </List>
 
                             <ListItem component='a' href='#contact' className={classes.navListItem}>
@@ -339,9 +350,28 @@ const SubmissionGuide = (props) => {
                         </Typography>
                         
                         <Typography style={{marginTop: '16px'}}>
-                            The purpose of the data submission toolset is to provide automatic, immediate feedback to assist you in formatting your 
-                            submission, facilitate communication with the data curation team, and allow you to track the progress of your submission.
+                            The purpose of this guide is to support data submitters in:
                         </Typography>
+
+                        <List>
+                            <ListItem className={classes.bodyListItem}>
+                                <ListItemText>
+                                Preparing the dataset for inclusion in Simons CMAP,
+                                </ListItemText>
+                            </ListItem>
+
+                            <ListItem className={classes.bodyListItem}>
+                                <ListItemText>
+                                    Ensuring that the dataset is discoverable via CMAP search capabilities and infrastructure,
+                                </ListItemText>
+                            </ListItem>
+
+                            <ListItem className={classes.bodyListItem}>
+                                <ListItemText>
+                                    Ensuring that the dataset contains the information that users require to understand the dataset.
+                                </ListItemText>
+                            </ListItem>
+                        </List>
 
                         <Typography variant='h3' className={classes.sectionHeader} style={{marginTop: '80px'}}>
                             <a className={classes.anchor} id='submission-process'></a>
@@ -378,8 +408,18 @@ const SubmissionGuide = (props) => {
                             Once the workbook has been validated it will be uploaded to a staging 
                             area to be reviewed by our data curation team. From this point you'll be able to track
                             the progress of your submission in the&nbsp;
-                            <Link href='#dashboard'>user dashboard</Link>.
+                            <Link href='#dashboard'>user dashboard</Link> as shown in <Link href='#body-fig-1'>figure 1</Link>.
                         </Typography>
+
+                        <figure style={{margin: '30px 0 0 0'}}>
+                            <a className={classes.anchor} id="body-fig-1"></a>
+                            <img style={{marginTop: '12px', maxWidth: '100%'}} src="/images/cmap_user_dashboard_process_tracking.png" alt="User Dashboard Ingestion Process Tracker"/>
+
+                            <figcaption>
+                                Figure 1. The progress of a dataset from Submission to Ingestion.
+                            </figcaption>
+                        </figure>
+
 
                         <Typography variant='h5' className={classes.sectionHeader} style={{marginTop: '50px'}}>
                             Feedback
@@ -388,8 +428,9 @@ const SubmissionGuide = (props) => {
 
                         <Typography>
                             The data curation team may have suggestions for additional changes to the workbook.
-                            Any feedback will be sent to you via email notification, and visible in the&nbsp;
-                            <Link href='#dashboard'>user dashboard</Link>.
+                            Any feedback will be sent through the <Link href='#dashboard'>user dashboard</Link>, 
+                            and you will be notified via email.
+                            
                         </Typography>
 
                         <Typography variant='h5' className={classes.sectionHeader} style={{marginTop: '50px'}}>
@@ -413,8 +454,9 @@ const SubmissionGuide = (props) => {
 
                         <Typography>
                             Once a DOI has been submitted your data will be ingested into the CMAP database. After ingestion,
-                            you'll be able to view your dataset in the <Link href='/catalog' target="_blank">data catalog</Link>, and
-                            access it through the CMAP API using any of the CMAP&nbsp;
+                            you'll be able to view your dataset in the <Link href='/catalog' target="_blank">data catalog</Link>, 
+                            create plots and figures through the <Link href='/visualization/charts' target="_blank">CMAP web visualization tool</Link>, 
+                            and access it through the CMAP API using any of the CMAP&nbsp;
                             <Link href='https://cmap.readthedocs.io/en/latest/user_guide/API_ref/api_ref.html' target="_blank">software packages</Link>.
                         </Typography>
 
@@ -429,8 +471,8 @@ const SubmissionGuide = (props) => {
                             <Link href='/datasubmission/userdashboard' target="_blank">user dashboard</Link>&nbsp;
                             you can track the ingestion process for any dataset that you've submitted,
                             send messages to the data curation team, and download the most recently submitted version of the workbook.
-                            Additionally, in the event that the curation team requests additional changes to your submission you can 
-                            load the most recent version directly into the validation tool, make any necessary changes, and resubmit.
+                            If the curation team requests additional changes to your submission you can load the most recent version 
+                            directly into the validation tool, make any necessary changes, and resubmit.
                         </Typography>
 
                         <Typography variant='h3' className={classes.sectionHeader} style={{marginTop: '80px'}}>
@@ -441,9 +483,9 @@ const SubmissionGuide = (props) => {
 
                         <Typography>
                             The CMAP data template consists of three sheets: data, dataset metadata, and variable metadata. Data is stored 
-                            in the first sheet called “data”. Metadata that describes the dataset is entered in the second 
+                            in the first sheet labeled “data”. Metadata that describes the dataset is entered in the second 
                             sheet called “dataset_meta_data”. Metadata associated with the variables in the dataset are entered in the third 
-                            sheet called “vars_meta_data”. Information must be provided for all columns except those specifically noted as 
+                            sheet labeled “vars_meta_data”. Information must be provided for all columns except those specifically noted as 
                             optional. The data and metadata field names (e.g. time, lat, lon, short_name, long_name, ...) used in the template 
                             file are based on the CF and COARDS naming conventions [
                                 <Link href='#reference-1'>1</Link>,&nbsp;
@@ -627,7 +669,7 @@ const SubmissionGuide = (props) => {
                         <Typography>
                             The online validator is designed to catch formatting issues, missing information, and fields which don't meet  
                             CMAP's ingestion requirements. Evaluating the accuracy and descriptiveness of metadata 
-                            requires significant domain knowledge and understanding of the CMAP ecosystem, and are best done by a human.
+                            requires significant domain knowledge and understanding of the CMAP ecosystem, and is best done by a human.
                         </Typography>
 
                         <Typography variant='h5' className={classes.sectionHeader} style={{marginTop: '50px'}}>
@@ -636,11 +678,24 @@ const SubmissionGuide = (props) => {
                         </Typography>
 
                         <Typography>
-                            Validation warnings if present will appear in yellow when you select your workbook in the validation tool, 
+                            Validation warnings, if present, will appear in yellow when you select your workbook in the validation tool, 
                             indicating <em>possible</em> errors in your data or metadata such as outliers, columns with mixed data types, or
                             missing cruise information. They should be reviewed carefully, but if you determine they do not need to be corrected
                             they will not prevent you from moving forward with your submission.
-                        </Typography>                
+                        </Typography>
+
+                        <Typography variant='h5' className={classes.sectionHeader} style={{marginTop: '50px'}}>
+                            Can I submit a preliminary version of a dataset?
+                            <a className={classes.anchor} id='faq-preliminary'></a>
+                        </Typography>
+
+                        <Typography>
+                            Yes, preliminary datasets that are not yet finalized but are usable and formatted for CMAP are 
+                            invited for submission.  Indication of this status, any caveats that users should take into 
+                            consideration, and when to expect a dataset update can all be included in dataset_description to 
+                            ensure users are aware.  Versioning can be tracked by the dataset_version column in the Dataset 
+                            Metadata sheet.
+                        </Typography>              
 
                         <Typography variant='h3' className={classes.sectionHeader} style={{marginTop: '80px'}}>
                             <a className={classes.anchor} id='contact'></a>
@@ -665,12 +720,6 @@ const SubmissionGuide = (props) => {
                         </Typography>
 
                         <Typography>
-                            <Link href='https://github.com/simonscmap/DBIngest/raw/master/template/KOK1606_Gradients1_Cobalamin_example_2020_07_15.xlsx' download='KOK1606_Gradients1_Cobalamin_Sample.xlsx'>
-                                Sample Dataset - KOK1606_Gradients1_Cobalamin
-                            </Link>
-                        </Typography>
-
-                        <Typography>
                             <Link href='https://github.com/simonscmap/DBIngest/raw/master/template/amt01_extracted_cholorphyll_2020_07_25.xlsx' download='AMT01_Extracted_Cholorphyll_Sample.xlsx'>
                                 Sample Dataset - amt01_extracted_cholorphyll
                             </Link>
@@ -679,12 +728,6 @@ const SubmissionGuide = (props) => {
                         <Typography>
                             <Link href='https://github.com/simonscmap/DBIngest/raw/master/template/Influx_Stations_Gradients_2016_example_2020_08_13.xlsx' download='Influx_Stations_Gradients_2016_example.xlsx'>
                                 Sample Dataset - Influx_Stations_Gradients_2016
-                            </Link>
-                        </Typography>
-
-                        <Typography>
-                            <Link href='https://github.com/simonscmap/DBIngest/raw/master/template/SCOPE_HOT224-238_omics_cmap_example_2020_08_13.xlsx' download='SCOPE_HOT224-238_omics_cmap_example_2020_08_13.xlsx'>
-                                Sample Dataset - SCOPE_HOT224-238_omics
                             </Link>
                         </Typography>
                     </Paper>
