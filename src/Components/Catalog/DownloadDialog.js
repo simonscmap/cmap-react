@@ -12,8 +12,8 @@ import DownloadingDataHelpContents from './DownloadingDataHelpContents';
 
 import { csvDownloadRequestSend } from '../../Redux/actions/visualization';
 
-import colors from '../../Enums/colors';
-import temporalResolutions from '../../Enums/temporalResolutions';
+import colors from '../../enums/colors';
+import temporalResolutions from '../../enums/temporalResolutions';
 import depthUtils from '../../Utility/depthCounter';
 
 const styles = (theme) => ({

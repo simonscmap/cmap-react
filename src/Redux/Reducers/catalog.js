@@ -1,6 +1,6 @@
 import * as catalogActionTypes from '../actionTypes/catalog';
 
-import states from '../../Enums/asyncRequestStates';
+import states from '../../enums/asyncRequestStates';
 
 export default function(state, action) {
   switch (action.type) {

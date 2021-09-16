@@ -16,7 +16,7 @@ import { cruiseListRequestSend, cruiseTrajectoryRequestSend, cruiseTrajectoryCle
 
 import MultiCheckboxDropdown from '../UI/MultiCheckboxDropdown';
 
-import colors from '../../Enums/colors';
+import colors from '../../enums/colors';
 import setsFromList from '../../Utility/setsFromList';
 
 const mapStateToProps = (state, ownProps) => ({

@@ -107,20 +107,7 @@ const SparseScatter = (props) => {
             config={{...chartBase.config}}
             layout= {{
                 ...chartBase.layout,
-                plot_bgcolor: 'transparent',
-                // width: 800,
-                // height: 570,
-                title: {
-                    text: `${metadata.Dataset_Name}` +
-                        `<br>${metadata.Long_Name.length > 60 ? metadata.Long_Name.slice(0, 60) + '...': metadata.Long_Name} [${metadata.Unit}]` + 
-                        `<br>${date}, ` + 
-                        depth + 
-                        `<br>Lat: ${lat}, ` +
-                        `Lon: ${lon}`,
-                    font: {
-                        size: 12
-                    }
-                },
+                title: chartBase.title(metadata, date, lat, lon, depth),
                 xaxis: {
                     title: xTitle,
                     color: '#ffffff',

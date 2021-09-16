@@ -10,8 +10,8 @@ import { snackbarOpen } from '../../Redux/actions/ui';
 
 import CopyableText from '../UI/CopyableText';
 
-import states from '../../Enums/asyncRequestStates';
-import colors from '../../Enums/colors';
+import states from '../../enums/asyncRequestStates';
+import colors from '../../enums/colors';
 
 const mapStateToProps = (state, ownProps) => ({
     apiKeys: state.apiKeys,

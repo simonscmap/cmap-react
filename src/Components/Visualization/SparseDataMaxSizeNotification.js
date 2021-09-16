@@ -6,8 +6,8 @@ import { connect } from 'react-redux';
 import { Dialog, DialogContent, Typography, withStyles } from '@material-ui/core';
 import { Close } from '@material-ui/icons';
 
-import z from '../../Enums/zIndex';
-import colors from '../../Enums/colors';
+import z from '../../enums/zIndex';
+import colors from '../../enums/colors';
 
 import { sparseDataMaxSizeNotificationUpdate } from '../../Redux/actions/visualization';
 

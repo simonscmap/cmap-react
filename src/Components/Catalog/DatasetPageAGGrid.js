@@ -13,7 +13,7 @@ import ReactMarkdown from 'react-markdown';
 import HelpButtonAndDialog from '../UI/HelpButtonAndDialog';
 import VariableGridHelpContents from './VariableGridHelpContents';
 
-import colors from '../../Enums/colors';
+import colors from '../../enums/colors';
 
 const rendererStyles = (theme) => ({
     dialogPaper: {

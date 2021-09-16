@@ -7,7 +7,7 @@ import { Grid, Dialog, DialogActions, DialogContent, DialogContentText, DialogTi
 
 import { withStyles } from '@material-ui/core/styles';
 
-import colors from '../../Enums/colors';
+import colors from '../../enums/colors';
 
 import { changePasswordRequestSend } from '../../Redux/actions/user';
 import { hideChangePasswordDialog } from '../../Redux/actions/ui';

@@ -4,7 +4,7 @@ import React from 'react';
 
 import { ClickAwayListener } from '@material-ui/core';
 
-import colors from '../../Enums/colors';
+import colors from '../../enums/colors';
 
 class DSCellEditorTextArea extends React.Component {
     constructor(props){

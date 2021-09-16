@@ -10,8 +10,8 @@ import { withStyles } from '@material-ui/core/styles';
 
 import { logOut } from '../../Redux/actions/user';
 
-import colors from '../../Enums/colors';
-import z from '../../Enums/zIndex';
+import colors from '../../enums/colors';
+import z from '../../enums/zIndex';
 
 import JSS from '../../Stylesheets/JSS';
 

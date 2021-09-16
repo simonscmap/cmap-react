@@ -1,5 +1,5 @@
-import vizSubTypes from '../../Enums/visualizationSubTypes';
-import storedProcedures from '../../Enums/storedProcedures';
+import vizSubTypes from '../../enums/visualizationSubTypes';
+import storedProcedures from '../../enums/storedProcedures';
 
 const mapVizType = (vizType) => {
     const mapping = {
@@ -34,7 +34,7 @@ const mapVizType = (vizType) => {
         [vizSubTypes.sparse]: {
             sp: storedProcedures.spaceTime,
             subType: vizSubTypes.sparse
-        }
+        }   
     }
 
     return mapping[vizType];

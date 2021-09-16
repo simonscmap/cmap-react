@@ -9,7 +9,7 @@ import { withStyles } from '@material-ui/core/styles';
 
 import Plot from 'react-plotly.js';
 
-import colors from '../../Enums/colors';
+import colors from '../../enums/colors';
 
 import chartBase from '../../Utility/chartBase';
 
@@ -98,19 +98,8 @@ const Histogram = props => {
             ]}
             
             layout= {{
-                ...chartBase.layout,
-                plot_bgcolor: 'transparent',
-                title: {
-                    text: `${metadata.Dataset_Name}` +
-                        `<br>${metadata.Long_Name.length > 60 ? metadata.Long_Name.slice(0, 60) + '...': metadata.Long_Name} [${metadata.Unit}]` + 
-                        `<br>${date}, ` + 
-                        depth + 
-                        `<br>Lat: ${lat}, ` +
-                        `Lon: ${lon}`,
-                    font: {
-                        size: 12
-                    }
-                },
+                ...chartBase.layout,                
+                title: chartBase.title(metadata, date, lat, lon, depth),
                 xaxis: {
                     title: `${metadata.Long_Name.length > 35 ? metadata.Long_Name.slice(0, 35) + '...' : metadata.Long_Name} [${metadata.Unit}]`,
                     exponentformat: 'power',
@@ -118,7 +107,7 @@ const Histogram = props => {
                 },
                 yaxis:{
                     color: '#ffffff',
-                    title: 'Frequency'
+                    title: 'Count'
                 },
                 annotations: chartBase.annotations(metadata.Distributor, metadata.Data_Source)             
             }}

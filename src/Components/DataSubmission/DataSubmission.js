@@ -15,7 +15,7 @@ import SubmissionGuide from './SubmissionGuide';
 import UserDashboard from './UserDashboard';
 import AdminDashboard from './AdminDashboard';
 
-import metaTags from '../../Enums/metaTags';
+import metaTags from '../../enums/metaTags';
 
 const styles = (theme) => ({
     root: {

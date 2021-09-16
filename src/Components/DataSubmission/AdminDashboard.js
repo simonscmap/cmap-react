@@ -17,8 +17,8 @@ import AdminDashboardPanelDetails from './AdminDashboardPanelDetails';
 
 import { retrieveAllSubmissions, dataSubmissionDelete } from '../../Redux/actions/dataSubmission';
 
-import colors from '../../Enums/colors';
-import z from '../../Enums/zIndex';
+import colors from '../../enums/colors';
+import z from '../../enums/zIndex';
 
 const mapStateToProps = (state, ownProps) => ({
     user : state.user,

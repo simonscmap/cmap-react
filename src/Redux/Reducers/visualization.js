@@ -1,4 +1,4 @@
-import states from '../../Enums/asyncRequestStates';
+import states from '../../enums/asyncRequestStates';
 import * as visualizationActionTypes from '../actionTypes/visualization';
 
 export default function(state, action) {

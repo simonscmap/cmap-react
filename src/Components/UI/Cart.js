@@ -12,8 +12,8 @@ import { setShowCart } from '../../Redux/actions/ui';
 import { cartClear } from '../../Redux/actions/catalog';
 import { cartPersistClear } from '../../Redux/actions/user';
 
-import colors from '../../Enums/colors';
-import z from '../../Enums/zIndex';
+import colors from '../../enums/colors';
+import z from '../../enums/zIndex';
 
 import HelpButtonAndDialog from './HelpButtonAndDialog';
 import CartHelpContents from './CartHelpContents';

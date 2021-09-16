@@ -1,4 +1,4 @@
-import temporalResolutions from '../Enums/temporalResolutions';
+import temporalResolutions from '../enums/temporalResolutions';
 
 const mapTemporalResolutionToNumber = (resolution) => {
     let map = {

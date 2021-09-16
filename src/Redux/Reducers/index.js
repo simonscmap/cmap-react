@@ -5,7 +5,7 @@ import visualization from './visualization';
 import dataSubmission from './dataSubmission.js';
 import reduceReducers from 'reduce-reducers';
 import Cookies from 'js-cookie';
-import states from '../../Enums/asyncRequestStates';
+import states from '../../enums/asyncRequestStates';
 import buildSearchOptionsFromVariableList from '../../Utility/Catalog/buildSearchOptionsFromVariablesList';
 // Consider building this object from initial states from each reducer
 // ** When adding new keys to redux store consider whether they need to be

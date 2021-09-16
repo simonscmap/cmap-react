@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { withRouter } from "react-router";
 
 import { withStyles, Paper, Typography } from '@material-ui/core';
-import { CloudDownload } from '@material-ui/icons';
+import { CloudDownload, CollectionsOutlined } from '@material-ui/icons';
 
 import stringify from 'csv-stringify/lib/sync';
 
@@ -14,20 +14,19 @@ import { FixedSizeList } from 'react-window';
 
 import SearchResult from './SearchResult';
 
-import { searchResultsFetch, searchResultsStore, searchResultsSetLoadingState } from '../../Redux/actions/catalog';
+import { searchResultsFetch, searchResultsSetLoadingState } from '../../Redux/actions/catalog';
 
-import states from '../../Enums/asyncRequestStates';
+import states from '../../enums/asyncRequestStates';
 
 import HelpButtonAndDialog from '../UI/HelpButtonAndDialog';
 
-const mapStateToProps = (state, ownProps) => ({
+const mapStateToProps = (state) => ({
     searchResults: state.searchResults,
     searchResultsLoadingState: state.searchResultsLoadingState
 })
 
 const mapDispatchToProps = {
     searchResultsFetch,
-    searchResultsStore,
     searchResultsSetLoadingState
 }
 
@@ -45,7 +44,7 @@ const styles = (theme) => ({
         width: '60vw',
         maxWidth: '1200px',
         padding: '16px 24px',
-        margin: '8px auto 24px auto',
+        margin: '8px 100px 24px auto',
         backgroundColor: 'transparent',
         [theme.breakpoints.down('sm')]: {
             padding: '12px 4px 20px 4px',
@@ -84,12 +83,12 @@ const styles = (theme) => ({
     }
 });
 
-const _mapStateToProps = (state, ownProps) => ({
+const _mapStateToProps = (state) => ({
     searchResults: state.searchResults,
     searchResultsLoadingState: state.searchResultsLoadingState
 });
 
-const _styles = (theme) => ({
+const _styles = () => ({
     resultsCount: {
         marginTop: '-9px',
         textAlign: 'left',
@@ -111,13 +110,11 @@ const SearchResultStatusIndicator = connect(_mapStateToProps, null)(withStyles(_
 }));
 
 const SearchResults = (props) => {
-    const { classes, searchResults, searchResultsSetLoadingState, searchResultsFetch, searchResultsStore } = props;
+    const { classes, searchResults, searchResultsSetLoadingState, searchResultsFetch } = props;
 
     useEffect(() => {
         searchResultsSetLoadingState(states.inProgress);
         searchResultsFetch(props.location.search);
-
-        // return () => searchResultsStore([], buildSearchOptionsFromDatasetList([]));
     }, [props.location.search]);
 
     const handleDownloadSearchResults = () => {
@@ -175,7 +172,7 @@ const SearchResults = (props) => {
                     width='100%'
                     itemSize={222}
                 >
-                    {({ index, style }) => (
+                    {({ index, style }) => (                        
                         <div style={style}>
                             <SearchResult dataset={searchResults[index]}/>
                         </div>                        

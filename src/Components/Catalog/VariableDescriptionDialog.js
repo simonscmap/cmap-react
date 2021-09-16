@@ -5,7 +5,7 @@ import { withStyles } from '@material-ui/core/styles';
 
 import { Dialog, DialogTitle, DialogContent } from '@material-ui/core';
 
-import colors from '../../Enums/colors';
+import colors from '../../enums/colors';
 
 const styles = (theme) => ({
     dialogPaper: {

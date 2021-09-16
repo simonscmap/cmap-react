@@ -9,8 +9,8 @@ import { withStyles } from '@material-ui/core/styles';
 
 import Plot from 'react-plotly.js';
 
-import colors from '../../Enums/colors';
-import vizSubTypes from '../../Enums/visualizationSubTypes';
+import colors from '../../enums/colors';
+import vizSubTypes from '../../enums/visualizationSubTypes';
 
 import handleXTicks from '../../Utility/handleXTicks';
 import chartBase from '../../Utility/chartBase';
@@ -23,7 +23,7 @@ import { csvFromVizRequestSend } from '../../Redux/actions/visualization';
 import ChartControlPanel from './ChartControlPanel';
 
 import { format } from 'd3-format';
-import subTypes from '../../Enums/visualizationSubTypes';
+import subTypes from '../../enums/visualizationSubTypes';
 
 const mapStateToProps = (state, ownProps) => ({
     charts: state.charts
@@ -236,18 +236,7 @@ const handleHeatmap = (subsets, infoObject, splitByDate, splitByDepth, palette, 
 
             layout= {{
                 ...chartBase.layout,               
-
-                title: {
-                    text: `${metadata.Dataset_Name}` +
-                        `<br>${metadata.Long_Name.length > 60 ? metadata.Long_Name.slice(0, 60) + '...': metadata.Long_Name} [${metadata.Unit}]` + 
-                        `<br>${date}, ` + 
-                        `${depth} <br>` + 
-                        `Lat: ${latTitle}, ` +
-                        `Lon: ${lonTitle}`,
-                    font: {
-                        size: 13
-                    }
-                },
+                title: chartBase.title(metadata, date, latTitle, lonTitle, depth),
                 xaxis: {
                     title: 'Longitude[\xB0]', 
                     color: '#ffffff',

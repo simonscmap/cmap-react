@@ -9,8 +9,8 @@ import { Menu } from '@material-ui/icons';
 
 import JSS from '../../Stylesheets/JSS';
 
-import colors from '../../Enums/colors';
-import z from '../../Enums/zIndex';
+import colors from '../../enums/colors';
+import z from '../../enums/zIndex';
 
 const styles = theme => ({
     menuIcon: {

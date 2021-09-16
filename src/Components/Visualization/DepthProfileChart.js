@@ -12,7 +12,7 @@ import ChartControlPanel from './ChartControlPanel';
 import { setLoadingMessage } from '../../Redux/actions/ui';
 import { csvFromVizRequestSend } from '../../Redux/actions/visualization';
 
-import colors from '../../Enums/colors';
+import colors from '../../enums/colors';
 import chartBase from '../../Utility/chartBase';
 
 import { format } from 'd3-format';
@@ -139,31 +139,24 @@ const DepthProfileChart = (props) => {
                 config={{...chartBase.config}}
                 layout= {{
                     ...chartBase.layout,
-                    plot_bgcolor: 'transparent',
-                    title: {
-                        text: `${metadata.Dataset_Name}` +
-                            `<br>${metadata.Long_Name.length > 60 ? metadata.Long_Name.slice(0, 60) + '...': metadata.Long_Name} [${metadata.Unit}]` + 
-                            `<br>${date}, ` + 
-                            `${parameters.depth1}[m] to ${parameters.depth2}[m] <br>` + 
-                            `Lat: ${parameters.lat1}\xb0 to ${parameters.lat2}\xb0, ` +
-                            `Lon: ${parameters.lon1}\xb0 to ${parameters.lon2}\xb0`,
-                        font: {
-                            size: 12
-                        }
-                    },
-                        
-                  yaxis: {
-                      title: 'Depth[m]',
-                      color: '#ffffff',
-                      exponentformat: 'power',
-                      autorange:'reversed'
-                    },
-                  xaxis: {
-                      title: `${metadata.Long_Name.length > 35 ? metadata.Long_Name.slice(0, 35) + '...' : metadata.Long_Name} [${metadata.Unit}]`,
-                      color: '#ffffff',
-                      exponentformat: 'power'
-                    },
-                  annotations: chartBase.annotations(metadata.Distributor, metadata.Data_Source)
+                    title: chartBase.title(metadata, 
+                                           date, 
+                                           `${parameters.lat1}\xb0 to ${parameters.lat2}\xb0 `, 
+                                           `${parameters.lon1}\xb0 to ${parameters.lon2}\xb0`, 
+                                           `${parameters.depth1}[m] to ${parameters.depth2}[m]`
+                                          ),      
+                    yaxis: {
+                        title: 'Depth[m]',
+                        color: '#ffffff',
+                        exponentformat: 'power',
+                        autorange:'reversed'
+                        },
+                    xaxis: {
+                        title: `${metadata.Long_Name.length > 35 ? metadata.Long_Name.slice(0, 35) + '...' : metadata.Long_Name} [${metadata.Unit}]`,
+                        color: '#ffffff',
+                        exponentformat: 'power'
+                        },
+                    annotations: chartBase.annotations(metadata.Distributor, metadata.Data_Source)
                 }}
                 
             />

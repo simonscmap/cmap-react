@@ -8,9 +8,9 @@ import { withStyles, Link, Typography, Grid, Paper, Table, TableRow, TableCell, 
 
 import { cruiseFullPageDataFetch, cruiseFullPageDataStore } from '../../Redux/actions/catalog';
 
-import states from '../../Enums/asyncRequestStates';
+import states from '../../enums/asyncRequestStates';
 
-import metaTags from '../../Enums/metaTags';
+import metaTags from '../../enums/metaTags';
 import SkeletonWrapper from '../UI/SkeletonWrapper';
 
 const mapStateToProps = (state, ownProps) => ({
@@ -74,6 +74,7 @@ const styles = (theme) => ({
 
 const CruiseFullPage = (props) => {
     const { classes, cruiseFullPageDataFetch, cruiseFullPageDataStore, cruiseFullPageData, cruiseFullPageDataLoadingState } = props;
+
 
     const { 
         Nickname,

@@ -10,8 +10,8 @@ import Plot from 'react-plotly.js';
 import { setLoadingMessage, snackbarOpen } from '../../Redux/actions/ui';
 import { csvFromVizRequestSend } from '../../Redux/actions/visualization';
 
-import colors from '../../Enums/colors';
-import visualizationSubTypes from '../../Enums/visualizationSubTypes';
+import colors from '../../enums/colors';
+import visualizationSubTypes from '../../enums/visualizationSubTypes';
 
 import ChartControlPanel from './ChartControlPanel';
 
@@ -154,17 +154,7 @@ const handleSectionMap = (subsets, infoObject, splitByDate, splitBySpace, orient
 
             layout= {{
                 font: {color: '#ffffff'},
-                title: {
-                    text: `${metadata.Dataset_Name}` +
-                        `<br>${metadata.Long_Name.length > 60 ? metadata.Long_Name.slice(0, 60) + '...': metadata.Long_Name} [${metadata.Unit}]` + 
-                        `<br>${date}, ` + 
-                        `${parameters.depth1}[m] to ${parameters.depth2}[m] <br>` + 
-                        `Lat: ${latTitle}, ` +
-                        `Lon: ${lonTitle}`,
-                    font: {
-                        size: 12
-                    }
-                },
+                title: chartBase.title(metadata, date, latTitle, lonTitle, `${parameters.depth1}[m] to ${parameters.depth2}[m]`),
                 xaxis: {
                     title: `${xAxis}[\xB0]`,
                     color: '#ffffff',

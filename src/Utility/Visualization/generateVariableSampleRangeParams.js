@@ -1,5 +1,5 @@
 import depthUtils from '../depthCounter';
-import temporalResolutions from '../../Enums/temporalResolutions';
+import temporalResolutions from '../../enums/temporalResolutions';
 
 const generateVariableSampleRangeParams = (varDetails) => {
     let dt1 = varDetails.Temporal_Resolution === temporalResolutions.monthlyClimatology ?

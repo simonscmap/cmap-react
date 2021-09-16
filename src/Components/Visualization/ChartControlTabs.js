@@ -8,8 +8,8 @@ import { Language, Close } from '@material-ui/icons';
 
 import { deleteChart } from '../../Redux/actions/visualization';
 
-import colors from '../../Enums/colors';
-import z from '../../Enums/zIndex';
+import colors from '../../enums/colors';
+import z from '../../enums/zIndex';
 
 const mapStateToProps = (state, ownProps) => ({
     charts: state.charts

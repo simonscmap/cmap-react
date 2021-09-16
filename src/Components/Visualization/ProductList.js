@@ -8,8 +8,8 @@ import { Info, ExpandMore, ChevronRight, Star } from '@material-ui/icons';
 
 import { VariableSizeList } from 'react-window';
 
-import colors from '../../Enums/colors';
-import states from '../../Enums/asyncRequestStates';
+import colors from '../../enums/colors';
+import states from '../../enums/asyncRequestStates';
 
 import DatasetInfoDialog from './DatasetInfoDialog';
 

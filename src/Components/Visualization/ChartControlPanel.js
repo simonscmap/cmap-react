@@ -8,12 +8,12 @@ import { DateRange, CloudDownload, Palette, SwapVert, Gamepad, LineWeight, ShowC
 
 import { sparseDataMaxSizeNotificationUpdate } from '../../Redux/actions/visualization';
 
-import colors from '../../Enums/colors';
-import z from '../../Enums/zIndex';
-import SPARSE_DATA_QUERY_MAX_SIZE from '../../Enums/sparseDataQueryMaxSize';
+import colors from '../../enums/colors';
+import z from '../../enums/zIndex';
+import SPARSE_DATA_QUERY_MAX_SIZE from '../../enums/sparseDataQueryMaxSize';
 import lastRowTimeSpaceDataFromChart from '../../Utility/Visualization/lastRowTimeSpaceDataFromChart';
-import spatialResolutions from '../../Enums/spatialResolutions';
-import temporalResolutions from '../../Enums/temporalResolutions';
+import spatialResolutions from '../../enums/spatialResolutions';
+import temporalResolutions from '../../enums/temporalResolutions';
 
 const mapDispatchToProps = {
     sparseDataMaxSizeNotificationUpdate

@@ -7,8 +7,8 @@ import { withStyles } from '@material-ui/core/styles';
 import { Paper, Grid, MenuItem, FormControl, InputLabel, Button, Tooltip } from '@material-ui/core';
 import MUISelect from '@material-ui/core/Select';
 
-import vizSubTypes from '../../Enums/visualizationSubTypes';
-import colors from '../../Enums/colors';
+import vizSubTypes from '../../enums/visualizationSubTypes';
+import colors from '../../enums/colors';
 
 const styles = (theme) => ({
     vizTypeSelectFormControl: {

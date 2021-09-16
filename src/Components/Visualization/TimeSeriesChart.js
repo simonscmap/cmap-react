@@ -7,8 +7,8 @@ import { withStyles } from '@material-ui/core/styles';
 
 import Plot from 'react-plotly.js';
 
-import colors from '../../Enums/colors';
-import months from '../../Enums/months';
+import colors from '../../enums/colors';
+import months from '../../enums/months';
 import chartBase from '../../Utility/chartBase';
 import handleChartDateString from '../../Utility/handleChartDatestring';
 
@@ -144,18 +144,7 @@ const TimeSeriesChart = (props) => {
                 config={{...chartBase.config}}
                 layout= {{
                     ...chartBase.layout,
-                    plot_bgcolor: 'transparent',
-                    title: {
-                        text: `${metadata.Dataset_Name}` +
-                            `<br>${metadata.Long_Name.length > 60 ? metadata.Long_Name.slice(0, 60) + '...': metadata.Long_Name} [${metadata.Unit}]` + 
-                            `<br>${date}, ` + 
-                            depth + 
-                            `<br>Lat: ${lat}, ` +
-                            `Lon: ${lon}`,
-                        font: {
-                            size: 12
-                        }
-                    },
+                    title: chartBase.title(metadata, date, lat, lon, depth),
                   xaxis: {
                       title: data.isMonthy? 'Month' : 'Time',
                       color: '#ffffff',

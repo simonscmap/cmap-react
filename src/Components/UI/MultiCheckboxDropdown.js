@@ -5,7 +5,7 @@ import React from 'react';
 import { withStyles, Grid, FormGroup, Checkbox, Link, FormControlLabel } from '@material-ui/core';
 import { ExpandMore, ChevronRight } from '@material-ui/icons';
 
-import colors from '../../Enums/colors';
+import colors from '../../enums/colors';
 
 const styles = (theme) => ({
     menuOpenIcon:{

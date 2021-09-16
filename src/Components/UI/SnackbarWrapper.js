@@ -6,7 +6,7 @@ import { withStyles } from '@material-ui/core/styles';
 
 import { snackbarClose } from '../../Redux/actions/ui';
 
-import z from '../../Enums/zIndex';
+import z from '../../enums/zIndex';
 
 const mapStateToProps = (state, ownProps) => ({
     snackbarIsOpen: state.snackbarIsOpen,

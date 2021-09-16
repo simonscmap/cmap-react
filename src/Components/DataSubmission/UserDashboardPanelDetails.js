@@ -10,7 +10,7 @@ import { retrieveSubmissionCommentHistory, addSubmissionComment, downloadMostRec
 
 import Comment from './Comment';
 
-import states from '../../Enums/asyncRequestStates';
+import states from '../../enums/asyncRequestStates';
 
 const styles = (theme) => ({
     panelDetails: {

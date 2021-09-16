@@ -6,7 +6,7 @@ import { Typography, ListItem, List, ListItemText, Grid, Paper, Divider, Link, T
 
 import DSGuideItem from './DSGuideItem';
 
-import colors from '../../Enums/colors';
+import colors from '../../enums/colors';
 import dsGuideItems from '../../Utility/DataSubmission/dsGuideItems';
 
 const doiProviderList = [
@@ -413,7 +413,7 @@ const SubmissionGuide = (props) => {
 
                         <figure style={{margin: '30px 0 0 0'}}>
                             <a className={classes.anchor} id="body-fig-1"></a>
-                            <img style={{marginTop: '12px', maxWidth: '100%'}} src="/images/cmap_user_dashboard_process_tracking.png" alt="User Dashboard Ingestion Process Tracker"/>
+                            <img style={{marginTop: '12px', maxWidth: '100%', border: '1px solid white'}} src="/images/cmap_user_dashboard_process_tracking.png" alt="User Dashboard Ingestion Process Tracker"/>
 
                             <figcaption>
                                 Figure 1. The progress of a dataset from Submission to Ingestion.
@@ -602,21 +602,21 @@ const SubmissionGuide = (props) => {
                         <Typography>
                             <a className={classes.anchor} id='reference-1'></a>
                             <Link href='http://cfconventions.org/cf-conventions/cf-conventions.html' target='_blank'>
-                                NetCDF Climate and Forecast (CF) Metadata Conventions
+                                [1] NetCDF Climate and Forecast (CF) Metadata Conventions
                             </Link>
                         </Typography>
 
                         <Typography>
                             <a className={classes.anchor} id='reference-2'></a>
                             <Link href='https://ferret.pmel.noaa.gov/noaa_coop/coop_cdf_profile.html' target='_blank'>
-                                Conventions for the standardization of NetCDF files
+                                [2] Conventions for the standardization of NetCDF files
                             </Link>
                         </Typography>
 
                         <Typography>
                             <a className={classes.anchor} id='reference-3'></a>
                             <Link href='https://ferret.pmel.noaa.gov/Ferret/documentation/coards-netcdf-conventions' target='_blank'>
-                                COARDS NetCDF Conventions
+                                [3] COARDS NetCDF Conventions
                             </Link>
                         </Typography>
 

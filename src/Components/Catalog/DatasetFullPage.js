@@ -18,11 +18,11 @@ import DownloadDialog from './DownloadDialog';
 
 import { datasetFullPageDataFetch, datasetFullPageDataStore } from '../../Redux/actions/catalog';
 
-import states from '../../Enums/asyncRequestStates';
+import states from '../../enums/asyncRequestStates';
 import HelpButtonAndDialog from '../UI/HelpButtonAndDialog';
 
-import colors from '../../Enums/colors';
-import metaTags from '../../Enums/metaTags';
+import colors from '../../enums/colors';
+import metaTags from '../../enums/metaTags';
 import CartAddOrRemove from './CartAddOrRemove';
 import SkeletonWrapper from '../UI/SkeletonWrapper';
 
@@ -174,6 +174,17 @@ const DatasetFullPage = (props) => {
 
     const [ downloadDialogOpen, setDownloadDialogOpen ] = React.useState(false);
 
+    const httpRegx = /\b(https?:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|]|ftp:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|])/g;
+    const urlify = (text) => (
+        reactStringReplace(text, 
+            httpRegx, 
+            (match, i) => (
+                <Link key={i} href={match} target='_blank' style={{color: colors.primary}}>{match}</Link>
+                )
+        )
+    );
+    
+    
     useEffect(() => {
         datasetFullPageDataFetch(props.match.params.dataset);
 
@@ -378,14 +389,7 @@ const DatasetFullPage = (props) => {
                                 </Typography>
 
                                 <Typography className={classes.smallText} style={{color: 'white'}}>
-                                    {
-                                        reactStringReplace(Data_Source, 
-                                            /\b(https?:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|])/g, 
-                                            (match, i) => (
-                                                <Link key={i} href={match} target='_blank' style={{color: colors.primary}}>{match}</Link>
-                                        ))  
-                                    }
-                                    {/* {Data_Source} */}
+                                    {urlify(Data_Source)}
                                 </Typography>
                         </React.Fragment>
 
@@ -401,14 +405,7 @@ const DatasetFullPage = (props) => {
                                 </Typography>
 
                                 <Typography className={classes.smallText} style={{color: 'white'}}>
-                                    {
-                                        reactStringReplace(Distributor, 
-                                            /\b(https?:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|])/g, 
-                                            (match, i) => (
-                                                <Link key={i} href={match} target='_blank' style={{color: colors.primary}}>{match}</Link>
-                                        ))  
-                                    }
-                                    {/* {Distributor} */}
+                                    {urlify(Distributor)}
                                 </Typography>
                             </React.Fragment>
 
@@ -424,14 +421,8 @@ const DatasetFullPage = (props) => {
                                     </Typography>
 
                                     <Typography className={classes.smallText} style={{color: 'white'}}>                                        
-                                        {
-                                            reactStringReplace(Acknowledgement, 
-                                                /\b(https?:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|])/g, 
-                                                (match, i) => (
-                                                    <Link key={i} href={match} target='_blank' style={{color: colors.primary}}>{match}</Link>
-                                            ))  
-                                        }
-                                        {/* {Acknowledgement} */}
+                                    {urlify(Acknowledgement)}
+                         
                                     </Typography>
                                 </React.Fragment>
 
@@ -449,13 +440,7 @@ const DatasetFullPage = (props) => {
                                     {!loading ?
                                         References.map((reference, i) => (
                                             <Typography className={classes.smallText} style={{color: 'white', marginTop: '6px'}} key={i}>
-                                                {
-                                                    reactStringReplace(reference, 
-                                                        /\b(https?:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|])/g, 
-                                                        (match, i) => (
-                                                          <Link key={i} href={match} target='_blank' style={{color: colors.primary}}>{match}</Link>
-                                                    ))  
-                                                }
+                                                {urlify(reference)}
                                             </Typography>
                                         ))
                                                                               

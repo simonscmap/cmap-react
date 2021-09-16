@@ -14,9 +14,9 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-import states from '../../Enums/asyncRequestStates';
-import colors from '../../Enums/colors';
-import z from '../../Enums/zIndex';
+import states from '../../enums/asyncRequestStates';
+import colors from '../../enums/colors';
+import z from '../../enums/zIndex';
 
 import { showLoginDialog, hideLoginDialog, restoreInterfaceDefaults, snackbarOpen } from '../../Redux/actions/ui';
 import { logOut, userLoginRequestSend, googleLoginRequestSend, guestTokenRequestSend } from '../../Redux/actions/user';

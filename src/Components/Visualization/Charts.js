@@ -9,9 +9,9 @@ import Plot from 'react-plotly.js';
 import { IconButton, Paper } from '@material-ui/core';
 import { Delete } from '@material-ui/icons';
 
-import colors from '../../Enums/colors';
-import storedProcedures from '../../Enums/storedProcedures';
-import vizSubTypes from '../../Enums/visualizationSubTypes';
+import colors from '../../enums/colors';
+import storedProcedures from '../../enums/storedProcedures';
+import vizSubTypes from '../../enums/visualizationSubTypes';
 
 import SpaceTimeChart from './SpaceTimeChart';
 import TimeSeriesChart from './TimeSeriesChart';
@@ -20,7 +20,7 @@ import SectionMapChart from './SectionMapChart';
 import SparseMap from './SparseMap';
 import Histogram from './Histogram';
 
-import spatialResolutions from '../../Enums/spatialResolutions';
+import spatialResolutions from '../../enums/spatialResolutions';
 
 import { deleteChart } from '../../Redux/actions/visualization';
 
@@ -163,6 +163,7 @@ class Charts extends Component {
         return (
             <React.Fragment>
                 {charts.map((chart, index) => {
+                    
                     switch(chart.data.parameters.spName){
 
                         case storedProcedures.spaceTime:

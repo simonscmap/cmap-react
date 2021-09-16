@@ -44,7 +44,8 @@ const DSGuideItem = (props) => {
                     <img
                         src={image.src}
                         alt={image.alt}
-                        width='100%'
+                        width={image.width || '100%'}                        
+                        border='1px'
                         style={{maxwidth: '100%'}}                                            
                     />
                     <figcaption>

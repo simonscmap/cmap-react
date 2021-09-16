@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom'
 
-import vizSubTypes from '../../Enums/visualizationSubTypes';
-import storedProcedures from '../../Enums/storedProcedures';
+import vizSubTypes from '../../enums/visualizationSubTypes';
+import storedProcedures from '../../enums/storedProcedures';
 
 import { withStyles } from '@material-ui/core/styles';
 
@@ -20,15 +20,17 @@ import depthUtils from '../../Utility/depthCounter';
 
 import Charts from './Charts';
 import MapContainer from './MapContainer';
-import colors from '../../Enums/colors'
+import colors from '../../enums/colors'
 import cleanSPParams from '../../Utility/Visualization/cleanSPParams';
 import localDateToString from '../../Utility/localDateToString';
 import utcDateStringToLocal from '../../Utility/utcDateStringToLocal';
-import temporalResolutions from '../../Enums/temporalResolutions';
+import temporalResolutions from '../../enums/temporalResolutions';
 import stars from '../../Utility/starsBase64';
-import metaTags from '../../Enums/metaTags';
+import metaTags from '../../enums/metaTags';
 import ModuleSelector from './ModuleSelector';
 import CruiseSelector from './CruiseSelector';
+
+import Help from '../UI/Help';
 
 const mapVizType = (vizType) => {
     const mapping = {
@@ -361,7 +363,7 @@ class Visualization extends Component {
 
     render(){
         const { classes } = this.props;
-        
+
         return (
             <div className={classes.vizWrapper}>
                 <GuestPlotLimitNotification/>
@@ -425,6 +427,27 @@ class Visualization extends Component {
                 <div className={this.props.plotsActiveTab === 0 ? classes.displayNone : classes.showCharts}>
                     <Charts/>
                 </div>
+                
+                {
+                    this.props.location.pathname === "/visualization/cruises" ?
+                    <Help 
+                    videoLink={"https://player.vimeo.com/video/597414874"} 
+                    apiLink={null} 
+                    pythonLink={"https://cmap.readthedocs.io/en/latest/user_guide/API_ref/pycmap_api/data_vizualization/pycmap_cruise_track.html#cruisetrackplot"} 
+                    rLink={null} 
+                    matlabLink={null} 
+                    juliaLink={null}
+                    />
+                    :
+                    <Help 
+                    videoLink={"https://player.vimeo.com/video/597414874"} 
+                    apiLink={null} 
+                    pythonLink={"https://cmap.readthedocs.io/en/latest/user_guide/API_ref/pycmap_api/pycmap_data_vizualization.html#dataviz"} 
+                    rLink={"https://simonscmap.github.io/cmap4r/visualization.html"} 
+                    matlabLink={null} 
+                    juliaLink={null}
+                    />
+                }
             </div>
         )
     }

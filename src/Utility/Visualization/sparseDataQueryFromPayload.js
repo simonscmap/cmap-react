@@ -1,4 +1,4 @@
-import SPARSE_DATA_QUERY_MAX_SIZE from '../../Enums/sparseDataQueryMaxSize';
+import SPARSE_DATA_QUERY_MAX_SIZE from '../../enums/sparseDataQueryMaxSize';
 
 const sparseDataQueryFromPayload = (payload) => {
     let { metadata, parameters } = payload;

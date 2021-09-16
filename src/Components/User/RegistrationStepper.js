@@ -11,7 +11,7 @@ import RegistrationCard from './RegistrationCard';
 import { registrationNextActiveStep, registrationPreviousActiveStep } from '../../Redux/actions/ui';
 import { userRegistrationRequestSend, userValidationRequestSend, userValidationRequestSuccess } from '../../Redux/actions/user';
 
-import states from '../../Enums/asyncRequestStates';
+import states from '../../enums/asyncRequestStates';
 
 const styles = theme => ({
     root: {

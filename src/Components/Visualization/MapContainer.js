@@ -6,6 +6,8 @@ import { withStyles } from '@material-ui/core/styles';
 
 import { Scene } from '@esri/react-arcgis';
 
+
+
 const styles = (theme) => ({
     container: {
         margin: '0 auto 0 auto',
@@ -134,20 +136,65 @@ const TrajectoryController = React.memo((props) => {
             }]
         }
 
-        polyLines.forEach(line => {
+        // polyLines.forEach(line => {
 
-            let cruiseTrajectoryGeometry = {
-                type: 'polyline',
-                paths: line
+        //     let cruiseTrajectoryGeometry = {
+        //         type: 'polyline',
+        //         paths: line
+        //     }
+
+        //     let graphic = new esriModules.Graphic({
+        //         geometry: cruiseTrajectoryGeometry,
+        //         symbol: cruiseTrajectorySymbol
+        //     });
+
+        //     trajectoryLayer.add(graphic);
+        // })
+
+
+
+
+
+
+        ///////////////////////////////
+        let point = {};
+        let markerSymbol = {};
+        let pointGraphic = {};
+
+        let downSampleCoeff = Math.floor(lons.length / 1000) + 1;
+        lons.forEach((lon, i) => {
+            if (i % downSampleCoeff === 0) {
+                let lat = lats[i];
+                point = {
+                    type: "point", 
+                    x: lon,
+                    y: lat,
+                    // z: 1000
+                };
+        
+                markerSymbol = {
+                    type: "simple-marker", 
+                    // color: [226, 119, 40],
+                    color: [0, 255, 255, 1],
+                    outline: null,
+                    // outline: {
+                    //   color: [255, 255, 255],
+                    //   width: 0.5,                  
+                    // },
+                    size: 5
+                };
+        
+                pointGraphic = new esriModules.Graphic({
+                    geometry: point,
+                    symbol: markerSymbol
+                });
+                trajectoryLayer.add(pointGraphic);
             }
+        })        
 
-            let graphic = new esriModules.Graphic({
-                geometry: cruiseTrajectoryGeometry,
-                symbol: cruiseTrajectorySymbol
-            });
 
-            trajectoryLayer.add(graphic);
-        })
+
+
 
         try {
             const center = [lons[midIndex], lats[midIndex]];

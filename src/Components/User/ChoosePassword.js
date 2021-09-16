@@ -13,7 +13,7 @@ import { withStyles } from '@material-ui/core/styles';
 
 import { choosePasswordRequestSend, choosePasswordRequestReset } from '../../Redux/actions/user';
 
-import states from '../../Enums/asyncRequestStates';
+import states from '../../enums/asyncRequestStates';
 
 const styles = (theme) => ({
     paper: {

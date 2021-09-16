@@ -9,7 +9,7 @@ import CartAddOrRemove from './CartAddOrRemove';
 
 import { setShowCart } from '../../Redux/actions/ui';
 
-import colors from '../../Enums/colors';
+import colors from '../../enums/colors';
 
 const mapStateToProps = (state, ownProps) => ({
     cart: state.cart
@@ -22,7 +22,7 @@ const mapDispatchToProps = {
 const styles = (theme) => ({
     resultWrapper: {
         padding: '4px 12px',
-        height: '200px'
+        height: '200px'      
     },
 
     image: {

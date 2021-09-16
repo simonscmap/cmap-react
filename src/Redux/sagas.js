@@ -18,15 +18,15 @@ import * as interfaceActionTypes from './actionTypes/ui';
 import * as dataSubmissionActionTypes from './actionTypes/dataSubmission';
 import * as communityActionTypes from './actionTypes/community';
 
-import api from '../api';
+import api from '../api/api';
 import groupVariablesByDataset from '../Utility/Catalog/groupVariablesByDataset';
 import groupDatasetsByMake from '../Utility/Catalog/groupDatasetsByMake';
 import buildSearchOptionsFromVariablesList from '../Utility/Catalog/buildSearchOptionsFromVariablesList';
 import buildSearchOptionsFromDatasetList from '../Utility/Catalog/buildSearchOptionsFromDatasetList';
 import lastRowTimeSpaceDataFromChart from '../Utility/Visualization/lastRowTimeSpaceDataFromChart';
 
-import states from '../Enums/asyncRequestStates';
-import SPARSE_DATA_QUERY_MAX_SIZE from '../Enums/sparseDataQueryMaxSize';
+import states from '../enums/asyncRequestStates';
+import SPARSE_DATA_QUERY_MAX_SIZE from '../enums/sparseDataQueryMaxSize';
 
 function* userLogin(action) {
     yield put(userActions.userLoginRequestProcessing());
@@ -779,6 +779,8 @@ function* searchResultsFetch(action){
 
         let results = yield result.json();
         let options = buildSearchOptionsFromDatasetList(results, storedOptions, params);
+
+
         yield put(catalogActions.searchResultsStore(results, options));
     }
 

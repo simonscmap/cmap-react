@@ -17,11 +17,11 @@ import MobileNavbarMenu from './MobileNavbarMenu';
 import JSS from '../../Stylesheets/JSS';
 import VizNavbarDropdown from '../Visualization/VizNavbarDropdown';
 
-import z from '../../Enums/zIndex';
+import z from '../../enums/zIndex';
 
 const styles = theme => ({
 
-    simonsLogo: {
+    simonsLogo: {        
         verticalAlign: 'middle',
         display: 'inline-block',
     },

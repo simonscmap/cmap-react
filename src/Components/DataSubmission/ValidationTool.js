@@ -18,7 +18,7 @@ import ValidationGrid from './ValidationGrid';
 import LoginRequiredPrompt from '../User/LoginRequiredPrompt';
 import DSCustomGridHeader from './DSCustomGridHeader';
 
-import colors from '../../Enums/colors';
+import colors from '../../enums/colors';
 
 import formatDataSheet from '../../Utility/DataSubmission/formatDataSheet';
 import formatDatasetMetadataSheet from '../../Utility/DataSubmission/formatDatasetMetadataSheet';
@@ -27,7 +27,7 @@ import generateAudits from '../../Utility/DataSubmission/generateAudits';
 import workbookAudits from '../../Utility/DataSubmission/workbookAudits';
 import auditReference from '../../Utility/DataSubmission/auditReference';
 
-import states from '../../Enums/asyncRequestStates';
+import states from '../../enums/asyncRequestStates';
 
 const mapStateToProps = (state, ownProps) => ({
     submissionFile: state.submissionFile,

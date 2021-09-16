@@ -12,9 +12,9 @@ import MultiCheckboxDropdown from '../UI/MultiCheckboxDropdown';
 import { vizSearchResultsFetch, vizSearchResultsSetLoadingState, variableNameAutocompleteFetch, vizSearchResultsStore } from '../../Redux/actions/visualization';
 import { searchOptionsFetch } from '../../Redux/actions/catalog';
 
-import colors from '../../Enums/colors';
-import states from '../../Enums/asyncRequestStates';
-import z from '../../Enums/zIndex';
+import colors from '../../enums/colors';
+import states from '../../enums/asyncRequestStates';
+import z from '../../enums/zIndex';
 
 const mapStateToProps = (state, ownProps) => ({
     vizSearchResults: state.vizSearchResults,

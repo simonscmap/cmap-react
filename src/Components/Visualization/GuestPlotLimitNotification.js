@@ -12,8 +12,8 @@ import { guestPlotLimitNotificationSetIsVisible } from '../../Redux/actions/visu
 import { showLoginDialog } from '../../Redux/actions/ui';
 import { guestTokenRequestSend } from '../../Redux/actions/user';
 
-import z from '../../Enums/zIndex';
-import colors from '../../Enums/colors';
+import z from '../../enums/zIndex';
+import colors from '../../enums/colors';
 
 const styles = (theme) => ({
     dialogWrapper: {

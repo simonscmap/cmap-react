@@ -7,8 +7,8 @@ import Typography from '@material-ui/core/Typography';
 
 import * as Spinner from 'react-spinkit';
 
-import colors from '../../Enums/colors';
-import z from '../../Enums/zIndex';
+import colors from '../../enums/colors';
+import z from '../../enums/zIndex';
 
 
 const styles = theme => ({

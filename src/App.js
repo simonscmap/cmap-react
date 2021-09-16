@@ -9,8 +9,8 @@ import { toggleShowHelp, windowResize } from './Redux/actions/ui';
 
 import './Stylesheets/App.scss';
 
-import colors from './Enums/colors';
-import z from './Enums/zIndex';
+import colors from './enums/colors';
+import z from './enums/zIndex';
 
 import { Route, BrowserRouter, Switch } from 'react-router-dom'
 import { debounce } from 'throttle-debounce';
@@ -18,6 +18,7 @@ import { debounce } from 'throttle-debounce';
 import GlobalUIComponentWrapper from './Components/UI/GlobalUIComponentWrapper';
 import TopNavBar from './Components/UI/TopNavBar';
 import ErrorBoundary from './Components/UI/ErrorBoundary';
+
 
 const ApiKeyManagement = lazy(() => import('./Components/User/ApiKeyManagement'));
 const SearchResults = lazy(() => import('./Components/Catalog/SearchResults'));
@@ -34,6 +35,7 @@ const DatasetFullPage = lazy(() => import('./Components/Catalog/DatasetFullPage'
 const ForgotPass = lazy(() => import('./Components/User/ForgotPass'));
 const ChoosePassword = lazy(() => import('./Components/User/ChoosePassword'));
 const CruiseFullPage = lazy(() => import('./Components/Catalog/CruiseFullPage'));
+const Probe = lazy(() => import('./Components/probe/Probe'));
 
 // Changes to default styles of MUI components
 const theme = createMuiTheme({
@@ -79,7 +81,7 @@ const theme = createMuiTheme({
         borderRadius: '10%'
       }
     },
-    
+
     MuiPaper: {
       root: {
         backgroundColor: 'rgba(0,0,0,.3)',
@@ -141,7 +143,7 @@ const theme = createMuiTheme({
         backgroundColor: colors.backgroundGray
       }
     },
-    
+
     MuiOutlinedInput: {
       input: {
         padding: '12px 14px'
@@ -193,7 +195,7 @@ const theme = createMuiTheme({
         }
       }
     },
-    
+
     MuiDialogTitle: {
       root: {
         color: colors.primary
@@ -259,7 +261,7 @@ class App extends Component {
                 <GlobalUIComponentWrapper/>
                 <TopNavBar/>
                 <Suspense fallback={''}>
-                  <Switch>          
+                  <Switch>
                     <Route exact path='/apikeymanagement' component={ ApiKeyManagement } />
                     <Route exact path='/' component={ LandingPage } />
                     <Route exact path='/catalog' component={ Catalog } />
@@ -275,6 +277,7 @@ class App extends Component {
                     <Route path='/catalog/searchresults' component={SearchResults}/>
                     <Route path='/catalog/datasets/:dataset' component={DatasetFullPage}/>
                     <Route path='/catalog/cruises/:cruiseName' component={CruiseFullPage}/>
+                    <Route exact path='/sample' component={ Probe } />
                   </Switch>
                 </Suspense>
               </BrowserRouter>

@@ -8,8 +8,8 @@ import { Transform } from '@material-ui/icons';
 import generateVariableFullRangeParams from '../../Utility/Visualization/generateVariableFullRangeParams';
 import generateVariableSampleRangeParams from '../../Utility/Visualization/generateVariableSampleRangeParams';
 
-import colors from '../../Enums/colors';
-import z from '../../Enums/zIndex';
+import colors from '../../enums/colors';
+import z from '../../enums/zIndex';
 
 const styles = (theme) => ({
     popoutButtonPaper: {

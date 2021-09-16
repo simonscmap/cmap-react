@@ -4,8 +4,8 @@ import React from 'react';
 import { withStyles, IconButton, Dialog, DialogTitle, DialogContent } from '@material-ui/core';
 import { Help } from '@material-ui/icons';
 
-import colors from '../../Enums/colors';
-import z from '../../Enums/zIndex';
+import colors from '../../enums/colors';
+import z from '../../enums/zIndex';
 
 const styles = (theme) => ({
     dialogPaper: {

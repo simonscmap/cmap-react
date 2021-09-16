@@ -13,8 +13,8 @@ import { ExpandLess, ExpandMore } from '@material-ui/icons';
 import { Typography, MenuItem, ClickAwayListener, Grow, Paper, Popper, MenuList } from '@material-ui/core';
 
 import JSS from '../../Stylesheets/JSS';
-import colors from '../../Enums/colors';
-import z from '../../Enums/zIndex';
+import colors from '../../enums/colors';
+import z from '../../enums/zIndex';
 
 const styles = (theme) => ({
     navLink: JSS.navLink(theme),

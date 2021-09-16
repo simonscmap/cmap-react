@@ -1,7 +1,7 @@
 // Webgl visualizations consume a webgl context which are limited by the browser. We use this to prevent people
 // from exceeding the limit and breaking existing plots
 
-import visualizationSubTypes from '../Enums/visualizationSubTypes';
+import visualizationSubTypes from '../enums/visualizationSubTypes';
 
 export default (charts) => {
     let count = 0;

@@ -12,13 +12,13 @@ import { Edit, ShowChart, Search, ChevronLeft, ChevronRight, Language, Info } fr
 import { cruiseTrajectoryRequestSend, clearCharts, csvDownloadRequestSend, vizPageDataTargetSetAndFetchDetails, storedProcedureRequestSend, sparseDataQuerySend, guestPlotLimitNotificationSetIsVisible } from '../../Redux/actions/visualization';
 import { snackbarOpen } from '../../Redux/actions/ui';
 
-import colors from '../../Enums/colors';
-import z from '../../Enums/zIndex';
-import vizSubTypes from '../../Enums/visualizationSubTypes';
-import validation from '../../Enums/validation';
-import spatialResolutions from '../../Enums/spatialResolutions';
-import temporalResolutions from '../../Enums/temporalResolutions';
-import storedProcedures from '../../Enums/storedProcedures';
+import colors from '../../enums/colors';
+import z from '../../enums/zIndex';
+import vizSubTypes from '../../enums/visualizationSubTypes';
+import validation from '../../enums/validation';
+import spatialResolutions from '../../enums/spatialResolutions';
+import temporalResolutions from '../../enums/temporalResolutions';
+import storedProcedures from '../../enums/storedProcedures';
 
 import mapTemporalResolutionToNumber from '../../Utility/mapTemporalResolutionToNumber';
 import mapSpatialResolutionToNumber from '../../Utility/mapSpatialResolutionToNumber';

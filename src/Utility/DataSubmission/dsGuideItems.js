@@ -72,7 +72,7 @@ const guideItems = {
                     &nbsp;in the <Link href='#data-structure-variable'>Variable Metadata</Link> sheet. Please do not include units in these columns; 
                     units are recorded in the Variable Metadata sheet. Leave a given cell empty for those instances when data was not taken and a value 
                     is missing. Do not replace the missing data with arbitrary values such as “99999”, “0”, “UNKNOWN”, etc. If you wish to flag specific 
-                    column values, please add relevant flag columns with descriptions of flag values in the vars_meta_data comment column.Please review the 
+                    column values, please add relevant flag columns with descriptions of flag values in the vars_meta_data comment column. Please review the 
                     example datasets in the <Link href='#resources'>resources</Link> section for more information.
                 </React.Fragment>
             ],
@@ -120,6 +120,7 @@ const guideItems = {
             ],
             images: [            
                 {
+                    width: '50%',
                     src: '/images/cmap_long_name_in_catalog.png',
                     alt: 'Dataset Long_name in Catalog',
                     caption: 'Figure 2. A sample dataset shown in the Simons CMAP catalog. The "dataset_long_name" is enclosed in the orange rectangle.',
@@ -193,6 +194,7 @@ const guideItems = {
             ],
             images: [
                 {
+                    width: '50%',
                     src: '/images/cmap_data_source_in_catalog.png',
                     alt: 'Dataset Source in Catalog',
                     caption: 'Figure 4. A sample dataset shown in the Simons CMAP catalog. The "dataset_source" is enclosed in the orange rectangle.',
@@ -310,7 +312,7 @@ const guideItems = {
                 <React.Fragment>
                     If your dataset represents measurements made during a cruise expedition (or expeditions), provide a list of cruise official names 
                     here. If your dataset is associated with more than one cruise, please put them in separate cells under the cruise_names column. 
-                    If the cruises have any nicknames, please list them in separate cells as well(<Link href='#fig-7'>Fig. 8</Link>). Leave this field 
+                    If the cruises have any nicknames, please list them in separate cells as well (<Link href='#fig-8'>Fig. 8</Link>). Leave this field 
                     blank if your dataset is not associated with a cruise expedition.
                 </React.Fragment>
                 ],
@@ -320,6 +322,7 @@ const guideItems = {
                 'Constraint: No length limits'
             ],
             images: [{
+                width: '15%',
                 src: '/images/cmap_submission_cruise_name_example.png',
                 alt: 'Sample of cruise column on in data submission template',
                 caption: 'Figure 8. How to fill out the cruise_names column in the CMAP template.',
@@ -410,10 +413,9 @@ const guideItems = {
                     flow cytometer, sediment trap, etc. If your dataset is the output of a numerical model or a combination of model and 
                     observation, use the term “simulation” and “blend”, respectively. This field will significantly help to find and 
                     categorize data generated using a similar class of instruments. var_sensor will be visible in the Simons CMAP catalog. 
-                    This field is populated via a dropdown menu.  If a value you would like to use is missing from the dropdown menu please 
-                    us at at <Link href="mailto:cmap-data-submission@uw.edu">cmap-data-submission@uw.edu</Link> to request that it be added.'
+                    This field is populated via a dropdown menu.  If a value you would like to use is missing from the dropdown menu please contact us at <Link href="mailto:cmap-data-submission@uw.edu">cmap-data-submission@uw.edu</Link> to request that it be added.
                 </React.Fragment>],
-            plainText: ['This is a required field that refers to the instrument used to produce the measurements such as CTD, fluorometer, flow cytometer, sediment trap, etc. If your dataset is the output of a numerical model or a combination of model and observation, use the term “simulation” and “blend”, respectively. This field will significantly help to find and categorize data generated using a similar class of instruments. var_sensor will be visible in the Simons CMAP catalog. This field is populated via a dropdown menu.  If a value you would like to use is missing from the dropdown menu please us at at cmap-data-submission@uw.edu to request that it be added.'],
+            plainText: ['This is a required field that refers to the instrument used to produce the measurements such as CTD, fluorometer, flow cytometer, sediment trap, etc. If your dataset is the output of a numerical model or a combination of model and observation, use the term “simulation” and “blend”, respectively. This field will significantly help to find and categorize data generated using a similar class of instruments. var_sensor will be visible in the Simons CMAP catalog. This field is populated via a dropdown menu.  If a value you would like to use is missing from the dropdown menu please contact us at cmap-data-submission@uw.edu to request that it be added.'],
             bullets: [],
             images: []
         },
@@ -449,8 +451,7 @@ const guideItems = {
                     use the term “irregular” to fill out this field. Note that if samples are taken at a series of distinct but spatially-non-uniform 
                     stations, the spatial resolution is considered irregular. var_spatial_res may contain unicode characters such as degree symbol ( ° ) 
                     and will be visible in the Simons CMAP catalog (see <Link href='#fig-4'>Fig. 4</Link>). This field is populated via a dropdown menu. 
-                    If a value you would like to use is missing from the dropdown menu please us at at 
-                    <Link href="mailto:cmap-data-submission@uw.edu">cmap-data-submission@uw.edu</Link> to request that it be added.
+                    If a value you would like to use is missing from the dropdown menu please contact us at <Link href="mailto:cmap-data-submission@uw.edu">cmap-data-submission@uw.edu</Link> to request that it be added.
                 </React.Fragment>
             ],
             plainText: [`
@@ -459,7 +460,7 @@ const guideItems = {
                 use the term “irregular” to fill out this field. Note that if samples are taken at a series of distinct but spatially-non-uniform 
                 stations, the spatial resolution is considered irregular. var_spatial_res may contain unicode characters such as degree symbol ( ° ) 
                 and will be visible in the Simons CMAP catalog. This field is populated via a dropdown menu.  If a value you would like to use is 
-                missing from the dropdown menu please us at at cmap-data-submission@uw.edu to request that it be added.
+                missing from the dropdown menu please contact us at cmap-data-submission@uw.edu to request that it be added.
             `],
             bullets: [
                 'Required: Yes',
@@ -476,15 +477,13 @@ const guideItems = {
                     Entries in this column describe the temporal resolution (daily, hourly, 3-minutes, etc). If the measurements do not have a 
                     regular temporal spacing, use the term “irregular” to fill out this field. var_temporal_res will be visible in the Simons CMAP 
                     catalog (see <Link href='#fig-4'>Fig. 4</Link>). This field is populated via a dropdown menu. 
-                    If a value you would like to use is missing from the dropdown menu please us at at 
-                    <Link href="mailto:cmap-data-submission@uw.edu">cmap-data-submission@uw.edu</Link> to request that it be added.
+                    If a value you would like to use is missing from the dropdown menu please contact us at <Link href="mailto:cmap-data-submission@uw.edu">cmap-data-submission@uw.edu</Link> to request that it be added.
                 </React.Fragment>
             ],
             plainText: [`
                 Entries in this column describe the temporal resolution (daily, hourly, 3-minutes, etc). If the measurements do not have a 
                 regular temporal spacing, use the term “irregular” to fill out this field. var_temporal_res will be visible in the Simons CMAP 
-                catalog. This field is populated via a dropdown menu.  If a value you would like to use is missing from the dropdown menu please 
-                us at at cmap-data-submission@uw.edu to request that it be added.
+                catalog. This field is populated via a dropdown menu. If a value you would like to use is missing from the dropdown menu please contact us at cmap-data-submission@uw.edu to request that it be added.
             `],
             bullets: [
                 'Required: Yes',
@@ -500,14 +499,13 @@ const guideItems = {
                 <React.Fragment>
                     Indicates in which disciplines (such as Physics, Biology …) this variable is commonly studied. You can list more than one 
                     discipline. If you list multiple disciplines per variable, please separate them by +. This field is populated via a dropdown menu. 
-                    If a value you would like to use is missing from the dropdown menu please us at at 
-                    <Link href="mailto:cmap-data-submission@uw.edu">cmap-data-submission@uw.edu</Link> to request that it be added.
+                    If a value you would like to use is missing from the dropdown menu please contact us at <Link href="mailto:cmap-data-submission@uw.edu">cmap-data-submission@uw.edu</Link> to request that it be added.
                 </React.Fragment>
             ],
             plainText: [`
                 Indicates in which disciplines (such as Physics, Biology …) this variable is commonly studied. You can specify more than one 
                 discipline. If you list multiple disciplines per variable, please separate them by +. This field is populated via a dropdown menu. 
-                If a value you would like to use is missing from the dropdown menu please us at at 
+                If a value you would like to use is missing from the dropdown menu please contact us at 
                 cmap-data-submission@uw.edu to request that it be added.
             `],
             bullets: [

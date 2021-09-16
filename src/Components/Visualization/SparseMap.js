@@ -12,7 +12,7 @@ import Plot from 'react-plotly.js';
 
 import ChartControlPanel from './ChartControlPanel';
 
-import colors from '../../Enums/colors';
+import colors from '../../enums/colors';
 import chartBase from '../../Utility/chartBase';
 import handleChartDateString from '../../Utility/handleChartDatestring';
 
@@ -76,17 +76,7 @@ const handleSparseMap = (infoObject, palette, zValues) => {
 
             layout= {{
                 ...chartBase.layout,
-                title: {
-                    text: `${metadata.Dataset_Name}` +
-                        `<br>${metadata.Long_Name.length > 60 ? metadata.Long_Name.slice(0, 60) + '...': metadata.Long_Name} [${metadata.Unit}]` + 
-                        `<br>${date}, ` + 
-                        depth + 
-                        `<br>Lat: ${lat}, ` +
-                        `Lon: ${lon}`,
-                    font: {
-                        size: 12
-                    }
-                },
+                title: chartBase.title(metadata, date, lat, lon, depth),
                 mapbox: {
                     style: "white-bg",
                     layers: [
