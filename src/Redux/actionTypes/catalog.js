@@ -33,3 +33,5 @@ export const CART_ADD_ITEM = 'CART_ADD_ITEM';
 export const CART_REMOVE_ITEM = 'CART_REMOVE_ITEM';
 export const CART_CLEAR = 'CART_CLEAR';
 export const CART_ADD_MULTIPLE = 'CART_ADD_MULTIPLE';
+
+export const CATALOG_TOUR_END = 'CATALOG_TOUR_END';

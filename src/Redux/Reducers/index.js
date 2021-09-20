@@ -14,6 +14,7 @@ import buildSearchOptionsFromVariableList from '../../Utility/Catalog/buildSearc
 const initialState = {
 
     // Catalog state pieces
+    catalogTourEnd: false,
     catalogRequestState: null,
     catalog: null,
     datasetRequestState: null,
@@ -26,7 +27,6 @@ const initialState = {
     datasetFullPageData: {},
     datasetFullPageDataLoadingState: states.succeeded,
     cruiseFullPageData: {},
-    datasetFullPageDataLoadingState: states.succeeded,
     cart: {},
     showCart: false,
 
@@ -61,7 +61,7 @@ const initialState = {
     choosePasswordState: null,
 
     preferences: {
-        
+
     },
 
     // Visualization state pieces

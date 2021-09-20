@@ -1,0 +1,4 @@
+.introjs-tooltip {
+  /* override max-width to accomodate video content */
+  max-width: none !important;
+}

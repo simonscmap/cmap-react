@@ -152,3 +152,9 @@ export const cartAddMultiple = (items) => ({
         items
     }
 });
+
+// CATALOG TOUR END is an action which triggers the boolean state prop 'catalogTourEnd' to switch to true;
+// This flage indicates that the user has exited the intro.js tour on the catalog page
+export const catalogTourEnd = () => ({
+  type: catalogActionTypes.CATALOG_TOUR_END
+});
