@@ -18,27 +18,22 @@ import {
   Button,
   Grid,
 } from "@material-ui/core";
+import { catalogIntro as catalogIntroData } from "./CatalogIntro";
 import { Search } from "@material-ui/icons";
 import { debounce } from "throttle-debounce";
 import MultiCheckboxDropdown from "../UI/MultiCheckboxDropdown";
 import queryString from "query-string";
 import colors from "../../enums/colors";
-import { catalogTourEnd } from "../../Redux/actions/catalog";
-import { Steps, Hints } from "intro.js-react";
-import "intro.js/introjs.css";
-import "../../Stylesheets/intro-custom.css"
+import { CATALOG_PAGE } from '../../constants';
+import { Hints } from 'intro.js-react';
+import Intro from '../Help/Intro';
 
 const mapStateToProps = (state) => {
-  let { submissionOptions, catalogTourEnd } = state;
+  let { submissionOptions } = state;
   return {
     submissionOptions,
-    catalogTourEnd
   }
 };
-
-const mapDispatchToProps = ({
-  catalogTourEnd
-});
 
 const styles = (theme) => ({
   searchPaper: {
@@ -93,7 +88,7 @@ const defaultState = {
 };
 class CatalogSearch extends React.Component {
   locationSearch = this.props.location.search;
-  state = {...defaultState, showAdditionalFilters: false };
+  state = { ...defaultState, showAdditionalFilters: false };
 
   componentDidMount = () => {
     this.RefreshByQuerystring();
@@ -184,7 +179,7 @@ class CatalogSearch extends React.Component {
   );
 
   render = () => {
-    const { classes, submissionOptions, intro } = this.props;
+    const { classes, submissionOptions } = this.props;
     const {
       keywords,
       hasDepth,
@@ -199,20 +194,10 @@ class CatalogSearch extends React.Component {
       region,
     } = this.state;
 
-    const onExit = () => {
-      intro.stepsEnabled = false;
-      this.props.catalogTourEnd();
-    };
-
     return (
       <>
-        <Steps
-          enabled={intro.stepsEnabled}
-          steps={intro.steps}
-          initialStep={intro.initialStep}
-          onExit={onExit}
-        />
-        <Hints enabled={intro.hintsEnabled} hints={intro.hints} />
+        <Intro pageName={CATALOG_PAGE} config={catalogIntroData} />
+        <Hints enabled={catalogIntroData.hintsEnabled} hints={catalogIntroData.hints} />
 
         <Paper elevation={4} className={classes.searchPaper}>
           <Grid container justify="center" alignItems="center">
@@ -448,6 +433,6 @@ class CatalogSearch extends React.Component {
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(
+export default connect(mapStateToProps)(
   withStyles(styles)(withRouter(CatalogSearch))
 );
