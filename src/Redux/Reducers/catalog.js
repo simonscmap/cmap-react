@@ -83,10 +83,6 @@ export default function (state, action) {
       return { ...state, cart: {} };
     case catalogActionTypes.CART_ADD_MULTIPLE:
       return { ...state, cart: { ...state.cart, ...action.payload.items } };
-
-    case catalogActionTypes.CATALOG_TOUR_END:
-      return { ...state, catalogTourEnd: true };
-
     default:
       return state;
   }
