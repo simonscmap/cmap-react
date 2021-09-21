@@ -7,7 +7,7 @@ import { withStyles } from '@material-ui/core/styles';
 
 import { TextField, Grid, Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, Slider } from '@material-ui/core';
 
-import HelpButtonAndDialog from '../UI/HelpButtonAndDialog';
+import HelpButtonAndDialog from '../Help/HelpButtonAndDialog';
 import DownloadingDataHelpContents from './DownloadingDataHelpContents';
 
 import { csvDownloadRequestSend } from '../../Redux/actions/visualization';
@@ -113,11 +113,11 @@ class DownloadDialog extends Component {
 
         this.state = {
             lat: [
-                Math.floor(this.props.dataset.Lat_Min * 10) / 10, 
+                Math.floor(this.props.dataset.Lat_Min * 10) / 10,
                 Math.ceil(this.props.dataset.Lat_Max * 10) / 10
             ],
             lon: [
-                Math.floor(this.props.dataset.Lon_Min * 10) / 10, 
+                Math.floor(this.props.dataset.Lon_Min * 10) / 10,
                 Math.ceil(this.props.dataset.Lon_Max * 10) / 10
             ],
             time: this.props.dataset.Time_Min ? [
@@ -126,7 +126,7 @@ class DownloadDialog extends Component {
             ]
                 : [1, 12],
             depth: [
-                Math.floor(this.props.dataset.Depth_Min), 
+                Math.floor(this.props.dataset.Depth_Min),
                 Math.ceil(this.props.dataset.Depth_Max)
             ],
             maxDays
@@ -183,14 +183,14 @@ class DownloadDialog extends Component {
 
     render() {
         const { dataset, dialogOpen, handleClose, classes } = this.props;
-        const { 
-            Lat_Min, 
-            Lat_Max, 
-            Lon_Min, 
-            Lon_Max, 
-            Time_Min, 
-            Time_Max, 
-            Depth_Min, 
+        const {
+            Lat_Min,
+            Lat_Max,
+            Lon_Min,
+            Lon_Max,
+            Time_Min,
+            Time_Max,
+            Depth_Min,
             Depth_Max,
             Spatial_Resolution,
             Temporal_Resolution,
@@ -223,8 +223,8 @@ class DownloadDialog extends Component {
             var subsetDepth1 = depth[0]
 
             var subsetDepth2 = depth[1];
-        }    
-            
+        }
+
         const variableColumns = dataset.Variables && dataset.Variables.length;
         const depthColumns = dataset.Depth_Max ? 1 : 0;
         const fixedColumns = 3;
@@ -281,38 +281,38 @@ class DownloadDialog extends Component {
                     PaperProps={{
                         className:classes.dialogPaper
                     }}
-                    open={dialogOpen} 
-                    onClose={handleClose} 
+                    open={dialogOpen}
+                    onClose={handleClose}
                     maxWidth={false}
                 >
                     {/* <IconButton className={classes.closeDialogIcon} color="inherit" onClick={handleClose} disableFocusRipple disableRipple>
                         <Close/>
                     </IconButton> */}
-                    <DialogTitle>Downloading {dataset.Long_Name} 
+                    <DialogTitle>Downloading {dataset.Long_Name}
                         <HelpButtonAndDialog
                             title='Downloading Data'
                             content={<DownloadingDataHelpContents/>}
                             buttonClass={classes.helpButton}
                         />
                     </DialogTitle>
-                    
+
                     <DialogContent style={{padding: '0px 40px'}} classes={{root: classes.dialogRoot}}>
                         <Typography>
-                            {fullDataAvailable ? 
+                            {fullDataAvailable ?
                                 `The full dataset is available for download.` :
                                 `The full dataset is too large for download.`
                             }
                         </Typography>
                         <Typography>
-                            {subsetAvailable ? 
+                            {subsetAvailable ?
                                 'The subset described below is available for download.' :
                                 `The subset described below contains approximately ${subsetDataPoints} data points. Maximum download size is 20000000. Please reduce the range of one or more parameters.`
                             }
                         </Typography>
 
                         {
-                            datasetIsMonthlyClimatology ? 
-                            
+                            datasetIsMonthlyClimatology ?
+
                             <>
                             <Grid container className={classes.formGrid}>
                                     <Grid item xs={12} md={4}>
@@ -655,7 +655,7 @@ class DownloadDialog extends Component {
                             </>
                             : ''
                         }
-                        
+
                     </DialogContent>
 
                     <DialogActions style={{marginTop: '8px'}}>
@@ -666,16 +666,16 @@ class DownloadDialog extends Component {
                         {subsetAvailable &&
                             <Button onClick={() => this.handleSubsetDownload(Table_Name, timeString1, timeString2, subsetLat1, subsetLat2, subsetLon1, subsetLon2, subsetDepth1, subsetDepth2)}>
                                 Download Subset
-                            </Button>                            
+                            </Button>
                         }
 
-                        {fullDataAvailable && 
+                        {fullDataAvailable &&
                             <Button onClick={() => this.handleFullDatasetDownload(Table_Name)}>
                                 Download Full Dataset
                             </Button>
                         }
                     </DialogActions>
-                </Dialog> 
+                </Dialog>
             </React.Fragment>
         )
     }

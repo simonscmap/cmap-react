@@ -30,7 +30,7 @@ import metaTags from '../../enums/metaTags';
 import ModuleSelector from './ModuleSelector';
 import CruiseSelector from './CruiseSelector';
 
-import Help from '../UI/Help';
+import Help from '../Help/Help';
 
 const mapVizType = (vizType) => {
     const mapping = {
@@ -151,7 +151,7 @@ class Visualization extends Component {
         showCruiseControl: false,
         spParams: baseSPParams
     }
-    
+
     async componentDidMount(){
         document.title = metaTags.visualization.title;
         document.description = metaTags.visualization.description;
@@ -178,8 +178,8 @@ class Visualization extends Component {
             accumulator[currentValue] = loadedModules[currentIndex];
             return accumulator;
         }, {});
-        
-        this.setState({...this.state, esriModules});        
+
+        this.setState({...this.state, esriModules});
     }
 
     componentWillUnmount = () => {
@@ -200,7 +200,7 @@ class Visualization extends Component {
 
     handleLatLonChange = (event) => {
         this.setState({
-            ...this.state, 
+            ...this.state,
             spParams: {...this.state.spParams, [event.target.name]: event.target.value},
         })
     }
@@ -244,7 +244,7 @@ class Visualization extends Component {
             subType: mapping.subType,
             metadata: this.state.spParams.fields && this.state.spParams.fields.data
         }
-    
+
         this.props.storedProcedureRequestSend(payload);
     }
 
@@ -263,10 +263,10 @@ class Visualization extends Component {
             let dt1 = fields.data.Temporal_Resolution === temporalResolutions.monthlyClimatology ?
                 this.state.spParams.dt1 : utcDateStringToLocal(fields.data.Time_Min);
             let dt2 = fields.data.Temporal_Resolution === temporalResolutions.monthlyClimatology ?
-                this.state.spParams.dt2 : 
+                this.state.spParams.dt2 :
                 irregularSpatialResolution ? sparseMaxDate :
                 utcDateStringToLocal(fields.data.Time_Min);
-            
+
             let latMin = Math.floor(fields.data.Lat_Min * 1000) /1000;
             let latMax = Math.ceil(fields.data.Lat_Max * 1000) /1000;
             let lonMin = Math.floor(fields.data.Lon_Min * 1000) /1000;
@@ -276,14 +276,14 @@ class Visualization extends Component {
             let lat2 = irregularSpatialResolution ? latMax : this.state.spParams.lat2;
             let lon1 = irregularSpatialResolution ? lonMin : this.state.spParams.lon1;
             let lon2 = irregularSpatialResolution ? lonMax : this.state.spParams.lon2;
-            let depth1 = irregularSpatialResolution ? fields.data.Depth_Min || 0 : 
+            let depth1 = irregularSpatialResolution ? fields.data.Depth_Min || 0 :
                 depthUtils.piscesTable.has(fields.data.Table_Name) ? 0 :
-                depthUtils.darwinTable.has(fields.data.Table_Name) ? 0 : 
+                depthUtils.darwinTable.has(fields.data.Table_Name) ? 0 :
                 this.state.spParams.depth1;
 
-            let depth2 = irregularSpatialResolution ? fields.data.Depth_Max || 0 : 
+            let depth2 = irregularSpatialResolution ? fields.data.Depth_Max || 0 :
                 depthUtils.piscesTable.has(fields.data.Table_Name) ? ((depthUtils.piscesDepths[0] + depthUtils.piscesDepths[1]) / 2).toFixed(2) :
-                depthUtils.darwinTable.has(fields.data.Table_Name) ? ((depthUtils.darwinDepths[0] + depthUtils.darwinDepths[1]) / 2) : 
+                depthUtils.darwinTable.has(fields.data.Table_Name) ? ((depthUtils.darwinDepths[0] + depthUtils.darwinDepths[1]) / 2) :
                 this.state.spParams.depth2;
 
             if(irregularSpatialResolution){
@@ -293,15 +293,15 @@ class Visualization extends Component {
                 }, {
                     maxDuration: 2500,
                     speedFactor: .5
-                }); 
+                });
             }
 
             let tableName = fields.data.Table_Name;
-            
+
             this.setState({...this.state,
                 surfaceOnly,
                 irregularSpatialResolution,
-                spParams: {...this.state.spParams, 
+                spParams: {...this.state.spParams,
                     fields,
                     dt1,
                     dt2,
@@ -383,9 +383,9 @@ class Visualization extends Component {
                     </div>
                 }
 
-                <Switch>          
+                <Switch>
                     <Route exact path='/visualization' component={ModuleSelector} />
-                    <Route 
+                    <Route
                         path='/visualization/charts'
                         render={(props) => (
                             <VizControlPanel
@@ -394,8 +394,8 @@ class Visualization extends Component {
                             toggleShowUI={this.toggleShowUI}
                             handleChange={this.handleChange}
                             handleLatLonChange={this.handleLatLonChange}
-                            handleStartDateChange={this.handleStartDateChange} 
-                            handleEndDateChange={this.handleEndDateChange} 
+                            handleStartDateChange={this.handleStartDateChange}
+                            handleEndDateChange={this.handleEndDateChange}
                             showUI={this.state.showUI}
                             onVisualize={this.onVisualize}
                             updateFields={this.updateFields}
@@ -416,35 +416,35 @@ class Visualization extends Component {
                         )}
                     // }
                     />
-                    <Route 
+                    <Route
                         path='/visualization/cruises'
                         render={(props) => (
                             <CruiseSelector handleShowGlobe={() => this.handlePlotsSetActiveTab(null, 0)}/>
                         )}
                     />
-                </Switch>              
+                </Switch>
 
                 <div className={this.props.plotsActiveTab === 0 ? classes.displayNone : classes.showCharts}>
                     <Charts/>
                 </div>
-                
+
                 {
                     this.props.location.pathname === "/visualization/cruises" ?
-                    <Help 
-                    videoLink={"https://player.vimeo.com/video/597414874"} 
-                    apiLink={null} 
-                    pythonLink={"https://cmap.readthedocs.io/en/latest/user_guide/API_ref/pycmap_api/data_vizualization/pycmap_cruise_track.html#cruisetrackplot"} 
-                    rLink={null} 
-                    matlabLink={null} 
+                    <Help
+                    videoLink={"https://player.vimeo.com/video/597414874"}
+                    apiLink={null}
+                    pythonLink={"https://cmap.readthedocs.io/en/latest/user_guide/API_ref/pycmap_api/data_vizualization/pycmap_cruise_track.html#cruisetrackplot"}
+                    rLink={null}
+                    matlabLink={null}
                     juliaLink={null}
                     />
                     :
-                    <Help 
-                    videoLink={"https://player.vimeo.com/video/597414874"} 
-                    apiLink={null} 
-                    pythonLink={"https://cmap.readthedocs.io/en/latest/user_guide/API_ref/pycmap_api/pycmap_data_vizualization.html#dataviz"} 
-                    rLink={"https://simonscmap.github.io/cmap4r/visualization.html"} 
-                    matlabLink={null} 
+                    <Help
+                    videoLink={"https://player.vimeo.com/video/597414874"}
+                    apiLink={null}
+                    pythonLink={"https://cmap.readthedocs.io/en/latest/user_guide/API_ref/pycmap_api/pycmap_data_vizualization.html#dataviz"}
+                    rLink={"https://simonscmap.github.io/cmap4r/visualization.html"}
+                    matlabLink={null}
                     juliaLink={null}
                     />
                 }

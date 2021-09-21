@@ -15,7 +15,7 @@ import { cartPersistClear } from '../../Redux/actions/user';
 import colors from '../../enums/colors';
 import z from '../../enums/zIndex';
 
-import HelpButtonAndDialog from './HelpButtonAndDialog';
+import HelpButtonAndDialog from '../Help/HelpButtonAndDialog';
 import CartHelpContents from './CartHelpContents';
 
 const mapStateToProps = (state, ownProps) => ({
@@ -69,7 +69,7 @@ const Cart = (props) => {
         props.cartClear();
         props.cartPersistClear();
     }
-    
+
     return (
         <React.Fragment>
             <Dialog
@@ -79,13 +79,13 @@ const Cart = (props) => {
                 classes={{
                     root: classes.dialogRoot
                 }}
-                open={props.showCart} 
-                onClose={() => props.setShowCart(false)} 
+                open={props.showCart}
+                onClose={() => props.setShowCart(false)}
                 maxWidth={false}
                 disableScrollLock
             >
                 <DialogTitle>
-                    Favorites 
+                    Favorites
                     <HelpButtonAndDialog
                         title='Favorites'
                         content={<CartHelpContents/>}
@@ -96,7 +96,7 @@ const Cart = (props) => {
 
                 <DialogContent>
                     {   cartItems && cartItems.length ?
-                        <>  
+                        <>
                             {
                                 cartItems.map((e, i) => (
                                 <SearchResult key={i} dataset={e}/>
@@ -113,7 +113,7 @@ const Cart = (props) => {
                                 >
                                     Clear Favorites
                                 </Button>
-                            </DialogActions>                      
+                            </DialogActions>
 
                         </>
 

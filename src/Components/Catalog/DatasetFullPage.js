@@ -19,7 +19,7 @@ import DownloadDialog from './DownloadDialog';
 import { datasetFullPageDataFetch, datasetFullPageDataStore } from '../../Redux/actions/catalog';
 
 import states from '../../enums/asyncRequestStates';
-import HelpButtonAndDialog from '../UI/HelpButtonAndDialog';
+import HelpButtonAndDialog from '../Help/HelpButtonAndDialog';
 
 import colors from '../../enums/colors';
 import metaTags from '../../enums/metaTags';
@@ -58,7 +58,7 @@ const styles = (theme) => ({
     sectionHeader: {
         margin: '16px 0 2px 0',
         fontWeight: 100,
-        fontFamily: '"roboto", Serif', 
+        fontFamily: '"roboto", Serif',
     },
 
     divider: {
@@ -102,7 +102,7 @@ const styles = (theme) => ({
             fontFamily: '"Lato",sans-serif',
             fontWeight: 400,
             lineHeight: 1.5,
-            
+
         }
     },
 
@@ -144,7 +144,7 @@ const styles = (theme) => ({
 const DatasetFullPage = (props) => {
     const { classes, datasetFullPageDataFetch, datasetFullPageDataStore, datasetFullPageData, datasetFullPageDataLoadingState } = props;
 
-    const { 
+    const {
         Variables,
         Acknowledgement,
         Data_Source,
@@ -169,22 +169,22 @@ const DatasetFullPage = (props) => {
         Sensors,
         Cruises
     } = datasetFullPageData;
-    
+
     const loading = datasetFullPageDataLoadingState === states.inProgress;
 
     const [ downloadDialogOpen, setDownloadDialogOpen ] = React.useState(false);
 
     const httpRegx = /\b(https?:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|]|ftp:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|])/g;
     const urlify = (text) => (
-        reactStringReplace(text, 
-            httpRegx, 
+        reactStringReplace(text,
+            httpRegx,
             (match, i) => (
                 <Link key={i} href={match} target='_blank' style={{color: colors.primary}}>{match}</Link>
                 )
         )
     );
-    
-    
+
+
     useEffect(() => {
         datasetFullPageDataFetch(props.match.params.dataset);
 
@@ -209,24 +209,24 @@ const DatasetFullPage = (props) => {
         XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(fullPageData.summaryStatisticsRows), 'Variable Summary Statistics');
         XLSX.writeFile(workbook, `${Short_Name}_Metadata'.xlsx`);
     }
-    
+
     return (
         <Grid container className={classes.outerContainer}>
-            {downloadDialogOpen ? 
-            
+            {downloadDialogOpen ?
+
             <DownloadDialog
                 dialogOpen={downloadDialogOpen}
                 dataset={datasetFullPageData}
                 handleClose={() => setDownloadDialogOpen(false)}
-            />       
+            />
             : ''}
-            
+
             <Grid item xs={12}>
                 <Paper className={classes.guideSection} elevation={4}>
                     <SkeletonWrapper loading={loading}>
                         <Typography variant={'h4'} className={classes.pageHeader} style={{color: 'white'}}>
-                            {Long_Name}                    
-                        </Typography>                        
+                            {Long_Name}
+                        </Typography>
 
                         <ReactMarkdown source={Description} className={classes.markdown}/>
 
@@ -249,7 +249,7 @@ const DatasetFullPage = (props) => {
                                     <TableCell>
                                         {Sensors ? Sensors.join(', ') : ''}
                                     </TableCell>
-                                </TableRow>                                
+                                </TableRow>
 
                                 <TableRow className={classes.sampleTableRow}>
                                     <TableCell className={classes.tableHead}>
@@ -366,7 +366,7 @@ const DatasetFullPage = (props) => {
                                     <TableCell>
                                         {Depth_Max ? Depth_Max + 'm' : 'Surface Only'}
                                     </TableCell>
-                                </TableRow>                                
+                                </TableRow>
                             </TableBody>
                         </Table>
                         <Typography variant='caption' style={{margin: '4px 0 14px 4px', display: 'inline-block', color: 'white'}}>
@@ -382,7 +382,7 @@ const DatasetFullPage = (props) => {
                         }
 
                         {(Data_Source) || loading ?
-                        
+
                         <React.Fragment>
                                 <Typography variant='h5' className={classes.sectionHeader} style={{color: 'white'}}>
                                     Data Source
@@ -394,7 +394,7 @@ const DatasetFullPage = (props) => {
                         </React.Fragment>
 
                         : ''
-                        }                                         
+                        }
 
                         {
                             Distributor || loading ?
@@ -414,24 +414,24 @@ const DatasetFullPage = (props) => {
                         }
 
                         {Acknowledgement || loading ?
-                        
+
                             <React.Fragment>
                                     <Typography variant='h5' className={classes.sectionHeader} style={{color: 'white'}}>
                                         Acknowledgement
                                     </Typography>
 
-                                    <Typography className={classes.smallText} style={{color: 'white'}}>                                        
+                                    <Typography className={classes.smallText} style={{color: 'white'}}>
                                     {urlify(Acknowledgement)}
-                         
+
                                     </Typography>
                                 </React.Fragment>
 
 
-                                : ''                        
+                                : ''
                         }
 
                         {(References && References.length) || loading ?
-                        
+
                             <React.Fragment>
                                     <Typography variant='h5' className={classes.sectionHeader} style={{color: 'white'}}>
                                         References
@@ -443,8 +443,8 @@ const DatasetFullPage = (props) => {
                                                 {urlify(reference)}
                                             </Typography>
                                         ))
-                                                                              
-                                        : ''}                            
+
+                                        : ''}
                             </React.Fragment>
 
                             : ''
@@ -459,8 +459,8 @@ const DatasetFullPage = (props) => {
 
                                     {
                                         Cruises.map((e) => (
-                                            <Link 
-                                                component={RouterLink} 
+                                            <Link
+                                                component={RouterLink}
                                                 to={`/catalog/cruises/${e.Name}`}
                                                 key={e.Name}
                                                 className={classes.cruiseLink}
@@ -469,8 +469,8 @@ const DatasetFullPage = (props) => {
                                             </Link>
                                         ))
                                     }
-                                </>                                   
-                            
+                                </>
+
                             : ''
                             )
                         }
@@ -499,7 +499,7 @@ const DatasetFullPage = (props) => {
                             iconClass={classes.helpIcon}
                             buttonClass={classes.helpButton}
                         />
-                        
+
                         <Link
                             component='button'
                             onClick={() => setDownloadDialogOpen(true)}
@@ -511,7 +511,7 @@ const DatasetFullPage = (props) => {
                         <CartAddOrRemove dataset={datasetFullPageData} cartButtonClass={classes.cartButtonClass}/>
 
                     {!loading && datasetFullPageData && Object.keys(datasetFullPageData).length ? <DatasetJSONLD {...datasetFullPageData}/> : ''}
-                    </SkeletonWrapper>              
+                    </SkeletonWrapper>
                 </Paper>
             </Grid>
         </Grid>

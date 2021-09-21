@@ -5,14 +5,13 @@ import VideocamIcon from "@material-ui/icons/Videocam";
 import SpeedDial from "@material-ui/lab/SpeedDial";
 import SpeedDialAction from "@material-ui/lab/SpeedDialAction";
 import SpeedDialIcon from "@material-ui/lab/SpeedDialIcon";
-import React from "react";
+import React, { useEffect } from "react";
 import { AiFillApi } from "react-icons/ai";
 import { ImLifebuoy } from "react-icons/im";
 import { ReactComponent as Julia } from "../../assets/icons/julia-language-icon.svg";
 import { ReactComponent as Matlab } from "../../assets/icons/matlab.svg";
 import { ReactComponent as Python } from "../../assets/icons/python.svg";
 import { ReactComponent as Rlang } from "../../assets/icons/Rlogo.svg";
-import { connect } from 'react-redux';
 
 const useStyles = makeStyles((theme) => ({
   speedDial: {
@@ -30,13 +29,15 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const mapStateToProps = (state) => ({
-  catalogTourEnd: state.catalogTourEnd
-})
-
 function Help(props) {
   const classes = useStyles();
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setOpen(false);
+    }, 3000);
+  });
 
   const handleClose = () => {
     setOpen(false);
@@ -85,7 +86,7 @@ function Help(props) {
   ];
 
   return (
-    <Slide direction="up" in={props.catalogTourEnd} mountOnEnter>
+    <Slide direction="up" in={props.showHelp} mountOnEnter>
       <Tooltip title="Help" aria-label="help" placement="left-end">
         <SpeedDial
           ariaLabel="help"
@@ -124,4 +125,4 @@ function Help(props) {
   );
 }
 
-export default connect(mapStateToProps)(Help);
+export default Help;

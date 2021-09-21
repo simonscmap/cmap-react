@@ -18,7 +18,7 @@ import { searchResultsFetch, searchResultsSetLoadingState } from '../../Redux/ac
 
 import states from '../../enums/asyncRequestStates';
 
-import HelpButtonAndDialog from '../UI/HelpButtonAndDialog';
+import HelpButtonAndDialog from '../Help/HelpButtonAndDialog';
 
 const mapStateToProps = (state) => ({
     searchResults: state.searchResults,
@@ -50,7 +50,7 @@ const styles = (theme) => ({
             padding: '12px 4px 20px 4px',
             width: '90vw',
         },
-    },   
+    },
 
     downloadWrapper: {
         fontSize: '1rem',
@@ -121,7 +121,7 @@ const SearchResults = (props) => {
         let csv = stringify(searchResults, {
             header: true
         });
-    
+
         const blob = new Blob([csv], {type: 'text/csv'});
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -141,7 +141,7 @@ const SearchResults = (props) => {
                 <div style={{display: 'flex', justifyContent: 'space-between'}}>
                     <SearchResultStatusIndicator/>
 
-                    {   
+                    {
                         searchResults && searchResults.length ?
                         <div style={{display: 'flex', justifyContent: 'space-between', paddingRight: '8px'}}>
                             <Typography className={classes.downloadWrapper} onClick={() => handleDownloadSearchResults()}>
@@ -161,8 +161,8 @@ const SearchResults = (props) => {
                         </div>
 
                         : ''
-                    }               
-                    
+                    }
+
                 </div>
 
                 <FixedSizeList
@@ -172,10 +172,10 @@ const SearchResults = (props) => {
                     width='100%'
                     itemSize={222}
                 >
-                    {({ index, style }) => (                        
+                    {({ index, style }) => (
                         <div style={style}>
                             <SearchResult dataset={searchResults[index]}/>
-                        </div>                        
+                        </div>
                     )}
                 </FixedSizeList>
             </Paper>

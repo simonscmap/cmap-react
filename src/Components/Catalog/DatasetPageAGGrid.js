@@ -10,7 +10,7 @@ import { AgGridReact } from 'ag-grid-react';
 
 import ReactMarkdown from 'react-markdown';
 
-import HelpButtonAndDialog from '../UI/HelpButtonAndDialog';
+import HelpButtonAndDialog from '../Help/HelpButtonAndDialog';
 import VariableGridHelpContents from './VariableGridHelpContents';
 
 import colors from '../../enums/colors';
@@ -40,10 +40,10 @@ const CommentCellRenderer = withStyles(rendererStyles)((props) => {
 
     const [ open, setOpen ] = React.useState(false);
 
-    return !props.value || (props.value && props.value.length) < 20 ? 
+    return !props.value || (props.value && props.value.length) < 20 ?
     (
         props.value
-    ) 
+    )
 
     :
 
@@ -128,7 +128,7 @@ const DatasetPageAGGrid = React.memo((props) => {
 
     return (
         <div>
-            <TextField              
+            <TextField
                 className={classes.gridSearch}
                 margin="normal"
                 type="text"
