@@ -225,6 +225,7 @@ class CatalogSearch extends React.Component {
               <div id="catSearchOptions">
                 <MultiCheckboxDropdown
                   options={submissionOptions.Make}
+                  id={"make-control"}
                   selectedOptions={make}
                   handleClear={() => this.handleClearMultiSelect("make")}
                   parentStateKey={"make"}
