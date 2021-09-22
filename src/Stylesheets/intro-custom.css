@@ -1,4 +1,82 @@
+/*
+9dd162 highlight green
+1F4A63 panel background blue
+2E7398 page background default
+*/
+
+/* style the main tooltip box with background, border, and text color;
+   override max-width to accomodate lager (video) content */
+.introjs-tooltipReferenceLayer
 .introjs-tooltip {
-  /* override max-width to accomodate video content */
   max-width: none !important;
+  background: #1F4A63;
+  border: 1px solid #9dd162;
+  color: white;
+}
+
+/* make the content more compact */
+.introjs-tooltipReferenceLayer
+.introjs-tooltiptext {
+  padding: 0 .75em;
+}
+
+/* the 'Next' button */
+.introjs-tooltipReferenceLayer
+.introjs-button {
+  background-color: #21526c;
+  color: white;
+  border: 1px solid white;
+  text-shadow: none;
+}
+.introjs-tooltipReferenceLayer
+.introjs-button:hover {
+  border-color: #9dd162;
+  color: #9dd162;
+}
+.introjs-tooltipReferenceLayer
+.introjs-button:focus {
+  box-shadow: none;
+}
+/* this 'X' button lets you exit the intro sequence */
+.introjs-tooltipReferenceLayer
+.introjs-skipbutton {
+  color: white;
+}
+
+/* make the arrow green, like the rest of the border */
+.introjs-tooltipReferenceLayer
+.introjs-arrow.top {
+  border-bottom-color: #9dd162;
+}
+
+/* make the intro progress bullets green when active */
+.introjs-tooltipReferenceLayer
+.introjs-bullets ul li a.active {
+  background: #9dd162;
+}
+
+.introjs-tooltipReferenceLayer
+.introjs-tooltiptext p a{
+    color: #9dd162;
+}
+.introjs-tooltipReferenceLayer
+.introjs-tooltiptext p {
+    margin-top: 0;
+}
+
+.introjs-tooltipReferenceLayer
+.introjs-tooltiptext hr {
+  color: #9dd162;
+}
+
+/* align the bullets with the paragraph text */
+.introjs-tooltipReferenceLayer
+.introjs-tooltiptext ul {
+  padding-left: 1em;
+}
+
+.introjs-tooltipReferenceLayer.introjs-hintReference
+.introjs-tooltiptext
+.introjs-button {
+    margin-bottom: 1em;
 }
