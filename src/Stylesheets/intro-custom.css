@@ -80,3 +80,11 @@
 .introjs-button {
     margin-bottom: 1em;
 }
+
+/* style the custom content wrapper which holds longer content and video */
+.wide-hint-content {
+    overflow:auto;
+    padding:1em;
+    width:600px;
+    height:400px;
+}
