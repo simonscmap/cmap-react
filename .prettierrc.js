@@ -5,10 +5,10 @@ module.exports = {
   trailingComma: "all",
   tabWidth: 2,
   useTabs: false,
-  semi: false,
+  semi: true,
   singleQuote: true,
   quoteProps: "as-needed",
-  bracketSpace: true,
-  bracketLine: false,
+  bracketSpacing: true,
+  bracketSameLine: false,
   arrowParens: "always",
 };
