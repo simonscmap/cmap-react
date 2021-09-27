@@ -8,6 +8,7 @@ import Help from "../Help/Help";
 import metaTags from "../../enums/metaTags";
 import { CATALOG_PAGE } from "../../constants";
 import { connect } from "react-redux";
+import '../../Stylesheets/catalog.css'
 
 const styles = (theme) => ({
   wrapperDiv: {
@@ -50,7 +51,7 @@ const Catalog = ({ classes, showHelp }) => {
   });
 
   return (
-    <div className={classes.wrapperDiv}>
+    <div id={`${CATALOG_PAGE}-style-context`} className={classes.wrapperDiv}>
       <Grid container justify="center">
         <Grid item xs={12} md={4} className={classes.searchGrid}>
           <CatalogSearch />

@@ -16,6 +16,7 @@
     "ag-grid-enterprise": "20.2.0",
     "ag-grid-react": "20.2.0",
     "bowser": "^2.11.0",
+    "clsx": "^1.1.1",
     "colormap": "^2.3.1",
     "csv-parse": "^4.11.1",
     "csv-stringify": "^5.5.0",

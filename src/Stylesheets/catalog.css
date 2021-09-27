@@ -1,0 +1,9 @@
+/* Mui makeStlyes injected into the button itself will not
+ * override the root Mui styling for a Floating Action Button (Fab)
+ * the #catalog-style-context is the id of the wrapping div of the catalog page,
+ * which is calculated from the CATALOG_PAGE constant;
+ * hopefully this style selector can be calculated in the future */
+
+button.MuiFab-root:hover {
+    background-color: #000;
+}
