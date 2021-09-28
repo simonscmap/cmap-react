@@ -4,6 +4,7 @@
 
 let inMemory = () => {
   console.log("using inMemory fallback for localStorage");
+  // TODO
   return {
     setItem: () => {},
     getItem: () => {},
@@ -17,33 +18,21 @@ let localStorage =
 
 let local = {
   set: (k, v) => {
-    return localStorage.setItem(k, v);
+    let preparedValue = v;
+    if (typeof v === 'object') {
+      preparedValue = JSON.stringify(v);
+    }
+    return localStorage.setItem(k, preparedValue);
   },
   get: (k) => {
-    return localStorage.getItem(k);
+    let v = localStorage.getItem(k);
+    return v;
   },
   del: (k) => {
     return localStorage.delete(k);
   },
   clear: () => localStorage.clear(),
-
-  setObj: (k, ov) => {
-    if (typeof ov !== "object") {
-      return local.set(k, ov);
-    }
-    return localStorage.setItem(k, JSON.stringify(ov));
-  },
-  getObj: (k) => {
-    let result;
-    try {
-      result = JSON.parse(localStorage.getItem(k));
-    } catch (e) {
-      console.error("unable to parse item from local storage: " + k);
-      return undefined;
-    }
-    return result;
-  },
 };
 
 // export this service as a named function so that the service can differentiate and add cookie functionality as well
-export { local };
+export const localStorageApi = local;
