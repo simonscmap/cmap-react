@@ -8,17 +8,38 @@ import {
   VISUALIZATION_PAGE,
 } from "../../constants.js";
 
+// Intros
 let introsDefault = {
-  [CATALOG_PAGE]: true,
-  [VISUALIZATION_PAGE]: true,
+  [CATALOG_PAGE]: false,
+  [VISUALIZATION_PAGE]: false,
 };
 
+let introsLocal = local.get(LOCAL_STORAGE_KEY_INTRO_STATE);
+
+if (introsLocal) {
+  try {
+    introsLocal = JSON.parse(introsLocal);
+  } catch (e) {
+    console.log(`failed to parse local storage for intro state`, introsLocal);
+  }
+}
+
+export const localStorageIntroState = introsLocal || introsDefault;
+
+// Hints
 let hintsDefault = {
   [CATALOG_PAGE]: true,
   [VISUALIZATION_PAGE]: true,
 };
 
-export const localStorageIntroState =
-  local.get(LOCAL_STORAGE_KEY_INTRO_STATE) || introsDefault;
-export const localStorageHintState =
-  local.get(LOCAL_STORAGE_KEY_HINTS_STATE) || hintsDefault;
+let hintsLocal = local.get(LOCAL_STORAGE_KEY_HINTS_STATE);
+
+if (hintsLocal) {
+  try {
+    hintsLocal = JSON.parse(hintsLocal);
+  } catch (e) {
+    console.log(`failed to parse local storage for hints state`, hintsLocal);
+  }
+}
+
+export const localStorageHintState = hintsLocal || hintsDefault;

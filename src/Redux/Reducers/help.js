@@ -2,12 +2,12 @@ import { helpActionTypes } from "../actions/help.js";
 
 export default function (state, action) {
   switch (action.type) {
-    case helpActionTypes.DISABLE_INTRO:
+    case helpActionTypes.TOGGLE_INTRO:
       return {
         ...state,
         intros: {
           ...state.intros,
-          [action.payload]: false,
+          [action.payload]: !state.intros[action.payload],
         },
       };
     case helpActionTypes.TOGGLE_HINTS:

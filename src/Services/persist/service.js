@@ -40,10 +40,10 @@ const startPersistenceService = () => {
       if (localStoragePersistence[actionType][key]) {
         return localStoragePersistence[actionType][key];
       } else {
-        console.log(`entry does not exitst for "${actionType}.${key}"`);
+        // console.log(`entry does not exitst for "${actionType}.${key}"`);
       }
     } else {
-      console.log(`there are no entries for action "${actionType}"`);
+      // console.log(`there are no entries for action "${actionType}"`);
     }
     return undefined;
   };
