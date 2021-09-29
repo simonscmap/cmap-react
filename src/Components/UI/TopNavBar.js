@@ -19,6 +19,7 @@ import MobileNavbarMenu from './MobileNavbarMenu';
 import JSS from '../../Stylesheets/JSS';
 import VizNavbarDropdown from '../Visualization/VizNavbarDropdown';
 import z from '../../enums/zIndex';
+import HelpNavbarControls from '../Help/NavControls';
 
 const styles = (theme) => ({
   simonsLogo: {
@@ -131,8 +132,8 @@ class TopNavBar extends Component {
     const showRegister = Boolean(!user);
     const showGuest = Boolean(
       !user &&
-        userIsGuest &&
-        history.location.pathname.includes('visualization'),
+      userIsGuest &&
+      history.location.pathname.includes('visualization'),
     );
 
     let cartSize =
@@ -140,9 +141,8 @@ class TopNavBar extends Component {
 
     return (
       <div
-        className={`${classes.navWrapper} ${
-          !pathname.includes('/visualization') && classes.navWrapperBlue
-        }`}
+        className={`${classes.navWrapper} ${!pathname.includes('/visualization') && classes.navWrapperBlue
+          }`}
       >
         {this.state.layout === 'desktop' ? (
           <React.Fragment>
@@ -193,6 +193,14 @@ class TopNavBar extends Component {
             {/* Right side of navbar */}
             <div className={classes.rightSectionWrapper}>
               <div>
+                <Typography
+                  variation="caption"
+                  className={classes.navLink}
+                >
+                  <HelpNavbarControls />
+                </Typography>
+
+
                 {cartSize > 0 ? (
                   <Typography
                     variant="caption"
