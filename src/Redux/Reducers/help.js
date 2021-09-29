@@ -10,6 +10,14 @@ export default function (state, action) {
           [action.payload]: false,
         },
       };
+    case helpActionTypes.TOGGLE_HINTS:
+      return {
+        ...state,
+         hints: {
+          ...state.hints,
+          [action.payload]: !state.hints[action.payload],
+        },
+      }
     default:
       return state;
   }

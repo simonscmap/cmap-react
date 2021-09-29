@@ -1,6 +1,6 @@
 // Expandable list of checkboxes used in search components
 
-import React from "react";
+import React from 'react';
 
 import {
   withStyles,
@@ -9,44 +9,46 @@ import {
   Checkbox,
   Link,
   FormControlLabel,
-} from "@material-ui/core";
-import { ExpandMore, ChevronRight } from "@material-ui/icons";
+} from '@material-ui/core';
+import { ExpandMore, ChevronRight } from '@material-ui/icons';
+import { useDispatch } from 'react-redux';
+import { updateCatalogLayout } from '../../Redux/actions/catalog.js';
 
-import colors from "../../enums/colors";
+import colors from '../../enums/colors';
 
 const styles = (theme) => ({
   menuOpenIcon: {
     color: colors.primary,
-    margin: "0 8px 0 4px",
+    margin: '0 8px 0 4px',
   },
 
   formGroupWrapper: {
-    textAlign: "left",
-    paddingLeft: "20px",
+    textAlign: 'left',
+    paddingLeft: '20px',
   },
 
   multiSelectHeader: {
-    fontSize: "13px",
-    margin: "6px 0px 2px 0px",
+    fontSize: '13px',
+    margin: '6px 0px 2px 0px',
   },
 
   formControlLabelRoot: {
-    height: "30px",
+    height: '30px',
   },
 
   formControlLabelLabel: {
-    fontSize: "14px",
+    fontSize: '14px',
   },
 
   checkboxGroupHeader: {
-    "&:hover": {
+    '&:hover': {
       backgroundColor: colors.greenHover,
     },
 
-    cursor: "pointer",
-    height: "38px",
-    boxShadow: "0px 0px 0px 1px #242424",
-    marginTop: "8px",
+    cursor: 'pointer',
+    height: '38px',
+    boxShadow: '0px 0px 0px 1px #242424',
+    marginTop: '8px',
   },
 });
 
@@ -63,7 +65,18 @@ const MultiCheckboxDrowndown = (props) => {
     groupHeaderLabel,
   } = props;
 
-  const [open, setOpen] = React.useState(false);
+  const dispatch = useDispatch();
+
+  const [open, setOpenState] = React.useState(false);
+  const toggleOpenState = () => {
+    // toggle local state; a future implementation could rely on redux state
+    setOpenState(!open);
+    // update the catalog page's "layout nonce", wich is just a random number
+    // which let's us detect when to refresh the location of the intro.js hints
+    // since the layout may have changed;
+    // Note: this would work well as an observable pattern
+    dispatch(updateCatalogLayout());
+  };
 
   return (
     <>
@@ -73,8 +86,8 @@ const MultiCheckboxDrowndown = (props) => {
         container
         alignItems="center"
         className={classes.checkboxGroupHeader}
-        id={id || "no-id"}
-        onClick={() => setOpen(!open)}
+        id={id || 'no-id'}
+        onClick={() => toggleOpenState()}
       >
         {open ? (
           <ExpandMore className={classes.menuOpenIcon} />
@@ -94,15 +107,15 @@ const MultiCheckboxDrowndown = (props) => {
               justify="flex-start"
               className={classes.multiSelectHeader}
             >
-              <span style={{ marginRight: "8px" }}>
-                {selectedOptions.size} Selected{" "}
+              <span style={{ marginRight: '8px' }}>
+                {selectedOptions.size} Selected{' '}
               </span>
               <Link component="button" onClick={handleClear}>
                 Reset
               </Link>
             </Grid>
           ) : (
-            ""
+            ''
           )}
 
           <FormGroup>
@@ -115,7 +128,7 @@ const MultiCheckboxDrowndown = (props) => {
                       onChange={handleClickCheckbox}
                       className={classes.checkbox}
                       size="small"
-                      name={parentStateKey + "!!" + e}
+                      name={parentStateKey + '!!' + e}
                       checked={selectedOptions.has(e)}
                     />
                   }
@@ -130,7 +143,7 @@ const MultiCheckboxDrowndown = (props) => {
           </FormGroup>
         </Grid>
       ) : (
-        ""
+        ''
       )}
     </>
   );

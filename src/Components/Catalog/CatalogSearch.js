@@ -1,10 +1,10 @@
 // In order to have addressable searches, this component modifies the location querystring in response
 // to user interaction. The search results component reads the query string and calls the API to search
 
-import React from "react";
-import { connect } from "react-redux";
-import { withRouter } from "react-router";
-import { withStyles } from "@material-ui/core";
+import React from 'react';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router';
+import { withStyles } from '@material-ui/core';
 import {
   Link,
   Typography,
@@ -17,66 +17,64 @@ import {
   Paper,
   Button,
   Grid,
-} from "@material-ui/core";
-import { catalogIntro as catalogIntroData } from "./CatalogIntro";
-import { Search } from "@material-ui/icons";
-import { debounce } from "throttle-debounce";
-import MultiCheckboxDropdown from "../UI/MultiCheckboxDropdown";
-import queryString from "query-string";
-import colors from "../../enums/colors";
+} from '@material-ui/core';
+import catalogIntro from './help/intro';
+import catalogHints from './help/hints';
+import { Search } from '@material-ui/icons';
+import { debounce } from 'throttle-debounce';
+import MultiCheckboxDropdown from '../UI/MultiCheckboxDropdown';
+import queryString from 'query-string';
+import colors from '../../enums/colors';
 import { CATALOG_PAGE } from '../../constants';
 import { Hints } from 'intro.js-react';
 import Intro from '../Help/Intro';
 
 const mapStateToProps = (state) => {
-  let { submissionOptions } = state;
+  let { submissionOptions, catalogLayoutNonce, hints } = state;
   return {
     submissionOptions,
-  }
+    layoutNonce: catalogLayoutNonce,
+    hints,
+  };
 };
 
 const styles = (theme) => ({
   searchPaper: {
-    padding: "14px 20px",
-    maxHeight: "calc(100vh - 200px)",
-    overflow: "auto",
+    padding: '14px 20px',
+    maxHeight: 'calc(100vh - 200px)',
+    overflow: 'auto',
   },
-
   resetButton: {
-    textTransform: "none",
-    width: "160px",
-    height: "37px",
+    textTransform: 'none',
+    width: '160px',
+    height: '37px',
     color: theme.palette.primary.main,
     borderColor: theme.palette.primary.main,
-    marginTop: "12px",
+    marginTop: '12px',
   },
-
   searchPanelRow: {
-    marginTop: "10px",
+    marginTop: '10px',
   },
-
   formControl: {
-    width: "90%",
-    marginBottom: "6px",
+    width: '90%',
+    marginBottom: '6px',
   },
-
   searchSectionHeader: {
     color: theme.palette.primary.main,
-    textAlign: "left",
-    marginBottom: "8px",
+    textAlign: 'left',
+    marginBottom: '8px',
   },
-
   showAdditionalFiltersWrapper: {
-    textAlign: "left",
-    marginTop: "12px",
-    width: "100%",
+    textAlign: 'left',
+    marginTop: '12px',
+    width: '100%',
   },
 });
 
 const defaultState = {
-  keywords: "",
-  hasDepth: "any",
-  timeStart: "1900-01-01",
+  keywords: '',
+  hasDepth: 'any',
+  timeStart: '1900-01-01',
   timeEnd: new Date().toISOString().slice(0, 10),
   latStart: -90,
   latEnd: 90,
@@ -88,7 +86,11 @@ const defaultState = {
 };
 class CatalogSearch extends React.Component {
   locationSearch = this.props.location.search;
-  state = { ...defaultState, showAdditionalFilters: false };
+
+  constructor(props) {
+    super(props);
+    this.state = { ...defaultState, showAdditionalFilters: false };
+  }
 
   componentDidMount = () => {
     this.RefreshByQuerystring();
@@ -104,9 +106,10 @@ class CatalogSearch extends React.Component {
   RefreshByQuerystring = () => {
     if (this.props.location.search) {
       let params = queryString.parse(this.props.location.search);
-      ["region", "sensor", "make"].forEach(
+
+      ['region', 'sensor', 'make'].forEach(
         (s) =>
-          (params[s] = typeof params[s] === "string" ? [params[s]] : params[s])
+          (params[s] = typeof params[s] === 'string' ? [params[s]] : params[s]),
       );
       let newState = {
         ...params,
@@ -114,17 +117,18 @@ class CatalogSearch extends React.Component {
         region: new Set(params.region || []),
         make: new Set(params.make || []),
         keywords:
-          typeof params.keywords === "string"
+          typeof params.keywords === 'string'
             ? params.keywords
-            : params.keywords.join(" "),
+            : params.keywords.join(' '),
       };
-      this.setState({ ...this.state, ...newState });
-    } else this.setState({ ...this.state, ...defaultState });
+      this.setState({ ...newState });
+    } else {
+      this.setState({ ...defaultState });
+    }
   };
 
   handleToggleshowAdditionalFilters = () => {
     this.setState({
-      ...this.state,
       showAdditionalFilters: !this.state.showAdditionalFilters,
     });
   };
@@ -138,7 +142,7 @@ class CatalogSearch extends React.Component {
     this.setState(newState);
 
     let qstring = queryString.stringify({
-      keywords: newState.keywords.split(" "),
+      keywords: newState.keywords.split(' '),
       hasDepth: newState.hasDepth,
       timeStart: newState.timeStart,
       timeEnd: newState.timeEnd,
@@ -155,17 +159,22 @@ class CatalogSearch extends React.Component {
   };
 
   handleClickCheckbox = (e, checked) => {
-    let [column, value] = e.target.name.split("!!");
+    let [column, value] = e.target.name.split('!!');
     let newSet = new Set(this.state[column]);
 
-    checked ? newSet.add(value) : newSet.delete(value);
+    if (checked) {
+      newSet.add(value);
+    } else {
+      newSet.delete(value);
+    }
 
     this.handleChangeSearchValue({ target: { name: column, value: newSet } });
   };
 
   handleResetSearch = () => {
-    this.setState({ ...this.state, ...defaultState });
-    this.props.history.push("/catalog");
+    // TODO: unclear what the side effect may be for not including props
+    this.setState({ ...defaultState });
+    this.props.history.push('/catalog');
   };
 
   handleClearMultiSelect = (statePiece) => {
@@ -174,9 +183,28 @@ class CatalogSearch extends React.Component {
     });
   };
 
-  pushHistory = debounce(1500, (qstring) =>
-    this.props.history.push("/catalog?" + qstring)
-  );
+  pushHistory = debounce(1500, (qstring) => {
+    this.props.history.push('/catalog?' + qstring);
+  });
+
+  /* refreshHints usese the intro.js api, which is only available via the ref,
+   * to reposition the hint "beacons"; this is necessary when the layout may
+   * have changed, a is the beacons are positioned absolutely */
+  refreshHints = (hintsRef, currentNonce) => {
+    // hintsRef returns null every other render
+    if (hintsRef && this.state.previousNonce !== currentNonce) {
+      // refresh hints location
+
+      // TODO: this call into the refresh API seems to race against a rerender
+      // of the tooltipLayer, causing a null pointer exception
+      // hintsRef.introJs.refresh();
+
+      // udpate component state with new nonce
+      this.setState({
+        previousNonce: currentNonce,
+      });
+    }
+  };
 
   render = () => {
     const { classes, submissionOptions } = this.props;
@@ -196,8 +224,14 @@ class CatalogSearch extends React.Component {
 
     return (
       <>
-        <Intro pageName={CATALOG_PAGE} config={catalogIntroData} />
-        <Hints enabled={catalogIntroData.hintsEnabled} hints={catalogIntroData.hints} />
+        <Intro pageName={CATALOG_PAGE} config={catalogIntro} />
+        <Hints
+          ref={(hintsRef) => {
+            this.refreshHints(hintsRef, this.props.layoutNonce);
+          }}
+          enabled={this.props.hints[CATALOG_PAGE]}
+          hints={catalogHints}
+        />
 
         <Paper elevation={4} className={classes.searchPaper}>
           <Grid container justify="center" alignItems="center">
@@ -225,10 +259,10 @@ class CatalogSearch extends React.Component {
               <div id="catSearchOptions">
                 <MultiCheckboxDropdown
                   options={submissionOptions.Make}
-                  id={"make-control"}
+                  id={'make-control'}
                   selectedOptions={make}
-                  handleClear={() => this.handleClearMultiSelect("make")}
-                  parentStateKey={"make"}
+                  handleClear={() => this.handleClearMultiSelect('make')}
+                  parentStateKey={'make'}
                   handleClickCheckbox={this.handleClickCheckbox}
                   groupHeaderLabel="Makes"
                 />
@@ -236,8 +270,8 @@ class CatalogSearch extends React.Component {
                 <MultiCheckboxDropdown
                   options={submissionOptions.Sensor}
                   selectedOptions={sensor}
-                  handleClear={() => this.handleClearMultiSelect("sensor")}
-                  parentStateKey={"sensor"}
+                  handleClear={() => this.handleClearMultiSelect('sensor')}
+                  parentStateKey={'sensor'}
                   handleClickCheckbox={this.handleClickCheckbox}
                   groupHeaderLabel="Sensors"
                 />
@@ -245,8 +279,8 @@ class CatalogSearch extends React.Component {
                 <MultiCheckboxDropdown
                   options={submissionOptions.Region}
                   selectedOptions={region}
-                  handleClear={() => this.handleClearMultiSelect("region")}
-                  parentStateKey={"region"}
+                  handleClear={() => this.handleClearMultiSelect('region')}
+                  parentStateKey={'region'}
                   handleClickCheckbox={this.handleClickCheckbox}
                   groupHeaderLabel="Regions"
                 />
@@ -258,8 +292,8 @@ class CatalogSearch extends React.Component {
                     id="catSearchBySpaceTime"
                   >
                     {this.state.showAdditionalFilters
-                      ? "Hide Additional Filters"
-                      : "Show Additional Filters"}
+                      ? 'Hide Additional Filters'
+                      : 'Show Additional Filters'}
                   </Link>
                 </div>
 
@@ -312,7 +346,7 @@ class CatalogSearch extends React.Component {
                       container
                       xs={12}
                       className={classes.searchPanelRow}
-                      style={{ marginTop: "14px" }}
+                      style={{ marginTop: '14px' }}
                     >
                       <Grid item xs={12}>
                         <Typography
@@ -412,7 +446,7 @@ class CatalogSearch extends React.Component {
                     </Grid>
                   </>
                 ) : (
-                  ""
+                  ''
                 )}
               </div>
             </Grid>
@@ -435,5 +469,5 @@ class CatalogSearch extends React.Component {
 }
 
 export default connect(mapStateToProps)(
-  withStyles(styles)(withRouter(CatalogSearch))
+  withStyles(styles)(withRouter(CatalogSearch)),
 );

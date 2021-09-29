@@ -27,12 +27,9 @@ const styles = (theme) => ({
   },
 });
 
-const mapStateToProps = (state) => ({
-  // show help on the catalog page if the intro has been disabled
-  showHelp: !state.intros[CATALOG_PAGE],
-});
+const mapStateToProps = (state) => ({});
 
-const Catalog = ({ classes, showHelp }) => {
+const Catalog = ({ classes }) => {
   // TODO these use effects return functions that are not used
   useEffect(() => {
     document.title = metaTags.catalog.title;
@@ -61,23 +58,7 @@ const Catalog = ({ classes, showHelp }) => {
           <SearchResults />
         </Grid>
       </Grid>
-      <Help
-        showHelp={showHelp}
-        videoLink={"https://player.vimeo.com/video/596147087"}
-        apiLink={null}
-        pythonLink={
-          "https://cmap.readthedocs.io/en/latest/user_guide/API_ref/pycmap_api/data_retrieval/pycmap_catalog.html#getcatalog"
-        }
-        rLink={
-          "https://simonscmap.github.io/cmap4r/getting-started.html#catalog-of-data"
-        }
-        matlabLink={
-          "https://github.com/simonscmap/matcmap/blob/f02ad2dbec4b896f721675399a432deee395658a/src/CMAP.m#L172"
-        }
-        juliaLink={
-          "https://github.com/simonscmap/CMAP.jl/blob/5ae0a5b4125db09414fd36580a56a427a1ddd8da/src/metaMethods.jl#L9"
-        }
-      />
+      <Help pageName={CATALOG_PAGE} />
     </div>
   );
 };

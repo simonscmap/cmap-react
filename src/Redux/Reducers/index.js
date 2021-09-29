@@ -8,7 +8,7 @@ import reduceReducers from "reduce-reducers";
 import Cookies from "js-cookie";
 import states from "../../enums/asyncRequestStates";
 import buildSearchOptionsFromVariableList from "../../Utility/Catalog/buildSearchOptionsFromVariablesList";
-import { localStorageIntroState } from "../../Components/Help/initialState.js";
+import { localStorageIntroState, localStorageHintState } from "../../Components/Help/initialState.js";
 // Consider building this object from initial states from each reducer
 // ** When adding new keys to redux store consider whether they need to be
 // reset on navigation for UI purposes. If so, add them with a default state
@@ -30,6 +30,7 @@ const initialState = {
   cruiseFullPageData: {},
   cart: {},
   showCart: false,
+  catalogLayoutNonce: 'initial nonce',
 
   // Interface state pieces
   loginDialogIsOpen: false,
@@ -56,7 +57,7 @@ const initialState = {
   choosePasswordState: null,
   preferences: {},
   intros: localStorageIntroState,
-  // hints: localStorageHintState,
+  hints: localStorageHintState,
 
   // Visualization state pieces
   maps: [],
