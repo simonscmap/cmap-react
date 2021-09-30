@@ -16,6 +16,7 @@ import z from '../../enums/zIndex';
 import { useSelector, useDispatch } from 'react-redux';
 import { toggleIntro } from '../../Redux/actions/help.js';
 import { CATALOG_PAGE } from '../../constants.js';
+import { useLocation } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
   navButton: {
@@ -72,6 +73,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const enabledLocations = ['/catalog'];
+
+const locationIsEnabled = (pathName) => {
+  return enabledLocations.includes(pathName);
+};
+
 const OpenClosedIndicator = ({ isOpen }) => {
   let classes = useStyles();
   return isOpen ? (
@@ -105,7 +112,6 @@ const HelpNavbarControls = (props) => {
     ? classes.popperPaperBlack
     : classes.popperPaperBlue;
 
-  // TODO inject page name
   const introIsEnabled = useSelector(({ intros }) => intros[CATALOG_PAGE]);
   const dispatch = useDispatch();
 
@@ -126,7 +132,16 @@ const HelpNavbarControls = (props) => {
     handleClose();
   };
 
-  return (
+  const handleHintsClick = () => {
+    console.log('hints click');
+  };
+
+  // get router location
+  const location = useLocation();
+
+  // only render help menu on enabled pages
+
+  return locationIsEnabled(location.pathname) ? (
     <React.Fragment>
       <HelpAnchor onClick={handleClick} isOpen={!!anchorEl} />
       <Popper
@@ -160,6 +175,8 @@ const HelpNavbarControls = (props) => {
         )}
       </Popper>
     </React.Fragment>
+  ) : (
+    <React.Fragment />
   );
 };
 
