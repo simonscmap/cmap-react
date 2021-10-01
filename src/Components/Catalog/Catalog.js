@@ -1,33 +1,32 @@
 // Wrapper and layout for the catalog page
-import React, { useEffect } from "react";
-import { withStyles, Grid } from "@material-ui/core";
+import React, { useEffect } from 'react';
+import { withStyles, Grid } from '@material-ui/core';
 
-import CatalogSearch from "./CatalogSearch";
-import SearchResults from "./SearchResults";
-import Help from "../Help/Help";
-import metaTags from "../../enums/metaTags";
-import { CATALOG_PAGE } from "../../constants";
-import { connect } from "react-redux";
-import '../../Stylesheets/catalog.css'
+import CatalogSearch from './CatalogSearch';
+import SearchResults from './SearchResults';
+import metaTags from '../../enums/metaTags';
+import { CATALOG_PAGE } from '../../constants';
+import { useSelector } from 'react-redux';
+import '../../Stylesheets/catalog.css';
+import catalogHints from './help/hints';
+import { Hints } from 'intro.js-react';
 
 const styles = (theme) => ({
   wrapperDiv: {
-    marginTop: "68px",
-    padding: "20px",
-    boxSizing: "border-box",
-    [theme.breakpoints.down("sm")]: {
-      padding: "20px 8px",
+    marginTop: '68px',
+    padding: '20px',
+    boxSizing: 'border-box',
+    [theme.breakpoints.down('sm')]: {
+      padding: '20px 8px',
     },
   },
 
   searchGrid: {
-    "@media (min-width: 960px)": {
-      paddingTop: "62px",
+    '@media (min-width: 960px)': {
+      paddingTop: '62px',
     },
   },
 });
-
-const mapStateToProps = (state) => ({});
 
 const Catalog = ({ classes }) => {
   // TODO these use effects return functions that are not used
@@ -43,12 +42,15 @@ const Catalog = ({ classes }) => {
 
   // TODO can we remove this and handle it in stylesheets?
   useEffect(() => {
-    document.body.style.overflow = "hidden";
-    return () => (document.body.style.overflow = "auto");
+    document.body.style.overflow = 'hidden';
+    return () => (document.body.style.overflow = 'auto');
   });
+
+  const hints = useSelector(({ hints }) => hints);
 
   return (
     <div id={`${CATALOG_PAGE}-style-context`} className={classes.wrapperDiv}>
+      <Hints enabled={hints[CATALOG_PAGE]} hints={catalogHints} />
       <Grid container justify="center">
         <Grid item xs={12} md={4} className={classes.searchGrid}>
           <CatalogSearch />
@@ -58,9 +60,8 @@ const Catalog = ({ classes }) => {
           <SearchResults />
         </Grid>
       </Grid>
-      <Help pageName={CATALOG_PAGE} />
     </div>
   );
 };
 
-export default connect(mapStateToProps)(withStyles(styles)(Catalog));
+export default withStyles(styles)(Catalog);

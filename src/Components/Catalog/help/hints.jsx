@@ -13,10 +13,15 @@ const hints = [
     hintPosition: 'middle-right',
   },
   {
-    element: '#catSearchBySpaceTime',
-    hint: 'Restrict the list of datasets to a spatio-temporal bounding box.',
-    hintPosition: 'middle-right',
-  },
+    element: '#catalog-results-download',
+    hint: '<span>hi</span>',
+    hintPosition: 'middle-right'
+  }
+  /* {
+*   element: '#catSearchBySpaceTime',
+*   hint: 'Restrict the list of datasets to a spatio-temporal bounding box.',
+*   hintPosition: 'middle-right',
+* }, */
 ];
 
 export default hints;

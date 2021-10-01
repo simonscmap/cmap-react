@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Link from '@material-ui/core/Link';
 import { makeStyles } from '@material-ui/core/styles';
-import { ExpandLess, ExpandMore } from '@material-ui/icons';
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import {
   Typography,
@@ -11,12 +10,24 @@ import {
   Paper,
   Popper,
   MenuList,
+  ListItemIcon,
+  Tooltip,
+  Modal,
+  Backdrop,
 } from '@material-ui/core';
 import z from '../../enums/zIndex';
 import { useSelector, useDispatch } from 'react-redux';
-import { toggleIntro } from '../../Redux/actions/help.js';
-import { CATALOG_PAGE } from '../../constants.js';
+import { toggleIntro, toggleHints } from '../../Redux/actions/help.js';
 import { useLocation } from 'react-router-dom';
+import { pathNameToPageName } from '../../Utility/routing.js';
+
+// icons
+import { ExpandLess, ExpandMore } from '@material-ui/icons';
+import MapIcon from '@material-ui/icons/Map'; // Quick Tour
+import HelpIcon from '@material-ui/icons/Help'; // Help
+import PlayArrowIcon from '@material-ui/icons/PlayArrow'; // Watch Video
+import DescriptionIcon from '@material-ui/icons/Description'; // Documentation
+import ContactMailIcon from '@material-ui/icons/ContactMail'; // Contact Us
 
 const useStyles = makeStyles((theme) => ({
   navButton: {
@@ -48,6 +59,11 @@ const useStyles = makeStyles((theme) => ({
     pointerEvents: 'all',
     letterSpacing: 'normal',
   },
+  tooltip: {
+    backgroundColor: 'black',
+    border: '1px solid',
+    color: 'white',
+  },
   icon: {
     display: 'inline-flex',
     verticalAlign: 'middle',
@@ -70,6 +86,17 @@ const useStyles = makeStyles((theme) => ({
     borderTopLeftRadius: 0,
     borderTopRightRadius: 0,
     backgroundColor: 'black',
+  },
+  modal: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  videoPlayer: {
+    height: 'calc(75vh)',
+    width: 'calc(75vw)',
+    borderRadius: '0.5em',
+    border: '1px solid #9dd162',
   },
 }));
 
@@ -105,18 +132,28 @@ const HelpAnchor = ({ onClick, isOpen }) => {
   );
 };
 
-const HelpNavbarControls = (props) => {
+const HelpNavbarControls = () => {
+  // get router location
+  const location = useLocation();
+  const pageName = pathNameToPageName(location.pathname);
+
   let classes = useStyles();
+
   // change style to black if on viz page
   const paperClass = window.location.pathname.includes('/visualization')
     ? classes.popperPaperBlack
     : classes.popperPaperBlue;
 
-  const introIsEnabled = useSelector(({ intros }) => intros[CATALOG_PAGE]);
+  // TODO replate CATALOG_PAGE with router path
+  const introIsEnabled = useSelector(({ intros }) => intros[pageName]);
   const dispatch = useDispatch();
 
+  const hintsAreEnabled = useSelector(({ hints }) => hints[pageName]);
+
   // enable/disable menu by providing/withholding an anchor element to Popper
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const [videoOpen, setVideoOpen] = useState(false);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -127,23 +164,64 @@ const HelpNavbarControls = (props) => {
   };
 
   const handleTourClick = () => {
-    console.log('handle tour click');
-    dispatch(toggleIntro(CATALOG_PAGE));
+    console.log('handle tour click in nav');
+    dispatch(toggleIntro(pageName));
     handleClose();
   };
 
   const handleHintsClick = () => {
-    console.log('hints click');
+    dispatch(toggleHints(pageName));
+    handleClose();
   };
 
-  // get router location
-  const location = useLocation();
+  const handleOpenVideo = () => {
+    setVideoOpen(!videoOpen);
+    handleClose();
+  };
+
+  const handleVideoClose = () => {
+    setVideoOpen(false);
+  };
+
+  const VideoModal = () => (
+    <Modal
+      aria-labelledby="transition-modal-title"
+      aria-describedby="transition-modal-description"
+      className={classes.modal}
+      open={videoOpen}
+      onClose={handleVideoClose}
+      closeAfterTransition
+      BackdropComponent={Backdrop}
+      BackdropProps={{
+        timeout: 500,
+      }}
+    >
+      <iframe
+        className={classes.videoPlayer}
+        src="https://player.vimeo.com/video/599815510"
+        frameborder="0"
+        allow="autoplay; encrypted-media"
+        webkitallowfullscreen
+        mozallowfullscreen
+        allowfullscreen
+      ></iframe>
+    </Modal>
+  );
+
+  const ArrowToolTip = ({ content, children }) => {
+    return (
+      <Tooltip title={content} placement="left" arrow interactive>
+        {children}
+      </Tooltip>
+    );
+  };
 
   // only render help menu on enabled pages
-
   return locationIsEnabled(location.pathname) ? (
     <React.Fragment>
       <HelpAnchor onClick={handleClick} isOpen={!!anchorEl} />
+      {/* Video Modal*/}
+      <VideoModal />
       <Popper
         open={Boolean(anchorEl)}
         anchorEl={anchorEl}
@@ -162,12 +240,75 @@ const HelpNavbarControls = (props) => {
             <Paper className={paperClass}>
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList id="menu-list-grow">
-                  <MenuItem onClick={handleClose} component={'a'}>
-                    Watch Video
-                  </MenuItem>
-                  <MenuItem onClick={handleTourClick} component={Link} to={'#'}>
-                    {introIsEnabled ? 'Disable Tour' : 'Start Tour'}
-                  </MenuItem>
+                  <ArrowToolTip
+                    content={'Watch a video overview for this page'}
+                  >
+                    <MenuItem onClick={handleOpenVideo} component={'a'}>
+                      <ListItemIcon>
+                        <PlayArrowIcon />
+                      </ListItemIcon>
+                      Watch Video
+                    </MenuItem>
+                  </ArrowToolTip>
+
+                  <ArrowToolTip content={'Take a quick tour of the page'}>
+                    <MenuItem
+                      onClick={handleTourClick}
+                      component={Link}
+                      to={'#'}
+                    >
+                      {/* this is a fully functional toggle, but menu is only ever
+                        available when tour is disabled */}
+                      <ListItemIcon>
+                        <MapIcon />
+                      </ListItemIcon>
+                      {introIsEnabled ? 'Stop Tour' : 'Quick Tour'}
+                    </MenuItem>
+                  </ArrowToolTip>
+
+                  <ArrowToolTip content={'Turn feature help on or off'}>
+                    <MenuItem
+                      onClick={handleHintsClick}
+                      component={Link}
+                      to={'#'}
+                    >
+                      <ListItemIcon>
+                        <HelpIcon />
+                      </ListItemIcon>
+                      {hintsAreEnabled ? 'Hide Feature Help' : 'Feature Help'}
+                    </MenuItem>
+                  </ArrowToolTip>
+                  <ArrowToolTip
+                    content={
+                      'See documentation for sdk functionality corresponding to features on this page'
+                    }
+                  >
+                    <MenuItem
+                      onClick={handleClose}
+                      component={'a'}
+                      href={'https://cmap.readthedocs.io/en/latest/'}
+                    >
+                      <ListItemIcon>
+                        <DescriptionIcon />
+                      </ListItemIcon>
+                      Documentation
+                    </MenuItem>
+                  </ArrowToolTip>
+
+                  <ArrowToolTip
+                    content={'Contact Simons CMAP for additional help'}
+                  >
+                    <MenuItem
+                      onClick={handleClose}
+                      component={'a'}
+                      href={'/about'}
+                    >
+                      <ListItemIcon>
+                        <ContactMailIcon />
+                      </ListItemIcon>
+                      Contact Us
+                    </MenuItem>
+                  </ArrowToolTip>
                 </MenuList>
               </ClickAwayListener>
             </Paper>

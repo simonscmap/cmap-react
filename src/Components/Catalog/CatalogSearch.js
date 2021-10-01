@@ -19,14 +19,11 @@ import {
   Grid,
 } from '@material-ui/core';
 import catalogIntro from './help/intro';
-import catalogHints from './help/hints';
 import { Search } from '@material-ui/icons';
 import { debounce } from 'throttle-debounce';
 import MultiCheckboxDropdown from '../UI/MultiCheckboxDropdown';
 import queryString from 'query-string';
 import colors from '../../enums/colors';
-import { CATALOG_PAGE } from '../../constants';
-import { Hints } from 'intro.js-react';
 import Intro from '../Help/Intro';
 
 const mapStateToProps = (state) => {
@@ -224,14 +221,7 @@ class CatalogSearch extends React.Component {
 
     return (
       <>
-        <Intro pageName={CATALOG_PAGE} config={catalogIntro} />
-        <Hints
-          ref={(hintsRef) => {
-            this.refreshHints(hintsRef, this.props.layoutNonce);
-          }}
-          enabled={this.props.hints[CATALOG_PAGE]}
-          hints={catalogHints}
-        />
+        <Intro config={catalogIntro} />
 
         <Paper elevation={4} className={classes.searchPaper}>
           <Grid container justify="center" alignItems="center">

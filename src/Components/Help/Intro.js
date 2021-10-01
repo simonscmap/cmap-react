@@ -1,55 +1,32 @@
-import * as React from "react";
-import { connect } from "react-redux";
-import { LOCAL_STORAGE_KEY_INTRO_STATE } from "../../constants.js";
-import { toggleIntro, helpActionTypes } from "../../Redux/actions/help.js";
-import { Steps } from "intro.js-react";
-import "intro.js/introjs.css";
-import "../../Stylesheets/intro-custom.css";
-import { persistenceService } from '../../Services/persist';
-import { localStorageIntroState } from '../Help/initialState';
+import * as React from 'react';
+import { toggleIntro } from '../../Redux/actions/help.js';
+import { Steps } from 'intro.js-react';
+import 'intro.js/introjs.css';
+import '../../Stylesheets/intro-custom.css';
+import { useSelector, useDispatch } from 'react-redux';
+import { useLocation } from 'react-router-dom';
+import { pathNameToPageName } from '../../Utility/routing.js';
 
-persistenceService.add({
-  actionType: helpActionTypes.TOGGLE_INTRO,
-  key: LOCAL_STORAGE_KEY_INTRO_STATE,
-  payloadToValue: (currentState, payload) => {
-    let oldState;
-    // if no state is set
-    if (!currentState) {
-      oldState = localStorageIntroState;
-    } else {
-      // if there is state from local storage,
-      // we need to parse it, because it is stored as a string
-      try {
-        oldState = JSON.parse(currentState);
-      } catch (e) {
-        console.log(`failed to parse intro state from local storage`);
-        // if we fail to parse, assume default
-        oldState = localStorageIntroState;
-      }
-    }
-    let newState = Object.assign({}, oldState, {
-      [payload]: !oldState[payload],
-    });
-    return newState
-  },
-  // TODO
-  localToDispatch: () => { },
-});
+// TODO automatically load the correct config for the current page
+// do not depend on injecting props
+const Intro = ({ config }) => {
+  let { pathname } = useLocation();
+  let pageName = pathNameToPageName(pathname);
 
-let mapStateToProps = (state) => ({
-  intros: state.intros,
-});
-
-let mapDispatchToProps = {
-  toggleIntro: toggleIntro,
-};
-
-const Intro = ({ pageName, config, intros, toggleIntro }) => {
-  // TODO: wire up the intro state to controls in nav bar
-  let introEnabled = intros[pageName];
+  let introEnabled = useSelector(({ intros }) => intros[pageName]);
+  let dispatch = useDispatch();
 
   let onIntroExit = () => {
-    toggleIntro(pageName);
+    // onExit will fire when the component is unmounted,
+    // wich includes route changes; we can prevent the toggle action
+    // from unintentionally re-enabling the tour here.
+    // While intent would be clearer if we rewired the redux action
+    // to take a parameter (on|off), it is also good to prevent
+    // an unneccessary action, which would not explain itself to
+    // someone viewing the action stream
+    if (introEnabled) {
+      dispatch(toggleIntro(pageName));
+    }
   };
 
   return (
@@ -62,4 +39,4 @@ const Intro = ({ pageName, config, intros, toggleIntro }) => {
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Intro);
+export default Intro;

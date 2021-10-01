@@ -1,5 +1,5 @@
 let hint = `
-  <div class="wide-hint-content">
+  <div class="hint-content-wide-600">
   <h3>Keyword Search</h3>
   <p>
     All variables at Simons CMAP catalog are annotated with a collection of semantically related keywords.

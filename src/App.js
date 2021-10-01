@@ -6,7 +6,7 @@ import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
 import { initializeGoogleAuth, ingestCookies } from './Redux/actions/user';
 import { toggleShowHelp, windowResize } from './Redux/actions/ui';
-
+import { ServicesInit } from './Services/Init.js';
 import './Stylesheets/App.scss';
 
 import colors from './enums/colors';
@@ -264,6 +264,7 @@ class App extends Component {
           <MuiThemeProvider theme={theme}>
             <ErrorBoundary>
               <BrowserRouter>
+                <ServicesInit />
                 <GlobalUIComponentWrapper />
                 <TopNavBar />
                 <Suspense fallback={''}>
