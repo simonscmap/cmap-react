@@ -310,11 +310,9 @@ class App extends Component {
                     <Route path="/catalog/searchresults">
                       <SearchResults />
                     </Route>
-                    <Route path="/catalog/datasets/:dataset">
-                      <DatasetFullPage />
+                    <Route path="/catalog/datasets/:dataset" component={DatasetFullPage}>
                     </Route>
-                    <Route path="/catalog/cruises/:cruiseName">
-                      <CruiseFullPage />
+                    <Route path="/catalog/cruises/:cruiseName" component={CruiseFullPage}>
                     </Route>
                     <Route exact path="/sample">
                       <Probe />

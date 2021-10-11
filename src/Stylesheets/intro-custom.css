@@ -163,3 +163,8 @@ span.MuiTooltip-arrow {
     width:100%;
     position:absolute;
 }
+
+/* adjust "Download Search Results" left to make room for hint*/
+p#catalog-results-download {
+    padding-right: 1.6em;
+}

@@ -93,10 +93,13 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'center',
   },
   videoPlayer: {
-    height: 'calc(75vh)',
+    height: 'calc(75vw * 0.5625)',
+    maxHeight: '960px',
     width: 'calc(75vw)',
+    maxWidth: '1920px',
     borderRadius: '0.5em',
     border: '1px solid #9dd162',
+    backgroundColor: '#2F769C',
   },
 }));
 
@@ -157,6 +160,7 @@ const HelpNavbarControls = () => {
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
+    handleVideoClose();
   };
 
   const handleClose = () => {
@@ -164,7 +168,6 @@ const HelpNavbarControls = () => {
   };
 
   const handleTourClick = () => {
-    console.log('handle tour click in nav');
     dispatch(toggleIntro(pageName));
     handleClose();
   };
@@ -198,12 +201,8 @@ const HelpNavbarControls = () => {
     >
       <iframe
         className={classes.videoPlayer}
-        src="https://player.vimeo.com/video/599815510"
-        frameborder="0"
+        src="https://player.vimeo.com/video/620160138"
         allow="autoplay; encrypted-media"
-        webkitallowfullscreen
-        mozallowfullscreen
-        allowfullscreen
       ></iframe>
     </Modal>
   );

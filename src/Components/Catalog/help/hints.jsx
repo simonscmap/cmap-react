@@ -1,5 +1,6 @@
 import keywordSearchHint from './keywordSearchHint';
 import makeControlHint from './makeControlHint';
+import downloadSearchResults from './downloadSearchResults';
 
 const hints = [
   {
@@ -14,14 +15,14 @@ const hints = [
   },
   {
     element: '#catalog-results-download',
-    hint: '<span>hi</span>',
-    hintPosition: 'middle-right'
-  }
+    hint: downloadSearchResults,
+    hintPosition: 'middle-right',
+  },
   /* {
-*   element: '#catSearchBySpaceTime',
-*   hint: 'Restrict the list of datasets to a spatio-temporal bounding box.',
-*   hintPosition: 'middle-right',
-* }, */
+   *   element: '#catSearchBySpaceTime',
+   *   hint: 'Restrict the list of datasets to a spatio-temporal bounding box.',
+   *   hintPosition: 'middle-right',
+   * }, */
 ];
 
 export default hints;
