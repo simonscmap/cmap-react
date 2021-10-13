@@ -295,8 +295,7 @@ class App extends Component {
                     <Route exact path="/forgotpass">
                       <ForgotPass />
                     </Route>
-                    <Route path="/datasubmission">
-                      <DataSubmission />
+                    <Route path="/datasubmission" component={DataSubmission}>
                     </Route>
                     <Route path="/choosepassword">
                       <ChoosePassword />
