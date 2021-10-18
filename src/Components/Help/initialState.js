@@ -24,9 +24,7 @@ if (introsLocal) {
   }
 }
 
-// disable until feature is turned on
-// export const localStorageIntroState = introsLocal || introsDefault;
-export const localStorageIntroState = false;
+export const localStorageIntroState = introsLocal || introsDefault;
 
 // Hints
 let hintsDefault = {
@@ -44,6 +42,4 @@ if (hintsLocal) {
   }
 }
 
-// disable until feature is turned on
-// export const localStorageHintState = hintsLocal || hintsDefault;
-export const localStorageHintState = false;
+export const localStorageHintState = hintsLocal || hintsDefault;

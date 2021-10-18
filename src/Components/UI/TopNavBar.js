@@ -193,14 +193,14 @@ class TopNavBar extends Component {
             {/* Right side of navbar */}
             <div className={classes.rightSectionWrapper}>
               <div>
-              {/*  disable help until feature is turned on
-                *  <Typography
-                *    variation="caption"
-                *   className={classes.navLink}
-                * >
-                *   <HelpNavbarControls />
-                * </Typography>
-                */}
+                <Typography
+                  variation="caption"
+                  className={classes.navLink}
+                >
+                  <HelpNavbarControls />
+                </Typography>
+
+
                 {cartSize > 0 ? (
                   <Typography
                     variant="caption"
