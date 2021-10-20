@@ -45,12 +45,16 @@ const styles = (theme) => ({
       padding: '12px 4px 20px 4px',
       width: '90vw',
     },
+    // remove the margin from the first result to make it
+    // align with the top of the FixedSizeList and its scroll bar
+    '& div.MuiPaper-root:first-child': {
+      marginTop: 0,
+    },
   },
 
   downloadWrapper: {
     fontSize: '1rem',
     color: 'white',
-    marginTop: '-9px',
     cursor: 'pointer',
     borderRadius: '6px',
     padding: '1px 8px',
@@ -76,6 +80,11 @@ const styles = (theme) => ({
     color: 'white',
     fontSize: '1.2rem',
   },
+
+  fixedSizeList: {
+    marginTop: '10px',
+    width: '100%',
+  },
 });
 
 const _mapStateToProps = (state) => ({
@@ -85,7 +94,6 @@ const _mapStateToProps = (state) => ({
 
 const _styles = () => ({
   resultsCount: {
-    marginTop: '-9px',
     textAlign: 'left',
     display: 'inline-block',
   },
@@ -159,10 +167,10 @@ const SearchResults = (props) => {
         </div>
 
         <FixedSizeList
+          className={classes.fixedSizeList}
           itemData={searchResults}
           itemCount={itemCount}
           height={window.innerHeight - 140}
-          width="100%"
           itemSize={222}
         >
           {({ index, style }) => (
