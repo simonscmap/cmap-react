@@ -46,11 +46,10 @@ const Catalog = ({ classes }) => {
     return () => (document.body.style.overflow = 'auto');
   });
 
-  const hints = useSelector(({ hints }) => hints);
+  // const hints = useSelector(({ hints }) => hints);
 
   return (
     <div id={`${CATALOG_PAGE}-style-context`} className={classes.wrapperDiv}>
-      <Hints enabled={hints[CATALOG_PAGE]} hints={catalogHints} />
       <Grid container justify="center">
         <Grid item xs={12} md={4} className={classes.searchGrid}>
           <CatalogSearch />

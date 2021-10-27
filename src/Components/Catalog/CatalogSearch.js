@@ -25,6 +25,7 @@ import MultiCheckboxDropdown from '../UI/MultiCheckboxDropdown';
 import queryString from 'query-string';
 import colors from '../../enums/colors';
 import Intro from '../Help/Intro';
+import Hint from '../Help/Hint';
 
 const mapStateToProps = (state) => {
   let { submissionOptions, catalogLayoutNonce, hints } = state;
@@ -226,36 +227,49 @@ class CatalogSearch extends React.Component {
         <Paper elevation={4} className={classes.searchPaper}>
           <Grid container justify="center" alignItems="center">
             <Grid item xs={12}>
-              <TextField
-                autoFocus
-                name="keywords"
-                placeholder="Search"
-                InputProps={{
-                  startAdornment: (
-                    <React.Fragment>
-                      <InputAdornment position="start">
-                        <Search style={{ color: colors.primary }} />
-                      </InputAdornment>
-                    </React.Fragment>
-                  ),
-                }}
-                value={keywords}
-                variant="outlined"
-                onChange={this.handleChangeSearchValue}
-                fullWidth
-                id="catSearch"
-              />
+              <Hint
+                content={() => (
+                  <React.Fragment>{'some content'}</React.Fragment>
+                )}
+                position={{ beacon: 'right' }}
+              >
+                <TextField
+                  autoFocus
+                  name="keywords"
+                  placeholder="Search"
+                  InputProps={{
+                    startAdornment: (
+                      <React.Fragment>
+                        <InputAdornment position="start">
+                          <Search style={{ color: colors.primary }} />
+                        </InputAdornment>
+                      </React.Fragment>
+                    ),
+                  }}
+                  value={keywords}
+                  variant="outlined"
+                  onChange={this.handleChangeSearchValue}
+                  fullWidth
+                  id="catSearch"
+                />
+              </Hint>
 
               <div id="catSearchOptions">
-                <MultiCheckboxDropdown
-                  options={submissionOptions.Make}
-                  id={'make-control'}
-                  selectedOptions={make}
-                  handleClear={() => this.handleClearMultiSelect('make')}
-                  parentStateKey={'make'}
-                  handleClickCheckbox={this.handleClickCheckbox}
-                  groupHeaderLabel="Makes"
-                />
+                <Hint
+                  content={() => (
+                    <React.Fragment>{'some content'}</React.Fragment>
+                  )}
+                  position={{ beacon: 'right' }}
+                >
+                  <MultiCheckboxDropdown
+                    options={submissionOptions.Make}
+                    selectedOptions={make}
+                    handleClear={() => this.handleClearMultiSelect('make')}
+                    parentStateKey={'make'}
+                    handleClickCheckbox={this.handleClickCheckbox}
+                    groupHeaderLabel="Makes"
+                  />
+                </Hint>
 
                 <MultiCheckboxDropdown
                   options={submissionOptions.Sensor}

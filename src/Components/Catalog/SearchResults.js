@@ -14,6 +14,8 @@ import {
   searchResultsSetLoadingState,
 } from '../../Redux/actions/catalog';
 import states from '../../enums/asyncRequestStates';
+import Hint from '../Help/Hint';
+import downloadHint from './help/downloadSearchResults';
 
 const mapStateToProps = (state) => ({
   searchResults: state.searchResults,
@@ -149,18 +151,29 @@ const SearchResults = (props) => {
   return (
     <div className={classes.wrapperDiv}>
       <Paper className={classes.resultsWrapper} elevation={0}>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+          }}
+        >
           <SearchResultStatusIndicator />
 
           {searchResults && searchResults.length ? (
-            <Typography
-              id="catalog-results-download"
-              className={classes.downloadWrapper}
-              onClick={() => handleDownloadSearchResults()}
+            <Hint
+              content={downloadHint}
+              position={{ beacon: 'left-start' }}
+              styleOverride={{ hint: { maxWidth: 'none' } }}
             >
-              <CloudDownload className={classes.downloadIcon} />
-              Download Search Results
-            </Typography>
+              <Typography
+                id="catalog-results-download"
+                className={classes.downloadWrapper}
+                onClick={() => handleDownloadSearchResults()}
+              >
+                <CloudDownload className={classes.downloadIcon} />
+                Download Search Results
+              </Typography>
+            </Hint>
           ) : (
             ''
           )}
@@ -174,8 +187,8 @@ const SearchResults = (props) => {
           itemSize={222}
         >
           {({ index, style }) => (
-            <div style={style}>
-              <SearchResult dataset={searchResults[index]} />
+            <div style={style} className="result-wrapper">
+              <SearchResult dataset={searchResults[index]} index={index} />
             </div>
           )}
         </FixedSizeList>

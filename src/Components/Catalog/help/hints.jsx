@@ -13,12 +13,12 @@ const hints = [
     hint: makeControlHint,
     hintPosition: 'middle-right',
   },
-  {
-    element: '#catalog-results-download',
-    hint: downloadSearchResults,
-    hintPosition: 'middle-right',
-  },
   /* {
+   *   element: '#catalog-results-download',
+   *   hint: downloadSearchResults,
+   *   hintPosition: 'middle-right',
+   * },
+   * {
    *   element: '#catSearchBySpaceTime',
    *   hint: 'Restrict the list of datasets to a spatio-temporal bounding box.',
    *   hintPosition: 'middle-right',
