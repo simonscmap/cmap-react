@@ -3,6 +3,9 @@ import { makeStyles } from '@material-ui/core';
 
 // map MUI placement variant to absolute positioning the Beacon
 // this function assumes that the Beacon is 1em square
+
+// TODO: the % calculation doesn't work well when attached to an
+// anchore which can change size (expand)
 const positionToStlye = (variant) => {
   switch (variant) {
     case 'top-start':

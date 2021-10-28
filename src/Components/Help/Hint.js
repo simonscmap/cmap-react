@@ -2,11 +2,12 @@
 // and hides/shows based on whether hints are enabled/disabled
 
 import React, { useState } from 'react';
-import { ClickAwayListener, Tooltip } from '@material-ui/core';
+import { ClickAwayListener } from '@material-ui/core';
 import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { pathNameToPageName } from '../../Utility/routing.js';
 import { Beacon } from './Beacon';
+import { HintTooltip } from './HintTip';
 import {
   mergeOverridesAndPositionVariant,
   getPlacement,
@@ -29,7 +30,7 @@ import {
  * For MUI Tooltip reference https://v4.mui.com/components/tooltips/
  * TODO: note use of ClickAwayListener
  */
-const Hint = ({ children, content, styleOverride, position }) => {
+function Hint({ children, content, styleOverride, position }) {
   // normalize style overrides
   const overrides = mergeOverridesAndPositionVariant(styleOverride, position);
   // generate class names
@@ -57,24 +58,24 @@ const Hint = ({ children, content, styleOverride, position }) => {
 
   return (
     <ClickAwayListener onClickAway={() => setHintVisibility(false)}>
-      <Tooltip
-        open={openHint}
-        title={<TooltipContent />}
-        placement={placement.hint}
-        classes={{ tooltip: classes.hint }}
-        arrow
-      >
-        <div className={classes.wrapper}>
-          <Beacon
-            visible={hintsAreEnabled}
-            onClick={toggleHint}
-            styles={classes.beacon}
-          />
+      <div className={classes.wrapper}>
+        <Beacon
+          visible={hintsAreEnabled}
+          onClick={toggleHint}
+          styles={classes.beacon}
+        />
+
+        <HintTooltip
+          open={openHint}
+          content={TooltipContent}
+          styles={classes.hint}
+          placement={placement}
+        >
           <div>{children}</div>
-        </div>
-      </Tooltip>
+        </HintTooltip>
+      </div>
     </ClickAwayListener>
   );
-};
+}
 
 export default Hint;
