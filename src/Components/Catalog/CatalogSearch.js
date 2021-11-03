@@ -26,6 +26,8 @@ import queryString from 'query-string';
 import colors from '../../enums/colors';
 import Intro from '../Help/Intro';
 import Hint from '../Help/Hint';
+import SearchHint from '../Catalog/help/keywordSearchHint';
+import MakeControlHint from '../Catalog/help/makeControlHint';
 
 const mapStateToProps = (state) => {
   let { submissionOptions, catalogLayoutNonce, hints } = state;
@@ -40,7 +42,9 @@ const styles = (theme) => ({
   searchPaper: {
     padding: '14px 20px',
     maxHeight: 'calc(100vh - 200px)',
-    overflow: 'auto',
+    // overflow must be visible to allow hints to expand outside
+    // the boundary of the search container
+    overflow: 'visible',
   },
   resetButton: {
     textTransform: 'none',
@@ -228,10 +232,10 @@ class CatalogSearch extends React.Component {
           <Grid container justify="center" alignItems="center">
             <Grid item xs={12}>
               <Hint
-                content={() => (
-                  <React.Fragment>{'some content'}</React.Fragment>
-                )}
-                position={{ beacon: 'right' }}
+                content={SearchHint}
+                position={{ beacon: 'right', hint: 'bottom-end' }}
+                size={'large'}
+                styleOverride={{}}
               >
                 <TextField
                   autoFocus
@@ -256,10 +260,10 @@ class CatalogSearch extends React.Component {
 
               <div id="catSearchOptions">
                 <Hint
-                  content={() => (
-                    <React.Fragment>{'some content'}</React.Fragment>
-                  )}
-                  position={{ beacon: 'right' }}
+                  content={MakeControlHint}
+                  position={{ beacon: 'right', hint: 'bottom-end' }}
+                  styleOverride={{}}
+                  size={'medium'}
                 >
                   <MultiCheckboxDropdown
                     options={submissionOptions.Make}

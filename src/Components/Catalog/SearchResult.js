@@ -17,6 +17,7 @@ import CartAddOrRemove from './CartAddOrRemove';
 import { setShowCart } from '../../Redux/actions/ui';
 import colors from '../../enums/colors';
 import Hint from '../Help/Hint';
+import AddToFavorites from '../Catalog/help/addToFavoritesHint';
 
 const mapStateToProps = (state, ownProps) => ({
   cart: state.cart,
@@ -120,13 +121,10 @@ const SearchResult = (props) => {
       <AddToCartButton dataset={dataset} />
     ) : (
       <Hint
-        content={() => (
-          <React.Fragment>
-            {'Add this to your cart for quick access.'}
-          </React.Fragment>
-        )}
+        content={AddToFavorites}
         styleOverride={{ wrapper: { display: 'inline-block' } }}
-        position={{ beacon: 'right-start', hint: 'right-start' }}
+        position={{ beacon: 'right-start', hint: 'bottom-end' }}
+        size={'small'}
       >
         <AddToCartButton dataset={dataset} />
       </Hint>

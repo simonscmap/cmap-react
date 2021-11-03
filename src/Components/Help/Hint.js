@@ -3,16 +3,12 @@
 
 import React, { useState } from 'react';
 import { ClickAwayListener } from '@material-ui/core';
+import { Beacon } from './Beacon';
+import { HintTooltip } from './HintTip';
+import { mergeOverridesAndVariants, useHintStyles } from './hintStyle';
 import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { pathNameToPageName } from '../../Utility/routing.js';
-import { Beacon } from './Beacon';
-import { HintTooltip } from './HintTip';
-import {
-  mergeOverridesAndPositionVariant,
-  getPlacement,
-  useHintStyles,
-} from './hintStyle';
 
 /* Hint
  *  - children: JSX element(s) that the hint is anchored to
@@ -30,11 +26,20 @@ import {
  * For MUI Tooltip reference https://v4.mui.com/components/tooltips/
  * TODO: note use of ClickAwayListener
  */
-function Hint({ children, content, styleOverride, position }) {
+function Hint({ children, content, styleOverride, position, size }) {
   // normalize style overrides
-  const overrides = mergeOverridesAndPositionVariant(styleOverride, position);
+  const overrides = mergeOverridesAndVariants(styleOverride, position, size);
   // generate class names
   const classes = useHintStyles(overrides);
+
+  // to render as component, variable needs to be capitalized
+  const TooltipContent = content;
+
+  // manage hint content visibility
+  const [hintIsVisible, setHintVisibility] = useState(false);
+  const toggleHint = () => {
+    setHintVisibility(!hintIsVisible);
+  };
 
   // get router location
   const location = useLocation();
@@ -43,36 +48,25 @@ function Hint({ children, content, styleOverride, position }) {
   // are hints enabled?
   const hintsAreEnabled = useSelector(({ hints }) => hints[pageName]);
 
-  // manage hint content visibility
-  const [hintIsVisible, setHintVisibility] = useState(false);
-  const toggleHint = () => setHintVisibility(!hintIsVisible);
-
   // if a hint is open and the user disables all hints,
   // any open hints should close
   const openHint = hintIsVisible && hintsAreEnabled;
-
-  // to render as component, variable needs to be capitalized
-  const TooltipContent = content;
-
-  const placement = getPlacement(position);
 
   return (
     <ClickAwayListener onClickAway={() => setHintVisibility(false)}>
       <div className={classes.wrapper}>
         <Beacon
-          visible={hintsAreEnabled}
+          enabled={hintsAreEnabled}
           onClick={toggleHint}
           styles={classes.beacon}
-        />
-
-        <HintTooltip
-          open={openHint}
-          content={TooltipContent}
-          styles={classes.hint}
-          placement={placement}
         >
-          <div>{children}</div>
-        </HintTooltip>
+          <HintTooltip
+            open={openHint}
+            content={TooltipContent}
+            styles={classes}
+          />
+        </Beacon>
+        <div>{children}</div>
       </div>
     </ClickAwayListener>
   );

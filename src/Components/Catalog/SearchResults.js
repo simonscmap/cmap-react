@@ -159,10 +159,10 @@ const SearchResults = (props) => {
         >
           <SearchResultStatusIndicator />
 
-          {searchResults && searchResults.length ? (
+          {searchResults && searchResults.ength ? (
             <Hint
               content={downloadHint}
-              position={{ beacon: 'left-start' }}
+              position={{ beacon: 'left-start', hint: 'bottom-start' }}
               styleOverride={{ hint: { maxWidth: 'none' } }}
             >
               <Typography
