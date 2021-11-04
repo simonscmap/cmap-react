@@ -6,10 +6,7 @@ import CatalogSearch from './CatalogSearch';
 import SearchResults from './SearchResults';
 import metaTags from '../../enums/metaTags';
 import { CATALOG_PAGE } from '../../constants';
-import { useSelector } from 'react-redux';
 import '../../Stylesheets/catalog.css';
-import catalogHints from './help/hints';
-import { Hints } from 'intro.js-react';
 
 const styles = (theme) => ({
   wrapperDiv: {
