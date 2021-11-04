@@ -1,5 +1,4 @@
 import * as catalogActionTypes from "../actionTypes/catalog";
-import { generateShortId } from '../../Utility/shortId';
 import states from "../../enums/asyncRequestStates";
 
 export default function (state, action) {
@@ -83,8 +82,6 @@ export default function (state, action) {
       return { ...state, cart: {} };
     case catalogActionTypes.CART_ADD_MULTIPLE:
       return { ...state, cart: { ...state.cart, ...action.payload.items } };
-    case catalogActionTypes.UPDATE_CATALOG_LAYOUT:
-      return { ...state, catalogLayoutNonce: generateShortId()  };
     default:
       return state;
   }

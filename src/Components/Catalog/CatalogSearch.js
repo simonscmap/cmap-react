@@ -30,10 +30,9 @@ import SearchHint from '../Catalog/help/keywordSearchHint';
 import MakeControlHint from '../Catalog/help/makeControlHint';
 
 const mapStateToProps = (state) => {
-  let { submissionOptions, catalogLayoutNonce, hints } = state;
+  let { submissionOptions, hints } = state;
   return {
     submissionOptions,
-    layoutNonce: catalogLayoutNonce,
     hints,
   };
 };
@@ -197,25 +196,6 @@ class CatalogSearch extends React.Component {
   pushHistory = debounce(1500, (qstring) => {
     this.props.history.push('/catalog?' + qstring);
   });
-
-  /* refreshHints usese the intro.js api, which is only available via the ref,
-   * to reposition the hint "beacons"; this is necessary when the layout may
-   * have changed, a is the beacons are positioned absolutely */
-  refreshHints = (hintsRef, currentNonce) => {
-    // hintsRef returns null every other render
-    if (hintsRef && this.state.previousNonce !== currentNonce) {
-      // refresh hints location
-
-      // TODO: this call into the refresh API seems to race against a rerender
-      // of the tooltipLayer, causing a null pointer exception
-      // hintsRef.introJs.refresh();
-
-      // udpate component state with new nonce
-      this.setState({
-        previousNonce: currentNonce,
-      });
-    }
-  };
 
   render = () => {
     const { classes, submissionOptions } = this.props;

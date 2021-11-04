@@ -152,7 +152,3 @@ export const cartAddMultiple = (items) => ({
         items
     }
 });
-
-export const updateCatalogLayout = () => ({
-  type: catalogActionTypes.UPDATE_CATALOG_LAYOUT
-});

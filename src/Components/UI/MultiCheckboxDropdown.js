@@ -11,8 +11,6 @@ import {
   FormControlLabel,
 } from '@material-ui/core';
 import { ExpandMore, ChevronRight } from '@material-ui/icons';
-import { useDispatch } from 'react-redux';
-import { updateCatalogLayout } from '../../Redux/actions/catalog.js';
 
 import colors from '../../enums/colors';
 
@@ -65,17 +63,10 @@ const MultiCheckboxDrowndown = (props) => {
     groupHeaderLabel,
   } = props;
 
-  const dispatch = useDispatch();
-
   const [open, setOpenState] = React.useState(false);
   const toggleOpenState = () => {
     // toggle local state; a future implementation could rely on redux state
     setOpenState(!open);
-    // update the catalog page's "layout nonce", wich is just a random number
-    // which let's us detect when to refresh the location of the intro.js hints
-    // since the layout may have changed;
-    // Note: this would work well as an observable pattern
-    dispatch(updateCatalogLayout());
   };
 
   return (
@@ -87,7 +78,7 @@ const MultiCheckboxDrowndown = (props) => {
         alignItems="center"
         className={classes.checkboxGroupHeader}
         id={id || 'no-id'}
-        onClick={() => toggleOpenState()}
+        onClick={toggleOpenState}
       >
         {open ? (
           <ExpandMore className={classes.menuOpenIcon} />
