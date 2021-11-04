@@ -18,7 +18,7 @@ import {
   Button,
   Grid,
 } from '@material-ui/core';
-import catalogIntro from './help/intro';
+import tourConfig from './help/tourConfig';
 import { Search } from '@material-ui/icons';
 import { debounce } from 'throttle-debounce';
 import MultiCheckboxDropdown from '../UI/MultiCheckboxDropdown';
@@ -226,7 +226,7 @@ class CatalogSearch extends React.Component {
 
     return (
       <>
-        <Intro config={catalogIntro} />
+        <Intro config={tourConfig} />
 
         <Paper elevation={4} className={classes.searchPaper}>
           <Grid container justify="center" alignItems="center">
