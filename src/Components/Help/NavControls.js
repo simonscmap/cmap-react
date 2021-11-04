@@ -20,6 +20,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { toggleIntro, toggleHints } from '../../Redux/actions/help.js';
 import { useLocation } from 'react-router-dom';
 import { pathNameToPageName } from '../../Utility/routing.js';
+import { mapPageNameToIntroVideo } from './pageVideo';
 
 // icons
 import { ExpandLess, ExpandMore } from '@material-ui/icons';
@@ -28,6 +29,7 @@ import HelpIcon from '@material-ui/icons/Help'; // Help
 import PlayArrowIcon from '@material-ui/icons/PlayArrow'; // Watch Video
 import DescriptionIcon from '@material-ui/icons/Description'; // Documentation
 import ContactMailIcon from '@material-ui/icons/ContactMail'; // Contact Us
+
 
 const useStyles = makeStyles((theme) => ({
   navButton: {
@@ -103,7 +105,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const enabledLocations = ['/catalog'];
+const enabledLocations = ['/catalog', '/visualization', '/visualization/charts', '/visualization/cruises'];
 
 const locationIsEnabled = (pathName) => {
   return enabledLocations.includes(pathName);
@@ -157,6 +159,7 @@ const HelpNavbarControls = () => {
   const [anchorEl, setAnchorEl] = useState(null);
 
   const [videoOpen, setVideoOpen] = useState(false);
+  const overviewVideo = mapPageNameToIntroVideo(pageName);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -186,7 +189,7 @@ const HelpNavbarControls = () => {
     setVideoOpen(false);
   };
 
-  const VideoModal = () => (
+  const VideoModal = ({ videoSrc }) => (
     <Modal
       aria-labelledby="transition-modal-title"
       aria-describedby="transition-modal-description"
@@ -201,7 +204,7 @@ const HelpNavbarControls = () => {
     >
       <iframe
         className={classes.videoPlayer}
-        src="https://player.vimeo.com/video/620160138"
+        src={videoSrc}
         allow="autoplay; encrypted-media"
       ></iframe>
     </Modal>
@@ -220,7 +223,7 @@ const HelpNavbarControls = () => {
     <React.Fragment>
       <HelpAnchor onClick={handleClick} isOpen={!!anchorEl} />
       {/* Video Modal*/}
-      <VideoModal />
+      <VideoModal videoSrc={overviewVideo} />
       <Popper
         open={Boolean(anchorEl)}
         anchorEl={anchorEl}

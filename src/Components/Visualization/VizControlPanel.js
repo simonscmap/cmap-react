@@ -61,6 +61,9 @@ import ChartControl from './ChartControl';
 import VariableDetailsDialog from './VariableDetailsDialog';
 import SparseDataMaxSizeNotification from './SparseDataMaxSizeNotification';
 
+import Hint from '../Help/Hint';
+import SearchHint from './help/searchHint';
+
 const mapStateToProps = (state, ownProps) => ({
   data: state.data,
   catalog: state.catalog,
@@ -969,20 +972,18 @@ class VizControlPanel extends React.Component {
         )}
 
         {showControlPanel ? (
-          <div>
-            <Tooltip title="Hide control panel" placement="right">
-              <IconButton
-                className={classes.closePanelChevron}
-                aria-label="toggle-panel"
-                color="primary"
-                onClick={() =>
-                  this.setState({ ...this.state, showControlPanel: false })
-                }
-              >
-                <ChevronLeft />
-              </IconButton>
-            </Tooltip>
-          </div>
+          <Tooltip title="Hide control panel" placement="right">
+            <IconButton
+              className={classes.closePanelChevron}
+              aria-label="toggle-panel"
+              color="primary"
+              onClick={() =>
+                this.setState({ ...this.state, showControlPanel: false })
+              }
+            >
+              <ChevronLeft />
+            </IconButton>
+          </Tooltip>
         ) : (
           <Tooltip title="Show control panel" placement="right">
             <IconButton
@@ -1011,6 +1012,7 @@ class VizControlPanel extends React.Component {
             <Grid container style={{ borderBottom: '1px solid black' }}>
               <Grid item xs={10}>
                 <Button
+                  id={'vis-data-button'}
                   fullWidth={true}
                   className={classes.controlPanelItem}
                   startIcon={
@@ -1060,24 +1062,33 @@ class VizControlPanel extends React.Component {
               </Grid>
             </Grid>
           ) : (
-            <Button
-              fullWidth={true}
-              className={classes.controlPanelItem}
-              style={{ borderBottom: '1px solid black' }}
-              startIcon={
-                <Search style={{ fontSize: '22px', margin: '0 0 -6px 4px' }} />
-              }
-              onClick={() =>
-                this.setState({ ...this.state, dataSearchMenuOpen: true })
-              }
-              classes={{
-                label: classes.controlPanelItemLabel,
-                startIcon: classes.controlPanelItemStartIcon,
-              }}
-              disabled={this.state.showDrawHelp}
+            <Hint
+              content={SearchHint}
+              position={{ beacon: 'right', hint: 'bottom-end' }}
+              size={'medium'}
             >
-              Select a Variable to Begin
-            </Button>
+              <Button
+                id={'viz-select-primary-variable'}
+                fullWidth={true}
+                className={classes.controlPanelItem}
+                style={{ borderBottom: '1px solid black' }}
+                startIcon={
+                  <Search
+                    style={{ fontSize: '22px', margin: '0 0 -6px 4px' }}
+                  />
+                }
+                onClick={() =>
+                  this.setState({ ...this.state, dataSearchMenuOpen: true })
+                }
+                classes={{
+                  label: classes.controlPanelItemLabel,
+                  startIcon: classes.controlPanelItemStartIcon,
+                }}
+                disabled={this.state.showDrawHelp}
+              >
+                Select a Variable to Begin
+              </Button>
+            </Hint>
           )}
 
           <>

@@ -6,6 +6,8 @@ import vizSubTypes from '../../enums/visualizationSubTypes';
 import storedProcedures from '../../enums/storedProcedures';
 
 import { withStyles } from '@material-ui/core/styles';
+import Intro from '../Help/Intro';
+import visualizationTourConfig from './help/tourConfig';
 
 import VizControlPanel from './VizControlPanel';
 import GuestPlotLimitNotification from './GuestPlotLimitNotification';
@@ -440,6 +442,7 @@ class Visualization extends Component {
     return (
       <div className={classes.vizWrapper}>
         <GuestPlotLimitNotification />
+        <Intro config={visualizationTourConfig} />
 
         {this.state.esriModules && (
           <div
