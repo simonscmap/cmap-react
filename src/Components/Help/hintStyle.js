@@ -68,6 +68,11 @@ const hintPositionToStyle = (variant) => {
         left: '2em',
         top: '2em',
       };
+    case 'right':
+      return {
+        left: '2.5em',
+        top: '-.5em',
+      };
     default:
       return {
         left: '1em',
@@ -105,6 +110,12 @@ const hintPositionToArrowStyle = (variant) => {
         left: '1.1em',
         top: '1.1em',
         transform: 'rotate(-45deg)',
+      };
+    case 'right':
+      return {
+        left: '1.4em',
+        top: '0',
+        transform: 'rotate(-90deg)',
       };
     default:
       return {};
@@ -187,14 +198,6 @@ export const useHintStyles = makeStyles({
         fontSize: '1em',
         fontWeight: 500,
         padding: '0.05em',
-        // transition: 'all .3s ease-out',
-        // '&:hover': {
-        //  borderRadius: '1.2em',
-        //  lineHeight: '1.2em',
-        //  width: '1.2em',
-        //  height: '1.2em',
-        //  fontSize: '1.2em',
-        // },
       },
       overrides ? overrides.beacon : {},
     ),

@@ -39,6 +39,15 @@ const mapStateToProps = (state) => {
 };
 
 const styles = (theme) => ({
+  pageTitleWrapper: {
+    margin: '-50px 0 10px 27px',
+    textAlign: 'left',
+  },
+  pageTitle: {
+    color: 'white',
+    fontWeight: 100,
+    fontSize: '32px',
+  },
   searchPaper: {
     padding: '14px 20px',
     maxHeight: 'calc(100vh - 200px)',
@@ -228,6 +237,18 @@ class CatalogSearch extends React.Component {
       <>
         <Intro config={tourConfig} />
 
+        <div className={classes.pageTitleWrapper}>
+          <Hint
+            content={() => <React.Fragment>about this page</React.Fragment>}
+            position={{ beacon: 'top-end', hint: 'right' }}
+            styleOverride={{
+              wrapper: { display: 'inline-block' },
+              beacon: { right: '-1.4em', top: '-.2em' },
+            }}
+          >
+            <span className={classes.pageTitle}>Catalog</span>
+          </Hint>
+        </div>
         <Paper elevation={4} className={classes.searchPaper}>
           <Grid container justify="center" alignItems="center">
             <Grid item xs={12}>
@@ -262,7 +283,7 @@ class CatalogSearch extends React.Component {
                 <Hint
                   content={MakeControlHint}
                   position={{ beacon: 'right', hint: 'bottom-end' }}
-                  styleOverride={{}}
+                  styleOverride={{ beacon: { top: '.6em' } }}
                   size={'medium'}
                 >
                   <MultiCheckboxDropdown
