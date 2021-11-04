@@ -13,14 +13,14 @@ const beaconPositionToStyle = (variant) => {
     case 'top':
       return { left: 'calc(50% - (1em / 2))', top: '-1em' };
     case 'top-end':
-      return { left: 'calc(75% - (1em / 2))', top: '-1em' };
+      return { right: '-1em', top: '-1em' };
 
     case 'bottom-start':
       return { left: 'calc(25% - (1em / 2))', bottom: '-1em' };
     case 'bottom':
       return { left: 'calc(50% - (1em / 2))', bottom: '-1em' };
     case 'bottom-end':
-      return { left: 'calc(75% - (1em / 2))', bottom: '-1em' };
+      return { right: '-1em', bottom: '-1em' };
 
     case 'left-start':
       return { left: '-1em', top: 'calc(25% - (1em / 2))' };
