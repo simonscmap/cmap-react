@@ -16,6 +16,8 @@ const styles = (theme) => ({
     [theme.breakpoints.down('sm')]: {
       padding: '20px 8px',
     },
+    // the search and results panes float apart awkwardly at wide resolutions
+    maxWidth: '2500px',
   },
 
   searchGrid: {
