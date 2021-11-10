@@ -27,8 +27,17 @@ import { pathNameToPageName } from '../../Utility/routing.js';
  * TODO: note use of ClickAwayListener
  */
 function Hint({ children, content, styleOverride, position, size }) {
+  // get router location
+  const location = useLocation();
+  const pageName = pathNameToPageName(location.pathname);
+
   // normalize style overrides
-  const overrides = mergeOverridesAndVariants(styleOverride, position, size);
+  const overrides = mergeOverridesAndVariants(
+    styleOverride,
+    position,
+    size,
+    pageName,
+  );
   // generate class names
   const classes = useHintStyles(overrides);
 
@@ -40,10 +49,6 @@ function Hint({ children, content, styleOverride, position, size }) {
   const toggleHint = () => {
     setHintVisibility(!hintIsVisible);
   };
-
-  // get router location
-  const location = useLocation();
-  const pageName = pathNameToPageName(location.pathname);
 
   // are hints enabled?
   const hintsAreEnabled = useSelector(({ hints }) => hints[pageName]);

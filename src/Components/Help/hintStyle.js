@@ -1,5 +1,6 @@
 import { DEFAULT_HINT_POSITION } from '../../constants';
 import { makeStyles } from '@material-ui/core';
+import { CATALOG_PAGE, VISUALIZATION_PAGE } from '../../constants.js';
 
 // map MUI placement variant to absolute positioning the Beacon
 // this function assumes that the Beacon is 1em square
@@ -144,12 +145,38 @@ const sizeToStyle = (variant) => {
   }
 };
 
+const pageNameToStyle = (pageName) => {
+  const template = {
+    wrapper: {},
+    beacon: {},
+    hint: {},
+    arrow: {},
+  };
+  switch (pageName) {
+    case VISUALIZATION_PAGE:
+      return Object.assign({}, template, {
+        hint: {
+          backgroundColor: '#000000',
+        },
+      });
+    case CATALOG_PAGE:
+    default:
+      return Object.assign({}, template, {
+        hint: {
+          backgroundColor: '#1F4A63',
+        },
+      });
+  }
+};
+
 // normalize an override object, applying overrides and position styling
 export const mergeOverridesAndVariants = (
   overrides = {},
   position = {},
   size = '',
+  pageName,
 ) => {
+  const { hint: hintPageTheme } = pageNameToStyle(pageName);
   // Note: concerning the order of arguments to these Object.assign calls:
   // the style overrides should always have priority, and therefore be last
   return {
@@ -163,6 +190,7 @@ export const mergeOverridesAndVariants = (
       {},
       hintPositionToStyle(position.hint),
       sizeToStyle(size),
+      hintPageTheme,
       overrides.hint,
     ),
     arrow: Object.assign(
@@ -211,7 +239,6 @@ export const useHintStyles = makeStyles({
         padding: '.5em',
         border: '1px solid #9dd162',
         borderRadius: '5px',
-        backgroundColor: '#1F4A63',
         minWidth: '200px',
         zIndex: 9999,
       },
