@@ -26,8 +26,9 @@ import queryString from 'query-string';
 import colors from '../../enums/colors';
 import Intro from '../Help/Intro';
 import Hint from '../Help/Hint';
-import SearchHint from '../Catalog/help/keywordSearchHint';
-import MakeControlHint from '../Catalog/help/makeControlHint';
+import SearchHint from './help/keywordSearchHint';
+import SearchFiltersHint from './help/SearchFiltersHint';
+import CatalogPageTitleHint from './help/pageTitleHint';
 
 const mapStateToProps = (state) => {
   let { submissionOptions, hints } = state;
@@ -219,12 +220,13 @@ class CatalogSearch extends React.Component {
 
         <div className={classes.pageTitleWrapper}>
           <Hint
-            content={() => <React.Fragment>about this page</React.Fragment>}
+            content={CatalogPageTitleHint}
             position={{ beacon: 'top-end', hint: 'right' }}
             styleOverride={{
               wrapper: { display: 'inline-block' },
               beacon: { right: '-1.4em', top: '-.2em' },
             }}
+            size={'large'}
           >
             <span className={classes.pageTitle}>Catalog</span>
           </Hint>
@@ -261,7 +263,7 @@ class CatalogSearch extends React.Component {
 
               <div id="catSearchOptions">
                 <Hint
-                  content={MakeControlHint}
+                  content={SearchFiltersHint}
                   position={{ beacon: 'right', hint: 'bottom-end' }}
                   styleOverride={{ beacon: { top: '.6em' } }}
                   size={'medium'}
@@ -294,17 +296,23 @@ class CatalogSearch extends React.Component {
                   groupHeaderLabel="Regions"
                 />
 
-                <div className={classes.showAdditionalFiltersWrapper}>
-                  <Link
-                    component="button"
-                    onClick={this.handleToggleshowAdditionalFilters}
-                    id="catSearchBySpaceTime"
-                  >
-                    {this.state.showAdditionalFilters
-                      ? 'Hide Additional Filters'
-                      : 'Show Additional Filters'}
-                  </Link>
-                </div>
+                <Hint
+                  content={SearchFiltersHint}
+                  position={{ beacon: 'right', hint: 'right' }}
+                  size={'small'}
+                >
+                  <div className={classes.showAdditionalFiltersWrapper}>
+                    <Link
+                      component="button"
+                      onClick={this.handleToggleshowAdditionalFilters}
+                      id="catSearchBySpaceTime"
+                    >
+                      {this.state.showAdditionalFilters
+                        ? 'Hide Additional Filters'
+                        : 'Show Additional Filters'}
+                    </Link>
+                  </div>
+                </Hint>
 
                 {this.state.showAdditionalFilters ? (
                   <>

@@ -6,7 +6,6 @@ import CatalogSearch from './CatalogSearch';
 import SearchResults from './SearchResults';
 import metaTags from '../../enums/metaTags';
 import { CATALOG_PAGE } from '../../constants';
-import '../../Stylesheets/catalog.css';
 
 const styles = (theme) => ({
   wrapperDiv: {

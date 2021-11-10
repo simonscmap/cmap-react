@@ -1,0 +1,11 @@
+/* In order to get the beacon for the Result Title to NOT get clipped by the */
+/* `overflow: hidden` property of the FixedSizeList here we're forcing the  */
+/* inner div to be relatively positioned, so that all the absolute positioning */
+/* of contents that FixedSizeList does will be relative to this internal layer,  */
+/* and leave us to hack the padding of the wrapping layer to give enough of a  */
+/* buffer for the beacon to render. NOTE: the overflow: hidden cannot be changed */
+/* beacause it would turn off scrolling. */
+
+.search-results-fixed-size-list > div {
+    position: relative;
+}

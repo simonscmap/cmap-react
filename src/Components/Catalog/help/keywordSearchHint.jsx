@@ -1,8 +1,11 @@
 import React from 'react';
+import SeeAlso from './seeAlso';
+import InlineVideo from '../../Help/InlineVideo';
+import HintContent from '../../Help/HintContent';
 
 const KeywordSearchHint = () => {
   return (
-    <div styles={'hint-content-wide-600'}>
+    <HintContent>
       <h3>Keyword Search</h3>
       <p>
         All variables at Simons CMAP catalog are annotated with a collection of
@@ -28,45 +31,11 @@ const KeywordSearchHint = () => {
         </li>
       </ul>
       <h3>Video Tutorial</h3>
-      <iframe
-        width="592"
-        height="333"
-        src="https://player.vimeo.com/video/599815510"
-        frameBorder="0"
-        allow="autoplay; encrypted-media"
-        webkitallowfullscreen="true"
-        mozallowfullscreen="true"
-        allowFullScreen="true"
-      />
+      <InlineVideo src={"https://player.vimeo.com/video/599815510"} />
+
       <hr />
-      <h3>See Also</h3>
-      <ul>
-        <li>
-          <a
-            href="https://github.com/simonscmap/pycmap/blob/master/docs/SearchCatalog.ipynb"
-            target="_blank"
-          >
-            Search Simons CMAP catalog using Python client (pycmap)
-          </a>
-        </li>
-        <li>
-          <a
-            href="https://github.com/simonscmap/CMAP.jl/blob/5ae0a5b4125db09414fd36580a56a427a1ddd8da/src/metaMethods.jl#L28"
-            target="_blank"
-          >
-            Search Simons CMAP catalog using Julia client (CMAP.jl)
-          </a>
-        </li>
-        <li>
-          <a
-            href="https://github.com/simonscmap/matcmap/blob/f02ad2dbec4b896f721675399a432deee395658a/src/CMAP.m#L186"
-            target="_blank"
-          >
-            Search Simons CMAP catalog using MATLAB client (matcmap)
-          </a>
-        </li>
-      </ul>
-    </div>
+      <SeeAlso />
+    </HintContent>
   );
 };
 

@@ -4,11 +4,13 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
-import { withStyles, Paper, Typography } from '@material-ui/core';
+import { makeStyles, useTheme, Paper, Typography } from '@material-ui/core';
 import { CloudDownload } from '@material-ui/icons';
 import stringify from 'csv-stringify/lib/sync';
 import { FixedSizeList } from 'react-window';
 import SearchResult from './SearchResult';
+import '../../Stylesheets/catalog-search-results.css';
+
 import {
   searchResultsFetch,
   searchResultsSetLoadingState,
@@ -16,6 +18,7 @@ import {
 import states from '../../enums/asyncRequestStates';
 import Hint from '../Help/Hint';
 import downloadHint from './help/downloadSearchResults';
+import SearchResultsStatusHint from './help/SearchResultsStatusHint';
 
 const mapStateToProps = (state) => ({
   searchResults: state.searchResults,
@@ -27,23 +30,22 @@ const mapDispatchToProps = {
   searchResultsSetLoadingState,
 };
 
-const styles = (theme) => ({
+const useStyles = makeStyles({
   wrapperDiv: {
     padding: '0 20px 20px 20px',
     boxSizing: 'border-box',
-    overflow: 'hidden',
-    [theme.breakpoints.down('sm')]: {
+    // overflow: 'visible',
+    [(theme) => theme.breakpoints.down('sm')]: {
       padding: '0 0 20px 0',
     },
   },
-
   resultsWrapper: {
     width: '60vw',
     maxWidth: '1200px',
     padding: '16px 24px',
     margin: '8px 100px 24px auto',
     backgroundColor: 'transparent',
-    [theme.breakpoints.down('sm')]: {
+    [(theme) => theme.breakpoints.down('sm')]: {
       padding: '12px 4px 20px 4px',
       width: '90vw',
     },
@@ -53,7 +55,6 @@ const styles = (theme) => ({
       marginTop: 0,
     },
   },
-
   downloadWrapper: {
     fontSize: '1rem',
     color: 'white',
@@ -64,65 +65,66 @@ const styles = (theme) => ({
       backgroundColor: 'rgba(255, 255, 255, 0.1)',
     },
   },
-
   downloadIcon: {
     marginRight: '7px',
     marginBottom: '-3px',
     fontSize: '1.2rem',
   },
-
   helpButton: {
     padding: '0 2px',
     marginTop: '-9.5px',
     color: 'white',
     fontSize: '1.2rem',
   },
-
   helpIcon: {
     color: 'white',
     fontSize: '1.2rem',
   },
-
-  fixedSizeList: {
-    marginTop: '10px',
-    width: '100%',
+  infoShelf: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    paddingLeft: '13px',
   },
-});
-
-const _mapStateToProps = (state) => ({
-  searchResults: state.searchResults,
-  searchResultsLoadingState: state.searchResultsLoadingState,
-});
-
-const _styles = () => ({
+  fixedSizeList: {
+    // padding allows beacons to render without being clipped
+    paddingTop: '10px',
+    paddingRight: '10px',
+    paddingLeft: '13px',
+    width: '100%',
+    overflow: 'visible',
+    // transparent scrollbar bg prevents box shadow of results from
+    // being occluded
+    scrollbarColor: '#9dd162 transparent',
+  },
   resultsCount: {
     textAlign: 'left',
     display: 'inline-block',
   },
 });
 
-const SearchResultStatusIndicator = connect(
-  _mapStateToProps,
-  null,
-)(
-  withStyles(_styles)((props) => {
-    return (
-      <Typography className={props.classes.resultsCount}>
-        {props.searchResultsLoadingState === states.inProgress
-          ? 'Searching...'
-          : `Found ${props.searchResults.length} datasets:`}
+const SearchResultStatusIndicator = ({ classes, loading, results }) => {
+  return (
+    <Hint
+      content={SearchResultsStatusHint}
+      styleOverride={{ beacon: { top: '-.5em' } }}
+      position={{ beacon: 'top-end', hint: 'bottom-end' }}
+      size={'medium'}
+    >
+      <Typography className={classes.resultsCount}>
+        {loading ? 'Searching...' : `Found ${results.length} datasets:`}
       </Typography>
-    );
-  }),
-);
+    </Hint>
+  );
+};
+
+const InfoShelf = ({ classes, children }) => {
+  // wraps results counter and dowload button above results list
+  return <div className={classes.infoShelf}>{children}</div>;
+};
 
 const SearchResults = (props) => {
-  const {
-    classes,
-    searchResults,
-    searchResultsSetLoadingState,
-    searchResultsFetch,
-  } = props;
+  const { searchResults, searchResultsSetLoadingState, searchResultsFetch } =
+    props;
 
   useEffect(() => {
     searchResultsSetLoadingState(states.inProgress);
@@ -148,16 +150,20 @@ const SearchResults = (props) => {
   const itemCount =
     searchResults && searchResults.length ? searchResults.length : 0;
 
+  const loading = searchResultsSetLoadingState === states.inProgress;
+
+  const theme = useTheme();
+  const classes = useStyles(theme);
+
   return (
     <div className={classes.wrapperDiv}>
       <Paper className={classes.resultsWrapper} elevation={0}>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-          }}
-        >
-          <SearchResultStatusIndicator />
+        <InfoShelf classes={classes}>
+          <SearchResultStatusIndicator
+            classes={classes}
+            loading={loading}
+            results={searchResults}
+          />
 
           {searchResults && searchResults.length ? (
             <Hint
@@ -177,10 +183,10 @@ const SearchResults = (props) => {
           ) : (
             ''
           )}
-        </div>
+        </InfoShelf>
 
         <FixedSizeList
-          className={classes.fixedSizeList}
+          className={`${classes.fixedSizeList} search-results-fixed-size-list`}
           itemData={searchResults}
           itemCount={itemCount}
           height={window.innerHeight - 140}
@@ -200,4 +206,4 @@ const SearchResults = (props) => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(withStyles(styles)(withRouter(SearchResults)));
+)(withRouter(SearchResults));

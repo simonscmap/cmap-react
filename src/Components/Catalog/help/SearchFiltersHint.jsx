@@ -1,7 +1,9 @@
 import React from 'react';
-const MakeControlHint = () => {
+import HintContent from '../../Help/HintContent';
+
+const SearchFiltersHint= () => {
   return (
-    <div>
+    <HintContent>
       <h3>Search Filters</h3>
       <p>Filters refine the dataset list by:</p>
       <ul>
@@ -15,8 +17,8 @@ const MakeControlHint = () => {
           <em>Region</em>: Region of the ocean where the data was collected.
         </li>
       </ul>
-    </div>
+    </HintContent>
   );
 };
 
-export default MakeControlHint;
+export default SearchFiltersHint;

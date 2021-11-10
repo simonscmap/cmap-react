@@ -18,8 +18,9 @@ import { setShowCart } from '../../Redux/actions/ui';
 import colors from '../../enums/colors';
 import Hint from '../Help/Hint';
 import AddToFavorites from '../Catalog/help/addToFavoritesHint';
+import DatasetTitleHint from './help/datasetTitleHint';
 
-const mapStateToProps = (state, ownProps) => ({
+const mapStateToProps = (state) => ({
   cart: state.cart,
 });
 
@@ -131,21 +132,40 @@ const SearchResult = (props) => {
     );
   };
 
+  const DatasetTitleLink = () => {
+    return index !== 0 ? (
+      <Link
+        component={RouterLink}
+        to={`/catalog/datasets/${Short_Name}`}
+        className={classes.longName}
+        onClick={() => props.setShowCart(false)}
+      >
+        {Long_Name}
+      </Link>
+    ) : (
+      <Hint
+        content={DatasetTitleHint}
+        styleOverride={{ beacon: { left: '-1.5em' } }}
+        position={{ beacon: 'left', hint: 'bottom-end' }}
+        size={'medium'}
+      >
+        <Link
+          component={RouterLink}
+          to={`/catalog/datasets/${Short_Name}`}
+          className={classes.longName}
+          onClick={() => props.setShowCart(false)}
+        >
+          {Long_Name}
+        </Link>
+      </Hint>
+    );
+  };
+
   return (
     <Paper className={classes.resultPaper} elevation={4}>
       <Grid container className={classes.resultWrapper}>
         <Grid item xs={12} md={8} className={classes.gridRow}>
-          <Tooltip title={Long_Name} enterDelay={400} placement="top">
-            <Link
-              component={RouterLink}
-              to={`/catalog/datasets/${Short_Name}`}
-              className={classes.longName}
-              onClick={() => props.setShowCart(false)}
-            >
-              {Long_Name}
-            </Link>
-          </Tooltip>
-
+          <DatasetTitleLink />
           <Typography className={classes.denseText}>
             {Process_Level} Data from {Data_Source}
           </Typography>
