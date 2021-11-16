@@ -139,17 +139,6 @@
         /* box-shadow: black 0 0 0 0; */
 }
 
-/* tooltip */
-div.MuiTooltip-tooltip {
-    background-color: #1F4A63 !important;
-    color: white;
-    border: 1px solid #9dd162;
-    font-size: .8em;
-    padding:0.5em;
-}
-span.MuiTooltip-arrow {
-    color: #9dd162;
-}
 .video-responsive{
     overflow:hidden;
     padding-bottom:56.25%;

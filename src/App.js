@@ -88,6 +88,20 @@ const theme = createMuiTheme({
         borderRadius: '10%',
       },
     },
+    MuiToggleButton: {
+      root: {
+        backgroundColor: '#9dd162',
+        '&:hover': {
+          backgroundColor: '#9dd162',
+        },
+        '&$selected': {
+          backgroundColor: '#9dd162',
+          '&:hover': {
+            backgroundColor: '#9dd162',
+          }
+        }
+      },
+    },
 
     MuiPaper: {
       root: {
@@ -137,9 +151,14 @@ const theme = createMuiTheme({
     },
 
     MuiTooltip: {
-      // root: {
-      //   zIndex: z.TOOLTIP
-      // }
+      tooltip: {
+        backgroundColor: '#1F4A63',
+        border: '1px solid #9dd162',
+        fontSize: '.8em',
+      },
+      arrow: {
+        color: '#9dd162'
+      },
       popper: {
         zIndex: z.TOOLTIP,
       },
