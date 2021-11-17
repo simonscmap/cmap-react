@@ -5,7 +5,6 @@ import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 
 import {
-  Paper,
   Grid,
   MenuItem,
   FormControl,
@@ -25,15 +24,12 @@ const styles = (theme) => ({
       backgroundColor: 'transparent',
     },
   },
-
   vizTypeMenu: {
     backgroundColor: colors.backgroundGray,
   },
-
   vizTypeMenuItem: {
     '&:hover': { backgroundColor: colors.greenHover },
   },
-
   visualizeButton: {
     textTransform: 'none',
     height: '56px',
@@ -49,7 +45,6 @@ const styles = (theme) => ({
       color: 'white',
     },
   },
-
   vizButtonTooltip: {
     color: 'yellow',
   },
@@ -95,7 +90,6 @@ const ChartControl = (props) => {
               style={overrideDisabledStyle}
               value={selectedVizType}
               variant="filled"
-              // onChange={handleChangeInputValue}
               onChange={handleChangeInputValue}
               inputProps={{
                 name: 'selectedVizType',

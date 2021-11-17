@@ -62,9 +62,9 @@ import VariableDetailsDialog from './VariableDetailsDialog';
 import SparseDataMaxSizeNotification from './SparseDataMaxSizeNotification';
 
 import Hint from '../Help/Hint';
-import SearchHint from './help/searchHint';
+import SearchHint from './help/SearchHint';
 
-const mapStateToProps = (state, ownProps) => ({
+const mapStateToProps = (state) => ({
   data: state.data,
   catalog: state.catalog,
   catalogRequestState: state.catalogRequestState,

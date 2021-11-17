@@ -1,8 +1,10 @@
 import React from 'react';
+import HintContent from '../../Help/HintContent';
+
 
 const SearchHint = () => {
   return (
-    <div>
+    <HintContent>
       <h3>Search</h3>
       <p>
         All variables in the Simons CMAP catalog are annotated with a collection
@@ -27,7 +29,7 @@ const SearchHint = () => {
           (MIT)
         </li>
       </ul>
-    </div>
+    </HintContent>
   );
 };
 

@@ -17,9 +17,13 @@ import {
 } from '@material-ui/core';
 import { Autocomplete } from '@material-ui/lab';
 import { Search, Close } from '@material-ui/icons';
-
 import ProductList from './ProductList';
 import MultiCheckboxDropdown from '../UI/MultiCheckboxDropdown';
+import Hint from '../Help/Hint';
+import SearchFiltersHint from './help/SearchFiltersHint';
+import AdditionalFiltersHint from './help/AdditionalFiltersHint';
+import ResetFiltersHint from './help/ResetFiltersHint';
+import SearchHint from './help/SearchHint';
 
 import {
   vizSearchResultsFetch,
@@ -216,7 +220,6 @@ class DataSearch extends React.Component {
       classes,
       handleSelectDataTarget,
       vizSearchResults,
-      autocompleteVariableNames,
       submissionOptions,
       windowHeight,
     } = this.props;
@@ -269,27 +272,33 @@ class DataSearch extends React.Component {
               display: memberVariablesDataset ? 'none' : '',
             }}
           >
-            <TextField
-              fullWidth
-              name="searchTerms"
-              onChange={this.handleChangeSearchValue}
-              placeholder="Search"
-              value={searchTerms}
-              InputProps={{
-                classes: {
-                  root: classes.inputRoot,
-                },
-                startAdornment: (
-                  <React.Fragment>
-                    <InputAdornment position="start">
-                      <Search style={{ color: colors.primary }} />
-                    </InputAdornment>
-                  </React.Fragment>
-                ),
-              }}
-              variant="outlined"
-              inputRef={this.props.searchInputRef}
-            />
+            <Hint
+              content={SearchHint}
+              position={{ beacon: 'right', hint: 'bottom-start' }}
+              size={'medium'}
+            >
+              <TextField
+                fullWidth
+                name="searchTerms"
+                onChange={this.handleChangeSearchValue}
+                placeholder="Search"
+                value={searchTerms}
+                InputProps={{
+                  classes: {
+                    root: classes.inputRoot,
+                  },
+                  startAdornment: (
+                    <React.Fragment>
+                      <InputAdornment position="start">
+                        <Search style={{ color: colors.primary }} />
+                      </InputAdornment>
+                    </React.Fragment>
+                  ),
+                }}
+                variant="outlined"
+                inputRef={this.props.searchInputRef}
+              />
+            </Hint>
 
             <MultiCheckboxDropdown
               options={submissionOptions.Make}
@@ -300,14 +309,20 @@ class DataSearch extends React.Component {
               groupHeaderLabel="Makes"
             />
 
-            <MultiCheckboxDropdown
-              options={submissionOptions.Sensor}
-              selectedOptions={sensor}
-              handleClear={() => this.handleClearMultiSelect('sensor')}
-              parentStateKey={'sensor'}
-              handleClickCheckbox={this.handleClickCheckbox}
-              groupHeaderLabel="Sensors"
-            />
+            <Hint
+              content={SearchFiltersHint}
+              position={{ beacon: 'right', hint: 'bottom-start' }}
+              size={'small'}
+            >
+              <MultiCheckboxDropdown
+                options={submissionOptions.Sensor}
+                selectedOptions={sensor}
+                handleClear={() => this.handleClearMultiSelect('sensor')}
+                parentStateKey={'sensor'}
+                handleClickCheckbox={this.handleClickCheckbox}
+                groupHeaderLabel="Sensors"
+              />
+            </Hint>
 
             <MultiCheckboxDropdown
               options={submissionOptions.Region}
@@ -318,13 +333,22 @@ class DataSearch extends React.Component {
               groupHeaderLabel="Regions"
             />
 
-            <div className={classes.showAdvancedWrapper}>
-              <Link component="button" onClick={this.handleToggleShowAdvanced}>
-                {this.state.showAdvanced
-                  ? 'Hide Additional Filters'
-                  : 'Additional Filters'}
-              </Link>
-            </div>
+            <Hint
+              content={AdditionalFiltersHint}
+              position={{ beacon: 'right', hint: 'bottom-start' }}
+              size={'small'}
+            >
+              <div className={classes.showAdvancedWrapper}>
+                <Link
+                  component="button"
+                  onClick={this.handleToggleShowAdvanced}
+                >
+                  {this.state.showAdvanced
+                    ? 'Hide Additional Filters'
+                    : 'Additional Filters'}
+                </Link>
+              </div>
+            </Hint>
 
             <div style={this.state.showAdvanced ? {} : { display: 'none' }}>
               <Grid item container xs={12} className={classes.searchPanelRow}>
@@ -583,17 +607,23 @@ class DataSearch extends React.Component {
             </div>
 
             <Grid item xs={12} className={classes.searchPanelRow}>
-              <Button
-                variant="outlined"
-                onClick={this.handleResetSearch}
-                className={classes.resetButton}
+              <Hint
+                content={ResetFiltersHint}
+                position={{ beacon: 'right', hint: 'bottom-start' }}
+                size={'small'}
               >
-                Reset Filters
-              </Button>
+                <Button
+                  variant="outlined"
+                  onClick={this.handleResetSearch}
+                  className={classes.resetButton}
+                >
+                  Reset Filters
+                </Button>
+              </Hint>
             </Grid>
           </Grid>
 
-          <Grid item xs={8} style={{ paddingTop: '12px' }}>
+          <Grid item xs={8} style={{ paddingLeft: '3em' }}>
             <ProductList
               options={vizSearchResults}
               handleSelectDataTarget={handleSelectDataTarget}
