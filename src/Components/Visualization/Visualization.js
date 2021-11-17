@@ -5,7 +5,7 @@ import { Route, Switch } from 'react-router-dom';
 import vizSubTypes from '../../enums/visualizationSubTypes';
 import storedProcedures from '../../enums/storedProcedures';
 
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, ThemeProvider } from '@material-ui/core';
 import Intro from '../Help/Intro';
 import visualizationTourConfig from './help/tourConfig';
 
@@ -145,6 +145,23 @@ const baseSPParams = {
   lon1: 0,
   lon2: 0,
   selectedVizType: '',
+};
+
+// make tooltips take a black background on Viz pages
+const themeOverride = (primary) => {
+  return {
+    ...primary,
+    overrides: {
+      ...primary.overrides,
+      MuiTooltip: {
+        ...primary.overrides.MuiTooltip,
+        tooltip: {
+          ...primary.overrides.MuiTooltip.tooltip,
+          backgroundColor: 'black',
+        },
+      },
+    },
+  };
 };
 
 class Visualization extends Component {
@@ -439,84 +456,88 @@ class Visualization extends Component {
     const { classes } = this.props;
 
     return (
-      <div className={classes.vizWrapper}>
-        <GuestPlotLimitNotification />
-        <Intro config={visualizationTourConfig} />
+      <ThemeProvider theme={themeOverride}>
+        <div className={classes.vizWrapper}>
+          <GuestPlotLimitNotification />
+          <Intro config={visualizationTourConfig} />
 
-        {this.state.esriModules && (
-          <div
-            className={`${
-              this.props.plotsActiveTab === 0 ? '' : classes.displayNone
-            }`}
-          >
-            <MapContainer
-              globeUIRef={this.globeUIRef}
-              updateDomainFromGraphicExtent={this.updateDomainFromGraphicExtent}
-              esriModules={this.state.esriModules}
-              spParams={this.state.spParams}
-              cruiseTrajectory={this.props.cruiseTrajectory}
-              showCruiseControl={this.state.showCruiseControl}
-              chartControlPanelRef={this.chartControlPanelRef}
-              ref={this.mapContainerRef}
-            />
-          </div>
-        )}
-
-        <Switch>
-          <Route exact path="/visualization" component={ModuleSelector} />
-          <Route
-            path="/visualization/charts"
-            render={(props) => (
-              <VizControlPanel
-                {...props}
-                toggleChartView={this.toggleChartView}
-                toggleShowUI={this.toggleShowUI}
-                handleChange={this.handleChange}
-                handleLatLonChange={this.handleLatLonChange}
-                handleStartDateChange={this.handleStartDateChange}
-                handleEndDateChange={this.handleEndDateChange}
-                showUI={this.state.showUI}
-                onVisualize={this.onVisualize}
-                updateFields={this.updateFields}
-                {...this.state.spParams}
-                surfaceOnly={this.state.surfaceOnly}
-                irregularSpatialResolution={
-                  this.state.irregularSpatialResolution
-                }
-                showCharts={this.state.showCharts}
-                handleShowCharts={this.handleShowCharts}
-                handleShowGlobe={this.handleShowGlobe}
-                resetSPParams={this.resetSPParams}
-                handleShowCruiseControl={this.handleShowCruiseControl}
-                showCruiseControl={this.state.showCruiseControl}
+          {this.state.esriModules && (
+            <div
+              className={`${
+                this.props.plotsActiveTab === 0 ? '' : classes.displayNone
+              }`}
+            >
+              <MapContainer
                 globeUIRef={this.globeUIRef}
-                mapContainerRef={this.mapContainerRef}
-                handlePlotsSetActiveTab={this.handlePlotsSetActiveTab}
-                plotsActiveTab={this.props.plotsActiveTab}
+                updateDomainFromGraphicExtent={
+                  this.updateDomainFromGraphicExtent
+                }
+                esriModules={this.state.esriModules}
+                spParams={this.state.spParams}
+                cruiseTrajectory={this.props.cruiseTrajectory}
+                showCruiseControl={this.state.showCruiseControl}
+                chartControlPanelRef={this.chartControlPanelRef}
+                ref={this.mapContainerRef}
               />
-            )}
-            // }
-          />
-          <Route
-            path="/visualization/cruises"
-            render={(props) => (
-              <CruiseSelector
-                handleShowGlobe={() => this.handlePlotsSetActiveTab(null, 0)}
-              />
-            )}
-          />
-        </Switch>
+            </div>
+          )}
 
-        <div
-          className={
-            this.props.plotsActiveTab === 0
-              ? classes.displayNone
-              : classes.showCharts
-          }
-        >
-          <Charts />
+          <Switch>
+            <Route exact path="/visualization" component={ModuleSelector} />
+            <Route
+              path="/visualization/charts"
+              render={(props) => (
+                <VizControlPanel
+                  {...props}
+                  toggleChartView={this.toggleChartView}
+                  toggleShowUI={this.toggleShowUI}
+                  handleChange={this.handleChange}
+                  handleLatLonChange={this.handleLatLonChange}
+                  handleStartDateChange={this.handleStartDateChange}
+                  handleEndDateChange={this.handleEndDateChange}
+                  showUI={this.state.showUI}
+                  onVisualize={this.onVisualize}
+                  updateFields={this.updateFields}
+                  {...this.state.spParams}
+                  surfaceOnly={this.state.surfaceOnly}
+                  irregularSpatialResolution={
+                    this.state.irregularSpatialResolution
+                  }
+                  showCharts={this.state.showCharts}
+                  handleShowCharts={this.handleShowCharts}
+                  handleShowGlobe={this.handleShowGlobe}
+                  resetSPParams={this.resetSPParams}
+                  handleShowCruiseControl={this.handleShowCruiseControl}
+                  showCruiseControl={this.state.showCruiseControl}
+                  globeUIRef={this.globeUIRef}
+                  mapContainerRef={this.mapContainerRef}
+                  handlePlotsSetActiveTab={this.handlePlotsSetActiveTab}
+                  plotsActiveTab={this.props.plotsActiveTab}
+                />
+              )}
+              // }
+            />
+            <Route
+              path="/visualization/cruises"
+              render={(props) => (
+                <CruiseSelector
+                  handleShowGlobe={() => this.handlePlotsSetActiveTab(null, 0)}
+                />
+              )}
+            />
+          </Switch>
+
+          <div
+            className={
+              this.props.plotsActiveTab === 0
+                ? classes.displayNone
+                : classes.showCharts
+            }
+          >
+            <Charts />
+          </div>
         </div>
-      </div>
+      </ThemeProvider>
     );
   }
 }
