@@ -3,6 +3,9 @@ import { connect } from 'react-redux';
 import { withStyles, Grid, Tooltip, Typography } from '@material-ui/core';
 import { Info, ExpandMore, ChevronRight, Star } from '@material-ui/icons';
 import { VariableSizeList } from 'react-window';
+import Hint from '../Help/Hint';
+import ObservationDataGroupHint from './help/ObservationDataGroupHint';
+import ModelDataGroupHint from './help/ModelDataGroupHint';
 import colors from '../../enums/colors';
 import states from '../../enums/asyncRequestStates';
 
@@ -32,6 +35,12 @@ const makeGroupStyles = {
     fontSize: '16px',
     marginTop: '5px',
     backgroundColor: 'rgba(0,0,0,.4)',
+  },
+
+  headingWrapper: {
+    position: 'relative',
+    display: 'inline-block',
+    marginRight: '3em',
   },
 
   variableItem: {
@@ -75,7 +84,6 @@ const makeGroupStyles = {
     paddingLeft: '48px',
   },
 };
-
 
 const mapStateToProps = (state) => ({
   vizSearchResultsLoadingState: state.vizSearchResultsLoadingState,
@@ -138,18 +146,36 @@ const DataSearchResultGroup = connect(
           ? ''
           : ` (${nonvisualizableDatasetCount} hidden)`;
 
+      const getHintVariant = (makeOption) => {
+        if (makeOption === 'Observation') {
+          return ObservationDataGroupHint;
+        }
+        if (makeOption === 'Model') {
+          return ModelDataGroupHint;
+        }
+      };
+
       return (
         <>
           <Grid container>
             <Grid item xs={9}>
-              <Typography className={classes.heading}>
+              <Typography className={classes.heading} component={'div'}>
                 {vizSearchResultsLoadingState === states.inProgress ? (
                   'Searching....'
                 ) : varCount ? (
-                  <React.Fragment>
-                    <span>
-                      {make} Data - Showing {options.length} datasets
-                    </span>
+                  <div className={classes.headingWrapper}>
+                    <Hint
+                      content={getHintVariant(make)}
+                      position={{ beacon: 'top-end', hint: 'bottom-end' }}
+                      styleOverride={{
+                        beacon: { right: '-1.5em', top: '-.5em' },
+                      }}
+                    >
+                      <span>
+                        {make} Data - Showing {options.length} datasets
+                      </span>
+                    </Hint>
+
                     <Tooltip
                       enterDelay={50}
                       placement="top"
@@ -157,7 +183,7 @@ const DataSearchResultGroup = connect(
                     >
                       <span>{nonvisualizableString}</span>
                     </Tooltip>
-                  </React.Fragment>
+                  </div>
                 ) : (
                   `${make} Data - No variables found for current search parameters`
                 )}

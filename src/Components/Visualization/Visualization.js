@@ -42,7 +42,6 @@ import metaTags from '../../enums/metaTags';
 import ModuleSelector from './ModuleSelector';
 import CruiseSelector from './CruiseSelector';
 
-
 const mapVizType = (vizType) => {
   const mapping = {
     [vizSubTypes.sectionMap]: {

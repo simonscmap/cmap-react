@@ -33,7 +33,7 @@ import colors from '../../enums/colors';
 import states from '../../enums/asyncRequestStates';
 import z from '../../enums/zIndex';
 
-const mapStateToProps = (state, ownProps) => ({
+const mapStateToProps = (state) => ({
   vizSearchResults: state.vizSearchResults,
   vizSearchResultsLoadingState: state.vizSearchResultsLoadingState,
   autocompleteVariableNames: state.autocompleteVariableNames,
@@ -179,18 +179,6 @@ class DataSearch extends React.Component {
     this.props.vizSearchResultsSetLoadingState(states.inProgress);
     this.props.vizSearchResultsStore({ Observation: [], Model: [] });
 
-    this.setState(newState);
-    this.props.vizSearchResultsFetch(newState);
-  };
-
-  handleChangeSensor = (e, altTypeValue) => {
-    let newState = { ...this.state, sensor: altTypeValue };
-    this.setState(newState);
-    this.props.vizSearchResultsFetch(newState);
-  };
-
-  handleChangeMake = (e, altTypeValue) => {
-    let newState = { ...this.state, make: altTypeValue };
     this.setState(newState);
     this.props.vizSearchResultsFetch(newState);
   };
