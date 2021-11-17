@@ -1,9 +1,6 @@
 // Select viz type and create viz button
-
 import React from 'react';
-
 import { withStyles } from '@material-ui/core/styles';
-
 import {
   Grid,
   MenuItem,
@@ -13,9 +10,11 @@ import {
   Tooltip,
 } from '@material-ui/core';
 import MUISelect from '@material-ui/core/Select';
-
 import vizSubTypes from '../../enums/visualizationSubTypes';
 import colors from '../../enums/colors';
+import Hint from '../Help/Hint';
+import SelectChartTypeHint from './help/SelectChartTypeHint';
+import CreateVisualizationHint from './help/CreateVisualizationHint';
 
 const styles = (theme) => ({
   vizTypeSelectFormControl: {
@@ -73,123 +72,137 @@ const ChartControl = (props) => {
     <React.Fragment>
       <Grid container>
         <Grid item xs={12}>
-          <FormControl
-            variant="filled"
-            className={classes.vizTypeSelectFormControl}
+          <Hint
+            content={SelectChartTypeHint}
+            position={{ beacon: 'right', hint: 'bottom-end' }}
+            size={'medium'}
           >
-            <InputLabel
-              shrink
-              htmlFor="vizSelector"
-              style={disabled ? { color: 'rgba(0,0,0,.38)' } : {}}
-            >
-              Select Chart Type
-            </InputLabel>
-            <MUISelect
-              disabled={disabled}
-              className={classes.vizTypeSelectFormControl}
-              style={overrideDisabledStyle}
-              value={selectedVizType}
+            <FormControl
               variant="filled"
-              onChange={handleChangeInputValue}
-              inputProps={{
-                name: 'selectedVizType',
-                id: 'vizSelector',
-                variant: 'filled',
-              }}
-              MenuProps={{
-                MenuListProps: {
-                  className: classes.vizTypeMenu,
-                },
-              }}
+              className={classes.vizTypeSelectFormControl}
             >
-              {!heatmapMessage && (
-                <MenuItem
-                  className={classes.vizTypeMenuItem}
-                  value={vizSubTypes.heatmap}
-                  title={heatmapMessage}
-                >
-                  Heatmap
-                </MenuItem>
-              )}
-              {!contourMessage && (
-                <MenuItem
-                  className={classes.vizTypeMenuItem}
-                  value={vizSubTypes.contourMap}
-                >
-                  Contour Heatmap
-                </MenuItem>
-              )}
-              {!sectionMapMessage && (
-                <MenuItem
-                  className={classes.vizTypeMenuItem}
-                  value={vizSubTypes.sectionMap}
-                >
-                  Section Map
-                </MenuItem>
-              )}
-              {!sectionMapMessage && (
-                <MenuItem
-                  className={classes.vizTypeMenuItem}
-                  value={vizSubTypes.contourSectionMap}
-                >
-                  Contour Section Map
-                </MenuItem>
-              )}
-              {!histogramMessage && (
-                <MenuItem
-                  className={classes.vizTypeMenuItem}
-                  value={vizSubTypes.histogram}
-                >
-                  Histogram
-                </MenuItem>
-              )}
-              {!timeSeriesMessage && (
-                <MenuItem
-                  className={classes.vizTypeMenuItem}
-                  value={vizSubTypes.timeSeries}
-                >
-                  Time Series
-                </MenuItem>
-              )}
-              {!depthProfileMessage && (
-                <MenuItem
-                  className={classes.vizTypeMenuItem}
-                  value={vizSubTypes.depthProfile}
-                >
-                  Depth Profile
-                </MenuItem>
-              )}
-              {!sparseMapMessage && (
-                <MenuItem
-                  className={classes.vizTypeMenuItem}
-                  value={vizSubTypes.sparse}
-                >
-                  Time and Space Plots
-                </MenuItem>
-              )}
-            </MUISelect>
-          </FormControl>
+              <InputLabel
+                shrink
+                htmlFor="vizSelector"
+                style={disabled ? { color: 'rgba(0,0,0,.38)' } : {}}
+              >
+                Select Chart Type
+              </InputLabel>
+              <MUISelect
+                disabled={disabled}
+                className={classes.vizTypeSelectFormControl}
+                style={overrideDisabledStyle}
+                value={selectedVizType}
+                variant="filled"
+                onChange={handleChangeInputValue}
+                inputProps={{
+                  name: 'selectedVizType',
+                  id: 'vizSelector',
+                  variant: 'filled',
+                }}
+                MenuProps={{
+                  MenuListProps: {
+                    className: classes.vizTypeMenu,
+                  },
+                }}
+              >
+                {!heatmapMessage && (
+                  <MenuItem
+                    className={classes.vizTypeMenuItem}
+                    value={vizSubTypes.heatmap}
+                    title={heatmapMessage}
+                  >
+                    Heatmap
+                  </MenuItem>
+                )}
+                {!contourMessage && (
+                  <MenuItem
+                    className={classes.vizTypeMenuItem}
+                    value={vizSubTypes.contourMap}
+                  >
+                    Contour Heatmap
+                  </MenuItem>
+                )}
+                {!sectionMapMessage && (
+                  <MenuItem
+                    className={classes.vizTypeMenuItem}
+                    value={vizSubTypes.sectionMap}
+                  >
+                    Section Map
+                  </MenuItem>
+                )}
+                {!sectionMapMessage && (
+                  <MenuItem
+                    className={classes.vizTypeMenuItem}
+                    value={vizSubTypes.contourSectionMap}
+                  >
+                    Contour Section Map
+                  </MenuItem>
+                )}
+                {!histogramMessage && (
+                  <MenuItem
+                    className={classes.vizTypeMenuItem}
+                    value={vizSubTypes.histogram}
+                  >
+                    Histogram
+                  </MenuItem>
+                )}
+                {!timeSeriesMessage && (
+                  <MenuItem
+                    className={classes.vizTypeMenuItem}
+                    value={vizSubTypes.timeSeries}
+                  >
+                    Time Series
+                  </MenuItem>
+                )}
+                {!depthProfileMessage && (
+                  <MenuItem
+                    className={classes.vizTypeMenuItem}
+                    value={vizSubTypes.depthProfile}
+                  >
+                    Depth Profile
+                  </MenuItem>
+                )}
+                {!sparseMapMessage && (
+                  <MenuItem
+                    className={classes.vizTypeMenuItem}
+                    value={vizSubTypes.sparse}
+                  >
+                    Time and Space Plots
+                  </MenuItem>
+                )}
+              </MUISelect>
+            </FormControl>
+          </Hint>
         </Grid>
 
-        <Tooltip
-          placement="right"
-          title={visualizeButtonTooltip}
-          className={classes.vizButtonTooltip}
+        <Hint
+          content={CreateVisualizationHint}
+          position={{ beacon: 'right', hint: 'bottom-end' }}
+          size={'medium'}
         >
-          <Grid item xs={12}>
-            <Button
-              className={classes.visualizeButton}
-              variant="contained"
-              onClick={() => handleVisualize()}
-              disabled={
-                Boolean(disableVisualizeMessage) || !selectedVizType || disabled
-              }
-              fullWidth
-            >
-              Create Visualization
-            </Button>
-          </Grid>
-        </Tooltip>
+          <Tooltip
+            placement="right"
+            title={visualizeButtonTooltip}
+            className={classes.vizButtonTooltip}
+          >
+            <Grid item xs={12}>
+              <Button
+                className={classes.visualizeButton}
+                variant="contained"
+                onClick={() => handleVisualize()}
+                disabled={
+                  Boolean(disableVisualizeMessage) ||
+                  !selectedVizType ||
+                  disabled
+                }
+                fullWidth
+              >
+                Create Visualization
+              </Button>
+            </Grid>
+          </Tooltip>
+        </Hint>
       </Grid>
     </React.Fragment>
   );

@@ -63,6 +63,8 @@ import SparseDataMaxSizeNotification from './SparseDataMaxSizeNotification';
 
 import Hint from '../Help/Hint';
 import SearchHint from './help/SearchHint';
+import RestrictDataHint from './help/RestrictDataHint';
+import PageTitleHint from './help/PageTitleHint';
 
 const mapStateToProps = (state) => ({
   data: state.data,
@@ -112,6 +114,17 @@ const polygonSymbol = {
 };
 
 const styles = (theme) => ({
+  pageTitleWrapper: {
+    position: 'absolute',
+    top: '83px',
+    left: '25px',
+    textAlign: 'left',
+  },
+  pageTitle: {
+    fontSize: '32px',
+    color: 'white',
+    fontWeight: '100',
+  },
   drawerPaper: {
     width: drawerWidth,
     height: 'auto',
@@ -955,8 +968,6 @@ class VizControlPanel extends React.Component {
 
     return (
       <React.Fragment>
-        {/* <ChartControlTabs handlePlotsSetActiveTab={this.props.handlePlotsSetActiveTab} plotsActiveTab={plotsActiveTab}/> */}
-
         <VariableDetailsDialog
           variableDetailsID={variableDetailsID}
           handleSetVariableDetailsID={this.handleSetVariableDetailsID}
@@ -970,6 +981,19 @@ class VizControlPanel extends React.Component {
         ) : (
           ''
         )}
+
+        <div className={classes.pageTitleWrapper}>
+          <Hint
+            content={PageTitleHint}
+            position={{ beacon: 'right', hint: 'bottom-end' }}
+            styleOverride={{ beacon: { right: '-2em ' } }}
+            size={'large'}
+          >
+            <span className={classes.pageTitle}>
+              Visualization: Charts and Plots
+            </span>
+          </Hint>
+        </div>
 
         {showControlPanel ? (
           <Tooltip title="Hide control panel" placement="right">
@@ -1349,7 +1373,11 @@ class VizControlPanel extends React.Component {
                     className={classes.popoutButtonPaper}
                     style={{ left: drawerWidth + 1, top: '146px' }}
                   >
-                    <Tooltip title="Draw Region on Globe">
+                    <Hint
+                      content={RestrictDataHint}
+                      position={{ beacon: 'right', hint: 'bottom-end' }}
+                      size={'medium'}
+                    >
                       <span>
                         <IconButton
                           className={classes.popoutButtonBase}
@@ -1359,7 +1387,7 @@ class VizControlPanel extends React.Component {
                           <Edit className={classes.popoutButtonIcon} />
                         </IconButton>
                       </span>
-                    </Tooltip>
+                    </Hint>
                   </Paper>
                 ) : (
                   ''
