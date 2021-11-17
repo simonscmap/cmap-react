@@ -103,12 +103,17 @@ const HelpAnchor = ({ onClick, isOpen }) => {
   let classes = useStyles();
   return (
     <ToggleButton
+      id="nav-help-toggle-button"
       value="check"
       className={classes.navButton}
       selected={isOpen}
       onChange={onClick}
     >
-      <Typography variant="caption" className={classes.navHelpButtonText}>
+      <Typography
+        variant="caption"
+        className={classes.navHelpButtonText}
+        component="div"
+      >
         Help
         <OpenClosedIndicator isOpen={isOpen} />
       </Typography>
@@ -240,99 +245,114 @@ const HelpNavbarControls = () => {
 
         <VideoModal videoSrc={overviewVideo} />
 
-        <Popper
-          open={Boolean(anchorEl)}
-          anchorEl={anchorEl}
-          role={undefined}
-          transition
-          className={classes.navPopperMenu}
-        >
-          {({ TransitionProps, placement }) => (
-            <Grow
-              {...TransitionProps}
-              style={{
-                transformOrigin:
-                  placement === 'bottom' ? 'center top' : 'center bottom',
-              }}
-            >
-              <Paper>
-                <ClickAwayListener onClickAway={handleClose}>
-                  <MenuList id="menu-list-grow">
-                    <ArrowToolTip
-                      content={'Watch a video overview for this page'}
-                    >
-                      <MenuItem onClick={handleOpenVideo} component={'a'}>
-                        <ListItemIcon>
-                          <PlayArrowIcon />
-                        </ListItemIcon>
-                        Watch Video
-                      </MenuItem>
-                    </ArrowToolTip>
-
-                    <ArrowToolTip content={'Take a quick tour of the page'}>
-                      <MenuItem
-                        onClick={handleTourClick}
-                        component={Link}
-                        to={'#'}
+        <div id="nav-dropdown-menu-wrapper">
+          <Popper
+            open={Boolean(anchorEl)}
+            anchorEl={anchorEl}
+            role={undefined}
+            transition
+            id="test"
+            disablePortal={true}
+            className={classes.navPopperMenu}
+          >
+            {({ TransitionProps, placement }) => (
+              <Grow
+                {...TransitionProps}
+                style={{
+                  transformOrigin:
+                    placement === 'bottom' ? 'center top' : 'center bottom',
+                }}
+              >
+                <Paper id="nav-help-menu">
+                  <ClickAwayListener onClickAway={handleClose}>
+                    <MenuList id="menu-list-grow">
+                      <ArrowToolTip
+                        content={'Watch a video overview for this page'}
                       >
-                        {/* this is a fully functional toggle, but menu is only ever
+                        <MenuItem
+                          id="nav-help-watch-video"
+                          onClick={handleOpenVideo}
+                          component={'a'}
+                        >
+                          <ListItemIcon>
+                            <PlayArrowIcon />
+                          </ListItemIcon>
+                          Watch Video
+                        </MenuItem>
+                      </ArrowToolTip>
+
+                      <ArrowToolTip content={'Take a quick tour of the page'}>
+                        <MenuItem
+                          id="nav-help-tour"
+                          onClick={handleTourClick}
+                          component={Link}
+                          to={'#'}
+                        >
+                          {/* this is a fully functional toggle, but menu is only ever
                         available when tour is disabled */}
-                        <ListItemIcon>
-                          <MapIcon />
-                        </ListItemIcon>
-                        {introIsEnabled ? 'Stop Tour' : 'Quick Tour'}
-                      </MenuItem>
-                    </ArrowToolTip>
+                          <ListItemIcon>
+                            <MapIcon />
+                          </ListItemIcon>
+                          {introIsEnabled ? 'Stop Tour' : 'Quick Tour'}
+                        </MenuItem>
+                      </ArrowToolTip>
 
-                    <ArrowToolTip content={'Turn feature help on or off'}>
-                      <MenuItem
-                        onClick={handleHintsClick}
-                        component={Link}
-                        to={'#'}
-                      >
-                        <ListItemIcon>
-                          <HelpIcon />
-                        </ListItemIcon>
-                        {hintsAreEnabled ? 'Hide Feature Help' : 'Feature Help'}
-                      </MenuItem>
-                    </ArrowToolTip>
-                    <ArrowToolTip
-                      content={
-                        'See documentation for sdk functionality corresponding to features on this page'
-                      }
-                    >
-                      <MenuItem
-                        onClick={handleClose}
-                        component={'a'}
-                        href={'https://cmap.readthedocs.io/en/latest/'}
-                      >
-                        <ListItemIcon>
-                          <DescriptionIcon />
-                        </ListItemIcon>
-                        Documentation
-                      </MenuItem>
-                    </ArrowToolTip>
+                      <ArrowToolTip content={'Turn feature help on or off'}>
+                        <MenuItem
+                          id="nav-help-hints"
+                          onClick={handleHintsClick}
+                          component={Link}
+                          to={'#'}
+                        >
+                          <ListItemIcon>
+                            <HelpIcon />
+                          </ListItemIcon>
+                          {hintsAreEnabled
+                            ? 'Hide Feature Help'
+                            : 'Feature Help'}
+                        </MenuItem>
+                      </ArrowToolTip>
 
-                    <ArrowToolTip
-                      content={'Contact Simons CMAP for additional help'}
-                    >
-                      <MenuItem
-                        onClick={handleClose}
-                        component={'a'}
-                        href={'/about'}
+                      <ArrowToolTip
+                        content={
+                          'See documentation for sdk functionality corresponding to features on this page'
+                        }
                       >
-                        <ListItemIcon>
-                          <ContactMailIcon />
-                        </ListItemIcon>
-                        Contact Us
-                      </MenuItem>
-                    </ArrowToolTip>
-                  </MenuList>
-                </ClickAwayListener>
-              </Paper>
-            </Grow>
-          )}
-        </Popper>
+                        <MenuItem
+                          id="nav-help-documentation"
+                          onClick={handleClose}
+                          component={'a'}
+                          href={'https://cmap.readthedocs.io/en/latest/'}
+                        >
+                          <ListItemIcon>
+                            <DescriptionIcon />
+                          </ListItemIcon>
+                          Documentation
+                        </MenuItem>
+                      </ArrowToolTip>
+
+                      <ArrowToolTip
+                        content={'Contact Simons CMAP for additional help'}
+                      >
+                        <MenuItem
+                          id="nav-help-contact-us"
+                          onClick={handleClose}
+                          component={'a'}
+                          href={'/about'}
+                        >
+                          <ListItemIcon>
+                            <ContactMailIcon />
+                          </ListItemIcon>
+                          Contact Us
+                        </MenuItem>
+                      </ArrowToolTip>
+                    </MenuList>
+                  </ClickAwayListener>
+                </Paper>
+              </Grow>
+            )}
+          </Popper>
+        </div>
       </ThemeProvider>
     </React.Fragment>
   ) : (

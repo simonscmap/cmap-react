@@ -109,9 +109,10 @@ const SearchResult = (props) => {
     Spatial_Resolution,
   } = dataset;
 
-  const AddToCartButton = ({ dataset }) => {
+  const AddToCartButton = ({ dataset, customId }) => {
     return (
       <CartAddOrRemove
+        customId={customId}
         dataset={dataset}
         cartButtonClass={classes.cartButtonClass}
       />
@@ -127,7 +128,7 @@ const SearchResult = (props) => {
         position={{ beacon: 'right-start', hint: 'bottom-end' }}
         size={'small'}
       >
-        <AddToCartButton dataset={dataset} />
+        <AddToCartButton customId={'catalog-add-to-cart'} dataset={dataset} />
       </Hint>
     );
   };
@@ -153,6 +154,7 @@ const SearchResult = (props) => {
           component={RouterLink}
           to={`/catalog/datasets/${Short_Name}`}
           className={classes.longName}
+          id="catalog-dataset-title-link"
           onClick={() => props.setShowCart(false)}
         >
           {Long_Name}

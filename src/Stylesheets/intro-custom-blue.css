@@ -1,0 +1,163 @@
+/*
+9dd162 highlight green
+1F4A63 panel background blue
+2E7398 page background default
+*/
+
+/* style the main tooltip box with background, border, and text color;
+   override max-width to accomodate lager (video) content */
+.introjs-tooltipReferenceLayer
+.introjs-tooltip {
+  max-width: none !important;
+  background: #1F4A63;
+  border: 1px solid #9dd162;
+  color: white;
+}
+
+/* make the content more compact */
+.introjs-tooltipReferenceLayer
+.introjs-tooltiptext {
+  padding: 0 .75em;
+}
+
+/* the 'Next' button */
+.introjs-tooltipReferenceLayer
+.introjs-button {
+  background-color: #21526c !important;
+  color: white !important;
+  border: 1px solid white !important;
+  text-shadow: none;
+}
+.introjs-tooltipReferenceLayer
+.introjs-button:hover {
+  border: 1px solid #9dd162;
+  color: #9dd162;
+  background-color: #21526c;
+  text-shadow: none;
+}
+.introjs-tooltipReferenceLayer
+.introjs-button:focus {
+    box-shadow: none;
+    background-color:#21526c;
+    color: #9dd162;
+}
+/* this 'X' button lets you exit the intro sequence */
+.introjs-tooltipReferenceLayer
+.introjs-skipbutton {
+  color: white;
+}
+
+/* make the arrow green, like the rest of the border */
+.introjs-tooltipReferenceLayer
+.introjs-arrow.top {
+  border-bottom-color: #9dd162;
+}
+
+/* make the intro progress bullets green when active */
+.introjs-tooltipReferenceLayer
+.introjs-bullets ul li a.active {
+  background: #9dd162;
+}
+
+.introjs-tooltipReferenceLayer
+.introjs-tooltiptext p a{
+    color: #9dd162;
+}
+.introjs-tooltipReferenceLayer
+.introjs-tooltiptext p {
+    margin-top: 0;
+}
+
+.introjs-tooltipReferenceLayer
+.introjs-tooltiptext hr {
+  color: #9dd162;
+}
+
+/* align the bullets with the paragraph text */
+.introjs-tooltipReferenceLayer
+.introjs-tooltiptext ul {
+  padding-left: 1em;
+}
+
+.introjs-tooltipReferenceLayer.introjs-hintReference
+.introjs-tooltiptext
+.introjs-button {
+    margin-bottom: 1em;
+}
+
+/* style the custom content wrapper which holds longer content and video */
+.hint-content-wide-600 {
+    overflow:auto;
+    padding:1em;
+    width:600px;
+    height:400px;
+}
+.hint-content-wide-400 {
+    padding:1em;
+    width:400px;
+}
+
+
+/* override the hint beacons */
+.introjs-hint-pulse:after {
+    content: "?"
+}
+
+.introjs-hint-dot {
+    border: none;
+        background: transparent;
+        border-radius: 0px;
+        height: 0px;
+        width: 0px;
+        -webkit-animation: none;
+        animation: none;
+        -webkit-animation-iteration-count: 0;
+        animation-iteration-count: 0;
+        position: absolute;
+        top: -25px;
+        left: -25px;
+        z-index: 1;
+        opacity: 0;
+}
+.introjs-hint:hover > .introjs-hint-pulse {
+    border: none;
+}
+.introjs-hint-pulse {
+        /* box-sizing: content-box; */
+        /* width: 10px; */
+        /* height: 10px; */
+        border: none;
+        border-radius: 1em;
+        font-size: 1em;
+        background-color: #9dd162;
+        /* z-index: 10; */
+        /* transition: all 0.2s ease-out; */
+        transition: none;
+        line-height: 1em;
+        width: 1em;
+        height: 1em;
+        align-content: center;
+        text-align: center;
+        font-weight: 500;
+        padding: 0.05em;
+        /* box-shadow: black 0 0 0 0; */
+}
+
+.video-responsive{
+    overflow:hidden;
+    padding-bottom:56.25%;
+    position:relative;
+    height:0;
+}
+.video-responsive iframe{
+    left:0;
+    top:0;
+    height:100%;
+    width:100%;
+    position:absolute;
+}
+
+/* adjust "Download Search Results" left to make room for hint*/
+p#catalog-results-download {
+    padding-right: 1.6em;
+}

@@ -6,6 +6,10 @@ import CatalogSearch from './CatalogSearch';
 import SearchResults from './SearchResults';
 import metaTags from '../../enums/metaTags';
 import { CATALOG_PAGE } from '../../constants';
+import '../../Stylesheets/intro-custom-blue.css';
+
+import Intro from '../Help/Intro';
+import tourConfig from './help/tourConfig';
 
 const styles = (theme) => ({
   wrapperDiv: {
@@ -47,17 +51,20 @@ const Catalog = ({ classes }) => {
   // const hints = useSelector(({ hints }) => hints);
 
   return (
-    <div id={`${CATALOG_PAGE}-style-context`} className={classes.wrapperDiv}>
-      <Grid container justify="center">
-        <Grid item xs={12} md={4} className={classes.searchGrid}>
-          <CatalogSearch />
-        </Grid>
+    <React.Fragment>
+      <Intro config={tourConfig} />
+      <div id={`${CATALOG_PAGE}-style-context`} className={classes.wrapperDiv}>
+        <Grid container justify="center">
+          <Grid item xs={12} md={4} className={classes.searchGrid}>
+            <CatalogSearch />
+          </Grid>
 
-        <Grid item xs={12} md={8}>
-          <SearchResults />
+          <Grid item xs={12} md={8}>
+            <SearchResults />
+          </Grid>
         </Grid>
-      </Grid>
-    </div>
+      </div>
+    </React.Fragment>
   );
 };
 

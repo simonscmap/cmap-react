@@ -9,11 +9,13 @@
 .introjs-tooltipReferenceLayer
 .introjs-tooltip {
   max-width: none !important;
-  background: #1F4A63;
+  background-color: #000000;
   border: 1px solid #9dd162;
   color: white;
 }
-
+.introjs-tooltipReferenceLayer.introjs-fixedTooltip {
+    margin-left: 10px;
+}
 /* make the content more compact */
 .introjs-tooltipReferenceLayer
 .introjs-tooltiptext {
@@ -23,7 +25,7 @@
 /* the 'Next' button */
 .introjs-tooltipReferenceLayer
 .introjs-button {
-  background-color: #21526c;
+  background-color: black;
   color: white;
   border: 1px solid white;
   text-shadow: none;

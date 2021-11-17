@@ -18,13 +18,11 @@ import {
   Button,
   Grid,
 } from '@material-ui/core';
-import tourConfig from './help/tourConfig';
 import { Search } from '@material-ui/icons';
 import { debounce } from 'throttle-debounce';
 import MultiCheckboxDropdown from '../UI/MultiCheckboxDropdown';
 import queryString from 'query-string';
 import colors from '../../enums/colors';
-import Intro from '../Help/Intro';
 import Hint from '../Help/Hint';
 import SearchHint from './help/keywordSearchHint';
 import SearchFiltersHint from './help/SearchFiltersHint';
@@ -216,8 +214,6 @@ class CatalogSearch extends React.Component {
 
     return (
       <>
-        <Intro config={tourConfig} />
-
         <div className={classes.pageTitleWrapper}>
           <Hint
             content={CatalogPageTitleHint}

@@ -42,6 +42,8 @@ import metaTags from '../../enums/metaTags';
 import ModuleSelector from './ModuleSelector';
 import CruiseSelector from './CruiseSelector';
 
+import '../../Stylesheets/intro-custom-black.css';
+
 const mapVizType = (vizType) => {
   const mapping = {
     [vizSubTypes.sectionMap]: {
@@ -115,14 +117,13 @@ const styles = (theme) => ({
   displayNone: {
     display: 'none',
   },
-
   background: {
     backgroundColor: colors.backgroundGray,
   },
 
   showCharts: {
     display: 'inline-block',
-    paddingTop: '180px',
+    paddingTop: '160px',
     width: 'calc(100vw - 10px)', //new
     textAlign: 'left', //new
   },

@@ -110,7 +110,10 @@ const SearchResultStatusIndicator = ({ classes, loading, results }) => {
       position={{ beacon: 'top-end', hint: 'bottom-end' }}
       size={'medium'}
     >
-      <Typography className={classes.resultsCount}>
+      <Typography
+        id="catalog-search-result-count"
+        className={classes.resultsCount}
+      >
         {loading ? 'Searching...' : `Found ${results.length} datasets:`}
       </Typography>
     </Hint>

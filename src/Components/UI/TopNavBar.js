@@ -195,6 +195,7 @@ class TopNavBar extends Component {
               <div>
                 <Typography
                   variation="caption"
+                  component="div"
                   className={classes.navLink}
                 >
                   <HelpNavbarControls />

@@ -27,6 +27,7 @@ const styles = (theme) => ({});
 
 const CartAddOrRemove = (props) => {
   const {
+    customId,
     classes,
     cart,
     cartAddItem,
@@ -57,6 +58,7 @@ const CartAddOrRemove = (props) => {
         placement="right"
       >
         <Button
+          id={customId}
           style={
             !dataset.Visualize && !cart[dataset.Long_Name]
               ? { color: '#e3e61a' }
