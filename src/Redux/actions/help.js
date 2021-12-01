@@ -3,12 +3,12 @@ export const helpActionTypes = {
   TOGGLE_HINTS: 'TOGGLE_HINTS',
 };
 
-export const toggleIntro = (pageName) => ({
+export const toggleIntro = (pageName, value) => ({
   type: helpActionTypes.TOGGLE_INTRO,
-  payload: pageName
+  payload: { pageName, value },
 });
 
 export const toggleHints = (pageName) => ({
   type: helpActionTypes.TOGGLE_HINTS,
-  payload: pageName
+  payload: pageName,
 });

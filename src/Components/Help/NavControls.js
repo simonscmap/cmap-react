@@ -150,7 +150,7 @@ const HelpNavbarControls = () => {
   };
 
   const handleTourClick = () => {
-    dispatch(toggleIntro(pageName));
+    dispatch(toggleIntro(pageName, !introIsEnabled));
     handleClose();
   };
 

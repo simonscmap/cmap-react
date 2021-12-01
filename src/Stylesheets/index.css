@@ -18,16 +18,20 @@ html {
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
+  /* setting height to 100% prevents background from extending
+     to the bottom of the page when certain elements are expanded
+     and cause the page height to lengthen; so we set min-height instead */
+  min-height: 100%;
 }
 
 ::-webkit-calendar-picker-indicator {
   display: none;
 }
 
-input[type=number]::-webkit-inner-spin-button, 
-input[type=number]::-webkit-outer-spin-button { 
-  -webkit-appearance: none; 
-  margin: 0; 
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 body {

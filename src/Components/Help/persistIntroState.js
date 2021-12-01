@@ -9,6 +9,7 @@ export default function registerIntro() {
     key: LOCAL_STORAGE_KEY_INTRO_STATE,
     payloadToValue: (currentState, payload) => {
       let oldState;
+      let { pageName, value } = payload;
       // if no state is set
       if (!currentState) {
         oldState = localStorageIntroState;
@@ -24,7 +25,7 @@ export default function registerIntro() {
         }
       }
       let newState = Object.assign({}, oldState, {
-        [payload]: !oldState[payload],
+        [pageName]: value,
       });
       return newState
     },

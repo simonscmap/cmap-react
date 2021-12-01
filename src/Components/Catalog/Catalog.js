@@ -1,5 +1,6 @@
 // Wrapper and layout for the catalog page
 import React, { useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import { withStyles, Grid } from '@material-ui/core';
 
 import CatalogSearch from './CatalogSearch';
@@ -7,6 +8,7 @@ import SearchResults from './SearchResults';
 import metaTags from '../../enums/metaTags';
 import { CATALOG_PAGE } from '../../constants';
 import '../../Stylesheets/intro-custom-blue.css';
+import states from '../../enums/asyncRequestStates';
 
 import Intro from '../Help/Intro';
 import tourConfig from './help/tourConfig';
@@ -31,7 +33,6 @@ const styles = (theme) => ({
 });
 
 const Catalog = ({ classes }) => {
-  // TODO these use effects return functions that are not used
   useEffect(() => {
     document.title = metaTags.catalog.title;
     document.description = metaTags.catalog.description;

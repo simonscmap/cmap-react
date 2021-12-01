@@ -126,8 +126,12 @@ const InfoShelf = ({ classes, children }) => {
 };
 
 const SearchResults = (props) => {
-  const { searchResults, searchResultsSetLoadingState, searchResultsFetch } =
-    props;
+  const {
+    searchResults,
+    searchResultsLoadingState,
+    searchResultsSetLoadingState,
+    searchResultsFetch,
+  } = props;
 
   useEffect(() => {
     searchResultsSetLoadingState(states.inProgress);
@@ -153,7 +157,7 @@ const SearchResults = (props) => {
   const itemCount =
     searchResults && searchResults.length ? searchResults.length : 0;
 
-  const loading = searchResultsSetLoadingState === states.inProgress;
+  const loading = searchResultsLoadingState === states.inProgress;
 
   const theme = useTheme();
   const classes = useStyles(theme);

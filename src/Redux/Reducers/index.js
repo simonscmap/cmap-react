@@ -24,7 +24,7 @@ const initialState = {
   keywords: [],
   searchOptions: {},
   searchResults: [],
-  searchResultsLoadingState: states.succeeded,
+  searchResultsLoadingState: states.notTried,
   datasetFullPageData: {},
   datasetFullPageDataLoadingState: states.succeeded,
   cruiseFullPageData: {},
