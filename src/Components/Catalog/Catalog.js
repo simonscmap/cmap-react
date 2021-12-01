@@ -42,17 +42,14 @@ const Catalog = ({ classes }) => {
     };
   });
 
-  // TODO can we remove this and handle it in stylesheets?
-  useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    return () => (document.body.style.overflow = 'auto');
+  let waitToLoadIntro = useSelector(({ searchResultsLoadingState }) => {
+    // true indicates the Intro should wait; false that it should go ahead and render
+    return  searchResultsLoadingState !== states.succeeded;
   });
-
-  // const hints = useSelector(({ hints }) => hints);
 
   return (
     <React.Fragment>
-      <Intro config={tourConfig} />
+      <Intro config={tourConfig} wait={waitToLoadIntro} />
       <div id={`${CATALOG_PAGE}-style-context`} className={classes.wrapperDiv}>
         <Grid container justify="center">
           <Grid item xs={12} md={4} className={classes.searchGrid}>

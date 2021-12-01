@@ -48,7 +48,6 @@ const styles = (theme) => ({
   },
   searchPaper: {
     padding: '14px 20px',
-    maxHeight: 'calc(100vh - 200px)',
     // overflow must be visible to allow hints to expand outside
     // the boundary of the search container
     overflow: 'visible',
