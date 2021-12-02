@@ -19,124 +19,128 @@ const styles = (theme) => ({
     color: colors.primary,
     margin: '0 8px 0 4px',
   },
-
   formGroupWrapper: {
     textAlign: 'left',
     paddingLeft: '20px',
   },
-
   multiSelectHeader: {
     fontSize: '13px',
     margin: '6px 0px 2px 0px',
   },
-
   formControlLabelRoot: {
     height: '30px',
   },
-
   formControlLabelLabel: {
     fontSize: '14px',
   },
-
   checkboxGroupHeader: {
     '&:hover': {
       backgroundColor: colors.greenHover,
     },
-
     cursor: 'pointer',
     height: '38px',
     boxShadow: '0px 0px 0px 1px #242424',
     marginTop: '8px',
   },
+  dropdownContentWrapper: {
+    maxHeight: '500px',
+    overflow: 'scroll',
+    scrollbarColor: '#9dd162 transparent',
+  },
 });
+
+const DropDownHandle = ({ groupHeaderLabel, isOpen, classes, onClick, id }) => {
+  return (
+    <Grid
+      item
+      xs={12}
+      container
+      alignItems="center"
+      className={classes.checkboxGroupHeader}
+      id={id || 'no-id'}
+      onClick={onClick}
+    >
+      {isOpen ? (
+        <ExpandMore className={classes.menuOpenIcon} />
+      ) : (
+        <ChevronRight className={classes.menuOpenIcon} />
+      )}
+      {groupHeaderLabel}
+    </Grid>
+  );
+};
+
+const CollapsibleContent = ({
+  classes,
+  handleClear,
+  handleClickCheckbox,
+  options,
+  parentStateKey,
+  selectedOptions,
+}) => {
+  const countAndResize = (
+    <Grid
+      item
+      container
+      cs={12}
+      justify="flex-start"
+      className={classes.multiSelectHeader}
+    >
+      <span style={{ marginRight: '8px' }}>
+        {selectedOptions.size} Selected{' '}
+      </span>
+      <Link component="button" onClick={handleClear}>
+        Reset
+      </Link>
+    </Grid>
+  );
+
+  const makeOption = (label, index) => {
+    return (
+      <Grid item xs={12} key={index}>
+        <FormControlLabel
+          control={
+            <Checkbox
+              color="primary"
+              onChange={handleClickCheckbox}
+              className={classes.checkbox}
+              size="small"
+              name={parentStateKey + '!!' + label}
+              checked={selectedOptions.has(label)}
+            />
+          }
+          label={label}
+          classes={{
+            root: classes.formControlLabelRoot,
+            label: classes.formControlLabelLabel,
+          }}
+        />
+      </Grid>
+    );
+  };
+
+  return (
+    <Grid item xs={12} className={classes.formGroupWrapper}>
+      <div className={classes.dropdownContentWrapper}>
+        {selectedOptions.size > 0 && countAndResize}
+        <FormGroup>{options.map(makeOption)}</FormGroup>
+      </div>
+    </Grid>
+  );
+};
 
 //component expects to be wrapped in a grid
 const MultiCheckboxDrowndown = (props) => {
-  const {
-    classes,
-    id,
-    selectedOptions, //set
-    handleClear,
-    options,
-    parentStateKey,
-    handleClickCheckbox,
-    groupHeaderLabel,
-  } = props;
-
   const [open, setOpenState] = React.useState(false);
   const toggleOpenState = () => {
-    // toggle local state; a future implementation could rely on redux state
     setOpenState(!open);
   };
 
   return (
-    <>
-      <Grid
-        item
-        xs={12}
-        container
-        alignItems="center"
-        className={classes.checkboxGroupHeader}
-        id={id || 'no-id'}
-        onClick={toggleOpenState}
-      >
-        {open ? (
-          <ExpandMore className={classes.menuOpenIcon} />
-        ) : (
-          <ChevronRight className={classes.menuOpenIcon} />
-        )}
-        {groupHeaderLabel}
-      </Grid>
-
-      {open ? (
-        <Grid item xs={12} className={classes.formGroupWrapper}>
-          {selectedOptions.size ? (
-            <Grid
-              item
-              container
-              cs={12}
-              justify="flex-start"
-              className={classes.multiSelectHeader}
-            >
-              <span style={{ marginRight: '8px' }}>
-                {selectedOptions.size} Selected{' '}
-              </span>
-              <Link component="button" onClick={handleClear}>
-                Reset
-              </Link>
-            </Grid>
-          ) : (
-            ''
-          )}
-
-          <FormGroup>
-            {options.map((e, i) => (
-              <Grid item xs={12} key={i}>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      color="primary"
-                      onChange={handleClickCheckbox}
-                      className={classes.checkbox}
-                      size="small"
-                      name={parentStateKey + '!!' + e}
-                      checked={selectedOptions.has(e)}
-                    />
-                  }
-                  label={e}
-                  classes={{
-                    root: classes.formControlLabelRoot,
-                    label: classes.formControlLabelLabel,
-                  }}
-                />
-              </Grid>
-            ))}
-          </FormGroup>
-        </Grid>
-      ) : (
-        ''
-      )}
-    </>
+    <React.Fragment>
+      <DropDownHandle {...props} onClick={toggleOpenState} isOpen={open} />
+      {open && <CollapsibleContent {...props} />}
+    </React.Fragment>
   );
 };
 
