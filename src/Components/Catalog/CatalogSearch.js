@@ -27,6 +27,7 @@ import Hint from '../Help/Hint';
 import SearchHint from './help/keywordSearchHint';
 import SearchFiltersHint from './help/SearchFiltersHint';
 import CatalogPageTitleHint from './help/pageTitleHint';
+import AdditionalFiltersHint from './help/AdditionalFiltersHint';
 
 const mapStateToProps = (state) => {
   let { submissionOptions, hints } = state;
@@ -292,7 +293,7 @@ class CatalogSearch extends React.Component {
                 />
 
                 <Hint
-                  content={SearchFiltersHint}
+                  content={AdditionalFiltersHint}
                   position={{ beacon: 'right', hint: 'right' }}
                   size={'small'}
                 >
