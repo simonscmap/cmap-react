@@ -5,62 +5,12 @@ import 'intro.js/introjs.css';
 import { useSelector, useDispatch } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { pathNameToPageName } from '../../Utility/routing.js';
-
-// todo: move this to a utility module
-const isInViewport = (el) => {
-  if (!el) {
-    return false;
-  }
-
-  let rect = el.getBoundingClientRect();
-
-  if (!rect) {
-    return false;
-  }
-
-  let top = rect.top >= 0;
-  let left = rect.left >= 0;
-  let bottom =
-    rect.bottom <=
-    (window.innerHeight || document.documentElement.clientHeight);
-  let right =
-    rect.right <= (window.innerWidth || document.documentElement.clientWidth);
-
-  return top && left && bottom && right;
-};
-
-const elementIsReady = (step) => {
-  let qs = step.element;
-  let el = document.querySelector(qs);
-  let isReady = isInViewport(el);
-  return isReady;
-};
-
-const filterSteps = (steps) => steps.filter(elementIsReady);
-
-// This component wraps the react implementation of intro-js steps
-// See https://github.com/HiDeoo/intro.js-react
+import { elementIsReady } from '../../Utility/domHelpers';
 
 // TODO automatically load the correct config for the current page
 // do not depend on injecting props
 
-const StepsWrapper = ({ enabled, steps, initialStep, onIntroExit }) => {
-  // store a reference to the mounted Steps instance
-  // you can use this to call introJs methods, such as "refresh"
-  // let [ref, setRef] = useState(undefined);
-
-  return (
-    enabled && (
-      <Steps
-        enabled={enabled}
-        steps={steps}
-        initialStep={initialStep}
-        onExit={onIntroExit}
-        // ref={(steps) => setRef(steps)}
-      />
-    )
-  );
-};
+const filterSteps = (steps) => steps.filter(elementIsReady);
 
 const Intro = ({ config, wait }) => {
   let { pathname } = useLocation();
@@ -68,8 +18,6 @@ const Intro = ({ config, wait }) => {
 
   let introEnabled = useSelector(({ intros }) => intros[pageName]);
   let dispatch = useDispatch();
-
-  console.log('selector:introEnabled', introEnabled);
 
   let onIntroExit = () => {
     // onExit will fire when the component is unmounted,
@@ -96,17 +44,25 @@ const Intro = ({ config, wait }) => {
     if (!wait && introEnabled) {
       setSteps(filterSteps(config.steps));
       setReady(true);
+    } else if (!introEnabled) {
+      // resetting this to false is important for ensuring that re-running the intro will
+      // get a refreshed array of steps
+      setReady(false);
     }
   }, [wait, introEnabled]);
 
-  const props = {
-    onIntroExit,
-    initialStep: config.initialStep,
-  };
-
   const isEnabled = ready && introEnabled;
 
-  return <StepsWrapper {...props} steps={steps} enabled={isEnabled} />;
+  return (
+    isEnabled && (
+      <Steps
+        enabled={isEnabled}
+        steps={steps}
+        initialStep={config.initialStep}
+        onExit={onIntroExit}
+      />
+    )
+  );
 };
 
 export default Intro;

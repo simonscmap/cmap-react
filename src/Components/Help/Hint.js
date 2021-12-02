@@ -57,9 +57,11 @@ function Hint({ children, content, styleOverride, position, size }) {
   // any open hints should close
   const openHint = hintIsVisible && hintsAreEnabled;
 
+  // NOTE: render "children" before the Beacon and Tooltip, to ensure that the children elements do not clip the Beacon
   return (
     <ClickAwayListener onClickAway={() => setHintVisibility(false)}>
       <div className={classes.wrapper}>
+        <div>{children}</div>
         <Beacon
           enabled={hintsAreEnabled}
           onClick={toggleHint}
@@ -71,7 +73,6 @@ function Hint({ children, content, styleOverride, position, size }) {
             styles={classes}
           />
         </Beacon>
-        <div>{children}</div>
       </div>
     </ClickAwayListener>
   );
