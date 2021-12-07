@@ -9,9 +9,8 @@ import {
   Paper,
   Tooltip,
   Link,
-  Button,
 } from '@material-ui/core';
-import { Info, ErrorOutline } from '@material-ui/icons';
+import { ErrorOutline } from '@material-ui/icons';
 import { Link as RouterLink } from 'react-router-dom';
 import CartAddOrRemove from './CartAddOrRemove';
 import { setShowCart } from '../../Redux/actions/ui';
@@ -80,7 +79,6 @@ const styles = (theme) => ({
     textTransform: 'none',
     color: theme.palette.primary.main,
     paddingLeft: '4px',
-    marginLeft: '16px',
   },
 
   warningIcon: {
@@ -195,17 +193,6 @@ const SearchResult = (props) => {
             {Depth_Max ? 'Multiple Depth Levels' : 'Surface Level Data'}
           </Typography>
 
-          <Button
-            variant="text"
-            color="primary"
-            className={classes.moreInfoButton}
-            startIcon={<Info />}
-            component={RouterLink}
-            to={`/catalog/datasets/${Short_Name}`}
-            onClick={() => props.setShowCart(false)}
-          >
-            More Info
-          </Button>
 
           <AddToCart dataset={dataset} />
 
