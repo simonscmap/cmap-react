@@ -153,13 +153,14 @@ const styles = (theme) => ({
   dataSearchMenuPaper: {
     position: 'fixed',
     top: 120,
-    bottom: 60,
+    bottom: 0,
     left: 0,
     width: '98vw',
     height: 'auto',
     zIndex: z.CONTROL_PRIMARY,
     backgroundColor: 'rgba(0,0,0,.6)',
     backdropFilter: 'blur(5px)',
+    overflowY: 'scroll',
   },
 
   formGridItem: {
@@ -206,6 +207,10 @@ const styles = (theme) => ({
 
   textField: {
     width: '100%',
+    // prevent arrow controls from rendering on firefox
+    '& input': {
+     '-moz-appearance': 'textfield',
+    }
   },
 
   drawHelpText: {

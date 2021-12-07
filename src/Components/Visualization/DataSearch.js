@@ -265,8 +265,7 @@ class DataSearch extends React.Component {
             item
             xs={4}
             style={{
-              overflowY: 'auto',
-              maxHeight: windowHeight - 204,
+              overflowY: 'visible',
               padding: '16px',
               backgroundColor: 'rgba(0,0,0,.4)',
               display: memberVariablesDataset ? 'none' : '',
