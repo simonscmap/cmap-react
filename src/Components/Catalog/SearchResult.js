@@ -1,6 +1,6 @@
 // An individual result from catalog search
 
-import React from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import {
   withStyles,
@@ -9,8 +9,10 @@ import {
   Paper,
   Tooltip,
   Link,
+  Button,
 } from '@material-ui/core';
 import { ErrorOutline } from '@material-ui/icons';
+
 import { Link as RouterLink } from 'react-router-dom';
 import CartAddOrRemove from './CartAddOrRemove';
 import { setShowCart } from '../../Redux/actions/ui';
@@ -18,6 +20,9 @@ import colors from '../../enums/colors';
 import Hint from '../Help/Hint';
 import AddToFavorites from '../Catalog/help/addToFavoritesHint';
 import DatasetTitleHint from './help/datasetTitleHint';
+import DownloadDialog from './DownloadDialog';
+import api from '../../api/api';
+import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 
 const mapStateToProps = (state) => ({
   cart: state.cart,
@@ -30,7 +35,6 @@ const mapDispatchToProps = {
 const styles = (theme) => ({
   resultWrapper: {
     padding: '4px 12px',
-    height: '200px',
   },
 
   image: {
@@ -43,7 +47,6 @@ const styles = (theme) => ({
   },
 
   gridRow: {
-    marginBottom: '8px',
     textAlign: 'left',
   },
 
@@ -60,6 +63,7 @@ const styles = (theme) => ({
 
   resultPaper: {
     marginTop: '22px',
+    margin: '20px',
   },
 
   denseText: {
@@ -69,16 +73,10 @@ const styles = (theme) => ({
     textOverflow: 'ellipsis',
   },
 
-  moreInfoButton: {
-    textTransform: 'none',
-    color: theme.palette.primary.main,
-    paddingLeft: '4px',
-  },
-
   cartButtonClass: {
     textTransform: 'none',
     color: theme.palette.primary.main,
-    paddingLeft: '4px',
+    // paddingLeft: '4px',
   },
 
   warningIcon: {
@@ -86,6 +84,22 @@ const styles = (theme) => ({
     marginLeft: '14px',
     marginBottom: '-7px',
     fontSize: '1.45rem',
+  },
+
+  downloadLink: {
+    color: theme.palette.primary.main,
+    cursor: 'pointer',
+    marginLeft: '2em',
+    textTransform: 'none',
+    textIndent: '.5em',
+  },
+
+  resultSpacingWrapper: {
+    padding: '0 0 20px 0',
+  },
+  bottomAlignedText: {
+    display: 'inline-block',
+    marginBottom: '-5px',
   },
 });
 
@@ -161,58 +175,90 @@ const SearchResult = (props) => {
     );
   };
 
+  const [downloadDialogOpen, setDownloadDialogOpen] = useState(false);
+  const [fullDataset, setDataset] = useState();
+  const onDownloadClick = async () => {
+    let data;
+    try {
+      data = await api.catalog.datasetFullPageDataFetch(Short_Name);
+      if (data.ok) {
+        data = await data.json();
+        setDataset(data);
+        // only open dialog if we have data
+        setDownloadDialogOpen(true);
+      }
+    } catch (e) {
+      console.error(`There was an error attempting to fetch ${Short_Name}`);
+      // TODO: alert user that there was an error
+    }
+  };
+
   return (
-    <Paper className={classes.resultPaper} elevation={4}>
-      <Grid container className={classes.resultWrapper}>
-        <Grid item xs={12} md={8} className={classes.gridRow}>
-          <DatasetTitleLink />
-          <Typography className={classes.denseText}>
-            {Process_Level} Data from {Data_Source}
-          </Typography>
+    <div className={classes.resultSpacingWrapper}>
+      <Paper className={classes.resultPaper} elevation={4}>
+        <Grid container className={classes.resultWrapper}>
+          <Grid item xs={12} md={8} className={classes.gridRow}>
+            {downloadDialogOpen && (
+              <DownloadDialog
+                dialogOpen={downloadDialogOpen}
+                dataset={fullDataset}
+                handleClose={() => setDownloadDialogOpen(false)}
+              />
+            )}
+            <DatasetTitleLink />
 
-          <Typography className={classes.denseText}>
-            Sensor{Sensors.length > 1 ? 's' : ''}: {Sensors.join(', ')}
-          </Typography>
+            <Typography className={classes.denseText}>
+              {Process_Level} Data from {Data_Source}
+            </Typography>
 
-          <Typography className={classes.denseText}>
-            Temporal Resolution: {Temporal_Resolution}
-          </Typography>
+            <Typography className={classes.denseText}>
+              Sensor{Sensors.length > 1 ? 's' : ''}: {Sensors.join(', ')}
+            </Typography>
 
-          <Typography className={classes.denseText}>
-            Temporal Coverage:{' '}
-            {Time_Min && Time_Max
-              ? ` ${Time_Min.slice(0, 10)} to ${Time_Max.slice(0, 10)}`
-              : 'NA'}
-          </Typography>
+            <Typography className={classes.denseText}>
+              Temporal Resolution: {Temporal_Resolution}
+            </Typography>
 
-          <Typography className={classes.denseText}>
-            Spatial Resolution: {Spatial_Resolution}
-          </Typography>
+            <Typography className={classes.denseText}>
+              Temporal Coverage:{' '}
+              {Time_Min && Time_Max
+                ? ` ${Time_Min.slice(0, 10)} to ${Time_Max.slice(0, 10)}`
+                : 'NA'}
+            </Typography>
 
-          <Typography className={classes.denseText}>
-            {Depth_Max ? 'Multiple Depth Levels' : 'Surface Level Data'}
-          </Typography>
+            <Typography className={classes.denseText}>
+              Spatial Resolution: {Spatial_Resolution}
+            </Typography>
 
+            <Typography className={classes.denseText}>
+              {Depth_Max ? 'Multiple Depth Levels' : 'Surface Level Data'}
+            </Typography>
 
-          <AddToCart dataset={dataset} />
+            <AddToCart dataset={dataset} />
 
-          {!Visualize && cart[Long_Name] ? (
-            <Tooltip
-              title="This dataset contains no visualizable variables, and will not appear on the visualization page."
-              placement="top"
-            >
-              <ErrorOutline className={classes.warningIcon} />
-            </Tooltip>
-          ) : (
-            ''
-          )}
+            <Button onClick={onDownloadClick} className={classes.downloadLink}>
+              <CloudDownloadIcon />
+              <span className={classes.bottomAlignedText}>Download Data</span>
+            </Button>
+
+            {!Visualize && cart[Long_Name] ? (
+              <Tooltip
+                title="This dataset contains no visualizable variables, and will not appear on the visualization page."
+                placement="top"
+              >
+                <ErrorOutline className={classes.warningIcon} />
+              </Tooltip>
+            ) : (
+              ''
+            )}
+          </Grid>
+
+          <Grid item xs={12} md={4}>
+            <img src={Icon_URL} alt={Short_Name} className={classes.image} />
+          </Grid>
         </Grid>
-
-        <Grid item xs={12} md={4}>
-          <img src={Icon_URL} alt={Short_Name} className={classes.image} />
-        </Grid>
-      </Grid>
-    </Paper>
+      </Paper>
+    </div>
   );
 };
 

@@ -23,7 +23,12 @@ const mapDispatchToProps = {
   cartPersistRemoveItem,
 };
 
-const styles = (theme) => ({});
+const styles = (theme) => ({
+  bottomAlignedText: {
+    display: 'inline-block',
+    marginBottom: '-5px',
+  },
+});
 
 const CartAddOrRemove = (props) => {
   const {
@@ -70,9 +75,11 @@ const CartAddOrRemove = (props) => {
           startIcon={cart[dataset.Long_Name] ? <Star /> : <StarBorder />}
           onClick={handleClick}
         >
-          {cart[dataset.Long_Name]
-            ? 'Remove From Favorites'
-            : 'Add To Favorites'}
+          <span className={classes.bottomAlignedText}>
+            {cart[dataset.Long_Name]
+              ? 'Remove From Favorites'
+              : 'Add To Favorites'}
+          </span>
         </Button>
       </Tooltip>
     </React.Fragment>

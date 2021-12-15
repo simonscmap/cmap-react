@@ -197,7 +197,7 @@ const SearchResults = (props) => {
           itemData={searchResults}
           itemCount={itemCount}
           height={window.innerHeight - 140}
-          itemSize={222}
+          itemSize={242}
         >
           {({ index, style }) => (
             <div style={style} className="result-wrapper">
