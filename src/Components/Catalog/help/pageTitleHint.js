@@ -24,7 +24,7 @@ const CatalogPageTitleHint = () => {
         </li>
       </ul>
       <h3>Video Tutorial</h3>
-      <InlineVideo src={'https://player.vimeo.com/video/596147087'} />
+      <InlineVideo src={'https://player.vimeo.com/video/620160138'} />
       <SeeAlso />
     </HintContent>
   );
