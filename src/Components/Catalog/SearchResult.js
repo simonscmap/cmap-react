@@ -1,6 +1,6 @@
 // An individual result from catalog search
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import {
   withStyles,
@@ -23,6 +23,7 @@ import DatasetTitleHint from './help/datasetTitleHint';
 import DownloadDialog from './DownloadDialog';
 import api from '../../api/api';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
+import { downloadMetadata } from './DownloadMetaData';
 
 const mapStateToProps = (state) => ({
   cart: state.cart,
@@ -176,20 +177,41 @@ const SearchResult = (props) => {
   };
 
   const [downloadDialogOpen, setDownloadDialogOpen] = useState(false);
+  const [queueDownload, setQueueDownload] = useState(false);
   const [fullDataset, setDataset] = useState();
-  const onDownloadClick = async () => {
+  const fetchDataset = async () => {
     let data;
     try {
       data = await api.catalog.datasetFullPageDataFetch(Short_Name);
       if (data.ok) {
         data = await data.json();
         setDataset(data);
-        // only open dialog if we have data
-        setDownloadDialogOpen(true);
       }
     } catch (e) {
       console.error(`There was an error attempting to fetch ${Short_Name}`);
       // TODO: alert user that there was an error
+    }
+    return await data;
+  };
+
+  const onDownloadClick = async () => {
+    await fetchDataset();
+    setQueueDownload(true);
+  };
+
+  useEffect(() => {
+    if (fullDataset && queueDownload) {
+      setDownloadDialogOpen(true);
+      setQueueDownload(false);
+    }
+  }, [fullDataset, queueDownload]);
+
+  const onDownloadMetaClick = async () => {
+    let data = await fetchDataset();
+    if (data) {
+      downloadMetadata(Short_Name, data);
+    } else {
+      console.log('no data yet');
     }
   };
 
@@ -239,6 +261,16 @@ const SearchResult = (props) => {
             <Button onClick={onDownloadClick} className={classes.downloadLink}>
               <CloudDownloadIcon />
               <span className={classes.bottomAlignedText}>Download Data</span>
+            </Button>
+
+            <Button
+              onClick={onDownloadMetaClick}
+              className={classes.downloadLink}
+            >
+              <CloudDownloadIcon />
+              <span className={classes.bottomAlignedText}>
+                Download MetaData
+              </span>
             </Button>
 
             {!Visualize && cart[Long_Name] ? (
