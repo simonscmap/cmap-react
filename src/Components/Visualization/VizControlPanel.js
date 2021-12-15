@@ -36,6 +36,8 @@ import {
   storedProcedureRequestSend,
   sparseDataQuerySend,
   guestPlotLimitNotificationSetIsVisible,
+  setDataSearchMenuVisibility,
+  setControlPanelVisibility,
 } from '../../Redux/actions/visualization';
 import { snackbarOpen } from '../../Redux/actions/ui';
 
@@ -78,6 +80,8 @@ const mapStateToProps = (state) => ({
   dataTarget: state.vizPageDataTarget,
   vizPageDataTargetDetails: state.vizPageDataTargetDetails,
   user: state.user,
+  showControlPanel: state.showControlPanel,
+  dataSearchMenuOpen: state.dataSearchMenuOpen,
 });
 
 const mapDispatchToProps = {
@@ -89,6 +93,8 @@ const mapDispatchToProps = {
   storedProcedureRequestSend,
   sparseDataQuerySend,
   guestPlotLimitNotificationSetIsVisible,
+  setControlPanelVisibility,
+  setDataSearchMenuVisibility,
 };
 
 const drawerWidth = 280;
@@ -209,8 +215,8 @@ const styles = (theme) => ({
     width: '100%',
     // prevent arrow controls from rendering on firefox
     '& input': {
-     '-moz-appearance': 'textfield',
-    }
+      '-moz-appearance': 'textfield',
+    },
   },
 
   drawHelpText: {
@@ -247,8 +253,6 @@ const styles = (theme) => ({
 class VizControlPanel extends React.Component {
   state = {
     variableDetailsID: null,
-    showControlPanel: true,
-    dataSearchMenuOpen: false,
     tableName: '',
     depth1: 0,
     depth2: 0,
@@ -550,13 +554,13 @@ class VizControlPanel extends React.Component {
   };
 
   handleSelectDataTarget = (target) => {
-    this.setState({ ...this.state, dataSearchMenuOpen: false });
+    this.props.setDataSearchMenuVisibility(false);
     this.props.vizPageDataTargetSetAndFetchDetails(target);
   };
 
   handleCloseDataSearch = () => {
-    if (this.state.dataSearchMenuOpen) {
-      this.setState({ ...this.state, dataSearchMenuOpen: false });
+    if (this.props.dataSearchMenuOpen) {
+      this.props.setDataSearchMenuVisibility(false);
     }
   };
 
@@ -879,12 +883,14 @@ class VizControlPanel extends React.Component {
       vizPageDataTargetDetails,
       charts,
       plotsActiveTab,
+      showControlPanel,
+      dataSearchMenuOpen,
+      setControlPanelVisibility,
+      setDataSearchMenuVisibility,
     } = this.props;
 
     const {
       variableDetailsID,
-      showControlPanel,
-      dataSearchMenuOpen,
       depth1,
       depth2,
       dt1,
@@ -1006,9 +1012,9 @@ class VizControlPanel extends React.Component {
               className={classes.closePanelChevron}
               aria-label="toggle-panel"
               color="primary"
-              onClick={() =>
-                this.setState({ ...this.state, showControlPanel: false })
-              }
+              onClick={() => {
+                setControlPanelVisibility(false);
+              }}
             >
               <ChevronLeft />
             </IconButton>
@@ -1019,9 +1025,9 @@ class VizControlPanel extends React.Component {
               className={classes.openPanelChevron}
               aria-label="toggle-panel"
               color="primary"
-              onClick={() =>
-                this.setState({ ...this.state, showControlPanel: true })
-              }
+              onClick={() => {
+                setControlPanelVisibility(true);
+              }}
             >
               <ChevronRight style={{ fontSize: 32 }} />
             </IconButton>
@@ -1049,9 +1055,9 @@ class VizControlPanel extends React.Component {
                       style={{ fontSize: '22px', margin: '0 0 -6px 4px' }}
                     />
                   }
-                  onClick={() =>
-                    this.setState({ ...this.state, dataSearchMenuOpen: true })
-                  }
+                  onClick={() => {
+                    setDataSearchMenuVisibility(true);
+                  }}
                   classes={{
                     label: classes.controlPanelItemLabel,
                     startIcon: classes.controlPanelItemStartIcon,
@@ -1106,9 +1112,9 @@ class VizControlPanel extends React.Component {
                     style={{ fontSize: '22px', margin: '0 0 -6px 4px' }}
                   />
                 }
-                onClick={() =>
-                  this.setState({ ...this.state, dataSearchMenuOpen: true })
-                }
+                onClick={() => {
+                  setDataSearchMenuVisibility(true);
+                }}
                 classes={{
                   label: classes.controlPanelItemLabel,
                   startIcon: classes.controlPanelItemStartIcon,

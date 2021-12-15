@@ -86,6 +86,8 @@ const initialState = {
   plotsActiveTab: 0,
   sparseDataMaxSizeNotificationData: null,
   guestPlotLimitNotificationIsVisible: false,
+  showControlPanel: true,
+  dataSearchMenuOpen: false,
 
   // Data Submission state pieces
   dataSubmissions: [],
