@@ -67,6 +67,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    zIndex: '9000 !important',
   },
   videoPlayer: {
     height: 'calc(75vw * 0.5625)',
@@ -76,6 +77,7 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: '0.5em',
     border: '1px solid #9dd162',
     backgroundColor: '#2F769C',
+    zIndex: 9000
   },
 }));
 
