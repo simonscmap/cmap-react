@@ -1,5 +1,7 @@
 import states from '../../enums/asyncRequestStates';
 import * as visualizationActionTypes from '../actionTypes/visualization';
+import { helpActionTypes } from '../actions/help.js';
+import { VISUALIZATION_PAGE } from '../../constants';
 
 export default function (state, action) {
   switch (action.type) {
@@ -177,6 +179,22 @@ export default function (state, action) {
         ...state,
         dataSearchMenuOpen: Boolean(action.payload.isVisible),
       };
+
+    case helpActionTypes.TOGGLE_INTRO:
+      // if tour is being turned on, hide data search
+      let { pageName, value } = action.payload;
+      if (pageName !== VISUALIZATION_PAGE) {
+        return state;
+      }
+      // this action can be dispatched with a specific value, or
+      // it can be dispatched without a value, as a toggle
+      // so check if it is being explicitly set to true, or if not, whether it will toggle to true
+      if (value || state.intros[VISUALIZATION_PAGE] !== true) {
+        return {
+          ...state,
+          dataSearchMenuOpen: false,
+        };
+      }
 
     default:
       return state;
