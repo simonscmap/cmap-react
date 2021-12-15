@@ -42,8 +42,15 @@ const Intro = ({ config, wait }) => {
   // update the steps, then enable the intro
   useEffect(() => {
     if (!wait && introEnabled) {
-      setSteps(filterSteps(config.steps));
-      setReady(true);
+      // this timout is no-good, very-bad way of letting ui components reset themselves
+      // in response to the introEnabled flag, prior to calling the filterSteps function
+      // here; otherwise the filter steps will filter out ui components that are not fully
+      // in the viewport. We still want the filter, but we want it to run after we've reset
+      // the ui as much as possible.
+      setTimeout(() => {
+        setSteps(filterSteps(config.steps));
+        setReady(true);
+      }, 50);
     } else if (!introEnabled) {
       // resetting this to false is important for ensuring that re-running the intro will
       // get a refreshed array of steps

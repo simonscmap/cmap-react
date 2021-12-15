@@ -1,7 +1,6 @@
 // Expandable list of checkboxes used in search components
 
-import React from 'react';
-
+import React, { useState, useEffect }from 'react';
 import {
   withStyles,
   Grid,
@@ -11,8 +10,10 @@ import {
   FormControlLabel,
 } from '@material-ui/core';
 import { ExpandMore, ChevronRight } from '@material-ui/icons';
-
 import colors from '../../enums/colors';
+import { useSelector } from 'react-redux';
+import { useLocation } from 'react-router-dom';
+import { pathNameToPageName } from '../../Utility/routing';
 
 const styles = (theme) => ({
   menuOpenIcon: {
@@ -44,8 +45,22 @@ const styles = (theme) => ({
   },
   dropdownContentWrapper: {
     maxHeight: '500px',
-    overflow: 'scroll',
+    padding: '6px 0',
+    overflowY: 'scroll',
+    overflowX: 'hidden',
     scrollbarColor: '#9dd162 transparent',
+    '&::-webkit-scrollbar': {
+      width: '8px',
+    },
+    '&::-webkit-scrollbar-track': {
+      background: 'transparent',
+      '-webkit-box-shadow': 'inset 0 0 6px rgba(0,0,0,0.00)',
+    },
+    '&::-webkit-scrollbar-thumb': {
+      backgroundColor: '9dd162',
+      borderRadius: '5px',
+      border: 'none',
+    },
   },
 });
 
@@ -131,10 +146,20 @@ const CollapsibleContent = ({
 
 //component expects to be wrapped in a grid
 const MultiCheckboxDrowndown = (props) => {
-  const [open, setOpenState] = React.useState(false);
+  const [open, setOpenState] = useState(false);
   const toggleOpenState = () => {
     setOpenState(!open);
   };
+
+  // if user starts an intro tour, close the dropdown
+  let { pathname } = useLocation();
+  let pageName = pathNameToPageName(pathname);
+  let intro = useSelector(( state ) => state.intros[pageName]);
+  useEffect(() => {
+    if (intro) {
+      setOpenState(false);
+    }
+  }, [intro]);
 
   return (
     <React.Fragment>
