@@ -226,6 +226,7 @@ export const useHintStyles = makeStyles({
         fontSize: '1em',
         fontWeight: 500,
         padding: '0.05em',
+        cursor: 'pointer',
       },
       overrides ? overrides.beacon : {},
     ),
