@@ -262,6 +262,7 @@ class DataSearch extends React.Component {
             </Button>
           </Grid>
           <Grid
+            id="viz-data-search-controls"
             item
             xs={4}
             style={{

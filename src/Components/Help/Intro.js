@@ -19,6 +19,22 @@ const Intro = ({ config, wait }) => {
   let introEnabled = useSelector(({ intros }) => intros[pageName]);
   let dispatch = useDispatch();
 
+  // tour configurations can optionally pass an onBeforeChange function
+  // which is executed in this wrapper, and passed the nextStepIndex;
+  // the onBeforeChange function can return a single action, which will be dispatched
+  // before the next step fires;
+  // this can be used to manipulate the UI in between steps
+  let beforeChange = (nextStepIndex) => {
+    if (config.onBeforeChange) {
+      let action = config.onBeforeChange(nextStepIndex);
+      if (action) {
+        dispatch(action());
+      }
+    }
+    // return nothing;
+    // returning false will stop the intro from advancing to the next step
+  };
+
   let onIntroExit = () => {
     // onExit will fire when the component is unmounted,
     // wich includes route changes; we can prevent the toggle action
@@ -67,6 +83,7 @@ const Intro = ({ config, wait }) => {
         steps={steps}
         initialStep={config.initialStep}
         onExit={onIntroExit}
+        onBeforeChange={beforeChange}
       />
     )
   );
