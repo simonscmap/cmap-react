@@ -18,6 +18,12 @@ export default {
   config: {
     displaylogo: false,
     displayModeBar: true,
+    toImageButtonOptions: {
+      height: 700,
+      width: 1000,
+      scale: 2,
+      format: 'svg',
+    },
   },
 
   title: (metadata, date, lat, lon, depth) => {
