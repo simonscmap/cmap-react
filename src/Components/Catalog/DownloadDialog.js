@@ -82,9 +82,8 @@ const styles = (theme) => ({
 })
 
 const mapStateToProps = (state, ownProps) => ({
-    // NOTE: these are unused; unsure what they were for
-    // datasets: state.datasets,
-    // catalog: state.catalog
+    datasets: state.datasets,
+    catalog: state.catalog
 })
 
 const mapDispatchToProps = {

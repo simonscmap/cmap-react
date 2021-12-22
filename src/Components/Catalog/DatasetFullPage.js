@@ -19,12 +19,12 @@ import {
 } from '@material-ui/core';
 
 import ReactMarkdown from 'react-markdown';
-import XLSX from 'xlsx';
 import reactStringReplace from 'react-string-replace';
 
 import DatasetPageAGGrid from './DatasetPageAGGrid';
 import DatasetJSONLD from './DatasetJSONLD';
 import DownloadDialog from './DownloadDialog';
+import { downloadMetadata } from './DownloadMetaData';
 
 import {
   datasetFullPageDataFetch,
@@ -38,7 +38,6 @@ import metaTags from '../../enums/metaTags';
 import CartAddOrRemove from './CartAddOrRemove';
 import SkeletonWrapper from '../UI/SkeletonWrapper';
 
-import datasetMetadataToDownloadFormat from '../../Utility/Catalog/datasetMetadataToDownloadFormat';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 
 const mapStateToProps = (state, ownProps) => ({
@@ -245,25 +244,8 @@ const DatasetFullPage = (props) => {
     };
   }, [Long_Name]);
 
-  const downloadMetadata = () => {
-    let fullPageData = datasetMetadataToDownloadFormat(datasetFullPageData);
-    let workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(
-      workbook,
-      XLSX.utils.json_to_sheet(fullPageData.datasetRows),
-      'Dataset Metadata',
-    );
-    XLSX.utils.book_append_sheet(
-      workbook,
-      XLSX.utils.json_to_sheet(fullPageData.variableRows),
-      'Variable Metadata',
-    );
-    XLSX.utils.book_append_sheet(
-      workbook,
-      XLSX.utils.json_to_sheet(fullPageData.summaryStatisticsRows),
-      'Variable Summary Statistics',
-    );
-    XLSX.writeFile(workbook, `${Short_Name}_Metadata'.xlsx`);
+  let handleDownloadMetaData = () => {
+    downloadMetadata(Short_Name, datasetFullPageData);
   };
 
   return (
@@ -300,7 +282,7 @@ const DatasetFullPage = (props) => {
 
             <Link
               component="button"
-              onClick={downloadMetadata}
+              onClick={handleDownloadMetaData}
               className={classes.downloadLink}
             >
               <CloudDownloadIcon />
