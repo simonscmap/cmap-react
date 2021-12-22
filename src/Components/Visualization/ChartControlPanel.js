@@ -1,43 +1,40 @@
 // Wrapper for chart controls
 
-import React, { useState, useEffect, useRef } from 'react';
-import { connect } from 'react-redux';
-
 import {
-  withStyles,
-  Tooltip,
-  IconButton,
-  Menu,
-  MenuItem,
-  Popover,
-  Grid,
-  FormControl,
-  InputLabel,
-  OutlinedInput,
-  FormHelperText,
   Button,
   ButtonGroup,
+  FormControl,
+  FormHelperText,
+  Grid,
+  IconButton,
+  InputLabel,
+  Menu,
+  MenuItem,
+  OutlinedInput,
+  Popover,
+  Tooltip,
+  withStyles,
 } from '@material-ui/core';
 import {
-  DateRange,
   CloudDownload,
-  Palette,
-  SwapVert,
+  DateRange,
   Gamepad,
   LineWeight,
+  Palette,
   ShowChart,
+  SwapVert,
   Tune,
   Warning,
 } from '@material-ui/icons';
-
-import { sparseDataMaxSizeNotificationUpdate } from '../../Redux/actions/visualization';
-
+import React, { useEffect, useRef, useState } from 'react';
+import { connect } from 'react-redux';
 import colors from '../../enums/colors';
-import z from '../../enums/zIndex';
 import SPARSE_DATA_QUERY_MAX_SIZE from '../../enums/sparseDataQueryMaxSize';
-import lastRowTimeSpaceDataFromChart from '../../Utility/Visualization/lastRowTimeSpaceDataFromChart';
 import spatialResolutions from '../../enums/spatialResolutions';
 import temporalResolutions from '../../enums/temporalResolutions';
+import z from '../../enums/zIndex';
+import { sparseDataMaxSizeNotificationUpdate } from '../../Redux/actions/visualization';
+import { lastRowTimeSpaceDataFromChart } from './helpers';
 import Hint from '../Help/Hint';
 import PlotControlsHint from './help/PlotControlsHint';
 
@@ -186,8 +183,10 @@ const ChartControlPanel = (props) => {
     props.handlePaletteChoice(option);
   };
 
-  const [zScalePopoverAnchorElement, setZScalePopoverAnchorElement] =
-    React.useState(null);
+  const [
+    zScalePopoverAnchorElement,
+    setZScalePopoverAnchorElement,
+  ] = React.useState(null);
   const [localZMin, setLocalZMin] = React.useState(zValues && zValues[0]);
   const [localZMax, setLocalZMax] = React.useState(zValues && zValues[1]);
 
@@ -223,8 +222,10 @@ const ChartControlPanel = (props) => {
     );
   };
 
-  const [markerOptionsAnchorElement, setMarkerOptionsAnchorElement] =
-    React.useState(null);
+  const [
+    markerOptionsAnchorElement,
+    setMarkerOptionsAnchorElement,
+  ] = React.useState(null);
   const [localMarkerOpacity, setLocalMarkerOpacity] = React.useState(
     markerOptions && markerOptions.opacity,
   );
@@ -287,8 +288,10 @@ const ChartControlPanel = (props) => {
     checkLocalMarkerSize(),
   ];
 
-  const [localMarkerOpacityMessage, localMarkerSizeMessage] =
-    markerOptionsValidations;
+  const [
+    localMarkerOpacityMessage,
+    localMarkerSizeMessage,
+  ] = markerOptionsValidations;
 
   const handleLocalMarkerOptionsConfirm = () => {
     handleMarkerOptionsConfirm({

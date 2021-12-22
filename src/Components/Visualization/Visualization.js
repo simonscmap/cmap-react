@@ -1,49 +1,45 @@
+import { ThemeProvider, withStyles } from '@material-ui/core';
+import { loadModules } from 'esri-loader';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
-
-import vizSubTypes from '../../enums/visualizationSubTypes';
+import colors from '../../enums/colors';
+import metaTags from '../../enums/metaTags';
 import storedProcedures from '../../enums/storedProcedures';
-
-import { withStyles, ThemeProvider } from '@material-ui/core';
-import Intro from '../Help/Intro';
-import visualizationTourConfig from './help/tourConfig';
-
-import VizControlPanel from './VizControlPanel';
-import GuestPlotLimitNotification from './GuestPlotLimitNotification';
-
+import temporalResolutions from '../../enums/temporalResolutions';
+import vizSubTypes from '../../enums/visualizationSubTypes';
+import {
+  datasetRetrievalRequestSend,
+  retrievalRequestSend,
+} from '../../Redux/actions/catalog';
 import { showLoginDialog, snackbarOpen } from '../../Redux/actions/ui';
 import {
+  completedShowCharts,
+  cruiseListRequestSend,
+  guestPlotLimitNotificationSetIsVisible,
+  plotsActiveTabSet,
   queryRequestSend,
   storedProcedureRequestSend,
-  cruiseListRequestSend,
-  completedShowCharts,
-  plotsActiveTabSet,
-  guestPlotLimitNotificationSetIsVisible,
 } from '../../Redux/actions/visualization';
-import {
-  retrievalRequestSend,
-  datasetRetrievalRequestSend,
-} from '../../Redux/actions/catalog';
-
-import { loadModules } from 'esri-loader';
-
-import depthUtils from '../../Utility/depthCounter';
-
-import Charts from './Charts';
-import MapContainer from './MapContainer';
-import colors from '../../enums/colors';
-import cleanSPParams from '../../Utility/Visualization/cleanSPParams';
-import localDateToString from '../../Utility/localDateToString';
-import utcDateStringToLocal from '../../Utility/utcDateStringToLocal';
-import temporalResolutions from '../../enums/temporalResolutions';
-import stars from '../../Utility/starsBase64';
-import metaTags from '../../enums/metaTags';
-import ModuleSelector from './ModuleSelector';
-import CruiseSelector from './CruiseSelector';
-
 import '../../Stylesheets/intro-custom-black.css';
+import depthUtils from '../../Utility/depthCounter';
+import localDateToString from '../../Utility/localDateToString';
+import stars from '../../Utility/starsBase64';
+import utcDateStringToLocal from '../../Utility/utcDateStringToLocal';
+import cleanSPParams from './helpers/cleanSPParams';
+import Intro from '../Help/Intro';
+import Charts from './Charts';
+import CruiseSelector from './CruiseSelector';
+import GuestPlotLimitNotification from './GuestPlotLimitNotification';
+import visualizationTourConfig from './help/tourConfig';
+import MapContainer from './MapContainer';
+import ModuleSelector from './ModuleSelector';
+import VizControlPanel from './VizControlPanel';
 
+// map visualization type to stored procedure type and subType
+// see api.visualization.storedProcedureRequest targetting /api/data/sp
+// TODO move to constants or utils
+// TODO rename "enums"
 const mapVizType = (vizType) => {
   const mapping = {
     [vizSubTypes.sectionMap]: {
@@ -173,7 +169,7 @@ class Visualization extends Component {
     filteredData: [],
     opacity: 1,
     showCharts: false,
-    showUI: false,
+    showUI: false, // TODO move into Viz
     surfaceOnly: false,
     irregularSpatialResolution: false,
     showCruiseControl: false,
@@ -270,6 +266,9 @@ class Visualization extends Component {
     }
   };
 
+  // TODO rename
+  // TODO move to child
+  // this sends an HTTP request to the api, requesting
   onVisualize = () => {
     const {
       depth1,
@@ -422,6 +421,7 @@ class Visualization extends Component {
   };
 
   toggleShowUI = () => {
+    // TODO: move state into children
     this.setState({ ...this.state, showUI: !this.state.showUI });
   };
 
@@ -491,12 +491,12 @@ class Visualization extends Component {
                 <VizControlPanel
                   {...props}
                   toggleChartView={this.toggleChartView}
-                  toggleShowUI={this.toggleShowUI}
+                  toggleShowUI={this.toggleShowUI} // TODO move this into child
                   handleChange={this.handleChange}
                   handleLatLonChange={this.handleLatLonChange}
                   handleStartDateChange={this.handleStartDateChange}
                   handleEndDateChange={this.handleEndDateChange}
-                  showUI={this.state.showUI}
+                  showUI={this.state.showUI} // TODO no reason for this to be drilled
                   onVisualize={this.onVisualize}
                   updateFields={this.updateFields}
                   {...this.state.spParams}

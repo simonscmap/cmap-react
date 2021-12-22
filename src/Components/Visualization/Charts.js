@@ -1,30 +1,24 @@
 // Wrapper for charts
 
+// import Plot from 'react-plotly.js';
+import { IconButton, Paper } from '@material-ui/core';
+import { withStyles } from '@material-ui/core/styles';
+import { Delete } from '@material-ui/icons';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-
-import { withStyles } from '@material-ui/core/styles';
-import Plot from 'react-plotly.js';
-
-import { IconButton, Paper } from '@material-ui/core';
-import { Delete } from '@material-ui/icons';
-
 import colors from '../../enums/colors';
+import spatialResolutions from '../../enums/spatialResolutions';
 import storedProcedures from '../../enums/storedProcedures';
 import vizSubTypes from '../../enums/visualizationSubTypes';
-
-import SpaceTimeChart from './SpaceTimeChart';
-import TimeSeriesChart from './TimeSeriesChart';
-import DepthProfileChart from './DepthProfileChart';
-import SectionMapChart from './SectionMapChart';
-import SparseMap from './SparseMap';
-import Histogram from './Histogram';
-
-import spatialResolutions from '../../enums/spatialResolutions';
-
 import { deleteChart } from '../../Redux/actions/visualization';
+import DepthProfileChart from './DepthProfileChart';
+import Histogram from './Histogram';
+import SectionMapChart from './SectionMapChart';
+import SpaceTimeChart from './SpaceTimeChart';
+import SparseMap from './SparseMap';
+import TimeSeriesChart from './TimeSeriesChart';
 
-const mapStateToProps = (state, ownProps) => ({
+const mapStateToProps = (state) => ({
   charts: state.charts,
   plotsActiveTab: state.plotsActiveTab,
 });
@@ -47,89 +41,6 @@ const styles = (theme) => ({
     },
   },
 });
-
-const SamplePlot = () => {
-  let x = [
-    0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4,
-  ];
-  let y = [
-    0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4,
-  ];
-  let z = [
-    0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4,
-  ];
-
-  return (
-    <Plot
-      useResizeHandler={true}
-      style={{
-        position: 'relative',
-        display: 'inline-block',
-        // marginTop: '30px',
-        width: '66vw',
-        height: '44vw',
-      }}
-      data={[
-        {
-          x,
-          y,
-          z,
-          connectgaps: false,
-          zsmooth: 'best',
-
-          name: 'Test',
-          type: 'heatmap',
-          contours: {
-            showlabels: true,
-            labelfont: {
-              family: 'Raleway',
-              size: 12,
-              color: 'white',
-            },
-            labelformat: '.2e',
-          },
-          colorbar: {
-            title: {
-              text: `test`,
-            },
-            exponentformat: 'power',
-          },
-        },
-      ]}
-      config={{ responsive: true }}
-      layout={{
-        autosize: true,
-        font: { color: '#ffffff' },
-        margin: {
-          t: 50,
-        },
-        title: {
-          text: `A sample chart title`,
-          font: {
-            size: 16,
-          },
-        },
-        paper_bgcolor: colors.backgroundGray,
-        xaxis: { title: 'Longitude', color: '#ffffff' },
-        yaxis: { title: 'Latitude', color: '#ffffff' },
-        annotations: [
-          {
-            text: `Brought to you by chef boyardee`,
-            font: {
-              color: 'white',
-              size: 10,
-            },
-            yref: 'paper',
-            y: -0.24,
-            showarrow: false,
-            xref: 'paper',
-            x: 0.5,
-          },
-        ],
-      }}
-    />
-  );
-};
 
 const closeChartStyles = {
   closeChartIcon: {
@@ -158,6 +69,26 @@ const _CloseChartIcon = (props) => {
 
 const CloseChartIcon = withStyles(closeChartStyles)(_CloseChartIcon);
 
+const ChartWrapper = ({
+  chart,
+  chartIndex,
+  classes,
+  handleDelete,
+  children,
+}) => {
+  return (
+    <div key={chart.id}>
+      <Paper elevation={12} className={classes.chartPaper} key={chart.id}>
+        <CloseChartIcon
+          chartIndex={chartIndex}
+          handleDeleteChart={handleDelete}
+        />
+        <React.Fragment>{children}</React.Fragment>
+      </Paper>
+    </div>
+  );
+};
+
 class Charts extends Component {
   handleDeleteChart = (chartIndex) => {
     this.props.deleteChart(chartIndex);
@@ -173,19 +104,14 @@ class Charts extends Component {
             case storedProcedures.spaceTime:
               if (chart.subType === vizSubTypes.sparse) {
                 return (
-                  <div key={chart.id}>
-                    <Paper
-                      elevation={12}
-                      className={classes.chartPaper}
-                      key={chart.id}
-                    >
-                      <CloseChartIcon
-                        chartIndex={index}
-                        handleDeleteChart={this.handleDeleteChart}
-                      />
-                      <SparseMap chart={chart} />
-                    </Paper>
-                  </div>
+                  <ChartWrapper
+                    chart={chart}
+                    chartIndex={index}
+                    handleDelete={this.handleDeleteChart}
+                    classes={classes}
+                  >
+                    <SparseMap chart={chart} />
+                  </ChartWrapper>
                 );
               } else if (
                 chart.data.metadata.Spatial_Resolution ===
@@ -248,11 +174,11 @@ class Charts extends Component {
                     className={classes.chartPaper}
                     key={chart.id}
                   >
+                    <DepthProfileChart chart={chart} />
                     <CloseChartIcon
                       chartIndex={index}
                       handleDeleteChart={this.handleDeleteChart}
                     />
-                    <DepthProfileChart chart={chart} />
                   </Paper>
                 </div>
               );

@@ -1,72 +1,66 @@
 // Monolith component for charts/plots control
-
-import React from 'react';
-import { connect } from 'react-redux';
-
-import { throttle } from 'throttle-debounce';
-import Cookies from 'js-cookie';
-
 import {
-  withStyles,
-  Paper,
   Badge,
+  Button,
+  Drawer,
   Grid,
   IconButton,
-  Typography,
-  Drawer,
+  Paper,
   TextField,
-  Button,
   Tooltip,
+  Typography,
+  withStyles,
 } from '@material-ui/core';
 import {
-  Edit,
-  ShowChart,
-  Search,
   ChevronLeft,
   ChevronRight,
-  Language,
+  Edit,
   Info,
+  Language,
+  Search,
+  ShowChart,
 } from '@material-ui/icons';
-
-import {
-  cruiseTrajectoryRequestSend,
-  clearCharts,
-  csvDownloadRequestSend,
-  vizPageDataTargetSetAndFetchDetails,
-  storedProcedureRequestSend,
-  sparseDataQuerySend,
-  guestPlotLimitNotificationSetIsVisible,
-  setDataSearchMenuVisibility,
-  setControlPanelVisibility,
-} from '../../Redux/actions/visualization';
-import { snackbarOpen } from '../../Redux/actions/ui';
-
+import Cookies from 'js-cookie';
+import React from 'react';
+import { connect } from 'react-redux';
+import { throttle } from 'throttle-debounce';
 import colors from '../../enums/colors';
-import z from '../../enums/zIndex';
-import vizSubTypes from '../../enums/visualizationSubTypes';
-import validation from '../../enums/validation';
 import spatialResolutions from '../../enums/spatialResolutions';
-import temporalResolutions from '../../enums/temporalResolutions';
 import storedProcedures from '../../enums/storedProcedures';
-
-import mapTemporalResolutionToNumber from '../../Utility/mapTemporalResolutionToNumber';
-import mapSpatialResolutionToNumber from '../../Utility/mapSpatialResolutionToNumber';
-import depthUtils from '../../Utility/depthCounter';
+import temporalResolutions from '../../enums/temporalResolutions';
+import validation from '../../enums/validation';
+import vizSubTypes from '../../enums/visualizationSubTypes';
+import z from '../../enums/zIndex';
+import { snackbarOpen } from '../../Redux/actions/ui';
+import {
+  clearCharts,
+  cruiseTrajectoryRequestSend,
+  csvDownloadRequestSend,
+  guestPlotLimitNotificationSetIsVisible,
+  setControlPanelVisibility,
+  setDataSearchMenuVisibility,
+  sparseDataQuerySend,
+  storedProcedureRequestSend,
+  vizPageDataTargetSetAndFetchDetails,
+} from '../../Redux/actions/visualization';
 import countWebGLContexts from '../../Utility/countWebGLContexts';
-import mapVizType from '../../Utility/Visualization/mapVizType';
-import cleanSPParams from '../../Utility/Visualization/cleanSPParams';
-import aggregateChartDataSize from '../../Utility/Visualization/aggregateChartDataSize';
-import generateVariableSampleRangeParams from '../../Utility/Visualization/generateVariableSampleRangeParams';
-
-import DataSearch from './DataSearch';
-import ChartControl from './ChartControl';
-import VariableDetailsDialog from './VariableDetailsDialog';
-import SparseDataMaxSizeNotification from './SparseDataMaxSizeNotification';
-
+import depthUtils from '../../Utility/depthCounter';
+import mapSpatialResolutionToNumber from '../../Utility/mapSpatialResolutionToNumber';
+import mapTemporalResolutionToNumber from '../../Utility/mapTemporalResolutionToNumber';
 import Hint from '../Help/Hint';
-import SearchHint from './help/SearchHint';
-import RestrictDataHint from './help/RestrictDataHint';
+import ChartControl from './ChartControl';
+import DataSearch from './DataSearch';
 import PageTitleHint from './help/PageTitleHint';
+import RestrictDataHint from './help/RestrictDataHint';
+import SearchHint from './help/SearchHint';
+import {
+  mapVizType,
+  aggregateChartDataSize,
+  cleanSPParams,
+  generateVariableSampleRangeParams,
+} from './helpers';
+import SparseDataMaxSizeNotification from './SparseDataMaxSizeNotification';
+import VariableDetailsDialog from './VariableDetailsDialog';
 
 const mapStateToProps = (state) => ({
   data: state.data,
@@ -316,11 +310,12 @@ class VizControlPanel extends React.Component {
         ],
       };
 
-      let regionGraphic =
-        new this.props.mapContainerRef.current.props.esriModules.Graphic({
+      let regionGraphic = new this.props.mapContainerRef.current.props.esriModules.Graphic(
+        {
           geometry: polygon,
           symbol: polygonSymbol,
-        });
+        },
+      );
 
       this.props.mapContainerRef.current.regionLayer.add(regionGraphic);
     }
@@ -863,6 +858,8 @@ class VizControlPanel extends React.Component {
       return validation.generic.variableMissing;
     if (this.props.charts.length > 9)
       return 'Total number of plots is too large. Please delete 1 or more';
+
+    // TODO extract magic number
     if (aggregateSize + dataSize > 4000000)
       return 'Total rendered data amount is too large. Please delete 1 or more plots.';
 
