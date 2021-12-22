@@ -38,6 +38,8 @@ import SPARSE_DATA_QUERY_MAX_SIZE from '../../enums/sparseDataQueryMaxSize';
 import lastRowTimeSpaceDataFromChart from '../../Utility/Visualization/lastRowTimeSpaceDataFromChart';
 import spatialResolutions from '../../enums/spatialResolutions';
 import temporalResolutions from '../../enums/temporalResolutions';
+import Hint from '../Help/Hint';
+import PlotControlsHint from './help/PlotControlsHint';
 
 const mapDispatchToProps = {
   sparseDataMaxSizeNotificationUpdate,
@@ -309,7 +311,12 @@ const ChartControlPanel = (props) => {
   );
 
   return (
-    <React.Fragment>
+    <Hint
+      content={PlotControlsHint}
+      position={{ beacon: 'bottom', hint: 'bottom-end' }}
+      styleOverride={{ button: { zIndex: 999 }, wrapper: { zIndex: 998 } }}
+      size={'medium'}
+    >
       <div
         style={{
           position: 'relative',
@@ -656,7 +663,7 @@ const ChartControlPanel = (props) => {
           </Grid>
         </div>
       </Popover>
-    </React.Fragment>
+    </Hint>
   );
 };
 
