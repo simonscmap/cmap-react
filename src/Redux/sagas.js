@@ -1013,9 +1013,9 @@ function* vizSearchResultsFetch(action) {
     '?' +
     queryString.stringify({
       ...params,
-      sensor: Array.from(params.sensor || new Set()),
-      make: Array.from(params.make || new Set()),
-      region: Array.from(params.region || new Set()),
+      sensor: Array.from(params.selectedSensors|| new Set()),
+      make: Array.from(params.selectedMakes || new Set()),
+      region: Array.from(params.selectedRegions || new Set()),
     });
 
   const searchResponse = yield call(api.visualization.variableSearch, qString);

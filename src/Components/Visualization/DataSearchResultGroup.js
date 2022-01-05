@@ -45,7 +45,6 @@ const makeGroupStyles = {
 
   variableItem: {
     height: '32px',
-    // paddingLeft: '48px',
     textAlign: 'left',
     fontSize: '14px',
     cursor: 'pointer',
@@ -92,241 +91,282 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = {};
 
-// One section of the product list corresponding to one make
-const DataSearchResultGroup = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(
-  withStyles(makeGroupStyles)(
-    React.memo((props) => {
-      const {
-        classes,
-        options,
-        vizSearchResultsLoadingState,
-        handleSelectDataTarget,
-        handleSetVariableDetailsID,
-        setdatasetSummaryID,
-        listRef,
-        make,
-        fullCount,
-        cart,
-      } = props;
-      const [openIndex, setOpenIndex] = React.useState(null);
+const getHintVariant = (makeOption) => {
+  if (makeOption === 'Observation') {
+    return ObservationDataGroupHint;
+  }
+  if (makeOption === 'Model') {
+    return ModelDataGroupHint;
+  }
+};
 
-      const handleSetOpenClick = (i) => {
-        if (listRef.current) {
-          listRef.current.resetAfterIndex(0);
+// Columns in the result list:
 
-          // Make sure the group being opened is in view
-          let currentOffset = listRef.current.state.scrollOffset;
-          let targetOffset = i * 38;
+const DatasetTitleColumn = (props) => {
+  const { classes, isOpen, name } = props;
+  return (
+    <Grid item xs={9} container alignItems="center">
+      {isOpen ? (
+        <ExpandMore className={classes.datasetOpenIcon} />
+      ) : (
+        <ChevronRight className={classes.datasetOpenIcon} />
+      )}
+      <span className={classes.searchOptionsMenuItemText}>{name}</span>
+    </Grid>
+  );
+};
 
-          if (
-            i !== null &&
-            (targetOffset < currentOffset - 10 ||
-              targetOffset > currentOffset + props.height - 20)
-          ) {
-            setTimeout(() => listRef.current.scrollToItem(i, 'start'), 10);
-          }
-        }
-        setOpenIndex(i);
-      };
+const VariableCountColumn = ({ count, classes }) => {
+  return (
+    <Tooltip
+      title={`Dataset contains ${count} variables matching the search criteria`}
+    >
+      <Grid
+        item
+        xs={1}
+        className={classes.memberCount}
+        container
+        alignItems="center"
+        justify="center"
+      >
+        {count}
+      </Grid>
+    </Tooltip>
+  );
+};
 
-      useEffect(() => {
-        if (listRef.current) listRef.current.resetAfterIndex(0);
-      }, [options]);
+const FavoriteColumn = ({ options, index, cart }) => {
+  return (
+    <Grid item xs={1} container alignItems="center">
+      {cart[options[index].Dataset_Name] && (
+        <Tooltip title="This dataset is on your favorites list">
+          <Star />
+        </Tooltip>
+      )}
+    </Grid>
+  );
+};
 
-      const varCount = options.reduce(
-        (acc, cur) => acc + cur.variables.length,
-        0,
-      );
-      const nonvisualizableDatasetCount = fullCount - options.length;
-      const nonvisualizableString =
-        nonvisualizableDatasetCount === 0
-          ? ''
-          : ` (${nonvisualizableDatasetCount} hidden)`;
+const DatasetInfoColumn = (props) => {
+  const { setDatasetSummaryID, datasetID, classes } = props;
+  return (
+    <Grid
+      item
+      xs={1}
+      style={{ paddingLeft: '12px' }}
+      container
+      alignItems="center"
+      className={'dataset-details-button'}
+    >
+      <Tooltip title="View Dataset Details">
+        <Info
+          className={classes.infoIcon}
+          onClick={(event) => {
+            event.stopPropagation();
+            setDatasetSummaryID(datasetID);
+          }}
+        />
+      </Tooltip>
+    </Grid>
+  );
+};
 
-      const getHintVariant = (makeOption) => {
-        if (makeOption === 'Observation') {
-          return ObservationDataGroupHint;
-        }
-        if (makeOption === 'Model') {
-          return ModelDataGroupHint;
-        }
-      };
+// display search status, or results summary in Header
+const Header = ({
+  classes,
+  vizSearchResultsLoadingState,
+  make,
+  options,
+  fullCount,
+}) => {
+  const varCount = options.reduce((acc, cur) => acc + cur.variables.length, 0);
+  const nonvisualizableDatasetCount = fullCount - options.length;
+  const nonvisualizableString =
+    nonvisualizableDatasetCount === 0
+      ? ''
+      : ` (${nonvisualizableDatasetCount} hidden)`;
 
-      return (
-        <>
-          <Grid container>
-            <Grid item xs={9}>
-              <Typography className={classes.heading} component={'div'}>
-                {vizSearchResultsLoadingState === states.inProgress ? (
-                  'Searching....'
-                ) : varCount ? (
-                  <div className={classes.headingWrapper}>
-                    <Hint
-                      content={getHintVariant(make)}
-                      position={{ beacon: 'top-end', hint: 'bottom-end' }}
-                      styleOverride={{
-                        beacon: { right: '-1.5em', top: '-.5em' },
-                      }}
-                    >
-                      <span>
-                        {make} Data - Showing {options.length} datasets
-                      </span>
-                    </Hint>
-
-                    <Tooltip
-                      enterDelay={50}
-                      placement="top"
-                      title="Variables and datasets which are not flagged as visualizable are not shown on this list, but can be found on the catalog page."
-                    >
-                      <span>{nonvisualizableString}</span>
-                    </Tooltip>
-                  </div>
-                ) : (
-                  `${make} Data - No variables found for current search parameters`
-                )}
-              </Typography>
-            </Grid>
-
-            <Grid
-              item
-              xs={3}
-              container
-              justify="flex-start"
-              alignItems="center"
-            >
-              <Typography
-                variant="caption"
-                style={{ color: colors.primary, marginBottom: '-16px' }}
+  return (
+    <Grid container>
+      <Grid item xs={9}>
+        <Typography
+          id={`${make}-data-results-header`}
+          className={classes.heading}
+          component={'div'}
+        >
+          {vizSearchResultsLoadingState === states.inProgress ? (
+            'Searching....'
+          ) : varCount ? (
+            <div className={classes.headingWrapper}>
+              <Hint
+                content={getHintVariant(make)}
+                position={{ beacon: 'top-end', hint: 'bottom-end' }}
+                styleOverride={{
+                  beacon: { right: '-1.5em', top: '-.5em' },
+                }}
               >
-                Variable Count
-              </Typography>
+                <span>
+                  {make} Data - Showing {options.length} datasets
+                </span>
+              </Hint>
+
+              <Tooltip
+                enterDelay={50}
+                placement="top"
+                title="Variables and datasets which are not flagged as visualizable are not shown on this list, but can be found on the catalog page."
+              >
+                <span>{nonvisualizableString}</span>
+              </Tooltip>
+            </div>
+          ) : (
+            `${make} Data - No variables found for current search parameters`
+          )}
+        </Typography>
+      </Grid>
+
+      <Grid item xs={3} container justify="flex-start" alignItems="center">
+        <Typography
+          id={`${make}-variable-count-label`}
+          variant="caption"
+          style={{ color: colors.primary, marginBottom: '-16px' }}
+        >
+          Variable Count
+        </Typography>
+      </Grid>
+    </Grid>
+  );
+};
+
+// One section of the product list corresponding to one make
+const DataSearchResultGroup = (props) => {
+  const {
+    classes,
+    options,
+    vizSearchResultsLoadingState,
+    handleSelectDataTarget,
+    handleSetVariableDetailsID,
+    setDatasetSummaryID,
+    listRef,
+    make,
+    fullCount,
+    cart,
+  } = props;
+
+  const [openIndex, setOpenIndex] = React.useState(null);
+
+  const handleSetOpenClick = (i) => {
+    if (listRef.current) {
+      listRef.current.resetAfterIndex(0);
+
+      // Make sure the group being opened is in view
+      let currentOffset = listRef.current.state.scrollOffset;
+      let targetOffset = i * 38;
+
+      if (
+        i !== null &&
+        (targetOffset < currentOffset - 10 ||
+          targetOffset > currentOffset + props.height - 20)
+      ) {
+        setTimeout(() => listRef.current.scrollToItem(i, 'start'), 10);
+      }
+    }
+    setOpenIndex(i);
+  };
+
+  useEffect(() => {
+    if (listRef.current) listRef.current.resetAfterIndex(0);
+  }, [options, listRef]);
+
+  return (
+    <div id={`${make}-results-wrapper`}>
+      <Header
+        options={options}
+        make={make}
+        classes={classes}
+        vizSearchResultsLoadingState={vizSearchResultsLoadingState} // get this from redux redux
+        fullCount={fullCount} // get this from redux
+      />
+
+      <VariableSizeList
+        ref={listRef}
+        itemData={options}
+        itemCount={options.length}
+        height={props.height || 270}
+        width="100%"
+        estimatedItemSize={38}
+        style={{ overflowY: 'scroll' }}
+        itemSize={(i) =>
+          openIndex === i ? options[i].variables.length * 32 + 38 + 8 : 38
+        }
+      >
+        {({ index, style }) => (
+          <div style={style} className={`list-entry`}>
+            <Grid
+              container
+              className={classes.searchOption}
+              onClick={() =>
+                handleSetOpenClick(index === openIndex ? null : index)
+              } // toggle entry based on whether it matches openIndex
+            >
+              <DatasetTitleColumn
+                name={options[index].Dataset_Name}
+                classes={classes}
+                isOpen={openIndex === index}
+              />
+
+              <VariableCountColumn
+                count={options[index].variables.length}
+                classes={classes}
+              />
+
+              <DatasetInfoColumn
+                setDatasetSummaryID={setDatasetSummaryID}
+                datasetID={options[index].variables[0].Dataset_ID}
+                classes={classes}
+              />
+
+              <FavoriteColumn options={options} index={index} cart={cart} />
             </Grid>
-          </Grid>
 
-          <VariableSizeList
-            ref={listRef}
-            itemData={options}
-            itemCount={options.length}
-            height={props.height || 270}
-            width="100%"
-            estimatedItemSize={38}
-            style={{ overflowY: 'scroll' }}
-            itemSize={(i) =>
-              openIndex === i ? options[i].variables.length * 32 + 38 + 8 : 38
-            }
-          >
-            {({ index, style }) => (
-              <div style={style}>
-                <Grid
-                  container
-                  className={classes.searchOption}
-                  onClick={() =>
-                    index === openIndex
-                      ? handleSetOpenClick(null)
-                      : handleSetOpenClick(index)
-                  }
-                >
-                  <Grid item xs={9} container alignItems="center">
-                    {openIndex === index ? (
-                      <ExpandMore className={classes.datasetOpenIcon} />
-                    ) : (
-                      <ChevronRight className={classes.datasetOpenIcon} />
-                    )}
-                    <span className={classes.searchOptionsMenuItemText}>
-                      {options[index].Dataset_Name ||
-                        options[index].Dataset_Name}
-                    </span>
-                  </Grid>
-
-                  <Tooltip
-                    title={`Dataset contains ${options[index].variables.length} variables matching the search criteria`}
-                  >
-                    <Grid
-                      item
-                      xs={1}
-                      className={classes.memberCount}
-                      container
-                      alignItems="center"
-                      justify="center"
-                    >
-                      {options[index].variables.length}
-                    </Grid>
-                  </Tooltip>
-
+            {index === openIndex && ( // if this entry is expanded, render an entry for each matching variable
+              <Grid container className={classes.variablesWrapper}>
+                {options[index].variables.map((e, i) => (
                   <Grid
                     item
-                    xs={1}
-                    style={{ paddingLeft: '12px' }}
+                    xs={12}
+                    key={e.Long_Name}
+                    className={classes.variableItem}
                     container
                     alignItems="center"
+                    onClick={() => handleSelectDataTarget(e)}
                   >
-                    <Tooltip title="View Dataset Details">
-                      <Info
-                        className={classes.infoIcon}
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          setdatasetSummaryID(
-                            options[index].variables[0].Dataset_ID,
-                          );
-                        }}
-                      />
-                    </Tooltip>
-                  </Grid>
-
-                  <Grid item xs={1} container alignItems="center">
-                    {cart[options[index].Dataset_Name] ? (
-                      <Tooltip title="This dataset is on your favorites list">
-                        <Star />
+                    <Grid item xs={10} className={classes.variableName}>
+                      {e.Long_Name}
+                    </Grid>
+                    <Grid item xs={2}>
+                      <Tooltip title="View Variable Details">
+                        <Info
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            handleSetVariableDetailsID(e.ID);
+                          }}
+                          style={{ paddingLeft: '12px' }}
+                          className={classes.infoIcon}
+                        />
                       </Tooltip>
-                    ) : (
-                      ''
-                    )}
+                    </Grid>
                   </Grid>
-                </Grid>
-
-                {index === openIndex ? (
-                  <Grid container className={classes.variablesWrapper}>
-                    {options[index].variables.map((e, i) => (
-                      <Grid
-                        item
-                        xs={12}
-                        key={e.Long_Name}
-                        className={classes.variableItem}
-                        container
-                        alignItems="center"
-                        onClick={() => handleSelectDataTarget(e)}
-                      >
-                        <Grid item xs={10} className={classes.variableName}>
-                          {e.Long_Name}
-                        </Grid>
-                        <Grid item xs={2}>
-                          <Tooltip title="View Variable Details">
-                            <Info
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                handleSetVariableDetailsID(e.ID);
-                              }}
-                              style={{ paddingLeft: '12px' }}
-                              className={classes.infoIcon}
-                            />
-                          </Tooltip>
-                        </Grid>
-                      </Grid>
-                    ))}
-                  </Grid>
-                ) : (
-                  ''
-                )}
-              </div>
+                ))}
+              </Grid>
             )}
-          </VariableSizeList>
-        </>
-      );
-    }),
-  ),
-);
+          </div>
+        )}
+      </VariableSizeList>
+    </div>
+  );
+};
 
-export default DataSearchResultGroup;
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(withStyles(makeGroupStyles)(React.memo(DataSearchResultGroup)));

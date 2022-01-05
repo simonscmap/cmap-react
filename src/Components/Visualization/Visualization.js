@@ -5,9 +5,7 @@ import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 import colors from '../../enums/colors';
 import metaTags from '../../enums/metaTags';
-import storedProcedures from '../../enums/storedProcedures';
 import temporalResolutions from '../../enums/temporalResolutions';
-import vizSubTypes from '../../enums/visualizationSubTypes';
 import {
   datasetRetrievalRequestSend,
   retrievalRequestSend,
@@ -26,7 +24,7 @@ import depthUtils from '../../Utility/depthCounter';
 import localDateToString from '../../Utility/localDateToString';
 import stars from '../../Utility/starsBase64';
 import utcDateStringToLocal from '../../Utility/utcDateStringToLocal';
-import cleanSPParams from './helpers/cleanSPParams';
+import { cleanSPParams, mapVizType } from './helpers';
 import Intro from '../Help/Intro';
 import Charts from './Charts';
 import CruiseSelector from './CruiseSelector';
@@ -36,50 +34,7 @@ import MapContainer from './MapContainer';
 import ModuleSelector from './ModuleSelector';
 import VizControlPanel from './VizControlPanel';
 
-// map visualization type to stored procedure type and subType
-// see api.visualization.storedProcedureRequest targetting /api/data/sp
-// TODO move to constants or utils
-// TODO rename "enums"
-const mapVizType = (vizType) => {
-  const mapping = {
-    [vizSubTypes.sectionMap]: {
-      sp: storedProcedures.sectionMap,
-      subType: vizSubTypes.sectionMap,
-    },
-    [vizSubTypes.contourSectionMap]: {
-      sp: storedProcedures.sectionMap,
-      subType: vizSubTypes.contourSectionMap,
-    },
-    [vizSubTypes.timeSeries]: {
-      sp: storedProcedures.timeSeries,
-      subType: vizSubTypes.timeSeries,
-    },
-    [vizSubTypes.histogram]: {
-      sp: storedProcedures.spaceTime,
-      subType: vizSubTypes.histogram,
-    },
-    [vizSubTypes.depthProfile]: {
-      sp: storedProcedures.depthProfile,
-      subType: vizSubTypes.depthProfile,
-    },
-    [vizSubTypes.heatmap]: {
-      sp: storedProcedures.spaceTime,
-      subType: vizSubTypes.heatmap,
-    },
-    [vizSubTypes.contourMap]: {
-      sp: storedProcedures.spaceTime,
-      subType: vizSubTypes.contourMap,
-    },
-    [vizSubTypes.sparse]: {
-      sp: storedProcedures.spaceTime,
-      subType: vizSubTypes.sparse,
-    },
-  };
-
-  return mapping[vizType];
-};
-
-const mapStateToProps = (state, ownProps) => ({
+const mapStateToProps = (state) => ({
   user: state.user,
   sampleData: state.sampleData,
   queryRequestState: state.queryRequestState,
@@ -109,7 +64,7 @@ const mapDispatchToProps = {
   guestPlotLimitNotificationSetIsVisible,
 };
 
-const styles = (theme) => ({
+const styles = () => ({
   displayNone: {
     display: 'none',
   },
@@ -478,7 +433,7 @@ class Visualization extends Component {
                 cruiseTrajectory={this.props.cruiseTrajectory}
                 showCruiseControl={this.state.showCruiseControl}
                 chartControlPanelRef={this.chartControlPanelRef}
-                ref={this.mapContainerRef}
+                ref={this.mapContainerRef} // this ref is used by the VizControlPanel
               />
             </div>
           )}
@@ -516,11 +471,10 @@ class Visualization extends Component {
                   plotsActiveTab={this.props.plotsActiveTab}
                 />
               )}
-              // }
             />
             <Route
               path="/visualization/cruises"
-              render={(props) => (
+              render={() => (
                 <CruiseSelector
                   handleShowGlobe={() => this.handlePlotsSetActiveTab(null, 0)}
                 />

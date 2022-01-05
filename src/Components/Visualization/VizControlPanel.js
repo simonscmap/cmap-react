@@ -50,9 +50,7 @@ import mapTemporalResolutionToNumber from '../../Utility/mapTemporalResolutionTo
 import Hint from '../Help/Hint';
 import ChartControl from './ChartControl';
 import DataSearch from './DataSearch';
-import PageTitleHint from './help/PageTitleHint';
-import RestrictDataHint from './help/RestrictDataHint';
-import SearchHint from './help/SearchHint';
+import { PageTitleHint, RestrictDataHint, SearchHint } from './help';
 import {
   mapVizType,
   aggregateChartDataSize,
@@ -281,8 +279,10 @@ class VizControlPanel extends React.Component {
   };
 
   componentDidUpdate = (prevProps, prevState) => {
+    // TODO: put this in the parent
+    // if there are no charts to display, hide the charts
     if (prevProps.charts.length && !this.props.charts.length) {
-      this.props.handleShowGlobe();
+      this.props.handleShowGlobe(); // this sets state of 'showCharts' in the parent
     }
 
     if (
@@ -372,7 +372,11 @@ class VizControlPanel extends React.Component {
   };
 
   componentWillUnmount = () => {
+    // dispatching null here goes to saga, and then to redux via a "set" action
+    // which just sets "vizPageDataTargetDetails" to null
+    // TODO: cancel any requests in-flight and directly set redux
     this.props.vizPageDataTargetSetAndFetchDetails(null);
+    // remove all region layers
     this.props.mapContainerRef.current &&
       this.props.mapContainerRef.current.regionLayer &&
       this.props.mapContainerRef.current.regionLayer.removeAll();
@@ -426,6 +430,8 @@ class VizControlPanel extends React.Component {
     }
   };
 
+  // "create vizualization" button is clicked
+  // this method seems very similar to "onVisualize" in the parent
   handleVisualize = () => {
     const {
       depth1,
@@ -472,9 +478,14 @@ class VizControlPanel extends React.Component {
       metadata: this.props.vizPageDataTargetDetails,
     };
 
-    if (isSparseVariable && mapping.sp !== storedProcedures.depthProfile)
+    // these actions are picked up by saga, and if the query is successful
+    // a new chart is pushed onto "charts" in global state, and
+    // saga will trigger showing the chart via visualizationActions.triggerShowCharts
+    if (isSparseVariable && mapping.sp !== storedProcedures.depthProfile) {
       this.props.sparseDataQuerySend(payload);
-    else this.props.storedProcedureRequestSend(payload);
+    } else {
+      this.props.storedProcedureRequestSend(payload);
+    }
   };
 
   handleDrawClick = () => {
@@ -585,6 +596,7 @@ class VizControlPanel extends React.Component {
 
   handleToggleCharts = () => {};
 
+  // TODO: this is a pure function, and can be extracted to a helper
   estimateDataSize = () => {
     const { vizPageDataTargetDetails } = this.props;
     const {
@@ -654,6 +666,8 @@ class VizControlPanel extends React.Component {
     }
   };
 
+  // ~~~~~~~~~~ the following methods are all validation checks ~~~~~~~~~~~~~~~~~ //
+  // TODO: extract and simplify these
   checkStartDepth = () => {
     if (this.state.depth1 < 0) return 'Depth cannot be negative';
     if (this.state.depth1 > this.state.depth2)
@@ -760,7 +774,7 @@ class VizControlPanel extends React.Component {
 
   checkEndLon = () => {
     const { lon1, lon2 } = this.state;
-    const { Lon_Min, Lon_Max } = this.props.vizPageDataTargetDetails;
+    const { Lon_Min } = this.props.vizPageDataTargetDetails;
 
     if (lon2 >= lon1) {
       if (lon2 < Lon_Min) return `Minimum end lon is ${Lon_Min}`;
@@ -1477,10 +1491,10 @@ class VizControlPanel extends React.Component {
                 disableVisualizeMessage={disableVisualizeMessage}
                 selectedVizType={selectedVizType}
                 handleChangeInputValue={this.handleChangeInputValue}
-                onVisualize={this.handleVisualize}
+                onVisualize={this.handleVisualize} // this does not seem to be used in ChartControl
                 showChartControl={this.state.showChartControl}
                 variableDetails={this.props.vizPageDataTargetDetails}
-                handleVisualize={this.handleVisualize}
+                handleVisualize={this.handleVisualize} // this seems to be used instead of onVisualize
                 disabled={this.state.showDrawHelp || !vizPageDataTargetDetails}
               />
 

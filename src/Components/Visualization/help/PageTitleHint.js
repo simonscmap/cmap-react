@@ -1,5 +1,6 @@
 import React from 'react';
 import HintContent from '../../Help/HintContent';
+import InlineVideo from '../../Help/InlineVideo';
 import SeeAlso from './SeeAlso';
 
 const PageTitleHint = () => {
@@ -24,6 +25,8 @@ const PageTitleHint = () => {
           Create additional plots from the same dataset or a different dataset
         </li>
       </ul>
+      <h3>Video Tutorial</h3>
+      <InlineVideo src={'https://player.vimeo.com/video/657984891'} />
       <SeeAlso />
     </HintContent>
   );

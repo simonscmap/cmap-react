@@ -16,19 +16,36 @@ const plMapStateToProps = (state) => ({
 
 const ProductList = (props) => {
   const {
-    options,
-    // classes,
+    options, // these are structured search results (see Utility/Catalog/buildSearchOptionsFromDatasetList)
     handleSelectDataTarget,
-    // handleShowMemberVariables,
-    // vizSearchResultsLoadingState,
-    make,
-    // windowWidth,
+    selectedMakes, // this is a set; it contains the makes the user has selected
     windowHeight,
     handleSetVariableDetailsID,
     vizSearchResultsFullCounts,
   } = props;
 
   const [datasetSummaryID, setDatasetSummaryID] = React.useState(null);
+
+  const noMakesSelected = selectedMakes.size === 0;
+  const shouldShowObservationResults =
+    selectedMakes.has('Observation') || noMakesSelected;
+  const shouldShowModelResults = selectedMakes.has('Model') || noMakesSelected;
+
+
+  // are we showing both Observation and Model results, or just one?
+  const isDoubleMakeLayout =
+    noMakesSelected ||
+    (selectedMakes.has('Observation') && selectedMakes.has('Model'));
+  const groupHeight = isDoubleMakeLayout
+    ? (windowHeight - 204) / 2 - 45
+    : windowHeight - 249;
+
+  const sharedDrillProps = {
+    handleSetVariableDetailsID,
+    handleSelectDataTarget,
+    height: groupHeight,
+    setDatasetSummaryID,
+  };
 
   return (
     <React.Fragment>
@@ -37,53 +54,25 @@ const ProductList = (props) => {
         setDatasetSummaryID={setDatasetSummaryID}
       />
 
-      {(make.has('Observation') && make.has('Model')) || make.size === 0 ? (
-        <>
-          <DataSearchResultGroup
-            make="Observation"
-            options={options.Observation}
-            handleSetVariableDetailsID={handleSetVariableDetailsID}
-            listRef={observationListRef}
-            handleSelectDataTarget={handleSelectDataTarget}
-            height={(windowHeight - 204) / 2 - 45}
-            setdatasetSummaryID={setDatasetSummaryID}
-            fullCount={vizSearchResultsFullCounts.Observation}
-          />
-
-          <DataSearchResultGroup
-            make="Model"
-            options={options.Model}
-            handleSetVariableDetailsID={handleSetVariableDetailsID}
-            listRef={modelListRef}
-            handleSelectDataTarget={handleSelectDataTarget}
-            height={(windowHeight - 204) / 2 - 45}
-            setdatasetSummaryID={setDatasetSummaryID}
-            fullCount={vizSearchResultsFullCounts.Model}
-          />
-        </>
-      ) : make.has('Observation') ? (
+      <div style={shouldShowObservationResults ? {} : { display: 'none' }}>
         <DataSearchResultGroup
+          {...sharedDrillProps}
           make="Observation"
           options={options.Observation}
-          handleSetVariableDetailsID={handleSetVariableDetailsID}
           listRef={observationListRef}
-          handleSelectDataTarget={handleSelectDataTarget}
-          height={windowHeight - 249}
-          setdatasetSummaryID={setDatasetSummaryID}
           fullCount={vizSearchResultsFullCounts.Observation}
         />
-      ) : (
+      </div>
+
+      <div style={shouldShowModelResults ? {} : { display: 'none' }}>
         <DataSearchResultGroup
+          {...sharedDrillProps}
           make="Model"
           options={options.Model}
-          handleSetVariableDetailsID={handleSetVariableDetailsID}
           listRef={modelListRef}
-          height={windowHeight - 249}
-          handleSelectDataTarget={handleSelectDataTarget}
-          setdatasetSummaryID={setDatasetSummaryID}
           fullCount={vizSearchResultsFullCounts.Model}
         />
-      )}
+      </div>
     </React.Fragment>
   );
 };

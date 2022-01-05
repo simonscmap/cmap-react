@@ -41,7 +41,8 @@ const mapStateToProps = (state) => ({
   vizSearchResults: state.vizSearchResults,
   vizSearchResultsLoadingState: state.vizSearchResultsLoadingState,
   autocompleteVariableNames: state.autocompleteVariableNames,
-  submissionOptions: state.submissionOptions,
+  submissionOptions: state.submissionOptions, // these aren't "submission" options
+  // they are a set of filter options derived from the search results
   windowHeight: state.windowHeight,
 });
 
@@ -140,15 +141,15 @@ const defaultState = {
   latEnd: 90,
   lonStart: -180,
   lonEnd: 180,
-  sensor: new Set(),
+  selectedSensors: new Set(),
   searchTerms: '',
   temporalResolution: 'Any',
   spatialResolution: 'Any',
   dataSource: 'Any',
   distributor: 'Any',
   processLevel: 'Any',
-  make: new Set(),
-  region: new Set(),
+  selectedMakes: new Set(),
+  selectedRegions: new Set(),
 };
 
 class DataSearch extends React.Component {
@@ -201,7 +202,12 @@ class DataSearch extends React.Component {
   };
 
   handleClickCheckbox = (e, checked) => {
-    let [column, value] = e.target.name.split('!!');
+    // this handler depends on the name of the checkbox
+    // the format of the name is `${parentKey}!!${label}`
+    // where 'parentKey' is a drilled prop into the MultiCheckboxDropdown component
+    // and 'label' is a property of the drilled options array
+
+    let [column, value] = e.target.name.split('!!'); // why is this named 'column'?
     let newSet = new Set(this.state[column]);
 
     checked ? newSet.add(value) : newSet.delete(value);
@@ -220,9 +226,11 @@ class DataSearch extends React.Component {
       classes,
       handleSelectDataTarget,
       vizSearchResults,
-      submissionOptions,
-      windowHeight,
+      submissionOptions, // submissionOptions is yielded from an api call
+      // the default is generated from an empty list in src/Redux/Reducers/index
+      // with help from src/Utility/Catalog/buildSearchOptionsFromDatasetList
     } = this.props;
+
 
     const {
       searchTerms,
@@ -239,20 +247,16 @@ class DataSearch extends React.Component {
       dataSource,
       distributor,
       processLevel,
-      make,
-      region,
-      sensor,
+      selectedMakes,
+      selectedRegions,
+      selectedSensors,
     } = this.state;
+
 
     return (
       <React.Fragment>
         <Grid container>
           <Grid item xs={12}>
-            <Typography style={{ display: 'inline-block' }}>
-              Search and filter using the controls on the left. Select a
-              variable to plot from the list on the right.
-            </Typography>
-
             <Button
               startIcon={<Close style={{ fontSize: '22px' }} />}
               onClick={this.props.handleCloseDataSearch}
@@ -280,6 +284,7 @@ class DataSearch extends React.Component {
               <TextField
                 fullWidth
                 name="searchTerms"
+                id="charts-and-plots-search-field"
                 onChange={this.handleChangeSearchValue}
                 placeholder="Search"
                 value={searchTerms}
@@ -302,9 +307,9 @@ class DataSearch extends React.Component {
 
             <MultiCheckboxDropdown
               options={submissionOptions.Make}
-              selectedOptions={make}
-              handleClear={() => this.handleClearMultiSelect('make')}
-              parentStateKey={'make'}
+              selectedOptions={selectedMakes}
+              handleClear={() => this.handleClearMultiSelect('selectedMakes')}  // NOTE: must correspond to state key
+              parentStateKey={'selectedMakes'} // ditto
               handleClickCheckbox={this.handleClickCheckbox}
               groupHeaderLabel="Makes"
             />
@@ -315,10 +320,11 @@ class DataSearch extends React.Component {
               size={'small'}
             >
               <MultiCheckboxDropdown
+                id="charts-and-plots-search-sensor-filter"
                 options={submissionOptions.Sensor}
-                selectedOptions={sensor}
-                handleClear={() => this.handleClearMultiSelect('sensor')}
-                parentStateKey={'sensor'}
+                selectedOptions={selectedSensors}
+                handleClear={() => this.handleClearMultiSelect('selectedSensors')} // see note above
+                parentStateKey={'selectedSensors'}
                 handleClickCheckbox={this.handleClickCheckbox}
                 groupHeaderLabel="Sensors"
               />
@@ -326,9 +332,9 @@ class DataSearch extends React.Component {
 
             <MultiCheckboxDropdown
               options={submissionOptions.Region}
-              selectedOptions={region}
-              handleClear={() => this.handleClearMultiSelect('region')}
-              parentStateKey={'region'}
+              selectedOptions={selectedRegions}
+              handleClear={() => this.handleClearMultiSelect('selectedRegions')}
+              parentStateKey={'selectedRegions'}
               handleClickCheckbox={this.handleClickCheckbox}
               groupHeaderLabel="Regions"
             />
@@ -340,10 +346,11 @@ class DataSearch extends React.Component {
             >
               <div className={classes.showAdvancedWrapper}>
                 <Link
+                  id="charts-and-plots-search-additional-filters"
                   component="button"
                   onClick={this.handleToggleShowAdvanced}
                 >
-                  {this.state.showAdvanced
+                  {this.state.showAdanced
                     ? 'Hide Additional Filters'
                     : 'Additional Filters'}
                 </Link>
@@ -614,6 +621,7 @@ class DataSearch extends React.Component {
               >
                 <Button
                   variant="outlined"
+                  id="charts-and-plots-search-reset-filters"
                   onClick={this.handleResetSearch}
                   className={classes.resetButton}
                 >
@@ -628,7 +636,7 @@ class DataSearch extends React.Component {
               options={vizSearchResults}
               handleSelectDataTarget={handleSelectDataTarget}
               handleShowMemberVariables={this.handleShowMemberVariables}
-              make={make}
+              selectedMakes={selectedMakes}
               variableDetailsID={this.props.variableDetailsID}
               handleSetVariableDetailsID={this.props.handleSetVariableDetailsID}
             />
