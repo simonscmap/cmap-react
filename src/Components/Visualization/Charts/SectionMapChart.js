@@ -230,6 +230,7 @@ const handleSectionMap = (
             metadata.Data_Source,
           ),
         }}
+        config={{...chartBase.config}}
       />
     );
   });

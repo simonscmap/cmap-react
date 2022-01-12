@@ -106,7 +106,26 @@ export const sectionMapChartStyles = (theme) => ({
   },
 });
 
+// ~~~~ extracted control panel styles
 
+export const chartControlIconButton = (theme) => ({
+  iconButton: {
+    boxShadow: '0px 1px 1px 1px #242424',
+  },
+});
+
+export const chartControlPaletteMenu = () => ({
+  colorscaleMenu: {
+    maxHeight: '400px',
+    zIndex: z.CONTROL_PRIMARY,
+  },
+  grayBackground: {
+    backgroundColor: colors.backgroundGray,
+  },
+});
+
+
+// main control panel styles
 export const chartControlPanelStyles = (theme) => ({
   popover: {
     width: '470px',
@@ -118,7 +137,7 @@ export const chartControlPanelStyles = (theme) => ({
     zIndex: z.CONTROL_PRIMARY,
   },
 
-  iconButton: {
+  iconButton: { // TODO remove when switched over to ControlPanel2
     boxShadow: '0px 1px 1px 1px #242424',
   },
 
@@ -132,11 +151,13 @@ export const chartControlPanelStyles = (theme) => ({
   },
 
   buttonGroup: {
-    display: 'block',
-    margin: '0px auto 8px auto',
-    maxWidth: '700px',
-    textAlign: 'center',
+    display: 'flex',
+    justifyContent: 'flex-end',
+    margin: '0 0 1em 0',
+    // maxWidth: '700px',
+    // textAlign: 'center',
     pointerEvents: 'auto',
+
   },
 
   depressed: {
@@ -180,6 +201,12 @@ export const chartsStyles = (theme) => ({
       margin: '0 0 5vh 360px',
     },
   },
+});
+
+export const chartTemplate = (theme) => ({
+  chartTemplate: {
+    padding: '0 10px 0 0',
+  }
 });
 
 export const chartsCloseChartStyles = {

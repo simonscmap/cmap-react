@@ -6,16 +6,16 @@ import spatialResolutions from '../../../enums/spatialResolutions';
 import storedProcedures from '../../../enums/storedProcedures';
 import vizSubTypes from '../../../enums/visualizationSubTypes';
 import { chartsStyles } from './chartStyles';
-import CloseChartButton from './CloseChartButton';
-import DepthProfileChart from './DepthProfileChart';
-import Histogram from './Histogram';
+// import CloseChartButton from './CloseChartButton';
+import DepthProfileChart from './DepthProfileChart2';
+import Histogram from './Histogram2'; // TODO: switch experimental Histogram component
 import SectionMapChart from './SectionMapChart';
 import SpaceTimeChart from './SpaceTimeChart';
 import SparseMap from './SparseMap';
 import TimeSeriesChart from './TimeSeriesChart';
 
 // determine what type of chart to render
-const getChartTemplate = (chart) => {
+const getChartComponent = (chart) => {
   let storedProcedureName = chart.data.parameters.spName;
   let { spaceTime, timeSeries, depthProfile, sectionMap } = storedProcedures;
   let { sparse } = vizSubTypes;
@@ -48,13 +48,12 @@ const getChartTemplate = (chart) => {
 };
 
 const ChartWrapper = ({ chart, index, classes }) => {
-  let ChartTemplate = getChartTemplate(chart);
+  let ChartComponent = getChartComponent(chart);
 
   // delegate render of chart to selected chart template
   return (
     <Paper elevation={12} className={classes.chartPaper} key={chart.id}>
-      <CloseChartButton chartIndex={index} />
-      <ChartTemplate chart={chart} />
+      <ChartComponent chart={chart} chartIndex={index} />
     </Paper>
   );
 };
