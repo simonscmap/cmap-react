@@ -26,7 +26,7 @@ import stars from '../../Utility/starsBase64';
 import utcDateStringToLocal from '../../Utility/utcDateStringToLocal';
 import { cleanSPParams, mapVizType } from './helpers';
 import Intro from '../Help/Intro';
-import Charts from './Charts';
+import Charts from './Charts/Charts';
 import CruiseSelector from './CruiseSelector';
 import GuestPlotLimitNotification from './GuestPlotLimitNotification';
 import visualizationTourConfig from './help/tourConfig';

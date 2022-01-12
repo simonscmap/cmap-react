@@ -9,7 +9,7 @@ import {
   TextField,
   Tooltip,
   Typography,
-  withStyles,
+  withStyles
 } from '@material-ui/core';
 import {
   ChevronLeft,
@@ -18,7 +18,7 @@ import {
   Info,
   Language,
   Search,
-  ShowChart,
+  ShowChart
 } from '@material-ui/icons';
 import Cookies from 'js-cookie';
 import React from 'react';
@@ -41,21 +41,20 @@ import {
   setDataSearchMenuVisibility,
   sparseDataQuerySend,
   storedProcedureRequestSend,
-  vizPageDataTargetSetAndFetchDetails,
+  vizPageDataTargetSetAndFetchDetails
 } from '../../Redux/actions/visualization';
 import countWebGLContexts from '../../Utility/countWebGLContexts';
 import depthUtils from '../../Utility/depthCounter';
 import mapSpatialResolutionToNumber from '../../Utility/mapSpatialResolutionToNumber';
 import mapTemporalResolutionToNumber from '../../Utility/mapTemporalResolutionToNumber';
 import Hint from '../Help/Hint';
-import ChartControl from './ChartControl';
+import ChartControl from './Charts/ChartControl';
 import DataSearch from './DataSearch';
 import { PageTitleHint, RestrictDataHint, SearchHint } from './help';
 import {
-  mapVizType,
   aggregateChartDataSize,
   cleanSPParams,
-  generateVariableSampleRangeParams,
+  generateVariableSampleRangeParams, mapVizType
 } from './helpers';
 import SparseDataMaxSizeNotification from './SparseDataMaxSizeNotification';
 import VariableDetailsDialog from './VariableDetailsDialog';

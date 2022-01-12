@@ -71,8 +71,8 @@ export const clearMaps = () => ({
   type: visualizationActionTypes.CLEAR_MAPS,
 });
 
-export const deleteChart = (chartIndex) => ({
-  type: visualizationActionTypes.DELETE_CHART,
+export const closeChart = (chartIndex) => ({
+  type: visualizationActionTypes.CLOSE_CHART,
   payload: {
     chartIndex,
   },

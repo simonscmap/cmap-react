@@ -28,79 +28,18 @@ import {
 } from '@material-ui/icons';
 import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
-import colors from '../../enums/colors';
-import SPARSE_DATA_QUERY_MAX_SIZE from '../../enums/sparseDataQueryMaxSize';
-import spatialResolutions from '../../enums/spatialResolutions';
-import temporalResolutions from '../../enums/temporalResolutions';
-import z from '../../enums/zIndex';
-import { sparseDataMaxSizeNotificationUpdate } from '../../Redux/actions/visualization';
-import { lastRowTimeSpaceDataFromChart } from './helpers';
-import Hint from '../Help/Hint';
-import PlotControlsHint from './help/PlotControlsHint';
+import SPARSE_DATA_QUERY_MAX_SIZE from '../../../enums/sparseDataQueryMaxSize';
+import spatialResolutions from '../../../enums/spatialResolutions';
+import temporalResolutions from '../../../enums/temporalResolutions';
+import { sparseDataMaxSizeNotificationUpdate } from '../../../Redux/actions/visualization';
+import { lastRowTimeSpaceDataFromChart } from '../helpers';
+import Hint from '../../Help/Hint';
+import PlotControlsHint from '../help/PlotControlsHint';
+import { chartControlPanelStyles } from './chartStyles';
 
 const mapDispatchToProps = {
   sparseDataMaxSizeNotificationUpdate,
 };
-
-const styles = (theme) => ({
-  popover: {
-    width: '470px',
-    height: '120px',
-    paddingTop: theme.spacing(3),
-    paddingBottom: theme.spacing(1),
-    paddingLeft: theme.spacing(2.5),
-    paddingRight: theme.spacing(2.5),
-    zIndex: z.CONTROL_PRIMARY,
-  },
-
-  iconButton: {
-    boxShadow: '0px 1px 1px 1px #242424',
-  },
-
-  colorForm: {
-    width: '100%',
-  },
-
-  lastIcon: {
-    borderTopRightRadius: '10%',
-    borderBottomRightRadius: '10%',
-  },
-
-  buttonGroup: {
-    display: 'block',
-    margin: '0px auto 8px auto',
-    maxWidth: '700px',
-    textAlign: 'center',
-    pointerEvents: 'auto',
-  },
-
-  depressed: {
-    boxShadow: 'inset 1px 1px 5px #262626',
-  },
-
-  colorscaleMenu: {
-    maxHeight: '400px',
-    zIndex: z.CONTROL_PRIMARY,
-  },
-
-  setPopoverZ: {
-    zIndex: `${z.CONTROL_PRIMARY} !important`,
-  },
-
-  grayBackground: {
-    backgroundColor: colors.backgroundGray,
-  },
-
-  sparseDataMaxSizeWarningIcon: {
-    color: colors.errorYellow,
-    position: 'absolute',
-    top: '60px',
-    left: 'calc(50% - 12px)',
-    cursor: 'pointer',
-    zIndex: z.CONTROL_PRIMARY - 1,
-    pointerEvents: 'auto',
-  },
-});
 
 const colorscaleOptions = [
   'Default',
@@ -254,7 +193,7 @@ const ChartControlPanel = (props) => {
         setLocalMarkerSize(markerOptions.size);
       }
     }
-  });
+  }, [markerOptions, previousOpacity, previousColor, previousSize]);
 
   const markerPopoverOpen = Boolean(markerOptionsAnchorElement);
   const markerPopoverID = markerPopoverOpen ? 'marker-popover' : undefined;
@@ -321,6 +260,7 @@ const ChartControlPanel = (props) => {
       size={'medium'}
     >
       <div
+        className="chartControlPanel"
         style={{
           position: 'relative',
           pointerEvents: 'none',
@@ -673,4 +613,4 @@ const ChartControlPanel = (props) => {
 export default connect(
   null,
   mapDispatchToProps,
-)(withStyles(styles)(ChartControlPanel));
+)(withStyles(chartControlPanelStyles)(ChartControlPanel));

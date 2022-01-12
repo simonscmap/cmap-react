@@ -1,29 +1,24 @@
 // Wrapper for heatmaps and non-sparse histograms
 
-import React, { useState } from 'react';
-import { connect } from 'react-redux';
-
-import Histogram from './Histogram';
-
 import { withStyles } from '@material-ui/core/styles';
-
-import Plot from 'react-plotly.js';
-
-import colors from '../../enums/colors';
-import vizSubTypes from '../../enums/visualizationSubTypes';
-
-import handleXTicks from '../../Utility/handleXTicks';
-import chartBase from '../../Utility/chartBase';
-import getChartDimensions from '../../Utility/getChartDimensions';
-import handleChartDateString from '../../Utility/handleChartDatestring';
-import countWebGLContexts from '../../Utility/countWebGLContexts';
-
-import { setLoadingMessage, snackbarOpen } from '../../Redux/actions/ui';
-import { csvFromVizRequestSend } from '../../Redux/actions/visualization';
-import ChartControlPanel from './ChartControlPanel';
-
 import { format } from 'd3-format';
-import subTypes from '../../enums/visualizationSubTypes';
+import React, { useState } from 'react';
+import Plot from 'react-plotly.js';
+import { connect } from 'react-redux';
+import {
+  default as subTypes,
+  default as vizSubTypes,
+} from '../../../enums/visualizationSubTypes';
+import { setLoadingMessage, snackbarOpen } from '../../../Redux/actions/ui';
+import { csvFromVizRequestSend } from '../../../Redux/actions/visualization';
+import chartBase from './chartBase';
+import countWebGLContexts from '../../../Utility/countWebGLContexts';
+import getChartDimensions from '../../../Utility/getChartDimensions';
+import handleChartDateString from './handleChartDatestring';
+import handleXTicks from './handleXTicks';
+import ChartControlPanel from './ChartControlPanel';
+import { spaceTimeChartStyles } from './chartStyles';
+import Histogram from './Histogram';
 
 const mapStateToProps = (state, ownProps) => ({
   charts: state.charts,
@@ -131,6 +126,8 @@ const handleContourMap = (
         }]`
       );
     });
+
+
 
     return (
       <Plot
@@ -386,23 +383,6 @@ const handleHeatmap = (
   });
 };
 
-const styles = (theme) => ({
-  chartWrapper: {
-    display: 'inline-block',
-    backgroundColor: colors.backgroundGray,
-    boxShadow:
-      '0px 6px 6px -3px rgba(0,0,0,0.2),0px 10px 14px 1px rgba(0,0,0,0.14),0px 4px 18px 3px rgba(0,0,0,0.12)',
-    margin: '20px',
-    color: 'white',
-  },
-  buttonBlock: {
-    display: 'block',
-  },
-  iconButtonWrapper: {
-    display: 'inline-block',
-  },
-});
-
 const mapDispatchToProps = {
   setLoadingMessage,
   snackbarOpen,
@@ -540,4 +520,4 @@ const SpaceTimeChart = (props) => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(withStyles(styles)(SpaceTimeChart));
+)(withStyles(spaceTimeChartStyles)(SpaceTimeChart));

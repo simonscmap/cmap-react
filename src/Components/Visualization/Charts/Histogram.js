@@ -1,41 +1,16 @@
 // Wrapper for histogram plots
 
-import React from 'react';
-import { connect } from 'react-redux';
-
-import handleChartDateString from '../../Utility/handleChartDatestring';
-
 import { withStyles } from '@material-ui/core/styles';
-
+import React from 'react';
 import Plot from 'react-plotly.js';
-
-import colors from '../../enums/colors';
-
-import chartBase from '../../Utility/chartBase';
-
-import { csvFromVizRequestSend } from '../../Redux/actions/visualization';
-
+import { connect } from 'react-redux';
+import { csvFromVizRequestSend } from '../../../Redux/actions/visualization';
+import chartBase from './chartBase';
+import handleChartDateString from './handleChartDatestring';
+import Hint from '../../Help/Hint';
 import ChartControlPanel from './ChartControlPanel';
-
-import Hint from '../Help/Hint';
-import ModebarHint from './help/ModebarHint';
-
-const styles = (theme) => ({
-  chartWrapper: {
-    display: 'inline-block',
-    backgroundColor: colors.backgroundGray,
-    boxShadow:
-      '0px 6px 6px -3px rgba(0,0,0,0.2),0px 10px 14px 1px rgba(0,0,0,0.14),0px 4px 18px 3px rgba(0,0,0,0.12)',
-    margin: '20px',
-    color: 'white',
-  },
-  buttonBlock: {
-    display: 'block',
-  },
-  iconButtonWrapper: {
-    display: 'inline-block',
-  },
-});
+import ModebarHint from '../help/ModebarHint';
+import { histogramStyles } from './chartStyles';
 
 const mapDispatchToProps = {
   csvFromVizRequestSend,
@@ -90,19 +65,9 @@ const Histogram = (props) => {
         <Plot
           style={{
             position: 'relative',
-            // display:'inline-block',
             width: '60vw',
             height: '40vw',
           }}
-          // onHover={(e, e2) => {
-          //     console.log(e);
-          //     console.log(e2)
-          // }}
-
-          // onUnhover={(e, e2) => {
-          //     console.log(e);
-          //     console.log(e2)
-          // }}
 
           useResizeHandler={true}
           data={[
@@ -147,4 +112,4 @@ const Histogram = (props) => {
   );
 };
 
-export default connect(null, mapDispatchToProps)(withStyles(styles)(Histogram));
+export default connect(null, mapDispatchToProps)(withStyles(histogramStyles)(Histogram));

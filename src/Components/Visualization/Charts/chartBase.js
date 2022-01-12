@@ -1,7 +1,23 @@
-import colors from '../enums/colors';
+import colors from '../../../enums/colors';
 
 const spanStyles =
   'style="width:50%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"';
+
+var icon1 = {
+  'width': 500,
+  'height': 600,
+  'path': 'M 0 0 H 0 V 0 H 0 L 0 0'
+};
+
+let addButton = {
+      modeBarButtonsToAdd: [
+        {
+          name: '#hint-anchor',
+          icon: icon1,
+          click: () => null,
+        },
+      ],
+    };
 
 export default {
   layout: {
@@ -24,6 +40,7 @@ export default {
       scale: 2,
       format: 'svg',
     },
+    ...addButton,
   },
 
   title: (metadata, date, lat, lon, depth) => {

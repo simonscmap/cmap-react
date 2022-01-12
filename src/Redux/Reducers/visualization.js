@@ -42,20 +42,18 @@ export default function (state, action) {
     case visualizationActionTypes.CLEAR_MAPS:
       return { ...state, maps: [] };
 
-    case visualizationActionTypes.DELETE_CHART:
+    case visualizationActionTypes.CLOSE_CHART:
+      let { chartIndex } = action.payload;
       return {
         ...state,
         charts: [
-          ...state.charts.slice(0, action.payload.chartIndex),
-          ...state.charts.slice(action.payload.chartIndex + 1),
+          ...state.charts.slice(0, chartIndex),
+          ...state.charts.slice(chartIndex + 1),
         ],
         plotsActiveTab:
           state.charts.length === 1
             ? 0
-            : // action.payload.chartIndex === state.charts.length - 1 ?
-              // state.charts.length - 2 :
-              // state.plotsActiveTab
-              1,
+            : 1,
       };
 
     case visualizationActionTypes.CRUISE_TRAJECTORY_REQUEST_PROCESSING:
