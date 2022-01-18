@@ -9,7 +9,7 @@ import { Menu, MenuItem } from '@material-ui/core';
 import { withStyles } from '@material-ui/core';
 import { chartControlPaletteMenu } from '../chartStyles';
 import colorscaleOptions from './colorScaleOptions';
-import { setLoadingMessage } from '../../../Redux/actions/ui';
+import { setLoadingMessage } from '../../../../Redux/actions/ui';
 import { connect } from 'react-redux';
 
 let mapDispatchToProps = {
@@ -35,7 +35,7 @@ const PaletteControl = (props) => {
     // close the menu
     setPaletteAnchorElement(null);
     // set a loading message
-    setLoadingMessage('Re-rendering');
+    props.setLoadingMessage('Re-rendering');
     // set the palette
     setTimeout(() => {
       window.requestAnimationFrame(() => props.setLoadingMessage(''));
@@ -44,7 +44,7 @@ const PaletteControl = (props) => {
   };
 
   return (
-    <React.Frament>
+    <React.Fragment>
       <ControlButtonTemplate
         tooltipContent={'Change Palette'}
         onClick={handleOpenPalette}
@@ -72,7 +72,7 @@ const PaletteControl = (props) => {
           </MenuItem>
         ))}
       </Menu>
-    </React.Frament>
+    </React.Fragment>
   );
 };
 

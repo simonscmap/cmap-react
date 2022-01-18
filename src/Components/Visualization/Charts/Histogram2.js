@@ -4,41 +4,11 @@ import { withStyles } from '@material-ui/core/styles';
 import React from 'react';
 import { connect } from 'react-redux';
 import { csvFromVizRequestSend } from '../../../Redux/actions/visualization';
-import handleChartDateString from './handleChartDatestring';
 import { histogramStyles } from './chartStyles';
 import ChartTemplate from './ChartTemplate';
-
+import { renderDate, renderLat, renderLon, renderDepth } from './chartHelpers';
 const mapDispatchToProps = {
   csvFromVizRequestSend,
-};
-
-const renderDate = (parameters) => {
-  return parameters.dt1 === parameters.dt2
-    ? handleChartDateString(parameters.dt1)
-    : handleChartDateString(parameters.dt1) +
-        ' to ' +
-        handleChartDateString(parameters.dt2);
-};
-
-const renderLat = (parameters) => {
-  return parameters.lat1 === parameters.lat2
-    ? parameters.lat1 + '\xb0'
-    : parameters.lat1 + '\xb0 to ' + parameters.lat2 + '\xb0';
-};
-
-const renderLon = (parameters) => {
-  return parameters.lon1 === parameters.lon2
-    ? parameters.lon1 + '\xb0'
-    : parameters.lon1 + '\xb0 to ' + parameters.lon2 + '\xb0';
-};
-
-const renderDepth = (data) => {
-  let { parameters } = data;
-  return !data.hasDepth
-    ? 'Surface'
-    : parameters.depth1 === parameters.depth2
-    ? `${parameters.depth1}[m]`
-    : `${parameters.depth1}[m] to ${parameters.depth2}[m]`;
 };
 
 // User for all histograms sparse or otherwise

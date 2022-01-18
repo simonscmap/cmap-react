@@ -14,7 +14,6 @@ const mapDispatchToProps = {
 const DownloadCSV = (props) => {
   let { csvData, csvFromVizRequestSend } = props;
   let downloadCSV = () => {
-    console.log('dowload clicked');
     csvFromVizRequestSend(...csvData);
   }
 

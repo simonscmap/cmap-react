@@ -6,13 +6,12 @@ import spatialResolutions from '../../../enums/spatialResolutions';
 import storedProcedures from '../../../enums/storedProcedures';
 import vizSubTypes from '../../../enums/visualizationSubTypes';
 import { chartsStyles } from './chartStyles';
-// import CloseChartButton from './CloseChartButton';
-import DepthProfileChart from './DepthProfileChart2';
+import DepthProfileChart from './DepthProfileChart2'; // TODO
 import Histogram from './Histogram2'; // TODO: switch experimental Histogram component
-import SectionMapChart from './SectionMapChart';
+import SectionMapChart from './SectionMapChart2'; // TODO
 import SpaceTimeChart from './SpaceTimeChart';
 import SparseMap from './SparseMap';
-import TimeSeriesChart from './TimeSeriesChart';
+import TimeSeriesChart from './TimeSeriesChart2'; // TODO
 
 // determine what type of chart to render
 const getChartComponent = (chart) => {

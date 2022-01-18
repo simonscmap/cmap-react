@@ -1,51 +1,37 @@
-// Wrapper component for depth profile
+// Wrapper for time series
 import { withStyles } from '@material-ui/core/styles';
 import { format } from 'd3-format';
 import React from 'react';
+import months from '../../../enums/months';
 import makeErrorBarControl from './ChartControls/ErrorBarControl';
 import makeLinesControl from './ChartControls/LinesControl';
 import MarkerControl from './ChartControls/MarkerControl';
-import { depthProfileChartStyles } from './chartStyles';
+import { renderDepth, renderLat, renderLon } from './chartHelpers';
+import { timeSeriesChartStyles } from './chartStyles';
 import ChartTemplate from './ChartTemplate';
 import handleChartDateString from './handleChartDatestring';
 
+// chart.data -> [string]
 let makeHovertext = (data) => {
-  let { variableValues, depths, parameters, metadata, stds } = data;
+  let { variableValues, parameters, dates, stds, metadata } = data;
   return variableValues.map((value, i) => {
-    return `Depth: ${format('.2f')(depths[i])} [m] <br>${
-      parameters.fields
-    }: ${format('.2e')(value)} \xb1 ${format('.2e')(stds[i])} [${
-      metadata.Unit
-    }]`;
+    return `Time: ${dates[i].slice(0, 10)}<br>${parameters.fields}: ${format(
+      '.2e',
+    )(value)} \xb1 ${format('.2e')(stds[i])} [${metadata.Unit}]`;
   });
 };
 
-const renderDate = (data) => {
-  const date1 = data.isMonthly
-    ? new Date(data.parameters.dt1).getMonth() + 1
-    : data.parameters.dt1;
-  const date2 = data.isMonthly
-    ? new Date(data.parameters.dt2).getMonth() + 1
-    : data.parameters.dt2;
-
-  return date1 === date2
-    ? handleChartDateString(date1, data.hasHour, data.isMonthly)
-    : handleChartDateString(date1, data.hasHour, data.isMonthly) +
-        ' to ' +
-        handleChartDateString(date2, data.hasHour, data.isMonthly);
-};
-
-const DepthProfileChart = (props) => {
+const TimeSeriesChart = (props) => {
   const { chart, chartIndex } = props;
   const { data } = chart;
-  const { stds, variableValues, depths, parameters, metadata } = data;
+  const { stds, variableValues, dates, parameters, metadata } = data;
 
   // Show Lines Control
-  const [showLines, setShowLines] = React.useState(true);
+  let [showLines, setShowLines] = React.useState(true);
   let showLinesControlTuple = [makeLinesControl([showLines, setShowLines])];
 
   // Show Error Bars Cotrol
-  const [showErrorBars, setShowErrorBars] = React.useState(
+  let [showErrorBars, setShowErrorBars] = React.useState(
     !!variableValues && variableValues.length <= 40,
   );
   let errorBarsControlTuple = [
@@ -55,7 +41,7 @@ const DepthProfileChart = (props) => {
   // Show Marker Options
   let defaultMarkerState = { opacity: 0.2, color: '#ff1493', size: 6 };
   let [markerOptions, setMarkerOptions] = React.useState(defaultMarkerState);
-  let markerControlTuple = [
+  let markerOptionsControlTuple = [
     MarkerControl,
     { setMarkerOptions, markerOptions },
   ];
@@ -64,21 +50,37 @@ const DepthProfileChart = (props) => {
   let controls = [
     errorBarsControlTuple,
     showLinesControlTuple,
-    markerControlTuple,
+    markerOptionsControlTuple,
   ];
 
-  // Config
+  let hovertext = makeHovertext(data);
 
-  let date = renderDate(data);
+  // this date label is specific to timeseries
+  let date =
+    parameters.dt1 === parameters.dt2
+      ? handleChartDateString(dates[0], data.hasHour, data.isMonthly)
+      : handleChartDateString(dates[0], data.hasHour, data.isMonthly) +
+        ' to ' +
+        handleChartDateString(
+          dates[dates.length - 1],
+          data.hasHour,
+          data.isMonthly,
+        );
 
-  const depthProfilePlot = {
+  let lat = renderLat(parameters);
+  let lon = renderLon(parameters);
+  let depth = renderDepth(parameters);
+  let x = data.isMonthly ? dates.map((date) => months[parseInt(date)]) : dates;
+
+  // Time Series Plot Configuration
+  let timeSeriesPlotConfig = {
     useResizeHandler: true,
     data: [
       {
         mode: showLines ? 'lines+markers' : 'markers',
-        y: depths,
-        x: variableValues,
-        error_x: {
+        x: x,
+        y: variableValues,
+        error_y: {
           type: 'data',
           array: stds,
           opacity: 0.3,
@@ -91,24 +93,26 @@ const DepthProfileChart = (props) => {
             : metadata.Long_Name
         }`,
         type: variableValues.length > 10000 ? 'scattergl' : 'scatter',
+        line: { color: markerOptions.color },
         marker: {
-          line: { color: markerOptions.color },
           opacity: markerOptions.opacity,
           size: markerOptions.size,
           color: markerOptions.color,
         },
         hoverinfo: 'text',
-        hovertext: makeHovertext(data),
+        hovertext,
       },
     ],
+    config: {
+      // just default config
+    },
     layout: {
-      yaxis: {
-        title: 'Depth[m]',
+      xaxis: {
+        title: data.isMonthy ? 'Month' : 'Time',
         color: '#ffffff',
         exponentformat: 'power',
-        autorange: 'reversed',
       },
-      xaxis: {
+      yaxis: {
         title: `${
           metadata.Long_Name.length > 35
             ? metadata.Long_Name.slice(0, 35) + '...'
@@ -118,17 +122,11 @@ const DepthProfileChart = (props) => {
         exponentformat: 'power',
       },
     },
-    titleArgs: [
-      metadata,
-      date,
-      `${parameters.lat1}\xb0 to ${parameters.lat2}\xb0 `,
-      `${parameters.lon1}\xb0 to ${parameters.lon2}\xb0`,
-      `${parameters.depth1}[m] to ${parameters.depth2}[m]`,
-    ],
+    titleArgs: [metadata, date, lat, lon, depth],
     annotationArgs: [metadata.Distributor, metadata.Data_Source],
   };
 
-  const chartConfig = {
+  const timeSeriesConfig = {
     downloadCSVArgs: [
       data,
       metadata.Table_Name,
@@ -138,10 +136,10 @@ const DepthProfileChart = (props) => {
     chartData: chart,
     chartIndex,
     chartControls: controls,
-    plots: [depthProfilePlot],
+    plots: [timeSeriesPlotConfig],
   };
 
-  return <ChartTemplate {...chartConfig} />;
+  return <ChartTemplate {...timeSeriesConfig} />;
 };
 
-export default withStyles(depthProfileChartStyles)(DepthProfileChart);
+export default withStyles(timeSeriesChartStyles)(TimeSeriesChart);

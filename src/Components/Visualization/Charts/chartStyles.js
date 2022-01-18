@@ -37,7 +37,6 @@ export const histogramStyles = (theme) => ({
   },
 });
 
-
 export const sparseMapStyles = (theme) => ({
   chartWrapper: {
     display: 'inline-block',
@@ -124,6 +123,23 @@ export const chartControlPaletteMenu = () => ({
   },
 });
 
+export const chartControlPanelPopoverStyles = (theme) => ({
+  popover: {
+    width: '470px',
+    height: '120px',
+    paddingTop: theme.spacing(3),
+    paddingBottom: theme.spacing(1),
+    paddingLeft: theme.spacing(2.5),
+    paddingRight: theme.spacing(2.5),
+    zIndex: z.CONTROL_PRIMARY,
+  },
+  grayBackground: {
+    backgroundColor: colors.backgroundGray,
+  },
+  setPopoverZ: {
+    zIndex: `${z.CONTROL_PRIMARY} !important`,
+  },
+});
 
 // main control panel styles
 export const chartControlPanelStyles = (theme) => ({
@@ -137,7 +153,8 @@ export const chartControlPanelStyles = (theme) => ({
     zIndex: z.CONTROL_PRIMARY,
   },
 
-  iconButton: { // TODO remove when switched over to ControlPanel2
+  iconButton: {
+    // TODO remove when switched over to ControlPanel2
     boxShadow: '0px 1px 1px 1px #242424',
   },
 
@@ -157,7 +174,6 @@ export const chartControlPanelStyles = (theme) => ({
     // maxWidth: '700px',
     // textAlign: 'center',
     pointerEvents: 'auto',
-
   },
 
   depressed: {
@@ -206,7 +222,7 @@ export const chartsStyles = (theme) => ({
 export const chartTemplate = (theme) => ({
   chartTemplate: {
     padding: '0 10px 0 0',
-  }
+  },
 });
 
 export const chartsCloseChartStyles = {
