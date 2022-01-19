@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { csvFromVizRequestSend } from '../../../Redux/actions/visualization';
 import { histogramStyles } from './chartStyles';
 import ChartTemplate from './ChartTemplate';
-import { renderDate, renderLat, renderLon, renderDepth } from './chartHelpers';
+import { renderDate, renderLat, renderLon, renderDepth, truncateString } from './chartHelpers';
 const mapDispatchToProps = {
   csvFromVizRequestSend,
 };
@@ -42,11 +42,7 @@ const Histogram = (props) => {
     ],
     layout: {
       xaxis: {
-        title: `${
-          metadata.Long_Name.length > 35
-            ? metadata.Long_Name.slice(0, 35) + '...'
-            : metadata.Long_Name
-        } [${metadata.Unit}]`,
+        title: `${truncateString(35)(metadata.Long_Name)} [${metadata.Unit}]`,
         exponentformat: 'power',
         color: '#ffffff',
       },

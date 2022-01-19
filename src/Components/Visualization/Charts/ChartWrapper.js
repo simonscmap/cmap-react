@@ -9,7 +9,7 @@ import { chartsStyles } from './chartStyles';
 import DepthProfileChart from './DepthProfileChart2'; // TODO
 import Histogram from './Histogram2'; // TODO: switch experimental Histogram component
 import SectionMapChart from './SectionMapChart2'; // TODO
-import SpaceTimeChart from './SpaceTimeChart';
+import SpaceTimeChart from './SpaceTimeChart2';
 import SparseMap from './SparseMap';
 import TimeSeriesChart from './TimeSeriesChart2'; // TODO
 
@@ -17,7 +17,7 @@ import TimeSeriesChart from './TimeSeriesChart2'; // TODO
 const getChartComponent = (chart) => {
   let storedProcedureName = chart.data.parameters.spName;
   let { spaceTime, timeSeries, depthProfile, sectionMap } = storedProcedures;
-  let { sparse } = vizSubTypes;
+  let { sparse, histogram } = vizSubTypes;
   let { irregular } = spatialResolutions;
   let { subType } = chart;
   let { Spatial_Resolution: spatialResolution } = chart.data.metadata;
@@ -27,7 +27,7 @@ const getChartComponent = (chart) => {
       return SparseMap;
     }
 
-    if (spatialResolution === irregular) {
+    if (spatialResolution === irregular || subType === histogram) {
       return Histogram;
     }
 

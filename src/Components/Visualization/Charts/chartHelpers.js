@@ -11,6 +11,13 @@ export const renderDate = (parameters) => {
         handleChartDateString(parameters.dt2);
 };
 
+export const getLatLonTitles = (parameters) => {
+  let { lat1, lat2, lon1, lon2 } = parameters;
+  let latTitle = lat1 === lat2 ? `${lat1}\xb0` : `${lat1}\xb0 to ${lat2}\xb0`;
+  let lonTitle = lon1 === lon2 ? `${lon1}\xb0` : `${lon1}\xb0 to ${lon2}\xb0`;
+  return { latTitle, lonTitle };
+};
+
 // chart.parameters -> latitude label
 export const renderLat = (parameters) => {
   return parameters.lat1 === parameters.lat2
@@ -34,3 +41,16 @@ export const renderDepth = (data) => {
     ? `${parameters.depth1}[m]`
     : `${parameters.depth1}[m] to ${parameters.depth2}[m]`;
 };
+
+export const truncateString = (limit) => (str) => {
+  let parsedLimit = parseInt(limit);
+  if (typeof parsedLimit !== 'number' || typeof str !== 'string') {
+    throw new Error('Wrong type arguments to truncate string');
+  }
+  if (str.length > limit) {
+    return str.slice(0, limit) + '...';
+  }
+  return str;
+}
+
+export const truncate60 = truncateString(60);

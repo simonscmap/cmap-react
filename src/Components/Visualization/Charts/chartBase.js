@@ -1,4 +1,5 @@
 import colors from '../../../enums/colors';
+import { truncate60 } from './chartHelpers';
 
 // const spanStyles = 'style="width:50%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"';
 
@@ -84,18 +85,14 @@ const makeAnnotations = (distributor, dataSource) => {
 };
 
 const makeTitle = (metadata, date, lat, lon, depth) => {
+  let titleText =
+    `${metadata.Dataset_Name}` +
+    `<br>${truncate60(metadata.Long_Name)} [${metadata.Unit}]` +
+    `<br>${date},${depth}` +
+    `<br>Lat: ${lat}, Lon: ${lon}`;
+
   return {
-    text:
-      metadata.Dataset_Name +
-      `<br>${
-        metadata.Long_Name.length > 60
-          ? metadata.Long_Name.slice(0, 60) + '...'
-          : metadata.Long_Name
-      } [${metadata.Unit}]` +
-      `<br>${date}, ` +
-      depth +
-      `<br>Lat: ${lat}, ` +
-      `Lon: ${lon}`,
+    text: titleText,
     font: {
       size: 13,
     },
