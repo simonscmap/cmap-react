@@ -53,6 +53,7 @@ const MarkerOptions = (props) => {
     setMarkerOptions, // a useState setter provided by parent
     markerOptions,
     classes,
+    disable, // we may want to hide this cotrol in centain tabbed contexts
   } = props;
 
   const [anchorElement, setAnchorElement] = useState(null);
@@ -159,6 +160,7 @@ const MarkerOptions = (props) => {
         tooltipContent={'Marker Options'}
         onClick={handleOpen}
         icon={Gamepad}
+        disable={disable}
       />
 
       <Popover

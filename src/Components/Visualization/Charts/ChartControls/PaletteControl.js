@@ -15,7 +15,8 @@ import { useDispatch } from 'react-redux';
 const PaletteControl = (props) => {
   let {
     classes,
-    setPalette // a useState setter provided by parent
+    setPalette, // a useState setter provided by parent
+    disable, // in tabbed context we sometimes want to disable the contol
   } = props;
 
   let dispatch = useDispatch();
@@ -46,6 +47,7 @@ const PaletteControl = (props) => {
         tooltipContent={'Change Palette'}
         onClick={handleOpenPalette}
         icon={Palette}
+        disable={disable}
       />
       <Menu
         id="palette-option-menu"
@@ -73,7 +75,9 @@ const PaletteControl = (props) => {
   );
 };
 
-const StyledPaletteControl = withStyles(chartControlPaletteMenu)(PaletteControl);
+const StyledPaletteControl = withStyles(chartControlPaletteMenu)(
+  PaletteControl,
+);
 
 export default StyledPaletteControl;
 
@@ -83,4 +87,4 @@ export const usePaletteControl = (initialState) => {
   let [palette, setPalette] = useState(defaultState);
   let paletteControlTuple = [StyledPaletteControl, { setPalette }];
   return [paletteControlTuple, palette];
-}
+};

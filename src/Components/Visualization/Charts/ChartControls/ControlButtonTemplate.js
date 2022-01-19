@@ -9,6 +9,7 @@ const ControlButtonTemplate = (props) => {
     icon,
     classes,
     active,
+    disable,
   } = props;
 
   let Icon = icon; // variable must be capitalized to render as component
@@ -19,6 +20,7 @@ const ControlButtonTemplate = (props) => {
         color={ active ? "primary" : "inherit"}
         onClick={onClick}
         className={classes.iconButton}
+        disabled={disable}
       >
         <Icon />
       </IconButton>

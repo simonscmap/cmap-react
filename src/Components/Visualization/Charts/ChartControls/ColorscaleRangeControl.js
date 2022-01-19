@@ -28,7 +28,7 @@ const checkLocalZMax = (localMin, localMax) => {
 
 // Control Component
 const ColorscaleRangeControl = (props) => {
-  let { classes, rangeValues, setRangeValues } = props;
+  let { classes, rangeValues, setRangeValues, disable } = props;
 
   let [anchorElement, setAnchorElement] = useState(null);
   let dispatch = useDispatch();
@@ -70,6 +70,7 @@ const ColorscaleRangeControl = (props) => {
         tooltipContent={'Change Colorscale Range'}
         onClick={handleOpen}
         icon={SwapVert}
+        disable={disable}
       />
 
       <Popover
@@ -152,17 +153,19 @@ const ColorscaleRangeControl = (props) => {
   );
 };
 
-const StyledColorscaleRangeControl =  withStyles(chartControlPanelPopoverStyles)(
+const StyledColorscaleRangeControl = withStyles(chartControlPanelPopoverStyles)(
   ColorscaleRangeControl,
 );
 
 export default StyledColorscaleRangeControl;
 
 export const useColorscaleRangeControl = (defaultValues) => {
-
   let [rangeValues, setRangeValues] = useState(defaultValues);
 
-  let controlTuple = [StyledColorscaleRangeControl, { rangeValues, setRangeValues}];
+  let controlTuple = [
+    StyledColorscaleRangeControl,
+    { rangeValues, setRangeValues },
+  ];
 
   return [controlTuple, rangeValues];
-}
+};

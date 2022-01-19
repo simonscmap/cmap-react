@@ -54,3 +54,10 @@ export const truncateString = (limit) => (str) => {
 }
 
 export const truncate60 = truncateString(60);
+
+export const capitalizeFirst = (str) => {
+  if (!str || !str.length) {
+    return '';
+  }
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}

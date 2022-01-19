@@ -105,6 +105,7 @@ const defaultConfig = {
     width: '60vw',
     height: '40vw',
   },
+  useResizeHandler: true,
   layout: {
     font: { color: '#ffffff' },
     paper_bgcolor: colors.backgroundGray,

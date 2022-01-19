@@ -1,340 +1,282 @@
 // Container for grouped plots for sparse data
 
 import { withStyles } from '@material-ui/core/styles';
-import Tab from '@material-ui/core/Tab';
-import Tabs from '@material-ui/core/Tabs';
-import React, { useState } from 'react';
-import Plot from 'react-plotly.js';
-import { connect } from 'react-redux';
-import { setLoadingMessage } from '../../../Redux/actions/ui';
-import { csvFromVizRequestSend } from '../../../Redux/actions/visualization';
-import chartBase from './chartBase';
-import handleChartDateString from './handleChartDatestring';
-import ChartControlPanel from './ChartControlPanel';
+import React from 'react';
 import { sparseMapStyles } from './chartStyles';
-import SparseScatter from './SparseScatter';
+import getSparseScatterConfig from './SparseScatter';
+import { usePaletteControl } from './ChartControls/PaletteControl';
+import {
+  renderDate,
+  renderLat,
+  renderLon,
+  renderDepth,
+  truncate60,
+} from './chartHelpers';
+import { useColorscaleRangeControl } from './ChartControls/ColorscaleRangeControl';
+import { useMarkerOptions } from './ChartControls/MarkerControl';
+import ChartTemplate from './ChartTemplate';
 
-const handleSparseMap = (infoObject, palette, zValues) => {
-  const { parameters, metadata } = infoObject;
+const getSparseMapPlotConfig = (data, palette, zValues) => {
+  let { parameters, metadata } = data;
+  let date = renderDate(parameters);
+  let lat = renderLat(parameters);
+  let lon = renderLon(parameters);
+  let depth = renderDepth(data);
 
-  const date =
-    parameters.dt1 === parameters.dt2
-      ? handleChartDateString(parameters.dt1)
-      : handleChartDateString(parameters.dt1) +
-        ' to ' +
-        handleChartDateString(parameters.dt2);
-
-  const lat =
-    parameters.lat1 === parameters.lat2
-      ? parameters.lat1 + '\xb0'
-      : parameters.lat1 + '\xb0 to ' + parameters.lat2 + '\xb0';
-
-  const lon =
-    parameters.lon1 === parameters.lon2
-      ? parameters.lon1 + '\xb0'
-      : parameters.lon1 + '\xb0 to ' + parameters.lon2 + '\xb0';
-
-  const depth = !infoObject.hasDepth
-    ? 'Surface'
-    : parameters.depth1 === parameters.depth2
-    ? `${parameters.depth1}[m]`
-    : `${parameters.depth1}[m] to ${parameters.depth2}[m]`;
-
-  return (
-    <Plot
-      style={{
-        position: 'relative',
-        // display:'inline-block',
-        width: '60vw',
-        height: '40vw',
-        minWidth: '510px',
-        minHeight: '340px',
-      }}
-      useResizeHandler={true}
-      data={[
-        {
-          zauto: false,
-          zmin: zValues[0],
-          zmax: zValues[1],
-          lon: infoObject.lons,
-          lat: infoObject.lats,
-          z: infoObject.variableValues,
-          autocolorscale: false,
-          colorscale: palette,
-          radius: 6,
-          name: `${
-            metadata.Long_Name.length > 60
-              ? metadata.Long_Name.slice(0, 60) + '...'
-              : metadata.Long_Name
-          }`,
-          type: 'densitymapbox',
-
-          colorbar: {
-            title: {
-              text: `[${infoObject.metadata.Unit}]`,
-            },
-            exponentformat: 'power',
+  let plotConfig = {
+    tabTitle: 'Map',
+    style: {
+      width: '60vw',
+      height: '40vw',
+      minWidth: '510px',
+      minHeight: '340px',
+    },
+    data: [
+      {
+        zauto: false,
+        zmin: zValues[0],
+        zmax: zValues[1],
+        lon: data.lons,
+        lat: data.lats,
+        z: data.variableValues,
+        autocolorscale: false,
+        colorscale: palette,
+        radius: 6,
+        name: truncate60(metadata.Long_Name),
+        type: 'densitymapbox',
+        colorbar: {
+          title: {
+            text: `[${data.metadata.Unit}]`,
           },
+          exponentformat: 'power',
         },
-      ]}
-      layout={{
-        ...chartBase.layout,
-        title: chartBase.title(metadata, date, lat, lon, depth),
-        mapbox: {
-          style: 'white-bg',
-          layers: [
-            {
-              sourcetype: 'raster',
-              source: [
-                'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-              ],
-              below: 'traces',
-            },
-          ],
-          center: infoObject.center,
-          zoom: infoObject.zoom,
-        },
-
-        annotations: chartBase.annotations(
-          infoObject.metadata.Distributor,
-          metadata.Data_Source,
-        ),
-      }}
-      config={{
-        ...chartBase.config,
-        mapboxAccessToken:
-          'pk.eyJ1IjoiZGVuaG9sdHoiLCJhIjoiY2p1ZW9obTNhMDVxZjQzcDRvMmdlcDN2aiJ9.HvLaX2bcradeE5T-lpTc8w',
-      }}
-    />
-  );
-};
-
-const mapDispatchToProps = {
-  setLoadingMessage,
-  csvFromVizRequestSend,
-};
-
-function tabProps(index) {
-  return {
-    id: `sparse-tab-${index}`,
-    'aria-controls': `sparse-tab-${index}`,
+      },
+    ],
+    layout: {
+      mapbox: {
+        style: 'white-bg',
+        layers: [
+          {
+            sourcetype: 'raster',
+            source: [
+              'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+            ],
+            below: 'traces',
+          },
+        ],
+        center: data.center,
+        zoom: data.zoom,
+      },
+    },
+    config: {
+      mapboxAccessToken:
+        'pk.eyJ1IjoiZGVuaG9sdHoiLCJhIjoiY2p1ZW9obTNhMDVxZjQzcDRvMmdlcDN2aiJ9.HvLaX2bcradeE5T-lpTc8w',
+    },
+    titleArgs: [metadata, date, lat, lon, depth],
+    annotationArgs: [metadata.Distributor, metadata.Data_Source],
   };
-}
-
-// SparseTabPanel is the "body" of a tab; only the active tab's panel is visible
-// Each SparseTabPanel receives a SparseScatter as a child, except the first,
-// which receives the plot generated by handleSparseMap
-const SparseTabPanel = (props) => {
-  const { children, selectedTab, index, controlPanelProps, chart } = props;
-
-  return (
-    <div hidden={selectedTab !== index}>
-      <ChartControlPanel {...controlPanelProps} chart={chart} />
-      {selectedTab === index && children}
-    </div>
-  );
+  return plotConfig;
 };
 
 const SparseMap = React.memo((props) => {
-  console.log('sparse map');
-  const { classes, csvFromVizRequestSend, chart } = props;
+  const { chart, chartIndex } = props;
   const { data } = chart;
   const { metadata } = data;
 
-  const [palette, setPalette] = useState('Heatmap');
-  const [zValues, setZValues] = useState([data.zMin, data.zMax]);
-  const [markerOptions, setMarkerOptions] = useState({
-    opacity: 0.7,
-    color: '#ff1493',
-    size: 6,
-  });
-  const [tab, setTab] = useState(0);
+  let [paletteControlTuple, palette] = usePaletteControl();
+  let [rangeControlTuple, rangeValues] = useColorscaleRangeControl([data.zMin, data.zMax]);
+  let [markerControlTuple, markerOptions] = useMarkerOptions();
 
-  const plot = handleSparseMap(data, palette, zValues);
 
-  const handlePaletteChoice = (option) => {
-    props.setLoadingMessage('Re-rendering');
-    setTimeout(() => {
-      window.requestAnimationFrame(() => props.setLoadingMessage(''));
-      setPalette(option);
-    }, 100);
-  };
 
-  const handleZValueConfirm = (values) => {
-    props.setLoadingMessage('Re-rendering');
-    setTimeout(() => {
-      window.requestAnimationFrame(() => props.setLoadingMessage(''));
-      setZValues(values);
-    }, 100);
-  };
+  // scatter plots use markerOptions
+  let scatterPlots = ['time', 'latitude', 'longitude', 'depth'].map(
+    (scatterType, index) => {
+      return getSparseScatterConfig({ data, scatterType, markerOptions });
+    },
+  );
 
-  const handleTabChange = (event, newValue) => {
-    setTab(newValue);
-  };
+  // map plot uses palette and colorscaleRonge controls
+  let mapPlot = getSparseMapPlotConfig(data, palette, rangeValues);
 
-  const downloadCsv = () => {
-    csvFromVizRequestSend(
+  let controls = [paletteControlTuple, rangeControlTuple, markerControlTuple];
+
+  // function used by control panel to determine whether to disable a control
+  // in a tabbed context; this is kludgy, and works off knowledge of the index of
+  // both controls and tabs...
+  // the ChartTemplate nests the contols passed to it in between default controls:
+  // [ (0) Dowload CSV, ..., (n-1) Persist Mode Bar, (n) Close Chart ]
+  // so we add 1 to get the index of the controls we pass
+  let getShouldDisableControl = ({controlIndex, activeTabIndex}) => {
+    switch (activeTabIndex) {
+      case 0: // map
+        return [3].includes(controlIndex); // disable markerControl
+      default: // scatter plots
+        return [1, 2].includes(controlIndex); // disable palette and rangeControl
+    }
+  }
+
+  let sparseMapChartConfig = {
+    downloadCSVArgs: [
       data,
       metadata.Table_Name,
       metadata.Variable,
       metadata.Long_Name,
-    );
+    ],
+    chartData: chart,
+    chartIndex,
+    chartControls: controls,
+    isTabbedContent: true, // each plot has a 'tabTitle' property
+    getShouldDisableControl,
+    plots: [mapPlot, ...scatterPlots],
   };
 
-  const handleMarkerOptionsConfirm = (values) => {
-    props.setLoadingMessage('Re-rendering');
-    setTimeout(() => {
-      window.requestAnimationFrame(() => props.setLoadingMessage(''));
-      setMarkerOptions(values);
-    }, 100);
-  };
+  return <ChartTemplate {...sparseMapChartConfig} />;
 
-  const forceResize = () => {
-    setTimeout(() => window.dispatchEvent(new Event('resize')), 30);
-  };
+  /* return (
+   *   <div>
+   *     <Tabs
+   *       value={tab}
+   *       onChange={handleTabChange}
+   *       aria-label="Sparse tabs"
+   *       centered
+   *       indicatorColor="primary"
+   *       className={classes.tabs}
+   *     >
+   *       <Tab
+   *         label="Map"
+   *         {...tabProps(0)}
+   *         className={classes.tab}
+   *         onClick={forceResize}
+   *       />
+   *       <Tab label="By Time" {...tabProps(1)} className={classes.tab} />
+   *       <Tab label="By Lat" {...tabProps(2)} className={classes.tab} />
+   *       <Tab label="By Lon" {...tabProps(3)} className={classes.tab} />
+   *       {data.hasDepth && (
+   *         <Tab label="By Depth" {...tabProps(4)} className={classes.tab} />
+   *       )}
+   *     </Tabs>
 
-  const controlPanelProps = {
-    map: {
-      palette,
-      handlePaletteChoice,
-      zValues,
-      handleZValueConfirm,
-      downloadCsv,
-    },
+   *     <SparseTabPanel
+   *       selectedTab={tab}
+   *       index={0}
+   *       controlPanelProps={controlPanelProps.map}
+   *       chart={chart}
+   *     >
+   *       {plot}
+   *     </SparseTabPanel>
 
-    scatter: {
-      downloadCsv,
-      markerOptions,
-      setMarkerOptions,
-      handleMarkerOptionsConfirm,
-    },
-  };
+   *     <SparseTabPanel
+   *       selectedTab={tab}
+   *       index={1}
+   *       controlPanelProps={controlPanelProps.scatter}
+   *       chart={chart}
+   *     >
+   *       <SparseScatter
+   *         xValues={data.times}
+   *         yValues={data.variableValues}
+   *         markerOptions={markerOptions}
+   *         infoObject={data}
+   *         xTitle="Time"
+   *         yTitle={`${
+   *           metadata.Long_Name.length > 60
+   *             ? metadata.Long_Name.slice(0, 60) + '...'
+   *             : metadata.Long_Name
+   *         } [${metadata.Unit}]`}
+   *         type="time"
+   *       />
+   *     </SparseTabPanel>
 
-  return (
-    <div>
-      <Tabs
-        value={tab}
-        onChange={handleTabChange}
-        aria-label="Sparse tabs"
-        centered
-        indicatorColor="primary"
-        className={classes.tabs}
-      >
-        <Tab
-          label="Map"
-          {...tabProps(0)}
-          className={classes.tab}
-          onClick={forceResize}
-        />
-        <Tab label="By Time" {...tabProps(1)} className={classes.tab} />
-        <Tab label="By Lat" {...tabProps(2)} className={classes.tab} />
-        <Tab label="By Lon" {...tabProps(3)} className={classes.tab} />
-        {data.hasDepth && (
-          <Tab label="By Depth" {...tabProps(4)} className={classes.tab} />
-        )}
-      </Tabs>
+   *     <SparseTabPanel
+   *       selectedTab={tab}
+   *       index={2}
+   *       controlPanelProps={controlPanelProps.scatter}
+   *       chart={props.chart}
+   *     >
+   *       <SparseScatter
+   *         xValues={data.lats}
+   *         yValues={data.variableValues}
+   *         markerOptions={markerOptions}
+   *         infoObject={data}
+   *         xTitle="Latitude"
+   *         yTitle={`${
+   *           metadata.Long_Name.length > 60
+   *             ? metadata.Long_Name.slice(0, 60) + '...'
+   *             : metadata.Long_Name
+   *         }`}
+   *         type="latitude"
+   *       />
+   *     </SparseTabPanel>
 
-      <SparseTabPanel
-        selectedTab={tab}
-        index={0}
-        controlPanelProps={controlPanelProps.map}
-        chart={chart}
-      >
-        {plot}
-      </SparseTabPanel>
+   *     <SparseTabPanel
+   *       selectedTab={tab}
+   *       index={3}
+   *       controlPanelProps={controlPanelProps.scatter}
+   *       chart={chart}
+   *     >
+   *       <SparseScatter
+   *         xValues={data.lons}
+   *         yValues={data.variableValues}
+   *         markerOptions={markerOptions}
+   *         infoObject={data}
+   *         xTitle="Longitude"
+   *         yTitle={`${
+   *           metadata.Long_Name.length > 60
+   *             ? metadata.Long_Name.slice(0, 60) + '...'
+   *             : metadata.Long_Name
+   *         }`}
+   *         type="longitude"
+   *       />
+   *     </SparseTabPanel>
 
-      <SparseTabPanel
-        selectedTab={tab}
-        index={1}
-        controlPanelProps={controlPanelProps.scatter}
-        chart={chart}
-      >
-        <SparseScatter
-          xValues={data.times}
-          yValues={data.variableValues}
-          markerOptions={markerOptions}
-          infoObject={data}
-          xTitle="Time"
-          yTitle={`${
-            metadata.Long_Name.length > 60
-              ? metadata.Long_Name.slice(0, 60) + '...'
-              : metadata.Long_Name
-          } [${metadata.Unit}]`}
-          type="time"
-        />
-      </SparseTabPanel>
-
-      <SparseTabPanel
-        selectedTab={tab}
-        index={2}
-        controlPanelProps={controlPanelProps.scatter}
-        chart={props.chart}
-      >
-        <SparseScatter
-          xValues={data.lats}
-          yValues={data.variableValues}
-          markerOptions={markerOptions}
-          infoObject={data}
-          xTitle="Latitude"
-          yTitle={`${
-            metadata.Long_Name.length > 60
-              ? metadata.Long_Name.slice(0, 60) + '...'
-              : metadata.Long_Name
-          }`}
-          type="latitude"
-        />
-      </SparseTabPanel>
-
-      <SparseTabPanel
-        selectedTab={tab}
-        index={3}
-        controlPanelProps={controlPanelProps.scatter}
-        chart={chart}
-      >
-        <SparseScatter
-          xValues={data.lons}
-          yValues={data.variableValues}
-          markerOptions={markerOptions}
-          infoObject={data}
-          xTitle="Longitude"
-          yTitle={`${
-            metadata.Long_Name.length > 60
-              ? metadata.Long_Name.slice(0, 60) + '...'
-              : metadata.Long_Name
-          }`}
-          type="longitude"
-        />
-      </SparseTabPanel>
-
-      {data.hasDepth && (
-        <SparseTabPanel
-          selectedTab={tab}
-          index={4}
-          controlPanelProps={controlPanelProps.scatter}
-          chart={chart}
-        >
-          {tab === 4 && (
-            <SparseScatter
-              xValues={data.variableValues}
-              yValues={data.depths}
-              markerOptions={markerOptions}
-              infoObject={data}
-              xTitle={`${
-                metadata.Long_Name.length > 60
-                  ? metadata.Long_Name.slice(0, 60) + '...'
-                  : metadata.Long_Name
-              }`}
-              yTitle="Depth[m]"
-              type="depth"
-            />
-          )}
-        </SparseTabPanel>
-      )}
-    </div>
-  );
+   *     {data.hasDepth && (
+   *       <SparseTabPanel
+   *         selectedTab={tab}
+   *         index={4}
+   *         controlPanelProps={controlPanelProps.scatter}
+   *         chart={chart}
+   *       >
+   *         {tab === 4 && (
+   *           <SparseScatter
+   *             xValues={data.variableValues}
+   *             yValues={data.depths}
+   *             markerOptions={markerOptions}
+   *             infoObject={data}
+   *             xTitle={`${
+   *               metadata.Long_Name.length > 60
+   *                 ? metadata.Long_Name.slice(0, 60) + '...'
+   *                 : metadata.Long_Name
+   *             }`}
+   *             yTitle="Depth[m]"
+   *             type="depth"
+   *           />
+   *         )}
+   *       </SparseTabPanel>
+   *     )}
+   *   </div>
+   * ); */
 });
 
-export default connect(
-  null,
-  mapDispatchToProps,
-)(withStyles(sparseMapStyles)(SparseMap));
+export default withStyles(sparseMapStyles)(SparseMap);
+
+/* const forceResize = () => {
+   *   // TODO: the timeout is arbitrary 30ms
+   *   setTimeout(() => window.dispatchEvent(new Event('resize')), 30);
+   * }; */
+
+  /* const controlPanelProps = {
+   *   map: {
+   *     palette,
+   *     handlePaletteChoice,
+   *     zValues,
+   *     handleZValueConfirm,
+   *     downloadCsv,
+   *   },
+
+   *   scatter: {
+   *     downloadCsv,
+   *     markerOptions,
+   *     setMarkerOptions,
+   *     handleMarkerOptionsConfirm,
+   *   },
+   * }; */

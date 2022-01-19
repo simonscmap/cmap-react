@@ -22,11 +22,13 @@ import { chartTemplate } from './chartStyles';
 const ChartTemplate = (props) => {
   let {
     classes,
-    downloadCSVArgs,
-    chartData, // chart data
-    chartControls, // Array of chart control definitons: [component, argsObject ]
-    plots, // Array of plot objects
-    chartIndex, // position in the array of charts currently rendered
+    downloadCSVArgs, // Array: array of args for csv control
+    chartData, // Object: chart data
+    chartControls, // Array: array of chart control definitons: [component, argsObject ]
+    plots, // Array: array of plot objects
+    chartIndex, // Integer: position in the array of charts currently rendered
+    isTabbedContent, // Boolean: is this a tabbed chart?
+    getShouldDisableControl, // () -> bool: used for tabbed content
   } = props;
 
   // keep state of mode bar persistence
@@ -54,8 +56,30 @@ const ChartTemplate = (props) => {
     return plot;
   });
 
+  // create tab controls, if tabs chart requires tabbed content
+  let [openTab, setOpenTab] = useState(0);
+  let tabContext;
+  if (isTabbedContent) {
+    // these will be provided to the control panel in the same order
+    // as the plots; so indexes will correspond
+    let tabTitles = plotObjects.map((plot, index) => {
+      return plot.tabTitle || `Tab ${index}`;
+    });
+    // provide the following context to the Control Panel
+    // which will render tab buttons
+    tabContext = {
+      setOpenTab,
+      openTab,
+      tabTitles,
+      getShouldDisableControl,
+    };
+  }
+
   // assemble controls
-  let DownloadCSVControlTuple = [DownloadCSVControl, { csvData: downloadCSVArgs }];
+  let DownloadCSVControlTuple = [
+    DownloadCSVControl,
+    { csvData: downloadCSVArgs },
+  ];
   let CloseChartButtonTuple = [CloseChartControl, { chartIndex }];
   let PersistModeBarTuple = [makeModeBarControl([persistModeBar, setPersist])];
 
@@ -77,7 +101,11 @@ const ChartTemplate = (props) => {
         styleOverride={{ button: { zIndex: 999 }, wrapper: { zIndex: 998 } }}
         size={'medium'}
       >
-        <ChartControlPanel controls={controls} chart={chartData} />
+        <ChartControlPanel
+          controls={controls}
+          tabContext={isTabbedContent && tabContext}
+    chart={chartData}
+        />
       </Hint>
 
       {/* ModeBar Hint (not attached to modebar, because that is a plotly internal) */}
@@ -89,7 +117,12 @@ const ChartTemplate = (props) => {
 
       {/* Plots */}
       {plotObjects.map((args, index) => {
-        return <Plotly {...args} key={`plot-${index}`} />;
+        // hide plot if this is tabbed content, and it is not the active index
+        return (
+          <div hidden={isTabbedContent && openTab !== index}>
+            <Plotly {...args} key={`plot-${index}`} />
+          </div>
+        );
       })}
     </div>
   );

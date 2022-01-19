@@ -1,6 +1,6 @@
 // Wrapper for chart controls
 
-import { Button, ButtonGroup, Tooltip, withStyles } from '@material-ui/core';
+import { ButtonGroup, Tooltip, withStyles } from '@material-ui/core';
 import { Warning } from '@material-ui/icons';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -10,13 +10,14 @@ import temporalResolutions from '../../../enums/temporalResolutions';
 import { sparseDataMaxSizeNotificationUpdate } from '../../../Redux/actions/visualization';
 import { lastRowTimeSpaceDataFromChart } from '../helpers';
 import { chartControlPanelStyles } from './chartStyles';
+import TabTemplate from './ChartControls/TabTemplate';
 
 const mapDispatchToProps = {
   sparseDataMaxSizeNotificationUpdate,
 };
 
 const ChartControlPanel = (props) => {
-  const { classes, chart, controls } = props;
+  const { classes, chart, controls, tabContext } = props;
 
   const showMaxSizeWarningAndInfo = () => {
     props.sparseDataMaxSizeNotificationUpdate(
@@ -55,11 +56,30 @@ const ChartControlPanel = (props) => {
         )}
 
         <ButtonGroup className={classes.buttonGroup}>
-          <Button>Tab</Button> {/* Tabs go here*/}
-          <div style={{ width: '15px' }}></div>
+          {/* if this chart has tabbed content, render tab controls*/}
+          {tabContext &&
+            tabContext.tabTitles.map((tabTitle, index) => {
+              return (
+                <TabTemplate
+                  tabTitle={tabTitle}
+                  onClick={() => tabContext.setOpenTab(index)}
+                  key={`tab-${index}`}
+                  active={index === tabContext.openTab}
+                />
+              );
+            })}
+
+          <div style={{ width: '10px' }}></div>
+
+          {/* render each control component */}
+          {/* TODO: hide controls for tabs that can't use their specific function */}
           {controls.map((controlTuple, index) => {
             let [Component, argsObject = {}] = controlTuple;
-            return <Component {...argsObject} key={`controls-${index}`} />;
+            let disable = tabContext && tabContext.getShouldDisableControl({
+              controlIndex: index,
+              activeTabIndex: tabContext.openTab,
+            })
+            return <Component {...argsObject} disable={disable} key={`controls-${index}`} />;
           })}
         </ButtonGroup>
       </div>

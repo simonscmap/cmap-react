@@ -1,76 +1,55 @@
 // Wrapper for scatter / line plots
 
 import { format } from 'd3-format';
-import React from 'react';
-import Plot from 'react-plotly.js';
-import chartBase from './chartBase';
-import handleChartDateString from './handleChartDatestring';
 
-const SparseScatter = (props) => {
-  const {
-    xValues,
-    yValues,
-    markerOptions,
-    infoObject,
-    xTitle,
-    yTitle,
-    type,
-  } = props;
+import {
+  renderDate,
+  renderLat,
+  renderLon,
+  renderDepth,
+  truncate60,
+  capitalizeFirst,
+} from './chartHelpers';
 
-  const {
-    parameters,
-    metadata,
-    hasDepth,
+const getHovertext = (data, scatterType) => {
+  let {
     variableValues,
     times,
+    parameters,
+    metadata,
     lats,
     lons,
     depths,
-  } = infoObject;
+  } = data;
 
-  var hovertext;
-
-  switch (type) {
-    case 'time':
-      hovertext = variableValues.map((value, i) => {
-        let formatter = value > 1 && value < 1000 ? '.2f' : '.2e';
-        let time = times[i].slice(0, 20);
-        time = time.replace('T', ' ');
-        return `Time: ${time}<br>${parameters.fields}: ${format(formatter)(
-          value,
-        )} [${metadata.Unit}]`;
-      });
-      break;
-
+  switch (scatterType) {
     case 'latitude':
-      hovertext = variableValues.map((value, i) => {
+      return variableValues.map((value, i) => {
         let formatter = value > 1 && value < 1000 ? '.2f' : '.2e';
         return `Lat: ${lats[i].toFixed(2)}<br>${parameters.fields}: ${format(
           formatter,
         )(value)} [${metadata.Unit}]`;
       });
-      break;
 
     case 'longitude':
-      hovertext = variableValues.map((value, i) => {
+      return variableValues.map((value, i) => {
         let formatter = value > 1 && value < 1000 ? '.2f' : '.2e';
         return `Lon: ${lons[i].toFixed(2)}<br>${parameters.fields}: ${format(
           formatter,
         )(value)} [${metadata.Unit}]`;
       });
-      break;
 
     case 'depth':
-      hovertext = variableValues.map((value, i) => {
+      return variableValues.map((value, i) => {
         let formatter = value > 1 && value < 1000 ? '.2f' : '.2e';
         return `Depth: ${depths[i].toFixed(2)}<br>${
           parameters.fields
         }: ${format(formatter)(value)} [${metadata.Unit}]`;
       });
-      break;
 
+    case 'time':
     default:
-      hovertext = variableValues.map((value, i) => {
+      return variableValues.map((value, i) => {
         let formatter = value > 1 && value < 1000 ? '.2f' : '.2e';
         let time = times[i].slice(0, 20);
         time = time.replace('T', ' ');
@@ -79,82 +58,95 @@ const SparseScatter = (props) => {
         )} [${metadata.Unit}]`;
       });
   }
-
-  const date =
-    parameters.dt1 === parameters.dt2
-      ? handleChartDateString(parameters.dt1)
-      : handleChartDateString(parameters.dt1) +
-        ' to ' +
-        handleChartDateString(parameters.dt2);
-
-  const lat =
-    parameters.lat1 === parameters.lat2
-      ? parameters.lat1 + '\xb0'
-      : parameters.lat1 + '\xb0 to ' + parameters.lat2 + '\xb0';
-
-  const lon =
-    parameters.lon1 === parameters.lon2
-      ? parameters.lon1 + '\xb0'
-      : parameters.lon1 + '\xb0 to ' + parameters.lon2 + '\xb0';
-
-  const depth = !hasDepth
-    ? 'Surface'
-    : parameters.depth1 === parameters.depth2
-    ? `${parameters.depth1}[m]`
-    : `${parameters.depth1}[m] to ${parameters.depth2}[m]`;
-
-  return (
-    <Plot
-      style={{
-        position: 'relative',
-        // display:'inline-block',
-        width: '60vw',
-        height: '40vw',
-      }}
-      useResizeHandler={true}
-      data={[
-        {
-          x: xValues,
-          y: yValues,
-          mode: 'markers',
-          name: `${
-            metadata.Long_Name.length > 60
-              ? metadata.Long_Name.slice(0, 60) + '...'
-              : metadata.Long_Name
-          }`,
-          type: variableValues.length > 10000 ? 'scattergl' : 'scatter',
-          // type: 'scatter',
-          marker: {
-            opacity: markerOptions.opacity,
-            size: markerOptions.size,
-            color: markerOptions.color,
-          },
-          hoverinfo: 'text',
-          hovertext,
-        },
-      ]}
-      config={{ ...chartBase.config }}
-      layout={{
-        ...chartBase.layout,
-        title: chartBase.title(metadata, date, lat, lon, depth),
-        xaxis: {
-          title: xTitle,
-          color: '#ffffff',
-          exponentformat: 'power',
-        },
-        yaxis: {
-          title: yTitle,
-          color: '#ffffff',
-          exponentformat: 'power',
-          autorange: type === 'depth' ? 'reversed' : true,
-        },
-        annotations: chartBase.annotations(
-          metadata.Distributor,
-          metadata.Data_Source,
-        ),
-      }}
-    />
-  );
 };
 
-export default SparseScatter;
+// data -> scatterType -> { x, y }
+const getValues = (data, scatterType) => {
+  switch (scatterType) {
+    case 'latitude':
+      return { x: data.lats, y: data.variableValues };
+    case 'longitude':
+      return { x: data.lons, y: data.variableValues };
+    case 'depth':
+      return { x: data.variableValues, y: data.depths };
+    case 'time':
+    default:
+      return { x: data.times, y: data.variableValues };
+  }
+};
+
+// data -> scatterType -> [x title, y title]
+const getTitles = (data, scatterType) => {
+  let scatterTypeTitle = capitalizeFirst(scatterType);
+  let { metadata: { Long_Name } } = data;
+  switch (scatterType) {
+    case 'depth':
+      return  [truncate60(Long_Name), 'Depth[m]'];
+    case 'time':
+    case 'latitude':
+    case 'longitude':
+    default:
+      return [scatterTypeTitle, truncate60(Long_Name)];
+  }
+}
+
+const getSparseScatterConfig = (props) => {
+  const {
+    markerOptions,
+    data,
+    scatterType,
+  } = props;
+
+  const { parameters, metadata, variableValues } = data;
+
+  let hovertext = getHovertext(data, scatterType);
+  let date = renderDate(parameters);
+  let lat = renderLat(parameters);
+  let lon = renderLon(parameters);
+  let depth = renderDepth(data);
+  let { x, y } = getValues(data, scatterType);
+  let [xTitle, yTitle] = getTitles(data, scatterType);
+
+  let plot = {
+    tabTitle: capitalizeFirst(scatterType),
+    style: {
+      width: '60vw',
+      height: '40vw',
+    },
+    data: [
+      {
+        x,
+        y,
+        mode: 'markers',
+        name: truncate60(metadata.Long_Name),
+        type: variableValues.length > 10000 ? 'scattergl' : 'scatter',
+        marker: {
+          opacity: markerOptions.opacity,
+          size: markerOptions.size,
+          color: markerOptions.color,
+        },
+        hoverinfo: 'text',
+        hovertext,
+      },
+    ],
+    layout: {
+      xaxis: {
+        title: xTitle,
+        color: '#ffffff',
+        exponentformat: 'power',
+      },
+      yaxis: {
+        title: yTitle,
+        color: '#ffffff',
+        exponentformat: 'power',
+        autorange: scatterType === 'depth' ? 'reversed' : true,
+      },
+    },
+    titleArgs: [metadata, date, lat, lon, depth],
+    annotationArgs: [metadata.Distributor, metadata.Data_Source],
+  };
+
+  return plot;
+};
+
+export default getSparseScatterConfig;
