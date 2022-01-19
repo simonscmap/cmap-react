@@ -274,6 +274,7 @@ class DataSearch extends React.Component {
               padding: '16px',
               backgroundColor: 'rgba(0,0,0,.4)',
               display: memberVariablesDataset ? 'none' : '',
+              minWidth: '457px',
             }}
           >
             <Hint

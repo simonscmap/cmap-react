@@ -32,6 +32,7 @@ const styles = (theme) => ({
   visualizeButton: {
     textTransform: 'none',
     height: '56px',
+    width: '100%',
     borderRadius: 0,
     backgroundColor: colors.backgroundGray,
     color: theme.palette.primary.main,
@@ -178,15 +179,16 @@ const ChartControl = (props) => {
 
         <Hint
           content={CreateVisualizationHint}
-          position={{ beacon: 'right', hint: 'bottom-end' }}
+          position={{ beacon: 'bottom', hint: 'bottom-end' }}
           size={'medium'}
+          styleOverride={{ wrapper: { width: '100%' } }}
         >
           <Tooltip
             placement="right"
             title={visualizeButtonTooltip}
             className={classes.vizButtonTooltip}
           >
-            <Grid item xs={12}>
+            <Grid item xs={12} style={{ width: '100%' }}>
               <Button
                 className={classes.visualizeButton}
                 variant="contained"
