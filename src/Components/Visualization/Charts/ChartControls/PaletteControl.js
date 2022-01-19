@@ -10,18 +10,15 @@ import { withStyles } from '@material-ui/core';
 import { chartControlPaletteMenu } from '../chartStyles';
 import colorscaleOptions from './colorScaleOptions';
 import { setLoadingMessage } from '../../../../Redux/actions/ui';
-import { connect } from 'react-redux';
-
-let mapDispatchToProps = {
-  setLoadingMessage,
-}
+import { useDispatch } from 'react-redux';
 
 const PaletteControl = (props) => {
   let {
     classes,
-    setLoadingMessage, // dispatch
     setPalette // a useState setter provided by parent
   } = props;
+
+  let dispatch = useDispatch();
 
   const [paletteAnchorElement, setPaletteAnchorElement] = useState(null);
 
@@ -35,10 +32,10 @@ const PaletteControl = (props) => {
     // close the menu
     setPaletteAnchorElement(null);
     // set a loading message
-    props.setLoadingMessage('Re-rendering');
+    dispatch(setLoadingMessage('Re-rendering'));
     // set the palette
     setTimeout(() => {
-      window.requestAnimationFrame(() => props.setLoadingMessage(''));
+      window.requestAnimationFrame(() => dispatch(setLoadingMessage('')));
       setPalette(option);
     }, 100);
   };
@@ -76,4 +73,14 @@ const PaletteControl = (props) => {
   );
 };
 
-export default connect(null, mapDispatchToProps)(withStyles(chartControlPaletteMenu)(PaletteControl));
+const StyledPaletteControl = withStyles(chartControlPaletteMenu)(PaletteControl);
+
+export default StyledPaletteControl;
+
+// hook returns [controlTuple, toggleState]
+export const usePaletteControl = (initialState) => {
+  let defaultState = initialState === undefined ? 'heatmap' : initialState;
+  let [palette, setPalette] = useState(defaultState);
+  let paletteControlTuple = [StyledPaletteControl, { setPalette }];
+  return [paletteControlTuple, palette];
+}

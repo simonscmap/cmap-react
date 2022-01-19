@@ -296,7 +296,7 @@ const SpaceTimeChart = (props) => {
   ];
 
   // Control: Split by Depth
-  let [splitByDepth, setSplitByDepth] = useState(true);
+  let [splitByDepth, setSplitByDepth] = useState(false);
   let splitByDepthControlTuple = [
     makeSplitByDepthControl([splitByDepth, setSplitByDepth])
   ];

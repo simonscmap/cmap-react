@@ -10,7 +10,7 @@ import {
   InputLabel,
   OutlinedInput,
   Popover,
-  withStyles,
+  withStyles
 } from '@material-ui/core';
 import { Gamepad } from '@material-ui/icons';
 import React, { useEffect, useRef, useState } from 'react';
@@ -36,6 +36,7 @@ function usePreviousColor(value) {
   });
   return ref.current;
 }
+
 function usePreviousOpacity(value) {
   let opacity = value ? value.opacity : null;
   const ref = useRef();
@@ -44,6 +45,8 @@ function usePreviousOpacity(value) {
   });
   return ref.current;
 }
+
+let defaultMarkerState = { opacity: 0.2, color: '#ff1493', size: 6 };
 
 const MarkerOptions = (props) => {
   let {
@@ -264,4 +267,14 @@ const MarkerOptions = (props) => {
   );
 };
 
-export default withStyles(chartControlPanelStyles)(MarkerOptions);
+
+const ConnectedMarkerOptions = withStyles(chartControlPanelStyles)(MarkerOptions);
+
+export default ConnectedMarkerOptions;
+
+// hook returns [controlTuple, toggleState]
+export const useMarkerOptions = (initialState) => {
+  let [markerOptions, setMarkerOptions] = useState(defaultMarkerState);
+  let markerControlTuple = [ConnectedMarkerOptions, { setMarkerOptions, markerOptions }]
+  return [markerControlTuple, markerOptions];
+}

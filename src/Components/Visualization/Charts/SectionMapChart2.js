@@ -1,5 +1,4 @@
 // Wrapper for section map charts
-
 import { withStyles } from '@material-ui/core/styles';
 import { LineWeight } from '@material-ui/icons';
 import { format } from 'd3-format';
@@ -8,10 +7,10 @@ import { connect } from 'react-redux';
 import colors from '../../../enums/colors';
 import visualizationSubTypes from '../../../enums/visualizationSubTypes';
 import { snackbarOpen } from '../../../Redux/actions/ui';
-import ColorscaleRangeControl from './ChartControls/ColorscaleRangeControl';
+import { useColorscaleRangeControl } from './ChartControls/ColorscaleRangeControl';
 import GenericToggleControl from './ChartControls/GenericToggleControl';
-import makeOrientationControl from './ChartControls/OrientationControl';
-import PaletteControl from './ChartControls/PaletteControl';
+import { useOrientationControl } from './ChartControls/OrientationControl';
+import { usePaletteControl } from './ChartControls/PaletteControl';
 import makeSplitByDateControl from './ChartControls/SplitByDateControl';
 import { sectionMapChartStyles } from './chartStyles';
 import ChartTemplate from './ChartTemplate';
@@ -64,18 +63,14 @@ const makeLatAndLonTitles = (
     orientation === 'meridional'
       ? `${parameters.lat1}\xb0 to ${parameters.lat2}\xb0`
       : splitBySpace
-      ? dmopfs[
-          index % dmopfs.length
-        ] + '\xb0'
+      ? dmopfs[index % dmopfs.length] + '\xb0'
       : `Averaged Values ${parameters.lat1}\xb0 to ${parameters.lat2}\xb0`;
 
   let lonTitle =
     orientation === 'zonal'
       ? `${parameters.lon1}\xb0 to ${parameters.lon2}\xb0`
       : splitBySpace
-      ? dmopfs[
-          index % dmopfs.length
-        ] + '\xb0'
+      ? dmopfs[index % dmopfs.length] + '\xb0'
       : `Averaged Values ${parameters.lon1}\xb0 to ${parameters.lon2}\xb0`;
   return [latTitle, lonTitle];
 };
@@ -184,7 +179,13 @@ const handleSectionMap = (sectionMapData) => {
       index,
     );
 
-    let date = makeDate(dates, data, { splitByDate, splitBySpace }, dmopfs, index);
+    let date = makeDate(
+      dates,
+      data,
+      { splitByDate, splitBySpace },
+      dmopfs,
+      index,
+    );
     let hovertext = makeHovertext({ z, y, x }, orientation, data);
 
     let plotConfig = {
@@ -270,31 +271,21 @@ const SectionMapChart = (props) => {
 
   const [splitByDate, setSplitByDate] = useState(false);
   const [splitBySpace, setSplitBySpace] = useState(false);
-  const [orientation, setOrientation] = useState(data.orientation);
-  const [palette, setPalette] = useState('heatmap');
-  const [rangeValues, setRangeValues] = useState([data.zMin, data.zMax]);
-  const [zMin, zMax] = rangeValues;
 
-  var spaces = orientation === 'zonal' ? lats : lons;
+  let [orientationControlTuple, orientation] = useOrientationControl(
+    data.orientation,
+  );
+
+  let [paletteControlTuple, palette] = usePaletteControl();
+  let spaces = orientation === 'zonal' ? lats : lons;
+
+  let [colorscaleRangeControlTuple, rangeValues] = useColorscaleRangeControl([
+    data.zMin,
+    data.zMax,
+  ]);
 
   // see api/SectionMapData for details on how generatePlotData works
-  const subsets = data.generatePlotData(orientation, splitByDate, splitBySpace);
-
-  let paletteControlTuple = [PaletteControl, { setPalette }];
-
-  let colorscaleRangeControlTuple = [
-    ColorscaleRangeControl,
-    { rangeValues, setRangeValues },
-  ];
-
-  // pass a transform to the orientation control to switch state between zonal and meridional
-  let switchOrientation = (current) =>
-    current === 'zonal' ? 'meridional' : 'zonal';
-  // tell the control which state is considered "on"; it should be the opposite of default
-  let onState = data.orientation === 'zonal' ? 'meridonal' : 'zonal';
-  let orientationControlTuple = [
-    makeOrientationControl([orientation, setOrientation, switchOrientation, onState]),
-  ];
+  let subsets = data.generatePlotData(orientation, splitByDate, splitBySpace);
 
   // Split By Space
   let handleSetSplitBySpace = () => {
@@ -346,6 +337,8 @@ const SectionMapChart = (props) => {
     splitBySpaceControlTuple,
     splitByDateControlTuple,
   ];
+
+  const [zMin, zMax] = rangeValues;
 
   let plots = handleSectionMap({
     subsets,

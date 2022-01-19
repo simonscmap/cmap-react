@@ -2,9 +2,9 @@
 import { withStyles } from '@material-ui/core/styles';
 import { format } from 'd3-format';
 import React from 'react';
-import makeErrorBarControl from './ChartControls/ErrorBarControl';
-import makeLinesControl from './ChartControls/LinesControl';
-import MarkerControl from './ChartControls/MarkerControl';
+import { useErrorBarControl }from './ChartControls/ErrorBarControl';
+import { useLineControl } from './ChartControls/LinesControl';
+import { useMarkerOptions } from './ChartControls/MarkerControl';
 import { depthProfileChartStyles } from './chartStyles';
 import ChartTemplate from './ChartTemplate';
 import handleChartDateString from './handleChartDatestring';
@@ -41,29 +41,19 @@ const DepthProfileChart = (props) => {
   const { stds, variableValues, depths, parameters, metadata } = data;
 
   // Show Lines Control
-  const [showLines, setShowLines] = React.useState(true);
-  let showLinesControlTuple = [makeLinesControl([showLines, setShowLines])];
+  let [lineControlTuple, showLinesState ] = useLineControl();
 
   // Show Error Bars Cotrol
-  const [showErrorBars, setShowErrorBars] = React.useState(
-    !!variableValues && variableValues.length <= 40,
-  );
-  let errorBarsControlTuple = [
-    makeErrorBarControl([showErrorBars, setShowErrorBars]),
-  ];
+  let defaultErrorBarState = !!variableValues && variableValues.length <= 40;
+  let [errorBarsControlTuple, errorBarState] = useErrorBarControl(defaultErrorBarState);
 
   // Show Marker Options
-  let defaultMarkerState = { opacity: 0.2, color: '#ff1493', size: 6 };
-  let [markerOptions, setMarkerOptions] = React.useState(defaultMarkerState);
-  let markerControlTuple = [
-    MarkerControl,
-    { setMarkerOptions, markerOptions },
-  ];
+  let [markerControlTuple, markerOptions] = useMarkerOptions();
 
   // Aggregated Controls:
   let controls = [
     errorBarsControlTuple,
-    showLinesControlTuple,
+    lineControlTuple,
     markerControlTuple,
   ];
 
@@ -75,14 +65,14 @@ const DepthProfileChart = (props) => {
     useResizeHandler: true,
     data: [
       {
-        mode: showLines ? 'lines+markers' : 'markers',
+        mode: showLinesState ? 'lines+markers' : 'markers',
         y: depths,
         x: variableValues,
         error_x: {
           type: 'data',
           array: stds,
           opacity: 0.3,
-          color: showErrorBars ? '#f2f2f2' : 'transparent',
+          color: errorBarState ? '#f2f2f2' : 'transparent',
           visible: true,
         },
         name: `${

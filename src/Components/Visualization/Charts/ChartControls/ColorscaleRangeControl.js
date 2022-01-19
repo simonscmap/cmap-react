@@ -152,6 +152,17 @@ const ColorscaleRangeControl = (props) => {
   );
 };
 
-export default withStyles(chartControlPanelPopoverStyles)(
+const StyledColorscaleRangeControl =  withStyles(chartControlPanelPopoverStyles)(
   ColorscaleRangeControl,
 );
+
+export default StyledColorscaleRangeControl;
+
+export const useColorscaleRangeControl = (defaultValues) => {
+
+  let [rangeValues, setRangeValues] = useState(defaultValues);
+
+  let controlTuple = [StyledColorscaleRangeControl, { rangeValues, setRangeValues}];
+
+  return [controlTuple, rangeValues];
+}

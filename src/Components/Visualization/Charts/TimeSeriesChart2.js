@@ -3,10 +3,16 @@ import { withStyles } from '@material-ui/core/styles';
 import { format } from 'd3-format';
 import React from 'react';
 import months from '../../../enums/months';
-import makeErrorBarControl from './ChartControls/ErrorBarControl';
-import makeLinesControl from './ChartControls/LinesControl';
-import MarkerControl from './ChartControls/MarkerControl';
-import { renderDepth, renderLat, renderLon } from './chartHelpers';
+import { useErrorBarControl } from './ChartControls/ErrorBarControl';
+import { useLineControl } from './ChartControls/LinesControl';
+import { useMarkerOptions } from './ChartControls/MarkerControl';
+import {
+  renderDepth,
+  renderLat,
+  renderLon,
+  truncate60,
+  truncateString,
+} from './chartHelpers';
 import { timeSeriesChartStyles } from './chartStyles';
 import ChartTemplate from './ChartTemplate';
 import handleChartDateString from './handleChartDatestring';
@@ -27,24 +33,13 @@ const TimeSeriesChart = (props) => {
   const { stds, variableValues, dates, parameters, metadata } = data;
 
   // Show Lines Control
-  let [showLines, setShowLines] = React.useState(true);
-  let showLinesControlTuple = [makeLinesControl([showLines, setShowLines])];
+  let [showLinesControlTuple, showLines] = useLineControl();
 
   // Show Error Bars Cotrol
-  let [showErrorBars, setShowErrorBars] = React.useState(
-    !!variableValues && variableValues.length <= 40,
-  );
-  let errorBarsControlTuple = [
-    makeErrorBarControl([showErrorBars, setShowErrorBars]),
-  ];
+  let [errorBarsControlTuple, showErrorBars] = useErrorBarControl();
 
   // Show Marker Options
-  let defaultMarkerState = { opacity: 0.2, color: '#ff1493', size: 6 };
-  let [markerOptions, setMarkerOptions] = React.useState(defaultMarkerState);
-  let markerOptionsControlTuple = [
-    MarkerControl,
-    { setMarkerOptions, markerOptions },
-  ];
+  let [markerOptionsControlTuple, markerOptions] = useMarkerOptions();
 
   // Aggregated Controls:
   let controls = [
@@ -87,11 +82,7 @@ const TimeSeriesChart = (props) => {
           color: showErrorBars ? '#f2f2f2' : 'transparent',
           visible: true,
         },
-        name: `${
-          metadata.Long_Name.length > 60
-            ? metadata.Long_Name.slice(0, 60) + '...'
-            : metadata.Long_Name
-        }`,
+        name: truncate60(metadata.Long_Name),
         type: variableValues.length > 10000 ? 'scattergl' : 'scatter',
         line: { color: markerOptions.color },
         marker: {
@@ -103,9 +94,6 @@ const TimeSeriesChart = (props) => {
         hovertext,
       },
     ],
-    config: {
-      // just default config
-    },
     layout: {
       xaxis: {
         title: data.isMonthy ? 'Month' : 'Time',
@@ -113,11 +101,7 @@ const TimeSeriesChart = (props) => {
         exponentformat: 'power',
       },
       yaxis: {
-        title: `${
-          metadata.Long_Name.length > 35
-            ? metadata.Long_Name.slice(0, 35) + '...'
-            : metadata.Long_Name
-        } [${metadata.Unit}]`,
+        title: `${truncateString(35)(metadata.Long_Name)} [${metadata.Unit}]`,
         color: '#ffffff',
         exponentformat: 'power',
       },
