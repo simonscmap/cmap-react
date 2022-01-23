@@ -21,7 +21,7 @@ import { truncate60 } from './chartHelpers';
  *  */
 
 const makeAnnotations = (distributor, dataSource) => {
-  return; // let yshift = ((document.documentElement.clientWidth * (height / 100)) / -2) + 20;
+  // let yshift = ((document.documentElement.clientWidth * (height / 100)) / -2) + 20;
   let _dataSource =
     dataSource.length > 70
       ? 'Source:<br> ' + dataSource.slice(0, 67) + '...'
@@ -126,6 +126,7 @@ const defaultConfig = {
       scale: 2,
       format: 'svg',
     },
+    responsive: true,
   },
 
   title: makeTitle,
@@ -141,6 +142,7 @@ export const makeChartConfig = (config) => {
     // then apply defaults, and reapply any overrides from the args
     style: {
       ...defaultConfig.style,
+      ...(restOfConfig.style || {}),
     },
     layout: {
       ...defaultConfig.layout,

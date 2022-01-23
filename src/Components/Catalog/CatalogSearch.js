@@ -52,7 +52,16 @@ const styles = (theme) => ({
     // overflow must be visible to allow hints to expand outside
     // the boundary of the search container
     overflow: 'visible',
+    flexGrow: '2',
   },
+  divWrapper: {
+    flexGrow: '1',
+    maxWidth: '500px',
+    [theme.breakpoints.down('md')]: {
+      maxWidth: 'unset',
+    },
+  },
+
   resetButton: {
     textTransform: 'none',
     width: '160px',
@@ -213,7 +222,7 @@ class CatalogSearch extends React.Component {
     } = this.state;
 
     return (
-      <>
+      <div className={classes.divWrapper}>
         <div className={classes.pageTitleWrapper}>
           <Hint
             content={CatalogPageTitleHint}
@@ -476,7 +485,7 @@ class CatalogSearch extends React.Component {
             </Grid>
           </Grid>
         </Paper>
-      </>
+      </div>
     );
   };
 }

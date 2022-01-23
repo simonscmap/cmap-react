@@ -32,7 +32,7 @@ import DescriptionIcon from '@material-ui/icons/Description'; // Documentation
 import ContactMailIcon from '@material-ui/icons/ContactMail'; // Contact Us
 import { VISUALIZATION_PAGE } from '../../constants';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles({
   navButton: {
     marginBottom: '-0.8em',
   },
@@ -76,10 +76,10 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: '1920px',
     borderRadius: '0.5em',
     border: '1px solid #9dd162',
-    backgroundColor: '#2F769C',
-    zIndex: 9000
+    zIndex: 9000,
+    backgroundColor: (props) => props.backgroundColor,
   },
-}));
+});
 
 const enabledLocations = [
   '/catalog',
@@ -127,8 +127,9 @@ const HelpNavbarControls = () => {
   // get router location
   const location = useLocation();
   const pageName = pathNameToPageName(location.pathname);
+  const styleVariant = pageName === VISUALIZATION_PAGE ? 'black' : '#2f769c'
 
-  let classes = useStyles();
+  let classes = useStyles({ backgroundColor: styleVariant });
 
   // TODO replate CATALOG_PAGE with router path
   const introIsEnabled = useSelector(({ intros }) => intros[pageName]);

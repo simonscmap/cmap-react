@@ -2,6 +2,7 @@ import React from 'react';
 import HintContent from '../../Help/HintContent';
 import InlineVideo from '../../Help/InlineVideo';
 import SeeAlso from './SeeAlso';
+import { VISUALIZATION_OVERVIEW_VIDEO } from '../../../constants';
 
 const PageTitleHint = () => {
   return (
@@ -26,7 +27,7 @@ const PageTitleHint = () => {
         </li>
       </ul>
       <h3>Video Tutorial</h3>
-      <InlineVideo src={'https://player.vimeo.com/video/657984891'} />
+      <InlineVideo src={VISUALIZATION_OVERVIEW_VIDEO} />
       <SeeAlso />
     </HintContent>
   );

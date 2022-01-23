@@ -46,7 +46,7 @@ function usePreviousOpacity(value) {
   return ref.current;
 }
 
-let defaultMarkerState = { opacity: 0.2, color: '#ff1493', size: 6 };
+let defaultMarkerState = { opacity: 0.7, color: '#ff1493', size: 6 };
 
 const MarkerOptions = (props) => {
   let {

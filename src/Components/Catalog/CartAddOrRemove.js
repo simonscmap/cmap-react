@@ -1,16 +1,16 @@
 // A button to either add to favorites, or if already a favorite, remove
 
-import React, { useState } from 'react';
+import { Button, withStyles } from '@material-ui/core';
+import { Star, StarBorder } from '@material-ui/icons';
+import React from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
-import { withStyles, Button, Tooltip } from '@material-ui/core';
-import { Star, StarBorder } from '@material-ui/icons';
-
 import { cartAddItem, cartRemoveItem } from '../../Redux/actions/catalog';
 import {
   cartPersistAddItem,
-  cartPersistRemoveItem,
+  cartPersistRemoveItem
 } from '../../Redux/actions/user';
+
 
 const mapStateToProps = (state, ownProps) => ({
   cart: state.cart,
@@ -27,6 +27,23 @@ const styles = (theme) => ({
   bottomAlignedText: {
     display: 'inline-block',
     marginBottom: '-5px',
+    textTransform: 'none',
+  },
+  cartButton: {},
+  ['@media (min-width: 1280px) and ( max-width: 1482px )']: {
+    cartButton: {
+      backgroundColor: 'rgb(33, 82, 108, 0.9)',
+      boxShadow:
+        '0px 2px 4px -1px rgba(0,0,0,0.2),0px 4px 5px 0px rgba(0,0,0,0.14),0px 1px 10px 0px rgba(0,0,0,0.12)',
+      '&:hover': {
+        background: 'rgb(33, 82, 108, 0.4)',
+      },
+    },
+  },
+  ['@media (max-width: 690px)']: {
+    cartButton: {
+      margin: '0 0 0 6px',
+    },
   },
 });
 
@@ -53,36 +70,23 @@ const CartAddOrRemove = (props) => {
   };
 
   return (
-    <React.Fragment>
-      <Tooltip
-        title={
-          dataset.Visualize
-            ? 'Favorites will appear first on the visualization page'
-            : 'This dataset contains no visualizable variables, and will not appear on the visualization page.'
-        }
-        placement="right"
-      >
-        <Button
-          id={customId}
-          style={
-            !dataset.Visualize && !cart[dataset.Long_Name]
-              ? { color: '#e3e61a' }
-              : {}
-          }
-          variant="text"
-          color="primary"
-          className={props.cartButtonClass}
-          startIcon={cart[dataset.Long_Name] ? <Star /> : <StarBorder />}
-          onClick={handleClick}
-        >
-          <span className={classes.bottomAlignedText}>
-            {cart[dataset.Long_Name]
-              ? 'Remove From Favorites'
-              : 'Add To Favorites'}
-          </span>
-        </Button>
-      </Tooltip>
-    </React.Fragment>
+    <Button
+      id={customId}
+      style={
+        !dataset.Visualize && !cart[dataset.Long_Name]
+          ? { color: '#e3e61a' }
+          : {}
+      }
+      variant="text"
+      color="primary"
+      className={classes.cartButton}
+      startIcon={cart[dataset.Long_Name] ? <Star /> : <StarBorder />}
+      onClick={handleClick}
+    >
+      <span className={classes.bottomAlignedText}>
+        {cart[dataset.Long_Name] ? 'Remove Favorite' : 'Add To Favorites'}
+      </span>
+    </Button>
   );
 };
 

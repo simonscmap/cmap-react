@@ -27,9 +27,10 @@ if (introsLocal) {
 export const localStorageIntroState = introsLocal || introsDefault;
 
 // Hints
+// NOTE: default to false, beause currently there is no mobile menu to turn them offset
 let hintsDefault = {
-  [CATALOG_PAGE]: true,
-  [VISUALIZATION_PAGE]: true,
+  [CATALOG_PAGE]: false,
+  [VISUALIZATION_PAGE]: false,
 };
 
 let hintsLocal = local.get(LOCAL_STORAGE_KEY_HINTS_STATE);

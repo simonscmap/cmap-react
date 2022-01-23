@@ -11,7 +11,7 @@ const ModeBarHint = () => {
       </p>
       <p>
         Click the camera to take a snapshot of the rendered plot, which will
-        download to your computer as a PNG file.
+        download to your computer as an SVG file.
       </p>
       <p>Most chart types include controls that:</p>
       <ul>

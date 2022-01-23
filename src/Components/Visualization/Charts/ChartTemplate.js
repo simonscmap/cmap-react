@@ -104,7 +104,7 @@ const ChartTemplate = (props) => {
         <ChartControlPanel
           controls={controls}
           tabContext={isTabbedContent && tabContext}
-    chart={chartData}
+          chart={chartData}
         />
       </Hint>
 

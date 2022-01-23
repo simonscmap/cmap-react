@@ -16,6 +16,11 @@ const mapDispatchToProps = {
   sparseDataMaxSizeNotificationUpdate,
 };
 
+const forceResize = () => {
+  // TODO: the timeout is arbitrary 30ms
+  setTimeout(() => window.dispatchEvent(new Event('resize')), 5);
+};
+
 const ChartControlPanel = (props) => {
   const { classes, chart, controls, tabContext } = props;
 
@@ -62,7 +67,10 @@ const ChartControlPanel = (props) => {
               return (
                 <TabTemplate
                   tabTitle={tabTitle}
-                  onClick={() => tabContext.setOpenTab(index)}
+                  onClick={() => {
+                    forceResize();
+                    tabContext.setOpenTab(index);
+                  }}
                   key={`tab-${index}`}
                   active={index === tabContext.openTab}
                 />
@@ -75,11 +83,19 @@ const ChartControlPanel = (props) => {
           {/* TODO: hide controls for tabs that can't use their specific function */}
           {controls.map((controlTuple, index) => {
             let [Component, argsObject = {}] = controlTuple;
-            let disable = tabContext && tabContext.getShouldDisableControl({
-              controlIndex: index,
-              activeTabIndex: tabContext.openTab,
-            })
-            return <Component {...argsObject} disable={disable} key={`controls-${index}`} />;
+            let disable =
+              tabContext &&
+              tabContext.getShouldDisableControl({
+                controlIndex: index,
+                activeTabIndex: tabContext.openTab,
+              });
+            return (
+              <Component
+                {...argsObject}
+                disable={disable}
+                key={`controls-${index}`}
+              />
+            );
           })}
         </ButtonGroup>
       </div>

@@ -2,6 +2,7 @@ import React from 'react';
 import SeeAlso from './seeAlso';
 import InlineVideo from '../../Help/InlineVideo';
 import HintContent from '../../Help/HintContent';
+import { CATALOG_OVERVIEW_VIDEO } from '../../../constants';
 
 const CatalogPageTitleHint = () => {
   return (
@@ -24,7 +25,7 @@ const CatalogPageTitleHint = () => {
         </li>
       </ul>
       <h3>Video Tutorial</h3>
-      <InlineVideo src={'https://player.vimeo.com/video/620160138'} />
+      <InlineVideo src={CATALOG_OVERVIEW_VIDEO} />
       <SeeAlso />
     </HintContent>
   );

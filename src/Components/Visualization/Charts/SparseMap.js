@@ -87,10 +87,12 @@ const SparseMap = React.memo((props) => {
   let [rangeControlTuple, rangeValues] = useColorscaleRangeControl([data.zMin, data.zMax]);
   let [markerControlTuple, markerOptions] = useMarkerOptions();
 
-
-
+  let scatterTypes = ['time', 'latitude', 'longitude'];
+  if (data.hasDepth) {
+    scatterTypes.push('depth');
+  }
   // scatter plots use markerOptions
-  let scatterPlots = ['time', 'latitude', 'longitude', 'depth'].map(
+  let scatterPlots = scatterTypes.map(
     (scatterType, index) => {
       return getSparseScatterConfig({ data, scatterType, markerOptions });
     },

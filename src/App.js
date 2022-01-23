@@ -8,7 +8,7 @@ import { initializeGoogleAuth, ingestCookies } from './Redux/actions/user';
 import { toggleShowHelp, windowResize } from './Redux/actions/ui';
 import { ServicesInit } from './Services/Init.js';
 import './Stylesheets/App.scss';
-
+import './Stylesheets/intro-custom.css';
 import colors from './enums/colors';
 import z from './enums/zIndex';
 
@@ -74,11 +74,20 @@ const theme = createMuiTheme({
       default: colors.backgroundGray,
       paper: colors.backgroundGray,
     },
-
     text: {
       primary: '#ffffff',
       secondary: colors.primary,
     },
+  },
+
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 600,
+      md: 1020,
+      lg: 1280,
+      xl: 1920,
+    }
   },
 
   overrides: {

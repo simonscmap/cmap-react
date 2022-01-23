@@ -1,15 +1,16 @@
 // Wrapper for search results
 // uses react-window for windowing/occlusion culling to improve performance
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
-import { makeStyles, useTheme, Paper, Typography } from '@material-ui/core';
+import { withStyles, Paper, Typography } from '@material-ui/core';
 import { CloudDownload } from '@material-ui/icons';
 import stringify from 'csv-stringify/lib/sync';
 import { FixedSizeList } from 'react-window';
 import SearchResult from './SearchResult';
 import '../../Stylesheets/catalog-search-results.css';
+import ResizeObserver from 'react-resize-observer';
 
 import {
   searchResultsFetch,
@@ -30,25 +31,19 @@ const mapDispatchToProps = {
   searchResultsSetLoadingState,
 };
 
-const useStyles = makeStyles({
+const styles = (theme) => ({
   wrapperDiv: {
-    padding: '0 20px 20px 20px',
     boxSizing: 'border-box',
-    // overflow: 'visible',
-    [(theme) => theme.breakpoints.down('sm')]: {
-      padding: '0 0 20px 0',
-    },
+    flexGrow: '3',
   },
   resultsWrapper: {
-    width: '60vw',
-    maxWidth: '1200px',
-    padding: '16px 24px',
-    margin: '8px 100px 24px auto',
-    backgroundColor: 'transparent',
-    [(theme) => theme.breakpoints.down('sm')]: {
-      padding: '12px 4px 20px 4px',
-      width: '90vw',
+    padding: '16px 0 16px 20px',
+    margin: '-54px 0 24px 0',
+    [theme.breakpoints.down('md')]: {
+      padding: '0',
+      margin: '26px 0 0 0',
     },
+    backgroundColor: 'transparent',
     // remove the margin from the first result to make it
     // align with the top of the FixedSizeList and its scroll bar
     '& div.MuiPaper-root:first-child': {
@@ -87,14 +82,26 @@ const useStyles = makeStyles({
   },
   fixedSizeList: {
     // padding allows beacons to render without being clipped
-    paddingTop: '10px',
-    paddingRight: '10px',
-    paddingLeft: '13px',
+    padding: '10px 0 0 15px',
+    margin: '0 0 0 -15px',
     width: '100%',
     overflow: 'visible',
     // transparent scrollbar bg prevents box shadow of results from
     // being occluded
     scrollbarColor: '#9dd162 transparent',
+  },
+  fixedSizeListScrolled: {
+    // make it look like the results are scrolling under a shadow
+    background: `
+        linear-gradient(transparent 30%, hsla(0,0%,100%, 0)),
+        linear-gradient(hsla(0,0%,100%,0) 10px, white 70%) bottom,
+        radial-gradient(at top, rgba(0,0,0,0.2), transparent 70%),
+        radial-gradient(at bottom, rgba(0,0,0,0.2), transparent 70%) bottom`,
+
+    backgroundRepeat: 'no-repeat',
+    backgroundSize: '100% 20px, 100% 20px, 100% 10px, 100% 10px',
+    backgroundAttachment: 'local, local, scroll, scroll',
+    // boxShadow: '0px -10px 20px -15px #000000',
   },
   resultsCount: {
     textAlign: 'left',
@@ -131,6 +138,7 @@ const SearchResults = (props) => {
     searchResultsLoadingState,
     searchResultsSetLoadingState,
     searchResultsFetch,
+    classes,
   } = props;
 
   useEffect(() => {
@@ -154,16 +162,36 @@ const SearchResults = (props) => {
     document.body.removeChild(a);
   };
 
+  let [hasScrolled, setHasScrolled] = useState(false);
+
+  // keep track of the scroll offset for the fixedsizelist of results
+  const onScroll = ({ scrollOffset: offset }) => {
+    if (offset > 0 && !hasScrolled) {
+      setHasScrolled(true);
+    } else if (offset === 0 && hasScrolled) {
+      setHasScrolled(false);
+    }
+  };
+
+  let [itemHeight, setItemHeight] = useState(242);
+
+  let onResize = (rect) => {
+    let { width } = rect;
+    // compare 'wrapperDiv' width to breakpoint of 640px
+    let result = width > 640 ? 242 : 300;
+    if (result !== itemHeight) {
+      setItemHeight(result);
+    }
+  };
+
   const itemCount =
     searchResults && searchResults.length ? searchResults.length : 0;
 
   const loading = searchResultsLoadingState === states.inProgress;
 
-  const theme = useTheme();
-  const classes = useStyles(theme);
-
   return (
     <div className={classes.wrapperDiv}>
+      <ResizeObserver onResize={onResize}></ResizeObserver>
       <Paper className={classes.resultsWrapper} elevation={0}>
         <InfoShelf classes={classes}>
           <SearchResultStatusIndicator
@@ -193,11 +221,14 @@ const SearchResults = (props) => {
         </InfoShelf>
 
         <FixedSizeList
-          className={`${classes.fixedSizeList} search-results-fixed-size-list`}
+          className={`${classes.fixedSizeList} ${
+            hasScrolled && classes.fixedSizeListScrolled
+          } search-results-fixed-size-list`}
           itemData={searchResults}
           itemCount={itemCount}
           height={window.innerHeight - 140}
-          itemSize={242}
+          itemSize={itemHeight}
+          onScroll={onScroll}
         >
           {({ index, style }) => (
             <div style={style} className="result-wrapper">
@@ -213,4 +244,4 @@ const SearchResults = (props) => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(withRouter(SearchResults));
+)(withRouter(withStyles(styles)(SearchResults)));
