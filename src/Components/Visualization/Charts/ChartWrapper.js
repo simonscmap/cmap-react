@@ -23,22 +23,17 @@ const getChartComponent = (chart) => {
   let { Spatial_Resolution: spatialResolution } = chart.data.metadata;
 
   if (storedProcedureName === spaceTime) {
-    console.log(`spaceTime sproc`)
     if (subType === sparse) {
-      console.log(`---- sparse map`)
       return SparseMap;
     }
 
     if (spatialResolution === irregular || subType === histogram) {
-      console.log(`---- histogram`)
       return Histogram;
     }
 
-    console.log(`---- other space time: ${subType}`)
     return SpaceTimeChart;
   }
 
-  console.log(`other sproc: ${storedProcedureName}`)
   switch (storedProcedureName) {
     case timeSeries:
       return TimeSeriesChart;

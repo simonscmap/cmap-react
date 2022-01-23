@@ -4,7 +4,7 @@ import HintContent from '../../Help/HintContent';
 const PlotControlsHint = () => {
   return (
     <HintContent>
-      <h3>Display Options</h3>
+      <h3>Controls and Plot Options</h3>
       <p>
         Plot display options provide the ability to adjust plot details such as
         marker shape, size, color, colorscale, or palette. Available options

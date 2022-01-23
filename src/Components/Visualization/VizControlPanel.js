@@ -1057,7 +1057,7 @@ class VizControlPanel extends React.Component {
             <Grid container style={{ borderBottom: '1px solid black' }}>
               <Grid item xs={10}>
                 <Button
-                  id={'vis-data-button'}
+                  id={'viz-select-primary-variable'}
                   fullWidth={true}
                   className={classes.controlPanelItem}
                   startIcon={

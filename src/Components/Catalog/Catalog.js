@@ -7,7 +7,6 @@ import CatalogSearch from './CatalogSearch';
 import SearchResults from './SearchResults';
 import metaTags from '../../enums/metaTags';
 import { CATALOG_PAGE } from '../../constants';
-import '../../Stylesheets/intro-custom-blue.css';
 import states from '../../enums/asyncRequestStates';
 
 import Intro from '../Help/Intro';
@@ -15,20 +14,18 @@ import tourConfig from './help/tourConfig';
 
 const styles = (theme) => ({
   wrapperDiv: {
-    marginTop: '68px',
+    display: 'flex',
+    // arrange children in a row until screen hits md breakpoint
+    // then stack controls on top of results
+    flexDirection: 'row',
+    [theme.breakpoints.down('md')]: {
+      flexDirection: 'column',
+    },
+    marginTop: '120px',
     padding: '20px',
     boxSizing: 'border-box',
-    [theme.breakpoints.down('sm')]: {
-      padding: '20px 8px',
-    },
     // the search and results panes float apart awkwardly at wide resolutions
     maxWidth: '2500px',
-  },
-
-  searchGrid: {
-    '@media (min-width: 960px)': {
-      paddingTop: '62px',
-    },
   },
 });
 
@@ -45,22 +42,15 @@ const Catalog = ({ classes }) => {
 
   let waitToLoadIntro = useSelector(({ searchResultsLoadingState }) => {
     // true indicates the Intro should wait; false that it should go ahead and render
-    return  searchResultsLoadingState !== states.succeeded;
+    return searchResultsLoadingState !== states.succeeded;
   });
 
   return (
     <React.Fragment>
       <Intro config={tourConfig} wait={waitToLoadIntro} />
       <div id={`${CATALOG_PAGE}-style-context`} className={classes.wrapperDiv}>
-        <Grid container justify="center">
-          <Grid item xs={12} md={4} className={classes.searchGrid}>
-            <CatalogSearch />
-          </Grid>
-
-          <Grid item xs={12} md={8}>
-            <SearchResults />
-          </Grid>
-        </Grid>
+        <CatalogSearch />
+        <SearchResults />
       </div>
     </React.Fragment>
   );

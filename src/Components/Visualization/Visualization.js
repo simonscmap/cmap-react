@@ -19,7 +19,6 @@ import {
   queryRequestSend,
   storedProcedureRequestSend,
 } from '../../Redux/actions/visualization';
-import '../../Stylesheets/intro-custom-black.css';
 import depthUtils from '../../Utility/depthCounter';
 import localDateToString from '../../Utility/localDateToString';
 import stars from '../../Utility/starsBase64';

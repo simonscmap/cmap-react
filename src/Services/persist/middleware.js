@@ -20,7 +20,7 @@ export const persistenceMiddleware = (store) => (next) => (action) => {
       console.log(`no value in storage for "${action.type}.${key}"`);
     }
     let v = def.payloadToValue(currentValue, action.payload);
-    console.log(`persisting "${action.type}.${key}" with ${JSON.stringify(v)}`);
+    // console.log(`persisting "${action.type}.${key}" with ${JSON.stringify(v)}`);
     local.set(key, v);
   });
 
