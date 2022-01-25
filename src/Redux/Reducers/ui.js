@@ -1,53 +1,115 @@
-import * as interfaceActionTypes from '../actionTypes/ui';
+import {
+  INTERFACE_SHOW_LOGIN_DIALOG,
+  INTERFACE_HIDE_LOGIN_DIALOG,
+  REGISTRATION_NEXT_ACTIVE_STEP,
+  REGISTRATION_PREVIOUS_ACTIVE_STEP,
+  RESTORE_INTERFACE_DEFAULTS,
+  SNACKBAR_OPEN,
+  SNACKBAR_CLOSE,
+  SET_LOADING_MESSAGE,
+  TOGGLE_SHOW_HELP,
+  SHOW_CHANGE_EMAIL_DIALOG,
+  HIDE_CHANGE_EMAIL_DIALOG,
+  SHOW_CHANGE_PASSWORD_DIALOG,
+  HIDE_CHANGE_PASSWORD_DIALOG,
+  SET_SHOW_CART,
+  WINDOW_RESIZE,
+} from '../actionTypes/ui';
 
 const uiResetState = {
   catalogRequestState: null,
-
   loginDialogIsOpen: false,
   registrationActiveStep: 0,
-
   userLoginState: null,
   userLoginError: null,
-
   userValidationState: null,
   userValidationError: null,
-
   userRegistrationState: null,
-
   apiKeyRetrievalState: null,
-  apiKeyCreationState: null
-}
+  apiKeyCreationState: null,
+};
 
-export default function(state, action) {
+export default function (state, action) {
   switch (action.type) {
-    case interfaceActionTypes.INTERFACE_SHOW_LOGIN_DIALOG: return {...state, loginDialogIsOpen: true};
-    case interfaceActionTypes.INTERFACE_HIDE_LOGIN_DIALOG: return {...state, loginDialogIsOpen: false, userLoginError: null};
-    case interfaceActionTypes.REGISTRATION_NEXT_ACTIVE_STEP: return {...state, registrationActiveStep: state.registrationActiveStep + 1}
-    case interfaceActionTypes.REGISTRATION_PREVIOUS_ACTIVE_STEP: return {...state, registrationActiveStep: state.registrationActiveStep - 1}
-    case interfaceActionTypes.RESTORE_INTERFACE_DEFAULTS: return {
-      ...state,
-      ...uiResetState
-    }
-    case interfaceActionTypes.SNACKBAR_OPEN: return {
-      ...state,
-      snackbarIsOpen: true,
-      snackbarMessage: action.payload.message
-    }
-    case interfaceActionTypes.SNACKBAR_CLOSE: return {...state, snackbarIsOpen: false}
-    case interfaceActionTypes.SET_LOADING_MESSAGE: return {...state, loadingMessage: action.payload.message}
-    
-    case interfaceActionTypes.TOGGLE_SHOW_HELP: return {...state, showHelp: !state.showHelp}
-
-    case interfaceActionTypes.SHOW_CHANGE_EMAIL_DIALOG: return {...state, changeEmailDialogIsOpen: true}
-    case interfaceActionTypes.HIDE_CHANGE_EMAIL_DIALOG: return {...state, changeEmailDialogIsOpen: false}
-
-    case interfaceActionTypes.SHOW_CHANGE_PASSWORD_DIALOG: return {...state, changePasswordDialogIsOpen: true}
-    case interfaceActionTypes.HIDE_CHANGE_PASSWORD_DIALOG: return {...state, changePasswordDialogIsOpen: false}
-
-    case interfaceActionTypes.SET_SHOW_CART: return {...state, showCart: action.payload.showCart}
-
-    case interfaceActionTypes.WINDOW_RESIZE: return {...state, windowHeight: action.payload.height, windowWidth: action.payload.width}
-    
-    default: return state;
+    case INTERFACE_SHOW_LOGIN_DIALOG:
+      return {
+        ...state,
+        loginDialogIsOpen: true,
+      };
+    case INTERFACE_HIDE_LOGIN_DIALOG:
+      return {
+        ...state,
+        loginDialogIsOpen: false,
+        userLoginError: null,
+      };
+    case REGISTRATION_NEXT_ACTIVE_STEP:
+      return {
+        ...state,
+        registrationActiveStep: state.registrationActiveStep + 1,
+      };
+    case REGISTRATION_PREVIOUS_ACTIVE_STEP:
+      return {
+        ...state,
+        registrationActiveStep: state.registrationActiveStep - 1,
+      };
+    case RESTORE_INTERFACE_DEFAULTS:
+      return {
+        ...state,
+        ...uiResetState,
+      };
+    case SNACKBAR_OPEN:
+      return {
+        ...state,
+        snackbarIsOpen: true,
+        snackbarMessage: action.payload.message,
+      };
+    case SNACKBAR_CLOSE:
+      return {
+        ...state,
+        snackbarIsOpen: false,
+      };
+    case SET_LOADING_MESSAGE:
+      return {
+        ...state,
+        loadingMessage: action.payload.message,
+      };
+    case TOGGLE_SHOW_HELP:
+      return {
+        ...state,
+        showHelp: !state.showHelp,
+      };
+    case SHOW_CHANGE_EMAIL_DIALOG:
+      return {
+        ...state,
+        changeEmailDialogIsOpen: true,
+      };
+    case HIDE_CHANGE_EMAIL_DIALOG:
+      return {
+        ...state,
+        changeEmailDialogIsOpen: false,
+      };
+    case SHOW_CHANGE_PASSWORD_DIALOG:
+      return {
+        ...state,
+        changePasswordDialogIsOpen: true,
+      };
+    case HIDE_CHANGE_PASSWORD_DIALOG:
+      return {
+        ...state,
+        changePasswordDialogIsOpen: false,
+      };
+    case SET_SHOW_CART:
+      return {
+        ...state,
+        showCart: action.payload.showCart,
+      };
+    case WINDOW_RESIZE:
+      return {
+        ...state,
+        windowHeight: action.payload.height,
+        windowWidth: action.payload.width,
+      };
+    default:
+      return state;
   }
 }

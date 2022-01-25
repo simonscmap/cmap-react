@@ -31,6 +31,7 @@ const initialState = {
   cart: {},
   showCart: false,
   catalogLayoutNonce: 'initial nonce',
+  tablesWithAncillaryData: null,
 
   // Interface state pieces
   loginDialogIsOpen: false,

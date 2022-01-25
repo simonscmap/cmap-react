@@ -1013,7 +1013,7 @@ function* vizSearchResultsFetch(action) {
     '?' +
     queryString.stringify({
       ...params,
-      sensor: Array.from(params.selectedSensors|| new Set()),
+      sensor: Array.from(params.selectedSensors || new Set()),
       make: Array.from(params.selectedMakes || new Set()),
       region: Array.from(params.selectedRegions || new Set()),
     });
@@ -1294,6 +1294,66 @@ function* ingestCookies() {
 
   if (Cookies.get('guestToken')) state['userIsGuest'] = true;
   yield put(userActions.updateStateFromCookies(state));
+}
+
+function* storeAncillaryData({ payload }) {
+  if (!Array.isArray(payload)) {
+    console.error('no payload for storeAncilliaryData');
+    return;
+  }
+  let result = payload.reduce((accumulator, current) => {
+    let { Table_Name, Dataset_Name } = current;
+    accumulator[Table_Name] = Dataset_Name;
+    return accumulator;
+  }, {});
+  yield put({ type: 'ANCILLARY_DATA_STORE', payload: { result } });
+}
+
+function* fetchAncillaryData({ payload }) {
+  if (!payload) {
+    console.log('fetchAncillaryData: no payload');
+  } else {
+    console.log('fetchAncillaryData called with:', payload);
+  }
+
+  // see if the lest of datasets is already cached
+  let data = yield select(
+    (state) => state.tablesWithAncillaryData,
+  );
+
+  // if not, fetch it
+  if (!data) {
+    console.log('no data! fetching again!');
+    data = yield call(
+      api.sqlQuery,
+      `EXEC uspDatasetsWithAncillary`,
+    );
+
+    // TODO else: put failure
+    yield put({
+      type: 'FETCH_ANCILLARY_DATA_SUCCESS',
+      payload: data,
+    });
+  }
+
+  // now we have data
+  if (data[payload.tableName]) {
+
+  } else {
+    console.log('bummer');
+  }
+
+}
+
+function* watchAncillaryDataSuccess() {
+  yield takeLatest('FETCH_ANCILLARY_DATA_SUCCESS', storeAncillaryData);
+}
+
+function* watchFetchAncillaryData() {
+  yield takeLatest(
+    catalogActionTypes.FETCH_ANCILLARY_DATA_SEND,
+    fetchAncillaryData,
+  );
 }
 
 function* watchUserLogin() {
@@ -1729,5 +1789,7 @@ export default function* rootSaga() {
     watchHandleGuestVisualization(),
     watchGuestTokenRequestSend(),
     watchIngestCookies(),
+    watchFetchAncillaryData(),
+    watchAncillaryDataSuccess(),
   ]);
 }

@@ -152,3 +152,10 @@ export const cartAddMultiple = (items) => ({
         items
     }
 });
+
+export const fetchAncillaryDataSend = (tableName) => ({
+  type: catalogActionTypes.FETCH_ANCILLARY_DATA_SEND,
+  payload: {
+    tableName
+  }
+});

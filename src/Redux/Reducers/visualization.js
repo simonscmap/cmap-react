@@ -1,33 +1,75 @@
 import states from '../../enums/asyncRequestStates';
-import * as visualizationActionTypes from '../actionTypes/visualization';
 import { helpActionTypes } from '../actions/help.js';
 import { VISUALIZATION_PAGE } from '../../constants';
+import {
+  QUERY_REQUEST_PROCESSING,
+  QUERY_REQUEST_FAILURE,
+  QUERY_REQUEST_SUCCESS,
+  STORE_SAMPLE_DATA,
+  ADD_MAP,
+  ADD_CHART,
+  CLEAR_CHARTS,
+  CLEAR_MAPS,
+  CLOSE_CHART,
+  CRUISE_TRAJECTORY_REQUEST_PROCESSING,
+  CRUISE_TRAJECTORY_REQUEST_SUCCESS,
+  CRUISE_TRAJECTORY_CLEAR,
+  CRUISE_TRAJECTORY_REQUEST_FAILURE,
+  CRUISE_LIST_REQUEST_PROCESSING,
+  CRUISE_LIST_REQUEST_SUCCESS,
+  TRIGGER_SHOW_CHARTS,
+  COMPLETED_SHOW_CHARTS,
+  TABLE_STATS_REQUEST_SUCCESS,
+  VIZ_PAGE_DATA_TARGET_SET,
+  VIZ_PAGE_DATA_TARGET_DETAILS_STORE,
+  VIZ_SEARCH_RESULTS_STORE_AND_UPDATE_OPTIONS,
+  VIZ_SEARCH_RESULTS_STORE,
+  VIZ_SEARCH_RESULTS_SET_LOADING_STATE,
+  MEMBER_VARIABLES_STORE,
+  MEMBER_VARIABLES_SET_LOADING_STATE,
+  RELATED_DATA_STORE,
+  RELATED_DATA_SET_LOADING_STATE,
+  VARIABLE_NAME_AUTOCOMPLETE_STORE,
+  VARIABLE_STORE,
+  VARIABLE_FETCH_SET_LOADING_STATE,
+  DATASET_SUMMARY_STORE,
+  PLOTS_ACTIVE_TAB_SET,
+  SPARSE_DATA_MAX_SIZE_NOTIFICATION_UPDATE,
+  GUEST_PLOT_LIMIT_NOTIFICATION_SET_IS_VISIBLE,
+  VIZ_CONTROL_PANEL_VISIBILITY,
+  DATA_SEARCH_VISIBILITY,
+} from '../actionTypes/visualization';
 
 export default function (state, action) {
   switch (action.type) {
-    case visualizationActionTypes.QUERY_REQUEST_PROCESSING:
-      return { ...state, queryRequestState: states.inProgress };
-    case visualizationActionTypes.QUERY_REQUEST_FAILURE:
-      return { ...state, queryRequestState: states.failed };
-    case visualizationActionTypes.QUERY_REQUEST_SUCCESS:
-      return { ...state, queryRequestState: states.succeeded };
-
-    case visualizationActionTypes.STORE_SAMPLE_DATA:
+    case QUERY_REQUEST_PROCESSING:
+      return {
+        ...state,
+        queryRequestState: states.inProgress,
+      };
+    case QUERY_REQUEST_FAILURE:
+      return {
+        ...state,
+        queryRequestState: states.failed,
+      };
+    case QUERY_REQUEST_SUCCESS:
+      return {
+        ...state,
+        queryRequestState: states.succeeded,
+      };
+    case STORE_SAMPLE_DATA:
       return {
         ...state,
         sampleData: action.payload.sampleData,
       };
-
-    case visualizationActionTypes.ADD_MAP:
+    case ADD_MAP:
       return {
         ...state,
         maps: [...state.maps, action.payload.mapInfo],
       };
-
-    case visualizationActionTypes.ADD_CHART:
+    case ADD_CHART:
       return {
         ...state,
-        // charts: [...state.charts, {...action.payload.chartInfo, id: state.chartID}],
         charts: [
           { ...action.payload.chartInfo, id: state.chartID },
           ...state.charts,
@@ -35,14 +77,17 @@ export default function (state, action) {
         chartID: state.chartID + 1,
         plotsActiveTab: state.charts.length + 1,
       };
-
-    case visualizationActionTypes.CLEAR_CHARTS:
-      return { ...state, charts: [] };
-
-    case visualizationActionTypes.CLEAR_MAPS:
-      return { ...state, maps: [] };
-
-    case visualizationActionTypes.CLOSE_CHART:
+    case CLEAR_CHARTS:
+      return {
+        ...state,
+        charts: [],
+      };
+    case CLEAR_MAPS:
+      return {
+        ...state,
+        maps: [],
+      };
+    case CLOSE_CHART:
       let { chartIndex } = action.payload;
       return {
         ...state,
@@ -50,44 +95,51 @@ export default function (state, action) {
           ...state.charts.slice(0, chartIndex),
           ...state.charts.slice(chartIndex + 1),
         ],
-        plotsActiveTab:
-          state.charts.length === 1
-            ? 0
-            : 1,
+        plotsActiveTab: state.charts.length === 1 ? 0 : 1,
       };
-
-    case visualizationActionTypes.CRUISE_TRAJECTORY_REQUEST_PROCESSING:
-      return { ...state, getCruiseTrajectoryRequestState: states.inProgress };
-
-    case visualizationActionTypes.CRUISE_TRAJECTORY_REQUEST_SUCCESS:
+    case CRUISE_TRAJECTORY_REQUEST_PROCESSING:
+      return {
+        ...state,
+        getCruiseTrajectoryRequestState: states.inProgress,
+      };
+    case CRUISE_TRAJECTORY_REQUEST_SUCCESS:
       return {
         ...state,
         cruiseTrajectory: action.payload.trajectory,
         getCruiseTrajectoryRequestState: states.succeeded,
       };
-
-    case visualizationActionTypes.CRUISE_TRAJECTORY_CLEAR:
-      return { ...state, cruiseTrajectory: null };
-
-    case visualizationActionTypes.CRUISE_TRAJECTORY_REQUEST_FAILURE:
-      return { ...state, getCruiseTrajectoryRequestState: states.failed };
-
-    case visualizationActionTypes.CRUISE_LIST_REQUEST_PROCESSING:
-      return { ...state, getCruiseListRequestState: states.inProgress };
-
-    case visualizationActionTypes.CRUISE_LIST_REQUEST_SUCCESS:
+    case CRUISE_TRAJECTORY_CLEAR:
+      return {
+        ...state,
+        cruiseTrajectory: null,
+      };
+    case CRUISE_TRAJECTORY_REQUEST_FAILURE:
+      return {
+        ...state,
+        getCruiseTrajectoryRequestState: states.failed,
+      };
+    case CRUISE_LIST_REQUEST_PROCESSING:
+      return {
+        ...state,
+        getCruiseListRequestState: states.inProgress,
+      };
+    case CRUISE_LIST_REQUEST_SUCCESS:
       return {
         ...state,
         getCruiseListRequestState: states.succeeded,
         cruiseList: action.payload.cruiseList,
       };
-
-    case visualizationActionTypes.TRIGGER_SHOW_CHARTS:
-      return { ...state, showChartsOnce: true };
-    case visualizationActionTypes.COMPLETED_SHOW_CHARTS:
-      return { ...state, showChartsOnce: false };
-
-    case visualizationActionTypes.TABLE_STATS_REQUEST_SUCCESS:
+    case TRIGGER_SHOW_CHARTS:
+      return {
+        ...state,
+        showChartsOnce: true,
+      };
+    case COMPLETED_SHOW_CHARTS:
+      return {
+        ...state,
+        showChartsOnce: false,
+      };
+    case TABLE_STATS_REQUEST_SUCCESS:
       return {
         ...state,
         datasets: {
@@ -98,86 +150,100 @@ export default function (state, action) {
           },
         },
       };
-
-    case visualizationActionTypes.VIZ_PAGE_DATA_TARGET_SET:
+    case VIZ_PAGE_DATA_TARGET_SET:
       return {
         ...state,
         vizPageDataTarget: action.payload.target,
         vizPageDataTargetDetails: null,
       };
-    case visualizationActionTypes.VIZ_PAGE_DATA_TARGET_DETAILS_STORE:
+    case VIZ_PAGE_DATA_TARGET_DETAILS_STORE:
       return {
         ...state,
         vizPageDataTargetDetails: action.payload.vizPageDataTargetDetails,
       };
-
-    case visualizationActionTypes.VIZ_SEARCH_RESULTS_STORE_AND_UPDATE_OPTIONS:
+    case VIZ_SEARCH_RESULTS_STORE_AND_UPDATE_OPTIONS:
       return {
         ...state,
         vizSearchResults: action.payload.searchResults,
         submissionOptions: action.payload.options,
         vizSearchResultsFullCounts: action.payload.counts,
       };
-    case visualizationActionTypes.VIZ_SEARCH_RESULTS_STORE:
-      return { ...state, vizSearchResults: action.payload.searchResults };
-    case visualizationActionTypes.VIZ_SEARCH_RESULTS_SET_LOADING_STATE:
-      return { ...state, vizSearchResultsLoadingState: action.payload.state };
-
-    case visualizationActionTypes.MEMBER_VARIABLES_STORE:
-      return { ...state, memberVariables: action.payload.variables };
-    case visualizationActionTypes.MEMBER_VARIABLES_SET_LOADING_STATE:
-      return { ...state, memberVariablesLoadingState: action.payload.state };
-
-    case visualizationActionTypes.RELATED_DATA_STORE:
-      return { ...state, relatedData: action.payload.data };
-    case visualizationActionTypes.RELATED_DATA_SET_LOADING_STATE:
-      return { ...state, relatedDataLoadingState: action.payload.state };
-
-    case visualizationActionTypes.VARIABLE_NAME_AUTOCOMPLETE_STORE:
+    case VIZ_SEARCH_RESULTS_STORE:
+      return {
+        ...state,
+        vizSearchResults: action.payload.searchResults,
+      };
+    case VIZ_SEARCH_RESULTS_SET_LOADING_STATE:
+      return {
+        ...state,
+        vizSearchResultsLoadingState: action.payload.state,
+      };
+    case MEMBER_VARIABLES_STORE:
+      return {
+        ...state,
+        memberVariables: action.payload.variables,
+      };
+    case MEMBER_VARIABLES_SET_LOADING_STATE:
+      return {
+        ...state,
+        memberVariablesLoadingState: action.payload.state,
+      };
+    case RELATED_DATA_STORE:
+      return {
+        ...state,
+        relatedData: action.payload.data,
+      };
+    case RELATED_DATA_SET_LOADING_STATE:
+      return {
+        ...state,
+        relatedDataLoadingState: action.payload.state,
+      };
+    case VARIABLE_NAME_AUTOCOMPLETE_STORE:
       return {
         ...state,
         autocompleteVariableNames: action.payload.autocompleteVariableNames,
       };
-
-    case visualizationActionTypes.VARIABLE_STORE:
+    case VARIABLE_STORE:
       return {
         ...state,
         variableFetchLoadingState: states.succeeded,
         variableDetails: action.payload.variableDetails,
       };
-    case visualizationActionTypes.VARIABLE_FETCH_SET_LOADING_STATE:
-      return { ...state, variableFetchLoadingState: action.payload.state };
-
-    case visualizationActionTypes.DATASET_SUMMARY_STORE:
-      return { ...state, datasetSummary: action.payload.datasetSummary };
-
-    case visualizationActionTypes.PLOTS_ACTIVE_TAB_SET:
-      return { ...state, plotsActiveTab: action.payload.tab };
-
-    case visualizationActionTypes.SPARSE_DATA_MAX_SIZE_NOTIFICATION_UPDATE:
+    case VARIABLE_FETCH_SET_LOADING_STATE:
+      return {
+        ...state,
+        variableFetchLoadingState: action.payload.state,
+      };
+    case DATASET_SUMMARY_STORE:
+      return {
+        ...state,
+        datasetSummary: action.payload.datasetSummary,
+      };
+    case PLOTS_ACTIVE_TAB_SET:
+      return {
+        ...state,
+        plotsActiveTab: action.payload.tab,
+      };
+    case SPARSE_DATA_MAX_SIZE_NOTIFICATION_UPDATE:
       return {
         ...state,
         sparseDataMaxSizeNotificationData: action.payload.lastRowData,
       };
-
-    case visualizationActionTypes.GUEST_PLOT_LIMIT_NOTIFICATION_SET_IS_VISIBLE:
+    case GUEST_PLOT_LIMIT_NOTIFICATION_SET_IS_VISIBLE:
       return {
         ...state,
         guestPlotLimitNotificationIsVisible: action.payload.isVisible,
       };
-
-    case visualizationActionTypes.VIZ_CONTROL_PANEL_VISIBILITY:
+    case VIZ_CONTROL_PANEL_VISIBILITY:
       return {
         ...state,
         showControlPanel: Boolean(action.payload.isVisible),
       };
-
-    case visualizationActionTypes.DATA_SEARCH_VISIBILITY:
+    case DATA_SEARCH_VISIBILITY:
       return {
         ...state,
         dataSearchMenuOpen: Boolean(action.payload.isVisible),
       };
-
     case helpActionTypes.TOGGLE_INTRO:
       // if tour is being turned on, hide data search
       let { pageName, value } = action.payload;
@@ -193,6 +259,7 @@ export default function (state, action) {
           dataSearchMenuOpen: false,
         };
       }
+      break;
 
     default:
       return state;
