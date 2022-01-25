@@ -24,14 +24,14 @@ export default function Probe() {
         let startTime = '2011-12-31T00:00:00.000Z';
         let endTime = '2019-04-27T00:00:00.000Z';
 
-        let query = singleSampleQuery(table, variables, time, lat, lon, depth, 
-                                      timeTolerance, latTolerance, lonTolerance, depthTolerance, 
-                                      hasDepth, isClimatology, climatologFallback, 
-                                      startTime, endTime);                                     
-        api.sqlQuery(query).then((data)=>{console.log(data)})
+        let query = singleSampleQuery(table, variables, time, lat, lon, depth,
+                                      timeTolerance, latTolerance, lonTolerance, depthTolerance,
+                                      hasDepth, isClimatology, climatologFallback,
+                                      startTime, endTime);
+        api.data.sqlQuery(query).then((data)=>{console.log(data)})
     }
 
-    const classes = useStyle();    
+    const classes = useStyle();
 
     const onProbeFileSelect = (e) => {
         var file = e.target.files[0];
@@ -60,7 +60,7 @@ export default function Probe() {
                     Select File
                 </Button>
 
-            </label>     
+            </label>
                 <Button variant="contained" onClick={handleQuery} style={{marginTop:100}}> query </Button>
 
         </div>

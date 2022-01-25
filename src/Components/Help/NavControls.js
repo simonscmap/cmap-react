@@ -325,7 +325,7 @@ const HelpNavbarControls = () => {
                           id="nav-help-documentation"
                           onClick={handleClose}
                           component={'a'}
-                          href={'https://cmap.readthedocs.io/en/latest/'}
+                          href={'/documentation'}
                         >
                           <ListItemIcon>
                             <DescriptionIcon />

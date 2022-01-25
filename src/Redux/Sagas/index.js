@@ -1,4 +1,3 @@
-// import { eventChannel } from 'redux-saga';
 import Cookies from 'js-cookie';
 import queryString from 'query-string';
 import {
@@ -11,162 +10,42 @@ import {
   takeLatest,
 } from 'redux-saga/effects';
 import XLSX from 'xlsx';
-import api from '../api/api';
-import { lastRowTimeSpaceDataFromChart } from '../Components/Visualization/helpers';
-import states from '../enums/asyncRequestStates';
-import SPARSE_DATA_QUERY_MAX_SIZE from '../enums/sparseDataQueryMaxSize';
-import buildSearchOptionsFromDatasetList from '../Utility/Catalog/buildSearchOptionsFromDatasetList';
-import buildSearchOptionsFromVariablesList from '../Utility/Catalog/buildSearchOptionsFromVariablesList';
-import groupDatasetsByMake from '../Utility/Catalog/groupDatasetsByMake';
-import groupVariablesByDataset from '../Utility/Catalog/groupVariablesByDataset';
-import * as catalogActions from './actions/catalog';
-import * as dataSubmissionActions from './actions/dataSubmission';
-import * as interfaceActions from './actions/ui';
-// import worker from '../worker';
-import * as userActions from './actions/user';
-import * as visualizationActions from './actions/visualization';
-import * as catalogActionTypes from './actionTypes/catalog';
-import * as communityActionTypes from './actionTypes/community';
-import * as dataSubmissionActionTypes from './actionTypes/dataSubmission';
-import * as interfaceActionTypes from './actionTypes/ui';
-import * as userActionTypes from './actionTypes/user';
-import * as visualizationActionTypes from './actionTypes/visualization';
-
-function* userLogin(action) {
-  yield put(userActions.userLoginRequestProcessing());
-  let result = yield call(api.user.login, action.payload);
-
-  if (result.ok) {
-    yield put(interfaceActions.hideLoginDialog());
-    var userInfo = JSON.parse(Cookies.get('UserInfo'));
-    yield put(userActions.userLoginRequestSuccess());
-    yield put(userActions.storeInfo(userInfo));
-    yield put(interfaceActions.snackbarOpen('Login was successful!'));
-    yield put(userActions.cartGetAndStore());
-    if (window.location.pathname === '/login')
-      window.location.href = '/catalog';
-  } else {
-    yield put(userActions.userLoginRequestFailure());
-    yield put(interfaceActions.snackbarOpen('Login failed.'));
-  }
-}
-
-function* userLogout() {
-  let authInstance = yield window.gapi.auth2.getAuthInstance();
-  yield authInstance.signOut();
-  yield call(api.user.logout);
-  yield put(userActions.destroyInfo());
-  yield (window.location.href = '/');
-}
-
-function* userRegistration(action) {
-  yield put(userActions.userRegistrationRequestProcessing());
-  let result = yield call(api.user.register, action.payload);
-
-  if (result.ok) {
-    yield put(interfaceActions.registrationNextActiveStep());
-  } else {
-    yield put(userActions.userRegistrationRequestFailure());
-    yield put(
-      interfaceActions.snackbarOpen(
-        'Registration failed. Please try again later.',
-      ),
-    );
-  }
-}
-
-function* userValidation(action) {
-  yield put(userActions.userValidationRequestProcessing());
-  let result = yield call(api.user.validate, action.payload);
-  let isValid = yield result.json();
-
-  if (isValid) {
-    yield put(userActions.userValidationRequestSuccess());
-    yield put(interfaceActions.registrationNextActiveStep());
-  } else {
-    yield put(userActions.userValidationRequestFailure());
-  }
-}
-
-function* googleLoginRequest(action) {
-  yield put(userActions.googleLoginRequestProcessing());
-  let result = yield call(
-    api.user.googleLoginRequest,
-    action.payload.userIDToken,
-  );
-
-  if (result.ok) {
-    yield put(interfaceActions.hideLoginDialog());
-    var userInfo = JSON.parse(Cookies.get('UserInfo'));
-    yield put(userActions.userLoginRequestSuccess());
-    yield put(userActions.storeInfo(userInfo));
-    yield put(userActions.cartGetAndStore());
-    if (window.location.pathname === '/login') window.location.href = '/';
-  } else {
-    yield put(userActions.userLoginRequestFailure());
-    yield put(interfaceActions.snackbarOpen('Login failed.'));
-  }
-}
-
-function* catalogRetrieval() {
-  yield put(interfaceActions.setLoadingMessage('Fetching Data'));
-  let catalog = yield call(api.catalog.retrieve);
-
-  if (!catalog) {
-    yield put(catalogActions.retrievalRequestFailure());
-  } else {
-    yield put(catalogActions.retrievalRequestSuccess(catalog));
-  }
-
-  yield put(interfaceActions.setLoadingMessage(''));
-}
-
-function* datasetRetrieval() {
-  yield put(catalogActions.datasetRetrievalRequestProcessing());
-  let datasets = yield call(api.catalog.datasets);
-
-  if (!datasets) {
-    yield put(catalogActions.retrievalRequestFailure());
-  } else {
-    yield put(catalogActions.datasetRetrievalRequestSuccess(datasets));
-  }
-}
-
-function* keyRetrieval(action) {
-  let result = yield call(api.user.keyRetrieval);
-
-  if (result.status === 401) {
-    yield put(userActions.refreshLogin());
-  }
-
-  if (!result.ok) {
-    yield put(userActions.keyRetrievalRequestFailure());
-    yield put(interfaceActions.snackbarOpen('API Key Retrieval Failed'));
-  } else {
-    let response = yield result.json();
-    yield put(userActions.keyRetrievalRequestSuccess(response.keys));
-  }
-}
-
-function* keyCreation(action) {
-  yield put(userActions.keyCreationRequestProcessing());
-  let result = yield call(api.user.keyCreation, action.payload.description);
-
-  if (result.status === 401) {
-    yield put(userActions.refreshLogin());
-    return;
-  }
-
-  if (!result.ok)
-    yield put(
-      interfaceActions.snackbarOpen('We were unable to create a new API key.'),
-    );
-  else {
-    yield put(interfaceActions.snackbarOpen('A new API key was created'));
-    yield put(userActions.keyCreationRequestSuccess());
-    yield put(userActions.keyRetrievalRequestSend());
-  }
-}
+import api from '../../api/api';
+import {
+  fetchDatasetAndMetadata,
+  makeZip,
+} from '../../Components/Catalog/DownloadDialog/dataRequest';
+import { makeDownloadQuery } from '../../Components/Catalog/DownloadDialog/downloadDialogHelpers';
+import { lastRowTimeSpaceDataFromChart } from '../../Components/Visualization/helpers';
+import states from '../../enums/asyncRequestStates';
+import SPARSE_DATA_QUERY_MAX_SIZE from '../../enums/sparseDataQueryMaxSize';
+import buildSearchOptionsFromDatasetList from '../../Utility/Catalog/buildSearchOptionsFromDatasetList';
+import buildSearchOptionsFromVariablesList from '../../Utility/Catalog/buildSearchOptionsFromVariablesList';
+import groupDatasetsByMake from '../../Utility/Catalog/groupDatasetsByMake';
+import groupVariablesByDataset from '../../Utility/Catalog/groupVariablesByDataset';
+// Action Creators
+import * as catalogActions from '../actions/catalog';
+import * as dataSubmissionActions from '../actions/dataSubmission';
+import * as interfaceActions from '../actions/ui';
+import * as userActions from '../actions/user';
+import * as visualizationActions from '../actions/visualization';
+import * as catalogActionTypes from '../actionTypes/catalog';
+import * as communityActionTypes from '../actionTypes/community';
+import * as dataSubmissionActionTypes from '../actionTypes/dataSubmission';
+import * as interfaceActionTypes from '../actionTypes/ui';
+import * as userActionTypes from '../actionTypes/user';
+import * as visualizationActionTypes from '../actionTypes/visualization';
+// watchers
+// import userSagas from './userSagas';
+import {
+  watchUserLogin,
+  watchUserRegistration,
+  watchUserValidation,
+  watchUserLogout,
+  watchGoogleLoginRequest,
+  watchKeyRetrieval,
+  watchKeyCreationRequest,
+} from './userSagas';
 
 function* queryRequest(action) {
   yield put(visualizationActions.queryRequestProcessing());
@@ -205,7 +84,6 @@ function* storedProcedureRequest(action) {
       yield put(visualizationActions.handleGuestVisualization());
       yield put(interfaceActions.setLoadingMessage(''));
       yield put(visualizationActions.storedProcedureRequestSuccess());
-      // yield put(interfaceActions.snackbarOpen(`${action.payload.subType} ${action.payload.parameters.fields} is ready`));
       yield put(visualizationActions.triggerShowCharts());
       yield put(
         visualizationActions.addChart({
@@ -298,7 +176,9 @@ function* csvDownloadRequest(action) {
   );
 
   yield put(interfaceActions.setLoadingMessage(''));
+
   if (dataResponse.failed) {
+    // if unauthorized
     if (dataResponse.status === 401) {
       yield put(userActions.refreshLogin());
     } else {
@@ -314,12 +194,13 @@ function* csvDownloadRequest(action) {
           action.payload.fileName,
         ),
       );
-    } else
+    } else {
       yield put(
         interfaceActions.snackbarOpen(
           'No data found. Please expand query range.',
         ),
       );
+    }
   }
 }
 
@@ -331,10 +212,14 @@ function* csvFromVizRequest(action) {
   yield put(interfaceActions.setLoadingMessage('Fetching metadata'));
 
   const metadataQuery = `exec uspVariableMetadata '${action.payload.tableName}', '${action.payload.shortName}'`;
+
   let metadataResponse = yield call(
     api.visualization.csvDownload,
     metadataQuery,
   );
+
+  // TODO: no error handling here
+
   let metadataWB = XLSX.read(metadataResponse, { type: 'string' });
 
   let workbook = XLSX.utils.book_new();
@@ -348,29 +233,46 @@ function* csvFromVizRequest(action) {
 
   yield put(interfaceActions.setLoadingMessage(''));
 
-  if (metadataResponse.failed)
+  if (metadataResponse.failed) {
     yield put(
       interfaceActions.snackbarOpen('Failed to download variable metadata'),
     );
-
-  // yield put(visualizationActions.downloadTextAsCsv(csvData, action.payload.longName));
-  // yield put(visualizationActions.downloadTextAsCsv(metadataResponse, action.payload.longName + '_Metadata'));
+  }
 }
 
-function* downloadTextAsCsv(action) {
-  yield put(interfaceActions.setLoadingMessage('Processing Data'));
-  let csv = action.payload.text;
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.setAttribute('hidden', '');
-  a.setAttribute('href', url);
-  a.setAttribute('download', `${action.payload.fileName}.csv`);
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  // URL.revokeObjectURL(url); // TODO test this
-  yield put(interfaceActions.setLoadingMessage(''));
+function* downloadRequest(action) {
+  // from DATASET_DOWNLOAD_REQUEST_SEND
+  // payload should include (1) subsetParam, (2) tableName, (3) shortName
+  // TODO extract query-making out of Component
+  let user = yield select((state) => state.user);
+
+  if (!user) {
+    yield put(userActions.refreshLogin());
+  }
+
+  yield put(catalogActions.datasetDownloadRequestProcessing());
+  yield put(interfaceActions.setLoadingMessage('Processing Request'));
+
+  let { subsetParams, tableName, shortName, fileName } = action.payload;
+  let query = makeDownloadQuery({ subsetParams, tableName });
+  yield put(interfaceActions.setLoadingMessage('Fetching Data'));
+
+  try {
+    let data = yield call(fetchDatasetAndMetadata, { query, shortName });
+    makeZip(data, fileName, shortName);
+  } catch (e) {
+    yield put(interfaceActions.setLoadingMessage(''));
+    if (e.message === 'UNAUTHORIZED') {
+      yield put(userActions.refreshLogin());
+      return;
+    } else {
+      yield put(
+        interfaceActions.snackbarOpen(
+          'There was an error requesting the dataset.',
+        ),
+      );
+    }
+  }
 }
 
 function* refreshLogin() {
@@ -413,8 +315,9 @@ function* initializeGoogleAuth() {
 
   let user = yield authInstance.currentUser.get();
   let authResponse = yield user.getAuthResponse(true);
-  if (authResponse)
+  if (authResponse) {
     yield put(userActions.googleLoginRequestSend(authResponse.id_token));
+  }
 }
 
 function* recoverPasswordRequest(action) {
@@ -556,9 +459,11 @@ function* addSubmissionComment(action) {
         action.payload.submissionID,
       ),
     );
-    if (action.payload.source === 'admin')
+    if (action.payload.source === 'admin') {
       yield put(dataSubmissionActions.retrieveAllSubmissions());
-    else yield put(dataSubmissionActions.retrieveDataSubmissionsByUser());
+    } else {
+      yield put(dataSubmissionActions.retrieveDataSubmissionsByUser());
+    }
   } else if (response.status === 401) {
     yield put(userActions.refreshLogin());
   } else {
@@ -585,8 +490,7 @@ function* retrieveSubmissionCommentHistory(action) {
   if (response.ok) {
     let jsonResponse = yield response.json();
 
-    if (jsonResponse.length < 1) {
-    } else {
+    if (jsonResponse.length >= 1) {
       let payload = {
         comments: jsonResponse,
         submissionID: action.payload.submissionID,
@@ -893,33 +797,6 @@ function* searchResultsFetch(action) {
   yield put(catalogActions.searchResultsSetLoadingState(states.succeeded));
 }
 
-// function* vizSearchResultsFetch(action){
-//     const { params } = action.payload;
-
-//     const qString = '?' + queryString.stringify({
-//         ...params,
-//         sensor: Array.from(params.sensor || new Set()),
-//         make: Array.from(params.make || new Set()),
-//         region: Array.from(params.region || new Set())
-//     });
-
-//     const searchResponse = yield call(api.visualization.variableSearch, qString);
-//     const storedOptions = yield select((state) => state.submissionOptions);
-
-//     if(searchResponse.ok){
-//         const { counts, variables } = yield searchResponse.json();
-//         let options = buildSearchOptionsFromVariablesList(variables, storedOptions, params);
-//         let datasets = groupVariablesByDataset(variables);
-//         let makes = groupDatasetsByMake(datasets);
-//         yield put(visualizationActions.vizSearchResultsStoreAndUpdateOptions(makes, options, counts));
-//         yield put(visualizationActions.vizSearchResultsSetLoadingState(states.succeeded));
-//     }
-
-//     else {
-//         yield put(interfaceActions.snackbarOpen('Search failed. Please try again.'));
-//     }
-// }
-
 function* datasetFullPageDataFetch(action) {
   yield put(
     catalogActions.datasetFullPageDataSetLoadingState(states.inProgress),
@@ -1013,7 +890,7 @@ function* vizSearchResultsFetch(action) {
     '?' +
     queryString.stringify({
       ...params,
-      sensor: Array.from(params.selectedSensors|| new Set()),
+      sensor: Array.from(params.selectedSensors || new Set()),
       make: Array.from(params.selectedMakes || new Set()),
       region: Array.from(params.selectedRegions || new Set()),
     });
@@ -1134,7 +1011,9 @@ function* vizPageDataTargetSetAndFetchDetails(action) {
   yield put(
     visualizationActions.vizPageDataTargetSet(action.payload.vizPageDataTarget),
   );
-  if (action.payload.vizPageDataTarget === null) return;
+  if (action.payload.vizPageDataTarget === null) {
+    return;
+  }
 
   let response = yield call(
     api.visualization.variableFetch,
@@ -1178,8 +1057,6 @@ function* dataSubmissionDelete(action) {
 }
 
 function* sparseDataQuerySend(action) {
-  const { parameters, subType, metadata } = action.payload;
-
   yield put(interfaceActions.setLoadingMessage('Fetching Data'));
 
   let result = yield call(
@@ -1209,7 +1086,6 @@ function* sparseDataQuerySend(action) {
       yield put(visualizationActions.handleGuestVisualization());
       yield put(interfaceActions.setLoadingMessage(''));
       yield put(visualizationActions.storedProcedureRequestSuccess());
-      // yield put(interfaceActions.snackbarOpen(`${action.payload.subType} ${action.payload.parameters.fields} is ready`));
       yield put(visualizationActions.triggerShowCharts());
       yield put(
         visualizationActions.addChart({
@@ -1217,13 +1093,14 @@ function* sparseDataQuerySend(action) {
           data: result,
         }),
       );
-      if (result.variableValues.length >= SPARSE_DATA_QUERY_MAX_SIZE)
+      if (result.variableValues.length >= SPARSE_DATA_QUERY_MAX_SIZE) {
         yield put(
           visualizationActions.sparseDataMaxSizeNotificationUpdate(
             lastRowTimeSpaceDataFromChart(result),
           ),
         );
-      window.scrollTo(0, 0);
+        window.scrollTo(0, 0);
+      }
     } else {
       yield put(interfaceActions.setLoadingMessage(''));
       yield put(
@@ -1239,12 +1116,12 @@ function* errorReportSend(action) {
   yield call(api.community.errorReport, action.payload);
 }
 
-function* dataSubmissionSelectOptionsFetch(action) {}
-
-function* handleGuestVisualization(action) {
+function* handleGuestVisualization() {
   // Checks for user. Increments guest plot count. Shows dialog when limit reached
   var userInfo = Cookies.get('UserInfo');
-  if (userInfo) return;
+  if (userInfo) {
+    return;
+  }
 
   let guestPlotCount = parseInt(Cookies.get('guestPlotCount'));
   let expires = new Date();
@@ -1260,7 +1137,7 @@ function* handleGuestVisualization(action) {
   }
 }
 
-function* guestTokenRequestSend(action) {
+function* guestTokenRequestSend() {
   let userIsGuest = yield select((state) => state.userIsGuest);
 
   if (userIsGuest) {
@@ -1292,51 +1169,70 @@ function* guestTokenRequestSend(action) {
 function* ingestCookies() {
   let state = {};
 
-  if (Cookies.get('guestToken')) state['userIsGuest'] = true;
+  if (Cookies.get('guestToken')) {
+    state['userIsGuest'] = true;
+  }
   yield put(userActions.updateStateFromCookies(state));
 }
 
-function* watchUserLogin() {
-  yield takeLatest(userActionTypes.LOGIN_REQUEST_SEND, userLogin);
+// Ancillary Data
+
+function* fetchTablesWithAncillaryData() {
+  let data = yield select((state) => state.tablesWithAncillaryData);
+
+  // if not, fetch it
+  if (!data) {
+    console.log('fetching list of tables with ancillary data!');
+    let fetchedData = yield call(api.catalog.getTableWithAncillaryData);
+
+    if (fetchedData) {
+      yield put({
+        type: catalogActionTypes.FETCH_TABLES_WITH_ANCILLARY_DATA_SUCCESS,
+        payload: fetchedData,
+      });
+    } else {
+      yield put({
+        type: catalogActionTypes.FETCH_TABLES_WITH_ANCILLARY_DATA_FAILURE,
+      });
+    }
+  }
 }
 
-function* watchUserRegistration() {
-  yield takeLatest(userActionTypes.REGISTRATION_REQUEST_SEND, userRegistration);
+function* storeAncillaryData({ payload }) {
+  if (!Array.isArray(payload)) {
+    console.error('no payload for storeAncilliaryData', payload);
+    return;
+  }
+  let result = payload.reduce((accumulator, current) => {
+    let { Table_Name, Dataset_Name } = current;
+    accumulator[Table_Name] = Dataset_Name;
+    return accumulator;
+  }, {});
+  yield put({
+    type: catalogActionTypes.TABLES_WITH_ANCILLARY_DATA_STORE,
+    payload: { result },
+  });
 }
 
-function* watchUserValidation() {
-  yield takeLatest(userActionTypes.VALIDATION_REQUEST_SEND, userValidation);
-}
-
-function* watchUserLogout() {
-  yield takeLatest(userActionTypes.LOG_OUT, userLogout);
-}
-
-function* watchGoogleLoginRequest() {
+function* watchFetchTablesWithAncillaryData() {
   yield takeLatest(
-    userActionTypes.GOOGLE_LOGIN_REQUEST_SEND,
-    googleLoginRequest,
+    catalogActionTypes.FETCH_TABLES_WITH_ANCILLARY_DATA_SEND,
+    fetchTablesWithAncillaryData,
   );
 }
 
-function* watchCatalogRetrieval() {
-  yield takeLatest(catalogActionTypes.RETRIEVAL_REQUEST_SEND, catalogRetrieval);
-}
-
-function* watchDatasetRetrieval() {
+function* watchFetchTablesWithAncillaryDataSuccess() {
   yield takeLatest(
-    catalogActionTypes.DATASET_RETRIEVAL_REQUEST_SEND,
-    datasetRetrieval,
+    catalogActionTypes.FETCH_TABLES_WITH_ANCILLARY_DATA_SUCCESS,
+    storeAncillaryData,
   );
 }
 
-function* watchKeyRetrieval() {
-  yield takeLatest(userActionTypes.KEY_RETRIEVAL_REQUEST_SEND, keyRetrieval);
-}
-
-function* watchKeyCreationRequest() {
-  yield takeLatest(userActionTypes.KEY_CREATION_REQUEST_SEND, keyCreation);
-}
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 function* watchQueryRequest() {
   yield takeLatest(visualizationActionTypes.QUERY_REQUEST_SEND, queryRequest);
@@ -1377,10 +1273,10 @@ function* watchCsvDownloadRequest() {
   );
 }
 
-function* watchDownloadTextAsCsv() {
+function* watchDownloadRequest() {
   yield takeLatest(
-    visualizationActionTypes.DOWNLOAD_TEXT_AS_CSV,
-    downloadTextAsCsv,
+    catalogActionTypes.DATASET_DOWNLOAD_REQUEST_SEND,
+    downloadRequest,
   );
 }
 
@@ -1601,12 +1497,12 @@ function* watchVizPageDataTargetSetAndFetchDetails() {
   );
 }
 
-function* watchDataSubmissionSelectOptionsFetch() {
-  yield takeLatest(
-    dataSubmissionActionTypes.DATA_SUBMISSION_SELECT_OPTIONS_FETCH,
-    dataSubmissionSelectOptionsFetch,
-  );
-}
+/* function* watchDataSubmissionSelectOptionsFetch() {
+ *   yield takeLatest(
+ *     dataSubmissionActionTypes.DATA_SUBMISSION_SELECT_OPTIONS_FETCH,
+ *     dataSubmissionSelectOptionsFetch,
+ *   );
+ * } */
 
 function* watchDataSubmissionDelete() {
   yield takeLatest(
@@ -1644,40 +1540,13 @@ function* watchIngestCookies() {
   yield takeLatest(userActionTypes.INGEST_COOKIES, ingestCookies);
 }
 
-// function createWorkerChannel(worker) {
-//     return eventChannel(emit => {
-//         worker.onmessage = message => {
-//             emit(message);
-//         }
-
-//         const unsubscribe = () => {
-//             worker.teminate();
-//         }
-
-//         return unsubscribe;
-//     })
-// }
-
-// function* watchWorkerChannel(){
-//     const workerChannel = yield call(createWorkerChannel, worker);
-
-//     while (true) {
-//         const message = yield take(workerChannel);
-//         yield put(message.data.type, message.data.payload);
-//         //   yield put({ type: INCOMING_PONG_PAYLOAD, payload })
-//         //   yield fork(pong, socket)
-//       }
-// }
-
-export default function* rootSaga() {
+function* rootSaga() {
   yield all([
     watchUserLogin(),
     watchUserRegistration(),
     watchUserValidation(),
     watchUserLogout(),
     watchGoogleLoginRequest(),
-    watchCatalogRetrieval(),
-    watchDatasetRetrieval(),
     watchKeyRetrieval(),
     watchKeyCreationRequest(),
     watchQueryRequest(),
@@ -1685,9 +1554,7 @@ export default function* rootSaga() {
     watchCruiseTrajectoryRequest(),
     watchCruiseListRequest(),
     watchTableStatsRequest(),
-    // watchWorkerChannel(),
     watchCsvDownloadRequest(),
-    watchDownloadTextAsCsv(),
     watchRefreshLogin(),
     watchUpdateUserInfoRequest(),
     watchInitializeGoogleAuth(),
@@ -1697,6 +1564,7 @@ export default function* rootSaga() {
     watchChangePasswordRequest(),
     watchChangeEmailRequest(),
     watchCsvFromVizRequest(),
+    watchDownloadRequest(),
     watchCopyTextToClipboard(),
     watchRetrieveSubmissionsByUser(),
     watchRetrieveAllSubmissions(),
@@ -1722,12 +1590,16 @@ export default function* rootSaga() {
     watchVariableFetch(),
     watchDatasetSummaryFetch(),
     watchVizPageDataTargetSetAndFetchDetails(),
-    watchDataSubmissionSelectOptionsFetch(),
+    // watchDataSubmissionSelectOptionsFetch(), // this was a no op
     watchDataSubmissionDelete(),
     watchSparseDataQuerySend(),
     watchErrorReportSend(),
     watchHandleGuestVisualization(),
     watchGuestTokenRequestSend(),
     watchIngestCookies(),
+    watchFetchTablesWithAncillaryData(),
+    watchFetchTablesWithAncillaryDataSuccess(),
   ]);
 }
+
+export default rootSaga;

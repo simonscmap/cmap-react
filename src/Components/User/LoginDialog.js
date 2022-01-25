@@ -67,7 +67,7 @@ const styles = theme => ({
     },
 
     dialogRoot: {
-        zIndex: `${z.NON_HELP_DIALOG + 1} !important`
+        zIndex: `${z.LOGIN_DIALOG + 1} !important`
     }
 })
 
@@ -104,8 +104,8 @@ class LoginDialog extends Component{
         if(auth){
             let authInstance = auth.getAuthInstance();
             authInstance.attachClickHandler(
-                loginClickHandlerTarget, 
-                null, 
+                loginClickHandlerTarget,
+                null,
                 _this.onGoogleSignin,
                 () => _this.props.snackbarOpen('There was a problem accessing your google account')
             );
@@ -132,7 +132,7 @@ class LoginDialog extends Component{
                 }}
             >
                 <DialogTitle id="form-dialog-title">Login</DialogTitle>
-                <DialogContent>                
+                <DialogContent>
                     <DialogContentText>
                         Please enter your username and password, or <Link className={classes.colorCorrectionPrimary} onClick={this.handleClose} component={RouterLink} to={{pathname: '/register'}}>Register.</Link>
                     </DialogContentText>
@@ -149,7 +149,7 @@ class LoginDialog extends Component{
                             onChange={this.props.handleChange}
                             InputLabelProps={{
                                 shrink: true,
-                            }}                            
+                            }}
                         />
 
                         <TextField
@@ -177,10 +177,10 @@ class LoginDialog extends Component{
                             </Button>
 
                             <div className={classes.wrapper}>
-                                <Button 
-                                    color="primary" 
-                                    type='submit' 
-                                    onClick={this.handleLogin} 
+                                <Button
+                                    color="primary"
+                                    type='submit'
+                                    onClick={this.handleLogin}
                                     disabled={loginDisabled}
                                     className={loginDisabled ? '' : classes.colorCorrection}
                                 >
@@ -193,10 +193,10 @@ class LoginDialog extends Component{
                     <DialogContentText>
                         Login failed. Please try again.
                     </DialogContentText>
-                    : ''               
+                    : ''
                     }
                 </DialogContent>
-                
+
             </Dialog>
         )
     }

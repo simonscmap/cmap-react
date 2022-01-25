@@ -6,10 +6,6 @@ import { Route, Switch } from 'react-router-dom';
 import colors from '../../enums/colors';
 import metaTags from '../../enums/metaTags';
 import temporalResolutions from '../../enums/temporalResolutions';
-import {
-  datasetRetrievalRequestSend,
-  retrievalRequestSend,
-} from '../../Redux/actions/catalog';
 import { showLoginDialog, snackbarOpen } from '../../Redux/actions/ui';
 import {
   completedShowCharts,
@@ -53,12 +49,10 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = {
   showLoginDialog,
   queryRequestSend,
-  retrievalRequestSend,
   storedProcedureRequestSend,
   snackbarOpen,
   cruiseListRequestSend,
   completedShowCharts,
-  datasetRetrievalRequestSend,
   plotsActiveTabSet,
   guestPlotLimitNotificationSetIsVisible,
 };

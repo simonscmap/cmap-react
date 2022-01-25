@@ -20,6 +20,8 @@ export const restoreInterfaceDefaults = () => ({
     type: interfaceActionTypes.RESTORE_INTERFACE_DEFAULTS
 });
 
+// TODO consider ability to forward a secondary/followup action
+// e.g. a "click for more info" or "report this error"
 export const snackbarOpen = (message) => ({
     type: interfaceActionTypes.SNACKBAR_OPEN,
     payload: {

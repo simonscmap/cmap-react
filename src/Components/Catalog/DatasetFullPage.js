@@ -24,7 +24,6 @@ import reactStringReplace from 'react-string-replace';
 import DatasetPageAGGrid from './DatasetPageAGGrid';
 import DatasetJSONLD from './DatasetJSONLD';
 import DownloadDialog from './DownloadDialog';
-import { downloadMetadata } from './DownloadMetaData';
 
 import {
   datasetFullPageDataFetch,
@@ -209,8 +208,7 @@ const DatasetFullPage = (props) => {
 
   const [downloadDialogOpen, setDownloadDialogOpen] = React.useState(false);
 
-  const httpRegx =
-    /\b(https?:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|]|ftp:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|])/g;
+  const httpRegx = /\b(https?:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|]|ftp:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|])/g;
   const urlify = (text) =>
     reactStringReplace(text, httpRegx, (match, i) => (
       <Link
@@ -244,10 +242,6 @@ const DatasetFullPage = (props) => {
     };
   }, [Long_Name]);
 
-  let handleDownloadMetaData = () => {
-    downloadMetadata(Short_Name, datasetFullPageData);
-  };
-
   return (
     <Grid container className={classes.outerContainer}>
       {downloadDialogOpen ? (
@@ -278,17 +272,6 @@ const DatasetFullPage = (props) => {
             >
               <CloudDownloadIcon />
               <span className={classes.bottomAlignedText}>Download Data</span>
-            </Link>
-
-            <Link
-              component="button"
-              onClick={handleDownloadMetaData}
-              className={classes.downloadLink}
-            >
-              <CloudDownloadIcon />
-              <span className={classes.bottomAlignedText}>
-                Download Dataset Metadata
-              </span>
             </Link>
 
             <CartAddOrRemove

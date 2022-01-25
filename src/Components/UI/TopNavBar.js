@@ -132,8 +132,8 @@ class TopNavBar extends Component {
     const showRegister = Boolean(!user);
     const showGuest = Boolean(
       !user &&
-      userIsGuest &&
-      history.location.pathname.includes('visualization'),
+        userIsGuest &&
+        history.location.pathname.includes('visualization'),
     );
 
     let cartSize =
@@ -141,8 +141,9 @@ class TopNavBar extends Component {
 
     return (
       <div
-        className={`${classes.navWrapper} ${!pathname.includes('/visualization') && classes.navWrapperBlue
-          }`}
+        className={`${classes.navWrapper} ${
+          !pathname.includes('/visualization') && classes.navWrapperBlue
+        }`}
       >
         {this.state.layout === 'desktop' ? (
           <React.Fragment>
@@ -179,7 +180,18 @@ class TopNavBar extends Component {
               >
                 Community
               </Typography>
+
               <DataSubmissionNavbarDropdown />
+
+              <Typography
+                variant="caption"
+                href="/documentation"
+                component="a"
+                className={classes.navLink}
+              >
+                Documentation
+              </Typography>
+
               <Typography
                 variant="caption"
                 href="/about"
@@ -200,7 +212,6 @@ class TopNavBar extends Component {
                 >
                   <HelpNavbarControls />
                 </Typography>
-
 
                 {cartSize > 0 ? (
                   <Typography

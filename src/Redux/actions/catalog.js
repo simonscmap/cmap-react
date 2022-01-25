@@ -1,43 +1,5 @@
 import * as catalogActionTypes from '../actionTypes/catalog';
 
-export const retrievalRequestSend = () => ({
-    type: catalogActionTypes.RETRIEVAL_REQUEST_SEND
-});
-
-export const retrievalRequestProcessing = () => ({
-    type: catalogActionTypes.RETRIEVAL_REQUEST_PROCESSING
-});
-
-export const retrievalRequestSuccess = (catalog) => ({
-    type: catalogActionTypes.RETRIEVAL_REQUEST_SUCCESS,
-    payload: {
-        catalog
-    }
-});
-
-export const retrievalRequestFailure = () => ({
-    type:catalogActionTypes.RETRIEVAL_REQUEST_FAILURE
-});
-
-export const datasetRetrievalRequestSend = () => ({
-    type: catalogActionTypes.DATASET_RETRIEVAL_REQUEST_SEND
-});
-
-export const datasetRetrievalRequestProcessing = () => ({
-    type: catalogActionTypes.DATASET_RETRIEVAL_REQUEST_PROCESSING
-});
-
-export const datasetRetrievalRequestSuccess = (datasets) => ({
-    type: catalogActionTypes.DATASET_RETRIEVAL_REQUEST_SUCCESS,
-    payload: {
-        datasets
-    }
-});
-
-export const datasetRetrievalRequestFailure = () => ({
-    type: catalogActionTypes.DATASET_RETRIEVAL_REQUEST_FAILURE
-});
-
 export const submissionOptionsRetrieval = () => ({
     type: catalogActionTypes.SUBMISSION_OPTIONS_RETRIEVAL
 });
@@ -64,6 +26,14 @@ export const keywordsStore = (keywords) => ({
     }
 });
 
+// the combination of SEARCH_RESUTLS_FETCH and SEARCH_RESULTS_STORE
+// not only fetches catalog resutls, but preserves the user-selected
+// search options
+// it is unclear why; the search component gets its options from state,
+// and state gets it in turn from this action, which gets it from url query
+// it seems like redux state should be the source of truth, and have search
+// update the options in redux, which would trigger (if necessary) a re-fetch
+// as it is now, query changes trigger re-fetch in-component
 export const searchResultsFetch = (queryString) => ({
     type: catalogActionTypes.SEARCH_RESULTS_FETCH,
     payload: {
@@ -151,4 +121,33 @@ export const cartAddMultiple = (items) => ({
     payload: {
         items
     }
+});
+
+export const fetchColocalizedDatasetListSend = (tableName) => ({
+  type: catalogActionTypes.FETCH_TABLES_WITH_ANCILLARY_DATA_SEND,
+  payload: {
+    tableName
+  }
+});
+
+export const datasetDownloadRequestSend = ({ subsetParams, tableName, shortName, fileName }) => ({
+  type: catalogActionTypes.DATASET_DOWNLOAD_REQUEST_SEND,
+  payload: {
+    subsetParams,
+    tableName,
+    shortName,
+    fileName,
+  }
+})
+
+export const datasetDownloadRequestProcessing = () => ({
+  type:catalogActionTypes.DATASET_DOWNLOAD_REQUEST_PROCESSING
+  // TODO it would be helpful to have generate a request id and include it here
+});
+
+export const datasetDownloadRequestSuccess = (text) => ({
+  type:catalogActionTypes.DATASET_DOWNLOAD_REQUEST_SUCCESS,
+  payload: {
+    text,
+  },
 });
