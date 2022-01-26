@@ -1317,30 +1317,27 @@ function* fetchAncillaryData({ payload }) {
   }
 
   // see if the lest of datasets is already cached
-  let data = yield select(
-    (state) => state.tablesWithAncillaryData,
-  );
+  let data = yield select((state) => state.tablesWithAncillaryData);
 
   // if not, fetch it
   if (!data) {
     console.log('no data! fetching again!');
-    data = yield call(
-      api.sqlQuery,
-      `EXEC uspDatasetsWithAncillary`,
-    );
+    data = yield call(api.sqlQuery, `EXEC uspDatasetsWithAncillary`);
 
     // TODO else: put failure
     yield put({
       type: 'FETCH_ANCILLARY_DATA_SUCCESS',
       payload: data,
     });
-  }
 
-  // now we have data
-  if (data[payload.tableName]) {
+    // get the ancillary data for the requested dataset
+    if (data[payload.tableName]) {
+      console.log('table with ancillary data', payload.tableName);
 
-  } else {
-    console.log('bummer');
+    } else {
+      console.log('no ancillary data for', payload.tableName);
+    }
+    // let ancillaryData = yield call(api.sqlQuery, SPROC);
   }
 
 }
