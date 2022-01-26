@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { withStyles } from '@material-ui/core';
 import Accordion from '@material-ui/core/Accordion';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import ResizeObserver from 'react-resize-observer';
 
 let styles = (theme) => ({
   docsWrapper: {
@@ -15,10 +16,33 @@ let styles = (theme) => ({
 
 const Docs = (props) => {
   let { classes } = props;
+
+  let [innerAccordionWidth, setInnerAccordionWidth] = useState(500);
+
+  let onResize = (rect) => {
+    let { width } = rect;
+    setInnerAccordionWidth(width - 16 * 2);
+  };
+
+  let [expanded, setExpanded] = React.useState(false);
+
+  let handleChange = (panel) => (event, isExpanded) => {
+    setExpanded(isExpanded ? panel : false);
+  };
+
+  let docLinks = {
+    py: "https://cmap.readthedocs.io/en/latest/user_guide/API_ref/pycmap_api/pycmap_api_ref.html",
+    r: "https://simonscmap.github.io/cmap4r/index.html",
+    julia: "https://cmap.readthedocs.io/en/latest/user_guide/API_ref/juliacmap_api/juliacmap_api_ref.html",
+    matlab: "https://cmap.readthedocs.io/en/latest/user_guide/API_ref/matcmap_api/matcmap_api_ref.html",
+  }
+
   return (
     <div className={classes.docsWrapper}>
+      <ResizeObserver onResize={onResize}></ResizeObserver>
       <h1>The Docs</h1>
-      <Accordion>
+
+      <Accordion expanded={expanded === 'py'} onChange={handleChange('py')}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel1-python-docs-content"
@@ -27,10 +51,17 @@ const Docs = (props) => {
           <Typography>Python</Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Typography>Python Stuff</Typography>
+          <iframe
+            id="python"
+            title="CMAP Read the Docs: Python"
+            width={innerAccordionWidth}
+            height={window.innerHeight - 400}
+            src={docLinks.py}
+          ></iframe>
         </AccordionDetails>
       </Accordion>
-      <Accordion>
+
+      <Accordion expanded={expanded === 'r'} onChange={handleChange('r')}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel2-r-docs-content"
@@ -39,10 +70,17 @@ const Docs = (props) => {
           <Typography>R</Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Typography>R stuff</Typography>
+          <iframe
+            id="r"
+            title="CMAP Read the Docs: R"
+            width={innerAccordionWidth}
+            height={window.innerHeight - 400}
+            src={docLinks.r}
+          ></iframe>
         </AccordionDetails>
       </Accordion>
-      <Accordion>
+
+      <Accordion expanded={expanded === 'julia'} onChange={handleChange('julia')}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel3-julia-docs-content"
@@ -50,9 +88,18 @@ const Docs = (props) => {
         >
           <Typography>Julia</Typography>
         </AccordionSummary>
-        <AccordionDetails>Julia Stuff</AccordionDetails>
+        <AccordionDetails>
+          <iframe
+            id="julia"
+            title="CMAP Read the Docs: Julia"
+            width={innerAccordionWidth}
+            height={window.innerHeight - 400}
+            src={docLinks.julia}
+          ></iframe>
+        </AccordionDetails>
       </Accordion>
-      <Accordion>
+
+      <Accordion expanded={expanded === 'matlab'} onChange={handleChange('matlab')}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel3-matlab-docs-content"
@@ -60,7 +107,15 @@ const Docs = (props) => {
         >
           <Typography>Matlab</Typography>
         </AccordionSummary>
-        <AccordionDetails>Matlab</AccordionDetails>
+        <AccordionDetails>
+          <iframe
+            id="matlab"
+            title="CMAP Read the Docs: Matlab"
+            width={innerAccordionWidth}
+            height={window.innerHeight - 400}
+            src={docLinks.matlab}
+          ></iframe>
+        </AccordionDetails>
       </Accordion>
     </div>
   );
