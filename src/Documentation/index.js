@@ -6,6 +6,7 @@ import AccordionDetails from '@material-ui/core/AccordionDetails';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ResizeObserver from 'react-resize-observer';
+import docLinks from './doc-links';
 
 let styles = (theme) => ({
   docsWrapper: {
@@ -30,14 +31,7 @@ const Docs = (props) => {
     setExpanded(isExpanded ? panel : false);
   };
 
-  let docLinks = {
-    py: "https://cmap.readthedocs.io/en/latest/user_guide/API_ref/pycmap_api/pycmap_api_ref.html",
-    r: "https://simonscmap.github.io/cmap4r/index.html",
-    julia: "https://cmap.readthedocs.io/en/latest/user_guide/API_ref/juliacmap_api/juliacmap_api_ref.html",
-    matlab: "https://cmap.readthedocs.io/en/latest/user_guide/API_ref/matcmap_api/matcmap_api_ref.html",
-  }
-
-  return (
+ return (
     <div className={classes.docsWrapper}>
       <ResizeObserver onResize={onResize}></ResizeObserver>
       <h1>The Docs</h1>

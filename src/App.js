@@ -11,7 +11,7 @@ import './Stylesheets/App.scss';
 import './Stylesheets/intro-custom.css';
 import colors from './enums/colors';
 import z from './enums/zIndex';
-import Docs from './Documentation';
+import Docs from './Documentation/sidebar';
 import { Route, BrowserRouter, Switch } from 'react-router-dom';
 import { debounce } from 'throttle-debounce';
 
