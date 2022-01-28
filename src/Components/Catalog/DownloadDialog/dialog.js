@@ -1,74 +1,24 @@
 // Pop-up dialog for downloading data on catalog pages
 import {
-  Button, Dialog,
-  DialogActions, DialogContent, DialogTitle, Grid,
-  Slider, TextField,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  Slider,
+  TextField,
   Typography
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import colors from '../../enums/colors';
-import temporalResolutions from '../../enums/temporalResolutions';
-import { csvDownloadRequestSend } from '../../Redux/actions/visualization';
-import depthUtils from '../../Utility/depthCounter';
-import HelpButtonAndDialog from '../Help/HelpButtonAndDialog';
+import temporalResolutions from '../../../enums/temporalResolutions';
+import { csvDownloadRequestSend } from '../../../Redux/actions/visualization';
+import HelpButtonAndDialog from '../../Help/HelpButtonAndDialog';
+import { dateToDay, dayToDate, parseDataset, getSubsetDataPointsCount } from './downloadDialogHelpers';
+import styles from './downloadDialogStyles';
 import DownloadingDataHelpContents from './DownloadingDataHelpContents';
-
-const styles = (theme) => ({
-  dialogPaper: {
-    backgroundColor: colors.solidPaper,
-    '@media (max-width: 600px)': {
-      width: '100vw',
-      margin: '12px',
-    },
-    width: '60vw',
-  },
-  sliderValueLabel: {
-    top: -22,
-    '& *': {
-      background: 'transparent',
-      color: theme.palette.primary.main,
-    },
-    left: -14,
-  },
-  slider: {
-    margin: '4px 8px 8px 0px',
-  },
-  sliderThumb: {
-    borderRadius: '0px',
-    height: '16px',
-    width: '3px',
-    marginLeft: 0,
-    marginTop: '-7px',
-  },
-  dialogRoot: {
-    overflowY: 'visible',
-  },
-  markLabel: {
-    top: 30,
-    fontSize: '.7rem',
-  },
-  input: {
-    fontSize: '13px',
-    padding: '2px 0',
-  },
-  formGrid: {
-    marginTop: '16px',
-  },
-  formLabel: {
-    marginTop: '13px',
-    fontSize: '.92rem',
-  },
-  helpButton: {
-    marginTop: '-2px',
-  },
-  closeDialogIcon: {
-    float: 'right',
-    marginTop: '-12px',
-    marginRight: '-8px',
-  },
-});
 
 const mapStateToProps = (state, ownProps) => ({
   datasets: state.datasets,
@@ -78,22 +28,6 @@ const mapStateToProps = (state, ownProps) => ({
 const mapDispatchToProps = {
   csvDownloadRequestSend,
 };
-
-const dayToDate = (min, days) => {
-  let value = new Date(min);
-  value.setDate(value.getDate() + days);
-
-  let month = value.getMonth() + 1;
-  month = month > 9 ? month : '0' + month;
-
-  let day = value.getDate();
-  day = day > 9 ? day : '0' + day;
-
-  return `${value.getFullYear()}-${month}-${day}`;
-};
-
-const dateToDay = (min, date) =>
-  Math.ceil((new Date(date).getTime() - new Date(min).getTime()) / 86400000);
 
 class DownloadDialog extends Component {
   constructor(props) {
@@ -105,14 +39,17 @@ class DownloadDialog extends Component {
     );
 
     this.state = {
+      // `lat` is a range tuple: [start, end]
       lat: [
         Math.floor(this.props.dataset.Lat_Min * 10) / 10,
         Math.ceil(this.props.dataset.Lat_Max * 10) / 10,
       ],
+      // `lon` is a range tuple: [start, end]
       lon: [
         Math.floor(this.props.dataset.Lon_Min * 10) / 10,
         Math.ceil(this.props.dataset.Lon_Max * 10) / 10,
       ],
+      // `time` is a range tuple: [start, end]
       time: this.props.dataset.Time_Min ? [0, maxDays] : [1, 12],
       depth: [
         Math.floor(this.props.dataset.Depth_Min),
@@ -198,28 +135,30 @@ class DownloadDialog extends Component {
 
   render() {
     const { dataset, dialogOpen, handleClose, classes } = this.props;
+    console.log(this.state);
+
+    let data, error;
+    try {
+      data = parseDataset(dataset);
+    } catch (e) {
+      console.log(e);
+      error = e;
+    }
+
     const {
       Lat_Min,
       Lat_Max,
       Lon_Min,
       Lon_Max,
       Time_Min,
-      Time_Max,
       Depth_Min,
       Depth_Max,
       Temporal_Resolution,
       Table_Name,
-      Row_Count,
-    } = dataset;
+    } = data;
 
+    // range values
     const { lat, lon, time, depth } = this.state;
-
-    const latMin = parseFloat(Lat_Min);
-    const latMax = parseFloat(Lat_Max);
-    const lonMin = parseFloat(Lon_Min);
-    const lonMax = parseFloat(Lon_Max);
-    const timeMin = Date.parse(Time_Min);
-    const timeMax = Date.parse(Time_Max);
 
     const subsetLat1 = lat[0];
     const subsetLat2 = lat[1];
@@ -227,79 +166,15 @@ class DownloadDialog extends Component {
     const subsetLon2 = lon[1];
     const subsetTime1 = time[0];
     const subsetTime2 = time[1];
+    const subsetDepth1 = depth[0];
+    const subsetDepth2 = depth[1];
 
     const datasetIsMonthlyClimatology =
       Temporal_Resolution === temporalResolutions.monthlyClimatology;
 
-    if (Depth_Max) {
-      var depthMin = parseFloat(Depth_Min);
-      var depthMax = parseFloat(Depth_Max);
-
-      var subsetDepth1 = depth[0];
-
-      var subsetDepth2 = depth[1];
-    }
-
-    const variableColumns = dataset.Variables && dataset.Variables.length;
-    const depthColumns = dataset.Depth_Max ? 1 : 0;
-    const fixedColumns = 3;
-
-    const totalColumns = variableColumns + depthColumns + fixedColumns;
-
-    const totalDataPoints = Row_Count * totalColumns;
-    const fullDataAvailable = totalDataPoints < 20000000;
-
-    var dateRatio;
-
-    if (Temporal_Resolution === temporalResolutions.monthlyClimatology) {
-      dateRatio = (time[1] - time[0] + 1) / 12;
-    } else {
-      var totalDays = (timeMax - timeMin) / 86400000 || 1;
-      var subsetDays =
-        subsetTime2 - subsetTime1 < 1 ? 1 : subsetTime2 - subsetTime1;
-      dateRatio = totalDays > subsetDays ? subsetDays / totalDays : 1;
-    }
-
-    const totalLatSize = latMax - latMin || 1;
-    const subsetLatSize = subsetLat2 - subsetLat1 || 1 / totalLatSize;
-    const latRatio = subsetLatSize / totalLatSize;
-
-    const totalLonSize = lonMax - lonMin || 1;
-    const subsetLonSize = subsetLon2 - subsetLon1 || 1 / totalLonSize;
-    const lonRatio = subsetLonSize / totalLonSize;
-
-    var depthRatio = 1;
-
-    if (Depth_Max) {
-      if (depthUtils.piscesTable.has(Table_Name)) {
-        let depthCount = depthUtils.count(
-          { data: dataset },
-          subsetDepth1,
-          subsetDepth2,
-        );
-        depthRatio = depthCount / depthUtils.piscesDepths.length || 1;
-      } else if (depthUtils.darwinTable.has(Table_Name)) {
-        let depthCount = depthUtils.count(
-          { data: dataset },
-          subsetDepth1,
-          subsetDepth2,
-        );
-        depthRatio = depthCount / depthUtils.darwinDepths.length || 1;
-      } else {
-        var totalDepthSize = depthMax - depthMin || 1;
-        var subsetDepthSize = subsetDepth2 - subsetDepth1 || 1;
-        depthRatio =
-          subsetDepthSize > totalDepthSize
-            ? 1
-            : subsetDepthSize / totalDepthSize;
-      }
-    }
-
-    const subsetDataPoints = Math.floor(
-      totalDataPoints * dateRatio * latRatio * lonRatio * depthRatio,
-    );
-
-    const subsetAvailable = subsetDataPoints <= 20000000;
+    const [subsetDataPointsCount, totalDataPoints] = getSubsetDataPointsCount(data, this.state);
+    const fullDatasetAvailable = totalDataPoints < 20000000;
+    const subsetAvailable = subsetDataPointsCount <= 20000000;
 
     const timeString1 = datasetIsMonthlyClimatology
       ? time[0]
@@ -307,6 +182,15 @@ class DownloadDialog extends Component {
     const timeString2 = datasetIsMonthlyClimatology
       ? time[1]
       : dayToDate(Time_Min, subsetTime2);
+
+    if (error) {
+      return (
+        <div>
+        <p>There was an error parsing dataset parameters.</p>
+        <pre>{error}</pre>
+        </div>
+      );
+    }
 
     return (
       <React.Fragment>
@@ -332,14 +216,14 @@ class DownloadDialog extends Component {
             classes={{ root: classes.dialogRoot }}
           >
             <Typography>
-              {fullDataAvailable
+              {fullDatasetAvailable
                 ? `The full dataset is available for download.`
                 : `The full dataset is too large for download.`}
             </Typography>
             <Typography>
               {subsetAvailable
                 ? 'The subset described below is available for download.'
-                : `The subset described below contains approximately ${subsetDataPoints} data points. Maximum download size is 20000000. Please reduce the range of one or more parameters.`}
+                : `The subset described below contains approximately ${subsetDataPointsCount} data points. Maximum download size is 20000000. Please reduce the range of one or more parameters.`}
             </Typography>
 
             {datasetIsMonthlyClimatology ? (
@@ -761,7 +645,7 @@ class DownloadDialog extends Component {
               </Button>
             )}
 
-            {fullDataAvailable && (
+            {fullDatasetAvailable && (
               <Button
                 onClick={() => this.handleFullDatasetDownload(Table_Name)}
               >
