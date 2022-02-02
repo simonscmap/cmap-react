@@ -1,8 +1,135 @@
 import temporalResolutions from '../../../enums/temporalResolutions';
 import depthUtils from '../../../Utility/depthCounter';
 
+const MILLISECONDS_PER_DAY = 86400000;
+
+export const getIsMonthlyClimatology = (temporalResolution) => {
+  return Boolean(temporalResolution === temporalResolutions.monthlyClimatology);
+};
+
+export const makeSubsetQuery = (selection) => {
+  let {
+    tableName,
+    temporalResolution,
+    lonStart,
+    lonEnd,
+    latStart,
+    latEnd,
+    timeStart,
+    timeEnd,
+    depthStart,
+    depthEnd,
+  } = selection;
+
+  let isMonthyClimatology = getIsMonthlyClimatology(temporalResolution);
+
+  let timeUnit = isMonthyClimatology ? 'month' : 'time';
+
+  // convert to 1-indexed month, if unit of time is month
+  const _timeStart = isMonthyClimatology
+    ? new Date(timeStart).getMonth() + 1
+    : timeStart;
+  const _timeEnd = isMonthyClimatology
+    ? new Date(timeEnd).getMonth() + 1
+    : timeEnd;
+  // + 'T23:59:59Z'
+  let query =
+    `select * from ${tableName} where ${timeUnit} between '${_timeStart}' and '${_timeEnd}' and ` +
+    `lat between ${latStart} and ${latEnd} and ` +
+    `lon between ${lonStart} and ${lonEnd}`;
+
+  if (Boolean(this.props.dataset.Depth_Max)) {
+    query += ` and depth between ${depthStart} and ${depthEnd}`;
+  }
+
+  return query;
+};
+
+// with the begin and end dates of a dataset,
+// calculate the span of days
+export const getMaxDays = (dataset) => {
+  let endTime = new Date(dataset.Time_Max).getTime();
+  let startTime = new Date(dataset.Time_Min).getTime();
+  let differenceInMilliseconds = endTime - startTime;
+  let intervalInDays = Math.ceil(
+    differenceInMilliseconds / MILLISECONDS_PER_DAY,
+  );
+  return intervalInDays;
+};
+
+export const getInitialRangeValues = (dataset) => {
+  let {
+    Lat_Max,
+    Lat_Min,
+    Lon_Max,
+    Lon_Min,
+    Time_Min,
+    Depth_Max,
+    Depth_Min,
+  } = dataset;
+
+  let maxDays = getMaxDays(dataset);
+
+  let initialValues = {
+    lat: {
+      start: Math.floor(Lat_Min * 10) / 10,
+      end: Math.ceil(Lat_Max * 10) / 10,
+    },
+    lon: {
+      start: Math.floor(Lon_Min * 10) / 10,
+      end: Math.ceil(Lon_Max * 10) / 10,
+    },
+    time: {
+      start: Time_Min ? 0 : 1,
+      end: Time_Min ? maxDays : 12,
+    },
+    depth: {
+      start: Math.floor(Depth_Min),
+      end: Math.ceil(Depth_Max),
+    },
+    maxDays,
+  };
+
+  return initialValues;
+};
+
+export const formatDateString = (year, month, day) => {
+  return `${year}-${month}-${day}`;
+};
+
+export const extractDateFromString = (stringDate) => {
+  let [year, month, day] = stringDate.split('-');
+  const date = new Date(year, parseInt(month) - 1, day);
+  return date;
+};
+
+export const ensureDateIsWithinInitialBounds = (date, min, max) => {
+  let target = date < min ? min : date > max ? max : date;
+  return target;
+};
+
+// used by start and end date setting events
+// initial min/max dates are those provided by dataset
+export const getBoundedDateValueFromClickEvent = (clickEvent, initialMin, initialMax) => {
+  if (!clickEvent.target.value) {
+    console.error(`no value in event; expected a string representing a date`);
+    return;
+  }
+
+  // value is formatted YYYY-MM-DD
+  let targetDate = extractDateFromString(clickEvent.target.value);
+
+  // calculate new target start date
+  let target = ensureDateIsWithinInitialBounds(targetDate, initialMin, initialMax);
+
+  return target;
+};
+
+// starting with a min date, return a string representation
+// of the date N days later
 export const dayToDate = (min, days) => {
   let value = new Date(min);
+
   value.setDate(value.getDate() + days);
 
   let month = value.getMonth() + 1;
@@ -11,7 +138,9 @@ export const dayToDate = (min, days) => {
   let day = value.getDate();
   day = day > 9 ? day : '0' + day;
 
-  return `${value.getFullYear()}-${month}-${day}`;
+  let fullYear = value.getFullYear();
+
+  return formatDateString(fullYear, month, day);
 };
 
 export const dateToDay = (min, date) =>
@@ -112,7 +241,7 @@ export const getSubsetDataPointsCount = (parsedDataset, state) => {
     totalDataPoints * dateRatio * latRatio * lonRatio * depthRatio,
   );
 
-  return [ subsetDataPoints, totalDataPoints];
+  return [subsetDataPoints, totalDataPoints];
 };
 
 // ensure that certain fields are expected parseable type

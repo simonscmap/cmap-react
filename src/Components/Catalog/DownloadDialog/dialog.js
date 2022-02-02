@@ -1,665 +1,148 @@
 // Pop-up dialog for downloading data on catalog pages
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Grid,
-  Slider,
-  TextField,
-  Typography
-} from '@material-ui/core';
+import { Dialog, DialogActions, DialogContent } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import temporalResolutions from '../../../enums/temporalResolutions';
 import { csvDownloadRequestSend } from '../../../Redux/actions/visualization';
-import HelpButtonAndDialog from '../../Help/HelpButtonAndDialog';
-import { dateToDay, dayToDate, parseDataset, getSubsetDataPointsCount } from './downloadDialogHelpers';
+import DateSubsetControl from './DateSubsetControl';
+import {
+  dayToDate,
+  getInitialRangeValues,
+  getSubsetDataPointsCount,
+  makeSubsetQuery,
+  parseDataset,
+} from './downloadDialogHelpers';
 import styles from './downloadDialogStyles';
-import DownloadingDataHelpContents from './DownloadingDataHelpContents';
+import ErrorMessage from './ErrorMessage';
+import { Availability, DownloadDialogTitle } from './Header';
 
-const mapStateToProps = (state, ownProps) => ({
-  datasets: state.datasets,
-  catalog: state.catalog,
-});
+const DownloadDialog2 = (props) => {
+  let { dataset: rawDataset, dialogOpen, handleClose, classes } = props;
+  let dispatch = useDispatch();
 
-const mapDispatchToProps = {
-  csvDownloadRequestSend,
+  let dataset, error;
+  try {
+    dataset = parseDataset(rawDataset);
+  } catch (e) {
+    console.log(e);
+    error = e;
+  }
+
+  let { maxDays, lat, lon, time, depth } = getInitialRangeValues(dataset);
+
+  let [latStart, setLatStart] = useState(lat.start);
+  let [latEnd, setLatEnd] = useState(lat.end);
+
+  let [lonStart, setLonStart] = useState(lon.start);
+  let [lonEnd, setLonEnd] = useState(lon.end);
+
+  // time is representes as an integer day, 0 - 12
+  let [timeStart, setTimeStart] = useState(time.start);
+  let [timeEnd, setTimeEnd] = useState(time.end);
+
+  let [depthStart, setDepthStart] = useState(depth.start);
+  let [depthEnd, setDepthEnd] = useState(depth.end);
+
+  let handleFullDatasetDownload = (tableName) => {
+    let query = `select%20*%20from%20${tableName}`;
+    const fileName = dataset.Long_Name;
+    dispatch(csvDownloadRequestSend(query, fileName, tableName));
+  };
+
+  let handleSubsetDownload = () => {
+    let { Table_Name, Long_Name, Temporal_Resolution } = dataset;
+    let query = makeSubsetQuery({
+      tableName: dataset.Table_Name,
+      temporalResolution: dataset.Temporal_Resolution,
+      lonStart,
+      lonEnd,
+      latStart,
+      latEnd,
+      timeStart,
+      timeEnd,
+      depthStart,
+      depthEnd,
+    });
+
+    let fileName = Long_Name;
+    let tableName = Table_Name;
+    dispatch(csvDownloadRequestSend(query, fileName, tableName));
+  };
+
+  if (error) {
+    return <ErrorMessage description={error} />;
+  }
+
+  const datasetIsMonthlyClimatology =
+    dataset.Temporal_Resolution === temporalResolutions.monthlyClimatology;
+
+  const [subsetDataPointsCount, totalDataPoints] = getSubsetDataPointsCount(
+    dataset,
+    {
+      lat: [latStart, latEnd],
+      lon: [lonStart, lonEnd],
+      time: [timeStart, timeEnd],
+      depth: [depthStart, depthEnd],
+    },
+  );
+
+  const fullDatasetAvailable = totalDataPoints < 20000000;
+  const subsetAvailable = subsetDataPointsCount <= 20000000;
+
+  const availability = {
+    fullDatasetAvailable,
+    subsetAvailable,
+    subsetDataPointsCount,
+  };
+
+  // these strings are for subset download
+  // they are turned into Date objects by the handler
+  const timeString1 = datasetIsMonthlyClimatology
+    ? time[0]
+    : dayToDate(time.start, timeStart);
+  const timeString2 = datasetIsMonthlyClimatology
+    ? time[1]
+    : dayToDate(time.start, timeEnd);
+
+  return (
+    <div id="data-download-dialog">
+      <Dialog
+        PaperProps={{
+          className: classes.dialogPaper,
+        }}
+        open={dialogOpen}
+        onClose={handleClose}
+        maxWidth={false}
+      >
+        <DownloadDialogTitle longName={dataset.Long_Name} />
+
+        <DialogContent
+          className={classes.dialogContent}
+          classes={{ root: classes.dialogRoot }}
+        >
+          <Availability availabilityStatus={availability} />
+
+          {/* Ancillary Data Step */}
+          {/* Metadata */}
+          {/* Subset */}
+          <DateSubsetControl
+            dataset={dataset}
+            setTimeStart={setTimeStart}
+            setTimeEnd={setTimeEnd}
+            state={{ timeStart, timeEnd, maxDays }}
+          />
+
+          <LatitudeSubsetControl />
+          <LongitudeSubsetControl />
+          <DepthSubsetControl />
+        </DialogContent>
+        <DialogActions>
+          <Execution />
+        </DialogActions>
+      </Dialog>
+    </div>
+  );
 };
 
-class DownloadDialog extends Component {
-  constructor(props) {
-    super(props);
-    const maxDays = Math.ceil(
-      (new Date(this.props.dataset.Time_Max).getTime() -
-        new Date(this.props.dataset.Time_Min).getTime()) /
-        86400000,
-    );
-
-    this.state = {
-      // `lat` is a range tuple: [start, end]
-      lat: [
-        Math.floor(this.props.dataset.Lat_Min * 10) / 10,
-        Math.ceil(this.props.dataset.Lat_Max * 10) / 10,
-      ],
-      // `lon` is a range tuple: [start, end]
-      lon: [
-        Math.floor(this.props.dataset.Lon_Min * 10) / 10,
-        Math.ceil(this.props.dataset.Lon_Max * 10) / 10,
-      ],
-      // `time` is a range tuple: [start, end]
-      time: this.props.dataset.Time_Min ? [0, maxDays] : [1, 12],
-      depth: [
-        Math.floor(this.props.dataset.Depth_Min),
-        Math.ceil(this.props.dataset.Depth_Max),
-      ],
-      maxDays,
-    };
-  }
-
-  handleSetStartDate = (e) => {
-    if (!e.target.value) return;
-    let parts = e.target.value.split('-');
-    const targetDate = new Date(parts[0], parseInt(parts[1]) - 1, parts[2]);
-    let min = new Date(this.props.dataset.Time_Min);
-    let max = new Date(this.props.dataset.Time_Max);
-    const target = targetDate < min ? min : targetDate > max ? max : targetDate;
-    this.setState({
-      ...this.state,
-      time: [
-        dateToDay(this.props.dataset.Time_Min, target),
-        this.state.time[1],
-      ],
-    });
-  };
-
-  handleSetEndDate = (e) => {
-    if (!e.target.value) return;
-    let parts = e.target.value.split('-');
-    const targetDate = new Date(parts[0], parseInt(parts[1]) - 1, parts[2]);
-    let min = new Date(this.props.dataset.Time_Min);
-    let max = new Date(this.props.dataset.Time_Max);
-    const target = targetDate < min ? min : targetDate > max ? max : targetDate;
-    this.setState({
-      ...this.state,
-      time: [
-        this.state.time[0],
-        dateToDay(this.props.dataset.Time_Min, target),
-      ],
-    });
-  };
-
-  handleFullDatasetDownload = (tableName) => {
-    let query = `select%20*%20from%20${tableName}`;
-    const fileName = this.props.dataset.Long_Name;
-    this.props.csvDownloadRequestSend(query, fileName, tableName);
-  };
-
-  handleSubsetDownload = (
-    tableName,
-    dt1,
-    dt2,
-    lat1,
-    lat2,
-    lon1,
-    lon2,
-    depth1,
-    depth2,
-  ) => {
-    let isMonthyClimatology = Boolean(
-      this.props.dataset.Temporal_Resolution ===
-        temporalResolutions.monthlyClimatology,
-    );
-    const timeUnit = isMonthyClimatology ? 'month' : 'time';
-    const timeStart = isMonthyClimatology ? new Date(dt1).getMonth() + 1 : dt1;
-    const timeEnd = isMonthyClimatology ? new Date(dt2).getMonth() + 1 : dt2;
-    // + 'T23:59:59Z'
-    let query =
-      `select * from ${tableName} where ${timeUnit} between '${timeStart}' and '${timeEnd}' and ` +
-      `lat between ${lat1} and ${lat2} and ` +
-      `lon between ${lon1} and ${lon2}`;
-
-    if (Boolean(this.props.dataset.Depth_Max)) {
-      query += ` and depth between ${depth1} and ${depth2}`;
-    }
-
-    const fileName = this.props.dataset.Long_Name;
-    this.props.csvDownloadRequestSend(query, fileName, tableName);
-  };
-
-  handleSliderChange = (key, value) => {
-    this.setState({ ...this.state, [key]: value });
-  };
-
-  render() {
-    const { dataset, dialogOpen, handleClose, classes } = this.props;
-    console.log(this.state);
-
-    let data, error;
-    try {
-      data = parseDataset(dataset);
-    } catch (e) {
-      console.log(e);
-      error = e;
-    }
-
-    const {
-      Lat_Min,
-      Lat_Max,
-      Lon_Min,
-      Lon_Max,
-      Time_Min,
-      Depth_Min,
-      Depth_Max,
-      Temporal_Resolution,
-      Table_Name,
-    } = data;
-
-    // range values
-    const { lat, lon, time, depth } = this.state;
-
-    const subsetLat1 = lat[0];
-    const subsetLat2 = lat[1];
-    const subsetLon1 = lon[0];
-    const subsetLon2 = lon[1];
-    const subsetTime1 = time[0];
-    const subsetTime2 = time[1];
-    const subsetDepth1 = depth[0];
-    const subsetDepth2 = depth[1];
-
-    const datasetIsMonthlyClimatology =
-      Temporal_Resolution === temporalResolutions.monthlyClimatology;
-
-    const [subsetDataPointsCount, totalDataPoints] = getSubsetDataPointsCount(data, this.state);
-    const fullDatasetAvailable = totalDataPoints < 20000000;
-    const subsetAvailable = subsetDataPointsCount <= 20000000;
-
-    const timeString1 = datasetIsMonthlyClimatology
-      ? time[0]
-      : dayToDate(Time_Min, subsetTime1);
-    const timeString2 = datasetIsMonthlyClimatology
-      ? time[1]
-      : dayToDate(Time_Min, subsetTime2);
-
-    if (error) {
-      return (
-        <div>
-        <p>There was an error parsing dataset parameters.</p>
-        <pre>{error}</pre>
-        </div>
-      );
-    }
-
-    return (
-      <React.Fragment>
-        <Dialog
-          PaperProps={{
-            className: classes.dialogPaper,
-          }}
-          open={dialogOpen}
-          onClose={handleClose}
-          maxWidth={false}
-        >
-          <DialogTitle>
-            Downloading {dataset.Long_Name}
-            <HelpButtonAndDialog
-              title="Downloading Data"
-              content={<DownloadingDataHelpContents />}
-              buttonClass={classes.helpButton}
-            />
-          </DialogTitle>
-
-          <DialogContent
-            style={{ padding: '0px 40px' }}
-            classes={{ root: classes.dialogRoot }}
-          >
-            <Typography>
-              {fullDatasetAvailable
-                ? `The full dataset is available for download.`
-                : `The full dataset is too large for download.`}
-            </Typography>
-            <Typography>
-              {subsetAvailable
-                ? 'The subset described below is available for download.'
-                : `The subset described below contains approximately ${subsetDataPointsCount} data points. Maximum download size is 20000000. Please reduce the range of one or more parameters.`}
-            </Typography>
-
-            {datasetIsMonthlyClimatology ? (
-              <>
-                <Grid container className={classes.formGrid}>
-                  <Grid item xs={12} md={4}>
-                    <Typography className={classes.formLabel}>Month</Typography>
-                  </Grid>
-
-                  <Grid item xs={6} md={4}>
-                    <TextField
-                      label="Start"
-                      type="number"
-                      inputProps={{
-                        min: 1,
-                        max: 12,
-                        className: classes.input,
-                      }}
-                      InputLabelProps={{
-                        shrink: true,
-                      }}
-                      value={time[0]}
-                      onChange={(e) =>
-                        this.handleSliderChange('time', [
-                          e.target.value === '' ? '' : Number(e.target.value),
-                          time[1],
-                        ])
-                      }
-                    />
-                  </Grid>
-
-                  <Grid item xs={6} md={4}>
-                    <TextField
-                      label="End"
-                      type="number"
-                      inputProps={{
-                        min: 1,
-                        max: 12,
-                        className: classes.input,
-                      }}
-                      InputLabelProps={{
-                        shrink: true,
-                      }}
-                      value={time[1]}
-                      onChange={(e) =>
-                        this.handleSliderChange('time', [
-                          time[0],
-                          e.target.value === '' ? '' : Number(e.target.value),
-                        ])
-                      }
-                    />
-                  </Grid>
-                </Grid>
-
-                <Slider
-                  min={1}
-                  max={12}
-                  value={[
-                    typeof time[0] === 'number' ? time[0] : 1,
-                    typeof time[1] === 'number' ? time[1] : 12,
-                  ]}
-                  onChange={(e, value) =>
-                    this.handleSliderChange('time', value)
-                  }
-                  classes={{
-                    valueLabel: classes.sliderValueLabel,
-                    thumb: classes.sliderThumb,
-                    markLabel: classes.markLabel,
-                  }}
-                  className={classes.slider}
-                  marks={[
-                    {
-                      value: 1,
-                      label: '1',
-                    },
-                    {
-                      value: 12,
-                      label: '12',
-                    },
-                  ]}
-                />
-              </>
-            ) : (
-              <>
-                <Grid container className={classes.formGrid}>
-                  <Grid item xs={12} md={4}>
-                    <Typography className={classes.formLabel}>Date</Typography>
-                  </Grid>
-
-                  <Grid item xs={6} md={4}>
-                    <TextField
-                      label="Start"
-                      type="date"
-                      inputProps={{
-                        className: classes.input,
-                      }}
-                      InputLabelProps={{
-                        shrink: true,
-                      }}
-                      value={dayToDate(Time_Min, this.state.time[0])}
-                      onChange={this.handleSetStartDate}
-                    />
-                  </Grid>
-
-                  <Grid item xs={6} md={4}>
-                    <TextField
-                      label="End"
-                      type="date"
-                      inputProps={{
-                        className: classes.input,
-                      }}
-                      InputLabelProps={{
-                        shrink: true,
-                      }}
-                      value={dayToDate(Time_Min, this.state.time[1])}
-                      onChange={this.handleSetEndDate}
-                    />
-                  </Grid>
-                </Grid>
-
-                <Slider
-                  min={0}
-                  max={this.state.maxDays}
-                  value={this.state.time}
-                  onChange={(e, value) =>
-                    this.handleSliderChange('time', value)
-                  }
-                  classes={{
-                    valueLabel: classes.sliderValueLabel,
-                    thumb: classes.sliderThumb,
-                    markLabel: classes.markLabel,
-                  }}
-                  className={classes.slider}
-                  marks={[
-                    {
-                      value: 0,
-                      label: dayToDate(Time_Min, 0),
-                    },
-                    {
-                      value: this.state.maxDays,
-                      label: dayToDate(Time_Min, this.state.maxDays),
-                    },
-                  ]}
-                />
-              </>
-            )}
-
-            <Grid container className={classes.formGrid}>
-              <Grid item xs={12} md={4}>
-                <Typography className={classes.formLabel}>
-                  Latitude[{'\xB0'}]
-                </Typography>
-              </Grid>
-
-              <Grid item xs={6} md={4}>
-                <TextField
-                  label="Start"
-                  type="number"
-                  inputProps={{
-                    step: 0.1,
-                    min: Math.floor(Lat_Min * 10) / 10,
-                    max: Math.ceil(Lat_Max * 10) / 10,
-                    className: classes.input,
-                  }}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  value={lat[0]}
-                  onChange={(e) =>
-                    this.handleSliderChange('lat', [
-                      e.target.value === '' ? '' : Number(e.target.value),
-                      lat[1],
-                    ])
-                  }
-                />
-              </Grid>
-
-              <Grid item xs={6} md={4}>
-                <TextField
-                  label="End"
-                  type="number"
-                  inputProps={{
-                    step: 0.1,
-                    min: Math.floor(Lat_Min * 10) / 10,
-                    max: Math.ceil(Lat_Max * 10) / 10,
-                    className: classes.input,
-                  }}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  value={lat[1]}
-                  onChange={(e) =>
-                    this.handleSliderChange('lat', [
-                      lat[0],
-                      e.target.value === '' ? '' : Number(e.target.value),
-                    ])
-                  }
-                />
-              </Grid>
-            </Grid>
-
-            <Slider
-              min={Math.floor(Lat_Min * 10) / 10}
-              max={Math.ceil(Lat_Max * 10) / 10}
-              step={0.1}
-              value={[
-                typeof lat[0] === 'number' ? lat[0] : -90,
-                typeof lat[1] === 'number' ? lat[1] : 90,
-              ]}
-              onChange={(e, value) => this.handleSliderChange('lat', value)}
-              classes={{
-                valueLabel: classes.sliderValueLabel,
-                thumb: classes.sliderThumb,
-                markLabel: classes.markLabel,
-              }}
-              className={classes.slider}
-              disabled={Lat_Min === Lat_Max}
-              marks={[
-                {
-                  value: Math.floor(Lat_Min * 10) / 10,
-                  label: `${Math.floor(Lat_Min * 10) / 10}`,
-                },
-                {
-                  value: Math.ceil(Lat_Max * 10) / 10,
-                  label: `${Math.ceil(Lat_Max * 10) / 10}`,
-                },
-              ]}
-            />
-
-            <Grid container className={classes.formGrid}>
-              <Grid item xs={12} md={4}>
-                <Typography className={classes.formLabel}>
-                  Longitude[{'\xB0'}]
-                </Typography>
-              </Grid>
-
-              <Grid item xs={6} md={4}>
-                <TextField
-                  label="Start"
-                  type="number"
-                  inputProps={{
-                    step: 0.1,
-                    min: Math.floor(Lon_Min * 10) / 10,
-                    max: Math.ceil(Lon_Max * 10) / 10,
-                    className: classes.input,
-                  }}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  value={lon[0]}
-                  onChange={(e) =>
-                    this.handleSliderChange('lon', [
-                      e.target.value === '' ? '' : Number(e.target.value),
-                      lon[1],
-                    ])
-                  }
-                />
-              </Grid>
-
-              <Grid item xs={6} md={4}>
-                <TextField
-                  label="End"
-                  type="number"
-                  inputProps={{
-                    step: 0.1,
-                    min: Math.floor(Lon_Min * 10) / 10,
-                    max: Math.ceil(Lon_Max * 10) / 10,
-                    className: classes.input,
-                  }}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  value={lon[1]}
-                  onChange={(e) =>
-                    this.handleSliderChange('lon', [
-                      lon[0],
-                      e.target.value === '' ? '' : Number(e.target.value),
-                    ])
-                  }
-                />
-              </Grid>
-            </Grid>
-
-            <Slider
-              min={Math.floor(Lon_Min * 10) / 10}
-              max={Math.ceil(Lon_Max * 10) / 10}
-              step={0.1}
-              value={[
-                typeof lon[0] === 'number' ? lon[0] : -90,
-                typeof lon[1] === 'number' ? lon[1] : 90,
-              ]}
-              onChange={(e, value) => this.handleSliderChange('lon', value)}
-              classes={{
-                valueLabel: classes.sliderValueLabel,
-                thumb: classes.sliderThumb,
-                markLabel: classes.markLabel,
-              }}
-              className={classes.slider}
-              disabled={Lon_Min === Lon_Max}
-              marks={[
-                {
-                  value: Math.floor(Lon_Min * 10) / 10,
-                  label: `${Math.floor(Lon_Min * 10) / 10}`,
-                },
-                {
-                  value: Math.ceil(Lon_Max * 10) / 10,
-                  label: `${Math.ceil(Lon_Max * 10) / 10}`,
-                },
-              ]}
-            />
-
-            {Depth_Max ? (
-              <>
-                <Grid container className={classes.formGrid}>
-                  <Grid item xs={12} md={4}>
-                    <Typography className={classes.formLabel}>
-                      Depth[m]
-                    </Typography>
-                  </Grid>
-
-                  <Grid item xs={6} md={4}>
-                    <TextField
-                      label="Start"
-                      type="number"
-                      inputProps={{
-                        min: Math.floor(Depth_Min),
-                        max: Math.ceil(Depth_Max),
-                        className: classes.input,
-                      }}
-                      InputLabelProps={{
-                        shrink: true,
-                      }}
-                      value={depth[0]}
-                      onChange={(e) =>
-                        this.handleSliderChange('depth', [
-                          e.target.value === '' ? '' : Number(e.target.value),
-                          depth[1],
-                        ])
-                      }
-                    />
-                  </Grid>
-
-                  <Grid item xs={6} md={4}>
-                    <TextField
-                      label="End"
-                      type="number"
-                      inputProps={{
-                        min: Math.floor(Depth_Min),
-                        max: Math.ceil(Depth_Max),
-                        className: classes.input,
-                      }}
-                      InputLabelProps={{
-                        shrink: true,
-                      }}
-                      value={depth[1]}
-                      onChange={(e) =>
-                        this.handleSliderChange('depth', [
-                          lat[0],
-                          e.target.value === '' ? '' : Number(e.target.value),
-                        ])
-                      }
-                    />
-                  </Grid>
-                </Grid>
-
-                <Slider
-                  min={Math.floor(Depth_Min)}
-                  max={Math.ceil(Depth_Max)}
-                  value={[
-                    typeof depth[0] === 'number' ? depth[0] : -90,
-                    typeof depth[1] === 'number' ? depth[1] : 90,
-                  ]}
-                  onChange={(e, value) =>
-                    this.handleSliderChange('depth', value)
-                  }
-                  classes={{
-                    valueLabel: classes.sliderValueLabel,
-                    thumb: classes.sliderThumb,
-                    markLabel: classes.markLabel,
-                  }}
-                  className={classes.slider}
-                  marks={[
-                    {
-                      value: Math.floor(Depth_Min),
-                      label: `${Math.floor(Depth_Min)}`,
-                    },
-                    {
-                      value: Math.ceil(Depth_Max),
-                      label: `${Math.ceil(Depth_Max)}`,
-                    },
-                  ]}
-                />
-              </>
-            ) : (
-              ''
-            )}
-          </DialogContent>
-
-          <DialogActions style={{ marginTop: '8px' }}>
-            <Button onClick={handleClose}>Cancel</Button>
-
-            {subsetAvailable && (
-              <Button
-                onClick={() =>
-                  this.handleSubsetDownload(
-                    Table_Name,
-                    timeString1,
-                    timeString2,
-                    subsetLat1,
-                    subsetLat2,
-                    subsetLon1,
-                    subsetLon2,
-                    subsetDepth1,
-                    subsetDepth2,
-                  )
-                }
-              >
-                Download Subset
-              </Button>
-            )}
-
-            {fullDatasetAvailable && (
-              <Button
-                onClick={() => this.handleFullDatasetDownload(Table_Name)}
-              >
-                Download Full Dataset
-              </Button>
-            )}
-          </DialogActions>
-        </Dialog>
-      </React.Fragment>
-    );
-  }
-}
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(withStyles(styles)(DownloadDialog));
+export default withStyles(styles)(DownloadDialog2);

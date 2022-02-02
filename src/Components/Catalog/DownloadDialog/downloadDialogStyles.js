@@ -9,6 +9,9 @@ const styles = (theme) => ({
     },
     width: '60vw',
   },
+  dialogContent: {
+    padding: '0px 40px'
+  },
   sliderValueLabel: {
     top: -22,
     '& *': {
