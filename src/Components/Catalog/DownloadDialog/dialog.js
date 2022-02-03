@@ -1,11 +1,19 @@
 // Pop-up dialog for downloading data on catalog pages
-import { Dialog, DialogActions, DialogContent } from '@material-ui/core';
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  Button,
+} from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import temporalResolutions from '../../../enums/temporalResolutions';
 import { csvDownloadRequestSend } from '../../../Redux/actions/visualization';
 import DateSubsetControl from './DateSubsetControl';
+import LatitudeSubsetControl from './LatitudeSubsetControl';
+import LongitudeSubsetControl from './LongitudeSubsetControl';
+import DepthSubsetControl from './DepthSubsetControl';
 import {
   dayToDate,
   getInitialRangeValues,
@@ -130,15 +138,42 @@ const DownloadDialog2 = (props) => {
             dataset={dataset}
             setTimeStart={setTimeStart}
             setTimeEnd={setTimeEnd}
-            state={{ timeStart, timeEnd, maxDays }}
+            subsetState={{ timeStart, timeEnd, maxDays }}
           />
 
-          <LatitudeSubsetControl />
-          <LongitudeSubsetControl />
-          <DepthSubsetControl />
+          <LatitudeSubsetControl
+            dataset={dataset}
+            setLatStart={setLatStart}
+            setLatEnd={setLatEnd}
+            subsetState={{ latStart, latEnd }}
+          />
+
+          <LongitudeSubsetControl
+            dataset={dataset}
+            setLatStart={setLonStart}
+            setLatEnd={setLonEnd}
+            subsetState={{ lonStart, lonEnd }}
+          />
+
+          <DepthSubsetControl
+            dataset={dataset}
+            setLatStart={setDepthStart}
+            setLatEnd={setDepthEnd}
+            subsetState={{ depthStart, depthEnd }}
+          />
         </DialogContent>
+
         <DialogActions>
-          <Execution />
+          <Button onClick={handleClose}>Cancel</Button>
+          <Button disabled={!subsetAvailable} onClick={handleSubsetDownload}>
+            Download Subset
+          </Button>
+          <Button
+            disabled={!fullDatasetAvailable}
+            onClick={handleFullDatasetDownload}
+          >
+            Download Full Dataset
+          </Button>
         </DialogActions>
       </Dialog>
     </div>

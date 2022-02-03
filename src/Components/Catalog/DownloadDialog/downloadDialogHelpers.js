@@ -38,7 +38,7 @@ export const makeSubsetQuery = (selection) => {
     `lat between ${latStart} and ${latEnd} and ` +
     `lon between ${lonStart} and ${lonEnd}`;
 
-  if (Boolean(this.props.dataset.Depth_Max)) {
+  if (Boolean(depthEnd)) {
     query += ` and depth between ${depthStart} and ${depthEnd}`;
   }
 

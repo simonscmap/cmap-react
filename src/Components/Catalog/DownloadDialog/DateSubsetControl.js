@@ -10,9 +10,9 @@ import {
 import styles from './downloadDialogStyles';
 
 const MonthlyDateControl = withStyles(styles)((props) => {
-  let { classes, state, setTimeStart, setTimeEnd } = props;
+  let { classes, subsetState, setTimeStart, setTimeEnd } = props;
 
-  let { timeStart, timeEnd } = state;
+  let { timeStart, timeEnd } = subsetState;
 
   // handler for the slider
   let handleSlider = (e, value) => {
@@ -107,9 +107,9 @@ const MonthlyDateControl = withStyles(styles)((props) => {
 });
 
 const DailyDateControl = withStyles(styles)((props) => {
-  let { classes, dataset, state, setTimeStart, setTimeEnd } = props;
+  let { classes, dataset, subsetState, setTimeStart, setTimeEnd } = props;
   let { Time_Min } = dataset;
-  let { timeStart, timeEnd, maxDays } = state;
+  let { timeStart, timeEnd, maxDays } = subsetState;
 
   // handler for the date picker
   let handleSetStartDate = (e) => {
@@ -135,8 +135,8 @@ const DailyDateControl = withStyles(styles)((props) => {
     setTimeEnd(newEndDay);
   };
 
-  let handleSlider = (e) => {
-    let [start, end] = e.target.value;
+  let handleSlider = (e, value) => {
+    let [start, end] = value;
     setTimeStart(start);
     setTimeEnd(end);
   };
@@ -206,6 +206,8 @@ const DailyDateControl = withStyles(styles)((props) => {
   );
 });
 
+// render a different date control depending on
+// whether the dataset is monthly climatology
 const DateSubsetControl = (props) => {
   let { dataset } = props;
   let isMonthlyClimatology = getIsMonthlyClimatology(
