@@ -17,6 +17,8 @@ export const makeSubsetQuery = (selection) => {
     latEnd,
     timeStart,
     timeEnd,
+    Time_Max,
+    Time_Min,
     depthStart,
     depthEnd,
   } = selection;
@@ -28,10 +30,10 @@ export const makeSubsetQuery = (selection) => {
   // convert to 1-indexed month, if unit of time is month
   const _timeStart = isMonthyClimatology
     ? new Date(timeStart).getMonth() + 1
-    : timeStart;
+    : dayToDate(Time_Min, timeStart);
   const _timeEnd = isMonthyClimatology
     ? new Date(timeEnd).getMonth() + 1
-    : timeEnd;
+    : dayToDate(Time_Max, timeEnd);
   // + 'T23:59:59Z'
   let query =
     `select * from ${tableName} where ${timeUnit} between '${_timeStart}' and '${_timeEnd}' and ` +
@@ -110,7 +112,11 @@ export const ensureDateIsWithinInitialBounds = (date, min, max) => {
 
 // used by start and end date setting events
 // initial min/max dates are those provided by dataset
-export const getBoundedDateValueFromClickEvent = (clickEvent, initialMin, initialMax) => {
+export const getBoundedDateValueFromClickEvent = (
+  clickEvent,
+  initialMin,
+  initialMax,
+) => {
   if (!clickEvent.target.value) {
     console.error(`no value in event; expected a string representing a date`);
     return;
@@ -120,7 +126,11 @@ export const getBoundedDateValueFromClickEvent = (clickEvent, initialMin, initia
   let targetDate = extractDateFromString(clickEvent.target.value);
 
   // calculate new target start date
-  let target = ensureDateIsWithinInitialBounds(targetDate, initialMin, initialMax);
+  let target = ensureDateIsWithinInitialBounds(
+    targetDate,
+    initialMin,
+    initialMax,
+  );
 
   return target;
 };
@@ -242,6 +252,26 @@ export const getSubsetDataPointsCount = (parsedDataset, state) => {
   );
 
   return [subsetDataPoints, totalDataPoints];
+};
+
+export const getDownloadAvailabilites = (dataset, subsetState) => {
+  // calculations used to allow/disallow size of download
+  const [subsetDataPointsCount, totalDataPoints] = getSubsetDataPointsCount(
+    dataset,
+    subsetState,
+  );
+
+  // Magic numbers!
+  const fullDatasetAvailable = totalDataPoints < 20000000;
+  const subsetAvailable = subsetDataPointsCount <= 20000000;
+
+  const availabilities = {
+    fullDatasetAvailable,
+    subsetAvailable,
+    subsetDataPointsCount,
+  };
+
+  return availabilities;
 };
 
 // ensure that certain fields are expected parseable type

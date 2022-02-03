@@ -8,16 +8,14 @@ import {
 import { withStyles } from '@material-ui/core/styles';
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import temporalResolutions from '../../../enums/temporalResolutions';
 import { csvDownloadRequestSend } from '../../../Redux/actions/visualization';
 import DateSubsetControl from './DateSubsetControl';
 import LatitudeSubsetControl from './LatitudeSubsetControl';
 import LongitudeSubsetControl from './LongitudeSubsetControl';
 import DepthSubsetControl from './DepthSubsetControl';
 import {
-  dayToDate,
+  getDownloadAvailabilites,
   getInitialRangeValues,
-  getSubsetDataPointsCount,
   makeSubsetQuery,
   parseDataset,
 } from './downloadDialogHelpers';
@@ -39,6 +37,7 @@ const DownloadDialog2 = (props) => {
 
   let { maxDays, lat, lon, time, depth } = getInitialRangeValues(dataset);
 
+  // state for subset parameters
   let [latStart, setLatStart] = useState(lat.start);
   let [latEnd, setLatEnd] = useState(lat.end);
 
@@ -52,6 +51,8 @@ const DownloadDialog2 = (props) => {
   let [depthStart, setDepthStart] = useState(depth.start);
   let [depthEnd, setDepthEnd] = useState(depth.end);
 
+  // download handlers
+
   let handleFullDatasetDownload = (tableName) => {
     let query = `select%20*%20from%20${tableName}`;
     const fileName = dataset.Long_Name;
@@ -59,15 +60,24 @@ const DownloadDialog2 = (props) => {
   };
 
   let handleSubsetDownload = () => {
-    let { Table_Name, Long_Name, Temporal_Resolution } = dataset;
+    let {
+      Table_Name,
+      Long_Name,
+      Temporal_Resolution,
+      Time_Max,
+      Time_Min,
+    } = dataset;
+
     let query = makeSubsetQuery({
-      tableName: dataset.Table_Name,
-      temporalResolution: dataset.Temporal_Resolution,
+      tableName: Table_Name,
+      temporalResolution: Temporal_Resolution,
       lonStart,
       lonEnd,
       latStart,
       latEnd,
       timeStart,
+      Time_Max,
+      Time_Min,
       timeEnd,
       depthStart,
       depthEnd,
@@ -82,36 +92,16 @@ const DownloadDialog2 = (props) => {
     return <ErrorMessage description={error} />;
   }
 
-  const datasetIsMonthlyClimatology =
-    dataset.Temporal_Resolution === temporalResolutions.monthlyClimatology;
-
-  const [subsetDataPointsCount, totalDataPoints] = getSubsetDataPointsCount(
-    dataset,
-    {
-      lat: [latStart, latEnd],
-      lon: [lonStart, lonEnd],
-      time: [timeStart, timeEnd],
-      depth: [depthStart, depthEnd],
-    },
-  );
-
-  const fullDatasetAvailable = totalDataPoints < 20000000;
-  const subsetAvailable = subsetDataPointsCount <= 20000000;
-
-  const availability = {
-    fullDatasetAvailable,
-    subsetAvailable,
-    subsetDataPointsCount,
+  // calculations used to allow/disallow size of download
+  let subsetState = {
+    lat: [latStart, latEnd],
+    lon: [lonStart, lonEnd],
+    time: [timeStart, timeEnd],
+    depth: [depthStart, depthEnd],
   };
 
-  // these strings are for subset download
-  // they are turned into Date objects by the handler
-  const timeString1 = datasetIsMonthlyClimatology
-    ? time[0]
-    : dayToDate(time.start, timeStart);
-  const timeString2 = datasetIsMonthlyClimatology
-    ? time[1]
-    : dayToDate(time.start, timeEnd);
+  // calculate availabilities (uses magic numbers, see helper for implementation)
+  let availabilities = getDownloadAvailabilites(dataset, subsetState);
 
   return (
     <div id="data-download-dialog">
@@ -129,7 +119,7 @@ const DownloadDialog2 = (props) => {
           className={classes.dialogContent}
           classes={{ root: classes.dialogRoot }}
         >
-          <Availability availabilityStatus={availability} />
+          <Availability availabilityStatus={availabilities} />
 
           {/* Ancillary Data Step */}
           {/* Metadata */}
@@ -165,11 +155,11 @@ const DownloadDialog2 = (props) => {
 
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button disabled={!subsetAvailable} onClick={handleSubsetDownload}>
+          <Button disabled={!availabilities.subsetAvailable} onClick={handleSubsetDownload}>
             Download Subset
           </Button>
           <Button
-            disabled={!fullDatasetAvailable}
+            disabled={!availabilities.fullDatasetAvailable}
             onClick={handleFullDatasetDownload}
           >
             Download Full Dataset
