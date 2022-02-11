@@ -153,8 +153,8 @@ export const cartAddMultiple = (items) => ({
     }
 });
 
-export const fetchAncillaryDataSend = (tableName) => ({
-  type: catalogActionTypes.FETCH_ANCILLARY_DATA_SEND,
+export const fetchColocalizedDatasetListSend = (tableName) => ({
+  type: catalogActionTypes.FETCH_TABLES_WITH_ANCILLARY_DATA_SEND,
   payload: {
     tableName
   }

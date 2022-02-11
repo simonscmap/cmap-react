@@ -19,7 +19,7 @@ import {
   CART_REMOVE_ITEM,
   CART_CLEAR,
   CART_ADD_MULTIPLE,
-  ANCILLARY_DATA_STORE,
+  TABLES_WITH_ANCILLARY_DATA_STORE,
 } from '../actionTypes/catalog';
 
 export default function (state, action) {
@@ -132,7 +132,7 @@ export default function (state, action) {
           ...action.payload.items,
         },
       };
-    case ANCILLARY_DATA_STORE:
+    case TABLES_WITH_ANCILLARY_DATA_STORE:
       return {
         ...state,
         tablesWithAncillaryData: action.payload.result

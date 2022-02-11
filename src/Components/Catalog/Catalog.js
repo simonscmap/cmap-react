@@ -1,7 +1,8 @@
 // Wrapper and layout for the catalog page
 import React, { useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import { withStyles, Grid } from '@material-ui/core';
+import { useSelector, useDispatch } from 'react-redux';
+import { withStyles } from '@material-ui/core';
+import { fetchColocalizedDatasetListSend } from '../../Redux/actions/catalog';
 
 import CatalogSearch from './CatalogSearch';
 import SearchResults from './SearchResults';
@@ -30,6 +31,9 @@ const styles = (theme) => ({
 });
 
 const Catalog = ({ classes }) => {
+  let dispatch = useDispatch();
+  dispatch(fetchColocalizedDatasetListSend());
+
   useEffect(() => {
     document.title = metaTags.catalog.title;
     document.description = metaTags.catalog.description;

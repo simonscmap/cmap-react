@@ -1296,9 +1296,32 @@ function* ingestCookies() {
   yield put(userActions.updateStateFromCookies(state));
 }
 
+// Ancillary Data
+
+function* fetchTablesWithAncillaryData() {
+  let data = yield select((state) => state.tablesWithAncillaryData);
+
+  // if not, fetch it
+  if (!data) {
+    console.log('fetching list of tables with ancillary data!');
+    let fetchedData = yield call(api.sqlQuery, `EXEC uspDatasetsWithAncillary`);
+
+    if (fetchedData) {
+      yield put({
+        type: catalogActionTypes.FETCH_TABLES_WITH_ANCILLARY_DATA_SUCCESS,
+        payload: fetchedData,
+      });
+    } else {
+      yield put({
+        type: catalogActionTypes.FETCH_TABLES_WITH_ANCILLARY_DATA_FAILURE,
+      });
+    }
+  }
+}
+
 function* storeAncillaryData({ payload }) {
   if (!Array.isArray(payload)) {
-    console.error('no payload for storeAncilliaryData');
+    console.error('no payload for storeAncilliaryData', payload);
     return;
   }
   let result = payload.reduce((accumulator, current) => {
@@ -1306,50 +1329,44 @@ function* storeAncillaryData({ payload }) {
     accumulator[Table_Name] = Dataset_Name;
     return accumulator;
   }, {});
-  yield put({ type: 'ANCILLARY_DATA_STORE', payload: { result } });
+  yield put({
+    type: catalogActionTypes.TABLES_WITH_ANCILLARY_DATA_STORE,
+    payload: { result },
+  });
 }
 
-function* fetchAncillaryData({ payload }) {
-  if (!payload) {
-    console.log('fetchAncillaryData: no payload');
-  } else {
-    console.log('fetchAncillaryData called with:', payload);
-  }
+// dont need this, just use CSV download request
+/* function* fetchAncillaryDataForDataset({ payload }) {
+ *   let tablesWithAncillaryData = yield select(
+ *     (state) => state.tablesWithAncillaryData,
+ *   );
+ *
+ *   if (!tablesWithAncillaryData[payload.tableName]) {
+ *     // this table doesnt have data to fetch
+ *     yield put({
+ *       type: catalogActionTypes.FETCH_ANCILLARY_DATA_FOR_DATASET_FAILURE,
+ *       payload: {
+ *         message: '',
+ *       },
+ *     });
+ *   } else {
+ *     // fetch data
+ *
+ *   }
+ *
+ * } */
 
-  // see if the lest of datasets is already cached
-  let data = yield select((state) => state.tablesWithAncillaryData);
-
-  // if not, fetch it
-  if (!data) {
-    console.log('no data! fetching again!');
-    data = yield call(api.sqlQuery, `EXEC uspDatasetsWithAncillary`);
-
-    // TODO else: put failure
-    yield put({
-      type: 'FETCH_ANCILLARY_DATA_SUCCESS',
-      payload: data,
-    });
-
-    // get the ancillary data for the requested dataset
-    if (data[payload.tableName]) {
-      console.log('table with ancillary data', payload.tableName);
-
-    } else {
-      console.log('no ancillary data for', payload.tableName);
-    }
-    // let ancillaryData = yield call(api.sqlQuery, SPROC);
-  }
-
-}
-
-function* watchAncillaryDataSuccess() {
-  yield takeLatest('FETCH_ANCILLARY_DATA_SUCCESS', storeAncillaryData);
-}
-
-function* watchFetchAncillaryData() {
+function* watchFetchTablesWithAncillaryData() {
   yield takeLatest(
-    catalogActionTypes.FETCH_ANCILLARY_DATA_SEND,
-    fetchAncillaryData,
+    catalogActionTypes.FETCH_TABLES_WITH_ANCILLARY_DATA_SEND,
+    fetchTablesWithAncillaryData,
+  );
+}
+
+function* watchFetchTablesWithAncillaryDataSuccess() {
+  yield takeLatest(
+    catalogActionTypes.FETCH_TABLES_WITH_ANCILLARY_DATA_SUCCESS,
+    storeAncillaryData,
   );
 }
 
@@ -1786,7 +1803,7 @@ export default function* rootSaga() {
     watchHandleGuestVisualization(),
     watchGuestTokenRequestSend(),
     watchIngestCookies(),
-    watchFetchAncillaryData(),
-    watchAncillaryDataSuccess(),
+    watchFetchTablesWithAncillaryData(),
+    watchFetchTablesWithAncillaryDataSuccess(),
   ]);
 }

@@ -10,6 +10,7 @@ import {
   Tooltip,
   Link,
   Button,
+  Chip,
 } from '@material-ui/core';
 import { ErrorOutline } from '@material-ui/icons';
 
@@ -24,9 +25,11 @@ import DownloadDialog from './DownloadDialog';
 import api from '../../api/api';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import { downloadMetadata } from './DownloadMetaData';
+import { useTableHasAncillaryData } from '../../Utility/Catalog/ancillaryData';
 
-const mapStateToProps = (state) => ({
-  cart: state.cart,
+const mapStateToProps = ({ cart, tablesWithAncillaryData }) => ({
+  cart,
+  tablesWithAncillaryData,
 });
 
 const mapDispatchToProps = {
@@ -147,7 +150,18 @@ const SearchResult = (props) => {
     Time_Min,
     Visualize,
     Spatial_Resolution,
+    Table_Name,
   } = dataset;
+
+  let datasetHasAncillaryData = useTableHasAncillaryData(Table_Name);
+
+  const AncillaryDataChip = () => {
+    if (datasetHasAncillaryData) {
+      return <Chip color="primary" size="small" label="Ancillary Data" />;
+    } else {
+      return '';
+    }
+  };
 
   const AddToCartButton = ({ dataset, customId }) => {
     return (
@@ -193,31 +207,37 @@ const SearchResult = (props) => {
 
   const DatasetTitleLink = () => {
     return index !== 0 ? (
-      <Link
-        component={RouterLink}
-        to={`/catalog/datasets/${Short_Name}`}
-        className={classes.longName}
-        onClick={() => props.setShowCart(false)}
-      >
-        {Long_Name}
-      </Link>
-    ) : (
-      <Hint
-        content={DatasetTitleHint}
-        styleOverride={{ beacon: { left: '-1.5em' } }}
-        position={{ beacon: 'left', hint: 'bottom-end' }}
-        size={'medium'}
-      >
+      <React.Fragment>
         <Link
           component={RouterLink}
           to={`/catalog/datasets/${Short_Name}`}
           className={classes.longName}
-          id="catalog-dataset-title-link"
           onClick={() => props.setShowCart(false)}
         >
           {Long_Name}
         </Link>
-      </Hint>
+        <AncillaryDataChip />
+      </React.Fragment>
+    ) : (
+      <React.Fragment>
+        <Hint
+          content={DatasetTitleHint}
+          styleOverride={{ beacon: { left: '-1.5em' } }}
+          position={{ beacon: 'left', hint: 'bottom-end' }}
+          size={'medium'}
+        >
+          <Link
+            component={RouterLink}
+            to={`/catalog/datasets/${Short_Name}`}
+            className={classes.longName}
+            id="catalog-dataset-title-link"
+            onClick={() => props.setShowCart(false)}
+          >
+            {Long_Name}
+          </Link>
+        </Hint>
+        <AncillaryDataChip />
+      </React.Fragment>
     );
   };
 
@@ -328,15 +348,17 @@ const SearchResult = (props) => {
               <span className={classes.bottomAlignedText}>Download Data</span>
             </Button>
 
-            <Button
-              onClick={onDownloadMetaClick}
-              className={classes.downloadLink}
-            >
-              <CloudDownloadIcon />
-              <span className={classes.bottomAlignedText}>
-                Download MetaData
-              </span>
-            </Button>
+            {false && (
+              <Button
+                onClick={onDownloadMetaClick}
+                className={classes.downloadLink}
+              >
+                <CloudDownloadIcon />
+                <span className={classes.bottomAlignedText}>
+                  Download MetaData
+                </span>
+              </Button>
+            )}
           </div>
         </Grid>
       </Paper>

@@ -1,16 +1,31 @@
 import colors from '../../../enums/colors';
 
 const styles = (theme) => ({
+  muiDialog: {
+    zIndex: '9999 !important',
+  },
+  dialogInnerWrapper: {
+    '@media (min-width: 1000px)': {
+      width: '900px',
+    },
+    '@media (min-height: 1000px)': {
+      height: '650px',
+    },
+  },
+  dialogTitle: {
+    padding: '16px 40px',
+  },
   dialogPaper: {
     backgroundColor: colors.solidPaper,
-    '@media (max-width: 600px)': {
-      width: '100vw',
-      margin: '12px',
-    },
-    width: '60vw',
   },
   dialogContent: {
-    padding: '0px 40px'
+    padding: '0px 40px 0 40px',
+  },
+  subsetStep: {
+    margin: '0 40px',
+    '@media (max-width: 600px)': {
+      margin: 0,
+    },
   },
   sliderValueLabel: {
     top: -22,
@@ -55,6 +70,11 @@ const styles = (theme) => ({
     float: 'right',
     marginTop: '-12px',
     marginRight: '-8px',
+  },
+  stepContent: {
+    // borderRadius: '.5em',
+    // border: '1px solid black',
+    // padding: '1em',
   },
 });
 

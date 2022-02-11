@@ -47,6 +47,50 @@ export const makeSubsetQuery = (selection) => {
   return query;
 };
 
+export const makeSubsetQueryWithAncillaryData = (selection) => {
+/*
+sproc template:
+[dbo].[uspAddAncillary] @tableName NVARCHAR(MAX),
+@dt1 NVARCHAR(MAX) = '', @dt2 NVARCHAR(MAX) = '',
+@lat1 NVARCHAR(MAX) = '', @lat2 NVARCHAR(MAX) = '',
+@lon1 NVARCHAR(MAX) = '', @lon2 NVARCHAR(MAX) = '',
+@depth1 NVARCHAR(MAX) = '', @depth2 NVARCHAR(MAX) = '',
+@CIP BIT = 0
+ */
+  let {
+    tableName,
+    temporalResolution,
+    lonStart,
+    lonEnd,
+    latStart,
+    latEnd,
+    timeStart,
+    timeEnd,
+    Time_Max,
+    Time_Min,
+    depthStart,
+    depthEnd,
+  } = selection;
+
+  let isMonthyClimatology = getIsMonthlyClimatology(temporalResolution);
+
+  // convert to 1-indexed month, if unit of time is month
+  const _timeStart = isMonthyClimatology
+    ? new Date(timeStart).getMonth() + 1
+    : dayToDate(Time_Min, timeStart);
+  const _timeEnd = isMonthyClimatology
+    ? new Date(timeEnd).getMonth() + 1
+    : dayToDate(Time_Max, timeEnd);
+
+  // NOTE: the CIP bit at the end is hard coded for the moment
+  // NOTE: the dates have to be quoted
+  let query = `EXEC uspAddAncillary '${tableName}', '${_timeStart}',` +
+              `'${_timeEnd}', ${latStart}, ${latEnd}, ${lonStart}, ${lonEnd},` +
+              `${depthStart}, ${depthEnd}, ${0}`;
+  // This query will be sent to /api/query via the csv download saga
+  return query;
+}
+
 // with the begin and end dates of a dataset,
 // calculate the span of days
 export const getMaxDays = (dataset) => {

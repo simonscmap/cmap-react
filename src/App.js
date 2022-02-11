@@ -19,6 +19,8 @@ import GlobalUIComponentWrapper from './Components/UI/GlobalUIComponentWrapper';
 import TopNavBar from './Components/UI/TopNavBar';
 import ErrorBoundary from './Components/UI/ErrorBoundary';
 
+import Test from './Components/ancillaryData';
+
 const ApiKeyManagement = lazy(() =>
   import('./Components/User/ApiKeyManagement'),
 );
@@ -51,8 +53,11 @@ const Probe = lazy(() => import('./Components/probe/Probe'));
 // Changes to default styles of MUI components
 const theme = createMuiTheme({
   typography: {
-    useNextVariants: true,
+    // useNextVariants: true,
     fontFamily: ['"Lato"', 'sans-serif'].join(','),
+    body1: {
+
+    },
   },
 
   palette: {
@@ -87,7 +92,7 @@ const theme = createMuiTheme({
       md: 1020,
       lg: 1280,
       xl: 1920,
-    }
+    },
   },
 
   overrides: {
@@ -107,8 +112,8 @@ const theme = createMuiTheme({
           backgroundColor: '#9dd162',
           '&:hover': {
             backgroundColor: '#9dd162',
-          }
-        }
+          },
+        },
       },
     },
 
@@ -166,7 +171,7 @@ const theme = createMuiTheme({
         fontSize: '.8em',
       },
       arrow: {
-        color: '#9dd162'
+        color: '#9dd162',
       },
       popper: {
         zIndex: z.TOOLTIP,
@@ -229,6 +234,24 @@ const theme = createMuiTheme({
           margin: 0,
         },
       },
+    },
+
+    MuiChip: {
+      sizeSmall: {
+        height: '18px'
+      }
+    },
+
+    MuiSwitch: {
+      root: {
+        color: colors.primary
+      }
+    },
+
+    MuiStepper: {
+      root: {
+        background: 'none',
+      }
     },
 
     MuiDialogTitle: {
@@ -323,8 +346,10 @@ class App extends Component {
                     <Route exact path="/forgotpass">
                       <ForgotPass />
                     </Route>
-                    <Route path="/datasubmission" component={DataSubmission}>
-                    </Route>
+                    <Route
+                      path="/datasubmission"
+                      component={DataSubmission}
+                    ></Route>
                     <Route path="/choosepassword">
                       <ChoosePassword />
                     </Route>
@@ -337,13 +362,18 @@ class App extends Component {
                     <Route path="/catalog/searchresults">
                       <SearchResults />
                     </Route>
-                    <Route path="/catalog/datasets/:dataset" component={DatasetFullPage}>
-                    </Route>
-                    <Route path="/catalog/cruises/:cruiseName" component={CruiseFullPage}>
-                    </Route>
-                    <Route exact path="/sample">
+                    <Route
+                      path="/catalog/datasets/:dataset"
+                      component={DatasetFullPage}
+                    ></Route>
+                    <Route
+                      path="/catalog/cruises/:cruiseName"
+                      component={CruiseFullPage}
+                    ></Route>
+                    <Route exact path="/sample/">
                       <Probe />
                     </Route>
+                    <Route exact path="/test"><Test /></Route>
                   </Switch>
                 </Suspense>
               </BrowserRouter>
