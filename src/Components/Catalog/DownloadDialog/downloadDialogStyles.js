@@ -1,16 +1,19 @@
 import colors from '../../../enums/colors';
 
 const styles = (theme) => ({
+  accordionDetails: {
+   display: 'table-row',
+  },
   muiDialog: {
     zIndex: '9999 !important',
   },
   dialogInnerWrapper: {
-    '@media (min-width: 1000px)': {
-      width: '900px',
-    },
-    '@media (min-height: 1000px)': {
-      height: '650px',
-    },
+    // '@media (min-width: 1000px)': {
+    //  width: '900px',
+    // },
+    // '@media (min-height: 1000px)': {
+    //  height: '650px',
+    // },
   },
   dialogTitle: {
     padding: '16px 40px',
@@ -26,6 +29,7 @@ const styles = (theme) => ({
     '@media (max-width: 600px)': {
       margin: 0,
     },
+    height: '420px',
   },
   sliderValueLabel: {
     top: -22,

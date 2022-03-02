@@ -228,7 +228,7 @@ export const getLatRatio = (parsedDataset, latRange) => {
 };
 
 export const getLonRatio = (parsedDataset, lonRange) => {
-  let { Lon_Max, Lon_Min } = parseDataset;
+  let { Lon_Max, Lon_Min } = parsedDataset;
   let [subsetLon1, subsetLon2] = lonRange;
   const totalLonSize = Lon_Max - Lon_Min || 1;
   const subsetLonSize = subsetLon2 - subsetLon1 || 1 / totalLonSize;
@@ -305,8 +305,9 @@ export const getDownloadAvailabilites = (dataset, subsetState) => {
     subsetState,
   );
 
+
   // Magic numbers!
-  const fullDatasetAvailable = totalDataPoints < 20000000;
+  const fullDatasetAvailable = totalDataPoints <= 20000000;
   const subsetAvailable = subsetDataPointsCount <= 20000000;
 
   const availabilities = {

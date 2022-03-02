@@ -7,7 +7,7 @@ const AvailabilityNote = ({ availabilityStatus }) => {
   let {
     fullDatasetAvailable,
     subsetAvailable,
-    subsetDataPointsCount,
+    // subsetDataPointsCount,
   } = availabilityStatus;
 
   let message;
@@ -32,7 +32,6 @@ const AvailabilityNote = ({ availabilityStatus }) => {
 };
 const DownloadStep = (props) => {
   let {
-    classes,
     availabilities,
     includeMetadata,
     includeAncillaryData,
@@ -50,12 +49,6 @@ const DownloadStep = (props) => {
 
   return (
     <React.Fragment>
-      <Typography variant="h5" style={{ margin: '0 0 20px 0' }}>
-        Available Data
-      </Typography>
-
-      <AvailabilityNote availabilityStatus={availabilities} />
-
       <Grid
         container
         spacing={2}

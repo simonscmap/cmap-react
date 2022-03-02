@@ -136,6 +136,10 @@ const DailyDateControl = withStyles(styles)((props) => {
   };
 
   let handleSlider = (e, value) => {
+    console.log('stop', e);
+
+    e.preventDefault();
+    e.stopPropagation();
     let [start, end] = value;
     setTimeStart(start);
     setTimeEnd(end);
@@ -178,30 +182,35 @@ const DailyDateControl = withStyles(styles)((props) => {
           />
         </Grid>
       </Grid>
-
       {/* NOTE: to make this a dual slider, pass a tuple as the "value" attribute */}
-      <Slider
-        min={0}
-        max={maxDays}
-        value={[timeStart, timeEnd]}
-        onChange={handleSlider}
-        classes={{
-          valueLabel: classes.sliderValueLabel,
-          thumb: classes.sliderThumb,
-          markLabel: classes.markLabel,
-        }}
-        className={classes.slider}
-        marks={[
-          {
-            value: 0,
-            label: dayToDate(Time_Min, 0),
-          },
-          {
-            value: maxDays,
-            label: dayToDate(Time_Min, maxDays),
-          },
-        ]}
-      />
+      <div
+        onClick={(e) => e.stopPropagation()}
+        onChange={(e) => e.stopPropagation()}
+      >
+        <Slider
+          min={0}
+          max={maxDays}
+          value={[timeStart, timeEnd]}
+          onChange={handleSlider}
+          classes={{
+            valueLabel: classes.sliderValueLabel,
+            thumb: classes.sliderThumb,
+            markLabel: classes.markLabel,
+          }}
+          className={classes.slider}
+          marks={[
+            {
+              value: 0,
+              label: dayToDate(Time_Min, 0),
+            },
+            {
+              value: maxDays,
+              label: dayToDate(Time_Min, maxDays),
+            },
+          ]}
+        />
+      </div>
+
     </React.Fragment>
   );
 });

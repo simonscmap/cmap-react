@@ -236,6 +236,12 @@ const theme = createMuiTheme({
       },
     },
 
+    MuiAccordionDetails: {
+      root: {
+        display: 'block',
+      },
+    },
+
     MuiChip: {
       sizeSmall: {
         height: '18px'
