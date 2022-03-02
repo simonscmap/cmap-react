@@ -1,53 +1,64 @@
 import React, { useState } from 'react';
-import { withStyles, Link } from '@material-ui/core';
+import { withStyles, Link, Button } from '@material-ui/core';
 import ResizeObserver from 'react-resize-observer';
 import Drawer from '@material-ui/core/Drawer';
 import docLinks from './doc-links';
-import IconButton from '@material-ui/core/IconButton';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import Fab from '@material-ui/core/Fab';
 import TreeView from '@material-ui/lab/TreeView';
 import TreeItem from '@material-ui/lab/TreeItem';
 import MuiAccordion from '@material-ui/core/Accordion';
 import MuiAccordionSummary from '@material-ui/core/AccordionSummary';
 import MuiAccordionDetails from '@material-ui/core/AccordionDetails';
 import Typography from '@material-ui/core/Typography';
-
+import clsx from 'clsx';
 let drawerWidth = 240;
 
 let styles = (theme) => ({
   docsWrapper: {
-    margin: '80px 0 0 0',
+    margin: `80px 0 0 ${theme.spacing(7) + 1}px`,
     color: 'white',
+    textAlign: 'left',
   },
   link: {
     fontSize: '1.5em',
   },
   bookmarkOpen: {
-    position: 'absolute',
-    top: '90px',
-    left: '0',
-    zIndex: 99999,
+    zIndex: 8000,
+    cursor: 'pointer',
+    display: 'flex',
+    alignContent: 'center',
+    margin: '80px auto 0 auto',
   },
   bookmarkClosed: {
     position: 'absolute',
     visibility: 'hidden',
   },
-
-  drawer: {
-    width: drawerWidth,
-    flexShrink: 0,
-  },
-  drawerPaper: {
-    width: drawerWidth,
+  drawerOpen: {
     backgroundColor: '#1F4A63',
+    width: drawerWidth,
+    transition: theme.transitions.create('width', {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  },
+  drawerClose: {
+    backgroundColor: '#1F4A63',
+    transition: theme.transitions.create('width', {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    overflowX: 'hidden',
+    width: theme.spacing(7) + 1,
+    [theme.breakpoints.up('sm')]: {
+      width: theme.spacing(9) + 1,
+    },
   },
 
   drawerHeader: {
     display: 'flex',
-    margin: '180px 0 0 0',
+    margin: '1em 0 0 0',
     alignItems: 'start',
     justifyContent: 'flex-start',
     flexDirection: 'column',
@@ -56,8 +67,6 @@ let styles = (theme) => ({
     height: 240,
     flexGrow: 1,
     maxWidth: 400,
-  },
-  treeRoot: {
     border: '1px solid rgba(0, 0, 0, .125)',
     boxShadow: 'none',
     '&:not(:last-child)': {
@@ -114,24 +123,38 @@ const AccordionDetails = withStyles((theme) => ({
   },
 }))(MuiAccordionDetails);
 
-const data = {
+const pythonTree = {
   id: 'root',
-  name: 'Parent',
+  name: 'Python Package',
   children: [
     {
       id: '1',
-      name: 'Child - 1',
+      name: 'Installation',
+      link: 'https://cmap.readthedocs.io/en/latest/user_guide/API_ref/pycmap_api/pycmap_install.html',
     },
     {
-      id: '3',
-      name: 'Child - 3',
+      id: '2',
+      name: 'Data Retrieval',
       children: [
         {
           id: '4',
-          name: 'Child - 4',
+          name: 'API',
+          link: '',
         },
+        {
+          id: '5',
+          name: 'Query',
+          link: '',
+        }
       ],
     },
+    {
+      id: '3',
+      name: 'Data Visualization',
+      children: [
+
+      ],
+    }
   ],
 };
 const Docs = (props) => {
@@ -140,7 +163,7 @@ const Docs = (props) => {
     window.innerWidth,
   );
 
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(true);
   const [pkgTarget, setPkgTarget] = useState('py');
 
   let onResize = (rect) => {
@@ -168,31 +191,51 @@ const Docs = (props) => {
 
   let accordionChange = () => {};
 
-  const renderTree = (nodes) => (
-    <TreeItem key={nodes.id} nodeId={nodes.id} label={nodes.name}>
+  let handlePySelect = (event, nodes) => {
+    console.log(`select ${event.target} [ ${nodes} ]`);
+  };
+
+  let handlePyToggle = (e, v) => {
+    console.log(e, v);
+  };
+
+  let handlePyClick = (node) => {
+    console.log('click', node.id, node.name);
+  }
+
+  const renderTree = (nodes) => {
+    return (
+    <TreeItem key={nodes.id} nodeId={nodes.id} label={nodes.name} onClick={() => handlePyClick(nodes)}>
       {Array.isArray(nodes.children)
         ? nodes.children.map((node) => renderTree(node))
         : null}
     </TreeItem>
-  );
+    );
+  }
 
   return (
     <div className={classes.docsWrapper}>
       <ResizeObserver onResize={onResize}></ResizeObserver>
 
-      <div className={classes.bookmarkOpen}>
-        <Fab color="primary" onClick={handleToggleDrawer}>
-          {open ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-        </Fab>
-      </div>
-
       <Drawer
-        className={classes.drawer}
         open={open}
-        variant="persistent"
+        variant="permanent"
         anchor="left"
-        classes={{ paper: classes.drawerPaper }}
+        className={clsx(classes.drawer, {
+          [classes.drawerOpen]: open,
+          [classes.drawerClose]: !open,
+        })}
+        classes={{
+          paper: clsx({
+            [classes.drawerOpen]: open,
+            [classes.drawerClose]: !open,
+          }),
+        }}
       >
+        <div className={classes.bookmarkOpen} onClick={handleToggleDrawer}>
+          {open ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+        </div>
+
         <div className={classes.drawerHeader}>
           <Accordion
             square
@@ -210,8 +253,10 @@ const Docs = (props) => {
                 defaultCollapseIcon={<ExpandMoreIcon />}
                 defaultExpanded={['root']}
                 defaultExpandIcon={<ChevronRightIcon />}
+                onNodeSelect={handlePySelect}
+                onNodeToggle={handlePyToggle}
               >
-                {renderTree(data)}
+                {renderTree(pythonTree)}
               </TreeView>
             </AccordionDetails>
           </Accordion>
