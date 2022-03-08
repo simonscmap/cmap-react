@@ -5,7 +5,7 @@ const styles = (theme) => ({
    display: 'table-row',
   },
   muiDialog: {
-    zIndex: '9999 !important',
+    zIndex: '9800 !important',
   },
   dialogInnerWrapper: {
     // '@media (min-width: 1000px)': {

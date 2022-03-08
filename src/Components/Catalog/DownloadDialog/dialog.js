@@ -5,11 +5,8 @@ import {
   DialogActions,
   DialogContent,
   Button,
-  useMediaQuery,
-  Switch,
-  FormControlLabel,
 } from '@material-ui/core';
-import { withStyles, useTheme } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core/styles';
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { csvDownloadRequestSend } from '../../../Redux/actions/visualization';
@@ -29,19 +26,12 @@ import ErrorMessage from './ErrorMessage';
 import { DownloadDialogTitle } from './Header';
 import { useTableHasAncillaryData } from '../../../Utility/Catalog/ancillaryData';
 import { DownloadIntro } from './Intro';
-import AncillaryDataDownload from './AncillaryDataDownload';
-import DownloadMetadata from './MetadataDownload';
+import { AncillaryDataExplainer } from './AncillaryDataDownload';
 import useDownloadMetadata from './useDownloadMetadata';
-import DownloadFull from './DownloadFull';
-import DownloadSubset from './DownloadSubset';
+import DownloadOption from './DownloadOption';
+import DownloadStep from './DownloadStep';
 
 const DownloadDialog2 = (props) => {
-  // detect small screen
-  let theme = useTheme();
-  let isMdOrSmaller = useMediaQuery(theme.breakpoints.down('md'));
-  let isShort = window.innerHeight < 1000;
-  let dialogShouldBeFullScreen = isMdOrSmaller || isShort;
-
   let { dataset: rawDataset, dialogOpen, handleClose, classes } = props;
 
   // parse dataset
@@ -50,7 +40,7 @@ const DownloadDialog2 = (props) => {
   try {
     dataset = parseDataset(rawDataset);
   } catch (e) {
-    console.log(e);
+    console.log(`error parsing dataset`, e);
     error = e;
   }
 
@@ -67,27 +57,12 @@ const DownloadDialog2 = (props) => {
   let [lonStart, setLonStart] = useState(lon.start);
   let [lonEnd, setLonEnd] = useState(lon.end);
 
-  // time is representes as an integer day, 0 - 12
+  // time is represented as an integer day, 0 - 12
   let [timeStart, setTimeStart] = useState(time.start);
   let [timeEnd, setTimeEnd] = useState(time.end);
 
-  console.log(depth.start);
   let [depthStart, setDepthStart] = useState(depth.start);
   let [depthEnd, setDepthEnd] = useState(depth.end);
-
-  let subsetIsNotTheSameAsDataset =
-    depthStart !== depth.start ||
-    depthEnd !== depth.end ||
-    timeStart !== time.start ||
-    timeEnd !== time.end ||
-    lonStart !== lon.start ||
-    lonEnd !== lon.end ||
-    latStart !== lat.start ||
-    latEnd !== lat.end;
-
-  let [openSubsetControls, setOpenSubsetControls] = useState({
-    openSubset: false,
-  });
 
   // download handlers
 
@@ -129,6 +104,7 @@ const DownloadDialog2 = (props) => {
   };
 
   let handleSubsetWithAncillaryDataDownload = () => {
+    console.log('handle subset with ancillary data download');
     let {
       Table_Name,
       Long_Name,
@@ -173,6 +149,23 @@ const DownloadDialog2 = (props) => {
     console.log(availabilities);
   }
 
+  // download options (Mui Switch state)
+
+  const [optionsState, setDownloadOptions] = useState({
+    ancillaryData: datasetHasAncillaryData,
+    subset: false,
+    // TODO: add metadata switch (when we provide zip archive of data & metadata)
+  });
+
+  const handleSwitch = (event) => {
+    setDownloadOptions({
+      ...optionsState,
+      [event.target.name]: event.target.checked,
+    });
+  };
+
+  // subset controls
+
   let SubsetControls = () => {
     /* let message;
      * if (availabilities.fullDatasetAvailable) {
@@ -191,25 +184,20 @@ const DownloadDialog2 = (props) => {
 
     return (
       <React.Fragment>
-        <FormControlLabel
-          control={
-            <Switch
-              checked={openSubsetControls.openSubset}
-              onChange={(event) =>
-                setOpenSubsetControls({
-                  openSubset: !openSubsetControls.openSubset,
-                })
-              }
-              name="openSubset"
-              color="primary"
-            />
+        <DownloadOption
+          downloadOption={{
+            handler: handleSwitch,
+            switchState: optionsState.subset,
+            name: 'subset',
+            label: 'Define Subset',
+          }}
+          description={
+            'Define a subset of the data for download by specifying time, lat, lon, and depth parameters.'
           }
-          label="Subset Controls"
         />
-        <Collapse in={openSubsetControls.openSubset}>
-          <div
-            className={classes.subsetStep}
-          >
+
+        <Collapse in={optionsState.subset}>
+          <div className={classes.subsetStep}>
             <DateSubsetControl
               dataset={dataset}
               setTimeStart={setTimeStart}
@@ -249,16 +237,18 @@ const DownloadDialog2 = (props) => {
     return <ErrorMessage description={error} />;
   }
 
+  let dialogWidth = 'lg'; // https://v4.mui.com/components/dialogs/#optional-sizes
+
   return (
     <Dialog
-      fullScreen={dialogShouldBeFullScreen}
+      fullScreen={false}
       className={classes.muiDialog}
       PaperProps={{
         className: classes.dialogPaper,
       }}
       open={dialogOpen}
       onClose={handleClose}
-      maxWidth={false}
+      maxWidth={dialogWidth}
     >
       <DownloadDialogTitle longName={dataset.Long_Name} />
 
@@ -272,22 +262,16 @@ const DownloadDialog2 = (props) => {
               longName={dataset.Long_Name}
               availabilityStatus={availabilities}
             />
-            <DownloadFull
-              handleFullDatasetDownload={handleFullDatasetDownload}
-            />
 
-            <DownloadMetadata downloadMetadata={downloadMetadata} />
-
-            <AncillaryDataDownload
-              datasetHasAncillaryData={datasetHasAncillaryData}
-              handleSubsetWithAncillaryDataDownload={
-                handleSubsetWithAncillaryDataDownload
-              }
-            />
-
-            <DownloadSubset
-              handleSubsetDownload={handleSubsetDownload}
-              isDefined={subsetIsNotTheSameAsDataset}
+            <DownloadOption
+              downloadOption={{
+                handler: handleSwitch,
+                switchState: optionsState.ancillaryData,
+                name: 'ancillaryData',
+                label: 'Ancillary Data',
+                disabled: !datasetHasAncillaryData,
+              }}
+              description={ <AncillaryDataExplainer hasAncillaryData={datasetHasAncillaryData} />}
             />
 
             <SubsetControls />
@@ -295,6 +279,16 @@ const DownloadDialog2 = (props) => {
         </DialogContent>
       </div>
       <DialogActions>
+        <DownloadStep
+          handlers={{
+            downloadMetadata,
+            handleSubsetDownload,
+            handleSubsetWithAncillaryDataDownload,
+          }}
+          options={{
+            includeAncillaryData: optionsState.ancillaryData,
+          }}
+        />
         <Button onClick={handleClose}>Cancel</Button>
       </DialogActions>
     </Dialog>

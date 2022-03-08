@@ -1,7 +1,7 @@
 import React from 'react';
 import DownloadTemplate from './DownloadTemplate';
 
-const DownloadSubset = (props) => {
+const DownloadSubset (props) => {
   let { handleSubsetDownload, isDefined } = props;
 
   let dlAction = {
