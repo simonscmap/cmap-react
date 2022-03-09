@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { withStyles, Link, Button } from '@material-ui/core';
+import React, { useState, useEffect } from 'react';
+import { withStyles, Link, ClickAwayListener } from '@material-ui/core';
 import ResizeObserver from 'react-resize-observer';
 import Drawer from '@material-ui/core/Drawer';
 import docLinks from './doc-links';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import LaunchIcon from '@material-ui/icons/Launch';
 import TreeView from '@material-ui/lab/TreeView';
 import TreeItem from '@material-ui/lab/TreeItem';
 import MuiAccordion from '@material-ui/core/Accordion';
@@ -13,30 +14,34 @@ import MuiAccordionSummary from '@material-ui/core/AccordionSummary';
 import MuiAccordionDetails from '@material-ui/core/AccordionDetails';
 import Typography from '@material-ui/core/Typography';
 import clsx from 'clsx';
-let drawerWidth = 240;
+import { pythonTree } from './python-tree';
+import { rTree } from './r-tree';
+
+let drawerWidth = 300;
 
 let styles = (theme) => ({
   docsWrapper: {
-    margin: `80px 0 0 ${theme.spacing(7) + 1}px`,
+    margin: `68px 0 0 ${theme.spacing(7) + 18}px`,
     color: 'white',
     textAlign: 'left',
   },
   link: {
-    fontSize: '1.5em',
+    fontSize: '1.2em',
   },
-  bookmarkOpen: {
+  externalLink: {
+    fontSize: '1.1em',
+    // paddingLeft: '1em',
+  },
+  spacer: {
     zIndex: 8000,
     cursor: 'pointer',
     display: 'flex',
     alignContent: 'center',
-    margin: '80px auto 0 auto',
-  },
-  bookmarkClosed: {
-    position: 'absolute',
-    visibility: 'hidden',
+    margin: '52px auto 0 auto',
   },
   drawerOpen: {
     backgroundColor: '#1F4A63',
+    borderRight: '4px solid #143445',
     width: drawerWidth,
     transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,
@@ -50,12 +55,11 @@ let styles = (theme) => ({
       duration: theme.transitions.duration.leavingScreen,
     }),
     overflowX: 'hidden',
-    width: theme.spacing(7) + 1,
+    width: theme.spacing(9) + 1,
     [theme.breakpoints.up('sm')]: {
       width: theme.spacing(9) + 1,
     },
   },
-
   drawerHeader: {
     display: 'flex',
     margin: '1em 0 0 0',
@@ -78,6 +82,18 @@ let styles = (theme) => ({
     '&$expanded': {
       margin: 'auto',
     },
+  },
+  treeItem: {
+    paddingBottom: '.3em',
+  },
+  linkContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  warning: {
+    fontStyle: 'italic',
   },
 });
 
@@ -103,7 +119,7 @@ const AccordionSummary = withStyles({
     backgroundColor: 'rgba(0, 0, 0, .03)',
     borderBottom: '1px solid rgba(0, 0, 0, .125)',
     marginBottom: -1,
-    width: '240px',
+    width: `${drawerWidth - 32}px`,
     minHeight: 56,
     '&$expanded': {
       minHeight: 56,
@@ -120,107 +136,83 @@ const AccordionSummary = withStyles({
 const AccordionDetails = withStyles((theme) => ({
   root: {
     padding: theme.spacing(2),
+    width: '100%',
   },
 }))(MuiAccordionDetails);
 
-const pythonTree = {
-  id: 'root',
-  name: 'Python Package',
-  children: [
-    {
-      id: '1',
-      name: 'Installation',
-      link: 'https://cmap.readthedocs.io/en/latest/user_guide/API_ref/pycmap_api/pycmap_install.html',
-    },
-    {
-      id: '2',
-      name: 'Data Retrieval',
-      children: [
-        {
-          id: '4',
-          name: 'API',
-          link: '',
-        },
-        {
-          id: '5',
-          name: 'Query',
-          link: '',
-        }
-      ],
-    },
-    {
-      id: '3',
-      name: 'Data Visualization',
-      children: [
-
-      ],
-    }
-  ],
-};
 const Docs = (props) => {
   let { classes } = props;
   let [innerAccordionWidth, setInnerAccordionWidth] = useState(
     window.innerWidth,
   );
 
+  // sidebar open or retracted
   const [open, setOpen] = React.useState(true);
+
+  let drawerLostFocus = (e) => {
+    if (open) {
+      setTimeout(setOpen, 900, false);
+    }
+  };
+
+  let drawerGetsFocus = () => {
+    if (!open) {
+      setOpen(true);
+    }
+  };
+
+  // which doc package is open (only one at a time)
   const [pkgTarget, setPkgTarget] = useState('py');
+  const [iFrameURL, setIFrameURL] = useState();
 
   let onResize = (rect) => {
     let { width } = rect;
     setInnerAccordionWidth(width - 20);
   };
 
-  let handleToggleDrawer = () => {
-    setOpen(!open);
-  };
-
-  let handleDrawerOpen = () => {
-    setOpen(true);
-  };
-
-  let handleDrawerClose = () => {
-    setOpen(false);
-  };
-
   let setPackage = (target) => {
     return () => {
+      // TODO set iFrameURL to root link for package
       setPkgTarget(target);
     };
   };
 
   let accordionChange = () => {};
 
-  let handlePySelect = (event, nodes) => {
-    console.log(`select ${event.target} [ ${nodes} ]`);
-  };
-
-  let handlePyToggle = (e, v) => {
-    console.log(e, v);
-  };
-
   let handlePyClick = (node) => {
-    console.log('click', node.id, node.name);
-  }
+    setIFrameURL(node.link);
+    console.log(pkgTarget, node);
+  };
 
   const renderTree = (nodes) => {
     return (
-    <TreeItem key={nodes.id} nodeId={nodes.id} label={nodes.name} onClick={() => handlePyClick(nodes)}>
-      {Array.isArray(nodes.children)
-        ? nodes.children.map((node) => renderTree(node))
-        : null}
-    </TreeItem>
+      <TreeItem
+        key={nodes.id}
+        nodeId={nodes.id}
+        label={nodes.name}
+        onClick={() => handlePyClick(nodes)}
+        className={classes.treeItem}
+      >
+        {Array.isArray(nodes.children)
+          ? nodes.children.map((node) => renderTree(node))
+          : null}
+      </TreeItem>
     );
-  }
+  };
+
+  let LinkContainer = ({ children }) => (
+    <div className={classes.linkContainer}>{children}</div>
+  );
 
   return (
     <div className={classes.docsWrapper}>
       <ResizeObserver onResize={onResize}></ResizeObserver>
-
       <Drawer
         open={open}
         variant="permanent"
         anchor="left"
+        onMouseLeave={drawerLostFocus}
+        onMouseEnter={drawerGetsFocus}
         className={clsx(classes.drawer, {
           [classes.drawerOpen]: open,
           [classes.drawerClose]: !open,
@@ -232,9 +224,7 @@ const Docs = (props) => {
           }),
         }}
       >
-        <div className={classes.bookmarkOpen} onClick={handleToggleDrawer}>
-          {open ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-        </div>
+        <div className={classes.spacer}></div>
 
         <div className={classes.drawerHeader}>
           <Accordion
@@ -243,22 +233,31 @@ const Docs = (props) => {
             onChange={accordionChange}
           >
             <AccordionSummary onClick={setPackage('py')} aria-controls="" id="">
-              <Link href="#" className={classes.link}>
-                Python
-              </Link>
+              <LinkContainer>
+                <Link href="#" className={classes.link}>
+                  {open ? 'Python' : 'Py'}
+                </Link>
+                <Link
+                  href="https://cmap.readthedocs.io/en/latest/user_guide/API_ref/pycmap_api/pycmap_api_ref.html"
+                  className={classes.externalLink}
+                >
+                  <LaunchIcon />
+                </Link>
+              </LinkContainer>
             </AccordionSummary>
-            <AccordionDetails>
-              <TreeView
-                className={classes.root}
-                defaultCollapseIcon={<ExpandMoreIcon />}
-                defaultExpanded={['root']}
-                defaultExpandIcon={<ChevronRightIcon />}
-                onNodeSelect={handlePySelect}
-                onNodeToggle={handlePyToggle}
-              >
-                {renderTree(pythonTree)}
-              </TreeView>
-            </AccordionDetails>
+
+            <div hidden={!open}>
+              <AccordionDetails>
+                <TreeView
+                  className={classes.root}
+                  defaultCollapseIcon={<ExpandMoreIcon />}
+                  defaultExpanded={['root']}
+                  defaultExpandIcon={<ChevronRightIcon />}
+                >
+                  {renderTree(pythonTree)}
+                </TreeView>
+              </AccordionDetails>
+            </div>
           </Accordion>
 
           <Accordion
@@ -267,12 +266,31 @@ const Docs = (props) => {
             onChange={accordionChange}
           >
             <AccordionSummary onClick={setPackage('r')} aria-controls="" id="">
-              <Link href="#" onClick={setPackage('r')} className={classes.link}>
-                R
-              </Link>
+              <LinkContainer>
+                <Link
+                  href="#"
+                  onClick={setPackage('r')}
+                  className={classes.link}
+                >
+                  R
+                </Link>
+                <Link
+                  href="https://simonscmap.github.io/cmap4r/index.html"
+                  className={classes.externalLink}
+                >
+                  <LaunchIcon />
+                </Link>
+              </LinkContainer>
             </AccordionSummary>
-            <AccordionDetails>
-              <Typography>R tree</Typography>
+            <AccordionDetails visible={open}>
+              <TreeView
+                className={classes.root}
+                defaultCollapseIcon={<ExpandMoreIcon />}
+                defaultExpanded={['root']}
+                defaultExpandIcon={<ChevronRightIcon />}
+              >
+                {renderTree(rTree)}
+              </TreeView>
             </AccordionDetails>
           </Accordion>
 
@@ -287,11 +305,13 @@ const Docs = (props) => {
               id=""
             >
               <Link href="#" className={classes.link}>
-                Julia
+                {open ? 'Julia' : 'J'}
               </Link>
             </AccordionSummary>
             <AccordionDetails>
-              <Typography>Julia tree</Typography>
+              <Typography className={classes.warning}>
+                Under development
+              </Typography>
             </AccordionDetails>
           </Accordion>
 
@@ -306,21 +326,22 @@ const Docs = (props) => {
               id=""
             >
               <Link href="#" className={classes.link}>
-                Matlab
+                {open ? 'Matlab' : 'M'}
               </Link>
             </AccordionSummary>
             <AccordionDetails>
-              <Typography>Matlab tree</Typography>
+              <Typography>matcmap API</Typography>
             </AccordionDetails>
           </Accordion>
         </div>
       </Drawer>
       <iframe
-        id="python"
-        title="CMAP Read the Docs: Python"
+        id="documentation-frame"
+        title="iframe title"
         width={innerAccordionWidth}
-        height={window.innerHeight - 80}
-        src={docLinks[pkgTarget]}
+        height={window.innerHeight - 68}
+        style={{ border: 0 }}
+        src={iFrameURL || docLinks[pkgTarget]}
       ></iframe>
     </div>
   );
