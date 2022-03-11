@@ -1,21 +1,21 @@
 // Template for rendering a button and a text explanation of the button action
 // Uses MUI Grid for layout
 import React from 'react';
-import { Button, Grid } from '@material-ui/core';
+import { Button, Grid, Link, Popover, Typography } from '@material-ui/core';
 
 const Template = (props) => {
   let { dlAction, explanation } = props;
   let { handler, disabled, buttonText } = dlAction;
-
-  return (
+    return (
     <div style={{ padding: '.7em 0' }}>
       <Grid
         container
+        spacing={2}
         direction="row"
         justifyContent="flex-start"
         alignItems="flex-start"
       >
-        <Grid item xs={4}>
+        <Grid item xs={2}>
           <Button
             onClick={handler}
             color="primary"
@@ -25,7 +25,10 @@ const Template = (props) => {
             {buttonText}
           </Button>
         </Grid>
-        <Grid item xs={8}>
+        <Grid item>
+
+        </Grid>
+        <Grid item xs={10}>
           {explanation}
         </Grid>
       </Grid>

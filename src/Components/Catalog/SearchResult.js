@@ -174,34 +174,16 @@ const SearchResult = (props) => {
   };
   const AddToCart = ({ dataset }) => {
     return index !== 0 ? (
-      <Tooltip
-        title={
-          dataset.Visualize
-            ? 'Favorites will appear first on the visualization page'
-            : 'This dataset contains no visualizable variables, and will not appear on the visualization page.'
-        }
-        placement="right"
-      >
-        <AddToCartButton dataset={dataset} />
-      </Tooltip>
+      <AddToCartButton dataset={dataset} />
     ) : (
-      <Tooltip
-        title={
-          dataset.Visualize
-            ? 'Favorites will appear first on the visualization page'
-            : 'This dataset contains no visualizable variables, and will not appear on the visualization page.'
-        }
-        placement="right"
+      <Hint
+        content={AddToFavorites}
+        styleOverride={{ wrapper: { display: 'inline-block' } }}
+        position={{ beacon: 'right-start', hint: 'bottom-end' }}
+        size={'small'}
       >
-        <Hint
-          content={AddToFavorites}
-          styleOverride={{ wrapper: { display: 'inline-block' } }}
-          position={{ beacon: 'right-start', hint: 'bottom-end' }}
-          size={'small'}
-        >
-          <AddToCartButton customId={'catalog-add-to-cart'} dataset={dataset} />
-        </Hint>
-      </Tooltip>
+        <AddToCartButton customId={'catalog-add-to-cart'} dataset={dataset} />
+      </Hint>
     );
   };
 

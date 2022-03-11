@@ -18,6 +18,9 @@ const styles = (theme) => ({
   dialogTitle: {
     padding: '16px 40px',
   },
+  dialogMainTitle: {
+    fontSize: '2em'
+  },
   dialogPaper: {
     backgroundColor: colors.solidPaper,
   },

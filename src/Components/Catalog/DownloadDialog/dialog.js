@@ -237,7 +237,7 @@ const DownloadDialog2 = (props) => {
     return <ErrorMessage description={error} />;
   }
 
-  let dialogWidth = 'lg'; // https://v4.mui.com/components/dialogs/#optional-sizes
+  let dialogWidth = 'md'; // https://v4.mui.com/components/dialogs/#optional-sizes
 
   return (
     <Dialog
@@ -248,6 +248,7 @@ const DownloadDialog2 = (props) => {
       }}
       open={dialogOpen}
       onClose={handleClose}
+      fullWidth={true}
       maxWidth={dialogWidth}
     >
       <DownloadDialogTitle longName={dataset.Long_Name} />

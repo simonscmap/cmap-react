@@ -7,7 +7,7 @@ const Title = (props) => {
   let { longName, classes } = props;
   return (
     <DialogTitle className={classes.dialogTitle}>
-      <Typography variant="h3">Download Dataset</Typography>
+      <div className={classes.dialogMainTitle}>Download Dataset</div>
       <Typography variant="body1">{longName}</Typography>
     </DialogTitle>
   );

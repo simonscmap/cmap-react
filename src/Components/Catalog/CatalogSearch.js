@@ -237,7 +237,7 @@ class CatalogSearch extends React.Component {
           </Hint>
         </div>
         <Paper elevation={4} className={classes.searchPaper}>
-          <Grid container justify="center" alignItems="center">
+          <Grid container justifyContent="center" alignItems="center">
             <Grid item xs={12}>
               <Hint
                 content={SearchHint}
