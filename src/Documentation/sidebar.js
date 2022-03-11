@@ -163,7 +163,9 @@ const Docs = (props) => {
 
   // which doc package is open (only one at a time)
   const [pkgTarget, setPkgTarget] = useState('py');
-  const [iFrameURL, setIFrameURL] = useState();
+
+  let startingPage = 'https://cmap.readthedocs.io/en/latest/user_guide/API_ref/api_ref.html';
+  const [iFrameURL, setIFrameURL] = useState(startingPage);
 
   let onResize = (rect) => {
     let { width } = rect;
@@ -181,7 +183,6 @@ const Docs = (props) => {
 
   let handlePyClick = (node) => {
     setIFrameURL(node.link);
-    console.log(pkgTarget, node);
   };
 
   const renderTree = (nodes) => {
