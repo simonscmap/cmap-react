@@ -112,7 +112,6 @@ export function* watchUserLogout() {
 // googleLoginRequest, watchGoogleloginRequest
 // GOOGLE_LOGIN_REQUEST_SEND
 function* googleLoginRequest(action) {
-  console.log('in google login request')
   yield put(userActions.googleLoginRequestProcessing());
   let result = yield call(
     api.user.googleLoginRequest,
@@ -135,7 +134,6 @@ function* googleLoginRequest(action) {
 }
 
 export function* watchGoogleLoginRequest() {
-  console.log('watch');
   yield takeLatest(
     userActionTypes.GOOGLE_LOGIN_REQUEST_SEND,
     googleLoginRequest,
