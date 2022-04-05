@@ -87,6 +87,6 @@
     "enzyme-adapter-react-16": "^1.15.2",
     "eslint-plugin-react": "^7.29.4",
     "jest-enzyme": "^7.1.2",
-    "prettier": "^2.4.1"
+    "prettier": "^2.6.2"
   }
 }
