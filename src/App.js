@@ -1,61 +1,56 @@
-import React, { Suspense, lazy, Component } from 'react';
-import { connect } from 'react-redux';
-
-import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
-import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
-import { initializeGoogleAuth, ingestCookies } from './Redux/actions/user';
+import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
+import { MuiPickersUtilsProvider } from '@material-ui/pickers';
+import React, { Component, lazy, Suspense } from 'react';
+import { connect } from 'react-redux';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import { debounce } from 'throttle-debounce';
+import ErrorBoundary from './Components/UI/ErrorBoundary';
+import GlobalUIComponentWrapper from './Components/UI/GlobalUIComponentWrapper';
+import TopNavBar from './Components/UI/TopNavBar';
+import Docs from './Documentation/sidebar';
+import colors from './enums/colors';
+import z from './enums/zIndex';
 import { toggleShowHelp, windowResize } from './Redux/actions/ui';
+import { ingestCookies, initializeGoogleAuth } from './Redux/actions/user';
 import { ServicesInit } from './Services/Init.js';
 import './Stylesheets/App.scss';
 import './Stylesheets/intro-custom.css';
-import colors from './enums/colors';
-import z from './enums/zIndex';
-import Docs from './Documentation/sidebar';
-import { Route, BrowserRouter, Switch } from 'react-router-dom';
-import { debounce } from 'throttle-debounce';
-
-import GlobalUIComponentWrapper from './Components/UI/GlobalUIComponentWrapper';
-import TopNavBar from './Components/UI/TopNavBar';
-import ErrorBoundary from './Components/UI/ErrorBoundary';
 
 const ApiKeyManagement = lazy(() =>
   import('./Components/User/ApiKeyManagement'),
 );
-const SearchResults = lazy(() => import('./Components/Catalog/SearchResults'));
-const Register = lazy(() => import('./Components/User/Register'));
-const Visualization = lazy(() =>
-  import('./Components/Visualization/Visualization'),
-);
-const LandingPage = lazy(() => import('./Components/LandingPage'));
-const Login = lazy(() => import('./Components/User/Login'));
-const Profile = lazy(() => import('./Components/User/Profile'));
-const DataSubmission = lazy(() =>
-  import('./Components/DataSubmission/DataSubmission'),
-);
-const ContactUs = lazy(() => import('./Components/ContactUs'));
+const Catalog = lazy(() => import('./Components/Catalog/Catalog'));
+const ChoosePassword = lazy(() => import('./Components/User/ChoosePassword'));
 const CommunityTemp = lazy(() =>
   import('./Components/Community/CommunityTemp'),
 );
-const Catalog = lazy(() => import('./Components/Catalog/Catalog'));
+const ContactUs = lazy(() => import('./Components/ContactUs'));
+const CruiseFullPage = lazy(() =>
+  import('./Components/Catalog/CruiseFullPage'),
+);
+const DataSubmission = lazy(() =>
+  import('./Components/DataSubmission/DataSubmission'),
+);
 const DatasetFullPage = lazy(() =>
   import('./Components/Catalog/DatasetFullPage'),
 );
 const ForgotPass = lazy(() => import('./Components/User/ForgotPass'));
-const ChoosePassword = lazy(() => import('./Components/User/ChoosePassword'));
-const CruiseFullPage = lazy(() =>
-  import('./Components/Catalog/CruiseFullPage'),
+const LandingPage = lazy(() => import('./Components/LandingPage'));
+const Login = lazy(() => import('./Components/User/Login'));
+const Profile = lazy(() => import('./Components/User/Profile'));
+const Register = lazy(() => import('./Components/User/Register'));
+const SearchResults = lazy(() => import('./Components/Catalog/SearchResults'));
+const Visualization = lazy(() =>
+  import('./Components/Visualization/Visualization'),
 );
-const Probe = lazy(() => import('./Components/probe/Probe'));
 
 // Changes to default styles of MUI components
 const theme = createMuiTheme({
   typography: {
     // useNextVariants: true,
     fontFamily: ['"Lato"', 'sans-serif'].join(','),
-    body1: {
-
-    },
+    body1: {},
   },
 
   palette: {
@@ -242,20 +237,20 @@ const theme = createMuiTheme({
 
     MuiChip: {
       sizeSmall: {
-        height: '18px'
-      }
+        height: '18px',
+      },
     },
 
     MuiSwitch: {
       root: {
-        color: colors.primary
-      }
+        color: colors.primary,
+      },
     },
 
     MuiStepper: {
       root: {
         background: 'none',
-      }
+      },
     },
 
     MuiDialogTitle: {
@@ -374,11 +369,8 @@ class App extends Component {
                       path="/catalog/cruises/:cruiseName"
                       component={CruiseFullPage}
                     ></Route>
-                    <Route exact path="/sample/">
-                      <Probe />
-                    </Route>
-                     <Route exact path="/documentation">
-                      <Docs/>
+                    <Route exact path="/documentation">
+                      <Docs />
                     </Route>
                   </Switch>
                 </Suspense>
