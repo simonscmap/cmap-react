@@ -208,7 +208,8 @@ const DatasetFullPage = (props) => {
 
   const [downloadDialogOpen, setDownloadDialogOpen] = React.useState(false);
 
-  const httpRegx = /\b(https?:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|]|ftp:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|])/g;
+  const httpRegx =
+    /\b(https?:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|]|ftp:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|])/g;
   const urlify = (text) =>
     reactStringReplace(text, httpRegx, (match, i) => (
       <Link

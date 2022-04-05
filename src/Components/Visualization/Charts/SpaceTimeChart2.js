@@ -21,7 +21,6 @@ import makeSplitByDepthControl from './ChartControls/SplitByDepthControl';
 import ColorscaleRangeControl from './ChartControls/ColorscaleRangeControl';
 import ChartTemplate from './ChartTemplate';
 
-
 // helpers
 const getDate = (data, splitByDate, splitByDepth, subsetIndex) => {
   let dates = Array.from(data.dates);
@@ -259,7 +258,6 @@ const mapDispatchToProps = {
   snackbarOpen,
 };
 
-
 const SpaceTimeChart = (props) => {
   let { snackbarOpen, chart, chartIndex } = props;
   let { data, subType } = chart;
@@ -298,7 +296,7 @@ const SpaceTimeChart = (props) => {
   // Control: Split by Depth
   let [splitByDepth, setSplitByDepth] = useState(false);
   let splitByDepthControlTuple = [
-    makeSplitByDepthControl([splitByDepth, setSplitByDepth])
+    makeSplitByDepthControl([splitByDepth, setSplitByDepth]),
   ];
 
   // Control: Palette
@@ -311,7 +309,6 @@ const SpaceTimeChart = (props) => {
     ColorscaleRangeControl,
     { rangeValues, setRangeValues },
   ];
-
 
   let controls = [
     paletteControlTuple,
@@ -338,14 +335,23 @@ const SpaceTimeChart = (props) => {
     }
 
     let [zMin, zMax] = rangeValues; // from state
-    return handler.apply(null, [subSets, data, splitByDate, splitByDepth, palette, zMin, zMax]);
-  }
+    return handler.apply(null, [
+      subSets,
+      data,
+      splitByDate,
+      splitByDepth,
+      palette,
+      zMin,
+      zMax,
+    ]);
+  };
 
   plots = mapSubsets(subSets);
 
   // Assemble Config
   let spaceTimeChartConfig = {
-    downloadCSVArgs: [data,
+    downloadCSVArgs: [
+      data,
       metadata.Table_Name,
       metadata.Variable,
       metadata.Long_Name,

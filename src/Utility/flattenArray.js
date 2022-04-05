@@ -2,15 +2,15 @@
 // [[[],[]], [[],[]], [[],[]]] => [[], [], [], [], [], []]
 
 const flattenArray = (arr) => {
-    let flattenedArray = [];
+  let flattenedArray = [];
 
-    for(let i = 0; i < arr.length; i++){
-        for(let j = 0; j < arr[i].length; j++){
-            flattenedArray.push(arr[i][j]);
-        }
+  for (let i = 0; i < arr.length; i++) {
+    for (let j = 0; j < arr[i].length; j++) {
+      flattenedArray.push(arr[i][j]);
     }
+  }
 
-    return flattenedArray;
-}
+  return flattenedArray;
+};
 
 export default flattenArray;

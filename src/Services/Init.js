@@ -4,4 +4,4 @@ import registerHints from '../Components/Help/persistHintState.js';
 // register
 registerIntros();
 registerHints();
-export const ServicesInit = () => ('');
+export const ServicesInit = () => '';

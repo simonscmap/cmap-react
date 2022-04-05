@@ -1,7 +1,7 @@
-import { helpActionTypes } from "../../Redux/actions/help.js";
+import { helpActionTypes } from '../../Redux/actions/help.js';
 import { persistenceService } from '../../Services/persist';
 import { localStorageIntroState } from '../Help/initialState';
-import { LOCAL_STORAGE_KEY_INTRO_STATE } from "../../constants.js";
+import { LOCAL_STORAGE_KEY_INTRO_STATE } from '../../constants.js';
 
 export default function registerIntro() {
   persistenceService.add({
@@ -27,9 +27,9 @@ export default function registerIntro() {
       let newState = Object.assign({}, oldState, {
         [pageName]: value,
       });
-      return newState
+      return newState;
     },
     // TODO
-    localToDispatch: () => { },
+    localToDispatch: () => {},
   });
 }

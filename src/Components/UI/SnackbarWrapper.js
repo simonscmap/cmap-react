@@ -9,37 +9,39 @@ import { snackbarClose } from '../../Redux/actions/ui';
 import z from '../../enums/zIndex';
 
 const mapStateToProps = (state, ownProps) => ({
-    snackbarIsOpen: state.snackbarIsOpen,
-    snackbarMessage: state.snackbarMessage
-})
+  snackbarIsOpen: state.snackbarIsOpen,
+  snackbarMessage: state.snackbarMessage,
+});
 
 const mapDispatchToProps = {
-    snackbarClose,
-}
+  snackbarClose,
+};
 
 const styles = (theme) => {
-    return ({
-        snackbar: {
-            zIndex: z.SNACKBAR
-        }
-    })
-}
+  return {
+    snackbar: {
+      zIndex: z.SNACKBAR,
+    },
+  };
+};
 
 const SnackbarWrapper = (props) => {
-    const { classes } = props;
-    return (
-        
-        <React.Fragment>
-            <Snackbar
-                autoHideDuration={null} 
-                message={props.snackbarMessage}
-                onClose={props.snackbarClose}
-                open={props.snackbarIsOpen}
-                anchorOrigin={{horizontal:'center', vertical:'top'}}
-                className={classes.snackbar}
-            />
-        </React.Fragment>
-    )
-}
+  const { classes } = props;
+  return (
+    <React.Fragment>
+      <Snackbar
+        autoHideDuration={null}
+        message={props.snackbarMessage}
+        onClose={props.snackbarClose}
+        open={props.snackbarIsOpen}
+        anchorOrigin={{ horizontal: 'center', vertical: 'top' }}
+        className={classes.snackbar}
+      />
+    </React.Fragment>
+  );
+};
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(SnackbarWrapper));
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(withStyles(styles)(SnackbarWrapper));

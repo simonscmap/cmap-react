@@ -51,7 +51,7 @@ export const truncateString = (limit) => (str) => {
     return str.slice(0, limit) + '...';
   }
   return str;
-}
+};
 
 export const truncate60 = truncateString(60);
 
@@ -60,4 +60,4 @@ export const capitalizeFirst = (str) => {
     return '';
   }
   return str.charAt(0).toUpperCase() + str.slice(1);
-}
+};

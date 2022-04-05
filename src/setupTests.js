@@ -7,7 +7,6 @@ var window = global;
 global.URL = {};
 global.URL.createObjectURL = jest.fn();
 
-
-HTMLCanvasElement.prototype.getContext = () => { 
-    return '';
+HTMLCanvasElement.prototype.getContext = () => {
+  return '';
 };

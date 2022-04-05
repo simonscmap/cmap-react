@@ -6,40 +6,48 @@ import { Tooltip } from '@material-ui/core';
 import { copyTextToClipboard } from '../../Redux/actions/ui';
 
 const mapDispatchToProps = {
-    copyTextToClipboard
-}
+  copyTextToClipboard,
+};
 
 // Wraps a tooltip and span with click event handler for copying to clipboard
 const CopyableText = (props) => {
-    const { copyTextToClipboard, tooltipPlacement, text, innerSpanProps, hideTooltip } = props;
+  const {
+    copyTextToClipboard,
+    tooltipPlacement,
+    text,
+    innerSpanProps,
+    hideTooltip,
+  } = props;
 
-    const handleCopyText = (event) => {
-        copyTextToClipboard(event.target.innerText);
-    }
+  const handleCopyText = (event) => {
+    copyTextToClipboard(event.target.innerText);
+  };
 
-    if(hideTooltip){
-        return (
-            <span 
-                style={{cursor: 'copy'}} 
-                onClick={handleCopyText} 
-                {...innerSpanProps}
-            >
-                {text}
-            </span>
-        )
-    }
-
+  if (hideTooltip) {
     return (
-        <Tooltip placement={tooltipPlacement || 'top'} title='Click to Copy'>
-            <span 
-                style={{cursor: 'copy'}} 
-                onClick={handleCopyText} 
-                {...innerSpanProps}
-            >
-                {text}
-            </span>
-        </Tooltip>
-    )
-}
+      <span
+        style={{ cursor: 'copy' }}
+        onClick={handleCopyText}
+        {...innerSpanProps}
+      >
+        {text}
+      </span>
+    );
+  }
 
-export default connect(null, mapDispatchToProps, null, { forwardRef: true })(CopyableText);
+  return (
+    <Tooltip placement={tooltipPlacement || 'top'} title="Click to Copy">
+      <span
+        style={{ cursor: 'copy' }}
+        onClick={handleCopyText}
+        {...innerSpanProps}
+      >
+        {text}
+      </span>
+    </Tooltip>
+  );
+};
+
+export default connect(null, mapDispatchToProps, null, { forwardRef: true })(
+  CopyableText,
+);

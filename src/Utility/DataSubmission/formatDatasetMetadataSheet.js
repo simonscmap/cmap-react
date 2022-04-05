@@ -1,54 +1,57 @@
 export default (metadata, workbook) => {
-    if(!metadata || !metadata.length) return;
-    
-    try {
-        var sample = metadata[0];
-        var type = typeof sample.dataset_release_date;
+  if (!metadata || !metadata.length) return;
 
-        var is1904 = !!(((workbook.Workbook||{}).WBProps||{}).date1904);
+  try {
+    var sample = metadata[0];
+    var type = typeof sample.dataset_release_date;
 
-        if(type === 'number') {
-            if(is1904){
-                sample.dataset_release_date = new Date(((sample.dataset_release_date - (25567))*86400*1000) + 1000 * 60 * 60 * 24 * 365 * 4).toISOString().slice(0, -14);
-            }
-    
-            else {
-                sample.dataset_release_date = new Date(((sample.dataset_release_date - (25567))*86400*1000)).toISOString().slice(0, -14);
-            }    
-        }
-    
-        else {
-            sample.dataset_release_date = new Date(sample.dataset_release_date).toISOString().slice(0, -14);
-        }
+    var is1904 = !!((workbook.Workbook || {}).WBProps || {}).date1904;
+
+    if (type === 'number') {
+      if (is1904) {
+        sample.dataset_release_date = new Date(
+          (sample.dataset_release_date - 25567) * 86400 * 1000 +
+            1000 * 60 * 60 * 24 * 365 * 4,
+        )
+          .toISOString()
+          .slice(0, -14);
+      } else {
+        sample.dataset_release_date = new Date(
+          (sample.dataset_release_date - 25567) * 86400 * 1000,
+        )
+          .toISOString()
+          .slice(0, -14);
+      }
+    } else {
+      sample.dataset_release_date = new Date(sample.dataset_release_date)
+        .toISOString()
+        .slice(0, -14);
     }
+  } catch {}
 
-    catch{
-        
-    }
+  let cols = Object.keys(metadata[0]);
+  let keysContaining__EMPTY = [];
+  cols.forEach((e) => {
+    if (e.indexOf('__EMPTY') !== -1) keysContaining__EMPTY.push(e);
+  });
 
-    let cols = Object.keys(metadata[0]);
-    let keysContaining__EMPTY = [];
-    cols.forEach(e => {
-        if(e.indexOf('__EMPTY') !== -1) keysContaining__EMPTY.push(e);
-    })
-
-    if(keysContaining__EMPTY.length){
-        metadata.forEach(e => {
-            keysContaining__EMPTY.forEach(key => {
-                delete e[key];
-            })
-        })
-    }
-
-    cols.forEach(col => {
-        metadata.forEach((row) => {
-            let cellValue = row[col];
-            if(typeof cellValue === 'string') row[col] = cellValue.trim();
-        });
+  if (keysContaining__EMPTY.length) {
+    metadata.forEach((e) => {
+      keysContaining__EMPTY.forEach((key) => {
+        delete e[key];
+      });
     });
+  }
 
-    return metadata;
-}
+  cols.forEach((col) => {
+    metadata.forEach((row) => {
+      let cellValue = row[col];
+      if (typeof cellValue === 'string') row[col] = cellValue.trim();
+    });
+  });
+
+  return metadata;
+};
 
 // Format must match 2016-04-21T15:22:00
 

@@ -8,9 +8,8 @@ import { withRouter } from 'react-router';
 import { cartAddItem, cartRemoveItem } from '../../Redux/actions/catalog';
 import {
   cartPersistAddItem,
-  cartPersistRemoveItem
+  cartPersistRemoveItem,
 } from '../../Redux/actions/user';
-
 
 const mapStateToProps = (state, ownProps) => ({
   cart: state.cart,

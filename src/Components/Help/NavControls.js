@@ -127,7 +127,7 @@ const HelpNavbarControls = () => {
   // get router location
   const location = useLocation();
   const pageName = pathNameToPageName(location.pathname);
-  const styleVariant = pageName === VISUALIZATION_PAGE ? 'black' : '#2f769c'
+  const styleVariant = pageName === VISUALIZATION_PAGE ? 'black' : '#2f769c';
 
   let classes = useStyles({ backgroundColor: styleVariant });
 

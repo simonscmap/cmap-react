@@ -50,11 +50,9 @@
   font-variant: normal;
   text-rendering: auto;
   -webkit-font-smoothing: antialiased;
-  font-family: "Font Awesome 5 Free"; 
-  font-weight: 900; 
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
 }
-
-
 
 // Ag-grid theme styles
 $ag-icons-path: '~../../node_modules/ag-grid-community/src/styles/ag-theme-material/icons/';
@@ -68,18 +66,18 @@ $secondary-foreground-color: #9dd162;
 $chip-background-color: lighten(#184562, 10%);
 $hover-color: darken(#9dd162, 35%);
 $panel-background-color: darken(#184562, 5%);
-$row-stub-background-color: #22A3B9;
+$row-stub-background-color: #22a3b9;
 
 // $menu-option-active-color: #22A3B9;
-@import "../../node_modules/ag-grid-community/src/styles/ag-grid.scss";
-@import "../../node_modules/ag-grid-community/src/styles/ag-theme-material/sass/ag-theme-material.scss";
+@import '../../node_modules/ag-grid-community/src/styles/ag-grid.scss';
+@import '../../node_modules/ag-grid-community/src/styles/ag-theme-material/sass/ag-theme-material.scss';
 
 // teal #22A3B9;
 
 // React-select scrollbar styles
 #custom-scroll::-webkit-scrollbar {
   width: 6px;
-  background-color: #F5F5F5;
+  background-color: #f5f5f5;
 }
 
 .ag-theme-material .ag-popup-editor {
@@ -88,5 +86,5 @@ $row-stub-background-color: #22A3B9;
 
 .ag-theme-material .ag-cell-inline-editing {
   background-color: #184562;
-  height: auto
+  height: auto;
 }

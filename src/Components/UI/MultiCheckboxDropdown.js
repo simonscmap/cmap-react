@@ -1,6 +1,6 @@
 // Expandable list of checkboxes used in search components
 
-import React, { useState, useEffect }from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   withStyles,
   Grid,
@@ -154,7 +154,7 @@ const MultiCheckboxDrowndown = (props) => {
   // if user starts an intro tour, close the dropdown
   let { pathname } = useLocation();
   let pageName = pathNameToPageName(pathname);
-  let intro = useSelector(( state ) => state.intros[pageName]);
+  let intro = useSelector((state) => state.intros[pageName]);
   useEffect(() => {
     if (intro) {
       setOpenState(false);

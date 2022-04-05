@@ -13,55 +13,61 @@ import Cart from './Cart';
 import { loginDialogWasCleared } from '../../Redux/actions/user';
 
 const mapStateToProps = (state, ownProps) => ({
-    clearLoginDialog: state.clearLoginDialog,
-    loadingMessage: state.loadingMessage
-})
+  clearLoginDialog: state.clearLoginDialog,
+  loadingMessage: state.loadingMessage,
+});
 
 const mapDispatchToProps = {
-    loginDialogWasCleared
-}
+  loginDialogWasCleared,
+};
 
 class GlobalUIComponentWrapper extends Component {
+  state = {
+    username: '',
+    password: '',
+  };
 
-    state = {
-        username: '',
-        password: ''
+  // Controls login dialog text fields to allow reset from logout button
+  handleChange = (event) => {
+    this.setState({ [event.target.name]: event.target.value });
+  };
+
+  handleLogOut = () => {
+    this.clearState();
+  };
+
+  clearState = () => {
+    this.setState({
+      username: '',
+      password: '',
+    });
+    this.props.loginDialogWasCleared();
+  };
+
+  componentDidUpdate = (preProps) => {
+    if (this.props.clearLoginDialog) {
+      this.clearState();
     }
-    
-    // Controls login dialog text fields to allow reset from logout button
-    handleChange = (event) => {
-        this.setState({[event.target.name]: event.target.value})
-    };
+  };
 
-    handleLogOut = () => {
-        this.clearState();
-    }
-
-    clearState = () => {
-        this.setState({
-            username: '',
-            password: ''
-        });
-        this.props.loginDialogWasCleared();
-    }
-
-    componentDidUpdate = (preProps) => {
-        if(this.props.clearLoginDialog) {
-            this.clearState();
-        }
-    }
-
-    render(){
-
-        return (
-            <React.Fragment>    
-                <LoginDialog clearState={this.clearState} username={this.state.username} password={this.state.password} handleChange={this.handleChange}/>
-                <SnackbarWrapper/>
-                <LoadingOverlay loadingMessage={this.props.loadingMessage}/>
-                <Cart/>                
-            </React.Fragment>
-        )
-    }
+  render() {
+    return (
+      <React.Fragment>
+        <LoginDialog
+          clearState={this.clearState}
+          username={this.state.username}
+          password={this.state.password}
+          handleChange={this.handleChange}
+        />
+        <SnackbarWrapper />
+        <LoadingOverlay loadingMessage={this.props.loadingMessage} />
+        <Cart />
+      </React.Fragment>
+    );
+  }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(GlobalUIComponentWrapper);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(GlobalUIComponentWrapper);

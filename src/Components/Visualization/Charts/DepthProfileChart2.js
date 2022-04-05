@@ -2,7 +2,7 @@
 import { withStyles } from '@material-ui/core/styles';
 import { format } from 'd3-format';
 import React from 'react';
-import { useErrorBarControl }from './ChartControls/ErrorBarControl';
+import { useErrorBarControl } from './ChartControls/ErrorBarControl';
 import { useLineControl } from './ChartControls/LinesControl';
 import { useMarkerOptions } from './ChartControls/MarkerControl';
 import { depthProfileChartStyles } from './chartStyles';
@@ -41,21 +41,18 @@ const DepthProfileChart = (props) => {
   const { stds, variableValues, depths, parameters, metadata } = data;
 
   // Show Lines Control
-  let [lineControlTuple, showLinesState ] = useLineControl();
+  let [lineControlTuple, showLinesState] = useLineControl();
 
   // Show Error Bars Cotrol
   let defaultErrorBarState = !!variableValues && variableValues.length <= 40;
-  let [errorBarsControlTuple, errorBarState] = useErrorBarControl(defaultErrorBarState);
+  let [errorBarsControlTuple, errorBarState] =
+    useErrorBarControl(defaultErrorBarState);
 
   // Show Marker Options
   let [markerControlTuple, markerOptions] = useMarkerOptions();
 
   // Aggregated Controls:
-  let controls = [
-    errorBarsControlTuple,
-    lineControlTuple,
-    markerControlTuple,
-  ];
+  let controls = [errorBarsControlTuple, lineControlTuple, markerControlTuple];
 
   // Config
 

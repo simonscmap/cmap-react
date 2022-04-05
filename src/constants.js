@@ -10,5 +10,7 @@ export const LOCAL_STORAGE_KEY_HINTS_STATE = 'hintState';
 export const DEFAULT_HINT_POSITION = 'left';
 
 // Help
-export const CATALOG_OVERVIEW_VIDEO = "https://player.vimeo.com/video/620160138";
-export const VISUALIZATION_OVERVIEW_VIDEO = "https://player.vimeo.com/video/668819801"; // old: 657984891
+export const CATALOG_OVERVIEW_VIDEO =
+  'https://player.vimeo.com/video/620160138';
+export const VISUALIZATION_OVERVIEW_VIDEO =
+  'https://player.vimeo.com/video/668819801'; // old: 657984891

@@ -1,9 +1,14 @@
 // Pop-up dialog for downloading data on catalog pages
 import {
-  Button, Dialog,
-  DialogActions, DialogContent, DialogTitle, Grid,
-  Slider, TextField,
-  Typography
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  Slider,
+  TextField,
+  Typography,
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import React, { Component } from 'react';

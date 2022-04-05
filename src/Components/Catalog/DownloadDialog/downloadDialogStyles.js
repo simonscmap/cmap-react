@@ -3,7 +3,7 @@ import zIndex from '../../../enums/zIndex';
 
 const styles = (theme) => ({
   accordionDetails: {
-   display: 'table-row',
+    display: 'table-row',
   },
   muiDialog: {
     zIndex: `${zIndex.MUI_DIALOG} !important`,
@@ -20,7 +20,7 @@ const styles = (theme) => ({
     padding: '16px 40px',
   },
   dialogMainTitle: {
-    fontSize: '2em'
+    fontSize: '2em',
   },
   dialogPaper: {
     backgroundColor: colors.solidPaper,

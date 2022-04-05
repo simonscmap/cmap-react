@@ -1,7 +1,7 @@
 import React from 'react';
 import HintContent from '../../Help/HintContent';
 
-const SearchFiltersHint= () => {
+const SearchFiltersHint = () => {
   return (
     <HintContent>
       <h3>Search Filters</h3>

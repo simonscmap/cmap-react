@@ -14,7 +14,7 @@ dataAPI.customQuery = async (query) => {
     fetchOptions,
   );
 
-  return response
+  return response;
 };
 
 export default dataAPI;

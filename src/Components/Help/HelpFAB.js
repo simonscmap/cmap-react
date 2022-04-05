@@ -50,7 +50,9 @@ function Help(props) {
   // this can control when the help button slides into view
   let showHints = true;
 
-  let iconClasses = hintsAreEnabled ? classes.helpIconEnabled : classes.helpIconDisabled;
+  let iconClasses = hintsAreEnabled
+    ? classes.helpIconEnabled
+    : classes.helpIconDisabled;
   let buttonClasses = hintsAreEnabled
     ? classes.helpButtonEnabled
     : classes.helpButtonDisabled;

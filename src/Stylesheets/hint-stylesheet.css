@@ -1,10 +1,10 @@
 .hint-content-wrapper a,
 .hint-content-wrapper a:visited {
-    color: #9dd162;
+  color: #9dd162;
 }
 .hint-content-wrapper a:hover,
 .hint-content-wrapper a:active {
-    color: white;
+  color: white;
 }
 
 .hint-content-wrapper ul {
@@ -13,7 +13,7 @@
 }
 
 .hint-content-wrapper ul li::before {
-  content: "\2022";  /* Add content: \2022 is the CSS Code/unicode for a bullet */
+  content: '\2022'; /* Add content: \2022 is the CSS Code/unicode for a bullet */
   color: #9dd162; /* Change the color */
   font-weight: bold; /* If you want it to be bold */
   display: inline-block; /* Needed to add space between the bullet and the text */

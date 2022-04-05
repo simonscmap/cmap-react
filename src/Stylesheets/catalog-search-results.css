@@ -7,5 +7,5 @@
 /* beacause it would turn off scrolling. */
 
 .search-results-fixed-size-list > div {
-    position: relative;
+  position: relative;
 }

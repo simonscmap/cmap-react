@@ -1,7 +1,6 @@
 import React from 'react';
 import HintContent from '../../Help/HintContent';
 
-
 const SearchHint = () => {
   return (
     <HintContent>

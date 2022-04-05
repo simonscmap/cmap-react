@@ -8,30 +8,45 @@ import { withStyles } from '@material-ui/core/styles';
 import { showLoginDialog } from '../../Redux/actions/ui';
 
 const mapDispatchToProps = {
-    showLoginDialog
-}
+  showLoginDialog,
+};
 
-const styles = (theme) =>  ({
-    loginRequiredMessage: {
-        marginTop: theme.spacing(10),
-        color: 'white'
-    }
-})
+const styles = (theme) => ({
+  loginRequiredMessage: {
+    marginTop: theme.spacing(10),
+    color: 'white',
+  },
+});
 
 const LoginRequiredPrompt = (props) => {
-    const { classes, showLoginDialog } = props;
+  const { classes, showLoginDialog } = props;
 
-    useEffect(() => {
-        showLoginDialog();
-    })
-    
-    return (
-        <Typography className={classes.loginRequiredMessage}>
-            This feature requires a user account. Please <Link component={RouterLink} to={{pathname: window.location.pathname}} onClick={() => props.showLoginDialog()}> log in
-            </Link> or <Link component={RouterLink} to={{pathname: '/register'}}> register
-            </Link>.
-        </Typography>
-    )
-}
+  useEffect(() => {
+    showLoginDialog();
+  });
 
-export default connect(null, mapDispatchToProps)(withStyles(styles)(LoginRequiredPrompt));
+  return (
+    <Typography className={classes.loginRequiredMessage}>
+      This feature requires a user account. Please{' '}
+      <Link
+        component={RouterLink}
+        to={{ pathname: window.location.pathname }}
+        onClick={() => props.showLoginDialog()}
+      >
+        {' '}
+        log in
+      </Link>{' '}
+      or{' '}
+      <Link component={RouterLink} to={{ pathname: '/register' }}>
+        {' '}
+        register
+      </Link>
+      .
+    </Typography>
+  );
+};
+
+export default connect(
+  null,
+  mapDispatchToProps,
+)(withStyles(styles)(LoginRequiredPrompt));

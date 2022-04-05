@@ -208,7 +208,6 @@ const DailyDateControl = withStyles(styles)((props) => {
           ]}
         />
       </div>
-
     </React.Fragment>
   );
 });

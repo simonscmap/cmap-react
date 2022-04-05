@@ -36,8 +36,6 @@ export const fetchDatasetAndMetadata = async ({ query, shortName }) => {
     throw new Error(errorMessage, { cause: eResp });
   }
 
-
-
   // get data in correct format
   let metadataJSON = await metadataResp.json();
   let datasetText = datasetResp.text();
@@ -75,8 +73,6 @@ export const makeMetadataWorkbook = (metadataJSON) => {
   return metadataBlob;
 };
 
-
-
 // data -> fileName -> shortName -> void ()
 // creates zip and initiates save in browser
 export const makeZip = (data, fileName, shortName) => {
@@ -92,7 +88,7 @@ export const makeZip = (data, fileName, shortName) => {
   // save zip (opens download dialog for user
   z.generateAsync({ type: 'blob' }).then(
     (blob) => {
-      store.dispatch(interfaceActions.setLoadingMessage(''))
+      store.dispatch(interfaceActions.setLoadingMessage(''));
       saveAs(blob, `${fileName}.zip`);
     },
     (err) => {

@@ -4,23 +4,20 @@ import { connect } from 'react-redux';
 import { showLoginDialog } from '../../Redux/actions/ui';
 
 const mapDispatchToProps = {
-    showLoginDialog
-}
+  showLoginDialog,
+};
 
 const mapStateToProps = (state, ownProps) => ({
-    user: state.user
-})
+  user: state.user,
+});
 
 const Login = (props) => {
+  useEffect(() => {
+    if (!props.user) props.showLoginDialog();
+    else window.location.href = '/catalog';
+  });
 
-    useEffect(() => {
-        if(!props.user) props.showLoginDialog();
-        else window.location.href = "/catalog";
-    })
-    
-    return (
-        ''
-    )
-}
+  return '';
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);

@@ -231,7 +231,6 @@ class DataSearch extends React.Component {
       // with help from src/Utility/Catalog/buildSearchOptionsFromDatasetList
     } = this.props;
 
-
     const {
       searchTerms,
       memberVariablesDataset,
@@ -251,7 +250,6 @@ class DataSearch extends React.Component {
       selectedRegions,
       selectedSensors,
     } = this.state;
-
 
     return (
       <React.Fragment>
@@ -309,7 +307,7 @@ class DataSearch extends React.Component {
             <MultiCheckboxDropdown
               options={submissionOptions.Make}
               selectedOptions={selectedMakes}
-              handleClear={() => this.handleClearMultiSelect('selectedMakes')}  // NOTE: must correspond to state key
+              handleClear={() => this.handleClearMultiSelect('selectedMakes')} // NOTE: must correspond to state key
               parentStateKey={'selectedMakes'} // ditto
               handleClickCheckbox={this.handleClickCheckbox}
               groupHeaderLabel="Makes"
@@ -324,7 +322,9 @@ class DataSearch extends React.Component {
                 id="charts-and-plots-search-sensor-filter"
                 options={submissionOptions.Sensor}
                 selectedOptions={selectedSensors}
-                handleClear={() => this.handleClearMultiSelect('selectedSensors')} // see note above
+                handleClear={() =>
+                  this.handleClearMultiSelect('selectedSensors')
+                } // see note above
                 parentStateKey={'selectedSensors'}
                 handleClickCheckbox={this.handleClickCheckbox}
                 groupHeaderLabel="Sensors"

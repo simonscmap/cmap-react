@@ -9,7 +9,7 @@ import {
   TextField,
   Tooltip,
   Typography,
-  withStyles
+  withStyles,
 } from '@material-ui/core';
 import {
   ChevronLeft,
@@ -18,7 +18,7 @@ import {
   Info,
   Language,
   Search,
-  ShowChart
+  ShowChart,
 } from '@material-ui/icons';
 import Cookies from 'js-cookie';
 import React from 'react';
@@ -41,7 +41,7 @@ import {
   setDataSearchMenuVisibility,
   sparseDataQuerySend,
   storedProcedureRequestSend,
-  vizPageDataTargetSetAndFetchDetails
+  vizPageDataTargetSetAndFetchDetails,
 } from '../../Redux/actions/visualization';
 import countWebGLContexts from '../../Utility/countWebGLContexts';
 import depthUtils from '../../Utility/depthCounter';
@@ -54,7 +54,8 @@ import { PageTitleHint, RestrictDataHint, SearchHint } from './help';
 import {
   aggregateChartDataSize,
   cleanSPParams,
-  generateVariableSampleRangeParams, mapVizType
+  generateVariableSampleRangeParams,
+  mapVizType,
 } from './helpers';
 import SparseDataMaxSizeNotification from './SparseDataMaxSizeNotification';
 import VariableDetailsDialog from './VariableDetailsDialog';
@@ -309,12 +310,11 @@ class VizControlPanel extends React.Component {
         ],
       };
 
-      let regionGraphic = new this.props.mapContainerRef.current.props.esriModules.Graphic(
-        {
+      let regionGraphic =
+        new this.props.mapContainerRef.current.props.esriModules.Graphic({
           geometry: polygon,
           symbol: polygonSymbol,
-        },
-      );
+        });
 
       this.props.mapContainerRef.current.regionLayer.add(regionGraphic);
     }

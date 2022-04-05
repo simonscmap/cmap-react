@@ -31,7 +31,6 @@ const ProductList = (props) => {
     selectedMakes.has('Observation') || noMakesSelected;
   const shouldShowModelResults = selectedMakes.has('Model') || noMakesSelected;
 
-
   // are we showing both Observation and Model results, or just one?
   const isDoubleMakeLayout =
     noMakesSelected ||

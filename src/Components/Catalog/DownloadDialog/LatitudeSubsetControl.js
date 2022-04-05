@@ -29,17 +29,14 @@ const LatitudeSubsetControl = (props) => {
     setLatEnd(newLatEnd);
   };
 
-  let controlTitle = 'Latitude[\xB0]'
+  let controlTitle = 'Latitude[\xB0]';
   // Latitude[{'\xB0'}]
 
   return (
     <React.Fragment>
       <Grid container className={classes.formGrid}>
-
         <Grid item xs={12} md={4}>
-          <Typography className={classes.formLabel}>
-           {controlTitle}
-          </Typography>
+          <Typography className={classes.formLabel}>{controlTitle}</Typography>
         </Grid>
 
         <Grid item xs={6} md={4}>

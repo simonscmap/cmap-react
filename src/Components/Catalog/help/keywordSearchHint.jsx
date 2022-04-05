@@ -31,7 +31,7 @@ const KeywordSearchHint = () => {
         </li>
       </ul>
       <h3>Video Tutorial</h3>
-      <InlineVideo src={"https://player.vimeo.com/video/599815510"} />
+      <InlineVideo src={'https://player.vimeo.com/video/599815510'} />
 
       <hr />
       <SeeAlso />

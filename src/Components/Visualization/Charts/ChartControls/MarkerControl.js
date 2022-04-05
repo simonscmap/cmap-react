@@ -10,7 +10,7 @@ import {
   InputLabel,
   OutlinedInput,
   Popover,
-  withStyles
+  withStyles,
 } from '@material-ui/core';
 import { Gamepad } from '@material-ui/icons';
 import React, { useEffect, useRef, useState } from 'react';
@@ -140,10 +140,8 @@ const MarkerOptions = (props) => {
     checkLocalMarkerSize(),
   ];
 
-  const [
-    localMarkerOpacityMessage,
-    localMarkerSizeMessage,
-  ] = markerOptionsValidations;
+  const [localMarkerOpacityMessage, localMarkerSizeMessage] =
+    markerOptionsValidations;
 
   const handleLocalMarkerOptionsConfirm = () => {
     handleChoice({
@@ -269,14 +267,18 @@ const MarkerOptions = (props) => {
   );
 };
 
-
-const ConnectedMarkerOptions = withStyles(chartControlPanelStyles)(MarkerOptions);
+const ConnectedMarkerOptions = withStyles(chartControlPanelStyles)(
+  MarkerOptions,
+);
 
 export default ConnectedMarkerOptions;
 
 // hook returns [controlTuple, toggleState]
 export const useMarkerOptions = (initialState) => {
   let [markerOptions, setMarkerOptions] = useState(defaultMarkerState);
-  let markerControlTuple = [ConnectedMarkerOptions, { setMarkerOptions, markerOptions }]
+  let markerControlTuple = [
+    ConnectedMarkerOptions,
+    { setMarkerOptions, markerOptions },
+  ];
   return [markerControlTuple, markerOptions];
-}
+};

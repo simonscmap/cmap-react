@@ -15,7 +15,7 @@ const DownloadCSV = (props) => {
   let { csvData, csvFromVizRequestSend } = props;
   let downloadCSV = () => {
     csvFromVizRequestSend(...csvData);
-  }
+  };
 
   return (
     <ControlButtonTemplate

@@ -61,12 +61,8 @@ const mapStateToProps = (state, ownProps) => ({
 const mapDispatchToProps = {};
 
 const StoredParametersDropdown = (props) => {
-  const {
-    classes,
-    charts,
-    handleUpdateParameters,
-    vizPageDataTargetDetails,
-  } = props;
+  const { classes, charts, handleUpdateParameters, vizPageDataTargetDetails } =
+    props;
 
   const [anchorEl, setAnchorEl] = React.useState(null);
 
@@ -84,16 +80,8 @@ const StoredParametersDropdown = (props) => {
   };
 
   const syncPlotParams = (chart) => {
-    const {
-      dt1,
-      dt2,
-      lat1,
-      lat2,
-      lon1,
-      lon2,
-      depth1,
-      depth2,
-    } = chart.data.parameters;
+    const { dt1, dt2, lat1, lat2, lon1, lon2, depth1, depth2 } =
+      chart.data.parameters;
 
     return {
       lat1,

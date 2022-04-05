@@ -117,5 +117,4 @@ userAPI.keyCreation = async (description) => {
   );
 };
 
-
 export default userAPI;

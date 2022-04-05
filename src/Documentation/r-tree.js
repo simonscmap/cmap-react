@@ -23,7 +23,6 @@ export const rTree = {
           name: 'Catalog of Data',
           link: 'https://simonscmap.github.io/cmap4r/getting-started.html#catalog-of-data',
         },
-
       ],
     },
     {

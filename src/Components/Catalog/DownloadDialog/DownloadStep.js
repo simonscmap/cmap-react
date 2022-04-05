@@ -6,10 +6,7 @@ import styles from './downloadDialogStyles';
 const DownloadStep = (props) => {
   let { handlers } = props;
 
-  let {
-    handleClose,
-    handleDownload,
-  } = handlers;
+  let { handleClose, handleDownload } = handlers;
 
   let downloadHandler = () => {
     handleDownload();

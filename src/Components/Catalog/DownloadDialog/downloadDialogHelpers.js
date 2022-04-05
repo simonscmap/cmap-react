@@ -107,9 +107,11 @@ export const makeDownloadQuery = ({
     // user has requested ancillary data
     if (subsetParams.subsetIsDefined) {
       console.log(`requesting subset ${tableName} with ancillary data`);
-      return makeSubsetQueryWithAncillaryData(tableName, subsetParams)
+      return makeSubsetQueryWithAncillaryData(tableName, subsetParams);
     } else {
-      console.log(`requesting full dataset of ${tableName} with ancillary data`);
+      console.log(
+        `requesting full dataset of ${tableName} with ancillary data`,
+      );
       return makeFullDatasetQueryWithAncillaryData(tableName);
     }
   } else {
@@ -139,15 +141,8 @@ export const getMaxDays = (dataset) => {
 };
 
 export const getInitialRangeValues = (dataset) => {
-  let {
-    Lat_Max,
-    Lat_Min,
-    Lon_Max,
-    Lon_Min,
-    Time_Min,
-    Depth_Max,
-    Depth_Min,
-  } = dataset;
+  let { Lat_Max, Lat_Min, Lon_Max, Lon_Min, Time_Min, Depth_Max, Depth_Min } =
+    dataset;
 
   let maxDays = getMaxDays(dataset);
 

@@ -2,10 +2,7 @@ import React, { useState } from 'react';
 import api from '../../../api/api';
 import { downloadMetadata } from '../DownloadMetaData';
 
-
 const useDownloadMetadata = (Short_Name) => {
-
-
   const fetchDataset = async () => {
     let data;
     try {
@@ -29,9 +26,7 @@ const useDownloadMetadata = (Short_Name) => {
     }
   };
 
-  return [
-    () => onDownloadMetaClick()
-  ];
+  return [() => onDownloadMetaClick()];
 };
 
 export default useDownloadMetadata;

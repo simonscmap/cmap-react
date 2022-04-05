@@ -8,8 +8,8 @@ import { setLoadingMessage } from '../../../../Redux/actions/ui';
 
 export const makeGenericToggleControl = (icon) => (tooltip) => (state) => {
   let args = { icon, tooltip, state };
-  return (props) => (<GenericToggleControl {...props} {...args}/>);
-}
+  return (props) => <GenericToggleControl {...props} {...args} />;
+};
 
 const GenericToggleControl = (props) => {
   let { state, tooltip, icon } = props;
@@ -17,7 +17,7 @@ const GenericToggleControl = (props) => {
   // with the addittion of an optional transform, in case the value is not boolean
   // and an onState, which indicates which of the two non boolean toggles states
   // sholde be considered "on"
-  let [ toggleState, setToggleState, transform, onState ] = state;
+  let [toggleState, setToggleState, transform, onState] = state;
 
   let dispatch = useDispatch();
 
@@ -37,7 +37,7 @@ const GenericToggleControl = (props) => {
   if (typeof tooltip === 'function') {
     tooltipProp = tooltip(state);
   } else {
-    let [ whenOn, whenOff ] = tooltip;
+    let [whenOn, whenOff] = tooltip;
     tooltipProp = toggleState ? whenOn : whenOff;
   }
 
@@ -45,11 +45,11 @@ const GenericToggleControl = (props) => {
     if (typeof toggleState === 'boolean') {
       return toggleState;
     } else if (onState) {
-      return toggleState === onState
+      return toggleState === onState;
     } else {
       return false;
     }
-  }
+  };
 
   let isActive = isControlInActiveState();
 

@@ -2,7 +2,6 @@ import { postOptions, apiUrl, fetchOptions } from './config';
 
 const dataSubmissionAPI = {};
 
-
 dataSubmissionAPI.retrieveSubmissionByUser = async () => {
   return await fetch(
     apiUrl + `/api/datasubmission/submissionsbyuser`,
@@ -76,6 +75,5 @@ dataSubmissionAPI.deleteSubmission = async (submissionID) => {
     fetchOptions,
   );
 };
-
 
 export default dataSubmissionAPI;

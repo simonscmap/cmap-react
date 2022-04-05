@@ -3,7 +3,9 @@
 This directory holds modules in connection with api calls: calling backend application or potentially a third-party api.
 
 ## Naming Convention
+
 `TODO:`
+
 - Refactors the underlying server call logic (fetch currently) and add error handling
 - standard response object for all methods {success, status, body, msg} ?
 - refactor csvParser / text-encoding ...

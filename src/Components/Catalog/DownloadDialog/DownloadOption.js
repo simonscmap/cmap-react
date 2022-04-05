@@ -83,7 +83,7 @@ const Template = (props) => {
             label={label}
           />
         </Grid>
-        <Grid item xs={showDescription ? 12 : 9 } sm={9}>
+        <Grid item xs={showDescription ? 12 : 9} sm={9}>
           <div className={classes.wrapper}>
             {showDescription && <div className={classes.arrow}></div>}
             <Link href="" onClick={handleClick} className={classes.link}>

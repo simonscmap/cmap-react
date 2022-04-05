@@ -3,7 +3,7 @@
 // see: https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage
 
 let inMemory = () => {
-  console.log("using inMemory fallback for localStorage");
+  console.log('using inMemory fallback for localStorage');
   // TODO
   return {
     setItem: () => {},

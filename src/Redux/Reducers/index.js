@@ -1,14 +1,17 @@
-import catalog from "./catalog";
-import user from "./user";
-import ui from "./ui";
-import visualization from "./visualization";
-import dataSubmission from "./dataSubmission.js";
-import help from "./help.js";
-import reduceReducers from "reduce-reducers";
-import Cookies from "js-cookie";
-import states from "../../enums/asyncRequestStates";
-import buildSearchOptionsFromVariableList from "../../Utility/Catalog/buildSearchOptionsFromVariablesList";
-import { localStorageIntroState, localStorageHintState } from "../../Components/Help/initialState.js";
+import catalog from './catalog';
+import user from './user';
+import ui from './ui';
+import visualization from './visualization';
+import dataSubmission from './dataSubmission.js';
+import help from './help.js';
+import reduceReducers from 'reduce-reducers';
+import Cookies from 'js-cookie';
+import states from '../../enums/asyncRequestStates';
+import buildSearchOptionsFromVariableList from '../../Utility/Catalog/buildSearchOptionsFromVariablesList';
+import {
+  localStorageIntroState,
+  localStorageHintState,
+} from '../../Components/Help/initialState.js';
 // Consider building this object from initial states from each reducer
 // ** When adding new keys to redux store consider whether they need to be
 // reset on navigation for UI purposes. If so, add them with a default state
@@ -40,13 +43,13 @@ const initialState = {
   registrationActiveStep: 0,
   snackbarIsOpen: false,
   snackbarMessage: null,
-  loadingMessage: "",
+  loadingMessage: '',
   showHelp: false,
   windowHeight: window.innerHeight,
   windowWidth: window.innerWidth,
 
   // User state pieces
-  user: JSON.parse(Cookies.get("UserInfo") || null),
+  user: JSON.parse(Cookies.get('UserInfo') || null),
   userIsGuest: false,
   apiKeys: null,
   apiKeyRetrievalState: null,
@@ -106,7 +109,7 @@ const reducedReducer = reduceReducers(
   ui,
   visualization,
   dataSubmission,
-  help
+  help,
 );
 
 export default reducedReducer;

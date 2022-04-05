@@ -96,7 +96,7 @@ export default function (state, action) {
     case TABLES_WITH_ANCILLARY_DATA_STORE:
       return {
         ...state,
-        tablesWithAncillaryData: action.payload.result
+        tablesWithAncillaryData: action.payload.result,
       };
     default:
       return state;

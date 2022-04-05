@@ -31,7 +31,7 @@ const Docs = (props) => {
     setExpanded(isExpanded ? panel : false);
   };
 
- return (
+  return (
     <div className={classes.docsWrapper}>
       <ResizeObserver onResize={onResize}></ResizeObserver>
       <h1>The Docs</h1>
@@ -74,7 +74,10 @@ const Docs = (props) => {
         </AccordionDetails>
       </Accordion>
 
-      <Accordion expanded={expanded === 'julia'} onChange={handleChange('julia')}>
+      <Accordion
+        expanded={expanded === 'julia'}
+        onChange={handleChange('julia')}
+      >
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel3-julia-docs-content"
@@ -93,7 +96,10 @@ const Docs = (props) => {
         </AccordionDetails>
       </Accordion>
 
-      <Accordion expanded={expanded === 'matlab'} onChange={handleChange('matlab')}>
+      <Accordion
+        expanded={expanded === 'matlab'}
+        onChange={handleChange('matlab')}
+      >
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel3-matlab-docs-content"

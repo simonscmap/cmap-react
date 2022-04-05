@@ -10,6 +10,8 @@ export const makeErrorBarControl = makeGenericToggleControl(Tune)(tooltip);
 export const useErrorBarControl = (initialState) => {
   let state = initialState === undefined ? true : initialState;
   let [errorBarState, setErrorBarState] = useState(state);
-  let errorBarControlTuple = [makeErrorBarControl([errorBarState, setErrorBarState])];
+  let errorBarControlTuple = [
+    makeErrorBarControl([errorBarState, setErrorBarState]),
+  ];
   return [errorBarControlTuple, errorBarState];
-}
+};

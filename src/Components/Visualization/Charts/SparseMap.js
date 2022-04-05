@@ -84,7 +84,10 @@ const SparseMap = React.memo((props) => {
   const { metadata } = data;
 
   let [paletteControlTuple, palette] = usePaletteControl();
-  let [rangeControlTuple, rangeValues] = useColorscaleRangeControl([data.zMin, data.zMax]);
+  let [rangeControlTuple, rangeValues] = useColorscaleRangeControl([
+    data.zMin,
+    data.zMax,
+  ]);
   let [markerControlTuple, markerOptions] = useMarkerOptions();
 
   let scatterTypes = ['time', 'latitude', 'longitude'];
@@ -92,11 +95,9 @@ const SparseMap = React.memo((props) => {
     scatterTypes.push('depth');
   }
   // scatter plots use markerOptions
-  let scatterPlots = scatterTypes.map(
-    (scatterType, index) => {
-      return getSparseScatterConfig({ data, scatterType, markerOptions });
-    },
-  );
+  let scatterPlots = scatterTypes.map((scatterType, index) => {
+    return getSparseScatterConfig({ data, scatterType, markerOptions });
+  });
 
   // map plot uses palette and colorscaleRonge controls
   let mapPlot = getSparseMapPlotConfig(data, palette, rangeValues);
@@ -109,14 +110,15 @@ const SparseMap = React.memo((props) => {
   // the ChartTemplate nests the contols passed to it in between default controls:
   // [ (0) Dowload CSV, ..., (n-1) Persist Mode Bar, (n) Close Chart ]
   // so we add 1 to get the index of the controls we pass
-  let getShouldDisableControl = ({controlIndex, activeTabIndex}) => {
+  let getShouldDisableControl = ({ controlIndex, activeTabIndex }) => {
     switch (activeTabIndex) {
       case 0: // map
         return [3].includes(controlIndex); // disable markerControl
-      default: // scatter plots
+      default:
+        // scatter plots
         return [1, 2].includes(controlIndex); // disable palette and rangeControl
     }
-  }
+  };
 
   let sparseMapChartConfig = {
     downloadCSVArgs: [
@@ -262,11 +264,11 @@ const SparseMap = React.memo((props) => {
 export default withStyles(sparseMapStyles)(SparseMap);
 
 /* const forceResize = () => {
-   *   // TODO: the timeout is arbitrary 30ms
-   *   setTimeout(() => window.dispatchEvent(new Event('resize')), 30);
-   * }; */
+ *   // TODO: the timeout is arbitrary 30ms
+ *   setTimeout(() => window.dispatchEvent(new Event('resize')), 30);
+ * }; */
 
-  /* const controlPanelProps = {
+/* const controlPanelProps = {
    *   map: {
    *     palette,
    *     handlePaletteChoice,

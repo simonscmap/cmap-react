@@ -240,9 +240,8 @@ const DownloadDialog = (props) => {
         <DownloadStep
           handlers={{
             handleClose,
-            handleDownload
+            handleDownload,
           }}
-
         />
         <Button onClick={handleClose}>Cancel</Button>
       </DialogActions>

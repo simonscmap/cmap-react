@@ -116,7 +116,7 @@ export const chartControlIconButton = (theme) => ({
 export const chartControlTabButton = (theme) => ({
   iconButton: {
     boxShadow: '0px 1px 1px 1px #242424',
-    padding: '0 20px 0 20px'
+    padding: '0 20px 0 20px',
   },
 });
 

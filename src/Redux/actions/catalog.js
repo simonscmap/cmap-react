@@ -1,29 +1,29 @@
 import * as catalogActionTypes from '../actionTypes/catalog';
 
 export const submissionOptionsRetrieval = () => ({
-    type: catalogActionTypes.SUBMISSION_OPTIONS_RETRIEVAL
+  type: catalogActionTypes.SUBMISSION_OPTIONS_RETRIEVAL,
 });
 
 export const storeSubmissionOptions = (options) => ({
-    type: catalogActionTypes.STORE_SUBMISSION_OPTIONS,
-    payload: {
-        options
-    }
+  type: catalogActionTypes.STORE_SUBMISSION_OPTIONS,
+  payload: {
+    options,
+  },
 });
 
 export const searchOptionsFetch = () => ({
-    type: catalogActionTypes.SEARCH_OPTIONS_FETCH
+  type: catalogActionTypes.SEARCH_OPTIONS_FETCH,
 });
 
 export const keywordsFetch = () => ({
-    type: catalogActionTypes.KEYWORDS_FETCH
+  type: catalogActionTypes.KEYWORDS_FETCH,
 });
 
 export const keywordsStore = (keywords) => ({
-    type: catalogActionTypes.KEYWORDS_STORE,
-    payload: {
-        keywords
-    }
+  type: catalogActionTypes.KEYWORDS_STORE,
+  payload: {
+    keywords,
+  },
 });
 
 // the combination of SEARCH_RESUTLS_FETCH and SEARCH_RESULTS_STORE
@@ -35,102 +35,108 @@ export const keywordsStore = (keywords) => ({
 // update the options in redux, which would trigger (if necessary) a re-fetch
 // as it is now, query changes trigger re-fetch in-component
 export const searchResultsFetch = (queryString) => ({
-    type: catalogActionTypes.SEARCH_RESULTS_FETCH,
-    payload: {
-        queryString
-    }
+  type: catalogActionTypes.SEARCH_RESULTS_FETCH,
+  payload: {
+    queryString,
+  },
 });
 
 export const searchResultsStore = (searchResults, submissionOptions) => ({
-    type: catalogActionTypes.SEARCH_RESULTS_STORE,
-    payload: {
-        searchResults,
-        submissionOptions
-    }
+  type: catalogActionTypes.SEARCH_RESULTS_STORE,
+  payload: {
+    searchResults,
+    submissionOptions,
+  },
 });
 
 export const searchResultsSetLoadingState = (state) => ({
-    type: catalogActionTypes.SEARCH_RESULTS_SET_LOADING_STATE,
-    payload: {
-        state
-    }
+  type: catalogActionTypes.SEARCH_RESULTS_SET_LOADING_STATE,
+  payload: {
+    state,
+  },
 });
 
 export const datasetFullPageDataFetch = (shortname) => ({
-    type: catalogActionTypes.DATASET_FULL_PAGE_DATA_FETCH,
-    payload: {
-        shortname
-    }
+  type: catalogActionTypes.DATASET_FULL_PAGE_DATA_FETCH,
+  payload: {
+    shortname,
+  },
 });
 
 export const datasetFullPageDataStore = (datasetFullPageData) => ({
-    type: catalogActionTypes.DATASET_FULL_PAGE_DATA_STORE,
-    payload: {
-        datasetFullPageData
-    }
+  type: catalogActionTypes.DATASET_FULL_PAGE_DATA_STORE,
+  payload: {
+    datasetFullPageData,
+  },
 });
 
 export const datasetFullPageDataSetLoadingState = (state) => ({
-    type: catalogActionTypes.DATASET_FULL_PAGE_DATA_SET_LOADING_STATE,
-    payload: {
-        state
-    }
+  type: catalogActionTypes.DATASET_FULL_PAGE_DATA_SET_LOADING_STATE,
+  payload: {
+    state,
+  },
 });
 
 export const cruiseFullPageDataFetch = (name) => ({
-    type: catalogActionTypes.CRUISE_FULL_PAGE_DATA_FETCH,
-    payload: {
-        name
-    }
+  type: catalogActionTypes.CRUISE_FULL_PAGE_DATA_FETCH,
+  payload: {
+    name,
+  },
 });
 
 export const cruiseFullPageDataStore = (cruiseFullPageData) => ({
-    type: catalogActionTypes.CRUISE_FULL_PAGE_DATA_STORE,
-    payload: {
-        cruiseFullPageData
-    }
+  type: catalogActionTypes.CRUISE_FULL_PAGE_DATA_STORE,
+  payload: {
+    cruiseFullPageData,
+  },
 });
 
 export const cruiseFullPageDataSetLoadingState = (state) => ({
-    type: catalogActionTypes.CRUISE_FULL_PAGE_DATA_SET_LOADING_STATE,
-    payload: {
-        state
-    }
+  type: catalogActionTypes.CRUISE_FULL_PAGE_DATA_SET_LOADING_STATE,
+  payload: {
+    state,
+  },
 });
 
 export const cartAddItem = (item) => ({
-    type: catalogActionTypes.CART_ADD_ITEM,
-    payload: {
-        item
-    }
+  type: catalogActionTypes.CART_ADD_ITEM,
+  payload: {
+    item,
+  },
 });
 
 export const cartRemoveItem = (item) => ({
-    type: catalogActionTypes.CART_REMOVE_ITEM,
-    payload: {
-        item
-    }
+  type: catalogActionTypes.CART_REMOVE_ITEM,
+  payload: {
+    item,
+  },
 });
 
 export const cartClear = () => ({
-    type: catalogActionTypes.CART_CLEAR
+  type: catalogActionTypes.CART_CLEAR,
 });
 
 export const cartAddMultiple = (items) => ({
-    type: catalogActionTypes.CART_ADD_MULTIPLE,
-    payload: {
-        items
-    }
+  type: catalogActionTypes.CART_ADD_MULTIPLE,
+  payload: {
+    items,
+  },
 });
 
 export const fetchColocalizedDatasetListSend = (tableName) => ({
   type: catalogActionTypes.FETCH_TABLES_WITH_ANCILLARY_DATA_SEND,
   payload: {
-    tableName
-  }
+    tableName,
+  },
 });
 
-export const datasetDownloadRequestSend = ({ subsetParams, ancillaryData, tableName, shortName, fileName }) => ({
+export const datasetDownloadRequestSend = ({
+  subsetParams,
+  ancillaryData,
+  tableName,
+  shortName,
+  fileName,
+}) => ({
   type: catalogActionTypes.DATASET_DOWNLOAD_REQUEST_SEND,
   payload: {
     subsetParams,
@@ -138,16 +144,16 @@ export const datasetDownloadRequestSend = ({ subsetParams, ancillaryData, tableN
     tableName,
     shortName,
     fileName,
-  }
-})
+  },
+});
 
 export const datasetDownloadRequestProcessing = () => ({
-  type:catalogActionTypes.DATASET_DOWNLOAD_REQUEST_PROCESSING
+  type: catalogActionTypes.DATASET_DOWNLOAD_REQUEST_PROCESSING,
   // TODO it would be helpful to have generate a request id and include it here
 });
 
 export const datasetDownloadRequestSuccess = (text) => ({
-  type:catalogActionTypes.DATASET_DOWNLOAD_REQUEST_SUCCESS,
+  type: catalogActionTypes.DATASET_DOWNLOAD_REQUEST_SUCCESS,
   payload: {
     text,
   },

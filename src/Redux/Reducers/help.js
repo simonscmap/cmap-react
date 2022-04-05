@@ -1,8 +1,8 @@
-import { helpActionTypes } from "../actions/help.js";
+import { helpActionTypes } from '../actions/help.js';
 
 // determine what the next state should be
 // handles optional "value" param
-function getNextIntroState (lastState, action) {
+function getNextIntroState(lastState, action) {
   const { pageName, value } = action.payload;
   if (value === undefined) {
     // value is not set, toggle state
@@ -25,11 +25,11 @@ export default function (state, action) {
     case helpActionTypes.TOGGLE_HINTS:
       return {
         ...state,
-         hints: {
+        hints: {
           ...state.hints,
           [action.payload]: !state.hints[action.payload],
         },
-      }
+      };
     default:
       return state;
   }

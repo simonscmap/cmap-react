@@ -2,7 +2,11 @@
 import CSVParser from 'csv-parse';
 import encoding from 'text-encoding';
 
-export const fetchAndParseCSVData = async ({ endpoint, collector, options }) => {
+export const fetchAndParseCSVData = async ({
+  endpoint,
+  collector,
+  options,
+}) => {
   console.log(`fetching ${endpoint} and parsing as CSV`);
   let url = endpoint;
   let { fetchOptions, collectorType } = options;
@@ -32,9 +36,7 @@ export const fetchAndParseCSVData = async ({ endpoint, collector, options }) => 
 
   let reader = body.getReader();
 
-
   try {
-
     let readerIsDone = false;
     while (!readerIsDone) {
       let chunk = await reader.read();

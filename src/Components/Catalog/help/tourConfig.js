@@ -25,24 +25,28 @@ const intro = {
     },
     {
       element: '#catalog-search-result-count',
-      intro: 'Found datasets:  Shows the number of datasets matching the search and filters specified.  These datasets are listed directly below.',
+      intro:
+        'Found datasets:  Shows the number of datasets matching the search and filters specified.  These datasets are listed directly below.',
     },
     {
       element: '#catalog-results-download',
-      intro: 'Download search results: Download a csv formatted file containing metadata for all listed datasets.'
+      intro:
+        'Download search results: Download a csv formatted file containing metadata for all listed datasets.',
     },
     {
       element: '#catalog-dataset-title-link',
-      intro: 'Dataset name link:  Opens the catalog page for a given dataset to access detailed dataset information and links to download the dataset and metadata.',
+      intro:
+        'Dataset name link:  Opens the catalog page for a given dataset to access detailed dataset information and links to download the dataset and metadata.',
     },
     {
       element: '#catalog-add-to-cart',
-      intro: 'Add to favorites:  Add dataset to favorites list, located in top right of screen.  ‘Favorite’ datasets are listed first on the data visualization page.',
+      intro:
+        'Add to favorites:  Add dataset to favorites list, located in top right of screen.  ‘Favorite’ datasets are listed first on the data visualization page.',
     },
     {
       element: '#nav-help-toggle-button',
-      intro: 'Find additional help'
-    }
+      intro: 'Find additional help',
+    },
   ],
 };
 

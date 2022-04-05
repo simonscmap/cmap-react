@@ -4,7 +4,6 @@ Visualization pages are responsible for the globe model, as well as the charts a
 
 The component entry point for visualization pages is `Visualization.js`. It includes its own router, switching between three components: a modal module selector (`ModuleSelector.js`), the main entry point for Charts and Plots (`VizControlPanel.js`), and the Cruise Explorer (`CruiseSelector.js`).
 
-
 ## Charts
 
 What components are responsible for what parts of Charts?

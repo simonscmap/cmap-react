@@ -184,7 +184,7 @@ const Docs = (props) => {
     return () => {
       // TODO set iFrameURL to root link for package
       setPkgTarget(target);
-      setIFrameURL(docLinks[target])
+      setIFrameURL(docLinks[target]);
     };
   };
 

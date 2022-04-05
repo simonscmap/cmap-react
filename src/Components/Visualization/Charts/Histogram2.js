@@ -6,7 +6,13 @@ import { connect } from 'react-redux';
 import { csvFromVizRequestSend } from '../../../Redux/actions/visualization';
 import { histogramStyles } from './chartStyles';
 import ChartTemplate from './ChartTemplate';
-import { renderDate, renderLat, renderLon, renderDepth, truncateString } from './chartHelpers';
+import {
+  renderDate,
+  renderLat,
+  renderLon,
+  renderDepth,
+  truncateString,
+} from './chartHelpers';
 const mapDispatchToProps = {
   csvFromVizRequestSend,
 };

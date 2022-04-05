@@ -1,11 +1,11 @@
 const generateSpatialArray = (start, resolution, end) => {
-    let arr = [];
+  let arr = [];
 
-    for(let i = start; i <= end; i += resolution){
-        arr.push(i);
-    }
+  for (let i = start; i <= end; i += resolution) {
+    arr.push(i);
+  }
 
-    return arr;
-}
+  return arr;
+};
 
 export default generateSpatialArray;

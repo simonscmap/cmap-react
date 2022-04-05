@@ -38,7 +38,6 @@ const Intro = ({ config, wait }) => {
   let [ready, setReady] = useState(false);
   let [steps, setSteps] = useState(config.steps);
 
-
   // tour configurations can optionally pass an onBeforeChange function
   // which is executed in this wrapper, and passed the nextStepIndex;
   // the onBeforeChange function can return a single action, which will be dispatched

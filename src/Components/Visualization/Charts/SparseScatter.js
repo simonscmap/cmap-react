@@ -12,15 +12,8 @@ import {
 } from './chartHelpers';
 
 const getHovertext = (data, scatterType) => {
-  let {
-    variableValues,
-    times,
-    parameters,
-    metadata,
-    lats,
-    lons,
-    depths,
-  } = data;
+  let { variableValues, times, parameters, metadata, lats, lons, depths } =
+    data;
 
   switch (scatterType) {
     case 'latitude':
@@ -78,24 +71,22 @@ const getValues = (data, scatterType) => {
 // data -> scatterType -> [x title, y title]
 const getTitles = (data, scatterType) => {
   let scatterTypeTitle = capitalizeFirst(scatterType);
-  let { metadata: { Long_Name } } = data;
+  let {
+    metadata: { Long_Name },
+  } = data;
   switch (scatterType) {
     case 'depth':
-      return  [truncate60(Long_Name), 'Depth[m]'];
+      return [truncate60(Long_Name), 'Depth[m]'];
     case 'time':
     case 'latitude':
     case 'longitude':
     default:
       return [scatterTypeTitle, truncate60(Long_Name)];
   }
-}
+};
 
 const getSparseScatterConfig = (props) => {
-  const {
-    markerOptions,
-    data,
-    scatterType,
-  } = props;
+  const { markerOptions, data, scatterType } = props;
 
   const { parameters, metadata, variableValues } = data;
 

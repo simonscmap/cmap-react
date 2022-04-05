@@ -3,7 +3,7 @@ import React from 'react';
 export default () => {
   return (
     <div>
-    <h3>See Also</h3>
+      <h3>See Also</h3>
       <ul>
         <li>
           <a
