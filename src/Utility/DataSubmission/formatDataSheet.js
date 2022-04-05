@@ -1,16 +1,14 @@
 export default (data, workbook) => {
-  if (!data || !data.length) return;
+  if (!data || !data.length) {
+    return;
+  }
 
   try {
     let sample = data[0].time;
-
+    let regex =
+      /^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(\\.[0-9]+)?(Z)?$/;
     // Test sample row for correct format
-    if (
-      /^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(\\.[0-9]+)?(Z)?$/.test(
-        sample,
-      )
-    ) {
-    } else {
+    if (!regex.test(sample)) {
       let is1904 = !!((workbook.Workbook || {}).WBProps || {}).date1904;
 
       let type = typeof sample;
@@ -44,7 +42,9 @@ export default (data, workbook) => {
   let cols = Object.keys(data[0]);
   let keysContaining__EMPTY = [];
   cols.forEach((e) => {
-    if (e.indexOf('__EMPTY') !== -1) keysContaining__EMPTY.push(e);
+    if (e.indexOf('__EMPTY') !== -1) {
+      keysContaining__EMPTY.push(e);
+    }
   });
 
   if (keysContaining__EMPTY.length) {

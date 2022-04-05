@@ -85,7 +85,11 @@ const CommunityTemp = (props) => {
 
         <Grid container className={classes.iconContainer}>
           <Grid item xs={12} md={6} lg={3}>
-            <a href="https://github.com/simonscmap/cmap4r" target="_blank">
+            <a
+              href="https://github.com/simonscmap/cmap4r"
+              target="_blank"
+              rel="noreferrer"
+            >
               <img
                 src="images/cmap-sdk-R-COLORED.png"
                 width="152"
@@ -96,7 +100,11 @@ const CommunityTemp = (props) => {
           </Grid>
 
           <Grid item xs={12} md={6} lg={3}>
-            <a href="https://github.com/simonscmap/pycmap" target="_blank">
+            <a
+              href="https://github.com/simonscmap/pycmap"
+              target="_blank"
+              rel="noreferrer"
+            >
               <img
                 src="images/cmap-sdk-python-COLORED.png"
                 width="273"
@@ -107,7 +115,11 @@ const CommunityTemp = (props) => {
           </Grid>
 
           <Grid item xs={12} md={6} lg={3}>
-            <a href="https://github.com/simonscmap/CMAP.jl" target="_blank">
+            <a
+              href="https://github.com/simonscmap/CMAP.jl"
+              target="_blank"
+              rel="noreferrer"
+            >
               <img
                 src="images/cmap-sdk-julia-COLORED.png"
                 width="176"
@@ -118,7 +130,11 @@ const CommunityTemp = (props) => {
           </Grid>
 
           <Grid item xs={12} md={6} lg={3}>
-            <a href="https://github.com/simonscmap/matcmap" target="_blank">
+            <a
+              href="https://github.com/simonscmap/matcmap"
+              target="_blank"
+              rel="noreferrer"
+            >
               <img
                 src="images/cmap-sdk-Matlab-COLORED.png"
                 alt=""
@@ -137,7 +153,11 @@ const CommunityTemp = (props) => {
           </Grid>
 
           <Grid item xs={4} md={3}>
-            <a href="https://github.com/simonscmap" target="_blank">
+            <a
+              href="https://github.com/simonscmap"
+              target="_blank"
+              rel="noreferrer"
+            >
               <img
                 src="images/github-icon.png"
                 width="55"
@@ -150,6 +170,7 @@ const CommunityTemp = (props) => {
               href="https://join.slack.com/t/simons-cmap/shared_invite/enQtNjQzMTkzMjg0NjQ2LTdlOGRhZjNhMDY3MjRlNjg2OTY5NzE3ZWZhNWE0OWZhYmQzMTJjNDkyNDQ1MjNkZDg0N2MzMzhlZDliNGYxYzQ"
               target="_blank"
               className={classes.followUsIcon}
+              rel="noreferrer"
             >
               <img
                 src="images/slack-icon.png"

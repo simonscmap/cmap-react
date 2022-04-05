@@ -13,11 +13,15 @@ const groupVariablesByDataset = (variables, cart) => {
   }, {});
 
   return Object.values(datasetObject).sort((opt1, opt2) => {
-    if (cart[opt1.Dataset_Name] && cart[opt2.Dataset_Name])
+    if (cart[opt1.Dataset_Name] && cart[opt2.Dataset_Name]) {
       return opt1.Dataset_Name < opt2.Dataset_Name ? -1 : 1;
-    else if (cart[opt1.Dataset_Name]) return -1;
-    else if (cart[opt2.Dataset_Name]) return 1;
-    else return opt1.Dataset_Name < opt2.Dataset_Name ? -1 : 1;
+    } else if (cart[opt1.Dataset_Name]) {
+      return -1;
+    } else if (cart[opt2.Dataset_Name]) {
+      return 1;
+    } else {
+      return opt1.Dataset_Name < opt2.Dataset_Name ? -1 : 1;
+    }
   });
 };
 

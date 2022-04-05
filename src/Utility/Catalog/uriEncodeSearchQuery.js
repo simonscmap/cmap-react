@@ -23,15 +23,26 @@ export default ({
     hasDepth === 'yes' || hasDepth === 'no'
       ? `&hasDepth=${hasDepth}`
       : `&hasDepth=any`;
-  if (timeStart) qString += `&timeStart=${encodeURIComponent(timeStart)}`;
-  if (timeEnd) qString += `&timeEnd=${encodeURIComponent(timeEnd)}`;
-  if (latStart || latStart == 0)
+  if (timeStart) {
+    qString += `&timeStart=${encodeURIComponent(timeStart)}`;
+  }
+  if (timeEnd) {
+    qString += `&timeEnd=${encodeURIComponent(timeEnd)}`;
+  }
+  if (latStart || latStart == 0) {
     qString += `&latStart=${encodeURIComponent(latStart)}`;
-  if (latEnd || latEnd == 0) qString += `&latEnd=${encodeURIComponent(latEnd)}`;
-  if (lonStart || lonStart == 0)
+  }
+  if (latEnd || latEnd == 0) {
+    qString += `&latEnd=${encodeURIComponent(latEnd)}`;
+  }
+  if (lonStart || lonStart == 0) {
     qString += `&lonStart=${encodeURIComponent(lonStart)}`;
-  if (lonEnd || lonEnd == 0) qString += `&lonEnd=${encodeURIComponent(lonEnd)}`;
-  if (sensor !== 'Any' && sensor !== null)
+  }
+  if (lonEnd || lonEnd == 0) {
+    qString += `&lonEnd=${encodeURIComponent(lonEnd)}`;
+  }
+  if (sensor !== 'Any' && sensor !== null) {
     qString += `&sensor=${encodeURIComponent(sensor)}`;
+  }
   return qString;
 };

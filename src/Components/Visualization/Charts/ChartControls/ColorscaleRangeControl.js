@@ -17,13 +17,21 @@ import { chartControlPanelPopoverStyles } from '../chartStyles';
 
 // validaiton helpers
 const checkLocalZMin = (localMin, localMax) => {
-  if (localMin > localMax) return `Min must be higher than max`;
-  if (!/^[-+]?[0-9]*\.?[0-9]+$/.test(localMin)) return 'Invalid value';
+  if (localMin > localMax) {
+    return `Min must be higher than max`;
+  }
+  if (!/^[-+]?[0-9]*\.?[0-9]+$/.test(localMin)) {
+    return 'Invalid value';
+  }
 };
 
 const checkLocalZMax = (localMin, localMax) => {
-  if (localMin > localMax) return `Min must be higher than max`;
-  if (!/^[-+]?[0-9]*\.?[0-9]+$/.test(localMax)) return 'Invalid value';
+  if (localMin > localMax) {
+    return `Min must be higher than max`;
+  }
+  if (!/^[-+]?[0-9]*\.?[0-9]+$/.test(localMax)) {
+    return 'Invalid value';
+  }
 };
 
 // Control Component
@@ -53,7 +61,7 @@ const ColorscaleRangeControl = (props) => {
   let handleOpen = (event) => setAnchorElement(event.currentTarget);
   let handleClose = () => setAnchorElement(null);
 
-  let popoverId = !!anchorElement ? 'colorscale-range-popover' : undefined;
+  let popoverId = anchorElement ? 'colorscale-range-popover' : undefined;
 
   let localMinErrorMessage = checkLocalZMin(localZMin, localZMax);
   let localMaxErrorMessage = checkLocalZMax(localZMin, localZMax);

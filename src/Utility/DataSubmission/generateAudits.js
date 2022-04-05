@@ -8,20 +8,30 @@ export default (submissionOptions) => {
   } = submissionOptions;
 
   const number = (value) => {
-    if (!value && value !== 0) return null;
-    if (isNaN(value) || isNaN(parseInt(value))) return 'Must be a number';
+    if (!value && value !== 0) {
+      return null;
+    }
+    if (isNaN(value) || isNaN(parseInt(value))) {
+      return 'Must be a number';
+    }
   };
 
   const validLat = (value) => {
-    if (value < -90 || value > 90) return 'Must be -90 to 90';
+    if (value < -90 || value > 90) {
+      return 'Must be -90 to 90';
+    }
   };
 
   const validLon = (value) => {
-    if (value < -180 || value > 180) return 'Must be -180 to 180';
+    if (value < -180 || value > 180) {
+      return 'Must be -180 to 180';
+    }
   };
 
   const validTime = (value) => {
-    if (!value && value !== 0) return null;
+    if (!value && value !== 0) {
+      return null;
+    }
 
     if (
       /^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(\\.[0-9]+)?(Z)?$/.test(
@@ -33,14 +43,18 @@ export default (submissionOptions) => {
   };
 
   const required = (value) => {
-    if (value === null || value === undefined || value === '')
+    if (value === null || value === undefined || value === '') {
       return 'Value is required';
+    }
   };
 
   const datasetRequired = (value, row) => {
-    if (row !== 0) return;
-    if (value === null || value === undefined || value === '')
+    if (row !== 0) {
+      return;
+    }
+    if (value === null || value === undefined || value === '') {
       return 'Value is required';
+    }
   };
 
   const length = (min, max) => {
@@ -65,14 +79,18 @@ export default (submissionOptions) => {
   };
 
   const positive = (value) => {
-    if (value < 0) return 'Cannot be negative';
+    if (value < 0) {
+      return 'Cannot be negative';
+    }
   };
 
   const makes = Make.map((e) => e.toLowerCase());
   const makesSet = new Set(makes);
 
   const validMake = (value, row) => {
-    if (row !== 0) return;
+    if (row !== 0) {
+      return;
+    }
     if (!value || !makesSet.has(value.toLowerCase())) {
       return `Must be one of the above options.`;
     }
@@ -141,7 +159,9 @@ export default (submissionOptions) => {
   };
 
   const releaseDate = (value, row) => {
-    if (row !== 0) return;
+    if (row !== 0) {
+      return;
+    }
     if (!/^([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))$/.test(value)) {
       return 'Format must match 2018-06-20';
     }

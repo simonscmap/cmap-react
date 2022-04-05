@@ -31,7 +31,9 @@ class TimeSeriesData {
   }
 
   finalize() {
-    if (this.depth === false) this.depth = 'Surface';
+    if (this.depth === false) {
+      this.depth = 'Surface';
+    }
   }
 
   generatePlotData() {

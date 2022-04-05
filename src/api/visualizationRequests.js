@@ -26,8 +26,11 @@ visualizationAPI.storedProcedureRequest = async (payload) => {
 
   switch (payload.parameters.spName) {
     case storedProcedures.spaceTime:
-      if (payload.subType === 'Sparse') vizData = new SparseData(payload);
-      else vizData = new SpaceTimeData(payload);
+      if (payload.subType === 'Sparse') {
+        vizData = new SparseData(payload);
+      } else {
+        vizData = new SpaceTimeData(payload);
+      }
       break;
 
     case storedProcedures.timeSeries:
@@ -53,7 +56,9 @@ visualizationAPI.storedProcedureRequest = async (payload) => {
     fetchOptions,
   );
 
-  if (!response.ok) return { failed: true, status: response.status };
+  if (!response.ok) {
+    return { failed: true, status: response.status };
+  }
 
   let csvParser = CSVParser({ from: 2 });
 
@@ -95,8 +100,11 @@ visualizationAPI.sparseDataQuerysend = async (payload) => {
 
   switch (parameters.spName) {
     case storedProcedures.spaceTime:
-      if (payload.subType === 'Sparse') vizData = new SparseData(payload);
-      else vizData = new SpaceTimeData(payload);
+      if (payload.subType === 'Sparse') {
+        vizData = new SparseData(payload);
+      } else {
+        vizData = new SpaceTimeData(payload);
+      }
       break;
 
     default:
@@ -109,7 +117,9 @@ visualizationAPI.sparseDataQuerysend = async (payload) => {
     fetchOptions,
   );
 
-  if (!response.ok) return { failed: true, status: response.status };
+  if (!response.ok) {
+    return { failed: true, status: response.status };
+  }
 
   let csvParser = CSVParser({ from: 2 });
 
@@ -145,7 +155,9 @@ visualizationAPI.getTableStats = async (tableName) => {
     apiUrl + '/dataretrieval/tablestats?table=' + tableName,
     fetchOptions,
   );
-  if (!response.ok) return { failed: true, status: response.status };
+  if (!response.ok) {
+    return { failed: true, status: response.status };
+  }
   return await response.json();
 };
 
@@ -158,7 +170,9 @@ visualizationAPI.cruiseTrajectoryRequest = async (payload) => {
     fetchOptions,
   );
 
-  if (!response.ok) return { failed: true, status: response.status };
+  if (!response.ok) {
+    return { failed: true, status: response.status };
+  }
 
   let csvParser = CSVParser({ from: 2 });
 
@@ -191,11 +205,15 @@ visualizationAPI.cruiseList = async () => {
 
   if (response.ok) {
     return await response.json();
-  } else return false;
+  } else {
+    return false;
+  }
 };
 
 visualizationAPI.csvDownload = async (query) => {
-  if (!query) return null;
+  if (!query) {
+    return null;
+  }
   let response = await fetch(
     apiUrl + `/api/data/query?query=${query}`,
     fetchOptions,
@@ -203,7 +221,9 @@ visualizationAPI.csvDownload = async (query) => {
   if (response.ok) {
     // hand off data to saga "downloadTextAsCsv"
     return await response.text();
-  } else return { failed: true, status: response.status };
+  } else {
+    return { failed: true, status: response.status };
+  }
 };
 
 visualizationAPI.memberVariablesFetch = async (datasetID) => {

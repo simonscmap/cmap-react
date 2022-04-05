@@ -9,6 +9,7 @@ export default () => {
           <a
             href="https://cmap.readthedocs.io/en/latest/user_guide/API_ref/pycmap_api/pycmap_data_vizualization.html"
             target="_blank"
+            rel="noreferrer"
           >
             Visualizate data from Simons CMAP using Python client (pycmap)
           </a>
@@ -17,6 +18,7 @@ export default () => {
           <a
             href="https://simonscmap.github.io/cmap4r/visualization.html"
             target="_blank"
+            rel="noreferrer"
           >
             Visualizate data from Simons CMAP using R client (cmap4r)
           </a>

@@ -42,13 +42,21 @@ const exports = {
 
     if (piscesTable.has(table)) {
       for (let i = 0; i < piscesDepths.length; i++) {
-        if (piscesDepths[i] > depth2) break;
-        if (piscesDepths[i] > depth1) count++;
+        if (piscesDepths[i] > depth2) {
+          break;
+        }
+        if (piscesDepths[i] > depth1) {
+          count++;
+        }
       }
     } else if (darwinTable.has(table)) {
       for (let i = 0; i < darwinDepths.length; i++) {
-        if (darwinDepths[i] > depth2) break;
-        if (darwinDepths[i] > depth1) count++;
+        if (darwinDepths[i] > depth2) {
+          break;
+        }
+        if (darwinDepths[i] > depth1) {
+          count++;
+        }
       }
     } else {
     }

@@ -165,8 +165,9 @@ const SubmissionGuide = (props) => {
   React.useEffect(() => {
     let onThreshold = (entries) => {
       entries.forEach((e) => {
-        if (e.isIntersecting && e.target.id !== activeSection)
+        if (e.isIntersecting && e.target.id !== activeSection) {
           setActiveSection(e.target.id);
+        }
       });
     };
     let observer = new IntersectionObserver(onThreshold, { threshold: 0.5 });

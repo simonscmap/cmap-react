@@ -26,6 +26,7 @@
     "curly": ["error"],
     "no-unused-vars": "error",
     "no-shadow": ["error"],
-    "react/prop-types": [0]
+    "react/prop-types": [0],
+    "brace-style": ["error", "1tbs", { "allowSingleLine": false }]
   }
 }

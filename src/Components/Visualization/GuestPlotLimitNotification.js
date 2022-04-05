@@ -63,7 +63,9 @@ const GuestPlotLimitNotification = (props) => {
   };
 
   const handleOnClose = () => {
-    if (props.userIsGuest) props.guestPlotLimitNotificationSetIsVisible(false);
+    if (props.userIsGuest) {
+      props.guestPlotLimitNotificationSetIsVisible(false);
+    }
   };
 
   let guestPlotCount = parseInt(Cookies.get('guestPlotCount')) || 0;

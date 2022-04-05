@@ -32,7 +32,9 @@ let checkEmptyColumns = (data, userVariables) => {
 
   userVariables.forEach((header) => {
     for (let i = 0; i < data.length; i++) {
-      if (data[i][header] || data[i][header] === 0) return;
+      if (data[i][header] || data[i][header] === 0) {
+        return;
+      }
     }
 
     emptyColumns.push(header);
@@ -67,10 +69,18 @@ let checkRadians = (data) => {
   let pi = Math.PI;
 
   data.forEach((e) => {
-    if (e.lon < lonMin) lonMin = e.lon;
-    if (e.lon > lonMax) lonMax = e.lon;
-    if (e.lat < latMin) latMin = e.lat;
-    if (e.lat > latMax) latMax = e.lat;
+    if (e.lon < lonMin) {
+      lonMin = e.lon;
+    }
+    if (e.lon > lonMax) {
+      lonMax = e.lon;
+    }
+    if (e.lat < latMin) {
+      latMin = e.lat;
+    }
+    if (e.lat > latMax) {
+      latMax = e.lat;
+    }
   });
 
   return Boolean(
@@ -101,7 +111,9 @@ let checkUniqueSpaceTime = (data) => {
             row: i + 2,
             matched: obj[data[i].time][data[i].lat][data[i].lon],
           });
-          if (result.length > 5) return result;
+          if (result.length > 5) {
+            return result;
+          }
         }
       } else {
         if (obj[data[i].time][data[i].lat][data[i].lon] === undefined) {
@@ -118,7 +130,9 @@ let checkUniqueSpaceTime = (data) => {
             row: i + 2,
             matched: obj[data[i].time][data[i].lat][data[i].lon][data[i].depth],
           });
-          if (result.length > 5) return result;
+          if (result.length > 5) {
+            return result;
+          }
         }
       }
     }
@@ -137,8 +151,9 @@ let checkTypeConsistency = (data, userVariables) => {
     let columnIsNumerical;
     for (let i = 0; i < data.length; i++) {
       if (columnIsNumerical === undefined) {
-        if (data[i][e] || data[i][e] == 0)
+        if (data[i][e] || data[i][e] == 0) {
           columnIsNumerical = !isNaN(parseFloat(data[i][e]));
+        }
       } else if (columnIsNumerical && (data[i][e] || data[i][e] == 0)) {
         if (isNaN(parseFloat(data[i][e]))) {
           result.push({ column: e, row: i + 2 });
@@ -168,7 +183,9 @@ let allSameValueHelper = (data, col) => {
   }
 
   for (let j = i; j < data.length; j++) {
-    if (data[j][col] != sampleValue) return false;
+    if (data[j][col] != sampleValue) {
+      return false;
+    }
   }
 
   return true;
@@ -179,7 +196,9 @@ let checkAllSameValue = (data, userVariables) => {
 
   userVariables.forEach((e) => {
     let allSame = allSameValueHelper(data, e);
-    if (allSame) result.push(e);
+    if (allSame) {
+      result.push(e);
+    }
   });
 
   return result;
@@ -204,8 +223,9 @@ let datasetMetadataIncludesSampleRow = (datasetMetadata) => {
       datasetMetadata[i]['dataset_short_name'].includes(
         datasetMetadataSampleRowValue,
       )
-    )
+    ) {
       return true;
+    }
   }
   return false;
 };
@@ -217,8 +237,9 @@ let variableMetadataIncludesSampleRow = (variableMetadata) => {
       variableMetadata[i]['var_short_name'].includes(
         variableMetadataSampleRowValue,
       )
-    )
+    ) {
       return true;
+    }
   }
   return false;
 };
@@ -231,7 +252,9 @@ let checkNans = (data, userVariables) => {
     for (let j = 0; j < userVariables.length; j++) {
       if (nanVariants.has(data[i][userVariables[j]])) {
         result.push({ row: i + 2, column: userVariables[j] });
-        if (result.length > 4) return result;
+        if (result.length > 4) {
+          return result;
+        }
       }
     }
   }
@@ -277,7 +300,9 @@ let checkOutliers = (data, userVariables) => {
             column: keys[i],
             value: data[j][keys[i]],
           });
-          if (outliers.length > 9) return outliers;
+          if (outliers.length > 9) {
+            return outliers;
+          }
         }
       }
     }
@@ -291,7 +316,9 @@ let checkRequiredCols = (data) => {
   let sample = data[0];
 
   ['time', 'lat', 'lon'].forEach((e) => {
-    if (!sample[e] && sample[e] !== 0) missingCols.push(e);
+    if (!sample[e] && sample[e] !== 0) {
+      missingCols.push(e);
+    }
   });
 
   return missingCols;

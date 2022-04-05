@@ -1,5 +1,7 @@
 export default (metadata, workbook) => {
-  if (!metadata || !metadata.length) return;
+  if (!metadata || !metadata.length) {
+    return;
+  }
 
   try {
     var sample = metadata[0];
@@ -27,12 +29,16 @@ export default (metadata, workbook) => {
         .toISOString()
         .slice(0, -14);
     }
-  } catch {}
+  } catch (e) {
+    console.log(`error formatting metadata sheet`, e);
+  }
 
   let cols = Object.keys(metadata[0]);
   let keysContaining__EMPTY = [];
   cols.forEach((e) => {
-    if (e.indexOf('__EMPTY') !== -1) keysContaining__EMPTY.push(e);
+    if (e.indexOf('__EMPTY') !== -1) {
+      keysContaining__EMPTY.push(e);
+    }
   });
 
   if (keysContaining__EMPTY.length) {
@@ -46,7 +52,9 @@ export default (metadata, workbook) => {
   cols.forEach((col) => {
     metadata.forEach((row) => {
       let cellValue = row[col];
-      if (typeof cellValue === 'string') row[col] = cellValue.trim();
+      if (typeof cellValue === 'string') {
+        row[col] = cellValue.trim();
+      }
     });
   });
 

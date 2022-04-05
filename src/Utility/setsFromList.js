@@ -8,7 +8,9 @@ const setsFromList = (list, setKeys) => {
     setKeys.forEach((key) => {
       if (Array.isArray(item[key])) {
         item[key].forEach((subItem) => result[key].add(subItem));
-      } else if (item[key]) result[key].add(item[key]);
+      } else if (item[key]) {
+        result[key].add(item[key]);
+      }
     });
   });
 

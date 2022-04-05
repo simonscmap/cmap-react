@@ -13,8 +13,11 @@ const mapStateToProps = (state, ownProps) => ({
 
 const Login = (props) => {
   useEffect(() => {
-    if (!props.user) props.showLoginDialog();
-    else window.location.href = '/catalog';
+    if (!props.user) {
+      props.showLoginDialog();
+    } else {
+      window.location.href = '/catalog';
+    }
   });
 
   return '';

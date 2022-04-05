@@ -274,7 +274,9 @@ const DataSearchResultGroup = (props) => {
   };
 
   useEffect(() => {
-    if (listRef.current) listRef.current.resetAfterIndex(0);
+    if (listRef.current) {
+      listRef.current.resetAfterIndex(0);
+    }
   }, [options, listRef]);
 
   return (

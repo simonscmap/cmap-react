@@ -67,7 +67,9 @@ const LoadingOverlay = (props) => {
         </div>
       </div>
     );
-  } else return '';
+  } else {
+    return '';
+  }
 };
 
 export default withStyles(styles)(LoadingOverlay);

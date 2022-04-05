@@ -70,7 +70,9 @@ const SparseDataMaxSizeNotification = (props) => {
     sparseDataMaxSizeNotificationData,
     classes,
   } = props;
-  if (sparseDataMaxSizeNotificationData === null) return '';
+  if (sparseDataMaxSizeNotificationData === null) {
+    return '';
+  }
   const { time, lat, lon, depth } = sparseDataMaxSizeNotificationData;
 
   const handleClose = () => sparseDataMaxSizeNotificationUpdate(null);

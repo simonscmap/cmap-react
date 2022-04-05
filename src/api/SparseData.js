@@ -37,14 +37,24 @@ class SparseData {
       this.times.push(row[0]);
       this.lats.push(lat);
       this.lons.push(lon);
-      if (this.hasDepth) this.depths.push(parseFloat(row[3]));
+      if (this.hasDepth) {
+        this.depths.push(parseFloat(row[3]));
+      }
       this.variableValues.push(parseFloat(row[this.variableIndex]));
 
-      if (lat < this.latMin) this.latMin = lat;
-      if (lat > this.latMax) this.latMax = lat;
+      if (lat < this.latMin) {
+        this.latMin = lat;
+      }
+      if (lat > this.latMax) {
+        this.latMax = lat;
+      }
 
-      if (lon < this.lonMin) this.lonMin = lon;
-      if (lon > this.lonMax) this.lonMax = lon;
+      if (lon < this.lonMin) {
+        this.lonMin = lon;
+      }
+      if (lon > this.lonMax) {
+        this.lonMax = lon;
+      }
     }
   }
 
