@@ -70,7 +70,8 @@
     "tagv": "./scripts/create-tag-file.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "check-docs": "./scripts/check-docs.js"
+    "check-docs": "./scripts/check-docs.js",
+    "format": "prettier --write ./src"
   },
   "eslintConfig": {
     "extends": "react-app"
