@@ -253,8 +253,8 @@ function* downloadRequest(action) {
   yield put(catalogActions.datasetDownloadRequestProcessing());
   yield put(interfaceActions.setLoadingMessage('Processing Request'));
 
-  let { subsetParams, tableName, shortName, fileName } = action.payload;
-  let query = makeDownloadQuery({ subsetParams, tableName });
+  let { subsetParams, ancillaryData, tableName, shortName, fileName } = action.payload;
+  let query = makeDownloadQuery({ subsetParams, ancillaryData, tableName });
   yield put(interfaceActions.setLoadingMessage('Fetching Data'));
 
   try {

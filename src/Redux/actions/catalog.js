@@ -130,10 +130,11 @@ export const fetchColocalizedDatasetListSend = (tableName) => ({
   }
 });
 
-export const datasetDownloadRequestSend = ({ subsetParams, tableName, shortName, fileName }) => ({
+export const datasetDownloadRequestSend = ({ subsetParams, ancillaryData, tableName, shortName, fileName }) => ({
   type: catalogActionTypes.DATASET_DOWNLOAD_REQUEST_SEND,
   payload: {
     subsetParams,
+    ancillaryData,
     tableName,
     shortName,
     fileName,
