@@ -217,14 +217,28 @@ const searchFilterGroupCruises = (
     cruises = cruises.filter((e) => selectedSeries.has(e.Series));
 
   let cruisesGroupedByYear = cruises.reduce((acc, cur) => {
-    if (!acc[cur.Year]) acc[cur.Year] = [];
+    if (cur.Year === null) {
+      if (!acc['NA']) {
+        acc['NA'] = [];
+      }
+      acc['NA'].push(cur);
+      return acc;
+    }
+    if (!acc[cur.Year]) {
+      acc[cur.Year] = [];
+    }
     acc[cur.Year].push(cur);
     return acc;
   }, {});
 
   cruisesGroupedByYear = Object.keys(cruisesGroupedByYear)
     .map((key) => ({ year: key, cruises: cruisesGroupedByYear[key] }))
-    .sort((a, b) => (a.year < b.year ? 1 : -1));
+    .sort((a, b) => {
+      if (b.year === 'NA') {
+        return -1;
+      }
+      return a.year < b.year ? 1 : -1;
+    });
 
   return { cruisesGroupedByYear, cruises };
 };
