@@ -28,17 +28,22 @@ export default (data, workbook) => {
           });
         } else {
           console.log(
-            'correct by 25567 convert number to ISO string and truncate ms',
+            'correct date serial by 255679, round to seconds, convert to ISO string, truncate ms',
           );
+
+
           data.forEach((e) => {
-            let newTime = new Date((e.time - 25569) * 86400 * 1000)
+            let rounded = (Math.ceil(e.time * 10000000)) / 10000000;
+            let newTime = new Date((rounded - 25569) * 86400 * 1000)
               .toISOString()
               .slice(0, -5);
+
             console.log(
-              e.time,
-              new Date(e.time * 86400 * 1000).toISOString(),
-              e.time - 25567,
-              new Date((e.time - 25569) * 86400 * 1000).toISOString(),
+              'date conversion:\n',
+              `${e.time} ~> ${new Date(e.time * 86400 * 1000).toISOString()}\n`,
+              `${e.time - 25569} ~> ${new Date((e.time - 25569) * 86400 * 1000).toISOString()}\n`,
+              `${rounded}     ~> ${new Date((rounded - 25569) * 86400 * 1000).toISOString()}\n`,
+              `                  ~> ${newTime}`
             );
             e.time = newTime;
           });
