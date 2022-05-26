@@ -15,7 +15,7 @@ import LatitudeSubsetControl from './LatitudeSubsetControl';
 import LongitudeSubsetControl from './LongitudeSubsetControl';
 import DepthSubsetControl from './DepthSubsetControl';
 import {
-  getDownloadAvailabilites,
+  // getDownloadAvailabilites,
   getInitialRangeValues,
   parseDataset,
 } from './downloadDialogHelpers';
@@ -27,6 +27,86 @@ import { DownloadIntro } from './Intro';
 import { AncillaryDataExplainer } from './AncillaryDataDownload';
 import DownloadOption from './DownloadOption';
 import DownloadStep from './DownloadStep';
+// subset controls
+
+let SubsetControls = ({
+  subsetParams,
+  subsetSetters,
+  dataset,
+  handleSwitch,
+  optionsState,
+  maxDays,
+  classes,
+}) => {
+  let {
+    timeStart,
+    timeEnd,
+    latStart,
+    latEnd,
+    lonStart,
+    lonEnd,
+    depthStart,
+    depthEnd,
+  } = subsetParams;
+
+  let {
+    setTimeStart,
+    setTimeEnd,
+    setLatStart,
+    setLatEnd,
+    setLonStart,
+    setLonEnd,
+    setDepthStart,
+    setDepthEnd,
+  } = subsetSetters;
+  return (
+    <React.Fragment>
+      <DownloadOption
+        downloadOption={{
+          handler: handleSwitch,
+          switchState: optionsState.subset,
+          name: 'subset',
+          label: 'Define Subset',
+        }}
+        description={
+          'Define a subset of the data for download by specifying time, lat, lon, and depth parameters.'
+        }
+      />
+
+      <Collapse in={optionsState.subset}>
+        <div className={classes.subsetStep}>
+          <DateSubsetControl
+            dataset={dataset}
+            setTimeStart={setTimeStart}
+            setTimeEnd={setTimeEnd}
+            subsetState={{ timeStart, timeEnd, maxDays }}
+          />
+
+          <LatitudeSubsetControl
+            dataset={dataset}
+            setLatStart={setLatStart}
+            setLatEnd={setLatEnd}
+            subsetState={{ latStart, latEnd }}
+          />
+
+          <LongitudeSubsetControl
+            dataset={dataset}
+            setLonStart={setLonStart}
+            setLonEnd={setLonEnd}
+            subsetState={{ lonStart, lonEnd }}
+          />
+
+          <DepthSubsetControl
+            dataset={dataset}
+            setDepthStart={setDepthStart}
+            setDepthEnd={setDepthEnd}
+            subsetState={{ depthStart, depthEnd }}
+          />
+        </div>
+      </Collapse>
+    </React.Fragment>
+  );
+};
 
 const DownloadDialog = (props) => {
   let { dataset: rawDataset, dialogOpen, handleClose, classes } = props;
@@ -88,21 +168,35 @@ const DownloadDialog = (props) => {
     depthEnd,
   };
 
-  // calculations used to allow/disallow size of download
-  let subsetState = {
-    lat: [latStart, latEnd],
-    lon: [lonStart, lonEnd],
-    time: [timeStart, timeEnd],
-    depth: [depthStart, depthEnd],
+  let subsetSetters = {
+    setTimeStart,
+    setTimeEnd,
+    setLatStart,
+    setLatEnd,
+    setLonStart,
+    setLonEnd,
+    setDepthStart,
+    setDepthEnd,
   };
 
-  // calculate availabilities (uses magic numbers, see helper for implementation)
-  let downloadAvailabilities = getDownloadAvailabilites(dataset, subsetState);
-  let availabilities = { ...downloadAvailabilities, datasetHasAncillaryData };
-
-  if (!availabilities.fullDatasetAvailable) {
-    console.log(`restricted availability`, availabilities);
-  }
+  /*
+   *   // calculations used to allow/disallow size of download
+   *   let subsetState = {
+   *     lat: [latStart, latEnd],
+   *     lon: [lonStart, lonEnd],
+   *     time: [timeStart, timeEnd],
+   *     depth: [depthStart, depthEnd],
+   *   };
+   *
+   *   // calculate availabilities (uses magic numbers, see helper for implementation)
+   *   let downloadAvailabilities = getDownloadAvailabilites(dataset, subsetState);
+   *   let availabilities = { ...downloadAvailabilities, datasetHasAncillaryData };
+   *
+   *   if (!availabilities.fullDatasetAvailable) {
+   *     console.log(`restricted availability`, availabilities);
+   *   }
+   *
+   *  */
 
   // download options (Mui Switch state)
 
@@ -121,7 +215,6 @@ const DownloadDialog = (props) => {
 
   // download handler
   let handleDownload = () => {
-    console.log(dataset);
     dispatch(
       datasetDownloadRequestSend({
         tableName: dataset.Table_Name,
@@ -130,57 +223,6 @@ const DownloadDialog = (props) => {
         subsetParams,
         fileName: dataset.Long_Name,
       }),
-    );
-  };
-  // subset controls
-
-  let SubsetControls = () => {
-    return (
-      <React.Fragment>
-        <DownloadOption
-          downloadOption={{
-            handler: handleSwitch,
-            switchState: optionsState.subset,
-            name: 'subset',
-            label: 'Define Subset',
-          }}
-          description={
-            'Define a subset of the data for download by specifying time, lat, lon, and depth parameters.'
-          }
-        />
-
-        <Collapse in={optionsState.subset}>
-          <div className={classes.subsetStep}>
-            <DateSubsetControl
-              dataset={dataset}
-              setTimeStart={setTimeStart}
-              setTimeEnd={setTimeEnd}
-              subsetState={{ timeStart, timeEnd, maxDays }}
-            />
-
-            <LatitudeSubsetControl
-              dataset={dataset}
-              setLatStart={setLatStart}
-              setLatEnd={setLatEnd}
-              subsetState={{ latStart, latEnd }}
-            />
-
-            <LongitudeSubsetControl
-              dataset={dataset}
-              setLonStart={setLonStart}
-              setLonEnd={setLonEnd}
-              subsetState={{ lonStart, lonEnd }}
-            />
-
-            <DepthSubsetControl
-              dataset={dataset}
-              setDepthStart={setDepthStart}
-              setDepthEnd={setDepthEnd}
-              subsetState={{ depthStart, depthEnd }}
-            />
-          </div>
-        </Collapse>
-      </React.Fragment>
     );
   };
 
@@ -212,10 +254,7 @@ const DownloadDialog = (props) => {
           classes={{ root: classes.dialogRoot }}
         >
           <div className={classes.stepContent}>
-            <DownloadIntro
-              longName={dataset.Long_Name}
-              availabilityStatus={availabilities}
-            />
+            <DownloadIntro longName={dataset.Long_Name} />
 
             <DownloadOption
               downloadOption={{
@@ -232,7 +271,15 @@ const DownloadDialog = (props) => {
               }
             />
 
-            <SubsetControls />
+            <SubsetControls
+              subsetParams={subsetParams}
+              subsetSetters={subsetSetters}
+              dataset={dataset}
+              handleSwitch={handleSwitch}
+              optionsState={optionsState}
+              maxDays={maxDays}
+              classes={classes}
+            />
           </div>
         </DialogContent>
       </div>

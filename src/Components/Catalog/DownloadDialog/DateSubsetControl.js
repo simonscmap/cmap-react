@@ -9,6 +9,14 @@ import {
 } from './downloadDialogHelpers';
 import styles from './downloadDialogStyles';
 
+// convert a date string like "2007-04-09" to "4/9"
+let shortenDate = (str) =>
+  str
+    .split('-')
+    .slice(1)
+    .map((n) => parseInt(n, 10))
+    .join('/');
+
 const MonthlyDateControl = withStyles(styles)((props) => {
   let { classes, subsetState, setTimeStart, setTimeEnd } = props;
 
@@ -91,16 +99,10 @@ const MonthlyDateControl = withStyles(styles)((props) => {
           markLabel: classes.markLabel,
         }}
         className={classes.slider}
-        marks={[
-          {
-            value: 1,
-            label: '1',
-          },
-          {
-            value: 12,
-            label: '12',
-          },
-        ]}
+        marks={new Array(12).fill(0).map((v, i) => ({
+          value: i + 1,
+          label: i + 1,
+        }))}
       />
     </React.Fragment>
   );
@@ -136,11 +138,44 @@ const DailyDateControl = withStyles(styles)((props) => {
   };
 
   let handleSlider = (e, value) => {
-    e.preventDefault();
-    e.stopPropagation();
     let [start, end] = value;
     setTimeStart(start);
     setTimeEnd(end);
+  };
+
+  // add labels to the start and end values,
+  // and, length allowing, to the midpoint, and quarter values
+  let markLabel = (i, length) => {
+    if (i === 0) {
+      return dayToDate(Time_Min, i);
+    }
+    if (i === length - 1) {
+      return dayToDate(Time_Min, i);
+    }
+    if (length >= 3 && i === Math.floor(length / 2)) {
+      return shortenDate(dayToDate(Time_Min, i));
+    }
+    if (length >= 5 && i === Math.floor(length / 4)) {
+      return shortenDate(dayToDate(Time_Min, i));
+    }
+    if (length >= 5 && i === Math.floor(length * 0.75)) {
+      return shortenDate(dayToDate(Time_Min, i));
+    }
+    return undefined;
+  };
+
+  let getMarks = () => {
+    // prevent lange datasets from exploding the time slider
+    if (maxDays > 365) {
+      return [
+        { value: 0, label: dayToDate(Time_Min, 0) },
+        { value: maxDays, label: dayToDate(Time_Min, maxDays) },
+      ];
+    }
+    return new Array(maxDays + 1).fill(0).map((_, i, arr) => ({
+      value: i,
+      label: markLabel(i, arr.length),
+    }));
   };
 
   return (
@@ -181,10 +216,7 @@ const DailyDateControl = withStyles(styles)((props) => {
         </Grid>
       </Grid>
       {/* NOTE: to make this a dual slider, pass a tuple as the "value" attribute */}
-      <div
-        onClick={(e) => e.stopPropagation()}
-        onChange={(e) => e.stopPropagation()}
-      >
+      <div>
         <Slider
           min={0}
           max={maxDays}
@@ -196,16 +228,8 @@ const DailyDateControl = withStyles(styles)((props) => {
             markLabel: classes.markLabel,
           }}
           className={classes.slider}
-          marks={[
-            {
-              value: 0,
-              label: dayToDate(Time_Min, 0),
-            },
-            {
-              value: maxDays,
-              label: dayToDate(Time_Min, maxDays),
-            },
-          ]}
+          step={maxDays < 365 ? null : 1} // disallow values not marked, unless large dataset
+          marks={getMarks()}
         />
       </div>
     </React.Fragment>

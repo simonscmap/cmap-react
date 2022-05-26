@@ -32,7 +32,8 @@ const DepthSubsetControl = (props) => {
   let title = 'Depth[m]';
 
   // do not render controls if dataset has no depth
-  if (!Depth_Max) {
+  // or if depth is static
+  if (!Depth_Max || Depth_Min === Depth_Max) {
     return '';
   }
 
