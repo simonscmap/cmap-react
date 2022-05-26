@@ -84,6 +84,7 @@ const DepthProfileChart = (props) => {
           size: markerOptions.size,
           color: markerOptions.color,
         },
+        hovermode: 'closest',
         hoverinfo: 'text',
         hovertext: makeHovertext(data),
       },

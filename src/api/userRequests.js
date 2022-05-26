@@ -57,6 +57,13 @@ userAPI.contactUs = async (payload) => {
   });
 };
 
+userAPI.nominateNewData = async (payload) => {
+  return await fetch(apiUrl + '/api/user/contactus', {
+    ...postOptions,
+    body: JSON.stringify(payload),
+  });
+};
+
 userAPI.changePassword = async (payload) => {
   return await fetch(apiUrl + '/api/user/changepassword', {
     ...postOptions,

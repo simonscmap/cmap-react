@@ -10,7 +10,7 @@ import metaTags from '../../enums/metaTags';
 import { CATALOG_PAGE } from '../../constants';
 import states from '../../enums/asyncRequestStates';
 
-import Intro from '../Help/Intro';
+import Intro from '../Navigation/Help/Intro';
 import tourConfig from './help/tourConfig';
 
 const styles = (theme) => ({
@@ -22,7 +22,7 @@ const styles = (theme) => ({
     [theme.breakpoints.down('md')]: {
       flexDirection: 'column',
     },
-    marginTop: '120px',
+    marginTop: '145px',
     padding: '20px',
     boxSizing: 'border-box',
     // the search and results panes float apart awkwardly at wide resolutions
@@ -33,10 +33,14 @@ const styles = (theme) => ({
 const Catalog = ({ classes }) => {
   let dispatch = useDispatch();
 
+  let tablesWithAncillaryData = useSelector(
+    (state) => state.tablesWithAncillaryData,
+  );
   // on load, send request to load tables with ancillary, i.e., colocalized data
   // this only needs to run once
-  dispatch(fetchColocalizedDatasetListSend());
-
+  if (!tablesWithAncillaryData) {
+    dispatch(fetchColocalizedDatasetListSend());
+  }
   useEffect(() => {
     document.title = metaTags.catalog.title;
     document.description = metaTags.catalog.description;
@@ -53,14 +57,20 @@ const Catalog = ({ classes }) => {
   });
 
   return (
-    <React.Fragment>
+    <div id={`${CATALOG_PAGE}-style-context`} className={classes.wrapperDiv}>
       <Intro config={tourConfig} wait={waitToLoadIntro} />
-      <div id={`${CATALOG_PAGE}-style-context`} className={classes.wrapperDiv}>
-        <CatalogSearch />
-        <SearchResults />
-      </div>
-    </React.Fragment>
+      <CatalogSearch />
+      <SearchResults />
+    </div>
   );
 };
 
 export default withStyles(styles)(Catalog);
+
+export const catalogConfig = {
+  route: '/',
+  video: true,
+  tour: true,
+  hints: true,
+  navigationVariant: 'Left',
+};

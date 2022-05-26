@@ -52,7 +52,7 @@ const mapDispatchToProps = {
 const styles = (theme) => ({
   guideSection: {
     width: '80%',
-    margin: '20px auto 0 auto',
+    margin: '65px auto 0 auto',
     textAlign: 'left',
     padding: '12px 32px',
     [theme.breakpoints.down('sm')]: {

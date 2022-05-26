@@ -19,7 +19,7 @@ import { Autocomplete } from '@material-ui/lab';
 import { Search, Close } from '@material-ui/icons';
 import ProductList from './ProductList';
 import MultiCheckboxDropdown from '../UI/MultiCheckboxDropdown';
-import Hint from '../Help/Hint';
+import Hint from '../Navigation/Help/Hint';
 import SearchFiltersHint from './help/SearchFiltersHint';
 import AdditionalFiltersHint from './help/AdditionalFiltersHint';
 import ResetFiltersHint from './help/ResetFiltersHint';
@@ -287,6 +287,7 @@ class DataSearch extends React.Component {
                 onChange={this.handleChangeSearchValue}
                 placeholder="Search"
                 value={searchTerms}
+                ref={(input) => { input && input.focus() }}
                 InputProps={{
                   classes: {
                     root: classes.inputRoot,

@@ -13,7 +13,7 @@ const mapDispatchToProps = {
 
 const styles = (theme) => ({
   loginRequiredMessage: {
-    marginTop: theme.spacing(10),
+    marginTop: '120px',
     color: 'white',
   },
 });

@@ -33,7 +33,6 @@ const styles = (theme) => ({
   },
 
   newCommentDiv: {
-    width: '70vw',
     margin: '24px auto 0px auto',
   },
 
@@ -160,15 +159,6 @@ const AdminDashboardPanelDetails = (props) => {
         <FormHelperText className={classes.helperText}>
           Update Submission Phase
         </FormHelperText>
-
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => props.handleSelectDeleteTarget(submission)}
-          className={classes.deleteButton}
-        >
-          Delete This Submission
-        </Button>
       </div>
 
       {props.submissionCommentHistoryRetrievalState === states.inProgress ? (

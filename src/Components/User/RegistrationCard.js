@@ -11,7 +11,8 @@ const styles = (theme) => ({
   registrationCard: {
     marginTop: theme.spacing(1),
     marginBottom: theme.spacing(1),
-    height: '200px',
+    // height: '200px',
+    padding: '2em',
   },
 
   textField: {

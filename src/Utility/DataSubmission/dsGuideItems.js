@@ -92,7 +92,7 @@ const guideItems = {
           Please do not include units in these columns; units are recorded in
           the Variable Metadata sheet. Leave a given cell empty for those
           instances when data was not taken and a value is missing. Do not
-          replace the missing data with arbitrary values such as “99999”, “0”,
+          replace the missing data with arbitrary values such as <code>99999</code>, “0”,
           “UNKNOWN”, etc. If you wish to flag specific column values, please add
           relevant flag columns with descriptions of flag values in the
           vars_meta_data comment column. Please review the example datasets in
@@ -141,10 +141,10 @@ const guideItems = {
         </React.Fragment>,
       ],
       plainText: [
-        `The dataset_long_name is a descriptive and human-readable name for the dataset. This name will identify your dataset in the CMAP 
-                catalog and visualization search dialog. Any Unicode character can be used here, but please avoid names longer than 200 characters as they may get 
-                trimmed when displayed on graphical interfaces. A full textual description of your dataset, with no length limits, 
-                is entered in the dataset_description. If your dataset is associated with a cruise, we recommend including the official cruise and the 
+        `The dataset_long_name is a descriptive and human-readable name for the dataset. This name will identify your dataset in the CMAP
+                catalog and visualization search dialog. Any Unicode character can be used here, but please avoid names longer than 200 characters as they may get
+                trimmed when displayed on graphical interfaces. A full textual description of your dataset, with no length limits,
+                is entered in the dataset_description. If your dataset is associated with a cruise, we recommend including the official cruise and the
                 cruise nickname in the dataset_long_name. For example: Underway CTD Gradients 3 KM1906. Capitalizing the dataset_long_name is also recommended.`,
       ],
       bullets: ['Required: Yes', 'Constraint: Less than 200 characters'],
@@ -231,8 +231,8 @@ const guideItems = {
       ],
       plainText: [
         `
-                Specifies the group and/or the institute name of the data owner(s). Including the PI name is strongly recommended, and the field can also include any link (such as a website) to 
-                the data producers. This information will be visible in the CMAP catalog. Also, dataset_source will be annotated to any visualization 
+                Specifies the group and/or the institute name of the data owner(s). Including the PI name is strongly recommended, and the field can also include any link (such as a website) to
+                the data producers. This information will be visible in the CMAP catalog. Also, dataset_source will be annotated to any visualization
                 made using the dataset.
             `,
       ],
@@ -289,8 +289,8 @@ const guideItems = {
       ],
       plainText: [
         `
-                Specify how your dataset should be acknowledged. You may mention your funding agency, grant number, or 
-                you may ask those that use your data to acknowledge your dataset with a particular statement. Dataset 
+                Specify how your dataset should be acknowledged. You may mention your funding agency, grant number, or
+                you may ask those that use your data to acknowledge your dataset with a particular statement. Dataset
                 acknowlegment will be visible in the catalog page.
             `,
       ],
@@ -334,10 +334,10 @@ const guideItems = {
       ],
       plainText: [
         `
-                Your description serves as the dataset documentation visible in the Simons CMAP catalog and helps users 
-                understand your dataset.  The description should include information about the data that is contained in the 
-                dataset as well as how and where samples were collected and processed. It can also include figures and links to 
-                external content. It is recommended that the description provide the context of the dataset, including a brief 
+                Your description serves as the dataset documentation visible in the Simons CMAP catalog and helps users
+                understand your dataset.  The description should include information about the data that is contained in the
+                dataset as well as how and where samples were collected and processed. It can also include figures and links to
+                external content. It is recommended that the description provide the context of the dataset, including a brief
                 overview of any larger sampling program if applicable.
             `,
       ],
@@ -426,9 +426,9 @@ const guideItems = {
       ],
       plainText: [
         `
-                This name is meant to be used in programming codes and scripts. It should only contain a combination of letters, numbers, 
-                and underscores (the first character can not be a number). Do not use space, dash, or special characters such as <, +, 
-                %, etc. Finally, there must be a one-to-one match between the short_names listed here and the variable column names in the 
+                This name is meant to be used in programming codes and scripts. It should only contain a combination of letters, numbers,
+                and underscores (the first character can not be a number). Do not use space, dash, or special characters such as <, +,
+                %, etc. Finally, there must be a one-to-one match between the short_names listed here and the variable column names in the
                 “Data” sheet. var_short_name will be seen in the CMAP catalog.
             `,
       ],
@@ -466,8 +466,8 @@ const guideItems = {
       plainText: [
         `
                 A descriptive and human-readable label for the variable in accordance with the CF and COARDS conventions.
-                This name will present your variable in the CMAP catalog, visualization search dialog, and will appear as the title of figures generated 
-                on the vizualization page. var_long_name can contain any unicode character, 
+                This name will present your variable in the CMAP catalog, visualization search dialog, and will appear as the title of figures generated
+                on the vizualization page. var_long_name can contain any unicode character,
                 but please avoid names longer than 200 characters as they may get trimmed while displayed on graphical interfaces. Please use var_comment
                 if you would like to add a full textual description (with no length limits) for your variable.
             `,
@@ -531,8 +531,8 @@ const guideItems = {
       ],
       plainText: [
         `
-            In this column, enter the units of each variable, if applicable. Leave this field blank if your variable is unitless (e.g. “station numbers” or “quality 
-                flags”). Units may contain unicode characters such as subscripts and superscripts. var_unit will be visible in the Simons CMAP 
+            In this column, enter the units of each variable, if applicable. Leave this field blank if your variable is unitless (e.g. “station numbers” or “quality
+                flags”). Units may contain unicode characters such as subscripts and superscripts. var_unit will be visible in the Simons CMAP
                 catalog and in the generated visualizations.
             `,
       ],
@@ -569,11 +569,11 @@ const guideItems = {
       ],
       plainText: [
         `
-                Specifies the spatial resolution of the variable. Typically, gridded products have uniform spatial spacing (such as 0.25° X 0.25°) 
-                while field expeditions do not have a regular spatial resolution. If your variable does not have a regular spatial resolution, 
-                use the term “irregular” to fill out this field. Note that if samples are taken at a series of distinct but spatially-non-uniform 
-                stations, the spatial resolution is considered irregular. var_spatial_res may contain unicode characters such as degree symbol ( ° ) 
-                and will be visible in the Simons CMAP catalog. This field is populated via a dropdown menu.  If a value you would like to use is 
+                Specifies the spatial resolution of the variable. Typically, gridded products have uniform spatial spacing (such as 0.25° X 0.25°)
+                while field expeditions do not have a regular spatial resolution. If your variable does not have a regular spatial resolution,
+                use the term “irregular” to fill out this field. Note that if samples are taken at a series of distinct but spatially-non-uniform
+                stations, the spatial resolution is considered irregular. var_spatial_res may contain unicode characters such as degree symbol ( ° )
+                and will be visible in the Simons CMAP catalog. This field is populated via a dropdown menu.  If a value you would like to use is
                 missing from the dropdown menu please contact us at cmap-data-submission@uw.edu to request that it be added.
             `,
       ],
@@ -604,8 +604,8 @@ const guideItems = {
       ],
       plainText: [
         `
-                Entries in this column describe the temporal resolution (daily, hourly, 3-minutes, etc). If the measurements do not have a 
-                regular temporal spacing, use the term “irregular” to fill out this field. var_temporal_res will be visible in the Simons CMAP 
+                Entries in this column describe the temporal resolution (daily, hourly, 3-minutes, etc). If the measurements do not have a
+                regular temporal spacing, use the term “irregular” to fill out this field. var_temporal_res will be visible in the Simons CMAP
                 catalog. This field is populated via a dropdown menu. If a value you would like to use is missing from the dropdown menu please contact us at cmap-data-submission@uw.edu to request that it be added.
             `,
       ],
@@ -634,9 +634,9 @@ const guideItems = {
       ],
       plainText: [
         `
-                Indicates in which disciplines (such as Physics, Biology …) this variable is commonly studied. You can specify more than one 
-                discipline. If you list multiple disciplines per variable, please separate them by +. This field is populated via a dropdown menu. 
-                If a value you would like to use is missing from the dropdown menu please contact us at 
+                Indicates in which disciplines (such as Physics, Biology …) this variable is commonly studied. You can specify more than one
+                discipline. If you list multiple disciplines per variable, please separate them by +. This field is populated via a dropdown menu.
+                If a value you would like to use is missing from the dropdown menu please contact us at
                 cmap-data-submission@uw.edu to request that it be added.
             `,
       ],
@@ -697,9 +697,9 @@ const guideItems = {
       ],
       plainText: [
         `
-                Use this field to communicate any detailed information about this particular variable with the users. Examples of a comment could include but are not limited to: a description of method(s) used to process raw 
-                measurements, a specific instrument name or model number, a key describing numbered flags, and links to 
-                references or protocols specific to a particular variable. var_comment is visible in the Simons CMAP 
+                Use this field to communicate any detailed information about this particular variable with the users. Examples of a comment could include but are not limited to: a description of method(s) used to process raw
+                measurements, a specific instrument name or model number, a key describing numbered flags, and links to
+                references or protocols specific to a particular variable. var_comment is visible in the Simons CMAP
                 catalog.
             `,
       ],

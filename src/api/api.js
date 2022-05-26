@@ -6,6 +6,7 @@ import dataSubmissionRequests from './dataSubmissionRequests';
 import userRequests from './userRequests';
 import visualizationRequests from './visualizationRequests';
 import dataRequests from './dataRequests';
+import newsRequests from './news';
 
 const api = {
   catalog: catalogRequests,
@@ -14,6 +15,7 @@ const api = {
   dataSubmission: dataSubmissionRequests,
   user: userRequests,
   visualization: visualizationRequests,
+  news: newsRequests,
 };
 
 export default api;

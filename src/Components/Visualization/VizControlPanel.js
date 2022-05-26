@@ -47,7 +47,7 @@ import countWebGLContexts from '../../Utility/countWebGLContexts';
 import depthUtils from '../../Utility/depthCounter';
 import mapSpatialResolutionToNumber from '../../Utility/mapSpatialResolutionToNumber';
 import mapTemporalResolutionToNumber from '../../Utility/mapTemporalResolutionToNumber';
-import Hint from '../Help/Hint';
+import Hint from '../Navigation/Help/Hint';
 import ChartControl from './Charts/ChartControl';
 import DataSearch from './DataSearch';
 import { PageTitleHint, RestrictDataHint, SearchHint } from './help';
@@ -114,7 +114,7 @@ const polygonSymbol = {
 const styles = (theme) => ({
   pageTitleWrapper: {
     position: 'absolute',
-    top: '83px',
+    top: '105px',
     left: '25px',
     textAlign: 'left',
   },
@@ -310,11 +310,12 @@ class VizControlPanel extends React.Component {
         ],
       };
 
-      let regionGraphic =
-        new this.props.mapContainerRef.current.props.esriModules.Graphic({
+      let regionGraphic = new this.props.mapContainerRef.current.props.esriModules.Graphic(
+        {
           geometry: polygon,
           symbol: polygonSymbol,
-        });
+        },
+      );
 
       this.props.mapContainerRef.current.regionLayer.add(regionGraphic);
     }
@@ -1124,7 +1125,16 @@ class VizControlPanel extends React.Component {
                 }
                 onClick={() => {
                   setDataSearchMenuVisibility(true);
-                }}
+                  let searchEl = document.querySelector(
+                    'input#charts-and-plots-search-field',
+                  );
+                  if (searchEl) {
+                    console.log('setting focus');
+                    searchEl.focus()
+                  } else {
+                    console.log('couldn\'t find element')
+                  }
+                  }}
                 classes={{
                   label: classes.controlPanelItemLabel,
                   startIcon: classes.controlPanelItemStartIcon,

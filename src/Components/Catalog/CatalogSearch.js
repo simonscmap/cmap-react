@@ -23,7 +23,7 @@ import { debounce } from 'throttle-debounce';
 import MultiCheckboxDropdown from '../UI/MultiCheckboxDropdown';
 import queryString from 'query-string';
 import colors from '../../enums/colors';
-import Hint from '../Help/Hint';
+import Hint from '../Navigation/Help/Hint';
 import SearchHint from './help/keywordSearchHint';
 import SearchFiltersHint from './help/SearchFiltersHint';
 import CatalogPageTitleHint from './help/pageTitleHint';
@@ -201,6 +201,7 @@ class CatalogSearch extends React.Component {
     });
   };
 
+  // TODO :(
   pushHistory = debounce(1500, (qstring) => {
     this.props.history.push('/catalog?' + qstring);
   });

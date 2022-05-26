@@ -1,66 +1,114 @@
-import * as userActionTypes from '../actionTypes/user';
+import * as actions from '../actionTypes/user';
 import states from '../../enums/asyncRequestStates';
 
 export default function (state, action) {
   switch (action.type) {
-    case userActionTypes.LOGIN_REQUEST_PROCESSING:
+    case actions.LOGIN_REQUEST_PROCESSING:
       return { ...state, userLoginState: states.inProgress };
-    case userActionTypes.LOGIN_REQUEST_SUCCESS:
+    case actions.LOGIN_REQUEST_SUCCESS:
       return {
         ...state,
         userLoginState: states.succeeded,
         userLoginError: null,
       };
-    case userActionTypes.LOGIN_REQUEST_FAILURE:
+    case actions.LOGIN_REQUEST_FAILURE:
       return { ...state, userLoginState: states.failed };
-    case userActionTypes.LOGIN_REQUEST_CLEAR_ERROR:
+    case actions.LOGIN_REQUEST_CLEAR_ERROR:
       return { ...state, userLoginError: null };
 
-    case userActionTypes.STORE_INFO:
+    case actions.STORE_INFO:
       return { ...state, user: { ...action.payload.user } };
-    case userActionTypes.DESTROY_INFO:
+    case actions.DESTROY_INFO:
       return { ...state, user: null, apiKeys: null, clearLoginDialog: true };
-    case userActionTypes.LOGIN_DIALOG_WAS_CLEARED:
+    case actions.LOGIN_DIALOG_WAS_CLEARED:
       return { ...state, clearLoginDialog: false };
 
-    case userActionTypes.VALIDATION_REQUEST_PROCESSING:
+    case actions.VALIDATION_REQUEST_PROCESSING:
       return { ...state, userValidationState: states.inProgress };
-    case userActionTypes.VALIDATION_REQUEST_FAILURE:
+    case actions.VALIDATION_REQUEST_FAILURE:
       return { ...state, userValidationState: states.failed };
-    case userActionTypes.VALIDATION_REQUEST_SUCCESS:
+    case actions.VALIDATION_REQUEST_SUCCESS:
       return { ...state, userValidationState: null };
 
-    case userActionTypes.REGISTRATION_REQUEST_PROCESSING:
+    case actions.REGISTRATION_REQUEST_PROCESSING:
       return { ...state, userRegistrationState: states.inProgress };
-    case userActionTypes.REGISTRATION_REQUEST_FAILURE:
+    case actions.REGISTRATION_REQUEST_FAILURE:
       return { ...state, userRegistrationState: states.failed };
-    case userActionTypes.REGISTRATION_REQUEST_SUCCESS:
+    case actions.REGISTRATION_REQUEST_SUCCESS:
       return { ...state, userRegistrationState: states.succeeded };
 
-    case userActionTypes.KEY_RETRIEVAL_REQUEST_SUCCESS:
+    case actions.KEY_RETRIEVAL_REQUEST_SUCCESS:
       return { ...state, apiKeys: action.payload.keys };
-    case userActionTypes.KEY_RETRIEVAL_REQUEST_FAILURE:
+    case actions.KEY_RETRIEVAL_REQUEST_FAILURE:
       return { ...state, apiKeyRetrievalState: states.failed };
 
-    case userActionTypes.KEY_CREATION_REQUEST_PROCESSING:
+    case actions.KEY_CREATION_REQUEST_PROCESSING:
       return { ...state, apiKeyCreationState: states.inProgress };
-    case userActionTypes.KEY_CREATION_REQUEST_FAILURE:
+    case actions.KEY_CREATION_REQUEST_FAILURE:
       return { ...state, apiKeyCreationState: states.failed };
-    case userActionTypes.KEY_CREATION_REQUEST_SUCCESS:
+    case actions.KEY_CREATION_REQUEST_SUCCESS:
       return { ...state, apiKeyCreationState: states.succeeded };
 
-    case userActionTypes.CHOOSE_PASSWORD_REQUEST_SUCCESS:
+    case actions.CHOOSE_PASSWORD_REQUEST_SUCCESS:
       return { ...state, choosePasswordState: states.succeeded };
-    case userActionTypes.CHOOSE_PASSWORD_REQUEST_FAILURE:
+    case actions.CHOOSE_PASSWORD_REQUEST_FAILURE:
       return { ...state, choosePasswordState: states.failed };
-    case userActionTypes.CHOOSE_PASSWORD_REQUEST_RESET:
+    case actions.CHOOSE_PASSWORD_REQUEST_RESET:
       return { ...state, choosePasswordState: null };
 
-    case userActionTypes.USER_IS_GUEST_SET:
+    case actions.USER_IS_GUEST_SET:
       return { ...state, userIsGuest: action.payload.userIsGuest };
 
-    case userActionTypes.UPDATE_STATE_FROM_COOKIES:
+    case actions.UPDATE_STATE_FROM_COOKIES:
       return { ...state, ...action.payload.state };
+
+    case actions.CONTACT_US_REQUEST_SEND:
+      return {
+        ...state,
+        contactUs: {
+          requestState: states.inProgress,
+          data: action.payload,
+        },
+      };
+    case actions.CONTACT_US_REQUEST_SUCCESS:
+      return {
+        ...state,
+        contactUs: {
+          requestState: states.succeeded,
+        },
+      };
+    case actions.CONTACT_US_REQUEST_FAILURE:
+      return {
+        ...state,
+        contactUs: {
+          requestState: states.failed,
+          data: action.payload,
+        },
+      };
+
+    case actions.NOMINATE_NEW_DATA_REQUEST_SEND:
+      return {
+        ...state,
+        nominateNewData: {
+          requestState: states.inProgress,
+          data: action.payload,
+        },
+      };
+    case actions.NOMINATE_NEW_DATA_REQUEST_SUCCESS:
+      return {
+        ...state,
+        nominateNewData: {
+          requestState: states.succeeded,
+        },
+      };
+    case actions.NOMINATE_NEW_DATA_REQUEST_FAILURE:
+      return {
+        ...state,
+        nominateNewData: {
+          requestState: states.failed,
+          data: action.payload,
+        },
+      };
 
     default:
       return state;

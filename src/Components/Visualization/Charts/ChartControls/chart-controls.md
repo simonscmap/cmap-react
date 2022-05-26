@@ -2,7 +2,7 @@
 
 Chart Controls are the custom buttons that appear on the top of rendered charts. They include the control for removing a chart, downloading a CSV of the data in the chart, and several visual options.
 
-The chart control components defined in this directory are included pulled in to chart components, and handed off as a list of controls to the `ChartTemplate`, which provides them to the `ChartControlPanel`, where they are rendered.
+The chart control components defined in this directory are pulled in to chart components, and handed off as a list of controls to the `ChartTemplate`, which provides them to the `ChartControlPanel`, where they are rendered.
 
 Each chart control component should use the `ControlButtonTemplate`, which handles the style (active and inactive) for each button, as well as the tooltip.
 

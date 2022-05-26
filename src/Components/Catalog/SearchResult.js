@@ -17,8 +17,8 @@ import { ErrorOutline } from '@material-ui/icons';
 import { Link as RouterLink } from 'react-router-dom';
 import CartAddOrRemove from './CartAddOrRemove';
 import { setShowCart } from '../../Redux/actions/ui';
-import colors from '../../enums/colors';
-import Hint from '../Help/Hint';
+// import colors from '../Home/theme';
+import Hint from '../Navigation/Help/Hint';
 import AddToFavorites from '../Catalog/help/addToFavoritesHint';
 import DatasetTitleHint from './help/datasetTitleHint';
 import DownloadDialog from './DownloadDialog';
@@ -62,7 +62,7 @@ const styles = (theme) => ({
     fontSize: '1.15rem',
     display: 'block',
     margin: '6px 0',
-    color: colors.primary,
+    color: theme.palette.primary.main,
   },
   resultPaper: {
     marginTop: '22px',

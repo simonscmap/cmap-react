@@ -3,12 +3,14 @@ const options = {
   LOADING_OVERLAY: 9999,
   MUI_DIALOG: 9800,
   LOGIN_DIALOG: 9850,
+  SLIDE_OUT_PANEL: 9500,
   TOOLTIP: 9000,
   NAVBAR_DROPDOWN: 8000,
   HELP_DIALOG: 7000,
   NON_HELP_DIALOG: 6000,
 
   NAVBAR: 5000,
+  DOCS_SIDEBAR: 4500,
   // secondary controls can be nested in secondary control, tertiary can be nested in secondary
   CONTROL_TERTIARY: 4000,
   CONTROL_SECONDARY: 3000,

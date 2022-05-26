@@ -12,12 +12,13 @@ body {
 
 html {
   background-image: linear-gradient(
-    to bottom right,
-    #1c4b6b,
-    rgb(48, 120, 158),
-    #265777,
-    rgb(51, 119, 155)
-  );
+     to bottom right,
+     #1c4b6b,
+     rgb(48, 120, 158),
+     #265777,
+     rgb(51, 119, 155)
+   );
+
   background-repeat: no-repeat;
   -webkit-background-size: cover;
   -moz-background-size: cover;

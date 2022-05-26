@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, ThemeProvider } from '@material-ui/core/styles';
+import { homeTheme as theme } from '../Home/theme';
 
 import { Link as RouterLink } from 'react-router-dom';
 
@@ -31,8 +32,9 @@ import states from '../../enums/asyncRequestStates';
 
 const styles = (theme) => ({
   root: {
-    width: '60%',
-    margin: '10% auto',
+    maxWidth: '900px',
+    margin: '30px 0',
+    color: 'white',
   },
   button: {
     marginRight: theme.spacing(1),
@@ -70,9 +72,8 @@ const mapStateToProps = (state, ownProps) => ({
 const mapDispatchToProps = {
   registrationNextActiveStep,
   registrationPreviousActiveStep,
-
   userRegistrationRequestSend,
-
+  userValidationRequestSuccess,
   userValidationRequestSend,
 };
 
@@ -132,6 +133,21 @@ const getCardInfo = () => [
     },
   },
 ];
+
+const CustomStepper = withStyles((theme) => ({
+  root: {
+    color: 'white',
+  },
+  active: {
+    color: 'white',
+  },
+}))(Stepper);
+
+const CustomStepLabel = withStyles((theme) => ({
+  root: {
+    color: 'white',
+  },
+}))(StepLabel);
 
 const buttonRef = React.createRef();
 
@@ -274,93 +290,95 @@ class RegistrationStepper extends Component {
 
     return (
       <React.Fragment>
-        <div className={classes.root}>
-          <Stepper activeStep={activeStep}>
-            {steps.map((label, index) => {
-              return (
-                <Step key={label}>
-                  <StepLabel>{label}</StepLabel>
-                </Step>
-              );
-            })}
-          </Stepper>
-          <div>
-            {activeStep === steps.length ? (
-              <Paper className={classes.instructionsPaper}>
-                <Typography className={classes.instructions}>
-                  We've sent you an email with a link for finalizing your
-                  registration and choosing a password. If you don't receive the
-                  email within the next few minute please check your spam
-                  folder.
-                </Typography>
-              </Paper>
-            ) : (
-              <div>
-                <RegistrationCard
-                  inputFieldState={{
-                    ...this.state.cards[this.props.registrationActiveStep],
-                  }}
-                  inputFieldInfo={{
-                    ...cardInfoArray[this.props.registrationActiveStep],
-                  }}
-                  onChange={this.handleChange}
-                  buttonRef={buttonRef}
-                />
+        <ThemeProvider theme={theme}>
+          <div className={classes.root}>
+            <CustomStepper activeStep={activeStep}>
+              {steps.map((label, index) => {
+                return (
+                  <Step key={label}>
+                    <StepLabel>{label}</StepLabel>
+                  </Step>
+                );
+              })}
+            </CustomStepper>
+            <div>
+              {activeStep === steps.length ? (
+                <Paper className={classes.instructionsPaper}>
+                  <Typography className={classes.instructions}>
+                    We've sent you an email with a link for finalizing your
+                    registration and choosing a password. If you don't receive
+                    the email within the next few minute please check your spam
+                    folder.
+                  </Typography>
+                </Paper>
+              ) : (
                 <div>
-                  <Button
-                    onClick={
-                      activeStep === 0
-                        ? this.props.handleHideStepper
-                        : this.handleBack
-                    }
-                    className={classes.button}
-                  >
-                    Back
-                  </Button>
+                  <RegistrationCard
+                    inputFieldState={{
+                      ...this.state.cards[this.props.registrationActiveStep],
+                    }}
+                    inputFieldInfo={{
+                      ...cardInfoArray[this.props.registrationActiveStep],
+                    }}
+                    onChange={this.handleChange}
+                    buttonRef={buttonRef}
+                  />
+                  <div>
+                    <Button
+                      onClick={
+                        activeStep === 0
+                          ? this.props.handleHideStepper
+                          : this.handleBack
+                      }
+                      className={classes.button}
+                    >
+                      Back
+                    </Button>
 
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={this.handleNext}
-                    className={classes.button}
-                    disabled={
-                      !this.currentCardIsValid() ||
-                      this.props.userValidationState === states.inProgress
-                    }
-                    ref={buttonRef}
-                  >
-                    {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
-                  </Button>
-                  {this.props.userValidationState === states.inProgress && (
-                    <CircularProgress
-                      size={24}
-                      className={classes.buttonProgress}
-                    />
-                  )}
-                  {this.props.userValidationState === states.failed && (
-                    <Typography className={classes.bottomError}>
-                      That username or email address is already in use. If you
-                      previously registered you can recover your password{' '}
-                      <Link
-                        onClick={this.handleClose}
-                        component={RouterLink}
-                        to={{ pathname: '/forgotpass' }}
-                      >
-                        here
-                      </Link>
-                      .
-                    </Typography>
-                  )}
-                  {this.props.userRegistrationState === states.failed && (
-                    <Typography className={classes.bottomError}>
-                      Registration failed. Please try again.
-                    </Typography>
-                  )}
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={this.handleNext}
+                      className={classes.button}
+                      disabled={
+                        !this.currentCardIsValid() ||
+                        this.props.userValidationState === states.inProgress
+                      }
+                      ref={buttonRef}
+                    >
+                      {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
+                    </Button>
+                    {this.props.userValidationState === states.inProgress && (
+                      <CircularProgress
+                        size={24}
+                        className={classes.buttonProgress}
+                      />
+                    )}
+                    {this.props.userValidationState === states.failed && (
+                      <Typography className={classes.bottomError}>
+                        That username or email address is already in use. If you
+                        previously registered you can recover your password{' '}
+                        <Link
+                          onClick={this.handleClose}
+                          component={RouterLink}
+                          to={{ pathname: '/forgotpass' }}
+                        >
+                          here
+                        </Link>
+                        .
+                      </Typography>
+                    )}
+                    {this.props.userRegistrationState === states.failed && (
+                      <Typography className={classes.bottomError}>
+                        Registration failed. Please try again.
+                      </Typography>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
+        </ThemeProvider>
       </React.Fragment>
     );
   }

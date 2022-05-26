@@ -50,8 +50,8 @@ const mapDispatchToProps = {
 
 const styles = (theme) => ({
   wrapperDiv: {
-    width: '96vw',
-    margin: '24px auto',
+    margin: '120px auto 3em auto',
+    maxWidth: '1380px',
   },
 
   panelSummaryText: {
@@ -183,10 +183,6 @@ class AdminDashboard extends Component {
 
   handleResetExpandedPanel = () => {
     this.setState({ ...this.state, expandedPanel: false });
-  };
-
-  handleSelectDeleteTarget = (submissionID) => {
-    this.setState({ ...this.state, deleteTarget: submissionID });
   };
 
   handleCloseDeleteDialog = () => {
@@ -429,7 +425,6 @@ class AdminDashboard extends Component {
                 <AdminDashboardPanelDetails
                   submission={e}
                   handleResetExpandedPanel={this.handleResetExpandedPanel}
-                  handleSelectDeleteTarget={this.handleSelectDeleteTarget}
                 />
               </Accordion>
             ))}

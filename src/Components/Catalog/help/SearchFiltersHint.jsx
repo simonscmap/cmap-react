@@ -1,5 +1,5 @@
 import React from 'react';
-import HintContent from '../../Help/HintContent';
+import HintContent from '../../Navigation/Help/HintContent';
 
 const SearchFiltersHint = () => {
   return (

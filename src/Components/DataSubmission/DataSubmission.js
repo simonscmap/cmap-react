@@ -1,29 +1,25 @@
 // Subrouter for Data Submission components
 
-import React, { useEffect } from 'react';
-
-import { Route, Switch } from 'react-router-dom';
-
 import { withStyles } from '@material-ui/core/styles';
-
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
-
-import { snackbarOpen } from '../../Redux/actions/ui';
-
-import ValidationTool from './ValidationTool';
-import SubmissionGuide from './SubmissionGuide';
-import UserDashboard from './UserDashboard';
-import AdminDashboard from './AdminDashboard';
-
+import { Route, Switch } from 'react-router-dom';
 import metaTags from '../../enums/metaTags';
+import { snackbarOpen } from '../../Redux/actions/ui';
+import AdminDashboard from './AdminDashboard';
+import NominateDataPage from './NominateDataPage';
+import SubmissionGuide from './SubmissionGuide';
+// import NewGuide from './NewGuide';
+import UserDashboard from './UserDashboard';
+import ValidationTool from './ValidationTool';
 
-const styles = (theme) => ({
+const styles = () => ({
   root: {
     paddingTop: '70px',
   },
 });
 
-const mapStateToProps = (state, ownProps) => ({
+const mapStateToProps = (state) => ({
   user: state.user,
 });
 
@@ -32,7 +28,7 @@ const mapDispatchToProps = {
 };
 
 const DataSubmission = (props) => {
-  const { classes, match, user } = props;
+  const { match } = props;
 
   useEffect(() => {
     document.title = metaTags.dataSubmission.title;
@@ -45,27 +41,30 @@ const DataSubmission = (props) => {
   });
 
   return (
-    <div className={classes.root}>
-      <Switch>
-        <Route exact path={match.url + '/'} component={SubmissionGuide} />
-        <Route exact path={match.url + '/guide'} component={SubmissionGuide} />
-        <Route
-          exact
-          path={match.url + '/validationtool'}
-          component={ValidationTool}
-        />
-        <Route
-          exact
-          path={match.url + '/userdashboard'}
-          component={UserDashboard}
-        />
-        <Route
-          exact
-          path={match.url + '/admindashboard'}
-          component={AdminDashboard}
-        />
-      </Switch>
-    </div>
+    <Switch>
+      <Route exact path={match.url + '/'} component={SubmissionGuide} />
+      <Route exact path={match.url + '/guide'} component={SubmissionGuide} />
+      <Route
+        exact
+        path={match.url + '/validationtool'}
+        component={ValidationTool}
+      />
+      <Route
+        exact
+        path={match.url + '/userdashboard'}
+        component={UserDashboard}
+      />
+      <Route
+        exact
+        path={match.url + '/admindashboard'}
+        component={AdminDashboard}
+      />
+      <Route
+        exact
+        path={match.url + '/nominate-data'}
+        component={NominateDataPage}
+      />
+    </Switch>
   );
 };
 

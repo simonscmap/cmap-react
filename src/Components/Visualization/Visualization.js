@@ -20,7 +20,7 @@ import localDateToString from '../../Utility/localDateToString';
 import stars from '../../Utility/starsBase64';
 import utcDateStringToLocal from '../../Utility/utcDateStringToLocal';
 import { cleanSPParams, mapVizType } from './helpers';
-import Intro from '../Help/Intro';
+import Intro from '../Navigation/Help/Intro';
 import Charts from './Charts/Charts';
 import CruiseSelector from './CruiseSelector';
 import GuestPlotLimitNotification from './GuestPlotLimitNotification';
@@ -28,6 +28,13 @@ import visualizationTourConfig from './help/tourConfig';
 import MapContainer from './MapContainer';
 import ModuleSelector from './ModuleSelector';
 import VizControlPanel from './VizControlPanel';
+
+export const visualizationConfig = {
+  video: true,
+  tour: true,
+  hints: true,
+  navigationVariant: 'Left',
+};
 
 const mapStateToProps = (state) => ({
   user: state.user,

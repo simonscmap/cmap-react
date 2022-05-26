@@ -22,7 +22,7 @@ import { cartPersistClear } from '../../Redux/actions/user';
 import colors from '../../enums/colors';
 import z from '../../enums/zIndex';
 
-import HelpButtonAndDialog from '../Help/HelpButtonAndDialog';
+import HelpButtonAndDialog from '../Navigation/Help/HelpButtonAndDialog';
 import CartHelpContents from './CartHelpContents';
 
 const mapStateToProps = (state, ownProps) => ({

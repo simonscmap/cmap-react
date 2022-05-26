@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { withStyles, Link, ClickAwayListener } from '@material-ui/core';
+import React, { useState } from 'react';
+import { withStyles, Link } from '@material-ui/core';
 import ResizeObserver from 'react-resize-observer';
-import Drawer from '@material-ui/core/Drawer';
+import MuiDrawer from '@material-ui/core/Drawer';
 import docLinks from './doc-links';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import LaunchIcon from '@material-ui/icons/Launch';
 import TreeView from '@material-ui/lab/TreeView';
@@ -16,12 +15,17 @@ import Typography from '@material-ui/core/Typography';
 import clsx from 'clsx';
 import { pythonTree } from './python-tree';
 import { rTree } from './r-tree';
+import zIndex from '../enums/zIndex';
+
+export const documentationConfig = {
+  navigationVariant: 'Left',
+};
 
 let drawerWidth = 300;
 
 let styles = (theme) => ({
   docsWrapper: {
-    margin: `68px 0 0 ${theme.spacing(7) + 18}px`,
+    margin: `100px 0 0 ${theme.spacing(7) + 18}px`,
     color: 'white',
     textAlign: 'left',
   },
@@ -37,7 +41,7 @@ let styles = (theme) => ({
     cursor: 'pointer',
     display: 'flex',
     alignContent: 'center',
-    margin: '52px auto 0 auto',
+    margin: '84px auto 0 auto',
   },
   drawerOpen: {
     backgroundColor: '#1F4A63',
@@ -96,6 +100,12 @@ let styles = (theme) => ({
     fontStyle: 'italic',
   },
 });
+
+const Drawer = withStyles({
+  root: {
+    zIndex: zIndex.DOCS_SIDEBAR,
+  },
+})(MuiDrawer);
 
 const Accordion = withStyles({
   root: {
@@ -351,7 +361,7 @@ const Docs = (props) => {
         id="documentation-frame"
         title="iframe title"
         width={innerAccordionWidth}
-        height={window.innerHeight - 68}
+        height={window.innerHeight - 110}
         style={{ border: 0 }}
         src={iFrameURL || docLinks[pkgTarget]}
       ></iframe>

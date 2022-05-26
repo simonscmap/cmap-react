@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react';
 import Plotly from 'react-plotly.js';
 import { useSelector } from 'react-redux';
 import { VISUALIZATION_PAGE } from '../../../constants';
-import Hint from '../../Help/Hint';
+import Hint from '../../Navigation/Help/Hint';
 import ModebarHint from '../help/ModebarHint';
 import PlotControlsHint from '../help/PlotControlsHint';
 import { makeChartConfig } from './chartBase';
@@ -119,7 +119,7 @@ const ChartTemplate = (props) => {
       {plotObjects.map((args, index) => {
         // hide plot if this is tabbed content, and it is not the active index
         return (
-          <div hidden={isTabbedContent && openTab !== index}>
+          <div key={`plot-${index}`} hidden={isTabbedContent && openTab !== index}>
             <Plotly {...args} key={`plot-${index}`} />
           </div>
         );

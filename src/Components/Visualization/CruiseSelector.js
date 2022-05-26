@@ -137,7 +137,7 @@ const styles = (theme) => ({
     fontSize: '17px',
     display: 'flex',
     alignItems: 'center',
-    justifyCOntent: 'center',
+    justifyContent: 'center',
   },
 
   searchOption: {
@@ -681,7 +681,7 @@ class CruiseSelector extends Component {
                   item
                   xs={3}
                   container
-                  justify="flex-start"
+                  justifyContent="flex-start"
                   alignItems="center"
                 >
                   <Typography
@@ -741,7 +741,7 @@ class CruiseSelector extends Component {
                           className={classes.memberCount}
                           container
                           alignItems="center"
-                          justify="center"
+                          justifyContent="center"
                         >
                           {cruisesGroupedByYear[index].cruises.length}
                         </Grid>

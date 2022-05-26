@@ -57,7 +57,7 @@ const styles = (theme) => ({
     position: '-webkit-sticky',
     maxHeight: 'calc(100vh - 128px)',
     position: 'sticky',
-    top: '90px',
+    top: '121px',
     width: '200px',
     marginLeft: '20px',
     paddingLeft: '12px',
@@ -181,7 +181,7 @@ const SubmissionGuide = (props) => {
   });
 
   return (
-    <React.Fragment>
+    <div style={{ margin: '100px auto 0 auto', position: 'relative', maxWidth: '1380px'}}>
       <Grid container>
         <Grid item xs={2}>
           <Paper className={classes.stickyPaper} elevation={6}>
@@ -1028,7 +1028,7 @@ const SubmissionGuide = (props) => {
           </Paper>
         </Grid>
       </Grid>
-    </React.Fragment>
+    </div>
   );
 };
 

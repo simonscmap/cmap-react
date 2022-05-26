@@ -195,14 +195,44 @@ export const choosePasswordRequestReset = () => ({
   type: userActionTypes.CHOOSE_PASSWORD_REQUEST_RESET,
 });
 
-export const contactUsRequestSend = ({ name, email, subject, message }) => ({
+export const contactUsRequestSend = ({ name, email, message }) => ({
   type: userActionTypes.CONTACT_US_REQUEST_SEND,
   payload: {
     name,
     email,
-    subject,
     message,
   },
+});
+
+export const contactUsRequestSuccess = () => ({
+  type: userActionTypes.CONTACT_US_REQUEST_SUCCESS,
+});
+
+export const contactUsRequestFailure = ({ message }) => ({
+  type: userActionTypes.CONTACT_US_REQUEST_FAILURE,
+  payload: {
+    message,
+  },
+});
+
+export const nominateNewDataRequestSend = ({ name, email, message }) => ({
+  type: userActionTypes.NOMINATE_NEW_DATA_REQUEST_SEND,
+  payload: {
+    name,
+    email,
+    message,
+  },
+});
+
+export const nominateNewDataRequestSuccess = () => ({
+  type: userActionTypes.NOMINATE_NEW_DATA_REQUEST_SUCCESS,
+});
+
+export const nominateNewDataRequestFailure = ({ message }) => ({
+  type: userActionTypes.NOMINATE_NEW_DATA_REQUEST_FAILURE,
+  payload: {
+    message,
+  }
 });
 
 export const changePasswordRequestSend = (

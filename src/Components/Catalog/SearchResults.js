@@ -17,7 +17,7 @@ import {
   searchResultsSetLoadingState,
 } from '../../Redux/actions/catalog';
 import states from '../../enums/asyncRequestStates';
-import Hint from '../Help/Hint';
+import Hint from '../Navigation/Help/Hint';
 import downloadHint from './help/downloadSearchResults';
 import SearchResultsStatusHint from './help/SearchResultsStatusHint';
 
@@ -53,8 +53,7 @@ const styles = (theme) => ({
   downloadWrapper: {
     fontSize: '1rem',
     color: 'white',
-    cursor: 'pointer',
-    borderRadius: '6px',
+    cursor: 'pointer',    borderRadius: '6px',
     padding: '1px 8px',
     '&:hover': {
       backgroundColor: 'rgba(255, 255, 255, 0.1)',
@@ -136,14 +135,15 @@ const SearchResults = (props) => {
   const {
     searchResults,
     searchResultsLoadingState,
-    searchResultsSetLoadingState,
-    searchResultsFetch,
+    searchResultsSetLoadingState: setLoadingState,
+    searchResultsFetch: search,
     classes,
   } = props;
 
   useEffect(() => {
-    searchResultsSetLoadingState(states.inProgress);
-    searchResultsFetch(props.location.search);
+    setLoadingState(states.inProgress);
+    console.log(props.location.search)
+    search(props.location.search);
   }, [props.location.search]);
 
   const handleDownloadSearchResults = () => {

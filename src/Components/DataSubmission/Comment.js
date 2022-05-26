@@ -6,7 +6,6 @@ import { withStyles } from '@material-ui/core/styles';
 const styles = (theme) => ({
   commentArea: {
     backgroundColor: 'rgba(0,0,0,.2)',
-    width: '70vw',
     margin: '0 auto',
     padding: '12px 16px',
     textAlign: 'left',
@@ -16,7 +15,6 @@ const styles = (theme) => ({
 
   commenterAndDateTime: {
     marginTop: '16px',
-    width: 'calc(70vw + 32px)',
     padding: '4px 0',
     margin: '0 auto',
     textAlign: 'left',

@@ -12,7 +12,7 @@ import {
 import MUISelect from '@material-ui/core/Select';
 import vizSubTypes from '../../../enums/visualizationSubTypes';
 import colors from '../../../enums/colors';
-import Hint from '../../Help/Hint';
+import Hint from '../../Navigation/Help/Hint';
 import SelectChartTypeHint from '../help/SelectChartTypeHint';
 import CreateVisualizationHint from '../help/CreateVisualizationHint';
 

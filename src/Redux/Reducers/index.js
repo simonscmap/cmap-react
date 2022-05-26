@@ -1,6 +1,7 @@
 import catalog from './catalog';
 import user from './user';
 import ui from './ui';
+import news from './news';
 import visualization from './visualization';
 import dataSubmission from './dataSubmission.js';
 import help from './help.js';
@@ -11,7 +12,7 @@ import buildSearchOptionsFromVariableList from '../../Utility/Catalog/buildSearc
 import {
   localStorageIntroState,
   localStorageHintState,
-} from '../../Components/Help/initialState.js';
+} from '../../Components/Navigation/Help/initialState.js';
 // Consider building this object from initial states from each reducer
 // ** When adding new keys to redux store consider whether they need to be
 // reset on navigation for UI purposes. If so, add them with a default state
@@ -49,7 +50,7 @@ const initialState = {
   windowWidth: window.innerWidth,
 
   // User state pieces
-  user: JSON.parse(Cookies.get('UserInfo') || null),
+  user: JSON.parse(Cookies.get('UserInfo') || null), // catch much?
   userIsGuest: false,
   apiKeys: null,
   apiKeyRetrievalState: null,
@@ -62,6 +63,14 @@ const initialState = {
   preferences: {},
   intros: localStorageIntroState,
   hints: localStorageHintState,
+  contactUs: {
+    requestState: states.notTried,
+    data: null,
+  },
+  nominateNewData: {
+    requestState: states.notTried,
+    data: null,
+  },
 
   // Visualization state pieces
   maps: [],
@@ -100,6 +109,26 @@ const initialState = {
   submissionFile: null,
   submissionUploadState: null,
   dataSubmissionSelectOptions: null,
+
+  // news
+  news: {
+    stories: [],
+    viewStateFilter: [1,2,3],
+    rankFilter: false,
+    sortTerm: 'modify_date',
+    orderOfImportance: 'descending',
+    openRanksEditor: false,
+    ranks: [],
+    addRank: [],
+    adminMessages: [],
+    requestStatus: {
+      create: states.notTried,
+      update: states.notTried,
+      updateRanks: states.notTried,
+      updateViewStatus: states.notTried,
+      list: states.notTried,
+    }
+  }
 };
 
 const reducedReducer = reduceReducers(
@@ -110,6 +139,7 @@ const reducedReducer = reduceReducers(
   visualization,
   dataSubmission,
   help,
+  news,
 );
 
 export default reducedReducer;

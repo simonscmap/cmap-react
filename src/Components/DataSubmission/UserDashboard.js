@@ -31,8 +31,8 @@ const mapDispatchToProps = {
 
 const styles = (theme) => ({
   wrapperDiv: {
-    width: '90vw',
-    margin: '24px auto',
+    margin: '120px auto 0 auto',
+    maxWidth: '1380px',
   },
 
   panelSummaryText: {

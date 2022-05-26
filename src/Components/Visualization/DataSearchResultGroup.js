@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { withStyles, Grid, Tooltip, Typography } from '@material-ui/core';
 import { Info, ExpandMore, ChevronRight, Star } from '@material-ui/icons';
 import { VariableSizeList } from 'react-window';
-import Hint from '../Help/Hint';
+import Hint from '../Navigation/Help/Hint';
 import ObservationDataGroupHint from './help/ObservationDataGroupHint';
 import ModelDataGroupHint from './help/ModelDataGroupHint';
 import colors from '../../enums/colors';
@@ -127,7 +127,7 @@ const VariableCountColumn = ({ count, classes }) => {
         className={classes.memberCount}
         container
         alignItems="center"
-        justify="center"
+        justifyContent="center"
       >
         {count}
       </Grid>

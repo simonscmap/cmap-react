@@ -35,8 +35,10 @@ import * as dataSubmissionActionTypes from '../actionTypes/dataSubmission';
 import * as interfaceActionTypes from '../actionTypes/ui';
 import * as userActionTypes from '../actionTypes/user';
 import * as visualizationActionTypes from '../actionTypes/visualization';
+
 // watchers
-// import userSagas from './userSagas';
+// NOTE: the functions the watchers call do not need to be imported here
+// they are simply referenced in the watcher functions
 import {
   watchUserLogin,
   watchUserRegistration,
@@ -45,7 +47,27 @@ import {
   watchGoogleLoginRequest,
   watchKeyRetrieval,
   watchKeyCreationRequest,
+  watchContactUs,
+  watchNominateNewData,
 } from './userSagas';
+
+import {
+  watchRequestNewsList,
+  watchUpdateNewsItem,
+  watchUpdateNewsItemSuccess,
+  watchPublishNewsItem,
+  watchPublishNewsItemSuccess,
+  watchPreviewNewsItem,
+  watchPreviewNewsItemSuccess,
+  watchDraftNewsItem,
+  watchDraftNewsItemSuccess,
+  watchUnpublishNewsItem,
+  watchUnpublishNewsItemSuccess,
+  watchCreateNewsItem,
+  watchCreateNewsItemSuccess,
+  watchUpdateNewsRanks,
+  watchUpdateNewsRanksSuccess,
+} from './news';
 
 function* queryRequest(action) {
   yield put(visualizationActions.queryRequestProcessing());
@@ -335,23 +357,6 @@ function* choosePasswordRequest(action) {
     yield put(userActions.choosePasswordRequestSuccess());
   } else {
     yield put(userActions.choosePasswordRequestFailure());
-  }
-}
-
-function* contactUsRequest(action) {
-  yield put(interfaceActions.setLoadingMessage('Sending'));
-  let result = yield call(api.user.contactUs, action.payload);
-  yield put(interfaceActions.setLoadingMessage(''));
-  if (result.ok) {
-    yield put(
-      interfaceActions.snackbarOpen('Your message was successfully sent!'),
-    );
-  } else {
-    yield put(
-      interfaceActions.snackbarOpen(
-        'Message failed. Please try again or contact simonscmap@uw.edu',
-      ),
-    );
   }
 }
 
@@ -1315,10 +1320,6 @@ function* watchChoosePasswordRequest() {
   );
 }
 
-function* watchContactUs() {
-  yield takeLatest(userActionTypes.CONTACT_US_REQUEST_SEND, contactUsRequest);
-}
-
 function* watchChangePasswordRequest() {
   yield takeLatest(
     userActionTypes.CHANGE_PASSWORD_REQUEST_SEND,
@@ -1564,6 +1565,7 @@ function* rootSaga() {
     watchRecoverPasswordRequest(),
     watchChoosePasswordRequest(),
     watchContactUs(),
+    watchNominateNewData(),
     watchChangePasswordRequest(),
     watchChangeEmailRequest(),
     watchCsvFromVizRequest(),
@@ -1602,6 +1604,21 @@ function* rootSaga() {
     watchIngestCookies(),
     watchFetchTablesWithAncillaryData(),
     watchFetchTablesWithAncillaryDataSuccess(),
+    watchRequestNewsList(),
+    watchUpdateNewsItem(),
+    watchUpdateNewsItemSuccess(),
+    watchPublishNewsItem(),
+    watchPublishNewsItemSuccess(),
+    watchPreviewNewsItem(),
+    watchPreviewNewsItemSuccess(),
+    watchUnpublishNewsItem(),
+    watchUnpublishNewsItemSuccess(),
+    watchDraftNewsItem(),
+    watchDraftNewsItemSuccess(),
+    watchCreateNewsItem(),
+    watchCreateNewsItemSuccess(),
+    watchUpdateNewsRanks(),
+    watchUpdateNewsRanksSuccess(),
   ]);
 }
 

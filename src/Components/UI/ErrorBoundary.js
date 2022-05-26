@@ -40,7 +40,7 @@ class ErrorBoundary extends React.Component {
         elevation={4}
       >
         <img
-          src="/images/cmap-logo2.png"
+          src="/images/home/simons-cmap-logo-full.svg"
           alt="CMAP Logo"
           style={{ maxWidth: '90%' }}
         />

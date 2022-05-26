@@ -1,12 +1,17 @@
-import { CATALOG_PAGE, VISUALIZATION_PAGE } from '../constants.js';
+import {
+  CATALOG_PAGE,
+  VISUALIZATION_PAGE,
+  CHARTS_PAGE,
+  CRUISE_PAGE,
+} from '../constants.js';
 
 const pathToPage = {
   '/catalog': CATALOG_PAGE,
   '/visualization': VISUALIZATION_PAGE,
   // NOTE at the moment it is more useful to consider all these
   // routes the visualization page, but that may change
-  '/visualization/charts': VISUALIZATION_PAGE,
-  '/visualization/cruises': VISUALIZATION_PAGE,
+  '/visualization/charts': CHARTS_PAGE,
+  '/visualization/cruises': CRUISE_PAGE,
 };
 
 export const pathNameToPageName = (pathName) => {

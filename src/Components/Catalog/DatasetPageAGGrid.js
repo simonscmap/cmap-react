@@ -1,25 +1,20 @@
 // Variable grid appearing on dataset pages
 
-import React, { useState } from 'react';
-import ReactDOMServer from 'react-dom/server';
-
 import {
-  withStyles,
-  TextField,
+  Dialog,
   InputAdornment,
   Link,
-  Dialog,
+  TextField,
+  withStyles,
 } from '@material-ui/core';
-import { Search, Menu, ArrowUpward, ArrowDownward } from '@material-ui/icons';
-
+import { ArrowDownward, ArrowUpward, Menu, Search } from '@material-ui/icons';
 import { AgGridReact } from 'ag-grid-react';
-
+import React, { useState } from 'react';
+import ReactDOMServer from 'react-dom/server';
 import ReactMarkdown from 'react-markdown';
-
-import HelpButtonAndDialog from '../Help/HelpButtonAndDialog';
-import VariableGridHelpContents from './VariableGridHelpContents';
-
 import colors from '../../enums/colors';
+import HelpButtonAndDialog from '../Navigation/Help/HelpButtonAndDialog';
+import VariableGridHelpContents from './VariableGridHelpContents';
 
 const rendererStyles = (theme) => ({
   dialogPaper: {

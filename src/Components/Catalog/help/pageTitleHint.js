@@ -1,7 +1,7 @@
 import React from 'react';
 import SeeAlso from './seeAlso';
-import InlineVideo from '../../Help/InlineVideo';
-import HintContent from '../../Help/HintContent';
+import InlineVideo from '../../Navigation/Help/InlineVideo';
+import HintContent from '../../Navigation/Help/HintContent';
 import { CATALOG_OVERVIEW_VIDEO } from '../../../constants';
 
 const CatalogPageTitleHint = () => {

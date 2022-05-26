@@ -1,6 +1,6 @@
 import React from 'react';
-import HintContent from '../../Help/HintContent';
-import InlineVideo from '../../Help/InlineVideo';
+import HintContent from '../../Navigation/Help/HintContent';
+import InlineVideo from '../../Navigation/Help/InlineVideo';
 import SeeAlso from './SeeAlso';
 import { VISUALIZATION_OVERVIEW_VIDEO } from '../../../constants';
 

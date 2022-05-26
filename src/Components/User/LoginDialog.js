@@ -1,36 +1,32 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-
-import { Link as RouterLink, withRouter } from 'react-router-dom';
-
-import Link from '@material-ui/core/Link';
-import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import CircularProgress from '@material-ui/core/CircularProgress';
-
+import Link from '@material-ui/core/Link';
+import { ThemeProvider, withStyles } from '@material-ui/core/styles';
+import TextField from '@material-ui/core/TextField';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { Link as RouterLink, withRouter } from 'react-router-dom';
 import states from '../../enums/asyncRequestStates';
 import colors from '../../enums/colors';
 import z from '../../enums/zIndex';
-
+import { homeTheme } from '../Home/theme';
+import { WhiteButtonSM, GreenButtonSM } from '../Home/buttons';
 import {
-  showLoginDialog,
   hideLoginDialog,
   restoreInterfaceDefaults,
+  showLoginDialog,
   snackbarOpen,
 } from '../../Redux/actions/ui';
 import {
-  logOut,
-  userLoginRequestSend,
   googleLoginRequestSend,
   guestTokenRequestSend,
+  logOut,
+  userLoginRequestSend,
 } from '../../Redux/actions/user';
-
 import GoogleSignInButton from './GoogleSignInButton';
 
 const mapStateToProps = (state, ownProps) => {
@@ -58,24 +54,37 @@ const styles = (theme) => ({
     margin: theme.spacing(1),
     position: 'relative',
   },
-
+  inputContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: '10px',
+    alignItems: 'flex-start',
+    paddingBottom: '1.5em',
+  },
+  textInput: {
+    width: 'calc(50% - 10px)',
+  },
+  actionsContainer: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   googleIconWrapper: {
-    marginRight: '100px',
-    marginLeft: '-8px',
+    // marginRight: '100px',
+    // marginLeft: '-8px',
   },
-
   dialogWrapper: {
-    backgroundColor: colors.solidPaper,
+    // backgroundColor: colors.solidPaper,
   },
-
   colorCorrectionPrimary: {
-    color: colors.primary,
+    color: theme.palette.primary,
   },
-
   colorCorrectionWhite: {
     color: 'white',
   },
-
   dialogRoot: {
     zIndex: `${z.LOGIN_DIALOG + 1} !important`,
   },
@@ -84,8 +93,6 @@ const styles = (theme) => ({
 const loginClickHandlerTarget = 'g-signin';
 
 class LoginDialog extends Component {
-  // Text input state is managed in the TopNavBar component
-
   handleLogin = (event) => {
     this.props.userLoginRequestSend(this.props.username, this.props.password);
   };
@@ -132,105 +139,111 @@ class LoginDialog extends Component {
     let loginDisabled = !this.props.username || !this.props.password;
 
     return (
-      <Dialog
-        open={this.props.loginDialogIsOpen}
-        onClose={this.handleClose}
-        aria-labelledby="form-dialog-title"
-        onEnter={this.onDialogEnter}
-        PaperProps={{
-          className: classes.dialogWrapper,
-        }}
-        classes={{
-          root: classes.dialogRoot,
-        }}
-      >
-        <DialogTitle id="form-dialog-title">Login</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Please enter your username and password, or{' '}
-            <Link
-              className={classes.colorCorrectionPrimary}
-              onClick={this.handleClose}
-              component={RouterLink}
-              to={{ pathname: '/register' }}
-            >
-              Register.
-            </Link>
-          </DialogContentText>
-          <form onSubmit={(e) => e.preventDefault()}>
-            <TextField
-              autoFocus
-              margin="normal"
-              id="username"
-              label="Username"
-              type="text"
-              variant="outlined"
-              name="username"
-              value={this.props.username}
-              onChange={this.props.handleChange}
-              InputLabelProps={{
-                shrink: true,
-              }}
-            />
+      <ThemeProvider theme={homeTheme}>
+        <Dialog
+          open={this.props.loginDialogIsOpen}
+          onClose={this.handleClose}
+          aria-labelledby="form-dialog-title"
+          onEnter={this.onDialogEnter}
+          PaperProps={{
+            className: classes.dialogWrapper,
+          }}
+          classes={{
+            root: classes.dialogRoot,
+          }}
+        >
+          <DialogTitle id="form-dialog-title">Login</DialogTitle>
+          <DialogContent style={{ width: '464px' }}>
+            <DialogContentText>
+              Please enter your username and password, or{' '}
+              <Link
+                className={classes.colorCorrectionPrimary}
+                onClick={this.handleClose}
+                component={RouterLink}
+                to={{ pathname: '/register' }}
+              >
+                Register.
+              </Link>
+            </DialogContentText>
+            <form onSubmit={(e) => e.preventDefault()}>
+              <div className={classes.inputContainer}>
+                <TextField
+                  autoFocus
+                  margin="normal"
+                  id="username"
+                  label="Username"
+                  type="text"
+                  variant="outlined"
+                  name="username"
+                  classes={{ root: classes.textInput }}
+                  value={this.props.username}
+                  onChange={this.props.handleChange}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
 
-            <TextField
-              margin="normal"
-              id="name"
-              label="Password"
-              type="password"
-              variant="outlined"
-              name="password"
-              value={this.props.password}
-              onChange={this.props.handleChange}
-              InputLabelProps={{
-                shrink: true,
-              }}
-              helperText={
-                <Link
-                  className={classes.colorCorrectionPrimary}
-                  onClick={this.handleClose}
-                  component={RouterLink}
-                  to={{ pathname: '/forgotpass' }}
-                >
-                  Forgot Username or Password
-                </Link>
-              }
-            />
-
-            <DialogActions>
-              <div className={classes.googleIconWrapper}>
-                <GoogleSignInButton
-                  clickHandlerTarget={loginClickHandlerTarget}
-                  text="Sign in with Google"
+                <TextField
+                  margin="normal"
+                  id="name"
+                  label="Password"
+                  type="password"
+                  variant="outlined"
+                  name="password"
+                  classes={{ root: classes.textInput }}
+                  value={this.props.password}
+                  onChange={this.props.handleChange}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  helperText={
+                    <Link
+                      className={classes.colorCorrectionPrimary}
+                      onClick={this.handleClose}
+                      component={RouterLink}
+                      to={{ pathname: '/forgotpass' }}
+                    >
+                      Forgot Username or Password
+                    </Link>
+                  }
                 />
               </div>
 
-              <Button onClick={this.handleClose}>
-                <span className={classes.colorCorrectionWhite}>Cancel</span>
-              </Button>
+              <DialogActions style={{ padding: '0 0 15px 0' }}>
+                <div className={classes.actionsContainer}>
+                  <div className={classes.googleIconWrapper}>
+                    <GoogleSignInButton
+                      clickHandlerTarget={loginClickHandlerTarget}
+                      text="Sign in with Google"
+                    />
+                  </div>
 
-              <div className={classes.wrapper}>
-                <Button
-                  color="primary"
-                  type="submit"
-                  onClick={this.handleLogin}
-                  disabled={loginDisabled}
-                  className={loginDisabled ? '' : classes.colorCorrection}
-                >
-                  Log In
-                </Button>
-              </div>
-            </DialogActions>
-          </form>
-          {this.props.userLoginState === states.failed ? (
-            <DialogContentText>
-              Login failed. Please try again.
-            </DialogContentText>
-          ) : (
-            ''
-          )}
-        </DialogContent>
-      </Dialog>
+                  <GreenButtonSM onClick={this.handleClose}>
+                    <span>Cancel</span>
+                  </GreenButtonSM>
+
+                  <GreenButtonSM
+                    color="primary"
+                    type="submit"
+                    onClick={this.handleLogin}
+                    disabled={loginDisabled}
+                    className={loginDisabled ? '' : classes.colorCorrection}
+                  >
+                    Log In
+                  </GreenButtonSM>
+                </div>
+              </DialogActions>
+            </form>
+            {this.props.userLoginState === states.failed ? (
+              <DialogContentText>
+                Login failed. Please try again.
+              </DialogContentText>
+            ) : (
+              ''
+            )}
+          </DialogContent>
+        </Dialog>
+      </ThemeProvider>
     );
   }
 }

@@ -1,5 +1,5 @@
-import registerIntros from '../Components/Help/persistIntroState.js';
-import registerHints from '../Components/Help/persistHintState.js';
+import registerIntros from '../Components/Navigation/Help/persistIntroState.js';
+import registerHints from '../Components/Navigation/Help/persistHintState.js';
 
 // register
 registerIntros();

@@ -39,12 +39,14 @@ import {
   setUploadState,
 } from '../../Redux/actions/dataSubmission';
 import { snackbarOpen, setLoadingMessage } from '../../Redux/actions/ui';
+import Section, { FullWidthContainer } from '../Common/Section';
 
 import ValidationGrid from './ValidationGrid';
 import LoginRequiredPrompt from '../User/LoginRequiredPrompt';
 import DSCustomGridHeader from './DSCustomGridHeader';
 
 import colors from '../../enums/colors';
+import { colors as newColors } from '../Home/theme';
 
 import formatDataSheet from '../../Utility/DataSubmission/formatDataSheet';
 import formatDatasetMetadataSheet from '../../Utility/DataSubmission/formatDatasetMetadataSheet';
@@ -72,6 +74,11 @@ const mapDispatchToProps = {
 };
 
 const styles = (theme) => ({
+  title: {
+    color: 'white',
+    fontSize: '32px',
+    fontWeight: '100',
+  },
   input: {
     display: 'none',
   },
@@ -85,7 +92,6 @@ const styles = (theme) => ({
   },
 
   needHelp: {
-    float: 'left',
     color: 'white',
     margin: '12px 0 0 12px',
     letterSpacing: 'normal',
@@ -98,16 +104,14 @@ const styles = (theme) => ({
   },
 
   fileSelectPaper: {
-    margin: '70px auto 24px auto',
-    maxWidth: '50vw',
+    margin: '30px 0',
     padding: '16px',
     padding: '12px',
     whiteSpace: 'pre-wrap',
   },
 
   workbookAuditPaper: {
-    margin: '70px auto 24px auto',
-    maxWidth: '50vw',
+    margin: '30px 0',
     padding: '16px',
     padding: '12px',
     minHeight: '110px',
@@ -812,396 +816,388 @@ class ValidationTool extends React.Component {
     const hideSelectDifferentFile = validationStep >= 5;
 
     return (
-      <React.Fragment>
-        <Typography className={classes.needHelp}>
-          Need help?
-          <Link
-            href="https://github.com/simonscmap/DBIngest/raw/master/template/datasetTemplate.xlsx"
-            download="datasetTemplate.xlsx"
-            className={classes.needHelpLink}
-          >
-            &nbsp;Download
-          </Link>
-          &nbsp;a blank template, or view the{' '}
-          <Link
-            className={classes.needHelpLink}
-            component={RouterLink}
-            to="/datasubmission/guide"
-          >
-            Data Submission Guide
-          </Link>
-          .
-        </Typography>
-
-        <Paper
-          elevation={2}
-          className={`${classes.fileSelectPaper} ${
-            !this.props.submissionFile && classes.addBorder
-          }`}
-          onDragOver={this.handleDragOver}
-          onDrop={this.handleDrop}
-        >
-          {this.props.submissionFile ? (
-            <React.Fragment>
-              <Typography
-                variant="h6"
-                className={classes.currentlyViewingTypography}
+      <div
+        style={{
+          margin: '120px auto 0 auto',
+          position: 'relative',
+          maxWidth: '1380px',
+        }}
+      >
+        <FullWidthContainer>
+          <Section>
+            <Typography variant="h1" className={classes.title}>
+              Data Submission Validation Tool
+            </Typography>
+            <Typography className={classes.needHelp}>
+              Need help?
+              <Link
+                href="https://github.com/simonscmap/DBIngest/raw/master/template/datasetTemplate.xlsx"
+                download="datasetTemplate.xlsx"
+                className={classes.needHelpLink}
               >
-                {datasetName
-                  ? `${datasetName}`
-                  : 'Dataset Short Name Not Found'}
-                {hideSelectDifferentFile ? (
-                  ''
-                ) : (
-                  <>
-                    <label
-                      htmlFor="select-file-input"
-                      className={classes.chooseNewFileLabel}
-                    >
-                      Select a Different File
-                    </label>{' '}
-                    {'\n'}
-                  </>
-                )}
-              </Typography>
-
-              <div>
-                <Tooltip title="Previous Section">
-                  <div className={classes.ilb}>
-                    <IconButton
-                      size="small"
-                      onClick={() =>
-                        this.handleChangeValidationStep(
-                          this.state.validationStep - 1,
-                        )
-                      }
-                      disabled={Boolean(this.state.validationStep <= 1)}
-                    >
-                      <ArrowBack />
-                    </IconButton>
-                  </div>
-                </Tooltip>
-
-                <span className={classes.currentSectionSpan}>
-                  {validationSteps[validationStep].label}
-                </span>
-
-                <Tooltip title={forwardArrowTooltip}>
-                  <div className={classes.ilb}>
-                    <IconButton
-                      size="small"
-                      onClick={() =>
-                        this.handleChangeValidationStep(
-                          this.state.validationStep + 1,
-                        )
-                      }
-                      disabled={preventSubmission}
-                    >
-                      <ArrowForward />
-                    </IconButton>
-                  </div>
-                </Tooltip>
-              </div>
-            </React.Fragment>
-          ) : (
-            <React.Fragment>
-              <Typography variant="h5">
-                To begin drag or
-                <label htmlFor="select-file-input">
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    component="span"
-                    className={classes.button}
-                  >
-                    Select File
-                  </Button>
-                </label>
-              </Typography>
-            </React.Fragment>
-          )}
-
-          {validationStep > 1 && validationStep < 5 && (
-            <React.Fragment>
-              <Divider className={classes.divider} />
-              {Boolean(errorCount[sheet] > 0) ? (
-                <Typography variant="body2">
-                  <ErrorOutline
-                    style={{
-                      color: 'rgba(255, 0, 0, .7)',
-                      margin: '0 2px -5px 0',
-                      fontSize: '1.4em',
-                    }}
-                  />
-                  We found {errorCount[sheet]} cell
-                  {errorCount[sheet] > 1 ? 's' : ''} with errors on this sheet.
-                  <span
-                    className={classes.linkLabel}
-                    onClick={this.handleFindNext}
-                  >
-                    {' '}
-                    Find Errors
-                  </span>
-                </Typography>
-              ) : Boolean(
-                  sheet === 'vars_meta_data' &&
-                    (errorCount['data'] || errorCount['dataset_meta_data']),
-                ) ? (
-                <Typography variant="body2">
-                  <ErrorOutline
-                    style={{
-                      color: 'rgba(255, 0, 0, .7)',
-                      margin: '0 2px -5px 0',
-                      fontSize: '1.4em',
-                    }}
-                  />
-                  Please correct errors from the previous sheets before moving
-                  forward.
-                </Typography>
-              ) : (
-                <Typography variant="body2">
-                  <Done
-                    style={{
-                      color: colors.primary,
-                      margin: '0 2px -5px 0',
-                      fontSize: '1.4em',
-                    }}
-                  />
-                  All set! Click the arrow above to move to the next step.
-                </Typography>
-              )}
-            </React.Fragment>
-          )}
-        </Paper>
-
-        {Boolean(validationStep === 1) && (
-          <Paper elevation={2} className={`${classes.workbookAuditPaper}`}>
-            <Typography style={{ marginBottom: '24px' }}>
-              {Boolean(this.state.auditReport.workbook.errors.length) && (
-                <React.Fragment>
-                  One or more parts of your submission did not match CMAP's
-                  requirements. Please review the information below, update your
-                  workbook, and{' '}
-                  <label
-                    className={classes.linkLabel}
-                    htmlFor="select-file-input"
-                  >
-                    try again
-                  </label>
-                  .
-                </React.Fragment>
-              )}
-
-              {Boolean(
-                !this.state.auditReport.workbook.errors.length &&
-                  this.state.auditReport.workbook.warnings.length,
-              ) && 'We found some potential issues with your submission.'}
-
-              {Boolean(this.state.auditReport.workbook.warnings.length) && (
-                <React.Fragment>
-                  {'\n'}
-                  {'\n'}
-                  Messages marked with a yellow icon
-                  <ErrorOutline
-                    style={{
-                      color: 'rgba(255, 255, 0, .7)',
-                      fontSize: '18px',
-                      margin: '0 3px -4px 3px',
-                    }}
-                  />
-                  are warnings. These should be reviewed and corrected if
-                  necessary, but will not prevent you from moving to the next
-                  validation step.
-                </React.Fragment>
-              )}
+                &nbsp;Download
+              </Link>
+              &nbsp;a blank template, or view the{' '}
+              <Link
+                className={classes.needHelpLink}
+                component={RouterLink}
+                to="/datasubmission/guide"
+              >
+                Data Submission Guide
+              </Link>
+              .
             </Typography>
 
-            {
-              <List dense={true}>
-                {this.state.auditReport.workbook.errors.map((e, i) => (
-                  <ListItem key={i}>
-                    <ListItemIcon style={{ color: 'rgba(255, 0, 0, .7)' }}>
-                      <ErrorOutline />
-                    </ListItemIcon>
-                    <ListItemText primary={e} />
-                  </ListItem>
-                ))}
-
-                {this.state.auditReport.workbook.warnings.map((e, i) => (
-                  <ListItem key={i}>
-                    <ListItemIcon style={{ color: 'rgba(255, 255, 0, .7)' }}>
-                      <ErrorOutline />
-                    </ListItemIcon>
-                    <ListItemText primary={e} />
-                  </ListItem>
-                ))}
-              </List>
-            }
-          </Paper>
-        )}
-
-        {Boolean(
-          this.state.data &&
-            this.state.data.length &&
-            validationStep >= 2 &&
-            validationStep < 5,
-        ) && (
-          <React.Fragment>
             <Paper
               elevation={2}
-              className={classes.tabPaper + ' ag-theme-material'}
+              className={`${classes.fileSelectPaper} ${
+                !this.props.submissionFile && classes.addBorder
+              }`}
+              onDragOver={this.handleDragOver}
+              onDrop={this.handleDrop}
             >
-              <Tabs value={validationStep} onChange={this.handleClickTab}>
-                <Tab
-                  value={2}
-                  label={
-                    errorCount['data'] > 0 ? (
-                      <StyledBadgeRed badgeContent={errorCount['data']}>
-                        Data
-                      </StyledBadgeRed>
+              {this.props.submissionFile ? (
+                <React.Fragment>
+                  <Typography
+                    variant="h6"
+                    className={classes.currentlyViewingTypography}
+                  >
+                    {datasetName
+                      ? `${datasetName}`
+                      : 'Dataset Short Name Not Found'}
+                    {hideSelectDifferentFile ? (
+                      ''
                     ) : (
-                      <StyledBadgeGreen badgeContent={'\u2713'}>
-                        Data
-                      </StyledBadgeGreen>
-                    )
-                  }
-                  className={classes.workbookTab}
-                />
+                      <>
+                        <label
+                          htmlFor="select-file-input"
+                          className={classes.chooseNewFileLabel}
+                        >
+                          Select a Different File
+                        </label>{' '}
+                        {'\n'}
+                      </>
+                    )}
+                  </Typography>
 
-                <Tab
-                  value={3}
-                  label={
-                    errorCount['dataset_meta_data'] > 0 ? (
-                      <StyledBadgeRed
-                        badgeContent={errorCount['dataset_meta_data']}
+                  <div>
+                    <Tooltip title="Previous Section">
+                      <div className={classes.ilb}>
+                        <IconButton
+                          size="small"
+                          onClick={() =>
+                            this.handleChangeValidationStep(
+                              this.state.validationStep - 1,
+                            )
+                          }
+                          disabled={Boolean(this.state.validationStep <= 1)}
+                        >
+                          <ArrowBack />
+                        </IconButton>
+                      </div>
+                    </Tooltip>
+
+                    <span className={classes.currentSectionSpan}>
+                      {validationSteps[validationStep].label}
+                    </span>
+
+                    <Tooltip title={forwardArrowTooltip}>
+                      <div className={classes.ilb}>
+                        <IconButton
+                          size="small"
+                          onClick={() =>
+                            this.handleChangeValidationStep(
+                              this.state.validationStep + 1,
+                            )
+                          }
+                          disabled={preventSubmission}
+                        >
+                          <ArrowForward />
+                        </IconButton>
+                      </div>
+                    </Tooltip>
+                  </div>
+                </React.Fragment>
+              ) : (
+                <React.Fragment>
+                  <Typography variant="h5">
+                    To begin drag or
+                    <label htmlFor="select-file-input">
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        component="span"
+                        className={classes.button}
                       >
-                        Dataset Metadata
-                      </StyledBadgeRed>
-                    ) : (
-                      <StyledBadgeGreen badgeContent={'\u2713'}>
-                        Dataset Metadata
-                      </StyledBadgeGreen>
-                    )
-                  }
-                  className={classes.workbookTab}
-                />
+                        Select File
+                      </Button>
+                    </label>
+                  </Typography>
+                </React.Fragment>
+              )}
 
-                <Tab
-                  value={4}
-                  label={
-                    errorCount['vars_meta_data'] > 0 ? (
-                      <StyledBadgeRed
-                        badgeContent={errorCount['vars_meta_data']}
+              {validationStep > 1 && validationStep < 5 && (
+                <React.Fragment>
+                  <Divider className={classes.divider} />
+                  {Boolean(errorCount[sheet] > 0) ? (
+                    <Typography variant="body2">
+                      <ErrorOutline
+                        style={{
+                          color: 'rgba(255, 0, 0, .7)',
+                          margin: '0 2px -5px 0',
+                          fontSize: '1.4em',
+                        }}
+                      />
+                      We found {errorCount[sheet]} cell
+                      {errorCount[sheet] > 1 ? 's' : ''} with errors on this
+                      sheet.
+                      <span
+                        className={classes.linkLabel}
+                        onClick={this.handleFindNext}
                       >
-                        Variable Metadata
-                      </StyledBadgeRed>
-                    ) : (
-                      <StyledBadgeGreen badgeContent={'\u2713'}>
-                        Variable Metadata
-                      </StyledBadgeGreen>
-                    )
-                  }
-                  className={classes.workbookTab}
-                />
-              </Tabs>
-
-              <div style={{ height: 'calc(100% - 48px)' }}>
-                <ValidationGrid
-                  onGridReady={this.onGridReady}
-                  rowData={this.state[sheet]}
-                  defaultColumnDef={this.state.defaultColumnDef}
-                  handleCellValueChanged={this.handleCellValueChanged}
-                  handleGridSizeChanged={this.handleGridSizeChanged}
-                  gridContext={{
-                    sheet,
-                    getAuditReport: () => this.state.auditReport,
-                    textAreaLookup,
-                    selectOptions: generateSelectOptions(
-                      this.props.dataSubmissionSelectOptions,
-                    ),
-                    auditCell: this.auditCell,
-                  }}
-                  onModelUpdated={this.onModelUpdated}
-                />
-              </div>
+                        {' '}
+                        Find Errors
+                      </span>
+                    </Typography>
+                  ) : Boolean(
+                      sheet === 'vars_meta_data' &&
+                        (errorCount['data'] || errorCount['dataset_meta_data']),
+                    ) ? (
+                    <Typography variant="body2">
+                      <ErrorOutline
+                        style={{
+                          color: 'rgba(255, 0, 0, .7)',
+                          margin: '0 2px -5px 0',
+                          fontSize: '1.4em',
+                        }}
+                      />
+                      Please correct errors from the previous sheets before
+                      moving forward.
+                    </Typography>
+                  ) : (
+                    <Typography variant="body2">
+                      <Done
+                        style={{
+                          color: colors.primary,
+                          margin: '0 2px -5px 0',
+                          fontSize: '1.4em',
+                        }}
+                      />
+                      All set! Click the arrow above to move to the next step.
+                    </Typography>
+                  )}
+                </React.Fragment>
+              )}
             </Paper>
-          </React.Fragment>
-        )}
 
-        {Boolean(validationStep === 5) && (
-          <Paper elevation={2} className={`${classes.fileSelectPaper}`}>
-            <CleanupDummy />
-            {this.props.submissionUploadState === states.succeeded ? (
+            {Boolean(validationStep === 1) && (
+              <Paper elevation={2} className={`${classes.workbookAuditPaper}`}>
+                <Typography style={{ marginBottom: '24px' }}>
+                  {Boolean(this.state.auditReport.workbook.errors.length) && (
+                    <React.Fragment>
+                      One or more parts of your submission did not match CMAP's
+                      requirements. Please review the information below, update
+                      your workbook, and{' '}
+                      <label
+                        className={classes.linkLabel}
+                        htmlFor="select-file-input"
+                      >
+                        try again
+                      </label>
+                      .
+                    </React.Fragment>
+                  )}
+
+                  {Boolean(
+                    !this.state.auditReport.workbook.errors.length &&
+                      this.state.auditReport.workbook.warnings.length,
+                  ) && 'We found some potential issues with your submission.'}
+
+                  {Boolean(this.state.auditReport.workbook.warnings.length) && (
+                    <React.Fragment>
+                      {'\n'}
+                      {'\n'}
+                      Messages marked with a yellow icon
+                      <ErrorOutline
+                        style={{
+                          color: 'rgba(255, 255, 0, .7)',
+                          fontSize: '18px',
+                          margin: '0 3px -4px 3px',
+                        }}
+                      />
+                      are warnings. These should be reviewed and corrected if
+                      necessary, but will not prevent you from moving to the
+                      next validation step.
+                    </React.Fragment>
+                  )}
+                </Typography>
+
+                {
+                  <List dense={true}>
+                    {this.state.auditReport.workbook.errors.map((e, i) => (
+                      <ListItem key={i}>
+                        <ListItemIcon style={{ color: 'rgba(255, 0, 0, .7)' }}>
+                          <ErrorOutline />
+                        </ListItemIcon>
+                        <ListItemText primary={e} />
+                      </ListItem>
+                    ))}
+
+                    {this.state.auditReport.workbook.warnings.map((e, i) => (
+                      <ListItem key={i}>
+                        <ListItemIcon
+                          style={{ color: 'rgba(255, 255, 0, .7)' }}
+                        >
+                          <ErrorOutline />
+                        </ListItemIcon>
+                        <ListItemText primary={e} />
+                      </ListItem>
+                    ))}
+                  </List>
+                }
+              </Paper>
+            )}
+
+            {Boolean(
+              this.state.data &&
+                this.state.data.length &&
+                validationStep >= 2 &&
+                validationStep < 5,
+            ) && (
               <React.Fragment>
-                <Typography className={classes.submittedTypography}>
-                  Your dataset has been successfully submitted, and will be
-                  reviewed by our data curation team.
-                </Typography>
+                <Paper
+                  elevation={2}
+                  className={classes.tabPaper + ' ag-theme-material'}
+                >
+                  <Tabs value={validationStep} onChange={this.handleClickTab}>
+                    <Tab
+                      value={2}
+                      label={
+                        errorCount['data'] > 0 ? (
+                          <StyledBadgeRed badgeContent={errorCount['data']}>
+                            Data
+                          </StyledBadgeRed>
+                        ) : (
+                          <StyledBadgeGreen badgeContent={'\u2713'}>
+                            Data
+                          </StyledBadgeGreen>
+                        )
+                      }
+                      className={classes.workbookTab}
+                    />
 
-                <Typography className={classes.submittedTypography}>
-                  You can view the status of your submission{' '}
-                  <Link
-                    style={{ display: 'inline-block' }}
-                    className={classes.needHelpLink}
-                    component={RouterLink}
-                    to={`/datasubmission/userdashboard?datasetName=${encodeURI(
-                      datasetName,
-                    )}`}
-                  >
-                    here
-                  </Link>
-                  .
-                </Typography>
+                    <Tab
+                      value={3}
+                      label={
+                        errorCount['dataset_meta_data'] > 0 ? (
+                          <StyledBadgeRed
+                            badgeContent={errorCount['dataset_meta_data']}
+                          >
+                            Dataset Metadata
+                          </StyledBadgeRed>
+                        ) : (
+                          <StyledBadgeGreen badgeContent={'\u2713'}>
+                            Dataset Metadata
+                          </StyledBadgeGreen>
+                        )
+                      }
+                      className={classes.workbookTab}
+                    />
 
-                <Typography className={classes.submittedTypography}>
-                  If you made any changes during this process you can download
-                  the edited workbook{' '}
-                  <Link
-                    style={{ display: 'inline-block' }}
-                    className={classes.needHelpLink}
-                    onClick={this.handleDownload}
-                    component="span"
-                  >
-                    here
-                  </Link>
-                  .
-                </Typography>
+                    <Tab
+                      value={4}
+                      label={
+                        errorCount['vars_meta_data'] > 0 ? (
+                          <StyledBadgeRed
+                            badgeContent={errorCount['vars_meta_data']}
+                          >
+                            Variable Metadata
+                          </StyledBadgeRed>
+                        ) : (
+                          <StyledBadgeGreen badgeContent={'\u2713'}>
+                            Variable Metadata
+                          </StyledBadgeGreen>
+                        )
+                      }
+                      className={classes.workbookTab}
+                    />
+                  </Tabs>
 
-                <Typography className={classes.submittedTypography}>
-                  A detailed description of remaining steps in the submission
-                  process can be found in the{' '}
-                  <Link
-                    style={{ display: 'inline-block' }}
-                    className={classes.needHelpLink}
-                    component={RouterLink}
-                    to="/datasubmission/guide"
-                  >
-                    Data Submission Guide
-                  </Link>
-                  .
-                </Typography>
-
-                <Typography className={classes.submittedTypography}>
-                  To start over and submit another dataset click{' '}
-                  <Link
-                    style={{ display: 'inline-block' }}
-                    className={classes.needHelpLink}
-                    onClick={() => this.handleResetState()}
-                    component="span"
-                  >
-                    here
-                  </Link>
-                  .
-                </Typography>
+                  <div style={{ height: 'calc(100% - 48px)' }}>
+                    <ValidationGrid
+                      onGridReady={this.onGridReady}
+                      rowData={this.state[sheet]}
+                      defaultColumnDef={this.state.defaultColumnDef}
+                      handleCellValueChanged={this.handleCellValueChanged}
+                      handleGridSizeChanged={this.handleGridSizeChanged}
+                      gridContext={{
+                        sheet,
+                        getAuditReport: () => this.state.auditReport,
+                        textAreaLookup,
+                        selectOptions: generateSelectOptions(
+                          this.props.dataSubmissionSelectOptions,
+                        ),
+                        auditCell: this.auditCell,
+                      }}
+                      onModelUpdated={this.onModelUpdated}
+                    />
+                  </div>
+                </Paper>
               </React.Fragment>
-            ) : this.props.submissionUploadState === states.failed ? (
-              <React.Fragment>
-                <List>
-                  <ListItem>
-                    <ListItemIcon style={{ color: 'rgba(255, 0, 0, .7)' }}>
-                      <ErrorOutline />
-                    </ListItemIcon>
-                    <ListItemText primary="A dataset with this name has already been submitted by another user. If you believe you're receiving this message in error please contact us at cmap-data-submission@uw.edu." />
+            )}
+
+            {Boolean(validationStep === 5) && (
+              <Paper elevation={2} className={`${classes.fileSelectPaper}`}>
+                <CleanupDummy />
+                {this.props.submissionUploadState === states.succeeded ? (
+                  <React.Fragment>
+                    <Typography className={classes.submittedTypography}>
+                      Your dataset has been successfully submitted, and will be
+                      reviewed by our data curation team.
+                    </Typography>
+
+                    <Typography className={classes.submittedTypography}>
+                      You can view the status of your submission{' '}
+                      <Link
+                        style={{ display: 'inline-block' }}
+                        className={classes.needHelpLink}
+                        component={RouterLink}
+                        to={`/datasubmission/userdashboard?datasetName=${encodeURI(
+                          datasetName,
+                        )}`}
+                      >
+                        here
+                      </Link>
+                      .
+                    </Typography>
+
+                    <Typography className={classes.submittedTypography}>
+                      If you made any changes during this process you can
+                      download the edited workbook{' '}
+                      <Link
+                        style={{ display: 'inline-block' }}
+                        className={classes.needHelpLink}
+                        onClick={this.handleDownload}
+                        component="span"
+                      >
+                        here
+                      </Link>
+                      .
+                    </Typography>
+
+                    <Typography className={classes.submittedTypography}>
+                      A detailed description of remaining steps in the
+                      submission process can be found in the{' '}
+                      <Link
+                        style={{ display: 'inline-block' }}
+                        className={classes.needHelpLink}
+                        component={RouterLink}
+                        to="/datasubmission/guide"
+                      >
+                        Data Submission Guide
+                      </Link>
+                      .
+                    </Typography>
 
                     <Typography className={classes.submittedTypography}>
                       To start over and submit another dataset click{' '}
@@ -1215,50 +1211,74 @@ class ValidationTool extends React.Component {
                       </Link>
                       .
                     </Typography>
-                  </ListItem>
-                </List>
+                  </React.Fragment>
+                ) : this.props.submissionUploadState === states.failed ? (
+                  <React.Fragment>
+                    <List>
+                      <ListItem>
+                        <ListItemIcon style={{ color: 'rgba(255, 0, 0, .7)' }}>
+                          <ErrorOutline />
+                        </ListItemIcon>
+                        <ListItemText primary="A dataset with this name has already been submitted by another user. If you believe you're receiving this message in error please contact us at cmap-data-submission@uw.edu." />
 
-                <Typography className={classes.submittedTypography}>
-                  If you made any changes during this process you can download
-                  the edited workbook{' '}
-                  <Link
-                    style={{ display: 'inline-block' }}
-                    className={classes.needHelpLink}
-                    onClick={this.handleDownload}
-                    component="span"
-                  >
-                    here
-                  </Link>
-                  .
-                </Typography>
-              </React.Fragment>
-            ) : (
-              <React.Fragment>
-                <Typography>
-                  You've completed dataset validation! Click the button below to
-                  upload your workbook.
-                </Typography>
+                        <Typography className={classes.submittedTypography}>
+                          To start over and submit another dataset click{' '}
+                          <Link
+                            style={{ display: 'inline-block' }}
+                            className={classes.needHelpLink}
+                            onClick={() => this.handleResetState()}
+                            component="span"
+                          >
+                            here
+                          </Link>
+                          .
+                        </Typography>
+                      </ListItem>
+                    </List>
 
-                <Button
-                  variant="contained"
-                  color="primary"
-                  className={classes.submitButton}
-                  onClick={this.handleUploadSubmission}
-                >
-                  Submit
-                </Button>
-              </React.Fragment>
+                    <Typography className={classes.submittedTypography}>
+                      If you made any changes during this process you can
+                      download the edited workbook{' '}
+                      <Link
+                        style={{ display: 'inline-block' }}
+                        className={classes.needHelpLink}
+                        onClick={this.handleDownload}
+                        component="span"
+                      >
+                        here
+                      </Link>
+                      .
+                    </Typography>
+                  </React.Fragment>
+                ) : (
+                  <React.Fragment>
+                    <Typography>
+                      You've completed dataset validation! Click the button
+                      below to upload your workbook.
+                    </Typography>
+
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      className={classes.submitButton}
+                      onClick={this.handleUploadSubmission}
+                    >
+                      Submit
+                    </Button>
+                  </React.Fragment>
+                )}
+              </Paper>
             )}
-          </Paper>
-        )}
-        <input
-          onChange={this.handleFileSelect}
-          className={classes.input}
-          accept=".xlsx"
-          id="select-file-input"
-          type="file"
-        />
-      </React.Fragment>
+            <input
+              onChange={this.handleFileSelect}
+              className={classes.input}
+              accept=".xlsx"
+              id="select-file-input"
+              type="file"
+            />
+          </Section>
+        </FullWidthContainer>
+      </div>
     );
   };
 }
