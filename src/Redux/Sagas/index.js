@@ -254,12 +254,15 @@ function* downloadRequest(action) {
   yield put(interfaceActions.setLoadingMessage('Processing Request'));
 
   let { subsetParams, ancillaryData, tableName, shortName, fileName } = action.payload;
+
+  let truncatedFileName = fileName.slice(0, 100);
+
   let query = makeDownloadQuery({ subsetParams, ancillaryData, tableName });
   yield put(interfaceActions.setLoadingMessage('Fetching Data'));
 
   try {
     let data = yield call(fetchDatasetAndMetadata, { query, shortName });
-    makeZip(data, fileName, shortName);
+    makeZip(data, truncatedFileName, shortName);
   } catch (e) {
     yield put(interfaceActions.setLoadingMessage(''));
     if (e.message === 'UNAUTHORIZED') {
