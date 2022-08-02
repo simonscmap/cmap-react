@@ -6,7 +6,7 @@ This directory holds modules in connection with api calls: calling backend appli
 
 `TODO:`
 
-- Refactors the underlying server call logic (fetch currently) and add error handling
+- Refactor the underlying server call logic (fetch currently) and add error handling
 - standard response object for all methods {success, status, body, msg} ?
 - refactor csvParser / text-encoding ...
 - The exported api functions/methods are prefixed with `api`.

@@ -3,18 +3,18 @@ import { postOptions, apiUrl, fetchOptions } from './config';
 const userAPI = {};
 
 userAPI.login = (user) => {
-  return fetch(apiUrl + '/user/signin', {
+  return fetch(apiUrl + '/api/user/signin', {
     ...postOptions,
     body: JSON.stringify(user),
   });
 };
 
 userAPI.logout = () => {
-  return fetch(apiUrl + '/user/signout', fetchOptions);
+  return fetch(apiUrl + '/api/user/signout', fetchOptions);
 };
 
 userAPI.register = (user) => {
-  return fetch(apiUrl + '/user/signup', {
+  return fetch(apiUrl + '/api/user/signup', {
     ...postOptions,
     body: JSON.stringify(user),
   });
@@ -35,14 +35,14 @@ userAPI.choosePassword = async ({ password, token }) => {
 };
 
 userAPI.validate = (user) => {
-  return fetch(apiUrl + '/user/validate', {
+  return fetch(apiUrl + '/api/user/validate', {
     ...postOptions,
     body: JSON.stringify(user),
   });
 };
 
 userAPI.googleLoginRequest = async (userIDToken) => {
-  let response = await fetch(apiUrl + '/user/googleauth', {
+  let response = await fetch(apiUrl + '/api/user/googleauth', {
     ...postOptions,
     body: JSON.stringify({ userIDToken }),
   });
@@ -107,12 +107,12 @@ userAPI.updateUserInfo = async (userInfo) => {
 };
 
 userAPI.keyRetrieval = async () => {
-  return await fetch(apiUrl + '/user/retrieveapikeys', fetchOptions);
+  return await fetch(apiUrl + '/api/user/retrieveapikeys', fetchOptions);
 };
 
 userAPI.keyCreation = async (description) => {
   return await fetch(
-    apiUrl + `/user/generateapikey?description=${description.trim()}`,
+    apiUrl + `/api/user/generateapikey?description=${description.trim()}`,
     fetchOptions,
   );
 };
