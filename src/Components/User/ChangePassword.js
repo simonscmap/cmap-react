@@ -13,6 +13,7 @@ import {
   Button,
   TextField,
 } from '@material-ui/core';
+import validatePassword from './validatePassword';
 
 import { withStyles } from '@material-ui/core/styles';
 
@@ -43,12 +44,6 @@ const styles = (theme) => ({
   },
 });
 
-const testNewPassword = (password) => {
-  return /^(?=.*[0-9])(?=.*[.!@#$%^&*])[a-zA-Z0-9.!@#$%^&*]{8,32}$/.test(
-    password,
-  );
-};
-
 const ChangePassword = (props) => {
   const { classes } = props;
 
@@ -57,7 +52,7 @@ const ChangePassword = (props) => {
   const [newPasswordConfirm, setNewPasswordConfirm] = React.useState('');
 
   const newPasswordValid = Boolean(
-    testNewPassword(newPassword) || !newPassword,
+    validatePassword(newPassword) || !newPassword,
   );
   const newPasswordConfirmValid = Boolean(
     !newPasswordConfirm || newPasswordConfirm === newPassword,

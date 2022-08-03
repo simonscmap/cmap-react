@@ -4,6 +4,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import { Link as RouterLink } from 'react-router-dom';
+import validate from './validatePassword';
 
 import jwtDecode from 'jwt-decode';
 
@@ -100,8 +101,7 @@ class ChoosePassword extends Component {
     const { classes, choosePasswordState } = this.props;
     const { password, confirmPassword, expired } = this.state;
 
-    const passwordValid =
-      /^(?=.*[0-9])(?=.*[.!@#$%^&*])[a-zA-Z0-9.!@#$%^&*]{8,32}$/.test(password);
+    const passwordValid = validate(password);
     const confirmPasswordValid = password === confirmPassword;
     const disabled = Boolean(
       password.length === 0 || !passwordValid || !confirmPasswordValid,
@@ -164,7 +164,7 @@ class ChoosePassword extends Component {
               value={password}
               onChange={this.handleChangePassword}
               error={Boolean(!passwordValid && password.length)}
-              helperText="Must be 8 to 32 characters with 1 number and 1 special character."
+              helperText="Must be 8 to 32 characters with at least 1 number and at least 1 special character."
               onKeyPress={this.handleKeyPress}
               InputLabelProps={{
                 shrink: true,
