@@ -9,6 +9,9 @@ export default ({
   lonEnd,
   sensor,
 }) => {
+  if (Array.isArray(keywords) && typeof keywords !== 'string') {
+    return "";
+  }
   let qString = '';
   keywords
     .split(' ')
