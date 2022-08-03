@@ -258,8 +258,9 @@ export default function (state, action) {
           ...state,
           dataSearchMenuOpen: false,
         };
+      } else {
+        return state;
       }
-      break;
 
     default:
       return state;
