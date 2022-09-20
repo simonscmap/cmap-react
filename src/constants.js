@@ -1,3 +1,6 @@
+// TIME
+export const SERVER_TZ_OFFSET = -4;
+
 // Page Id
 export const CATALOG_PAGE = 'catalog';
 export const VISUALIZATION_PAGE = 'visualization';
