@@ -1,7 +1,13 @@
 // TIME
 export const SERVER_TZ_OFFSET = -4;
 
-// Page Id
+// ENV
+export const ENV = {
+  production: 'production',
+  staging: 'staging',
+  development: 'development',
+};
+
 export const CATALOG_PAGE = 'catalog';
 export const VISUALIZATION_PAGE = 'visualization';
 export const CHARTS_PAGE = 'charts';

@@ -69,6 +69,9 @@ import {
   watchUpdateNewsRanksSuccess,
 } from './news';
 
+import logInit from '../../Services/log-service';
+const log = logInit('sagas').addContext({ src: 'Redux/Sagas' });
+
 function* queryRequest(action) {
   yield put(visualizationActions.queryRequestProcessing());
   let result = yield call(api.visualization.queryRequest, action.payload.query);
@@ -275,7 +278,13 @@ function* downloadRequest(action) {
   yield put(catalogActions.datasetDownloadRequestProcessing());
   yield put(interfaceActions.setLoadingMessage('Processing Request'));
 
-  let { subsetParams, ancillaryData, tableName, shortName, fileName } = action.payload;
+  let {
+    subsetParams,
+    ancillaryData,
+    tableName,
+    shortName,
+    fileName,
+  } = action.payload;
 
   let truncatedFileName = fileName.slice(0, 100);
 
@@ -283,6 +292,7 @@ function* downloadRequest(action) {
   yield put(interfaceActions.setLoadingMessage('Fetching Data'));
 
   try {
+    log.info('requesting download', { ancillaryData, tableName, query });
     let data = yield call(fetchDatasetAndMetadata, { query, shortName });
     makeZip(data, truncatedFileName, shortName);
   } catch (e) {

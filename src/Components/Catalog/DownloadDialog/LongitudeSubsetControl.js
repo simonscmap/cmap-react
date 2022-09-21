@@ -2,6 +2,10 @@ import { Grid, Slider, TextField, Typography } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import React from 'react';
 import styles from './downloadDialogStyles';
+import logInit from '../../../Services/log-service';
+
+const log = logInit('LongitudeSubsetControl')
+  .addContext({ src: 'Components/Catalog/DownloadDialog'});
 
 const LongitudeControl = (props) => {
   let { classes, dataset, subsetState, setLonStart, setLonEnd } = props;
@@ -11,6 +15,7 @@ const LongitudeControl = (props) => {
   // handler for the slider
   let handleSlider = (e, value) => {
     let [start, end] = value;
+    log.debug('handleSlider', { e: e.target.value, value });
     setLonStart(start);
     setLonEnd(end);
   };
@@ -20,11 +25,13 @@ const LongitudeControl = (props) => {
   };
 
   let handleSetStart = (e) => {
+    log.debug('handleSetStart', { value: e.target.value });
     let newLonStart = emptyStringOrNumber(e.target.value);
     setLonStart(newLonStart);
   };
 
   let handleSetEnd = (e) => {
+    log.debug('handleSetEnd', { value: e.target.value });
     let newLonEnd = emptyStringOrNumber(e.target.value);
     setLonEnd(newLonEnd);
   };

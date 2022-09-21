@@ -18,6 +18,7 @@ import {
   // getDownloadAvailabilites,
   getInitialRangeValues,
   parseDataset,
+  makeDownloadQuery,
 } from './downloadDialogHelpers';
 import styles from './downloadDialogStyles';
 import ErrorMessage from './ErrorMessage';
@@ -27,6 +28,12 @@ import { DownloadIntro } from './Intro';
 import { AncillaryDataExplainer } from './AncillaryDataDownload';
 import DownloadOption from './DownloadOption';
 import DownloadStep from './DownloadStep';
+
+import logInit from '../../../Services/log-service';
+const log = logInit('dialog').addContext({
+  src: 'Components/Catalog/DownloadDialog',
+});
+
 // subset controls
 
 let SubsetControls = ({
@@ -59,6 +66,7 @@ let SubsetControls = ({
     setDepthStart,
     setDepthEnd,
   } = subsetSetters;
+
   return (
     <React.Fragment>
       <DownloadOption
@@ -117,7 +125,7 @@ const DownloadDialog = (props) => {
   try {
     dataset = parseDataset(rawDataset);
   } catch (e) {
-    console.log(`error parsing dataset`, e);
+    log.error(`error parsing dataset`, { error: e });
     error = e;
   }
 
@@ -215,6 +223,7 @@ const DownloadDialog = (props) => {
 
   // download handler
   let handleDownload = () => {
+    log.debug('handleDownload', { subsetParams });
     dispatch(
       datasetDownloadRequestSend({
         tableName: dataset.Table_Name,
@@ -225,6 +234,16 @@ const DownloadDialog = (props) => {
       }),
     );
   };
+
+  log.debug('sql query', {
+    query: makeDownloadQuery({
+      subsetParams,
+      ancillaryData: optionsState.ancillaryData,
+      tableName: dataset.Table_Name,
+    }),
+    table: dataset.Table_Name,
+    ancillaryData: optionsState.ancillaryData,
+  });
 
   // Render
 

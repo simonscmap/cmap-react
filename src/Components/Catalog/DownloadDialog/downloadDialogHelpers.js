@@ -1,5 +1,8 @@
 import temporalResolutions from '../../../enums/temporalResolutions';
 import depthUtils from '../../../Utility/depthCounter';
+import logInit from '../../../Services/log-service';
+
+const log = logInit('dowloadDialogHelpers');
 
 const MILLISECONDS_PER_DAY = 86400000;
 
@@ -18,7 +21,7 @@ export const makeSubsetQuery = (tableName, selection) => {
     latEnd,
     timeStart,
     timeEnd,
-    Time_Max,
+    // Time_Max,
     Time_Min,
     depthStart,
     depthEnd,
@@ -26,16 +29,14 @@ export const makeSubsetQuery = (tableName, selection) => {
 
   let isMonthyClimatology = getIsMonthlyClimatology(temporalResolution);
 
-  let timeUnit = isMonthyClimatology ? 'month' : 'time';
+  let timeUnit = isMonthyClimatology ? 'month' : 'cast(time as date)';
 
-  // convert to 1-indexed month, if unit of time is month
   const _timeStart = isMonthyClimatology
-    ? new Date(timeStart).getMonth() + 1
+    ? timeStart
     : dayToDate(Time_Min, timeStart);
-  const _timeEnd = isMonthyClimatology
-    ? new Date(timeEnd).getMonth() + 1
-    : dayToDate(Time_Max, timeEnd);
+  const _timeEnd = isMonthyClimatology ? timeEnd : dayToDate(Time_Min, timeEnd);
   // + 'T23:59:59Z'
+
   let query =
     `select * from ${tableName} where ${timeUnit} between '${_timeStart}' and '${_timeEnd}' and ` +
     `lat between ${latStart} and ${latEnd} and ` +
@@ -44,6 +45,15 @@ export const makeSubsetQuery = (tableName, selection) => {
   if (depthEnd) {
     query += ` and depth between ${depthStart} and ${depthEnd}`;
   }
+
+  log.debug('make subset query', {
+    isMonthyClimatology,
+    timeUnit,
+    _timeStart,
+    _timeEnd,
+    query,
+    initialSubsetValues: selection,
+  });
 
   return query;
 };
@@ -66,7 +76,7 @@ sproc template:
     latEnd,
     timeStart,
     timeEnd,
-    Time_Max,
+    // Time_Max,
     Time_Min,
     depthStart,
     depthEnd,
@@ -76,11 +86,10 @@ sproc template:
 
   // convert to 1-indexed month, if unit of time is month
   const _timeStart = isMonthyClimatology
-    ? new Date(timeStart).getMonth() + 1
+    ? timeStart
     : dayToDate(Time_Min, timeStart);
-  const _timeEnd = isMonthyClimatology
-    ? new Date(timeEnd).getMonth() + 1
-    : dayToDate(Time_Max, timeEnd);
+  const _timeEnd = isMonthyClimatology ? timeEnd : dayToDate(Time_Min, timeEnd);
+  // + 'T23:59:59Z'
 
   // NOTE: the CIP bit at the end is hard coded for the moment
   // NOTE: the dates have to be quoted
@@ -89,6 +98,14 @@ sproc template:
     `'${_timeEnd}', ${latStart}, ${latEnd}, ${lonStart}, ${lonEnd},` +
     `${depthStart}, ${depthEnd}, ${0}`;
   // This query will be sent to /api/query via the csv download saga
+
+  log.debug('make subset query', {
+    isMonthyClimatology,
+    _timeStart,
+    _timeEnd,
+    query,
+    initialSubsetValues: selection,
+  });
   return query;
 };
 
@@ -106,21 +123,15 @@ export const makeDownloadQuery = ({
   if (ancillaryData) {
     // user has requested ancillary data
     if (subsetParams.subsetIsDefined) {
-      console.log(`requesting subset ${tableName} with ancillary data`);
       return makeSubsetQueryWithAncillaryData(tableName, subsetParams);
     } else {
-      console.log(
-        `requesting full dataset of ${tableName} with ancillary data`,
-      );
       return makeFullDatasetQueryWithAncillaryData(tableName);
     }
   } else {
     // user has requested no ancillary data, or ancillary data is not available
     if (subsetParams.subsetIsDefined) {
-      console.log(`requesting subset of ${tableName}`);
       return makeSubsetQuery(tableName, subsetParams);
     } else {
-      console.log(`requesting full dataset of ${tableName}`);
       return `select%20*%20from%20${tableName}`;
     }
   }
@@ -134,15 +145,29 @@ export const getMaxDays = (dataset) => {
   let endTime = new Date(dataset.Time_Max).getTime();
   let startTime = new Date(dataset.Time_Min).getTime();
   let differenceInMilliseconds = endTime - startTime;
-  let intervalInDays = Math.ceil(
+  let intervalInDays = Math.floor(
     differenceInMilliseconds / MILLISECONDS_PER_DAY,
   );
+
+  log.debug('get max days', {
+    startTime: new Date(startTime),
+    endTime: new Date(endTime),
+    intervalInDays,
+    interval: differenceInMilliseconds / MILLISECONDS_PER_DAY,
+  });
   return intervalInDays;
 };
 
 export const getInitialRangeValues = (dataset) => {
-  let { Lat_Max, Lat_Min, Lon_Max, Lon_Min, Time_Min, Depth_Max, Depth_Min } =
-    dataset;
+  let {
+    Lat_Max,
+    Lat_Min,
+    Lon_Max,
+    Lon_Min,
+    Time_Min,
+    Depth_Max,
+    Depth_Min,
+  } = dataset;
 
   let maxDays = getMaxDays(dataset);
 
@@ -349,6 +374,10 @@ export const getDownloadAvailabilites = (dataset, subsetState) => {
 };
 
 // ensure that certain fields are expected parseable type
+// NOTE: this is especially important for dates, as this
+// parsing also corrects for the client's (browser's) timezone
+// so that the dates show up as GMT; all subsequent date calculations
+// should be downstream of this correction
 export const parseDataset = (dataset) => {
   let data = {
     ...dataset,
@@ -366,13 +395,37 @@ export const parseDataset = (dataset) => {
     }
   });
 
+  // dates are stored as GMT but the date strings don't contain that info,
+  // so javascript applies a TZ offset
+  // this is tricky, because the offset is correct, but we want to display the
+  // date as GMT, so we need to correct the offset
   dates.forEach((field) => {
+    let d;
     try {
-      data[field] = Date.parse(dataset[field]);
+      if (dataset[field]) {
+        d = new Date(dataset[field]);
+      }
     } catch (e) {
       let message = `failed to parse ${field} as Date; received ${dataset[field]}`;
       throw new Error(message);
     }
+
+    if (!d) {
+      return;
+    }
+
+    let offset = d.getTimezoneOffset();
+    let offsetHours = offset / 60;
+    let offsetMinutes = offset % 60;
+    let utcHours = d.getUTCHours();
+
+    d.setUTCHours(utcHours + offsetHours);
+
+    if (offsetMinutes !== 0) {
+      d.setUTCMinutes(d.getUTCMinutes + offsetMinutes);
+    }
+
+    data[field] = d; // now saving this altered date as a date object
   });
 
   return data;
