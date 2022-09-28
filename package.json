@@ -37,7 +37,7 @@
     "match-sorter": "^4.2.0",
     "ndjson": "^1.5.0",
     "node-sass": "^4.14.1",
-    "npm": "^6.14.8",
+    "npm": "^8.19.2",
     "papaparse": "^5.3.1",
     "plotly.js": "^1.54.6",
     "prop-types": "^15.7.2",
