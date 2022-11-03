@@ -34,7 +34,7 @@ const styles = () => ({
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
     gap: '10px',
-    padding: '30px',
+    padding: '9px',
     height: 'calc(1.75rem * 5 + 20px + 1.5rem)',
     borderRadius: '6px',
     textAlign: 'left',
@@ -51,6 +51,10 @@ const styles = () => ({
       '&:hover': {
         background: 'rgba(7, 39, 77, 0.2)',
       },
+      '& a': {
+        color: 'white',
+      },
+      // h4 no longer in use
       '& h4': {
         lineHeight: '1.75rem',
         overflow: 'hidden',
@@ -74,7 +78,7 @@ const styles = () => ({
 
 const HeroContent = withStyles(styles)(() => (
   <div>
-    <Typography variant="subtitle1" style={{ fontSize: '1.6rem'}}>
+    <Typography variant="subtitle1" style={{ fontSize: '1.6rem' }}>
       Browse the gallery of Simons CMAP use cases to learn about how Simons CMAP
       can be used to advance ocean science.
     </Typography>
@@ -91,11 +95,27 @@ const About = ({ classes }) => {
   return (
     <Page pageTitle={'Gallery'} heroContent={<HeroContent />}>
       <FullWidthContainer bgVariant={'slate'}>
+        <Section name={'studies'} title={'Research'}>
+          <div className={classes.cardList}>
+            <Card>
+              <Typography variant="body1">
+                <Link to="/gallery/seaflow-time-series-decomposition">
+                  Using Simons CMAP to decompose SeaFlow time series data and
+                  estimate diel variation over cruises
+                </Link>
+              </Typography>
+              <Typography variant="body2">
+                Contributors: Katherine Qi
+              </Typography>
+            </Card>
+          </div>
+        </Section>
+
         <Section name={'support'} title={'Instructional Resources'}>
           <div className={classes.cardList}>
             <Card>
-              <Typography variant="h4">
-                <Link to="/gallery/compare-sst-data">
+              <Typography variant="body1">
+                <Link to="/gallery/compare-sst-data" className={classes.linkWhite}>
                   Using Simons CMAP to compare sea surface temperature data
                   collected by different instruments
                 </Link>
