@@ -145,7 +145,7 @@ const ChangePassword = (props) => {
               error={!newPasswordValid}
               helperText={
                 !newPasswordValid
-                  ? 'Must be 8 to 32 characters with 1 number and 1 special character.'
+                  ? 'Must be 8 to 32 characters with at least 1 number, 1 uppercase character, and 1 special character.'
                   : ''
               }
               onKeyPress={handleKeyPress}

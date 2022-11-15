@@ -164,7 +164,7 @@ class ChoosePassword extends Component {
               value={password}
               onChange={this.handleChangePassword}
               error={Boolean(!passwordValid && password.length)}
-              helperText="Must be 8 to 32 characters with at least 1 number and at least 1 special character."
+              helperText="Must be 8 to 32 characters with at least 1 number, 1 uppercase character, and 1 special character."
               onKeyPress={this.handleKeyPress}
               InputLabelProps={{
                 shrink: true,
