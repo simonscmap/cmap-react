@@ -53,6 +53,10 @@ const styles = () => ({
       },
       '& a': {
         color: 'white',
+        '&:hover': {
+          color: 'white',
+          textDecoration: 'underline',
+        }
       },
       // h4 no longer in use
       '& h4': {
@@ -104,6 +108,14 @@ const About = ({ classes }) => {
                   estimate diel variation over cruises
                 </Link>
               </Typography>
+
+              <a href="https://doi.org/10.5281/zenodo.7320268">
+                <img
+                  src="https://zenodo.org/badge/DOI/10.5281/zenodo.7320268.svg"
+                  alt="DOI"
+                />
+              </a>
+
               <Typography variant="body2">
                 Contributors: Katherine Qi
               </Typography>
@@ -115,7 +127,10 @@ const About = ({ classes }) => {
           <div className={classes.cardList}>
             <Card>
               <Typography variant="body1">
-                <Link to="/gallery/compare-sst-data" className={classes.linkWhite}>
+                <Link
+                  to="/gallery/compare-sst-data"
+                  className={classes.linkWhite}
+                >
                   Using Simons CMAP to compare sea surface temperature data
                   collected by different instruments
                 </Link>

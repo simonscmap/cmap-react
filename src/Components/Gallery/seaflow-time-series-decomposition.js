@@ -1,32 +1,13 @@
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
-import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
 import Page from '../Common/Page';
 import Section, { FullWidthContainer } from '../Common/Section';
-import Banner from '../Common/Banner';
-import Split from '../Common/Split';
-import List from '../Common/List';
-import clsx from 'clsx';
 import { colors } from '../Home/theme';
 import ResizeObserver from 'react-resize-observer';
 
 const jupyterNotebookURL =
-  'https://nbviewer.org/github/klqi/seaflow_gallery/blob/main/SeaFlow%20Time%20Series%20Decomposition.ipynb';
-
-const toA = ([text, href]) => (
-  <a target="_blank" rel="noreferrer" href={href}>
-    {text}
-  </a>
-);
-const toCustomItem = (component) => ({ custom: component });
-
-const links = [
-  [
-    'Github',
-    'https://github.com/klqi/seaflow_gallery/blob/main/SeaFlow%20Time%20Series%20Decomposition.ipynbhttps://github.com/klqi/seaflow_gallery/blob/main/SeaFlow%20Time%20Series%20Decomposition.ipynb',
-  ],
-];
+  'https://nbviewer.org/github/klqi/seaflow_gallery/blob/d525ae9fcf2ec8187ddf361491fddd7eaf7c93ed/SeaFlow%20Time%20Series%20Decomposition.ipynb';
 
 const styles = () => ({
   sectionGap: {
@@ -51,7 +32,7 @@ const styles = () => ({
   },
 });
 
-const Credit = withStyles(styles)(({ classes, children }) => {
+const Credit = withStyles(styles)(({ children }) => {
   return (
     <div>
       <Typography variant="h6">Credit</Typography>
@@ -60,9 +41,17 @@ const Credit = withStyles(styles)(({ classes, children }) => {
   );
 });
 
-const HeroContent = withStyles(styles)(({ classes }) => {
+const HeroContent = withStyles(styles)(() => {
   return (
     <div>
+    <div style={{ marginBottom: '2em' }}>
+      <a href="https://doi.org/10.5281/zenodo.7320268">
+        <img
+          src="https://zenodo.org/badge/DOI/10.5281/zenodo.7320268.svg"
+          alt="DOI"
+        />
+      </a>
+    </div>
       <Credit>
         <Typography variant="body2">
           Katherine Qi, Univerity of Washington
@@ -97,11 +86,13 @@ const Notebook = () => {
   );
 };
 
-const ExerciseDescription = ({ classes }) => {
+const ExerciseDescription = () => {
   // let sectionText = clsx(classes.tallLines, classes.paragraphGap);
   return (
     <Page
-      pageTitle={'SeaFlow cytometry and satellite data show relationship between daily estimated cellular growth, temperature, and PAR'}
+      pageTitle={
+        'SeaFlow cytometry and satellite data show relationship between daily estimated cellular growth, temperature, and PAR'
+      }
       heroContent={<HeroContent />}
     >
       <FullWidthContainer bgVariant={'slate'}>
