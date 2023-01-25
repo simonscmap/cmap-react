@@ -11,6 +11,7 @@ const mapSpatialResolutionToNumber = (resolution) => {
     [spatialResolutions.seventyKm]: 0.25,
     [spatialResolutions.nineKm]: 0.083333,
     [spatialResolutions.twentyFiveKm]: 0.23148,
+    [spatialResolutions.fortyEighthDegree]: 0.020833333,
   };
 
   return map[resolution];

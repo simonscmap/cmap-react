@@ -5,18 +5,24 @@
 // distinct values for that parameter.
 
 const splitData = (data, changeInterval, numDistinct) => {
-  var splitData = [];
+
+  var split = [];
 
   for (let i = 0; i < numDistinct; i++) {
-    splitData.push([]);
+    split.push([]);
   }
 
   for (let i = 0; i < data.length; i++) {
     let index = Math.floor(i / changeInterval) % numDistinct;
-    splitData[index].push(data[i]);
+    if (!split[index]) {
+      console.log ('undefined split index');
+      console.table (split);
+      console.log(`index ${index}; changeInterval ${changeInterval}; numDistinct ${numDistinct}` );
+    }
+    split[index].push(data[i]);
   }
 
-  return splitData;
+  return split;
 };
 
 export default splitData;
