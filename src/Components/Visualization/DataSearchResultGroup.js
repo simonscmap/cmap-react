@@ -224,7 +224,7 @@ const Header = ({
         </Typography>
       </Grid>
 
-      <Grid item xs={3} container justify="flex-start" alignItems="center">
+      <Grid item xs={3} container justifyContent="flex-start" alignItems="center">
         <Typography
           id={`${make}-variable-count-label`}
           variant="caption"

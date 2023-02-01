@@ -1500,7 +1500,6 @@ class VizControlPanel extends React.Component {
                 disableVisualizeMessage={disableVisualizeMessage}
                 selectedVizType={selectedVizType}
                 handleChangeInputValue={this.handleChangeInputValue}
-                onVisualize={this.handleVisualize} // this does not seem to be used in ChartControl
                 showChartControl={this.state.showChartControl}
                 variableDetails={this.props.vizPageDataTargetDetails}
                 handleVisualize={this.handleVisualize} // this seems to be used instead of onVisualize

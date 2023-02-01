@@ -221,46 +221,6 @@ class Visualization extends Component {
     }
   };
 
-  // TODO rename
-  // TODO move to child
-  // this sends an HTTP request to the api, requesting
-  onVisualize = () => {
-    const {
-      depth1,
-      depth2,
-      dt1,
-      dt2,
-      lat1,
-      lat2,
-      lon1,
-      lon2,
-      selectedVizType,
-    } = this.state.spParams;
-
-    let mapping = mapVizType(selectedVizType);
-    let parameters = cleanSPParams({
-      depth1,
-      depth2,
-      dt1: localDateToString(dt1),
-      dt2: localDateToString(dt2),
-      lat1,
-      lat2,
-      lon1,
-      lon2,
-      fields: this.state.spParams.fields && this.state.spParams.fields.value,
-      tableName: this.state.spParams.fields && this.state.spParams.tableName,
-      spName: mapping.sp,
-    });
-
-    let payload = {
-      parameters,
-      subType: mapping.subType,
-      metadata: this.state.spParams.fields && this.state.spParams.fields.data,
-    };
-
-    this.props.storedProcedureRequestSend(payload);
-  };
-
   handlePlotsSetActiveTab = (event, newValue) => {
     this.props.plotsActiveTabSet(newValue);
   };
@@ -452,7 +412,6 @@ class Visualization extends Component {
                   handleStartDateChange={this.handleStartDateChange}
                   handleEndDateChange={this.handleEndDateChange}
                   showUI={this.state.showUI} // TODO no reason for this to be drilled
-                  onVisualize={this.onVisualize}
                   updateFields={this.updateFields}
                   {...this.state.spParams}
                   surfaceOnly={this.state.surfaceOnly}
