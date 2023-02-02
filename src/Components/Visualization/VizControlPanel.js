@@ -277,21 +277,6 @@ class VizControlPanel extends React.Component {
     });
   };
 
-  handleUpdateParameters = (parameters) => {
-    const { lat1, lat2, lon1, lon2, depth1, depth2, dt1, dt2 } = parameters;
-    this.setState({
-      ...this.state,
-      lat1,
-      lat2,
-      lon1,
-      lon2,
-      depth1,
-      depth2,
-      dt1,
-      dt2,
-    });
-  };
-
   handleShowChartsClick = () => {
     if (this.props.plotsActiveTab === 0) {
       this.props.handlePlotsSetActiveTab(null, 1);
