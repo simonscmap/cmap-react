@@ -60,6 +60,9 @@ import {
 import SparseDataMaxSizeNotification from './SparseDataMaxSizeNotification';
 import VariableDetailsDialog from './VariableDetailsDialog';
 import vizControlStyles from './vizControlStyles';
+import getDataSize from './ControlPanel/estimateDataSize';
+
+const dateStringToISO = (dateString) => (new Date(dateString)).toISOString();
 
 const mapStateToProps = (state) => ({
   data: state.data,
@@ -118,8 +121,8 @@ class VizControlPanel extends React.Component {
     tableName: '',
     depth1: 0,
     depth2: 0,
-    dt1: '1900-01-01',
-    dt2: new Date().toISOString().slice(0, 10),
+    dt1: '1900-01-01T00:00:00.000Z',
+    dt2: new Date().toISOString(),
     lat1: 0,
     lat2: 0,
     lon1: 0,
@@ -132,8 +135,8 @@ class VizControlPanel extends React.Component {
     storedParams: {
       depth1: 0,
       depth2: 0,
-      dt1: '1900-01-01',
-      dt2: new Date().toISOString().slice(0, 10),
+      dt1: '1900-01-01T00:00:00.000Z',
+      dt2: new Date().toISOString(),
       lat1: 0,
       lat2: 0,
       lon1: 0,
@@ -317,7 +320,7 @@ class VizControlPanel extends React.Component {
         this.props.vizPageDataTargetDetails.Temporal_Resolution ===
         temporalResolutions.monthlyClimatology
           ? dt2 + '-01-1900'
-          : dt2 + 'T23:59:59',
+          : dt2,
       lat1,
       lat2,
       lon1,
@@ -429,10 +432,15 @@ class VizControlPanel extends React.Component {
     this.setState({ ...this.state, variableDetailsID });
   };
 
+  /* for numeric fields, parse the value from the event object as a float
+   * before updating state;
+   * for date fields, combine date+time
+   */
   handleChangeInputValue = (e) => {
     let parseThese = ['lat1', 'lat2', 'lon1', 'lon2', 'depth1', 'depth2'];
     let parsed = parseFloat(e.target.value);
-    let value;
+    let name = e.target.name;
+    let value = e.target.value;
 
     if (parseThese.includes(e.target.name)) {
       if (isNaN(parsed)) {
@@ -442,83 +450,41 @@ class VizControlPanel extends React.Component {
       value = e.target.value;
     }
 
+    if (['date1', 'hour1', 'date2', 'hour2'].includes(e.target.name)) {
+      let { dt1, dt2 } = this.state;
+      let isoTail = ':00.000Z';
+      switch (e.target.name) {
+        case 'date1':
+          name = 'dt1';
+          value = value + 'T' + dt1.slice(11, 16) + isoTail;
+          break;
+        case 'hour1':
+          name = 'dt1';
+          value = dt1.slice(0,10) + 'T' + value + isoTail;
+          break;
+        case 'date2':
+          name = 'dt2';
+          value = value + 'T' + dt2.slice(11, 16) + isoTail;
+          break;
+        case 'hour2':
+          name = 'dt2';
+          value = dt2.slice(0,10) + 'T' + value + isoTail;
+          break;
+      }
+    }
+
     this.setState({
       ...this.state,
-      [e.target.name]: value,
-      storedParams: { ...this.state.storedParams, [e.target.name]: value },
+      [name]: value,
+      storedParams: { ...this.state.storedParams, [name]: value },
     });
   };
 
   handleToggleCharts = () => {};
 
-  // TODO: this is a pure function, and can be extracted to a helper
   estimateDataSize = () => {
     const { vizPageDataTargetDetails } = this.props;
-    const {
-      dt1,
-      dt2,
-      lat1,
-      lat2,
-      lon1,
-      lon2,
-      depth1,
-      depth2,
-      selectedVizType,
-    } = this.state;
-
-    if (!vizPageDataTargetDetails) return 0;
-
-    if (
-      vizPageDataTargetDetails.Spatial_Resolution ===
-      spatialResolutions.irregular
-    ) {
-      return 1;
-    } else {
-      const date1 =
-        vizPageDataTargetDetails.Temporal_Resolution ===
-        temporalResolutions.monthlyClimatology
-          ? dt1
-          : Date.parse(dt1);
-      const date2 =
-        vizPageDataTargetDetails.Temporal_Resolution ===
-        temporalResolutions.monthlyClimatology
-          ? dt2
-          : Date.parse(dt2);
-
-      const dayDiff = (date2 - date1) / 86400000;
-
-      const res = mapSpatialResolutionToNumber(
-        vizPageDataTargetDetails.Spatial_Resolution,
-      );
-      var dateCount =
-        vizPageDataTargetDetails.Temporal_Resolution ===
-        temporalResolutions.monthlyClimatology
-          ? date2 - date1 + 1
-          : Math.floor(
-              dayDiff /
-                mapTemporalResolutionToNumber(
-                  vizPageDataTargetDetails.Temporal_Resolution,
-                ),
-            ) || 1;
-
-      dateCount *= 1.4; // add more weight to date because of sql indexing
-
-      const depthCount =
-        depthUtils.count({ data: vizPageDataTargetDetails }, depth1, depth2) ||
-        1;
-
-      const latCount = (lat2 - lat1) / res;
-      const lonCount =
-        lon2 > lon1 ? (lon2 - lon1) / res : (180 - lon1 + (lon2 + 180)) / res;
-      const pointCount = lonCount * latCount * depthCount * dateCount;
-      if (
-        selectedVizType === vizSubTypes.timeSeries ||
-        selectedVizType === vizSubTypes.depthProfile
-      )
-        return pointCount / 200;
-
-      return pointCount;
-    }
+    return getDataSize(vizPageDataTargetDetails, this.state);
   };
 
   // ~~~~~~~~~~ the following methods are all validation checks ~~~~~~~~~~~~~~~~~ //
@@ -542,55 +508,67 @@ class VizControlPanel extends React.Component {
   };
 
   checkStartDate = () => {
-    if (
+    let isMonthly =
       this.props.vizPageDataTargetDetails.Temporal_Resolution ===
-      temporalResolutions.monthlyClimatology
-    ) {
-      if (this.state.dt1 > this.state.dt2)
+      temporalResolutions.monthlyClimatology;
+
+    if (isMonthly) {
+      if (this.state.dt1 > this.state.dt2) {
         return 'Start cannot be greater than end';
-      return '';
+      }
     } else {
-      if (!this.state.dt1) return 'Invalid date';
-      if (this.state.dt1 > this.state.dt2)
+      if (!this.state.dt1) {
+        return 'Invalid date';
+      }
+      if (this.state.dt1 > this.state.dt2) {
         return 'Start cannot be greater than end';
-      if (
+      }
+
+      let isLessThanDatasetTimeMin =
         this.state.dt1 <
-        this.props.vizPageDataTargetDetails.Time_Min.slice(0, 10)
-      ) {
+        dateStringToISO (this.props.vizPageDataTargetDetails.Time_Min);
+
+      if (isLessThanDatasetTimeMin) {
         return `Minimum start date is ${
           this.props.vizPageDataTargetDetails.Time_Min.slice(5, 10) +
           '-' +
           this.props.vizPageDataTargetDetails.Time_Min.slice(0, 4)
         }`;
       }
-      return '';
     }
+
+    return '';
   };
 
   checkEndDate = () => {
-    if (
+    let isMonthly =
       this.props.vizPageDataTargetDetails.Temporal_Resolution ===
-      temporalResolutions.monthlyClimatology
-    ) {
-      if (this.state.dt1 > this.state.dt2)
+      temporalResolutions.monthlyClimatology;
+
+    if (isMonthly) {
+      if (this.state.dt1 > this.state.dt2) {
         return 'Start cannot be greater than end';
-      return '';
+      }
     } else {
-      if (!this.state.dt2) return 'Invalid date';
-      if (this.state.dt1 > this.state.dt2)
+      if (!this.state.dt2) {
+        return 'Invalid date';
+      }
+      if (this.state.dt1 > this.state.dt2) {
         return 'Start cannot be greater than end';
-      if (
+      }
+      let isGreaterThanDatasetTimeMax =
         this.state.dt2 >
-        this.props.vizPageDataTargetDetails.Time_Max.slice(0, 10)
-      ) {
+        dateStringToISO (this.props.vizPageDataTargetDetails.Time_Max);
+
+      if (isGreaterThanDatasetTimeMax) {
         return `Maximum end date is ${
           this.props.vizPageDataTargetDetails.Time_Max.slice(5, 10) +
           '-' +
           this.props.vizPageDataTargetDetails.Time_Max.slice(0, 4)
         }`;
       }
-      return '';
     }
+    return '';
   };
 
   checkStartLat = () => {
@@ -909,6 +887,7 @@ class VizControlPanel extends React.Component {
           }}
           anchor="left"
         >
+         {/* Begin Variable Search Button */}
           {dataTarget ? (
             <Grid container style={{ borderBottom: '1px solid black' }}>
               <Grid item xs={10}>
@@ -1000,13 +979,17 @@ class VizControlPanel extends React.Component {
               </Button>
             </Hint>
           )}
+          {/* End Variable Search Button */}
 
           <>
             <Grid container>
+              {/* Start Date Field, Varying on Monthly vs Daily  */}
+
               {details &&
-              details.Temporal_Resolution ===
+                details.Temporal_Resolution ===
                 temporalResolutions.monthlyClimatology ? (
                 <>
+                  {/* Monthly Date Picker  */}
                   <Grid item xs={6} className={classes.formGridItem}>
                     <TextField
                       name="dt1"
@@ -1070,15 +1053,16 @@ class VizControlPanel extends React.Component {
                 </>
               ) : (
                 <>
+                 {/* Daily Date Picker */}
                   <Grid item xs={6} className={classes.formGridItem}>
                     <TextField
-                      name="dt1"
+                      name="date1"
                       className={classes.textField}
-                      id="dt1"
+                      id="date1"
                       label="Start Date(m/d/y)"
                       step={1}
                       type="date"
-                      value={dt1}
+                      value={dt1.slice(0,10)}
                       error={Boolean(startDateMessage)}
                       FormHelperTextProps={{ className: classes.helperText }}
                       helperText={startDateMessage}
@@ -1104,12 +1088,12 @@ class VizControlPanel extends React.Component {
 
                   <Grid item xs={6} className={classes.formGridItem}>
                     <TextField
-                      name="dt2"
+                      name="date2"
                       className={classes.textField}
-                      id="dt2"
+                      id="date2"
                       label="End Date(m/d/y)"
                       type="date"
-                      value={dt2}
+                      value={dt2.slice(0,10)}
                       error={Boolean(endDateMessage)}
                       FormHelperTextProps={{ className: classes.helperText }}
                       helperText={endDateMessage}
@@ -1132,8 +1116,40 @@ class VizControlPanel extends React.Component {
                       }
                     />
                   </Grid>
+
+                    <Grid item xs={6} className={classes.formGridItem}>
+                      <TextField
+                        name="hour1"
+                        id="hour1"
+                        label="Start Time"
+                        className={classes.textField}
+                        type="time"
+                        value={dt1.slice(11, 16)}
+                        onChange={this.handleChangeInputValue}
+
+                        disabled={
+                          this.state.showDrawHelp || !vizPageDataTargetDetails
+                        }
+                      />
+                    </Grid><Grid item xs={6} className={classes.formGridItem}>
+                      <TextField
+                        name="hour2"
+                        id="hour2"
+                        label="End Time"
+                        className={classes.textField}
+                        type="time"
+                        value={dt2.slice(11, 16)}
+                        onChange={this.handleChangeInputValue}
+                        disabled={
+                          this.state.showDrawHelp || !vizPageDataTargetDetails
+                        }
+                      />
+                    </Grid>
                 </>
               )}
+
+              {/* End Date Field */}
+
 
               <Grid item xs={6} className={classes.formGridItem}>
                 <TextField

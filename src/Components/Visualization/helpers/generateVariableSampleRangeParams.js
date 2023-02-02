@@ -1,16 +1,17 @@
 import depthUtils from '../../../Utility/depthCounter';
 import temporalResolutions from '../../../enums/temporalResolutions';
 
+const dateStringToISO = (dateString) => (new Date(dateString)).toISOString();
+
 const generateVariableSampleRangeParams = (varDetails) => {
   let dt1 =
     varDetails.Temporal_Resolution === temporalResolutions.monthlyClimatology
       ? 1
-      : varDetails.Time_Min.slice(0, 10);
+      : dateStringToISO (varDetails.Time_Min);
   let dt2 =
     varDetails.Temporal_Resolution === temporalResolutions.monthlyClimatology
       ? 1
-      : // varDetails.Time_Min.slice(0, 10);
-        varDetails.Time_Max.slice(0, 10);
+      : dateStringToISO (varDetails.Time_Max);
 
   let lat1 = Math.floor(varDetails.Lat_Min * 1000) / 1000;
   let lat2 = Math.ceil(varDetails.Lat_Max * 1000) / 1000;

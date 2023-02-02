@@ -60,6 +60,8 @@ const ChartControlPanel = (props) => {
           ''
         )}
 
+    {/* TODO remove ButtonGroup; it causes console errors re: react not supporting fullWidth attribute */}
+
         <ButtonGroup className={classes.buttonGroup}>
           {/* if this chart has tabbed content, render tab controls*/}
           {tabContext &&
