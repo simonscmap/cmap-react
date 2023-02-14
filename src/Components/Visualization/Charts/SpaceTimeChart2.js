@@ -21,6 +21,12 @@ import makeSplitByDepthControl from './ChartControls/SplitByDepthControl';
 import ColorscaleRangeControl from './ChartControls/ColorscaleRangeControl';
 import ChartTemplate from './ChartTemplate';
 
+import { getHovertext_, toSetArray,
+         spaceTimeGenerateHistogramPlotData,
+         spaceTimeGenerateHistogramSubsetPlotsSplitByDate,
+         spaceTimeGenerateHistogramSubsetPlotsSplitByDepth
+} from '../../../api/myLib.js';
+
 // helpers
 const getDate = (data, splitByDate, splitByDepth, subsetIndex) => {
   let dates = Array.from(data.dates);
@@ -46,18 +52,20 @@ const getDate = (data, splitByDate, splitByDepth, subsetIndex) => {
     : handleChartDateString(dates[subsetIndex], data.hasHour, data.isMonthly);
 };
 
-const getDepth = (data, splitByDate, splitByDepth, subsetIndex) => {
-  let depths = Array.from(data.depths).map(parseFloat);
+const getDepth = (data, subsetIndex, splitByDate, splitByDepth) => {
+  let depths = Array.from(data.depths);
   let { parameters } = data;
-  return !data.hasDepth
-    ? 'Surface'
-    : depths.length === 1
-    ? depths[0] + '[m]'
-    : !splitByDepth
-    ? `Averaged Values ${parameters.depth1} to ${parameters.depth2}`
-    : splitByDate
-    ? depths[subsetIndex % depths.length].toFixed(2) + '[m]'
-    : depths[subsetIndex].toFixed(2) + '[m]';
+
+  if (!data.hasDepth) {
+    return 'Surface';
+  }
+  if (depths.length === 1) {
+    return depths[0] + '[m]';
+  }
+  if (splitByDepth) {
+    return depths[subsetIndex] + '[m]';
+  }
+  return `Averaged Values ${parameters.depth1} to ${parameters.depth2}`
 };
 
 const getXTicks = (data) => {
@@ -67,37 +75,37 @@ const getXTicks = (data) => {
   return lon1 > lon2 ? handleXTicks(data) : {};
 };
 
-const getHovertext = (subset, data) => {
-  return subset.map((value, i) => {
-    let abs = Math.abs(value);
-    let formatter = abs > 0.01 && abs < 1000 ? '.2f' : '.2e';
-    if (value === null) {
-      return (
-        `Lat: ${format('.2f')(data.lats[i])}\xb0` +
-        `<br>` +
-        `Lon: ${
-          data.lons[i] > 180
-            ? format('.2f')(data.lons[i] - 360)
-            : format('.2f')(data.lons[i])
-        }\xb0`
-      );
-    }
-
-    return (
-      `Lat: ${format('.2f')(data.lats[i])}\xb0` +
-      `<br>` +
-      `Lon: ${
-        data.lons[i] > 180
-          ? format('.2f')(data.lons[i] - 360)
-          : format('.2f')(data.lons[i])
-      }\xb0` +
-      '<br>' +
-      `${data.parameters.fields}: ${format(formatter)(value)} [${
-        data.metadata.Unit
-      }]`
-    );
-  });
-};
+/* const getHovertext = (subset, data) => {
+*   return subset.map((value, i) => {
+*     let abs = Math.abs(value);
+*     let formatter = abs > 0.01 && abs < 1000 ? '.2f' : '.2e';
+*     if (value === null) {
+*       return (
+*         `Lat: ${format('.2f')(data.lats[i])}\xb0` +
+*         `<br>` +
+*         `Lon: ${
+*           data.lons[i] > 180
+*             ? format('.2f')(data.lons[i] - 360)
+*             : format('.2f')(data.lons[i])
+*         }\xb0`
+*       );
+*     }
+*
+*     return (
+*       `Lat: ${format('.2f')(data.lats[i])}\xb0` +
+*       `<br>` +
+*       `Lon: ${
+*         data.lons[i] > 180
+*           ? format('.2f')(data.lons[i] - 360)
+*           : format('.2f')(data.lons[i])
+*       }\xb0` +
+*       '<br>' +
+*       `${data.parameters.fields}: ${format(formatter)(value)} [${
+*         data.metadata.Unit
+*       }]`
+*     );
+*   });
+* }; */
 
 const handleContourMap = (
   subsets,
@@ -115,10 +123,14 @@ const handleContourMap = (
   let xTicks = getXTicks(data);
 
   let contourPlotConfigs = subsets.map((subset, index) => {
-    let date = getDate(data, splitByDate, splitByDepth, index);
-    let depth = getDepth(data, splitByDate, splitByDepth, index);
+    let dateTitle = getDate(data, splitByDate, splitByDepth, index);
+    let depthTitle = getDepth(data, index, splitByDate, splitByDepth);
     let { latTitle, lonTitle } = getLatLonTitles(parameters);
-    let hovertext = getHovertext(subset, data);
+    // let hovertext = getHovertext(subset, data);
+
+    let uniqY = toSetArray (data.lats);
+    let uniqX = toSetArray (data.lons);
+
 
     let contourPlotConfig = {
       key: index,
@@ -135,16 +147,18 @@ const handleContourMap = (
           zauto: false,
           zmin: zMin,
           zmax: zMax,
-          x: data.lons,
-          y: data.lats,
+          // x: data.lons,
+          // y: data.lats,
+          // z: subset,
+          x: uniqX,
+          y: uniqY,
           z: subset,
           connectgaps: false,
           autocolorscale: false,
           colorscale: palette,
 
           hoverinfo: 'text',
-          hovertext,
-
+          hovertext: getHovertext_ ({ x: uniqX, y: uniqY, z: subset}),
           name: truncate60(metadata.Long_Name),
           type: 'contour',
           contours: {
@@ -169,7 +183,7 @@ const handleContourMap = (
         xaxis: { title: 'Longitude', color: '#ffffff', ...xTicks },
         yaxis: { title: 'Latitude', color: '#ffffff' },
       },
-      titleArgs: [metadata, date, latTitle, lonTitle, depth],
+      titleArgs: [metadata, dateTitle, latTitle, lonTitle, depthTitle],
       annotationArgs: [metadata.Distributor, metadata.Data_Source],
     };
     return contourPlotConfig;
@@ -191,10 +205,13 @@ const handleHeatmap = (
   let xTicks = getXTicks(data);
 
   let heatmapPlotConfigs = subsets.map((subset, index) => {
-    let date = getDate(data, splitByDate, splitByDepth, index);
-    let depth = getDepth(data, splitByDate, splitByDepth, index);
+    let dateTitle = getDate(data, splitByDate, splitByDepth, index);
+    let depthTitle = getDepth(data, index, splitByDate, splitByDepth);
     let { latTitle, lonTitle } = getLatLonTitles(parameters);
-    let hovertext = getHovertext(subset, data);
+    // let hovertext = getHovertext(subset, data);
+
+    let uniqY = toSetArray (data.lats);
+    let uniqX = toSetArray (data.lons);
 
     let heatmapPlotConfig = {
       key: index,
@@ -211,8 +228,11 @@ const handleHeatmap = (
           zmin: zMin,
           zmax: zMax,
           zsmooth: subset.length < 20000 ? 'fast' : 'false',
-          x: data.lons,
-          y: data.lats,
+          // x: data.lons,
+          // y: data.lats,
+          // z: subset,
+          x: uniqX,
+          y: uniqY,
           z: subset,
           connectgaps: false,
           name: truncate60(metadata.Long_Name),
@@ -220,7 +240,8 @@ const handleHeatmap = (
           colorscale: palette,
           autocolorscale: false,
           hoverinfo: 'text',
-          text: hovertext,
+          // text: hovertext,
+          text: getHovertext_({ z: subset, x: uniqX, y: uniqY }),
           colorbar: {
             title: {
               text: `[${data.metadata.Unit}]`,
@@ -242,9 +263,10 @@ const handleHeatmap = (
           exponentformat: 'power',
         },
       },
-      titleArgs: [metadata, date, latTitle, lonTitle, depth],
+      titleArgs: [metadata, dateTitle, latTitle, lonTitle, depthTitle],
       annotationArgs: [metadata.Distributor, metadata.Data_Source],
     };
+    console.log ({ z: subset, x: uniqX, y: uniqY, type: 'heatmap' });
     return heatmapPlotConfig;
   });
   return heatmapPlotConfigs;
@@ -323,10 +345,17 @@ const SpaceTimeChart = (props) => {
     throw new Error(`Unexpected chart subType in SpaceTimeChart: ${subType}`);
   }
 
-  let subSets = data.generatePlotData(subType, splitByDate, splitByDepth);
-  let plots;
+  let mySubsets;
 
-  let mapSubsets = (subset) => {
+  if (splitByDate) {
+    mySubsets = spaceTimeGenerateHistogramSubsetPlotsSplitByDate (data.rows);
+  } else if (splitByDepth) {
+    mySubsets = spaceTimeGenerateHistogramSubsetPlotsSplitByDepth (data.rows);
+  } else {
+    mySubsets = [spaceTimeGenerateHistogramPlotData (data.rows)];
+  }
+
+  let mapSubsets = () => {
     let handler;
     if (subType === subTypes.contourMap) {
       handler = handleContourMap;
@@ -336,7 +365,8 @@ const SpaceTimeChart = (props) => {
 
     let [zMin, zMax] = rangeValues; // from state
     return handler.apply(null, [
-      subSets,
+      // subSets,
+      mySubsets,
       data,
       splitByDate,
       splitByDepth,
@@ -346,7 +376,7 @@ const SpaceTimeChart = (props) => {
     ]);
   };
 
-  plots = mapSubsets(subSets);
+  let plots = mapSubsets();
 
   // Assemble Config
   let spaceTimeChartConfig = {

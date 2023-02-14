@@ -82,10 +82,19 @@ function* queryRequest(action) {
 function* storedProcedureRequest(action) {
   yield put(visualizationActions.storedProcedureRequestProcessing());
   yield put(interfaceActions.setLoadingMessage('Fetching Data'));
-  let result = yield call(
-    api.visualization.storedProcedureRequest,
-    action.payload,
-  );
+
+  let result;
+  try {
+    result = yield call(
+      api.visualization.storedProcedureRequest,
+      action.payload,
+    );
+  } catch (e) {
+    yield put(interfaceActions.setLoadingMessage(''));
+    yield put(interfaceActions.snackbarOpen('Error processing data'));
+    return;
+  }
+
   yield delay(50);
   yield put(interfaceActions.setLoadingMessage('Processing Data'));
   yield delay(70);
@@ -243,24 +252,26 @@ function* csvFromVizRequest(action) {
     metadataQuery,
   );
 
-  // TODO: no error handling here
-
-  let metadataWB = XLSX.read(metadataResponse, { type: 'string' });
-
-  let workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, dataWB.Sheets.Sheet1, 'Data');
-  XLSX.utils.book_append_sheet(
-    workbook,
-    metadataWB.Sheets.Sheet1,
-    'Variable Metadata',
-  );
-  XLSX.writeFile(workbook, `${action.payload.longName}.xlsx`);
-
-  yield put(interfaceActions.setLoadingMessage(''));
-
   if (metadataResponse.failed) {
+    yield put(interfaceActions.setLoadingMessage(''));
     yield put(
       interfaceActions.snackbarOpen('Failed to download variable metadata'),
+    );
+  } else if (metadataResponse.ok) {
+    let metadataWB = XLSX.read(metadataResponse, { type: 'string' });
+    let workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, dataWB.Sheets.Sheet1, 'Data');
+    XLSX.utils.book_append_sheet(
+      workbook,
+      metadataWB.Sheets.Sheet1,
+      'Variable Metadata',
+    );
+    XLSX.writeFile(workbook, `${action.payload.longName}.xlsx`);
+    yield put(interfaceActions.setLoadingMessage(''));
+  } else {
+    yield put(interfaceActions.setLoadingMessage(''));
+    yield put(
+      interfaceActions.snackbarOpen('Unknown error'),
     );
   }
 }

@@ -9,13 +9,27 @@ import mergeArrays from '../Utility/mergeArrays';
 import vizSubTypes from '../enums/visualizationSubTypes';
 import temporalResolutions from '../enums/temporalResolutions';
 
+import { subsetKey, mapDeep, rowToVal, sum, toMean3D, roundToDecimal } from './myLib.js';
+import lodash from 'lodash';
+
+// generate a rounding function that rounds floats to the 3rd decimal place,
+// and use lodash.memoize to cache results, since for large datasets, we'll
+// see many of the same values for longitudes or latitudes
+// NOTE declaring it at the module level means the memo cache will work
+// across charts & queries; this will benefit a user that renders
+// multiple charts along the case lon/lat constraints, but will also
+// potentially consume a lange amount of memory;
+const roundToThousandths = lodash.memoize (roundToDecimal (3));
+
+const isHourly = (tableName) => ['tblWind_NRT','tblMITgcm_SWOT_2D'].some(s => s === tableName);
+
 class SpaceTimeData {
   constructor(payload) {
     this.parameters = payload.parameters;
     this.metadata = payload.metadata;
 
     this.hasDepth = null;
-    this.hasHours = null;
+    this.isWind_NRT = false;
     this.isMonthly = null;
 
     this.depths = new Set();
@@ -37,41 +51,61 @@ class SpaceTimeData {
 
     this.distinctLatCount = null;
     this.distinctLonCount = null;
+    this.rows = [];
   }
 
   add(row) {
-    let lat = parseFloat(row[1]);
-    let _lon = parseFloat(row[2]);
-    let lon = _lon < this.parameters.lon1 ? _lon + 360 : _lon;
+    let lat = [row[1]]
+      .map (parseFloat)
+      .map (roundToThousandths)
+      .shift ();
+
+    let lon = [row[2]]
+      .map (parseFloat)
+      .map (n => n < this.parameters.lon1 ? n + 360 : n)
+      .map (roundToThousandths)
+      .shift ();
+
 
     if (this.hasDepth === null) {
-      this.hasHour = this.metadata.Table_Name === 'tblWind_NRT';
+      // TODO is this hasHour check true? is tblWind_NRT the only case?
+      this.isWind_NRT = this.metadata.Table_Name === 'tblWind_NRT';
       this.isMonthly =
         this.metadata.Temporal_Resolution ===
         temporalResolutions.monthlyClimatology;
-      this.hasDepth = row.length === 5 && !this.hasHour;
-      this.indexAdjust = this.hasDepth || this.hasHour ? 1 : 0;
+      // TODO this next line will set hasDepth to undefined
+      // if not true; which means this condition block will not
+      // run again, becuase this.hasDepth will not === null
+      // Is this a clever/accidental way of having it run once,
+      // or is it a mistake?
+      this.hasDepth = row.length === 5 && !this.isWind_NRT;
+      this.indexAdjust = this.hasDepth || this.isWind_NRT ? 1 : 0;
       this.lonMin = lon;
       this.lonMax = lon;
       this.latMin = lat;
       this.latMax = lat;
     }
 
+    // if this data is coming from tblWind_NRT, row[3] is
+    // not depth, but the hour of the day
     let value = parseFloat(row[3 + this.indexAdjust]);
 
     if (this.hasDepth) {
-      this.depths.add(row[3]);
+      this.depths.add(parseFloat (row[3]));
     }
 
     var time;
-    if (this.hasHour) {
+    if (this.isWind_NRT) {
       time = new Date(row[0]);
       time.setUTCHours(row[3]);
       time = time.toISOString();
-    } else time = row[0];
+    } else {
+      time = row[0];
+    }
+
+
     this.dates.add(time);
     this.lats.push(lat);
-
     this.lons.push(lon);
 
     if (lon < this.lonMin) this.lonMin = lon;
@@ -80,6 +114,9 @@ class SpaceTimeData {
     if (lat > this.latMax) this.latMax = lat;
 
     this.variableValues.push(value);
+
+    let depth = this.hasDepth ? parseFloat(row[3]) : undefined;
+    this.rows.push ([row[0], lat, lon, depth, value]);
   }
 
   finalize() {
@@ -96,22 +133,31 @@ class SpaceTimeData {
       quantile2 === undefined ? null : parseFloat(quantile2.toPrecision(4));
     this.extent = extent(this.variableValues);
 
+    // NOTE this assumes x & y are the same interval
     let spatialResolution = mapSpatialResolutionToNumber(
       this.metadata.Spatial_Resolution,
     );
 
+    // QUESTION is the +1 working as expected with Math.round?
     this.distinctLatCount =
       Math.round((this.latMax - this.latMin) / spatialResolution) + 1;
     this.distinctLonCount =
       Math.round((this.lonMax - this.lonMin) / spatialResolution) + 1;
   }
 
+  // Deprecated; use spaceTimeGenerateHistogramPlotData from myLib.js
   generatePlotData(subType, splitByDate, splitByDepth) {
     // Intervals are the number of indices between each change for that parameter
     // Intervals can change if you split out of order
     const latInterval = this.distinctLonCount;
+    // QUESTION why is this called "depthInterval" when it is a combination of lat/lon ?
     const depthInterval = latInterval * this.distinctLatCount;
+    // QUESTION why is this called dateInterval?
     const dateInterval = depthInterval * this.depths.size;
+
+    // (end date - start date) / unique time values
+
+    // difference between two adjacent time values (assumes uniformity)
 
     // an array of arrays containing variable values, each of which will become a chart
     var variableValueSubsets;

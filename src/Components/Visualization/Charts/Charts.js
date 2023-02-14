@@ -4,11 +4,11 @@ import ChartWrapper from './ChartWrapper';
 
 import { useSelector } from 'react-redux';
 
-const Charts = () => {
+const ChartsList = () => {
   let charts = useSelector(({ charts }) => charts);
   return charts.map((chart, index) => (
     <ChartWrapper chart={chart} index={index} key={chart.id} />
   ));
 };
 
-export default Charts;
+export default ChartsList;

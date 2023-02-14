@@ -88,7 +88,7 @@ const makeTitle = (metadata, date, lat, lon, depth) => {
   let titleText =
     `${metadata.Dataset_Name}` +
     `<br>${truncate60(metadata.Long_Name)} [${metadata.Unit}]` +
-    `<br>${date},${depth}` +
+    `<br>${date}, ${depth}` +
     `<br>Lat: ${lat}, Lon: ${lon}`;
 
   return {
