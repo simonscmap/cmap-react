@@ -1,6 +1,6 @@
 // Wrapper for chart controls
 
-import { ButtonGroup, Tooltip, withStyles } from '@material-ui/core';
+import { Tooltip, withStyles } from '@material-ui/core';
 import { Warning } from '@material-ui/icons';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -62,7 +62,7 @@ const ChartControlPanel = (props) => {
 
     {/* TODO remove ButtonGroup; it causes console errors re: react not supporting fullWidth attribute */}
 
-        <ButtonGroup className={classes.buttonGroup}>
+        <div className={classes.buttonGroup}>
           {/* if this chart has tabbed content, render tab controls*/}
           {tabContext &&
             tabContext.tabTitles.map((tabTitle, index) => {
@@ -99,7 +99,7 @@ const ChartControlPanel = (props) => {
               />
             );
           })}
-        </ButtonGroup>
+        </div>
       </div>
     </React.Fragment>
   );
