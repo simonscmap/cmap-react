@@ -72,6 +72,16 @@ import {
 import logInit from '../../Services/log-service';
 const log = logInit('sagas').addContext({ src: 'Redux/Sagas' });
 
+function* updateLoadingMessage () {
+  // if "Loading Data" is still showing 15 seconds after making a request
+  // update the message
+  yield delay (1000 * 15); // 15 seconds
+  let loadingMessage = yield select((state) => state.loadingMessage);
+  if (loadingMessage === 'Fetching Data') {
+    yield put(interfaceActions.setLoadingMessage('Fetching Data... Large queries may take a long time to complete.'));
+  }
+}
+
 function* queryRequest(action) {
   yield put(visualizationActions.queryRequestProcessing());
   let result = yield call(api.visualization.queryRequest, action.payload.query);
@@ -1274,6 +1284,13 @@ function* watchStoredProcedureRequest() {
   );
 }
 
+function* watchStoredProcedureRequest2() {
+  yield takeLatest(
+    visualizationActionTypes.STORED_PROCEDURE_REQUEST_SEND,
+    updateLoadingMessage,
+  );
+}
+
 function* watchCruiseTrajectoryRequest() {
   yield takeLatest(
     visualizationActionTypes.CRUISE_TRAJECTORY_REQUEST_SEND,
@@ -1576,6 +1593,7 @@ function* rootSaga() {
     watchKeyCreationRequest(),
     watchQueryRequest(),
     watchStoredProcedureRequest(),
+    watchStoredProcedureRequest2(),
     watchCruiseTrajectoryRequest(),
     watchCruiseListRequest(),
     watchTableStatsRequest(),
