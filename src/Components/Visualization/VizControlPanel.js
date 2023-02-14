@@ -524,9 +524,14 @@ class VizControlPanel extends React.Component {
         return 'Start cannot be greater than end';
       }
 
+      // Note the double slice looks odd
+      // first, slice the time component off in order to get a date value that
+      // is only significant to the day
+      // then slice the ISO string so that the string comparison will be
+      // between strings of the same length
       let isLessThanDatasetTimeMin =
-        this.state.dt1 <
-        dateStringToISO (this.props.vizPageDataTargetDetails.Time_Min);
+        this.state.dt1.slice(0,10) <
+        dateStringToISO (this.props.vizPageDataTargetDetails.Time_Min.slice(0,10)).slice(0,10);
 
       if (isLessThanDatasetTimeMin) {
         return `Minimum start date is ${
@@ -556,9 +561,11 @@ class VizControlPanel extends React.Component {
       if (this.state.dt1 > this.state.dt2) {
         return 'Start cannot be greater than end';
       }
+
+      // see note on the double slice call in checkStartDate
       let isGreaterThanDatasetTimeMax =
-        this.state.dt2 >
-        dateStringToISO (this.props.vizPageDataTargetDetails.Time_Max);
+        this.state.dt2.slice(0,10) >
+        dateStringToISO (this.props.vizPageDataTargetDetails.Time_Max.slice(0,10)).slice(0,10);
 
       if (isGreaterThanDatasetTimeMax) {
         return `Maximum end date is ${
@@ -570,6 +577,34 @@ class VizControlPanel extends React.Component {
     }
     return '';
   };
+
+  checkEndTime = () => {
+    let maxEndDate = this.props.vizPageDataTargetDetails.Time_Max.slice(0,10);
+    let maxEndTime = this.props.vizPageDataTargetDetails.Time_Max.slice(11,16);
+
+    let endDateTime = this.state.dt2;
+    // check if time is greater that time max
+    if (endDateTime.slice(0,10) === maxEndDate) {
+      if (endDateTime.slice(11,16) > maxEndTime) {
+        return `The maximum end time for ${maxEndDate} is ${maxEndTime}`
+      }
+    }
+    return '';
+  }
+
+  checkStartTime = () => {
+    let minStartDate = this.props.vizPageDataTargetDetails.Time_Min.slice(0,10);
+    let minStartTime = this.props.vizPageDataTargetDetails.Time_Min.slice(11,16);
+
+    let startTime = this.state.dt1;
+    // check if time is greater that time max
+    if (startTime.slice(0,10) === minStartDate) {
+      if (startTime.slice(11,16) < minStartTime) {
+        return `The minimum start time for ${minStartDate} is ${minStartTime}`
+      }
+    }
+    return '';
+  }
 
   checkStartLat = () => {
     if (this.state.lat1 > this.props.vizPageDataTargetDetails.Lat_Max)
@@ -770,6 +805,8 @@ class VizControlPanel extends React.Component {
         this.checkGeneralPrevent(dataSize),
         this.checkStartDate(),
         this.checkEndDate(),
+        this.checkStartTime(),
+        this.checkEndTime()
       ];
     } else validations = Array(14).fill('');
 
@@ -791,6 +828,8 @@ class VizControlPanel extends React.Component {
       generalPreventMessage,
       startDateMessage,
       endDateMessage,
+      startTimeMessage,
+      endTimeMessage,
     ] = validations;
 
     const checkDisableVisualizeList = [
@@ -803,6 +842,8 @@ class VizControlPanel extends React.Component {
       generalPreventMessage,
       startDateMessage,
       endDateMessage,
+      startTimeMessage,
+      endTimeMessage,
     ];
 
     const checkDisableVisualize = () => {
@@ -1126,7 +1167,7 @@ class VizControlPanel extends React.Component {
                         type="time"
                         value={dt1.slice(11, 16)}
                         onChange={this.handleChangeInputValue}
-
+                        helperText={startTimeMessage}
                         disabled={
                           this.state.showDrawHelp || !vizPageDataTargetDetails
                         }
@@ -1140,6 +1181,7 @@ class VizControlPanel extends React.Component {
                         type="time"
                         value={dt2.slice(11, 16)}
                         onChange={this.handleChangeInputValue}
+                        helperText={endTimeMessage}
                         disabled={
                           this.state.showDrawHelp || !vizPageDataTargetDetails
                         }
