@@ -252,17 +252,22 @@ function* csvFromVizRequest(action) {
   yield put(interfaceActions.setLoadingMessage('Processing Data'));
   const csvData = yield action.payload.vizObject.generateCsv();
   let dataWB = XLSX.read(csvData, { type: 'string' });
+  let { payload } = action;
+  let { tableName, shortName } = payload;
 
   yield put(interfaceActions.setLoadingMessage('Fetching metadata'));
 
-  const metadataQuery = `exec uspVariableMetadata '${action.payload.tableName}', '${action.payload.shortName}'`;
+  const queryArgs = { spName: 'uspVariableMetadata', tableName, shortName };
+
+  // const metadataQuery = `exec uspVariableMetadata '${action.payload.tableName}', '${action.payload.shortName}'`;
 
   let metadataResponse = yield call(
     api.visualization.csvDownload,
-    metadataQuery,
+    queryArgs,
   );
 
   if (metadataResponse.failed) {
+    console.error (metadataResponse);
     yield put(interfaceActions.setLoadingMessage(''));
     yield put(
       interfaceActions.snackbarOpen('Failed to download variable metadata'),

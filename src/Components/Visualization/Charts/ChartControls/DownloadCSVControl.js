@@ -8,13 +8,13 @@ import ControlButtonTemplate from './ControlButtonTemplate';
 import { csvFromVizRequestSend } from '../../../../Redux/actions/visualization';
 
 const mapDispatchToProps = {
-  csvFromVizRequestSend,
+  csvDownloadRequest: csvFromVizRequestSend,
 };
 
 const DownloadCSV = (props) => {
-  let { csvData, csvFromVizRequestSend } = props;
+  let { csvData, csvDownloadRequest } = props;
   let downloadCSV = () => {
-    csvFromVizRequestSend(...csvData);
+    csvDownloadRequest(...csvData);
   };
 
   return (

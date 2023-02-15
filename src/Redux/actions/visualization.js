@@ -196,7 +196,7 @@ export const csvFromVizRequestSend = (
 ) => ({
   type: visualizationActionTypes.CSV_FROM_VIZ_REQUEST_SEND,
   payload: {
-    vizObject,
+    vizObject, // data models, such as src/api/SpaceTimeData.js; need generateCSV method on it
     tableName,
     shortName,
     longName,
