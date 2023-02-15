@@ -72,7 +72,9 @@ class SpaceTimeData {
       .map (roundToThousandths)
       .shift ();
 
-    let value = parseFloat(row[4]);
+    let value = row.length === 5
+              ? parseFloat(row[4])
+              : parseFloat(row[3]);
 
     if (this.hasDepth === null) {
       this.isWind_NRT = this.metadata.Table_Name === 'tblWind_NRT_hourly';
