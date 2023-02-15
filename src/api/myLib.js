@@ -225,3 +225,15 @@ export const spaceTimeGenerateHistogramSubsetPlotsSplitByDepth = (rows) => {
 
   return meanWithSplit (t);
 }
+
+export const spaceTimeGenerateHistogram2D = (rows) => {
+  // structure data into subsets
+  let r = (subsetKey(0)(rows)) // split by date
+    .map(subsetKey(1)); // split by lat
+
+  // map row data to the observation value
+  r = mapDeep(rowToVal)(3)(r);
+
+  // create 2d map of mean values
+  return toMean2D(r);
+}

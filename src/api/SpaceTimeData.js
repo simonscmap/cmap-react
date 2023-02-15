@@ -21,7 +21,9 @@ import lodash from 'lodash';
 // potentially consume a lange amount of memory;
 const roundToThousandths = lodash.memoize (roundToDecimal (3));
 
-const isHourly = (tableName) => ['tblWind_NRT','tblMITgcm_SWOT_2D'].some(s => s === tableName);
+const isHourly = (tableName) => ['tblWind_NRT_hourly','tblMITgcm_SWOT_2D'].some(s => s === tableName);
+
+const { monthlyClimatology } = temporalResolutions;
 
 class SpaceTimeData {
   constructor(payload) {
@@ -55,6 +57,10 @@ class SpaceTimeData {
   }
 
   add(row) {
+    if (this.rows.length < 1) {
+      console.log ('variable parameters', this.parameters);
+      console.log ('sample row', row);
+    }
     let lat = [row[1]]
       .map (parseFloat)
       .map (roundToThousandths)
@@ -66,57 +72,50 @@ class SpaceTimeData {
       .map (roundToThousandths)
       .shift ();
 
+    let value = parseFloat(row[4]);
 
     if (this.hasDepth === null) {
-      // TODO is this hasHour check true? is tblWind_NRT the only case?
-      this.isWind_NRT = this.metadata.Table_Name === 'tblWind_NRT';
+      this.isWind_NRT = this.metadata.Table_Name === 'tblWind_NRT_hourly';
       this.isMonthly =
-        this.metadata.Temporal_Resolution ===
-        temporalResolutions.monthlyClimatology;
-      // TODO this next line will set hasDepth to undefined
-      // if not true; which means this condition block will not
-      // run again, becuase this.hasDepth will not === null
-      // Is this a clever/accidental way of having it run once,
-      // or is it a mistake?
+        this.metadata.Temporal_Resolution === monthlyClimatology;
+      // TODO: get hasDepth from catalog, don't infer it
       this.hasDepth = row.length === 5 && !this.isWind_NRT;
-      this.indexAdjust = this.hasDepth || this.isWind_NRT ? 1 : 0;
+      this.indexAdjust = this.hasDepth ? 1 : 0;
       this.lonMin = lon;
       this.lonMax = lon;
       this.latMin = lat;
       this.latMax = lat;
     }
 
-    // if this data is coming from tblWind_NRT, row[3] is
-    // not depth, but the hour of the day
-    let value = parseFloat(row[3 + this.indexAdjust]);
-
-    if (this.hasDepth) {
-      this.depths.add(parseFloat (row[3]));
-    }
-
-    var time;
-    if (this.isWind_NRT) {
+    // for tblWind_NRT_hourly
+    // row[0] is a date string, and
+    // row [3] is hour of the day (integer)
+    let time = row[0];
+    if (this.isWind_NRT && row.length > 4) {
       time = new Date(row[0]);
       time.setUTCHours(row[3]);
       time = time.toISOString();
-    } else {
-      time = row[0];
     }
-
 
     this.dates.add(time);
     this.lats.push(lat);
     this.lons.push(lon);
+    this.variableValues.push(value);
+    if (this.hasDepth) {
+      // if this data is coming from tblWind_NRT, row[3] is hour
+      this.depths.add(parseFloat (row[3]));
+    }
 
     if (lon < this.lonMin) this.lonMin = lon;
     if (lon > this.lonMax) this.lonMax = lon;
     if (lat < this.latMin) this.latMin = lat;
     if (lat > this.latMax) this.latMax = lat;
 
-    this.variableValues.push(value);
-
     let depth = this.hasDepth ? parseFloat(row[3]) : undefined;
-    this.rows.push ([row[0], lat, lon, depth, value]);
+
+    // NOTE this rows field normalizes depth at row[3],
+    // whereas tblWind_NRT_hourly query result has hour at row[3]
+    this.rows.push ([time, lat, lon, depth, value]);
   }
 
   finalize() {

@@ -1,7 +1,6 @@
 // Wrapper for heatmaps and non-sparse histograms
 
 import { withStyles } from '@material-ui/core/styles';
-import { format } from 'd3-format';
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import {
@@ -24,7 +23,8 @@ import ChartTemplate from './ChartTemplate';
 import { getHovertext_, toSetArray,
          spaceTimeGenerateHistogramPlotData,
          spaceTimeGenerateHistogramSubsetPlotsSplitByDate,
-         spaceTimeGenerateHistogramSubsetPlotsSplitByDepth
+         spaceTimeGenerateHistogramSubsetPlotsSplitByDepth,
+         spaceTimeGenerateHistogram2D,
 } from '../../../api/myLib.js';
 
 // helpers
@@ -65,7 +65,7 @@ const getDepth = (data, subsetIndex, splitByDate, splitByDepth) => {
   if (splitByDepth) {
     return depths[subsetIndex] + '[m]';
   }
-  return `Averaged Values ${parameters.depth1} to ${parameters.depth2}`
+  return `Averaged Values ${parameters.depth1}[m] to ${parameters.depth2}[m]`
 };
 
 const getXTicks = (data) => {
@@ -208,7 +208,6 @@ const handleHeatmap = (
     let dateTitle = getDate(data, splitByDate, splitByDepth, index);
     let depthTitle = getDepth(data, index, splitByDate, splitByDepth);
     let { latTitle, lonTitle } = getLatLonTitles(parameters);
-    // let hovertext = getHovertext(subset, data);
 
     let uniqY = toSetArray (data.lats);
     let uniqX = toSetArray (data.lons);
@@ -266,7 +265,7 @@ const handleHeatmap = (
       titleArgs: [metadata, dateTitle, latTitle, lonTitle, depthTitle],
       annotationArgs: [metadata.Distributor, metadata.Data_Source],
     };
-    console.log ({ z: subset, x: uniqX, y: uniqY, type: 'heatmap' });
+    console.log ('plotly params', { z: subset, x: uniqX, y: uniqY, type: 'heatmap' });
     return heatmapPlotConfig;
   });
   return heatmapPlotConfigs;
@@ -277,34 +276,42 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 const mapDispatchToProps = {
-  snackbarOpen,
+  openSnack: snackbarOpen,
 };
 
 const SpaceTimeChart = (props) => {
-  let { snackbarOpen, chart, chartIndex } = props;
+  let { openSnack, chart, chartIndex } = props;
   let { data, subType } = chart;
-  let { dates, depths, metadata } = data;
+  let { dates, metadata } = data;
   let { contourMap, heatmap } = subTypes;
+
+  console.table ('sample chart rows', data.rows.slice (0,20))
 
   // Control: Split by Date
   let [splitByDate, setSplitByDate] = useState(false);
 
   let handleSetSplitByDate = () => {
-    let chartCount = depths ? depths.size : 1;
+    let chartCount = dates ? dates.size : 1;
 
     if (subType === vizSubTypes.heatmap) {
       let availableWGLContexts = 15 - countWebGLContexts(props.charts);
 
+      // NOTE the !splitByDate reads: "if we're about to toggle on splitByDate..."
       if (!splitByDate && chartCount * dates.size > availableWGLContexts) {
-        snackbarOpen('Unable to split. Rendering limit exceeded.');
-        return;
+        openSnack('Warning: Exceeded available WebGL Contexts for rendering plots.');
+        // NOTE allow users to try to render a split, but give a warning/explanation
+        // return;
       }
     }
 
     if (subType === vizSubTypes.contourMap) {
+      // TODO hourly
+      // the assumes the date field is used for split by date
+      // however, hourly datasets will be split by the hour field
+      // NOTE see above re: !splitByDate
       if (!splitByDate && chartCount * dates.size > 20) {
-        snackbarOpen('Unable to split. Rendering limit exceeded.');
-        return;
+        openSnack('Warning: Exceeded available WebGL Contexts for rendering plots.');
+        // return;
       }
     }
 
@@ -316,6 +323,8 @@ const SpaceTimeChart = (props) => {
   ];
 
   // Control: Split by Depth
+  // QUESTION: why don't we guard against using too many WebGL Contexts
+  // when toggling on splitByDepth, like we do for splitByDate?
   let [splitByDepth, setSplitByDepth] = useState(false);
   let splitByDepthControlTuple = [
     makeSplitByDepthControl([splitByDepth, setSplitByDepth]),
@@ -351,6 +360,10 @@ const SpaceTimeChart = (props) => {
     mySubsets = spaceTimeGenerateHistogramSubsetPlotsSplitByDate (data.rows);
   } else if (splitByDepth) {
     mySubsets = spaceTimeGenerateHistogramSubsetPlotsSplitByDepth (data.rows);
+  } else if (!data.hasDepth) {
+    // handle case with no depth
+    console.log ('no depth; rendening histogram in as 2D');
+    mySubsets = [spaceTimeGenerateHistogram2D (data.rows)];
   } else {
     mySubsets = [spaceTimeGenerateHistogramPlotData (data.rows)];
   }
