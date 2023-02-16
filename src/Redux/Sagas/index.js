@@ -219,6 +219,8 @@ function* csvDownloadRequest(action) {
     action.payload.query,
   );
 
+  console.log (dataResponse);
+
   yield put(interfaceActions.setLoadingMessage(''));
 
   if (dataResponse.failed) {
@@ -322,6 +324,7 @@ function* downloadRequest(action) {
     let data = yield call(fetchDatasetAndMetadata, { query, shortName });
     makeZip(data, truncatedFileName, shortName);
   } catch (e) {
+    console.log (e);
     yield put(interfaceActions.setLoadingMessage(''));
     if (e.message === 'UNAUTHORIZED') {
       yield put(userActions.refreshLogin());
