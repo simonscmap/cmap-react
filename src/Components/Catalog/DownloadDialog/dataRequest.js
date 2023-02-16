@@ -5,13 +5,24 @@ import api from '../../../api/api';
 import datasetMetadataToDownloadFormat from '../../../Utility/Catalog/datasetMetadataToDownloadFormat';
 import store from '../../../Redux/store';
 import * as interfaceActions from '../../../Redux/actions/ui';
+import initLog from '../../../Services/log-service';
+
+const log = initLog ('catalog/dataRequest');
 
 // make dataset and metadata requests in parallel
 export const fetchDatasetAndMetadata = async ({ query, shortName }) => {
   // to try/catch
   let requests = [
     new Promise(async (resolve, reject) => {
-      let response = await api.catalog.datasetFullPageDataFetch(shortName);
+      let response;
+      try {
+        response = await api.catalog.datasetFullPageDataFetch(shortName);
+      } catch (e) {
+        log.error ('dataset full page fetch failed', { error: e, shortName })
+        reject (e);
+        return;
+      }
+
       if (response.ok) {
         resolve(response);
       } else {
@@ -19,7 +30,15 @@ export const fetchDatasetAndMetadata = async ({ query, shortName }) => {
       }
     }),
     new Promise(async (resolve, reject) => {
-      let response = await api.data.customQuery(query);
+      let response;
+      try {
+        response = await api.data.customQuery(query);
+      } catch (e) {
+        log.error ('custom query failed', { error: e, shortName })
+        reject (e);
+        return;
+      }
+
       if (response.ok) {
         resolve(response);
       } else {
@@ -37,7 +56,14 @@ export const fetchDatasetAndMetadata = async ({ query, shortName }) => {
   }
 
   // get data in correct format
-  let metadataJSON = await metadataResp.json();
+  let metadataJSON;
+  try {
+    metadataJSON = await metadataResp.json();
+  } catch (e) {
+    log.error ('error parsing json', { error: e });
+    return;
+  }
+
   let datasetText = datasetResp.text();
 
   return [metadataJSON, datasetText];
