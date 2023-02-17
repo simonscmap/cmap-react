@@ -259,22 +259,20 @@ function* csvFromVizRequest(action) {
 
   yield put(interfaceActions.setLoadingMessage('Fetching metadata'));
 
-  const queryArgs = { spName: 'uspVariableMetadata', tableName, shortName };
-
-  // const metadataQuery = `exec uspVariableMetadata '${action.payload.tableName}', '${action.payload.shortName}'`;
+  const metadataQuery = `exec uspVariableMetadata '${tableName}', '${shortName}'`;
 
   let metadataResponse = yield call(
     api.visualization.csvDownload,
-    queryArgs,
+    metadataQuery,
   );
 
-  if (metadataResponse.failed) {
-    console.error (metadataResponse);
+  if (typeof metadataResponse !== 'string') {
+    console.error ('error in csvFromVizRequest; expected stringified response', metadataResponse);
     yield put(interfaceActions.setLoadingMessage(''));
     yield put(
       interfaceActions.snackbarOpen('Failed to download variable metadata'),
     );
-  } else if (metadataResponse.ok) {
+  } else {
     let metadataWB = XLSX.read(metadataResponse, { type: 'string' });
     let workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, dataWB.Sheets.Sheet1, 'Data');
@@ -285,11 +283,6 @@ function* csvFromVizRequest(action) {
     );
     XLSX.writeFile(workbook, `${action.payload.longName}.xlsx`);
     yield put(interfaceActions.setLoadingMessage(''));
-  } else {
-    yield put(interfaceActions.setLoadingMessage(''));
-    yield put(
-      interfaceActions.snackbarOpen('Unknown error'),
-    );
   }
 }
 

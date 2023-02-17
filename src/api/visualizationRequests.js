@@ -211,20 +211,16 @@ visualizationAPI.cruiseList = async () => {
 };
 
 // this fetches metadata that is included in the csv file1
-visualizationAPI.csvDownload = async (args) => {
-  if (!args || !args.tableName || !args.shortName) {
+visualizationAPI.csvDownload = async (query) => {
+  if (!query) {
     console.error ('incorrect args for csv metadata download request');
     return { failed: true, status: 'not sent'};
   }
-  /* let response = await fetch(
-*   apiUrl + `/api/data/query?query=${query}`,
-*   fetchOptions,
-* ); */
-
-  let response = await fetch (
-    apiUrl + `/api/data/sp?${storedProcedureParametersToUri(args)}`,
-    fetchOptions
+  let response = await fetch(
+    apiUrl + `/api/data/query?query=${query}`,
+   fetchOptions,
   );
+
   if (response.ok) {
     // hand off data to saga "downloadTextAsCsv"
     return await response.text();
