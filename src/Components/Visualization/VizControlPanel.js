@@ -198,7 +198,7 @@ class VizControlPanel extends React.Component {
       this.props.vizPageDataTargetDetails !== prevProps.vizPageDataTargetDetails
     ) {
       let data = this.props.vizPageDataTargetDetails;
-      let surfaceOnly = !data.Depth_Max;
+      let surfaceOnly = !data.Has_Depth;
       let irregularSpatialResolution = data.Spatial_Resolution === 'Irregular';
 
       let derivedParams = generateVariableSampleRangeParams(data);
@@ -579,6 +579,16 @@ class VizControlPanel extends React.Component {
   };
 
   checkEndTime = () => {
+    let isMonthly =
+      this.props.vizPageDataTargetDetails.Temporal_Resolution ===
+      temporalResolutions.monthlyClimatology;
+
+    if (isMonthly) {
+      // don't check time
+      return '';
+    }
+
+
     let maxEndDate = this.props.vizPageDataTargetDetails.Time_Max.slice(0,10);
     let maxEndTime = this.props.vizPageDataTargetDetails.Time_Max.slice(11,16);
 
@@ -593,6 +603,15 @@ class VizControlPanel extends React.Component {
   }
 
   checkStartTime = () => {
+    let isMonthly =
+      this.props.vizPageDataTargetDetails.Temporal_Resolution ===
+      temporalResolutions.monthlyClimatology;
+
+    if (isMonthly) {
+      // don't check time
+      return '';
+    }
+
     let minStartDate = this.props.vizPageDataTargetDetails.Time_Min.slice(0,10);
     let minStartTime = this.props.vizPageDataTargetDetails.Time_Min.slice(11,16);
 
