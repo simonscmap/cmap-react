@@ -452,6 +452,10 @@ class VizControlPanel extends React.Component {
 
     if (['date1', 'hour1', 'date2', 'hour2'].includes(e.target.name)) {
       let { dt1, dt2 } = this.state;
+      if (typeof dt1 !== 'string' || typeof dt2 !== 'string') {
+        console.error ('incorrect types for dt1 and dt1, could not update state', dt1, dt2);
+        return;
+      }
       let isoTail = ':00.000Z';
       switch (e.target.name) {
         case 'date1':
@@ -800,6 +804,8 @@ class VizControlPanel extends React.Component {
       selectedVizType,
     } = this.state;
 
+    console.log ('dt1 & dt2', dt1, dt2);
+
     let details = vizPageDataTargetDetails;
     let validations;
 
@@ -1122,7 +1128,7 @@ class VizControlPanel extends React.Component {
                       label="Start Date(m/d/y)"
                       step={1}
                       type="date"
-                      value={dt1.slice(0,10)}
+                      value={(typeof dt1 === 'string' ? dt1.slice(0,10) : dt1)}
                       error={Boolean(startDateMessage)}
                       FormHelperTextProps={{ className: classes.helperText }}
                       helperText={startDateMessage}
@@ -1153,7 +1159,7 @@ class VizControlPanel extends React.Component {
                       id="date2"
                       label="End Date(m/d/y)"
                       type="date"
-                      value={dt2.slice(0,10)}
+                      value={(typeof dt2 === 'slice' ? dt2.slice(0,10) : dt2)}
                       error={Boolean(endDateMessage)}
                       FormHelperTextProps={{ className: classes.helperText }}
                       helperText={endDateMessage}
@@ -1184,7 +1190,7 @@ class VizControlPanel extends React.Component {
                         label="Start Time"
                         className={classes.textField}
                         type="time"
-                        value={dt1.slice(11, 16)}
+                        value={(typeof dt1 === 'string' ? dt1.slice(11, 16) : dt1)}
                         onChange={this.handleChangeInputValue}
                         helperText={startTimeMessage}
                         disabled={
@@ -1198,7 +1204,7 @@ class VizControlPanel extends React.Component {
                         label="End Time"
                         className={classes.textField}
                         type="time"
-                        value={dt2.slice(11, 16)}
+                        value={(typeof dt2 === 'string' ? dt2.slice(11, 16) : dt2)}
                         onChange={this.handleChangeInputValue}
                         helperText={endTimeMessage}
                         disabled={
