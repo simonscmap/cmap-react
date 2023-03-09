@@ -115,10 +115,23 @@ const polygonSymbol = {
   ],
 };
 
-class VizControlPanel extends React.Component {
-  state = {
-    variableDetailsID: null,
-    tableName: '',
+const defaultState = {
+  variableDetailsID: null,
+  tableName: '',
+  depth1: 0,
+  depth2: 0,
+  dt1: '1900-01-01T00:00:00.000Z',
+  dt2: new Date().toISOString(),
+  lat1: 0,
+  lat2: 0,
+  lon1: 0,
+  lon2: 0,
+  selectedVizType: '',
+  surfaceOnly: false,
+  irregularSpatialResolution: false,
+  addedGlobeUIListeners: false,
+  showDrawHelp: false,
+  storedParams: {
     depth1: 0,
     depth2: 0,
     dt1: '1900-01-01T00:00:00.000Z',
@@ -127,22 +140,11 @@ class VizControlPanel extends React.Component {
     lat2: 0,
     lon1: 0,
     lon2: 0,
-    selectedVizType: '',
-    surfaceOnly: false,
-    irregularSpatialResolution: false,
-    addedGlobeUIListeners: false,
-    showDrawHelp: false,
-    storedParams: {
-      depth1: 0,
-      depth2: 0,
-      dt1: '1900-01-01T00:00:00.000Z',
-      dt2: new Date().toISOString(),
-      lat1: 0,
-      lat2: 0,
-      lon1: 0,
-      lon2: 0,
-    },
-  };
+  }
+};
+
+class VizControlPanel extends React.Component {
+  state = Object.assign({}, defaultState);
 
   searchInputRef = React.createRef();
 
@@ -193,13 +195,24 @@ class VizControlPanel extends React.Component {
       this.props.mapContainerRef.current.regionLayer.add(regionGraphic);
     }
 
-    if (
-      this.props.vizPageDataTargetDetails &&
+    // reset state if the variable target has changed, and is null
+    // NOTE because of the lifecycle of this component, there are several
+    // renders between changing the target and getting the data in props
+    // This will lead to many data processing bugs if not handled here
+    if (this.props.vizPageDataTargetDetails === null && prevProps.vizPageDataTargetDetails !== null) {
+      this.setState({
+        ...defaultState,
+      });
+    } else if (
+      // QUESTION: what is this really checking? ins't this an object?
+      // shouldn't we be cheking the id?
+
       this.props.vizPageDataTargetDetails !== prevProps.vizPageDataTargetDetails
     ) {
       let data = this.props.vizPageDataTargetDetails;
       let surfaceOnly = !data.Has_Depth;
       let irregularSpatialResolution = data.Spatial_Resolution === 'Irregular';
+
 
       let derivedParams = generateVariableSampleRangeParams(data);
 
@@ -804,6 +817,8 @@ class VizControlPanel extends React.Component {
       selectedVizType,
     } = this.state;
 
+
+    console.log ('variable id & details', dataTarget && dataTarget.ID, vizPageDataTargetDetails);
     console.log ('dt1 & dt2', dt1, dt2);
 
     let details = vizPageDataTargetDetails;
@@ -1159,7 +1174,7 @@ class VizControlPanel extends React.Component {
                       id="date2"
                       label="End Date(m/d/y)"
                       type="date"
-                      value={(typeof dt2 === 'slice' ? dt2.slice(0,10) : dt2)}
+                      value={(typeof dt2 === 'string' ? dt2.slice(0,10) : dt2)}
                       error={Boolean(endDateMessage)}
                       FormHelperTextProps={{ className: classes.helperText }}
                       helperText={endDateMessage}
@@ -1190,8 +1205,9 @@ class VizControlPanel extends React.Component {
                         label="Start Time"
                         className={classes.textField}
                         type="time"
-                        value={(typeof dt1 === 'string' ? dt1.slice(11, 16) : dt1)}
+                        value={(typeof dt1 === 'string' ? dt1.slice(11, 16) : undefined)}
                         onChange={this.handleChangeInputValue}
+                        error={Boolean(startTimeMessage)}
                         helperText={startTimeMessage}
                         disabled={
                           this.state.showDrawHelp || !vizPageDataTargetDetails
@@ -1204,8 +1220,9 @@ class VizControlPanel extends React.Component {
                         label="End Time"
                         className={classes.textField}
                         type="time"
-                        value={(typeof dt2 === 'string' ? dt2.slice(11, 16) : dt2)}
+                        value={(typeof dt2 === 'string' ? dt2.slice(11, 16) : undefined)}
                         onChange={this.handleChangeInputValue}
+                        error={Boolean(endTimeMessage)}
                         helperText={endTimeMessage}
                         disabled={
                           this.state.showDrawHelp || !vizPageDataTargetDetails
