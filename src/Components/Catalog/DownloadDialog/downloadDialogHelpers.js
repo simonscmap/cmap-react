@@ -217,7 +217,7 @@ export const getBoundedDateValueFromClickEvent = (
   initialMax,
 ) => {
   if (!clickEvent.target.value) {
-    console.error(`no value in event; expected a string representing a date`);
+    console.error(`no value in event; expected a string representing a date; received target ${clickEvent && clickEvent.target && clickEvent.target.value}`);
     return;
   }
 

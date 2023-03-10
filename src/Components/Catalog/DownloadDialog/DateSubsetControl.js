@@ -121,8 +121,10 @@ const DailyDateControl = withStyles(styles)((props) => {
       dataset.Time_Max,
     );
     // convert to numeral representing a day of the full dataset
-    let newStartDay = dateToDay(dataset.Time_Min, target);
-    setTimeStart(newStartDay);
+    if (target) {
+      let newStartDay = dateToDay(dataset.Time_Min, target);
+      setTimeStart(newStartDay);
+    }
   };
 
   // handler for the date picker
@@ -133,8 +135,10 @@ const DailyDateControl = withStyles(styles)((props) => {
       dataset.Time_Max,
     );
     // convert to numeral representing a day of the full dataset
-    let newEndDay = dateToDay(dataset.Time_Min, target);
-    setTimeEnd(newEndDay);
+    if (target) {
+      let newEndDay = dateToDay(dataset.Time_Min, target);
+      setTimeEnd(newEndDay);
+    }
   };
 
   let handleSlider = (e, value) => {
