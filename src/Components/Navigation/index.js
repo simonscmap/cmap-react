@@ -148,7 +148,7 @@ const Navigation = (props) => {
                       Data Submission Dashboard
                     </Link>
                   </ExpandableItem>
-                  <ExpandableItem linkText={'API Access'}>
+                  <ExpandableItem linkText={'Documentation'}>
                     <Link to="/apikeymanagement">API Key</Link>
                     <Link to="/documentation">Documentation</Link>
                   </ExpandableItem>
