@@ -223,7 +223,18 @@ const DownloadDialog = (props) => {
 
   // download handler
   let handleDownload = () => {
-    log.debug('handleDownload', { subsetParams });
+    // log params, resulting query, table, & ancillary data flag
+    log.debug('handleDownload', {
+      subsetParams,
+      query: makeDownloadQuery({
+        subsetParams,
+        ancillaryData: optionsState.ancillaryData,
+        tableName: dataset.Table_Name,
+      }),
+      table: dataset.Table_Name,
+      ancillaryData: optionsState.ancillaryData,
+    });
+
     dispatch(
       datasetDownloadRequestSend({
         tableName: dataset.Table_Name,
@@ -234,16 +245,6 @@ const DownloadDialog = (props) => {
       }),
     );
   };
-
-  log.debug('sql query', {
-    query: makeDownloadQuery({
-      subsetParams,
-      ancillaryData: optionsState.ancillaryData,
-      tableName: dataset.Table_Name,
-    }),
-    table: dataset.Table_Name,
-    ancillaryData: optionsState.ancillaryData,
-  });
 
   // Render
 

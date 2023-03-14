@@ -1,6 +1,6 @@
 import { Grid, Slider, TextField, Typography } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
-import React from 'react';
+import React, { useState } from 'react';
 import {
   dateToDay,
   dayToDate,
@@ -110,20 +110,46 @@ const MonthlyDateControl = withStyles(styles)((props) => {
 
 const DailyDateControl = withStyles(styles)((props) => {
   let { classes, dataset, subsetState, setTimeStart, setTimeEnd } = props;
-  let { Time_Min } = dataset;
+  let { Time_Min, Time_Max } = dataset;
   let { timeStart, timeEnd, maxDays } = subsetState;
+
+
+  let [invalidMin, setMinValidity] = useState(false);
+  let [invalidMax, setMaxValidity] = useState(false);
+
+  const dateIsWithinBounds = (date) => {
+    return date < Time_Min
+      ? false
+      : date > Time_Max
+        ? false
+        : true;
+  };
+
+  const extractDateFromString = (stringDate) => {
+    let [year, month, day] = stringDate.split('-');
+    const date = new Date(year, parseInt(month) - 1, day);
+    return date;
+  };
 
   // handler for the date picker
   let handleSetStartDate = (e) => {
-    let target = getBoundedDateValueFromClickEvent(
-      e,
-      dataset.Time_Min,
-      dataset.Time_Max,
-    );
+    console.log(e.target.value);
+    if (!e.target.value) {
+      console.error('no target value in event; expected a string representing a date;');
+      setMinValidity (false);
+      return;
+    }
+
+    let date = extractDateFromString(e.target.value);
+
+    let shouldUpdate = dateIsWithinBounds(date);
+
     // convert to numeral representing a day of the full dataset
-    if (target) {
-      let newStartDay = dateToDay(dataset.Time_Min, target);
+    if (shouldUpdate) {
+      let newStartDay = dateToDay(dataset.Time_Min, date);
       setTimeStart(newStartDay);
+    } else {
+      console.log ('will not update', date);
     }
   };
 
@@ -138,6 +164,8 @@ const DailyDateControl = withStyles(styles)((props) => {
     if (target) {
       let newEndDay = dateToDay(dataset.Time_Min, target);
       setTimeEnd(newEndDay);
+    } else {
+      console.log ('target', target);
     }
   };
 
@@ -199,6 +227,7 @@ const DailyDateControl = withStyles(styles)((props) => {
             InputLabelProps={{
               shrink: true,
             }}
+            error={invalidMin}
             value={dayToDate(Time_Min, timeStart)}
             onChange={handleSetStartDate}
           />
@@ -214,6 +243,7 @@ const DailyDateControl = withStyles(styles)((props) => {
             InputLabelProps={{
               shrink: true,
             }}
+            error={invalidMax}
             value={dayToDate(Time_Min, timeEnd)}
             onChange={handleSetEndDate}
           />
