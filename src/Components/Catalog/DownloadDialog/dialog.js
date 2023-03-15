@@ -1,6 +1,5 @@
 // Pop-up dialog for downloading data on catalog pages
 import {
-  Collapse,
   Dialog,
   DialogActions,
   DialogContent,
@@ -10,10 +9,7 @@ import { withStyles } from '@material-ui/core/styles';
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { datasetDownloadRequestSend } from '../../../Redux/actions/catalog';
-import DateSubsetControl from './DateSubsetControl';
-import LatitudeSubsetControl from './LatitudeSubsetControl';
-import LongitudeSubsetControl from './LongitudeSubsetControl';
-import DepthSubsetControl from './DepthSubsetControl';
+import SubsetControls from './SubsetControls';
 import {
   // getDownloadAvailabilites,
   getInitialRangeValues,
@@ -33,88 +29,6 @@ import logInit from '../../../Services/log-service';
 const log = logInit('dialog').addContext({
   src: 'Components/Catalog/DownloadDialog',
 });
-
-// subset controls
-
-let SubsetControls = ({
-  subsetParams,
-  subsetSetters,
-  dataset,
-  handleSwitch,
-  optionsState,
-  maxDays,
-  classes,
-}) => {
-  let {
-    timeStart,
-    timeEnd,
-    latStart,
-    latEnd,
-    lonStart,
-    lonEnd,
-    depthStart,
-    depthEnd,
-  } = subsetParams;
-
-  let {
-    setTimeStart,
-    setTimeEnd,
-    setLatStart,
-    setLatEnd,
-    setLonStart,
-    setLonEnd,
-    setDepthStart,
-    setDepthEnd,
-  } = subsetSetters;
-
-  return (
-    <React.Fragment>
-      <DownloadOption
-        downloadOption={{
-          handler: handleSwitch,
-          switchState: optionsState.subset,
-          name: 'subset',
-          label: 'Define Subset',
-        }}
-        description={
-          'Define a subset of the data for download by specifying time, lat, lon, and depth parameters.'
-        }
-      />
-
-      <Collapse in={optionsState.subset}>
-        <div className={classes.subsetStep}>
-          <DateSubsetControl
-            dataset={dataset}
-            setTimeStart={setTimeStart}
-            setTimeEnd={setTimeEnd}
-            subsetState={{ timeStart, timeEnd, maxDays }}
-          />
-
-          <LatitudeSubsetControl
-            dataset={dataset}
-            setLatStart={setLatStart}
-            setLatEnd={setLatEnd}
-            subsetState={{ latStart, latEnd }}
-          />
-
-          <LongitudeSubsetControl
-            dataset={dataset}
-            setLonStart={setLonStart}
-            setLonEnd={setLonEnd}
-            subsetState={{ lonStart, lonEnd }}
-          />
-
-          <DepthSubsetControl
-            dataset={dataset}
-            setDepthStart={setDepthStart}
-            setDepthEnd={setDepthEnd}
-            subsetState={{ depthStart, depthEnd }}
-          />
-        </div>
-      </Collapse>
-    </React.Fragment>
-  );
-};
 
 const DownloadDialog = (props) => {
   let { dataset: rawDataset, dialogOpen, handleClose, classes } = props;

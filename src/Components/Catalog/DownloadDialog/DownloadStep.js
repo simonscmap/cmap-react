@@ -9,7 +9,7 @@ const DownloadStep = (props) => {
   let { handleClose, handleDownload } = handlers;
 
   let downloadHandler = () => {
-    handleDownload();
+    handleDownload(); // state is enclosed in dialog.js
     handleClose();
   };
 

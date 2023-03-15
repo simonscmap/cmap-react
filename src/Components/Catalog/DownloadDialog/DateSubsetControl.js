@@ -1,9 +1,10 @@
 import { Grid, Slider, TextField, Typography } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   dateToDay,
-  dayToDate,
+  dayToDateString,
+  dateToDateString,
   getBoundedDateValueFromClickEvent,
   getIsMonthlyClimatology,
 } from './downloadDialogHelpers';
@@ -108,22 +109,75 @@ const MonthlyDateControl = withStyles(styles)((props) => {
   );
 });
 
+/* Daily Date Control
+
+   Date control is a filed with two modes of input: the text input and the slider.
+
+   The state values they are responsible for updating are timeStart and timeEnd,
+   which are integers representing ordinal days of the dataset data (for example,
+   day 0 is the first day of a cruise).
+
+   The text intput is a type=date input; its emitted value is in the
+   form "yyyy-mm-dd", and therefore conversion is needed.
+
+   (In order to construct the eventual sql query in makeSubsetQuery, timeStart and
+   timeEnd are converted to a date with dayToDateString; Note that this conversion is
+   only specific to the day, and does not contain hour/min/second.)
+
+*/
+
 const DailyDateControl = withStyles(styles)((props) => {
   let { classes, dataset, subsetState, setTimeStart, setTimeEnd } = props;
-  let { Time_Min, Time_Max } = dataset;
+  let { Time_Min, Time_Max } = dataset; // Date Objects
+
+  // timeStart & timeEnd are integers representing days (not Dates!)
+  // dayToDateString
   let { timeStart, timeEnd, maxDays } = subsetState;
 
-
-  let [invalidMin, setMinValidity] = useState(false);
-  let [invalidMax, setMaxValidity] = useState(false);
-
   const dateIsWithinBounds = (date) => {
-    return date < Time_Min
-      ? false
-      : date > Time_Max
-        ? false
-        : true;
+    let tmin = dateToDateString (Time_Min); // compare the DAY, not the to the full Date Time
+    let tmax = dateToDateString (Time_Max); // ditto
+    let d = dateToDateString (date);
+    let result = d < tmin
+                      ? false
+                      : d > tmax
+                             ? false
+                             : true;
+    // console.log(date, tmin, tmax, result)
+    return result;
   };
+
+  let [validMin, setMinValidity] = useState(true);
+  let [validMax, setMaxValidity] = useState(true);
+
+  // use updatedTimeMin an an intermediate value to negotiate
+  // updates to the date field based timeMin
+
+
+  // Time Min
+  let [updatedTimeMin, setUpdatedTimeMin] = useState(dateToDateString(Time_Min));
+  useEffect(() => {
+    // this variable is passed as the "value" attribute
+    // to the time field
+    setUpdatedTimeMin(dayToDateString(Time_Min, timeStart));
+    // resetting it to undefined will switch the filed to "uncontrolled"
+    // allowing the input to change freely, until we next decide to update it
+    setTimeout(() => setUpdatedTimeMin(undefined));
+  }, [timeStart]);
+
+  // Time Max
+  let [updatedTimeMax, setUpdatedTimeMax] = useState(dateToDateString(Time_Max));
+  // console.log('updatedTimeMax', updatedTimeMax, timeEnd);
+  useEffect(() => {
+    // console.log('use effect time end', timeEnd);
+    // this variable is passed as the "value" attribute
+    // to the time field
+    setUpdatedTimeMax(dayToDateString(Time_Min, timeEnd));
+    // resetting it to undefined will switch the filed to "uncontrolled"
+    // allowing the input to change freely, until we next decide to update it
+    setTimeout(() => setUpdatedTimeMax(undefined));
+  }, [timeEnd]);
+
 
   const extractDateFromString = (stringDate) => {
     let [year, month, day] = stringDate.split('-');
@@ -133,7 +187,6 @@ const DailyDateControl = withStyles(styles)((props) => {
 
   // handler for the date picker
   let handleSetStartDate = (e) => {
-    console.log(e.target.value);
     if (!e.target.value) {
       console.error('no target value in event; expected a string representing a date;');
       setMinValidity (false);
@@ -146,26 +199,37 @@ const DailyDateControl = withStyles(styles)((props) => {
 
     // convert to numeral representing a day of the full dataset
     if (shouldUpdate) {
+      console.log('update')
       let newStartDay = dateToDay(dataset.Time_Min, date);
       setTimeStart(newStartDay);
+      setMinValidity (true);
     } else {
-      console.log ('will not update', date);
+      setMinValidity(false);
+      console.log ('will not update start date', date, Time_Min);
     }
   };
 
+
   // handler for the date picker
   let handleSetEndDate = (e) => {
-    let target = getBoundedDateValueFromClickEvent(
-      e,
-      dataset.Time_Min,
-      dataset.Time_Max,
-    );
+    if (!e.target.value) {
+      console.error('no target value in event; expected a string representing a date;');
+      setMaxValidity(false);
+      return;
+    }
+
+    let date = extractDateFromString(e.target.value);
+
+    let shouldUpdate = dateIsWithinBounds(date);
+
     // convert to numeral representing a day of the full dataset
-    if (target) {
-      let newEndDay = dateToDay(dataset.Time_Min, target);
+    if (shouldUpdate) {
+      let newEndDay = dateToDay(dataset.Time_Min, date);
       setTimeEnd(newEndDay);
+      setMaxValidity(true);
     } else {
-      console.log ('target', target);
+      setMaxValidity(false);
+      console.log('will not update end date', date, Time_Max);
     }
   };
 
@@ -179,19 +243,19 @@ const DailyDateControl = withStyles(styles)((props) => {
   // and, length allowing, to the midpoint, and quarter values
   let markLabel = (i, length) => {
     if (i === 0) {
-      return dayToDate(Time_Min, i);
+      return dayToDateString(Time_Min, i);
     }
     if (i === length - 1) {
-      return dayToDate(Time_Min, i);
+      return dayToDateString(Time_Min, i);
     }
     if (length >= 3 && i === Math.floor(length / 2)) {
-      return shortenDate(dayToDate(Time_Min, i));
+      return shortenDate(dayToDateString(Time_Min, i));
     }
     if (length >= 5 && i === Math.floor(length / 4)) {
-      return shortenDate(dayToDate(Time_Min, i));
+      return shortenDate(dayToDateString(Time_Min, i));
     }
     if (length >= 5 && i === Math.floor(length * 0.75)) {
-      return shortenDate(dayToDate(Time_Min, i));
+      return shortenDate(dayToDateString(Time_Min, i));
     }
     return undefined;
   };
@@ -200,8 +264,8 @@ const DailyDateControl = withStyles(styles)((props) => {
     // prevent lange datasets from exploding the time slider
     if (maxDays > 365) {
       return [
-        { value: 0, label: dayToDate(Time_Min, 0) },
-        { value: maxDays, label: dayToDate(Time_Min, maxDays) },
+        { value: 0, label: dayToDateString(Time_Min, 0) },
+        { value: maxDays, label: dayToDateString(Time_Min, maxDays) },
       ];
     }
     return new Array(maxDays + 1).fill(0).map((_, i, arr) => ({
@@ -227,8 +291,10 @@ const DailyDateControl = withStyles(styles)((props) => {
             InputLabelProps={{
               shrink: true,
             }}
-            error={invalidMin}
-            value={dayToDate(Time_Min, timeStart)}
+            error={!validMin}
+            //defaultValue={dayToDateString(Time_Min, timeStart)}
+            // value={dayToDateString(Time_Min, timeStart)}
+            value={updatedTimeMin}
             onChange={handleSetStartDate}
           />
         </Grid>
@@ -243,8 +309,8 @@ const DailyDateControl = withStyles(styles)((props) => {
             InputLabelProps={{
               shrink: true,
             }}
-            error={invalidMax}
-            value={dayToDate(Time_Min, timeEnd)}
+            error={!validMax}
+            value={updatedTimeMax}
             onChange={handleSetEndDate}
           />
         </Grid>

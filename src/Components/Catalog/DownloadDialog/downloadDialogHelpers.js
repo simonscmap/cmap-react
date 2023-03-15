@@ -31,11 +31,17 @@ export const makeSubsetQuery = (tableName, selection) => {
 
   let timeUnit = isMonthyClimatology ? 'month' : 'cast(time as date)';
 
+  let toTimeEndISO = (day) => [day]
+    .map ((d) => dayToDateString (Time_Min, d))
+    .map ((d) => new Date (d))
+    .map ((d) => d.toISOString())
+    .map ((s) => s.slice(0, 10) + 'T23:59:59Z')
+    .shift ()
+
   const _timeStart = isMonthyClimatology
     ? timeStart
-    : dayToDate(Time_Min, timeStart);
-  const _timeEnd = isMonthyClimatology ? timeEnd : dayToDate(Time_Min, timeEnd);
-  // + 'T23:59:59Z'
+    : dayToDateString(Time_Min, timeStart);
+  const _timeEnd = isMonthyClimatology ? timeEnd : toTimeEndISO (timeEnd);
 
   let query =
     `select * from ${tableName} where ${timeUnit} between '${_timeStart}' and '${_timeEnd}' and ` +
@@ -87,8 +93,8 @@ sproc template:
   // convert to 1-indexed month, if unit of time is month
   const _timeStart = isMonthyClimatology
     ? timeStart
-    : dayToDate(Time_Min, timeStart);
-  const _timeEnd = isMonthyClimatology ? timeEnd : dayToDate(Time_Min, timeEnd);
+    : dayToDateString(Time_Min, timeStart);
+  const _timeEnd = isMonthyClimatology ? timeEnd : dayToDateString(Time_Min, timeEnd);
   // + 'T23:59:59Z'
 
   // NOTE: the CIP bit at the end is hard coded for the moment
@@ -198,6 +204,8 @@ export const formatDateString = (year, month, day) => {
   return `${year}-${month}-${day}`;
 };
 
+// :: DateString -> Date
+// Note a date string is in the format "yyyy-mm-dd"
 export const extractDateFromString = (stringDate) => {
   let [year, month, day] = stringDate.split('-');
   const date = new Date(year, parseInt(month) - 1, day);
@@ -236,10 +244,36 @@ export const getBoundedDateValueFromClickEvent = (
 
 // starting with a min date, return a string representation
 // of the date N days later
-export const dayToDate = (min, days) => {
+// :: Date -> Days Int -> Date String
+// Note: a Date String is in the format "yyyy-mm-dd"
+export const dayToDateString = (min, days) => {
   let value = new Date(min);
 
+
   value.setDate(value.getDate() + days);
+
+  let month = value.getMonth() + 1;
+  month = month > 9 ? month : '0' + month;
+
+  let day = value.getDate();
+  day = day > 9 ? day : '0' + day;
+
+  let fullYear = value.getFullYear();
+
+  let result = formatDateString(fullYear, month, day);
+
+  console.log(min, min.getDate(), days, result)
+  return result;
+};
+
+export const dateStringToISO = (dateString) => {
+  let d = new Date (dateString);
+  return d.toISOString();
+}
+
+// :: Date -> DateString
+export const dateToDateString = (date) => {
+  let value = new Date(date);
 
   let month = value.getMonth() + 1;
   month = month > 9 ? month : '0' + month;
