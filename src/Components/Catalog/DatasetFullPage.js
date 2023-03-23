@@ -180,6 +180,7 @@ const DatasetFullPage = (props) => {
 
   const {
     Variables,
+    Unstructured_Dataset_Metadata,
     Acknowledgement,
     Data_Source,
     Depth_Max,
@@ -204,12 +205,37 @@ const DatasetFullPage = (props) => {
     Cruises,
   } = datasetFullPageData;
 
+  // console.log('DUM', Unstructured_Dataset_Metadata);
+
+  if (Variables) {
+    let count = 0;
+    let parsed = [];
+    Variables.forEach((V) => {
+      let { Unstructured_Variable_Metadata: vum, Variable } = V;
+      if (vum !== null) {
+        count++;
+        try {
+          // sql returns comma separated json objects, but we can't simply
+          // split that string on commas, because there are commas within the json
+          // objects;
+          let arrayifiedVum = `[${vum}]`;
+          let vumP = JSON.parse(arrayifiedVum);
+          parsed.push(Variable)
+        } catch (e) {
+          console.log('could not parse', Variable, vum, e);
+        }
+      }
+    });
+    console.log('count', count);
+    console.log('parsed', parsed);
+  }
+
   const loading = datasetFullPageDataLoadingState === states.inProgress;
 
   const [downloadDialogOpen, setDownloadDialogOpen] = React.useState(false);
 
-  const httpRegx =
-    /\b(https?:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|]|ftp:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|])/g;
+  const httpRegx =    /\b(https?:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|]|ftp:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|])/g;
+
   const urlify = (text) =>
     reactStringReplace(text, httpRegx, (match, i) => (
       <Link
@@ -405,7 +431,7 @@ const DatasetFullPage = (props) => {
               className={classes.sectionHeader}
               style={{ marginBottom: '16px', color: 'white' }}
             >
-              Variables
+              {Variables ? `Variables (${Variables.length})` : 'Variables'}
             </Typography>
 
             {Variables ? <DatasetPageAGGrid Variables={Variables} /> : ''}
@@ -509,7 +535,17 @@ const DatasetFullPage = (props) => {
                   Cruises contributing data to this dataset:
                 </Typography>
 
-                {Cruises.map((e) => (
+                {Cruises.sort((a, b) => {
+                  const nameA = a.Name.toUpperCase();
+                  const nameB = b.Name.toUpperCase();
+                  if (nameA < nameB) {
+                    return -1;
+                  }
+                  if (nameA > nameB) {
+                    return 1;
+                  }
+                  return 0;
+                }).map((e) => (
                   <Link
                     component={RouterLink}
                     to={`/catalog/cruises/${e.Name}`}

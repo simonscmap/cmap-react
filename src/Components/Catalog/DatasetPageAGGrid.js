@@ -15,6 +15,23 @@ import ReactMarkdown from 'react-markdown';
 import colors from '../../enums/colors';
 import HelpButtonAndDialog from '../Navigation/Help/HelpButtonAndDialog';
 import VariableGridHelpContents from './VariableGridHelpContents';
+import S from '../../Utility/sanctuary';
+import $ from 'sanctuary-def';
+
+let parseVariableUnstructuredMetadata = (vum) => {
+  let parsed;
+  try {
+    // sql returns comma separated json objects, but we can't simply
+    // split that string on commas, because there are commas within the json
+    // objects;
+    let arrayifiedVum = `[${vum}]`;
+    parsed = JSON.parse(arrayifiedVum);
+  } catch (e) {
+    console.log('could not parse');
+    console.log(vum);
+  }
+  return parsed;
+}
 
 const rendererStyles = (theme) => ({
   dialogPaper: {
@@ -82,6 +99,20 @@ const columnDefs = [
         tooltipField: 'Comment',
         cellRenderer: 'commentCellRenderer',
       },
+      {
+        headerName: 'Unstructured Metadata',
+        field: 'Unstructured_Variable_Metadata',
+        valueGetter: (param) => {
+          let vum = param.data.Unstructured_Variable_Metadata;
+          if (vum && vum.length > 0) {
+            let pVum = parseVariableUnstructuredMetadata(vum);
+            if (pVum) {
+              return `View Metadata (${pVum.length})`;
+            }
+          }
+          return '';
+        }
+      }
     ],
   },
 
@@ -176,6 +207,24 @@ const DatasetPageAGGrid = React.memo((props) => {
           defaultColDef={defaultColumnDef}
           rowData={Variables}
           onGridReady={(params) => params.columnApi.autoSizeAllColumns()}
+          onCellClicked={(e) => {
+            let maybeColId = S.gets(S.is($.String))(['event', 'originalTarget', 'attributes', 'col-id', 'value'])(e);
+            let x = S.fromMaybe('unknown')(maybeColId);
+
+            let maybeVum = S.gets(S.is($.String))(['node', 'data', 'Unstructured_Variable_Metadata'])(e);
+            let y = S.fromMaybe('unknown') (maybeVum);
+
+
+            console.log('event', e.event);
+            console.log('node', e.node);
+            console.log('clicked', x, y);
+
+            if (x === '') {
+              //
+            } else {
+              //
+            }
+          }}
           enableCellTextSelection={true}
           rowHeight={38}
           enableBrowserTooltips={true}
