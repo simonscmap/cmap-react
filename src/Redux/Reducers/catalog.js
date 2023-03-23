@@ -6,6 +6,10 @@ import {
   SEARCH_RESULTS_SET_LOADING_STATE,
   DATASET_FULL_PAGE_DATA_STORE,
   DATASET_FULL_PAGE_DATA_SET_LOADING_STATE,
+  DATASET_VARIABLES_STORE,
+  DATASET_VARIABLES_SET_LOADING_STATE,
+  DATASET_VARIABLE_UM_STORE,
+  DATASET_VARIABLE_UM_SET_LOADING_STATE,
   CRUISE_FULL_PAGE_DATA_STORE,
   CRUISE_FULL_PAGE_DATA_SET_LOADING_STATE,
   CART_ADD_ITEM,
@@ -17,6 +21,9 @@ import {
 
 export default function (state, action) {
   switch (action.type) {
+
+      /************** Catalog Page **********************/
+
     case STORE_SUBMISSION_OPTIONS:
       return {
         ...state,
@@ -35,7 +42,8 @@ export default function (state, action) {
     case SEARCH_RESULTS_STORE:
       return {
         ...state,
-        searchResults: action.payload.searchResults,
+        searchResults: action.payload.searchResults.filter (({ Short_Name }) =>
+          Short_Name !== 'Geotraces_seawater'),
         submissionOptions: action.payload.submissionOptions,
       };
     case SEARCH_RESULTS_SET_LOADING_STATE:
@@ -43,16 +51,64 @@ export default function (state, action) {
         ...state,
         searchResultsLoadingState: action.payload.state,
       };
+
+      /************** Dataset Detail Page **********************/
+
     case DATASET_FULL_PAGE_DATA_STORE:
       return {
         ...state,
-        datasetFullPageData: action.payload.datasetFullPageData,
+        datasetDetailsPage: {
+          ...state.datasetDetailsPage,
+          selectedDatasetId: action.payload.dataset.Dataset_ID,
+          selectedDatasetShortname: action.payload.dataset.Short_Name,
+          data: action.payload.dataset,
+          cruises: action.payload.cruises,
+          references: action.payload.references,
+          sensors: action.payload.sensors,
+        }
+      };
+    case DATASET_VARIABLES_STORE:
+      return {
+        ...state,
+        datasetDetailsPage: {
+          ...state.datasetDetailsPage,
+          variables: action.payload.variables,
+        }
+      };
+    case DATASET_VARIABLE_UM_STORE:
+      return {
+        ...state,
+        datasetDetailsPage: {
+          ...state.datasetDetailsPage,
+          unstructuredVariableMetadata: action.payload.variableUnstructuredMetadata,
+        }
       };
     case DATASET_FULL_PAGE_DATA_SET_LOADING_STATE:
       return {
         ...state,
-        datasetFullPageDataLoadingState: action.payload.state,
+        datasetDetailsPage: {
+          ...state.datasetDetailsPage,
+          primaryPageLoadingState: action.payload.state,
+        }
       };
+    case DATASET_VARIABLES_SET_LOADING_STATE:
+      return {
+        ...state,
+        datasetDetailsPage: {
+          ...state.datasetDetailsPage,
+          variablesLoadingState: action.payload.state,
+        }
+      };
+    case DATASET_VARIABLE_UM_SET_LOADING_STATE:
+      return {
+        ...state,
+        datasetDetailsPage: {
+          ...state.datasetDetailsPage,
+          unstructuredMetadataLoadingState: action.payload.state,
+        }
+      };
+     /************** Cruise Page **********************/
+
     case CRUISE_FULL_PAGE_DATA_STORE:
       return {
         ...state,
@@ -63,6 +119,9 @@ export default function (state, action) {
         ...state,
         cruiseFullPageDataLoadingState: action.payload.state,
       };
+
+      /************** Cart **********************/
+
     case CART_ADD_ITEM:
       return {
         ...state,
@@ -93,6 +152,9 @@ export default function (state, action) {
           ...action.payload.items,
         },
       };
+
+      /************** Cache **********************/
+
     case TABLES_WITH_ANCILLARY_DATA_STORE:
       return {
         ...state,

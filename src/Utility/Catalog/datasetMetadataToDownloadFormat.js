@@ -1,29 +1,31 @@
 const datasetMetadataToDownloadFormat = (metadata) => {
+  let { dataset, cruises, references, variables, sensors } = metadata;
   let datasetRows = [];
 
   datasetRows.push({
-    dataset_short_name: metadata.Short_Name,
-    dataset_long_name: metadata.Long_Name,
-    dataset_version: metadata.Dataset_Version || '',
-    dataset_release_date: metadata.Dataset_Release_Date || '',
-    dataset_make: metadata.Variables[0].Make,
-    dataset_source: metadata.Data_Source || '',
-    dataset_distributor: metadata.Distributor || '',
-    dataset_acknowledgement: metadata.Acknowledgement || '',
-    dataset_history: metadata.Dataset_History || '',
-    dataset_description: metadata.Description || '',
-    dataset_references: metadata.References[0] || '',
-    climatology: metadata.Climatology || 0,
-    cruise_names: metadata.Cruises[0] ? metadata.Cruises[0].Name : '',
+    dataset_short_name: dataset.Short_Name,
+    dataset_long_name: dataset.Long_Name,
+    dataset_version: dataset.Dataset_Version || '',
+    dataset_release_date: dataset.Dataset_Release_Date || '',
+    dataset_make: variables[0].Make,
+    dataset_source: dataset.Data_Source || '',
+    dataset_distributor: dataset.Distributor || '',
+    dataset_acknowledgement: dataset.Acknowledgement || '',
+    dataset_history: dataset.Dataset_History || '',
+    dataset_description: dataset.Description || '',
+    dataset_references: references[0] || '',
+    climatology: dataset.Climatology || 0,
+    cruise_names: cruises[0] ? cruises[0].Name : '',
+    dataset_unstructured_metadata: dataset.Unstructured_Dataset_Metadata || '',
   });
 
-  metadata.Cruises.forEach((e, i) => {
+  cruises.forEach((e, i) => {
     if (i > 0) {
       datasetRows.push({ cruise_names: e.Name });
     }
   });
 
-  metadata.References.forEach((e, i) => {
+  references.forEach((e, i) => {
     if (i > 0) {
       if (datasetRows[i]) {
         datasetRows[i].dataset_references = e;
@@ -36,7 +38,7 @@ const datasetMetadataToDownloadFormat = (metadata) => {
   let variableRows = [];
   let summaryStatisticsRows = [];
 
-  metadata.Variables.forEach((e, i) => {
+  variables.forEach((e) => {
     variableRows.push({
       var_short_name: e.Variable,
       var_long_name: e.Long_Name,
@@ -48,6 +50,7 @@ const datasetMetadataToDownloadFormat = (metadata) => {
       visualize: e.Visualize ? 1 : 0,
       var_keywords: e.Keywords || '',
       var_comment: e.Comment || '',
+      var_unstructured_variable_metadata: e.Unstructured_Variable_Metadata || '',
     });
 
     summaryStatisticsRows.push({

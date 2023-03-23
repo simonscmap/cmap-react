@@ -229,7 +229,7 @@ const SearchResult = (props) => {
   const fetchDataset = async () => {
     let data;
     try {
-      data = await api.catalog.datasetFullPageDataFetch(Short_Name);
+      data = await api.catalog.datasetMetadata(Short_Name);
       if (data.ok) {
         data = await data.json();
         setDataset(data);
@@ -270,7 +270,7 @@ const SearchResult = (props) => {
             {downloadDialogOpen && (
               <DownloadDialog
                 dialogOpen={downloadDialogOpen}
-                dataset={fullDataset}
+                dataset={fullDataset.dataset}
                 handleClose={() => setDownloadDialogOpen(false)}
               />
             )}

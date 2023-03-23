@@ -21,9 +21,9 @@ const DatasetJSONLD = (props) => {
     description: props.Description,
     keywords: keywords,
     alternateName: props.Short_Name,
-    citation: props.References || '',
+    citation: props.references || '',
     measurementTechnique: props.sensors,
-    hasPart: props.Variables.map((e) => ({
+    hasPart: props.variables.map((e) => ({
       '@type': 'Dataset',
       name: e.Long_Name,
       description: `${e.Long_Name} measured via ${e.Sensor} in ${e.Unit}. Part of dataset ${props.Long_Name}`,

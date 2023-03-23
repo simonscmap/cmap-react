@@ -16,9 +16,9 @@ export const fetchDatasetAndMetadata = async ({ query, shortName }) => {
     new Promise(async (resolve, reject) => {
       let response;
       try {
-        response = await api.catalog.datasetFullPageDataFetch(shortName);
+        response = await api.catalog.datasetMetadata (shortName);
       } catch (e) {
-        log.error ('dataset full page fetch failed', { error: e, shortName })
+        log.error ('dataset metadata fetch failed', { error: e, shortName })
         reject (e);
         return;
       }
@@ -64,7 +64,21 @@ export const fetchDatasetAndMetadata = async ({ query, shortName }) => {
     return;
   }
 
-  let datasetText = datasetResp.text();
+  let datasetText;
+  try {
+    console.log('about to marshall response', datasetResp);
+    datasetText = await datasetResp.arrayBuffer();
+  } catch (e) {
+    console.error('error marshalling response text');
+    console.log(e);
+  }
+
+  /* if (!datasetText || datasetText.length === 0) {
+*   console.log('datasetText length', datasetText.length);
+*   console.error('no response text for dataset');
+*   store.dispatch()
+*   return;
+* } */
 
   return [metadataJSON, datasetText];
 };

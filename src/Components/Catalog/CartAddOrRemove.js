@@ -68,22 +68,25 @@ const CartAddOrRemove = (props) => {
     }
   };
 
+  let style = {};
+  if (dataset && dataset.Visualize && !cart[dataset.Long_name]) {
+    style = { color: '#e3e61a' };
+  }
+
+  let isSavedToCart = dataset && cart[dataset.Long_Name];
+
   return (
     <Button
       id={customId}
-      style={
-        !dataset.Visualize && !cart[dataset.Long_Name]
-          ? { color: '#e3e61a' }
-          : {}
-      }
+      style={style}
       variant="text"
       color="primary"
       className={classes.cartButton}
-      startIcon={cart[dataset.Long_Name] ? <Star /> : <StarBorder />}
+      startIcon={isSavedToCart ? <Star /> : <StarBorder />}
       onClick={handleClick}
     >
       <span className={classes.bottomAlignedText}>
-        {cart[dataset.Long_Name] ? 'Remove Favorite' : 'Add To Favorites'}
+        {isSavedToCart ? 'Remove Favorite' : 'Add To Favorites'}
       </span>
     </Button>
   );

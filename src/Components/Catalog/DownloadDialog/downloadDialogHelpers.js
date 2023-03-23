@@ -247,8 +247,10 @@ export const getBoundedDateValueFromClickEvent = (
 // :: Date -> Days Int -> Date String
 // Note: a Date String is in the format "yyyy-mm-dd"
 export const dayToDateString = (min, days) => {
+  if (!min) {
+    console.error ('dayToDateString received no value for min');
+  }
   let value = new Date(min);
-
 
   value.setDate(value.getDate() + days);
 
@@ -263,6 +265,7 @@ export const dayToDateString = (min, days) => {
   let result = formatDateString(fullYear, month, day);
 
   console.log(min, min.getDate(), days, result)
+
   return result;
 };
 

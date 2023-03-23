@@ -86,6 +86,13 @@ const HeroContent = withStyles(styles)(() => (
       Browse the gallery of Simons CMAP use cases to learn about how Simons CMAP
       can be used to advance ocean science.
     </Typography>
+    <Typography variant="body1">
+      The Simons CMAP gallery features use cases highlighting how the community is using Simons CMAP to advance ocean science.
+      Please consider submitting use cases from your own work for inclusion in the gallery.
+    </Typography>
+    <Typography variant="body1">
+      Contact us at <a href="mailto:simonscmap@uw.edu">simonscmap@uw.edu</a> to get started.
+    </Typography>
   </div>
 ));
 
@@ -99,6 +106,50 @@ const About = ({ classes }) => {
   return (
     <Page pageTitle={'Gallery'} heroContent={<HeroContent />}>
       <FullWidthContainer bgVariant={'slate'}>
+
+        <Section name={'gettingStarted'} title={'Getting Started'}>
+          <div className={classes.cardList}>
+            <Card>
+              <Typography variant="body1">
+                <Link to="/gallery/getting-started-cruise-plan">
+                  Cruise Planning: Contemporaneous Sampling Along An Arbitrary Cruise Trajectory
+                </Link>
+              </Typography>
+
+              <a href="https://doi.org/10.5281/zenodo.7839055">
+                <img
+                  src="https://zenodo.org/badge/DOI/10.5281/zenodo.7839055.svg"
+                  alt="DOI"
+                />
+              </a>
+
+              <Typography variant="body2">
+                Contributors: Mohammad Ashkezari, Ginger Armbrust
+              </Typography>
+            </Card>
+
+            <Card>
+              <Typography variant="body1">
+                <Link to="/gallery/getting-started-cruise-map">
+                  GeoSpatial Map Superimposed by Arbitrary Cruise Trajectories
+                </Link>
+              </Typography>
+
+              <a href="https://doi.org/10.5281/zenodo.7839055">
+                <img
+                  src="https://zenodo.org/badge/DOI/10.5281/zenodo.7839055.svg"
+                  alt="DOI"
+                />
+              </a>
+
+              <Typography variant="body2">
+                Contributors: Mohammad Ashkezari, Ginger Armbrust
+              </Typography>
+            </Card>
+          </div>
+        </Section>
+
+
         <Section name={'studies'} title={'Research'}>
           <div className={classes.cardList}>
             <Card>

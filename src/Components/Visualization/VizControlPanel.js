@@ -47,6 +47,7 @@ import countWebGLContexts from '../../Utility/countWebGLContexts';
 import depthUtils from '../../Utility/depthCounter';
 import mapSpatialResolutionToNumber from '../../Utility/mapSpatialResolutionToNumber';
 import mapTemporalResolutionToNumber from '../../Utility/mapTemporalResolutionToNumber';
+import isISODateString from '../../Utility/Time/isISO';
 import Hint from '../Navigation/Help/Hint';
 import ChartControl from './Charts/ChartControl';
 import DataSearch from './DataSearch';
@@ -455,10 +456,14 @@ class VizControlPanel extends React.Component {
     let name = e.target.name;
     let value = e.target.value;
 
+    // console.log('value', value);
+
     if (parseThese.includes(e.target.name)) {
       if (isNaN(parsed)) {
         value = e.target.value;
-      } else value = parsed;
+      } else {
+        value = parsed;
+      }
     } else {
       value = e.target.value;
     }
@@ -470,6 +475,15 @@ class VizControlPanel extends React.Component {
         return;
       }
       let isoTail = ':00.000Z';
+
+      if (value === '' && (name === 'date1' || name === 'date2')) {
+        value = '0000-00-00'
+      }
+
+      if (value === '' && (name === 'hour1' || name === 'hour2')) {
+       value = '00:00';
+      }
+
       switch (e.target.name) {
         case 'date1':
           name = 'dt1';
@@ -477,7 +491,7 @@ class VizControlPanel extends React.Component {
           break;
         case 'hour1':
           name = 'dt1';
-          value = dt1.slice(0,10) + 'T' + value + isoTail;
+          value = dt1.slice(0,10) + 'T' + (value ? value : '00:00') + isoTail;
           break;
         case 'date2':
           name = 'dt2';
@@ -485,7 +499,7 @@ class VizControlPanel extends React.Component {
           break;
         case 'hour2':
           name = 'dt2';
-          value = dt2.slice(0,10) + 'T' + value + isoTail;
+          value = dt2.slice(0,10) + 'T' + (value ? value : '00:00')+ isoTail;
           break;
       }
     }
@@ -524,6 +538,17 @@ class VizControlPanel extends React.Component {
     return '';
   };
 
+  checkStartDateTime = () => {
+    if (!isISODateString (this.state.dt1)) {
+      return 'Invalid date/time';
+    }
+  }
+  checkEndDateTime = () => {
+    if (!isISODateString (this.state.dt2)) {
+      return 'Invalid date/time';
+    }
+  }
+
   checkStartDate = () => {
     let isMonthly =
       this.props.vizPageDataTargetDetails.Temporal_Resolution ===
@@ -534,7 +559,7 @@ class VizControlPanel extends React.Component {
         return 'Start cannot be greater than end';
       }
     } else {
-      if (!this.state.dt1) {
+      if (!this.state.dt1 ) {
         return 'Invalid date';
       }
       if (this.state.dt1 > this.state.dt2) {
@@ -572,7 +597,7 @@ class VizControlPanel extends React.Component {
         return 'Start cannot be greater than end';
       }
     } else {
-      if (!this.state.dt2) {
+      if (!this.state.dt2 || !isISODateString (this.state.dt2)) {
         return 'Invalid date';
       }
       if (this.state.dt1 > this.state.dt2) {
@@ -639,6 +664,7 @@ class VizControlPanel extends React.Component {
         return `The minimum start time for ${minStartDate} is ${minStartTime}`
       }
     }
+
     return '';
   }
 
@@ -818,9 +844,6 @@ class VizControlPanel extends React.Component {
     } = this.state;
 
 
-    console.log ('variable id & details', dataTarget && dataTarget.ID, vizPageDataTargetDetails);
-    console.log ('dt1 & dt2', dt1, dt2);
-
     let details = vizPageDataTargetDetails;
     let validations;
 
@@ -846,9 +869,13 @@ class VizControlPanel extends React.Component {
         this.checkStartDate(),
         this.checkEndDate(),
         this.checkStartTime(),
-        this.checkEndTime()
+        this.checkEndTime(),
+        this.checkStartDateTime(),
+        this.checkEndDateTime(),
       ];
-    } else validations = Array(14).fill('');
+    } else {
+      validations = Array(14).fill('');
+    }
 
     const [
       startDepthMessage,
@@ -870,6 +897,8 @@ class VizControlPanel extends React.Component {
       endDateMessage,
       startTimeMessage,
       endTimeMessage,
+      startDateTimeMessage,
+      endDateTimeMessage
     ] = validations;
 
     const checkDisableVisualizeList = [
@@ -884,6 +913,7 @@ class VizControlPanel extends React.Component {
       endDateMessage,
       startTimeMessage,
       endTimeMessage,
+      startDateTimeMessage
     ];
 
     const checkDisableVisualize = () => {
@@ -1044,7 +1074,7 @@ class VizControlPanel extends React.Component {
                     'input#charts-and-plots-search-field',
                   );
                   if (searchEl) {
-                    console.log('setting focus');
+                    // console.log('setting focus');
                     searchEl.focus()
                   } else {
                     console.log('couldn\'t find element')
@@ -1079,7 +1109,7 @@ class VizControlPanel extends React.Component {
                       label="Start Month"
                       type="number"
                       value={dt1}
-                      error={Boolean(startDateMessage)}
+                      error={(Boolean(startDateMessage))}
                       FormHelperTextProps={{ className: classes.helperText }}
                       helperText={startDateMessage}
                       InputProps={{
@@ -1111,9 +1141,9 @@ class VizControlPanel extends React.Component {
                       max={12}
                       step={1}
                       value={dt2}
-                      error={Boolean(startDateMessage)}
+                      error={(Boolean(endDateMessage))}
                       FormHelperTextProps={{ className: classes.helperText }}
-                      helperText={startDateMessage}
+                      helperText={endDateMessage}
                       InputProps={{
                         className: classes.dateTimeInput,
                         inputProps: {
@@ -1144,9 +1174,9 @@ class VizControlPanel extends React.Component {
                       step={1}
                       type="date"
                       value={(typeof dt1 === 'string' ? dt1.slice(0,10) : dt1)}
-                      error={Boolean(startDateMessage)}
+                      error={(Boolean(startDateMessage) || Boolean(startDateTimeMessage))}
                       FormHelperTextProps={{ className: classes.helperText }}
-                      helperText={startDateMessage}
+                      helperText={startDateMessage || startDateTimeMessage}
                       InputProps={{
                         className: classes.dateTimeInput,
                         inputProps: details
@@ -1175,9 +1205,9 @@ class VizControlPanel extends React.Component {
                       label="End Date(m/d/y)"
                       type="date"
                       value={(typeof dt2 === 'string' ? dt2.slice(0,10) : dt2)}
-                      error={Boolean(endDateMessage)}
+                      error={(Boolean(endDateMessage) || Boolean(endDateTimeMessage))}
                       FormHelperTextProps={{ className: classes.helperText }}
-                      helperText={endDateMessage}
+                      helperText={endDateMessage || endDateTimeMessage}
                       InputProps={{
                         className: classes.dateTimeInput,
                         inputProps: details
@@ -1207,8 +1237,8 @@ class VizControlPanel extends React.Component {
                         type="time"
                         value={(typeof dt1 === 'string' ? dt1.slice(11, 16) : undefined)}
                         onChange={this.handleChangeInputValue}
-                        error={Boolean(startTimeMessage)}
-                        helperText={startTimeMessage}
+                        error={(Boolean(startTimeMessage) || Boolean (startDateTimeMessage))}
+                        helperText={startTimeMessage || startDateTimeMessage}
                         disabled={
                           this.state.showDrawHelp || !vizPageDataTargetDetails
                         }
@@ -1222,8 +1252,8 @@ class VizControlPanel extends React.Component {
                         type="time"
                         value={(typeof dt2 === 'string' ? dt2.slice(11, 16) : undefined)}
                         onChange={this.handleChangeInputValue}
-                        error={Boolean(endTimeMessage)}
-                        helperText={endTimeMessage}
+                        error={(Boolean(endTimeMessage) || Boolean(endDateTimeMessage))}
+                        helperText={endTimeMessage || endDateTimeMessage}
                         disabled={
                           this.state.showDrawHelp || !vizPageDataTargetDetails
                         }
