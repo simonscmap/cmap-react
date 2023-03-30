@@ -21,7 +21,7 @@ import {
 import ReactMarkdown from 'react-markdown';
 import reactStringReplace from 'react-string-replace';
 
-import DatasetPageAGGrid from './DatasetPageAGGrid';
+import DatasetPageAGGrid from './VariablesTable';
 import DatasetJSONLD from './DatasetJSONLD';
 import DownloadDialog from './DownloadDialog';
 
@@ -39,7 +39,7 @@ import SkeletonWrapper from '../UI/SkeletonWrapper';
 
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 
-const mapStateToProps = (state, ownProps) => ({
+const mapStateToProps = (state) => ({
   datasetFullPageDataLoadingState: state.datasetFullPageDataLoadingState,
   datasetFullPageData: state.datasetFullPageData,
 });
@@ -204,8 +204,6 @@ const DatasetFullPage = (props) => {
     Sensors,
     Cruises,
   } = datasetFullPageData;
-
-  // console.log('DUM', Unstructured_Dataset_Metadata);
 
   if (Variables) {
     let count = 0;

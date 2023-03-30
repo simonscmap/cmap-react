@@ -82,11 +82,37 @@ $row-stub-background-color: #22a3b9;
   background-color: #f5f5f5;
 }
 
-.ag-theme-material .ag-popup-editor {
+// Data Grid Style
+
+#DatasetAGGrid .ag-theme-material {
   background-color: #184562;
 }
 
-.ag-theme-material .ag-cell-inline-editing {
+#DatasetAGGrid .ag-theme-material .ag-popup-editor {
+  background-color: #184562;
+}
+i
+#DatasetAGGrid .ag-theme-material .ag-cell-inline-editing {
   background-color: #184562;
   height: auto;
+}
+
+//
+#DatasetAGGrid .ag-theme-material .ag-side-bar {
+  background-color: #184562;
+  border-left: 2px solid black;
+}
+#DatasetAGGrid .ag-theme-material .ag-tool-panel-wrapper {
+  min-width: 300px;
+  width: 500px;
+  border-left: 2px solid black;
+}
+.ag-theme-material .ag-side-bar .ag-side-buttons .ag-selected button {
+  background-color: #184562;
+}
+
+#DatasetAGGrid h4 {
+    padding: 5px;
+    margin: 18px auto;
+    border-bottom: 2px solid #9dd162;
 }
