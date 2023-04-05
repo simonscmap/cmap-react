@@ -32,16 +32,42 @@ export const gridStyles = () => ({
 });
 
 export const toolPanelStyles = () => ({
+  title: {
+    fontSize: '1em',
+    '& span': {
+      borderBottom: `1px solid ${colors.primary}`
+    }
+  },
   toolPanelContainer: {
-    padding: '1em',
+    padding: '0.5em 0.5em',
     width: '100%',
+    '& h2': {
+      fontSize: '1.1em',
+    },
   },
   vumContainer: {
+    '& > div:hover': {
+      background: 'rgba(0, 0, 0, 0.3)'
+    },
+    '& a': {
+      color: colors.primary,
+    },
+    '&  a:visited': {
+      color: colors.primary,
+    },
   },
   vumBlob: {
     border: '1px solid black',
     margin: '1em 0',
     padding: '1em',
+  },
+  blobKeyHeading: {
+    padding: '1em 0',
+    fontSize: '1.1em',
+    '& code': {
+      fontWeight: 'bold',
+      color: colors.primary
+    }
   },
   blobValuesContainer: {
     display: 'flex',
@@ -49,14 +75,27 @@ export const toolPanelStyles = () => ({
     flexWrap: 'nowrap',
     justifyContent: 'space-between',
     padding: '1em',
-    borderTop: `1px solid ${colors.primary}`
+    borderTop: `1px solid ${colors.primary}`,
   },
   blobKeyV: {
-    '& > a': {
-      color: colors.primary,
-    }
-  },
-  blobKeyDesc: {
 
+  },
+  objKVWrapper: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'nowrap',
+    justifyContent: 'flex-start',
+    width: '100%',
+    padding: '0.25em 0',
+  },
+  objKVNodeWrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+    flexWrap: 'nowrap',
+    justifyContent: 'flex-start',
+    width: '100%',
+  },
+  blobDesc: {
+   paddingLeft: '1em',
   },
 });

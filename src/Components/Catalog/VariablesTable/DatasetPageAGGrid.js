@@ -33,6 +33,7 @@ const DatasetPageAGGrid = (props) => {
 
   // gridRef needs to be in scope for this click handler, in order to access thi grid api
   const onCellClick = (e) => {
+    console.log(e);
     let colId = getColIdFromCellClickEvent (e);
     if (colId === 'Unstructured_Variable_Metadata') {
       let payload = makeVUMPayload (e);

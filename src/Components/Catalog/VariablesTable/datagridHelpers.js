@@ -36,13 +36,15 @@ export const getCommentFromCellClickEvent = (e) => {
 export const makeVUMPayload = (e) => ({
   dataType: 'unstructured-metadata',
   data: getVariableUMFromCellClickEvent (e),
-  colId: getColIdFromCellClickEvent (e)
+  colId: getColIdFromCellClickEvent (e),
+  longName: getLongNameFromCellClickEvent (e)
 });
 
 export const makeCommentPayload = (e) => ({
   dataType: 'comment',
   data: getCommentFromCellClickEvent (e),
-  colId: getColIdFromCellClickEvent (e)
+  colId: getColIdFromCellClickEvent (e),
+  longName: getLongNameFromCellClickEvent (e)
 });
 
 export const dispatchCustomMetadataFocusEvent = (payload) => {
@@ -72,6 +74,7 @@ export const processVUM = (data) => {
   }
 
   if (parsedData) {
+    console.log('successfully parsed data', JSON.stringify(parsedData, null, 2));
     return parsedData;
   }
 
