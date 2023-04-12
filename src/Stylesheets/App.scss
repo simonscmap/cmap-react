@@ -119,3 +119,28 @@ i
     margin: 18px auto;
     border-bottom: 2px solid #9dd162;
 }
+
+// force select to look like part of the theme
+#DatasetAGGrid .ag-theme-material .ag-tab-body .ag-filter-select {
+   color: white;
+   background-color: #184562;
+   border: 1px solid #9dd162;
+   border-radius: 3px;
+   padding: 5px;
+}
+
+// make the input label more visible
+#DatasetAGGrid .ag-theme-material .ag-filter input[type="text"]::placeholder, .ag-theme-material .ag-filter input[type="date"]::placeholder {
+    color: rgba(255, 255, 255, 0.38);
+}
+
+// make the input value more visible
+#DatasetAGGrid .ag-theme-material .ag-floating-filter-body input {
+    padding-bottom: 0;
+    font-size: 14px;
+    font-weight: bold;
+}
+// add a bolder box shadow to make the filter menue easier to see
+#DatasetAGGrid .ag-theme-material .ag-menu {
+    box-shadow: 10px 10px 10px 0px rgba(0, 0, 0, 0.25), 0 2px 2px 0 rgba(0, 0, 0, 0.25), 0 1px 5px 0 rgba(0, 0, 0, 0.25);
+}

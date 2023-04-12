@@ -2,12 +2,9 @@ import S from '../../../Utility/sanctuary';
 import $ from 'sanctuary-def';
 
 export const getColIdFromCellClickEvent = (e) => {
+  // 'event', 'originalTarget', 'attributes', 'col-id', 'value'
   let maybeColId = S.gets(S.is($.String))([
-    'event',
-    'originalTarget',
-    'attributes',
-    'col-id',
-    'value'
+    'column', 'colId'
   ])(e);
 
   let colId = S.fromMaybe('unknown')(maybeColId);
@@ -17,6 +14,12 @@ export const getColIdFromCellClickEvent = (e) => {
 
 export const getVariableUMFromCellClickEvent = (e) => {
   let maybeVum = S.gets(S.is($.String))(['node', 'data', 'Unstructured_Variable_Metadata'])(e);
+  let vum = S.fromMaybe('unknown')(maybeVum);
+  return vum;
+};
+
+export const getVariableUMFromParams = (params) => {
+  let maybeVum = S.gets(S.is($.String))(['node', 'data', 'Unstructured_Variable_Metadata'])(params);
   let vum = S.fromMaybe('unknown')(maybeVum);
   return vum;
 };
@@ -52,7 +55,11 @@ export const dispatchCustomMetadataFocusEvent = (payload) => {
     console.error('no window object in scope');
     return;
   }
-  window.dispatchEvent(new CustomEvent("metadataFocusEvent", { detail: payload }));
+  window.dispatchEvent(new CustomEvent("metadataFocusEvent", {
+    detail: payload,
+    bubbles: true,
+    cancelable: false,
+  }));
 };
 
 export const processVUM = (data) => {
@@ -74,7 +81,6 @@ export const processVUM = (data) => {
   }
 
   if (parsedData) {
-    console.log('successfully parsed data', JSON.stringify(parsedData, null, 2));
     return parsedData;
   }
 

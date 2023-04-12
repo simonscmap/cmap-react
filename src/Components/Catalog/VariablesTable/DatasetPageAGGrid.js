@@ -1,17 +1,14 @@
 // Variable grid appearing on dataset pages
 import {
-  InputAdornment,
-  TextField,
   withStyles,
 } from '@material-ui/core';
-import { ArrowDownward, ArrowUpward, Menu, Search } from '@material-ui/icons';
+import { ArrowDownward, ArrowUpward, Menu, CheckBox, CheckBoxOutlineBlank, IndeterminateCheckBox } from '@material-ui/icons';
 import { AgGridReact } from 'ag-grid-react';
-import React, { useState, useRef, memo } from 'react';
+import React, { useRef } from 'react';
 import ReactDOMServer from 'react-dom/server';
 import HelpButtonAndDialog from '../../Navigation/Help/HelpButtonAndDialog';
 import VariableGridHelpContents from './VariableGridHelpContents';
 import MetadataToolPanel from './MetadataToolPanel';
-import CommentCell from './CommentCell';
 import { columnDefs, defaultColumnDef } from './columnDefinitions';
 import {
   dispatchCustomMetadataFocusEvent,
@@ -24,7 +21,6 @@ import { gridStyles } from './gridStyles';
 
 const DatasetPageAGGrid = (props) => {
   const { Variables, classes } = props;
-  const [quickSearch, setQuickSearch] = useState('');
   const gridRef = useRef();
 
   const openToolPanel = () => {
@@ -33,7 +29,6 @@ const DatasetPageAGGrid = (props) => {
 
   // gridRef needs to be in scope for this click handler, in order to access thi grid api
   const onCellClick = (e) => {
-    console.log(e);
     let colId = getColIdFromCellClickEvent (e);
     if (colId === 'Unstructured_Variable_Metadata') {
       let payload = makeVUMPayload (e);
@@ -43,28 +38,13 @@ const DatasetPageAGGrid = (props) => {
       let payload = makeCommentPayload (e);
       dispatchCustomMetadataFocusEvent (payload);
       openToolPanel ();
+    } else if (colId === 'unknown') {
+      console.error('could not extract colId from cell click event', e);
     }
   };
 
   return (
     <div id="DatasetAGGrid">
-      <TextField
-        className={classes.gridSearch}
-        margin="normal"
-        type="text"
-        variant="outlined"
-        name="quickSearch"
-        value={quickSearch}
-        label="Variable Filter"
-        onChange={(e) => setQuickSearch(e.target.value)}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <Search style={{ color: colors.primary }} />
-            </InputAdornment>
-          ),
-        }}
-      />
 
       <HelpButtonAndDialog
         title="Variable Table"
@@ -86,11 +66,15 @@ const DatasetPageAGGrid = (props) => {
           rowData={Variables}
           onGridReady={(params) => params.columnApi.autoSizeAllColumns()}
           onCellClicked={onCellClick}
-          enableCellTextSelection={true}
+          // enableCellTextSelection={true}
+          // enableFilter={true}
+          floatingFilter={true}
           rowHeight={38}
-          enableBrowserTooltips={true}
-          cacheQuickFilter={true}
-          quickFilterText={quickSearch}
+          suppressHorizontalScroll={false}
+          alwaysShowHorizontalScroll={true}
+          // enableBrowserTooltips={true}
+          // cacheQuickFilter={true}
+          // quickFilterText={quickSearch}
           getContextMenuItems={() => ['copy', 'csvExport']}
           icons={{
             menu: ReactDOMServer.renderToString(
@@ -106,8 +90,23 @@ const DatasetPageAGGrid = (props) => {
                 style={{ fontSize: '1.2rem', color: colors.primary }}
               />,
             ),
+            checkboxChecked: ReactDOMServer.renderToString(
+              <CheckBox
+                style={{ fontSize: '1.2rem', color: colors.primary }}
+              />,
+            ),
+            checkboxUnchecked: ReactDOMServer.renderToString(
+              <CheckBoxOutlineBlank
+                style={{ fontSize: '1.2rem', color: colors.primary }}
+              />,
+            ),
+            checkboxIndeterminate: ReactDOMServer.renderToString(
+              <IndeterminateCheckBox
+                style={{ fontSize: '1.2rem', color: colors.primary }}
+              />,
+            ),
           }}
-          frameworkComponents={{ commentCellRenderer: CommentCell, metadataToolPanel: MetadataToolPanel }}
+          frameworkComponents={{ metadataToolPanel: MetadataToolPanel }}
           sideBar={{
             position: 'right',
             defaultToolsPanel: 'metadata',
@@ -119,7 +118,7 @@ const DatasetPageAGGrid = (props) => {
               // The default label if `labelKey` is missing or does not map to valid text through localisation.
               labelDefault: 'Metadata',
               // The min width of the tool panel. Default: `100`
-              minWidth: 200,
+              minWidth: 300,
               // The max width of the tool panel. Default: `undefined`
               // maxWidth: number,
               // The initial width of the tool panel. Default: `$side-bar-panel-width (theme variable)`

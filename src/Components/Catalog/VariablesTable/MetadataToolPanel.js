@@ -68,6 +68,11 @@ const UMView = withStyles(toolPanelStyles)(({ classes, data }) => {
     dispatchCustomWindowEvent("copyToClipboard", txt);
     console.log(txt);
   }
+
+  if (!data) {
+    return 'No data';
+  }
+
   return (
     <div className={classes.vumContainer}>
       {data.map((vumBlob, blobIdx) => {
@@ -135,6 +140,11 @@ const SidebarMetadataToolPanel = withStyles(toolPanelStyles)((props) => {
   }
 
   let { dataType, data, longName } = eventPayload;
+
+  if (!data) {
+    console.log('no data in event payload');
+    return '';
+  }
 
   let copyToClipboard = () => {
     dispatchCustomWindowEvent("copyToClipboard", data);

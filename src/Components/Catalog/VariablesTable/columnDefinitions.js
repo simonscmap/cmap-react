@@ -1,3 +1,5 @@
+import { getVariableUMFromParams } from './datagridHelpers';
+
 let parseVariableUnstructuredMetadata = (vum) => {
   let parsed;
   try {
@@ -16,8 +18,22 @@ let parseVariableUnstructuredMetadata = (vum) => {
 export const defaultColumnDef = {
   cellStyle: { fontSize: '12px', lineHeight: '38px' },
   menuTabs: [],
-  suppressMovable: true,
   sortable: true,
+  filter: true,
+};
+
+const variableFilterParams = {
+  filterOptions: ['contains', 'notContains'],
+  debounceMs: 200,
+};
+
+const unstructuredMetadataFilterParams = {
+  filterOptions: ['contains', 'notContains'],
+  debounceMs: 200,
+  textMatcher: (params) => {
+    console.log (getVariableUMFromParams (params))
+    return true;
+  }
 };
 
 export const columnDefs = [
@@ -28,6 +44,9 @@ export const columnDefs = [
         headerName: 'Variable Name',
         field: 'Long_Name',
         tooltipField: 'Long_Name',
+        filter: 'agTextColumnFilter',
+        floatingFilter: true,
+        filterParams: variableFilterParams,
       },
       { headerName: 'Short Name', field: 'Variable' },
       { headerName: 'Sensor', field: 'Sensor' },
@@ -36,29 +55,27 @@ export const columnDefs = [
         headerName: 'Comment',
         field: 'Comment',
         tooltipField: 'Comment',
-        // cellRenderer: 'commentCellRenderer',
-        valueGetter: (param) => {
-          if (param.data.Comment) {
+        cellRenderer: function (params) {
+          if (params.data.Comment) {
             return 'View Comment';
           } else {
             return '';
           }
-        },
+        }
       },
       {
         headerName: 'Unstructured Metadata',
         field: 'Unstructured_Variable_Metadata',
-        valueGetter: (param) => {
-          // console.log(param);
-          let vum = param.data.Unstructured_Variable_Metadata;
-          if (vum && vum.length > 0) {
-            let pVum = parseVariableUnstructuredMetadata(vum);
-            if (pVum) {
-              return `View Metadata (${pVum.length})`;
-            }
+        cellRenderer: function (params) {
+          let { data } = params; // this is the row data
+          if (data.Unstructured_Variable_Metadata) {
+            return 'View Metadata';
+          } else {
+            return '';
           }
-          return '';
-        }
+        },
+        filter: 'agTextColumnFilter',
+        filterParams: unstructuredMetadataFilterParams,
       }
     ],
   },
