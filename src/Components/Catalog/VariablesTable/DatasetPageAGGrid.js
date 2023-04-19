@@ -4,17 +4,18 @@ import {
 } from '@material-ui/core';
 import { ArrowDownward, ArrowUpward, Menu, CheckBox, CheckBoxOutlineBlank, IndeterminateCheckBox } from '@material-ui/icons';
 import { AgGridReact } from 'ag-grid-react';
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import ReactDOMServer from 'react-dom/server';
 import HelpButtonAndDialog from '../../Navigation/Help/HelpButtonAndDialog';
 import VariableGridHelpContents from './VariableGridHelpContents';
 import MetadataToolPanel from './MetadataToolPanel';
+import CommentToolPanel from './CommentToolPanel';
 import { columnDefs, defaultColumnDef } from './columnDefinitions';
 import {
-  dispatchCustomMetadataFocusEvent,
+  dispatchVariableFocusEvent,
+  dispatchCustomVariablesTableModel,
   getColIdFromCellClickEvent,
-  makeVUMPayload,
-  makeCommentPayload
+  makeVariableFocusPayload,
 } from './datagridHelpers';
 import { colors } from '../../Home/theme';
 import { gridStyles } from './gridStyles';
@@ -23,25 +24,126 @@ const DatasetPageAGGrid = (props) => {
   const { Variables, classes } = props;
   const gridRef = useRef();
 
-  const openToolPanel = () => {
-    gridRef && gridRef.current && gridRef.current.api.openToolPanel('metadata');
+  const openToolPanel = (panelId) => {
+    gridRef && gridRef.current && gridRef.current.api.openToolPanel(panelId);
   }
+
+  // dispatch an event notifying tool panel components which variable (row) is selected
+  const giveVariableFocus = ({ detail }) => {
+    console.log('giveVariableFocus', detail);
+    let { longName } = detail;
+
+    let model = gridRef
+      && gridRef.current
+      && gridRef.current.api
+      && gridRef.current.api.getModel
+      && gridRef.current.api.getModel();
+
+    if (!model) {
+      return;
+    }
+
+    let rows = model.rowsToDisplay;
+    let match = rows.find((r) => r && r.data && r.data.Long_Name === longName);
+    if (match) {
+      // get comment, UM
+      let payload = {
+        longName,
+        comment: match.data.Comment,
+        unstructuredMetadata: match.data.Unstructured_Variable_Metadata,
+      };
+
+      dispatchVariableFocusEvent (payload);
+    }
+  };
 
   // gridRef needs to be in scope for this click handler, in order to access thi grid api
   const onCellClick = (e) => {
+    // send data to tool panels
+    let payload = makeVariableFocusPayload (e);
+    dispatchVariableFocusEvent (payload);
+
+    // open requested tool panel
     let colId = getColIdFromCellClickEvent (e);
     if (colId === 'Unstructured_Variable_Metadata') {
-      let payload = makeVUMPayload (e);
-      dispatchCustomMetadataFocusEvent (payload);
-      openToolPanel ();
+      // dispatch both event to load variable data into both tool panels
+      openToolPanel('metadata');
     } else if (colId === 'Comment') {
-      let payload = makeCommentPayload (e);
-      dispatchCustomMetadataFocusEvent (payload);
-      openToolPanel ();
+      openToolPanel('comments');
     } else if (colId === 'unknown') {
       console.error('could not extract colId from cell click event', e);
     }
   };
+
+  const dispatchCurrentTableModel = () => {
+    // dispatch current ag model
+    let model = gridRef
+      && gridRef.current
+      && gridRef.current.api
+      && gridRef.current.api.getModel
+      && gridRef.current.api.getModel();
+
+    if (model) {
+      let rowsToDisplay = model.rowsToDisplay.map((row) => ({
+        Comment: row.data.Comment,
+        Unstructured_Variable_Metadata: row.data.Unstructured_Variable_Metadata,
+        Long_Name: row.data.Long_Name,
+      }));
+      dispatchCustomVariablesTableModel ([...rowsToDisplay]);
+    }
+  }
+
+  const handleClearFocus = () => {
+    // clear focus
+    gridRef
+      && gridRef.current
+      && gridRef.current.api
+      && gridRef.current.api.clearFocusedCell
+      && gridRef.current.api.clearFocusedCell();
+
+    dispatchCurrentTableModel();
+  };
+
+  // respond to setFocusEvent
+  const handleFocus = (event) => {
+    let { detail } = event;
+    let { longName } = detail;
+
+    let model = gridRef
+      && gridRef.current
+      && gridRef.current.api
+      && gridRef.current.api.getModel
+      && gridRef.current.api.getModel();
+
+    if (!model) {
+      return;
+    }
+
+    let rows = model.rowsToDisplay;
+    let match = rows.find((r) => r && r.data && r.data.Long_Name === longName);
+
+    if (match) {
+      if (gridRef && gridRef.current && gridRef.current.api) {
+        let currentFocus = gridRef.current.api.getFocusedCell();
+        if (!currentFocus || currentFocus.rowIndex !== match.rowIndex) {
+          gridRef.current.api.setFocusedCell(match.rowIndex, 'variableName', null);
+          gridRef.current.api.ensureIndexVisible(match.rowIndex, 'middle');
+        }
+      }
+    }
+  }
+
+  // listen for "clear" focus from side panel
+  useEffect(() => {
+    window.addEventListener("clearFocusEvent", handleClearFocus, false);
+    window.addEventListener("setFocusEvent", handleFocus, false);
+    window.addEventListener("askForFocus", giveVariableFocus, false);
+    return () => {
+      window.removeEventListener('clearFocusEvent', handleClearFocus);
+      window.removeEventListener("setFocusEvent", handleFocus, false);
+      window.removeEventListener("askForFocus", giveVariableFocus, false);
+    };
+  }, []);
 
   return (
     <div id="DatasetAGGrid">
@@ -66,6 +168,8 @@ const DatasetPageAGGrid = (props) => {
           rowData={Variables}
           onGridReady={(params) => params.columnApi.autoSizeAllColumns()}
           onCellClicked={onCellClick}
+          onModelUpdated={dispatchCurrentTableModel}
+          colResizeDefault={'shift'}
           // enableCellTextSelection={true}
           // enableFilter={true}
           floatingFilter={true}
@@ -106,10 +210,10 @@ const DatasetPageAGGrid = (props) => {
               />,
             ),
           }}
-          frameworkComponents={{ metadataToolPanel: MetadataToolPanel }}
+
           sideBar={{
             position: 'right',
-            defaultToolsPanel: 'metadata',
+            defaultToolsPanel: 'comments',
             toolPanels: [{
               // The unique ID for this panel. Used in the API and elsewhere to refer to the panel.
               id: 'metadata',
@@ -128,10 +232,33 @@ const DatasetPageAGGrid = (props) => {
               // The tool panel component to use as the panel.
               // The provided panels use components `agColumnsToolPanel` and `agFiltersToolPanel`.
               // To provide your own custom panel component, you reference it here.
-              toolPanel: 'metadataToolPanel',
+              toolPanelFramework: MetadataToolPanel,
               // Customise the parameters provided to the `toolPanel` component.
               // toolPanelParams?: any;
-            }]
+            },
+            {
+              // The unique ID for this panel. Used in the API and elsewhere to refer to the panel.
+              id: 'comments',
+              // The key used for localisation for displaying the label. The label is displayed in the tab button.
+              labelKey: 'comments',
+              // The default label if `labelKey` is missing or does not map to valid text through localisation.
+              labelDefault: 'Comments',
+              // The min width of the tool panel. Default: `100`
+              minWidth: 300,
+              // The max width of the tool panel. Default: `undefined`
+              // maxWidth: number,
+              // The initial width of the tool panel. Default: `$side-bar-panel-width (theme variable)`
+              width: 500,
+              // The key of the icon to be used as a graphical aid beside the label in the side bar.
+              iconKey: 'grip',
+              // The tool panel component to use as the panel.
+              // The provided panels use components `agColumnsToolPanel` and `agFiltersToolPanel`.
+              // To provide your own custom panel component, you reference it here.
+              toolPanelFramework: CommentToolPanel,
+              // Customise the parameters provided to the `toolPanel` component.
+              // toolPanelParams?: any;
+            },
+            ]
           }}
         />
       </div>

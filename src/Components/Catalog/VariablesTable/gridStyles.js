@@ -45,6 +45,62 @@ export const toolPanelStyles = () => ({
       fontSize: '1.1em',
     },
   },
+  customIcon: {
+    color: colors.primary,
+  },
+  // focused view
+  variableFocusLabelContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'nowrap',
+    justifyContent: 'space-between',
+    padding: '1em 0',
+  },
+  variableLabel: {
+    fontSize: '1.2em',
+    display: 'flex',
+    flexDirection: 'row',
+    alignContent: 'center',
+  },
+  variableLongName: {
+    textDecoration: `underline ${colors.primary}`,
+    color: 'white',
+    fontWeight: 'bold',
+    lineHeight: '1.4em',
+  },
+  closeBox: {
+    cursor: 'pointer',
+  },
+
+  // list view
+  allCommentsLabel: {
+    // should have same feel as variableLongName
+    textDecoration: `underline ${colors.primary}`,
+    fontSize: '1.2em',
+    fontWeight: 'bold',
+    margin: '1em 0',
+  },
+  allCommentsRow: {
+    '& td': {
+      borderTop: `1px solid rgba(0, 0, 0, 0.4)`,
+      verticalAlign: 'top',
+    },
+    '& td:nth-of-type(odd)': {
+      borderRight: `0.75em solid transparent`,
+    },
+    '& td:nth-of-type(even)': {
+      borderLeft: `0.75em solid transparent`,
+    },
+    '& td a': {
+      cursor: 'pointer',
+    },
+    '& td a:hover': {
+      color: colors.primary,
+    },
+  },
+
+
+  // displaying variable UM
   vumContainer: {
     '& > div:hover': {
       background: 'rgba(0, 0, 0, 0.3)'

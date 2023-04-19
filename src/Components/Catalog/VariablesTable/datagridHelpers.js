@@ -1,5 +1,6 @@
 import S from '../../../Utility/sanctuary';
 import $ from 'sanctuary-def';
+import dispatchCustomWindowEvent from '../../../Utility/Events/dispatchCustomWindowEvent';
 
 export const getColIdFromCellClickEvent = (e) => {
   // 'event', 'originalTarget', 'attributes', 'col-id', 'value'
@@ -36,31 +37,24 @@ export const getCommentFromCellClickEvent = (e) => {
   return comment;
 };
 
-export const makeVUMPayload = (e) => ({
-  dataType: 'unstructured-metadata',
-  data: getVariableUMFromCellClickEvent (e),
-  colId: getColIdFromCellClickEvent (e),
+export const makeVariableFocusPayload = (e) => ({
+  comment: getCommentFromCellClickEvent (e),
+  unstructuredMetadata: getVariableUMFromCellClickEvent (e),
   longName: getLongNameFromCellClickEvent (e)
 });
 
-export const makeCommentPayload = (e) => ({
-  dataType: 'comment',
-  data: getCommentFromCellClickEvent (e),
-  colId: getColIdFromCellClickEvent (e),
-  longName: getLongNameFromCellClickEvent (e)
-});
-
-export const dispatchCustomMetadataFocusEvent = (payload) => {
-  if (!window) {
-    console.error('no window object in scope');
-    return;
-  }
-  window.dispatchEvent(new CustomEvent("metadataFocusEvent", {
-    detail: payload,
-    bubbles: true,
-    cancelable: false,
-  }));
+const dispatchCustomEvent = (eventName) => (payload) => {
+  dispatchCustomWindowEvent(eventName, payload);
 };
+
+export const dispatchVariableFocusEvent = (payload) => {
+  dispatchCustomEvent ("setFocusEvent") (payload);
+}
+
+export const dispatchCustomVariablesTableModel = (payload) => {
+  dispatchCustomEvent ("variablesTableModel") (payload);
+};
+
 
 export const processVUM = (data) => {
   if (typeof data !== 'string') {

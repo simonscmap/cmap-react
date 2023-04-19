@@ -1,15 +1,13 @@
 import React, { useState, useEffect  } from 'react';
-import {  withStyles } from '@material-ui/core';
+import { withStyles } from '@material-ui/core';
 import { Close } from '@material-ui/icons';
 import CheckBoxTwoToneIcon from '@material-ui/icons/CheckBoxTwoTone';
-
+// import colors from '../../../enums/colors';
 import { toolPanelStyles } from './gridStyles';
-import { processVUM } from './datagridHelpers';
 import copyTextToClipboard from '../../../Utility/Clipboard/copyTextToClipboard';
 import dispatchCustomWindowEvent from '../../../Utility/Events/dispatchCustomWindowEvent';
-import { UMView } from './SimpleJsonRender';
 
-const VUMList = withStyles(toolPanelStyles)(({ classes, shouldDisplay }) => {
+const CommentList = withStyles(toolPanelStyles)(({ classes, shouldDisplay }) => {
   let [ isLoaded, setIsLoaded] = useState(false);
   let [ rows, setRows ] = useState([]);
 
@@ -29,7 +27,7 @@ const VUMList = withStyles(toolPanelStyles)(({ classes, shouldDisplay }) => {
     window.addEventListener("variablesTableModel", handleModel, false);
     if (rows.length < 1 && !isLoaded) {
       // ask for a new dispatch of the table model
-      console.log('metadata tool panel asking for updated model');
+      console.log('comment tool panel asking for updated model')
       dispatchCustomWindowEvent("clearFocusEvent", null);
     }
     return () => {
@@ -37,7 +35,7 @@ const VUMList = withStyles(toolPanelStyles)(({ classes, shouldDisplay }) => {
     };
   }, []);
 
-  let rowsWithUM = rows.filter((row) => row && row.Unstructured_Variable_Metadata);
+  let rowsWithComments = rows.filter((row) => row && row.Comment);
 
   // set the focus of the table to the row of the varibale that was clicked
   let handleVariableLink = (longName) => {
@@ -45,13 +43,12 @@ const VUMList = withStyles(toolPanelStyles)(({ classes, shouldDisplay }) => {
   };
 
   if (!shouldDisplay) {
-    console.log('hide UM list');
     return '';
   }
 
   return (
     <div>
-      <div className={classes.allCommentsLabel}>All Comments ({rowsWithUM.length})</div>
+      <div className={classes.allCommentsLabel}>All Comments ({rowsWithComments.length})</div>
       <table>
         <thead>
           <tr>
@@ -60,13 +57,13 @@ const VUMList = withStyles(toolPanelStyles)(({ classes, shouldDisplay }) => {
           </tr>
         </thead>
         <tbody>{
-          rowsWithUM.map((r, i) => {
+          rowsWithComments.map((r, i) => {
             return (
               <tr className={classes.allCommentsRow} key={`comment-row-${i}`}>
                 <td>
                   <a onClick={() => handleVariableLink(r.Long_Name)}>{r.Long_Name}</a>
                 </td>
-                <td>{r.Unstructured_Variable_Metadata}</td>
+                <td>{r.Comment}</td>
               </tr>
             )
           })
@@ -76,16 +73,21 @@ const VUMList = withStyles(toolPanelStyles)(({ classes, shouldDisplay }) => {
   );
 });
 
-const SidebarMetadataToolPanel = withStyles(toolPanelStyles)((props) => {
+
+const SidebarCommentToolPanel = withStyles(toolPanelStyles)((props) => {
   let { classes } = props;
-  let [ eventPayload, setData ] = useState(null);
-  let [ isFocusView, setIsFocusView ] = useState(false);
+  let [ focusedVariableData, setFocusedVariableData ] = useState(null);
+  let [ displayVariable, setDisplayVariable ] = useState(false);
 
   let handleFocus = (e) => {
     let { detail } = e;
     if (detail) {
-      setData(detail);
-      setIsFocusView(true);
+      if (!focusedVariableData || detail.longName !== focusedVariableData.longName) {
+        setFocusedVariableData(detail);
+        setDisplayVariable(true);
+      } else {
+        console.log('unnecessary update');
+      }
     }
   }
 
@@ -107,42 +109,37 @@ const SidebarMetadataToolPanel = withStyles(toolPanelStyles)((props) => {
   }, []);
 
   let copyToClipboard = () => {
-    dispatchCustomWindowEvent("copyToClipboard", eventPayload);
-    console.log(eventPayload);
+    dispatchCustomWindowEvent("copyToClipboard", focusedVariableData);
+    console.log(focusedVariableData);
   }
 
   let handleClose = () => {
+    console.log('close');
     dispatchCustomWindowEvent("clearFocusEvent", {});
-    setIsFocusView (false);
+    setDisplayVariable(false);
   }
 
-  // TODO
-  // if focus, show metadata for focused variable
-  // else, show list of all metadata
+  // if render comment, render single comment from event payload
+  // else render all comments
 
   return (
     <div className={classes.toolPanelContainer}>
-      <div className={classes.title}><span>Metadata Tool Panel</span></div>
-
-      {isFocusView && eventPayload &&
+      <div className={classes.title}><span>Comment Tool Panel</span></div>
+      {displayVariable && focusedVariableData &&
         <div>
           <div className={classes.variableFocusLabelContainer}>
             <div className={classes.variableLabel}>
               <CheckBoxTwoToneIcon classes={{ root: classes.customIcon }} />
-              <span
-                onClick={copyToClipboard}
-                className={classes.variableLongName}>
-                {eventPayload.longName}
-              </span>
+              <span onClick={copyToClipboard} className={classes.variableLongName}>{focusedVariableData.longName}</span>
             </div>
             <div onClick={handleClose} className={classes.closeBox}><Close /></div>
           </div>
-          <UMView data={processVUM(eventPayload.unstructuredMetadata)} />
+          <div>{focusedVariableData.comment}</div>
         </div>
       }
-      <VUMList shouldDisplay={!isFocusView} />
+      <CommentList shouldDisplay={!displayVariable} />
     </div>
   );
 });
 
-export default SidebarMetadataToolPanel;
+export default SidebarCommentToolPanel;
