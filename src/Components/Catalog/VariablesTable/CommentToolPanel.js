@@ -77,16 +77,14 @@ const CommentList = withStyles(toolPanelStyles)(({ classes, shouldDisplay }) => 
 const SidebarCommentToolPanel = withStyles(toolPanelStyles)((props) => {
   let { classes } = props;
   let [ focusedVariableData, setFocusedVariableData ] = useState(null);
-  let [ displayVariable, setDisplayVariable ] = useState(false);
+  let [ isFocusView, setIsFocusView ] = useState(false);
 
   let handleFocus = (e) => {
     let { detail } = e;
     if (detail) {
       if (!focusedVariableData || detail.longName !== focusedVariableData.longName) {
         setFocusedVariableData(detail);
-        setDisplayVariable(true);
-      } else {
-        console.log('unnecessary update');
+        setIsFocusView(true);
       }
     }
   }
@@ -98,13 +96,21 @@ const SidebarCommentToolPanel = withStyles(toolPanelStyles)((props) => {
     }
   }
 
+  // when another tool panel clears focus, it should shift this tool panel
+  // into a list view as well
+  const handleClearFocus = () => {
+      setIsFocusView (false);
+  }
+
   // listen for event containing current panel content
   useEffect(() => {
     window.addEventListener("setFocusEvent", handleFocus, false);
     window.addEventListener("copyToClipboard", handleCopy, false);
+    window.addEventListener("clearFocusEvent", handleClearFocus, false);
     return () => {
       window.removeEventListener('setFocusEvent', handleFocus);
       window.removeEventListener('copyToClipboard', handleCopy);
+      window.removeEventListener('clearFocusEvent', handleClearFocus);
     };
   }, []);
 
@@ -116,7 +122,7 @@ const SidebarCommentToolPanel = withStyles(toolPanelStyles)((props) => {
   let handleClose = () => {
     console.log('close');
     dispatchCustomWindowEvent("clearFocusEvent", {});
-    setDisplayVariable(false);
+    setIsFocusView(false);
   }
 
   // if render comment, render single comment from event payload
@@ -125,7 +131,7 @@ const SidebarCommentToolPanel = withStyles(toolPanelStyles)((props) => {
   return (
     <div className={classes.toolPanelContainer}>
       <div className={classes.title}><span>Comment Tool Panel</span></div>
-      {displayVariable && focusedVariableData &&
+      {isFocusView && focusedVariableData &&
         <div>
           <div className={classes.variableFocusLabelContainer}>
             <div className={classes.variableLabel}>
@@ -137,7 +143,7 @@ const SidebarCommentToolPanel = withStyles(toolPanelStyles)((props) => {
           <div>{focusedVariableData.comment}</div>
         </div>
       }
-      <CommentList shouldDisplay={!displayVariable} />
+      <CommentList shouldDisplay={!isFocusView} />
     </div>
   );
 });

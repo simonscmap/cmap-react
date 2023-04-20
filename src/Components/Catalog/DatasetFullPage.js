@@ -12,10 +12,6 @@ import {
   Typography,
   Grid,
   Paper,
-  Table,
-  TableRow,
-  TableCell,
-  TableBody,
 } from '@material-ui/core';
 
 import ReactMarkdown from 'react-markdown';
@@ -24,6 +20,8 @@ import reactStringReplace from 'react-string-replace';
 import DatasetPageAGGrid from './VariablesTable';
 import DatasetJSONLD from './DatasetJSONLD';
 import DownloadDialog from './DownloadDialog';
+import DetailsTable from './DatasetDetailsTable';
+import DatasetMetadata from './DatasetMetadata';
 
 import {
   datasetFullPageDataFetch,
@@ -64,49 +62,35 @@ const styles = (theme) => ({
     backgroundColor: 'rgba(0,0,0,.4)',
     marginBottom: '20px',
   },
-
   sectionHeader: {
     margin: '16px 0 2px 0',
     fontWeight: 100,
     fontFamily: '"roboto", Serif',
   },
-
   divider: {
     backgroundColor: theme.palette.primary.main,
     marginBottom: '8px',
   },
-
-  sampleTableRow: {
-    '& td': {
-      padding: '10px 24px 10px 16px',
-    },
-  },
-
   navListSubItemText: {
     fontSize: '.785rem',
   },
-
   navListSubSubItemText: {
     fontSize: '.7rem',
   },
-
   outerContainer: {
     marginTop: '70px',
     color: 'white',
   },
-
   markdown: {
     '& img': {
       maxWidth: '100%',
       margin: '20px auto 20px auto',
       display: 'block',
     },
-
     '& a': {
       color: theme.palette.primary.main,
       textDecoration: 'none',
     },
-
     '& p': {
       fontSize: '1rem',
       fontFamily: '"Lato",sans-serif',
@@ -114,7 +98,6 @@ const styles = (theme) => ({
       lineHeight: 1.5,
     },
   },
-
   downloadLink: {
     color: colors.primary,
     display: 'inline-block',
@@ -124,29 +107,20 @@ const styles = (theme) => ({
       marginRight: '5px',
     },
   },
-
   smallText: {
     fontSize: '.8rem',
   },
-
-  tableHead: {
-    fontWeight: 600,
-  },
-
   pageHeader: {
     [theme.breakpoints.down('sm')]: {
       fontSize: '1.4rem',
     },
   },
-
   helpIcon: {
     fontSize: '1.2rem',
   },
-
   helpButton: {
     padding: '12px 12px 12px 8px',
   },
-
   cartButtonClass: {
     textTransform: 'none',
     color: theme.palette.primary.main,
@@ -156,17 +130,16 @@ const styles = (theme) => ({
       marginBottom: '-4px',
     },
   },
-
   cruiseLink: {
     display: 'block',
     marginBottom: '3px',
     color: colors.primary,
   },
-
   bottomAlignedText: {
     display: 'inline-block',
     marginBottom: '-5px',
   },
+
 });
 
 const DatasetFullPage = (props) => {
@@ -183,50 +156,19 @@ const DatasetFullPage = (props) => {
     Unstructured_Dataset_Metadata,
     Acknowledgement,
     Data_Source,
-    Depth_Max,
-    Depth_Min,
     Description,
     Distributor,
-    Lat_Max,
-    Lat_Min,
-    Lon_Max,
-    Lon_Min,
     Long_Name,
-    Short_Name,
-    Table_Name,
-    Time_Max,
-    Time_Min,
     References,
-    Make,
-    Process_Level,
-    Spatial_Resolution,
-    Temporal_Resolution,
-    Sensors,
     Cruises,
   } = datasetFullPageData;
 
-  /* if (Variables) {
-*   let count = 0;
-*   let parsed = [];
-*   Variables.forEach((V) => {
-*     let { Unstructured_Variable_Metadata: vum, Variable } = V;
-*     if (vum !== null) {
-*       count++;
-*       try {
-*         // sql returns comma separated json objects, but we can't simply
-*         // split that string on commas, because there are commas within the json
-*         // objects;
-*         let arrayifiedVum = `[${vum}]`;
-*         let vumP = JSON.parse(arrayifiedVum);
-*         parsed.push(Variable)
-*       } catch (e) {
-*         console.log('could not parse', Variable, vum, e);
-*       }
-*     }
-*   });
-*   console.log('count', count);
-*   console.log('parsed', parsed);
-* } */
+  let unstructuredDatasetMetadata;
+  try {
+    unstructuredDatasetMetadata = JSON.parse(Unstructured_Dataset_Metadata);
+  } catch (e) {
+    console.log('unable to parse udm');
+  }
 
   const loading = datasetFullPageDataLoadingState === states.inProgress;
 
@@ -268,7 +210,7 @@ const DatasetFullPage = (props) => {
   }, [Long_Name]);
 
   return (
-    <Grid container className={classes.outerContainer}>
+    <Grid container className={classes.outerContainer} >
       {downloadDialogOpen ? (
         <DownloadDialog
           dialogOpen={downloadDialogOpen}
@@ -303,126 +245,50 @@ const DatasetFullPage = (props) => {
               dataset={datasetFullPageData}
               cartButtonClass={classes.cartButtonClass}
             />
+            <Grid container spacing={3}>
+              <Grid item md={6} sm={12}>
+                <Typography
+                  variant="h5"
+                  className={classes.sectionHeader}
+                  style={{ marginBottom: '16px', color: 'white' }}
+                >Description
+                </Typography>
+                <ReactMarkdown source={Description} className={classes.markdown} />
+              </Grid>
 
-            <ReactMarkdown source={Description} className={classes.markdown} />
+              <Grid item md={6} sm={12}>
+                <Typography
+                  variant="h5"
+                  className={classes.sectionHeader}
+                  style={{ marginBottom: '16px', color: 'white' }}
+                >Dataset Overview
+                </Typography>
 
-            <Table
-              size="small"
-              style={{ marginTop: '24px', maxWidth: '800px' }}
-            >
-              <TableBody>
-                <TableRow className={classes.sampleTableRow}>
-                  <TableCell className={classes.tableHead}>Make</TableCell>
-                  <TableCell>{Make}</TableCell>
-                </TableRow>
+                <DetailsTable datasetFullPageData={datasetFullPageData} />
 
-                <TableRow className={classes.sampleTableRow}>
-                  <TableCell className={classes.tableHead}>
-                    Sensor{Sensors && Sensors.length > 1 ? 's' : ''}
-                  </TableCell>
-                  <TableCell>{Sensors ? Sensors.join(', ') : ''}</TableCell>
-                </TableRow>
+                <Typography
+                  variant="p"
+                  className={classes.sectionHeader}
+                  style={{ marginBottom: '16px', color: 'white' }}
+                >
+                  *Temporal and spatial coverage may differ between member variables
+                </Typography>
+              </Grid>
 
-                <TableRow className={classes.sampleTableRow}>
-                  <TableCell className={classes.tableHead}>
-                    Process Level
-                  </TableCell>
-                  <TableCell>{Process_Level}</TableCell>
-                </TableRow>
 
-                <TableRow className={classes.sampleTableRow}>
-                  <TableCell className={classes.tableHead}>
-                    Database Table Name
-                  </TableCell>
-                  <TableCell>{Table_Name}</TableCell>
-                </TableRow>
+              {unstructuredDatasetMetadata &&
+                <Grid item xs={12}>
+                  <Typography
+                    variant="h5"
+                    className={classes.sectionHeader}
+                    style={{ marginBottom: '16px', color: 'white' }}
+                  >
+                    Dataset Metadata
+                </Typography>
+                <DatasetMetadata metadata={unstructuredDatasetMetadata} />
+                </Grid>}
 
-                <TableRow className={classes.sampleTableRow}>
-                  <TableCell className={classes.tableHead}>
-                    Database Dataset Name
-                  </TableCell>
-                  <TableCell>{Short_Name}</TableCell>
-                </TableRow>
-
-                <TableRow className={classes.sampleTableRow}>
-                  <TableCell className={classes.tableHead}>
-                    Temporal Resolution
-                  </TableCell>
-                  <TableCell>{Temporal_Resolution}</TableCell>
-                </TableRow>
-
-                <TableRow className={classes.sampleTableRow}>
-                  <TableCell className={classes.tableHead}>
-                    Date Start*
-                  </TableCell>
-                  <TableCell>
-                    {Time_Min ? Time_Min.slice(0, 10) : 'NA'}
-                  </TableCell>
-                </TableRow>
-
-                <TableRow className={classes.sampleTableRow}>
-                  <TableCell className={classes.tableHead}>Date End*</TableCell>
-                  <TableCell>
-                    {Time_Max ? Time_Max.slice(0, 10) : 'NA'}
-                  </TableCell>
-                </TableRow>
-
-                <TableRow className={classes.sampleTableRow}>
-                  <TableCell className={classes.tableHead}>
-                    Spatial Resolution
-                  </TableCell>
-                  <TableCell>{Spatial_Resolution}</TableCell>
-                </TableRow>
-
-                <TableRow className={classes.sampleTableRow}>
-                  <TableCell className={classes.tableHead}>Lat Min*</TableCell>
-                  <TableCell>{Lat_Min}&deg;</TableCell>
-                </TableRow>
-
-                <TableRow className={classes.sampleTableRow}>
-                  <TableCell className={classes.tableHead}>Lat Max*</TableCell>
-                  <TableCell>{Lat_Max}&deg;</TableCell>
-                </TableRow>
-
-                <TableRow className={classes.sampleTableRow}>
-                  <TableCell className={classes.tableHead}>Lon Min*</TableCell>
-                  <TableCell>{Lon_Min}&deg;</TableCell>
-                </TableRow>
-
-                <TableRow className={classes.sampleTableRow}>
-                  <TableCell className={classes.tableHead}>Lon Max*</TableCell>
-                  <TableCell>{Lon_Max}&deg;</TableCell>
-                </TableRow>
-
-                <TableRow className={classes.sampleTableRow}>
-                  <TableCell className={classes.tableHead}>
-                    Depth Min*
-                  </TableCell>
-                  <TableCell>
-                    {Depth_Max ? Depth_Min + 'm' : 'Surface Only'}
-                  </TableCell>
-                </TableRow>
-
-                <TableRow className={classes.sampleTableRow}>
-                  <TableCell className={classes.tableHead}>
-                    Depth Max*
-                  </TableCell>
-                  <TableCell>
-                    {Depth_Max ? Depth_Max + 'm' : 'Surface Only'}
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-            <Typography
-              variant="caption"
-              style={{
-                margin: '4px 0 14px 4px',
-                display: 'inline-block',
-                color: 'white',
-              }}
-            >
-              *Temporal and spatial coverage may differ between member variables
-            </Typography>
+            </Grid>
 
             <Typography
               variant="h5"

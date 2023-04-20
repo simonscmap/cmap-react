@@ -51,12 +51,12 @@ const VUMList = withStyles(toolPanelStyles)(({ classes, shouldDisplay }) => {
 
   return (
     <div>
-      <div className={classes.allCommentsLabel}>All Comments ({rowsWithUM.length})</div>
+      <div className={classes.allCommentsLabel}>All Metadata ({rowsWithUM.length})</div>
       <table>
         <thead>
           <tr>
             <th>Variable Long Name</th>
-            <th>Comment</th>
+            <th>Metadata</th>
           </tr>
         </thead>
         <tbody>{
@@ -96,13 +96,22 @@ const SidebarMetadataToolPanel = withStyles(toolPanelStyles)((props) => {
     }
   }
 
+  // when another tool panel clears focus, it should shift this tool panel
+  // into a list view as well
+  const handleClearFocus = () => {
+      console.log('metadata tool panel clear focus');
+      setIsFocusView (false);
+  }
+
   // listen for event containing current panel content
   useEffect(() => {
     window.addEventListener("setFocusEvent", handleFocus, false);
     window.addEventListener("copyToClipboard", handleCopy, false);
+    window.addEventListener("clearFocusEvent", handleClearFocus, false);
     return () => {
       window.removeEventListener('setFocusEvent', handleFocus);
       window.removeEventListener('copyToClipboard', handleCopy);
+      window.removeEventListener('clearFocusEvent', handleClearFocus);
     };
   }, []);
 

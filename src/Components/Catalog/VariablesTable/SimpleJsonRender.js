@@ -46,7 +46,6 @@ export const RenderObject = withStyles(toolPanelStyles)(({ classes, obj, indent 
 
 export const RenderValue = ({ val }) => {
   let valT = typeof val;
-
   switch (valT) {
     case 'object':
       return <RenderObject obj={val} /> ;
