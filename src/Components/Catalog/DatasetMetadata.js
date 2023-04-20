@@ -1,5 +1,5 @@
-import React from 'react';
-import { withStyles, TextField } from '@material-ui/core';
+import React, { useState } from 'react';
+import { withStyles, TextField, InputAdornment } from '@material-ui/core';
 import { Search } from '@material-ui/icons';
 import ReactJson from 'react-json-view';
 import { zip, isStringURL } from './VariablesTable/datagridHelpers';
@@ -8,6 +8,23 @@ import colors from '../../enums/colors';
 const TABLE_BG_COLOR = '#184562';
 
 const styles = () => ({
+  root: {
+    border: `2px solid ${colors.primary}`,
+    borderRadius: '4px',
+    background: 'rbga(0,0,0,0.4)',
+    '& input': {
+      border: 0, // `2px solid ${colors.blue.royal}`,
+      outline: 0,
+      '&$hover': {
+        border: 0,
+        outline: 0,
+      },
+    },
+    '& fieldset': {
+      border: 0,
+      outline: 0,
+    },
+  },
   container: {
     background: TABLE_BG_COLOR,
     border: '1px solid black',
@@ -19,11 +36,36 @@ const styles = () => ({
       color: colors.primary,
     },
   },
-  metadataBlob: {
-    border: '1px solid black',
-    margin: '1em 0',
+  blob: {
+    marginTop: '1em',
+    borderTop: `1px solid rgb(157, 209, 98, 0.3)`,
     padding: '1em',
+    '&:hover': {
+      background: 'rgba(0, 0, 0, 0.3)'
+    },
+    '& table td:first-child': {
+      width: '500px',
+      '@media (max-width:1280px)': {
+        width: '200px',
+      },
+    },
+    '& table td:nth-of-type(odd)': {
+      paddingRight: `1em`,
+    },
+    '& table td:nth-of-type(even)': {
+      paddingLeft: `1em`,
+    },
+    '& table td': {
+      verticalAlign: 'top',
+    },
+    '& table thead td': {
+      fontWeight: ' bold',
+      color: 'rgba(255, 255, 255, 0.3)',
+      textDecoration: 'underline',
+      paddingBottom: '.5em',
+    }
   },
+
   blobKeyHeading: {
     padding: '1em 0',
     fontSize: '1em',
@@ -31,39 +73,13 @@ const styles = () => ({
       color: colors.primary
     }
   },
-  blobValuesContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'nowrap',
-    justifyContent: 'space-between',
-    padding: '1em',
-    borderTop: `1px solid ${colors.primary}`,
-  },
-  blobKeyV: {
-
-  },
-  objKVWrapper: {
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'nowrap',
-    justifyContent: 'flex-start',
-    width: '100%',
-    padding: '0.25em 0',
-  },
-  objKVNodeWrapper: {
-    display: 'flex',
-    flexDirection: 'column',
-    flexWrap: 'nowrap',
-    justifyContent: 'flex-start',
-    width: '100%',
-  },
   blobDesc: {
-   paddingLeft: '1em',
+   // paddingLeft: '1em',
   },
 });
 
 const jsonViewTheme = {
-  base00: TABLE_BG_COLOR, // background
+  base00: "rgba(0,0,0,0)", // background
   base01: "#dedede",    // lighter bg (status bars, line numbers, folding marks)
   base02: "#dedede",    // selection bg
   base03: "#dedede",    // comments, invisibles, line highlighting
@@ -94,19 +110,19 @@ const RenderString = ({ str, k }) => {
 
 const RenderObject = withStyles(() => ({
   udmWrapper: {
-    padding: '2em',
-    background: '#184562',
-    border: '1px solid black'
+    padding: '1em',
   }
 }))(({ obj, classes }) => {
   return (
     <div className={classes.udmWrapper}>
       <ReactJson
         src={obj}
+        name={false}
         quotesOnKeys={false}
         displayArrayKey={false}
         displayDataTypes={false}
         displayObjectSize={false}
+        enableClipboard={false}
         theme={jsonViewTheme}
       />
     </div>);
@@ -128,36 +144,98 @@ const RenderValue = ({ val }) => {
   }
 };
 const DetailsTable = ({ metadata, classes }) => {
-  if (!metadata || Object.keys(metadata).length === 0) {
+  let [searchTerm, setSearchTerm] = useState('');
+
+  if (!metadata) {
     return '';
   }
 
-  let keys = Object.keys(metadata);
+  let um;
+
+  try {
+    um = JSON.parse(metadata);
+    console.log('parsed um', um);
+  } catch (e) {
+    console.log('unable to parse', metadata);
+  }
+
+  let change = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  let keys = Object.keys(um).filter((k) => {
+    if (searchTerm.length === 0) {
+      return true;
+    }
+
+    return um[k].values.some((value) => {
+      if (typeof value === 'string') {
+        // placeholder
+        return value.toLowerCase().includes(searchTerm.toLowerCase());
+      }
+      if (typeof value === 'object') {
+        return JSON.stringify(value).toLowerCase().includes(searchTerm.toLowerCase());
+      }
+      return false;
+    })
+  });
+
 
   return (
     <div className={classes.container}>
+      <div>
+        <TextField
+          classes={{
+            root: classes.root,
+          }}
+          name="datasetMetadata"
+          placeholder="Search Metadata Values"
+          variant="outlined"
+          onChange={change}
+          InputProps={{
+            startAdornment: (
+              <React.Fragment>
+                <InputAdornment position="start">
+                  <Search style={{ color: colors.primary }} />
+                </InputAdornment>
+              </React.Fragment>
+            ),
+          }}
+        />
+      </div>
       {keys.map((key, keyIdx) => {
-        let { values, descriptions } = metadata[key];
-        let zipped = zip(values, descriptions);
+        let { values, descriptions } = um[key];
+        let zipped = zip(values, descriptions).filter(([v]) => {
+          if (typeof v === 'string') {
+            // placeholder
+            return v.toLowerCase().includes(searchTerm.toLowerCase());
+          }
+          if (typeof v === 'object') {
+            return JSON.stringify(v).toLowerCase().includes(searchTerm.toLowerCase());
+          }
+          return false
+        });
+
         return (
           <div className={classes.blob} key={`blob-${key}`}>
             <div className={classes.blobKeyHeading}><span>metadata key: </span><code>{key}</code></div>
             <table>
               <thead>
                 <tr>
-                  <td>Value</td>
                   <td>Description</td>
+                  <td>Value</td>
                 </tr>
               </thead>
               <tbody>
                 {zipped.map(([value, description], idx) => {
                   return (
                     <tr key={`blob-${key}(${keyIdx})-val(${idx})`}>
-                      <td className={classes.blobKeyV}>
-                        <RenderValue val={value} />
-                      </td>
                       <td className={classes.blobDesc}>
                         {description}
+                      </td>
+                      <td className={classes.blobKeyV}>
+
+                        <RenderValue val={value} />
                       </td>
                     </tr>
                   );

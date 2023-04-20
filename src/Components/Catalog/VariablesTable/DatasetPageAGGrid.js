@@ -4,7 +4,7 @@ import {
 } from '@material-ui/core';
 import { ArrowDownward, ArrowUpward, Menu, CheckBox, CheckBoxOutlineBlank, IndeterminateCheckBox } from '@material-ui/icons';
 import { AgGridReact } from 'ag-grid-react';
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import ReactDOMServer from 'react-dom/server';
 import HelpButtonAndDialog from '../../Navigation/Help/HelpButtonAndDialog';
 import VariableGridHelpContents from './VariableGridHelpContents';
@@ -16,6 +16,7 @@ import {
   dispatchCustomVariablesTableModel,
   getColIdFromCellClickEvent,
   makeVariableFocusPayload,
+  dispatchClearFocusEvent,
 } from './datagridHelpers';
 import { colors } from '../../Home/theme';
 import { gridStyles } from './gridStyles';
@@ -24,13 +25,14 @@ const DatasetPageAGGrid = (props) => {
   const { Variables, classes } = props;
   const gridRef = useRef();
 
+  let [currentFocus, setCurrentFocus] = useState(null);
+
   const openToolPanel = (panelId) => {
     gridRef && gridRef.current && gridRef.current.api.openToolPanel(panelId);
   }
 
   // dispatch an event notifying tool panel components which variable (row) is selected
   const giveVariableFocus = ({ detail }) => {
-    console.log('giveVariableFocus', detail);
     let { longName } = detail;
 
     let model = gridRef
@@ -54,6 +56,7 @@ const DatasetPageAGGrid = (props) => {
       };
 
       dispatchVariableFocusEvent (payload);
+      setCurrentFocus(longName);
     }
   };
 
@@ -61,7 +64,9 @@ const DatasetPageAGGrid = (props) => {
   const onCellClick = (e) => {
     // send data to tool panels
     let payload = makeVariableFocusPayload (e);
-    dispatchVariableFocusEvent (payload);
+    if (currentFocus !== payload.longName) {
+      dispatchVariableFocusEvent (payload);
+    }
 
     // open requested tool panel
     let colId = getColIdFromCellClickEvent (e);
@@ -89,8 +94,19 @@ const DatasetPageAGGrid = (props) => {
         Unstructured_Variable_Metadata: row.data.Unstructured_Variable_Metadata,
         Long_Name: row.data.Long_Name,
       }));
-      dispatchCustomVariablesTableModel ([...rowsToDisplay]);
+
+      dispatchCustomVariablesTableModel([...rowsToDisplay]);
+
+      // check if current selection is still in current model
+      // if not, deselect it
+
+      let focusIsInModel = rowsToDisplay.some((row) => row.Long_Name === currentFocus);
+      if (!focusIsInModel && currentFocus !== null) {
+        dispatchClearFocusEvent();
+        setCurrentFocus(null);
+      }
     }
+
   }
 
   const handleClearFocus = () => {
@@ -102,12 +118,17 @@ const DatasetPageAGGrid = (props) => {
       && gridRef.current.api.clearFocusedCell();
 
     dispatchCurrentTableModel();
+    if (currentFocus !== null) {
+      setCurrentFocus(null);
+    }
   };
 
   // respond to setFocusEvent
   const handleFocus = (event) => {
     let { detail } = event;
     let { longName } = detail;
+
+    setCurrentFocus(longName);
 
     let model = gridRef
       && gridRef.current
@@ -124,13 +145,14 @@ const DatasetPageAGGrid = (props) => {
 
     if (match) {
       if (gridRef && gridRef.current && gridRef.current.api) {
-        let currentFocus = gridRef.current.api.getFocusedCell();
-        if (!currentFocus || currentFocus.rowIndex !== match.rowIndex) {
+        let focusedCell = gridRef.current.api.getFocusedCell();
+        if (!focusedCell || focusedCell.rowIndex !== match.rowIndex) {
           gridRef.current.api.setFocusedCell(match.rowIndex, 'variableName', null);
           gridRef.current.api.ensureIndexVisible(match.rowIndex, 'middle');
         }
       }
     }
+    setCurrentFocus(longName);
   }
 
   // listen for "clear" focus from side panel

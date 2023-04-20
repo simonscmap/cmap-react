@@ -81,7 +81,7 @@ export const UMView = withStyles(toolPanelStyles)(({ classes, data }) => {
         }
         return (
           <div className={classes.vumBlob} onClick={() => handleDispatch(vumBlob)} key={`vumBlob-${blobIdx}`}>
-            {keys.map((key) => {
+            {keys.map((key, keyIdx) => {
               let { values, descriptions } = vumBlob[key];
               let zipped = zip(values, descriptions);
               return (
@@ -90,7 +90,7 @@ export const UMView = withStyles(toolPanelStyles)(({ classes, data }) => {
                    {zipped.map(([value, description], idx) => {
 
                     return (
-                      <div className={classes.blobValuesContainer} key={`blob-${key}-${idx}`}>
+                      <div className={classes.blobValuesContainer} key={`blob-${key}(${keyIdx})-blob${idx}`}>
                         <div className={classes.blobKeyV}><RenderValue val={value} /></div>
                         <div className={classes.blobDesc}>{description}</div>
                       </div>

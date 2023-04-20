@@ -55,6 +55,10 @@ export const dispatchCustomVariablesTableModel = (payload) => {
   dispatchCustomEvent ("variablesTableModel") (payload);
 };
 
+export const dispatchClearFocusEvent = (payload) => {
+  dispatchCustomEvent ("clearFocusEvent") (payload);
+};
+
 
 export const processVUM = (data) => {
   if (typeof data !== 'string') {

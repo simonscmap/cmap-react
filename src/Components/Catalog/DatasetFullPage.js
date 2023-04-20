@@ -163,13 +163,6 @@ const DatasetFullPage = (props) => {
     Cruises,
   } = datasetFullPageData;
 
-  let unstructuredDatasetMetadata;
-  try {
-    unstructuredDatasetMetadata = JSON.parse(Unstructured_Dataset_Metadata);
-  } catch (e) {
-    console.log('unable to parse udm');
-  }
-
   const loading = datasetFullPageDataLoadingState === states.inProgress;
 
   const [downloadDialogOpen, setDownloadDialogOpen] = React.useState(false);
@@ -267,7 +260,7 @@ const DatasetFullPage = (props) => {
                 <DetailsTable datasetFullPageData={datasetFullPageData} />
 
                 <Typography
-                  variant="p"
+                  variant="body1"
                   className={classes.sectionHeader}
                   style={{ marginBottom: '16px', color: 'white' }}
                 >
@@ -276,7 +269,7 @@ const DatasetFullPage = (props) => {
               </Grid>
 
 
-              {unstructuredDatasetMetadata &&
+              { Unstructured_Dataset_Metadata &&
                 <Grid item xs={12}>
                   <Typography
                     variant="h5"
@@ -285,7 +278,7 @@ const DatasetFullPage = (props) => {
                   >
                     Dataset Metadata
                 </Typography>
-                <DatasetMetadata metadata={unstructuredDatasetMetadata} />
+                <DatasetMetadata metadata={Unstructured_Dataset_Metadata} />
                 </Grid>}
 
             </Grid>
@@ -425,8 +418,8 @@ const DatasetFullPage = (props) => {
             )}
 
             {!loading &&
-            datasetFullPageData &&
-            Object.keys(datasetFullPageData).length ? (
+              datasetFullPageData &&
+              Object.keys(datasetFullPageData).length ? (
               <DatasetJSONLD {...datasetFullPageData} />
             ) : (
               ''
