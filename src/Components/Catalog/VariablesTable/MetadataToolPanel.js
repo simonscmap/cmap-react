@@ -62,32 +62,17 @@ const RenderValue = ({ val }) => {
 };
 
 export const BlobRender = withStyles(toolPanelStyles)(({ blob, classes }) => {
-
-  if (!blob) {
-    console.log('no blob');
+  if (!blob || typeof blob !== 'object') {
+    console.log('did not receive blob, or correct type of blob', blob);
     return '';
   }
-
-  let metadataBlob = blob;
-  let keys;
-
-  if (typeof blob === 'string') {
-    try {
-      metadataBlob = JSON.parse(blob);
-      keys = Object.keys(metadataBlob);
-    } catch (e) {
-      console.log('unable to parse blob');
-      return '';
-    }
-  } else {
-    keys = Object.keys(blob);
-  }
+  let keys = Object.keys(blob);
 
   return (
     <div className={classes.blobContainer} >
       {keys.map((key, keyIdx) => {
         // for each metadata "key" of the UM for this variable, spit out its description/value pairs
-        let { values, descriptions } = metadataBlob[key];
+        let { values, descriptions } = blob[key];
         let zipped = zip(values, descriptions);
         return (
           <div className={classes.blobKeyContainer} key={`blobKey-${key}(${keyIdx})`}>
@@ -251,25 +236,35 @@ const SidebarMetadataToolPanel = withStyles(toolPanelStyles)((props) => {
     };
   }, []);
 
-  let handleClose = () => {
+  let handleDeselect = () => {
     dispatchCustomWindowEvent("clearFocusEvent", {});
     setIsFocusView (false);
   }
 
+  let handleExit = () => {
+    dispatchCustomWindowEvent("exitToolBar", {});
+  }
+
   return (
     <div className={classes.toolPanelContainer}>
-      <div className={classes.title}><span>Metadata Tool Panel</span></div>
+      <div className={classes.title}>
+        <div><span>Metadata Tool Panel</span></div>
+        <div onClick={handleExit} className={classes.toolBarClose}>
+          <span>Exit Tool Panel</span>
+          <Close />
+        </div>
+      </div>
 
       {isFocusView && eventPayload &&
         <div>
           <div className={classes.variableFocusLabelContainer}>
             <div className={classes.variableLabel}>{/* removed */}</div>
-            <div onClick={handleClose} className={classes.closeBox}>
-              <span>Deselect</span>
+            <div onClick={handleDeselect} className={classes.closeBox}>
+              <span>Deselect Variable</span>
               <Close />
             </div>
-          </div>
-          <BlobRender blob={eventPayload.unstructuredMetadata} longName={eventPayload.longName} />
+        </div>
+          <VariableRowRender um={eventPayload.unstructuredMetadata} longName={eventPayload.longName} />
         </div>
       }
       <VUMList shouldDisplay={!isFocusView} />

@@ -30,6 +30,9 @@ const DatasetPageAGGrid = (props) => {
   const openToolPanel = (panelId) => {
     gridRef && gridRef.current && gridRef.current.api.openToolPanel(panelId);
   }
+  const closeSideBar = () => {
+    gridRef && gridRef.current && gridRef.current.api.closeToolPanel();
+  }
 
   // dispatch an event notifying tool panel components which variable (row) is selected
   const giveVariableFocus = ({ detail }) => {
@@ -160,10 +163,12 @@ const DatasetPageAGGrid = (props) => {
     window.addEventListener("clearFocusEvent", handleClearFocus, false);
     window.addEventListener("setFocusEvent", handleFocus, false);
     window.addEventListener("askForFocus", giveVariableFocus, false);
+    window.addEventListener("exitToolBar", closeSideBar, false);
     return () => {
       window.removeEventListener('clearFocusEvent', handleClearFocus);
       window.removeEventListener("setFocusEvent", handleFocus, false);
       window.removeEventListener("askForFocus", giveVariableFocus, false);
+      window.addEventListener("exitToolBar", closeSideBar, false);
     };
   }, []);
 

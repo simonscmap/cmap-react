@@ -33,10 +33,15 @@ export const gridStyles = () => ({
 
 export const toolPanelStyles = () => ({
   title: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'nowrap',
+    justifyContent: 'space-between',
     fontSize: '1em',
+    alignContent: 'center',
     '& span': {
       borderBottom: `1px solid ${colors.primary}`
-    }
+    },
   },
   toolPanelContainer: {
     padding: '0.5em 0.5em',
@@ -44,6 +49,23 @@ export const toolPanelStyles = () => ({
     '& h2': {
       fontSize: '1.1em',
     },
+  },
+  toolBarClose: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'nowrap',
+    justifyContent: 'end',
+    alignContent: 'center',
+    cursor: 'pointer',
+    textDecoration: 'none',
+    borderBottom: 'none',
+    '&:hover': {
+      color: colors.primary,
+    },
+    '& span': {
+      borderBottom: 'none',
+      lineHeight: '24px',
+    }
   },
   customIcon: {
     color: colors.primary,
@@ -140,10 +162,9 @@ export const toolPanelStyles = () => ({
     flexWrap: 'nowrap',
     justifyContent: 'flex-start',
     gap: '2em',
-
     '& div': {
-      color: 'rgba(255, 255, 255, 0.4)',
-      textDecoration: 'underline',
+      color: 'rgba(255, 255, 255, 0.9)',
+      fontWeight: 'bold',
     },
 
     '@media (max-width: 480px)': {
