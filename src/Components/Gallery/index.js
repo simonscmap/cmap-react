@@ -105,12 +105,19 @@ const About = ({ classes }) => {
             <Card>
               <Typography variant="body1">
                 <Link to="/gallery/getting-started-cruise-plan">
-                  GeoSpatial Map Superimposed by Arbitrary Cruise Trajectories
+                  Cruise Planning: Contemporaneous Sampling Along An Arbitrary Cruise Trajectory
                 </Link>
               </Typography>
 
+              <a href="https://doi.org/10.5281/zenodo.7839055">
+                <img
+                  src="https://zenodo.org/badge/DOI/10.5281/zenodo.7839055.svg"
+                  alt="DOI"
+                />
+              </a>
+
               <Typography variant="body2">
-                Contributors: Mohammad Ashkezari
+                Contributors: Mohammad Ashkezari, Ginger Armbrust
               </Typography>
             </Card>
 
@@ -121,8 +128,15 @@ const About = ({ classes }) => {
                 </Link>
               </Typography>
 
+              <a href="https://doi.org/10.5281/zenodo.7839055">
+                <img
+                  src="https://zenodo.org/badge/DOI/10.5281/zenodo.7839055.svg"
+                  alt="DOI"
+                />
+              </a>
+
               <Typography variant="body2">
-                Contributors: Mohammad Ashkezari
+                Contributors: Mohammad Ashkezari, Ginger Armbrust
               </Typography>
             </Card>
           </div>

@@ -6,7 +6,7 @@ import Section, { FullWidthContainer } from '../Common/Section';
 import { colors } from '../Home/theme';
 import ResizeObserver from 'react-resize-observer';
 
-const githubLink = 'https://github.com/simonscmap/pycmap/blob/master/docs/CruiseMap.ipynb';
+const nbviewerLink = 'https://nbviewer.org/github/simonscmap/pycmap/blob/master/docs/CruiseMap.ipynb';
 
 const styles = () => ({
   sectionGap: {
@@ -43,14 +43,20 @@ const Credit = withStyles(styles)(({ children }) => {
 const HeroContent = withStyles(styles)(() => {
   return (
     <div>
-    <div style={{ marginBottom: '2em' }}>
-      <a href={githubLink}>
-        Badge (Link to Github)
-      </a>
-    </div>
+      <div style={{ marginBottom: '2em' }}>
+        <a href="https://doi.org/10.5281/zenodo.7839055">
+          <img
+            src="https://zenodo.org/badge/DOI/10.5281/zenodo.7839055.svg"
+            alt="DOI"
+          />
+        </a>
+      </div>
       <Credit>
         <Typography variant="body2">
           Mohammad Ashkezari, Univerity of Washington
+        </Typography>
+        <Typography variant="body2">
+          Ginger Armbrust, Univerity of Washington
         </Typography>
       </Credit>
     </div>
@@ -75,7 +81,7 @@ const Notebook = () => {
           width={innerWidth}
           height={window.innerHeight - 110}
           style={{ border: 0 }}
-          src={githubLink}
+          src={nbviewerLink}
         ></iframe>
       </Typography>
     </Section>
