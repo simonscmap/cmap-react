@@ -99,6 +99,36 @@ const About = ({ classes }) => {
   return (
     <Page pageTitle={'Gallery'} heroContent={<HeroContent />}>
       <FullWidthContainer bgVariant={'slate'}>
+
+        <Section name={'gettingStarted'} title={'Getting Started'}>
+          <div className={classes.cardList}>
+            <Card>
+              <Typography variant="body1">
+                <Link to="/gallery/getting-started-cruise-plan">
+                  GeoSpatial Map Superimposed by Arbitrary Cruise Trajectories
+                </Link>
+              </Typography>
+
+              <Typography variant="body2">
+                Contributors: Mohammad Ashkezari
+              </Typography>
+            </Card>
+
+            <Card>
+              <Typography variant="body1">
+                <Link to="/gallery/getting-started-cruise-map">
+                  GeoSpatial Map Superimposed by Arbitrary Cruise Trajectories
+                </Link>
+              </Typography>
+
+              <Typography variant="body2">
+                Contributors: Mohammad Ashkezari
+              </Typography>
+            </Card>
+          </div>
+        </Section>
+
+
         <Section name={'studies'} title={'Research'}>
           <div className={classes.cardList}>
             <Card>
