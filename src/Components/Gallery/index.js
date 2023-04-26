@@ -35,7 +35,6 @@ const styles = () => ({
     justifyContent: 'flex-start',
     gap: '10px',
     padding: '9px',
-    height: 'calc(1.75rem * 5 + 20px + 1.5rem)',
     borderRadius: '6px',
     textAlign: 'left',
     // background: colors.blue.royal,
@@ -46,11 +45,7 @@ const styles = () => ({
       transition: 'background 0.5s ease-out',
       padding: '10px',
       height: 'calc(100% - 20px)',
-      overflowY: 'scroll',
-      scrollbarColor: `rgba(0,0,0,0.15) transparent`,
-      '&:hover': {
-        background: 'rgba(7, 39, 77, 0.2)',
-      },
+      width: 'calc(100% - 20px)',
       '& a': {
         color: 'white',
         '&:hover': {
@@ -78,6 +73,23 @@ const styles = () => ({
       },
     },
   },
+
+  contentVerticalFlex: {
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+  },
+
+
+  galleryThumb: {
+    width: '100%',
+    '& > img': {
+      margin: '1em 0',
+      width: '100%',
+      height: '100%',
+    }
+  }
 });
 
 const HeroContent = withStyles(styles)(() => (
@@ -110,22 +122,33 @@ const About = ({ classes }) => {
         <Section name={'gettingStarted'} title={'Getting Started'}>
           <div className={classes.cardList}>
             <Card>
-              <Typography variant="body1">
-                <Link to="/gallery/getting-started-cruise-plan">
-                  Cruise Planning: Contemporaneous Sampling Along An Arbitrary Cruise Trajectory
-                </Link>
-              </Typography>
+              <div className={classes.contentVerticalFlex}>
+                <div>
+                  <Typography variant="body1">
+                    <Link to="/gallery/getting-started-cruise-plan">
+                      Cruise Planning: Contemporaneous Sampling Along An Arbitrary Cruise Trajectory
+                    </Link>
+                  </Typography>
 
-              <a href="https://doi.org/10.5281/zenodo.7839055">
-                <img
-                  src="https://zenodo.org/badge/DOI/10.5281/zenodo.7839055.svg"
-                  alt="DOI"
-                />
-              </a>
+                  <a href="https://doi.org/10.5281/zenodo.7839055">
+                    <img
+                      src="https://zenodo.org/badge/DOI/10.5281/zenodo.7839055.svg"
+                      alt="DOI"
+                    />
+                  </a>
 
-              <Typography variant="body2">
-                Contributors: Mohammad Ashkezari, Ginger Armbrust
-              </Typography>
+                  <div className={classes.galleryThumb}>
+                    <img src="/images/gallery/getting-started-cruise-plan.jpg" alt="Cruise plan graph" />
+                  </div>
+    </div>
+
+                <div className={classes.contributors}>
+
+                  <Typography variant="body2">
+                    Contributors: Mohammad Ashkezari, Ginger Armbrust
+                  </Typography>
+                </div>
+              </div>
             </Card>
 
             <Card>
@@ -142,9 +165,17 @@ const About = ({ classes }) => {
                 />
               </a>
 
-              <Typography variant="body2">
-                Contributors: Mohammad Ashkezari, Ginger Armbrust
-              </Typography>
+
+              <div className={classes.galleryThumb}>
+                <img src="/images/gallery/getting-started-cruise-map.png" alt="Geospacial cruise map" />
+              </div>
+
+              <div className={classes.contributors}>
+                <Typography variant="body2">
+                  Contributors: Mohammad Ashkezari, Ginger Armbrust
+                </Typography>
+              </div>
+
             </Card>
           </div>
         </Section>
@@ -166,6 +197,11 @@ const About = ({ classes }) => {
                   alt="DOI"
                 />
               </a>
+
+
+              <div className={classes.galleryThumb}>
+                <img src="/images/gallery/seaflow-time-series-decomposition.png" alt="Seaflow time series graphs" />
+              </div>
 
               <Typography variant="body2">
                 Contributors: Katherine Qi
