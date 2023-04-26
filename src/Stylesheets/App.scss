@@ -102,11 +102,27 @@ i
   background-color: #184562;
   border-left: 2px solid black;
 }
+
 #DatasetAGGrid .ag-theme-material .ag-tool-panel-wrapper {
-  min-width: 300px;
-  width: 500px;
   border-left: 2px solid black;
 }
+
+@media screen and (min-width: 480px) {
+    #DatasetAGGrid .ag-theme-material .ag-tool-panel-wrapper {
+        width: 300px;
+    }
+}
+@media screen and (min-width: 800px) {
+    #DatasetAGGrid .ag-theme-material .ag-tool-panel-wrapper {
+        width: 500px;
+    }
+}
+@media screen and (min-width: 1200px) {
+    #DatasetAGGrid .ag-theme-material .ag-tool-panel-wrapper {
+        width: 900px;
+    }
+}
+
 #DatasetAGGrid .ag-theme-material .ag-tool-panel-wrapper .ag-react-container {
   width: 100%;
 }

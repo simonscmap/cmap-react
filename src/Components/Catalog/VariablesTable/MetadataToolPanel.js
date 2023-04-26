@@ -1,15 +1,176 @@
 import React, { useState, useEffect  } from 'react';
 import {  withStyles } from '@material-ui/core';
 import { Close } from '@material-ui/icons';
-import CheckBoxTwoToneIcon from '@material-ui/icons/CheckBoxTwoTone';
-
 import { toolPanelStyles } from './gridStyles';
-import { processVUM } from './datagridHelpers';
 import copyTextToClipboard from '../../../Utility/Clipboard/copyTextToClipboard';
 import dispatchCustomWindowEvent from '../../../Utility/Events/dispatchCustomWindowEvent';
-import { UMView } from './SimpleJsonRender';
+import { zip, isStringURL } from './datagridHelpers';
 
-const VUMList = withStyles(toolPanelStyles)(({ classes, shouldDisplay }) => {
+export const RenderString = ({ str, k }) => {
+  let isURL = isStringURL (str);
+  if (isURL) {
+    return <a href={str} target="_blank" rel="noreferrer">{str}</a>;
+  } else if (k) {
+    return <code>{str}:</code>; // render this as the key of an object
+  } else {
+    return <span>{str}</span>;
+  }
+}
+
+export const RenderObject = withStyles(toolPanelStyles)(({ classes, obj, indent }) => {
+  return Object.entries(obj).map(([k, v], i) => {
+    // TODO detect nested object/array values
+    // need to handle them here in such a way that they indet properly
+    let isLeaf = (typeof v === 'object') ? false : true;
+
+    if (isLeaf) {
+      return (
+        <div className={classes.objKVWrapper} key={`k(${k})-leaf-${i}`}>
+          <RenderString str={k} k={true} />
+          <RenderValue val={v} indent={indent + 1} />
+        </div>
+      );
+    } else {
+      return (
+        <div key={`k${k}-node-${i}`}>
+          <div className={classes.objKVWrapper} >
+            <RenderString str={k} k={true} />
+          </div>
+          <div className={classes.objKVNodeWrapper} style={{ paddingLeft: '2em' }}>
+            <RenderValue val={v} />
+          </div>
+        </div>
+      );
+    }
+  });
+});
+
+const RenderValue = ({ val }) => {
+  let valT = typeof val;
+  switch (valT) {
+    case 'object':
+      return <RenderObject obj={val} /> ;
+    case 'string':
+      return <RenderString str={val} />;
+    case 'number':
+      return <code>{'' + val}</code>;
+    case 'boolean':
+      return <span>{val}</span>;
+    default:
+      return 'unknown';
+  }
+};
+
+export const BlobRender = withStyles(toolPanelStyles)(({ blob, classes }) => {
+
+  if (!blob) {
+    console.log('no blob');
+    return '';
+  }
+
+  let metadataBlob = blob;
+  let keys;
+
+  if (typeof blob === 'string') {
+    try {
+      metadataBlob = JSON.parse(blob);
+      keys = Object.keys(metadataBlob);
+    } catch (e) {
+      console.log('unable to parse blob');
+      return '';
+    }
+  } else {
+    keys = Object.keys(blob);
+  }
+
+  return (
+    <div className={classes.blobContainer} >
+      {keys.map((key, keyIdx) => {
+        // for each metadata "key" of the UM for this variable, spit out its description/value pairs
+        let { values, descriptions } = metadataBlob[key];
+        let zipped = zip(values, descriptions);
+        return (
+          <div className={classes.blobKeyContainer} key={`blobKey-${key}(${keyIdx})`}>
+            <div className={classes.keyLabel}>
+              <span>Metadata for key: </span><code>{key}</code>
+            </div>
+            <div className={classes.headers}>
+              <div>Description</div>
+              <div>Value</div>
+            </div>
+            {zipped.map(([value, description], idx) => {
+              return (
+                <div className={classes.valuePair} key={`value${idx}`}>
+                  <div className={classes.description}>
+                    {description}
+                  </div>
+                  <div className={classes.value}>
+                    <RenderValue val={value} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        );
+      })}
+    </div>
+  )
+});
+
+
+export const VariableRowRender = withStyles(toolPanelStyles)(React.memo(function BlobRenderFC({ um, longName, classes, handleVariableLink }) {
+  let handler = handleVariableLink || (() => {});
+  let blobs;
+  try {
+
+    blobs = JSON.parse(`[${um}]`);
+  } catch (e) {
+    console.error('error parsing blob');
+    console.log(blobs);
+  }
+
+  if (!blobs) {
+    return '';
+  }
+
+  return (
+    <div className={classes.vumListRow}>
+      <div className={classes.variableName}>
+        <div>
+          <a onClick={() => handler(longName)}>
+            {longName || 'no name'}
+          </a>
+        </div>
+        <div>
+          <div className={classes.longNameChip}>Variable</div>
+        </div>
+      </div>
+      {blobs.map((blob, blobIndex) => {
+        return <BlobRender blob={blob} key={blobIndex} />;
+      })}
+    </div>
+  )
+}));
+
+export const ListRender = withStyles(toolPanelStyles)(({ rows, classes, handleVariableLink }) => {
+  if (!rows) {
+    return '';
+  }
+
+  return (
+    <div className={classes.vumListContainer}>
+      <div className={classes.allCommentsLabel}>Metadata <span>({rows.length} matching variables with metadata)</span></div>
+      {rows.map((r, i) => {
+        let um = r.Unstructured_Variable_Metadata;
+        // for each row, spit out a portion of the table with UM
+        return <VariableRowRender um={um} longName={r.Long_Name} handleVariableLink={handleVariableLink} key={`blob-${i}`} />
+      })
+      }
+    </div>
+  )
+});
+
+const VUMList = ({ shouldDisplay }) => {
   let [ isLoaded, setIsLoaded] = useState(false);
   let [ rows, setRows ] = useState([]);
 
@@ -29,7 +190,7 @@ const VUMList = withStyles(toolPanelStyles)(({ classes, shouldDisplay }) => {
     window.addEventListener("variablesTableModel", handleModel, false);
     if (rows.length < 1 && !isLoaded) {
       // ask for a new dispatch of the table model
-      console.log('metadata tool panel asking for updated model');
+      // console.log('metadata tool panel asking for updated model');
       dispatchCustomWindowEvent("clearFocusEvent", null);
     }
     return () => {
@@ -45,36 +206,11 @@ const VUMList = withStyles(toolPanelStyles)(({ classes, shouldDisplay }) => {
   };
 
   if (!shouldDisplay) {
-    console.log('hide UM list');
     return '';
   }
 
-  return (
-    <div>
-      <div className={classes.allCommentsLabel}>All Metadata ({rowsWithUM.length})</div>
-      <table>
-        <thead>
-          <tr>
-            <th>Variable Long Name</th>
-            <th>Metadata</th>
-          </tr>
-        </thead>
-        <tbody>{
-          rowsWithUM.map((r, i) => {
-            return (
-              <tr className={classes.allCommentsRow} key={`comment-row-${i}`}>
-                <td>
-                  <a onClick={() => handleVariableLink(r.Long_Name)}>{r.Long_Name}</a>
-                </td>
-                <td>{r.Unstructured_Variable_Metadata}</td>
-              </tr>
-            )
-          })
-        }</tbody>
-      </table>
-    </div>
-  );
-});
+  return <ListRender rows={rowsWithUM} handleVariableLink={handleVariableLink} />;
+};
 
 const SidebarMetadataToolPanel = withStyles(toolPanelStyles)((props) => {
   let { classes } = props;
@@ -115,19 +251,10 @@ const SidebarMetadataToolPanel = withStyles(toolPanelStyles)((props) => {
     };
   }, []);
 
-  let copyToClipboard = () => {
-    dispatchCustomWindowEvent("copyToClipboard", eventPayload);
-    console.log(eventPayload);
-  }
-
   let handleClose = () => {
     dispatchCustomWindowEvent("clearFocusEvent", {});
     setIsFocusView (false);
   }
-
-  // TODO
-  // if focus, show metadata for focused variable
-  // else, show list of all metadata
 
   return (
     <div className={classes.toolPanelContainer}>
@@ -136,17 +263,13 @@ const SidebarMetadataToolPanel = withStyles(toolPanelStyles)((props) => {
       {isFocusView && eventPayload &&
         <div>
           <div className={classes.variableFocusLabelContainer}>
-            <div className={classes.variableLabel}>
-              <CheckBoxTwoToneIcon classes={{ root: classes.customIcon }} />
-              <span
-                onClick={copyToClipboard}
-                className={classes.variableLongName}>
-                {eventPayload.longName}
-              </span>
+            <div className={classes.variableLabel}>{/* removed */}</div>
+            <div onClick={handleClose} className={classes.closeBox}>
+              <span>Deselect</span>
+              <Close />
             </div>
-            <div onClick={handleClose} className={classes.closeBox}><Close /></div>
           </div>
-          <UMView data={processVUM(eventPayload.unstructuredMetadata)} />
+          <BlobRender blob={eventPayload.unstructuredMetadata} longName={eventPayload.longName} />
         </div>
       }
       <VUMList shouldDisplay={!isFocusView} />

@@ -69,18 +69,30 @@ export const toolPanelStyles = () => ({
     lineHeight: '1.4em',
   },
   closeBox: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignContent: 'center',
     cursor: 'pointer',
+    '& span': {
+      lineHeight: '24px',
+    },
+    '&:hover': {
+      color: colors.primary,
+    }
   },
 
   // list view
   allCommentsLabel: {
-    // should have same feel as variableLongName
-    textDecoration: `underline ${colors.primary}`,
-    fontSize: '1.2em',
     fontWeight: 'bold',
-    margin: '1em 0',
+    margin: '1em .5em .5em 1em',
+    textAlign: 'right',
+    '& span': {
+      fontWeight: 'none',
+    }
   },
+
   allCommentsRow: {
+    paddingTop: '1em',
     '& td': {
       borderTop: `1px solid rgba(0, 0, 0, 0.4)`,
       verticalAlign: 'top',
@@ -95,6 +107,132 @@ export const toolPanelStyles = () => ({
       cursor: 'pointer',
     },
     '& td a:hover': {
+      color: colors.primary,
+    },
+  },
+
+  vumListContainer: {
+    '& table': {
+      width: '100%',
+    }
+  },
+  vumListRow: {
+    overflow: 'scroll',
+    padding: '1em',
+    background: 'rgba(0, 0, 0, 0.1)',
+    borderRadius: '5px',
+    border: '1px solid rgba(0, 0, 0, 0.05)',
+    marginBottom: '1em',
+    '&:hover': {
+      background: 'rgba(0, 0, 0, 0.3)'
+    },
+  },
+
+  keyLabel: {
+    padding: '0.5em 0 1em 0',
+    '& code': {
+      color: colors.primary
+    }
+  },
+  headers: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'nowrap',
+    justifyContent: 'flex-start',
+    gap: '2em',
+
+    '& div': {
+      color: 'rgba(255, 255, 255, 0.4)',
+      textDecoration: 'underline',
+    },
+
+    '@media (max-width: 480px)': {
+      '& div:first-child': {
+        width: '100px',
+      },
+    },
+    '@media (max-width: 600px)': {
+      '& div:first-child': {
+        width: '150px',
+      },
+    },
+    '@media (max-width: 900px)': {
+      '& div:first-child': {
+        width: '250px',
+      },
+    },
+    '@media (min-width: 900px)': {
+      '& div:first-child': {
+        width: '300px',
+      },
+    },
+  },
+  variableName: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    '& > div': {
+      paddingTop: '1em',
+    },
+    '& a': {
+      color: colors.primary,
+      cursor: 'pointer',
+    },
+    '& a:hover': {
+      color: 'white',
+    },
+  },
+  longNameChip: {
+    display: 'inline-block',
+    border: `1px solid rgba(157, 209, 98, 0.3)`,
+    borderRadius: '10px',
+    padding: '0.25em 1em',
+    color: colors.primary,
+  },
+  blobContainer: {
+   //  marginLeft: '2em',
+    marginTop: '2em',
+    borderTop: `1px solid rgba(157, 209, 98, 0.3)`,
+    borderRight: `1px solid rgba(157, 209, 98, 0.3)`,
+  },
+  blobKeyContainer: {
+    marginTop: '0.25em',
+    borderTop: `1px solid rgba(157, 209, 98, 0.3)`,
+  },
+  valuePair: {
+    display: 'flex',
+    flexDirection: 'row',
+    '@media (max-width: 480px)': {
+      flexWrap: 'wrap',
+      '& div:first-child': {
+        width: '100px',
+      },
+    },
+    '@media (max-width: 600px)': {
+      '& div:first-child': {
+        width: '150px',
+      },
+    },
+    '@media (max-width: 900px)': {
+      '& div:first-child': {
+        width: '250px',
+      },
+    },
+    '@media (min-width: 900px)': {
+      '& div:first-child': {
+        width: '300px',
+      },
+    },
+    '& div:first-child': {
+    },
+    flexWrap: 'nowrap',
+    justifyContent: 'flex-start',
+    paddingTop: '1em',
+    gap: '2em',
+    '& a': {
+      color: colors.primary,
+    },
+    '&  a:visited': {
       color: colors.primary,
     },
   },
@@ -143,6 +281,11 @@ export const toolPanelStyles = () => ({
     justifyContent: 'flex-start',
     width: '100%',
     padding: '0.25em 0',
+    '& code': {
+      color: 'rgba(255, 255, 255, 0.5)',
+    },
+    lineHeight: '1em',
+
   },
   objKVNodeWrapper: {
     display: 'flex',
