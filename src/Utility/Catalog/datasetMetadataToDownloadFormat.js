@@ -15,6 +15,7 @@ const datasetMetadataToDownloadFormat = (metadata) => {
     dataset_references: metadata.References[0] || '',
     climatology: metadata.Climatology || 0,
     cruise_names: metadata.Cruises[0] ? metadata.Cruises[0].Name : '',
+    dataset_unstructured_metadata: metadata.Unstructured_Dataset_Metadata || '',
   });
 
   metadata.Cruises.forEach((e, i) => {
@@ -48,6 +49,7 @@ const datasetMetadataToDownloadFormat = (metadata) => {
       visualize: e.Visualize ? 1 : 0,
       var_keywords: e.Keywords || '',
       var_comment: e.Comment || '',
+      var_unstructured_variable_metadata: e.Unstructured_Variable_Metadata || '',
     });
 
     summaryStatisticsRows.push({

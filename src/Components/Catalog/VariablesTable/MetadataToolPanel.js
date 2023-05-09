@@ -11,7 +11,7 @@ export const RenderString = ({ str, k }) => {
   if (isURL) {
     return <a href={str} target="_blank" rel="noreferrer">{str}</a>;
   } else if (k) {
-    return <code>{str}:</code>; // render this as the key of an object
+    return <code>{str}:&nbsp;</code>; // render this as the key of an object
   } else {
     return <span>{str}</span>;
   }
@@ -107,8 +107,7 @@ export const VariableRowRender = withStyles(toolPanelStyles)(React.memo(function
   let handler = handleVariableLink || (() => {});
   let blobs;
   try {
-
-    blobs = JSON.parse(`[${um}]`);
+    blobs = JSON.parse(`${um}`);
   } catch (e) {
     console.error('error parsing blob');
     console.log(blobs);

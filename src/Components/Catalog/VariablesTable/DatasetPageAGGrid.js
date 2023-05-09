@@ -195,6 +195,7 @@ const DatasetPageAGGrid = (props) => {
           rowData={Variables}
           onGridReady={(params) => params.columnApi.autoSizeAllColumns()}
           onCellClicked={onCellClick}
+          // onColumnResized={(args) => console.log(args)}
           onModelUpdated={dispatchCurrentTableModel}
           colResizeDefault={'shift'}
           // enableCellTextSelection={true}

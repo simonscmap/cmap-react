@@ -69,12 +69,8 @@ export const processVUM = (data) => {
   let parsedData;
 
   try {
-    // the unstructured matadata associated with a variable is the comma separated list of JSON objects
-    // that SQL returns for a variable row; here we wrap that stringified resoponse in brakcets to coerce
-    // it into a JSON-parseable array.
-    parsedData = JSON.parse(`[${data}]`);
+    parsedData = JSON.parse(`${data}`);
   } catch (e) {
-    // couldn't parse
     console.error('error parsing unstructured metadata', data);
   }
 

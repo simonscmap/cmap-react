@@ -455,6 +455,8 @@ class VizControlPanel extends React.Component {
     let name = e.target.name;
     let value = e.target.value;
 
+    // console.log('value', value);
+
     if (parseThese.includes(e.target.name)) {
       if (isNaN(parsed)) {
         value = e.target.value;
@@ -818,7 +820,7 @@ class VizControlPanel extends React.Component {
     } = this.state;
 
 
-    console.log ('variable id & details', dataTarget && dataTarget.ID, vizPageDataTargetDetails);
+    // console.log ('variable id & details', dataTarget && dataTarget.ID, vizPageDataTargetDetails);
     console.log ('dt1 & dt2', dt1, dt2);
 
     let details = vizPageDataTargetDetails;
@@ -1044,7 +1046,7 @@ class VizControlPanel extends React.Component {
                     'input#charts-and-plots-search-field',
                   );
                   if (searchEl) {
-                    console.log('setting focus');
+                    // console.log('setting focus');
                     searchEl.focus()
                   } else {
                     console.log('couldn\'t find element')

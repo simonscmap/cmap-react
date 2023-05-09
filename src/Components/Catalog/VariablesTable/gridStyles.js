@@ -193,7 +193,7 @@ export const toolPanelStyles = () => ({
     flexDirection: 'row',
     justifyContent: 'space-between',
     '& > div': {
-      paddingTop: '1em',
+      paddingBottom: '1em',
     },
     '& a': {
       color: colors.primary,

@@ -34,7 +34,9 @@ const styles = () => ({
     '&  a:visited': {
       color: colors.primary,
     },
-    fontSize: '0.9em'
+    fontSize: '0.9em',
+    maxHeight: '800px',
+    overflowY: 'scroll',
   },
 });
 
@@ -48,7 +50,7 @@ const DetailsTable = ({ metadata, classes }) => {
   let blobs;
 
   try {
-    blobs = JSON.parse(`[${metadata}]`);
+    blobs = JSON.parse(`${metadata}`);
   } catch (e) {
     console.log('unable to parse dataset metadata', metadata);
 

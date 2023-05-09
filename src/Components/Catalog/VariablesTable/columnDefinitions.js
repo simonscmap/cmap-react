@@ -1,20 +1,5 @@
 import { getVariableUMFromParams } from './datagridHelpers';
 
-let parseVariableUnstructuredMetadata = (vum) => {
-  let parsed;
-  try {
-    // sql returns comma separated json objects, but we can't simply
-    // split that string on commas, because there are commas within the json
-    // objects;
-    let arrayifiedVum = `[${vum}]`;
-    parsed = JSON.parse(arrayifiedVum);
-  } catch (e) {
-    console.log('could not parse');
-    console.log(vum);
-  }
-  return parsed;
-}
-
 export const defaultColumnDef = {
   cellStyle: { fontSize: '12px', lineHeight: '38px' },
   menuTabs: [],
@@ -57,13 +42,14 @@ export const columnDefs = [
         headerName: 'Comment',
         field: 'Comment',
         tooltipField: 'Comment',
+        colId: 'commentCol',
         filter: 'agTextColumnFilter',
         cellRenderer: function (params) {
-          if (params.data.Comment) {
-            return 'View Comment';
-          } else {
+          if (!params.data.Comment) {
             return '';
           }
+          let { eParentOfValue: { clientWidth } } = params
+          return `${params.data.Comment.slice(0, Math.floor(clientWidth / 8))}...`;
         }
       },
       {

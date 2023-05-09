@@ -10,7 +10,7 @@ export const RenderString = ({ str, k }) => {
   if (isURL) {
     return <a href={str} target="_blank" rel="noreferrer">{str}</a>;
   } else if (k) {
-    return <code>{str}:</code>; // render this as the key of an object
+    return <code>{str}:&nbsp;</code>; // render this as the key of an object
   } else {
     return <span>{str}</span>;
   }

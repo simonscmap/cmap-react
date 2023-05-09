@@ -7,7 +7,49 @@ import { toolPanelStyles } from './gridStyles';
 import copyTextToClipboard from '../../../Utility/Clipboard/copyTextToClipboard';
 import dispatchCustomWindowEvent from '../../../Utility/Events/dispatchCustomWindowEvent';
 
-const CommentList = withStyles(toolPanelStyles)(({ classes, shouldDisplay }) => {
+export const VariableRowRender = withStyles(toolPanelStyles)(React.memo(function BlobRenderFC({ comment, longName, classes, handleVariableLink }) {
+  let handler = handleVariableLink || (() => {});
+
+  if (!comment) {
+    return '';
+  }
+
+  return (
+    <div className={classes.vumListRow}>
+      <div className={classes.variableName}>
+        <div>
+          <a onClick={() => handler(longName)}>
+            {longName || 'no name'}
+          </a>
+        </div>
+        <div>
+          <div className={classes.longNameChip}>Variable</div>
+        </div>
+      </div>
+      {comment}
+    </div>
+  )
+}));
+
+export const ListRender = withStyles(toolPanelStyles)(({ rows, classes, handleVariableLink }) => {
+  if (!rows) {
+    return '';
+  }
+
+  return (
+    <div className={classes.vumListContainer}>
+      <div className={classes.allCommentsLabel}>Comments <span>({rows.length} matching variables with comments)</span></div>
+      {rows.map((r, i) => {
+        let comment = r.Comment;
+        // for each row, spit out a portion of the table with UM
+        return <VariableRowRender comment={comment} longName={r.Long_Name} handleVariableLink={handleVariableLink} key={`blob-${i}`} />
+      })
+      }
+    </div>
+  )
+});
+
+const CommentList = ({ shouldDisplay }) => {
   let [ isLoaded, setIsLoaded] = useState(false);
   let [ rows, setRows ] = useState([]);
 
@@ -46,32 +88,8 @@ const CommentList = withStyles(toolPanelStyles)(({ classes, shouldDisplay }) => 
     return '';
   }
 
-  return (
-    <div>
-      <div className={classes.allCommentsLabel}>All Comments ({rowsWithComments.length})</div>
-      <table>
-        <thead>
-          <tr>
-            <th>Variable Long Name</th>
-            <th>Comment</th>
-          </tr>
-        </thead>
-        <tbody>{
-          rowsWithComments.map((r, i) => {
-            return (
-              <tr className={classes.allCommentsRow} key={`comment-row-${i}`}>
-                <td>
-                  <a onClick={() => handleVariableLink(r.Long_Name)}>{r.Long_Name}</a>
-                </td>
-                <td>{r.Comment}</td>
-              </tr>
-            )
-          })
-        }</tbody>
-      </table>
-    </div>
-  );
-});
+  return <ListRender rows={rowsWithComments} handleVariableLink={handleVariableLink}/>
+};
 
 
 const SidebarCommentToolPanel = withStyles(toolPanelStyles)((props) => {
@@ -114,15 +132,18 @@ const SidebarCommentToolPanel = withStyles(toolPanelStyles)((props) => {
     };
   }, []);
 
-  let copyToClipboard = () => {
-    dispatchCustomWindowEvent("copyToClipboard", focusedVariableData);
-    console.log(focusedVariableData);
-  }
+  /* let copyToClipboard = () => {
+*   dispatchCustomWindowEvent("copyToClipboard", focusedVariableData);
+*   console.log(focusedVariableData);
+* } */
 
   let handleClose = () => {
-    console.log('close');
     dispatchCustomWindowEvent("clearFocusEvent", {});
     setIsFocusView(false);
+  }
+
+  let handleExit = () => {
+    dispatchCustomWindowEvent("exitToolBar", {});
   }
 
   // if render comment, render single comment from event payload
@@ -130,17 +151,24 @@ const SidebarCommentToolPanel = withStyles(toolPanelStyles)((props) => {
 
   return (
     <div className={classes.toolPanelContainer}>
-      <div className={classes.title}><span>Comment Tool Panel</span></div>
+      <div className={classes.title}>
+        <div><span>Comment Tool Panel</span></div>
+        <div onClick={handleExit} className={classes.toolBarClose}>
+          <span>Exit Tool Panel</span>
+          <Close />
+        </div>
+      </div>
+
       {isFocusView && focusedVariableData &&
         <div>
           <div className={classes.variableFocusLabelContainer}>
-            <div className={classes.variableLabel}>
-              <CheckBoxTwoToneIcon classes={{ root: classes.customIcon }} />
-              <span onClick={copyToClipboard} className={classes.variableLongName}>{focusedVariableData.longName}</span>
+            <div className={classes.variableLabel}>{/* removed */}</div>
+            <div onClick={handleClose} className={classes.closeBox}>
+              <span>Deselect Variable</span>
+              <Close />
             </div>
-            <div onClick={handleClose} className={classes.closeBox}><Close /></div>
           </div>
-          <div>{focusedVariableData.comment}</div>
+        <VariableRowRender comment={focusedVariableData.comment} longName={focusedVariableData.longName} />
         </div>
       }
       <CommentList shouldDisplay={!isFocusView} />
