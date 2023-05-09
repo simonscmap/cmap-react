@@ -1,4 +1,6 @@
 import { getVariableUMFromParams } from './datagridHelpers';
+import OpenInNewIcon from '@material-ui/icons/OpenInNew';
+import React from 'react';
 
 export const defaultColumnDef = {
   cellStyle: { fontSize: '12px', lineHeight: '38px' },
@@ -42,14 +44,13 @@ export const columnDefs = [
         headerName: 'Comment',
         field: 'Comment',
         tooltipField: 'Comment',
-        colId: 'commentCol',
         filter: 'agTextColumnFilter',
         cellRenderer: function (params) {
           if (!params.data.Comment) {
             return '';
           }
           let { eParentOfValue: { clientWidth } } = params
-          return `${params.data.Comment.slice(0, Math.floor(clientWidth / 8))}...`;
+          return `<a style="cursor: pointer;">${params.data.Comment.slice(0, Math.floor(clientWidth / 8))}...</a>`;
         }
       },
       {
@@ -58,7 +59,7 @@ export const columnDefs = [
         cellRenderer: function (params) {
           let { data } = params; // this is the row data
           if (data.Unstructured_Variable_Metadata) {
-            return 'View Metadata';
+            return '<a style="cursor: pointer;">View Metadata</a>';
           } else {
             return '';
           }
