@@ -64,7 +64,21 @@ export const fetchDatasetAndMetadata = async ({ query, shortName }) => {
     return;
   }
 
-  let datasetText = datasetResp.text();
+  let datasetText;
+  try {
+    console.log('about to marshall response', datasetResp);
+    datasetText = await datasetResp.arrayBuffer();
+  } catch (e) {
+    console.error('error marshalling response text');
+    console.log(e);
+  }
+
+  /* if (!datasetText || datasetText.length === 0) {
+*   console.log('datasetText length', datasetText.length);
+*   console.error('no response text for dataset');
+*   store.dispatch()
+*   return;
+* } */
 
   return [metadataJSON, datasetText];
 };
