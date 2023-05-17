@@ -86,6 +86,13 @@ const HeroContent = withStyles(styles)(() => (
       Browse the gallery of Simons CMAP use cases to learn about how Simons CMAP
       can be used to advance ocean science.
     </Typography>
+    <Typography variant="body1">
+      The Simons CMAP gallery features use cases highlighting how the community is using Simons CMAP to advance ocean science.
+      Please consider submitting use cases from your own work for inclusion in the gallery.
+    </Typography>
+    <Typography variant="body1">
+      Contact us at <a href="mailto:simonscmap@uw.edu">simonscmap@uw.edu</a> to get started.
+    </Typography>
   </div>
 ));
 
