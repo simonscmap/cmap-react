@@ -466,6 +466,7 @@ class VizControlPanel extends React.Component {
     }
 
     if (['date1', 'hour1', 'date2', 'hour2'].includes(e.target.name)) {
+      console.log ('raw value of changed input', e.target.name, e.target.value)
       let { dt1, dt2 } = this.state;
       if (typeof dt1 !== 'string' || typeof dt2 !== 'string') {
         console.error ('incorrect types for dt1 and dt1, could not update state', dt1, dt2);
@@ -479,7 +480,7 @@ class VizControlPanel extends React.Component {
           break;
         case 'hour1':
           name = 'dt1';
-          value = dt1.slice(0,10) + 'T' + value + isoTail;
+          value = dt1.slice(0,10) + 'T' + (value ? value : '00') + isoTail;
           break;
         case 'date2':
           name = 'dt2';
@@ -487,7 +488,7 @@ class VizControlPanel extends React.Component {
           break;
         case 'hour2':
           name = 'dt2';
-          value = dt2.slice(0,10) + 'T' + value + isoTail;
+          value = dt2.slice(0,10) + 'T' + (value ? value : '00')+ isoTail;
           break;
       }
     }
