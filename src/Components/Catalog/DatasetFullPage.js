@@ -276,7 +276,7 @@ const DatasetFullPage = (props) => {
                     className={classes.sectionHeader}
                     style={{ marginBottom: '16px', color: 'white' }}
                   >
-                    Dataset Metadata
+                    Additional Dataset Metadata
                 </Typography>
                 <DatasetMetadata metadata={Unstructured_Dataset_Metadata} />
                 </Grid>}

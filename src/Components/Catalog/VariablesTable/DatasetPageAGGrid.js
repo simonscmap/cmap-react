@@ -198,7 +198,7 @@ const DatasetPageAGGrid = (props) => {
           // onColumnResized={(args) => console.log(args)}
           onModelUpdated={dispatchCurrentTableModel}
           colResizeDefault={'shift'}
-          // enableCellTextSelection={true}
+          enableCellTextSelection={true} // this does not seem to work
           // enableFilter={true}
           floatingFilter={true}
           rowHeight={38}
@@ -246,9 +246,9 @@ const DatasetPageAGGrid = (props) => {
               // The unique ID for this panel. Used in the API and elsewhere to refer to the panel.
               id: 'metadata',
               // The key used for localisation for displaying the label. The label is displayed in the tab button.
-              labelKey: 'metadata',
+              labelKey: 'Additional Variable Metadata',
               // The default label if `labelKey` is missing or does not map to valid text through localisation.
-              labelDefault: 'Metadata',
+              labelDefault: 'Additional Variable Metadata',
               // The min width of the tool panel. Default: `100`
               minWidth: 300,
               // The max width of the tool panel. Default: `undefined`

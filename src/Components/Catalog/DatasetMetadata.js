@@ -12,6 +12,7 @@ const styles = () => ({
     borderRadius: '4px',
     background: 'rbga(0,0,0,0.4)',
     '& input': {
+      width: '260px',
       border: 0, // `2px solid ${colors.blue.royal}`,
       outline: 0,
       '&$hover': {
@@ -113,7 +114,7 @@ const DetailsTable = ({ metadata, classes }) => {
             root: classes.root,
           }}
           name="datasetMetadata"
-          placeholder="Search Metadata Values"
+          placeholder="Search Additonal Metadata Values"
           variant="outlined"
           onChange={change}
           InputProps={{

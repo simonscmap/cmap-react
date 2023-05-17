@@ -77,7 +77,7 @@ export const BlobRender = withStyles(toolPanelStyles)(({ blob, classes }) => {
         return (
           <div className={classes.blobKeyContainer} key={`blobKey-${key}(${keyIdx})`}>
             <div className={classes.keyLabel}>
-              <span>Metadata for key: </span><code>{key}</code>
+              <span>Additional Metadata for key: </span><code>{key}</code>
             </div>
             <div className={classes.headers}>
               <div>Description</div>
@@ -247,7 +247,7 @@ const SidebarMetadataToolPanel = withStyles(toolPanelStyles)((props) => {
   return (
     <div className={classes.toolPanelContainer}>
       <div className={classes.title}>
-        <div><span>Metadata Tool Panel</span></div>
+        <div><span>Additional Metadata Tool Panel</span></div>
         <div onClick={handleExit} className={classes.toolBarClose}>
           <span>Exit Tool Panel</span>
           <Close />

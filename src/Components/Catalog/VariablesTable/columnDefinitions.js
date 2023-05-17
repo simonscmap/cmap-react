@@ -54,7 +54,7 @@ export const columnDefs = [
         }
       },
       {
-        headerName: 'Unstructured Metadata',
+        headerName: 'Additional Metadata',
         field: 'Unstructured_Variable_Metadata',
         cellRenderer: function (params) {
           let { data } = params; // this is the row data
