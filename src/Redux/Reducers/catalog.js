@@ -35,7 +35,7 @@ export default function (state, action) {
     case SEARCH_RESULTS_STORE:
       return {
         ...state,
-        searchResults: searchResults: action.payload.searchResults.filter (({ Short_Name }) =>
+        searchResults: action.payload.searchResults.filter (({ Short_Name }) =>
           Short_Name !== 'Geotraces_seawater'),
         submissionOptions: action.payload.submissionOptions,
       };
