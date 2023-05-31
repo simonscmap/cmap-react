@@ -33,19 +33,6 @@ const log = logInit('dialog').addContext({
 const DownloadDialog = (props) => {
   let { dataset: rawDataset, dialogOpen, handleClose, classes } = props;
 
-  // TEMPORARY
-  if (rawDataset.Short_Name === 'GEOTRACES_Seawater') {
-    console.log ('applying stat overrides');
-    rawDataset.Lat_Min = -71.6993026733398;
-    rawDataset.Lat_Max = 89.9905014038086;
-    rawDataset.Lon_Min = -179.994003295898;
-    rawDataset.Lon_Max =  180;
-    rawDataset.Time_Min = '2006-07-13T14:20:00.000Z';
-    rawDataset.Time_Max = '2018-11-22T08:50:18.000Z';
-  }
-
-
-
   // parse dataset
   let dataset, error;
 
