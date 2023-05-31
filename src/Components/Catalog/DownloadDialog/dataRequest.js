@@ -16,9 +16,9 @@ export const fetchDatasetAndMetadata = async ({ query, shortName }) => {
     new Promise(async (resolve, reject) => {
       let response;
       try {
-        response = await api.catalog.datasetFullPageDataFetch(shortName);
+        response = await api.catalog.datasetMetadata (shortName);
       } catch (e) {
-        log.error ('dataset full page fetch failed', { error: e, shortName })
+        log.error ('dataset metadata fetch failed', { error: e, shortName })
         reject (e);
         return;
       }

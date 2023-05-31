@@ -105,13 +105,7 @@ export const BlobRender = withStyles(toolPanelStyles)(({ blob, classes }) => {
 
 export const VariableRowRender = withStyles(toolPanelStyles)(React.memo(function BlobRenderFC({ um, longName, classes, handleVariableLink }) {
   let handler = handleVariableLink || (() => {});
-  let blobs;
-  try {
-    blobs = JSON.parse(`${um}`);
-  } catch (e) {
-    console.error('error parsing blob');
-    console.log(blobs);
-  }
+  let blobs = um;
 
   if (!blobs) {
     return '';
@@ -129,7 +123,7 @@ export const VariableRowRender = withStyles(toolPanelStyles)(React.memo(function
           <div className={classes.longNameChip}>Variable</div>
         </div>
       </div>
-      {blobs.map((blob, blobIndex) => {
+      {Array.isArray(blobs) && blobs.map((blob, blobIndex) => {
         return <BlobRender blob={blob} key={blobIndex} />;
       })}
     </div>

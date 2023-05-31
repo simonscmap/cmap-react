@@ -19,7 +19,6 @@ const unstructuredMetadataFilterParams = {
   filterOptions: ['contains', 'notContains'],
   debounceMs: 200,
   textMatcher: (params) => {
-    console.log (getVariableUMFromParams (params))
     return true;
   }
 };

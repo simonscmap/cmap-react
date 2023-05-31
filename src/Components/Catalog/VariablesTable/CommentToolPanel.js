@@ -148,7 +148,6 @@ const SidebarCommentToolPanel = withStyles(toolPanelStyles)((props) => {
 
   // if render comment, render single comment from event payload
   // else render all comments
-
   return (
     <div className={classes.toolPanelContainer}>
       <div className={classes.title}>

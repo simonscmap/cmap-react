@@ -219,8 +219,6 @@ function* csvDownloadRequest(action) {
     action.payload.query,
   );
 
-  console.log (dataResponse);
-
   yield put(interfaceActions.setLoadingMessage(''));
 
   if (dataResponse.failed) {
@@ -808,6 +806,8 @@ function* searchOptionsFetch() {
   }
 }
 
+/************** Catalog Page **********************/
+
 // This saga is debounced in its watch function
 function* searchResultsFetch(action) {
   let result = yield call(
@@ -837,17 +837,23 @@ function* searchResultsFetch(action) {
   yield put(catalogActions.searchResultsSetLoadingState(states.succeeded));
 }
 
+/************** Dataset Detail Page **********************/
+
 function* datasetFullPageDataFetch(action) {
   yield put(
     catalogActions.datasetFullPageDataSetLoadingState(states.inProgress),
   );
+  console.log('calling api.catalog.datasetFullPageDataFetch')
   let result = yield call(
     api.catalog.datasetFullPageDataFetch,
     action.payload.shortname,
   );
 
   if (result.ok) {
+    console.log('request ok');
     let results = yield result.json();
+    console.log('marshalled json');
+    console.log(results);
     yield put(catalogActions.datasetFullPageDataStore(results));
     yield put(
       catalogActions.datasetFullPageDataSetLoadingState(states.succeeded),
@@ -863,6 +869,54 @@ function* datasetFullPageDataFetch(action) {
     );
   }
 }
+
+function* datasetVariablesFetch(action) {
+  yield put(catalogActions.datasetVariablesSetLoadingState(states.inProgress));
+
+  let result = yield call(
+    api.catalog.datasetVariablesFetch,
+    action.payload.shortname,
+  );
+
+  if (result.ok) {
+    let results = yield result.json();
+    yield put(catalogActions.datasetVariablesStore(results));
+    yield put(catalogActions.datasetVariablesSetLoadingState(states.succeeded));
+  } else {
+    yield put(
+      interfaceActions.snackbarOpen(
+        'Failed to retrieve dataset variables. Please try again later.',
+      ),
+    );
+    yield put(
+      catalogActions.datasetVariablesSetLoadingState(states.failed),
+    );
+  }
+}
+
+// um
+function* datasetVariableUMFetch (action) {
+  yield put(catalogActions.datasetVariableUMSetLoadingState(states.inProgress));
+
+  let result = yield call(
+    api.catalog.datasetVariableUMFetch,
+    action.payload.shortname,
+  );
+
+  if (result.ok) {
+    let results = yield result.json();
+    yield put(catalogActions.datasetVariableUMStore(results));
+    yield put(catalogActions.datasetVariableUMSetLoadingState(states.succeeded));
+  } else {
+    yield put(
+      interfaceActions.snackbarOpen(
+        'Failed to retrieve variable metadata.',
+      ),
+    );
+    yield put(catalogActions.datasetVariableUMSetLoadingState(states.failed));
+  }
+}
+
 
 function* cruiseFullPageDataFetch(action) {
   yield put(
@@ -1473,6 +1527,20 @@ function* watchDatasetFullPageDataFetch() {
   );
 }
 
+function* watchDatasetVariablesFetch() {
+  yield takeLatest(
+    catalogActionTypes.DATASET_VARIABLES_FETCH,
+    datasetVariablesFetch,
+  );
+}
+
+function* watchDatasetVariableUMFetch() {
+  yield takeLatest(
+    catalogActionTypes.DATASET_VARIABLE_UM_FETCH,
+    datasetVariableUMFetch,
+  );
+}
+
 function* watchCruiseFullPageDataFetch() {
   yield takeLatest(
     catalogActionTypes.CRUISE_FULL_PAGE_DATA_FETCH,
@@ -1624,6 +1692,8 @@ function* rootSaga() {
     watchSearchOptionsFetch(),
     watchSearchResultsFetch(),
     watchDatasetFullPageDataFetch(),
+    watchDatasetVariablesFetch(),
+    watchDatasetVariableUMFetch(),
     watchCruiseFullPageDataFetch(),
     watchCartPersistAddItem(),
     watchCartPersistRemoveItem(),

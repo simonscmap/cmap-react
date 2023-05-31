@@ -1,10 +1,12 @@
 // Variable grid appearing on dataset pages
 import {
+  Typography,
   withStyles,
 } from '@material-ui/core';
 import { ArrowDownward, ArrowUpward, Menu, CheckBox, CheckBoxOutlineBlank, IndeterminateCheckBox } from '@material-ui/icons';
 import { AgGridReact } from 'ag-grid-react';
 import React, { useRef, useEffect, useState } from 'react';
+import { connect } from 'react-redux';
 import ReactDOMServer from 'react-dom/server';
 import HelpButtonAndDialog from '../../Navigation/Help/HelpButtonAndDialog';
 import VariableGridHelpContents from './VariableGridHelpContents';
@@ -19,10 +21,14 @@ import {
   dispatchClearFocusEvent,
 } from './datagridHelpers';
 import { colors } from '../../Home/theme';
+import Spinner from '../../UI/Spinner';
+import states from '../../../enums/asyncRequestStates';
+
 import { gridStyles } from './gridStyles';
 
 const DatasetPageAGGrid = (props) => {
-  const { Variables, classes } = props;
+
+  const { variables, classes } = props;
   const gridRef = useRef();
 
   let [currentFocus, setCurrentFocus] = useState(null);
@@ -171,7 +177,6 @@ const DatasetPageAGGrid = (props) => {
       window.addEventListener("exitToolBar", closeSideBar, false);
     };
   }, []);
-
   return (
     <div id="DatasetAGGrid">
 
@@ -184,7 +189,7 @@ const DatasetPageAGGrid = (props) => {
       <div
         className={classes.gridWrapper + ' ag-theme-material'}
         style={{
-          height: `${Variables.length * 60 + 200}px`,
+          height: `${variables.length * 60 + 200}px`,
           maxHeight: '800px',
         }}
       >
@@ -192,7 +197,7 @@ const DatasetPageAGGrid = (props) => {
           ref={gridRef}
           columnDefs={columnDefs}
           defaultColDef={defaultColumnDef}
-          rowData={Variables}
+          rowData={variables}
           onGridReady={(params) => params.columnApi.autoSizeAllColumns()}
           onCellClicked={onCellClick}
           // onColumnResized={(args) => console.log(args)}
@@ -294,4 +299,61 @@ const DatasetPageAGGrid = (props) => {
   );
 };
 
-export default withStyles(gridStyles)(DatasetPageAGGrid);
+const DatasetVariables = withStyles(gridStyles)(DatasetPageAGGrid);
+
+const mapStateToProps = (state) => ({
+  loadingState: state.datasetDetailsPage.variablesLoadingState,
+  metadataLoadingState: state.datasetDetailsPage.unstructuredMetadataLoadingState,
+  dataset: state.datasetDetailsPage.data,
+  variables: state.datasetDetailsPage.variables,
+  metadata: state.datasetDetailsPage.unstructuredVariableMetadata,
+});
+
+const DatasetVariablesTableWithLoadingState = connect(mapStateToProps)((props) => {
+  let { loadingState, metadataLoadingState, dataset, variables, metadata } = props;
+
+  let eitherHasFailed = [loadingState, metadataLoadingState].some((s) => s === states.failed);
+  let eitherIsPending = [loadingState, metadataLoadingState].some((s) => s === states.inProgress);
+  let bothHaveSucceeded = [loadingState, metadataLoadingState].every((s) => s === states.succeeded);
+
+
+  if (bothHaveSucceeded) {
+    let datasetStats = {
+      Time_Min: dataset.Time_Min || 'NA',
+      Time_Max: dataset.Time_Max || 'NA',
+      Lat_Min: dataset.Lat_Min || 'NA',
+      Lat_Max: dataset.Lat_Max || 'NA',
+      Lon_Min: dataset.Lon_Min || 'NA',
+      Lon_Max: dataset.Lon_Max || 'NA',
+      Depth_Min: dataset.Depth_Min || 'NA',
+      Depth_Max: dataset.DepthMax || 'NA',
+    };
+
+    let ammendedVariables = variables.map((variable) => {
+      return Object.assign({}, variable, datasetStats, {
+        Unstructured_Variable_Metadata: metadata[variable.Variable] || null
+      })
+    });
+
+    return <DatasetVariables variables={ammendedVariables} />;
+
+  } else if (eitherHasFailed) {
+      return (
+          <Typography>
+        Oops! There was an error loading the dataset variables.
+          </Typography>
+      );
+  } else if (eitherIsPending) {
+    return (<div id="DatasetAGGrid">
+      <div
+        className={'ag-theme-material'}
+        style={{ height: '400px', border: '1px solid black' }}>
+        <Spinner />
+      </div>
+    </div>);
+  } else {
+    return '';
+  }
+});
+
+export default DatasetVariablesTableWithLoadingState;

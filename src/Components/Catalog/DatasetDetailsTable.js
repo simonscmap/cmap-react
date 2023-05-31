@@ -19,8 +19,8 @@ const styles = (theme) => ({
   },
 });
 
-const DetailsTable = ({ datasetFullPageData, classes }) => {
-  if (!datasetFullPageData) {
+const DetailsTable = ({ dataset, sensors, classes }) => {
+  if (!dataset) {
     return '';
   }
 
@@ -39,8 +39,7 @@ const DetailsTable = ({ datasetFullPageData, classes }) => {
     Process_Level,
     Spatial_Resolution,
     Temporal_Resolution,
-    Sensors,
-  } = datasetFullPageData;
+  } = dataset;
 
   return (
     <Table
@@ -55,9 +54,9 @@ const DetailsTable = ({ datasetFullPageData, classes }) => {
 
         <TableRow className={classes.sampleTableRow}>
           <TableCell className={classes.tableHead}>
-            Sensor{Sensors && Sensors.length > 1 ? 's' : ''}
+            Sensor{sensors && sensors.length > 1 ? 's' : ''}
           </TableCell>
-          <TableCell>{Sensors ? Sensors.join(', ') : ''}</TableCell>
+          <TableCell>{sensors ? sensors.join(', ') : ''}</TableCell>
         </TableRow>
 
         <TableRow className={classes.sampleTableRow}>

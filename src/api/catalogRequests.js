@@ -72,10 +72,33 @@ catalogAPI.fetchKeywords = async () => {
   return await fetch(apiUrl + '/api/catalog/keywords');
 };
 
-// used to get metadata
+// used for the dataset page
 catalogAPI.datasetFullPageDataFetch = async (shortname) => {
   return await fetch(
     apiUrl + `/api/catalog/datasetfullpage?shortname=${shortname}`,
+    fetchOptions,
+  );
+};
+
+// dataset, variables, metadata
+// used for dataset download
+catalogAPI.datasetMetadata = async (shortname) => {
+  return await fetch(
+    apiUrl + `/api/catalog/datasetmetadata?shortname=${shortname}`,
+    fetchOptions,
+  );
+};
+
+catalogAPI.datasetVariablesFetch = async (shortname) => {
+  return await fetch(
+    apiUrl + `/api/catalog/datasetvariables?shortname=${shortname}`,
+    fetchOptions,
+  );
+};
+
+catalogAPI.datasetVariableUMFetch = async (shortname) => {
+  return await fetch(
+    apiUrl + `/api/catalog/datasetvariableum?shortname=${shortname}`,
     fetchOptions,
   );
 };

@@ -26,144 +26,77 @@ import DatasetMetadata from './DatasetMetadata';
 import {
   datasetFullPageDataFetch,
   datasetFullPageDataStore,
+  datasetVariablesFetch,
+  datasetVariableUMFetch,
 } from '../../Redux/actions/catalog';
 
 import states from '../../enums/asyncRequestStates';
-
+import styles from './datasetFullPageStyles';
 import colors from '../../enums/colors';
 import metaTags from '../../enums/metaTags';
 import CartAddOrRemove from './CartAddOrRemove';
 import SkeletonWrapper from '../UI/SkeletonWrapper';
-
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 
 const mapStateToProps = (state) => ({
-  datasetFullPageDataLoadingState: state.datasetFullPageDataLoadingState,
-  datasetFullPageData: state.datasetFullPageData,
+  pageData : state.datasetDetailsPage,
 });
 
 const mapDispatchToProps = {
-  datasetFullPageDataFetch,
-  datasetFullPageDataStore,
+  fetchDataset: datasetFullPageDataFetch,
+  fetchVariables: datasetVariablesFetch,
+  storeDataset: datasetFullPageDataStore,
+  fetchVariableUM: datasetVariableUMFetch,
 };
 
-const styles = (theme) => ({
-  guideSection: {
-    width: '80%',
-    margin: '65px auto 0 auto',
-    textAlign: 'left',
-    padding: '12px 32px',
-    [theme.breakpoints.down('sm')]: {
-      padding: '12px 12px',
-      margin: '16px auto 16px auto',
-      width: '90%',
-    },
-    fontFamily: '"roboto", Serif',
-    backgroundColor: 'rgba(0,0,0,.4)',
-    marginBottom: '20px',
-  },
-  sectionHeader: {
-    margin: '16px 0 2px 0',
-    fontWeight: 100,
-    fontFamily: '"roboto", Serif',
-  },
-  divider: {
-    backgroundColor: theme.palette.primary.main,
-    marginBottom: '8px',
-  },
-  navListSubItemText: {
-    fontSize: '.785rem',
-  },
-  navListSubSubItemText: {
-    fontSize: '.7rem',
-  },
-  outerContainer: {
-    marginTop: '70px',
-    color: 'white',
-  },
-  markdown: {
-    '& img': {
-      maxWidth: '100%',
-      margin: '20px auto 20px auto',
-      display: 'block',
-    },
-    '& a': {
-      color: theme.palette.primary.main,
-      textDecoration: 'none',
-    },
-    '& p': {
-      fontSize: '1rem',
-      fontFamily: '"Lato",sans-serif',
-      fontWeight: 400,
-      lineHeight: 1.5,
-    },
-  },
-  downloadLink: {
-    color: colors.primary,
-    display: 'inline-block',
-    marginRight: '1em',
-    '& > svg': {
-      marginBottom: '-5px',
-      marginRight: '5px',
-    },
-  },
-  smallText: {
-    fontSize: '.8rem',
-  },
-  pageHeader: {
-    [theme.breakpoints.down('sm')]: {
-      fontSize: '1.4rem',
-    },
-  },
-  helpIcon: {
-    fontSize: '1.2rem',
-  },
-  helpButton: {
-    padding: '12px 12px 12px 8px',
-  },
-  cartButtonClass: {
-    textTransform: 'none',
-    color: theme.palette.primary.main,
-    display: 'inline-block',
-    marginTop: '6px',
-    '& svg': {
-      marginBottom: '-4px',
-    },
-  },
-  cruiseLink: {
-    display: 'block',
-    marginBottom: '3px',
-    color: colors.primary,
-  },
-  bottomAlignedText: {
-    display: 'inline-block',
-    marginBottom: '-5px',
-  },
-
-});
-
+// Page Component
 const DatasetFullPage = (props) => {
   const {
     classes,
-    datasetFullPageDataFetch,
-    datasetFullPageDataStore,
-    datasetFullPageData,
-    datasetFullPageDataLoadingState,
+    fetchDataset,
+    fetchVariableUM,
+    fetchVariables,
+    pageData,
   } = props;
 
   const {
-    Variables,
-    Unstructured_Dataset_Metadata,
-    Acknowledgement,
-    Data_Source,
-    Description,
-    Distributor,
-    Long_Name,
-    References,
-    Cruises,
-  } = datasetFullPageData;
+    primaryPageLoadingState,
+    data,
+    cruises,
+    references,
+    sensors,
+    variables,
+  } = pageData;
 
-  const loading = datasetFullPageDataLoadingState === states.inProgress;
+  let unstructuredDatasetMetadata = null;
+  let acknowledgment = null;
+  let dataSource = null;
+  let description = null;
+  let distributor = null;
+  let longName = null;
+
+  if (data) {
+    if (data.Unstructured_Dataset_Metadata) {
+      unstructuredDatasetMetadata = data.Unstructured_Dataset_Metadata;
+    }
+    if (data.Acknowledgement) {
+      acknowledgment = data.Acknowledgement;
+    }
+    if (data.Data_Source) {
+      dataSource = data.Data_Source;
+    }
+    if (data.Description) {
+      description = data.Description;
+    }
+    if (data.Distributor) {
+      distributor = data.Distributor;
+    }
+    if (data.Long_Name) {
+      longName = data.Long_Name;
+    }
+  }
+
+  const loading = primaryPageLoadingState === states.inProgress;
 
   const [downloadDialogOpen, setDownloadDialogOpen] = React.useState(false);
 
@@ -181,33 +114,32 @@ const DatasetFullPage = (props) => {
       </Link>
     ));
 
-  // TODO no need to have a separate action called here to store the fetched data
-  // just
   useEffect(() => {
     // trigger fetch of data
     // 'props.match.params.dataset' lets us refer to the named route parameter for this route, called 'dataset',
     // which is declared in App.js
-    datasetFullPageDataFetch(props.match.params.dataset);
-    // remove data when user navigates away from page
-    return () => datasetFullPageDataStore({});
+    fetchDataset (props.match.params.dataset);
+    fetchVariables (props.match.params.dataset);
+    fetchVariableUM (props.match.params.dataset);
   }, []);
 
   useEffect(() => {
-    document.title = Long_Name || metaTags.default.title;
-    document.description = Description || metaTags.default.description;
+    document.title = longName || metaTags.default.title;
+    document.description = description || metaTags.default.description;
 
     return () => {
       document.title = metaTags.default.title;
       document.description = metaTags.default.description;
     };
-  }, [Long_Name]);
+  }, [longName]);
+
 
   return (
     <Grid container className={classes.outerContainer} >
       {downloadDialogOpen ? (
         <DownloadDialog
           dialogOpen={downloadDialogOpen}
-          dataset={datasetFullPageData}
+          dataset={data}
           handleClose={() => setDownloadDialogOpen(false)}
         />
       ) : (
@@ -222,7 +154,7 @@ const DatasetFullPage = (props) => {
               className={classes.pageHeader}
               style={{ color: 'white' }}
             >
-              {Long_Name}
+              {longName}
             </Typography>
 
             <Link
@@ -235,7 +167,7 @@ const DatasetFullPage = (props) => {
             </Link>
 
             <CartAddOrRemove
-              dataset={datasetFullPageData}
+              dataset={data}
               cartButtonClass={classes.cartButtonClass}
             />
             <Grid container spacing={3}>
@@ -246,7 +178,7 @@ const DatasetFullPage = (props) => {
                   style={{ marginBottom: '16px', color: 'white' }}
                 >Description
                 </Typography>
-                <ReactMarkdown source={Description} className={classes.markdown} />
+                <ReactMarkdown source={description} className={classes.markdown} />
               </Grid>
 
               <Grid item xs={12}>
@@ -257,7 +189,7 @@ const DatasetFullPage = (props) => {
                 >Dataset Overview
                 </Typography>
 
-                <DetailsTable datasetFullPageData={datasetFullPageData} />
+                <DetailsTable dataset={data} sensors={sensors} />
 
                 <Typography
                   variant="body1"
@@ -269,7 +201,7 @@ const DatasetFullPage = (props) => {
               </Grid>
 
 
-              { Unstructured_Dataset_Metadata &&
+              { unstructuredDatasetMetadata &&
                 <Grid item xs={12}>
                   <Typography
                     variant="h5"
@@ -278,7 +210,7 @@ const DatasetFullPage = (props) => {
                   >
                     Additional Dataset Metadata
                 </Typography>
-                <DatasetMetadata metadata={Unstructured_Dataset_Metadata} />
+                <DatasetMetadata metadata={unstructuredDatasetMetadata} />
                 </Grid>}
 
             </Grid>
@@ -288,12 +220,12 @@ const DatasetFullPage = (props) => {
               className={classes.sectionHeader}
               style={{ marginBottom: '16px', color: 'white' }}
             >
-              {Variables ? `Variables (${Variables.length})` : 'Variables'}
+              {variables ? `Variables (${variables.length})` : 'Variables'}
             </Typography>
 
-            {Variables ? <DatasetPageAGGrid Variables={Variables} /> : ''}
+            <DatasetPageAGGrid />
 
-            {Data_Source || loading ? (
+            {dataSource || loading ? (
               <React.Fragment>
                 <Typography
                   variant="h5"
@@ -307,14 +239,14 @@ const DatasetFullPage = (props) => {
                   className={classes.smallText}
                   style={{ color: 'white' }}
                 >
-                  {urlify(Data_Source)}
+                  {urlify(dataSource)}
                 </Typography>
               </React.Fragment>
             ) : (
               ''
             )}
 
-            {Distributor || loading ? (
+            {distributor || loading ? (
               <React.Fragment>
                 <Typography
                   variant="h5"
@@ -328,14 +260,14 @@ const DatasetFullPage = (props) => {
                   className={classes.smallText}
                   style={{ color: 'white' }}
                 >
-                  {urlify(Distributor)}
+                  {urlify(distributor)}
                 </Typography>
               </React.Fragment>
             ) : (
               ''
             )}
 
-            {Acknowledgement || loading ? (
+            {acknowledgment || loading ? (
               <React.Fragment>
                 <Typography
                   variant="h5"
@@ -349,14 +281,14 @@ const DatasetFullPage = (props) => {
                   className={classes.smallText}
                   style={{ color: 'white' }}
                 >
-                  {urlify(Acknowledgement)}
+                  {urlify(acknowledgment)}
                 </Typography>
               </React.Fragment>
             ) : (
               ''
             )}
 
-            {(References && References.length) || loading ? (
+            {(references && references.length) || loading ? (
               <React.Fragment>
                 <Typography
                   variant="h5"
@@ -367,7 +299,7 @@ const DatasetFullPage = (props) => {
                 </Typography>
 
                 {!loading
-                  ? References.map((reference, i) => (
+                  ? references.map((reference, i) => (
                       <Typography
                         className={classes.smallText}
                         style={{ color: 'white', marginTop: '6px' }}
@@ -382,7 +314,7 @@ const DatasetFullPage = (props) => {
               ''
             )}
 
-            {Cruises && Cruises.length ? (
+            {cruises && cruises.length ? (
               <>
                 <Typography
                   variant="h5"
@@ -392,7 +324,7 @@ const DatasetFullPage = (props) => {
                   Cruises contributing data to this dataset:
                 </Typography>
 
-                {Cruises.sort((a, b) => {
+                {cruises.sort((a, b) => {
                   const nameA = a.Name.toUpperCase();
                   const nameB = b.Name.toUpperCase();
                   if (nameA < nameB) {
@@ -417,10 +349,13 @@ const DatasetFullPage = (props) => {
               ''
             )}
 
-            {!loading &&
-              datasetFullPageData &&
-              Object.keys(datasetFullPageData).length ? (
-              <DatasetJSONLD {...datasetFullPageData} />
+            {!loading && variables && data && Object.keys(data).length ? (
+              <DatasetJSONLD {...data}
+                cruises={cruises}
+                references={references}
+                sensors={sensors}
+                variables={variables}
+              />
             ) : (
               ''
             )}

@@ -29,12 +29,29 @@ const initialState = {
   searchOptions: {},
   searchResults: [],
   searchResultsLoadingState: states.notTried,
-  datasetFullPageData: {},
-  datasetFullPageDataLoadingState: states.succeeded,
+
+  // Dataset Details Page
+  datasetDetailsPage: {
+    selectedDatasetId: null,
+    selectedDatasetShortname: null,
+
+    primaryPageLoadingState: states.notTried,
+    variablesLoadingState: states.notTried,
+    unstructuredMetadataLoadingState: states.notTried,
+
+    data: null,
+    cruises: null,
+    references: null,
+    variables: null,
+    sensors: null,
+    unstructuredVariableMetadata: null,
+  },
+
+  // Cruise Page
   cruiseFullPageData: {},
+
   cart: {},
   showCart: false,
-  catalogLayoutNonce: 'initial nonce',
   tablesWithAncillaryData: null,
 
   // Interface state pieces
@@ -50,7 +67,7 @@ const initialState = {
   windowWidth: window.innerWidth,
 
   // User state pieces
-  user: JSON.parse(Cookies.get('UserInfo') || null), // catch much?
+  user: JSON.parse(Cookies.get('UserInfo') || null), // catch much? // block much?
   userIsGuest: false,
   apiKeys: null,
   apiKeyRetrievalState: null,
@@ -110,7 +127,7 @@ const initialState = {
   submissionUploadState: null,
   dataSubmissionSelectOptions: null,
 
-  // news
+  // News
   news: {
     stories: [],
     viewStateFilter: [1,2,3],

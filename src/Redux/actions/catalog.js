@@ -56,6 +56,8 @@ export const searchResultsSetLoadingState = (state) => ({
   },
 });
 
+/************** Dataset Detail Page **********************/
+
 export const datasetFullPageDataFetch = (shortname) => ({
   type: catalogActionTypes.DATASET_FULL_PAGE_DATA_FETCH,
   payload: {
@@ -63,15 +65,60 @@ export const datasetFullPageDataFetch = (shortname) => ({
   },
 });
 
-export const datasetFullPageDataStore = (datasetFullPageData) => ({
+export const datasetFullPageDataStore = (response) => ({
   type: catalogActionTypes.DATASET_FULL_PAGE_DATA_STORE,
   payload: {
-    datasetFullPageData,
+    dataset: response.dataset,
+    references: response.references,
+    cruises: response.cruises,
+    sensors: response.sensors,
   },
 });
 
 export const datasetFullPageDataSetLoadingState = (state) => ({
   type: catalogActionTypes.DATASET_FULL_PAGE_DATA_SET_LOADING_STATE,
+  payload: {
+    state,
+  },
+});
+
+export const datasetVariablesFetch = (shortname) => ({
+  type: catalogActionTypes.DATASET_VARIABLES_FETCH,
+  payload: {
+    shortname,
+  },
+});
+
+export const datasetVariablesStore = (variables) => ({
+  type: catalogActionTypes.DATASET_VARIABLES_STORE,
+  payload: {
+    variables,
+  },
+});
+
+export const datasetVariablesSetLoadingState = (state) => ({
+  type: catalogActionTypes.DATASET_VARIABLES_SET_LOADING_STATE,
+  payload: {
+    state,
+  },
+});
+
+export const datasetVariableUMFetch = (shortname) => ({
+  type: catalogActionTypes.DATASET_VARIABLE_UM_FETCH,
+  payload: {
+    shortname,
+  },
+});
+
+export const datasetVariableUMStore= (data) => ({
+  type: catalogActionTypes.DATASET_VARIABLE_UM_STORE,
+  payload: {
+    variableUnstructuredMetadata: data,
+  },
+});
+
+export const datasetVariableUMSetLoadingState = (state) => ({
+  type: catalogActionTypes.DATASET_VARIABLE_UM_SET_LOADING_STATE,
   payload: {
     state,
   },
