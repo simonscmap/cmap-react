@@ -319,14 +319,14 @@ const DatasetVariablesTableWithLoadingState = connect(mapStateToProps)((props) =
 
   if (bothHaveSucceeded && dataset) {
     let datasetStats = {
-      Time_Min: dataset.Time_Min || 'NA',
-      Time_Max: dataset.Time_Max || 'NA',
-      Lat_Min: dataset.Lat_Min || 'NA',
-      Lat_Max: dataset.Lat_Max || 'NA',
-      Lon_Min: dataset.Lon_Min || 'NA',
-      Lon_Max: dataset.Lon_Max || 'NA',
-      Depth_Min: dataset.Depth_Min || 'NA',
-      Depth_Max: dataset.DepthMax || 'NA',
+      Time_Min: dataset.Time_Min,
+      Time_Max: dataset.Time_Max,
+      Lat_Min: dataset.Lat_Min,
+      Lat_Max: dataset.Lat_Max,
+      Lon_Min: dataset.Lon_Min,
+      Lon_Max: dataset.Lon_Max,
+      Depth_Min: dataset.Depth_Min,
+      Depth_Max: dataset.Depth_Max,
     };
 
     let ammendedVariables = variables.map((variable) => {
