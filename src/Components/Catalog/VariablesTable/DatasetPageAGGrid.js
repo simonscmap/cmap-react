@@ -317,7 +317,7 @@ const DatasetVariablesTableWithLoadingState = connect(mapStateToProps)((props) =
   let bothHaveSucceeded = [loadingState, metadataLoadingState].every((s) => s === states.succeeded);
 
 
-  if (bothHaveSucceeded) {
+  if (bothHaveSucceeded && dataset) {
     let datasetStats = {
       Time_Min: dataset.Time_Min || 'NA',
       Time_Max: dataset.Time_Max || 'NA',
