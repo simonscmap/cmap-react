@@ -198,6 +198,7 @@ const SidebarMetadataToolPanel = withStyles(toolPanelStyles)((props) => {
   let handleFocus = (e) => {
     let { detail } = e;
     if (detail) {
+      console.log('setFocusEvent detail', detail);
       setData(detail);
       setIsFocusView(true);
     }

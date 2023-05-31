@@ -57,6 +57,7 @@ const DatasetPageAGGrid = (props) => {
     let rows = model.rowsToDisplay;
     let match = rows.find((r) => r && r.data && r.data.Long_Name === longName);
     if (match) {
+      console.log('match row', match);
       // get comment, UM
       let payload = {
         longName,
@@ -316,7 +317,6 @@ const DatasetVariablesTableWithLoadingState = connect(mapStateToProps)((props) =
   let eitherIsPending = [loadingState, metadataLoadingState].some((s) => s === states.inProgress);
   let bothHaveSucceeded = [loadingState, metadataLoadingState].every((s) => s === states.succeeded);
 
-
   if (bothHaveSucceeded && dataset) {
     let datasetStats = {
       Time_Min: dataset.Time_Min,
@@ -347,8 +347,10 @@ const DatasetVariablesTableWithLoadingState = connect(mapStateToProps)((props) =
     return (<div id="DatasetAGGrid">
       <div
         className={'ag-theme-material'}
-        style={{ height: '400px', border: '1px solid black' }}>
-        <Spinner />
+        style={{ height: '400px', border: '1px solid black', lineHeight: '400px' }}>
+        <div style={{ margin: '0 auto'}}>
+          <Spinner />
+        </div>
       </div>
     </div>);
   } else {

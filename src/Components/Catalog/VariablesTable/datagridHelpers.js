@@ -13,15 +13,15 @@ export const getColIdFromCellClickEvent = (e) => {
   return colId;
 };
 
+
+
 export const getVariableUMFromCellClickEvent = (e) => {
-  let maybeVum = S.gets(S.is($.String))(['node', 'data', 'Unstructured_Variable_Metadata'])(e);
-  let vum = S.fromMaybe('unknown')(maybeVum);
+  let vum = e && e.node && e.node.data && e.node.data.Unstructured_Variable_Metadata;
   return vum;
 };
 
 export const getVariableUMFromParams = (params) => {
-  let maybeVum = S.gets(S.is($.String))(['node', 'data', 'Unstructured_Variable_Metadata'])(params);
-  let vum = S.fromMaybe('unknown')(maybeVum);
+  let vum = params && params.node && params.node.data && params.node.data.Unstructured_Variable_Metadata;
   return vum;
 };
 
