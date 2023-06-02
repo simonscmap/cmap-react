@@ -162,9 +162,17 @@ export default function (state, action) {
         vizPageDataTargetDetails: action.payload.vizPageDataTargetDetails,
       };
     case VIZ_SEARCH_RESULTS_STORE_AND_UPDATE_OPTIONS:
+      let searchResults = action.payload.searchResults;
+      searchResults.Observation = searchResults.Observation.filter((r) => {
+        let name = r.Dataset_Name && r.Dataset_Name.toLowerCase();
+        if (name && name.includes('geotraces') && name.includes('seawater')) {
+          return false
+        }
+        return true;
+      });
       return {
         ...state,
-        vizSearchResults: action.payload.searchResults,
+        vizSearchResults: searchResults,
         submissionOptions: action.payload.options,
         vizSearchResultsFullCounts: action.payload.counts,
       };

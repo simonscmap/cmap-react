@@ -43,7 +43,7 @@ export default function (state, action) {
       return {
         ...state,
         searchResults: action.payload.searchResults.filter (({ Short_Name }) =>
-          Short_Name !== 'Geotraces_seawater'),
+          Short_Name.toLowerCase() !== 'geotraces_seawater'),
         submissionOptions: action.payload.submissionOptions,
       };
     case SEARCH_RESULTS_SET_LOADING_STATE:
