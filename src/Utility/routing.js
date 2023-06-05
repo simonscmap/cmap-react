@@ -3,9 +3,11 @@ import {
   VISUALIZATION_PAGE,
   CHARTS_PAGE,
   CRUISE_PAGE,
+  HOMEPAGE,
 } from '../constants.js';
 
 const pathToPage = {
+  '/': HOMEPAGE,
   '/catalog': CATALOG_PAGE,
   '/visualization': VISUALIZATION_PAGE,
   // NOTE at the moment it is more useful to consider all these

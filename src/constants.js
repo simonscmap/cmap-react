@@ -12,6 +12,7 @@ export const CATALOG_PAGE = 'catalog';
 export const VISUALIZATION_PAGE = 'visualization';
 export const CHARTS_PAGE = 'charts';
 export const CRUISE_PAGE = 'cruise';
+export const HOMEPAGE = 'homepage';
 
 export const ROUTES = {
   home: '',
@@ -51,6 +52,7 @@ export const LOCAL_STORAGE_KEY_HINTS_STATE = 'hintState';
 export const DEFAULT_HINT_POSITION = 'left';
 
 // Help
+export const HOMEPAGE_VIDEO = 'https://player.vimeo.com/video/809907083';
 export const CATALOG_OVERVIEW_VIDEO = 'https://player.vimeo.com/video/701009719';
   // 'https://player.vimeo.com/video/620160138';
 export const VISUALIZATION_OVERVIEW_VIDEO =

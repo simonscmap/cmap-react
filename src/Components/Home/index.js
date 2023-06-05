@@ -37,7 +37,7 @@ export default DataWrapper;
 
 export const homepageConfig = {
   route: '/',
-  video: false,
+  video: true,
   tour: false,
   hints: false,
   navigationVariant: 'Center',
