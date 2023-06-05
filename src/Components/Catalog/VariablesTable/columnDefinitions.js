@@ -36,7 +36,14 @@ export const columnDefs = [
         headerName: 'Comment',
         field: 'Comment',
         tooltipField: 'Comment',
-        cellRenderer: 'commentCellRenderer',
+        // cellRenderer: 'commentCellRenderer',
+        valueGetter: (param) => {
+          if (param.data.Comment) {
+            return 'View Comment';
+          } else {
+            return '';
+          }
+        },
       },
       {
         headerName: 'Unstructured Metadata',

@@ -13,11 +13,14 @@ import VariableGridHelpContents from './VariableGridHelpContents';
 import MetadataToolPanel from './MetadataToolPanel';
 import CommentCell from './CommentCell';
 import { columnDefs, defaultColumnDef } from './columnDefinitions';
+import {
+  dispatchCustomMetadataFocusEvent,
+  getColIdFromCellClickEvent,
+  makeVUMPayload,
+  makeCommentPayload
+} from './datagridHelpers';
 import { colors } from '../../Home/theme';
 import { gridStyles } from './gridStyles';
-import S from '../../../Utility/sanctuary';
-import $ from 'sanctuary-def';
-
 
 const DatasetPageAGGrid = (props) => {
   const { Variables, classes } = props;
@@ -30,37 +33,15 @@ const DatasetPageAGGrid = (props) => {
 
   // gridRef needs to be in scope for this click handler, in order to access thi grid api
   const onCellClick = (e) => {
-    console.log('ref', gridRef && gridRef);
-    // get values
-    let maybeColId = S.gets(S.is($.String))(['event', 'originalTarget', 'attributes', 'col-id', 'value'])(e);
-    let colId = S.fromMaybe('unknown')(maybeColId);
-
-    let maybeVum = S.gets(S.is($.String))(['node', 'data', 'Unstructured_Variable_Metadata'])(e);
-    let vum = S.fromMaybe('unknown')(maybeVum);
-
-    let maybeLongName = S.gets(S.is($.String))(['node', 'data', 'Long_Name'])(e);
-    let longName = S.fromMaybe('unknown')(maybeLongName);
-
-    let maybeComment = S.gets(S.is($.String))(['node', 'data', 'Comment'])(e);
-    let comment = S.fromMaybe('unknown')(maybeComment);
-
+    let colId = getColIdFromCellClickEvent (e);
     if (colId === 'Unstructured_Variable_Metadata') {
-      let payload = {
-        dataType: 'unstructured-metadata',
-        data: vum,
-        colId,
-      };
-      window.dispatchEvent(new CustomEvent("metadataFocusEvent", { detail: payload }));
-
-      openToolPanel();
+      let payload = makeVUMPayload (e);
+      dispatchCustomMetadataFocusEvent (payload);
+      openToolPanel ();
     } else if (colId === 'Comment') {
-      let payload = {
-        dataType: 'comment',
-        data: comment,
-        colId,
-      };
-      window.dispatchEvent(new CustomEvent("metadataFocusEvent", { detail: payload}));
-      openToolPanel();
+      let payload = makeCommentPayload (e);
+      dispatchCustomMetadataFocusEvent (payload);
+      openToolPanel ();
     }
   };
 

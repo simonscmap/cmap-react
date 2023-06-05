@@ -205,34 +205,34 @@ const DatasetFullPage = (props) => {
     Cruises,
   } = datasetFullPageData;
 
-  if (Variables) {
-    let count = 0;
-    let parsed = [];
-    Variables.forEach((V) => {
-      let { Unstructured_Variable_Metadata: vum, Variable } = V;
-      if (vum !== null) {
-        count++;
-        try {
-          // sql returns comma separated json objects, but we can't simply
-          // split that string on commas, because there are commas within the json
-          // objects;
-          let arrayifiedVum = `[${vum}]`;
-          let vumP = JSON.parse(arrayifiedVum);
-          parsed.push(Variable)
-        } catch (e) {
-          console.log('could not parse', Variable, vum, e);
-        }
-      }
-    });
-    console.log('count', count);
-    console.log('parsed', parsed);
-  }
+  /* if (Variables) {
+*   let count = 0;
+*   let parsed = [];
+*   Variables.forEach((V) => {
+*     let { Unstructured_Variable_Metadata: vum, Variable } = V;
+*     if (vum !== null) {
+*       count++;
+*       try {
+*         // sql returns comma separated json objects, but we can't simply
+*         // split that string on commas, because there are commas within the json
+*         // objects;
+*         let arrayifiedVum = `[${vum}]`;
+*         let vumP = JSON.parse(arrayifiedVum);
+*         parsed.push(Variable)
+*       } catch (e) {
+*         console.log('could not parse', Variable, vum, e);
+*       }
+*     }
+*   });
+*   console.log('count', count);
+*   console.log('parsed', parsed);
+* } */
 
   const loading = datasetFullPageDataLoadingState === states.inProgress;
 
   const [downloadDialogOpen, setDownloadDialogOpen] = React.useState(false);
 
-  const httpRegx =    /\b(https?:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|]|ftp:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|])/g;
+  const httpRegx = /\b(https?:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|]|ftp:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|])/g;
 
   const urlify = (text) =>
     reactStringReplace(text, httpRegx, (match, i) => (
@@ -253,7 +253,7 @@ const DatasetFullPage = (props) => {
     // 'props.match.params.dataset' lets us refer to the named route parameter for this route, called 'dataset',
     // which is declared in App.js
     datasetFullPageDataFetch(props.match.params.dataset);
-    // update redux with data
+    // remove data when user navigates away from page
     return () => datasetFullPageDataStore({});
   }, []);
 

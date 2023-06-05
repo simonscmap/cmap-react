@@ -107,6 +107,9 @@ i
   width: 500px;
   border-left: 2px solid black;
 }
+#DatasetAGGrid .ag-theme-material .ag-tool-panel-wrapper .ag-react-container {
+  width: 100%;
+}
 .ag-theme-material .ag-side-bar .ag-side-buttons .ag-selected button {
   background-color: #184562;
 }

@@ -31,4 +31,32 @@ export const gridStyles = () => ({
 
 });
 
-export const toolPanelStyles = () => ({});
+export const toolPanelStyles = () => ({
+  toolPanelContainer: {
+    padding: '1em',
+    width: '100%',
+  },
+  vumContainer: {
+  },
+  vumBlob: {
+    border: '1px solid black',
+    margin: '1em 0',
+    padding: '1em',
+  },
+  blobValuesContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'nowrap',
+    justifyContent: 'space-between',
+    padding: '1em',
+    borderTop: `1px solid ${colors.primary}`
+  },
+  blobKeyV: {
+    '& > a': {
+      color: colors.primary,
+    }
+  },
+  blobKeyDesc: {
+
+  },
+});
