@@ -469,13 +469,21 @@ class VizControlPanel extends React.Component {
     }
 
     if (['date1', 'hour1', 'date2', 'hour2'].includes(e.target.name)) {
-      console.log ('raw value of changed input', e.target.name, typeof e.target.value, e.target.value)
       let { dt1, dt2 } = this.state;
       if (typeof dt1 !== 'string' || typeof dt2 !== 'string') {
         console.error ('incorrect types for dt1 and dt1, could not update state', dt1, dt2);
         return;
       }
       let isoTail = ':00.000Z';
+
+      if (value === '' && (name === 'date1' || name === 'date2')) {
+        value = '0000-00-00'
+      }
+
+      if (value === '' && (name === 'hour1' || name === 'hour2')) {
+       value = '00:00';
+      }
+
       switch (e.target.name) {
         case 'date1':
           name = 'dt1';
@@ -836,9 +844,6 @@ class VizControlPanel extends React.Component {
     } = this.state;
 
 
-    // console.log ('variable id & details', dataTarget && dataTarget.ID, vizPageDataTargetDetails);
-    console.log ('dt1 & dt2', dt1, dt2);
-
     let details = vizPageDataTargetDetails;
     let validations;
 
@@ -868,7 +873,9 @@ class VizControlPanel extends React.Component {
         this.checkStartDateTime(),
         this.checkEndDateTime(),
       ];
-    } else validations = Array(14).fill('');
+    } else {
+      validations = Array(14).fill('');
+    }
 
     const [
       startDepthMessage,
