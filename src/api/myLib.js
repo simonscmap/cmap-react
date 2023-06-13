@@ -23,6 +23,7 @@ export const subsetKey = (key) => (dataArray) => {
   return subsets;
 };
 
+// map the values at a certain depth of nested array
 export const mapDeep = (fn) => (level) => (src) => {
   if (level === 0) {
     return (fn.call (null, src));
@@ -33,17 +34,27 @@ export const mapDeep = (fn) => (level) => (src) => {
 
 export const rowToVal = (row) => row[4];
 
-export const sum = (values) => values.reduce((acc, curr) => acc + curr, 0);
+export const sum = (values) => values.reduce((acc, curr) => {
+  if (curr === undefined || isNaN(curr)) {
+    // console.log('non number in sum ');
+    return acc;
+  }
+  return acc + curr
+}, 0);
 
 // calculate mean for an array of 2d matrices
 export const toMean2D = (matrices) => {
   let subset = [];
   for (let lat = 0; lat < matrices[0].length; lat++) {
+    // for this lat, create an array of values for each lon,
+    // where the value is the mean of that lat/lon across all matrices
     subset.push(new Array ());
     for (let lon = 0; lon < matrices[0][lat].length; lon++) {
       let values = matrices.reduce ((acc, matrix) => {
-        if (!isNaN(matrix[lat][lon])) {
+        if (matrix && matrix[lat] && matrix[lat][lon] !== null && !isNaN(matrix[lat][lon])) {
           acc.push (matrix[lat][lon]);
+        } else {
+          // console.warn ('skip', `lat ${lat} lon ${lon}`, matrix[lat][lon]);
         }
         return acc;
       }, []);
@@ -61,6 +72,7 @@ export const toMean2D = (matrices) => {
    the time and depth subsets (timeGroup and depthGroup below);
 
    Generate a 2d map of mean values;   */
+
 export const toMean3D = (matrices) => {
   let subset = [];
   for (let lat = 0; lat < matrices[0][0].length; lat++) {
@@ -69,7 +81,7 @@ export const toMean3D = (matrices) => {
 
       let values = matrices.reduce((acc, timeGroup) => {
         timeGroup.forEach ((depthGroup) => {
-          if (!isNaN(depthGroup[lat][lon])) {
+          if (depthGroup && depthGroup[lat] && depthGroup[lat][lon]) {
             acc.push(depthGroup[lat][lon]);
           }
         });
@@ -143,7 +155,14 @@ export const roundToDecimal = (decimal) => (numberToRound) => {
     return Math.round(n) / p;
   };
 
-  return decimalAdjustRound (numberToRound, decimal);
+  let result = decimalAdjustRound (numberToRound, decimal);
+
+  if (result > 0 && numberToRound < 0) {
+    // this fixes all sorts of plotting bugs
+    return 0 - result;
+  } else {
+    return result;
+  }
 };
 
 // alternative to subsetKey
