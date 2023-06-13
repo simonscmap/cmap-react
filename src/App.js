@@ -45,6 +45,7 @@ const SearchResults = lazy(() => import('./Components/Catalog/SearchResults'));
 const Visualization = lazy(() =>
   import('./Components/Visualization/Visualization'),
 );
+const SinglePlot = lazy(() => import('./Components/Visualization/SinglePlot'));
 const NewsDashboard = lazy(() => import('./Components/Admin/News/Dashboard'));
 const Cite = lazy(() => import('./Components/Cite'));
 const Spinner = lazy(() => import('./Components/UI/Spinner'));
@@ -100,6 +101,7 @@ class App extends Component {
                     <Route path="/visualization">
                       <Visualization />
                     </Route>
+                    <Route path="/plot"><SinglePlot /></Route>
                     <Route
                       path="/datasubmission"
                       component={DataSubmission}

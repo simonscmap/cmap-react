@@ -72,6 +72,9 @@ const getXTicks = (data) => {
   let {
     parameters: { lon1, lon2 },
   } = data;
+  if (lon1 > lon2) {
+    console.warn ('get X ticks: lon1 is greater than lon2', lon1, lon2);
+  }
   return lon1 > lon2 ? handleXTicks(data) : {};
 };
 
@@ -136,8 +139,8 @@ const handleContourMap = (
       key: index,
       useResizeHandler: true,
       style: {
-        width: `${width}vw`,
-        height: `${height}vw`,
+        // width: `${width}vw`,
+        // height: `${height}vw`,
         minWidth: `${width * 10}px`,
         minHeight: `${height * 10}px`,
         margin: '0 auto',
@@ -284,8 +287,6 @@ const SpaceTimeChart = (props) => {
   let { data, subType } = chart;
   let { dates, metadata } = data;
   let { contourMap, heatmap } = subTypes;
-
-  console.table ('sample chart rows', data.rows.slice (0,20))
 
   // Control: Split by Date
   let [splitByDate, setSplitByDate] = useState(false);
