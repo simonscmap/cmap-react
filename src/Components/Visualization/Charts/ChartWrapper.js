@@ -58,6 +58,7 @@ const ChartWrapper = ({ chart, index, classes }) => {
 };
 
 const mapStateToChartWrapperProps = ({ charts }) => ({
+
   charts,
 });
 

@@ -5,6 +5,7 @@ import z from '../../../enums/zIndex';
 
 export const spaceTimeChartStyles = (theme) => ({
   chartWrapper: {
+    position: 'relative',
     display: 'inline-block',
     backgroundColor: colors.backgroundGray,
     boxShadow:
@@ -22,6 +23,7 @@ export const spaceTimeChartStyles = (theme) => ({
 
 export const histogramStyles = (theme) => ({
   chartWrapper: {
+    position: 'relative',
     display: 'inline-block',
     backgroundColor: colors.backgroundGray,
     boxShadow:
@@ -39,6 +41,7 @@ export const histogramStyles = (theme) => ({
 
 export const sparseMapStyles = (theme) => ({
   chartWrapper: {
+    position: 'relative',
     display: 'inline-block',
     backgroundColor: colors.backgroundGray,
     boxShadow:
@@ -65,6 +68,7 @@ export const sparseMapStyles = (theme) => ({
 
 export const timeSeriesChartStyles = (theme) => ({
   chartWrapper: {
+    position: 'relative',
     display: 'inline-block',
     backgroundColor: colors.backgroundGray,
     boxShadow:
@@ -79,6 +83,7 @@ export const timeSeriesChartStyles = (theme) => ({
 
 export const depthProfileChartStyles = (theme) => ({
   chartWrapper: {
+    position: 'relative',
     display: 'inline-block',
     backgroundColor: colors.backgroundGray,
     boxShadow:
@@ -93,6 +98,7 @@ export const depthProfileChartStyles = (theme) => ({
 
 export const sectionMapChartStyles = (theme) => ({
   chartWrapper: {
+    position: 'relative',
     display: 'inline-block',
     backgroundColor: colors.backgroundGray,
     boxShadow:
@@ -217,12 +223,7 @@ export const chartsStyles = (theme) => ({
     marginBottom: '5h',
     paddingTop: theme.spacing(1),
     boxShadow: '2px 2px 2px 2px #242424',
-    width: 'max-content',
-    margin: '0 auto 5vh auto',
-    '@media (min-width: 1280px)': {
-      textAlign: 'left',
-      margin: '0 0 5vh 360px',
-    },
+    margin: '0 0 50px 360px',
   },
 });
 

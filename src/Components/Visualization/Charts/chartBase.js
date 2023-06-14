@@ -102,15 +102,18 @@ const makeTitle = (metadata, date, lat, lon, depth) => {
 const defaultConfig = {
   style: {
     position: 'relative',
-    width: '60vw',
-    height: '40vw',
+    // width: '60vw',
+    // height: '40vw',
+    width: '100%',
+    // height: '500px',
+    // minWidth: '500',
   },
   useResizeHandler: true,
   layout: {
     font: { color: '#ffffff' },
     paper_bgcolor: colors.backgroundGray,
     plot_bgcolor: 'transparent',
-    autosize: true,
+    // autosize: true,
     margin: {
       t: 116,
       b: 104,
