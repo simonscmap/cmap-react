@@ -539,12 +539,20 @@ class VizControlPanel extends React.Component {
   };
 
   checkStartDateTime = () => {
-    if (!isISODateString (this.state.dt1)) {
+    let isMonthly =
+      this.props.vizPageDataTargetDetails.Temporal_Resolution ===
+      temporalResolutions.monthlyClimatology;
+
+    if (!isMonthly && !isISODateString (this.state.dt1)) {
       return 'Invalid date/time';
     }
   }
   checkEndDateTime = () => {
-    if (!isISODateString (this.state.dt2)) {
+    let isMonthly =
+      this.props.vizPageDataTargetDetails.Temporal_Resolution ===
+      temporalResolutions.monthlyClimatology;
+
+    if (!isMonthly && !isISODateString (this.state.dt2)) {
       return 'Invalid date/time';
     }
   }
