@@ -73,6 +73,7 @@ const styles = () => ({
   },
 
   showCharts: {
+    width: 'calc(100% - 20px)',
     display: 'inline-block',
     paddingTop: '160px',
     textAlign: 'left', //new

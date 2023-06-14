@@ -10,7 +10,7 @@ import z from '../../enums/zIndex';
 const styles = (theme) => ({
   loaderContent: {
     display: 'flex',
-    flexDirection: 'inherit',
+    flexDirection: 'column',
     alignItem: 'center',
     justifyContent: 'center',
     zIndex: z.LOADING_OVERLAY + 1,
