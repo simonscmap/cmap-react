@@ -29,6 +29,12 @@ const styles = () => ({
     borderRadius: '6px',
     margin: '0 0.5em 0.1em 0',
   },
+  badgeWrapper: {
+    display: 'flex',
+    flexDirection: 'row',
+    marginBottom: '2em',
+    gap: '1em',
+  }
 });
 
 const Credit = withStyles(styles)(({ children }) => {
@@ -40,15 +46,18 @@ const Credit = withStyles(styles)(({ children }) => {
   );
 });
 
-const HeroContent = withStyles(styles)(() => {
+const HeroContent = withStyles(styles)(({ classes }) => {
   return (
     <div>
-      <div style={{ marginBottom: '2em' }}>
+      <div className={classes.badgeWrapper}>
         <a href="https://doi.org/10.5281/zenodo.7839055">
           <img
             src="https://zenodo.org/badge/DOI/10.5281/zenodo.7839055.svg"
             alt="DOI"
           />
+        </a>
+        <a href="https://colab.research.google.com/github/simonscmap/pycmap/blob/master/docs/CruiseMap.ipynb">
+          <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open in Colab" title="Open and Execute in Google Colaboratory" target="_blank" align="left" />
         </a>
       </div>
       <Credit>
@@ -67,7 +76,6 @@ const Notebook = () => {
   let [innerWidth, setInnerWidth] = useState(1380);
 
   let onResize = (rect) => {
-    console.log('on resize');
     let { width } = rect;
     setInnerWidth(width);
   };

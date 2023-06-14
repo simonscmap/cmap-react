@@ -44,7 +44,7 @@ const styles = (theme) => ({
   },
 });
 
-const mapStateToProps = (state, ownProps) => ({
+const mapStateToProps = (state) => ({
   datasetSummary: state.datasetSummary,
 });
 
@@ -63,7 +63,7 @@ const DatasetInfoDialog = (props) => {
 
   React.useEffect(() => {
     datasetSummaryFetch(datasetSummaryID);
-  }, [datasetSummaryID]);
+  }, [datasetSummaryID, datasetSummaryFetch]);
 
   const handleClose = () => {
     setDatasetSummaryID(null);

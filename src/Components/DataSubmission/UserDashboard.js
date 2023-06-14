@@ -64,7 +64,7 @@ class UserDashboard extends React.Component {
 
     if (submissionID) {
       this.props.dataSubmissions.forEach((e, i) => {
-        if (submissionID == e.Submission_ID) {
+        if (submissionID === e.Submission_ID) {
           this.setState({ ...this.state, expandedPanel: i });
         }
       });
@@ -72,7 +72,7 @@ class UserDashboard extends React.Component {
 
     if (datasetName) {
       this.props.dataSubmissions.forEach((e, i) => {
-        if (datasetName.trim() == e.Dataset.trim()) {
+        if (datasetName.trim() === e.Dataset.trim()) {
           this.setState({ ...this.state, expandedPanel: i });
         }
       });

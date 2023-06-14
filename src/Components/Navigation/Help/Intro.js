@@ -76,7 +76,7 @@ const Intro = ({ config, wait }) => {
       // get a refreshed array of steps
       setReady(false);
     }
-  }, [wait, introEnabled]);
+  }, [wait, introEnabled, config.steps]);
 
   const isEnabled = ready && introEnabled;
 

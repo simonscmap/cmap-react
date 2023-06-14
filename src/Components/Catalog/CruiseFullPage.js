@@ -114,7 +114,7 @@ const CruiseFullPage = (props) => {
     cruiseFullPageDataFetch(props.match.params.cruiseName);
 
     return () => cruiseFullPageDataStore({});
-  }, []);
+  }, [cruiseFullPageDataFetch, cruiseFullPageDataStore]);
 
   useEffect(() => {
     document.title = Name || metaTags.defaultTitle;

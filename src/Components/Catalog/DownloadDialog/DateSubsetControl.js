@@ -5,7 +5,6 @@ import {
   dateToDay,
   dayToDateString,
   dateToDateString,
-  getBoundedDateValueFromClickEvent,
   getIsMonthlyClimatology,
 } from './downloadDialogHelpers';
 import styles from './downloadDialogStyles';

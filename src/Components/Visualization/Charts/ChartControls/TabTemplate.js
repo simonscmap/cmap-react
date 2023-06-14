@@ -3,7 +3,7 @@ import { Button, Tooltip, withStyles } from '@material-ui/core';
 import { chartControlTabButton } from '../chartStyles';
 
 const TabTemplate = (props) => {
-  let { tabTitle, onClick, classes, active, key } = props;
+  let { tabTitle, onClick, classes, active } = props;
 
   return (
     <Tooltip placement="top" title={`Visualize by ${tabTitle}`}>

@@ -92,7 +92,7 @@ const styles = (theme) => ({
     textTransform: 'none',
     textIndent: '.5em',
   },
-  ['@media (min-width: 1280px) and (max-width: 1482px)']: {
+  '@media (min-width: 1280px) and (max-width: 1482px)': {
     downloadLink: {
       backgroundColor: 'rgb(33, 82, 108, 0.9)',
       boxShadow:
@@ -119,7 +119,7 @@ const styles = (theme) => ({
     flexDirection: 'row',
     textAlign: 'left',
   },
-  ['@media (max-width: 690px)']: {
+  '@media (max-width: 690px)': {
     resultActions: {
       flexDirection: 'column',
     },

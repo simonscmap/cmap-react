@@ -99,7 +99,7 @@ const SearchBox = ({ classes: cl }) => {
 
   useEffect(() => {
    search(searchTerm);
-  }, [searchTerm]);
+  }, [searchTerm, search]);
 
   // let history = useHistory();
 

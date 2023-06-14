@@ -56,7 +56,7 @@ const VariableDetailsDialog = (props) => {
 
   React.useEffect(() => {
     variableFetch(variableDetailsID);
-  }, [variableDetailsID]);
+  }, [variableDetailsID, variableFetch]);
 
   const handleClose = (e) => {
     e.stopPropagation();

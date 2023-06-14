@@ -6,7 +6,6 @@ import {
   Switch,
   Grid,
   Link,
-  Typography,
 } from '@material-ui/core';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import HelpIcon from '@material-ui/icons/Help';

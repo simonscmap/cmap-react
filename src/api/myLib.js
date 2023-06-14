@@ -1,8 +1,10 @@
 export const subsetKey = (key) => (dataArray) => {
   let uniqueValues = new Set ();
   dataArray.forEach (row => uniqueValues.add (row[key]));
+  /* eslint-disable-next-line */
   let subsets = new Array (uniqueValues.size);
   for (let i = 0; i < subsets.length; i++) {
+  /* eslint-disable-next-line */
     subsets[i] = new Array();
   }
 
@@ -48,6 +50,7 @@ export const toMean2D = (matrices) => {
   for (let lat = 0; lat < matrices[0].length; lat++) {
     // for this lat, create an array of values for each lon,
     // where the value is the mean of that lat/lon across all matrices
+    /* eslint-disable-next-line */
     subset.push(new Array ());
     for (let lon = 0; lon < matrices[0][lat].length; lon++) {
       let values = matrices.reduce ((acc, matrix) => {
@@ -76,6 +79,7 @@ export const toMean2D = (matrices) => {
 export const toMean3D = (matrices) => {
   let subset = [];
   for (let lat = 0; lat < matrices[0][0].length; lat++) {
+      /* eslint-disable-next-line */
     subset.push(new Array());
     for (let lon = 0; lon < matrices[0][0][lat].length; lon++) {
 
@@ -100,6 +104,7 @@ export const toMean3D = (matrices) => {
 export const getHovertext_ = ({ z, x, y }) => {
   let result = [];
   z.forEach((row, i) => {
+      /* eslint-disable-next-line */
     result.push(new Array());
     row.forEach((value, j) => {
       result[i].push(
@@ -176,6 +181,7 @@ export const splitByKey = (key) => (dataArray) => {
   let i = 0;
   while (dataArray[i]) {
     if (dataArray[i][key] !== (dataArray[i - 1] && dataArray[i - 1][key])) {
+        /* eslint-disable-next-line */
       result.push (new Array());
     }
     result[result.length - 1].push (dataArray[i]);
@@ -204,6 +210,7 @@ export const meanWithSplit = (subsets) => {
   let subsetsResults = subsets.map ((subset) => {
     let result = [];
     for (let lat = 0; lat < subset[0].length; lat++) {
+        /* eslint-disable-next-line */
       result.push(new Array());
       for (let lon = 0; lon < subset[0][lat].length; lon++) {
 

@@ -73,10 +73,14 @@ const styles = () => ({
   },
 
   showCharts: {
-    width: 'calc(100% - 20px)',
-    display: 'inline-block',
-    paddingTop: '160px',
+    width: 'calc(100vw - 40px)',
+    // display: 'inline-block',
+    paddingTop: '180px',
+    paddingBottom: '50px',
     textAlign: 'left', //new
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '40px'
   },
 
   vizWrapper: {

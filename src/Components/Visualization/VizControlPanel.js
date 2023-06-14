@@ -470,6 +470,11 @@ class VizControlPanel extends React.Component {
 
     if (['date1', 'hour1', 'date2', 'hour2'].includes(e.target.name)) {
       let { dt1, dt2 } = this.state;
+
+      console.log(name, value)
+      console.log('dt1&2', dt1, dt2);
+      console.log('slice10', dt1.slice(0,10), dt2.slice(0,10));
+
       if (typeof dt1 !== 'string' || typeof dt2 !== 'string') {
         console.error ('incorrect types for dt1 and dt1, could not update state', dt1, dt2);
         return;
@@ -477,11 +482,17 @@ class VizControlPanel extends React.Component {
       let isoTail = ':00.000Z';
 
       if (value === '' && (name === 'date1' || name === 'date2')) {
+        console.log('date was zeroed out');
         value = '0000-00-00'
       }
 
       if (value === '' && (name === 'hour1' || name === 'hour2')) {
        value = '00:00';
+      }
+
+      if (value.length > 10 && (name === 'date1' || name === 'date2')) {
+        console.log('date was providede too many characters');
+        value = '0000-00-00';
       }
 
       switch (e.target.name) {
@@ -503,6 +514,8 @@ class VizControlPanel extends React.Component {
           break;
       }
     }
+
+    console.log('calculated value', value);
 
     this.setState({
       ...this.state,

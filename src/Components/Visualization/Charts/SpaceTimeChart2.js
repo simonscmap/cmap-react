@@ -139,11 +139,10 @@ const handleContourMap = (
       key: index,
       useResizeHandler: true,
       style: {
-        // width: `${width}vw`,
-        // height: `${height}vw`,
-        minWidth: `${width * 10}px`,
-        minHeight: `${height * 10}px`,
-        margin: '0 auto',
+        width: `${width}vw`,
+        height: `${height}vw`,
+        // minWidth: `${width * 10}px`,
+        // minHeight: `${height * 10}px`,
       },
       data: [
         {
@@ -218,10 +217,12 @@ const handleHeatmap = (
     let heatmapPlotConfig = {
       key: index,
       style: {
-        width: `${width}vw`,
-        height: `${height}vw`,
-        minWidth: `${width * 10}px`,
-        minHeight: `${height * 10}px`,
+        // width: '100vw',
+        // height: '100vh',
+         width: `${width}vw`,
+         height: `${height}vw`,
+         // minWidth: `${width * 10}px`,
+         // minHeight: `${height * 10}px`,
       },
       useResizeHandler: true,
       data: [
@@ -257,7 +258,7 @@ const handleHeatmap = (
           title: 'Longitude[\xB0]',
           color: '#ffffff',
           exponentformat: 'power',
-          ...xTicks,
+          // ...xTicks,
         },
         yaxis: {
           title: 'Latitude[\xB0]',

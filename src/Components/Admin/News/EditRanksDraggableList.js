@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import Section from '../../Common/Section';
 import { setNewsRanks } from '../../../Redux/actions/news';
 
-import { getRanks, rankedStories, prepareRanksPayload } from './lib';
+import { rankedStories, prepareRanksPayload } from './lib';
 
 // For drag and drop reference, see:
 // https://dev.to/florantara/creating-a-drag-and-drop-list-with-react-hooks-4c0i
@@ -35,7 +35,7 @@ const EditRankDraggableList = () => {
   const [rankList, setRankList] = useState(storiesToRank);
   const [dragState, setDragState] = useState(initialDragState(storiesToRank));
 
-  let callSetRankList = (s, tag) => {
+  let callSetRankList = (s) => {
     //  console.log(`${tag} setting rank list`, s);
     setRankList(s);
   };

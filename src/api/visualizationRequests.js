@@ -90,7 +90,7 @@ visualizationAPI.storedProcedureRequest = async (payload) => {
 };
 
 visualizationAPI.sparseDataQuerysend = async (payload) => {
-  const { parameters, metadata } = payload;
+  const { parameters } = payload;
 
   const decoder = new encoding.TextDecoder();
   var vizData;

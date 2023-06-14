@@ -89,6 +89,12 @@ const styles = () => ({
       width: '100%',
       height: '100%',
     }
+  },
+  badges: {
+    display: 'flex',
+    flexDirection: 'row',
+    marginBottom: '2em',
+    gap: '1em',
   }
 });
 
@@ -130,12 +136,17 @@ const About = ({ classes }) => {
                     </Link>
                   </Typography>
 
-                  <a href="https://doi.org/10.5281/zenodo.7839055">
-                    <img
-                      src="https://zenodo.org/badge/DOI/10.5281/zenodo.7839055.svg"
-                      alt="DOI"
-                    />
-                  </a>
+                  <div className={classes.badges}>
+                    <a href="https://doi.org/10.5281/zenodo.7839055">
+                      <img
+                        src="https://zenodo.org/badge/DOI/10.5281/zenodo.7839055.svg"
+                        alt="DOI"
+                      />
+                    </a>
+                    <a href="https://colab.research.google.com/github/simonscmap/pycmap/blob/master/docs/CruisePlan.ipynb">
+                      <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open in Colab" title="Open and Execute in Google Colaboratory" target="_blank" align="left" />
+                    </a>
+                  </div>
 
                   <div className={classes.galleryThumb}>
                     <img src="/images/gallery/getting-started-cruise-plan.jpg" alt="Cruise plan graph" />
@@ -158,13 +169,17 @@ const About = ({ classes }) => {
                 </Link>
               </Typography>
 
-              <a href="https://doi.org/10.5281/zenodo.7839055">
-                <img
-                  src="https://zenodo.org/badge/DOI/10.5281/zenodo.7839055.svg"
-                  alt="DOI"
-                />
-              </a>
-
+              <div className={classes.badges}>
+                <a href="https://doi.org/10.5281/zenodo.7839055">
+                  <img
+                    src="https://zenodo.org/badge/DOI/10.5281/zenodo.7839055.svg"
+                    alt="DOI"
+                  />
+                </a>
+                <a href="https://colab.research.google.com/github/simonscmap/pycmap/blob/master/docs/CruiseMap.ipynb">
+                  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open in Colab" title="Open and Execute in Google Colaboratory" target="_blank" align="left" />
+                </a>
+              </div>
 
               <div className={classes.galleryThumb}>
                 <img src="/images/gallery/getting-started-cruise-map.png" alt="Geospacial cruise map" />

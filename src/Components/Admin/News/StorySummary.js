@@ -5,7 +5,6 @@ import { colors } from '../../Home/theme';
 import StoryStatus from './StoryStatus';
 import DateDetail from './DateDetail';
 import CancelIcon from '@material-ui/icons/Cancel';
-import AddIcon from '@material-ui/icons/Add';
 import FormatListNumberedIcon from '@material-ui/icons/FormatListNumbered';
 import IconButton from '@material-ui/core/IconButton';
 import { useSelector, useDispatch } from 'react-redux';

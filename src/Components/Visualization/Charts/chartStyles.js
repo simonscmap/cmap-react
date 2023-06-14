@@ -3,15 +3,19 @@
 import colors from '../../../enums/colors';
 import z from '../../../enums/zIndex';
 
+const chartWrapperCommon = {
+  position: 'relative',
+  display: 'inline-block',
+  backgroundColor: colors.backgroundGray,
+  boxShadow:
+    '0px 6px 6px -3px rgba(0,0,0,0.2),0px 10px 14px 1px rgba(0,0,0,0.14),0px 4px 18px 3px rgba(0,0,0,0.12)',
+  margin: '20px 0 0 0',
+  color: 'white',
+};
+
 export const spaceTimeChartStyles = (theme) => ({
   chartWrapper: {
-    position: 'relative',
-    display: 'inline-block',
-    backgroundColor: colors.backgroundGray,
-    boxShadow:
-      '0px 6px 6px -3px rgba(0,0,0,0.2),0px 10px 14px 1px rgba(0,0,0,0.14),0px 4px 18px 3px rgba(0,0,0,0.12)',
-    margin: '20px',
-    color: 'white',
+    ...chartWrapperCommon
   },
   buttonBlock: {
     display: 'block',
@@ -23,13 +27,7 @@ export const spaceTimeChartStyles = (theme) => ({
 
 export const histogramStyles = (theme) => ({
   chartWrapper: {
-    position: 'relative',
-    display: 'inline-block',
-    backgroundColor: colors.backgroundGray,
-    boxShadow:
-      '0px 6px 6px -3px rgba(0,0,0,0.2),0px 10px 14px 1px rgba(0,0,0,0.14),0px 4px 18px 3px rgba(0,0,0,0.12)',
-    margin: '20px',
-    color: 'white',
+    ...chartWrapperCommon
   },
   buttonBlock: {
     display: 'block',
@@ -41,13 +39,7 @@ export const histogramStyles = (theme) => ({
 
 export const sparseMapStyles = (theme) => ({
   chartWrapper: {
-    position: 'relative',
-    display: 'inline-block',
-    backgroundColor: colors.backgroundGray,
-    boxShadow:
-      '0px 6px 6px -3px rgba(0,0,0,0.2),0px 10px 14px 1px rgba(0,0,0,0.14),0px 4px 18px 3px rgba(0,0,0,0.12)',
-    margin: '20px',
-    color: 'white',
+    ...chartWrapperCommon
   },
 
   buttonBlock: {
@@ -68,13 +60,7 @@ export const sparseMapStyles = (theme) => ({
 
 export const timeSeriesChartStyles = (theme) => ({
   chartWrapper: {
-    position: 'relative',
-    display: 'inline-block',
-    backgroundColor: colors.backgroundGray,
-    boxShadow:
-      '0px 6px 6px -3px rgba(0,0,0,0.2),0px 10px 14px 1px rgba(0,0,0,0.14),0px 4px 18px 3px rgba(0,0,0,0.12)',
-    margin: '20px',
-    color: 'white',
+    ...chartWrapperCommon
   },
   buttonBlock: {
     display: 'block',
@@ -83,13 +69,7 @@ export const timeSeriesChartStyles = (theme) => ({
 
 export const depthProfileChartStyles = (theme) => ({
   chartWrapper: {
-    position: 'relative',
-    display: 'inline-block',
-    backgroundColor: colors.backgroundGray,
-    boxShadow:
-      '0px 6px 6px -3px rgba(0,0,0,0.2),0px 10px 14px 1px rgba(0,0,0,0.14),0px 4px 18px 3px rgba(0,0,0,0.12)',
-    margin: '20px',
-    color: 'white',
+    ...chartWrapperCommon
   },
   buttonBlock: {
     display: 'block',
@@ -98,13 +78,7 @@ export const depthProfileChartStyles = (theme) => ({
 
 export const sectionMapChartStyles = (theme) => ({
   chartWrapper: {
-    position: 'relative',
-    display: 'inline-block',
-    backgroundColor: colors.backgroundGray,
-    boxShadow:
-      '0px 6px 6px -3px rgba(0,0,0,0.2),0px 10px 14px 1px rgba(0,0,0,0.14),0px 4px 18px 3px rgba(0,0,0,0.12)',
-    margin: '20px',
-    color: 'white',
+    ...chartWrapperCommon
   },
   buttonBlock: {
     display: 'block',
@@ -223,7 +197,8 @@ export const chartsStyles = (theme) => ({
     marginBottom: '5h',
     paddingTop: theme.spacing(1),
     boxShadow: '2px 2px 2px 2px #242424',
-    margin: '0 0 50px 360px',
+    margin: '0 0 0 360px',
+    // minWidth: '715px' // buggy // coordinates with chartBase min width
   },
 });
 
