@@ -23,9 +23,13 @@ const styles = () => ({
     '& > div': {
       maxWidth: '35%',
       minWidth: '30%',
-      flexBasis: 'min-content',
       marginBottom: '2em',
     },
+    '@media(max-width:1200px)': {
+      '& > div': {
+        maxWidth: '45%',
+      },
+    }
   },
 
   card: {
@@ -94,7 +98,10 @@ const styles = () => ({
     display: 'flex',
     flexDirection: 'row',
     marginBottom: '2em',
-    gap: '1em',
+    flexWrap: 'wrap',
+    '& > a': {
+      marginRight: '5px',
+    }
   }
 });
 
