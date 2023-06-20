@@ -88,10 +88,12 @@ $row-stub-background-color: #22a3b9;
   background-color: #184562;
 }
 
+.ag-theme-material .ag-popup-editor,
 #DatasetAGGrid .ag-theme-material .ag-popup-editor {
   background-color: #184562;
 }
-i
+
+.ag-theme-material .ag-cell-inline-editing,
 #DatasetAGGrid .ag-theme-material .ag-cell-inline-editing {
   background-color: #184562;
   height: auto;
