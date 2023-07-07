@@ -59,17 +59,16 @@ class SpaceTimeData {
   add(row) {
     if (this.rows.length < 1) {
       console.log ('variable parameters', this.parameters);
-      console.log ('sample row', row);
     }
     let lat = [row[1]]
       .map (parseFloat)
-      .map (roundToThousandths)
+      // .map (roundToThousandths)
       .shift ();
 
     let lon = [row[2]]
       .map (parseFloat)
       .map (n => n < this.parameters.lon1 ? n + 360 : n)
-      .map (roundToThousandths)
+      //.map (roundToThousandths)
       .shift ();
 
     let value = row.length === 5

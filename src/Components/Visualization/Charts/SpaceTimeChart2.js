@@ -26,6 +26,8 @@ import { getHovertext_, toSetArray,
          spaceTimeGenerateHistogramSubsetPlotsSplitByDepth,
          spaceTimeGenerateHistogram2D,
 } from '../../../api/myLib.js';
+import { format } from 'd3-format';
+
 
 // helpers
 const getDate = (data, splitByDate, splitByDepth, subsetIndex) => {
@@ -69,46 +71,40 @@ const getDepth = (data, subsetIndex, splitByDate, splitByDepth) => {
 };
 
 const getXTicks = (data) => {
-  let {
-    parameters: { lon1, lon2 },
-  } = data;
-  if (lon1 > lon2) {
-    console.warn ('get X ticks: lon1 is greater than lon2', lon1, lon2);
-  }
-  return lon1 > lon2 ? handleXTicks(data) : {};
+  return  handleXTicks(data) ;
 };
 
-/* const getHovertext = (subset, data) => {
-*   return subset.map((value, i) => {
-*     let abs = Math.abs(value);
-*     let formatter = abs > 0.01 && abs < 1000 ? '.2f' : '.2e';
-*     if (value === null) {
-*       return (
-*         `Lat: ${format('.2f')(data.lats[i])}\xb0` +
-*         `<br>` +
-*         `Lon: ${
-*           data.lons[i] > 180
-*             ? format('.2f')(data.lons[i] - 360)
-*             : format('.2f')(data.lons[i])
-*         }\xb0`
-*       );
-*     }
-*
-*     return (
-*       `Lat: ${format('.2f')(data.lats[i])}\xb0` +
-*       `<br>` +
-*       `Lon: ${
-*         data.lons[i] > 180
-*           ? format('.2f')(data.lons[i] - 360)
-*           : format('.2f')(data.lons[i])
-*       }\xb0` +
-*       '<br>' +
-*       `${data.parameters.fields}: ${format(formatter)(value)} [${
-*         data.metadata.Unit
-*       }]`
-*     );
-*   });
-* }; */
+ const getHovertext = (subset, data) => {
+   return subset.map((value, i) => {
+     let abs = Math.abs(value);
+     let formatter = abs > 0.01 && abs < 1000 ? '.2f' : '.2e';
+     if (value === null) {
+       return (
+         `Lat: ${format('.2f')(data.lats[i])}\xb0` +
+         `<br>` +
+         `Lon: ${
+           data.lons[i] > 180
+             ? format('.2f')(data.lons[i] - 360)
+             : format('.2f')(data.lons[i])
+         }\xb0`
+       );
+     }
+
+     return (
+       `Lat: ${format('.2f')(data.lats[i])}\xb0` +
+       `<br>` +
+       `Lon: ${
+         data.lons[i] > 180
+           ? format('.2f')(data.lons[i] - 360)
+           : format('.2f')(data.lons[i])
+       }\xb0` +
+       '<br>' +
+       `${data.parameters.fields}: ${format(formatter)(value)} [${
+         data.metadata.Unit
+       }]`
+     );
+   });
+ };
 
 const handleContourMap = (
   subsets,
@@ -129,7 +125,6 @@ const handleContourMap = (
     let dateTitle = getDate(data, splitByDate, splitByDepth, index);
     let depthTitle = getDepth(data, index, splitByDate, splitByDepth);
     let { latTitle, lonTitle } = getLatLonTitles(parameters);
-    // let hovertext = getHovertext(subset, data);
 
     let uniqY = toSetArray (data.lats);
     let uniqX = toSetArray (data.lons);
@@ -160,7 +155,7 @@ const handleContourMap = (
           colorscale: palette,
 
           hoverinfo: 'text',
-          hovertext: getHovertext_ ({ x: uniqX, y: uniqY, z: subset}),
+          hovertext: getHovertext_ ({ x: uniqX, y: uniqY, z: subset, fields: data.parameters.fields, unit: data.metadata.Unit}),
           name: truncate60(metadata.Long_Name),
           type: 'contour',
           contours: {
@@ -212,7 +207,7 @@ const handleHeatmap = (
     let { latTitle, lonTitle } = getLatLonTitles(parameters);
 
     let uniqY = toSetArray (data.lats);
-    let uniqX = toSetArray (data.lons);
+    let uniqX = toSetArray (data.lons)
 
     let heatmapPlotConfig = {
       key: index,
@@ -240,11 +235,12 @@ const handleHeatmap = (
           connectgaps: false,
           name: truncate60(metadata.Long_Name),
           type: 'heatmap',
+
           colorscale: palette,
           autocolorscale: false,
           hoverinfo: 'text',
-          // text: hovertext,
-          text: getHovertext_({ z: subset, x: uniqX, y: uniqY }),
+          hovertext: getHovertext_ ({ x: uniqX, y: uniqY, z: subset, fields: data.parameters.fields, unit: data.metadata.Unit}),
+
           colorbar: {
             title: {
               text: `[${data.metadata.Unit}]`,
@@ -258,7 +254,7 @@ const handleHeatmap = (
           title: 'Longitude[\xB0]',
           color: '#ffffff',
           exponentformat: 'power',
-          // ...xTicks,
+          ...xTicks,
         },
         yaxis: {
           title: 'Latitude[\xB0]',
@@ -269,7 +265,7 @@ const handleHeatmap = (
       titleArgs: [metadata, dateTitle, latTitle, lonTitle, depthTitle],
       annotationArgs: [metadata.Distributor, metadata.Data_Source],
     };
-    console.log ('plotly params', { z: subset, x: uniqX, y: uniqY, type: 'heatmap' });
+    console.log ('plotly params', { z: subset, x: uniqX, y: uniqY, type: 'heatmap', xTicks });
     return heatmapPlotConfig;
   });
   return heatmapPlotConfigs;
@@ -288,6 +284,8 @@ const SpaceTimeChart = (props) => {
   let { data, subType } = chart;
   let { dates, metadata } = data;
   let { contourMap, heatmap } = subTypes;
+
+  // console.log('SpaceTimeChart Data', data);
 
   // Control: Split by Date
   let [splitByDate, setSplitByDate] = useState(false);
@@ -362,11 +360,12 @@ const SpaceTimeChart = (props) => {
     mySubsets = spaceTimeGenerateHistogramSubsetPlotsSplitByDate (data.rows);
   } else if (splitByDepth) {
     mySubsets = spaceTimeGenerateHistogramSubsetPlotsSplitByDepth (data.rows);
-  } else if (!data.hasDepth) {
+  } else if (!metadata.Has_Depth) {
     // handle case with no depth
     console.log ('no depth; rendening histogram in as 2D');
     mySubsets = [spaceTimeGenerateHistogram2D (data.rows)];
   } else {
+    console.log ('has detpth; rendering plot data');
     mySubsets = [spaceTimeGenerateHistogramPlotData (data.rows)];
   }
 

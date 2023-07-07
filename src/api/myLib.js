@@ -1,6 +1,15 @@
-export const subsetKey = (key) => (dataArray) => {
+import { format } from 'd3-format';
+
+/*
+   Subset data (array of arrays) by a provided key (index).
+   For example, if the first index contains a data, subsetKey (0) (data) would return
+   an array of arrays, where each array contained all the values with the same date.
+*/
+export const subsetKey = (keyIndex) => (dataArray) => {
+  // only create a subset for unique values
   let uniqueValues = new Set ();
-  dataArray.forEach (row => uniqueValues.add (row[key]));
+  dataArray.forEach (row => uniqueValues.add (row[keyIndex]));
+
   /* eslint-disable-next-line */
   let subsets = new Array (uniqueValues.size);
   for (let i = 0; i < subsets.length; i++) {
@@ -8,20 +17,41 @@ export const subsetKey = (key) => (dataArray) => {
     subsets[i] = new Array();
   }
 
+  let keys = Array.from(uniqueValues);
+
   let subsetIndex = -1;
-  let prevValue = -1;
+  let prevKey = -1;
+
+  // console.log(`subset by key index ${keyIndex} with data length of ${dataArray.length}`);
 
   for (let i = 0; i < dataArray.length; i++) {
     let row = dataArray[i];
-    if (row[key] !== prevValue) {
-      subsetIndex++;
-      prevValue = row[key];
+    let thisKey = row[keyIndex];
+
+    if (keyIndex === 1) {
+      // console.log ('key value', thisKey, `trav. len ${dataArray.length} row ${i}`, (thisKey !== prevKey ? 'break' : '.'));
     }
+
+    if (thisKey !== prevKey) {
+      if (subsetIndex === subsets.length - 1) {
+        // this row is not in-order, find the correct subset to append to
+        let resetIdx = keys.indexOf(thisKey);
+        subsetIndex = resetIdx;
+      } else {
+        // the rows ARE in order, just increment the index
+        subsetIndex++;
+      }
+
+      prevKey = thisKey;
+    }
+
     if (subsets[subsetIndex]) {
       subsets[subsetIndex].push(row);
     }
   }
-  // console.log ('incoming data length', dataArray.length ,'outgoing data', ...subsets.map (s => s.length));
+
+  // console.log ('incoming data length', dataArray.length ,'outgoing data', subsets.map (s => s.length));
+
   return subsets;
 };
 
@@ -101,15 +131,41 @@ export const toMean3D = (matrices) => {
   return subset;
 };
 
-export const getHovertext_ = ({ z, x, y }) => {
+export const getHovertext_ = ({ z, x, y, fields, unit }) => {
   let result = [];
   z.forEach((row, i) => {
       /* eslint-disable-next-line */
     result.push(new Array());
     row.forEach((value, j) => {
-      result[i].push(
-        `x: ${x[j]} y: ${y[i]}<br /> z: ${z[i][j]}`
+      let abs = Math.abs(value);
+      let formatter = abs > 0.01 && abs < 1000 ? '.2f' : '.2e';
+
+
+      if (value === null) {
+       result[i].push (
+         `Lat: ${format('.2f')(y[i])}\xb0` +
+         `<br>` +
+         `Lon: ${
+           x[j] > 180
+             ? format('.2f')(x[j] - 360)
+             : format('.2f')(x[j])
+         }\xb0`
+       );
+     } else {
+      // result[i].push(`x: ${x[j]} y: ${y[i]}<br /> z: ${z[i][j]}`);
+
+      result[i].push (
+       `Lat: ${format('.2f')(y[i])}\xb0` +
+       `<br>` +
+       `Lon: ${
+         x[j] > 180
+           ? format('.2f')(x[j] - 360)
+           : format('.2f')(x[j])
+       }\xb0` +
+       '<br>' +
+       `${fields}: ${format(formatter)(value)} [${unit}]`
       );
+     }
     });
   });
   return result;
@@ -162,6 +218,7 @@ export const roundToDecimal = (decimal) => (numberToRound) => {
 
   let result = decimalAdjustRound (numberToRound, decimal);
 
+  // conserve sign
   if (result > 0 && numberToRound < 0) {
     // this fixes all sorts of plotting bugs
     return 0 - result;
@@ -200,7 +257,8 @@ export const spaceTimeGenerateHistogramPlotData = (rows) => {
   r = mapDeep(rowToVal)(4)(r);
 
   // create 2d map of mean values
-  return toMean3D(r);
+  let result = toMean3D(r);
+  return result;
 };
 
 // Note the difference between this and toMean3D
@@ -244,7 +302,7 @@ export const spaceTimeGenerateHistogramSubsetPlotsSplitByDate = (rows) => {
 
 export const spaceTimeGenerateHistogramSubsetPlotsSplitByDepth = (rows) => {
   let r = (subsetKey (3) (rows)) // split by depth
-    .map (subsetKey (0))
+    .map (subsetKey (0)) // split by date
     .map (group => group.map (subsetKey (1)));
 
   let t = mapDeep (rowToVal) (4) (r);
@@ -254,12 +312,16 @@ export const spaceTimeGenerateHistogramSubsetPlotsSplitByDepth = (rows) => {
 
 export const spaceTimeGenerateHistogram2D = (rows) => {
   // structure data into subsets
-  let r = (subsetKey(0)(rows)) // split by date
-    .map(subsetKey(1)); // split by lat
+
+  let r = (subsetKey (0) (rows)) // split by date
+
+  r = r.map(subsetKey (1)); // split by lat
 
   // map row data to the observation value
   r = mapDeep(rowToVal)(3)(r);
 
   // create 2d map of mean values
-  return toMean2D(r);
+  let result = toMean2D(r);
+
+  return result;
 }

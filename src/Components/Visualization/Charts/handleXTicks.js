@@ -1,17 +1,32 @@
 export default (infoObject) => {
-  let lonRange = infoObject.lonMax - infoObject.lonMin;
+  let { lons, parameters } = infoObject;
+  let { lon1 } = parameters;
 
-  let sectionSize;
-  if (lonRange < 2) {
-    sectionSize = (lonRange / 6).toFixed(2);
-  } else {
-    sectionSize = Math.floor(lonRange / 6);
-  }
+  console.log ('handle X ticks', lons, lons.sort());
+  // the lonMin & lonMax are calculated when the data object is marshalled
+  // from the server response; if the server has detected an antimeridian crossing,
+  // then the lon values will be altered, for example lonMax will be 184, which
+  // actually represents (-360 + 184) or -176.
 
-  let tickvals = Array.from(Array(5), (e, i) =>
-    Math.ceil(infoObject.lonMin + (i + 1) * sectionSize),
-  );
-  let ticktext = tickvals.map((e) => (e > 180 ? e - 360 : e));
+  let lonSet = Array.from(new Set(lons));
+  let sxn = Math.floor (lonSet.length / 6);
+  let tickvals = lonSet.sort().map((v, i) => {
+    if (i % (sxn) === 0) {
+      return v;
+    } else {
+      return undefined;
+    }
+  });
+
+  // create tick text from values, handling values that are langer than 180
+  // (indicating they are in the regative range and have been altered to accomodate
+  // an antimeridian crossing)
+  let ticktext = tickvals.map((e) => {
+    if (e !== undefined) {
+     return (e > 180 ? ('' + (e - 360)) : '' + e);
+    }
+  });
+
 
   return {
     tickmode: 'array',
