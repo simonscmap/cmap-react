@@ -34,7 +34,12 @@ const styles = (theme) => ({
     marginTop: '70px',
     color: 'white',
   },
-
+  errorContainer: {
+    paddingTop: '100px',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   markdown: {
     '& img': {
       maxWidth: '100%',

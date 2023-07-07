@@ -37,6 +37,9 @@ import metaTags from '../../enums/metaTags';
 import CartAddOrRemove from './CartAddOrRemove';
 import SkeletonWrapper from '../UI/SkeletonWrapper';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
+import ErrorCard from '../Common/ErrorCard';
+import Spacer from '../Common/Spacer';
+
 
 const mapStateToProps = (state) => ({
   pageData : state.datasetDetailsPage,
@@ -97,6 +100,7 @@ const DatasetFullPage = (props) => {
   }
 
   const loading = primaryPageLoadingState === states.inProgress;
+  const failed = primaryPageLoadingState === states.failed;
 
   const [downloadDialogOpen, setDownloadDialogOpen] = React.useState(false);
 
@@ -133,6 +137,20 @@ const DatasetFullPage = (props) => {
     };
   }, [longName]);
 
+  if (failed) {
+    let details = `You requested to view "${props.match.params.dataset}".`;
+    return (
+      <div className={classes.errorContainer}>
+      <Spacer>
+      <ErrorCard
+        title="Error"
+        message="There was a problem loading the page."
+        details={details}
+      />
+      </Spacer>
+      </div>
+    );
+  }
 
   return (
     <Grid container className={classes.outerContainer} >
