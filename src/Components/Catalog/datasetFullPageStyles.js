@@ -34,6 +34,7 @@ const styles = (theme) => ({
     marginTop: '70px',
     color: 'white',
   },
+
   markdown: {
     '& img': {
       maxWidth: '100%',

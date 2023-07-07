@@ -25,6 +25,8 @@ import states from '../../enums/asyncRequestStates';
 
 import metaTags from '../../enums/metaTags';
 import SkeletonWrapper from '../UI/SkeletonWrapper';
+import ErrorCard from '../Common/ErrorCard';
+import Spacer from '../Common/Spacer';
 
 const mapStateToProps = (state, ownProps) => ({
   cruiseFullPageDataLoadingState: state.cruiseFullPageDataLoadingState,
@@ -68,7 +70,12 @@ const styles = (theme) => ({
     marginTop: '70px',
     color: 'white',
   },
-
+  foo: {
+    paddingTop: '100px',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   tableHead: {
     fontWeight: 600,
   },
@@ -109,6 +116,7 @@ const CruiseFullPage = (props) => {
   } = cruiseFullPageData;
 
   const loading = cruiseFullPageDataLoadingState === states.inProgress;
+  const failed = cruiseFullPageDataLoadingState === states.failed;
 
   useEffect(() => {
     cruiseFullPageDataFetch(props.match.params.cruiseName);
@@ -125,6 +133,21 @@ const CruiseFullPage = (props) => {
       document.description = metaTags.default.description;
     };
   }, [Name]);
+
+  if (failed) {
+    let details = `You requested the cruise with the short name of ${props.match.params.cruiseName}.`;
+    return (
+      <div className={classes.foo}>
+      <Spacer>
+      <ErrorCard
+        title="Error"
+        message="There was a problem loading the page."
+        details={details}
+      />
+      </Spacer>
+      </div>
+    );
+  }
 
   return (
     <React.Fragment>
@@ -230,7 +253,7 @@ const CruiseFullPage = (props) => {
               ) : (
                 ''
               )}
-            </SkeletonWrapper>
+              </SkeletonWrapper>
           </Paper>
         </Grid>
       </Grid>

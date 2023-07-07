@@ -940,7 +940,7 @@ function* cruiseFullPageDataFetch(action) {
       ),
     );
     yield put(
-      catalogActions.datasetFullPageDataSetLoadingState(states.succeeded),
+      catalogActions.cruiseFullPageDataSetLoadingState(states.failed),
     );
   }
 }
