@@ -865,7 +865,7 @@ function* datasetFullPageDataFetch(action) {
       ),
     );
     yield put(
-      catalogActions.datasetFullPageDataSetLoadingState(states.succeeded),
+      catalogActions.datasetFullPageDataSetLoadingState(states.failed),
     );
   }
 }
@@ -940,7 +940,7 @@ function* cruiseFullPageDataFetch(action) {
       ),
     );
     yield put(
-      catalogActions.datasetFullPageDataSetLoadingState(states.succeeded),
+      catalogActions.cruiseFullPageDataSetLoadingState(states.failed),
     );
   }
 }
