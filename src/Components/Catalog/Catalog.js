@@ -2,7 +2,10 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { withStyles } from '@material-ui/core';
-import { fetchColocalizedDatasetListSend } from '../../Redux/actions/catalog';
+import {
+  fetchColocalizedDatasetListSend,
+  fetchCIDatasetListSend
+} from '../../Redux/actions/catalog';
 
 import CatalogSearch from './CatalogSearch';
 import SearchResults from './SearchResults';
@@ -36,10 +39,16 @@ const Catalog = ({ classes }) => {
   let tablesWithAncillaryData = useSelector(
     (state) => state.tablesWithAncillaryData,
   );
+  let tablesWithContinuousIngestion = useSelector(
+    (state) => state.tablesWithContinuousIngestion,
+  );
   // on load, send request to load tables with ancillary, i.e., colocalized data
   // this only needs to run once
   if (!tablesWithAncillaryData) {
     dispatch(fetchColocalizedDatasetListSend());
+  }
+  if (!tablesWithContinuousIngestion) {
+    dispatch(fetchCIDatasetListSend());
   }
   useEffect(() => {
     document.title = metaTags.catalog.title;

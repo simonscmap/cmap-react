@@ -117,4 +117,43 @@ catalogAPI.cruiseSearch = async (qString) => {
   );
 };
 
+catalogAPI.ci = async () => {
+  let response;
+  try {
+    response = await fetch(
+      apiUrl + `/api/data/ci-datasets`,
+      fetchOptions,
+    );
+  } catch (e) {
+    console.log ('error fetching ci datasets', e);
+    return;
+  }
+
+  // parse csv response
+  const decoder = new encoding.TextDecoder();
+  const data = [];
+
+  let csvParser = CSVParser({ columns: true });
+
+  csvParser.on('readable', function () {
+    let record;
+    while ((record = csvParser.read())) {
+      data.push(record);
+    }
+  });
+
+  let body = response.body;
+  let reader = body.getReader();
+  let readerIsDone = false;
+  while (!readerIsDone) {
+    let chunk = await reader.read();
+    if (chunk.done) {
+      readerIsDone = true;
+    } else {
+      csvParser.write(decoder.decode(chunk.value));
+    }
+  }
+  return data;
+}
+
 export default catalogAPI;

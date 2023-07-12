@@ -50,9 +50,11 @@ const initialState = {
   // Cruise Page
   cruiseFullPageData: {},
 
+  // App (General Data)
   cart: {},
   showCart: false,
   tablesWithAncillaryData: null,
+  tablesWithContinuousIngestion: null,
 
   // Interface state pieces
   loginDialogIsOpen: false,

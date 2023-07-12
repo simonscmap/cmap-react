@@ -17,6 +17,7 @@ import {
   CART_CLEAR,
   CART_ADD_MULTIPLE,
   TABLES_WITH_ANCILLARY_DATA_STORE,
+  TABLES_WITH_CI_STORE,
 } from '../actionTypes/catalog';
 
 export default function (state, action) {
@@ -160,6 +161,13 @@ export default function (state, action) {
         ...state,
         tablesWithAncillaryData: action.payload.result,
       };
+
+    case TABLES_WITH_CI_STORE:
+      return {
+        ...state,
+        tablesWithContinuousIngestion: action.payload.result,
+      };
+
     default:
       return state;
   }

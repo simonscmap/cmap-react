@@ -124,6 +124,8 @@ export const datasetVariableUMSetLoadingState = (state) => ({
   },
 });
 
+/************** Cruise Detail Page **********************/
+
 export const cruiseFullPageDataFetch = (name) => ({
   type: catalogActionTypes.CRUISE_FULL_PAGE_DATA_FETCH,
   payload: {
@@ -144,6 +146,8 @@ export const cruiseFullPageDataSetLoadingState = (state) => ({
     state,
   },
 });
+
+/************** Favorites **********************/
 
 export const cartAddItem = (item) => ({
   type: catalogActionTypes.CART_ADD_ITEM,
@@ -170,12 +174,19 @@ export const cartAddMultiple = (items) => ({
   },
 });
 
-export const fetchColocalizedDatasetListSend = (tableName) => ({
-  type: catalogActionTypes.FETCH_TABLES_WITH_ANCILLARY_DATA_SEND,
-  payload: {
-    tableName,
-  },
+/************** Ancillary (Colocalized) Data **********************/
+
+export const fetchColocalizedDatasetListSend = () => ({
+  type: catalogActionTypes.FETCH_TABLES_WITH_ANCILLARY_DATA_SEND
 });
+
+/************** Continuous Ingestion  **********************/
+
+export const fetchCIDatasetListSend = () => ({
+  type: catalogActionTypes.FETCH_TABLES_WITH_CI_SEND,
+});
+
+/************** Dataset Download **********************/
 
 export const datasetDownloadRequestSend = ({
   subsetParams,

@@ -69,6 +69,11 @@ import {
   watchUpdateNewsRanksSuccess,
 } from './news';
 
+import {
+  watchFetchTablesWithCI,
+  watchFetchTablesWithCISuccess,
+} from './ci';
+
 import logInit from '../../Services/log-service';
 const log = logInit('sagas').addContext({ src: 'Redux/Sagas' });
 
@@ -1322,6 +1327,8 @@ function* watchFetchTablesWithAncillaryDataSuccess() {
   );
 }
 
+// Continuous Ingestion
+
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1729,6 +1736,8 @@ function* rootSaga() {
     watchCreateNewsItemSuccess(),
     watchUpdateNewsRanks(),
     watchUpdateNewsRanksSuccess(),
+    watchFetchTablesWithCI(),
+    watchFetchTablesWithCISuccess(),
   ]);
 }
 

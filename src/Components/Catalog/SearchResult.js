@@ -26,6 +26,7 @@ import api from '../../api/api';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import { downloadMetadata } from './DownloadMetaData';
 import { useTableHasAncillaryData } from '../../Utility/Catalog/ancillaryData';
+import { useTableIsCI } from '../../Utility/Catalog/continuousIngestion';
 
 const mapStateToProps = ({ cart, tablesWithAncillaryData }) => ({
   cart,
@@ -154,10 +155,19 @@ const SearchResult = (props) => {
   } = dataset;
 
   let datasetHasAncillaryData = useTableHasAncillaryData(Table_Name);
+  let datasetIsCI = useTableIsCI (Table_Name);
 
   const AncillaryDataChip = () => {
     if (datasetHasAncillaryData) {
       return <Chip color="primary" size="small" label="Ancillary Data" />;
+    } else {
+      return '';
+    }
+  };
+
+  const CIDataChip = () => {
+    if (datasetIsCI) {
+      return <Chip color="primary" size="small" label="Continuously Ingested" />;
     } else {
       return '';
     }
@@ -199,6 +209,7 @@ const SearchResult = (props) => {
           {Long_Name}
         </Link>
         <AncillaryDataChip />
+        <CIDataChip />
       </React.Fragment>
     ) : (
       <React.Fragment>
@@ -219,6 +230,7 @@ const SearchResult = (props) => {
           </Link>
         </Hint>
         <AncillaryDataChip />
+        <CIDataChip />
       </React.Fragment>
     );
   };

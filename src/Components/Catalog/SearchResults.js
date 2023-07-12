@@ -142,7 +142,6 @@ const SearchResults = (props) => {
 
   useEffect(() => {
     setLoadingState(states.inProgress);
-    console.log(props.location.search)
     search(props.location.search);
   }, [props.location.search]);
 
