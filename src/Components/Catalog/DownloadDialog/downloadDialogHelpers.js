@@ -160,6 +160,7 @@ export const getMaxDays = (dataset) => {
     endTime: new Date(endTime),
     intervalInDays,
     interval: differenceInMilliseconds / MILLISECONDS_PER_DAY,
+    dataset,
   });
   return intervalInDays;
 };
