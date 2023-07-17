@@ -27,6 +27,7 @@
     "no-unused-vars": "error",
     "no-shadow": ["error"],
     "react/prop-types": [0],
-    "brace-style": ["error", "1tbs", { "allowSingleLine": false }]
+    "brace-style": ["error", "1tbs", { "allowSingleLine": false }],
+    "react-hooks/exhaustive-deps": "off"
   }
 }
