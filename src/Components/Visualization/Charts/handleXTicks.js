@@ -1,8 +1,12 @@
 export default (infoObject) => {
-  let { lons, parameters } = infoObject;
-  let { lon1 } = parameters;
+  let { lons } = infoObject;
 
-  console.log ('handle X ticks', lons, lons.sort());
+  if (!(lons instanceof Set)) {
+    console.error ('exected type Set');
+  } else {
+    console.log ('handle X ticks', lons, Array.from(lons).sort());
+  }
+
   // the lonMin & lonMax are calculated when the data object is marshalled
   // from the server response; if the server has detected an antimeridian crossing,
   // then the lon values will be altered, for example lonMax will be 184, which

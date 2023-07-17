@@ -37,8 +37,6 @@ function* storeTablesWithCI ({ payload }) {
     return;
   }
 
-  console.log ('store tables with ci', payload);
-
   let result = payload.reduce((accumulator, current) => {
     let { table_name, ci } = current;
     if (table_name && typeof table_name === 'string') {

@@ -183,6 +183,7 @@ const handleContourMap = (
       titleArgs: [metadata, dateTitle, latTitle, lonTitle, depthTitle],
       annotationArgs: [metadata.Distributor, metadata.Data_Source],
     };
+    console.log ('plotly params', { z: subset, x: uniqX, y: uniqY, type: 'heatmap', xTicks });
     return contourPlotConfig;
   });
   return contourPlotConfigs;
