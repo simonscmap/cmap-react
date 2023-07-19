@@ -167,7 +167,7 @@ const SearchResult = (props) => {
 
   const CIDataChip = () => {
     if (datasetIsCI) {
-      return <Chip color="primary" size="small" label="Continuously Ingested" />;
+      return <Chip color="primary" size="small" label="Continuously Updated" />;
     } else {
       return '';
     }
