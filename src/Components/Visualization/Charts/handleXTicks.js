@@ -2,7 +2,7 @@ export default (infoObject) => {
   let { lons } = infoObject;
 
   if (!(lons instanceof Set)) {
-    console.error ('exected type Set');
+    console.log ('expected type Set', typeof lons, lons);
   } else {
     console.log ('handle X ticks', lons, Array.from(lons).sort());
   }
