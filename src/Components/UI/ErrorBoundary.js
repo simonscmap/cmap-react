@@ -30,7 +30,10 @@ class ErrorBoundary extends React.Component {
     let osInfo = `${info.os.name || 'Unknown OS'} ${
       info.os.versionName || 'Unknown version'
     }`;
-    this.props.errorReportSend(error.toString(), browserInfo, osInfo);
+    let errorMessage = error && error.toString();
+    let stackArr = error && error.stack && error.stack.split('\n');
+    let stackFirstLine = stackArr.length > 0 ? stackArr[0] : null;
+    this.props.errorReportSend(errorMessage, browserInfo, osInfo, stackFirstLine);
   }
 
   render() {
