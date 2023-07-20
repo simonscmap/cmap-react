@@ -63,26 +63,6 @@ import VariableDetailsDialog from './VariableDetailsDialog';
 import vizControlStyles from './vizControlStyles';
 import getDataSize from './ControlPanel/estimateDataSize';
 
-const coerceToISO = (dateString) => {
-  if (typeof dateString !== 'string') {
-    console.warn('incorrect type: expecting string representation of date', { dateString });
-    return dateString;
-  }
-
-  let date = dateString.slice(0, 10).replaceAll(':', '-');
-  let tail = dateString.slice(10);
-
-  if (dateString.slice(0,10) !== date) {
-    console.warn ('attempted to correct non-ISO date string', {
-      received: dateString,
-      returned: date + tail,
-    });
-  }
-
-  return date + tail;
-
-}
-
 const dateStringToISO = (dateString) => (new Date(dateString)).toISOString();
 
 const mapStateToProps = (state) => ({
@@ -612,13 +592,10 @@ class VizControlPanel extends React.Component {
       // is only significant to the day
       // then slice the ISO string so that the string comparison will be
       // between strings of the same length
-      // Note coerceToISO attempts to correct for improperly formatted dates that
-      // sometimes apper in the database, which use colons to separate segments rather
-      // than dashes
       let isLessThanDatasetTimeMin =
         this.state.dt1.slice(0, 10) <
         dateStringToISO(
-          (coerceToISO(this.props.vizPageDataTargetDetails.Time_Min).slice(0, 10))
+          (this.props.vizPageDataTargetDetails.Time_Min.slice(0, 10))
             .slice(0, 10)
         );
 
@@ -654,9 +631,7 @@ class VizControlPanel extends React.Component {
       // see note on the double slice call in checkStartDate
       let isGreaterThanDatasetTimeMax =
         this.state.dt2.slice(0,10) >
-      dateStringToISO (
-        coerceToISO(this.props.vizPageDataTargetDetails.Time_Max).slice(0,10)
-      ).slice(0,10);
+      dateStringToISO (this.props.vizPageDataTargetDetails.Time_Max.slice(0,10)).slice(0,10);
 
       if (isGreaterThanDatasetTimeMax) {
         return `Maximum end date is ${
