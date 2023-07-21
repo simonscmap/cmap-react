@@ -62,6 +62,9 @@ import SparseDataMaxSizeNotification from './SparseDataMaxSizeNotification';
 import VariableDetailsDialog from './VariableDetailsDialog';
 import vizControlStyles from './vizControlStyles';
 import getDataSize from './ControlPanel/estimateDataSize';
+import initLogger from '../../Services/log-service';
+
+let log = initLogger ('VizControlPanel');
 
 const dateStringToISO = (dateString) => (new Date(dateString)).toISOString();
 
@@ -244,7 +247,7 @@ class VizControlPanel extends React.Component {
         );
       }
 
-      this.setState({
+      let newState = {
         ...this.state,
         surfaceOnly,
         irregularSpatialResolution,
@@ -254,7 +257,10 @@ class VizControlPanel extends React.Component {
           ...this.state.storedParams,
           ...derivedParams,
         },
-      });
+      }
+
+      log.debug ('new state', newState);
+      this.setState(newState);
     }
   };
 
@@ -594,10 +600,7 @@ class VizControlPanel extends React.Component {
       // between strings of the same length
       let isLessThanDatasetTimeMin =
         this.state.dt1.slice(0, 10) <
-        dateStringToISO(
-          (this.props.vizPageDataTargetDetails.Time_Min.slice(0, 10))
-            .slice(0, 10)
-        );
+        dateStringToISO(this.props.vizPageDataTargetDetails.Time_Min.slice(0, 10)).slice(0, 10);
 
       if (isLessThanDatasetTimeMin) {
         return `Minimum start date is ${
