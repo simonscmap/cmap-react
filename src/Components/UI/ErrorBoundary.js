@@ -33,7 +33,8 @@ class ErrorBoundary extends React.Component {
     let errorMessage = error && error.toString();
     let stackArr = error && error.stack && error.stack.split('\n');
     let stackFirstLine = stackArr.length > 0 ? stackArr[0] : null;
-    this.props.errorReportSend(errorMessage, browserInfo, osInfo, stackFirstLine);
+    let location = window.location.href;
+    this.props.errorReportSend(errorMessage, browserInfo, osInfo, stackFirstLine, location);
   }
 
   render() {
