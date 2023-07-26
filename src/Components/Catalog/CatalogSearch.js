@@ -28,6 +28,9 @@ import SearchHint from './help/keywordSearchHint';
 import SearchFiltersHint from './help/SearchFiltersHint';
 import CatalogPageTitleHint from './help/pageTitleHint';
 import AdditionalFiltersHint from './help/AdditionalFiltersHint';
+import initLogger from '../../Services/log-service';
+
+const log = initLogger('CatalogSearch.js');
 
 const mapStateToProps = (state) => {
   let { submissionOptions, hints } = state;
@@ -101,7 +104,9 @@ const defaultState = {
   sensor: new Set(),
   make: new Set(),
   region: new Set(),
+  dataFeatures: new Set(),
 };
+
 class CatalogSearch extends React.Component {
   locationSearch = this.props.location.search;
 
@@ -122,18 +127,23 @@ class CatalogSearch extends React.Component {
   };
 
   RefreshByQuerystring = () => {
+    log.debug ('RefreshByQueryString', { params: queryString.parse(this.props.location.search) });
     if (this.props.location.search) {
+      // "params" are selected filters
       let params = queryString.parse(this.props.location.search);
 
-      ['region', 'sensor', 'make'].forEach(
-        (s) =>
-          (params[s] = typeof params[s] === 'string' ? [params[s]] : params[s]),
-      );
+      // convert string values to array values
+      ['region', 'sensor', 'make', 'dataFeatures'].forEach((filterKey) => {
+        params[filterKey] = typeof params[filterKey] === 'string'
+                  ? [params[filterKey]]
+                  : params[filterKey];
+      });
       let newState = {
         ...params,
         sensor: new Set(params.sensor || []),
         region: new Set(params.region || []),
         make: new Set(params.make || []),
+        dataFeatures: new Set(params.dataFeatures || []),
         keywords:
           typeof params.keywords === 'string'
             ? params.keywords
@@ -157,6 +167,8 @@ class CatalogSearch extends React.Component {
 
     let newState = { ...this.state, [target]: value };
 
+    log.debug ('handleChangeSearchValue', { target, value });
+
     this.setState(newState);
 
     let qstring = queryString.stringify({
@@ -171,13 +183,18 @@ class CatalogSearch extends React.Component {
       sensor: Array.from(newState.sensor),
       region: Array.from(newState.region),
       make: Array.from(newState.make),
+      dataFeatures: Array.from(newState.dataFeatures),
     });
 
+    log.debug ('push history', { qstring });
+
+    // update the browser url
     this.pushHistory(qstring);
   };
 
   handleClickCheckbox = (e, checked) => {
     let [column, value] = e.target.name.split('!!');
+    log.debug ('handleClickCheckbox', { column, value, targetName: e.target.name });
     let newSet = new Set(this.state[column]);
 
     if (checked) {
@@ -220,7 +237,10 @@ class CatalogSearch extends React.Component {
       make,
       sensor,
       region,
+      dataFeatures,
     } = this.state;
+
+    log.debug ('state', { dataFeatures, submissionOptions });
 
     return (
       <div className={classes.divWrapper}>
@@ -275,14 +295,23 @@ class CatalogSearch extends React.Component {
                   size={'medium'}
                 >
                   <MultiCheckboxDropdown
-                    options={submissionOptions.Make}
-                    selectedOptions={make}
-                    handleClear={() => this.handleClearMultiSelect('make')}
-                    parentStateKey={'make'}
+                    options={submissionOptions.DataFeatures}
+                    selectedOptions={dataFeatures}
+                    handleClear={() => this.handleClearMultiSelect('dataFeatures')}
+                    parentStateKey={'dataFeatures'}
                     handleClickCheckbox={this.handleClickCheckbox}
-                    groupHeaderLabel="Makes"
+                    groupHeaderLabel="Data Features"
                   />
                 </Hint>
+
+                <MultiCheckboxDropdown
+                  options={submissionOptions.Make}
+                  selectedOptions={make}
+                  handleClear={() => this.handleClearMultiSelect('make')}
+                  parentStateKey={'make'}
+                  handleClickCheckbox={this.handleClickCheckbox}
+                  groupHeaderLabel="Makes"
+                />
 
                 <MultiCheckboxDropdown
                   options={submissionOptions.Sensor}

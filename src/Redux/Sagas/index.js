@@ -23,6 +23,7 @@ import buildSearchOptionsFromDatasetList from '../../Utility/Catalog/buildSearch
 import buildSearchOptionsFromVariablesList from '../../Utility/Catalog/buildSearchOptionsFromVariablesList';
 import groupDatasetsByMake from '../../Utility/Catalog/groupDatasetsByMake';
 import groupVariablesByDataset from '../../Utility/Catalog/groupVariablesByDataset';
+import ammendSearchResults from '../../Utility/Catalog/ammendSearchResultsWithDatasetFeatures';
 // Action Creators
 import * as catalogActions from '../actions/catalog';
 import * as dataSubmissionActions from '../actions/dataSubmission';
@@ -69,10 +70,6 @@ import {
   watchUpdateNewsRanksSuccess,
 } from './news';
 
-import {
-  watchFetchTablesWithCI,
-  watchFetchTablesWithCISuccess,
-} from './ci';
 
 import logInit from '../../Services/log-service';
 const log = logInit('sagas').addContext({ src: 'Redux/Sagas' });
@@ -823,8 +820,17 @@ function* searchResultsFetch(action) {
   if (result.ok) {
     const storedOptions = yield select((state) => state.submissionOptions);
     const params = queryString.parse(action.payload.queryString);
+    const datasetFeatures = yield select((state) => state.catalog.datasetFeatures);
 
     let results = yield result.json();
+
+    // if the dataset features data has already loaded, ammend the results
+    // otherwise this will be performed when the data loaded;
+    // see fetchDatasetFeatures and updateCatalogWithDatasetFeatures
+    if (datasetFeatures) {
+      results = ammendSearchResults(results, datasetFeatures);
+    }
+
     let options = buildSearchOptionsFromDatasetList(
       results,
       storedOptions,
@@ -1274,58 +1280,73 @@ function* ingestCookies() {
   yield put(userActions.updateStateFromCookies(state));
 }
 
-// Ancillary Data
+// Dataset Features
 
-function* fetchTablesWithAncillaryData() {
-  let data = yield select((state) => state.tablesWithAncillaryData);
+function* fetchDatasetFeatures() {
+  let data = yield select((state) => state.catalog.datasetFeatures);
 
   // if not, fetch it
   if (!data) {
-    console.log('fetching list of tables with ancillary data!');
-    let fetchedData = yield call(api.catalog.getTableWithAncillaryData);
-
+    log.debug ('fetching dataset features', { store: data });
+    let fetchedData = yield call(api.catalog.getDatasetFeatures);
+    log.debug ('fetched data', fetchedData);
     if (fetchedData) {
       yield put({
-        type: catalogActionTypes.FETCH_TABLES_WITH_ANCILLARY_DATA_SUCCESS,
+        type: catalogActionTypes.FETCH_DATASET_FEATURES_SUCCESS,
         payload: fetchedData,
+      });
+      yield put({
+        type: catalogActionTypes.UPDATE_CATALOG_WITH_DATASET_FEATURES,
       });
     } else {
       yield put({
-        type: catalogActionTypes.FETCH_TABLES_WITH_ANCILLARY_DATA_FAILURE,
+        type: catalogActionTypes.FETCH_DATASET_FEATURES_FAILURE,
       });
     }
   }
 }
 
-function* storeAncillaryData({ payload }) {
-  if (!Array.isArray(payload)) {
-    console.error('no payload for storeAncilliaryData', payload);
-    return;
-  }
-  let result = payload.reduce((accumulator, current) => {
-    let { Table_Name, Dataset_Name } = current;
-    accumulator[Table_Name] = Dataset_Name;
-    return accumulator;
-  }, {});
-  yield put({
-    type: catalogActionTypes.TABLES_WITH_ANCILLARY_DATA_STORE,
-    payload: { result },
-  });
+function* updateCatalogWithDatasetFeatures() {
+  let searchResults = yield select((state) => state.searchResults);
+  let submissionOptions = yield select((state) => state.submissionOptions);
+  let searchOptions = yield select((state) => state.searchOptions);
+  let datasetFeatures = yield select((state) => state.catalog.datasetFeatures);
+  let params = queryString.parse(window.location.search);
+  log.debug ('updateCatalogWithDatasetFeatures', { params });
+
+  // 1. update the results
+
+  let results = ammendSearchResults(searchResults, datasetFeatures);
+
+  // 2. rebuild the options
+
+  // when this is called, we don't want any options altered
+  // except ci/ancillary -- which could be removed if
+  // there are no matching results
+  let options = buildSearchOptionsFromDatasetList(
+    searchResults,
+    submissionOptions, //
+    params, // parsed query string
+  );
+
+  yield put(catalogActions.searchResultsStore(results, options));
+
 }
 
-function* watchFetchTablesWithAncillaryData() {
+function* watchFetchDatasetFeatures() {
   yield takeLatest(
-    catalogActionTypes.FETCH_TABLES_WITH_ANCILLARY_DATA_SEND,
-    fetchTablesWithAncillaryData,
+    catalogActionTypes.FETCH_DATASET_FEATURES,
+    fetchDatasetFeatures,
   );
 }
 
-function* watchFetchTablesWithAncillaryDataSuccess() {
+function* watchUpdateCatalogWithDatasetFeatures() {
   yield takeLatest(
-    catalogActionTypes.FETCH_TABLES_WITH_ANCILLARY_DATA_SUCCESS,
-    storeAncillaryData,
+    catalogActionTypes.UPDATE_CATALOG_WITH_DATASET_FEATURES,
+    updateCatalogWithDatasetFeatures,
   );
 }
+
 
 // Continuous Ingestion
 
@@ -1719,8 +1740,6 @@ function* rootSaga() {
     watchHandleGuestVisualization(),
     watchGuestTokenRequestSend(),
     watchIngestCookies(),
-    watchFetchTablesWithAncillaryData(),
-    watchFetchTablesWithAncillaryDataSuccess(),
     watchRequestNewsList(),
     watchUpdateNewsItem(),
     watchUpdateNewsItemSuccess(),
@@ -1736,8 +1755,10 @@ function* rootSaga() {
     watchCreateNewsItemSuccess(),
     watchUpdateNewsRanks(),
     watchUpdateNewsRanksSuccess(),
-    watchFetchTablesWithCI(),
-    watchFetchTablesWithCISuccess(),
+    // watchFetchTablesWithCI(),
+    // watchFetchTablesWithCISuccess(),
+    watchFetchDatasetFeatures(),
+    watchUpdateCatalogWithDatasetFeatures(),
   ]);
 }
 

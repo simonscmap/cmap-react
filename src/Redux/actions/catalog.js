@@ -174,16 +174,10 @@ export const cartAddMultiple = (items) => ({
   },
 });
 
-/************** Ancillary (Colocalized) Data **********************/
+/************** Dataset Features **********************/
 
-export const fetchColocalizedDatasetListSend = () => ({
-  type: catalogActionTypes.FETCH_TABLES_WITH_ANCILLARY_DATA_SEND
-});
-
-/************** Continuous Ingestion  **********************/
-
-export const fetchCIDatasetListSend = () => ({
-  type: catalogActionTypes.FETCH_TABLES_WITH_CI_SEND,
+export const fetchDatasetFeatures = () => ({
+  type: catalogActionTypes.FETCH_DATASET_FEATURES,
 });
 
 /************** Dataset Download **********************/

@@ -14,6 +14,9 @@ import colors from '../../enums/colors';
 import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { pathNameToPageName } from '../../Utility/routing';
+import initLogger from '../../Services/log-service';
+
+const log = initLogger('MultiCheckDropdown.js');
 
 const styles = (theme) => ({
   menuOpenIcon: {
@@ -93,6 +96,8 @@ const CollapsibleContent = ({
   parentStateKey,
   selectedOptions,
 }) => {
+  log.debug ('selectedOptions', { key: parentStateKey, selectedOptions });
+  log.debug ('options', { key: parentStateKey,options });
   const countAndResize = (
     <Grid
       item

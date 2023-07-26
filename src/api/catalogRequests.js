@@ -1,8 +1,8 @@
 // api requests specific to the catalog page
 import { apiUrl, fetchOptions } from './config';
-import CSVParser from 'csv-parse';
-import encoding from 'text-encoding';
 import { fetchAndParseCSVData } from './apiHelpers';
+import logInit from '../Services/log-service';
+const log = logInit('catalogRequests');
 
 const catalogAPI = {};
 
@@ -18,43 +18,6 @@ catalogAPI.datasets = async () => {
     collector: (target, record) =>
       (target[record.Dataset_Long_Name.trim()] = record),
   });
-};
-
-// use specific api route for feching list of ancillary datasets
-// in order to bypass the auth check on other data routes
-catalogAPI.getTableWithAncillaryData = async () => {
-  let data = [];
-  const decoder = new encoding.TextDecoder();
-
-  let csvParser = CSVParser({ columns: true });
-  csvParser.on('readable', function () {
-    let record;
-    while ((record = csvParser.read())) {
-      data.push(record);
-    }
-  });
-
-  let response = await fetch(
-    apiUrl + '/api/data/ancillary-datasets',
-    fetchOptions,
-  );
-
-  if (!response.ok) {
-    return false;
-  }
-
-  let body = response.body;
-  let reader = body.getReader();
-  let readerIsDone = false;
-  while (!readerIsDone) {
-    let chunk = await reader.read();
-    if (chunk.done) {
-      readerIsDone = true;
-    } else {
-      csvParser.write(decoder.decode(chunk.value));
-    }
-  }
-  return data;
 };
 
 catalogAPI.submissionOptions = async () => {
@@ -117,43 +80,19 @@ catalogAPI.cruiseSearch = async (qString) => {
   );
 };
 
-catalogAPI.ci = async () => {
+catalogAPI.getDatasetFeatures = async () => {
   let response;
   try {
     response = await fetch(
-      apiUrl + `/api/data/ci-datasets`,
+      apiUrl + `/api/data/dataset-features`,
       fetchOptions,
     );
   } catch (e) {
-    console.log ('error fetching ci datasets', e);
-    return;
+    log.warn ('error fetching ci datasets', e);
+    return null;
   }
 
-  // parse csv response
-  const decoder = new encoding.TextDecoder();
-  const data = [];
-
-  let csvParser = CSVParser({ columns: true });
-
-  csvParser.on('readable', function () {
-    let record;
-    while ((record = csvParser.read())) {
-      data.push(record);
-    }
-  });
-
-  let body = response.body;
-  let reader = body.getReader();
-  let readerIsDone = false;
-  while (!readerIsDone) {
-    let chunk = await reader.read();
-    if (chunk.done) {
-      readerIsDone = true;
-    } else {
-      csvParser.write(decoder.decode(chunk.value));
-    }
-  }
-  return data;
-}
+  return await response.json();
+};
 
 export default catalogAPI;

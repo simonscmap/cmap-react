@@ -25,8 +25,7 @@ import DownloadDialog from './DownloadDialog';
 import api from '../../api/api';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import { downloadMetadata } from './DownloadMetaData';
-import { useTableHasAncillaryData } from '../../Utility/Catalog/ancillaryData';
-import { useTableIsCI } from '../../Utility/Catalog/continuousIngestion';
+import { useDatasetFeatures } from '../../Utility/Catalog/useDatasetFeatures';
 
 const mapStateToProps = ({ cart, tablesWithAncillaryData }) => ({
   cart,
@@ -136,7 +135,7 @@ const styles = (theme) => ({
 });
 
 const SearchResult = (props) => {
-  const { classes, cart, dataset, index } = props;
+  const { classes, cart, index } = props;
   const {
     // Dataset_ID,
     Data_Source,
@@ -152,13 +151,12 @@ const SearchResult = (props) => {
     Visualize,
     Spatial_Resolution,
     Table_Name,
-  } = dataset;
+  } = props.dataset;
 
-  let datasetHasAncillaryData = useTableHasAncillaryData(Table_Name);
-  let datasetIsCI = useTableIsCI (Table_Name);
+  let features = useDatasetFeatures(Table_Name);
 
   const AncillaryDataChip = () => {
-    if (datasetHasAncillaryData) {
+    if (features && features.ancillary) {
       return <Chip color="primary" size="small" label="Ancillary Data" />;
     } else {
       return '';
@@ -166,7 +164,7 @@ const SearchResult = (props) => {
   };
 
   const CIDataChip = () => {
-    if (datasetIsCI) {
+    if (features && features.ci) {
       return <Chip color="primary" size="small" label="Continuously Updated" />;
     } else {
       return '';
@@ -335,7 +333,7 @@ const SearchResult = (props) => {
           </Grid>
 
           <div className={classes.resultActions}>
-            <AddToCart dataset={dataset} />
+            <AddToCart dataset={props.dataset} />
 
             <Button onClick={onDownloadClick} className={classes.downloadLink}>
               <CloudDownloadIcon />

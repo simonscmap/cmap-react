@@ -45,7 +45,7 @@ let styles = {
   },
 };
 
-const Results = ({ search = {}, terms }) => {
+const Results = ({ search = {}, terms = '' }) => {
   let { results, loading } = search;
   if (!terms || terms.length === 0) {
     return <Typography variant="body1">Enter search term...</Typography>;

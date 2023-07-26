@@ -16,8 +16,7 @@ import {
   CART_REMOVE_ITEM,
   CART_CLEAR,
   CART_ADD_MULTIPLE,
-  TABLES_WITH_ANCILLARY_DATA_STORE,
-  TABLES_WITH_CI_STORE,
+  FETCH_DATASET_FEATURES_SUCCESS,
 } from '../actionTypes/catalog';
 
 export default function (state, action) {
@@ -43,8 +42,7 @@ export default function (state, action) {
     case SEARCH_RESULTS_STORE:
       return {
         ...state,
-        searchResults: action.payload.searchResults.filter (({ Short_Name }) =>
-          Short_Name !== 'Geotraces_seawater'),
+        searchResults: action.payload.searchResults,
         submissionOptions: action.payload.submissionOptions,
       };
     case SEARCH_RESULTS_SET_LOADING_STATE:
@@ -156,17 +154,16 @@ export default function (state, action) {
 
       /************** Cache **********************/
 
-    case TABLES_WITH_ANCILLARY_DATA_STORE:
+    case FETCH_DATASET_FEATURES_SUCCESS:
       return {
         ...state,
-        tablesWithAncillaryData: action.payload.result,
+        catalog: {
+          ...state.catalog,
+          datasetFeatures: action.payload,
+        }
       };
 
-    case TABLES_WITH_CI_STORE:
-      return {
-        ...state,
-        tablesWithContinuousIngestion: action.payload.result,
-      };
+      // handle dataset features failure
 
     default:
       return state;

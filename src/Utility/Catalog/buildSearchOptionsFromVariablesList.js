@@ -1,12 +1,15 @@
 // Creates an object describing distinct values for each column
 // Is run for each search result
 //
+import initLogger from '../../Services/log-service';
+const log = initLogger('buildSearchOptionsFromVariableList');
 
 const buildSearchOptionsFromVariableList = (
   variables,
   storedOptions = {},
   params = {},
 ) => {
+
   let options = {
     Sensor: new Set(),
     Temporal_Resolution: new Set(['Any']),
@@ -15,9 +18,11 @@ const buildSearchOptionsFromVariableList = (
     Distributor: new Set(['Any']),
     Process_Level: new Set(['Any']),
     Make: new Set(),
+    DataFeatures: new Set(),
   };
 
   const columns = Object.keys(options);
+  log.debug('columns', columns);
 
   variables.forEach((v) => {
     columns.forEach((k) => {
@@ -37,14 +42,17 @@ const buildSearchOptionsFromVariableList = (
     });
   });
 
+  // Sensor
   if (params.sensor && params.sensor.size) {
     options.Sensor = storedOptions.Sensor;
   }
 
+  // Make
   if (params.make && params.make.size) {
     options.Make = storedOptions.Make;
   }
 
+  // Region
   if (params.region && params.region.size) {
     options.Region = storedOptions.Region;
   } else {
@@ -59,6 +67,8 @@ const buildSearchOptionsFromVariableList = (
       return a.toLowerCase().localeCompare(b.toLowerCase());
     });
   }
+
+  log.debug ('resulting options', options);
   return options;
 };
 

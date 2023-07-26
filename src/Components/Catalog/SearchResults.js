@@ -1,5 +1,12 @@
-// Wrapper for search results
-// uses react-window for windowing/occlusion culling to improve performance
+/* Catalog / SearchResults
+
+   - Responsible for detecting changes to URL query string and dispatching
+   search action.
+   - Responsible for rendering searchResults from redux (updated out of band)
+   - See: ./catalog-doc.md for overview of Catalog Search mechanism
+   - Note: uses react-window for windowing/occlusion culling to improve performance
+
+*/
 
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
@@ -20,6 +27,9 @@ import states from '../../enums/asyncRequestStates';
 import Hint from '../Navigation/Help/Hint';
 import downloadHint from './help/downloadSearchResults';
 import SearchResultsStatusHint from './help/SearchResultsStatusHint';
+import initLogger from '../../Services/log-service';
+
+const log = initLogger('Catalog/SearchResults.js');
 
 const mapStateToProps = (state) => ({
   searchResults: state.searchResults,
@@ -141,6 +151,7 @@ const SearchResults = (props) => {
   } = props;
 
   useEffect(() => {
+    log.debug ('useEffect', { search: props.location.search });
     setLoadingState(states.inProgress);
     search(props.location.search);
   }, [props.location.search]);

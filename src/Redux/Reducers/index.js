@@ -21,7 +21,7 @@ import {
 const initialState = {
   // Catalog state pieces
   catalogRequestState: null,
-  catalog: null,
+  catalog: {},
   datasetRequestState: null,
   datasets: null,
   submissionOptions: buildSearchOptionsFromVariableList([]),

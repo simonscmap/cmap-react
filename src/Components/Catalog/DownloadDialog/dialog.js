@@ -19,7 +19,7 @@ import {
 import styles from './downloadDialogStyles';
 import ErrorMessage from './ErrorMessage';
 import { DownloadDialogTitle } from './Header';
-import { useTableHasAncillaryData } from '../../../Utility/Catalog/ancillaryData';
+import { useDatasetFeatures } from '../../../Utility/Catalog/useDatasetFeatures';
 import { DownloadIntro } from './Intro';
 import { AncillaryDataExplainer } from './AncillaryDataDownload';
 import DownloadOption from './DownloadOption';
@@ -45,7 +45,7 @@ const DownloadDialog = (props) => {
 
   let dispatch = useDispatch();
 
-  let datasetHasAncillaryData = useTableHasAncillaryData(dataset.Table_Name);
+  let datasetHasAncillaryData = useDatasetFeatures(dataset.Table_Name, 'ancillary');
 
   let { maxDays, lat, lon, time, depth } = getInitialRangeValues(dataset);
 
