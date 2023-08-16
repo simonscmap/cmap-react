@@ -51,8 +51,19 @@ export const fetchDatasetAndMetadata = async ({ query, shortName }) => {
   try {
     [metadataResp, datasetResp] = await Promise.all(requests);
   } catch (eResp) {
-    let errorMessage = eResp.status === 401 ? 'UNAUTHORIZED' : 'ERROR';
-    throw new Error(errorMessage, { cause: eResp });
+    let { status } = eResp;
+    log.warn ('error in data request', { status, originalError: eResp })
+    if (status === 401) {
+      throw new Error('UNAUTHORIZED', { cause: eResp });
+    } else if (status === 400) {
+      let responseText = await eResp.text();
+      let errorMessage = (responseText === 'query exceeds maximum size allowed')
+                       ? '400 TOO LARGE'
+                       : 'BAD REQUEST';
+      throw new Error(errorMessage, { cause: eResp})
+    } else {
+      throw new Error('ERROR', { cause: eResp });
+    }
   }
 
   // get data in correct format

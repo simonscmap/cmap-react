@@ -4,7 +4,9 @@ import React from 'react';
 import styles from './downloadDialogStyles';
 
 const DownloadStep = (props) => {
-  let { handlers } = props;
+  let { handlers, buttonState } = props;
+
+  console.log ('button state', buttonState);
 
   let { handleClose, handleDownload } = handlers;
 
@@ -23,9 +25,13 @@ const DownloadStep = (props) => {
         alignItems="flex-start"
       >
         <Grid item>
-          <Button onClick={downloadHandler} color="primary" variant="contained">
+        <Button
+          disabled={!buttonState.enabled}
+          onClick={downloadHandler}
+          color="primary"
+          variant="contained">
             Download Dataset
-          </Button>
+    </Button>
         </Grid>
       </Grid>
     </React.Fragment>

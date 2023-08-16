@@ -17,7 +17,11 @@ import {
   CART_CLEAR,
   CART_ADD_MULTIPLE,
   FETCH_DATASET_FEATURES_SUCCESS,
+  SET_CHECK_QUERY_SIZE_REQUEST_STATE,
+  STORE_CHECK_QUERY_SIZE_RESULT,
+  CHECK_QUERY_SIZE_SEND,
 } from '../actionTypes/catalog';
+import states from '../../enums/asyncRequestStates';
 
 export default function (state, action) {
   switch (action.type) {
@@ -164,6 +168,40 @@ export default function (state, action) {
       };
 
       // handle dataset features failure
+
+      /************** Dataset Download **********************/
+
+    case CHECK_QUERY_SIZE_SEND:
+      return {
+        ...state,
+        download: {
+          ...state.download,
+          currentRequest: action.payload.query,
+          checkQueryRequestState: states.inProgress
+        }
+      }
+
+    case SET_CHECK_QUERY_SIZE_REQUEST_STATE:
+      return {
+        ...state,
+        download: {
+          ...state.download,
+          checkQueryRequestState: action.payload,
+        }
+      };
+
+    case STORE_CHECK_QUERY_SIZE_RESULT:
+      return {
+        ...state,
+        download: {
+          ...state.download,
+          querySizeChecks: state.download.querySizeChecks
+                                .slice(-200) // keep cache size limited, fifo
+                                .concat(action.payload) // { queryString, result }
+
+        }
+      };
+
 
     default:
       return state;

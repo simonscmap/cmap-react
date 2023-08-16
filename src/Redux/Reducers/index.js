@@ -30,6 +30,13 @@ const initialState = {
   searchResults: [],
   searchResultsLoadingState: states.notTried,
 
+  // Dataset Download
+  download: {
+    currentRequest: null,
+    checkQueryRequestState: states.notTried,
+    querySizeChecks: [], // list of { queryString, result }
+  },
+
   // Dataset Details Page
   datasetDetailsPage: {
     selectedDatasetId: null,

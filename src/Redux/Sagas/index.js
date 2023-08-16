@@ -70,6 +70,10 @@ import {
   watchUpdateNewsRanksSuccess,
 } from './news';
 
+import {
+  watchCheckDownloadSize,
+} from './downloadSagas';
+
 
 import logInit from '../../Services/log-service';
 const log = logInit('sagas').addContext({ src: 'Redux/Sagas' });
@@ -317,11 +321,12 @@ function* downloadRequest(action) {
     let data = yield call(fetchDatasetAndMetadata, { query, shortName });
     makeZip(data, truncatedFileName, shortName);
   } catch (e) {
-    console.log (e);
+    console.log (e.message);
     yield put(interfaceActions.setLoadingMessage(''));
     if (e.message === 'UNAUTHORIZED') {
       yield put(userActions.refreshLogin());
-      return;
+    } else if (e.message === '400 TOO LARGE') {
+      yield put (interfaceActions.snackbarOpen ('Requested data exceeds size limits.'));
     } else {
       yield put(
         interfaceActions.snackbarOpen(
@@ -1309,7 +1314,7 @@ function* fetchDatasetFeatures() {
 function* updateCatalogWithDatasetFeatures() {
   let searchResults = yield select((state) => state.searchResults);
   let submissionOptions = yield select((state) => state.submissionOptions);
-  let searchOptions = yield select((state) => state.searchOptions);
+  // let searchOptions = yield select((state) => state.searchOptions);
   let datasetFeatures = yield select((state) => state.catalog.datasetFeatures);
   let params = queryString.parse(window.location.search);
   log.debug ('updateCatalogWithDatasetFeatures', { params });
@@ -1759,6 +1764,7 @@ function* rootSaga() {
     // watchFetchTablesWithCISuccess(),
     watchFetchDatasetFeatures(),
     watchUpdateCatalogWithDatasetFeatures(),
+    watchCheckDownloadSize(),
   ]);
 }
 

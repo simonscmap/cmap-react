@@ -182,6 +182,24 @@ export const fetchDatasetFeatures = () => ({
 
 /************** Dataset Download **********************/
 
+export const checkQuerySize = (query) => ({
+  type: catalogActionTypes.CHECK_QUERY_SIZE_SEND,
+  payload: { query }
+});
+
+export const setCheckQueryRequestState = (requestState) => ({
+  type: catalogActionTypes.SET_CHECK_QUERY_SIZE_REQUEST_STATE,
+  payload: requestState,
+});
+
+export const storeCheckQueryResult = (queryString, result) => ({
+  type: catalogActionTypes.STORE_CHECK_QUERY_SIZE_RESULT,
+  payload: {
+    queryString,
+    result
+  }
+});
+
 export const datasetDownloadRequestSend = ({
   subsetParams,
   ancillaryData,

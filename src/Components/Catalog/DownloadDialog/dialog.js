@@ -6,9 +6,10 @@ import {
   Button,
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
-import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { datasetDownloadRequestSend } from '../../../Redux/actions/catalog';
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { debounce } from 'throttle-debounce';
+import { datasetDownloadRequestSend, checkQuerySize } from '../../../Redux/actions/catalog';
 import SubsetControls from './SubsetControls';
 import {
   // getDownloadAvailabilites,
@@ -24,11 +25,24 @@ import { DownloadIntro } from './Intro';
 import { AncillaryDataExplainer } from './AncillaryDataDownload';
 import DownloadOption from './DownloadOption';
 import DownloadStep from './DownloadStep';
+import states from '../../../enums/asyncRequestStates';
 
+import reduxStore from '../../../Redux/store';
 import logInit from '../../../Services/log-service';
 const log = logInit('dialog').addContext({
   src: 'Components/Catalog/DownloadDialog',
 });
+
+const CHECK_QUERY_DEBOUNCE_TIME_MS = 2000;
+
+// We need to declare this outside the component (or else pass it in through props)
+// because otherwise the debounce clock will get reset every re-render
+let checkQuerySizeDispatch = debounce(
+  CHECK_QUERY_DEBOUNCE_TIME_MS,
+  (query) => {
+    console.log('debounced dispatch: checkQuerySize');
+    reduxStore.dispatch(checkQuerySize(query));
+  });
 
 const DownloadDialog = (props) => {
   let { dataset: rawDataset, dialogOpen, handleClose, classes } = props;
@@ -101,24 +115,82 @@ const DownloadDialog = (props) => {
     setDepthEnd,
   };
 
-  /*
-   *   // calculations used to allow/disallow size of download
-   *   let subsetState = {
-   *     lat: [latStart, latEnd],
-   *     lon: [lonStart, lonEnd],
-   *     time: [timeStart, timeEnd],
-   *     depth: [depthStart, depthEnd],
-   *   };
-   *
-   *   // calculate availabilities (uses magic numbers, see helper for implementation)
-   *   let downloadAvailabilities = getDownloadAvailabilites(dataset, subsetState);
-   *   let availabilities = { ...downloadAvailabilities, datasetHasAncillaryData };
-   *
-   *   if (!availabilities.fullDatasetAvailable) {
-   *     console.log(`restricted availability`, availabilities);
-   *   }
-   *
-   *  */
+  let dlbtnMessages = {
+    [states.inProgress]: 'Checking Query Size',
+    [states.notTried]: '',
+    [states.failed]: 'Failed to Check Query Size',
+  };
+
+
+  let querySizes = useSelector((state) => state.download.querySizeChecks);
+  let checkSizeRequestState = useSelector ((state) => state.download.checkQueryRequestState);
+  let currentRequest = useSelector ((state) => state.download.currentRequest);
+
+  let [downloadButtonState, setDownloadButtonState] = useState({
+    enabled: false,
+    message: dlbtnMessages[checkSizeRequestState] || ''
+  });
+  let disableButton = (message) => setDownloadButtonState({ enabled: false, message });
+  let enableButton = (message) => setDownloadButtonState({ enabled: true, message });
+
+
+  useEffect(() => {
+    let query = makeDownloadQuery({
+      subsetParams,
+      ancillaryData: optionsState.ancillaryData,
+      tableName: dataset.Table_Name,
+    });
+
+    let cachedSizeCheck = querySizes.find((item) => item.queryString === query);
+    if (cachedSizeCheck) {
+      log.debug('query size cached', cachedSizeCheck);
+    } else if (query !== currentRequest && checkSizeRequestState !== states.failed) {
+      // there's no cache that matches this query, and its not the current query
+      checkQuerySizeDispatch(query);
+    }
+  }, [latStart, latEnd, lonStart, lonEnd, timeStart, timeEnd, depthStart, depthEnd]);
+
+  useEffect(() => {
+    if ([states.notTried, states.inProgress, states.failed].includes(checkSizeRequestState)) {
+      console.log ('state', checkSizeRequestState);
+      if (downloadButtonState.message !== dlbtnMessages[checkSizeRequestState]) {
+        setDownloadButtonState({ enabled: false, message: dlbtnMessages[checkSizeRequestState] });
+      }
+      return;
+    }
+
+    // check if information about the current subset is cached
+    let query = makeDownloadQuery({
+      subsetParams,
+      ancillaryData: optionsState.ancillaryData,
+      tableName: dataset.Table_Name,
+    });
+    let cachedSizeCheck = querySizes.find((item) => item.queryString === query);
+
+    if (!cachedSizeCheck) {
+      // do nothing
+      return;
+    } else if (cachedSizeCheck.result && cachedSizeCheck.result.allow === false) {
+      // update message (if needed) to disalow query
+      if (downloadButtonState.message === 'Subset too large') {
+        disableButton(`Subset too large`);
+      }
+    } else if (cachedSizeCheck.result && cachedSizeCheck.result.allow) {
+      // update message (if needed) to allow query
+      if (!downloadButtonState.enabled) {
+        let { result: { projection } } = cachedSizeCheck;
+        let estimate = (projection && projection.size && typeof projection.size === 'number') && projection.size;
+        // a negative estimate is an indication that the matching rows is less than the abs(size)
+        let message = (estimate && estimate > 0)
+                    ? `Estimate: ${projection.size} matching rows`
+                    : (estimate && estimate < 0)
+                    ? `Estimate: less than ${-estimate} matching rows`
+                    : ''
+        enableButton(message);
+      }
+    }
+  }, [querySizes, checkSizeRequestState]);
+
 
   // download options (Mui Switch state)
 
@@ -217,15 +289,18 @@ const DownloadDialog = (props) => {
           </div>
         </DialogContent>
       </div>
-      <DialogActions>
+    <DialogActions>
+
         <DownloadStep
+          buttonState={downloadButtonState}
           handlers={{
             handleClose,
             handleDownload,
           }}
         />
         <Button onClick={handleClose}>Cancel</Button>
-      </DialogActions>
+    </DialogActions>
+    <span>{downloadButtonState.message}</span>
     </Dialog>
   );
 };

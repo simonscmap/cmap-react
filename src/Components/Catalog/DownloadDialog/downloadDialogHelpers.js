@@ -155,13 +155,17 @@ export const getMaxDays = (dataset) => {
     differenceInMilliseconds / MILLISECONDS_PER_DAY,
   );
 
-  log.debug('get max days', {
+  /*
+log.debug('get max days', {
     startTime: new Date(startTime),
     endTime: new Date(endTime),
     intervalInDays,
     interval: differenceInMilliseconds / MILLISECONDS_PER_DAY,
     dataset,
   });
+
+   */
+
   return intervalInDays;
 };
 
