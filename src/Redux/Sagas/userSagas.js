@@ -1,9 +1,11 @@
 import Cookies from 'js-cookie';
-import { call, put, takeLatest } from 'redux-saga/effects';
+import { call, put, takeLatest, select } from 'redux-saga/effects';
 import api from '../../api/api';
 import * as interfaceActions from '../actions/ui';
 import * as userActions from '../actions/user';
 import * as userActionTypes from '../actionTypes/user';
+import * as catalogActions from '../actions/catalog';
+import states from '../../enums/asyncRequestStates';
 
 /* userLogin, watchUserLogin
  * triggering action: LOGIN_REQUEST_SEND
@@ -19,8 +21,13 @@ import * as userActionTypes from '../actionTypes/user';
  * dispatched in: LoginDialog.js
  */
 export function* userLogin(action) {
+  // send login request
   yield put(userActions.userLoginRequestProcessing());
   let result = yield call(api.user.login, action.payload);
+
+  // get catalog state
+  let downloadState = yield select((state) => state.download);
+
 
   if (result.ok) {
     yield put(interfaceActions.hideLoginDialog());
@@ -30,6 +37,7 @@ export function* userLogin(action) {
     yield put(userActions.storeInfo(userInfo));
     yield put(interfaceActions.snackbarOpen('Login was successful!'));
     yield put(userActions.cartGetAndStore());
+
     if (window.location.pathname === '/login') {
       let search = new URLSearchParams(window.location.search)
       let redirect = search.get('redirect');
@@ -40,7 +48,13 @@ export function* userLogin(action) {
        // default to /catalog page
        window.location.href = '/catalog';
       }
+    } else {
+      if (downloadState.currentRequest && downloadState.checkQueryRequestState === states.failed) {
+        // retry the query check if the last request failed (it was probably a 401)
+        yield put(catalogActions.checkQuerySize(downloadState.currentRequest))
+      }
     }
+
   } else {
     yield put(userActions.userLoginRequestFailure());
     yield put(interfaceActions.snackbarOpen('Login failed.'));

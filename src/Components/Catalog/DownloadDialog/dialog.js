@@ -115,25 +115,37 @@ const DownloadDialog = (props) => {
     setDepthEnd,
   };
 
+  // Download Button Messages
   let dlbtnMessages = {
-    [states.inProgress]: 'Checking Query Size',
+    [states.inProgress]: 'Checking Query Size...',
     [states.notTried]: '',
-    [states.failed]: 'Failed to Check Query Size',
+    [states.failed]: 'Unable to determine query size. Download may fail due to size.',
   };
 
+  // Button State
+  const buttonStates = {
+    notTried: 'not-tried',
+    checkInProgress: 'in-progress',
+    checkFailed: 'failed',
+    checkSucceededAndDownloadAllowed: 'allowed',
+    checkSucceededAndDownloadProhibited: 'prohibited',
+  };
 
   let querySizes = useSelector((state) => state.download.querySizeChecks);
   let checkSizeRequestState = useSelector ((state) => state.download.checkQueryRequestState);
   let currentRequest = useSelector ((state) => state.download.currentRequest);
 
+
   let [downloadButtonState, setDownloadButtonState] = useState({
     enabled: false,
-    message: dlbtnMessages[checkSizeRequestState] || ''
+    message: dlbtnMessages[checkSizeRequestState] || '',
+    status: buttonStates.notTried,
   });
-  let disableButton = (message) => setDownloadButtonState({ enabled: false, message });
-  let enableButton = (message) => setDownloadButtonState({ enabled: true, message });
+  let disableButton = (message, status) => setDownloadButtonState({ enabled: false, message, status });
+  let enableButton = (message, status) => setDownloadButtonState({ enabled: true, message, status });
 
 
+  // when subset values update, initiate a querySizeCheck request (if no cached result is available)
   useEffect(() => {
     let query = makeDownloadQuery({
       subsetParams,
@@ -150,7 +162,9 @@ const DownloadDialog = (props) => {
     }
   }, [latStart, latEnd, lonStart, lonEnd, timeStart, timeEnd, depthStart, depthEnd]);
 
+  // manage button state; responds to redux state
   useEffect(() => {
+    console.log('use effect: querySizes', querySizes, checkSizeRequestState);
     if ([states.notTried, states.inProgress, states.failed].includes(checkSizeRequestState)) {
       console.log ('state', checkSizeRequestState);
       if (downloadButtonState.message !== dlbtnMessages[checkSizeRequestState]) {
@@ -167,17 +181,32 @@ const DownloadDialog = (props) => {
     });
     let cachedSizeCheck = querySizes.find((item) => item.queryString === query);
 
+    // no result found
     if (!cachedSizeCheck) {
-      // do nothing
       return;
-    } else if (cachedSizeCheck.result && cachedSizeCheck.result.allow === false) {
+    }
+
+    let responseStatus = cachedSizeCheck.result.response && cachedSizeCheck.result.response.status;
+    let size = cachedSizeCheck.result.projection && cachedSizeCheck.result.projection.size;
+    let allowed = cachedSizeCheck.result.allow;
+
+    // prohibited
+    if (allowed === false) {
       // update message (if needed) to disalow query
-      if (downloadButtonState.message === 'Subset too large') {
-        disableButton(`Subset too large`);
+      if (responseStatus === 400 && downloadButtonState.status !== buttonStates.checkSucceededAndDownloadProhibited) {
+        disableButton(
+          `Subset too large (estimated ${size} matching rows)`,
+          buttonStates.checkSucceededAndDownloadProhibited
+        );
+      } else if (responseStatus === 500) {
+        enableButton(dlbtnMessages[states.failed], buttonStates.checkFailed);
       }
-    } else if (cachedSizeCheck.result && cachedSizeCheck.result.allow) {
+    }
+
+    // allowed
+    if (allowed === true) {
       // update message (if needed) to allow query
-      if (!downloadButtonState.enabled) {
+      if (downloadButtonState.status !== buttonStates.checkSucceededAndDownloadAllowed) {
         let { result: { projection } } = cachedSizeCheck;
         let estimate = (projection && projection.size && typeof projection.size === 'number') && projection.size;
         // a negative estimate is an indication that the matching rows is less than the abs(size)
@@ -186,7 +215,7 @@ const DownloadDialog = (props) => {
                     : (estimate && estimate < 0)
                     ? `Estimate: less than ${-estimate} matching rows`
                     : ''
-        enableButton(message);
+        enableButton(message, buttonStates.checkSucceededAndDownloadAllowed);
       }
     }
   }, [querySizes, checkSizeRequestState]);
