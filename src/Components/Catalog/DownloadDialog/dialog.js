@@ -25,7 +25,9 @@ import { DownloadIntro } from './Intro';
 import { AncillaryDataExplainer } from './AncillaryDataDownload';
 import DownloadOption from './DownloadOption';
 import DownloadStep from './DownloadStep';
+import ValidationIndicatorBar from './ValidationIndicatorBar';
 import states from '../../../enums/asyncRequestStates';
+import { validationMessages, buttonStates } from './buttonStates';
 
 import reduxStore from '../../../Redux/store';
 import logInit from '../../../Services/log-service';
@@ -34,6 +36,8 @@ const log = logInit('dialog').addContext({
 });
 
 const CHECK_QUERY_DEBOUNCE_TIME_MS = 2000;
+
+
 
 // We need to declare this outside the component (or else pass it in through props)
 // because otherwise the debounce clock will get reset every re-render
@@ -44,6 +48,8 @@ let checkQuerySizeDispatch = debounce(
     reduxStore.dispatch(checkQuerySize(query));
   });
 
+
+// DIALOG
 const DownloadDialog = (props) => {
   let { dataset: rawDataset, dialogOpen, handleClose, classes } = props;
 
@@ -115,35 +121,34 @@ const DownloadDialog = (props) => {
     setDepthEnd,
   };
 
-  // Download Button Messages
-  let dlbtnMessages = {
-    [states.inProgress]: 'Checking Query Size...',
-    [states.notTried]: '',
-    [states.failed]: 'Unable to determine query size. Download may fail due to size.',
+  // Download Options (Mui Switch state)
+  const [optionsState, setDownloadOptions] = useState({
+    ancillaryData: datasetHasAncillaryData,
+    subset: false,
+    // TODO: add metadata switch (when we provide zip archive of data & metadata)
+  });
+
+  const handleSwitch = (event) => {
+    setDownloadOptions({
+      ...optionsState,
+      [event.target.name]: event.target.checked,
+    });
   };
 
-  // Button State
-  const buttonStates = {
-    notTried: 'not-tried',
-    checkInProgress: 'in-progress',
-    checkFailed: 'failed',
-    checkSucceededAndDownloadAllowed: 'allowed',
-    checkSucceededAndDownloadProhibited: 'prohibited',
-  };
+  // Download Size Validation
 
+  let downloadState = useSelector((state) => state.download);
   let querySizes = useSelector((state) => state.download.querySizeChecks);
   let checkSizeRequestState = useSelector ((state) => state.download.checkQueryRequestState);
   let currentRequest = useSelector ((state) => state.download.currentRequest);
 
-
   let [downloadButtonState, setDownloadButtonState] = useState({
     enabled: false,
-    message: dlbtnMessages[checkSizeRequestState] || '',
+    message: validationMessages[checkSizeRequestState] || '',
     status: buttonStates.notTried,
   });
   let disableButton = (message, status) => setDownloadButtonState({ enabled: false, message, status });
   let enableButton = (message, status) => setDownloadButtonState({ enabled: true, message, status });
-
 
   // when subset values update, initiate a querySizeCheck request (if no cached result is available)
   useEffect(() => {
@@ -155,20 +160,38 @@ const DownloadDialog = (props) => {
 
     let cachedSizeCheck = querySizes.find((item) => item.queryString === query);
     if (cachedSizeCheck) {
-      log.debug('query size cached', cachedSizeCheck);
-    } else if (query !== currentRequest && checkSizeRequestState !== states.failed) {
+      // do nothing
+      log.debug('query size check result is cached', cachedSizeCheck);
+    } else if (query !== currentRequest) {
       // there's no cache that matches this query, and its not the current query
+      // it takes a moment for redux state to update, so beat it to the punch and manually update component
+      // state to indicate a check is in progress
+      setDownloadButtonState({
+        enabled: false,
+        message: 'Initating Check...',
+        status: buttonStates.checkInProgress
+      });
       checkQuerySizeDispatch(query);
     }
   }, [latStart, latEnd, lonStart, lonEnd, timeStart, timeEnd, depthStart, depthEnd]);
 
+
   // manage button state; responds to redux state
   useEffect(() => {
-    console.log('use effect: querySizes', querySizes, checkSizeRequestState);
     if ([states.notTried, states.inProgress, states.failed].includes(checkSizeRequestState)) {
-      console.log ('state', checkSizeRequestState);
-      if (downloadButtonState.message !== dlbtnMessages[checkSizeRequestState]) {
-        setDownloadButtonState({ enabled: false, message: dlbtnMessages[checkSizeRequestState] });
+      if (downloadButtonState.message !== validationMessages[checkSizeRequestState]) {
+        let status = checkSizeRequestState === states.notTried ? buttonStates.notTried
+                   : checkSizeRequestState === states.inProgress
+                   ? buttonStates.checkInProgress
+                   : checkSizeRequestState === states.failed
+                   ? buttonStates.checkFailed
+                   : buttonStates.notTried; // default
+
+        setDownloadButtonState({
+          enabled: false,
+          message: validationMessages[checkSizeRequestState],
+          status
+        });
       }
       return;
     }
@@ -179,6 +202,7 @@ const DownloadDialog = (props) => {
       ancillaryData: optionsState.ancillaryData,
       tableName: dataset.Table_Name,
     });
+
     let cachedSizeCheck = querySizes.find((item) => item.queryString === query);
 
     // no result found
@@ -195,11 +219,15 @@ const DownloadDialog = (props) => {
       // update message (if needed) to disalow query
       if (responseStatus === 400 && downloadButtonState.status !== buttonStates.checkSucceededAndDownloadProhibited) {
         disableButton(
-          `Subset too large (estimated ${size} matching rows)`,
+          `Subset too large (estimated ${size.toLocaleString()} matching rows). Try selecting a smaller subset.`,
           buttonStates.checkSucceededAndDownloadProhibited
         );
+        setDownloadOptions({
+          ...optionsState,
+          subset: true,
+        })
       } else if (responseStatus === 500) {
-        enableButton(dlbtnMessages[states.failed], buttonStates.checkFailed);
+        enableButton(validationMessages[states.failed], buttonStates.checkFailed);
       }
     }
 
@@ -211,9 +239,9 @@ const DownloadDialog = (props) => {
         let estimate = (projection && projection.size && typeof projection.size === 'number') && projection.size;
         // a negative estimate is an indication that the matching rows is less than the abs(size)
         let message = (estimate && estimate > 0)
-                    ? `Estimate: ${projection.size} matching rows`
+                    ? `An estimated ${projection.size.toLocaleString()} rows match the current subset.`
                     : (estimate && estimate < 0)
-                    ? `Estimate: less than ${-estimate} matching rows`
+                    ? `The full dataset (${-estimate.toLocaleString()} rows) is under the download threshold`
                     : ''
         enableButton(message, buttonStates.checkSucceededAndDownloadAllowed);
       }
@@ -221,20 +249,6 @@ const DownloadDialog = (props) => {
   }, [querySizes, checkSizeRequestState]);
 
 
-  // download options (Mui Switch state)
-
-  const [optionsState, setDownloadOptions] = useState({
-    ancillaryData: datasetHasAncillaryData,
-    subset: false,
-    // TODO: add metadata switch (when we provide zip archive of data & metadata)
-  });
-
-  const handleSwitch = (event) => {
-    setDownloadOptions({
-      ...optionsState,
-      [event.target.name]: event.target.checked,
-    });
-  };
 
   // download handler
   let handleDownload = () => {
@@ -281,7 +295,8 @@ const DownloadDialog = (props) => {
       fullWidth={true}
       maxWidth={dialogWidth}
     >
-      <DownloadDialogTitle longName={dataset.Long_Name} />
+    <ValidationIndicatorBar downloadState={downloadState} buttonState={downloadButtonState}/>
+    <DownloadDialogTitle longName={dataset.Long_Name} />
 
       <div className={classes.dialogInnerWrapper}>
         <DialogContent
@@ -329,7 +344,6 @@ const DownloadDialog = (props) => {
         />
         <Button onClick={handleClose}>Cancel</Button>
     </DialogActions>
-    <span>{downloadButtonState.message}</span>
     </Dialog>
   );
 };

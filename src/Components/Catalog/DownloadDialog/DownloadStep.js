@@ -2,11 +2,11 @@ import { Button, Grid } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import React from 'react';
 import styles from './downloadDialogStyles';
+import { downloadButtonText } from './buttonStates';
+
 
 const DownloadStep = (props) => {
   let { handlers, buttonState } = props;
-
-  console.log ('button state', buttonState);
 
   let { handleClose, handleDownload } = handlers;
 
@@ -30,8 +30,8 @@ const DownloadStep = (props) => {
           onClick={downloadHandler}
           color="primary"
           variant="contained">
-            Download Dataset
-    </Button>
+            {downloadButtonText[buttonState.status]}
+          </Button>
         </Grid>
       </Grid>
     </React.Fragment>
