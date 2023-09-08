@@ -36,8 +36,7 @@ const log = logInit('dialog').addContext({
 });
 
 const CHECK_QUERY_DEBOUNCE_TIME_MS = 2000;
-
-
+const DOWNLOAD_ROWS_LIMIT = 2000000;
 
 // We need to declare this outside the component (or else pass it in through props)
 // because otherwise the debounce clock will get reset every re-render
@@ -152,6 +151,28 @@ const DownloadDialog = (props) => {
 
   // when subset values update, initiate a querySizeCheck request (if no cached result is available)
   useEffect(() => {
+    //  (1) prevent an api call if we can deduce that the query is above or below the known dataset row count
+    if (dataset && dataset.Row_Count) {
+      if (dataset.Row_Count < DOWNLOAD_ROWS_LIMIT) {
+        setDownloadButtonState({
+          enabled: true,
+          message: `The full dataset (${dataset.Row_Count} rows) is under the download threshold.`,
+          status: buttonStates.checkSucceededAndDownloadAllowed
+        });
+        return;
+      } else if (!subsetIsDefined) {
+        // the row count is over the limit and the download is not constrained, so prevent it
+        setDownloadButtonState({
+          enabled: false,
+          message: `Dataset is too large (${dataset.Row_Count.toLocaleString()} rows). Select a subset matching less than ~2 million rows to download.`,
+          status: buttonStates.checkSucceededAndDownloadProhibited
+        });
+        return;
+      }
+    }
+
+    // (2)  use cache or make api call to get size check
+
     let query = makeDownloadQuery({
       subsetParams,
       ancillaryData: optionsState.ancillaryData,
@@ -159,9 +180,16 @@ const DownloadDialog = (props) => {
     });
 
     let cachedSizeCheck = querySizes.find((item) => item.queryString === query);
+    let cachedUnconstrainedQuery = querySizes
+          .find((item) => item.queryString.toLowerCase() === `select%20*%20from%20${dataset.Table_Name}`.toLowerCase());
+
+
     if (cachedSizeCheck) {
       // do nothing
       log.debug('query size check result is cached', cachedSizeCheck);
+    } else if (!cachedSizeCheck && !subsetIsDefined && cachedUnconstrainedQuery) {
+      // the subset options are all at their default, which is the same as
+      // a query for the full dataset, and we have a cache for that query, so don't dispatch a new one
     } else if (query !== currentRequest) {
       // there's no cache that matches this query, and its not the current query
       // it takes a moment for redux state to update, so beat it to the punch and manually update component
@@ -204,10 +232,18 @@ const DownloadDialog = (props) => {
     });
 
     let cachedSizeCheck = querySizes.find((item) => item.queryString === query);
+    let cachedUnconstrainedQuery = querySizes
+          .find((item) => item.queryString.toLowerCase() === `select%20*%20from%20${dataset.Table_Name}`.toLowerCase());
 
     // no result found
     if (!cachedSizeCheck) {
-      return;
+      if (!subsetIsDefined && cachedUnconstrainedQuery) {
+        // the subset options are all at their default, which is the same as
+        // a query for the full dataset, and we have a cache for that query, so don't dispatch a new one
+        cachedSizeCheck = cachedUnconstrainedQuery;
+      } else {
+        return;
+      }
     }
 
     let responseStatus = cachedSizeCheck.result.response && cachedSizeCheck.result.response.status;
