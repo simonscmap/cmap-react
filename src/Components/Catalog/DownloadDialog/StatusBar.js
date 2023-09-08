@@ -1,11 +1,17 @@
 import React, { useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import InfoIcon from '@material-ui/icons/Info';
+import { ThemeProvider, createTheme, makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
-import Tooltip from '@material-ui/core/Tooltip';
 import Link from '@material-ui/core/Link';
+
+import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
+import WarningIcon from '@material-ui/icons/Warning';
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import NotInterestedIcon from '@material-ui/icons/NotInterested';
+
+import { buttonStates } from './buttonStates';
+
 
 const useStyles = makeStyles({
   root: {
@@ -19,6 +25,13 @@ const useStyles = makeStyles({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  messageContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'start',
+    gap: '1em',
+    alignItems: 'center',
+  },
   infoHandle: {
     cursor: 'pointer',
   },
@@ -27,23 +40,63 @@ const useStyles = makeStyles({
   }
 });
 
+const WarningTheme = createTheme({
+  palette: {
+    primary: {
+      main: "#d16265;",
+    },
+    secondary: {
+      main: "#ffd54f",
+    }
+  },
+});
+
+/* Warning Icon */
+const StyledWarningIcon = () => {
+  return (<ThemeProvider theme={WarningTheme}>
+    <WarningIcon color={'secondary'} />
+  </ThemeProvider >
+  );
+}
+
+/* Prohibited Icon */
+const ProhibitedIcon = () => {
+  return (<ThemeProvider theme={WarningTheme}>
+    <NotInterestedIcon color={'primary'} />
+  </ThemeProvider >
+  );
+}
+
+const IconWrapper = ({ status }) => {
+  switch (status) {
+    case buttonStates.checkFailed:
+      return <StyledWarningIcon />;
+    case buttonStates.checkSucceededAndDownloadAllowed:
+      return <CheckCircleIcon color="primary" />;
+    case buttonStates.checkSucceededAndDownloadProhibited:
+      return <ProhibitedIcon />;
+    default:
+      return '';
+  }
+}
+
 const StatusBar = (props) => {
   const classes = useStyles();
-  const { message } = props;
+  const { state } = props;
+  let { message, status } = state;
 
   let [infoState, setInfoState] = useState(false);
 
   return (
     <div className={classes.root}>
       <div className={classes.container}>
-    <div>
-    <Typography variant="body1" component="p">{message}</Typography>
+        <div className={classes.messageContainer}>
+          <IconWrapper status={status} />
+          <Typography variant="body1" component="p">{message}</Typography>
+        </div>
 
-    </div>
         {!infoState && <div className={classes.infoHandle} onClick={() => setInfoState(true)}>
-          <Tooltip title="Download Size Validation Info">
-            <InfoIcon color='primary' />
-          </Tooltip>
+            <InfoOutlinedIcon />
         </div>}
       </div>
       {infoState && (<div className={classes.infoBox}>

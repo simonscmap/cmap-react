@@ -20,7 +20,7 @@ export const downloadButtonText = {
 
 // Download Button Messages
 export const validationMessages = {
-  [states.inProgress]: 'Estimating Query Size...',
+  [states.inProgress]: 'Estimating Query Size ...',
   [states.notTried]: '',
   [states.failed]: 'Unable to determine query size. Download may fail due to size.',
 };

@@ -18,13 +18,16 @@ const WarningTheme = createTheme({
     primary: {
       main: "#d16265;",
     },
+    secondary: {
+      main: "#ffd54f",
+    }
   },
 });
 
-const WarningBar = () => {
+const WarningBar = ({ color }) => {
   return (
     <ThemeProvider theme={WarningTheme}>
-      <LinearProgress variant="determinate" value={100} color="primary" />
+      <LinearProgress variant="determinate" value={100} color={ color || 'primary' } />
     </ThemeProvider >
   );
 }
@@ -38,16 +41,20 @@ const IndicatorBar = (props) => {
 
   console.log('button state [indicator bar]', buttonState)
 
-
-  if (buttonState.status === buttonStates.notTried) {
-    return '';
+  if (buttonState.status === buttonStates.checkFailed) {
+    return (
+      <div className={classes.root}>
+        <WarningBar color="secondary"/>
+        <ValidationStatusBar state={buttonState} />
+      </div>
+    );
   }
 
   if (buttonState.status === buttonStates.checkInProgress) {
     return (
       <div className={classes.root}>
         <LinearProgress color="primary" />
-        <ValidationStatusBar message={buttonState.message} />
+        <ValidationStatusBar state={buttonState} />
       </div>
     );
   }
@@ -56,7 +63,7 @@ const IndicatorBar = (props) => {
     return (
       <div className={classes.root}>
         <WarningBar />
-        <ValidationStatusBar message={buttonState.message} />
+        <ValidationStatusBar state={buttonState} />
       </div>
     );
   }
@@ -65,11 +72,12 @@ const IndicatorBar = (props) => {
     return (
       <div className={classes.root}>
         <LinearProgress variant="determinate" value={100} color="primary" />
-        <ValidationStatusBar message={buttonState.message} />
+        <ValidationStatusBar state={buttonState} />
       </div>
     );
   }
 
+  // not tried | default case
   return '';
 }
 

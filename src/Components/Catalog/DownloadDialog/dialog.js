@@ -164,7 +164,7 @@ const DownloadDialog = (props) => {
         // the row count is over the limit and the download is not constrained, so prevent it
         setDownloadButtonState({
           enabled: false,
-          message: `Dataset is too large (${dataset.Row_Count.toLocaleString()} rows). Select a subset matching less than ~2 million rows to download.`,
+          message: `Dataset is too large (${dataset.Row_Count.toLocaleString()} rows) to download in full.  Please select a subset matching less than ~2 million rows to download.`,
           status: buttonStates.checkSucceededAndDownloadProhibited
         });
         return;
@@ -196,7 +196,7 @@ const DownloadDialog = (props) => {
       // state to indicate a check is in progress
       setDownloadButtonState({
         enabled: false,
-        message: 'Initating Check...',
+        message: 'Initiating Size Validation ...',
         status: buttonStates.checkInProgress
       });
       checkQuerySizeDispatch(query);
