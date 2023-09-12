@@ -8,26 +8,27 @@
 
 */
 
-import React, { useEffect, useState } from 'react';
-import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
-import { withStyles, Paper, Typography } from '@material-ui/core';
+import { Paper, Typography, withStyles } from '@material-ui/core';
 import { CloudDownload } from '@material-ui/icons';
 import stringify from 'csv-stringify/lib/sync';
-import { FixedSizeList } from 'react-window';
-import SearchResult from './SearchResult';
-import '../../Stylesheets/catalog-search-results.css';
+import React, { useEffect, useState } from 'react';
+import { connect } from 'react-redux';
 import ResizeObserver from 'react-resize-observer';
+import { withRouter } from 'react-router';
+import { FixedSizeList } from 'react-window';
+import '../../Stylesheets/catalog-search-results.css';
+import SearchResult from './SearchResult';
 
 import {
-  searchResultsFetch,
-  searchResultsSetLoadingState,
+    searchResultsFetch,
+    searchResultsSetLoadingState,
 } from '../../Redux/actions/catalog';
+import initLogger from '../../Services/log-service';
 import states from '../../enums/asyncRequestStates';
 import Hint from '../Navigation/Help/Hint';
-import downloadHint from './help/downloadSearchResults';
 import SearchResultsStatusHint from './help/SearchResultsStatusHint';
-import initLogger from '../../Services/log-service';
+import downloadHint from './help/downloadSearchResults';
+import styles from './searchResultsStyles';
 
 const log = initLogger('Catalog/SearchResults.js');
 
@@ -40,83 +41,6 @@ const mapDispatchToProps = {
   searchResultsFetch,
   searchResultsSetLoadingState,
 };
-
-const styles = (theme) => ({
-  wrapperDiv: {
-    boxSizing: 'border-box',
-    flexGrow: '3',
-  },
-  resultsWrapper: {
-    padding: '16px 0 16px 20px',
-    margin: '-54px 0 24px 0',
-    [theme.breakpoints.down('md')]: {
-      padding: '0',
-      margin: '26px 0 0 0',
-    },
-    backgroundColor: 'transparent',
-    // remove the margin from the first result to make it
-    // align with the top of the FixedSizeList and its scroll bar
-    '& div.MuiPaper-root:first-child': {
-      marginTop: 0,
-    },
-  },
-  downloadWrapper: {
-    fontSize: '1rem',
-    color: 'white',
-    cursor: 'pointer',    borderRadius: '6px',
-    padding: '1px 8px',
-    '&:hover': {
-      backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    },
-  },
-  downloadIcon: {
-    marginRight: '7px',
-    marginBottom: '-3px',
-    fontSize: '1.2rem',
-  },
-  helpButton: {
-    padding: '0 2px',
-    marginTop: '-9.5px',
-    color: 'white',
-    fontSize: '1.2rem',
-  },
-  helpIcon: {
-    color: 'white',
-    fontSize: '1.2rem',
-  },
-  infoShelf: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    paddingLeft: '13px',
-  },
-  fixedSizeList: {
-    // padding allows beacons to render without being clipped
-    padding: '10px 0 0 15px',
-    margin: '0 0 0 -15px',
-    width: '100%',
-    overflow: 'visible',
-    // transparent scrollbar bg prevents box shadow of results from
-    // being occluded
-    scrollbarColor: '#9dd162 transparent',
-  },
-  fixedSizeListScrolled: {
-    // make it look like the results are scrolling under a shadow
-    background: `
-        linear-gradient(transparent 30%, hsla(0,0%,100%, 0)),
-        linear-gradient(hsla(0,0%,100%,0) 10px, white 70%) bottom,
-        radial-gradient(at top, rgba(0,0,0,0.2), transparent 70%),
-        radial-gradient(at bottom, rgba(0,0,0,0.2), transparent 70%) bottom`,
-
-    backgroundRepeat: 'no-repeat',
-    backgroundSize: '100% 20px, 100% 20px, 100% 10px, 100% 10px',
-    backgroundAttachment: 'local, local, scroll, scroll',
-    // boxShadow: '0px -10px 20px -15px #000000',
-  },
-  resultsCount: {
-    textAlign: 'left',
-    display: 'inline-block',
-  },
-});
 
 const SearchResultStatusIndicator = ({ classes, loading, results }) => {
   return (
@@ -141,6 +65,8 @@ const InfoShelf = ({ classes, children }) => {
   return <div className={classes.infoShelf}>{children}</div>;
 };
 
+
+
 const SearchResults = (props) => {
   const {
     searchResults,
@@ -151,7 +77,7 @@ const SearchResults = (props) => {
   } = props;
 
   useEffect(() => {
-    log.debug ('useEffect', { search: props.location.search });
+    // log.debug ('useEffect', { search: props.location.search });
     setLoadingState(states.inProgress);
     search(props.location.search);
   }, [props.location.search]);

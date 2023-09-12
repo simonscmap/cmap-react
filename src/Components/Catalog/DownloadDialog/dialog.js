@@ -28,6 +28,8 @@ import DownloadStep from './DownloadStep';
 import ValidationIndicatorBar from './ValidationIndicatorBar';
 import states from '../../../enums/asyncRequestStates';
 import { validationMessages, buttonStates } from './buttonStates';
+import Spinner from '../../UI/Spinner';
+import Spacer from '../../Common/Spacer';
 
 import reduxStore from '../../../Redux/store';
 import logInit from '../../../Services/log-service';
@@ -45,12 +47,43 @@ let checkQuerySizeDispatch = debounce(
   (query) => {
     console.log('debounced dispatch: checkQuerySize');
     reduxStore.dispatch(checkQuerySize(query));
-  });
+});
+
+const DialogWrapper = (props) => {
+  let { dataset, dialogOpen, classes, handleClose } = props;
+
+  let dialogWidth = 'md'; // https://v4.mui.com/components/dialogs/#optional-sizes
+  if (!dialogOpen) {
+    return '';
+  } else {
+   return (<Dialog
+      fullScreen={false}
+      className={classes.muiDialog}
+      PaperProps={{
+        className: classes.dialogPaper,
+      }}
+      open={dialogOpen}
+      onClose={handleClose}
+      fullWidth={true}
+      maxWidth={dialogWidth}
+    >
+      {dataset
+        ?
+        <DownloadDialog {...props} />
+        : <Spacer><Spinner message="Loading Dataset" /></Spacer>
+      }
+    </Dialog>);
+  }
+};
 
 
 // DIALOG
-const DownloadDialog = (props) => {
-  let { dataset: rawDataset, dialogOpen, handleClose, classes } = props;
+const DownloadDialog = withStyles(styles)((props) => {
+  let {
+    dataset: rawDataset,
+    handleClose,
+    classes
+  } = props;
 
   // parse dataset
   let dataset, error;
@@ -317,20 +350,9 @@ const DownloadDialog = (props) => {
     return <ErrorMessage description={error} />;
   }
 
-  let dialogWidth = 'md'; // https://v4.mui.com/components/dialogs/#optional-sizes
 
   return (
-    <Dialog
-      fullScreen={false}
-      className={classes.muiDialog}
-      PaperProps={{
-        className: classes.dialogPaper,
-      }}
-      open={dialogOpen}
-      onClose={handleClose}
-      fullWidth={true}
-      maxWidth={dialogWidth}
-    >
+    <div>
     <ValidationIndicatorBar downloadState={downloadState} buttonState={downloadButtonState}/>
     <DownloadDialogTitle longName={dataset.Long_Name} />
 
@@ -370,7 +392,6 @@ const DownloadDialog = (props) => {
         </DialogContent>
       </div>
     <DialogActions>
-
         <DownloadStep
           buttonState={downloadButtonState}
           handlers={{
@@ -380,8 +401,8 @@ const DownloadDialog = (props) => {
         />
         <Button onClick={handleClose}>Cancel</Button>
     </DialogActions>
-    </Dialog>
+    </div>
   );
-};
+});
 
-export default withStyles(styles)(DownloadDialog);
+export default withStyles(styles)(DialogWrapper);
