@@ -308,9 +308,9 @@ const DownloadDialog = withStyles(styles)((props) => {
         let estimate = (projection && projection.size && typeof projection.size === 'number') && projection.size;
         // a negative estimate is an indication that the matching rows is less than the abs(size)
         let message = (estimate && estimate > 0)
-                    ? `An estimated ${projection.size.toLocaleString()} rows match the current subset.`
+                    ? `The selected subset of data is under the download threshold. An estimated ${projection.size.toLocaleString()} rows match the selected subset.`
                     : (estimate && estimate < 0)
-                    ? `The full dataset (${-estimate.toLocaleString()} rows) is under the download threshold`
+                    ? `The dataset (${-estimate.toLocaleString()} rows) is under the download threshold and may be downloaded in full.`
                     : ''
         enableButton(message, buttonStates.checkSucceededAndDownloadAllowed);
       }
