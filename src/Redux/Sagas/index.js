@@ -68,12 +68,19 @@ import {
   watchCreateNewsItemSuccess,
   watchUpdateNewsRanks,
   watchUpdateNewsRanksSuccess,
+  watchFeatureNewsItem,
+  watchFeatureNewsItemSuccess,
+  watchCategorizeNewsItem,
+  watchCategorizeNewsItemSuccess,
 } from './news';
 
 import {
   watchCheckDownloadSize,
 } from './downloadSagas';
 
+import {
+  watchRequestHighlightsSend
+} from './highlights';
 
 import logInit from '../../Services/log-service';
 const log = logInit('sagas').addContext({ src: 'Redux/Sagas' });
@@ -1760,11 +1767,16 @@ function* rootSaga() {
     watchCreateNewsItemSuccess(),
     watchUpdateNewsRanks(),
     watchUpdateNewsRanksSuccess(),
+    watchFeatureNewsItem(),
+    watchFeatureNewsItemSuccess(),
+    watchCategorizeNewsItem(),
+    watchCategorizeNewsItemSuccess(),
     // watchFetchTablesWithCI(),
     // watchFetchTablesWithCISuccess(),
     watchFetchDatasetFeatures(),
     watchUpdateCatalogWithDatasetFeatures(),
     watchCheckDownloadSize(),
+    watchRequestHighlightsSend(),
   ]);
 }
 

@@ -125,7 +125,6 @@ const buildSearchOptionsFromDatasetList = (
     });
   }
 
-  log.debug ('final options object to populate redux.submissionOptions', { options });
   return options;
 };
 

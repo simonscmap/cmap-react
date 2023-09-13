@@ -15,6 +15,7 @@ import { debounce } from 'throttle-debounce';
 let styles = {
   container: {
     width: '300px',
+    paddingTop: '38px' // helps align box with paired text
   },
   resultsContainer: {
     textAlign: 'left',
@@ -29,7 +30,7 @@ let styles = {
   root: {
     border: `2px solid ${colors.blue.teal}`,
     borderRadius: '4px',
-    background: colors.blue.dark,
+    background: 'rgba(0,0,0,0.1)',
     '& input': {
       border: 0, // `2px solid ${colors.blue.royal}`,
       outline: 0,
@@ -100,8 +101,6 @@ const SearchBox = ({ classes: cl }) => {
   useEffect(() => {
    search(searchTerm);
   }, [searchTerm ]);
-
-  // let history = useHistory();
 
   return (
     <div className={cl.container}>

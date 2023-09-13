@@ -1,7 +1,8 @@
 import React from 'react';
 import Banner from '../../Common/Banner';
-import { renderText, renderBody } from '../../Home/NewsBanner';
-import newsBannerStyles from '../../Home/newsBannerStyles';
+import renderText from '../../Home/News/renderText';
+import renderBody from '../../Home/News/renderBody';
+import newsBannerStyles from '../../Home/News/newsBannerStyles';
 import Typography from '@material-ui/core/Typography';
 import SlideOutPanel from '../../Common/SlideOutPanel';
 import { useSelector } from 'react-redux';

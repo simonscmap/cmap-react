@@ -5,6 +5,7 @@ import news from './news';
 import visualization from './visualization';
 import dataSubmission from './dataSubmission.js';
 import help from './help.js';
+import highlights from './highlights';
 import reduceReducers from 'reduce-reducers';
 import Cookies from 'js-cookie';
 import states from '../../enums/asyncRequestStates';
@@ -62,6 +63,9 @@ const initialState = {
   showCart: false,
   tablesWithAncillaryData: null,
   tablesWithContinuousIngestion: null,
+
+  // Homepage
+  home: {},
 
   // Interface state pieces
   loginDialogIsOpen: false,
@@ -166,6 +170,7 @@ const reducedReducer = reduceReducers(
   dataSubmission,
   help,
   news,
+  highlights,
 );
 
 export default reducedReducer;

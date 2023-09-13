@@ -7,6 +7,7 @@ import userRequests from './userRequests';
 import visualizationRequests from './visualizationRequests';
 import dataRequests from './dataRequests';
 import newsRequests from './news';
+import highlights from './highlights';
 
 const api = {
   catalog: catalogRequests,
@@ -16,6 +17,7 @@ const api = {
   user: userRequests,
   visualization: visualizationRequests,
   news: newsRequests,
+  highlights
 };
 
 export default api;

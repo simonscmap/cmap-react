@@ -1,166 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
-import { colors, pxToRem } from '../../Home/theme';
 import { WhiteButtonSM } from '../../Common/Buttons';
 import { useDispatch } from 'react-redux';
 import { createNewsItem, updateNewsItem } from '../../../Redux/actions/news';
-import { Card } from '../../Home/NewsBanner';
+import Card from '../../Home/News/Card';
+import LinkEditor, { linkType } from './LinkEditor';
+import editorStyles from './editorStyles';
 
-export const linkType = (link) => {
-  if (typeof link !== 'string') {
-    return 'Unknown';
-  } else if (link.slice(0, 4) === 'http') {
-    return 'External';
-  } else if (link.slice(0, 1) === '/') {
-    return 'Internal';
-  } else {
-    return 'Unknown';
-  }
-};
+const useEditorStyles = makeStyles(editorStyles);
 
-const LinkEditor = withStyles({
-  container: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignContent: 'center',
-    alignItems: 'start',
-    justifyContent: 'start',
-    '& label': {
-      fontSize: '17px',
-    },
-  },
-  textField: {
-    border: `1px solid ${colors.blue.slate}`,
-    borderRadius: '4px',
-    background: colors.blue.dark,
-    '& input': {
-      fontSize: `${pxToRem[14]}`,
-      border: 0,
-      outline: 0,
-      '&$hover': {
-        border: 0,
-        outline: 0,
-      },
-    },
-    '& fieldset': {
-      border: 0,
-      outline: 0,
-    },
-  },
-})(({ classes, link, onChange }) => {
-  let { text, url } = link;
-  let [t, setT] = useState(text);
-  let [u, setU] = useState(url);
-  useEffect(() => {
-    let update = { text: t, url: u };
-    onChange(update);
-  }, [t, u]);
+const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
+  const classes = useEditorStyles();
 
-  return (
-    <div className={classes.container}>
-      <TextField
-        classes={{
-          root: classes.textField,
-        }}
-        name="text"
-        label={'Link Text'}
-        InputLabelProps={{ shrink: true, disableAnimation: true }}
-        defaultValue={text}
-        variant="outlined"
-        onChange={(ev) => setT(ev.target.value)}
-        fullWidth
-      />
-      <TextField
-        classes={{
-          root: classes.textField,
-        }}
-        label={`URL (${linkType(url)})`}
-        InputLabelProps={{ shrink: true, disableAnimation: true }}
-        name="url"
-        defaultValue={url}
-        variant="outlined"
-        onChange={(ev) => setU(ev.target.value)}
-        fullWidth
-      />
-    </div>
-  );
-});
-
-const Editor = withStyles({
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignContent: 'center',
-    alignItems: 'start',
-    justifyContent: 'start',
-    margin: '2em 0',
-  },
-  panelContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignContent: 'center',
-    alignItems: 'start',
-    justifyContent: 'start',
-    gap: '2em',
-    margin: '1em 0',
-  },
-  cardContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignContent: 'start',
-  },
-  cardBackdrop: {
-    margin: '0 0 1em 0',
-    // padding: '30px',
-    overflow: 'hidden',
-    position: 'relative',
-    maxWidth: 'calc(100% - 30px)',
-    background: 'linear-gradient(293.11deg, #4D0E64 10.23%, #723B85 92.6%)',
-    borderRadius: '6px',
-  },
-  editor: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '12px',
-    flexGrow: 2,
-    padding: '10px',
-    overflow: 'hidden',
-    position: 'relative',
-    maxWidth: 'calc(100% - 30px)',
-    background: '#07274D',
-    borderRadius: '6px',
-  },
-
-  controls: {
-    display: 'flex',
-    flexDirection: 'row',
-    gap: '0.5em',
-  },
-
-  textField: {
-    border: `1px solid ${colors.blue.slate}`,
-    borderRadius: '4px',
-    background: colors.blue.dark,
-    '& input': {
-      fontSize: `${pxToRem[14]}`,
-      border: 0,
-      outline: 0,
-      '&$hover': {
-        border: 0,
-        outline: 0,
-      },
-    },
-    '& fieldset': {
-      border: 0,
-      outline: 0,
-    },
-  },
-})(({ story: storyState, action, classes, onSubmit, onCancel }) => {
   let initialValues = storyState
     ? storyState
     : {
         view_status: 2,
+        label: null,
         headline: '',
         link: '',
         date: '',
@@ -181,12 +38,16 @@ const Editor = withStyles({
   let [links, setLinks] = useState(
     initialValues.body ? initialValues.body.links : [],
   );
+  let [label, setLabel] = useState(initialValues.label);
 
   useEffect(() => {
     // update if story state changes in props
     if (storyState) {
       if (storyState.view_status) {
         setViewStatus(storyState.view_status);
+      }
+      if (storyState.label) {
+        setLabel(storyState.label);
       }
       if (storyState.headline) {
         setHeadline(storyState.headline);
@@ -251,6 +112,7 @@ const Editor = withStyles({
   let editState = {
     ...initialValues,
     view_status: viewStatus,
+    label,
     headline,
     link,
     date,
@@ -275,6 +137,7 @@ const Editor = withStyles({
     }
     if (action === 'create') {
       dispatch(createNewsItem(story));
+      reset();
       // TODO reset form
     }
     if (typeof onSubmit === 'function') {
@@ -282,10 +145,14 @@ const Editor = withStyles({
     }
   };
 
+  // return form to original record
   let reset = () => {
     if (storyState) {
       if (storyState.view_status) {
         setViewStatus(storyState.view_status);
+      }
+      if (storyState.label) {
+        setLabel(storyState.label);
       }
       if (storyState.headline) {
         setHeadline(storyState.headline);
@@ -308,12 +175,14 @@ const Editor = withStyles({
       setContent('');
       setLinks([]);
     }
+
     if (typeof onCancel === 'function') {
       onCancel();
     }
   };
 
   let lt = linkType(link);
+
   return (
     <div className={classes.panelContainer}>
       <div className={classes.first}>
@@ -332,7 +201,7 @@ const Editor = withStyles({
           label="Headline"
           InputLabelProps={{ shrink: true, disableAnimation: true }}
           name="headline"
-          defaultValue={headline}
+          value={headline}
           variant="outlined"
           onChange={(ev) => setHeadline(ev.target.value)}
           fullWidth
@@ -344,7 +213,7 @@ const Editor = withStyles({
           label={`Link (${lt})`}
           InputLabelProps={{ shrink: true, disableAnimation: true }}
           name="link"
-          defaultValue={link}
+          value={link}
           variant="outlined"
           onChange={(ev) => setLink(ev.target.value)}
           fullWidth
@@ -357,9 +226,22 @@ const Editor = withStyles({
           label="Display Date"
           InputLabelProps={{ shrink: true, disableAnimation: true }}
           name="date"
-          defaultValue={date}
+          value={date}
           variant="outlined"
           onChange={(ev) => setDate(ev.target.value)}
+          fullWidth
+        />
+
+        <TextField
+          classes={{
+            root: classes.textField,
+          }}
+          label="label"
+          InputLabelProps={{ shrink: true, disableAnimation: true }}
+          name="label"
+          value={label}
+          variant="outlined"
+          onChange={(ev) => setLabel(ev.target.value.trim())}
           fullWidth
         />
 
@@ -370,7 +252,7 @@ const Editor = withStyles({
           label="Content"
           InputLabelProps={{ shrink: true, disableAnimation: true }}
           name="content"
-          defaultValue={content}
+          value={content}
           variant="outlined"
           onChange={(ev) => setContent(ev.target.value)}
           fullWidth
@@ -390,6 +272,6 @@ const Editor = withStyles({
       </div>
     </div>
   );
-});
+};
 
 export default Editor;

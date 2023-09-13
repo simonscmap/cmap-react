@@ -114,6 +114,30 @@ export const unpublishNewsItemFailure = () => ({
   type: newsActionTypes.UNPUBLISH_NEWS_ITEM_FAILURE,
 });
 
+// Feature / Unfeature (works as toggle)
+export const featureNewsItem = (id) => ({
+  payload: { id },
+  type: newsActionTypes.FEATURE_NEWS_ITEM_SEND,
+});
+export const featureNewsItemSuccess = () => ({
+  type: newsActionTypes.FEATURE_NEWS_ITEM_SUCCESS,
+});
+export const featureNewsItemFailure = () => ({
+  type: newsActionTypes.FEATURE_NEWS_ITEM_FAILURE,
+});
+
+// Categorize
+export const categorizeNewsItem = (id, category) => ({
+  payload: { id, category },
+  type: newsActionTypes.CATEGORIZE_NEWS_ITEM_SEND,
+});
+export const categorizeNewsItemSuccess = () => ({
+  type: newsActionTypes.CATEGORIZE_NEWS_ITEM_SUCCESS,
+});
+export const categorizeNewsItemFailure = () => ({
+  type: newsActionTypes.CATEGORIZE_NEWS_ITEM_FAILURE,
+});
+
 // Admin State
 
 export const setViewStateFilter = (filter) => ({

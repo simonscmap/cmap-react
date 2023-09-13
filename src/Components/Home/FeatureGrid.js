@@ -5,31 +5,30 @@ import { GreenButton } from './buttons';
 import featureGridStyles from './featureGridStyles';
 import Section from './GridSection';
 import { useHistory } from 'react-router-dom';
+import Grid from '@material-ui/core/Grid';
+import SearchBox from './SearchBox';
+import { colors } from './theme';
 
 let sections = {
   findData: {
-    id: 'findData',
     variant: 'right',
     title: 'Find Data',
     text:
       'Search the catalog to find and download datasets matching your unique interests.',
   },
   accessData: {
-    id: 'accessData',
     variant: 'left',
     title: 'Access Data',
     text:
       'Review the documentation to discover how to retrieve, visualize, and analyze CMAP dataset using your preferred language.',
   },
   visualizeData: {
-    id: 'visualizeData',
     variant: 'right',
     title: 'Visualize Data',
     text:
       'Find and plot variables matching your unique interests, or use the ‘cruise view’ to explore datasets based on oceanographic cruises.',
   },
   submitData: {
-    id: 'submitData',
     variant: 'left',
     title: 'Submit Data',
     text:
@@ -43,68 +42,91 @@ const FeatureGrid = (props) => {
   // Note: Link must have color="inherit" to receive color from Typography
 
   return (
-    <div className={classes.featureGridOuterContainer}>
-      <div className={classes.featureGridInnerContainer}>
-        <Typography variant="h3" className={classes.h3adjust}>Get Started</Typography>
+    <div className={classes.featureGridOuterContainer}> {/* just hides any overflow */}
 
-        <Typography variant="subtitle2">
-          Simons CMAP simplifies marine data access and use by collecting and
-          harmonizing satellite, in situ, and model data.
-        </Typography>
+      <hr style={{ color: colors.green.lime }} />
 
-        <Section sectionProps={sections.findData}>
+      <Grid container direction={'column'} spacing={10} className={classes.featureGrid }>
+
+        <Grid item>
+          <Typography variant="h3" className={classes.h3adjust}>Get Started</Typography>
+          <Typography variant="subtitle2">
+            Simons CMAP simplifies marine data access and use by collecting and
+            harmonizing satellite, in situ, and model data.
+          </Typography>
+        </Grid>
+
+        <Section data={sections.findData}>
+          <SearchBox />
           <GreenButton color="primary" onClick={() => history.push('/catalog')}>
             Catalog
           </GreenButton>
         </Section>
 
-        <Section sectionProps={sections.accessData}>
-          <GreenButton
-            color="primary"
-            onClick={() => history.push('/apikeymanagement')}
-          >
-            API Key
-          </GreenButton>
-          <GreenButton
-            color="primary"
-            onClick={() => history.push('/documentation')}
-          >
-            Documentation
-          </GreenButton>
+
+        <Section data={sections.accessData}>
+          <img src="images/home/sdk-logos.svg" />
+          <React.Fragment>
+            <GreenButton
+              color="primary"
+              onClick={() => history.push('/apikeymanagement')}
+            >
+              API Key
+            </GreenButton>
+            <GreenButton
+              color="primary"
+              onClick={() => history.push('/documentation')}
+            >
+              Documentation
+            </GreenButton>
+          </React.Fragment>
         </Section>
 
-        <Section sectionProps={sections.visualizeData}>
-          <GreenButton
-            color="primary"
-            onClick={() => history.push('/visualization/charts')}
-          >
-            Charts & Plots
-          </GreenButton>
-          <GreenButton
-            color="primary"
-            onClick={() => history.push('/visualization/cruises')}
-          >
-            Cruises
-          </GreenButton>
+<Section data={sections.visualizeData}>
+          <img src="images/home/visualize.svg" />
+          <React.Fragment>
+            <GreenButton
+              color="primary"
+              onClick={() => history.push('/visualization/charts')}
+            >
+              Charts & Plots
+            </GreenButton>
+            <GreenButton
+              color="primary"
+              onClick={() => history.push('/visualization/cruises')}
+            >
+              Cruises
+            </GreenButton>
+          </React.Fragment>
         </Section>
 
-        <Section sectionProps={sections.submitData}>
-          <GreenButton
-            color="primary"
-            onClick={() => history.push('/datasubmission/guide')}
-          >
-            Submission Guide
-          </GreenButton>
-          <GreenButton
-            color="primary"
-            onClick={() => history.push('/datasubmission/nominate-data')}
-          >
-           Nominate New Data
-          </GreenButton>
-        </Section>
-      </div>
+        <Section data={sections.submitData}>
+          <img src="images/home/submit-data-flow.svg" />
+          <React.Fragment>
+
+            <GreenButton
+              color="primary"
+              onClick={() => history.push('/datasubmission/guide')}
+            >
+              Submission Guide
+            </GreenButton>
+            <GreenButton
+              color="primary"
+              onClick={() => history.push('/datasubmission/nominate-data')}
+            >
+              Nominate New Data
+            </GreenButton>
+          </React.Fragment>
+</Section>
+
+
+
+      </Grid >
     </div>
   );
 };
 
 export default withStyles(featureGridStyles)(FeatureGrid);
+
+/*
+*/

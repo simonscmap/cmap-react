@@ -114,11 +114,11 @@ export const homeTheme = createTheme({
     subtitle1: {
       // extra large ("body-xl" from the design doc)
       fontFamily: ['Montserrat', 'sans-serif'].join(','),
-      fontSize: '2rem',
+      fontSize: pxToRem[30],
       color: '#ffffff',
       fontWeight: 400,
       '@media (max-width:1280px)': {
-        fontSize: pxToRem[30],
+        fontSize: pxToRem[24],
       },
     },
     subtitle2: {
@@ -137,7 +137,7 @@ export const homeTheme = createTheme({
       lineHeight: '1.3em',
       fontSize: pxToRem[20],
       color: '#ffffff',
-      '@media (max-width:1280px)': {
+      '@media (max-width:1280px)': { // "lg" breakpoint
         fontSize: pxToRem[18],
       },
     },
@@ -307,5 +307,11 @@ export const homeTheme = createTheme({
         },
       },
     },
+    MuiTooltip: {
+      tooltip: {
+        fontSize: "1em",
+        backgroundColor: 'rgba(0,0,0,0.85)'
+      }
+    }
   },
 });

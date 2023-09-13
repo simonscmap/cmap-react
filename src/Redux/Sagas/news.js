@@ -1,7 +1,7 @@
 import api from '../../api/api';
 import * as newsActions from '../actions/news';
 import * as newsActionTypes from '../actionTypes/news';
-import { call, put, takeLatest } from 'redux-saga/effects';
+import { call, put, takeLatest, select } from 'redux-saga/effects';
 
 /* requestNewsList, watchNewsList
  */
@@ -120,6 +120,53 @@ export function* watchUnpublishNewsItem() {
 export function* watchUnpublishNewsItemSuccess() {
   yield takeLatest(
     newsActionTypes.UNPUBLISH_NEWS_ITEM_SUCCESS,
+    requestNewsList,
+  );
+}
+
+// Feature / Unfeature (toggle)
+export function* featureNewsItem(action) {
+  let storyToUpdate = yield select ((state) =>
+    state.news.stories.find (s => s.ID === action.payload.id));
+  if (!storyToUpdate) {
+    yield put(newsActions.featureNewsItemFailure());
+    return;
+  }
+
+  let response = yield call(api.news.feature, action.payload.id, storyToUpdate.Highlight);
+  if (response.ok) {
+    yield put(newsActions.featureNewsItemSuccess());
+  } else {
+    yield put(newsActions.featureNewsItemFailure());
+  }
+} // ⮷ &. Watcher ⮷ (2 watchers; trigger a refetch of news list after update)
+
+export function* watchFeatureNewsItem() {
+  yield takeLatest(newsActionTypes.FEATURE_NEWS_ITEM_SEND, featureNewsItem);
+}
+export function* watchFeatureNewsItemSuccess() {
+  yield takeLatest(
+    newsActionTypes.FEATURE_NEWS_ITEM_SUCCESS,
+    requestNewsList,
+  );
+}
+
+// Categorize
+export function* categorizeNewsItem(action) {
+  let response = yield call(api.news.categorize, action.payload.id, action.payload.category);
+  if (response.ok) {
+    yield put(newsActions.categorizeNewsItemSuccess());
+  } else {
+    yield put(newsActions.categorizeNewsItemFailure());
+  }
+} // ⮷ &. Watcher ⮷ (2 watchers; trigger a refetch of news list after update)
+
+export function* watchCategorizeNewsItem() {
+  yield takeLatest(newsActionTypes.CATEGORIZE_NEWS_ITEM_SEND, categorizeNewsItem);
+}
+export function* watchCategorizeNewsItemSuccess() {
+  yield takeLatest(
+    newsActionTypes.CATEGORIZE_NEWS_ITEM_SUCCESS,
     requestNewsList,
   );
 }

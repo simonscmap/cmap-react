@@ -240,6 +240,28 @@ const DownloadDialog = withStyles(styles)((props) => {
           .find((item) => item.queryString.toLowerCase() === `select%20*%20from%20${dataset.Table_Name}`.toLowerCase());
     let status = cachedSizeCheck && cachedSizeCheck.result && cachedSizeCheck.response && cachedSizeCheck.result.response.status;
 
+    log.debug ('size state', {
+      query,
+      currentRequest,
+      cachedSizeCheck,
+      cachedUnconstrainedQuery,
+      subsetIsDefined,
+      params: {
+        subset: {
+          lat: [latStart, latEnd],
+          lon: [lonStart, lonEnd],
+          time:[ timeStart, timeEnd],
+          depth: [depthStart, depthEnd]
+        },
+        limits: {
+          lat: [lat.start, lat.end],
+          lon: [lon.start, lon.end],
+          time: [time.start, time.end],
+          depth: [depth.start, depth.end],
+        }
+      }
+    })
+
     if (cachedSizeCheck) {
       log.debug('query size check result is cached', cachedSizeCheck);
       if (status === 500) {

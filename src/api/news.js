@@ -7,6 +7,14 @@ newsAPI.list = async () => {
   return await fetch(endpoint, fetchOptions);
 };
 
+newsAPI.categorize = async (id, category) => {
+  let endpoint = apiUrl + '/api/news/category';
+  return await fetch(endpoint, {
+    ...postOptions,
+    body: JSON.stringify({ id, category }),
+  });
+};
+
 newsAPI.create = async (story) => {
   let endpoint = apiUrl + '/api/news/create';
   return await fetch(endpoint, {
@@ -60,6 +68,14 @@ newsAPI.unpublish = async (id) => {
   return await fetch(endpoint, {
     ...postOptions,
     body: JSON.stringify({ id }),
+  });
+};
+
+newsAPI.feature = async (id, current) => {
+  let endpoint = apiUrl + '/api/news/feature';
+  return await fetch(endpoint, {
+    ...postOptions,
+    body: JSON.stringify({ id, current }),
   });
 };
 

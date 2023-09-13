@@ -129,6 +129,10 @@ const styles = () => ({
   slate: {
     background: colors.gradient.slate,
   },
+  slate2: {
+    background: colors.gradient.slate2,
+
+  },
   purple: {
     background: colors.gradient.newsBlock,
   },

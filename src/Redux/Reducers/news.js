@@ -65,6 +65,16 @@ const actionToAdminMsg = (action) => {
     case actions.UNPUBLISH_NEWS_ITEM_SUCCESS:
       return `Successfully changed view status`;
 
+    case actions.FEATURE_NEWS_ITEM_SUCCESS:
+      return 'Successfully changed feature status';
+    case actions.FEATURE_NEWS_ITEM_FAILURE:
+      return 'Failed to update feature status';
+
+    case actions.CATEGORIZE_NEWS_ITEM_SUCCESS:
+      return 'Successfully changed story category';
+    case actions.CATEGORIZE_NEWS_ITEM_FAILURE:
+      return 'Failed to update story category';
+
     // DASHBOARD STATE
     case actions.SET_VIEW_STATE_FILTER:
       return `Setting view state filter to ${action.payload.filter}`;
@@ -243,6 +253,44 @@ export default function (state, action) {
           updateViewStatus: states.succeeded,
         },
       });
+    // FEATURE / UNFEATURE
+    case actions.FEATURE_NEWS_ITEM_SUCCESS:
+      return mergeWithState({
+        requestStatus: {
+          ...state.news.requestStatus,
+          updateFeature: states.succeeded,
+        },
+        adminMessages: computeAdminMessage(state, action),
+      });
+      // FEATURE / UNFEATURE
+    case actions.FEATURE_NEWS_ITEM_FAILURE:
+      return mergeWithState({
+        requestStatus: {
+          ...state.news.requestStatus,
+          updateFeature: states.failed,
+        },
+        adminMessages: computeAdminMessage(state, action),
+      });
+
+      // CATEGORIZE
+    case actions.CATEGORIZE_NEWS_ITEM_SUCCESS:
+      return mergeWithState({
+        requestStatus: {
+          ...state.news.requestStatus,
+          updateCategory: states.succeeded,
+        },
+        adminMessages: computeAdminMessage(state, action),
+      });
+    case actions.CATEGORIZE_NEWS_ITEM_FAILURE:
+      return mergeWithState({
+        requestStatus: {
+          ...state.news.requestStatus,
+          updateCategory: states.failed,
+        },
+        adminMessages: computeAdminMessage(state, action),
+      });
+
+
     // DASHBOARD STATE
     case actions.SET_VIEW_STATE_FILTER:
       return {

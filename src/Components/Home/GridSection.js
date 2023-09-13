@@ -1,60 +1,57 @@
-import { withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import React from 'react';
 import featureGridStyles from './featureGridStyles';
-import clsx from 'clsx';
-import SearchBox from './SearchBox';
+import Grid from '@material-ui/core/Grid';
+
+let useStyle = makeStyles(featureGridStyles);
 
 // look up style via the seaction id
 // exception: id === findData (then render a search box)
-const Art = withStyles(featureGridStyles)(({ classes, id }) => {
-  let containerClasses =
-    id === 'findData'
-      ? clsx(classes.sectionArtFlexContainer, classes.sectionArtFindDataSpacing)
-      : classes.sectionArtFlexContainer;
+const Art = ({ children }) => {
+  let classes = useStyle();
   return (
-    <div className={containerClasses}>
-      <div className={clsx(classes[`sectionArt_${id}`], classes.sectionArt)}>
-        {id === 'findData' && <SearchBox />}
-      </div>
+    <div className={classes.art}>
+      {children}
     </div>
   );
-});
+};
 
-const Copy = withStyles(featureGridStyles)(
-  ({ classes, title, text, buttons }) => (
+const Copy = ({ data, children }) => {
+  let classes = useStyle();
+  let { title, text } = data;
+  return (
     <div className={classes.sectionTextContainer}>
-      <Typography
-        variant="h3"
-        className={clsx(classes.h3adjust, classes.textAlignLeft)}
-      >
+      <Typography variant="h3" className={classes.textAlignLeft}>
         {title}
       </Typography>
       <Typography variant="h5" className={classes.textAlignLeft}>
         {text}
       </Typography>
-      <div className={classes.buttonsContainer}>{buttons}</div>
-    </div>
-  ),
-);
-
-const Section = (props) => {
-  let { classes, sectionProps, children } = props;
-  let { id, variant, title, text } = sectionProps;
-
-  let sectionContent = [
-    <Art id={id} key={'fst'} />,
-    <Copy title={title} text={text} buttons={children} key={'snd'} />,
-  ];
-
-  return (
-    <div className={classes.gridSectionOuterContainer}>
-      {id !== 'findData' ? <hr className={classes.gridHR} /> : ''}
-      <div className={classes.gridSectionInnerContainer}>
-        {variant === 'left' ? sectionContent : sectionContent.reverse()}
+      <div className={classes.buttonsContainer}>
+        {children}
       </div>
     </div>
   );
 };
 
-export default withStyles(featureGridStyles)(Section);
+const Section = (props) => {
+  let { data, children } = props;
+
+  let direction = data.variant === 'left'
+                ? 'row'
+                : 'row-reverse';
+
+  return (
+    <Grid container item direction={direction} spacing={2} wrap={'no-wrap'}>
+      <Grid item xs={12} sm={5} >
+        <Art data={data}>{children[0]}</Art>
+      </Grid>
+      <Grid item xs={12} sm={7}>
+        <Copy data={data}>{children[1]}</Copy>
+      </Grid>
+    </Grid>
+  );
+};
+
+export default Section;

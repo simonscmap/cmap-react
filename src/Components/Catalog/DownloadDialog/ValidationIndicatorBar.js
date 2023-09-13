@@ -39,8 +39,6 @@ const IndicatorBar = (props) => {
     // downloadState
   } = props;
 
-  console.log('button state [indicator bar]', buttonState)
-
   if (buttonState.status === buttonStates.checkFailed) {
     return (
       <div className={classes.root}>

@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { requestNewsList } from '../../../Redux/actions/news';
 import { previewStories } from './lib';
 import { useHistory } from 'react-router-dom';
-import NewsBanner from '../../Home/NewsBanner';
+import NewsBanner from '../../Home/News';
 import StoryList from './StoryList';
 import Controls from './Controls';
 import Create from './Create';
@@ -17,6 +17,9 @@ import Link from '@material-ui/core/Link';
 import Guide from './Guide';
 
 const styles = () => ({
+  preview: {
+    marginBottom: '2em',
+  },
   titleSection: {
     padding: '150px 0 50px 0',
   },
@@ -64,7 +67,7 @@ const Dashboard = (props) => {
   return (
     <ThemeProvider theme={homeTheme}>
       <div className={classes.pageContainer}>
-        <FullWidthContainer bgVariant={'royal'} minWidth={950}>
+        <FullWidthContainer bgVariant={'slate2'} minWidth={950}>
           <Section>
             <div className={classes.titleSection}>
               <Typography variant="h1">News Admin</Typography>
@@ -81,6 +84,7 @@ const Dashboard = (props) => {
 
           <Guide open={guideOpen} handleClose={() => setGuideOpen(false)} />
           <Section title="Preview" textStyles={false}>
+            <div className={classes.preview}></div>
             <NewsBanner stories={preview} />
           </Section>
 

@@ -9,6 +9,7 @@ import FormatListNumberedIcon from '@material-ui/icons/FormatListNumbered';
 import IconButton from '@material-ui/core/IconButton';
 import { useSelector, useDispatch } from 'react-redux';
 import { addRank } from '../../../Redux/actions/news';
+import { toCategoryTitle } from '../../Home/News/newsCategories';
 import clsx from 'clsx';
 
 const Story = withStyles({
@@ -61,6 +62,21 @@ const Story = withStyles({
       display: 'inline-block',
       marginLeft: '15px',
     },
+  },
+  data2: {
+    'display': 'flex',
+    'flexDirection': 'row',
+    'justifyContent': 'flex-start',
+    'alignContent': 'center',
+    'alignItems': 'baseline',
+    'gap': '.75em',
+    '& > p': {
+      color: 'rgba(255,255,255,0.5)',
+      fontWeight: 500,
+    },
+    '& h3': {
+     fontSize: '1em',
+    }
   },
   rankWidth: {
     width: '100px',
@@ -157,6 +173,10 @@ const Story = withStyles({
               </IconButton>
             </div>
           )}
+          <div className={classes.data2}>
+            <Typography variant="body2">category</Typography>
+            <Typography variant="h3">{toCategoryTitle[storyState.Status_ID]}</Typography>
+          </div>
         </div>
         <div className={classes.handleRight}>
           <div className={classes.dateSummary}>

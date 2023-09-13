@@ -1,7 +1,7 @@
 import { pxToRem } from '../Home/theme';
 import zIndex from '../../enums/zIndex';
 
-const navigationStyles = () => ({
+const navigationStyles = (theme) => ({
   // CONTAINERS
 
   navigationContainer: {
@@ -19,8 +19,8 @@ const navigationStyles = () => ({
   widthConstraint: {
     // copied from feature grid inner container
     position: 'relative',
-    maxWidth: '1380px',
-    width: 'calc(100% - 50px)',
+    maxWidth: '1900px',
+    width: 'calc(100% - 10px)',
   },
 
   widthConstraintCollapsable: {
@@ -48,14 +48,21 @@ const navigationStyles = () => ({
   },
 
   navigationInnerContainer: {
-    padding: '0 30px',
+    // paddingRight: '20px',
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
     position: 'relative',
-    maxWidth: '1380px',
+    maxWidth: '1900px',
     transition: 'margin 0.2s ease-out, width 0.2s ease-out',
-    '@media (max-width:1280px)': {
+    [theme.breakpoints.down('xl')]: {
+      paddingRight: '20px',
+    },
+    [theme.breakpoints.up('xl')]: {
+      paddingRight: 0,
+    },
+    //  '@media (max-width:1280px)'
+    [theme.breakpoints.down('md')]: {
       flexDirection: 'column',
       padding: '0',
     },
