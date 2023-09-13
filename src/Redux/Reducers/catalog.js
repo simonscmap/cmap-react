@@ -20,6 +20,7 @@ import {
   SET_CHECK_QUERY_SIZE_REQUEST_STATE,
   STORE_CHECK_QUERY_SIZE_RESULT,
   CHECK_QUERY_SIZE_SEND,
+  CLEAR_FAILED_SIZE_CHECKS
 } from '../actionTypes/catalog';
 import states from '../../enums/asyncRequestStates';
 
@@ -199,6 +200,16 @@ export default function (state, action) {
                                 .slice(-200) // keep cache size limited, fifo
                                 .concat(action.payload) // { queryString, result }
 
+        }
+      };
+
+    case CLEAR_FAILED_SIZE_CHECKS:
+      return {
+        ...state,
+        download: {
+          ...state.download,
+          querySizeChecks: state.download.querySizeChecks
+                                .filter((item) => !item.result.status === 500)
         }
       };
 

@@ -200,6 +200,10 @@ export const storeCheckQueryResult = (queryString, result) => ({
   }
 });
 
+export const clearFailedSizeChecks = () => ({
+  type: catalogActionTypes.CLEAR_FAILED_SIZE_CHECKS,
+});
+
 export const datasetDownloadRequestSend = ({
   subsetParams,
   ancillaryData,

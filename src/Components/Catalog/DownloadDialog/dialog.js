@@ -10,7 +10,7 @@ import { withStyles } from '@material-ui/core/styles';
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { debounce } from 'throttle-debounce';
-import { datasetDownloadRequestSend, checkQuerySize } from '../../../Redux/actions/catalog';
+import { datasetDownloadRequestSend, checkQuerySize, clearFailedSizeChecks } from '../../../Redux/actions/catalog';
 import SubsetControls from './SubsetControls';
 import {
   getInitialRangeValues,
@@ -54,10 +54,9 @@ let checkQuerySizeDispatch = debounce(
 const EmbeddedLogin = () => {
   return (
     <div>
-      <Typography variant="h3">You must login</Typography>
       <Spacer>
         <Center>
-          <LoginForm />
+          <LoginForm title="Please login to download data" />
         </Center>
       </Spacer>
     </div>
@@ -66,9 +65,13 @@ const EmbeddedLogin = () => {
 
 const DialogWrapper = (props) => {
   let { dataset, dialogOpen, classes, handleClose } = props;
+  let dispatch = useDispatch ();
   let user = useSelector((state) => state.user);
 
-
+  let close = () => {
+    dispatch (clearFailedSizeChecks ());
+    handleClose();
+  }
 
   let dialogWidth = 'md'; // https://v4.mui.com/components/dialogs/#optional-sizes
   if (!dialogOpen) {
@@ -81,14 +84,14 @@ const DialogWrapper = (props) => {
         className: classes.dialogPaper,
       }}
       open={dialogOpen}
-      onClose={handleClose}
+      onClose={close}
       fullWidth={true}
       maxWidth={dialogWidth}
      >
      { (!!user && !!dataset)
        ? <DownloadDialog {...props} />
        : (!user)
-       ? <Spacer><Center><LoginForm title="Please login to download data:"/></Center></Spacer>
+       ? <EmbeddedLogin />
        : (user && !dataset)
        ? <Spacer><Spinner message="Loading Dataset" /></Spacer>
        : '' }
@@ -236,10 +239,9 @@ const DownloadDialog = withStyles(styles)((props) => {
     let cachedUnconstrainedQuery = querySizes
           .find((item) => item.queryString.toLowerCase() === `select%20*%20from%20${dataset.Table_Name}`.toLowerCase());
 
-
     if (cachedSizeCheck) {
       log.debug('query size check result is cached', cachedSizeCheck);
-      if (cachedSizeCheck.response.status === 500) {
+      if (cachedSizeCheck && cachedSizeCheck.result && cachedSizeCheck.response.status === 500) {
         // try again
         setDownloadButtonState({
           enabled: false,
