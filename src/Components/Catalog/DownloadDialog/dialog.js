@@ -4,6 +4,7 @@ import {
   DialogActions,
   DialogContent,
   Button,
+  Typography,
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import React, { useState, useEffect } from 'react';
@@ -12,7 +13,6 @@ import { debounce } from 'throttle-debounce';
 import { datasetDownloadRequestSend, checkQuerySize } from '../../../Redux/actions/catalog';
 import SubsetControls from './SubsetControls';
 import {
-  // getDownloadAvailabilites,
   getInitialRangeValues,
   parseDataset,
   makeDownloadQuery,
@@ -30,6 +30,8 @@ import states from '../../../enums/asyncRequestStates';
 import { validationMessages, buttonStates } from './buttonStates';
 import Spinner from '../../UI/Spinner';
 import Spacer from '../../Common/Spacer';
+import Center from '../../Common/Center';
+import LoginForm from '../../User/LoginForm';
 
 import reduxStore from '../../../Redux/store';
 import logInit from '../../../Services/log-service';
@@ -49,8 +51,24 @@ let checkQuerySizeDispatch = debounce(
     reduxStore.dispatch(checkQuerySize(query));
 });
 
+const EmbeddedLogin = () => {
+  return (
+    <div>
+      <Typography variant="h3">You must login</Typography>
+      <Spacer>
+        <Center>
+          <LoginForm />
+        </Center>
+      </Spacer>
+    </div>
+  );
+}
+
 const DialogWrapper = (props) => {
   let { dataset, dialogOpen, classes, handleClose } = props;
+  let user = useSelector((state) => state.user);
+
+
 
   let dialogWidth = 'md'; // https://v4.mui.com/components/dialogs/#optional-sizes
   if (!dialogOpen) {
@@ -66,12 +84,14 @@ const DialogWrapper = (props) => {
       onClose={handleClose}
       fullWidth={true}
       maxWidth={dialogWidth}
-    >
-      {dataset
-        ?
-        <DownloadDialog {...props} />
-        : <Spacer><Spinner message="Loading Dataset" /></Spacer>
-      }
+     >
+     { (!!user && !!dataset)
+       ? <DownloadDialog {...props} />
+       : (!user)
+       ? <Spacer><Center><LoginForm title="Please login to download data:"/></Center></Spacer>
+       : (user && !dataset)
+       ? <Spacer><Spinner message="Loading Dataset" /></Spacer>
+       : '' }
     </Dialog>);
   }
 };
@@ -82,6 +102,7 @@ const DownloadDialog = withStyles(styles)((props) => {
   let {
     dataset: rawDataset,
     handleClose,
+    dialogOpen,
     classes
   } = props;
 
@@ -205,7 +226,6 @@ const DownloadDialog = withStyles(styles)((props) => {
     }
 
     // (2)  use cache or make api call to get size check
-
     let query = makeDownloadQuery({
       subsetParams,
       ancillaryData: optionsState.ancillaryData,
@@ -218,8 +238,18 @@ const DownloadDialog = withStyles(styles)((props) => {
 
 
     if (cachedSizeCheck) {
-      // do nothing
       log.debug('query size check result is cached', cachedSizeCheck);
+      if (cachedSizeCheck.response.status === 500) {
+        // try again
+        setDownloadButtonState({
+          enabled: false,
+          message: 'Re-attempting Query Size Validation ...',
+          status: buttonStates.checkInProgress
+        });
+        checkQuerySizeDispatch(query);
+      } else {
+        // do nothing
+      }
     } else if (!cachedSizeCheck && !subsetIsDefined && cachedUnconstrainedQuery) {
       // the subset options are all at their default, which is the same as
       // a query for the full dataset, and we have a cache for that query, so don't dispatch a new one
@@ -234,7 +264,7 @@ const DownloadDialog = withStyles(styles)((props) => {
       });
       checkQuerySizeDispatch(query);
     }
-  }, [latStart, latEnd, lonStart, lonEnd, timeStart, timeEnd, depthStart, depthEnd]);
+  }, [latStart, latEnd, lonStart, lonEnd, timeStart, timeEnd, depthStart, depthEnd, dialogOpen]);
 
 
   // manage button state; responds to redux state

@@ -22,16 +22,6 @@ const mapDispatchToProps = {
 };
 
 class GlobalUIComponentWrapper extends Component {
-  state = {
-    username: '',
-    password: '',
-  };
-
-  // Controls login dialog text fields to allow reset from logout button
-  handleChange = (event) => {
-    this.setState({ [event.target.name]: event.target.value });
-  };
-
   handleLogOut = () => {
     this.clearState();
   };
@@ -55,9 +45,6 @@ class GlobalUIComponentWrapper extends Component {
       <React.Fragment>
         <LoginDialog
           clearState={this.clearState}
-          username={this.state.username}
-          password={this.state.password}
-          handleChange={this.handleChange}
         />
         <SnackbarWrapper />
         <LoadingOverlay loadingMessage={this.props.loadingMessage} />
