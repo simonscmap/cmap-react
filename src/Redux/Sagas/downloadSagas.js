@@ -1,22 +1,28 @@
 import api from '../../api/api';
 import * as catalogActions from '../actions/catalog';
 import * as catalogActionTypes from '../actionTypes/catalog';
+import * as interfaceActions from '../actions/ui';
 import * as userActions from '../actions/user';
-import { call, put, takeLatest } from 'redux-saga/effects';
+import { call, put, takeLatest, race, delay } from 'redux-saga/effects';
 import states from '../../enums/asyncRequestStates';
 
-
 export function* checkDownloadSize (action) {
-  let response = yield call(api.data.checkQuerySize, action.payload.query);
-  if (response && response.ok) {
-    console.log ('response is ok, parsing json');
+  // set timeout of 1 minute
+  const { response, timeout} = yield race({
+    response: call (api.data.checkQuerySize, action.payload.query),
+    timeout: delay (60 * 1000)
+  });
+
+  if (timeout) {
+    yield put(interfaceActions.snackbarOpen('Attempt to validate dowload size timed out.'));
+    yield put(catalogActions.setCheckQueryRequestState(states.failed));
+  } else if (response && response.ok) {
     let jsonResponse = yield response.json();
     // pass back the exact query string as submitted; this will be used
     // to look up the response in the cache
     yield put(catalogActions.storeCheckQueryResult(action.payload.query, jsonResponse));
     yield put(catalogActions.setCheckQueryRequestState(states.succeeded));
   } else if (response.status === 401) {
-    console.log(response);
     yield put(catalogActions.setCheckQueryRequestState(states.failed));
     yield put(userActions.refreshLogin());
   } else {

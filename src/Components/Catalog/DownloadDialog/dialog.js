@@ -238,10 +238,11 @@ const DownloadDialog = withStyles(styles)((props) => {
     let cachedSizeCheck = querySizes.find((item) => item.queryString === query);
     let cachedUnconstrainedQuery = querySizes
           .find((item) => item.queryString.toLowerCase() === `select%20*%20from%20${dataset.Table_Name}`.toLowerCase());
+    let status = cachedSizeCheck && cachedSizeCheck.result && cachedSizeCheck.response && cachedSizeCheck.result.response.status;
 
     if (cachedSizeCheck) {
       log.debug('query size check result is cached', cachedSizeCheck);
-      if (cachedSizeCheck && cachedSizeCheck.result && cachedSizeCheck.response.status === 500) {
+      if (status === 500) {
         // try again
         setDownloadButtonState({
           enabled: false,
