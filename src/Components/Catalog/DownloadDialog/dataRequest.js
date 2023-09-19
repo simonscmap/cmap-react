@@ -134,7 +134,7 @@ export const makeZip = (data, fileName, shortName) => {
 
   // add metadata and dataset to zip
   z.file(`${shortName}_metadata.xlsx`, metadataBlob);
-  z.file(`${fileName}.csv`, datasetText);
+  z.file(`${shortName}.csv`, datasetText);
 
   // save zip (opens download dialog for user
   z.generateAsync({ type: 'blob' }).then(
