@@ -11,6 +11,7 @@ import { aboutConfig } from '../About';
 import { galleryConfig } from '../Gallery';
 import { submissionGuideConfig } from '../DataSubmission/NewGuide';
 import { documentationConfig } from '../../Documentation/sidebar';
+import { testPageConfig } from '../Explorer';
 
 export const disabled = 'disabled';
 export const enabled = 'enabled';
@@ -36,6 +37,7 @@ const pages = {
   '/register': {},
   '/forgotpass': {},
   '/choosepassword': {},
+  '/test': testPageConfig
 };
 
 export const getPageConfiguration = (pathname) => {

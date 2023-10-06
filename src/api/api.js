@@ -8,6 +8,7 @@ import visualizationRequests from './visualizationRequests';
 import dataRequests from './dataRequests';
 import newsRequests from './news';
 import highlights from './highlights';
+import bulkDownload from './bulkDownload';
 
 const api = {
   catalog: catalogRequests,
@@ -17,7 +18,8 @@ const api = {
   user: userRequests,
   visualization: visualizationRequests,
   news: newsRequests,
-  highlights
+  highlights,
+  bulkDownload,
 };
 
 export default api;

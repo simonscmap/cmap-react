@@ -1,78 +1,65 @@
-import { Button, withStyles } from '@material-ui/core';
-import React from 'react';
-import { connect } from 'react-redux';
-import { catalogSearch } from '../../Redux/catalog/search';
-import { makeAsyncAction } from '../../Redux/helpers';
+import Button from '@material-ui/core/Button';
+import React, { useEffect } from 'react';
+import { makeStyles, ThemeProvider } from '@material-ui/core/styles';
+import { useSelector } from 'react-redux';
+import api from '../../api/api';
+import { homeTheme, colors } from '../Home/theme';
 
-let [, reqbinStatus200Actions] = makeAsyncAction('reqbin', 'Status200');
-let [, reqbinStatus300Actions] = makeAsyncAction('reqbin', 'Status300');
-let [, reqbinStatus400Actions] = makeAsyncAction('reqbin', 'Status400');
-let [, reqbinStatus500Actions] = makeAsyncAction('reqbin', 'Status500');
-let [, testEmailActions] = makeAsyncAction('testEmail', 'test');
-
-const mapDispatch = {
-  search: catalogSearch.makeRequest,
-  get200: reqbinStatus200Actions.makeRequest,
-  get300: reqbinStatus300Actions.makeRequest,
-  get400: reqbinStatus400Actions.makeRequest,
-  get500: reqbinStatus500Actions.makeRequest,
-  testEmail: testEmailActions.makeRequest,
-};
-
-const connector = connect(null, mapDispatch);
-
-const styles = () => ({
-  container: {
-    margin: '100px auto',
+const useStyles = makeStyles((theme) => ({
+  mainWrapper: {
+    width: '100%',
+    margin: 0,
+    padding: '0 0 100px 0',
+    background: colors.gradient.slate2,
   },
-});
+  alignmentWrapper: {
+    margin: '0 auto',
+    maxWidth: '1900px',
+    paddingTop: '200px',
+    '@media (max-width: 1920px)': {
+      paddingLeft: '20px',
+    },
+    [theme.breakpoints.down('md')]: {
+      paddingTop: '150px',
+    },
+    [theme.breakpoints.down('sm')]: {
+      paddingTop: '130px',
+    }
+  }
+}));
 
-const MyComponent = ({
-  search,
-  get200,
-  get300,
-  get400,
-  get500,
-  testEmail,
-  classes,
-}) => {
+const TestComponent = () => {
+  const cl = useStyles();
+  const user = useSelector((s) => s.user);
+  if (!user) {
+    return '';
+  }
+
+  const datasetShortNames = [
+    'TN397_Gradients4_uw_par',
+    'TN397_Gradients4_uw_tsg',
+    'Gradients4_TN397_Nutrients_UW'
+  ];
   return (
-    <div className={classes.container}>
-      <p>Test Epic</p>
-      <Button
-        onClick={() =>
-          search(
-            '?hasDepth=any&keywords=oxygen&latEnd=90&latStart=-90&lonEnd=180&lonStart=-180&timeEnd=2022-04-09&timeStart=1900-01-01',
-          )
-        }
-        color="primary"
-        variant="container"
-      >
-        Search
-      </Button>
-      <Button onClick={() => get200()}>Get 200</Button>
-      <Button onClick={() => get300()}>Get 300</Button>
-      <Button onClick={() => get400()}>Get 400</Button>
-      <Button onClick={() => get500()}>Get 500</Button>
-      <Button
-        onClick={() =>
-          testEmail({
-            data: {
-              // 'rmarohl3@uw.edu','tansy@uw.edu','dharing@uw.edu','mdehghan@uw.edu','armbrust@uw.edu'
-              recipients: ['test@anthanes.com'],
-              templateName: 'userComment',
-              mockData: {
-                datasetName: 'TEST_DATASET_NAME',
-                userMessage: 'here is a message\nthat splits across lines',
-              },
-            },
-          })
-        }
-      >
-        Test Email
-      </Button>
-    </div>
-  );
-};
+    <ThemeProvider theme={homeTheme}>
+      <div className={cl.mainWrapper}>
+        <h1>Test Component</h1>
+        <div>
+    <h2>Bulk Download</h2>
+    <Button onClick={() => api.bulkDownload.download(datasetShortNames)} >Bulk Download</Button>
 
-export default connector(withStyles(styles)(MyComponent));
+        </div>
+      </div>
+    </ThemeProvider>
+  );
+}
+
+export default TestComponent;
+
+export const testPageConfig = {
+  route: '/test',
+  video: false,
+  tour: false,
+  hints: false,
+  navigationVariant: 'Center',
+};

@@ -48,7 +48,7 @@ const Visualization = lazy(() =>
 const SinglePlot = lazy(() => import('./Components/Visualization/SinglePlot'));
 const NewsDashboard = lazy(() => import('./Components/Admin/News/Dashboard'));
 const Cite = lazy(() => import('./Components/Cite'));
-const Spinner = lazy(() => import('./Components/UI/Spinner'));
+const TestPage = lazy(() => import('./Components/Explorer'));
 
 const mapDispatchToProps = {
   initializeGoogleAuth,
@@ -152,8 +152,8 @@ class App extends Component {
                     </Route>
 
                     {/* TEST */}
-                    <Route path="/spinner">
-                      <Spinner message={'test'} />
+                    <Route path="/test">
+                      <TestPage />
                     </Route>
                     <Route path="*">
                       <FourOhFour />
