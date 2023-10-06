@@ -18,18 +18,29 @@ const newsBannerStyles = (theme) => ({
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
     gap: '1em',
-    padding: '2.8em 1em 1em 1em',
+    padding: '0 1em 1em 1em',
     borderRadius: '.75em',
     background: 'rgba(0,0,0,0.10)',
     marginTop: '-1em', // position underneath the blurry title bar
     marginBottom: '2em',
     height: '600px',
-    overflowY: 'scroll',
+    scrollSnapType: 'both mandatory',
+    scrollPaddingTop: '3em',
+    overflowY: 'auto',
     overflowX: 'hidden',
     scrollbarColor: `rgba(161,246,64,1) transparent`,
     '&::-webkit-scrollbar-thumb': {
       backgroundColor: 'rgba(161,246,64,1)',
       borderRadius: '4px',
+    },
+    '& > div': {
+      padding: '390px 0 0 0',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'flex-start',
+      justifyContent: 'flex-start',
+      gap: '1em',
+
     }
   },
   sectionTitleContainer: {
@@ -102,10 +113,6 @@ const newsBannerStyles = (theme) => ({
     flexDirection: 'row',
     justifyContent: 'flex-start',
     padding: '0 1em 0 0',
-    '& h2': {
-      fontSize: '1em',
-      color: colors.green.lime,
-    }
   },
   newsCard: {
     position: 'relative',
@@ -117,6 +124,11 @@ const newsBannerStyles = (theme) => ({
     borderRadius: '6px',
     padding: '1em',
     border: `1px solid ${colors.blue.teal}`,
+    scrollSnapAlign: 'start',
+    scrollSnapStop: 'always',
+    '&:nth-child(0)': {
+      marginTop: '2.8em'
+    }
   },
   newsCardContent: {
     textAlign: 'left',

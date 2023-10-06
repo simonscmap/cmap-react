@@ -31,6 +31,14 @@ dataAPI.checkQuerySize = async (query) => {
   return response;
 };
 
+dataAPI.trajectoryCounts = async () => {
+  let response = await fetch(
+    apiUrl + `/api/data/trajectory-point-counts`,
+    fetchOptions,
+  );
+  return response;
+}
+
 // Wrap each endpoint in a try/catch because...
 // if the fetch fails before the request is sent, for example due to a CORS
 // violation or if the network is down,

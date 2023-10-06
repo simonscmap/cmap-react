@@ -38,6 +38,7 @@ import {
   GUEST_PLOT_LIMIT_NOTIFICATION_SET_IS_VISIBLE,
   VIZ_CONTROL_PANEL_VISIBILITY,
   DATA_SEARCH_VISIBILITY,
+  TRAJECTORY_POINT_COUNT_SUCCESS,
 } from '../actionTypes/visualization';
 
 export default function (state, action) {
@@ -97,6 +98,12 @@ export default function (state, action) {
         ],
         plotsActiveTab: state.charts.length === 1 ? 0 : 1,
       };
+
+    case TRAJECTORY_POINT_COUNT_SUCCESS:
+      return {
+        ...state,
+        trajectoryPointCounts: action.payload,
+      };
     case CRUISE_TRAJECTORY_REQUEST_PROCESSING:
       return {
         ...state,
@@ -105,13 +112,13 @@ export default function (state, action) {
     case CRUISE_TRAJECTORY_REQUEST_SUCCESS:
       return {
         ...state,
-        cruiseTrajectory: action.payload.trajectory,
+        cruiseTrajectories: action.payload.trajectories,
         getCruiseTrajectoryRequestState: states.succeeded,
       };
     case CRUISE_TRAJECTORY_CLEAR:
       return {
         ...state,
-        cruiseTrajectory: null,
+        cruiseTrajectories: null,
       };
     case CRUISE_TRAJECTORY_REQUEST_FAILURE:
       return {
@@ -261,6 +268,7 @@ export default function (state, action) {
       } else {
         return state;
       }
+
 
     default:
       return state;

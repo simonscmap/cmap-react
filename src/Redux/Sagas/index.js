@@ -82,6 +82,10 @@ import {
   watchRequestHighlightsSend
 } from './highlights';
 
+import {
+  watchRequestTrajectoryPointCounts,
+} from './visualizationSagas';
+
 import logInit from '../../Services/log-service';
 const log = logInit('sagas').addContext({ src: 'Redux/Sagas' });
 
@@ -1777,6 +1781,7 @@ function* rootSaga() {
     watchUpdateCatalogWithDatasetFeatures(),
     watchCheckDownloadSize(),
     watchRequestHighlightsSend(),
+    watchRequestTrajectoryPointCounts(),
   ]);
 }
 

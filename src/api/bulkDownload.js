@@ -11,7 +11,6 @@ const log = logInit('bulk-download');
 const bulkDownloadAPI = {};
 
 bulkDownloadAPI.post = async (datasetShortNames) => {
-
   log.debug ('starting bulk download', { datasetShortNames });
   const endpoint = apiUrl + `/api/data/bulk-download`;
 

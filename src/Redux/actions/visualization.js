@@ -102,17 +102,17 @@ export const tableStatsRequestFailure = () => ({
   type: visualizationActionTypes.TABLE_STATS_REQUEST_FAILURE,
 });
 
-export const cruiseTrajectoryRequestSend = (id) => ({
+export const cruiseTrajectoryRequestSend = (ids) => ({
   type: visualizationActionTypes.CRUISE_TRAJECTORY_REQUEST_SEND,
   payload: {
-    id,
+    ids,
   },
 });
 
-export const cruiseTrajectoryRequestSuccess = (trajectory) => ({
+export const cruiseTrajectoryRequestSuccess = (trajectories) => ({
   type: visualizationActionTypes.CRUISE_TRAJECTORY_REQUEST_SUCCESS,
   payload: {
-    trajectory,
+    trajectories,
   },
 });
 
@@ -391,4 +391,16 @@ export const guestPlotLimitNotificationSetIsVisible = (isVisible) => ({
   payload: {
     isVisible,
   },
+});
+
+export const fetchTrajectoryPointCounts = () => ({
+  type: visualizationActionTypes.TRAJECTORY_POINT_COUNT_FETCH,
+});
+
+export const storeTrajectoryPointCounts = (data) => ({
+  type: visualizationActionTypes.TRAJECTORY_POINT_COUNT_SUCCESS,
+  payload: data
+});
+export const trajectoryPointCountsFailure = () => ({
+  type: visualizationActionTypes.TRAJECTORY_POINT_COUNT_FAILURE,
 });
