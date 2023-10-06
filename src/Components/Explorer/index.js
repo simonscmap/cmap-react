@@ -9,7 +9,7 @@ const useStyles = makeStyles((theme) => ({
   mainWrapper: {
     width: '100%',
     margin: 0,
-    padding: '0 0 100px 0',
+    padding: '100px 0',
     background: colors.gradient.slate2,
   },
   alignmentWrapper: {
@@ -24,6 +24,15 @@ const useStyles = makeStyles((theme) => ({
     },
     [theme.breakpoints.down('sm')]: {
       paddingTop: '130px',
+    }
+  },
+  vertical: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '2em',
+    '& button': {
+      maxWidth: '300px',
     }
   }
 }));
@@ -44,10 +53,24 @@ const TestComponent = () => {
     <ThemeProvider theme={homeTheme}>
       <div className={cl.mainWrapper}>
         <h1>Test Component</h1>
-        <div>
-    <h2>Bulk Download</h2>
-    <Button onClick={() => api.bulkDownload.download(datasetShortNames)} >Bulk Download</Button>
-
+        <div className={cl.vertical}>
+          <h2>Bulk Download</h2>
+          <Button onClick={() => api.bulkDownload.post(datasetShortNames)} variant="contained" color="primary">
+            Bulk Download Post
+          </Button>
+          <Button onClick={() => api.bulkDownload.get(datasetShortNames)} variant="contained" color="primary">
+            Bulk Download Get
+          </Button>
+          <Button onClick={() => api.bulkDownload.getWindowOpen(datasetShortNames)} variant="contained" color="primary">
+            Bulk Download Get (Window Open)
+          </Button>
+          <Button onClick={() => api.bulkDownload.postWindowOpen(datasetShortNames)} variant="contained" color="primary">
+            Bulk Download Post (Window Open)
+          </Button>
+          <form action={`http://localhost:8080/api/data/bulk-download`} method="post" target="_blank">
+            <input type="hidden" name="shortNames" value={JSON.stringify(datasetShortNames)} />
+            <button>Post Form Target Blank</button>
+          </form>
         </div>
       </div>
     </ThemeProvider>
