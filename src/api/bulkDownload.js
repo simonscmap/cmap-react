@@ -1,31 +1,35 @@
 // api requests specific to the catalog page
-import { apiUrl, postOptions, fetchOptions } from './config';
+import {
+  apiUrl,
+  // postOptions,
+  // fetchOptions
+} from './config';
 import safeApi from './safeApi';
 import logInit from '../Services/log-service';
 const log = logInit('bulk-download');
 
 const bulkDownloadAPI = {};
-
-bulkDownloadAPI.post = async (datasetShortNames) => {
-  log.debug('starting bulk download', { datasetShortNames });
-  const endpoint = apiUrl + '/api/data/bulk-download';
-  await fetch(endpoint, {
-    ...postOptions,
-    body: JSON.stringify(datasetShortNames)
-  });
-};
-
-bulkDownloadAPI.get = async (datasetShortNames) => {
-  log.debug ('starting bulk download', { datasetShortNames });
-  const endpoint = apiUrl + `/api/data/bulk-download?${datasetShortNames.join(',')}`;
-  await fetch(endpoint, fetchOptions)
-};
-
-bulkDownloadAPI.getWindowOpen = async (datasetShortNames) => {
-  log.debug ('starting bulk download', { datasetShortNames });
-  const endpoint = apiUrl + `/api/data/bulk-download?${datasetShortNames.join(',')}`;
-  window.open(endpoint, '_blank');
-};
+/*
+* bulkDownloadAPI.post = async (datasetShortNames) => {
+*   log.debug('starting bulk download', { datasetShortNames });
+*   const endpoint = apiUrl + '/api/data/bulk-download';
+*   await fetch(endpoint, {
+*     ...postOptions,
+*     body: JSON.stringify(datasetShortNames)
+*   });
+* };
+*
+* bulkDownloadAPI.get = async (datasetShortNames) => {
+*   log.debug ('starting bulk download', { datasetShortNames });
+*   const endpoint = apiUrl + `/api/data/bulk-download?${datasetShortNames.join(',')}`;
+*   await fetch(endpoint, fetchOptions)
+* };
+*
+* bulkDownloadAPI.getWindowOpen = async (datasetShortNames) => {
+*   log.debug ('starting bulk download', { datasetShortNames });
+*   const endpoint = apiUrl + `/api/data/bulk-download?${datasetShortNames.join(',')}`;
+*   window.open(endpoint, '_blank');
+* }; */
 
 bulkDownloadAPI.postWindowOpen = async (datasetShortNames) => {
 

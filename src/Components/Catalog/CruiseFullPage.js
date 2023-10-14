@@ -6,7 +6,6 @@ import { Link as RouterLink } from 'react-router-dom';
 
 import {
   withStyles,
-  Link,
   Typography,
   Grid,
   Paper,
@@ -15,6 +14,7 @@ import {
   TableCell,
   TableBody,
 } from '@material-ui/core';
+import BulkDownloadSelectionTable from './BulkDownloadSelectionTable';
 
 import {
   cruiseFullPageDataFetch,
@@ -22,7 +22,6 @@ import {
 } from '../../Redux/actions/catalog';
 
 import states from '../../enums/asyncRequestStates';
-
 import metaTags from '../../enums/metaTags';
 import SkeletonWrapper from '../UI/SkeletonWrapper';
 import ErrorCard from '../Common/ErrorCard';
@@ -53,7 +52,11 @@ const styles = (theme) => ({
     backgroundColor: 'rgba(0,0,0,.4)',
     marginBottom: '20px',
   },
-
+  cruiseInfoTable: {
+    marginTop: '24px',
+    marginBottom: '3em',
+    maxWidth: '800px',
+  },
   sectionHeader: {
     margin: '16px 0 2px 0',
     fontWeight: 100,
@@ -81,6 +84,7 @@ const styles = (theme) => ({
   },
 
   pageHeader: {
+    marginTop: '1em',
     [theme.breakpoints.down('sm')]: {
       fontSize: '1.4rem',
     },
@@ -160,13 +164,10 @@ const CruiseFullPage = (props) => {
                 className={classes.pageHeader}
                 style={{ color: 'white' }}
               >
-                {Name}
+                Cruise {Name}
               </Typography>
 
-              <Table
-                size="small"
-                style={{ marginTop: '24px', maxWidth: '800px' }}
-              >
+              <Table size="small" className={classes.cruiseInfoTable}>
                 <TableBody>
                   <TableRow className={classes.sampleTableRow}>
                     <TableCell className={classes.tableHead}>
@@ -229,29 +230,16 @@ const CruiseFullPage = (props) => {
                 </TableBody>
               </Table>
 
+              <Typography variant="h4">Associated Datasets</Typography>
+              <Typography variant="body1"> Datasets containing data collected on {Name}: </Typography>
+
               {datasets && datasets.length ? (
                 <>
-                  <Typography
-                    variant="h5"
-                    className={classes.sectionHeader}
-                    style={{ margin: '24px 0 12px 0', color: 'white' }}
-                  >
-                    Datasets containing data collected on this cruise:
-                  </Typography>
-
-                  {datasets.map((e) => (
-                    <Link
-                      component={RouterLink}
-                      to={`/catalog/datasets/${e.Dataset_Name}`}
-                      key={e.Dataset_Long_Name}
-                      className={classes.datasetLink}
-                    >
-                      {e.Dataset_Long_Name}
-                    </Link>
-                  ))}
+                  <BulkDownloadSelectionTable datasets={datasets} cruiseShortName={Name} />
                 </>
               ) : (
-                ''
+                <Typography variant="body1">No associated datasets.</Typography>
+
               )}
               </SkeletonWrapper>
           </Paper>

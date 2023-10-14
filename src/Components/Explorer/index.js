@@ -44,11 +44,43 @@ const TestComponent = () => {
     return '';
   }
 
-  const datasetShortNames = [
+  const sampleShortNames = [
     'TN397_Gradients4_uw_par',
     'TN397_Gradients4_uw_tsg',
     'Gradients4_TN397_Nutrients_UW'
   ];
+
+  const hot001 = ['HOT_PP'];
+
+  const kok1606 = [
+    'Gradients1_KOK1606_PPPCPN_UW',
+    'Gradients1_KOK1606_DiazotrophAbundance',
+    'Gradients1_KOK1606_UW_Hyperpro_Surface_PAR',
+    'Gradients1_KOK1606_FluorometricChlorophyll',
+    'Gradients1_KOK1606_15N13C',
+    'Gradients1_siderophore_concentrations',
+    'Influx_Stations_Gradients_2016',
+    'KOK1606_Gradients1_Surface_O2Ar_NCP',
+    'Gradients1_KOK1606_Optics_LISST',
+    'Gradients1_KOK1606_PPPCPN',
+    'Gradients1_KOK1606_NO3d15N_NO3d18O',
+    'KOK1606_Gradients1',
+    'all_SeaFlow_cruises_v1_5',
+    'Gradients1_KOK1606_14C_NPP',
+    'Gradients1_KOK1606_HPLC',
+    'Gradients1_KOK1606_Hyperpro_Profiles',
+    'Gradients_1_Diss_Trace_Metal_Profile',
+    'KOK1606_ParticulateCobalamins',
+    'KOK1606_Gradients1_Nutrients',
+    'KOK1606_Gradients1_CTD',
+    'KOK1606_Gradients1_Gases',
+    'KOK1606_Gradients1_Diazotroph',
+    'SingleCellGenomes_Chisholm',
+    'KOK1606_Gradients1_TargetedMetabolites',
+    'Gradients1_3_cobalt',
+  ];
+
+  const datasetShortNames = kok1606;
   return (
     <ThemeProvider theme={homeTheme}>
       <div className={cl.mainWrapper}>
