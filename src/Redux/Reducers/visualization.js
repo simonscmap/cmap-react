@@ -105,13 +105,13 @@ export default function (state, action) {
     case CRUISE_TRAJECTORY_REQUEST_SUCCESS:
       return {
         ...state,
-        cruiseTrajectory: action.payload.trajectory,
+        cruiseTrajectories: action.payload.trajectories,
         getCruiseTrajectoryRequestState: states.succeeded,
       };
     case CRUISE_TRAJECTORY_CLEAR:
       return {
         ...state,
-        cruiseTrajectory: null,
+        cruiseTrajectories: null,
       };
     case CRUISE_TRAJECTORY_REQUEST_FAILURE:
       return {

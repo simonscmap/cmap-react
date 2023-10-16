@@ -163,16 +163,20 @@ visualizationAPI.getTableStats = async (tableName) => {
 
 visualizationAPI.cruiseTrajectoryRequest = async (payload) => {
   const decoder = new encoding.TextDecoder();
-  let trajectory = { lats: [], lons: [] };
+  const trajectory = { lats: [], lons: [] };
 
-  let response = await fetch(
-    apiUrl + '/api/data/cruisetrajectory?' + `id=${payload.id}`,
-    fetchOptions,
-  );
+  const makeEndpoint = (id) => `${apiUrl}/api/data/cruisetrajectory?id=${payload.id}`;
+  const jobs = payload.ids.map ((cruiseId) =>
+    fetch (makeEndpoint (cruiseId), fetchOptions));
 
-  if (!response.ok) {
+  let reponses;
+  try {
+    responses = await Promise.all(jobs);
+  } catch (e) {
     return { failed: true, status: response.status };
   }
+
+  //
 
   let csvParser = CSVParser({ from: 2 });
 

@@ -102,10 +102,10 @@ export const tableStatsRequestFailure = () => ({
   type: visualizationActionTypes.TABLE_STATS_REQUEST_FAILURE,
 });
 
-export const cruiseTrajectoryRequestSend = (id) => ({
+export const cruiseTrajectoryRequestSend = (ids) => ({
   type: visualizationActionTypes.CRUISE_TRAJECTORY_REQUEST_SEND,
   payload: {
-    id,
+    ids,
   },
 });
 

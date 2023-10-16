@@ -10,19 +10,20 @@ import { VariableSizeList } from 'react-window';
 import { withStyles } from '@material-ui/core/styles';
 import { Search, ZoomOutMap } from '@material-ui/icons';
 import {
+  Button,
+  Checkbox,
+  Grid,
+  Icon,
+  InputAdornment,
+  Link,
+  Paper,
   Table,
   TableBody,
   TableCell,
   TableRow,
-  Link,
-  Icon,
-  Tooltip,
-  Grid,
-  Typography,
   TextField,
-  InputAdornment,
-  Paper,
-  Button,
+  Tooltip,
+  Typography,
 } from '@material-ui/core';
 import { Close, ExpandMore, ChevronRight } from '@material-ui/icons';
 
@@ -129,6 +130,7 @@ const styles = (theme) => ({
     color: theme.palette.primary.main,
     borderColor: theme.palette.primary.main,
     marginTop: '12px',
+    whiteSpace: 'nowrap'
   },
 
   yearHeader: {
@@ -158,11 +160,12 @@ const styles = (theme) => ({
 
   variablesWrapper: {
     backgroundColor: 'rgba(0,0,0,.2)',
-    paddingTop: '6px',
+    paddingTop: '10px',
+    paddingBottom: '10px'
   },
 
   variableItem: {
-    height: '32px',
+    height: '38px',
     textAlign: 'left',
     fontSize: '14px',
     cursor: 'pointer',
@@ -192,6 +195,18 @@ const styles = (theme) => ({
     fontSize: '9px',
     color: colors.primary,
   },
+
+  selectedCruises: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    alignContent: 'left',
+    alignItems: 'center',
+    paddingTop: '1em',
+    '& > div': {
+
+    }
+  }
 });
 
 const searchFilterGroupCruises = (
@@ -303,6 +318,7 @@ class CruiseSelector extends Component {
     this.state = {
       search,
       selectedCruise: null,
+      selected: [],
       searchMenuOpen: false,
       cruisesGroupedByYear,
       cruises,
@@ -323,14 +339,31 @@ class CruiseSelector extends Component {
 
   handleCruiseSelect = (selection) => {
     if (selection) {
-      this.props.cruiseTrajectoryRequestSend(selection.ID);
+      // move this dispatch to "Render" button
+      // this.props.cruiseTrajectoryRequestSend(selection.ID);
     }
 
+    if (this.state.selected.includes(selection.Name)) {
+      this.setState({
+        ...this.state,
+        selected: this.state.selected.filter(name => name !== selection.Name),
+      });
+    } else {
+      this.setState({
+        ...this.state,
+        // selectedCruise: selection,
+        // searchMenuOpen: false,
+        selected: [...this.state.selected, selection.Name]
+      });
+    }
+  };
+
+  handleTrajectoryRender = () => {
+    this.props.cruiseTrajectoryRequestSend(this.state.selected);
     this.setState({
       ...this.state,
-      selectedCruise: selection,
       searchMenuOpen: false,
-    });
+    })
   };
 
   componentDidUpdate = (prevProps, prevState) => {
@@ -667,6 +700,20 @@ class CruiseSelector extends Component {
                   Reset Filters
                 </Button>
               </Grid>
+              <Grid item xs={12} >
+                {this.state.selected.length > 0 && (
+                  <div className={classes.selectedCruises}>
+                    <Typography variant="h4">Selected</Typography>
+                    {this.state.selected.map((selectedCruiseName) => (
+                      <div>
+                        <Typography variant="body1">{selectedCruiseName}</Typography>
+                      </div>
+                    ))}
+                    <Button onClick={this.handleTrajectoryRender} variant="outlined" className={classes.resetButton}>
+                      Render Cruise {this.state.selected.length > 1 ? 'Trajectories' : 'Trajectory'}
+                    </Button>
+                  </div>)}
+              </Grid>
             </Grid>
 
             <Grid item xs={8} style={{ paddingTop: '12px' }}>
@@ -701,11 +748,13 @@ class CruiseSelector extends Component {
                 width="100%"
                 estimatedItemSize={38}
                 style={{ overflowY: 'scroll' }}
-                itemSize={(i) =>
-                  openYearGroup === cruisesGroupedByYear[i].year
-                    ? cruisesGroupedByYear[i].cruises.length * 32 + 38 + 4 + 10
+                itemSize={(i) => {
+                  // line height 38px '.variableItem'
+                  //
+                  return openYearGroup === cruisesGroupedByYear[i].year
+                    ? cruisesGroupedByYear[i].cruises.length * 38 + 38 + 4 + 10 + 20
                     : 38
-                }
+                }}
               >
                 {({ index, style }) => (
                   <div style={style}>
@@ -751,48 +800,32 @@ class CruiseSelector extends Component {
                     {cruisesGroupedByYear[index].year === openYearGroup ? (
                       <Grid container className={classes.variablesWrapper}>
                         <Grid item container alignItems="center">
-                          <Grid item xs={1}>
-                            {' '}
+                          <Grid item xs={1} className={classes.cruiseYearHeader}>
+                            Select
                           </Grid>
-
-                          <Grid
-                            item
-                            xs={2}
-                            className={classes.cruiseYearHeader}
-                          >
+                          <Grid item xs={2} className={classes.cruiseYearHeader}>
                             Official Designation
                           </Grid>
-
-                          <Grid
-                            item
-                            xs={8}
-                            className={classes.cruiseYearHeader}
-                          >
+                          <Grid item xs={8} className={classes.cruiseYearHeader}>
                             Nickname
                           </Grid>
                         </Grid>
 
-                        {cruisesGroupedByYear[index].cruises.map((e, i) => (
-                          <Grid
-                            item
-                            xs={12}
-                            key={e.Name}
-                            className={classes.variableItem}
-                            container
-                            alignItems="center"
-                            onClick={() => this.handleCruiseSelect(e)}
-                          >
-                            <Grid item xs={1}></Grid>
-
-                            <Grid item xs={2} className={classes.cruiseName}>
-                              {e.Name}
+                        {cruisesGroupedByYear[index].cruises.map((cruise, i) => (
+                          <Grid item xs={12} key={cruise.Name} className={classes.variableItem} container alignItems="center">
+                            <Grid item xs={1}>
+                              <div className={classes.checkBoxWrapper}>
+                                <Checkbox checked={this.state.selected.includes(cruise.Name)} onClick={() => this.handleCruiseSelect(cruise)} />
+                              </div>
                             </Grid>
-
-                            <Tooltip title={e.Nickname} enterDelay={300}>
-                              <Grid item xs={8} className={classes.cruiseName}>
-                                {e.Nickname}
-                              </Grid>
-                            </Tooltip>
+                            <Grid item xs={2} className={classes.cruiseName}>
+                              {cruise.Name}
+                            </Grid>
+                            <Grid item xs={8} className={classes.cruiseName}>
+                              <Tooltip title={cruise.Nickname} enterDelay={200}>
+                                <span>{cruise.Nickname}</span>
+                              </Tooltip>
+                            </Grid>
                           </Grid>
                         ))}
                       </Grid>
