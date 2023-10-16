@@ -173,7 +173,7 @@ const DatasetSelectionTable = (props) => {
     } else if (!user) {
       history.push('/login?redirect=catalog/cruises/' + cruiseShortName);
     } else {
-      api.bulkDownload.postWindowOpen(selected);
+      api.bulkDownload.post(selected);
     }
   };
 
@@ -197,7 +197,7 @@ const DatasetSelectionTable = (props) => {
             <TableRow className={classes.tableHead}>
               <TableCell>Select</TableCell>
               <TableCell>Dataset Name</TableCell>
-              <TableCell>Size</TableCell>
+              <TableCell>Rows</TableCell>
               <TableCell className={classes.noWrap}>Variables (Click to Expand)</TableCell>
             </TableRow>
           </TableHead>

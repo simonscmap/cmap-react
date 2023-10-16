@@ -31,7 +31,7 @@ const bulkDownloadAPI = {};
 *   window.open(endpoint, '_blank');
 * }; */
 
-bulkDownloadAPI.postWindowOpen = async (datasetShortNames) => {
+bulkDownloadAPI.post = async (datasetShortNames) => {
 
   log.debug ('starting bulk download', { datasetShortNames });
   const endpoint = apiUrl + `/api/data/bulk-download`;
@@ -39,7 +39,6 @@ bulkDownloadAPI.postWindowOpen = async (datasetShortNames) => {
   const form = document.createElement("form");
   form.setAttribute("method", "post");
   form.setAttribute("action", endpoint);
-  form.setAttribute("target", '_blank');
   form.setAttribute("id", "test-bulk-download-form");
 
   const hiddenField = document.createElement("input");
