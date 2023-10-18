@@ -215,6 +215,9 @@ const styles = (theme) => ({
     },
     '& h6': {
       marginBottom: '1em',
+    },
+    '& a': {
+      color: 'white',
     }
   },
 
@@ -767,26 +770,27 @@ class CruiseSelector extends Component {
                           <Typography variant="body2" color={'primary'}>{i + 1}.</Typography>
                         </Grid>
                         <Grid item xs={3}>
-                          <Typography variant="body1">{selectedCruiseName}</Typography>
+                          <RouterLink to={`/catalog/cruises/${selectedCruiseName}`}>
+                            <Typography variant="body1">
+                              {selectedCruiseName}</Typography>
+                          </RouterLink>
                         </Grid>
                         <Grid item xs={8}>
+<RouterLink to={`/catalog/cruises/${selectedCruiseName}`}>
+
                           <Typography variant="body1">
+
                             {this.state.cruises
                               ? (this.state.cruises
                                 .find((c) => c.Name === selectedCruiseName)).Nickname
                               : ''
                             }
                           </Typography>
+                      </RouterLink>
                         </Grid>
                       </Grid>
                     ))}
-                    {Boolean(this.state.pointCount > 0) ? (
-                      <div className={classes.dataPoints}>
-                        <Typography variant="body2" color="primary">Data Points: </Typography>
-                      <Typography variant="body2" >{this.state.pointCount.toLocaleString()}</Typography>
-                      </div>) : ''}
-
-                    <Button
+                  <Button
                       disabled={this.state.selected.length > 1 && this.state.pointCount > TRAJECTORY_POINTS_LIMIT}
                       onClick={this.handleTrajectoryRender}
                       variant="outlined"

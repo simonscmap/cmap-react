@@ -20,6 +20,7 @@ const NewsSection = ({ stories }) => {
 
   return (
     <div className={classes.newsFlow}>
+    <div>
       {stories
         .map((story, idx) => (
           <Card
@@ -27,7 +28,7 @@ const NewsSection = ({ stories }) => {
             story={story}
           />
         ))}
-
+    </div>
     </div>
   );
 }
