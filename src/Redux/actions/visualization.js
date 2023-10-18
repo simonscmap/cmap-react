@@ -109,10 +109,10 @@ export const cruiseTrajectoryRequestSend = (ids) => ({
   },
 });
 
-export const cruiseTrajectoryRequestSuccess = (trajectory) => ({
+export const cruiseTrajectoryRequestSuccess = (trajectories) => ({
   type: visualizationActionTypes.CRUISE_TRAJECTORY_REQUEST_SUCCESS,
   payload: {
-    trajectory,
+    trajectories,
   },
 });
 

@@ -4,7 +4,7 @@ import CSVParser from 'csv-parse';
 import encoding from 'text-encoding';
 import { sparseDataQueryFromPayload } from '../Components/Visualization/helpers';
 import storedProcedures from '../enums/storedProcedures';
-import { apiUrl, fetchOptions } from './config';
+import { apiUrl, fetchOptions, postOptions } from './config';
 import DepthProfileData from './DepthProfileData';
 import SectionMapData from './SectionMapData';
 import SpaceTimeData from './SpaceTimeData';
@@ -162,46 +162,41 @@ visualizationAPI.getTableStats = async (tableName) => {
 };
 
 visualizationAPI.cruiseTrajectoryRequest = async (payload) => {
-  const decoder = new encoding.TextDecoder();
-  const trajectory = { lats: [], lons: [] };
+  const endpoint = `${apiUrl}/api/data/cruise-trajectories`;
 
-  const makeEndpoint = (id) => `${apiUrl}/api/data/cruisetrajectory?id=${payload.id}`;
-  const jobs = payload.ids.map ((cruiseId) =>
-    fetch (makeEndpoint (cruiseId), fetchOptions));
-
-  let reponses;
+  let response;
   try {
-    responses = await Promise.all(jobs);
+    response = await fetch (endpoint, {
+      ...postOptions,
+      body: JSON.stringify({ cruise_ids: payload.ids })
+    });
   } catch (e) {
     return { failed: true, status: response.status };
   }
 
-  //
-
-  let csvParser = CSVParser({ from: 2 });
-
-  csvParser.on('readable', function () {
-    let record;
-    while ((record = csvParser.read())) {
-      trajectory.lats.push(parseFloat(record[1]));
-      trajectory.lons.push(parseFloat(record[2]));
-    }
-  });
-
-  let body = response.body;
-  let reader = body.getReader();
-  let readerIsDone = false;
-
-  while (!readerIsDone) {
-    let chunk = await reader.read();
-    if (chunk.done) {
-      readerIsDone = true;
-    } else {
-      csvParser.write(decoder.decode(chunk.value));
-    }
+  let result;
+  if (response.ok) {
+    result = await response.json();
+  } else {
+    return false;
   }
 
-  return trajectory;
+  let accumulator = payload.ids.reduce((acc, curr) => {
+    return Object.assign(acc, {
+      [curr]: {
+        lats: [],
+        lons: []
+      }
+    });
+  }, {});
+
+  const trajectories = result.reduce((acc, curr) => {
+    acc[curr.Cruise_ID].lats.push(curr.lat);
+    acc[curr.Cruise_ID].lons.push(curr.lon);
+    return acc;
+  }, accumulator);
+
+  return trajectories;
 };
 
 visualizationAPI.cruiseList = async () => {

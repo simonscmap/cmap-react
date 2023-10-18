@@ -2,12 +2,14 @@
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { Scene } from '@esri/react-arcgis';
+import palette from 'google-palette';
 
 const styles = (theme) => ({
   container: {
     margin: '0 auto 0 auto',
     width: '100vw',
     height: '100vh',
+
   },
 });
 
@@ -77,14 +79,38 @@ class UiComponents extends React.Component {
 }
 
 const TrajectoryController = React.memo((props) => {
-  const { cruiseTrajectory, trajectoryLayer, esriModules } = props;
+  const { cruiseTrajectories, trajectoryLayer, esriModules } = props;
 
-  if (cruiseTrajectory) {
-    const { lons, lats } = cruiseTrajectory;
+  const thereAreTrajectoriesToRender = cruiseTrajectories &&
+    Object.entries(cruiseTrajectories).length > 0;
+
+  // If No Data, Remove Layer and Return Camera to Default
+  if (!thereAreTrajectoriesToRender) {
+    trajectoryLayer.removeAll();
+    props.view.goTo(
+      {
+        target: [-140, 30],
+        zoom: 3,
+      },
+      {
+        maxDuration: 2500,
+        speedFactor: 0.5,
+      },
+    );
+    return;
+  }
+
+  // Render Each Trajectory
+
+
+
+  function renderTrajectory (trajectoryData, color) {
+    const { lons, lats } = trajectoryData;
+    const newColor = color;
 
     let midIndex = Math.floor(lons.length / 2);
 
-    trajectoryLayer.removeAll();
+    // trajectoryLayer.removeAll();
 
     var polyLines = [[]];
     var lineIndex = 0;
@@ -131,7 +157,7 @@ const TrajectoryController = React.memo((props) => {
       symbolLayers: [
         {
           type: 'line',
-          material: { color: [0, 255, 255, 1] },
+          material: { color: newColor },
           cap: 'round',
           join: 'round',
           size: 2,
@@ -139,22 +165,6 @@ const TrajectoryController = React.memo((props) => {
       ],
     };
 
-    // polyLines.forEach(line => {
-
-    //     let cruiseTrajectoryGeometry = {
-    //         type: 'polyline',
-    //         paths: line
-    //     }
-
-    //     let graphic = new esriModules.Graphic({
-    //         geometry: cruiseTrajectoryGeometry,
-    //         symbol: cruiseTrajectorySymbol
-    //     });
-
-    //     trajectoryLayer.add(graphic);
-    // })
-
-    ///////////////////////////////
     let point = {};
     let markerSymbol = {};
     let pointGraphic = {};
@@ -167,13 +177,11 @@ const TrajectoryController = React.memo((props) => {
           type: 'point',
           x: lon,
           y: lat,
-          // z: 1000
         };
 
         markerSymbol = {
           type: 'simple-marker',
-          // color: [226, 119, 40],
-          color: [0, 255, 255, 1],
+          color: newColor,
           outline: null,
           // outline: {
           //   color: [255, 255, 255],
@@ -186,42 +194,56 @@ const TrajectoryController = React.memo((props) => {
           geometry: point,
           symbol: markerSymbol,
         });
+
         trajectoryLayer.add(pointGraphic);
       }
     });
 
-    try {
-      const center = [lons[midIndex], lats[midIndex]];
-
-      var zoom = 7 - Math.floor(maxDistance / 6);
-
-      props.view.goTo(
-        {
-          target: center,
-          zoom,
-        },
-        {
-          maxDuration: 2500,
-          speedFactor: 0.5,
-        },
-      );
-    } catch (e) {
-      console.log(e);
+    return {
+      center: [
+        lons[Math.floor(lons.length / 2)],
+        lats[Math.floor(lons.length / 2)]
+      ],
+      maxDistance
     }
-  } else {
-    trajectoryLayer.removeAll();
+  }
+
+  // Call RenderTrajectory for each Trajectory
+
+  const numberOfTrajectories = Object.entries(cruiseTrajectories).length;
+  const colors = palette('rainbow', numberOfTrajectories).map((hex) => `#${hex}`)
+
+  const midpointData = Object.entries(cruiseTrajectories)
+                             .map(([key, value], index) => renderTrajectory(value, colors[index]));
+
+  const totalDatapoints = Object.entries(cruiseTrajectories)
+                                .map (([k, d]) => { return d.lons.length })
+                                .reduce((acc, curr) => acc + curr, 0);
+
+
+  // Try to Center the Camera
+
+  try {
+    // const center = [lons[midIndex], lats[midIndex]];
+    // const zoom = 7 - Math.floor(maxDistance / 6);
+    const center = midpointData[0].center;
+    const zoom = 7 - Math.floor(midpointData[0].maxDistance / 6);
 
     props.view.goTo(
       {
-        target: [-140, 30],
-        zoom: 3,
+        target: center,
+        zoom,
       },
       {
         maxDuration: 2500,
         speedFactor: 0.5,
       },
     );
+
+  } catch (e) {
+    console.log('error changing esri view to center of trajectory', e);
   }
+
   return '';
 });
 
@@ -236,7 +258,7 @@ class MapContainer extends Component {
   }
 
   render = () => {
-    const { classes, esriModules, cruiseTrajectory, globeUIRef } = this.props;
+    const { classes, esriModules, cruiseTrajectories, globeUIRef } = this.props;
 
     return (
       <div className={classes.container} id="found-you">
@@ -257,7 +279,7 @@ class MapContainer extends Component {
           }}
         >
           <TrajectoryController
-            cruiseTrajectory={cruiseTrajectory}
+            cruiseTrajectories={cruiseTrajectories}
             trajectoryLayer={this.trajectoryLayer}
             esriModules={esriModules}
           />

@@ -200,13 +200,28 @@ const styles = (theme) => ({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'flex-start',
-    alignContent: 'left',
-    alignItems: 'center',
-    paddingTop: '1em',
+    alignContent: 'flex-start',
+    alignItems: 'flex-start',
+    padding: '1em 0 1em 2em',
+    margin: '2em 0 0 0',
+    border: '1px solid #242424', // mimics "box-shadow" style of selctor input fields
     '& > div': {
+      textAlign: 'left',
+    },
+    '& h4': {
 
     }
-  }
+  },
+
+  renderButton: {
+    textTransform: 'none',
+    height: '37px',
+    color: theme.palette.primary.main,
+    borderColor: theme.palette.primary.main,
+    marginTop: '12px',
+    whiteSpace: 'nowrap',
+    padding: '0, 1em'
+  },
 });
 
 const searchFilterGroupCruises = (
@@ -359,7 +374,11 @@ class CruiseSelector extends Component {
   };
 
   handleTrajectoryRender = () => {
-    this.props.cruiseTrajectoryRequestSend(this.state.selected);
+    const ids = this.state.cruises.filter (({ Name }) => {
+      return this.state.selected.includes (Name);
+    }).map (({ ID }) => ID );
+
+    this.props.cruiseTrajectoryRequestSend(ids);
     this.setState({
       ...this.state,
       searchMenuOpen: false,
@@ -703,13 +722,36 @@ class CruiseSelector extends Component {
               <Grid item xs={12} >
                 {this.state.selected.length > 0 && (
                   <div className={classes.selectedCruises}>
-                    <Typography variant="h4">Selected</Typography>
-                    {this.state.selected.map((selectedCruiseName) => (
-                      <div>
-                        <Typography variant="body1">{selectedCruiseName}</Typography>
-                      </div>
+                    <Typography variant="h4">Selected Cruises</Typography>
+                    <Grid container>
+                      <Grid item xs={1}></Grid>
+                      <Grid item xs={3}>
+                        <Typography variant="body2" color="primary">Name</Typography>
+                      </Grid>
+                      <Grid item xs={8}>
+                        <Typography variant="body2" color="primary">Nickname</Typography>
+                      </Grid>
+                    </Grid>
+                    {this.state.selected.map((selectedCruiseName, i) => (
+                      <Grid container key={`selected-row-item${i}`} >
+                        <Grid item xs={1}>
+                          <Typography variant="body2" color={'primary'}>{i + 1}.</Typography>
+                        </Grid>
+                        <Grid item xs={3}>
+                          <Typography variant="body1">{selectedCruiseName}</Typography>
+                        </Grid>
+                        <Grid item xs={8}>
+                          <Typography variant="body1">
+                            {this.state.cruises
+                              ? (this.state.cruises
+                                .find((c) => c.Name === selectedCruiseName)).Nickname
+                              : ''
+                            }
+                          </Typography>
+                        </Grid>
+                      </Grid>
                     ))}
-                    <Button onClick={this.handleTrajectoryRender} variant="outlined" className={classes.resetButton}>
+                    <Button onClick={this.handleTrajectoryRender} variant="outlined" className={classes.renderButton}>
                       Render Cruise {this.state.selected.length > 1 ? 'Trajectories' : 'Trajectory'}
                     </Button>
                   </div>)}
