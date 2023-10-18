@@ -28,6 +28,7 @@ import {
 import { Close, ExpandMore, ChevronRight } from '@material-ui/icons';
 
 import {
+  fetchTrajectoryPointCounts,
   cruiseListRequestSend,
   cruiseTrajectoryRequestSend,
   cruiseTrajectoryClear,
@@ -38,13 +39,17 @@ import MultiCheckboxDropdown from '../UI/MultiCheckboxDropdown';
 import colors from '../../enums/colors';
 import setsFromList from '../../Utility/setsFromList';
 
+const TRAJECTORY_POINTS_LIMIT = 70000;
+
 const mapStateToProps = (state, ownProps) => ({
   cruiseList: state.cruiseList,
   getCruiseListState: state.getCruiseListState,
   windowHeight: state.windowHeight,
+  trajectoryPointCounts: state.trajectoryPointCounts,
 });
 
 const mapDispatchToProps = {
+  fetchTrajectoryPointCounts,
   cruiseListRequestSend,
   cruiseTrajectoryRequestSend,
   cruiseTrajectoryClear,
@@ -208,8 +213,8 @@ const styles = (theme) => ({
     '& > div': {
       textAlign: 'left',
     },
-    '& h4': {
-
+    '& h6': {
+      marginBottom: '1em',
     }
   },
 
@@ -220,8 +225,16 @@ const styles = (theme) => ({
     borderColor: theme.palette.primary.main,
     marginTop: '12px',
     whiteSpace: 'nowrap',
-    padding: '0, 1em'
+    padding: '0, 1em',
+    '&:disabled': {
+      color: colors.secondary,
+      borderColor: colors.secondary,
+    }
   },
+
+  dataPoints: {
+    marginTop: '1em'
+  }
 });
 
 const searchFilterGroupCruises = (
@@ -294,6 +307,9 @@ class CruiseSelector extends Component {
   constructor(props) {
     super(props);
 
+    if (this.props.trajectoryPointCounts === null) {
+      this.props.fetchTrajectoryPointCounts();
+    }
     var search = new JsSearch.Search('ID');
     search.searchIndex = new JsSearch.UnorderedSearchIndex();
     search.addIndex('Nickname');
@@ -334,6 +350,7 @@ class CruiseSelector extends Component {
       search,
       selectedCruise: null,
       selected: [],
+      pointCount: 0,
       searchMenuOpen: false,
       cruisesGroupedByYear,
       cruises,
@@ -359,16 +376,28 @@ class CruiseSelector extends Component {
     }
 
     if (this.state.selected.includes(selection.Name)) {
+      const newSelectedList = this.state.selected.filter(name => name !== selection.Name);
+      const pointCount = newSelectedList
+        .map((name) => this.state.cruises.find(c => c.Name === name))
+        .reduce((acc, curr) => {
+          return acc + (this.props.trajectoryPointCounts[curr.ID] || 0)
+        }, 0);
       this.setState({
         ...this.state,
-        selected: this.state.selected.filter(name => name !== selection.Name),
+        selected: newSelectedList,
+        pointCount
       });
     } else {
+      const newSelectedList = [...this.state.selected, selection.Name];
+      const pointCount = newSelectedList
+        .map((name) => this.state.cruises.find(c => c.Name === name))
+        .reduce((acc, curr) => acc + (this.props.trajectoryPointCounts[curr.ID] || 0),
+          0);
+
       this.setState({
         ...this.state,
-        // selectedCruise: selection,
-        // searchMenuOpen: false,
-        selected: [...this.state.selected, selection.Name]
+        selected: newSelectedList,
+        pointCount
       });
     }
   };
@@ -722,7 +751,7 @@ class CruiseSelector extends Component {
               <Grid item xs={12} >
                 {this.state.selected.length > 0 && (
                   <div className={classes.selectedCruises}>
-                    <Typography variant="h4">Selected Cruises</Typography>
+                    <Typography variant="h6">Selected Cruises</Typography>
                     <Grid container>
                       <Grid item xs={1}></Grid>
                       <Grid item xs={3}>
@@ -751,8 +780,20 @@ class CruiseSelector extends Component {
                         </Grid>
                       </Grid>
                     ))}
-                    <Button onClick={this.handleTrajectoryRender} variant="outlined" className={classes.renderButton}>
-                      Render Cruise {this.state.selected.length > 1 ? 'Trajectories' : 'Trajectory'}
+                    {Boolean(this.state.pointCount > 0) ? (
+                      <div className={classes.dataPoints}>
+                        <Typography variant="body2" color="primary">Data Points: </Typography>
+                      <Typography variant="body2" >{this.state.pointCount.toLocaleString()}</Typography>
+                      </div>) : ''}
+
+                    <Button
+                      disabled={this.state.selected.length > 1 && this.state.pointCount > TRAJECTORY_POINTS_LIMIT}
+                      onClick={this.handleTrajectoryRender}
+                      variant="outlined"
+                      className={classes.renderButton}>
+                      {(this.state.selected.length > 1 && this.state.pointCount > TRAJECTORY_POINTS_LIMIT)
+                        ? `Limit Exceeded: Select Fewer Cruises`
+                        : `Render ${this.state.selected.length} Cruise ${this.state.selected.length > 1 ? 'Trajectories' : 'Trajectory'}`}
                     </Button>
                   </div>)}
               </Grid>

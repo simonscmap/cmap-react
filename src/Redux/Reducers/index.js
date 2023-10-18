@@ -105,6 +105,7 @@ const initialState = {
   // Visualization state pieces
   maps: [],
   charts: [],
+  trajectoryPointCounts: null,
   getCruiseTrajectoryRequestState: null,
   cruiseTrajectory: null,
   sampleData: null,

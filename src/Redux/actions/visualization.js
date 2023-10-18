@@ -392,3 +392,15 @@ export const guestPlotLimitNotificationSetIsVisible = (isVisible) => ({
     isVisible,
   },
 });
+
+export const fetchTrajectoryPointCounts = () => ({
+  type: visualizationActionTypes.TRAJECTORY_POINT_COUNT_FETCH,
+});
+
+export const storeTrajectoryPointCounts = (data) => ({
+  type: visualizationActionTypes.TRAJECTORY_POINT_COUNT_SUCCESS,
+  payload: data
+});
+export const trajectoryPointCountsFailure = () => ({
+  type: visualizationActionTypes.TRAJECTORY_POINT_COUNT_FAILURE,
+});
