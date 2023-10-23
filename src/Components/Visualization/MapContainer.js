@@ -102,8 +102,6 @@ const TrajectoryController = React.memo((props) => {
 
   // Render Each Trajectory
 
-
-
   function renderTrajectory (trajectoryData, color) {
     const { lons, lats } = trajectoryData;
     const newColor = color;
@@ -221,13 +219,13 @@ const TrajectoryController = React.memo((props) => {
                                 .reduce((acc, curr) => acc + curr, 0);
 
 
-  // Try to Center the Camera
+  // Try to Center the Camera on First Trajectory
 
   try {
     // const center = [lons[midIndex], lats[midIndex]];
     // const zoom = 7 - Math.floor(maxDistance / 6);
     const center = midpointData[0].center;
-    const zoom = 7 - Math.floor(midpointData[0].maxDistance / 6);
+    const zoom = 8 - Math.floor(midpointData[0].maxDistance / 6);
 
     props.view.goTo(
       {

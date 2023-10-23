@@ -1,14 +1,4 @@
 // Cruise exploration component
-
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { Link as RouterLink } from 'react-router-dom';
-
-import * as JsSearch from 'js-search';
-import { VariableSizeList } from 'react-window';
-
-import { withStyles } from '@material-ui/core/styles';
-import { Search, ZoomOutMap } from '@material-ui/icons';
 import {
   Button,
   Checkbox,
@@ -25,21 +15,26 @@ import {
   Tooltip,
   Typography,
 } from '@material-ui/core';
-import { Close, ExpandMore, ChevronRight } from '@material-ui/icons';
-
+import { withStyles } from '@material-ui/core/styles';
+import { ChevronRight, Close, ExpandMore, Search, ZoomOutMap } from '@material-ui/icons';
+import * as JsSearch from 'js-search';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { Link as RouterLink } from 'react-router-dom';
+import { VariableSizeList } from 'react-window';
 import {
-  fetchTrajectoryPointCounts,
   cruiseListRequestSend,
-  cruiseTrajectoryRequestSend,
   cruiseTrajectoryClear,
+  cruiseTrajectoryRequestSend,
+  fetchTrajectoryPointCounts,
 } from '../../Redux/actions/visualization';
-
-import MultiCheckboxDropdown from '../UI/MultiCheckboxDropdown';
-
-import colors from '../../enums/colors';
 import setsFromList from '../../Utility/setsFromList';
+import colors from '../../enums/colors';
+import MultiCheckboxDropdown from '../UI/MultiCheckboxDropdown';
+import styles from './cruiseSelectorStyles';
+import CruiseSelectorSummary from './CruiseSelectorSummary';
+import CruiseTrajectoryLegend from './CruiseTrajectoryLegend';
 
-const TRAJECTORY_POINTS_LIMIT = 70000;
 
 const mapStateToProps = (state, ownProps) => ({
   cruiseList: state.cruiseList,
@@ -54,191 +49,6 @@ const mapDispatchToProps = {
   cruiseTrajectoryRequestSend,
   cruiseTrajectoryClear,
 };
-
-const esriFonts =
-  '"Avenir Next W00","Helvetica Neue",Helvetica,Arial,sans-serif';
-const esriFontColor = 'white';
-
-const styles = (theme) => ({
-  outerDiv: {
-    padding: '12px',
-    maxWidth: '360px',
-    backgroundColor: 'transparent',
-    color: esriFontColor,
-    borderRadius: '4px',
-    boxShadow: '2px',
-    backdropFilter: 'blur(2px)',
-    transform: 'translateY(35px)',
-    marginTop: '24px',
-    position: 'fixed',
-    left: 0,
-    top: 140,
-  },
-
-  cruiseInfo: {
-    color: esriFontColor,
-    fontFamily: esriFonts,
-    margin: '12px auto 0 auto',
-  },
-
-  cruiseInfoCell: {
-    color: esriFontColor,
-    fontFamily: esriFonts,
-    borderStyle: 'none',
-  },
-
-  linkWrapper: {
-    padding: '12px',
-    fontSize: '14px',
-  },
-
-  searchMenuPaper: {
-    position: 'fixed',
-    top: 120,
-    bottom: 60,
-    left: 0,
-    width: '98vw',
-    height: 'auto',
-    zIndex: 1500,
-    backgroundColor: 'rgba(0,0,0,.6)',
-    backdropFilter: 'blur(5px)',
-  },
-
-  closeIcon: {
-    float: 'right',
-    cursor: 'pointer',
-    color: colors.primary,
-    textTransform: 'none',
-    fontSize: '15px',
-  },
-
-  inputRoot: {
-    border: `1px solid ${colors.primary}`,
-  },
-
-  openSearchButtonPaper: {
-    backgroundColor: colors.backgroundGray,
-    boxShadow: '1px 1px 1px 1px #242424',
-  },
-
-  openSearchButton: {
-    textTransform: 'none',
-    color: colors.primary,
-    fontSize: '15px',
-    padding: '6px 42px',
-  },
-
-  resetButton: {
-    textTransform: 'none',
-    width: '160px',
-    height: '37px',
-    color: theme.palette.primary.main,
-    borderColor: theme.palette.primary.main,
-    marginTop: '12px',
-    whiteSpace: 'nowrap'
-  },
-
-  yearHeader: {
-    backgroundColor: 'rgba(0, 0, 0, .7)',
-    height: '36px',
-    fontSize: '17px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  searchOption: {
-    '&:hover': {
-      backgroundColor: colors.greenHover,
-    },
-
-    cursor: 'pointer',
-    height: '38px',
-    boxShadow: '0px 1px 1px 1px #242424',
-    backgroundColor: 'rgba(0,0,0,.4)',
-  },
-
-  memberCount: {
-    color: colors.primary,
-    fontWeight: 'bold',
-  },
-
-  variablesWrapper: {
-    backgroundColor: 'rgba(0,0,0,.2)',
-    paddingTop: '10px',
-    paddingBottom: '10px'
-  },
-
-  variableItem: {
-    height: '38px',
-    textAlign: 'left',
-    fontSize: '14px',
-    cursor: 'pointer',
-    '&:hover': {
-      backgroundColor: colors.greenHover,
-    },
-  },
-
-  cruiseName: {
-    width: '100%',
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-  },
-
-  heading: {
-    textAlign: 'left',
-    padding: '8px 6px',
-    color: colors.primary,
-    fontSize: '16px',
-    marginTop: '5px',
-    backgroundColor: 'rgba(0,0,0,.4)',
-  },
-
-  cruiseYearHeader: {
-    textAlign: 'left',
-    fontSize: '9px',
-    color: colors.primary,
-  },
-
-  selectedCruises: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    alignContent: 'flex-start',
-    alignItems: 'flex-start',
-    padding: '1em 0 1em 2em',
-    margin: '2em 0 0 0',
-    border: '1px solid #242424', // mimics "box-shadow" style of selctor input fields
-    '& > div': {
-      textAlign: 'left',
-    },
-    '& h6': {
-      marginBottom: '1em',
-    },
-    '& a': {
-      color: 'white',
-    }
-  },
-
-  renderButton: {
-    textTransform: 'none',
-    height: '37px',
-    color: theme.palette.primary.main,
-    borderColor: theme.palette.primary.main,
-    marginTop: '12px',
-    whiteSpace: 'nowrap',
-    padding: '0, 1em',
-    '&:disabled': {
-      color: colors.secondary,
-      borderColor: colors.secondary,
-    }
-  },
-
-  dataPoints: {
-    marginTop: '1em'
-  }
-});
 
 const searchFilterGroupCruises = (
   cruises,
@@ -306,11 +116,13 @@ const defaultOptionSets = {
 };
 
 const listRef = React.createRef();
+
 class CruiseSelector extends Component {
   constructor(props) {
     super(props);
 
     if (this.props.trajectoryPointCounts === null) {
+      // if trajectory counts are not in the store, dispatch a request to fetch them
       this.props.fetchTrajectoryPointCounts();
     }
     var search = new JsSearch.Search('ID');
@@ -373,6 +185,7 @@ class CruiseSelector extends Component {
   };
 
   handleCruiseSelect = (selection) => {
+    // trajectory point counds (from redux; fetched when component loads)
     const counts = this.props.trajectoryPointCounts || {};
     const getPointCount = (list) => list
       .map((name) => this.state.cruises.find(c => c.Name === name))
@@ -380,7 +193,7 @@ class CruiseSelector extends Component {
         return acc + (counts[curr.ID] || 0)
       }, 0);
 
-
+    // add selected cruise to list, or if already preset remove it
     if (this.state.selected.includes(selection.Name)) {
       const newSelectedList = this.state.selected.filter(name => name !== selection.Name);
       this.setState({
@@ -403,7 +216,9 @@ class CruiseSelector extends Component {
       return this.state.selected.includes (Name);
     }).map (({ ID }) => ID );
 
+    // fetch selected cruise trajectories; once they are on the store, they will render
     this.props.cruiseTrajectoryRequestSend(ids);
+    // close the cruise selector
     this.setState({
       ...this.state,
       searchMenuOpen: false,
@@ -548,6 +363,7 @@ class CruiseSelector extends Component {
     });
   };
 
+  // handle search checkbox event
   handleClickCheckbox = (e, checked) => {
     let [column, value] = e.target.name.split('!!');
     let newSet = new Set(this.state[column]);
@@ -745,54 +561,12 @@ class CruiseSelector extends Component {
                 </Button>
               </Grid>
               <Grid item xs={12} >
-                {this.state.selected.length > 0 && (
-                  <div className={classes.selectedCruises}>
-                    <Typography variant="h6">Selected Cruises</Typography>
-                    <Grid container>
-                      <Grid item xs={1}></Grid>
-                      <Grid item xs={3}>
-                        <Typography variant="body2" color="primary">Name</Typography>
-                      </Grid>
-                      <Grid item xs={8}>
-                        <Typography variant="body2" color="primary">Nickname</Typography>
-                      </Grid>
-                    </Grid>
-                    {this.state.selected.map((selectedCruiseName, i) => (
-                      <Grid container key={`selected-row-item${i}`} >
-                        <Grid item xs={1}>
-                          <Typography variant="body2" color={'primary'}>{i + 1}.</Typography>
-                        </Grid>
-                        <Grid item xs={3}>
-                          <RouterLink to={`/catalog/cruises/${selectedCruiseName}`}>
-                            <Typography variant="body1">
-                              {selectedCruiseName}</Typography>
-                          </RouterLink>
-                        </Grid>
-                        <Grid item xs={8}>
-<RouterLink to={`/catalog/cruises/${selectedCruiseName}`}>
-
-                          <Typography variant="body1">
-
-                            {this.state.cruises
-                              ? (this.state.cruises
-                                .find((c) => c.Name === selectedCruiseName)).Nickname
-                              : ''
-                            }
-                          </Typography>
-                      </RouterLink>
-                        </Grid>
-                      </Grid>
-                    ))}
-                  <Button
-                      disabled={this.state.selected.length > 1 && this.state.pointCount > TRAJECTORY_POINTS_LIMIT}
-                      onClick={this.handleTrajectoryRender}
-                      variant="outlined"
-                      className={classes.renderButton}>
-                      {(this.state.selected.length > 1 && this.state.pointCount > TRAJECTORY_POINTS_LIMIT)
-                        ? `Limit Exceeded: Select Fewer Cruises`
-                        : `Render ${this.state.selected.length} Cruise ${this.state.selected.length > 1 ? 'Trajectories' : 'Trajectory'}`}
-                    </Button>
-                  </div>)}
+                <CruiseSelectorSummary
+                  cruises={this.state.cruises}
+                  selected={this.state.selected}
+                  handleTrajectoryRender={this.handleTrajectoryRender}
+                  pointCount={this.state.pointCount}
+                />
               </Grid>
             </Grid>
 
@@ -1012,6 +786,7 @@ class CruiseSelector extends Component {
             </>
           )}
         </div>
+        <CruiseTrajectoryLegend />
       </>
     );
   }
