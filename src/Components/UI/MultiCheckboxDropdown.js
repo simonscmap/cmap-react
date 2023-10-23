@@ -20,7 +20,7 @@ const log = initLogger('MultiCheckDropdown.js');
 
 const styles = (theme) => ({
   menuOpenIcon: {
-    color: colors.primary,
+    color: theme.palette.primary.main,
     margin: '0 8px 0 4px',
   },
   formGroupWrapper: {
@@ -51,7 +51,7 @@ const styles = (theme) => ({
     padding: '6px 0',
     overflowY: 'scroll',
     overflowX: 'hidden',
-    scrollbarColor: '#9dd162 transparent',
+    scrollbarColor: `${theme.palette.primary.main} transparent`,
     '&::-webkit-scrollbar': {
       width: '8px',
     },
@@ -60,7 +60,7 @@ const styles = (theme) => ({
       '-webkit-box-shadow': 'inset 0 0 6px rgba(0,0,0,0.00)',
     },
     '&::-webkit-scrollbar-thumb': {
-      backgroundColor: '9dd162',
+      backgroundColor: theme.palette.primary.main,
       borderRadius: '5px',
       border: 'none',
     },

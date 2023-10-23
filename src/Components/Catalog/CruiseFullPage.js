@@ -96,6 +96,14 @@ const styles = (theme) => ({
   },
 });
 
+export const cruiseConfig = {
+  route: '/',
+  video: false,
+  tour: false,
+  hints: false,
+  navigationVariant: 'Left',
+};
+
 const CruiseFullPage = (props) => {
   const {
     classes,

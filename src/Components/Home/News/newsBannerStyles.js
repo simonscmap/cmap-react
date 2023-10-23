@@ -34,7 +34,7 @@ const newsBannerStyles = (theme) => ({
       borderRadius: '4px',
     },
     '& > div': {
-      padding: '390px 0 0 0',
+      padding: '450px 0 0 0',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'flex-start',

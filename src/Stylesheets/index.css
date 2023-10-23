@@ -84,3 +84,8 @@ body::-webkit-scrollbar-thumb {
 body::-webkit-scrollbar-track {
   background-color: #aaa;
 }
+
+.fake {
+    color: #9dd162;
+    color: rgba(97, 149, 38, .4);
+}

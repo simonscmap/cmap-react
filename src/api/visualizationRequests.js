@@ -10,6 +10,7 @@ import SectionMapData from './SectionMapData';
 import SpaceTimeData from './SpaceTimeData';
 import SparseData from './SparseData';
 import TimeSeriesData from './TimeSeriesData';
+import analyzeTrajectory from '../Components/Visualization/helpers/analyzeTrajectory';
 
 const storedProcedureParametersToUri = (parameters) => {
   let result = Object.keys(parameters).reduce(function (queryString, key, i) {
@@ -163,7 +164,7 @@ visualizationAPI.getTableStats = async (tableName) => {
 
 visualizationAPI.cruiseTrajectoryRequest = async (payload) => {
   const endpoint = `${apiUrl}/api/data/cruise-trajectories`;
-
+  // fetch cruise trajectories
   let response;
   try {
     response = await fetch (endpoint, {
@@ -173,7 +174,7 @@ visualizationAPI.cruiseTrajectoryRequest = async (payload) => {
   } catch (e) {
     return { failed: true, status: response.status };
   }
-
+  // marshal json
   let result;
   if (response.ok) {
     result = await response.json();
@@ -181,11 +182,14 @@ visualizationAPI.cruiseTrajectoryRequest = async (payload) => {
     return false;
   }
 
+  // divide rows into a single object, with trajectory data
+  // organized by cruise id
   let accumulator = payload.ids.reduce((acc, curr) => {
     return Object.assign(acc, {
       [curr]: {
         lats: [],
-        lons: []
+        lons: [],
+        times: [],
       }
     });
   }, {});
@@ -193,8 +197,15 @@ visualizationAPI.cruiseTrajectoryRequest = async (payload) => {
   const trajectories = result.reduce((acc, curr) => {
     acc[curr.Cruise_ID].lats.push(curr.lat);
     acc[curr.Cruise_ID].lons.push(curr.lon);
+    acc[curr.Cruise_ID].times.push(curr.time);
     return acc;
   }, accumulator);
+
+
+  // ammend trajectories with center/maxDistance data
+  Object.keys(trajectories).forEach((key) => {
+    Object.assign(trajectories[key], analyzeTrajectory (trajectories[key]));
+  });
 
   return trajectories;
 };

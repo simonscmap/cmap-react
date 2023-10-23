@@ -44,9 +44,8 @@ const mapStateToProps = (state) => ({
   charts: state.charts,
   data: state.data,
   loadingMessage: state.loadingMessage,
-  cruiseTrajectory: state.cruiseTrajectory,
-  cruiseTrajectories: state.cruiseTrajectories,
   cruiseList: state.cruiseList,
+  cruiseTrajectoryFocus: state.cruiseTrajectoryFocus,
   showChartsOnce: state.showChartsOnce,
   datasets: state.datasets,
   catalog: state.catalog,
@@ -146,6 +145,7 @@ class Visualization extends Component {
       'SketchViewModel',
       'Utils',
       'Graphic',
+      'FeatureLayer'
     ];
 
     var loadedModules = await loadModules(
@@ -156,6 +156,7 @@ class Visualization extends Component {
         'esri/widgets/Sketch/SketchViewModel',
         'esri/geometry/support/webMercatorUtils',
         'esri/Graphic',
+        'esri/layers/FeatureLayer',
       ],
       { version: '4.14' },
     );
@@ -394,8 +395,6 @@ class Visualization extends Component {
                 }
                 esriModules={this.state.esriModules}
                 spParams={this.state.spParams}
-                cruiseTrajectory={this.props.cruiseTrajectory}
-                cruiseTrajectories={this.props.cruiseTrajectories}
                 showCruiseControl={this.state.showCruiseControl}
                 chartControlPanelRef={this.chartControlPanelRef}
                 ref={this.mapContainerRef} // this ref is used by the VizControlPanel
