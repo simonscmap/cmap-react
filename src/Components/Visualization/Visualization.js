@@ -44,8 +44,6 @@ const mapStateToProps = (state) => ({
   charts: state.charts,
   data: state.data,
   loadingMessage: state.loadingMessage,
-  cruiseTrajectory: state.cruiseTrajectory,
-  cruiseTrajectories: state.cruiseTrajectories,
   cruiseList: state.cruiseList,
   showChartsOnce: state.showChartsOnce,
   datasets: state.datasets,
@@ -394,8 +392,6 @@ class Visualization extends Component {
                 }
                 esriModules={this.state.esriModules}
                 spParams={this.state.spParams}
-                cruiseTrajectory={this.props.cruiseTrajectory}
-                cruiseTrajectories={this.props.cruiseTrajectories}
                 showCruiseControl={this.state.showCruiseControl}
                 chartControlPanelRef={this.chartControlPanelRef}
                 ref={this.mapContainerRef} // this ref is used by the VizControlPanel
