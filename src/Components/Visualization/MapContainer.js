@@ -4,6 +4,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { Scene } from '@esri/react-arcgis';
 import palette from 'google-palette';
 import TrajectoryController from './TrajectoryController';
+import TrajectoryZoom from './TrajectoryZoom';
 
 const styles = (theme) => ({
   container: {
@@ -60,6 +61,22 @@ class UiComponents extends React.Component {
         tool: 'transform',
       },
     });
+
+    /* props.view.on("pointer-move", (event) => {
+*   // only include graphics from hurricanesLayer in the hitTest
+*   const opts = {
+*     include: this.trajectoryLayer
+*   }
+*   props.view.hitTest(event, opts).then((response) => {
+*     // check if a feature is returned from the hurricanesLayer
+*     if (response.results.length) {
+*       console.log ('results', response.results);
+*       response.results.forEach((feat) => {
+
+*       });
+*     }
+*   });
+* }) */
   }
 
   shouldComponentUpdate = (nextProps, nextState) => {
@@ -89,7 +106,7 @@ class MapContainer extends Component {
   }
 
   render = () => {
-    const { classes, esriModules, globeUIRef } = this.props;
+    const { classes, esriModules, globeUIRef, view } = this.props;
 
     return (
       <div className={classes.container} id="found-you">
@@ -109,11 +126,6 @@ class MapContainer extends Component {
             },
           }}
         >
-          <TrajectoryController
-            trajectoryLayer={this.trajectoryLayer}
-            esriModules={esriModules}
-          />
-
           <UiComponents
             updateDomainFromGraphicExtent={
               this.props.updateDomainFromGraphicExtent
@@ -126,10 +138,23 @@ class MapContainer extends Component {
             }
             ref={globeUIRef}
           />
+
+          <TrajectoryZoom view={view} />
         </Scene>
+
+
+        <TrajectoryController
+          trajectoryLayer={this.trajectoryLayer}
+          esriModules={esriModules}
+        />
+
+
       </div>
     );
   };
 }
 
+/*
+ */
+//
 export default withStyles(styles)(MapContainer);

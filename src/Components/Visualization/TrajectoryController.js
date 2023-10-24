@@ -1,89 +1,61 @@
 // Renders Trajectories on Esri Map
-import React from 'react';
+import React, { useEffect } from 'react';
 import palette from 'google-palette';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { cruiseTrajectoryZoomTo } from '../../Redux/actions/visualization';
 
 const TrajectoryController = (props) => {
   const { trajectoryLayer, esriModules } = props;
   const cruiseTrajectories = useSelector ((state) => state.cruiseTrajectories);
+  const renderedCruises = useSelector ((state) => {
+    return Object.entries(state.cruiseTrajectories || {}).map (([ctId]) => {
+      return (state.cruiseList || []).find ((c) => {
+        return parseInt(c.ID, 10) === parseInt(ctId, 10);
+      })
+    })
+  });
+
+  const dispatch = useDispatch ();
 
   const thereAreTrajectoriesToRender = cruiseTrajectories &&
     Object.entries(cruiseTrajectories).length > 0;
 
   // If No Data, Remove Layer and Return Camera to Default
-  if (!thereAreTrajectoriesToRender) {
-    trajectoryLayer.removeAll();
-    props.view.goTo(
-      {
-        target: [-140, 30],
-        zoom: 3,
-      },
-      {
-        maxDuration: 2500,
-        speedFactor: 0.5,
-      },
-    );
-    return;
+  useEffect(() => {
+    if (!thereAreTrajectoriesToRender) {
+      trajectoryLayer.removeAll();
+    }
+  }, [thereAreTrajectoriesToRender]);
+
+  const cruiseIdToName = (id) => {
+    let result = (renderedCruises || []).find (c =>
+      parseInt(c.ID, 10) === parseInt(id, 10));
+    return result && result.Name || null;
+  }
+
+  // return a reducs set of lat/lon
+  function downsample (trajectoryData) {
+    const { lons, lats, times } = trajectoryData;
+
+    const downSampleCoeff = Math.floor(lons.length / 1000) + 1;
+
+    const accumulator = { lats: [], lons: [], times: [] };
+
+    const result = lons.reduce((acc, curr, i) => {
+      if (i % downSampleCoeff === 0) {
+        acc.lons.push(lons[i]);
+        acc.lats.push(lats[i]);
+        acc.times.push(times[i]);
+      }
+      return acc;
+    }, accumulator);
+
+    return result;
   }
 
   // Render Each Trajectory
-
-  function renderTrajectory (trajectoryData, color) {
-    const { lons, lats } = trajectoryData;
+  function renderTrajectory (trajectoryData, color, cruiseId) {
     const newColor = color;
-
-    let polyLines = [[]];
-    let lineIndex = 0;
-
-    let lonStart = lons[0];
-    let latStart = lats[0];
-    let maxDistance = 0;
-
-    // Create a new path array each time 180 lon is crossed
-    lons.forEach((lon, i) => {
-      let lat = lats[i];
-
-      let latDistance = Math.abs(lat - latStart);
-      let _lonDistance = Math.abs(lon - lonStart);
-      let lonDistance = _lonDistance > 180 ? 360 - _lonDistance : _lonDistance;
-
-      let distance = Math.sqrt(
-        latDistance * latDistance + lonDistance * lonDistance,
-      );
-      maxDistance = distance > maxDistance ? distance : maxDistance;
-
-      polyLines[lineIndex].push([lon, lat]);
-
-      if (i < lons.length - 1) {
-        if (
-          lon > 160 &&
-          lon < 180 &&
-          lons[i + 1] > -180 &&
-          lons[i + 1] < -160
-        ) {
-          polyLines.push([]);
-          lineIndex++;
-        }
-
-        if (lon > -180 && lon < -160 && lon[i + 1] > 160 && lon[i + 1] < 180) {
-          polyLines.push([]);
-          lineIndex++;
-        }
-      }
-    });
-
-    /* var cruiseTrajectorySymbol = {
-*   type: 'line-3d',
-*   symbolLayers: [
-*     {
-*       type: 'line',
-*       material: { color: newColor },
-*       cap: 'round',
-*       join: 'round',
-*       size: 2,
-*     },
-*   ],
-* }; */
 
     const markerSymbol = {
       type: 'simple-marker',
@@ -96,62 +68,74 @@ const TrajectoryController = (props) => {
       size: 5,
     };
 
-    let downSampleCoeff = Math.floor(lons.length / 1000) + 1;
+    const { lons, lats, times } = downsample(trajectoryData);
+
+    // draw point
 
     lons.forEach((lon, i) => {
-      if (i % downSampleCoeff === 0) {
-        let lat = lats[i];
-        let pointGraphic = new esriModules.Graphic({
-          geometry: {
-            type: 'point',
-            x: lon,
-            y: lat,
-          },
-          symbol: markerSymbol,
-        });
-        trajectoryLayer.add(pointGraphic);
-      }
-    });
+      let lat = lats[i];
+      let time = new Date(times[i]);
+      let pointGraphic = new esriModules.Graphic({
+        geometry: {
+          type: 'point',
+          x: lon,
+          y: lat,
+        },
+        symbol: markerSymbol,
+        attributes: {
+          cruiseId,
+          lon,
+          lat,
+          time,
+          name: cruiseIdToName (cruiseId),
+        },
+        popupTemplate: {
+          title: "Cruise Trajectory Point for {name}",
+          content: [
+            {
+              type: "fields",
+              fieldInfos: [
+                {
+                  fieldName: "cruiseId"
+                },
+                {
+                  fieldName: 'lon',
+                },
+                {
+                  fieldName: 'lat',
+                },
+                {
+                  fieldName: 'time'
+                }
 
-    return {
-      center: [
-        lons[Math.floor(lons.length / 2)],
-        lats[Math.floor(lons.length / 2)]
-      ],
-      maxDistance
-    }
+              ]
+            }
+          ]
+        }
+      });
+      trajectoryLayer.add(pointGraphic);
+    });
   }
 
   // Call RenderTrajectory for each Trajectory
+  useEffect(() => {
+    if (thereAreTrajectoriesToRender) {
+      const numberOfTrajectories = Object.entries(cruiseTrajectories).length;
+      const colors = palette('rainbow', numberOfTrajectories).map((hex) => `#${hex}`)
 
-  const numberOfTrajectories = Object.entries(cruiseTrajectories).length;
-  const colors = palette('rainbow', numberOfTrajectories).map((hex) => `#${hex}`)
+      Object.entries(cruiseTrajectories)
+        .map(([id, data], index) => renderTrajectory(data, colors[index], id));
 
-  const midpointData = Object.entries(cruiseTrajectories)
-                             .map(([, value], index) => renderTrajectory(value, colors[index]));
+      // Try to Center the Camera on First Trajectory
+      const [firstTrajectoryId] = Object.entries(cruiseTrajectories)[0];
 
-  // Try to Center the Camera on First Trajectory
+      dispatch(cruiseTrajectoryZoomTo(firstTrajectoryId));
+    }
+  }, [
+    thereAreTrajectoriesToRender,
+    cruiseTrajectories
+  ]);
 
-  try {
-    const center = midpointData[0].center;
-    const zoom = 8 - Math.floor(midpointData[0].maxDistance / 6);
-
-    props.view.goTo(
-      {
-        target: center,
-        zoom,
-      },
-      {
-        maxDuration: 2500,
-        speedFactor: 0.5,
-      },
-    );
-
-  } catch (e) {
-    console.log('error changing esri view to center of trajectory', e);
-  }
-
-  return '';
 };
 
 

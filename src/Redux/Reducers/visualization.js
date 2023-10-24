@@ -15,6 +15,7 @@ import {
   CRUISE_TRAJECTORY_REQUEST_SUCCESS,
   CRUISE_TRAJECTORY_CLEAR,
   CRUISE_TRAJECTORY_REQUEST_FAILURE,
+  CRUISE_TRAJECTORY_ZOOM_TO,
   CRUISE_LIST_REQUEST_PROCESSING,
   CRUISE_LIST_REQUEST_SUCCESS,
   TRIGGER_SHOW_CHARTS,
@@ -39,6 +40,7 @@ import {
   VIZ_CONTROL_PANEL_VISIBILITY,
   DATA_SEARCH_VISIBILITY,
   TRAJECTORY_POINT_COUNT_SUCCESS,
+
 } from '../actionTypes/visualization';
 
 export default function (state, action) {
@@ -89,12 +91,11 @@ export default function (state, action) {
         maps: [],
       };
     case CLOSE_CHART:
-      let { chartIndex } = action.payload;
       return {
         ...state,
         charts: [
-          ...state.charts.slice(0, chartIndex),
-          ...state.charts.slice(chartIndex + 1),
+          ...state.charts.slice(0, action.payload.chartIndex),
+          ...state.charts.slice(action.payload.chartInedx + 1),
         ],
         plotsActiveTab: state.charts.length === 1 ? 0 : 1,
       };
@@ -119,6 +120,11 @@ export default function (state, action) {
       return {
         ...state,
         cruiseTrajectories: null,
+      };
+    case CRUISE_TRAJECTORY_ZOOM_TO:
+      return {
+        ...state,
+        cruiseTrajectoryFocus: action.payload,
       };
     case CRUISE_TRAJECTORY_REQUEST_FAILURE:
       return {

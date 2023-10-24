@@ -1,14 +1,13 @@
 import {
   Paper,
-  Grid,
   Typography,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import palette from 'google-palette';
-import Chip from '@material-ui/core/Chip';
+import { cruiseTrajectoryZoomTo } from '../../Redux/actions/visualization';
 
 const useStyles = makeStyles((theme) => ({
   legend: {
@@ -34,6 +33,7 @@ const useStyles = makeStyles((theme) => ({
     padding: '1em'
   },
   legendEntry: {
+    cursor: 'pointer',
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
@@ -50,6 +50,7 @@ const useStyles = makeStyles((theme) => ({
 
 const Legend = () => {
   const classes = useStyles();
+  const dispatch = useDispatch();
 
   const renderedCruiseIds = useSelector ((state) =>
     Object.entries((state.cruiseTrajectories || {}))
@@ -62,8 +63,11 @@ const Legend = () => {
     return '';
   }
 
-  const colors = palette('rainbow', renderedCruiseIds.length).map((hex) => `#${hex}`)
+  const colors = palette('rainbow', renderedCruiseIds.length).map((hex) => `#${hex}`);
 
+  const handleFocus = (cruiseId) => {
+    dispatch (cruiseTrajectoryZoomTo (cruiseId));
+  }
 
   return (
     <div className={classes.legend}>
@@ -71,7 +75,7 @@ const Legend = () => {
         <Typography variant="h6">Legend</Typography>
         <div className={classes.wrapper}>
           {cruises.map((cruise, i) => (
-            <div className={classes.legendEntry} key={`chip-wrapper${i}`}>
+            <div onClick={() => handleFocus(cruise.ID)} className={classes.legendEntry} key={`chip-wrapper${i}`}>
               <div
                 className={classes.swatch}
                 style={{ backgroundColor: colors[i] }}

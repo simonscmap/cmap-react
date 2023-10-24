@@ -45,6 +45,7 @@ const mapStateToProps = (state) => ({
   data: state.data,
   loadingMessage: state.loadingMessage,
   cruiseList: state.cruiseList,
+  cruiseTrajectoryFocus: state.cruiseTrajectoryFocus,
   showChartsOnce: state.showChartsOnce,
   datasets: state.datasets,
   catalog: state.catalog,
@@ -144,6 +145,7 @@ class Visualization extends Component {
       'SketchViewModel',
       'Utils',
       'Graphic',
+      'FeatureLayer'
     ];
 
     var loadedModules = await loadModules(
@@ -154,6 +156,7 @@ class Visualization extends Component {
         'esri/widgets/Sketch/SketchViewModel',
         'esri/geometry/support/webMercatorUtils',
         'esri/Graphic',
+        'esri/layers/FeatureLayer',
       ],
       { version: '4.14' },
     );

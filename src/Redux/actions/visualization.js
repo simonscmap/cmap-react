@@ -128,6 +128,11 @@ export const cruiseTrajectoryClear = () => ({
   type: visualizationActionTypes.CRUISE_TRAJECTORY_CLEAR,
 });
 
+export const cruiseTrajectoryZoomTo = (cruiseId) => ({
+  type: visualizationActionTypes.CRUISE_TRAJECTORY_ZOOM_TO,
+  payload: cruiseId,
+});
+
 export const cruiseListRequestSend = (id) => ({
   type: visualizationActionTypes.CRUISE_LIST_REQUEST_SEND,
 });
