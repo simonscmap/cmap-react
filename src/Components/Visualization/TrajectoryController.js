@@ -27,10 +27,11 @@ const TrajectoryController = (props) => {
     }
   }, [thereAreTrajectoriesToRender]);
 
-  const cruiseIdToName = (id) => {
+
+  const idToCruise = (id) => {
     let result = (renderedCruises || []).find (c =>
       parseInt(c.ID, 10) === parseInt(id, 10));
-    return result && result.Name || null;
+    return result || null;
   }
 
   // return a reducs set of lat/lon
@@ -56,6 +57,8 @@ const TrajectoryController = (props) => {
   // Render Each Trajectory
   function renderTrajectory (trajectoryData, color, cruiseId) {
     const newColor = color;
+
+    const cruise = idToCruise (cruiseId);
 
     const markerSymbol = {
       type: 'simple-marker',
@@ -87,7 +90,12 @@ const TrajectoryController = (props) => {
           lon,
           lat,
           time,
-          name: cruiseIdToName (cruiseId),
+          name: cruise && cruise.Name,
+          nick: cruise && cruise.Nickname,
+          ship: cruise && cruise.Ship_Name,
+          start: cruise && cruise.Start_Time,
+          end: cruise && cruise.End_Time,
+          chief: cruise && cruise.Chief,
         },
         popupTemplate: {
           title: "Cruise Trajectory Point for {name}",
@@ -95,19 +103,47 @@ const TrajectoryController = (props) => {
             {
               type: "fields",
               fieldInfos: [
-                {
-                  fieldName: "cruiseId"
-                },
+
                 {
                   fieldName: 'lon',
+                  label: 'Longitude',
                 },
                 {
                   fieldName: 'lat',
+                  label: 'Latitude',
                 },
                 {
-                  fieldName: 'time'
+                  fieldName: 'time',
+                  label: 'Time',
+                },
+                {
+                  fieldName: 'name',
+                  label: 'Cruise Name',
+                },
+                {
+                  fieldName: 'nick',
+                  label: 'Nickname',
+                },
+                {
+                  fieldName: "cruiseId",
+                  label: 'Cruise ID',
+                },
+                {
+                  fieldName: 'ship',
+                  label: 'Ship Name',
+                },
+                {
+                  fieldName: 'start',
+                  label: 'Cruise Start Time',
+                },
+                {
+                  fieldName: 'end',
+                  label: 'Cruise End Time',
+                },
+                {
+                  fieldName: 'chief',
+                  label: 'Chief Scientist',
                 }
-
               ]
             }
           ]
