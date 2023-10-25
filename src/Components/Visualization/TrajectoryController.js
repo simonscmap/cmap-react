@@ -5,7 +5,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { cruiseTrajectoryZoomTo } from '../../Redux/actions/visualization';
 
 const TrajectoryController = (props) => {
-  const { trajectoryLayer, esriModules } = props;
+  const { trajectoryLayer, esriModules, globeUIRef} = props;
   const cruiseTrajectories = useSelector ((state) => state.cruiseTrajectories);
   const renderedCruises = useSelector ((state) => {
     return Object.entries(state.cruiseTrajectories || {}).map (([ctId]) => {
@@ -26,6 +26,14 @@ const TrajectoryController = (props) => {
       trajectoryLayer.removeAll();
     }
   }, [thereAreTrajectoriesToRender]);
+
+  useEffect(() => {
+    if (globeUIRef.current) {
+      console.log('setting dock disable');
+      console.log(globeUIRef.current);
+      globeUIRef.current.props.view.popup.dockEnabled = false;
+    }
+  }, [globeUIRef.current]);
 
 
   const idToCruise = (id) => {
@@ -103,7 +111,6 @@ const TrajectoryController = (props) => {
             {
               type: "fields",
               fieldInfos: [
-
                 {
                   fieldName: 'lon',
                   label: 'Longitude',

@@ -61,22 +61,6 @@ class UiComponents extends React.Component {
         tool: 'transform',
       },
     });
-
-    /* props.view.on("pointer-move", (event) => {
-*   // only include graphics from hurricanesLayer in the hitTest
-*   const opts = {
-*     include: this.trajectoryLayer
-*   }
-*   props.view.hitTest(event, opts).then((response) => {
-*     // check if a feature is returned from the hurricanesLayer
-*     if (response.results.length) {
-*       console.log ('results', response.results);
-*       response.results.forEach((feat) => {
-
-*       });
-*     }
-*   });
-* }) */
   }
 
   shouldComponentUpdate = (nextProps, nextState) => {
@@ -146,6 +130,7 @@ class MapContainer extends Component {
         <TrajectoryController
           trajectoryLayer={this.trajectoryLayer}
           esriModules={esriModules}
+          globeUIRef={globeUIRef}
         />
 
 

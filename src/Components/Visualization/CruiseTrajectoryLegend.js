@@ -3,11 +3,14 @@ import {
   Typography,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import OpenInNewIcon from '@material-ui/icons/OpenInNew';
+import { MdMyLocation } from 'react-icons/md';
 import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import palette from 'google-palette';
 import { cruiseTrajectoryZoomTo } from '../../Redux/actions/visualization';
+import colors from '../../enums/colors';
 
 const useStyles = makeStyles((theme) => ({
   legend: {
@@ -37,14 +40,51 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
     gap: '1em',
+    width: '100%',
+    margin: '.3em 0'
   },
   swatch: {
     height: '1em',
     width: '1em',
     textAlign: 'center',
     borderRadius: '.5em',
+  },
+  container: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: '.5em',
+    '& a': {
+      color: 'white',
+    },
+    '& p': {
+      margin: 0,
+      paddingRight: '2px',
+      '& span': {
+        color: 'white',
+        '&:hover': {
+          textDecoration: 'underline',
+        }
+      }
+    }
+  },
+  zoomIcon: {
+    color: colors.primary,
+    '& svg': {
+      fontSize: '1.1em',
+      marginBottom: '-3px'
+    }
+  },
+  openPageIcon: {
+    color: colors.primary,
+    '& svg': {
+      marginBottom: '-4px',
+      marginLeft: '5px',
+      fontSize: '1.1em',
+    }
   }
 }));
 
@@ -72,17 +112,28 @@ const Legend = () => {
   return (
     <div className={classes.legend}>
       <Paper className={classes.paper}>
-        <Typography variant="h6">Legend</Typography>
         <div className={classes.wrapper}>
           {cruises.map((cruise, i) => (
-            <div onClick={() => handleFocus(cruise.ID)} className={classes.legendEntry} key={`chip-wrapper${i}`}>
-              <div
-                className={classes.swatch}
-                style={{ backgroundColor: colors[i] }}
-              >
+            <div className={classes.legendEntry} key={`chip-wrapper${i}`}>
+              <div className={classes.container}>
+                <div
+                  className={classes.swatch}
+                  style={{ backgroundColor: colors[i] }}
+                >
+                </div>
+                <div className={classes.container}>
+                  <a href={`/catalog/cruises/${cruise.Name}`} target="_blank" rel="noreferrer">
+                    <p className={classes.openPageIcon}>
+                      <span>{cruise.Name}</span>
+                      <OpenInNewIcon color="primary" />
+                    </p>
+                  </a>
+                </div>
               </div>
-              <div>
-                <Typography variant="body1">{cruise.Name}</Typography>
+              <div className={classes.container}>
+                <p className={classes.zoomIcon}>
+                  <MdMyLocation color="primary" onClick={() => handleFocus(cruise.ID)} />
+                </p>
               </div>
             </div>
           ))}
