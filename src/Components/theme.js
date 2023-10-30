@@ -13,6 +13,7 @@ const siteTheme = createTheme({
   palette: {
     primary: {
       contrastText: '#000000',
+      // main: '#69FFF2'
       main: colors.primary,
       // main: newColors.blue.teal,
     },
@@ -32,8 +33,10 @@ const siteTheme = createTheme({
     },
     text: {
       primary: '#ffffff',
-      secondary: colors.primary,
+      secondary: colors.primary, // this will affect check boxes, unfocused select labels, among others
       // secondary: newColors.green.lime,
+
+      // secondary: '#69FFF2',
     },
   },
 

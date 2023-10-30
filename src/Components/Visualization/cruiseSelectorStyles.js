@@ -52,23 +52,23 @@ const styles = (theme) => ({
   closeIcon: {
     float: 'right',
     cursor: 'pointer',
-    color: colors.primary,
+    color: theme.palette.primary.main,
     textTransform: 'none',
     fontSize: '15px',
   },
 
   inputRoot: {
-    border: `1px solid ${colors.primary}`,
+    border: `1px solid ${theme.palette.primary.main}`,
   },
 
   openSearchButtonPaper: {
-    backgroundColor: colors.backgroundGray,
+    backgroundColor: theme.palette.background.paper,
     boxShadow: '1px 1px 1px 1px #242424',
   },
 
   openSearchButton: {
     textTransform: 'none',
-    color: colors.primary,
+    color: theme.palette.primary.main,
     fontSize: '15px',
     padding: '6px 42px',
   },
@@ -92,19 +92,26 @@ const styles = (theme) => ({
     justifyContent: 'center',
   },
 
+  label: {
+    color: theme.palette.primary.main,
+  },
+
   searchOption: {
     '&:hover': {
       backgroundColor: colors.greenHover,
     },
-
     cursor: 'pointer',
     height: '38px',
-    boxShadow: '0px 1px 1px 1px #242424',
-    backgroundColor: 'rgba(0,0,0,.4)',
+    // boxShadow: '0px 1px 1px 1px #242424',
+    // backgroundColor: 'rgba(0,0,0,.4)',
+  },
+
+  groupedByValue: {
+    whiteSpace: 'nowrap',
   },
 
   memberCount: {
-    color: colors.primary,
+    color: theme.palette.primary.main,
     fontWeight: 'bold',
   },
 
@@ -120,6 +127,7 @@ const styles = (theme) => ({
     fontSize: '14px',
     cursor: 'pointer',
     '&:hover': {
+      // background: colors.blueHover,
       backgroundColor: colors.greenHover,
     },
   },
@@ -134,7 +142,7 @@ const styles = (theme) => ({
   heading: {
     textAlign: 'left',
     padding: '8px 6px',
-    color: colors.primary,
+    color: theme.palette.primary.main,
     fontSize: '16px',
     marginTop: '5px',
     backgroundColor: 'rgba(0,0,0,.4)',
@@ -143,7 +151,7 @@ const styles = (theme) => ({
   cruiseYearHeader: {
     textAlign: 'left',
     fontSize: '9px',
-    color: colors.primary,
+    color: theme.palette.primary.main,
   },
 
   selectedCruises: {
@@ -182,8 +190,22 @@ const styles = (theme) => ({
 
   dataPoints: {
     marginTop: '1em'
-  }
+  },
 
+  paper: {
+    background: '#000000',
+  },
+  groupBySelectMenu: {
+   textAlign: 'left'
+
+  },
+  groupBySelectItem: {
+      textAlign: 'left'
+  },
+
+  formControl: {
+    minWidth: '150px'
+  }
 
 });
 

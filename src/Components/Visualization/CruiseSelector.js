@@ -34,7 +34,10 @@ import MultiCheckboxDropdown from '../UI/MultiCheckboxDropdown';
 import styles from './cruiseSelectorStyles';
 import CruiseSelectorSummary from './CruiseSelectorSummary';
 import CruiseTrajectoryLegend from './CruiseTrajectoryLegend';
-
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@material-ui/core/InputLabel';
 
 const mapStateToProps = (state, ownProps) => ({
   cruiseList: state.cruiseList,
@@ -58,45 +61,65 @@ const searchFilterGroupCruises = (
   selectedRegions,
   selectedSeries,
   search,
+  groupBy
 ) => {
+  console.log ('cruises', cruises);
   cruises = [...cruises];
-  if (searchField) cruises = search.search(searchField);
-  if (selectedYears && selectedYears.size)
+  // narrow by search text
+  if (searchField) {
+    cruises = search.search(searchField);
+  }
+  // narrow by selected years
+  if (selectedYears && selectedYears.size) {
     cruises = cruises.filter((e) => selectedYears.has(e.Year));
-  if (selectedChiefScientists && selectedChiefScientists.size)
+  }
+  // narrow by selected chief scientists
+  if (selectedChiefScientists && selectedChiefScientists.size) {
     cruises = cruises.filter((e) => selectedChiefScientists.has(e.Chief_Name));
-  if (selectedRegions && selectedRegions.size)
+  }
+  // narrow by selected regions
+  if (selectedRegions && selectedRegions.size) {
     cruises = cruises.filter((e) =>
       e.Regions.some((region) => selectedRegions.has(region)),
     );
-  if (selectedSeries && selectedSeries.size)
+  }
+  // narrow by selected series
+  if (selectedSeries && selectedSeries.size) {
     cruises = cruises.filter((e) => selectedSeries.has(e.Series));
+  }
 
-  let cruisesGroupedByYear = cruises.reduce((acc, cur) => {
-    if (cur.Year === null) {
+  // group by year
+  let groupedCruises = cruises.reduce((acc, cur) => {
+    if (cur[groupBy] === null) {
       if (!acc['NA']) {
         acc['NA'] = [];
       }
       acc['NA'].push(cur);
       return acc;
     }
-    if (!acc[cur.Year]) {
-      acc[cur.Year] = [];
+    if (!acc[cur[groupBy]]) {
+      acc[cur[groupBy]] = [];
     }
-    acc[cur.Year].push(cur);
+    acc[cur[groupBy]].push(cur);
     return acc;
   }, {});
 
-  cruisesGroupedByYear = Object.keys(cruisesGroupedByYear)
-    .map((key) => ({ year: key, cruises: cruisesGroupedByYear[key] }))
+
+  groupedCruises = Object.keys(groupedCruises)
+    .map((key) => ({ [groupBy]: key, cruises: groupedCruises[key] }))
     .sort((a, b) => {
-      if (b.year === 'NA') {
+      if (b[groupBy] === 'NA') {
         return -1;
       }
-      return a.year < b.year ? 1 : -1;
+      return a[groupBy] < b[groupBy] ? 1 : -1;
     });
 
-  return { cruisesGroupedByYear, cruises };
+  if (typeof groupBy !== 'Year') {
+    groupedCruises = groupedCruises.reverse();
+  }
+
+
+  return { groupedCruises, cruises };
 };
 
 const defaultSearchAndFilterState = {
@@ -104,7 +127,7 @@ const defaultSearchAndFilterState = {
   selectedChiefScientists: new Set(),
   selectedRegions: new Set(),
   searchField: '',
-  openYearGroup: null,
+  openGroup: null,
   selectedSeries: new Set(),
 };
 
@@ -141,18 +164,19 @@ class CruiseSelector extends Component {
       console.log(props.cruiseList);
     }
     // cruises, searchField, selectedYears, selectedChiefScientists, selectedRegions, search
-    let { cruisesGroupedByYear, cruises } =
+    let { groupedCruises, cruises } =
       this.props.cruiseList && this.props.cruiseList.length
         ? searchFilterGroupCruises(
-            props.cruiseList,
-            '',
-            new Set(),
-            new Set(),
-            new Set(),
-            new Set(),
-            search,
-          )
-        : { cruisesGroupedByYear: [], cruises: [] };
+          props.cruiseList,
+          '',
+          new Set(),
+          new Set(),
+          new Set(),
+          new Set(),
+          search,
+          'Year', // group By
+        )
+        : { groupedCruises: [], cruises: [] };
 
     let optionSets = setsFromList(cruises, [
       'Chief_Name',
@@ -167,12 +191,16 @@ class CruiseSelector extends Component {
       selected: [],
       pointCount: 0,
       searchMenuOpen: false,
-      cruisesGroupedByYear,
+      groupedCruises,
       cruises,
       optionSets,
       ...defaultSearchAndFilterState,
+      groupBy: 'Year' // year, ship, chief, series,
     };
+
+    console.log ('state', this.state);
   }
+
 
   componentDidMount = () => {
     this.props.handleShowGlobe();
@@ -232,7 +260,7 @@ class CruiseSelector extends Component {
       this.props.cruiseList.length
     ) {
       this.state.search.addDocuments(this.props.cruiseList);
-      let { cruisesGroupedByYear, cruises } = searchFilterGroupCruises(
+      let { groupedCruises, cruises } = searchFilterGroupCruises(
         this.props.cruiseList,
         '',
         new Set(),
@@ -240,6 +268,7 @@ class CruiseSelector extends Component {
         new Set(),
         new Set(),
         this.state.search,
+        this.state.groupBy, // groupBy
       );
       let optionSets = setsFromList(cruises, [
         'Chief_Name',
@@ -250,19 +279,19 @@ class CruiseSelector extends Component {
 
       this.setState({
         ...this.state,
-        cruisesGroupedByYear,
+        groupedCruises,
         cruises,
         optionSets,
       });
     }
 
-    if (prevState.cruisesGroupedByYear !== this.state.cruisesGroupedByYear)
+    if (prevState.groupedCruises !== this.state.groupedCruises)
       listRef.current.resetAfterIndex(0);
   };
 
   handleChangeSearchValue = (e) => {
     // cruises, searchField, selectedYears, selectedChiefScientists, selectedRegions, search
-    let { cruisesGroupedByYear, cruises } = searchFilterGroupCruises(
+    let { groupedCruises, cruises } = searchFilterGroupCruises(
       this.props.cruiseList,
       e.target.value,
       this.state.selectedYears,
@@ -270,6 +299,7 @@ class CruiseSelector extends Component {
       this.state.selectedRegions,
       this.state.selectedSeries,
       this.state.search,
+      this.state.groupBy, // groupBy
     );
 
     let newOptionSets = setsFromList(cruises, [
@@ -298,7 +328,7 @@ class CruiseSelector extends Component {
     this.setState({
       ...this.state,
       searchField: e.target.value,
-      cruisesGroupedByYear,
+      groupedCruises,
       cruises,
       optionSets,
     });
@@ -310,7 +340,7 @@ class CruiseSelector extends Component {
 
   handleClearMultiSelect = (statePiece) => {
     let tempNewState = { ...this.state, [statePiece]: new Set() };
-    let { cruisesGroupedByYear, cruises } = searchFilterGroupCruises(
+    let { groupedCruises, cruises } = searchFilterGroupCruises(
       this.props.cruiseList,
       tempNewState.searchField,
       tempNewState.selectedYears,
@@ -318,6 +348,7 @@ class CruiseSelector extends Component {
       tempNewState.selectedRegions,
       tempNewState.selectedSeries,
       this.state.search,
+      this.state.groupBy, // groupBy
     );
 
     let optionSets = setsFromList(cruises, [
@@ -329,7 +360,7 @@ class CruiseSelector extends Component {
 
     this.setState({
       ...tempNewState,
-      cruisesGroupedByYear,
+      groupedCruises,
       cruises,
       optionSets,
     });
@@ -338,7 +369,7 @@ class CruiseSelector extends Component {
   handleResetSearch = () => {
     let tempNewState = { ...this.state, ...defaultSearchAndFilterState };
 
-    let { cruisesGroupedByYear, cruises } = searchFilterGroupCruises(
+    let { groupedCruises, cruises } = searchFilterGroupCruises(
       this.props.cruiseList,
       tempNewState.searchField,
       tempNewState.selectedYears,
@@ -346,6 +377,7 @@ class CruiseSelector extends Component {
       tempNewState.selectedRegions,
       tempNewState.selectedSeries,
       this.state.search,
+      this.state.groupBy, // groupBy
     );
 
     let optionSets = setsFromList(cruises, [
@@ -357,7 +389,7 @@ class CruiseSelector extends Component {
 
     this.setState({
       ...tempNewState,
-      cruisesGroupedByYear,
+      groupedCruises,
       cruises,
       optionSets,
     });
@@ -372,7 +404,7 @@ class CruiseSelector extends Component {
 
     let tempNewState = { ...this.state, [column]: newSet };
 
-    let { cruisesGroupedByYear, cruises } = searchFilterGroupCruises(
+    let { groupedCruises, cruises } = searchFilterGroupCruises(
       this.props.cruiseList,
       e.target.value,
       tempNewState.selectedYears,
@@ -380,6 +412,7 @@ class CruiseSelector extends Component {
       tempNewState.selectedRegions,
       tempNewState.selectedSeries,
       this.state.search,
+      this.state.groupBy, // groupBy
     );
 
     let newOptionSets = setsFromList(cruises, [
@@ -407,13 +440,13 @@ class CruiseSelector extends Component {
 
     this.setState({
       ...tempNewState,
-      cruisesGroupedByYear,
+      groupedCruises,
       cruises,
       optionSets,
     });
   };
 
-  handleSetopenYearGroup = (index, year) => {
+  handleSetOpenGroup = (index, groupByValue) => {
     if (listRef.current) {
       // Make sure the group being opened is in view
       let listHeight = this.props.windowHeight - 249;
@@ -433,9 +466,36 @@ class CruiseSelector extends Component {
 
     this.setState({
       ...this.state,
-      openYearGroup: this.state.openYearGroup === year ? null : year,
+      openGroup: this.state.openGroup === groupByValue ? null : groupByValue,
     });
   };
+
+  handleGroupBySelection =  (e) => {
+    console.log ('set group by', e.target.value);
+    const options = ['Year', 'Chief_Name', 'Series', 'Regions'];
+    if (!options.includes(e.target.value)) {
+      console.error('invalid group-by option', e.target.value);
+      return;
+    }
+
+    let { groupedCruises, cruises } = searchFilterGroupCruises(
+      this.props.cruiseList,
+      this.state.searchField,
+      this.state.selectedYears,
+      this.state.selectedChiefScientists,
+      this.state.selectedRegions,
+      this.state.selectedSeries,
+      this.state.search,
+      e.target.value
+    );
+
+    this.setState({
+      ...this.state,
+      groupBy: e.target.value,
+      groupedCruises,
+      cruises,
+    })
+  }
 
   render() {
     const {
@@ -446,9 +506,9 @@ class CruiseSelector extends Component {
       selectedChiefScientists,
       selectedRegions,
       selectedSeries,
-      openYearGroup,
+      openGroup,
       optionSets,
-      cruisesGroupedByYear,
+      groupedCruises,
       cruises,
     } = this.state;
 
@@ -460,13 +520,8 @@ class CruiseSelector extends Component {
           className={classes.searchMenuPaper}
           style={searchMenuOpen ? {} : { display: 'none' }}
         >
-          <Grid container>
+          <Grid container style={{ border: '1px solid red'}}>
             <Grid item xs={12}>
-              <Typography style={{ display: 'inline-block' }}>
-                Search and filter using the controls on the left. Select a
-                cruise from the list on the right.
-              </Typography>
-
               <Button
                 startIcon={<Close style={{ fontSize: '22px' }} />}
                 onClick={this.handleCloseSearch}
@@ -476,14 +531,13 @@ class CruiseSelector extends Component {
               </Button>
             </Grid>
 
-            <Grid
-              item
-              xs={4}
+            <Grid item xs={3}
               style={{
                 overflowY: 'auto',
                 maxHeight: windowHeight - 204,
                 padding: '16px',
-                backgroundColor: 'rgba(0,0,0,.4)',
+                // backgroundColor: 'rgba(0,0,0,.4)',
+                border: '1px solid yellow'
               }}
             >
               <TextField
@@ -499,7 +553,7 @@ class CruiseSelector extends Component {
                   startAdornment: (
                     <React.Fragment>
                       <InputAdornment position="start">
-                        <Search style={{ color: colors.primary }} />
+                        <Search />
                       </InputAdornment>
                     </React.Fragment>
                   ),
@@ -560,6 +614,9 @@ class CruiseSelector extends Component {
                   Reset Filters
                 </Button>
               </Grid>
+              <Grid item xs={12}>
+
+              </Grid>
               <Grid item xs={12} >
                 <CruiseSelectorSummary
                   cruises={this.state.cruises}
@@ -570,12 +627,39 @@ class CruiseSelector extends Component {
               </Grid>
             </Grid>
 
-            <Grid item xs={8} style={{ paddingTop: '12px' }}>
+            {/* controls ^ list >     */}
+
+            <Grid item xs={9} style={{ paddingTop: '12px', border: '1px solid blue' }}>
               <Grid container>
-                <Grid item xs={9}>
+                <Grid item xs={4}>
                   <Typography className={classes.heading}>
-                    Showing {cruises.length} cruises (grouped by year)
+                    Showing {cruises.length} cruises (grouped by {this.state.groupBy})
                   </Typography>
+                </Grid>
+                <Grid item xs={4}>
+                  <FormControl className={classes.formControl}>
+                    <InputLabel id="group-by-select">Group Results By</InputLabel>
+                    <Select
+                      MenuProps={{
+                        classes: {
+                          paper: classes.paper
+                        },
+                        style: { zIndex: 35001 }
+                      }}
+                      className={classes.groupBySelectMenu}
+                      labelId="group-by-select"
+                      id="group-by-select-menu"
+                      value={this.state.groupBy}
+                      onChange={this.handleGroupBySelection}
+                    >
+                      {['Year', 'Chief_Name', 'Series', 'Regions'].map((groupByOption) => {
+                        return <MenuItem
+                          className={classes.groupBySelectItem}
+                          value={groupByOption}>{groupByOption}
+                        </MenuItem>;
+                      })}
+                    </Select>
+                  </FormControl>
                 </Grid>
 
                 <Grid
@@ -587,7 +671,8 @@ class CruiseSelector extends Component {
                 >
                   <Typography
                     variant="caption"
-                    style={{ color: colors.primary, marginBottom: '-16px' }}
+                    className={classes.label}
+                    style={{ marginBottom: '-16px' }}
                   >
                     Cruise Count
                   </Typography>
@@ -596,17 +681,17 @@ class CruiseSelector extends Component {
 
               <VariableSizeList
                 ref={listRef}
-                itemData={cruisesGroupedByYear}
-                itemCount={cruisesGroupedByYear.length}
-                height={windowHeight - 249}
+                itemData={groupedCruises}
+                itemCount={groupedCruises.length}
+                height={windowHeight - 449}
                 width="100%"
                 estimatedItemSize={38}
                 style={{ overflowY: 'scroll' }}
                 itemSize={(i) => {
                   // line height 38px '.variableItem'
                   //
-                  return openYearGroup === cruisesGroupedByYear[i].year
-                    ? cruisesGroupedByYear[i].cruises.length * 38 + 38 + 4 + 10 + 20
+                  return openGroup === groupedCruises[i][this.state.groupBy]
+                    ? groupedCruises[i].cruises.length * 38 + 38 + 4 + 10 + 20
                     : 38
                 }}
               >
@@ -616,28 +701,24 @@ class CruiseSelector extends Component {
                       container
                       className={classes.searchOption}
                       onClick={() =>
-                        this.handleSetopenYearGroup(
+                        this.handleSetOpenGroup(
                           index,
-                          cruisesGroupedByYear[index].year,
+                          groupedCruises[index][this.state.groupBy],
                         )
                       }
                     >
-                      <Grid item xs={2} container alignItems="center">
-                        {openYearGroup === cruisesGroupedByYear[index].year ? (
+                      <Grid item xs={4} container alignItems="center" className={'group-by-label'}>
+                        {openGroup === groupedCruises[index][this.state.groupBy] ? (
                           <ExpandMore className={classes.datasetOpenIcon} />
                         ) : (
                           <ChevronRight className={classes.datasetOpenIcon} />
                         )}
-                        <span className={classes.searchOptionsMenuItemText}>
-                          {cruisesGroupedByYear[index].year}
+                        <span className={classes.groupedByValue}>
+                          {groupedCruises[index][this.state.groupBy]}
                         </span>
                       </Grid>
 
-                      <Grid item xs={7}></Grid>
-
-                      <Tooltip
-                        title={`${cruisesGroupedByYear[index].cruises.length} cruises from this year match the search criteria`}
-                      >
+                      <Grid item xs={4}></Grid>
                         <Grid
                           item
                           xs={1}
@@ -646,12 +727,11 @@ class CruiseSelector extends Component {
                           alignItems="center"
                           justifyContent="center"
                         >
-                          {cruisesGroupedByYear[index].cruises.length}
+                          {groupedCruises[index].cruises.length}
                         </Grid>
-                      </Tooltip>
                     </Grid>
 
-                    {cruisesGroupedByYear[index].year === openYearGroup ? (
+                    {groupedCruises[index][this.state.groupBy] === openGroup ? (
                       <Grid container className={classes.variablesWrapper}>
                         <Grid item container alignItems="center">
                           <Grid item xs={1} className={classes.cruiseYearHeader}>
@@ -660,25 +740,45 @@ class CruiseSelector extends Component {
                           <Grid item xs={2} className={classes.cruiseYearHeader}>
                             Official Designation
                           </Grid>
-                          <Grid item xs={8} className={classes.cruiseYearHeader}>
+                          <Grid item xs={2} className={classes.cruiseYearHeader}>
                             Nickname
+                          </Grid>
+                          <Grid item xs={2} className={classes.cruiseYearHeader}>
+                            Chief Scientist
+                          </Grid>
+                          <Grid item xs={2} className={classes.cruiseYearHeader}>
+                            Series
+                          </Grid>
+                          <Grid item xs={2} className={classes.cruiseYearHeader}>
+                            Year
                           </Grid>
                         </Grid>
 
-                        {cruisesGroupedByYear[index].cruises.map((cruise, i) => (
+                        {groupedCruises[index].cruises.map((cruise, i) => (
                           <Grid item xs={12} key={cruise.Name} className={classes.variableItem} container alignItems="center">
                             <Grid item xs={1}>
                               <div className={classes.checkBoxWrapper}>
-                                <Checkbox checked={this.state.selected.includes(cruise.Name)} onClick={() => this.handleCruiseSelect(cruise)} />
+                                <Checkbox
+                                  checked={this.state.selected.includes(cruise.Name)}
+                                  onClick={() => this.handleCruiseSelect(cruise)} />
                               </div>
                             </Grid>
                             <Grid item xs={2} className={classes.cruiseName}>
                               {cruise.Name}
                             </Grid>
-                            <Grid item xs={8} className={classes.cruiseName}>
+                            <Grid item xs={2} className={classes.cruiseName}>
                               <Tooltip title={cruise.Nickname} enterDelay={200}>
                                 <span>{cruise.Nickname}</span>
                               </Tooltip>
+                            </Grid>
+                            <Grid item xs={2} className={classes.cruiseName}>
+                              {cruise.Chief_Name}
+                            </Grid>
+                            <Grid item xs={2} className={classes.cruiseName}>
+                              {cruise.Series}
+                            </Grid>
+                            <Grid item xs={2} className={classes.cruiseName}>
+                              {cruise.Year}
                             </Grid>
                           </Grid>
                         ))}
