@@ -11,6 +11,8 @@ import {
   TableBody,
   TableCell,
   TableRow,
+  Tabs,
+  Tab,
   TextField,
   Tooltip,
   Typography,
@@ -90,16 +92,18 @@ const searchFilterGroupCruises = (
 
   // group by year
   let groupedCruises = cruises.reduce((acc, cur) => {
-    if (cur[groupBy] === null) {
-      if (!acc['NA']) {
-        acc['NA'] = [];
+    if (!Boolean(cur[groupBy]) || (Array.isArray(cur[groupBy]) && cur[groupBy].length === 0)) {
+      if (!acc['Other']) {
+        acc['Other'] = [];
       }
-      acc['NA'].push(cur);
+      acc['Other'].push(cur);
       return acc;
     }
     if (!acc[cur[groupBy]]) {
       acc[cur[groupBy]] = [];
     }
+    // note: for regions, the value is an array;
+    // javascript will convert it to a string when it is used as a key
     acc[cur[groupBy]].push(cur);
     return acc;
   }, {});
@@ -108,14 +112,27 @@ const searchFilterGroupCruises = (
   groupedCruises = Object.keys(groupedCruises)
     .map((key) => ({ [groupBy]: key, cruises: groupedCruises[key] }))
     .sort((a, b) => {
-      if (b[groupBy] === 'NA') {
+      if (b[groupBy] === 'Other') {
         return -1;
       }
       return a[groupBy] < b[groupBy] ? 1 : -1;
     });
 
-  if (typeof groupBy !== 'Year') {
+  if (groupBy !== 'Year') {
     groupedCruises = groupedCruises.reverse();
+  }
+
+  // move 'Other' to the bottom
+
+  const otherIdx = groupedCruises.findIndex ((group) => group[groupBy] === 'Other');
+
+  console.log ('-- grouped cruises --');
+  console.log (groupedCruises);
+  console.log (otherIdx, groupedCruises[otherIdx]);
+  if (otherIdx > -1) {
+    groupedCruises = groupedCruises.slice (0, otherIdx)
+                                   .concat (groupedCruises.slice(otherIdx + 1))
+                                   .concat(groupedCruises[otherIdx]);
   }
 
 
@@ -137,6 +154,19 @@ const defaultOptionSets = {
   Chief_Name: new Set(),
   Series: new Set(),
 };
+
+
+const groupByOptions = ['Year', 'Chief_Name', 'Series', 'Regions'];
+const groupByLabels = ['Year', 'Chief Scientist', 'Series', 'Regions'];
+
+const renderGroupTitle = (groupBy, groupTitle) => {
+  if (groupBy === 'Regions') {
+    return groupTitle.split(',').join(', ')
+  } else {
+    return groupTitle;
+  }
+
+}
 
 const listRef = React.createRef();
 
@@ -470,13 +500,8 @@ class CruiseSelector extends Component {
     });
   };
 
-  handleGroupBySelection =  (e) => {
-    console.log ('set group by', e.target.value);
-    const options = ['Year', 'Chief_Name', 'Series', 'Regions'];
-    if (!options.includes(e.target.value)) {
-      console.error('invalid group-by option', e.target.value);
-      return;
-    }
+  handleGroupBySelection =  (event, newValue) => {
+    const newSelection = groupByOptions[newValue];
 
     let { groupedCruises, cruises } = searchFilterGroupCruises(
       this.props.cruiseList,
@@ -486,12 +511,12 @@ class CruiseSelector extends Component {
       this.state.selectedRegions,
       this.state.selectedSeries,
       this.state.search,
-      e.target.value
+      newSelection
     );
 
     this.setState({
       ...this.state,
-      groupBy: e.target.value,
+      groupBy: newSelection,
       groupedCruises,
       cruises,
     })
@@ -520,53 +545,80 @@ class CruiseSelector extends Component {
           className={classes.searchMenuPaper}
           style={searchMenuOpen ? {} : { display: 'none' }}
         >
-          <Grid container style={{ border: '1px solid red'}}>
-            <Grid item xs={12}>
-              <Button
-                startIcon={<Close style={{ fontSize: '22px' }} />}
-                onClick={this.handleCloseSearch}
-                className={classes.closeIcon}
-              >
-                Close
-              </Button>
-            </Grid>
+          <div className={classes.listControls}>
 
+
+            {/* tabs & close button*/}
+            <Grid container>
+              <Grid item xs={3}>{''}</Grid>
+              <Grid item xs={8}>
+                <Grid container>
+                  <Grid item xs={2} className={classes.groupByLabel} >
+                      <Typography variant="body1" color="primary">Group Results By:
+                      </Typography>
+                  </Grid>
+                  <Grid item xs={9}>
+                    <Tabs
+                      value={groupByOptions.indexOf(this.state.groupBy)}
+                      onChange={this.handleGroupBySelection}
+                      indicatorColor="primary"
+                      textColor="primary"
+                    >
+                      {groupByLabels.map((label) => <Tab label={label} />)}
+                    </Tabs>
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item xs={1}>
+                <Button
+                  startIcon={<Close style={{ fontSize: '22px' }} />}
+                  onClick={this.handleCloseSearch}
+                  className={classes.closeIcon}
+                >
+                  Close
+                </Button>
+              </Grid>
+            </Grid>
+          </div>
+
+          <Grid container style={{ border: '0px solid red' }}>
             <Grid item xs={3}
               style={{
                 overflowY: 'auto',
                 maxHeight: windowHeight - 204,
                 padding: '16px',
                 // backgroundColor: 'rgba(0,0,0,.4)',
-                border: '1px solid yellow'
+                border: '0px solid yellow',
               }}
             >
-              <TextField
-                fullWidth
-                name="searchTerms"
-                onChange={this.handleChangeSearchValue}
-                placeholder="Search"
-                value={searchField}
-                InputProps={{
-                  classes: {
-                    root: classes.inputRoot,
-                  },
-                  startAdornment: (
-                    <React.Fragment>
-                      <InputAdornment position="start">
-                        <Search />
-                      </InputAdornment>
-                    </React.Fragment>
-                  ),
-                }}
-                variant="outlined"
-              />
+              <div style={{}}>
+                <TextField
+                  fullWidth
+                  name="searchTerms"
+                  onChange={this.handleChangeSearchValue}
+                  placeholder="Search"
+                  value={searchField}
+                  InputProps={{
+                    classes: {
+                      root: classes.inputRoot,
+                    },
+                    startAdornment: (
+                      <React.Fragment>
+                        <InputAdornment position="start">
+                          <Search />
+                        </InputAdornment>
+                      </React.Fragment>
+                    ),
+                  }}
+                  variant="outlined"
+                />
 
-              <MultiCheckboxDropdown
-                options={Array.from(optionSets.Regions).sort()}
-                selectedOptions={selectedRegions}
-                handleClear={() =>
-                  this.handleClearMultiSelect('selectedRegions')
-                }
+                <MultiCheckboxDropdown
+                  options={Array.from(optionSets.Regions).sort()}
+                  selectedOptions={selectedRegions}
+                  handleClear={() =>
+                    this.handleClearMultiSelect('selectedRegions')
+                  }
                 parentStateKey={'selectedRegions'}
                 handleClickCheckbox={this.handleClickCheckbox}
                 groupHeaderLabel="Region"
@@ -610,80 +662,32 @@ class CruiseSelector extends Component {
                   variant="outlined"
                   onClick={this.handleResetSearch}
                   className={classes.resetButton}
-                >
-                  Reset Filters
-                </Button>
-              </Grid>
-              <Grid item xs={12}>
+                  >
+                    Reset Filters
+                  </Button>
+                </Grid>
+                <Grid item xs={12}>
 
-              </Grid>
-              <Grid item xs={12} >
-                <CruiseSelectorSummary
-                  cruises={this.state.cruises}
-                  selected={this.state.selected}
-                  handleTrajectoryRender={this.handleTrajectoryRender}
-                  pointCount={this.state.pointCount}
-                />
-              </Grid>
+                </Grid>
+                <Grid item xs={12} >
+                  <CruiseSelectorSummary
+                    cruises={this.state.cruises}
+                    selected={this.state.selected}
+                    handleTrajectoryRender={this.handleTrajectoryRender}
+                    pointCount={this.state.pointCount}
+                  />
+                </Grid>
+              </div>
             </Grid>
 
             {/* controls ^ list >     */}
 
-            <Grid item xs={9} style={{ paddingTop: '12px', border: '1px solid blue' }}>
-              <Grid container>
-                <Grid item xs={4}>
-                  <Typography className={classes.heading}>
-                    Showing {cruises.length} cruises (grouped by {this.state.groupBy})
-                  </Typography>
-                </Grid>
-                <Grid item xs={4}>
-                  <FormControl className={classes.formControl}>
-                    <InputLabel id="group-by-select">Group Results By</InputLabel>
-                    <Select
-                      MenuProps={{
-                        classes: {
-                          paper: classes.paper
-                        },
-                        style: { zIndex: 35001 }
-                      }}
-                      className={classes.groupBySelectMenu}
-                      labelId="group-by-select"
-                      id="group-by-select-menu"
-                      value={this.state.groupBy}
-                      onChange={this.handleGroupBySelection}
-                    >
-                      {['Year', 'Chief_Name', 'Series', 'Regions'].map((groupByOption) => {
-                        return <MenuItem
-                          className={classes.groupBySelectItem}
-                          value={groupByOption}>{groupByOption}
-                        </MenuItem>;
-                      })}
-                    </Select>
-                  </FormControl>
-                </Grid>
-
-                <Grid
-                  item
-                  xs={3}
-                  container
-                  justifyContent="flex-start"
-                  alignItems="center"
-                >
-                  <Typography
-                    variant="caption"
-                    className={classes.label}
-                    style={{ marginBottom: '-16px' }}
-                  >
-                    Cruise Count
-                  </Typography>
-                </Grid>
-              </Grid>
-
+            <Grid item xs={9} style={{ paddingTop: '12px', border: '0px solid blue' }}>
               <VariableSizeList
                 ref={listRef}
                 itemData={groupedCruises}
                 itemCount={groupedCruises.length}
-                height={windowHeight - 449}
+                height={windowHeight - 275} // old value: - 249
                 width="100%"
                 estimatedItemSize={38}
                 style={{ overflowY: 'scroll' }}
@@ -707,28 +711,25 @@ class CruiseSelector extends Component {
                         )
                       }
                     >
-                      <Grid item xs={4} container alignItems="center" className={'group-by-label'}>
+                      <Grid item xs={10} container alignItems="center" className={'group-by-label'}>
                         {openGroup === groupedCruises[index][this.state.groupBy] ? (
                           <ExpandMore className={classes.datasetOpenIcon} />
                         ) : (
                           <ChevronRight className={classes.datasetOpenIcon} />
                         )}
-                        <span className={classes.groupedByValue}>
-                          {groupedCruises[index][this.state.groupBy]}
-                        </span>
+                        <Typography noWrap={true} className={classes.groupedByValue}>
+                          {Boolean(groupedCruises[index][this.state.groupBy])
+                            ? renderGroupTitle(this.state.groupBy, groupedCruises[index][this.state.groupBy])
+                            : 'Other'}
+                        </Typography>
+                    </Grid>
+                <Grid item xs={2}
+                        className={classes.memberCount}
+                        container
+                        alignItems="center"
+                        justifyContent="flex-end">
+                        {groupedCruises[index].cruises.length} Cruises
                       </Grid>
-
-                      <Grid item xs={4}></Grid>
-                        <Grid
-                          item
-                          xs={1}
-                          className={classes.memberCount}
-                          container
-                          alignItems="center"
-                          justifyContent="center"
-                        >
-                          {groupedCruises[index].cruises.length}
-                        </Grid>
                     </Grid>
 
                     {groupedCruises[index][this.state.groupBy] === openGroup ? (
