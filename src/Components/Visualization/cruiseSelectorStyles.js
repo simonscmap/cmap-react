@@ -162,6 +162,10 @@ const styles = (theme) => ({
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
+    '& a': {
+      color: 'white',
+      textDecoration: 'underline',
+    }
   },
   tabWrapper: {
     flexDirection: 'row',
