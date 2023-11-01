@@ -163,6 +163,14 @@ const styles = (theme) => ({
     overflow: 'hidden',
     textOverflow: 'ellipsis',
   },
+  tabWrapper: {
+    flexDirection: 'row',
+    gap: '1em',
+    '& >svg': {
+      marginBottom: '0px !important',
+      padding: 0,
+    }
+  },
   heading: {
     textAlign: 'left',
     padding: '8px 6px',

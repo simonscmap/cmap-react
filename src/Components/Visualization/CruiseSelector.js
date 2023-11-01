@@ -19,6 +19,9 @@ import {
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import { ChevronRight, Close, ExpandMore, Search, ZoomOutMap } from '@material-ui/icons';
+import {GiWireframeGlobe} from 'react-icons/gi';
+import { IoCalendarClearOutline } from 'react-icons/io5';
+import { BsFillPersonFill, BsListNested } from 'react-icons/bs';
 import * as JsSearch from 'js-search';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
@@ -40,6 +43,7 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
+import { toSetArray } from '../../api/myLib';
 
 const mapStateToProps = (state, ownProps) => ({
   cruiseList: state.cruiseList,
@@ -62,10 +66,11 @@ const searchFilterGroupCruises = (
   selectedChiefScientists,
   selectedRegions,
   selectedSeries,
+  selectedSensors,
   search,
   groupBy
 ) => {
-  console.log ('cruises', cruises);
+
   cruises = [...cruises];
   // narrow by search text
   if (searchField) {
@@ -88,6 +93,12 @@ const searchFilterGroupCruises = (
   // narrow by selected series
   if (selectedSeries && selectedSeries.size) {
     cruises = cruises.filter((e) => selectedSeries.has(e.Series));
+  }
+  // narrow by selected series
+  if (selectedSensors && selectedSensors.size) {
+    cruises = cruises.filter((e) =>
+      e.Sensors.some((sensor) => selectedSensors.has(sensor)),
+    );
   }
 
   // group by year
@@ -123,12 +134,8 @@ const searchFilterGroupCruises = (
   }
 
   // move 'Other' to the bottom
-
   const otherIdx = groupedCruises.findIndex ((group) => group[groupBy] === 'Other');
 
-  console.log ('-- grouped cruises --');
-  console.log (groupedCruises);
-  console.log (otherIdx, groupedCruises[otherIdx]);
   if (otherIdx > -1) {
     groupedCruises = groupedCruises.slice (0, otherIdx)
                                    .concat (groupedCruises.slice(otherIdx + 1))
@@ -146,6 +153,7 @@ const defaultSearchAndFilterState = {
   searchField: '',
   openGroup: null,
   selectedSeries: new Set(),
+  selectedSensors: new Set(),
 };
 
 const defaultOptionSets = {
@@ -153,6 +161,7 @@ const defaultOptionSets = {
   Year: new Set(),
   Chief_Name: new Set(),
   Series: new Set(),
+  Sensors: new Set(),
 };
 
 
@@ -174,9 +183,9 @@ class CruiseSelector extends Component {
   constructor(props) {
     super(props);
 
-    if (this.props.trajectoryPointCounts === null) {
+    if (props.trajectoryPointCounts === null) {
       // if trajectory counts are not in the store, dispatch a request to fetch them
-      this.props.fetchTrajectoryPointCounts();
+      props.fetchTrajectoryPointCounts();
     }
     var search = new JsSearch.Search('ID');
     search.searchIndex = new JsSearch.UnorderedSearchIndex();
@@ -184,6 +193,7 @@ class CruiseSelector extends Component {
     search.addIndex('Name');
     search.addIndex('Chief_Name');
     search.addIndex('Keywords');
+    search.addIndex('Sensors');
 
     try {
       if (props.cruiseList && props.cruiseList.length) {
@@ -191,18 +201,19 @@ class CruiseSelector extends Component {
       }
     } catch (e) {
       console.log(e);
-      console.log(props.cruiseList);
+      console.log('error', props.cruiseList);
     }
     // cruises, searchField, selectedYears, selectedChiefScientists, selectedRegions, search
     let { groupedCruises, cruises } =
       this.props.cruiseList && this.props.cruiseList.length
         ? searchFilterGroupCruises(
-          props.cruiseList,
-          '',
-          new Set(),
-          new Set(),
-          new Set(),
-          new Set(),
+          this.props.cruiseList,
+          '',          // search field
+          new Set(),   // selectedYears
+          new Set(),   // selectedChiefScientist
+          new Set(),   // selectedRegions
+          new Set(),   // selectedSeries
+          new Set(),   // selectedSensors
           search,
           'Year', // group By
         )
@@ -213,6 +224,7 @@ class CruiseSelector extends Component {
       'Year',
       'Regions',
       'Series',
+      'Sensors',
     ]);
 
     this.state = {
@@ -228,7 +240,7 @@ class CruiseSelector extends Component {
       groupBy: 'Year' // year, ship, chief, series,
     };
 
-    console.log ('state', this.state);
+    // console.log ('state', this.state);
   }
 
 
@@ -292,11 +304,12 @@ class CruiseSelector extends Component {
       this.state.search.addDocuments(this.props.cruiseList);
       let { groupedCruises, cruises } = searchFilterGroupCruises(
         this.props.cruiseList,
-        '',
-        new Set(),
-        new Set(),
-        new Set(),
-        new Set(),
+        '',          // search field
+        new Set(),   // selectedYears
+        new Set(),   // selectedChiefScientist
+        new Set(),   // selectedRegions
+        new Set(),   // selectedSeries
+        new Set(),   // selectedSensors
         this.state.search,
         this.state.groupBy, // groupBy
       );
@@ -305,6 +318,7 @@ class CruiseSelector extends Component {
         'Year',
         'Regions',
         'Series',
+        'Sensors',
       ]);
 
       this.setState({
@@ -328,6 +342,7 @@ class CruiseSelector extends Component {
       this.state.selectedChiefScientists,
       this.state.selectedRegions,
       this.state.selectedSeries,
+      this.state.selectedSensors,
       this.state.search,
       this.state.groupBy, // groupBy
     );
@@ -337,6 +352,7 @@ class CruiseSelector extends Component {
       'Year',
       'Regions',
       'Series',
+      'Sensors',
     ]);
     let oldOptionSets = { ...this.state.optionSets };
 
@@ -353,6 +369,9 @@ class CruiseSelector extends Component {
       Series: this.state.selectedSeries.size
         ? oldOptionSets.Series
         : newOptionSets.Series,
+      Sensors: this.state.selectedSensors.size
+        ? oldOptionSets.Sensors
+        : newOptionSets.Sensors,
     };
 
     this.setState({
@@ -377,6 +396,7 @@ class CruiseSelector extends Component {
       tempNewState.selectedChiefScientists,
       tempNewState.selectedRegions,
       tempNewState.selectedSeries,
+      tempNewState.selectedSensors,
       this.state.search,
       this.state.groupBy, // groupBy
     );
@@ -386,6 +406,7 @@ class CruiseSelector extends Component {
       'Year',
       'Regions',
       'Series',
+      'Sensors',
     ]);
 
     this.setState({
@@ -406,6 +427,7 @@ class CruiseSelector extends Component {
       tempNewState.selectedChiefScientists,
       tempNewState.selectedRegions,
       tempNewState.selectedSeries,
+      tempNewState.selectedSensors,
       this.state.search,
       this.state.groupBy, // groupBy
     );
@@ -415,6 +437,7 @@ class CruiseSelector extends Component {
       'Year',
       'Regions',
       'Series',
+      'Sensors',
     ]);
 
     this.setState({
@@ -441,6 +464,7 @@ class CruiseSelector extends Component {
       tempNewState.selectedChiefScientists,
       tempNewState.selectedRegions,
       tempNewState.selectedSeries,
+      tempNewState.selectedSensors,
       this.state.search,
       this.state.groupBy, // groupBy
     );
@@ -450,7 +474,9 @@ class CruiseSelector extends Component {
       'Year',
       'Regions',
       'Series',
+      'Sensors',
     ]);
+
     let oldOptionSets = { ...this.state.optionSets };
 
     let optionSets = {
@@ -466,6 +492,9 @@ class CruiseSelector extends Component {
       Series: tempNewState.selectedSeries.size
         ? oldOptionSets.Series
         : newOptionSets.Series,
+      Sensors: tempNewState.selectedSensors.size
+        ? oldOptionSets.Sensors
+        : newOptionSets.Sensors,
     };
 
     this.setState({
@@ -510,6 +539,7 @@ class CruiseSelector extends Component {
       this.state.selectedChiefScientists,
       this.state.selectedRegions,
       this.state.selectedSeries,
+      this.state.selectedSensors,
       this.state.search,
       newSelection
     );
@@ -531,6 +561,7 @@ class CruiseSelector extends Component {
       selectedChiefScientists,
       selectedRegions,
       selectedSeries,
+      selectedSensors,
       openGroup,
       optionSets,
       groupedCruises,
@@ -554,8 +585,8 @@ class CruiseSelector extends Component {
               <Grid item xs={8}>
                 <Grid container>
                   <Grid item xs={2} className={classes.groupByLabel} >
-                      <Typography variant="body1" color="primary">Group Results By:
-                      </Typography>
+                    <Typography variant="body1" color="primary">Group Results By:
+                    </Typography>
                   </Grid>
                   <Grid item xs={9}>
                     <Tabs
@@ -564,7 +595,19 @@ class CruiseSelector extends Component {
                       indicatorColor="primary"
                       textColor="primary"
                     >
-                      {groupByLabels.map((label) => <Tab label={label} />)}
+                      <Tab icon={<IoCalendarClearOutline />} label={groupByLabels[0]} classes={{
+                        wrapper: classes.tabWrapper
+                      }} />
+                      <Tab icon={<BsFillPersonFill />} label={groupByLabels[1]} classes={{
+                        wrapper: classes.tabWrapper
+                      }} />
+                      <Tab icon={<BsListNested />} label={groupByLabels[2]} classes={{
+                        wrapper: classes.tabWrapper
+                      }} />
+                      <Tab icon={<GiWireframeGlobe />} label={groupByLabels[3]} classes={{
+                        wrapper: classes.tabWrapper
+                      }} />
+
                     </Tabs>
                   </Grid>
                 </Grid>
@@ -619,49 +662,60 @@ class CruiseSelector extends Component {
                   handleClear={() =>
                     this.handleClearMultiSelect('selectedRegions')
                   }
-                parentStateKey={'selectedRegions'}
-                handleClickCheckbox={this.handleClickCheckbox}
-                groupHeaderLabel="Region"
-              />
+                  parentStateKey={'selectedRegions'}
+                  handleClickCheckbox={this.handleClickCheckbox}
+                  groupHeaderLabel="Region"
+                />
 
-              <MultiCheckboxDropdown
-                options={Array.from(optionSets.Year).sort((a, b) =>
-                  a < b ? 1 : -1,
-                )}
-                selectedOptions={selectedYears}
-                handleClear={() => this.handleClearMultiSelect('selectedYears')}
-                parentStateKey={'selectedYears'}
-                handleClickCheckbox={this.handleClickCheckbox}
-                groupHeaderLabel="Year"
-              />
+                <MultiCheckboxDropdown
+                  options={Array.from(optionSets.Year).sort((a, b) =>
+                    a < b ? 1 : -1,
+                  )}
+                  selectedOptions={selectedYears}
+                  handleClear={() => this.handleClearMultiSelect('selectedYears')}
+                  parentStateKey={'selectedYears'}
+                  handleClickCheckbox={this.handleClickCheckbox}
+                  groupHeaderLabel="Year"
+                />
 
-              <MultiCheckboxDropdown
-                options={Array.from(optionSets.Chief_Name).sort()}
-                selectedOptions={selectedChiefScientists}
-                handleClear={() =>
-                  this.handleClearMultiSelect('selectedChiefScientists')
-                }
-                parentStateKey={'selectedChiefScientists'}
-                handleClickCheckbox={this.handleClickCheckbox}
-                groupHeaderLabel="Chief Scientist"
-              />
+                <MultiCheckboxDropdown
+                  options={Array.from(optionSets.Chief_Name).sort()}
+                  selectedOptions={selectedChiefScientists}
+                  handleClear={() =>
+                    this.handleClearMultiSelect('selectedChiefScientists')
+                  }
+                  parentStateKey={'selectedChiefScientists'}
+                  handleClickCheckbox={this.handleClickCheckbox}
+                  groupHeaderLabel="Chief Scientist"
+                />
 
-              <MultiCheckboxDropdown
-                options={Array.from(optionSets.Series).sort()}
-                selectedOptions={selectedSeries}
-                handleClear={() =>
-                  this.handleClearMultiSelect('selectedSeries')
-                }
-                parentStateKey={'selectedSeries'}
-                handleClickCheckbox={this.handleClickCheckbox}
-                groupHeaderLabel="Cruise Series"
-              />
+                <MultiCheckboxDropdown
+                  options={Array.from(optionSets.Series).sort()}
+                  selectedOptions={selectedSeries}
+                  handleClear={() =>
+                    this.handleClearMultiSelect('selectedSeries')
+                  }
+                  parentStateKey={'selectedSeries'}
+                  handleClickCheckbox={this.handleClickCheckbox}
+                  groupHeaderLabel="Cruise Series"
+                />
 
-              <Grid item xs={12} className={classes.searchPanelRow}>
-                <Button
-                  variant="outlined"
-                  onClick={this.handleResetSearch}
-                  className={classes.resetButton}
+                <MultiCheckboxDropdown
+                  options={Array.from(optionSets.Sensors).sort()}
+                  selectedOptions={selectedSensors}
+                  handleClear={() =>
+                    this.handleClearMultiSelect('selectedSensors')
+                  }
+                  parentStateKey={'selectedSensors'}
+                  handleClickCheckbox={this.handleClickCheckbox}
+                  groupHeaderLabel="Measurement Type"
+                />
+
+                <Grid item xs={12} className={classes.searchPanelRow}>
+                  <Button
+                    variant="outlined"
+                    onClick={this.handleResetSearch}
+                    className={classes.resetButton}
                   >
                     Reset Filters
                   </Button>
@@ -738,11 +792,14 @@ class CruiseSelector extends Component {
                           <Grid item xs={1} className={classes.cruiseYearHeader}>
                             Select
                           </Grid>
-                          <Grid item xs={2} className={classes.cruiseYearHeader}>
+                          <Grid item xs={1} className={classes.cruiseYearHeader}>
                             Official Designation
                           </Grid>
                           <Grid item xs={2} className={classes.cruiseYearHeader}>
                             Nickname
+                          </Grid>
+                          <Grid item xs={1} className={classes.cruiseYearHeader}>
+                            Year
                           </Grid>
                           <Grid item xs={2} className={classes.cruiseYearHeader}>
                             Chief Scientist
@@ -750,8 +807,8 @@ class CruiseSelector extends Component {
                           <Grid item xs={2} className={classes.cruiseYearHeader}>
                             Series
                           </Grid>
-                          <Grid item xs={2} className={classes.cruiseYearHeader}>
-                            Year
+                          <Grid item xs={3} className={classes.cruiseYearHeader}>
+                            Measurment Types
                           </Grid>
                         </Grid>
 
@@ -764,13 +821,16 @@ class CruiseSelector extends Component {
                                   onClick={() => this.handleCruiseSelect(cruise)} />
                               </div>
                             </Grid>
-                            <Grid item xs={2} className={classes.cruiseName}>
-                              {cruise.Name}
+                            <Grid item xs={1} className={classes.cruiseName}>
+                              <RouterLink to={`/catalog/cruises/${cruise.Name}`}>{cruise.Name}</RouterLink>
                             </Grid>
                             <Grid item xs={2} className={classes.cruiseName}>
                               <Tooltip title={cruise.Nickname} enterDelay={200}>
                                 <span>{cruise.Nickname}</span>
                               </Tooltip>
+                            </Grid>
+                            <Grid item xs={1} className={classes.cruiseName}>
+                              {cruise.Year}
                             </Grid>
                             <Grid item xs={2} className={classes.cruiseName}>
                               {cruise.Chief_Name}
@@ -778,9 +838,12 @@ class CruiseSelector extends Component {
                             <Grid item xs={2} className={classes.cruiseName}>
                               {cruise.Series}
                             </Grid>
-                            <Grid item xs={2} className={classes.cruiseName}>
-                              {cruise.Year}
+                            <Grid item xs={3} className={classes.cruiseName}>
+                              <Tooltip title={cruise.Sensors.join(', ')} enterDelay={200}>
+                                <Typography noWrap={true}>{cruise.Sensors.join(', ')}</Typography>
+                              </Tooltip>
                             </Grid>
+
                           </Grid>
                         ))}
                       </Grid>
