@@ -3,7 +3,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import React from 'react';
 import Card from './Card';
 import newsBannerStyles from './newsBannerStyles';
-import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 
 const useStyle = makeStyles(newsBannerStyles);
 

@@ -749,7 +749,7 @@ class CruiseSelector extends Component {
                   // line height 38px '.variableItem'
                   //
                   return openGroup === groupedCruises[i][this.state.groupBy]
-                    ? groupedCruises[i].cruises.length * 38 + 38 + 4 + 10 + 20
+                    ? groupedCruises[i].cruises.length * 38 + 38 + 4 + 10 + 40
                     : 38
                 }}
               >
@@ -789,31 +789,34 @@ class CruiseSelector extends Component {
                     {groupedCruises[index][this.state.groupBy] === openGroup ? (
                       <Grid container className={classes.variablesWrapper}>
                         <Grid item container alignItems="center">
-                          <Grid item xs={1} className={classes.cruiseYearHeader}>
+                          <Grid item xs={1} className={classes.cruiseItemRowHeader}>
                             Select
                           </Grid>
-                          <Grid item xs={1} className={classes.cruiseYearHeader}>
+                          <Grid item xs={1} className={classes.cruiseItemRowHeader}>
                             Official Designation
                           </Grid>
-                          <Grid item xs={2} className={classes.cruiseYearHeader}>
+                          <Grid item xs={2} className={classes.cruiseItemRowHeader}>
                             Nickname
                           </Grid>
-                          <Grid item xs={1} className={classes.cruiseYearHeader}>
+                          <Grid item xs={1} className={classes.cruiseItemRowHeader}>
+                            Ship Name
+                          </Grid>
+                          <Grid item xs={1} className={classes.cruiseItemRowHeader}>
                             Year
                           </Grid>
-                          <Grid item xs={2} className={classes.cruiseYearHeader}>
+                          <Grid item xs={2} className={classes.cruiseItemRowHeader}>
                             Chief Scientist
                           </Grid>
-                          <Grid item xs={2} className={classes.cruiseYearHeader}>
+                          <Grid item xs={2} className={classes.cruiseItemRowHeader}>
                             Series
                           </Grid>
-                          <Grid item xs={3} className={classes.cruiseYearHeader}>
+                          <Grid item xs={2} className={classes.cruiseItemRowHeader}>
                             Measurment Types
                           </Grid>
                         </Grid>
 
                         {groupedCruises[index].cruises.map((cruise, i) => (
-                          <Grid item xs={12} key={cruise.Name} className={classes.variableItem} container alignItems="center">
+                          <Grid container item xs={12} key={cruise.Name} className={classes.variableItem} alignItems="center">
                             <Grid item xs={1}>
                               <div className={classes.checkBoxWrapper}>
                                 <Checkbox
@@ -821,24 +824,27 @@ class CruiseSelector extends Component {
                                   onClick={() => this.handleCruiseSelect(cruise)} />
                               </div>
                             </Grid>
-                            <Grid item xs={1} className={classes.cruiseName}>
-                              <RouterLink to={`/catalog/cruises/${cruise.Name}`}>{cruise.Name}</RouterLink>
+                            <Grid item xs={1} className={classes.cruiseItemRow}>
+                              <a href={`/catalog/cruises/${cruise.Name}`} target='_blank'>{cruise.Name}</a>
                             </Grid>
-                            <Grid item xs={2} className={classes.cruiseName}>
+                            <Grid item xs={2} className={classes.cruiseItemRow}>
                               <Tooltip title={cruise.Nickname} enterDelay={200}>
                                 <span>{cruise.Nickname}</span>
                               </Tooltip>
                             </Grid>
-                            <Grid item xs={1} className={classes.cruiseName}>
+                            <Grid item xs={1} className={classes.cruiseItemRow}>
+                              {cruise.Ship_Name}
+                            </Grid>
+                            <Grid item xs={1} className={classes.cruiseItemRow}>
                               {cruise.Year}
                             </Grid>
-                            <Grid item xs={2} className={classes.cruiseName}>
+                            <Grid item xs={2} className={classes.cruiseItemRow}>
                               {cruise.Chief_Name}
                             </Grid>
-                            <Grid item xs={2} className={classes.cruiseName}>
+                            <Grid item xs={2} className={classes.cruiseItemRow}>
                               {cruise.Series}
                             </Grid>
-                            <Grid item xs={3} className={classes.cruiseName}>
+                            <Grid item xs={2} className={classes.cruiseItemRow}>
                               <Tooltip title={cruise.Sensors.join(', ')} enterDelay={200}>
                                 <Typography noWrap={true}>{cruise.Sensors.join(', ')}</Typography>
                               </Tooltip>

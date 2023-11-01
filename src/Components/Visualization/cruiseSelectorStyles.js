@@ -74,14 +74,6 @@ const styles = (theme) => ({
     marginTop: '12px',
     whiteSpace: 'nowrap'
   },
-  yearHeader: {
-    backgroundColor: 'rgba(0, 0, 0, .7)',
-    height: '36px',
-    fontSize: '17px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   label: {
     color: theme.palette.primary.main,
   },
@@ -114,7 +106,6 @@ const styles = (theme) => ({
     height: '38px',
     textAlign: 'left',
     fontSize: '14px',
-    cursor: 'pointer',
     '&:hover': {
       // background: colors.blueHover,
       backgroundColor: colors.greenHover,
@@ -157,16 +148,6 @@ const styles = (theme) => ({
     marginRight: '2em',
     whiteSpace: 'nowrap',
   },
-  cruiseName: {
-    width: '100%',
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    '& a': {
-      color: 'white',
-      textDecoration: 'underline',
-    }
-  },
   tabWrapper: {
     flexDirection: 'row',
     gap: '1em',
@@ -183,10 +164,21 @@ const styles = (theme) => ({
     marginTop: '5px',
     backgroundColor: 'rgba(0,0,0,.4)',
   },
-  cruiseYearHeader: {
+  cruiseItemRowHeader: {
     textAlign: 'left',
-    fontSize: '9px',
+    fontSize: '.9em',
+    paddingRight: '1em',
     color: theme.palette.primary.main,
+  },
+  cruiseItemRow: {
+    width: '100%',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    '& a': {
+      color: 'white',
+      textDecoration: 'underline',
+    }
   },
   selectedCruises: {
     display: 'flex',
