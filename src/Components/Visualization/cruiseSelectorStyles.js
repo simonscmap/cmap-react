@@ -52,6 +52,9 @@ const styles = (theme) => ({
     textTransform: 'none',
     fontSize: '15px',
   },
+  biggerIcon: {
+    fontSize: '1.2em',
+  },
   inputRoot: {
     border: `1px solid ${theme.palette.primary.main}`,
   },
@@ -83,11 +86,8 @@ const styles = (theme) => ({
     },
     cursor: 'pointer',
     height: '38px',
-    // boxShadow: '0px 1px 1px 1px #242424',
-    // backgroundColor: 'rgba(0,0,0,.4)',
   },
   groupedByValue: {
-    // whiteSpace: 'nowrap',
     width: 'calc(90%)',
     textAlign: 'left',
   },
@@ -98,7 +98,6 @@ const styles = (theme) => ({
     paddingRight: '1em'
   },
   variablesWrapper: {
-    // backgroundColor: 'rgba(0,0,0,.2)',
     paddingTop: '10px',
     paddingBottom: '10px'
   },
@@ -186,7 +185,7 @@ const styles = (theme) => ({
     justifyContent: 'flex-start',
     alignContent: 'flex-start',
     alignItems: 'flex-start',
-    padding: '1em 0 1em 2em',
+    padding: '1em 1em 1em 2em',
     margin: '2em 0 0 0',
     border: '1px solid #242424', // mimics "box-shadow" style of selctor input fields
     '& > div': {
@@ -226,6 +225,13 @@ const styles = (theme) => ({
   },
   formControl: {
     minWidth: '150px'
+  },
+  summaryHeader: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingBottom: '1em',
   }
 });
 

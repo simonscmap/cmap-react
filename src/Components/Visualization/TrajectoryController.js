@@ -103,7 +103,7 @@ const TrajectoryController = (props) => {
           ship: cruise && cruise.Ship_Name,
           start: cruise && cruise.Start_Time,
           end: cruise && cruise.End_Time,
-          chief: cruise && cruise.Chief,
+          chief: cruise && cruise.Chief_Name,
         },
         popupTemplate: {
           title: "Cruise Trajectory Point for {name}",

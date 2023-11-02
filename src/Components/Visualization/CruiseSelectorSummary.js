@@ -4,56 +4,91 @@ import {
   Typography,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './cruiseSelectorStyles';
-import { Link as RouterLink } from 'react-router-dom';
+import ClearIcon from '@material-ui/icons/Clear';
+import {AiOutlineNodeExpand} from 'react-icons/ai';
+import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 
 const TRAJECTORY_POINTS_LIMIT = 70000;
 
 const useStyles = makeStyles(styles);
 
 const SelectorSummary = (props) => {
-  const { selected, cruises, handleTrajectoryRender, pointCount } = props;
+  const {
+    selected,
+    cruises,
+    handleTrajectoryRender,
+    pointCount,
+    openContainingGroup,
+    removeOne,
+    removeAll,
+  } = props;
   const classes = useStyles();
 
   if (!selected || selected.length === 0) {
     return '';
   }
 
+  const deselect = (cruiseName) => {
+    const cruise = cruises.find ((c) => c.Name === cruiseName);
+    if (!cruise) {
+      console.error ('cannot match cruise with cruise name', cruiseName);
+    }
+    removeOne (cruise);
+  }
+
+
+
   return (
     <div className={classes.selectedCruises}>
-      <Typography variant="h6">Selected Cruises</Typography>
+      <div className={classes.summaryHeader}>
+        <Typography variant="h6" component="p">Selected Cruises</Typography>
+        <ClearIcon onClick={removeAll} color="primary"/>
+      </div>
       <Grid container>
-        <Grid item xs={1}></Grid>
         <Grid item xs={3}>
           <Typography variant="body2" color="primary">Name</Typography>
         </Grid>
-        <Grid item xs={8}>
+        <Grid item xs={5}>
           <Typography variant="body2" color="primary">Nickname</Typography>
         </Grid>
+        <Grid item xs={2}>
+          <Typography variant="body2" color="primary">Go To</Typography>
+        </Grid>
+        <Grid item xs={2}>
+          <Typography variant="body2" color="primary">Deselect</Typography>
+        </Grid>
+
       </Grid>
       {selected.map((selectedCruiseName, i) => (
         <Grid container key={`selected-row-item${i}`} >
-          <Grid item xs={1}>
-            <Typography variant="body2" color={'primary'}>{i + 1}.</Typography>
-          </Grid>
           <Grid item xs={3}>
-            <RouterLink to={`/catalog/cruises/${selectedCruiseName}`}>
+            <a href={`/catalog/cruises/${selectedCruiseName}`} target="_blank">
               <Typography variant="body1">
-                {selectedCruiseName}
+                {selectedCruiseName} <OpenInNewIcon style={{ fontSize: '.9em' }} />
               </Typography>
-            </RouterLink>
+            </a>
           </Grid>
-          <Grid item xs={8}>
-            <RouterLink to={`/catalog/cruises/${selectedCruiseName}`}>
-              <Typography variant="body1">
-                {cruises
-                  ? (cruises.find((c) => c.Name === selectedCruiseName)).Nickname
-                  : ''
-                }
-              </Typography>
-            </RouterLink>
+          <Grid item xs={5}>
+            <Typography variant="body1">
+              {cruises
+                ? (cruises.find((c) => c.Name === selectedCruiseName)).Nickname
+                : ''
+              }
+            </Typography>
           </Grid>
+          <Grid item xs={2}>
+            <Typography variant="body2" color={'primary'} className={classes.biggerIcon}>
+              <AiOutlineNodeExpand onClick={() => openContainingGroup(selectedCruiseName)} />
+            </Typography>
+          </Grid>
+          <Grid item xs={2}>
+            <Typography variant="body2" color={'primary'}>
+              <ClearIcon onClick={() => deselect(selectedCruiseName)} />
+            </Typography>
+          </Grid>
+
         </Grid>
       ))}
       <Button

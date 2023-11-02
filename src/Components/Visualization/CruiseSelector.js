@@ -22,6 +22,7 @@ import { ChevronRight, Close, ExpandMore, Search, ZoomOutMap } from '@material-u
 import {GiWireframeGlobe} from 'react-icons/gi';
 import { IoCalendarClearOutline } from 'react-icons/io5';
 import { BsFillPersonFill, BsListNested } from 'react-icons/bs';
+import { LuShip } from 'react-icons/lu';
 import * as JsSearch from 'js-search';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
@@ -142,7 +143,7 @@ const searchFilterGroupCruises = (
                                    .concat(groupedCruises[otherIdx]);
   }
 
-
+  console.log ('grouped cruises', groupedCruises);
   return { groupedCruises, cruises };
 };
 
@@ -165,8 +166,8 @@ const defaultOptionSets = {
 };
 
 
-const groupByOptions = ['Year', 'Chief_Name', 'Series', 'Regions'];
-const groupByLabels = ['Year', 'Chief Scientist', 'Series', 'Regions'];
+const groupByOptions = ['Year', 'Chief_Name', 'Series', 'Regions', 'Ship_Name'];
+const groupByLabels = ['Year', 'Chief Scientist', 'Series', 'Regions', 'Ship'];
 
 const renderGroupTitle = (groupBy, groupTitle) => {
   if (groupBy === 'Regions') {
@@ -229,7 +230,6 @@ class CruiseSelector extends Component {
 
     this.state = {
       search,
-      selectedCruise: null,
       selected: [],
       pointCount: 0,
       searchMenuOpen: false,
@@ -256,6 +256,8 @@ class CruiseSelector extends Component {
 
   handleCruiseSelect = (selection) => {
     // trajectory point counds (from redux; fetched when component loads)
+
+    console.log ('handleCruiseSelect', selection);
     const counts = this.props.trajectoryPointCounts || {};
     const getPointCount = (list) => list
       .map((name) => this.state.cruises.find(c => c.Name === name))
@@ -280,6 +282,14 @@ class CruiseSelector extends Component {
       });
     }
   };
+
+  handleDeselectAll = () => {
+    this.setState({
+      ...this.state,
+      selected: [],
+      pointCount: 0
+    });
+  }
 
   handleTrajectoryRender = () => {
     const ids = this.state.cruises.filter (({ Name }) => {
@@ -506,6 +516,7 @@ class CruiseSelector extends Component {
   };
 
   handleSetOpenGroup = (index, groupByValue) => {
+    console.log ('handleSetOpenGroup', index, groupByValue);
     if (listRef.current) {
       // Make sure the group being opened is in view
       let listHeight = this.props.windowHeight - 249;
@@ -528,6 +539,27 @@ class CruiseSelector extends Component {
       openGroup: this.state.openGroup === groupByValue ? null : groupByValue,
     });
   };
+
+  findGroupAndOpen = (cruiseName) => {
+    console.log ('findGroupAndOpen', cruiseName)
+    const groupedCruises = this.state.groupedCruises;
+
+    const groupKeys = groupedCruises.map((g) => g[this.state.groupBy]);
+
+
+
+    const index = groupedCruises.findIndex ((group) => {
+      if (group.cruises.find (({ Name }) => Name === cruiseName)) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+
+    console.log ('found index', index, groupKeys[index], groupKeys);
+
+    this.handleSetOpenGroup (index, groupKeys[index]);
+  }
 
   handleGroupBySelection =  (event, newValue) => {
     const newSelection = groupByOptions[newValue];
@@ -555,7 +587,6 @@ class CruiseSelector extends Component {
   render() {
     const {
       searchField,
-      selectedCruise,
       searchMenuOpen,
       selectedYears,
       selectedChiefScientists,
@@ -607,7 +638,9 @@ class CruiseSelector extends Component {
                       <Tab icon={<GiWireframeGlobe />} label={groupByLabels[3]} classes={{
                         wrapper: classes.tabWrapper
                       }} />
-
+                      <Tab icon={<LuShip />}label={groupByLabels[4]} classes={{
+                        wrapper: classes.tabWrapper
+                      }} />
                     </Tabs>
                   </Grid>
                 </Grid>
@@ -729,6 +762,9 @@ class CruiseSelector extends Component {
                     selected={this.state.selected}
                     handleTrajectoryRender={this.handleTrajectoryRender}
                     pointCount={this.state.pointCount}
+                    openContainingGroup={this.findGroupAndOpen}
+                    removeOne={this.handleCruiseSelect}
+                    removeAll={this.handleDeselectAll}
                   />
                 </Grid>
               </div>
@@ -875,86 +911,6 @@ class CruiseSelector extends Component {
               Search Cruises
             </Button>
           </Paper>
-
-          {selectedCruise && (
-            <>
-              <Table size="small" className={classes.cruiseInfo}>
-                <TableBody>
-                  <TableRow>
-                    <TableCell className={classes.cruiseInfoCell}>
-                      Cruise:
-                    </TableCell>
-                    <TableCell className={classes.cruiseInfoCell}>
-                      {selectedCruise.Name}
-                    </TableCell>
-                  </TableRow>
-
-                  <TableRow>
-                    <TableCell className={classes.cruiseInfoCell}>
-                      Nickname:
-                    </TableCell>
-                    <TableCell className={classes.cruiseInfoCell}>
-                      {selectedCruise.Nickname}
-                    </TableCell>
-                  </TableRow>
-
-                  {selectedCruise.Start_Time && (
-                    <TableRow>
-                      <TableCell className={classes.cruiseInfoCell}>
-                        Start Date:
-                      </TableCell>
-                      <TableCell className={classes.cruiseInfoCell}>
-                        {selectedCruise.Start_Time.slice(0, 10)}
-                      </TableCell>
-                    </TableRow>
-                  )}
-
-                  {selectedCruise.End_Time && (
-                    <TableRow>
-                      <TableCell className={classes.cruiseInfoCell}>
-                        End Date:
-                      </TableCell>
-                      <TableCell className={classes.cruiseInfoCell}>
-                        {selectedCruise.End_Time.slice(0, 10)}
-                      </TableCell>
-                    </TableRow>
-                  )}
-
-                  {selectedCruise.Chief_Name && (
-                    <TableRow>
-                      <TableCell className={classes.cruiseInfoCell}>
-                        Chief Scientist:
-                      </TableCell>
-                      <TableCell className={classes.cruiseInfoCell}>
-                        {selectedCruise.Chief_Name}
-                      </TableCell>
-                    </TableRow>
-                  )}
-
-                  {selectedCruise.Ship_Name && (
-                    <TableRow>
-                      <TableCell className={classes.cruiseInfoCell}>
-                        Ship:
-                      </TableCell>
-                      <TableCell className={classes.cruiseInfoCell}>
-                        {selectedCruise.Ship_Name}
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-
-              <div className={classes.linkWrapper}>
-                <Link
-                  component={RouterLink}
-                  to={`/catalog/cruises/${selectedCruise.Name}`}
-                  target="_blank"
-                >
-                  Open Cruise Catalog Page
-                </Link>
-              </div>
-            </>
-          )}
         </div>
         <CruiseTrajectoryLegend />
       </>
