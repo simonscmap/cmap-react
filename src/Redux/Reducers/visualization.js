@@ -125,6 +125,7 @@ export default function (state, action) {
       return {
         ...state,
         cruiseTrajectoryFocus: action.payload,
+        cruiseTrajectoryFocusNonce: Math.random(),
       };
     case CRUISE_TRAJECTORY_REQUEST_FAILURE:
       return {

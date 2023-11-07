@@ -54,6 +54,10 @@ const styles = (theme) => ({
   },
   biggerIcon: {
     fontSize: '1.2em',
+    cursor: 'pointer',
+  },
+  pointer: {
+    cursor: 'pointer',
   },
   inputRoot: {
     border: `1px solid ${theme.palette.primary.main}`,
@@ -139,7 +143,7 @@ const styles = (theme) => ({
       }
     }
   },
-  groupByLabel: {
+  controlRowLabel: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
@@ -232,6 +236,24 @@ const styles = (theme) => ({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingBottom: '1em',
+  },
+  clearAllControl: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    cursor: 'pointer',
+    '& p:hover': {
+      color: theme.palette.primary.main,
+    }
+  },
+  filterChips: {
+    '& > div': {
+      margin: '0 .5em'
+    }
+  },
+  searchAndFilterWrapper: {
+    paddingRight: '2em',
   }
 });
 

@@ -38,13 +38,15 @@ const SelectorSummary = (props) => {
     removeOne (cruise);
   }
 
-
-
   return (
     <div className={classes.selectedCruises}>
       <div className={classes.summaryHeader}>
         <Typography variant="h6" component="p">Selected Cruises</Typography>
-        <ClearIcon onClick={removeAll} color="primary"/>
+        <div className={classes.clearAllControl}>
+          <Typography variant="body2" component="p">Clear All
+          </Typography>
+            <ClearIcon onClick={removeAll} color="primary" />
+        </div>
       </div>
       <Grid container>
         <Grid item xs={3}>
@@ -84,7 +86,7 @@ const SelectorSummary = (props) => {
             </Typography>
           </Grid>
           <Grid item xs={2}>
-            <Typography variant="body2" color={'primary'}>
+            <Typography variant="body2" color={'primary'} className={classes.pointer}>
               <ClearIcon onClick={() => deselect(selectedCruiseName)} />
             </Typography>
           </Grid>

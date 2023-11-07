@@ -22,15 +22,14 @@ const TrajectoryController = (props) => {
 
   // If No Data, Remove Layer and Return Camera to Default
   useEffect(() => {
-    if (!thereAreTrajectoriesToRender) {
-      trajectoryLayer.removeAll();
-    }
-  }, [thereAreTrajectoriesToRender]);
+    trajectoryLayer.removeAll();
+  }, [thereAreTrajectoriesToRender, cruiseTrajectories]);
 
   useEffect(() => {
     if (globeUIRef.current) {
       console.log('setting dock disable');
       console.log(globeUIRef.current);
+      // this doesn't work
       globeUIRef.current.props.view.popup.dockEnabled = false;
     }
   }, [globeUIRef.current]);

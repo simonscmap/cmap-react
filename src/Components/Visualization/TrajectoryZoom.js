@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 const TrajectoryZoom = (props) => {
   const { view } = props;
   const activeCruise = useSelector ((state) => state.cruiseTrajectoryFocus);
+  const nonce = useSelector ((state) => state.cruiseTrajectoryFocusNonce);
 
   const focusedTrajectory = useSelector ((state) =>
     state.cruiseTrajectories && state.cruiseTrajectories[activeCruise]);

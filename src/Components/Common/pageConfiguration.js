@@ -7,6 +7,7 @@
 import { homepageConfig } from '../Home';
 import { catalogConfig } from '../Catalog/Catalog';
 import { visualizationConfig } from '../Visualization/Visualization';
+import { cruiseConfig } from '../Catalog/CruiseFullPage';
 import { aboutConfig } from '../About';
 import { galleryConfig } from '../Gallery';
 import { submissionGuideConfig } from '../DataSubmission/NewGuide';
@@ -21,7 +22,7 @@ const pages = {
   '/catalog': catalogConfig,
   '/visulization': visualizationConfig,
   '/visualization/charts': visualizationConfig,
-  '/visualization/cruises': {},
+  '/visualization/cruises': cruiseConfig,
   '/datasubmission': {},
   '/datasubmission/guide': {},
   '/datasubmission/new-guide': submissionGuideConfig,

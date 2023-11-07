@@ -97,7 +97,7 @@ class MapContainer extends Component {
         <Scene
           mapProperties={{
             basemap: 'satellite',
-            layers: [this.regionLayer, this.trajectoryLayer],
+            layers: [this.regionLayer, this.trajectoryLayer]
           }}
           viewProperties={{
             center: [-140, 30],
@@ -107,7 +107,7 @@ class MapContainer extends Component {
               haloColor: 'rgba(0, 0, 0, 0)',
               fillOpacity: 0,
               color: 'rgba(0, 0, 0, 0)',
-            },
+            }
           }}
         >
           <UiComponents

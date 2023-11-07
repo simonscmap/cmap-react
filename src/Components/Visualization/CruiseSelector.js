@@ -2,6 +2,7 @@
 import {
   Button,
   Checkbox,
+  Chip,
   Grid,
   Icon,
   InputAdornment,
@@ -40,11 +41,12 @@ import MultiCheckboxDropdown from '../UI/MultiCheckboxDropdown';
 import styles from './cruiseSelectorStyles';
 import CruiseSelectorSummary from './CruiseSelectorSummary';
 import CruiseTrajectoryLegend from './CruiseTrajectoryLegend';
+import SearchAndFilter from './CruiseSelectorSearchAndFilter';
+import ResultsList from './CruiseSelectorResultsList';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
-import { toSetArray } from '../../api/myLib';
 
 const mapStateToProps = (state, ownProps) => ({
   cruiseList: state.cruiseList,
@@ -599,6 +601,16 @@ class CruiseSelector extends Component {
       cruises,
     } = this.state;
 
+    // create array of selected filters to generate chip indicators
+    // mimic checkbox name so that the same method can be used to deselect via chip
+    const selectedFilters = [];
+    const sf = selectedFilters;
+    Array.from(selectedYears).forEach((val) => sf.push('selectedYears!!' + val));
+    Array.from(selectedChiefScientists).forEach((val) => sf.push('selectedChiefScientists!!' + val));
+    Array.from(selectedRegions).forEach((val) => sf.push('selectedRegions!!' + val));
+    Array.from(selectedSeries).forEach((val) => sf.push('selectedSeries!!' + val));
+    Array.from(selectedSensors).forEach((val) => sf.push('selectedSensors!!' + val));
+
     const { classes, windowHeight } = this.props;
 
     return (
@@ -609,22 +621,122 @@ class CruiseSelector extends Component {
         >
           <div className={classes.listControls}>
 
-
-            {/* tabs & close button*/}
             <Grid container>
-              <Grid item xs={3}>{''}</Grid>
-              <Grid item xs={8}>
-                <Grid container>
-                  <Grid item xs={2} className={classes.groupByLabel} >
-                    <Typography variant="body1" color="primary">Group Results By:
-                    </Typography>
+              {/* Search and Filter: Left Column */}
+              <Grid item xs={3}>
+                <div className={classes.searchAndFilterWrapper}>
+<CruiseSelectorSummary
+                    cruises={this.state.cruises}
+                    selected={this.state.selected}
+                    handleTrajectoryRender={this.handleTrajectoryRender}
+                    pointCount={this.state.pointCount}
+                    openContainingGroup={this.findGroupAndOpen}
+                    removeOne={this.handleCruiseSelect}
+                    removeAll={this.handleDeselectAll}
+                  />
+                  <SearchAndFilter
+                    searchField={searchField}
+                    optionSets={optionSets}
+                    selectedRegions={selectedRegions}
+                    selectedYears={selectedYears}
+                    selectedChiefScientists={selectedChiefScientists}
+                    selectedSeries={selectedSeries}
+                    selectedSensors={selectedSensors}
+                    handleChangeSearchValue={this.handleChangeSearchValue}
+                    handleClickCheckbox={this.handleClickCheckbox}
+                    handleClearMultiSelect={this.handleClearMultiSelect}
+                    handleResetSearch={this.handleResetSearch}
+                  />
+
+                </div>
+              </Grid>
+
+              <Grid item xs={9} >
+                {/* filter chips */}
+                {(this.state.selected && this.state.selected.length) ?
+                  (<Grid container>
+                    <Grid item xs={1}>
+                      <div className={classes.controlRowLabel}>
+                        <Typography variant="body1" color="primary">Selected: </Typography>
+                      </div>
+                    </Grid>
+                    <Grid item xs={10}>
+                      <div className={classes.filterChips}>
+                        {this.state.selected.length ? this.state.selected.map((c, i) => {
+                          return <Chip
+                            key={`chip${i}`}
+                            size="small"
+                            variant="outlined"
+                            label={c}
+                            onDelete={() => {
+                              // this.handleClickCheckbox({ target: { name: f } }, false)
+                            }}
+                            color="primary"
+                          />;
+                        }) : <Typography variant="body2">No selected cruises</Typography>}
+                      </div>
+                    </Grid>
+                  <Grid item xs={1}>
+                    <Button
+                      startIcon={<Close style={{ fontSize: '22px' }} />}
+                      onClick={this.handleCloseSearch}
+                      className={classes.closeIcon}
+                    >
+                      Close
+                    </Button>
                   </Grid>
-                  <Grid item xs={9}>
+                </Grid>) : ''}
+
+      {/* filter chips */}
+      {true ?
+                (<Grid container>
+                  <Grid item xs={1}>
+                    <div className={classes.controlRowLabel}>
+                      <Typography variant="body1" color="primary">Filters: </Typography>
+                    </div>
+                  </Grid>
+                  <Grid item xs={10}>
+                    <div className={classes.filterChips}>
+                      {selectedFilters.length ? selectedFilters.map((f, i) => {
+                        const [, val] = f.split('!!');
+                        return <Chip
+                          key={`chip${i}`}
+                          size="small"
+                          variant="outlined"
+                          label={val}
+                          onDelete={() => {
+                            console.log('delete', f);
+                              this.handleClickCheckbox({ target: { name: f } }, false)
+                            }}
+                            color="primary"
+                          />;
+                        }) : <Typography variant="body2">No active filters</Typography>}
+                      </div>
+                  </Grid>
+                  <Grid item xs={1}>
+                    <Button
+                      startIcon={<Close style={{ fontSize: '22px' }} />}
+                      onClick={this.handleCloseSearch}
+                      className={classes.closeIcon}
+                    >
+                      Close
+                    </Button>
+                  </Grid>
+                </Grid>) : ''}
+
+                {/* tabs */}
+                <Grid container>
+                  <Grid item xs={1} className={classes.controlRowLabel} >
+                    <Typography variant="body1" color="primary">Sort By:</Typography>
+                  </Grid>
+                  <Grid item xs={12} sm={10}>
                     <Tabs
                       value={groupByOptions.indexOf(this.state.groupBy)}
                       onChange={this.handleGroupBySelection}
                       indicatorColor="primary"
                       textColor="primary"
+                      scrollButtons={'auto'}
+                      variant={'scrollable'}
                     >
                       <Tab icon={<IoCalendarClearOutline />} label={groupByLabels[0]} classes={{
                         wrapper: classes.tabWrapper
@@ -638,279 +750,47 @@ class CruiseSelector extends Component {
                       <Tab icon={<GiWireframeGlobe />} label={groupByLabels[3]} classes={{
                         wrapper: classes.tabWrapper
                       }} />
-                      <Tab icon={<LuShip />}label={groupByLabels[4]} classes={{
+                      <Tab icon={<LuShip />} label={groupByLabels[4]} classes={{
                         wrapper: classes.tabWrapper
                       }} />
                     </Tabs>
                   </Grid>
                 </Grid>
-              </Grid>
-              <Grid item xs={1}>
-                <Button
-                  startIcon={<Close style={{ fontSize: '22px' }} />}
-                  onClick={this.handleCloseSearch}
-                  className={classes.closeIcon}
-                >
-                  Close
-                </Button>
-              </Grid>
-            </Grid>
-          </div>
 
-          <Grid container style={{ border: '0px solid red' }}>
-            <Grid item xs={3}
-              style={{
-                overflowY: 'auto',
-                maxHeight: windowHeight - 204,
-                padding: '16px',
-                // backgroundColor: 'rgba(0,0,0,.4)',
-                border: '0px solid yellow',
-              }}
-            >
-              <div style={{}}>
-                <TextField
-                  fullWidth
-                  name="searchTerms"
-                  onChange={this.handleChangeSearchValue}
-                  placeholder="Search"
-                  value={searchField}
-                  InputProps={{
-                    classes: {
-                      root: classes.inputRoot,
-                    },
-                    startAdornment: (
-                      <React.Fragment>
-                        <InputAdornment position="start">
-                          <Search />
-                        </InputAdornment>
-                      </React.Fragment>
-                    ),
-                  }}
-                  variant="outlined"
-                />
+                {/* results list */}
 
-                <MultiCheckboxDropdown
-                  options={Array.from(optionSets.Regions).sort()}
-                  selectedOptions={selectedRegions}
-                  handleClear={() =>
-                    this.handleClearMultiSelect('selectedRegions')
-                  }
-                  parentStateKey={'selectedRegions'}
-                  handleClickCheckbox={this.handleClickCheckbox}
-                  groupHeaderLabel="Region"
-                />
-
-                <MultiCheckboxDropdown
-                  options={Array.from(optionSets.Year).sort((a, b) =>
-                    a < b ? 1 : -1,
-                  )}
-                  selectedOptions={selectedYears}
-                  handleClear={() => this.handleClearMultiSelect('selectedYears')}
-                  parentStateKey={'selectedYears'}
-                  handleClickCheckbox={this.handleClickCheckbox}
-                  groupHeaderLabel="Year"
-                />
-
-                <MultiCheckboxDropdown
-                  options={Array.from(optionSets.Chief_Name).sort()}
-                  selectedOptions={selectedChiefScientists}
-                  handleClear={() =>
-                    this.handleClearMultiSelect('selectedChiefScientists')
-                  }
-                  parentStateKey={'selectedChiefScientists'}
-                  handleClickCheckbox={this.handleClickCheckbox}
-                  groupHeaderLabel="Chief Scientist"
-                />
-
-                <MultiCheckboxDropdown
-                  options={Array.from(optionSets.Series).sort()}
-                  selectedOptions={selectedSeries}
-                  handleClear={() =>
-                    this.handleClearMultiSelect('selectedSeries')
-                  }
-                  parentStateKey={'selectedSeries'}
-                  handleClickCheckbox={this.handleClickCheckbox}
-                  groupHeaderLabel="Cruise Series"
-                />
-
-                <MultiCheckboxDropdown
-                  options={Array.from(optionSets.Sensors).sort()}
-                  selectedOptions={selectedSensors}
-                  handleClear={() =>
-                    this.handleClearMultiSelect('selectedSensors')
-                  }
-                  parentStateKey={'selectedSensors'}
-                  handleClickCheckbox={this.handleClickCheckbox}
-                  groupHeaderLabel="Measurement Type"
-                />
-
-                <Grid item xs={12} className={classes.searchPanelRow}>
-                  <Button
-                    variant="outlined"
-                    onClick={this.handleResetSearch}
-                    className={classes.resetButton}
-                  >
-                    Reset Filters
-                  </Button>
-                </Grid>
-                <Grid item xs={12}>
-
-                </Grid>
-                <Grid item xs={12} >
-                  <CruiseSelectorSummary
-                    cruises={this.state.cruises}
+                <Grid item xs={12} style={{ paddingTop: '12px', border: '0px solid blue' }}>
+                  <ResultsList
+                    listRef={listRef}
+                    groupedCruises={groupedCruises}
+                    openGroup={openGroup}
+                    groupBy={this.state.groupBy}
+                    handleSetOpenGroup={this.handleSetOpenGroup}
                     selected={this.state.selected}
-                    handleTrajectoryRender={this.handleTrajectoryRender}
-                    pointCount={this.state.pointCount}
-                    openContainingGroup={this.findGroupAndOpen}
-                    removeOne={this.handleCruiseSelect}
-                    removeAll={this.handleDeselectAll}
+                    handleCruiseSelect={this.handleCruiseSelect}
                   />
                 </Grid>
-              </div>
-            </Grid>
 
-            {/* controls ^ list >     */}
+              </Grid>{/* end Grid9 */}
+            </Grid>{/* end Grid container */}
 
-            <Grid item xs={9} style={{ paddingTop: '12px', border: '0px solid blue' }}>
-              <VariableSizeList
-                ref={listRef}
-                itemData={groupedCruises}
-                itemCount={groupedCruises.length}
-                height={windowHeight - 275} // old value: - 249
-                width="100%"
-                estimatedItemSize={38}
-                style={{ overflowY: 'scroll' }}
-                itemSize={(i) => {
-                  // line height 38px '.variableItem'
-                  //
-                  return openGroup === groupedCruises[i][this.state.groupBy]
-                    ? groupedCruises[i].cruises.length * 38 + 38 + 4 + 10 + 40
-                    : 38
-                }}
-              >
-                {({ index, style }) => (
-                  <div style={style}>
-                    <Grid
-                      container
-                      className={classes.searchOption}
-                      onClick={() =>
-                        this.handleSetOpenGroup(
-                          index,
-                          groupedCruises[index][this.state.groupBy],
-                        )
-                      }
-                    >
-                      <Grid item xs={10} container alignItems="center" className={'group-by-label'}>
-                        {openGroup === groupedCruises[index][this.state.groupBy] ? (
-                          <ExpandMore className={classes.datasetOpenIcon} />
-                        ) : (
-                          <ChevronRight className={classes.datasetOpenIcon} />
-                        )}
-                        <Typography noWrap={true} className={classes.groupedByValue}>
-                          {Boolean(groupedCruises[index][this.state.groupBy])
-                            ? renderGroupTitle(this.state.groupBy, groupedCruises[index][this.state.groupBy])
-                            : 'Other'}
-                        </Typography>
-                    </Grid>
-                <Grid item xs={2}
-                        className={classes.memberCount}
-                        container
-                        alignItems="center"
-                        justifyContent="flex-end">
-                        {groupedCruises[index].cruises.length} Cruises
-                      </Grid>
-                    </Grid>
 
-                    {groupedCruises[index][this.state.groupBy] === openGroup ? (
-                      <Grid container className={classes.variablesWrapper}>
-                        <Grid item container alignItems="center">
-                          <Grid item xs={1} className={classes.cruiseItemRowHeader}>
-                            Select
-                          </Grid>
-                          <Grid item xs={1} className={classes.cruiseItemRowHeader}>
-                            Official Designation
-                          </Grid>
-                          <Grid item xs={2} className={classes.cruiseItemRowHeader}>
-                            Nickname
-                          </Grid>
-                          <Grid item xs={1} className={classes.cruiseItemRowHeader}>
-                            Ship Name
-                          </Grid>
-                          <Grid item xs={1} className={classes.cruiseItemRowHeader}>
-                            Year
-                          </Grid>
-                          <Grid item xs={2} className={classes.cruiseItemRowHeader}>
-                            Chief Scientist
-                          </Grid>
-                          <Grid item xs={2} className={classes.cruiseItemRowHeader}>
-                            Series
-                          </Grid>
-                          <Grid item xs={2} className={classes.cruiseItemRowHeader}>
-                            Measurment Types
-                          </Grid>
-                        </Grid>
-
-                        {groupedCruises[index].cruises.map((cruise, i) => (
-                          <Grid container item xs={12} key={cruise.Name} className={classes.variableItem} alignItems="center">
-                            <Grid item xs={1}>
-                              <div className={classes.checkBoxWrapper}>
-                                <Checkbox
-                                  checked={this.state.selected.includes(cruise.Name)}
-                                  onClick={() => this.handleCruiseSelect(cruise)} />
-                              </div>
-                            </Grid>
-                            <Grid item xs={1} className={classes.cruiseItemRow}>
-                              <a href={`/catalog/cruises/${cruise.Name}`} target='_blank'>{cruise.Name}</a>
-                            </Grid>
-                            <Grid item xs={2} className={classes.cruiseItemRow}>
-                              <Tooltip title={cruise.Nickname} enterDelay={200}>
-                                <span>{cruise.Nickname}</span>
-                              </Tooltip>
-                            </Grid>
-                            <Grid item xs={1} className={classes.cruiseItemRow}>
-                              {cruise.Ship_Name}
-                            </Grid>
-                            <Grid item xs={1} className={classes.cruiseItemRow}>
-                              {cruise.Year}
-                            </Grid>
-                            <Grid item xs={2} className={classes.cruiseItemRow}>
-                              {cruise.Chief_Name}
-                            </Grid>
-                            <Grid item xs={2} className={classes.cruiseItemRow}>
-                              {cruise.Series}
-                            </Grid>
-                            <Grid item xs={2} className={classes.cruiseItemRow}>
-                              <Tooltip title={cruise.Sensors.join(', ')} enterDelay={200}>
-                                <Typography noWrap={true}>{cruise.Sensors.join(', ')}</Typography>
-                              </Tooltip>
-                            </Grid>
-
-                          </Grid>
-                        ))}
-                      </Grid>
-                    ) : (
-                      ''
-                    )}
-                  </div>
-                )}
-              </VariableSizeList>
-            </Grid>
-          </Grid>
+          </div>
         </Paper>
 
         <div id="cruise-selector" className={classes.outerDiv}>
-          <Paper className={classes.openSearchButtonPaper}>
-            <Button
-              startIcon={<Search />}
-              className={classes.openSearchButton}
-              onClick={() =>
-                this.setState({ ...this.state, searchMenuOpen: true })
-              }
-            >
-              Search Cruises
-            </Button>
-          </Paper>
+          {!searchMenuOpen &&
+            <Paper className={classes.openSearchButtonPaper}>
+              <Button
+                startIcon={<Search />}
+                className={classes.openSearchButton}
+                onClick={() =>
+                  this.setState({ ...this.state, searchMenuOpen: true })
+                }
+              >
+                Search Cruises
+              </Button>
+            </Paper>}
         </div>
         <CruiseTrajectoryLegend />
       </>
