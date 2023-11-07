@@ -1,11 +1,9 @@
 // Search and filter controls for Cruise Selector panel
 import {
   Button,
-  InputAdornment,
-  TextField,
+  Typography,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import { Search, } from '@material-ui/icons';
 import React  from 'react';
 
 import MultiCheckboxDropdown from '../UI/MultiCheckboxDropdown';
@@ -16,42 +14,20 @@ const useStyle = makeStyles (styles);
 const SearchAndFilter = (props) => {
   const classes = useStyle();
   const {
-    searchField,
     optionSets,
     selectedRegions,
     selectedYears,
     selectedChiefScientists,
     selectedSeries,
     selectedSensors,
-    handleChangeSearchValue,
     handleClickCheckbox,
     handleClearMultiSelect,
     handleResetSearch,
   } = props;
 
   return (
-    <div style={{}}>
-      <TextField
-        fullWidth
-        name="searchTerms"
-        onChange={handleChangeSearchValue}
-        placeholder="Search"
-        value={searchField}
-        InputProps={{
-          classes: {
-            root: classes.inputRoot,
-          },
-          startAdornment: (
-            <React.Fragment>
-              <InputAdornment position="start">
-                <Search />
-              </InputAdornment>
-            </React.Fragment>
-          ),
-        }}
-        variant="outlined"
-      />
-
+    <div>
+      <Typography className={classes.filtersHeader} variant="h6" component="p">Filters</Typography>
       <MultiCheckboxDropdown
         options={Array.from(optionSets.Regions).sort()}
         selectedOptions={selectedRegions}
@@ -107,7 +83,7 @@ const SearchAndFilter = (props) => {
         groupHeaderLabel="Measurement Type"
       />
 
-      <div className={classes.searchPanelRow}>
+      <div className={classes.buttonWrapper}>
         <Button
           variant="outlined"
           onClick={handleResetSearch}
@@ -116,7 +92,6 @@ const SearchAndFilter = (props) => {
           Reset Filters
         </Button>
       </div>
-
     </div>
   );
 };

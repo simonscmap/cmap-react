@@ -183,37 +183,10 @@ const styles = (theme) => ({
       textDecoration: 'underline',
     }
   },
-  selectedCruises: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    alignContent: 'flex-start',
-    alignItems: 'flex-start',
-    padding: '1em 1em 1em 2em',
-    margin: '2em 0 0 0',
-    border: '1px solid #242424', // mimics "box-shadow" style of selctor input fields
-    '& > div': {
-      textAlign: 'left',
-    },
-    '& h6': {
-      marginBottom: '1em',
-    },
-    '& a': {
-      color: 'white',
-    }
-  },
-  renderButton: {
-    textTransform: 'none',
-    height: '37px',
-    color: theme.palette.primary.main,
-    borderColor: theme.palette.primary.main,
-    marginTop: '12px',
-    whiteSpace: 'nowrap',
-    padding: '0, 1em',
-    '&:disabled': {
-      color: colors.secondary,
-      borderColor: colors.secondary,
-    }
+  filtersHeader: {
+    textIndent: '.5em',
+    marginTop: '1em',
+    marginBottom: '.5em',
   },
   dataPoints: {
     marginTop: '1em'
@@ -221,32 +194,13 @@ const styles = (theme) => ({
   paper: {
     background: '#000000',
   },
-  groupBySelectMenu: {
-
-  },
   groupBySelectItem: {
       textAlign: 'left'
   },
   formControl: {
     minWidth: '150px'
   },
-  summaryHeader: {
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingBottom: '1em',
-  },
-  clearAllControl: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    cursor: 'pointer',
-    '& p:hover': {
-      color: theme.palette.primary.main,
-    }
-  },
+
   filterChips: {
     '& > div': {
       margin: '0 .5em'
@@ -254,6 +208,12 @@ const styles = (theme) => ({
   },
   searchAndFilterWrapper: {
     paddingRight: '2em',
+  },
+  buttonWrapper: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
   }
 });
 

@@ -74,38 +74,39 @@ const searchFilterGroupCruises = (
   groupBy
 ) => {
 
-  cruises = [...cruises];
+
+  let filteredCruises = [...cruises];
   // narrow by search text
   if (searchField) {
-    cruises = search.search(searchField);
+    filteredCruises = search.search(searchField);
   }
   // narrow by selected years
   if (selectedYears && selectedYears.size) {
-    cruises = cruises.filter((e) => selectedYears.has(e.Year));
+    filteredCruises = filteredCruises.filter((e) => selectedYears.has(e.Year));
   }
   // narrow by selected chief scientists
   if (selectedChiefScientists && selectedChiefScientists.size) {
-    cruises = cruises.filter((e) => selectedChiefScientists.has(e.Chief_Name));
+    filteredCruises = filteredCruises.filter((e) => selectedChiefScientists.has(e.Chief_Name));
   }
   // narrow by selected regions
   if (selectedRegions && selectedRegions.size) {
-    cruises = cruises.filter((e) =>
+    filteredCruises = filteredCruises.filter((e) =>
       e.Regions.some((region) => selectedRegions.has(region)),
     );
   }
   // narrow by selected series
   if (selectedSeries && selectedSeries.size) {
-    cruises = cruises.filter((e) => selectedSeries.has(e.Series));
+    filteredCruises = filteredCruises.filter((e) => selectedSeries.has(e.Series));
   }
   // narrow by selected series
   if (selectedSensors && selectedSensors.size) {
-    cruises = cruises.filter((e) =>
+    filteredCruises = filteredCruises.filter((e) =>
       e.Sensors.some((sensor) => selectedSensors.has(sensor)),
     );
   }
 
   // group by year
-  let groupedCruises = cruises.reduce((acc, cur) => {
+  let groupedCruises = filteredCruises.reduce((acc, cur) => {
     if (!Boolean(cur[groupBy]) || (Array.isArray(cur[groupBy]) && cur[groupBy].length === 0)) {
       if (!acc['Other']) {
         acc['Other'] = [];
@@ -142,11 +143,17 @@ const searchFilterGroupCruises = (
   if (otherIdx > -1) {
     groupedCruises = groupedCruises.slice (0, otherIdx)
                                    .concat (groupedCruises.slice(otherIdx + 1))
-                                   .concat(groupedCruises[otherIdx]);
+                                   .concat (groupedCruises[otherIdx]);
   }
 
-  console.log ('grouped cruises', groupedCruises);
-  return { groupedCruises, cruises };
+  console.log({
+    cruisesLength: cruises.length,
+    filteredLength: filteredCruises.length,
+    searchField,
+    search,
+  });
+
+  return { groupedCruises, cruises: filteredCruises };
 };
 
 const defaultSearchAndFilterState = {
@@ -471,7 +478,7 @@ class CruiseSelector extends Component {
 
     let { groupedCruises, cruises } = searchFilterGroupCruises(
       this.props.cruiseList,
-      e.target.value,
+      this.state.searchField,
       tempNewState.selectedYears,
       tempNewState.selectedChiefScientists,
       tempNewState.selectedRegions,
@@ -625,7 +632,28 @@ class CruiseSelector extends Component {
               {/* Search and Filter: Left Column */}
               <Grid item xs={3}>
                 <div className={classes.searchAndFilterWrapper}>
-<CruiseSelectorSummary
+
+                  <TextField
+                    fullWidth
+                    name="searchTerms"
+                    onChange={this.handleChangeSearchValue}
+                    placeholder="Search"
+                    value={this.state.searchField}
+                    InputProps={{
+                      classes: {
+                        root: classes.inputRoot,
+                      },
+                      startAdornment: (
+                        <React.Fragment>
+                          <InputAdornment position="start">
+                            <Search />
+                          </InputAdornment>
+                        </React.Fragment>
+                      ),
+                    }}
+                    variant="outlined"
+                  />
+                  <CruiseSelectorSummary
                     cruises={this.state.cruises}
                     selected={this.state.selected}
                     handleTrajectoryRender={this.handleTrajectoryRender}
@@ -652,77 +680,43 @@ class CruiseSelector extends Component {
               </Grid>
 
               <Grid item xs={9} >
+
                 {/* filter chips */}
-                {(this.state.selected && this.state.selected.length) ?
+                {selectedFilters.length ?
                   (<Grid container>
                     <Grid item xs={1}>
                       <div className={classes.controlRowLabel}>
-                        <Typography variant="body1" color="primary">Selected: </Typography>
+                        <Typography variant="body1" color="primary">Filters: </Typography>
                       </div>
                     </Grid>
                     <Grid item xs={10}>
                       <div className={classes.filterChips}>
-                        {this.state.selected.length ? this.state.selected.map((c, i) => {
+                        {selectedFilters.length ? selectedFilters.map((f, i) => {
+                          const [, val] = f.split('!!');
                           return <Chip
                             key={`chip${i}`}
-                            size="small"
+                            size="medium"
                             variant="outlined"
-                            label={c}
+                            label={val}
                             onDelete={() => {
-                              // this.handleClickCheckbox({ target: { name: f } }, false)
-                            }}
-                            color="primary"
-                          />;
-                        }) : <Typography variant="body2">No selected cruises</Typography>}
-                      </div>
-                    </Grid>
-                  <Grid item xs={1}>
-                    <Button
-                      startIcon={<Close style={{ fontSize: '22px' }} />}
-                      onClick={this.handleCloseSearch}
-                      className={classes.closeIcon}
-                    >
-                      Close
-                    </Button>
-                  </Grid>
-                </Grid>) : ''}
-
-      {/* filter chips */}
-      {true ?
-                (<Grid container>
-                  <Grid item xs={1}>
-                    <div className={classes.controlRowLabel}>
-                      <Typography variant="body1" color="primary">Filters: </Typography>
-                    </div>
-                  </Grid>
-                  <Grid item xs={10}>
-                    <div className={classes.filterChips}>
-                      {selectedFilters.length ? selectedFilters.map((f, i) => {
-                        const [, val] = f.split('!!');
-                        return <Chip
-                          key={`chip${i}`}
-                          size="small"
-                          variant="outlined"
-                          label={val}
-                          onDelete={() => {
-                            console.log('delete', f);
+                              console.log('delete', f);
                               this.handleClickCheckbox({ target: { name: f } }, false)
                             }}
                             color="primary"
                           />;
                         }) : <Typography variant="body2">No active filters</Typography>}
                       </div>
-                  </Grid>
-                  <Grid item xs={1}>
-                    <Button
-                      startIcon={<Close style={{ fontSize: '22px' }} />}
-                      onClick={this.handleCloseSearch}
-                      className={classes.closeIcon}
-                    >
-                      Close
-                    </Button>
-                  </Grid>
-                </Grid>) : ''}
+                    </Grid>
+                    <Grid item xs={1}>
+                      <Button
+                        startIcon={<Close style={{ fontSize: '22px' }} />}
+                        onClick={this.handleCloseSearch}
+                        className={classes.closeIcon}
+                      >
+                        Close
+                      </Button>
+                    </Grid>
+                  </Grid>) : ''}
 
                 {/* tabs */}
                 <Grid container>
