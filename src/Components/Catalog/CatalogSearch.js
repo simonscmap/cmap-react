@@ -64,7 +64,6 @@ const styles = (theme) => ({
       maxWidth: 'unset',
     },
   },
-
   resetButton: {
     textTransform: 'none',
     width: '160px',

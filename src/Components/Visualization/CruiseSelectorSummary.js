@@ -41,10 +41,10 @@ const useStyles = makeStyles((theme) => ({
     marginTop: '12px',
     whiteSpace: 'nowrap',
     padding: '0, 1em',
-    '&:disabled': {
+    '&.Mui-disabled': {
       color: '#7e7e7e',
       borderColor: '#393939',
-    }
+    },
   },
   summaryHeader: {
     width: '100%',
@@ -53,6 +53,7 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'space-between',
     paddingBottom: '1em',
     marginTop: '1em',
+    textIndent: '.5em',
   },
   clearAllControl: {
     display: 'flex',
@@ -73,7 +74,7 @@ const useStyles = makeStyles((theme) => ({
     cursor: 'pointer',
   },
   selectedListScrollable: {
-    height: '75px',
+    height: '150px',
     width: '100%',
     overflowY: 'scroll',
   },

@@ -45,6 +45,12 @@ const styles = (theme) => ({
     backgroundColor: 'rgba(0,0,0,.6)',
     backdropFilter: 'blur(4px)',
   },
+  liftRightGridUp: {
+    marginTop: '-1em',
+  },
+  filterChipsGrid: {
+    paddingTop: '1em',
+  },
   closeIcon: {
     float: 'right',
     cursor: 'pointer',
@@ -148,8 +154,16 @@ const styles = (theme) => ({
     flexDirection: 'row',
     alignItems: 'center',
     paddingLeft: '.5em',
-    marginRight: '2em',
     whiteSpace: 'nowrap',
+  },
+  controlRowCloseBtn: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: '.5em',
+    whiteSpace: 'nowrap',
+    textAlign: 'right',
+    justifyContent: 'flex-end',
   },
   tabWrapper: {
     flexDirection: 'row',

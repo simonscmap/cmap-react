@@ -632,7 +632,6 @@ class CruiseSelector extends Component {
               {/* Search and Filter: Left Column */}
               <Grid item xs={3}>
                 <div className={classes.searchAndFilterWrapper}>
-
                   <TextField
                     fullWidth
                     name="searchTerms"
@@ -679,51 +678,13 @@ class CruiseSelector extends Component {
                 </div>
               </Grid>
 
-              <Grid item xs={9} >
-
-                {/* filter chips */}
-                {selectedFilters.length ?
-                  (<Grid container>
-                    <Grid item xs={1}>
-                      <div className={classes.controlRowLabel}>
-                        <Typography variant="body1" color="primary">Filters: </Typography>
-                      </div>
-                    </Grid>
-                    <Grid item xs={10}>
-                      <div className={classes.filterChips}>
-                        {selectedFilters.length ? selectedFilters.map((f, i) => {
-                          const [, val] = f.split('!!');
-                          return <Chip
-                            key={`chip${i}`}
-                            size="medium"
-                            variant="outlined"
-                            label={val}
-                            onDelete={() => {
-                              console.log('delete', f);
-                              this.handleClickCheckbox({ target: { name: f } }, false)
-                            }}
-                            color="primary"
-                          />;
-                        }) : <Typography variant="body2">No active filters</Typography>}
-                      </div>
-                    </Grid>
-                    <Grid item xs={1}>
-                      <Button
-                        startIcon={<Close style={{ fontSize: '22px' }} />}
-                        onClick={this.handleCloseSearch}
-                        className={classes.closeIcon}
-                      >
-                        Close
-                      </Button>
-                    </Grid>
-                  </Grid>) : ''}
-
+              <Grid item xs={9} className={classes.liftRightGridUp}>
                 {/* tabs */}
                 <Grid container>
                   <Grid item xs={1} className={classes.controlRowLabel} >
                     <Typography variant="body1" color="primary">Sort By:</Typography>
                   </Grid>
-                  <Grid item xs={12} sm={10}>
+                  <Grid item xs={9}>
                     <Tabs
                       value={groupByOptions.indexOf(this.state.groupBy)}
                       onChange={this.handleGroupBySelection}
@@ -749,6 +710,48 @@ class CruiseSelector extends Component {
                       }} />
                     </Tabs>
                   </Grid>
+                  <Grid item xs={2} className={classes.controlRowCloseBtn}>
+                    <Button
+                      startIcon={<Close style={{ fontSize: '22px' }} />}
+                      onClick={this.handleCloseSearch}
+                      className={classes.closeIcon}
+                    >
+                      Close Search
+                    </Button>
+                  </Grid>
+      </Grid>
+
+                {/* filter chips */}
+
+                <Grid container className={classes.filterChipsGrid}>
+                  <Grid item xs={1}>
+                    {selectedFilters.length ?
+                      (<div className={classes.controlRowLabel}>
+                        <Typography variant="body1" color="primary">Filters: </Typography>
+                      </div>)
+                      : ''}
+                  </Grid>
+                  <Grid item xs={11}>
+                    {selectedFilters.length ?
+                      <div className={classes.filterChips}>
+                        {selectedFilters.length ? selectedFilters.map((f, i) => {
+                          const [, val] = f.split('!!');
+                          return <Chip
+                            key={`chip${i}`}
+                            size="medium"
+                            variant="outlined"
+                            label={val}
+                            onDelete={() => {
+                              console.log('delete', f);
+                              this.handleClickCheckbox({ target: { name: f } }, false)
+                            }}
+                            color="primary"
+                          />;
+                        }) : <Typography variant="body2">No active filters</Typography>}
+                      </div>
+                      : ''}
+                  </Grid>
+
                 </Grid>
 
                 {/* results list */}
