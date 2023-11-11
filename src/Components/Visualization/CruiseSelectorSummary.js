@@ -125,8 +125,9 @@ const SelectorSummary = (props) => {
     const cruise = cruises && cruises.find ((c) => c.Name === cruiseName);
     if (!cruise) {
       console.error ('cannot match cruise with cruise name', cruiseName);
+    } else {
+      removeOne (cruise);
     }
-    removeOne (cruise);
   }
 
   const noneSelected = !selected || selected.length === 0;

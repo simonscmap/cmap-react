@@ -670,7 +670,7 @@ class CruiseSelector extends Component {
                     variant="outlined"
                   />
                   <CruiseSelectorSummary
-                    cruises={this.state.cruises}
+                    cruises={this.props.cruiseList}
                     selected={this.state.selected}
                     handleTrajectoryRender={this.handleTrajectoryRender}
                     pointCount={this.state.pointCount}
