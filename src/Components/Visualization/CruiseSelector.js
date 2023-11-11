@@ -267,12 +267,23 @@ class CruiseSelector extends Component {
 
   handleCruiseSelect = (selection) => {
     // trajectory point counds (from redux; fetched when component loads)
+    console.log ('handling selection toggle for: ', selection && selection.Name);
 
-    console.log ('handleCruiseSelect', selection);
     const counts = this.props.trajectoryPointCounts || {};
+
     const getPointCount = (list) => list
-      .map((name) => this.state.cruises.find(c => c.Name === name))
-      .reduce((acc, curr) => {
+      .map((name) => {
+        const c = this.props.cruiseList.find(c => c.Name === name);
+        if (!c) {
+          console.log ('no cruise found for name', name);
+        }
+        return c;
+      })
+      .reduce((acc, curr, i, arr) => {
+        if (!curr) {
+          console.log ('no item in reduce at index ' + i, arr);
+          return acc;
+        }
         return acc + (counts[curr.ID] || 0)
       }, 0);
 
@@ -352,6 +363,8 @@ class CruiseSelector extends Component {
 
     if (prevState.groupedCruises !== this.state.groupedCruises)
       listRef.current.resetAfterIndex(0);
+
+    console.log('component did update', this.state)
   };
 
   handleChangeSearchValue = (e) => {
@@ -517,6 +530,8 @@ class CruiseSelector extends Component {
         ? oldOptionSets.Sensors
         : newOptionSets.Sensors,
     };
+
+    console.log ('setting cruises during checkbox event', cruises);
 
     this.setState({
       ...tempNewState,

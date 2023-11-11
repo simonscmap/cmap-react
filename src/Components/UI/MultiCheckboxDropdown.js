@@ -96,8 +96,6 @@ const CollapsibleContent = ({
   parentStateKey,
   selectedOptions,
 }) => {
-  log.debug ('selectedOptions', { key: parentStateKey, selectedOptions });
-  log.debug ('options', { key: parentStateKey,options });
   const countAndResize = (
     <Grid
       item
