@@ -17,12 +17,9 @@ const homeStyles = (theme) => ({
   alignmentWrapper: {
     margin: '0 auto',
     maxWidth: '1900px',
-    paddingTop: '200px',
+    paddingTop: '150px',
     '@media (max-width: 1920px)': {
       paddingLeft: '20px',
-    },
-    [theme.breakpoints.down('md')]: {
-      paddingTop: '150px',
     },
     [theme.breakpoints.down('sm')]: {
       paddingTop: '130px',

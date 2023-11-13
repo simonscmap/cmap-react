@@ -11,7 +11,6 @@ import { requestNewsList } from '../../Redux/actions/news';
 import { prepareHomepageNews } from '../Admin/News/lib';
 import Grid from '@material-ui/core/Grid';
 import Summary from './Summary';
-import Segways from './Segways';
 
 const Home = withStyles(homeStyles)(({ classes }) => {
   let stories = useSelector(({ news }) => prepareHomepageNews(news.stories));
@@ -20,12 +19,11 @@ const Home = withStyles(homeStyles)(({ classes }) => {
       <div className={classes.homeWrapper}>
         <div className={classes.mainWrapper}>
           <div className={classes.alignmentWrapper}>
-            <Grid container xs={12} spacing={3}> {/* main container*/}
+            <Grid container spacing={3}> {/* main container*/}
               <Grid container xs={12} md={8} item direction="column"> {/* hero & callouts */}
                 <Grid container item>
                   <Hero />
                 </Grid>
-                <Segways /> {/* grid item*/}
               </Grid>
               <Grid container xs={12} md={4} item> {/* stats summary & news */}
                 <Summary />

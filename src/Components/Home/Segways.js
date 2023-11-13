@@ -8,12 +8,31 @@ import PublishIcon from '@material-ui/icons/Publish';
 import VpnKeyIcon from '@material-ui/icons/VpnKey';
 
 const useStyles = makeStyles({
+  segway: {
+    margin: '3em 0 1em 0',
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
+    gap: '1em',
+  },
+ container: {
+    width: '250px',
+    display: 'flex',
+    flexDirection: 'column',
+    alignContent: 'flex-start',
+    justifyContent: 'flex-start',
+    alignItems: 'left',
+    textAlign: 'left',
+  },
   buttonContainer: {
     width: '100%',
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start',
+    flexWrap: 'wrap',
   },
   innerButton: {
     width: '75%',
@@ -22,26 +41,22 @@ const useStyles = makeStyles({
     alignContent: 'center',
     alignItems: 'center',
     justifyContent: 'space-around',
-
   },
   buttonText: {
-    fontSize: '1.3em',
+    fontSize: '1.1em',
   },
   iconContainer: {
-    height: '3em',
-    width: '3em',
+    height: '2.5em',
+    width: '2.5em',
     marginRight: '.5em',
     '& svg': {
-      height: '1.5em',
-      width: '1.5em',
-      // width: 'auto', // let the icon expand to font size
-      // height: 'auto',
-
+      height: '1.2em',
+      width: '1.2em',
     }
   },
   logoContainer: {
     height: '35px',
-    width: '365px',
+    width: '250px',
     display: 'flex',
     flexDirection: 'row',
     alignContent: 'flex-start',
@@ -50,16 +65,6 @@ const useStyles = makeStyles({
     '& img': {
       height: '35px'
     }
-  },
-  container: {
-    width: '365px',
-    display: 'flex',
-    flexDirection: 'column',
-    alignContent: 'flex-start',
-    justifyContent: 'flex-start',
-    alignItems: 'left',
-    textAlign: 'left',
-    margin: '1em auto',
   },
   center: {
     margin: '0 auto'
@@ -82,7 +87,7 @@ const LargeButton = withStyles((theme) => ({
     borderRadius: '36px',
     boxSizing: 'border-box',
     padding: '23px',
-    height: '3em',
+    height: '2.5em',
     fontSize: pxToRem[18],
     fontWeight: 500,
     fontFamily: ['Montserrat', 'sans-serif'].join(','),
@@ -106,43 +111,39 @@ const Segways = () => {
   const classes = useStyles();
 
   return (
-    <Grid container item>
-      <Grid item md={12} lg={6} className={classes.center}>
-        <div className={classes.container}>
-          <div className={classes.buttonContainer}>
-            <LargeButton onClick={() => history.push('/datasubmission/guide')}>
-              <div className={classes.innerButton}>
-                <div className={classes.iconContainer}>
-                  <PublishIcon color="primary" fontSize="large" />
-                </div>
-                <span className={classes.buttonText}>Submit Data</span>
+    <div className={classes.segway}>
+      <div className={classes.container}>
+        <div className={classes.buttonContainer}>
+          <LargeButton onClick={() => history.push('/datasubmission/guide')}>
+            <div className={classes.innerButton}>
+              <div className={classes.iconContainer}>
+                <PublishIcon color="primary" fontSize="large" />
               </div>
-            </LargeButton>
-          </div>
+              <span className={classes.buttonText}>Submit Data</span>
+            </div>
+          </LargeButton>
         </div>
-      </Grid>
-      <Grid item md={12} lg={6} className={classes.center}>
-        <div className={classes.container}>
-          <div className={classes.buttonContainer}>
-            <LargeButton
-              color="primary"
-              onClick={() => history.push('/apikeymanagement')}
-            >
-              <div className={classes.innerButton}>
-                <div className={classes.iconContainer}>
-                  <VpnKeyIcon color="primary" fontSize="large" />
-                </div>
-                <span className={classes.buttonText}>API Access</span>
+      </div>
+      <div className={classes.container}>
+        <div className={classes.buttonContainer}>
+          <LargeButton
+            color="primary"
+            onClick={() => history.push('/apikeymanagement')}
+          >
+            <div className={classes.innerButton}>
+              <div className={classes.iconContainer}>
+                <VpnKeyIcon color="primary" fontSize="large" />
               </div>
-            </LargeButton>
-          </div>
-          <div className={classes.logoContainer}>
-            <a href="https://github.com/simonscmap/pycmap" target="_blank" rel="noreferrer"><img src="/images/home/python-logo-0.png" /></a>
-            <a href="https://github.com/simonscmap/cmap4r" target="_blank" rel="noreferrer"><img src="/images/home/Rlogo.png" /></a>
-          </div>
+              <span className={classes.buttonText}>API Access</span>
+            </div>
+          </LargeButton>
         </div>
-      </Grid>
-    </Grid>
+        <div className={classes.logoContainer}>
+          <a href="https://github.com/simonscmap/pycmap" target="_blank" rel="noreferrer"><img src="/images/home/python-logo-0.png" /></a>
+          <a href="https://github.com/simonscmap/cmap4r" target="_blank" rel="noreferrer"><img src="/images/home/Rlogo.png" /></a>
+        </div>
+      </div>
+    </div>
   );
 };
 
