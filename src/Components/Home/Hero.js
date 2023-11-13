@@ -8,7 +8,7 @@ import Segways from './Segways';
 const Hero = (props) => {
   let { classes } = props;
   return (
-    <Grid container item direction={'column'} spacing={5} className={classes.hero} wrap='nowrap'>
+    <Grid id="hero-container" container item direction={'column'} spacing={5} className={classes.hero} wrap='nowrap'>
 
       <Grid container direction={'row'} spacing={2} item xs={12}>
         <Grid item xs={6}>
@@ -17,10 +17,9 @@ const Hero = (props) => {
               <img src="images/home/simons-cmap-logo-full.svg" />
             </div>
             <div className={classes.copy}>
-              <Typography variant="h2" style={{ margin: '2em 0 .5em 0' }}>
+              <Typography variant="h2" style={{ margin: '-2em 0 .5em 0' }}>
                 Interconnected, harmonized ocean data
               </Typography>
-
             </div>
             <Segways />
           </div>

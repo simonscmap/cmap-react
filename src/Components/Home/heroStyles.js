@@ -53,15 +53,11 @@ const heroStyles = (theme) => ({
   copy: {
     textAlign: 'left',
     '& h2': {
-      margin: '1em 0 .5em 0',
+      // margin: '1em 0 .5em 0',
     },
     [theme.breakpoints.down('xs')]: {
       textAlign: 'center',
     }
-  },
-  heroBlurb: {
-    margin: '1em 0 .5em 0',
-    lineHeight: '1.3',
   },
 });
 

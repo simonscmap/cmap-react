@@ -1,5 +1,5 @@
 import { ThemeProvider } from '@material-ui/core/styles';
-import React from 'react';
+import React, { useState } from 'react';
 import Footer from './Footer';
 import Hero from './Hero';
 import News from './News';
@@ -11,9 +11,20 @@ import { requestNewsList } from '../../Redux/actions/news';
 import { prepareHomepageNews } from '../Admin/News/lib';
 import Grid from '@material-ui/core/Grid';
 import Summary from './Summary';
+import AnomalyMonitor from './AnomalyMonitor';
+import ResizeObserver from 'react-resize-observer';
 
 const Home = withStyles(homeStyles)(({ classes }) => {
   let stories = useSelector(({ news }) => prepareHomepageNews(news.stories));
+  let [w, setWidth] = useState(0);
+  const onResize = (data) => {
+    const el = document.getElementById('hero-container')
+    if (el) {
+      console.log(el.clientWidth);
+      setWidth(el.clientWidth);
+    }
+  };
+
   return (
     <ThemeProvider theme={homeTheme}>
       <div className={classes.homeWrapper}>
@@ -22,7 +33,11 @@ const Home = withStyles(homeStyles)(({ classes }) => {
             <Grid container spacing={3}> {/* main container*/}
               <Grid container xs={12} md={8} item direction="column"> {/* hero & callouts */}
                 <Grid container item>
+                  <ResizeObserver onResize={onResize}></ResizeObserver>
                   <Hero />
+                </Grid>
+                <Grid item>
+                  <AnomalyMonitor dim={{ width: w }} />
                 </Grid>
               </Grid>
               <Grid container xs={12} md={4} item> {/* stats summary & news */}
