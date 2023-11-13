@@ -10,6 +10,8 @@ import ClearIcon from '@material-ui/icons/Clear';
 import {AiOutlineNodeExpand} from 'react-icons/ai';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import colors from '../../enums/colors';
+import { snackbarOpen } from '../../Redux/actions/ui';
+import { useDispatch } from 'react-redux';
 
 const TRAJECTORY_POINTS_LIMIT = 70000;
 
@@ -115,10 +117,13 @@ const SelectorSummary = (props) => {
     handleTrajectoryRender,
     pointCount,
     openContainingGroup,
+    handleCruiseSelect,
+    lastSelection,
     removeOne,
     removeAll,
   } = props;
 
+  const dispatch = useDispatch ();
   const classes = useStyles();
 
   const deselect = (cruiseName) => {
@@ -134,6 +139,14 @@ const SelectorSummary = (props) => {
   const someSelected = !noneSelected;
   const selectedOverLimit =(selected.length > 1 && pointCount > TRAJECTORY_POINTS_LIMIT);
   const buttonDisabled = selectedOverLimit || noneSelected;
+
+  useEffect(() => {
+    if (selectedOverLimit) {
+      dispatch (snackbarOpen ('The last cruise selected would have caused the total trajectory points to exceed the allowed amount for a single render and has been automatically deselected.'));
+      // remove last selection
+      handleCruiseSelect (lastSelection);
+    }
+  }, [selectedOverLimit]);
 
   let buttonText = '';
   if (noneSelected) {

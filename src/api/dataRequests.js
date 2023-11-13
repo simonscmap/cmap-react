@@ -39,6 +39,15 @@ dataAPI.trajectoryCounts = async () => {
   return response;
 }
 
+dataAPI.named = async (name) => {
+  console.log ('named request', name);
+  let response = await fetch(
+    apiUrl + `/api/data/named/${name}`,
+    fetchOptions,
+  );
+  return response;
+}
+
 // Wrap each endpoint in a try/catch because...
 // if the fetch fails before the request is sent, for example due to a CORS
 // violation or if the network is down,

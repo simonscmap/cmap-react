@@ -228,6 +228,20 @@ const styles = (theme) => ({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'flex-end',
+  },
+  cruiseCheckbox: {
+    '&.Mui-disabled': {
+      pointerEvents: 'auto',
+      color: 'gray',
+      '&:hover': {
+        // backgroundColor: 'red',
+        color: 'white',
+      },
+      cursor: 'not-allowed',
+      '& .MuiSvgIcon-root .innerBox': {
+        fill: '#eee',
+      },
+    },
   }
 });
 

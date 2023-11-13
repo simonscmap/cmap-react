@@ -6,7 +6,7 @@ import {
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import {ChevronRight, ExpandMore} from '@material-ui/icons';
-import React  from 'react';
+import React from 'react';
 import { VariableSizeList } from 'react-window';
 import { useSelector } from 'react-redux';
 import styles from './cruiseSelectorStyles';
@@ -21,6 +21,8 @@ const renderGroupTitle = (groupBy, groupTitle) => {
   }
 }
 
+const TRAJECTORY_POINTS_LIMIT = 70000;
+
 const Results = (props) => {
   const {
     listRef,
@@ -29,11 +31,15 @@ const Results = (props) => {
     groupBy,
     handleSetOpenGroup,
     selected,
+    pointCount,
     handleCruiseSelect,
   } = props;
 
   const windowHeight = useSelector((state) => state.windowHeight);
   const classes = useStyle();
+
+  const selectedOverLimit = (selected.length > 1 && pointCount > TRAJECTORY_POINTS_LIMIT);
+  const selectionDisabled = selectedOverLimit;
 
   return (
     <VariableSizeList
@@ -118,6 +124,8 @@ const Results = (props) => {
                   <Grid item xs={1}>
                     <div className={classes.checkBoxWrapper}>
                       <Checkbox
+                        disabled={selected && !selected.includes(cruise.Name) && selectionDisabled}
+                        className={classes.cruiseCheckbox}
                         checked={selected && selected.includes(cruise.Name)}
                         onClick={() => handleCruiseSelect(cruise)} />
                     </div>

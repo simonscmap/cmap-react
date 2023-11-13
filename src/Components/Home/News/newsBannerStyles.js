@@ -23,7 +23,7 @@ const newsBannerStyles = (theme) => ({
     background: 'rgba(0,0,0,0.10)',
     marginTop: '-1em', // position underneath the blurry title bar
     marginBottom: '2em',
-    height: '600px',
+    height: '1785px',
     scrollSnapType: 'both mandatory',
     scrollPaddingTop: '3em',
     overflowY: 'auto',

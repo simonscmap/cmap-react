@@ -6,6 +6,7 @@ import visualization from './visualization';
 import dataSubmission from './dataSubmission.js';
 import help from './help.js';
 import highlights from './highlights';
+import data from './data';
 import reduceReducers from 'reduce-reducers';
 import Cookies from 'js-cookie';
 import states from '../../enums/asyncRequestStates';
@@ -66,6 +67,10 @@ const initialState = {
 
   // Homepage
   home: {},
+
+  // Homepage Anomaly Monitor Data
+  sstReqStatus: states.notTried,
+  adtReqStatus: states.notTried,
 
   // Interface state pieces
   loginDialogIsOpen: false,
@@ -173,6 +178,7 @@ const reducedReducer = reduceReducers(
   help,
   news,
   highlights,
+  data,
 );
 
 export default reducedReducer;

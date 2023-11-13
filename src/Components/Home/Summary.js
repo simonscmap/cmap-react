@@ -201,7 +201,7 @@ const Summary = () => {
   return (
     <div className={classes.container}>
       <Typography variant="h2">CMAP at a Glance</Typography>
-      <Grid container xs={12}>
+      <Grid container>
         <Grid container item xs={12} sm={6} md={12} lg={6}>
           <Grid item xs={12}><DataSize /></Grid>
           <Grid item xs={12}><VariableCount /></Grid>

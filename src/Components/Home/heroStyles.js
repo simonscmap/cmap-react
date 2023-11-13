@@ -1,3 +1,5 @@
+import { pxToRem } from './theme';
+
 const heroStyles = (theme) => ({
   // container for hero contents, divided into 3 groups
   hero: {
@@ -13,7 +15,13 @@ const heroStyles = (theme) => ({
       }
     },
   },
-
+  arrangeLeftSideHeroContent: {
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+  },
   logo: {
     textAlign: 'left',
     [theme.breakpoints.down('xs')]: {
@@ -21,12 +29,12 @@ const heroStyles = (theme) => ({
       justifyContent: 'center',
     },
     '& img': {
-      width: '80%',
+      width: '70%',
       [theme.breakpoints.down('sm')]: {
-        width: '90%',
+        // width: '60%',
       },
       [theme.breakpoints.down('xs')]: {
-        width: '90%',
+        // width: '60%',
       }
     },
   },
@@ -44,17 +52,19 @@ const heroStyles = (theme) => ({
       }
     },
   },
-  copy: {
+  tagline: {
+    margin: '0 0 .5em 0',
     textAlign: 'left',
     '& h2': {
-      margin: '1em 0 .5em 0',
+      color: 'white',
+      fontSize: pxToRem[22],
     },
     [theme.breakpoints.down('xs')]: {
       textAlign: 'center',
+      '& h2': {
+      fontSize: pxToRem[18],
+    },
     }
-  },
-  heroBlurb: {
-    lineHeight: '1.3',
   },
 });
 
