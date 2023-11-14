@@ -1,3 +1,5 @@
+import { pxToRem } from './theme';
+
 const heroStyles = (theme) => ({
   // container for hero contents, divided into 3 groups
   hero: {
@@ -27,12 +29,12 @@ const heroStyles = (theme) => ({
       justifyContent: 'center',
     },
     '& img': {
-      width: '60%',
+      width: '70%',
       [theme.breakpoints.down('sm')]: {
-        width: '60%',
+        // width: '60%',
       },
       [theme.breakpoints.down('xs')]: {
-        width: '60%',
+        // width: '60%',
       }
     },
   },
@@ -50,13 +52,18 @@ const heroStyles = (theme) => ({
       }
     },
   },
-  copy: {
+  tagline: {
+    margin: '0 0 .5em 0',
     textAlign: 'left',
     '& h2': {
-      // margin: '1em 0 .5em 0',
+      color: 'white',
+      fontSize: pxToRem[22],
     },
     [theme.breakpoints.down('xs')]: {
       textAlign: 'center',
+      '& h2': {
+      fontSize: pxToRem[18],
+    },
     }
   },
 });

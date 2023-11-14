@@ -16,8 +16,8 @@ const Hero = (props) => {
             <div className={classes.logo}>
               <img src="images/home/simons-cmap-logo-full.svg" />
             </div>
-            <div className={classes.copy}>
-              <Typography variant="h2" style={{ margin: '-2em 0 .5em 0' }}>
+            <div className={classes.tagline}>
+              <Typography variant="h2">
                 Interconnected, harmonized ocean data
               </Typography>
             </div>

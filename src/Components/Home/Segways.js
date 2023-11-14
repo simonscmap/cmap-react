@@ -9,8 +9,8 @@ import VpnKeyIcon from '@material-ui/icons/VpnKey';
 
 const useStyles = makeStyles({
   segway: {
-    margin: '3em 0 1em 0',
     width: '100%',
+    padding: '0 0 5em 0',
     display: 'flex',
     flexDirection: 'row',
     flexWrap: 'wrap',

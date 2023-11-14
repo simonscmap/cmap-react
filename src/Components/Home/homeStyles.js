@@ -1,4 +1,4 @@
-import { colors } from './theme';
+import { colors, pxToRem } from './theme';
 
 const homeStyles = (theme) => ({
   homeWrapper: {
@@ -24,6 +24,27 @@ const homeStyles = (theme) => ({
     [theme.breakpoints.down('sm')]: {
       paddingTop: '130px',
     }
+  },
+  sectionTitle: {
+    textAlign: 'left',
+    width: 'calc(100% - 70px)',
+    '& h2': {
+      fontSize: pxToRem[22],
+      fontWeight: 500,
+      color: 'white',
+      textDecoration: 'underline',
+      textDecorationColor: colors.blue.teal,
+      textDecorationThickness: '2px',
+      textUnderlineOffset: '8px',
+      marginBottom: '1em',
+    },
+    '& p': {
+
+    }
+  },
+  rightGridContainer: { // keep summary and news pushed to top
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
   }
 });
 
