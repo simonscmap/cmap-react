@@ -86,6 +86,11 @@ import {
   watchRequestTrajectoryPointCounts,
 } from './visualizationSagas';
 
+import {
+  watchRequestSSTAnomalyDataSend,
+  watchRequestADTAnomalyDataSend,
+} from './anomaly';
+
 import logInit from '../../Services/log-service';
 const log = logInit('sagas').addContext({ src: 'Redux/Sagas' });
 
@@ -1782,6 +1787,8 @@ function* rootSaga() {
     watchCheckDownloadSize(),
     watchRequestHighlightsSend(),
     watchRequestTrajectoryPointCounts(),
+    watchRequestSSTAnomalyDataSend(),
+    watchRequestADTAnomalyDataSend(),
   ]);
 }
 

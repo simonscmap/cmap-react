@@ -40,6 +40,7 @@ dataAPI.trajectoryCounts = async () => {
 }
 
 dataAPI.named = async (name) => {
+  console.log ('named request', name);
   let response = await fetch(
     apiUrl + `/api/data/named/${name}`,
     fetchOptions,
