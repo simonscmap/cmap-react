@@ -1,6 +1,6 @@
 {
   "name": "cmap_react",
-  "version": "1.12.3",
+  "version": "1.12.4-rc.0",
   "private": true,
   "dependencies": {
     "@date-io/date-fns": "^1.3.13",
