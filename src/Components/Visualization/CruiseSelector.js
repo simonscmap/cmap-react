@@ -242,6 +242,7 @@ class CruiseSelector extends Component {
     this.state = {
       search,
       selected: [],
+      lastSelection: null,
       pointCount: 0,
       searchMenuOpen: false,
       groupedCruises,
@@ -290,6 +291,7 @@ class CruiseSelector extends Component {
     // add selected cruise to list, or if already preset remove it
     if (this.state.selected.includes(selection.Name)) {
       const newSelectedList = this.state.selected.filter(name => name !== selection.Name);
+      const newPointCount = getPointCount(newSelectedList);
       this.setState({
         ...this.state,
         selected: newSelectedList,
@@ -297,9 +299,11 @@ class CruiseSelector extends Component {
       });
     } else {
       const newSelectedList = [...this.state.selected, selection.Name];
+      const newPointCount = getPointCount (newSelectedList);
       this.setState({
         ...this.state,
         selected: newSelectedList,
+        lastSelection: selection,
         pointCount: getPointCount (newSelectedList)
       });
     }
@@ -674,6 +678,8 @@ class CruiseSelector extends Component {
                     selected={this.state.selected}
                     handleTrajectoryRender={this.handleTrajectoryRender}
                     pointCount={this.state.pointCount}
+                    lastSelection={this.state.lastSelection}
+                    handleCruiseSelect={this.handleCruiseSelect}
                     openContainingGroup={this.findGroupAndOpen}
                     removeOne={this.handleCruiseSelect}
                     removeAll={this.handleDeselectAll}
@@ -780,6 +786,7 @@ class CruiseSelector extends Component {
                     openGroup={openGroup}
                     groupBy={this.state.groupBy}
                     handleSetOpenGroup={this.handleSetOpenGroup}
+                    pointCount={this.state.pointCount}
                     selected={this.state.selected}
                     handleCruiseSelect={this.handleCruiseSelect}
                   />

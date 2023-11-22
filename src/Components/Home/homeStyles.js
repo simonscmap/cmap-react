@@ -42,6 +42,18 @@ const homeStyles = (theme) => ({
 
     }
   },
+  anomalyIntroText: {
+    '& a': {
+      color: colors.blue.teal,
+    },
+    '& a:visited': {
+      color: colors.blue.teal,
+    },
+    '& a:hover': {
+      color: colors.green.lime,
+    },
+
+  },
   rightGridContainer: { // keep summary and news pushed to top
     flexDirection: 'column',
     justifyContent: 'flex-start',

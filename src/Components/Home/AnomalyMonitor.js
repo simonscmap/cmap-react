@@ -52,7 +52,7 @@ const layout = {
   paper_bgcolor: 'rgba(0,0,0,0)',
   plot_bgcolor: 'rgba(0,0,0,0)',
   title: {
-    text: 'Sea Surface Temperature Anomalies',
+    text: 'Sea Surface Temperature (SST) Anomaly Time Series',
     font: {
       size: 18,
       color: 'rgb(105, 255, 242)',
@@ -184,7 +184,7 @@ const AnomalyMonitor = (props) => {
   sstLayout.width = dim.width - 100;
   adtLayout.width = dim.width - 100;
 
-  adtLayout.title.text = 'Absolute Dynamic Topography (ADT) Anomalies';
+  adtLayout.title.text = 'Absolute Dynamic Topography (ADT) Anomaly Time Series';
   adtLayout.yaxis.title = `ADT Anomaly [m]`;
 
   if (sstReady) {

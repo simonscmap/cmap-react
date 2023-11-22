@@ -41,8 +41,8 @@ const Home = withStyles(homeStyles)(({ classes }) => {
                     <Typography variant="h2">
                       Global Anomaly Monitor
                     </Typography>
-                    <Typography variant="body1" style={{ textAlign: 'left' }}>
-                      The plots below show the anomaly time series of Sea Surface Temperature (SST) and Absolute Dynamic Topography (ADT). To compute the anomaly the globe is discretized into a uniform grid with 5°x5° spatial resolution. The time series of SST and ADT are computed at each grid point with monthly temporal resolutions. Anomaly time series are achieved by subtracting the first 5-year average values. These plots are automatically updated every month.
+                    <Typography variant="body1" className={classes.anomalyIntroText} style={{ textAlign: 'left' }}>
+                      The figures below provide a real-time representation of two example datasets you may find in the Simons CMAP datasets. They demonstrate the anomaly time series of <a href="/catalog/datasets/Near_Real_Time_SST_AVHRR_OI" target="_blank">Sea Surface Temperature (SST)</a> and <a href="/catalog/datasets/Altimetry_NRT_Signal" target="_blank">Absolute Dynamic Topography (ADT)</a> at various locations and over the past few decades. To compute the anomaly the global ocean surface is discretized into a uniform grid with 5°x5° spatial resolution. The time series of SST and ADT are computed at each grid point with monthly temporal resolutions. Anomaly time series are then achieved by subtracting the first 5-year average values. These plots are automatically updated every month.
                     </Typography>
                   </div>
                   <AnomalyMonitor dim={{ width: w }} />

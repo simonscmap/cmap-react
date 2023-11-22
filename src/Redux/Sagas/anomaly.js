@@ -13,7 +13,7 @@ const processData = (data, unitString) => {
     input.push({
       type: "scattergl",
       mode: "line",
-      hovertemplate: `Lat: ${lat}, Lon: ${lon}<br>Time: %{x}<br>Anomaly: %{y:.1f} ${unitString}<extra></extra>`,
+      hovertemplate: `Lat: ${lat}, Lon: ${lon}<br>Time: %{x|%b, %Y}<br>Anomaly: %{y:.1f} ${unitString}<extra></extra>`,
       x: data[k].x.map((s) => {
         const [yr, mo] = s.split(', ');
         const newX = new Date(yr, mo);
