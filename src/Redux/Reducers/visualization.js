@@ -95,7 +95,7 @@ export default function (state, action) {
         ...state,
         charts: [
           ...state.charts.slice(0, action.payload.chartIndex),
-          ...state.charts.slice(action.payload.chartInedx + 1),
+          ...state.charts.slice(action.payload.chartIndex + 1),
         ],
         plotsActiveTab: state.charts.length === 1 ? 0 : 1,
       };
