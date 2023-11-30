@@ -1,27 +1,26 @@
 import React from 'react';
-import { connect } from 'react-redux';
-
+import { useDispatch } from 'react-redux';
 import { Tooltip } from '@material-ui/core';
-
 import { copyTextToClipboard } from '../../Redux/actions/ui';
-
-const mapDispatchToProps = {
-  copyTextToClipboard,
-};
 
 // Wraps a tooltip and span with click event handler for copying to clipboard
 const CopyableText = (props) => {
   const {
-    copyTextToClipboard,
     tooltipPlacement,
     text,
     innerSpanProps,
     hideTooltip,
+    textInTooltip,
   } = props;
 
-  const handleCopyText = (event) => {
-    copyTextToClipboard(event.target.innerText);
+  const dispatch = useDispatch();
+
+  const handleCopyText = () => {
+    dispatch (copyTextToClipboard(text));
   };
+
+  const title = textInTooltip ? text : 'Click to copy';
+  const placement = tooltipPlacement || 'top';
 
   if (hideTooltip) {
     return (
@@ -36,7 +35,7 @@ const CopyableText = (props) => {
   }
 
   return (
-    <Tooltip placement={tooltipPlacement || 'top'} title="Click to Copy">
+    <Tooltip placement={placement} title={title}>
       <span
         style={{ cursor: 'copy' }}
         onClick={handleCopyText}
@@ -48,6 +47,4 @@ const CopyableText = (props) => {
   );
 };
 
-export default connect(null, mapDispatchToProps, null, { forwardRef: true })(
-  CopyableText,
-);
+export default CopyableText;

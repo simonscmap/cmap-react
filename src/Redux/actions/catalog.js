@@ -232,3 +232,70 @@ export const datasetDownloadRequestSuccess = (text) => ({
     text,
   },
 });
+
+/* Recommendations */
+
+export const popularRecsRequestSend = () => ({
+  type: catalogActionTypes.FETCH_RECS_POPULAR_SEND,
+})
+
+export const popularRecsRequestSuccess = (result) => ({
+  type: catalogActionTypes.FETCH_RECS_POPULAR_SUCCESS,
+  payload: result,
+});
+
+export const popularRecsRequestFailure = (err) => ({
+  type: catalogActionTypes.FETCH_RECS_POPULAR_FAILURE,
+  paload: err,
+});
+
+
+export const recentRecsRequestSend = (user_id) => ({
+  type: catalogActionTypes.FETCH_RECS_RECENT_SEND,
+  payload: {
+    user_id: user_id
+  }
+})
+
+export const recentRecsRequestSuccess = (result) => ({
+  type: catalogActionTypes.FETCH_RECS_RECENT_SUCCESS,
+  payload: result,
+});
+
+export const recentRecsRequestFailure = (err) => ({
+  type: catalogActionTypes.FETCH_RECS_RECENT_FAILURE,
+  paload: err,
+});
+
+export const recentRecsCacheHit = (cachedResult) => ({
+  type: catalogActionTypes.FETCH_RECS_RECENT_CACHE_HIT,
+  payload: cachedResult,
+});
+
+
+export const recommendedRecsRequestSend = (user_id) => ({
+  type: catalogActionTypes.FETCH_RECS_RECOMMENDED_SEND,
+  payload: {
+    user_id: user_id
+  }
+})
+
+export const recommendedRecsRequestSuccess = (result) => ({
+  type: catalogActionTypes.FETCH_RECS_RECOMMENDED_SUCCESS,
+  payload: result,
+});
+
+export const recommendedRecsRequestFailure = (err) => ({
+  type: catalogActionTypes.FETCH_RECS_RECOMMENDED_FAILURE,
+  paload: err,
+});
+
+export const recommendedRecsCacheHit = (cachedResult) => ({
+  type: catalogActionTypes.FETCH_RECS_RECOMMENDED_CACHE_HIT,
+  payload: cachedResult,
+});
+
+export const setSortingOptions = (options) => ({
+  type: catalogActionTypes.SET_SORTING_OPTIONS,
+  payload: options,
+});

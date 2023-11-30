@@ -35,7 +35,6 @@ const siteTheme = createTheme({
       primary: '#ffffff',
       secondary: colors.primary, // this will affect check boxes, unfocused select labels, among others
       // secondary: newColors.green.lime,
-
       // secondary: '#69FFF2',
     },
   },

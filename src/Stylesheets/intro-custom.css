@@ -157,10 +157,7 @@
   position: absolute;
 }
 
-/* adjust "Download Search Results" left to make room for hint*/
-p#catalog-results-download {
-  padding-right: 1.6em;
-}
+
 /* get rid of increment/decrement buttons on inputs */
 input::-webkit-inner-spin-button,
 input::-webkit-outer-spin-button {

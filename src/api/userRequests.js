@@ -124,4 +124,17 @@ userAPI.keyCreation = async (description) => {
   );
 };
 
+userAPI.getLastDatasetTouch = async () => {
+  try {
+    let response = await fetch(
+      apiUrl + `/api/user/last-api-call`,
+      fetchOptions,
+    );
+    return response;
+  } catch (e) {
+    console.log ('error fetching user data');
+    return null;
+  }
+}
+
 export default userAPI;

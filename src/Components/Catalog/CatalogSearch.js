@@ -6,19 +6,25 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import { withStyles } from '@material-ui/core';
 import {
-  Link,
-  Typography,
-  FormControl,
-  Select,
-  MenuItem,
-  FormHelperText,
-  TextField,
-  InputAdornment,
-  Paper,
   Button,
+  Chip,
+  FormControl,
+  FormHelperText,
   Grid,
+  InputAdornment,
+  Link,
+  makeStyles,
+  MenuItem,
+  Paper,
+  Select,
+  Tabs,
+  TextField,
+  Tooltip,
+  Typography,
 } from '@material-ui/core';
+import ToggleButton from '@material-ui/lab/ToggleButton';
 import { Search } from '@material-ui/icons';
+import FilterListIcon from '@material-ui/icons/FilterList';
 import { debounce } from 'throttle-debounce';
 import MultiCheckboxDropdown from '../UI/MultiCheckboxDropdown';
 import queryString from 'query-string';
@@ -28,7 +34,13 @@ import SearchHint from './help/keywordSearchHint';
 import SearchFiltersHint from './help/SearchFiltersHint';
 import CatalogPageTitleHint from './help/pageTitleHint';
 import AdditionalFiltersHint from './help/AdditionalFiltersHint';
+import SortingControls from './SortingControls';
 import initLogger from '../../Services/log-service';
+import styles from './searchPanelStyles';
+// New Drop Down
+import { DropDownContainer, CheckboxSet } from '../UI/DropDown';
+import { TemporalCoverageOptions } from './TemporalCoverageOptions';
+import { SpatialCoverageOptions } from './SpatialCoverageOptions';
 
 const log = initLogger('CatalogSearch.js');
 
@@ -39,57 +51,6 @@ const mapStateToProps = (state) => {
     hints,
   };
 };
-
-const styles = (theme) => ({
-  pageTitleWrapper: {
-    margin: '-50px 0 10px 27px',
-    textAlign: 'left',
-  },
-  pageTitle: {
-    color: 'white',
-    fontWeight: 100,
-    fontSize: '32px',
-  },
-  searchPaper: {
-    padding: '14px 20px',
-    // overflow must be visible to allow hints to expand outside
-    // the boundary of the search container
-    overflow: 'visible',
-    flexGrow: '2',
-  },
-  divWrapper: {
-    flexGrow: '1',
-    maxWidth: '500px',
-    [theme.breakpoints.down('md')]: {
-      maxWidth: 'unset',
-    },
-  },
-  resetButton: {
-    textTransform: 'none',
-    width: '160px',
-    height: '37px',
-    color: theme.palette.primary.main,
-    borderColor: theme.palette.primary.main,
-    marginTop: '12px',
-  },
-  searchPanelRow: {
-    marginTop: '10px',
-  },
-  formControl: {
-    width: '90%',
-    marginBottom: '6px',
-  },
-  searchSectionHeader: {
-    color: theme.palette.primary.main,
-    textAlign: 'left',
-    marginBottom: '8px',
-  },
-  showAdditionalFiltersWrapper: {
-    textAlign: 'left',
-    marginTop: '12px',
-    width: '100%',
-  },
-});
 
 const defaultState = {
   keywords: '',
@@ -126,7 +87,7 @@ class CatalogSearch extends React.Component {
   };
 
   RefreshByQuerystring = () => {
-    log.debug ('RefreshByQueryString', { params: queryString.parse(this.props.location.search) });
+    // log.debug ('RefreshByQueryString', { params: queryString.parse(this.props.location.search) });
     if (this.props.location.search) {
       // "params" are selected filters
       let params = queryString.parse(this.props.location.search);
@@ -155,6 +116,7 @@ class CatalogSearch extends React.Component {
   };
 
   handleToggleshowAdditionalFilters = () => {
+    this.props.setIsExpanded (!this.state.showAdditionalFilters);
     this.setState({
       showAdditionalFilters: !this.state.showAdditionalFilters,
     });
@@ -166,7 +128,7 @@ class CatalogSearch extends React.Component {
 
     let newState = { ...this.state, [target]: value };
 
-    log.debug ('handleChangeSearchValue', { target, value });
+    // log.debug ('handleChangeSearchValue', { target, value });
 
     this.setState(newState);
 
@@ -185,7 +147,7 @@ class CatalogSearch extends React.Component {
       dataFeatures: Array.from(newState.dataFeatures),
     });
 
-    log.debug ('push history', { qstring });
+    // log.debug ('push history', { qstring });
 
     // update the browser url
     this.pushHistory(qstring);
@@ -239,12 +201,31 @@ class CatalogSearch extends React.Component {
       dataFeatures,
     } = this.state;
 
-    log.debug ('state', { dataFeatures, submissionOptions });
+    // log.debug ('state', { dataFeatures, submissionOptions });
 
-    return (
-      <div className={classes.divWrapper}>
-        <div className={classes.pageTitleWrapper}>
-          <Hint
+    const setToChips = (key) => (s) => (
+      Array.from(s).map((val, i) => (
+        <Chip
+          key={`chip${i}`}
+          size="medium"
+          variant="outlined"
+          label={val}
+          onDelete={() => {
+            this.handleClickCheckbox({ target: { name: `${key}!!${val}` } }, false)
+          }}
+          color="primary"
+        />
+      ))
+    );
+
+    const chips = (setToChips ('make') (make))
+      .concat ((setToChips ('sensor') (sensor)))
+      .concat ((setToChips ('region') (region)))
+      .concat ((setToChips ('dataFeatures') (dataFeatures)))
+
+
+    // taking the page header and its hint out of action for now
+    const hints = (<Hint
             content={CatalogPageTitleHint}
             position={{ beacon: 'top-end', hint: 'right' }}
             styleOverride={{
@@ -254,264 +235,123 @@ class CatalogSearch extends React.Component {
             size={'large'}
           >
             <span className={classes.pageTitle}>Catalog</span>
-          </Hint>
-        </div>
+          </Hint>);
+
+    return (
+      <div className={classes.divWrapper}>
         <Paper elevation={4} className={classes.searchPaper}>
           <Grid container justifyContent="center" alignItems="center">
             <Grid item xs={12}>
-              <Hint
-                content={SearchHint}
-                position={{ beacon: 'right', hint: 'bottom-end' }}
-                size={'large'}
-                styleOverride={{}}
-              >
-                <TextField
-                  autoFocus
-                  name="keywords"
-                  placeholder="Search"
-                  InputProps={{
-                    startAdornment: (
-                      <React.Fragment>
-                        <InputAdornment position="start">
-                          <Search style={{ color: colors.primary }} />
-                        </InputAdornment>
-                      </React.Fragment>
-                    ),
-                  }}
-                  value={keywords}
-                  variant="outlined"
-                  onChange={this.handleChangeSearchValue}
-                  fullWidth
-                  id="catSearch"
-                />
-              </Hint>
+              <div className={classes.searchContainer}>
+                <div className={classes.searchTextInputContainer}>
+                  <Hint
+                    content={SearchHint}
+                    position={{ beacon: 'right', hint: 'bottom-end' }}
+                    size={'large'}
+                    styleOverride={{}}
+                  >
+                    <TextField
+                      autoFocus
+                      name="keywords"
+                      placeholder="Search"
+                      InputProps={{
+                        startAdornment: (
+                          <React.Fragment>
+                            <InputAdornment position="start">
+                              <Search style={{ color: colors.primary }} />
+                            </InputAdornment>
+                          </React.Fragment>
+                        ),
+                      }}
+                      value={keywords}
+                      variant="outlined"
+                      onChange={this.handleChangeSearchValue}
+                      fullWidth
+                      id="catSearch"
+                      className={classes.root}
+                    />
+                  </Hint>
+                </div>
+                <Tooltip title={this.state.showAdditionalFilters ? 'Collapse Filter Controls' : 'Show Filter Controls'}>
+                  <ToggleButton
+                    value="check"
+                    selected={this.state.showAdditionalFilters}
+                    onChange={this.handleToggleshowAdditionalFilters}
+                    classes={{ root: classes.filtersRoot }}
+                  >
+                    <FilterListIcon />
+                  </ToggleButton>
+                </Tooltip>
+                <SortingControls />
+                {chips}
 
-              <div id="catSearchOptions">
-                <Hint
-                  content={SearchFiltersHint}
-                  position={{ beacon: 'right', hint: 'bottom-end' }}
-                  styleOverride={{ beacon: { top: '.6em' } }}
-                  size={'medium'}
-                >
-                  <MultiCheckboxDropdown
-                    options={submissionOptions.DataFeatures}
-                    selectedOptions={dataFeatures}
-                    handleClear={() => this.handleClearMultiSelect('dataFeatures')}
-                    parentStateKey={'dataFeatures'}
-                    handleClickCheckbox={this.handleClickCheckbox}
-                    groupHeaderLabel="Data Features"
-                  />
-                </Hint>
-
-                <MultiCheckboxDropdown
-                  options={submissionOptions.Make}
-                  selectedOptions={make}
-                  handleClear={() => this.handleClearMultiSelect('make')}
-                  parentStateKey={'make'}
-                  handleClickCheckbox={this.handleClickCheckbox}
-                  groupHeaderLabel="Makes"
-                />
-
-                <MultiCheckboxDropdown
-                  options={submissionOptions.Sensor}
-                  selectedOptions={sensor}
-                  handleClear={() => this.handleClearMultiSelect('sensor')}
-                  parentStateKey={'sensor'}
-                  handleClickCheckbox={this.handleClickCheckbox}
-                  groupHeaderLabel="Sensors"
-                />
-
-                <MultiCheckboxDropdown
-                  options={submissionOptions.Region}
-                  selectedOptions={region}
-                  handleClear={() => this.handleClearMultiSelect('region')}
-                  parentStateKey={'region'}
-                  handleClickCheckbox={this.handleClickCheckbox}
-                  groupHeaderLabel="Regions"
-                />
-
-                <Hint
-                  content={AdditionalFiltersHint}
-                  position={{ beacon: 'right', hint: 'right' }}
-                  size={'small'}
-                >
-                  <div className={classes.showAdditionalFiltersWrapper}>
-                    <Link
-                      component="button"
-                      onClick={this.handleToggleshowAdditionalFilters}
-                      id="catSearchBySpaceTime"
-                    >
-                      {this.state.showAdditionalFilters
-                        ? 'Hide Additional Filters'
-                        : 'Show Additional Filters'}
-                    </Link>
-                  </div>
-                </Hint>
-
-                {this.state.showAdditionalFilters ? (
-                  <>
-                    <Grid
-                      item
-                      container
-                      xs={12}
-                      className={classes.searchPanelRow}
-                    >
-                      <Grid item xs={12}>
-                        <Typography className={classes.searchSectionHeader}>
-                          Temporal Coverage
-                        </Typography>
-                      </Grid>
-                      <Grid item xs={6}>
-                        <TextField
-                          name="timeStart"
-                          className={classes.formControl}
-                          id="date"
-                          label="Start Date"
-                          type="date"
-                          InputLabelProps={{
-                            shrink: true,
-                          }}
-                          value={timeStart}
-                          onChange={this.handleChangeSearchValue}
-                        />
-                      </Grid>
-
-                      <Grid item xs={6}>
-                        <TextField
-                          name="timeEnd"
-                          className={classes.formControl}
-                          id="date"
-                          label="End Date"
-                          type="date"
-                          InputLabelProps={{
-                            shrink: true,
-                          }}
-                          value={timeEnd}
-                          onChange={this.handleChangeSearchValue}
-                        />
-                      </Grid>
-                    </Grid>
-
-                    <Grid
-                      item
-                      container
-                      xs={12}
-                      className={classes.searchPanelRow}
-                      style={{ marginTop: '14px' }}
-                    >
-                      <Grid item xs={12}>
-                        <Typography
-                          className={classes.searchSectionHeader}
-                          style={{ marginBottom: 0 }}
-                        >
-                          Spatial Coverage
-                        </Typography>
-                      </Grid>
-
-                      <Grid item xs={6}>
-                        <TextField
-                          name="latStart"
-                          className={classes.formControl}
-                          label="Lat Start&deg;"
-                          type="number"
-                          inputProps={{
-                            min: -90,
-                            max: 90,
-                          }}
-                          InputLabelProps={{
-                            shrink: true,
-                          }}
-                          value={latStart}
-                          onChange={this.handleChangeSearchValue}
-                        />
-                      </Grid>
-
-                      <Grid item xs={6}>
-                        <TextField
-                          name="latEnd"
-                          className={classes.formControl}
-                          label="Lat End&deg;"
-                          type="number"
-                          inputProps={{
-                            min: -90,
-                            max: 90,
-                          }}
-                          InputLabelProps={{
-                            shrink: true,
-                          }}
-                          value={latEnd}
-                          onChange={this.handleChangeSearchValue}
-                        />
-                      </Grid>
-
-                      <Grid item xs={6}>
-                        <TextField
-                          name="lonStart"
-                          className={classes.formControl}
-                          label="Lon Start&deg;"
-                          type="number"
-                          inputProps={{
-                            min: -180,
-                            max: 180,
-                          }}
-                          InputLabelProps={{
-                            shrink: true,
-                          }}
-                          value={lonStart}
-                          onChange={this.handleChangeSearchValue}
-                        />
-                      </Grid>
-
-                      <Grid item xs={6}>
-                        <TextField
-                          name="lonEnd"
-                          className={classes.formControl}
-                          label="Lon End&deg;"
-                          type="number"
-                          inputProps={{
-                            min: -180,
-                            max: 180,
-                          }}
-                          InputLabelProps={{
-                            shrink: true,
-                          }}
-                          value={lonEnd}
-                          onChange={this.handleChangeSearchValue}
-                        />
-                      </Grid>
-
-                      <Grid item xs={6}>
-                        <FormControl className={classes.formControl}>
-                          <FormHelperText>Depth Levels</FormHelperText>
-                          <Select
-                            value={hasDepth}
-                            onChange={this.handleChangeSearchValue}
-                            name="hasDepth"
-                          >
-                            <MenuItem value="any">Any</MenuItem>
-                            <MenuItem value="yes">Multiple Levels</MenuItem>
-                            <MenuItem value="no">Surface Only</MenuItem>
-                          </Select>
-                        </FormControl>
-                      </Grid>
-                    </Grid>
-                  </>
-                ) : (
-                  ''
-                )}
               </div>
+
+              {this.state.showAdditionalFilters &&
+                <div className={classes.scrollingOptionsContainer}>
+                  <div className={classes.searchOptionsContainer} id="catSearchOptions">
+
+
+                    <FilterCard title={'Data Features'}>
+                      <CheckboxSet
+                        options={submissionOptions.DataFeatures}
+                        selected={dataFeatures}
+                        groupPrefix={'dataFeatures'}
+                        handleClickCheckbox={this.handleClickCheckbox}
+                      />
+                    </FilterCard>
+
+                    <FilterCard title={'Makes'}>
+                      <CheckboxSet
+                        options={submissionOptions.Make}
+                        selected={make}
+                        groupPrefix={'make'}
+                        handleClickCheckbox={this.handleClickCheckbox}
+                      />
+                    </FilterCard>
+
+                    <FilterCard title={'Sensors'}>
+                      <CheckboxSet
+                        options={submissionOptions.Sensor}
+                        selected={sensor}
+                        groupPrefix={'sensor'}
+                        handleClickCheckbox={this.handleClickCheckbox}
+                      />
+                    </FilterCard>
+
+                    <FilterCard title={'Regions'}>
+                      <CheckboxSet
+                        options={submissionOptions.Region}
+                        selected={region}
+                        groupPrefix={'region'}
+                        handleClickCheckbox={this.handleClickCheckbox}
+                      />
+                    </FilterCard>
+
+                    <FilterCard title={'Temporal Coverage'} >
+                      <TemporalCoverageOptions
+                        timeStart={timeStart}
+                        timeEnd={timeEnd}
+                        handleChangeSearchValue={this.handleChangeSearchValue}
+                      />
+                    </FilterCard>
+
+                    <FilterCard title={'Spatial Coverage'} >
+                      <SpatialCoverageOptions
+                        latStart={latStart}
+                        latEnd={latEnd}
+                        lonStart={lonStart}
+                        lonEnd={lonEnd}
+                        hasDepth={hasDepth}
+                        handleChangeSearchValue={this.handleChangeSearchValue}
+                      />
+                    </FilterCard>
+
+                  </div>
+                </div>
+              }
             </Grid>
 
-            <Grid item xs={12} className={classes.searchPanelRow}>
-              <Button
-                variant="outlined"
-                onClick={this.handleResetSearch}
-                className={classes.resetButton}
-                id="catSearchReset"
-              >
-                Reset Filters
-              </Button>
-            </Grid>
           </Grid>
         </Paper>
       </div>
@@ -522,3 +362,38 @@ class CatalogSearch extends React.Component {
 export default connect(mapStateToProps)(
   withStyles(styles)(withRouter(CatalogSearch)),
 );
+
+/* Filter Card */
+const useFilterCardStyles = makeStyles((theme) => ({
+  container: {
+    minWidth: '200px',
+    maxWidth: '300px'
+  },
+  title: {
+    fontSize: '1.1em',
+    textAlign: 'left',
+    marginBottom: '6px',
+  },
+  titleContainer: {
+    borderBottom: `1px solid ${theme.palette.secondary.dark}`,
+    marginBottom: '.5em',
+  },
+  content: {
+    maxWidth: '300px'
+  }
+}));
+
+const FilterCard = (props) => {
+  const cl = useFilterCardStyles();
+  const { children, title } = props
+  return (
+    <div className={cl.container}>
+      <div className={cl.titleContainer}>
+        <Typography className={cl.title}>{title}</Typography>
+      </div>
+      <div className={cl.content}>
+        {children}
+      </div>
+    </div>
+  );
+}

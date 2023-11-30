@@ -1,6 +1,6 @@
 // A button to either add to favorites, or if already a favorite, remove
 
-import { Button, withStyles } from '@material-ui/core';
+import { Button, withStyles, Hidden } from '@material-ui/core';
 import { Star, StarBorder } from '@material-ui/icons';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -25,24 +25,15 @@ const mapDispatchToProps = {
 const styles = (theme) => ({
   bottomAlignedText: {
     display: 'inline-block',
-    marginBottom: '-5px',
     textTransform: 'none',
+    whiteSpace: 'nowrap',
   },
-  cartButton: {},
-  ['@media (min-width: 1280px) and ( max-width: 1482px )']: {
-    cartButton: {
-      backgroundColor: 'rgb(33, 82, 108, 0.9)',
-      boxShadow:
-        '0px 2px 4px -1px rgba(0,0,0,0.2),0px 4px 5px 0px rgba(0,0,0,0.14),0px 1px 10px 0px rgba(0,0,0,0.12)',
-      '&:hover': {
-        background: 'rgb(33, 82, 108, 0.4)',
-      },
-    },
-  },
-  ['@media (max-width: 690px)']: {
-    cartButton: {
-      margin: '0 0 0 6px',
-    },
+  cartButton: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'nowrap',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
   },
 });
 
@@ -70,7 +61,7 @@ const CartAddOrRemove = (props) => {
 
   let style = {};
   if (dataset && dataset.Visualize && !cart[dataset.Long_name]) {
-    style = { color: '#e3e61a' };
+    style = { color: '#A1F640' };
   }
 
   let isSavedToCart = dataset && cart[dataset.Long_Name];
@@ -85,9 +76,11 @@ const CartAddOrRemove = (props) => {
       startIcon={isSavedToCart ? <Star /> : <StarBorder />}
       onClick={handleClick}
     >
-      <span className={classes.bottomAlignedText}>
-        {isSavedToCart ? 'Remove Favorite' : 'Add To Favorites'}
-      </span>
+      <Hidden lgDown>
+        <span className={classes.bottomAlignedText}>
+          {isSavedToCart ? 'Remove' : 'Add'}
+        </span>
+      </Hidden>
     </Button>
   );
 };

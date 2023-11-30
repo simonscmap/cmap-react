@@ -49,6 +49,8 @@ const SinglePlot = lazy(() => import('./Components/Visualization/SinglePlot'));
 const NewsDashboard = lazy(() => import('./Components/Admin/News/Dashboard'));
 const Cite = lazy(() => import('./Components/Cite'));
 const TestPage = lazy(() => import('./Components/Explorer'));
+const ItemPage = lazy(() => import('./Components/Explorer/Item'));
+
 
 const mapDispatchToProps = {
   initializeGoogleAuth,
@@ -154,6 +156,9 @@ class App extends Component {
                     {/* TEST */}
                     <Route path="/test">
                       <TestPage />
+                    </Route>
+                    <Route path="/item">
+                      <ItemPage />
                     </Route>
                     <Route path="*">
                       <FourOhFour />

@@ -31,6 +31,19 @@ const initialState = {
   searchOptions: {},
   searchResults: [],
   searchResultsLoadingState: states.notTried,
+  catalogSortingOptions: {
+    direction: 'DESC',
+    field: 'id',
+  },
+
+  // Catalog Recommendations
+  popularDatasetsRequestState: states.notTried,
+  popularDatasets: null,
+  recentDatasetsRequestState: states.notTried,
+  recentDatasets: null,
+  recommendedDatasetsRequestState: states.notTried,
+  recommendedDatasets: null,
+
 
   // Dataset Download
   download: {
@@ -86,6 +99,7 @@ const initialState = {
 
   // User state pieces
   user: JSON.parse(Cookies.get('UserInfo') || null), // catch much? // block much?
+  userApiCallsRequestStatus: states.notTried,
   userIsGuest: false,
   apiKeys: null,
   apiKeyRetrievalState: null,

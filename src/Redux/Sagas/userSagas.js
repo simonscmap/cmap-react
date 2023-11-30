@@ -253,3 +253,42 @@ export function* watchNominateNewData() {
     nominateNewData,
   );
 }
+
+
+/* fetchLastDatasetTouch
+ */
+function* fetchLastDatasetTouch (action) {
+  const loggedInUser = yield select((state) => state.user);
+  const userId = action.payload;
+
+  if (!userId || !loggedInUser) {
+    console.log ('no user id provided; cannot fetch last api call');
+  } else if (loggedInUser.id !== userId) {
+    console.log ('requested user id does not match logged in user; aborting request');
+  } else {
+    console.log ('setting to in-progress; initiating call');
+    yield put (userActions.requestUserApiCallsStatus (userId, states.inProgress));
+    let result = yield call(api.user.getLastDatasetTouch, userId);
+    if (result && result.ok) {
+      const record = yield result.json();
+      if (record && record.date_time) {
+        const touch = new Date(record.date_time);
+        yield put (userActions.requestUserApiCallsStatus (userId, states.succeeded));
+        yield put(userActions.setLastDatasetTouch({ userId, dateObj: touch }));
+      } else {
+        console.log ('failed to parse response from getLastDatasetTouch');
+        yield put (userActions.requestUserApiCallsStatus (userId, states.failed));
+      }
+    } else {
+      console.log('failed to get last user touch');
+      yield put (userActions.requestUserApiCallsStatus (userId, states.failed));
+    }
+  }
+} // ⮷ &. Watcher ⮷
+
+export function* watchFetchLastUserTouch() {
+  yield takeLatest(
+    userActionTypes.REQUEST_USER_API_CALLS_SEND,
+    fetchLastDatasetTouch,
+  );
+}

@@ -85,17 +85,21 @@ const navigationStyles = (theme) => ({
     alignItems: 'center',
     height: '110px',
     marginLeft: '104px',
-    '& a': {
-      marginTop: '3px', // this top margin corrects for the flex center
-      // not centering correctly; 2px fixes on -moz, 3px fixes it on webkit
+    '& > a': {
+      padding: '3px 14px',
       height: '30px',
       color: 'white',
       fontFamily: 'Lato, sans-serif',
       fontStyle: 'normal',
       fontWeight: 700,
       lineHeight: '27px',
-      padding: '3px 14px',
-      borderRadius: '30px',
+      textAlign: 'left',
+      display: 'block',
+      borderRadius: '4px',
+    },
+    '& a': {
+      // marginTop: '3px', // this top margin corrects for the flex center
+      // not centering correctly; 2px fixes on -moz, 3px fixes it on webkit
       textDecoration: 'none',
     },
     '& a:hover': {
@@ -139,9 +143,9 @@ const navigationStyles = (theme) => ({
       fontStyle: 'normal',
       fontWeight: 700,
       lineHeight: '27px',
-      padding: '3px 14px',
-      borderRadius: '30px',
+      padding: '8px 14px',
       textDecoration: 'none',
+      borderRadius: '4px',
     },
     '& a:hover': {
       background: 'rgba(255, 255, 255, 0.2)',
@@ -246,6 +250,7 @@ const navigationStyles = (theme) => ({
 
   expandableItemContainer: {
     // height: 'calc(30px + 6px)', // plus the child's 6px of vertical padding
+    borderRadius: '6px',
     '@media (max-width:900px)': {
       width: '100%',
       textAlign: 'left',
@@ -265,7 +270,7 @@ const navigationStyles = (theme) => ({
     fontWeight: 700,
     lineHeight: '27px',
     padding: '3px 14px',
-    borderRadius: '30px',
+    borderRadius: '6px',
     '&:hover': {
       background: 'rgba(255, 255, 255, 0.2)',
       textDecoration: 'none',
@@ -313,7 +318,8 @@ const navigationStyles = (theme) => ({
     whiteSpace: 'noWrap',
     background: '#274870',
     boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',
-    padding: '29px',
+    // padding: '29px',
+    overflow: 'hidden',
     borderRadius: '6px',
     marginTop: '11px',
     '@media (max-width:900px)': {
@@ -331,8 +337,7 @@ const navigationStyles = (theme) => ({
       fontStyle: 'normal',
       fontWeight: 700,
       lineHeight: '27px',
-      padding: '3px 14px',
-      borderRadius: '30px',
+      padding: '8px 14px',
       textAlign: 'left',
       display: 'block',
     },

@@ -91,6 +91,7 @@ export default function (state, action) {
         maps: [],
       };
     case CLOSE_CHART:
+      console.log ('close chart', action.payload.chartIndex)
       return {
         ...state,
         charts: [

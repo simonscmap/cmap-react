@@ -68,7 +68,7 @@ const startPersistenceService = () => {
   // validate an new entry request and then delegate to makeEntry
   let addPersistence = (request) => {
     let { actionType, key, payloadToValue, localToDispatch } = request;
-    if (!actionType || !key || !payloadToValue || !localToDispatch) {
+    if (!actionType || !key) {
       console.log(`invalid call to addPersistence: missing argument(s)`);
     } else if (entryExists(actionType, key)) {
       console.log(

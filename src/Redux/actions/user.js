@@ -298,3 +298,29 @@ export const updateStateFromCookies = (state) => ({
     state,
   },
 });
+
+export const requestUserApiCallsSend = (userId) => ({
+  type: userActionTypes.REQUEST_USER_API_CALLS_SEND,
+  payload: userId,
+});
+
+export const requestUserApiCallsStatus = (userId, status) => ({
+  type: userActionTypes.REQUEST_USER_API_CALLS_STATUS,
+  payload: {
+    userId,
+    status,
+  },
+});
+
+export const setLastDatasetTouch = ({ userId, dateObj }) => ({
+  type: userActionTypes.SET_LAST_DATASET_TOUCH,
+  payload: {
+    userId,
+    date: dateObj,
+  },
+});
+
+export const clearLastDatasetTouch = ( userId ) => ({
+  type: userActionTypes.CLEAR_LAST_DATASET_TOUCH,
+  payload: userId,
+});

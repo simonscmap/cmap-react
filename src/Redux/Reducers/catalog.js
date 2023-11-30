@@ -20,9 +20,22 @@ import {
   SET_CHECK_QUERY_SIZE_REQUEST_STATE,
   STORE_CHECK_QUERY_SIZE_RESULT,
   CHECK_QUERY_SIZE_SEND,
-  CLEAR_FAILED_SIZE_CHECKS
+  CLEAR_FAILED_SIZE_CHECKS,
+  FETCH_RECS_POPULAR_SEND,
+  FETCH_RECS_POPULAR_SUCCESS,
+  FETCH_RECS_POPULAR_FAILURE,
+  FETCH_RECS_RECENT_SEND,
+  FETCH_RECS_RECENT_SUCCESS,
+  FETCH_RECS_RECENT_FAILURE,
+  FETCH_RECS_RECENT_CACHE_HIT,
+  FETCH_RECS_RECOMMENDED_SEND,
+  FETCH_RECS_RECOMMENDED_SUCCESS,
+  FETCH_RECS_RECOMMENDED_FAILURE,
+  FETCH_RECS_RECOMMENDED_CACHE_HIT,
+  SET_SORTING_OPTIONS,
 } from '../actionTypes/catalog';
 import states from '../../enums/asyncRequestStates';
+import { sortResults } from '../../Components/Catalog/SortingControls';
 
 export default function (state, action) {
   switch (action.type) {
@@ -54,6 +67,13 @@ export default function (state, action) {
       return {
         ...state,
         searchResultsLoadingState: action.payload.state,
+      };
+
+    case SET_SORTING_OPTIONS:
+      return {
+        ...state,
+        catalogSortingOptions: action.payload,
+        searchResults: sortResults (state.searchResults, action.payload),
       };
 
       /************** Dataset Detail Page **********************/
@@ -212,6 +232,67 @@ export default function (state, action) {
                                 .filter((item) => !item.result.status === 500)
         }
       };
+
+    case FETCH_RECS_POPULAR_SEND:
+      return {
+        ...state,
+        popularDatasetsRequestState: states.inProgress,
+      };
+
+    case FETCH_RECS_POPULAR_SUCCESS:
+      return {
+        ...state,
+        popularDatasetsRequestState: states.succeeded,
+        popularDatasets: action.payload,
+      };
+
+    case FETCH_RECS_POPULAR_FAILURE:
+      return {
+        ...state,
+        popularDatasetsRequestState: states.failed,
+      };
+
+
+    case FETCH_RECS_RECENT_SEND:
+      return {
+        ...state,
+        recentDatasetsRequestState: states.inProgress,
+      };
+
+    case FETCH_RECS_RECENT_SUCCESS:
+    case FETCH_RECS_RECENT_CACHE_HIT:
+      return {
+        ...state,
+        recentDatasetsRequestState: states.succeeded,
+        recentDatasets: action.payload,
+      };
+
+    case FETCH_RECS_RECENT_FAILURE:
+      return {
+        ...state,
+        recentDatasetsRequestState: states.failed,
+      };
+
+    case FETCH_RECS_RECOMMENDED_SEND:
+      return {
+        ...state,
+        recommendedDatasetsRequestState: states.inProgress,
+      };
+
+    case FETCH_RECS_RECOMMENDED_SUCCESS:
+    case FETCH_RECS_RECOMMENDED_CACHE_HIT:
+      return {
+        ...state,
+        recommendedDatasetsRequestState: states.succeeded,
+        recommendedDatasets: action.payload,
+      };
+
+    case FETCH_RECS_RECOMMENDED_FAILURE:
+      return {
+        ...state,
+        recommendedDatasetsRequestState: states.failed,
+      };
+
 
 
     default:

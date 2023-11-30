@@ -2,15 +2,11 @@ const styles = (theme) => ({
   wrapperDiv: {
     boxSizing: 'border-box',
     flexGrow: '3',
+    marginTop: '10px',
   },
   resultsWrapper: {
-    padding: '16px 0 16px 20px',
-    margin: '-54px 0 24px 0',
-    [theme.breakpoints.down('md')]: {
-      padding: '0',
-      margin: '26px 0 0 0',
-    },
     backgroundColor: 'transparent',
+    marginRight: '22px',
     // remove the margin from the first result to make it
     // align with the top of the FixedSizeList and its scroll bar
     '& div.MuiPaper-root:first-child': {
@@ -18,10 +14,12 @@ const styles = (theme) => ({
     },
   },
   downloadWrapper: {
-    fontSize: '1rem',
+    padding: '4px',
+    fontSize: '1em',
+    fontWeight: 200,
     color: 'white',
-    cursor: 'pointer',    borderRadius: '6px',
-    padding: '1px 8px',
+    cursor: 'pointer',
+    borderRadius: '6px',
     '&:hover': {
       backgroundColor: 'rgba(255, 255, 255, 0.1)',
     },
@@ -44,12 +42,13 @@ const styles = (theme) => ({
   infoShelf: {
     display: 'flex',
     justifyContent: 'space-between',
-    paddingLeft: '13px',
+    paddingLeft: '22px',
+    marginRight: '22px'
   },
   fixedSizeList: {
     // padding allows beacons to render without being clipped
-    padding: '10px 0 0 15px',
-    margin: '0 0 0 -15px',
+    padding: '0 0 0 0',
+    margin: '0 0 0 0',
     width: '100%',
     overflow: 'visible',
     // transparent scrollbar bg prevents box shadow of results from
@@ -72,6 +71,9 @@ const styles = (theme) => ({
   resultsCount: {
     textAlign: 'left',
     display: 'inline-block',
+    fontWeight: 200,
+    fontSize: '1em',
+    lineHeight: '1em',
   },
 });
 

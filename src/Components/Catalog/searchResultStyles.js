@@ -1,99 +1,109 @@
-const styles = (theme) => ({
-  resultWrapper: {
-    padding: '4px 12px',
-  },
-  imageWrapper: {
-    height: '180px',
-    margin: '10px 3px -27px 0',
-    [theme.breakpoints.down('sm')]: {
-      display: 'none',
-    },
-    backgroundPosition: 'center right',
-    backgroundRepeat: 'no-repeat',
-    backgroundSize: 'contain',
-    backgroundOrigin: 'content-box',
-  },
-  gridRow: {
-    textAlign: 'left',
-  },
-  longName: {
-    textAlign: 'left',
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    fontSize: '1.15rem',
-    display: 'block',
-    margin: '6px 0',
-    color: theme.palette.primary.main,
-  },
+const experimentalStyles = (theme) => ({
   resultPaper: {
-    marginTop: '22px',
-    margin: '0 20px 0 0',
+    background: 'rgba(0,0,0,0.2)',
+    boxShadow: 'none',
+    border: '1px solid #69FFF2',
   },
-  denseText: {
-    fontSize: '.9rem',
+  wrapper: {
+    padding: '.9em',
+    height: '370px',
+  },
+  contentBox: {
+    width: '100%',
+    display: 'flex',
+    gap: '.5em',
+  },
+  textContainer: {
+    width: '100%',
+    overflow: 'hidden',
+  },
+  rightContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+  },
+  graphicContainer: {
+    padding: '30px 0 0 0',
+    width: '335px',
+    height: '300px',
+    '& > img': {
+      width: '100%',
+      height: '100%',
+      objectFit: 'contain',
+      objectPosition: 'top right',
+    }
+  },
+  title: {
+    width: '100%',
+    textAlign: 'left',
+    fontSize: '1.4em',
+    paddingBottom: '0.5em',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    flexWrap: 'nowrap',
+  },
+  nameAndCopy: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'nowrap',
+    justifyContent: 'space-between',
+  },
+  linkContainer: {
+    width: '100%',
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
+    flex: 'auto',
   },
-  cartButtonClass: {
-    textTransform: 'none',
-    color: theme.palette.primary.main,
+  titleLink: {
+    width: '100%',
+    color: theme.palette.secondary.main,
   },
-
-  warningIcon: {
-    color: '#e3e61a',
-    marginLeft: '14px',
-    marginBottom: '-7px',
-    fontSize: '1.45rem',
+  metadataContainer: {
   },
   downloadLink: {
     color: theme.palette.primary.main,
     cursor: 'pointer',
-    marginLeft: '2em',
     textTransform: 'none',
     textIndent: '.5em',
-  },
-  '@media (min-width: 1280px) and (max-width: 1482px)': {
-    downloadLink: {
-      backgroundColor: 'rgb(33, 82, 108, 0.9)',
-      boxShadow:
-        '0px 2px 4px -1px rgba(0,0,0,0.2),0px 4px 5px 0px rgba(0,0,0,0.14),0px 1px 10px 0px rgba(0,0,0,0.12)',
-      '&:hover': {
-        background: 'rgb(33, 82, 108, 0.4)',
-      },
-    },
-  },
-  [theme.breakpoints.down('sm')]: {
-    downloadLink: {
-      backgroundColor: 'none',
-      boxShadow: 'none',
-      '&:hover': {
-        background: 'none',
-      },
-    },
-  },
-  resultSpacingWrapper: {
-    padding: '0 0 20px 0',
-  },
-  resultActions: {
+    textSize: '1.5em',
+    padding: 0,
     display: 'flex',
     flexDirection: 'row',
-    textAlign: 'left',
+    flexWrap: 'nowrap',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    minWidth: 0,
   },
-  '@media (max-width: 690px)': {
-    resultActions: {
-      flexDirection: 'column',
-    },
-    downloadLink: {
-      margin: 0,
-      justifyContent: 'left',
-    },
+  buttonTextSpacer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: '.75em',
+    alignItems: 'center',
   },
-  bottomAlignedText: {
-    display: 'inline-block',
-    marginBottom: '-5px',
+  actionBox: {
+    height: '24px',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: '1em',
+    paddingBottom: '.5em',
+    '& > div': {
+      display: 'flex',
+      flexDirection: 'row',
+      gap: '.5em',
+      alignItems: 'center',
+    }
   },
+  primaryColor: {
+    color: theme.palette.secondary.main,
+  }
+
 });
 
-export default styles;
+
+export default experimentalStyles;

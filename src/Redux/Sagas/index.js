@@ -50,6 +50,7 @@ import {
   watchKeyCreationRequest,
   watchContactUs,
   watchNominateNewData,
+  watchFetchLastUserTouch,
 } from './userSagas';
 
 import {
@@ -91,6 +92,7 @@ import {
   watchRequestADTAnomalyDataSend,
 } from './anomaly';
 
+import { localStorageApi } from '../../Services/persist/local';
 import logInit from '../../Services/log-service';
 const log = logInit('sagas').addContext({ src: 'Redux/Sagas' });
 
@@ -869,6 +871,102 @@ function* searchResultsFetch(action) {
   yield put(catalogActions.searchResultsSetLoadingState(states.succeeded));
 }
 
+/* fetch data for recommendations */
+
+function* fetchPopularDatasets () {
+  let response = yield call(api.catalog.fetchPopularDatasets);
+  if (response && Array.isArray (response)) {
+    yield put(catalogActions.popularRecsRequestSuccess(response));
+  } else {
+    yield put (catalogActions.popularRecsRequestFailure (response));
+    yield put(
+      interfaceActions.snackbarOpen(
+        'Failed to retrieve popular datasets.',
+      ),
+    );
+  }
+}
+
+function* fetchRecentDatasets (action) {
+  // check cache
+  const localValue = localStorageApi.get ('recentRecs');
+
+  let parsedLocalValue;
+  try {
+    parsedLocalValue = JSON.parse (localValue);
+  } catch (e) {
+    console.log ('error parsing string from local storage');
+  }
+
+  const localValueUpdated = (parsedLocalValue && parsedLocalValue.updated)
+    ? new Date(parsedLocalValue.updated)
+    : null;
+
+  const oneHourInMS = 1000 * 60 * 60;
+  const localValueIsStale = localValueUpdated
+    ? new Date() - localValueUpdated > oneHourInMS
+    : true;
+
+  const shouldRefetchData = localValueIsStale || parsedLocalValue.userId !== action.payload.user_id;
+
+  if (shouldRefetchData) {
+    let response = yield call(api.catalog.fetchRecentDatasets, action.payload.user_id);
+    if (response && Array.isArray(response)) {
+      yield put(catalogActions.recentRecsRequestSuccess(response));
+    } else {
+      yield put(catalogActions.recentRecsRequestFailure(response));
+      yield put(
+        interfaceActions.snackbarOpen(
+          'Failed to retrieve recent datasets.',
+        ),
+      );
+    }
+  } else {
+    console.log ('cache hit: recent datasets')
+    yield put (catalogActions.recentRecsCacheHit (parsedLocalValue.data));
+  }
+}
+
+function* fetchRecommendedDatasets (action) {
+  // check cache
+  const localValue = localStorageApi.get ('seeAlsoRecs');
+  let parsedLocalValue;
+  try {
+    parsedLocalValue = JSON.parse (localValue);
+  } catch (e) {
+    console.log ('error parsing string from local storage');
+  }
+
+  const localValueUpdated = (parsedLocalValue && parsedLocalValue.updated)
+    ? new Date(parsedLocalValue.updated)
+    : null;
+
+  const oneHourInMS = 1000 * 60 * 60;
+  const localValueIsStale = localValueUpdated
+    ? new Date() - localValueUpdated > oneHourInMS
+    : true;
+
+  const shouldRefetchData = localValueIsStale || parsedLocalValue.userId !== action.payload.user_id;
+
+  if (shouldRefetchData) {
+    // fetch data from server
+    let response = yield call(api.catalog.fetchRecommendedDatasets, action.payload.user_id);
+    if (response && Array.isArray(response)) {
+      yield put(catalogActions.recommendedRecsRequestSuccess(response));
+    } else {
+      yield put(catalogActions.recommendedRecsRequestFailure(response));
+      yield put(
+        interfaceActions.snackbarOpen(
+          'Failed to retrieve recommended datasets.',
+        ),
+      );
+    }
+  } else {
+    console.log ('seeAlso: cache hit');
+    yield put (catalogActions.recommendedRecsCacheHit (parsedLocalValue.data));
+  }
+}
+
 /************** Dataset Detail Page **********************/
 
 function* datasetFullPageDataFetch(action) {
@@ -1569,6 +1667,27 @@ function* watchSearchResultsFetch() {
   );
 }
 
+function* watchPopularDatasetsFetch() {
+  yield takeLatest(
+    catalogActionTypes.FETCH_RECS_POPULAR_SEND,
+    fetchPopularDatasets
+  );
+}
+
+function* watchRecentDatasetsFetch() {
+  yield takeLatest(
+    catalogActionTypes.FETCH_RECS_RECENT_SEND,
+    fetchRecentDatasets
+  );
+}
+
+function* watchRecommendedDatasetsFetch() {
+  yield takeLatest(
+    catalogActionTypes.FETCH_RECS_RECOMMENDED_SEND,
+    fetchRecommendedDatasets
+  );
+}
+
 function* watchDatasetFullPageDataFetch() {
   yield takeLatest(
     catalogActionTypes.DATASET_FULL_PAGE_DATA_FETCH,
@@ -1740,6 +1859,9 @@ function* rootSaga() {
     watchKeywordsFetch(),
     watchSearchOptionsFetch(),
     watchSearchResultsFetch(),
+    watchPopularDatasetsFetch(),
+    watchRecentDatasetsFetch(),
+    watchRecommendedDatasetsFetch(),
     watchDatasetFullPageDataFetch(),
     watchDatasetVariablesFetch(),
     watchDatasetVariableUMFetch(),
@@ -1789,6 +1911,7 @@ function* rootSaga() {
     watchRequestTrajectoryPointCounts(),
     watchRequestSSTAnomalyDataSend(),
     watchRequestADTAnomalyDataSend(),
+    watchFetchLastUserTouch(),
   ]);
 }
 

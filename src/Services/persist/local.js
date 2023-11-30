@@ -22,14 +22,19 @@ let local = {
     if (typeof v === 'object') {
       preparedValue = JSON.stringify(v);
     }
-    return localStorage.setItem(k, preparedValue);
+    try {
+      return localStorage.setItem(k, preparedValue);
+    } catch (e) {
+      console.log (`error attempting to set item "${k}" in local storage`);
+      return null;
+    }
   },
   get: (k) => {
     let v = localStorage.getItem(k);
     return v;
   },
   del: (k) => {
-    return localStorage.delete(k);
+    return localStorage.removeItem(k);
   },
   clear: () => localStorage.clear(),
 };

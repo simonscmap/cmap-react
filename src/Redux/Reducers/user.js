@@ -17,9 +17,43 @@ export default function (state, action) {
       return { ...state, userLoginError: null };
 
     case actions.STORE_INFO:
-      return { ...state, user: { ...action.payload.user } };
+      return {
+        ...state,
+        user: { ...action.payload.user }
+      };
     case actions.DESTROY_INFO:
-      return { ...state, user: null, apiKeys: null, clearLoginDialog: true };
+      return {
+        ...state,
+        user: null,
+        apiKeys: null,
+        clearLoginDialog: true,
+        userApiCallsRequestStatus: states.notTried,
+      };
+
+    case actions.REQUEST_USER_API_CALLS_STATUS:
+      return {
+        ...state,
+        userApiCallsRequestStatus: action.payload.status,
+      };
+
+    case actions.SET_LAST_DATASET_TOUCH:
+      return {
+        ...state,
+        user: {
+          ...(state.user || {}),
+          lastDatasetTouch: action.payload.date,
+        }
+      };
+    case actions.CLEAR_LAST_DATASET_TOUCH:
+      return {
+        ...state,
+        user: {
+          ...(state.user || {}),
+          lastDatasetTouch: undefined,
+        },
+        userApiCallsRequestStatus: states.notTried,
+      };
+
     case actions.LOGIN_DIALOG_WAS_CLEARED:
       return { ...state, clearLoginDialog: false };
 

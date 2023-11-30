@@ -95,4 +95,61 @@ catalogAPI.getDatasetFeatures = async () => {
   return await response.json();
 };
 
+catalogAPI.fetchPopularDatasets = async () => {
+  let response;
+  try {
+    response = await fetch(
+      apiUrl + `/api/catalog/popular-datasets`,
+      fetchOptions,
+    );
+  } catch (e) {
+    log.warn ('error fetching popular datasets', e);
+    return e;
+  }
+
+  try {
+    return await response.json ();
+  } catch (e) {
+    return e;
+  }
+};
+
+catalogAPI.fetchRecentDatasets = async (user_id) => {
+  let response;
+  try {
+    response = await fetch(
+      apiUrl + `/api/catalog/recent-datasets?user_id=${user_id}`,
+      fetchOptions,
+    );
+  } catch (e) {
+    log.warn ('error fetching recent datasets', e);
+    return e;
+  }
+
+  try {
+    return await response.json ();
+  } catch (e) {
+    return e;
+  }
+};
+
+catalogAPI.fetchRecommendedDatasets = async (user_id) => {
+  let response;
+  try {
+    response = await fetch(
+      apiUrl + `/api/catalog/recommended-datasets?user_id=${user_id}`,
+      fetchOptions,
+    );
+  } catch (e) {
+    log.warn ('error fetching recommended datasets', e);
+    return e;
+  }
+
+  try {
+    return await response.json ();
+  } catch (e) {
+    return e;
+  }
+};
+
 export default catalogAPI;

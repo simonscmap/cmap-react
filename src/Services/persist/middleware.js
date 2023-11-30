@@ -19,9 +19,12 @@ export const persistenceMiddleware = (store) => (next) => (action) => {
     if (!currentValue) {
       console.log(`no value in storage for "${action.type}.${key}"`);
     }
-    let v = def.payloadToValue(currentValue, action.payload);
-    // console.log(`persisting "${action.type}.${key}" with ${JSON.stringify(v)}`);
-    local.set(key, v);
+    let newValue = currentValue;
+    if (typeof def.payloadToValue === 'function') {
+      newValue = def.payloadToValue(currentValue, action.payload, store);
+    }
+    console.log(`persisting data for "${action.type}.${key}"`);
+    local.set(key, newValue);
   });
 
   return result;

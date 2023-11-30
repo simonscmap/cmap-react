@@ -12,13 +12,14 @@ const newsBannerStyles = (theme) => ({
   },
   // container for news section
   newsFlow: {
+    width: '100%',
     transition: 'all .2s ease-out',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
     gap: '1em',
-    padding: '0 1em 1em 1em',
+    // padding: '0 1em 1em 1em',
     borderRadius: '.75em',
     background: 'rgba(0,0,0,0.10)',
     marginTop: '-1em', // position underneath the blurry title bar
@@ -35,12 +36,13 @@ const newsBannerStyles = (theme) => ({
     },
     '& > div': {
       padding: '450px 0 0 0',
+      marginLeft: '1em',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'flex-start',
       justifyContent: 'flex-start',
       gap: '1em',
-
+      width: 'calc(100% - 1em)',
     }
   },
   sectionTitleContainer: {
@@ -121,6 +123,8 @@ const newsBannerStyles = (theme) => ({
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
     width: 'calc(100% - 2.5em)',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
     borderRadius: '6px',
     padding: '1em',
     border: `1px solid ${colors.blue.teal}`,
