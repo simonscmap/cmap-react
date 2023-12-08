@@ -157,6 +157,8 @@ export const homeTheme = createTheme({
   palette: {
     primary: {
       main: colors.green.lime,
+      // dark: colors.green.basil,
+
     },
     secondary: {
       main: colors.blue.teal,

@@ -30,7 +30,7 @@ const Home = withStyles(homeStyles)(({ classes }) => {
       <div className={classes.homeWrapper}>
         <div className={classes.mainWrapper}>
           <div className={classes.alignmentWrapper}>
-            <Grid container spacing={3}> {/* main container*/}
+            <Grid container > {/* main container*/}
               <Grid container xs={12} md={8} item direction="column"> {/* hero & callouts */}
                 <Grid container item>
                   <ResizeObserver onResize={onResize}></ResizeObserver>
