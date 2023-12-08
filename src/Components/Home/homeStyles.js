@@ -20,6 +20,7 @@ const homeStyles = (theme) => ({
     paddingTop: '150px',
     '@media (max-width: 1920px)': {
       paddingLeft: '20px',
+      paddingRight: '1em'
     },
     [theme.breakpoints.down('sm')]: {
       paddingTop: '130px',

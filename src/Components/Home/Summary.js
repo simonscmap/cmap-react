@@ -22,11 +22,19 @@ const useStatStyles = makeStyles({
     alignItems: 'baseline',
     gap: '0.5em',
     margin: '.5em 0',
-    whiteSpace: 'nowrap'
+    whiteSpace: 'nowrap',
+    fontSize: '1em',
+    '& span': {
+      fontSize: '1.1em',
+    },
+    '& span:nth-child(3)': { // first span is svg, second the title
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+    }
   },
   icon: {
     color: colors.green.lime,
-    marginRight: '10px'
+    // marginRight: '10px'
   },
   bigger: {
     color: colors.green.lime,
@@ -184,12 +192,12 @@ const OrganismCount = () => {
 
 const useStyles = makeStyles({
   container: {
-    margin: '1em 1em 2em 1em',
+    margin: '1em 0em 2em 1em',
     textAlign: 'left',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'flex-start',
-    width: '100%',
+    width: 'calc(100% - 1em)',
     '& h2': {
       marginBottom: '1em'
     }

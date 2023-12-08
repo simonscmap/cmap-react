@@ -134,6 +134,7 @@ const newsBannerStyles = (theme) => ({
     textAlign: 'left',
     '& p': {
       lineHeight: '1.5em',
+      wordBreak: 'break-word',
     },
     '& h2': {
       margin: '.75em 0'
@@ -141,16 +142,22 @@ const newsBannerStyles = (theme) => ({
     '& h2 a': {
       color: colors.blue.teal,
       textDecoration: 'none',
+      '&:visited': {
+        color: colors.blue.teal,
+      },
       '&:hover': {
         color: colors.green.lime,
         textDecoration: 'underline',
-      }
+      },
     },
     '& a': {
       color: 'white',
-      '& :visited': {
+      '&:visited': {
         color: 'white',
       },
+      '&:hover': {
+        color: theme.palette.secondary.light,
+      }
     },
     '& em': {
       fontWeight: 700,
