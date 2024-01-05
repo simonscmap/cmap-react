@@ -4,7 +4,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import Plotly from 'react-plotly.js';
 import { Skeleton } from '@material-ui/lab';
 import states from '../../enums/asyncRequestStates';
-import { requestSSTAnomalyDataSend, requestADTAnomalyDataSend } from '../../Redux/actions/data';
+import { requestAvgSSTAnomalyDataSend, requestAvgADTAnomalyDataSend } from '../../Redux/actions/data';
+import dayjs from 'dayjs';
 
 const useStyles = makeStyles((theme) => ({
   mainWrapper: {
@@ -43,6 +44,10 @@ const margin = {
   l: 30,
   r: 10,
   t: 50,
+  pad: {
+    l: 30,
+    r: 30,
+  }
 };
 
 const layout = {
@@ -52,11 +57,11 @@ const layout = {
   paper_bgcolor: 'rgba(0,0,0,0)',
   plot_bgcolor: 'rgba(0,0,0,0)',
   title: {
-    text: 'Sea Surface Temperature (SST) Anomaly Time Series',
+    text: 'Globally Averaged Anomalies',
     font: {
-      size: 18,
+      size: 24,
       color: 'rgb(105, 255, 242)',
-    }
+    },
   },
   margin,
   hoverlabel: {
@@ -64,14 +69,21 @@ const layout = {
   },
   xaxis: {
     type: 'date',
-    title: 'Time [Monthly]',
+    automargin: true,
+    title: {
+      text: 'Time [Monthly]',
+      standoff: 30
+    },
     titlefont: { size: 16 },
     color: 'rgb(105, 255, 242)',
-    gridcolor: 'rgba(105, 255, 242, 0.5)',
+    gridcolor: 'rgba(105, 255, 242, 0)',
     layer: 'above traces',
-    zeroline: true,
+    zeroline: false,
+    showline: true,
+    linewidth: 3,
     zerolinecolor: '#ffffff',
     zerolinewidth: '2px',
+    mirror: 'ticks',
     tickformatstops: [ {
         "dtickrange": [null, "M12"],
         "value": "%b %Y"
@@ -83,14 +95,20 @@ const layout = {
     ]
   },
   yaxis: {
-    title: 'SST Anomaly [°C]',
+    title: {
+      text: 'Sea Surface Temperature Anomaly [°C]',
+      standoff: 30,
+    },
     automargin: true,
     titlefont: { size: 16 },
     color: 'rgb(105, 255, 242)',
-    gridcolor: 'rgba(105, 255, 242, 0.5)',
-    zeroline: true,
+    gridcolor: 'rgba(105, 255, 242, 0)',
+    zeroline: false,
     zerolinecolor: '#ffffff',
-    zerolinewidth: '2px'
+    zerolinewidth: '2px',
+    showline: true,
+    linewidth: 3,
+    mirror: 'ticks',
   },
   showlegend: false,
   shapes: [{
@@ -129,97 +147,68 @@ const AnomalyMonitor = (props) => {
   const dispatch = useDispatch ();
   const cl = useStyles();
 
-  const sst = useSelector((s) => s.sstReqStatus);
-  const adt = useSelector((s) => s.adtReqStatus);
+  const avgSSTReqStatus = useSelector((s) => s.avgSstReqStatus);
+  const avgADTReqStatus = useSelector((s) => s.avgAdtReqStatus);
 
-  const [sstReady, setSSTReady] = useState(false);
-  const [adtReady, setADTReady] = useState(false);
+  const avgSSTData = useSelector((s) => s.avgSSTData);
+  const avgADTData = useSelector((s) => s.avgADTData);
 
-  const handleSSTReady = () => {
-    setSSTReady(true);
-  }
-  const handleADTReady = () => {
-    setADTReady(true);
-  };
+  useEffect (() => {
+    if (avgSSTReqStatus === states.notTried) {
+      dispatch (requestAvgSSTAnomalyDataSend ());
+    }
+  }, [avgSSTReqStatus])
+
+  useEffect (() => {
+    if (avgADTReqStatus=== states.notTried) {
+      dispatch (requestAvgADTAnomalyDataSend ());
+    }
+  }, [avgADTReqStatus])
+
+  const [dualLayout, setDualLayout] = useState(null);
+
+  const dualLayoutTemplate = JSON.parse (JSON.stringify (layout));
 
   useEffect(() => {
-    window.addEventListener("sstAnomalyDataReady", handleSSTReady, false);
-    window.addEventListener("adtAnomalyDataReady", handleADTReady, false);
-    return () => {
-      window.removeEventListener("sstAnomalyDataReady", handleSSTReady, false);
-      window.removeEventListener("adtAnomalyDataReady", handleADTReady, false);
-    };
-  },[]);
-
-  useEffect (() => {
-    if (sst === states.notTried) {
-      dispatch (requestSSTAnomalyDataSend ());
+    if (avgSSTData && avgADTData) {
+      const sortedSSTDates = avgSSTData[0].x.slice().map(d => d.toISOString()).sort();
+      const startDate = sortedSSTDates.shift();
+      const endDate = sortedSSTDates.pop();
+      setDualLayout({
+        ...dualLayoutTemplate,
+        width: dim.width - 100,
+        xaxis: {
+          ...dualLayoutTemplate.xaxis,
+          range: [ dayjs(startDate).subtract(10, 'M').toDate(), dayjs(endDate).add(10, 'M').toDate() ] // gives chart area padding along x axis
+        },
+        yaxis: {
+          ...dualLayoutTemplate.yaxis,
+          color: 'rgba(161, 246, 64, 1)'
+        },
+        yaxis2: {
+          ...dualLayoutTemplate.yaxis,
+          title: {
+            text: `Absolute Dynamic Topography Anomaly [m]`,
+            standoff: 30,
+          },
+          overlaying: 'y',
+          side: 'right',
+          zeroline: false,
+        },
+        shapes: null,
+        // showlegend: true,
+      });
     }
-  }, [sst])
-
-  useEffect (() => {
-    if (adt === states.notTried) {
-      dispatch (requestADTAnomalyDataSend ());
-    }
-  }, [adt])
-
-  const zeroline = (trace0) => {
-    const { x } = trace0;
-    const max = x[0];
-    const min = x[x.length - 1];
-    return {
-      type: 'line',
-      x0: min,
-      y0: 0,
-      y1: 0,
-      x1: max,
-      line: {
-        color: '#ffffff',
-      }
-    }
-  };
-
-  const sstLayout = JSON.parse (JSON.stringify (layout));
-  const adtLayout = JSON.parse (JSON.stringify (layout));
-  sstLayout.width = dim.width - 100;
-  adtLayout.width = dim.width - 100;
-
-  adtLayout.title.text = 'Absolute Dynamic Topography (ADT) Anomaly Time Series';
-  adtLayout.yaxis.title = `ADT Anomaly [m]`;
-
-  if (sstReady) {
-    sstLayout.shapes = [zeroline(window.sstAnomalyData[0])];
-    const sample = [...window.sstAnomalyData[0].x].sort()
-    const tick0 = sample.pop();
-
-    sstLayout.xaxis.tick0 = tick0;
-    sstLayout.xaxis.range = [
-      new Date (sample[0]).setFullYear(sample[0].getFullYear() - 3),
-      new Date (tick0).setFullYear(tick0.getFullYear() + 4),
-    ];
-  }
-
-  if (adtReady) {
-    adtLayout.shapes = [zeroline(window.adtAnomalyData[0])];
-    const tick0 = [...window.adtAnomalyData[0].x].sort().pop();
-    adtLayout.xaxis.tick0 = tick0;
-  }
+  }, [avgSSTData, avgADTData, dim]);
 
   const config = { displayLogo: false };
 
   return (
     <div className={cl.mainWrapper} id='monitor'>
       <div className={cl.viz}>
-        {sstReady
-          ? <div><Plotly data={window.sstAnomalyData} layout={sstLayout} config={config} /></div>
-          : <Placeholder width={dim.width - 70 } status={sst.requestStatus} />
-        }
-      </div>
-      <div className={cl.viz}>
-        {adtReady
-          ? <div><Plotly data={window.adtAnomalyData} layout={adtLayout} /></div>
-          : <Placeholder width={dim.width - 70 } status={adt.requestStatus} />
-        }
+        {(avgSSTData && avgADTData) && <div>
+          <Plotly data={[avgSSTData[0], { ...avgADTData[0], yaxis: 'y2' }]} layout={dualLayout} config={config} />
+        </div>}
       </div>
     </div>
   );

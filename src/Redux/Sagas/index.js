@@ -88,8 +88,10 @@ import {
 } from './visualizationSagas';
 
 import {
-  watchRequestSSTAnomalyDataSend,
-  watchRequestADTAnomalyDataSend,
+  // watchRequestSSTAnomalyDataSend,
+  // watchRequestADTAnomalyDataSend,
+  watchRequestAvgSSTAnomalyDataSend,
+  watchRequestAvgADTAnomalyDataSend,
 } from './anomaly';
 
 import { localStorageApi } from '../../Services/persist/local';
@@ -1909,8 +1911,10 @@ function* rootSaga() {
     watchCheckDownloadSize(),
     watchRequestHighlightsSend(),
     watchRequestTrajectoryPointCounts(),
-    watchRequestSSTAnomalyDataSend(),
-    watchRequestADTAnomalyDataSend(),
+    // watchRequestSSTAnomalyDataSend(),
+    // watchRequestADTAnomalyDataSend(),
+    watchRequestAvgSSTAnomalyDataSend(),
+    watchRequestAvgADTAnomalyDataSend(),
     watchFetchLastUserTouch(),
   ]);
 }

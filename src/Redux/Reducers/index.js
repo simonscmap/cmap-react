@@ -84,6 +84,10 @@ const initialState = {
   // Homepage Anomaly Monitor Data
   sstReqStatus: states.notTried,
   adtReqStatus: states.notTried,
+  avgSstReqStatus: states.notTried,
+  avgAdtReqStatus: states.notTried,
+  avgSSTData: null,
+  avgADTData: null,
 
   // Interface state pieces
   loginDialogIsOpen: false,
