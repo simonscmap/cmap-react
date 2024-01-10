@@ -324,10 +324,25 @@ let checkRequiredCols = (data) => {
   return missingCols;
 };
 
+let checkDateFormat = (data, workbook) => {
+  if (!data || !Array.isArray(data) || !data[0].time) {
+    return null;
+  }
+  let sample = data[0].time;
+  let regex = /^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(\\.[0-9]+)?(Z)?$/;
+  let is1904 = false;
+  // Test sample row for correct format
+  if (!regex.test(sample)) {
+    is1904 = !!((workbook.Workbook || {}).WBProps || {}).date1904;
+  }
+  return is1904;
+};
+
 export default ({ data, dataset_meta_data, vars_meta_data, workbook }) => {
   let errors = [];
   let warnings = [];
 
+  // checks for missing sheets or lacking rows are early-return cases
   let sheetCheck = checkSheets(workbook);
   if (sheetCheck.length) {
     errors.push(
@@ -342,6 +357,15 @@ export default ({ data, dataset_meta_data, vars_meta_data, workbook }) => {
     errors.join.push(`Found no rows on the data sheet`);
     return { errors, warnings };
   }
+
+  // other checks
+
+  if (checkDateFormat(data, workbook)) {
+    warnings.push(
+      `Detected date format "1904". Please update Excel date format and verify dates and times.`
+    );
+  }
+
 
   let missingCols = checkRequiredCols(data);
   if (missingCols.length) {

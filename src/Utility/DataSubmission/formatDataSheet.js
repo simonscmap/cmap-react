@@ -1,6 +1,54 @@
 // https://stackoverflow.com/questions/16229494/converting-excel-date-serial-number-to-date-using-javascript
 
+const checkDateFormat = (data, workbook) => {
+if (!data || !Array.isArray(data) || !data[0].time) {
+    return null;
+  }
+  let sample = data[0].time;
+  let regex = /^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(\\.[0-9]+)?(Z)?$/;
+  let is1904 = false;
+  // Test sample row for correct format
+  if (!regex.test(sample)) {
+    is1904 = !!((workbook.Workbook || {}).WBProps || {}).date1904;
+  }
+
+  return is1904;
+}
+
+const deleteEmptyRows = (data) => {
+  let cols = Object.keys(data[0]);
+  let keysContaining__EMPTY = [];
+  cols.forEach((e) => {
+    if (e.indexOf('__EMPTY') !== -1) {
+      keysContaining__EMPTY.push(e);
+    }
+  });
+
+  if (keysContaining__EMPTY.length) {
+    data.forEach((e) => {
+      keysContaining__EMPTY.forEach((key) => {
+        delete e[key];
+      });
+    });
+  }
+
+  return keysContaining__EMPTY;
+}
+
 export default (data, workbook) => {
+  const is1904 = checkDateFormat (data, workbook);
+
+  console.log (`workbook date format is 1904: ${is1904}`);
+
+  // remove empty rows
+  const deletedKeys = deleteEmptyRows (data);
+
+  console.log (`deleted keys:`, deletedKeys);
+
+  return data;
+}
+
+const _oldFormattingFn = (data, workbook) => {
   if (!data || !data.length) {
     return;
   }
