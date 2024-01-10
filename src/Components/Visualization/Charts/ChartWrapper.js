@@ -1,7 +1,6 @@
 import { Paper } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import React from 'react';
-import { connect } from 'react-redux';
 import spatialResolutions from '../../../enums/spatialResolutions';
 import storedProcedures from '../../../enums/storedProcedures';
 import vizSubTypes from '../../../enums/visualizationSubTypes';
@@ -12,6 +11,7 @@ import SectionMapChart from './SectionMapChart2'; // TODO
 import SpaceTimeChart from './SpaceTimeChart2';
 import SparseMap from './SparseMap';
 import TimeSeriesChart from './TimeSeriesChart2'; // TODO
+
 
 // determine what type of chart to render
 const getChartComponent = (chart) => {
@@ -49,6 +49,7 @@ const getChartComponent = (chart) => {
 const ChartWrapper = ({ chart, index, classes }) => {
   let ChartComponent = getChartComponent(chart);
 
+
   // delegate render of chart to selected chart template
   return (
     <Paper elevation={12} className={classes.chartPaper} key={chart.id}>
@@ -57,11 +58,10 @@ const ChartWrapper = ({ chart, index, classes }) => {
   );
 };
 
-const mapStateToChartWrapperProps = ({ charts }) => ({
+export const ChartWrapperWithoutPaper = ({ chart, overrides }) => {
+  let ChartComponent = getChartComponent(chart);
 
-  charts,
-});
+  return (<ChartComponent chart={chart} overrides={overrides} />)
+};
 
-export default connect(mapStateToChartWrapperProps)(
-  withStyles(chartsStyles)(ChartWrapper),
-);
+export default withStyles (chartsStyles) (ChartWrapper);

@@ -1,8 +1,9 @@
-import colors from '../../enums/colors';
+import colors from '../../../enums/colors';
 
 const styles = (theme) => ({
   guideSection: {
-    width: '80%',
+    // width: '80%',
+    maxWidth: '1800px',
     margin: '65px auto 0 auto',
     textAlign: 'left',
     padding: '12px 32px',
@@ -20,6 +21,11 @@ const styles = (theme) => ({
     fontWeight: 100,
     fontFamily: '"roboto", Serif',
   },
+  sectionHeadRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
   divider: {
     backgroundColor: theme.palette.primary.main,
     marginBottom: '8px',
@@ -31,8 +37,9 @@ const styles = (theme) => ({
     fontSize: '.7rem',
   },
   outerContainer: {
-    marginTop: '70px',
+    marginTop: '100px',
     color: 'white',
+    padding: '0 10px'
   },
   errorContainer: {
     paddingTop: '100px',
@@ -41,6 +48,10 @@ const styles = (theme) => ({
     alignItems: 'center',
   },
   markdown: {
+    // minHeight: '500px',
+    [theme.breakpoints.down('sm')]: {
+      minHeight: 0,
+    },
     '& img': {
       maxWidth: '100%',
       margin: '20px auto 20px auto',
@@ -53,6 +64,7 @@ const styles = (theme) => ({
     '& p': {
       fontSize: '1rem',
       fontFamily: '"Lato",sans-serif',
+      textAlign: 'justify',
       fontWeight: 400,
       lineHeight: 1.5,
     },
@@ -98,7 +110,9 @@ const styles = (theme) => ({
     display: 'inline-block',
     marginBottom: '-5px',
   },
-
+  gridSection: {
+    marginTop: '3em'
+  }
 });
 
 export default styles;

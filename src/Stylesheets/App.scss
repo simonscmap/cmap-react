@@ -167,3 +167,93 @@ $row-stub-background-color: #22a3b9;
     // border: 2px solid #9dd162;
     background: rgba(0,0,0,0.4);
 }
+
+
+
+
+
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Data Submission Ag Grid Style
+
+#dataSubmission .ag-theme-material {
+  // background-color: #184562;
+}
+
+.ag-theme-material .ag-popup-editor,
+#dataSubmission .ag-theme-material .ag-popup-editor {
+  // background-color: #184562;
+}
+
+.ag-theme-material .ag-cell-inline-editing,
+#dataSubmission .ag-theme-material .ag-cell-inline-editing {
+  // background-color: #184562;
+  height: auto;
+}
+
+//
+#dataSubmission .ag-theme-material .ag-side-bar {
+  // background-color: #184562;
+  border-left: 2px solid black;
+}
+
+#dataSubmission .ag-theme-material .ag-tool-panel-wrapper {
+  border-left: 2px solid black;
+}
+
+@media screen and (min-width: 480px) {
+    #dataSubmission .ag-theme-material .ag-tool-panel-wrapper {
+        width: 300px;
+    }
+}
+@media screen and (min-width: 800px) {
+    #dataSubmission .ag-theme-material .ag-tool-panel-wrapper {
+        width: 500px;
+    }
+}
+@media screen and (min-width: 1200px) {
+    #dataSubmission .ag-theme-material .ag-tool-panel-wrapper {
+        width: 900px;
+    }
+}
+
+#dataSubmission .ag-theme-material .ag-tool-panel-wrapper .ag-react-container {
+  width: 100%;
+}
+.ag-theme-material .ag-side-bar .ag-side-buttons .ag-selected button {
+  // background-color: #184562;
+}
+
+// force select to look like part of the theme
+#dataSubmission .ag-theme-material .ag-tab-body .ag-filter-select {
+   color: white;
+   background-color: #184562;
+   border: 1px solid #9dd162;
+   border-radius: 3px;
+   padding: 5px;
+}
+
+// make the input label more visible
+#dataSubmission .ag-theme-material .ag-filter input[type="text"]::placeholder, .ag-theme-material .ag-filter input[type="date"]::placeholder {
+    color: rgba(255, 255, 255, 0.38);
+}
+
+// make the input value more visible
+#dataSubmission .ag-theme-material .ag-floating-filter-body input {
+    padding-bottom: 0;
+    font-size: 14px;
+    font-weight: bold;
+}
+// add a bolder box shadow to make the filter menue easier to see
+#dataSubmission .ag-theme-material .ag-menu {
+    box-shadow: 10px 10px 10px 0px rgba(0, 0, 0, 0.25), 0 2px 2px 0 rgba(0, 0, 0, 0.25), 0 1px 5px 0 rgba(0, 0, 0, 0.25);
+}
+
+#dataSubmission .ag-row-focus {
+    // border: 2px solid #9dd162;
+    background: rgba(0,0,0,0.4);
+}
+
+#dataSubmission .ag-theme-material .ag-cell {
+    border-radius: 2px;
+}

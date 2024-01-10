@@ -94,9 +94,9 @@ export const chartControlIconButton = (theme) => ({
 });
 
 export const chartControlTabButton = (theme) => ({
-  iconButton: {
+  tabButton: {
     boxShadow: '0px 1px 1px 1px #242424',
-    padding: '0 20px 0 20px',
+    padding: '11px',
   },
 });
 
@@ -156,11 +156,14 @@ export const chartControlPanelStyles = (theme) => ({
 
   buttonGroup: {
     display: 'flex',
+    flexDirection: 'row',
     justifyContent: 'flex-end',
     margin: '0 0 1em 0',
     // maxWidth: '700px',
     // textAlign: 'center',
     pointerEvents: 'auto',
+    flexWrap: 'wrap',
+    gap: '1em'
   },
 
   depressed: {
@@ -181,11 +184,12 @@ export const chartControlPanelStyles = (theme) => ({
   },
 
   sparseDataMaxSizeWarningIcon: {
+    fontSize: '1.75em',
     color: colors.errorYellow,
     position: 'absolute',
-    top: '60px',
+    top: '65px',
     left: 'calc(50% - 12px)',
-    cursor: 'pointer',
+    // cursor: 'pointer',
     zIndex: z.CONTROL_PRIMARY - 1,
     pointerEvents: 'auto',
   },
@@ -196,6 +200,7 @@ export const chartsStyles = (theme) => ({
     backgroundColor: colors.backgroundGray,
     marginBottom: '5h',
     paddingTop: theme.spacing(1),
+    paddingRight: '10px',
     boxShadow: '2px 2px 2px 2px #242424',
     margin: '0 0 0 360px',
     // minWidth: '715px' // buggy // coordinates with chartBase min width
@@ -204,7 +209,7 @@ export const chartsStyles = (theme) => ({
 
 export const chartTemplate = (theme) => ({
   chartTemplate: {
-    padding: '0 10px 0 0',
+    padding: '0 0 0 0',
   },
 });
 

@@ -44,11 +44,15 @@ const getHovertext = (data, scatterType) => {
     default:
       return variableValues.map((value, i) => {
         let formatter = value > 1 && value < 1000 ? '.2f' : '.2e';
-        let time = times[i].slice(0, 20);
-        time = time.replace('T', ' ');
-        return `Time: ${time}<br>${parameters.fields}: ${format(formatter)(
+        if (Array.isArray(times)) {
+          let time = times[i].slice(0, 20);
+          time = typeof time === 'string' && time.replace('T', ' ');
+          return `Time: ${time}<br>${parameters.fields}: ${format(formatter)(
           value,
         )} [${metadata.Unit}]`;
+        } else {
+          return `${format(formatter)(value)}[${metadata.Unit}]`
+        }
       });
   }
 };
@@ -86,7 +90,7 @@ const getTitles = (data, scatterType) => {
 };
 
 const getSparseScatterConfig = (props) => {
-  const { markerOptions, data, scatterType } = props;
+  const { markerOptions, data, scatterType, overrides = {} } = props;
 
   const { parameters, metadata, variableValues } = data;
 
@@ -101,8 +105,10 @@ const getSparseScatterConfig = (props) => {
   let plot = {
     tabTitle: capitalizeFirst(scatterType),
     style: {
-      width: '60vw',
-      height: '40vw',
+      width: overrides.width || '60vw',
+      height: overrides.height || '40vw',
+      minWidth: '510px',
+      minHeight: overrides.minHeight || '340px',
     },
     data: [
       {
@@ -134,7 +140,8 @@ const getSparseScatterConfig = (props) => {
       },
     },
     titleArgs: [metadata, date, lat, lon, depth],
-    annotationArgs: [metadata.Distributor, metadata.Data_Source],
+    annotationArgs: [metadata.Distributor, metadata.Data_Source, overrides],
+    cmapOverrides: overrides, // make this available to the ChartTemplate
   };
 
   return plot;

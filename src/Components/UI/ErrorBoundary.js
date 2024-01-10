@@ -2,11 +2,9 @@
 
 import React from 'react';
 import { connect } from 'react-redux';
-
-import Bowser from 'bowser';
-
 import { Paper, Typography } from '@material-ui/core';
 
+import parseError from '../../Utility/parseError';
 import { errorReportSend } from '../../Redux/actions/community';
 
 const mapDispatchToProps = {
@@ -23,18 +21,20 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    let info = Bowser.parse(window.navigator.userAgent);
-    let browserInfo = `${info.browser.name || 'Unknown browser'} ${
-      info.browser.version || 'Unknown version'
-    }`;
-    let osInfo = `${info.os.name || 'Unknown OS'} ${
-      info.os.versionName || 'Unknown version'
-    }`;
-    let errorMessage = error && error.toString();
-    let stackArr = error && error.stack && error.stack.split('\n');
-    let stackFirstLine = stackArr.length > 0 ? stackArr[0] : null;
-    let location = window.location.href;
-    this.props.errorReportSend(errorMessage, browserInfo, osInfo, stackFirstLine, location);
+    const {
+      errorMessage,
+      browserInfo,
+      osInfo,
+      stackFirstLine,
+      location
+    } = parseError (error);
+    this.props.errorReportSend(
+      errorMessage,
+      browserInfo,
+      osInfo,
+      stackFirstLine,
+      location
+    );
   }
 
   render() {

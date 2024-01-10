@@ -108,6 +108,25 @@ const steps = [
   },
 ];
 
+const getActiveStepFromPhase = (phase) => {
+  switch (phase) {
+    case 'Awaiting admin action':
+      return 1;
+    case 'Awaiting user update':
+      return 1;
+    case 'Awaiting QC2':
+      return 2;
+    case 'Awaiting DOI':
+      return 3;
+    case 'Awaiting ingestion':
+      return 4;
+    case 'Complete':
+      return 6;
+    default:
+      return 1;
+  }
+}
+
 const UserDashboardPanelDetails = (props) => {
   const { classes, submission } = props;
 
@@ -116,36 +135,7 @@ const UserDashboardPanelDetails = (props) => {
   let comments = props.submissionComments[submission.Submission_ID];
   let renderComments = Boolean(comments && comments.length);
 
-  let activeStep;
-
-  switch (submission.Phase) {
-    case 'Awaiting admin action':
-      activeStep = 1;
-      break;
-
-    case 'Awaiting user update':
-      activeStep = 1;
-      break;
-
-    case 'Awaiting QC2':
-      activeStep = 2;
-      break;
-
-    case 'Awaiting DOI':
-      activeStep = 3;
-      break;
-
-    case 'Awaiting ingestion':
-      activeStep = 4;
-      break;
-
-    case 'Complete':
-      activeStep = 6;
-      break;
-
-    default:
-      activeStep = 1;
-  }
+  const activeStep = getActiveStepFromPhase (submission.Phase);
 
   useEffect(() => {
     props.retrieveSubmissionCommentHistory(submission.Submission_ID);
@@ -180,7 +170,8 @@ const UserDashboardPanelDetails = (props) => {
         })}
       </Stepper>
 
-      <Typography className={classes.newUpload}>
+      {/* Disallow updates from completed submissions. */}
+      {activeStep !== 6 && <Typography className={classes.newUpload}>
         <Link
           component={RouterLink}
           to={`/datasubmission/validationtool?submissionID=${encodeURIComponent(
@@ -189,8 +180,8 @@ const UserDashboardPanelDetails = (props) => {
         >
           Update
         </Link>{' '}
-        this submission.
-      </Typography>
+        {'this submission.'}
+      </Typography>}
 
       <Typography className={classes.newUpload}>
         <Link

@@ -6,6 +6,9 @@ import * as userActions from '../actions/user';
 import * as userActionTypes from '../actionTypes/user';
 import * as catalogActions from '../actions/catalog';
 import states from '../../enums/asyncRequestStates';
+import logInit from '../../Services/log-service';
+
+const log = logInit ('redux/sagas/userSagas');
 
 /* userLogin, watchUserLogin
  * triggering action: LOGIN_REQUEST_SEND
@@ -21,21 +24,23 @@ import states from '../../enums/asyncRequestStates';
  * dispatched in: LoginDialog.js
  */
 export function* userLogin(action) {
+  const tag = { tag: 'userLogin' };
+
   // send login request
   yield put(userActions.userLoginRequestProcessing());
-  let result = yield call(api.user.login, action.payload);
+  let response = yield call(api.user.login, action.payload);
 
   // get catalog state
   let downloadState = yield select((state) => state.download);
 
 
-  if (result.ok) {
+  if (response.ok) {
     yield put(interfaceActions.hideLoginDialog());
     // TODO: handle JSON.parse throw
     var userInfo = JSON.parse(Cookies.get('UserInfo'));
     yield put(userActions.userLoginRequestSuccess());
     yield put(userActions.storeInfo(userInfo));
-    yield put(interfaceActions.snackbarOpen('Login was successful!'));
+    yield put(interfaceActions.snackbarOpen('Login was successful!', tag));
     yield put(userActions.cartGetAndStore());
 
     if (window.location.pathname === '/login') {
@@ -57,7 +62,7 @@ export function* userLogin(action) {
 
   } else {
     yield put(userActions.userLoginRequestFailure());
-    yield put(interfaceActions.snackbarOpen('Login failed.'));
+    yield put(interfaceActions.snackbarOpen('Login failed.', tag));
   }
 } // ⮷ &. Watcher ⮷
 
@@ -78,6 +83,7 @@ export function* watchUserLogin() {
  * store key: userRegistrationState
  */
 function* userRegistration(action) {
+  const tag = { tag: 'userRegistration' };
   yield put(userActions.userRegistrationRequestProcessing());
   let result = yield call(api.user.register, action.payload);
 
@@ -88,6 +94,7 @@ function* userRegistration(action) {
     yield put(
       interfaceActions.snackbarOpen(
         'Registration failed. Please try again later.',
+        tag
       ),
     );
   }
@@ -131,6 +138,7 @@ export function* watchUserLogout() {
 // googleLoginRequest, watchGoogleloginRequest
 // GOOGLE_LOGIN_REQUEST_SEND
 function* googleLoginRequest(action) {
+  const tag = { tag: 'googleLoginRequest' };
   yield put(userActions.googleLoginRequestProcessing());
   let result = yield call(
     api.user.googleLoginRequest,
@@ -147,8 +155,9 @@ function* googleLoginRequest(action) {
       window.location.href = '/';
     }
   } else {
+    console.log ('google login failure', result);
     yield put(userActions.userLoginRequestFailure());
-    yield put(interfaceActions.snackbarOpen('Login failed.'));
+    yield put(interfaceActions.snackbarOpen('Login failed.', tag));
   }
 } // ⮷ &. Watcher ⮷
 
@@ -161,6 +170,8 @@ export function* watchGoogleLoginRequest() {
 
 // keyRetrieval, watchKeyRetrieval
 function* keyRetrieval() {
+  const tag = { tag: 'keyRetrieval' };
+
   let result = yield call(api.user.keyRetrieval);
 
   if (result.status === 401) {
@@ -169,7 +180,7 @@ function* keyRetrieval() {
 
   if (!result.ok) {
     yield put(userActions.keyRetrievalRequestFailure());
-    yield put(interfaceActions.snackbarOpen('API Key Retrieval Failed'));
+    yield put(interfaceActions.snackbarOpen('API Key Retrieval Failed', tag));
   } else {
     let response = yield result.json();
     yield put(userActions.keyRetrievalRequestSuccess(response.keys));
@@ -183,6 +194,8 @@ export function* watchKeyRetrieval() {
 // keyCreation, watchKeyCreationRequest
 // create an api key
 function* keyCreation(action) {
+  const tag = { tag: 'keyCreation' };
+
   yield put(userActions.keyCreationRequestProcessing());
   let result = yield call(api.user.keyCreation, action.payload.description);
 
@@ -193,10 +206,10 @@ function* keyCreation(action) {
 
   if (!result.ok) {
     yield put(
-      interfaceActions.snackbarOpen('We were unable to create a new API key.'),
+      interfaceActions.snackbarOpen('We were unable to create a new API key.', tag),
     );
   } else {
-    yield put(interfaceActions.snackbarOpen('A new API key was created'));
+    yield put(interfaceActions.snackbarOpen('A new API key was created', tag));
     yield put(userActions.keyCreationRequestSuccess());
     yield put(userActions.keyRetrievalRequestSend());
   }

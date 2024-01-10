@@ -13,6 +13,7 @@ import {
   Select,
   MenuItem,
   Typography,
+  Tooltip,
   Link,
 } from '@material-ui/core';
 
@@ -51,6 +52,9 @@ const styles = (theme) => ({
     color: 'white',
     marginLeft: '12px',
     textTransform: 'none',
+    '&.MuiButtonBase-root.Mui-disabled': {
+      pointerEvents: 'auto',
+    }
   },
 
   deleteButton: {
@@ -94,11 +98,31 @@ const mapDispatchToProps = {
   downloadMostRecentFile,
 };
 
+const toEnum = (phaseId) => {
+  switch (phaseId) {
+    case 2:
+      return 'Awaiting admin action';
+    case 3:
+      return 'Awaiting user update';
+    case 4:
+      return 'Awaiting DOI';
+    case 5:
+      return 'Awaiting ingestion';
+    case 6:
+      return 'Complete';
+    case 7:
+      return 'Awaiting QC2'
+    default:
+      return `Unknown phase "${phaseId}"`;
+  }
+}
+
 const AdminDashboardPanelDetails = (props) => {
-  const { classes, submission, setSubmissionPhase } = props;
+  const { classes, submission, setSubmissionPhase: dispatchSetPhase } = props;
+  const { Phase_ID: phaseId } = submission;
 
   const [comment, setComment] = React.useState();
-  const [phase, setPhase] = React.useState(submission.Phase_ID);
+  const [selectedPhase, selectPhase] = React.useState(submission.Phase_ID);
 
   let comments = props.submissionComments[submission.Submission_ID];
   let renderComments = Boolean(comments && comments.length);
@@ -112,13 +136,19 @@ const AdminDashboardPanelDetails = (props) => {
     setComment('');
   };
 
-  const handlePhaseChange = (e) => {
-    setPhase(e.target.value);
+  const updatePhaseSelection = (e) => {
+    selectPhase(e.target.value);
   };
 
-  const handleCommitPhase = () => {
-    setSubmissionPhase(submission.Submission_ID, phase);
+  const handleChangePhase = () => {
+    dispatchSetPhase (submission.Submission_ID, selectedPhase);
   };
+
+  const tooltipContent = phaseId === 6
+                    ? 'Cannot update a completed submission.'
+                       : phaseId === selectedPhase
+                    ? `Submission phase is already ${phaseId}: "${toEnum (phaseId)}"`
+                       : `Set Phase to ${selectedPhase}: "${toEnum (selectedPhase)}"`
 
   return (
     <AccordionDetails className={classes.panelDetails}>
@@ -134,8 +164,8 @@ const AdminDashboardPanelDetails = (props) => {
 
       <div className={classes.phaseControlWrapper}>
         <Select
-          value={phase}
-          onChange={handlePhaseChange}
+          value={selectedPhase}
+          onChange={updatePhaseSelection}
           className={classes.phaseSelect}
         >
           <MenuItem value={2}>Awaiting admin action</MenuItem>
@@ -146,15 +176,17 @@ const AdminDashboardPanelDetails = (props) => {
           <MenuItem value={6}>Complete</MenuItem>
         </Select>
 
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleCommitPhase}
-          className={classes.setPhaseButton}
-          disabled={Boolean(phase === submission.Phase_ID)}
-        >
-          Set Phase
-        </Button>
+    <Tooltip title={tooltipContent}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleChangePhase}
+            className={classes.setPhaseButton}
+            disabled={selectedPhase === phaseId || phaseId === 6}
+          >
+            Set Phase
+          </Button>
+        </Tooltip>
 
         <FormHelperText className={classes.helperText}>
           Update Submission Phase

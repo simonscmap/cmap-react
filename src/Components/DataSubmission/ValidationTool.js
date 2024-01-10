@@ -2,367 +2,107 @@
 
 import React from 'react';
 import { connect } from 'react-redux';
-import { Link as RouterLink } from 'react-router-dom';
 import { withRouter } from 'react-router';
 
 import XLSX from 'xlsx';
 
 import { withStyles } from '@material-ui/core/styles';
-import {
-  Typography,
-  Paper,
-  Button,
-  Link,
-  IconButton,
-  Tooltip,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Divider,
-  Tabs,
-  Tab,
-  Badge,
-} from '@material-ui/core';
-import {
-  ErrorOutline,
-  ArrowBack,
-  ArrowForward,
-  Done,
-} from '@material-ui/icons';
+
+import deepEqual from 'deep-equal'
 
 import {
   uploadSubmission,
   retrieveMostRecentFile,
   storeSubmissionFile,
+  clearSubmissionFile,
   checkSubmissionOptionsAndStoreFile,
-  setUploadState,
+  checkSubmNamesRequestSend,
+  setAudit,
+  setSheetAudit,
+  setWorkbookAudit,
 } from '../../Redux/actions/dataSubmission';
-import { snackbarOpen, setLoadingMessage } from '../../Redux/actions/ui';
+import { setLoadingMessage, snackbarOpen } from '../../Redux/actions/ui';
 import Section, { FullWidthContainer } from '../Common/Section';
 
-import ValidationGrid from './ValidationGrid';
+import Header from './ValidationToolHeader';
+import Navigation from './ValidationToolNavigation';
+import Chooser from './Chooser';
+import Step1 from './ValidationToolStep1';
+import Step2 from './ValidationToolStep2';
+import Step3 from './SubmitDataset';
+import StepAssistant from './StepAssistant';
+
 import LoginRequiredPrompt from '../User/LoginRequiredPrompt';
-import DSCustomGridHeader from './DSCustomGridHeader';
 
-import colors from '../../enums/colors';
-import { colors as newColors } from '../Home/theme';
+import formatDataSheet from './Helpers/formatDataSheet';
+import formatDatasetMetadataSheet from './Helpers/formatDatasetMetadataSheet';
+import formatVariableMetadataSheet from './Helpers/formatVariableMetadataSheet';
+import generateAudits from './Helpers/generateAudits';
+import workbookAudits from './Helpers/workbookAudits';
+import auditReference from './Helpers/auditReference';
+import countErrors from './Helpers/countErrors';
+import DeleteEmptyRowConfirmation from './DeleteEmptyRowConfirmation';
+import { formatBytes } from './Helpers/display';
+import { safePath } from '../../Utility/objectUtils';
 
-import formatDataSheet from '../../Utility/DataSubmission/formatDataSheet';
-import formatDatasetMetadataSheet from '../../Utility/DataSubmission/formatDatasetMetadataSheet';
-import formatVariableMetadataSheet from '../../Utility/DataSubmission/formatVariableMetadataSheet';
-import generateAudits from '../../Utility/DataSubmission/generateAudits';
-import workbookAudits from '../../Utility/DataSubmission/workbookAudits';
-import auditReference from '../../Utility/DataSubmission/auditReference';
+import styles from './ValidationToolStyles';
+
+import {
+  validationSteps,
+  fileSizeTooLargeDummyState,
+} from './ValidationToolConstants';
 
 import states from '../../enums/asyncRequestStates';
 
+import { debugTimer } from '../../Utility/debugTimer';
+
 const mapStateToProps = (state, ownProps) => ({
   submissionFile: state.submissionFile,
+  userDataSubmissions: state.dataSubmissions,
   dataSubmissionSelectOptions: state.dataSubmissionSelectOptions,
   submissionUploadState: state.submissionUploadState,
   user: state.user,
+  checkSubmissionNameResult: state.checkSubmissionNameResult,
+  submissionType: state.submissionType,
+  submissionToUpdate: state.submissionToUpdate,
+  auditReport: state.auditReport,
+  retrieveUserDataSubmsissionsRequestStatus: state.retrieveUserDataSubmsissionsRequestStatus,
+  checkSubmissionNameRequestStatus: state.checkSubmissionNameRequestStatus,
+  loadingMessage: state.loadingMessage,
 });
 
 const mapDispatchToProps = {
-  snackbarOpen,
   uploadSubmission,
   setLoadingMessage,
+  snackbarOpen,
   retrieveMostRecentFile,
   storeSubmissionFile,
+  clearSubmissionFile,
   checkSubmissionOptionsAndStoreFile,
+  checkSubmNamesRequestSend,
+  setAudit,
+  setSheetAudit,
+  setWorkbookAudit,
 };
-
-const styles = (theme) => ({
-  title: {
-    color: 'white',
-    fontSize: '32px',
-    fontWeight: '100',
-  },
-  input: {
-    display: 'none',
-  },
-
-  button: {
-    color: 'white',
-    textTransform: 'none',
-    display: 'block',
-    maxWidth: '100px',
-    margin: '12px auto 0px auto',
-  },
-
-  needHelp: {
-    color: 'white',
-    margin: '12px 0 0 12px',
-    letterSpacing: 'normal',
-  },
-
-  needHelpLink: {
-    letterSpacing: 'normal',
-    color: theme.palette.primary.main,
-    cursor: 'pointer',
-  },
-
-  fileSelectPaper: {
-    margin: '30px 0',
-    padding: '16px',
-    padding: '12px',
-    whiteSpace: 'pre-wrap',
-  },
-
-  workbookAuditPaper: {
-    margin: '30px 0',
-    padding: '16px',
-    padding: '12px',
-    minHeight: '110px',
-    whiteSpace: 'pre-wrap',
-    textAlign: 'left',
-  },
-
-  addBorder: {
-    border: `1px dashed ${theme.palette.primary.main}`,
-  },
-
-  chooseNewFileLabel: {
-    display: 'inline',
-    position: 'absolute',
-    marginTop: '10px',
-    marginLeft: '14px',
-    fontSize: '11px',
-    borderRadius: '2px',
-    color: colors.primary,
-    cursor: 'pointer',
-    '&:hover': {
-      backgroundColor: 'rgba(0,0,0,.2)',
-    },
-  },
-
-  linkLabel: {
-    color: colors.primary,
-    cursor: 'pointer',
-    '&:hover': {
-      backgroundColor: 'rgba(0,0,0,.2)',
-    },
-  },
-
-  submitButton: {
-    color: 'white',
-    margin: '24px 0 12px 0',
-    textTransform: 'none',
-  },
-
-  tabPaper: {
-    maxWidth: '80vw',
-    height: 'calc(100vh - 320px)',
-    minHeight: '300px',
-    margin: '0 auto 24px auto',
-  },
-
-  currentlyViewingTypography: {
-    marginLeft: '4px',
-  },
-
-  ilb: {
-    display: 'inline-block',
-  },
-
-  currentSectionSpan: {
-    margin: '4px 8px 0 8px',
-    width: '200px',
-    display: 'inline-block',
-  },
-
-  divider: {
-    margin: '8px 0',
-  },
-
-  workbookTab: {
-    textTransform: 'none',
-  },
-
-  submittedTypography: {
-    marginBottom: '12px',
-  },
-});
-
-const _CleanupDummy = (props) => {
-  React.useEffect(() => {
-    return function cleanup() {
-      props.setUploadState(null);
-    };
-  });
-
-  return '';
-};
-
-const CleanupDummy = connect(null, { setUploadState })(_CleanupDummy);
-
-const textAreaLookup = {
-  var_keywords: 4,
-  var_comment: 5,
-  var_long_name: 3,
-  dataset_references: 8,
-  dataset_description: 14,
-  dataset_acknowledgement: 8,
-  cruise_names: 5,
-  dataset_long_name: 3,
-  dataset_history: 3,
-  dataset_distributor: 3,
-};
-
-const validationSteps = [
-  {
-    // before selecting file
-  },
-
-  {
-    label: 'Workbook Validation',
-    sheet: 'workbook',
-  },
-
-  {
-    label: 'Data Sheet',
-    sheet: 'data',
-  },
-
-  {
-    label: 'Dataset Metadata Sheet',
-    sheet: 'dataset_meta_data',
-  },
-
-  {
-    label: 'Variable Metadata Sheet',
-    sheet: 'vars_meta_data',
-  },
-
-  {
-    label: 'Submission',
-    sheet: 'submission',
-  },
-];
-
-let orderedColumns = {
-  data: ['time', 'lat', 'lon', 'depth'],
-  dataset_meta_data: [
-    'dataset_short_name',
-    'dataset_long_name',
-    'dataset_version',
-    'dataset_release_date',
-    'dataset_make',
-    'cruise_names',
-    'dataset_source',
-    'dataset_distributor',
-    'dataset_acknowledgement', //'contact_email'
-    ,
-    'dataset_doi',
-    'dataset_history',
-    'dataset_description',
-    'dataset_references',
-    'climatology',
-  ],
-  vars_meta_data: [
-    'var_short_name',
-    'var_long_name',
-    'var_unit',
-    'var_sensor',
-    'var_spatial_res',
-    'var_temporal_res',
-    'var_discipline',
-    'visualize',
-    'var_keywords',
-    'var_comment',
-  ],
-};
-
-const generateSelectOptions = (reduxStoreOptions) => ({
-  var_temporal_res: reduxStoreOptions.Temporal_Resolution,
-  var_discipline: reduxStoreOptions.Study_Domain,
-  var_sensor: reduxStoreOptions.Sensor,
-  var_spatial_res: reduxStoreOptions.Spatial_Resolution,
-  dataset_make: reduxStoreOptions.Make,
-});
-
-const StyledBadgeRed = withStyles((theme) => ({
-  badge: {
-    right: -11,
-    top: 1,
-    backgroundColor: 'rgba(255, 0, 0, .6)',
-  },
-}))(Badge);
-
-const StyledBadgeGreen = withStyles((theme) => ({
-  badge: {
-    right: -11,
-    top: 1,
-    backgroundColor: 'green',
-  },
-}))(Badge);
-
-let fileSizeTooLargeDummyState = {
-  auditReport: {
-    workbook: {
-      errors: [
-        'This workbook exceeds the file size limit of this application. Please contact our data curation team at cmap-data-submission@uw.edu for assistance.',
-      ],
-      warnings: [],
-    },
-    data: [],
-    dataset_meta_data: [],
-    vars_meta_data: [],
-  },
-  validationStep: 1,
-};
-
-// validationSteps:
-// 1 - workbook,
-// 2 - data,
-// 3 - dataset metadata
-// 4 - variable metadata
-// 5 - submission
 
 class ValidationTool extends React.Component {
-  checkCellStyle = (params) => {
-    let row = params.node.childIndex;
-    let colId = params.column.colId;
-    let { sheet } = params.context;
+  constructor (props) {
+    super(props);
 
-    let styles = {};
+    this.state = {
+      validationStep: 0,
+      tab: 0,
+      file: null,
+      data: null,
+      dataset_meta_data: null,
+      vars_meta_data: null,
+      auditReport: null,
+      changeLog: [],
+      delRow: null,
+    };
+  }
 
-    if (
-      this.state.auditReport &&
-      this.state.auditReport[sheet] &&
-      this.state.auditReport[sheet][row] &&
-      this.state.auditReport[sheet][row][colId]
-    ) {
-      styles.boxShadow = 'inset 0 0 1px 1px rgba(255, 0, 0, .5)';
-    }
-
-    return styles;
-  };
-
-  state = {
-    validationStep: 0,
-    file: null,
-    data: null,
-    dataset_meta_data: null,
-    vars_meta_data: null,
-    auditReport: null,
-    defaultColumnDef: {
-      menuTabs: [],
-      resizable: true,
-      editable: true,
-      cellStyle: this.checkCellStyle,
-      cellEditor: 'DSCellEditor',
-      width: 270,
-      headerComponentFramework: DSCustomGridHeader,
-    },
-  };
-
-  handleGridSizeChanged = () => {
-    if (this.state.validationStep === 2) {
-      this.gridApi.sizeColumnsToFit();
-    }
-  };
+  handleGridSizeChanged = () => {};
 
   handleDragOver = (e) => {
     e.preventDefault();
@@ -371,207 +111,629 @@ class ValidationTool extends React.Component {
   auditCell = (value, col, row) => {
     let cellAudit = [];
     let auditFuncs = this.audits[col];
-
     if (auditFuncs) {
-      auditFuncs.forEach((func) => {
-        let result = func(value, row);
-
+      auditFuncs.forEach((func) => { // apply audit functions to cell value
+        let result = func (value, row);
         if (result) {
           cellAudit.push(result);
         }
       });
     }
-
     return cellAudit;
   };
 
-  auditWorkbook = (params) => {
-    return workbookAudits(params);
+  auditWorkbook = (args) => {
+    const newArgs = Object.assign ({}, args, {
+      checkNameResult: this.props.checkSubmissionNameResult,
+      submissionType: this.props.submissionType,
+      submissionToUpdate: this.props.submissionToUpdate,
+    });
+
+    return workbookAudits(newArgs);
   };
 
   auditRows = (rows, sheet) => {
+    // console.log (`auditing rows for ${sheet}`)
+    const checkNameResult = this.props.checkSubmissionNameResult;
     let audit = [];
-    rows.forEach((row, i) => {
-      let rowAudit = {};
 
-      let columns = auditReference[sheet];
+    if (Array.isArray(rows)) {
+      rows.forEach((row, i) => {
+        let rowAudit = {};
 
-      columns.forEach((col) => {
-        let cellAudit = this.auditCell(row[col], col, i);
+        let columns = auditReference[sheet];
 
-        if (cellAudit.length) {
-          rowAudit[col] = cellAudit;
+        const hasDepthCol = this.state.data && Object.keys(this.state.data[0]).includes('depth');
+        if (!hasDepthCol) {
+          columns = columns.filter ((c) => c !== 'depth');
         }
-      });
 
-      if (Object.keys(rowAudit).length) {
-        audit[i] = rowAudit;
-      }
-    });
+        columns.forEach((col) => {
+          let cellAudit = this.auditCell(row[col], col, i);
+
+          if (i === 0) {
+            // on the first row only
+            // emend cellAudit with name conflict errors
+            if (sheet === 'dataset_meta_data') {
+              if (col === 'dataset_short_name') {
+                if (checkNameResult && checkNameResult.shortNameIsAlreadyInUse) {
+                  if (!Array.isArray (cellAudit)) {
+                    cellAudit = [];
+                  }
+                  cellAudit.push (`The short name "${checkNameResult.shortName}" is already in use.`)
+                } else if (checkNameResult && checkNameResult.shortNameUpdateConflict) {
+                  if (!Array.isArray (cellAudit)) {
+                    cellAudit = [];
+                  }
+                  cellAudit.push (`The short name "${checkNameResult.shortName}" confilcts with another data submission.`)
+                }
+              }
+              if (col === 'dataset_long_name') {
+                if (checkNameResult && checkNameResult.longNameIsAlreadyInUse) {
+                  if (!Array.isArray (cellAudit)) {
+                    cellAudit = [];
+                  }
+                  cellAudit.push (`The long name "${checkNameResult.longName}" is already in use.`)
+                } else if (checkNameResult && checkNameResult.longNameUpdateConflict) {
+                  if (!Array.isArray (cellAudit)) {
+                    cellAudit = [];
+                  }
+                  cellAudit.push (`The long name "${checkNameResult.longName}" confilcts with another data submission.`)
+                }
+              }
+            }
+          }
+          if (cellAudit.length) {
+            rowAudit[col] = cellAudit;
+          }
+        }); // end column iteration
+
+        const cellIsEmpty = (colName) => {
+          const val = row[colName];
+          const isEmpty = val === null || val === undefined || val === '';
+          return isEmpty;
+        }
+
+
+        const rowIsEmpty = Object.keys(row).every (cellIsEmpty);
+
+        if (rowIsEmpty) {
+          // console.log ('ROW IS EMPTY', row, i, sheet);
+          this.setState({
+            ...this.state,
+            delRow: {
+              open: true,
+              sheet,
+              rowToRemove: i,
+            }
+          })
+          // this.setState({ ...this.state, [sheet]: modifiedRows });
+        } else {
+          // console.log ('ROW IS NOT EMPTY', row)
+        }
+
+        if (Object.keys(rowAudit).length) {
+          audit[i] = rowAudit;
+        }
+      }); // end rows iteration
+    }
 
     return audit;
   };
 
-  // Takes a workbook and returns an audit report
-  performAudit = (workbook) => {
-    let workbookAudit = this.auditWorkbook(workbook);
-    if (workbookAudit.errors.length)
-      return {
-        workbook: workbookAudit,
-        data: [],
-        dataset_meta_data: [],
-        vars_meta_data: [],
-      };
-
-    let report = {
-      workbook: workbookAudit,
-      data: this.auditRows(workbook.data, 'data'),
-      dataset_meta_data: this.auditRows(
-        workbook.dataset_meta_data,
-        'dataset_meta_data',
-      ),
-      vars_meta_data: this.auditRows(workbook.vars_meta_data, 'vars_meta_data'),
-    };
-
-    return report;
-  };
-
-  handleResetState = () => {
-    this.props.storeSubmissionFile(null);
-    this.props.history.push({
-      pathname: '/datasubmission/validationtool',
-      query: {},
-    });
-    this.setState({
-      ...this.state,
-      data: null,
-      dataset_meta_data: null,
-      vars_meta_data: null,
-      validationStep: 0,
-    });
-  };
-
-  handleChangeValidationStep = (validationStep) => {
-    this.setState({ ...this.state, validationStep }, () => {
-      if (this.gridApi && validationStep == 2) this.gridApi.sizeColumnsToFit();
-    });
-  };
-
-  handleCellValueChanged = ({
-    rowIndex,
-    newValue,
-    column,
-    node,
-    context,
-    oldValue,
-  }) => {
-    if (oldValue === newValue) return;
-
-    let { sheet } = context;
-
-    let newAudit = this.auditCell(newValue, column.colId, rowIndex);
-
-    let auditReport = { ...this.state.auditReport };
-
-    if (!auditReport[sheet][rowIndex]) auditReport[sheet][rowIndex] = {};
-
-    auditReport[sheet] = [...this.state.auditReport[sheet]];
-
-    if (newAudit.length) {
-      auditReport[sheet][rowIndex][column.colId] = newAudit;
-    } else delete auditReport[sheet][rowIndex][column.colId];
-
-    if (!Object.keys(auditReport[sheet][rowIndex]).length) {
-      auditReport[sheet][rowIndex] = null;
-    }
-
-    let updated = [
-      ...this.state[sheet].slice(0, rowIndex),
-      node.data,
-      ...this.state[sheet].slice(rowIndex + 1),
-    ];
-    this.setState({ ...this.state, [sheet]: updated, auditReport }, () => {
-      this.gridApi.redrawRows();
-    });
-  };
-
-  handleReadFile = (file) => {
-    var reader = new FileReader();
-    if (file.size > 150000000) {
-      this.setState({ ...this.state, ...fileSizeTooLargeDummyState }, () =>
-        this.props.setLoadingMessage(''),
-      );
+  removeRow = (sheetName, rowToRemove) => {
+    // console.log ('removeRow', sheetName, rowToRemove);
+    if (!sheetName || !Number.isInteger(rowToRemove)) {
       return;
     }
 
+    const sheetData = this.state[sheetName];
+    if (!Array.isArray(sheetData)) {
+      // console.log (`no data for sheetName ${sheetName}: cannot remove row`);
+      return;
+    }
+
+    const newData = sheetData.slice(0, rowToRemove)
+                             .concat(sheetData.slice(rowToRemove + 1))
+
+    // console.log (`setting ${sheetName} with newData`, newData);
+    this.setState({
+      ...this.state,
+      [sheetName]: newData,
+      delRow: null,
+    });
+
+    setTimeout (this.performAudit, 10);
+    // this.performAudit(false, 'after remove row');
+  }
+
+  closeRemoveRowDialog = () => {
+    this.setState({
+      ...this.state,
+      delRow: null,
+    });
+  }
+
+  // Takes a workbook and returns an audit report
+  performAudit = (shouldAdvanceStep, callerName) => {
+    const {
+      workbook,
+      data,
+      dataset_meta_data,
+      vars_meta_data,
+      // flags
+      is1904,
+      numericDateFormatConverted,
+      invalidDateString,
+      negativeNumberDate,
+      integerDate,
+      missingDate,
+    } = this.state;
+
+    const { userDataSubmissions } = this.props;
+
+    const argsObj = {
+      workbook,
+      data,
+      dataset_meta_data,
+      vars_meta_data,
+      userDataSubmissions,
+      // flags
+      is1904,
+      numericDateFormatConverted,
+      invalidDateString,
+      negativeNumberDate,
+      integerDate,
+      missingDate,
+    };
+
+    if (!workbook) {
+      return;
+    }
+
+    let workbookAudit = this.auditWorkbook(argsObj);
+
+    let report = {
+      workbook: workbookAudit,
+      data: this.auditRows(
+        data,
+        'data'
+      ),
+      dataset_meta_data: this.auditRows(
+        dataset_meta_data,
+        'dataset_meta_data',
+      ),
+      vars_meta_data: this.auditRows(
+        vars_meta_data,
+        'vars_meta_data'
+      ),
+      fatal: workbookAudit.fatal,
+    };
+
+    const errors = countErrors (report);
+    report.errorCount = errors;
+
+    this.props.setAudit(report);
+
+    if (shouldAdvanceStep) {
+      const validationStep = 1;
+
+      this.setState({
+        ...this.state,
+        validationStep,
+        loadingFile: {
+          status: 'complete',
+        }
+      });
+    }
+  };
+
+  resetSubmissionFile = () => {
+    console.log ('clearing submission file');
+    this.props.clearSubmissionFile ();
+  }
+
+  resetAudit = () => {
+    // console.log ('resetting audit state');
+    this.props.setAudit(null);
+  }
+
+  resetLocalState = (resetStep = false, callerName) => {
+    // console.log (`resetting local state (caller name: ${callerName})`);
+    this.setState({
+      ...this.state,
+      rawFile: null,
+      data: null,
+      dataset_meta_data: null,
+      vars_meta_data: null,
+      validationStep: resetStep ? 0 : this.state.validationStep,
+      changeLog: [],
+      loadingFile: {
+        status: 'not-tried',
+        totalBytes: 0
+      }
+    });
+  };
+
+  handleResetState = (resetStep = false, callerName) => {
+    this.resetSubmissionFile();
+    this.resetAudit();
+    this.resetLocalState(resetStep, callerName);
+  };
+
+  handleChangeValidationStep = (validationStep) => {
+    if (validationStep >= 0 && validationStep < validationSteps.length) {
+      this.setState({ ...this.state, validationStep });
+    }
+  };
+
+  handleCellValueChanged = (event) => {
+    const {
+      rowIndex,
+      newValue,
+      column,
+      node,
+      context,
+      oldValue,
+    } = event;
+
+    if (oldValue === newValue) {
+      // console.log ('a change event fired, but state has not changed');
+      return;
+    } else if (oldValue === null && newValue === '') {
+      // console.log ('a change event fired when a user clicked on an empty cell');
+      return;
+    }
+
+    const changeEvent = {
+      row: rowIndex, col: column.colId, val: newValue, old: oldValue, sheet: context.sheet
+    };
+
+    // console.log ('Cell Value Changed', changeEvent, node);
+
+    // 1. check names
+    const shouldResendCheckNameRequest =
+      (column && column.colId === 'dataset_short_name')
+      || (column && column.colId === 'dataset_long_name');
+
+
+    if (shouldResendCheckNameRequest) {
+      let shortName = safePath (['dataset_meta_data', '0', 'dataset_short_name']) (this.state);
+      let longName = safePath (['dataset_meta_data', '0', 'dataset_long_name']) (this.state);
+
+      if (column.colId === 'dataset_short_name') {
+        shortName = newValue;
+      }
+      if (column.colId === 'dataset_long_name') {
+        longName = newValue;
+      }
+      this.props.checkSubmNamesRequestSend({ shortName, longName, submissionId: this.props.submissionToUpdate });
+    }
+
+    // 2. audit cell that has changed
+
+    let { sheet } = context;
+
+    console.log (`auditing cell ${column.colId}@${rowIndex}`);
+    let newAudit = this.auditCell (newValue, column.colId, rowIndex);
+
+    let auditReport = {
+      ...this.props.auditReport
+    };
+
+    // if audit returned issues
+    if (newAudit.length) {
+      // if no record for this row in audit report, make one
+      if (!auditReport[sheet][rowIndex]) {
+        auditReport[sheet][rowIndex] = {};
+      }
+      // insert new audit into report
+      auditReport[sheet][rowIndex][column.colId] = newAudit;
+    } else {
+      // if cell audit returned no issue,
+      let currentCellAudit = safePath ([sheet, rowIndex, column.colId]) (auditReport);
+      if (currentCellAudit) {
+        // delete anything on current audit for this cell
+        delete auditReport[sheet][rowIndex][column.colId];
+      }
+    }
+
+    const row = safePath ([sheet, rowIndex]) (auditReport);
+    // if no issues on this row of audit report, delete row
+    if (row && Object.keys(row).length === 0) {
+      auditReport[sheet][rowIndex] = null;
+    } else {
+      // console.log ('still audit value in row', auditReport[sheet][rowIndex])
+    }
+
+    // update the data
+    let updated = this.state[sheet].slice(0, rowIndex).concat(
+      node.data,
+      ...this.state[sheet].slice(rowIndex + 1),
+    );
+
+    // 3. update workbook in state with new data, and add a changeEvent to the change log
+    this.setState({
+      ...this.state,
+      [sheet]: updated,
+      changeLog: this.state.changeLog.concat(changeEvent)
+    }, () => {
+      // redraw rows
+      const row = this.gridApi.getDisplayedRowAtIndex(rowIndex);
+      this.gridApi.redrawRows({rowNodes: [row]});
+
+      // refresh cells
+      event.api.refreshCells({
+        force: true,
+        rowNodes: [event.node] // pass rowNode that was edited
+      });
+    });
+
+    this.props.setSheetAudit({
+      sheetName: sheet,
+      sheetAudit: auditReport[sheet]
+    });
+
+    // 4. refresh workbook audit as well
+    const {
+      workbook,
+      data,
+      dataset_meta_data,
+      vars_meta_data,
+      // flags
+      is1904,
+      numericDateFormatConverted,
+      invalidDateString,
+      negativeNumberDate,
+      integerDate,
+      missingDate,
+    } = this.state;
+
+    const argsObj = {
+      workbook,
+      data,
+      dataset_meta_data,
+      vars_meta_data,
+      // flags
+      is1904,
+      numericDateFormatConverted,
+      invalidDateString,
+      negativeNumberDate,
+      integerDate,
+      missingDate,
+    };
+
+    const newWorkbookAudit = this.auditWorkbook (argsObj);
+    this.props.setWorkbookAudit (newWorkbookAudit);
+
+
+    // audit rows for this sheet
+    const sheetAudit = this.auditRows(this.state[sheet], sheet);
+    this.props.setSheetAudit({
+      sheetName: sheet,
+      sheetAudit: sheetAudit,
+    })
+  };
+
+  handleReadFile = (file) => {
+    const timer = debugTimer();
+    timer.start();
+    timer.add('restart local state')
+    this.resetLocalState (false, 'handleReadFile');
+    timer.add('set state: loading file');
+    this.setState ({
+        ...this.state,
+        loadingFile: {
+          status: 'reading',
+          totalBytes: 0,
+        }
+      })
+    var totalBytes = 0;
+    timer.add('create new file reader');
+    var reader = new FileReader();
+
+    timer.add('check file size threshold');
+    if (file.size > 150000000) {
+      console.log ('file too large', file.size);
+      this.setState({
+        ...this.state,
+        ...fileSizeTooLargeDummyState
+      });
+      return;
+    }
+
+    // reset checkName result (because we have a new file)
+    timer.add('set state: clear check name result');
+    this.setState({
+      ...this.state,
+      checkNameResult: null,
+      rawFile: file
+    });
+
+    reader.onprogress = (ev) => {
+      timer.add ('onprogress')
+      try {
+        totalBytes = safePath (['total']) (ev);
+        this.setState ({
+        ...this.state,
+        loadingFile: {
+          status: 'reading',
+          totalBytes,
+        }
+      })
+        console.log ('size read: ' + formatBytes(totalBytes));
+      } catch (e) {
+        console.log ('error: file reader progress event total was not a number')
+      }
+    }
+
     reader.onload = (progressEvent) => {
-      var readFile = new Uint8Array(progressEvent.target.result);
-      var workbook = XLSX.read(readFile, { type: 'array' });
+      timer.add ('onload');
+      this.setState ({
+        ...this.state,
+        loadingFile: {
+          status: 'parsing',
+          totalBytes,
+        }
+      })
+
+      timer.add ('create Unit8Array from file drop');
+      const readFile = new Uint8Array(progressEvent.target.result);
+      let workbook;
+      try {
+        timer.add ('xlsx read file');
+        workbook = XLSX.read(readFile, { type: 'array' });
+      } catch (e) {
+        console.log ('error loading file', e);
+        this.props.snackbarOpen('Error reading file.');
+        this.handleResetState (false, 'handleReadFile: loading error');
+        this.setState ({
+          ...this.state,
+          loadingFile: {
+            status: 'error',
+            totalBytes: 0
+          }
+        });
+        return;
+      }
+
+      timer.add ('sheet_to_json: data')
       let _data = XLSX.utils.sheet_to_json(workbook.Sheets['data'], {
         defval: null,
       });
-      let data = _data ? formatDataSheet(_data, workbook) : _data;
 
-      let _dataset_meta_data = XLSX.utils.sheet_to_json(
-        workbook.Sheets['dataset_meta_data'],
-        { defval: null },
-      );
-      let dataset_meta_data = _dataset_meta_data
-        ? formatDatasetMetadataSheet(_dataset_meta_data, workbook)
-        : _dataset_meta_data;
 
-      let _vars_meta_data = XLSX.utils.sheet_to_json(
-        workbook.Sheets['vars_meta_data'],
-        { defval: null },
-      );
-      let vars_meta_data = _vars_meta_data
-        ? formatVariableMetadataSheet(_vars_meta_data)
-        : _vars_meta_data;
+      let formatResult;
+      try {
+        timer.add ('format data sheet')
+        formatResult = formatDataSheet(_data, workbook);
+      } catch (e) {
+        console.log ('error loading file', e);
+        this.props.snackbarOpen('Error parsing file.');
+        this.handleResetState (false, 'handleReadFile: parse error');
+        this.setState ({
+          ...this.state,
+          loadingFile: {
+            status: 'error',
+            totalBytes: 0
+          }
+        });
+        return;
+      }
 
-      var auditReport = this.performAudit({
+      let {
+        data,
+        // flags
+        is1904,
+        numericDateFormatConverted,
+        invalidDateString,
+        negativeNumberDate,
+        integerDate,
+        missingDate,
+      } = formatResult;
+
+      // parse metadata sheets
+      let _dataset_meta_data,
+          dataset_meta_data,
+          _vars_meta_data,
+          vars_meta_data;
+
+      try {
+        timer.add ('sheet_to_json: metadata');
+        _dataset_meta_data = XLSX.utils.sheet_to_json(
+          workbook.Sheets['dataset_meta_data'],
+          { defval: null },
+        );
+
+        // console.log (_dataset_meta_data);
+        timer.add ('format metadata');
+        dataset_meta_data = _dataset_meta_data
+                          ? formatDatasetMetadataSheet(_dataset_meta_data, workbook)
+                          : _dataset_meta_data;
+
+        // vars metadata
+        timer.add ('sheet_to_json: vars metadata');
+        _vars_meta_data = XLSX.utils.sheet_to_json(
+          workbook.Sheets['vars_meta_data'],
+          { defval: null },
+        );
+
+        timer.add ('format vars metadata');
+        vars_meta_data = _vars_meta_data
+                       ? formatVariableMetadataSheet(_vars_meta_data)
+                       : _vars_meta_data;
+
+      } catch (e) {
+        console.log ('error parsing metadata sheets', e);
+      }
+
+      timer.add ('check formatted sheets exist');
+      if (!vars_meta_data || !dataset_meta_data || !data) {
+        this.props.snackbarOpen('Error parsing file: missing worksheets.');
+        this.handleResetState (false, 'handleReadFile: missing worksheets error');
+        this.setState ({
+          ...this.state,
+          loadingFile: {
+            status: 'error',
+            totalBytes: 0
+          }
+        });
+        return;
+      }
+
+      // dispatch check name
+      const shortName = dataset_meta_data[0].dataset_short_name;
+      const longName = dataset_meta_data[0].dataset_long_name;
+
+      timer.add ('dispatch check name');
+      this.props.checkSubmNamesRequestSend({ shortName, longName, submissionId: this.props.submissionToUpdate });
+
+      timer.add ('set state with results');
+      this.setState({
+        ...this.state,
         workbook,
         data,
         dataset_meta_data,
         vars_meta_data,
+        // flags
+        is1904,
+        numericDateFormatConverted,
+        invalidDateString,
+        negativeNumberDate,
+        integerDate,
+        missingDate,
+        loadingFile: {
+          status: 'validating',
+          totalBytes,
+        }
+      }, () => {
+        this.props.setLoadingMessage('', { tag: 'ValidationTool#reader.onload' });
       });
 
-      let validationStep =
-        auditReport.workbook.errors.length ||
-        auditReport.workbook.warnings.length
-          ? 1
-          : 2;
-      this.setState(
-        {
-          ...this.state,
-          data,
-          dataset_meta_data,
-          vars_meta_data,
-          auditReport,
-          validationStep,
-        },
-        () => this.props.setLoadingMessage(''),
-      );
+      // run report
+      timer.add ('call perform audit')
+      this.performAudit(true, 'onload');
+      timer.done();
+      timer.report();
     };
 
     reader.readAsArrayBuffer(file);
   };
 
-  handleDrop = (e) => {
-    e.preventDefault();
-    var file = e.dataTransfer.items[0].getAsFile();
-    this.props.setLoadingMessage('Reading Workbook');
-    this.props.checkSubmissionOptionsAndStoreFile(file);
-  };
-
-  handleFileSelect = (e) => {
-    var file = e.target.files[0];
-    if (!file) return;
-    this.props.setLoadingMessage('Reading Workbook');
-    this.props.checkSubmissionOptionsAndStoreFile(file);
-    e.target.value = null;
-  };
-
   handleUploadSubmission = () => {
+    // rerun all audits
+    this.performAudit (false);
+
+    // prevent upload if errors exist
+    if (!this.props.auditReport) {
+      console.log ('No audit report present; preventing submit action.');
+      return;
+    } else if (this.props.auditReport.errorCount.sum !== 0) {
+      console.log ('Errors are still present; aborting submit action.');
+      return;
+    }
+
+    // assemble file
     let workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(
       workbook,
@@ -591,8 +753,20 @@ class ValidationTool extends React.Component {
     let wbArray = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
     let file = new Blob([wbArray]);
     file.name = `${this.state.dataset_meta_data[0].dataset_short_name}.xlsx`;
+
+    console.log ('dispatching upload', {
+      submissionType: this.props.submissionType, // "new" | "update"
+      submissionId: this.props.submissionToUpdate,
+      datasetName: this.state.dataset_meta_data[0].dataset_short_name,
+      dataSource: this.state.dataset_meta_data[0].dataset_source,
+      datasetLongName: this.state.dataset_meta_data[0].dataset_long_name,
+    })
+
     this.props.uploadSubmission({
+      submissionType: this.props.submissionType, // "new" | "update"
+      submissionId: this.props.submissionToUpdate,
       file,
+      rawFile: this.state.rawFile,
       datasetName: this.state.dataset_meta_data[0].dataset_short_name,
       dataSource: this.state.dataset_meta_data[0].dataset_source,
       datasetLongName: this.state.dataset_meta_data[0].dataset_long_name,
@@ -600,9 +774,10 @@ class ValidationTool extends React.Component {
   };
 
   handleDownload = () => {
-    this.props.setLoadingMessage('Downloading');
+    const tag = { tag: 'ValidationTool#handleDownload' };
+    this.props.setLoadingMessage('Downloading', tag);
     setTimeout(() => {
-      window.requestAnimationFrame(() => this.props.setLoadingMessage(''));
+      window.requestAnimationFrame(() => this.props.setLoadingMessage('', tag));
     }, 50);
     let workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(
@@ -629,118 +804,6 @@ class ValidationTool extends React.Component {
   onGridReady = (params) => {
     this.gridApi = params.api;
     this.columnApi = params.columnApi;
-    if (this.state.validationStep === 2) this.gridApi.sizeColumnsToFit();
-  };
-
-  onModelUpdated = (params) => {
-    if (
-      this.gridApi &&
-      validationSteps[this.state.validationStep].sheet === 'data'
-    ) {
-      this.gridApi.sizeColumnsToFit();
-    }
-  };
-
-  scrollGridTo = (index) => {
-    this.gridApi.ensureIndexVisible(index, 'middle');
-  };
-
-  //TODO clean this up when it's not late at night
-  handleFindNext = () => {
-    let lastFocused = this.gridApi.getFocusedCell();
-    let { sheet } = validationSteps[this.state.validationStep];
-    let { auditReport } = this.state;
-
-    let cols = orderedColumns[sheet];
-    var startRow = lastFocused ? lastFocused.rowIndex : -1;
-    var startColIndex = lastFocused
-      ? cols.findIndex((e) => e === lastFocused.column.colId)
-      : 0;
-
-    // Search the remaining columns in focused row
-    if (lastFocused) {
-      for (let i = startColIndex + 1; i < cols.length && i > -1; i++) {
-        if (
-          auditReport[sheet][startRow] &&
-          auditReport[sheet][startRow][cols[i]]
-        ) {
-          this.gridApi.ensureColumnVisible(cols[i]);
-          this.gridApi.startEditingCell({
-            rowIndex: startRow,
-            colKey: cols[i],
-          });
-          return;
-        }
-      }
-    }
-
-    // Start from startRow + 1, end at beginning of startRow
-    for (let i = startRow + 1; i != startRow; i++) {
-      if (auditReport[sheet][i]) {
-        for (let j = 0; j < cols.length; j++) {
-          if (auditReport[sheet][i][cols[j]]) {
-            this.gridApi.ensureColumnVisible(cols[j]);
-            this.gridApi.startEditingCell({
-              rowIndex: i,
-              colKey: cols[j],
-            });
-            return;
-          }
-        }
-      }
-
-      if (i === auditReport[sheet].length) i = -1;
-    }
-
-    // Search the rest of start row
-    if (lastFocused) {
-      for (let i = 0; i <= startColIndex && i < cols.length; i++) {
-        if (
-          auditReport[sheet][startRow] &&
-          auditReport[sheet][startRow][cols[i]]
-        ) {
-          this.gridApi.ensureColumnVisible(cols[i]);
-          this.gridApi.startEditingCell({
-            rowIndex: startRow,
-            colKey: cols[i],
-          });
-          return;
-        }
-      }
-    }
-  };
-
-  countErrors = () => {
-    let counts = {
-      workbook: this.state.auditReport.workbook.errors.length,
-      data: 0,
-      dataset_meta_data: 0,
-      vars_meta_data: 0,
-    };
-
-    this.state.auditReport['data'].forEach((e) => {
-      if (e) {
-        counts.data += Object.keys(e).length;
-      }
-    });
-
-    this.state.auditReport['dataset_meta_data'].forEach((e) => {
-      if (e) {
-        counts.dataset_meta_data += Object.keys(e).length;
-      }
-    });
-
-    this.state.auditReport['vars_meta_data'].forEach((e) => {
-      if (e) {
-        counts.vars_meta_data += Object.keys(e).length;
-      }
-    });
-
-    return counts;
-  };
-
-  handleClickTab = (event, newValue) => {
-    this.setState({ ...this.state, validationStep: newValue });
   };
 
   componentDidMount = () => {
@@ -748,6 +811,8 @@ class ValidationTool extends React.Component {
       'submissionID',
     );
     if (submissionID) {
+      this.resetAudit ();
+      this.resetLocalState (false, 'componentDidMount: submissionId in search string');
       this.props.retrieveMostRecentFile(submissionID);
     }
   };
@@ -757,22 +822,92 @@ class ValidationTool extends React.Component {
   };
 
   componentDidUpdate = (prevProps, prevState) => {
-    if (
-      (!prevProps.dataSubmissionSelectOptions &&
-        this.props.dataSubmissionSelectOptions) ||
-      (!this.audits && this.props.dataSubmissionSelectOptions) ||
-      (prevProps.dataSubmissionSelectOptions !==
+    // 1. should regenerate audits
+    const noPrevSelectOptionsButNowReceivingOptions =
+      !prevProps.dataSubmissionSelectOptions &&
+      this.props.dataSubmissionSelectOptions;
+
+    const noPrevAuditsButNowReceivingOptions =
+      !this.audits && this.props.dataSubmissionSelectOptions;
+
+    const yesPrevOptionsButNotSameAsNewOnes =
+      prevProps.dataSubmissionSelectOptions !==
         this.props.dataSubmissionSelectOptions &&
-        this.props.dataSubmissionSelectOptions)
-    ) {
+      this.props.dataSubmissionSelectOptions;
+
+    const shouldGenerateAudits =
+      noPrevSelectOptionsButNowReceivingOptions ||
+      noPrevAuditsButNowReceivingOptions ||
+      yesPrevOptionsButNotSameAsNewOnes;
+
+    if (shouldGenerateAudits) {
       this.audits = generateAudits(this.props.dataSubmissionSelectOptions);
     }
-    if (
-      prevProps.submissionFile !== this.props.submissionFile &&
-      this.props.submissionFile
-    ) {
+
+    // 2. should handle new submission file
+    const prevFileIsNotSameAsNewFile =
+      prevProps.submissionFile !== this.props.submissionFile
+      && this.props.submissionFile;
+
+    if (prevFileIsNotSameAsNewFile) {
       this.handleReadFile(this.props.submissionFile);
     }
+
+    // 3. should rerun audits
+    const subTypeChanged = this.props.submissionType !== prevProps.submissionType;
+    const nameCheckChanged = this.props.checkSubmissionNameResult !== prevProps.checkSubmissionNameResult;
+    if ((subTypeChanged || nameCheckChanged) && this.props.submissionFile) {
+      // call perform audit because nameCheck has changed
+      this.performAudit(false, 'componentDidUpdate');
+    }
+
+    // 4. should re-dispatch name check
+    // if subId has been changed and there is already a file
+    const subIdHasChanged = this.props.submissionToUpdate !== prevProps.submissionToUpdate;
+    const fileHasBeenSelected = Array.isArray(this.state.dataset_meta_data);
+    if (subIdHasChanged && fileHasBeenSelected) {
+      const shortName = safePath (['0','dataset_short_name']) (this.state.dataset_meta_data);
+      const longName = safePath (['0','dataset_long_name']) (this.state.dataset_meta_data);
+      // console.log (`id ${this.props.submissionToUpdate} ?= ${prevProps.submissionToUpdate}`, typeof this.props.submissionToUpdate, prevProps.submissionToUpdate);
+      // console.log ('dispatching', subIdHasChanged, fileHasBeenSelected);
+      this.props.checkSubmNamesRequestSend({ shortName, longName, submissionId: this.props.submissionToUpdate  });
+    }
+
+    // 5. success & should reset state
+    const submissionWasSuccessfullyUploaded =
+      this.props.submissionUploadState === states.succeeded &&
+      this.props.submissionUploadState !== prevProps.submissionUploadState;
+
+    if (submissionWasSuccessfullyUploaded) {
+      console.log ('resetting validation tool state');
+      this.handleResetState ();
+    }
+
+
+    const prevAudit = prevProps.auditReport;
+    const currAudit = this.props.auditReport;
+
+    let shouldRefreshCells = false;
+    ['data', 'dataset_meta_data', 'vars_meta_data', 'workbook'].forEach ((sh) => {
+      const prev = safePath ([sh]) (prevAudit);
+      const curr = safePath ([sh]) (currAudit);
+      const dataSheet = safePath ([sh]) (this.state);
+
+      if (!deepEqual (prev, curr) && Array.isArray(dataSheet)) {
+        shouldRefreshCells = true;
+      }
+    });
+
+    if (shouldRefreshCells) {
+      if (this.gridApi ) {
+        this.gridApi.redrawRows();
+      } else {
+        // console.log ('no grid api');
+      }
+    }
+
+
+
   };
 
   render = () => {
@@ -781,501 +916,72 @@ class ValidationTool extends React.Component {
     const { classes } = this.props;
     const { validationStep } = this.state;
 
-    const datasetName =
-      this.state.dataset_meta_data && this.state.dataset_meta_data.length
-        ? this.state.dataset_meta_data[0].dataset_short_name
-        : null;
+    const shortName = safePath (['dataset_meta_data', '0', 'dataset_short_name']) (this.state);
+    const longName = safePath (['dataset_meta_data', '0', 'dataset_long_name']) (this.state);
 
-    const sheet = validationSteps[validationStep].sheet;
-
-    var errorCount;
-
-    if (validationStep > 0 && validationStep < 5) {
-      errorCount = this.countErrors();
+    const summary = {
+      shortName,
+      longName,
+      cols: this.state.data ? Object.keys(this.state.data[0]).length : 0,
+      rows: this.state.data ? this.state.data.length : 0,
+      vars: this.state.vars_meta_data ? this.state.vars_meta_data.length : 0,
     }
 
-    const preventSubmission = Boolean(
-      validationStep >= 5 ||
-        (validationStep === 1 && errorCount.workbook) ||
-        (validationStep === 4 &&
-          (errorCount.data > 0 ||
-            errorCount.dataset_meta_data > 0 ||
-            errorCount.vars_meta_data > 0)),
-    );
-
-    const forwardArrowTooltip =
-      validationStep === 0 || validationStep >= 5
-        ? ''
-        : (errorCount.data > 0 ||
-            errorCount.dataset_meta_data > 0 ||
-            errorCount.vars_meta_data > 0) &&
-          validationStep === 4
-        ? 'Please Correct Errors to Proceed'
-        : 'Next Section';
-
-    const hideSelectDifferentFile = validationStep >= 5;
-
     return (
-      <div
-        style={{
-          margin: '120px auto 0 auto',
-          position: 'relative',
-          maxWidth: '1380px',
-        }}
-      >
+      <div className={classes.validationToolWrapper}>
+        <DeleteEmptyRowConfirmation data={this.state.delRow} remove={this.removeRow} close={this.closeRemoveRowDialog} />
+        <StepAssistant step={this.state.step} changeStep={this.handleChangeValidationStep} />
         <FullWidthContainer>
           <Section>
-            <Typography variant="h1" className={classes.title}>
-              Data Submission Validation Tool
-            </Typography>
-            <Typography className={classes.needHelp}>
-              Need help?
-              <Link
-                href="https://github.com/simonscmap/DBIngest/raw/master/template/datasetTemplate.xlsx"
-                download="datasetTemplate.xlsx"
-                className={classes.needHelpLink}
-              >
-                &nbsp;Download
-              </Link>
-              &nbsp;a blank template, or view the{' '}
-              <Link
-                className={classes.needHelpLink}
-                component={RouterLink}
-                to="/datasubmission/guide"
-              >
-                Data Submission Guide
-              </Link>
-              .
-            </Typography>
 
-            <Paper
-              elevation={2}
-              className={`${classes.fileSelectPaper} ${
-                !this.props.submissionFile && classes.addBorder
-              }`}
-              onDragOver={this.handleDragOver}
-              onDrop={this.handleDrop}
-            >
-              {this.props.submissionFile ? (
-                <React.Fragment>
-                  <Typography
-                    variant="h6"
-                    className={classes.currentlyViewingTypography}
-                  >
-                    {datasetName
-                      ? `${datasetName}`
-                      : 'Dataset Short Name Not Found'}
-                    {hideSelectDifferentFile ? (
-                      ''
-                    ) : (
-                      <>
-                        <label
-                          htmlFor="select-file-input"
-                          className={classes.chooseNewFileLabel}
-                        >
-                          Select a Different File
-                        </label>{' '}
-                        {'\n'}
-                      </>
-                    )}
-                  </Typography>
+            <Header newLongName={longName} step={validationStep} />
 
-                  <div>
-                    <Tooltip title="Previous Section">
-                      <div className={classes.ilb}>
-                        <IconButton
-                          size="small"
-                          onClick={() =>
-                            this.handleChangeValidationStep(
-                              this.state.validationStep - 1,
-                            )
-                          }
-                          disabled={Boolean(this.state.validationStep <= 1)}
-                        >
-                          <ArrowBack />
-                        </IconButton>
-                      </div>
-                    </Tooltip>
+            <div>
+              <Navigation
+                file={this.props.submissionFile}
+                step={validationStep}
+                datasetName={shortName}
+                summary={summary}
+                changeStep={this.handleChangeValidationStep}
+              />
+            </div>
 
-                    <span className={classes.currentSectionSpan}>
-                      {validationSteps[validationStep].label}
-                    </span>
-
-                    <Tooltip title={forwardArrowTooltip}>
-                      <div className={classes.ilb}>
-                        <IconButton
-                          size="small"
-                          onClick={() =>
-                            this.handleChangeValidationStep(
-                              this.state.validationStep + 1,
-                            )
-                          }
-                          disabled={preventSubmission}
-                        >
-                          <ArrowForward />
-                        </IconButton>
-                      </div>
-                    </Tooltip>
-                  </div>
-                </React.Fragment>
-              ) : (
-                <React.Fragment>
-                  <Typography variant="h5">
-                    To begin drag or
-                    <label htmlFor="select-file-input">
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        component="span"
-                        className={classes.button}
-                      >
-                        Select File
-                      </Button>
-                    </label>
-                  </Typography>
-                </React.Fragment>
-              )}
-
-              {validationStep > 1 && validationStep < 5 && (
-                <React.Fragment>
-                  <Divider className={classes.divider} />
-                  {Boolean(errorCount[sheet] > 0) ? (
-                    <Typography variant="body2">
-                      <ErrorOutline
-                        style={{
-                          color: 'rgba(255, 0, 0, .7)',
-                          margin: '0 2px -5px 0',
-                          fontSize: '1.4em',
-                        }}
-                      />
-                      We found {errorCount[sheet]} cell
-                      {errorCount[sheet] > 1 ? 's' : ''} with errors on this
-                      sheet.
-                      <span
-                        className={classes.linkLabel}
-                        onClick={this.handleFindNext}
-                      >
-                        {' '}
-                        Find Errors
-                      </span>
-                    </Typography>
-                  ) : Boolean(
-                      sheet === 'vars_meta_data' &&
-                        (errorCount['data'] || errorCount['dataset_meta_data']),
-                    ) ? (
-                    <Typography variant="body2">
-                      <ErrorOutline
-                        style={{
-                          color: 'rgba(255, 0, 0, .7)',
-                          margin: '0 2px -5px 0',
-                          fontSize: '1.4em',
-                        }}
-                      />
-                      Please correct errors from the previous sheets before
-                      moving forward.
-                    </Typography>
-                  ) : (
-                    <Typography variant="body2">
-                      <Done
-                        style={{
-                          color: colors.primary,
-                          margin: '0 2px -5px 0',
-                          fontSize: '1.4em',
-                        }}
-                      />
-                      All set! Click the arrow above to move to the next step.
-                    </Typography>
-                  )}
-                </React.Fragment>
-              )}
-            </Paper>
-
-            {Boolean(validationStep === 1) && (
-              <Paper elevation={2} className={`${classes.workbookAuditPaper}`}>
-                <Typography style={{ marginBottom: '24px' }}>
-                  {Boolean(this.state.auditReport.workbook.errors.length) && (
-                    <React.Fragment>
-                      One or more parts of your submission did not match CMAP's
-                      requirements. Please review the information below, update
-                      your workbook, and{' '}
-                      <label
-                        className={classes.linkLabel}
-                        htmlFor="select-file-input"
-                      >
-                        try again
-                      </label>
-                      .
-                    </React.Fragment>
-                  )}
-
-                  {Boolean(
-                    !this.state.auditReport.workbook.errors.length &&
-                      this.state.auditReport.workbook.warnings.length,
-                  ) && 'We found some potential issues with your submission.'}
-
-                  {Boolean(this.state.auditReport.workbook.warnings.length) && (
-                    <React.Fragment>
-                      {'\n'}
-                      {'\n'}
-                      Messages marked with a yellow icon
-                      <ErrorOutline
-                        style={{
-                          color: 'rgba(255, 255, 0, .7)',
-                          fontSize: '18px',
-                          margin: '0 3px -4px 3px',
-                        }}
-                      />
-                      are warnings. These should be reviewed and corrected if
-                      necessary, but will not prevent you from moving to the
-                      next validation step.
-                    </React.Fragment>
-                  )}
-                </Typography>
-
-                {
-                  <List dense={true}>
-                    {this.state.auditReport.workbook.errors.map((e, i) => (
-                      <ListItem key={i}>
-                        <ListItemIcon style={{ color: 'rgba(255, 0, 0, .7)' }}>
-                          <ErrorOutline />
-                        </ListItemIcon>
-                        <ListItemText primary={e} />
-                      </ListItem>
-                    ))}
-
-                    {this.state.auditReport.workbook.warnings.map((e, i) => (
-                      <ListItem key={i}>
-                        <ListItemIcon
-                          style={{ color: 'rgba(255, 255, 0, .7)' }}
-                        >
-                          <ErrorOutline />
-                        </ListItemIcon>
-                        <ListItemText primary={e} />
-                      </ListItem>
-                    ))}
-                  </List>
-                }
-              </Paper>
-            )}
-
-            {Boolean(
-              this.state.data &&
-                this.state.data.length &&
-                validationStep >= 2 &&
-                validationStep < 5,
-            ) && (
-              <React.Fragment>
-                <Paper
-                  elevation={2}
-                  className={classes.tabPaper + ' ag-theme-material'}
-                >
-                  <Tabs value={validationStep} onChange={this.handleClickTab}>
-                    <Tab
-                      value={2}
-                      label={
-                        errorCount['data'] > 0 ? (
-                          <StyledBadgeRed badgeContent={errorCount['data']}>
-                            Data
-                          </StyledBadgeRed>
-                        ) : (
-                          <StyledBadgeGreen badgeContent={'\u2713'}>
-                            Data
-                          </StyledBadgeGreen>
-                        )
-                      }
-                      className={classes.workbookTab}
-                    />
-
-                    <Tab
-                      value={3}
-                      label={
-                        errorCount['dataset_meta_data'] > 0 ? (
-                          <StyledBadgeRed
-                            badgeContent={errorCount['dataset_meta_data']}
-                          >
-                            Dataset Metadata
-                          </StyledBadgeRed>
-                        ) : (
-                          <StyledBadgeGreen badgeContent={'\u2713'}>
-                            Dataset Metadata
-                          </StyledBadgeGreen>
-                        )
-                      }
-                      className={classes.workbookTab}
-                    />
-
-                    <Tab
-                      value={4}
-                      label={
-                        errorCount['vars_meta_data'] > 0 ? (
-                          <StyledBadgeRed
-                            badgeContent={errorCount['vars_meta_data']}
-                          >
-                            Variable Metadata
-                          </StyledBadgeRed>
-                        ) : (
-                          <StyledBadgeGreen badgeContent={'\u2713'}>
-                            Variable Metadata
-                          </StyledBadgeGreen>
-                        )
-                      }
-                      className={classes.workbookTab}
-                    />
-                  </Tabs>
-
-                  <div style={{ height: 'calc(100% - 48px)' }}>
-                    <ValidationGrid
-                      onGridReady={this.onGridReady}
-                      rowData={this.state[sheet]}
-                      defaultColumnDef={this.state.defaultColumnDef}
-                      handleCellValueChanged={this.handleCellValueChanged}
-                      handleGridSizeChanged={this.handleGridSizeChanged}
-                      gridContext={{
-                        sheet,
-                        getAuditReport: () => this.state.auditReport,
-                        textAreaLookup,
-                        selectOptions: generateSelectOptions(
-                          this.props.dataSubmissionSelectOptions,
-                        ),
-                        auditCell: this.auditCell,
-                      }}
-                      onModelUpdated={this.onModelUpdated}
-                    />
-                  </div>
-                </Paper>
-              </React.Fragment>
-            )}
-
-            {Boolean(validationStep === 5) && (
-              <Paper elevation={2} className={`${classes.fileSelectPaper}`}>
-                <CleanupDummy />
-                {this.props.submissionUploadState === states.succeeded ? (
-                  <React.Fragment>
-                    <Typography className={classes.submittedTypography}>
-                      Your dataset has been successfully submitted, and will be
-                      reviewed by our data curation team.
-                    </Typography>
-
-                    <Typography className={classes.submittedTypography}>
-                      You can view the status of your submission{' '}
-                      <Link
-                        style={{ display: 'inline-block' }}
-                        className={classes.needHelpLink}
-                        component={RouterLink}
-                        to={`/datasubmission/userdashboard?datasetName=${encodeURI(
-                          datasetName,
-                        )}`}
-                      >
-                        here
-                      </Link>
-                      .
-                    </Typography>
-
-                    <Typography className={classes.submittedTypography}>
-                      If you made any changes during this process you can
-                      download the edited workbook{' '}
-                      <Link
-                        style={{ display: 'inline-block' }}
-                        className={classes.needHelpLink}
-                        onClick={this.handleDownload}
-                        component="span"
-                      >
-                        here
-                      </Link>
-                      .
-                    </Typography>
-
-                    <Typography className={classes.submittedTypography}>
-                      A detailed description of remaining steps in the
-                      submission process can be found in the{' '}
-                      <Link
-                        style={{ display: 'inline-block' }}
-                        className={classes.needHelpLink}
-                        component={RouterLink}
-                        to="/datasubmission/guide"
-                      >
-                        Data Submission Guide
-                      </Link>
-                      .
-                    </Typography>
-
-                    <Typography className={classes.submittedTypography}>
-                      To start over and submit another dataset click{' '}
-                      <Link
-                        style={{ display: 'inline-block' }}
-                        className={classes.needHelpLink}
-                        onClick={() => this.handleResetState()}
-                        component="span"
-                      >
-                        here
-                      </Link>
-                      .
-                    </Typography>
-                  </React.Fragment>
-                ) : this.props.submissionUploadState === states.failed ? (
-                  <React.Fragment>
-                    <List>
-                      <ListItem>
-                        <ListItemIcon style={{ color: 'rgba(255, 0, 0, .7)' }}>
-                          <ErrorOutline />
-                        </ListItemIcon>
-                        <ListItemText primary="A dataset with this name has already been submitted by another user. If you believe you're receiving this message in error please contact us at cmap-data-submission@uw.edu." />
-
-                        <Typography className={classes.submittedTypography}>
-                          To start over and submit another dataset click{' '}
-                          <Link
-                            style={{ display: 'inline-block' }}
-                            className={classes.needHelpLink}
-                            onClick={() => this.handleResetState()}
-                            component="span"
-                          >
-                            here
-                          </Link>
-                          .
-                        </Typography>
-                      </ListItem>
-                    </List>
-
-                    <Typography className={classes.submittedTypography}>
-                      If you made any changes during this process you can
-                      download the edited workbook{' '}
-                      <Link
-                        style={{ display: 'inline-block' }}
-                        className={classes.needHelpLink}
-                        onClick={this.handleDownload}
-                        component="span"
-                      >
-                        here
-                      </Link>
-                      .
-                    </Typography>
-                  </React.Fragment>
-                ) : (
-                  <React.Fragment>
-                    <Typography>
-                      You've completed dataset validation! Click the button
-                      below to upload your workbook.
-                    </Typography>
-
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      className={classes.submitButton}
-                      onClick={this.handleUploadSubmission}
-                    >
-                      Submit
-                    </Button>
-                  </React.Fragment>
-                )}
-              </Paper>
-            )}
-            <input
-              onChange={this.handleFileSelect}
-              className={classes.input}
-              accept=".xlsx"
-              id="select-file-input"
-              type="file"
+            <Chooser
+              step={this.state.validationStep}
+              status={this.state.loadingFile}
+              reset={this.handleResetState}
             />
+
+            <Step1
+              step={this.state.validationStep}
+              changeStep={this.handleChangeValidationStep}
+              reset={this.handleResetState}
+            />
+
+            <Step2
+              step={this.state.validationStep}
+              fileData={{
+                data: this.state.data,
+                dataset_meta_data: this.state.dataset_meta_data,
+                vars_meta_data: this.state.vars_meta_data,
+              }}
+              onGridReady={this.onGridReady}
+              handleCellValueChanged={this.handleCellValueChanged}
+              handleGridSizeChanged={this.handleGridSizeChanged}
+              auditCell={this.auditCell}
+              dataSubmissionSelectOptions={this.props.dataSubmissionSelectOptions}
+              getChangeLog={() => this.state.changeLog}
+            />
+
+            <Step3
+              validationStep={validationStep}
+              handleUploadSubmission={this.handleUploadSubmission}
+              shortName={shortName}
+              handleDownloadWorkbook={this.handleDownload}
+              resetState={this.handleResetState}
+              getChangeLog={() => this.state.changeLog}
+            />
+
           </Section>
         </FullWidthContainer>
       </div>

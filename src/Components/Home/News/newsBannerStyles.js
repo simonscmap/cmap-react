@@ -11,6 +11,9 @@ const newsBannerStyles = (theme) => ({
     lineHeight: '2em',
   },
   // container for news section
+  newsFlowContainer: {
+    background: 'rgba(0,0,0,0.10)',
+  },
   newsFlow: {
     width: '100%',
     transition: 'all .2s ease-out',
@@ -21,11 +24,10 @@ const newsBannerStyles = (theme) => ({
     gap: '1em',
     // padding: '0 1em 1em 1em',
     borderRadius: '.75em',
-    background: 'rgba(0,0,0,0.10)',
     marginTop: '-1em', // position underneath the blurry title bar
     marginBottom: '2em',
     height: '1200px',
-    scrollSnapType: 'both mandatory',
+    // ---- scrollSnapType: 'both mandatory',
     scrollPaddingTop: '3em',
     overflowY: 'auto',
     overflowX: 'hidden',
@@ -35,7 +37,7 @@ const newsBannerStyles = (theme) => ({
       borderRadius: '4px',
     },
     '& > div': {
-      padding: '450px 0 0 0',
+      padding: '500px 0 0 0',
       marginLeft: '1em',
       display: 'flex',
       flexDirection: 'column',
@@ -58,6 +60,7 @@ const newsBannerStyles = (theme) => ({
     margin: '-1em -1em 0 -1em',
     borderRadius: '.75em .75em 0 0',
     backdropFilter: 'blur(20px)',
+    zIndex: 1000,
   },
   sectionFooter: {
     position: 'absolute',

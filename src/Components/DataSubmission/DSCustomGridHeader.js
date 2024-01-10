@@ -5,7 +5,7 @@ import React from 'react';
 import { withStyles, Tooltip } from '@material-ui/core';
 import { Help } from '@material-ui/icons';
 
-import dsGuideItems from '../../Utility/DataSubmission/dsGuideItems';
+import dsGuideItems from './Helpers/dsGuideItems';
 
 const sheetToReference = {
   data: 'dataItems',
@@ -19,6 +19,9 @@ const DSCustomGridHeader = (props) => {
   let item = dsGuideItems[sheetToReference[props.context.sheet]].find(
     (e) => e.label === props.column.colId,
   );
+  if (!item) {
+    return `${props.displayName}`;
+  }
   return (
     <>
       {props.displayName}

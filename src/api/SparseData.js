@@ -19,6 +19,7 @@ class SparseData {
     this.latMax = null;
     this.lonMin = null;
     this.lonMax = null;
+    this.pointCount = 0;
   }
 
   add(row) {
@@ -34,6 +35,7 @@ class SparseData {
     }
 
     if (row[this.variableIndex]) {
+      this.pointCount++;
       this.times.push(row[0]);
       this.lats.push(lat);
       this.lons.push(lon);
@@ -81,6 +83,7 @@ class SparseData {
       lon: lonCenter,
       lat: latCenter,
     };
+    console.log ('SparseData finalized', { count: this.pointCount });
   }
 
   generatePlotData(subType, splitByDate, splitByDepth) {

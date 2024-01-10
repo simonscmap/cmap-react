@@ -151,6 +151,123 @@ visualizationAPI.sparseDataQuerysend = async (payload) => {
   return vizData;
 };
 
+visualizationAPI.variableSampleVisRequest = async (payload) => {
+  const { variableData, datasetShortName } = payload;
+  const { ID } = variableData;
+  const { visType, parameters, metadata } = variableData.meta
+
+  const dataModel = visType === 'Heatmap'
+                  ? new SpaceTimeData({ parameters, metadata })
+                  : visType === 'Sparse'
+                  ? new SparseData ({ parameters, metadata })
+                  : null;
+
+  if (!dataModel) {
+    return { failed: true, status: 'NO DATA MODEL IDENTIFIED' };
+  }
+
+  const decoder = new encoding.TextDecoder();
+
+  const url = `${apiUrl}/api/catalog/variable-sample-visualization?varId=${ID}&shortname=${datasetShortName}`;
+
+  let response;
+  try {
+    response = await fetch(url, fetchOptions);
+  } catch (e) {
+    console.log ('variable sample vis request failed', { url });
+    return { failed: true, status: response && response.status };
+  }
+
+  if (!response.ok) {
+    return { failed: true, status: response.status };
+  }
+
+  let csvParser = CSVParser({ from: 2 });
+
+  csvParser.on('readable', function () {
+    let record;
+    while ((record = csvParser.read())) {
+      dataModel.add(record);
+    }
+  });
+
+  csvParser.on('error', (e) => {
+    console.log(e);
+  });
+
+  let body = response.body;
+  let reader = body.getReader();
+  let readerIsDone = false;
+
+  while (!readerIsDone) {
+    let chunk = await reader.read();
+    if (chunk.done) {
+      readerIsDone = true;
+    } else {
+      csvParser.write(decoder.decode(chunk.value));
+    }
+  }
+
+  return dataModel;
+};
+
+// deprecated
+visualizationAPI.datasetDetailPageVariableVisualizationRequest = async (payload) => {
+  const { variableData } = payload;
+  const { meta } = variableData;
+  const { visType, parameters, metadata } = meta;
+
+  const dataModel = visType === 'Heatmap'
+                  ? new SpaceTimeData({ parameters, metadata })
+                  : visType === 'Sparse'
+                  ? new SparseData ({ parameters, metadata })
+                  : null;
+
+  if (!dataModel) {
+    return { failed: true, status: 'NO DATA MODEL IDENTIFIED' };
+  }
+
+  const decoder = new encoding.TextDecoder();
+  const api = visType === 'Heatmap' ? 'sp' : 'query';
+  const qsStart = visType === 'Sparse' ? 'query=' : '';
+  const url = `${apiUrl}/api/data/${api}?${qsStart}${encodeURI(meta.query)}`;
+
+
+  let response = await fetch(url, fetchOptions);
+
+  if (!response.ok) {
+    return { failed: true, status: response.status };
+  }
+
+  let csvParser = CSVParser({ from: 2 });
+
+  csvParser.on('readable', function () {
+    let record;
+    while ((record = csvParser.read())) {
+      dataModel.add(record);
+    }
+  });
+
+  csvParser.on('error', (e) => {
+    console.log(e);
+  });
+
+  let body = response.body;
+  let reader = body.getReader();
+  let readerIsDone = false;
+
+  while (!readerIsDone) {
+    let chunk = await reader.read();
+    if (chunk.done) {
+      readerIsDone = true;
+    } else {
+      csvParser.write(decoder.decode(chunk.value));
+    }
+  }
+
+  return dataModel;
+}
+
 visualizationAPI.getTableStats = async (tableName) => {
   let response = await fetch(
     apiUrl + '/dataretrieval/tablestats?table=' + tableName,

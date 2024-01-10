@@ -45,7 +45,8 @@ export const renderDepth = (data) => {
 export const truncateString = (limit) => (str) => {
   let parsedLimit = parseInt(limit);
   if (typeof parsedLimit !== 'number' || typeof str !== 'string') {
-    throw new Error('Wrong type arguments to truncate string');
+    // throw new Error('Wrong type arguments to truncate string');
+    return '';
   }
   if (str.length > limit) {
     return str.slice(0, limit) + '...';

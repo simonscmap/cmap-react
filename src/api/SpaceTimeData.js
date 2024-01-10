@@ -30,6 +30,8 @@ class SpaceTimeData {
     this.parameters = payload.parameters;
     this.metadata = payload.metadata;
 
+    console.log (payload.metadata);
+
     this.hasDepth = null;
     this.isWind_NRT = false;
     this.isMonthly = null;
@@ -80,7 +82,8 @@ class SpaceTimeData {
       this.isMonthly =
         this.metadata.Temporal_Resolution === monthlyClimatology;
       // TODO: get hasDepth from catalog, don't infer it
-      this.hasDepth = row.length === 5 && !this.isWind_NRT;
+      // this.hasDepth = row.length === 5 && !this.isWind_NRT;
+      this.hasDepth = this.metadata.Has_Depth;
       this.indexAdjust = this.hasDepth ? 1 : 0;
       this.lonMin = lon;
       this.lonMax = lon;
@@ -90,7 +93,7 @@ class SpaceTimeData {
 
     // for tblWind_NRT_hourly
     // row[0] is a date string, and
-    // row [3] is hour of the day (integer)
+    // row[3] is hour of the day (integer)
     let time = row[0];
     if (this.isWind_NRT && row.length > 4) {
       time = new Date(row[0]);

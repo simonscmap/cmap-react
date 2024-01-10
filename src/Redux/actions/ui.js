@@ -22,23 +22,29 @@ export const restoreInterfaceDefaults = () => ({
 
 // TODO consider ability to forward a secondary/followup action
 // e.g. a "click for more info" or "report this error"
-export const snackbarOpen = (message) => ({
-  type: interfaceActionTypes.SNACKBAR_OPEN,
-  payload: {
-    message,
-  },
-});
+export const snackbarOpen = (message, meta) => {
+  return ({
+    type: interfaceActionTypes.SNACKBAR_OPEN,
+    payload: {
+      message,
+      meta,
+    }
+  });
+};
 
 export const snackbarClose = () => ({
   type: interfaceActionTypes.SNACKBAR_CLOSE,
 });
 
-export const setLoadingMessage = (message) => ({
-  type: interfaceActionTypes.SET_LOADING_MESSAGE,
-  payload: {
-    message,
-  },
-});
+export const setLoadingMessage = (message, meta) => {
+  return ({
+    type: interfaceActionTypes.SET_LOADING_MESSAGE,
+    payload: {
+      message,
+      meta,
+    }
+  });
+};
 
 export const toggleShowHelp = () => ({
   type: interfaceActionTypes.TOGGLE_SHOW_HELP,

@@ -67,6 +67,13 @@ const initialState = {
     variables: null,
     sensors: null,
     unstructuredVariableMetadata: null,
+
+    visualizableVariables: null,
+    visualizableVariablesLoadingState: states.notTried,
+    visualizationSelection: null,
+    visualizableDataByName: null,
+
+    tabPreference: 0,
   },
 
   // Cruise Page
@@ -159,11 +166,17 @@ const initialState = {
 
   // Data Submission state pieces
   dataSubmissions: [],
+  retrieveUserDataSubmsissionsRequestStatus: states.notTried,
+  submissionType: 'new', // 'new' | 'update'
+  submissionToUpdate: null, // Id
   submissionComments: [],
   submissionCommentHistoryRetrievalState: states.succeeded,
   submissionFile: null,
   submissionUploadState: null,
   dataSubmissionSelectOptions: null,
+  auditReport: null,
+  checkSubmissionNameRequestStatus: states.notTried,
+  checkSubmissionNameResult: null,
 
   // News
   news: {

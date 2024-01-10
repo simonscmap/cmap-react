@@ -1,3 +1,12 @@
+import * as dayjs from 'dayjs';
+import tz from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+import { detectFormat } from './workbookAuditLib/time';
+
+dayjs.extend(utc);
+dayjs.extend(tz);
+
+
 export default (submissionOptions) => {
   const {
     Make,
@@ -29,16 +38,19 @@ export default (submissionOptions) => {
   };
 
   const validTime = (value) => {
-    if (!value && value !== 0) {
-      return null;
-    }
-
-    if (
-      /^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(\\.[0-9]+)?(Z)?$/.test(
-        value,
-      ) === false
-    ) {
-      return 'Format must match 2016-04-21T15:22:00';
+    const f = detectFormat (value);
+    switch (f) {
+      case 'integer':
+        return 'Value is integer type.'
+      case 'decimal':
+      case 'date string':
+      case 'datetime string':
+        return undefined;
+      case 'invalid string':
+        return 'Value is incorrect string format.'
+      case undefined:
+      default:
+        return 'Value is missing or unknown type.';
     }
   };
 
@@ -68,11 +80,11 @@ export default (submissionOptions) => {
 
   const datasetLength = (min, max) => {
     return (value, row) => {
+      if (row !== 0) {
+        return;
+      }
       value = value + '';
-      if (
-        (value.length < min && row === 0) ||
-        (value.length > max && row === 0)
-      ) {
+      if ((value.length < min) || (value.length > max)) {
         return `Must be ${min} to ${max} characters in length`;
       }
     };
@@ -120,6 +132,13 @@ export default (submissionOptions) => {
     }
   };
 
+  const codeFriendlyOnlyFirstRow = (value, row) => {
+    if (row !== 0) {
+      return;
+    }
+    return codeFriendly (value, row);
+  };
+
   const binary = (value) => {
     if (!value || value == 1 || value == 0) {
       return;
@@ -156,6 +175,7 @@ export default (submissionOptions) => {
     if (value > 11000) {
       return 'Cannot be greater than 11000';
     }
+
   };
 
   const releaseDate = (value, row) => {
@@ -177,11 +197,11 @@ export default (submissionOptions) => {
     time: [required, validTime],
     lat: [number, required, validLat],
     lon: [number, required, validLon],
-    depth: [number, positive, maxDepth],
+    depth: [number, required, positive, maxDepth],
 
     dataset_short_name: [
       datasetRequired,
-      codeFriendly,
+      codeFriendlyOnlyFirstRow,
       datasetLength(1, 50),
       firstRowOnly,
     ],

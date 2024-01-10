@@ -76,4 +76,13 @@ dataSubmissionAPI.deleteSubmission = async (submissionID) => {
   );
 };
 
+dataSubmissionAPI.checkName = async (payload) => {
+  return await fetch(
+    `${apiUrl}/api/datasubmission/checkname`, {
+      ...postOptions,
+      body: JSON.stringify(payload),
+    }
+  );
+}
+
 export default dataSubmissionAPI;

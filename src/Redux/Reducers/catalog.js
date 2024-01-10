@@ -4,12 +4,19 @@ import {
   SEARCH_OPTIONS_STORE,
   SEARCH_RESULTS_STORE,
   SEARCH_RESULTS_SET_LOADING_STATE,
+  DATASET_FULL_PAGE_NAVIGATE,
   DATASET_FULL_PAGE_DATA_STORE,
   DATASET_FULL_PAGE_DATA_SET_LOADING_STATE,
   DATASET_VARIABLES_STORE,
   DATASET_VARIABLES_SET_LOADING_STATE,
   DATASET_VARIABLE_UM_STORE,
   DATASET_VARIABLE_UM_SET_LOADING_STATE,
+  DATASET_VISUALIZABLE_VARS_STORE,
+  DATASET_VISUALIZABLE_VARS_SET_LOADING_STATE,
+  DATASET_VARIABLE_VIS_DATA_STORE,
+  DATASET_VARIABLE_VIS_DATA_SET_LOADING_STATE,
+  DATASET_VARIABLE_SELECT,
+  DATASET_VIS_VAR_TAB_PREFERENCE,
   CRUISE_FULL_PAGE_DATA_STORE,
   CRUISE_FULL_PAGE_DATA_SET_LOADING_STATE,
   CART_ADD_ITEM,
@@ -36,6 +43,65 @@ import {
 } from '../actionTypes/catalog';
 import states from '../../enums/asyncRequestStates';
 import { sortResults } from '../../Components/Catalog/SortingControls';
+import { safePath } from '../../Utility/objectUtils';
+
+const reduceDatasetVariableSelect = (state, action) => {
+  const variableIsInList = state.datasetDetailsPage.visualizableVariables.variables.some (v =>
+    v.Short_Name === action.payload.shortname);
+  const oldVariable = state.datasetDetailsPage.visualizationSelection;
+
+  const newShortName = action.payload.shortname;
+
+  // if the shortname in the payload exists in the list of variable, set it as the selection
+  const newVariableSelection = variableIsInList
+                             ? action.payload.shortname
+                             : (() =>
+                               console.log (`no ${newShortName} in var list`))() && oldVariable;
+
+  const dataLengthIsOverThreshold = (varShortName, data) => {
+    const THRESHOLD = 10000; // ten thousand datapoints
+    const latsArray = safePath ([varShortName, 'data', 'lats']) (data);
+    if (!Array.isArray (latsArray)) {
+      return false;
+    } else if (latsArray.length > THRESHOLD) {
+      console.log ('examining variable data for size', `${varShortName} has ${latsArray.length} points`)
+      return true;
+    } else {
+      console.log ('examining variable data for size', `${varShortName} has ${latsArray.length} points`)
+      return false;
+    }
+  }
+
+  // when switching variables, scan existing data and remove bigger caches of data
+  let newData = state.datasetDetailsPage.visualizableDataByName;
+  if (newData && typeof newData === 'object') {
+    newData = Object.keys(newData).reduce ((acc, curr) => {
+      const shouldBeCleared = dataLengthIsOverThreshold (curr, newData);
+      if (shouldBeCleared) {
+        console.log (`dereferencing ${curr}`);
+        acc[curr] = {
+          data: null, // dereference the data
+          loadingState: states.notTried
+        };
+      } else {
+        console.log (`retaining cache for ${curr}`)
+        acc[curr] = newData[curr];
+      }
+      return acc;
+    }, {});
+  }
+
+  return {
+    ...state,
+    datasetDetailsPage: {
+      ...state.datasetDetailsPage,
+      visualizationSelection: newVariableSelection,
+      visualizableDataByName: newData,
+    }
+  };
+}
+
+
 
 export default function (state, action) {
   switch (action.type) {
@@ -77,6 +143,31 @@ export default function (state, action) {
       };
 
       /************** Dataset Detail Page **********************/
+
+    case DATASET_FULL_PAGE_NAVIGATE:
+      return {
+        ...state,
+        datasetDetailsPage: { // reset page, but set new shortname
+          selectedDatasetId: null,
+          selectedDatasetShortname: action.payload.shortname || null,
+
+          primaryPageLoadingState: states.notTried,
+          variablesLoadingState: states.notTried,
+          unstructuredMetadataLoadingState: states.notTried,
+
+          data: null,
+          cruises: null,
+          references: null,
+          variables: null,
+          sensors: null,
+          unstructuredVariableMetadata: null,
+
+          visualizableVariables: null,
+          visualizableVariablesLoadingState: states.notTried,
+          visualizationSelection: null,
+          visualizableDataByName: null,
+        },
+      };
 
     case DATASET_FULL_PAGE_DATA_STORE:
       return {
@@ -131,6 +222,80 @@ export default function (state, action) {
           unstructuredMetadataLoadingState: action.payload.state,
         }
       };
+
+    case DATASET_VISUALIZABLE_VARS_STORE:
+      // create an object with a key for every variable
+      // eslint-disable-next-line
+      const dataByName = Object.fromEntries (action.payload.variables.map (v =>
+            [v.Short_Name, { data: null, loadingState: states.notTried } ]));
+
+      if (state.datasetDetailsPage.visualizableVariablesLoadingState !== states.succeeded) {
+        return {
+          ...state,
+          datasetDetailsPage: {
+            ...state.datasetDetailsPage,
+            visualizableVariablesLoadingState: states.succeeded,
+            visualizableVariables: action.payload,
+            visualizationSelection: action.payload.variables[0].Short_Name,
+            visualizableDataByName: dataByName,
+          }
+        };
+      } else {
+        return state;
+      }
+    case DATASET_VISUALIZABLE_VARS_SET_LOADING_STATE:
+      return {
+        ...state,
+        datasetDetailsPage: {
+          ...state.datasetDetailsPage,
+          visualizableVariablesLoadingState: action.payload.state,
+        }
+      };
+
+    case DATASET_VARIABLE_VIS_DATA_STORE:
+      return {
+        ...state,
+        datasetDetailsPage: {
+          ...state.datasetDetailsPage,
+          visualizableDataByName: {
+            ...state.datasetDetailsPage.visualizableDataByName,
+            [action.payload.shortname] : {
+              data: action.payload.data,
+              loadingState: states.succeeded,
+            }
+          },
+        }
+      };
+
+    case DATASET_VARIABLE_VIS_DATA_SET_LOADING_STATE:
+      return {
+        ...state,
+        datasetDetailsPage: {
+          ...state.datasetDetailsPage,
+          visualizableDataByName: {
+            ...state.datasetDetailsPage.visualizableDataByName,
+            [action.payload.shortname] : {
+              data: null, // only STORE handles success; for every other state data is null
+              loadingState: action.payload.state,
+            }
+          }
+        }
+      };
+    case DATASET_VARIABLE_SELECT:
+      return reduceDatasetVariableSelect (state, action);
+
+
+    case DATASET_VIS_VAR_TAB_PREFERENCE:
+      return {
+        ...state,
+        datasetDetailsPage: {
+          ...state.datasetDetailsPage,
+          tabPreference: action.payload.tab,
+        }
+      }
+
+
+
      /************** Cruise Page **********************/
 
     case CRUISE_FULL_PAGE_DATA_STORE:

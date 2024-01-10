@@ -69,7 +69,7 @@ const CommentList = ({ shouldDisplay }) => {
     window.addEventListener("variablesTableModel", handleModel, false);
     if (rows.length < 1 && !isLoaded) {
       // ask for a new dispatch of the table model
-      console.log('comment tool panel asking for updated model')
+      // console.log('comment tool panel asking for updated model')
       dispatchCustomWindowEvent("clearFocusEvent", null);
     }
     return () => {

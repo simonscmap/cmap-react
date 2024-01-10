@@ -55,33 +55,39 @@ class UserDashboard extends React.Component {
     expandedPanel: false,
   };
 
-  componentDidMount = () => {
-    this.props.retrieveDataSubmissionsByUser();
-
+  expandItem = () => {
+    const subs = this.props.dataSubmissions;
     let params = new URLSearchParams(window.location.search);
     let submissionID = params.get('submissionID');
     let datasetName = params.get('datasetName');
 
-    if (submissionID) {
-      this.props.dataSubmissions.forEach((e, i) => {
-        if (submissionID === e.Submission_ID) {
-          this.setState({ ...this.state, expandedPanel: i });
-        }
-      });
-    }
+    const shouldExpandItem = subs.findIndex ((s) => {
+      return s.Submission_ID === submissionID || s.Dataset.trim() === datasetName
+    });
 
-    if (datasetName) {
-      this.props.dataSubmissions.forEach((e, i) => {
-        if (datasetName.trim() === e.Dataset.trim()) {
-          this.setState({ ...this.state, expandedPanel: i });
-        }
+    if (shouldExpandItem >= 0) {
+      console.log (`found item`, { submissionID, datasetName }, subs);
+      this.setState({
+        ...this.state,
+        expandedPanel: shouldExpandItem,
       });
+    } else {
+      console.log (`could not find item`, { submissionID, datasetName }, subs);
     }
+  }
+
+  componentDidMount = () => {
+    this.props.retrieveDataSubmissionsByUser();
+    // this.expandItem();
   };
 
   componentDidUpdate = (prevProps, prevState) => {
     if (!prevProps.user && this.props.user) {
       this.props.retrieveDataSubmissionsByUser();
+    }
+    if (prevProps.dataSubmissions.length !== this.props.dataSubmissions.length) {
+      console.log ('component did update AND dataSub length differ', { prevProps, curr: this.props })
+      this.expandItem();
     }
   };
 

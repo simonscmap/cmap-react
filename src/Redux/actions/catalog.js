@@ -58,6 +58,13 @@ export const searchResultsSetLoadingState = (state) => ({
 
 /************** Dataset Detail Page **********************/
 
+export const datasetFullPageNavigate = (shortname) => ({
+  type: catalogActionTypes.DATASET_FULL_PAGE_NAVIGATE,
+  payload: {
+    shortname,
+  },
+});
+
 export const datasetFullPageDataFetch = (shortname) => ({
   type: catalogActionTypes.DATASET_FULL_PAGE_DATA_FETCH,
   payload: {
@@ -89,10 +96,11 @@ export const datasetVariablesFetch = (shortname) => ({
   },
 });
 
-export const datasetVariablesStore = (variables) => ({
+export const datasetVariablesStore = (variables, datasetShortName) => ({
   type: catalogActionTypes.DATASET_VARIABLES_STORE,
   payload: {
     variables,
+    datasetShortName
   },
 });
 
@@ -110,7 +118,7 @@ export const datasetVariableUMFetch = (shortname) => ({
   },
 });
 
-export const datasetVariableUMStore= (data) => ({
+export const datasetVariableUMStore = (data) => ({
   type: catalogActionTypes.DATASET_VARIABLE_UM_STORE,
   payload: {
     variableUnstructuredMetadata: data,
@@ -122,6 +130,63 @@ export const datasetVariableUMSetLoadingState = (state) => ({
   payload: {
     state,
   },
+});
+
+export const visualizableVariablesFetch = (shortname) => ({
+  type: catalogActionTypes.DATASET_VISUALIZABLE_VARS_FETCH,
+  payload: {
+    shortname,
+  }
+});
+
+export const visualizableVariablesStore = (data) => ({
+  type: catalogActionTypes.DATASET_VISUALIZABLE_VARS_STORE,
+  payload: data,
+});
+
+export const visualizableVariablesSetLoadingState = (state) => ({
+  type: catalogActionTypes.DATASET_VISUALIZABLE_VARS_SET_LOADING_STATE,
+  payload: { state },
+});
+
+export const datasetVariableVisDataFetch = (shortname, variableData, datasetShortName) => ({
+  type: catalogActionTypes.DATASET_VARIABLE_VIS_DATA_FETCH,
+  payload: {
+    shortname, // variable short name, which acts as a key
+    variableData,
+    datasetShortName,
+  },
+});
+
+export const datasetVariableVisDataStore = (shortname, data) => ({
+  type: catalogActionTypes.DATASET_VARIABLE_VIS_DATA_STORE,
+  payload: {
+    shortname,
+    data,
+  },
+});
+
+export const datasetVariableVisDataSetLoadingState = (shortname, state) => ({
+  type: catalogActionTypes.DATASET_VARIABLE_VIS_DATA_SET_LOADING_STATE,
+  payload: {
+    shortname,
+    state
+  },
+});
+
+export const datasetVariableSelect = (shortname) => ({
+  type: catalogActionTypes.DATASET_VARIABLE_SELECT,
+  payload: {
+    shortname,
+  },
+});
+
+export const setDatasetVisTabPreference = (variableShortName, n) => ({
+  type: catalogActionTypes.DATASET_VIS_VAR_TAB_PREFERENCE,
+  payload: {
+    variableShortName,
+    tab: n,
+  }
 });
 
 /************** Cruise Detail Page **********************/

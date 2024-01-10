@@ -85,6 +85,10 @@ const Story = withStyles({
     ([, label]) => labelToField[label] !== sortTerm,
   );
 
+  if (!expand) {
+    return '';
+  }
+
   return (
     <div className={classes.storyDetails} style={{ display: expandVisibility }}>
       <div className={classes.topLine}>

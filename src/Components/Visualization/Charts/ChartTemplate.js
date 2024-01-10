@@ -5,7 +5,7 @@
 import { withStyles } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import Plotly from 'react-plotly.js';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { VISUALIZATION_PAGE } from '../../../constants';
 import Hint from '../../Navigation/Help/Hint';
 import ModebarHint from '../help/ModebarHint';
@@ -16,6 +16,8 @@ import CloseChartControl from './ChartControls/CloseChartControl';
 import DownloadCSVControl from './ChartControls/DownloadCSVControl';
 import makeModeBarControl from './ChartControls/ModeBarControl';
 import { chartTemplate } from './chartStyles';
+import { setDatasetVisTabPreference } from '../../../Redux/actions/catalog';
+import { safePath } from '../../../Utility/objectUtils';
 
 // TODO: fix the plots.map -- this won't work. we need a new template for each plot
 
@@ -39,6 +41,9 @@ const ChartTemplate = (props) => {
   // read hint state, so that we can persist mode bar by default if they are enabled
   const hintsAreEnabled = useSelector(({ hints }) => hints[VISUALIZATION_PAGE]);
 
+  // we're going to try to bridge local and app state for tab status
+  const dispatch = useDispatch();
+
   useEffect(() => {
     if (hintsAreEnabled) {
       setPersist(true);
@@ -57,7 +62,25 @@ const ChartTemplate = (props) => {
   });
 
   // create tab controls, if tabs chart requires tabbed content
-  let [openTab, setOpenTab] = useState(0);
+  // set default to tab preference, if it exists
+  const tabPreference = useSelector ((state) => state.datasetDetailsPage.tabPreference);
+  const startingTab = (tabPreference && !Number.isInteger(chartIndex)) ? tabPreference : 0;
+  let [openTab, setOpenTab] = useState(startingTab);
+
+  const handleTabClick = (n) => {
+    if (!Number.isInteger(chartIndex)) {
+      // the absence of an index indicates this chart is not being rendered on the visualization page
+      const variableShortName = safePath (['data','metadata', 'Short_Name']) (chartData);
+      if (variableShortName) {
+        console.log ('should set tab preference', variableShortName, n);
+        dispatch (setDatasetVisTabPreference (variableShortName, n));
+      } else {
+        console.log ('no variable short name???', variableShortName, chartData);
+      }
+    }
+    setOpenTab(n);
+  }
+
   let tabContext;
   if (isTabbedContent) {
     // these will be provided to the control panel in the same order
@@ -68,8 +91,9 @@ const ChartTemplate = (props) => {
     // provide the following context to the Control Panel
     // which will render tab buttons
     tabContext = {
-      setOpenTab,
+      setOpenTab: handleTabClick,
       openTab,
+      plotOverrides: plots && plots[openTab] && plots[openTab].cmapOverrides,
       tabTitles,
       getShouldDisableControl,
     };
@@ -86,9 +110,13 @@ const ChartTemplate = (props) => {
   let controls = [
     DownloadCSVControlTuple,
     ...chartControls,
-    PersistModeBarTuple,
-    CloseChartButtonTuple,
   ];
+
+  // if the rendering context is the visualization page, this chart will have an index
+  // and we can include these tools
+  if (Number.isInteger(chartIndex)) {
+    controls.push (PersistModeBarTuple, CloseChartButtonTuple)
+  }
 
   return (
     <div

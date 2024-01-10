@@ -36,6 +36,11 @@ catalogAPI.fetchKeywords = async () => {
 };
 
 // used for the dataset page
+// fullpage data returns Dasaset info and Cruises
+// Dataset info resolves any enum values from reference tables
+// and pulls in dataset stats for spacetime min/max data,
+// row count, keywords, regions, visualizable flag
+// sensors and unstructure metadata
 catalogAPI.datasetFullPageDataFetch = async (shortname) => {
   return await fetch(
     apiUrl + `/api/catalog/datasetfullpage?shortname=${shortname}`,
@@ -52,10 +57,19 @@ catalogAPI.datasetMetadata = async (shortname) => {
   );
 };
 
+// used to populate variables table in dataset detail page
+// api calls uspVariableCatalog
 catalogAPI.datasetVariablesFetch = async (shortname) => {
   return await fetch(
     apiUrl + `/api/catalog/datasetvariables?shortname=${shortname}`,
     fetchOptions,
+  );
+};
+
+catalogAPI.datasetVisualizableVariablesFetch = async (shortname) => {
+  return await fetch (
+    apiUrl + `/api/catalog/visualizable-variables?shortname=${shortname}`,
+    fetchOptions
   );
 };
 
