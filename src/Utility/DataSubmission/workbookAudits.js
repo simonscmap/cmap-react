@@ -324,18 +324,21 @@ let checkRequiredCols = (data) => {
   return missingCols;
 };
 
-let checkDateFormat = (data, workbook) => {
+let is1904Format = (workbook) => {
+  return Boolean(((workbook.Workbook || {}).WBProps || {}).date1904);
+}
+
+let hasTimeZone = (data, workbook) => {
   if (!data || !Array.isArray(data) || !data[0].time) {
-    return null;
+    return false;
   }
   let sample = data[0].time;
   let regex = /^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(\\.[0-9]+)?(Z)?$/;
-  let is1904 = false;
   // Test sample row for correct format
   if (!regex.test(sample)) {
-    is1904 = !!((workbook.Workbook || {}).WBProps || {}).date1904;
+    return false
   }
-  return is1904;
+  return true;
 };
 
 export default ({ data, dataset_meta_data, vars_meta_data, workbook }) => {
@@ -360,11 +363,11 @@ export default ({ data, dataset_meta_data, vars_meta_data, workbook }) => {
 
   // other checks
 
-  if (checkDateFormat(data, workbook)) {
-    warnings.push(
-      `Detected date format "1904". Please update Excel date format and verify dates and times.`
-    );
-  }
+  /* if (checkDateFormat(data, workbook)) {
+*   warnings.push(
+*     `Detected date format "1904". Please update Excel date format and verify dates and times.`
+*   );
+* } */
 
 
   let missingCols = checkRequiredCols(data);
