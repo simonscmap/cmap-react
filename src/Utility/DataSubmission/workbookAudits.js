@@ -328,10 +328,7 @@ let is1904Format = (workbook) => {
   return Boolean(((workbook.Workbook || {}).WBProps || {}).date1904);
 }
 
-let hasTimeZone = (data, workbook) => {
-  if (!data || !Array.isArray(data) || !data[0].time) {
-    return false;
-  }
+let isDateTime = (data, workbook) => {
   let sample = data[0].time;
   let regex = /^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(\\.[0-9]+)?(Z)?$/;
   // Test sample row for correct format
@@ -339,6 +336,51 @@ let hasTimeZone = (data, workbook) => {
     return false
   }
   return true;
+};
+
+const checkDateFormat = (data, workbook) => {
+  if (!data || !Array.isArray(data) || data[0].time === undefined) {
+    return {
+      error: 'Missing value(s) in time column.'
+    };
+  }
+  const sample = data[0].time;
+  const dataType = typeof sample;
+  const utcString = (new Date(sample)).toUTCString();
+  const example = `For reference, the time value in the first row of data is ${sample} and will be interpreted as ${utcString}`;
+
+  console.log ('type of time column sample: ' + dataType);
+
+  if (dataType === 'number') {
+    if (is1904Format (workbook)) {
+      return {
+        error: `The submitted file uses Date1904 formatting for time values. Please convert to normal excel format, and verify values are accurate. ${example}`,
+      }
+    }
+    return {
+      warning: `The time field has been provided in numeric format, and will be interpreted as GMT. Please check that date/time values are intended to be GMT. ${example}`,
+    }
+  }
+
+  if (dataType === 'string') {
+    if (isDateTime) {
+      // return null;
+      // do nothing
+      if (sample.length === 10) {
+        return {
+          warning: `The time field has been provided as a Date value. Please confirm the format and accuracy of the time field values. For reference, the time value in the first row of data is ${sample} and will be interpreted as ${(new Date(sample)).toDateString()}`
+        }
+      }
+    } else {
+      return {
+        warning: `The time field has been provided in a string type, and is not formatted as the expected ISO 8601 DateTime, such as "2024-01-16T17:06:26Z". Please confirm the format and accuracy of the time field values. ${example}`
+      }
+    }
+  }
+
+  return {
+    warning: `Please double-check that the time field is entered correctly. ${example}`,
+  };
 };
 
 export default ({ data, dataset_meta_data, vars_meta_data, workbook }) => {
@@ -362,12 +404,18 @@ export default ({ data, dataset_meta_data, vars_meta_data, workbook }) => {
   }
 
   // other checks
+  console.log('running date check');
+  const dateCheckResult = checkDateFormat (data, workbook);
+  console.log(dateCheckResult);
 
-  /* if (checkDateFormat(data, workbook)) {
-*   warnings.push(
-*     `Detected date format "1904". Please update Excel date format and verify dates and times.`
-*   );
-* } */
+  if (dateCheckResult) {
+    if (dateCheckResult.error) {
+      errors.push(dateCheckResult.error);
+    }
+    if (dateCheckResult.warning) {
+      warnings.push(dateCheckResult.warning);
+    }
+  }
 
 
   let missingCols = checkRequiredCols(data);
