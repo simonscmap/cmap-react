@@ -1,4 +1,12 @@
 import { mean, deviation } from 'd3-array';
+import * as dayjs from 'dayjs';
+
+import tz from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+
+dayjs.extend(utc);
+dayjs.extend(tz);
+
 
 const datasetMetadataSampleRowValue =
   '< short name of your dataset (<50 chars) >';
@@ -346,7 +354,19 @@ const checkDateFormat = (data, workbook) => {
   }
   const sample = data[0].time;
   const dataType = typeof sample;
-  const utcString = (new Date(sample)).toUTCString();
+
+  const dateSample = dayjs(sample).tz();
+
+  console.log ('dayjs user tz guess', dayjs.tz.guess());
+  console.log ('dayjs date sample tz guess', dateSample);
+
+  console.log ('dayjs parse utc', dayjs.utc('2015-02-10T05:00-08:00').format())
+  console.log ('dayjs parse utc local format', dayjs.utc('2015-02-10T05:00-08:00').local().format());
+  console.log ('dayjs parse date utc', dayjs.utc('2015-02-10').format())
+
+
+  const utcString = dayjs.utc(sample).format();
+  const utcDateString = `${dayjs.utc(sample).format('YYYY-MM-DD')} (YYYY-MM-DD)`;
   const example = `For reference, the time value in the first row of data is ${sample} and will be interpreted as ${utcString}`;
 
   console.log ('type of time column sample: ' + dataType);
@@ -368,7 +388,7 @@ const checkDateFormat = (data, workbook) => {
       // do nothing
       if (sample.length === 10) {
         return {
-          warning: `The time field has been provided as a Date value. Please confirm the format and accuracy of the time field values. For reference, the time value in the first row of data is ${sample} and will be interpreted as ${(new Date(sample)).toDateString()}`
+          warning: `The time field has been provided as a Date value. Please confirm the format and accuracy of the time field values. For reference, the time value in the first row of data is ${sample} and will be interpreted as ${utcDateString}`
         }
       }
     } else {
