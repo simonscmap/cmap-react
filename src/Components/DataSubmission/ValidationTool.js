@@ -41,12 +41,17 @@ import {
 import { snackbarOpen, setLoadingMessage } from '../../Redux/actions/ui';
 import Section, { FullWidthContainer } from '../Common/Section';
 
+import Header from './ValidationToolHeader';
+import Navigation from './ValidationToolNavigation';
+
 import ValidationGrid from './ValidationGrid';
+import ValidationGridColumns from './ValidationGridColumns';
 import LoginRequiredPrompt from '../User/LoginRequiredPrompt';
 import DSCustomGridHeader from './DSCustomGridHeader';
 
 import colors from '../../enums/colors';
 import { colors as newColors } from '../Home/theme';
+import styles from './ValidationToolStyles';
 
 import formatDataSheet from '../../Utility/DataSubmission/formatDataSheet';
 import formatDatasetMetadataSheet from '../../Utility/DataSubmission/formatDatasetMetadataSheet';
@@ -54,6 +59,13 @@ import formatVariableMetadataSheet from '../../Utility/DataSubmission/formatVari
 import generateAudits from '../../Utility/DataSubmission/generateAudits';
 import workbookAudits from '../../Utility/DataSubmission/workbookAudits';
 import auditReference from '../../Utility/DataSubmission/auditReference';
+
+import {
+  textAreaLookup,
+  validationSteps,
+  orderedColumns,
+  fileSizeTooLargeDummyState,
+} from './ValidationToolConstants';
 
 import states from '../../enums/asyncRequestStates';
 
@@ -73,206 +85,16 @@ const mapDispatchToProps = {
   checkSubmissionOptionsAndStoreFile,
 };
 
-const styles = (theme) => ({
-  title: {
-    color: 'white',
-    fontSize: '32px',
-    fontWeight: '100',
-  },
-  input: {
-    display: 'none',
-  },
-
-  button: {
-    color: 'white',
-    textTransform: 'none',
-    display: 'block',
-    maxWidth: '100px',
-    margin: '12px auto 0px auto',
-  },
-
-  needHelp: {
-    color: 'white',
-    margin: '12px 0 0 12px',
-    letterSpacing: 'normal',
-  },
-
-  needHelpLink: {
-    letterSpacing: 'normal',
-    color: theme.palette.primary.main,
-    cursor: 'pointer',
-  },
-
-  fileSelectPaper: {
-    margin: '30px 0',
-    padding: '16px',
-    padding: '12px',
-    whiteSpace: 'pre-wrap',
-  },
-
-  workbookAuditPaper: {
-    margin: '30px 0',
-    padding: '16px',
-    padding: '12px',
-    minHeight: '110px',
-    whiteSpace: 'pre-wrap',
-    textAlign: 'left',
-  },
-
-  addBorder: {
-    border: `1px dashed ${theme.palette.primary.main}`,
-  },
-
-  chooseNewFileLabel: {
-    display: 'inline',
-    position: 'absolute',
-    marginTop: '10px',
-    marginLeft: '14px',
-    fontSize: '11px',
-    borderRadius: '2px',
-    color: colors.primary,
-    cursor: 'pointer',
-    '&:hover': {
-      backgroundColor: 'rgba(0,0,0,.2)',
-    },
-  },
-
-  linkLabel: {
-    color: colors.primary,
-    cursor: 'pointer',
-    '&:hover': {
-      backgroundColor: 'rgba(0,0,0,.2)',
-    },
-  },
-
-  submitButton: {
-    color: 'white',
-    margin: '24px 0 12px 0',
-    textTransform: 'none',
-  },
-
-  tabPaper: {
-    maxWidth: '80vw',
-    height: 'calc(100vh - 320px)',
-    minHeight: '300px',
-    margin: '0 auto 24px auto',
-  },
-
-  currentlyViewingTypography: {
-    marginLeft: '4px',
-  },
-
-  ilb: {
-    display: 'inline-block',
-  },
-
-  currentSectionSpan: {
-    margin: '4px 8px 0 8px',
-    width: '200px',
-    display: 'inline-block',
-  },
-
-  divider: {
-    margin: '8px 0',
-  },
-
-  workbookTab: {
-    textTransform: 'none',
-  },
-
-  submittedTypography: {
-    marginBottom: '12px',
-  },
-});
-
 const _CleanupDummy = (props) => {
   React.useEffect(() => {
     return function cleanup() {
       props.setUploadState(null);
     };
   });
-
   return '';
 };
 
 const CleanupDummy = connect(null, { setUploadState })(_CleanupDummy);
-
-const textAreaLookup = {
-  var_keywords: 4,
-  var_comment: 5,
-  var_long_name: 3,
-  dataset_references: 8,
-  dataset_description: 14,
-  dataset_acknowledgement: 8,
-  cruise_names: 5,
-  dataset_long_name: 3,
-  dataset_history: 3,
-  dataset_distributor: 3,
-};
-
-const validationSteps = [
-  {
-    // before selecting file
-  },
-
-  {
-    label: 'Workbook Validation',
-    sheet: 'workbook',
-  },
-
-  {
-    label: 'Data Sheet',
-    sheet: 'data',
-  },
-
-  {
-    label: 'Dataset Metadata Sheet',
-    sheet: 'dataset_meta_data',
-  },
-
-  {
-    label: 'Variable Metadata Sheet',
-    sheet: 'vars_meta_data',
-  },
-
-  {
-    label: 'Submission',
-    sheet: 'submission',
-  },
-];
-
-let orderedColumns = {
-  data: ['time', 'lat', 'lon', 'depth'],
-  dataset_meta_data: [
-    'dataset_short_name',
-    'dataset_long_name',
-    'dataset_version',
-    'dataset_release_date',
-    'dataset_make',
-    'cruise_names',
-    'dataset_source',
-    'dataset_distributor',
-    'dataset_acknowledgement', //'contact_email'
-    ,
-    'dataset_doi',
-    'dataset_history',
-    'dataset_description',
-    'dataset_references',
-    'climatology',
-  ],
-  vars_meta_data: [
-    'var_short_name',
-    'var_long_name',
-    'var_unit',
-    'var_sensor',
-    'var_spatial_res',
-    'var_temporal_res',
-    'var_discipline',
-    'visualize',
-    'var_keywords',
-    'var_comment',
-  ],
-};
 
 const generateSelectOptions = (reduxStoreOptions) => ({
   var_temporal_res: reduxStoreOptions.Temporal_Resolution,
@@ -298,20 +120,36 @@ const StyledBadgeGreen = withStyles((theme) => ({
   },
 }))(Badge);
 
-let fileSizeTooLargeDummyState = {
-  auditReport: {
-    workbook: {
-      errors: [
-        'This workbook exceeds the file size limit of this application. Please contact our data curation team at cmap-data-submission@uw.edu for assistance.',
-      ],
-      warnings: [],
-    },
-    data: [],
-    dataset_meta_data: [],
-    vars_meta_data: [],
-  },
-  validationStep: 1,
-};
+
+const getColumns = (sheet, data) => {
+  if (!Array.isArray(data) || data.length === 0) {
+    return [];
+  }
+
+  if (sheet === 'dataset_meta_data' || sheet === 'vars_meta_data') {
+    return ValidationGridColumns[sheet];
+  }
+
+  const nonKeys = ['__rowNum__'];
+
+  const presetColHeaders = {
+    lon: 'Longitude',
+    lat: 'Latitude',
+    time: 'Time',
+    depth: 'Depth'
+  };
+
+  const nameToHeader = (name) => presetColHeaders[name] || name;
+
+  const columns = Object.keys(data[0])
+                        .filter((key) => !nonKeys.includes(key))
+                        .map((columnName) => ({
+                          headerName: nameToHeader (columnName),
+                          field: columnName
+                        }));
+
+  return columns;
+}
 
 // validationSteps:
 // 1 - workbook,
@@ -360,7 +198,7 @@ class ValidationTool extends React.Component {
 
   handleGridSizeChanged = () => {
     if (this.state.validationStep === 2) {
-      this.gridApi.sizeColumnsToFit();
+      // this.gridApi.sizeColumnsToFit();
     }
   };
 
@@ -453,7 +291,7 @@ class ValidationTool extends React.Component {
 
   handleChangeValidationStep = (validationStep) => {
     this.setState({ ...this.state, validationStep }, () => {
-      if (this.gridApi && validationStep == 2) this.gridApi.sizeColumnsToFit();
+      // if (this.gridApi && validationStep == 2) this.gridApi.sizeColumnsToFit();
     });
   };
 
@@ -629,7 +467,7 @@ class ValidationTool extends React.Component {
   onGridReady = (params) => {
     this.gridApi = params.api;
     this.columnApi = params.columnApi;
-    if (this.state.validationStep === 2) this.gridApi.sizeColumnsToFit();
+    // if (this.state.validationStep === 2) this.gridApi.sizeColumnsToFit();
   };
 
   onModelUpdated = (params) => {
@@ -637,7 +475,7 @@ class ValidationTool extends React.Component {
       this.gridApi &&
       validationSteps[this.state.validationStep].sheet === 'data'
     ) {
-      this.gridApi.sizeColumnsToFit();
+      // this.gridApi.sizeColumnsToFit();
     }
   };
 
@@ -650,6 +488,9 @@ class ValidationTool extends React.Component {
     let lastFocused = this.gridApi.getFocusedCell();
     let { sheet } = validationSteps[this.state.validationStep];
     let { auditReport } = this.state;
+
+    console.log ('audit report')
+    console.log (auditReport);
 
     let cols = orderedColumns[sheet];
     var startRow = lastFocused ? lastFocused.rowIndex : -1;
@@ -788,32 +629,17 @@ class ValidationTool extends React.Component {
 
     const sheet = validationSteps[validationStep].sheet;
 
-    var errorCount;
+    var errorCount = {
+      workbook: 0,
+      data: 0,
+      dataset_meta_data: 0,
+      vars_meta_data: 0,
+    }
 
     if (validationStep > 0 && validationStep < 5) {
       errorCount = this.countErrors();
     }
 
-    const preventSubmission = Boolean(
-      validationStep >= 5 ||
-        (validationStep === 1 && errorCount.workbook) ||
-        (validationStep === 4 &&
-          (errorCount.data > 0 ||
-            errorCount.dataset_meta_data > 0 ||
-            errorCount.vars_meta_data > 0)),
-    );
-
-    const forwardArrowTooltip =
-      validationStep === 0 || validationStep >= 5
-        ? ''
-        : (errorCount.data > 0 ||
-            errorCount.dataset_meta_data > 0 ||
-            errorCount.vars_meta_data > 0) &&
-          validationStep === 4
-        ? 'Please Correct Errors to Proceed'
-        : 'Next Section';
-
-    const hideSelectDifferentFile = validationStep >= 5;
 
     return (
       <div
@@ -825,28 +651,8 @@ class ValidationTool extends React.Component {
       >
         <FullWidthContainer>
           <Section>
-            <Typography variant="h1" className={classes.title}>
-              Data Submission Validation Tool
-            </Typography>
-            <Typography className={classes.needHelp}>
-              Need help?
-              <Link
-                href="https://github.com/simonscmap/DBIngest/raw/master/template/datasetTemplate.xlsx"
-                download="datasetTemplate.xlsx"
-                className={classes.needHelpLink}
-              >
-                &nbsp;Download
-              </Link>
-              &nbsp;a blank template, or view the{' '}
-              <Link
-                className={classes.needHelpLink}
-                component={RouterLink}
-                to="/datasubmission/guide"
-              >
-                Data Submission Guide
-              </Link>
-              .
-            </Typography>
+
+            <Header />
 
             <Paper
               elevation={2}
@@ -856,85 +662,14 @@ class ValidationTool extends React.Component {
               onDragOver={this.handleDragOver}
               onDrop={this.handleDrop}
             >
-              {this.props.submissionFile ? (
-                <React.Fragment>
-                  <Typography
-                    variant="h6"
-                    className={classes.currentlyViewingTypography}
-                  >
-                    {datasetName
-                      ? `${datasetName}`
-                      : 'Dataset Short Name Not Found'}
-                    {hideSelectDifferentFile ? (
-                      ''
-                    ) : (
-                      <>
-                        <label
-                          htmlFor="select-file-input"
-                          className={classes.chooseNewFileLabel}
-                        >
-                          Select a Different File
-                        </label>{' '}
-                        {'\n'}
-                      </>
-                    )}
-                  </Typography>
 
-                  <div>
-                    <Tooltip title="Previous Section">
-                      <div className={classes.ilb}>
-                        <IconButton
-                          size="small"
-                          onClick={() =>
-                            this.handleChangeValidationStep(
-                              this.state.validationStep - 1,
-                            )
-                          }
-                          disabled={Boolean(this.state.validationStep <= 1)}
-                        >
-                          <ArrowBack />
-                        </IconButton>
-                      </div>
-                    </Tooltip>
-
-                    <span className={classes.currentSectionSpan}>
-                      {validationSteps[validationStep].label}
-                    </span>
-
-                    <Tooltip title={forwardArrowTooltip}>
-                      <div className={classes.ilb}>
-                        <IconButton
-                          size="small"
-                          onClick={() =>
-                            this.handleChangeValidationStep(
-                              this.state.validationStep + 1,
-                            )
-                          }
-                          disabled={preventSubmission}
-                        >
-                          <ArrowForward />
-                        </IconButton>
-                      </div>
-                    </Tooltip>
-                  </div>
-                </React.Fragment>
-              ) : (
-                <React.Fragment>
-                  <Typography variant="h5">
-                    To begin drag or
-                    <label htmlFor="select-file-input">
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        component="span"
-                        className={classes.button}
-                      >
-                        Select File
-                      </Button>
-                    </label>
-                  </Typography>
-                </React.Fragment>
-              )}
+              <Navigation
+                file={this.props.submissionFile}
+                step={validationStep}
+                datasetName={datasetName}
+                errorCount={errorCount}
+                changeStep={this.handleChangeValidationStep}
+              />
 
               {validationStep > 1 && validationStep < 5 && (
                 <React.Fragment>
@@ -1130,6 +865,7 @@ class ValidationTool extends React.Component {
                       defaultColumnDef={this.state.defaultColumnDef}
                       handleCellValueChanged={this.handleCellValueChanged}
                       handleGridSizeChanged={this.handleGridSizeChanged}
+                      columns={getColumns(sheet, this.state[sheet])}
                       gridContext={{
                         sheet,
                         getAuditReport: () => this.state.auditReport,

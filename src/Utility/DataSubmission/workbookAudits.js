@@ -384,11 +384,10 @@ const checkDateFormat = (data, workbook) => {
 
   if (dataType === 'string') {
     if (isDateTime) {
-      // return null;
-      // do nothing
+      // meets regex, do nothing
       if (sample.length === 10) {
         return {
-          warning: `The time field has been provided as a Date value. Please confirm the format and accuracy of the time field values. For reference, the time value in the first row of data is ${sample} and will be interpreted as ${utcDateString}`
+          warning: `The time field has been provided as a Date value, which will be interpreted as a UTC date-time. Please confirm the format and accuracy of the time field values. For reference, the time value in the first row of data is ${sample} and will be interpreted as ${utcDateString}`
         }
       }
     } else {
@@ -424,9 +423,7 @@ export default ({ data, dataset_meta_data, vars_meta_data, workbook }) => {
   }
 
   // other checks
-  console.log('running date check');
   const dateCheckResult = checkDateFormat (data, workbook);
-  console.log(dateCheckResult);
 
   if (dateCheckResult) {
     if (dateCheckResult.error) {
@@ -437,6 +434,10 @@ export default ({ data, dataset_meta_data, vars_meta_data, workbook }) => {
     }
   }
 
+  const check1904DateFormat = is1904Format (workbook);
+  if (check1904DateFormat) {
+    warnings.push ('The workbook uses Date1904 formatting, a legacy date format that can cause conversion issues. Please update your document and verify dates and times are accurate.')
+  }
 
   let missingCols = checkRequiredCols(data);
   if (missingCols.length) {

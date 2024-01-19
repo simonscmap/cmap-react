@@ -19,6 +19,10 @@ const DSCustomGridHeader = (props) => {
   let item = dsGuideItems[sheetToReference[props.context.sheet]].find(
     (e) => e.label === props.column.colId,
   );
+  if (!item) {
+    return `${props.displayName}`;
+  }
+  console.log('item', item);
   return (
     <>
       {props.displayName}
