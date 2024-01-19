@@ -13,7 +13,9 @@ import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles (styles);
 
-
+const getStepLabel = (step) => {
+  return validationSteps[step] && validationSteps[step].label || '';
+}
 
 const Navigation = (props) => {
   const classes = useStyles();
@@ -75,6 +77,7 @@ const Navigation = (props) => {
       </Typography>
 
       <div className={classes.navigationButtons}>
+        { step > 1 &&
         <Tooltip title="Previous Section">
           <div className={classes.ilb}>
             <Button
@@ -85,16 +88,18 @@ const Navigation = (props) => {
               disabled={Boolean(step <= 1)}
               startIcon={<ArrowBack />}
             >
-              { step <= 1 ? `Back` : `Back to ${validationSteps[step - 1].label}`}
+              {`Back to ${getStepLabel(step - 1)}`}
             </Button>
           </div>
-        </Tooltip>
+          </Tooltip>
+        }
 
         <Typography variant="h5" className={classes.currentSectionSpan}>
           {validationSteps[step].label}
         </Typography>
         <span>(Step {step} of {validationSteps.length - 1})</span>
 
+        { step < validationSteps.length - 1 &&
         <Tooltip title={forwardArrowTooltip}>
           <div className={classes.ilb}>
             <Button
@@ -105,10 +110,11 @@ const Navigation = (props) => {
               disabled={preventSubmission}
               endIcon={<ArrowForward />}
             >
-              { step >= 5 ? `Done` : `Next: ${validationSteps[step + 1].label}`}
+              {`Next: ${getStepLabel(step + 1)}`}
             </Button>
           </div>
-        </Tooltip>
+          </Tooltip>
+        }
       </div>
     </React.Fragment>
   );

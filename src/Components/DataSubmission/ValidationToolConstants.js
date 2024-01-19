@@ -18,6 +18,23 @@ export const validationSteps = [
 
   {
     label: 'Workbook Validation',
+  },
+  {
+    label: 'Data Sheet Validation',
+  },
+  {
+    label: 'Submission',
+  },
+];
+
+
+export const _old_validationSteps = [
+  {
+    // before selecting file
+  },
+
+  {
+    label: 'Workbook Validation',
     sheet: 'workbook',
   },
 

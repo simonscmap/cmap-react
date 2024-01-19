@@ -43,6 +43,8 @@ import Section, { FullWidthContainer } from '../Common/Section';
 
 import Header from './ValidationToolHeader';
 import Navigation from './ValidationToolNavigation';
+import ErrorStatus from './ValidationToolErrorStatus';
+import Step1 from './ValidationToolStep1';
 
 import ValidationGrid from './ValidationGrid';
 import ValidationGridColumns from './ValidationGridColumns';
@@ -180,6 +182,7 @@ class ValidationTool extends React.Component {
 
   state = {
     validationStep: 0,
+    tab: 0,
     file: null,
     data: null,
     dataset_meta_data: null,
@@ -198,6 +201,7 @@ class ValidationTool extends React.Component {
 
   handleGridSizeChanged = () => {
     if (this.state.validationStep === 2) {
+      // now that we include all data columns, we don't want to force them to fit
       // this.gridApi.sizeColumnsToFit();
     }
   };
@@ -489,8 +493,6 @@ class ValidationTool extends React.Component {
     let { sheet } = validationSteps[this.state.validationStep];
     let { auditReport } = this.state;
 
-    console.log ('audit report')
-    console.log (auditReport);
 
     let cols = orderedColumns[sheet];
     var startRow = lastFocused ? lastFocused.rowIndex : -1;
@@ -553,27 +555,30 @@ class ValidationTool extends React.Component {
 
   countErrors = () => {
     let counts = {
-      workbook: this.state.auditReport.workbook.errors.length,
+      workbook: this.state.auditReport.workbook.errors.length || 0,
       data: 0,
       dataset_meta_data: 0,
       vars_meta_data: 0,
     };
 
+    console.log ('counting errors', this.state.auditReport);
+
     this.state.auditReport['data'].forEach((e) => {
       if (e) {
-        counts.data += Object.keys(e).length;
+        console.log (e, Object.keys(e), Object.keys(e).length);
+        counts.data += (Object.keys(e).length || 0)
       }
     });
 
     this.state.auditReport['dataset_meta_data'].forEach((e) => {
       if (e) {
-        counts.dataset_meta_data += Object.keys(e).length;
+        counts.dataset_meta_data += (Object.keys(e).length || 0);
       }
     });
 
     this.state.auditReport['vars_meta_data'].forEach((e) => {
       if (e) {
-        counts.vars_meta_data += Object.keys(e).length;
+        counts.vars_meta_data += (Object.keys(e).length || 0);
       }
     });
 
@@ -581,7 +586,7 @@ class ValidationTool extends React.Component {
   };
 
   handleClickTab = (event, newValue) => {
-    this.setState({ ...this.state, validationStep: newValue });
+    this.setState({ ...this.state, tab: newValue });
   };
 
   componentDidMount = () => {
@@ -627,7 +632,22 @@ class ValidationTool extends React.Component {
         ? this.state.dataset_meta_data[0].dataset_short_name
         : null;
 
-    const sheet = validationSteps[validationStep].sheet;
+    const getSheet = (n) => {
+      switch (n) {
+        case 0:
+          return 'data';
+          break;
+        case 1:
+          return 'dataset_meta_data';
+          break;
+        case 2:
+          return 'vars_meta_data';
+          break;
+        default:
+          return null;
+      }
+    }
+    const sheet = getSheet(this.state.tab);
 
     var errorCount = {
       workbook: 0,
@@ -639,7 +659,13 @@ class ValidationTool extends React.Component {
     if (validationStep > 0 && validationStep < 5) {
       errorCount = this.countErrors();
     }
+   const errorSum = Object.keys(errorCount).reduce((acc, curr) => {
+      return acc + errorCount[curr];
+    }, 0);
 
+    const noErrors = 0 === errorSum;
+
+console.log('no errors', noErrors, errorSum)
 
     return (
       <div
@@ -671,142 +697,29 @@ class ValidationTool extends React.Component {
                 changeStep={this.handleChangeValidationStep}
               />
 
-              {validationStep > 1 && validationStep < 5 && (
-                <React.Fragment>
-                  <Divider className={classes.divider} />
-                  {Boolean(errorCount[sheet] > 0) ? (
-                    <Typography variant="body2">
-                      <ErrorOutline
-                        style={{
-                          color: 'rgba(255, 0, 0, .7)',
-                          margin: '0 2px -5px 0',
-                          fontSize: '1.4em',
-                        }}
-                      />
-                      We found {errorCount[sheet]} cell
-                      {errorCount[sheet] > 1 ? 's' : ''} with errors on this
-                      sheet.
-                      <span
-                        className={classes.linkLabel}
-                        onClick={this.handleFindNext}
-                      >
-                        {' '}
-                        Find Errors
-                      </span>
-                    </Typography>
-                  ) : Boolean(
-                      sheet === 'vars_meta_data' &&
-                        (errorCount['data'] || errorCount['dataset_meta_data']),
-                    ) ? (
-                    <Typography variant="body2">
-                      <ErrorOutline
-                        style={{
-                          color: 'rgba(255, 0, 0, .7)',
-                          margin: '0 2px -5px 0',
-                          fontSize: '1.4em',
-                        }}
-                      />
-                      Please correct errors from the previous sheets before
-                      moving forward.
-                    </Typography>
-                  ) : (
-                    <Typography variant="body2">
-                      <Done
-                        style={{
-                          color: colors.primary,
-                          margin: '0 2px -5px 0',
-                          fontSize: '1.4em',
-                        }}
-                      />
-                      All set! Click the arrow above to move to the next step.
-                    </Typography>
-                  )}
-                </React.Fragment>
-              )}
+              <ErrorStatus
+                step={validationStep}
+                errorCount={errorCount}
+                findNext={this.handleFindNext}
+                sheet={sheet}
+              />
+
             </Paper>
 
-            {Boolean(validationStep === 1) && (
-              <Paper elevation={2} className={`${classes.workbookAuditPaper}`}>
-                <Typography style={{ marginBottom: '24px' }}>
-                  {Boolean(this.state.auditReport.workbook.errors.length) && (
-                    <React.Fragment>
-                      One or more parts of your submission did not match CMAP's
-                      requirements. Please review the information below, update
-                      your workbook, and{' '}
-                      <label
-                        className={classes.linkLabel}
-                        htmlFor="select-file-input"
-                      >
-                        try again
-                      </label>
-                      .
-                    </React.Fragment>
-                  )}
+            <Step1
+              step={this.state.validationStep}
+              auditReport={this.state.auditReport}
+            />
 
-                  {Boolean(
-                    !this.state.auditReport.workbook.errors.length &&
-                      this.state.auditReport.workbook.warnings.length,
-                  ) && 'We found some potential issues with your submission.'}
-
-                  {Boolean(this.state.auditReport.workbook.warnings.length) && (
-                    <React.Fragment>
-                      {'\n'}
-                      {'\n'}
-                      Messages marked with a yellow icon
-                      <ErrorOutline
-                        style={{
-                          color: 'rgba(255, 255, 0, .7)',
-                          fontSize: '18px',
-                          margin: '0 3px -4px 3px',
-                        }}
-                      />
-                      are warnings. These should be reviewed and corrected if
-                      necessary, but will not prevent you from moving to the
-                      next validation step.
-                    </React.Fragment>
-                  )}
-                </Typography>
-
-                {
-                  <List dense={true}>
-                    {this.state.auditReport.workbook.errors.map((e, i) => (
-                      <ListItem key={i}>
-                        <ListItemIcon style={{ color: 'rgba(255, 0, 0, .7)' }}>
-                          <ErrorOutline />
-                        </ListItemIcon>
-                        <ListItemText primary={e} />
-                      </ListItem>
-                    ))}
-
-                    {this.state.auditReport.workbook.warnings.map((e, i) => (
-                      <ListItem key={i}>
-                        <ListItemIcon
-                          style={{ color: 'rgba(255, 255, 0, .7)' }}
-                        >
-                          <ErrorOutline />
-                        </ListItemIcon>
-                        <ListItemText primary={e} />
-                      </ListItem>
-                    ))}
-                  </List>
-                }
-              </Paper>
-            )}
-
-            {Boolean(
-              this.state.data &&
-                this.state.data.length &&
-                validationStep >= 2 &&
-                validationStep < 5,
-            ) && (
+            {Boolean(validationStep === 2) && (
               <React.Fragment>
                 <Paper
                   elevation={2}
                   className={classes.tabPaper + ' ag-theme-material'}
                 >
-                  <Tabs value={validationStep} onChange={this.handleClickTab}>
+                  <Tabs value={this.state.tab} onChange={this.handleClickTab}>
                     <Tab
-                      value={2}
+                      value={0}
                       label={
                         errorCount['data'] > 0 ? (
                           <StyledBadgeRed badgeContent={errorCount['data']}>
@@ -822,7 +735,7 @@ class ValidationTool extends React.Component {
                     />
 
                     <Tab
-                      value={3}
+                      value={1}
                       label={
                         errorCount['dataset_meta_data'] > 0 ? (
                           <StyledBadgeRed
@@ -840,7 +753,7 @@ class ValidationTool extends React.Component {
                     />
 
                     <Tab
-                      value={4}
+                      value={2}
                       label={
                         errorCount['vars_meta_data'] > 0 ? (
                           <StyledBadgeRed
@@ -882,7 +795,7 @@ class ValidationTool extends React.Component {
               </React.Fragment>
             )}
 
-            {Boolean(validationStep === 5) && (
+            {Boolean(validationStep === validationSteps.length - 1) && (
               <Paper elevation={2} className={`${classes.fileSelectPaper}`}>
                 <CleanupDummy />
                 {this.props.submissionUploadState === states.succeeded ? (
@@ -998,6 +911,7 @@ class ValidationTool extends React.Component {
                       color="primary"
                       className={classes.submitButton}
                       onClick={this.handleUploadSubmission}
+                      disabled={!Boolean(noErrors)}
                     >
                       Submit
                     </Button>

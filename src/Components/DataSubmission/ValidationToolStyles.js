@@ -72,7 +72,7 @@ const styles = (theme) => ({
     padding: '2em',
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     gap: '2em'
   },
 
@@ -102,6 +102,7 @@ const styles = (theme) => ({
     // width: '200px',
     // display: 'inline-block',
     textDecoration: 'underline',
+
   },
 
   divider: {
