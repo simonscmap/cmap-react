@@ -3,13 +3,13 @@ import {
   ArrowBack,
   ArrowForward,
 } from '@material-ui/icons';
-import { Typography, Button, Tooltip } from '@material-ui/core';
+import { Typography, Button, Tooltip, Badge } from '@material-ui/core';
 
 import { validationSteps } from './ValidationToolConstants';
 
 
 import styles from './ValidationToolStyles';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles (styles);
 
@@ -17,11 +17,41 @@ const getStepLabel = (step) => {
   return validationSteps[step] && validationSteps[step].label || '';
 }
 
+const StyledBadgeRed = withStyles(() => ({
+  badge: {
+    right: -11,
+    top: 1,
+    backgroundColor: 'rgba(255, 0, 0, .6)',
+  },
+}))(Badge);
+
+const StyledBadgeGreen = withStyles((theme) => ({
+  badge: {
+    right: -11,
+    top: 1,
+    backgroundColor: theme.palette.primary.main,
+  },
+}))(Badge);
+
+const StepBadge = (props) => {
+  const { errors, text } = props;
+  if (errors) {
+    return <StyledBadgeRed badgeContent={errors}>{text}</StyledBadgeRed>;
+  } else {
+    return <StyledBadgeGreen>{text}</StyledBadgeGreen>;
+  }
+}
+
 const Navigation = (props) => {
   const classes = useStyles();
 
-  const { file, step, datasetName, errorCount, changeStep } = props;
+  const { file, step, datasetName, errorCount, changeStep, auditReport } = props;
 
+  const workbookErrors = auditReport && auditReport.workbook.errors.length;
+
+  const errorSum = Object.keys(errorCount).reduce((acc, curr) => {
+      return acc + errorCount[curr];
+    }, 0);
   const hideSelectDifferentFile = step >= validationSteps.length;
 
   const preventSubmission = Boolean(
@@ -80,24 +110,23 @@ const Navigation = (props) => {
         { step > 1 &&
         <Tooltip title="Previous Section">
           <div className={classes.ilb}>
-            <Button
-              size="small"
-              color="secondary"
-              variant="contained"
-              onClick={() => changeStep(step - 1)}
-              disabled={Boolean(step <= 1)}
-              startIcon={<ArrowBack />}
-            >
-              {`Back to ${getStepLabel(step - 1)}`}
+          <Button
+          size="small"
+          color="secondary"
+          variant="contained"
+          onClick={() => changeStep(step - 1)}
+          disabled={Boolean(step <= 1)}
+          startIcon={<ArrowBack />}
+          >
+          <StepBadge errors={step === 2 ? workbookErrors : step === 3 ? errorSum : null} text={`Back to ${getStepLabel(step - 1)}`} />
             </Button>
           </div>
           </Tooltip>
         }
 
         <Typography variant="h5" className={classes.currentSectionSpan}>
-          {validationSteps[step].label}
+          Step {step}: {validationSteps[step].label}
         </Typography>
-        <span>(Step {step} of {validationSteps.length - 1})</span>
 
         { step < validationSteps.length - 1 &&
         <Tooltip title={forwardArrowTooltip}>

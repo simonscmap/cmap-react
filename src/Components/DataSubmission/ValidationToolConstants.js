@@ -27,6 +27,13 @@ export const validationSteps = [
   },
 ];
 
+export const auditKeyToLabel = {
+  workbook: 'Workbook',
+  data: 'Data Sheet',
+  dataset_meta_data: 'Metadata Sheet',
+  vars_meta_data: 'Variable Metadata Sheet',
+}
+
 
 export const _old_validationSteps = [
   {

@@ -1,8 +1,11 @@
 import React from 'react';
-import { Link as RouterLink } from 'react-router-dom';
 
-import { Typography, Link, Divider } from '@material-ui/core';
+import { Typography, Divider, Button } from '@material-ui/core';
+import {
+  ErrorOutline,
+} from '@material-ui/icons';
 import styles from './ValidationToolStyles';
+import { auditKeyToLabel } from './ValidationToolConstants';
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles (styles);
@@ -27,24 +30,38 @@ const Status = (props) => {
   }, 0);
 
   if (noErrors) {
-    return 'No errors.'
+    return ''
   }
 
   return (
     <React.Fragment>
-    <Divider className={classes.divider} />
-    <div>
-    {Object.keys(errorCount).map((eKey, i) => {
-      if (errorCount[eKey] === 0) {
-        return '';
-      }
-      return (
-        <div key={`_${eKey},${i}`}>
-          {eKey} errors: {errorCount[eKey]}
-        </div>
-      );
-    })}
-    </div>
+      <Divider className={classes.divider} />
+      <Typography variant="h6">Issue Summary</Typography>
+      <div>
+        {Object.keys(errorCount).map((eKey, i) => {
+          if (errorCount[eKey] === 0) {
+            return '';
+          }
+          return (
+            <div key={`_${eKey},${i}`} className={classes.errorOverview}>
+              <span>
+                {auditKeyToLabel[eKey]}:
+              </span>
+              <Typography variant="body2">
+                <ErrorOutline style={errorOutlineStyle} />
+                {errorCount[eKey]} errors
+              </Typography>
+            </div>
+          );
+        })}
+      </div>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={findNext}
+      >
+        Go To Next Error
+      </Button>
     </React.Fragment>
   );
 };

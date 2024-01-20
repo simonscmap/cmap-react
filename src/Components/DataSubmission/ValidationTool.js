@@ -152,7 +152,21 @@ const getColumns = (sheet, data) => {
 
   return columns;
 }
-
+const getSheet = (n) => {
+      switch (n) {
+        case 0:
+          return 'data';
+          break;
+        case 1:
+          return 'dataset_meta_data';
+          break;
+        case 2:
+          return 'vars_meta_data';
+          break;
+        default:
+          return null;
+      }
+    }
 // validationSteps:
 // 1 - workbook,
 // 2 - data,
@@ -490,7 +504,7 @@ class ValidationTool extends React.Component {
   //TODO clean this up when it's not late at night
   handleFindNext = () => {
     let lastFocused = this.gridApi.getFocusedCell();
-    let { sheet } = validationSteps[this.state.validationStep];
+    let { sheet } = getSheet(this.state.tab);
     let { auditReport } = this.state;
 
 
@@ -519,7 +533,8 @@ class ValidationTool extends React.Component {
 
     // Start from startRow + 1, end at beginning of startRow
     for (let i = startRow + 1; i != startRow; i++) {
-      if (auditReport[sheet][i]) {
+      console.log ('checking row', i);
+      if (auditReport && auditReport[sheet] && auditReport[sheet][i]) {
         for (let j = 0; j < cols.length; j++) {
           if (auditReport[sheet][i][cols[j]]) {
             this.gridApi.ensureColumnVisible(cols[j]);
@@ -530,9 +545,13 @@ class ValidationTool extends React.Component {
             return;
           }
         }
+      } else {
+        i = -1
       }
 
-      if (i === auditReport[sheet].length) i = -1;
+      if (auditReport[sheet] && i === auditReport[sheet].length) {
+        i = -1;
+      }
     }
 
     // Search the rest of start row
@@ -632,21 +651,7 @@ class ValidationTool extends React.Component {
         ? this.state.dataset_meta_data[0].dataset_short_name
         : null;
 
-    const getSheet = (n) => {
-      switch (n) {
-        case 0:
-          return 'data';
-          break;
-        case 1:
-          return 'dataset_meta_data';
-          break;
-        case 2:
-          return 'vars_meta_data';
-          break;
-        default:
-          return null;
-      }
-    }
+
     const sheet = getSheet(this.state.tab);
 
     var errorCount = {
@@ -695,6 +700,7 @@ console.log('no errors', noErrors, errorSum)
                 datasetName={datasetName}
                 errorCount={errorCount}
                 changeStep={this.handleChangeValidationStep}
+                auditReport={this.state.auditReport}
               />
 
               <ErrorStatus
@@ -901,11 +907,12 @@ console.log('no errors', noErrors, errorSum)
                   </React.Fragment>
                 ) : (
                   <React.Fragment>
-                    <Typography>
+                    { noErrors ? (<Typography>
                       You've completed dataset validation! Click the button
                       below to upload your workbook.
                     </Typography>
-
+) : (<Typography>There are still validation errors in previous steps. Please address these errors before submitting the dataset.</Typography>
+) }
                     <Button
                       variant="contained"
                       color="primary"

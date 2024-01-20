@@ -69,7 +69,7 @@ const styles = (theme) => ({
   },
 
   navigationButtons: {
-    padding: '2em',
+    padding: '2em 0',
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'flex-start',
@@ -93,6 +93,18 @@ const styles = (theme) => ({
     marginLeft: '4px',
   },
 
+  errorOverview: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    gap: '1em',
+    alignItems: 'center',
+    '& span': {
+      display: 'inline-block',
+      width: '200px',
+    }
+  },
+
   ilb: {
     display: 'inline-block',
   },
@@ -101,8 +113,6 @@ const styles = (theme) => ({
     // margin: '4px 8px 0 8px',
     // width: '200px',
     // display: 'inline-block',
-    textDecoration: 'underline',
-
   },
 
   divider: {
