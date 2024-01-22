@@ -1,18 +1,33 @@
 // https://stackoverflow.com/questions/16229494/converting-excel-date-serial-number-to-date-using-javascript
+import * as dayjs from 'dayjs';
 
-const checkDateFormat = (data, workbook) => {
-if (!data || !Array.isArray(data) || !data[0].time) {
-    return null;
-  }
-  let sample = data[0].time;
-  let regex = /^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(\\.[0-9]+)?(Z)?$/;
-  let is1904 = false;
-  // Test sample row for correct format
-  if (!regex.test(sample)) {
-    is1904 = !!((workbook.Workbook || {}).WBProps || {}).date1904;
-  }
+import tz from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
 
-  return is1904;
+dayjs.extend(utc);
+dayjs.extend(tz);
+
+
+const is1904Format = (workbook) => {
+  return Boolean(((workbook.Workbook || {}).WBProps || {}).date1904);
+}
+
+const convertExcelNumeric = (val) => {
+  const rounded = Math.ceil(val * 10000000) / 10000000;
+  const numericToUTC = dayjs.utc((rounded - 25569) * 86400 * 1000).format()
+  return numericToUTC;
+}
+
+const isNumericFormat = (data) => {
+  if (!data || !Array.isArray(data) || data[0].time === undefined) {
+    return undefined;
+  }
+  const sample = data[0].time;
+  if (typeof sample === 'number') {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 const deleteEmptyRows = (data) => {
@@ -36,16 +51,27 @@ const deleteEmptyRows = (data) => {
 }
 
 export default (data, workbook) => {
-  const is1904 = checkDateFormat (data, workbook);
+  const isNumeric = isNumericFormat (data);
+  const is1904 = is1904Format (workbook);
 
-  console.log (`workbook date format is 1904: ${is1904}`);
+  let numericDateFormatConverted = false;
+  if (isNumeric && !is1904) {
+    data.forEach((row) => {
+      const newUTCDateString = convertExcelNumeric (row.time);
+      row.time = newUTCDateString;
+    });
+    numericDateFormatConverted = true;
+  }
 
   // remove empty rows
   const deletedKeys = deleteEmptyRows (data);
 
-  console.log (`deleted keys:`, deletedKeys);
-
-  return data;
+  return {
+    data,
+    is1904,
+    numericDateFormatConverted,
+    deletedKeys,
+  };
 }
 
 const _oldFormattingFn = (data, workbook) => {

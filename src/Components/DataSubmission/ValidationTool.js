@@ -45,6 +45,7 @@ import Header from './ValidationToolHeader';
 import Navigation from './ValidationToolNavigation';
 import ErrorStatus from './ValidationToolErrorStatus';
 import Step1 from './ValidationToolStep1';
+import messages from './Messages';
 
 import ValidationGrid from './ValidationGrid';
 import ValidationGridColumns from './ValidationGridColumns';
@@ -241,8 +242,8 @@ class ValidationTool extends React.Component {
     return cellAudit;
   };
 
-  auditWorkbook = (params) => {
-    return workbookAudits(params);
+  auditWorkbook = (args) => {
+    return workbookAudits(args);
   };
 
   auditRows = (rows, sheet) => {
@@ -269,8 +270,8 @@ class ValidationTool extends React.Component {
   };
 
   // Takes a workbook and returns an audit report
-  performAudit = (workbook) => {
-    let workbookAudit = this.auditWorkbook(workbook);
+  performAudit = (argsObj) => {
+    let workbookAudit = this.auditWorkbook(argsObj);
     if (workbookAudit.errors.length)
       return {
         workbook: workbookAudit,
@@ -281,12 +282,12 @@ class ValidationTool extends React.Component {
 
     let report = {
       workbook: workbookAudit,
-      data: this.auditRows(workbook.data, 'data'),
+      data: this.auditRows(argsObj.data, 'data'),
       dataset_meta_data: this.auditRows(
-        workbook.dataset_meta_data,
+        argsObj.dataset_meta_data,
         'dataset_meta_data',
       ),
-      vars_meta_data: this.auditRows(workbook.vars_meta_data, 'vars_meta_data'),
+      vars_meta_data: this.auditRows(argsObj.vars_meta_data, 'vars_meta_data'),
     };
 
     return report;
@@ -366,7 +367,12 @@ class ValidationTool extends React.Component {
       let _data = XLSX.utils.sheet_to_json(workbook.Sheets['data'], {
         defval: null,
       });
-      let data = _data ? formatDataSheet(_data, workbook) : _data;
+      let {
+        data,
+        is1904,
+        numericDateFormatConverted,
+        deletedKeys,
+      } = _data ? formatDataSheet(_data, workbook) : _data;
 
       let _dataset_meta_data = XLSX.utils.sheet_to_json(
         workbook.Sheets['dataset_meta_data'],
@@ -384,18 +390,30 @@ class ValidationTool extends React.Component {
         ? formatVariableMetadataSheet(_vars_meta_data)
         : _vars_meta_data;
 
-      var auditReport = this.performAudit({
+      const auditReport = this.performAudit({
         workbook,
         data,
         dataset_meta_data,
         vars_meta_data,
+        numericDateFormatConverted
       });
 
-      let validationStep =
+      // emend auditReport with results of formatDataSheet
+      if (numericDateFormatConverted) {
+        auditReport.workbook.warnings.push(messages.numericDateConversionWarning);
+      }
+      if (deletedKeys && deletedKeys.length) {
+        auditReport.workbook.warnings.push(`${messages.deletedKeysWarning}. Deleted keys: ${deletedKeys.join(', ')}`)
+      }
+
+      const validationStep =
         auditReport.workbook.errors.length ||
         auditReport.workbook.warnings.length
           ? 1
-          : 2;
+        : 2;
+
+      console.log ('Audit Report', auditReport);
+
       this.setState(
         {
           ...this.state,
@@ -508,7 +526,7 @@ class ValidationTool extends React.Component {
     let { auditReport } = this.state;
 
 
-    let cols = orderedColumns[sheet];
+    let cols = getColumns(sheet, this.state[sheet]);
     var startRow = lastFocused ? lastFocused.rowIndex : -1;
     var startColIndex = lastFocused
       ? cols.findIndex((e) => e === lastFocused.column.colId)
@@ -533,7 +551,6 @@ class ValidationTool extends React.Component {
 
     // Start from startRow + 1, end at beginning of startRow
     for (let i = startRow + 1; i != startRow; i++) {
-      console.log ('checking row', i);
       if (auditReport && auditReport[sheet] && auditReport[sheet][i]) {
         for (let j = 0; j < cols.length; j++) {
           if (auditReport[sheet][i][cols[j]]) {

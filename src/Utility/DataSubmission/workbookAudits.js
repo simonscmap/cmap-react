@@ -1,8 +1,9 @@
 import { mean, deviation } from 'd3-array';
 import * as dayjs from 'dayjs';
-
 import tz from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
+
+import messages from '../../Components/DataSubmission/Messages';
 
 dayjs.extend(utc);
 dayjs.extend(tz);
@@ -336,11 +337,7 @@ let is1904Format = (workbook) => {
   return Boolean(((workbook.Workbook || {}).WBProps || {}).date1904);
 }
 
-const convertExcelNumeric = (n) => {
-  return (n - 25567) * 86400 * 1000 + 1000 * 60 * 60 * 24 * 365 * 4;
-}
-
-const checkDateFormat = (data, workbook) => {
+const checkDateFormat = (data, workbook, numericDateFormatConverted) => {
   if (!data || !Array.isArray(data) || data[0].time === undefined) {
     return {
       error: 'Missing value(s) in time column.'
@@ -349,11 +346,11 @@ const checkDateFormat = (data, workbook) => {
   const sample = data[0].time;
   const dataType = typeof sample;
   // const isValidDate = dayjs(sample).isValid();
-
   // const dateSample = dayjs(sample).tz();
 
   const utcString = dayjs.utc(sample).format();
   // const utcDateString = `${dayjs.utc(sample).format('YYYY-MM-DD')} (YYYY-MM-DD)`;
+
   const example = `For reference, the time value in the first row of data is ${sample} and will be interpreted as ${utcString}`;
 
   console.log ('type of time column sample: ' + dataType);
@@ -364,21 +361,27 @@ const checkDateFormat = (data, workbook) => {
         error: `The submitted file uses Date1904 formatting for time values. Please convert to normal excel format, and verify values are accurate. ${example}`,
       }
     }
-
-    const rounded = Math.ceil(sample * 10000000) / 10000000;
-    const numericToUTC = dayjs.utc((rounded - 25569) * 86400 * 1000).format()
-
-    return {
-      warning: `The time field has been provided in numeric format, and will be interpreted as GMT. Please check that date/time values are intended to be GMT. For reference, the time value in the first row of data is ${sample} and will be interpreted as ${numericToUTC}`,
-    }
+    // else: should not be reachable
+    // numerically formatted dates should already be converted IF they are not 1904 encoded
   }
 
+  if (numericDateFormatConverted) {
+    return; // if the format has been converted, do not display the default
+    // warning to check time fields: there will be a conversion warning
+  }
   return {
     warning: `Please double-check that the time field is entered correctly. ${example}`,
   };
 };
 
-export default ({ data, dataset_meta_data, vars_meta_data, workbook }) => {
+export default (args) => {
+  const {
+    data,
+    dataset_meta_data,
+    vars_meta_data,
+    workbook,
+    numericDateFormatConverted,
+  } = args;
   let errors = [];
   let warnings = [];
 
@@ -399,7 +402,7 @@ export default ({ data, dataset_meta_data, vars_meta_data, workbook }) => {
   }
 
   // other checks
-  const dateCheckResult = checkDateFormat (data, workbook);
+  const dateCheckResult = checkDateFormat (data, workbook, numericDateFormatConverted);
 
   if (dateCheckResult) {
     if (dateCheckResult.error) {
@@ -412,7 +415,7 @@ export default ({ data, dataset_meta_data, vars_meta_data, workbook }) => {
 
   const check1904DateFormat = is1904Format (workbook);
   if (check1904DateFormat) {
-    warnings.push ('The workbook uses Date1904 formatting, a legacy date format that can cause conversion issues. Please update your document and verify dates and times are accurate.')
+    warnings.push (messages.is1904Error)
   }
 
   let missingCols = checkRequiredCols(data);
