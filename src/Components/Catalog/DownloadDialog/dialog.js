@@ -343,7 +343,7 @@ const DownloadDialog = withStyles(styles)((props) => {
       // update message (if needed) to disalow query
       if (responseStatus === 400 && downloadButtonState.status !== buttonStates.checkSucceededAndDownloadProhibited) {
         disableButton(
-          `Subset too large (estimated ${size.toLocaleString()} matching rows). Try selecting a smaller subset.`,
+          `Subset too large ${size ? '(estimated ' + size.toLocaleString() + ' matching rows)' : ''}. Try selecting a smaller subset.`,
           buttonStates.checkSucceededAndDownloadProhibited
         );
         setDownloadOptions({
