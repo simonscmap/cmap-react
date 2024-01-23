@@ -15,6 +15,6 @@ const S = Sanctuary.create({
   env: Sanctuary.env,
 });
 
-log.info("creating sanctuary env", { S });
+log.info("creating sanctuary env", { });
 
 export default S;

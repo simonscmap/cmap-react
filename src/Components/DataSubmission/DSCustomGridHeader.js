@@ -22,7 +22,6 @@ const DSCustomGridHeader = (props) => {
   if (!item) {
     return `${props.displayName}`;
   }
-  console.log('item', item);
   return (
     <>
       {props.displayName}

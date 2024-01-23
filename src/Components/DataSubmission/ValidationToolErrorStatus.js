@@ -33,16 +33,6 @@ const Status = (props) => {
     return ''
   }
 
-  /*
-<Button
-        variant="contained"
-        color="primary"
-        onClick={findNext}
-      >
-        Go To Next Error
-      </Button>
-  */
-
   return (
     <React.Fragment>
       <Divider className={classes.divider} />
@@ -65,7 +55,13 @@ const Status = (props) => {
           );
         })}
       </div>
-
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={findNext}
+      >
+        Go To Next Error
+      </Button>
     </React.Fragment>
   );
 };

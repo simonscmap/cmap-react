@@ -282,12 +282,18 @@ class ValidationTool extends React.Component {
 
     let report = {
       workbook: workbookAudit,
-      data: this.auditRows(argsObj.data, 'data'),
+      data: this.auditRows(
+        argsObj.data,
+        'data'
+      ),
       dataset_meta_data: this.auditRows(
         argsObj.dataset_meta_data,
         'dataset_meta_data',
       ),
-      vars_meta_data: this.auditRows(argsObj.vars_meta_data, 'vars_meta_data'),
+      vars_meta_data: this.auditRows(
+        argsObj.vars_meta_data,
+        'vars_meta_data'
+      ),
     };
 
     return report;
@@ -328,15 +334,20 @@ class ValidationTool extends React.Component {
 
     let newAudit = this.auditCell(newValue, column.colId, rowIndex);
 
-    let auditReport = { ...this.state.auditReport };
+    let auditReport = {
+      ...this.state.auditReport
+    };
 
-    if (!auditReport[sheet][rowIndex]) auditReport[sheet][rowIndex] = {};
-
-    auditReport[sheet] = [...this.state.auditReport[sheet]];
+    // auditReport[sheet] = [...this.state.auditReport[sheet]];
 
     if (newAudit.length) {
+      if (!auditReport[sheet][rowIndex]) {
+        auditReport[sheet][rowIndex] = {};
+      }
       auditReport[sheet][rowIndex][column.colId] = newAudit;
-    } else delete auditReport[sheet][rowIndex][column.colId];
+    } else if (auditReport[sheet][rowIndex][column.colId]) {
+      delete auditReport[sheet][rowIndex][column.colId];
+    }
 
     if (!Object.keys(auditReport[sheet][rowIndex]).length) {
       auditReport[sheet][rowIndex] = null;
@@ -522,7 +533,7 @@ class ValidationTool extends React.Component {
   //TODO clean this up when it's not late at night
   handleFindNext = () => {
     let lastFocused = this.gridApi.getFocusedCell();
-    let { sheet } = getSheet(this.state.tab);
+    let sheet = getSheet(this.state.tab);
     let { auditReport } = this.state;
 
 
