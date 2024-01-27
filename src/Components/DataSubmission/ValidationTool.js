@@ -13,23 +13,15 @@ import {
   Paper,
   Button,
   Link,
-  IconButton,
-  Tooltip,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
-  Divider,
   Tabs,
   Tab,
   Badge,
 } from '@material-ui/core';
-import {
-  ErrorOutline,
-  ArrowBack,
-  ArrowForward,
-  Done,
-} from '@material-ui/icons';
+import { ErrorOutline } from '@material-ui/icons';
 
 import {
   uploadSubmission,
@@ -37,13 +29,15 @@ import {
   storeSubmissionFile,
   checkSubmissionOptionsAndStoreFile,
   setUploadState,
+  checkSubmNameRequestSend,
 } from '../../Redux/actions/dataSubmission';
-import { snackbarOpen, setLoadingMessage } from '../../Redux/actions/ui';
+import { setLoadingMessage } from '../../Redux/actions/ui';
 import Section, { FullWidthContainer } from '../Common/Section';
 
 import Header from './ValidationToolHeader';
 import Navigation from './ValidationToolNavigation';
 import ErrorStatus from './ValidationToolErrorStatus';
+import Chooser from './Chooser';
 import Step1 from './ValidationToolStep1';
 import messages from './Messages';
 
@@ -52,8 +46,6 @@ import ValidationGridColumns from './ValidationGridColumns';
 import LoginRequiredPrompt from '../User/LoginRequiredPrompt';
 import DSCustomGridHeader from './DSCustomGridHeader';
 
-import colors from '../../enums/colors';
-import { colors as newColors } from '../Home/theme';
 import styles from './ValidationToolStyles';
 
 import formatDataSheet from '../../Utility/DataSubmission/formatDataSheet';
@@ -62,11 +54,11 @@ import formatVariableMetadataSheet from '../../Utility/DataSubmission/formatVari
 import generateAudits from '../../Utility/DataSubmission/generateAudits';
 import workbookAudits from '../../Utility/DataSubmission/workbookAudits';
 import auditReference from '../../Utility/DataSubmission/auditReference';
+import { safePath } from '../../Utility/objectUtils';
 
 import {
   textAreaLookup,
   validationSteps,
-  orderedColumns,
   fileSizeTooLargeDummyState,
 } from './ValidationToolConstants';
 
@@ -77,15 +69,17 @@ const mapStateToProps = (state, ownProps) => ({
   dataSubmissionSelectOptions: state.dataSubmissionSelectOptions,
   submissionUploadState: state.submissionUploadState,
   user: state.user,
+  checkSubmissionNameRequestStatus: state.checkSubmissionNameRequestStatus,
+  checkSubmissionNameResult: state.checkSubmissionNameResult,
 });
 
 const mapDispatchToProps = {
-  snackbarOpen,
   uploadSubmission,
   setLoadingMessage,
   retrieveMostRecentFile,
   storeSubmissionFile,
   checkSubmissionOptionsAndStoreFile,
+  checkSubmNameRequestSend,
 };
 
 const _CleanupDummy = (props) => {
@@ -169,6 +163,7 @@ const getSheet = (n) => {
       }
     }
 // validationSteps:
+// 0 - chooser
 // 1 - workbook,
 // 2 - data,
 // 3 - dataset metadata
@@ -176,6 +171,29 @@ const getSheet = (n) => {
 // 5 - submission
 
 class ValidationTool extends React.Component {
+  constructor (props) {
+    super(props);
+
+    this.state = {
+      validationStep: 0,
+      tab: 0,
+      file: null,
+      data: null,
+      dataset_meta_data: null,
+      vars_meta_data: null,
+      auditReport: null,
+      defaultColumnDef: {
+        menuTabs: [],
+        resizable: true,
+        editable: true,
+        cellStyle: this.checkCellStyle,
+        cellEditor: 'DSCellEditor',
+        width: 270,
+        headerComponentFramework: DSCustomGridHeader,
+      },
+    };
+  }
+
   checkCellStyle = (params) => {
     let row = params.node.childIndex;
     let colId = params.column.colId;
@@ -195,31 +213,7 @@ class ValidationTool extends React.Component {
     return styles;
   };
 
-  state = {
-    validationStep: 0,
-    tab: 0,
-    file: null,
-    data: null,
-    dataset_meta_data: null,
-    vars_meta_data: null,
-    auditReport: null,
-    defaultColumnDef: {
-      menuTabs: [],
-      resizable: true,
-      editable: true,
-      cellStyle: this.checkCellStyle,
-      cellEditor: 'DSCellEditor',
-      width: 270,
-      headerComponentFramework: DSCustomGridHeader,
-    },
-  };
-
-  handleGridSizeChanged = () => {
-    if (this.state.validationStep === 2) {
-      // now that we include all data columns, we don't want to force them to fit
-      // this.gridApi.sizeColumnsToFit();
-    }
-  };
+  handleGridSizeChanged = () => {};
 
   handleDragOver = (e) => {
     e.preventDefault();
@@ -315,9 +309,7 @@ class ValidationTool extends React.Component {
   };
 
   handleChangeValidationStep = (validationStep) => {
-    this.setState({ ...this.state, validationStep }, () => {
-      // if (this.gridApi && validationStep == 2) this.gridApi.sizeColumnsToFit();
-    });
+    this.setState({ ...this.state, validationStep });
   };
 
   handleCellValueChanged = ({
@@ -372,6 +364,8 @@ class ValidationTool extends React.Component {
       return;
     }
 
+    this.setState({ ...this.state, checkNameResult: null });
+
     reader.onload = (progressEvent) => {
       var readFile = new Uint8Array(progressEvent.target.result);
       var workbook = XLSX.read(readFile, { type: 'array' });
@@ -409,6 +403,12 @@ class ValidationTool extends React.Component {
         numericDateFormatConverted
       });
 
+      // check short name
+      const shortName = dataset_meta_data[0].dataset_short_name;
+      console.log ('short name from parsed upload', shortName);
+      this.props.checkSubmNameRequestSend(shortName);
+
+
       // emend auditReport with results of formatDataSheet
       if (numericDateFormatConverted) {
         auditReport.workbook.warnings.push(messages.numericDateConversionWarning);
@@ -418,9 +418,8 @@ class ValidationTool extends React.Component {
       }
 
       const validationStep =
-        auditReport.workbook.errors.length ||
-        auditReport.workbook.warnings.length
-          ? 1
+        (auditReport.workbook.errors.length || auditReport.workbook.warnings.length)
+        ? 1
         : 2;
 
       console.log ('Audit Report', auditReport);
@@ -514,17 +513,9 @@ class ValidationTool extends React.Component {
   onGridReady = (params) => {
     this.gridApi = params.api;
     this.columnApi = params.columnApi;
-    // if (this.state.validationStep === 2) this.gridApi.sizeColumnsToFit();
   };
 
-  onModelUpdated = (params) => {
-    if (
-      this.gridApi &&
-      validationSteps[this.state.validationStep].sheet === 'data'
-    ) {
-      // this.gridApi.sizeColumnsToFit();
-    }
-  };
+  onModelUpdated = (params) => {};
 
   scrollGridTo = (index) => {
     this.gridApi.ensureIndexVisible(index, 'middle');
@@ -650,21 +641,65 @@ class ValidationTool extends React.Component {
   };
 
   componentDidUpdate = (prevProps, prevState) => {
-    if (
-      (!prevProps.dataSubmissionSelectOptions &&
-        this.props.dataSubmissionSelectOptions) ||
-      (!this.audits && this.props.dataSubmissionSelectOptions) ||
-      (prevProps.dataSubmissionSelectOptions !==
+    // 1. should regenerate audits
+    const noPrevSelectOptionsButNowReceivingOptions =
+      !prevProps.dataSubmissionSelectOptions &&
+      this.props.dataSubmissionSelectOptions;
+
+    const noPrevAuditsButNowReceivingOptions =
+      !this.audits && this.props.dataSubmissionSelectOptions;
+
+    const yesPrevOptionsButNotSameAsNewOnes =
+      prevProps.dataSubmissionSelectOptions !==
         this.props.dataSubmissionSelectOptions &&
-        this.props.dataSubmissionSelectOptions)
-    ) {
+      this.props.dataSubmissionSelectOptions;
+
+    const shouldGenerateAudits =
+      noPrevSelectOptionsButNowReceivingOptions ||
+      noPrevAuditsButNowReceivingOptions ||
+      yesPrevOptionsButNotSameAsNewOnes;
+
+    if (shouldGenerateAudits) {
       this.audits = generateAudits(this.props.dataSubmissionSelectOptions);
     }
-    if (
-      prevProps.submissionFile !== this.props.submissionFile &&
-      this.props.submissionFile
-    ) {
+
+    // 2. should handle new submission file
+    const prevFileIsNotSameAsNewFile =
+      prevProps.submissionFile !== this.props.submissionFile
+      && this.props.submissionFile;
+
+    if (prevFileIsNotSameAsNewFile) {
       this.handleReadFile(this.props.submissionFile);
+    }
+
+    // 3. should update audit with checkName
+    const shouldUpdateAuditWithCheckName =
+      Boolean(this.props.checkSubmissionNameResult) &&
+      (prevProps.checkSubmissionNameResult !== this.props.checkSubmissionNameResult);
+
+    console.log ('checking if audit report should be updated with result of check name', {
+      thereIsResult: Boolean(this.props.checkSubmissionNameResult),
+      prev: prevProps.checkSubmissionNameResult,
+      curr: this.props.checkSubmissionNameResult
+    });
+
+    if (shouldUpdateAuditWithCheckName) {
+      // emend audit
+      const result = this.props.checkSubmissionNameResult;
+      console.log ('result', result)
+      const shortName = safePath (['dataset_meta_data', '0', 'dataset_short_name']) (this.state);
+      if (result && result.nameIsNotTaken) {
+        console.log (`the dataset short name, ${shortName}, is unused`, result);
+      } else {
+        // emend report
+        console.log (`the dataset short name, ${shortName}, is already used in cmap`, result);
+        this.setState({
+          ...this.state,
+          checkNameResult: { ...result, shortName }
+        });
+      }
+    } else {
+      console.log ('props.check result', this.props.checkSubmissionNameResult);
     }
   };
 
@@ -698,8 +733,6 @@ class ValidationTool extends React.Component {
 
     const noErrors = 0 === errorSum;
 
-console.log('no errors', noErrors, errorSum)
-
     return (
       <div
         style={{
@@ -719,9 +752,8 @@ console.log('no errors', noErrors, errorSum)
                 !this.props.submissionFile && classes.addBorder
               }`}
               onDragOver={this.handleDragOver}
-              onDrop={this.handleDrop}
+              // onDrop={this.handleDrop}
             >
-
               <Navigation
                 file={this.props.submissionFile}
                 step={validationStep}
@@ -730,19 +762,20 @@ console.log('no errors', noErrors, errorSum)
                 changeStep={this.handleChangeValidationStep}
                 auditReport={this.state.auditReport}
               />
-
               <ErrorStatus
                 step={validationStep}
                 errorCount={errorCount}
                 findNext={this.handleFindNext}
                 sheet={sheet}
               />
-
             </Paper>
+
+            <Chooser step={this.state.validationStep} handleFileSelect={this.handleFileSelect}/>
 
             <Step1
               step={this.state.validationStep}
               auditReport={this.state.auditReport}
+              checkName={this.state.checkNameResult}
             />
 
             {Boolean(validationStep === 2) && (
@@ -954,13 +987,6 @@ console.log('no errors', noErrors, errorSum)
                 )}
               </Paper>
             )}
-            <input
-              onChange={this.handleFileSelect}
-              className={classes.input}
-              accept=".xlsx"
-              id="select-file-input"
-              type="file"
-            />
           </Section>
         </FullWidthContainer>
       </div>

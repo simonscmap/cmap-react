@@ -365,7 +365,7 @@ const DownloadDialog = withStyles(styles)((props) => {
         let message = (estimate && estimate > 0)
                     ? `The selected subset of data is under the download threshold. An estimated ${projection.size.toLocaleString()} rows match the selected subset.`
                     : (estimate && estimate < 0)
-                    ? `The dataset (${-estimate.toLocaleString()} rows) is under the download threshold and may be downloaded in full.`
+                    ? `The dataset ${estimate ? '(' + (-estimate.toLocaleString()) + ' rows)' : ''} is under the download threshold and may be downloaded in full.`
                     : ''
         enableButton(message, buttonStates.checkSucceededAndDownloadAllowed);
       }

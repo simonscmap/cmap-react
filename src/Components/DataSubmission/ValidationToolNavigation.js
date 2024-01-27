@@ -52,6 +52,7 @@ const Navigation = (props) => {
   const errorSum = Object.keys(errorCount).reduce((acc, curr) => {
       return acc + errorCount[curr];
     }, 0);
+
   const hideSelectDifferentFile = step >= validationSteps.length;
 
   const preventSubmission = Boolean(
@@ -96,18 +97,10 @@ const Navigation = (props) => {
         className={classes.currentlyViewingTypography}
       >
         Dataset Name: {datasetName ? `${datasetName}` : '*Short Name Not Found*'}
-        { hideSelectDifferentFile ? '' : (
-          <>
-            <label htmlFor="select-file-input" className={classes.chooseNewFileLabel}>
-              Select a Different File
-            </label>
-            {' '}{'\n'}
-          </>
-        )}
       </Typography>
 
       <div className={classes.navigationButtons}>
-        { step > 1 &&
+        { step > 0 &&
         <Tooltip title="Previous Section">
           <div className={classes.ilb}>
           <Button

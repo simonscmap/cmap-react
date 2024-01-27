@@ -13,7 +13,7 @@ export const textAreaLookup = {
 
 export const validationSteps = [
   {
-    // before selecting file
+    label: 'Choose Submission Type',
   },
 
   {

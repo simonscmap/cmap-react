@@ -1,5 +1,4 @@
 import * as dataSubmissionActionTypes from '../actionTypes/dataSubmission';
-import dataSubmission from '../Reducers/dataSubmission';
 
 export const retrieveDataSubmissionsByUser = () => ({
   type: dataSubmissionActionTypes.RETRIEVE_SUBMISSIONS_BY_USER,
@@ -67,8 +66,7 @@ export const setSubmissionCommentHistoryRetrievalState = (state) => ({
   },
 });
 
-export const retrieveMostRecentFile = (submissionID) => ({
-  type: dataSubmissionActionTypes.RETRIEVE_MOST_RECENT_FILE,
+export const retrieveMostRecentFile = (submissionID) => ({  type: dataSubmissionActionTypes.RETRIEVE_MOST_RECENT_FILE,
   payload: {
     submissionID,
   },
@@ -120,4 +118,19 @@ export const dataSubmissionDelete = (submission) => ({
   payload: {
     submission,
   },
+});
+
+export const checkSubmNameRequestSend = (name) => ({
+  type: dataSubmissionActionTypes.CHECK_SUBM_NAME_REQUEST_SEND,
+  payload: name,
+});
+
+export const setCheckSubmNameRequestStatus = (status) => ({
+  type: dataSubmissionActionTypes.SET_CHECK_SUBM_NAME_REQUEST_STATUS,
+  payload: status,
+});
+
+export const checkSubmNameResponseStore = (resp) => ({
+  type: dataSubmissionActionTypes.CHECK_SUBM_NAME_RESPONSE_STORE,
+  payload: resp,
 });

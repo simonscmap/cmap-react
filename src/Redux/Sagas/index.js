@@ -28,7 +28,7 @@ import ammendSearchResults from '../../Utility/Catalog/ammendSearchResultsWithDa
 import * as catalogActions from '../actions/catalog';
 import * as dataSubmissionActions from '../actions/dataSubmission';
 import * as interfaceActions from '../actions/ui';
-import * as userActions from '../actions/user';
+import * as userActions from '../actions/user'
 import * as visualizationActions from '../actions/visualization';
 import * as catalogActionTypes from '../actionTypes/catalog';
 import * as communityActionTypes from '../actionTypes/community';
@@ -93,6 +93,10 @@ import {
   watchRequestAvgSSTAnomalyDataSend,
   watchRequestAvgADTAnomalyDataSend,
 } from './anomaly';
+
+import {
+  watchCheckSubmissionNameRequestSend,
+} from './dataSubmission';
 
 import { localStorageApi } from '../../Services/persist/local';
 import logInit from '../../Services/log-service';
@@ -623,7 +627,7 @@ function* uploadSubmission(action) {
 
   var currentPartSucceeded = false;
 
-  while (offset < fileSize) {
+  while (offset < fileSize) { // while more chunks, upload part
     currentPartSucceeded = false;
 
     while (currentPartSucceeded === false && retries < 3) {
@@ -656,6 +660,7 @@ function* uploadSubmission(action) {
     }
   }
 
+  // reset retries counter, now to be used for commit call
   retries = 0;
 
   let formData = new FormData();
@@ -1916,6 +1921,7 @@ function* rootSaga() {
     watchRequestAvgSSTAnomalyDataSend(),
     watchRequestAvgADTAnomalyDataSend(),
     watchFetchLastUserTouch(),
+    watchCheckSubmissionNameRequestSend(),
   ]);
 }
 

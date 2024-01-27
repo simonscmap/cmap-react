@@ -164,6 +164,8 @@ const initialState = {
   submissionFile: null,
   submissionUploadState: null,
   dataSubmissionSelectOptions: null,
+  checkSubmissionNameRequestStatus: states.notTried,
+  checkSubmissionNameResult: null,
 
   // News
   news: {

@@ -4,10 +4,6 @@ const styles = (theme) => ({
     fontSize: '32px',
     fontWeight: '100',
   },
-  input: {
-    display: 'none',
-  },
-
   button: {
     color: 'white',
     textTransform: 'none',
