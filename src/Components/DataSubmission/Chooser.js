@@ -4,103 +4,94 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
+  Button,
+  Card,
   Typography,
   Paper,
   FormControl,
-  FormLabel,
   Radio,
   RadioGroup,
   FormControlLabel,
-  List, ListItem,
-  ListItemIcon,
-  ListItemText
 } from '@material-ui/core';
 // import messages from './Messages';
 import { makeStyles } from '@material-ui/core/styles';
 import { retrieveDataSubmissionsByUser } from '../../Redux/actions/dataSubmission';
+import states from '../../enums/asyncRequestStates';
+import { FileUploadArea, ChooseSubmissionType } from './ChooserComponents/index';
 
+const subIsNotComplete = (sub) => sub && sub.phaseId !== 6;
 
 const useStyles = makeStyles ((theme) => ({
   displayNone: {
     display: 'none',
   },
+  optionCards: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: '1em',
+    alignItems: 'top',
+    margin: '1em 0 2em 0'
+  },
+  optionCard: {
+    minWidth: '300px',
+    minHeight: '300px',
+    padding: '1em',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'start',
+  },
+  chooser: {
+    padding: '1em',
+
+  }
 }));
 
 const Chooser = (props) => {
-  const { step, handleFileSelect } = props;
+  const { step } = props;
   const classes = useStyles();
 
-  const submsInProgress = useSelector((state) =>
-    (state.dataSubmissions || []).filter ((s) => Boolean(s)));
-
   const user = useSelector ((state) => state.user);
+
+  const submsInProgress = useSelector((state) =>
+    (state.dataSubmissions || [])
+      .filter (subIsNotComplete));
+
+  const userDataSubsRequestState = useSelector((state) =>
+    (state.retrieveUserDataSubmsissionsRequestStatus));
 
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (user && Array.isArray(submsInProgress)) {
-      // HERE
+    // if request to get data subsmissions for user has not already been dispatched, do so
+    if (user && userDataSubsRequestState === states.notTried) {
+      dispatch (retrieveDataSubmissionsByUser());
     }
   }, [user]);
 
-  let [subType, setSubType] = useState('new');
+  // Local State
+
+  let [subType, setSubType] = useState("new"); // "new" | "update"
   let [submissionId, setSubId] = useState(null);
 
-  const handleChange = (e) => {
-    console.log ('handleChange e', e);
-    setSubType ('resubmit');
-    setSubId (e.target.value);
-  };
+  console.log (`step: ${step}`, `subType: ${subType}`, `selectedSubId: ${submissionId}`);
+  console.log ('submissions in progress', submsInProgress);
 
-  const handleDrop = (e) => {
-    console.log ('file dropped; processing');
-    e.preventDefault();
-    const file = e.dataTransfer.items[0].getAsFile();
-    handleFileSelect (file);
-  };
-
-  console.log ('step + subs', step, submsInProgress);
+  // Return if not step 0
 
   if (step !== 0) {
     return '';
   }
 
   return (
-    <Paper elevation={2}>
-
-    {(submsInProgress && submsInProgress.length) &&
-     <React.Fragment>
-      <Typography variant={"h3"}>Choose Submission Type</Typography>
-      <FormControl component="fieldset">
-      <FormLabel component="legend">
-        Continue with a submission in progress
-      </FormLabel>
-      <RadioGroup
-        name="submissionId"
-        value={submissionId}
-        onChange={handleChange}>
-        {submsInProgress.map ((s) => {
-          console.log('submission', s)
-          return (
-            <FormControlLabel
-            value={s.Submission_ID}
-            control={<Radio />}
-            label={s.Dataset_Name}
-            />
-          );
-         })}
-        </RadioGroup>
-       </FormControl>
-      </React.Fragment>
-    }
-
-    <input
-      onChange={handleFileSelect}
-      className={classes.displayNone}
-      accept=".xlsx"
-      id="select-file-input"
-      type="file"
+    <Paper elevation={2} className={classes.chooser}>
+      <ChooseSubmissionType
+        subType={subType}
+        subId={submissionId}
+        setSubId={setSubId}
+        setSubType={setSubType}
       />
+
+      <FileUploadArea subType={subType} subId={submissionId} />
     </Paper>
   );
 };

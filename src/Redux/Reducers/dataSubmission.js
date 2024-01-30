@@ -10,6 +10,7 @@ const {
   DATA_SUBMISSION_SELECT_OPTION_STORE,
   SET_CHECK_SUBM_NAME_REQUEST_STATUS,
   CHECK_SUBM_NAME_RESPONSE_STORE,
+  SET_RETRIEVE_ALL_SUBS_REQUEST_STATUS,
 } = dataSubmissionActionTypes;
 
 export default function (state, action) {
@@ -17,7 +18,14 @@ export default function (state, action) {
     case STORE_SUBMISSIONS:
       return {
         ...state,
-        dataSubmissions: action.payload.submissions
+        dataSubmissions: action.payload.submissions,
+        retrieveUserDataSubmsissionsRequestStatus: states.succeeded,
+      };
+
+    case SET_RETRIEVE_ALL_SUBS_REQUEST_STATUS:
+      return {
+        ...state,
+        retrieveUserDataSubmsissionsRequestStatus: action.payload,
       };
     case SET_SUBMISSION_COMMENT_HISTORY_RETRIEVAL_STATE:
       return {

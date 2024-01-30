@@ -159,6 +159,7 @@ const initialState = {
 
   // Data Submission state pieces
   dataSubmissions: [],
+  retrieveUserDataSubmsissionsRequestStatus: states.notTried,
   submissionComments: [],
   submissionCommentHistoryRetrievalState: states.succeeded,
   submissionFile: null,

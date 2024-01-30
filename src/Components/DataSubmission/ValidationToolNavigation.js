@@ -72,31 +72,16 @@ const Navigation = (props) => {
     ? 'Please Correct Errors to Proceed'
     : 'Next Section';
 
-  if (!Boolean(file)) {
-    return (<React.Fragment>
-      <Typography variant="h5">
-        To begin drag or
-        <label htmlFor="select-file-input">
-          <Button
-            variant="contained"
-            color="primary"
-            component="span"
-            className={classes.button}
-           >
-             Select File
-           </Button>
-         </label>
-       </Typography>
-     </React.Fragment>);
-  }
-
+  // TODO udpate header part to show:
+  // 1 dataset name & id & type
+  //
   return (
     <React.Fragment>
       <Typography
         variant="h6"
         className={classes.currentlyViewingTypography}
       >
-        Dataset Name: {datasetName ? `${datasetName}` : '*Short Name Not Found*'}
+        Dataset Name: {datasetName ? `${datasetName}` : ''}
       </Typography>
 
       <div className={classes.navigationButtons}>
@@ -118,7 +103,7 @@ const Navigation = (props) => {
         }
 
         <Typography variant="h5" className={classes.currentSectionSpan}>
-          Step {step}: {validationSteps[step].label}
+          Step {step + 1}: {validationSteps[step].label}
         </Typography>
 
         { step < validationSteps.length - 1 &&

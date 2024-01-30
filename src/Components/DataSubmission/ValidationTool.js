@@ -447,13 +447,13 @@ class ValidationTool extends React.Component {
     this.props.checkSubmissionOptionsAndStoreFile(file);
   };
 
-  handleFileSelect = (e) => {
-    var file = e.target.files[0];
-    if (!file) return;
-    this.props.setLoadingMessage('Reading Workbook');
-    this.props.checkSubmissionOptionsAndStoreFile(file);
-    e.target.value = null;
-  };
+  /* handleFileSelect = (e) => {
+   *   var file = e.target.files[0];
+   *   if (!file) return;
+   *   this.props.setLoadingMessage('Reading Workbook');
+   *   this.props.checkSubmissionOptionsAndStoreFile(file);
+   *   e.target.value = null;
+   * }; */
 
   handleUploadSubmission = () => {
     let workbook = XLSX.utils.book_new();
@@ -746,14 +746,7 @@ class ValidationTool extends React.Component {
 
             <Header />
 
-            <Paper
-              elevation={2}
-              className={`${classes.fileSelectPaper} ${
-                !this.props.submissionFile && classes.addBorder
-              }`}
-              onDragOver={this.handleDragOver}
-              // onDrop={this.handleDrop}
-            >
+            <Paper>
               <Navigation
                 file={this.props.submissionFile}
                 step={validationStep}
@@ -770,7 +763,7 @@ class ValidationTool extends React.Component {
               />
             </Paper>
 
-            <Chooser step={this.state.validationStep} handleFileSelect={this.handleFileSelect}/>
+            <Chooser step={this.state.validationStep} />
 
             <Step1
               step={this.state.validationStep}
