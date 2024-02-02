@@ -41,7 +41,6 @@ const useStyles = makeStyles ((theme) => ({
     alignItems: 'start',
   },
   chooser: {
-    padding: '1em',
 
   }
 }));
@@ -69,12 +68,9 @@ const Chooser = (props) => {
   }, [user]);
 
   // Local State
-
-  let [subType, setSubType] = useState("new"); // "new" | "update"
-  let [submissionId, setSubId] = useState(null);
-
-  console.log (`step: ${step}`, `subType: ${subType}`, `selectedSubId: ${submissionId}`);
-  console.log ('submissions in progress', submsInProgress);
+  /*
+   *   let [subType, setSubType] = useState("new"); // "new" | "update"
+   *   let [submissionId, setSubId] = useState(null); */
 
   // Return if not step 0
 
@@ -83,16 +79,10 @@ const Chooser = (props) => {
   }
 
   return (
-    <Paper elevation={2} className={classes.chooser}>
-      <ChooseSubmissionType
-        subType={subType}
-        subId={submissionId}
-        setSubId={setSubId}
-        setSubType={setSubType}
-      />
-
-      <FileUploadArea subType={subType} subId={submissionId} />
-    </Paper>
+    <div className={classes.chooser}>
+      <ChooseSubmissionType />
+      <FileUploadArea />
+    </div>
   );
 };
 

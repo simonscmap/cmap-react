@@ -139,3 +139,13 @@ export const checkSubmNameResponseStore = (resp) => ({
   type: dataSubmissionActionTypes.CHECK_SUBM_NAME_RESPONSE_STORE,
   payload: resp,
 });
+
+export const setSubmissionType = (t) => ({
+  type: dataSubmissionActionTypes.SET_SUBM_TYPE,
+  payload: t,
+});
+
+export const setSubmissionId = (id) => ({
+  type: dataSubmissionActionTypes.SET_SUBM_ID,
+  payload: id,
+});

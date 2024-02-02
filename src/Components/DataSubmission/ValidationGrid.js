@@ -2,40 +2,52 @@
 
 import React from 'react';
 
+import { makeStyles } from '@material-ui/core/styles';
 import { AgGridReact } from 'ag-grid-react';
 
 import DSCellEditor from './DSCellEditor';
 import DSCellEditorTextArea from './DSCellEditorTextArea';
 import DSCellEditorSelect from './DSCellEditorSelect';
 
-class ValidationGrid extends React.Component {
-  render = () => {
-    const { gridContext, columns } = this.props;
+const useStyles = makeStyles ((theme) => ({
+  gridContainer: {
+    height: '600px'
+  }
+}));
 
-    return (
-      <AgGridReact
-        singleClickEdit={true}
-        onModelUpdated={this.props.onModelUpdated}
-        columnDefs={columns}
-        defaultColDef={this.props.defaultColumnDef}
-        rowData={this.props.rowData}
-        onGridReady={this.props.onGridReady}
-        // onGridSizeChanged={this.props.onGridSizeChanged}
-        suppressDragLeaveHidesColumns={true}
-        suppressMovableColumns={false}
-        enableCellTextSelection={true}
-        suppressContextMenu={false}
-        onCellValueChanged={this.props.handleCellValueChanged}
-        context={gridContext}
-        onGridSizeChanged={this.props.handleGridSizeChanged}
-        frameworkComponents={{
-          DSCellEditor,
-          DSCellEditorSelect,
-          DSCellEditorTextArea,
-        }}
-      />
-    );
-  };
+const ValidationGrid = (props) => {
+
+  const { gridContext, columns, rowData } = props;
+  const cl = useStyles();
+
+  console.log ('rowData', rowData);
+  console.log ('columns', columns);
+
+  return (
+    <div className={cl.gridContainer}>
+    <AgGridReact
+      singleClickEdit={true}
+      // onModelUpdated={this.props.onModelUpdated}
+      columnDefs={columns}
+      defaultColDef={props.defaultColumnDef}
+      rowData={rowData}
+      onGridReady={props.onGridReady}
+      // onGridSizeChanged={this.props.onGridSizeChanged}
+      suppressDragLeaveHidesColumns={true}
+      suppressMovableColumns={false}
+      enableCellTextSelection={true}
+      suppressContextMenu={false}
+      onCellValueChanged={props.handleCellValueChanged}
+      context={gridContext}
+      // onGridSizeChanged={this.props.handleGridSizeChanged}
+      frameworkComponents={{
+        DSCellEditor,
+        DSCellEditorSelect,
+        DSCellEditorTextArea,
+      }}
+    />
+    </div>
+  );
 }
 
 export default ValidationGrid;

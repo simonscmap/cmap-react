@@ -17,9 +17,6 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  Tabs,
-  Tab,
-  Badge,
 } from '@material-ui/core';
 import { ErrorOutline } from '@material-ui/icons';
 
@@ -36,15 +33,14 @@ import Section, { FullWidthContainer } from '../Common/Section';
 
 import Header from './ValidationToolHeader';
 import Navigation from './ValidationToolNavigation';
-import ErrorStatus from './ValidationToolErrorStatus';
 import Chooser from './Chooser';
 import Step1 from './ValidationToolStep1';
+import Step2 from './ValidationToolStep2';
+import StepAssistant from './StepAssistant';
+
 import messages from './Messages';
 
-import ValidationGrid from './ValidationGrid';
-import ValidationGridColumns from './ValidationGridColumns';
 import LoginRequiredPrompt from '../User/LoginRequiredPrompt';
-import DSCustomGridHeader from './DSCustomGridHeader';
 
 import styles from './ValidationToolStyles';
 
@@ -57,7 +53,6 @@ import auditReference from '../../Utility/DataSubmission/auditReference';
 import { safePath } from '../../Utility/objectUtils';
 
 import {
-  textAreaLookup,
   validationSteps,
   fileSizeTooLargeDummyState,
 } from './ValidationToolConstants';
@@ -93,75 +88,7 @@ const _CleanupDummy = (props) => {
 
 const CleanupDummy = connect(null, { setUploadState })(_CleanupDummy);
 
-const generateSelectOptions = (reduxStoreOptions) => ({
-  var_temporal_res: reduxStoreOptions.Temporal_Resolution,
-  var_discipline: reduxStoreOptions.Study_Domain,
-  var_sensor: reduxStoreOptions.Sensor,
-  var_spatial_res: reduxStoreOptions.Spatial_Resolution,
-  dataset_make: reduxStoreOptions.Make,
-});
 
-const StyledBadgeRed = withStyles((theme) => ({
-  badge: {
-    right: -11,
-    top: 1,
-    backgroundColor: 'rgba(255, 0, 0, .6)',
-  },
-}))(Badge);
-
-const StyledBadgeGreen = withStyles((theme) => ({
-  badge: {
-    right: -11,
-    top: 1,
-    backgroundColor: 'green',
-  },
-}))(Badge);
-
-
-const getColumns = (sheet, data) => {
-  if (!Array.isArray(data) || data.length === 0) {
-    return [];
-  }
-
-  if (sheet === 'dataset_meta_data' || sheet === 'vars_meta_data') {
-    return ValidationGridColumns[sheet];
-  }
-
-  const nonKeys = ['__rowNum__'];
-
-  const presetColHeaders = {
-    lon: 'Longitude',
-    lat: 'Latitude',
-    time: 'Time',
-    depth: 'Depth'
-  };
-
-  const nameToHeader = (name) => presetColHeaders[name] || name;
-
-  const columns = Object.keys(data[0])
-                        .filter((key) => !nonKeys.includes(key))
-                        .map((columnName) => ({
-                          headerName: nameToHeader (columnName),
-                          field: columnName
-                        }));
-
-  return columns;
-}
-const getSheet = (n) => {
-      switch (n) {
-        case 0:
-          return 'data';
-          break;
-        case 1:
-          return 'dataset_meta_data';
-          break;
-        case 2:
-          return 'vars_meta_data';
-          break;
-        default:
-          return null;
-      }
-    }
 // validationSteps:
 // 0 - chooser
 // 1 - workbook,
@@ -182,36 +109,8 @@ class ValidationTool extends React.Component {
       dataset_meta_data: null,
       vars_meta_data: null,
       auditReport: null,
-      defaultColumnDef: {
-        menuTabs: [],
-        resizable: true,
-        editable: true,
-        cellStyle: this.checkCellStyle,
-        cellEditor: 'DSCellEditor',
-        width: 270,
-        headerComponentFramework: DSCustomGridHeader,
-      },
     };
   }
-
-  checkCellStyle = (params) => {
-    let row = params.node.childIndex;
-    let colId = params.column.colId;
-    let { sheet } = params.context;
-
-    let styles = {};
-
-    if (
-      this.state.auditReport &&
-      this.state.auditReport[sheet] &&
-      this.state.auditReport[sheet][row] &&
-      this.state.auditReport[sheet][row][colId]
-    ) {
-      styles.boxShadow = 'inset 0 0 1px 1px rgba(255, 0, 0, .5)';
-    }
-
-    return styles;
-  };
 
   handleGridSizeChanged = () => {};
 
@@ -309,7 +208,9 @@ class ValidationTool extends React.Component {
   };
 
   handleChangeValidationStep = (validationStep) => {
-    this.setState({ ...this.state, validationStep });
+    if (validationStep >= 0 && validationStep < validationSteps.length) {
+      this.setState({ ...this.state, validationStep });
+    }
   };
 
   handleCellValueChanged = ({
@@ -364,6 +265,7 @@ class ValidationTool extends React.Component {
       return;
     }
 
+    // reset checkName result (because we have a new file)
     this.setState({ ...this.state, checkNameResult: null });
 
     reader.onload = (progressEvent) => {
@@ -372,6 +274,7 @@ class ValidationTool extends React.Component {
       let _data = XLSX.utils.sheet_to_json(workbook.Sheets['data'], {
         defval: null,
       });
+
       let {
         data,
         is1904,
@@ -379,6 +282,7 @@ class ValidationTool extends React.Component {
         deletedKeys,
       } = _data ? formatDataSheet(_data, workbook) : _data;
 
+      // metadata
       let _dataset_meta_data = XLSX.utils.sheet_to_json(
         workbook.Sheets['dataset_meta_data'],
         { defval: null },
@@ -387,6 +291,7 @@ class ValidationTool extends React.Component {
         ? formatDatasetMetadataSheet(_dataset_meta_data, workbook)
         : _dataset_meta_data;
 
+      // vars metadata
       let _vars_meta_data = XLSX.utils.sheet_to_json(
         workbook.Sheets['vars_meta_data'],
         { defval: null },
@@ -395,6 +300,7 @@ class ValidationTool extends React.Component {
         ? formatVariableMetadataSheet(_vars_meta_data)
         : _vars_meta_data;
 
+      // run report
       const auditReport = this.performAudit({
         workbook,
         data,
@@ -403,9 +309,8 @@ class ValidationTool extends React.Component {
         numericDateFormatConverted
       });
 
-      // check short name
+      // dispatch check short name
       const shortName = dataset_meta_data[0].dataset_short_name;
-      console.log ('short name from parsed upload', shortName);
       this.props.checkSubmNameRequestSend(shortName);
 
 
@@ -421,8 +326,6 @@ class ValidationTool extends React.Component {
         (auditReport.workbook.errors.length || auditReport.workbook.warnings.length)
         ? 1
         : 2;
-
-      console.log ('Audit Report', auditReport);
 
       this.setState(
         {
@@ -521,77 +424,10 @@ class ValidationTool extends React.Component {
     this.gridApi.ensureIndexVisible(index, 'middle');
   };
 
-  //TODO clean this up when it's not late at night
-  handleFindNext = () => {
-    let lastFocused = this.gridApi.getFocusedCell();
-    let sheet = getSheet(this.state.tab);
-    let { auditReport } = this.state;
-
-
-    let cols = getColumns(sheet, this.state[sheet]);
-    var startRow = lastFocused ? lastFocused.rowIndex : -1;
-    var startColIndex = lastFocused
-      ? cols.findIndex((e) => e === lastFocused.column.colId)
-      : 0;
-
-    // Search the remaining columns in focused row
-    if (lastFocused) {
-      for (let i = startColIndex + 1; i < cols.length && i > -1; i++) {
-        if (
-          auditReport[sheet][startRow] &&
-          auditReport[sheet][startRow][cols[i]]
-        ) {
-          this.gridApi.ensureColumnVisible(cols[i]);
-          this.gridApi.startEditingCell({
-            rowIndex: startRow,
-            colKey: cols[i],
-          });
-          return;
-        }
-      }
-    }
-
-    // Start from startRow + 1, end at beginning of startRow
-    for (let i = startRow + 1; i != startRow; i++) {
-      if (auditReport && auditReport[sheet] && auditReport[sheet][i]) {
-        for (let j = 0; j < cols.length; j++) {
-          if (auditReport[sheet][i][cols[j]]) {
-            this.gridApi.ensureColumnVisible(cols[j]);
-            this.gridApi.startEditingCell({
-              rowIndex: i,
-              colKey: cols[j],
-            });
-            return;
-          }
-        }
-      } else {
-        i = -1
-      }
-
-      if (auditReport[sheet] && i === auditReport[sheet].length) {
-        i = -1;
-      }
-    }
-
-    // Search the rest of start row
-    if (lastFocused) {
-      for (let i = 0; i <= startColIndex && i < cols.length; i++) {
-        if (
-          auditReport[sheet][startRow] &&
-          auditReport[sheet][startRow][cols[i]]
-        ) {
-          this.gridApi.ensureColumnVisible(cols[i]);
-          this.gridApi.startEditingCell({
-            rowIndex: startRow,
-            colKey: cols[i],
-          });
-          return;
-        }
-      }
-    }
-  };
-
   countErrors = () => {
+    if (!this.state.auditReport) {
+      return;
+    }
     let counts = {
       workbook: this.state.auditReport.workbook.errors.length || 0,
       data: 0,
@@ -599,11 +435,8 @@ class ValidationTool extends React.Component {
       vars_meta_data: 0,
     };
 
-    console.log ('counting errors', this.state.auditReport);
-
     this.state.auditReport['data'].forEach((e) => {
       if (e) {
-        console.log (e, Object.keys(e), Object.keys(e).length);
         counts.data += (Object.keys(e).length || 0)
       }
     });
@@ -686,7 +519,6 @@ class ValidationTool extends React.Component {
     if (shouldUpdateAuditWithCheckName) {
       // emend audit
       const result = this.props.checkSubmissionNameResult;
-      console.log ('result', result)
       const shortName = safePath (['dataset_meta_data', '0', 'dataset_short_name']) (this.state);
       if (result && result.nameIsNotTaken) {
         console.log (`the dataset short name, ${shortName}, is unused`, result);
@@ -695,11 +527,24 @@ class ValidationTool extends React.Component {
         console.log (`the dataset short name, ${shortName}, is already used in cmap`, result);
         this.setState({
           ...this.state,
-          checkNameResult: { ...result, shortName }
+          checkNameResult: { ...result, shortName },
+          auditReport: {
+            ...this.state.auditReport,
+            workbook: {
+              ...this.state.auditReport.workbook,
+              errors: [
+                ...this.state.auditReport.workbook.errors,
+                {
+                  title: 'Dataset name is unavailable',
+                  detail: ''
+                }
+              ]
+            }
+          }
         });
       }
     } else {
-      console.log ('props.check result', this.props.checkSubmissionNameResult);
+      //
     }
   };
 
@@ -715,7 +560,7 @@ class ValidationTool extends React.Component {
         : null;
 
 
-    const sheet = getSheet(this.state.tab);
+    // const sheet = getSheet(this.state.tab);
 
     var errorCount = {
       workbook: 0,
@@ -724,8 +569,8 @@ class ValidationTool extends React.Component {
       vars_meta_data: 0,
     }
 
-    if (validationStep > 0 && validationStep < 5) {
-      errorCount = this.countErrors();
+    if (validationStep > 0 && validationStep < 5 && this.countErrors()) {
+      errorCount = this.countErrors() ;
     }
    const errorSum = Object.keys(errorCount).reduce((acc, curr) => {
       return acc + errorCount[curr];
@@ -734,19 +579,14 @@ class ValidationTool extends React.Component {
     const noErrors = 0 === errorSum;
 
     return (
-      <div
-        style={{
-          margin: '120px auto 0 auto',
-          position: 'relative',
-          maxWidth: '1380px',
-        }}
-      >
+      <div className={classes.validationToolWrapper}>
+        <StepAssistant step={this.state.step} changeStep={this.handleChangeValidationStep} />
         <FullWidthContainer>
           <Section>
 
-            <Header />
+            <Header subType={''} />
 
-            <Paper>
+            <div>
               <Navigation
                 file={this.props.submissionFile}
                 step={validationStep}
@@ -755,13 +595,7 @@ class ValidationTool extends React.Component {
                 changeStep={this.handleChangeValidationStep}
                 auditReport={this.state.auditReport}
               />
-              <ErrorStatus
-                step={validationStep}
-                errorCount={errorCount}
-                findNext={this.handleFindNext}
-                sheet={sheet}
-              />
-            </Paper>
+            </div>
 
             <Chooser step={this.state.validationStep} />
 
@@ -769,94 +603,30 @@ class ValidationTool extends React.Component {
               step={this.state.validationStep}
               auditReport={this.state.auditReport}
               checkName={this.state.checkNameResult}
+              changeStep={this.handleChangeValidationStep}
             />
 
-            {Boolean(validationStep === 2) && (
-              <React.Fragment>
-                <Paper
-                  elevation={2}
-                  className={classes.tabPaper + ' ag-theme-material'}
-                >
-                  <Tabs value={this.state.tab} onChange={this.handleClickTab}>
-                    <Tab
-                      value={0}
-                      label={
-                        errorCount['data'] > 0 ? (
-                          <StyledBadgeRed badgeContent={errorCount['data']}>
-                            Data
-                          </StyledBadgeRed>
-                        ) : (
-                          <StyledBadgeGreen badgeContent={'\u2713'}>
-                            Data
-                          </StyledBadgeGreen>
-                        )
-                      }
-                      className={classes.workbookTab}
-                    />
+            <Step2
+              step={this.state.validationStep}
+              auditReport={this.state.auditReport}
+              errorCount={errorCount}
+      fileData={{
+        data: this.state.data,
+        dataset_meta_data: this.state.dataset_meta_data,
+        vars_meta_data: this.state.vars_meta_data,
+      }}
+              onGridReady={this.onGridReady}
+              handleCellValueChanged={this.handleCellValueChanged}
+              handleGridSizeChanged={this.handleGridSizeChanged}
+              auditCell={this.auditCell}
+              dataSubmissionSelectOptions={this.props.dataSubmissionSelectOptions}
+            />
 
-                    <Tab
-                      value={1}
-                      label={
-                        errorCount['dataset_meta_data'] > 0 ? (
-                          <StyledBadgeRed
-                            badgeContent={errorCount['dataset_meta_data']}
-                          >
-                            Dataset Metadata
-                          </StyledBadgeRed>
-                        ) : (
-                          <StyledBadgeGreen badgeContent={'\u2713'}>
-                            Dataset Metadata
-                          </StyledBadgeGreen>
-                        )
-                      }
-                      className={classes.workbookTab}
-                    />
-
-                    <Tab
-                      value={2}
-                      label={
-                        errorCount['vars_meta_data'] > 0 ? (
-                          <StyledBadgeRed
-                            badgeContent={errorCount['vars_meta_data']}
-                          >
-                            Variable Metadata
-                          </StyledBadgeRed>
-                        ) : (
-                          <StyledBadgeGreen badgeContent={'\u2713'}>
-                            Variable Metadata
-                          </StyledBadgeGreen>
-                        )
-                      }
-                      className={classes.workbookTab}
-                    />
-                  </Tabs>
-
-                  <div style={{ height: 'calc(100% - 48px)' }}>
-                    <ValidationGrid
-                      onGridReady={this.onGridReady}
-                      rowData={this.state[sheet]}
-                      defaultColumnDef={this.state.defaultColumnDef}
-                      handleCellValueChanged={this.handleCellValueChanged}
-                      handleGridSizeChanged={this.handleGridSizeChanged}
-                      columns={getColumns(sheet, this.state[sheet])}
-                      gridContext={{
-                        sheet,
-                        getAuditReport: () => this.state.auditReport,
-                        textAreaLookup,
-                        selectOptions: generateSelectOptions(
-                          this.props.dataSubmissionSelectOptions,
-                        ),
-                        auditCell: this.auditCell,
-                      }}
-                      onModelUpdated={this.onModelUpdated}
-                    />
-                  </div>
-                </Paper>
-              </React.Fragment>
-            )}
 
             {Boolean(validationStep === validationSteps.length - 1) && (
               <Paper elevation={2} className={`${classes.fileSelectPaper}`}>
+                <Typography variant={"h5"}>Submit</Typography>
+
                 <CleanupDummy />
                 {this.props.submissionUploadState === states.succeeded ? (
                   <React.Fragment>

@@ -1,4 +1,13 @@
 const styles = (theme) => ({
+  validationToolWrapper: {
+    position: 'relative',
+    height: 'calc(100vh - 200px)',
+    '& > div': { // FullWidthContainer
+      height: '100%',
+      paddingTop: '200px', // space from nav
+    }
+  },
+
   title: {
     color: 'white',
     fontSize: '32px',
@@ -25,17 +34,8 @@ const styles = (theme) => ({
   },
 
   fileSelectPaper: {
-    margin: '30px 0',
     padding: '12px',
     whiteSpace: 'pre-wrap',
-  },
-
-  workbookAuditPaper: {
-    margin: '30px 0',
-    padding: '12px',
-    minHeight: '110px',
-    whiteSpace: 'pre-wrap',
-    textAlign: 'left',
   },
 
   addBorder: {
@@ -64,12 +64,34 @@ const styles = (theme) => ({
     },
   },
 
+  navigationWrapper: {
+    color: 'white',
+    display: 'flex',
+    flexDirection: 'row',
+    gap: '2em',
+  },
   navigationButtons: {
     padding: '2em 0',
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'flex-start',
     gap: '2em'
+  },
+
+  stepButton: {
+    '&:disabled': {
+      color: '#ffffff7d',
+      border: `2px solid ${theme.palette.secondary.dark}`
+    }
+  },
+
+  refHolder: {
+    // I'm here so that a my tooltip parent will render
+    // https://stackoverflow.com/questions/57527896/material-ui-tooltip-doesnt-display-on-custom-component-despite-spreading-props
+  },
+
+  statusArea: {
+    color: 'white',
   },
 
   submitButton: {
@@ -101,8 +123,8 @@ const styles = (theme) => ({
     }
   },
 
-  ilb: {
-    display: 'inline-block',
+    ilb: {
+    // display: 'inline-block',
   },
 
   currentSectionSpan: {

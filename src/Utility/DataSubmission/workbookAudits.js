@@ -350,8 +350,9 @@ const checkDateFormat = (data, workbook, numericDateFormatConverted) => {
 
   const utcString = dayjs.utc(sample).format();
   // const utcDateString = `${dayjs.utc(sample).format('YYYY-MM-DD')} (YYYY-MM-DD)`;
+  const readableString = dayjs.utc(sample).format('LLLL');
 
-  const example = `For reference, the time value in the first row of data is ${sample} and will be interpreted as ${utcString}`;
+  const example = `For reference, the time value in the first row of data is ${sample} and will be interpreted as ${readableString}`;
 
   console.log ('type of time column sample: ' + dataType);
 
@@ -374,6 +375,9 @@ const checkDateFormat = (data, workbook, numericDateFormatConverted) => {
   };
 };
 
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 export default (args) => {
   const {
     data,
@@ -388,11 +392,20 @@ export default (args) => {
   // checks for missing sheets or lacking rows are early-return cases
   let sheetCheck = checkSheets(workbook);
   if (sheetCheck.length) {
-    errors.push(
-      `Workbook is missing required sheet${
-        sheetCheck.length > 1 ? 's' : ''
-      }: ${sheetCheck.join(', ')}.`,
-    );
+
+    const inflect = (sheetCheck.length > 1 ? 's' : '');
+    const wrapInPreQuotes = (s) => `*\`${s}\`*`;
+    const stringOfSheetNames = sheetCheck.map(wrapInPreQuotes).join (', ');
+    errors.push({
+      title: 'Workbook is missing worksheet' + inflect,
+      body: {
+        content: `Workbook is missing required sheet ${inflect}: ${stringOfSheetNames}. Please add worksheet${inflect} and {0}.`,
+        links: [{
+          text: 'resubmit',
+          url: '/datasubmission/validationtool#step0'
+        }]
+      }
+    });
     return { errors, warnings };
   }
 

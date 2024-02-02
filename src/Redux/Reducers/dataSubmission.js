@@ -11,6 +11,8 @@ const {
   SET_CHECK_SUBM_NAME_REQUEST_STATUS,
   CHECK_SUBM_NAME_RESPONSE_STORE,
   SET_RETRIEVE_ALL_SUBS_REQUEST_STATUS,
+  SET_SUBM_ID,
+  SET_SUBM_TYPE,
 } = dataSubmissionActionTypes;
 
 export default function (state, action) {
@@ -72,6 +74,17 @@ export default function (state, action) {
         checkSubmissionNameResult: action.payload,
       };
 
+    case SET_SUBM_TYPE:
+      return {
+        ...state,
+        submissionType: action.payload,
+      };
+
+    case SET_SUBM_ID:
+      return {
+        ...state,
+        submissionToUpdate: action.payload,
+      };
 
     default:
       return state;

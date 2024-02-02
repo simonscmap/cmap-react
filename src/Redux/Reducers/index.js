@@ -160,6 +160,8 @@ const initialState = {
   // Data Submission state pieces
   dataSubmissions: [],
   retrieveUserDataSubmsissionsRequestStatus: states.notTried,
+  submissionType: 'new', // 'new' | 'update'
+  submissionToUpdate: null, // Id
   submissionComments: [],
   submissionCommentHistoryRetrievalState: states.succeeded,
   submissionFile: null,

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Typography, Divider, Button } from '@material-ui/core';
+import { Typography, Divider } from '@material-ui/core';
 import {
   ErrorOutline,
 } from '@material-ui/icons';
@@ -16,10 +16,10 @@ const errorOutlineStyle = {
   fontSize: '1.4em',
 };
 
-const Status = (props) => {
-  const classes = useStyles();
+const IssueSummary = (props) => {
+  const cl = useStyles();
 
-  const { step, errorCount, findNext } = props;
+  const { step, errorCount } = props;
 
   if (step <= 1) {
     return <React.Fragment />;
@@ -34,8 +34,7 @@ const Status = (props) => {
   }
 
   return (
-    <React.Fragment>
-      <Divider className={classes.divider} />
+    <div className={cl.statusArea}>
       <Typography variant="h6">Issue Summary</Typography>
       <div>
         {Object.keys(errorCount).map((eKey, i) => {
@@ -43,7 +42,7 @@ const Status = (props) => {
             return '';
           }
           return (
-            <div key={`_${eKey},${i}`} className={classes.errorOverview}>
+            <div key={`_${eKey},${i}`} className={cl.errorOverview}>
               <span>
                 {auditKeyToLabel[eKey]}:
               </span>
@@ -55,15 +54,8 @@ const Status = (props) => {
           );
         })}
       </div>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={findNext}
-      >
-        Go To Next Error
-      </Button>
-    </React.Fragment>
+    </div>
   );
 };
 
-export default Status;
+export default IssueSummary;

@@ -5,11 +5,11 @@ import {
 } from '@material-ui/icons';
 import { Typography, Button, Tooltip, Badge } from '@material-ui/core';
 
+import { StepButton } from './ChooserComponents/Buttons';
 import { validationSteps } from './ValidationToolConstants';
-
-
 import styles from './ValidationToolStyles';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
+import ErrorStatus from './ValidationToolErrorStatus';
 
 const useStyles = makeStyles (styles);
 
@@ -43,7 +43,7 @@ const StepBadge = (props) => {
 }
 
 const Navigation = (props) => {
-  const classes = useStyles();
+  const cl = useStyles();
 
   const { file, step, datasetName, errorCount, changeStep, auditReport } = props;
 
@@ -55,75 +55,72 @@ const Navigation = (props) => {
 
   const hideSelectDifferentFile = step >= validationSteps.length;
 
-  const preventSubmission = Boolean(
-    step >= 5 || (step === 1 && errorCount.workbook) || (step === 4 &&
-     (errorCount.data > 0 ||
-      errorCount.dataset_meta_data > 0 ||
-      errorCount.vars_meta_data > 0)),
+  const preventNext = Boolean(
+    step >= 5
+    || (step === 4 && (errorSum > 0))
+    || (step === 0 && !file)
   );
 
+  const onLastStep = step >= validationSteps.length;
+  const hasErrors = errorSum > 0;
+  const onUploadStep = step === 0;
+
   const forwardArrowTooltip =
-    step === 0 || step > validationSteps.length
-                       ? ''
-                       : (errorCount.data > 0 ||
-                          errorCount.dataset_meta_data > 0 ||
-                          errorCount.vars_meta_data > 0) &&
-    step === validationSteps.length - 1
-    ? 'Please Correct Errors to Proceed'
-    : 'Next Section';
+    onUploadStep
+    ? 'Upload File to Proceed'
+    : onLastStep && hasErrors
+    ? 'Correct Errors to Proceed'
+    : `Next: ${getStepLabel(step + 1)}`;
+
+  const backArrowTooltip =
+    onUploadStep ? 'No Prior Step' : `Back to ${getStepLabel (step - 1)}`
 
   // TODO udpate header part to show:
   // 1 dataset name & id & type
   //
   return (
-    <React.Fragment>
-      <Typography
-        variant="h6"
-        className={classes.currentlyViewingTypography}
-      >
-        Dataset Name: {datasetName ? `${datasetName}` : ''}
-      </Typography>
-
-      <div className={classes.navigationButtons}>
-        { step > 0 &&
-        <Tooltip title="Previous Section">
-          <div className={classes.ilb}>
-          <Button
-          size="small"
-          color="secondary"
-          variant="contained"
-          onClick={() => changeStep(step - 1)}
-          disabled={Boolean(step <= 1)}
-          startIcon={<ArrowBack />}
-          >
-          <StepBadge errors={step === 2 ? workbookErrors : step === 3 ? errorSum : null} text={`Back to ${getStepLabel(step - 1)}`} />
-            </Button>
+    <div className={cl.navigationWrapper}>
+      <div className={cl.navigationButtons}>
+        <Tooltip title={backArrowTooltip}>
+          <div className={cl.refHolder}>
+            <StepButton
+              size="small"
+              color="primary"
+              variant="contained"
+              onClick={() => changeStep(step - 1)}
+              disabled={step === 0}
+              startIcon={<ArrowBack />}
+              className={cl.stepButton}
+            >
+              <StepBadge
+                errors={step === 2 ? workbookErrors : step === 3 ? errorSum : null}
+                text={'Back'}
+              />
+            </StepButton>
           </div>
-          </Tooltip>
-        }
+        </Tooltip>
 
-        <Typography variant="h5" className={classes.currentSectionSpan}>
-          Step {step + 1}: {validationSteps[step].label}
-        </Typography>
-
-        { step < validationSteps.length - 1 &&
         <Tooltip title={forwardArrowTooltip}>
-          <div className={classes.ilb}>
-            <Button
+          <div className={cl.refHolder}>
+            <StepButton
               size="small"
               color="primary"
               variant="contained"
               onClick={() => changeStep(step + 1)}
-              disabled={preventSubmission}
+              disabled={preventNext}
               endIcon={<ArrowForward />}
+              className={cl.stepButton}
             >
-              {`Next: ${getStepLabel(step + 1)}`}
-            </Button>
+              {'Next'}
+            </StepButton>
           </div>
-          </Tooltip>
-        }
-      </div>
-    </React.Fragment>
+        </Tooltip>
+    </div>
+    <ErrorStatus
+      step={step}
+      errorCount={errorCount}
+    />
+    </div>
   );
 };
 

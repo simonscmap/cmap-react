@@ -4,6 +4,19 @@ import toA from './createAnchorElement';
 import isSPALink from './isSPALink';
 import renderText from './renderText';
 
+/* Example body object
+
+{
+  "content": "*Body* content /with various/ text _styles_ added.\n\n/And  _nested_ styles too./ {0}",
+  "links": [
+    {
+      "text": "Test link",
+      "url": "http://text.npr.org"
+    }
+  ]
+}
+ */
+
 // intercalate jsx links/a into body text
 const renderBody = (body) => {
   let links = [];

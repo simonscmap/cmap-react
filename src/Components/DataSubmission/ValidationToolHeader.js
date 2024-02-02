@@ -8,6 +8,7 @@ import { makeStyles } from '@material-ui/core/styles';
 const useStyles = makeStyles (styles);
 
 const Header = (props) => {
+  const { subType } = props;
   const classes = useStyles();
 
   return (

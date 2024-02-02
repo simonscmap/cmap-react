@@ -2,11 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
-  Button,
   FormControl,
   FormControlLabel,
-  InputLabel,
-  Paper,
   Radio,
   RadioGroup,
   Select,
@@ -19,16 +16,39 @@ import states from '../../../enums/asyncRequestStates';
 import { safePath } from '../../../Utility/objectUtils';
 
 // action creators
-import { retrieveDataSubmissionsByUser } from '../../../Redux/actions/dataSubmission';
-import { setLoadingMessage } from '../../../Redux/actions/ui';
-import { checkSubmissionOptionsAndStoreFile } from '../../../Redux/actions/dataSubmission';
+import {
+  retrieveDataSubmissionsByUser,
+  setSubmissionId,
+  setSubmissionType
+} from '../../../Redux/actions/dataSubmission';
+import { snackbarOpen } from '../../../Redux/actions/ui';
 
 const subIsNotComplete = (sub) => sub && sub.phaseId !== 6;
 
 const useStyles = makeStyles ((theme) => ({
+  typeChooserWrapper: {
+    color: 'white',
+    '& > h5': {
+      marginBottom: '1em'
+    }
+  },
   formContent: {
     display: 'flex',
-    flexDirection: 'row'
+    flexDirection: 'column',
+    gap: '2em',
+    '& > div': {
+    }
+  },
+  selectWrapper: {
+    // border: `1px solid ${theme.palette.primary.light}`,
+    borderRadius: '4px',
+    display: 'flex',
+    flexDirection: 'row',
+    padding: '.25em 1em',
+    gap: '1em',
+    '& > p': {
+      margin: 0,
+    }
   },
 }));
 
@@ -46,15 +66,25 @@ const useStyles = makeStyles ((theme) => ({
 // • whether user has active submissions
 
 const TypeChooser = (props) => {
-  const { subId, subType, setSubId, setSubType } = props;
   const cl = useStyles ();
+
   // pull in global state
+  const subId = useSelector ((state) => state.submissionToUpdate);
+  const subType = useSelector ((state) => state.submissionType);
+
   const user = useSelector ((state) => state.user);
+
   const submsInProgress = useSelector((state) =>
     (state.dataSubmissions || [])
       .filter (subIsNotComplete));
+
   const userDataSubsRequestState = useSelector((state) =>
     (state.retrieveUserDataSubmsissionsRequestStatus));
+
+  // handlers
+
+  const setSubType = (t) => dispatch (setSubmissionType (t));
+  const setSubId = (id) => dispatch (setSubmissionId (id));
 
   // make request for user subs, if not already in flight
   const dispatch = useDispatch();
@@ -65,6 +95,7 @@ const TypeChooser = (props) => {
     }
   }, [user]);
 
+  // set default submission to first in array
   useEffect(() => {
     if (subId === null && submsInProgress.length > 0) {
       // set default
@@ -76,6 +107,7 @@ const TypeChooser = (props) => {
     const id = e.target.value;
     console.log (`setting submission id`, e.target.value);
     setSubId (id);
+    dispatch (snackbarOpen (`Selected submission ${id}`));
   }
 
   const handleSetType = (e) => {
@@ -90,7 +122,7 @@ const TypeChooser = (props) => {
 
   return (
     <div className={cl.typeChooserWrapper}>
-      <Typography variant={"h5"}>Choose a submission type</Typography>
+      <Typography variant={"h5"}>Upload Workbook</Typography>
       <div className={cl.formContent}>
         <div className={cl.radioWrapper}>
           <FormControl component="fieldset">
@@ -98,20 +130,19 @@ const TypeChooser = (props) => {
               <FormControlLabel
                 value={"new"}
                 control={<Radio />}
-                label={"Create New Submission"}
+                label={"Create a new submission"}
               />
               <FormControlLabel
                 value={"update"}
                 control={<Radio />}
-                label={"Update a Submission In Progress"}
+                label={"Update a submission already in progress"}
               />
              </RadioGroup>
            </FormControl>
-        </div>
-        {(subType === "update") &&
+{(subType === "update") &&
           <div className={cl.selectWrapper}>
-            <FormControl>
-              <Typography variant={"body1"}>Active Submission to Update:</Typography>
+            <Typography variant={"body1"}>Pick Submission to Update:</Typography>
+            <FormControl variant="filled">
              {/* default to empty string to match the placeholder option value */}
               <Select value={subId || ''} onChange={handleSetId}>
                 {submsInProgress.map ((sub, i) => {
@@ -120,7 +151,7 @@ const TypeChooser = (props) => {
                       value={sub.Submission_ID}
                       key={`select-option-${i}`}
                     >
-                      {sub.Dataset}
+                      {`${i + 1}. ${sub.Dataset} (id: ${sub.Submission_ID})`}
                     </option>
                   );
                 })}
@@ -128,6 +159,8 @@ const TypeChooser = (props) => {
             </FormControl>
             </div>
         }
+        </div>
+
       </div>
     </div>
   );
