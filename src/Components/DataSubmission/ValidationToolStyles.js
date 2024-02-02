@@ -64,35 +64,6 @@ const styles = (theme) => ({
     },
   },
 
-  navigationWrapper: {
-    color: 'white',
-    display: 'flex',
-    flexDirection: 'row',
-    gap: '2em',
-  },
-  navigationButtons: {
-    padding: '2em 0',
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    gap: '2em'
-  },
-
-  stepButton: {
-    '&:disabled': {
-      color: '#ffffff7d',
-      border: `2px solid ${theme.palette.secondary.dark}`
-    }
-  },
-
-  refHolder: {
-    // I'm here so that a my tooltip parent will render
-    // https://stackoverflow.com/questions/57527896/material-ui-tooltip-doesnt-display-on-custom-component-despite-spreading-props
-  },
-
-  statusArea: {
-    color: 'white',
-  },
 
   submitButton: {
     color: 'white',
@@ -111,19 +82,8 @@ const styles = (theme) => ({
     marginLeft: '4px',
   },
 
-  errorOverview: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    gap: '1em',
-    alignItems: 'center',
-    '& span': {
-      display: 'inline-block',
-      width: '200px',
-    }
-  },
 
-    ilb: {
+  ilb: {
     // display: 'inline-block',
   },
 

@@ -19,7 +19,7 @@ const ValidationGrid = (props) => {
   const cl = useStyles();
 
   return (
-    <div className={cl.gridContainer}>
+    <div className={cl.gridContainer + ' ag-theme-material' }>
       <AgGridReact
         singleClickEdit={true}
         // onModelUpdated={this.props.onModelUpdated}

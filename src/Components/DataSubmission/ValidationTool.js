@@ -66,6 +66,7 @@ const mapStateToProps = (state, ownProps) => ({
   user: state.user,
   checkSubmissionNameRequestStatus: state.checkSubmissionNameRequestStatus,
   checkSubmissionNameResult: state.checkSubmissionNameResult,
+  submissionType: state.submissionType,
 });
 
 const mapDispatchToProps = {
@@ -506,20 +507,18 @@ class ValidationTool extends React.Component {
     }
 
     // 3. should update audit with checkName
+
+
     const shouldUpdateAuditWithCheckName =
+      this.props.submissionType === 'new' &&
       Boolean(this.props.checkSubmissionNameResult) &&
       (prevProps.checkSubmissionNameResult !== this.props.checkSubmissionNameResult);
-
-    console.log ('checking if audit report should be updated with result of check name', {
-      thereIsResult: Boolean(this.props.checkSubmissionNameResult),
-      prev: prevProps.checkSubmissionNameResult,
-      curr: this.props.checkSubmissionNameResult
-    });
 
     if (shouldUpdateAuditWithCheckName) {
       // emend audit
       const result = this.props.checkSubmissionNameResult;
       const shortName = safePath (['dataset_meta_data', '0', 'dataset_short_name']) (this.state);
+
       if (result && result.nameIsNotTaken) {
         console.log (`the dataset short name, ${shortName}, is unused`, result);
       } else {
@@ -527,7 +526,6 @@ class ValidationTool extends React.Component {
         console.log (`the dataset short name, ${shortName}, is already used in cmap`, result);
         this.setState({
           ...this.state,
-          checkNameResult: { ...result, shortName },
           auditReport: {
             ...this.state.auditReport,
             workbook: {
@@ -536,15 +534,40 @@ class ValidationTool extends React.Component {
                 ...this.state.auditReport.workbook.errors,
                 {
                   title: 'Dataset name is unavailable',
-                  detail: ''
+                  detail: messages.nameIsTaken ({ ...result, shortName }),
                 }
               ]
             }
           }
         });
       }
-    } else {
-      //
+    }
+
+
+    const subTypeHasChanged = this.props.submissionType !== prevProps.submissionType;
+    const subTypeIsUpdate = this.props.submissionType === 'update';
+    if (subTypeHasChanged && subTypeIsUpdate) {
+      // TODO
+      // make sure the NameUnavailable error is not in the workbook errors array
+      const auditWorkbookErrors = safePath (['auditReport', 'workbook', 'errors']) (this.state);
+      const filteredErrors = (auditWorkbookErrors || []).filter ((er) => {
+        if (er.title === 'Dataset name is unavailable') {
+          return false;
+        } else {
+          return true;
+        }
+      });
+
+      this.setState({
+          ...this.state,
+          auditReport: {
+            ...this.state.auditReport,
+            workbook: {
+              ...this.state.auditReport.workbook,
+              errors: filteredErrors,
+            }
+          }
+        });
     }
   };
 
@@ -610,11 +633,11 @@ class ValidationTool extends React.Component {
               step={this.state.validationStep}
               auditReport={this.state.auditReport}
               errorCount={errorCount}
-      fileData={{
-        data: this.state.data,
-        dataset_meta_data: this.state.dataset_meta_data,
-        vars_meta_data: this.state.vars_meta_data,
-      }}
+              fileData={{
+                data: this.state.data,
+                dataset_meta_data: this.state.dataset_meta_data,
+                vars_meta_data: this.state.vars_meta_data,
+              }}
               onGridReady={this.onGridReady}
               handleCellValueChanged={this.handleCellValueChanged}
               handleGridSizeChanged={this.handleGridSizeChanged}

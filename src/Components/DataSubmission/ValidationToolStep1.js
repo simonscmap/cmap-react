@@ -182,10 +182,10 @@ const Step1 = (props) => {
 
   const goBack = () => changeStep(0);
 
-  const thereAreErrors = hasLength (safePath (['workbook', 'errors']) (auditReport))
-                      || (checkName && !checkName.nameIsNotTaken);
+  const thereAreErrors = hasLength (safePath (['workbook', 'errors']) (auditReport));
   const thereAreWarnings = hasLength (safePath (['workbook', 'warnings']) (auditReport))
 
+  // keep errors updated
   let [errors, setErrors] = useState([]);
 
   useEffect(() => {
@@ -194,15 +194,11 @@ const Step1 = (props) => {
     if (thereAreErrors) {
       const auditWorkbookErrors = safePath (['workbook', 'errors']) (auditReport) ;
       if (auditWorkbookErrors) {
+        console.log ('filtering errorrs', subType, auditWorkbookErrors)
         eArr = eArr.concat(...auditWorkbookErrors);
       }
     }
-    if (checkName && !checkName.nameIsNotTaken && subType === 'new') {
-      eArr.push({
-        title: 'Dataset name is not available',
-        detail: messages.nameIsTaken (checkName, 'name'),
-      });
-    }
+
     setErrors(eArr);
   }, [subType, checkName, auditReport]);
 

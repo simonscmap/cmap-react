@@ -4,14 +4,31 @@ import { Typography, Divider } from '@material-ui/core';
 import {
   ErrorOutline,
 } from '@material-ui/icons';
-import styles from './ValidationToolStyles';
 import { auditKeyToLabel } from './ValidationToolConstants';
 import { makeStyles } from '@material-ui/core/styles';
 
-const useStyles = makeStyles (styles);
+const useStyles = makeStyles ((theme) => ({
+  statusArea: {
+    color: 'white',
+  },
+  errorOverview: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    gap: '1em',
+    alignItems: 'center',
+    '& span': {
+      display: 'inline-block',
+      width: '200px',
+    },
+    '& p': {
+      margin: 0,
+    }
+  },
+}));
 
 const errorOutlineStyle = {
-  color: 'rgba(255, 0, 0, .7)',
+  color: 'rgb(255, 0, 0)',
   margin: '0 2px -5px 0',
   fontSize: '1.4em',
 };
@@ -21,7 +38,7 @@ const IssueSummary = (props) => {
 
   const { step, errorCount } = props;
 
-  if (step <= 1) {
+  if (step < 1) {
     return <React.Fragment />;
   }
 

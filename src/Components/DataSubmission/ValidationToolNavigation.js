@@ -3,15 +3,43 @@ import {
   ArrowBack,
   ArrowForward,
 } from '@material-ui/icons';
-import { Typography, Button, Tooltip, Badge } from '@material-ui/core';
+import { Tooltip, Badge } from '@material-ui/core';
 
 import { StepButton } from './ChooserComponents/Buttons';
 import { validationSteps } from './ValidationToolConstants';
-import styles from './ValidationToolStyles';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import ErrorStatus from './ValidationToolErrorStatus';
 
-const useStyles = makeStyles (styles);
+const useStyles = makeStyles ((theme) => ({
+  navigationWrapper: {
+    color: 'white',
+    display: 'flex',
+    flexDirection: 'row',
+    gap: '2em',
+    justifyContent: 'space-between',
+    paddingRight: '1em'
+  },
+  navigationButtons: {
+    padding: '2em 0',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    gap: '2em'
+  },
+  refHolder: {
+    // I'm here so that a my tooltip parent will render
+    // https://stackoverflow.com/questions/57527896/material-ui-tooltip-doesnt-display-on-custom-component-despite-spreading-props
+  },
+
+  stepButton: {
+    '&:disabled': {
+      color: '#ffffff7d',
+      border: `2px solid ${theme.palette.secondary.dark}`
+    }
+  },
+
+
+}));
 
 const getStepLabel = (step) => {
   return validationSteps[step] && validationSteps[step].label || '';
@@ -20,8 +48,8 @@ const getStepLabel = (step) => {
 const StyledBadgeRed = withStyles(() => ({
   badge: {
     right: -11,
-    top: 1,
-    backgroundColor: 'rgba(255, 0, 0, .6)',
+    top: -11,
+    backgroundColor: 'rgb(255, 0, 0)',
   },
 }))(Badge);
 

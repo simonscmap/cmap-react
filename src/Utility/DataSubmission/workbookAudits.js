@@ -2,11 +2,13 @@ import { mean, deviation } from 'd3-array';
 import * as dayjs from 'dayjs';
 import tz from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
+import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 
 import messages from '../../Components/DataSubmission/Messages';
 
 dayjs.extend(utc);
 dayjs.extend(tz);
+dayjs.extend(LocalizedFormat)
 
 
 const datasetMetadataSampleRowValue =
@@ -406,12 +408,12 @@ export default (args) => {
         }]
       }
     });
-    return { errors, warnings };
+    // return { errors, warnings };
   }
 
   if (!data.length) {
     errors.join.push(`Found no rows on the data sheet`);
-    return { errors, warnings };
+    // return { errors, warnings };
   }
 
   // other checks
@@ -585,6 +587,8 @@ export default (args) => {
           .join('\n')}`,
     );
   }
+
+  console.log (`audit workbook returning ${errors.length} errors and ${warnings.length} warnings`)
 
   return { errors, warnings };
 };
