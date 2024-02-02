@@ -133,13 +133,6 @@ const styles = (theme) => ({
     // display: 'inline-block',
   },
 
-  divider: {
-    margin: '8px 0',
-  },
-
-  workbookTab: {
-    textTransform: 'none',
-  },
 
   submittedTypography: {
     marginBottom: '12px',

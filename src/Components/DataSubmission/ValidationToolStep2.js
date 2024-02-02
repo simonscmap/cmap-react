@@ -27,7 +27,29 @@ import { AgGridReact } from 'ag-grid-react';
 
 
 
-const useStyles = makeStyles (styles);
+const useStyles = makeStyles ((theme) => ({
+  wrapper: {
+    color: 'white',
+    '& > h5': {
+      marginBottom: '1em',
+    }
+  },
+  workbookTab: {
+    textTransform: 'none',
+  },
+  tabs: {
+    marginBottom: '1em',
+    '& .MuiTab-root': {
+      overflow: 'unset',
+      margin: '0 20px'
+    }
+  },
+  paper: {
+    padding: '10px',
+    borderRadius: '5px',
+    margin: '2em 0',
+  },
+}));
 
 // HELPERS
 
@@ -177,7 +199,7 @@ const handleFindNext = () => {
 // COMPONENT
 
 const Step2 = (props) => {
-  const classes = useStyles();
+  const cl = useStyles();
 
   const {
     dataSubmissionSelectOptions,
@@ -241,8 +263,8 @@ const Step2 = (props) => {
   }
 
   return (
-    <Paper elevation={2} className={`${classes.workbookAuditPaper}`}>
-      <Typography variant={"h5"}>Validate Data Sheet</Typography>
+    <div className={cl.wrapper}>
+      <Typography variant={"h5"}>Data Sheet Validation</Typography>
       <Button
         variant="contained"
         color="primary"
@@ -250,7 +272,9 @@ const Step2 = (props) => {
       >
         Go To Next Error
       </Button>
-      <Tabs value={tab} onChange={handleClickTab}>
+
+    <Paper elevation={2} className={cl.paper}>
+    <Tabs value={tab} onChange={handleClickTab} className={cl.tabs} >
         <Tab
           value={0}
           label={
@@ -264,7 +288,6 @@ const Step2 = (props) => {
               </StyledBadgeGreen>
             )
           }
-          className={classes.workbookTab}
         />
 
         <Tab
@@ -282,7 +305,6 @@ const Step2 = (props) => {
               </StyledBadgeGreen>
             )
           }
-          className={classes.workbookTab}
         />
 
         <Tab
@@ -300,7 +322,6 @@ const Step2 = (props) => {
               </StyledBadgeGreen>
             )
           }
-          className={classes.workbookTab}
         />
       </Tabs>
 
@@ -319,9 +340,8 @@ const Step2 = (props) => {
             auditCell: auditCell,
           }}
     />
-
-    <AgGridReact />
-    </Paper>
+</Paper>
+    </div>
   );
 };
 
