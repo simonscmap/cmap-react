@@ -9,7 +9,7 @@ import {
   Select,
   Typography,
 } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, createStyles } from '@material-ui/core/styles';
 import states from '../../../enums/asyncRequestStates';
 
 // fns
@@ -41,16 +41,37 @@ const useStyles = makeStyles ((theme) => ({
   },
   selectWrapper: {
     // border: `1px solid ${theme.palette.primary.light}`,
+    marginLeft: '35px',
     borderRadius: '4px',
     display: 'flex',
-    flexDirection: 'row',
+    flexDirection: 'column',
     padding: '.25em 1em',
     gap: '1em',
+    width: '300px',
     '& > p': {
       margin: 0,
+    },
+    '& .MuiFilledInput-input': {
+      padding: '10px 5px 10px 15px',
+    },
+    '& .MuiSelect-icon': {
+      color: theme.palette.secondary.light,
+    },
+    '& .MuiFilledInput-root': {
+      background: 'rgba(0,0,0,0.1)',
+      borderRadius: '5px'
+    },
+  },
+  selectFormControl: {
+    '& .MuiFilledInput-underline::before': {
+      borderBottom: 0,
     }
   },
+  overrides: createStyles({
+  })
 }));
+
+
 
 // UX --
 // A binary radio group, which shows only when the user has active submissions,
@@ -137,28 +158,37 @@ const TypeChooser = (props) => {
                 control={<Radio />}
                 label={"Update a submission already in progress"}
               />
-             </RadioGroup>
-           </FormControl>
-{(subType === "update") &&
-          <div className={cl.selectWrapper}>
-            <Typography variant={"body1"}>Pick Submission to Update:</Typography>
-            <FormControl variant="filled">
-             {/* default to empty string to match the placeholder option value */}
-              <Select value={subId || ''} onChange={handleSetId}>
-                {submsInProgress.map ((sub, i) => {
-                  return (
-                    <option
-                      value={sub.Submission_ID}
-                      key={`select-option-${i}`}
-                    >
-                      {`${i + 1}. ${sub.Dataset} (id: ${sub.Submission_ID})`}
-                    </option>
-                  );
-                })}
-              </Select>
-            </FormControl>
-            </div>
-        }
+            </RadioGroup>
+          </FormControl>
+          {(subType === "update") &&
+           <div className={cl.selectWrapper}>
+             <Typography variant={"body1"}>Pick Submission to Update:</Typography>
+             <FormControl variant="filled" className={cl.selectFormControl}>
+               {/* default to empty string to match the placeholder option value */}
+               <Select
+                 value={subId || ''}
+                 onChange={handleSetId}
+                 className={cl.selectMenu}
+                 MenuProps={{
+                   classes: {
+
+                   }
+                 }}
+               > <option value={-1} disabled>Select Submission</option>
+                 {submsInProgress.map ((sub, i) => {
+                   return (
+                     <option
+                       value={sub.Submission_ID}
+                       key={`select-option-${i}`}
+                     >
+                       {`${sub.Dataset} (id: ${sub.Submission_ID})`}
+                     </option>
+                   );
+                 })}
+               </Select>
+             </FormControl>
+           </div>
+          }
         </div>
 
       </div>
