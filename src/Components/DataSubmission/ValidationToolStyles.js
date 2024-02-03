@@ -1,13 +1,11 @@
 const styles = (theme) => ({
   validationToolWrapper: {
     position: 'relative',
-    height: 'calc(100vh - 200px)',
     '& > div': { // FullWidthContainer
-      height: '100%',
+      minHeight: 'calc(100vh - 200px)',
       paddingTop: '200px', // space from nav
     }
   },
-
   title: {
     color: 'white',
     fontSize: '32px',
