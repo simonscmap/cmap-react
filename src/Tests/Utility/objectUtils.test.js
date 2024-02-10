@@ -11,6 +11,11 @@ describe('object utils', () => {
     expect(r).toEqual(undefined);
   });
 
+  test('indexes into arrays', () => {
+    const r = objectUtils.safePath (['a', 1, 2]) ({ a: [null, ['no', 'no', 'yes' ]]});
+    expect(r).toEqual('yes');
+  });
+
   test('returns undefined when invalid args are passed', () => {
     // no path array given
     const r = objectUtils.safePath (null) ({ a: { c: 5 }});

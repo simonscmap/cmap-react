@@ -26,14 +26,20 @@ export const retrieveSubmissionCommentHistory = (submissionID) => ({
 });
 
 export const uploadSubmission = ({
+  submissionType,
+  submissionId,
   file,
+  rawFile, // file before any alteration
   datasetName,
   datasetLongName,
   dataSource,
 }) => ({
   type: dataSubmissionActionTypes.UPLOAD_SUBMISSION,
   payload: {
+    submissionType,
+    submissionId,
     file,
+    rawFile,
     datasetName,
     datasetLongName,
     dataSource,

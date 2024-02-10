@@ -246,6 +246,7 @@ const Step2 = (props) => {
   };
 
   const checkCellStyle = (params) => {
+    console.log ('checking cell style');
     let colId = params.column.colId;
     let { sheet: sheetName } = params.context;
 

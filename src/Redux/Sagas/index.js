@@ -96,6 +96,7 @@ import {
 
 import {
   watchCheckSubmissionNameRequestSend,
+  uploadFileParts,
 } from './dataSubmission';
 
 import { localStorageApi } from '../../Services/persist/local';
@@ -583,96 +584,133 @@ function* retrieveSubmissionCommentHistory(action) {
 
 function* uploadSubmission(action) {
   yield put(interfaceActions.setLoadingMessage('Uploading Workbook'));
-  let { file, datasetName, dataSource, datasetLongName } = action.payload;
-  let fileSize = file.size;
+  let {
+    submissionType,
+    submissionId,
+    file,
+    rawFile,
+    datasetName,
+    datasetLongName,
+    dataSource,
+  } = action.payload;
 
-  let chunkSize = 5 * 1024 * 1024;
-  let offset = 0;
 
-  let retries = 0;
-  let sessionID;
+  // let chunkSize = 5 * 1024 * 1024;
+  // let offset = 0;
 
+    // 1. start an upload session (get sessionId)
   let beginSessionFormData = new FormData();
-  beginSessionFormData.append('datasetName', datasetName);
 
-  while (retries < 3 && !sessionID) {
+  beginSessionFormData.append('submissionType', submissionType);
+  beginSessionFormData.append('submissionId', submissionId);
+
+  const contains1SessionId = (arr) => arr && arr.length === 1;
+  const contains2SessionIds = (arr) => arr && arr.length === 2;
+
+  let getSessionRetries = 0;
+  let sessionIds = [];
+
+  while (getSessionRetries < 3 && sessionIds.length === 0) {
     let beginSessionResponse = yield call(
       api.dataSubmission.beginUploadSession,
       beginSessionFormData,
     );
 
     if (beginSessionResponse.ok) {
-      let jsonResponse = yield beginSessionResponse.json();
-      sessionID = jsonResponse.sessionID;
+      let jsonResp = yield beginSessionResponse.json();
+      let idsArray = jsonResp.sessionIds;
+
+      // if sessionIds are not set in this block, the generator will exit and display an error to the user
+      if (!Array.isArray (idsArray)) {
+        log.error ("error retrieving session ids for upload: expected sessionIds array", { idsArray });
+      } else if (submissionType === 'new') {
+        if (contains2SessionIds (idsArray)) {
+          sessionIds = idsArray.slice();
+        } else {
+          log.error ("expected 2 session ids for new submission", { idsArray });
+        }
+      } else if (submissionType === 'update') {
+        if (contains1SessionId (idsArray)) {
+          sessionIds = idsArray.slice();
+        } else {
+          log.error ("expected 1 session ids for new submission", { idsArray });
+        }
+      } else {
+        log.error ("error retrieving session ids unexpected result", { jsonResp });
+      }
     } else {
       let message = yield beginSessionResponse.text();
       if (message === 'wrongUser') {
         yield put(dataSubmissionActions.setUploadState(states.failed));
         yield put(interfaceActions.setLoadingMessage(''));
         return;
+      } else if (message === 'noRecord') {
+        yield put(dataSubmissionActions.setUploadState(states.failed));
+        yield put(interfaceActions.setLoadingMessage(''));
+        yield put(interfaceActions.snackbarOpen('No submission found'));
+        log.error ('no submission found', { submissionId });
       } else {
-        retries++;
+        getSessionRetries++;
         yield delay(2000);
       }
     }
   }
 
-  if (!sessionID) {
+  if (!sessionIds.length) {
     yield put(interfaceActions.snackbarOpen('Failed to begin upload session'));
     yield put(interfaceActions.setLoadingMessage(''));
     return;
   }
 
-  retries = 0;
+  // 2: attempt upload with sessionId
 
-  var currentPartSucceeded = false;
+  // 2 (a) upload file chunks
+  const [uploadError] = yield uploadFileParts ({
+    uploadSessionId: sessionIds[0],
+    file,
+  });
 
-  while (offset < fileSize) { // while more chunks, upload part
-    currentPartSucceeded = false;
-
-    while (currentPartSucceeded === false && retries < 3) {
-      let part = file.slice(offset, offset + chunkSize);
-
-      let formData = new FormData();
-      formData.append('part', part);
-      formData.append('offset', offset);
-      formData.append('sessionID', sessionID);
-
-      let uploadPartResponse = yield call(
-        api.dataSubmission.uploadPart,
-        formData,
-      );
-
-      if (uploadPartResponse.ok) {
-        currentPartSucceeded = true;
-      } else {
-        retries++;
-        yield delay(2000);
-      }
-    }
-
-    if (currentPartSucceeded === false) {
-      yield put(interfaceActions.snackbarOpen('Upload failed'));
-      yield put(interfaceActions.setLoadingMessage(''));
-      return;
-    } else {
-      offset += chunkSize;
-    }
+  // 2 (b) upload raw file as well
+  let rawFileUploadError;
+  if (submissionType === 'new' && rawFile) {
+    [rawFileUploadError] = yield uploadFileParts ({
+      uploadSessionId: sessionIds[1],
+      rawFile,
+    });
   }
 
+  if (uploadError || rawFileUploadError) {
+    yield put(interfaceActions.snackbarOpen('Upload failed'));
+    yield put(interfaceActions.setLoadingMessage(''));
+    return;
+  }
+
+  // 2 (c) commit upload with rest of data
   // reset retries counter, now to be used for commit call
-  retries = 0;
+
+  let fileSize = file.size;
+  let rawFileSize = rawFile ? rawFile.size : 0;
+
+  console.log (`expected offsets. file: ${fileSize}, raw: ${rawFileSize}`)
 
   let formData = new FormData();
-  formData.append('fileName', datasetName);
-  formData.append('offset', fileSize);
-  formData.append('sessionID', sessionID);
+  formData.append('shortName', datasetName);
+  formData.append('offsets', fileSize);
+  if (submissionType === 'new') {
+    formData.append ('offsets', rawFileSize);
+  }
+  sessionIds.forEach ((sid) => {
+    formData.append('sessionIds', sid);
+  })
   formData.append('dataSource', dataSource);
   formData.append('datasetLongName', datasetLongName);
+  formData.append('submissionType', submissionType);
+  formData.append('submissionId', submissionId);
 
-  var commitSucceeded = false;
+  let commitSucceeded = false;
 
-  while (retries < 4 && commitSucceeded === false) {
+  let commitRetries = 0;
+  while (commitRetries < 4 && commitSucceeded === false) {
     let commitFileResponse = yield call(
       api.dataSubmission.commitUpload,
       formData,
@@ -681,7 +719,7 @@ function* uploadSubmission(action) {
     if (commitFileResponse.ok) {
       commitSucceeded = true;
     } else {
-      retries++;
+      commitRetries++;
       yield delay(2000);
     }
   }

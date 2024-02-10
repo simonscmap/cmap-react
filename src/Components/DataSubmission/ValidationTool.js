@@ -67,6 +67,7 @@ const mapStateToProps = (state, ownProps) => ({
   checkSubmissionNameRequestStatus: state.checkSubmissionNameRequestStatus,
   checkSubmissionNameResult: state.checkSubmissionNameResult,
   submissionType: state.submissionType,
+  submissionToUpdate: state.submissionToUpdate,
 });
 
 const mapDispatchToProps = {
@@ -227,6 +228,7 @@ class ValidationTool extends React.Component {
     let { sheet } = context;
 
     let newAudit = this.auditCell(newValue, column.colId, rowIndex);
+    console.log ('new cell audit', newValue, rowIndex, column.colId, newAudit);
 
     let auditReport = {
       ...this.state.auditReport
@@ -239,21 +241,30 @@ class ValidationTool extends React.Component {
         auditReport[sheet][rowIndex] = {};
       }
       auditReport[sheet][rowIndex][column.colId] = newAudit;
-    } else if (auditReport[sheet][rowIndex][column.colId]) {
-      delete auditReport[sheet][rowIndex][column.colId];
+    } else {
+      // cell audit returned no issue, so delete anything on current audit for this cell
+      let currentCellAudit = safePath ([sheet, rowIndex, column.colId]) (auditReport);
+      if (currentCellAudit) {
+        delete auditReport[sheet][rowIndex][column.colId];
+      }
     }
 
     if (!Object.keys(auditReport[sheet][rowIndex]).length) {
       auditReport[sheet][rowIndex] = null;
     }
 
+    // update the data
     let updated = [
       ...this.state[sheet].slice(0, rowIndex),
       node.data,
       ...this.state[sheet].slice(rowIndex + 1),
     ];
+
+    // set state
+    console.log ('redrawing rows');
     this.setState({ ...this.state, [sheet]: updated, auditReport }, () => {
-      this.gridApi.redrawRows();
+      const row = this.gridApi.getDisplayedRowAtIndex(rowIndex);
+      this.gridApi.redrawRows({rowNodes: [row]});
     });
   };
 
@@ -336,6 +347,7 @@ class ValidationTool extends React.Component {
           vars_meta_data,
           auditReport,
           validationStep,
+          rawFile: workbook,
         },
         () => this.props.setLoadingMessage(''),
       );
@@ -379,8 +391,24 @@ class ValidationTool extends React.Component {
     let wbArray = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
     let file = new Blob([wbArray]);
     file.name = `${this.state.dataset_meta_data[0].dataset_short_name}.xlsx`;
+    let rawFile = new Blob([
+        XLSX.write(this.state.rawFile, { bookType: 'xlsx', type: 'array' })
+    ]);
+
+    console.log ('dispatching upload', {
+      submissionType: this.props.submissionType, // "new" | "update"
+      submissionId: this.props.submissionToUpdate,
+      datasetName: this.state.dataset_meta_data[0].dataset_short_name,
+      dataSource: this.state.dataset_meta_data[0].dataset_source,
+      datasetLongName: this.state.dataset_meta_data[0].dataset_long_name,
+
+    })
+
     this.props.uploadSubmission({
+      submissionType: this.props.submissionType, // "new" | "update"
+      submissionId: this.props.submissionToUpdate,
       file,
+      rawFile,
       datasetName: this.state.dataset_meta_data[0].dataset_short_name,
       dataSource: this.state.dataset_meta_data[0].dataset_source,
       datasetLongName: this.state.dataset_meta_data[0].dataset_long_name,
@@ -546,7 +574,7 @@ class ValidationTool extends React.Component {
 
     const subTypeHasChanged = this.props.submissionType !== prevProps.submissionType;
     const subTypeIsUpdate = this.props.submissionType === 'update';
-    if (subTypeHasChanged && subTypeIsUpdate) {
+    if (subTypeHasChanged && subTypeIsUpdate && Boolean(this.state.auditReport)) {
       // TODO
       // make sure the NameUnavailable error is not in the workbook errors array
       const auditWorkbookErrors = safePath (['auditReport', 'workbook', 'errors']) (this.state);
