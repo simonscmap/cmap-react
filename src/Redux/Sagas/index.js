@@ -594,6 +594,21 @@ function* uploadSubmission(action) {
     dataSource,
   } = action.payload;
 
+  // check
+  if (!file) {
+    log.error ('no file provided to uploadSubmission saga', { ...action.payload });
+    yield put(interfaceActions.snackbarOpen('There was an error beginning file upload.'));
+    yield put(interfaceActions.setLoadingMessage(''));
+    return;
+  }
+
+  if (submissionType === 'new' && !rawFile) {
+    log.error ('no raw file provided to uploadSubmission saga', { ...action.payload });
+    yield put(interfaceActions.snackbarOpen('There was an error beginning file upload.'));
+    yield put(interfaceActions.setLoadingMessage(''));
+    return;
+  }
+
 
   // let chunkSize = 5 * 1024 * 1024;
   // let offset = 0;
@@ -675,7 +690,7 @@ function* uploadSubmission(action) {
   if (submissionType === 'new' && rawFile) {
     [rawFileUploadError] = yield uploadFileParts ({
       uploadSessionId: sessionIds[1],
-      rawFile,
+      file: rawFile,
     });
   }
 

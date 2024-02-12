@@ -401,7 +401,6 @@ class ValidationTool extends React.Component {
       datasetName: this.state.dataset_meta_data[0].dataset_short_name,
       dataSource: this.state.dataset_meta_data[0].dataset_source,
       datasetLongName: this.state.dataset_meta_data[0].dataset_long_name,
-
     })
 
     this.props.uploadSubmission({
