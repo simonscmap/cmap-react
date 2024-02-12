@@ -174,7 +174,7 @@ const TypeChooser = (props) => {
 
                    }
                  }}
-               > <option value={-1} disabled>Select Submission</option>
+               >
                  {submsInProgress.map ((sub, i) => {
                    return (
                      <option

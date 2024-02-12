@@ -278,7 +278,7 @@ class ValidationTool extends React.Component {
     }
 
     // reset checkName result (because we have a new file)
-    this.setState({ ...this.state, checkNameResult: null });
+    this.setState({ ...this.state, checkNameResult: null, rawFile: file });
 
     reader.onload = (progressEvent) => {
       var readFile = new Uint8Array(progressEvent.target.result);
@@ -347,7 +347,6 @@ class ValidationTool extends React.Component {
           vars_meta_data,
           auditReport,
           validationStep,
-          rawFile: workbook,
         },
         () => this.props.setLoadingMessage(''),
       );
@@ -391,9 +390,6 @@ class ValidationTool extends React.Component {
     let wbArray = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
     let file = new Blob([wbArray]);
     file.name = `${this.state.dataset_meta_data[0].dataset_short_name}.xlsx`;
-    let rawFile = new Blob([
-        XLSX.write(this.state.rawFile, { bookType: 'xlsx', type: 'array' })
-    ]);
 
     console.log ('dispatching upload', {
       submissionType: this.props.submissionType, // "new" | "update"
@@ -407,7 +403,7 @@ class ValidationTool extends React.Component {
       submissionType: this.props.submissionType, // "new" | "update"
       submissionId: this.props.submissionToUpdate,
       file,
-      rawFile,
+      rawFile: this.state.rawFile,
       datasetName: this.state.dataset_meta_data[0].dataset_short_name,
       dataSource: this.state.dataset_meta_data[0].dataset_source,
       datasetLongName: this.state.dataset_meta_data[0].dataset_long_name,

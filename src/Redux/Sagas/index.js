@@ -724,13 +724,10 @@ function* uploadSubmission(action) {
 
   let commitSucceeded = false;
 
+  let commitFileResponse;
   let commitRetries = 0;
   while (commitRetries < 4 && commitSucceeded === false) {
-    let commitFileResponse = yield call(
-      api.dataSubmission.commitUpload,
-      formData,
-    );
-
+    commitFileResponse = yield call(api.dataSubmission.commitUpload, formData);
     if (commitFileResponse.ok) {
       commitSucceeded = true;
     } else {
@@ -743,6 +740,8 @@ function* uploadSubmission(action) {
     yield put(interfaceActions.setLoadingMessage(''));
     yield put(dataSubmissionActions.setUploadState(states.succeeded));
   } else {
+    const respStatus = commitFileResponse && commitFileResponse.status;
+    log.error (`API responded to commit request with ${respStatus}`, { ...commitFileResponse });
     yield put(interfaceActions.setLoadingMessage(''));
     yield put(interfaceActions.snackbarOpen('Failed to upload'));
     return;
