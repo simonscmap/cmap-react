@@ -11,9 +11,6 @@ import {
   CardContent,
   Typography,
   Link,
-  ListItem,
-  ListItemIcon,
-  ListItemText
 } from '@material-ui/core';
 import {
   ErrorOutline,
@@ -24,7 +21,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import { safePath } from '../../Utility/objectUtils';
 import renderBody from '../Home/News/renderBody';
 import renderText from '../Home/News/renderText';
-import messages from './Messages';
 
 const hasLength = (maybeArray) => {
   if (Array.isArray(maybeArray)) {
@@ -168,17 +164,18 @@ const IssueCard = (props) => {
 const Step1 = (props) => {
   const cl = useStyles();
   const subType = useSelector ((state) => state.submissionType);
-  const { step, auditReport, checkName, changeStep } = props;
+  const checkName = useSelector ((state) => state.checkSubmissionNameResult);
+  const auditReport = useSelector ((state) => state.auditReport);
+  const { step, changeStep } = props;
   const history = useHistory();
 
   useEffect(() => {
+    console.log ('step 1: detected change in auditReport prop', auditReport);
     if (!auditReport) {
       changeStep (0);
       history.push('/datasubmission/validationtool')
     }
   }, [auditReport]);
-
-
 
   const goBack = () => changeStep(0);
 
@@ -194,10 +191,10 @@ const Step1 = (props) => {
     if (thereAreErrors) {
       const auditWorkbookErrors = safePath (['workbook', 'errors']) (auditReport) ;
       if (auditWorkbookErrors) {
-        console.log ('filtering errorrs', subType, auditWorkbookErrors)
         eArr = eArr.concat(...auditWorkbookErrors);
       }
     }
+    console.log ('setting errors report', eArr)
 
     setErrors(eArr);
   }, [subType, checkName, auditReport]);
@@ -227,6 +224,7 @@ const Step1 = (props) => {
 
 
       <WarningsAlert thereAreWarnings={thereAreWarnings} />
+
       {/* workbook warnings */}
       {auditReport.workbook.warnings.map((e, i) => {
         if (typeof e === 'string') {

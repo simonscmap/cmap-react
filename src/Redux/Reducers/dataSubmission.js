@@ -1,6 +1,6 @@
 import * as dataSubmissionActionTypes from '../actionTypes/dataSubmission';
 import states from '../../enums/asyncRequestStates';
-
+import { amendReportWithErrorCount } from '../../Components/DataSubmission/Helpers/countErrors';
 const {
   STORE_SUBMISSIONS,
   SET_SUBMISSION_COMMENT_HISTORY_RETRIEVAL_STATE,
@@ -13,6 +13,9 @@ const {
   SET_RETRIEVE_ALL_SUBS_REQUEST_STATUS,
   SET_SUBM_ID,
   SET_SUBM_TYPE,
+  SET_AUDIT,
+  SET_WORKBOOK_AUDIT,
+  SET_SHEET_AUDIT,
 } = dataSubmissionActionTypes;
 
 export default function (state, action) {
@@ -86,6 +89,29 @@ export default function (state, action) {
         submissionToUpdate: action.payload,
       };
 
+    case SET_AUDIT:
+      return {
+        ...state,
+        auditReport: action.payload,
+      };
+
+    case SET_WORKBOOK_AUDIT:
+      return {
+        ...state,
+        auditReport: {
+          ...(state.auditReport || {}),
+          workbook: action.payload,
+        }
+      };
+
+    case SET_SHEET_AUDIT:
+      return {
+        ...state,
+        auditReport: amendReportWithErrorCount({
+          ...(state.auditReport || {}),
+          [action.payload.sheetName]: action.payload.sheetAudit,
+        })
+      };
     default:
       return state;
   }

@@ -155,3 +155,21 @@ export const setSubmissionId = (id) => ({
   type: dataSubmissionActionTypes.SET_SUBM_ID,
   payload: id,
 });
+
+export const setAudit = (auditReport) => ({
+  type: dataSubmissionActionTypes.SET_AUDIT,
+  payload: auditReport,
+});
+
+export const setWorkbookAudit = (workbookAudit) => ({
+  type: dataSubmissionActionTypes.SET_WORKBOOK_AUDIT,
+  payload: workbookAudit,
+});
+
+export const setSheetAudit = ({ sheetName, sheetAudit }) => ({
+  type: dataSubmissionActionTypes.SET_SHEET_AUDIT,
+  payload: {
+    sheetName,
+    sheetAudit,
+  },
+});

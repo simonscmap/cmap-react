@@ -50,11 +50,13 @@ const IssueSummary = (props) => {
     return ''
   }
 
+  const categories = ['workbook', 'data', 'dataset_meta_data', 'vars_meta_data'];
+
   return (
     <div className={cl.statusArea}>
       <Typography variant="h6">Issue Summary</Typography>
       <div>
-        {Object.keys(errorCount).map((eKey, i) => {
+        {categories.map((eKey, i) => {
           if (errorCount[eKey] === 0) {
             return '';
           }

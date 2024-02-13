@@ -15,7 +15,7 @@ const useStyles = makeStyles ((theme) => ({
 }));
 
 const ValidationGrid = (props) => {
-  const { gridContext, columns, rowData } = props;
+  const { gridContext, columns, rowData, defaultColumnDef } = props;
   const cl = useStyles();
 
   return (
@@ -24,7 +24,7 @@ const ValidationGrid = (props) => {
         singleClickEdit={true}
         // onModelUpdated={this.props.onModelUpdated}
         columnDefs={columns}
-        defaultColDef={props.defaultColumnDef}
+        defaultColDef={defaultColumnDef}
         rowData={rowData}
         onGridReady={props.onGridReady}
         // onGridSizeChanged={this.props.onGridSizeChanged}

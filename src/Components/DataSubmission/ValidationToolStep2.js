@@ -1,6 +1,7 @@
 // Step 2: Data Sheet Validaition
 
 import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import {
   Badge,
   Button,
@@ -9,8 +10,6 @@ import {
   Tab,
   Tabs,
 } from '@material-ui/core';
-import messages from './Messages';
-import styles from './ValidationToolStyles';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import { safePath } from '../../Utility/objectUtils';
 
@@ -18,14 +17,7 @@ import ValidationGrid from './ValidationGrid';
 import DSCustomGridHeader from './DSCustomGridHeader';
 
 import ValidationGridColumns from './ValidationGridColumns';
-import {
-  textAreaLookup,
-  // validationSteps,
-  // fileSizeTooLargeDummyState,
-} from './ValidationToolConstants';
-import { AgGridReact } from 'ag-grid-react';
-
-
+import { textAreaLookup } from './ValidationToolConstants';
 
 const useStyles = makeStyles ((theme) => ({
   wrapper: {
@@ -52,12 +44,6 @@ const useStyles = makeStyles ((theme) => ({
 }));
 
 // HELPERS
-
-const errorOutlineStyle = {
-  color: 'rgba(255, 0, 0, .7)',
-  margin: '0 2px -5px 0',
-  fontSize: '1.4em',
-};
 
 const StyledBadgeRed = withStyles((theme) => ({
   badge: {
@@ -204,8 +190,8 @@ const Step2 = (props) => {
   const {
     dataSubmissionSelectOptions,
     step,
-    auditReport,
-    errorCount,
+    // errorCount,
+    // auditReport
     fileData, // sheets stored on parent state
     handleCellValueChanged,
     handleGridSizeChanged,
@@ -213,15 +199,14 @@ const Step2 = (props) => {
     onGridReady
   } = props;
 
-
-
   // TODO
   // 1. move Tool state for tabs into this component
   // 2. move find next error into this component
   // 3. move grid methods into this component
   // 4. move getSheet into this component
 
-
+  const auditReport = useSelector((state) => state.auditReport);
+  const errorCount = auditReport && auditReport.errorCount;
 
   let [tab, setTab] = useState(0);
 
@@ -246,13 +231,14 @@ const Step2 = (props) => {
   };
 
   const checkCellStyle = (params) => {
-    console.log ('checking cell style');
+    console.log ('checking cell style', params);
+    let row = params.node.childIndex;
     let colId = params.column.colId;
     let { sheet: sheetName } = params.context;
 
     let cellStyle = {};
 
-    if (safePath ([sheetName, 'row', colId]) (auditReport)) {
+    if (safePath ([sheetName, row, colId]) (auditReport)) {
       cellStyle.boxShadow = 'inset 0 0 1px 1px rgba(255, 0, 0, .5)';
     }
 
@@ -274,7 +260,7 @@ const Step2 = (props) => {
         Go To Next Error
       </Button>
 
-    <Paper elevation={2} className={cl.paper}>
+      <Paper elevation={2} className={cl.paper}>
     <Tabs value={tab} onChange={handleClickTab} className={cl.tabs} >
         <Tab
           value={0}

@@ -167,6 +167,7 @@ const initialState = {
   submissionFile: null,
   submissionUploadState: null,
   dataSubmissionSelectOptions: null,
+  auditReport: null,
   checkSubmissionNameRequestStatus: states.notTried,
   checkSubmissionNameResult: null,
 

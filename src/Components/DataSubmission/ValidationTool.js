@@ -27,6 +27,8 @@ import {
   checkSubmissionOptionsAndStoreFile,
   setUploadState,
   checkSubmNameRequestSend,
+  setAudit,
+  setSheetAudit,
 } from '../../Redux/actions/dataSubmission';
 import { setLoadingMessage } from '../../Redux/actions/ui';
 import Section, { FullWidthContainer } from '../Common/Section';
@@ -37,20 +39,21 @@ import Chooser from './Chooser';
 import Step1 from './ValidationToolStep1';
 import Step2 from './ValidationToolStep2';
 import StepAssistant from './StepAssistant';
-
 import messages from './Messages';
 
 import LoginRequiredPrompt from '../User/LoginRequiredPrompt';
 
-import styles from './ValidationToolStyles';
+import formatDataSheet from './Helpers/formatDataSheet';
+import formatDatasetMetadataSheet from './Helpers/formatDatasetMetadataSheet';
+import formatVariableMetadataSheet from './Helpers/formatVariableMetadataSheet';
+import generateAudits from './Helpers/generateAudits';
+import workbookAudits from './Helpers/workbookAudits';
+import auditReference from './Helpers/auditReference';
+import countErrors from './Helpers/countErrors';
 
-import formatDataSheet from '../../Utility/DataSubmission/formatDataSheet';
-import formatDatasetMetadataSheet from '../../Utility/DataSubmission/formatDatasetMetadataSheet';
-import formatVariableMetadataSheet from '../../Utility/DataSubmission/formatVariableMetadataSheet';
-import generateAudits from '../../Utility/DataSubmission/generateAudits';
-import workbookAudits from '../../Utility/DataSubmission/workbookAudits';
-import auditReference from '../../Utility/DataSubmission/auditReference';
 import { safePath } from '../../Utility/objectUtils';
+
+import styles from './ValidationToolStyles';
 
 import {
   validationSteps,
@@ -64,10 +67,11 @@ const mapStateToProps = (state, ownProps) => ({
   dataSubmissionSelectOptions: state.dataSubmissionSelectOptions,
   submissionUploadState: state.submissionUploadState,
   user: state.user,
-  checkSubmissionNameRequestStatus: state.checkSubmissionNameRequestStatus,
+  // checkSubmissionNameRequestStatus: state.checkSubmissionNameRequestStatus,
   checkSubmissionNameResult: state.checkSubmissionNameResult,
   submissionType: state.submissionType,
   submissionToUpdate: state.submissionToUpdate,
+  auditReport: state.auditReport,
 });
 
 const mapDispatchToProps = {
@@ -77,6 +81,8 @@ const mapDispatchToProps = {
   storeSubmissionFile,
   checkSubmissionOptionsAndStoreFile,
   checkSubmNameRequestSend,
+  setAudit,
+  setSheetAudit,
 };
 
 const _CleanupDummy = (props) => {
@@ -138,60 +144,90 @@ class ValidationTool extends React.Component {
   };
 
   auditWorkbook = (args) => {
-    return workbookAudits(args);
+    return workbookAudits(
+      args,
+      this.props.checkSubmissionNameResult,
+      this.props.submissionType
+    );
   };
 
   auditRows = (rows, sheet) => {
     let audit = [];
-    rows.forEach((row, i) => {
-      let rowAudit = {};
 
-      let columns = auditReference[sheet];
+    if (Array.isArray(rows)) {
+      rows.forEach((row, i) => {
+        let rowAudit = {};
 
-      columns.forEach((col) => {
-        let cellAudit = this.auditCell(row[col], col, i);
+        let columns = auditReference[sheet];
 
-        if (cellAudit.length) {
-          rowAudit[col] = cellAudit;
+        columns.forEach((col) => {
+          let cellAudit = this.auditCell(row[col], col, i);
+
+          if (cellAudit.length) {
+            rowAudit[col] = cellAudit;
+          }
+        });
+
+        if (Object.keys(rowAudit).length) {
+          audit[i] = rowAudit;
         }
       });
-
-      if (Object.keys(rowAudit).length) {
-        audit[i] = rowAudit;
-      }
-    });
+    }
 
     return audit;
   };
 
   // Takes a workbook and returns an audit report
-  performAudit = (argsObj) => {
+  performAudit = (shouldAdvanceStep) => {
+    const {
+      workbook,
+      data,
+      dataset_meta_data,
+      vars_meta_data,
+      numericDateFormatConverted,
+    } = this.state;
+
+    const argsObj = {
+      workbook,
+      data,
+      dataset_meta_data,
+      vars_meta_data,
+      numericDateFormatConverted,
+    };
+
     let workbookAudit = this.auditWorkbook(argsObj);
-    if (workbookAudit.errors.length)
-      return {
-        workbook: workbookAudit,
-        data: [],
-        dataset_meta_data: [],
-        vars_meta_data: [],
-      };
 
     let report = {
       workbook: workbookAudit,
       data: this.auditRows(
-        argsObj.data,
+        data,
         'data'
       ),
       dataset_meta_data: this.auditRows(
-        argsObj.dataset_meta_data,
+        dataset_meta_data,
         'dataset_meta_data',
       ),
       vars_meta_data: this.auditRows(
-        argsObj.vars_meta_data,
+        vars_meta_data,
         'vars_meta_data'
       ),
     };
 
-    return report;
+    const errors = countErrors (report);
+    report.errorCount = errors;
+
+    this.props.setAudit(report);
+
+    if (shouldAdvanceStep) {
+      const validationStep = (report.workbook.errors.length || report.workbook.warnings.length)
+                           ? 1
+                           : 2;
+
+      this.setState({
+        ...this.state,
+        validationStep,
+      });
+    }
   };
 
   handleResetState = () => {
@@ -223,7 +259,16 @@ class ValidationTool extends React.Component {
     context,
     oldValue,
   }) => {
-    if (oldValue === newValue) return;
+
+    // dataset_short_name
+    // TODO updote with long name as well
+    if (column && column.colId === 'dataset_short_name') {
+      this.props.checkSubmNameRequestSend(newValue);
+    }
+
+    if (oldValue === newValue) {
+      return;
+    }
 
     let { sheet } = context;
 
@@ -231,10 +276,8 @@ class ValidationTool extends React.Component {
     console.log ('new cell audit', newValue, rowIndex, column.colId, newAudit);
 
     let auditReport = {
-      ...this.state.auditReport
+      ...this.props.auditReport
     };
-
-    // auditReport[sheet] = [...this.state.auditReport[sheet]];
 
     if (newAudit.length) {
       if (!auditReport[sheet][rowIndex]) {
@@ -245,11 +288,13 @@ class ValidationTool extends React.Component {
       // cell audit returned no issue, so delete anything on current audit for this cell
       let currentCellAudit = safePath ([sheet, rowIndex, column.colId]) (auditReport);
       if (currentCellAudit) {
+        console.log ('deleting old audit for cell', currentCellAudit);
         delete auditReport[sheet][rowIndex][column.colId];
       }
     }
 
-    if (!Object.keys(auditReport[sheet][rowIndex]).length) {
+    const row = safePath ([sheet, rowIndex]) (auditReport);
+    if (row && !row.length) {
       auditReport[sheet][rowIndex] = null;
     }
 
@@ -261,10 +306,17 @@ class ValidationTool extends React.Component {
     ];
 
     // set state
-    console.log ('redrawing rows');
-    this.setState({ ...this.state, [sheet]: updated, auditReport }, () => {
+    this.setState({
+      ...this.state,
+      [sheet]: updated,
+    }, () => {
       const row = this.gridApi.getDisplayedRowAtIndex(rowIndex);
       this.gridApi.redrawRows({rowNodes: [row]});
+    });
+
+    this.props.setSheetAudit({
+      sheetName: sheet,
+      sheetAudit: auditReport[sheet]
     });
   };
 
@@ -312,44 +364,26 @@ class ValidationTool extends React.Component {
         ? formatVariableMetadataSheet(_vars_meta_data)
         : _vars_meta_data;
 
-      // run report
-      const auditReport = this.performAudit({
-        workbook,
-        data,
-        dataset_meta_data,
-        vars_meta_data,
-        numericDateFormatConverted
-      });
-
       // dispatch check short name
       const shortName = dataset_meta_data[0].dataset_short_name;
       this.props.checkSubmNameRequestSend(shortName);
 
-
-      // emend auditReport with results of formatDataSheet
-      if (numericDateFormatConverted) {
-        auditReport.workbook.warnings.push(messages.numericDateConversionWarning);
-      }
-      if (deletedKeys && deletedKeys.length) {
-        auditReport.workbook.warnings.push(`${messages.deletedKeysWarning}. Deleted keys: ${deletedKeys.join(', ')}`)
-      }
-
-      const validationStep =
-        (auditReport.workbook.errors.length || auditReport.workbook.warnings.length)
-        ? 1
-        : 2;
-
       this.setState(
         {
           ...this.state,
+          workbook,
           data,
           dataset_meta_data,
           vars_meta_data,
-          auditReport,
-          validationStep,
+          // auditReport,
+          // validationStep
+          numericDateFormatConverted,
         },
         () => this.props.setLoadingMessage(''),
       );
+
+      // run report
+      this.performAudit(true);
     };
 
     reader.readAsArrayBuffer(file);
@@ -448,37 +482,6 @@ class ValidationTool extends React.Component {
     this.gridApi.ensureIndexVisible(index, 'middle');
   };
 
-  countErrors = () => {
-    if (!this.state.auditReport) {
-      return;
-    }
-    let counts = {
-      workbook: this.state.auditReport.workbook.errors.length || 0,
-      data: 0,
-      dataset_meta_data: 0,
-      vars_meta_data: 0,
-    };
-
-    this.state.auditReport['data'].forEach((e) => {
-      if (e) {
-        counts.data += (Object.keys(e).length || 0)
-      }
-    });
-
-    this.state.auditReport['dataset_meta_data'].forEach((e) => {
-      if (e) {
-        counts.dataset_meta_data += (Object.keys(e).length || 0);
-      }
-    });
-
-    this.state.auditReport['vars_meta_data'].forEach((e) => {
-      if (e) {
-        counts.vars_meta_data += (Object.keys(e).length || 0);
-      }
-    });
-
-    return counts;
-  };
 
   handleClickTab = (event, newValue) => {
     this.setState({ ...this.state, tab: newValue });
@@ -529,68 +532,11 @@ class ValidationTool extends React.Component {
       this.handleReadFile(this.props.submissionFile);
     }
 
-    // 3. should update audit with checkName
-
-
-    const shouldUpdateAuditWithCheckName =
-      this.props.submissionType === 'new' &&
-      Boolean(this.props.checkSubmissionNameResult) &&
-      (prevProps.checkSubmissionNameResult !== this.props.checkSubmissionNameResult);
-
-    if (shouldUpdateAuditWithCheckName) {
-      // emend audit
-      const result = this.props.checkSubmissionNameResult;
-      const shortName = safePath (['dataset_meta_data', '0', 'dataset_short_name']) (this.state);
-
-      if (result && result.nameIsNotTaken) {
-        console.log (`the dataset short name, ${shortName}, is unused`, result);
-      } else {
-        // emend report
-        console.log (`the dataset short name, ${shortName}, is already used in cmap`, result);
-        this.setState({
-          ...this.state,
-          auditReport: {
-            ...this.state.auditReport,
-            workbook: {
-              ...this.state.auditReport.workbook,
-              errors: [
-                ...this.state.auditReport.workbook.errors,
-                {
-                  title: 'Dataset name is unavailable',
-                  detail: messages.nameIsTaken ({ ...result, shortName }),
-                }
-              ]
-            }
-          }
-        });
-      }
-    }
-
-
-    const subTypeHasChanged = this.props.submissionType !== prevProps.submissionType;
-    const subTypeIsUpdate = this.props.submissionType === 'update';
-    if (subTypeHasChanged && subTypeIsUpdate && Boolean(this.state.auditReport)) {
-      // TODO
-      // make sure the NameUnavailable error is not in the workbook errors array
-      const auditWorkbookErrors = safePath (['auditReport', 'workbook', 'errors']) (this.state);
-      const filteredErrors = (auditWorkbookErrors || []).filter ((er) => {
-        if (er.title === 'Dataset name is unavailable') {
-          return false;
-        } else {
-          return true;
-        }
-      });
-
-      this.setState({
-          ...this.state,
-          auditReport: {
-            ...this.state.auditReport,
-            workbook: {
-              ...this.state.auditReport.workbook,
-              errors: filteredErrors,
-            }
-          }
-        });
+    // 3. should rerun audits
+    const subTypeChanged = this.props.submissionType !== prevProps.submissionType;
+    const nameCheckChanged = this.props.checkSubmissionNameResult !== prevProps.checkSubmissionNameResult;
+    if (subTypeChanged || nameCheckChanged) {
+      this.performAudit();
     }
   };
 
@@ -605,24 +551,8 @@ class ValidationTool extends React.Component {
         ? this.state.dataset_meta_data[0].dataset_short_name
         : null;
 
-
-    // const sheet = getSheet(this.state.tab);
-
-    var errorCount = {
-      workbook: 0,
-      data: 0,
-      dataset_meta_data: 0,
-      vars_meta_data: 0,
-    }
-
-    if (validationStep > 0 && validationStep < 5 && this.countErrors()) {
-      errorCount = this.countErrors() ;
-    }
-   const errorSum = Object.keys(errorCount).reduce((acc, curr) => {
-      return acc + errorCount[curr];
-    }, 0);
-
-    const noErrors = 0 === errorSum;
+    const noErrors = this.props.auditReprt &&
+                     this.props.auditReport.errorCount.sum === 0;
 
     return (
       <div className={classes.validationToolWrapper}>
@@ -637,9 +567,9 @@ class ValidationTool extends React.Component {
                 file={this.props.submissionFile}
                 step={validationStep}
                 datasetName={datasetName}
-                errorCount={errorCount}
+                // errorCount={errorCount}
                 changeStep={this.handleChangeValidationStep}
-                auditReport={this.state.auditReport}
+                // auditReport={this.state.auditReport}
               />
             </div>
 
@@ -647,15 +577,15 @@ class ValidationTool extends React.Component {
 
             <Step1
               step={this.state.validationStep}
-              auditReport={this.state.auditReport}
-              checkName={this.state.checkNameResult}
+              // auditReport={this.state.auditReport}
+              // checkName={this.state.checkNameResult}
               changeStep={this.handleChangeValidationStep}
             />
 
             <Step2
               step={this.state.validationStep}
-              auditReport={this.state.auditReport}
-              errorCount={errorCount}
+              // auditReport={this.state.auditReport}
+              // errorCount={errorCount}
               fileData={{
                 data: this.state.data,
                 dataset_meta_data: this.state.dataset_meta_data,

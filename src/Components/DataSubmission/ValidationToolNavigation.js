@@ -4,7 +4,7 @@ import {
   ArrowForward,
 } from '@material-ui/icons';
 import { Tooltip, Badge } from '@material-ui/core';
-
+import { useSelector } from 'react-redux';
 import { StepButton } from './ChooserComponents/Buttons';
 import { validationSteps } from './ValidationToolConstants';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
@@ -73,15 +73,12 @@ const StepBadge = (props) => {
 const Navigation = (props) => {
   const cl = useStyles();
 
-  const { file, step, datasetName, errorCount, changeStep, auditReport } = props;
+  const { file, step, changeStep } = props;
 
+  const auditReport = useSelector ((state) => state.auditReport);
+  const errorCount = auditReport && auditReport.errorCount;
+  const errorSum = errorCount && errorCount.sum || 0;
   const workbookErrors = auditReport && auditReport.workbook.errors.length;
-
-  const errorSum = Object.keys(errorCount).reduce((acc, curr) => {
-      return acc + errorCount[curr];
-    }, 0);
-
-  const hideSelectDifferentFile = step >= validationSteps.length;
 
   const preventNext = Boolean(
     step >= 5
