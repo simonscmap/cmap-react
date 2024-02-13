@@ -26,7 +26,7 @@ import {
   storeSubmissionFile,
   checkSubmissionOptionsAndStoreFile,
   setUploadState,
-  checkSubmNameRequestSend,
+  checkSubmNamesRequestSend,
   setAudit,
   setSheetAudit,
 } from '../../Redux/actions/dataSubmission';
@@ -67,7 +67,6 @@ const mapStateToProps = (state, ownProps) => ({
   dataSubmissionSelectOptions: state.dataSubmissionSelectOptions,
   submissionUploadState: state.submissionUploadState,
   user: state.user,
-  // checkSubmissionNameRequestStatus: state.checkSubmissionNameRequestStatus,
   checkSubmissionNameResult: state.checkSubmissionNameResult,
   submissionType: state.submissionType,
   submissionToUpdate: state.submissionToUpdate,
@@ -80,7 +79,7 @@ const mapDispatchToProps = {
   retrieveMostRecentFile,
   storeSubmissionFile,
   checkSubmissionOptionsAndStoreFile,
-  checkSubmNameRequestSend,
+  checkSubmNamesRequestSend,
   setAudit,
   setSheetAudit,
 };
@@ -260,10 +259,12 @@ class ValidationTool extends React.Component {
     oldValue,
   }) => {
 
+
     // dataset_short_name
     // TODO updote with long name as well
     if (column && column.colId === 'dataset_short_name') {
-      this.props.checkSubmNameRequestSend(newValue);
+      const longName = safePath (['dataset_meta_data', '0', 'dataset_long_name']) (this.state);
+      this.props.checkSubmNamesRequestSend({ shortName: newValue, longName });
     }
 
     if (oldValue === newValue) {
@@ -366,7 +367,9 @@ class ValidationTool extends React.Component {
 
       // dispatch check short name
       const shortName = dataset_meta_data[0].dataset_short_name;
-      this.props.checkSubmNameRequestSend(shortName);
+      const longName = dataset_meta_data[0].dataset_long_name;
+
+      this.props.checkSubmNamesRequestSend({ shortName, longName });
 
       this.setState(
         {
