@@ -1,6 +1,6 @@
 // Step 2: Data Sheet Validaition
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import {
   Badge,
@@ -12,6 +12,7 @@ import {
 } from '@material-ui/core';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import { safePath } from '../../Utility/objectUtils';
+import { flattenErrors } from './Helpers/audit';
 
 import ValidationGrid from './ValidationGrid';
 import DSCustomGridHeader from './DSCustomGridHeader';
@@ -112,75 +113,94 @@ const getSheet = (n) => {
   }
 }
 
-//TODO clean this up when it's not late at night
-const handleFindNext = () => {
-  /* let lastFocused = this.gridApi.getFocusedCell();
-   * let sheet = getSheet(this.state.tab);
-   * let { auditReport } = this.state;
+const getTabFromSheet = (s) => {
+  switch (s) {
+    case 'data':
+      return 0;
+    case 'dataset_meta_data':
+      return 1;
+    case 'vars_meta_data':
+      return 2;
+    default:
+      return null;
+  }
+}
 
+const nextTab = (currentTab) => {
+  if (currentTab < 2) {
+    return currentTab + 1;
+  } else {
+    return 0;
+  }
+}
 
-   * let cols = getColumns(sheet, this.state[sheet]);
-   * var startRow = lastFocused ? lastFocused.rowIndex : -1;
-   * var startColIndex = lastFocused
-   *   ? cols.findIndex((e) => e === lastFocused.column.colId)
-   *   : 0;
+const goToNextError = (data, gridApi, sheet, auditReport, setMessage) => {
+  if (!data) {
+    console.log('no data');
+    return;
+  }
+  if (!sheet) {
+    console.log('no sheet');
+    return;
+  }
+  if (!gridApi) {
+    console.log('no gridApi');
+    return;
+  }
 
-   * // Search the remaining columns in focused row
-   * if (lastFocused) {
-   *   for (let i = startColIndex + 1; i < cols.length && i > -1; i++) {
-   *     if (
-   *       auditReport[sheet][startRow] &&
-   *       auditReport[sheet][startRow][cols[i]]
-   *     ) {
-   *       this.gridApi.ensureColumnVisible(cols[i]);
-   *       this.gridApi.startEditingCell({
-   *         rowIndex: startRow,
-   *         colKey: cols[i],
-   *       });
-   *       return;
-   *     }
-   *   }
-   * }
+  let lastFocusedCell = gridApi.getFocusedCell();
 
-   * // Start from startRow + 1, end at beginning of startRow
-   * for (let i = startRow + 1; i != startRow; i++) {
-   *   if (auditReport && auditReport[sheet] && auditReport[sheet][i]) {
-   *     for (let j = 0; j < cols.length; j++) {
-   *       if (auditReport[sheet][i][cols[j]]) {
-   *         this.gridApi.ensureColumnVisible(cols[j]);
-   *         this.gridApi.startEditingCell({
-   *           rowIndex: i,
-   *           colKey: cols[j],
-   *         });
-   *         return;
-   *       }
-   *     }
-   *   } else {
-   *     i = -1
-   *   }
+  let lastFocusedRow = -1;
+  let lastFocusedColKey = null;
 
-   *   if (auditReport[sheet] && i === auditReport[sheet].length) {
-   *     i = -1;
-   *   }
-   * }
+  if (lastFocusedCell) {
+    lastFocusedRow = lastFocusedCell.rowIndex;
+    lastFocusedColKey = lastFocusedCell.column.colId;
+  }
 
-   * // Search the rest of start row
-   * if (lastFocused) {
-   *   for (let i = 0; i <= startColIndex && i < cols.length; i++) {
-   *     if (
-   *       auditReport[sheet][startRow] &&
-   *       auditReport[sheet][startRow][cols[i]]
-   *     ) {
-   *       this.gridApi.ensureColumnVisible(cols[i]);
-   *       this.gridApi.startEditingCell({
-   *         rowIndex: startRow,
-   *         colKey: cols[i],
-   *       });
-   *       return;
-   *     }
-   *   }
-   * } */
+  const allErrorsBySheet = {
+    'data':  flattenErrors (auditReport.data),
+    'dataset_meta_data':flattenErrors (auditReport.dataset_meta_data),
+    'vars_meta_data':flattenErrors (auditReport.vars_meta_data),
   };
+
+  const lookupErrorMessage = ({ row, col }) => {
+    const auditErrorText = safePath ([sheet, row, col]) (auditReport)
+    if (auditErrorText && setMessage) {
+      setMessage(auditErrorText);
+    }
+  }
+
+  const goToError = ({ row, col }) => {
+    if (gridApi) {
+      gridApi.ensureColumnVisible(col);
+      gridApi.startEditingCell({ rowIndex: row, colKey: col });
+      lookupErrorMessage({ row, col });
+    }
+  }
+
+  const thereAreErrorsOnCurrentSheet = allErrorsBySheet[sheet].length > 0;
+
+  if (thereAreErrorsOnCurrentSheet) {
+    console.log ('current errors',allErrorsBySheet[sheet]);
+    const positionOfLastError = allErrorsBySheet[sheet].findIndex ((err) =>
+      err.row === lastFocusedRow && err.col === lastFocusedColKey);
+    if (positionOfLastError) {
+      // find next after current
+      const hasNextError = allErrorsBySheet[sheet].length > positionOfLastError;
+      if (hasNextError) {
+        const nextError = allErrorsBySheet[sheet][positionOfLastError + 1];
+        // go to nextError
+        goToError (nextError);
+        return;
+      }
+    } else {
+      // go to first error
+      goToError (allErrorsBySheet[sheet][0]);
+      return;
+    }
+  }
+};
 
 // COMPONENT
 
@@ -208,6 +228,10 @@ const Step2 = (props) => {
   const auditReport = useSelector((state) => state.auditReport);
   const errorCount = auditReport && auditReport.errorCount;
 
+  const gridApi = useRef();
+
+  let [message, setMessage] = useState();
+
   let [tab, setTab] = useState(0);
 
   const sheet = getSheet(tab);
@@ -217,32 +241,56 @@ const Step2 = (props) => {
   };
 
   const handleOnGridReady = (args) => {
+    gridApi.current = args.api;
     onGridReady (args)
   };
 
-  const defaultColumnDef = {
-    menuTabs: [],
-    resizable: true,
-    editable: true,
-    cellStyle: checkCellStyle,
-    cellEditor: 'DSCellEditor',
-    width: 270,
-    headerComponentFramework: DSCustomGridHeader,
-  };
+  const handleFindNext = () => {
+    if (!gridApi.current) {
+      console.log ('no ref to gridApi');
+    } else {
+      const currentSheet = getSheet(tab);
+      goToNextError (fileData, gridApi.current, currentSheet, auditReport, setMessage);
+    }
+  }
 
   const checkCellStyle = (params) => {
-    console.log ('checking cell style', params);
     let row = params.node.childIndex;
     let colId = params.column.colId;
     let { sheet: sheetName } = params.context;
 
     let cellStyle = {};
 
-    if (safePath ([sheetName, row, colId]) (auditReport)) {
-      cellStyle.boxShadow = 'inset 0 0 1px 1px rgba(255, 0, 0, .5)';
+    const path = [sheetName, row, colId];
+    const shouldReStyle = safePath (path) (auditReport);
+    if (shouldReStyle) {
+      cellStyle.boxShadow = 'inset 0 0 2px 2px rgba(255, 0, 0, .5)';
     }
 
     return cellStyle;
+  };
+
+  const tooltipValueGetter = (args) => {
+    console.log ('TOOLTIP VALUE GETTER');
+    const { rowIndex, column, context } = args;
+    if (rowIndex && column && column.colId) {
+      const errorForCell = safePath ([context.sheet, rowIndex, column.colId]) (auditReport);
+      if (Array.isArray(errorForCell)) {
+        return errorForCell.join (' ');
+      }
+    }
+    return null;
+  }
+
+  const defaultColumnDef = {
+    menuTabs: [],
+    resizable: true,
+    editable: true,
+    cellStyle: checkCellStyle,
+    tooltipValueGetter,
+    cellEditor: 'DSCellEditor',
+    width: 270,
+    headerComponentFramework: DSCustomGridHeader,
   };
 
   if (step !== 2) {
@@ -259,23 +307,24 @@ const Step2 = (props) => {
       >
         Go To Next Error
       </Button>
+      <Typography variant={"body1"}>{ message }</Typography>
 
       <Paper elevation={2} className={cl.paper}>
-    <Tabs value={tab} onChange={handleClickTab} className={cl.tabs} >
-        <Tab
-          value={0}
-          label={
-            errorCount['data'] > 0 ? (
-              <StyledBadgeRed badgeContent={errorCount['data']}>
-                Data
-              </StyledBadgeRed>
-            ) : (
-              <StyledBadgeGreen badgeContent={'\u2713'}>
-                Data
-              </StyledBadgeGreen>
-            )
-          }
-        />
+        <Tabs value={tab} onChange={handleClickTab} className={cl.tabs} >
+          <Tab
+            value={0}
+            label={
+              errorCount['data'] > 0 ? (
+                <StyledBadgeRed badgeContent={errorCount['data']}>
+                  Data
+                </StyledBadgeRed>
+              ) : (
+                <StyledBadgeGreen badgeContent={'\u2713'}>
+                  Data
+                </StyledBadgeGreen>
+              )
+            }
+          />
 
         <Tab
           value={1}
