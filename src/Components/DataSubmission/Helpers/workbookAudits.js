@@ -403,13 +403,37 @@ export default (args, checkNameResult, submissionType) => {
   }
 
   // check name
-  // TODO add specific cases for short and long names
-  if (checkNameResult && !checkNameResult.nameIsNotTaken && submissionType === 'new') {
-    const shortName = safePath (['0', 'dataset_short_name'])(dataset_meta_data);
-    errors.push({
-      title: 'Dataset name is unavailable',
-      detail: messages.nameIsTaken({ checkNameResult, shortName }),
-    })
+  if (checkNameResult) {
+    const shortName = safePath(['0', 'dataset_short_name'])(dataset_meta_data);
+    const longName = safePath(['0', 'dataset_long_name'])(dataset_meta_data);
+    const { errors: nameCheckErrors } = checkNameResult;
+
+
+    const shortNameConflict = (checkNameResult.shortNameIsAlreadyInUse && submissionType === 'new') || checkNameResult.folderExists;
+
+    if (nameCheckErrors.includes ('No short name provided')) {
+      errors.push({
+        title: 'Dataset short name is missing',
+        detail: 'No short name was provided. Please add a name in the *`dataset_short_name`* field in the *`dataset_meta_data`* worksheet.',
+      });
+    } else if (shortNameConflict) {
+      errors.push({
+        title: 'Dataset short name is unavailable',
+        detail: messages.shortNameIsTaken(shortName),
+      });
+    }
+
+    if (nameCheckErrors.includes ('No long name provided')) {
+      errors.push({
+        title: 'Dataset long name is missing',
+        detail: 'No long name was provided. Please add a name in the *`dataset_long_name`* field in the *`dataset_meta_data`* worksheet.',
+      });
+    } else if (checkNameResult.longNameIsAlreadyInUse) {
+      errors.push({
+        title: 'Dataset long name is unavailable',
+        detail: messages.longNameIsTaken(longName),
+      })
+    }
   }
 
   // checks for missing sheets or lacking rows are early-return cases

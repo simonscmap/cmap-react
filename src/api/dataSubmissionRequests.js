@@ -77,16 +77,10 @@ dataSubmissionAPI.deleteSubmission = async (submissionID) => {
 };
 
 dataSubmissionAPI.checkName = async (payload) => {
-  if (!payload.shortName) {
-    return Promise.reject('No short name provided');
-  }
-  if (!payload.longName) {
-    return Promise.reject('No long name provided');
-  }
   return await fetch(
     `${apiUrl}/api/datasubmission/checkname`, {
       ...postOptions,
-      body: payload,
+      body: JSON.stringify(payload),
     }
   );
 }

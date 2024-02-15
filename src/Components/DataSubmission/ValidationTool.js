@@ -30,7 +30,7 @@ import {
   setAudit,
   setSheetAudit,
 } from '../../Redux/actions/dataSubmission';
-import { setLoadingMessage } from '../../Redux/actions/ui';
+import { setLoadingMessage, snackbarOpen } from '../../Redux/actions/ui';
 import Section, { FullWidthContainer } from '../Common/Section';
 
 import Header from './ValidationToolHeader';
@@ -50,6 +50,7 @@ import generateAudits from './Helpers/generateAudits';
 import workbookAudits from './Helpers/workbookAudits';
 import auditReference from './Helpers/auditReference';
 import countErrors from './Helpers/countErrors';
+import { formatBytes } from './Helpers/display';
 
 import { safePath } from '../../Utility/objectUtils';
 
@@ -76,6 +77,7 @@ const mapStateToProps = (state, ownProps) => ({
 const mapDispatchToProps = {
   uploadSubmission,
   setLoadingMessage,
+  snackbarOpen,
   retrieveMostRecentFile,
   storeSubmissionFile,
   checkSubmissionOptionsAndStoreFile,
@@ -227,6 +229,7 @@ class ValidationTool extends React.Component {
         validationStep,
       });
     }
+    this.props.setLoadingMessage('');
   };
 
   handleResetState = () => {
@@ -259,12 +262,22 @@ class ValidationTool extends React.Component {
     oldValue,
   }) => {
 
+    const shouldResendCheckNameRequest =
+      (column && column.colId === 'dataset_short_name')
+      || (column && column.colId === 'dataset_long_name')
 
     // dataset_short_name
-    // TODO updote with long name as well
-    if (column && column.colId === 'dataset_short_name') {
-      const longName = safePath (['dataset_meta_data', '0', 'dataset_long_name']) (this.state);
-      this.props.checkSubmNamesRequestSend({ shortName: newValue, longName });
+    if (shouldResendCheckNameRequest) {
+      let shortName = safePath (['dataset_meta_data', '0', 'dataset_short_name']) (this.state);
+      let longName = safePath (['dataset_meta_data', '0', 'dataset_long_name']) (this.state);
+
+      if (column.colId === 'dataset_short_name') {
+        shortName = newValue;
+      }
+      if (column.colId === 'dataset_long_name') {
+        longName = newValue;
+      }
+      this.props.checkSubmNamesRequestSend({ shortName, longName });
     }
 
     if (oldValue === newValue) {
@@ -322,6 +335,7 @@ class ValidationTool extends React.Component {
   };
 
   handleReadFile = (file) => {
+    var totalBytes = 0;
     var reader = new FileReader();
     if (file.size > 150000000) {
       this.setState({ ...this.state, ...fileSizeTooLargeDummyState }, () =>
@@ -333,19 +347,39 @@ class ValidationTool extends React.Component {
     // reset checkName result (because we have a new file)
     this.setState({ ...this.state, checkNameResult: null, rawFile: file });
 
+    reader.onprogress = (ev) => {
+      try {
+        totalBytes = safePath (['total']) (ev);
+        console.log ('size read: ' + formatBytes(totalBytes));
+      } catch (e) {
+        console.log ('error: file reader progress event total was not a number')
+      }
+    }
+
     reader.onload = (progressEvent) => {
+      console.log ('onload: begin parsing file');
+      this.props.setLoadingMessage(`Parsing file (${formatBytes(totalBytes)})`);
       var readFile = new Uint8Array(progressEvent.target.result);
       var workbook = XLSX.read(readFile, { type: 'array' });
       let _data = XLSX.utils.sheet_to_json(workbook.Sheets['data'], {
         defval: null,
       });
 
+      let formatResult;
+      try {
+        formatResult = formatDataSheet(_data, workbook);
+      } catch (e) {
+        console.log ('error loading file', e);
+        this.props.snackbarOpen('Error parsing file.');
+        this.props.setLoadingMessage('');
+        return;
+      }
       let {
         data,
         is1904,
         numericDateFormatConverted,
         deletedKeys,
-      } = _data ? formatDataSheet(_data, workbook) : _data;
+      } = formatResult;
 
       // metadata
       let _dataset_meta_data = XLSX.utils.sheet_to_json(
@@ -365,27 +399,25 @@ class ValidationTool extends React.Component {
         ? formatVariableMetadataSheet(_vars_meta_data)
         : _vars_meta_data;
 
-      // dispatch check short name
+      // dispatch check name
       const shortName = dataset_meta_data[0].dataset_short_name;
       const longName = dataset_meta_data[0].dataset_long_name;
 
       this.props.checkSubmNamesRequestSend({ shortName, longName });
 
-      this.setState(
-        {
-          ...this.state,
-          workbook,
-          data,
-          dataset_meta_data,
-          vars_meta_data,
-          // auditReport,
-          // validationStep
-          numericDateFormatConverted,
-        },
-        () => this.props.setLoadingMessage(''),
+      this.setState({
+        ...this.state,
+        workbook,
+        data,
+        dataset_meta_data,
+        vars_meta_data,
+        numericDateFormatConverted,
+      }, () => this.props.setLoadingMessage(''),
       );
 
       // run report
+      console.log ('prform audit');
+      this.props.setLoadingMessage('Performing audit');
       this.performAudit(true);
     };
 
@@ -541,6 +573,7 @@ class ValidationTool extends React.Component {
     if (subTypeChanged || nameCheckChanged) {
       this.performAudit();
     }
+    this.props.setLoadingMessage('');
   };
 
   render = () => {

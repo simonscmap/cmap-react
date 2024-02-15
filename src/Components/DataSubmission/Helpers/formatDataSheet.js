@@ -19,7 +19,7 @@ const convertExcelNumeric = (val) => {
 }
 
 const isNumericFormat = (data) => {
-  if (!data || !Array.isArray(data) || data[0].time === undefined) {
+  if (!data || !Array.isArray(data) || (data[0] && data[0].time === undefined)) {
     return undefined;
   }
   const sample = data[0].time;

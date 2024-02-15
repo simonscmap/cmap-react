@@ -6,7 +6,12 @@ import states from '../../enums/asyncRequestStates';
 import { call, put, takeLatest, delay } from 'redux-saga/effects';
 
 export function* checkSubmissionName (action) {
-  let response = yield call(api.dataSubmission.checkName, action.payload);
+  let response;
+  try {
+    response = yield call(api.dataSubmission.checkName, action.payload);
+  } catch (e) {
+     yield put(dataSubmissionActions.setCheckSubmNameRequestStatus(states.failed));
+  }
   if (response && response.ok) {
     let jsonResponse = yield response.json();
     yield put(dataSubmissionActions.checkSubmNameResponseStore(jsonResponse));
