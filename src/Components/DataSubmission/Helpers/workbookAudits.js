@@ -419,7 +419,7 @@ export default (args, checkNameResult, submissionType) => {
     const shortName = safePath(['0', 'dataset_short_name'])(dataset_meta_data);
     const longName = safePath(['0', 'dataset_long_name'])(dataset_meta_data);
 
-    const newShortNameConflict = shortNameIsAlreadyInUse && submissionType === 'new';
+    const newShortNameConflict = shortNameIsAlreadyInUse && submissionType === 'new' || folderExists;
     const newLongNameConflict =  longNameIsAlreadyInUse && submissionType === 'new';
 
     if (nameCheckErrors.includes ('No short name provided')) {
