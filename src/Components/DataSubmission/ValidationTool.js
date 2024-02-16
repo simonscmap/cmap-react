@@ -186,6 +186,7 @@ class ValidationTool extends React.Component {
       dataset_meta_data,
       vars_meta_data,
       numericDateFormatConverted,
+      dateTimeFormatConverted,
     } = this.state;
 
     const argsObj = {
@@ -194,6 +195,7 @@ class ValidationTool extends React.Component {
       dataset_meta_data,
       vars_meta_data,
       numericDateFormatConverted,
+      dateTimeFormatConverted,
     };
 
     let workbookAudit = this.auditWorkbook(argsObj);
@@ -277,7 +279,7 @@ class ValidationTool extends React.Component {
       if (column.colId === 'dataset_long_name') {
         longName = newValue;
       }
-      this.props.checkSubmNamesRequestSend({ shortName, longName, sumbissionId: this.props.submissionToUpdate });
+      this.props.checkSubmNamesRequestSend({ shortName, longName, submissionId: this.props.submissionToUpdate });
     }
 
     if (oldValue === newValue) {
@@ -376,9 +378,10 @@ class ValidationTool extends React.Component {
       }
       let {
         data,
-        is1904,
+        // is1904,
         numericDateFormatConverted,
-        deletedKeys,
+        // deletedKeys,
+        dateTimeFormatConverted,
       } = formatResult;
 
       // metadata
@@ -412,6 +415,7 @@ class ValidationTool extends React.Component {
         dataset_meta_data,
         vars_meta_data,
         numericDateFormatConverted,
+        dateTimeFormatConverted,
       }, () => this.props.setLoadingMessage(''),
       );
 

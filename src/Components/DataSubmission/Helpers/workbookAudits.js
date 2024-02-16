@@ -388,11 +388,10 @@ export default (args, checkNameResult, submissionType) => {
     vars_meta_data,
     workbook,
     numericDateFormatConverted,
+    dateTimeFormatConverted,
   } = args;
 
   console.log ('workbook audit called', submissionType, checkNameResult);
-
-
 
   let errors = [];
   let warnings = [];

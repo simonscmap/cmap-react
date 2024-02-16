@@ -50,17 +50,28 @@ const deleteEmptyRows = (data) => {
   return keysContaining__EMPTY;
 }
 
+
 export default (data, workbook) => {
   const isNumeric = isNumericFormat (data);
   const is1904 = is1904Format (workbook);
 
   let numericDateFormatConverted = false;
+  let dateTimeFormatConverted = false;
   if (isNumeric && !is1904) {
     data.forEach((row) => {
       const newUTCDateString = convertExcelNumeric (row.time);
       row.time = newUTCDateString;
     });
     numericDateFormatConverted = true;
+  } else {
+    data.forEach((row) => {
+      const newUTCFormattedDateTime = dayjs.utc(row.time).format();
+      if (!dateTimeFormatConverted) {
+        if (newUTCFormattedDateTime !== row.time) {
+          dateTimeFormatConverted = [newUTCFormattedDateTime, row.time];
+        }
+      }
+    });
   }
 
   // remove empty rows
@@ -70,6 +81,7 @@ export default (data, workbook) => {
     data,
     is1904,
     numericDateFormatConverted,
+    dateTimeFormatConverted,
     deletedKeys,
   };
 }
