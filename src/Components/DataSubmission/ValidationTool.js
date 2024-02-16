@@ -277,7 +277,7 @@ class ValidationTool extends React.Component {
       if (column.colId === 'dataset_long_name') {
         longName = newValue;
       }
-      this.props.checkSubmNamesRequestSend({ shortName, longName });
+      this.props.checkSubmNamesRequestSend({ shortName, longName, sumbissionId: this.props.submissionToUpdate });
     }
 
     if (oldValue === newValue) {
@@ -403,7 +403,7 @@ class ValidationTool extends React.Component {
       const shortName = dataset_meta_data[0].dataset_short_name;
       const longName = dataset_meta_data[0].dataset_long_name;
 
-      this.props.checkSubmNamesRequestSend({ shortName, longName });
+      this.props.checkSubmNamesRequestSend({ shortName, longName, submissionId: this.props.submissionToUpdate });
 
       this.setState({
         ...this.state,
@@ -573,7 +573,18 @@ class ValidationTool extends React.Component {
     if (subTypeChanged || nameCheckChanged) {
       this.performAudit();
     }
+
     this.props.setLoadingMessage('');
+
+    // 4. should re-dispatch name check
+    // if subId has been changed and there is already a file
+    const subIdHasChanged = this.props.submissionToUpdate !== prevProps.submissionToUpdate;
+    const fileHasBeenSelected = Array.isArray(this.state.dataset_meta_data);
+    if (subIdHasChanged && fileHasBeenSelected) {
+      const shortName = safePath (['0','dataset_short_name']) (this.state.dataset_meta_data);
+      const longName = safePath (['0','dataset_long_name']) (this.state.dataset_meta_data);
+      this.props.checkSubmNamesRequestSend({ shortName, longName, submissionId: this.props.submissionToUpdate  });
+    }
   };
 
   render = () => {
@@ -587,7 +598,7 @@ class ValidationTool extends React.Component {
         ? this.state.dataset_meta_data[0].dataset_short_name
         : null;
 
-    const noErrors = this.props.auditReprt &&
+    const noErrors = this.props.auditReport &&
                      this.props.auditReport.errorCount.sum === 0;
 
     return (
@@ -603,9 +614,7 @@ class ValidationTool extends React.Component {
                 file={this.props.submissionFile}
                 step={validationStep}
                 datasetName={datasetName}
-                // errorCount={errorCount}
                 changeStep={this.handleChangeValidationStep}
-                // auditReport={this.state.auditReport}
               />
             </div>
 
@@ -613,15 +622,11 @@ class ValidationTool extends React.Component {
 
             <Step1
               step={this.state.validationStep}
-              // auditReport={this.state.auditReport}
-              // checkName={this.state.checkNameResult}
               changeStep={this.handleChangeValidationStep}
             />
 
             <Step2
               step={this.state.validationStep}
-              // auditReport={this.state.auditReport}
-              // errorCount={errorCount}
               fileData={{
                 data: this.state.data,
                 dataset_meta_data: this.state.dataset_meta_data,
@@ -747,8 +752,8 @@ class ValidationTool extends React.Component {
                       You've completed dataset validation! Click the button
                       below to upload your workbook.
                     </Typography>
-) : (<Typography>There are still validation errors in previous steps. Please address these errors before submitting the dataset.</Typography>
-) }
+                    ) : (<Typography>There are still validation errors in previous steps. Please address these errors before submitting the dataset.</Typography>
+                    ) }
                     <Button
                       variant="contained"
                       color="primary"

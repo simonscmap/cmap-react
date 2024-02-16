@@ -67,11 +67,6 @@ const Chooser = (props) => {
     }
   }, [user]);
 
-  // Local State
-  /*
-   *   let [subType, setSubType] = useState("new"); // "new" | "update"
-   *   let [submissionId, setSubId] = useState(null); */
-
   // Return if not step 0
 
   if (step !== 0) {

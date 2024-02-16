@@ -131,9 +131,9 @@ export const dataSubmissionDelete = (submission) => ({
   },
 });
 
-export const checkSubmNamesRequestSend = ({ shortName, longName }) => ({
+export const checkSubmNamesRequestSend = ({ shortName, longName, submissionId }) => ({
   type: dataSubmissionActionTypes.CHECK_SUBM_NAME_REQUEST_SEND,
-  payload: { shortName, longName },
+  payload: { shortName, longName, submissionId },
 });
 
 export const setCheckSubmNameRequestStatus = (status) => ({

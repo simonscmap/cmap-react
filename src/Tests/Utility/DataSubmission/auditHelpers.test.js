@@ -41,7 +41,6 @@ describe('flattenErrors', () => {
     expect (metaDataResult[1].row).toEqual(0);
     expect (metaDataResult[1].col).toEqual('dataset_make');
 
-
   });
 
 });

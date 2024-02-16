@@ -404,23 +404,39 @@ export default (args, checkNameResult, submissionType) => {
 
   // check name
   if (checkNameResult) {
+    // 3 scenarios: (1) this is a new submission and one of the 2 names is taken
+    // (2) this is an update and the names are the same (3) this is an update and the names are different
+
+    const {
+      shortNameIsAlreadyInUse,
+      shortNameUpdateConflict,
+      folderExists,
+      longNameIsAlreadyInUse,
+      longNameUpdateConflict,
+      errors: nameCheckErrors,
+    } = checkNameResult;
+
     const shortName = safePath(['0', 'dataset_short_name'])(dataset_meta_data);
     const longName = safePath(['0', 'dataset_long_name'])(dataset_meta_data);
-    const { errors: nameCheckErrors } = checkNameResult;
 
-
-    const shortNameConflict = (checkNameResult.shortNameIsAlreadyInUse && submissionType === 'new') || checkNameResult.folderExists;
+    const newShortNameConflict = shortNameIsAlreadyInUse && submissionType === 'new';
+    const newLongNameConflict =  longNameIsAlreadyInUse && submissionType === 'new';
 
     if (nameCheckErrors.includes ('No short name provided')) {
       errors.push({
         title: 'Dataset short name is missing',
         detail: 'No short name was provided. Please add a name in the *`dataset_short_name`* field in the *`dataset_meta_data`* worksheet.',
       });
-    } else if (shortNameConflict) {
+    } else if (newShortNameConflict) {
       errors.push({
         title: 'Dataset short name is unavailable',
         detail: messages.shortNameIsTaken(shortName),
       });
+    } else if (shortNameUpdateConflict) {
+      errors.push ({
+        title: 'Unable to update short name',
+        detail: `The short name provided, *\`${shortName}\`*, is alread in use by another dataset submission`,
+      })
     }
 
     if (nameCheckErrors.includes ('No long name provided')) {
@@ -428,10 +444,15 @@ export default (args, checkNameResult, submissionType) => {
         title: 'Dataset long name is missing',
         detail: 'No long name was provided. Please add a name in the *`dataset_long_name`* field in the *`dataset_meta_data`* worksheet.',
       });
-    } else if (checkNameResult.longNameIsAlreadyInUse) {
+    } else if (newLongNameConflict) {
       errors.push({
         title: 'Dataset long name is unavailable',
         detail: messages.longNameIsTaken(longName),
+      })
+    } else if (longNameUpdateConflict) {
+      errors.push ({
+        title: 'Unable to update long name',
+        detail: `The long name provided, *\`${longName}\`*, is alread in use by another dataset submission`,
       })
     }
   }

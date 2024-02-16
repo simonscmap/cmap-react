@@ -12,9 +12,6 @@ import {
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import states from '../../../enums/asyncRequestStates';
 
-// fns
-import { safePath } from '../../../Utility/objectUtils';
-
 // action creators
 import {
   retrieveDataSubmissionsByUser,
@@ -126,9 +123,11 @@ const TypeChooser = (props) => {
 
   const handleSetId = (e) => {
     const id = e.target.value;
-    console.log (`setting submission id`, e.target.value);
-    setSubId (id);
-    dispatch (snackbarOpen (`Selected submission ${id}`));
+    if (id !== subId) {
+      console.log (`setting submission id`, e.target.value);
+      setSubId (id);
+      dispatch (snackbarOpen (`Selected submission ${id}`));
+    }
   }
 
   const handleSetType = (e) => {
@@ -164,7 +163,6 @@ const TypeChooser = (props) => {
            <div className={cl.selectWrapper}>
              <Typography variant={"body1"}>Pick Submission to Update:</Typography>
              <FormControl variant="filled" className={cl.selectFormControl}>
-               {/* default to empty string to match the placeholder option value */}
                <Select
                  value={subId || ''}
                  onChange={handleSetId}

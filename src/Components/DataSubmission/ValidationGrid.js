@@ -20,29 +20,28 @@ const ValidationGrid = (props) => {
 
   return (
     <div id="dataSubmission">
-    <div className={cl.gridContainer + ' ag-theme-material' }>
-    <AgGridReact
-    singleClickEdit={true}
-    // onModelUpdated={this.props.onModelUpdated}
-    columnDefs={columns}
-    defaultColDef={defaultColumnDef}
-    rowData={rowData}
-    onGridReady={props.onGridReady}
-    // onGridSizeChanged={this.props.onGridSizeChanged}
-    suppressDragLeaveHidesColumns={true}
-    suppressMovableColumns={false}
-    enableCellTextSelection={true}
-    suppressContextMenu={false}
-    onCellValueChanged={props.handleCellValueChanged}
-    context={gridContext}
-    // onGridSizeChanged={this.props.handleGridSizeChanged}
-    frameworkComponents={{
-      DSCellEditor,
-      DSCellEditorSelect,
-      DSCellEditorTextArea,
-    }}
-    />
-    </div>
+      <div className={cl.gridContainer + ' ag-theme-material' }>
+        <AgGridReact
+          singleClickEdit={true}
+          // onModelUpdated={this.props.onModelUpdated}
+          columnDefs={columns}
+          defaultColDef={defaultColumnDef}
+          rowData={rowData}
+          onGridReady={props.onGridReady}
+          // onGridSizeChanged={this.props.onGridSizeChanged}
+          suppressDragLeaveHidesColumns={true}
+          suppressMovableColumns={false}
+          enableCellTextSelection={true}
+          suppressContextMenu={false}
+          onCellValueChanged={props.handleCellValueChanged}
+          context={gridContext}
+          frameworkComponents={{
+            DSCellEditor,
+            DSCellEditorSelect,
+            DSCellEditorTextArea,
+          }}
+        />
+      </div>
     </div>
   );
 }

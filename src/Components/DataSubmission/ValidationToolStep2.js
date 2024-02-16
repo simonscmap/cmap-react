@@ -264,14 +264,13 @@ const Step2 = (props) => {
     const path = [sheetName, row, colId];
     const shouldReStyle = safePath (path) (auditReport);
     if (shouldReStyle) {
-      cellStyle.boxShadow = 'inset 0 0 2px 2px rgba(255, 0, 0, .5)';
+      cellStyle.boxShadow = 'inset 0 0 2px 2px rgba(255, 0, 0, 1)';
     }
 
     return cellStyle;
   };
 
   const tooltipValueGetter = (args) => {
-    console.log ('TOOLTIP VALUE GETTER');
     const { rowIndex, column, context } = args;
     if (rowIndex && column && column.colId) {
       const errorForCell = safePath ([context.sheet, rowIndex, column.colId]) (auditReport);
