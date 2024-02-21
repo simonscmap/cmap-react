@@ -1,26 +1,21 @@
 // Choose Submission Type
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   FormControl,
   FormControlLabel,
   Radio,
   RadioGroup,
-  Select,
   Typography,
 } from '@material-ui/core';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
-import states from '../../../enums/asyncRequestStates';
 
 // action creators
 import {
-  retrieveDataSubmissionsByUser,
-  setSubmissionId,
   setSubmissionType
 } from '../../../Redux/actions/dataSubmission';
-import { snackbarOpen } from '../../../Redux/actions/ui';
+import SubmissionSelect from './SubmissionSelect';
 
-const subIsNotComplete = (sub) => sub && sub.phaseId !== 6;
 
 const useStyles = makeStyles ((theme) => ({
   typeChooserWrapper: {
@@ -44,7 +39,7 @@ const useStyles = makeStyles ((theme) => ({
     flexDirection: 'column',
     padding: '.25em 1em',
     gap: '1em',
-    width: '300px',
+    // width: '300px',
     '& > p': {
       margin: 0,
     },
@@ -83,61 +78,19 @@ const useStyles = makeStyles ((theme) => ({
 // Reacts To --
 // • whether user has active submissions
 
-const TypeChooser = (props) => {
+const TypeChooser = () => {
   const cl = useStyles ();
 
   // pull in global state
-  const subId = useSelector ((state) => state.submissionToUpdate);
   const subType = useSelector ((state) => state.submissionType);
 
-  const user = useSelector ((state) => state.user);
-
-  const submsInProgress = useSelector((state) =>
-    (state.dataSubmissions || [])
-      .filter (subIsNotComplete));
-
-  const userDataSubsRequestState = useSelector((state) =>
-    (state.retrieveUserDataSubmsissionsRequestStatus));
-
   // handlers
-
-  const setSubType = (t) => dispatch (setSubmissionType (t));
-  const setSubId = (id) => dispatch (setSubmissionId (id));
-
-  // make request for user subs, if not already in flight
   const dispatch = useDispatch();
-  useEffect(() => {
-    // if request to get data subsmissions for user has not already been dispatched, do so
-    if (user && userDataSubsRequestState === states.notTried) {
-      dispatch (retrieveDataSubmissionsByUser());
-    }
-  }, [user]);
-
-  // set default submission to first in array
-  useEffect(() => {
-    if (subId === null && submsInProgress.length > 0) {
-      // set default
-      setSubId (submsInProgress[0].Submission_ID);
-    }
-  }, [submsInProgress, subId]);
-
-  const handleSetId = (e) => {
-    const id = e.target.value;
-    if (id !== subId) {
-      console.log (`setting submission id`, e.target.value);
-      setSubId (id);
-      dispatch (snackbarOpen (`Selected submission ${id}`));
-    }
-  }
+  const setSubType = (t) => dispatch (setSubmissionType (t));
 
   const handleSetType = (e) => {
     const t = e.target.value;
     setSubType (t);
-  }
-
-  // don't render if no updates to choose from
-  if (userDataSubsRequestState === states.succeeded && submsInProgress.length === 0) {
-    return '';
   }
 
   return (
@@ -162,30 +115,8 @@ const TypeChooser = (props) => {
           {(subType === "update") &&
            <div className={cl.selectWrapper}>
              <Typography variant={"body1"}>Pick Submission to Update:</Typography>
-             <FormControl variant="filled" className={cl.selectFormControl}>
-               <Select
-                 value={subId || ''}
-                 onChange={handleSetId}
-                 className={cl.selectMenu}
-                 MenuProps={{
-                   classes: {
-
-                   }
-                 }}
-               >
-                 {submsInProgress.map ((sub, i) => {
-                   return (
-                     <option
-                       value={sub.Submission_ID}
-                       key={`select-option-${i}`}
-                     >
-                       {`${sub.Dataset} (id: ${sub.Submission_ID})`}
-                     </option>
-                   );
-                 })}
-               </Select>
-             </FormControl>
-           </div>
+             <SubmissionSelect />
+            </div>
           }
         </div>
 

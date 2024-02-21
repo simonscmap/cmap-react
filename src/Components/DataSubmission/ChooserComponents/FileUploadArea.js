@@ -57,8 +57,18 @@ const FileUploadArea = (props) => {
   const dispatch = useDispatch();
   const cl = useStyles ();
 
-  const subId = useSelector ((state) => state.submissionToUpdate);
   const subType = useSelector ((state) => state.submissionType);
+  const subNameToUpdate = useSelector ((state) => {
+    if (state.submissionType === 'update' && state.submissionToUpdate) {
+      const s = state.dataSubmissions
+                     .find ((sub) => sub.Submission_ID === state.submissionToUpdate);
+      if (s) {
+        return s.Dataset_Long_Name;
+      } else {
+        return null;
+      }
+    }
+  });
 
   const selectFile = (file) => {
     dispatch (setLoadingMessage ('Reading Workbook'));
@@ -96,7 +106,7 @@ const FileUploadArea = (props) => {
       <Typography variant="body2" className={cl.uploadInstruction}>
         To {subType === "new"
              ? ` start a new submission `
-             : ` to update submission #${subId}`
+             : ` update submission "${subNameToUpdate || '...'}"`
         }
       </Typography>
       <div className={cl.rowOne}>

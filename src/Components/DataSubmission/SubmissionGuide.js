@@ -21,7 +21,7 @@ import {
 import DSGuideItem from './DSGuideItem';
 
 import colors from '../../enums/colors';
-import dsGuideItems from '../../Utility/DataSubmission/dsGuideItems';
+import dsGuideItems from './Helpers/dsGuideItems';
 
 const doiProviderList = [
   { link: 'https://zenodo.org/', name: 'Zenodo' },

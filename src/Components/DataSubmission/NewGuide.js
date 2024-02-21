@@ -13,7 +13,7 @@ import {
 import { withStyles } from '@material-ui/core/styles';
 import React from 'react';
 import colors from '../../enums/colors';
-import dsGuideItems from '../../Utility/DataSubmission/dsGuideItems';
+import dsGuideItems from './Helpers/dsGuideItems';
 import Page from '../Common/Page';
 import DSGuideItem from './DSGuideItem';
 import Section, { FullWidthContainer } from '../Common/Section';

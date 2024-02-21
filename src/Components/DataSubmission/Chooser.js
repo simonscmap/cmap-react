@@ -51,10 +51,6 @@ const Chooser = (props) => {
 
   const user = useSelector ((state) => state.user);
 
-  const submsInProgress = useSelector((state) =>
-    (state.dataSubmissions || [])
-      .filter (subIsNotComplete));
-
   const userDataSubsRequestState = useSelector((state) =>
     (state.retrieveUserDataSubmsissionsRequestStatus));
 

@@ -9,6 +9,7 @@ import { StepButton } from './ChooserComponents/Buttons';
 import { validationSteps } from './ValidationToolConstants';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import ErrorStatus from './ValidationToolErrorStatus';
+import Label from './ValidationHeaderLabel';
 
 const useStyles = makeStyles ((theme) => ({
   navigationWrapper: {
@@ -30,15 +31,19 @@ const useStyles = makeStyles ((theme) => ({
     // I'm here so that a my tooltip parent will render
     // https://stackoverflow.com/questions/57527896/material-ui-tooltip-doesnt-display-on-custom-component-despite-spreading-props
   },
-
   stepButton: {
     '&:disabled': {
       color: '#ffffff7d',
       border: `2px solid ${theme.palette.secondary.dark}`
     }
   },
+  rightSection: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: '4em',
+    justifyContent: 'center',
 
-
+  }
 }));
 
 const getStepLabel = (step) => {
@@ -76,7 +81,7 @@ const Navigation = (props) => {
   const { file, step, changeStep } = props;
 
   const auditReport = useSelector ((state) => state.auditReport);
-  const errorCount = auditReport && auditReport.errorCount;
+    const errorCount = auditReport && auditReport.errorCount;
   const errorSum = errorCount && errorCount.sum || 0;
   const workbookErrors = auditReport && auditReport.workbook.errors.length;
 
@@ -140,11 +145,14 @@ const Navigation = (props) => {
             </StepButton>
           </div>
         </Tooltip>
-    </div>
-    <ErrorStatus
-      step={step}
-      errorCount={errorCount}
-    />
+      </div>
+
+      <div className={cl.rightSection}>
+        <ErrorStatus
+          step={step}
+          errorCount={errorCount}
+        />
+      </div>
     </div>
   );
 };

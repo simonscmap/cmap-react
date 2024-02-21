@@ -30,11 +30,17 @@ let checkSheets = (workbook) => {
 };
 
 let checkVariableNameMismatches = (data, vars_meta_data, userVariables) => {
+  if (!vars_meta_data || !userVariables) {
+    return [];
+  }
   let shortNames = vars_meta_data.map((e) => e.var_short_name);
   return shortNames.filter((e) => !userVariables.has(e));
 };
 
 const checkMissingVarMetadataRows = (data, vars_meta_data, userVariables) => {
+  if (!vars_meta_data || !userVariables) {
+    return [];
+  }
   let shortNames = new Set(vars_meta_data.map((e) => e.var_short_name));
   return Array.from(userVariables).filter((e) => !shortNames.has(e));
 };
@@ -42,20 +48,24 @@ const checkMissingVarMetadataRows = (data, vars_meta_data, userVariables) => {
 let checkEmptyColumns = (data, userVariables) => {
   let emptyColumns = [];
 
-  userVariables.forEach((header) => {
-    for (let i = 0; i < data.length; i++) {
-      if (data[i][header] || data[i][header] === 0) {
-        return;
+  if (userVariables) {
+    userVariables.forEach((header) => {
+      for (let i = 0; i < data.length; i++) {
+        if (data[i][header] || data[i][header] === 0) {
+          return;
+        }
       }
-    }
-
-    emptyColumns.push(header);
-  });
+      emptyColumns.push(header);
+    });
+  }
 
   return emptyColumns;
 };
 
 let checkMissingCruiseNames = (dataset_meta_data, vars_meta_data) => {
+  if (!vars_meta_data || !dataset_meta_data) {
+    return false;
+  }
   let hasInSitu = vars_meta_data.some(
     (e) => e.var_sensor && e.var_sensor.toLowerCase() == 'in-situ',
   );
@@ -340,7 +350,7 @@ let is1904Format = (workbook) => {
   return Boolean(((workbook.Workbook || {}).WBProps || {}).date1904);
 }
 
-const checkDateFormat = (data, workbook, numericDateFormatConverted) => {
+const checkDateFormat = (data, workbook, numericDateFormatConverted, dateTimeFormatConverted) => {
   if (!data || !Array.isArray(data) || data[0].time === undefined) {
     return {
       error: 'Missing value(s) in time column.'
@@ -480,7 +490,7 @@ export default (args, checkNameResult, submissionType) => {
   }
 
   // other checks
-  const dateCheckResult = checkDateFormat (data, workbook, numericDateFormatConverted);
+  const dateCheckResult = checkDateFormat (data, workbook, numericDateFormatConverted, dateTimeFormatConverted);
 
   if (dateCheckResult) {
     if (dateCheckResult.error) {

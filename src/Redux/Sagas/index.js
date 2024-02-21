@@ -485,8 +485,9 @@ function* copyTextToClipboard(action) {
 }
 
 function* retrieveSubmissionsByUser() {
+  const msg = 'Fetching submission information';
   yield put(
-    interfaceActions.setLoadingMessage('Fetching submission information'),
+    interfaceActions.setLoadingMessage(msg),
   );
   let response = yield call(api.dataSubmission.retrieveSubmissionByUser);
   if (response.ok) {
@@ -497,7 +498,15 @@ function* retrieveSubmissionsByUser() {
   } else {
     yield put(interfaceActions.snackbarOpen('Unable to retrieve submissions'));
   }
-  yield put(interfaceActions.setLoadingMessage(''));
+  console.log ('retrieveSubmissionsByUser: remove loading message');
+  let currentMessage = yield select(
+    (state) => state.loadingMessage,
+  );
+  // don't clear other messages that may have been displayed in the meantime
+  if (currentMessage === msg) {
+    console.log ('current message can be cleared', currentMessage, msg)
+    yield put(interfaceActions.setLoadingMessage(''));
+  }
 }
 
 function* retrieveAllSubmissions() {

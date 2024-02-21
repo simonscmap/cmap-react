@@ -5,7 +5,7 @@ import React from 'react';
 import { withStyles, Tooltip } from '@material-ui/core';
 import { Help } from '@material-ui/icons';
 
-import dsGuideItems from '../../Utility/DataSubmission/dsGuideItems';
+import dsGuideItems from './Helpers/dsGuideItems';
 
 const sheetToReference = {
   data: 'dataItems',

@@ -1,4 +1,4 @@
-import workbookAudits from '../../../Utility/DataSubmission/workbookAudits';
+import workbookAudits from '../../../Components/DataSubmission/Helpers/workbookAudits';
 import createTestWorkbook from '../../TestUtils/createTestWorkbook';
 
 describe('Workbook level validations correctly identify errors', () => {

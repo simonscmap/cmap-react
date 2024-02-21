@@ -359,8 +359,10 @@ class ValidationTool extends React.Component {
     }
 
     reader.onload = (progressEvent) => {
-      console.log ('onload: begin parsing file');
-      this.props.setLoadingMessage(`Parsing file (${formatBytes(totalBytes)})`);
+      const size = formatBytes(totalBytes);
+      console.log ('onload: begin parsing file', size);
+      this.props.setLoadingMessage(`Parsing file (${size})`);
+
       var readFile = new Uint8Array(progressEvent.target.result);
       var workbook = XLSX.read(readFile, { type: 'array' });
       let _data = XLSX.utils.sheet_to_json(workbook.Sheets['data'], {
@@ -402,6 +404,12 @@ class ValidationTool extends React.Component {
         ? formatVariableMetadataSheet(_vars_meta_data)
         : _vars_meta_data;
 
+      if (!vars_meta_data || !dataset_meta_data || !data) {
+        this.props.snackbarOpen('Error parsing file: missing worksheets.');
+        this.props.setLoadingMessage('');
+        return;
+      }
+
       // dispatch check name
       const shortName = dataset_meta_data[0].dataset_short_name;
       const longName = dataset_meta_data[0].dataset_long_name;
@@ -416,7 +424,10 @@ class ValidationTool extends React.Component {
         vars_meta_data,
         numericDateFormatConverted,
         dateTimeFormatConverted,
-      }, () => this.props.setLoadingMessage(''),
+      }, () => {
+        console.log ('cleanup');
+        this.props.setLoadingMessage('');
+      }
       );
 
       // run report

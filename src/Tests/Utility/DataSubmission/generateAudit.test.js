@@ -1,4 +1,4 @@
-import generateAudits from '../../../Utility/DataSubmission/generateAudits';
+import generateAudits from '../../../Components/DataSubmission/Helpers/generateAudits';
 
 var validations = generateAudits({
   Make: [],
