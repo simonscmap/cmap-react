@@ -19,6 +19,7 @@ import DSCustomGridHeader from './DSCustomGridHeader';
 
 import ValidationGridColumns from './ValidationGridColumns';
 import { textAreaLookup } from './ValidationToolConstants';
+import { auditKeyToLabel } from './ValidationToolConstants';
 
 const useStyles = makeStyles ((theme) => ({
   wrapper: {
@@ -167,7 +168,10 @@ const goToNextError = (data, gridApi, sheet, auditReport, setMessage) => {
   const lookupErrorMessage = ({ row, col }) => {
     const auditErrorText = safePath ([sheet, row, col]) (auditReport)
     if (auditErrorText && setMessage) {
-      setMessage(auditErrorText);
+      const msg = Array.isArray (auditErrorText)
+                ? auditErrorText.join ('. ')
+                : auditErrorText;
+      setMessage(msg);
     }
   }
 
@@ -182,7 +186,6 @@ const goToNextError = (data, gridApi, sheet, auditReport, setMessage) => {
   const thereAreErrorsOnCurrentSheet = allErrorsBySheet[sheet].length > 0;
 
   if (thereAreErrorsOnCurrentSheet) {
-    console.log ('current errors',allErrorsBySheet[sheet]);
     const positionOfLastError = allErrorsBySheet[sheet].findIndex ((err) =>
       err.row === lastFocusedRow && err.col === lastFocusedColKey);
     if (positionOfLastError) {
@@ -219,12 +222,6 @@ const Step2 = (props) => {
     onGridReady
   } = props;
 
-  // TODO
-  // 1. move Tool state for tabs into this component
-  // 2. move find next error into this component
-  // 3. move grid methods into this component
-  // 4. move getSheet into this component
-
   const auditReport = useSelector((state) => state.auditReport);
   const errorCount = auditReport && auditReport.errorCount;
 
@@ -235,6 +232,7 @@ const Step2 = (props) => {
   let [tab, setTab] = useState(0);
 
   const sheet = getSheet(tab);
+  const currentSheetLabel = auditKeyToLabel[sheet];
 
   const handleClickTab = (ev, newVal) => {
     setTab (newVal);
@@ -281,6 +279,11 @@ const Step2 = (props) => {
     return null;
   }
 
+  const onCellFocused = (ev) => {
+    console.log (ev);
+    setMessage();
+  }
+
   const defaultColumnDef = {
     menuTabs: [],
     resizable: true,
@@ -298,14 +301,15 @@ const Step2 = (props) => {
 
   return (
     <div className={cl.wrapper}>
-      <Typography variant={"h5"}>Data Sheet Validation</Typography>
+    <Typography variant={"h5"}>Data Sheet Validation</Typography>
+     { errorCount[sheet] ?
       <Button
         variant="contained"
         color="primary"
         onClick={handleFindNext}
       >
-        Go To Next Error
-      </Button>
+        Go To Next Error on {currentSheetLabel}
+      </Button> : ''}
       <Typography variant={"body1"}>{ message }</Typography>
 
       <Paper elevation={2} className={cl.paper}>
@@ -367,6 +371,7 @@ const Step2 = (props) => {
           handleCellValueChanged={handleCellValueChanged}
           handleGridSizeChanged={handleGridSizeChanged}
           columns={getColumns(sheet, fileData[sheet])}
+          onCellFocused={onCellFocused}
           gridContext={{
             sheet,
             getAuditReport: () => auditReport,

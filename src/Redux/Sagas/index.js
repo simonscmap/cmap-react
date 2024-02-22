@@ -741,7 +741,7 @@ function* uploadSubmission(action) {
       commitSucceeded = true;
     } else {
       commitRetries++;
-      yield delay(2000);
+      yield delay(9000);
     }
   }
 

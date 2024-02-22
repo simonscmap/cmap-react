@@ -431,37 +431,37 @@ export default (args, checkNameResult, submissionType) => {
     const newShortNameConflict = (shortNameIsAlreadyInUse || folderExists) && submissionType === 'new';
     const newLongNameConflict =  longNameIsAlreadyInUse && submissionType === 'new';
 
-    if (nameCheckErrors.includes ('No short name provided')) {
+    if (nameCheckErrors.includes('No short name provided')) {
       errors.push({
         title: 'Dataset short name is missing',
         detail: 'No short name was provided. Please add a name in the *`dataset_short_name`* field in the *`dataset_meta_data`* worksheet.',
       });
+    } else if (shortNameUpdateConflict) {
+      errors.push({
+        title: 'Unable to update short name',
+        detail: `The short name provided, *\`${shortName}\`*, is alread in use by another dataset submission`,
+      })
     } else if (newShortNameConflict) {
       errors.push({
         title: 'Dataset short name is unavailable',
         detail: messages.shortNameIsTaken(shortName),
       });
-    } else if (shortNameUpdateConflict) {
-      errors.push ({
-        title: 'Unable to update short name',
-        detail: `The short name provided, *\`${shortName}\`*, is alread in use by another dataset submission`,
-      })
     }
 
-    if (nameCheckErrors.includes ('No long name provided')) {
+    if (nameCheckErrors.includes('No long name provided')) {
       errors.push({
         title: 'Dataset long name is missing',
         detail: 'No long name was provided. Please add a name in the *`dataset_long_name`* field in the *`dataset_meta_data`* worksheet.',
       });
+    } else if (longNameUpdateConflict) {
+      errors.push({
+        title: 'Unable to update long name',
+        detail: `The long name provided, *\`${longName}\`*, is alread in use by another dataset submission`,
+      })
     } else if (newLongNameConflict) {
       errors.push({
         title: 'Dataset long name is unavailable',
         detail: messages.longNameIsTaken(longName),
-      })
-    } else if (longNameUpdateConflict) {
-      errors.push ({
-        title: 'Unable to update long name',
-        detail: `The long name provided, *\`${longName}\`*, is alread in use by another dataset submission`,
       })
     }
   }

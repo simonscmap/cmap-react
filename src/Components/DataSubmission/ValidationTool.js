@@ -72,6 +72,8 @@ const mapStateToProps = (state, ownProps) => ({
   submissionType: state.submissionType,
   submissionToUpdate: state.submissionToUpdate,
   auditReport: state.auditReport,
+  retrieveUserDataSubmsissionsRequestStatus: state.retrieveUserDataSubmsissionsRequestStatus,
+  checkSubmissionNameRequestStatus: state.checkSubmissionNameRequestStatus
 });
 
 const mapDispatchToProps = {
@@ -764,11 +766,12 @@ class ValidationTool extends React.Component {
                 ) : (
                   <React.Fragment>
                     { noErrors ? (<Typography>
-                      You've completed dataset validation! Click the button
-                      below to upload your workbook.
-                    </Typography>
-                    ) : (<Typography>There are still validation errors in previous steps. Please address these errors before submitting the dataset.</Typography>
-                    ) }
+                      You've completed dataset validation! Click the button below to upload your workbook.
+                                                                                     </Typography>)
+                    : (<Typography>
+                      There are still validation errors in previous steps. Please address these errors before submitting the dataset.
+                                                                         </Typography>)}
+
                     <Button
                       variant="contained"
                       color="primary"

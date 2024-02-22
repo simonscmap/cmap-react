@@ -15,7 +15,7 @@ const useStyles = makeStyles ((theme) => ({
 }));
 
 const ValidationGrid = (props) => {
-  const { gridContext, columns, rowData, defaultColumnDef } = props;
+  const { gridContext, columns, rowData, defaultColumnDef, onCellFocused } = props;
   const cl = useStyles();
 
   return (
@@ -35,6 +35,7 @@ const ValidationGrid = (props) => {
           suppressContextMenu={false}
           onCellValueChanged={props.handleCellValueChanged}
           context={gridContext}
+          onCellFocused={onCellFocused}
           frameworkComponents={{
             DSCellEditor,
             DSCellEditorSelect,
