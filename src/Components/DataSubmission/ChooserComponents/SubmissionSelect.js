@@ -54,7 +54,6 @@ const useTableStyles = makeStyles({
 
 function Row(props) {
   const { submission, selectedValue, handleSelect } = props;
-  const [open, setOpen] = React.useState(false);
   const classes = useRowStyles();
 
   const lastUpdatedDate =  submission.QC1_Completion_Date_Time
@@ -69,11 +68,6 @@ function Row(props) {
     <React.Fragment>
       <TableRow className={classes.root}>
         <TableCell padding="checkbox">
-          <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
-            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-          </IconButton>
-        </TableCell>
-        <TableCell padding="checkbox">
           <Radio
             checked={selectedValue && selectedValue === submission.Submission_ID}
             onChange={handleSelect}
@@ -87,18 +81,6 @@ function Row(props) {
         <TableCell>{submission.Phase}</TableCell>
         <TableCell>{submission.Start_Date_Time}</TableCell>
         <TableCell>{lastUpdatedDate}</TableCell>
-      </TableRow>
-      <TableRow>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-          <Collapse in={open} timeout="auto" unmountOnExit>
-            <Box margin={1}>
-              <Typography variant="h6" gutterBottom component="div">
-                Description
-              </Typography>
-              <Typography variant="body1">{submission.description}</Typography>
-            </Box>
-          </Collapse>
-        </TableCell>
       </TableRow>
     </React.Fragment>
   );
@@ -171,7 +153,6 @@ const SubmissionSelect = () => {
       <Table aria-label="collapsible table" stickyHeader className={cl.root}>
         <TableHead>
           <TableRow>
-            <TableCell />
             <TableCell />
             <TableCell>File Name</TableCell>
             <TableCell>Long Name</TableCell>

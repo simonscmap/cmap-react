@@ -233,7 +233,7 @@ class ValidationTool extends React.Component {
         validationStep,
       });
     }
-    this.props.setLoadingMessage('');
+    this.props.setLoadingMessage('', { tag: 'ValidationTool#performAudit'});
   };
 
   handleResetState = () => {
@@ -343,7 +343,7 @@ class ValidationTool extends React.Component {
     var reader = new FileReader();
     if (file.size > 150000000) {
       this.setState({ ...this.state, ...fileSizeTooLargeDummyState }, () =>
-        this.props.setLoadingMessage(''),
+        this.props.setLoadingMessage('', { tag: 'ValidationTool#handleReadFile'}),
       );
       return;
     }
@@ -363,7 +363,7 @@ class ValidationTool extends React.Component {
     reader.onload = (progressEvent) => {
       const size = formatBytes(totalBytes);
       console.log ('onload: begin parsing file', size);
-      this.props.setLoadingMessage(`Parsing file (${size})`);
+      this.props.setLoadingMessage(`Parsing file (${size})`, { tag: 'ValidationTool#reader.onload' });
 
       var readFile = new Uint8Array(progressEvent.target.result);
       var workbook = XLSX.read(readFile, { type: 'array' });
@@ -377,7 +377,7 @@ class ValidationTool extends React.Component {
       } catch (e) {
         console.log ('error loading file', e);
         this.props.snackbarOpen('Error parsing file.');
-        this.props.setLoadingMessage('');
+        this.props.setLoadingMessage('', { tag: 'ValidationTool#reader.onload' });
         return;
       }
       let {
@@ -408,7 +408,7 @@ class ValidationTool extends React.Component {
 
       if (!vars_meta_data || !dataset_meta_data || !data) {
         this.props.snackbarOpen('Error parsing file: missing worksheets.');
-        this.props.setLoadingMessage('');
+        this.props.setLoadingMessage('', { tag: 'ValidationTool#reader.onload' });
         return;
       }
 
@@ -428,7 +428,7 @@ class ValidationTool extends React.Component {
         dateTimeFormatConverted,
       }, () => {
         console.log ('cleanup');
-        this.props.setLoadingMessage('');
+        this.props.setLoadingMessage('', { tag: 'ValidationTool#reader.onload' });
       }
       );
 
@@ -497,9 +497,10 @@ class ValidationTool extends React.Component {
   };
 
   handleDownload = () => {
-    this.props.setLoadingMessage('Downloading');
+    const tag = { tag: 'ValidationTool#handleDownload' };
+    this.props.setLoadingMessage('Downloading', tag);
     setTimeout(() => {
-      window.requestAnimationFrame(() => this.props.setLoadingMessage(''));
+      window.requestAnimationFrame(() => this.props.setLoadingMessage('', tag));
     }, 50);
     let workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(
@@ -591,7 +592,7 @@ class ValidationTool extends React.Component {
       this.performAudit();
     }
 
-    this.props.setLoadingMessage('');
+    // this.props.setLoadingMessage('', { tag: 'ValidationTool#componentDidUpdate'});
 
     // 4. should re-dispatch name check
     // if subId has been changed and there is already a file

@@ -109,7 +109,9 @@ function* updateLoadingMessage () {
   yield delay (1000 * 15); // 15 seconds
   let loadingMessage = yield select((state) => state.loadingMessage);
   if (loadingMessage === 'Fetching Data') {
-    yield put(interfaceActions.setLoadingMessage('Fetching Data... Large queries may take a long time to complete.'));
+    const msg = 'Fetching Data... Large queries may take a long time to complete.';
+    const meta = { tag: 'updateLoadingMessage'} ;
+    yield put(interfaceActions.setLoadingMessage(msg, meta));
   }
 }
 
@@ -122,7 +124,9 @@ function* queryRequest(action) {
 
 function* storedProcedureRequest(action) {
   yield put(visualizationActions.storedProcedureRequestProcessing());
-  yield put(interfaceActions.setLoadingMessage('Fetching Data'));
+  const msg = 'Fetching Data';
+  const meta = { tag: 'storedProcedureRequest' };
+  yield put(interfaceActions.setLoadingMessage(msg, meta));
 
   let result;
   try {
@@ -131,18 +135,18 @@ function* storedProcedureRequest(action) {
       action.payload,
     );
   } catch (e) {
-    yield put(interfaceActions.setLoadingMessage(''));
+    yield put(interfaceActions.setLoadingMessage('', meta));
     yield put(interfaceActions.snackbarOpen('Error processing data'));
     return;
   }
 
   yield delay(50);
-  yield put(interfaceActions.setLoadingMessage('Processing Data'));
+  yield put(interfaceActions.setLoadingMessage('Processing Data', meta));
   yield delay(70);
 
   // Result will be an object containing variable values and describing date shape
   if (result.failed) {
-    yield put(interfaceActions.setLoadingMessage(''));
+    yield put(interfaceActions.setLoadingMessage('', meta));
     yield put(visualizationActions.storedProcedureRequestFailure());
     if (result.status === 401) {
       yield put(userActions.refreshLogin());
@@ -157,7 +161,7 @@ function* storedProcedureRequest(action) {
     if (result.variableValues.length > 0) {
       result.finalize();
       yield put(visualizationActions.handleGuestVisualization());
-      yield put(interfaceActions.setLoadingMessage(''));
+      yield put(interfaceActions.setLoadingMessage('', meta));
       yield put(visualizationActions.storedProcedureRequestSuccess());
       yield put(visualizationActions.triggerShowCharts());
       yield put(
@@ -168,7 +172,7 @@ function* storedProcedureRequest(action) {
       );
       window.scrollTo(0, 0);
     } else {
-      yield put(interfaceActions.setLoadingMessage(''));
+      yield put(interfaceActions.setLoadingMessage('', meta));
       yield put(
         interfaceActions.snackbarOpen(
           `No data found for ${action.payload.parameters.fields} in the requested ranges. Try selecting a different date or depth range.`,
@@ -179,23 +183,24 @@ function* storedProcedureRequest(action) {
 }
 
 function* cruiseTrajectoryRequest(action) {
+  const tag = { tag: 'cruiseTrajectoryRequest' };
   yield put(visualizationActions.cruiseTrajectoryRequestProcessing());
-  yield put(interfaceActions.setLoadingMessage('Fetching Cruise Data'));
+  yield put(interfaceActions.setLoadingMessage('Fetching Cruise Data', tag));
   let result = yield call(
     api.visualization.cruiseTrajectoryRequest,
     action.payload,
   );
-  yield put(interfaceActions.setLoadingMessage(''));
+  yield put(interfaceActions.setLoadingMessage('', tag));
 
   if (result.failed) {
     if (result.status === 401) {
       yield put(userActions.refreshLogin());
     } else {
-      yield put(interfaceActions.snackbarOpen(`Unable to Fetch Cruise Data`));
+      yield put(interfaceActions.snackbarOpen(`Unable to Fetch Cruise Data`, tag));
     }
   } else {
     yield put(visualizationActions.cruiseTrajectoryRequestSuccess(result));
-    yield put(interfaceActions.setLoadingMessage(''));
+    yield put(interfaceActions.setLoadingMessage('', tag));
   }
 }
 
@@ -215,20 +220,21 @@ function* cruiseListRequest() {
 }
 
 function* tableStatsRequest(action) {
+  const tag = { tag: 'tableStatsRequest' };
   yield put(visualizationActions.tableStatsRequestProcessing());
-  yield put(interfaceActions.setLoadingMessage('Fetching Dataset Information'));
+  yield put(interfaceActions.setLoadingMessage('Fetching Dataset Information', tag));
   let result = yield call(
     api.visualization.getTableStats,
     action.payload.tableName,
   );
-  yield put(interfaceActions.setLoadingMessage(''));
+  yield put(interfaceActions.setLoadingMessage('', tag));
 
   if (result.failed) {
     if (result.status === 401) {
       yield put(userActions.refreshLogin());
     } else {
       yield put(
-        interfaceActions.snackbarOpen(`Unable to Fetch Dataset Information`),
+        interfaceActions.snackbarOpen(`Unable to Fetch Dataset Information`, tag),
       );
     }
   } else {
@@ -242,15 +248,16 @@ function* tableStatsRequest(action) {
 }
 
 function* csvDownloadRequest(action) {
+  const tag = { tag: 'csvDownloadRequest' };
   yield put(visualizationActions.csvDownloadRequestProcessing());
-  yield put(interfaceActions.setLoadingMessage('Fetching Data'));
+  yield put(interfaceActions.setLoadingMessage('Fetching Data', tag));
 
   let dataResponse = yield call(
     api.visualization.csvDownload,
     action.payload.query,
   );
 
-  yield put(interfaceActions.setLoadingMessage(''));
+  yield put(interfaceActions.setLoadingMessage('', tag));
 
   if (dataResponse.failed) {
     // if unauthorized
@@ -258,7 +265,7 @@ function* csvDownloadRequest(action) {
       yield put(userActions.refreshLogin());
     } else {
       yield put(
-        interfaceActions.snackbarOpen('An error occurred. Please try again.'),
+        interfaceActions.snackbarOpen('An error occurred. Please try again.', tag),
       );
     }
   } else {
@@ -270,23 +277,20 @@ function* csvDownloadRequest(action) {
         ),
       );
     } else {
-      yield put(
-        interfaceActions.snackbarOpen(
-          'No data found. Please expand query range.',
-        ),
-      );
+      yield put(interfaceActions.snackbarOpen('No data found. Please expand query range.', tag));
     }
   }
 }
 
 function* csvFromVizRequest(action) {
-  yield put(interfaceActions.setLoadingMessage('Processing Data'));
+  const tag = { tag: 'csvFromVizRequest' };
+  yield put(interfaceActions.setLoadingMessage('Processing Data', tag));
   const csvData = yield action.payload.vizObject.generateCsv();
   let dataWB = XLSX.read(csvData, { type: 'string' });
   let { payload } = action;
   let { tableName, shortName } = payload;
 
-  yield put(interfaceActions.setLoadingMessage('Fetching metadata'));
+  yield put(interfaceActions.setLoadingMessage('Fetching metadata', tag));
 
   const metadataQuery = `exec uspVariableMetadata '${tableName}', '${shortName}'`;
 
@@ -297,9 +301,9 @@ function* csvFromVizRequest(action) {
 
   if (typeof metadataResponse !== 'string') {
     console.error ('error in csvFromVizRequest; expected stringified response', metadataResponse);
-    yield put(interfaceActions.setLoadingMessage(''));
+    yield put(interfaceActions.setLoadingMessage('', tag));
     yield put(
-      interfaceActions.snackbarOpen('Failed to download variable metadata'),
+      interfaceActions.snackbarOpen('Failed to download variable metadata', tag),
     );
   } else {
     let metadataWB = XLSX.read(metadataResponse, { type: 'string' });
@@ -311,11 +315,12 @@ function* csvFromVizRequest(action) {
       'Variable Metadata',
     );
     XLSX.writeFile(workbook, `${action.payload.longName}.xlsx`);
-    yield put(interfaceActions.setLoadingMessage(''));
+    yield put(interfaceActions.setLoadingMessage('', tag));
   }
 }
 
 function* downloadRequest(action) {
+  const tag = { tag: 'downloadRequest' };
   // from DATASET_DOWNLOAD_REQUEST_SEND
   // payload should include (1) subsetParam, (2) tableName, (3) shortName
   // TODO extract query-making out of Component
@@ -326,7 +331,7 @@ function* downloadRequest(action) {
   }
 
   yield put(catalogActions.datasetDownloadRequestProcessing());
-  yield put(interfaceActions.setLoadingMessage('Processing Request'));
+  yield put(interfaceActions.setLoadingMessage('Processing Request', tag));
 
   let {
     subsetParams,
@@ -339,7 +344,7 @@ function* downloadRequest(action) {
   let truncatedFileName = fileName.slice(0, 100);
 
   let query = makeDownloadQuery({ subsetParams, ancillaryData, tableName });
-  yield put(interfaceActions.setLoadingMessage('Fetching Data'));
+  yield put(interfaceActions.setLoadingMessage('Fetching Data', tag));
 
   try {
     log.info('requesting download', { ancillaryData, tableName, query });
@@ -347,16 +352,14 @@ function* downloadRequest(action) {
     makeZip(data, truncatedFileName, shortName);
   } catch (e) {
     console.log (e.message);
-    yield put(interfaceActions.setLoadingMessage(''));
+    yield put(interfaceActions.setLoadingMessage('', tag));
     if (e.message === 'UNAUTHORIZED') {
       yield put(userActions.refreshLogin());
     } else if (e.message === '400 TOO LARGE') {
-      yield put (interfaceActions.snackbarOpen ('Requested data exceeds size limits.'));
+      yield put (interfaceActions.snackbarOpen ('Requested data exceeds size limits.', tag));
     } else {
       yield put(
-        interfaceActions.snackbarOpen(
-          'There was an error requesting the dataset.',
-        ),
+        interfaceActions.snackbarOpen('There was an error requesting the dataset.', tag)
       );
     }
   }
@@ -370,25 +373,26 @@ function* refreshLogin() {
 }
 
 function* updateUserInfoRequest(action) {
-  yield put(interfaceActions.setLoadingMessage('Updating your information'));
+  const tag = { tag: 'updateUserInfoRequest' };
+  yield put(interfaceActions.setLoadingMessage('Updating your information', tag));
 
   let result = yield call(api.user.updateUserInfo, action.payload);
 
   if (result.failed) {
-    yield put(interfaceActions.setLoadingMessage(''));
+    yield put(interfaceActions.setLoadingMessage('', tag));
     if (result.status === 401) {
       yield put(userActions.refreshLogin());
     } else {
       yield put(
-        interfaceActions.snackbarOpen('An error occurred. Please try again.'),
+        interfaceActions.snackbarOpen('An error occurred. Please try again.', tag),
       );
     }
   } else {
     yield put(userActions.storeInfo(JSON.parse(Cookies.get('UserInfo'))));
-    yield put(interfaceActions.snackbarOpen('Your information was updated'));
+    yield put(interfaceActions.snackbarOpen('Your information was updated', tag));
   }
 
-  yield put(interfaceActions.setLoadingMessage(''));
+  yield put(interfaceActions.setLoadingMessage('', tag));
 }
 
 function* initializeGoogleAuth() {
@@ -423,55 +427,60 @@ function* choosePasswordRequest(action) {
 }
 
 function* changePasswordRequest(action) {
-  yield put(interfaceActions.setLoadingMessage('Confirming Changes'));
+  const tag = { tag: 'changePasswordRequest' };
+  yield put(interfaceActions.setLoadingMessage('Confirming Changes', tag));
   let result = yield call(api.user.changePassword, action.payload);
-  yield put(interfaceActions.setLoadingMessage(''));
+  yield put(interfaceActions.setLoadingMessage('', tag));
 
   if (result.ok) {
     yield put(interfaceActions.hideChangePasswordDialog());
-    yield put(interfaceActions.snackbarOpen('Your password has been updated.'));
+    yield put(interfaceActions.snackbarOpen('Your password has been updated.', tag));
   } else if (result.status === 401) {
     yield put(
       interfaceActions.snackbarOpen(
         'The current password you entered is not correct.',
+        tag
       ),
     );
   } else {
     yield put(
-      interfaceActions.snackbarOpen('An error occurred with your request.'),
+      interfaceActions.snackbarOpen('An error occurred with your request.', tag),
     );
   }
 }
 
 function* changeEmailRequest(action) {
-  yield put(interfaceActions.setLoadingMessage('Confirming Changes'));
+  const tag = { tag: 'changeEmailRequest' };
+  yield put(interfaceActions.setLoadingMessage('Confirming Changes', tag));
   let result = yield call(api.user.changeEmail, action.payload);
 
   if (result.ok) {
     yield put(userActions.storeInfo(JSON.parse(Cookies.get('UserInfo'))));
     yield put(interfaceActions.hideChangeEmailDialog());
     yield put(
-      interfaceActions.snackbarOpen('Your email address has been updated.'),
+      interfaceActions.snackbarOpen('Your email address has been updated.', tag),
     );
   } else if (result.status === 401) {
     yield put(
       interfaceActions.snackbarOpen(
         'The current password you entered is not correct.',
+        tag
       ),
     );
   } else if (result.status === 409) {
     yield put(
-      interfaceActions.snackbarOpen('That email address is already in use.'),
+      interfaceActions.snackbarOpen('That email address is already in use.', tag),
     );
   } else {
     yield put(
       interfaceActions.snackbarOpen(
         'We were not able to update your email address.',
+        tag
       ),
     );
   }
 
-  yield put(interfaceActions.setLoadingMessage(''));
+  yield put(interfaceActions.setLoadingMessage('', tag));
 }
 
 function* copyTextToClipboard(action) {
@@ -487,7 +496,7 @@ function* copyTextToClipboard(action) {
 function* retrieveSubmissionsByUser() {
   const msg = 'Fetching submission information';
   yield put(
-    interfaceActions.setLoadingMessage(msg),
+    interfaceActions.setLoadingMessage(msg, { tag: 'retrieveSubmissionsByUser' }),
   );
   let response = yield call(api.dataSubmission.retrieveSubmissionByUser);
   if (response.ok) {
@@ -503,26 +512,28 @@ function* retrieveSubmissionsByUser() {
     (state) => state.loadingMessage,
   );
   // don't clear other messages that may have been displayed in the meantime
+  console.log (`checking loading message "${currentMessage}" is "${msg}"`);
   if (currentMessage === msg) {
     console.log ('current message can be cleared', currentMessage, msg)
-    yield put(interfaceActions.setLoadingMessage(''));
+    yield put(interfaceActions.setLoadingMessage('', { tag: 'retrieveSubmissionsByUser' }));
   }
 }
 
 function* retrieveAllSubmissions() {
+  const tag = { tag: 'retrieveAllSubmissions' };
   let response = yield call(api.dataSubmission.retrieveAllSubmissions);
   if (response.ok) {
     let jsonResponse = yield response.json();
 
     if (jsonResponse.length < 1) {
-      yield put(interfaceActions.snackbarOpen('No submissions found'));
+      yield put(interfaceActions.snackbarOpen('No submissions found', tag));
     } else {
       yield put(dataSubmissionActions.storeSubmissions(jsonResponse));
     }
   } else if (response.status === 401) {
     yield put(userActions.refreshLogin());
   } else {
-    yield put(interfaceActions.snackbarOpen('Unable to retrieve submissions'));
+    yield put(interfaceActions.snackbarOpen('Unable to retrieve submissions', tag));
   }
 }
 
@@ -592,7 +603,8 @@ function* retrieveSubmissionCommentHistory(action) {
 }
 
 function* uploadSubmission(action) {
-  yield put(interfaceActions.setLoadingMessage('Uploading Workbook'));
+  const tag = { tag: 'uploadSubmission' };
+  yield put(interfaceActions.setLoadingMessage('Uploading Workbook', tag));
   let {
     submissionType,
     submissionId,
@@ -606,15 +618,15 @@ function* uploadSubmission(action) {
   // check
   if (!file) {
     log.error ('no file provided to uploadSubmission saga', { ...action.payload });
-    yield put(interfaceActions.snackbarOpen('There was an error beginning file upload.'));
-    yield put(interfaceActions.setLoadingMessage(''));
+    yield put(interfaceActions.snackbarOpen('There was an error beginning file upload.', tag));
+    yield put(interfaceActions.setLoadingMessage('', tag));
     return;
   }
 
   if (submissionType === 'new' && !rawFile) {
     log.error ('no raw file provided to uploadSubmission saga', { ...action.payload });
-    yield put(interfaceActions.snackbarOpen('There was an error beginning file upload.'));
-    yield put(interfaceActions.setLoadingMessage(''));
+    yield put(interfaceActions.snackbarOpen('There was an error beginning file upload.', tag));
+    yield put(interfaceActions.setLoadingMessage('', tag));
     return;
   }
 
@@ -666,12 +678,12 @@ function* uploadSubmission(action) {
       let message = yield beginSessionResponse.text();
       if (message === 'wrongUser') {
         yield put(dataSubmissionActions.setUploadState(states.failed));
-        yield put(interfaceActions.setLoadingMessage(''));
+        yield put(interfaceActions.setLoadingMessage('', tag));
         return;
       } else if (message === 'noRecord') {
         yield put(dataSubmissionActions.setUploadState(states.failed));
-        yield put(interfaceActions.setLoadingMessage(''));
-        yield put(interfaceActions.snackbarOpen('No submission found'));
+        yield put(interfaceActions.setLoadingMessage('', tag));
+        yield put(interfaceActions.snackbarOpen('No submission found', tag));
         log.error ('no submission found', { submissionId });
       } else {
         getSessionRetries++;
@@ -681,8 +693,8 @@ function* uploadSubmission(action) {
   }
 
   if (!sessionIds.length) {
-    yield put(interfaceActions.snackbarOpen('Failed to begin upload session'));
-    yield put(interfaceActions.setLoadingMessage(''));
+    yield put(interfaceActions.snackbarOpen('Failed to begin upload session', tag));
+    yield put(interfaceActions.setLoadingMessage('', tag));
     return;
   }
 
@@ -704,8 +716,8 @@ function* uploadSubmission(action) {
   }
 
   if (uploadError || rawFileUploadError) {
-    yield put(interfaceActions.snackbarOpen('Upload failed'));
-    yield put(interfaceActions.setLoadingMessage(''));
+    yield put(interfaceActions.snackbarOpen('Upload failed', tag));
+    yield put(interfaceActions.setLoadingMessage('', tag));
     return;
   }
 
@@ -746,18 +758,19 @@ function* uploadSubmission(action) {
   }
 
   if (commitSucceeded === true) {
-    yield put(interfaceActions.setLoadingMessage(''));
+    yield put(interfaceActions.setLoadingMessage('', tag));
     yield put(dataSubmissionActions.setUploadState(states.succeeded));
   } else {
     const respStatus = commitFileResponse && commitFileResponse.status;
     log.error (`API responded to commit request with ${respStatus}`, { ...commitFileResponse });
-    yield put(interfaceActions.setLoadingMessage(''));
-    yield put(interfaceActions.snackbarOpen('Failed to upload'));
+    yield put(interfaceActions.setLoadingMessage('', tag));
+    yield put(interfaceActions.snackbarOpen('Failed to upload', tag));
     return;
   }
 }
 
 function* setDataSubmissionPhase(action) {
+  const tag = { tag: 'setDataSubmissionPhase' };
   let formData = {
     phaseID: action.payload.phaseID,
     submissionID: action.payload.submissionID,
@@ -770,15 +783,16 @@ function* setDataSubmissionPhase(action) {
   } else if (response.status === 401) {
     yield put(userActions.refreshLogin());
   } else {
-    yield put(interfaceActions.snackbarOpen('Failed to retrieve submissions'));
+    yield put(interfaceActions.snackbarOpen('Failed to retrieve submissions', tag));
   }
 }
 
 function* retrieveMostRecentFile(action) {
+  const tag = { tag: 'retrieveMostRecentFile' };
   const { submissionID } = action.payload;
 
   yield put(
-    interfaceActions.setLoadingMessage('Fetching the latest submission'),
+    interfaceActions.setLoadingMessage('Fetching the latest submission', tag),
   );
 
   let linkResponse = yield call(
@@ -797,15 +811,16 @@ function* retrieveMostRecentFile(action) {
 
     yield put(dataSubmissionActions.checkSubmissionOptionsAndStoreFile(blob));
   } else if (linkResponse.status === 401) {
-    yield put(interfaceActions.setLoadingMessage(''));
+    yield put(interfaceActions.setLoadingMessage('', tag));
     yield put(userActions.refreshLogin());
   } else {
-    yield put(interfaceActions.setLoadingMessage(''));
-    yield put(interfaceActions.snackbarOpen('Failed to retrieve submissions'));
+    yield put(interfaceActions.setLoadingMessage('', tag));
+    yield put(interfaceActions.snackbarOpen('Failed to retrieve submissions', tag));
   }
 }
 
 function* checkSubmissionOptionsAndStoreFile(action) {
+  const tag = { tag: 'checkSubmissionOptionsAndStoreFile' };
   let storedOptions = yield select(
     (state) => state.dataSubmissionSelectOptions,
   );
@@ -817,7 +832,7 @@ function* checkSubmissionOptionsAndStoreFile(action) {
     let result = yield call(api.catalog.submissionOptions);
     if (!result.ok) {
       return put(
-        interfaceActions.snackbarOpen('Unable to retrieve validation options'),
+        interfaceActions.snackbarOpen('Unable to retrieve validation options', tag),
       );
     } else {
       options = yield result.json();
@@ -837,10 +852,12 @@ function* checkSubmissionOptionsAndStoreFile(action) {
 }
 
 function* downloadMostRecentFile(action) {
+  const tag = { tag: 'downloadMostRecentFile' };
+
   const { submissionID } = action.payload;
 
   yield put(
-    interfaceActions.setLoadingMessage('Downloading the latest submission'),
+    interfaceActions.setLoadingMessage('Downloading the latest submission', tag),
   );
 
   let linkResponse = yield call(
@@ -865,13 +882,13 @@ function* downloadMostRecentFile(action) {
     a.click();
     document.body.removeChild(a);
     // URL.revokeObjectURL(url); // TODO test this
-    yield put(interfaceActions.setLoadingMessage(''));
+    yield put(interfaceActions.setLoadingMessage('', tag));
   } else if (linkResponse.status === 401) {
-    yield put(interfaceActions.setLoadingMessage(''));
+    yield put(interfaceActions.setLoadingMessage('', tag));
     yield put(userActions.refreshLogin());
   } else {
-    yield put(interfaceActions.setLoadingMessage(''));
-    yield put(interfaceActions.snackbarOpen('Unable to download'));
+    yield put(interfaceActions.setLoadingMessage('', tag));
+    yield put(interfaceActions.snackbarOpen('Unable to download', tag));
   }
 }
 
@@ -903,6 +920,8 @@ function* searchOptionsFetch() {
 
 // This saga is debounced in its watch function
 function* searchResultsFetch(action) {
+  const tag = { tag: 'searchResultsFetch' };
+
   let result = yield call(
     api.catalog.searchResults,
     action.payload.queryString,
@@ -933,6 +952,7 @@ function* searchResultsFetch(action) {
     yield put(
       interfaceActions.snackbarOpen(
         'Failed to retrieve search results. Please try again later.',
+        tag
       ),
     );
   }
@@ -942,6 +962,7 @@ function* searchResultsFetch(action) {
 /* fetch data for recommendations */
 
 function* fetchPopularDatasets () {
+  const tag = { tag: 'fetchPopularDatasets' };
   let response = yield call(api.catalog.fetchPopularDatasets);
   if (response && Array.isArray (response)) {
     yield put(catalogActions.popularRecsRequestSuccess(response));
@@ -950,12 +971,15 @@ function* fetchPopularDatasets () {
     yield put(
       interfaceActions.snackbarOpen(
         'Failed to retrieve popular datasets.',
+        tag
       ),
     );
   }
 }
 
 function* fetchRecentDatasets (action) {
+  const tag = { tag: 'fetchRecentDatasets' };
+
   // check cache
   const localValue = localStorageApi.get ('recentRecs');
 
@@ -986,6 +1010,7 @@ function* fetchRecentDatasets (action) {
       yield put(
         interfaceActions.snackbarOpen(
           'Failed to retrieve recent datasets.',
+          tag
         ),
       );
     }
@@ -996,6 +1021,8 @@ function* fetchRecentDatasets (action) {
 }
 
 function* fetchRecommendedDatasets (action) {
+  const tag = { tag: 'fetchRecommendedDatasets' };
+
   // check cache
   const localValue = localStorageApi.get ('seeAlsoRecs');
   let parsedLocalValue;
@@ -1026,6 +1053,7 @@ function* fetchRecommendedDatasets (action) {
       yield put(
         interfaceActions.snackbarOpen(
           'Failed to retrieve recommended datasets.',
+          tag
         ),
       );
     }
@@ -1038,6 +1066,8 @@ function* fetchRecommendedDatasets (action) {
 /************** Dataset Detail Page **********************/
 
 function* datasetFullPageDataFetch(action) {
+  const tag = { tag: 'datasetFullPageFetch' };
+
   yield put(
     catalogActions.datasetFullPageDataSetLoadingState(states.inProgress),
   );
@@ -1060,6 +1090,7 @@ function* datasetFullPageDataFetch(action) {
     yield put(
       interfaceActions.snackbarOpen(
         'Failed to retrieve information. Please try again later.',
+        tag
       ),
     );
     yield put(
@@ -1069,6 +1100,8 @@ function* datasetFullPageDataFetch(action) {
 }
 
 function* datasetVariablesFetch(action) {
+  const tag = { tag: 'datasetVariablesFetch' };
+
   yield put(catalogActions.datasetVariablesSetLoadingState(states.inProgress));
 
   let result = yield call(
@@ -1084,6 +1117,7 @@ function* datasetVariablesFetch(action) {
     yield put(
       interfaceActions.snackbarOpen(
         'Failed to retrieve dataset variables. Please try again later.',
+        tag
       ),
     );
     yield put(
@@ -1094,6 +1128,8 @@ function* datasetVariablesFetch(action) {
 
 // um
 function* datasetVariableUMFetch (action) {
+  const tag = { tag: 'datasetVariableUMFetch' };
+
   yield put(catalogActions.datasetVariableUMSetLoadingState(states.inProgress));
 
   let result = yield call(
@@ -1109,6 +1145,7 @@ function* datasetVariableUMFetch (action) {
     yield put(
       interfaceActions.snackbarOpen(
         'Failed to retrieve variable metadata.',
+        tag
       ),
     );
     yield put(catalogActions.datasetVariableUMSetLoadingState(states.failed));
@@ -1117,6 +1154,8 @@ function* datasetVariableUMFetch (action) {
 
 
 function* cruiseFullPageDataFetch(action) {
+  const tag = { tag: 'cruiseFullPageFetch' };
+
   yield put(
     catalogActions.cruiseFullPageDataSetLoadingState(states.inProgress),
   );
@@ -1135,6 +1174,7 @@ function* cruiseFullPageDataFetch(action) {
     yield put(
       interfaceActions.snackbarOpen(
         'Failed to retrieve information. Please try again later.',
+        tag
       ),
     );
     yield put(
@@ -1158,6 +1198,8 @@ function* cartPersistClear() {
 }
 
 function* cartGetAndStore() {
+  const tag = { tag: 'cartGetAndStore' };
+
   let result = yield call(api.user.getCart);
 
   if (result.ok) {
@@ -1170,12 +1212,14 @@ function* cartGetAndStore() {
     yield put(catalogActions.cartAddMultiple(formattedResults));
   } else {
     yield put(
-      interfaceActions.snackbarOpen('Unable to retrieve cart information'),
+      interfaceActions.snackbarOpen('Unable to retrieve cart information', tag),
     );
   }
 }
 
 function* vizSearchResultsFetch(action) {
+  const tag = { tag: 'vizSearchResultsFetch' };
+
   const { params } = action.payload;
 
   const qString =
@@ -1212,12 +1256,13 @@ function* vizSearchResultsFetch(action) {
     );
   } else {
     yield put(
-      interfaceActions.snackbarOpen('Search failed. Please try again.'),
+      interfaceActions.snackbarOpen('Search failed. Please try again.', tag),
     );
   }
 }
 
 function* memberVariablesFetch(action) {
+  const tag = { tag: 'memberVariablesFetch' };
   let response = yield call(
     api.visualization.memberVariablesFetch,
     action.payload.datasetID,
@@ -1228,7 +1273,7 @@ function* memberVariablesFetch(action) {
     yield put(visualizationActions.memberVariablesStore(variables));
   } else {
     yield put(
-      interfaceActions.snackbarOpen('Unable to get variables at this time'),
+      interfaceActions.snackbarOpen('Unable to get variables at this time', tag),
     );
   }
 }
@@ -1252,6 +1297,8 @@ function* autocompleteVariableNamesFetch(action) {
 
 // variable stats dialog
 function* variableFetch(action) {
+  const tag = { tag: 'variableFetch' };
+
   if (action.payload.id === null) {
     yield put(visualizationActions.variableStore(null));
   } else {
@@ -1271,6 +1318,7 @@ function* variableFetch(action) {
       yield put(
         interfaceActions.snackbarOpen(
           'Unable to fetch variable details. Please try again later',
+          tag
         ),
       );
     }
@@ -1278,6 +1326,8 @@ function* variableFetch(action) {
 }
 
 function* datasetSummaryFetch(action) {
+  const tag = { tag: 'datasetSummaryFetch' };
+
   if (action.payload.id === null) {
     yield put(visualizationActions.datasetSummaryStore(null));
   } else {
@@ -1293,6 +1343,7 @@ function* datasetSummaryFetch(action) {
       yield put(
         interfaceActions.snackbarOpen(
           'Unable to fetch dataset summary. Please try again later',
+          tag
         ),
       );
     }
@@ -1300,6 +1351,7 @@ function* datasetSummaryFetch(action) {
 }
 
 function* vizPageDataTargetSetAndFetchDetails(action) {
+  const tag = { tag: 'vizPageDataTargetSetAndFetchDetails' };
   yield put(
     visualizationActions.vizPageDataTargetSet(action.payload.vizPageDataTarget),
   );
@@ -1321,12 +1373,14 @@ function* vizPageDataTargetSetAndFetchDetails(action) {
     yield put(
       interfaceActions.snackbarOpen(
         'Unable to fetch variable details. Please try again later',
+        tag
       ),
     );
   }
 }
 
 function* dataSubmissionDelete(action) {
+  const tag = { tag: 'dataSubmissionDelete' };
   let result = yield call(
     api.dataSubmission.deleteSubmission,
     action.payload.submission.Submission_ID,
@@ -1337,31 +1391,35 @@ function* dataSubmissionDelete(action) {
     yield put(
       interfaceActions.snackbarOpen(
         `Successfully deleted ${action.payload.submission.Dataset}`,
+        tag
       ),
     );
   } else {
     yield put(
       interfaceActions.snackbarOpen(
         `Failed to delete ${action.payload.submission.Dataset}`,
+        tag
       ),
     );
   }
 }
 
 function* sparseDataQuerySend(action) {
-  yield put(interfaceActions.setLoadingMessage('Fetching Data'));
+  const tag = { tag: 'sparseDataQuerySend' };
+
+  yield put(interfaceActions.setLoadingMessage('Fetching Data', tag));
 
   let result = yield call(
     api.visualization.sparseDataQuerysend,
     action.payload,
   );
   yield delay(50);
-  yield put(interfaceActions.setLoadingMessage('Processing Data'));
+  yield put(interfaceActions.setLoadingMessage('Processing Data', tag));
   yield delay(70);
 
   // Result will be an object containing variable values and describing data shape
   if (result.failed) {
-    yield put(interfaceActions.setLoadingMessage(''));
+    yield put(interfaceActions.setLoadingMessage('', tag));
     yield put(visualizationActions.storedProcedureRequestFailure());
     if (result.status === 401) {
       yield put(userActions.refreshLogin());
@@ -1369,6 +1427,7 @@ function* sparseDataQuerySend(action) {
       yield put(
         interfaceActions.snackbarOpen(
           'An unexpected error occurred. Please reduce the size of your query and try again.',
+          tag
         ),
       );
     }
@@ -1376,7 +1435,7 @@ function* sparseDataQuerySend(action) {
     if (result.variableValues.length > 0) {
       result.finalize();
       yield put(visualizationActions.handleGuestVisualization());
-      yield put(interfaceActions.setLoadingMessage(''));
+      yield put(interfaceActions.setLoadingMessage('', tag));
       yield put(visualizationActions.storedProcedureRequestSuccess());
       yield put(visualizationActions.triggerShowCharts());
       yield put(
@@ -1394,10 +1453,11 @@ function* sparseDataQuerySend(action) {
         window.scrollTo(0, 0);
       }
     } else {
-      yield put(interfaceActions.setLoadingMessage(''));
+      yield put(interfaceActions.setLoadingMessage('', tag));
       yield put(
         interfaceActions.snackbarOpen(
           `No data found for ${action.payload.parameters.fields} in the requested ranges. Try selecting a different date or depth range.`,
+          tag
         ),
       );
     }
@@ -1430,6 +1490,8 @@ function* handleGuestVisualization() {
 }
 
 function* guestTokenRequestSend() {
+  const tag = { tag: 'guestTokenRequestSend' };
+
   let userIsGuest = yield select((state) => state.userIsGuest);
 
   if (userIsGuest) {
@@ -1452,6 +1514,7 @@ function* guestTokenRequestSend() {
       yield put(
         interfaceActions.snackbarOpen(
           'Guest login is currently unavailable. Please try again later, log in, or register a new account. ',
+          tag
         ),
       );
     }
