@@ -803,13 +803,13 @@ function* retrieveMostRecentFile(action) {
   if (linkResponse.ok) {
     let jsonResponse = yield linkResponse.json();
 
-    let { link, dataset } = jsonResponse;
+    let { link, dataset, submissionId } = jsonResponse;
 
     let getFileResponse = yield call(api.dataSubmission.getFileFromLink, link);
     let blob = yield getFileResponse.blob();
     blob.name = `${dataset}.xlsx`;
 
-    yield put(dataSubmissionActions.checkSubmissionOptionsAndStoreFile(blob));
+    yield put(dataSubmissionActions.checkSubmissionOptionsAndStoreFile(blob, submissionId ));
   } else if (linkResponse.status === 401) {
     yield put(interfaceActions.setLoadingMessage('', tag));
     yield put(userActions.refreshLogin());
@@ -848,7 +848,7 @@ function* checkSubmissionOptionsAndStoreFile(action) {
     }
   }
 
-  yield put(dataSubmissionActions.storeSubmissionFile(action.payload.file));
+  yield put(dataSubmissionActions.storeSubmissionFile(action.payload.file, action.payload.submissionId));
 }
 
 function* downloadMostRecentFile(action) {

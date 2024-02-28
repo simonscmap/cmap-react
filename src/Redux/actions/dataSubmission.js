@@ -83,17 +83,19 @@ export const retrieveMostRecentFile = (submissionID) => ({  type: dataSubmission
   },
 });
 
-export const storeSubmissionFile = (file) => ({
+export const storeSubmissionFile = (file, submissionId) => ({
   type: dataSubmissionActionTypes.STORE_SUBMISSION_FILE,
   payload: {
     file,
+    submissionId,
   },
 });
 
-export const checkSubmissionOptionsAndStoreFile = (file) => ({
+export const checkSubmissionOptionsAndStoreFile = (file, submissionId) => ({
   type: dataSubmissionActionTypes.CHECK_SUBMISSION_OPTIONS_AND_STORE_FILE,
   payload: {
     file,
+    submissionId,
   },
 });
 
