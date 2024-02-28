@@ -51,8 +51,8 @@ export default function (state, action) {
       return {
         ...state,
         submissionFile: action.payload.file,
-        submissionType: 'update',
-        submissionToUpdate: parseInt (action.payload.submissionId, 10),
+        submissionType: action.payload.submissionId ? 'update' : 'new',
+        submissionToUpdate: action.payload.submissionId ? parseInt (action.payload.submissionId, 10) : null,
       };
 
     case SET_UPLOAD_STATE:

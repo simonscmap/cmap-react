@@ -601,6 +601,8 @@ class ValidationTool extends React.Component {
     if (subIdHasChanged && fileHasBeenSelected) {
       const shortName = safePath (['0','dataset_short_name']) (this.state.dataset_meta_data);
       const longName = safePath (['0','dataset_long_name']) (this.state.dataset_meta_data);
+      console.log (`id ${this.props.submissionToUpdate} ?= ${prevProps.submissionToUpdate}`, typeof this.props.submissionToUpdate, prevProps.submissionToUpdate);
+      console.log ('dispatching', subIdHasChanged, fileHasBeenSelected);
       this.props.checkSubmNamesRequestSend({ shortName, longName, submissionId: this.props.submissionToUpdate  });
     }
   };
