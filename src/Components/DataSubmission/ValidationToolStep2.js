@@ -1,6 +1,6 @@
 // Step 2: Data Sheet Validaition
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import {
   Badge,
@@ -20,6 +20,7 @@ import DSCustomGridHeader from './DSCustomGridHeader';
 import ValidationGridColumns from './ValidationGridColumns';
 import { textAreaLookup } from './ValidationToolConstants';
 import { auditKeyToLabel } from './ValidationToolConstants';
+import { getChangeForCell } from './Helpers/changeLog';
 
 const useStyles = makeStyles ((theme) => ({
   wrapper: {
@@ -114,27 +115,6 @@ const getSheet = (n) => {
   }
 }
 
-const getTabFromSheet = (s) => {
-  switch (s) {
-    case 'data':
-      return 0;
-    case 'dataset_meta_data':
-      return 1;
-    case 'vars_meta_data':
-      return 2;
-    default:
-      return null;
-  }
-}
-
-const nextTab = (currentTab) => {
-  if (currentTab < 2) {
-    return currentTab + 1;
-  } else {
-    return 0;
-  }
-}
-
 const goToNextError = (data, gridApi, sheet, auditReport, setMessage) => {
   if (!data) {
     console.log('no data');
@@ -219,7 +199,8 @@ const Step2 = (props) => {
     handleCellValueChanged,
     handleGridSizeChanged,
     auditCell,
-    onGridReady
+    onGridReady,
+    getChangeLog,
   } = props;
 
   const auditReport = useSelector((state) => state.auditReport);
@@ -235,6 +216,7 @@ const Step2 = (props) => {
   const currentSheetLabel = auditKeyToLabel[sheet];
 
   const handleClickTab = (ev, newVal) => {
+    console.log ('click tab');
     setTab (newVal);
   };
 
@@ -253,16 +235,24 @@ const Step2 = (props) => {
   }
 
   const checkCellStyle = (params) => {
-    let row = params.node.childIndex;
-    let colId = params.column.colId;
-    let { sheet: sheetName } = params.context;
+    const row = params.node.childIndex;
+    const colId = params.column.colId;
+    const { sheet: sheetName } = params.context;
+    const changeLog = getChangeLog ();
 
     let cellStyle = {};
 
     const path = [sheetName, row, colId];
-    const shouldReStyle = safePath (path) (auditReport);
-    if (shouldReStyle) {
+    const shouldReStyleWithError = safePath (path) (auditReport);
+
+    const cevDef = { sheet: sheetName, row, col: colId };
+    const shouldReStyleWithModified = getChangeForCell (changeLog, cevDef);
+
+
+    if (shouldReStyleWithError) {
       cellStyle.boxShadow = 'inset 0 0 2px 2px rgba(255, 0, 0, 1)';
+    } else if (shouldReStyleWithModified) {
+      cellStyle.boxShadow = 'inset 0 0 2px 2px rgba(34, 163, 185)'
     }
 
     return cellStyle;
@@ -280,7 +270,7 @@ const Step2 = (props) => {
   }
 
   const onCellFocused = (ev) => {
-    console.log (ev);
+    console.log ('Cell Focused', ev);
     setMessage();
   }
 

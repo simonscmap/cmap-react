@@ -9,7 +9,6 @@ import { StepButton } from './ChooserComponents/Buttons';
 import { validationSteps } from './ValidationToolConstants';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import ErrorStatus from './ValidationToolErrorStatus';
-import Label from './ValidationHeaderLabel';
 
 const useStyles = makeStyles ((theme) => ({
   navigationWrapper: {
@@ -81,7 +80,7 @@ const Navigation = (props) => {
   const { file, step, changeStep } = props;
 
   const auditReport = useSelector ((state) => state.auditReport);
-    const errorCount = auditReport && auditReport.errorCount;
+  const errorCount = auditReport && auditReport.errorCount;
   const errorSum = errorCount && errorCount.sum || 0;
   const workbookErrors = auditReport && auditReport.workbook.errors.length;
 

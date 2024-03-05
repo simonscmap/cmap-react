@@ -73,7 +73,8 @@ const mapStateToProps = (state, ownProps) => ({
   submissionToUpdate: state.submissionToUpdate,
   auditReport: state.auditReport,
   retrieveUserDataSubmsissionsRequestStatus: state.retrieveUserDataSubmsissionsRequestStatus,
-  checkSubmissionNameRequestStatus: state.checkSubmissionNameRequestStatus
+  checkSubmissionNameRequestStatus: state.checkSubmissionNameRequestStatus,
+  loadingMessage: state.loadingMessage,
 });
 
 const mapDispatchToProps = {
@@ -120,6 +121,7 @@ class ValidationTool extends React.Component {
       dataset_meta_data: null,
       vars_meta_data: null,
       auditReport: null,
+      changeLog: [],
     };
   }
 
@@ -130,12 +132,13 @@ class ValidationTool extends React.Component {
   };
 
   auditCell = (value, col, row) => {
+    console.log ('Audit Cell', { value, col, row });
     let cellAudit = [];
     let auditFuncs = this.audits[col];
 
     if (auditFuncs) {
       auditFuncs.forEach((func) => {
-        let result = func(value, row);
+        let result = func (value, row);
 
         if (result) {
           cellAudit.push(result);
@@ -181,7 +184,7 @@ class ValidationTool extends React.Component {
   };
 
   // Takes a workbook and returns an audit report
-  performAudit = (shouldAdvanceStep) => {
+  performAudit = (shouldAdvanceStep, callerName) => {
     const {
       workbook,
       data,
@@ -199,6 +202,13 @@ class ValidationTool extends React.Component {
       numericDateFormatConverted,
       dateTimeFormatConverted,
     };
+
+    if (!workbook) {
+      return;
+    }
+
+
+    this.props.setLoadingMessage('Validating...', { tag: 'Validation Tool: Perform Audit Begin', caller: callerName});
 
     let workbookAudit = this.auditWorkbook(argsObj);
 
@@ -220,6 +230,13 @@ class ValidationTool extends React.Component {
 
     const errors = countErrors (report);
     report.errorCount = errors;
+    this.props.setLoadingMessage('', { tag: 'Validation Tool: Perform Audit Complete', caller: callerName});
+
+    if (this.props.loadingMessage === 'Validating...') {
+   //   this.props.setLoadingMessage('', { tag: 'Validation Tool: Perform Audit Complete', caller: callerName});
+    } else {
+      console.log ('else', this.props.loadingMessage);
+    }
 
     this.props.setAudit(report);
 
@@ -233,7 +250,8 @@ class ValidationTool extends React.Component {
         validationStep,
       });
     }
-    this.props.setLoadingMessage('', { tag: 'ValidationTool#performAudit'});
+
+
   };
 
   handleResetState = () => {
@@ -257,14 +275,21 @@ class ValidationTool extends React.Component {
     }
   };
 
-  handleCellValueChanged = ({
-    rowIndex,
-    newValue,
-    column,
-    node,
-    context,
-    oldValue,
-  }) => {
+  handleCellValueChanged = (event) => {
+    const {
+      rowIndex,
+      newValue,
+      column,
+      node,
+      context,
+      oldValue,
+    } = event;
+
+    const changeEvent = {
+      row: rowIndex, col: column.colId, val: newValue, old: oldValue, sheet: context.sheet
+    };
+
+    console.log ('Cell Value Changed', changeEvent, node);
 
     const shouldResendCheckNameRequest =
       (column && column.colId === 'dataset_short_name')
@@ -290,29 +315,32 @@ class ValidationTool extends React.Component {
 
     let { sheet } = context;
 
-    let newAudit = this.auditCell(newValue, column.colId, rowIndex);
-    console.log ('new cell audit', newValue, rowIndex, column.colId, newAudit);
+    let newAudit = this.auditCell (newValue, column.colId, rowIndex);
 
     let auditReport = {
       ...this.props.auditReport
     };
 
+    // if audit returned issues
     if (newAudit.length) {
+      // if no record for this row in audit report, make one
       if (!auditReport[sheet][rowIndex]) {
         auditReport[sheet][rowIndex] = {};
       }
+      // insert new audit into report
       auditReport[sheet][rowIndex][column.colId] = newAudit;
     } else {
-      // cell audit returned no issue, so delete anything on current audit for this cell
+      // if cell audit returned no issue,
       let currentCellAudit = safePath ([sheet, rowIndex, column.colId]) (auditReport);
       if (currentCellAudit) {
-        console.log ('deleting old audit for cell', currentCellAudit);
+        // delete anything on current audit for this cell
         delete auditReport[sheet][rowIndex][column.colId];
       }
     }
 
     const row = safePath ([sheet, rowIndex]) (auditReport);
-    if (row && !row.length) {
+    // if no issues on this row of audit report, delete row
+    if (row && Object.keys(row).length === 0) {
       auditReport[sheet][rowIndex] = null;
     }
 
@@ -323,19 +351,27 @@ class ValidationTool extends React.Component {
       ...this.state[sheet].slice(rowIndex + 1),
     ];
 
+    console.log ('New Sheet Audit', updated);
     // set state
     this.setState({
       ...this.state,
       [sheet]: updated,
+      changeLog: this.state.changeLog.concat(changeEvent)
     }, () => {
-      const row = this.gridApi.getDisplayedRowAtIndex(rowIndex);
-      this.gridApi.redrawRows({rowNodes: [row]});
+      // const row = this.gridApi.getDisplayedRowAtIndex(rowIndex);
+      // this.gridApi.redrawRows({rowNodes: [row]});
+      event.api.refreshCells({
+        force: true,
+        rowNodes: [event.node] // pass rowNode that was edited
+      });
+
     });
 
     this.props.setSheetAudit({
       sheetName: sheet,
       sheetAudit: auditReport[sheet]
     });
+
   };
 
   handleReadFile = (file) => {
@@ -434,8 +470,7 @@ class ValidationTool extends React.Component {
 
       // run report
       console.log ('prform audit');
-      this.props.setLoadingMessage('Performing audit');
-      this.performAudit(true);
+      this.performAudit(true, 'onload');
     };
 
     reader.readAsArrayBuffer(file);
@@ -444,8 +479,8 @@ class ValidationTool extends React.Component {
   handleDrop = (e) => {
     e.preventDefault();
     var file = e.dataTransfer.items[0].getAsFile();
-    this.props.setLoadingMessage('Reading Workbook');
-    this.props.checkSubmissionOptionsAndStoreFile(file);
+    this.props.setLoadingMessage('Reading Workbook', { tag: 'Validation Tool: Handle Drop'});
+    this.props.checkSubmissionOptionsAndStoreFile(file, this.props.submissionToUpdate);
   };
 
   /* handleFileSelect = (e) => {
@@ -457,6 +492,21 @@ class ValidationTool extends React.Component {
    * }; */
 
   handleUploadSubmission = () => {
+    // rerun all audits
+    this.performAudit (false);
+    // prevent upload if errors exist
+    if (!this.props.auditReport) {
+      console.log ('No audit report present; preventing submit action.');
+      return;
+    } else if (this.props.auditReport.errors !== 0) {
+      console.log ('Errors are still present; aborting submit action.');
+      return;
+    }
+
+    // TODO: reissue name check
+
+
+    // assemble file
     let workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(
       workbook,
@@ -589,7 +639,8 @@ class ValidationTool extends React.Component {
     const subTypeChanged = this.props.submissionType !== prevProps.submissionType;
     const nameCheckChanged = this.props.checkSubmissionNameResult !== prevProps.checkSubmissionNameResult;
     if (subTypeChanged || nameCheckChanged) {
-      this.performAudit();
+      console.log ('call perform audit because nameCheck has changed');
+      this.performAudit(false, 'componentDidUpdate');
     }
 
     // this.props.setLoadingMessage('', { tag: 'ValidationTool#componentDidUpdate'});
@@ -621,13 +672,17 @@ class ValidationTool extends React.Component {
     const noErrors = this.props.auditReport &&
                      this.props.auditReport.errorCount.sum === 0;
 
+    const shortName = safePath (['dataset_meta_data', '0', 'dataset_short_name']) (this.state);
+    const longName = safePath (['dataset_meta_data', '0', 'dataset_long_name']) (this.state);
+
+
     return (
       <div className={classes.validationToolWrapper}>
         <StepAssistant step={this.state.step} changeStep={this.handleChangeValidationStep} />
         <FullWidthContainer>
           <Section>
 
-            <Header subType={''} />
+            <Header />
 
             <div>
               <Navigation
@@ -657,6 +712,7 @@ class ValidationTool extends React.Component {
               handleGridSizeChanged={this.handleGridSizeChanged}
               auditCell={this.auditCell}
               dataSubmissionSelectOptions={this.props.dataSubmissionSelectOptions}
+              getChangeLog={() => this.state.changeLog}
             />
 
 

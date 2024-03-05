@@ -69,10 +69,12 @@ const FileUploadArea = (props) => {
       }
     }
   });
+  const subToUpdate = useSelector ((state) => state.submissionToUpdate);
+
 
   const selectFile = (file) => {
     dispatch (setLoadingMessage ('Reading Workbook'));
-    dispatch (checkSubmissionOptionsAndStoreFile (file));
+    dispatch (checkSubmissionOptionsAndStoreFile (file, subToUpdate));
   }
 
   const handleFileDrop = (e) => {
