@@ -615,6 +615,7 @@ function* uploadSubmission(action) {
     dataSource,
   } = action.payload;
 
+
   // check
   if (!file) {
     log.error ('no file provided to uploadSubmission saga', { ...action.payload });
@@ -629,6 +630,40 @@ function* uploadSubmission(action) {
     yield put(interfaceActions.setLoadingMessage('', tag));
     return;
   }
+
+  // check name again
+  let response;
+  const checkNamePayload = {
+    shortName: datasetName,
+    longName: datasetLongName,
+    submissionId,
+  };
+  try {
+    response = yield call(api.dataSubmission.checkName, checkNamePayload);
+  } catch (e) {
+    yield put(dataSubmissionActions.setCheckSubmNameRequestStatus(states.failed));
+  }
+  if (response && response.ok) {
+    let jsonResponse = yield response.json();
+    yield put(dataSubmissionActions.checkSubmNameResponseStore(jsonResponse));
+    // TODO check
+    const {
+      shortNameIsAlreadyInUse,
+      shortNameUpdateConflict,
+      longNameIsAlreadyInUse,
+      longNameUpdateConflict,
+    } = jsonResponse;
+
+    const conflict = shortNameIsAlreadyInUse || shortNameUpdateConflict || longNameIsAlreadyInUse || longNameUpdateConflict;
+
+    if (conflict) {
+      yield put(interfaceActions.snackbarOpen('Name check failed', tag));
+      return;
+    }
+  } else {
+    yield put(dataSubmissionActions.setCheckSubmNameRequestStatus(states.failed));
+  }
+
 
 
   // let chunkSize = 5 * 1024 * 1024;

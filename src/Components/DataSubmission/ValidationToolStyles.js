@@ -34,6 +34,9 @@ const styles = (theme) => ({
   fileSelectPaper: {
     padding: '12px',
     whiteSpace: 'pre-wrap',
+    '& button': {
+      color: 'black',
+    }
   },
 
   addBorder: {

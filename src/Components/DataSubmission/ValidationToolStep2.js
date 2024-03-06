@@ -1,6 +1,6 @@
 // Step 2: Data Sheet Validaition
 
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import {
   Badge,
@@ -254,6 +254,11 @@ const Step2 = (props) => {
 
   const gridApi = useRef();
 
+  useEffect (() => {
+    gridApi && gridApi.current &&
+      gridApi.current.redrawRows(); // this seems to be the only way to remove error style
+  }, [auditReport])
+
   let [message, setMessage] = useState();
 
   let [tab, setTab] = useState(0);
@@ -415,8 +420,8 @@ const Step2 = (props) => {
             selectOptions: generateSelectOptions(dataSubmissionSelectOptions),
             auditCell: auditCell,
           }}
-    />
-</Paper>
+        />
+      </Paper>
     </div>
   );
 };

@@ -289,15 +289,14 @@ class ValidationTool extends React.Component {
       row: rowIndex, col: column.colId, val: newValue, old: oldValue, sheet: context.sheet
     };
 
-    if (newValue === oldValue) {
-      // even if values are the same, refresh view
-      event.api.refreshCells({
-        force: true,
-        rowNodes: [event.node] // pass rowNode that was edited
-      });
+    /* if (newValue === oldValue) {
+     *   // even if values are the same, refresh view
+     *   event.api.refreshCells({
+     *     force: true,
+     *     rowNodes: [event.node] // pass rowNode that was edited
+     *   });
 
-      return;
-    }
+     * } */
 
     console.log ('Cell Value Changed', changeEvent, node);
 
@@ -355,11 +354,10 @@ class ValidationTool extends React.Component {
     }
 
     // update the data
-    let updated = [
-      ...this.state[sheet].slice(0, rowIndex),
+    let updated = this.state[sheet].slice(0, rowIndex).concat(
       node.data,
       ...this.state[sheet].slice(rowIndex + 1),
-    ];
+    );
 
     console.log (`New Audit: ${sheet}`, updated);
     // set state
@@ -368,8 +366,9 @@ class ValidationTool extends React.Component {
       [sheet]: updated,
       changeLog: this.state.changeLog.concat(changeEvent)
     }, () => {
-      // const row = this.gridApi.getDisplayedRowAtIndex(rowIndex);
-      // this.gridApi.redrawRows({rowNodes: [row]});
+      console.log ('redrawing');
+      const row = this.gridApi.getDisplayedRowAtIndex(rowIndex);
+      this.gridApi.redrawRows({rowNodes: [row]});
       event.api.refreshCells({
         force: true,
         rowNodes: [event.node] // pass rowNode that was edited
@@ -512,9 +511,6 @@ class ValidationTool extends React.Component {
       console.log ('Errors are still present; aborting submit action.');
       return;
     }
-
-    // TODO: reissue name check
-
 
     // assemble file
     let workbook = XLSX.utils.book_new();
@@ -666,6 +662,17 @@ class ValidationTool extends React.Component {
       console.log ('dispatching', subIdHasChanged, fileHasBeenSelected);
       this.props.checkSubmNamesRequestSend({ shortName, longName, submissionId: this.props.submissionToUpdate  });
     }
+
+    // should reset state
+    const submissionWasSuccessfullyUploaded =
+      this.props.submissionUploadState === states.succeeded &&
+      this.props.submissionUploadState !== prevProps.submissionUploadState;
+
+    if (submissionWasSuccessfullyUploaded) {
+      console.log ('resetting state');
+      this.handleResetState ();
+    }
+
   };
 
   render = () => {
