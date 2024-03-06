@@ -64,7 +64,6 @@ export default (data, workbook) => {
     });
     numericDateFormatConverted = true;
   } else {
-    console.log ('converting time');
     data.forEach((row) => {
       const newUTCFormattedDateTime = dayjs.utc(row.time).format();
       if (!dateTimeFormatConverted) {

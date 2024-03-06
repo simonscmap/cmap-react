@@ -1,14 +1,33 @@
+import * as dayjs from 'dayjs';
+import tz from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+import LocalizedFormat from 'dayjs/plugin/localizedFormat';
+
+dayjs.extend(utc);
+dayjs.extend(tz);
+dayjs.extend(LocalizedFormat)
+
+
 const numberParser = (ev) => {
-  console.log ('number parser', ev);
   const { newValue } = ev;
   return isNaN(newValue) ? null : Number(newValue);
 }
+
+const timeParser = (ev) => {
+  const { newValue } = ev;
+  if (dayjs (newValue).isValid ()) {
+    return dayjs.utc (newValue).format ();
+  }
+  return 'Invalid Date';
+}
+
 
 const columnDefinitions = {
   data: [
     {
       headerName: 'Time',
       field: 'time',
+      valueParser: timeParser,
     },
     {
       headerName: 'Latitude',
@@ -180,7 +199,7 @@ const columnDefinitions = {
       headerName: 'Visualize',
       field: 'visualize',
       autoHeight: true,
-      valueParser: numberParser,
+      cellEditor: 'DSCellEditorSelect',
     },
 
     {

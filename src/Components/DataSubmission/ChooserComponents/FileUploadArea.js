@@ -19,10 +19,9 @@ import { checkSubmissionOptionsAndStoreFile } from '../../../Redux/actions/dataS
 const useStyles = makeStyles ((theme) => ({
   paperArea: {
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '2em',
     margin: '30px 0',
     padding: '1.5em',
     whiteSpace: 'pre-wrap',
@@ -33,7 +32,6 @@ const useStyles = makeStyles ((theme) => ({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '2em',
   },
   displayNone: {
     display: 'none',
@@ -108,14 +106,17 @@ const FileUploadArea = (props) => {
       <Typography variant="body2" className={cl.uploadInstruction}>
         To {subType === "new"
              ? ` start a new submission `
-             : ` update submission "${subNameToUpdate || '...'}"`
+             : ` update submission "${subNameToUpdate || '...'}" `
         }
       </Typography>
       <div className={cl.rowOne}>
         <div className={cl.dropOption}>
+          <Typography variant="body2" className={cl.uploadInstruction}>
+            drop an .xlsx file here
+          </Typography>
           <TbDragDrop />
           <Typography variant="body2" className={cl.uploadInstruction}>
-            {' '} drop .xlsx file here, or
+            or browse with the file finder {' '}
           </Typography>
         </div>
         <StepButton component="label" >

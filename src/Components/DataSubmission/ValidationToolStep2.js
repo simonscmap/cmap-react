@@ -70,6 +70,7 @@ const generateSelectOptions = (reduxStoreOptions) => ({
   var_sensor: reduxStoreOptions.Sensor,
   var_spatial_res: reduxStoreOptions.Spatial_Resolution,
   dataset_make: reduxStoreOptions.Make,
+  visualize: [0, 1],
 });
 
 const getColumns = (sheet, data) => {
@@ -92,16 +93,49 @@ const getColumns = (sheet, data) => {
 
   const nameToHeader = (name) => presetColHeaders[name] || name;
 
+  const detectDataType = (colId) => {
+    let t;
+    let row = 0;
+    let attemptLimit = 100 < data.length ? 100 : data.length;
+    while (!t && row < attemptLimit) {
+      const valAtRow = safePath ([row, colId]) (data);
+      if (valAtRow === undefined) {
+        continue;
+      } else if (valAtRow === '') {
+        t = 'string';
+      } else if (!isNaN(valAtRow)) {
+        t = 'number'
+      }
+      row += 1;
+    }
+    return t;
+  }
+
+  const numberParser = (ev) => {
+    const { newValue } = ev;
+    return isNaN(newValue) ? null : Number(newValue);
+  }
+  /* const numberGetter = (params) => {
+   *   console.log (params);
+   *   const val = params.data[params.colDef.field];
+   *   return isNaN(val) ? null : Number(val);
+   * } */
+
   const provideColDef = (columnName) => {
     const col = ValidationGridColumns.data.find ((colDef) =>
       colDef.field === columnName);
     if (col) {
       return col;
     } else {
-      return {
+      const dataType = detectDataType (columnName)
+      const def = {
         headerName: nameToHeader (columnName),
-        field: columnName
+        field: columnName,
+        cellDataType: dataType,
+        valueParser: dataType === 'number' ? numberParser : (id) => id,
+        // valueGetter: dataType === 'number' ? numberGetter : undefined,
       };
+      return def;
     }
   }
 

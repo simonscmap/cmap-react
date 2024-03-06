@@ -42,7 +42,7 @@ const useRowStyles = makeStyles({
 const useTableStyles = makeStyles({
   root: {
     '& .MuiTableCell-stickyHeader': {
-      backgroundColor: 'unset',
+      backgroundColor: 'rgb(5, 27, 54)',
     }
   },
   container: {

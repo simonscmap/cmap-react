@@ -41,7 +41,6 @@ const ValidationGrid = (props) => {
             DSCellEditor,
             DSCellEditorSelect,
             DSCellEditorTextArea,
-            // NumericCellEditor, // this did not render
           }}
         />
       </div>

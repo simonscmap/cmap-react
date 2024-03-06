@@ -544,13 +544,12 @@ export default (args, checkNameResult, submissionType) => {
       userVariables,
     );
     if (variableNameMismatches.length) {
-      errors.push(
-        `The following value${variableNameMismatches.length > 1 ? 's' : ''} ` +
-        `for var_short_name on the vars_meta_data sheet did not match a column header on the data sheet:\n` +
-        `${variableNameMismatches.join(', ')}.`,
-      );
+      const pl = variableNameMismatches.length > 1 ? 's' : '';
+      errors.push({
+        title: 'Variable Metadata Mismatch',
+        detail: `The following value${pl} for *\`var_short_name\`* on the *\`vars_meta_data\`* sheet did not match a column header on the data sheet:\n ${variableNameMismatches.join(', ')}.`,
+      });
     }
-
 
     let missingVarMetadataRows = checkMissingVarMetadataRows(
       data,
@@ -558,13 +557,11 @@ export default (args, checkNameResult, submissionType) => {
       userVariables,
     );
     if (missingVarMetadataRows.length) {
-      errors.push(
-        `The following column header${
-        missingVarMetadataRows.length > 1 ? 's' : ''
-      } on the data sheet ` +
-        `did not match any value for var_short_name on the vars_meta_data sheet: \n` +
-        `${missingVarMetadataRows.join(', ')}.`,
-      );
+      const pl = missingVarMetadataRows.length > 1 ? 's' : '';
+      errors.push({
+        title: 'Data Column Mismatch',
+        detail: `The following column header${pl} on the data sheet did not match any value for *\`var_short_name\`* on the *\`vars_meta_data\`* sheet:\n \`${missingVarMetadataRows.join(', ')}\``,
+      });
     }
 
 

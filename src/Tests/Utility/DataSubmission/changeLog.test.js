@@ -73,4 +73,16 @@ describe ('getChangeForCell', () => {
 
     expect (result).toEqual (undefined);
   });
+
+  test ('correctly handles empty value', () => {
+    const base = { row: 1, col: 't', sheet: 'data' };
+    const log = [
+      {...base, old: '', val: '' },
+    ];
+    const cell = { row: 1, col: 't', sheet: 'data'}
+    const result = getChangeForCell (log, cell);
+
+    // should be no change
+    expect (result).toEqual (undefined);
+  });
 });

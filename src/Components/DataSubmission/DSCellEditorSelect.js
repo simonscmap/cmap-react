@@ -59,7 +59,7 @@ class DSCellEditorSelect extends React.Component {
     let dynamicOpts = context.selectOptions[column.colId].map((e, i) => (
       <option
         key={i + 1}
-        value={e.toLowerCase()}
+        value={typeof e === 'string' ? e.toLowerCase() : e}
         className="ds-cell-editor-select-option"
         style={{
           backgroundColor: '#184562',
@@ -76,8 +76,7 @@ class DSCellEditorSelect extends React.Component {
 
     let validOpts = new Set(
       this.props.context.selectOptions[this.props.column.colId].map((e) =>
-        e.toLowerCase(),
-      ),
+        typeof e === 'string' ? e.toLowerCase() : e),
     );
     if (!validOpts.has(value))
       opts.push(

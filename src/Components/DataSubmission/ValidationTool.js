@@ -289,6 +289,16 @@ class ValidationTool extends React.Component {
       row: rowIndex, col: column.colId, val: newValue, old: oldValue, sheet: context.sheet
     };
 
+    if (newValue === oldValue) {
+      // even if values are the same, refresh view
+      event.api.refreshCells({
+        force: true,
+        rowNodes: [event.node] // pass rowNode that was edited
+      });
+
+      return;
+    }
+
     console.log ('Cell Value Changed', changeEvent, node);
 
     const shouldResendCheckNameRequest =
@@ -351,7 +361,7 @@ class ValidationTool extends React.Component {
       ...this.state[sheet].slice(rowIndex + 1),
     ];
 
-    console.log ('New Sheet Audit', updated);
+    console.log (`New Audit: ${sheet}`, updated);
     // set state
     this.setState({
       ...this.state,
