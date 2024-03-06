@@ -132,7 +132,7 @@ class ValidationTool extends React.Component {
   };
 
   auditCell = (value, col, row) => {
-    console.log ('Audit Cell', { value, col, row });
+    // console.log ('Audit Cell', { value, col, row });
     let cellAudit = [];
     let auditFuncs = this.audits[col];
 
@@ -232,18 +232,18 @@ class ValidationTool extends React.Component {
     report.errorCount = errors;
     this.props.setLoadingMessage('', { tag: 'Validation Tool: Perform Audit Complete', caller: callerName});
 
-    if (this.props.loadingMessage === 'Validating...') {
-   //   this.props.setLoadingMessage('', { tag: 'Validation Tool: Perform Audit Complete', caller: callerName});
-    } else {
-      console.log ('else', this.props.loadingMessage);
-    }
 
     this.props.setAudit(report);
 
+    // TODO should somehow wait for name check to return
+
     if (shouldAdvanceStep) {
-      const validationStep = (report.workbook.errors.length || report.workbook.warnings.length)
+      const validationStep = (report.workbook.errors.length > 0
+                           || report.workbook.confirmations.length > 0
+                           || report.workbook.warnings.length > 0)
                            ? 1
                            : 2;
+
 
       this.setState({
         ...this.state,

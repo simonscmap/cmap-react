@@ -92,12 +92,23 @@ const getColumns = (sheet, data) => {
 
   const nameToHeader = (name) => presetColHeaders[name] || name;
 
+  const provideColDef = (columnName) => {
+    const col = ValidationGridColumns.data.find ((colDef) =>
+      colDef.field === columnName);
+    if (col) {
+      return col;
+    } else {
+      return {
+        headerName: nameToHeader (columnName),
+        field: columnName
+      };
+    }
+  }
+
+
   const columns = Object.keys(data[0])
                         .filter((key) => !nonKeys.includes(key))
-                        .map((columnName) => ({
-                          headerName: nameToHeader (columnName),
-                          field: columnName
-                        }));
+                        .map(provideColDef);
 
   return columns;
 }
@@ -203,6 +214,7 @@ const Step2 = (props) => {
     getChangeLog,
   } = props;
 
+  console.log ('CHANGE LOG', getChangeLog());
   const auditReport = useSelector((state) => state.auditReport);
   const errorCount = auditReport && auditReport.errorCount;
 
@@ -248,11 +260,12 @@ const Step2 = (props) => {
     const cevDef = { sheet: sheetName, row, col: colId };
     const shouldReStyleWithModified = getChangeForCell (changeLog, cevDef);
 
-
     if (shouldReStyleWithError) {
       cellStyle.boxShadow = 'inset 0 0 2px 2px rgba(255, 0, 0, 1)';
     } else if (shouldReStyleWithModified) {
-      cellStyle.boxShadow = 'inset 0 0 2px 2px rgba(34, 163, 185)'
+      cellStyle.boxShadow = 'inset 0 0 2px 2px rgba(34, 163, 185)';
+    } else {
+      cellStyle.boxShadow = 'unset';
     }
 
     return cellStyle;
@@ -270,7 +283,6 @@ const Step2 = (props) => {
   }
 
   const onCellFocused = (ev) => {
-    console.log ('Cell Focused', ev);
     setMessage();
   }
 

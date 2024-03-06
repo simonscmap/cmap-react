@@ -61,4 +61,16 @@ describe ('getChangeForCell', () => {
     expect (result.original).toEqual ('one');
     expect (result.current).toEqual ('two');
   });
+
+  test ('correctly handles undone change', () => {
+    const base = { row: 1, col: 't', sheet: 'data' };
+    const log = [
+      {...base, old: 'one', val: 'two' },
+      {...base, old: 'two', val: 'one' },
+    ];
+    const cell = { row: 1, col: 't', sheet: 'data'}
+    const result = getChangeForCell (log, cell);
+
+    expect (result).toEqual (undefined);
+  });
 });

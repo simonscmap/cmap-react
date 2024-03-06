@@ -80,6 +80,13 @@ const useStyles = makeStyles ((theme) => ({
       fontSize: '1.5em',
     }
   },
+  confirmationIcon: {
+    color: 'white',
+    paddingTop: '8px',
+    '& > svg': {
+      fontSize: '1.5em',
+    }
+  },
   issueSummary: {
     color: 'white',
   },
@@ -135,7 +142,7 @@ const CardTitle = (props) => {
   const cl = useStyles ();
   return (
     <div className={cl.cardTitleWrapper}>
-      <div className={(t === 'error' ? cl.errorIcon : cl.warningIcon)} >
+      <div className={(t === 'error' ? cl.errorIcon : t === 'warning' ? cl.warningIcon : cl.confirmationIcon )} >
         <ErrorOutline />
       </div>
       <div className={cl.issueSummary}>
@@ -231,6 +238,14 @@ const Step1 = (props) => {
           return <IssueCard key={`warningCard-${i}`} t={'warning'} info={{ title: 'Warning', detail: e }} />
         } else {
           return <IssueCard key={`warningCard-${i}`} t={'warning'} info={e} />
+        }
+      })}
+
+       {auditReport.workbook.confirmations.map((e, i) => {
+        if (typeof e === 'string') {
+          return <IssueCard key={`confirmation-${i}`} t={'confirmation'} info={{ title: 'Please Confirm', detail: e }} />
+        } else {
+          return <IssueCard key={`confirmation-${i}`} t={'confirmation'} info={e} />
         }
       })}
     </div>

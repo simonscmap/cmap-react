@@ -7,6 +7,7 @@ import { AgGridReact } from 'ag-grid-react';
 import DSCellEditor from './DSCellEditor';
 import DSCellEditorTextArea from './DSCellEditorTextArea';
 import DSCellEditorSelect from './DSCellEditorSelect';
+// import NumericCellEditor from './NumericCellEditor';
 
 const useStyles = makeStyles ((theme) => ({
   gridContainer: {
@@ -40,6 +41,7 @@ const ValidationGrid = (props) => {
             DSCellEditor,
             DSCellEditorSelect,
             DSCellEditorTextArea,
+            // NumericCellEditor, // this did not render
           }}
         />
       </div>

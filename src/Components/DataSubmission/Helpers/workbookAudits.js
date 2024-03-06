@@ -226,7 +226,10 @@ let checkAllSameValue = (data, userVariables) => {
   return result;
 };
 
-let checkDepthAllOrNone = (data) => {
+const checkDepthAllOrNone = (data) => {
+  if (!data || !data[0]) {
+    return true;
+  }
   let includeDepth = Boolean(data[0].depth || data[0].depth == 0);
 
   for (let i = 0; i < data.length; i++) {
@@ -238,7 +241,10 @@ let checkDepthAllOrNone = (data) => {
   return true;
 };
 
-let datasetMetadataIncludesSampleRow = (datasetMetadata) => {
+const datasetMetadataIncludesSampleRow = (datasetMetadata) => {
+  if (!datasetMetadata || !datasetMetadata[0]) {
+    return false;
+  }
   for (let i = 0; i < datasetMetadata.length; i++) {
     if (
       typeof datasetMetadata[i]['dataset_short_name'] === 'string' &&
@@ -333,7 +339,10 @@ let checkOutliers = (data, userVariables) => {
   return outliers;
 };
 
-let checkRequiredCols = (data) => {
+const checkRequiredCols = (data) => {
+  if (!data || !data[0]) {
+    return [];
+  }
   let missingCols = [];
   let sample = data[0];
 
@@ -361,13 +370,12 @@ const checkDateFormat = (data, workbook, numericDateFormatConverted, dateTimeFor
   // const isValidDate = dayjs(sample).isValid();
   // const dateSample = dayjs(sample).tz();
 
-  const utcString = dayjs.utc(sample).format();
+  // const utcString = dayjs.utc(sample).format();
   // const utcDateString = `${dayjs.utc(sample).format('YYYY-MM-DD')} (YYYY-MM-DD)`;
   const readableString = dayjs.utc(sample).format('LLLL');
 
   const example = `For reference, the time value in the first row of data is ${sample} and will be interpreted as ${readableString}`;
 
-  console.log ('type of time column sample: ' + dataType);
 
   if (dataType === 'number') {
     if (is1904Format (workbook)) {
@@ -383,9 +391,14 @@ const checkDateFormat = (data, workbook, numericDateFormatConverted, dateTimeFor
     return; // if the format has been converted, do not display the default
     // warning to check time fields: there will be a conversion warning
   }
-  return {
-    warning: `Please double-check that the time field is entered correctly. ${example}`,
-  };
+
+  if (dateTimeFormatConverted) {
+    return {
+      confirm: `Some or all time field values have been converted to a standard format. Please double-check that the time values are accurate.`,
+    };
+  }
+
+  return;
 };
 
 
@@ -405,6 +418,7 @@ export default (args, checkNameResult, submissionType) => {
 
   let errors = [];
   let warnings = [];
+  let confirmations = [];
 
   // no file to work with yet
   if (!workbook) {
@@ -436,16 +450,16 @@ export default (args, checkNameResult, submissionType) => {
         title: 'Dataset short name is missing',
         detail: 'No short name was provided. Please add a name in the *`dataset_short_name`* field in the *`dataset_meta_data`* worksheet.',
       });
-    } else if (shortNameUpdateConflict) {
-      errors.push({
-        title: 'Unable to update short name',
-        detail: `The short name provided, *\`${shortName}\`*, is alread in use by another dataset submission`,
-      })
     } else if (newShortNameConflict) {
       errors.push({
         title: 'Dataset short name is unavailable',
         detail: messages.shortNameIsTaken(shortName),
       });
+    } else if (shortNameUpdateConflict) {
+      errors.push({
+        title: 'Unable to update short name',
+        detail: `The short name provided, *\`${shortName}\`*, is already in use by another dataset submission`,
+      })
     }
 
     if (nameCheckErrors.includes('No long name provided')) {
@@ -453,15 +467,15 @@ export default (args, checkNameResult, submissionType) => {
         title: 'Dataset long name is missing',
         detail: 'No long name was provided. Please add a name in the *`dataset_long_name`* field in the *`dataset_meta_data`* worksheet.',
       });
-    } else if (longNameUpdateConflict) {
-      errors.push({
-        title: 'Unable to update long name',
-        detail: `The long name provided, *\`${longName}\`*, is alread in use by another dataset submission`,
-      })
     } else if (newLongNameConflict) {
       errors.push({
         title: 'Dataset long name is unavailable',
         detail: messages.longNameIsTaken(longName),
+      })
+    } else if (longNameUpdateConflict) {
+      errors.push({
+        title: 'Unable to update long name',
+        detail: `The long name provided, *\`${longName}\`*, is already in use by another dataset submission`,
       })
     }
   }
@@ -485,106 +499,190 @@ export default (args, checkNameResult, submissionType) => {
     });
   }
 
-  if (!data.length) {
-    errors.join.push(`Found no rows on the data sheet`);
+  if (!data || data.length === 0) {
+    errors.push(`Found no rows on the data sheet`);
   }
 
-  // other checks
-  const dateCheckResult = checkDateFormat (data, workbook, numericDateFormatConverted, dateTimeFormatConverted);
+  // data sheet checks
+  if (data && Array.isArray(data)) {
+    const dateCheckResult = checkDateFormat (data, workbook, numericDateFormatConverted, dateTimeFormatConverted);
 
-  if (dateCheckResult) {
-    if (dateCheckResult.error) {
-      errors.push(dateCheckResult.error);
+    if (dateCheckResult) {
+      if (dateCheckResult.error) {
+        errors.push(dateCheckResult.error);
+      }
+      if (dateCheckResult.warning) {
+        warnings.push(dateCheckResult.warning);
+      }
+      if (dateCheckResult.confirm) {
+        confirmations.push (dateCheckResult.confirm);
+      }
     }
-    if (dateCheckResult.warning) {
-      warnings.push(dateCheckResult.warning);
+
+    const check1904DateFormat = is1904Format (workbook);
+    if (check1904DateFormat) {
+      warnings.push (messages.is1904Error)
     }
-  }
 
-  const check1904DateFormat = is1904Format (workbook);
-  if (check1904DateFormat) {
-    warnings.push (messages.is1904Error)
-  }
-
-  let missingCols = checkRequiredCols(data);
-  if (missingCols.length) {
-    errors.push(
-      `Data sheet is missing required column${
+    let missingCols = checkRequiredCols(data);
+    if (missingCols.length) {
+      errors.push(
+        `Data sheet is missing required column${
         missingCols.length > 1 ? 's' : ''
       }: ${missingCols.join(', ')}`,
+      );
+    }
+
+    let fixedVariables = new Set(['time', 'lat', 'lon', 'depth']);
+    let userVariables = new Set(
+      Object.keys(data[0]).filter((key) => !fixedVariables.has(key)),
     );
-  }
 
-  let fixedVariables = new Set(['time', 'lat', 'lon', 'depth']);
-  let userVariables = new Set(
-    Object.keys(data[0]).filter((key) => !fixedVariables.has(key)),
-  );
-
-  let variableNameMismatches = checkVariableNameMismatches(
-    data,
-    vars_meta_data,
-    userVariables,
-  );
-  if (variableNameMismatches.length) {
-    errors.push(
-      `The following value${variableNameMismatches.length > 1 ? 's' : ''} ` +
+    let variableNameMismatches = checkVariableNameMismatches(
+      data,
+      vars_meta_data,
+      userVariables,
+    );
+    if (variableNameMismatches.length) {
+      errors.push(
+        `The following value${variableNameMismatches.length > 1 ? 's' : ''} ` +
         `for var_short_name on the vars_meta_data sheet did not match a column header on the data sheet:\n` +
         `${variableNameMismatches.join(', ')}.`,
-    );
-  }
+      );
+    }
 
-  let missingVarMetadataRows = checkMissingVarMetadataRows(
-    data,
-    vars_meta_data,
-    userVariables,
-  );
-  if (missingVarMetadataRows.length) {
-    errors.push(
-      `The following column header${
+
+    let missingVarMetadataRows = checkMissingVarMetadataRows(
+      data,
+      vars_meta_data,
+      userVariables,
+    );
+    if (missingVarMetadataRows.length) {
+      errors.push(
+        `The following column header${
         missingVarMetadataRows.length > 1 ? 's' : ''
       } on the data sheet ` +
         `did not match any value for var_short_name on the vars_meta_data sheet: \n` +
         `${missingVarMetadataRows.join(', ')}.`,
-    );
-  }
+      );
+    }
 
-  let emptyColumns = checkEmptyColumns(data, userVariables);
-  if (emptyColumns.length) {
-    errors.push(
-      `The column${emptyColumns.length > 1 ? 's' : ''} ${emptyColumns.join(
+
+    let emptyColumns = checkEmptyColumns(data, userVariables);
+    if (emptyColumns.length) {
+      errors.push(
+        `The column${emptyColumns.length > 1 ? 's' : ''} ${emptyColumns.join(
         ', ',
       )} contain${emptyColumns > 1 ? '' : 's'} no values.`,
-    );
+      );
+    }
+
+
+    if (!checkDepthAllOrNone(data)) {
+      errors.push(
+        'The depth column on the data sheet must contain a value for every row, or be empty.',
+      );
+    }
+
+    if (checkRadians(data)) {
+      warnings.push(
+        `Values supplied for lat and lon indicate the possible use of radian as unit of measurement.` +
+        `Lat and lon must be in degrees north and degrees east, respectively.`,
+      );
+    }
+
+    const duplicates = checkUniqueSpaceTime(data);
+    if (duplicates.length) {
+      warnings.push(
+        `Found non-unique space and time value combinations` +
+        `${
+          duplicates.length >= 5 ? '(Showing a maximum of 5 matches)' : ''
+        }:\n` +
+        `${duplicates
+          .map((e) => `Row ${e.row} matched ${e.matched}`)
+          .join('\n')}`,
+      );
+    }
+
+    let typeConsistency = checkTypeConsistency(data, userVariables);
+    if (typeConsistency.length) {
+      warnings.push(
+        `Found column${
+        typeConsistency.length > 1 ? 's' : ''
+      } with a mixture of string and numerical data types.` +
+        `\n${typeConsistency
+          .map(
+            (e) =>
+        `Column ${e.column} contained a value of unexpected type in row ${e.row}`,
+          )
+          .join('\n')}`,
+      );
+    }
+
+    let allSameValue = checkAllSameValue(data, userVariables);
+    if (allSameValue.length) {
+      warnings.push(
+        `Found column${
+        allSameValue.length > 1 ? 's' : ''
+      } on data sheet with all identical values: ${allSameValue.join(', ')}.`,
+      );
+    }
+
+    let containsNans = checkNans(data, userVariables);
+    if (containsNans.length) {
+      errors.push(
+        `NaN and null strings are not allowed. Cells should contain a value or be blank.` +
+        `${containsNans.length > 4 ? 'Showing a maximum of 5 matches.' : ''}` +
+        `Found illegal value${containsNans.length > 1 ? 's' : ''}` +
+        `at ${containsNans
+          .map((e) => `row ${e.row} column ${e.column}`)
+          .join('\n')}.`,
+      );
+    }
+
+    let outliers = checkOutliers(data, userVariables);
+    if (outliers.length) {
+      warnings.push(
+        `Found possible data outlier${outliers.length > 1 ? 's' : ''} ` +
+        `${outliers.length > 9 ? '(Showing a maximum of 10 values)' : ''}:\n` +
+        `${outliers
+          .map((e) => `Value ${e.value} in column ${e.column} row ${e.row}`)
+          .join('\n')}`,
+      );
+    }
   }
 
-  if (!checkDepthAllOrNone(data)) {
-    errors.push(
-      'The depth column on the data sheet must contain a value for every row, or be empty.',
-    );
-  }
-
-  if (datasetMetadataIncludesSampleRow(dataset_meta_data)) {
-    errors.push(
-      'The value "< short name of your dataset (<50 chars) >" was found in the dataset_short_name column ' +
+  // dataset meta data checks
+  if (dataset_meta_data) {
+    if (datasetMetadataIncludesSampleRow(dataset_meta_data)) {
+      errors.push(
+        'The value "< short name of your dataset (<50 chars) >" was found in the dataset_short_name column ' +
         'of the dataset_meta_data sheet. Please delete the template sample row and re-select the workbook by clicking ' +
         '"select a different file" above.',
-    );
+      );
+    }
+    if (checkMultipleCruisesOneCell(dataset_meta_data)) {
+      warnings.push(
+        `The cruise_names column of the dataset_meta_data sheet may contain multiple cruises in one cell. Please separate ` +
+        `cruise names beyond the first into separate rows in this column.`,
+      );
+    }
+
   }
 
-  if (variableMetadataIncludesSampleRow(vars_meta_data)) {
-    errors.push(
-      'The value "< variable short name (<50 chars) >" was found in the var_short_name column ' +
+  // vars_metadata checks
+  if (vars_meta_data) {
+    if (variableMetadataIncludesSampleRow(vars_meta_data)) {
+      errors.push(
+        'The value "< variable short name (<50 chars) >" was found in the var_short_name column ' +
         'of the vars_meta_data sheet. Please delete the template sample row and re-select the workbook by clicking ' +
         '"select a different file" above.',
-    );
+      );
+    }
+
   }
 
-  if (checkMultipleCruisesOneCell(dataset_meta_data)) {
-    warnings.push(
-      `The cruise_names column of the dataset_meta_data sheet may contain multiple cruises in one cell. Please separate ` +
-        `cruise names beyond the first into separate rows in this column.`,
-    );
-  }
+
 
   if (checkMissingCruiseNames(dataset_meta_data, vars_meta_data)) {
     warnings.push(
@@ -594,74 +692,7 @@ export default (args, checkNameResult, submissionType) => {
     );
   }
 
-  if (checkRadians(data)) {
-    warnings.push(
-      `Values supplied for lat and lon indicate the possible use of radian as unit of measurement.` +
-        `Lat and lon must be in degrees north and degrees east, respectively.`,
-    );
-  }
 
-  let duplicates = checkUniqueSpaceTime(data);
-  if (duplicates.length) {
-    warnings.push(
-      `Found non-unique space and time value combinations` +
-        `${
-          duplicates.length >= 5 ? '(Showing a maximum of 5 matches)' : ''
-        }:\n` +
-        `${duplicates
-          .map((e) => `Row ${e.row} matched ${e.matched}`)
-          .join('\n')}`,
-    );
-  }
 
-  let typeConsistency = checkTypeConsistency(data, userVariables);
-  if (typeConsistency.length) {
-    warnings.push(
-      `Found column${
-        typeConsistency.length > 1 ? 's' : ''
-      } with a mixture of string and numerical data types.` +
-        `\n${typeConsistency
-          .map(
-            (e) =>
-              `Column ${e.column} contained a value of unexpected type in row ${e.row}`,
-          )
-          .join('\n')}`,
-    );
-  }
-
-  let allSameValue = checkAllSameValue(data, userVariables);
-  if (allSameValue.length) {
-    warnings.push(
-      `Found column${
-        allSameValue.length > 1 ? 's' : ''
-      } on data sheet with all identical values: ${allSameValue.join(', ')}.`,
-    );
-  }
-
-  let containsNans = checkNans(data, userVariables);
-  if (containsNans.length) {
-    errors.push(
-      `NaN and null strings are not allowed. Cells should contain a value or be blank.` +
-        `${containsNans.length > 4 ? 'Showing a maximum of 5 matches.' : ''}` +
-        `Found illegal value${containsNans.length > 1 ? 's' : ''}` +
-        `at ${containsNans
-          .map((e) => `row ${e.row} column ${e.column}`)
-          .join('\n')}.`,
-    );
-  }
-
-  let outliers = checkOutliers(data, userVariables);
-  if (outliers.length) {
-    warnings.push(
-      `Found possible data outlier${outliers.length > 1 ? 's' : ''} ` +
-        `${outliers.length > 9 ? '(Showing a maximum of 10 values)' : ''}:\n` +
-        `${outliers
-          .map((e) => `Value ${e.value} in column ${e.column} row ${e.row}`)
-          .join('\n')}`,
-    );
-  }
-
-  console.log (`audit workbook returning ${errors.length} errors and ${warnings.length} warnings`)
-
-  return { errors, warnings };
+  return { errors, warnings, confirmations };
 };

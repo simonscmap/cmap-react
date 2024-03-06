@@ -1,5 +1,5 @@
 // https://stackoverflow.com/questions/16229494/converting-excel-date-serial-number-to-date-using-javascript
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 
 import tz from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
@@ -64,6 +64,7 @@ export default (data, workbook) => {
     });
     numericDateFormatConverted = true;
   } else {
+    console.log ('converting time');
     data.forEach((row) => {
       const newUTCFormattedDateTime = dayjs.utc(row.time).format();
       if (!dateTimeFormatConverted) {
@@ -71,6 +72,7 @@ export default (data, workbook) => {
           dateTimeFormatConverted = [newUTCFormattedDateTime, row.time];
         }
       }
+      row.time = newUTCFormattedDateTime;
     });
   }
 

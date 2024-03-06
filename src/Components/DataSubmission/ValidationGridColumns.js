@@ -1,5 +1,8 @@
-const numberParser = ({ newValue }) =>
-  isNaN(newValue) ? null : Number(newValue);
+const numberParser = (ev) => {
+  console.log ('number parser', ev);
+  const { newValue } = ev;
+  return isNaN(newValue) ? null : Number(newValue);
+}
 
 const columnDefinitions = {
   data: [
@@ -7,23 +10,24 @@ const columnDefinitions = {
       headerName: 'Time',
       field: 'time',
     },
-
     {
       headerName: 'Latitude',
       field: 'lat',
       valueParser: numberParser,
-    },
+      cellDataType: 'number',
 
+    },
     {
       headerName: 'Longitude',
       field: 'lon',
       valueParser: numberParser,
+      cellDataType: 'number',
     },
-
     {
       headerName: 'Depth',
       field: 'depth',
       valueParser: numberParser,
+      cellDataType: 'number',
     },
   ],
 
