@@ -8,7 +8,7 @@ import { TbDragDrop } from "react-icons/tb";
 
 // components
 import { StepButton } from './Buttons';
-
+import Spinner from '../../UI/Spinner';
 // fns
 import { safePath } from '../../../Utility/objectUtils';
 
@@ -52,6 +52,7 @@ const useStyles = makeStyles ((theme) => ({
 }));
 
 const FileUploadArea = (props) => {
+  const { loadingStatus } = props;
   const dispatch = useDispatch();
   const cl = useStyles ();
 
@@ -67,11 +68,10 @@ const FileUploadArea = (props) => {
       }
     }
   });
+
   const subToUpdate = useSelector ((state) => state.submissionToUpdate);
 
-
   const selectFile = (file) => {
-    dispatch (setLoadingMessage ('Reading Workbook'));
     dispatch (checkSubmissionOptionsAndStoreFile (file, subToUpdate));
   }
 
@@ -96,6 +96,27 @@ const FileUploadArea = (props) => {
     e.preventDefault();
   };
 
+  let [loading, setLoading] = useState (false);
+  useEffect (() => {
+
+    if (loading && !loadingStatus) {
+      setLoading (false);
+    }
+    const message = ['reading', 'parsing', 'validating'].some((status) =>
+      status === (loadingStatus && loadingStatus.status));
+
+    if (message) {
+      console.log ('MESSAGE', loadingStatus.status)
+      if (loadingStatus.status === 'reading') {
+        setLoading (`Reading File (${loadingStatus.totalBytes})`);
+      } else if (loadingStatus.status === 'parsing') {
+        setLoading (`Parsing File`);
+      } else if (loadingStatus.status === 'validating') {
+        setLoading (`Validating Data`);
+      }
+    }
+  }, [loadingStatus]);
+
   return (
     <Paper
       elevation={2}
@@ -103,6 +124,10 @@ const FileUploadArea = (props) => {
       onDragOver={handleDragOver}
       onDrop={handleFileDrop}
     >
+    {loading ? (
+      <Spinner message={loading} />
+    ) : (
+      <React.Fragment>
       <Typography variant="body2" className={cl.uploadInstruction}>
         To {subType === "new"
              ? ` start a new submission `
@@ -130,6 +155,9 @@ const FileUploadArea = (props) => {
           />
         </StepButton>
       </div>
+      </React.Fragment>
+    )}
+
     </Paper>
   );
 };

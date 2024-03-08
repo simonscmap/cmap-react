@@ -1,25 +1,12 @@
 // Chooser: User chooses between continuing to update an existing
 // data submission in progress, or begin a new one
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import {
-  Button,
-  Card,
-  Typography,
-  Paper,
-  FormControl,
-  Radio,
-  RadioGroup,
-  FormControlLabel,
-} from '@material-ui/core';
-// import messages from './Messages';
 import { makeStyles } from '@material-ui/core/styles';
 import { retrieveDataSubmissionsByUser } from '../../Redux/actions/dataSubmission';
 import states from '../../enums/asyncRequestStates';
 import { FileUploadArea, ChooseSubmissionType } from './ChooserComponents/index';
-
-const subIsNotComplete = (sub) => sub && sub.phaseId !== 6;
 
 const useStyles = makeStyles ((theme) => ({
   displayNone: {
@@ -46,8 +33,9 @@ const useStyles = makeStyles ((theme) => ({
 }));
 
 const Chooser = (props) => {
-  const { step } = props;
+  const { step, status } = props;
   const classes = useStyles();
+
 
   const user = useSelector ((state) => state.user);
 
@@ -72,7 +60,7 @@ const Chooser = (props) => {
   return (
     <div className={classes.chooser}>
       <ChooseSubmissionType />
-      <FileUploadArea />
+      <FileUploadArea loadingStatus={status} />
     </div>
   );
 };

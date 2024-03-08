@@ -2,8 +2,8 @@ const styles = (theme) => ({
   validationToolWrapper: {
     position: 'relative',
     '& > div': { // FullWidthContainer
-      minHeight: 'calc(100vh - 200px)',
-      paddingTop: '200px', // space from nav
+      minHeight: 'calc(100vh - 120px)',
+      paddingTop: '120px', // space from nav
     }
   },
   title: {
@@ -25,21 +25,7 @@ const styles = (theme) => ({
     letterSpacing: 'normal',
   },
 
-  needHelpLink: {
-    letterSpacing: 'normal',
-    color: theme.palette.primary.main,
-    cursor: 'pointer',
-  },
-
-  fileSelectPaper: {
-    padding: '12px',
-    whiteSpace: 'pre-wrap',
-    '& button': {
-      color: 'black',
-    }
-  },
-
-  addBorder: {
+    addBorder: {
     border: `1px dashed ${theme.palette.primary.main}`,
   },
 
@@ -65,13 +51,6 @@ const styles = (theme) => ({
     },
   },
 
-
-  submitButton: {
-    color: 'white',
-    margin: '24px 0 12px 0',
-    textTransform: 'none',
-  },
-
   tabPaper: {
     maxWidth: '80vw',
     height: 'calc(100vh - 320px)',
@@ -83,21 +62,6 @@ const styles = (theme) => ({
     marginLeft: '4px',
   },
 
-
-  ilb: {
-    // display: 'inline-block',
-  },
-
-  currentSectionSpan: {
-    // margin: '4px 8px 0 8px',
-    // width: '200px',
-    // display: 'inline-block',
-  },
-
-
-  submittedTypography: {
-    marginBottom: '12px',
-  },
 });
 
 export default styles;

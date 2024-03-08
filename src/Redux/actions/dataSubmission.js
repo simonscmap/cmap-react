@@ -91,6 +91,10 @@ export const storeSubmissionFile = (file, submissionId) => ({
   },
 });
 
+export const clearSubmissionFile = () => ({
+  type: dataSubmissionActionTypes.CLEAR_SUBMISSION_FILE,
+});
+
 export const checkSubmissionOptionsAndStoreFile = (file, submissionId) => ({
   type: dataSubmissionActionTypes.CHECK_SUBMISSION_OPTIONS_AND_STORE_FILE,
   payload: {

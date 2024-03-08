@@ -104,9 +104,6 @@ const Navigation = (props) => {
   const backArrowTooltip =
     onUploadStep ? 'No Prior Step' : `Back to ${getStepLabel (step - 1)}`
 
-  // TODO udpate header part to show:
-  // 1 dataset name & id & type
-  //
   return (
     <div className={cl.navigationWrapper}>
       <div className={cl.navigationButtons}>

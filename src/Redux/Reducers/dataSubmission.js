@@ -16,6 +16,7 @@ const {
   SET_AUDIT,
   SET_WORKBOOK_AUDIT,
   SET_SHEET_AUDIT,
+  CLEAR_SUBMISSION_FILE,
 } = dataSubmissionActionTypes;
 
 export default function (state, action) {
@@ -53,6 +54,14 @@ export default function (state, action) {
         submissionFile: action.payload.file,
         submissionType: action.payload.submissionId ? 'update' : 'new',
         submissionToUpdate: action.payload.submissionId ? parseInt (action.payload.submissionId, 10) : null,
+      };
+
+    case CLEAR_SUBMISSION_FILE:
+      return {
+        ...state,
+        submissionFile: null,
+        submissionType: 'new',
+        submissionToUpdate: null,
       };
 
     case SET_UPLOAD_STATE:

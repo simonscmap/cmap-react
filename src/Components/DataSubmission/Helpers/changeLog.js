@@ -47,3 +47,23 @@ export const getChangeForCell = (log, cevDef) => {
     current: currentValue,
   };
 }
+
+const areEqual = (a) => (b) => a.row === b.row
+                          && a.col === b.col
+                          && a.sheet === b.sheet;
+
+export const getChangeSummary = (log) => {
+  const uniqueCevDefs = log
+    .filter (isValidChangeEventDefinition)
+    .reduce ((acc, curr) => {
+      const duplicate = acc.some ((cevDef) => areEqual (cevDef) (curr));
+      if (duplicate) {
+        return acc;
+      } else {
+        return acc.concat (curr);
+      }
+    }, []);
+
+  return uniqueCevDefs.map ((cevDef) =>
+    Object.assign (cevDef, getChangeForCell (log, cevDef)));
+};

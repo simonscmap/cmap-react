@@ -2,30 +2,18 @@
 
 import React from 'react';
 import { connect } from 'react-redux';
-import { Link as RouterLink } from 'react-router-dom';
 import { withRouter } from 'react-router';
 
 import XLSX from 'xlsx';
 
 import { withStyles } from '@material-ui/core/styles';
-import {
-  Typography,
-  Paper,
-  Button,
-  Link,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-} from '@material-ui/core';
-import { ErrorOutline } from '@material-ui/icons';
 
 import {
   uploadSubmission,
   retrieveMostRecentFile,
   storeSubmissionFile,
+  clearSubmissionFile,
   checkSubmissionOptionsAndStoreFile,
-  setUploadState,
   checkSubmNamesRequestSend,
   setAudit,
   setSheetAudit,
@@ -38,8 +26,8 @@ import Navigation from './ValidationToolNavigation';
 import Chooser from './Chooser';
 import Step1 from './ValidationToolStep1';
 import Step2 from './ValidationToolStep2';
+import Step3 from './SubmitDataset';
 import StepAssistant from './StepAssistant';
-import messages from './Messages';
 
 import LoginRequiredPrompt from '../User/LoginRequiredPrompt';
 
@@ -83,31 +71,12 @@ const mapDispatchToProps = {
   snackbarOpen,
   retrieveMostRecentFile,
   storeSubmissionFile,
+  clearSubmissionFile,
   checkSubmissionOptionsAndStoreFile,
   checkSubmNamesRequestSend,
   setAudit,
   setSheetAudit,
 };
-
-const _CleanupDummy = (props) => {
-  React.useEffect(() => {
-    return function cleanup() {
-      props.setUploadState(null);
-    };
-  });
-  return '';
-};
-
-const CleanupDummy = connect(null, { setUploadState })(_CleanupDummy);
-
-
-// validationSteps:
-// 0 - chooser
-// 1 - workbook,
-// 2 - data,
-// 3 - dataset metadata
-// 4 - variable metadata
-// 5 - submission
 
 class ValidationTool extends React.Component {
   constructor (props) {
@@ -207,9 +176,6 @@ class ValidationTool extends React.Component {
       return;
     }
 
-
-    this.props.setLoadingMessage('Validating...', { tag: 'Validation Tool: Perform Audit Begin', caller: callerName});
-
     let workbookAudit = this.auditWorkbook(argsObj);
 
     let report = {
@@ -235,8 +201,6 @@ class ValidationTool extends React.Component {
 
     this.props.setAudit(report);
 
-    // TODO should somehow wait for name check to return
-
     if (shouldAdvanceStep) {
       const validationStep = (report.workbook.errors.length > 0
                            || report.workbook.confirmations.length > 0
@@ -244,28 +208,30 @@ class ValidationTool extends React.Component {
                            ? 1
                            : 2;
 
-
       this.setState({
         ...this.state,
         validationStep,
+        loadingFile: {
+          status: 'complete',
+        }
       });
     }
-
-
   };
 
   handleResetState = () => {
     this.props.storeSubmissionFile(null);
+    this.props.clearSubmissionFile ();
+
     this.props.history.push({
       pathname: '/datasubmission/validationtool',
       query: {},
     });
     this.setState({
       ...this.state,
+      rawFile: null,
       data: null,
       dataset_meta_data: null,
       vars_meta_data: null,
-      validationStep: 0,
     });
   };
 
@@ -384,21 +350,43 @@ class ValidationTool extends React.Component {
   };
 
   handleReadFile = (file) => {
+    this.setState ({
+        ...this.state,
+        loadingFile: {
+          status: 'reading',
+          totalBytes: 0,
+        }
+      })
     var totalBytes = 0;
     var reader = new FileReader();
     if (file.size > 150000000) {
-      this.setState({ ...this.state, ...fileSizeTooLargeDummyState }, () =>
-        this.props.setLoadingMessage('', { tag: 'ValidationTool#handleReadFile'}),
+      this.setState({
+        ...this.state,
+        ...fileSizeTooLargeDummyState
+      },
+        () =>
+          this.props.setLoadingMessage('', { tag: 'ValidationTool#handleReadFile'}),
       );
       return;
     }
 
     // reset checkName result (because we have a new file)
-    this.setState({ ...this.state, checkNameResult: null, rawFile: file });
+    this.setState({
+      ...this.state,
+      checkNameResult: null,
+      rawFile: file
+    });
 
     reader.onprogress = (ev) => {
       try {
         totalBytes = safePath (['total']) (ev);
+        this.setState ({
+        ...this.state,
+        loadingFile: {
+          status: 'reading',
+          totalBytes: formatBytes (totalBytes),
+        }
+      })
         console.log ('size read: ' + formatBytes(totalBytes));
       } catch (e) {
         console.log ('error: file reader progress event total was not a number')
@@ -408,7 +396,14 @@ class ValidationTool extends React.Component {
     reader.onload = (progressEvent) => {
       const size = formatBytes(totalBytes);
       console.log ('onload: begin parsing file', size);
-      this.props.setLoadingMessage(`Parsing file (${size})`, { tag: 'ValidationTool#reader.onload' });
+      this.setState ({
+        ...this.state,
+        loadingFile: {
+          status: 'parsing',
+          totalBytes,
+        }
+      })
+      // this.props.setLoadingMessage(`Parsing file (${size})`, { tag: 'ValidationTool#reader.onload' });
 
       var readFile = new Uint8Array(progressEvent.target.result);
       var workbook = XLSX.read(readFile, { type: 'array' });
@@ -421,10 +416,13 @@ class ValidationTool extends React.Component {
         formatResult = formatDataSheet(_data, workbook);
       } catch (e) {
         console.log ('error loading file', e);
+
         this.props.snackbarOpen('Error parsing file.');
-        this.props.setLoadingMessage('', { tag: 'ValidationTool#reader.onload' });
+        // this.props.setLoadingMessage('', { tag: 'ValidationTool#reader.onload' });
+        this.handleResetState ();
         return;
       }
+
       let {
         data,
         // is1904,
@@ -454,6 +452,7 @@ class ValidationTool extends React.Component {
       if (!vars_meta_data || !dataset_meta_data || !data) {
         this.props.snackbarOpen('Error parsing file: missing worksheets.');
         this.props.setLoadingMessage('', { tag: 'ValidationTool#reader.onload' });
+        this.handleResetState ();
         return;
       }
 
@@ -471,6 +470,10 @@ class ValidationTool extends React.Component {
         vars_meta_data,
         numericDateFormatConverted,
         dateTimeFormatConverted,
+        loadingFile: {
+          status: 'validating',
+          totalBytes,
+        }
       }, () => {
         console.log ('cleanup');
         this.props.setLoadingMessage('', { tag: 'ValidationTool#reader.onload' });
@@ -488,7 +491,8 @@ class ValidationTool extends React.Component {
   handleDrop = (e) => {
     e.preventDefault();
     var file = e.dataTransfer.items[0].getAsFile();
-    this.props.setLoadingMessage('Reading Workbook', { tag: 'Validation Tool: Handle Drop'});
+    // this.props.setLoadingMessage('Reading Workbook', { tag: 'Validation Tool: Handle Drop'});
+
     this.props.checkSubmissionOptionsAndStoreFile(file, this.props.submissionToUpdate);
   };
 
@@ -507,7 +511,7 @@ class ValidationTool extends React.Component {
     if (!this.props.auditReport) {
       console.log ('No audit report present; preventing submit action.');
       return;
-    } else if (this.props.auditReport.errors !== 0) {
+    } else if (this.props.auditReport.errorCount.sum !== 0) {
       console.log ('Errors are still present; aborting submit action.');
       return;
     }
@@ -686,12 +690,7 @@ class ValidationTool extends React.Component {
         ? this.state.dataset_meta_data[0].dataset_short_name
         : null;
 
-    const noErrors = this.props.auditReport &&
-                     this.props.auditReport.errorCount.sum === 0;
-
     const shortName = safePath (['dataset_meta_data', '0', 'dataset_short_name']) (this.state);
-    const longName = safePath (['dataset_meta_data', '0', 'dataset_long_name']) (this.state);
-
 
     return (
       <div className={classes.validationToolWrapper}>
@@ -710,7 +709,10 @@ class ValidationTool extends React.Component {
               />
             </div>
 
-            <Chooser step={this.state.validationStep} />
+            <Chooser
+              step={this.state.validationStep}
+              status={this.state.loadingFile}
+            />
 
             <Step1
               step={this.state.validationStep}
@@ -732,135 +734,15 @@ class ValidationTool extends React.Component {
               getChangeLog={() => this.state.changeLog}
             />
 
+            <Step3
+              validationStep={validationStep}
+              handleUploadSubmission={this.handleUploadSubmission}
+              shortName={shortName}
+              handleDownloadWorkbook={this.handleDownload}
+              resetState={this.handleResetState}
+              getChangeLog={() => this.state.changeLog}
+            />
 
-            {Boolean(validationStep === validationSteps.length - 1) && (
-              <Paper elevation={2} className={`${classes.fileSelectPaper}`}>
-                <Typography variant={"h5"}>Submit</Typography>
-
-                <CleanupDummy />
-                {this.props.submissionUploadState === states.succeeded ? (
-                  <React.Fragment>
-                    <Typography className={classes.submittedTypography}>
-                      Your dataset has been successfully submitted, and will be
-                      reviewed by our data curation team.
-                    </Typography>
-
-                    <Typography className={classes.submittedTypography}>
-                      You can view the status of your submission{' '}
-                      <Link
-                        style={{ display: 'inline-block' }}
-                        className={classes.needHelpLink}
-                        component={RouterLink}
-                        to={`/datasubmission/userdashboard?datasetName=${encodeURI(
-                          datasetName,
-                        )}`}
-                      >
-                        here
-                      </Link>
-                      .
-                    </Typography>
-
-                    <Typography className={classes.submittedTypography}>
-                      If you made any changes during this process you can
-                      download the edited workbook{' '}
-                      <Link
-                        style={{ display: 'inline-block' }}
-                        className={classes.needHelpLink}
-                        onClick={this.handleDownload}
-                        component="span"
-                      >
-                        here
-                      </Link>
-                      .
-                    </Typography>
-
-                    <Typography className={classes.submittedTypography}>
-                      A detailed description of remaining steps in the
-                      submission process can be found in the{' '}
-                      <Link
-                        style={{ display: 'inline-block' }}
-                        className={classes.needHelpLink}
-                        component={RouterLink}
-                        to="/datasubmission/guide"
-                      >
-                        Data Submission Guide
-                      </Link>
-                      .
-                    </Typography>
-
-                    <Typography className={classes.submittedTypography}>
-                      To start over and submit another dataset click{' '}
-                      <Link
-                        style={{ display: 'inline-block' }}
-                        className={classes.needHelpLink}
-                        onClick={() => this.handleResetState()}
-                        component="span"
-                      >
-                        here
-                      </Link>
-                      .
-                    </Typography>
-                  </React.Fragment>
-                ) : this.props.submissionUploadState === states.failed ? (
-                  <React.Fragment>
-                    <List>
-                      <ListItem>
-                        <ListItemIcon style={{ color: 'rgba(255, 0, 0, .7)' }}>
-                          <ErrorOutline />
-                        </ListItemIcon>
-                        <ListItemText primary="A dataset with this name has already been submitted by another user. If you believe you're receiving this message in error please contact us at cmap-data-submission@uw.edu." />
-
-                        <Typography className={classes.submittedTypography}>
-                          To start over and submit another dataset click{' '}
-                          <Link
-                            style={{ display: 'inline-block' }}
-                            className={classes.needHelpLink}
-                            onClick={() => this.handleResetState()}
-                            component="span"
-                          >
-                            here
-                          </Link>
-                          .
-                        </Typography>
-                      </ListItem>
-                    </List>
-
-                    <Typography className={classes.submittedTypography}>
-                      If you made any changes during this process you can
-                      download the edited workbook{' '}
-                      <Link
-                        style={{ display: 'inline-block' }}
-                        className={classes.needHelpLink}
-                        onClick={this.handleDownload}
-                        component="span"
-                      >
-                        here
-                      </Link>
-                      .
-                    </Typography>
-                  </React.Fragment>
-                ) : (
-                  <React.Fragment>
-                    { noErrors ? (<Typography>
-                      You've completed dataset validation! Click the button below to upload your workbook.
-                                                                                     </Typography>)
-                    : (<Typography>
-                      There are still validation errors in previous steps. Please address these errors before submitting the dataset.
-                                                                         </Typography>)}
-
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      className={classes.submitButton}
-                      onClick={this.handleUploadSubmission}
-                      disabled={!Boolean(noErrors)}
-                    >
-                      Submit
-                    </Button>
-                  </React.Fragment>
-                )}
-              </Paper>
-            )}
           </Section>
         </FullWidthContainer>
       </div>

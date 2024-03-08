@@ -42,29 +42,7 @@ const useHeaderStyles = makeStyles ((theme) => ({
   }
 }));
 
-const ShortNameWarning = (props) => {
-  const cl = useHeaderStyles();
-  const { data } = props;
-  return (
-    <Typography variant="body1" className={cl.title}>
-      <ErrorOutline className={cl.warningIcon} />{' '}
-      Short Name will change from <span className={cl.bright}>{data.originalShortName}</span> to <span className={cl.bright}>{data.shortName}</span>.
-    </Typography>
-  )
-};
 
-const LongNameWarning = (props) => {
-  const cl = useHeaderStyles();
-  const { data } = props;
-  return (
-    <Typography variant="body1" className={cl.title}>
-      <ErrorOutline className={cl.warningIcon} />{' '}
-    Short Name will change from {' '}
-    <span className={cl.bright}>{data.originalLongName}</span> to {' '}
-    <span className={cl.bright}>{data.longName}</span>.
-    </Typography>
-  )
-};
 
 const Header = () => {
   const classes = useStyles();
@@ -82,21 +60,6 @@ const Header = () => {
       }
     }
   });
-
-  const isUpdate = Boolean(subToUpdate);
-
-  const nameCheckResult = useSelector ((state) => state.checkSubmissionNameResult);
-
-  const isShortNameChange = isUpdate && nameCheckResult
-                         && !nameCheckResult.shortNameIsAlreadyInUse
-                         && !nameCheckResult.shortNameUpdateConflict
-                         && nameCheckResult.shortName !== nameCheckResult.originalShortName;
-
-  const isLongNameChange = isUpdate && nameCheckResult
-                        && !nameCheckResult.longNameIsAlreadyInUse
-                        && !nameCheckResult.longNameUpdateConflict
-                        && nameCheckResult.longName !== nameCheckResult.originalLongName;
-
   const headerText = subType === 'new' ? 'Begin New Data Submission' : 'Update Submission:'
 
   return (
@@ -106,17 +69,13 @@ const Header = () => {
          {headerText}
         </Typography>
         {(subType === 'update' && subToUpdate) && (
-          <Typography variant="h1" className={cl.pre}>
-            {subToUpdate.Dataset_Long_Name}
-          </Typography>
+          <React.Fragment>
+            <Typography variant="h1" className={cl.pre}>
+              {'"'}{subToUpdate.Dataset_Long_Name}{'"'}
+            </Typography>
+          </React.Fragment>
         )}
       </div>
-
-      <div className={cl.nameChangeWarning}>
-        {isShortNameChange && <ShortNameWarning data={nameCheckResult} />}
-        {isLongNameChange && <LongNameWarning data={nameCheckResult} />}
-      </div>
-
 
       <Typography className={classes.needHelp}>
         Need help?

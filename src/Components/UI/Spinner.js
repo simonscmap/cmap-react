@@ -13,6 +13,7 @@ const styles = (theme) => ({
     flexDirection: 'column',
     alignItem: 'center',
     justifyContent: 'center',
+    textAlign: 'center',
     zIndex: z.LOADING_OVERLAY + 1,
     opacity: 1,
   },
