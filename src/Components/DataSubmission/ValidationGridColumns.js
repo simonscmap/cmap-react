@@ -14,13 +14,12 @@ const numberParser = (ev) => {
 }
 
 const timeParser = (ev) => {
-  const { newValue } = ev;
+  const { newValue, oldValue } = ev;
   if (dayjs (newValue).isValid ()) {
     return dayjs.utc (newValue).format ();
   }
-  return 'Invalid Date';
+  return oldValue;
 }
-
 
 const columnDefinitions = {
   data: [

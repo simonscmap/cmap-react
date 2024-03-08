@@ -111,7 +111,8 @@ const ErrorAlert = ({ thereAreErrors, goBack }) => {
     return (
       <Typography>
         One or more parts of your submission did not match CMAP requirements.
-        Please review the information below, update your workbook, and {' '}
+        Please review the information below. You can update your workbook here in the next
+      validation step, or you can edit your file on your computer and {' '}
          <Link onClick={goBack} className={cl.link}>upload it again</Link>.
        </Typography>
     );

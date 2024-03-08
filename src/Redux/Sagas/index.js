@@ -664,12 +664,10 @@ function* uploadSubmission(action) {
     yield put(dataSubmissionActions.setCheckSubmNameRequestStatus(states.failed));
   }
 
-
-
   // let chunkSize = 5 * 1024 * 1024;
   // let offset = 0;
 
-    // 1. start an upload session (get sessionId)
+  // 1. start an upload session (get sessionId)
   let beginSessionFormData = new FormData();
 
   beginSessionFormData.append('submissionType', submissionType);

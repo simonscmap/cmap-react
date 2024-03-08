@@ -22,6 +22,9 @@ import { textAreaLookup } from './ValidationToolConstants';
 import { auditKeyToLabel } from './ValidationToolConstants';
 import { getChangeForCell } from './Helpers/changeLog';
 
+import ReduxStore from '../../Redux/store';
+
+
 const useStyles = makeStyles ((theme) => ({
   wrapper: {
     color: 'white',
@@ -248,26 +251,27 @@ const Step2 = (props) => {
     getChangeLog,
   } = props;
 
-  console.log ('CHANGE LOG', getChangeLog());
   const auditReport = useSelector((state) => state.auditReport);
   const errorCount = auditReport && auditReport.errorCount;
 
   const gridApi = useRef();
 
-  useEffect (() => {
-    gridApi && gridApi.current &&
-      gridApi.current.redrawRows(); // this seems to be the only way to remove error style
-  }, [auditReport])
-
   let [message, setMessage] = useState();
 
   let [tab, setTab] = useState(0);
+
+  useEffect (() => {
+    if (step !== 2 && tab !== 0) {
+      // reset to first tab every time the user
+      // navigates away from this step
+      setTab(0);
+    }
+  }, [step])
 
   const sheet = getSheet(tab);
   const currentSheetLabel = auditKeyToLabel[sheet];
 
   const handleClickTab = (ev, newVal) => {
-    console.log ('click tab');
     setTab (newVal);
   };
 
@@ -278,7 +282,7 @@ const Step2 = (props) => {
 
   const handleFindNext = () => {
     if (!gridApi.current) {
-      console.log ('no ref to gridApi');
+      // console.log ('no ref to gridApi');
     } else {
       const currentSheet = getSheet(tab);
       goToNextError (fileData, gridApi.current, currentSheet, auditReport, setMessage);
@@ -291,10 +295,13 @@ const Step2 = (props) => {
     const { sheet: sheetName } = params.context;
     const changeLog = getChangeLog ();
 
+    // getting this by the enclosed result of a selector does not work
+    const auditReport_ = (ReduxStore.getState() || {}).auditReport;
+
     let cellStyle = {};
 
     const path = [sheetName, row, colId];
-    const shouldReStyleWithError = safePath (path) (auditReport);
+    const shouldReStyleWithError = safePath (path) (auditReport_);
 
     const cevDef = { sheet: sheetName, row, col: colId };
     const shouldReStyleWithModified = getChangeForCell (changeLog, cevDef);

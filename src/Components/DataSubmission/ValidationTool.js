@@ -316,7 +316,10 @@ class ValidationTool extends React.Component {
     const row = safePath ([sheet, rowIndex]) (auditReport);
     // if no issues on this row of audit report, delete row
     if (row && Object.keys(row).length === 0) {
+      console.log ('removing row from audit', auditReport[sheet][rowIndex])
       auditReport[sheet][rowIndex] = null;
+    } else {
+      console.log ('still audit value in row', auditReport[sheet][rowIndex])
     }
 
     // update the data
@@ -325,7 +328,6 @@ class ValidationTool extends React.Component {
       ...this.state[sheet].slice(rowIndex + 1),
     );
 
-    console.log (`New Audit: ${sheet}`, updated);
     // set state
     this.setState({
       ...this.state,
@@ -333,13 +335,16 @@ class ValidationTool extends React.Component {
       changeLog: this.state.changeLog.concat(changeEvent)
     }, () => {
       console.log ('redrawing');
+      // redraw rows
       const row = this.gridApi.getDisplayedRowAtIndex(rowIndex);
       this.gridApi.redrawRows({rowNodes: [row]});
+
+      // refresh cells
+      console.log ('refresh cell', event.node);
       event.api.refreshCells({
         force: true,
         rowNodes: [event.node] // pass rowNode that was edited
       });
-
     });
 
     this.props.setSheetAudit({
