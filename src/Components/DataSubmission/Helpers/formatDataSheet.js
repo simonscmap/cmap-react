@@ -8,6 +8,8 @@ dayjs.extend(utc);
 dayjs.extend(tz);
 
 
+const timeRe = new RegExp (/^(\d{4})[-/]?(\d{1,2})?[-/]?(\d{0,2})[Tt\s]*(\d{1,2})?:?(\d{1,2})?:?(\d{1,2})?[.:]?(\d+)?$/);
+
 const is1904Format = (workbook) => {
   return Boolean(((workbook.Workbook || {}).WBProps || {}).date1904);
 }
@@ -63,15 +65,30 @@ export default (data, workbook) => {
       row.time = newUTCDateString;
     });
     numericDateFormatConverted = true;
+  } else if (isNumeric) {
+    data.forEach((row) => {
+      row.time = convertExcelNumeric (row.time);
+    });
   } else {
     data.forEach((row) => {
-      const newUTCFormattedDateTime = dayjs.utc(row.time).format();
-      if (!dateTimeFormatConverted) {
-        if (newUTCFormattedDateTime !== row.time) {
-          dateTimeFormatConverted = [newUTCFormattedDateTime, row.time];
-        }
+      const isValid = dayjs(row.time).isValid();
+      if (!isValid) {
+        return;
       }
-      row.time = newUTCFormattedDateTime;
+      const isExpectedFormat = timeRe.test (row.time);
+
+      if (isExpectedFormat) {
+        const newUTCFormattedDateTime = dayjs.utc(row.time).format();
+        if (!dateTimeFormatConverted) {
+          if (newUTCFormattedDateTime !== row.time) {
+            dateTimeFormatConverted = [newUTCFormattedDateTime, row.time];
+          }
+        }
+        row.time = newUTCFormattedDateTime;
+      } else {
+        // not an expected format, but still valid
+        // see https://github.com/iamkun/dayjs/issues/2593
+      }
     });
   }
 

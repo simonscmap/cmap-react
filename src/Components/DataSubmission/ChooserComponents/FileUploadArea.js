@@ -11,9 +11,9 @@ import { StepButton } from './Buttons';
 import Spinner from '../../UI/Spinner';
 // fns
 import { safePath } from '../../../Utility/objectUtils';
+import { formatBytes } from '../Helpers/display';
 
 // action creators
-import { setLoadingMessage } from '../../../Redux/actions/ui';
 import { checkSubmissionOptionsAndStoreFile } from '../../../Redux/actions/dataSubmission';
 
 const useStyles = makeStyles ((theme) => ({
@@ -98,22 +98,34 @@ const FileUploadArea = (props) => {
 
   let [loading, setLoading] = useState (false);
   useEffect (() => {
-
     if (loading && !loadingStatus) {
       setLoading (false);
     }
+
     const message = ['reading', 'parsing', 'validating'].some((status) =>
       status === (loadingStatus && loadingStatus.status));
 
+    let largeFile = false;
+    if (loadingStatus && loadingStatus.totalBytes > 1000000) { // greater than about 1 MB
+      console.log('large file', loadingStatus.totalBytes, formatBytes (loadingStatus.totalBytes));
+      largeFile = true
+    }
+
     if (message) {
-      console.log ('MESSAGE', loadingStatus.status)
+      let msg;
       if (loadingStatus.status === 'reading') {
-        setLoading (`Reading File (${loadingStatus.totalBytes})`);
+        msg = `Reading File (${formatBytes (loadingStatus.totalBytes)})`;
       } else if (loadingStatus.status === 'parsing') {
-        setLoading (`Parsing File`);
+        msg = `Parsing File (${formatBytes (loadingStatus.totalBytes)})`;
       } else if (loadingStatus.status === 'validating') {
-        setLoading (`Validating Data`);
+        msg = 'Validating Data';
       }
+      if (largeFile) {
+        msg += '\nProcessing a large file may take time, please wait.'
+      }
+      setLoading (msg);
+    } else if (!message && loading) {
+      setLoading (false);
     }
   }, [loadingStatus]);
 

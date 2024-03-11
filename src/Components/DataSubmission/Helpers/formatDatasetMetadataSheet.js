@@ -1,37 +1,50 @@
+import * as dayjs from 'dayjs';
+import tz from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+import LocalizedFormat from 'dayjs/plugin/localizedFormat';
+
+dayjs.extend(utc);
+dayjs.extend(tz);
+dayjs.extend(LocalizedFormat);
+
+const parseReleaseDate = (releaseDate, workbook) => {
+  const is1904 = !!((workbook.Workbook || {}).WBProps || {}).date1904;
+
+  if (typeof releaseDate === 'number' && releaseDate !== 0) {
+    if (is1904) {
+      return new Date(
+        (releaseDate - 25567) * 86400 * 1000 +
+        1000 * 60 * 60 * 24 * 365 * 4,
+      )
+        .toISOString()
+        .slice(0, -14);
+    } else {
+      return new Date((releaseDate - 25567) * 86400 * 1000)
+        .toISOString()
+        .slice(0, -14);
+    }
+  } else if (typeof releaseDate === 'string') {
+    if (dayjs (releaseDate).isValid ()) {
+      return dayjs.utc (releaseDate).format ('YYYY-MM-DD');
+    }
+  }
+  // default: return unchanged value
+  return releaseDate;
+}
+
+
 export default (metadata, workbook) => {
   if (!metadata || !metadata.length) {
     return;
   }
 
-  try {
-    var sample = metadata[0];
-    var type = typeof sample.dataset_release_date;
+  const sample = metadata[0];
+  const parsedReleaseDateValue = parseReleaseDate (
+    sample.dataset_release_date,
+    workbook
+  );
 
-    var is1904 = !!((workbook.Workbook || {}).WBProps || {}).date1904;
-
-    if (type === 'number') {
-      if (is1904) {
-        sample.dataset_release_date = new Date(
-          (sample.dataset_release_date - 25567) * 86400 * 1000 +
-            1000 * 60 * 60 * 24 * 365 * 4,
-        )
-          .toISOString()
-          .slice(0, -14);
-      } else {
-        sample.dataset_release_date = new Date(
-          (sample.dataset_release_date - 25567) * 86400 * 1000,
-        )
-          .toISOString()
-          .slice(0, -14);
-      }
-    } else {
-      sample.dataset_release_date = new Date(sample.dataset_release_date)
-        .toISOString()
-        .slice(0, -14);
-    }
-  } catch (e) {
-    console.log(`error formatting metadata sheet`, e);
-  }
+  sample.dataset_release_date = parsedReleaseDateValue;
 
   let cols = Object.keys(metadata[0]);
   let keysContaining__EMPTY = [];

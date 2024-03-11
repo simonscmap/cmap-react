@@ -17,6 +17,9 @@ import {
 } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 
+// components
+import { useNameChangeWarning } from './NameChangeWarning';
+
 // fns
 import { safePath } from '../../Utility/objectUtils';
 import renderBody from '../Home/News/renderBody';
@@ -29,12 +32,8 @@ const hasLength = (maybeArray) => {
   return false;
 }
 
-
-// TODO react router dom: useLocation + useEffect + location.search + location
-
 const useStyles = makeStyles ((theme) => ({
   workbookAuditWrapper: {
-    // padding: '12px',
     whiteSpace: 'pre-wrap',
     textAlign: 'left',
     color: 'white',
@@ -43,14 +42,13 @@ const useStyles = makeStyles ((theme) => ({
     }
   },
   card: {
-    // width: 'calc(100% - 4em)',
     margin: '1em 0 ',
     fontFamily: ['Lato', 'sans-serif'].join(','),
     '& .MuiCardHeader-root': {
-      padding: '8px',
+      padding: '8px 8px 0 8px',
     },
     '& .MuiCardContent-root': {
-      padding: '8px',
+      padding: '0 8px 8px 8px',
       marginLeft: '50px' // indent text to match title
     },
     '& em': {
@@ -95,8 +93,10 @@ const useStyles = makeStyles ((theme) => ({
     '&:hover': {
       color: theme.palette.secondary.dark,
     }
-  }
-
+  },
+  bright: {
+    color: '#69FFF2',
+  },
 }));
 
 const warningOutlineStyle = {
@@ -138,6 +138,18 @@ const WarningsAlert = ({ thereAreWarnings }) => {
   }
 };
 
+const ConfirmationsAlert = ({ thereAreConfirmations }) => {
+  if (thereAreConfirmations) {
+    return (
+      <Typography>
+        Please confirm the following changes.
+      </Typography>
+    );
+  } else {
+    return '';
+  }
+};
+
 const CardTitle = (props) => {
   const { t, title } = props;
   const cl = useStyles ();
@@ -155,7 +167,7 @@ const CardTitle = (props) => {
 
 const IssueCard = (props) => {
   const { t, info } = props;
-  const { title, subheader, detail, body } = info;
+  const { title, subheader, detail, body, Component } = info;
   const cl = useStyles ();
   return (
     <Card className={cl.card} raised>
@@ -163,10 +175,12 @@ const IssueCard = (props) => {
       <CardContent>
         {detail && renderText(detail)}
         {body && renderBody(body)}
+        {Component && <Component />}
       </CardContent>
     </Card>
   );
 };
+
 
 // COMPONENT
 const Step1 = (props) => {
@@ -189,6 +203,7 @@ const Step1 = (props) => {
 
   const thereAreErrors = hasLength (safePath (['workbook', 'errors']) (auditReport));
   const thereAreWarnings = hasLength (safePath (['workbook', 'warnings']) (auditReport))
+  const thereAreConfirmations = hasLength (safePath (['workbook', 'confirmations']) (auditReport))
 
   // keep errors updated
   let [errors, setErrors] = useState([]);
@@ -202,11 +217,15 @@ const Step1 = (props) => {
         eArr = eArr.concat(...auditWorkbookErrors);
       }
     }
-    console.log ('setting errors report', eArr)
-
     setErrors(eArr);
   }, [subType, checkName, auditReport]);
 
+  // name change warning
+  const {
+    isShortNameChange,
+    isLongNameChange,
+    nameCheckResult,
+  } = useNameChangeWarning ();
 
   if (step !== 1) {
     return <React.Fragment />;
@@ -219,9 +238,44 @@ const Step1 = (props) => {
     <div className={cl.workbookAuditWrapper}>
       <Typography variant={"h5"}>Workbook Validation</Typography>
 
-      <ErrorAlert thereAreErrors={thereAreErrors} goBack={goBack}/>
+
+      {/* name change warning */}
+      <div className={cl.nameChangeWarning}>
+        {isShortNameChange && <IssueCard
+          t={'confirmation'}
+          info={{
+            title: 'Name Change',
+            Component: () => {
+              const cls = useStyles();
+              return (
+                <Typography variant="body1" className={cl.title}>
+                  Short Name will change from <span className={cls.bright}>{nameCheckResult.originalShortName}</span> to <span className={cls.bright}>{nameCheckResult.shortName}</span>.
+                </Typography>
+              );
+            }
+          }}
+          />}
+        {isLongNameChange && <IssueCard
+          t={'confirmation'}
+          info={{
+            title: 'Name Change',
+            Component: () => {
+              const cls = useStyles();
+              return (
+                <Typography variant="body1" className={cl.title}>
+                  Long Name will change from <span className={cls.bright}>{nameCheckResult.originalLongName}</span> to <span className={cls.bright}>{nameCheckResult.longName}</span>.
+                </Typography>
+              );
+            }
+          }}
+          />}
+      </div>
+
 
       {/* workbook errors */}
+
+      <ErrorAlert thereAreErrors={thereAreErrors} goBack={goBack}/>
+
       {errors.map((e, i) => {
         if (typeof e === 'string') {
           return <IssueCard key={`errorCard-${i}`} t={'error'} info={{ title: 'Error', detail: e }} />
@@ -231,9 +285,11 @@ const Step1 = (props) => {
       })}
 
 
-      <WarningsAlert thereAreWarnings={thereAreWarnings} />
 
       {/* workbook warnings */}
+
+      <WarningsAlert thereAreWarnings={thereAreWarnings} />
+
       {auditReport.workbook.warnings.map((e, i) => {
         if (typeof e === 'string') {
           return <IssueCard key={`warningCard-${i}`} t={'warning'} info={{ title: 'Warning', detail: e }} />
@@ -242,7 +298,11 @@ const Step1 = (props) => {
         }
       })}
 
-       {auditReport.workbook.confirmations.map((e, i) => {
+
+
+      <ConfirmationsAlert thereAreConfirmations={thereAreConfirmations} />
+
+      {auditReport.workbook.confirmations.map((e, i) => {
         if (typeof e === 'string') {
           return <IssueCard key={`confirmation-${i}`} t={'confirmation'} info={{ title: 'Please Confirm', detail: e }} />
         } else {

@@ -615,7 +615,6 @@ function* uploadSubmission(action) {
     dataSource,
   } = action.payload;
 
-
   // check
   if (!file) {
     log.error ('no file provided to uploadSubmission saga', { ...action.payload });
@@ -628,6 +627,17 @@ function* uploadSubmission(action) {
     log.error ('no raw file provided to uploadSubmission saga', { ...action.payload });
     yield put(interfaceActions.snackbarOpen('There was an error beginning file upload.', tag));
     yield put(interfaceActions.setLoadingMessage('', tag));
+    return;
+  }
+
+  // check audit
+  const auditReport = yield select(
+    (state) => state.auditReport,
+  );
+
+  const totalErrors = auditReport && auditReport.errorCount && auditReport.errorCount.sum;
+  if (totalErrors !== 0) {
+    yield put(interfaceActions.snackbarOpen('There are validation errors preventing submission', tag));
     return;
   }
 

@@ -24,6 +24,8 @@ import { getChangeSummary } from './Helpers/changeLog';
 import {
   validationSteps,
 } from './ValidationToolConstants';
+
+import NameChangeWarnings from './NameChangeWarning';
 import { StepButton} from './ChooserComponents/Buttons';
 import states from '../../enums/asyncRequestStates';
 
@@ -81,11 +83,7 @@ const useStyles = makeStyles ((theme) => ({
     fontSize: '32px',
     fontWeight: 100
   },
-  nameChangeWarning: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-  },
+
   warningIcon: {
     color: 'rgb(255, 255, 0)',
     margin: '0 2px -5px 0',
@@ -95,75 +93,6 @@ const useStyles = makeStyles ((theme) => ({
     color: '#69FFF2',
   },
 }));
-
-const ShortNameWarning = (props) => {
-  const cl = useStyles();
-  const { data } = props;
-  return (
-    <Typography variant="body1" className={cl.title}>
-      <ErrorOutline className={cl.warningIcon} />{' '}
-      Short Name will change from <span className={cl.bright}>{data.originalShortName}</span> to <span className={cl.bright}>{data.shortName}</span>.
-    </Typography>
-  )
-};
-
-const LongNameWarning = (props) => {
-  const cl = useStyles();
-  const { data } = props;
-  return (
-    <Typography variant="body1" className={cl.title}>
-      <ErrorOutline className={cl.warningIcon} />{' '}
-    Short Name will change from {' '}
-    <span className={cl.bright}>{data.originalLongName}</span> to {' '}
-    <span className={cl.bright}>{data.longName}</span>.
-    </Typography>
-  )
-};
-
-
-const NameChangeWarnings = (props) => {
-  const classes = useStyles();
-  const subToUpdate = useSelector ((state) => {
-    if (state.submissionType === 'update' && state.submissionToUpdate) {
-      const s = state.dataSubmissions
-                     .find ((sub) => sub.Submission_ID === state.submissionToUpdate);
-      if (s) {
-        return s;
-      } else {
-        return null;
-      }
-    }
-  });
-
-  const isUpdate = Boolean(subToUpdate);
-
-  const nameCheckResult = useSelector ((state) => state.checkSubmissionNameResult);
-
-  const isShortNameChange = isUpdate && nameCheckResult
-                         && !nameCheckResult.shortNameIsAlreadyInUse
-                         && !nameCheckResult.shortNameUpdateConflict
-                         && nameCheckResult.shortName !== nameCheckResult.originalShortName;
-
-  const isLongNameChange = isUpdate && nameCheckResult
-                        && !nameCheckResult.longNameIsAlreadyInUse
-                        && !nameCheckResult.longNameUpdateConflict
-                        && nameCheckResult.longName !== nameCheckResult.originalLongName;
-
-
-
-  return (
-    <div className={classes.nameChangeWarning}>
-      {(isShortNameChange || isLongNameChange) && (
-        <Typography className={classes.changeSummaryHeader}>
-        Name Changes
-        </Typography>
-      )}
-      {isShortNameChange && <ShortNameWarning data={nameCheckResult} />}
-      {isLongNameChange && <LongNameWarning data={nameCheckResult} />}
-    </div>
-  );
-};
-
 
 const ChangeRow = (props) => {
   const { data } = props;

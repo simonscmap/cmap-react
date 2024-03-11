@@ -7,6 +7,8 @@ import { AgGridReact } from 'ag-grid-react';
 import DSCellEditor from './DSCellEditor';
 import DSCellEditorTextArea from './DSCellEditorTextArea';
 import DSCellEditorSelect from './DSCellEditorSelect';
+import DSCellRenderWithDelete from './DSCellRenderWithDelete';
+import DSCellRenderDateTime from './DSCellRenderDateTime';
 // import NumericCellEditor from './NumericCellEditor';
 
 const useStyles = makeStyles ((theme) => ({
@@ -41,6 +43,8 @@ const ValidationGrid = (props) => {
             DSCellEditor,
             DSCellEditorSelect,
             DSCellEditorTextArea,
+            DSCellRenderWithDelete,
+            DSCellRenderDateTime,
           }}
         />
       </div>

@@ -7,8 +7,10 @@ dayjs.extend(utc);
 dayjs.extend(tz);
 dayjs.extend(LocalizedFormat)
 
+const timeRe = new RegExp (/^(\d{4})[-/]?(\d{1,2})?[-/]?(\d{0,2})[Tt\s]*(\d{1,2})?:?(\d{1,2})?:?(\d{1,2})?[.:]?(\d+)?$/);
 
 const numberParser = (ev) => {
+  console.log ('NUMBER PARSER', ev);
   const { newValue } = ev;
   return isNaN(newValue) ? null : Number(newValue);
 }
@@ -16,10 +18,34 @@ const numberParser = (ev) => {
 const timeParser = (ev) => {
   const { newValue, oldValue } = ev;
   if (dayjs (newValue).isValid ()) {
-    return dayjs.utc (newValue).format ();
+    const isExpectedFormat = timeRe.test (newValue);
+    if (isExpectedFormat) {
+      return dayjs.utc (newValue).format ();
+    } else {
+      // not an expected format, but still valid
+      // see https://github.com/iamkun/dayjs/issues/2593
+
+      // The following does not work, because it does not account for daylight savings,
+      //
+      // const tzOffset = (new Date()).getTimezoneOffset();
+      // const dt = dayjs(newValue).subtract(tzOffset, 'm').format();
+      // return dayjs.utc(dt).format();
+      return dayjs.utc (newValue).format ();
+
+    }
   }
-  return oldValue;
+  return newValue;
 }
+
+const dateParser = (ev) => {
+  console.log ('DATE PARSER', ev)
+  const { newValue, oldValue } = ev;
+  if (dayjs.utc (newValue).isValid ()) {
+    return dayjs.utc (newValue).format ('YYYY-MM-DD');
+  }
+  return newValue;
+}
+
 
 const columnDefinitions = {
   data: [
@@ -27,6 +53,7 @@ const columnDefinitions = {
       headerName: 'Time',
       field: 'time',
       valueParser: timeParser,
+      // cellRenderer: 'DSCellRenderDateTime', // the validation is too aggressive to use this
     },
     {
       headerName: 'Latitude',
@@ -75,6 +102,7 @@ const columnDefinitions = {
       headerName: 'Release Date',
       field: 'dataset_release_date',
       autoHeight: true,
+      valueParser: dateParser,
     },
 
     {
@@ -82,6 +110,7 @@ const columnDefinitions = {
       field: 'dataset_make',
       autoHeight: true,
       cellEditor: 'DSCellEditorSelect',
+      cellRenderer: 'DSCellRenderWithDelete',
     },
 
     {
@@ -133,6 +162,8 @@ const columnDefinitions = {
       headerName: 'climatology',
       field: 'climatology',
       valueParser: numberParser,
+      cellEditor: 'DSCellEditorSelect',
+      cellRenderer: 'DSCellRenderWithDelete',
     },
 
     {

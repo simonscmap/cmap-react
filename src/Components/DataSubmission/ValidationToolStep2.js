@@ -74,6 +74,7 @@ const generateSelectOptions = (reduxStoreOptions) => ({
   var_spatial_res: reduxStoreOptions.Spatial_Resolution,
   dataset_make: reduxStoreOptions.Make,
   visualize: [0, 1],
+  climatology: [0, 1],
 });
 
 const getColumns = (sheet, data) => {

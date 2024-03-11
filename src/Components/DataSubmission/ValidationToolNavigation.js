@@ -8,6 +8,8 @@ import { useSelector } from 'react-redux';
 import { StepButton } from './ChooserComponents/Buttons';
 import { validationSteps } from './ValidationToolConstants';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
+
+import states from '../../enums/asyncRequestStates';
 import ErrorStatus from './ValidationToolErrorStatus';
 
 const useStyles = makeStyles ((theme) => ({
@@ -79,15 +81,17 @@ const Navigation = (props) => {
 
   const { file, step, changeStep } = props;
 
+  const submissionUploadState = useSelector ((state) => state.submissionUploadState);
   const auditReport = useSelector ((state) => state.auditReport);
   const errorCount = auditReport && auditReport.errorCount;
   const errorSum = errorCount && errorCount.sum || 0;
   const workbookErrors = auditReport && auditReport.workbook.errors.length;
 
+  const preventAll = submissionUploadState === states.succeeded;
   const preventNext = Boolean(
-    step >= 5
-    || (step === 4 && (errorSum > 0))
+    step >= 3
     || (step === 0 && !file)
+    || preventAll
   );
 
   const onLastStep = step >= validationSteps.length;
@@ -125,6 +129,7 @@ const Navigation = (props) => {
             </StepButton>
           </div>
         </Tooltip>
+
 
         <Tooltip title={forwardArrowTooltip}>
           <div className={cl.refHolder}>

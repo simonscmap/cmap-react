@@ -127,6 +127,7 @@ class ValidationTool extends React.Component {
   };
 
   auditRows = (rows, sheet) => {
+    const checkNameResult = this.props.checkSubmissionNameResult;
     let audit = [];
 
     if (Array.isArray(rows)) {
@@ -138,6 +139,35 @@ class ValidationTool extends React.Component {
         columns.forEach((col) => {
           let cellAudit = this.auditCell(row[col], col, i);
 
+          // emend cellAudit with name conflict errors
+          if (sheet === 'dataset_meta_data') {
+            if (col === 'dataset_short_name') {
+              if (checkNameResult && checkNameResult.shortNameIsAlreadyInUse) {
+                if (!Array.isArray (cellAudit)) {
+                  cellAudit = [];
+                }
+                cellAudit.push (`The short name "${checkNameResult.shortName}" is already in use.`)
+              } else if (checkNameResult && checkNameResult.shortNameUpdateConflict) {
+                if (!Array.isArray (cellAudit)) {
+                  cellAudit = [];
+                }
+                cellAudit.push (`The short name "${checkNameResult.shortName}" confilcts with another data submission.`)
+              }
+            }
+            if (col === 'dataset_long_name') {
+              if (checkNameResult && checkNameResult.longNameIsAlreadyInUse) {
+                if (!Array.isArray (cellAudit)) {
+                  cellAudit = [];
+                }
+                cellAudit.push (`The long name "${checkNameResult.longName}" is already in use.`)
+              } else if (checkNameResult && checkNameResult.longNameUpdateConflict) {
+                if (!Array.isArray (cellAudit)) {
+                  cellAudit = [];
+                }
+                cellAudit.push (`The long name "${checkNameResult.longName}" confilcts with another data submission.`)
+              }
+            }
+          }
           if (cellAudit.length) {
             rowAudit[col] = cellAudit;
           }
@@ -162,6 +192,8 @@ class ValidationTool extends React.Component {
       numericDateFormatConverted,
       dateTimeFormatConverted,
     } = this.state;
+
+    const { checkSubmissionNameResult } = this.props;
 
     const argsObj = {
       workbook,
@@ -232,6 +264,10 @@ class ValidationTool extends React.Component {
       data: null,
       dataset_meta_data: null,
       vars_meta_data: null,
+      loadingFile: {
+        status: 'error',
+        totalBytes: 0
+      }
     });
   };
 
@@ -389,18 +425,16 @@ class ValidationTool extends React.Component {
         ...this.state,
         loadingFile: {
           status: 'reading',
-          totalBytes: formatBytes (totalBytes),
+          totalBytes,
         }
       })
-        console.log ('size read: ' + formatBytes(totalBytes));
+        console.log ('size read: ' + formatBytes(totalBytes), totalBytes);
       } catch (e) {
         console.log ('error: file reader progress event total was not a number')
       }
     }
 
     reader.onload = (progressEvent) => {
-      const size = formatBytes(totalBytes);
-      console.log ('onload: begin parsing file', size);
       this.setState ({
         ...this.state,
         loadingFile: {
@@ -408,7 +442,6 @@ class ValidationTool extends React.Component {
           totalBytes,
         }
       })
-      // this.props.setLoadingMessage(`Parsing file (${size})`, { tag: 'ValidationTool#reader.onload' });
 
       var readFile = new Uint8Array(progressEvent.target.result);
       var workbook = XLSX.read(readFile, { type: 'array' });
@@ -421,10 +454,15 @@ class ValidationTool extends React.Component {
         formatResult = formatDataSheet(_data, workbook);
       } catch (e) {
         console.log ('error loading file', e);
-
         this.props.snackbarOpen('Error parsing file.');
-        // this.props.setLoadingMessage('', { tag: 'ValidationTool#reader.onload' });
         this.handleResetState ();
+        this.setState ({
+          ...this.state,
+          loadingFile: {
+            status: 'error',
+            totalBytes: 0
+          }
+        });
         return;
       }
 
@@ -512,6 +550,7 @@ class ValidationTool extends React.Component {
   handleUploadSubmission = () => {
     // rerun all audits
     this.performAudit (false);
+
     // prevent upload if errors exist
     if (!this.props.auditReport) {
       console.log ('No audit report present; preventing submit action.');
