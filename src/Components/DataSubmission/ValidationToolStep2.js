@@ -142,7 +142,6 @@ const getColumns = (sheet, data) => {
     }
   }
 
-
   const columns = Object.keys(data[0])
                         .filter((key) => !nonKeys.includes(key))
                         .map(provideColDef);

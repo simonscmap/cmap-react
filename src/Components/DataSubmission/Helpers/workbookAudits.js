@@ -448,15 +448,17 @@ export default (args) => {
       });
     } else if (shortNameUpdateConflict) {
       console.log ('short name update conflict');
-      const shortNameBelongsToOtherSubmission = userDataSubmissions.find ((sub) => {
-        return sub.Dataset === shortName && sub.Submission_ID !== submissionToUpdate;
-      });
-      const targetDataset = userDataSubmissions.find ((sub) => sub.Submission_ID === submissionToUpdate);
-      if (shortNameBelongsToOtherSubmission && targetDataset) {
-        warnings.push ({
-          title: 'Did you pick the right file?',
-          detail: `In the last step you selected the *\`${targetDataset.Dataset}\`* submission to update, but the file you uploaded has a short name of *\`${shortName}\`*, which already belongs to one of your other data submissions. Please check that you are updating the intended dataset submission with the correct data file..`,
+      if (userDataSubmissions && userDataSubmissions.length) {
+        const shortNameBelongsToOtherSubmission = userDataSubmissions.find ((sub) => {
+          return sub.Dataset === shortName && sub.Submission_ID !== submissionToUpdate;
         });
+        const targetDataset = userDataSubmissions.find ((sub) => sub.Submission_ID === submissionToUpdate);
+        if (shortNameBelongsToOtherSubmission && targetDataset) {
+          warnings.push ({
+            title: 'Did you pick the right file?',
+            detail: `In the last step you selected the *\`${targetDataset.Dataset}\`* submission to update, but the file you uploaded has a short name of *\`${shortName}\`*, which already belongs to one of your other data submissions. Please check that you are updating the intended dataset submission with the correct data file..`,
+          });
+        }
       }
       errors.push({
         title: 'Unable to update short name',

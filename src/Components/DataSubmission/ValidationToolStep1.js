@@ -245,9 +245,9 @@ const Step1 = (props) => {
       {/* name change warning */}
       <div className={cl.nameChangeWarning}>
         {isShortNameChange && <IssueCard
-          t={'confirmation'}
+          t={'warning'}
           info={{
-            title: 'Name Change',
+            title: 'Short Name Will Change',
             Component: () => {
               const cls = useStyles();
               return (
@@ -259,9 +259,9 @@ const Step1 = (props) => {
           }}
           />}
         {isLongNameChange && <IssueCard
-          t={'confirmation'}
+          t={'warning'}
           info={{
-            title: 'Name Change',
+            title: 'Long Name Will Change',
             Component: () => {
               const cls = useStyles();
               return (

@@ -39,7 +39,8 @@ export const getChangeForCell = (log, cevDef) => {
   const currentValue = lastCev.val;
 
   if (originalValue === currentValue) {
-    return undefined;
+    console.log ('values are the same', originalValue, currentValue);
+    // return undefined;
   }
 
   return {

@@ -104,7 +104,7 @@ class ValidationTool extends React.Component {
   };
 
   auditCell = (value, col, row) => {
-    // console.log ('Audit Cell', { value, col, row });
+    console.log ('Audit Cell', { value, col, row });
     let cellAudit = [];
     let auditFuncs = this.audits[col];
 
@@ -140,6 +140,11 @@ class ValidationTool extends React.Component {
         let rowAudit = {};
 
         let columns = auditReference[sheet];
+
+        const hasDepthCol = this.state.data && Object.keys(this.state.data[0]).includes('depth');
+        if (!hasDepthCol) {
+          columns = columns.filter ((c) => c !== 'depth');
+        }
 
         columns.forEach((col) => {
           let cellAudit = this.auditCell(row[col], col, i);
@@ -590,7 +595,6 @@ class ValidationTool extends React.Component {
    * }; */
 
   handleUploadSubmission = () => {
-    this.props.
     // rerun all audits
     this.performAudit (false);
 
