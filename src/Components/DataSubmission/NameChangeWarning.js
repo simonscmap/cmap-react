@@ -48,9 +48,9 @@ const LongNameWarning = (props) => {
   return (
     <Typography variant="body1" className={cl.title}>
       <ErrorOutline className={cl.warningIcon} />{' '}
-    Short Name will change from {' '}
-    <span className={cl.bright}>{data.originalLongName}</span> to {' '}
-    <span className={cl.bright}>{data.longName}</span>.
+      Short Name will change from {' '}
+      <span className={cl.bright}>{data.originalLongName}</span> to {' '}
+      <span className={cl.bright}>{data.longName}</span>.
     </Typography>
   )
 };

@@ -42,8 +42,13 @@ const IssueSummary = (props) => {
     return <React.Fragment />;
   }
 
+  if (!errorCount) {
+    return '';
+  }
+
   const noErrors = 0 === Object.keys(errorCount).reduce((acc, curr) => {
-    return acc + errorCount[curr];
+    const count = errorCount[curr] || 0;
+    return acc + count;
   }, 0);
 
   if (noErrors) {

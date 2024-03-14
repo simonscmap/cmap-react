@@ -579,21 +579,6 @@ class ValidationTool extends React.Component {
     reader.readAsArrayBuffer(file);
   };
 
-  /* handleDrop = (e) => {
-   *   e.preventDefault();
-   *   var file = e.dataTransfer.items[0].getAsFile();
-   *   // this.props.setLoadingMessage('Reading Workbook', { tag: 'Validation Tool: Handle Drop'});
-   *   this.props.checkSubmissionOptionsAndStoreFile(file, this.props.submissionToUpdate);
-   * }; */
-
-  /* handleFileSelect = (e) => {
-   *   var file = e.target.files[0];
-   *   if (!file) return;
-   *   this.props.setLoadingMessage('Reading Workbook');
-   *   this.props.checkSubmissionOptionsAndStoreFile(file);
-   *   e.target.value = null;
-   * }; */
-
   handleUploadSubmission = () => {
     // rerun all audits
     this.performAudit (false);
@@ -739,7 +724,7 @@ class ValidationTool extends React.Component {
     // 3. should rerun audits
     const subTypeChanged = this.props.submissionType !== prevProps.submissionType;
     const nameCheckChanged = this.props.checkSubmissionNameResult !== prevProps.checkSubmissionNameResult;
-    if (subTypeChanged || nameCheckChanged) {
+    if ((subTypeChanged || nameCheckChanged) && this.props.submissionFile) {
       console.log ('call perform audit because nameCheck has changed');
       this.performAudit(false, 'componentDidUpdate');
     }

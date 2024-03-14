@@ -194,7 +194,7 @@ const Step1 = (props) => {
   useEffect(() => {
     console.log ('step 1: detected change in auditReport prop', auditReport);
     if (!auditReport) {
-      changeStep (0);
+      // changeStep (0);
       history.push('/datasubmission/validationtool')
     }
   }, [auditReport]);
