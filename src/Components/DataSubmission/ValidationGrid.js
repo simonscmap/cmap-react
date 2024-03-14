@@ -3,6 +3,7 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { AgGridReact } from 'ag-grid-react';
+import { useSelector } from 'react-redux';
 
 import DSCellEditor from './DSCellEditor';
 import DSCellEditorTextArea from './DSCellEditorTextArea';
@@ -20,6 +21,13 @@ const useStyles = makeStyles ((theme) => ({
 const ValidationGrid = (props) => {
   const { gridContext, columns, rowData, defaultColumnDef, onCellFocused } = props;
   const cl = useStyles();
+
+  const file = useSelector ((state) => state.submissionFile);
+
+  if (!file) {
+    console.log ('not rendering grid', file)
+    return '';
+  }
 
   return (
     <div id="dataSubmission">

@@ -137,7 +137,6 @@ const getColumns = (sheet, data) => {
         field: columnName,
         cellDataType: dataType,
         valueParser: dataType === 'number' ? numberParser : (id) => id,
-        // valueGetter: dataType === 'number' ? numberGetter : undefined,
       };
       return def;
     }

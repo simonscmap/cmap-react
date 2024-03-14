@@ -4,11 +4,11 @@ import dayjs from 'dayjs';
 import tz from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 
+// import standardFormat from './standardUTCDateTime';
+
 dayjs.extend(utc);
 dayjs.extend(tz);
 
-
-const timeRe = new RegExp (/^(\d{4})[-/]?(\d{1,2})?[-/]?(\d{0,2})[Tt\s]*(\d{1,2})?:?(\d{1,2})?:?(\d{1,2})?[.:]?(\d+)?$/);
 
 const is1904Format = (workbook) => {
   return Boolean(((workbook.Workbook || {}).WBProps || {}).date1904);
@@ -52,42 +52,43 @@ const deleteEmptyRows = (data) => {
   return keysContaining__EMPTY;
 }
 
-
+/* The following formatting aims to provide a minimal parsing of time values:
+   - if the value in numeric it will be converted to a string
+   - if the provided sheet is in 1904 excel format, a appropriate specifc conversion will be used
+   - if the value is a string, it will merely be tested to see if it can be instantiated as a valid date object
+   - a critical error will be flagged if a numeric date is negative, or if a string cannot become a valid date
+ */
 export default (data, workbook) => {
+  // let fatalTimeFormatError = false;
+  // const timeFormatErrorExamples = [];
+  let numericDateFormatConverted = false;
+  // let dateTimeFormatConverted = false;
+  let invalidDates = false;
   const isNumeric = isNumericFormat (data);
   const is1904 = is1904Format (workbook);
 
-  let numericDateFormatConverted = false;
-  let dateTimeFormatConverted = false;
   if (isNumeric && !is1904) {
     data.forEach((row) => {
       const newUTCDateString = convertExcelNumeric (row.time);
       row.time = newUTCDateString;
     });
     numericDateFormatConverted = true;
-  } else if (isNumeric) {
-    data.forEach((row) => {
-      row.time = convertExcelNumeric (row.time);
-    });
   } else {
     data.forEach((row) => {
-      const isValid = dayjs(row.time).isValid();
-      if (!isValid) {
-        return;
-      }
-      const isExpectedFormat = timeRe.test (row.time);
-
-      if (isExpectedFormat) {
-        const newUTCFormattedDateTime = dayjs.utc(row.time).format();
-        if (!dateTimeFormatConverted) {
-          if (newUTCFormattedDateTime !== row.time) {
-            dateTimeFormatConverted = [newUTCFormattedDateTime, row.time];
-          }
+      if (typeof row.time === 'number') {
+        if (row.time < 0) {
+          invalidDates = true;
+          return;
+        } else {
+          return convertExcelNumeric (row.time);
         }
-        row.time = newUTCFormattedDateTime;
-      } else {
-        // not an expected format, but still valid
-        // see https://github.com/iamkun/dayjs/issues/2593
+      } else if (typeof row.time === 'string') {
+        const isValid = dayjs(row.time).isValid();
+        if (!isValid) {
+          invalidDates = true;
+        }
+      } else if (row.time === null || row.time === undefined) {
+        invalidDates = true;
       }
     });
   }
@@ -99,8 +100,8 @@ export default (data, workbook) => {
     data,
     is1904,
     numericDateFormatConverted,
-    dateTimeFormatConverted,
     deletedKeys,
+    invalidDates,
   };
 }
 

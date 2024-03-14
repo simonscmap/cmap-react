@@ -78,7 +78,7 @@ const useStyles = makeStyles ((theme) => ({
 // Reacts To --
 // • whether user has active submissions
 
-const TypeChooser = () => {
+const TypeChooser = (props) => {
   const cl = useStyles ();
 
   // pull in global state

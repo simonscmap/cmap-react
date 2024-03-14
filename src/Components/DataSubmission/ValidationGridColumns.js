@@ -7,7 +7,6 @@ dayjs.extend(utc);
 dayjs.extend(tz);
 dayjs.extend(LocalizedFormat)
 
-const timeRe = new RegExp (/^(\d{4})[-/]?(\d{1,2})?[-/]?(\d{0,2})[Tt\s]*(\d{1,2})?:?(\d{1,2})?:?(\d{1,2})?[.:]?(\d+)?$/);
 
 const numberParser = (ev) => {
   console.log ('NUMBER PARSER', ev);
@@ -15,31 +14,8 @@ const numberParser = (ev) => {
   return isNaN(newValue) ? null : Number(newValue);
 }
 
-const timeParser = (ev) => {
-  const { newValue, oldValue } = ev;
-  if (dayjs (newValue).isValid ()) {
-    const isExpectedFormat = timeRe.test (newValue);
-    if (isExpectedFormat) {
-      return dayjs.utc (newValue).format ();
-    } else {
-      // not an expected format, but still valid
-      // see https://github.com/iamkun/dayjs/issues/2593
-
-      // The following does not work, because it does not account for daylight savings,
-      //
-      // const tzOffset = (new Date()).getTimezoneOffset();
-      // const dt = dayjs(newValue).subtract(tzOffset, 'm').format();
-      // return dayjs.utc(dt).format();
-      return dayjs.utc (newValue).format ();
-
-    }
-  }
-  return newValue;
-}
-
 const dateParser = (ev) => {
-  console.log ('DATE PARSER', ev)
-  const { newValue, oldValue } = ev;
+  const { newValue } = ev;
   if (dayjs.utc (newValue).isValid ()) {
     return dayjs.utc (newValue).format ('YYYY-MM-DD');
   }
@@ -52,7 +28,8 @@ const columnDefinitions = {
     {
       headerName: 'Time',
       field: 'time',
-      valueParser: timeParser,
+      editable: false,
+      // valueParser: timeParser,
       // cellRenderer: 'DSCellRenderDateTime', // the validation is too aggressive to use this
     },
     {

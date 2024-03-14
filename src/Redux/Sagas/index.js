@@ -604,7 +604,8 @@ function* retrieveSubmissionCommentHistory(action) {
 
 function* uploadSubmission(action) {
   const tag = { tag: 'uploadSubmission' };
-  yield put(interfaceActions.setLoadingMessage('Uploading Workbook', tag));
+  yield put(dataSubmissionActions.setUploadState(states.inProgress));
+
   let {
     submissionType,
     submissionId,
@@ -619,14 +620,12 @@ function* uploadSubmission(action) {
   if (!file) {
     log.error ('no file provided to uploadSubmission saga', { ...action.payload });
     yield put(interfaceActions.snackbarOpen('There was an error beginning file upload.', tag));
-    yield put(interfaceActions.setLoadingMessage('', tag));
     return;
   }
 
   if (submissionType === 'new' && !rawFile) {
     log.error ('no raw file provided to uploadSubmission saga', { ...action.payload });
     yield put(interfaceActions.snackbarOpen('There was an error beginning file upload.', tag));
-    yield put(interfaceActions.setLoadingMessage('', tag));
     return;
   }
 
@@ -721,11 +720,9 @@ function* uploadSubmission(action) {
       let message = yield beginSessionResponse.text();
       if (message === 'wrongUser') {
         yield put(dataSubmissionActions.setUploadState(states.failed));
-        yield put(interfaceActions.setLoadingMessage('', tag));
         return;
       } else if (message === 'noRecord') {
         yield put(dataSubmissionActions.setUploadState(states.failed));
-        yield put(interfaceActions.setLoadingMessage('', tag));
         yield put(interfaceActions.snackbarOpen('No submission found', tag));
         log.error ('no submission found', { submissionId });
       } else {
@@ -737,7 +734,6 @@ function* uploadSubmission(action) {
 
   if (!sessionIds.length) {
     yield put(interfaceActions.snackbarOpen('Failed to begin upload session', tag));
-    yield put(interfaceActions.setLoadingMessage('', tag));
     return;
   }
 
@@ -760,7 +756,7 @@ function* uploadSubmission(action) {
 
   if (uploadError || rawFileUploadError) {
     yield put(interfaceActions.snackbarOpen('Upload failed', tag));
-    yield put(interfaceActions.setLoadingMessage('', tag));
+    yield put(dataSubmissionActions.setUploadState(states.failed));
     return;
   }
 
@@ -806,6 +802,8 @@ function* uploadSubmission(action) {
   } else {
     const respStatus = commitFileResponse && commitFileResponse.status;
     log.error (`API responded to commit request with ${respStatus}`, { ...commitFileResponse });
+    yield put(dataSubmissionActions.setUploadState(states.failed));
+
     yield put(interfaceActions.setLoadingMessage('', tag));
     yield put(interfaceActions.snackbarOpen('Failed to upload', tag));
     return;

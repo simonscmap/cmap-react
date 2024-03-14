@@ -33,9 +33,8 @@ const useStyles = makeStyles ((theme) => ({
 }));
 
 const Chooser = (props) => {
-  const { step, status } = props;
+  const { step, status, reset } = props;
   const classes = useStyles();
-
 
   const user = useSelector ((state) => state.user);
 
@@ -60,7 +59,7 @@ const Chooser = (props) => {
   return (
     <div className={classes.chooser}>
       <ChooseSubmissionType />
-      <FileUploadArea loadingStatus={status} />
+      <FileUploadArea loadingStatus={status} reset={reset} />
     </div>
   );
 };

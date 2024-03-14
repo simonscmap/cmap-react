@@ -14,7 +14,10 @@ import { safePath } from '../../../Utility/objectUtils';
 import { formatBytes } from '../Helpers/display';
 
 // action creators
-import { checkSubmissionOptionsAndStoreFile } from '../../../Redux/actions/dataSubmission';
+import {
+  checkSubmissionOptionsAndStoreFile,
+  clearSubmissionFile,
+} from '../../../Redux/actions/dataSubmission';
 
 const useStyles = makeStyles ((theme) => ({
   paperArea: {
@@ -52,7 +55,7 @@ const useStyles = makeStyles ((theme) => ({
 }));
 
 const FileUploadArea = (props) => {
-  const { loadingStatus } = props;
+  const { loadingStatus, reset } = props;
   const dispatch = useDispatch();
   const cl = useStyles ();
 
@@ -71,6 +74,11 @@ const FileUploadArea = (props) => {
 
   const subToUpdate = useSelector ((state) => state.submissionToUpdate);
 
+  const clearPrev = () => {
+    reset();
+    dispatch (clearSubmissionFile ())
+  };
+
   const selectFile = (file) => {
     dispatch (checkSubmissionOptionsAndStoreFile (file, subToUpdate));
   }
@@ -78,11 +86,13 @@ const FileUploadArea = (props) => {
   const handleFileDrop = (e) => {
     console.log ('file dropped; processing', e);
     e.preventDefault();
+    clearPrev();
     const file = e.dataTransfer.items[0].getAsFile();
     selectFile (file);
   };
 
   const handleFileSelect = (e) => {
+    clearPrev ();
     const file = safePath (['target', 'files', '0']) (e);
     if (!file) {
       console.log ('NO FILE!!', e);
@@ -97,6 +107,7 @@ const FileUploadArea = (props) => {
   };
 
   let [loading, setLoading] = useState (false);
+
   useEffect (() => {
     if (loading && !loadingStatus) {
       setLoading (false);

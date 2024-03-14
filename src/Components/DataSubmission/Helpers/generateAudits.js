@@ -1,10 +1,12 @@
 import * as dayjs from 'dayjs';
 
+import { isAcceptedFormat } from './standardUTCDateTime';
 import tz from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 
 dayjs.extend(utc);
 dayjs.extend(tz);
+
 
 export default (submissionOptions) => {
   const {
@@ -157,6 +159,7 @@ export default (submissionOptions) => {
     if (value > 11000) {
       return 'Cannot be greater than 11000';
     }
+
   };
 
   const releaseDate = (value, row) => {
@@ -178,7 +181,7 @@ export default (submissionOptions) => {
     time: [required, validTime],
     lat: [number, required, validLat],
     lon: [number, required, validLon],
-    depth: [number, positive, maxDepth],
+    depth: [number, required, positive, maxDepth],
 
     dataset_short_name: [
       datasetRequired,

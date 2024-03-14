@@ -87,6 +87,8 @@ const Navigation = (props) => {
   const errorSum = errorCount && errorCount.sum || 0;
   const workbookErrors = auditReport && auditReport.workbook.errors.length;
 
+  // const fatal = auditReport && auditReport.fatal;
+
   const preventAll = submissionUploadState === states.succeeded;
   const preventNext = Boolean(
     step >= 3

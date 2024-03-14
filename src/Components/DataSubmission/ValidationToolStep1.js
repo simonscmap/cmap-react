@@ -167,7 +167,7 @@ const CardTitle = (props) => {
 
 const IssueCard = (props) => {
   const { t, info } = props;
-  const { title, subheader, detail, body, Component } = info;
+  const { title, subheader, detail, body, Component, args } = info;
   const cl = useStyles ();
   return (
     <Card className={cl.card} raised>
@@ -175,7 +175,7 @@ const IssueCard = (props) => {
       <CardContent>
         {detail && renderText(detail)}
         {body && renderBody(body)}
-        {Component && <Component />}
+        {Component && <Component {...args} />}
       </CardContent>
     </Card>
   );
@@ -188,7 +188,7 @@ const Step1 = (props) => {
   const subType = useSelector ((state) => state.submissionType);
   const checkName = useSelector ((state) => state.checkSubmissionNameResult);
   const auditReport = useSelector ((state) => state.auditReport);
-  const { step, changeStep } = props;
+  const { step, changeStep, reset } = props;
   const history = useHistory();
 
   useEffect(() => {
@@ -199,7 +199,10 @@ const Step1 = (props) => {
     }
   }, [auditReport]);
 
-  const goBack = () => changeStep(0);
+  const goBack = () => {
+    reset();
+    changeStep(0);
+  }
 
   const thereAreErrors = hasLength (safePath (['workbook', 'errors']) (auditReport));
   const thereAreWarnings = hasLength (safePath (['workbook', 'warnings']) (auditReport))

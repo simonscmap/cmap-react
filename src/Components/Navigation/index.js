@@ -14,6 +14,7 @@ import ExpandableItem from './ExpandableItem';
 import HelpNavbarControls from './Help/NavControls';
 import navigationStyles from './navigationStyles';
 import UserMenu from './UserMenu';
+import DataSubmissionLink from './DataSubmissionLink';
 
 const Navigation = (props) => {
   let { classes, variant } = props;
@@ -140,7 +141,7 @@ const Navigation = (props) => {
                   </ExpandableItem>
                   <ExpandableItem linkText={'Data Submission'}>
                     <Link to="/datasubmission/guide">Submission Guide</Link>
-                    <Link to="/datasubmission/validationtool">Submit Data</Link>
+                    <DataSubmissionLink />
                     <Link to="/datasubmission/nominate-data">
                       Nominate New Data
                     </Link>

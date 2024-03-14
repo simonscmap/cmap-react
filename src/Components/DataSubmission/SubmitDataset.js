@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux';
 import {
   Typography,
   Paper,
-  Button,
   Link,
   List,
   ListItem,
@@ -28,6 +27,7 @@ import {
 import NameChangeWarnings from './NameChangeWarning';
 import { StepButton} from './ChooserComponents/Buttons';
 import states from '../../enums/asyncRequestStates';
+import Spinner from '../UI/Spinner';
 
 const useStyles = makeStyles ((theme) => ({
   wrapper: {
@@ -91,6 +91,10 @@ const useStyles = makeStyles ((theme) => ({
   },
   bright: {
     color: '#69FFF2',
+  },
+  spinnerContainer: {
+    height: '400px',
+    textAlign: 'center',
   },
 }));
 
@@ -183,11 +187,8 @@ const Step3 = (props) => {
   const userIsOnLastStep =
     Boolean(validationStep === validationSteps.length - 1);
 
-  const submissionSucceeded = useSelector ((state) =>
-    state.submissionUploadState === states.succeeded);
-
-  const submissionFailed = useSelector ((state) =>
-    state.submissionUploadState === states.failed);
+  const submissionUploadState = useSelector ((state) =>
+    state.submissionUploadState);
 
   const auditReport = useSelector ((state) =>
     state.auditReport);
@@ -198,7 +199,20 @@ const Step3 = (props) => {
     return '';
   }
 
-  if (submissionSucceeded) {
+  console.log ('submissionUploadState', submissionUploadState);
+
+  if (states.inProgress === submissionUploadState) {
+    return (
+      <div className={classes.wrapper}>
+         <Typography variant={"h5"}>Upload Submission</Typography>
+         <div className={classes.spinnerContainer}>
+           <Spinner message={'Uploading'} />
+         </div>
+      </div>
+    );
+  }
+
+  if (states.succeeded === submissionUploadState) {
     return (
       <div className={classes.wrapper}>
         <Typography variant={"h5"}>Upload Submission</Typography>
@@ -235,7 +249,7 @@ const Step3 = (props) => {
             <Link
               style={{ display: 'inline-block' }}
               className={classes.needHelpLink}
-              onClick={handleResetState}
+              onClick={() => handleResetState(true)}
               component="span"
             >
               {'return to the start'}
@@ -245,7 +259,7 @@ const Step3 = (props) => {
     );
   }
 
-  if (submissionFailed) {
+  if (states.failed === submissionUploadState) {
     return (
       <div className={classes.wrapper}>
         <Typography variant={"h5"}>Upload Submission</Typography>
@@ -261,7 +275,7 @@ const Step3 = (props) => {
                 <Link
                   style={{ display: 'inline-block' }}
                   className={classes.needHelpLink}
-                  onClick={handleResetState}
+                  onClick={() => handleResetState ()}
                   component="span"
                 >
                   here

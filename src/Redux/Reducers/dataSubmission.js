@@ -62,7 +62,9 @@ export default function (state, action) {
         submissionFile: null,
         submissionType: 'new',
         submissionToUpdate: null,
-        submissionUploadState: states.notTried,
+        // submissionUploadState: states.notTried,
+        checkSubmissionNameRequestStatus: states.notTried,
+        checkSubmissionNameResult: null,
       };
 
     case SET_UPLOAD_STATE:

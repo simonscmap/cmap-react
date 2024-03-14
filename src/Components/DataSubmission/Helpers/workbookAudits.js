@@ -3,14 +3,13 @@ import * as dayjs from 'dayjs';
 import tz from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat';
-
+import IssueWithList from './IssueWithList';
 import { safePath } from '../../../Utility/objectUtils';
 import messages from '../Messages';
 
 dayjs.extend(utc);
 dayjs.extend(tz);
 dayjs.extend(LocalizedFormat)
-
 
 const datasetMetadataSampleRowValue =
   '< short name of your dataset (<50 chars) >';
@@ -359,7 +358,7 @@ let is1904Format = (workbook) => {
   return Boolean(((workbook.Workbook || {}).WBProps || {}).date1904);
 }
 
-const checkDateFormat = (data, workbook, numericDateFormatConverted, dateTimeFormatConverted) => {
+const checkDateFormat = (data, workbook, numericDateFormatConverted) => {
   if (!data || !Array.isArray(data) || data[0].time === undefined) {
     return {
       error: 'Missing value(s) in time column.'
@@ -367,15 +366,9 @@ const checkDateFormat = (data, workbook, numericDateFormatConverted, dateTimeFor
   }
   const sample = data[0].time;
   const dataType = typeof sample;
-  // const isValidDate = dayjs(sample).isValid();
-  // const dateSample = dayjs(sample).tz();
 
-  // const utcString = dayjs.utc(sample).format();
-  // const utcDateString = `${dayjs.utc(sample).format('YYYY-MM-DD')} (YYYY-MM-DD)`;
   const readableString = dayjs.utc(sample).format('LLLL');
-
   const example = `For reference, the time value in the first row of data is ${sample} and will be interpreted as ${readableString}`;
-
 
   if (dataType === 'number') {
     if (is1904Format (workbook)) {
@@ -383,19 +376,12 @@ const checkDateFormat = (data, workbook, numericDateFormatConverted, dateTimeFor
         error: `The submitted file uses Date1904 formatting for time values. Please convert to normal excel format, and verify values are accurate. ${example}`,
       }
     }
-    // else: should not be reachable
-    // numerically formatted dates should already be converted IF they are not 1904 encoded
   }
 
   if (numericDateFormatConverted) {
-    return; // if the format has been converted, do not display the default
-    // warning to check time fields: there will be a conversion warning
-  }
-
-  if (dateTimeFormatConverted) {
     return {
-      confirm: `Some or all time field values have been converted to a standard format. Please double-check that the time values are accurate.`,
-    };
+        warning: `The submitted file uses numeric values for date-times. These have been converted to string values. Please examine them for accuracy in the next validation step.`,
+      }
   }
 
   return;
@@ -404,14 +390,18 @@ const checkDateFormat = (data, workbook, numericDateFormatConverted, dateTimeFor
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-export default (args, checkNameResult, submissionType) => {
+export default (args) => {
   const {
     data,
     dataset_meta_data,
     vars_meta_data,
     workbook,
+    userDataSubmissions,
     numericDateFormatConverted,
-    dateTimeFormatConverted,
+    invalidDates,
+    checkNameResult,
+    submissionType,
+    submissionToUpdate,
   } = args;
 
   console.log ('workbook audit called', submissionType, checkNameResult);
@@ -419,6 +409,7 @@ export default (args, checkNameResult, submissionType) => {
   let errors = [];
   let warnings = [];
   let confirmations = [];
+  let fatal = true;
 
   // no file to work with yet
   if (!workbook) {
@@ -456,6 +447,17 @@ export default (args, checkNameResult, submissionType) => {
         detail: messages.shortNameIsTaken(shortName),
       });
     } else if (shortNameUpdateConflict) {
+      console.log ('short name update conflict');
+      const shortNameBelongsToOtherSubmission = userDataSubmissions.find ((sub) => {
+        return sub.Dataset === shortName && sub.Submission_ID !== submissionToUpdate;
+      });
+      const targetDataset = userDataSubmissions.find ((sub) => sub.Submission_ID === submissionToUpdate);
+      if (shortNameBelongsToOtherSubmission && targetDataset) {
+        warnings.push ({
+          title: 'Did you pick the right file?',
+          detail: `In the last step you selected the *\`${targetDataset.Dataset}\`* submission to update, but the file you uploaded has a short name of *\`${shortName}\`*, which already belongs to one of your other data submissions. Please check that you are updating the intended dataset submission with the correct data file..`,
+        });
+      }
       errors.push({
         title: 'Unable to update short name',
         detail: `The short name provided, *\`${shortName}\`*, is already in use by another dataset submission`,
@@ -478,6 +480,13 @@ export default (args, checkNameResult, submissionType) => {
         detail: `The long name provided, *\`${longName}\`*, is already in use by another dataset submission`,
       })
     }
+  }
+
+  if (invalidDates) {
+    errors.push ({
+      title: 'Invalid Time Values',
+      detail: `There are invalid time values in the data sheet.  You can proceed to the next step to view which rows have invalid time values. However, editing time values in this application is not enabled. To continue, please revise your submission file and re-upload it. Ensure that every row in the data sheet has a time value.`
+    });
   }
 
   // checks for missing sheets or lacking rows are early-return cases
@@ -505,7 +514,7 @@ export default (args, checkNameResult, submissionType) => {
 
   // data sheet checks
   if (data && Array.isArray(data)) {
-    const dateCheckResult = checkDateFormat (data, workbook, numericDateFormatConverted, dateTimeFormatConverted);
+    const dateCheckResult = checkDateFormat (data, workbook, numericDateFormatConverted);
 
     if (dateCheckResult) {
       if (dateCheckResult.error) {
@@ -547,7 +556,11 @@ export default (args, checkNameResult, submissionType) => {
       const pl = variableNameMismatches.length > 1 ? 's' : '';
       errors.push({
         title: 'Variable Metadata Mismatch',
-        detail: `The following value${pl} for *\`var_short_name\`* on the *\`vars_meta_data\`* sheet did not match a column header on the data sheet:\n ${variableNameMismatches.join(', ')}.`,
+        Component: IssueWithList,
+        args: {
+          text: `The following value${pl} for *\`var_short_name\`* on the *\`vars_meta_data\`* sheet did not match a column header on the data sheet:`,
+          list: variableNameMismatches
+        }
       });
     }
 
@@ -560,7 +573,11 @@ export default (args, checkNameResult, submissionType) => {
       const pl = missingVarMetadataRows.length > 1 ? 's' : '';
       errors.push({
         title: 'Data Column Mismatch',
-        detail: `The following column header${pl} on the data sheet did not match any value for *\`var_short_name\`* on the *\`vars_meta_data\`* sheet:\n \`${missingVarMetadataRows.join(', ')}\``,
+        Component: IssueWithList,
+        args: {
+          text: `The following column header${pl} on the data sheet did not match any value for *\`var_short_name\`* on the *\`vars_meta_data\`* sheet:`,
+          list: missingVarMetadataRows,
+        }
       });
     }
 
@@ -679,8 +696,6 @@ export default (args, checkNameResult, submissionType) => {
 
   }
 
-
-
   if (checkMissingCruiseNames(dataset_meta_data, vars_meta_data)) {
     warnings.push(
       `The supplied values for make and sensor suggest that some or all of your data may ` +
@@ -690,6 +705,6 @@ export default (args, checkNameResult, submissionType) => {
   }
 
 
-
-  return { errors, warnings, confirmations };
+  console.log ('returning workbook audit', { errors, warnings, confirmations, fatal })
+  return { errors, warnings, confirmations, fatal };
 };

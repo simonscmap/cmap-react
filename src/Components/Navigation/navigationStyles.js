@@ -101,6 +101,7 @@ const navigationStyles = (theme) => ({
       // marginTop: '3px', // this top margin corrects for the flex center
       // not centering correctly; 2px fixes on -moz, 3px fixes it on webkit
       textDecoration: 'none',
+      cursor: 'pointer',
     },
     '& a:hover': {
       background: 'rgba(255, 255, 255, 0.2)',
