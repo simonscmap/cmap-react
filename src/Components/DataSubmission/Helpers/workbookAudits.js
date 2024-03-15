@@ -387,6 +387,17 @@ const checkDateFormat = (data, workbook, numericDateFormatConverted) => {
   return;
 };
 
+const checkEqualLengthColsAndVarMetaData = (userVariables, vars_meta_data) => {
+  const dataCols = userVariables.size;
+  const definedVars = vars_meta_data.length;
+  if (dataCols !== definedVars) {
+    return {
+      dataCols,
+      definedVars,
+    }
+  }
+}
+
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -409,7 +420,7 @@ export default (args) => {
   let errors = [];
   let warnings = [];
   let confirmations = [];
-  let fatal = true;
+  let first = [];
 
   // no file to work with yet
   if (!workbook) {
@@ -454,9 +465,9 @@ export default (args) => {
         });
         const targetDataset = userDataSubmissions.find ((sub) => sub.Submission_ID === submissionToUpdate);
         if (shortNameBelongsToOtherSubmission && targetDataset) {
-          warnings.push ({
+          first.push ({
             title: 'Did you pick the right file?',
-            detail: `In the last step you selected the *\`${targetDataset.Dataset}\`* submission to update, but the file you uploaded has a short name of *\`${shortName}\`*, which already belongs to one of your other data submissions. Please check that you are updating the intended dataset submission with the correct data file..`,
+            detail: `In the last step you selected the *\`${targetDataset.Dataset}\`* submission to update, but the file you uploaded has a short name of *\`${shortName}\`*, which already belongs to one of your other data submissions. Please check that you are updating the intended dataset submission with the correct data file.`,
           });
         }
       }
@@ -549,38 +560,49 @@ export default (args) => {
       Object.keys(data[0]).filter((key) => !fixedVariables.has(key)),
     );
 
-    let variableNameMismatches = checkVariableNameMismatches(
-      data,
-      vars_meta_data,
-      userVariables,
-    );
-    if (variableNameMismatches.length) {
-      const pl = variableNameMismatches.length > 1 ? 's' : '';
-      errors.push({
-        title: 'Variable Metadata Mismatch',
-        Component: IssueWithList,
-        args: {
-          text: `The following value${pl} for *\`var_short_name\`* on the *\`vars_meta_data\`* sheet did not match a column header on the data sheet:`,
-          list: variableNameMismatches
-        }
-      });
-    }
+    if (vars_meta_data) {
+      let variableNameMismatches = checkVariableNameMismatches(
+        data,
+        vars_meta_data,
+        userVariables,
+      );
+      if (variableNameMismatches.length) {
+        const pl = variableNameMismatches.length > 1 ? 's' : '';
+        errors.push({
+          title: 'Variable Metadata Mismatch',
+          Component: IssueWithList,
+          args: {
+            text: `The following value${pl} for *\`var_short_name\`* on the *\`vars_meta_data\`* sheet did not match a column header on the data sheet:`,
+            list: variableNameMismatches
+          }
+        });
+      }
 
-    let missingVarMetadataRows = checkMissingVarMetadataRows(
-      data,
-      vars_meta_data,
-      userVariables,
-    );
-    if (missingVarMetadataRows.length) {
-      const pl = missingVarMetadataRows.length > 1 ? 's' : '';
-      errors.push({
-        title: 'Data Column Mismatch',
-        Component: IssueWithList,
-        args: {
-          text: `The following column header${pl} on the data sheet did not match any value for *\`var_short_name\`* on the *\`vars_meta_data\`* sheet:`,
-          list: missingVarMetadataRows,
-        }
-      });
+      let missingVarMetadataRows = checkMissingVarMetadataRows(
+        data,
+        vars_meta_data,
+        userVariables,
+      );
+      if (missingVarMetadataRows.length) {
+        const pl = missingVarMetadataRows.length > 1 ? 's' : '';
+        errors.push({
+          title: 'Data Column Mismatch',
+          Component: IssueWithList,
+          args: {
+            text: `The following column header${pl} on the data sheet did not match any value for *\`var_short_name\`* on the *\`vars_meta_data\`* sheet:`,
+            list: missingVarMetadataRows,
+          }
+        });
+      }
+
+      let inequalLengthColsAndVarMetaData = checkEqualLengthColsAndVarMetaData (userVariables, vars_meta_data);
+      if (inequalLengthColsAndVarMetaData) {
+        const { dataCols, definedVars } = inequalLengthColsAndVarMetaData;
+        errors.push ({
+          title: 'Inequal Number of Data Columns and Variable Definitions',
+          detail: `There are ${dataCols} custom data columns in the *\`data sheet\`*, but ${definedVars} variables defined in the *\`vars_meta_data\`* sheet.`
+        })
+      }
     }
 
 
@@ -707,6 +729,6 @@ export default (args) => {
   }
 
 
-  console.log ('returning workbook audit', { errors, warnings, confirmations, fatal })
-  return { errors, warnings, confirmations, fatal };
+  console.log ('returning workbook audit', { errors, warnings, confirmations })
+  return { errors, warnings, confirmations, first };
 };

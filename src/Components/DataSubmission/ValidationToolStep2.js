@@ -178,6 +178,7 @@ const goToNextError = (data, gridApi, sheet, auditReport, setMessage) => {
 
   let lastFocusedCell = gridApi.getFocusedCell();
 
+
   let lastFocusedRow = -1;
   let lastFocusedColKey = null;
 
@@ -185,6 +186,9 @@ const goToNextError = (data, gridApi, sheet, auditReport, setMessage) => {
     lastFocusedRow = lastFocusedCell.rowIndex;
     lastFocusedColKey = lastFocusedCell.column.colId;
   }
+
+  console.log ('lastFocusedCell', lastFocusedCell, { lastFocusedRow, lastFocusedColKey })
+
 
   const allErrorsBySheet = {
     'data':  flattenErrors (auditReport.data),
@@ -203,8 +207,10 @@ const goToNextError = (data, gridApi, sheet, auditReport, setMessage) => {
   }
 
   const goToError = ({ row, col }) => {
+    console.log ('goToError', { row, col })
     if (gridApi) {
       gridApi.ensureColumnVisible(col);
+      gridApi.setFocusedCell(row, col, null);
       gridApi.startEditingCell({ rowIndex: row, colKey: col });
       lookupErrorMessage({ row, col });
     }
@@ -215,17 +221,24 @@ const goToNextError = (data, gridApi, sheet, auditReport, setMessage) => {
   if (thereAreErrorsOnCurrentSheet) {
     const positionOfLastError = allErrorsBySheet[sheet].findIndex ((err) =>
       err.row === lastFocusedRow && err.col === lastFocusedColKey);
-    if (positionOfLastError) {
+    console.log ('positionOfLastError', positionOfLastError)
+    if (positionOfLastError > -1) {
       // find next after current
-      const hasNextError = allErrorsBySheet[sheet].length > positionOfLastError;
+      const hasNextError = allErrorsBySheet[sheet].length > positionOfLastError + 1;
+      console.log ('hasNextError', hasNextError);
       if (hasNextError) {
         const nextError = allErrorsBySheet[sheet][positionOfLastError + 1];
         // go to nextError
         goToError (nextError);
         return;
+      } else {
+        console.log ('go to first error', allErrorsBySheet[sheet][0]);
+        goToError (allErrorsBySheet[sheet][0]);
+        return;
       }
     } else {
       // go to first error
+      console.log ('go to first error', allErrorsBySheet[sheet][0]);
       goToError (allErrorsBySheet[sheet][0]);
       return;
     }
@@ -265,7 +278,14 @@ const Step2 = (props) => {
       // navigates away from this step
       setTab(0);
     }
-  }, [step])
+  }, [step]);
+
+  useEffect (() => {
+    if (gridApi && gridApi.current) {
+      console.log ('SHOULD refresh cells')
+      // gridApi.current;
+    }
+  }, [auditReport]);
 
   const sheet = getSheet(tab);
   const currentSheetLabel = auditKeyToLabel[sheet];
@@ -344,6 +364,10 @@ const Step2 = (props) => {
 
   if (step !== 2) {
     return <React.Fragment />;
+  }
+
+  if (!errorCount) {
+    return <React.Fragment/>
   }
 
   return (

@@ -249,7 +249,7 @@ const Step3 = (props) => {
             <Link
               style={{ display: 'inline-block' }}
               className={classes.needHelpLink}
-              onClick={() => handleResetState(true)}
+              onClick={() => handleResetState(true, 'submit: start over')}
               component="span"
             >
               {'return to the start'}
@@ -275,7 +275,7 @@ const Step3 = (props) => {
                 <Link
                   style={{ display: 'inline-block' }}
                   className={classes.needHelpLink}
-                  onClick={() => handleResetState ()}
+                  onClick={() => handleResetState (true, 'submit failed: start over')}
                   component="span"
                 >
                   here

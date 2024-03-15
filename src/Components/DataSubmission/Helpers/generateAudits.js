@@ -71,11 +71,11 @@ export default (submissionOptions) => {
 
   const datasetLength = (min, max) => {
     return (value, row) => {
+      if (row !== 0) {
+        return;
+      }
       value = value + '';
-      if (
-        (value.length < min && row === 0) ||
-        (value.length > max && row === 0)
-      ) {
+      if ((value.length < min) || (value.length > max)) {
         return `Must be ${min} to ${max} characters in length`;
       }
     };
@@ -121,6 +121,13 @@ export default (submissionOptions) => {
     if (!/^[a-zA-Z]{1}[a-zA-Z0-9_]*$/.test(value)) {
       return 'Must start with a letter and contain only letters, numbers, and underscores.';
     }
+  };
+
+  const codeFriendlyOnlyFirstRow = (value, row) => {
+    if (row !== 0) {
+      return;
+    }
+    return codeFriendly (value, row);
   };
 
   const binary = (value) => {
@@ -185,7 +192,7 @@ export default (submissionOptions) => {
 
     dataset_short_name: [
       datasetRequired,
-      codeFriendly,
+      codeFriendlyOnlyFirstRow,
       datasetLength(1, 50),
       firstRowOnly,
     ],

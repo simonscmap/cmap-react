@@ -90,6 +90,7 @@ const Navigation = (props) => {
   // const fatal = auditReport && auditReport.fatal;
 
   const preventAll = submissionUploadState === states.succeeded;
+  const preventBack = step === 0 || preventAll;
   const preventNext = Boolean(
     step >= 3
     || (step === 0 && !file)
@@ -110,6 +111,13 @@ const Navigation = (props) => {
   const backArrowTooltip =
     onUploadStep ? 'No Prior Step' : `Back to ${getStepLabel (step - 1)}`
 
+  if (submissionUploadState === states.succeeded) {
+    return (
+      <div className={cl.navigationWrapper}>
+      </div>
+    );
+  }
+
   return (
     <div className={cl.navigationWrapper}>
       <div className={cl.navigationButtons}>
@@ -120,7 +128,7 @@ const Navigation = (props) => {
               color="primary"
               variant="contained"
               onClick={() => changeStep(step - 1)}
-              disabled={step === 0}
+              disabled={preventBack}
               startIcon={<ArrowBack />}
               className={cl.stepButton}
             >

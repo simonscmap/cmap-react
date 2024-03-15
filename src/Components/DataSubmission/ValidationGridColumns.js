@@ -7,9 +7,7 @@ dayjs.extend(utc);
 dayjs.extend(tz);
 dayjs.extend(LocalizedFormat)
 
-
 const numberParser = (ev) => {
-  console.log ('NUMBER PARSER', ev);
   const { newValue } = ev;
   return isNaN(newValue) ? null : Number(newValue);
 }
@@ -22,15 +20,12 @@ const dateParser = (ev) => {
   return newValue;
 }
 
-
 const columnDefinitions = {
   data: [
     {
       headerName: 'Time',
       field: 'time',
       editable: false,
-      // valueParser: timeParser,
-      // cellRenderer: 'DSCellRenderDateTime', // the validation is too aggressive to use this
     },
     {
       headerName: 'Latitude',

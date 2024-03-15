@@ -7,27 +7,40 @@ import {
   ListItemIcon,
   ListItemText,
 } from '@material-ui/core';
-import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
+import makeStyles from '@material-ui/core/styles/makeStyles';
 import { GoDotFill } from "react-icons/go";
-import { ErrorOutline } from '@material-ui/icons';
+import renderText from '../../Home/News/renderText';
+
+const useStyles = makeStyles ((theme) => ({
+  wrapper: {
+    '& p': {
+      margin: 0,
+    },
+    '& ul': {
+      margin: 0,
+      padding: 0,
+    }
+  }
+}));
 
 const IssueWithList = (props) => {
   const { text, list } = props
+  const cl = useStyles ();
   return (
-    <div>
-    <Typography>{text}</Typography>
-    <List dense>
-    {list && list.map ((item, index) => (
-      <ListItem key={`likey${index}`}>
-      <ListItemIcon>
-      <GoDotFill color="#69FFF2"/>
-      </ListItemIcon>
-      <ListItemText>
-      {item}
-      </ListItemText>
-      </ListItem>
-    ))}
-    </List>
+    <div className={cl.wrapper}>
+      <Typography className={cl.noTextDecoration}>{renderText(text)}</Typography>
+      <List dense>
+      {list && list.map ((item, index) => (
+        <ListItem key={`likey${index}`}>
+          <ListItemIcon>
+            <GoDotFill color="#69FFF2"/>
+          </ListItemIcon>
+          <ListItemText>
+            {item}
+          </ListItemText>
+        </ListItem>
+      ))}
+      </List>
     </div>
   );
 }

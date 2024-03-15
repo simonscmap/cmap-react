@@ -192,7 +192,6 @@ const Step1 = (props) => {
   const history = useHistory();
 
   useEffect(() => {
-    console.log ('step 1: detected change in auditReport prop', auditReport);
     if (!auditReport) {
       // changeStep (0);
       history.push('/datasubmission/validationtool')
@@ -207,6 +206,7 @@ const Step1 = (props) => {
   const thereAreErrors = hasLength (safePath (['workbook', 'errors']) (auditReport));
   const thereAreWarnings = hasLength (safePath (['workbook', 'warnings']) (auditReport))
   const thereAreConfirmations = hasLength (safePath (['workbook', 'confirmations']) (auditReport))
+  const thereAreFirstOrderWarnings = hasLength (safePath (['workbook', 'first']) (auditReport))
 
   // keep errors updated
   let [errors, setErrors] = useState([]);
@@ -241,6 +241,9 @@ const Step1 = (props) => {
     <div className={cl.workbookAuditWrapper}>
       <Typography variant={"h5"}>Workbook Validation</Typography>
 
+    {thereAreFirstOrderWarnings && <div>
+      {auditReport.workbook.first.map((def, i) => (<IssueCard t='warning' info={def} key={`key${i}`} /> ))}
+      </div>}
 
       {/* name change warning */}
       <div className={cl.nameChangeWarning}>

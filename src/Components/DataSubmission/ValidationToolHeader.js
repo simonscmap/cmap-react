@@ -1,12 +1,10 @@
 import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import {
-  ErrorOutline,
-} from '@material-ui/icons';
 import { Typography, Link } from '@material-ui/core';
 import styles from './ValidationToolStyles';
 import { makeStyles } from '@material-ui/core/styles';
+import states from '../../enums/asyncRequestStates';
 
 const useStyles = makeStyles (styles);
 
@@ -60,6 +58,18 @@ const Header = () => {
       }
     }
   });
+  const submissionStatus = useSelector ((state) => state.submissionUploadState);
+
+  if (submissionStatus === states.succeeded) {
+    return (
+      <div className={cl.container}>
+        <Typography variant="h1" className={classes.title}>
+         {'Dataset Submitted!'}
+        </Typography>
+      </div>
+    );
+  }
+
   const headerText = subType === 'new' ? 'Begin New Data Submission' : 'Update Submission:'
 
   return (

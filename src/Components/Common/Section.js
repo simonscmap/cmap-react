@@ -84,7 +84,7 @@ const styles = () => ({
           display: 'block',
           height: '4px',
           position: 'absolute',
-          background: `linear-gradient(to left, ${colors.green.lime}, ${colors.blue.teal} 100%)`,
+          // background: `linear-gradient(to left, ${colors.green.lime}, ${colors.blue.teal} 100%)`,
           opacity: 0.7,
         },
       },

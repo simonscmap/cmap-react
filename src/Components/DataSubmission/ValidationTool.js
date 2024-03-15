@@ -104,20 +104,16 @@ class ValidationTool extends React.Component {
   };
 
   auditCell = (value, col, row) => {
-    console.log ('Audit Cell', { value, col, row });
     let cellAudit = [];
     let auditFuncs = this.audits[col];
-
     if (auditFuncs) {
-      auditFuncs.forEach((func) => {
+      auditFuncs.forEach((func) => { // apply audit functions to cell value
         let result = func (value, row);
-
         if (result) {
           cellAudit.push(result);
         }
       });
     }
-
     return cellAudit;
   };
 
@@ -263,11 +259,18 @@ class ValidationTool extends React.Component {
     }
   };
 
-  handleResetState = (resetStep = false) => {
-    this.props.storeSubmissionFile(null);
+  resetSubmissionFile = () => {
+    console.log ('clearing submission file');
     this.props.clearSubmissionFile ();
-    this.props.setAudit(null);
+  }
 
+  resetAudit = () => {
+    console.log ('resetting audit state');
+    this.props.setAudit(null);
+  }
+
+  resetLocalState = (resetStep = false, callerName) => {
+    console.log (`resetting local state (caller name: ${callerName}`);
     this.setState({
       ...this.state,
       rawFile: null,
@@ -275,11 +278,18 @@ class ValidationTool extends React.Component {
       dataset_meta_data: null,
       vars_meta_data: null,
       validationStep: resetStep ? 0 : this.state.validationStep,
+      changeLog: [],
       loadingFile: {
-        status: 'error',
+        status: 'not-tried',
         totalBytes: 0
       }
     });
+  };
+
+  handleResetState = (resetStep = false, callerName) => {
+    this.resetSubmissionFile();
+    this.resetAudit();
+    this.resetLocalState(resetStep, callerName);
   };
 
   handleChangeValidationStep = (validationStep) => {
@@ -299,6 +309,10 @@ class ValidationTool extends React.Component {
     } = event;
 
     if (oldValue === newValue) {
+      console.log ('a change event fired, but state has not changed');
+      return;
+    } else if (oldValue === null && newValue === '') {
+      console.log ('a change event fired when a user clicked on an empty cell');
       return;
     }
 
@@ -308,11 +322,10 @@ class ValidationTool extends React.Component {
 
     console.log ('Cell Value Changed', changeEvent, node);
 
-
     // 1. check names
     const shouldResendCheckNameRequest =
       (column && column.colId === 'dataset_short_name')
-      || (column && column.colId === 'dataset_long_name')
+      || (column && column.colId === 'dataset_long_name');
 
 
     if (shouldResendCheckNameRequest) {
@@ -370,6 +383,7 @@ class ValidationTool extends React.Component {
     );
 
     // 3. update workbook in state with new data, and add a changeEvent to the change log
+    console.log ('redrawing row and refreshisg cell')
     this.setState({
       ...this.state,
       [sheet]: updated,
@@ -407,11 +421,13 @@ class ValidationTool extends React.Component {
       vars_meta_data,
       numericDateFormatConverted,
     };
+
     const newWorkbookAudit = this.auditWorkbook (argsObj);
     this.props.setWorkbookAudit (newWorkbookAudit);
   };
 
   handleReadFile = (file) => {
+    this.resetLocalState (false, 'handleReadFile');
     this.setState ({
         ...this.state,
         loadingFile: {
@@ -425,10 +441,7 @@ class ValidationTool extends React.Component {
       this.setState({
         ...this.state,
         ...fileSizeTooLargeDummyState
-      },
-        () =>
-          this.props.setLoadingMessage('', { tag: 'ValidationTool#handleReadFile'}),
-      );
+      });
       return;
     }
 
@@ -471,7 +484,7 @@ class ValidationTool extends React.Component {
       } catch (e) {
         console.log ('error loading file', e);
         this.props.snackbarOpen('Error reading file.');
-        this.handleResetState ();
+        this.handleResetState (false, 'handleReadFile: loading error');
         this.setState ({
           ...this.state,
           loadingFile: {
@@ -491,7 +504,7 @@ class ValidationTool extends React.Component {
       } catch (e) {
         console.log ('error loading file', e);
         this.props.snackbarOpen('Error parsing file.');
-        this.handleResetState ();
+        this.handleResetState (false, 'handleReadFile: parse error');
         this.setState ({
           ...this.state,
           loadingFile: {
@@ -538,7 +551,7 @@ class ValidationTool extends React.Component {
 
       if (!vars_meta_data || !dataset_meta_data || !data) {
         this.props.snackbarOpen('Error parsing file: missing worksheets.');
-        this.handleResetState ();
+        this.handleResetState (false, 'handleReadFile: missing worksheets error');
         this.setState ({
           ...this.state,
           loadingFile: {
@@ -665,22 +678,13 @@ class ValidationTool extends React.Component {
     this.columnApi = params.columnApi;
   };
 
-  onModelUpdated = (params) => {};
-
-  scrollGridTo = (index) => {
-    this.gridApi.ensureIndexVisible(index, 'middle');
-  };
-
-
-  handleClickTab = (event, newValue) => {
-    this.setState({ ...this.state, tab: newValue });
-  };
-
   componentDidMount = () => {
     let submissionID = new URLSearchParams(window.location.search).get(
       'submissionID',
     );
     if (submissionID) {
+      this.resetAudit ();
+      this.resetLocalState (false, 'componentDidMount: submissionId in search string');
       this.props.retrieveMostRecentFile(submissionID);
     }
   };
