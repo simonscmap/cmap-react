@@ -42,9 +42,10 @@ const useHeaderStyles = makeStyles ((theme) => ({
 
 
 
-const Header = () => {
+const Header = (props) => {
   const classes = useStyles();
   const cl = useHeaderStyles();
+  const { newLongName } = props;
 
   const subType = useSelector ((state) => state.submissionType);
   const subToUpdate = useSelector ((state) => {
@@ -72,16 +73,24 @@ const Header = () => {
 
   const headerText = subType === 'new' ? 'Begin New Data Submission' : 'Update Submission:'
 
+  let name;
+
+  if (subType === 'update' && subToUpdate) {
+    name = subToUpdate.Dataset_Long_Name;
+  } else if (subType === 'new' && newLongName) {
+    name = newLongName;
+  }
+
   return (
     <React.Fragment>
       <div className={cl.container}>
         <Typography variant="h1" className={classes.title}>
          {headerText}
         </Typography>
-        {(subType === 'update' && subToUpdate) && (
+        {name && (
           <React.Fragment>
             <Typography variant="h1" className={cl.pre}>
-              {'"'}{subToUpdate.Dataset_Long_Name}{'"'}
+              {'"'}{name}{'"'}
             </Typography>
           </React.Fragment>
         )}

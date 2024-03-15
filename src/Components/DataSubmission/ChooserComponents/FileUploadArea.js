@@ -41,6 +41,11 @@ const useStyles = makeStyles ((theme) => ({
   },
   uploadInstruction: {
     fontSize: '1.2em',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
   },
   dropOption: {
     display: 'flex',
@@ -48,9 +53,12 @@ const useStyles = makeStyles ((theme) => ({
     alignItems: 'center',
     '& > svg': {
       color: theme.palette.primary.light,
-      fontSize: '4em',
+      fontSize: '3em',
       marginRight: '.2em',
     }
+  },
+  stepButton: {
+    fontSize: '1em'
   }
 }));
 
@@ -150,35 +158,25 @@ const FileUploadArea = (props) => {
     {loading ? (
       <Spinner message={loading} />
     ) : (
-      <React.Fragment>
+      <div className={cl.content}>
       <Typography variant="body2" className={cl.uploadInstruction}>
         To {subType === "new"
              ? ` start a new submission `
              : ` update submission "${subNameToUpdate || '...'}" `
-        }
+        } drop an .xlsx file here <span className={cl.dropOption}><TbDragDrop /> </span> or browse with the file finder {' '}
+         <StepButton component="label" className={cl.stepButton} >
+            <SiMicrosoftexcel/>{' '} Browse
+            <input
+              onChange={handleFileSelect}
+              accept=".xlsx"
+              id="select-file-input"
+              type="file"
+              hidden
+            />
+          </StepButton>
+
       </Typography>
-      <div className={cl.rowOne}>
-        <div className={cl.dropOption}>
-          <Typography variant="body2" className={cl.uploadInstruction}>
-            drop an .xlsx file here
-          </Typography>
-          <TbDragDrop />
-          <Typography variant="body2" className={cl.uploadInstruction}>
-            or browse with the file finder {' '}
-          </Typography>
-        </div>
-        <StepButton component="label" >
-          <SiMicrosoftexcel/>{' '} Browse
-          <input
-            onChange={handleFileSelect}
-            accept=".xlsx"
-            id="select-file-input"
-            type="file"
-            hidden
-          />
-        </StepButton>
       </div>
-      </React.Fragment>
     )}
 
     </Paper>
@@ -186,3 +184,25 @@ const FileUploadArea = (props) => {
 };
 
 export default FileUploadArea;
+/*
+ * <div className={cl.rowOne}>
+ *         <div className={cl.dropOption}>
+ *           <Typography variant="body2" className={cl.uploadInstruction}>
+ *             drop an .xlsx file here
+ *           </Typography>
+ *           <TbDragDrop />
+ *           <Typography variant="body2" className={cl.uploadInstruction}>
+ *             or browse with the file finder {' '}
+ *           </Typography>
+ *         </div>
+ *         <StepButton component="label" >
+ *           <SiMicrosoftexcel/>{' '} Browse
+ *           <input
+ *             onChange={handleFileSelect}
+ *             accept=".xlsx"
+ *             id="select-file-input"
+ *             type="file"
+ *             hidden
+ *           />
+ *         </StepButton>
+ *       </div> */

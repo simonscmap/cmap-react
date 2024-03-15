@@ -129,7 +129,7 @@ const ChangeTable = (props) => {
       <div>
         <Typography className={cl.changeSummaryHeader}>Change Summary</Typography>
         <Typography className={cl.submittedTypography}>
-          No changes to the file were made in the validation process.
+          No changes to the uploaded submission file were made in the validation process.
         </Typography>
       </div>
     );
@@ -141,7 +141,7 @@ const ChangeTable = (props) => {
         Change Summary
       </Typography>
       <Typography className={cl.submittedTypography}>
-        The changes you made to the submission during the this validation process are listed below. You can download the edited workbook by clicking {' '}
+        The changes you made to the uploaded file during the this validation process are listed below. You can download the edited workbook by clicking {' '}
         <Link
           style={{ display: 'inline-block' }}
           className={cl.needHelpLink}

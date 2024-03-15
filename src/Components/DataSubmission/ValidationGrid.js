@@ -10,7 +10,6 @@ import DSCellEditorTextArea from './DSCellEditorTextArea';
 import DSCellEditorSelect from './DSCellEditorSelect';
 import DSCellRenderWithDelete from './DSCellRenderWithDelete';
 import DSCellRenderDateTime from './DSCellRenderDateTime';
-// import NumericCellEditor from './NumericCellEditor';
 
 const useStyles = makeStyles ((theme) => ({
   gridContainer: {

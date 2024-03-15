@@ -498,6 +498,7 @@ class ValidationTool extends React.Component {
         defval: null,
       });
 
+
       let formatResult;
       try {
         formatResult = formatDataSheet(_data, workbook);
@@ -532,6 +533,8 @@ class ValidationTool extends React.Component {
           workbook.Sheets['dataset_meta_data'],
           { defval: null },
         );
+
+        console.log (_dataset_meta_data);
         dataset_meta_data = _dataset_meta_data
                           ? formatDatasetMetadataSheet(_dataset_meta_data, workbook)
                           : _dataset_meta_data;
@@ -763,12 +766,9 @@ class ValidationTool extends React.Component {
     const { classes } = this.props;
     const { validationStep } = this.state;
 
-    const datasetName =
-      this.state.dataset_meta_data && this.state.dataset_meta_data.length
-        ? this.state.dataset_meta_data[0].dataset_short_name
-        : null;
-
     const shortName = safePath (['dataset_meta_data', '0', 'dataset_short_name']) (this.state);
+
+    const longName = safePath (['dataset_meta_data', '0', 'dataset_long_name']) (this.state);
 
     return (
       <div className={classes.validationToolWrapper}>
@@ -776,13 +776,13 @@ class ValidationTool extends React.Component {
         <FullWidthContainer>
           <Section>
 
-            <Header />
+            <Header newLongName={longName} />
 
             <div>
               <Navigation
                 file={this.props.submissionFile}
                 step={validationStep}
-                datasetName={datasetName}
+                datasetName={shortName}
                 changeStep={this.handleChangeValidationStep}
               />
             </div>

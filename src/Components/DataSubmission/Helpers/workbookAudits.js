@@ -6,6 +6,8 @@ import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 import IssueWithList from './IssueWithList';
 import { safePath } from '../../../Utility/objectUtils';
 import messages from '../Messages';
+import { orderedColumns } from '../ValidationToolConstants';
+import { duplicate } from 'sanctuary';
 
 dayjs.extend(utc);
 dayjs.extend(tz);
@@ -398,6 +400,62 @@ const checkEqualLengthColsAndVarMetaData = (userVariables, vars_meta_data) => {
   }
 }
 
+const checkExtraColumns = (sheet, sheetName) => {
+  if (!sheet || sheet.length < 1) {
+    console.log ('no data to check in checkExtraColumns', sheetName);
+    return;
+  }
+  const columnHeaders = Object.keys(sheet[0]);
+  const approvedHeaders = orderedColumns[sheetName];
+
+  console.log (`checking ${sheetName} for extra colmns`, { columnHeaders, approvedHeaders });
+
+  if (!columnHeaders || !approvedHeaders) {
+    return;
+  }
+
+  const nonMatchedHeaders = columnHeaders.filter ((header) => !approvedHeaders.includes(header));
+  if (nonMatchedHeaders.length) {
+    return nonMatchedHeaders;
+  }
+}
+
+// NOTE this check for duplicate columns does not work,
+// because sheet.js parsing does not allow for duplicate keys
+const checkDuplicateColumns = (sheet) => {
+  if (!sheet || sheet.length < 1) {
+    console.log ('no data to check in checkDuplicateColumns', sheet);
+    return;
+  }
+  const columnHeaders = Object.keys(sheet[0]);
+
+  const duplicates = columnHeaders.reduce ((acc, currKey, index, arr) => {
+    if (acc[currKey]) {
+      return acc; // this key has already been checked
+    }
+
+    if (arr.indexOf (currKey, index) !== -1) { // if more than one instance
+      const instances = arr.reduce ((instancesAccumulator, currVal, idx) => {
+        if (currVal === currKey) {
+          return instancesAccumulator.concat(idx); // generate a list of indexes where this key occurs
+        } else {
+          return instancesAccumulator;
+        }
+      }, []);
+      if (instances.length > 1) {
+        acc[currKey] = instances;
+      }
+      return acc;
+    }
+  }, {});
+
+
+
+  if (Object.keys(duplicates).length) {
+    return duplicates; // :: { FOO: [ 2, 25 ] }  the column FOO occures twice in the second and twenty-fifth position
+  }
+}
+
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -555,6 +613,18 @@ export default (args) => {
       );
     }
 
+    const duplicateDataColumns = checkDuplicateColumns (data);
+    if (duplicateDataColumns) {
+      errors.push ({
+        title: 'Duplicate Columns in the Data Sheet',
+        Component: IssueWithList,
+          args: {
+            text: `The following columns in the *\`data\`* sheet occur more than once. Please remove extra or redundant columns.`,
+            list: Object.keys (duplicateDataColumns).map ((k) => `${k} occurs ${duplicateDataColumns[k].length} times`),
+          }
+      });
+    }
+
     let fixedVariables = new Set(['time', 'lat', 'lon', 'depth']);
     let userVariables = new Set(
       Object.keys(data[0]).filter((key) => !fixedVariables.has(key)),
@@ -706,6 +776,29 @@ export default (args) => {
       );
     }
 
+    const extraColumns = checkExtraColumns (dataset_meta_data, 'dataset_meta_data');
+    if (extraColumns) {
+      errors.push ({
+        title: 'Extra Columns in Dataset Metadata Sheet',
+        Component: IssueWithList,
+          args: {
+            text: `The following columns in the *\`dataset_meta_data\`* sheet have been added. Please use only the columns provided in the Data Submission Template.`,
+            list: extraColumns,
+          }
+      });
+    }
+
+    const duplicateMetadataColumns = checkDuplicateColumns (dataset_meta_data);
+    if (duplicateMetadataColumns) {
+      errors.push ({
+        title: 'Duplicate Columns in Dataset Metadata Sheet',
+        Component: IssueWithList,
+          args: {
+            text: `The following columns in the *\`dataset_meta_data\`* sheet occur more than once. Please remove extra or redundant columns. Use only the columns provided in the Data Submission Template.`,
+            list: Object.keys (duplicateMetadataColumns).map ((k) => `${k} occurs ${duplicateMetadataColumns[k].length} times`),
+          }
+      });
+    }
   }
 
   // vars_metadata checks
@@ -718,6 +811,29 @@ export default (args) => {
       );
     }
 
+    const extraColumns = checkExtraColumns (vars_meta_data, 'vars_meta_data');
+    if (extraColumns) {
+      errors.push ({
+        title: 'Extra Columns in Variable Metadata Sheet',
+        Component: IssueWithList,
+          args: {
+            text: `The following columns in the *\`var_meta_data\`* sheet have been added. Please use only the columns provided in the Data Submission Template.`,
+            list: extraColumns,
+          }
+      });
+    }
+
+    const duplicateVarColumns = checkDuplicateColumns (vars_meta_data);
+    if (duplicateVarColumns) {
+      errors.push ({
+        title: 'Duplicate Columns in the Variable Metadata Sheet',
+        Component: IssueWithList,
+          args: {
+            text: `The following columns in the *\`vars_meta_data\`* sheet occur more than once. Please remove extra or redundant columns. Use only the columns provided in the Data Submission Template.`,
+            list: Object.keys (duplicateVarColumns).map ((k) => `${k} occurs ${duplicateVarColumns[k].length} times`),
+          }
+      });
+    }
   }
 
   if (checkMissingCruiseNames(dataset_meta_data, vars_meta_data)) {
