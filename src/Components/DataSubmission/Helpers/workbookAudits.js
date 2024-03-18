@@ -455,6 +455,68 @@ const checkDuplicateColumns = (sheet) => {
   }
 }
 
+// NOTE this should not be used for data sheet if it has too many rows
+export const checkNoDuplicateRows = (sheet) => {
+  if (!sheet || !Array.isArray(sheet) || !sheet[0]) {
+    console.log ('expected data sheet in checkNoDuplicateRows audit but received:', sheet);
+    return;
+  }
+  const columnHeaders = Object.keys(sheet[0]);
+
+  const rowsAreSame = (a, b) => {
+    return columnHeaders.every ((headerKey) => a[headerKey] === b[headerKey]);
+  }
+
+  const start = Date.now();
+  const result = sheet.reduce ((results, currentRow, index, arr) => {
+    // as reduce advances down the rows, we don't need to compare to rows we've already checked
+    // get a slice of the array from the current index,
+    // compare current row with all rows in that slice
+    if (index === arr.length - 1) {
+      return results; // end
+    }
+    const rowsToCompare = arr.slice (index + 1);
+
+    const identicalRows = rowsToCompare.reduce ((identicalIndexes, currentComparison, sliceIndex) => {
+      if (rowsAreSame (currentRow, currentComparison)) {
+        return identicalIndexes.concat (1 + index + sliceIndex);
+      } else {
+        return identicalIndexes;
+      }
+    }, []);
+
+    if (identicalRows.length) {
+      results.push ([index, identicalRows]); // keep result in the form of an entry
+    }
+
+    return results;
+  }, []);
+
+
+  const end = Date.now();
+  console.log (`${sheet.length} rows compared in ${(end - start)/100}s`);
+
+  // emend results
+
+  const rowIndexesWithDuplitates = result.map ((entry) => entry[0]);
+  const finalResult = result.map ((entry, index, arr) => {
+    const targetRowIndex = entry[0]; // :: Integer // this is the index we are testing
+    // do prior entries contain this one as a duplicate?
+    const priorSlice = result.slice (0, targetRowIndex);
+    const priorMatches = priorSlice
+      .filter ((priorEntry) => priorEntry[1].includes(targetRowIndex)) // narrow to entries that mark currnt as a duplicate
+      .map ((matchingEntry) => matchingEntry[0]); // get matching index
+
+    return [targetRowIndex, entry[1].concat(priorMatches).sort()]; // return emended entry
+  });
+
+
+  return {
+    rowIndexesWithDuplitates,
+    result: finalResult,
+  };
+}
+
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -757,6 +819,26 @@ export default (args) => {
           .join('\n')}`,
       );
     }
+
+    if (data.length < 10000) {
+      const { rowIndexesWithDuplitates, result } = checkNoDuplicateRows (data);
+      if (rowIndexesWithDuplitates.length) {
+        errors.push ({
+          title: `Repeated Rows in Data Sheet`,
+          Component: IssueWithList,
+          args: {
+            text: `The following ${result.length} row(s) of the data sheet are repeated (all values, for every column, are the same):`,
+            list: result.map ((r) => `${r[0]} is repeated in rows ${r[1].join (', ')}`),
+          }
+        });
+      }
+    } else {
+      confirmations.push ({
+        title: 'Did Not Check For Duplicate Rows',
+        detail: `Please note that because the dataset is large, the validator did not check for the existence of repeated rows.`
+      });
+    }
+
   }
 
   // dataset meta data checks
@@ -815,10 +897,10 @@ export default (args) => {
       errors.push ({
         title: 'Extra Columns in Variable Metadata Sheet',
         Component: IssueWithList,
-          args: {
-            text: `The following columns in the *\`var_meta_data\`* sheet have been added. Please use only the columns provided in the Data Submission Template.`,
-            list: extraColumns,
-          }
+        args: {
+          text: `The following columns in the *\`var_meta_data\`* sheet have been added. Please use only the columns provided in the Data Submission Template.`,
+          list: extraColumns,
+        }
       });
     }
 
@@ -833,7 +915,20 @@ export default (args) => {
           }
       });
     }
+
+    const { rowIndexesWithDuplitates, result } = checkNoDuplicateRows (vars_meta_data);
+    if (rowIndexesWithDuplitates.length) {
+      errors.push ({
+        title: `Repeated Rows in Variable Metadata Sheet`,
+        Component: IssueWithList,
+        args: {
+          text: `The following ${result.length} row(s) of the *\`vars_meta_data\`* sheet are repeated (all values, for every column, are the same):`,
+          list: result.map ((r) => `row ${r[0]} is repeated in row(s) ${r[1].join (', ')}`),
+        }
+      });
+    }
   }
+
 
   if (checkMissingCruiseNames(dataset_meta_data, vars_meta_data)) {
     warnings.push(
@@ -842,6 +937,7 @@ export default (args) => {
         `Including cruise names will improve the discoverability of your data.`,
     );
   }
+
 
 
   console.log ('returning workbook audit', { errors, warnings, confirmations })
