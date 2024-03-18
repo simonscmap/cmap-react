@@ -7,7 +7,6 @@ import IssueWithList from './IssueWithList';
 import { safePath } from '../../../Utility/objectUtils';
 import messages from '../Messages';
 import { orderedColumns } from '../ValidationToolConstants';
-import { duplicate } from 'sanctuary';
 
 dayjs.extend(utc);
 dayjs.extend(tz);

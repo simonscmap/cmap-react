@@ -23,25 +23,25 @@ const dateParser = (ev) => {
 const columnDefinitions = {
   data: [
     {
-      headerName: 'Time',
+      headerName: 'time',
       field: 'time',
       editable: false,
     },
     {
-      headerName: 'Latitude',
+      headerName: 'lat',
       field: 'lat',
       valueParser: numberParser,
       cellDataType: 'number',
 
     },
     {
-      headerName: 'Longitude',
+      headerName: 'lon',
       field: 'lon',
       valueParser: numberParser,
       cellDataType: 'number',
     },
     {
-      headerName: 'Depth',
+      headerName: 'depth',
       field: 'depth',
       valueParser: numberParser,
       cellDataType: 'number',
@@ -50,14 +50,14 @@ const columnDefinitions = {
 
   dataset_meta_data: [
     {
-      headerName: 'Short Name',
+      headerName: 'dataset_short_name',
       field: 'dataset_short_name',
       autoHeight: true,
       tooltipField: 'dataset_short_name',
     },
 
     {
-      headerName: 'Long Name',
+      headerName: 'dataset_long_name',
       field: 'dataset_long_name',
       autoHeight: true,
       tooltipField: 'dataset_long_name',
@@ -65,20 +65,20 @@ const columnDefinitions = {
     },
 
     {
-      headerName: 'Version',
+      headerName: 'dataset_version',
       field: 'dataset_version',
       autoHeight: true,
     },
 
     {
-      headerName: 'Release Date',
+      headerName: 'dataset_release_date',
       field: 'dataset_release_date',
       autoHeight: true,
       valueParser: dateParser,
     },
 
     {
-      headerName: 'Make',
+      headerName: 'dataset_make',
       field: 'dataset_make',
       autoHeight: true,
       cellEditor: 'DSCellEditorSelect',
@@ -86,20 +86,20 @@ const columnDefinitions = {
     },
 
     {
-      headerName: 'Source',
+      headerName: 'dataset_source',
       field: 'dataset_source',
       autoHeight: true,
     },
 
     {
-      headerName: 'Distributor',
+      headerName: 'dataset_distributor',
       field: 'dataset_distributor',
       autoHeight: true,
       cellEditor: 'DSCellEditorTextArea',
     },
 
     {
-      headerName: 'acknowledgement',
+      headerName: 'dataset_acknowledgement',
       field: 'dataset_acknowledgement',
       autoHeight: true,
       tooltipField: 'dataset_acknowledgement',
@@ -107,7 +107,7 @@ const columnDefinitions = {
     },
 
     {
-      headerName: 'History',
+      headerName: 'dataset_history',
       field: 'dataset_history',
       autoHeight: true,
       tooltipField: 'dataset_history',
@@ -123,7 +123,7 @@ const columnDefinitions = {
     },
 
     {
-      headerName: 'References',
+      headerName: 'dataset_references',
       field: 'dataset_references',
       autoHeight: true,
       tooltipField: 'dataset_references',
@@ -139,7 +139,7 @@ const columnDefinitions = {
     },
 
     {
-      headerName: 'Cruise Names',
+      headerName: 'cruise_names',
       field: 'cruise_names',
       autoHeight: true,
       tooltipField: 'cruise_names',
@@ -149,14 +149,14 @@ const columnDefinitions = {
 
   vars_meta_data: [
     {
-      headerName: 'Short Name',
+      headerName: 'var_short_name',
       field: 'var_short_name',
       autoHeight: true,
       tooltipField: 'var_short_name',
     },
 
     {
-      headerName: 'Long Name',
+      headerName: 'var_long_name',
       field: 'var_long_name',
       autoHeight: true,
       tooltipField: 'var_long_name',
@@ -164,48 +164,48 @@ const columnDefinitions = {
     },
 
     {
-      headerName: 'Sensor',
+      headerName: 'var_sensor',
       field: 'var_sensor',
       autoHeight: true,
       cellEditor: 'DSCellEditorSelect',
     },
 
     {
-      headerName: 'Unit',
+      headerName: 'var_unit',
       field: 'var_unit',
       autoHeight: true,
     },
 
     {
-      headerName: 'Spatial Resolution',
+      headerName: 'var_spatial_res',
       field: 'var_spatial_res',
       autoHeight: true,
       cellEditor: 'DSCellEditorSelect',
     },
 
     {
-      headerName: 'Temporal Resolution',
+      headerName: 'var_temporal_res',
       field: 'var_temporal_res',
       autoHeight: true,
       cellEditor: 'DSCellEditorSelect',
     },
 
     {
-      headerName: 'Discipline',
+      headerName: 'var_discipline',
       field: 'var_discipline',
       autoHeight: true,
       cellEditor: 'DSCellEditorSelect',
     },
 
     {
-      headerName: 'Visualize',
+      headerName: 'visualize',
       field: 'visualize',
       autoHeight: true,
       cellEditor: 'DSCellEditorSelect',
     },
 
     {
-      headerName: 'Keywords',
+      headerName: 'var_keywords',
       field: 'var_keywords',
       autoHeight: true,
       tooltipField: 'var_keywords',
@@ -213,7 +213,7 @@ const columnDefinitions = {
     },
 
     {
-      headerName: 'Comment',
+      headerName: 'var_comment',
       field: 'var_comment',
       tooltipField: 'var_comment',
       autoHeight: true,
