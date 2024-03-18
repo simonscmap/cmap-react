@@ -9,6 +9,8 @@ import { Link, useLocation, useHistory } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
+import states from '../../enums/asyncRequestStates';
+
 const useStyles = makeStyles ((theme) => ({
   dialog: {
     '& .MuiBackdrop-root': {
@@ -55,17 +57,20 @@ const Confirmation = (props) => {
   );
 }
 
-export default function SimpleDialogDemo() {
+export default function DataSubmissionLink() {
   const [open, setOpen] = React.useState(false);
   const history = useHistory();
 
   const submissionFile = useSelector ((state) => state.submissionFile);
+  const submissionUploadState = useSelector ((state) => state.submissionUploadState);
 
   const handleClick = () => {
     if (submissionFile) {
       // add a hash to trigger menu close
       history.push ('/datasubmission/validationtool#confirm');
       setOpen (true);
+    } else if (submissionUploadState === states.succeeded) {
+      window.location.href = '/datasubmission/validationtool';
     } else {
       history.push ('/datasubmission/validationtool');
     }

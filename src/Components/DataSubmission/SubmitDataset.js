@@ -179,7 +179,7 @@ const Step3 = (props) => {
     handleUploadSubmission,
     handleDownloadWorkbook,
     getChangeLog,
-    handleResetState,
+    resetState,
   } = props;
 
   const classes = useStyles ();
@@ -249,7 +249,7 @@ const Step3 = (props) => {
             <Link
               style={{ display: 'inline-block' }}
               className={classes.needHelpLink}
-              onClick={() => handleResetState(true, 'submit: start over')}
+              onClick={() => resetState(true, 'submit: start over')}
               component="span"
             >
               {'return to the start'}
@@ -275,7 +275,7 @@ const Step3 = (props) => {
                 <Link
                   style={{ display: 'inline-block' }}
                   className={classes.needHelpLink}
-                  onClick={() => handleResetState (true, 'submit failed: start over')}
+                  onClick={() => resetState (true, 'submit failed: start over')}
                   component="span"
                 >
                   here
