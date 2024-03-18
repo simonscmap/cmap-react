@@ -7,10 +7,24 @@ import IssueWithList from './IssueWithList';
 import { safePath } from '../../../Utility/objectUtils';
 import messages from '../Messages';
 import { orderedColumns } from '../ValidationToolConstants';
+import { duplicate } from 'sanctuary';
 
 dayjs.extend(utc);
 dayjs.extend(tz);
-dayjs.extend(LocalizedFormat)
+dayjs.extend(LocalizedFormat);
+
+const findDuplicateValuesInArray = (arr) => {
+  const sorted = arr.slice().sort(); // now identical values will be adjacent
+  let results = {};
+  for (let k = 0; k < sorted.length - 1; k++) {
+    if (sorted[k + 1] == sorted[k]) {
+      if (!results[sorted[k]]) {
+        results[sorted[k]] = true;
+      }
+    }
+  }
+  return Object.keys(results);
+};
 
 const datasetMetadataSampleRowValue =
   '< short name of your dataset (<50 chars) >';
@@ -29,21 +43,39 @@ let checkSheets = (workbook) => {
   return missingSheets;
 };
 
-let checkVariableNameMismatches = (data, vars_meta_data, userVariables) => {
+
+
+let checkEveryVarsShortNameHasDataCol = (data, vars_meta_data, userVariables) => {
   if (!vars_meta_data || !userVariables) {
     return [];
   }
-  let shortNames = vars_meta_data.map((e) => e.var_short_name);
-  return shortNames.filter((e) => !userVariables.has(e));
+  const varsShortNames = vars_meta_data.map((e) => e.var_short_name);
+  return varsShortNames.filter((e) => !userVariables.has(e));
 };
 
-const checkMissingVarMetadataRows = (data, vars_meta_data, userVariables) => {
-  if (!vars_meta_data || !userVariables) {
+let checkEveryDataColHasVarsMetaDefinition = (data, vars_meta_data) => {
+  if (!vars_meta_data || !data) {
     return [];
   }
-  let shortNames = new Set(vars_meta_data.map((e) => e.var_short_name));
-  return Array.from(userVariables).filter((e) => !shortNames.has(e));
+  let fixedVariables = new Set(['time', 'lat', 'lon', 'depth']);
+  let userDefinedDataCols = Object.keys(data[0]).filter((key) => !fixedVariables.has(key));
+  const varsShortNames = vars_meta_data.map((e) => e.var_short_name);
+  return userDefinedDataCols.filter ((c) => !varsShortNames.includes(c));
 };
+
+const checkValuesAreUnique = (sheet, header) => {
+  if (!sheet || !Array.isArray(sheet)) {
+    return;
+  }
+  if (!header) {
+    return;
+  }
+
+  const columnValues = sheet.map ((row) => row[header]);
+  const duplicateValues = findDuplicateValuesInArray (columnValues);
+
+  return duplicateValues;
+}
 
 let checkEmptyColumns = (data, userVariables) => {
   let emptyColumns = [];
@@ -80,7 +112,7 @@ let checkMissingCruiseNames = (dataset_meta_data, vars_meta_data) => {
 let checkMultipleCruisesOneCell = (dataset_meta_data) =>
   Boolean(
     typeof dataset_meta_data[0].cruise_names === 'string' &&
-      dataset_meta_data[0].cruise_names.includes(','),
+    dataset_meta_data[0].cruise_names.includes(','),
   );
 
 let checkRadians = (data) => {
@@ -144,7 +176,7 @@ let checkUniqueSpaceTime = (data) => {
 
         if (
           obj[data[i].time][data[i].lat][data[i].lon][data[i].depth] ===
-          undefined
+            undefined
         ) {
           obj[data[i].time][data[i].lat][data[i].lon][data[i].depth] = i + 2;
         } else {
@@ -321,7 +353,7 @@ let checkOutliers = (data, userVariables) => {
         if (
           (data[j][keys[i]] || data[j][keys[i]] == 0) &&
           Math.abs(data[j][keys[i]] - stats[keys[i]].mean) >
-            outlierN * stats[keys[i]].deviation
+          outlierN * stats[keys[i]].deviation
         ) {
           outliers.push({
             row: j + 2,
@@ -381,8 +413,8 @@ const checkDateFormat = (data, workbook, numericDateFormatConverted) => {
 
   if (numericDateFormatConverted) {
     return {
-        warning: `The submitted file uses numeric values for date-times. These have been converted to string values. Please examine them for accuracy in the next validation step.`,
-      }
+      warning: `The submitted file uses numeric values for date-times. These have been converted to string values. Please examine them for accuracy in the next validation step.`,
+    }
   }
 
   return;
@@ -419,41 +451,17 @@ const checkExtraColumns = (sheet, sheetName) => {
   }
 }
 
-// NOTE this check for duplicate columns does not work,
-// because sheet.js parsing does not allow for duplicate keys
-const checkDuplicateColumns = (sheet) => {
-  if (!sheet || sheet.length < 1) {
-    console.log ('no data to check in checkDuplicateColumns', sheet);
-    return;
-  }
-  const columnHeaders = Object.keys(sheet[0]);
 
-  const duplicates = columnHeaders.reduce ((acc, currKey, index, arr) => {
-    if (acc[currKey]) {
-      return acc; // this key has already been checked
-    }
+const checkDuplicateColumnHeaders = (workbook) => {
+  // "h" is the key for "header"
+  const dataCols = Object.keys(workbook.Sheets.data)
+                         .filter ((k) => safePath ([k, 'h']) (workbook.Sheets.data))
+                         .map ((k) => safePath ([k, 'h']) (workbook.Sheets.data));
 
-    if (arr.indexOf (currKey, index) !== -1) { // if more than one instance
-      const instances = arr.reduce ((instancesAccumulator, currVal, idx) => {
-        if (currVal === currKey) {
-          return instancesAccumulator.concat(idx); // generate a list of indexes where this key occurs
-        } else {
-          return instancesAccumulator;
-        }
-      }, []);
-      if (instances.length > 1) {
-        acc[currKey] = instances;
-      }
-      return acc;
-    }
-  }, {});
+  const duplicates = findDuplicateValuesInArray (dataCols);
 
-
-
-  if (Object.keys(duplicates).length) {
-    return duplicates; // :: { FOO: [ 2, 25 ] }  the column FOO occures twice in the second and twenty-fifth position
-  }
-}
+  return duplicates;
+};
 
 // NOTE this should not be used for data sheet if it has too many rows
 export const checkNoDuplicateRows = (sheet) => {
@@ -522,10 +530,10 @@ export const checkNoDuplicateRows = (sheet) => {
 
 export default (args) => {
   const {
+    workbook, // file prior to conversion by sheetjs to json
     data,
     dataset_meta_data,
     vars_meta_data,
-    workbook,
     userDataSubmissions,
     numericDateFormatConverted,
     invalidDates,
@@ -568,12 +576,12 @@ export default (args) => {
 
     if (nameCheckErrors.includes('No short name provided')) {
       errors.push({
-        title: 'Dataset short name is missing',
+        title: 'Dataset Short Name is Missing',
         detail: 'No short name was provided. Please add a name in the *`dataset_short_name`* field in the *`dataset_meta_data`* worksheet.',
       });
     } else if (newShortNameConflict) {
       errors.push({
-        title: 'Dataset short name is unavailable',
+        title: 'Dataset Short Name is Unavailable',
         detail: messages.shortNameIsTaken(shortName),
       });
     } else if (shortNameUpdateConflict) {
@@ -591,24 +599,24 @@ export default (args) => {
         }
       }
       errors.push({
-        title: 'Unable to update short name',
+        title: 'Unable to Update Short Name',
         detail: `The short name provided, *\`${shortName}\`*, is already in use by another dataset submission`,
       })
     }
 
     if (nameCheckErrors.includes('No long name provided')) {
       errors.push({
-        title: 'Dataset long name is missing',
+        title: 'Dataset Long Name is Missing',
         detail: 'No long name was provided. Please add a name in the *`dataset_long_name`* field in the *`dataset_meta_data`* worksheet.',
       });
     } else if (newLongNameConflict) {
       errors.push({
-        title: 'Dataset long name is unavailable',
+        title: 'Dataset Long Name is Unavailable',
         detail: messages.longNameIsTaken(longName),
       })
     } else if (longNameUpdateConflict) {
       errors.push({
-        title: 'Unable to update long name',
+        title: 'Unable to Update Long Name',
         detail: `The long name provided, *\`${longName}\`*, is already in use by another dataset submission`,
       })
     }
@@ -646,6 +654,21 @@ export default (args) => {
 
   // data sheet checks
   if (data && Array.isArray(data)) {
+    // check duplicate cols
+
+    const duplicateDataCols = checkDuplicateColumnHeaders (workbook);
+    if (duplicateDataCols && duplicateDataCols.length) {
+      errors.push ({
+        title: 'Duplicate Columns in the Data Sheet',
+        Component: IssueWithList,
+        args: {
+          text: `The following columns in the *\`data\`* sheet occur more than once. Please remove extra or redundant columns.`,
+          list: duplicateDataCols,
+        }
+      });
+    }
+
+
     const dateCheckResult = checkDateFormat (data, workbook, numericDateFormatConverted);
 
     if (dateCheckResult) {
@@ -668,23 +691,24 @@ export default (args) => {
     let missingCols = checkRequiredCols(data);
     if (missingCols.length) {
       errors.push(
-        `Data sheet is missing required column${
-        missingCols.length > 1 ? 's' : ''
-      }: ${missingCols.join(', ')}`,
+        `Data sheet is missing required column${missingCols.length > 1 ? 's' : ''}: ${missingCols.join(', ')}`,
       );
     }
 
-    const duplicateDataColumns = checkDuplicateColumns (data);
-    if (duplicateDataColumns) {
-      errors.push ({
-        title: 'Duplicate Columns in the Data Sheet',
-        Component: IssueWithList,
+    if (vars_meta_data) {
+      const unmatchedShortNames = checkEveryVarsShortNameHasDataCol (data, vars_meta_data);
+      if (unmatchedShortNames && unmatchedShortNames.length) {
+        errors.push ({
+          title: 'Variable Short Name Has to Matching Data Column',
+          Component: IssueWithList,
           args: {
-            text: `The following columns in the *\`data\`* sheet occur more than once. Please remove extra or redundant columns.`,
-            list: Object.keys (duplicateDataColumns).map ((k) => `${k} occurs ${duplicateDataColumns[k].length} times`),
+            text: `The following values for *\`var_short_name\`* in the *\`vars_meta_data\`* sheet did not match any column header on the data sheet:`,
+            list: unmatchedShortNames,
           }
-      });
+        });
+      }
     }
+
 
     let fixedVariables = new Set(['time', 'lat', 'lon', 'depth']);
     let userVariables = new Set(
@@ -692,36 +716,18 @@ export default (args) => {
     );
 
     if (vars_meta_data) {
-      let variableNameMismatches = checkVariableNameMismatches(
+      let unidentifiedDataCols = checkEveryDataColHasVarsMetaDefinition(
         data,
         vars_meta_data,
         userVariables,
       );
-      if (variableNameMismatches.length) {
-        const pl = variableNameMismatches.length > 1 ? 's' : '';
+      if (unidentifiedDataCols && unidentifiedDataCols.length) {
         errors.push({
-          title: 'Variable Metadata Mismatch',
+          title: 'Unidentified Columns in the Data Sheet',
           Component: IssueWithList,
           args: {
-            text: `The following value${pl} for *\`var_short_name\`* on the *\`vars_meta_data\`* sheet did not match a column header on the data sheet:`,
-            list: variableNameMismatches
-          }
-        });
-      }
-
-      let missingVarMetadataRows = checkMissingVarMetadataRows(
-        data,
-        vars_meta_data,
-        userVariables,
-      );
-      if (missingVarMetadataRows.length) {
-        const pl = missingVarMetadataRows.length > 1 ? 's' : '';
-        errors.push({
-          title: 'Data Column Mismatch',
-          Component: IssueWithList,
-          args: {
-            text: `The following column header${pl} on the data sheet did not match any value for *\`var_short_name\`* on the *\`vars_meta_data\`* sheet:`,
-            list: missingVarMetadataRows,
+            text: `The following columns in the *\`data\`* sheet are not defined in the *\`vars_meta_data\`* sheet:`,
+            list: unidentifiedDataCols,
           }
         });
       }
@@ -739,11 +745,11 @@ export default (args) => {
 
     let emptyColumns = checkEmptyColumns(data, userVariables);
     if (emptyColumns.length) {
-      errors.push(
-        `The column${emptyColumns.length > 1 ? 's' : ''} ${emptyColumns.join(
-        ', ',
-      )} contain${emptyColumns > 1 ? '' : 's'} no values.`,
-      );
+      errors.push({
+        title: `Data Columns Without Any Values`,
+        detail: `The column${emptyColumns.length > 1 ? 's' : ''} \`${emptyColumns.join(
+        ', ')}\` contain${emptyColumns > 1 ? '' : 's'} no values.`,
+      });
     }
 
 
@@ -862,25 +868,14 @@ export default (args) => {
       errors.push ({
         title: 'Extra Columns in Dataset Metadata Sheet',
         Component: IssueWithList,
-          args: {
-            text: `The following columns in the *\`dataset_meta_data\`* sheet have been added. Please use only the columns provided in the Data Submission Template.`,
-            list: extraColumns,
-          }
-      });
-    }
-
-    const duplicateMetadataColumns = checkDuplicateColumns (dataset_meta_data);
-    if (duplicateMetadataColumns) {
-      errors.push ({
-        title: 'Duplicate Columns in Dataset Metadata Sheet',
-        Component: IssueWithList,
-          args: {
-            text: `The following columns in the *\`dataset_meta_data\`* sheet occur more than once. Please remove extra or redundant columns. Use only the columns provided in the Data Submission Template.`,
-            list: Object.keys (duplicateMetadataColumns).map ((k) => `${k} occurs ${duplicateMetadataColumns[k].length} times`),
-          }
+        args: {
+          text: `The following columns in the *\`dataset_meta_data\`* sheet have been added. Please use only the columns provided in the Data Submission Template.`,
+          list: extraColumns,
+        }
       });
     }
   }
+
 
   // vars_metadata checks
   if (vars_meta_data) {
@@ -904,17 +899,31 @@ export default (args) => {
       });
     }
 
-    const duplicateVarColumns = checkDuplicateColumns (vars_meta_data);
-    if (duplicateVarColumns) {
+    const duplicateShortNames = checkValuesAreUnique (vars_meta_data, 'var_short_name');
+    if (duplicateShortNames && duplicateShortNames.length) {
       errors.push ({
-        title: 'Duplicate Columns in the Variable Metadata Sheet',
+        title: `Duplicate Variable Short Names`,
         Component: IssueWithList,
-          args: {
-            text: `The following columns in the *\`vars_meta_data\`* sheet occur more than once. Please remove extra or redundant columns. Use only the columns provided in the Data Submission Template.`,
-            list: Object.keys (duplicateVarColumns).map ((k) => `${k} occurs ${duplicateVarColumns[k].length} times`),
-          }
+        args: {
+          text: `*\`var_short_name\`*s must be unique. The following *\`var_short_name\`* values are repeated in the *\`vars_meta_data\`* sheet. :`,
+          list: duplicateShortNames,
+        }
       });
     }
+
+    const duplicateLongNames = checkValuesAreUnique (vars_meta_data, 'var_long_name');
+    if (duplicateLongNames && duplicateLongNames.length) {
+      errors.push ({
+        title: `Duplicate Variable Long Names`,
+        Component: IssueWithList,
+        args: {
+          text: `*\`var_long_name\`*s must be unique. The following *\`var_long_name\`* values are repeated in the *\`vars_meta_data\`* sheet. :`,
+          list: duplicateLongNames,
+        }
+      });
+    }
+
+    // TODO check duplicate cols
 
     const { rowIndexesWithDuplitates, result } = checkNoDuplicateRows (vars_meta_data);
     if (rowIndexesWithDuplitates.length) {
@@ -933,8 +942,8 @@ export default (args) => {
   if (checkMissingCruiseNames(dataset_meta_data, vars_meta_data)) {
     warnings.push(
       `The supplied values for make and sensor suggest that some or all of your data may ` +
-        `have been gathered on a scientific cruise, but no values were included for cruise_names in the dataset_meta_data sheet. ` +
-        `Including cruise names will improve the discoverability of your data.`,
+      `have been gathered on a scientific cruise, but no values were included for cruise_names in the dataset_meta_data sheet. ` +
+      `Including cruise names will improve the discoverability of your data.`,
     );
   }
 
