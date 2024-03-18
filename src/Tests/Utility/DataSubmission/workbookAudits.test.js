@@ -32,11 +32,10 @@ describe ('Check No Duplicate Rows', () => {
       { one: 1, two: 2, three: 3},
     ];
 
-    const result = checkNoDuplicateRows (mockSheet);
-    // ceach row is identical on all subsequest rows
-    expect (result[0]).toEqual([1, 2, 3]);
-    expect (result[1]).toEqual([2, 3]);
-    expect (result[2]).toEqual([3]);
+    const { result } = checkNoDuplicateRows (mockSheet);
+    expect (result[0][1]).toEqual([1, 2, 3]);
+    expect (result[1][1]).toEqual([0, 2, 3]);
+    expect (result[2][1]).toEqual([0, 1, 3]);
   });
 
   test('works as expected', () => {
@@ -47,7 +46,7 @@ describe ('Check No Duplicate Rows', () => {
       { one: 0, two: 0, three: 0},
     ];
 
-    const result = checkNoDuplicateRows (mockSheet);
+    const { result } = checkNoDuplicateRows (mockSheet);
     expect (result[0]).toEqual(undefined);  // No rows are identical
   });
 
@@ -57,7 +56,7 @@ describe ('Check No Duplicate Rows', () => {
       mockSheet.push (generateRandomizedRow (['one', 'two', 'three', 'four', 'five', 'six', 'seven']));
     }
 
-    const result = checkNoDuplicateRows (mockSheet);
+    const { result } = checkNoDuplicateRows (mockSheet);
     expect (result).toBeTruthy();  // No rows are identical
   });
 
