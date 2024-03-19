@@ -237,6 +237,10 @@ const Step1 = (props) => {
     return <React.Fragment />;
   }
 
+  if (!thereAreFirstOrderWarnings && !thereAreErrors && !thereAreWarnings && !thereAreConfirmations) {
+    changeStep (2);
+  }
+
   return (
     <div className={cl.workbookAuditWrapper}>
       <Typography variant={"h5"}>Workbook Validation</Typography>

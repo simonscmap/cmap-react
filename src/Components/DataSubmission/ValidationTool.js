@@ -775,8 +775,15 @@ class ValidationTool extends React.Component {
     const { validationStep } = this.state;
 
     const shortName = safePath (['dataset_meta_data', '0', 'dataset_short_name']) (this.state);
-
     const longName = safePath (['dataset_meta_data', '0', 'dataset_long_name']) (this.state);
+
+    const summary = {
+      shortName,
+      longName,
+      cols: this.state.data ? Object.keys(this.state.data[0]).length : 0,
+      rows: this.state.data ? this.state.data.length : 0,
+      vars: this.state.vars_meta_data ? this.state.vars_meta_data.length : 0,
+    }
 
     return (
       <div className={classes.validationToolWrapper}>
@@ -784,13 +791,14 @@ class ValidationTool extends React.Component {
         <FullWidthContainer>
           <Section>
 
-            <Header newLongName={longName} />
+            <Header newLongName={longName} step={validationStep} />
 
             <div>
               <Navigation
                 file={this.props.submissionFile}
                 step={validationStep}
                 datasetName={shortName}
+                summary={summary}
                 changeStep={this.handleChangeValidationStep}
               />
             </div>

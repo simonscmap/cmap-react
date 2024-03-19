@@ -45,7 +45,7 @@ const useHeaderStyles = makeStyles ((theme) => ({
 const Header = (props) => {
   const classes = useStyles();
   const cl = useHeaderStyles();
-  const { newLongName } = props;
+  const { newLongName, step } = props;
 
   const subType = useSelector ((state) => state.submissionType);
   const subToUpdate = useSelector ((state) => {
@@ -79,6 +79,16 @@ const Header = (props) => {
     name = subToUpdate.Dataset_Long_Name;
   } else if (subType === 'new' && newLongName) {
     name = newLongName;
+  }
+
+  if (step > 0) {
+    return (
+      <div className={cl.container}>
+        <Typography variant="h1" className={classes.title}>
+          {'Data Submisson'}
+        </Typography>
+      </div>
+    );
   }
 
   return (

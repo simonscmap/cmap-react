@@ -323,6 +323,9 @@ let checkTypeConsistency = (data, userVariables) => {
 };
 
 let allSameValueHelper = (data, col) => {
+  if (data.length < 2) {
+    return false; // if data is only 1 row, we don't need a uniqueness check
+  }
   let sampleValue;
   let i = 0;
 

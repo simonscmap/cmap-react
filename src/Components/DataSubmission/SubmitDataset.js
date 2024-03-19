@@ -199,8 +199,6 @@ const Step3 = (props) => {
     return '';
   }
 
-  console.log ('submissionUploadState', submissionUploadState);
-
   if (states.inProgress === submissionUploadState) {
     return (
       <div className={classes.wrapper}>
@@ -215,7 +213,6 @@ const Step3 = (props) => {
   if (states.succeeded === submissionUploadState) {
     return (
       <div className={classes.wrapper}>
-        <Typography variant={"h5"}>Upload Submission</Typography>
           <Typography className={classes.submittedTypography}>
             Your dataset has been successfully submitted, and will be reviewed by our data curation team.
           </Typography>

@@ -11,18 +11,19 @@ import { makeStyles, withStyles } from '@material-ui/core/styles';
 
 import states from '../../enums/asyncRequestStates';
 import ErrorStatus from './ValidationToolErrorStatus';
+import DataStatus from './ValidationToolDataSummary';
 
 const useStyles = makeStyles ((theme) => ({
   navigationWrapper: {
     color: 'white',
     display: 'flex',
     flexDirection: 'row',
-    gap: '2em',
     justifyContent: 'space-between',
-    paddingRight: '1em'
+    paddingRight: '1em',
+    flexWrap: 'wrap',
   },
   navigationButtons: {
-    padding: '2em 0',
+    padding: '2em 2em 1em 0',
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'flex-start',
@@ -41,9 +42,9 @@ const useStyles = makeStyles ((theme) => ({
   rightSection: {
     display: 'flex',
     flexDirection: 'row',
-    gap: '4em',
+    gap: '3em',
     justifyContent: 'center',
-
+    marginBottom: '2em'
   }
 }));
 
@@ -79,7 +80,7 @@ const StepBadge = (props) => {
 const Navigation = (props) => {
   const cl = useStyles();
 
-  const { file, step, changeStep } = props;
+  const { file, step, changeStep, summary } = props;
 
   const submissionUploadState = useSelector ((state) => state.submissionUploadState);
   const auditReport = useSelector ((state) => state.auditReport);
@@ -159,6 +160,7 @@ const Navigation = (props) => {
       </div>
 
       <div className={cl.rightSection}>
+        <DataStatus step={step} summary={summary} />
         <ErrorStatus
           step={step}
           errorCount={errorCount}

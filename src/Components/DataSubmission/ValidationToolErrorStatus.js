@@ -20,6 +20,7 @@ const useStyles = makeStyles ((theme) => ({
     '& span': {
       display: 'inline-block',
       width: '200px',
+      fontSize: '.9em'
     },
     '& p': {
       margin: 0,
