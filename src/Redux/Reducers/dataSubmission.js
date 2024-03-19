@@ -54,6 +54,7 @@ export default function (state, action) {
         submissionFile: action.payload.file,
         submissionType: action.payload.submissionId ? 'update' : 'new',
         submissionToUpdate: action.payload.submissionId ? parseInt (action.payload.submissionId, 10) : null,
+        submissionUploadState: states.notTried,
       };
 
     case CLEAR_SUBMISSION_FILE:
@@ -112,19 +113,19 @@ export default function (state, action) {
     case SET_WORKBOOK_AUDIT:
       return {
         ...state,
-        auditReport: {
+        auditReport: amendReportWithErrorCount({
           ...(state.auditReport || {}),
           workbook: action.payload,
-        }
+        })
       };
 
     case SET_SHEET_AUDIT:
       return {
         ...state,
         auditReport: amendReportWithErrorCount({
-          ...(state.auditReport || {}),
-          [action.payload.sheetName]: action.payload.sheetAudit,
-        })
+        ...(state.auditReport || {}),
+        [action.payload.sheetName]: action.payload.sheetAudit,
+      })
       };
     default:
       return state;

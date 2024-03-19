@@ -1,5 +1,5 @@
 import React from 'react';
-
+import { useSelector } from 'react-redux';
 import { Typography, Divider } from '@material-ui/core';
 import {
   ErrorOutline,
@@ -36,9 +36,11 @@ const errorOutlineStyle = {
 
 const IssueSummary = (props) => {
   const cl = useStyles();
+  const { step } = props;
+  const auditReport = useSelector ((state) => state.auditReport);
+  const errorCount = auditReport && auditReport.errorCount;
 
-  const { step, errorCount } = props;
-
+  console.log ('Error Status Summary: error count', errorCount);
   if (step < 1) {
     return <React.Fragment />;
   }

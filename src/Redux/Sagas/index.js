@@ -619,12 +619,14 @@ function* uploadSubmission(action) {
   // check
   if (!file) {
     log.error ('no file provided to uploadSubmission saga', { ...action.payload });
+    yield put(dataSubmissionActions.setUploadState(states.failed));
     yield put(interfaceActions.snackbarOpen('There was an error beginning file upload.', tag));
     return;
   }
 
   if (submissionType === 'new' && !rawFile) {
     log.error ('no raw file provided to uploadSubmission saga', { ...action.payload });
+    yield put(dataSubmissionActions.setUploadState(states.failed));
     yield put(interfaceActions.snackbarOpen('There was an error beginning file upload.', tag));
     return;
   }
@@ -636,6 +638,7 @@ function* uploadSubmission(action) {
 
   const totalErrors = auditReport && auditReport.errorCount && auditReport.errorCount.sum;
   if (totalErrors !== 0) {
+    yield put(dataSubmissionActions.setUploadState(states.failed));
     yield put(interfaceActions.snackbarOpen('There are validation errors preventing submission', tag));
     return;
   }
@@ -650,6 +653,7 @@ function* uploadSubmission(action) {
   try {
     response = yield call(api.dataSubmission.checkName, checkNamePayload);
   } catch (e) {
+    yield put(dataSubmissionActions.setUploadState(states.failed));
     yield put(dataSubmissionActions.setCheckSubmNameRequestStatus(states.failed));
   }
   if (response && response.ok) {
@@ -670,6 +674,7 @@ function* uploadSubmission(action) {
       return;
     }
   } else {
+    yield put(dataSubmissionActions.setUploadState(states.failed));
     yield put(dataSubmissionActions.setCheckSubmNameRequestStatus(states.failed));
   }
 
@@ -803,7 +808,6 @@ function* uploadSubmission(action) {
     const respStatus = commitFileResponse && commitFileResponse.status;
     log.error (`API responded to commit request with ${respStatus}`, { ...commitFileResponse });
     yield put(dataSubmissionActions.setUploadState(states.failed));
-
     yield put(interfaceActions.setLoadingMessage('', tag));
     yield put(interfaceActions.snackbarOpen('Failed to upload', tag));
     return;

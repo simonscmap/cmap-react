@@ -161,10 +161,7 @@ const Navigation = (props) => {
 
       <div className={cl.rightSection}>
         <DataStatus step={step} summary={summary} />
-        <ErrorStatus
-          step={step}
-          errorCount={errorCount}
-        />
+        <ErrorStatus step={step} />
       </div>
     </div>
   );
