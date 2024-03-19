@@ -9,7 +9,7 @@ import {
 } from '@material-ui/core';
 import makeStyles from '@material-ui/core/styles/makeStyles';
 import { GoDotFill } from "react-icons/go";
-import renderText from '../../Home/News/renderText';
+import renderText, { renderTextNoUnderlineConversion } from '../../Home/News/renderText';
 
 const useStyles = makeStyles ((theme) => ({
   wrapper: {
@@ -36,7 +36,7 @@ const IssueWithList = (props) => {
             <GoDotFill color="#69FFF2"/>
           </ListItemIcon>
           <ListItemText>
-            {item}
+            {renderTextNoUnderlineConversion(item)}
           </ListItemText>
         </ListItem>
       ))}
