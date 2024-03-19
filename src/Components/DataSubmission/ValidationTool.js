@@ -494,6 +494,9 @@ class ValidationTool extends React.Component {
         });
         return;
       }
+
+      console.log ('WORKBOOK', workbook);
+
       let _data = XLSX.utils.sheet_to_json(workbook.Sheets['data'], {
         defval: null,
       });
@@ -565,6 +568,12 @@ class ValidationTool extends React.Component {
         return;
       }
 
+      console.log ('parsed sheets', {
+        data,
+        dataset_meta_data,
+        vars_meta_data
+      });
+
       // dispatch check name
       const shortName = dataset_meta_data[0].dataset_short_name;
       const longName = dataset_meta_data[0].dataset_long_name;
@@ -588,7 +597,6 @@ class ValidationTool extends React.Component {
       });
 
       // run report
-      console.log ('file parsed; perform audit');
       this.performAudit(true, 'onload');
     };
 

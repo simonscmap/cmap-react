@@ -42,7 +42,105 @@ let checkSheets = (workbook) => {
   return missingSheets;
 };
 
+// 'A1', 'J23', 'QQ4' ...
+// -> ['A', 1], ['J', 23], ['QQ', 4]
+const splitKey = (key) => {
+  let indexOfRowNumber;
+  for (let k = 1; k < key.length; k++) { // start at 1 because first char is always a letter
+    const char = key[k];
+    const asInt = parseInt (char, 10);
+    if (!isNaN (asInt)) {
+      indexOfRowNumber = k;
+      break;
+    }
+  }
 
+  const result = [
+    key.slice (0, indexOfRowNumber),
+    parseInt (key.slice (indexOfRowNumber), 10),
+  ];
+  // console.log (`split ${key} => [${result[0]}, ${result[1]}]`)
+  return result;
+}
+
+const checkForOrphanedCells_ = (workbook) => {
+  const sheets = ['data', 'vars_meta_data', 'dataset_meta_data'];
+
+  const getOrphanedCells = (sheet) => {
+    // fn
+    const isHeaderCell = (key) => {
+      const cell = sheet[key];
+      return cell.v === cell.w && cell.w === cell.h; // h, v, w are the same
+    };
+    // fn
+    const isNotFirstRow = (key) => {
+      const [, row] = splitKey (key);
+      if (row !== 1) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    const orphanedCellKeys = Object.keys (sheet)
+                                   .filter (isHeaderCell)
+                                   .filter (isNotFirstRow);
+
+    return orphanedCellKeys;
+  }
+
+  const result = sheets.reduce ((acc, sheetName) => {
+    return Object.assign (acc, {
+      [sheetName]: getOrphanedCells (workbook.Sheets[sheetName]),
+    });
+  }, {});
+
+  return result;
+}
+
+const checkForOrphanedCells = (workbook) => {
+  const sheets = ['data', 'vars_meta_data', 'dataset_meta_data'];
+
+  // fns
+  const isCellKey = (key) => key.charCodeAt(0) !== 33; // props that are not cells begin with '!'
+  const groupRowsByCol = (acc, curr) => { // reduce: group by col
+    const [col, row] = curr;
+    if (acc[col]) {
+      acc[col] = acc[col].concat(row);
+    } else {
+      acc[col] = [row];
+    }
+    return acc;
+  }
+  const colHasNoHeadRow = ([, rowsArr]) => {
+    if (rowsArr.every ((row) => row !== 1)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+
+  // calculate results
+  const getOrphanedCells = (sheet) => {
+    const cols = Object.keys (sheet)
+                       .filter (isCellKey)
+                       .map (splitKey)
+                       .reduce (groupRowsByCol, {});
+
+    // console.log (`grouped entries`, cols)
+
+    const colEntriesWithoutHeadRow = Object.entries(cols).filter (colHasNoHeadRow);
+    const result = Object.fromEntries (colEntriesWithoutHeadRow);
+    return result;
+  }
+
+  return sheets.reduce ((acc, sheetName) => {
+    return Object.assign (acc, {
+      [sheetName]: getOrphanedCells (workbook.Sheets[sheetName]),
+    });
+  }, {});
+}
 
 let checkEveryVarsShortNameHasDataCol = (data, vars_meta_data, userVariables) => {
   if (!vars_meta_data || !userVariables) {
@@ -486,7 +584,7 @@ export const reportDuplicateDataColumnHeaders = (workbook, dataSheet) => {
     const indexOfUnderscore = header.lastIndexOf ('_');
     if (indexOfUnderscore < header.length - 1) {
       const suffix = header.slice (indexOfUnderscore + 1);
-      const isInteger = parseInt (suffix, 10) !== isNaN;
+      const isInteger = !isNaN(parseInt (suffix, 10));
       if (isInteger) {
         parsedValues.maybeRenamed = true;
         parsedValues.maybeDuplicateName = header.slice (0, indexOfUnderscore);
@@ -621,6 +719,30 @@ export default (args) => {
   // no file to work with yet
   if (!workbook) {
     return { errors, warnings };
+  }
+
+
+  if (workbook) {
+    // check for orphaned cells
+    const orphanedCells = checkForOrphanedCells (workbook);
+    console.log ('orphaned cells', orphanedCells);
+    Object.keys (orphanedCells).forEach ((sheetName) => {
+      const colKeys = Object.keys (orphanedCells[sheetName]);
+      if (colKeys && colKeys.length) {
+        errors.push ({
+          title: `Cells Outside of Defined Columns in the *\`${sheetName}\`* Sheet`,
+          Component: IssueWithList,
+          args: {
+            text: `There are non-empty cells outside of the defined columns. Data in these cells will be lost. Please preserve your data, if needed, and remove the values from these cells:`,
+            list: colKeys.map ((key) => {
+              const rows = orphanedCells[sheetName][key];
+              return `Column: ${key}, Row: ${rows.join (',')}`;
+            }),
+          }
+        });
+      }
+    });
+
   }
 
   // check name

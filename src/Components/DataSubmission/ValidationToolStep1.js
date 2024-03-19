@@ -159,7 +159,7 @@ const CardTitle = (props) => {
         <ErrorOutline />
       </div>
       <div className={cl.issueSummary}>
-        {title}
+        {renderText(title)}
       </div>
     </div>
   );
