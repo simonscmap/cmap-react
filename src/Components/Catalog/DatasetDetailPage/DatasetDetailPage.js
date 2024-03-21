@@ -14,32 +14,33 @@ import {
   Paper,
 } from '@material-ui/core';
 
+import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
+
 import ReactMarkdown from 'react-markdown';
 import reactStringReplace from 'react-string-replace';
 
-import DatasetPageAGGrid from './VariablesTable';
+import DatasetPageAGGrid from '../VariablesTable';
 import DatasetJSONLD from './DatasetJSONLD';
-import DownloadDialog from './DownloadDialog';
+import DownloadDialog from '../DownloadDialog';
 import DetailsTable from './DatasetDetailsTable';
 import DatasetMetadata from './DatasetMetadata';
+import styles from './datasetFullPageStyles';
+
+import CartAddOrRemove from '../CartAddOrRemove';
+import SkeletonWrapper from '../../UI/SkeletonWrapper';
+import ErrorCard from '../../Common/ErrorCard';
+import Spacer from '../../Common/Spacer';
 
 import {
   datasetFullPageDataFetch,
   datasetFullPageDataStore,
   datasetVariablesFetch,
   datasetVariableUMFetch,
-} from '../../Redux/actions/catalog';
+} from '../../../Redux/actions/catalog';
 
-import states from '../../enums/asyncRequestStates';
-import styles from './datasetFullPageStyles';
-import colors from '../../enums/colors';
-import metaTags from '../../enums/metaTags';
-import CartAddOrRemove from './CartAddOrRemove';
-import SkeletonWrapper from '../UI/SkeletonWrapper';
-import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
-import ErrorCard from '../Common/ErrorCard';
-import Spacer from '../Common/Spacer';
-
+import states from '../../../enums/asyncRequestStates';
+import colors from '../../../enums/colors';
+import metaTags from '../../../enums/metaTags';
 
 const mapStateToProps = (state) => ({
   pageData : state.datasetDetailsPage,

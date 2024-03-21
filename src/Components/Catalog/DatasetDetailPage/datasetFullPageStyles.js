@@ -1,4 +1,4 @@
-import colors from '../../enums/colors';
+import colors from '../../../enums/colors';
 
 const styles = (theme) => ({
   guideSection: {

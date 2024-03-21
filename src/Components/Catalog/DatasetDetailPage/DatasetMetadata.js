@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { withStyles, TextField, InputAdornment } from '@material-ui/core';
 import { Search } from '@material-ui/icons';
-import colors from '../../enums/colors';
-import { BlobRender } from './VariablesTable/MetadataToolPanel';
+import colors from '../../../enums/colors';
+import { BlobRender } from '../VariablesTable/MetadataToolPanel';
 
 const TABLE_BG_COLOR = '#184562';
 
