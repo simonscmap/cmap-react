@@ -33,8 +33,8 @@ const CruiseFullPage = lazy(() =>
 const DataSubmission = lazy(() =>
   import('./Components/DataSubmission/DataSubmission'),
 );
-const DatasetFullPage = lazy(() =>
-  import('./Components/Catalog/DatasetFullPage'),
+const DatasetDetailPage = lazy(() =>
+  import('./Components/Catalog/DatasetDetailPage'),
 );
 const ForgotPass = lazy(() => import('./Components/User/ForgotPass'));
 const Home = lazy(() => import('./Components/Home'));
@@ -94,7 +94,7 @@ class App extends Component {
                     </Route>
                     <Route
                       path="/catalog/datasets/:dataset"
-                      component={DatasetFullPage}
+                      component={DatasetDetailPage}
                     ></Route>
                     <Route
                       path="/catalog/cruises/:cruiseName"
