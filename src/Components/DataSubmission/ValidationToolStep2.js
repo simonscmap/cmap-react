@@ -89,10 +89,10 @@ const getColumns = (sheet, data) => {
   const nonKeys = ['__rowNum__'];
 
   const presetColHeaders = {
-    lon: 'Longitude',
-    lat: 'Latitude',
-    time: 'Time',
-    depth: 'Depth'
+    lon: 'lon',
+    lat: 'lat',
+    time: 'time',
+    depth: 'depth'
   };
 
   const nameToHeader = (name) => presetColHeaders[name] || name;

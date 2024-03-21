@@ -63,41 +63,6 @@ const splitKey = (key) => {
   return result;
 }
 
-const checkForOrphanedCells_ = (workbook) => {
-  const sheets = ['data', 'vars_meta_data', 'dataset_meta_data'];
-
-  const getOrphanedCells = (sheet) => {
-    // fn
-    const isHeaderCell = (key) => {
-      const cell = sheet[key];
-      return cell.v === cell.w && cell.w === cell.h; // h, v, w are the same
-    };
-    // fn
-    const isNotFirstRow = (key) => {
-      const [, row] = splitKey (key);
-      if (row !== 1) {
-        return true;
-      } else {
-        return false;
-      }
-    }
-
-    const orphanedCellKeys = Object.keys (sheet)
-                                   .filter (isHeaderCell)
-                                   .filter (isNotFirstRow);
-
-    return orphanedCellKeys;
-  }
-
-  const result = sheets.reduce ((acc, sheetName) => {
-    return Object.assign (acc, {
-      [sheetName]: getOrphanedCells (workbook.Sheets[sheetName]),
-    });
-  }, {});
-
-  return result;
-}
-
 const checkForOrphanedCells = (workbook) => {
   const sheets = ['data', 'vars_meta_data', 'dataset_meta_data'];
 
@@ -293,6 +258,28 @@ let checkUniqueSpaceTime = (data) => {
 
   return result;
 };
+
+const checkTypeConsistencyOfTimeValues = (data) => {
+  if (!data || !Array.isArray(data)) {
+    return true;
+  }
+  let isConsistent = true;
+  let lastType = typeof data[0].time;
+  let strLen = lastType === 'string' ? data[0].time.length : 0;
+  for (let k = 1; k < data.length; k++) {
+    if (typeof data[k].time !== lastType) {
+      isConsistent = false;
+      break;
+    }
+    if (lastType === 'string') {
+      if (data[k].time.length !== strLen) {
+        // need a better check: 2015/1/15 vs 2015/10/30
+        // isConsistent = false;
+      }
+    }
+  }
+  return isConsistent;
+}
 
 let checkTypeConsistency = (data, userVariables) => {
   // Look for mixture of strings and numbers
@@ -505,6 +492,7 @@ const checkDateFormat = (data, workbook, numericDateFormatConverted) => {
 
   if (dataType === 'number') {
     if (is1904Format (workbook)) {
+      console.log ('generating workbook error for 1904 formatting')
       return {
         error: `The submitted file uses Date1904 formatting for time values. Please convert to normal excel format, and verify values are accurate. ${example}`,
       }
@@ -820,6 +808,14 @@ export default (args) => {
     errors.push ({
       title: 'Invalid Time Values',
       detail: `There are invalid time values in the data sheet.  You can proceed to the next step to view which rows have invalid time values. However, editing time values in this application is not enabled. To continue, please revise your submission file and re-upload it. Ensure that every row in the data sheet has a time value.`
+    });
+  }
+
+  const timeValuesAreConsistent = checkTypeConsistencyOfTimeValues (data);
+  if (!timeValuesAreConsistent) {
+    errors.push ({
+      title: 'Time Values Are Different Types',
+      detail: 'Time values in the data sheet are not all the same type. Please check your data sheet to ensure all dates are of the same type and format.'
     });
   }
 
