@@ -110,7 +110,7 @@ export const datasetVariableUMFetch = (shortname) => ({
   },
 });
 
-export const datasetVariableUMStore= (data) => ({
+export const datasetVariableUMStore = (data) => ({
   type: catalogActionTypes.DATASET_VARIABLE_UM_STORE,
   payload: {
     variableUnstructuredMetadata: data,
@@ -122,6 +122,23 @@ export const datasetVariableUMSetLoadingState = (state) => ({
   payload: {
     state,
   },
+});
+
+export const visualizableVariablesFetch = (shortname) => ({
+  type: catalogActionTypes.DATASET_VISUALIZABLE_VARS_FETCH,
+  payload: {
+    shortname,
+  }
+});
+
+export const visualizableVariablesStore = (data) => ({
+  type: catalogActionTypes.DATASET_VISUALIZABLE_VARS_STORE,
+  payload: data,
+});
+
+export const visualizableVariablesSetLoadingState = (state) => ({
+  type: catalogActionTypes.DATASET_VISUALIZABLE_VARS_SET_LOADING_STATE,
+  payload: { state },
 });
 
 /************** Cruise Detail Page **********************/

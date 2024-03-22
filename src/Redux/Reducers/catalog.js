@@ -10,6 +10,9 @@ import {
   DATASET_VARIABLES_SET_LOADING_STATE,
   DATASET_VARIABLE_UM_STORE,
   DATASET_VARIABLE_UM_SET_LOADING_STATE,
+  DATASET_VISUALIZABLE_VARS_FETCH,
+  DATASET_VISUALIZABLE_VARS_STORE,
+  DATASET_VISUALIZABLE_VARS_SET_LOADING_STATE,
   CRUISE_FULL_PAGE_DATA_STORE,
   CRUISE_FULL_PAGE_DATA_SET_LOADING_STATE,
   CART_ADD_ITEM,
@@ -131,6 +134,25 @@ export default function (state, action) {
           unstructuredMetadataLoadingState: action.payload.state,
         }
       };
+
+    case DATASET_VISUALIZABLE_VARS_STORE:
+      return {
+        ...state,
+        datasetDetailsPage: {
+          ...state.datasetDetailsPage,
+          visualizableVariables: action.payload,
+        }
+      };
+    case DATASET_VISUALIZABLE_VARS_SET_LOADING_STATE:
+      return {
+        ...state,
+        datasetDetailsPage: {
+          ...state.datasetDetailsPage,
+          visualizableVariablesLoadingState: action.payload.state,
+        }
+      };
+
+
      /************** Cruise Page **********************/
 
     case CRUISE_FULL_PAGE_DATA_STORE:

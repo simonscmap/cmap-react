@@ -94,6 +94,10 @@ import {
   watchRequestAvgADTAnomalyDataSend,
 } from './anomaly';
 
+import {
+  watchVisualizableVariablesFetch,
+} from './datasetDetailSagas';
+
 import { localStorageApi } from '../../Services/persist/local';
 import logInit from '../../Services/log-service';
 const log = logInit('sagas').addContext({ src: 'Redux/Sagas' });
@@ -976,6 +980,11 @@ function* datasetFullPageDataFetch(action) {
     catalogActions.datasetFullPageDataSetLoadingState(states.inProgress),
   );
   console.log('calling api.catalog.datasetFullPageDataFetch')
+  // fullpage data returns Dasaset info and Cruises
+  // Dataset info resolves any enum values from reference tables
+  // and pulls in dataset stats for spacetime min/max data,
+  // row count, keywords, regions, visualizable flag
+  // sensors and unstructure metadata
   let result = yield call(
     api.catalog.datasetFullPageDataFetch,
     action.payload.shortname,
@@ -1006,7 +1015,7 @@ function* datasetVariablesFetch(action) {
   yield put(catalogActions.datasetVariablesSetLoadingState(states.inProgress));
 
   let result = yield call(
-    api.catalog.datasetVariablesFetch,
+    api.catalog.datasetVariablesFetch, // api calls uspVariableCatalog for dataset
     action.payload.shortname,
   );
 
@@ -1916,6 +1925,7 @@ function* rootSaga() {
     watchRequestAvgSSTAnomalyDataSend(),
     watchRequestAvgADTAnomalyDataSend(),
     watchFetchLastUserTouch(),
+    watchVisualizableVariablesFetch(),
   ]);
 }
 
