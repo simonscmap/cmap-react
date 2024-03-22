@@ -24,6 +24,7 @@ import DatasetJSONLD from './DatasetJSONLD';
 import DownloadDialog from '../DownloadDialog';
 import DetailsTable from './DatasetDetailsTable';
 import DatasetMetadata from './DatasetMetadata';
+import Visualization from './DatasetVisualization';
 import styles from './datasetFullPageStyles';
 
 import CartAddOrRemove from '../CartAddOrRemove';
@@ -197,7 +198,8 @@ const DatasetFullPage = (props) => {
                   style={{ marginBottom: '16px', color: 'white' }}
                 >Description
                 </Typography>
-                <ReactMarkdown source={description} className={classes.markdown} />
+    <ReactMarkdown source={description} className={classes.markdown} />
+    <Visualization />
               </Grid>
 
               <Grid item xs={12}>

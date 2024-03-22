@@ -67,6 +67,9 @@ const initialState = {
     variables: null,
     sensors: null,
     unstructuredVariableMetadata: null,
+
+    visualizableVariables: null,
+    visualizableVariablesLoadingState: states.notTried,
   },
 
   // Cruise Page

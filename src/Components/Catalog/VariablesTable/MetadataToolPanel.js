@@ -198,7 +198,7 @@ const SidebarMetadataToolPanel = withStyles(toolPanelStyles)((props) => {
   let handleFocus = (e) => {
     let { detail } = e;
     if (detail) {
-      console.log('setFocusEvent detail', detail);
+      // console.log('setFocusEvent detail', detail);
       setData(detail);
       setIsFocusView(true);
     }
@@ -214,7 +214,7 @@ const SidebarMetadataToolPanel = withStyles(toolPanelStyles)((props) => {
   // when another tool panel clears focus, it should shift this tool panel
   // into a list view as well
   const handleClearFocus = () => {
-      console.log('metadata tool panel clear focus');
+      // console.log('metadata tool panel clear focus');
       setIsFocusView (false);
   }
 
