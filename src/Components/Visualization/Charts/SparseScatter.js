@@ -86,7 +86,7 @@ const getTitles = (data, scatterType) => {
 };
 
 const getSparseScatterConfig = (props) => {
-  const { markerOptions, data, scatterType } = props;
+  const { markerOptions, data, scatterType, styleOverrides = {} } = props;
 
   const { parameters, metadata, variableValues } = data;
 
@@ -101,8 +101,8 @@ const getSparseScatterConfig = (props) => {
   let plot = {
     tabTitle: capitalizeFirst(scatterType),
     style: {
-      width: '60vw',
-      height: '40vw',
+      width: styleOverrides.width || '60vw',
+      height: styleOverrides.height || '40vw',
     },
     data: [
       {

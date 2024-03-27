@@ -51,21 +51,11 @@ const Vis = () => {
   const visVars = useSelector ((state) =>
     state.datasetDetailsPage.visualizableVariables && state.datasetDetailsPage.visualizableVariables.variables);
 
-  const visVarsLoadingState = useSelector ((state) =>
-    state.datasetDetailsPage.visualizableVariablesLoadingState);
-
   const selectedVisVar = useSelector ((state) =>
     state.datasetDetailsPage.visualizationSelection);
 
   const visData = useSelector ((state) =>
     state.datasetDetailsPage.visualizableDataByName);
-
-  // Derived State
-
-  const visDataLoadingStates = visData && Object.fromEntries (Object.keys (visData).map (key => {
-    return [key, { loadingState: visData[key].loadingState }];
-  }));
-
 
   // fetch variables when short name changes
   useEffect (() => {
@@ -95,14 +85,7 @@ const Vis = () => {
     }
   }, [selectedVisVar]);
 
-
-  const stringUpdate = `
-      selcted dataset short name: ${selectedDatasetShortName}
-      vis var loading state: ${visVarsLoadingState}
-      selected vis var: ${selectedVisVar}
-      selected var loading: ${visData && visDataLoadingStates && visDataLoadingStates[selectedVisVar]}
-      vis data loading states: ${JSON.stringify (visDataLoadingStates, null, 2)}
-  `;
+  // Decide what to render
 
   const selectedVarState = selectedVisVar && visData && visData[selectedVisVar] && visData[selectedVisVar].loadingState;
   const hasFailed = selectedVarState === states.failed;
@@ -134,7 +117,7 @@ const Vis = () => {
 
       const chart = {
         data: visData[selectedVisVar].data,
-        subType: selectedVariable.meta.visType,
+        subType: 'Heatmap' === selectedVariable.meta.visType ? 'Heatmap' : 'Sparse'
       };
 
       chart.data.parameters.spName = storedProcedures.spaceTime;
@@ -144,6 +127,7 @@ const Vis = () => {
       const styleOverrides = {
         width: '100%',
         height: 'auto',
+        minHeight: '500px'
       };
 
       return <ChartWrapperWithoutPaper chart={chart} styleOverrides={styleOverrides}/>;
