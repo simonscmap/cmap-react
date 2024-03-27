@@ -58,10 +58,10 @@ const ChartWrapper = ({ chart, index, classes }) => {
   );
 };
 
-export const ChartWrapperWithoutPaper = ({ chart }) => {
+export const ChartWrapperWithoutPaper = ({ chart, styleOverrides }) => {
   let ChartComponent = getChartComponent(chart);
 
-  return (<ChartComponent chart={chart} />)
+  return (<ChartComponent chart={chart} styleOverrides={styleOverrides} />)
 };
 
 export default withStyles (chartsStyles) (ChartWrapper);
