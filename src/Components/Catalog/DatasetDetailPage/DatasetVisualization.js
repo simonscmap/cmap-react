@@ -8,9 +8,30 @@ import {
 import { ChartWrapperWithoutPaper } from '../../Visualization/Charts/ChartWrapper';
 import storedProcedures from '../../../enums/storedProcedures';
 import Spinner from '../../UI/Spinner';
+import { makeStyles } from '@material-ui/core/styles';
 
 // import visSubTypes from '../../../enums/visualizationSubTypes';
 // import deepEqual from 'deep-equal';
+
+const useStyles = makeStyles ((theme) => ({
+  spinnerWrapper: {
+    textAlign: 'center',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+  }
+}));
+
+const SpinnerWrapper = (props) => {
+  const { message } = props;
+  const cl = useStyles();
+  return (
+    <div className={cl.spinnerWrapper}>
+      <Spinner message={message} />
+    </div>
+  );
+};
 
 
 const Vis = () => {
@@ -91,13 +112,13 @@ const Vis = () => {
   const isReady = selectedVarState === states.succeeded && visData[selectedVisVar].data;
 
   if (notTried) {
-    return <Spinner message={'Initiating'} />;
+    return <SpinnerWrapper message={'Initiating'} />;
   } else if (hasFailed) {
     return 'Failed to load data for selected variable';
   } else if (isLoading) {
-    return <Spinner message={`Loading`} />
+    return <SpinnerWrapper message={`Loading`} />
   } else if (isProcessing) {
-    return <Spinner message={'Processing'} />
+    return <SpinnerWrapper message={'Processing'} />
   } else if (isReady) {
     const selectedVariable = visVars.find ((v) => v.Short_Name === selectedVisVar);
     if (selectedVariable) {
@@ -120,7 +141,12 @@ const Vis = () => {
       chart.data.metadata.Data_Source = dataSource;
       chart.data.metadata.Dataset_Name = datasetLongName;
 
-      return <ChartWrapperWithoutPaper chart={chart} />;
+      const styleOverrides = {
+        width: '100%',
+        height: 'auto',
+      };
+
+      return <ChartWrapperWithoutPaper chart={chart} styleOverrides={styleOverrides}/>;
 
     } else {
       return 'Failed to load';

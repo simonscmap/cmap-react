@@ -53,6 +53,7 @@ const styles = (theme) => ({
     '& p': {
       fontSize: '1rem',
       fontFamily: '"Lato",sans-serif',
+      textAlign: 'justify',
       fontWeight: 400,
       lineHeight: 1.5,
     },

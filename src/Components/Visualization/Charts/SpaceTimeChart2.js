@@ -197,6 +197,7 @@ const handleHeatmap = (
   palette,
   zMin,
   zMax,
+  styleOverrides = {},
 ) => {
   let { parameters, metadata } = data;
   let [height, width] = getChartDimensions(data);
@@ -215,8 +216,8 @@ const handleHeatmap = (
       style: {
         // width: '100vw',
         // height: '100vh',
-         width: `${width}vw`,
-         height: `${height}vw`,
+         width: styleOverrides.width || `${width}vw`,
+         height: styleOverrides.height || `${height}vw`,
          // minWidth: `${width * 10}px`,
          // minHeight: `${height * 10}px`,
       },
@@ -235,7 +236,7 @@ const handleHeatmap = (
           z: subset,
           connectgaps: false,
           name: truncate60(metadata.Long_Name),
-          type: 'heatmap',
+          type: 'heatmapgl',
 
           colorscale: palette,
           autocolorscale: false,
@@ -281,11 +282,12 @@ const mapDispatchToProps = {
 };
 
 const SpaceTimeChart = (props) => {
-  let { openSnack, chart, chartIndex } = props;
+  let { openSnack, chart, chartIndex, styleOverrides } = props;
   let { data, subType } = chart;
   let { dates, metadata } = data;
   let { contourMap, heatmap } = subTypes;
 
+  console.log ('styleOverrides', styleOverrides);
   // console.log('SpaceTimeChart Data', data);
 
   // Control: Split by Date
@@ -388,6 +390,7 @@ const SpaceTimeChart = (props) => {
       palette,
       zMin,
       zMax,
+      styleOverrides,
     ]);
   };
 
