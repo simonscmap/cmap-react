@@ -1,95 +1,133 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import states from '../../../enums/asyncRequestStates';
-import { visualizableVariablesFetch, visualizableVariablesSetLoadingState } from '../../../Redux/actions/catalog';
-import SPARSE_DATA_QUERY_MAX_SIZE from '../../../enums/sparseDataQueryMaxSize';
-import deepEqual from 'deep-equal';
+import {
+  visualizableVariablesFetch,
+  datasetVariableVisDataFetch,
+} from '../../../Redux/actions/catalog';
+import { ChartWrapperWithoutPaper } from '../../Visualization/Charts/ChartWrapper';
+import storedProcedures from '../../../enums/storedProcedures';
+import Spinner from '../../UI/Spinner';
 
-const sparseDataQueryFromPayload = (data) => {
-  let { metadata, parameters } = data;
-  let { dt1, dt2, lat1, lat2, lon1, lon2, depth1, depth2, fields } = parameters;
-  let depthSelectPart = metadata.Depth_Max ? 'depth, ' : '';
-  let depthOrderPart = metadata.Depth_Max ? ', depth' : '';
+// import visSubTypes from '../../../enums/visualizationSubTypes';
+// import deepEqual from 'deep-equal';
 
-  let query = `SELECT TOP ${SPARSE_DATA_QUERY_MAX_SIZE} time, lat, lon, ${depthSelectPart}${fields} FROM ${parameters.tableName} WHERE ${fields} IS NOT NULL ORDER BY time desc, lat, lon${depthOrderPart}`;
-
-  return query;
-};
-
-
-const storedProcedureParametersToUri = (parameters) => {
-  let result = Object.keys(parameters).reduce(function (queryString, key, i) {
-    return `${queryString}${i === 0 ? '' : '&'}${key}=${parameters[key]}`;
-  }, '');
-  return result;
-};
-
-
-
-const munge = (variable, datasetStats) => {
-  const s = datasetStats;
-  return {
-    metadata: {
-      Depth_Max: s.depth.max,
-    },
-    parameters: {
-      dt1: s.time.max,
-      dt2: s.time.max,
-      lat1: s.lat.min,
-      lat2: s.lat.max,
-      lon1: s.lon.min,
-      lon2: s.lon.max,
-      depth1: s.depth.min,
-      depth2: s.depth.max,
-      fields: variable.Short_Name,
-      tableName: variable.Table_Name,
-    }
-  };
-};
 
 const Vis = () => {
-  const data = useSelector ((state) =>
-    state.datasetDetailsPage.visualizableVariables);
-  const loadingState = useSelector ((state) =>
-    state.datasetDetailsPage.visualizableVariablesLoadingState);
-  const datasetShortName = useSelector ((state) =>
-    state.datasetDetailsPage.selectedDatasetShortname);
   const dispatch = useDispatch();
 
-  let [datasetName, setDatasetName] = useState(null);
-  let [result, setResult] = useState(null);
+  // Redux State
+
+  const selectedDatasetShortName = useSelector ((state) =>
+    state.datasetDetailsPage.selectedDatasetShortname);
+
+  const dataSource = useSelector ((state) =>
+    state.datasetDetailsPage.data && state.datasetDetailsPage.data.Data_Source);
+
+  const datasetLongName = useSelector ((state) =>
+    state.datasetDetailsPage.data && state.datasetDetailsPage.data.Long_Name);
+
+  const visVars = useSelector ((state) =>
+    state.datasetDetailsPage.visualizableVariables && state.datasetDetailsPage.visualizableVariables.variables);
+
+  const visVarsLoadingState = useSelector ((state) =>
+    state.datasetDetailsPage.visualizableVariablesLoadingState);
+
+  const selectedVisVar = useSelector ((state) =>
+    state.datasetDetailsPage.visualizationSelection);
+
+  const visData = useSelector ((state) =>
+    state.datasetDetailsPage.visualizableDataByName);
+
+  // Derived State
+
+  const visDataLoadingStates = visData && Object.fromEntries (Object.keys (visData).map (key => {
+    return [key, { loadingState: visData[key].loadingState }];
+  }));
+
+
+  // fetch variables when short name changes
+  useEffect (() => {
+    if (selectedDatasetShortName) {
+      console.log (`dispatching visualizableVariablesFetch ${selectedDatasetShortName}`);
+      dispatch (visualizableVariablesFetch (selectedDatasetShortName));
+    } else {
+      console.log (`no selected dataset short name ${selectedDatasetShortName}`)
+    }
+  }, [selectedDatasetShortName]);
+
 
   useEffect (() => {
-    if (data) {
-      const variables = data.data.map ((v) => {
-        const m = munge (v, data.stats);
-        let q;
-        if (v.meta.visType === 'Histogram') {
-          q = sparseDataQueryFromPayload (m);
-        } else if (v.meta.visType === 'Heatmap' ){
-          q = storedProcedureParametersToUri (m.parameters);
+    if (selectedVisVar && visData && visVars) {
+      if (visData[selectedVisVar].loadingState === states.notTried) {
+
+        const selectedVariable = visVars.find ((v) => v.Short_Name === selectedVisVar);
+        if (selectedVariable) {
+          console.log (`dispatching dasatetVariableVisDataFetch ${selectedDatasetShortName}`);
+          dispatch (datasetVariableVisDataFetch (selectedVisVar, selectedVariable));
+        } else {
+         console.log (`declining to dispatch dasatetVariableVisDataFetch: no plot type to reference`, selectedVariable);
         }
-        return Object.assign(v, { query: q, params: m });
-      });
-      if (!deepEqual (variables, result)) {
-        console.log(variables);
-        setResult(variables);
+      } else {
+        console.log (`declining to dispatch dasatetVariableVisDataFetch: no visData to reference`, visData);
       }
     }
-  }, [data]);
+  }, [selectedVisVar]);
 
-  useEffect (() => {
-    // when component load, reset loading
-    if (datasetShortName && datasetShortName !== datasetName) {
-      console.log (`name change: dispatching (${datasetShortName}/${datasetName})`);
-      dispatch (visualizableVariablesFetch (datasetShortName));
-      setDatasetName(datasetShortName);
+
+  const stringUpdate = `
+      selcted dataset short name: ${selectedDatasetShortName}
+      vis var loading state: ${visVarsLoadingState}
+      selected vis var: ${selectedVisVar}
+      selected var loading: ${visData && visDataLoadingStates && visDataLoadingStates[selectedVisVar]}
+      vis data loading states: ${JSON.stringify (visDataLoadingStates, null, 2)}
+  `;
+
+  const selectedVarState = selectedVisVar && visData && visData[selectedVisVar] && visData[selectedVisVar].loadingState;
+  const hasFailed = selectedVarState === states.failed;
+  const isLoading = selectedVarState === states.inProgress;
+  const isProcessing = selectedVarState === states.processing;
+  const notTried = selectedVarState === states.notTried;
+  const isReady = selectedVarState === states.succeeded && visData[selectedVisVar].data;
+
+  if (notTried) {
+    return <Spinner message={'Initiating'} />;
+  } else if (hasFailed) {
+    return 'Failed to load data for selected variable';
+  } else if (isLoading) {
+    return <Spinner message={`Loading`} />
+  } else if (isProcessing) {
+    return <Spinner message={'Processing'} />
+  } else if (isReady) {
+    const selectedVariable = visVars.find ((v) => v.Short_Name === selectedVisVar);
+    if (selectedVariable) {
+      // In the present version, this component only supports Histogram and Heatmap
+      // The ChartWrapper decides which chart type to use, based on chart data
+      // specifically data.parameters.spName and data.subType
+      // spName values are specified in enums/storedProcedures:
+      // --> uspSectionMap, uspTimeSeries, uspSpaceTime, and uspDepthProfile
+      // uspSpaceTime, subType are specified in enums/visualizationSubTypes:
+      // --> 'Section Map', 'Contour Section Map', 'Time Series', 'Histogram', 'Depth Profile', 'Heatmap', 'Contour Map', 'Sparse'
+      // NOTE: Histogram is designated with a spName of uspSpaceTiem even though it uses a query, not a stored procedure
+      // ¯\_(ツ)_/¯
+
+      const chart = {
+        data: visData[selectedVisVar].data,
+        subType: selectedVariable.meta.visType,
+      };
+
+      chart.data.parameters.spName = storedProcedures.spaceTime;
+      chart.data.metadata.Data_Source = dataSource;
+      chart.data.metadata.Dataset_Name = datasetLongName;
+
+      return <ChartWrapperWithoutPaper chart={chart} />;
+
     } else {
-      console.log (`name change: pass (${datasetShortName}/${datasetName})`);
+      return 'Failed to load';
     }
-  }, [datasetShortName]);
-
-  return ('');
+  } else {
+    return '';
+  }
 };
 
 export default Vis;
