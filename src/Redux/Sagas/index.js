@@ -96,6 +96,7 @@ import {
 
 import {
   watchVisualizableVariablesFetch,
+  watchDatasetVariableVisDataFetch,
 } from './datasetDetailSagas';
 
 import { localStorageApi } from '../../Services/persist/local';
@@ -1021,7 +1022,7 @@ function* datasetVariablesFetch(action) {
 
   if (result.ok) {
     let results = yield result.json();
-    yield put(catalogActions.datasetVariablesStore(results));
+    yield put(catalogActions.datasetVariablesStore(results, action.payload.shortname));
     yield put(catalogActions.datasetVariablesSetLoadingState(states.succeeded));
   } else {
     yield put(
@@ -1926,6 +1927,7 @@ function* rootSaga() {
     watchRequestAvgADTAnomalyDataSend(),
     watchFetchLastUserTouch(),
     watchVisualizableVariablesFetch(),
+    watchDatasetVariableVisDataFetch()
   ]);
 }
 

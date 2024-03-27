@@ -3,7 +3,7 @@
 // from inside the grid
 
 import React, { useEffect } from 'react';
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
 
 import {
@@ -33,8 +33,8 @@ import ErrorCard from '../../Common/ErrorCard';
 import Spacer from '../../Common/Spacer';
 
 import {
+  datasetFullPageNavigate,
   datasetFullPageDataFetch,
-  datasetFullPageDataStore,
   datasetVariablesFetch,
   datasetVariableUMFetch,
 } from '../../../Redux/actions/catalog';
@@ -43,63 +43,41 @@ import states from '../../../enums/asyncRequestStates';
 import colors from '../../../enums/colors';
 import metaTags from '../../../enums/metaTags';
 
-const mapStateToProps = (state) => ({
-  pageData : state.datasetDetailsPage,
-});
-
-const mapDispatchToProps = {
-  fetchDataset: datasetFullPageDataFetch,
-  fetchVariables: datasetVariablesFetch,
-  storeDataset: datasetFullPageDataStore,
-  fetchVariableUM: datasetVariableUMFetch,
-};
-
 // Page Component
 const DatasetFullPage = (props) => {
-  const {
-    classes,
-    fetchDataset,
-    fetchVariableUM,
-    fetchVariables,
-    pageData,
-  } = props;
+  const { classes } = props;
 
-  const {
-    primaryPageLoadingState,
-    data,
-    cruises,
-    references,
-    sensors,
-    variables,
-  } = pageData;
+  const dispatch = useDispatch ();
 
-  let unstructuredDatasetMetadata = null;
-  let acknowledgment = null;
-  let dataSource = null;
-  let description = null;
-  let distributor = null;
-  let longName = null;
+  const data = useSelector ((state) => state.datasetDetailsPage.data);
 
-  if (data) {
-    if (data.Unstructured_Dataset_Metadata) {
-      unstructuredDatasetMetadata = data.Unstructured_Dataset_Metadata;
-    }
-    if (data.Acknowledgement) {
-      acknowledgment = data.Acknowledgement;
-    }
-    if (data.Data_Source) {
-      dataSource = data.Data_Source;
-    }
-    if (data.Description) {
-      description = data.Description;
-    }
-    if (data.Distributor) {
-      distributor = data.Distributor;
-    }
-    if (data.Long_Name) {
-      longName = data.Long_Name;
-    }
-  }
+  const cruises = useSelector ((state) => state.datasetDetailsPage.cruises);
+
+  const references = useSelector ((state) => state.datasetDetailsPage.references);
+
+  const sensors = useSelector ((state) => state.datasetDetailsPage.sensors);
+
+  const variables  = useSelector ((state) => state.datasetDetailsPage.variables);
+
+  const primaryPageLoadingState = useSelector ((state) => state.datasetDetailsPage.primaryPageLoadingState);
+
+  let unstructuredDatasetMetadata = useSelector ((state) =>
+    state.datasetDetailsPage.data && state.datasetDetailsPage.data.Unstructured_Dataset_Metadata);
+
+  let acknowledgment = useSelector ((state) =>
+    state.datasetDetailsPage.data && state.datasetDetailsPage.data.Acknewledgment);
+
+  let dataSource = useSelector ((state) =>
+    state.datasetDetailsPage.data && state.datasetDetailsPage.data.Data_Source);
+
+  let description = useSelector ((state) =>
+    state.datasetDetailsPage.data && state.datasetDetailsPage.data.Description);
+
+  let distributor =  useSelector ((state) =>
+    state.datasetDetailsPage.data && state.datasetDetailsPage.data.Distributor);
+
+  let longName =  useSelector ((state) =>
+    state.datasetDetailsPage.data && state.datasetDetailsPage.data.Long_Name);
 
   const loading = primaryPageLoadingState === states.inProgress;
   const failed = primaryPageLoadingState === states.failed;
@@ -124,9 +102,12 @@ const DatasetFullPage = (props) => {
     // trigger fetch of data
     // 'props.match.params.dataset' lets us refer to the named route parameter for this route, called 'dataset',
     // which is declared in App.js
-    fetchDataset (props.match.params.dataset);
-    fetchVariables (props.match.params.dataset);
-    fetchVariableUM (props.match.params.dataset);
+    dispatch (datasetFullPageNavigate (props.match.params.dataset)); // triggers page data reset
+    dispatch (datasetFullPageDataFetch (props.match.params.dataset));
+    dispatch (datasetVariablesFetch (props.match.params.dataset));
+    dispatch (datasetVariableUMFetch (props.match.params.dataset));
+    return () =>
+      dispatch (datasetFullPageNavigate (null)); // triggers page data reset
   }, []);
 
   useEffect(() => {
@@ -191,15 +172,18 @@ const DatasetFullPage = (props) => {
               cartButtonClass={classes.cartButtonClass}
             />
             <Grid container spacing={3}>
-              <Grid item xs={12}>
+              <Grid item md={12} lg={6}>
                 <Typography
                   variant="h5"
                   className={classes.sectionHeader}
                   style={{ marginBottom: '16px', color: 'white' }}
                 >Description
                 </Typography>
-    <ReactMarkdown source={description} className={classes.markdown} />
-    <Visualization />
+                <ReactMarkdown source={description} className={classes.markdown} />
+              </Grid>
+
+              <Grid item md={12} lg={6}>
+                <Visualization />
               </Grid>
 
               <Grid item xs={12}>
@@ -387,7 +371,4 @@ const DatasetFullPage = (props) => {
   );
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(withStyles(styles)(DatasetFullPage));
+export default withStyles(styles)(DatasetFullPage);

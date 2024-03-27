@@ -70,6 +70,8 @@ const initialState = {
 
     visualizableVariables: null,
     visualizableVariablesLoadingState: states.notTried,
+    visualizationSelection: null,
+    visualizableDataByName: null,
   },
 
   // Cruise Page
