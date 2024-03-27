@@ -16,7 +16,7 @@ import { useColorscaleRangeControl } from './ChartControls/ColorscaleRangeContro
 import { useMarkerOptions } from './ChartControls/MarkerControl';
 import ChartTemplate from './ChartTemplate';
 
-const getSparseMapPlotConfig = (data, palette, zValues) => {
+const getSparseMapPlotConfig = (data, palette, zValues, styleOverrides = {}) => {
   let { parameters, metadata } = data;
   let date = renderDate(parameters);
   let lat = renderLat(parameters);
@@ -26,10 +26,10 @@ const getSparseMapPlotConfig = (data, palette, zValues) => {
   let plotConfig = {
     tabTitle: 'Map',
     style: {
-      width: '60vw',
-      height: '40vw',
+      width: styleOverrides.width || '60vw',
+      height: styleOverrides.height || '40vw',
       minWidth: '510px',
-      minHeight: '340px',
+      minHeight: styleOverrides.minHeight || '340px',
     },
     data: [
       {
@@ -79,7 +79,7 @@ const getSparseMapPlotConfig = (data, palette, zValues) => {
 };
 
 const SparseMap = React.memo((props) => {
-  const { chart, chartIndex } = props;
+  const { chart, chartIndex, styleOverrides } = props;
   const { data } = chart;
   const { metadata } = data;
 
@@ -96,11 +96,11 @@ const SparseMap = React.memo((props) => {
   }
   // scatter plots use markerOptions
   let scatterPlots = scatterTypes.map((scatterType, index) => {
-    return getSparseScatterConfig({ data, scatterType, markerOptions });
+    return getSparseScatterConfig({ data, scatterType, markerOptions, styleOverrides });
   });
 
   // map plot uses palette and colorscaleRonge controls
-  let mapPlot = getSparseMapPlotConfig(data, palette, rangeValues);
+  let mapPlot = getSparseMapPlotConfig(data, palette, rangeValues, styleOverrides);
 
   let controls = [paletteControlTuple, rangeControlTuple, markerControlTuple];
 

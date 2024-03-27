@@ -172,7 +172,7 @@ const DatasetFullPage = (props) => {
               cartButtonClass={classes.cartButtonClass}
             />
             <Grid container spacing={3}>
-              <Grid item md={12} lg={6}>
+              <Grid item xs={12} sm={12} md={12} lg={6}>
                 <Typography
                   variant="h5"
                   className={classes.sectionHeader}
@@ -182,7 +182,7 @@ const DatasetFullPage = (props) => {
                 <ReactMarkdown source={description} className={classes.markdown} />
               </Grid>
 
-              <Grid item md={12} lg={6}>
+              <Grid item xs={12} sm={12} md={12} lg={6}>
                 <Visualization />
               </Grid>
 
