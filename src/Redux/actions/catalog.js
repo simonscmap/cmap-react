@@ -149,11 +149,12 @@ export const visualizableVariablesSetLoadingState = (state) => ({
   payload: { state },
 });
 
-export const datasetVariableVisDataFetch = (shortname, variableData) => ({
+export const datasetVariableVisDataFetch = (shortname, variableData, datasetShortName) => ({
   type: catalogActionTypes.DATASET_VARIABLE_VIS_DATA_FETCH,
   payload: {
-    shortname,
+    shortname, // variable short name, which acts as a key
     variableData,
+    datasetShortName,
   },
 });
 

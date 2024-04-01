@@ -23,7 +23,7 @@ import { truncate60 } from './chartHelpers';
 const makeAnnotations = (distributor, dataSource = '') => {
   // let yshift = ((document.documentElement.clientWidth * (height / 100)) / -2) + 20;
   let _dataSource =
-    dataSource.length > 70
+    dataSource && dataSource.length > 70
       ? 'Source:<br> ' + dataSource.slice(0, 67) + '...'
       : 'Source:<br> ' + dataSource;
 
@@ -137,7 +137,6 @@ const defaultConfig = {
 };
 
 export const makeChartConfig = (config) => {
-  console.log ('config', config)
   let { annotationArgs = [], titleArgs = [], ...restOfConfig } = config;
 
   return {

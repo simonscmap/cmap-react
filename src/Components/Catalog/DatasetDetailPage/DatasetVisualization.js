@@ -51,6 +51,10 @@ const Vis = () => {
   const visVars = useSelector ((state) =>
     state.datasetDetailsPage.visualizableVariables && state.datasetDetailsPage.visualizableVariables.variables);
 
+  const visVarsLoadingState = useSelector ((state) =>
+    state.datasetDetailsPage.visualizableVariablesLoadingState);
+
+
   const selectedVisVar = useSelector ((state) =>
     state.datasetDetailsPage.visualizationSelection);
 
@@ -60,8 +64,12 @@ const Vis = () => {
   // fetch variables when short name changes
   useEffect (() => {
     if (selectedDatasetShortName) {
-      console.log (`dispatching visualizableVariablesFetch ${selectedDatasetShortName}`);
-      dispatch (visualizableVariablesFetch (selectedDatasetShortName));
+      if (visVarsLoadingState === states.notTried) {
+        console.log (`dispatching Vis Var List fetch`, selectedDatasetShortName, `(loading state ${visVarsLoadingState})`);
+        dispatch (visualizableVariablesFetch (selectedDatasetShortName));
+      } else {
+        console.log (`declining to dispatch Vis Var List fetch`, selectedDatasetShortName, `(loading state ${visVarsLoadingState})`);
+      }
     } else {
       console.log (`no selected dataset short name ${selectedDatasetShortName}`)
     }
@@ -71,16 +79,15 @@ const Vis = () => {
   useEffect (() => {
     if (selectedVisVar && visData && visVars) {
       if (visData[selectedVisVar].loadingState === states.notTried) {
-
         const selectedVariable = visVars.find ((v) => v.Short_Name === selectedVisVar);
         if (selectedVariable) {
-          console.log (`dispatching dasatetVariableVisDataFetch ${selectedDatasetShortName}`);
-          dispatch (datasetVariableVisDataFetch (selectedVisVar, selectedVariable));
+          console.log ('dispatching vis var data fetch', selectedDatasetShortName);
+          dispatch (datasetVariableVisDataFetch (selectedVisVar, selectedVariable, selectedDatasetShortName));
         } else {
-         console.log (`declining to dispatch dasatetVariableVisDataFetch: no plot type to reference`, selectedVariable);
+          console.log (`declining to dispatch vis var data fetch: no visData`, visData);
         }
       } else {
-        console.log (`declining to dispatch dasatetVariableVisDataFetch: no visData to reference`, visData);
+         console.log (`declining to dispatch vis var data fetch: loading state is ${visData[selectedVisVar].loadingState}`);
       }
     }
   }, [selectedVisVar]);
@@ -124,13 +131,14 @@ const Vis = () => {
       chart.data.metadata.Data_Source = dataSource;
       chart.data.metadata.Dataset_Name = datasetLongName;
 
-      const styleOverrides = {
+      const overrides = {
         width: '100%',
         height: 'auto',
-        minHeight: '500px'
+        minHeight: '500px',
+        varyWithSize: true
       };
 
-      return <ChartWrapperWithoutPaper chart={chart} styleOverrides={styleOverrides}/>;
+      return <ChartWrapperWithoutPaper chart={chart} overrides={overrides}/>;
 
     } else {
       return 'Failed to load';
