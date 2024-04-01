@@ -16,7 +16,7 @@ import { useColorscaleRangeControl } from './ChartControls/ColorscaleRangeContro
 import { useMarkerOptions } from './ChartControls/MarkerControl';
 import ChartTemplate from './ChartTemplate';
 
-const getSparseMapPlotConfig = (data, palette, zValues, styleOverrides = {}) => {
+const getSparseMapPlotConfig = (data, palette, zValues, overrides = {}) => {
   let { parameters, metadata } = data;
   let date = renderDate(parameters);
   let lat = renderLat(parameters);
@@ -26,10 +26,10 @@ const getSparseMapPlotConfig = (data, palette, zValues, styleOverrides = {}) => 
   let plotConfig = {
     tabTitle: 'Map',
     style: {
-      width: styleOverrides.width || '60vw',
-      height: styleOverrides.height || '40vw',
+      width: overrides.width || '60vw',
+      height: overrides.height || '40vw',
       minWidth: '510px',
-      minHeight: styleOverrides.minHeight || '340px',
+      minHeight: overrides.minHeight || '340px',
     },
     data: [
       {
@@ -79,9 +79,12 @@ const getSparseMapPlotConfig = (data, palette, zValues, styleOverrides = {}) => 
 };
 
 const SparseMap = React.memo((props) => {
-  const { chart, chartIndex, styleOverrides } = props;
+  const { chart, chartIndex, overrides = {} } = props;
   const { data } = chart;
   const { metadata } = data;
+
+  const { pointCount } = data;
+  const { varyWithSize } = overrides;
 
   let [paletteControlTuple, palette] = usePaletteControl();
   let [rangeControlTuple, rangeValues] = useColorscaleRangeControl([
@@ -96,11 +99,11 @@ const SparseMap = React.memo((props) => {
   }
   // scatter plots use markerOptions
   let scatterPlots = scatterTypes.map((scatterType, index) => {
-    return getSparseScatterConfig({ data, scatterType, markerOptions, styleOverrides });
+    return getSparseScatterConfig({ data, scatterType, markerOptions, overrides });
   });
 
   // map plot uses palette and colorscaleRonge controls
-  let mapPlot = getSparseMapPlotConfig(data, palette, rangeValues, styleOverrides);
+  let mapPlot = getSparseMapPlotConfig(data, palette, rangeValues, overrides);
 
   let controls = [paletteControlTuple, rangeControlTuple, markerControlTuple];
 
@@ -120,6 +123,20 @@ const SparseMap = React.memo((props) => {
     }
   };
 
+  const plots = [];
+
+  if (pointCount && varyWithSize) {
+    if (pointCount < 10000) {
+      //
+    }
+
+    plots.push(mapPlot);
+    plots.push(...scatterPlots);
+  } else {
+    plots.push(mapPlot);
+    plots.push(...scatterPlots);
+  }
+
   let sparseMapChartConfig = {
     downloadCSVArgs: [
       data,
@@ -132,7 +149,7 @@ const SparseMap = React.memo((props) => {
     chartControls: controls,
     isTabbedContent: true, // each plot has a 'tabTitle' property
     getShouldDisableControl,
-    plots: [mapPlot, ...scatterPlots],
+    plots,
   };
 
   return <ChartTemplate {...sparseMapChartConfig} />;

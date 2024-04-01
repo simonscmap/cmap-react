@@ -171,7 +171,10 @@ const DatasetFullPage = (props) => {
               dataset={data}
               cartButtonClass={classes.cartButtonClass}
             />
+
+
             <Grid container spacing={3}>
+
               <Grid item xs={12} sm={12} md={12} lg={6}>
                 <Typography
                   variant="h5"
@@ -185,7 +188,9 @@ const DatasetFullPage = (props) => {
               <Grid item xs={12} sm={12} md={12} lg={6}>
                 <Visualization />
               </Grid>
+            </Grid>
 
+            <Grid container spacing={3}>
               <Grid item xs={12}>
                 <Typography
                   variant="h5"

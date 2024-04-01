@@ -1,19 +1,15 @@
 import api from '../../api/api';
 import * as catalogActions from '../actions/catalog';
 import * as actionTypes from '../actionTypes/catalog';
-// import * as interfaceActions from '../actions/ui';
 import { call, put, takeEvery, select } from 'redux-saga/effects';
 import states from '../../enums/asyncRequestStates';
-
-
-const SPARSE_DATA_QUERY_MAX_SIZE = 100000;
 
 function* visualizableVariablesFetch (action) {
   const visVarLoadingState = yield select ((state) =>
     state.datasetDetailsPage.visualizableVariablesLoadingState);
 
   if (visVarLoadingState === states.inProgress) {
-    console.log ('cancelling Vis. Var Fetch')
+    console.log ('cancelling redundant Vis Vars Fetch', action.payload.shortname);
     return;
   }
 
@@ -29,6 +25,7 @@ function* visualizableVariablesFetch (action) {
     yield put(catalogActions.visualizableVariablesStore(results));
     yield put(catalogActions.visualizableVariablesSetLoadingState(states.succeeded));
   } else {
+    console.log ('fetch for vis vars failed', { result });
     yield put(catalogActions.visualizableVariablesSetLoadingState(states.failed));
   }
 }// ⮷ &. Watcher ⮷
@@ -39,10 +36,8 @@ export function* watchVisualizableVariablesFetch() {
   );
 }
 
-
-
 function* datasetVariableVisDataFetch (action) {
-  const { shortname, variableData } = action.payload;
+  const { shortname, variableData } = action.payload; // this is the variable short name
   const { meta } = variableData;
   const { visType } = meta;
   const plotType = visType;
@@ -59,43 +54,34 @@ function* datasetVariableVisDataFetch (action) {
   } else if (dataFetchState === states.succeeded) {
     console.log ('cancelling vis var data fetch: this call has already succeeded');
     return;
-  } else {
-    console.log('NOW IN PROGRESS', shortname);
-    yield put(catalogActions.datasetVariableVisDataSetLoadingState(shortname, states.inProgress));
   }
 
-  if (plotType !== 'Histogram' && plotType !== 'Heatmap') {
+  if (plotType !== 'Sparse' && plotType !== 'Heatmap') {
     console.log ('invalid plotType provided to datasetVariableVisDataFetch', action.payload);
     yield put(catalogActions.datasetVariableVisDataSetLoadingState(shortname, states.failed));
     return;
   }
 
+  console.log('initiating vis var data fetch: setting IN PROGRESS', shortname);
+  yield put(catalogActions.datasetVariableVisDataSetLoadingState(shortname, states.inProgress));
+
   let result = yield call(
-    api.visualization.datasetDetailPageVariableVisualizationRequest,
+    api.visualization.variableSampleVisRequest,
     action.payload,
   );
 
   if (result.failed) {
-    console.log ('REQUEST FAILED');
-    if (result.status === 401) {
-      // yield put(userActions.refreshLogin());
-      yield put(catalogActions.datasetVariableVisDataSetLoadingState(shortname, states.failed));
-      console.log ('error: 401');
-      return;
-    } else {
-      // set loading status : error
-      yield put(catalogActions.datasetVariableVisDataSetLoadingState(shortname, states.failed));
-    }
+    console.log ('vis var data request failed', result.status, result)
+    yield put(catalogActions.datasetVariableVisDataSetLoadingState(shortname, states.failed));
   } else {
     console.log ('REQUEST SUCCEEDED');
     if (result.variableValues.length > 0) {
       yield put(catalogActions.datasetVariableVisDataSetLoadingState(shortname, states.processing));
       result.finalize();
-      // yield put(visualizationActions.handleGuestVisualization());
-      // yield put(visualizationActions.storedProcedureRequestSuccess());
       yield put(catalogActions.datasetVariableVisDataStore(shortname, result));
     } else {
       // set loading status : error
+      console.log ('variable values not greater than 0')
       yield put(catalogActions.datasetVariableVisDataSetLoadingState(shortname, states.failed));
     }
   }
