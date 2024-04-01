@@ -44,7 +44,7 @@ const LinkEditor = withStyles({
       outline: 0,
     },
   },
-})(({ classes, link, onChange }) => {
+})(({ classes, link, onChange, key }) => {
   let { text, url } = link;
   let [t, setT] = useState(text);
   let [u, setU] = useState(url);
