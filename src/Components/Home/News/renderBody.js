@@ -38,7 +38,7 @@ const renderBody = (body) => {
     bodyText = body.content.split(/\{\d\}/).map(renderText);
   }
   let content = [];
-  for (let i = 0; i < bodyText.length; i++) {
+  for (let i = 0; i < bodyText.length - 1; i++) {
     let span = <span key={`span:${i}`}>{bodyText[i]}</span>;
     content.push(span);
     if (links[i]) {
