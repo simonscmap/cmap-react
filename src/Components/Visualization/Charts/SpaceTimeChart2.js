@@ -266,6 +266,7 @@ const handleHeatmap = (
       },
       titleArgs: [metadata, dateTitle, latTitle, lonTitle, depthTitle],
       annotationArgs: [metadata.Distributor, metadata.Data_Source],
+      _cmapOverrides: overrides,
     };
     console.log ('plotly params', { z: subset, x: uniqX, y: uniqY, type: 'heatmap', xTicks });
     return heatmapPlotConfig;
