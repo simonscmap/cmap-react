@@ -138,7 +138,8 @@ const getSparseScatterConfig = (props) => {
       },
     },
     titleArgs: [metadata, date, lat, lon, depth],
-    annotationArgs: [metadata.Distributor, metadata.Data_Source],
+    annotationArgs: [metadata.Distributor, metadata.Data_Source, overrides],
+    _cmapOverrides: overrides, // make this available to the ChartTemplate
   };
 
   return plot;

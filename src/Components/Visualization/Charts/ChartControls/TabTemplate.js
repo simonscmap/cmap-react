@@ -10,12 +10,14 @@ const TabTemplate = (props) => {
       <Button
         color={active ? 'primary' : 'inherit'}
         onClick={onClick}
-        className={classes.iconButton}
+        className={classes.tabButton}
       >
         {tabTitle}
       </Button>
     </Tooltip>
   );
 };
+
+
 
 export default withStyles(chartControlTabButton)(TabTemplate);

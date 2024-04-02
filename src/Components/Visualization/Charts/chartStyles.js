@@ -94,9 +94,9 @@ export const chartControlIconButton = (theme) => ({
 });
 
 export const chartControlTabButton = (theme) => ({
-  iconButton: {
+  tabButton: {
     boxShadow: '0px 1px 1px 1px #242424',
-    padding: '0 20px 0 20px',
+    padding: '11px',
   },
 });
 
@@ -156,11 +156,14 @@ export const chartControlPanelStyles = (theme) => ({
 
   buttonGroup: {
     display: 'flex',
+    flexDirection: 'row',
     justifyContent: 'flex-end',
     margin: '0 0 1em 0',
     // maxWidth: '700px',
     // textAlign: 'center',
     pointerEvents: 'auto',
+    flexWrap: 'wrap',
+    gap: '1em'
   },
 
   depressed: {

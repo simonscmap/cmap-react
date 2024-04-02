@@ -63,6 +63,7 @@ const ChartControlPanel = (props) => {
     {/* TODO remove ButtonGroup; it causes console errors re: react not supporting fullWidth attribute */}
 
         <div className={classes.buttonGroup}>
+          <div className={classes.tabbedControls}>
           {/* if this chart has tabbed content, render tab controls*/}
           {tabContext &&
             tabContext.tabTitles.map((tabTitle, index) => {
@@ -78,11 +79,11 @@ const ChartControlPanel = (props) => {
                 />
               );
             })}
-
-          <div style={{ width: '10px' }}></div>
+            </div>
 
           {/* render each control component */}
           {/* TODO: hide controls for tabs that can't use their specific function */}
+          <div>
           {controls.map((controlTuple, index) => {
             let [Component, argsObject = {}] = controlTuple;
             let disable =
@@ -99,6 +100,7 @@ const ChartControlPanel = (props) => {
               />
             );
           })}
+        </div>
         </div>
       </div>
     </React.Fragment>

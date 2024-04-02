@@ -22,6 +22,7 @@ function* visualizableVariablesFetch (action) {
 
   if (result.ok) {
     let results = yield result.json();
+
     yield put(catalogActions.visualizableVariablesStore(results));
     yield put(catalogActions.visualizableVariablesSetLoadingState(states.succeeded));
   } else {

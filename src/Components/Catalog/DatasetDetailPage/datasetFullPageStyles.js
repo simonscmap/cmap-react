@@ -41,6 +41,10 @@ const styles = (theme) => ({
     alignItems: 'center',
   },
   markdown: {
+    minHeight: '500px',
+    [theme.breakpoints.down('sm')]: {
+      minHeight: 0,
+    },
     '& img': {
       maxWidth: '100%',
       margin: '20px auto 20px auto',

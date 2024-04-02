@@ -73,7 +73,8 @@ const getSparseMapPlotConfig = (data, palette, zValues, overrides = {}) => {
         'pk.eyJ1IjoiZGVuaG9sdHoiLCJhIjoiY2p1ZW9obTNhMDVxZjQzcDRvMmdlcDN2aiJ9.HvLaX2bcradeE5T-lpTc8w',
     },
     titleArgs: [metadata, date, lat, lon, depth],
-    annotationArgs: [metadata.Distributor, metadata.Data_Source],
+    annotationArgs: [metadata.Distributor, metadata.Data_Source, overrides],
+    _cmapOverrides: overrides,
   };
   return plotConfig;
 };
@@ -127,10 +128,8 @@ const SparseMap = React.memo((props) => {
 
   if (pointCount && varyWithSize) {
     if (pointCount < 10000) {
-      //
+      plots.push(mapPlot);
     }
-
-    plots.push(mapPlot);
     plots.push(...scatterPlots);
   } else {
     plots.push(mapPlot);

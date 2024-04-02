@@ -1,6 +1,6 @@
 import colors from '../../../enums/colors';
-import { truncate60 } from './chartHelpers';
-
+import { truncate60, truncateString } from './chartHelpers';
+const truncate75 = truncateString(75);
 // const spanStyles = 'style="width:50%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"';
 
 /* var icon1 = {
@@ -20,68 +20,84 @@ import { truncate60 } from './chartHelpers';
  * };
  *  */
 
-const makeAnnotations = (distributor, dataSource = '') => {
+const makeAnnotations = (distributor, dataSource = '', overrides = {}) => {
   // let yshift = ((document.documentElement.clientWidth * (height / 100)) / -2) + 20;
-  let _dataSource =
-    dataSource && dataSource.length > 70
-      ? 'Source:<br> ' + dataSource.slice(0, 67) + '...'
-      : 'Source:<br> ' + dataSource;
 
-  let _distributor = distributor
-    ? distributor.length > 70
-      ? 'Distributor:<br> ' + distributor.slice(0, 67) + '...'
-      : 'Distributor:<br> ' + distributor
-    : '';
+  const ds = truncate60 (dataSource);
+  let _dataSource = `Source:<br>${ds}`;
+
+  const dr = truncate75 (distributor);
+  let _distributor = `Distributor:<br>${dr}`;
 
   let cmapCredit = 'Simons CMAP';
 
-  return [
-    {
+  const base = {
+    font: {
+      color: 'white',
+      size: 10,
+    },
+    xref: 'paper',
+    yref: 'paper',
+    yanchor: 'top',
+    showarrow: false,
+  };
+
+  const creditText = [
+    Object.assign ({}, base, {
       text: _dataSource,
-      font: {
-        color: 'white',
-        size: 10,
-      },
-      xref: 'paper',
-      yref: 'paper',
-      yanchor: 'top',
       x: 0,
       y: 0,
       yshift: -45,
-      showarrow: false,
       xanchor: 'left',
-    },
-    {
+    }),
+    Object.assign ({}, base, {
       text: cmapCredit,
-      font: {
-        color: 'white',
-        size: 10,
-      },
-      xref: 'paper',
-      yref: 'paper',
-      yanchor: 'top',
       x: 0.5,
       y: 0,
       yshift: -60,
-      showarrow: false,
       xanchor: 'center',
-    },
-    {
+    }),
+    Object.assign ({}, base, {
       text: _distributor,
-      font: {
-        color: 'white',
-        size: 10,
-      },
-      xref: 'paper',
-      yref: 'paper',
-      yanchor: 'top',
       x: 1,
       y: 0,
       yshift: -45,
-      showarrow: false,
       xanchor: 'right',
-    },
+    }),
   ];
+
+
+  const { annotationsLeft } = overrides;
+  if (annotationsLeft) {
+    let _cmap = 'Simons CMAP';
+    _dataSource = ds;
+    _distributor = dr;
+
+    const keys = ['Credit', 'Source', 'Distributor'].map ((k, i) =>
+      Object.assign ({}, base, {
+        text: k,
+        x: 0,
+        y: 0,
+        xanchor: 'left',
+        yshift: -55 - i * 15,
+        align: 'left',
+    }));
+    const txt = [_cmap, _dataSource, _distributor].map ((k, i) =>
+      Object.assign ({}, base, {
+        text: k,
+        x: 0,
+        y: 0,
+        xanchor: 'left',
+        yshift: -55 - i * 15,
+        xshift: 100,
+        align: 'left',
+    }));
+
+    return keys.concat(txt);
+  }
+
+  // else
+  return creditText;
 };
 
 const makeTitle = (metadata, date, lat, lon, depth) => {
@@ -96,6 +112,7 @@ const makeTitle = (metadata, date, lat, lon, depth) => {
     font: {
       size: 13,
     },
+    yref: 'container',
   };
 };
 
@@ -115,8 +132,8 @@ const defaultConfig = {
     plot_bgcolor: 'transparent',
     // autosize: true,
     margin: {
-      t: 116,
-      b: 104,
+      t: 115,
+      b: 115,
     },
   },
 
@@ -137,7 +154,17 @@ const defaultConfig = {
 };
 
 export const makeChartConfig = (config) => {
-  let { annotationArgs = [], titleArgs = [], ...restOfConfig } = config;
+  let {
+    annotationArgs = [],
+    titleArgs = [],
+    _cmapOverrides,
+    ...restOfConfig
+  } = config;
+
+  const layoutOverrides = {};
+  if (_cmapOverrides && _cmapOverrides.bg) {
+    layoutOverrides.paper_bgcolor = _cmapOverrides.bg;
+  }
 
   return {
     // first copy all props from config, so nothing is missed
@@ -151,7 +178,9 @@ export const makeChartConfig = (config) => {
       ...defaultConfig.layout,
       ...(restOfConfig.layout || {}),
       title: makeTitle(...titleArgs),
-      annotations: makeAnnotations(...annotationArgs),
+      annotations: makeAnnotations(...annotationArgs), // typically only parameters
+      // but well pass a 3rd as an overrides object
+      ...layoutOverrides,
     },
     config: {
       ...defaultConfig.config,

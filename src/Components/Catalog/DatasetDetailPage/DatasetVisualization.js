@@ -23,6 +23,16 @@ const useStyles = makeStyles ((theme) => ({
   }
 }));
 
+const ErrorWrapper = (props) => {
+  const { message } = props;
+  const cl = useStyles();
+  return (
+    <div className={cl.spinnerWrapper}>
+      <p>{message}</p>
+    </div>
+  );
+}
+
 const SpinnerWrapper = (props) => {
   const { message } = props;
   const cl = useStyles();
@@ -42,11 +52,7 @@ const Vis = () => {
   const selectedDatasetShortName = useSelector ((state) =>
     state.datasetDetailsPage.selectedDatasetShortname);
 
-  const dataSource = useSelector ((state) =>
-    state.datasetDetailsPage.data && state.datasetDetailsPage.data.Data_Source);
-
-  const datasetLongName = useSelector ((state) =>
-    state.datasetDetailsPage.data && state.datasetDetailsPage.data.Long_Name);
+  const datasetData = useSelector ((state) => state.datasetDetailsPage.data || {});
 
   const visVars = useSelector ((state) =>
     state.datasetDetailsPage.visualizableVariables && state.datasetDetailsPage.visualizableVariables.variables);
@@ -95,20 +101,20 @@ const Vis = () => {
   // Decide what to render
 
   const selectedVarState = selectedVisVar && visData && visData[selectedVisVar] && visData[selectedVisVar].loadingState;
-  const hasFailed = selectedVarState === states.failed;
+  const hasFailed = selectedVarState === states.failed || visVarsLoadingState === states.failed;
   const isLoading = selectedVarState === states.inProgress;
   const isProcessing = selectedVarState === states.processing;
   const notTried = selectedVarState === states.notTried;
   const isReady = selectedVarState === states.succeeded && visData[selectedVisVar].data;
 
   if (notTried) {
-    return <SpinnerWrapper message={'Initiating'} />;
+    return <SpinnerWrapper message={'Preparing Visualization'} />;
   } else if (hasFailed) {
-    return 'Failed to load data for selected variable';
+    return <ErrorWrapper message={'Sample visualization is not available.'} />;
   } else if (isLoading) {
-    return <SpinnerWrapper message={`Loading`} />
+    return <SpinnerWrapper message={`Fetching Visualization Data`} />
   } else if (isProcessing) {
-    return <SpinnerWrapper message={'Processing'} />
+    return <SpinnerWrapper message={'Processing Data'} />
   } else if (isReady) {
     const selectedVariable = visVars.find ((v) => v.Short_Name === selectedVisVar);
     if (selectedVariable) {
@@ -128,23 +134,28 @@ const Vis = () => {
       };
 
       chart.data.parameters.spName = storedProcedures.spaceTime;
-      chart.data.metadata.Data_Source = dataSource;
-      chart.data.metadata.Dataset_Name = datasetLongName;
+      chart.data.metadata.Data_Source = datasetData.Data_Source;
+      chart.data.metadata.Dataset_Name = datasetData.Long_Name;
+      chart.data.metadata.Distributor = datasetData.Distributor;
 
       const overrides = {
         width: '100%',
         height: 'auto',
         minHeight: '500px',
-        varyWithSize: true
+        varyWithSize: true,
+        annotationsLeft: true,
+        bg: 'rgba(0,0,0,0.2)'
       };
 
       return <ChartWrapperWithoutPaper chart={chart} overrides={overrides}/>;
 
     } else {
-      return 'Failed to load';
+      console.log ('State indicates vis data is ready, but could not find selected variable')
+      return <ErrorWrapper message={'Sample visualization is not available.'} />;
     }
   } else {
-    return '';
+    console.log ('unknown visualization state');
+    return <ErrorWrapper message={'Sample visualization is not available.'} />;
   }
 };
 

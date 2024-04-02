@@ -175,17 +175,17 @@ const DatasetFullPage = (props) => {
 
             <Grid container spacing={3}>
 
-              <Grid item xs={12} sm={12} md={12} lg={6}>
+              <Grid item xs={12} sm={12} md={4} lg={4}>
                 <Typography
                   variant="h5"
                   className={classes.sectionHeader}
-                  style={{ marginBottom: '16px', color: 'white' }}
+                  style={{ marginBottom: '16px', color: 'white'  }}
                 >Description
                 </Typography>
                 <ReactMarkdown source={description} className={classes.markdown} />
               </Grid>
 
-              <Grid item xs={12} sm={12} md={12} lg={6}>
+              <Grid item xs={12} sm={12} md={8} lg={8}>
                 <Visualization />
               </Grid>
             </Grid>
