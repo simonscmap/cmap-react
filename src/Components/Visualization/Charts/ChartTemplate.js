@@ -5,7 +5,7 @@
 import { withStyles } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import Plotly from 'react-plotly.js';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { VISUALIZATION_PAGE } from '../../../constants';
 import Hint from '../../Navigation/Help/Hint';
 import ModebarHint from '../help/ModebarHint';
@@ -16,6 +16,7 @@ import CloseChartControl from './ChartControls/CloseChartControl';
 import DownloadCSVControl from './ChartControls/DownloadCSVControl';
 import makeModeBarControl from './ChartControls/ModeBarControl';
 import { chartTemplate } from './chartStyles';
+import { safePath } from '../../../Utility/objectUtils';
 
 // TODO: fix the plots.map -- this won't work. we need a new template for each plot
 
@@ -58,6 +59,19 @@ const ChartTemplate = (props) => {
 
   // create tab controls, if tabs chart requires tabbed content
   let [openTab, setOpenTab] = useState(0);
+
+  const handleTabClick = (n) => {
+    if (!Number.isInteger(chartIndex)) {
+      // the absence of an index indicates this chart is not being rendered on the visualization page
+      const variableShortName = safePath (['metadata', 'Variable']) (chartData);
+      if (variableShortName) {
+        console.log ('should set tab preference', variableShortName, n);
+        // dispatch (setDatasetVisTabPreference (variableShortName, n));
+      }
+    }
+    setOpenTab(n);
+  }
+
   let tabContext;
   if (isTabbedContent) {
     // these will be provided to the control panel in the same order
@@ -68,7 +82,7 @@ const ChartTemplate = (props) => {
     // provide the following context to the Control Panel
     // which will render tab buttons
     tabContext = {
-      setOpenTab,
+      setOpenTab: handleTabClick,
       openTab,
       tabTitles,
       getShouldDisableControl,
@@ -86,9 +100,11 @@ const ChartTemplate = (props) => {
   let controls = [
     DownloadCSVControlTuple,
     ...chartControls,
-    PersistModeBarTuple,
-    CloseChartButtonTuple,
-  ];
+      ];
+
+  if (Number.isInteger(chartIndex)) {
+    controls.push (PersistModeBarTuple, CloseChartButtonTuple)
+  }
 
   return (
     <div

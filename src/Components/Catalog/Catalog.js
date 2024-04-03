@@ -1,7 +1,7 @@
 // Wrapper and layout for the catalog page
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { withStyles, Grid, Paper, ThemeProvider } from '@material-ui/core';
+import { withStyles, Grid, ThemeProvider } from '@material-ui/core';
 import {
   fetchDatasetFeatures,
 } from '../../Redux/actions/catalog';

@@ -12,6 +12,7 @@ import {
   Paper,
   Typography,
   withStyles,
+  makeStyles,
 } from '@material-ui/core';
 
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
@@ -43,6 +44,24 @@ import {
 import states from '../../../enums/asyncRequestStates';
 import colors from '../../../enums/colors';
 import metaTags from '../../../enums/metaTags';
+
+const useStyles = makeStyles ((theme) => ({
+  sectionHeader: {
+    color: 'white',
+    margin: '16px 0 16px 0',
+    fontWeight: 100,
+    fontFamily: '"roboto", Serif',
+  }
+}))
+const SectionHeader = (props) => {
+  const cl = useStyles ()
+  const { title } = props;
+  return (
+    <Typography variant="h5" className={cl.sectionHeader}>
+      {title}
+    </Typography>
+  );
+}
 
 // Page Component
 const DatasetFullPage = (props) => {
@@ -177,32 +196,20 @@ const DatasetFullPage = (props) => {
             <Grid container spacing={3}>
 
               <Grid item xs={12} sm={12} md={4} lg={6} xl={6}>
-                <Typography
-                  variant="h5"
-                  className={classes.sectionHeader}
-                  style={{ marginBottom: '16px', color: 'white'  }}
-                >Description
-                </Typography>
+                <SectionHeader title={'Description'} />
                 <ReactMarkdown source={description} className={classes.markdown} />
               </Grid>
 
               <Grid item xs={12} sm={12} md={8} lg={6} xl={6}>
-                <Visualization />
                 <SelectVariable />
+                <Visualization />
               </Grid>
             </Grid>
 
             <Grid container spacing={3}>
               <Grid item xs={12}>
-                <Typography
-                  variant="h5"
-                  className={classes.sectionHeader}
-                  style={{ marginBottom: '16px', color: 'white' }}
-                >Dataset Overview
-                </Typography>
-
+                <SectionHeader title={'Dataset Overview'} />
                 <DetailsTable dataset={data} sensors={sensors} />
-
                 <Typography
                   variant="body1"
                   className={classes.sectionHeader}
@@ -215,38 +222,20 @@ const DatasetFullPage = (props) => {
 
               { unstructuredDatasetMetadata &&
                 <Grid item xs={12}>
-                  <Typography
-                    variant="h5"
-                    className={classes.sectionHeader}
-                    style={{ marginBottom: '16px', color: 'white' }}
-                  >
-                    Additional Dataset Metadata
-                </Typography>
-                <DatasetMetadata metadata={unstructuredDatasetMetadata} />
-                </Grid>}
+                  <SectionHeader title={'Additional Dataset Metadata'} />
+                  <DatasetMetadata metadata={unstructuredDatasetMetadata} />
+                </Grid>
+              }
 
             </Grid>
 
-            <Typography
-              variant="h5"
-              className={classes.sectionHeader}
-              style={{ marginBottom: '16px', color: 'white' }}
-            >
-              {variables ? `Variables (${variables.length})` : 'Variables'}
-            </Typography>
 
+            <SectionHeader title={'Variables'} />
             <DatasetPageAGGrid />
 
             {dataSource || loading ? (
               <React.Fragment>
-                <Typography
-                  variant="h5"
-                  className={classes.sectionHeader}
-                  style={{ color: 'white' }}
-                >
-                  Data Source
-                </Typography>
-
+                <SectionHeader title={'Data Source'} />
                 <Typography
                   className={classes.smallText}
                   style={{ color: 'white' }}
@@ -260,14 +249,7 @@ const DatasetFullPage = (props) => {
 
             {distributor || loading ? (
               <React.Fragment>
-                <Typography
-                  variant="h5"
-                  className={classes.sectionHeader}
-                  style={{ color: 'white' }}
-                >
-                  Distributor
-                </Typography>
-
+                <SectionHeader title={'Distributor'} />
                 <Typography
                   className={classes.smallText}
                   style={{ color: 'white' }}
@@ -281,14 +263,7 @@ const DatasetFullPage = (props) => {
 
             {acknowledgment || loading ? (
               <React.Fragment>
-                <Typography
-                  variant="h5"
-                  className={classes.sectionHeader}
-                  style={{ color: 'white' }}
-                >
-                  Acknowledgement
-                </Typography>
-
+                <SectionHeader title={'Acknowledgement'} />
                 <Typography
                   className={classes.smallText}
                   style={{ color: 'white' }}
@@ -302,14 +277,7 @@ const DatasetFullPage = (props) => {
 
             {(references && references.length) || loading ? (
               <React.Fragment>
-                <Typography
-                  variant="h5"
-                  className={classes.sectionHeader}
-                  style={{ color: 'white' }}
-                >
-                  References
-                </Typography>
-
+                <SectionHeader title={'References'} />
                 {!loading
                   ? references.map((reference, i) => (
                       <Typography

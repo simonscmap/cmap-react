@@ -181,6 +181,13 @@ export const datasetVariableSelect = (shortname) => ({
   },
 });
 
+export const setDatasetVisTabPreference = (variableShortName, n) => ({
+  type: catalogActionTypes.DATASET_VIS_VAR_TAB_PREFERENCE,
+  payload: {
+    variableShortName,
+    tab: n,
+  }
+});
 
 /************** Cruise Detail Page **********************/
 

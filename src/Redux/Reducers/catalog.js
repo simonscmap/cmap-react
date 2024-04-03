@@ -42,6 +42,63 @@ import {
 } from '../actionTypes/catalog';
 import states from '../../enums/asyncRequestStates';
 import { sortResults } from '../../Components/Catalog/SortingControls';
+import { safePath } from '../../Utility/objectUtils';
+
+const reduceDatasetVariableSelect = (state, action) => {
+  const variableIsInList = state.datasetDetailsPage.visualizableVariables.variables.some (v =>
+    v.Short_Name === action.payload.shortname);
+  const oldVariable = state.datasetDetailsPage.visualizationSelection;
+
+  const newShortName = action.payload.shortname;
+
+  // if the shortname in the payload exists in the list of variable, set it as the selection
+  const newVariableSelection = variableIsInList
+                             ? action.payload.shortname
+                             : (() =>
+                               console.log (`no ${newShortName} in var list`))() && oldVariable;
+
+  const dataLengthIsOverThreshold = (varShortName, data) => {
+    const THRESHOLD = 1000; // one thousand datapoints
+    const latsArray = safePath ([varShortName, 'data', 'lats']) (data);
+    if (!Array.isArray (latsArray)) {
+      return false;
+    } else if (latsArray.length > THRESHOLD) {
+      console.log ('examining variable data for size', `${varShortName} has ${latsArray.length} points`)
+      return true;
+    } else {
+      console.log ('examining variable data for size', `${varShortName} has ${latsArray.length} points`)
+      return false;
+    }
+  }
+
+  // when switching variables, scan existing data and remove bigger caches of data
+  let newData = state.datasetDetailsPage.visualizableDataByName;
+  if (newData && typeof newData === 'object') {
+    newData = Object.keys(newData).reduce ((acc, curr) => {
+      const shouldBeCleared = dataLengthIsOverThreshold (curr, newData);
+      if (shouldBeCleared) {
+        acc[curr] = {
+          data: null, // dereference the data
+          loadingState: states.notTried
+        };
+      } else {
+        acc[curr] = newData[curr];
+      }
+      return acc;
+    }, {});
+  }
+
+  return {
+    ...state,
+    datasetDetailsPage: {
+      ...state.datasetDetailsPage,
+      visualizationSelection: newVariableSelection,
+      visualizableDataByName: newData,
+    }
+  };
+}
+
+
 
 export default function (state, action) {
   switch (action.type) {
@@ -222,17 +279,7 @@ export default function (state, action) {
         }
       };
     case DATASET_VARIABLE_SELECT:
-      return {
-        ...state,
-        datasetDetailsPage: {
-          ...state.datasetDetailsPage,
-          // if the shortname in the payload exists in the list of variable, set it as the selection
-          visualizationSelection: state.datasetDetailsPage.visualizableVariables.variables.some (v =>
-            v.Short_Name === action.payload.shortname)
-                                ? action.payload.shortname
-                                : (() => console.log (`variable selection ${action.payload.shortname} does not exist in list of visualizable variables`))(),
-        }
-      };
+      return reduceDatasetVariableSelect (state, action);
 
 
      /************** Cruise Page **********************/

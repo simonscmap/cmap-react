@@ -121,7 +121,8 @@ const Vis = () => {
   if (notTried) {
     return <DatasetIcon url={datasetData && datasetData.Icon_URL} />;
   } else if (hasFailed) {
-    return <ErrorWrapper message={'Sample visualization is not available.'} />;
+    return <DatasetIcon url={datasetData && datasetData.Icon_URL} />;
+    // return <ErrorWrapper message={'Sample visualization is not available.'} />;
   } else if (isLoading) {
     return <SpinnerWrapper message={`Fetching Visualization Data`} />
   } else if (isProcessing) {

@@ -20,7 +20,8 @@ const useStyles = makeStyles ((theme) => ({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     marginTop: '10px',
-    marginRight: '10px'
+    marginRight: '10px',
+    marginBottom: '12px'
   },
   inner: {
     display: 'flex',
