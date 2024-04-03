@@ -7,11 +7,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
 
 import {
-  withStyles,
-  Link,
-  Typography,
   Grid,
+  Link,
   Paper,
+  Typography,
+  withStyles,
 } from '@material-ui/core';
 
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
@@ -25,6 +25,7 @@ import DownloadDialog from '../DownloadDialog';
 import DetailsTable from './DatasetDetailsTable';
 import DatasetMetadata from './DatasetMetadata';
 import Visualization from './DatasetVisualization';
+import SelectVariable from './SelectVariable';
 import styles from './datasetFullPageStyles';
 
 import CartAddOrRemove from '../CartAddOrRemove';
@@ -175,7 +176,7 @@ const DatasetFullPage = (props) => {
 
             <Grid container spacing={3}>
 
-              <Grid item xs={12} sm={12} md={4} lg={4}>
+              <Grid item xs={12} sm={12} md={4} lg={6} xl={6}>
                 <Typography
                   variant="h5"
                   className={classes.sectionHeader}
@@ -185,8 +186,9 @@ const DatasetFullPage = (props) => {
                 <ReactMarkdown source={description} className={classes.markdown} />
               </Grid>
 
-              <Grid item xs={12} sm={12} md={8} lg={8}>
+              <Grid item xs={12} sm={12} md={8} lg={6} xl={6}>
                 <Visualization />
+                <SelectVariable />
               </Grid>
             </Grid>
 

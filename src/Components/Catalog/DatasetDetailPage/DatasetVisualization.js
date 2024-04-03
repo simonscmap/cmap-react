@@ -23,6 +23,17 @@ const useStyles = makeStyles ((theme) => ({
   }
 }));
 
+const DatasetIcon = (props) => {
+  const { url, message = '' } = props;
+  const cl = useStyles();
+  return (
+    <div className={cl.spinnerWrapper}>
+    <img src={url} />
+    <p>{message}</p>
+    </div>
+  );
+}
+
 const ErrorWrapper = (props) => {
   const { message } = props;
   const cl = useStyles();
@@ -108,7 +119,7 @@ const Vis = () => {
   const isReady = selectedVarState === states.succeeded && visData[selectedVisVar].data;
 
   if (notTried) {
-    return <SpinnerWrapper message={'Preparing Visualization'} />;
+    return <DatasetIcon url={datasetData && datasetData.Icon_URL} />;
   } else if (hasFailed) {
     return <ErrorWrapper message={'Sample visualization is not available.'} />;
   } else if (isLoading) {
@@ -148,14 +159,13 @@ const Vis = () => {
       };
 
       return <ChartWrapperWithoutPaper chart={chart} overrides={overrides}/>;
-
     } else {
       console.log ('State indicates vis data is ready, but could not find selected variable')
-      return <ErrorWrapper message={'Sample visualization is not available.'} />;
+      return <DatasetIcon url={datasetData && datasetData.Icon_URL} />;
     }
   } else {
     console.log ('unknown visualization state');
-    return <ErrorWrapper message={'Sample visualization is not available.'} />;
+    return <DatasetIcon url={datasetData && datasetData.Icon_URL} />;
   }
 };
 

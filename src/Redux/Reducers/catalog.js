@@ -227,8 +227,8 @@ export default function (state, action) {
         datasetDetailsPage: {
           ...state.datasetDetailsPage,
           // if the shortname in the payload exists in the list of variable, set it as the selection
-          visualizationSelection: state.datasetDetailPage.visualizableVariables.some (v =>
-            v.short_name === action.payload.shortname)
+          visualizationSelection: state.datasetDetailsPage.visualizableVariables.variables.some (v =>
+            v.Short_Name === action.payload.shortname)
                                 ? action.payload.shortname
                                 : (() => console.log (`variable selection ${action.payload.shortname} does not exist in list of visualizable variables`))(),
         }
