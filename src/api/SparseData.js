@@ -83,6 +83,7 @@ class SparseData {
       lon: lonCenter,
       lat: latCenter,
     };
+    console.log ('SparseData finalized', { count: this.pointCount });
   }
 
   generatePlotData(subType, splitByDate, splitByDepth) {

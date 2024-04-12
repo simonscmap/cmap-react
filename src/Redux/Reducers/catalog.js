@@ -16,6 +16,7 @@ import {
   DATASET_VARIABLE_VIS_DATA_STORE,
   DATASET_VARIABLE_VIS_DATA_SET_LOADING_STATE,
   DATASET_VARIABLE_SELECT,
+  DATASET_VIS_VAR_TAB_PREFERENCE,
   CRUISE_FULL_PAGE_DATA_STORE,
   CRUISE_FULL_PAGE_DATA_SET_LOADING_STATE,
   CART_ADD_ITEM,
@@ -58,7 +59,7 @@ const reduceDatasetVariableSelect = (state, action) => {
                                console.log (`no ${newShortName} in var list`))() && oldVariable;
 
   const dataLengthIsOverThreshold = (varShortName, data) => {
-    const THRESHOLD = 1000; // one thousand datapoints
+    const THRESHOLD = 10000; // ten thousand datapoints
     const latsArray = safePath ([varShortName, 'data', 'lats']) (data);
     if (!Array.isArray (latsArray)) {
       return false;
@@ -77,11 +78,13 @@ const reduceDatasetVariableSelect = (state, action) => {
     newData = Object.keys(newData).reduce ((acc, curr) => {
       const shouldBeCleared = dataLengthIsOverThreshold (curr, newData);
       if (shouldBeCleared) {
+        console.log (`dereferencing ${curr}`);
         acc[curr] = {
           data: null, // dereference the data
           loadingState: states.notTried
         };
       } else {
+        console.log (`retaining cache for ${curr}`)
         acc[curr] = newData[curr];
       }
       return acc;
@@ -280,6 +283,17 @@ export default function (state, action) {
       };
     case DATASET_VARIABLE_SELECT:
       return reduceDatasetVariableSelect (state, action);
+
+
+    case DATASET_VIS_VAR_TAB_PREFERENCE:
+      return {
+        ...state,
+        datasetDetailsPage: {
+          ...state.datasetDetailsPage,
+          tabPreference: action.payload.tab,
+        }
+      }
+
 
 
      /************** Cruise Page **********************/

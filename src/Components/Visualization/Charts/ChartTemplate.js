@@ -16,6 +16,7 @@ import CloseChartControl from './ChartControls/CloseChartControl';
 import DownloadCSVControl from './ChartControls/DownloadCSVControl';
 import makeModeBarControl from './ChartControls/ModeBarControl';
 import { chartTemplate } from './chartStyles';
+import { setDatasetVisTabPreference } from '../../../Redux/actions/catalog';
 import { safePath } from '../../../Utility/objectUtils';
 
 // TODO: fix the plots.map -- this won't work. we need a new template for each plot
@@ -40,6 +41,9 @@ const ChartTemplate = (props) => {
   // read hint state, so that we can persist mode bar by default if they are enabled
   const hintsAreEnabled = useSelector(({ hints }) => hints[VISUALIZATION_PAGE]);
 
+  // we're going to try to bridge local and app state for tab status
+  const dispatch = useDispatch();
+
   useEffect(() => {
     if (hintsAreEnabled) {
       setPersist(true);
@@ -58,15 +62,20 @@ const ChartTemplate = (props) => {
   });
 
   // create tab controls, if tabs chart requires tabbed content
-  let [openTab, setOpenTab] = useState(0);
+  // set default to tab preference, if it exists
+  const tabPreference = useSelector ((state) => state.datasetDetailsPage.tabPreference);
+  const startingTab = (tabPreference && !Number.isInteger(chartIndex)) ? tabPreference : 0;
+  let [openTab, setOpenTab] = useState(startingTab);
 
   const handleTabClick = (n) => {
     if (!Number.isInteger(chartIndex)) {
       // the absence of an index indicates this chart is not being rendered on the visualization page
-      const variableShortName = safePath (['metadata', 'Variable']) (chartData);
+      const variableShortName = safePath (['data','metadata', 'Short_Name']) (chartData);
       if (variableShortName) {
         console.log ('should set tab preference', variableShortName, n);
-        // dispatch (setDatasetVisTabPreference (variableShortName, n));
+        dispatch (setDatasetVisTabPreference (variableShortName, n));
+      } else {
+        console.log ('no variable short name???', variableShortName, chartData);
       }
     }
     setOpenTab(n);
@@ -100,8 +109,10 @@ const ChartTemplate = (props) => {
   let controls = [
     DownloadCSVControlTuple,
     ...chartControls,
-      ];
+  ];
 
+  // if the rendering context is the visualization page, this chart will have an index
+  // and we can include these tools
   if (Number.isInteger(chartIndex)) {
     controls.push (PersistModeBarTuple, CloseChartButtonTuple)
   }

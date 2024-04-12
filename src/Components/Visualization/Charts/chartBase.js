@@ -42,38 +42,22 @@ const makeAnnotations = (distributor, dataSource = '', overrides = {}) => {
     showarrow: false,
   };
 
-  const creditText = [
-    Object.assign ({}, base, {
-      text: _dataSource,
-      x: 0,
-      y: 0,
-      yshift: -45,
-      xanchor: 'left',
-    }),
-    Object.assign ({}, base, {
-      text: cmapCredit,
-      x: 0.5,
-      y: 0,
-      yshift: -60,
-      xanchor: 'center',
-    }),
-    Object.assign ({}, base, {
-      text: _distributor,
-      x: 1,
-      y: 0,
-      yshift: -45,
-      xanchor: 'right',
-    }),
-  ];
+  const { annotationsLeft, truncated } = overrides;
 
-
-  const { annotationsLeft } = overrides;
   if (annotationsLeft) {
     let _cmap = 'Simons CMAP';
     _dataSource = ds;
     _distributor = dr;
 
-    const keys = ['Credit', 'Source', 'Distributor'].map ((k, i) =>
+    const keyItems = ['Credit', 'Source', 'Distributor'];
+    const textItems = [_cmap, _dataSource, _distributor];
+
+    if (truncated) {
+      // keyItems.unshift ('');
+      // textItems.unshift ('The data is this chart has been truncated due to size');
+    }
+
+    const keys = keyItems.map ((k, i) =>
       Object.assign ({}, base, {
         text: k,
         x: 0,
@@ -82,7 +66,8 @@ const makeAnnotations = (distributor, dataSource = '', overrides = {}) => {
         yshift: -55 - i * 15,
         align: 'left',
     }));
-    const txt = [_cmap, _dataSource, _distributor].map ((k, i) =>
+
+    const txt = textItems.map ((k, i) =>
       Object.assign ({}, base, {
         text: k,
         x: 0,
@@ -93,22 +78,55 @@ const makeAnnotations = (distributor, dataSource = '', overrides = {}) => {
         align: 'left',
     }));
 
-    return keys.concat(txt);
-  }
 
-  // else
-  return creditText;
+    return keys.concat(txt);
+  } else {
+    const creditText = [
+      Object.assign ({}, base, {
+        text: _dataSource,
+        x: 0,
+        y: 0,
+        yshift: -45,
+        xanchor: 'left',
+      }),
+      Object.assign ({}, base, {
+        text: cmapCredit,
+        x: 0.5,
+        y: 0,
+        yshift: -60,
+        xanchor: 'center',
+      }),
+      Object.assign ({}, base, {
+        text: _distributor,
+        x: 1,
+        y: 0,
+        yshift: -45,
+        xanchor: 'right',
+      }),
+    ];
+
+    return creditText;
+  }
 };
 
 const makeTitle = (metadata, date, lat, lon, depth) => {
-  let titleText =
-    `${metadata.Dataset_Name}` +
-    `<br>${truncate60(metadata.Long_Name)} [${metadata.Unit}]` +
-    `<br>${date}, ${depth}` +
-    `<br>Lat: ${lat}, Lon: ${lon}`;
+  const titleText = [];
 
+  titleText.push (metadata.Dataset_Name);
+  titleText.push (truncate60(metadata.Long_Name) + `[${metadata.Unit}]`);
+  titleText.push (`${date}, ${depth}`);
+  if (lat && lon) {
+    titleText.push (`Lat: ${lat}, Lon: ${lon}`);
+  }
+
+  /* let titleText =
+   *   `${metadata.Dataset_Name}` +
+   *   `<br>${truncate60(metadata.Long_Name)} [${metadata.Unit}]` +
+   *   `<br>${date}, ${depth}` +
+   *   `<br>Lat: ${lat}, Lon: ${lon}`;
+   */
   return {
-    text: titleText,
+    text: titleText.join ('<br>'),
     font: {
       size: 13,
     },

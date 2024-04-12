@@ -22,7 +22,7 @@ export default (infoObject) => {
     }
   });
 
-  // create tick text from values, handling values that are langer than 180
+  // create tick text from values, handling values that are longer than 180
   // (indicating they are in the regative range and have been altered to accomodate
   // an antimeridian crossing)
   let ticktext = tickvals.map((e) => {
@@ -30,6 +30,8 @@ export default (infoObject) => {
      return (e > 180 ? ('' + (e - 360)) : '' + e);
     }
   });
+
+  return {};
 
 
   return {

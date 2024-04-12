@@ -9,7 +9,8 @@ import { ChartWrapperWithoutPaper } from '../../Visualization/Charts/ChartWrappe
 import storedProcedures from '../../../enums/storedProcedures';
 import Spinner from '../../UI/Spinner';
 import { makeStyles } from '@material-ui/core/styles';
-
+import SPARSE_DATA_QUERY_MAX_SIZE from '../../../enums/sparseDataQueryMaxSize';
+import { safePath } from '../../../Utility/objectUtils';
 // import visSubTypes from '../../../enums/visualizationSubTypes';
 // import deepEqual from 'deep-equal';
 
@@ -20,6 +21,16 @@ const useStyles = makeStyles ((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
+  },
+  iconWrapper: {
+    textAlign: 'center',
+    height: '100%',
+    maxHeight: '200px',
+    display: 'flex',
+    flexDirection: 'column',
+    '& img': {
+      objectFit: 'contain',
+    }
   }
 }));
 
@@ -27,7 +38,7 @@ const DatasetIcon = (props) => {
   const { url, message = '' } = props;
   const cl = useStyles();
   return (
-    <div className={cl.spinnerWrapper}>
+    <div className={cl.iconWrapper}>
     <img src={url} />
     <p>{message}</p>
     </div>
@@ -118,11 +129,11 @@ const Vis = () => {
   const notTried = selectedVarState === states.notTried;
   const isReady = selectedVarState === states.succeeded && visData[selectedVisVar].data;
 
+
   if (notTried) {
     return <DatasetIcon url={datasetData && datasetData.Icon_URL} />;
   } else if (hasFailed) {
     return <DatasetIcon url={datasetData && datasetData.Icon_URL} />;
-    // return <ErrorWrapper message={'Sample visualization is not available.'} />;
   } else if (isLoading) {
     return <SpinnerWrapper message={`Fetching Visualization Data`} />
   } else if (isProcessing) {
@@ -130,14 +141,14 @@ const Vis = () => {
   } else if (isReady) {
     const selectedVariable = visVars.find ((v) => v.Short_Name === selectedVisVar);
     if (selectedVariable) {
-      // In the present version, this component only supports Histogram and Heatmap
+      // In the present version, this component only supports Sparse and Heatmap
       // The ChartWrapper decides which chart type to use, based on chart data
       // specifically data.parameters.spName and data.subType
       // spName values are specified in enums/storedProcedures:
       // --> uspSectionMap, uspTimeSeries, uspSpaceTime, and uspDepthProfile
       // uspSpaceTime, subType are specified in enums/visualizationSubTypes:
       // --> 'Section Map', 'Contour Section Map', 'Time Series', 'Histogram', 'Depth Profile', 'Heatmap', 'Contour Map', 'Sparse'
-      // NOTE: Histogram is designated with a spName of uspSpaceTiem even though it uses a query, not a stored procedure
+      // NOTE: Sparse is designated with a spName of uspSpaceTime even though it uses a query, not a stored procedure
       // ¯\_(ツ)_/¯
 
       const chart = {
@@ -151,13 +162,17 @@ const Vis = () => {
       chart.data.metadata.Distributor = datasetData.Distributor;
 
       const overrides = {
+        isSampleVisualization: true,
         width: '100%',
         height: 'auto',
         minHeight: '500px',
         varyWithSize: true,
         annotationsLeft: true,
-        bg: 'rgba(0,0,0,0.2)'
+        bg: 'rgba(0,0,0,0.2)',
+        truncated: safePath (['meta', 'metadata', 'count']) (selectedVariable) > SPARSE_DATA_QUERY_MAX_SIZE,
       };
+
+      console.log ('overrides', overrides);
 
       return <ChartWrapperWithoutPaper chart={chart} overrides={overrides}/>;
     } else {
@@ -165,7 +180,7 @@ const Vis = () => {
       return <DatasetIcon url={datasetData && datasetData.Icon_URL} />;
     }
   } else {
-    console.log ('unknown visualization state');
+    console.log ('unknown visualization state', { selectedVarState });
     return <DatasetIcon url={datasetData && datasetData.Icon_URL} />;
   }
 };

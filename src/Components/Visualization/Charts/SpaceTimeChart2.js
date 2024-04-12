@@ -114,6 +114,7 @@ const handleContourMap = (
   palette,
   zMin,
   zMax,
+  overrides = {}
 ) => {
   const { parameters, metadata } = data;
   const [height, width] = getChartDimensions(data);
@@ -180,8 +181,14 @@ const handleContourMap = (
         xaxis: { title: 'Longitude', color: '#ffffff', ...xTicks },
         yaxis: { title: 'Latitude', color: '#ffffff' },
       },
-      titleArgs: [metadata, dateTitle, latTitle, lonTitle, depthTitle],
-      annotationArgs: [metadata.Distributor, metadata.Data_Source],
+      titleArgs: [
+        metadata,
+        dateTitle,
+        null, // don't render lat
+        null, // don't render lon
+        depthTitle
+      ],
+      annotationArgs: [metadata.Distributor, metadata.Data_Source, overrides],
     };
     console.log ('plotly params', { z: subset, x: uniqX, y: uniqY, type: 'heatmap', xTicks });
     return contourPlotConfig;
@@ -264,8 +271,14 @@ const handleHeatmap = (
           exponentformat: 'power',
         },
       },
-      titleArgs: [metadata, dateTitle, latTitle, lonTitle, depthTitle],
-      annotationArgs: [metadata.Distributor, metadata.Data_Source],
+      titleArgs: [
+        metadata,
+        dateTitle,
+        null, // don't render latTitle
+        null, // don't render lonTitle
+        depthTitle
+      ],
+      annotationArgs: [metadata.Distributor, metadata.Data_Source, overrides],
       _cmapOverrides: overrides,
     };
     console.log ('plotly params', { z: subset, x: uniqX, y: uniqY, type: 'heatmap', xTicks });
@@ -283,7 +296,7 @@ const mapDispatchToProps = {
 };
 
 const SpaceTimeChart = (props) => {
-  let { openSnack, chart, chartIndex, overrides } = props;
+  let { openSnack, chart, chartIndex, overrides = {} } = props;
   let { data, subType } = chart;
   let { dates, metadata } = data;
   let { contourMap, heatmap } = subTypes;
@@ -347,9 +360,12 @@ const SpaceTimeChart = (props) => {
   let controls = [
     paletteControlTuple,
     colorscaleRangeControlTuple,
-    splitByDateControlTuple,
-    splitByDepthControlTuple,
   ];
+
+  if (!overrides.isSampleVisualization) {
+    controls.push (splitByDateControlTuple);
+    controls.push (splitByDepthControlTuple);
+  }
 
   // Generate Plot Configs
 

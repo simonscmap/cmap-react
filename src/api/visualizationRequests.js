@@ -175,7 +175,7 @@ visualizationAPI.variableSampleVisRequest = async (payload) => {
     response = await fetch(url, fetchOptions);
   } catch (e) {
     console.log ('variable sample vis request failed', { url });
-    return { failed: true, status: response.status };
+    return { failed: true, status: response && response.status };
   }
 
   if (!response.ok) {

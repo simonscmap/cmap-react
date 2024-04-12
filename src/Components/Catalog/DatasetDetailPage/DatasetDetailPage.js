@@ -167,6 +167,7 @@ const DatasetFullPage = (props) => {
         ''
       )}
 
+
       <Grid item xs={12}>
         <Paper className={classes.guideSection} elevation={4}>
           <SkeletonWrapper loading={loading}>
@@ -195,13 +196,17 @@ const DatasetFullPage = (props) => {
 
             <Grid container spacing={3}>
 
-              <Grid item xs={12} sm={12} md={4} lg={6} xl={6}>
+              <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
                 <SectionHeader title={'Description'} />
                 <ReactMarkdown source={description} className={classes.markdown} />
               </Grid>
+            </Grid>
 
-              <Grid item xs={12} sm={12} md={8} lg={6} xl={6}>
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={12} md={12} lg={4} xl={4}>
                 <SelectVariable />
+              </Grid>
+              <Grid item xs={12} sm={12} md={12} lg={8} xl={8}>
                 <Visualization />
               </Grid>
             </Grid>
@@ -218,7 +223,6 @@ const DatasetFullPage = (props) => {
                   *Temporal and spatial coverage may differ between member variables
                 </Typography>
               </Grid>
-
 
               { unstructuredDatasetMetadata &&
                 <Grid item xs={12}>

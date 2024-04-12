@@ -18,13 +18,11 @@ import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import { useSelector, useDispatch } from 'react-redux';
 
 import states from '../../../enums/asyncRequestStates';
-import { snackbarOpen } from '../../../Redux/actions/ui';
 
 // action creators
 import {
   retrieveDataSubmissionsByUser,
   setSubmissionId,
-  setSubmissionType
 } from '../../../Redux/actions/dataSubmission';
 
 // util

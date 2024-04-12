@@ -11,6 +11,9 @@ import { sparseDataMaxSizeNotificationUpdate } from '../../../Redux/actions/visu
 import { lastRowTimeSpaceDataFromChart } from '../helpers';
 import { chartControlPanelStyles } from './chartStyles';
 import TabTemplate from './ChartControls/TabTemplate';
+import { SPARSE_DATA_QUERY_SEND } from '../../../Redux/actionTypes/visualization';
+import { safePath } from '../../../Utility/objectUtils';
+
 
 const mapDispatchToProps = {
   sparseDataMaxSizeNotificationUpdate,
@@ -24,12 +27,6 @@ const forceResize = () => {
 const ChartControlPanel = (props) => {
   const { classes, chart, controls, tabContext } = props;
 
-  const showMaxSizeWarningAndInfo = () => {
-    props.sparseDataMaxSizeNotificationUpdate(
-      lastRowTimeSpaceDataFromChart(props.chart.data),
-    );
-  };
-
   const showSparseDataSizeWarning = Boolean(
     chart &&
       (chart.data.metadata.Spatial_Resolution ===
@@ -41,6 +38,10 @@ const ChartControlPanel = (props) => {
       chart.data.variableValues.length >= SPARSE_DATA_QUERY_MAX_SIZE,
   );
 
+  const limit = SPARSE_DATA_QUERY_MAX_SIZE.toLocaleString();
+  const total = safePath (['data', 'metadata', 'count']) (chart);
+  const totalStr = (total && total.toLocaleString) ? total.toLocaleString() : 'unknown';
+
   return (
     <React.Fragment>
       <div
@@ -50,11 +51,8 @@ const ChartControlPanel = (props) => {
         }}
       >
         {showSparseDataSizeWarning ? (
-          <Tooltip title="Visualization does not contain all requested data. Click for more info.">
-            <Warning
-              className={classes.sparseDataMaxSizeWarningIcon}
-              onClick={showMaxSizeWarningAndInfo}
-            />
+          <Tooltip title={`Visualization does not contain all requested data. The number of datapoints was limited to ${limit} out of ${totalStr}.`}>
+            <Warning className={classes.sparseDataMaxSizeWarningIcon} />
           </Tooltip>
         ) : (
           ''
