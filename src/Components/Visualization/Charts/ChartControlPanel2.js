@@ -5,13 +5,14 @@ import { Warning } from '@material-ui/icons';
 import React from 'react';
 import { connect } from 'react-redux';
 import SPARSE_DATA_QUERY_MAX_SIZE from '../../../enums/sparseDataQueryMaxSize';
+import SAMPLE_VIS_MAX_QUERY_SIZE from '../../../enums/sampleVisMaxQuerySize';
 import spatialResolutions from '../../../enums/spatialResolutions';
 import temporalResolutions from '../../../enums/temporalResolutions';
 import { sparseDataMaxSizeNotificationUpdate } from '../../../Redux/actions/visualization';
-import { lastRowTimeSpaceDataFromChart } from '../helpers';
+// import { lastRowTimeSpaceDataFromChart } from '../helpers';
 import { chartControlPanelStyles } from './chartStyles';
 import TabTemplate from './ChartControls/TabTemplate';
-import { SPARSE_DATA_QUERY_SEND } from '../../../Redux/actionTypes/visualization';
+// import { SPARSE_DATA_QUERY_SEND } from '../../../Redux/actionTypes/visualization';
 import { safePath } from '../../../Utility/objectUtils';
 
 
@@ -27,18 +28,22 @@ const forceResize = () => {
 const ChartControlPanel = (props) => {
   const { classes, chart, controls, tabContext } = props;
 
+  const dataLength = safePath (['data', 'variableValues', 'length']) (chart);
+  const Temporal_Resolution = safePath (['data', 'metadata', 'Temporal_Resolution']) (chart);
+  const Spatial_Resolution = safePath (['data', 'metadata', 'Spatial_Resolution']) (chart);
+  const isSampleVis = safePath (['tabContext','plotOverrides', 'isSampleVisualization']) (props);
+
+  const SIZE_LIMIT = isSampleVis
+                   ? SAMPLE_VIS_MAX_QUERY_SIZE
+                   : SPARSE_DATA_QUERY_MAX_SIZE;
+
   const showSparseDataSizeWarning = Boolean(
-    chart &&
-      (chart.data.metadata.Spatial_Resolution ===
-        spatialResolutions.irregular ||
-        chart.data.metadata.Temporal_Resolution ===
-          temporalResolutions.irregular) &&
-      chart.data &&
-      chart.data.variableValues &&
-      chart.data.variableValues.length >= SPARSE_DATA_QUERY_MAX_SIZE,
+    Spatial_Resolution === spatialResolutions.irregular &&
+    Temporal_Resolution === temporalResolutions.irregular &&
+    dataLength >= SIZE_LIMIT,
   );
 
-  const limit = SPARSE_DATA_QUERY_MAX_SIZE.toLocaleString();
+  const limit = SIZE_LIMIT.toLocaleString();
   const total = safePath (['data', 'metadata', 'count']) (chart);
   const totalStr = (total && total.toLocaleString) ? total.toLocaleString() : 'unknown';
 

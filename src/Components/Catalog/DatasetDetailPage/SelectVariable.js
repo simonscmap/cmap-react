@@ -31,11 +31,19 @@ const useRowStyles = makeStyles({
     '& > *': {
       borderBottom: 'unset',
     },
+    cursor: 'pointer',
+    '&:hover': {
+      backgroundColor: 'rgba(30, 67, 113, .5)',
+    },
+    '&.selected': {
+      backgroundColor: 'rgba(30, 67, 113, .5)',
+    }
   },
 });
 
 const useStyles = makeStyles ((theme) => ({
   header: {
+    height: '100%'
   },
   wrapper: {
     marginTop: '10px',
@@ -50,12 +58,14 @@ const useStyles = makeStyles ((theme) => ({
     // position: 'absolute',
     // top: '60px',
     width: '100%',
+    height: '100%',
     // zIndex: zIndex.LOADING_OVERLAY + 2,
   },
-  root: {
+  root: { // table header
     '& .MuiTableCell-stickyHeader': {
       backgroundColor: 'rgba(30, 67, 113, 1)',
-    }
+    },
+
   },
   sectionHeader: {
     color: 'white',
@@ -66,14 +76,26 @@ const useStyles = makeStyles ((theme) => ({
   container: {
     backgroundColor: 'rgba(16, 43, 60, 0.6)',
     backdropFilter: 'blur(20px)',
+    height: 'calc(100% - 65px)',
     maxHeight: '500px',
-    zIndex: zIndex.LOADING_OVERLAY + 2,
+    // zIndex: zIndex.LOADING_OVERLAY + 2,
   },
   selectedLabel: {
 
   },
   selectedShortName: {
     color: theme.palette.primary.main
+  },
+  iconWrapper: {
+    textAlign: 'center',
+    height: '100%',
+    maxHeight: '200px',
+    display: 'flex',
+    flexDirection: 'column',
+    '& img': {
+      objectFit: 'contain',
+      maxHeight: '200px'
+    }
   }
 }));
 
@@ -87,13 +109,29 @@ const SectionHeader = (props) => {
   );
 }
 
+const DatasetIcon = (props) => {
+  const { url, message = '' } = props;
+  const cl = useStyles();
+  return (
+    <div className={cl.header}>
+      <SectionHeader title={'Visualization'}/>
+      <div className={cl.iconWrapper}>
+        <img src={url} />
+        <p>{message}</p>
+      </div>
+    </div>
+  );
+}
+
 const Row = (props) => {
   const { selectedValue, handleSelect, variable } = props;
   const { Long_Name, Short_Name, Sensor, Unit } = variable;
   const classes = useRowStyles();
+  const isSelected = selectedValue === Short_Name;
+  const selectedClass = isSelected ? 'selected' : '';
   return (
     <React.Fragment>
-      <TableRow className={classes.root}>
+      <TableRow className={`${classes.root} ${selectedClass}`}>
         <TableCell padding="checkbox">
           <Radio
             checked={selectedValue && selectedValue === Short_Name}
@@ -115,6 +153,9 @@ const Row = (props) => {
 const SelectDatasetVariableForSampleVisualization = (props) => {
   const cl = useStyles();
   const dispatch = useDispatch();
+
+  const datasetData = useSelector ((state) => state.datasetDetailsPage.data || {});
+
   const visVars = useSelector (
     safePath ([
       'datasetDetailsPage',
@@ -122,8 +163,17 @@ const SelectDatasetVariableForSampleVisualization = (props) => {
       'variables'
   ]));
 
+  const visVarData = useSelector (
+    safePath ([
+      'datasetDetailsPage',
+      'visualizableDataByName',
+  ]));
+
+
   const selectedVisVar = useSelector ((state) =>
     state.datasetDetailsPage.visualizationSelection);
+
+  const selectedVarHasData = safePath ([selectedVisVar, 'data']) (visVarData);
 
   let [visible, setVisible] = useState(false);
 
@@ -135,16 +185,16 @@ const SelectDatasetVariableForSampleVisualization = (props) => {
   };
 
   useEffect (() => {
-    if (!visible && visVars) {
+    if (!visible && selectedVarHasData) {
       setVisible(true);
     }
-  }, [visVars]);
+  }, [visVarData]);
 
 
 
   // Display: Loading Variables | Variables Unavailable
-  if (!visVars) {
-    return '';
+  if (!visVars || !visible) {
+    return <DatasetIcon url={datasetData && datasetData.Icon_URL} />;
   }
   /*
    * <div className={cl.wrapper}>

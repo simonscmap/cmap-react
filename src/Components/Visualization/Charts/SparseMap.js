@@ -74,7 +74,7 @@ const getSparseMapPlotConfig = (data, palette, zValues, overrides = {}) => {
     },
     titleArgs: [metadata, date, lat, lon, depth],
     annotationArgs: [metadata.Distributor, metadata.Data_Source, overrides],
-    _cmapOverrides: overrides,
+    cmapOverrides: overrides,
   };
   return plotConfig;
 };

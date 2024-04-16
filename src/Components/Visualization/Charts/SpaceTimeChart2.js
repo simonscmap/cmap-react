@@ -279,7 +279,7 @@ const handleHeatmap = (
         depthTitle
       ],
       annotationArgs: [metadata.Distributor, metadata.Data_Source, overrides],
-      _cmapOverrides: overrides,
+      cmapOverrides: overrides,
     };
     console.log ('plotly params', { z: subset, x: uniqX, y: uniqY, type: 'heatmap', xTicks });
     return heatmapPlotConfig;

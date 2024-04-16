@@ -139,8 +139,10 @@ const getSparseScatterConfig = (props) => {
     },
     titleArgs: [metadata, date, lat, lon, depth],
     annotationArgs: [metadata.Distributor, metadata.Data_Source, overrides],
-    _cmapOverrides: overrides, // make this available to the ChartTemplate
+    cmapOverrides: overrides, // make this available to the ChartTemplate
   };
+
+  console.log ('TEST sparse scatter plot config', plot);
 
   return plot;
 };

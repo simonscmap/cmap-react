@@ -175,16 +175,17 @@ export const makeChartConfig = (config) => {
   let {
     annotationArgs = [],
     titleArgs = [],
-    _cmapOverrides,
+    cmapOverrides,
     ...restOfConfig
   } = config;
 
   const layoutOverrides = {};
-  if (_cmapOverrides && _cmapOverrides.bg) {
-    layoutOverrides.paper_bgcolor = _cmapOverrides.bg;
+  if (cmapOverrides && cmapOverrides.bg) {
+    layoutOverrides.paper_bgcolor = cmapOverrides.bg;
   }
 
   return {
+    cmapOverrides,
     // first copy all props from config, so nothing is missed
     ...restOfConfig,
     // then apply defaults, and reapply any overrides from the args

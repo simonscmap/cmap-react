@@ -30,6 +30,7 @@ const useStyles = makeStyles ((theme) => ({
     flexDirection: 'column',
     '& img': {
       objectFit: 'contain',
+      maxHeight: '200px'
     }
   }
 }));
@@ -131,9 +132,11 @@ const Vis = () => {
 
 
   if (notTried) {
-    return <DatasetIcon url={datasetData && datasetData.Icon_URL} />;
+    return '';
+    // return <DatasetIcon url={datasetData && datasetData.Icon_URL} />;
   } else if (hasFailed) {
-    return <DatasetIcon url={datasetData && datasetData.Icon_URL} />;
+    return <ErrorWrapper message={'Visualization is unavailable.'} />;
+    // return <DatasetIcon url={datasetData && datasetData.Icon_URL} />;
   } else if (isLoading) {
     return <SpinnerWrapper message={`Fetching Visualization Data`} />
   } else if (isProcessing) {
@@ -177,11 +180,13 @@ const Vis = () => {
       return <ChartWrapperWithoutPaper chart={chart} overrides={overrides}/>;
     } else {
       console.log ('State indicates vis data is ready, but could not find selected variable')
-      return <DatasetIcon url={datasetData && datasetData.Icon_URL} />;
+      return '';
+      // return <DatasetIcon url={datasetData && datasetData.Icon_URL} />;
     }
   } else {
     console.log ('unknown visualization state', { selectedVarState });
-    return <DatasetIcon url={datasetData && datasetData.Icon_URL} />;
+    return '';
+    // return <DatasetIcon url={datasetData && datasetData.Icon_URL} />;
   }
 };
 

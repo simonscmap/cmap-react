@@ -307,9 +307,12 @@ function* csvFromVizRequest(action) {
   if (typeof metadataResponse !== 'string') {
     console.error ('error in csvFromVizRequest; expected stringified response', metadataResponse);
     yield put(interfaceActions.setLoadingMessage('', tag));
-    yield put(
-      interfaceActions.snackbarOpen('Failed to download variable metadata', tag),
-    );
+    if (metadataResponse && metadataResponse.status && metadataResponse.status === 401) {
+      yield put(interfaceActions.snackbarOpen('Please log in to download data', tag));
+    } else {
+      yield put(interfaceActions.snackbarOpen('Failed to download variable metadata', tag));
+    }
+
   } else {
     let metadataWB = XLSX.read(metadataResponse, { type: 'string' });
     let workbook = XLSX.utils.book_new();

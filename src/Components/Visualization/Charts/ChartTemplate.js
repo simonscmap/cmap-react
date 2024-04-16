@@ -93,6 +93,7 @@ const ChartTemplate = (props) => {
     tabContext = {
       setOpenTab: handleTabClick,
       openTab,
+      plotOverrides: plots && plots[openTab] && plots[openTab].cmapOverrides,
       tabTitles,
       getShouldDisableControl,
     };
