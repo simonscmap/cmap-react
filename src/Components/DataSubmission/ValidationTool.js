@@ -243,11 +243,17 @@ class ValidationTool extends React.Component {
     this.props.setAudit(report);
 
     if (shouldAdvanceStep) {
+      /* Note: should always go to workbook summary
+               change workbook summary to indicate watitng for check name response
       const validationStep = (report.workbook.errors.length > 0
                            || report.workbook.confirmations.length > 0
                            || report.workbook.warnings.length > 0)
                            ? 1
                            : 2;
+      */
+
+      const validationStep = 1;
+
 
       this.setState({
         ...this.state,

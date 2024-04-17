@@ -19,6 +19,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 // components
 import { useNameChangeWarning } from './NameChangeWarning';
+import Spinner from '../UI/Spinner';
 
 // fns
 import { safePath } from '../../Utility/objectUtils';
@@ -233,12 +234,43 @@ const Step1 = (props) => {
   if (step !== 1) {
     return <React.Fragment />;
   }
+
+
+  if (!nameCheckResult) {
+    return (
+      <Spinner message={'Checking availability of dataset names...'} />
+    );
+  }
+
   if (!auditReport) {
-    return <React.Fragment />;
+    return <Spinner message={'Performing workbook audit...'} />;
   }
 
   if (!thereAreFirstOrderWarnings && !thereAreErrors && !thereAreWarnings && !thereAreConfirmations) {
-    changeStep (2);
+    return (<div className={cl.workbookAuditWrapper}>
+      <Typography variant={"h5"}>Workbook Validation</Typography>
+      <Typography variant="body1">
+      {'There are no errors or warnings with the workbook. Click "next" to proceed with worksheet validation.'}
+      {/*
+          - no orphaned cells
+          - no conflicts with dataset name
+          - time values are correctly formatted
+          - all worksheets are present and populated
+          - required columns are present and no columns have duplicates
+          - variable names all match data columns and no undefined data columns
+          - all data columns have values and are not empty
+          - depth consistently has a value or is empty
+          - no radian values detected for lat/lon
+          - no non-unique space/time rows
+          - user defined variables have consistent value type
+          - no columns with identical values for every row
+          - no dulicate (identical) rows
+          - no outlier values
+          - no non-unique variable names
+        */}
+      </Typography>
+    </div>);
+    // changeStep (2); // don't automatically advance to next step
   }
 
   return (
