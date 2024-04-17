@@ -7,6 +7,7 @@ import IssueWithList from './IssueWithList';
 import { safePath } from '../../../Utility/objectUtils';
 import messages from '../Messages';
 import { orderedColumns } from '../ValidationToolConstants';
+import { isValidDateString, isValidDateTimeString } from './workbookAuditLib/time';
 
 dayjs.extend(utc);
 dayjs.extend(tz);
@@ -478,32 +479,79 @@ let is1904Format = (workbook) => {
   return Boolean(((workbook.Workbook || {}).WBProps || {}).date1904);
 }
 
-const checkDateFormat = (data, workbook, numericDateFormatConverted) => {
+const checkDateFormat = (data, workbook, flags = {}) => {
   if (!data || !Array.isArray(data) || data[0].time === undefined) {
     return {
       error: 'Missing value(s) in time column.'
     };
   }
-  const sample = data[0].time;
-  const dataType = typeof sample;
 
-  const readableString = dayjs.utc(sample).format('LLLL');
-  const example = `For reference, the time value in the first row of data is ${sample} and will be interpreted as ${readableString}`;
+  const {
+    is1904,
+    numericDateFormatConverted,
+    negativeNumberDate,
+    integerDate,
+    missingDate
+  } = flags;
 
-  if (dataType === 'number') {
-    if (is1904Format (workbook)) {
-      console.log ('generating workbook error for 1904 formatting')
-      return {
-        error: `The submitted file uses Date1904 formatting for time values. Please convert to normal excel format, and verify values are accurate. ${example}`,
-      }
+  // const sample = data[0].time;
+  // const readableString = dayjs.utc(sample).format('LLLL');
+  // const example = `For reference, the time value in the first row of data is ${sample} and will be interpreted as ${readableString}`;
+
+  if (is1904) {
+    return {
+      error: `The submitted file uses Date1904 formatting for time values. Please convert to normal excel format, and verify values are accurate.`,
+    }
+  }
+
+  if (integerDate) {
+    return {
+      error: `The submitted file uses numeric integer values for dates. This format is invalid. Please convert your date values to string values according to the Submission Guide.`,
+    }
+  }
+
+  if (negativeNumberDate) {
+    return {
+      error: `The submitted file uses numeric values to represent dates, and some values were negative numbers. Please convert your date values to string values according to the Submission Guide and resubmit.`,
     }
   }
 
   if (numericDateFormatConverted) {
     return {
-      warning: `The submitted file uses numeric values for date-times. These have been converted to string values. Please examine them for accuracy in the next validation step.`,
+      warning: `The submitted file uses numeric decimal values for date-times. These have been converted to string values assuming they are Excel format date times. Please examine them for accuracy in the next validation step. If the converted dates are not accurate, modify your submission file and upload it again.`,
     }
   }
+
+  if (missingDate) {
+    return {
+      error: `Some rows do not have a time value. Please ensure that all rows have required data and resubmit. The Data Submission Guide details required values and formats.`,
+    }
+  }
+
+  // check valid string
+
+  const allTimesAreValidStrings = data.every (row => {
+    const t = row.time;
+    return isValidDateString (t) || isValidDateTimeString(t);
+  });
+
+  if (!allTimesAreValidStrings) {
+    return {
+      error: `Some times are not in valid format. Please check your data and ensure that all time values are consistently formatted according to the Submission Guide.`,
+    }
+  }
+
+  const timeValuesAreConsistent = checkTypeConsistencyOfTimeValues (data);
+  if (!timeValuesAreConsistent) {
+    return {
+      error: {
+        title: 'Time Values Are Different Types',
+        detail: 'Time values in the data sheet are not all the same type. Please check your data sheet to ensure all dates are of the same type and format.'
+      }
+    };
+  }
+
+  // check consistency
 
   return;
 };
@@ -693,8 +741,14 @@ export default (args) => {
     dataset_meta_data,
     vars_meta_data,
     userDataSubmissions,
+    // flags
+    is1904,
     numericDateFormatConverted,
-    invalidDates,
+    invalidDateString,
+    negativeNumberDate,
+    integerDate,
+    missingDate,
+    // check name
     checkNameResult,
     submissionType,
     submissionToUpdate,
@@ -804,20 +858,8 @@ export default (args) => {
     }
   }
 
-  if (invalidDates) {
-    errors.push ({
-      title: 'Invalid Time Values',
-      detail: `There are invalid time values in the data sheet.  You can proceed to the next step to view which rows have invalid time values. However, editing time values in this application is not enabled. To continue, please revise your submission file and re-upload it. Ensure that every row in the data sheet has a time value.`
-    });
-  }
 
-  const timeValuesAreConsistent = checkTypeConsistencyOfTimeValues (data);
-  if (!timeValuesAreConsistent) {
-    errors.push ({
-      title: 'Time Values Are Different Types',
-      detail: 'Time values in the data sheet are not all the same type. Please check your data sheet to ensure all dates are of the same type and format.'
-    });
-  }
+
 
   // checks for missing sheets or lacking rows are early-return cases
   let sheetCheck = checkSheets(workbook);
@@ -865,7 +907,16 @@ export default (args) => {
     }
 
 
-    const dateCheckResult = checkDateFormat (data, workbook, numericDateFormatConverted);
+
+    const flags = {
+      is1904,
+      numericDateFormatConverted,
+      invalidDateString,
+      negativeNumberDate,
+      integerDate,
+      missingDate,
+    };
+    const dateCheckResult = checkDateFormat (data, workbook, flags);
 
     if (dateCheckResult) {
       if (dateCheckResult.error) {

@@ -14,7 +14,7 @@ const is1904Format = (workbook) => {
   return Boolean(((workbook.Workbook || {}).WBProps || {}).date1904);
 }
 
-const convertExcelNumeric = (val) => {
+const convertExcelNumeric = (val) => { // for 1904 format times
   const rounded = Math.ceil(val * 10000000) / 10000000;
   const numericToUTC = dayjs.utc((rounded - 25569) * 86400 * 1000).format()
   return numericToUTC;
@@ -26,6 +26,19 @@ const isNumericFormat = (data) => {
   }
   const sample = data[0].time;
   if (typeof sample === 'number') {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+const isExcelDateTimeFormat = (data) => {
+  if (!data || !Array.isArray(data) || (data[0] && data[0].time === undefined)) {
+    return undefined;
+  }
+  const sample = data[0].time;
+  // excel date formats are decimal values
+  if (typeof sample === 'number' && !Number.isInteger(sample)) {
     return true;
   } else {
     return false;
@@ -52,6 +65,13 @@ const deleteEmptyRows = (data) => {
   return keysContaining__EMPTY;
 }
 
+const convertExcelDateTimeToString = (data) => {
+  data.forEach((row) => {
+    const newUTCDateString = convertExcelNumeric (row.time);
+    row.time = newUTCDateString;
+  });
+}
+
 /* The following formatting aims to provide a minimal parsing of time values:
    - if the value in numeric it will be converted to a string
    - if the provided sheet is in 1904 excel format, a appropriate specifc conversion will be used
@@ -59,36 +79,45 @@ const deleteEmptyRows = (data) => {
    - a critical error will be flagged if a numeric date is negative, or if a string cannot become a valid date
  */
 export default (data, workbook) => {
-  // let fatalTimeFormatError = false;
-  // const timeFormatErrorExamples = [];
+  // flags
   let numericDateFormatConverted = false;
-  // let dateTimeFormatConverted = false;
-  let invalidDates = false;
+  let invalidDateString = false;
+  let negativeNumberDate = false;
+  let integerDate = false;
+  let missingDate = false;
+
+  // predicates
   const isNumeric = isNumericFormat (data);
   const is1904 = is1904Format (workbook);
+  const isExcelDateTime = isExcelDateTimeFormat (data);
 
-  if (isNumeric && !is1904) {
-    data.forEach((row) => {
-      const newUTCDateString = convertExcelNumeric (row.time);
-      row.time = newUTCDateString;
-    });
-    numericDateFormatConverted = true;
+  if (isNumeric) {
+    if (isExcelDateTime) {
+      if (is1904) {
+        // audit will raise error
+      } else {
+        convertExcelDateTimeToString (data);
+        numericDateFormatConverted = true;
+      }
+    } else {
+      // can't decide if value is excel serial or unix timestamp
+      // audit will raise error
+    }
   } else {
+    // TODO we don't really need to do this validation here
+    // it just ends up requiring these results to be drilled
+    // down into the audit function;
+    // we could more easily perform these validations in the workbook audit
     data.forEach((row) => {
       if (typeof row.time === 'number') {
         if (row.time < 0) {
-          invalidDates = true;
+          negativeNumberDate = true;
           return;
-        } else {
-          return convertExcelNumeric (row.time);
-        }
-      } else if (typeof row.time === 'string') {
-        const isValid = dayjs(row.time).isValid();
-        if (!isValid) {
-          invalidDates = true;
+        } else if (Number.isInteger (row.time)) {
+          integerDate = true;
         }
       } else if (row.time === null || row.time === undefined) {
-        invalidDates = true;
+        missingDate = true;
       }
     });
   }
@@ -98,10 +127,14 @@ export default (data, workbook) => {
 
   return {
     data,
+    deletedKeys,
+    // flags
     is1904,
     numericDateFormatConverted,
-    deletedKeys,
-    invalidDates,
+    invalidDateString,
+    negativeNumberDate,
+    integerDate,
+    missingDate,
   };
 }
 

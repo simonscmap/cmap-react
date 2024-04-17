@@ -198,8 +198,13 @@ class ValidationTool extends React.Component {
       data,
       dataset_meta_data,
       vars_meta_data,
+      // flags
+      is1904,
       numericDateFormatConverted,
-      invalidDates,
+      invalidDateString,
+      negativeNumberDate,
+      integerDate,
+      missingDate,
     } = this.state;
 
     const { userDataSubmissions } = this.props;
@@ -209,9 +214,14 @@ class ValidationTool extends React.Component {
       data,
       dataset_meta_data,
       vars_meta_data,
-      numericDateFormatConverted,
-      invalidDates,
       userDataSubmissions,
+      // flags
+      is1904,
+      numericDateFormatConverted,
+      invalidDateString,
+      negativeNumberDate,
+      integerDate,
+      missingDate,
     };
 
     if (!workbook) {
@@ -417,7 +427,13 @@ class ValidationTool extends React.Component {
       data,
       dataset_meta_data,
       vars_meta_data,
+      // flags
+      is1904,
       numericDateFormatConverted,
+      invalidDateString,
+      negativeNumberDate,
+      integerDate,
+      missingDate,
     } = this.state;
 
     const argsObj = {
@@ -425,7 +441,13 @@ class ValidationTool extends React.Component {
       data,
       dataset_meta_data,
       vars_meta_data,
+      // flags
+      is1904,
       numericDateFormatConverted,
+      invalidDateString,
+      negativeNumberDate,
+      integerDate,
+      missingDate,
     };
 
     const newWorkbookAudit = this.auditWorkbook (argsObj);
@@ -527,8 +549,13 @@ class ValidationTool extends React.Component {
 
       let {
         data,
+        // flags
+        is1904,
         numericDateFormatConverted,
-        invalidDates, // boolean
+        invalidDateString,
+        negativeNumberDate,
+        integerDate,
+        missingDate,
       } = formatResult;
 
       // parse metadata sheets
@@ -543,7 +570,7 @@ class ValidationTool extends React.Component {
           { defval: null },
         );
 
-        console.log (_dataset_meta_data);
+        // console.log (_dataset_meta_data);
         dataset_meta_data = _dataset_meta_data
                           ? formatDatasetMetadataSheet(_dataset_meta_data, workbook)
                           : _dataset_meta_data;
@@ -592,8 +619,13 @@ class ValidationTool extends React.Component {
         data,
         dataset_meta_data,
         vars_meta_data,
+        // flags
+        is1904,
         numericDateFormatConverted,
-        invalidDates,
+        invalidDateString,
+        negativeNumberDate,
+        integerDate,
+        missingDate,
         loadingFile: {
           status: 'validating',
           totalBytes,
