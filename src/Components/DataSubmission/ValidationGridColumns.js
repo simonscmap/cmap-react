@@ -26,13 +26,16 @@ const columnDefinitions = {
       headerName: 'time',
       field: 'time',
       editable: false,
+      // tooltipValueGetter: (...args) => {
+      //   console.log ('args', args);
+      //  return 'time';
+      // }
     },
     {
       headerName: 'lat',
       field: 'lat',
       valueParser: numberParser,
       cellDataType: 'number',
-
     },
     {
       headerName: 'lon',
@@ -53,14 +56,14 @@ const columnDefinitions = {
       headerName: 'dataset_short_name',
       field: 'dataset_short_name',
       autoHeight: true,
-      tooltipField: 'dataset_short_name',
+      // tooltipField: 'dataset_short_name',
     },
 
     {
       headerName: 'dataset_long_name',
       field: 'dataset_long_name',
       autoHeight: true,
-      tooltipField: 'dataset_long_name',
+      // tooltipField: 'dataset_long_name',
       cellEditor: 'DSCellEditorTextArea',
     },
 
@@ -102,7 +105,7 @@ const columnDefinitions = {
       headerName: 'dataset_acknowledgement',
       field: 'dataset_acknowledgement',
       autoHeight: true,
-      tooltipField: 'dataset_acknowledgement',
+      // tooltipField: 'dataset_acknowledgement',
       cellEditor: 'DSCellEditorTextArea',
     },
 
@@ -110,7 +113,7 @@ const columnDefinitions = {
       headerName: 'dataset_history',
       field: 'dataset_history',
       autoHeight: true,
-      tooltipField: 'dataset_history',
+      // tooltipField: 'dataset_history',
       cellEditor: 'DSCellEditorTextArea',
     },
 

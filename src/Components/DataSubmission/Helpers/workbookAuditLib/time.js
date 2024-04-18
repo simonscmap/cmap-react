@@ -4,6 +4,36 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 dayjs.extend(customParseFormat);
 // see test in Tests/Utility/DataSubmission/workbookAuditLib.test.js
 
+export const detectFormat = (timeValue) => {
+  if (!timeValue) {
+    return undefined;
+  }
+  if (typeof timeValue === 'number') {
+    if (Number.isInteger (timeValue)) {
+      return 'integer';
+    } else {
+      return 'decimal';
+    }
+  }
+  if (typeof timeValue === 'string') {
+    const len = timeValue.length;
+
+    if (len  === 10 && isValidDateString (timeValue)) {
+      return 'date string';
+    } else if (len === 19 || len === 20 || len === 23 || len === 24) {
+      if (isValidDateTimeString (timeValue)) {
+        return 'datetime string';
+      }
+    }
+
+    return 'invalid string';
+  }
+
+  return undefined;
+}
+
+
+
 // check consistency of time values
 export const checkTypeConsistencyOfTimeValues = (data) => {
   if (!data || !Array.isArray(data)) {

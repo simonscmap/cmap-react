@@ -708,7 +708,7 @@ export const checkNoDuplicateRows = (sheet) => {
 
 
   const end = Date.now();
-  console.log (`${sheet.length} rows compared in ${(end - start)/100}s`);
+  // console.log (`${sheet.length} rows compared in ${(end - start)/100}s`);
 
   // emend results
 
@@ -770,7 +770,7 @@ export default (args) => {
   if (workbook) {
     // check for orphaned cells
     const orphanedCells = checkForOrphanedCells (workbook);
-    console.log ('orphaned cells', orphanedCells);
+    // console.log ('orphaned cells', orphanedCells);
     Object.keys (orphanedCells).forEach ((sheetName) => {
       const colKeys = Object.keys (orphanedCells[sheetName]);
       if (colKeys && colKeys.length) {

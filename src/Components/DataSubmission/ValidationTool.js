@@ -39,6 +39,7 @@ import generateAudits from './Helpers/generateAudits';
 import workbookAudits from './Helpers/workbookAudits';
 import auditReference from './Helpers/auditReference';
 import countErrors from './Helpers/countErrors';
+import DeleteEmptyRowConfirmation from './DeleteEmptyRowConfirmation';
 import { formatBytes } from './Helpers/display';
 
 import { safePath } from '../../Utility/objectUtils';
@@ -94,6 +95,7 @@ class ValidationTool extends React.Component {
       vars_meta_data: null,
       auditReport: null,
       changeLog: [],
+      delRow: null,
     };
   }
 
@@ -128,6 +130,7 @@ class ValidationTool extends React.Component {
   };
 
   auditRows = (rows, sheet) => {
+    console.log (`auditing rows for ${sheet}`)
     const checkNameResult = this.props.checkSubmissionNameResult;
     let audit = [];
 
@@ -180,16 +183,73 @@ class ValidationTool extends React.Component {
           if (cellAudit.length) {
             rowAudit[col] = cellAudit;
           }
-        });
+        }); // end column iteration
+
+        const cellIsEmpty = (colName) => {
+          const val = row[colName];
+          const isEmpty = val === null || val === undefined || val === '';
+          return isEmpty;
+        }
+
+
+        const rowIsEmpty = Object.keys(row).every (cellIsEmpty);
+
+        if (rowIsEmpty) {
+          console.log ('ROW IS EMPTY', row, i, sheet);
+          this.setState({
+            ...this.state,
+            delRow: {
+              open: true,
+              sheet,
+              rowToRemove: i,
+            }
+          })
+          // this.setState({ ...this.state, [sheet]: modifiedRows });
+        } else {
+          // console.log ('ROW IS NOT EMPTY', row)
+        }
 
         if (Object.keys(rowAudit).length) {
           audit[i] = rowAudit;
         }
-      });
+      }); // end rows iteration
     }
 
     return audit;
   };
+
+  removeRow = (sheetName, rowToRemove) => {
+    console.log ('removeRow', sheetName, rowToRemove);
+    if (!sheetName || !Number.isInteger(rowToRemove)) {
+      return;
+    }
+
+    const sheetData = this.state[sheetName];
+    if (!Array.isArray(sheetData)) {
+      console.log (`no data for sheetName ${sheetName}: cannot remove row`);
+      return;
+    }
+
+    const newData = sheetData.slice(0, rowToRemove)
+                             .concat(sheetData.slice(rowToRemove + 1))
+
+    console.log (`setting ${sheetName} with newData`, newData);
+    this.setState({
+      ...this.state,
+      [sheetName]: newData,
+      delRow: null,
+    });
+
+    setTimeout (this.performAudit, 10);
+    // this.performAudit(false, 'after remove row');
+  }
+
+  closeRemoveRowDialog = () => {
+    this.setState({
+      ...this.state,
+      delRow: null,
+    });
+  }
 
   // Takes a workbook and returns an audit report
   performAudit = (shouldAdvanceStep, callerName) => {
@@ -336,7 +396,7 @@ class ValidationTool extends React.Component {
       row: rowIndex, col: column.colId, val: newValue, old: oldValue, sheet: context.sheet
     };
 
-    console.log ('Cell Value Changed', changeEvent, node);
+    // console.log ('Cell Value Changed', changeEvent, node);
 
     // 1. check names
     const shouldResendCheckNameRequest =
@@ -361,6 +421,7 @@ class ValidationTool extends React.Component {
 
     let { sheet } = context;
 
+    console.log (`auditing cell ${column.colId}@${rowIndex}`);
     let newAudit = this.auditCell (newValue, column.colId, rowIndex);
 
     let auditReport = {
@@ -399,7 +460,7 @@ class ValidationTool extends React.Component {
     );
 
     // 3. update workbook in state with new data, and add a changeEvent to the change log
-    console.log ('redrawing row and refreshisg cell')
+    console.log ('redrawing row and refreshing cell')
     this.setState({
       ...this.state,
       [sheet]: updated,
@@ -452,6 +513,14 @@ class ValidationTool extends React.Component {
 
     const newWorkbookAudit = this.auditWorkbook (argsObj);
     this.props.setWorkbookAudit (newWorkbookAudit);
+
+
+    // audit rows for this sheet
+    const sheetAudit = this.auditRows(this.state[sheet], sheet);
+    this.props.setSheetAudit({
+      sheetName: sheet,
+      sheetAudit: sheetAudit,
+    })
   };
 
   handleReadFile = (file) => {
@@ -789,8 +858,8 @@ class ValidationTool extends React.Component {
     if (subIdHasChanged && fileHasBeenSelected) {
       const shortName = safePath (['0','dataset_short_name']) (this.state.dataset_meta_data);
       const longName = safePath (['0','dataset_long_name']) (this.state.dataset_meta_data);
-      console.log (`id ${this.props.submissionToUpdate} ?= ${prevProps.submissionToUpdate}`, typeof this.props.submissionToUpdate, prevProps.submissionToUpdate);
-      console.log ('dispatching', subIdHasChanged, fileHasBeenSelected);
+      // console.log (`id ${this.props.submissionToUpdate} ?= ${prevProps.submissionToUpdate}`, typeof this.props.submissionToUpdate, prevProps.submissionToUpdate);
+      // console.log ('dispatching', subIdHasChanged, fileHasBeenSelected);
       this.props.checkSubmNamesRequestSend({ shortName, longName, submissionId: this.props.submissionToUpdate  });
     }
 
@@ -825,6 +894,7 @@ class ValidationTool extends React.Component {
 
     return (
       <div className={classes.validationToolWrapper}>
+        <DeleteEmptyRowConfirmation data={this.state.delRow} remove={this.removeRow} close={this.closeRemoveRowDialog} />
         <StepAssistant step={this.state.step} changeStep={this.handleChangeValidationStep} />
         <FullWidthContainer>
           <Section>

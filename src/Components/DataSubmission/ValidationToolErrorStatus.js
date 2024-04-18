@@ -40,7 +40,6 @@ const IssueSummary = (props) => {
   const auditReport = useSelector ((state) => state.auditReport);
   const errorCount = auditReport && auditReport.errorCount;
 
-  console.log ('Error Status Summary: error count', errorCount);
   if (step < 1) {
     return <React.Fragment />;
   }

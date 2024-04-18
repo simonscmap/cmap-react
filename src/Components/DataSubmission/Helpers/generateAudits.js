@@ -1,8 +1,7 @@
 import * as dayjs from 'dayjs';
-
-import { isAcceptedFormat } from './standardUTCDateTime';
 import tz from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
+import { detectFormat } from './workbookAuditLib/time';
 
 dayjs.extend(utc);
 dayjs.extend(tz);
@@ -39,9 +38,19 @@ export default (submissionOptions) => {
   };
 
   const validTime = (value) => {
-    const isValidDate = dayjs(value).isValid();
-    if (!isValidDate) {
-      return `Value is not a valid date.`
+    const f = detectFormat (value);
+    switch (f) {
+      case 'integer':
+        return 'Value is integer type.'
+      case 'decimal':
+      case 'date string':
+      case 'datetime string':
+        return undefined;
+      case 'invalid string':
+        return 'Value is incorrect string format.'
+      case undefined:
+      default:
+        return 'Value is missing or unknown type.';
     }
   };
 

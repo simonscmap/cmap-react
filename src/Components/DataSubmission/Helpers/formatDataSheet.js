@@ -32,6 +32,18 @@ const isNumericFormat = (data) => {
   }
 }
 
+const isIntegerFormat = (data) => {
+  if (!data || !Array.isArray(data) || (data[0] && data[0].time === undefined)) {
+    return undefined;
+  }
+  const sample = data[0].time;
+  if (typeof sample === 'number' && Number.isInteger(sample)) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 const isExcelDateTimeFormat = (data) => {
   if (!data || !Array.isArray(data) || (data[0] && data[0].time === undefined)) {
     return undefined;
@@ -88,6 +100,7 @@ export default (data, workbook) => {
 
   // predicates
   const isNumeric = isNumericFormat (data);
+  const isInteger = isIntegerFormat (data);
   const is1904 = is1904Format (workbook);
   const isExcelDateTime = isExcelDateTimeFormat (data);
 
@@ -99,7 +112,8 @@ export default (data, workbook) => {
         convertExcelDateTimeToString (data);
         numericDateFormatConverted = true;
       }
-    } else {
+    } else if (isInteger) {
+      integerDate = true;
       // can't decide if value is excel serial or unix timestamp
       // audit will raise error
     }
@@ -109,7 +123,7 @@ export default (data, workbook) => {
     // down into the audit function;
     // we could more easily perform these validations in the workbook audit
     data.forEach((row) => {
-      if (typeof row.time === 'number') {
+      if (typeof row.time === 'number') { // this block won't be reached because we are in the "else" block of isNumeric
         if (row.time < 0) {
           negativeNumberDate = true;
           return;

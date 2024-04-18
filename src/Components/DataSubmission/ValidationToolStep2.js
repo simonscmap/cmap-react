@@ -77,7 +77,7 @@ const generateSelectOptions = (reduxStoreOptions) => ({
   climatology: [0, 1],
 });
 
-const getColumns = (sheet, data) => {
+const getColumns = (sheet, data, tooltipValueGetter) => {
   if (!Array.isArray(data) || data.length === 0) {
     return [];
   }
@@ -91,7 +91,7 @@ const getColumns = (sheet, data) => {
   const presetColHeaders = {
     lon: 'lon',
     lat: 'lat',
-    time: 'time',
+    // time: 'time',
     depth: 'depth'
   };
 
@@ -117,7 +117,15 @@ const getColumns = (sheet, data) => {
 
   const numberParser = (ev) => {
     const { newValue } = ev;
-    return isNaN(newValue) ? null : Number(newValue);
+
+    if (!Number.isFinite(newValue)) {
+      console.log ('NOT A NUMBER', newValue)
+      return null;
+    } else {
+      const parsedValue = Number(newValue);
+      console.log ('PARSED VALUE', parsedValue)
+      return parsedValue;
+    }
   }
   /* const numberGetter = (params) => {
    *   console.log (params);
@@ -129,7 +137,7 @@ const getColumns = (sheet, data) => {
     const col = ValidationGridColumns.data.find ((colDef) =>
       colDef.field === columnName);
     if (col) {
-      return col;
+      return Object.assign(col, { tooltipValueGetter });
     } else {
       const dataType = detectDataType (columnName)
       const def = {
@@ -137,6 +145,7 @@ const getColumns = (sheet, data) => {
         field: columnName,
         cellDataType: dataType,
         valueParser: dataType === 'number' ? numberParser : (id) => id,
+        tooltipValueGetter,
       };
       return def;
     }
@@ -263,6 +272,8 @@ const Step2 = (props) => {
     getChangeLog,
   } = props;
 
+  console.log ('FILE DATA (into grid)',fileData);
+
   const auditReport = useSelector((state) => state.auditReport);
   const errorCount = auditReport && auditReport.errorCount;
 
@@ -282,7 +293,7 @@ const Step2 = (props) => {
 
   useEffect (() => {
     if (gridApi && gridApi.current) {
-      console.log ('SHOULD refresh cells')
+      // console.log ('SHOULD refresh cells')
       // gridApi.current;
     }
   }, [auditReport]);
@@ -338,11 +349,13 @@ const Step2 = (props) => {
 
   const tooltipValueGetter = (args) => {
     const { rowIndex, column, context } = args;
-    if (rowIndex && column && column.colId) {
+    if (Number.isInteger(rowIndex) && column && column.colId) {
       const errorForCell = safePath ([context.sheet, rowIndex, column.colId]) (auditReport);
       if (Array.isArray(errorForCell)) {
         return errorForCell.join (' ');
       }
+    } else {
+      // console.log ('value getter missing args', rowIndex)
     }
     return null;
   }
@@ -441,7 +454,7 @@ const Step2 = (props) => {
           defaultColumnDef={defaultColumnDef}
           handleCellValueChanged={handleCellValueChanged}
           handleGridSizeChanged={handleGridSizeChanged}
-          columns={getColumns(sheet, fileData[sheet])}
+          columns={getColumns(sheet, fileData[sheet], tooltipValueGetter)}
           onCellFocused={onCellFocused}
           gridContext={{
             sheet,
