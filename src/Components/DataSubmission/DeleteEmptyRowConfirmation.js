@@ -5,11 +5,21 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import { makeStyles } from '@material-ui/core/styles';
+import { colors } from '../Home/theme';
+
+const useStyles = makeStyles ((theme) => ({
+  dialogPaper: {
+    backgroundColor: colors.blue.slate
+  }
+}));
 
 const DeleteEmptyRowConfirmation = (props) => {
   const { data, remove, close } = props;
+  const classes = useStyles();
 
   const [open, setOpen] = React.useState(data && data.open || false);
+
 
   React.useEffect(() => {
     if (!data) {
@@ -36,7 +46,10 @@ const DeleteEmptyRowConfirmation = (props) => {
       <Dialog
         open={open}
         aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
+    aria-describedby="alert-dialog-description"
+    PaperProps={{
+        className: classes.dialogPaper,
+      }}
       >
         <DialogTitle id="alert-dialog-title">{"Delete Empty Row?"}</DialogTitle>
         <DialogContent>
