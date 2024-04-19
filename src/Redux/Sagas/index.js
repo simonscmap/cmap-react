@@ -811,7 +811,7 @@ function* uploadSubmission(action) {
 
   if (commitSucceeded === true) {
     yield put(interfaceActions.setLoadingMessage('', tag));
-    yield put(dataSubmissionActions.setUploadState(states.succeeded));
+    yield put(dataSubmissionActions.setUploadState(states.succeeded, datasetName));
   } else {
     const respStatus = commitFileResponse && commitFileResponse.status;
     log.error (`API responded to commit request with ${respStatus}`, { ...commitFileResponse });

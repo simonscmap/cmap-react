@@ -103,10 +103,11 @@ export const checkSubmissionOptionsAndStoreFile = (file, submissionId) => ({
   },
 });
 
-export const setUploadState = (state) => ({
+export const setUploadState = (state, shortName) => ({
   type: dataSubmissionActionTypes.SET_UPLOAD_STATE,
   payload: {
     state,
+    shortName
   },
 });
 

@@ -193,6 +193,9 @@ const Step3 = (props) => {
   const auditReport = useSelector ((state) =>
     state.auditReport);
 
+  const lastSuccessfulSub = useSelector ((state) =>
+    state.lastSuccessfulSubmission);
+
   const noErrors = auditReport && auditReport.errorCount.sum === 0;
 
   if (!userIsOnLastStep) {
@@ -223,7 +226,7 @@ const Step3 = (props) => {
               style={{ display: 'inline-block' }}
               className={classes.needHelpLink}
               component={RouterLink}
-              to={`/datasubmission/userdashboard?datasetName=${encodeURI(shortName)}`}
+              to={`/datasubmission/userdashboard?datasetName=${encodeURI(lastSuccessfulSub)}`}
             >
               here.
             </Link>
