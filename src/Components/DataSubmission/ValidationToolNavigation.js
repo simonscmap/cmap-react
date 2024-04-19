@@ -122,8 +122,8 @@ const Navigation = (props) => {
   return (
     <div className={cl.navigationWrapper}>
       <div className={cl.navigationButtons}>
-        <Tooltip title={backArrowTooltip}>
-          <div className={cl.refHolder}>
+        <div className={cl.refHolder}>
+          <Tooltip title={backArrowTooltip}>
             <StepButton
               size="small"
               color="primary"
@@ -138,12 +138,11 @@ const Navigation = (props) => {
                 text={'Back'}
               />
             </StepButton>
-          </div>
-        </Tooltip>
+          </Tooltip>
+        </div>
 
-
-        <Tooltip title={forwardArrowTooltip}>
-          <div className={cl.refHolder}>
+        <div className={cl.refHolder}>
+          <Tooltip title={forwardArrowTooltip}>
             <StepButton
               size="small"
               color="primary"
@@ -155,8 +154,8 @@ const Navigation = (props) => {
             >
               {'Next'}
             </StepButton>
-          </div>
-        </Tooltip>
+          </Tooltip>
+        </div>
       </div>
 
       <div className={cl.rightSection}>
