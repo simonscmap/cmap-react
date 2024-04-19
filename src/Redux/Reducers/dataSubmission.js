@@ -97,6 +97,7 @@ export default function (state, action) {
       return {
         ...state,
         submissionType: action.payload,
+        submissionToUpdate: action.payload === 'new' ? null : state.submissionToUpdate,
       };
 
     case SET_SUBM_ID:

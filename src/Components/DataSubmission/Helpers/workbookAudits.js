@@ -818,7 +818,7 @@ export default (args) => {
     } else if (newShortNameConflict) {
       errors.push({
         title: 'Dataset Short Name is Unavailable',
-        detail: messages.shortNameIsTaken(shortName),
+        detail: `The dataset /short name/ specified in the uploaded workbook, *\`${shortName}\`*, is already in use by annother submission. Please change the *\`dataset_short_name\`* in the *\`dataset_meta_data\`* worksheet. `,
       });
     } else if (shortNameUpdateConflict) {
       console.log ('short name update conflict');

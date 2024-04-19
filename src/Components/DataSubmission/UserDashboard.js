@@ -78,17 +78,17 @@ class UserDashboard extends React.Component {
 
   componentDidMount = () => {
     this.props.retrieveDataSubmissionsByUser();
-    this.expandItem();
+    // this.expandItem();
   };
 
   componentDidUpdate = (prevProps, prevState) => {
     if (!prevProps.user && this.props.user) {
       this.props.retrieveDataSubmissionsByUser();
     }
-    if (!prevProps.dataSubmissions.length && this.props.dataSubmissions) {
+    if (prevProps.dataSubmissions.length !== this.props.dataSubmissions.length) {
+      console.log ('component did update AND dataSub length differ', { prevProps, curr: this.props })
       this.expandItem();
     }
-    console.log ({ prevProps, curr: this.props })
   };
 
   handleExpansion = (i) => {
