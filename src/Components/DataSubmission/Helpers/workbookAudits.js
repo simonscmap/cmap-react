@@ -7,7 +7,11 @@ import IssueWithList from './IssueWithList';
 import { safePath } from '../../../Utility/objectUtils';
 import messages from '../Messages';
 import { orderedColumns } from '../ValidationToolConstants';
-import { isValidDateString, isValidDateTimeString } from './workbookAuditLib/time';
+import {
+  isValidDateString,
+  isValidDateTimeString,
+  validateTimeValues,
+} from './workbookAuditLib/time';
 
 dayjs.extend(utc);
 dayjs.extend(tz);
@@ -489,10 +493,14 @@ const checkDateFormat = (data, workbook, flags = {}) => {
   const {
     is1904,
     numericDateFormatConverted,
+  } = flags;
+
+
+  const {
     negativeNumberDate,
     integerDate,
-    missingDate
-  } = flags;
+    missingDate,
+  } = validateTimeValues (data);
 
   // const sample = data[0].time;
   // const readableString = dayjs.utc(sample).format('LLLL');
@@ -500,31 +508,72 @@ const checkDateFormat = (data, workbook, flags = {}) => {
 
   if (is1904) {
     return {
-      error: `The submitted file uses Date1904 formatting for time values. Please convert to normal excel format, and verify values are accurate.`,
+      error: {
+        title: 'Time Format Error: Unsupported Excel 1904 Format',
+        body: {
+          content:`The submitted file uses Date1904 formatting for time values. Please convert to normal excel format, and verify values are accurate. For more information about Date1904 please see the {0}.`,
+          links: [{
+            text: 'Excel documentation',
+            url: 'https://learn.microsoft.com/en-us/office/troubleshoot/excel/1900-and-1904-date-system',
+          }]
+        }
+      }
     }
   }
 
   if (integerDate) {
     return {
-      error: `The submitted file uses numeric integer values for dates. This format is invalid. Please convert your date values to string values according to the Submission Guide.`,
+      error: {
+        title: 'Time Format Error: Integer Values',
+        body: {
+          content: `The submitted file uses numeric integer values in the time field. This format is invalid. Please convert your time values to string values according to the {0}.`,
+          links: [{
+            text: 'Submission Guide',
+            url: '/datasubmission/guide',
+          }]
+        }
+      },
     }
   }
 
   if (negativeNumberDate) {
     return {
-      error: `The submitted file uses numeric values to represent dates, and some values were negative numbers. Please convert your date values to string values according to the Submission Guide and resubmit.`,
+      error: {
+        title: 'Time Format Error: Negative Values',
+        body: {
+          content: `The submitted file uses numeric values in the time field, and some values are negative numbers. Please convert your date values to string values according to the {0} and resubmit.`,
+          links: [{
+            text: 'Submission Guide',
+            url: '/datasubmission/guide',
+          }]
+        }
+      },
     }
   }
 
   if (numericDateFormatConverted) {
     return {
-      warning: `The submitted file uses numeric decimal values for date-times. These have been converted to string values assuming they are Excel format date times. Please examine them for accuracy in the next validation step. If the converted dates are not accurate, modify your submission file and upload it again.`,
+      warning:{
+        title: 'Data Conversion Warning',
+        body: {
+          content: `The submitted file uses numeric decimal values for date-times. These have been converted to string values with the assumption that they are Excel format date times. Please examine them for accuracy in the next validation step. If the converted dates are not accurate, modify your submission file and upload it again.`,
+        }
+      },
     }
   }
 
   if (missingDate) {
     return {
-      error: `Some rows do not have a time value. Please ensure that all rows have required data and resubmit. The Data Submission Guide details required values and formats.`,
+      error: {
+        title: 'Missing Time Data',
+        body: {
+          content: `Some rows do not have a time value. Please ensure that all rows have required data and resubmit. The {0} details required values and formats.`,
+          links: [{
+            text: 'Submission Guide',
+            url: '/datasubmission/guide',
+          }]
+        }
+      },
     }
   }
 
@@ -736,18 +785,16 @@ export const checkNoDuplicateRows = (sheet) => {
 
 export default (args) => {
   const {
-    workbook, // file prior to conversion by sheetjs to json
-    data,
-    dataset_meta_data,
-    vars_meta_data,
+    workbook, // workboork is the file prior to conversion by sheetjs to json
+    data, // the data sheet
+    dataset_meta_data,  // the metadata sheet
+    vars_meta_data, // the vars metadata sheet
     userDataSubmissions,
-    // flags
+
+    // time formatting flags
     is1904,
     numericDateFormatConverted,
-    invalidDateString,
-    negativeNumberDate,
-    integerDate,
-    missingDate,
+
     // check name
     checkNameResult,
     submissionType,
@@ -911,11 +958,9 @@ export default (args) => {
     const flags = {
       is1904,
       numericDateFormatConverted,
-      invalidDateString,
-      negativeNumberDate,
-      integerDate,
-      missingDate,
     };
+
+
     const dateCheckResult = checkDateFormat (data, workbook, flags);
 
     if (dateCheckResult) {

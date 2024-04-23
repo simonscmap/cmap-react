@@ -1,8 +1,72 @@
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 
+import tz from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+
+// import standardFormat from './standardUTCDateTime';
+
+dayjs.extend(utc);
+dayjs.extend(tz);
+
+
 dayjs.extend(customParseFormat);
 // see test in Tests/Utility/DataSubmission/workbookAuditLib.test.js
+
+const isNumericFormat = (data) => {
+  if (!data || !Array.isArray(data) || (data[0] && data[0].time === undefined)) {
+    return undefined;
+  }
+  const sample = data[0].time;
+  if (typeof sample === 'number') {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+const isIntegerFormat = (data) => {
+  if (!data || !Array.isArray(data) || (data[0] && data[0].time === undefined)) {
+    return undefined;
+  }
+  const sample = data[0].time;
+  if (typeof sample === 'number' && Number.isInteger(sample)) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+
+export const validateTimeValues = (data) => {
+  let negativeNumberDate = false;
+  let integerDate = false;
+  let missingDate = false;
+
+  const allFlags = [negativeNumberDate, integerDate, missingDate].every (f => f === true)
+
+  let k = 0;
+  while (!allFlags && k < data.length) {
+    let row = data[k];
+    if (typeof row.time === 'number') { // this block won't be reached because we are in the "else" block of isNumeric
+      if (row.time < 0) {
+        negativeNumberDate = true;
+      } else if (Number.isInteger (row.time)) {
+        integerDate = true;
+      }
+    } else if (row.time === null || row.time === undefined) {
+      missingDate = true;
+    }
+    k += 1;
+  }
+
+  return {
+    negativeNumberDate,
+    integerDate,
+    missingDate,
+  }
+};
+
 
 export const detectFormat = (timeValue) => {
   if (!timeValue) {

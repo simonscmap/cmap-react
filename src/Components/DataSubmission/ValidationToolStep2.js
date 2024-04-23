@@ -272,7 +272,7 @@ const Step2 = (props) => {
     getChangeLog,
   } = props;
 
-  console.log ('FILE DATA (into grid)',fileData);
+  // console.log ('FILE DATA (into grid)',fileData);
 
   const auditReport = useSelector((state) => state.auditReport);
   const errorCount = auditReport && auditReport.errorCount;
@@ -337,13 +337,13 @@ const Step2 = (props) => {
     const shouldReStyleWithModified = getChangeForCell (changeLog, cevDef);
 
     if (shouldReStyleWithError) {
+      // console.log ('SETTING CELL STYLE: ERROR', row, colId, shouldReStyleWithError)
       cellStyle.boxShadow = 'inset 0 0 2px 2px rgba(255, 0, 0, 1)';
     } else if (shouldReStyleWithModified) {
       cellStyle.boxShadow = 'inset 0 0 2px 2px rgba(34, 163, 185)';
     } else {
       cellStyle.boxShadow = 'unset';
     }
-
     return cellStyle;
   };
 

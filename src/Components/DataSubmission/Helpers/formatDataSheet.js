@@ -32,18 +32,6 @@ const isNumericFormat = (data) => {
   }
 }
 
-const isIntegerFormat = (data) => {
-  if (!data || !Array.isArray(data) || (data[0] && data[0].time === undefined)) {
-    return undefined;
-  }
-  const sample = data[0].time;
-  if (typeof sample === 'number' && Number.isInteger(sample)) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
 const isExcelDateTimeFormat = (data) => {
   if (!data || !Array.isArray(data) || (data[0] && data[0].time === undefined)) {
     return undefined;
@@ -93,14 +81,8 @@ const convertExcelDateTimeToString = (data) => {
 export default (data, workbook) => {
   // flags
   let numericDateFormatConverted = false;
-  let invalidDateString = false;
-  let negativeNumberDate = false;
-  let integerDate = false;
-  let missingDate = false;
-
-  // predicates
+    // predicates
   const isNumeric = isNumericFormat (data);
-  const isInteger = isIntegerFormat (data);
   const is1904 = is1904Format (workbook);
   const isExcelDateTime = isExcelDateTimeFormat (data);
 
@@ -112,28 +94,7 @@ export default (data, workbook) => {
         convertExcelDateTimeToString (data);
         numericDateFormatConverted = true;
       }
-    } else if (isInteger) {
-      integerDate = true;
-      // can't decide if value is excel serial or unix timestamp
-      // audit will raise error
     }
-  } else {
-    // TODO we don't really need to do this validation here
-    // it just ends up requiring these results to be drilled
-    // down into the audit function;
-    // we could more easily perform these validations in the workbook audit
-    data.forEach((row) => {
-      if (typeof row.time === 'number') { // this block won't be reached because we are in the "else" block of isNumeric
-        if (row.time < 0) {
-          negativeNumberDate = true;
-          return;
-        } else if (Number.isInteger (row.time)) {
-          integerDate = true;
-        }
-      } else if (row.time === null || row.time === undefined) {
-        missingDate = true;
-      }
-    });
   }
 
   // remove empty rows
@@ -145,10 +106,6 @@ export default (data, workbook) => {
     // flags
     is1904,
     numericDateFormatConverted,
-    invalidDateString,
-    negativeNumberDate,
-    integerDate,
-    missingDate,
   };
 }
 

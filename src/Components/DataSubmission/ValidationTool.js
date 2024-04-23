@@ -8,6 +8,8 @@ import XLSX from 'xlsx';
 
 import { withStyles } from '@material-ui/core/styles';
 
+import deepEqual from 'deep-equal'
+
 import {
   uploadSubmission,
   retrieveMostRecentFile,
@@ -41,7 +43,6 @@ import auditReference from './Helpers/auditReference';
 import countErrors from './Helpers/countErrors';
 import DeleteEmptyRowConfirmation from './DeleteEmptyRowConfirmation';
 import { formatBytes } from './Helpers/display';
-
 import { safePath } from '../../Utility/objectUtils';
 
 import styles from './ValidationToolStyles';
@@ -313,17 +314,7 @@ class ValidationTool extends React.Component {
     this.props.setAudit(report);
 
     if (shouldAdvanceStep) {
-      /* Note: should always go to workbook summary
-               change workbook summary to indicate watitng for check name response
-      const validationStep = (report.workbook.errors.length > 0
-                           || report.workbook.confirmations.length > 0
-                           || report.workbook.warnings.length > 0)
-                           ? 1
-                           : 2;
-      */
-
       const validationStep = 1;
-
 
       this.setState({
         ...this.state,
@@ -471,6 +462,7 @@ class ValidationTool extends React.Component {
       this.gridApi.redrawRows({rowNodes: [row]});
 
       // refresh cells
+      console.log ('refresh cells', this.state.auditReport && this.state.auditReport[sheet]);
       event.api.refreshCells({
         force: true,
         rowNodes: [event.node] // pass rowNode that was edited
@@ -872,6 +864,30 @@ class ValidationTool extends React.Component {
       console.log ('resetting state');
       this.handleResetState ();
     }
+
+
+    const prevAudit = prevProps.auditReport;
+    const currAudit = this.props.auditReport;
+
+    let shouldRefreshCells = false;
+    ['data', 'dataset_meta_data', 'vars_meta_data', 'workbook'].forEach ((sh) => {
+      const prev = safePath ([sh]) (prevAudit);
+      const curr = safePath ([sh]) (currAudit);
+
+      if (!deepEqual (prev, curr)) {
+        shouldRefreshCells = true;
+      }
+    });
+
+    if (shouldRefreshCells) {
+      if (this.gridApi) {
+        this.gridApi.redrawRows();
+      } else {
+        console.log ('no grid api');
+      }
+    }
+
+
 
   };
 
