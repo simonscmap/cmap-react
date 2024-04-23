@@ -843,11 +843,11 @@ export default (args) => {
     // (2) this is an update and the names are the same (3) this is an update and the names are different
 
     const {
-      shortNameIsAlreadyInUse,
-      shortNameUpdateConflict,
+      shortNameIsAlreadyInUse, // short name is used by an ingested dataset
+      shortNameUpdateConflict, // short name is in use by a submission
       folderExists,
-      longNameIsAlreadyInUse,
-      longNameUpdateConflict,
+      longNameIsAlreadyInUse, // long name is used by an ingested dataset
+      longNameUpdateConflict, // long name is used by an ingested dataset
       errors: nameCheckErrors,
     } = checkNameResult;
 
@@ -883,7 +883,7 @@ export default (args) => {
       }
       errors.push({
         title: 'Unable to Update Short Name',
-        detail: `The short name provided, *\`${shortName}\`*, is already in use by another dataset submission`,
+        detail: `The short name provided, *\`${shortName}\`*, already exists in the CMAP system. Please choose another name.`,
       })
     }
 
