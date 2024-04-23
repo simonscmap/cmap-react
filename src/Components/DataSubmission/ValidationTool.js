@@ -337,7 +337,7 @@ class ValidationTool extends React.Component {
   }
 
   resetLocalState = (resetStep = false, callerName) => {
-    console.log (`resetting local state (caller name: ${callerName}`);
+    console.log (`resetting local state (caller name: ${callerName})`);
     this.setState({
       ...this.state,
       rawFile: null,
@@ -873,14 +873,15 @@ class ValidationTool extends React.Component {
     ['data', 'dataset_meta_data', 'vars_meta_data', 'workbook'].forEach ((sh) => {
       const prev = safePath ([sh]) (prevAudit);
       const curr = safePath ([sh]) (currAudit);
+      const dataSheet = safePath ([sh]) (this.state);
 
-      if (!deepEqual (prev, curr)) {
+      if (!deepEqual (prev, curr) && Array.isArray(dataSheet)) {
         shouldRefreshCells = true;
       }
     });
 
     if (shouldRefreshCells) {
-      if (this.gridApi) {
+      if (this.gridApi ) {
         this.gridApi.redrawRows();
       } else {
         console.log ('no grid api');
