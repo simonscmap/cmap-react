@@ -107,6 +107,8 @@ const getSparseScatterConfig = (props) => {
     style: {
       width: overrides.width || '60vw',
       height: overrides.height || '40vw',
+      minWidth: '510px',
+      minHeight: overrides.minHeight || '340px',
     },
     data: [
       {
