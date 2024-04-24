@@ -175,8 +175,6 @@ const Vis = () => {
         truncated: safePath (['meta', 'metadata', 'count']) (selectedVariable) > SPARSE_DATA_QUERY_MAX_SIZE,
       };
 
-      console.log ('overrides', overrides);
-
       return <ChartWrapperWithoutPaper chart={chart} overrides={overrides}/>;
     } else {
       console.log ('State indicates vis data is ready, but could not find selected variable')

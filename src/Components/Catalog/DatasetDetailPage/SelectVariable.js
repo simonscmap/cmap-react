@@ -28,16 +28,22 @@ import zIndex from '../../../enums/zIndex';
 
 const useRowStyles = makeStyles({
   root: {
+    cursor: 'pointer',
+    '& td': {
+      maxWidth: '160px',
+      lineClamp: 1,
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+    },
     '& > *': {
       borderBottom: 'unset',
     },
-    cursor: 'pointer',
     '&:hover': {
       backgroundColor: 'rgba(30, 67, 113, .5)',
     },
     '&.selected': {
       backgroundColor: 'rgba(30, 67, 113, .5)',
-    }
+    },
   },
 });
 
@@ -124,18 +130,24 @@ const DatasetIcon = (props) => {
 }
 
 const Row = (props) => {
-  const { selectedValue, handleSelect, variable } = props;
+  const { selectedValue, selectVariable, variable } = props;
   const { Long_Name, Short_Name, Sensor, Unit } = variable;
   const classes = useRowStyles();
   const isSelected = selectedValue === Short_Name;
   const selectedClass = isSelected ? 'selected' : '';
+
+  const handleChange = (ev) => {
+    const eValue = ev.target.value;
+    selectVariable(eValue);
+  };
+
   return (
     <React.Fragment>
-      <TableRow className={`${classes.root} ${selectedClass}`}>
+      <TableRow className={`${classes.root} ${selectedClass}`} onClick={() => selectVariable (Short_Name)}>
         <TableCell padding="checkbox">
           <Radio
             checked={selectedValue && selectedValue === Short_Name}
-            onChange={handleSelect}
+            onChange={handleChange}
             value={Short_Name}
             name="radio-button"
             inputProps={{ 'aria-label': variable.Long_Name }}
@@ -177,12 +189,13 @@ const SelectDatasetVariableForSampleVisualization = (props) => {
 
   let [visible, setVisible] = useState(false);
 
-  const handleChange = (ev) => {
-    const eValue = ev.target.value;
-    if (eValue !== selectedVisVar) {
-      dispatch (datasetVariableSelect(eValue));
+  const selectVariable = (shortName) => {
+    if (shortName !== selectedVisVar) {
+      dispatch (datasetVariableSelect(shortName));
     }
-  };
+  }
+
+
 
   useEffect (() => {
     if (!visible && selectedVarHasData) {
@@ -226,7 +239,7 @@ const SelectDatasetVariableForSampleVisualization = (props) => {
                 </TableHead>
                 <TableBody>
                   {visVars.map((v) => (
-                    <Row key={v.ID} variable={v} handleSelect={handleChange} selectedValue={selectedVisVar} />
+                    <Row key={v.ID} variable={v} selectVariable={selectVariable} selectedValue={selectedVisVar} />
                   ))}
                 </TableBody>
               </Table>
