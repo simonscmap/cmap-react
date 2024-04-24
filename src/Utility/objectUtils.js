@@ -37,3 +37,12 @@ export const safePath = (path) => (obj) => {
 
   return maybeValueAtPath;
 }
+
+export const safePathOr = (defaultValue) => (pred) => (path) => (obj) => {
+  const result = safePath (path) (obj);
+  if (pred(result)) {
+    return result;
+  } else {
+    return defaultValue;
+  }
+}

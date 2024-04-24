@@ -4,7 +4,6 @@
 
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link as RouterLink } from 'react-router-dom';
 
 import {
   Grid,
@@ -27,9 +26,10 @@ import DetailsTable from './DatasetDetailsTable';
 import DatasetMetadata from './DatasetMetadata';
 import Visualization from './DatasetVisualization';
 import SelectVariable from './SelectVariable';
+import CruiseList from './CruiseList';
+import ReferencesList from './References';
 import styles from './datasetFullPageStyles';
 
-import CartAddOrRemove from '../CartAddOrRemove';
 import SkeletonWrapper from '../../UI/SkeletonWrapper';
 import ErrorCard from '../../Common/ErrorCard';
 import Spacer from '../../Common/Spacer';
@@ -51,8 +51,10 @@ const useStyles = makeStyles ((theme) => ({
     margin: '16px 0 16px 0',
     fontWeight: 100,
     fontFamily: '"roboto", Serif',
-  }
-}))
+  },
+
+}));
+
 const SectionHeader = (props) => {
   const cl = useStyles ()
   const { title } = props;
@@ -62,6 +64,32 @@ const SectionHeader = (props) => {
     </Typography>
   );
 }
+
+const StandardHalfGridContent = (props) => {
+  const { data } = props;
+  if (data === undefined || data === null) {
+    return <></>;
+  }
+  return (
+    <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+      {props.children}
+    </Grid>
+  )
+}
+
+const ThirdGridContent = (props) => {
+  const { data } = props;
+  if (data === undefined || data === null) {
+    return <></>;
+  }
+  return (
+    <Grid item xs={12} sm={12} md={4} lg={4} xl={4}>
+      {props.children}
+    </Grid>
+  )
+}
+
+
 
 // Page Component
 const DatasetFullPage = (props) => {
@@ -85,7 +113,7 @@ const DatasetFullPage = (props) => {
     state.datasetDetailsPage.data && state.datasetDetailsPage.data.Unstructured_Dataset_Metadata);
 
   let acknowledgment = useSelector ((state) =>
-    state.datasetDetailsPage.data && state.datasetDetailsPage.data.Acknewledgment);
+    state.datasetDetailsPage.data && state.datasetDetailsPage.data.Acknowledgement);
 
   let dataSource = useSelector ((state) =>
     state.datasetDetailsPage.data && state.datasetDetailsPage.data.Data_Source);
@@ -231,101 +259,36 @@ const DatasetFullPage = (props) => {
             <SectionHeader title={'Variables'} />
             <DatasetPageAGGrid />
 
-            {dataSource || loading ? (
-              <React.Fragment>
-                <SectionHeader title={'Data Source'} />
-                <Typography
-                  className={classes.smallText}
-                  style={{ color: 'white' }}
-                >
-                  {urlify(dataSource)}
-                </Typography>
-              </React.Fragment>
-            ) : (
-              ''
-            )}
+    <Grid container spacing={3} className={classes.gridSection}>
+      <ThirdGridContent data={dataSource}>
+        <SectionHeader title={'Data Source'} />
+        <Typography>{urlify(dataSource)}</Typography>
+      </ThirdGridContent>
+      <ThirdGridContent data={distributor}>
+        <SectionHeader title={'Distributor'} />
+        <Typography>{urlify(distributor)}</Typography>
+      </ThirdGridContent>
+      <ThirdGridContent data={acknowledgment}>
+        <SectionHeader title={'Acknowledgement'} />
+        <Typography>{urlify(acknowledgment)}
+        </Typography>
+      </ThirdGridContent>
+    </Grid>
 
-            {distributor || loading ? (
-              <React.Fragment>
-                <SectionHeader title={'Distributor'} />
-                <Typography
-                  className={classes.smallText}
-                  style={{ color: 'white' }}
-                >
-                  {urlify(distributor)}
-                </Typography>
-              </React.Fragment>
-            ) : (
-              ''
-            )}
 
-            {acknowledgment || loading ? (
-              <React.Fragment>
-                <SectionHeader title={'Acknowledgement'} />
-                <Typography
-                  className={classes.smallText}
-                  style={{ color: 'white' }}
-                >
-                  {urlify(acknowledgment)}
-                </Typography>
-              </React.Fragment>
-            ) : (
-              ''
-            )}
 
-            {(references && references.length) || loading ? (
-              <React.Fragment>
-                <SectionHeader title={'References'} />
-                {!loading
-                  ? references.map((reference, i) => (
-                      <Typography
-                        className={classes.smallText}
-                        style={{ color: 'white', marginTop: '6px' }}
-                        key={i}
-                      >
-                        {urlify(reference)}
-                      </Typography>
-                    ))
-                  : ''}
-              </React.Fragment>
-            ) : (
-              ''
-            )}
+    <Grid container spacing={3} className={classes.gridSection}>
+      <StandardHalfGridContent data={references}>
+        <SectionHeader title={'References'} />
+        <ReferencesList />
+      </StandardHalfGridContent>
+      <StandardHalfGridContent data={cruises}>
+        <SectionHeader title={'Cruises'} />
+        <CruiseList />
+      </StandardHalfGridContent>
+    </Grid>
 
-            {cruises && cruises.length ? (
-              <>
-                <Typography
-                  variant="h5"
-                  className={classes.sectionHeader}
-                  style={{ color: 'white' }}
-                >
-                  Cruises contributing data to this dataset:
-                </Typography>
 
-                {cruises.sort((a, b) => {
-                  const nameA = a.Name.toUpperCase();
-                  const nameB = b.Name.toUpperCase();
-                  if (nameA < nameB) {
-                    return -1;
-                  }
-                  if (nameA > nameB) {
-                    return 1;
-                  }
-                  return 0;
-                }).map((e) => (
-                  <Link
-                    component={RouterLink}
-                    to={`/catalog/cruises/${e.Name}`}
-                    key={e.Name}
-                    className={classes.cruiseLink}
-                  >
-                    {e.Name}
-                  </Link>
-                ))}
-              </>
-            ) : (
-              ''
-            )}
 
             {!loading && variables && data && Object.keys(data).length ? (
               <DatasetJSONLD {...data}

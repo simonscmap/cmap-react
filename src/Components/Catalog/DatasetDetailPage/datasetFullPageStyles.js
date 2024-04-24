@@ -110,7 +110,9 @@ const styles = (theme) => ({
     display: 'inline-block',
     marginBottom: '-5px',
   },
-
+  gridSection: {
+    marginTop: '3em'
+  }
 });
 
 export default styles;
