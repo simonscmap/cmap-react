@@ -56,12 +56,9 @@ const Row = (props) => {
 
   const {
     Chief_Name,
-    Cruise_Series,
-    End_Time,
     Name,
     Nickname,
     Ship_Name,
-    Start_Time,
   } = cruise;
   return (
     <React.Fragment>
@@ -76,7 +73,6 @@ const Row = (props) => {
         </TableCell>
         <TableCell>{Nickname}</TableCell>
         <TableCell>{Ship_Name}</TableCell>
-        <TableCell>{Cruise_Series || '-'}</TableCell>
         <TableCell>{Chief_Name}</TableCell>
       </TableRow>
     </React.Fragment>
@@ -112,7 +108,6 @@ const CruiseList = () => {
                 <TableCell>Name</TableCell>
                 <TableCell>Nickname</TableCell>
                 <TableCell>Ship Name</TableCell>
-                <TableCell>Series</TableCell>
                 <TableCell>Chief Scientist</TableCell>
               </TableRow>
             </TableHead>
