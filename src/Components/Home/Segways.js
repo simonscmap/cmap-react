@@ -35,7 +35,7 @@ const useStyles = makeStyles({
     flexWrap: 'wrap',
   },
   innerButton: {
-    width: '75%',
+    // width: '75%', this screws up text positioning on non-linux systems
     display: 'flex',
     flexDirection: 'row',
     alignContent: 'center',
