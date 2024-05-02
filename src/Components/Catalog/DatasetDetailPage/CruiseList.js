@@ -67,8 +67,8 @@ const Row = (props) => {
           <Link
             component={RouterLink}
             to={`/catalog/cruises/${Name}`}
-            className={classes.cruiseLink}>
-              {Name}
+          >
+            {Name}
           </Link>
         </TableCell>
         <TableCell>{Nickname}</TableCell>

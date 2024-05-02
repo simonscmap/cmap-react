@@ -39,6 +39,9 @@ import {
   FETCH_RECS_RECOMMENDED_SUCCESS,
   FETCH_RECS_RECOMMENDED_FAILURE,
   FETCH_RECS_RECOMMENDED_CACHE_HIT,
+  FETCH_PROGRAMS_SEND,
+  FETCH_PROGRAMS_SUCCESS,
+  FETCH_PROGRAMS_FAILURE,
   SET_SORTING_OPTIONS,
 } from '../actionTypes/catalog';
 import states from '../../enums/asyncRequestStates';
@@ -294,8 +297,25 @@ export default function (state, action) {
         }
       }
 
+     /************** Programs Page **********************/
+    case FETCH_PROGRAMS_SEND:
+      return {
+        ...state,
+        programsRequestStatus: states.inProgress,
+      }
 
+    case FETCH_PROGRAMS_SUCCESS:
+      return {
+        ...state,
+        programs: action.payload,
+        programsRequestStatus: states.succeeded,
+      }
 
+    case FETCH_PROGRAMS_FAILURE:
+      return {
+        ...state,
+        programsRequestStatus: states.failed,
+      }
      /************** Cruise Page **********************/
 
     case CRUISE_FULL_PAGE_DATA_STORE:

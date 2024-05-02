@@ -107,6 +107,10 @@ import {
   watchDatasetVariableVisDataFetch,
 } from './datasetDetailSagas';
 
+import {
+  watchFetchProgramsSend,
+} from './programsSagas';
+
 import { localStorageApi } from '../../Services/persist/local';
 import logInit from '../../Services/log-service';
 const log = logInit('sagas').addContext({ src: 'Redux/Sagas' });
@@ -2153,7 +2157,8 @@ function* rootSaga() {
     watchFetchLastUserTouch(),
     watchCheckSubmissionNameRequestSend(),
     watchVisualizableVariablesFetch(),
-    watchDatasetVariableVisDataFetch()
+    watchDatasetVariableVisDataFetch(),
+    watchFetchProgramsSend(),
   ]);
 }
 

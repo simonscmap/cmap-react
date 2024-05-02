@@ -59,7 +59,7 @@ const Footer = (props) => {
         </div>
         <hr className={classes.footerHR} />
         <Typography variant="body1" style={{ marginTop: '20px' }}>
-          © Simons CMAP 2022. All rights reserved. Privacy Policy.
+          © Simons CMAP 2022. All rights reserved.
         </Typography>
       </div>
     </div>

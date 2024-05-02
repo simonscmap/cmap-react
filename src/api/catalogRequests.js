@@ -166,4 +166,8 @@ catalogAPI.fetchRecommendedDatasets = async (user_id) => {
   }
 };
 
+catalogAPI.fetchPrograms = async () => {
+  return await fetch(apiUrl + '/api/catalog/programs');
+}
+
 export default catalogAPI;

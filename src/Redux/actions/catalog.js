@@ -364,3 +364,20 @@ export const setSortingOptions = (options) => ({
   type: catalogActionTypes.SET_SORTING_OPTIONS,
   payload: options,
 });
+
+/* Programs */
+
+export const fetchProgramsSend = () => ({
+  type: catalogActionTypes.FETCH_PROGRAMS_SEND,
+});
+
+export const storePrograms = (programs) => ({
+  type: catalogActionTypes.FETCH_PROGRAMS_SUCCESS,
+  payload: programs,
+});
+
+export const fetchProgramsFailure = ({ message, err }) => ({
+  type: catalogActionTypes.FETCH_PROGRAMS_FAILURE,
+  message,
+  err
+});
