@@ -526,7 +526,9 @@ class ValidationTool extends React.Component {
       })
     var totalBytes = 0;
     var reader = new FileReader();
+
     if (file.size > 150000000) {
+      console.log ('file too large', file.size);
       this.setState({
         ...this.state,
         ...fileSizeTooLargeDummyState

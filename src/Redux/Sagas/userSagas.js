@@ -152,6 +152,7 @@ function* googleLoginRequest(action) {
       window.location.href = '/';
     }
   } else {
+    console.log ('google login failure', result);
     yield put(userActions.userLoginRequestFailure());
     yield put(interfaceActions.snackbarOpen('Login failed.', tag));
   }
