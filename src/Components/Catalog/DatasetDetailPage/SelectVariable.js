@@ -49,7 +49,8 @@ const useRowStyles = makeStyles({
 
 const useStyles = makeStyles ((theme) => ({
   header: {
-    height: '100%'
+    height: '100%',
+    minHeight: '500px'
   },
   wrapper: {
     marginTop: '10px',

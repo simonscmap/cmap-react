@@ -76,6 +76,15 @@ const initialState = {
     tabPreference: 0,
   },
 
+  // Programs
+  programs: [],
+  programsRequestStatus: states.notTried,
+  programDetails: null,
+  programDetailsRequestStates: states.notTried,
+  programDetailsErrMessage: null,
+
+  // Program Detail Page
+
   // Cruise Page
   cruiseFullPageData: {},
 

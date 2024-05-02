@@ -40,6 +40,8 @@ const ForgotPass = lazy(() => import('./Components/User/ForgotPass'));
 const Home = lazy(() => import('./Components/Home'));
 const Login = lazy(() => import('./Components/User/Login'));
 const Profile = lazy(() => import('./Components/User/Profile'));
+const ProgramIndex = lazy(() => import('./Components/Catalog/Programs/Index'));
+const ProgramDetailPage = lazy(() => import('./Components/Catalog/Programs/ProgramDetailPage'));
 const Register = lazy(() => import('./Components/User/Register'));
 const SearchResults = lazy(() => import('./Components/Catalog/SearchResults'));
 const Visualization = lazy(() =>
@@ -99,6 +101,13 @@ class App extends Component {
                     <Route
                       path="/catalog/cruises/:cruiseName"
                       component={CruiseFullPage}
+                    ></Route>
+                    <Route exact path="/catalog/programs">
+                      <ProgramIndex/>
+                    </Route>
+                    <Route
+                      path="/catalog/programs/:programName"
+                      component={ProgramDetailPage}
                     ></Route>
                     <Route path="/visualization">
                       <Visualization />

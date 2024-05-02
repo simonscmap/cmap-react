@@ -44,6 +44,7 @@ input::-webkit-outer-spin-button {
 
 body {
   overflow: auto;
+  scrollbar-color: #619526 transparent;
 }
 
 code {
@@ -58,6 +59,7 @@ code {
 .overlays canvas {
   mix-blend-mode: multiply;
 }
+
 
 /* webkit scrollbar styles */
 ::-webkit-scrollbar {

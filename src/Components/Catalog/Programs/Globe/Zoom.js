@@ -1,19 +1,16 @@
-// Zooms to currently selected trajectory
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
 const TrajectoryZoom = (props) => {
-  const { view } = props;
-  const activeCruise = useSelector ((state) => state.cruiseTrajectoryFocus);
-  const nonce = useSelector ((state) => state.cruiseTrajectoryFocusNonce);
+  const { view, activeTrajectorySelector } = props;
 
-  const focusedTrajectory = useSelector ((state) =>
-    state.cruiseTrajectories && state.cruiseTrajectories[activeCruise]);
+  const focusedTrajectory = useSelector (activeTrajectorySelector);
 
   useEffect(() => {
     if (!view) {
-      console.error ('no ref to view');
+      console.error (`Map Zoom control has no ref for map "view"`);
     } else if (!focusedTrajectory) {
+      console.log (`Map Zoom control has no focusedTrajectory to use`);
       view.goTo(
         {
           target: [-140, 30],
@@ -25,17 +22,16 @@ const TrajectoryZoom = (props) => {
         },
       );
     }
-  }, [activeCruise, focusedTrajectory]);
+  }, [focusedTrajectory]);
 
   if (!focusedTrajectory) {
     return '';
   }
 
   try {
-    const center = focusedTrajectory.center;
-    const zoom = 6.5 - Math.floor(focusedTrajectory.maxDistance / 6);
+    const center = focusedTrajectory.trajectory.center;
+    const zoom = 6.5 - Math.floor(focusedTrajectory.trajectory.maxDistance / 6);
     if (props.view && props.view.goTo) {
-      console.log ('view', props.view)
       props.view.goTo(
         {
           target: center,
@@ -47,11 +43,10 @@ const TrajectoryZoom = (props) => {
         },
       );
     } else {
-      console.log ('no reference to view or view.goTo');
+      console.log ('Map Zoom tried to zoom to trajector, but had no reference to view or view.goTo method');
     }
-
   } catch (e) {
-    console.log('error changing esri view to center of trajectory', e);
+    console.log('error while changing esri view to center of trajectory', e);
   }
 
   return <React.Fragment />;

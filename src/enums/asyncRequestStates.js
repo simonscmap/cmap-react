@@ -1,5 +1,4 @@
 // Enum for async requests.
-
 const states = {
   notTried: 'notTried',
   inProgress: 'inProgress',
@@ -11,3 +10,6 @@ const states = {
 };
 
 export default Object.freeze(states);
+
+export const hasFailed = (s) => s === states.failed;
+export const hasSucceeded = (s) => s === states.succeeded;

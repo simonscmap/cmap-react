@@ -35,8 +35,8 @@ const Footer = (props) => {
             </Typography>
             <a href="https://www.simonsfoundation.org">
               <img
-                src="/images/home/logo-simons.svg"
-                style={{ marginTop: '10px' }}
+                src="/images/simons-foundation-logo-white.png"
+                style={{ marginTop: '10px', width: '155px' }}
               />
             </a>
           </div>
@@ -59,7 +59,7 @@ const Footer = (props) => {
         </div>
         <hr className={classes.footerHR} />
         <Typography variant="body1" style={{ marginTop: '20px' }}>
-          © Simons CMAP 2022. All rights reserved. Privacy Policy.
+          © Simons CMAP {(new Date().getFullYear())}. All rights reserved.
         </Typography>
       </div>
     </div>

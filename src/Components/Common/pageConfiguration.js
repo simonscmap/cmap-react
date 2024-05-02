@@ -13,6 +13,7 @@ import { galleryConfig } from '../Gallery';
 import { submissionGuideConfig } from '../DataSubmission/NewGuide';
 import { documentationConfig } from '../../Documentation/sidebar';
 import { testPageConfig } from '../Explorer';
+import { programsIndexConfig } from '../Catalog/Programs/Index';
 
 export const disabled = 'disabled';
 export const enabled = 'enabled';
@@ -20,6 +21,7 @@ export const enabled = 'enabled';
 const pages = {
   '/': homepageConfig,
   '/catalog': catalogConfig,
+  '/catalog/programs': programsIndexConfig,
   '/visulization': visualizationConfig,
   '/visualization/charts': visualizationConfig,
   '/visualization/cruises': cruiseConfig,
@@ -42,8 +44,18 @@ const pages = {
 };
 
 export const getPageConfiguration = (pathname) => {
+  if (typeof pathname !== 'string') {
+    return {};
+  }
+  // TODO: pattern matching
   if (pages[pathname]) {
     return pages[pathname];
+  } else {
+    const lastSlash = pathname.lastIndexOf ('/');
+    if (lastSlash > 0) {
+      const parentPath = pathname.slice(0, lastSlash);
+      return getPageConfiguration (parentPath);
+    }
   }
   // Todo: this is a bad way to encode a failure case
   return {};

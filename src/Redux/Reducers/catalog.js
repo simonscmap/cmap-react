@@ -39,12 +39,32 @@ import {
   FETCH_RECS_RECOMMENDED_SUCCESS,
   FETCH_RECS_RECOMMENDED_FAILURE,
   FETCH_RECS_RECOMMENDED_CACHE_HIT,
+  FETCH_PROGRAMS_SEND,
+  FETCH_PROGRAMS_SUCCESS,
+  FETCH_PROGRAMS_FAILURE,
+  FETCH_PROGRAM_DETAILS_SEND,
+  FETCH_PROGRAM_DETAILS_SUCCESS,
+  FETCH_PROGRAM_DETAILS_FAILURE,
+  SET_PROGRAM_CRUISE_TRAJECTORY_FOCUS,
   SET_SORTING_OPTIONS,
+  PROGRAM_DATASET_SELECT,
+  PROGRAM_DATASET_VARIABLE_SELECT,
+  PROGRAM_SAMPLE_VIS_DATA_SET_LOADING_STATE,
+  PROGRAM_SAMPLE_VIS_DATA_STORE
 } from '../actionTypes/catalog';
 import states from '../../enums/asyncRequestStates';
 import { sortResults } from '../../Components/Catalog/SortingControls';
 import { safePath } from '../../Utility/objectUtils';
+import {
+  getFirstDatasetIdentifier,
+  getDefaultVariableIdentifier,
+} from '../../Components/Catalog/Programs/programSelectors';
 
+// cached paths
+const pathToVisData = safePath (['programDetails', 'sampleVisData']);
+
+// reducer helper for dataset detail page variable selection
+// manages cache based on length of stored data
 const reduceDatasetVariableSelect = (state, action) => {
   const variableIsInList = state.datasetDetailsPage.visualizableVariables.variables.some (v =>
     v.Short_Name === action.payload.shortname);
@@ -102,6 +122,8 @@ const reduceDatasetVariableSelect = (state, action) => {
 }
 
 
+
+// reducer for catalog data:
 
 export default function (state, action) {
   switch (action.type) {
@@ -294,8 +316,117 @@ export default function (state, action) {
         }
       }
 
+     /************** Programs Page **********************/
+    case FETCH_PROGRAMS_SEND:
+      return {
+        ...state,
+        programsRequestStatus: states.inProgress,
+      }
 
+    case FETCH_PROGRAMS_SUCCESS:
+      return {
+        ...state,
+        programs: action.payload,
+        programsRequestStatus: states.succeeded,
+      }
 
+    case FETCH_PROGRAMS_FAILURE:
+      return {
+        ...state,
+        programsRequestStatus: states.failed,
+      }
+      /************** Program Details Page **********************/
+
+    case FETCH_PROGRAM_DETAILS_SEND:
+      return {
+        ...state,
+        programDetailsRequestStatus: states.inProgress,
+        programDetails: {},
+      }
+
+    case FETCH_PROGRAM_DETAILS_SUCCESS:
+      return {
+        ...state,
+        programDetails: {
+          id: action.payload.id,
+          name: action.payload.programName,
+          cruises: action.payload.cruises,
+          datasets: action.payload.datasets,
+
+          // user state
+          programDatasetSelected: getFirstDatasetIdentifier (action.payload.datasets),
+          programDatasetVariableSelected: getDefaultVariableIdentifier (action.payload.datasets),
+        },
+        programDetailsRequestStatus: states.succeeded,
+      }
+
+    case FETCH_PROGRAM_DETAILS_FAILURE:
+      return {
+        ...state,
+        programDetails: null,
+        programDetailsRequestStatus: states.failed,
+        programDetailsError: {
+          message: action.payload.message,
+          // other info ?
+        }
+      }
+
+    case SET_PROGRAM_CRUISE_TRAJECTORY_FOCUS:
+      return {
+        ...state,
+        programDetailsCruiseFocus: action.payload.cruiseId,
+      };
+
+    case PROGRAM_DATASET_SELECT:
+      return {
+        ...state,
+        programDetails: {
+          ...(state.programDetails ? state.programDetails : {}),
+          programDatasetSelected: action.payload, // { shortName, datasetId }
+          programDatasetVariableSelected: null, // reset
+          sampleVisData: null,
+        }
+      }
+
+    case PROGRAM_DATASET_VARIABLE_SELECT:
+      return {
+        ...state,
+        programDetails: {
+          ...(state.programDetails ? state.programDetails : {}),
+          programDatasetVariableSelected: action.payload, // { varShortName, varId, datasetId }
+        }
+      }
+
+    case PROGRAM_SAMPLE_VIS_DATA_SET_LOADING_STATE:
+      return {
+        ...state,
+        programDetails: {
+          ...(state.programDetails ? state.programDetails : {}),
+          sampleVisData: { // unlike dataset detail page, only keep active vis data
+            ...(pathToVisData (state) ? pathToVisData (state) : {}),
+                           datasetShortName: action.payload.datasetShortName,
+                           variableData: action.payload.variableData,
+                           variableId: action.payload.variableId,
+                           loadingState: action.payload.status,
+          },
+        }
+      };
+
+    case PROGRAM_SAMPLE_VIS_DATA_STORE:
+      return {
+        ...state,
+        programDetails: {
+          ...(state.programDetails ? state.programDetails : {}),
+          sampleVisData: { // unlike dataset detail page, only keep active vis data
+            ...(pathToVisData (state) ? pathToVisData (state) : {}),
+                           datasetShortName: action.payload.datasetShortName,
+                           variableData: action.payload.variableData,
+                           variableId: action.payload.variableId,
+                           loadingState: states.succeeded,
+                           data: action.payload.data,
+          },
+        }
+      }
      /************** Cruise Page **********************/
 
     case CRUISE_FULL_PAGE_DATA_STORE:
@@ -457,8 +588,6 @@ export default function (state, action) {
         ...state,
         recommendedDatasetsRequestState: states.failed,
       };
-
-
 
     default:
       return state;

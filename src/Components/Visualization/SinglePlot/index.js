@@ -8,7 +8,6 @@ import api from '../../../api/api';
 import { apiUrl } from '../../../api/config';
 
 // Components
-import { withStyles } from '@material-ui/core';
 import Page from '../../Common/Page';
 import Section, { FullWidthContainer } from '../../Common/Section';
 import ChartWrapper from '../Charts/ChartWrapper';
@@ -70,16 +69,6 @@ const preparePayload = (params, variable) => {
   };
   return payload;
 };
-
-const styles = () => ({
-  paramsWrapper: {
-    '& > div': {
-      display: 'flex',
-      flexDirection: 'row',
-      gap: '1em',
-    }
-  }
-});
 
 const SinglePlot = () => {
   if (isProduction) {

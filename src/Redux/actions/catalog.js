@@ -364,3 +364,93 @@ export const setSortingOptions = (options) => ({
   type: catalogActionTypes.SET_SORTING_OPTIONS,
   payload: options,
 });
+
+/* Programs */
+
+export const fetchProgramsSend = () => ({
+  type: catalogActionTypes.FETCH_PROGRAMS_SEND,
+});
+
+export const storePrograms = (programs) => ({
+  type: catalogActionTypes.FETCH_PROGRAMS_SUCCESS,
+  payload: programs,
+});
+
+export const fetchProgramsFailure = ({ message, err }) => ({
+  type: catalogActionTypes.FETCH_PROGRAMS_FAILURE,
+  message,
+  err
+});
+
+export const fetchProgramDetailsSend = (programName) => ({
+  type: catalogActionTypes.FETCH_PROGRAM_DETAILS_SEND,
+  payload: {
+    programName
+  },
+});
+
+export const storeProgramDetails = (programs) => ({
+  type: catalogActionTypes.FETCH_PROGRAM_DETAILS_SUCCESS,
+  payload: programs,
+});
+
+export const fetchProgramDetailsFailure = ({ message, error }) => ({
+  type: catalogActionTypes.FETCH_PROGRAM_DETAILS_FAILURE,
+  payload: {
+    message,
+  }
+});
+
+export const setProgramCruiseTrajectoryFocus = ({ cruiseId }) => ({
+  type: catalogActionTypes.SET_PROGRAM_CRUISE_TRAJECTORY_FOCUS,
+  payload: {
+    cruiseId,
+  }
+});
+
+// sample vis on program page
+export const selectProgramDataset = ({ shortName, datasetId }) => ({
+  type: catalogActionTypes.PROGRAM_DATASET_SELECT,
+  payload: {
+    shortName,
+    datasetId,
+  }
+});
+
+export const selectProgramDatasetVariable = ({ varShortName, varId, datasetId }) => ({
+  type: catalogActionTypes.PROGRAM_DATASET_VARIABLE_SELECT,
+  payload: {
+    varShortName,
+    varId,
+    datasetId
+  }
+});
+
+export const programSampleVisDataFetch = ({ datasetShortName, variableId, variableData }) => ({
+  type: catalogActionTypes.PROGRAM_SAMPLE_VIS_DATA_FETCH,
+  payload: {
+    datasetShortName,
+    variableId,
+    variableData,
+  },
+});
+
+export const programSampleVisDataSetLoadingState = ({ datasetShortName, variableId, variableData }, status) => ({
+  type: catalogActionTypes.PROGRAM_SAMPLE_VIS_DATA_SET_LOADING_STATE,
+  payload: {
+    datasetShortName,
+    variableId,
+    variableData,
+    status,
+  },
+});
+
+export const programSampleVisDataStore = ({ datasetShortName, variableId, variableData }, data) => ({
+  type: catalogActionTypes.PROGRAM_SAMPLE_VIS_DATA_STORE,
+  payload: {
+    datasetShortName,
+    variableId,
+    variableData,
+    data,
+  },
+});

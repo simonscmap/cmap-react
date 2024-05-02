@@ -92,6 +92,8 @@ class MapContainer extends Component {
   render = () => {
     const { classes, esriModules, globeUIRef, view } = this.props;
 
+    console.log ('view', view);
+
     return (
       <div className={classes.container} id="found-you">
         <Scene

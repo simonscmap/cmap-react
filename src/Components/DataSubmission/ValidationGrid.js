@@ -28,7 +28,6 @@ const ValidationGrid = (props) => {
     return '';
   }
 
-
   return (
     <div id="dataSubmission">
       <div className={cl.gridContainer + ' ag-theme-material' }>

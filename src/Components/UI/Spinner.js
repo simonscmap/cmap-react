@@ -1,7 +1,6 @@
-// spinner
-
+// spinner & wrapper
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import clsx from 'clsx';
 import { colors } from '../Home/theme';
@@ -319,6 +318,38 @@ export const Spinner = withStyles(styles)(({ classes, message, variant = {} }) =
 });
 
 export default Spinner;
+
+
+
+const useWrapperStyles = makeStyles ((theme) => ({
+  spinnerWrapper: {
+    textAlign: 'center',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+  },
+}));
+
+export const ErrorWrapper = (props) => {
+  const { message } = props;
+  const cl = useWrapperStyles();
+  return (
+    <div className={cl.spinnerWrapper}>
+      <p>{message}</p>
+    </div>
+  );
+}
+
+export const SpinnerWrapper = (props) => {
+  const { message } = props;
+  const cl = useWrapperStyles();
+  return (
+    <div className={cl.spinnerWrapper}>
+      <Spinner message={message} />
+    </div>
+  );
+};
 
 
 
