@@ -1,6 +1,7 @@
 import auditFactory, { requireWorkbookArg } from './auditFactory';
 import IssueWithList from '../IssueWithList';
 import severity from './severity';
+import { debugTimer } from '../../../../Utility/debugTimer';
 
 const AUDIT_NAME = 'Orphaned Cells';
 const DESCRIPTION = 'Check for orphaned cells';
@@ -26,11 +27,12 @@ const splitKey = (key) => {
   return result;
 }
 
-const checkForOrphanedCells = (workbook) => {
+const checkForOrphanedCells = (workbook, timer) => {
   const sheets = ['data', 'vars_meta_data', 'dataset_meta_data'];
 
   // fns
   const isCellKey = (key) => key.charCodeAt(0) !== 33; // props that are not cells begin with '!'
+
   const groupRowsByCol = (acc, curr) => { // reduce: group by col
     const [col, row] = curr;
     if (acc[col]) {
@@ -40,8 +42,11 @@ const checkForOrphanedCells = (workbook) => {
     }
     return acc;
   }
+
   const colHasNoHeadRow = ([, rowsArr]) => {
-    if (rowsArr.every ((row) => row !== 1)) {
+    // if (rowsArr.every ((row) => row !== 1)) {
+    if (rowsArr[0] !== 1) {
+      console.log ('rowsArr', rowsArr)
       return true;
     } else {
       return false;
@@ -50,18 +55,25 @@ const checkForOrphanedCells = (workbook) => {
 
   // calculate results
   const getOrphanedCells = (sheet) => {
+    console.log ('sheet data', sheet);
+    timer.add ('filter/map/reduce sheet data')
     const cols = Object.keys (sheet)
                        .filter (isCellKey)
                        .map (splitKey)
                        .reduce (groupRowsByCol, {});
 
+    console.log ('cols', cols)
 
+
+    timer.add ('cols to entries')
     const colEntriesWithoutHeadRow = Object.entries(cols).filter (colHasNoHeadRow);
+    timer.add ('entries to obj')
     const result = Object.fromEntries (colEntriesWithoutHeadRow);
     return result;
   }
 
   return sheets.reduce ((acc, sheetName) => {
+    timer.add(`accumulate from ${sheetName}`);
     return Object.assign (acc, {
       [sheetName]: getOrphanedCells (workbook.Sheets[sheetName]),
     });
@@ -73,8 +85,11 @@ const orphanedCellsCheck = (args) => {
 
   const results = [];
 
-  const orphanedCells = checkForOrphanedCells (workbook);
+  const timer = debugTimer();
+  timer.start();
+  const orphanedCells = checkForOrphanedCells (workbook, timer);
 
+  timer.add('compile messages');
   Object.keys (orphanedCells).forEach ((sheetName) => {
     const colKeys = Object.keys (orphanedCells[sheetName]);
     if (colKeys && colKeys.length) {
@@ -92,6 +107,9 @@ const orphanedCellsCheck = (args) => {
       });
     }
   });
+
+  timer.done();
+  timer.report();
 
   return results;
 }

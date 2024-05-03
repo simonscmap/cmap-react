@@ -54,6 +54,8 @@ import {
 
 import states from '../../enums/asyncRequestStates';
 
+import { debugTimer } from '../../Utility/debugTimer';
+
 const mapStateToProps = (state, ownProps) => ({
   submissionFile: state.submissionFile,
   userDataSubmissions: state.dataSubmissions,
@@ -516,7 +518,11 @@ class ValidationTool extends React.Component {
   };
 
   handleReadFile = (file) => {
+    const timer = debugTimer();
+    timer.start();
+    timer.add('restart local state')
     this.resetLocalState (false, 'handleReadFile');
+    timer.add('set state: loading file');
     this.setState ({
         ...this.state,
         loadingFile: {
@@ -525,8 +531,10 @@ class ValidationTool extends React.Component {
         }
       })
     var totalBytes = 0;
+    timer.add('create new file reader');
     var reader = new FileReader();
 
+    timer.add('check file size threshold');
     if (file.size > 150000000) {
       console.log ('file too large', file.size);
       this.setState({
@@ -537,6 +545,7 @@ class ValidationTool extends React.Component {
     }
 
     // reset checkName result (because we have a new file)
+    timer.add('set state: clear check name result');
     this.setState({
       ...this.state,
       checkNameResult: null,
@@ -544,6 +553,7 @@ class ValidationTool extends React.Component {
     });
 
     reader.onprogress = (ev) => {
+      timer.add ('onprogress')
       try {
         totalBytes = safePath (['total']) (ev);
         this.setState ({
@@ -560,6 +570,7 @@ class ValidationTool extends React.Component {
     }
 
     reader.onload = (progressEvent) => {
+      timer.add ('onload');
       this.setState ({
         ...this.state,
         loadingFile: {
@@ -568,9 +579,11 @@ class ValidationTool extends React.Component {
         }
       })
 
+      timer.add ('create Unit8Array from file drop');
       const readFile = new Uint8Array(progressEvent.target.result);
       let workbook;
       try {
+        timer.add ('xlsx read file');
         workbook = XLSX.read(readFile, { type: 'array' });
       } catch (e) {
         console.log ('error loading file', e);
@@ -587,7 +600,7 @@ class ValidationTool extends React.Component {
       }
 
       console.log ('WORKBOOK', workbook);
-
+      timer.add ('sheet_to_json: data')
       let _data = XLSX.utils.sheet_to_json(workbook.Sheets['data'], {
         defval: null,
       });
@@ -595,6 +608,7 @@ class ValidationTool extends React.Component {
 
       let formatResult;
       try {
+        timer.add ('format data sheet')
         formatResult = formatDataSheet(_data, workbook);
       } catch (e) {
         console.log ('error loading file', e);
@@ -628,21 +642,26 @@ class ValidationTool extends React.Component {
           vars_meta_data;
 
       try {
+        timer.add ('sheet_to_json: metadata');
         _dataset_meta_data = XLSX.utils.sheet_to_json(
           workbook.Sheets['dataset_meta_data'],
           { defval: null },
         );
 
         // console.log (_dataset_meta_data);
+        timer.add ('format metadata');
         dataset_meta_data = _dataset_meta_data
                           ? formatDatasetMetadataSheet(_dataset_meta_data, workbook)
                           : _dataset_meta_data;
 
         // vars metadata
+        timer.add ('sheet_to_json: vars metadata');
         _vars_meta_data = XLSX.utils.sheet_to_json(
           workbook.Sheets['vars_meta_data'],
           { defval: null },
         );
+
+        timer.add ('format vars metadata');
         vars_meta_data = _vars_meta_data
                        ? formatVariableMetadataSheet(_vars_meta_data)
                        : _vars_meta_data;
@@ -651,6 +670,7 @@ class ValidationTool extends React.Component {
         console.log ('error parsing metadata sheets', e);
       }
 
+      timer.add ('check formatted sheets exist');
       if (!vars_meta_data || !dataset_meta_data || !data) {
         this.props.snackbarOpen('Error parsing file: missing worksheets.');
         this.handleResetState (false, 'handleReadFile: missing worksheets error');
@@ -674,8 +694,10 @@ class ValidationTool extends React.Component {
       const shortName = dataset_meta_data[0].dataset_short_name;
       const longName = dataset_meta_data[0].dataset_long_name;
 
+      timer.add ('dispatch check name');
       this.props.checkSubmNamesRequestSend({ shortName, longName, submissionId: this.props.submissionToUpdate });
 
+      timer.add ('set state with results');
       this.setState({
         ...this.state,
         workbook,
@@ -698,7 +720,10 @@ class ValidationTool extends React.Component {
       });
 
       // run report
+      timer.add ('call perform audit')
       this.performAudit(true, 'onload');
+      timer.done();
+      timer.report();
     };
 
     reader.readAsArrayBuffer(file);

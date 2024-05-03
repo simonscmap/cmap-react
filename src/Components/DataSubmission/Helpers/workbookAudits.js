@@ -4,15 +4,8 @@ import tz from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 import IssueWithList from './IssueWithList';
-import { safePath } from '../../../Utility/objectUtils';
 import messages from '../Messages';
 import { orderedColumns } from '../ValidationToolConstants';
-import {
-  isValidDateString,
-  isValidDateTimeString,
-  validateTimeValues,
-} from './workbookAuditLib/time';
-
 import mainAuditExecution from './WorkbookAudits/index';
 
 dayjs.extend(utc);
@@ -36,83 +29,7 @@ const datasetMetadataSampleRowValue =
   '< short name of your dataset (<50 chars) >';
 const variableMetadataSampleRowValue = '< variable short name (<50 chars) >';
 
-let checkSheets = (workbook) => {
-  let expected = ['data', 'vars_meta_data', 'dataset_meta_data'];
-  let missingSheets = [];
 
-  expected.forEach((e) => {
-    if (!workbook.Sheets[e]) {
-      missingSheets.push(e);
-    }
-  });
-
-  return missingSheets;
-};
-
-// 'A1', 'J23', 'QQ4' ...
-// -> ['A', 1], ['J', 23], ['QQ', 4]
-const splitKey = (key) => {
-  let indexOfRowNumber;
-  for (let k = 1; k < key.length; k++) { // start at 1 because first char is always a letter
-    const char = key[k];
-    const asInt = parseInt (char, 10);
-    if (!isNaN (asInt)) {
-      indexOfRowNumber = k;
-      break;
-    }
-  }
-
-  const result = [
-    key.slice (0, indexOfRowNumber),
-    parseInt (key.slice (indexOfRowNumber), 10),
-  ];
-  // console.log (`split ${key} => [${result[0]}, ${result[1]}]`)
-  return result;
-}
-
-const checkForOrphanedCells = (workbook) => {
-  const sheets = ['data', 'vars_meta_data', 'dataset_meta_data'];
-
-  // fns
-  const isCellKey = (key) => key.charCodeAt(0) !== 33; // props that are not cells begin with '!'
-  const groupRowsByCol = (acc, curr) => { // reduce: group by col
-    const [col, row] = curr;
-    if (acc[col]) {
-      acc[col] = acc[col].concat(row);
-    } else {
-      acc[col] = [row];
-    }
-    return acc;
-  }
-  const colHasNoHeadRow = ([, rowsArr]) => {
-    if (rowsArr.every ((row) => row !== 1)) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-
-  // calculate results
-  const getOrphanedCells = (sheet) => {
-    const cols = Object.keys (sheet)
-                       .filter (isCellKey)
-                       .map (splitKey)
-                       .reduce (groupRowsByCol, {});
-
-    // console.log (`grouped entries`, cols)
-
-    const colEntriesWithoutHeadRow = Object.entries(cols).filter (colHasNoHeadRow);
-    const result = Object.fromEntries (colEntriesWithoutHeadRow);
-    return result;
-  }
-
-  return sheets.reduce ((acc, sheetName) => {
-    return Object.assign (acc, {
-      [sheetName]: getOrphanedCells (workbook.Sheets[sheetName]),
-    });
-  }, {});
-}
 
 let checkEveryVarsShortNameHasDataCol = (data, vars_meta_data, userVariables) => {
   if (!vars_meta_data || !userVariables) {
@@ -266,27 +183,7 @@ let checkUniqueSpaceTime = (data) => {
   return result;
 };
 
-const checkTypeConsistencyOfTimeValues = (data) => {
-  if (!data || !Array.isArray(data)) {
-    return true;
-  }
-  let isConsistent = true;
-  let lastType = typeof data[0].time;
-  let strLen = lastType === 'string' ? data[0].time.length : 0;
-  for (let k = 1; k < data.length; k++) {
-    if (typeof data[k].time !== lastType) {
-      isConsistent = false;
-      break;
-    }
-    if (lastType === 'string') {
-      if (data[k].time.length !== strLen) {
-        // need a better check: 2015/1/15 vs 2015/10/30
-        // isConsistent = false;
-      }
-    }
-  }
-  return isConsistent;
-}
+
 
 let checkTypeConsistency = (data, userVariables) => {
   // Look for mixture of strings and numbers
@@ -481,131 +378,7 @@ const checkRequiredCols = (data) => {
   return missingCols;
 };
 
-let is1904Format = (workbook) => {
-  return Boolean(((workbook.Workbook || {}).WBProps || {}).date1904);
-}
 
-const checkDateFormat = (data, workbook, flags = {}) => {
-  if (!data || !Array.isArray(data) || data[0].time === undefined) {
-    return {
-      error: 'Missing value(s) in time column.'
-    };
-  }
-
-  const {
-    is1904,
-    numericDateFormatConverted,
-  } = flags;
-
-
-  const {
-    negativeNumberDate,
-    integerDate,
-    missingDate,
-  } = validateTimeValues (data);
-
-  // const sample = data[0].time;
-  // const readableString = dayjs.utc(sample).format('LLLL');
-  // const example = `For reference, the time value in the first row of data is ${sample} and will be interpreted as ${readableString}`;
-
-  if (is1904) {
-    return {
-      error: {
-        title: 'Time Format Error: Unsupported Excel 1904 Format',
-        body: {
-          content:`The submitted file uses Date1904 formatting for time values. Please convert to normal excel format, and verify values are accurate. For more information about Date1904 please see the {0}.`,
-          links: [{
-            text: 'Excel documentation',
-            url: 'https://learn.microsoft.com/en-us/office/troubleshoot/excel/1900-and-1904-date-system',
-          }]
-        }
-      }
-    }
-  }
-
-  if (integerDate) {
-    return {
-      error: {
-        title: 'Time Format Error: Integer Values',
-        body: {
-          content: `The submitted file uses numeric integer values in the time field. This format is invalid. Please convert your time values to string values according to the {0}.`,
-          links: [{
-            text: 'Submission Guide',
-            url: '/datasubmission/guide',
-          }]
-        }
-      },
-    }
-  }
-
-  if (negativeNumberDate) {
-    return {
-      error: {
-        title: 'Time Format Error: Negative Values',
-        body: {
-          content: `The submitted file uses numeric values in the time field, and some values are negative numbers. Please convert your date values to string values according to the {0} and resubmit.`,
-          links: [{
-            text: 'Submission Guide',
-            url: '/datasubmission/guide',
-          }]
-        }
-      },
-    }
-  }
-
-  if (numericDateFormatConverted) {
-    return {
-      warning:{
-        title: 'Data Conversion Warning',
-        body: {
-          content: `The submitted file uses numeric decimal values for date-times. These have been converted to string values with the assumption that they are Excel format date times. Please examine them for accuracy in the next validation step. If the converted dates are not accurate, modify your submission file and upload it again.`,
-        }
-      },
-    }
-  }
-
-  if (missingDate) {
-    return {
-      error: {
-        title: 'Missing Time Data',
-        body: {
-          content: `Some rows do not have a time value. Please ensure that all rows have required data and resubmit. The {0} details required values and formats.`,
-          links: [{
-            text: 'Submission Guide',
-            url: '/datasubmission/guide',
-          }]
-        }
-      },
-    }
-  }
-
-  // check valid string
-
-  const allTimesAreValidStrings = data.every (row => {
-    const t = row.time;
-    return isValidDateString (t) || isValidDateTimeString(t);
-  });
-
-  if (!allTimesAreValidStrings) {
-    return {
-      error: `Some times are not in valid format. Please check your data and ensure that all time values are consistently formatted according to the Submission Guide.`,
-    }
-  }
-
-  const timeValuesAreConsistent = checkTypeConsistencyOfTimeValues (data);
-  if (!timeValuesAreConsistent) {
-    return {
-      error: {
-        title: 'Time Values Are Different Types',
-        detail: 'Time values in the data sheet are not all the same type. Please check your data sheet to ensure all dates are of the same type and format.'
-      }
-    };
-  }
-
-  // check consistency
-
-  return;
-};
 
 const checkEqualLengthColsAndVarMetaData = (userVariables, vars_meta_data) => {
   const dataCols = userVariables.size;
@@ -639,86 +412,8 @@ const checkExtraColumns = (sheet, sheetName) => {
 }
 
 
-const checkDuplicateColumnHeaders = (workbook) => {
-  // "h" is the key for "header"
-  const dataCols = Object.keys(workbook.Sheets.data)
-                         .filter ((k) => safePath ([k, 'h']) (workbook.Sheets.data))
-                         .map ((k) => safePath ([k, 'h']) (workbook.Sheets.data));
-
-  const duplicates = findDuplicateValuesInArray (dataCols);
-
-  return duplicates;
-};
-
-// sheet agnostic version of checkDuplicateColumnHeaders
-const checkDuplicateColumnHeadersForSheet = (workbook, sheet, sheetName) => {
-  const getHeader = (key) => safePath ([sheetName, key, 'h']) (workbook.Sheets);
-  const exists = (val) => Boolean(val);
-
-  const dataCols = Object.keys(workbook.Sheets[sheetName])
-                         .map (getHeader)
-                         .filter (exists)
-
-  return findDuplicateValuesInArray (dataCols);
-}
-
-export const reportDuplicateDataColumnHeaders = (workbook, dataSheet) => {
-  // 1. get actual duplicate headers in data sheet from workbook data
-  const duplicateHeadersFromWorkbook = checkDuplicateColumnHeaders (workbook);
-
-  // sheetjs renames duplicate headers as <name>_1, <name>_2, and so on
-  const parseColumnHeader = (header) => {
-    const parsedValues = {
-      original: header,
-    };
-    const indexOfUnderscore = header.lastIndexOf ('_');
-    if (indexOfUnderscore < header.length - 1) {
-      const suffix = header.slice (indexOfUnderscore + 1);
-      const isInteger = !isNaN(parseInt (suffix, 10));
-      if (isInteger) {
-        parsedValues.maybeRenamed = true;
-        parsedValues.maybeDuplicateName = header.slice (0, indexOfUnderscore);
-      }
-    }
-    return parsedValues;
-  };
-
-  const findOriginalColumnLetter = (header) => {
-    const result = Object.keys(workbook.Sheets.data)
-                         .filter ((k) => header === safePath ([k, 'h']) (workbook.Sheets.data));
-    return result;
-  }
-
-  // 2. get headers from json representation of data sheet
-  const dataSheetHeaders = Object.keys(dataSheet[0]);
-
-  // 3. parse headers and identify possible renamed values
-  const parsedHeaders = dataSheetHeaders.map (parseColumnHeader);
-
-  // 4. create list of matches
-  const matchedHeaders = parsedHeaders.reduce ((acc, parsedValue) => {
-    const maybeDuplicate = parsedValue.maybeDuplicateName;
-    if (maybeDuplicate && duplicateHeadersFromWorkbook.includes (maybeDuplicate)) {
-      const maybeOriginalColumns = findOriginalColumnLetter (maybeDuplicate);
-      const newMatchedEntry = [
-        parsedValue.maybeDuplicateName,
-        Object.assign({}, parsedValue, { maybeOriginalColumns })
-      ];
-      if (acc.length) {
-        return [...acc, newMatchedEntry];
-      } else {
-        return [newMatchedEntry];
-      }
-    }
-    return acc;
-  }, []);
 
 
-  return {
-    duplicatesExist: Boolean(matchedHeaders.length),
-    duplicates: Object.fromEntries (matchedHeaders)
-  }
-}
 
 // NOTE this should not be used for data sheet if it has too many rows
 export const checkNoDuplicateRows = (sheet) => {
@@ -793,7 +488,6 @@ export default (args) => {
     data, // the data sheet
     dataset_meta_data,  // the metadata sheet
     vars_meta_data, // the vars metadata sheet
-    userDataSubmissions,
 
     // time formatting flags
     is1904,
@@ -802,105 +496,37 @@ export default (args) => {
     // check name
     checkNameResult,
     submissionType,
-    submissionToUpdate,
   } = args;
+
+
+  if (!checkNameResult) {
+    return { errors: [], warnings: [] };
+  }
 
   console.log ('workbook audit called', submissionType, checkNameResult);
 
   const results = mainAuditExecution (args);
   return results;
 
-  let errors = [];
-  let warnings = [];
-  let confirmations = [];
-  let first = [];
-
-  // no file to work with yet
-  if (!workbook) {
-    return { errors, warnings };
-  }
-
-
   // removed orphaned cells check
 
   // removed name check
 
+  // removed checkSheets
 
+  // removed duplicates check
 
-
-
-
-  // checks for missing sheets or lacking rows are early-return cases
-  let sheetCheck = checkSheets(workbook);
-
-  if (sheetCheck.length) {
-    const inflect = (sheetCheck.length > 1 ? 's' : '');
-    const wrapInPreQuotes = (s) => `*\`${s}\`*`;
-    const stringOfSheetNames = sheetCheck.map(wrapInPreQuotes).join (', ');
-    errors.push({
-      title: 'Workbook is missing worksheet' + inflect,
-      body: {
-        content: `Workbook is missing required sheet ${inflect}: ${stringOfSheetNames}. Please add worksheet${inflect} and {0}.`,
-        links: [{
-          text: 'resubmit',
-          url: '/datasubmission/validationtool#step0'
-        }]
-      }
-    });
-  }
-
-  if (!data || data.length === 0) {
-    errors.push(`Found no rows on the data sheet`);
-  }
+  // removed dateCheck
 
   // data sheet checks
-  if (data && Array.isArray(data)) {
-    // check duplicate cols
 
-    const { duplicatesExist, duplicates: duplicateHeaders } = reportDuplicateDataColumnHeaders (workbook, data);
-    if (duplicatesExist) {
-      errors.push ({
-        title: 'Duplicate Columns in the Data Sheet',
-        Component: IssueWithList,
-        args: {
-          text: `The following columns in the *\`data\`* sheet occur more than once. Please remove extra or redundant columns.`,
-          list: Object.entries(duplicateHeaders).map (([header, headerData]) => {
-            const originalCols = headerData.maybeOriginalColumns.length
-                               ? headerData.maybeOriginalColumns.map ((v) => `*\`${v}\`*`).join (', ')
-                               : '';
-            const str = originalCols.length ? ` (originally in columns ${originalCols})` : '';
-            return `The header *\`${header}\`*${str} has a duplicate which has been renamed *\`${headerData.original}\`*`
-          }),
-        }
-      });
-    }
+};
+
+/*
 
 
+     if (data && Array.isArray(data)) {
 
-    const flags = {
-      is1904,
-      numericDateFormatConverted,
-    };
-
-
-    const dateCheckResult = checkDateFormat (data, workbook, flags);
-
-    if (dateCheckResult) {
-      if (dateCheckResult.error) {
-        errors.push(dateCheckResult.error);
-      }
-      if (dateCheckResult.warning) {
-        warnings.push(dateCheckResult.warning);
-      }
-      if (dateCheckResult.confirm) {
-        confirmations.push (dateCheckResult.confirm);
-      }
-    }
-
-    const check1904DateFormat = is1904Format (workbook);
-    if (check1904DateFormat) {
-      warnings.push (messages.is1904Error)
-    }
 
     let missingCols = checkRequiredCols(data);
     if (missingCols.length) {
@@ -1165,4 +791,5 @@ export default (args) => {
 
   console.log ('WORKBOOK AUDIT', { errors, warnings, confirmations })
   return { errors, warnings, confirmations, first };
-};
+
+*/

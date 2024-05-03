@@ -1,8 +1,18 @@
 import severity from './severity';
 import orphanedCellsAudit from './orphanedCellsAudit';
+import checkNamingConflicts from './checkNamingConflicts';
+import checkSheetsAudit from './checkSheetsAudit';
+import duplicateDataAudit from './dataSheetAudit';
+
+const audits = [
+  orphanedCellsAudit,
+  checkNamingConflicts,
+  checkSheetsAudit,
+  duplicateDataAudit
+];
 
 /*
-   arguments object:
+   standard arguments object:
 
     workbook, // workboork is the file prior to conversion by sheetjs to json
     data, // the data sheet
@@ -67,9 +77,7 @@ const reportTime = (audits, times, elapsed) => {
 };
 
 const mainAuditExecution = (args) => {
-  const audits = [
-    // orphanedCellsAudit,
-  ];
+
 
   const results = [];
   const times = [];
