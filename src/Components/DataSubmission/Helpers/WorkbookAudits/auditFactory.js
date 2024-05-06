@@ -31,9 +31,7 @@ export const guardByPredicate = (auditName, auditFn, preds) =>
       console.log (`declining to run audit ${auditName}`)
       return [];
     } else {
-      console.log (`running ${auditName} with args`, standardAuditArgs)
       const auditResult = auditFn.call (null, standardAuditArgs);
-      console.log (`${auditName} result`, auditResult);
       return auditResult;
     }
   };
@@ -49,6 +47,7 @@ export const requireFields = (auditName, auditFn, fields) =>
 export const requireWorkbookArg = (auditName, auditFn) => requireFields (auditName, auditFn, ['workbook']);
 export const requireDataAndVars = (auditName, auditFn) => requireFields (auditName, auditFn, ['data', 'vars_meta_data']);
 export const requireCheckNameResult = (auditName, auditFn) => requireFields (auditName, auditFn, ['checkNameResult']);
+export const requireData = (auditName, auditFn) => requireFields (auditName, auditFn, ['data']);
 
 export const requireWorkbookAndDataSheet = (auditName, auditFn) => {
   const predicates = [

@@ -1,11 +1,12 @@
 import auditFactory, {
   requireDataAndVars,
   makeIssueList,
+  makeSimpleIssue,
 } from './auditFactory';
 import severity from './severity';
 
 const AUDIT_NAME = 'Variable Names';
-const DESCRIPTION = 'Check used defined variables have matching column in data sheet';
+const DESCRIPTION = 'Check user defined variables have matching column in data sheet';
 
 // :: args -> [result]
 const check = (standardAuditArgs) => {
@@ -21,6 +22,12 @@ const check = (standardAuditArgs) => {
   const unmatchedShortNames = varsShortNames
     .filter((e) => !userVariables.has(e));
 
+  const colsWithoutVarDefs = Array.from(userVariables).filter ((c) => !varsShortNames.includes(c));
+
+  const dataCols = userVariables.size;
+  const definedVars = vars_meta_data.length;
+
+
   if (unmatchedShortNames.length) {
     results.push (makeIssueList (
       severity.error,
@@ -30,6 +37,25 @@ const check = (standardAuditArgs) => {
         list: unmatchedShortNames,
       }
     ));
+  }
+
+  if (colsWithoutVarDefs.length) {
+    results.push (makeIssueList (
+      severity.error,
+      'Unidentified Columns in the Data Sheet',
+      {
+        text: `The following columns in the *\`data\`* sheet are not defined in the *\`vars_meta_data\`* sheet:`,
+        list: colsWithoutVarDefs,
+      }
+    ));
+  }
+
+  if (dataCols !== definedVars) {
+    results.push (makeSimpleIssue (
+      severity.error,
+      'Inequal Number of Data Columns and Variable Definitions',
+      `There are ${dataCols} custom data columns in the *\`data sheet\`*, but ${definedVars} variables defined in the *\`vars_meta_data\`* sheet.`
+    ))
   }
 
   return results;

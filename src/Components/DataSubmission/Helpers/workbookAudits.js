@@ -33,16 +33,6 @@ const variableMetadataSampleRowValue = '< variable short name (<50 chars) >';
 
 
 
-let checkEveryDataColHasVarsMetaDefinition = (data, vars_meta_data) => {
-  if (!vars_meta_data || !data) {
-    return [];
-  }
-  let fixedVariables = new Set(['time', 'lat', 'lon', 'depth']);
-  let userDefinedDataCols = Object.keys(data[0]).filter((key) => !fixedVariables.has(key));
-  const varsShortNames = vars_meta_data.map((e) => e.var_short_name);
-  return userDefinedDataCols.filter ((c) => !varsShortNames.includes(c));
-};
-
 const checkValuesAreUnique = (sheet, header) => {
   if (!sheet || !Array.isArray(sheet)) {
     return;
@@ -57,22 +47,7 @@ const checkValuesAreUnique = (sheet, header) => {
   return duplicateValues;
 }
 
-let checkEmptyColumns = (data, userVariables) => {
-  let emptyColumns = [];
 
-  if (userVariables) {
-    userVariables.forEach((header) => {
-      for (let i = 0; i < data.length; i++) {
-        if (data[i][header] || data[i][header] === 0) {
-          return;
-        }
-      }
-      emptyColumns.push(header);
-    });
-  }
-
-  return emptyColumns;
-};
 
 let checkMissingCruiseNames = (dataset_meta_data, vars_meta_data) => {
   if (!vars_meta_data || !dataset_meta_data) {
@@ -95,87 +70,7 @@ let checkMultipleCruisesOneCell = (dataset_meta_data) =>
     dataset_meta_data[0].cruise_names.includes(','),
   );
 
-let checkRadians = (data) => {
-  let lonMin = data[0].lon;
-  let lonMax = data[0].lon;
-  let latMin = data[0].lat;
-  let latMax = data[0].lat;
-  let pi = Math.PI;
 
-  data.forEach((e) => {
-    if (e.lon < lonMin) {
-      lonMin = e.lon;
-    }
-    if (e.lon > lonMax) {
-      lonMax = e.lon;
-    }
-    if (e.lat < latMin) {
-      latMin = e.lat;
-    }
-    if (e.lat > latMax) {
-      latMax = e.lat;
-    }
-  });
-
-  return Boolean(
-    lonMin >= -pi && lonMax <= pi && latMin >= -pi / 2 && latMax <= pi / 2,
-  );
-};
-
-let checkUniqueSpaceTime = (data) => {
-  let includeDepth = Boolean(data[0].depth || data[0].depth == 0);
-  let obj = {};
-  let result = []; //{row: Number, matched: Number}
-
-  try {
-    for (let i = 0; i < data.length; i++) {
-      if (obj[data[i].time] === undefined) {
-        obj[data[i].time] = {};
-      }
-
-      if (obj[data[i].time][data[i].lat] === undefined) {
-        obj[data[i].time][data[i].lat] = {};
-      }
-
-      if (!includeDepth) {
-        if (obj[data[i].time][data[i].lat][data[i].lon] === undefined) {
-          obj[data[i].time][data[i].lat][data[i].lon] = i + 2;
-        } else {
-          result.push({
-            row: i + 2,
-            matched: obj[data[i].time][data[i].lat][data[i].lon],
-          });
-          if (result.length > 5) {
-            return result;
-          }
-        }
-      } else {
-        if (obj[data[i].time][data[i].lat][data[i].lon] === undefined) {
-          obj[data[i].time][data[i].lat][data[i].lon] = {};
-        }
-
-        if (
-          obj[data[i].time][data[i].lat][data[i].lon][data[i].depth] ===
-            undefined
-        ) {
-          obj[data[i].time][data[i].lat][data[i].lon][data[i].depth] = i + 2;
-        } else {
-          result.push({
-            row: i + 2,
-            matched: obj[data[i].time][data[i].lat][data[i].lon][data[i].depth],
-          });
-          if (result.length > 5) {
-            return result;
-          }
-        }
-      }
-    }
-  } catch (e) {
-    result = [];
-  }
-
-  return result;
-};
 
 
 
@@ -243,20 +138,7 @@ let checkAllSameValue = (data, userVariables) => {
   return result;
 };
 
-const checkDepthAllOrNone = (data) => {
-  if (!data || !data[0]) {
-    return true;
-  }
-  let includeDepth = Boolean(data[0].depth || data[0].depth == 0);
 
-  for (let i = 0; i < data.length; i++) {
-    if (includeDepth != Boolean(data[i].depth || data[i].depth == 0)) {
-      return false;
-    }
-  }
-
-  return true;
-};
 
 const datasetMetadataIncludesSampleRow = (datasetMetadata) => {
   if (!datasetMetadata || !datasetMetadata[0]) {
@@ -358,17 +240,6 @@ let checkOutliers = (data, userVariables) => {
 
 
 
-const checkEqualLengthColsAndVarMetaData = (userVariables, vars_meta_data) => {
-  const dataCols = userVariables.size;
-  const definedVars = vars_meta_data.length;
-  if (dataCols !== definedVars) {
-    return {
-      dataCols,
-      definedVars,
-    }
-  }
-}
-
 const checkExtraColumns = (sheet, sheetName) => {
   if (!sheet || sheet.length < 1) {
     console.log ('no data to check in checkExtraColumns', sheetName);
@@ -388,9 +259,6 @@ const checkExtraColumns = (sheet, sheetName) => {
     return nonMatchedHeaders;
   }
 }
-
-
-
 
 
 // NOTE this should not be used for data sheet if it has too many rows
@@ -462,16 +330,6 @@ export const checkNoDuplicateRows = (sheet) => {
 
 export default (args) => {
   const {
-    workbook, // workboork is the file prior to conversion by sheetjs to json
-    data, // the data sheet
-    dataset_meta_data,  // the metadata sheet
-    vars_meta_data, // the vars metadata sheet
-
-    // time formatting flags
-    is1904,
-    numericDateFormatConverted,
-
-    // check name
     checkNameResult,
     submissionType,
   } = args;
@@ -502,79 +360,14 @@ export default (args) => {
 
 /*
 
-
-
-
-
-
     let fixedVariables = new Set(['time', 'lat', 'lon', 'depth']);
     let userVariables = new Set(
       Object.keys(data[0]).filter((key) => !fixedVariables.has(key)),
     );
 
-    if (vars_meta_data) {
-      let unidentifiedDataCols = checkEveryDataColHasVarsMetaDefinition(
-        data,
-        vars_meta_data,
-        userVariables,
-      );
-      if (unidentifiedDataCols && unidentifiedDataCols.length) {
-        errors.push({
-          title: 'Unidentified Columns in the Data Sheet',
-          Component: IssueWithList,
-          args: {
-            text: `The following columns in the *\`data\`* sheet are not defined in the *\`vars_meta_data\`* sheet:`,
-            list: unidentifiedDataCols,
-          }
-        });
-      }
-
-      let inequalLengthColsAndVarMetaData = checkEqualLengthColsAndVarMetaData (userVariables, vars_meta_data);
-      if (inequalLengthColsAndVarMetaData) {
-        const { dataCols, definedVars } = inequalLengthColsAndVarMetaData;
-        errors.push ({
-          title: 'Inequal Number of Data Columns and Variable Definitions',
-          detail: `There are ${dataCols} custom data columns in the *\`data sheet\`*, but ${definedVars} variables defined in the *\`vars_meta_data\`* sheet.`
-        })
-      }
-    }
 
 
-    let emptyColumns = checkEmptyColumns(data, userVariables);
-    if (emptyColumns.length) {
-      errors.push({
-        title: `Data Columns Without Any Values`,
-        detail: `The column${emptyColumns.length > 1 ? 's' : ''} \`${emptyColumns.join(
-        ', ')}\` contain${emptyColumns > 1 ? '' : 's'} no values.`,
-      });
-    }
 
-
-    if (!checkDepthAllOrNone(data)) {
-      errors.push(
-        'The depth column on the data sheet must contain a value for every row, or be empty.',
-      );
-    }
-
-    if (checkRadians(data)) {
-      warnings.push(
-        `Values supplied for lat and lon indicate the possible use of radian as unit of measurement.` +
-        `Lat and lon must be in degrees north and degrees east, respectively.`,
-      );
-    }
-
-    const duplicates = checkUniqueSpaceTime(data);
-    if (duplicates.length) {
-      warnings.push(
-        `Found non-unique space and time value combinations` +
-        `${
-          duplicates.length >= 5 ? '(Showing a maximum of 5 matches)' : ''
-        }:\n` +
-        `${duplicates
-          .map((e) => `Row ${e.row} matched ${e.matched}`)
-          .join('\n')}`,
-      );
-    }
 
     let typeConsistency = checkTypeConsistency(data, userVariables);
     if (typeConsistency.length) {

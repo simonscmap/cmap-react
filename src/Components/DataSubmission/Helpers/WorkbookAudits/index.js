@@ -5,6 +5,10 @@ import checkSheetsAudit from './checkSheetsAudit';
 import duplicateDataAudit from './dataSheetAudit';
 import checkRequiredDataCols from './checkRequiredColumns';
 import auditVarNames from './auditVarNames';
+import checkEmptyDataCols from './checkEmptyDataCols';
+import checkDepth from './checkDepth';
+import noRadians from './noRadians';
+import uniqueSpaceTime from './uniqueSpaceTime';
 
 const audits = [
   orphanedCellsAudit,
@@ -13,6 +17,10 @@ const audits = [
   duplicateDataAudit,
   checkRequiredDataCols,
   auditVarNames,
+  checkEmptyDataCols,
+  checkDepth,
+  noRadians,
+  uniqueSpaceTime,
 ];
 
 /*
@@ -67,7 +75,7 @@ const compileResults = (results) => {
 const reportTime = (auditTimes, times, elapsed) => {
   const report = auditTimes.map ((a, i) => ({
     name: a.name,
-    share: times[i] / elapsed,
+    share: (times[i] / elapsed).toFixed (2),
     duration: times[i],
   })).sort ((a, b) => {
     if (a.share > b.share) {
