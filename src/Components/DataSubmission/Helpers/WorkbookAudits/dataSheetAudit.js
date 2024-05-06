@@ -21,6 +21,7 @@ const findDuplicateValuesInArray = (arr) => {
   }
   return Object.keys(results);
 };
+
 const checkDuplicateColumnHeaders = (workbook) => {
   // "h" is the key for "header"
   const dataCols = Object.keys(workbook.Sheets.data)

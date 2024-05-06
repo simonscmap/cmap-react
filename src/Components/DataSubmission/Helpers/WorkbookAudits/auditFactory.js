@@ -44,10 +44,22 @@ export const requireFields = (auditName, auditFn, fields) =>
   };
 
 
-export const requireWorkbookArg = (auditName, auditFn) => requireFields (auditName, auditFn, ['workbook']);
-export const requireDataAndVars = (auditName, auditFn) => requireFields (auditName, auditFn, ['data', 'vars_meta_data']);
-export const requireCheckNameResult = (auditName, auditFn) => requireFields (auditName, auditFn, ['checkNameResult']);
-export const requireData = (auditName, auditFn) => requireFields (auditName, auditFn, ['data']);
+export const requireWorkbookArg = (auditName, auditFn) =>
+  requireFields (auditName, auditFn, ['workbook']);
+export const requireData = (auditName, auditFn) =>
+  requireFields (auditName, auditFn, ['data']);
+export const requireVars = (auditName, auditFn) =>
+  requireFields (auditName, auditFn, ['vars_meta_data']);
+export const requireMeta = (auditName, auditFn) =>
+  requireFields (auditName, auditFn, ['dataset_meta_data']);
+
+export const requireDataAndVars = (auditName, auditFn) =>
+  requireFields (auditName, auditFn, ['data', 'vars_meta_data']);
+export const requireMetaAndVars = (auditName, auditFn) =>
+  requireFields (auditName, auditFn, ['dataset_meta_data', 'vars_meta_data']);
+
+export const requireCheckNameResult = (auditName, auditFn) =>
+  requireFields (auditName, auditFn, ['checkNameResult']);
 
 export const requireWorkbookAndDataSheet = (auditName, auditFn) => {
   const predicates = [

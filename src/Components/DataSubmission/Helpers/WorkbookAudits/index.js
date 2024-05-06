@@ -9,6 +9,15 @@ import checkEmptyDataCols from './checkEmptyDataCols';
 import checkDepth from './checkDepth';
 import noRadians from './noRadians';
 import uniqueSpaceTime from './uniqueSpaceTime';
+import typeConsistency from './userVariableTypeConsistency';
+import uniformValues from './uniformValuesCheck';
+import NaNAndOutliers from './checkNaNsAndOutliers';
+import checkDuplicateRows from './duplicateRows';
+import checkSampleRows from './checkSampleRows';
+import multiCruiseFormat from './multipleCruisesFormat';
+import extraColumns from './extraColumns';
+import checkDuplicateVarNames from './checkDuplicateVarNames';
+import missingCruise from './missingCruise';
 
 const audits = [
   orphanedCellsAudit,
@@ -21,6 +30,15 @@ const audits = [
   checkDepth,
   noRadians,
   uniqueSpaceTime,
+  typeConsistency,
+  uniformValues,
+  NaNAndOutliers,
+  checkDuplicateRows,
+  checkSampleRows,
+  multiCruiseFormat,
+  extraColumns,
+  checkDuplicateVarNames,
+  missingCruise,
 ];
 
 /*
