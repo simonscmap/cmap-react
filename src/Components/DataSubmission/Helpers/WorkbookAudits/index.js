@@ -55,6 +55,8 @@ const compileResults = (results) => {
     }
   });
 
+  console.log ('compiled workbook audit', results, report);
+
   return report;
 }
 
@@ -77,9 +79,7 @@ const reportTime = (audits, times, elapsed) => {
 };
 
 const mainAuditExecution = (args) => {
-
-
-  const results = [];
+  let results = [];
   const times = [];
 
   const overallStartTime = Date.now();
@@ -87,27 +87,32 @@ const mainAuditExecution = (args) => {
   // iterate over audits, collecting results
   audits.forEach ((audit, i) => {
     const { name, description, fn } = audit;
-    console.log (`[${i + 1}/${audits.length}] Audit: `, `"${name}"`, description);
+    // console.log (`[${i + 1}/${audits.length}] Audit: `, `"${name}"`, description);
     const timeStart = Date.now();
 
-    let result = [];
+    let auditResult;
     if (fn && fn.call) {
-      result = fn.call (null, args);
+      auditResult = fn.call (null, args);
+      console.log (`${name} result`, auditResult)
     }
-    if (Array.isArray(result)) {
-      results.concat(...result);
+
+    if (Array.isArray(auditResult)) {
+      console.log (`concating ${name} result`, auditResult);
+      results = results.concat(...auditResult);
+      console.log('results so far', results)
+    } else {
+      console.log (`${name} gave no result`)
     }
     const elapsedTime = Date.now() - timeStart;
-    console.log (`------ ${elapsedTime} ms`)
+    // console.log (`------ ${elapsedTime} ms`)
     times.push (elapsedTime);
   });
 
   const overallElapsedTime = Date.now() - overallStartTime;
 
-
   reportTime (audits, times, overallElapsedTime);
-
-  return compileResults (results);
+  const compiledResults = compileResults (results);
+  return compiledResults;
 };
 
 export default mainAuditExecution;

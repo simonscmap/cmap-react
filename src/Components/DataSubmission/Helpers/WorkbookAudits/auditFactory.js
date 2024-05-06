@@ -26,9 +26,13 @@ export const guardByPredicate = (auditName, auditFn, preds) =>
     });
 
     if (!shouldProceedToValidation) {
+      console.log (`declining to run audit ${auditName}`)
       return [];
     } else {
-      return auditFn.call (null, standardAuditArgs);
+      console.log (`running ${auditName} with args`, standardAuditArgs)
+      const auditResult = auditFn.call (null, standardAuditArgs);
+      console.log (`${auditName} result`, auditResult);
+      return auditResult;
     }
   };
 
@@ -36,7 +40,7 @@ export const guardByPredicate = (auditName, auditFn, preds) =>
 export const requireFields = (auditName, auditFn, fields) =>
   (standardAuditArgs) => {
     const predicates = fields.map((f) => (args_) => !!args_[f]);
-    guardByPredicate (auditName, auditFn, predicates) (standardAuditArgs);
+    return guardByPredicate (auditName, auditFn, predicates) (standardAuditArgs);
   };
 
 
