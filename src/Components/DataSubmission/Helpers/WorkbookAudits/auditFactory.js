@@ -1,3 +1,5 @@
+import IssueWithList from '../IssueWithList';
+
 // basic contract
 export default function (name, description, fn) {
   return {
@@ -45,6 +47,7 @@ export const requireFields = (auditName, auditFn, fields) =>
 
 
 export const requireWorkbookArg = (auditName, auditFn) => requireFields (auditName, auditFn, ['workbook']);
+export const requireDataAndVars = (auditName, auditFn) => requireFields (auditName, auditFn, ['data', 'vars_meta_data']);
 export const requireCheckNameResult = (auditName, auditFn) => requireFields (auditName, auditFn, ['checkNameResult']);
 
 export const requireWorkbookAndDataSheet = (auditName, auditFn) => {
@@ -69,6 +72,13 @@ export const makeIssueWithCustomComponent = (severity, title, component, args) =
   Component: component,
   args,
 });
+
+export const makeIssueList = (severity, title, args) => ({
+  severity,
+  title,
+  Component: IssueWithList,
+  args
+})
 
 export const makeIssueWithBody = (severity, title, body) => ({
   severity,

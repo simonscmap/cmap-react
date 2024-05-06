@@ -3,12 +3,16 @@ import orphanedCellsAudit from './orphanedCellsAudit';
 import checkNamingConflicts from './checkNamingConflicts';
 import checkSheetsAudit from './checkSheetsAudit';
 import duplicateDataAudit from './dataSheetAudit';
+import checkRequiredDataCols from './checkRequiredColumns';
+import auditVarNames from './auditVarNames';
 
 const audits = [
   orphanedCellsAudit,
   checkNamingConflicts,
   checkSheetsAudit,
-  duplicateDataAudit
+  duplicateDataAudit,
+  checkRequiredDataCols,
+  auditVarNames,
 ];
 
 /*
@@ -55,13 +59,13 @@ const compileResults = (results) => {
     }
   });
 
-  console.log ('compiled workbook audit', results, report);
+  // console.log ('compiled workbook audit', results, report);
 
   return report;
 }
 
-const reportTime = (audits, times, elapsed) => {
-  const report = audits.map ((a, i) => ({
+const reportTime = (auditTimes, times, elapsed) => {
+  const report = auditTimes.map ((a, i) => ({
     name: a.name,
     share: times[i] / elapsed,
     duration: times[i],
@@ -87,24 +91,19 @@ const mainAuditExecution = (args) => {
   // iterate over audits, collecting results
   audits.forEach ((audit, i) => {
     const { name, description, fn } = audit;
-    // console.log (`[${i + 1}/${audits.length}] Audit: `, `"${name}"`, description);
     const timeStart = Date.now();
 
     let auditResult;
     if (fn && fn.call) {
       auditResult = fn.call (null, args);
-      console.log (`${name} result`, auditResult)
     }
 
     if (Array.isArray(auditResult)) {
-      console.log (`concating ${name} result`, auditResult);
       results = results.concat(...auditResult);
-      console.log('results so far', results)
     } else {
-      console.log (`${name} gave no result`)
+      // console.log (`${name} gave no result`)
     }
     const elapsedTime = Date.now() - timeStart;
-    // console.log (`------ ${elapsedTime} ms`)
     times.push (elapsedTime);
   });
 

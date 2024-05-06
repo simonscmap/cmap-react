@@ -65,6 +65,7 @@ export default function (state, action) {
         submissionToUpdate: null,
         // submissionUploadState: states.notTried,
         checkSubmissionNameRequestStatus: states.notTried,
+        checkSubmissionNameResponseText: null,
         checkSubmissionNameResult: null,
       };
 
@@ -84,7 +85,8 @@ export default function (state, action) {
     case SET_CHECK_SUBM_NAME_REQUEST_STATUS:
       return {
         ...state,
-        checkSubmissionNameRequestStatus: states[action.payload],
+        checkSubmissionNameRequestStatus: states[action.payload.status],
+        checkSubmissionNameResponseText:  action.payload.responseText
       };
 
     case CHECK_SUBM_NAME_RESPONSE_STORE:

@@ -31,13 +31,7 @@ const variableMetadataSampleRowValue = '< variable short name (<50 chars) >';
 
 
 
-let checkEveryVarsShortNameHasDataCol = (data, vars_meta_data, userVariables) => {
-  if (!vars_meta_data || !userVariables) {
-    return [];
-  }
-  const varsShortNames = vars_meta_data.map((e) => e.var_short_name);
-  return varsShortNames.filter((e) => !userVariables.has(e));
-};
+
 
 let checkEveryDataColHasVarsMetaDefinition = (data, vars_meta_data) => {
   if (!vars_meta_data || !data) {
@@ -362,22 +356,6 @@ let checkOutliers = (data, userVariables) => {
   return outliers;
 };
 
-const checkRequiredCols = (data) => {
-  if (!data || !data[0]) {
-    return [];
-  }
-  let missingCols = [];
-  let sample = data[0];
-
-  ['time', 'lat', 'lon'].forEach((e) => {
-    if (!sample[e] && sample[e] !== 0) {
-      missingCols.push(e);
-    }
-  });
-
-  return missingCols;
-};
-
 
 
 const checkEqualLengthColsAndVarMetaData = (userVariables, vars_meta_data) => {
@@ -525,29 +503,8 @@ export default (args) => {
 /*
 
 
-     if (data && Array.isArray(data)) {
 
 
-    let missingCols = checkRequiredCols(data);
-    if (missingCols.length) {
-      errors.push(
-        `Data sheet is missing required column${missingCols.length > 1 ? 's' : ''}: ${missingCols.join(', ')}`,
-      );
-    }
-
-    if (vars_meta_data) {
-      const unmatchedShortNames = checkEveryVarsShortNameHasDataCol (data, vars_meta_data);
-      if (unmatchedShortNames && unmatchedShortNames.length) {
-        errors.push ({
-          title: 'Variable Short Name Has to Matching Data Column',
-          Component: IssueWithList,
-          args: {
-            text: `The following values for *\`var_short_name\`* in the *\`vars_meta_data\`* sheet did not match any column header on the data sheet:`,
-            list: unmatchedShortNames,
-          }
-        });
-      }
-    }
 
 
     let fixedVariables = new Set(['time', 'lat', 'lon', 'depth']);

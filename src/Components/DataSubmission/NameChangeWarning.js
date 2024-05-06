@@ -71,6 +71,9 @@ export const useNameChangeWarning = () => {
   const isUpdate = Boolean(subToUpdate);
 
   const nameCheckResult = useSelector ((state) => state.checkSubmissionNameResult);
+  const nameCheckStatus = useSelector ((state) => state.checkSubmissionNameRequestStatus);
+  const nameCheckRespText = useSelector ((state) => state.checkSubmissionNameResponseText);
+
 
   const isShortNameChange = isUpdate && nameCheckResult
                          && !nameCheckResult.shortNameIsAlreadyInUse
@@ -86,6 +89,8 @@ export const useNameChangeWarning = () => {
     isShortNameChange,
     isLongNameChange,
     nameCheckResult,
+    nameCheckStatus,
+    nameCheckRespText,
   };
 }
 

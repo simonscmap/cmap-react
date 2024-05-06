@@ -16,6 +16,7 @@ import {
   ErrorOutline,
 } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
+import states from '../../enums/asyncRequestStates';
 
 // components
 import { useNameChangeWarning } from './NameChangeWarning';
@@ -130,7 +131,7 @@ const WarningsAlert = ({ thereAreWarnings }) => {
         We found some potential issues with your submission and have flagged them below as warnings with a yellow icon
         {' '}
         <ErrorOutline style={warningOutlineStyle} />. {' '}
-        These should be reviewed and corrected if necessary, but will not prevent you from submitting your dataset.
+
       </Typography>
       </React.Fragment>
     );
@@ -172,7 +173,10 @@ const IssueCard = (props) => {
   const cl = useStyles ();
   return (
     <Card className={cl.card} raised>
-      <CardHeader title={<CardTitle t={t} title={title} />} subheader={subheader}/>
+    <CardHeader
+      title={<CardTitle t={t} title={title} />}
+      subheader={subheader}
+    />
       <CardContent>
         {detail && renderText(detail)}
         {body && renderBody(body)}
@@ -182,6 +186,63 @@ const IssueCard = (props) => {
   );
 };
 
+const ShortNameChangeWarning = (props) => {
+  const TextComponent = () => {
+    const { nameCheckResult } = useNameChangeWarning ();
+    const cls = useStyles();
+    return (
+      <Typography variant="body1" className={cls.title}>Short Name will change from <span className={cls.bright}>{nameCheckResult.originalShortName}</span> to <span className={cls.bright}>{nameCheckResult.shortName}</span>.</Typography>
+    );
+  }
+
+  return (
+    <IssueCard
+      t={'warning'}
+      info={{
+        title: 'Short Name Will Change',
+        Component: TextComponent
+      }}
+    />
+  )
+};
+
+const LongNameChangeWarning = (props) => {
+  const { nameCheckResult } = useNameChangeWarning ();
+  const TextComponent = () => {
+    const cls = useStyles();
+    return (
+      <Typography variant="body1" className={cls.title}>Long Name will change from <span className={cls.bright}>{nameCheckResult.originalLongName}</span> to <span className={cls.bright}>{nameCheckResult.longName}</span>.</Typography>
+    );
+  }
+  return (
+    <IssueCard
+      t={'warning'}
+      info={{
+        title: 'Long Name Will Change',
+        Component: TextComponent,
+      }}
+    />
+  );
+};
+
+const NameCheckFailedWarning = (props) => {
+  const { nameCheckRespText } = useNameChangeWarning ();
+  const TextComponent = () => {
+    const cls = useStyles();
+    return (
+      <Typography variant="body1" className={cls.title}>We attempted to check the short and long names of the submission for conflicts with other datasets and other submissions, but the check failed {nameCheckRespText ? 'with the following reason: ' + nameCheckRespText : ''}.</Typography>
+    );
+  }
+  return (
+    <IssueCard
+      t={'warning'}
+      info={{
+        title: 'Could Not Check For Name Conflicts',
+        Component: TextComponent,
+      }}
+    />
+  );
+};
 
 // COMPONENT
 const Step1 = (props) => {
@@ -204,10 +265,19 @@ const Step1 = (props) => {
     changeStep(0);
   }
 
+  // name change warning
+  const {
+    isShortNameChange,
+    isLongNameChange,
+    nameCheckResult,
+    nameCheckStatus,
+  } = useNameChangeWarning ();
+
   const thereAreErrors = hasLength (safePath (['workbook', 'errors']) (auditReport));
   const thereAreWarnings = hasLength (safePath (['workbook', 'warnings']) (auditReport))
   const thereAreConfirmations = hasLength (safePath (['workbook', 'confirmations']) (auditReport))
   const thereAreFirstOrderWarnings = hasLength (safePath (['workbook', 'first']) (auditReport))
+  const nameCheckFailed = nameCheckStatus === states.failed;
 
   // keep errors updated
   let [errors, setErrors] = useState([]);
@@ -224,19 +294,12 @@ const Step1 = (props) => {
     setErrors(eArr);
   }, [subType, checkName, auditReport]);
 
-  // name change warning
-  const {
-    isShortNameChange,
-    isLongNameChange,
-    nameCheckResult,
-  } = useNameChangeWarning ();
 
   if (step !== 1) {
     return <React.Fragment />;
   }
 
-
-  if (!nameCheckResult) {
+  if (nameCheckStatus === states.inProgress) {
     return (
       <Spinner message={'Checking availability of dataset names...'} />
     );
@@ -246,7 +309,7 @@ const Step1 = (props) => {
     return <Spinner message={'Performing workbook audit...'} />;
   }
 
-  if (!thereAreFirstOrderWarnings && !thereAreErrors && !thereAreWarnings && !thereAreConfirmations) {
+  if (!thereAreFirstOrderWarnings && !thereAreErrors && !thereAreWarnings && !thereAreConfirmations && !nameCheckFailed) {
     return (<div className={cl.workbookAuditWrapper}>
       <Typography variant={"h5"}>Workbook Validation</Typography>
       <Typography variant="body1">
@@ -277,40 +340,18 @@ const Step1 = (props) => {
     <div className={cl.workbookAuditWrapper}>
       <Typography variant={"h5"}>Workbook Validation</Typography>
 
-    {thereAreFirstOrderWarnings && <div>
-      {auditReport.workbook.first.map((def, i) => (<IssueCard t='warning' info={def} key={`key${i}`} /> ))}
-      </div>}
+      {thereAreFirstOrderWarnings &&
+        <div>
+          {auditReport.workbook.first.map((def, i) => (<IssueCard t='warning' info={def} key={`key${i}`} /> ))}
+        </div>
+      }
+
+      {nameCheckStatus === states.failed && <NameCheckFailedWarning />}
 
       {/* name change warning */}
       <div className={cl.nameChangeWarning}>
-        {isShortNameChange && <IssueCard
-          t={'warning'}
-          info={{
-            title: 'Short Name Will Change',
-            Component: () => {
-              const cls = useStyles();
-              return (
-                <Typography variant="body1" className={cl.title}>
-                  Short Name will change from <span className={cls.bright}>{nameCheckResult.originalShortName}</span> to <span className={cls.bright}>{nameCheckResult.shortName}</span>.
-                </Typography>
-              );
-            }
-          }}
-          />}
-        {isLongNameChange && <IssueCard
-          t={'warning'}
-          info={{
-            title: 'Long Name Will Change',
-            Component: () => {
-              const cls = useStyles();
-              return (
-                <Typography variant="body1" className={cl.title}>
-                  Long Name will change from <span className={cls.bright}>{nameCheckResult.originalLongName}</span> to <span className={cls.bright}>{nameCheckResult.longName}</span>.
-                </Typography>
-              );
-            }
-          }}
-          />}
+        {isShortNameChange && <ShortNameChangeWarning />}
+        {isLongNameChange && <LongNameChangeWarning />}
       </div>
 
 
@@ -326,13 +367,11 @@ const Step1 = (props) => {
         }
       })}
 
-
-
       {/* workbook warnings */}
 
       <WarningsAlert thereAreWarnings={thereAreWarnings} />
 
-      {auditReport.workbook.warnings.map((e, i) => {
+      {auditReport && auditReport.workbook && auditReport.workbook.warnings && auditReport.workbook.warnings.map((e, i) => {
         if (typeof e === 'string') {
           return <IssueCard key={`warningCard-${i}`} t={'warning'} info={{ title: 'Warning', detail: e }} />
         } else {
@@ -340,11 +379,9 @@ const Step1 = (props) => {
         }
       })}
 
-
-
       <ConfirmationsAlert thereAreConfirmations={thereAreConfirmations} />
 
-      {auditReport.workbook.confirmations.map((e, i) => {
+      {auditReport && auditReport.workbook && auditReport.workbook.confirmations && auditReport.workbook.confirmations.map((e, i) => {
         if (typeof e === 'string') {
           return <IssueCard key={`confirmation-${i}`} t={'confirmation'} info={{ title: 'Please Confirm', detail: e }} />
         } else {

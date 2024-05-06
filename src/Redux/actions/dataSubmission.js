@@ -143,9 +143,12 @@ export const checkSubmNamesRequestSend = ({ shortName, longName, submissionId })
   payload: { shortName, longName, submissionId },
 });
 
-export const setCheckSubmNameRequestStatus = (status) => ({
+export const setCheckSubmNameRequestStatus = (status, responseText) => ({
   type: dataSubmissionActionTypes.SET_CHECK_SUBM_NAME_REQUEST_STATUS,
-  payload: status,
+  payload: {
+    status,
+    responseText,
+  }
 });
 
 export const checkSubmNameResponseStore = (resp) => ({
