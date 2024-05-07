@@ -408,28 +408,28 @@ function* updateUserInfoRequest(action) {
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 function* getGoogleAuthInstance () {
-
   for (let i = 0; i < 5; i++) {
     try {
-      const gapiGetAuthInstance = window.gapi && window.gapi.auth2.getAuthInstance;
+      const gapiGetAuthInstance = window.gapi && window.gapi.auth2 && window.gapi.auth2.getAuthInstance;
       if (gapiGetAuthInstance) {
         const apiResponse = yield call(gapiGetAuthInstance);
         return apiResponse;
+      } else if (i >= 4) {
+        const { errorMessage, browserInfo, osInfo, stackFirstLine, location } = parseError (new Error ('exhausted 5 attempts to call getAuthInstance'));
+        yield put (communityActions.errorReportSend(errorMessage, browserInfo, osInfo, stackFirstLine, location));
       } else {
-        if (i < 4) {
-          yield delay(2000)
-        }
+        yield delay(2000);
       }
     } catch (err) {
       if (i < 4) {
         const { errorMessage, browserInfo, osInfo, stackFirstLine, location } = parseError (err);
-        yield put (communityActions.errorReportSend( errorMessage, browserInfo, osInfo, stackFirstLine, location));
+        yield put (communityActions.errorReportSend(errorMessage, browserInfo, osInfo, stackFirstLine, location));
         yield delay(2000)
       }
     }
   }
 
-  throw new Error('Get AuthInstance Failed')
+  throw new Error('Get AuthInstance Failed');
 }
 
 function* authorizeWithGoogle () {
@@ -442,7 +442,7 @@ function* authorizeWithGoogle () {
         if (authResponse) {
           yield put(userActions.googleLoginRequestSend(authResponse.id_token));
         } else {
-          console.log ('no auth response', authResponse)
+          console.log ('no auth response', authResponse);
         }
       } else {
         console.log ('auth instance yielded no current user', authInstance);
