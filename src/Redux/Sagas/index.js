@@ -24,6 +24,8 @@ import buildSearchOptionsFromVariablesList from '../../Utility/Catalog/buildSear
 import groupDatasetsByMake from '../../Utility/Catalog/groupDatasetsByMake';
 import groupVariablesByDataset from '../../Utility/Catalog/groupVariablesByDataset';
 import ammendSearchResults from '../../Utility/Catalog/ammendSearchResultsWithDatasetFeatures';
+import parseError from '../../Utility/parseError';
+
 // Action Creators
 import * as catalogActions from '../actions/catalog';
 import * as dataSubmissionActions from '../actions/dataSubmission';
@@ -32,6 +34,7 @@ import * as userActions from '../actions/user'
 import * as visualizationActions from '../actions/visualization';
 import * as catalogActionTypes from '../actionTypes/catalog';
 import * as communityActionTypes from '../actionTypes/community';
+import * as communityActions from '../actions/community';
 import * as dataSubmissionActionTypes from '../actionTypes/dataSubmission';
 import * as interfaceActionTypes from '../actionTypes/ui';
 import * as userActionTypes from '../actionTypes/user';
@@ -403,19 +406,63 @@ function* updateUserInfoRequest(action) {
   yield put(interfaceActions.setLoadingMessage('', tag));
 }
 
-function* initializeGoogleAuth() {
-  try {
-    var authInstance = yield window.gapi.auth2.getAuthInstance();
-  } catch (e) {
-    yield delay(100);
-    yield put(userActions.initializeGoogleAuth());
-    return;
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+function* getGoogleAuthInstance () {
+
+  for (let i = 0; i < 5; i++) {
+    try {
+      const gapiGetAuthInstance = window.gapi && window.gapi.auth2.getAuthInstance;
+      if (gapiGetAuthInstance) {
+        const apiResponse = yield call(gapiGetAuthInstance);
+        return apiResponse;
+      } else {
+        if (i < 4) {
+          yield delay(2000)
+        }
+      }
+    } catch (err) {
+      if (i < 4) {
+        const { errorMessage, browserInfo, osInfo, stackFirstLine, location } = parseError (err);
+        yield put (communityActions.errorReportSend( errorMessage, browserInfo, osInfo, stackFirstLine, location));
+        yield delay(2000)
+      }
+    }
   }
 
-  let user = yield authInstance.currentUser.get();
-  let authResponse = yield user.getAuthResponse(true);
-  if (authResponse) {
-    yield put(userActions.googleLoginRequestSend(authResponse.id_token));
+  throw new Error('Get AuthInstance Failed')
+}
+
+function* authorizeWithGoogle () {
+  try {
+    const authInstance = yield call(getGoogleAuthInstance);
+    if (authInstance.currentUser) {
+      const user = yield authInstance.currentUser.get();
+      if (user && user.getAuthResponse) {
+        const authResponse = yield user.getAuthResponse(true);
+        if (authResponse) {
+          yield put(userActions.googleLoginRequestSend(authResponse.id_token));
+        } else {
+          console.log ('no auth response', authResponse)
+        }
+      } else {
+        console.log ('auth instance yielded no current user', authInstance);
+      }
+    } else {
+      console.log ('no auth instance (with current user)', authInstance);
+    }
+  } catch (error) {
+    console.log ('error', error);
+    yield put (interfaceActions.snackbarOpen ('Unable to automatically sign in with Google.'));
+  }
+}
+
+
+function* initializeGoogleAuth() {
+  try {
+    yield call(authorizeWithGoogle);
+  } catch (e) {
+    console.log (e);
+    //
   }
 }
 

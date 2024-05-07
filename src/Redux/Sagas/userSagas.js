@@ -6,6 +6,9 @@ import * as userActions from '../actions/user';
 import * as userActionTypes from '../actionTypes/user';
 import * as catalogActions from '../actions/catalog';
 import states from '../../enums/asyncRequestStates';
+import logInit from '../../Services/log-service';
+
+const log = logInit ('redux/sagas/userSagas');
 
 /* userLogin, watchUserLogin
  * triggering action: LOGIN_REQUEST_SEND
@@ -25,13 +28,13 @@ export function* userLogin(action) {
 
   // send login request
   yield put(userActions.userLoginRequestProcessing());
-  let result = yield call(api.user.login, action.payload);
+  let response = yield call(api.user.login, action.payload);
 
   // get catalog state
   let downloadState = yield select((state) => state.download);
 
 
-  if (result.ok) {
+  if (response.ok) {
     yield put(interfaceActions.hideLoginDialog());
     // TODO: handle JSON.parse throw
     var userInfo = JSON.parse(Cookies.get('UserInfo'));
