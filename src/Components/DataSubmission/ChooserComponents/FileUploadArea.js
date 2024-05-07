@@ -126,8 +126,7 @@ const FileUploadArea = (props) => {
 
     let largeFile = false;
     if (loadingStatus && loadingStatus.totalBytes > 1000000) { // greater than about 1 MB
-      console.log('large file', loadingStatus.totalBytes, formatBytes (loadingStatus.totalBytes));
-      largeFile = true
+      largeFile = true;
     }
 
     if (message) {

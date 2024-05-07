@@ -117,8 +117,7 @@ const getColumns = (sheet, data, tooltipValueGetter) => {
 
   const numberParser = (ev) => {
     const { newValue } = ev;
-
-    if (!Number.isFinite(newValue)) {
+    if (!Number.isFinite(Number(newValue))) {
       console.log ('NOT A NUMBER', newValue)
       return null;
     } else {

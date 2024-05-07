@@ -133,7 +133,7 @@ class ValidationTool extends React.Component {
   };
 
   auditRows = (rows, sheet) => {
-    console.log (`auditing rows for ${sheet}`)
+    // console.log (`auditing rows for ${sheet}`)
     const checkNameResult = this.props.checkSubmissionNameResult;
     let audit = [];
 
@@ -198,7 +198,7 @@ class ValidationTool extends React.Component {
         const rowIsEmpty = Object.keys(row).every (cellIsEmpty);
 
         if (rowIsEmpty) {
-          console.log ('ROW IS EMPTY', row, i, sheet);
+          // console.log ('ROW IS EMPTY', row, i, sheet);
           this.setState({
             ...this.state,
             delRow: {
@@ -222,21 +222,21 @@ class ValidationTool extends React.Component {
   };
 
   removeRow = (sheetName, rowToRemove) => {
-    console.log ('removeRow', sheetName, rowToRemove);
+    // console.log ('removeRow', sheetName, rowToRemove);
     if (!sheetName || !Number.isInteger(rowToRemove)) {
       return;
     }
 
     const sheetData = this.state[sheetName];
     if (!Array.isArray(sheetData)) {
-      console.log (`no data for sheetName ${sheetName}: cannot remove row`);
+      // console.log (`no data for sheetName ${sheetName}: cannot remove row`);
       return;
     }
 
     const newData = sheetData.slice(0, rowToRemove)
                              .concat(sheetData.slice(rowToRemove + 1))
 
-    console.log (`setting ${sheetName} with newData`, newData);
+    // console.log (`setting ${sheetName} with newData`, newData);
     this.setState({
       ...this.state,
       [sheetName]: newData,
@@ -334,12 +334,12 @@ class ValidationTool extends React.Component {
   }
 
   resetAudit = () => {
-    console.log ('resetting audit state');
+    // console.log ('resetting audit state');
     this.props.setAudit(null);
   }
 
   resetLocalState = (resetStep = false, callerName) => {
-    console.log (`resetting local state (caller name: ${callerName})`);
+    // console.log (`resetting local state (caller name: ${callerName})`);
     this.setState({
       ...this.state,
       rawFile: null,
@@ -378,10 +378,10 @@ class ValidationTool extends React.Component {
     } = event;
 
     if (oldValue === newValue) {
-      console.log ('a change event fired, but state has not changed');
+      // console.log ('a change event fired, but state has not changed');
       return;
     } else if (oldValue === null && newValue === '') {
-      console.log ('a change event fired when a user clicked on an empty cell');
+      // console.log ('a change event fired when a user clicked on an empty cell');
       return;
     }
 
@@ -453,7 +453,6 @@ class ValidationTool extends React.Component {
     );
 
     // 3. update workbook in state with new data, and add a changeEvent to the change log
-    console.log ('redrawing row and refreshing cell')
     this.setState({
       ...this.state,
       [sheet]: updated,
@@ -464,7 +463,6 @@ class ValidationTool extends React.Component {
       this.gridApi.redrawRows({rowNodes: [row]});
 
       // refresh cells
-      console.log ('refresh cells', this.state.auditReport && this.state.auditReport[sheet]);
       event.api.refreshCells({
         force: true,
         rowNodes: [event.node] // pass rowNode that was edited
@@ -563,7 +561,7 @@ class ValidationTool extends React.Component {
           totalBytes,
         }
       })
-        console.log ('size read: ' + formatBytes(totalBytes), totalBytes);
+        console.log ('size read: ' + formatBytes(totalBytes));
       } catch (e) {
         console.log ('error: file reader progress event total was not a number')
       }
@@ -599,7 +597,6 @@ class ValidationTool extends React.Component {
         return;
       }
 
-      console.log ('WORKBOOK', workbook);
       timer.add ('sheet_to_json: data')
       let _data = XLSX.utils.sheet_to_json(workbook.Sheets['data'], {
         defval: null,
@@ -683,12 +680,6 @@ class ValidationTool extends React.Component {
         });
         return;
       }
-
-      console.log ('parsed sheets', {
-        data,
-        dataset_meta_data,
-        vars_meta_data
-      });
 
       // dispatch check name
       const shortName = dataset_meta_data[0].dataset_short_name;
@@ -866,7 +857,7 @@ class ValidationTool extends React.Component {
     const subTypeChanged = this.props.submissionType !== prevProps.submissionType;
     const nameCheckChanged = this.props.checkSubmissionNameResult !== prevProps.checkSubmissionNameResult;
     if ((subTypeChanged || nameCheckChanged) && this.props.submissionFile) {
-      console.log ('call perform audit because nameCheck has changed');
+      // call perform audit because nameCheck has changed
       this.performAudit(false, 'componentDidUpdate');
     }
 
@@ -888,7 +879,7 @@ class ValidationTool extends React.Component {
       this.props.submissionUploadState !== prevProps.submissionUploadState;
 
     if (submissionWasSuccessfullyUploaded) {
-      console.log ('resetting state');
+      console.log ('resetting validation tool state');
       this.handleResetState ();
     }
 
@@ -911,7 +902,7 @@ class ValidationTool extends React.Component {
       if (this.gridApi ) {
         this.gridApi.redrawRows();
       } else {
-        console.log ('no grid api');
+        // console.log ('no grid api');
       }
     }
 

@@ -562,14 +562,12 @@ function* retrieveSubmissionsByUser() {
   } else {
     yield put(interfaceActions.snackbarOpen('Unable to retrieve submissions'));
   }
-  console.log ('retrieveSubmissionsByUser: remove loading message');
   let currentMessage = yield select(
     (state) => state.loadingMessage,
   );
   // don't clear other messages that may have been displayed in the meantime
-  console.log (`checking loading message "${currentMessage}" is "${msg}"`);
   if (currentMessage === msg) {
-    console.log ('current message can be cleared', currentMessage, msg)
+    // current message can be cleared
     yield put(interfaceActions.setLoadingMessage('', { tag: 'retrieveSubmissionsByUser' }));
   }
 }
@@ -710,6 +708,7 @@ function* uploadSubmission(action) {
   } catch (e) {
     yield put(dataSubmissionActions.setUploadState(states.failed));
     yield put(dataSubmissionActions.setCheckSubmNameRequestStatus(states.failed));
+    return;
   }
   if (response && response.ok) {
     let jsonResponse = yield response.json();
@@ -731,6 +730,7 @@ function* uploadSubmission(action) {
   } else {
     yield put(dataSubmissionActions.setUploadState(states.failed));
     yield put(dataSubmissionActions.setCheckSubmNameRequestStatus(states.failed));
+    return;
   }
 
   // let chunkSize = 5 * 1024 * 1024;

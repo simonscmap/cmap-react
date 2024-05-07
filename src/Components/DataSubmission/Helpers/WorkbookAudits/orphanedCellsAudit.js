@@ -1,7 +1,6 @@
 import auditFactory, { requireWorkbookArg } from './auditFactory';
 import IssueWithList from '../IssueWithList';
 import severity from './severity';
-import { debugTimer } from '../../../../Utility/debugTimer';
 
 const AUDIT_NAME = 'Orphaned Cells';
 const DESCRIPTION = 'Check for orphaned cells';
@@ -92,14 +91,10 @@ const orphanedCellsCheck = (args) => {
   const { workbook } = args;
   const results = [];
 
-  const timer = debugTimer();
-  timer.start();
-  const orphanedCellsBySheet = checkForOrphanedCells2 (workbook, timer);
+  const orphanedCellsBySheet = checkForOrphanedCells2 (workbook);
 
-  timer.add('compile messages');
   Object.keys (orphanedCellsBySheet).forEach ((sheetName) => {
     const colKeys = orphanedCellsBySheet[sheetName];
-    console.log (colKeys);
     if (colKeys && colKeys.length) {
       results.push ({
         severity: severity.error,
@@ -115,10 +110,6 @@ const orphanedCellsCheck = (args) => {
     }
   });
 
-  timer.done();
-  timer.report();
-
-  console.log ('orphaned cells returning data:', results)
   return results;
 }
 

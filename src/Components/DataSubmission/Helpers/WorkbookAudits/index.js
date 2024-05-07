@@ -19,6 +19,8 @@ import extraColumns from './extraColumns';
 import checkDuplicateVarNames from './checkDuplicateVarNames';
 import missingCruise from './missingCruise';
 
+import { formatEvent } from '../../../../Utility/debugTimer';
+
 const audits = [
   orphanedCellsAudit,
   checkNamingConflicts,
@@ -92,8 +94,8 @@ const compileResults = (results) => {
 
 const reportTime = (auditTimes, times, elapsed) => {
   const report = auditTimes.map ((a, i) => ({
-    name: a.name,
-    share: (times[i] / elapsed).toFixed (2),
+    tag: a.name,
+    share: times[i] / elapsed,
     duration: times[i],
   })).sort ((a, b) => {
     if (a.share > b.share) {
@@ -103,8 +105,9 @@ const reportTime = (auditTimes, times, elapsed) => {
     } else {
       return 0;
     }
-  });
+  }).map (formatEvent);
 
+  console.log ('Workbook Audits\' Profile:');
   console.table (report);
 };
 

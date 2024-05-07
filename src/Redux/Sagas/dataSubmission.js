@@ -6,7 +6,6 @@ import states from '../../enums/asyncRequestStates';
 import { call, put, takeLatest, delay } from 'redux-saga/effects';
 
 export function* checkSubmissionName (action) {
-  console.log ('checkSubName saga')
   let response;
   try {
     response = yield call(api.dataSubmission.checkName, action.payload);

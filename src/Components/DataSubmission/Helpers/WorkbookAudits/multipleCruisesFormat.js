@@ -4,8 +4,8 @@ import auditFactory, {
 } from './auditFactory';
 import severity from './severity';
 
-const AUDIT_NAME = '';
-const DESCRIPTION = '';
+const AUDIT_NAME = 'Multi Cruise Format';
+const DESCRIPTION = 'Check for multiple cruises in single cell';
 
 // :: args -> [result]
 const check = (standardAuditArgs) => {

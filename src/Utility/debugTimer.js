@@ -1,3 +1,11 @@
+export const formatEvent = (ev) => {
+  return {
+    tag: ev.tag,
+    share: `${(ev.share * 100).toFixed(2)}%`, // convert to %
+    duration: `${(ev.duration / 1000).toFixed(2)}s`, // convert ms to seconds
+  };
+};
+
 export const debugTimer = () => {
   const events = [];
 
@@ -9,7 +17,6 @@ export const debugTimer = () => {
   }
 
   const report = () => {
-    console.log ('preparing report', events)
     if (events.length <= 0) {
       console.log ('no events to report');
       return;
@@ -19,7 +26,7 @@ export const debugTimer = () => {
     const endIndex = events.findIndex((e) => e.tag === 'DONE');
 
     if (startIndex === -1 || endIndex === -1) {
-      console.log ('timer missing start or end marker', events);
+      // console.log ('timer missing start or end marker', events);
     }
 
     const events_ = events
@@ -31,13 +38,9 @@ export const debugTimer = () => {
     const results = events_.map ((ev, i) => {
       if (ev.tag !== 'DONE') {
         const duration = events_[i + 1].time - ev.time;
-        const share = ((duration / elapsedTime) * 100).toFixed(2);
+        const share = duration / elapsedTime;
         const { tag } = ev;
-        return {
-          tag,
-          duration: `${(duration / 1000).toFixed(2)}s`,
-          share: `${share}%`,
-        };
+        return formatEvent ({ tag, share, duration });
       } else {
         return ev;
       }
