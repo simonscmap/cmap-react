@@ -7,21 +7,20 @@ dayjs.extend(utc);
 dayjs.extend(tz);
 dayjs.extend(LocalizedFormat);
 
+const convertExcelNumeric = (val) => { // for 1904 format times
+  const rounded = Math.ceil(val * 10000000) / 10000000;
+  const numericToUTC = dayjs.utc((rounded - 25569) * 86400 * 1000).format('YYYY-MM-DD')
+  return numericToUTC;
+}
+
 const parseReleaseDate = (releaseDate, workbook) => {
   const is1904 = !!((workbook.Workbook || {}).WBProps || {}).date1904;
 
-  if (typeof releaseDate === 'number' && releaseDate !== 0) {
+  if (typeof releaseDate === 'number') {
     if (is1904) {
-      return new Date(
-        (releaseDate - 25567) * 86400 * 1000 +
-        1000 * 60 * 60 * 24 * 365 * 4,
-      )
-        .toISOString()
-        .slice(0, -14);
+      // audit will raise error
     } else {
-      return new Date((releaseDate - 25567) * 86400 * 1000)
-        .toISOString()
-        .slice(0, -14);
+      return convertExcelNumeric (releaseDate);
     }
   } else if (typeof releaseDate === 'string') {
     if (dayjs (releaseDate).isValid ()) {
