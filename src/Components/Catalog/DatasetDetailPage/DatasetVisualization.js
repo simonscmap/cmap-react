@@ -10,6 +10,7 @@ import storedProcedures from '../../../enums/storedProcedures';
 import Spinner from '../../UI/Spinner';
 import { makeStyles } from '@material-ui/core/styles';
 import SPARSE_DATA_QUERY_MAX_SIZE from '../../../enums/sparseDataQueryMaxSize';
+import SAMPLE_VIS_MAX_QUERY_SIZE from '../../../enums/sampleVisMaxQuerySize';
 import { safePath } from '../../../Utility/objectUtils';
 // import visSubTypes from '../../../enums/visualizationSubTypes';
 // import deepEqual from 'deep-equal';
@@ -172,7 +173,7 @@ const Vis = () => {
         varyWithSize: true,
         annotationsLeft: true,
         bg: 'rgba(0,0,0,0.2)',
-        truncated: safePath (['meta', 'metadata', 'count']) (selectedVariable) > SPARSE_DATA_QUERY_MAX_SIZE,
+        truncated: safePath (['meta', 'metadata', 'count']) (selectedVariable) > SAMPLE_VIS_MAX_QUERY_SIZE,
       };
 
       return <ChartWrapperWithoutPaper chart={chart} overrides={overrides}/>;
@@ -182,9 +183,9 @@ const Vis = () => {
       // return <DatasetIcon url={datasetData && datasetData.Icon_URL} />;
     }
   } else {
-    console.log ('unknown visualization state', { selectedVarState });
+    // console.log ('unknown visualization state', { selectedVarState });
+    // this state is repeatedly met while the component is loading
     return '';
-    // return <DatasetIcon url={datasetData && datasetData.Icon_URL} />;
   }
 };
 

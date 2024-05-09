@@ -14,6 +14,9 @@ import { chartControlPanelStyles } from './chartStyles';
 import TabTemplate from './ChartControls/TabTemplate';
 // import { SPARSE_DATA_QUERY_SEND } from '../../../Redux/actionTypes/visualization';
 import { safePath } from '../../../Utility/objectUtils';
+import logInit from '../../../Services/log-service';
+
+const log = logInit ('ChartControlPanel');
 
 
 const mapDispatchToProps = {
@@ -37,11 +40,14 @@ const ChartControlPanel = (props) => {
                    ? SAMPLE_VIS_MAX_QUERY_SIZE
                    : SPARSE_DATA_QUERY_MAX_SIZE;
 
+  log.debug (`set query size limit to ${isSampleVis ? 'SAMPLE threshold' : 'regular SPARSE data threshold'}`, { SIZE_LIMIT })
+
   const showSparseDataSizeWarning = Boolean(
-    Spatial_Resolution === spatialResolutions.irregular &&
-    Temporal_Resolution === temporalResolutions.irregular &&
+    (Spatial_Resolution === spatialResolutions.irregular || Temporal_Resolution === temporalResolutions.irregular) &&
     dataLength >= SIZE_LIMIT,
   );
+
+  console.log ({ showSparseDataSizeWarning, Spatial_Resolution, Temporal_Resolution, dataLength })
 
   const limit = SIZE_LIMIT.toLocaleString();
   const total = safePath (['data', 'metadata', 'count']) (chart);
