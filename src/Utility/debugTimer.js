@@ -6,7 +6,7 @@ export const formatEvent = (ev) => {
   };
 };
 
-export const debugTimer = () => {
+export const debugTimer = (timerTitle) => {
   const events = [];
 
   const add = (tag) => {
@@ -46,6 +46,9 @@ export const debugTimer = () => {
       }
     });
 
+    if (typeof timerTitle === 'string') {
+      console.log (`Profile results for ${timerTitle}`);
+    }
     console.table (results.slice (0, results.length - 1));
   }
 

@@ -46,7 +46,6 @@ function usePreviousOpacity(value) {
   return ref.current;
 }
 
-let defaultMarkerState = { opacity: 0.7, color: '#ff1493', size: 6 };
 
 const MarkerOptions = (props) => {
   let {
@@ -275,8 +274,19 @@ export default ConnectedMarkerOptions;
 
 // hook returns [controlTuple, toggleState]
 export const useMarkerOptions = (initialState) => {
+  // const blue = 'rgb(105, 255, 242)';
+  const green = 'rgb(161, 246, 64)';
+  const defaultMarkerState = {
+    opacity: 0.7,
+    color: green,
+    size: 6
+  };
+
+  // TODO incorporate initialState
+
   let [markerOptions, setMarkerOptions] = useState(defaultMarkerState);
-  let markerControlTuple = [
+
+  const markerControlTuple = [
     ConnectedMarkerOptions,
     { setMarkerOptions, markerOptions },
   ];

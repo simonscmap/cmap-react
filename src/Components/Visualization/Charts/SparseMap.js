@@ -16,6 +16,8 @@ import { useColorscaleRangeControl } from './ChartControls/ColorscaleRangeContro
 import { useMarkerOptions } from './ChartControls/MarkerControl';
 import ChartTemplate from './ChartTemplate';
 
+const MAP_RENDER_POINT_THRESHOLD = 20000; // twenty thousand
+
 const getSparseMapPlotConfig = (data, palette, zValues, overrides = {}) => {
   let { parameters, metadata } = data;
   let date = renderDate(parameters);
@@ -108,26 +110,10 @@ const SparseMap = React.memo((props) => {
 
   let controls = [paletteControlTuple, rangeControlTuple, markerControlTuple];
 
-  // function used by control panel to determine whether to disable a control
-  // in a tabbed context; this is kludgy, and works off knowledge of the index of
-  // both controls and tabs...
-  // the ChartTemplate nests the contols passed to it in between default controls:
-  // [ (0) Dowload CSV, ..., (n-1) Persist Mode Bar, (n) Close Chart ]
-  // so we add 1 to get the index of the controls we pass
-  let getShouldDisableControl = ({ controlIndex, activeTabIndex }) => {
-    switch (activeTabIndex) {
-      case 0: // map
-        return [3].includes(controlIndex); // disable markerControl
-      default:
-        // scatter plots
-        return [1, 2].includes(controlIndex); // disable palette and rangeControl
-    }
-  };
-
   const plots = [];
 
   if (pointCount && varyWithSize) {
-    if (pointCount < 10000) {
+    if (pointCount < MAP_RENDER_POINT_THRESHOLD) {
       plots.push(mapPlot);
     }
     plots.push(...scatterPlots);
@@ -135,6 +121,22 @@ const SparseMap = React.memo((props) => {
     plots.push(mapPlot);
     plots.push(...scatterPlots);
   }
+
+  // function used by control panel to determine whether to disable a control
+  // in a tabbed context; this is kludgy, and works off knowledge of the index of
+  // both controls and tabs...
+  // the ChartTemplate nests the contols passed to it in between default controls:
+  // [ (0) Dowload CSV, ..., (n-1) Persist Mode Bar, (n) Close Chart ]
+  // so we add 1 to get the index of the controls we pass
+  let getShouldDisableControl = (totalCharts) => ({ controlIndex, activeTabIndex }) => {
+    switch (activeTabIndex) {
+      case 0: // map
+        return totalCharts > 4 ? [3].includes(controlIndex) : false; // disable markerControl
+      default:
+        // scatter plots
+        return [1, 2].includes(controlIndex); // disable palette and rangeControl
+    }
+  };
 
   let sparseMapChartConfig = {
     downloadCSVArgs: [
@@ -147,7 +149,7 @@ const SparseMap = React.memo((props) => {
     chartIndex,
     chartControls: controls,
     isTabbedContent: true, // each plot has a 'tabTitle' property
-    getShouldDisableControl,
+    getShouldDisableControl: getShouldDisableControl (plots.length),
     plots,
   };
 

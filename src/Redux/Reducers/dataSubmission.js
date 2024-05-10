@@ -73,7 +73,7 @@ export default function (state, action) {
       return {
         ...state,
         submissionUploadState: action.payload.state,
-        lastSuccessfulSubmission: action.payload.shortName,
+        lastSuccessfulSubmission: action.payload.shortName, // TODO: this is not always set
       };
 
     case DATA_SUBMISSION_SELECT_OPTION_STORE:

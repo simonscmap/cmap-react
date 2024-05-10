@@ -725,6 +725,7 @@ function* uploadSubmission(action) {
 
     if (conflict) {
       yield put(interfaceActions.snackbarOpen('Name check failed', tag));
+      yield put(dataSubmissionActions.setUploadState(states.failed));
       return;
     }
   } else {
