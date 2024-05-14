@@ -42,6 +42,9 @@ import {
   FETCH_PROGRAMS_SEND,
   FETCH_PROGRAMS_SUCCESS,
   FETCH_PROGRAMS_FAILURE,
+  FETCH_PROGRAM_DETAILS_SEND,
+  FETCH_PROGRAM_DETAILS_SUCCESS,
+  FETCH_PROGRAM_DETAILS_FAILURE,
   SET_SORTING_OPTIONS,
 } from '../actionTypes/catalog';
 import states from '../../enums/asyncRequestStates';
@@ -315,6 +318,31 @@ export default function (state, action) {
       return {
         ...state,
         programsRequestStatus: states.failed,
+      }
+      /************** Program Details Page **********************/
+
+    case FETCH_PROGRAM_DETAILS_SEND:
+      return {
+        ...state,
+        programDetailsRequestStatus: states.inProgress,
+      }
+
+    case FETCH_PROGRAM_DETAILS_SUCCESS:
+      return {
+        ...state,
+        programDetails: action.payload,
+        programDetailsRequestStatus: states.succeeded,
+      }
+
+    case FETCH_PROGRAM_DETAILS_FAILURE:
+      return {
+        ...state,
+        programDetails: null,
+        programDetailsRequestStatus: states.failed,
+        programDetailsError: {
+          message: action.payload.message,
+          // other info ?
+        }
       }
      /************** Cruise Page **********************/
 

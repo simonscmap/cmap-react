@@ -16,8 +16,6 @@ import {
 import Spinner from '../../UI/Spinner';
 import { Link as RouterLink } from 'react-router-dom';
 
-
-
 /*~~~~~~~~~~~~  Spinner ~~~~~~~~~~~~~~~*/
 
 const useSpinnerStyles = makeStyles ((theme) => ({
@@ -133,7 +131,7 @@ const ProgramsList = () => {
               </TableHead>
               <TableBody>
                 {programs.map((prog, i) => (
-                  <Row key={`row${i}`} programName={prog.Program_Name}  />
+                  <Row key={`row${i}`} programName={prog.name}  />
                 ))}
               </TableBody>
             </Table>

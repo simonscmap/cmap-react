@@ -5,7 +5,11 @@ import { Grid } from '@material-ui/core';
 import Title from '../../Common/Title';
 // import Typography from '@material-ui/core/Typography';
 // import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 
+import {
+  fetchProgramDetailsSend,
+} from '../../../Redux/actions/catalog';
 const useStyles = makeStyles (() => ({
   container: {
     color: 'white',
@@ -17,13 +21,19 @@ const useStyles = makeStyles (() => ({
 const ProgramDetail = (props) => {
   const cl = useStyles();
   const programName = props.match.params.programName; // param defined in App.js
+  const dispatch = useDispatch();
 
   useEffect(() => {
     // navigate action
+    dispatch (fetchProgramDetailsSend(programName));
     return () => {
       // unload action
     }
   }, []);
+
+  const x = useSelector ((state) => state.programDetails);
+  const y = useSelector ((state) => state.programDetailsRequestStatus);
+
   return (
      <Page2 bgVariant={'slate2'}>
       <Grid container className={cl.container}>

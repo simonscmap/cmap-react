@@ -79,6 +79,9 @@ const initialState = {
   // Programs
   programs: [],
   programsRequestStatus: states.notTried,
+  programDetail: null,
+  programDetailsRequestStates: states.notTried,
+  programDetailsErrMessage: null,
 
   // Program Detail Page
 

@@ -1,5 +1,4 @@
 // Enum for async requests.
-
 const states = {
   notTried: 'notTried',
   inProgress: 'inProgress',
