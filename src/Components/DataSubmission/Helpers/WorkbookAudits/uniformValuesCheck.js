@@ -58,7 +58,7 @@ const check = (standardAuditArgs) => {
 
   if (colsWithSameValue.length) {
     results.push(makeIssueList (
-      severity.error,
+      severity.warning,
       'All Values for Column Are Identical',
       {
         text: 'The following columns had all identical values',
