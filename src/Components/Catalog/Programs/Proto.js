@@ -1,5 +1,5 @@
 import { makeStyles } from '@material-ui/core/styles';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Grid } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
 // import { Link } from 'react-router-dom';
@@ -37,18 +37,30 @@ const sortAsyncStates = (a, b) => {
   }
 };
 
+const isAsyncState = (s) => Boolean(states[s]);
+
 // :: [Dep] -> [overallState, allStatuses];
 const useAsyncDeps = (deps) => {
-  const isAsyncState = (s) => Boolean(states[s]);
-  const statuses = deps
-    .map ((selector) => useSelector (selector))
+  const [s, setS] = useState([notTried]);
+
+  const statuses = useSelector ((state) => {
+    return deps.map ((fn) => fn.call(null, state));
+  })
     .filter (isAsyncState)
     .sort (sortAsyncStates);
 
-  if (statuses.length === 0) {
-    return [failed, []];
+  console.log ('statuses', statuses);
+
+  useEffect (() => {
+    if (statuses.length && s.length && statuses[0] !== s[0]) {
+      setS (statuses);
+    }
+  }, [statuses]);
+
+  if (s.length === 0) {
+    return [notTried, []];
   } else {
-    return [statuses[0], statuses];
+    return [s[0], s];
   }
 };
 
@@ -110,6 +122,8 @@ const Proto = (props) => {
 
   const cl = useStyles();
   const [overallStatus] = useAsyncDeps(deps);
+
+  console.log ('overall status', overallStatus);
 
   let content = '';
 

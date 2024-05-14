@@ -1,5 +1,9 @@
+import { makeStyles } from '@material-ui/core/styles';
 import React, { useEffect } from 'react';
-import {  makeStyles, Link } from '@material-ui/core';
+import { Grid } from '@material-ui/core';
+import Typography from '@material-ui/core/Typography';
+import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -7,60 +11,46 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import { safePath } from '../../../Utility/objectUtils';
-import states from '../../../enums/asyncRequestStates';
-import { useDispatch, useSelector } from 'react-redux';
-import {
-  fetchProgramsSend,
-} from '../../../Redux/actions/catalog';
-import Spinner from '../../UI/Spinner';
 import { Link as RouterLink } from 'react-router-dom';
+import states from '../../../enums/asyncRequestStates';
 
-/*~~~~~~~~~~~~  Spinner ~~~~~~~~~~~~~~~*/
-
-const useSpinnerStyles = makeStyles ((theme) => ({
-  spinnerWrapper: {
-    textAlign: 'center',
-    height: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-  },
-}));
-
-const SpinnerWrapper = (props) => {
-  const { message } = props;
-  const cl = useSpinnerStyles();
-  return (
-    <div className={cl.spinnerWrapper}>
-      <Spinner message={message} />
-    </div>
-  );
-};
+import Proto from './Proto';
 
 /*~~~~~~~~~~~~  Row  ~~~~~~~~~~~~~~~*/
-const useRowStyles = makeStyles({
+const useRowStyles = makeStyles((theme) => ({
   root: {
     '& > *': {
       borderBottom: 'unset',
+      '& a': {
+        color: theme.palette.primary.main,
+        '&:visited': {
+          color: theme.palette.primary.main
+        }
+      },
     },
   },
-});
+}));
 
 const Row = (props) => {
-  const { programName } = props;
+  const { dataset } = props;
+  const {
+    Dataset_Name,
+    Data_Source,
+  } = dataset;
   const classes = useRowStyles();
 
   return (
     <React.Fragment>
       <TableRow className={classes.root} >
         <TableCell>
-          <Link
-            component={RouterLink}
-            to={`/catalog/programs/${programName}`}
+          <RouterLink
+            to={{pathname: `/catalog/datasets/${Dataset_Name}`}}
           >
-            {programName}
-          </Link>
+            {Dataset_Name}
+          </RouterLink>
+        </TableCell>
+        <TableCell>
+          {Data_Source}
         </TableCell>
       </TableRow>
     </React.Fragment>
@@ -90,6 +80,11 @@ const useStyles = makeStyles (() => ({
       backgroundColor: 'rgba(30, 67, 113, 1)',
     },
   },
+  rows: {
+    '& > *': {
+      borderBottom: 'unset',
+    },
+  },
   container: {
     backgroundColor: 'rgba(16, 43, 60, 0.6)',
     backdropFilter: 'blur(20px)',
@@ -98,24 +93,11 @@ const useStyles = makeStyles (() => ({
   },
 }));
 
-
-const ProgramsList = () => {
+const List = (props) => {
   const cl = useStyles();
-  const dispatch = useDispatch();
 
-  const programs = useSelector (safePath (['programs']));
-  const reqStatus = useSelector (safePath (['programsRequestStatus']));
-
-  useEffect (() => {
-    if (reqStatus === states.notTried) {
-      dispatch (fetchProgramsSend());
-    }
-  }, []);
-
-  if (!programs && reqStatus === states.inProgress) {
-    return <SpinnerWrapper message={'Fetching Programs'} />
-  } else if (programs && reqStatus === states.succeeded) {
-    return (
+  const { datasets } = props;
+  return (
       <div className={cl.header}>
         <div className={cl.inner}>
           <TableContainer component={Paper} className={cl.container} >
@@ -123,11 +105,12 @@ const ProgramsList = () => {
               <TableHead>
                 <TableRow>
                   <TableCell>Name</TableCell>
+                  <TableCell>Source</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {programs.map((prog, i) => (
-                  <Row key={`program_row_${i}`} programName={prog.name}  />
+                {Object.keys(datasets).map((k, i) => (
+                  <Row key={`program_dataset_row${i}`} dataset={datasets[k]}  />
                 ))}
               </TableBody>
             </Table>
@@ -135,9 +118,25 @@ const ProgramsList = () => {
         </div>
       </div>
     );
-  } else {
-    return '';
-  }
-}
+};
 
-export default ProgramsList;
+// List Datasets in Program
+const DatasetList = () => {
+  // selectors
+  const selectProgramDetailsRequestStatus = (state) => state.programDetailsRequestStatus;
+
+  // data
+  const program = useSelector ((state) => state.programDetails);
+
+  const deps = [
+    selectProgramDetailsRequestStatus,
+  ];
+
+  return (
+    <Proto title={'Datasets'} deps={deps}>
+      <List datasets={program && program.datasets} />
+    </Proto>
+  );
+};
+
+export default DatasetList

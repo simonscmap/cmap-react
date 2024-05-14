@@ -43,5 +43,5 @@ export function* fetchProgramDetails (action) {
 } // ⮷ &. Watcher ⮷
 
 export function* watchFetchProgramDetailsSend() {
-  yield takeLatest(actionTypes.FETCH_PROGRAM_DETAILS_SEND, fetchPrograms);
+  yield takeLatest(actionTypes.FETCH_PROGRAM_DETAILS_SEND, fetchProgramDetails);
 }

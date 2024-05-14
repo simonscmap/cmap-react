@@ -382,8 +382,11 @@ export const fetchProgramsFailure = ({ message, err }) => ({
   err
 });
 
-export const fetchProgramDetailsSend = () => ({
+export const fetchProgramDetailsSend = (programName) => ({
   type: catalogActionTypes.FETCH_PROGRAM_DETAILS_SEND,
+  payload: {
+    programName
+  },
 });
 
 export const storeProgramDetails = (programs) => ({
@@ -393,6 +396,7 @@ export const storeProgramDetails = (programs) => ({
 
 export const fetchProgramDetailsFailure = ({ message, error }) => ({
   type: catalogActionTypes.FETCH_PROGRAM_DETAILS_FAILURE,
-  message,
-  // error,
+  payload: {
+    message,
+  }
 });

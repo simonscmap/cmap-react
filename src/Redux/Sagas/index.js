@@ -109,6 +109,7 @@ import {
 
 import {
   watchFetchProgramsSend,
+  watchFetchProgramDetailsSend,
 } from './programsSagas';
 
 import { localStorageApi } from '../../Services/persist/local';
@@ -2159,6 +2160,7 @@ function* rootSaga() {
     watchVisualizableVariablesFetch(),
     watchDatasetVariableVisDataFetch(),
     watchFetchProgramsSend(),
+    watchFetchProgramDetailsSend(),
   ]);
 }
 

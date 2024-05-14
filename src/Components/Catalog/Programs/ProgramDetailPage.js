@@ -6,6 +6,9 @@ import Title from '../../Common/Title';
 // import Typography from '@material-ui/core/Typography';
 // import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+// import Proto from './Proto';
+import DatasetList from './ListDatasets';
+import CruiseList from './ListCruises';
 
 import {
   fetchProgramDetailsSend,
@@ -16,7 +19,6 @@ const useStyles = makeStyles (() => ({
     padding: '0 25px'
   }
 }));
-
 
 const ProgramDetail = (props) => {
   const cl = useStyles();
@@ -31,17 +33,19 @@ const ProgramDetail = (props) => {
     }
   }, []);
 
-  const x = useSelector ((state) => state.programDetails);
-  const y = useSelector ((state) => state.programDetailsRequestStatus);
+    // const y = useSelector (selectProgramDetailsRequestStatus);
 
   return (
      <Page2 bgVariant={'slate2'}>
-      <Grid container className={cl.container}>
+      <Grid container spacing="3" className={cl.container}>
         <Grid item xs="12">
           <Title text={programName} />
         </Grid>
-        <Grid item xs="12">
-
+        <Grid item xs="6">
+          <DatasetList />
+        </Grid>
+        <Grid item xs="6">
+          <CruiseList />
         </Grid>
       </Grid>
     </Page2>
