@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 // import Proto from './Proto';
 import DatasetList from './ListDatasets';
 import CruiseList from './ListCruises';
+import Globe from './Globe/Globe';
 
 import {
   fetchProgramDetailsSend,
@@ -40,6 +41,9 @@ const ProgramDetail = (props) => {
       <Grid container spacing="3" className={cl.container}>
         <Grid item xs="12">
           <Title text={programName} />
+        </Grid>
+        <Grid item xs="6">
+          <Globe />
         </Grid>
         <Grid item xs="6">
           <DatasetList />

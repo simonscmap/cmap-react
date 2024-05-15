@@ -123,8 +123,6 @@ const Proto = (props) => {
   const cl = useStyles();
   const [overallStatus] = useAsyncDeps(deps);
 
-  console.log ('overall status', overallStatus);
-
   let content = '';
 
   if (overallStatus === notTried) {
