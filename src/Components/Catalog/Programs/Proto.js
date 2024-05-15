@@ -49,7 +49,7 @@ const useAsyncDeps = (deps) => {
     .filter (isAsyncState)
     .sort (sortAsyncStates);
 
-  console.log ('statuses', statuses);
+  // console.log ('statuses', statuses);
 
   useEffect (() => {
     if (statuses.length && s.length && statuses[0] !== s[0]) {

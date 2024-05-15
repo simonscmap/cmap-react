@@ -1,7 +1,4 @@
-// Container for ArcGIS globe. The "scene" component injects control props into its children
-import React, { Component, useState, useEffect } from 'react';
-import { withStyles } from '@material-ui/core/styles';
-import { Scene } from '@esri/react-arcgis';
+import React, { useState, useEffect } from 'react';
 import { loadModules } from 'esri-loader';
 import Globe from './Scene';
 
@@ -39,6 +36,11 @@ const loadEsriModules = async (done) => {
 };
 
 const GlobeContainer = (props) => {
+  const {
+    trajectorySelector,
+    cruiseSelector,
+    activeTrajectorySelector,
+  } = props;
   const globeUIRef = React.createRef();
   const mapContainerRef = React.createRef();
 
@@ -62,6 +64,9 @@ const GlobeContainer = (props) => {
         // showCruiseControl={this.state.showCruiseControl}
         // chartControlPanelRef={this.chartControlPanelRef}
         ref={mapContainerRef} // used by the VizControlPanel
+        trajectorySelector={trajectorySelector}
+        cruiseSelector={cruiseSelector}
+        activeTrajectorySelector={activeTrajectorySelector}
       />
     );
   }

@@ -4,9 +4,12 @@ import { withStyles } from '@material-ui/core/styles';
 import { Scene } from '@esri/react-arcgis';
 
 import UIComponents from './UI';
+import Zoom from './Zoom';
+import TrajectoryControls from './TrajectoryControl';
 
 const styles = (theme) => ({
   container: {
+    minHeight: '500px',
     height: '100%',
     width: '100%',
     margin: '0 auto 0 auto',
@@ -31,7 +34,10 @@ class GlobeScene extends Component {
       classes,
       esriModules,
       globeUIRef,
-      // view,
+      trajectorySelector,
+      cruiseSelector,
+      activeTrajectorySelector,
+      view,
     } = this.props;
 
     return (
@@ -64,7 +70,15 @@ class GlobeScene extends Component {
             }
             ref={globeUIRef}
           />
+          <Zoom view={view} activeTrajectorySelector={activeTrajectorySelector} />
         </Scene>
+        <TrajectoryControls
+          trajectoryLayer={this.trajectoryLayer}
+          esriModules={esriModules}
+          globeUIRef={globeUIRef}
+          trajectorySelector={trajectorySelector}
+          cruiseSelector={cruiseSelector}
+        />
       </div>
     );
   }

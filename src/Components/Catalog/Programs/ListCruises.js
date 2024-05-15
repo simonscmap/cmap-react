@@ -16,7 +16,7 @@ const getRows = (cruises) => {
         Name,
         Nickname,
       } = cruises[k];
-      console.log ('name and nick', Name, Nickname)
+
       const cells = [
         <TableCell key={`cell_${i}_name`}>
           <RouterLink

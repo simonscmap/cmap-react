@@ -35,6 +35,7 @@ export function* fetchProgramDetails (action) {
   if (response && response.ok) {
     let jsonResponse = yield response.json();
     yield put(catalogActions.storeProgramDetails(jsonResponse));
+
   } else {
     yield put(catalogActions.fetchProgramDetailsFailure ({
       message: response.message,
