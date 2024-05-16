@@ -139,11 +139,21 @@ export default (submissionOptions) => {
     return codeFriendly (value, row);
   };
 
-  const binary = (value) => {
+  const binaryOrEmpty = (value) => {
     if (!value || value == 1 || value == 0) {
       return;
     } else {
       return 'Must be 0, 1, or empty.';
+    }
+  };
+
+  const firstRowBinary = (value, row) => {
+    if (row === 0 && (value == 1 || value == 0)) {
+      return;
+    } else if (row === 0 && (value !== 0 && value !== 1)) {
+      return 'Must be 0 or 1.';
+    } else if (row > 0 && value) {
+      return 'Only first row may have a value';
     }
   };
 
@@ -221,7 +231,7 @@ export default (submissionOptions) => {
 
     // Issue warning if no references
     dataset_references: [datasetLength(1, 500)],
-    climatology: [binary, firstRowOnly],
+    climatology: [firstRowBinary, firstRowOnly],
     cruise_names: [datasetLength(0, 200)],
 
     var_short_name: [required, codeFriendly, length(1, 50)],
@@ -231,7 +241,7 @@ export default (submissionOptions) => {
     var_spatial_res: [required, validSpatialResolution],
     var_temporal_res: [required, validTemporalResolution],
     var_discipline: [validDiscipline],
-    visualize: [binary],
+    visualize: [binaryOrEmpty],
     var_keywords: [],
     var_comment: [],
   };
