@@ -89,6 +89,7 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
 
   if (arrayOfLinkTokens.length > links.length) {
     let missingLinks = arrayOfLinkTokens.length - links.length;
+    console.log ('creating new link editor', links, missingLinks);
     for (let i = 0; i < missingLinks; i++) {
       // push a new link into the links array
       // for each fewer link in the links array than in the tokens array
@@ -105,7 +106,9 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
   }
   if (arrayOfLinkTokens.length < links.length) {
     let excessLinks = links.length - arrayOfLinkTokens.length;
+    console.log ('removing excess link', links, excessLinks);
     linkEditors = linkEditors.slice(0, links.length - excessLinks);
+    setLinks (links.slice(0, links.length - excessLinks));
   }
   // PAYLOAD
 

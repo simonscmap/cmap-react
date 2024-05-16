@@ -71,20 +71,22 @@ export const sortStories = (sortTerm, stories, order) => {
   } else if (sortTerm === 'simulate') {
     sortedStories = [].concat(stories).sort((a, b) => {
       let result;
-      if (isNotANumber(a.rank) && isNotANumber(b.rank)) {
-        result = -1;
-      } else if (typeIsNumber(a.rank) && isNotANumber(b.rank)) {
-        result = -1;
-      } else if (isNotANumber(a.rank) && typeIsNumber(b.rank)) {
-        result = 1;
-      } else if (typeIsNumber(a.rank) && typeIsNumber(b.rank)) {
-        if (a.rank < b.rank) {
-          result = -1; // sort lower ranks higher: rank 1 is highest
-        } else {
+      // if either has a rank, produce a comparison result
+      if (typeIsNumber (a.rank) || typeIsNumber (b.rank)) {
+        if (typeIsNumber(a.rank) && isNotANumber(b.rank)) {
+          result = -1;
+        } else if (isNotANumber(a.rank) && typeIsNumber(b.rank)) {
           result = 1;
+        } else if (typeIsNumber(a.rank) && typeIsNumber(b.rank)) {
+          if (a.rank < b.rank) {
+            result = -1; // sort lower ranks higher: rank 1 is highest
+          } else {
+            result = 1;
+          }
         }
-        // after rank, consider publish_date
-      } else if (a.publish_date && !b.publish_date) {
+
+      } else // otherwise, try to get a comparison of pub dates
+        if (a.publish_date && !b.publish_date) {
         result = -1;
       } else if (!a.publish_date && b.publish_date) {
         result = 1;
@@ -94,10 +96,10 @@ export const sortStories = (sortTerm, stories, order) => {
         } else {
           result = 1;
         }
-      } else if (!a.publish_date && !b.publish_date) {
-        // as a last resort, sort by create_date
+      } else // as a last resort, sort by create_date
         // this should only happen if all stories are in 'preview'
-        if (a.create_date >= b.create_date) {
+        if (!a.publish_date && !b.publish_date) {
+                if (a.create_date >= b.create_date) {
           result = -1;
         } else {
           result = 1;

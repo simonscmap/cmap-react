@@ -42,6 +42,8 @@ const Card = withStyles(newsBannerStyles)(
   ({ classes, story }) => {
     let { date, headline, link, body, label } = story;
 
+    const bodyContent = renderBody(body);
+
     return (
       <div
         className={clsx(
@@ -58,7 +60,7 @@ const Card = withStyles(newsBannerStyles)(
         <div>
           {renderHeadline(headline, link)}
         </div >
-        <Typography variant="body2">{renderBody(body)}</Typography>
+        <Typography variant="body2">{bodyContent}</Typography>
       </div >
     );
   },

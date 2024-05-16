@@ -1,5 +1,6 @@
 import { ThemeProvider } from '@material-ui/core/styles';
 import React, { useState } from 'react';
+import { createSelector } from 'reselect';
 import Footer from './Footer';
 import Hero from './Hero';
 import News from './News';
@@ -15,8 +16,13 @@ import AnomalyMonitor from './AnomalyMonitor';
 import ResizeObserver from 'react-resize-observer';
 import { Typography } from '@material-ui/core';
 
+const newsSelector = createSelector (
+  [ (state) => state.news.stories ],
+  prepareHomepageNews
+);
+
 const Home = withStyles(homeStyles)(({ classes }) => {
-  let stories = useSelector(({ news }) => prepareHomepageNews(news.stories));
+  let stories = useSelector(newsSelector);
   let [w, setWidth] = useState(0);
   const onResize = () => {
     const el = document.getElementById('hero-container')
