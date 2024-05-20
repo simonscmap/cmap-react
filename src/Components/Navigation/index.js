@@ -135,6 +135,7 @@ const Navigation = (props) => {
               >
                 <div className={classes.navigationGroupFirst}>
                   <Link to="/catalog">Catalog</Link>
+                  <Link to="/catalog/programs">Programs</Link>
                   <ExpandableItem linkText={'Visualization'}>
                     <Link to="/visualization/charts">Charts & Plots</Link>
                     <Link to="/visualization/cruises">Cruises</Link>
