@@ -6,9 +6,11 @@ import { Scene } from '@esri/react-arcgis';
 import UIComponents from './UI';
 import Zoom from './Zoom';
 import TrajectoryControls from './TrajectoryControl';
+import Legend from './Legend';
 
 const styles = (theme) => ({
   container: {
+    position: 'relative',
     minHeight: '500px',
     height: '100%',
     width: '100%',
@@ -59,11 +61,7 @@ class GlobeScene extends Component {
           }}
         >
           <UIComponents
-            // updateDomainFromGraphicExtent={
-            //   this.props.updateDomainFromGraphicExtent
-            // }
             esriModules={esriModules}
-            // measurementPositions={this.props.measurementPositions}
             regionLayer={this.regionLayer}
             setShowHelp={(showHelp) =>
               this.setState({ ...this.state, showHelp })
@@ -78,6 +76,10 @@ class GlobeScene extends Component {
           globeUIRef={globeUIRef}
           trajectorySelector={trajectorySelector}
           cruiseSelector={cruiseSelector}
+        />
+        <Legend
+          cruiseSelector={cruiseSelector}
+          onFocus={(id) => console.log(`on focus ${id}`)}
         />
       </div>
     );

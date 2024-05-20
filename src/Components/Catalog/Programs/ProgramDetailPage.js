@@ -1,16 +1,18 @@
 import { makeStyles } from '@material-ui/core/styles';
 import React, { useEffect } from 'react';
-import { createSelector } from 'reselect';
 import Page2 from '../../Common/Page2';
 import { Grid } from '@material-ui/core';
 import Title from '../../Common/Title';
 import Typography from '@material-ui/core/Typography';
-// import { Link } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-// import Proto from './Proto';
+import { useDispatch } from 'react-redux';
 import DatasetList from './ListDatasets';
 import CruiseList from './ListCruises';
 import Globe from './Globe/Globe';
+import {
+  trajectorySelector,
+  cruiseSelector,
+  activeTrajectorySelector,
+} from './programSelectors';
 
 import {
   fetchProgramDetailsSend,
@@ -34,47 +36,6 @@ const ProgramDetail = (props) => {
       // unload action
     }
   }, []);
-
-  const trajectorySelector = createSelector(
-    [ (state) => state.programDetails.cruises ],
-    (cruises) => {
-      console.log ('createSelector trajSel', cruises)
-      if (!cruises) {
-        return [];
-      } else {
-        return Object.keys(cruises).reduce((acc, currKey) => {
-          Object.assign(acc, { [currKey]: cruises[currKey] && cruises[currKey].trajectory })
-          return acc;
-        }, {});
-      }
-    }
-  );
-
-  const cruiseSelector = createSelector(
-    [ (state) => state.programDetails.cruises ],
-    (cruises) => {
-      if (!cruises) {
-        return [];
-      } else {
-        return Object.values(cruises);
-      }
-    }
-  );
-
-
-  const activeTrajectorySelector = createSelector(
-    [ (state) => state.programDetails.cruises ],
-    (cruises) => {
-      if (!cruises) {
-        return [];
-      } else {
-        return Object.values(cruises)[0].trajectory;
-      }
-    }
-  );
-
-
-
 
   return (
      <Page2 bgVariant={'slate2'}>
