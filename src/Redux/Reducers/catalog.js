@@ -45,6 +45,7 @@ import {
   FETCH_PROGRAM_DETAILS_SEND,
   FETCH_PROGRAM_DETAILS_SUCCESS,
   FETCH_PROGRAM_DETAILS_FAILURE,
+  SET_PROGRAM_CRUISE_TRAJECTORY_FOCUS,
   SET_SORTING_OPTIONS,
 } from '../actionTypes/catalog';
 import states from '../../enums/asyncRequestStates';
@@ -344,6 +345,12 @@ export default function (state, action) {
           // other info ?
         }
       }
+
+    case SET_PROGRAM_CRUISE_TRAJECTORY_FOCUS:
+      return {
+        ...state,
+        programDetailsCruiseFocus: action.payload.cruiseId,
+      };
      /************** Cruise Page **********************/
 
     case CRUISE_FULL_PAGE_DATA_STORE:

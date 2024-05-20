@@ -16,6 +16,7 @@ import {
 
 import {
   fetchProgramDetailsSend,
+  setProgramCruiseTrajectoryFocus,
 } from '../../../Redux/actions/catalog';
 const useStyles = makeStyles (() => ({
   container: {
@@ -37,6 +38,10 @@ const ProgramDetail = (props) => {
     }
   }, []);
 
+  const onCruiseFocus = (cruiseId) => {
+    dispatch (setProgramCruiseTrajectoryFocus({ cruiseId }));
+  }
+
   return (
      <Page2 bgVariant={'slate2'}>
       <Grid container spacing="3" className={cl.container}>
@@ -51,6 +56,7 @@ const ProgramDetail = (props) => {
             trajectorySelector={trajectorySelector}
             cruiseSelector={cruiseSelector}
             activeTrajectorySelector={activeTrajectorySelector}
+            onCruiseFocus={onCruiseFocus}
           />
         </Grid>
         <Grid item xs="6">

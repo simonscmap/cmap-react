@@ -40,6 +40,7 @@ const GlobeContainer = (props) => {
     trajectorySelector,
     cruiseSelector,
     activeTrajectorySelector,
+    onCruiseFocus,
   } = props;
   const globeUIRef = React.createRef();
   const mapContainerRef = React.createRef();
@@ -67,6 +68,7 @@ const GlobeContainer = (props) => {
         trajectorySelector={trajectorySelector}
         cruiseSelector={cruiseSelector}
         activeTrajectorySelector={activeTrajectorySelector}
+        onCruiseFocus={onCruiseFocus}
       />
     );
   }

@@ -39,6 +39,7 @@ class GlobeScene extends Component {
       trajectorySelector,
       cruiseSelector,
       activeTrajectorySelector,
+      onCruiseFocus,
       view,
     } = this.props;
 
@@ -76,10 +77,11 @@ class GlobeScene extends Component {
           globeUIRef={globeUIRef}
           trajectorySelector={trajectorySelector}
           cruiseSelector={cruiseSelector}
+
         />
         <Legend
           cruiseSelector={cruiseSelector}
-          onFocus={(id) => console.log(`on focus ${id}`)}
+          onFocus={onCruiseFocus}
         />
       </div>
     );

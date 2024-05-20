@@ -400,3 +400,10 @@ export const fetchProgramDetailsFailure = ({ message, error }) => ({
     message,
   }
 });
+
+export const setProgramCruiseTrajectoryFocus = ({ cruiseId }) => ({
+  type: catalogActionTypes.SET_PROGRAM_CRUISE_TRAJECTORY_FOCUS,
+  payload: {
+    cruiseId,
+  }
+});

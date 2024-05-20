@@ -9,85 +9,8 @@ import MuiAccordionSummary from '@material-ui/core/AccordionSummary';
 import MuiAccordionDetails from '@material-ui/core/AccordionDetails';
 import Typography from '@material-ui/core/Typography';
 import palette from 'google-palette';
-// import { cruiseTrajectoryZoomTo } from '../../../../Redux/actions/visualization';
-import colors from '../../../../enums/colors';
+import useLegendStyles from './useLegendStyles';
 
-const useStyles = makeStyles((theme) => ({
-  legend: {
-    position: 'absolute',
-    width: '300px',
-    top: '20px',
-    left: '20px',
-    color: 'white',
-    '& h6': { }
-  },
-  wrapper: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    alignContent: 'flex-start',
-    alignItems: 'flex-start',
-    '& .MuiPaper-root': {
-      backgroundColor: 'transparent'
-    },
-  },
-  paper: {
-    border: '1px solid black',
-    backdropFilter: 'blur(5px)',
-    width: '100%',
-  },
-  legendEntry: {
-    cursor: 'pointer',
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    gap: '1em',
-    width: '100%',
-    margin: '.3em 0'
-  },
-  swatch: {
-    height: '1em',
-    width: '1em',
-    textAlign: 'center',
-    borderRadius: '.5em',
-  },
-  container: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'start',
-    justifyContent: 'flex-start',
-    gap: '.5em',
-    '& a': {
-      color: 'white',
-    },
-    '& p': {
-      margin: 0,
-    },
-    '& > div': {
-      margin: 0,
-    }
-  },
-  zoomIcon: {
-    color: colors.primary,
-    '& svg': {
-      fontSize: '1.1em',
-      marginBottom: '-3px'
-    }
-  },
-  openPageIcon: {
-    color: colors.primary,
-    '& svg': {
-      marginBottom: '-4px',
-      marginLeft: '5px',
-      fontSize: '1.1em',
-      cursor: 'pointer',
-    }
-  },
-  nick: {
-    fontSize: '.9em'
-  }
-}));
 
 
 // Accordion
@@ -143,26 +66,23 @@ const AccordionDetails = withStyles((theme) => ({
 
 const Legend = (props) => {
   const { cruiseSelector, onFocus } = props;
-  const classes = useStyles();
-  // const dispatch = useDispatch();
+  const classes = useLegendStyles();
 
   const cruises = useSelector (cruiseSelector);
-
-  console.log ('Legend', { cruises });
-
 
   const colors = palette('rainbow', cruises.length).map((hex) => `#${hex}`);
 
   const [expanded, setExpanded] = useState (null);
+
   const handleFocus = (cruiseId) => () => {
-    console.log ('on Focus', cruiseId)
-    if (cruiseId !== expanded) {
+    if (!cruiseId) {
+      console.log ('no cruise id', cruiseId)
+    } else if (cruiseId !== expanded) {
       setExpanded (cruiseId);
+      onFocus (cruiseId);
     } else {
       setExpanded (null);
     }
-    // onFocus (cruiseId);
-    // dispatch (cruiseTrajectoryZoomTo (cruiseId));
   }
 
   return (
