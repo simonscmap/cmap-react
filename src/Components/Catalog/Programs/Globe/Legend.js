@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Paper } from '@material-ui/core';
+import Button from '@material-ui/core/Button';
+
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import { MdMyLocation } from 'react-icons/md';
@@ -10,9 +12,18 @@ import MuiAccordionDetails from '@material-ui/core/AccordionDetails';
 import Typography from '@material-ui/core/Typography';
 import palette from 'google-palette';
 import useLegendStyles from './useLegendStyles';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableRow from '@material-ui/core/TableRow';
+import dayjs from 'dayjs';
+import colors from '../../../../enums/colors';
 
 
-
+const toDate = (str) => {
+  return dayjs (str).format('YYYY-MM-DD');
+}
 // Accordion
 
 const Accordion = withStyles({
@@ -47,7 +58,7 @@ const AccordionSummary = withStyles({
     '&$expanded': {
       minHeight: 56,
     },
-    width: '100%',
+    width: 'calc(100% - 15px)',
     padding: '0 10px'
   },
   content: {
@@ -64,6 +75,93 @@ const AccordionDetails = withStyles((theme) => ({
   },
 }))(MuiAccordionDetails);
 
+const SmallButton = withStyles((theme) => ({
+  root: {
+    display: 'flex',
+    flexDirection: 'column',
+    color: theme.palette.primary.main,
+    backgroundColor: 'transparent',
+    '&:hover': {
+      backgroundColor: theme.palette.primary.main,
+      color: 'white',
+    },
+    border: `1px solid ${theme.palette.primary.main}`,
+    borderRadius: '15px',
+    boxSizing: 'border-box',
+    // height: '15px',
+    fontSize: '11px',
+    fontWeight: 200,
+    fontFamily: ['Montserrat', 'sans-serif'].join(','),
+    letterSpacing: '0.03em',
+    textTransform: 'uppercase',
+    lineHeight: 'unset',
+    '& span': {
+      whiteSpace: 'nowrap',
+    },
+    '& div': {
+      padding: '0 4px'
+    }
+  },
+}))(Button);
+
+const useDetailStyles = makeStyles ((theme) => ({
+  'root': {
+    marginLeft: '5px',
+    '& .MuiTableCell-root': {
+      border: 0,
+      padding: '5px 0',
+    }
+  }
+}));
+
+const CruiseDetails = (props) => {
+  const { cruise } = props;
+  const cl = useDetailStyles();
+  return (
+    <Table className={cl.root} aria-label="simple table">
+      <TableBody>
+        <TableRow key={'chief'}>
+          <TableCell component="th" scope="row">
+            {'Chief'}
+          </TableCell>
+          <TableCell align="left">
+            {cruise.Chief_Name}
+          </TableCell>
+        </TableRow>
+
+        <TableRow key={'ship'}>
+          <TableCell component="th" scope="row">
+            {'Ship'}
+          </TableCell>
+          <TableCell align="left">
+            {cruise.Ship_Name}
+          </TableCell>
+        </TableRow>
+
+        <TableRow key={'Start'}>
+          <TableCell component="th" scope="row">
+            {'Start'}
+          </TableCell>
+          <TableCell align="left">
+            {toDate(cruise.Start_Time)}
+          </TableCell>
+        </TableRow>
+
+        <TableRow key={'end'}>
+          <TableCell component="th" scope="row">
+            {'End'}
+          </TableCell>
+          <TableCell align="left">
+            {toDate(cruise.End_Time)}
+          </TableCell>
+        </TableRow>
+
+      </TableBody>
+     </Table>
+
+  );
+}
+
 const Legend = (props) => {
   const { cruiseSelector, onFocus } = props;
   const classes = useLegendStyles();
@@ -79,9 +177,16 @@ const Legend = (props) => {
       console.log ('no cruise id', cruiseId)
     } else if (cruiseId !== expanded) {
       setExpanded (cruiseId);
-      onFocus (cruiseId);
     } else {
       setExpanded (null);
+    }
+  }
+
+  const handleZoom = (cruiseId) => () => {
+    if (!cruiseId) {
+      console.log ('no cruise id', cruiseId)
+    } else {
+      onFocus (cruiseId);
     }
   }
 
@@ -90,8 +195,8 @@ const Legend = (props) => {
       <Paper className={classes.paper}>
         <div className={classes.wrapper}>
           {cruises.map((cruise, i) => (
-            <Accordion square expanded={cruise.ID === expanded} onClick={handleFocus(cruise.ID)}>
-              <AccordionSummary id={`${cruise.ID}control`}>
+            <Accordion square expanded={cruise.ID === expanded} >
+              <AccordionSummary id={`${cruise.ID}control`} expandIcon={<ExpandMoreIcon />} onClick={handleFocus(cruise.ID)} >
                 <div className={classes.legendEntry} key={`chip-wrapper${i}`}>
                   <div className={classes.container}>
                     <div
@@ -106,26 +211,27 @@ const Legend = (props) => {
                 </div>
               </AccordionSummary>
               <AccordionDetails>
-                <div className={classes.container}>
+                <div className={classes.detailsContainer}>
+                  <div className={classes.zoomIcon}>
+                    <SmallButton>
+                      <div>
+                        <span>{'Go to trajectory'}</span>
+                        <MdMyLocation color={colors.primary} onClick={handleZoom(cruise.ID)} />
+                      </div>
+                    </SmallButton>
+                  </div>
+                  <CruiseDetails cruise={cruise} />
                   <a href={`/catalog/cruises/${cruise.Name}`} target="_blank" rel="noreferrer">
                     <p className={classes.openPageIcon}>
-                      <span>{cruise.Nickname}</span>
+                      <span>{'View cruise details'}</span>
                       <OpenInNewIcon color="primary" />
                     </p>
                   </a>
                 </div>
-            <div className={classes.container}>
-            <div>
-                   <p>Chief: {cruise.Chief_Name}</p>
-                   <p>Ship: {cruise.Ship_Name}</p>
-                   <p>Start: {cruise.Start_Time}</p>
-                   <p>End: {cruise.End_Time}</p>
-            </div>
-                </div>
               </AccordionDetails>
             </Accordion>
           ))}
-          {(!Array.isArray(cruises) || cruises.length === 0) && <Typography>No Trajectories</Typography>}
+          {(!Array.isArray(cruises) || cruises.length === 0) && <Typography>Waiting for Trajectory Data</Typography>}
         </div>
       </Paper>
     </div>

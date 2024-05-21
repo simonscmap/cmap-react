@@ -63,7 +63,7 @@ const ProgramDetail = (props) => {
           <DatasetList />
         </Grid>
         <Grid item xs="6">
-          <CruiseList />
+          {'Sample Visualization'}
         </Grid>
       </Grid>
     </Page2>

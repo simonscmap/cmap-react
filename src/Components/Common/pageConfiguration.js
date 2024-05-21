@@ -44,6 +44,7 @@ const pages = {
 };
 
 export const getPageConfiguration = (pathname) => {
+  // TODO: pattern matching
   if (pages[pathname]) {
     return pages[pathname];
   }

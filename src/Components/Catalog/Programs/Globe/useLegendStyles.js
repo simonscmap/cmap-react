@@ -19,6 +19,10 @@ const useStyles = makeStyles((theme) => ({
     '& .MuiPaper-root': {
       backgroundColor: 'transparent'
     },
+    minHeight: '100px',
+    maxHeight: '455px',
+    overflowY: 'scroll',
+    overflowX: 'hidden',
   },
   paper: {
     border: '1px solid black',
@@ -47,8 +51,27 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'start',
     justifyContent: 'flex-start',
     gap: '.5em',
+
+    '& p': {
+      margin: 0,
+    },
+    '& > div': {
+      margin: 0,
+    }
+  },
+  detailsContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'start',
+    justifyContent: 'flex-start',
+    gap: '.5em',
     '& a': {
-      color: 'white',
+      '&:visited': {
+        color: theme.palette.primary.main,
+      },
+      '&:hover': {
+        color: 'white',
+      }
     },
     '& p': {
       margin: 0,
@@ -58,14 +81,16 @@ const useStyles = makeStyles((theme) => ({
     }
   },
   zoomIcon: {
+    width: '100%',
     color: colors.primary,
     '& svg': {
       fontSize: '1.1em',
-      marginBottom: '-3px'
+      // marginBottom: '-3px'
+      margin: '0 5px',
     }
   },
   openPageIcon: {
-    color: colors.primary,
+    // color: colors.primary,
     '& svg': {
       marginBottom: '-4px',
       marginLeft: '5px',
@@ -75,7 +100,8 @@ const useStyles = makeStyles((theme) => ({
   },
   nick: {
     fontSize: '.9em'
-  }
+  },
+
 }));
 
 export default useStyles;
