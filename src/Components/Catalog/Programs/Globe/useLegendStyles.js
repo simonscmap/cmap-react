@@ -50,8 +50,8 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'row',
     alignItems: 'start',
     justifyContent: 'flex-start',
+    overflow: 'hidden',
     gap: '.5em',
-
     '& p': {
       margin: 0,
     },
@@ -66,6 +66,7 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'flex-start',
     gap: '.5em',
     '& a': {
+      color: theme.palette.primary.main,
       '&:visited': {
         color: theme.palette.primary.main,
       },
@@ -99,7 +100,10 @@ const useStyles = makeStyles((theme) => ({
     }
   },
   nick: {
-    fontSize: '.9em'
+    fontSize: '.9em',
+    display: '-webkit-box',
+    '-webkitLineClamp': 1,
+    '-webkitBoxOrient': 'vertical',
   },
 
 }));

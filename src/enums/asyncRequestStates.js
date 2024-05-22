@@ -10,3 +10,6 @@ const states = {
 };
 
 export default Object.freeze(states);
+
+export const hasFailed = (s) => s === states.failed;
+export const hasSucceeded = (s) => s === states.succeeded;

@@ -59,7 +59,7 @@ const AccordionSummary = withStyles({
       minHeight: 56,
     },
     width: 'calc(100% - 15px)',
-    padding: '0 10px'
+    padding: '0 10px',
   },
   content: {
     '&$expanded': {
@@ -186,6 +186,7 @@ const Legend = (props) => {
     if (!cruiseId) {
       console.log ('no cruise id', cruiseId)
     } else {
+      console.log ('calling onFocus', cruiseId)
       onFocus (cruiseId);
     }
   }
@@ -205,7 +206,8 @@ const Legend = (props) => {
                     >
                     </div>
                     <div className={classes.container}>
-                      <span>{cruise.Name}</span> <span className={classes.nick}>({cruise.Nickname})</span>
+                      <span>{cruise.Name}</span>
+                      <span className={classes.nick}>({cruise.Nickname})</span>
                     </div>
                   </div>
                 </div>
@@ -213,10 +215,10 @@ const Legend = (props) => {
               <AccordionDetails>
                 <div className={classes.detailsContainer}>
                   <div className={classes.zoomIcon}>
-                    <SmallButton>
+                    <SmallButton onClick={handleZoom(cruise.ID)}>
                       <div>
                         <span>{'Go to trajectory'}</span>
-                        <MdMyLocation color={colors.primary} onClick={handleZoom(cruise.ID)} />
+                        <MdMyLocation color={colors.primary}  />
                       </div>
                     </SmallButton>
                   </div>

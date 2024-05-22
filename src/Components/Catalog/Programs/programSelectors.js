@@ -7,7 +7,9 @@ export const trajectorySelector = createSelector(
       return [];
     } else {
       return Object.keys(cruises).reduce((acc, currKey) => {
-        Object.assign(acc, { [currKey]: cruises[currKey] && cruises[currKey].trajectory })
+        if (cruises[currKey] && cruises[currKey].trajectory) {
+          Object.assign(acc, { [currKey]: cruises[currKey].trajectory })
+        }
         return acc;
       }, {});
     }

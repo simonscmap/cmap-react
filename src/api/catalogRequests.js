@@ -171,7 +171,7 @@ catalogAPI.fetchPrograms = async () => {
 }
 
 catalogAPI.fetchProgramDetails = async (programName) => {
-  return await fetch(apiUrl + '/api/catalog/programs/' + programName);
+  return await fetch(apiUrl + '/api/catalog/programs/' + programName + '?downSample=true');
 }
 
 export default catalogAPI;
