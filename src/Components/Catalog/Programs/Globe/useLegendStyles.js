@@ -51,6 +51,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'start',
     justifyContent: 'flex-start',
     overflow: 'hidden',
+    width: '100%',
     gap: '.5em',
     '& p': {
       margin: 0,

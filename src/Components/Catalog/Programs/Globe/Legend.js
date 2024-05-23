@@ -168,6 +168,10 @@ const Legend = (props) => {
 
   const cruises = useSelector (cruiseSelector);
 
+  // NOTE these color swatches are generated based on the number of trajectories
+  // and the swatches match the trajectory color based on the order of trajectories
+  // therefore a mismatch will accus between the legnd and the trajectory color
+  // if local state in either component manipulates their copy of the trajectories array
   const colors = palette('rainbow', cruises.length).map((hex) => `#${hex}`);
 
   const [expanded, setExpanded] = useState (null);
@@ -179,6 +183,8 @@ const Legend = (props) => {
       setExpanded (cruiseId);
     } else {
       setExpanded (null);
+      // we also want to deFocus the cruise
+      onFocus(null);
     }
   }
 

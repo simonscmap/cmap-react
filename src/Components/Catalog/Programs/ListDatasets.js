@@ -1,9 +1,7 @@
 import { makeStyles } from '@material-ui/core/styles';
 import React, { useEffect } from 'react';
-import { Grid } from '@material-ui/core';
-import Typography from '@material-ui/core/Typography';
-import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { Link as RouterLink } from 'react-router-dom';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -11,10 +9,8 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import { Link as RouterLink } from 'react-router-dom';
-import states from '../../../enums/asyncRequestStates';
-
 import Proto from './Proto';
+import { activeTrajectorySelector} from './programSelectors';
 
 /*~~~~~~~~~~~~  Row  ~~~~~~~~~~~~~~~*/
 const useRowStyles = makeStyles((theme) => ({
@@ -29,19 +25,25 @@ const useRowStyles = makeStyles((theme) => ({
       },
     },
   },
+  highlight: {
+    background: 'rgba(0,0,0,0.1)',
+  }
 }));
 
 const Row = (props) => {
-  const { dataset } = props;
+  const { dataset, at } = props;
   const {
     Dataset_Name,
     Data_Source,
   } = dataset;
-  const classes = useRowStyles();
+
+  const cl = useRowStyles();
+
+  const highlight = dataset.cruises.includes(at);
 
   return (
     <React.Fragment>
-      <TableRow className={classes.root} >
+      <TableRow className={(highlight ? `${cl.root} ${cl.highlight}` : cl.root)} >
         <TableCell>
           <RouterLink
             to={{pathname: `/catalog/datasets/${Dataset_Name}`}}
@@ -96,7 +98,7 @@ const useStyles = makeStyles (() => ({
 const List = (props) => {
   const cl = useStyles();
 
-  const { datasets } = props;
+  const { datasets, at } = props;
   return (
       <div className={cl.header}>
         <div className={cl.inner}>
@@ -109,8 +111,8 @@ const List = (props) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {Object.keys(datasets).map((k, i) => (
-                  <Row key={`program_dataset_row${i}`} dataset={datasets[k]}  />
+                {datasets.map((k, i) => (
+                  <Row key={`program_dataset_row${i}`} dataset={k}  at={at} />
                 ))}
               </TableBody>
             </Table>
@@ -127,14 +129,27 @@ const DatasetList = () => {
 
   // data
   const program = useSelector ((state) => state.programDetails);
+  const AT = useSelector (activeTrajectorySelector)
 
   const deps = [
     selectProgramDetailsRequestStatus,
   ];
 
+  let datasets = program && Object.values(program.datasets);
+
+  if (AT && AT.cruiseId && datasets) {
+    const pred = (dataset_) => {
+      return dataset_ && dataset_.cruises.includes (AT.cruiseId);
+    };
+
+    let associatedDatasets = datasets.filter (pred);
+    let others = datasets.filter ((arg) => !pred(arg));
+    datasets = [...associatedDatasets, ...others];
+  }
+
   return (
     <Proto title={'Datasets'} deps={deps}>
-      <List datasets={program && program.datasets} />
+      <List datasets={datasets} at={AT && AT.cruiseId}/>
     </Proto>
   );
 };

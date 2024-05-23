@@ -36,10 +36,17 @@ export const activeTrajectorySelector = createSelector(
     if (!cruises) {
       return null;
     } else if (!focusId) {
-      return Object.values(cruises)[0].trajectory;
+      return null; // NOTE allow for no cruise to be in focus
+      // return {
+      //   cruiseId: Object.values(cruises)[0].ID,
+      //   trajectory: Object.values(cruises)[0].trajectory
+      // }
     } else {
       if (cruises[focusId]) {
-        return cruises[focusId].trajectory;
+        return {
+          cruiseId: focusId,
+          trajectory: cruises[focusId].trajectory,
+        }
       } else {
         return null;
       }

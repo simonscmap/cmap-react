@@ -11,7 +11,10 @@ const loadEsriModules = async (done) => {
     'SketchViewModel',
     'Utils',
     'Graphic',
-    'FeatureLayer'
+    'FeatureLayer',
+    'Color',
+    'Polyline',
+    'geometryEngine'
   ];
 
   const moduleLoadPaths = [
@@ -22,6 +25,9 @@ const loadEsriModules = async (done) => {
     'esri/geometry/support/webMercatorUtils',
     'esri/Graphic',
     'esri/layers/FeatureLayer',
+    'esri/Color',
+    'esri/geometry/Polyline',
+    'esri/geometry/geometryEngine'
   ];
 
   const loadedModules = await loadModules(moduleLoadPaths, { version: '4.14' });

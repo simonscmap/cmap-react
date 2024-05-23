@@ -29,6 +29,7 @@ class GlobeScene extends Component {
     };
     this.regionLayer = new props.esriModules.GraphicsLayer();
     this.trajectoryLayer = new props.esriModules.GraphicsLayer();
+    this.uiRef = props.globeUIRef;
   }
 
   render () {
@@ -42,6 +43,10 @@ class GlobeScene extends Component {
       onCruiseFocus,
       view,
     } = this.props;
+
+
+    // NOTE: the Zoom and TrajectoryControls must be children of Scene
+    // in order to inherit the view prop
 
     return (
       <div className={classes.container} id="globe">
@@ -58,7 +63,8 @@ class GlobeScene extends Component {
               haloColor: 'rgba(0, 0, 0, 0)',
               fillOpacity: 0,
               color: 'rgba(0, 0, 0, 0)',
-            }
+            },
+
           }}
         >
           <UIComponents
@@ -70,15 +76,17 @@ class GlobeScene extends Component {
             ref={globeUIRef}
           />
           <Zoom view={view} activeTrajectorySelector={activeTrajectorySelector} />
+          <TrajectoryControls
+            trajectoryLayer={this.trajectoryLayer}
+            esriModules={esriModules}
+            trajectorySelector={trajectorySelector}
+            activeTrajectorySelector={activeTrajectorySelector}
+            cruiseSelector={cruiseSelector}
+            view={view}
+            // downSample={true} // we don't need this because the api is doing it
+          />
         </Scene>
-        <TrajectoryControls
-          trajectoryLayer={this.trajectoryLayer}
-          esriModules={esriModules}
-          globeUIRef={globeUIRef}
-          trajectorySelector={trajectorySelector}
-          cruiseSelector={cruiseSelector}
 
-        />
         <Legend
           cruiseSelector={cruiseSelector}
           onFocus={onCruiseFocus}
