@@ -19,6 +19,7 @@ import {
   fetchProgramDetailsSend,
   setProgramCruiseTrajectoryFocus,
 } from '../../../Redux/actions/catalog';
+
 const useStyles = makeStyles (() => ({
   container: {
     color: 'white',
@@ -49,8 +50,6 @@ const ProgramDetail = (props) => {
     dispatch (setProgramCruiseTrajectoryFocus({ cruiseId }));
   }
 
-
-
   return (
      <Page2 bgVariant={'slate2'}>
       <Grid container spacing="3" className={cl.container}>
@@ -58,10 +57,10 @@ const ProgramDetail = (props) => {
           <Title text={programName} />
         </Grid>
         <Grid item xs="6">
-        <Typography variant="h6" className={cl.blurbContainer}>
-          {pData && pData.logo && <img src={`/images/${pData.logo}`} />}
-          <span> {(pData && pData.blurb) ? pData.blurb : 'Description of Program'}</span>
-        </Typography>
+          <Typography variant="h6" className={cl.blurbContainer}>
+            {pData && pData.logo && <img src={`/images/${pData.logo}`} />}
+            <span> {(pData && pData.blurb) ? pData.blurb : programName}</span>
+          </Typography>
         </Grid>
         <Grid item xs="6">
           <Globe
@@ -69,6 +68,7 @@ const ProgramDetail = (props) => {
             cruiseSelector={cruiseSelector}
             activeTrajectorySelector={activeTrajectorySelector}
             onCruiseFocus={onCruiseFocus}
+            downSampleWarning={true}
           />
         </Grid>
         <Grid item xs="6">

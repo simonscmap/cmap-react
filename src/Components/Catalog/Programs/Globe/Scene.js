@@ -1,12 +1,66 @@
 // Container for ArcGIS globe. The "scene" component injects control props into its children
-import React, { Component } from 'react';
-import { withStyles } from '@material-ui/core/styles';
+import React, { Component, useState } from 'react';
+import { withStyles, makeStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
 import { Scene } from '@esri/react-arcgis';
-
+import WarningRoundedIcon from '@material-ui/icons/WarningRounded';
 import UIComponents from './UI';
 import Zoom from './Zoom';
 import TrajectoryControls from './TrajectoryControl';
 import Legend from './Legend';
+
+// Downsample warning
+
+const useWarningStyles = makeStyles(() => ({
+  handle: {
+    position: 'absolute',
+    top: '1em',
+    right: '1em',
+  },
+  icon: {
+    color: '#ffe500',
+    cursor: 'pointer',
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: 'rgba(0,0,0,0.5)',
+    backdropFilter: 'blur(5px)',
+    textAlign: 'center',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    gap: '2em',
+    cursor: 'pointer',
+    padding: '2em'
+  },
+  hide: {
+    display: 'none',
+  }
+}));
+
+const Warning = (props) => {
+  const cl = useWarningStyles();
+  let [open, setOpen] = useState(false);
+
+
+  return (
+    <React.Fragment>
+      <div className={cl.handle}>
+        <WarningRoundedIcon className={cl.icon} onClick={() => setOpen(true)} />
+      </div>
+      <div className={`${cl.overlay} ${open ? '' : cl.hide}`} onClick={() => setOpen(false)}>
+        <Typography variant="h5">{'The trajectories rendered here are based on data that has been modified (downsampled) and are presented as illustrations, not as references.'}</Typography>
+        <Typography variant="body1">{'(Click to Close)'}</Typography>
+      </div>
+    </React.Fragment>
+  );
+};
+
 
 const styles = (theme) => ({
   container: {
@@ -42,6 +96,7 @@ class GlobeScene extends Component {
       activeTrajectorySelector,
       onCruiseFocus,
       view,
+      downSampleWarning,
     } = this.props;
 
 
@@ -91,6 +146,8 @@ class GlobeScene extends Component {
           cruiseSelector={cruiseSelector}
           onFocus={onCruiseFocus}
         />
+
+        {downSampleWarning && <Warning />}
       </div>
     );
   }
