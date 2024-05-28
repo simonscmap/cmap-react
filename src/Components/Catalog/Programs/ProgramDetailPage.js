@@ -8,6 +8,7 @@ import { useDispatch } from 'react-redux';
 import DatasetList from './ListDatasets';
 import CruiseList from './ListCruises';
 import Globe from './Globe/Globe';
+import { data as programData } from './programData';
 import {
   trajectorySelector,
   cruiseSelector,
@@ -22,12 +23,18 @@ const useStyles = makeStyles (() => ({
   container: {
     color: 'white',
     padding: '0 25px'
+  },
+  blurbContainer: {
+    '& img': {
+      float: 'left',
+    }
   }
 }));
 
 const ProgramDetail = (props) => {
   const cl = useStyles();
   const programName = props.match.params.programName; // param defined in App.js
+  const pData = programData[programName];
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -42,6 +49,8 @@ const ProgramDetail = (props) => {
     dispatch (setProgramCruiseTrajectoryFocus({ cruiseId }));
   }
 
+
+
   return (
      <Page2 bgVariant={'slate2'}>
       <Grid container spacing="3" className={cl.container}>
@@ -49,7 +58,10 @@ const ProgramDetail = (props) => {
           <Title text={programName} />
         </Grid>
         <Grid item xs="6">
-          <Typography>Description of Program</Typography>
+        <Typography variant="h6" className={cl.blurbContainer}>
+          {pData && pData.logo && <img src={`/images/${pData.logo}`} />}
+          <span> {(pData && pData.blurb) ? pData.blurb : 'Description of Program'}</span>
+        </Typography>
         </Grid>
         <Grid item xs="6">
           <Globe
