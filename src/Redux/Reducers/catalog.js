@@ -47,6 +47,8 @@ import {
   FETCH_PROGRAM_DETAILS_FAILURE,
   SET_PROGRAM_CRUISE_TRAJECTORY_FOCUS,
   SET_SORTING_OPTIONS,
+  PROGRAM_DATASET_SELECT,
+  PROGRAM_DATASET_VARIABLE_SELECT,
 } from '../actionTypes/catalog';
 import states from '../../enums/asyncRequestStates';
 import { sortResults } from '../../Components/Catalog/SortingControls';
@@ -331,7 +333,14 @@ export default function (state, action) {
     case FETCH_PROGRAM_DETAILS_SUCCESS:
       return {
         ...state,
-        programDetails: action.payload,
+        programDetails: {
+          cruises: action.payload.cruises,
+          datasets: action.payload.datasets,
+
+          // user state
+          programDatasetSelected: null,
+          programDatasetVariableSelected: null,
+        },
         programDetailsRequestStatus: states.succeeded,
       }
 
@@ -351,6 +360,24 @@ export default function (state, action) {
         ...state,
         programDetailsCruiseFocus: action.payload.cruiseId,
       };
+
+    case PROGRAM_DATASET_SELECT:
+      return {
+        ...state,
+        programDetails: {
+          ...(state.programDetails ? state.programDetails : {}),
+          programDatasetSelected: action.payload, // { shortName, datasetId }
+        }
+      }
+
+    case PROGRAM_DATASET_VARIABLE_SELECT:
+      return {
+        ...state,
+        programDetails: {
+          ...(state.programDetails ? state.programDetails : {}),
+          programDatasetVariableSelected: action.payload, // { varShortName, datasetId }
+        }
+      }
      /************** Cruise Page **********************/
 
     case CRUISE_FULL_PAGE_DATA_STORE:

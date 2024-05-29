@@ -26,9 +26,13 @@ const useStyles = makeStyles (() => ({
     padding: '0 25px'
   },
   blurbContainer: {
+    minHeight: '500px',
     '& img': {
       float: 'left',
     }
+  },
+  verticalPlaceholder: {
+    minHeight: '700px',
   }
 }));
 
@@ -56,13 +60,15 @@ const ProgramDetail = (props) => {
         <Grid item xs="12">
           <Title text={programName} />
         </Grid>
-        <Grid item xs="6">
-          <Typography variant="h6" className={cl.blurbContainer}>
-            {pData && pData.logo && <img src={`/images/${pData.logo}`} />}
-            <span> {(pData && pData.blurb) ? pData.blurb : programName}</span>
-          </Typography>
+        <Grid item xs="5">
+          <div className={cl.blurbContainer}>
+            <Typography variant="h6">
+              {pData && pData.logo && <img src={`/images/${pData.logo}`} />}
+              <span> {(pData && pData.blurb) ? pData.blurb : programName}</span>
+            </Typography>
+          </div>
         </Grid>
-        <Grid item xs="6">
+        <Grid item xs="7">
           <Globe
             trajectorySelector={trajectorySelector}
             cruiseSelector={cruiseSelector}
@@ -72,10 +78,11 @@ const ProgramDetail = (props) => {
           />
         </Grid>
         <Grid item xs="6">
-          <DatasetList />
+          <div className={cl.verticalPlaceholder}>
+            <DatasetList />
+          </div>
         </Grid>
         <Grid item xs="6">
-          {'Sample Visualization'}
         </Grid>
       </Grid>
     </Page2>

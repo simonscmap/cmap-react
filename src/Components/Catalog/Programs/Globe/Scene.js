@@ -16,6 +16,9 @@ const useWarningStyles = makeStyles(() => ({
     position: 'absolute',
     top: '1em',
     right: '1em',
+    '& svg': {
+      fontSize: '2.5em',
+    }
   },
   icon: {
     color: '#ffe500',
@@ -54,7 +57,7 @@ const Warning = (props) => {
         <WarningRoundedIcon className={cl.icon} onClick={() => setOpen(true)} />
       </div>
       <div className={`${cl.overlay} ${open ? '' : cl.hide}`} onClick={() => setOpen(false)}>
-        <Typography variant="h5">{'The trajectories rendered here are based on data that has been modified (downsampled) and are presented as illustrations, not as references.'}</Typography>
+        <Typography variant="h5">{'The trajectories rendered here are based on data that has been downsampled and are presented as illustrations, not as references.'}</Typography>
         <Typography variant="body1">{'(Click to Close)'}</Typography>
       </div>
     </React.Fragment>

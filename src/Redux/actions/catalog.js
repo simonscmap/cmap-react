@@ -407,3 +407,20 @@ export const setProgramCruiseTrajectoryFocus = ({ cruiseId }) => ({
     cruiseId,
   }
 });
+
+// sample vis on program page
+export const selectProgramDataset = ({ shortName, datasetId }) => ({
+  type: catalogActionTypes.PROGRAM_DATASET_SELECT,
+  payload: {
+    shortName,
+    datasetId,
+  }
+});
+
+export const selectProgramDatasetVariable = ({ varShortName, datasetId }) => ({
+  type: catalogActionTypes.PROGRAM_DATASET_VARIABLE_SELECT,
+  payload: {
+    varShortName,
+    datasetId
+  }
+});

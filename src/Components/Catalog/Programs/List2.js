@@ -39,7 +39,7 @@ const SpinnerWrapper = (props) => {
 const useRowStyles = makeStyles({
   card: {
     width: '450px',
-    height: '400px',
+    height: '500px',
 
   },
   paperRoot: {
@@ -49,11 +49,11 @@ const useRowStyles = makeStyles({
     }
   },
   blurbContainer: {
-    height: '300px',
-    overflowY: 'scroll',
+    textAlign: 'justify',
+    // overflowY: 'scroll',
     '& img': {
       float: 'left',
-      maxWidth: '50%'
+      maxWidth: '50%',
     }
   }
 });

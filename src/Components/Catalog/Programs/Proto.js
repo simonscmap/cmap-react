@@ -70,7 +70,7 @@ const useHeaderStyles = makeStyles ((theme) => ({
   sectionHeader: {
     color: 'white',
     margin: '16px 0 16px 0',
-    fontWeight: 100,
+    // fontWeight: 100,
     fontFamily: '"roboto", Serif',
   },
 
@@ -116,6 +116,7 @@ const SpinnerWrapper = (props) => {
 const Proto = (props) => {
   const {
     title,
+    description,
     deps, // array of selector functions that point to state enums
     children
   } = props;
@@ -145,6 +146,7 @@ const Proto = (props) => {
         <Grid item xs="12">
           <SectionHeader title={title} />
         </Grid>
+        {description && <Grid item xs="12">{description}</Grid>}
         <Grid item xs="12">
           {content}
         </Grid>

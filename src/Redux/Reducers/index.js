@@ -79,7 +79,7 @@ const initialState = {
   // Programs
   programs: [],
   programsRequestStatus: states.notTried,
-  programDetail: null,
+  programDetails: null,
   programDetailsRequestStates: states.notTried,
   programDetailsErrMessage: null,
 
