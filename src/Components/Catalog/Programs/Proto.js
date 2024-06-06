@@ -76,7 +76,7 @@ const useHeaderStyles = makeStyles ((theme) => ({
 
 }));
 
-const SectionHeader = (props) => {
+export const SectionHeader = (props) => {
   const cl = useHeaderStyles ()
   const { title } = props;
   if (title) {

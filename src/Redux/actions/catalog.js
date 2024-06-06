@@ -417,10 +417,40 @@ export const selectProgramDataset = ({ shortName, datasetId }) => ({
   }
 });
 
-export const selectProgramDatasetVariable = ({ varShortName, datasetId }) => ({
+export const selectProgramDatasetVariable = ({ varShortName, varId, datasetId }) => ({
   type: catalogActionTypes.PROGRAM_DATASET_VARIABLE_SELECT,
   payload: {
     varShortName,
+    varId,
     datasetId
   }
+});
+
+export const programSampleVisDataFetch = ({ datasetShortName, variableId, variableData }) => ({
+  type: catalogActionTypes.PROGRAM_SAMPLE_VIS_DATA_FETCH,
+  payload: {
+    datasetShortName,
+    variableId,
+    variableData,
+  },
+});
+
+export const programSampleVisDataSetLoadingState = ({ datasetShortName, variableId, variableData }, status) => ({
+  type: catalogActionTypes.PROGRAM_SAMPLE_VIS_DATA_SET_LOADING_STATE,
+  payload: {
+    datasetShortName,
+    variableId,
+    variableData,
+    status,
+  },
+});
+
+export const programSampleVisDataStore = ({ datasetShortName, variableId, variableData }, data) => ({
+  type: catalogActionTypes.PROGRAM_SAMPLE_VIS_DATA_STORE,
+  payload: {
+    datasetShortName,
+    variableId,
+    variableData,
+    data,
+  },
 });

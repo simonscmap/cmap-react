@@ -329,17 +329,6 @@ const useWrapperStyles = makeStyles ((theme) => ({
     flexDirection: 'column',
     justifyContent: 'center',
   },
-  iconWrapper: {
-    textAlign: 'center',
-    height: '100%',
-    maxHeight: '200px',
-    display: 'flex',
-    flexDirection: 'column',
-    '& img': {
-      objectFit: 'contain',
-      maxHeight: '200px'
-    }
-  }
 }));
 
 export const ErrorWrapper = (props) => {

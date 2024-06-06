@@ -1,5 +1,5 @@
 const colors = {
-  primary: '#9dd162',
+  primary: '#9dd162', //rgb(157, 209, 98)
   solidPaper: '#184562',
   backgroundGray: '#424242',
   secondary: '#22A3B9',

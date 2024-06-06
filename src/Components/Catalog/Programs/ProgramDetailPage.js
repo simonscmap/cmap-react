@@ -6,7 +6,9 @@ import Title from '../../Common/Title';
 import Typography from '@material-ui/core/Typography';
 import { useDispatch } from 'react-redux';
 import DatasetList from './ListDatasets';
-import CruiseList from './ListCruises';
+// import CruiseList from './ListCruises';
+import { SectionHeader } from './Proto';
+import SampleVisualization from './SampleVisualization/SampleVisualization';
 import Globe from './Globe/Globe';
 import { data as programData } from './programData';
 import {
@@ -27,8 +29,11 @@ const useStyles = makeStyles (() => ({
   },
   blurbContainer: {
     minHeight: '500px',
+    textAlign: 'justify',
     '& img': {
+      maxWidth: '200px',
       float: 'left',
+      margin: '0 2em 2em 0'
     }
   },
   verticalPlaceholder: {
@@ -83,6 +88,10 @@ const ProgramDetail = (props) => {
           </div>
         </Grid>
         <Grid item xs="6">
+          <div className={cl.verticalPlaceholder}>
+            <SectionHeader title={'Sample Visualization'} />
+            <SampleVisualization />
+          </div>
         </Grid>
       </Grid>
     </Page2>

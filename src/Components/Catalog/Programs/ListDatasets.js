@@ -1,8 +1,10 @@
 import { makeStyles } from '@material-ui/core/styles';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
+import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import Typography from '@material-ui/core/Typography';
+import Toolbar from '@material-ui/core/Toolbar';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -11,6 +13,9 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import Radio from '@material-ui/core/Radio';
+import Grow from '@material-ui/core/Grow';
+import Fade from '@material-ui/core/Fade';
+
 import Proto from './Proto';
 import {
   activeTrajectorySelector,
@@ -42,33 +47,35 @@ const VariableRow = (props) => {
   const {
     Short_Name: varShortName,
     Unit,
+    ID: varId,
   } = variable;
 
   const cl = useVariableRowStyles();
   const dispatch = useDispatch();
   const handleSelect = () => {
-    dispatch (selectProgramDatasetVariable ({ varShortName, datasetId }));
+    dispatch (selectProgramDatasetVariable ({ varShortName, varId, datasetId }));
   };
 
-  return (
-    <React.Fragment>
-      <TableRow className={cl.root} >
-        <TableCell padding="checkbox">
-          <Radio
-            checked={varShortName === selectedVariable}
-            onChange={handleSelect}
-            name="radio-button"
-          />
-        </TableCell>
+  const selected = varShortName === selectedVariable;
 
+  return (
+    <Grow in={!selected} enter={false} exit={true} unmountOnExit={true} timeout={500}>
+      <TableRow className={cl.root} selected={selected} >
+        <TableCell padding="checkbox">
+            <Radio
+              checked={selected}
+              onChange={handleSelect}
+              name="radio-button"
+            />
+        </TableCell>
         <TableCell className={cl.shortNameCell}>
-          <Typography noWrap={true}>{varShortName}</Typography>
+            <Typography noWrap={true}>{varShortName}</Typography>
         </TableCell>
         <TableCell className={cl.unitCell}>
-          <Typography noWrap={true}>{Unit}</Typography>
+            <Typography noWrap={true}>{Unit}</Typography>
         </TableCell>
       </TableRow>
-    </React.Fragment>
+    </Grow>
   );
 }
 
@@ -90,12 +97,36 @@ const useRowStyles = makeStyles((theme) => ({
   highlight: {
     background: 'rgba(0,0,0,0.1)',
   },
-  shortNameCell: {
-    width: 'calc((100% - 20px) / 2)',
+  selected: {
+    // border: '2px solid rgba(157, 209, 98,0.5)',
+    '& td:nth-child(1)': {
+      // borderLeft: '3px solid rgba(157, 209, 98,0.5)',
+      //borderTop: '2px solid rgba(157, 209, 98,0.5)',
+      // borderBottom: '2px solid rgba(157, 209, 98,0.5)'
+    },
+    '& td:nth-child(2)': {
+      //borderTop: '2px solid rgba(157, 209, 98,0.5)',
+      //borderBottom: '2px solid rgba(157, 209, 98,0.5)'
+    },
+    '& td:nth-child(3)': {
+      //borderRight: '3px solid rgba(157, 209, 98,0.5)',
+      //borderTop: '2px solid rgba(157, 209, 98,0.5)',
+      //borderBottom: '2px solid rgba(157, 209, 98,0.5)'
+    },
   },
-  dataSourceCell: {
-    width: 'calc((100% - 20px) / 2)',
-  }
+  checkBox: {
+
+  },
+  shortNameContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexNrap: 'nowrap',
+    alignItems: 'center',
+    gap: '10px',
+    '& svg': {
+      fontSize: '0.9em',
+    },
+  },
 }));
 
 const DatasetRow = (props) => {
@@ -113,30 +144,40 @@ const DatasetRow = (props) => {
   };
 
   const highlight = dataset.cruises.includes(at);
+  const isSelected = shortName === selected;
+
+  const rowClasses = [ cl.root ];
+  if (highlight) {
+    rowClasses.push (cl.highlight);
+  }
+  if (isSelected) {
+    rowClasses.push (cl.selected);
+  }
 
   return (
     <React.Fragment>
-      <TableRow className={(highlight ? `${cl.root} ${cl.highlight}` : cl.root)} >
-        <TableCell padding="checkbox">
+    <Grow in={!isSelected} enter={false} exit={true} unmountOnExit={true} timeout={500}>
+      <TableRow className={rowClasses.join(' ')} selected={isSelected} stickyHeader={isSelected}>
+        <TableCell padding="checkbox" className={cl.checkBox}>
           <Radio
             checked={shortName === selected}
             onChange={handleSelect}
-            // value={Short_Name}
             name="radio-button"
           />
         </TableCell>
-
         <TableCell className={cl.shortNameCell}>
-          <RouterLink
-            to={{pathname: `/catalog/datasets/${shortName}`}}
-          >
+          <div className={cl.shortNameContainer}>
             <Typography noWrap={true}>{shortName}</Typography>
-          </RouterLink>
+            <RouterLink to={{pathname: `/catalog/datasets/${shortName}`}}>
+              <OpenInNewIcon />
+            </RouterLink>
+          </div>
         </TableCell>
         <TableCell className={cl.dataSourceCell}>
           <Typography noWrap={true}>{Data_Source}</Typography>
         </TableCell>
       </TableRow>
+    </Grow>
     </React.Fragment>
   );
 }
@@ -148,41 +189,75 @@ const useStyles = makeStyles (() => ({
     width: '100%',
     display: 'flex',
     flexDirection: 'row',
-    gap: '1em'
-  },
-  wrapper: {
-    marginTop: '10px',
-    marginRight: '10px',
-    marginBottom: '12px',
-    display: 'flex',
     gap: '1em',
-    flexDirection: 'row',
-    alignItems: 'center',
   },
   datasetListContainer: {
     width: '50%',
     height: '100%',
   },
+  tableContainer: {
+    backgroundColor: 'rgba(16, 43, 60, 0.6)',
+    backdropFilter: 'blur(20px)',
+    height: 'calc(100% - 122px)',
+    width: '100%',
+    marginTop: '-1px',
+    position: 'relative',
+  },
+
+  datatsetHeaders: { // table container
+    width: '100%',
+  },
+  variableHeaders: {
+    width: '100%',
+  },
+
   datasetVariablesListContainer: {
     width: '50%',
     height: '100%',
   },
   root: { // table header
+    tableLayout: 'fixed',
     '& .MuiTableCell-stickyHeader': {
       backgroundColor: 'rgba(30, 67, 113, 1)',
     },
-  },
-  rows: {
-    '& > *': {
+    '& .MuiTableCell-root': {
       borderBottom: 'unset',
+    }
+  },
+  datasetTable: {  },
+  hasSelected: {
+    marginTop: '40px',
+  },
+  variablesTable: { },
+
+  // cell styles
+  checkBoxHeader: {
+    width: '12px',
+  },
+  headerWhenSelection: {
+    '& th': {
+      top: 0,
+      position: 'sticky',
+      zIndex: 2, // keeps it above the radio buttons, which are absolutely position by mui
+      backgroundColor: 'rgba(6, 31, 62, 0.8)', // background:'rgb(22, 58, 82)',//  'rgba(34, 163, 185, 0.8)',
+      backdropFilter: 'blur(20px)'
+
+    },
+    '& th:nth-child(2)': {
+      padding: '16px',
     },
   },
-  tableContainer: {
-    backgroundColor: 'rgba(16, 43, 60, 0.6)',
-    backdropFilter: 'blur(20px)',
-    height: 'calc(100% - 65px)',
-    width: '100%',
+  dummyCheckBoxHeader: {
+    width: '56px'
   },
+  nameHeader: {
+    width: 'calc(50% - 20px)',
+  },
+  sourceHeader: {
+    width: 'calc(50% - 20px)',
+  },
+
+
 }));
 
 const DatasetControls = (props) => {
@@ -193,22 +268,40 @@ const DatasetControls = (props) => {
   const selectedVariableShortName = useSelector (selectedProgramDatasetVariableShortNameSelector);
   // const selectedDatasetData = useSelector (selectedProgramDatasetDataSelector);
 
-  const selectedDataset = datasets && datasets.find (d => d.Dataset_Name === selectedShortName)
+  console.log ('x', selectedVariableShortName);
+
+  const selectedDataset = datasets && datasets.find (d => d.Dataset_Name === selectedShortName);
 
   return (
       <div className={cl.container}>
         <div className={cl.datasetListContainer}>
-          <TableContainer component={Paper} className={cl.tableContainer} >
-            <Table aria-label="collapsible table" stickyHeader className={cl.root}>
+         <TableContainer component={Paper} className={cl.datasetHeaders} >
+            <Table aria-label="collapsible table" stickyHeader className={`${cl.root} ${cl.datasetTable}`}>
               <TableHead>
                 <TableRow>
-                  <TableCell />
-                  <TableCell>Name</TableCell>
-                  <TableCell>Source</TableCell>
+                  <TableCell className={cl.checkBoxHeader}/>
+                  <TableCell className={cl.nameHeader}>Dataset Name</TableCell>
+                  <TableCell className={cl.sourceHeader}>Source</TableCell>
                 </TableRow>
               </TableHead>
+            </Table>
+          </TableContainer>
+          <TableContainer component={Paper} className={cl.tableContainer} >
+            <Table aria-label="collapsible table" stickyHeader className={`${cl.root} ${cl.datasetTable}`}>
+              <Grow in={Boolean(selectedDataset)} enter={true} exit={false} unmountOnExit={true} timeout={500}>
+                <thead className={cl.headerWhenSelection}>
+                  <tr>
+                    <th className={cl.dummyCheckBoxHeader}>
+                      <Radio checked={true} />
+                    </th>
+                    <th className={cl.nameHeader}>{selectedDataset && selectedDataset.Dataset_Name}</th>
+                    <th className={cl.sourceHeader}>{selectedDataset && selectedDataset.Data_Source}</th>
+                  </tr>
+                </thead>
+              </Grow>
               <TableBody>
-                {datasets.map((k, i) => (
+                {datasets
+                  .map((k, i) => (
                   <DatasetRow
                     key={`program_dataset_row${i}`}
                     dataset={k}
@@ -220,17 +313,35 @@ const DatasetControls = (props) => {
           </TableContainer>
         </div>
         <div className={cl.datasetVariablesListContainer}>
-          <TableContainer component={Paper} className={cl.tableContainer} >
-            <Table aria-label="collapsible table" stickyHeader className={cl.root}>
+          <TableContainer component={Paper} className={cl.variableHeaders}>
+
+            <Table aria-label="collapsible table" stickyHeader className={`${cl.root} ${cl.variablesTable}`}>
               <TableHead>
                 <TableRow>
-                  <TableCell />
-                  <TableCell>Variable</TableCell>
-                  <TableCell>Units</TableCell>
+                  <TableCell className={cl.checkBoxHeader}/>
+                  <TableCell className={cl.nameHeader}>Variable Name</TableCell>
+                  <TableCell className={cl.sourceHeader}>Units</TableCell>
                 </TableRow>
               </TableHead>
+            </Table>
+          </TableContainer>
+          <TableContainer component={Paper} className={cl.tableContainer}>
+            <Table aria-label="collapsible table" stickyHeader className={`${cl.root} ${cl.variablesTable}`}>
+              <Grow in={Boolean(selectedVariableShortName)} enter={true} exit={false} unmountOnExit={true} timeout={500}>
+                 <thead className={cl.headerWhenSelection}>
+                   <tr>
+                     <th className={cl.dummyCheckBoxHeader}>
+                       <Radio checked={true} />
+                     </th>
+                     <th className={cl.nameHeader}>{selectedVariableShortName && selectedVariableShortName}</th>
+                     <th className={cl.sourceHeader}></th>
+                   </tr>
+                 </thead>
+               </Grow>
+
               <TableBody>
-                {selectedDataset && selectedDataset.visualizableVariables.variables.map((k, i) => (
+                {selectedDataset && selectedDataset.visualizableVariables.variables
+                                       .map((k, i) => (
                   <VariableRow
                     key={`program_dataset_var_row${i}`}
                     variable={k}
@@ -241,7 +352,6 @@ const DatasetControls = (props) => {
               </TableBody>
             </Table>
           </TableContainer>
-
         </div>
       </div>
     );
@@ -275,7 +385,7 @@ const DatasetList = () => {
   // const description = <Typography>{'Datasets produced by this program'}</Typography>
 
   return (
-    <Proto title={'Datasets'} deps={deps}>
+    <Proto title={'Program Datasets'} deps={deps}>
         <DatasetControls datasets={datasets} at={AT && AT.cruiseId}/>
     </Proto>
   );
