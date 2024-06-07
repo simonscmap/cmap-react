@@ -44,9 +44,18 @@ const pages = {
 };
 
 export const getPageConfiguration = (pathname) => {
+  if (typeof pathname !== 'string') {
+    return {};
+  }
   // TODO: pattern matching
   if (pages[pathname]) {
     return pages[pathname];
+  } else {
+    const lastSlash = pathname.lastIndexOf ('/');
+    if (lastSlash > 0) {
+      const parentPath = pathname.slice(0, lastSlash);
+      return getPageConfiguration (parentPath);
+    }
   }
   // Todo: this is a bad way to encode a failure case
   return {};
