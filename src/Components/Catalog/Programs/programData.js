@@ -41,4 +41,7 @@ export const data = {
 };
 
 
-export const introText = `Simons CMAP hosts oceanographic datasets from a variety of sources and data providers. Some of these providers are affiliated with Simons CMAP, but others are unafiliated public sources and programs. A notable group of long-running scientific endeavors and research programs have produced a significant portion of the data hosted here in CMAP. You can explore these individual programs, each with their specific charter and core research topic, and the datasets they have provided on this page.`;
+export const intro = {
+  lede: `Simons CMAP hosts oceanographic datasets from a variety of sources and data providers. Some of these providers are affiliated with Simons CMAP, but others are unafiliated public sources and programs. A notable group of long-running scientific endeavors and research programs have produced a significant portion of the data hosted here in CMAP. `,
+  instruction:  `On this page you can familiarize yourself with these programs. Follow the link for an individual program to explore more details about the program, including an interactive display of the trajectories of all cruises associated with the program, a full list of the datasets produced by that program, and sample visualizations of any variable you choose among those datasets.`,
+}

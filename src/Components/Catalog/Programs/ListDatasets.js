@@ -21,6 +21,7 @@ import {
   activeTrajectorySelector,
   selectedProgramDatasetShortNameSelector,
   selectedProgramDatasetDataSelector,
+  selectedVariableDataSelector,
   selectedProgramDatasetVariableShortNameSelector,
 } from './programSelectors';
 import {
@@ -239,9 +240,7 @@ const useStyles = makeStyles (() => ({
       top: 0,
       position: 'sticky',
       zIndex: 2, // keeps it above the radio buttons, which are absolutely position by mui
-      backgroundColor: 'rgba(6, 31, 62, 0.8)', // background:'rgb(22, 58, 82)',//  'rgba(34, 163, 185, 0.8)',
-      backdropFilter: 'blur(20px)'
-
+      backgroundColor: 'rgba(6, 31, 62, 1)', // background:'rgb(22, 58, 82)',//  'rgba(34, 163, 185, 0.8)',
     },
     '& th:nth-child(2)': {
       padding: '16px',
@@ -252,9 +251,16 @@ const useStyles = makeStyles (() => ({
   },
   nameHeader: {
     width: 'calc(50% - 20px)',
+    textOverflow: 'ellipsis',
+    textWrap: 'nowrap',
+    overflow: 'hidden',
+
   },
   sourceHeader: {
     width: 'calc(50% - 20px)',
+    textOverflow: 'ellipsis',
+    textWrap: 'nowrap',
+    overflow: 'hidden',
   },
 
 
@@ -268,14 +274,18 @@ const DatasetControls = (props) => {
   const selectedVariableShortName = useSelector (selectedProgramDatasetVariableShortNameSelector);
   // const selectedDatasetData = useSelector (selectedProgramDatasetDataSelector);
 
-  console.log ('x', selectedVariableShortName);
+  const selectedVariableData = useSelector (selectedVariableDataSelector);
+
+
+  console.log ('x', selectedVariableData);
 
   const selectedDataset = datasets && datasets.find (d => d.Dataset_Name === selectedShortName);
 
   return (
       <div className={cl.container}>
         <div className={cl.datasetListContainer}>
-         <TableContainer component={Paper} className={cl.datasetHeaders} >
+          {/* Dataset Column Headers */}
+          <TableContainer component={Paper} className={cl.datasetHeaders} >
             <Table aria-label="collapsible table" stickyHeader className={`${cl.root} ${cl.datasetTable}`}>
               <TableHead>
                 <TableRow>
@@ -286,6 +296,7 @@ const DatasetControls = (props) => {
               </TableHead>
             </Table>
           </TableContainer>
+          {/* Dataset List with Sticky Selected Row */}
           <TableContainer component={Paper} className={cl.tableContainer} >
             <Table aria-label="collapsible table" stickyHeader className={`${cl.root} ${cl.datasetTable}`}>
               <Grow in={Boolean(selectedDataset)} enter={true} exit={false} unmountOnExit={true} timeout={500}>
@@ -313,8 +324,8 @@ const DatasetControls = (props) => {
           </TableContainer>
         </div>
         <div className={cl.datasetVariablesListContainer}>
+          {/* Variables Column Headers */}
           <TableContainer component={Paper} className={cl.variableHeaders}>
-
             <Table aria-label="collapsible table" stickyHeader className={`${cl.root} ${cl.variablesTable}`}>
               <TableHead>
                 <TableRow>
@@ -325,6 +336,7 @@ const DatasetControls = (props) => {
               </TableHead>
             </Table>
           </TableContainer>
+          {/* Variable List with Stick Selected Row */}
           <TableContainer component={Paper} className={cl.tableContainer}>
             <Table aria-label="collapsible table" stickyHeader className={`${cl.root} ${cl.variablesTable}`}>
               <Grow in={Boolean(selectedVariableShortName)} enter={true} exit={false} unmountOnExit={true} timeout={500}>
@@ -334,7 +346,7 @@ const DatasetControls = (props) => {
                        <Radio checked={true} />
                      </th>
                      <th className={cl.nameHeader}>{selectedVariableShortName && selectedVariableShortName}</th>
-                     <th className={cl.sourceHeader}></th>
+                     <th className={cl.sourceHeader}>{selectedVariableData && selectedVariableData.Unit}</th>
                    </tr>
                  </thead>
                </Grow>

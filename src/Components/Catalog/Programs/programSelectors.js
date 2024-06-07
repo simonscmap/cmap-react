@@ -153,7 +153,6 @@ export const selectedProgramDatasetVariableShortNameSelector = createSelector(
     selectedProgramDatasetVariableSelector,
   ],
   (selectedVariable) => {
-    console.log ('sel', selectedVariable)
     if (!selectedVariable) {
       return null;
     } else {
@@ -165,7 +164,7 @@ export const selectedProgramDatasetVariableShortNameSelector = createSelector(
 
 export const selectedVariableDataSelector = createSelector (
   [
-    selectedProgramDatasetVariableSelector,
+    (state) => state.programDetails && state.programDetails && state.programDetails.programDatasetVariableSelected,
     programDatasetsSelector
   ],
   (selectedVar, datasets) => {
@@ -173,7 +172,7 @@ export const selectedVariableDataSelector = createSelector (
       return null;
     }
     const { varShortName, datasetId } = selectedVar;
-    const dataset = Object.entries(datasets).find ((d) => d.ID === datasetId);
+    const dataset = Object.values(datasets).find ((d) => d.ID === datasetId);
     if (dataset && dataset.visualizableVariables) {
       const variable = dataset.visualizableVariables.variables.find ((v) =>
         v.Short_Name === varShortName);

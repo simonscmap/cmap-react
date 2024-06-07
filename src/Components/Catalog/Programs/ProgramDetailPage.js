@@ -82,12 +82,12 @@ const ProgramDetail = (props) => {
             downSampleWarning={true}
           />
         </Grid>
-        <Grid item xs="6">
+        <Grid item xs="12" md="12" lg="6">
           <div className={cl.verticalPlaceholder}>
             <DatasetList />
           </div>
         </Grid>
-        <Grid item xs="6">
+        <Grid item xs="12" md="12" lg="6">
           <div className={cl.verticalPlaceholder}>
             <SectionHeader title={'Sample Visualization'} />
             <SampleVisualization />

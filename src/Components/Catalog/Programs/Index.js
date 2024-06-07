@@ -9,7 +9,13 @@ import { Grid } from '@material-ui/core';
 const useStyles = makeStyles (() => ({
   container: {
     color: 'white',
-    padding: '0 25px'
+    padding: '0 25px',
+    '& h2': {
+      textAlign: 'center',
+      textTransform: 'uppercase',
+      fontSize: '2em',
+      color: 'rgb(105, 255, 242,0.8)',
+    }
   }
 }));
 

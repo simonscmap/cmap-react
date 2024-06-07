@@ -3,6 +3,7 @@ import Typography from '@material-ui/core/Typography';
 import {  makeStyles, Link } from '@material-ui/core';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import Paper from '@material-ui/core/Paper';
+import Grid from '@material-ui/core/Grid';
 import { safePath } from '../../../Utility/objectUtils';
 import states from '../../../enums/asyncRequestStates';
 import { useDispatch, useSelector } from 'react-redux';
@@ -11,7 +12,7 @@ import {
 } from '../../../Redux/actions/catalog';
 import Spinner from '../../UI/Spinner';
 import { Link as RouterLink } from 'react-router-dom';
-import { data, introText } from './programData';
+import { data, intro } from './programData';
 
 /*~~~~~~~~~~~~  Spinner ~~~~~~~~~~~~~~~*/
 
@@ -42,7 +43,7 @@ const useSponsorsStyles = makeStyles ((theme) => ({
       display: 'flex',
       flexDirection: 'row',
       gap: '1em',
-      justifyContent: 'flex-start',
+      justifyContent: 'center',
       alignItems: 'center',
     },
     '& h6': {
@@ -72,7 +73,6 @@ const Sponsors = (props) => {
 
   return (
     <div className={cl.container}>
-      <Typography variant="h6">{'Sponsors:'}</Typography>
       <div>
         {sponsors.map((s, i) => (
           <img src={`/images/${logoMap[s]}`} key={`logo-${i}`} alt={`${s} logo`} />))}
@@ -96,24 +96,24 @@ const Sponsors = (props) => {
 const useRowStyles = makeStyles((theme) => ({
   card: {
     width: '450px',
-    height: '650px',
+    height: '530px',
   },
   paperRoot: {
     overflow: 'hidden',
     height: '100%',
+    boxSizing: 'border-box',
     '& h3 a': {
       fontFamily: 'Montserrat,sans-serif'
     },
     display: 'grid',
     gridTemplateColumns: '100%',
-    gridTemplateRows: '45px 61px auto 100px 44px',
+    gridTemplateRows: '45px 61px auto 40px',
     columnGap: '1em',
     rowGap: '1em',
     gridTemplateAreas: `'name'
       'fullName'
       'description'
-      'sponsor'
-      'link'
+      'footer'
     `,
   },
   name: {
@@ -153,8 +153,11 @@ const useRowStyles = makeStyles((theme) => ({
   sponsor: {
     gridArea: 'sponsor',
   },
+  footer: {
+    width: '100%',
+    gridArea: 'footer',
+  },
   link: {
-    gridArea: 'link',
     '& > div': {
       display: 'flex',
       flexDirection: 'row',
@@ -178,10 +181,11 @@ const ProgramCard = (props) => {
 
   const pData = data[name];
 
+  const styl = name === 'AMT' ? { width: '115px' } : {} ;
+
   return (
     <div className={cl.card}>
       <Paper className={cl.paperRoot} elevation="3">
-
          <Typography variant="h3" className={cl.name}>
            <Link component={RouterLink} to={`/catalog/programs/${name}`}>
             {name}
@@ -191,19 +195,26 @@ const ProgramCard = (props) => {
             {pData.fullName}
          </Typography>
          <Typography className={cl.blurbContainer}>
-           {pData && pData.logo && <div className={cl.logo}><img src={`/images/${pData.logo}`} /></div>}
+           {pData && pData.logo && <div className={cl.logo}><img src={`/images/${pData.logo}`} style={styl} /></div>}
            <span>{pData.blurb}</span>
          </Typography>
-         <Sponsors programData={pData} />
-         <div className={cl.link}>
-           <Typography variant="h6">{'Program Website:'}</Typography>
-           <div>
-             <OpenInNewIcon color="primary" />
-             <Typography noWrap={true}>
-               <a href={pData.link} target="_blank" rel="noreferrer">{pData.link}</a>
-             </Typography>
-           </div>
-         </div>
+         <div className={cl.footer}>
+           <Grid container>
+             <Grid item xs="7">
+               <div className={cl.link}>
+                 <div>
+                   <OpenInNewIcon color="primary" />
+                   <Typography noWrap={true}>
+                     <a href={pData.link} target="_blank" rel="noreferrer">{pData.link}</a>
+                   </Typography>
+                 </div>
+               </div>
+             </Grid>
+             <Grid item xs="5">
+               <Sponsors programData={pData} />
+             </Grid>
+          </Grid>
+        </div>
       </Paper>
     </div>
   );
@@ -212,22 +223,27 @@ const ProgramCard = (props) => {
 /*~~~~~~~~~~~~~~ List ~~~~~~~~~~~~~~~~~~~~*/
 const useStyles = makeStyles (() => ({
   wrapper: {
-    marginTop: '10px',
-    marginRight: '10px',
-    marginBottom: '12px',
     display: 'flex',
-    gap: '1em',
-    flexDirection: 'row',
+    gap: '4em',
+    flexDirection: 'column',
     alignItems: 'center',
+    marginBottom: '100px',
+    '& hr': {
+      height: '2px',
+      width: '50%',
+      color: 'white',
+      background: 'white',
+    }
   },
   container: {
     width: '100%',
     height: '100%',
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
     flexWrap: 'wrap',
     gap: '2em',
+
     marginBottom: '200px',
     '& .MuiPaper-root': {
       padding: '1em',
@@ -245,21 +261,11 @@ const useStyles = makeStyles (() => ({
     maxHeight: '500px',
   },
   intro: {
-    background: `radial-gradient(circle at 100% 100%, rgb(20,40,64) 0, rgb(20,40,64) 5px, transparent 5px) 0% 0%/8px 8px no-repeat,
-            radial-gradient(circle at 0 100%, rgb(20,40,64) 0, rgb(20,40,64) 5px, transparent 5px) 100% 0%/8px 8px no-repeat,
-            radial-gradient(circle at 100% 0, rgb(20,40,64) 0, rgb(20,40,64) 5px, transparent 5px) 0% 100%/8px 8px no-repeat,
-            radial-gradient(circle at 0 0, rgb(20,40,64) 0, rgb(20,40,64) 5px, transparent 5px) 100% 100%/8px 8px no-repeat,
-            linear-gradient(rgb(20,40,64), rgb(20,40,64)) 50% 50%/calc(100% - 6px) calc(100% - 16px) no-repeat,
-            linear-gradient(rgb(20,40,64), rgb(20,40,64)) 50% 50%/calc(100% - 16px) calc(100% - 6px) no-repeat,
-            linear-gradient(128deg, #69fff2 0%, #07274D 100%)`,
-    borderRadius: '2px',
-    padding: '75px 35px 0 35px',
-    boxSizing: 'border-box',
-    width: '450px',
-    height: '685px',
-    textAlign: 'justify',
-    wordSpacing: '1px',
-    lineHeight: '1.4em',
+    width: 'calc(100% - 450px)',
+    margin: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '2em',
   },
 }));
 
@@ -281,14 +287,18 @@ const ProgramsList = () => {
     return <SpinnerWrapper message={'Fetching Programs'} />
   } else if (programs && reqStatus === states.succeeded) {
     return (
+      <div className={cl.wrapper}>
+        <div className={cl.intro}>
+          <Typography variant="h4">{intro.lede}</Typography>
+          <Typography variant="h5">{intro.instruction}</Typography>
+        </div>
+        <hr />
         <div className={cl.container}>
-          <div className={cl.intro}>
-            <Typography variant="h5">{introText}</Typography>
-          </div>
           {programs.map((p) => p.name).sort().map((prog, i) => (
             <ProgramCard key={`program_card_${i}`} program={prog}  />
           ))}
         </div>
+      </div>
     );
   } else {
     return '';

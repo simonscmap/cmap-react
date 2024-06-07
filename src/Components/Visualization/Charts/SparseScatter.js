@@ -34,10 +34,9 @@ const getHovertext = (data, scatterType) => {
 
     case 'depth':
       return variableValues.map((value, i) => {
+        const depth = depths && depths[i] ? depths[i].toFixed(2) : 'NA';
         let formatter = value > 1 && value < 1000 ? '.2f' : '.2e';
-        return `Depth: ${depths[i].toFixed(2)}<br>${
-          parameters.fields
-        }: ${format(formatter)(value)} [${metadata.Unit}]`;
+        return `Depth: ${depth}<br>${parameters.fields}: ${format(formatter)(value)} [${metadata.Unit}]`;
       });
 
     case 'time':
