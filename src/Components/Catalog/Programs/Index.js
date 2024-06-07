@@ -9,13 +9,8 @@ import { Grid } from '@material-ui/core';
 const useStyles = makeStyles (() => ({
   container: {
     color: 'white',
-    padding: '0 25px',
-    '& h2': {
-      textAlign: 'center',
-      textTransform: 'uppercase',
-      fontSize: '2em',
-      color: 'rgb(105, 255, 242,0.8)',
-    }
+    padding: '20px 25px',
+
   }
 }));
 
@@ -24,9 +19,6 @@ const Programs = (props) => {
   return (
     <Page2 bgVariant={'slate2'}>
       <Grid container className={cl.container}>
-        <Grid item xs="12">
-          <Title text={'Programs'} />
-        </Grid>
         <Grid item xs="12">
           <ProgramsList />
         </Grid>

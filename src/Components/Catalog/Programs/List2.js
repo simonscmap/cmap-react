@@ -231,8 +231,9 @@ const useStyles = makeStyles (() => ({
     '& hr': {
       height: '2px',
       width: '50%',
-      color: 'white',
-      background: 'white',
+      color: 'rgba(161, 246, 64,0.2)',
+      background: 'rgba(161, 246, 64,0.2)',
+      border: 0,
     }
   },
   container: {
