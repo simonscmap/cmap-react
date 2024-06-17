@@ -198,11 +198,14 @@ const DownloadDialog = withStyles(styles)((props) => {
   let checkSizeRequestState = useSelector ((state) => state.download.checkQueryRequestState);
   let currentRequest = useSelector ((state) => state.download.currentRequest);
 
+  let [isInvalid, setInvalidFlag] = useState(false);
+
   let [downloadButtonState, setDownloadButtonState] = useState({
     enabled: false,
     message: validationMessages[checkSizeRequestState] || '',
     status: buttonStates.notTried,
   });
+
   let disableButton = (message, status) => setDownloadButtonState({ enabled: false, message, status });
   let enableButton = (message, status) => setDownloadButtonState({ enabled: true, message, status });
 
@@ -437,6 +440,7 @@ const DownloadDialog = withStyles(styles)((props) => {
             <SubsetControls
               subsetParams={subsetParams}
               subsetSetters={subsetSetters}
+              setInvalidFlag={setInvalidFlag}
               dataset={dataset}
               handleSwitch={handleSwitch}
               optionsState={optionsState}
@@ -449,6 +453,7 @@ const DownloadDialog = withStyles(styles)((props) => {
     <DialogActions>
         <DownloadStep
           buttonState={downloadButtonState}
+          isInvalid={isInvalid}
           handlers={{
             handleClose,
             handleDownload,

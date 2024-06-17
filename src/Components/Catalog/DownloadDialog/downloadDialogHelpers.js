@@ -269,8 +269,6 @@ export const dayToDateString = (min, days) => {
 
   let result = formatDateString(fullYear, month, day);
 
-  // console.log(min, min.getDate(), days, result)
-
   return result;
 };
 

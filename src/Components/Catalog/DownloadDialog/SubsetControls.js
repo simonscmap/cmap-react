@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Collapse } from '@material-ui/core';
 
 import DateSubsetControl from './DateSubsetControl';
@@ -20,6 +20,7 @@ let SubsetControls = (props) => {
   let {
     subsetParams,
     subsetSetters,
+    setInvalidFlag,
     dataset,
     handleSwitch,
     optionsState,
@@ -70,6 +71,7 @@ let SubsetControls = (props) => {
             setTimeStart={setTimeStart}
             setTimeEnd={setTimeEnd}
             subsetState={{ timeStart, timeEnd, maxDays }}
+            setInvalidFlag={setInvalidFlag}
           />
 
           <LatitudeSubsetControl

@@ -2,6 +2,9 @@ import colors from '../../../enums/colors';
 import zIndex from '../../../enums/zIndex';
 
 const styles = (theme) => ({
+  relative: {
+    position: 'relative',
+  },
   accordionDetails: {
     display: 'table-row',
   },

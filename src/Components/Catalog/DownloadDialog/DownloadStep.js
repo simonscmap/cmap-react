@@ -6,7 +6,7 @@ import { downloadButtonText } from './buttonStates';
 
 
 const DownloadStep = (props) => {
-  let { handlers, buttonState } = props;
+  let { handlers, buttonState, isInvalid } = props;
 
   let { handleClose, handleDownload } = handlers;
 
@@ -26,7 +26,7 @@ const DownloadStep = (props) => {
       >
         <Grid item>
         <Button
-          disabled={!buttonState.enabled}
+          disabled={!buttonState.enabled || isInvalid}
           onClick={downloadHandler}
           color="primary"
           variant="contained">
