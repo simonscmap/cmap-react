@@ -143,6 +143,7 @@ const useRowStyles = makeStyles((theme) => ({
     gridArea: 'description',
     textAlign: 'justify',
     overflowY: 'scroll',
+    hyphens: 'auto',
     /* '& img': {
      *   float: 'left',
      *   maxWidth: '40%',

@@ -28,12 +28,24 @@ const useStyles = makeStyles (() => ({
     padding: '0 25px'
   },
   blurbContainer: {
-    minHeight: '500px',
+    height: '500px',
+    background: 'rgba(0,0,0, 0.2)',
+    borderRadius: '5px',
+    padding: '5px 10px',
     textAlign: 'justify',
+  },
+  paragraphs: {
+    paddingRight: '10px',
+    height: 'calc(100% - 10px)',
+    overflow: 'scroll',
+    hyphens: 'auto',
     '& img': {
       maxWidth: '200px',
       float: 'left',
       margin: '0 2em 2em 0'
+    },
+    '& h6': {
+      marginBottom: '2em',
     }
   },
   verticalPlaceholder: {
@@ -47,6 +59,8 @@ const ProgramDetail = (props) => {
   const pData = programData[programName];
   const dispatch = useDispatch();
 
+
+
   useEffect(() => {
     // navigate action
     dispatch (fetchProgramDetailsSend(programName));
@@ -55,9 +69,16 @@ const ProgramDetail = (props) => {
     }
   }, []);
 
+  if (!pData) {
+    // TODO redirect
+    return '';
+  }
+
   const onCruiseFocus = (cruiseId) => {
     dispatch (setProgramCruiseTrajectoryFocus({ cruiseId }));
   }
+
+  const copy = pData.detail || [pData.blurb];
 
   return (
      <Page2 bgVariant={'slate2'}>
@@ -67,10 +88,10 @@ const ProgramDetail = (props) => {
         </Grid>
         <Grid item xs="5">
           <div className={cl.blurbContainer}>
-            <Typography variant="h6">
-              {pData && pData.logo && <img src={`/images/${pData.logo}`} />}
-              <span> {(pData && pData.blurb) ? pData.blurb : programName}</span>
-            </Typography>
+            <div className={cl.paragraphs}>
+              {pData.logo && <img src={`/images/${pData.logo}`} />}
+              {copy.map ((c, ix) => (<Typography variant="h6" key={`copy_${ix}`}>{c}</Typography>))}
+            </div>
           </div>
         </Grid>
         <Grid item xs="7">
