@@ -42,7 +42,7 @@ const useStyles = makeStyles (() => ({
     '& img': {
       maxWidth: '200px',
       float: 'left',
-      margin: '0 2em 2em 0'
+      margin: '10px 2em 2em 0'
     },
     '& h6': {
       marginBottom: '2em',

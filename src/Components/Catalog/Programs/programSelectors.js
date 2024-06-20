@@ -73,13 +73,26 @@ export const cruiseSelector = createSelector(
 
 export const activeTrajectorySelector = createSelector(
   [
+    (state) => state.programDetails && state.programDetails.name,
     (state) => state.programDetails && state.programDetails.cruises,
     (state) => state.programDetailsCruiseFocus,
   ],
-  (cruises, focusId) => {
-    if (!cruises) {
+  (programName, cruises = [], focusId) => {
+    if (!cruises || cruises.length === 0) {
       return null;
     } else if (!focusId) {
+      if (programName === 'BATS') {
+        const batsCruises = Object.values(cruises).filter (({ Nickname }) => Nickname.includes ('BATS'));
+        const firstBatsCruise = batsCruises.length && batsCruises[0];
+        if (firstBatsCruise) {
+          return {
+            cruiseId: firstBatsCruise.ID,
+            trajectory: cruises[firstBatsCruise.ID].trajectory,
+          };
+        } else {
+          return null;
+        }
+      }
       return null; // NOTE allow for no cruise to be in focus
       // return {
       //   cruiseId: Object.values(cruises)[0].ID,

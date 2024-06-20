@@ -347,6 +347,7 @@ export default function (state, action) {
       return {
         ...state,
         programDetails: {
+          name: action.payload.programName,
           cruises: action.payload.cruises,
           datasets: action.payload.datasets,
 

@@ -35,6 +35,7 @@ export function* fetchProgramDetails (action) {
   let response = yield call(api.catalog.fetchProgramDetails, programName);
   if (response && response.ok) {
     let jsonResponse = yield response.json();
+    jsonResponse.programName = programName;
     yield put(catalogActions.storeProgramDetails(jsonResponse));
 
   } else {
