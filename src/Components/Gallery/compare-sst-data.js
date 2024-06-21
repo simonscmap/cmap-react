@@ -22,8 +22,8 @@ const toA = ([text, href]) => (
 const toCustomItem = (component) => ({ custom: component });
 
 const links = [
-  ['Student Worksheet: Compare SST Data', dropbox.activityPlots],
-  ['Instructor Resource: Compare SST Data Plots', dropbox.studentWorksheet],
+  ['Student Worksheet: Compare SST Data', dropbox.studentWorksheet],
+  ['Instructor Resource: Compare SST Data Plots', dropbox.activityPlots],
 ];
 
 const styles = () => ({
