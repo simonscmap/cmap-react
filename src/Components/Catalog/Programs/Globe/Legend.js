@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Paper } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
+import { Tooltip } from '@material-ui/core';
 
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
@@ -19,6 +20,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import dayjs from 'dayjs';
 import colors from '../../../../enums/colors';
+import InfoIcon from '@material-ui/icons/InfoOutlined';
 
 
 const toDate = (str) => {
@@ -202,9 +204,9 @@ const Legend = (props) => {
       <Paper className={classes.paper}>
         <div className={classes.wrapper}>
           {cruises.map((cruise, i) => (
-            <Accordion square expanded={cruise.ID === expanded} >
+            <Accordion square expanded={cruise.ID === expanded} key={`accordian_ ${i}`}>
               <AccordionSummary id={`${cruise.ID}control`} expandIcon={<ExpandMoreIcon />} onClick={handleFocus(cruise.ID)} >
-                <div className={classes.legendEntry} key={`chip-wrapper${i}`}>
+                <div className={classes.legendEntry}>
                   <div className={classes.container}>
                     <div
                       className={classes.swatch}
@@ -214,6 +216,11 @@ const Legend = (props) => {
                     <div className={classes.container}>
                       <span>{cruise.Name}</span>
                       <span className={classes.nick}>({cruise.Nickname})</span>
+                      {/*<div className={classes.crossProgramChip}>
+                        <Tooltip title={'This cruise is featured in multiple programs.'}>
+                          <InfoIcon />
+                        </Tooltip>
+                      </div>*/}
                     </div>
                   </div>
                 </div>

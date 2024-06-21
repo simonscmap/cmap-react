@@ -30,6 +30,7 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
   },
   legendEntry: {
+    position: 'relative',
     cursor: 'pointer',
     display: 'flex',
     flexDirection: 'row',
@@ -46,6 +47,7 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: '.5em',
   },
   container: {
+    position: 'relative',
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'start',
@@ -106,7 +108,15 @@ const useStyles = makeStyles((theme) => ({
     '-webkitLineClamp': 1,
     '-webkitBoxOrient': 'vertical',
   },
-
+  crossProgramChip: {
+    // position: 'absolute',
+    //top: '-10px',
+    // right: 0,
+    '& > svg': {
+      fontSize: '.9em',
+      color: '#9dd162',
+    }
+  },
 }));
 
 export default useStyles;

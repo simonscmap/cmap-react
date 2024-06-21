@@ -194,26 +194,12 @@ const TrajectoryController = (props) => {
       path.push ([lons[k], lats[k]]);
     }
 
-    /* const polyLine = new esriModules.Polyline ({
-     *   type: 'polyline',
-     *   paths: path,
-     * }) */
-
     const simpleLineSymbol = {
       type: "simple-line",
       color: newColor,
       width: strokeWidth,
+      style: 'short-dash',
     };
-
-
-    /* const antimeridian = new esriModules.Polyline ({
-     *   'type': 'polyline',
-     *   paths: [
-     *     [-179.99, -89.9],
-     *     [-179.99, 89.9]
-     *   ]
-     * }); */
-
 
     const makePolylineGraphic = (graphic) => {
       return new esriModules.Graphic({
@@ -248,8 +234,6 @@ const TrajectoryController = (props) => {
       'type': 'polyline',
       paths: p
     }));
-
-    // console.log ('geometries', geometries[0])
 
     geometries.forEach (g => {
       const graphic = makePolylineGraphic (g);

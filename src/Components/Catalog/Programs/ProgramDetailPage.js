@@ -31,8 +31,9 @@ const useStyles = makeStyles (() => ({
     height: '500px',
     background: 'rgba(0,0,0, 0.2)',
     borderRadius: '5px',
-    padding: '5px 10px',
+    padding: '19px 10px 5px 22px',
     textAlign: 'justify',
+    boxShadow: `0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12)`,
   },
   paragraphs: {
     paddingRight: '10px',
