@@ -1,8 +1,6 @@
 import { makeStyles } from '@material-ui/core/styles';
-import React, { useEffect } from 'react';
+import React from 'react';
 import Page2 from '../../Common/Page2';
-import Title from '../../Common/Title';
-// import ProgramsList from './ProgramsList';
 import ProgramsList from './List2';
 import { Grid } from '@material-ui/core';
 

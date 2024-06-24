@@ -1,5 +1,6 @@
 export const data = {
-  Gradients: {
+  gradients: {
+    title: 'Gradients',
     fullName: 'SCOPE: Gradients',
     link: 'http://scope.soest.hawaii.edu/data/gradients/gradients.html',
     blurb: 'The SCOPE-Gradients program aims to understand biogeochemical organization and function in marine ecosystems, focusing on planktonic communities. It involves field and lab studies, model development and testing, particularly of the Darwin model. The program conducted five 3-4 week field campaigns, spanning over the North Pacific Subtropical Gyre (NPSG) and the Equatorial Divergence Zones.',
@@ -11,33 +12,38 @@ export const data = {
     ],
     sponsors: ['simons-foundation'],
   },
-  CBIOMES: {
+  cbiomes: {
+    title: 'CBIOMES',
     fullName: 'Computational Biogeochemical Modeling for Marine Ecosystems',
     link: 'https://cbiomes.org/',
     blurb: 'The Simons Collaboration on Computational Biogeochemical Modeling of Marine Ecosystems (CBIOMES) seeks to develop and apply quantitative models of the structure and function of marine microbial communities at seasonal and basin scales.',
     logo: 'cbiomes-notext-logo.png',
     sponsors: ['simons-foundation'],
   },
-  SCOPE: {
+  scope: {
+    title: 'SCOPE',
     fullName: 'Simons Collaboration on Ocean Processes and Ecology',
     link: 'https://scope.soest.hawaii.edu/',
     blurb: 'The central mission of SCOPE is to measure, model and predict the pathways and exchanges (inputs and outputs) of energy and matter within and between specific microbial groups and their environment at relevant spatial and temporal scales, from surface waters to the deep sea (more than 4 km in depth) at Station ALOHA. A central premise of SCOPE is that we must study the ocean ecosystem in situ, at a variety of levels of biological organization (e.g., genetic, biochemical, physiological, biogeochemical and ecological), and at highly resolved, nested scales of space and time in order to fully describe and model it.',
     logo: 'scope-logo.png',
     sponsors: ['simons-foundation'],
   },
-  HOT: {
+  hot: {
+    title: 'HOT',
     fullName: 'Hawaii Ocean Time-series',
     link: 'https://hahana.soest.hawaii.edu/hot/',
     blurb: 'Scientists working on the Hawaii Ocean Time-series (HOT) program have been making repeated observations of the hydrography, chemistry and biology of the water column at a station north of Oahu, Hawaii since October 1988. The objective of this research is to provide a comprehensive description of the ocean at a site representative of the North Pacific subtropical gyre. Cruises are made approximately once per month to the deep-water Station ALOHA (A Long-Term Oligotrophic Habitat Assessment; 22° 45\'N, 158° 00\'W) located 100 km north of Oahu, Hawaii. Measurements of the thermohaline structure, water column chemistry, currents, optical properties, primary production, plankton community structure, and rates of particle export are made on each cruise.',
     logo: 'hot-logo.png',
   },
-  BATS: {
+  bats: {
+    title: 'BATS',
     fullName: 'Bermuda Atlantic Time-series Study',
     link: 'https://bats.bios.asu.edu/',
     blurb: 'BATS was established to uncover mysteries of the deep by analyzing important hydrographic and biological parameters throughout the water column. Pursuing this goal has enabled BATS scientists — and oceanographers worldwide — to completely revise their perspective on the ocean’s physical, chemical and biological processes. Sustained time-series data collection has ch$allenged longstanding paradigms and has begun to uncover exciting new observations about the ocean.',
     logo: 'bats-logo.png',
   },
-  AMT: {
+  amt: {
+    title: 'AMT',
     fullName: 'Atlantic Meridonal Transect',
     link: 'https://www.amt-uk.org/',
     blurb: 'AMT is a well respected and established scientific research programme which enables scientists to make open ocean observations through a wide latitudinal degree (100°), including the (rarely sampled) north and south Atlantic gyres. The cruise is unique and facilitates a greater understanding of the ocean and the biogeochemistry within it.',
@@ -45,6 +51,19 @@ export const data = {
   }
 };
 
+export const matchProgram = (str) => {
+  if (!str || !str.toLowerCase) {
+    return null;
+  }
+
+  const lcTerm = str.toLowerCase();
+
+  if (data[lcTerm]) {
+    return data[lcTerm];
+  } else {
+    return null;
+  }
+}
 
 export const intro = {
   lede: `Simons CMAP hosts oceanographic datasets from a variety of sources and data providers. Some of these providers are affiliated with Simons CMAP, but others are unaffiliated public sources and programs.`,

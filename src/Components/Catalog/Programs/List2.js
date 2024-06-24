@@ -12,7 +12,7 @@ import {
 } from '../../../Redux/actions/catalog';
 import Spinner from '../../UI/Spinner';
 import { Link as RouterLink } from 'react-router-dom';
-import { data, intro } from './programData';
+import { data, intro, matchProgram } from './programData';
 
 /*~~~~~~~~~~~~  Spinner ~~~~~~~~~~~~~~~*/
 
@@ -180,7 +180,7 @@ const ProgramCard = (props) => {
   const { program: name } = props;
   const cl = useRowStyles();
 
-  const pData = data[name];
+  const pData = matchProgram (name);
 
   const styl = name === 'AMT' ? { width: '115px' } : {} ;
 

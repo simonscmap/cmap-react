@@ -1,5 +1,6 @@
 import { makeStyles } from '@material-ui/core/styles';
 import React, { useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
 import Page2 from '../../Common/Page2';
 import { Grid } from '@material-ui/core';
 import Title from '../../Common/Title';
@@ -10,7 +11,8 @@ import DatasetList from './ListDatasets';
 import { SectionHeader } from './Proto';
 import SampleVisualization from './SampleVisualization/SampleVisualization';
 import Globe from './Globe/Globe';
-import { data as programData } from './programData';
+
+import { data as programData, matchProgram } from './programData';
 import {
   trajectorySelector,
   cruiseSelector,
@@ -56,22 +58,24 @@ const useStyles = makeStyles (() => ({
 
 const ProgramDetail = (props) => {
   const cl = useStyles();
-  const programName = props.match.params.programName; // param defined in App.js
-  const pData = programData[programName];
+  const routeParam = props.match.params.programName; // param defined in App.js
+  const pData = matchProgram (routeParam);
+
   const dispatch = useDispatch();
-
-
+  const history = useHistory();
 
   useEffect(() => {
     // navigate action
-    dispatch (fetchProgramDetailsSend(programName));
+    if (pData) {
+      dispatch (fetchProgramDetailsSend(pData.title));
+    }
     return () => {
       // unload action
     }
   }, []);
 
   if (!pData) {
-    // TODO redirect
+    history.push ('/catalog/programs')
     return '';
   }
 
@@ -85,7 +89,7 @@ const ProgramDetail = (props) => {
      <Page2 bgVariant={'slate2'}>
       <Grid container spacing="3" className={cl.container}>
         <Grid item xs="12">
-          <Title text={programName} />
+          <Title text={pData.title} />
         </Grid>
         <Grid item xs="5">
           <div className={cl.blurbContainer}>
