@@ -184,7 +184,7 @@ const DatasetRow = (props) => {
 }
 
 /*~~~~~~~~~~~~~~ List ~~~~~~~~~~~~~~~~~~~~*/
-const useStyles = makeStyles (() => ({
+const useStyles = makeStyles ((theme) => ({
   container: {
     height: '700px',
     width: '100%',
@@ -193,7 +193,7 @@ const useStyles = makeStyles (() => ({
     gap: '1em',
   },
   datasetListContainer: {
-    width: '50%',
+    width: '60%',
     height: '100%',
   },
   tableContainer: {
@@ -213,7 +213,7 @@ const useStyles = makeStyles (() => ({
   },
 
   datasetVariablesListContainer: {
-    width: '50%',
+    width: '40%',
     height: '100%',
   },
   root: { // table header
@@ -245,6 +245,9 @@ const useStyles = makeStyles (() => ({
     '& th:nth-child(2)': {
       padding: '16px',
     },
+    '& th:nth-child(3)': {
+      padding: '16px',
+    },
   },
   dummyCheckBoxHeader: {
     width: '56px'
@@ -254,7 +257,16 @@ const useStyles = makeStyles (() => ({
     textOverflow: 'ellipsis',
     textWrap: 'nowrap',
     overflow: 'hidden',
-
+    '& a': {
+      float: 'right',
+      color: theme.palette.primary.main,
+      '&:visited': {
+          color: theme.palette.primary.main
+      }
+    },
+    '& svg': {
+      fontSize: '0.9em',
+    },
   },
   sourceHeader: {
     width: 'calc(50% - 20px)',
@@ -275,9 +287,6 @@ const DatasetControls = (props) => {
   // const selectedDatasetData = useSelector (selectedProgramDatasetDataSelector);
 
   const selectedVariableData = useSelector (selectedVariableDataSelector);
-
-
-  console.log ('x', selectedVariableData);
 
   const selectedDataset = datasets && datasets.find (d => d.Dataset_Name === selectedShortName);
 
@@ -305,7 +314,12 @@ const DatasetControls = (props) => {
                     <th className={cl.dummyCheckBoxHeader}>
                       <Radio checked={true} />
                     </th>
-                    <th className={cl.nameHeader}>{selectedDataset && selectedDataset.Dataset_Name}</th>
+                    <th className={cl.nameHeader}>
+                      <span>{selectedDataset && selectedDataset.Dataset_Name}</span>
+                      <RouterLink to={{pathname: `/catalog/datasets/${selectedDataset.Dataset_Name}`}}>
+                        <OpenInNewIcon />
+                      </RouterLink>
+                    </th>
                     <th className={cl.sourceHeader}>{selectedDataset && selectedDataset.Data_Source}</th>
                   </tr>
                 </thead>
