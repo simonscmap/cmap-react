@@ -39,7 +39,7 @@ export const data = {
     title: 'BATS',
     fullName: 'Bermuda Atlantic Time-series Study',
     link: 'https://bats.bios.asu.edu/',
-    blurb: 'BATS was established to uncover mysteries of the deep by analyzing important hydrographic and biological parameters throughout the water column. Pursuing this goal has enabled BATS scientists — and oceanographers worldwide — to completely revise their perspective on the ocean’s physical, chemical and biological processes. Sustained time-series data collection has ch$allenged longstanding paradigms and has begun to uncover exciting new observations about the ocean.',
+    blurb: 'BATS was established to uncover mysteries of the deep by analyzing important hydrographic and biological parameters throughout the water column. Pursuing this goal has enabled BATS scientists — and oceanographers worldwide — to completely revise their perspective on the ocean’s physical, chemical and biological processes. Sustained time-series data collection has challenged longstanding paradigms and has begun to uncover exciting new observations about the ocean.',
     logo: 'bats-logo.png',
   },
   amt: {

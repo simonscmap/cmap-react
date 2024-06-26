@@ -1,10 +1,9 @@
 import { makeStyles } from '@material-ui/core/styles';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import Typography from '@material-ui/core/Typography';
-import Toolbar from '@material-ui/core/Toolbar';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -14,13 +13,14 @@ import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import Radio from '@material-ui/core/Radio';
 import Grow from '@material-ui/core/Grow';
-import Fade from '@material-ui/core/Fade';
-
+import * as JsSearch from 'js-search';
+import TextField from '@material-ui/core/TextField';
+import SearchIcon from '@material-ui/icons/Search';
+import ClearIcon from '@material-ui/icons/Clear';
 import Proto from './Proto';
 import {
   activeTrajectorySelector,
   selectedProgramDatasetShortNameSelector,
-  selectedProgramDatasetDataSelector,
   selectedVariableDataSelector,
   selectedProgramDatasetVariableShortNameSelector,
 } from './programSelectors';
@@ -51,6 +51,8 @@ const VariableRow = (props) => {
     ID: varId,
   } = variable;
 
+  console.log ('var row', variable)
+
   const cl = useVariableRowStyles();
   const dispatch = useDispatch();
   const handleSelect = () => {
@@ -80,8 +82,6 @@ const VariableRow = (props) => {
   );
 }
 
-
-
 /*~~~~~~~~~~~~  Dataset Row  ~~~~~~~~~~~~~~~*/
 const useRowStyles = makeStyles((theme) => ({
   root: {
@@ -98,31 +98,12 @@ const useRowStyles = makeStyles((theme) => ({
   highlight: {
     background: 'rgba(0,0,0,0.1)',
   },
-  selected: {
-    // border: '2px solid rgba(157, 209, 98,0.5)',
-    '& td:nth-child(1)': {
-      // borderLeft: '3px solid rgba(157, 209, 98,0.5)',
-      //borderTop: '2px solid rgba(157, 209, 98,0.5)',
-      // borderBottom: '2px solid rgba(157, 209, 98,0.5)'
-    },
-    '& td:nth-child(2)': {
-      //borderTop: '2px solid rgba(157, 209, 98,0.5)',
-      //borderBottom: '2px solid rgba(157, 209, 98,0.5)'
-    },
-    '& td:nth-child(3)': {
-      //borderRight: '3px solid rgba(157, 209, 98,0.5)',
-      //borderTop: '2px solid rgba(157, 209, 98,0.5)',
-      //borderBottom: '2px solid rgba(157, 209, 98,0.5)'
-    },
-  },
-  checkBox: {
-
-  },
   shortNameContainer: {
     display: 'flex',
     flexDirection: 'row',
-    flexNrap: 'nowrap',
+    flexWrap: 'nowrap',
     alignItems: 'center',
+    justifyContent: 'space-between',
     gap: '10px',
     '& svg': {
       fontSize: '0.9em',
@@ -193,6 +174,7 @@ const useStyles = makeStyles ((theme) => ({
     gap: '1em',
   },
   datasetListContainer: {
+    position: 'relative',
     width: '60%',
     height: '100%',
   },
@@ -213,6 +195,7 @@ const useStyles = makeStyles ((theme) => ({
   },
 
   datasetVariablesListContainer: {
+    position: 'relative',
     width: '40%',
     height: '100%',
   },
@@ -257,8 +240,21 @@ const useStyles = makeStyles ((theme) => ({
     textOverflow: 'ellipsis',
     textWrap: 'nowrap',
     overflow: 'hidden',
+  },
+  nameAndLinkContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: '5px',
+    '& p': {
+      textOverflow: 'ellipsis',
+      textWrap: 'nowrap',
+      overflow: 'hidden',
+      padding: 0,
+      margin: 0,
+    },
     '& a': {
-      float: 'right',
       color: theme.palette.primary.main,
       '&:visited': {
           color: theme.palette.primary.main
@@ -275,8 +271,69 @@ const useStyles = makeStyles ((theme) => ({
     overflow: 'hidden',
   },
 
-
+  searchContainer: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    height: '55px',
+    width: '55px',
+    zIndex: 2,
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'nowrap',
+    gap: '20px',
+    paddingLeft: '10px',
+    transition: 'all 0.5s ease',
+    borderRadius: '5px',
+    '& svg': {
+      paddingRight: '10px'
+    },
+    '& .MuiOutlinedInput-input': {
+      border: 'none',
+    },
+    '& .MuiOutlinedInput-notchedOutline': {
+      border: 0,
+    }
+  },
+  searchActive:{
+    width: 'calc(100% - 10px)',
+    borderRadius: '5px',
+    background: 'rgba(0,0,0,0.3)',
+    '& .MuiOutlinedInput-input': {
+      background: 'rgba(0,0,0,1)',
+      borderRadius: '5px',
+      border: '2px solid #22A3B9', // #3f51b5 // #22A3B9
+    },
+    '& fieldset': {
+      borderRadius: '5px',
+    },
+    '& .MuiFormControl-root': {
+      flexGrow: 3,
+    }
+  },
+  inputRoot: {
+  }
 }));
+
+// TODO
+const sortDatasetsByAssociationWithActiveTrajectory = (datasets, activeTrajectory) => {
+  let datasetsArray = Object.values(datasets);
+  let activeCruiseId = activeTrajectory && activeTrajectory.cruiseId;
+
+  if (activeCruiseId && datasetsArray) {
+    const pred = (dataset_) => {
+      return dataset_ && dataset_.cruises.includes (activeCruiseId);
+    };
+
+    let associatedDatasets = datasetsArray.filter (pred);
+    let others = datasetsArray.filter ((arg) => !pred(arg));
+    datasetsArray = [...associatedDatasets, ...others];
+  }
+
+  return datasetsArray;
+}
 
 const DatasetControls = (props) => {
   const { datasets, at } = props;
@@ -284,11 +341,97 @@ const DatasetControls = (props) => {
   const cl = useStyles();
   const selectedShortName = useSelector (selectedProgramDatasetShortNameSelector);
   const selectedVariableShortName = useSelector (selectedProgramDatasetVariableShortNameSelector);
-  // const selectedDatasetData = useSelector (selectedProgramDatasetDataSelector);
 
   const selectedVariableData = useSelector (selectedVariableDataSelector);
 
   const selectedDataset = datasets && datasets.find (d => d.Dataset_Name === selectedShortName);
+
+  // TODO extract the js search to a custom hook
+
+  // Dataset Search
+  const dsRef = useRef();
+  let [filteredDatasets, setFilteredDatasets] = useState(datasets);
+  let [datasetSearchActive, setDatasetSearchActive] = useState(false);
+  let [datasetSearch] = useState (new JsSearch.Search('ID'));
+
+  // let datasetSearch = new JsSearch.Search('ID');
+  useEffect(() => {
+    datasetSearch.indexStrategy = new JsSearch.PrefixIndexStrategy();
+    datasetSearch.addIndex('Dataset_Name');
+    datasetSearch.addIndex('Data_Source');
+  }, [])
+
+  useEffect (() => {
+    if (datasets && datasets.length) {
+      if (datasetSearch._documents.length === 0) {
+        datasetSearch.addDocuments (datasets)
+      }
+      if (!filteredDatasets) {
+        setFilteredDatasets (datasets);
+      }
+    }
+  }, [datasets]);
+
+  const datasetSearchChange = (x) => {
+    const searchTerm = x.target.value;
+    if (searchTerm) {
+      const filtered = datasetSearch.search (searchTerm);
+      setFilteredDatasets(filtered);
+    }
+  }
+
+  const handleSearchOpenClose = (e) => {
+    e.preventDefault();
+    if (!datasetSearchActive) {
+      dsRef && dsRef.current && dsRef.current.focus && dsRef.current.focus();
+    }
+    setDatasetSearchActive (!datasetSearchActive);
+  }
+
+  // Variable Search
+
+  const vsRef = useRef();
+  let [filteredVariables, setFilteredVariables] = useState(null);
+  let [variableSearchActive, setVariableSearchActive] = useState(false);
+  let [variableSearch] = useState (new JsSearch.Search('ID'));
+
+  // let datasetSearch = new JsSearch.Search('ID');
+  useEffect(() => {
+    variableSearch.indexStrategy = new JsSearch.PrefixIndexStrategy();
+    variableSearch.addIndex('Short_Name');
+    variableSearch.addIndex('Unit');
+  }, [])
+
+  useEffect (() => {
+    if (selectedDataset && selectedDataset.visualizableVariables && selectedDataset.visualizableVariables.variables) {
+      if (variableSearch._documents.length === 0) {
+        variableSearch.addDocuments (selectedDataset.visualizableVariables.variables)
+      }
+      if (!filteredVariables) {
+        setFilteredVariables (selectedDataset.visualizableVariables.variables);
+      }
+    }
+  }, [selectedDataset]);
+
+  const variableSearchChange = (x) => {
+    const searchTerm = x.target.value;
+    if (searchTerm) {
+      const filtered = variableSearch.search (searchTerm);
+      setFilteredVariables (filtered);
+    } else {
+      setFilteredVariables (selectedDataset.visualizableVariables.variables);
+    }
+  }
+
+  const handleVarSearchOpenClose = (e) => {
+    e.preventDefault();
+    if (!variableSearchActive) {
+      vsRef && vsRef.current && vsRef.current.focus && vsRef.current.focus();
+    }
+    setVariableSearchActive (!variableSearchActive);
+  }
+
+  // render
 
   return (
       <div className={cl.container}>
@@ -305,6 +448,24 @@ const DatasetControls = (props) => {
               </TableHead>
             </Table>
           </TableContainer>
+          <div className={`${cl.searchContainer} ${(datasetSearchActive && cl.searchActive)}`}>
+            <TextField
+              inputRef={dsRef}
+              name="searchTerms"
+              onChange={datasetSearchChange}
+              placeholder="Search Dataset Name or Source"
+              InputProps={{
+                classes: {
+                  root: cl.inputRoot,
+                }
+              }}
+              variant="outlined"
+            />
+            {datasetSearchActive
+             ? <ClearIcon style={{ color: 'white', cursor: 'pointer' }} onClick={handleSearchOpenClose} />
+             : <SearchIcon style={{ color: 'white', cursor: 'pointer' }} onClick={handleSearchOpenClose} />
+            }
+          </div>
           {/* Dataset List with Sticky Selected Row */}
           <TableContainer component={Paper} className={cl.tableContainer} >
             <Table aria-label="collapsible table" stickyHeader className={`${cl.root} ${cl.datasetTable}`}>
@@ -315,17 +476,19 @@ const DatasetControls = (props) => {
                       <Radio checked={true} />
                     </th>
                     <th className={cl.nameHeader}>
-                      <span>{selectedDataset && selectedDataset.Dataset_Name}</span>
-                      <RouterLink to={{pathname: `/catalog/datasets/${selectedDataset.Dataset_Name}`}}>
-                        <OpenInNewIcon />
-                      </RouterLink>
+                      <div className={cl.nameAndLinkContainer}>
+                        <p>{selectedDataset && selectedDataset.Dataset_Name}</p>
+                        <RouterLink to={{pathname: `/catalog/datasets/${selectedDataset.Dataset_Name}`}}>
+                          <OpenInNewIcon />
+                        </RouterLink>
+                      </div>
                     </th>
                     <th className={cl.sourceHeader}>{selectedDataset && selectedDataset.Data_Source}</th>
                   </tr>
                 </thead>
               </Grow>
               <TableBody>
-                {datasets
+                {filteredDatasets && filteredDatasets
                   .map((k, i) => (
                   <DatasetRow
                     key={`program_dataset_row${i}`}
@@ -350,6 +513,24 @@ const DatasetControls = (props) => {
               </TableHead>
             </Table>
           </TableContainer>
+          <div className={`${cl.searchContainer} ${(variableSearchActive && cl.searchActive)}`}>
+            <TextField
+              inputRef={vsRef}
+              name="searchTerms"
+              onChange={variableSearchChange}
+              placeholder="Search Variable Name"
+              InputProps={{
+                classes: {
+                  root: cl.inputRoot,
+                }
+              }}
+              variant="outlined"
+            />
+            {variableSearchActive
+             ? <ClearIcon style={{ color: 'white', cursor: 'pointer' }} onClick={handleVarSearchOpenClose} />
+             : <SearchIcon style={{ color: 'white', cursor: 'pointer' }} onClick={handleVarSearchOpenClose} />
+            }
+          </div>
           {/* Variable List with Stick Selected Row */}
           <TableContainer component={Paper} className={cl.tableContainer}>
             <Table aria-label="collapsible table" stickyHeader className={`${cl.root} ${cl.variablesTable}`}>
@@ -364,10 +545,8 @@ const DatasetControls = (props) => {
                    </tr>
                  </thead>
                </Grow>
-
               <TableBody>
-                {selectedDataset && selectedDataset.visualizableVariables.variables
-                                       .map((k, i) => (
+                {filteredVariables && filteredVariables.map((k, i) => (
                   <VariableRow
                     key={`program_dataset_var_row${i}`}
                     variable={k}
