@@ -95,6 +95,9 @@ const useStyles = makeStyles((theme) => ({
   },
   openPageIcon: {
     // color: colors.primary,
+    '& span': {
+      fontSize: '0.9em',
+    },
     '& svg': {
       marginBottom: '-4px',
       marginLeft: '5px',

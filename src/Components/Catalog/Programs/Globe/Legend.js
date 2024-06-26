@@ -22,10 +22,25 @@ import dayjs from 'dayjs';
 import colors from '../../../../enums/colors';
 import InfoIcon from '@material-ui/icons/InfoOutlined';
 
+import ExpansionPanel from '@material-ui/core/ExpansionPanel';
+import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
+import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 
 const toDate = (str) => {
   return dayjs (str).format('YYYY-MM-DD');
 }
+
+const DarkTooltip = withStyles((theme) => ({
+  tooltip: {
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    color: 'white',
+    boxShadow: theme.shadows[1],
+    fontSize: '0.9em',
+    backdropFilter: 'blur(5px)'
+  },
+}))(Tooltip);
+
+
 // Accordion
 
 const Accordion = withStyles({
@@ -71,6 +86,7 @@ const AccordionSummary = withStyles({
   expanded: {},
 })(MuiAccordionSummary);
 
+
 const AccordionDetails = withStyles((theme) => ({
   root: {
     padding: '2px 10px 5px 15px',
@@ -106,6 +122,7 @@ const SmallButton = withStyles((theme) => ({
   },
 }))(Button);
 
+// Cruise Details
 const useDetailStyles = makeStyles ((theme) => ({
   'root': {
     marginLeft: '5px',
@@ -164,6 +181,88 @@ const CruiseDetails = (props) => {
   );
 }
 
+
+
+const useCrossProgramInfoStyles = makeStyles ((theme) => ({
+  container: {
+    width: '100%',
+    overflow: 'hidden',
+    '& .MuiExpansionPanelDetails-root': {
+      display: 'unset', // shouldn't be flex
+      padding: 0
+    },
+    '& .MuiExpansionPanelSummary-root': {
+      padding: 0,
+      fontSize: '0.9em',
+      flexDirection: 'row-reverse',
+      gap: '1em',
+      '& .MuiButtonBase-root': {
+        padding: 0
+      }
+    }
+  },
+  pair: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'nowrap',
+    '& > p': {
+      width: '50%',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap'
+    }
+  },
+  dsn: {
+    cursor: 'default',
+    '&:hover': {
+      color: '#22A3B9'
+    }
+  }
+}));
+
+const CrossProgramInfo = (props) => {
+  const { cruise } = props;
+  const cl = useCrossProgramInfoStyles();
+  if (!cruise) {
+    return '';
+  }
+
+  return (<div className={cl.container}>
+     <ExpansionPanel>
+       <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+         {'Datasets & Associated Programs'}
+       </ExpansionPanelSummary>
+       <ExpansionPanelDetails>
+         {cruise.datasets.map ((d,i) => (
+           <div className={cl.pair} key={`pair${i}`}>
+             <DarkTooltip title={d.datasetShortName || `Dataset Id: ${d.datasetId}`}>
+               <Typography className={cl.dsn}>{d.datasetShortName || d.datasetId}</Typography>
+             </DarkTooltip>
+             <Typography>{d.programNames.join(', ')}</Typography>
+           </div>
+         ))}
+       </ExpansionPanelDetails>
+     </ExpansionPanel>
+    </div>
+  );
+};
+
+const getCrossProgramTooltipText = (cruise) => {
+  if (!cruise) {
+    return '';
+  }
+  const datasets = cruise.datasets;
+  const programs = datasets.reduce ((acc, d) => {
+    if (!d || !d.programNames || d.programNames.length === 0) {
+      return acc;
+    }
+    d.programNames.forEach (n => acc.add (n));
+    return acc;
+  }, new Set());
+  const s = Array.from (programs).filter (x => Boolean(x));
+  return `This cruise features multiple programs: ${s.join (', ')}`;
+}
+
 const Legend = (props) => {
   const { cruiseSelector, onFocus } = props;
   const classes = useLegendStyles();
@@ -180,7 +279,7 @@ const Legend = (props) => {
 
   const handleFocus = (cruiseId) => () => {
     if (!cruiseId) {
-      console.log ('no cruise id', cruiseId)
+      //
     } else if (cruiseId !== expanded) {
       setExpanded (cruiseId);
     } else {
@@ -192,9 +291,8 @@ const Legend = (props) => {
 
   const handleZoom = (cruiseId) => () => {
     if (!cruiseId) {
-      console.log ('no cruise id', cruiseId)
+      //
     } else {
-      console.log ('calling onFocus', cruiseId)
       onFocus (cruiseId);
     }
   }
@@ -216,11 +314,11 @@ const Legend = (props) => {
                     <div className={classes.container}>
                       <span>{cruise.Name}</span>
                       <span className={classes.nick}>({cruise.Nickname})</span>
-                      {/*<div className={classes.crossProgramChip}>
-                        <Tooltip title={'This cruise is featured in multiple programs.'}>
+                      {cruise.isMultiProgram && <div className={classes.crossProgramChip}>
+                        <DarkTooltip title={getCrossProgramTooltipText (cruise)}>
                           <InfoIcon />
-                        </Tooltip>
-                      </div>*/}
+                        </DarkTooltip>
+                      </div>}
                     </div>
                   </div>
                 </div>
@@ -231,7 +329,7 @@ const Legend = (props) => {
                     <SmallButton onClick={handleZoom(cruise.ID)}>
                       <div>
                         <span>{'Go to trajectory'}</span>
-                        <MdMyLocation color={colors.primary}  />
+                        <MdMyLocation color={colors.primary} />
                       </div>
                     </SmallButton>
                   </div>
@@ -242,6 +340,7 @@ const Legend = (props) => {
                       <OpenInNewIcon color="primary" />
                     </p>
                   </a>
+                  {cruise.isMultiProgram && <CrossProgramInfo cruise={cruise}/>}
                 </div>
               </AccordionDetails>
             </Accordion>
