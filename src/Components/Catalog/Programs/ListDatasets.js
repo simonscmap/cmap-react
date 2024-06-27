@@ -32,6 +32,12 @@ import {
 /*~~~~~~~~~~~~  Row  ~~~~~~~~~~~~~~~*/
 const useVariableRowStyles = makeStyles((theme) => ({
   root: {
+    '& .MuiTableCell-root': {
+      padding: '5px',
+    },
+    '& .MuiRadio-root': {
+      padding: '5px',
+    },
     '& > *': {
       borderBottom: 'unset',
       '& a': {
@@ -50,8 +56,6 @@ const VariableRow = (props) => {
     Unit,
     ID: varId,
   } = variable;
-
-  console.log ('var row', variable)
 
   const cl = useVariableRowStyles();
   const dispatch = useDispatch();
@@ -72,10 +76,7 @@ const VariableRow = (props) => {
             />
         </TableCell>
         <TableCell className={cl.shortNameCell}>
-            <Typography noWrap={true}>{varShortName}</Typography>
-        </TableCell>
-        <TableCell className={cl.unitCell}>
-            <Typography noWrap={true}>{Unit}</Typography>
+            <Typography noWrap={true}>{varShortName} {`(${Unit})`}</Typography>
         </TableCell>
       </TableRow>
     </Grow>
@@ -85,6 +86,12 @@ const VariableRow = (props) => {
 /*~~~~~~~~~~~~  Dataset Row  ~~~~~~~~~~~~~~~*/
 const useRowStyles = makeStyles((theme) => ({
   root: {
+    '& .MuiTableCell-root': {
+      padding: '5px',
+    },
+    '& .MuiRadio-root': {
+      padding: '5px',
+    },
     '& > *': {
       borderBottom: 'unset',
       '& a': {
@@ -220,20 +227,24 @@ const useStyles = makeStyles ((theme) => ({
   },
   headerWhenSelection: {
     '& th': {
+      padding: '5px',
       top: 0,
       position: 'sticky',
       zIndex: 2, // keeps it above the radio buttons, which are absolutely position by mui
       backgroundColor: 'rgba(6, 31, 62, 1)', // background:'rgb(22, 58, 82)',//  'rgba(34, 163, 185, 0.8)',
     },
     '& th:nth-child(2)': {
-      padding: '16px',
+      padding: '5px',
     },
     '& th:nth-child(3)': {
-      padding: '16px',
+      padding: '5px',
     },
+    '& .MuiRadio-root': {
+      padding: '5px',
+    }
   },
   dummyCheckBoxHeader: {
-    width: '56px'
+    width: '36px'
   },
   nameHeader: {
     width: 'calc(50% - 20px)',
@@ -508,7 +519,6 @@ const DatasetControls = (props) => {
                 <TableRow>
                   <TableCell className={cl.checkBoxHeader}/>
                   <TableCell className={cl.nameHeader}>Variable Name</TableCell>
-                  <TableCell className={cl.sourceHeader}>Units</TableCell>
                 </TableRow>
               </TableHead>
             </Table>
@@ -541,7 +551,6 @@ const DatasetControls = (props) => {
                        <Radio checked={true} />
                      </th>
                      <th className={cl.nameHeader}>{selectedVariableShortName && selectedVariableShortName}</th>
-                     <th className={cl.sourceHeader}>{selectedVariableData && selectedVariableData.Unit}</th>
                    </tr>
                  </thead>
                </Grow>

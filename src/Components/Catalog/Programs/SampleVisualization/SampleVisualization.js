@@ -25,9 +25,12 @@ const getVariableData = (selectedVar, datasets) => {
     console.log ('missing arg', { selectedVar, datasets})
     return null;
   }
+
   const { varShortName, datasetId } = selectedVar;
   const values = Object.values (datasets);
   const dataset = Object.values (datasets).find ((d) => d.ID === datasetId);
+
+  console.log (`looking for variable data`, selectedVar, datasets);
   if (dataset && dataset.visualizableVariables) {
     const variable = dataset.visualizableVariables.variables.find ((v) =>
       v.Short_Name === varShortName);
