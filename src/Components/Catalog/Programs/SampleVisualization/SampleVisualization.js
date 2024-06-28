@@ -22,7 +22,6 @@ import SAMPLE_VIS_MAX_QUERY_SIZE from '../../../../enums/sampleVisMaxQuerySize';
 // given the selection and the loaded datasets, return the variable data
 const getVariableData = (selectedVar, datasets) => {
   if (!selectedVar || !datasets) {
-    console.log ('missing arg', { selectedVar, datasets})
     return null;
   }
 
@@ -30,11 +29,9 @@ const getVariableData = (selectedVar, datasets) => {
   const values = Object.values (datasets);
   const dataset = Object.values (datasets).find ((d) => d.ID === datasetId);
 
-  console.log (`looking for variable data`, selectedVar, datasets);
   if (dataset && dataset.visualizableVariables) {
     const variable = dataset.visualizableVariables.variables.find ((v) =>
       v.Short_Name === varShortName);
-    console.log ('find variable', variable);
     if (variable) {
       return variable;
     } else {
@@ -58,10 +55,6 @@ const selectionAndDataMatch = (variableData, visualizationData) => {
   return varShortName === vd.Short_Name;
 }
 
-const isNotLoading = (state) => {
-  return state !== states.succeeded && state !== states.failed;
-}
-
 const SampleVisualization = () => {
   const dispatch = useDispatch();
 
@@ -79,10 +72,8 @@ const SampleVisualization = () => {
   // visualizationData // { datasetShortName, variableId, loadingState, data }
   const visualizationData = useSelector (sampleVisualizationDataSelector);
 
-
   // fetch new visualization data when variable selection changes
   useEffect (() => {
-    console.log ('selected variable', selectedVariable)
     if (selectedVariable) {
       if (!selectionAndDataMatch (selectedVariable, visualizationData)) {
         const variableData = getVariableData (selectedVariable, programDatasets);
@@ -134,7 +125,7 @@ const SampleVisualization = () => {
 
 
     const data = visualizationData.data;
-    const visType = safePath (['data', 'meta', 'visType']) (visualizationData);
+    const visType = safePath (['variableData', 'meta', 'visType']) (visualizationData);
     const chart = {
       data,
       subType: 'Heatmap' === visType ? 'Heatmap' : 'Sparse'
@@ -144,8 +135,6 @@ const SampleVisualization = () => {
     chart.data.metadata.Data_Source = selectedDataset.Data_Source;
     chart.data.metadata.Dataset_Name = selectedDataset.Long_Name;
     chart.data.metadata.Distributor = selectedDataset.Distributor;
-
-    console.log ('data', visualizationData.data);
 
     const overrides = {
       isSampleVisualization: true,
@@ -160,7 +149,7 @@ const SampleVisualization = () => {
 
     return <ChartWrapperWithoutPaper chart={chart} overrides={overrides}/>;
   } else {
-    console.log ('return nothing')
+    console.log ('return nothing');
     return '';
   }
 };
