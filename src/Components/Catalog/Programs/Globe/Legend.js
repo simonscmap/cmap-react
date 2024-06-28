@@ -195,27 +195,54 @@ const useCrossProgramInfoStyles = makeStyles ((theme) => ({
       padding: 0,
       fontSize: '0.9em',
       flexDirection: 'row-reverse',
+      marginLeft: '-5px',
+      minHeight: 'unset',
       gap: '1em',
       '& .MuiButtonBase-root': {
         padding: 0
       }
+    },
+    '& .MuiExpansionPanelSummary-content': {
+      margin: 0
     }
   },
   pair: {
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'nowrap',
+    marginBottom: '5px',
+    '& ul': {
+      margin: 0,
+    },
     '& > p': {
-      width: '50%',
+      width: '100%',
       overflow: 'hidden',
       textOverflow: 'ellipsis',
       whiteSpace: 'nowrap'
+    }
+
+  },
+  nameContainer: {
+    width: 'calc(100% - 2px)',
+    color: 'white', //
+    paddingLeft: '22px',
+    '& li::marker': {
+      color:theme.palette.primary.main,
+    }
+  },
+  progContainer: {
+    width: 'calc(100% - 10px)',
+    paddingLeft: '20px',
+    listStyleType: 'none',
+    fontSize: '.8em',
+    '& li::before': {
+      content: `"- "`,
+      textIndent: '-5px',
     }
   },
   dsn: {
     cursor: 'default',
     '&:hover': {
-      color: '#22A3B9'
+      // color: ''
+      textDecoration: '#22A3B9 underline'
+
     }
   }
 }));
@@ -235,10 +262,16 @@ const CrossProgramInfo = (props) => {
        <ExpansionPanelDetails>
          {cruise.datasets.map ((d,i) => (
            <div className={cl.pair} key={`pair${i}`}>
-             <DarkTooltip title={d.datasetShortName || `Dataset Id: ${d.datasetId}`}>
-               <Typography className={cl.dsn}>{d.datasetShortName || d.datasetId}</Typography>
-             </DarkTooltip>
-             <Typography>{d.programNames.join(', ')}</Typography>
+             <ul className={cl.nameContainer}>
+               <li>
+                 <DarkTooltip title={d.datasetShortName || `Dataset Id: ${d.datasetId}`}>
+                   <Typography className={cl.dsn}>{d.datasetShortName || d.datasetId}</Typography>
+                 </DarkTooltip>
+               </li>
+             </ul>
+             <ul className={cl.progContainer}>
+               <li>{' '}{d.programNames.join(', ')}</li>
+             </ul>
            </div>
          ))}
        </ExpansionPanelDetails>
