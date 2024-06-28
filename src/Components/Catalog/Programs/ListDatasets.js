@@ -1,5 +1,5 @@
 import { makeStyles } from '@material-ui/core/styles';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
@@ -12,8 +12,6 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import Radio from '@material-ui/core/Radio';
-import Grow from '@material-ui/core/Grow';
-import * as JsSearch from 'js-search';
 import TextField from '@material-ui/core/TextField';
 import SearchIcon from '@material-ui/icons/Search';
 import ClearIcon from '@material-ui/icons/Clear';
@@ -28,6 +26,8 @@ import {
   selectProgramDataset,
   selectProgramDatasetVariable,
 } from '../../../Redux/actions/catalog';
+
+import { safePath } from '../../../Utility/objectUtils';
 
 /*~~~~~~~~~~~~  Row  ~~~~~~~~~~~~~~~*/
 const useVariableRowStyles = makeStyles((theme) => ({
@@ -66,7 +66,6 @@ const VariableRow = (props) => {
   const selected = varShortName === selectedVariable;
 
   return (
-    <Grow in={!selected} enter={false} exit={true} unmountOnExit={true} timeout={500}>
       <TableRow className={cl.root} selected={selected} >
         <TableCell padding="checkbox">
             <Radio
@@ -79,7 +78,6 @@ const VariableRow = (props) => {
             <Typography noWrap={true}>{varShortName} {`(${Unit})`}</Typography>
         </TableCell>
       </TableRow>
-    </Grow>
   );
 }
 
@@ -145,7 +143,6 @@ const DatasetRow = (props) => {
 
   return (
     <React.Fragment>
-    <Grow in={!isSelected} enter={false} exit={true} unmountOnExit={true} timeout={500}>
       <TableRow className={rowClasses.join(' ')} selected={isSelected} stickyHeader={isSelected}>
         <TableCell padding="checkbox" className={cl.checkBox}>
           <Radio
@@ -166,7 +163,6 @@ const DatasetRow = (props) => {
           <Typography noWrap={true}>{Data_Source}</Typography>
         </TableCell>
       </TableRow>
-    </Grow>
     </React.Fragment>
   );
 }
@@ -353,43 +349,38 @@ const DatasetControls = (props) => {
   const selectedShortName = useSelector (selectedProgramDatasetShortNameSelector);
   const selectedVariableShortName = useSelector (selectedProgramDatasetVariableShortNameSelector);
 
-  const selectedVariableData = useSelector (selectedVariableDataSelector);
+  // const selectedVariableData = useSelector (selectedVariableDataSelector);
 
   const selectedDataset = datasets && datasets.find (d => d.Dataset_Name === selectedShortName);
 
-  // TODO extract the js search to a custom hook
 
   // Dataset Search
   const dsRef = useRef();
   let [filteredDatasets, setFilteredDatasets] = useState(datasets);
+  let [datasetSearchTerm, setDatasetSearchTerm] = useState();
   let [datasetSearchActive, setDatasetSearchActive] = useState(false);
-  let [datasetSearch] = useState (new JsSearch.Search('ID'));
-
-  // let datasetSearch = new JsSearch.Search('ID');
-  useEffect(() => {
-    datasetSearch.indexStrategy = new JsSearch.PrefixIndexStrategy();
-    datasetSearch.addIndex('Dataset_Name');
-    datasetSearch.addIndex('Data_Source');
-  }, [])
-
-  useEffect (() => {
-    if (datasets && datasets.length) {
-      if (datasetSearch._documents.length === 0) {
-        datasetSearch.addDocuments (datasets)
-      }
-      if (!filteredDatasets) {
-        setFilteredDatasets (datasets);
-      }
-    }
-  }, [datasets]);
 
   const datasetSearchChange = (x) => {
-    const searchTerm = x.target.value;
-    if (searchTerm) {
-      const filtered = datasetSearch.search (searchTerm);
-      setFilteredDatasets(filtered);
+    if (typeof safePath(['target','value'])(x) !== 'string') {
+      return;
+    }
+    const newSearchTerm = x.target.value.trim().toLowerCase();
+    if (newSearchTerm !== datasetSearchTerm) {
+      setDatasetSearchTerm (newSearchTerm);
     }
   }
+
+  useEffect(() => {
+    if (!datasetSearchTerm  || datasetSearchTerm === '') {
+      setFilteredDatasets (datasets);
+    } else if (datasets) {
+      const filtered = datasets.filter (({Dataset_Name, Data_Source}) => {
+        const subject = (`${Dataset_Name || ''}${Data_Source || ''}`).toLowerCase();
+        return subject.includes(datasetSearchTerm);
+      });
+      setFilteredDatasets (filtered);
+    }
+  }, [datasetSearchTerm]);
 
   const handleSearchOpenClose = (e) => {
     e.preventDefault();
@@ -403,34 +394,27 @@ const DatasetControls = (props) => {
 
   const vsRef = useRef();
   let [filteredVariables, setFilteredVariables] = useState(null);
+  let [searchTerm, setSearchTerm] = useState ('');
   let [variableSearchActive, setVariableSearchActive] = useState(false);
-  let [variableSearch] = useState (new JsSearch.Search('ID'));
 
-  // let datasetSearch = new JsSearch.Search('ID');
   useEffect(() => {
-    variableSearch.indexStrategy = new JsSearch.PrefixIndexStrategy();
-    variableSearch.addIndex('Short_Name');
-    variableSearch.addIndex('Unit');
-  }, [])
-
-  useEffect (() => {
-    if (selectedDataset && selectedDataset.visualizableVariables && selectedDataset.visualizableVariables.variables) {
-      if (variableSearch._documents.length === 0) {
-        variableSearch.addDocuments (selectedDataset.visualizableVariables.variables)
-      }
-      if (!filteredVariables) {
-        setFilteredVariables (selectedDataset.visualizableVariables.variables);
-      }
+    const variables = safePath (['visualizableVariables','variables']) (selectedDataset);
+    if (variables) {
+      const filtered = variables.filter (({Short_Name, Unit}) => {
+        const subject = (`${Short_Name || ''}${Unit || ''}`).toLowerCase();
+        return subject.includes(searchTerm);
+      });
+      setFilteredVariables (filtered);
     }
-  }, [selectedDataset]);
+  }, [searchTerm, selectedDataset]);
 
   const variableSearchChange = (x) => {
-    const searchTerm = x.target.value;
-    if (searchTerm) {
-      const filtered = variableSearch.search (searchTerm);
-      setFilteredVariables (filtered);
-    } else {
-      setFilteredVariables (selectedDataset.visualizableVariables.variables);
+    if (typeof safePath(['target','value'])(x) !== 'string') {
+      return;
+    }
+    const newSearchTerm = x.target.value.trim().toLowerCase();
+    if (newSearchTerm !== searchTerm) {
+      setSearchTerm (newSearchTerm);
     }
   }
 
@@ -480,24 +464,6 @@ const DatasetControls = (props) => {
           {/* Dataset List with Sticky Selected Row */}
           <TableContainer component={Paper} className={cl.tableContainer} >
             <Table aria-label="collapsible table" stickyHeader className={`${cl.root} ${cl.datasetTable}`}>
-              <Grow in={Boolean(selectedDataset)} enter={true} exit={false} unmountOnExit={true} timeout={500}>
-                <thead className={cl.headerWhenSelection}>
-                  <tr>
-                    <th className={cl.dummyCheckBoxHeader}>
-                      <Radio checked={true} />
-                    </th>
-                    <th className={cl.nameHeader}>
-                      <div className={cl.nameAndLinkContainer}>
-                        <p>{selectedDataset && selectedDataset.Dataset_Name}</p>
-                        <RouterLink to={{pathname: `/catalog/datasets/${selectedDataset.Dataset_Name}`}}>
-                          <OpenInNewIcon />
-                        </RouterLink>
-                      </div>
-                    </th>
-                    <th className={cl.sourceHeader}>{selectedDataset && selectedDataset.Data_Source}</th>
-                  </tr>
-                </thead>
-              </Grow>
               <TableBody>
                 {filteredDatasets && filteredDatasets
                   .map((k, i) => (
@@ -543,17 +509,7 @@ const DatasetControls = (props) => {
           </div>
           {/* Variable List with Stick Selected Row */}
           <TableContainer component={Paper} className={cl.tableContainer}>
-            <Table aria-label="collapsible table" stickyHeader className={`${cl.root} ${cl.variablesTable}`}>
-              <Grow in={Boolean(selectedVariableShortName)} enter={true} exit={false} unmountOnExit={true} timeout={500}>
-                 <thead className={cl.headerWhenSelection}>
-                   <tr>
-                     <th className={cl.dummyCheckBoxHeader}>
-                       <Radio checked={true} />
-                     </th>
-                     <th className={cl.nameHeader}>{selectedVariableShortName && selectedVariableShortName}</th>
-                   </tr>
-                 </thead>
-               </Grow>
+            <Table aria-label="collapsible table" className={`${cl.root} ${cl.variablesTable}`}>
               <TableBody>
                 {filteredVariables && filteredVariables.map((k, i) => (
                   <VariableRow
