@@ -27,7 +27,7 @@ import {
 const useStyles = makeStyles (() => ({
   container: {
     color: 'white',
-    padding: '0 25px'
+    padding: '50px 25px'
   },
   blurbContainer: {
     height: '500px',
@@ -43,9 +43,8 @@ const useStyles = makeStyles (() => ({
     overflow: 'scroll',
     hyphens: 'auto',
     '& img': {
-      maxWidth: '200px',
-      float: 'left',
-      margin: '10px 2em 2em 0'
+      width: '180px',
+      margin: '0'
     },
     '& h6': {
       marginBottom: '2em',
@@ -53,6 +52,15 @@ const useStyles = makeStyles (() => ({
   },
   verticalPlaceholder: {
     minHeight: '700px',
+  },
+  logoContainer: {
+    width: '200px',
+    height: '200px',
+    margin: '0 20px 20px 0',
+    float: 'left',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
   }
 }));
 
@@ -88,13 +96,13 @@ const ProgramDetail = (props) => {
   return (
      <Page2 bgVariant={'slate2'}>
       <Grid container spacing="3" className={cl.container}>
-        <Grid item xs="12">
+        {/* <Grid item xs="12">
           <Title text={pData.title} />
-        </Grid>
+        </Grid> */}
         <Grid item xs="5">
           <div className={cl.blurbContainer}>
             <div className={cl.paragraphs}>
-              {pData.logo && <img src={`/images/${pData.logo}`} />}
+              <div className={cl.logoContainer}>{pData.logo && <img src={`/images/${pData.logo}`} />}</div>
               {copy.map ((c, ix) => (<Typography variant="h6" key={`copy_${ix}`}>{c}</Typography>))}
             </div>
           </div>
