@@ -15,6 +15,7 @@ import Radio from '@material-ui/core/Radio';
 import TextField from '@material-ui/core/TextField';
 import SearchIcon from '@material-ui/icons/Search';
 import ClearIcon from '@material-ui/icons/Clear';
+import Grow from '@material-ui/core/Grow';
 import Proto from './Proto';
 import {
   activeTrajectorySelector,
@@ -63,6 +64,8 @@ const VariableRow = (props) => {
     dispatch (selectProgramDatasetVariable ({ varShortName, varId, datasetId }));
   };
 
+  const unitText = Unit ? `(${Unit})` : '';
+
   const selected = varShortName === selectedVariable;
 
   return (
@@ -75,7 +78,7 @@ const VariableRow = (props) => {
             />
         </TableCell>
         <TableCell className={cl.shortNameCell}>
-            <Typography noWrap={true}>{varShortName} {`(${Unit})`}</Typography>
+            <Typography noWrap={true}>{varShortName} {unitText}</Typography>
         </TableCell>
       </TableRow>
   );
@@ -117,7 +120,7 @@ const useRowStyles = makeStyles((theme) => ({
 }));
 
 const DatasetRow = (props) => {
-  const { dataset, at, selected } = props;
+  const { dataset, selected } = props;
   const {
     Dataset_Name: shortName,
     Data_Source,
@@ -130,13 +133,13 @@ const DatasetRow = (props) => {
     dispatch (selectProgramDataset ({ shortName, datasetId }));
   };
 
-  const highlight = dataset.cruises.includes(at);
+  // const highlight = dataset.cruises.includes(at);
   const isSelected = shortName === selected;
 
   const rowClasses = [ cl.root ];
-  if (highlight) {
-    rowClasses.push (cl.highlight);
-  }
+  // if (highlight) {
+  //  rowClasses.push (cl.highlight);
+  // }
   if (isSelected) {
     rowClasses.push (cl.selected);
   }
@@ -247,6 +250,7 @@ const useStyles = makeStyles ((theme) => ({
     textOverflow: 'ellipsis',
     textWrap: 'nowrap',
     overflow: 'hidden',
+    textIndent: '3px', // align with table cells below
   },
   nameAndLinkContainer: {
     display: 'flex',
@@ -321,25 +325,29 @@ const useStyles = makeStyles ((theme) => ({
     }
   },
   inputRoot: {
+  },
+  selectVarInstruction: {
+    margin: '.5em 0',
+    padding: '.5em',
+    border: '2px solid #d16265',
   }
 }));
 
-// TODO
-const sortDatasetsByAssociationWithActiveTrajectory = (datasets, activeTrajectory) => {
-  let datasetsArray = Object.values(datasets);
-  let activeCruiseId = activeTrajectory && activeTrajectory.cruiseId;
-
-  if (activeCruiseId && datasetsArray) {
-    const pred = (dataset_) => {
-      return dataset_ && dataset_.cruises.includes (activeCruiseId);
-    };
-
-    let associatedDatasets = datasetsArray.filter (pred);
-    let others = datasetsArray.filter ((arg) => !pred(arg));
-    datasetsArray = [...associatedDatasets, ...others];
-  }
-
-  return datasetsArray;
+const stringOrEmpty = (x) => typeof x === 'string' ? x : '';
+const alphabetizeBy = (prop) => (list) => {
+  return list.sort ((a_ = '', b_ = '') => {
+    let a = stringOrEmpty(a_[prop]).toLowerCase();
+    let b = stringOrEmpty(b_[prop]).toLowerCase();
+    if (a > b) {
+      return 1;
+    }
+    if (a < b) {
+      return -1;
+    }
+    if (a === b) {
+      return 0;
+    }
+  })
 }
 
 const DatasetControls = (props) => {
@@ -465,7 +473,7 @@ const DatasetControls = (props) => {
           <TableContainer component={Paper} className={cl.tableContainer} >
             <Table aria-label="collapsible table" stickyHeader className={`${cl.root} ${cl.datasetTable}`}>
               <TableBody>
-                {filteredDatasets && filteredDatasets
+                {filteredDatasets && alphabetizeBy ('Dataset_Name') (filteredDatasets)
                   .map((k, i) => (
                   <DatasetRow
                     key={`program_dataset_row${i}`}
@@ -507,11 +515,12 @@ const DatasetControls = (props) => {
              : <SearchIcon style={{ color: 'white', cursor: 'pointer' }} onClick={handleVarSearchOpenClose} />
             }
           </div>
+          {!selectedVariableShortName && <Grow in={!selectedVariableShortName}><Paper className={cl.selectVarInstruction}>{'Select a variable'}</Paper></Grow>}
           {/* Variable List with Stick Selected Row */}
           <TableContainer component={Paper} className={cl.tableContainer}>
             <Table aria-label="collapsible table" className={`${cl.root} ${cl.variablesTable}`}>
               <TableBody>
-                {filteredVariables && filteredVariables.map((k, i) => (
+                {filteredVariables && alphabetizeBy ('Short_Name') (filteredVariables).map((k, i) => (
                   <VariableRow
                     key={`program_dataset_var_row${i}`}
                     variable={k}
@@ -540,7 +549,9 @@ const DatasetList = () => {
     selectProgramDetailsRequestStatus,
   ];
 
-  let datasets = program && Object.values(program.datasets);
+  let datasets = (program && program.datasets)
+               ? Object.values(program.datasets)
+               : [];
 
   if (AT && AT.cruiseId && datasets) {
     const pred = (dataset_) => {

@@ -96,7 +96,7 @@ const Sponsors = (props) => {
 const useRowStyles = makeStyles((theme) => ({
   card: {
     width: '450px',
-    height: '530px',
+    height: '545px',
   },
   paperRoot: {
     overflow: 'hidden',
@@ -122,14 +122,14 @@ const useRowStyles = makeStyles((theme) => ({
   logo: {
     float: 'right',
     width: '150px',
-    // height: '150px',
+    height: '150px',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    margin: '0 0 1em 1.5em',
+    margin: '0 0 0 13px',
     '& img': {
       objectFit: 'contain',
-      maxWidth: '100%',
+      width: '90%',
       maxHeight: '100%',
     }
   },
@@ -182,8 +182,6 @@ const ProgramCard = (props) => {
 
   const pData = matchProgram (name);
 
-  const styl = name === 'AMT' ? { width: '115px' } : {} ;
-
   return (
     <div className={cl.card}>
       <Paper className={cl.paperRoot} elevation="3">
@@ -196,7 +194,7 @@ const ProgramCard = (props) => {
             {pData.fullName}
          </Typography>
          <Typography className={cl.blurbContainer}>
-           {pData && pData.logo && <div className={cl.logo}><img src={`/images/${pData.logo}`} style={styl} /></div>}
+           {pData && pData.logo && <div className={cl.logo}><img src={`/images/${pData.logo}`} /></div>}
            <span>{pData.blurb}</span>
          </Typography>
          <div className={cl.footer}>

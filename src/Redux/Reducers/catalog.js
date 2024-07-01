@@ -341,6 +341,7 @@ export default function (state, action) {
       return {
         ...state,
         programDetailsRequestStatus: states.inProgress,
+        programDetails: {},
       }
 
     case FETCH_PROGRAM_DETAILS_SUCCESS:
