@@ -37,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'flex-start',
     justifyContent: 'space-between',
     gap: '1em',
-    width: '100%',
+    width: '245px',
     margin: '.3em 0'
   },
   swatch: {
@@ -46,6 +46,9 @@ const useStyles = makeStyles((theme) => ({
     textAlign: 'center',
     borderRadius: '.5em',
   },
+  cruiseTextSummary: {
+    height: '1em',
+  },
   container: {
     position: 'relative',
     display: 'flex',
@@ -53,6 +56,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'start',
     justifyContent: 'flex-start',
     overflow: 'hidden',
+    flexWrap: 'nowrap',
     width: '100%',
     gap: '.5em',
     '& p': {
@@ -105,16 +109,24 @@ const useStyles = makeStyles((theme) => ({
       cursor: 'pointer',
     }
   },
+  summaryFirstGroup: {
+    width: '120px',
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'nowrap',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+  },
   nick: {
+    width: '93px',
     fontSize: '.9em',
-    display: '-webkit-box',
-    '-webkitLineClamp': 1,
-    '-webkitBoxOrient': 'vertical',
+    overflow:'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    fontStyle: 'italic',
   },
   crossProgramChip: {
-    // position: 'absolute',
-    //top: '-10px',
-    // right: 0,
+    margin: '-4px 0 0 0',
     '& > svg': {
       fontSize: '.9em',
       color: '#9dd162',

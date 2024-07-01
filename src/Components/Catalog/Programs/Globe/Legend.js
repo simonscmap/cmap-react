@@ -225,6 +225,12 @@ const useCrossProgramInfoStyles = makeStyles ((theme) => ({
     paddingLeft: '22px',
     '& li::marker': {
       color:theme.palette.primary.main,
+    },
+    '& li': {
+      width: 'calc(100%)',
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
     }
   },
   progContainer: {
@@ -235,7 +241,8 @@ const useCrossProgramInfoStyles = makeStyles ((theme) => ({
     '& li::before': {
       content: `"- "`,
       textIndent: '-5px',
-    }
+    },
+
   },
   dsn: {
     cursor: 'default',
@@ -344,14 +351,22 @@ const Legend = (props) => {
                       style={{ backgroundColor: colors[i] }}
                     >
                     </div>
-                    <div className={classes.container}>
-                      <span>{cruise.Name}</span>
-                      <span className={classes.nick}>({cruise.Nickname})</span>
-                      {cruise.isMultiProgram && <div className={classes.crossProgramChip}>
-                        <DarkTooltip title={getCrossProgramTooltipText (cruise)}>
-                          <InfoIcon />
+                    <div className={`${classes.container} ${classes.cruiseTextSummary}`}>
+                      <div className={classes.summaryFirstGroup}>
+                        <span>{cruise.Name}</span>
+                        {cruise.isMultiProgram &&
+                            <div className={classes.crossProgramChip}>
+                              <DarkTooltip title={getCrossProgramTooltipText (cruise)}>
+                                <InfoIcon />
+                              </DarkTooltip>
+                          </div>
+                        }
+                      </div>
+                      <div className={classes.nick}>
+                        <DarkTooltip title={cruise.Nickname}>
+                          <span>{cruise.Nickname}</span>
                         </DarkTooltip>
-                      </div>}
+                      </div>
                     </div>
                   </div>
                 </div>
