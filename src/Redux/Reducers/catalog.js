@@ -57,7 +57,7 @@ import { sortResults } from '../../Components/Catalog/SortingControls';
 import { safePath } from '../../Utility/objectUtils';
 import {
   getFirstDatasetIdentifier,
-  getDefaultVariableIdentifier
+  getDefaultVariableIdentifier,
 } from '../../Components/Catalog/Programs/programSelectors';
 
 // cached paths

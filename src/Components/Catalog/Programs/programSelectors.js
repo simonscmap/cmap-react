@@ -1,11 +1,38 @@
 import { createSelector } from 'reselect';
 import { safePath } from '../../../Utility/objectUtils';
 
+// aplhabetize an array of objects by a property
+const stringOrEmpty = (x) => typeof x === 'string' ? x : '';
+export const alphabetizeBy = (prop) => (list) => {
+  return list.sort ((a_ = '', b_ = '') => {
+    let a = stringOrEmpty(a_[prop]).toLowerCase();
+    let b = stringOrEmpty(b_[prop]).toLowerCase();
+    if (a > b) {
+      return 1;
+    }
+    if (a < b) {
+      return -1;
+    }
+    if (a === b) {
+      return 0;
+    }
+  })
+}
+
 export const getFirstDatasetIdentifier = (datasets) => {
   if (!datasets) {
     return;
   }
-  const ids = Object.keys(datasets).sort();
+  const ids = (alphabetizeBy ('Dataset_Name') (Object.values (datasets)))
+    .filter ((d) => {
+      const visVars = safePath (['visualizableVariables', 'variables']) (d);
+      if (!visVars || visVars.length === 0) {
+        return false;
+      } else {
+        return true;
+      }
+    })
+    .map (({ID}) => ID);
 
   if (ids.length) {
     const d = datasets[ids[0]];
@@ -14,6 +41,7 @@ export const getFirstDatasetIdentifier = (datasets) => {
       datasetId: d.ID,
     };
   } else {
+    console.log ('no dataset ids to choose from');
     return;
   }
 }
@@ -21,13 +49,17 @@ export const getFirstDatasetIdentifier = (datasets) => {
 export const getDefaultVariableIdentifier = (datasets) => {
   const d_ = getFirstDatasetIdentifier (datasets);
   if (!d_) {
+    console.log ('could not identify a default variable: to default dataset');
     return;
   }
   const d = datasets[`${d_.datasetId}`];
   const variables = safePath (['visualizableVariables', 'variables']) (d);
 
   if (!variables) {
+    console.log ('no variables array when selecting default variable')
     return;
+  } else {
+    console.log ('dataset variables: ', variables);
   }
 
   const ids = Object.keys(variables).sort();
@@ -40,6 +72,7 @@ export const getDefaultVariableIdentifier = (datasets) => {
       datasetId: d_.datasetId,
     };
   } else {
+    console.log ('no variable ids to choose from')
     return;
   }
 };

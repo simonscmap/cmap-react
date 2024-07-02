@@ -192,18 +192,30 @@ const useStyles = makeStyles ((theme) => ({
     marginTop: '-1px',
     position: 'relative',
   },
+  adjustibleTableContainer: {
+    backgroundColor: 'rgba(16, 43, 60, 0.6)',
+    backdropFilter: 'blur(20px)',
+    height: '100%',
+    width: '100%',
+    marginTop: '-1px',
+    position: 'relative',
+  },
 
   datatsetHeaders: { // table container
     width: '100%',
   },
   variableHeaders: {
     width: '100%',
+    height: '61px',
+    overflow: 'hidden',
   },
 
   datasetVariablesListContainer: {
     position: 'relative',
     width: '40%',
-    height: '100%',
+    height: 'calc(100% - 66px)',
+    display: 'flex',
+    flexDirection: 'column',
   },
   root: { // table header
     tableLayout: 'fixed',
@@ -213,6 +225,9 @@ const useStyles = makeStyles ((theme) => ({
     '& .MuiTableCell-root': {
       borderBottom: 'unset',
     }
+  },
+  fullHeightWrapper: {
+    flexGrow: 1,
   },
   datasetTable: {  },
   hasSelected: {
@@ -330,6 +345,11 @@ const useStyles = makeStyles ((theme) => ({
     margin: '.5em 0',
     padding: '.5em',
     border: '2px solid #d16265',
+  },
+  noVarsIndicator: {
+    margin: '.5em 0',
+    padding: '.5em',
+    border: '2px solid #d16265',
   }
 }));
 
@@ -434,6 +454,11 @@ const DatasetControls = (props) => {
     setVariableSearchActive (!variableSearchActive);
   }
 
+  const shouldShowSelectInstruction = !selectedVariableShortName
+                                   && (filteredVariables && filteredVariables.length != 0);
+
+  const shouldShowNoVariablesInfo = filteredVariables && filteredVariables.length === 0;
+
   // render
 
   return (
@@ -515,9 +540,10 @@ const DatasetControls = (props) => {
              : <SearchIcon style={{ color: 'white', cursor: 'pointer' }} onClick={handleVarSearchOpenClose} />
             }
           </div>
-          {!selectedVariableShortName && <Grow in={!selectedVariableShortName}><Paper className={cl.selectVarInstruction}>{'Select a variable'}</Paper></Grow>}
+          {shouldShowSelectInstruction  && <Grow in={!selectedVariableShortName}><Paper className={cl.selectVarInstruction}>{'Select a variable'}</Paper></Grow>}
+          {shouldShowNoVariablesInfo && <Grow in={shouldShowNoVariablesInfo}><Paper className={cl.noVarsIndicator}>{'This dataset has no visualizable variables.'}</Paper></Grow>}
           {/* Variable List with Stick Selected Row */}
-          <TableContainer component={Paper} className={cl.tableContainer}>
+          <TableContainer component={Paper} className={cl.adjustibleTableContainer}>
             <Table aria-label="collapsible table" className={`${cl.root} ${cl.variablesTable}`}>
               <TableBody>
                 {filteredVariables && alphabetizeBy ('Short_Name') (filteredVariables).map((k, i) => (
@@ -530,7 +556,7 @@ const DatasetControls = (props) => {
                 ))}
               </TableBody>
             </Table>
-          </TableContainer>
+    </TableContainer>
         </div>
       </div>
     );
@@ -553,21 +579,21 @@ const DatasetList = () => {
                ? Object.values(program.datasets)
                : [];
 
-  if (AT && AT.cruiseId && datasets) {
-    const pred = (dataset_) => {
-      return dataset_ && dataset_.cruises.includes (AT.cruiseId);
-    };
+  /* if (AT && AT.cruiseId && datasets) {
+   *   const pred = (dataset_) => {
+   *     return dataset_ && dataset_.cruises.includes (AT.cruiseId);
+   *   };
 
-    let associatedDatasets = datasets.filter (pred);
-    let others = datasets.filter ((arg) => !pred(arg));
-    datasets = [...associatedDatasets, ...others];
-  }
+   *   let associatedDatasets = datasets.filter (pred);
+   *   let others = datasets.filter ((arg) => !pred(arg));
+   *   datasets = [...associatedDatasets, ...others];
+   * } */
 
   // const description = <Typography>{'Datasets produced by this program'}</Typography>
 
   return (
     <Proto title={'Program Datasets'} deps={deps}>
-        <DatasetControls datasets={datasets} at={AT && AT.cruiseId}/>
+      <DatasetControls datasets={datasets} at={AT && AT.cruiseId}/>
     </Proto>
   );
 };
