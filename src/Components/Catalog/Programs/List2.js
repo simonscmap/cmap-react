@@ -269,20 +269,6 @@ const useStyles = makeStyles (() => ({
   },
 }));
 
-const programSort = (a, b) => {
-  let a_ = (a.sponsors && a.sponsors.length) || 0;
-  let b_ = (b.sponsors && b.sponsors.length) || 0;
-  if (a_ > b_) {
-    return 1;
-  } else if (a_ === b_) {
-    return 0;
-  } else if (a_ < b_) {
-    return -1;
-  }
-
-}
-
-
 const ProgramsList = () => {
   const cl = useStyles();
   const dispatch = useDispatch();
@@ -307,7 +293,7 @@ const ProgramsList = () => {
         </div>
         <hr />
         <div className={cl.container}>
-          {programs.map((p) => p.name).sort(programSort).map((prog, i) => (
+          {programs.map((p) => p.name).sort().map((prog, i) => (
             <ProgramCard key={`program_card_${i}`} program={prog}  />
           ))}
         </div>

@@ -99,6 +99,9 @@ const useStyles = makeStyles (() => ({
     flexDirection: 'column',
     justifyContent: 'center',
   },
+  container: {
+    height: '100%',
+  }
 }));
 
 
@@ -141,7 +144,6 @@ const Proto = (props) => {
   }
 
   return (
-    <div>
       <Grid container className={cl.container}>
         <Grid item xs="12">
           <SectionHeader title={title} />
@@ -151,7 +153,6 @@ const Proto = (props) => {
           {content}
         </Grid>
       </Grid>
-    </div>
   );
 
 };

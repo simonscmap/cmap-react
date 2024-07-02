@@ -206,8 +206,8 @@ const useStyles = makeStyles ((theme) => ({
   },
   variableHeaders: {
     width: '100%',
-    height: '61px',
     overflow: 'hidden',
+    flex: '0 0 auto',
   },
 
   datasetVariablesListContainer: {
@@ -416,6 +416,7 @@ const DatasetControls = (props) => {
       dsRef && dsRef.current && dsRef.current.focus && dsRef.current.focus();
     }
     setDatasetSearchActive (!datasetSearchActive);
+    setDatasetSearchTerm (''); // clear search when closed1
   }
 
   // Variable Search
@@ -452,12 +453,15 @@ const DatasetControls = (props) => {
       vsRef && vsRef.current && vsRef.current.focus && vsRef.current.focus();
     }
     setVariableSearchActive (!variableSearchActive);
+    setSearchTerm (''); // clear search when it is closed
   }
 
   const shouldShowSelectInstruction = !selectedVariableShortName
                                    && (filteredVariables && filteredVariables.length != 0);
 
-  const shouldShowNoVariablesInfo = filteredVariables && filteredVariables.length === 0;
+  const shouldShowNoVariablesInfo = !searchTerm && filteredVariables && filteredVariables.length === 0;
+
+
 
   // render
 
@@ -556,7 +560,7 @@ const DatasetControls = (props) => {
                 ))}
               </TableBody>
             </Table>
-    </TableContainer>
+          </TableContainer>
         </div>
       </div>
     );

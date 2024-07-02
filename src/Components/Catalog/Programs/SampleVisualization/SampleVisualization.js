@@ -139,7 +139,7 @@ const SampleVisualization = () => {
     const overrides = {
       isSampleVisualization: true,
       width: '100%',
-      height: '570px',
+      height: '635px',
       minHeight: '500px',
       varyWithSize: true,
       annotationsLeft: true,

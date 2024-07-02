@@ -51,7 +51,18 @@ const useStyles = makeStyles (() => ({
     }
   },
   verticalPlaceholder: {
-    minHeight: '700px',
+    height: '700px',
+  },
+  visVerticalPlaceholder: {
+    height: '700px',
+    '& > div': { // pull the visualization up in line with the top of the table headers
+      margin: '-58px 0 0 0'
+    },
+    '& .js-plotly-plot': {
+      borderRadius: '5px',
+      overflow: 'hidden',
+      boxShadow: '0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12)'
+    },
   },
   logoContainer: {
     width: '200px',
@@ -122,7 +133,7 @@ const ProgramDetail = (props) => {
           </div>
         </Grid>
         <Grid item xs="12" md="12" lg="7">
-          <div className={cl.verticalPlaceholder}>
+          <div className={cl.visVerticalPlaceholder}>
             <SectionHeader title={'Sample Visualization'} />
             <SampleVisualization />
           </div>
