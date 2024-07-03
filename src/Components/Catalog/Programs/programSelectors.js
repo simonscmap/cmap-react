@@ -123,6 +123,12 @@ export const activeTrajectorySelector = createSelector(
         } else {
           return null;
         }
+      } else if (programName === 'AMT') {
+        const id_ = Object.values(cruises)[0].ID;
+        return {
+          cruiseId: id_,
+          trajectory: cruises[id_].trajectory,
+        };
       }
       return null; // NOTE allow for no cruise to be in focus
       // return {

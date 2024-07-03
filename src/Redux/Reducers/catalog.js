@@ -342,6 +342,7 @@ export default function (state, action) {
         ...state,
         programDetailsRequestStatus: states.inProgress,
         programDetails: {},
+        programDetailsCruiseFocus: null,
       }
 
     case FETCH_PROGRAM_DETAILS_SUCCESS:
@@ -358,6 +359,7 @@ export default function (state, action) {
           programDatasetVariableSelected: getDefaultVariableIdentifier (action.payload.datasets),
         },
         programDetailsRequestStatus: states.succeeded,
+
       }
 
     case FETCH_PROGRAM_DETAILS_FAILURE:
