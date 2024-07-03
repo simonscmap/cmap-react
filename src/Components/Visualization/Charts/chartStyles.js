@@ -159,8 +159,6 @@ export const chartControlPanelStyles = (theme) => ({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     margin: '0 0 10px 0',
-    // maxWidth: '700px',
-    // textAlign: 'center',
     pointerEvents: 'auto',
     flexWrap: 'wrap',
     gap: '1em'

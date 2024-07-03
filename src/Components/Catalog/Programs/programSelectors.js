@@ -58,8 +58,6 @@ export const getDefaultVariableIdentifier = (datasets) => {
   if (!variables) {
     console.log ('no variables array when selecting default variable')
     return;
-  } else {
-    console.log ('dataset variables: ', variables);
   }
 
   const ids = Object.keys(variables).sort();
@@ -149,13 +147,6 @@ export const programDatasetsSelector = createSelector(
   (programDetails) => programDetails && programDetails.datasets
 );
 
-// user selection: dataset
-
-export const selectedProgramDatasetSelector = createSelector(
-  [ (state) => state.programDetails && state.programDetails.programDatasetSelected ],
-  (selectedDataset) => selectedDataset
-);
-
 // user selection: dataset variable
 export const selectedProgramDatasetVariableSelector = createSelector(
   [ (state) => state.programDetails && state.programDetails ],
@@ -170,14 +161,14 @@ export const selectedProgramDatasetVariableSelector = createSelector(
 
 // user selection: dataset short name
 export const selectedProgramDatasetShortNameSelector = createSelector(
-  [ selectedProgramDatasetSelector ],
+  [ (state) => state.programDetails && state.programDetails.programDatasetSelected ],
   (selectedDataset) => selectedDataset && selectedDataset.shortName
 );
 
 // selected dataset data
 export const selectedProgramDatasetDataSelector = createSelector(
   [
-    selectedProgramDatasetSelector,
+    (state) => state.programDetails && state.programDetails.programDatasetSelected,
     programDatasetsSelector,
   ],
   (selectedDataset, datasets) => {
@@ -234,10 +225,15 @@ export const selectedVariableDataSelector = createSelector (
 );
 
 // sample vis data
-export const sampleVisualizationDataSelector = createSelector(
+export const _sampleVisualizationDataSelector = createSelector(
   [ (state) => state.programDetails && state.programDetails.sampleVisData ],
   (visData) => visData
 );
+
+export const sampleVisualizationDataSelector =
+  (state) => state.programDetails && state.programDetails.sampleVisData;
+
+
 
 // sample vis data loading state
 export const sampleVisualizationDataLoadingStateSelector = createSelector(

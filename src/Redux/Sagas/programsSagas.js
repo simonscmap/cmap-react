@@ -1,7 +1,7 @@
 import api from '../../api/api';
 import * as catalogActions from '../actions/catalog';
 import * as actionTypes from '../actionTypes/catalog';
-import { call, put, takeLatest, takeEvery, select } from 'redux-saga/effects';
+import { call, put, takeLatest, takeEvery } from 'redux-saga/effects';
 import states from '../../enums/asyncRequestStates';
 
 // fetch the program list
@@ -74,7 +74,6 @@ function* programSampleVisDataFetch (action) {
     console.log ('vis var data request failed', result.status, result)
     yield put(catalogActions.programSampleVisDataSetLoadingState (shortname, states.failed));
   } else {
-    console.log ('REQUEST SUCCEEDED');
     if (result.variableValues.length > 0) {
       yield put(catalogActions.programSampleVisDataSetLoadingState (action.payload, states.processing));
       result.finalize();

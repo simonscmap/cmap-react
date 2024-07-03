@@ -12,12 +12,12 @@ const useStyles = makeStyles (() => ({
   }
 }));
 
-const Programs = (props) => {
+const Programs = () => {
   const cl = useStyles();
   return (
     <Page2 bgVariant={'slate2'}>
       <Grid container className={cl.container}>
-        <Grid item xs="12">
+        <Grid item xs={12}>
           <ProgramsList />
         </Grid>
       </Grid>

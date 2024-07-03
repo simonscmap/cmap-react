@@ -1,9 +1,9 @@
 // Renders Trajectories on Esri Map
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import palette from 'google-palette';
 import { useSelector, useDispatch } from 'react-redux';
 import { cruiseTrajectoryZoomTo } from '../../../../Redux/actions/visualization';
-import { popupTemplate, polylinePopupTemplate } from './trajectoryInvariants';
+import { polylinePopupTemplate } from './trajectoryInvariants';
 
 // Generalized Trajectory Controller
 
@@ -229,7 +229,6 @@ const TrajectoryController = (props) => {
       });
     };
 
-    // const geometries = esriModules.geometryEngine.cut (polyLine, antimeridian);
     const geometries = splitLineAtAntimeridian (path).map ((p) => ({
       'type': 'polyline',
       paths: p

@@ -14,7 +14,6 @@ const loadEsriModules = async (done) => {
     'FeatureLayer',
     'Color',
     'Polyline',
-    'geometryEngine'
   ];
 
   const moduleLoadPaths = [
@@ -27,7 +26,6 @@ const loadEsriModules = async (done) => {
     'esri/layers/FeatureLayer',
     'esri/Color',
     'esri/geometry/Polyline',
-    'esri/geometry/geometryEngine'
   ];
 
   const loadedModules = await loadModules(moduleLoadPaths, { version: '4.14' });

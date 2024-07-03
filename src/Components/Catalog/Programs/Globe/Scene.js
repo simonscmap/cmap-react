@@ -102,7 +102,6 @@ class GlobeScene extends Component {
       downSampleWarning,
     } = this.props;
 
-
     // NOTE: the Zoom and TrajectoryControls must be children of Scene
     // in order to inherit the view prop
 
@@ -141,7 +140,6 @@ class GlobeScene extends Component {
             activeTrajectorySelector={activeTrajectorySelector}
             cruiseSelector={cruiseSelector}
             view={view}
-            // downSample={true} // we don't need this because the api is doing it
           />
         </Scene>
 

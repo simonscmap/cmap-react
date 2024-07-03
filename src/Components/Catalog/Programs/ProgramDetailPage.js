@@ -3,16 +3,14 @@ import React, { useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import Page2 from '../../Common/Page2';
 import { Grid } from '@material-ui/core';
-import Title from '../../Common/Title';
 import Typography from '@material-ui/core/Typography';
 import { useDispatch } from 'react-redux';
 import DatasetList from './ListDatasets';
-// import CruiseList from './ListCruises';
 import { SectionHeader } from './Proto';
 import SampleVisualization from './SampleVisualization/SampleVisualization';
 import Globe from './Globe/Globe';
 
-import { data as programData, matchProgram } from './programData';
+import { matchProgram } from './programData';
 import {
   trajectorySelector,
   cruiseSelector,
@@ -106,11 +104,8 @@ const ProgramDetail = (props) => {
 
   return (
      <Page2 bgVariant={'slate2'}>
-      <Grid container spacing="3" className={cl.container}>
-        {/* <Grid item xs="12">
-          <Title text={pData.title} />
-        </Grid> */}
-        <Grid item xs="5">
+      <Grid container spacing={3} className={cl.container}>
+        <Grid item xs={5}>
           <div className={cl.blurbContainer}>
             <div className={cl.paragraphs}>
               <div className={cl.logoContainer}>{pData.logo && <img src={`/images/${pData.logo}`} />}</div>
@@ -118,7 +113,7 @@ const ProgramDetail = (props) => {
             </div>
           </div>
         </Grid>
-        <Grid item xs="7">
+        <Grid item xs={7}>
           <Globe
             trajectorySelector={trajectorySelector}
             cruiseSelector={cruiseSelector}
@@ -127,12 +122,12 @@ const ProgramDetail = (props) => {
             downSampleWarning={true}
           />
         </Grid>
-        <Grid item xs="12" md="12" lg="5">
+        <Grid item xs={12} md={12} lg={5}>
           <div className={cl.verticalPlaceholder}>
             <DatasetList />
           </div>
         </Grid>
-        <Grid item xs="12" md="12" lg="7">
+        <Grid item xs={12} md={12} lg={7}>
           <div className={cl.visVerticalPlaceholder}>
             <SectionHeader title={'Sample Visualization'} />
             <SampleVisualization />

@@ -2,8 +2,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import React, { useEffect, useState } from 'react';
 import { Grid } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
-// import { Link } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import states from '../../../enums/asyncRequestStates';
 import Spinner from '../../UI/Spinner';
 
@@ -48,8 +47,6 @@ const useAsyncDeps = (deps) => {
   })
     .filter (isAsyncState)
     .sort (sortAsyncStates);
-
-  // console.log ('statuses', statuses);
 
   useEffect (() => {
     if (statuses.length && s.length && statuses[0] !== s[0]) {
@@ -145,11 +142,11 @@ const Proto = (props) => {
 
   return (
       <Grid container className={cl.container}>
-        <Grid item xs="12">
+        <Grid item xs={12}>
           <SectionHeader title={title} />
         </Grid>
-        {description && <Grid item xs="12">{description}</Grid>}
-        <Grid item xs="12">
+        {description && <Grid item xs={12}>{description}</Grid>}
+        <Grid item xs={12}>
           {content}
         </Grid>
       </Grid>

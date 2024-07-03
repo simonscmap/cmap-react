@@ -12,7 +12,7 @@ import {
 } from '../../../Redux/actions/catalog';
 import Spinner from '../../UI/Spinner';
 import { Link as RouterLink } from 'react-router-dom';
-import { data, intro, matchProgram } from './programData';
+import { intro, matchProgram } from './programData';
 
 /*~~~~~~~~~~~~  Spinner ~~~~~~~~~~~~~~~*/
 
@@ -144,12 +144,6 @@ const useRowStyles = makeStyles((theme) => ({
     textAlign: 'justify',
     overflowY: 'scroll',
     hyphens: 'auto',
-    /* '& img': {
-     *   float: 'left',
-     *   maxWidth: '40%',
-     *   maxHeight: '100px',
-     *   margin: '0 10px 10px 0'
-     * } */
   },
   sponsor: {
     gridArea: 'sponsor',
@@ -184,7 +178,7 @@ const ProgramCard = (props) => {
 
   return (
     <div className={cl.card}>
-      <Paper className={cl.paperRoot} elevation="3">
+      <Paper className={cl.paperRoot} elevation={3}>
          <Typography variant="h3" className={cl.name}>
            <Link component={RouterLink} to={`/catalog/programs/${name}`}>
             {name}
@@ -193,13 +187,13 @@ const ProgramCard = (props) => {
          <Typography className={cl.fullName}>
             {pData.fullName}
          </Typography>
-         <Typography className={cl.blurbContainer}>
+         <div className={cl.blurbContainer}>
            {pData && pData.logo && <div className={cl.logo}><img src={`/images/${pData.logo}`} /></div>}
-           <span>{pData.blurb}</span>
-         </Typography>
+           <Typography>{pData.blurb}</Typography>
+         </div>
          <div className={cl.footer}>
            <Grid container>
-             <Grid item xs="7">
+             <Grid item xs={7}>
                <div className={cl.link}>
                  <div>
                    <OpenInNewIcon color="primary" />
@@ -209,7 +203,7 @@ const ProgramCard = (props) => {
                  </div>
                </div>
              </Grid>
-             <Grid item xs="5">
+             <Grid item xs={5}>
                <Sponsors programData={pData} />
              </Grid>
           </Grid>

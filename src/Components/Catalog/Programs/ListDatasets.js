@@ -20,7 +20,6 @@ import Proto from './Proto';
 import {
   activeTrajectorySelector,
   selectedProgramDatasetShortNameSelector,
-  selectedVariableDataSelector,
   selectedProgramDatasetVariableShortNameSelector,
 } from './programSelectors';
 import {

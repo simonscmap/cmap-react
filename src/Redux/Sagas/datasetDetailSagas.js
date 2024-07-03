@@ -75,7 +75,6 @@ function* datasetVariableVisDataFetch (action) {
     console.log ('vis var data request failed', result.status, result)
     yield put(catalogActions.datasetVariableVisDataSetLoadingState(shortname, states.failed));
   } else {
-    console.log ('REQUEST SUCCEEDED');
     if (result.variableValues.length > 0) {
       yield put(catalogActions.datasetVariableVisDataSetLoadingState(shortname, states.processing));
       result.finalize();

@@ -48,8 +48,8 @@ const selectionAndDataMatch = (variableData, visualizationData) => {
     return false;
   }
 
-  const { datasetId, varShortName, varId } = variableData;
-  const { datasetShortName, variableData: vd, variableId } = visualizationData;
+  const { varShortName } = variableData;
+  const { variableData: vd } = visualizationData;
 
   // compare both dataset and variable
   return varShortName === vd.Short_Name;
@@ -149,7 +149,6 @@ const SampleVisualization = () => {
 
     return <ChartWrapperWithoutPaper chart={chart} overrides={overrides}/>;
   } else {
-    console.log ('return nothing');
     return '';
   }
 };
