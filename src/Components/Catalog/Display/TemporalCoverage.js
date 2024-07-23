@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
     gap: '.5em',
   },
   label: {
-    color: theme.palette.secondary.light,
+    color: 'rgb(135, 255, 244)',
   },
   val: {
     color: theme.palette.primary.light,

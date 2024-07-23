@@ -111,6 +111,14 @@ const Navigation = (props) => {
     menuIsCollapsable ? classes.innerContainerCollapsable : null,
   );
 
+  const isActive = (name) => {
+    if (location && location.pathname === `/${name}`) {
+      return classes.highlight;
+    } else {
+      return '';
+    }
+  }
+
   return (
     <div className={classes.navigationContainer}>
       <ResizeObserver onResize={onResize}></ResizeObserver>
@@ -134,14 +142,14 @@ const Navigation = (props) => {
                 className={innerContainerClasses}
               >
                 <div className={classes.navigationGroupFirst}>
-                  <Link to="/catalog">Catalog</Link>
+                  <Link to="/catalog" className={isActive('catalog')}>Catalog</Link>
                   <ExpandableItem linkText={'Visualization'}>
-                    <Link to="/visualization/charts">Charts & Plots</Link>
-                    <Link to="/visualization/cruises">Cruises</Link>
+                    <Link to="/visualization/charts" className={isActive('visualization')}>Charts & Plots</Link>
+                    <Link to="/visualization/cruises" className={isActive('visualization')}>Cruises</Link>
                   </ExpandableItem>
-                  <Link to="/catalog/programs">Programs</Link>
-                  <ExpandableItem linkText={'Data Submission'}>
-                    <Link to="/datasubmission/guide">Submission Guide</Link>
+                  <Link to="/catalog/programs" className={isActive('catalog/programs')}>Programs</Link>
+                  <ExpandableItem linkText={'Data Submission'} className={isActive('datasubmission')}>
+                    <Link to="/datasubmission/guide" >Submission Guide</Link>
                     <DataSubmissionLink />
                     <Link to="/datasubmission/nominate-data">
                       Nominate New Data
@@ -181,7 +189,7 @@ const NavSwitcher = () => {
   let config = getPageConfiguration(location.pathname);
   let variant =
     config && config.navigationVariant ? config.navigationVariant : 'Center';
-  return <Nav variant={variant} />;
+  return <Nav variant={variant}  />;
 };
 
 export default NavSwitcher;

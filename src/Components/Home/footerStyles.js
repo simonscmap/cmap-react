@@ -29,6 +29,7 @@ const footerStyles = () => ({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'center',
+    paddingTop: '1em',
     gap: '2em',
     '& a': {
       color: 'white',

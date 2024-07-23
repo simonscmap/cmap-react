@@ -1,0 +1,356 @@
+import React, { useState, useEffect } from 'react';
+import Typography from '@material-ui/core/Typography';
+import Link from '@material-ui/core/Link';
+import Accordion from '@material-ui/core/Accordion';
+import AccordionSummary from '@material-ui/core/AccordionSummary';
+import AccordionDetails from '@material-ui/core/AccordionDetails';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+
+import { FocusQuestion } from '../FocusMarkers';
+import { sectionStyles } from '../guideStyles';
+
+// foci
+const foci = {
+  format: 'format',
+  largeDataset: 'largeDataset',
+  steps: 'steps',
+  keywords: 'keywords',
+  missingData: 'missingData',
+  tz: 'tz',
+  desc: 'desc',
+  varnames: 'varnames',
+  multipleCruises: 'multipleCruises',
+  multipleRefs: 'multipleRefs',
+  precheck: 'precheck',
+  doiChange: 'doiChange',
+  prelimData: 'prelimData',
+  updatedData: 'updatedData',
+  resubmission: 'resumbmission',
+  privateData: 'privateData',
+}
+
+const fociList = Object.keys (foci);
+const isValidFocus = (id) => {
+  return fociList.includes (id);
+}
+
+// Component
+const Content = (props) => {
+  const { focus, setFocus } = props;
+  const cl = sectionStyles();
+
+  let [expanded, setExpanded] = useState(false);
+
+  const handleChange = (panel) => (event, isExpanded) => {
+    setExpanded(isExpanded ? panel : false);
+    toggleFocus (panel);
+  };
+
+  const toggleFocus = (id) => {
+    if (!id) {
+      return;
+    } else if (focus === id) {
+      setFocus (undefined);
+    } else if (isValidFocus (id)) {
+      setFocus (id);
+    }
+  }
+
+  useEffect (() => {
+    if (focus && expanded !== focus && isValidFocus (focus)) {
+      setExpanded (focus);
+    }
+  }, [focus]);
+
+
+  return (
+    <div className={cl.container}>
+
+      <Accordion expanded={expanded === foci.format} onChange={handleChange (foci.format)}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <div className={`${cl.focusedAccordionSummary}`}>
+            <FocusQuestion focus={focus} name={foci.format} toggle={toggleFocus} />
+            <span>In what format should I prepare my data?</span>
+          </div>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography>
+            Your dataset should be formatted as an excel file consisting of three sheets.  Each sheet must be formatted according to Simons CMAP requirements.  To begin, <Link href="https://github.com/simonscmap/DBIngest/raw/master/template/datasetTemplate.xlsx">download a blank xlsx template</Link> and populate this template following the instructions in this guide.
+          </Typography>
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion expanded={expanded === foci.largeDataset} onChange={handleChange (foci.largeDataset)}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <div className={`${cl.focusedAccordionSummary}`}>
+            <FocusQuestion focus={focus} name={foci.largeDataset} toggle={toggleFocus} />
+            <span>My dataset is larger than 150 MB. How should I prepare my data?</span>
+          </div>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography>
+            All datasets must be prepared as excel files that align with CMAP formatting requirements.  Files larger than 150 MB cannot be submitted via the submission tool.  In these cases please contact us for assistance at simonscmap@uw.edu, as the details will depend on the specifics of your dataset.
+          </Typography>
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion expanded={expanded === foci.steps} onChange={handleChange (foci.steps)}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <div className={`${cl.focusedAccordionSummary}`}>
+            <FocusQuestion focus={focus} name={foci.steps} toggle={toggleFocus} />
+            <span>
+              What are the steps for adding a dataset to Simons CMAP? Who is responsible for each step?
+            </span>
+          </div>
+        </AccordionSummary>
+        <AccordionDetails>
+          <div className={cl.standoutBox}>
+            <table>
+              <thead>
+                <tr>
+                  <th>Step</th>
+                  <th>Who is responsible</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Preparation</td>
+                  <td>Dataset owner</td>
+                </tr>
+                <tr>
+                  <td>Submission</td>
+                  <td>Dataset owner, using the CMAP submission tool</td>
+                </tr>
+                <tr>
+                  <td>Review</td>
+                  <td>Dataset owner and Simons CMAP team</td>
+                </tr>
+                <tr>
+                  <td>DOI</td>
+                  <td>Dataset owner</td>
+                </tr>
+                <tr>
+                  <td>Ingestion</td>
+                  <td>Simons CMAP team</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion expanded={expanded === foci.keywords} onChange={handleChange (foci.keywords)}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <div className={`${cl.focusedAccordionSummary}`}>
+            <FocusQuestion focus={focus} name={foci.keywords} toggle={toggleFocus} />
+            <span>
+              What keywords should I include on the variable metadata sheet?
+            </span>
+          </div>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography>
+            Keywords are an important part of the Simons CMAP search function.  Please include any keyword that should return a given variable if used in “search”.  A minimal list of keyword categories can be found here https://simonscmap.dev/datasubmission/guide#data-structure-var_keywords
+          </Typography>
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion expanded={expanded === foci.missingData} onChange={handleChange (foci.missingData)}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <div className={`${cl.focusedAccordionSummary}`}>
+            <FocusQuestion focus={focus} name={foci.missingData} toggle={toggleFocus} />
+            <span>How should I represent missing values on the data sheet?</span>
+          </div>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography>
+            Cells with no data should be left blank.  Please do not include fillers such as "NA", "nan", "missing value", "-999" etc.
+          </Typography>
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion expanded={expanded === foci.tz} onChange={handleChange (foci.tz)}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <div className={`${cl.focusedAccordionSummary}`}>
+            <FocusQuestion focus={focus} name={foci.tz} toggle={toggleFocus} />
+            <span>Where should I note the time zone of the timestamp?</span>
+          </div>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography>
+            The time zone should be specified in the time column on the data sheet using this format: <code>%Y-%m-%dT%H:%M:%S%z</code>. If a time zone is not explicitly specified it might be interpreted as UTC.  It is also recommended that you include a sentence describing the timezone of the timestamp in the description (e.g. “The timestamp is in UTC”).
+          </Typography>
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion expanded={expanded === foci.desc} onChange={handleChange (foci.desc)}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <div className={`${cl.focusedAccordionSummary}`}>
+            <FocusQuestion focus={focus} name={foci.desc} toggle={toggleFocus} />
+            <span>What should I include in the dataset description?</span>
+          </div>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography>
+
+The dataset description will be used to present your dataset to the CMAP users. It acts as entry documentation and should provide contextual information such as scientific goals, acquisition methods, etc. For more details see here. https://simonscmap.dev/datasubmission/guide#data-structure-dataset_description
+          </Typography>
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion expanded={expanded === foci.varnames} onChange={handleChange (foci.varnames)}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <div className={`${cl.focusedAccordionSummary}`}>
+            <FocusQuestion focus={focus} name={foci.varnames} toggle={toggleFocus} />
+            <span>What should I watch for when selecting the dataset/variable names?</span>
+          </div>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography>
+            Both dataset and variable long names must be shorter than 200 characters, and title-cased. Dataset/Variable short names should not contain space, dash, or special characters such as <code>{'<'}, +, %</code>, or start with numbers. Both long and short names must not already exist in CMAP (check the catalog page). See more here and here.
+https://simonscmap.dev/datasubmission/guide#data-structure-dataset_short_name
+https://simonscmap.dev/datasubmission/guide#data-structure-variable
+          </Typography>
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion expanded={expanded === foci.multipleCruises} onChange={handleChange (foci.multipleCruises)}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <div className={`${cl.focusedAccordionSummary}`}>
+            <FocusQuestion focus={focus} name={foci.multipleCruises} toggle={toggleFocus} />
+            <span>How do I list multiple cruises on the dataset metadata sheet?
+            </span>
+          </div>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography>
+            If your dataset includes data from multiple cruises please include all cruise names and nicknames in separate cells within the cruise column on the <code>data_meta_data</code> sheet.
+          </Typography>
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion expanded={expanded === foci.multipleRefs} onChange={handleChange (foci.multipleRefs)}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <div className={`${cl.focusedAccordionSummary}`}>
+            <FocusQuestion focus={focus} name={foci.multipleRefs} toggle={toggleFocus} />
+            <span>How do I include multiple references on the dataset metadata sheet?</span>
+          </div>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography>
+            If you would like to include multiple references please add each reference in a separate cell in the references column on the <code>data_meta_data</code> sheet.
+          </Typography>
+        </AccordionDetails>
+      </Accordion>
+
+
+      <Accordion expanded={expanded === foci.precheck} onChange={handleChange (foci.precheck)}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <div className={`${cl.focusedAccordionSummary}`}>
+            <FocusQuestion focus={focus} name={foci.precheck} toggle={toggleFocus} />
+            <span>Can I check my dataset for alignment with Simons CMAP requirements before submission?</span>
+          </div>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography>
+Yes, you can use the Simons CMAP validation API to validate your dataset before submission. This is the same tool used by the Simons CMAP curation tool when reviewing datasets. For more details see [link to “validation api” at submission guide].
+          </Typography>
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion expanded={expanded === foci.doiChange} onChange={handleChange (foci.doiChange)}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <div className={`${cl.focusedAccordionSummary}`}>
+            <FocusQuestion focus={focus} name={foci.doiChange} toggle={toggleFocus} />
+            <span>What if my dataset has changed/updated after getting a DOI?</span>
+          </div>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography>
+The CMAP and DOI versions of your dataset must match.  Please check with your DOI provider as most, including Zenodo, allow you to upload a new file version that receives a unique DOI.  It is uncommon for DOI providers to remove files.
+          </Typography>
+        </AccordionDetails>
+      </Accordion>
+
+
+      <Accordion expanded={expanded === foci.prelimData} onChange={handleChange (foci.prelimData)}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <div className={`${cl.focusedAccordionSummary}`}>
+            <FocusQuestion focus={focus} name={foci.prelimData} toggle={toggleFocus} />
+            <span>Can I submit a preliminary version of a dataset?</span>
+          </div>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography>
+Yes, preliminary datasets are welcome.  The dataset description should include a summary of the dataset status, any caveats that should be considered, and when a dataset update is expected. Versioning can be tracked in the dataset_version column on the Dataset Metadata sheet.
+          </Typography>
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion expanded={expanded === foci.updatedData} onChange={handleChange (foci.updatedData)}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <div className={`${cl.focusedAccordionSummary}`}>
+            <FocusQuestion focus={focus} name={foci.updatedData} toggle={toggleFocus} />
+            <span>How do I submit an updated version of a dataset already included in CMAP?</span>
+          </div>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography>
+The updated version should be submitted to CMAP as a new submission.  This version must have a unique dataset_short_name, dataset_long_name and  dataset_version.  Please explain In the dataset_description that this is a subsequent version of a previous dataset. If the previous version requires removal contact simonscmap@uw.edu.
+          </Typography>
+        </AccordionDetails>
+      </Accordion>
+
+
+      <Accordion expanded={expanded === foci.resubmission} onChange={handleChange (foci.resubmission)}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <div className={`${cl.focusedAccordionSummary}`}>
+            <FocusQuestion focus={focus} name={foci.resubmission} toggle={toggleFocus} />
+            <span>How do I update a dataset that has been submitted and is in the review process?</span>
+          </div>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography>
+You can use the user dashboard to access, edit, and resubmit the most recent dataset version directly in the validation tool.  Alternatively, before ingestion, you may replace the originally submitted dataset with a new version by going to submit data and selecting “update a submission already in progress”.
+          </Typography>
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion expanded={expanded === foci.privateData} onChange={handleChange (foci.privateData)}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <div className={`${cl.focusedAccordionSummary}`}>
+            <FocusQuestion focus={focus} name={foci.privateData} toggle={toggleFocus} />
+            <span>Can I submit my dataset for inclusion in Simons CMAP, but prevent public access until my publication is released?</span>
+          </div>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography>
+Datasets cannot be made private-access only, all datasets ingested into Simons CMAP are publicly available.  However, your dataset can be made obscure by using a random name and excluding it from the Simons CMAP catalog.  Please contact us at simonscmap@uw.edu for more information.
+          </Typography>
+        </AccordionDetails>
+      </Accordion>
+
+
+    </div>
+  );
+};
+
+export default Content;
+
+/*
+
+      <Accordion expanded={expanded === foci.} onChange={handleChange (foci.)}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <div className={`${cl.focusedAccordionSummary}`}>
+            <FocusQuestion focus={focus} name={foci.} toggle={toggleFocus} />
+            <span></span>
+          </div>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography>
+          </Typography>
+        </AccordionDetails>
+      </Accordion>
+
+
+        */

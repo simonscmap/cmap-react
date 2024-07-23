@@ -59,9 +59,17 @@ const experimentalStyles = (theme) => ({
   },
   titleLink: {
     width: '100%',
-    color: theme.palette.secondary.main,
+    // color: theme.palette.secondary.main,
+    color: '#69FFF2',
+    '&:visited': {
+      // color: theme.palette.secondary.main,
+      color: '#69FFF2',
+    }
   },
   metadataContainer: {
+    '& table .MuiTypography-body1': {
+      margin: 0,
+    }
   },
   downloadLink: {
     color: theme.palette.primary.main,

@@ -1,94 +1,43 @@
 // An individual result from catalog search
 
 import React, { useState } from 'react';
-import { connect, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import {
   makeStyles,
-  // Grid,
-  // Typography,
   Paper,
-  Tooltip,
-  Link,
-  Button,
-  // Chip,
 } from '@material-ui/core';
-// import { ErrorOutline } from '@material-ui/icons';
-import { Link as RouterLink } from 'react-router-dom';
-// import CartAddOrRemove from './CartAddOrRemove';
-import { setShowCart } from '../../Redux/actions/ui';
-// import { colors } from '../Home/theme';
-// import Hint from '../Navigation/Help/Hint';
-// import AddToFavorites from '../Catalog/help/addToFavoritesHint';
-// import DatasetTitleHint from './help/datasetTitleHint';
+
 import DownloadDialog from './DownloadDialog';
 import api from '../../api/api';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
-import { downloadMetadata } from './DownloadMetaData';
 import { useDatasetFeatures } from '../../Utility/Catalog/useDatasetFeatures';
 import styles from './searchResultStyles';
 import MetadataContent from './SearchResultMetaDataContent';
-// import { Star, StarBorder } from '@material-ui/icons';
-// import { FaLayerGroup } from "react-icons/fa";
 import HideAtBreakPoint from './Display/HideAtBreakPoint';
 import AncillaryDataChip from './Display/AncillaryDataChip';
 import ContinuousIngestionChip from './Display/ContinuousIngestionChip';
 import DatasetTitleLink from './Display/DatasetTitleLink';
 import DownloadButton from './Display/DownloadButton';
-import { FaRegCopy } from "react-icons/fa6";
 
 const useStyles = makeStyles(styles);
 
-const SearchResult = (props) => {
-  const { index, style } = props;
-
-  const searchResults = useSelector((state) => state.searchResults);
-  const cl = useStyles();
-  const [downloadDialogOpen, setDownloadDialogOpen] = useState(false);
-  const [fullDataset, setDataset] = useState();
-
-  const dataset = searchResults[index];
-
-  const features = useDatasetFeatures(dataset && dataset.Table_Name);
-
-  if (!searchResults || typeof index !== 'number') {
-    return <React.Fragment />;
-  }
-
+// a rendering component for a search result
+export const SearchResultPure = (props) => {
   const {
-    Icon_URL,
-    Short_Name,
-    // Visualize,
-  } = dataset;
+    dataset,
+    fullDataset,
+    onDownloadClick,
+    setDownloadDialogOpen,
+    downloadDialogOpen,
+    features,
+    style,
+    index,
+    options = {},
+  } = props;
 
+  const cl = useStyles();
 
-  const fetchDataset = async () => {
-    let data;
-    try {
-      data = await api.catalog.datasetMetadata(Short_Name);
-      if (data.ok) {
-        data = await data.json();
-        setDataset(data);
-      }
-    } catch (e) {
-      console.error(`There was an error attempting to fetch ${Short_Name}`);
-      // TODO: alert user that there was an error
-    }
-    return await data;
-  };
-
-  const onDownloadClick = async () => {
-    setDownloadDialogOpen(true);
-    await fetchDataset();
-  };
-
-  const onDownloadMetaClick = async () => {
-    let data = await fetchDataset();
-    if (data) {
-      downloadMetadata(Short_Name, data);
-    } else {
-      console.log('no data yet');
-    }
-  };
+  const { Icon_URL } = dataset;
 
   return (
     <div style={style} className="result-wrapper">
@@ -138,4 +87,57 @@ const SearchResult = (props) => {
   );
 };
 
-export default SearchResult;
+
+const SearchResultState = (props) => {
+  const { index, style } = props;
+
+  const searchResults = useSelector((state) => state.searchResults);
+  const [downloadDialogOpen, setDownloadDialogOpen] = useState(false);
+  const [fullDataset, setDataset] = useState();
+
+  const dataset = searchResults[index];
+
+  const features = useDatasetFeatures(dataset && dataset.Table_Name);
+
+  if (!searchResults || typeof index !== 'number') {
+    return <React.Fragment />;
+  }
+
+  const {
+    Short_Name,
+    // Visualize,
+  } = dataset;
+
+  const fetchDataset = async () => {
+    let data;
+    try {
+      data = await api.catalog.datasetMetadata(Short_Name);
+      if (data.ok) {
+        data = await data.json();
+        setDataset(data);
+      }
+    } catch (e) {
+      console.error(`There was an error attempting to fetch ${Short_Name}`);
+      // TODO: alert user that there was an error
+    }
+    return await data;
+  };
+
+  const onDownloadClick = async () => {
+    setDownloadDialogOpen(true);
+    await fetchDataset();
+  };
+
+  return <SearchResultPure
+           dataset={dataset}
+           fullDataset={fullDataset}
+           onDownloadClick={onDownloadClick}
+           setDownloadDialogOpen={setDownloadDialogOpen}
+           downloadDialogOpen={downloadDialogOpen}
+           features={features}
+           style={style}
+           index={index}
+  />
+};
+
+export default SearchResultState;

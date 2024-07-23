@@ -220,7 +220,8 @@ const useStyles = makeStyles (() => ({
     gap: '4em',
     flexDirection: 'column',
     alignItems: 'center',
-    marginBottom: '100px',
+    margin: '0 auto 100px auto',
+    maxWidth: '1850px',
     '& hr': {
       height: '2px',
       width: '50%',
@@ -255,7 +256,6 @@ const useStyles = makeStyles (() => ({
     maxHeight: '500px',
   },
   intro: {
-    width: 'calc(100% - 450px)',
     margin: 'auto',
     display: 'flex',
     flexDirection: 'column',

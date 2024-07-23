@@ -8,8 +8,7 @@ import metaTags from '../../enums/metaTags';
 import { snackbarOpen } from '../../Redux/actions/ui';
 import AdminDashboard from './AdminDashboard';
 import NominateDataPage from './NominateDataPage';
-import SubmissionGuide from './SubmissionGuide';
-// import NewGuide from './NewGuide';
+import SubmissionGuide from './Guide/SubmissionGuide2';
 import UserDashboard from './UserDashboard';
 import ValidationTool from './ValidationTool';
 

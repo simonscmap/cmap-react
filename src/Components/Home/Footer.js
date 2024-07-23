@@ -1,17 +1,21 @@
 import { Link } from 'react-router-dom';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, ThemeProvider } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import React from 'react';
 import footerStyles from './footerStyles';
 import clsx from 'clsx';
+import { homeTheme } from './theme';
+
 
 const Footer = (props) => {
   let { classes } = props;
   return (
+    <ThemeProvider theme={homeTheme}>
+
     <div className={classes.footerOuterContainer}>
       <div className={classes.footerInnerContainer}>
         <img src="/images/home/cmap-logo-mark.svg" width="68" height="68" />
-        <Typography variant="h2">Experience Simons CMAP</Typography>
+        <Typography variant="h2">Simons CMAP</Typography>
         <div className={classes.footerLinksContainer}>
           <Link to="/catalog">Catalog</Link>
           <Link to="/visualization">Visualization</Link>
@@ -63,6 +67,7 @@ const Footer = (props) => {
         </Typography>
       </div>
     </div>
+      </ThemeProvider>
   );
 };
 

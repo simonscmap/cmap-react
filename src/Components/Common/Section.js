@@ -181,7 +181,14 @@ export const Group = withStyles(styles)(
 );
 
 const Section = (props) => {
-  let { classes, children, name, title, textStyles = true } = props;
+  let {
+    classes,
+    children,
+    name,
+    title,
+    textStyles = true,
+
+  } = props;
 
   let cl = [classes.sectionContainer];
   if (textStyles) {

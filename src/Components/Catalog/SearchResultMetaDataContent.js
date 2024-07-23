@@ -21,7 +21,8 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
     display: 'inline-grid',
     gridTemplateColumns: '3fr 1fr 1fr',
-    columnGap: '2em',
+     columnGap: '2em',
+
     '@media (max-width: 2400px)': {  // sensors and regions column is hidden
       gridTemplateColumns: '2fr 1fr',
     },
@@ -62,14 +63,17 @@ const useStyles = makeStyles((theme) => ({
     width: '200px',
     paddingRight: '.3em',
     textAlign: 'left',
-    '& p': {
-      color: theme.palette.secondary.light,
+    '& p.MuiTypography-root': {
+      color: 'rgb(135, 255, 244)',
       whiteSpace: 'nowrap',
       fontSize: '.9em',
     }
   },
   ackTextContainer: {
     textAlign: 'left',
+    '& p.MuiTypography-root': {
+      fontSize: '.9em',
+    }
   },
 }));
 

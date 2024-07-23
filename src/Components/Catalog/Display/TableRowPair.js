@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   label: {
-    color: theme.palette.secondary.light,
+    color: 'rgb(135, 255, 244)', //theme.palette.secondary.light,
     whiteSpace: 'nowrap',
   },
   monoValue: {
