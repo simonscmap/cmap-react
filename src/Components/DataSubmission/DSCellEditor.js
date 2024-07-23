@@ -25,7 +25,7 @@ class DSCellEditor extends React.Component {
   }
 
   getValue() {
-    return this.parseValue(this.state.value);
+    return this.parseValue ? this.parseValue(this.state.value).newValue : this.state.value;
   }
 
   handleChange = (e) => {
@@ -36,6 +36,7 @@ class DSCellEditor extends React.Component {
       this.props.column.colId,
       this.props.rowIndex,
     );
+    console.log ('changing cell value', value)
     this.setState({ ...this.state, value, errors });
   };
 
@@ -44,17 +45,20 @@ class DSCellEditor extends React.Component {
     this.inputRef.current.select();
     setTimeout(() => {
       this.setState({ ...this.state, attached: true });
-    }, 20);
+    }, 1);
   };
 
   handleClickAway = () => {
     if (this.state.attached) {
-      this.props.stopEditing();
+      this.props.stopEditing ();
     }
   };
 
   render() {
     const { errors } = this.state;
+    console.log ('cell editor errors', errors);
+
+    console.log ('example parseValue', this.parseValue (this.state.value))
 
     return (
       <div

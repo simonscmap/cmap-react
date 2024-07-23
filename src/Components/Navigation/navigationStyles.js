@@ -180,6 +180,10 @@ const navigationStyles = (theme) => ({
     },
   },
 
+  highlight: {
+    background: 'rgba(255, 255, 255, 0.2)',
+  },
+
   // LOGO
 
   cmapMark: {

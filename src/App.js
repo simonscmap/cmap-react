@@ -102,11 +102,11 @@ class App extends Component {
                       path="/catalog/cruises/:cruiseName"
                       component={CruiseFullPage}
                     ></Route>
-                    <Route exact path="/catalog/programs">
+                    <Route exact path="/programs">
                       <ProgramIndex/>
                     </Route>
                     <Route
-                      path="/catalog/programs/:programName"
+                      path="/programs/:programName"
                       component={ProgramDetailPage}
                     ></Route>
                     <Route path="/visualization">

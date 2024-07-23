@@ -9,7 +9,8 @@ import DatasetList from './ListDatasets';
 import { SectionHeader } from './Proto';
 import SampleVisualization from './SampleVisualization/SampleVisualization';
 import Globe from './Globe/Globe';
-
+import DatasetList2 from './DatasetList';
+import AgExp2 from './AgExp2';
 import { matchProgram } from './programData';
 import {
   trajectorySelector,
@@ -124,7 +125,7 @@ const ProgramDetail = (props) => {
         </Grid>
         <Grid item xs={12} md={12} lg={5}>
           <div className={cl.verticalPlaceholder}>
-            <DatasetList />
+            <DatasetList2 />
           </div>
         </Grid>
         <Grid item xs={12} md={12} lg={7}>

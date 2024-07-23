@@ -19,7 +19,7 @@ const pages = {
   'visualization/cruises': {},
   datasubmission: {},
   'datasubmission/guide': {},
-  'datasubmission/validationtool': {},
+  'datasubmission/submission-portal': {},
   'datasubmission/userdashboard': {},
   'datasubmission/admindashboard': {},
   documentation: {},

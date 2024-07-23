@@ -256,7 +256,7 @@ const Step1 = (props) => {
   useEffect(() => {
     if (!auditReport) {
       // changeStep (0);
-      history.push('/datasubmission/validationtool')
+      history.push('/datasubmission/submission-portal')
     }
   }, [auditReport]);
 

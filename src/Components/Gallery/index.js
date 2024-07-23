@@ -1,7 +1,7 @@
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import React from 'react';
-import Page from '../Common/Page';
+import Page from '../Common/Page2';
 import Section, { FullWidthContainer } from '../Common/Section';
 import { Link } from 'react-router-dom';
 import { colors } from '../Home/theme';
@@ -42,7 +42,7 @@ const styles = () => ({
     borderRadius: '6px',
     textAlign: 'left',
     // background: colors.blue.royal,
-    background: colors.gradient.newsBlock,
+    background: colors.gradient.slate,
     '& > div': {
       borderRadius: '6px',
       background: 'rgba(255, 255, 255, 0.14)',
@@ -129,8 +129,7 @@ const Card = withStyles(styles)(({ classes, children }) => (
 
 const About = ({ classes }) => {
   return (
-    <Page pageTitle={'Gallery'} heroContent={<HeroContent />}>
-      <FullWidthContainer bgVariant={'slate'}>
+    <Page pageTitle={'Gallery'} heroContent={<HeroContent />} bgVariant={'slate2'}>
 
         <Section name={'gettingStarted'} title={'Getting Started'}>
           <div className={classes.cardList}>
@@ -250,7 +249,6 @@ const About = ({ classes }) => {
             </Card>
           </div>
         </Section>
-      </FullWidthContainer>
     </Page>
   );
 };

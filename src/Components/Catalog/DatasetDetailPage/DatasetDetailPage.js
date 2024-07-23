@@ -52,7 +52,6 @@ const useStyles = makeStyles ((theme) => ({
     fontWeight: 100,
     fontFamily: '"roboto", Serif',
   },
-
 }));
 
 const SectionHeader = (props) => {

@@ -16,12 +16,12 @@ const useStyles = makeStyles((theme) => ({
     fontSize: '.9em',
   },
   label: {
-    color: theme.palette.secondary.light,
+    color: 'rgb(135, 255, 244)',
     whiteSpace: 'nowrap',
   },
   monoValue: {
     fontFamily: 'mono',
-    color: theme.palette.primary.light,
+    color: 'rgb(135, 255, 244)',
   },
   cell: {
     borderBottom: 'none',

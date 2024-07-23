@@ -8,7 +8,6 @@ const useStyles = makeStyles (() => ({
   container: {
     color: 'white',
     padding: '20px 25px',
-
   }
 }));
 
@@ -31,5 +30,5 @@ export const programsIndexConfig = {
   video: false,
   tour: false,
   hints: false,
-  navigationVariant: 'Left',
+  navigationVariant: 'Center',
 };

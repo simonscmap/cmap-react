@@ -28,7 +28,7 @@ export const ROUTES = {
   community: 'community',
 
   dataSubmission: 'datasubmission',
-  validation: 'datasubmission/validationtool',
+  validation: 'datasubmission/submission-portal',
   userDashboard: 'datasubmission/userdashboard',
   adminDashboard: 'datasubmission/admindashboard',
 

@@ -40,7 +40,7 @@ const auditFn = (standardArgs) => {
         content: `Workbook is missing required sheet ${inflect}: ${stringOfSheetNames}. Please add worksheet${inflect} and {0}.`,
         links: [{
           text: 'resubmit',
-          url: '/datasubmission/validationtool#step0'
+          url: '/datasubmission/submission-portal#step0'
         }]
       }
     });
@@ -59,7 +59,7 @@ const auditFn = (standardArgs) => {
         content: `Some worksheets are missing data. Please check the ${stringOfSheetNames} worksheet${inflect} and {0}.`,
         links: [{
           text: 'resubmit',
-          url: '/datasubmission/validationtool#step0'
+          url: '/datasubmission/submission-portal#step0'
         }]
       }
     });

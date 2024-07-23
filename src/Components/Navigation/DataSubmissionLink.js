@@ -67,28 +67,28 @@ export default function DataSubmissionLink() {
   const handleClick = () => {
     if (submissionFile) {
       // add a hash to trigger menu close
-      history.push ('/datasubmission/validationtool#confirm');
+      history.push ('/datasubmission/submission-portal#confirm');
       setOpen (true);
     } else if (submissionUploadState === states.succeeded) {
-      window.location.href = '/datasubmission/validationtool';
+      window.location.href = '/datasubmission/submission-portal';
     } else {
-      history.push ('/datasubmission/validationtool');
+      history.push ('/datasubmission/submission-portal');
     }
   }
 
   const onClose = (val) => {
     if (val) {
-      window.location.href = '/datasubmission/validationtool';
+      window.location.href = '/datasubmission/submission-portal';
     } else {
       setOpen(false);
       // restore location
-      history.push ('/datasubmission/validationtool');
+      history.push ('/datasubmission/submission-portal');
     }
   };
 
   return (
     <React.Fragment>
-      <a onClick={handleClick}>Submit Data</a>
+      <a onClick={handleClick}>Submission Portal</a>
       <Confirmation open={open} onClose={onClose}/>
     </React.Fragment>
   );

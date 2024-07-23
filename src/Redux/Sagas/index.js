@@ -926,6 +926,34 @@ function* retrieveMostRecentFile(action) {
   }
 }
 
+function* fetchSubmissionOptions (action) {
+  const tag = { tag: 'fetchSubmissionOpttions' };
+  let storedOptions = yield select(
+    (state) => state.dataSubmissionSelectOptions,
+  );
+  let options;
+
+  if (storedOptions) {
+    options = storedOptions;
+  } else {
+    let result = yield call(api.catalog.submissionOptions);
+    if (!result.ok) {
+      // don't alert here
+    } else {
+      options = yield result.json();
+      let tempRemoveInSituOptions = {
+        ...options,
+        Sensor: options.Sensor.filter((item) => item !== 'In-Situ'),
+      };
+      yield put(
+        dataSubmissionActions.dataSubmissionSelectOptionsStore(
+          tempRemoveInSituOptions,
+        ),
+      );
+    }
+  }
+}
+
 function* checkSubmissionOptionsAndStoreFile(action) {
   const tag = { tag: 'checkSubmissionOptionsAndStoreFile' };
   let storedOptions = yield select(
@@ -2019,12 +2047,12 @@ function* watchVizPageDataTargetSetAndFetchDetails() {
   );
 }
 
-/* function* watchDataSubmissionSelectOptionsFetch() {
- *   yield takeLatest(
- *     dataSubmissionActionTypes.DATA_SUBMISSION_SELECT_OPTIONS_FETCH,
- *     dataSubmissionSelectOptionsFetch,
- *   );
- * } */
+function* watchDataSubmissionSelectOptionsFetch() {
+  yield takeLatest(
+    dataSubmissionActionTypes.DATA_SUBMISSION_SELECT_OPTIONS_FETCH,
+    fetchSubmissionOptions,
+  );
+}
 
 function* watchDataSubmissionDelete() {
   yield takeLatest(
@@ -2119,7 +2147,7 @@ function* rootSaga() {
     watchVariableFetch(),
     watchDatasetSummaryFetch(),
     watchVizPageDataTargetSetAndFetchDetails(),
-    // watchDataSubmissionSelectOptionsFetch(), // this was a no op
+    watchDataSubmissionSelectOptionsFetch(),
     watchDataSubmissionDelete(),
     watchSparseDataQuerySend(),
     watchErrorReportSend(),

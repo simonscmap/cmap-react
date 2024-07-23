@@ -9,6 +9,7 @@ import {
   Link,
   Accordion,
   AccordionSummary,
+  AccordionDetails,
   Typography,
 } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
@@ -47,6 +48,11 @@ const styles = (theme) => ({
     color: 'white',
     margin: '12px 0 0 12px',
     letterSpacing: 'normal',
+  },
+
+   panelDetails: {
+    display: 'block',
+    textAlign: 'left',
   },
 });
 
@@ -129,7 +135,10 @@ class UserDashboard extends React.Component {
                   </Typography>
                 </AccordionSummary>
 
-                <UserDashboardPanelDetails submission={e} />
+                <AccordionDetails className={classes.panelDetails}>
+                  <UserDashboardPanelDetails submission={e} />
+                </AccordionDetails>
+
               </Accordion>
             ))}
           </React.Fragment>

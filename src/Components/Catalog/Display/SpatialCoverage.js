@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
     }
   },
   label: {
-    color: theme.palette.primary.light,
+    color: 'rgb(135, 255, 244)',
     fontFamily: 'mono',
   },
 }));

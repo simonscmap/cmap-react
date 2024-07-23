@@ -8,7 +8,7 @@ import navigationStyles from './navigationStyles';
 import { useLocation } from 'react-router-dom';
 
 const ExpandableItem = withStyles(navigationStyles)((props) => {
-  let { classes, children, linkText, isRightEdge } = props;
+  let { classes, children, linkText, isRightEdge, highlight } = props;
   const [isOpen, setOpen] = React.useState(false);
 
   const handleClick = () => {
@@ -19,10 +19,10 @@ const ExpandableItem = withStyles(navigationStyles)((props) => {
   let location = useLocation();
   React.useEffect(() => {
     handleClose();
-  }, [location])
+  }, [location]);
 
   return (
-    <div className={classes.expandableItemContainer}>
+    <div className={`${classes.expandableItemContainer} ${highlight}`} >
       <ClickAwayListener onClickAway={handleClose}>
         <div>
           <div className={classes.expandableItem} onClick={handleClick}>

@@ -11,7 +11,6 @@ const useStyles = makeStyles((theme) => ({
       '-webkit-line-clamp': 2,
       '-webkit-box-orient': 'vertical',
       overflow: 'hidden',
-      fontSize: '.9em',
     },
   }
 }));

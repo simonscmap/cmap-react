@@ -8,7 +8,7 @@ import LinkIcon from '@material-ui/icons/Link';
 
 const styles = () => ({
   sectionTitle: {
-    margin: '0 0 1em 0',
+    margin: '0 0 .5em 0',
   },
   fullWidthContainer: {
     width: '100%',
@@ -20,10 +20,10 @@ const styles = () => ({
     // for some reason, every element g
 
     boxSizing: 'content-box',
-    maxWidth: '1380px',
+    maxWidth: '1870px',
     margin: '0 auto',
     textAlign: 'left',
-    padding: '2em 0',
+    padding: '1em 0',
     '@media(min-width: 1281px)': {
       width: 'calc(100% - 80px)',
     },
@@ -39,6 +39,7 @@ const styles = () => ({
     '& > h3': {
       display: 'inline-block',
       position: 'relative',
+      fontSize: '1.9em',
       '&::after': {
         width: '100%',
         bottom: '-7px',
@@ -181,7 +182,14 @@ export const Group = withStyles(styles)(
 );
 
 const Section = (props) => {
-  let { classes, children, name, title, textStyles = true } = props;
+  let {
+    classes,
+    children,
+    name,
+    title,
+    textStyles = true,
+
+  } = props;
 
   let cl = [classes.sectionContainer];
   if (textStyles) {

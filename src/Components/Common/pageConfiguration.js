@@ -10,7 +10,7 @@ import { visualizationConfig } from '../Visualization/Visualization';
 import { cruiseConfig } from '../Catalog/CruiseFullPage';
 import { aboutConfig } from '../About';
 import { galleryConfig } from '../Gallery';
-import { submissionGuideConfig } from '../DataSubmission/NewGuide';
+import { submissionGuideConfig } from '../DataSubmission/Guide/SubmissionGuide2';
 import { documentationConfig } from '../../Documentation/sidebar';
 import { testPageConfig } from '../Explorer';
 import { programsIndexConfig } from '../Catalog/Programs/Index';
@@ -27,8 +27,7 @@ const pages = {
   '/visualization/cruises': cruiseConfig,
   '/datasubmission': {},
   '/datasubmission/guide': {},
-  '/datasubmission/new-guide': submissionGuideConfig,
-  '/datasubmission/validationtool': {},
+  '/datasubmission/submission-portal': {},
   '/datasubmission/userdashboard': {},
   '/datasubmission/admindashboard': {},
   '/documentation': documentationConfig,
