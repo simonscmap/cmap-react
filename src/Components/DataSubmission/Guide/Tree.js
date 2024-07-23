@@ -1,11 +1,13 @@
+import React, { useEffect } from 'react';
 import TreeView from '@material-ui/lab/TreeView';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import TreeItem from '@material-ui/lab/TreeItem';
-import React, { useEffect } from 'react';
+import PlayCircleOutlineIcon from '@material-ui/icons/PlayCircleOutline';
 import clsx from 'clsx';
 import { data, findById } from './tableOfContents';
 import useStyles from './treeStyles';
+
 
 const NavigationTree = (props) => {
   const { setContent, current } = props;
@@ -50,19 +52,28 @@ const NavigationTree = (props) => {
       // NOTE this differs from the 'selected' behavior of the TreeView
       // which allows for multiple items to be selected
     }
+
+    const LabelIcon = nodes.media ? PlayCircleOutlineIcon : React.Fragment;
+
     return (
       <TreeItem
         className={clsx(classes)}
-        key={nodes.id}
         nodeId={nodes.id}
-        label={nodes.name}
         dataid={nodes.id}
+        label={
+          <div className={cl.itemLabel}>
+            <span className={cl.labelText}>
+              {nodes.name}
+            </span>
+            <LabelIcon className={cl.labelIcon} />
+          </div>
+        }
       >
-          {
-            Array.isArray(nodes.children)
-              ? nodes.children.map((node) => renderTree(node))
-              : null
-          }
+        {
+          Array.isArray(nodes.children)
+            ? nodes.children.map((node) => renderTree(node))
+            : null
+        }
       </TreeItem>
     );
   }

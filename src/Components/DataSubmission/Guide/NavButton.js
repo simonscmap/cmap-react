@@ -15,15 +15,11 @@ export const NavButton = withStyles((theme) => ({
       borderColor: 'rgba(255, 253, 253, 0.13)',
       color: 'rgba(255, 253, 253, 0.13)',
     },
-    borderRadius: '6px',
     boxSizing: 'border-box',
-    padding: '23px',
-    height: '46px',
-    fontSize: '1.2em',
-    fontWeight: 500,
-    fontFamily: ['Montserrat', 'sans-serif'].join(','),
-    letterSpacing: '0.03em',
-    minWidth: '175px'
+    padding: '0',
+    height: '68px',
+    width: '68px',
+    borderRadius: '34px',
   },
 }))(Button);
 

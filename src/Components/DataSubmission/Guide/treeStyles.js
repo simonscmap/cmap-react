@@ -13,7 +13,7 @@ const useStyles = makeStyles ((theme) => ({
     '& .MuiTreeItem-root.Mui-selected .MuiTreeItem-label': {
       backgroundColor: 'unset',
       // color: theme.palette.secondary.main,
-      fontWeight: 'bold',
+      // fontWeight: 'bold',
     },
     '& .MuiTreeItem-root.Mui-selected .MuiTreeItem-label:hover': {
       backgroundColor: 'unset',
@@ -28,8 +28,17 @@ const useStyles = makeStyles ((theme) => ({
     '& div': {
       background: 'none',
       backgroundColor: 'unset',
-
-    }
+    },
+  },
+  itemLabel: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'none',
+    alignItems: 'center',
+    gap: '1em',
+  },
+  labelText: {
+    fontSize: '20px'
   },
   highlight: {
     '&.MuiTreeItem-root > .MuiTreeItem-content .MuiTreeItem-label': {

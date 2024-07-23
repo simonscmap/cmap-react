@@ -171,50 +171,7 @@ export const metadataSheet = [
     ],
     images: [],
   },
-  {
-    label: 'dataset_source',
-    anchorEnd: 'dataset_source',
-    text: [
-      <React.Fragment>
-        Specifies the group and/or the institute name of the data owner(s).
-        Including the PI name is strongly recommended, and the field can also
-        include any link (such as a website) to the data producers. This
-        information will be visible in the CMAP catalog as shown in{' '}
-        <Link href="#fig-4">Fig 4</Link>. Also, dataset_source will be
-        annotated to any visualization made using the dataset (
-        <Link href="#fig-5">Fig. 5</Link>).
-      </React.Fragment>,
-    ],
-    plainText: [
-      `
-                Specifies the group and/or the institute name of the data owner(s). Including the PI name is strongly recommended, and the field can also include any link (such as a website) to
-                the data producers. This information will be visible in the CMAP catalog. Also, dataset_source will be annotated to any visualization
-                made using the dataset.
-            `,
-    ],
-    bullets: [
-      'Required: Yes',
-      'Constraint: Less than 100 characters',
-      'Example: Armbrust Lab, University of Washington',
-    ],
-    images: [
-      {
-        width: '50%',
-        src: '/images/cmap_data_source_in_catalog.png',
-        alt: 'Dataset Source in Catalog',
-        caption:
-        'Figure 4. A sample dataset shown in the Simons CMAP catalog. The "dataset_source" is enclosed in the orange rectangle.',
-        id: 'fig-4',
-      },
-      {
-        src: '/images/cmap_data_source_in_viz.png',
-        alt: 'Dataset Source in Visualizations"',
-        caption:
-        'Figure 5. The "dataset_source" appears in visualizations made using the corresponding dataset (enclosed in the orange rectangle).',
-        id: 'fig-5',
-      },
-    ],
-  },
+  // dataset_source is a custom component
   {
     label: 'dataset_distributor',
     anchorEnd: 'dataset_distributor',
@@ -240,7 +197,7 @@ export const metadataSheet = [
         may mention your funding agency, grant number, or you may ask those
         that use your data to acknowledge your dataset with a particular
         statement or citation. Dataset acknowlegment will be visible in the
-        catalog page (<Link href="#fig-6">Fig. 6</Link>).
+        catalog page.
       </React.Fragment>,
     ],
     plainText: [
@@ -285,7 +242,7 @@ export const metadataSheet = [
         collected and processed. It can also include figures and links to
         external content. It is recommended that the description provide the
         context of the dataset, including a brief overview of any larger
-        sampling program if applicable (<Link href="#fig-7">Fig. 7</Link>).
+        sampling program if applicable.
       </React.Fragment>,
     ],
     plainText: [
@@ -342,8 +299,7 @@ export const metadataSheet = [
         expedition (or expeditions), provide a list of cruise official names
         here. If your dataset is associated with more than one cruise, please
         put them in separate cells under the cruise_names column. If the
-        cruises have any nicknames, please list them in separate cells as well
-        (<Link href="#fig-8">Fig. 8</Link>). Leave this field blank if your
+        cruises have any nicknames, please list them in separate cells as well. Leave this field blank if your
         dataset is not associated with a cruise expedition.
       </React.Fragment>,
     ],
@@ -351,16 +307,7 @@ export const metadataSheet = [
       'If your dataset represents measurements made during a cruise expedition (or expeditions), provide a list of cruise official names here. If your dataset is associated with more than one cruise, please put them in separate cells under the cruise_names column. If the cruises have any nicknames, please list them in separate cells as well. Leave this field blank if your dataset is not associated with a cruise expedition.',
     ],
     bullets: ['Required: No (optional)', 'Constraint: No length limits'],
-    images: [
-      {
-        width: '15%',
-        src: '/images/cmap_submission_cruise_name_example.png',
-        alt: 'Sample of cruise column on in data submission template',
-        caption:
-        'Figure 8. How to fill out the cruise_names column in the CMAP template.',
-        id: 'fig-8',
-      },
-    ],
+    images: [],
   },
 ];
 
@@ -377,7 +324,7 @@ export const variableMetadataSheet = [
         one-to-one match between the short_names listed here and the variable
         column names in the “Data” sheet (see{' '}
         <Link href="#data-structure-var">vars</Link>). var_short_name will be
-        seen in the CMAP catalog (<Link href="#fig-9">Fig. 9</Link>).
+        seen in the CMAP catalog.
       </React.Fragment>,
     ],
     plainText: [
@@ -405,11 +352,9 @@ export const variableMetadataSheet = [
     text: [
       <React.Fragment>
         A descriptive and human-readable label for the variable in accordance
-        with the CF and COARDS conventions [<Link href="#reference-1">1</Link>
-        , <Link href="#reference-2">2</Link>,{' '}
-        <Link href="#reference-3">3</Link>]. This name will present your
-        variable in the CMAP catalog (<Link href="#fig-10">Fig. 10</Link>),
-        visualization search dialog (<Link href="#fig-11">Fig. 11</Link>), and
+        with the CF and COARDS conventions. This name will present your
+        variable in the CMAP catalog,
+        visualization search dialog, and
         will appear as the title of figures generated on the vizualization
         page. var_long_name can contain any unicode character, but please
         avoid names longer than 200 characters as they may get trimmed while
@@ -481,8 +426,8 @@ export const variableMetadataSheet = [
         this field blank if your variable is unitless (e.g. “station numbers”
         or “quality flags”). Units may contain unicode characters such as
         subscripts and superscripts. var_unit will be visible in the Simons
-        CMAP catalog (see <Link href="#fig-10">Fig. 10</Link>) and in the
-        generated visualizations (see <Link href="#fig-5">Fig. 5</Link>).
+        CMAP catalog and in the
+        generated visualizations.
       </React.Fragment>,
     ],
     plainText: [
@@ -514,7 +459,7 @@ export const variableMetadataSheet = [
         a series of distinct but spatially-non-uniform stations, the spatial
         resolution is considered irregular. var_spatial_res may contain
         unicode characters such as degree symbol ( ° ) and will be visible in
-        the Simons CMAP catalog (see <Link href="#fig-4">Fig. 4</Link>). This
+        the Simons CMAP catalog. This
         field is populated via a dropdown menu. If a value you would like to
         use is missing from the dropdown menu please contact us at{' '}
         <Link href="mailto:cmap-data-submission@uw.edu">
@@ -548,8 +493,7 @@ export const variableMetadataSheet = [
         Entries in this column describe the temporal resolution (daily,
         hourly, 3-minutes, etc). If the measurements do not have a regular
         temporal spacing, use the term “irregular” to fill out this field.
-        var_temporal_res will be visible in the Simons CMAP catalog (see{' '}
-        <Link href="#fig-4">Fig. 4</Link>). This field is populated via a
+        var_temporal_res will be visible in the Simons CMAP catalog. This field is populated via a
         dropdown menu. If a value you would like to use is missing from the
         dropdown menu please contact us at{' '}
         <Link href="mailto:cmap-data-submission@uw.edu">
@@ -648,7 +592,7 @@ export const variableMetadataSheet = [
         process raw measurements, a specific instrument name or model number,
         a key describing numbered flags, and links to references or protocols
         specific to a particular variable. var_comment is visible in the
-        Simons CMAP catalog (<Link href="#fig-12">Fig. 12</Link>).
+        Simons CMAP catalog.
       </React.Fragment>,
     ],
     plainText: [
@@ -683,18 +627,18 @@ map.set ('depth-column', dataSheet[3]);
 map.set ('var-n-columns', dataSheet[4]);
 // Metadata Sheet
 map.set ('dataset_short_name', metadataSheet[0]);
-// map.set ('dataset_long_name-column', metadataSheet[1]);
+// map.set ('dataset_long_name-column', metadataSheet[1]); // this is now a custom component
 map.set ('dataset_version-column', metadataSheet[1]);
 map.set ('dataset_release_date-column', metadataSheet[2]);
 map.set ('dataset_make-column', metadataSheet[3]);
-map.set ('dataset_source-column', metadataSheet[4]);
-map.set ('dataset_distributor-column', metadataSheet[5]);
-map.set ('dataset_acknowledgment-column', metadataSheet[6]);
-map.set ('dataset_history-column', metadataSheet[7]);
-map.set ('dataset_description-column', metadataSheet[8]);
-map.set ('dataset_references-column', metadataSheet[9]);
-map.set ('climatology-column', metadataSheet[10]);
-map.set ('cruise_names-column', metadataSheet[11]);
+// map.set ('dataset_source-column', metadataSheet[4]); // this is now a custom component
+map.set ('dataset_distributor-column', metadataSheet[4]);
+map.set ('dataset_acknowledgment-column', metadataSheet[5]);
+map.set ('dataset_history-column', metadataSheet[6]);
+map.set ('dataset_description-column', metadataSheet[7]);
+map.set ('dataset_references-column', metadataSheet[8]);
+map.set ('climatology-column', metadataSheet[9]);
+map.set ('cruise_names-column', metadataSheet[10]);
 
 // Variable Metadata Sheet
 map.set ('var_short_name-column', variableMetadataSheet[0]);

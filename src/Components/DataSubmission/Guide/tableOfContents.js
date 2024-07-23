@@ -6,6 +6,7 @@ export const data = [
   {
     id: 'validation-api',
     name: 'Validation API',
+    media: true,
   },
   {
     id: 'submission-process',

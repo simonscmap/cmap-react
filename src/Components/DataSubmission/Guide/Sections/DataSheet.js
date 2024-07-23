@@ -1,50 +1,40 @@
-import React from 'react';
+import React, {useState, } from 'react';
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import Table from '@material-ui/core/Table';
-import TableRow from '@material-ui/core/TableRow';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableBody from '@material-ui/core/TableBody';
+import { AgGridReact } from 'ag-grid-react';
 
 import { sectionStyles } from '../guideStyles';
 
 const Content = () => {
   const cl = sectionStyles();
+
+
+  const [rowData, setRowData] = useState([
+    {
+      time: '2016-5-01T15:02:00',
+      lat: 25,
+      lon: -158,
+      depth: 5,
+      var1: 'value',
+      '...': '...',
+      varN: 'value',
+    }
+  ]);
+
+  // Column Definitions: Defines the columns to be displayed.
+  const [colDefs, setColDefs] = useState([
+    { field: "time" },
+    { field: "lat" },
+    { field: "lon" },
+    { field: "depth" },
+    { field: "var1" },
+    { field: "..." },
+    { field: "varN" },
+
+  ]);
+
   return (
     <div className={cl.container}>
-      <Table size="small" style={{ marginBottom: '12px' }}>
-        <TableHead>
-          <TableRow className={cl.sampleTableRow}>
-            <TableCell>time</TableCell>
-            <TableCell>lat</TableCell>
-            <TableCell>lon</TableCell>
-            <TableCell>depth[if exists]</TableCell>
-            <TableCell>
-              var<sub>1</sub>
-            </TableCell>
-            <TableCell>...</TableCell>
-            <TableCell>
-              var<sub>n</sub>
-            </TableCell>
-          </TableRow>
-        </TableHead>
-
-        <TableBody>
-          <TableRow className={cl.sampleTableRow}>
-            <TableCell>2016-5-01T15:02:00</TableCell>
-            <TableCell>25</TableCell>
-            <TableCell>-158</TableCell>
-            <TableCell>5</TableCell>
-            <TableCell>value</TableCell>
-            <TableCell>...</TableCell>
-            <TableCell>value</TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
       <Typography>
         All data points are stored in the “Data” sheet. Each data point
         must have time and location information. The exact name and order
@@ -63,6 +53,19 @@ const Content = () => {
         information.
       </Typography>
 
+
+      <div className={cl.standoutBadgeContainer} style={{ width: 'calc(100% - 100px)'}}>
+        <div className={cl.standoutBadge}>Example Data Sheet Row</div>
+        <div
+          className="ag-theme-material" // applying the Data Grid theme
+          style={{ height: '120px' }} // the Data Grid will fill the size of the parent container
+        >
+        <AgGridReact
+          rowData={rowData}
+          columnDefs={colDefs}
+        />
+        </div>
+      </div>
     </div>
   );
 };

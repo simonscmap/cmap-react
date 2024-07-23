@@ -2,10 +2,9 @@ import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
 
-import { withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 
 import {
-  AccordionDetails,
   TextField,
   Button,
   Typography,
@@ -25,49 +24,37 @@ import Comment from './Comment';
 
 import states from '../../enums/asyncRequestStates';
 
-const styles = (theme) => ({
-  panelDetails: {
-    display: 'block',
-    textAlign: 'left',
-  },
-
+const useStyles = makeStyles((theme) => ({
   newCommentDiv: {
-    width: '70vw',
     margin: '24px auto 0px auto',
   },
-
   newCommentTextField: {
     flexBasis: 'calc(70vw - 200px)',
     marginRight: '16px',
   },
-
   postButton: {
     color: 'white',
     marginTop: '16px',
     textTransform: 'none',
   },
-
   setPhaseButton: {
     color: 'white',
     marginLeft: '12px',
   },
-
   stepper: {
     borderRadius: '4px',
     margin: '16px 2vw 24px 2vw',
   },
-
   newUpload: {
     marginLeft: '2vw',
     cursor: 'pointer',
   },
-
   labelTimeStamp: {
     opacity: 0.9,
     fontSize: '11px',
     display: 'block',
   },
-});
+}));
 
 const mapStateToProps = (state, ownProps) => ({
   submissionCommentHistoryRetrievalState:
@@ -127,12 +114,13 @@ const getActiveStepFromPhase = (phase) => {
   }
 }
 
-const UserDashboardPanelDetails = (props) => {
-  const { classes, submission } = props;
+export const UserDashboardPanelDetails = (props) => {
+  const { submission, submissionComments } = props;
+  const classes = useStyles();
 
   const [comment, setComment] = React.useState();
 
-  let comments = props.submissionComments[submission.Submission_ID];
+  let comments = submissionComments[submission.Submission_ID];
   let renderComments = Boolean(comments && comments.length);
 
   const activeStep = getActiveStepFromPhase (submission.Phase);
@@ -141,14 +129,15 @@ const UserDashboardPanelDetails = (props) => {
     props.retrieveSubmissionCommentHistory(submission.Submission_ID);
   }, []);
 
-  // control this input from redux so we can reset properly, also create connected "NewComment" component
+  // control this input from redux so we can reset properly
+  // also create connected "NewComment" component
   const handlePostComment = () => {
     props.addSubmissionComment(submission.Submission_ID, comment, 'user');
     setComment('');
   };
 
   return (
-    <AccordionDetails className={classes.panelDetails}>
+    <div>
       <Stepper
         className={classes.stepper}
         alternativeLabel
@@ -190,7 +179,7 @@ const UserDashboardPanelDetails = (props) => {
         >
           Download
         </Link>{' '}
-        the most recent version.
+        the most recent version of this submission.
       </Typography>
 
       {props.submissionCommentHistoryRetrievalState === states.inProgress ? (
@@ -220,11 +209,12 @@ const UserDashboardPanelDetails = (props) => {
           Post Message
         </Button>
       </div>
-    </AccordionDetails>
+    </div>
   );
 };
+
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(withStyles(styles)(UserDashboardPanelDetails));
+)(UserDashboardPanelDetails);

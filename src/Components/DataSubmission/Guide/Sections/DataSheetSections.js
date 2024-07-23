@@ -25,14 +25,16 @@ const ColumnSection = (props) => {
         ))}
       </ul>
       {item.images.map((image, i) => (
-        <figure key={i}>
-          <img
-            src={image.src}
-            alt={image.alt}
-            width={image.width || '100%'}
-          />
-          <figcaption>{image.caption}</figcaption>
-        </figure>
+        <div className={cl.standoutBadgeContainer}>
+          <div className={cl.standoutBadge}>Example: {image.alt}</div>
+          <div className={cl.standoutBox} key={`${i}`}>
+            <img
+              src={image.src}
+              alt={image.alt}
+              width={image.width || '100%'}
+            />
+          </div>
+        </div>
       ))}
     </div>
   );

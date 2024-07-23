@@ -1,4 +1,4 @@
-import { makeStyles, withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles ((theme) => ({
   container: {
@@ -90,14 +90,37 @@ const useStyles = makeStyles ((theme) => ({
   fwdbck: {
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     flex: 0,
-    paddingTop: '20px',
+    paddingTop: '5px',
+    gap: '2em',
   },
+  bck: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignContent: 'center',
+    alignItems: 'center',
+    gap: '1em',
+    flex: 1,
+    '& .MuiSvgIcon-root': {
+      fontSize: '42px',
+    }
+  },
+  fwd: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignContent: 'center',
+    alignItems: 'center',
+    gap: '1em',
+    flex: 1,
+    '& .MuiSvgIcon-root': {
+      fontSize: '42px',
+    }
+  }
 
 }));
-
-
 
 export default useStyles;
 
@@ -199,7 +222,7 @@ export const sectionStyles = makeStyles((theme) => ({
 
   standoutBox: {
     width: 'calc(100% - 200px)',
-    borderRadius: '5px',
+    borderRadius: '6px',
     boxSizing: 'border-box',
     border: '1px solid black',
     margin: '2em auto',
@@ -207,9 +230,9 @@ export const sectionStyles = makeStyles((theme) => ({
     boxShadow: `0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12)`,
     '& img': {
       width: '100%',
-    }
+    },
+    overflow: 'hidden',
   },
-
 
   standoutBadge: {
     position: 'absolute',
@@ -221,6 +244,14 @@ export const sectionStyles = makeStyles((theme) => ({
     background: 'rgb(209, 98, 101)',
     fontSize: '14px',
     fontWeight: 'bold',
+  },
+
+  standoutBadgeContainer: {
+    position: 'relative',
+    margin: '2em auto 2em 65px',
+    '& > div': {
+      margin: 0,
+    }
   },
 
   focusedAccordionSummary: {
@@ -254,6 +285,21 @@ export const sectionStyles = makeStyles((theme) => ({
       borderColor: '#6f6',
       boxShadow: '0 0 20px rgba(105, 255, 242, 0.6), inset 0 0 10px rgba(105, 255, 242, 0.4), 0 2px 0 #000'
     },
+  },
+
+  // svg arrow marker
+
+  sourceArrow: {
+    width: '100px',
+    height: '100px',
+  },
+  pointerArrow: {
+    stroke: '#8fbcbb',
+    strokeWidth: '1.5px',
+    fill: 'none'
+  },
+  arrowHead: {
+    fill: '#8fbcbb'
   }
 
 }));

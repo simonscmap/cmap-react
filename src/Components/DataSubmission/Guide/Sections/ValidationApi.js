@@ -154,6 +154,32 @@ const Content = (props) => {
         If you receive output messages from the validation API that you have questions about, please see the data submission guide or contact the Simons CMAP data curation team at <Link href="mailto:simonscmap@uw.edu">simonscmap@uw.edu</Link>
       </CustomAlert>
 
+      <div className={cl.subHeader}>
+        Validation API tutorial:
+      </div>
+
+      <div className={cl.standoutBox} style={{ width: '780px' }}>
+        <iframe
+          src="https://player.vimeo.com/video/957212176"
+          width="780"
+          height="440"
+          style={{ margin: '0 auto' }}
+        ></iframe>
+      </div>
+
+
+      <div className={cl.subHeader}>
+        Validation API output tutorial:
+      </div>
+
+      <div className={cl.standoutBox} style={{ width: '780px' }}>
+        <iframe
+          src="https://player.vimeo.com/video/956780015"
+          width="780"
+          height="440"
+          style={{ margin: '0 auto' }}
+        ></iframe>
+      </div>
 
 
     </div>

@@ -150,7 +150,7 @@ const Content = (props) => {
         </AccordionSummary>
         <AccordionDetails>
           <Typography>
-            Keywords are an important part of the Simons CMAP search function.  Please include any keyword that should return a given variable if used in “search”.  A minimal list of keyword categories can be found here https://simonscmap.dev/datasubmission/guide#data-structure-var_keywords
+            Keywords are an important part of the Simons CMAP search function.  Please include any keyword that should return a given variable if used in “search”.  A minimal list of keyword categories can be found <Link href="https://simonscmap.dev/datasubmission/guide#data-structure-var_keywords">here</Link>
           </Typography>
         </AccordionDetails>
       </Accordion>
@@ -193,7 +193,7 @@ const Content = (props) => {
         <AccordionDetails>
           <Typography>
 
-The dataset description will be used to present your dataset to the CMAP users. It acts as entry documentation and should provide contextual information such as scientific goals, acquisition methods, etc. For more details see here. https://simonscmap.dev/datasubmission/guide#data-structure-dataset_description
+The dataset description will be used to present your dataset to the CMAP users. It acts as entry documentation and should provide contextual information such as scientific goals, acquisition methods, etc. For more details see <Link href="https://simonscmap.dev/datasubmission/guide#data-structure-dataset_description">here</Link>.
           </Typography>
         </AccordionDetails>
       </Accordion>
@@ -207,9 +207,7 @@ The dataset description will be used to present your dataset to the CMAP users. 
         </AccordionSummary>
         <AccordionDetails>
           <Typography>
-            Both dataset and variable long names must be shorter than 200 characters, and title-cased. Dataset/Variable short names should not contain space, dash, or special characters such as <code>{'<'}, +, %</code>, or start with numbers. Both long and short names must not already exist in CMAP (check the catalog page). See more here and here.
-https://simonscmap.dev/datasubmission/guide#data-structure-dataset_short_name
-https://simonscmap.dev/datasubmission/guide#data-structure-variable
+            Both dataset and variable long names must be shorter than 200 characters, and title-cased. Dataset/Variable short names should not contain space, dash, or special characters such as <code>{'<'}, +, %</code>, or start with numbers. Both long and short names must not already exist in CMAP (check the catalog page). See more <Link href="https://simonscmap.dev/datasubmission/guide#data-structure-dataset_short_name">here</Link> and <Link href="https://simonscmap.dev/datasubmission/guide#data-structure-variable">here</Link>.
           </Typography>
         </AccordionDetails>
       </Accordion>
@@ -296,7 +294,7 @@ Yes, preliminary datasets are welcome.  The dataset description should include a
         </AccordionSummary>
         <AccordionDetails>
           <Typography>
-The updated version should be submitted to CMAP as a new submission.  This version must have a unique dataset_short_name, dataset_long_name and  dataset_version.  Please explain In the dataset_description that this is a subsequent version of a previous dataset. If the previous version requires removal contact simonscmap@uw.edu.
+            The updated version should be submitted to CMAP as a new submission.  This version must have a unique dataset_short_name, dataset_long_name and  dataset_version.  Please explain In the dataset_description that this is a subsequent version of a previous dataset. If the previous version requires removal contact  <Link href="mailto:simonscmap@uw.edu">simonscmap@uw.edu</Link>.
           </Typography>
         </AccordionDetails>
       </Accordion>
@@ -325,7 +323,7 @@ You can use the user dashboard to access, edit, and resubmit the most recent dat
         </AccordionSummary>
         <AccordionDetails>
           <Typography>
-Datasets cannot be made private-access only, all datasets ingested into Simons CMAP are publicly available.  However, your dataset can be made obscure by using a random name and excluding it from the Simons CMAP catalog.  Please contact us at simonscmap@uw.edu for more information.
+Datasets cannot be made private-access only, all datasets ingested into Simons CMAP are publicly available.  However, your dataset can be made obscure by using a random name and excluding it from the Simons CMAP catalog.  Please contact us at <Link href="mailto:simonscmap@uw.edu">simonscmap@uw.edu</Link> for more information.
           </Typography>
         </AccordionDetails>
       </Accordion>

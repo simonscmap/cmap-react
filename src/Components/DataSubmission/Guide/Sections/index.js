@@ -15,3 +15,4 @@ export { default as Faq } from './FAQ';
 export * from './DataSheetSections';
 // custom data sheet sections
 export { default as DatasetLongNameColumn } from './DatasetLongName';
+export { default as DatasetSourceColumn } from './DatasetSourceColumn';

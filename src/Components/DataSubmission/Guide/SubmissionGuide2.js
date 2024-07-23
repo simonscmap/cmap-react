@@ -1,17 +1,17 @@
-import Typography from '@material-ui/core/Typography';
+import React, { useState, useEffect } from 'react';
 import Paper from '@material-ui/core/Paper';
 import Divider from '@material-ui/core/Divider';
-import React, { useState, useEffect } from 'react';
+import Typography from '@material-ui/core/Typography';
 import Page2 from '../../Common/Page2';
 import { useLocation, useHistory} from 'react-router-dom';
 import queryString from 'query-string';
-
-
 import NavigationTree from './Tree';
 import { findById, getImportNameById, findNext, findPrev } from './tableOfContents';
 import * as GuideSections from './Sections/index';
 import useStyles, { sectionStyles } from './guideStyles';
 import StepButton from './NavButton';
+import NavigateNextIcon from '@material-ui/icons/NavigateNext';
+import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
 
 const Programs = () => {
   const cl = useStyles();
@@ -75,10 +75,30 @@ const Programs = () => {
   const importName = getImportNameById (current.id);
   const CurrentContent = GuideSections[importName];
 
+  const prevTitle = () => {
+    const prev = findPrev (current);
+    if (prev) {
+      return prev.name;
+    } else {
+      return '';
+    }
+  }
+
+  const nextTitle = () => {
+   const next = findNext (current);
+    if (next) {
+      return next.name;
+    } else {
+      return '';
+    }
+  }
+
+
   const goNext = () => {
     const next = findNext (current);
     setContentWithLocation (next.id);
   };
+
   const goPrev = () => {
     const prev = findPrev (current);
     setContentWithLocation (prev.id);
@@ -105,12 +125,24 @@ const Programs = () => {
               <div className={cl.fwdbckContainer}>
                 <Divider className={scl.divider}></Divider>
                 <div className={cl.fwdbck}>
-                  <StepButton
-                    onClick={goPrev}
-                    disabled={!findPrev(current)}>
-                    Previous
-                  </StepButton>
-                  <StepButton onClick={goNext} disabled={!findNext(current)}>Next</StepButton>
+                  <div className={cl.bck}>
+                    <Typography>{prevTitle ()}</Typography>
+                    <StepButton
+                      onClick={goPrev}
+                      disabled={!findPrev(current)}
+                    >
+                     <NavigateBeforeIcon />
+                    </StepButton>
+                  </div>
+                  <div className={cl.fwd}>
+                    <StepButton
+                      onClick={goNext}
+                      disabled={!findNext(current)}
+                    >
+                      <NavigateNextIcon />
+                    </StepButton>
+                    <Typography>{nextTitle ()}</Typography>
+                  </div>
                 </div>
               </div>
             </Paper>
