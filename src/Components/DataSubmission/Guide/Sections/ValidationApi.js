@@ -12,6 +12,8 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { PiNumberCircleOne,  PiNumberCircleTwo, PiNumberCircleThree } from "react-icons/pi";
 import { CustomAlert } from '../Alert';
 import { FocusEnumerator } from '../FocusMarkers';
+import { GuideLink } from '../Links';
+
 
 // foci
 const foci = {
@@ -65,23 +67,21 @@ const Content = (props) => {
 
       <List>
         <ListItem>
-          <Link href="https://www.dropbox.com/scl/fi/mdye13twpolkzpdnstpr6/SimonsCMAP_QCAPI.py?rlkey=2000jd3k2jo2dkljugfvucda9&st=a7xvb3db&dl=0">
+          <GuideLink href="https://www.dropbox.com/scl/fi/mdye13twpolkzpdnstpr6/SimonsCMAP_QCAPI.py?rlkey=2000jd3k2jo2dkljugfvucda9&st=a7xvb3db&dl=0">
             A script to call the Validation API
-          </Link>
+          </GuideLink>
         </ListItem>
         <ListItem>
-          <Link
+          <GuideLink
             href="https://cmapdatavalidation.com/try#/Pre%20Ingestion%20Checks/upload_file_excel__respType__post"
-          >
+            >
             Validation API interactive interface
-          </Link>
+          </GuideLink>
         </ListItem>
         <ListItem>
-          <Link
-            href="https://cmapdatavalidation.com/docs"
-          >
+          <GuideLink href="https://cmapdatavalidation.com/docs" >
             Validation API documentation
-          </Link>
+          </GuideLink>
         </ListItem>
       </List>
 
@@ -151,19 +151,19 @@ const Content = (props) => {
       </Accordion>
 
       <CustomAlert severity="info">
-        If you receive output messages from the validation API that you have questions about, please see the data submission guide or contact the Simons CMAP data curation team at <Link href="mailto:simonscmap@uw.edu">simonscmap@uw.edu</Link>
+        If you receive output messages from the validation API that you have questions about, please see the data submission guide or contact the Simons CMAP data curation team at <GuideLink href="mailto:simonscmap@uw.edu">simonscmap@uw.edu</GuideLink>
       </CustomAlert>
 
       <div className={cl.subHeader}>
         Validation API tutorial:
       </div>
 
-      <div className={cl.standoutBox} style={{ width: '780px' }}>
+      <div className={cl.standoutBox} style={{ width: '780px',background: 'black' }}>
         <iframe
           src="https://player.vimeo.com/video/957212176"
           width="780"
           height="440"
-          style={{ margin: '0 auto' }}
+          style={{ margin: '0 auto', border: 0 }}
         ></iframe>
       </div>
 
@@ -172,15 +172,14 @@ const Content = (props) => {
         Validation API output tutorial:
       </div>
 
-      <div className={cl.standoutBox} style={{ width: '780px' }}>
+      <div className={cl.standoutBox} style={{ width: '780px', background: 'black' }}>
         <iframe
           src="https://player.vimeo.com/video/956780015"
           width="780"
           height="440"
-          style={{ margin: '0 auto' }}
+          style={{ margin: '0 auto', border: 0 }}
         ></iframe>
       </div>
-
 
     </div>
   );

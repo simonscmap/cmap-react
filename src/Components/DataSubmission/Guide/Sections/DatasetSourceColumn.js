@@ -1,35 +1,29 @@
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
-import Link from '@material-ui/core/Link';
 
 import ArrowRightAltIcon from '@material-ui/icons/ArrowRightAlt';
 import { sectionStyles } from '../guideStyles';
 import ExampleCatalogEntry from '../ExampleCatalogEntry';
-const bullets = [
-  'Required: Yes',
-  'Constraint: Less than 100 characters',
-  'Example: Armbrust Lab, University of Washington',
-];
+import { Meta } from './DataSheetSections';
+
+const meta = {
+  required: true,
+  constraints: ['Less than 100 characters'],
+  example: 'Armbrust Lab, University of Washington',
+};
 
 const Content = () => {
   const cl = sectionStyles();
   return (
     <div className={cl.container}>
+      <Meta meta={meta} />
       <Typography>
-Specifies the group and/or the institute name of the data owner(s).
+        Specifies the group and/or the institute name of the data owner(s).
         Including the PI name is strongly recommended, and the field can also
         include any link (such as a website) to the data producers. This
-        information will be visible in the CMAP catalog as shown in{' '}
-        <Link href="#fig-4">Fig 4</Link>. Also, dataset_source will be
-        annotated to any visualization made using the dataset (
-        <Link href="#fig-5">Fig. 5</Link>)
+        information will be visible in the CMAP catalog as shown below. Also, <code>dataset_source</code> will be
+        annotated to any visualization made using the dataset.
       </Typography>
-
-      <ul>
-        {bullets.map((bullet, i) => (
-          <li key={i}>{bullet}</li>
-        ))}
-      </ul>
 
       <div className={cl.standoutBadgeContainer}>
         <div className={cl.standoutBadge}>Example Catalog Entry</div>
@@ -41,8 +35,19 @@ Specifies the group and/or the institute name of the data owner(s).
                              fontSize: '90px',
                              zIndex: '100'
                            }}/>
-        <div className={cl.standoutBox}>
+        <div className={cl.standoutBox} style={{ marginBottom: '2em'}}>
           <ExampleCatalogEntry />
+        </div>
+
+        <div className={cl.standoutBadgeContainer}>
+          <div className={cl.standoutBadge}>Example Visualization Annotated with Source</div>
+          <div className={cl.standoutBox}>
+            <img
+              src={'/images/cmap_data_source_in_viz.png'}
+              alt={'Sample Visualization with Annotation'}
+              width={1077}
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -50,8 +55,3 @@ Specifies the group and/or the institute name of the data owner(s).
 };
 
 export default Content;
-
-
-
-     //   src: '/images/cmap_data_source_in_viz.png',
-     //   alt: 'Dataset Source in Visualizations"',

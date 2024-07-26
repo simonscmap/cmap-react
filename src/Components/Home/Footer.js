@@ -19,10 +19,17 @@ const Footer = (props) => {
         <div className={classes.footerLinksContainer}>
           <Link to="/catalog">Catalog</Link>
           <Link to="/visualization">Visualization</Link>
+          <Link to="/programs">Programs</Link>
           <Link to="/datasubmission/guide">Data Submission</Link>
-          <Link to="/apikeymanagement">API Access</Link>
           <Link to="/gallery">Gallery</Link>
         </div>
+        <div className={classes.footerLinksContainer}>
+          <Link to="/apikeymanagement">API Access</Link>
+          <Link to="/documentation">Documentation</Link>
+          <Link to="/contact">Contact</Link>
+          <Link to="/about">About</Link>
+        </div>
+
         <div className={classes.footerConnectLinks}>
           <a href="https://join.slack.com/t/simons-cmap/shared_invite/enQtNjQzMTkzMjg0NjQ2LTdlOGRhZjNhMDY3MjRlNjg2OTY5NzE3ZWZhNWE0OWZhYmQzMTJjNDkyNDQ1MjNkZDg0N2MzMzhlZDliNGYxYzQ">
             <img src="/images/home/logo-slack.svg" />

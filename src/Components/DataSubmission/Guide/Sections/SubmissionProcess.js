@@ -8,8 +8,10 @@ import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { PiNumberCircleOne,  PiNumberCircleTwo, PiNumberCircleThree, PiNumberCircleFour,} from "react-icons/pi";
+import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import { CustomAlert } from '../Alert';
 import { FocusEnumerator } from '../FocusMarkers';
+import { GuideLink } from '../Links';
 
 // foci
 const foci = {
@@ -58,16 +60,15 @@ const Content = (props) => {
       <div className={cl.container}>
         <Typography>
           Begin the process by downloading and populating a&nbsp;
-          <Link
-            href="https://github.com/simonscmap/DBIngest/raw/master/template/datasetTemplate.xlsx"
-            download="datasetTemplate.xlsx"
-          >
-            blank xlsx template.
-          </Link>
+          <GuideLink href="https://github.com/simonscmap/DBIngest/raw/master/template/datasetTemplate.xlsx" download={true}>
+            datasetTemplate.xlsx
+          </GuideLink>
           &nbsp;Completed sample templates can be found in the&nbsp;
-          <Link href="#resources">resources section</Link>. Details on the
+          <GuideLink hash="#resources">Resources</GuideLink> section. Details on the
           requirements and structure can be found in the&nbsp;
-          <Link href="#data-structure">Data Structure</Link> section.
+          <GuideLink hash="#data-structure">
+            Data Structure
+          </GuideLink> section.
         </Typography>
 
         <Link
@@ -95,19 +96,19 @@ const Content = (props) => {
           </AccordionSummary>
           <AccordionDetails>
             <Typography>
-              Load your workbook into the <Link target="_blank" href="/datasubmission/validationtool">submission tool</Link> to begin validation. The tool will walk you through a
+              Load your workbook into the <GuideLink href="/datasubmission/validationtool">Submission Tool</GuideLink> to begin validation. The tool will walk you through a
               step-by-step process to identify and resolve any potential data or
               format issues. Once the workbook has been validated it will be
               uploaded to a staging area to be reviewed by our data curation
               team. From this point you will be able to track the progress of your
-              submission in the <Link href="/datasubmission/userdashboard">user dashboard</Link>.
+              submission in the <GuideLink href="/datasubmission/userdashboard">User Dashboard</GuideLink>.
             </Typography>
 
         <CustomAlert severity="warning" variant="outlined">
           <Typography>
           Please note that xlsx workbooks over 150MB <em>cannot be processed</em> using the web submission tools. If
           you would like to submit a dataset that exceeds this limit please
-          contact the data curation team at <a href="mailto:cmap-data-submission@uw.edu">cmap-data-submission@uw.edu</a>.
+          contact the data curation team at <GuideLink href="mailto:cmap-data-submission@uw.edu">cmap-data-submission@uw.edu</GuideLink>.
             </Typography>
         </CustomAlert>
           </AccordionDetails>
@@ -122,10 +123,10 @@ const Content = (props) => {
           </AccordionSummary>
           <AccordionDetails>
             <Typography>
-              The data curation team may have suggestions for additional changes to the workbook.
+              After the data curation team has reviewed your dataset, any feedback will be sent through the <GuideLink hash="#user-dashboard">User Dashboard</GuideLink> and you will be notified via email.  If changes to your submission are requested, you can use the <GuideLink hash="#user-dashboard">User Dashboard <OpenInNewIcon /></GuideLink> to edit and resubmit directly in the validation tool.  Alternatively, before ingestion, you can replace the originally submitted dataset with a new version by going to Submit Data and selecting “update a submission already in progress”.
             </Typography>
             <Typography>
-              Any feedback will be sent through the <Link href="#user-dashboard">user dashboard</Link>, and you will be notified via email.
+
             </Typography>
           </AccordionDetails>
         </Accordion>
@@ -142,8 +143,8 @@ const Content = (props) => {
             <Typography>
               Once your submission has been approved the data curation team will
               request a DOI for the data. Information on DOIs can be found in
-              the <Link href="#faq-doi">DOI Help Section</Link>. The DOI can be
-              submitted using the messaging feature of the <Link href="#user-dashboard">user dashboard</Link>.
+              the <GuideLink hash="#faq-doi">DOI Help Section</GuideLink>. The DOI can be
+              submitted using the messaging feature of the <GuideLink hash="#user-dashboard">User Dashboard</GuideLink>.
             </Typography>
           </AccordionDetails>
         </Accordion>
@@ -160,8 +161,8 @@ const Content = (props) => {
             <Typography>
               Once a DOI has been submitted your data will be ingested into the
               CMAP database. After ingestion, you will be able to view your
-              dataset in the <Link href="/catalog" target="_blank">data catalog</Link>
-              , create plots and figures through the <Link href="/visualization/charts" target="_blank"> CMAP web visualization tool        </Link>, and access it through the CMAP API using any of the CMAP <Link href="/documentation" target="_blank">software packages</Link>.
+              dataset in the <GuideLink href="/catalog" target="_blank">data catalog</GuideLink>
+              , create plots and figures through the <GuideLink href="/visualization/charts"> CMAP web visualization tool        </GuideLink>, and access it through the CMAP API using any of the CMAP <GuideLink href="/documentation">software packages</GuideLink>.
             </Typography>
           </AccordionDetails>
         </Accordion>

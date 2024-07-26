@@ -7,6 +7,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 
 import { RxDotFilled } from "react-icons/rx";
 import { sectionStyles } from '../guideStyles';
+import { GuideLink } from '../Links';
 
 const Content = (props) => {
   const cl = sectionStyles();
@@ -31,14 +32,14 @@ const Content = (props) => {
         <ListItem>
           <ListItemIcon><RxDotFilled/></ListItemIcon>
           <ListItemText>
-            Preparing the dataset for inclusion in Simons CMAP,
+            Preparing the dataset for inclusion in Simons CMAP
           </ListItemText>
         </ListItem>
         <ListItem>
           <ListItemIcon><RxDotFilled/></ListItemIcon>
           <ListItemText>
             Ensuring that the dataset is discoverable via CMAP search
-            capabilities and infrastructure,
+            capabilities and infrastructure
           </ListItemText>
         </ListItem>
 
@@ -46,10 +47,24 @@ const Content = (props) => {
           <ListItemIcon><RxDotFilled/></ListItemIcon>
           <ListItemText>
             Ensuring that the dataset contains the information that users
-            require to understand the dataset.
+            require to understand the dataset
           </ListItemText>
         </ListItem>
       </List>
+
+      <div className={cl.subHeader}>
+        Submission Tool tutorial:
+      </div>
+      <div className={cl.standoutBox} style={{ width: '780px', background: 'black' }}>
+        <iframe
+          src="https://player.vimeo.com/video/981629505"
+          width="780"
+          height="440"
+          style={{ margin: '0 auto', border: '0' }}
+        ></iframe>
+      </div>
+
+
     </div>
   );
 };

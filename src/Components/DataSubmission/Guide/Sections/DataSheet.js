@@ -2,7 +2,7 @@ import React, {useState, } from 'react';
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
 import { AgGridReact } from 'ag-grid-react';
-
+import { GuideLink } from '../Links';
 import { sectionStyles } from '../guideStyles';
 
 const Content = () => {
@@ -38,18 +38,18 @@ const Content = () => {
       <Typography>
         All data points are stored in the “Data” sheet. Each data point
         must have time and location information. The exact name and order
-        of the time and location columns are shown in the table above. If
+        of the time and location columns are shown in the table below. If
         a dataset does not have depth values (e.g., sea surface
         measurements), you may remove the depth column. If your dataset
-        represents results of a Laboratory study (see dataset_make) fill
+        represents results of a Laboratory study (see <GuideLink href="dataset_make-column">dataset_make</GuideLink>) fill
         these fields with the time of study and the location of your
-        laboratory. The columns var<sub>1</sub>...var<sub>n</sub>{' '}
-        represent the dataset variables (measurements). Please rename var
-        <sub>1</sub>...var<sub>n</sub> to names appropriate to your data.
-        The format of “time”, “lat”, “lon”, and “depth” columns are
+        laboratory. The columns <code>var<sub>1</sub>...var<sub>n</sub></code>{' '}
+        represent the dataset variables (measurements). Please rename <code>var
+        <sub>1</sub>...var<sub>n</sub></code> to names appropriate to your data.
+        The format of <code>time</code>, <code>lat</code>, <code>lon</code>, and <code>depth</code> columns are
         described in the following sections. Please review the example
         datasets listed under&nbsp;
-        <Link href="#resources">resources</Link> for more detailed
+        <GuideLink href="#resources">Resources</GuideLink> for more detailed
         information.
       </Typography>
 

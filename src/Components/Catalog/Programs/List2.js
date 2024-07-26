@@ -180,7 +180,7 @@ const ProgramCard = (props) => {
     <div className={cl.card}>
       <Paper className={cl.paperRoot} elevation={3}>
          <Typography variant="h3" className={cl.name}>
-           <Link component={RouterLink} to={`/catalog/programs/${name}`}>
+           <Link component={RouterLink} to={`/programs/${name}`}>
             {name}
            </Link>
          </Typography>

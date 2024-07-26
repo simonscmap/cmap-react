@@ -2,6 +2,7 @@ export const data = [
   {
     id: 'getting-started',
     name: 'Getting Started',
+    media: true,
   },
   {
     id: 'validation-api',

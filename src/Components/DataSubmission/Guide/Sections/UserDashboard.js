@@ -2,7 +2,7 @@ import React from 'react';
 import Typography from '@material-ui/core/Typography';
 import { UserDashboardPanelDetails } from '../../UserDashboardPanelDetails';
 import states from '../../../../enums/asyncRequestStates';
-
+import { GuideLink } from '../Links';
 import { sectionStyles } from '../guideStyles';
 
 const mockDataSubmission = {
@@ -52,7 +52,7 @@ const Content = () => {
   return (
     <div className={cl.container}>
       <Typography>
-        In the User Dashboard  you can track the ingestion process for any dataset that you have submitted, send messages to the data curation team, and download the most recently submitted version of the workbook. If the curation team requests additional changes to your submission you can use the User Dashboard to access, edit, and resubmit the dataset directly in the validation tool.
+        In the <GuideLink href="/datasubmission/userdashboard">User Dashboard </GuideLink> you can track the ingestion process for any dataset that you have submitted, send messages to the data curation team, and download the most recently submitted version of the workbook. If the curation team requests additional changes to your submission you can use the <GuideLink href="/datasubmission/userdashboard">User Dashboard </GuideLink> to access, edit, and resubmit the dataset directly in the validation tool.
       </Typography>
       <div className={cl.standoutBadgeContainer}>
         <div className={cl.standoutBadge}>Example Submission Dashboard</div>
