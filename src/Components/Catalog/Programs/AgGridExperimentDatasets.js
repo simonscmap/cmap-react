@@ -96,31 +96,7 @@ const useStyles = makeStyles ((theme) => ({
 }));
 
 
-function getFullWidthCellRenderer() {
-  function FullWidthCellRenderer() {}
-
-  FullWidthCellRenderer.prototype.init = function(params) {
-    var eTemp = document.createElement("div");
-    eTemp.innerHTML = this.getTemplate(params);
-    this.eGui = eTemp.firstElementChild;
-  };
-
-  FullWidthCellRenderer.prototype.getTemplate = function(params) {
-    var data = params.node.data;
-    console.log ('fullwidthcellrenderer', data);
-    var template =
-      '<div class="full-width-panel">' +
-        `${data}` +
-      "</div>";
-    return template;
-  };
-
-  FullWidthCellRenderer.prototype.getGui = function() {
-    return this.eGui;
-  };
-
-  return FullWidthCellRenderer;
-}
+// Helpers
 
 const transformDataset = (d) => ({
   ...d,
@@ -175,20 +151,7 @@ const Exp = () => {
   const onGridReady = (params) => {
     setApi (params.api);
     params.api.sizeColumnsToFit();
-    // params.api.forEachLeafNode(function(node) {
-    //  node.expanded = true;
-    // });
-    // params.api.forEachDetailGridInfo ((params2) => {
-    //  console.log ('detail grid info', params2)
-    // });
-    params.api.onGroupExpandedOrCollapsed();
   }
-
-  const isFullWidthCell = (rowNode) => {
-    return rowNode.flower;
-  }
-
-  const FullWidthCellRenderer = getFullWidthCellRenderer();
 
   // Search overlay ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -197,7 +160,7 @@ const Exp = () => {
   let [datasetSearchActive, setDatasetSearchActive] = useState(false);
 
   const datasetSearchChange = (x) => {
-    if (typeof safePath(['target','value'])(x) !== 'string') {
+    if (typeof safePath(['target','value']) (x) !== 'string') {
       return;
     }
     const newSearchTerm = x.target.value.trim().toLowerCase();
@@ -255,20 +218,11 @@ const Exp = () => {
       <AgGridReact
         rowHeight={ROW_HEIGHT}
         rowSelection="single"
-        // checkboxSelection={true}
-        getSelectedRows ={(data) => {
-          console.log ('selected rows', data)
-        }}
         onGridReady={onGridReady}
         rowData={filteredDatasets}
         columnDefs={columnDefinitions}
         defaultColDef={{ resizable: true, sortable: true, suppressMenu: true }}
         onSelectionChanged={handleChange}
-        doesDataFlower={(/* item */) => {
-          return false;
-        }}
-        isFullWidthCell={isFullWidthCell}
-        fullWidthCellRenderer={FullWidthCellRenderer}
       />
       </div>
     </div>

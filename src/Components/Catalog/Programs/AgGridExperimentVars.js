@@ -2,8 +2,15 @@ import { makeStyles } from '@material-ui/core/styles';
 import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AgGridReact } from 'ag-grid-react';
+import TextField from '@material-ui/core/TextField';
+import SearchIcon from '@material-ui/icons/Search';
+import ClearIcon from '@material-ui/icons/Clear';
+import Paper from '@material-ui/core/Paper';
+import Grow from '@material-ui/core/Grow';
+
 import {
   selectedProgramDatasetShortNameSelector,
+  selectedProgramDatasetVariableShortNameSelector,
 } from './programSelectors';
 import {
   selectProgramDatasetVariable,
@@ -12,11 +19,11 @@ import {
 
 import { safePath } from '../../../Utility/objectUtils';
 
-
 const ROW_HEIGHT = 35; // px
 
 const useStyles = makeStyles ((theme) => ({
   container: {
+    position: 'relative',
     height: '700px',
     width: '100%',
     display: 'flex',
@@ -45,36 +52,81 @@ const useStyles = makeStyles ((theme) => ({
     borderRadius: '6px',
     boxShadow: '0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12)',
     overflow: 'hidden',
+  },
+  messageContainer: {
+    position: 'absolute',
+    right: '7px',
+    top: 0,
+    height: '55px',
+  },
+  messageContainerActive: {
+    width: 'calc(100% - 15px)',
+    zIndex: 10,
+  },
+  searchContainer: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    height: '55px',
+    width: '55px',
+    zIndex: 2,
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'nowrap',
+    gap: '20px',
+    paddingLeft: '10px',
+    transition: 'all 0.5s ease',
+    borderRadius: '5px',
+    '& svg': {
+      paddingRight: '10px'
+    },
+    '& .MuiOutlinedInput-input': {
+      border: 'none',
+    },
+    '& .MuiOutlinedInput-notchedOutline': {
+      border: 0,
+    }
+  },
+  searchActive:{
+    width: 'calc(100% - 10px)',
+    borderRadius: '5px',
+    background: 'rgba(0,0,0,0.3)',
+    '& .MuiOutlinedInput-input': {
+      background: 'rgba(0,0,0,1)',
+      borderRadius: '5px',
+      border: '2px solid #22A3B9', // #3f51b5 // #22A3B9
+    },
+    '& fieldset': {
+      borderRadius: '5px',
+    },
+    '& .MuiFormControl-root': {
+      flexGrow: 3,
+    }
+  },
+  selectVarInstruction: {
+    margin: '.5em 0',
+    padding: '.5em',
+    border: '2px solid #d16265',
+    background: 'rgba(30, 67, 113, 1)',
+  },
+  noVarsIndicator: {
+    margin: '.5em 0',
+    padding: '.5em',
+    border: '2px solid #d16265',
+    background: 'rgba(30, 67, 113, 1)',
   }
 }));
 
-
-function getFullWidthCellRenderer() {
-  function FullWidthCellRenderer() {}
-
-  FullWidthCellRenderer.prototype.init = function(params) {
-    var eTemp = document.createElement("div");
-    eTemp.innerHTML = this.getTemplate(params);
-    this.eGui = eTemp.firstElementChild;
-  };
-
-  FullWidthCellRenderer.prototype.getTemplate = function(params) {
-    var data = params.node.data;
-    console.log ('fullwidthcellrenderer', data);
-    var template =
-      '<div class="full-width-panel">' +
-        `${data}` +
-      "</div>";
-    return template;
-  };
-
-  FullWidthCellRenderer.prototype.getGui = function() {
-    return this.eGui;
-  };
-
-  return FullWidthCellRenderer;
-}
-
+const columnDefinitions = [
+  { field: '',
+    checkboxSelection: true,
+    width: 25,
+    cellRenderer: "agGroupCellRenderer",
+  },
+  { field: "VariableName", flex: 1 },
+];
 
 const Exp = (props) => {
   const cl = useStyles();
@@ -84,28 +136,20 @@ const Exp = (props) => {
   const datasets = program && program.datasets && Object.values(program.datasets);
   const selectedShortName = useSelector (selectedProgramDatasetShortNameSelector);
   const selectedDataset = datasets && datasets.find (d => d.Dataset_Name === selectedShortName);
+  const selectedVariableShortName = useSelector (selectedProgramDatasetVariableShortNameSelector);
+
 
   const [api, setApi] = useState(null);
-  const [rowData, setRowData] = useState([]);
 
-  // Column Definitions: Defines the columns to be displayed.
-  const [colDefs, /* setColDefs */] = useState([
-    { field: '',
-      checkboxSelection: true,
-      width: 25,
-      cellRenderer: "agGroupCellRenderer",
-    },
-    { field: "VariableName", flex: 1 },
-  ]);
+  let [filteredVariables, setFilteredVariables] = useState(null);
 
   useEffect (() => {
     if (datasets && selectedDataset) {
       const variables = safePath (['visualizableVariables','variables']) (selectedDataset);
 
-      setRowData (variables.map ((v) => ({
-        VariableName: v.Short_Name,
+      setFilteredVariables (variables.map ((v) => ({
         ...v,
-        childRecords: [{ link: 'hi', description: 'hi' }]
+        VariableName: v.Short_Name,
       })))
     }
   }, [selectedDataset])
@@ -113,8 +157,6 @@ const Exp = (props) => {
   const handleChange = (data) => {
     const rows = api && api.getSelectedRows();
     const variable = rows && rows.length && rows[0];
-
-    console.log ('variable', variable);
 
     dispatch (selectProgramDatasetVariable ({
       varShortName: variable.Short_Name,
@@ -126,46 +168,106 @@ const Exp = (props) => {
   const onGridReady = (params) => {
     setApi (params.api);
     params.api.sizeColumnsToFit();
-    params.api.forEachLeafNode(function(node) {
-      node.expanded = true;
-    });
-    params.api.forEachDetailGridInfo ((params2) => {
-      console.log ('detail grid info', params2)
-    });
-    params.api.onGroupExpandedOrCollapsed();
   }
 
-  const isFullWidthCell = (rowNode) => {
-    return rowNode.flower;
+  const vsRef = useRef();
+  let [searchTerm, setSearchTerm] = useState ('');
+  let [variableSearchActive, setVariableSearchActive] = useState(false);
+
+  useEffect(() => {
+    const variables = safePath (['visualizableVariables','variables']) (selectedDataset);
+      if (variables) {
+      const filtered = variables.filter (({Short_Name, Unit}) => {
+        const subject = (`${Short_Name || ''}${Unit || ''}`).toLowerCase();
+        return subject.includes(searchTerm);
+      });
+        setFilteredVariables (filtered.map (((v) => ({
+          ...v,
+          VariableName: v.Short_Name,
+        }))));
+    }
+  }, [searchTerm, selectedDataset]);
+
+  const variableSearchChange = (x) => {
+    if (typeof safePath(['target','value'])(x) !== 'string') {
+      return;
+    }
+    const newSearchTerm = x.target.value.trim().toLowerCase();
+    if (newSearchTerm !== searchTerm) {
+      setSearchTerm (newSearchTerm);
+    }
   }
 
-  const FullWidthCellRenderer = getFullWidthCellRenderer();
+  const handleVarSearchOpenClose = (e) => {
+    e.preventDefault();
+    if (!variableSearchActive) {
+      vsRef && vsRef.current && vsRef.current.focus && vsRef.current.focus();
+    }
+    setVariableSearchActive (!variableSearchActive);
+    setSearchTerm (''); // clear search when it is closed
+  }
+
+  const shouldShowSelectInstruction = !variableSearchActive
+        && !selectedVariableShortName
+        && (filteredVariables
+            && filteredVariables.length != 0
+           );
+
+  const shouldShowNoVariablesInfo = !searchTerm
+        && filteredVariables
+        && filteredVariables.length === 0;
+
+  const messageOpen = shouldShowSelectInstruction || shouldShowNoVariablesInfo;
 
   return (
     <div className={cl.container}>
+      <div className={`${cl.searchContainer} ${(variableSearchActive && cl.searchActive)}`}>
+        <TextField
+          inputRef={vsRef}
+          name="searchTerms"
+          onChange={variableSearchChange}
+          placeholder="Search Variable Name"
+          InputProps={{
+            classes: {
+              root: cl.inputRoot,
+            }
+          }}
+          variant="outlined"
+        />
+        {variableSearchActive
+         ? <ClearIcon style={{ color: 'white', cursor: 'pointer' }} onClick={handleVarSearchOpenClose} />
+         : <SearchIcon style={{ color: 'white', cursor: 'pointer' }} onClick={handleVarSearchOpenClose} />
+        }
+      </div>
+
+      <div className={`${cl.messageContainer} ${messageOpen && cl.messageContainerActive}`}>
+        {shouldShowSelectInstruction  &&
+         <Grow in={!selectedVariableShortName}>
+           <Paper className={cl.selectVarInstruction}>
+             {'Select a variable'}
+           </Paper>
+         </Grow>}
+
+        {shouldShowNoVariablesInfo &&
+         <Grow in={shouldShowNoVariablesInfo}>
+           <Paper className={cl.noVarsIndicator}>
+             {'This dataset has no visualizable variables.'}
+           </Paper>
+         </Grow>}
+
+      </div>
       <div
         className={`ag-theme-material ${cl.agGridStyles}`} // applying the Data Grid theme
         style={{ height: '635px', width: '100%' }} // the Data Grid will fill the size of the parent container
       >
       <AgGridReact
-        defaultColDef={{
-          resizable: true,
-        }}
         rowHeight={ROW_HEIGHT}
         rowSelection="single"
-        // checkboxSelection={true}
-        getSelectedRows ={(data) => {
-          console.log ('selected rows', data)
-        }}
         onGridReady={onGridReady}
-        rowData={rowData}
-        columnDefs={colDefs}
+        rowData={filteredVariables}
+        columnDefs={columnDefinitions}
+        defaultColDef={{ resizable: true, sortable: true, suppressMenu: true }}
         onSelectionChanged={handleChange}
-        doesDataFlower={(item) => {
-          return false;
-        }}
-        isFullWidthCell={isFullWidthCell}
-        fullWidthCellRenderer={FullWidthCellRenderer}
       />
       </div>
     </div>

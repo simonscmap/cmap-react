@@ -142,9 +142,7 @@ const ProgramDetail = (props) => {
         </Grid>
         <Grid item xs={12} md={12} lg={7}>
           <div>
-            <SectionHeader title={'Reference Expandable Row Ag Grid'} />
-            <AgExp2 />
-          </div>
+                      </div>
         </Grid>
 
       </Grid>
