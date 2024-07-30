@@ -61,6 +61,9 @@ const Content = () => {
           style={{ height: '120px' }} // the Data Grid will fill the size of the parent container
         >
         <AgGridReact
+          defaultColDef={{
+            resizable: true,
+          }}
           rowData={rowData}
           columnDefs={colDefs}
         />

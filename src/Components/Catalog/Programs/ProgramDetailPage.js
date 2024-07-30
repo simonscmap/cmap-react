@@ -9,7 +9,8 @@ import DatasetList from './ListDatasets';
 import { SectionHeader } from './Proto';
 import SampleVisualization from './SampleVisualization/SampleVisualization';
 import Globe from './Globe/Globe';
-
+import DatasetList2 from './DatasetList';
+import AgExp2 from './AgExp2';
 import { matchProgram } from './programData';
 import {
   trajectorySelector,
@@ -133,6 +134,19 @@ const ProgramDetail = (props) => {
             <SampleVisualization />
           </div>
         </Grid>
+        <Grid item xs={12} md={12} lg={5}>
+          <div className={cl.verticalPlaceholder}>
+            <SectionHeader title={'Ag-Grid Experiment'} />
+            <DatasetList2 />
+          </div>
+        </Grid>
+        <Grid item xs={12} md={12} lg={7}>
+          <div>
+            <SectionHeader title={'Reference Expandable Row Ag Grid'} />
+            <AgExp2 />
+          </div>
+        </Grid>
+
       </Grid>
     </Page2>
   );

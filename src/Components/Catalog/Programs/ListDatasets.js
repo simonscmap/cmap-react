@@ -513,6 +513,7 @@ const DatasetControls = (props) => {
             </Table>
           </TableContainer>
         </div>
+
         <div className={cl.datasetVariablesListContainer}>
           {/* Variables Column Headers */}
           <TableContainer component={Paper} className={cl.variableHeaders}>
