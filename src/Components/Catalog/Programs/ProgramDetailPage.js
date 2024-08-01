@@ -125,7 +125,7 @@ const ProgramDetail = (props) => {
         </Grid>
         <Grid item xs={12} md={12} lg={5}>
           <div className={cl.verticalPlaceholder}>
-            <DatasetList />
+            <DatasetList2 />
           </div>
         </Grid>
         <Grid item xs={12} md={12} lg={7}>
@@ -134,17 +134,6 @@ const ProgramDetail = (props) => {
             <SampleVisualization />
           </div>
         </Grid>
-        <Grid item xs={12} md={12} lg={5}>
-          <div className={cl.verticalPlaceholder}>
-            <SectionHeader title={'Ag-Grid Experiment'} />
-            <DatasetList2 />
-          </div>
-        </Grid>
-        <Grid item xs={12} md={12} lg={7}>
-          <div>
-                      </div>
-        </Grid>
-
       </Grid>
     </Page2>
   );

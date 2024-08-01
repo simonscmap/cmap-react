@@ -43,10 +43,35 @@ const useStyles = makeStyles ((theme) => ({
     },
     '& .ag-theme-material .ag-cell': {
       lineHeight: `${ROW_HEIGHT}px`,
+      paddingLeft: '5px',
+      paddingRight: '5px',
+    },
+    '& .ag-theme-material .ag-header-cell': {
+      paddingLeft: '5px',
+      paddingRight: '5px',
     },
     '& .ag-theme-material .ag-row-selected': {
       backgroundColor: 'rgba(16, 43, 60, 1)'
-    }
+    },
+    '& .radio-select': {
+      position: 'relative',
+      display: 'flex',
+      alignItems: 'center',
+      color: '#9dd162',
+      fontSize: '.9em',
+      height: `${ROW_HEIGHT}px`,
+      width: `${ROW_HEIGHT}px`,
+      cursor: 'pointer',
+      '& .MuiSvgIcon-root': {
+        transform: 'none',
+        position: 'absolute',
+        width: '.85em',
+        height: '.85em'
+      },
+    },
+    '& .radio-select.selected': {
+      color: '#22A3B9',
+    },
   },
   agGridStyles: {
     borderRadius: '6px',
@@ -56,8 +81,7 @@ const useStyles = makeStyles ((theme) => ({
   messageContainer: {
     position: 'absolute',
     right: '7px',
-    top: 0,
-    height: '55px',
+    bottom: '100%',
   },
   messageContainerActive: {
     width: 'calc(100% - 15px)',
@@ -109,21 +133,52 @@ const useStyles = makeStyles ((theme) => ({
     margin: '.5em 0',
     padding: '.5em',
     border: '2px solid #d16265',
-    background: 'rgba(30, 67, 113, 1)',
+    background: 'rgba(0,0,0,0.2)',
   },
   noVarsIndicator: {
     margin: '.5em 0',
     padding: '.5em',
     border: '2px solid #d16265',
-    background: 'rgba(30, 67, 113, 1)',
+    background: 'rgba(0,0,0,0.2)',
+  },
+  mark: {
+    position: 'absolute',
+    position: 'absolute',
+    display: 'block',
+    left: '30px',
+    bottom: '3px',
+    width: 0,
+    height: 0,
+    borderLeft: '5px solid transparent',
+    borderRight: '5px solid transparent',
+    borderTop: '5px solid #d16265',
   }
 }));
 
 const columnDefinitions = [
   { field: '',
-    checkboxSelection: true,
-    width: 25,
-    cellRenderer: "agGroupCellRenderer",
+    width: ROW_HEIGHT,
+    cellRenderer:(params) => {
+      const { api, node, value } = params;
+      const selected = node.isSelected ();
+      if (selected) {
+        return `<div class="radio-select selected">
+<svg class="MuiSvgIcon-root" focusable="false" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"></path></svg>
+<svg class="MuiSvgIcon-root PrivateRadioButtonIcon-layer-199" focusable="false" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.465 8.465C9.37 7.56 10.62 7 12 7C14.76 7 17 9.24 17 12C17 13.38 16.44 14.63 15.535 15.535C14.63 16.44 13.38 17 12 17C9.24 17 7 14.76 7 12C7 10.62 7.56 9.37 8.465 8.465Z"></path></svg>
+
+</div>`
+      } else {
+
+        return `<div class="radio-select">
+ <svg class="MuiSvgIcon-root" focusable="false" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"></path></svg>
+</div >`;
+      }
+    },
+    onCellClicked: (event) => {
+      console.log (event)
+      event.node.setSelected (true);
+      event.api.redrawRows (); // allows for style change
+    }
   },
   { field: "VariableName", flex: 1 },
 ];
@@ -154,6 +209,19 @@ const Exp = (props) => {
     }
   }, [selectedDataset])
 
+
+  useEffect (() => {
+    if (api) {
+      api.forEachNode ((params) => {
+        if (params.data.Short_Name === selectedVariableShortName) {
+          console.log ('set selected', params.setSelected);
+          params && params.setSelected && params.setSelected (true);
+          api.redrawRows ();
+        }
+      })
+    }
+  }, [selectedVariableShortName, api])
+
   const handleChange = (data) => {
     const rows = api && api.getSelectedRows();
     const variable = rows && rows.length && rows[0];
@@ -167,7 +235,7 @@ const Exp = (props) => {
 
   const onGridReady = (params) => {
     setApi (params.api);
-    params.api.sizeColumnsToFit();
+    // params.api.sizeColumnsToFit();
   }
 
   const vsRef = useRef();
@@ -254,7 +322,7 @@ const Exp = (props) => {
              {'This dataset has no visualizable variables.'}
            </Paper>
          </Grow>}
-
+        {messageOpen && <div className={cl.mark}></div>}
       </div>
       <div
         className={`ag-theme-material ${cl.agGridStyles}`} // applying the Data Grid theme
