@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Paper from '@material-ui/core/Paper';
 import Divider from '@material-ui/core/Divider';
 import Typography from '@material-ui/core/Typography';
@@ -19,6 +19,8 @@ const Programs = () => {
   const location = useLocation();
   const history = useHistory ();
 
+  const ref = useRef();
+
   let [content, setContent] = useState('getting-started');
   let [focusTarget, setFocus] = useState();
 
@@ -34,10 +36,16 @@ const Programs = () => {
     }
   };
 
-  const manualSetFocus = (id) => {
+  const manualSetFocus = (id, preventScrollReset) => {
     if (!id) {
       history.push (location.pathname + location.hash)
       setFocus (undefined);
+      if (!preventScrollReset) {
+        const scrollContainer = document.getElementById ('content-scroll-container');
+        if (scrollContainer) {
+          scrollContainer.scrollTo (0, 0);
+        }
+      }
     } else {
       history.push (location.pathname +  `?focus=${id}` + location.hash)
       setFocus (id);
@@ -93,7 +101,6 @@ const Programs = () => {
     }
   }
 
-
   const goNext = () => {
     const next = findNext (current);
     setContentWithLocation (next.id);
@@ -115,7 +122,7 @@ const Programs = () => {
             <Paper className={cl.paper}>
               <p className={scl.header}>{current.name}</p>
               <Divider className={scl.divider}></Divider>
-              <div className={cl.selectedContent}>
+              <div className={cl.selectedContent} id={'content-scroll-container'}>
                 {CurrentContent && <CurrentContent
                                      tocId={current.id}
                                      focus={focusTarget}

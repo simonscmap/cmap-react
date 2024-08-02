@@ -53,19 +53,18 @@ const NavigationTree = (props) => {
       // which allows for multiple items to be selected
     }
 
-    const LabelIcon = nodes.media ? PlayCircleOutlineIcon : React.Fragment;
-
     return (
       <TreeItem
         className={clsx(classes)}
         nodeId={nodes.id}
         dataid={nodes.id}
+        key={`tree_node-${nodes.id}`}
         label={
           <div className={cl.itemLabel}>
             <span className={cl.labelText}>
               {nodes.name}
             </span>
-            <LabelIcon className={cl.labelIcon} />
+            {nodes.media && <PlayCircleOutlineIcon className={cl.labelIcon}/>}
           </div>
         }
       >

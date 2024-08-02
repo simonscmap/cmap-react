@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { RiQuestionLine } from "react-icons/ri";
 import { RiFocusLine } from "react-icons/ri";
@@ -63,3 +63,33 @@ export const FocusEnumerator = (props) => {
     </div>
   );
 };
+
+function scrollToFocus (name) {
+  const scrollContainer = document.getElementById ('content-scroll-container');
+  const query = `[data-focus="${name}"]`;
+  const el = scrollContainer.querySelector (query);
+  if (el) {
+    const offset = el.offsetTop;
+    scrollContainer.scrollTo (0, offset);
+  }
+}
+
+export const FocusManager = (props) => {
+  const { children, focus } = props;
+
+  useEffect (() => {
+    const scrollContainer = document.getElementById ('content-scroll-container');
+    if (scrollContainer && focus) {
+      // use timout to let the DOM update with the expanded height of the
+      // accordion added to the innerHeight of the scrolling container
+      setTimeout(scrollToFocus, 10, focus);
+    }
+  }, [focus]);
+
+
+  return (
+    <div>
+      { children }
+    </div>
+  );
+}
