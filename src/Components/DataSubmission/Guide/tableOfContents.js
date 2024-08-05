@@ -4,22 +4,18 @@ export const data = [
     name: 'Getting Started',
     media: true,
   },
+
   {
-    id: 'validation-api',
-    name: 'Validation API',
-    media: true,
-  },
-  {
-    id: 'submission-process',
-    name: 'Submission Process',
+    id: 'process-overview',
+    name: 'Process Overview',
   },
   {
     id: 'user-dashboard',
     name: 'User Dashboard'
   },
   {
-    id: 'data-structure',
-    name: 'Data Structure',
+    id: 'dataset-preparation',
+    name: 'Dataset Preparation',
     children: [
       {
         id: 'data-sheet',
@@ -152,6 +148,11 @@ export const data = [
         ]
       }
     ]
+  },
+  {
+    id: 'dataset-validation',
+    name: 'Dataset Validation',
+    media: true,
   },
   {
     id: 'faq',

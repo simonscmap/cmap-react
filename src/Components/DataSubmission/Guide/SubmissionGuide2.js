@@ -13,6 +13,17 @@ import StepButton from './NavButton';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
 
+function scrollToFocus (name) {
+  const scrollContainer = document.getElementById ('content-scroll-container');
+  const query = `[data-focus="${name}"]`;
+  const el = scrollContainer.querySelector (query);
+  if (el) {
+    console.log ('scrollToFocus', name, el.offsetTop, el)
+    const offset = el.offsetTop;
+    scrollContainer.scrollTo (0, offset);
+  }
+}
+
 const Programs = () => {
   const cl = useStyles();
   const scl = sectionStyles();
@@ -25,6 +36,7 @@ const Programs = () => {
   let [focusTarget, setFocus] = useState();
 
   const setContentWithLocation = (currentId, clearFocus) => {
+    console.log ('setContentWithLocation', currentId)
     history.push (
       location.pathname
         + (clearFocus ? '' : location.search)
@@ -37,6 +49,8 @@ const Programs = () => {
   };
 
   const manualSetFocus = (id, preventScrollReset) => {
+    console.log ('manualSetFocus', id)
+
     if (!id) {
       history.push (location.pathname + location.hash)
       setFocus (undefined);
@@ -59,7 +73,14 @@ const Programs = () => {
       return;
     }
     const qs = queryString.parse(location.search);
-    if (qs && qs.focus) {
+    if (qs && qs.focus && qs.focus !== focusTarget) {
+      console.log ('location hook: scroll to focus', qs.focus)
+      // when focus has been set by a locuation update that was not triggered by manualSetFocus,
+      // then go ahead and scroll to the focus area
+      const scrollContainer = document.getElementById ('content-scroll-container');
+      if (scrollContainer) {
+        setTimeout(scrollToFocus, 2, qs.focus);
+      }
       setFocus (qs.focus);
     }
     const hash = location.hash.slice(1);

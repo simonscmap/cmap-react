@@ -1,8 +1,8 @@
 export { default as GettingStarted } from './GettingStarted';
-export { default as SubmissionProcess } from './SubmissionProcess';
-export { default as ValidationApi } from './ValidationApi';
+export { default as ProcessOverview } from './ProcessOverview';
+export { default as DatasetValidation } from './DatasetValidation';
 export { default as Ingestion } from './Ingestion';
-export { default as DataStructure } from './DataStructure';
+export { default as DatasetPreparation } from './DatasetPreparation';
 export { default as DataSheet } from './DataSheet';
 export { default as DatasetMetadataSheet } from './DatasetMetadataSheet';
 export { default as VariableMetadataSheet } from './VariableMetadataSheet';

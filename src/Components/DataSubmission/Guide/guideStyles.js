@@ -134,7 +134,13 @@ export const sectionStyles = makeStyles((theme) => ({
     fontSize: '1.5em',
     margin: '1em 0 .5em 0',
   },
+  accordionSubHeader: {
+    color: '#69FFF2',
+    fontSize: '1.2em',
+    margin: '1em 0 .5em 0',
+  },
   container: {
+    position: 'relative',
     '& p a': {
       color: theme.palette.primary.main,
     },

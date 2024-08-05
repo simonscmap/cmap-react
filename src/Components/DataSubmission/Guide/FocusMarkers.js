@@ -2,6 +2,13 @@ import React, { useRef, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { RiQuestionLine } from "react-icons/ri";
 import { RiFocusLine } from "react-icons/ri";
+import { sectionStyles } from './guideStyles';
+
+import Accordion from '@material-ui/core/Accordion';
+import AccordionSummary from '@material-ui/core/AccordionSummary';
+import AccordionDetails from '@material-ui/core/AccordionDetails';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+
 
 const useStyles = makeStyles (() => ({
   focalToggleButton: {
@@ -76,20 +83,46 @@ function scrollToFocus (name) {
 
 export const FocusManager = (props) => {
   const { children, focus } = props;
+  const cl = sectionStyles ();
 
   useEffect (() => {
     const scrollContainer = document.getElementById ('content-scroll-container');
     if (scrollContainer && focus) {
       // use timout to let the DOM update with the expanded height of the
       // accordion added to the innerHeight of the scrolling container
-      setTimeout(scrollToFocus, 10, focus);
+      // setTimeout(scrollToFocus, 10, focus);
     }
   }, [focus]);
 
 
   return (
-    <div>
+    <div className={cl.container}>
       { children }
     </div>
   );
 }
+
+export const AccordionSection = (props) => {
+  const cl = sectionStyles();
+  const { state, name, title, children } = props;
+  const {
+    focus,
+    expanded,
+    handleChange,
+    toggle,
+  } = state;
+
+  return (
+    <Accordion expanded={expanded === name} onChange={handleChange (name)} data-focus={name}>
+      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+        <div className={`${cl.focusedAccordionSummary}`}>
+          <FocusQuestion focus={focus} name={name} toggle={toggle} />
+          <span>{title}</span>
+        </div>
+      </AccordionSummary>
+      <AccordionDetails>
+        { children }
+      </AccordionDetails>
+    </Accordion>
+  );
+};

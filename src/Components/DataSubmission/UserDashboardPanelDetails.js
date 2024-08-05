@@ -41,10 +41,6 @@ const useStyles = makeStyles((theme) => ({
     color: 'white',
     marginLeft: '12px',
   },
-  stepper: {
-    borderRadius: '4px',
-    margin: '16px 2vw 24px 2vw',
-  },
   newUpload: {
     marginLeft: '2vw',
     cursor: 'pointer',
@@ -114,6 +110,28 @@ const getActiveStepFromPhase = (phase) => {
   }
 }
 
+export const UserDashboardStepper = (props) => {
+  const { activeStep, submission } = props;
+  return (
+    <Stepper style={{ borderRadius: '5px'}} alternativeLabel  activeStep={activeStep}>
+      {steps.map((item, i) => {
+        return (
+          <Step key={i}>
+            <StepLabel>
+              {item.label}
+              <span style={{ opacity: 0.9, fontSize: '11px', display: 'block'}}>
+                {submission[item.timeStampKey] && activeStep > i
+                 ? submission[item.timeStampKey].slice(0, 10)
+                 : ''}
+              </span>
+            </StepLabel>
+          </Step>
+        );
+      })}
+    </Stepper>
+  );
+};
+
 export const UserDashboardPanelDetails = (props) => {
   const { submission, submissionComments } = props;
   const classes = useStyles();
@@ -138,26 +156,7 @@ export const UserDashboardPanelDetails = (props) => {
 
   return (
     <div>
-      <Stepper
-        className={classes.stepper}
-        alternativeLabel
-        activeStep={activeStep}
-      >
-        {steps.map((item, i) => {
-          return (
-            <Step key={i}>
-              <StepLabel>
-                {item.label}
-                <span className={classes.labelTimeStamp}>
-                  {submission[item.timeStampKey] && activeStep > i
-                    ? submission[item.timeStampKey].slice(0, 10)
-                    : ''}
-                </span>
-              </StepLabel>
-            </Step>
-          );
-        })}
-      </Stepper>
+      <UserDashboardStepper activeStep={activeStep} submission={submission} />
 
       {/* Disallow updates from completed submissions. */}
       {activeStep !== 6 && <Typography className={classes.newUpload}>

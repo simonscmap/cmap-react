@@ -1,12 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
-import Accordion from '@material-ui/core/Accordion';
-import AccordionSummary from '@material-ui/core/AccordionSummary';
-import AccordionDetails from '@material-ui/core/AccordionDetails';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-
-import { FocusQuestion, FocusManager } from '../FocusMarkers';
+import { FocusManager, AccordionSection } from '../FocusMarkers';
 import { sectionStyles } from '../guideStyles';
 
 // foci
@@ -34,34 +29,9 @@ const isValidFocus = (id) => {
   return fociList.includes (id);
 }
 
-const AccordionSection = (props) => {
-  const cl = sectionStyles();
-  const { state, name, title, children } = props;
-  const {
-    focus,
-    expanded,
-    handleChange,
-    toggle,
-  } = state;
-
-  return (
-    <Accordion expanded={expanded === name} onChange={handleChange (name)} data-focus={name}>
-      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        <div className={`${cl.focusedAccordionSummary}`}>
-          <FocusQuestion focus={focus} name={name} toggle={toggle} />
-          <span>{title}</span>
-        </div>
-      </AccordionSummary>
-      <AccordionDetails>
-        { children }
-      </AccordionDetails>
-    </Accordion>
-  );
-};
-
 // Component
 const Content = (props) => {
-  const { focus, setFocus, containerRef } = props;
+  const { focus, setFocus } = props;
   const cl = sectionStyles();
 
   let [expanded, setExpanded] = useState(false);
@@ -72,7 +42,6 @@ const Content = (props) => {
   };
 
   const toggle = (id) => {
-    console.log ('toggle focus', id)
     if (!id) {
       return;
     } else if (focus === id) {
@@ -98,7 +67,7 @@ const Content = (props) => {
   };
 
   return (
-    <FocusManager focus={focus} className={cl.container} containerRef={containerRef}>
+    <FocusManager focus={focus} className={cl.container} >
       <AccordionSection
         state={state}
         name={foci.format}

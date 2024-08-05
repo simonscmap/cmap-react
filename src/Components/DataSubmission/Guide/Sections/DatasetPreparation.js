@@ -12,6 +12,7 @@ import { RxDotFilled } from "react-icons/rx";
 import { CustomAlert } from '../Alert';
 import { sectionStyles } from '../guideStyles';
 
+
 const Content = () => {
   const cl = sectionStyles();
   return (
