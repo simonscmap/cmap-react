@@ -12,7 +12,7 @@ import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import { CustomAlert } from '../Alert';
 import { FocusEnumerator, FocusManager, AccordionSection } from '../FocusMarkers';
 import { GuideLink } from '../Links';
-import { UserDashboardStepper } from '../../UserDashboardPanelDetails';
+import { GuideStepper } from '../../UserDashboardPanelDetails';
 
 const mockDataSubmission = {
   DOI_Accepted_Date_Time: null,
@@ -80,9 +80,11 @@ const Content = (props) => {
   return (
     <FocusManager focus={focus} className={cl.container}>
 
-      <UserDashboardStepper activeStep={4} submission={mockDataSubmission} />
+      <div className={cl.standoutBox} style={{ background: 'rgba(0,0,0,0.2)', maxWidth: '800px', margin: 'auto'}}>
+        <GuideStepper activeStep={4} submission={mockDataSubmission} />
+      </div>
 
-      <div className={cl.subHeader}>Steps:</div>
+      <div className={cl.subHeader}>Steps for Data Submission:</div>
 
       <AccordionSection
         state={state}

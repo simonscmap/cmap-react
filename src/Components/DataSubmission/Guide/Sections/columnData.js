@@ -31,32 +31,33 @@ export const dataSheet = [
   {
     label: 'lat',
     text: [
-      'This column holds the latitude values with the following characteristics:',
+      'This column holds the latitude values.',
     ],
     meta: {
       type: 'Numeric values from -90 to 90',
       format: 'Decimal (not military grid system)',
       unit: 'degree North',
       required: true,
-      // example: '',
+      example: '15.0',
     }
   },
   {
     label: 'lon',
     text: [
-      'This column holds the longitude values with the following characteristics:',
+      'This column holds the longitude values.',
     ],
     meta: {
       type: 'Numeric values from -180 to 180',
       format: 'Decimal (not military grid system)',
       unit: 'degree East',
       required: true,
+      example: '-75.5'
     }
   },
   {
     label: 'depth',
     text: [
-      'This column holds the depth values with the following characteristics:',
+      'This column holds the depth values.',
     ],
     meta: {
       type: 'Positive numeric values. It is 0 at surface with increased values with depth.',
@@ -64,28 +65,6 @@ export const dataSheet = [
       unit: 'meter',
       required: true,
     }
-  },
-  {
-    label: 'var n ... ',
-    text: [
-      (<React.Fragment key="1">
-         These columns represent the dataset variables (measurements). Please
-         rename them as appropriate for your data. Note that these names should
-         be identical to the names defined as{' '}
-         <GuideLink hash="#var_short_name-column">var_short_name</GuideLink>
-         &nbsp;in the{' '}
-         <GuideLink href="#variable-metadata-sheet">Variable Metadata</GuideLink> sheet.
-         Please do not include units in these columns; units are recorded in
-         the Variable Metadata sheet. Leave a given cell empty for those
-         instances when data was not taken and a value is missing. Do not
-         replace the missing data with arbitrary values such as <code>99999</code>, “0”,
-         “UNKNOWN”, etc. If you wish to flag specific column values, please add
-         relevant flag columns with descriptions of flag values in the
-         vars_meta_data comment column. Please review the example datasets in
-         the <GuideLink href="#resources">Resources</GuideLink> section for more
-         information.
-       </React.Fragment>)
-    ],
   },
 ];
 
@@ -101,8 +80,11 @@ export const metadataSheet = [
     ],
     meta: {
       required: true,
+      type: 'text',
       constraints: [
-        'Less than 50 characters'
+        'Less than 50 characters',
+        'No spaces or special characters (underscore permitted)',
+        'First character may not be a number'
       ]
     }
   },
@@ -140,10 +122,10 @@ export const metadataSheet = [
       'This is a required field that provides a broad category description of how a dataset was produced (also referred to as dataset make). Each dataset requires a single descriptor from a fixed set of options:',
       <div style={{ paddingLeft: '20px'}} key="a">
         <List>
-          <ListItem><code>{'Observation'}</code></ListItem>
-          <ListItem><code>{'Model'}</code></ListItem>
-          <ListItem><code>{'Assimilation'}</code></ListItem>
-          <ListItem><code>{'Laborotory'}</code></ListItem>
+          <ListItem><code>{'observation'}</code></ListItem>
+          <ListItem><code>{'model'}</code></ListItem>
+          <ListItem><code>{'assimilation'}</code></ListItem>
+          <ListItem><code>{'laborotory'}</code></ListItem>
         </List>
       </div>,
         'This field will help in discovery of data in CMAP by categorizing datasets according to their Make class. Please contact us if you believe your dataset Make is not consistent with any of the categories.',
@@ -154,6 +136,8 @@ export const metadataSheet = [
     ],
     meta: {
       required: true,
+      type: 'Text',
+      constraints: ['Must be one of the four preset options']
     }
   },
   // dataset_source is a custom component
@@ -181,6 +165,7 @@ export const metadataSheet = [
     ],
     meta: {
       required: true,
+      type: 'Text',
       constraints: ['No length limits']
     },
     images: [
@@ -202,6 +187,7 @@ export const metadataSheet = [
     meta: {
       required: false,
       type: 'Text',
+      constraints: ['No length limits']
     },
   },
   {
@@ -220,6 +206,7 @@ export const metadataSheet = [
     ],
     meta: {
       required: true,
+      type: 'Text',
       constraints: ['No length limit']
     },
     images: [
@@ -232,18 +219,7 @@ export const metadataSheet = [
       },
     ],
   },
-  {
-    label: 'dataset_references',
-    anchorEnd: 'dataset_references',
-    text: [
-      <span key="1">
-        List any publications or documentation that one may cite in reference to the dataset, as well as references for any citations included in the description. If there is more than one reference, please put them in separate cells under the <code>dataset_reference</code> column. Leave this field empty if there are no references associated with this dataset.
-      </span>
-    ],
-    meta: {
-      required: false
-    },
-  },
+
   {
     label: 'climatology',
     text: [
@@ -251,19 +227,10 @@ export const metadataSheet = [
     ],
     meta: {
       required: false,
+      type: 'Boolean',
+      example: <span>0</span>,
+      constraints: ['Must be a 1 or a 0', 'Default: 0'],
     }
-  },
-  {
-    label: 'cruise_names',
-    text: [
-      <span key="1">
-        If your dataset represents measurements made during a cruise expedition (or expeditions), provide the cruise official names here (e.g. <code>KM1821</code>). If your dataset is associated with more than one cruise, please put them in separate cells under the <code>cruise_names</code> column. If the cruises have any nicknames, please list these in separate cells as well. Leave this field blank if your dataset is not associated with a cruise expedition.
-      </span>,
-    ],
-    meta: {
-      required: false,
-      constraints: ['No length limit']
-    },
   },
 ];
 
@@ -282,7 +249,13 @@ export const variableMetadataSheet = [
     ],
     meta: {
       required: true,
-      constraints: ['Less than 50 characters']
+      type: 'Text',
+      constraints: [
+        'Less than 50 characters',
+        'No spaces or special characters (underscore permitted)',
+        'First character may not be a number',
+      ],
+      example: 'extracted_chl_a'
     },
     images: [
       {
@@ -313,7 +286,8 @@ export const variableMetadataSheet = [
                                                ],
     meta: {
       required: true,
-      constraints: ['Less than 200 characters']
+      constraints: ['Less than 200 characters'],
+      example: 'Extracted Chlorophyll A'
     },
     images: [
       {
@@ -336,22 +310,8 @@ export const variableMetadataSheet = [
     label: 'var_sensor',
     text: [
       <React.Fragment>
-        This is a required field that refers to the instrument used to produce
-        the measurements such as CTD, fluorometer, flow cytometer, sediment
-        trap, etc. If your dataset is the output of a numerical model or a
-        combination of model and observation, use the term “simulation” and
-        “blend”, respectively. This field will significantly help to find and
-        categorize data generated using a similar class of instruments.
-        var_sensor will be visible in the Simons CMAP catalog. This field is
-        populated via a dropdown menu. If a value you would like to use is
-        missing from the dropdown menu please contact us at <GuideLink href="mailto:cmap-data-submission@uw.edu">
-          cmap-data-submission@uw.edu
-        </GuideLink> to request that it be added.
-      </React.Fragment>,
+              </React.Fragment>,
     ],
-    meta: {
-      required: true,
-    }
   },
   {
     label: 'var_unit',
@@ -366,6 +326,7 @@ export const variableMetadataSheet = [
     ],
     meta: {
       required: false,
+      type: 'Text',
       constraints: ['Less than 50 characters'],
       example: <span>ug L<sup>-1</sup></span>
     },
@@ -380,6 +341,7 @@ export const variableMetadataSheet = [
     ],
     meta: {
       required: true,
+      type: 'Preset option',
       constraints: ['Less than 50 characters'],
       example: 'irregular'
     },
@@ -403,6 +365,7 @@ export const variableMetadataSheet = [
     ],
     meta: {
       required: true,
+      type: 'Preset option',
       constraints: ['Less than 50 characters'],
       example: 'irregular'
     },
@@ -418,6 +381,8 @@ export const variableMetadataSheet = [
     ],
     meta: {
       required: true,
+      type: 'Text',
+      format: 'Terms separated by "+"',
       constraints: ['Less than 100 characters'],
       example: 'Physics+BioGeoChemistry'
     },
@@ -431,6 +396,7 @@ export const variableMetadataSheet = [
     meta: {
       required: true,
       type: 'Boolean',
+      constraints: ['Must be a 1 or a 0'],
       example: <code>1</code>
     }
   },
@@ -452,6 +418,9 @@ export const variableMetadataSheet = [
                                                                                                             ],
     meta: {
       required: true,
+      type: 'Text',
+      constraints: ['Separate terms with a comma'],
+      example: 'Atlantic Meridional Transect, AMT01, JR19950921, British Oceanographic Data Centre, BODC, fluorometer, extracted chlorophyll a, chlorophyll, biology, cruise, in-situ, insitu, atlantic ocean',
     },
   },
   {
@@ -492,7 +461,7 @@ map.set ('time-column', dataSheet[0]);
 map.set ('lat-column', dataSheet[1]);
 map.set ('lon-column', dataSheet[2]);
 map.set ('depth-column', dataSheet[3]);
-map.set ('var-n-columns', dataSheet[4]);
+
 // Metadata Sheet
 map.set ('dataset_short_name', metadataSheet[0]);
 // map.set ('dataset_long_name-column', metadataSheet[1]); // this is now a custom component
@@ -504,14 +473,14 @@ map.set ('dataset_distributor-column', metadataSheet[4]);
 map.set ('dataset_acknowledgment-column', metadataSheet[5]);
 map.set ('dataset_history-column', metadataSheet[6]);
 map.set ('dataset_description-column', metadataSheet[7]);
-map.set ('dataset_references-column', metadataSheet[8]);
-map.set ('climatology-column', metadataSheet[9]);
-map.set ('cruise_names-column', metadataSheet[10]);
+// map.set ('dataset_references-column', metadataSheet[8]);
+map.set ('climatology-column', metadataSheet[8]);
+// map.set ('cruise_names-column', metadataSheet[10]);
 
 // Variable Metadata Sheet
 map.set ('var_short_name-column', variableMetadataSheet[0]);
 map.set ('var_long_name-column', variableMetadataSheet[1]);
-map.set ('var_sensor-column', variableMetadataSheet[2]);
+// map.set ('var_sensor-column', variableMetadataSheet[2]);
 map.set ('var_unit-column', variableMetadataSheet[3]);
 map.set ('var_spatial_res-column', variableMetadataSheet[4]);
 map.set ('var_temporal_res-column', variableMetadataSheet[5]);

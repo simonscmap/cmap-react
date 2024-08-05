@@ -18,30 +18,30 @@ const Content = () => {
   return (
     <div className={cl.container}>
       <Typography>
-        The CMAP data template consists of three sheets: <em>data</em>, dataset metadata, and variable metadata.
+        The CMAP data template consists of three sheets: <em>data</em>, <em>dataset metadata</em>, and <em>variable metadata</em>.
       </Typography>
       <List>
         <ListItem>
           <ListItemIcon><RxDotFilled/></ListItemIcon>
           <ListItemText>
-            Data is stored in the first sheet labeled “data”.
+            Data is stored in the first sheet labeled <code>data</code>.
           </ListItemText>
         </ListItem>
         <ListItem>
           <ListItemIcon><RxDotFilled/></ListItemIcon>
           <ListItemText>
-            Metadata that describes the dataset is entered in the second sheet called “dataset_meta_data”.
+            Metadata describing the dataset is entered in the second sheet called <code>dataset_meta_data</code>.
           </ListItemText>
         </ListItem>
         <ListItem>
           <ListItemIcon><RxDotFilled/></ListItemIcon>
           <ListItemText>
-            Metadata associated with the variables in the dataset are entered in the third sheet labeled “vars_meta_data”.
+            Metadata associated with the variables in the dataset are entered in the third sheet labeled <code>vars_meta_data</code>.
           </ListItemText>
         </ListItem>
       </List>
       <Typography>
-        Information must be provided for all  columns except those specifically noted as optional.
+        Information must be provided for all columns except those specifically noted as optional.
       </Typography>
 
       <CustomAlert severity="info">

@@ -4,6 +4,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import TreeItem from '@material-ui/lab/TreeItem';
 import PlayCircleOutlineIcon from '@material-ui/icons/PlayCircleOutline';
+import MailOutlineIcon from '@material-ui/icons/MailOutline';
 import clsx from 'clsx';
 import { data, findById } from './tableOfContents';
 import useStyles from './treeStyles';
@@ -65,6 +66,7 @@ const NavigationTree = (props) => {
               {nodes.name}
             </span>
             {nodes.media && <PlayCircleOutlineIcon className={cl.labelIcon}/>}
+            {nodes.icon === 'email' && <MailOutlineIcon className={cl.labelIcon}/>}
           </div>
         }
       >

@@ -110,6 +110,7 @@ const getActiveStepFromPhase = (phase) => {
   }
 }
 
+// Stepper used in Guide (TODO put these in sync)
 export const UserDashboardStepper = (props) => {
   const { activeStep, submission } = props;
   return (
@@ -131,6 +132,36 @@ export const UserDashboardStepper = (props) => {
     </Stepper>
   );
 };
+
+// Stepper used in User Dashboard
+export const GuideStepper = (props) => {
+  const steps = [
+    'Pre-submission Validation',
+    'Submission',
+    'Admin Review & Feedback',
+    'DOI',
+    'Ingestion',
+  ];
+
+  const { activeStep, submission } = props;
+  return (
+    <Stepper style={{ borderRadius: '5px'}} alternativeLabel  activeStep={activeStep}>
+      {steps.map((item, i) => {
+        return (
+          <Step key={i}>
+            <StepLabel>
+              {item}
+            </StepLabel>
+          </Step>
+        );
+      })}
+    </Stepper>
+  );
+};
+
+
+
+
 
 export const UserDashboardPanelDetails = (props) => {
   const { submission, submissionComments } = props;

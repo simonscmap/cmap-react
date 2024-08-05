@@ -40,6 +40,9 @@ const useStyles = makeStyles ((theme) => ({
   labelText: {
     fontSize: '20px'
   },
+  labelIcon: {
+    paddingTop: '1px'
+  },
   highlight: {
     '&.MuiTreeItem-root > .MuiTreeItem-content .MuiTreeItem-label': {
       color: '#07274d',

@@ -52,17 +52,7 @@ const Content = (props) => {
         </ListItem>
       </List>
 
-      <div className={cl.subHeader}>
-        Submission Tool tutorial:
-      </div>
-      <div className={cl.standoutBox} style={{ width: '780px', background: 'black' }}>
-        <iframe
-          src="https://player.vimeo.com/video/981629505"
-          width="780"
-          height="440"
-          style={{ margin: '0 auto', border: '0' }}
-        ></iframe>
-      </div>
+
 
 
     </div>

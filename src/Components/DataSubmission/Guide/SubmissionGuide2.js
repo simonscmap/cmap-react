@@ -1,17 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useDispatch } from 'react-redux';
+import { useLocation, useHistory} from 'react-router-dom';
+import queryString from 'query-string';
 import Paper from '@material-ui/core/Paper';
 import Divider from '@material-ui/core/Divider';
 import Typography from '@material-ui/core/Typography';
+import NavigateNextIcon from '@material-ui/icons/NavigateNext';
+import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
+
 import Page2 from '../../Common/Page2';
-import { useLocation, useHistory} from 'react-router-dom';
-import queryString from 'query-string';
 import NavigationTree from './Tree';
 import { findById, getImportNameById, findNext, findPrev } from './tableOfContents';
 import * as GuideSections from './Sections/index';
 import useStyles, { sectionStyles } from './guideStyles';
 import StepButton from './NavButton';
-import NavigateNextIcon from '@material-ui/icons/NavigateNext';
-import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
+import { dataSubmissionSelectOptionsFetch } from '../../../Redux/actions/dataSubmission';
+
 
 function scrollToFocus (name) {
   const scrollContainer = document.getElementById ('content-scroll-container');
@@ -27,10 +31,16 @@ function scrollToFocus (name) {
 const Programs = () => {
   const cl = useStyles();
   const scl = sectionStyles();
+  const dispatch = useDispatch();
   const location = useLocation();
   const history = useHistory ();
 
   const ref = useRef();
+
+  useEffect (() => {
+    // fetch submission options once
+    dispatch (dataSubmissionSelectOptionsFetch ());
+  }, []);
 
   let [content, setContent] = useState('getting-started');
   let [focusTarget, setFocus] = useState();

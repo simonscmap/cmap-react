@@ -40,7 +40,7 @@ const Content = () => {
         must have time and location information. The exact name and order
         of the time and location columns are shown in the table below. If
         a dataset does not have depth values (e.g., sea surface
-        measurements), you may remove the depth column. If your dataset
+        measurements), you may remove the <code>depth</code> column. If your dataset
         represents results of a Laboratory study (see <GuideLink href="dataset_make-column">dataset_make</GuideLink>) fill
         these fields with the time of study and the location of your
         laboratory. The columns <code>var<sub>1</sub>...var<sub>n</sub></code>{' '}

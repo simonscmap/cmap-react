@@ -247,29 +247,43 @@ export const sectionStyles = makeStyles((theme) => ({
     zIndex: 1,
     left: '10px',
     top: '-18px',
-    padding: '5px 10px',
+    padding: '5px 20px',
     borderRadius: '15px',
-    background: 'rgb(209, 98, 101)',
+    background: 'rgb(3, 25, 51)',
+    color: 'white',
     fontSize: '14px',
     fontWeight: 'bold',
+    border: '1px solid rgb(157, 209, 98)',
   },
-
   badge: {
     display: 'inline-block',
     padding: '5px 10px',
     borderRadius: '15px',
+    background: 'rgb(3, 25, 51)',
+    color: 'white',
+    fontSize: '14px',
+    fontWeight: 'bold',
+    textIndent: 0,
+  },
+  badgeRequired: {
+    display: 'inline-block',
+    padding: '2px 20px',
+    borderRadius: '15px',
     background: 'rgb(209, 98, 101)',
     fontSize: '14px',
     fontWeight: 'bold',
+    textIndent: 0,
   },
   badgeOptional: {
     display: 'inline-block',
-    padding: '5px 10px',
+    padding: '2px 20px',
     borderRadius: '15px',
-    background: 'rgb(255, 165, 0)',
+    background: 'white',
+    color: 'black',
     fontSize: '14px',
     fontWeight: 'bold',
     color: 'black',
+    textIndent: 0,
   },
 
   standoutBadgeContainer: {
@@ -295,13 +309,14 @@ export const sectionStyles = makeStyles((theme) => ({
 
 
   metaContainer: {
-    padding: '0 1em',
-    margin: '1em 0',
-    // width: '500px',
-    borderLeft: '2px solid rgb(105, 255, 242)'
-    // border: '1px solid black',
+    fontSize: '1em',
+    // padding: '0 1em',
+    // margin: '1em 0 2em 0',
+    // borderLeft: '2px solid rgb(105, 255, 242)',
+    // background: 'rgba(0,0,0,0.2)',
     // boxShadow: `0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12)`,
   },
+
 
   glow: {
     animation: '$glow 1000ms ease-out infinite alternate',

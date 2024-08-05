@@ -11,6 +11,7 @@ const styles = (theme) => ({
     '& .MuiAlert-icon': {
       fontSize: '30px',
       alignItems: 'center', // vertically center icons
+      marginRight: '20px',
     },
     backgroundColor: 'rgba(0,0,0, 0.2)',
     fontWeight: 'bold',
@@ -36,7 +37,10 @@ const styles = (theme) => ({
     },
     '&.MuiAlert-standardInfo': {
       color: 'rgb(34, 163, 185)',
-      border: `1px solid rgb(34, 163, 185)`
+      border: `1px solid rgb(34, 163, 185)`,
+      '& .MuiAlert-icon': {
+        color: 'rgb(34, 163, 185)',
+      },
     }
   },
 

@@ -1,9 +1,11 @@
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
+import Link from '@material-ui/core/Link';
+import { sectionStyles } from '../guideStyles';
 import { UserDashboardPanelDetails } from '../../UserDashboardPanelDetails';
 import states from '../../../../enums/asyncRequestStates';
 import { GuideLink } from '../Links';
-import { sectionStyles } from '../guideStyles';
+
 
 const mockDataSubmission = {
   DOI_Accepted_Date_Time: null,
@@ -51,6 +53,27 @@ const Content = () => {
   const cl = sectionStyles();
   return (
     <div className={cl.container}>
+      <Typography>
+        Load your workbook into the <Link target="_blank" href="/datasubmission/validationtool">submission tool</Link> to begin validation. The tool will walk you through a step-by-step process to identify and resolve any potential data or format issues. Once the workbook has been validated it will be uploaded to a staging area to be reviewed by our data curation team. From this point you will be able to track the progress of your submission in the <Link href="/datasubmission/userdashboard">User Dashboard</Link> (see below).
+      </Typography>
+
+      <div className={cl.subHeader}>
+        Submission Tool Tutorial
+      </div>
+
+      <div className={cl.standoutBox} style={{ width: '780px', background: 'black' }}>
+        <iframe
+          src="https://player.vimeo.com/video/981629505"
+          width="780"
+          height="440"
+          style={{ margin: '0 auto', border: '0' }}
+        ></iframe>
+      </div>
+
+      <div className={cl.subHeader}>
+        Submission Dashboard
+      </div>
+
       <Typography>
         In the <GuideLink href="/datasubmission/userdashboard">User Dashboard </GuideLink> you can track the ingestion process for any dataset that you have submitted, send messages to the data curation team, and download the most recently submitted version of the workbook. If the curation team requests additional changes to your submission you can use the <GuideLink href="/datasubmission/userdashboard">User Dashboard </GuideLink> to access, edit, and resubmit the dataset directly in the validation tool.
       </Typography>

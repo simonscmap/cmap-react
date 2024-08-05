@@ -4,14 +4,9 @@ export const data = [
     name: 'Getting Started',
     media: true,
   },
-
   {
     id: 'process-overview',
     name: 'Process Overview',
-  },
-  {
-    id: 'user-dashboard',
-    name: 'User Dashboard'
   },
   {
     id: 'dataset-preparation',
@@ -152,7 +147,18 @@ export const data = [
   {
     id: 'dataset-validation',
     name: 'Dataset Validation',
-    media: true,
+    children: [
+      {
+        id: 'validation-api',
+        name: 'Validation API',
+        media: true,
+      },
+      {
+        id: 'validation-tool',
+        name: 'Validation Tool & User Dashboard',
+        media: true,
+      },
+    ]
   },
   {
     id: 'faq',
@@ -161,10 +167,7 @@ export const data = [
   {
     id: 'contact',
     name: 'Contact',
-  },
-  {
-    id: 'resources',
-    name: 'Resources',
+    icon: 'email',
   }
 ];
 

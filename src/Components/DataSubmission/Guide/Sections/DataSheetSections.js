@@ -9,6 +9,8 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableRow from '@material-ui/core/TableRow';
+import { CustomAlert } from '../Alert';
+
 
 const BulletPoints = (props) => {
   const { bullets } = props;
@@ -33,10 +35,8 @@ const useTableStyles = makeStyles((theme) => ({
     fontSize: '.9em',
   },
   label: {
-
-
-     color: 'rgb(135, 255, 244)',
-   whiteSpace: 'nowrap',
+    color: 'rgb(135, 255, 244)',
+    whiteSpace: 'nowrap',
   },
   monoValue: {
     fontFamily: 'mono',
@@ -88,7 +88,7 @@ const useTableStyles = makeStyles((theme) => ({
   compactTable: {
     tableLayout: 'fixed',
     '& td': {
-      fontSize: '.9em',
+      // fontSize: '.9em',
       padding: 0,
       textIndent: '.5em'
     }
@@ -128,13 +128,16 @@ export const Meta = (props) => {
     return '';
   }
 
+  // {meta.required ? <div className={cl.badge}>Required</div> : <div className={cl.badgeOptional}>Optional</div>}
   return (
-    <React.Fragment>
-      {meta.required ? <div className={cl.badge}>Required</div> : <div className={cl.badgeOptional}>Optional</div>}
+    <CustomAlert severity="info">
       <div className={cl.metaContainer}>
         <TableContainer size="small" className={ts.compactTable}>
           <Table>
             <TableBody className={cl.body}>
+              <Row property={'Required'}>
+                {meta.required ? <div className={cl.badgeRequired}>Required</div> : <div className={cl.badgeOptional}>Optional</div>}
+              </Row>
               {meta.type && <Row property={'Type'} val={meta.type} /> }
               {meta.format && <Row property={'Format'} val={meta.format} /> }
               {meta.unit && <Row property={'Unit'} val={meta.unit} /> }
@@ -148,7 +151,7 @@ export const Meta = (props) => {
           </Table>
         </TableContainer>
       </div>
-    </React.Fragment>
+    </CustomAlert>
   );
 }
 
@@ -194,7 +197,6 @@ export const TimeColumn = ColumnSection;
 export const LatColumn = ColumnSection;
 export const LonColumn = ColumnSection;
 export const DepthColumn = ColumnSection;
-export const VarNColumns = ColumnSection;
 
 // Metadata Sheet
 export const DatasetShortName = ColumnSection;
@@ -209,7 +211,6 @@ export const DatasetHistoryColumn = ColumnSection;
 export const DatasetDescriptionColumn = ColumnSection;
 export const DatasetReferencesColumn = ColumnSection;
 export const ClimatologyColumn = ColumnSection;
-export const CruiseNamesColumn = ColumnSection;
 
 // Variable Metadata Sheet
 export const VarShortNameColumn = ColumnSection;
