@@ -18,11 +18,7 @@ const Content = () => {
     <div className={cl.container}>
       <Meta meta={meta} />
       <Typography>
-        Specifies the group and/or the institute name of the data owner(s).
-        Including the PI name is strongly recommended, and the field can also
-        include any link (such as a website) to the data producers. This
-        information will be visible in the CMAP catalog as shown below. Also, <code>dataset_source</code> will be
-        annotated to any visualization made using the dataset.
+        Specifies the group and/or the institute name of the data owner(s). Including the PI name is strongly recommended, and the field can also include any link (such as a website) to the data producers. This information will be visible in the CMAP catalog and annotated to visualizations made using the dataset, as shown below. This information will be visible in the CMAP catalog as shown below.
       </Typography>
 
       <div className={cl.standoutBadgeContainer}>
@@ -43,8 +39,8 @@ const Content = () => {
           <div className={cl.standoutBadge}>Example Visualization Annotated with Source</div>
           <div className={cl.standoutBox}>
             <img
-              src={'/images/cmap_data_source_in_viz.png'}
-              alt={'Sample Visualization with Annotation'}
+              src={'/images/guide/source_in_chart.png'}
+              alt={'Sample Visualization with Source Annotation'}
               width={1077}
             />
           </div>

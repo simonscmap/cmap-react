@@ -135,9 +135,7 @@ export const Meta = (props) => {
         <TableContainer size="small" className={ts.compactTable}>
           <Table>
             <TableBody className={cl.body}>
-              <Row property={'Required'}>
-                {meta.required ? <div className={cl.badgeRequired}>Required</div> : <div className={cl.badgeOptional}>Optional</div>}
-              </Row>
+              {meta.required ? <div className={cl.badgeRequired}>Required</div> : <div className={cl.badgeOptional}>Optional</div>}
               {meta.type && <Row property={'Type'} val={meta.type} /> }
               {meta.format && <Row property={'Format'} val={meta.format} /> }
               {meta.unit && <Row property={'Unit'} val={meta.unit} /> }
@@ -197,6 +195,7 @@ export const TimeColumn = ColumnSection;
 export const LatColumn = ColumnSection;
 export const LonColumn = ColumnSection;
 export const DepthColumn = ColumnSection;
+export const CruiseColumn = ColumnSection;
 
 // Metadata Sheet
 export const DatasetShortName = ColumnSection;

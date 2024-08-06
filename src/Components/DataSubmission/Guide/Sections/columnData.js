@@ -66,6 +66,20 @@ export const dataSheet = [
       required: true,
     }
   },
+   {
+    label: 'cruise',
+    text: [
+      'If your dataset is associated with more than one cruise please add this column and list the official cruise name corresponding to each row of data.  This enables the CMAP Validation API to cross-check the time and space coordinates for each data point against the appropriate cruise trajectory.  If your dataset is associated with only one cruise, or is not associated with any cruises this column is unnecessary.',
+    ],
+    meta: {
+      type: 'Text',
+      required: false,
+      constraints: [
+        'None'
+      ]
+    }
+  },
+
 ];
 
 //
@@ -76,7 +90,7 @@ export const metadataSheet = [
   {
     label: 'dataset_short_name',
     text: [
-      'This name is meant to be used in programming codes and scripts. It should only contain a combination of letters, numbers, and underscores (the first character can not be a number). Do not use space, dash, or special characters such as <, +, %, etc.',
+      <span>This name is meant to be used in programming codes and scripts. It should only contain a combination of letters, numbers, and underscores (the first character can not be a number). Do not use space, dash, or special characters such as <code>&lt;</code>, <code>+</code>, <code>%</code>, etc.</span>,
     ],
     meta: {
       required: true,
@@ -144,7 +158,7 @@ export const metadataSheet = [
   {
     label: 'dataset_distributor',
     text: [
-      <span key="1">If your dataset has already been published by a data distributor provide a link to the data distributor.Otherwise, fill this field with the same content as the <code>dataset_source</code>.</span>,
+      <span key="1">If your dataset has already been published by a data distributor provide a link to the data distributor. Otherwise, fill this field with the same content as the <code>dataset_source</code>.</span>,
     ],
     meta: {
       required: false,
@@ -159,8 +173,7 @@ export const metadataSheet = [
         Please specify how your dataset should be acknowledged when used. You
         may mention your funding agency, grant number, or you may ask those
         that use your data to acknowledge your dataset with a particular
-        statement or citation. Dataset acknowlegment will be visible in the
-        <GuideLink href="/catalog">Catalog</GuideLink>.
+        statement or citation. Dataset acknowlegment will be visible in the <GuideLink href="/catalog">Catalog</GuideLink>.
       </React.Fragment>,
     ],
     meta: {
@@ -243,7 +256,7 @@ export const variableMetadataSheet = [
         should only contain a combination of letters, numbers, and underscores
         (the first character can not be a number). Do not use space, dash, or
         special characters such as <code>{'<'}</code>, <code>+</code>, <code>%</code>, etc. Finally, there must be a
-        one-to-one match between the <code>short_name</code>s listed here and the variable
+        one-to-one match between the short names listed here and the variable
         column names in the “Data” sheet (see <GuideLink href="#var-n-columns">vars</GuideLink>). <code>var_short_name</code> will be seen in the CMAP catalog.
       </React.Fragment>,
     ],
@@ -259,11 +272,8 @@ export const variableMetadataSheet = [
     },
     images: [
       {
-        src: '/images/cmap_variable_short_name_on_dataset_page.png',
+        src: '/images/guide/var_short_name_web.png',
         alt: 'Variable short name in catalog',
-        caption:
-        'Figure 9. A sample dataset shown in the Simons CMAP catalog. The "var_short_name" is highlighted in the orange rectangle.',
-        id: 'fig-9',
       },
     ],
   },
@@ -286,23 +296,17 @@ export const variableMetadataSheet = [
                                                ],
     meta: {
       required: true,
-      constraints: ['Less than 200 characters'],
+      constraints: ['Less than 200 characters', 'Use title case'],
       example: 'Extracted Chlorophyll A'
     },
     images: [
       {
-        src: '/images/cmap_variable_long_name_on_dataset_page.png',
+        src: '/images/guide/var_long_name_catalog.png',
         alt: 'Variable long name in catalog',
-        caption:
-        'Figure 10. A sample dataset shown in the Simons CMAP catalog. The "var_long_name" is highlighted in the orange rectangle.',
-        id: 'fig-10',
       },
       {
-        src: '/images/cmap_variable_long_name_on_viz_page.png',
-        alt: 'var_long_name in the Visualization Page',
-        caption:
-        'Figure 11. The "var_long_name" appears in the visualization page search dialog.',
-        id: 'fig-11',
+        src: '/images/guide/var_long_name_vis.png',
+        alt: 'Variable long name on the Visualization Page',
       },
     ],
   },
@@ -336,7 +340,7 @@ export const variableMetadataSheet = [
     anchorEnd: 'var_spatial_res',
     text: [
       <span key="1">
-        Entries in this column describe the spatial resolution of the variable. Typically, gridded products have uniform spatial spacing (such as <code>0.25° X 0.25°</code>) while field expeditions do not. If your variable does not have a regular spatial resolution, use the term <code>irregular</code> to fill out this field. Note that if samples are taken at a series of distinct but spatially-non-uniform stations, the spatial resolution is considered irregular. <code>var_spatial_res</code> may contain unicode characters such as degree symbol (<code> ° </code>) and will be visible in the Simons CMAP catalog. This field is populated via a dropdown menu. If a value you would like to use is missing from the dropdown menu please contact us at <GuideLink href="mailto:cmap-data-submission@uw.edu">cmap-data-submission@uw.edu</GuideLink> to request that it be added.
+        Entries in this column describe the spatial resolution of the variable. Typically, gridded products have uniform spatial spacing (such as <code>0.25° X 0.25°</code>) while field expeditions do not. If your variable does not have a regular spatial resolution, use the term <code>irregular</code> to fill out this field. Note that if samples are taken at a series of distinct but spatially-non-uniform stations, the spatial resolution is considered irregular. <code>var_spatial_res</code> may contain unicode characters such as degree symbol (<code> ° </code>) and will be visible in the Simons CMAP catalog. This field is populated via a dropdown menu. If a value you would like to use is missing from the dropdown menu please contact us at <GuideLink href="mailto:simonscmap@uw.edu">simonscmap@uw.edu</GuideLink> to request that it be added.
       </span>,
     ],
     meta: {
@@ -351,16 +355,7 @@ export const variableMetadataSheet = [
     anchorEnd: 'var_temporal_res',
     text: [
       <React.Fragment>
-        Entries in this column describe the temporal resolution (<code>daily</code>,
-        <code>hourly</code>, <code>3-minutes</code>, etc). If the measurements do not have a regular
-        temporal spacing, use the term <code>irregular</code> to fill out this field.
-        <code>var_temporal_res</code> will be visible in the Simons CMAP catalog. This field is populated via a
-        dropdown menu. If a value you would like to use is missing from the
-        dropdown menu please contact us at{' '}
-        <GuideLink href="mailto:cmap-data-submission@uw.edu">
-          cmap-data-submission@uw.edu
-        </GuideLink>{' '}
-        to request that it be added.
+        Entries in this column describe the temporal resolution (<code>daily</code>, <code>hourly</code>, <code>3-minutes</code>, etc). If the measurements do not have a regular temporal spacing, use the term <code>irregular</code> to fill out this field. <code>var_temporal_res</code> will be visible in the Simons CMAP catalog. This field is populated via a dropdown menu. If a value you would like to use is missing from the dropdown menu please contact us at <GuideLink href="mailto:simonscmap@uw.edu">simonscmap@uw.edu</GuideLink> to request that it be added.
       </React.Fragment>,
     ],
     meta: {
@@ -375,8 +370,7 @@ export const variableMetadataSheet = [
     anchorEnd: 'var_discipline',
     text: [
       <React.Fragment key="1">
-        Entries in this column specify the discipline(s), such as Physics, Biology, etc, in which a variable is commonly studied. If you list multiple disciplines per variable, please separate them by <code>+</code>. This field is populated via a dropdown menu. If a value you would like to use is missing from the dropdown menu please contact us at <GuideLink href="mailto:cmap-data-submission@uw.edu">cmap-data-submission@uw.edu</GuideLink>{' '}
-        to request that it be added.
+        Entries in this column specify the discipline(s), such as Physics, Biology, etc, in which a variable is commonly studied. If you list multiple disciplines per variable, please separate them by <code>+</code>. This field is populated via a dropdown menu. If a value you would like to use is missing from the dropdown menu please contact us at <GuideLink href="mailto:simonscmap@uw.edu">simonscmap@uw.edu</GuideLink> to request that it be added.
       </React.Fragment>,
     ],
     meta: {
@@ -391,7 +385,7 @@ export const variableMetadataSheet = [
     label: 'visualize',
     anchorEnd: 'visualize',
     text: [
-      <span key="1">This is a flag field and can only be <code>0</code> (not visualizable) or a <code>1</code> (visualizable). Fill this field with <code>1</code>, if you think this variable can be visualized on a graph. In principle, any variable with numeric values can be visualized while variables with string values, station numbers, or quality flags may not be the best candidates for visualization in CMAP. Please consult with the data curation team if you have any questions.</span>,
+      <span key="1">This is a flag field and can only be <code>0</code> (not visualizable) or <code>1</code> (visualizable). Fill this field with <code>1</code> if you think this variable can be visualized on a graph. In principle, any variable with numeric values can be visualized while variables with string values, station numbers, or quality flags may not be the best candidates for visualization in CMAP. Please consult with the data curation team if you have any questions.</span>,
     ],
     meta: {
       required: true,
@@ -443,11 +437,8 @@ export const variableMetadataSheet = [
     },
     images: [
       {
-        src: '/images/var_comment_on_dataset_page.png',
+        src: '/images/guide/comment_web.png',
         alt: 'Variable Comments in Catalog',
-        caption:
-        'Figure 12. A sample dataset shown in the Simons CMAP catalog with the Comment column highlighted in the orange rectangle. If short enough, the "var_comment" is shown in the cell on the catalog page, otherwise it is accessible using the "View Comment" link.',
-        id: 'fig-12',
       },
     ],
   },
@@ -461,6 +452,7 @@ map.set ('time-column', dataSheet[0]);
 map.set ('lat-column', dataSheet[1]);
 map.set ('lon-column', dataSheet[2]);
 map.set ('depth-column', dataSheet[3]);
+map.set ('cruise-column', dataSheet[4]);
 
 // Metadata Sheet
 map.set ('dataset_short_name', metadataSheet[0]);

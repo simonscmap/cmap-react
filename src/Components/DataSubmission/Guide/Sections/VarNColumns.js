@@ -1,17 +1,14 @@
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
-import { CustomAlert } from '../Alert';
 import { Meta } from './DataSheetSections';
 import { sectionStyles } from '../guideStyles';
-import Link from '@material-ui/core/Link';
-import { RxDotFilled } from "react-icons/rx";
 
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
 import { GuideLink } from '../Links';
 
+import { CustomAlert } from '../Alert';
 const Content = () => {
   const cl = sectionStyles();
   return (

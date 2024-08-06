@@ -270,6 +270,7 @@ export const sectionStyles = makeStyles((theme) => ({
     padding: '2px 20px',
     borderRadius: '15px',
     background: 'rgb(209, 98, 101)',
+    color: 'white',
     fontSize: '14px',
     fontWeight: 'bold',
     textIndent: 0,
@@ -289,7 +290,7 @@ export const sectionStyles = makeStyles((theme) => ({
   standoutBadgeContainer: {
     display: 'inline-block',
     position: 'relative',
-    margin: '2em 2em 2em 65px',
+    margin: '2em 2em 2em 35px',
     '& > div': {
       margin: 0,
     }
@@ -315,6 +316,13 @@ export const sectionStyles = makeStyles((theme) => ({
     // borderLeft: '2px solid rgb(105, 255, 242)',
     // background: 'rgba(0,0,0,0.2)',
     // boxShadow: `0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12)`,
+  },
+
+  sensorList: {
+    columnWidth: '200px',
+    '& > div': {
+      padding: '8px 5px'
+    }
   },
 
 

@@ -104,7 +104,7 @@ export const FocusManager = (props) => {
 
 export const AccordionSection = (props) => {
   const cl = sectionStyles();
-  const { state, name, title, children } = props;
+  const { state, name, title, children, markerType, icon } = props;
   const {
     focus,
     expanded,
@@ -116,7 +116,10 @@ export const AccordionSection = (props) => {
     <Accordion expanded={expanded === name} onChange={handleChange (name)} data-focus={name}>
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <div className={`${cl.focusedAccordionSummary}`}>
-          <FocusQuestion focus={focus} name={name} toggle={toggle} />
+          {markerType === 'enumerator'
+           ? <FocusEnumerator focus={focus} name={name} toggle={toggle}>{icon}</FocusEnumerator>
+           : <FocusQuestion focus={focus} name={name} toggle={toggle} />
+          }
           <span>{title}</span>
         </div>
       </AccordionSummary>

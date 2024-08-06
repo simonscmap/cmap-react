@@ -15,19 +15,13 @@ const Content = () => {
             }}/>
       <Typography key={'0'}>
         The <code>dataset_long_name</code> is a descriptive and human-readable name for the dataset. This name will identify your dataset in the CMAP Catalog and in the Visualization search dialog.
-      </Typography>
-      <Typography>
         Any Unicode character may be used here, but please avoid names longer than 200 characters as they may get trimmed when displayed on graphical interfaces.
-      </Typography>
-      <Typography key={'3'}>
         A full textual description of your dataset, with no length limits, is entered in the <GuideLink href="#dataset_description-column">dataset_description</GuideLink> field.
-      </Typography>
-      <Typography key={'3'}>
-        If your dataset is associated with a cruise, we recommend including the official cruise and the cruise nickname in the <code>dataset_long_name</code>. For example: <code>Underway CTD Gradients 3 KM1906</code>. Capitalizing the <code>dataset_long_name</code> is also recommended.
+        If your dataset is associated with a cruise, we recommend including the official cruise and the cruise nickname in the <code>dataset_long_name</code>. For example: "Underway CTD Gradients 3 KM1906". Capitalizing the <code>dataset_long_name</code> is also recommended.
       </Typography>
 
       <div className={cl.subHeader}>
-        Exapmles
+        Examples
       </div>
       <Typography>
         Here are examples of how the <code>dataset_long_name</code> will appear within SimonsCMAP.
@@ -44,7 +38,7 @@ const Content = () => {
         <div className={cl.standoutBadge}>Example Visualization Page Search Interface</div>
         <div className={cl.standoutBox} style={{ background: 'black' }}>
           <img
-            src={'/images/cmap_long_name_in_viz_search.png'}
+            src={'/images/guide/long_name_in_viz_search.png'}
             alt={'Dataset Long_name in Visualization Page'}
           />
         </div>

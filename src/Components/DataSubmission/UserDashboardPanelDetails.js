@@ -50,6 +50,11 @@ const useStyles = makeStyles((theme) => ({
     fontSize: '11px',
     display: 'block',
   },
+  guideStepper: {
+    '& .MuiStep-root .MuiSvgIcon-root': {
+      color: '#9dd162'
+    }
+  },
 }));
 
 const mapStateToProps = (state, ownProps) => ({
@@ -144,8 +149,9 @@ export const GuideStepper = (props) => {
   ];
 
   const { activeStep, submission } = props;
+  const cl = useStyles ();
   return (
-    <Stepper style={{ borderRadius: '5px'}} alternativeLabel  activeStep={activeStep}>
+    <Stepper className={cl.guideStepper} style={{ borderRadius: '5px'}} alternativeLabel nonLinear activeStep={activeStep}>
       {steps.map((item, i) => {
         return (
           <Step key={i}>

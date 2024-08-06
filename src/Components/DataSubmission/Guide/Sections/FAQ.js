@@ -3,7 +3,7 @@ import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
 import { FocusManager, AccordionSection } from '../FocusMarkers';
 import { sectionStyles } from '../guideStyles';
-
+import { GuideLink } from '../Links';
 // foci
 const foci = {
   format: 'format',
@@ -204,7 +204,7 @@ const Content = (props) => {
         title={'Can I check my dataset for alignment with Simons CMAP requirements before submission?'}
       >
         <Typography>
-          Yes, you can use the Simons CMAP validation API to validate your dataset before submission. This is the same tool used by the Simons CMAP curation tool when reviewing datasets. For more details see [link to “validation api” at submission guide].
+          Yes, you can use the Simons CMAP <GuideLink hash="validation-api">Validation API</GuideLink> to validate your dataset before submission. This is the same primary tool used by the Simons CMAP team when reviewing datasets.
         </Typography>
       </AccordionSection>
 

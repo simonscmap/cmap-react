@@ -49,7 +49,7 @@ const Content = () => {
     <div className={cl.container}>
       <Meta meta={meta} />
       <Typography>
-List any publications or documentation that one may cite in reference to the dataset, as well as references for any citations included in the description. If there is more than one reference, please put them in separate cells under the <code>dataset_reference</code> column. Leave this field empty if there are no references associated with this dataset.
+List any publications or documentation that one may cite in reference to the dataset, as well as references for any citations included in the description. Enter each reference in a separate cell in this column. Leave this field empty if there are no references associated with this dataset.
 
       </Typography>
       <div className={cl.standoutBadgeContainer} style={{ width: 'calc(100% - 100px)'}}>
@@ -67,6 +67,18 @@ List any publications or documentation that one may cite in reference to the dat
         />
         </div>
       </div>
+
+      <div className={cl.standoutBadgeContainer}>
+          <div className={cl.standoutBadge}>Example References as Displayed on the CMAP Website</div>
+          <div className={cl.standoutBox}>
+            <img
+              src={'/images/guide/references_web.png'}
+              alt={'References as Displayed on the CMAP Website'}
+              width={1077}
+            />
+          </div>
+        </div>
+
 
     </div>
   );

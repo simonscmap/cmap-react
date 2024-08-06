@@ -22,13 +22,15 @@ const Content = () => {
     <div className={cl.container}>
       <Meta meta={meta} />
       <Typography>
-        This is a required field that refers to the instrument used to produce the measurements such as CTD, fluorometer, flow cytometer, sediment trap, etc. If your dataset is the output of a numerical model or a combination of model and observation, use the term “simulation” and
-        “blend”, respectively. This field will significantly help to find and categorize data generated using a similar class of instruments.  <code>var_sensor</code> will be visible in the Simons CMAP catalog. This field is populated via a dropdown menu. If a value you would like to use is missing from the dropdown menu please contact us at <GuideLink href="mailto:cmap-data-submission@uw.edu">cmap-data-submission@uw.edu</GuideLink> to request that it be added.
+        This is a required field that refers to the instrument used to produce the measurements such as CTD, fluorometer, flow cytometer, sediment trap, etc.
+If your dataset is the output of a numerical model use the term “simulation”, and if it is the output of a combination of model and observation use the term “blend”.
+         This field will significantly help to find and categorize data generated using a similar class of instruments.  <code>var_sensor</code> will be visible in the Simons CMAP catalog. This field is populated via a dropdown menu. If a value you would like to use is missing from the dropdown menu please contact us at <GuideLink href="mailto:cmap-data-submission@uw.edu">cmap-data-submission@uw.edu</GuideLink> to request that it be added.
       </Typography>
-      <List>
+      <div className={cl.subHeader}>Sensor List</div>
+      <div className={cl.sensorList}>
         {Array.isArray(sensors) && sensors.map((o, i) =>
-          (<ListItem key={`${i}`}><ListItemText>{o}</ListItemText></ListItem>) )}
-      </List>
+          (<div key={`${i}`}>{o}</div>) )}
+      </div>
     </div>
   );
 };

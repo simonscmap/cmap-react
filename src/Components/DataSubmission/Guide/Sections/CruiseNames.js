@@ -41,7 +41,8 @@ const Content = () => {
     <div className={cl.container}>
       <Meta meta={meta} />
       <Typography>
-        If your dataset represents measurements made during a cruise expedition (or expeditions), provide the cruise official names here (e.g. <code>KM1821</code>). If your dataset is associated with more than one cruise, please put them in separate cells under the <code>cruise_names</code> column. If the cruises have any nicknames, please list these in separate cells as well. Leave this field blank if your dataset is not associated with a cruise expedition.
+
+If your dataset represents measurements made during a cruise expedition (or expeditions), provide the cruise official names (e.g. <code>KM1821</code>) and any cruise nicknames in separate cells in this column.  Leave this field blank if your dataset is not associated with a cruise expedition.
 
       </Typography>
       <div className={cl.standoutBadgeContainer} style={{ width: 'calc(100% - 100px)'}}>
@@ -57,6 +58,20 @@ const Content = () => {
         />
         </div>
       </div>
+
+      <div className={cl.standoutBadgeContainer}>
+          <div className={cl.standoutBadge}>Cruise Names as Displayed on the CMAP Website</div>
+          <div className={cl.standoutBox}>
+            <img
+              src={'/images/guide/cruise_names_web.png'}
+              alt={'Cruise Names as Displayed on the CMAP Website'}
+              width={1077}
+            />
+          </div>
+        </div>
+
+
+
 
     </div>
   );

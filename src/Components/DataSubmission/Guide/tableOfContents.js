@@ -36,6 +36,10 @@ export const data = [
             id: 'var-n-columns',
             name: 'var1 ... varN',
           },
+          {
+            id: 'cruise-column',
+            name: 'cruise',
+          },
         ]
       },
       {
