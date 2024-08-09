@@ -18,7 +18,7 @@ const Content = () => {
     <div className={cl.container}>
       <Meta meta={meta} />
       <Typography>
-        Specifies the group and/or the institute name of the data owner(s). Including the PI name is strongly recommended, and the field can also include any link (such as a website) to the data producers. This information will be visible in the CMAP catalog and annotated to visualizations made using the dataset, as shown below. This information will be visible in the CMAP catalog as shown below.
+        Specifies the group and/or the institute name of the data owner(s). Including the PI name is strongly recommended, and the field can also include any link (such as a website) to the data producers. This information will be visible in the CMAP catalog and annotated to visualizations made using the dataset, as shown below.
       </Typography>
 
       <div className={cl.standoutBadgeContainer}>

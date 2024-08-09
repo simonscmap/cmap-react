@@ -54,7 +54,7 @@ const Content = () => {
   return (
     <div className={cl.container}>
       <Typography>
-        Load your workbook into the <Link target="_blank" href="/datasubmission/validationtool">submission tool</Link> to begin validation. The tool will walk you through a step-by-step process to identify and resolve any potential data or format issues. Once the workbook has been validated it will be uploaded to a staging area to be reviewed by our data curation team. From this point you will be able to track the progress of your submission in the <Link href="/datasubmission/userdashboard">User Dashboard</Link> (see below).
+        Load your workbook into the <GuideLink target="_blank" href="/datasubmission/validationtool">Submission Tool</GuideLink> to begin validation. The tool will walk you through a step-by-step process to identify and resolve any potential data or format issues. Once the workbook has been validated it will be uploaded to a staging area to be reviewed by our data curation team. From this point you will be able to track the progress of your submission in the <GuideLink href="/datasubmission/userdashboard">User Dashboard</GuideLink> (see below).
       </Typography>
 
       <div className={cl.subHeader}>

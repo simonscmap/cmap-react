@@ -32,43 +32,43 @@ export const GuideLink = (props) => {
   if (href) {
     if (href.slice(0, 7) === 'mailto:') { // detect mailto
       return (
-        <div className={cl.container}>
+        <span className={cl.container}>
           <Link href={href} className={cl.linkWithIcon}>
             { children }
             <MailOutlineIcon />
           </Link>
-        </div>);
+        </span>);
     } else if (href.slice(0, 1) === '#' ) { // detect a bookmark
       return (
-        <div className={cl.container}>
+        <span className={cl.container}>
           <Link href={href} className={cl.linkWithIcon}>
             § { children }
           </Link>
-        </div>);
+        </span>);
     } else if (download) { // detect download
       return (
-        <div className={cl.container}>
+        <span className={cl.container}>
           <Link href={href} className={cl.linkWithIcon}>
             { children }
             <GetAppIcon />
           </Link>
-        </div>);
+        </span>);
     } else {
       return (
-        <div className={cl.container}>
+        <span className={cl.container}>
           <Link href={href} className={cl.linkWithIcon} target="_blank">
             { children }
             <OpenInNewIcon />
           </Link>
-        </div>);
+        </span>);
     }
   } else if (hash) {
     return (
-      <div className={cl.container}>
+      <span className={cl.container}>
         <Link href={hash}className={cl.linkWithIcon}>
           § { children }
         </Link>
-      </div>);
+      </span>);
   } else {
     return {children};
   }

@@ -14,7 +14,7 @@ const Content = () => {
               constraints: ['Less than 200 characters']
             }}/>
       <Typography key={'0'}>
-        The <code>dataset_long_name</code> is a descriptive and human-readable name for the dataset. This name will identify your dataset in the CMAP Catalog and in the Visualization search dialog.
+        The <code>dataset_long_name</code> is a descriptive and human-readable name for the dataset. This name will identify your dataset in the Simons CMAP Catalog and in the Visualization search dialog.
         Any Unicode character may be used here, but please avoid names longer than 200 characters as they may get trimmed when displayed on graphical interfaces.
         A full textual description of your dataset, with no length limits, is entered in the <GuideLink href="#dataset_description-column">dataset_description</GuideLink> field.
         If your dataset is associated with a cruise, we recommend including the official cruise and the cruise nickname in the <code>dataset_long_name</code>. For example: "Underway CTD Gradients 3 KM1906". Capitalizing the <code>dataset_long_name</code> is also recommended.

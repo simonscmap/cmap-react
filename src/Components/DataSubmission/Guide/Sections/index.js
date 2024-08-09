@@ -6,7 +6,7 @@ export { default as DatasetMetadataSheet } from './DatasetMetadataSheet';
 export { default as VariableMetadataSheet } from './VariableMetadataSheet';
 export { default as DatasetValidation } from './DatasetValidation';
 export { default as ValidationApi } from './ValidationApi';
-export { default as ValidationTool } from './ValidationTool';
+export { default as SubmitDataTool } from './SubmitDataTool';
 
 export { default as UserDashboard } from './UserDashboard';
 export { default as Faq } from './FAQ';

@@ -158,8 +158,8 @@ export const data = [
         media: true,
       },
       {
-        id: 'validation-tool',
-        name: 'Validation Tool & User Dashboard',
+        id: 'submit-data-tool',
+        name: 'Submit Data Tool & User Dashboard',
         media: true,
       },
     ]

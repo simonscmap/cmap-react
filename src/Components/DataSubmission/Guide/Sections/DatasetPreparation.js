@@ -1,16 +1,14 @@
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
-
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
-
 import { RxDotFilled } from "react-icons/rx";
-
 import { CustomAlert } from '../Alert';
 import { sectionStyles } from '../guideStyles';
+import { DownloadTemplateLink } from '../DownloadTemplate';
 
 
 const Content = () => {
@@ -18,7 +16,7 @@ const Content = () => {
   return (
     <div className={cl.container}>
       <Typography>
-        The CMAP data template consists of three sheets: <em>data</em>, <em>dataset metadata</em>, and <em>variable metadata</em>.
+        The CMAP data template (<DownloadTemplateLink text="download here"/>) is an Excel file that consists consists of three sheets: <em>data</em>, <em>dataset metadata</em>, and <em>variable metadata</em>.
       </Typography>
       <List>
         <ListItem>

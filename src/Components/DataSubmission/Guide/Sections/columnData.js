@@ -69,7 +69,7 @@ export const dataSheet = [
    {
     label: 'cruise',
     text: [
-      'If your dataset is associated with more than one cruise please add this column and list the official cruise name corresponding to each row of data.  This enables the CMAP Validation API to cross-check the time and space coordinates for each data point against the appropriate cruise trajectory.  If your dataset is associated with only one cruise, or is not associated with any cruises this column is unnecessary.',
+      'If your dataset is associated with more than one cruise, please add a cruise column and list the official cruise name corresponding to each row of data. The cruise column enables the CMAP Validation API to cross-check the time and space coordinates for each data point against the appropriate cruise trajectory. If your dataset is associated with only one cruise or is not associated with any cruises, this column is unnecessary.'
     ],
     meta: {
       type: 'Text',
@@ -139,10 +139,10 @@ export const metadataSheet = [
           <ListItem><code>{'observation'}</code></ListItem>
           <ListItem><code>{'model'}</code></ListItem>
           <ListItem><code>{'assimilation'}</code></ListItem>
-          <ListItem><code>{'laborotory'}</code></ListItem>
+          <ListItem><code>{'laboratory'}</code></ListItem>
         </List>
       </div>,
-        'This field will help in discovery of data in CMAP by categorizing datasets according to their Make class. Please contact us if you believe your dataset Make is not consistent with any of the categories.',
+        'This field will help in discovery of data in CMAP by categorizing datasets according to their make class. Please contact us if you believe your dataset make is not consistent with any of the categories.',
       <span key="b"><code>Obeservation</code> refers to any in-situ or remote sensing measurements such as measurements made during a cruise expedition, data from an in-situ sensor, or satellite observations. Observations made as part of laboratory experiments have their own distinct category and do not fall in this category.</span>,
       <span key="c"><code>Model</code> refers to the outputs of numerical simulations.</span>,
       <span key="d"><code>Assimilation</code> refers to products that are a blend of observations and numerical models.</span>,
@@ -170,10 +170,7 @@ export const metadataSheet = [
     label: 'dataset_acknowledgement',
     text: [
       <React.Fragment key="1">
-        Please specify how your dataset should be acknowledged when used. You
-        may mention your funding agency, grant number, or you may ask those
-        that use your data to acknowledge your dataset with a particular
-        statement or citation. Dataset acknowlegment will be visible in the <GuideLink href="/catalog">Catalog</GuideLink>.
+Please use this field to acknowledge sponsors of and contributors to your dataset and indicate to users how they should cite use of your dataset.  You may mention your funding agency, and grant number, or you may ask those that use your data to acknowledge your dataset with a particular statement or citation. Dataset acknowledgment will be visible in the <GuideLink href="/catalog">Catalog</GuideLink>.
       </React.Fragment>,
     ],
     meta: {
@@ -257,7 +254,7 @@ export const variableMetadataSheet = [
         (the first character can not be a number). Do not use space, dash, or
         special characters such as <code>{'<'}</code>, <code>+</code>, <code>%</code>, etc. Finally, there must be a
         one-to-one match between the short names listed here and the variable
-        column names in the “Data” sheet (see <GuideLink href="#var-n-columns">vars</GuideLink>). <code>var_short_name</code> will be seen in the CMAP catalog.
+        column names in the “Data” sheet (see <GuideLink href="#var-n-columns">var1 ... varN</GuideLink>). <code>var_short_name</code> will be seen in the CMAP catalog.
       </React.Fragment>,
     ],
     meta: {
@@ -311,17 +308,16 @@ export const variableMetadataSheet = [
     ],
   },
   {
-    label: 'var_sensor',
+    label: 'var_sensor', // leave this stub here
     text: [
-      <React.Fragment>
-              </React.Fragment>,
+      <React.Fragment></React.Fragment>,
     ],
   },
   {
     label: 'var_unit',
     text: [
       <React.Fragment>
-        In this column, enter the units of each variable, if applicable. Leave
+        Enter the units of each variable in this column. Leave
         this field blank if your variable is unitless (e.g. “station numbers”
         or “quality flags”). Units may contain unicode characters such as
         subscripts and superscripts. <code>var_unit</code> will be visible in the Simons

@@ -15,13 +15,7 @@ const Content = (props) => {
   return (
     <div className={cl.container}>
       <Typography>
-        Data submitted to{' '}
-        <span style={{ fontWeight: 600 }}>
-          Simons Collaborative Marine Atlas Project
-        </span>{' '}
-        must be precisely formatted to maintain high levels of{' '}
-        <em>discoverability</em>, <em>comparability</em>, and{' '}
-        <em>database performance</em>.
+        Data submitted to <span style={{ fontWeight: 600 }}>Simons Collaborative Marine Atlas Project </span> must be precisely formatted to maintain a high level of usability.
       </Typography>
 
       <Typography style={{ marginTop: '16px' }}>

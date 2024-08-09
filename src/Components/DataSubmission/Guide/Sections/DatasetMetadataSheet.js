@@ -14,7 +14,7 @@ const Content = () => {
   return (
     <div className={cl.container}>
       <Typography>
-        This sheet, labeled <code>dataset_meta_data</code>, holds a list of top-level attributes about the dataset such as the dataset name and description. Below is the list of these attributes along with their descriptions.
+        This sheet, labeled <code>dataset_meta_data</code>, holds a list of top-level attributes about the dataset such as the dataset name and description.
       </Typography>
 
       <CustomAlert severity="info">

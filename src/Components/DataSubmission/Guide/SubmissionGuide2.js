@@ -46,7 +46,7 @@ const Programs = () => {
   let [focusTarget, setFocus] = useState();
 
   const setContentWithLocation = (currentId, clearFocus) => {
-    console.log ('setContentWithLocation', currentId)
+    console.log ('setContentWithLocation', { currentId, clearFocus })
     history.push (
       location.pathname
         + (clearFocus ? '' : location.search)
@@ -54,6 +54,10 @@ const Programs = () => {
     );
     setContent (currentId);
     if (clearFocus) {
+      const scrollContainer = document.getElementById ('content-scroll-container');
+        if (scrollContainer) {
+          scrollContainer.scrollTo (0, 0);
+        }
       setFocus (undefined);
     }
   };

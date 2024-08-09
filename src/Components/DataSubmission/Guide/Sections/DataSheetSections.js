@@ -44,9 +44,8 @@ const useTableStyles = makeStyles((theme) => ({
   },
   propcell: {
     borderBottom: 'none',
-    padding: '.1em .3em .5em 0em',
+    padding: '2px 4px 10px 10px',
     width: '120px',
-    // background: 'rgba(0,0,0,0.05)',
     '& p': {
       whiteSpace: 'nowrap',
       textOverflow: 'ellipsis',
@@ -55,11 +54,11 @@ const useTableStyles = makeStyles((theme) => ({
   },
   valuecell: {
     borderBottom: 'none',
-    padding: '.1em .3em .5em 0em',
+    padding: '2px 4px 10px 10px',
     fontSize: '1em',
     '& p': {
       width: '100%',
-      whiteSpace: 'nowrap',
+      whiteSpace: 'wrap',
       textOverflow: 'ellipsis',
       overflow: 'hidden',
     },
@@ -90,7 +89,7 @@ const useTableStyles = makeStyles((theme) => ({
     '& td': {
       // fontSize: '.9em',
       padding: 0,
-      textIndent: '.5em'
+      // textIndent: '.5em'
     }
   }
 }));
@@ -135,7 +134,7 @@ export const Meta = (props) => {
         <TableContainer size="small" className={ts.compactTable}>
           <Table>
             <TableBody className={cl.body}>
-              {meta.required ? <div className={cl.badgeRequired}>Required</div> : <div className={cl.badgeOptional}>Optional</div>}
+              {meta.required ? <span className={cl.badgeRequired}>Required</span> : <span className={cl.badgeOptional}>Optional</span>}
               {meta.type && <Row property={'Type'} val={meta.type} /> }
               {meta.format && <Row property={'Format'} val={meta.format} /> }
               {meta.unit && <Row property={'Unit'} val={meta.unit} /> }
