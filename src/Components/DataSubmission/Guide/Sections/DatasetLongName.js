@@ -11,7 +11,8 @@ const Content = () => {
     <div className={cl.container}>
       <Meta meta={{
               required: true,
-              constraints: ['Less than 200 characters']
+              constraints: ['Less than 200 characters'],
+              example: 'Gradients 3 KM1906 UCYN-A1 nifH Gene Abundances',
             }}/>
       <Typography key={'0'}>
         The <code>dataset_long_name</code> is a descriptive and human-readable name for the dataset. This name will identify your dataset in the Simons CMAP Catalog and in the Visualization search dialog.

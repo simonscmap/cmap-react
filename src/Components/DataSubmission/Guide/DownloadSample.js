@@ -17,20 +17,20 @@ const DownloadSampleAlert = (props) => {
         <ListItem>
           <ListItemText>
             <GuideLink
-              href="https://github.com/simonscmap/DBIngest/raw/master/template/amt01_extracted_cholorphyll_2020_07_25.xlsx"
-              download="AMT01_Extracted_Cholorphyll_Sample.xlsx"
+              href="https://www.dropbox.com/scl/fi/vntp1124t3a55m5evj5y7/Gradients5_TN412_15N13C.xlsx?rlkey=o317sjumqrskgwpexbb8h9m3d&st=9vke7zwm&dl=0"
+              download="Gradients5_TN412_15N13C.xlsx"
             >
-              Sample Dataset - amt01_extracted_cholorphyll
+              Sample Dataset - Gradients5_TN412_15N13C
             </GuideLink>
           </ListItemText>
         </ListItem>
         <ListItem>
           <ListItemText>
             <GuideLink
-              href="https://github.com/simonscmap/DBIngest/raw/master/template/Influx_Stations_Gradients_2016_example_2020_08_13.xlsx"
-              download="Influx_Stations_Gradients_2016_example.xlsx"
+              href="https://www.dropbox.com/scl/fi/d2j7hxkqfnrmlks0e2dd9/Influx_Stations_Gradients_2021v1_1.xlsx?rlkey=japjoei68tv5dxk095za0zz94&st=ofgqcbal&dl=0"
+              download="Influx_Stations_Gradients_2021v1_1.xlsx"
             >
-              Sample Dataset - Influx_Stations_Gradients_2016
+              Sample Dataset - Influx_Stations_Gradients_2021v1_1
             </GuideLink>
           </ListItemText>
         </ListItem>

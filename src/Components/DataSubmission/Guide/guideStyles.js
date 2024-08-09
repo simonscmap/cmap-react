@@ -244,9 +244,9 @@ export const sectionStyles = makeStyles((theme) => ({
 
   standoutBadge: {
     position: 'absolute',
-    zIndex: 1,
+    zIndex: 4,
     left: '10px',
-    top: '-18px',
+    top: '-20px',
     padding: '5px 20px',
     borderRadius: '15px',
     background: 'rgb(3, 25, 51)',

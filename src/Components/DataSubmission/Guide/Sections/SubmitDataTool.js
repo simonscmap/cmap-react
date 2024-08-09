@@ -54,7 +54,7 @@ const Content = () => {
   return (
     <div className={cl.container}>
       <Typography>
-        Load your workbook into the <GuideLink target="_blank" href="/datasubmission/validationtool">Submission Tool</GuideLink> to begin validation. The tool will walk you through a step-by-step process to identify and resolve any potential data or format issues. Once the workbook has been validated it will be uploaded to a staging area to be reviewed by our data curation team. From this point you will be able to track the progress of your submission in the <GuideLink href="/datasubmission/userdashboard">User Dashboard</GuideLink> (see below).
+        Load your dataset into the <GuideLink target="_blank" href="/datasubmission/validationtool">Submit Data Tool</GuideLink> to submit it to Simons CMAP.  This tool identifies issues with dataset formatting and will guide you in resolving these issues before the dataset can be submitted. After the dataset has been submitted our data curation team will review the dataset using both the Validation API and human-based checks.  Once your dataset is submitted you will use the <GuideLink target="_blank" href="/datasubmission/userdashboard">Data Submission Dashboard</GuideLink> to track submission progress and for related communication with the data curation team.
       </Typography>
 
       <div className={cl.subHeader}>

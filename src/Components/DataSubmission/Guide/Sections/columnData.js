@@ -64,6 +64,7 @@ export const dataSheet = [
       format: 'Decimal',
       unit: 'meter',
       required: true,
+      example: 10,
     }
   },
    {
@@ -99,7 +100,8 @@ export const metadataSheet = [
         'Less than 50 characters',
         'No spaces or special characters (underscore permitted)',
         'First character may not be a number'
-      ]
+      ],
+      example: 'UCYN_A1_nifH_copies_L_1'
     }
   },
   // dataset_long_name has a custom component
@@ -151,7 +153,8 @@ export const metadataSheet = [
     meta: {
       required: true,
       type: 'Text',
-      constraints: ['Must be one of the four preset options']
+      constraints: ['Must be one of the four preset options'],
+      example: 'observation'
     }
   },
   // dataset_source is a custom component
@@ -176,7 +179,8 @@ Please use this field to acknowledge sponsors of and contributors to your datase
     meta: {
       required: true,
       type: 'Text',
-      constraints: ['No length limits']
+      constraints: ['No length limits'],
+      example: 'Particulate metabolites from MGL1704 (Gradients 2 cruise) were collected and produced by the Ingalls Lab as part of the Simons Gradients project with support from the Simons Foundation.'
     },
     images: [
       {
@@ -197,7 +201,8 @@ Please use this field to acknowledge sponsors of and contributors to your datase
     meta: {
       required: false,
       type: 'Text',
-      constraints: ['No length limits']
+      constraints: ['No length limits'],
+      example: 'Version 2.0 improves on Version 1.0 by adding the variable ‘chlorophyll a’ (chla)'
     },
   },
   {
@@ -217,7 +222,8 @@ Please use this field to acknowledge sponsors of and contributors to your datase
     meta: {
       required: true,
       type: 'Text',
-      constraints: ['No length limit']
+      constraints: ['No length limit'],
+      example: 'The dataset consists of BD Influx-based analysis of phytoplankton populations from discrete flow cytometry data collected during the Gradients 2023 (Gradients 5/TN412) oceanographic research cruise in the equatorial Pacific Ocean. The data consists of cell abundance, cell size (equivalent spherical diameter), carbon quota, and carbon biomass for heterotrophic bacteria, picophytoplankton populations, namely the cyanobacteria Prochlorococcus and Synechococcus, and small eukaryotic phytoplankton (<5 µm ESD). Time is in UTC format, latitude and longitude are in decimal degrees, and depth is in meters. Further information can be found here: https://github.com/fribalet/FCSplankton'
     },
     images: [
       {
@@ -328,7 +334,7 @@ export const variableMetadataSheet = [
       required: false,
       type: 'Text',
       constraints: ['Less than 50 characters'],
-      example: <span>ug L<sup>-1</sup></span>
+      example: 'cells/ml'
     },
   },
   {
@@ -429,7 +435,8 @@ export const variableMetadataSheet = [
     ],
     meta: {
       required: false,
-      constraints: ['No length constraints']
+      constraints: ['No length constraints'],
+      example: 'Value of 1 indicates that the carbon fixation rate was below detection levels.'
     },
     images: [
       {

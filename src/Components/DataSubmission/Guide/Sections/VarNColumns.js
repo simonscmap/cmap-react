@@ -14,6 +14,7 @@ const Content = () => {
               format: 'Any',
               units: 'Any (specify in the variable sheet)',
               constraints: ['None'],
+              example: 'extracted_chl_a'
             }} />
 
       <Typography>

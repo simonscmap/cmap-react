@@ -8,6 +8,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import { sectionStyles } from '../guideStyles';
 import { AgGridReact } from 'ag-grid-react';
 import { Meta } from './DataSheetSections';
+import DemoSheet from '../DemoSheet';
 
 const meta = {
 
@@ -15,32 +16,60 @@ const meta = {
   type: 'Text',
   constraints: [
     'One per row',
-  ]
+  ],
+  example: () => (<ul>
+          <li key={1}>{`Shinichi Sunagawa et al., Structure and function of the global ocean microbiome. Science 348, 1261359 (2015). DOI:10.1126/science.1261359`}</li>
+                    <li key={2}>{`http://ocean-microbiome.embl.de/companion.html`}</li>
+      </ul>)
 };
 
 // grid
-const rowData = [
+// const rowData = [
+//   {
+//     dataset_short_name: 'amt01_extracted_cholorphyll',
+//     dataset_long_name: 'AMT01 Extracted Chlorophyll and Phaeopigments',
+//     dataset_version: 'final',
+//     '....': '-',
+//     'references': 'BODC reference number 1665128, EDMO code 43',
+//   },
+//   {
+//     dataset_short_name: '',
+//     dataset_long_name: '',
+//     dataset_version: '',
+//     '....': '-',
+//     'references': 'https://www.bodc.ac.uk/',
+//   },
+// ];
+// const colDefs = [
+//   { field: 'dataset_short_name' },
+//   { field: 'dataset_long_name' },
+//   { field: 'dataset_version' },
+//   { field: '....' },
+//   {
+//     field: 'references'
+
+//   },
+// ];
+
+
+const columns = ['dataset_short_name', 'dataset_long_name', 'dataset_version', '...', 'references' ]
+      .map(term => ({ prop: term, name: term }));
+
+const source = [
   {
     dataset_short_name: 'amt01_extracted_cholorphyll',
     dataset_long_name: 'AMT01 Extracted Chlorophyll and Phaeopigments',
     dataset_version: 'final',
-    '....': '-',
-    'references': 'BODC reference number 1665128, EDMO code 43',
+    '...': '-' ,
+    references: 'BODC reference number 1665128, EDMO code 43',
   },
   {
     dataset_short_name: '',
     dataset_long_name: '',
     dataset_version: '',
-    '....': '-',
-    'references': 'https://www.bodc.ac.uk/',
-  },
-];
-const colDefs = [
-  { field: 'dataset_short_name' },
-  { field: 'dataset_long_name' },
-  { field: 'dataset_version' },
-  { field: '....' },
-  { field: 'references' },
+    '...': '' ,
+    references: 'https://www.bodc.ac.uk/',
+  }
 ];
 
 const Content = () => {
@@ -54,18 +83,7 @@ List any publications or documentation that one may cite in reference to the dat
       </Typography>
       <div className={cl.standoutBadgeContainer} style={{ width: 'calc(100% - 100px)'}}>
         <div className={cl.standoutBadge}>Example dataset_meta_data Sheet Row</div>
-        <div
-          className="ag-theme-material" // applying the Data Grid theme
-          style={{ height: '175px' }} // the Data Grid will fill the size of the parent container
-        >
-        <AgGridReact
-          defaultColDef={{
-            resizable: true,
-          }}
-          rowData={rowData}
-          columnDefs={colDefs}
-        />
-        </div>
+        <DemoSheet columns={columns} source={source} />
       </div>
 
       <div className={cl.standoutBadgeContainer}>
@@ -78,8 +96,6 @@ List any publications or documentation that one may cite in reference to the dat
             />
           </div>
         </div>
-
-
     </div>
   );
 };

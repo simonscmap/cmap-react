@@ -13,8 +13,8 @@ const DownloadTemplate = (props) => {
   const cl = sectionStyles ();
   const { introText } = props;
   return (
-    <Link href="https://github.com/simonscmap/DBIngest/raw/master/template/datasetTemplate.xlsx"
-          download="datasetTemplate.xlsx"
+    <Link href="https://www.dropbox.com/scl/fi/vhxf8wfw5sdejq83gk1im/DatasetTemplate.xlsx?rlkey=g9ch6e4hajxqtz31mksopyh8e&st=tck3k25d&dl=0"
+          download="DatasetTemplate.xlsx"
     >
       <CustomAlert
         icon={<BsFiletypeXlsx className={cl.icon} />}

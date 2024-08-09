@@ -64,7 +64,8 @@ const useTableStyles = makeStyles((theme) => ({
     },
     '& ul': {
       paddingLeft: 0,
-      listStylePosition: 'inside',
+      listStylePosition: 'outside',
+      paddingLeft: '16px'
     },
     '& li': {
       fontSize: '1.2em',
@@ -143,7 +144,7 @@ export const Meta = (props) => {
                  <BulletPoints bullets={meta.constraints} />
                </Row>
               }
-              {meta.example && <Row property={'Example'} val={meta.example} /> }
+              {meta.example && <Row property={'Example'}>{ typeof meta.example === 'function' ? meta.example.call() : meta.example }</Row> }
             </TableBody>
           </Table>
         </TableContainer>

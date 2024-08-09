@@ -18,7 +18,7 @@ const styles = (theme) => ({
     fontSize: '1em',
 
     '& .MuiTypography-body1': {
-      fontSize: '1em',
+      // fontSize: '1em',
     },
 
     '&.MuiAlert-outlinedSuccess': {
