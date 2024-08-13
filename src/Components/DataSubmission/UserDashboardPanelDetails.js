@@ -199,7 +199,7 @@ export const UserDashboardPanelDetails = (props) => {
       {activeStep !== 6 && <Typography className={classes.newUpload}>
         <Link
           component={RouterLink}
-          to={`/datasubmission/validationtool?submissionID=${encodeURIComponent(
+          to={`/datasubmission/submission-portal?submissionID=${encodeURIComponent(
             submission.Submission_ID,
           )}`}
         >

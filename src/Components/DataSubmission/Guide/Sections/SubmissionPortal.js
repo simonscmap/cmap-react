@@ -1,11 +1,9 @@
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
-import Link from '@material-ui/core/Link';
 import { sectionStyles } from '../guideStyles';
 import { UserDashboardPanelDetails } from '../../UserDashboardPanelDetails';
 import states from '../../../../enums/asyncRequestStates';
 import { GuideLink } from '../Links';
-
 
 const mockDataSubmission = {
   DOI_Accepted_Date_Time: null,
@@ -54,7 +52,7 @@ const Content = () => {
   return (
     <div className={cl.container}>
       <Typography>
-        Load your dataset into the <GuideLink target="_blank" href="/datasubmission/validationtool">Submit Data Tool</GuideLink> to submit it to Simons CMAP.  This tool identifies issues with dataset formatting and will guide you in resolving these issues before the dataset can be submitted. After the dataset has been submitted our data curation team will review the dataset using both the Validation API and human-based checks.  Once your dataset is submitted you will use the <GuideLink target="_blank" href="/datasubmission/userdashboard">Data Submission Dashboard</GuideLink> to track submission progress and for related communication with the data curation team.
+        Upload your dataset using the <GuideLink target="_blank" href="/datasubmission/validationtool">Submission Portal</GuideLink> to submit it to Simons CMAP.  This tool identifies issues with dataset formatting and will guide you in resolving these issues before the dataset is submitted. After the dataset has been submitted our data curation team will review the dataset using both the Validation API and human-based checks.  Once your dataset is submitted you will use the <GuideLink target="_blank" href="/datasubmission/userdashboard">Data Submission Dashboard</GuideLink> to track submission progress and for related communication with the data curation team.
       </Typography>
 
       <div className={cl.subHeader}>
@@ -75,7 +73,7 @@ const Content = () => {
       </div>
 
       <Typography>
-        In the <GuideLink href="/datasubmission/userdashboard">User Dashboard </GuideLink> you can track the ingestion process for any dataset that you have submitted, send messages to the data curation team, and download the most recently submitted version of the workbook. If the curation team requests additional changes to your submission you can use the <GuideLink href="/datasubmission/userdashboard">User Dashboard </GuideLink> to access, edit, and resubmit the dataset directly in the validation tool.
+        In the <GuideLink href="/datasubmission/userdashboard">Data Submission Dashboard </GuideLink> you can track the ingestion process for any dataset that you have submitted, send messages to the data curation team, and download the most recently submitted version of the workbook. If the curation team requests additional changes to your submission you can use the dashboard to access, edit, and resubmit the dataset directly in the submission portal.
       </Typography>
       <div className={cl.standoutBadgeContainer}>
         <div className={cl.standoutBadge}>Example Submission Dashboard</div>

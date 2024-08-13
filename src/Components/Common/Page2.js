@@ -68,7 +68,7 @@ const usePageStyles = makeStyles ((theme) => ({
     minHeight: '100vh',
     width: '100%',
     '& > div': {
-      paddingTop: '100px',
+      paddingTop: '120px',
     },
     color: '#ffffff',
     '& p a': {

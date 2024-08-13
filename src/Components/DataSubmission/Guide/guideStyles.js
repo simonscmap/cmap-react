@@ -80,6 +80,7 @@ const useStyles = makeStyles ((theme) => ({
     overflow: 'scroll',
     padding: '0 20px 20px 0',
     flex: 1,
+    maxWidth: '1467px',
   },
   fwdbckContainer: {
     display: 'flex',
@@ -294,6 +295,14 @@ export const sectionStyles = makeStyles((theme) => ({
     '& > div': {
       margin: 0,
     }
+  },
+
+  standoutBadgeContainerFullWidth: {
+    position: 'relative',
+    margin: '2em 2em 2em 35px',
+    '& > div': {
+      margin: 0,
+    },
   },
 
   focusedAccordionSummary: {

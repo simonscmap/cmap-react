@@ -106,8 +106,7 @@ const Content = (props) => {
         icon={<PiNumberCircleThree />}
       >
         <Typography>
-
-          When your dataset is ready, use the <GuideLink hash="#submit-data-tool">Submit Data Tool</GuideLink> to submit it to Simons CMAP. This tool will walk you through a step-by-step process to identify and resolve any data or format issues. During the final step, your dataset will be uploaded to a staging area to be reviewed by our data curation team.
+          When your dataset is ready, use the <GuideLink hash="#submission-portal">Submission Portal</GuideLink> to submit it to Simons CMAP. This tool will walk you through a step-by-step process to identify and resolve any data or format issues. During the final step, your dataset will be uploaded to a staging area to be reviewed by our data curation team.
         </Typography>
 
         <Typography>

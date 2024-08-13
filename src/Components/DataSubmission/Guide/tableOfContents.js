@@ -158,8 +158,8 @@ export const data = [
         media: true,
       },
       {
-        id: 'submit-data-tool',
-        name: 'Submit Data Tool & User Dashboard',
+        id: 'submission-portal',
+        name: 'Submission Portal',
         media: true,
       },
     ]

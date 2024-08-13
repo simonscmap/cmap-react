@@ -3,7 +3,7 @@
 import { withStyles } from '@material-ui/core/styles';
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
-import { Route, Switch } from 'react-router-dom';
+import { Redirect, Route, Switch } from 'react-router-dom';
 import metaTags from '../../enums/metaTags';
 import { snackbarOpen } from '../../Redux/actions/ui';
 import AdminDashboard from './AdminDashboard';
@@ -45,9 +45,12 @@ const DataSubmission = (props) => {
       <Route exact path={match.url + '/guide'} component={SubmissionGuide} />
       <Route
         exact
-        path={match.url + '/validationtool'}
+        path={match.url + '/submission-portal'}
         component={ValidationTool}
       />
+      <Route exact path={match.url + '/validationtool'}>
+        <Redirect to={{ pathname: match.url + '/submission-portal'}}/>
+      </Route>
       <Route
         exact
         path={match.url + '/userdashboard'}

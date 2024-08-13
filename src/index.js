@@ -5,7 +5,6 @@ import { LicenseManager } from 'ag-grid-enterprise';
 
 import App from './App';
 import store from './Redux/store';
-// import * as serviceWorker from './serviceWorker';
 import './Stylesheets/index.css';
 import 'ag-grid-enterprise';
 
@@ -21,5 +20,3 @@ root.render(
     <App />
   </Provider>,
 );
-
-// serviceWorker.unregister();

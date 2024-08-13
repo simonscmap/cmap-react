@@ -7,6 +7,8 @@ import ListItemText from '@material-ui/core/ListItemText';
 import { sectionStyles } from '../guideStyles';
 import { GuideLink } from '../Links';
 import { CustomAlert } from '../Alert';
+import DemoSheet from '../DemoSheet';
+import { metaCols, metaSheet } from '../demoSheetData';
 
 
 const Content = () => {
@@ -16,6 +18,12 @@ const Content = () => {
       <Typography>
         This sheet, labeled <code>dataset_meta_data</code>, holds a list of top-level attributes about the dataset such as the dataset name and description.
       </Typography>
+
+      <div className={cl.standoutBadgeContainer} style={{ width: 'calc(100% - 100px)'}}>
+        <div className={cl.standoutBadge}>Example Metadata Sheet</div>
+        <DemoSheet columns={metaCols} source={metaSheet} />
+      </div>
+
 
       <CustomAlert severity="info">
         <Typography>Please review the example datasets for a full view of the sheet.</Typography>

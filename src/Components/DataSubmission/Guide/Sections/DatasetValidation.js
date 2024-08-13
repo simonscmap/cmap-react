@@ -62,7 +62,7 @@ const Content = (props) => {
         <ListItem>
           <ListItemIcon><RxDotFilled/></ListItemIcon>
           <ListItemText>
-            During submission, the <GuideLink hash="#submit-data-tool">Submit Data Tool</GuideLink> is used to submit datasets to Simons CMAP. This tool checks the dataset and walks users through a series of steps to resolve any data or formatting issues.
+            During submission, the <GuideLink hash="#submission-portal">Submission Portal</GuideLink> is used to submit datasets to Simons CMAP. This tool checks the dataset and walks users through a series of steps to resolve any data or formatting issues.
           </ListItemText>
         </ListItem>
 

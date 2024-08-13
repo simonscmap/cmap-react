@@ -7,6 +7,10 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 
 import { CustomAlert } from '../Alert';
+import DemoSheet from '../DemoSheet';
+import { varCols, varSheet } from '../demoSheetData';
+
+
 
 const Content = () => {
   const cl = sectionStyles();
@@ -20,8 +24,15 @@ const Content = () => {
         (metadata) is stored in separate rows. Below is the list of these
         attributes along with their descriptions.
       </Typography>
+
+      <div className={cl.standoutBadgeContainer} style={{ width: 'calc(100% - 100px)'}}>
+        <div className={cl.standoutBadge}>Example Variable Metadata Sheet</div>
+        <DemoSheet columns={varCols} source={varSheet} />
+      </div>
+
       <div className={cl.subHeader}>Sample Data Sheets</div>
       <Typography>You may download and refer to following examples of completed submisions.</Typography>
+
     <CustomAlert severity="info">
 <List>
         <ListItem>

@@ -1,14 +1,16 @@
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import React from 'react';
-import Page from './Common/Page';
+import Page2 from './Common/Page2';
 import TableOfContents, { ToCBase } from './Common/TableOfContents';
-import Section, { FullWidthContainer, Group } from './Common/Section';
+import Section, { Group } from './Common/Section';
 import Banner from './Common/Banner';
 import Block from './Common/Block';
 import { Link } from 'react-router-dom';
 
 const styles = () => ({
+  fontSize: '1.2em',
+
   sectionGap: {
     marginBottom: '1.5em',
     fontSize: '1.6rem',
@@ -60,8 +62,8 @@ const HeroContent = withStyles(styles)(({ classes }) => (
 
 const About = ({ classes }) => {
   return (
-    <Page pageTitle={'About Simons CMAP'} heroContent={<HeroContent />}>
-      <FullWidthContainer bgVariant={'slate'}>
+    <Page2 pageTitle={'About Simons CMAP'} heroContent={<HeroContent />} bgVariant="slate2">
+
         <Section name={'support'} title={'Project Support'}>
           <Typography variant="body1">
             This project is supported by the Simons Foundation
@@ -179,17 +181,13 @@ const About = ({ classes }) => {
               Ginger Armbrust, Principal Investigator
             </Typography>
             <Typography variant="body1">
-              Mohammad D. Ashkezari, Principal Research Scientist
+              Mohammad D. Ashkezari (Project Lead), Principal Research Scientist
             </Typography>
             <Typography variant="body1">
               Tansy Burns, Research Coordinator
             </Typography>
-            <Typography variant="body1">Diana Haring, Data Engineer</Typography>
             <Typography variant="body1">
               Walker Malling, Web Engineer
-            </Typography>
-            <Typography variant="body1">
-              Rhonda Morales, Research Scientist
             </Typography>
           </Group>
           <Group title="University of Washington, Department of Human Centered Design and Engineering">
@@ -210,8 +208,7 @@ const About = ({ classes }) => {
             </Typography>
           </Group>
         </Section>
-      </FullWidthContainer>
-    </Page>
+    </Page2>
   );
 };
 
