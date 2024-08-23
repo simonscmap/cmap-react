@@ -256,6 +256,7 @@ class ValidationTool extends React.Component {
 
   // Takes a workbook and returns an audit report
   performAudit = (shouldAdvanceStep, callerName) => {
+    // console.log ('perform audit', { shouldAdvanceStep, callerName })
     const {
       workbook,
       data,
@@ -317,10 +318,16 @@ class ValidationTool extends React.Component {
 
     if (shouldAdvanceStep) {
       const validationStep = 1;
-
       this.setState({
         ...this.state,
         validationStep,
+        loadingFile: {
+          status: 'complete',
+        }
+      });
+    } else {
+      this.setState({
+        ...this.state,
         loadingFile: {
           status: 'complete',
         }
@@ -858,7 +865,7 @@ class ValidationTool extends React.Component {
     const nameCheckChanged = this.props.checkSubmissionNameResult !== prevProps.checkSubmissionNameResult;
     if ((subTypeChanged || nameCheckChanged) && this.props.submissionFile) {
       // call perform audit because nameCheck has changed
-      this.performAudit(false, 'componentDidUpdate');
+      this.performAudit(true, 'componentDidUpdate');
     }
 
     // 4. should re-dispatch name check

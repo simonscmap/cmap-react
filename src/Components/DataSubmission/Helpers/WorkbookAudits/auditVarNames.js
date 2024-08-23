@@ -8,6 +8,8 @@ import severity from './severity';
 const AUDIT_NAME = 'Variable Names';
 const DESCRIPTION = 'Check user defined variables have matching column in data sheet';
 
+const wrapInQuotes = name => `"${name}"`;
+
 // :: args -> [result]
 const check = (standardAuditArgs) => {
   const { data, vars_meta_data } = standardAuditArgs;
@@ -18,7 +20,11 @@ const check = (standardAuditArgs) => {
     Object.keys(data[0]).filter((key) => !fixedVariables.has(key)),
   );
 
+  // console.log ('user variables', userVariables);
+
   const varsShortNames = vars_meta_data.map((e) => e.var_short_name);
+
+  // console.log ('var names', varsShortNames)
   const unmatchedShortNames = varsShortNames
     .filter((e) => !userVariables.has(e));
 
@@ -31,10 +37,10 @@ const check = (standardAuditArgs) => {
   if (unmatchedShortNames.length) {
     results.push (makeIssueList (
       severity.error,
-      'Variable Short Name Has to Matching Data Column',
+      'Variable Short Name Has to Match Data Column',
       {
         text: `The following values for *\`var_short_name\`* in the *\`vars_meta_data\`* sheet did not match any column header on the data sheet:`,
-        list: unmatchedShortNames,
+        list: unmatchedShortNames.map (wrapInQuotes),
       }
     ));
   }
@@ -45,7 +51,7 @@ const check = (standardAuditArgs) => {
       'Unidentified Columns in the Data Sheet',
       {
         text: `The following columns in the *\`data\`* sheet are not defined in the *\`vars_meta_data\`* sheet:`,
-        list: colsWithoutVarDefs,
+        list: colsWithoutVarDefs.map (wrapInQuotes),
       }
     ));
   }

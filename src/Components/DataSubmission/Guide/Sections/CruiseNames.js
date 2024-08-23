@@ -71,12 +71,12 @@ const Content = () => {
       <Typography>
         If your dataset represents measurements made during a cruise expedition (or expeditions), provide the cruise official names (e.g. <code>KM1821</code>) and any cruise nicknames in separate cells in this column.  Leave this field blank if your dataset is not associated with a cruise expedition.
       </Typography>
-      <div className={cl.standoutBadgeContainer} style={{ width: 'calc(100% - 100px)'}}>
+      <div className={cl.scrollWrapper}>
         <div className={cl.standoutBadge}>Example dataset_meta_data Sheet Row</div>
         <DemoSheet columns={columns} source={source} />
       </div>
 
-      <div className={cl.standoutBadgeContainer}>
+      <div className={cl.scrollWrapper}>
         <div className={cl.standoutBadge}>Cruise Names as Displayed on the CMAP Website</div>
         <div className={cl.standoutBox}>
           <img

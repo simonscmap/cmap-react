@@ -228,11 +228,11 @@ export const sectionStyles = makeStyles((theme) => ({
   },
 
   standoutBox: {
-    // width: 'calc(100% - 200px)',
+    display: 'inline-block',
     borderRadius: '6px',
     boxSizing: 'border-box',
     border: '1px solid black',
-    margin: '2em 2em auto 2em',
+    // margin: '2em 2em auto 2em',
     position: 'relative',
     boxShadow: `0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12)`,
     '& img': {
@@ -240,14 +240,14 @@ export const sectionStyles = makeStyles((theme) => ({
       borderRadius: '6px',
       display: 'block',
     },
-    overflow: 'hidden',
+    overflow: 'auto',
   },
 
   standoutBadge: {
     position: 'absolute',
     zIndex: 4,
-    left: '10px',
-    top: '-20px',
+    left: '51px',
+    top: '16px',
     padding: '5px 20px',
     borderRadius: '15px',
     background: 'rgb(3, 25, 51)',
@@ -288,13 +288,22 @@ export const sectionStyles = makeStyles((theme) => ({
     textIndent: 0,
   },
 
-  standoutBadgeContainer: {
-    display: 'inline-block',
+  scrollWrapper: {
+    padding: '2em 2em 2em 35px',
     position: 'relative',
-    margin: '2em 2em 2em 35px',
+    width: '100%',
+    boxSizing: 'border-box',
+    display: 'flex',
+
+  },
+
+  standoutBadgeContainer: {
+    flex: 1,
+    position: 'relative',
     '& > div': {
       margin: 0,
-    }
+    },
+    overflow: 'auto',
   },
 
   standoutBadgeContainerFullWidth: {
@@ -327,12 +336,6 @@ export const sectionStyles = makeStyles((theme) => ({
     // boxShadow: `0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12)`,
   },
 
-  sensorList: {
-    columnWidth: '200px',
-    '& > div': {
-      padding: '8px 5px'
-    }
-  },
 
 
   glow: {

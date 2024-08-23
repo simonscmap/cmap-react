@@ -59,13 +59,15 @@ const Content = () => {
         Submission Tool Tutorial
       </div>
 
-      <div className={cl.standoutBox} style={{ width: '780px', background: 'black' }}>
-        <iframe
-          src="https://player.vimeo.com/video/981629505"
-          width="780"
-          height="440"
-          style={{ margin: '0 auto', border: '0' }}
-        ></iframe>
+      <div className={cl.scrollWrapper}>
+        <div className={cl.standoutBox} style={{ width: '780px', background: 'black' }}>
+          <iframe
+            src="https://player.vimeo.com/video/981629505"
+            width="780"
+            height="440"
+            style={{ margin: '0 auto', border: '0' }}
+          ></iframe>
+        </div>
       </div>
 
       <div className={cl.subHeader}>
@@ -75,7 +77,8 @@ const Content = () => {
       <Typography>
         In the <GuideLink href="/datasubmission/userdashboard">Data Submission Dashboard </GuideLink> you can track the ingestion process for any dataset that you have submitted, send messages to the data curation team, and download the most recently submitted version of the workbook. If the curation team requests additional changes to your submission you can use the dashboard to access, edit, and resubmit the dataset directly in the submission portal.
       </Typography>
-      <div className={cl.standoutBadgeContainer}>
+
+      <div className={cl.scrollWrapper}>
         <div className={cl.standoutBadge}>Example Submission Dashboard</div>
         <div className={cl.standoutBox} style={{ background: 'rgba(0,0,0,0.2)', padding: '1em'}}>
           <UserDashboardPanelDetails

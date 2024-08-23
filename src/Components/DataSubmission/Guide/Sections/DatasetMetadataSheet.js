@@ -19,7 +19,7 @@ const Content = () => {
         This sheet, labeled <code>dataset_meta_data</code>, holds a list of top-level attributes about the dataset such as the dataset name and description.
       </Typography>
 
-      <div className={cl.standoutBadgeContainer} style={{ width: 'calc(100% - 100px)'}}>
+      <div className={cl.scrollWrapper}>
         <div className={cl.standoutBadge}>Example Metadata Sheet</div>
         <DemoSheet columns={metaCols} source={metaSheet} />
       </div>

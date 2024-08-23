@@ -21,12 +21,12 @@ const Content = () => {
         Specifies the group and/or the institute name of the data owner(s). Including the PI name is strongly recommended, and the field can also include any link (such as a website) to the data producers. This information will be visible in the CMAP catalog and annotated to visualizations made using the dataset, as shown below.
       </Typography>
 
-      <div className={cl.standoutBadgeContainer}>
+      <div className={cl.scrollWrapper}>
         <div className={cl.standoutBadge}>Example Catalog Entry</div>
         <ArrowRightAltIcon style={{
                              position: 'absolute',
-                             top: '196px',
-                             left: '-65px',
+                             top: '228px',
+                             left: '-25px',
                              color: 'orange',
                              fontSize: '90px',
                              zIndex: '100'
@@ -34,16 +34,16 @@ const Content = () => {
         <div className={cl.standoutBox} style={{ marginBottom: '2em'}}>
           <ExampleCatalogEntry />
         </div>
+      </div>
 
-        <div className={cl.standoutBadgeContainer}>
-          <div className={cl.standoutBadge}>Example Visualization Annotated with Source</div>
-          <div className={cl.standoutBox}>
-            <img
-              src={'/images/guide/source_in_chart.png'}
-              alt={'Sample Visualization with Source Annotation'}
-              width={1077}
-            />
-          </div>
+      <div className={cl.scrollWrapper}>
+        <div className={cl.standoutBadge}>Example Visualization Annotated with Source</div>
+        <div className={cl.standoutBox}>
+          <img
+            src={'/images/guide/source_in_chart.png'}
+            alt={'Sample Visualization with Source Annotation'}
+            width={1077}
+          />
         </div>
       </div>
     </div>

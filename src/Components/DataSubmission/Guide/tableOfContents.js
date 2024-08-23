@@ -2,7 +2,6 @@ export const data = [
   {
     id: 'getting-started',
     name: 'Getting Started',
-    media: true,
   },
   {
     id: 'process-overview',

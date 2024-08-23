@@ -28,14 +28,14 @@ const Content = () => {
         Here are examples of how the <code>dataset_long_name</code> will appear within SimonsCMAP.
       </Typography>
 
-      <div className={cl.standoutBadgeContainer}>
+      <div className={cl.scrollWrapper}>
         <div className={cl.standoutBadge}>Example Catalog Entry</div>
         <div className={cl.standoutBox}>
           <ExampleCatalogEntry />
         </div>
       </div>
 
-      <div className={cl.standoutBadgeContainer}>
+      <div className={cl.scrollWrapper}>
         <div className={cl.standoutBadge}>Example Visualization Page Search Interface</div>
         <div className={cl.standoutBox} style={{ background: 'black' }}>
           <img

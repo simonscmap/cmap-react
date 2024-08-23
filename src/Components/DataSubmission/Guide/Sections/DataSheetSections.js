@@ -175,7 +175,7 @@ const ColumnSection = (props) => {
       <BulletPoints bullets={item.bullets} />
 
       {Array.isArray(item.images) && item.images.map((image, i) => (
-        <div className={cl.standoutBadgeContainer}>
+        <div className={cl.scrollWrapper}>
           <div className={cl.standoutBadge}>Example: {image.alt}</div>
           <div className={cl.standoutBox} key={`${i}`}>
             <img

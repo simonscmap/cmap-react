@@ -157,13 +157,15 @@ const Content = (props) => {
         Validation API tutorial:
       </div>
 
-      <div className={cl.standoutBox} style={{ width: '780px',background: 'black' }}>
-        <iframe
-          src="https://player.vimeo.com/video/957212176"
-          width="780"
-          height="440"
-          style={{ margin: '0 auto', border: 0 }}
-        ></iframe>
+      <div className={cl.scrollWrapper}>
+        <div className={cl.standoutBox} style={{ width: '780px',background: 'black' }}>
+          <iframe
+            src="https://player.vimeo.com/video/957212176"
+            width="780"
+            height="440"
+            style={{ margin: '0 auto', border: 0 }}
+          ></iframe>
+        </div>
       </div>
 
 
@@ -171,13 +173,15 @@ const Content = (props) => {
         Validation API output tutorial:
       </div>
 
-      <div className={cl.standoutBox} style={{ width: '780px', background: 'black' }}>
-        <iframe
-          src="https://player.vimeo.com/video/956780015"
-          width="780"
-          height="440"
-          style={{ margin: '0 auto', border: 0 }}
-        ></iframe>
+      <div className={cl.scrollWrapper}>
+        <div className={cl.standoutBox} style={{ width: '780px', background: 'black' }}>
+          <iframe
+            src="https://player.vimeo.com/video/956780015"
+            width="780"
+            height="440"
+            style={{ margin: '0 auto', border: 0 }}
+          ></iframe>
+        </div>
       </div>
 
     </div>

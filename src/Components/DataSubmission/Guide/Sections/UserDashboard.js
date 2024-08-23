@@ -54,7 +54,7 @@ const Content = () => {
       <Typography>
         In the <GuideLink href="/datasubmission/userdashboard">User Dashboard </GuideLink> you can track the ingestion process for any dataset that you have submitted, send messages to the data curation team, and download the most recently submitted version of the workbook. If the curation team requests additional changes to your submission you can use the <GuideLink href="/datasubmission/userdashboard">User Dashboard </GuideLink> to access, edit, and resubmit the dataset directly in the validation tool.
       </Typography>
-      <div className={cl.standoutBadgeContainer}>
+      <div className={cl.scrollWrapper}>
         <div className={cl.standoutBadge}>Example Submission Dashboard</div>
         <div className={cl.standoutBox} style={{ background: 'rgba(0,0,0,0.2)', padding: '1em'}}>
           <UserDashboardPanelDetails

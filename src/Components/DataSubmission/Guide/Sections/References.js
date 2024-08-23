@@ -81,12 +81,12 @@ const Content = () => {
 List any publications or documentation that one may cite in reference to the dataset, as well as references for any citations included in the description. Enter each reference in a separate cell in this column. Leave this field empty if there are no references associated with this dataset.
 
       </Typography>
-      <div className={cl.standoutBadgeContainer} style={{ width: 'calc(100% - 100px)'}}>
+      <div className={cl.scrollWrapper} style={{ width: 'calc(100% - 100px)'}}>
         <div className={cl.standoutBadge}>Example dataset_meta_data Sheet Row</div>
         <DemoSheet columns={columns} source={source} />
       </div>
 
-      <div className={cl.standoutBadgeContainer}>
+      <div className={cl.scrollWrapper}>
           <div className={cl.standoutBadge}>Example References as Displayed on the CMAP Website</div>
           <div className={cl.standoutBox}>
             <img

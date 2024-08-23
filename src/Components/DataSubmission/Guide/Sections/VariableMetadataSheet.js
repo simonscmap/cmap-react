@@ -25,7 +25,7 @@ const Content = () => {
         attributes along with their descriptions.
       </Typography>
 
-      <div className={cl.standoutBadgeContainer} style={{ width: 'calc(100% - 100px)'}}>
+      <div className={cl.scrollWrapper}>
         <div className={cl.standoutBadge}>Example Variable Metadata Sheet</div>
         <DemoSheet columns={varCols} source={varSheet} />
       </div>
