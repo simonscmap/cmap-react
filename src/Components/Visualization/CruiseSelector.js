@@ -1,25 +1,17 @@
 // Cruise exploration component
 import {
   Button,
-  Checkbox,
   Chip,
   Grid,
-  Icon,
   InputAdornment,
-  Link,
   Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableRow,
   Tabs,
   Tab,
   TextField,
-  Tooltip,
   Typography,
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
-import { ChevronRight, Close, ExpandMore, Search, ZoomOutMap } from '@material-ui/icons';
+import { Close, Search } from '@material-ui/icons';
 import {GiWireframeGlobe} from 'react-icons/gi';
 import { IoCalendarClearOutline } from 'react-icons/io5';
 import { BsFillPersonFill, BsListNested } from 'react-icons/bs';
@@ -27,8 +19,6 @@ import { LuShip } from 'react-icons/lu';
 import * as JsSearch from 'js-search';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link as RouterLink } from 'react-router-dom';
-import { VariableSizeList } from 'react-window';
 import {
   cruiseListRequestSend,
   cruiseTrajectoryClear,
@@ -36,19 +26,13 @@ import {
   fetchTrajectoryPointCounts,
 } from '../../Redux/actions/visualization';
 import setsFromList from '../../Utility/setsFromList';
-import colors from '../../enums/colors';
-import MultiCheckboxDropdown from '../UI/MultiCheckboxDropdown';
 import styles from './cruiseSelectorStyles';
 import CruiseSelectorSummary from './CruiseSelectorSummary';
 import CruiseTrajectoryLegend from './CruiseTrajectoryLegend';
 import SearchAndFilter from './CruiseSelectorSearchAndFilter';
 import ResultsList from './CruiseSelectorResultsList';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import InputLabel from '@material-ui/core/InputLabel';
 
-const mapStateToProps = (state, ownProps) => ({
+const mapStateToProps = (state) => ({
   cruiseList: state.cruiseList,
   getCruiseListState: state.getCruiseListState,
   windowHeight: state.windowHeight,
@@ -166,26 +150,26 @@ const defaultSearchAndFilterState = {
   selectedSensors: new Set(),
 };
 
-const defaultOptionSets = {
-  Regions: new Set(),
-  Year: new Set(),
-  Chief_Name: new Set(),
-  Series: new Set(),
-  Sensors: new Set(),
-};
+// const defaultOptionSets = {
+//   Regions: new Set(),
+//   Year: new Set(),
+//   Chief_Name: new Set(),
+//   Series: new Set(),
+//   Sensors: new Set(),
+// };
 
 
 const groupByOptions = ['Year', 'Chief_Name', 'Series', 'Regions', 'Ship_Name'];
 const groupByLabels = ['Year', 'Chief Scientist', 'Series', 'Regions', 'Ship'];
 
-const renderGroupTitle = (groupBy, groupTitle) => {
-  if (groupBy === 'Regions') {
-    return groupTitle.split(',').join(', ')
-  } else {
-    return groupTitle;
-  }
+// const renderGroupTitle = (groupBy, groupTitle) => {
+//   if (groupBy === 'Regions') {
+//     return groupTitle.split(',').join(', ')
+//   } else {
+//     return groupTitle;
+//   }
 
-}
+// }
 
 const listRef = React.createRef();
 
@@ -291,7 +275,7 @@ class CruiseSelector extends Component {
     // add selected cruise to list, or if already preset remove it
     if (this.state.selected.includes(selection.Name)) {
       const newSelectedList = this.state.selected.filter(name => name !== selection.Name);
-      const newPointCount = getPointCount(newSelectedList);
+      // const newPointCount = getPointCount(newSelectedList);
       this.setState({
         ...this.state,
         selected: newSelectedList,
@@ -299,7 +283,7 @@ class CruiseSelector extends Component {
       });
     } else {
       const newSelectedList = [...this.state.selected, selection.Name];
-      const newPointCount = getPointCount (newSelectedList);
+      // const newPointCount = getPointCount (newSelectedList);
       this.setState({
         ...this.state,
         selected: newSelectedList,
@@ -626,7 +610,7 @@ class CruiseSelector extends Component {
       openGroup,
       optionSets,
       groupedCruises,
-      cruises,
+      // cruises,
     } = this.state;
 
     // create array of selected filters to generate chip indicators
@@ -639,7 +623,10 @@ class CruiseSelector extends Component {
     Array.from(selectedSeries).forEach((val) => sf.push('selectedSeries!!' + val));
     Array.from(selectedSensors).forEach((val) => sf.push('selectedSensors!!' + val));
 
-    const { classes, windowHeight } = this.props;
+    const {
+      classes,
+      // windowHeight
+    } = this.props;
 
     return (
       <>
@@ -712,7 +699,6 @@ class CruiseSelector extends Component {
                       value={groupByOptions.indexOf(this.state.groupBy)}
                       onChange={this.handleGroupBySelection}
                       indicatorColor="primary"
-                      textColor="primary"
                       scrollButtons={'auto'}
                       variant={'scrollable'}
                     >

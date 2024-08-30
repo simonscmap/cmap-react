@@ -75,7 +75,7 @@ const SearchResults = (props) => {
     searchResultsSetLoadingState: setLoadingState,
     searchResultsFetch: search,
     searchIsExpanded,
-    sortingOptions,
+    // sortingOptions,
     classes,
   } = props;
 
@@ -113,17 +113,23 @@ const SearchResults = (props) => {
   };
 
   const [wrapperWidth, setWrapperWidth] = useState(0);
-  const [listHeight, setListHeight] = useState(window.innerHeight - 250);
+  const [listHeight, setListHeight] = useState(Math.floor (window.innerHeight - 250));
 
-  let onResize = (rect) => {
-    let { width } = rect;
-    setWrapperWidth (width);
+  const onResize = (rect) => {
+    const { width } = rect;
+    const intWidth = Math.floor (width);
+    log.debug ('results resize', intWidth)
+    if (wrapperWidth !== intWidth) {
+      setWrapperWidth (intWidth);
+    }
   };
 
   useEffect (() => {
     // make the list area shorter when search filters are expanded
-    const h = window.innerHeight - (searchIsExpanded ? 500 : 275);
-    setListHeight (h)
+    const h = Math.floor (window.innerHeight - (searchIsExpanded ? 500 : 275));
+    if (h !== listHeight) {
+      setListHeight (h);
+    }
   }, [wrapperWidth, searchIsExpanded]);
 
   const itemCount =
@@ -133,7 +139,6 @@ const SearchResults = (props) => {
 
   return (
     <div className={classes.wrapperDiv}>
-
       <ResizeObserver onResize={onResize}></ResizeObserver>
       <Paper className={classes.resultsWrapper} elevation={0}>
         <InfoShelf classes={classes}>

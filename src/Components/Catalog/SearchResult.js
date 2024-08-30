@@ -1,15 +1,8 @@
 // An individual result from catalog search
-
-import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
-import {
-  makeStyles,
-  Paper,
-} from '@material-ui/core';
-
-import DownloadDialog from './DownloadDialog';
-import api from '../../api/api';
-import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
+import React from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { makeStyles } from '@material-ui/core/styles';
+import Paper from '@material-ui/core/Paper';
 import { useDatasetFeatures } from '../../Utility/Catalog/useDatasetFeatures';
 import styles from './searchResultStyles';
 import MetadataContent from './SearchResultMetaDataContent';
@@ -17,7 +10,10 @@ import HideAtBreakPoint from './Display/HideAtBreakPoint';
 import AncillaryDataChip from './Display/AncillaryDataChip';
 import ContinuousIngestionChip from './Display/ContinuousIngestionChip';
 import DatasetTitleLink from './Display/DatasetTitleLink';
-import DownloadButton from './Display/DownloadButton';
+import { DownloadButtonFilled } from './DownloadDialog/DownloadButtons';
+
+import SubscribeButton from '../User/Subscriptions/SubscribeButton';
+import { downloadDialogOpen } from '../../Redux/actions/ui';
 
 const useStyles = makeStyles(styles);
 
@@ -25,10 +21,7 @@ const useStyles = makeStyles(styles);
 export const SearchResultPure = (props) => {
   const {
     dataset,
-    fullDataset,
     onDownloadClick,
-    setDownloadDialogOpen,
-    downloadDialogOpen,
     features,
     style,
     index,
@@ -37,26 +30,19 @@ export const SearchResultPure = (props) => {
 
   const cl = useStyles();
 
-  const { Icon_URL } = dataset;
+  const { Icon_URL, Short_Name } = dataset;
 
   return (
     <div style={style} className="result-wrapper">
-      <DownloadDialog
-        dialogOpen={downloadDialogOpen}
-        dataset={(fullDataset && fullDataset.dataset)}
-        handleClose={() => setDownloadDialogOpen(false)}
-      />
       <div className={cl.wrapper_} key={`${index}_fsl_item`}>
         <Paper className={cl.resultPaper} elevation={4}>
           <div className={cl.wrapper}>
             <div className={cl.title}>
               <DatasetTitleLink dataset={dataset} />
-              <DownloadButton onClick={onDownloadClick} >
-                <div className={cl.buttonTextSpacer}>
-                  <CloudDownloadIcon />{' '}
-                  <span>Download</span>
-                </div>
-              </DownloadButton>
+              <div className={cl.actionsContainer}>
+                <SubscribeButton shortName={Short_Name} />
+                <DownloadButtonFilled shortName={Short_Name} />
+              </div>
             </div>
             <div className={cl.contentBox}>
               <div className={cl.textContainer}>
@@ -91,9 +77,9 @@ export const SearchResultPure = (props) => {
 const SearchResultState = (props) => {
   const { index, style } = props;
 
+  const dispatch = useDispatch ();
   const searchResults = useSelector((state) => state.searchResults);
-  const [downloadDialogOpen, setDownloadDialogOpen] = useState(false);
-  const [fullDataset, setDataset] = useState();
+  const subs = useSelector ((state) => state.userSubscriptions);
 
   const dataset = searchResults[index];
 
@@ -105,38 +91,19 @@ const SearchResultState = (props) => {
 
   const {
     Short_Name,
-    // Visualize,
   } = dataset;
 
-  const fetchDataset = async () => {
-    let data;
-    try {
-      data = await api.catalog.datasetMetadata(Short_Name);
-      if (data.ok) {
-        data = await data.json();
-        setDataset(data);
-      }
-    } catch (e) {
-      console.error(`There was an error attempting to fetch ${Short_Name}`);
-      // TODO: alert user that there was an error
-    }
-    return await data;
-  };
-
-  const onDownloadClick = async () => {
-    setDownloadDialogOpen(true);
-    await fetchDataset();
+  const onDownloadClick = () => {
+    dispatch (downloadDialogOpen (Short_Name));
   };
 
   return <SearchResultPure
            dataset={dataset}
-           fullDataset={fullDataset}
            onDownloadClick={onDownloadClick}
-           setDownloadDialogOpen={setDownloadDialogOpen}
-           downloadDialogOpen={downloadDialogOpen}
            features={features}
            style={style}
            index={index}
+           userSubscriptions={subs}
   />
 };
 

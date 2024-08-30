@@ -53,7 +53,7 @@ const useStyles = makeStyles ((theme) => ({
 const Row = (props) => {
   const { reference } = props;
   const classes = useRowStyles();
-
+  // eslint-disable-next-line
   const httpRegx = /\b(https?:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|]|ftp:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|])/g;
 
   const urlify = (text) =>

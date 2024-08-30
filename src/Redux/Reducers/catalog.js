@@ -19,10 +19,6 @@ import {
   DATASET_VIS_VAR_TAB_PREFERENCE,
   CRUISE_FULL_PAGE_DATA_STORE,
   CRUISE_FULL_PAGE_DATA_SET_LOADING_STATE,
-  CART_ADD_ITEM,
-  CART_REMOVE_ITEM,
-  CART_CLEAR,
-  CART_ADD_MULTIPLE,
   FETCH_DATASET_FEATURES_SUCCESS,
   SET_CHECK_QUERY_SIZE_REQUEST_STATE,
   STORE_CHECK_QUERY_SIZE_RESULT,
@@ -50,7 +46,9 @@ import {
   PROGRAM_DATASET_SELECT,
   PROGRAM_DATASET_VARIABLE_SELECT,
   PROGRAM_SAMPLE_VIS_DATA_SET_LOADING_STATE,
-  PROGRAM_SAMPLE_VIS_DATA_STORE
+  PROGRAM_SAMPLE_VIS_DATA_STORE,
+  FETCH_DATASET_NAMES_SUCCESS,
+  SET_DATASET_NAMES_REQUEST_STATUS,
 } from '../actionTypes/catalog';
 import states from '../../enums/asyncRequestStates';
 import { sortResults } from '../../Components/Catalog/SortingControls';
@@ -182,6 +180,7 @@ export default function (state, action) {
           references: null,
           variables: null,
           sensors: null,
+          news: [],
           unstructuredVariableMetadata: null,
 
           visualizableVariables: null,
@@ -192,6 +191,7 @@ export default function (state, action) {
       };
 
     case DATASET_FULL_PAGE_DATA_STORE:
+    console.log ('payload', action.payload)
       return {
         ...state,
         datasetDetailsPage: {
@@ -202,6 +202,7 @@ export default function (state, action) {
           cruises: action.payload.cruises,
           references: action.payload.references,
           sensors: action.payload.sensors,
+          news: action.payload.news,
         }
       };
     case DATASET_VARIABLES_STORE:
@@ -442,39 +443,6 @@ export default function (state, action) {
         cruiseFullPageDataLoadingState: action.payload.state,
       };
 
-      /************** Cart **********************/
-
-    case CART_ADD_ITEM:
-      return {
-        ...state,
-        cart: {
-          ...state.cart,
-          [action.payload.item.Long_Name]: action.payload.item,
-        },
-      };
-    case CART_REMOVE_ITEM:
-      return {
-        ...state,
-        cart: (() => {
-          let newCart = { ...state.cart };
-          delete newCart[action.payload.item.Long_Name];
-          return newCart;
-        })(),
-      };
-    case CART_CLEAR:
-      return {
-        ...state,
-        cart: {},
-      };
-    case CART_ADD_MULTIPLE:
-      return {
-        ...state,
-        cart: {
-          ...state.cart,
-          ...action.payload.items,
-        },
-      };
-
       /************** Cache **********************/
 
     case FETCH_DATASET_FEATURES_SUCCESS:
@@ -591,7 +559,21 @@ export default function (state, action) {
         recommendedDatasetsRequestState: states.failed,
       };
 
-    default:
-      return state;
+    case FETCH_DATASET_NAMES_SUCCESS:
+    return {
+      ...state,
+      datasetNamesFullList: action.payload,
+      datasetNamesRequestStatus: states.succeeded,
+    };
+    case SET_DATASET_NAMES_REQUEST_STATUS:
+    return {
+      ...state,
+      datasetNamesRequestStatus: action.payload,
+    };
+
+
+
+  default:
+    return state;
   }
 }

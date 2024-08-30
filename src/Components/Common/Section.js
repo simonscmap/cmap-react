@@ -7,9 +7,6 @@ import { Link } from 'react-router-dom';
 import LinkIcon from '@material-ui/icons/Link';
 
 const styles = () => ({
-  sectionTitle: {
-    margin: '0 0 .5em 0',
-  },
   fullWidthContainer: {
     width: '100%',
     textAlign: 'left',
@@ -18,7 +15,6 @@ const styles = () => ({
   },
   sectionContainer: {
     // for some reason, every element g
-
     boxSizing: 'content-box',
     maxWidth: '1870px',
     margin: '0 auto',
@@ -37,20 +33,7 @@ const styles = () => ({
       width: 'calc(100% - 20px)',
     },
     '& > h3': {
-      display: 'inline-block',
-      position: 'relative',
-      fontSize: '1.9em',
-      '&::after': {
-        width: '100%',
-        bottom: '-7px',
-        right: 0,
-        content: '""',
-        display: 'block',
-        height: '4px',
-        position: 'absolute',
-        background: colors.blue.dark,
-        opacity: 0.7,
-      },
+
     },
   },
   textStyles: {
@@ -140,14 +123,14 @@ const styles = () => ({
 });
 
 export const FullWidthContainer = withStyles(styles)(
-  ({ classes, bgVariant, children, minWidth }) => {
+  ({ classes, bgVariant, children, minWidth = 0, paddingTop = 0 }) => {
     return (
       <div
         className={clsx(
           classes.fullWidthContainer,
           bgVariant ? classes[bgVariant] : classes.slate,
         )}
-        style={{ minWidth: minWidth }}
+        style={{ minWidth: minWidth, paddingTop }}
       >
         {children}
       </div>
@@ -181,27 +164,52 @@ export const Group = withStyles(styles)(
   ),
 );
 
+export const SectionTitle = withStyles ({
+  sectionTitle: {
+    margin: '0 0 .5em 0',
+    display: 'inline-block',
+    position: 'relative',
+    fontSize: '1.9em',
+    '&::after': {
+      width: '100%',
+      bottom: '-7px',
+      right: 0,
+      content: '""',
+      display: 'block',
+      height: '4px',
+      position: 'absolute',
+      background: colors.blue.dark,
+      opacity: 0.7,
+    },
+  },
+})((props) => {
+  const { title, classes: cl } = props;
+  if (title) {
+    return (
+      <div>
+        <Typography variant="h3" className={cl.sectionTitle}>
+          {title}
+        </Typography>
+      </div>
+    );
+  } else {
+    return <React.Fragment />
+  }
+});
+
 const Section = (props) => {
-  let {
-    classes,
-    children,
-    name,
-    title,
-    textStyles = true,
+  const { classes, ...rest } = props;
+  const { children, name, textStyles = true } = rest;
 
-  } = props;
+  const cl = [classes.sectionContainer];
 
-  let cl = [classes.sectionContainer];
   if (textStyles) {
     cl.push(classes.textStyles);
   }
+
   return (
     <div id={name} className={clsx(...cl)}>
-      {title && (
-        <Typography variant="h3" className={classes.sectionTitle}>
-          {title}
-        </Typography>
-      )}
+      <SectionTitle {...rest} />
       {children}
     </div>
   );

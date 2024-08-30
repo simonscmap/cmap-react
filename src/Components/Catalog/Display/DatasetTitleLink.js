@@ -77,11 +77,11 @@ const DatasetTitleLink = (props) => {
         id="mouse-over-popover"
         open={open}
         anchorEl={anchorEl}
-        anchorOrigin={{
+        anchororigin={{
           vertical: 'bottom',
           horizontal: 'left',
         }}
-        transformOrigin={{
+        transformorigin={{
           vertical: 'top',
           horizontal: 'left',
         }}

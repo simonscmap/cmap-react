@@ -86,7 +86,6 @@ const makeGroupStyles = {
 
 const mapStateToProps = (state) => ({
   vizSearchResultsLoadingState: state.vizSearchResultsLoadingState,
-  cart: state.cart,
 });
 
 const mapDispatchToProps = {};
@@ -132,18 +131,6 @@ const VariableCountColumn = ({ count, classes }) => {
         {count}
       </Grid>
     </Tooltip>
-  );
-};
-
-const FavoriteColumn = ({ options, index, cart }) => {
-  return (
-    <Grid item xs={1} container alignItems="center">
-      {cart[options[index].Dataset_Name] && (
-        <Tooltip title="This dataset is on your favorites list">
-          <Star />
-        </Tooltip>
-      )}
-    </Grid>
   );
 };
 
@@ -249,7 +236,6 @@ const DataSearchResultGroup = (props) => {
     listRef,
     make,
     fullCount,
-    cart,
   } = props;
 
   const [openIndex, setOpenIndex] = React.useState(null);
@@ -327,7 +313,6 @@ const DataSearchResultGroup = (props) => {
                 classes={classes}
               />
 
-              <FavoriteColumn options={options} index={index} cart={cart} />
             </Grid>
 
             {index === openIndex && ( // if this entry is expanded, render an entry for each matching variable

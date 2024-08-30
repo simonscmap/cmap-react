@@ -1,6 +1,5 @@
 export default () => ({
     gridContext: {},
-    column: '',
     context: {
         getAuditReport: () => ({data: []}),
         column: {
@@ -15,7 +14,7 @@ export default () => ({
             var_spatial_res: [],
             dataset_make: [],
         },
-        auditCell: (cell) => {}            
+        auditCell: () => {}
     },
     columnDefs: {},
     column: {

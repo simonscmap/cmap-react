@@ -1,24 +1,16 @@
 import React  from 'react';
 import { withStyles } from '@material-ui/core/styles';
-// import Typography from '@material-ui/core/Typography';
 import { colors } from '../../Home/theme';
 import { TealButtonSM } from '../../Common/Buttons';
 import { useDispatch, useSelector } from 'react-redux';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
 import {
   publishNewsItem,
   draftNewsItem,
   previewNewsItem,
   unpublishNewsItem,
-  featureNewsItem,
-  categorizeNewsItem,
 } from '../../../Redux/actions/news';
-import Editor from './Editor';
+import Editor from './Editor2';
 import DateDetail from './DateDetail';
-import TextField from '@material-ui/core/TextField';
 
 const Story = withStyles({
   storyDetails: {
@@ -49,21 +41,20 @@ const Story = withStyles({
 })(({ story: storyState, classes, expand, onCancel }) => {
   let dispatch = useDispatch();
   let sortTerm = useSelector(({ news }) => news.sortTerm);
-  let expandVisibility = expand ? 'block' : 'none';
 
   let {
     create_date: createDate,
     modify_date: modifyDate,
     publish_date: publishDate,
     view_status: viewStatus,
-    Highlight: highlight,
-    Status_ID: storyCategory,
+    // Highlight: highlight,
+    // Status_ID: storyCategory,
   } = storyState;
 
-  let publish = () => dispatch (publishNewsItem (storyState.ID));
-  let preview = () => dispatch (previewNewsItem (storyState.ID));
-  let draft = () => dispatch (draftNewsItem (storyState.ID));
-  let unpublish = () => dispatch (unpublishNewsItem (storyState.ID));
+  let publish = () => dispatch (publishNewsItem (storyState.id));
+  let preview = () => dispatch (previewNewsItem (storyState.id));
+  let draft = () => dispatch (draftNewsItem (storyState.id));
+  let unpublish = () => dispatch (unpublishNewsItem (storyState.id));
   // let feature = () => dispatch (featureNewsItem (storyState.ID));
   // let unfeature = feature; // this is a toggle
   // let categorize = (ev) => dispatch (categorizeNewsItem (storyState.ID, ev.target.value));
@@ -90,7 +81,7 @@ const Story = withStyles({
   }
 
   return (
-    <div className={classes.storyDetails} style={{ display: expandVisibility }}>
+    <div className={classes.storyDetails}>
       <div className={classes.topLine}>
         <div className={classes.topLineLeft}>
           <div className={classes.controls}>

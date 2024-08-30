@@ -18,9 +18,6 @@ const log = logInit ('redux/sagas/userSagas');
  * - LOGIN_REQUEST_FAILURE
  * - STORE_INFO
  * - SNACKBAR_OPEN
- * - GET_CART_AND_STORE,
- * downstream apis: user.getCart
- * store key: cart
  * dispatched in: LoginDialog.js
  */
 export function* userLogin(action) {
@@ -30,10 +27,6 @@ export function* userLogin(action) {
   yield put(userActions.userLoginRequestProcessing());
   let response = yield call(api.user.login, action.payload);
 
-  // get catalog state
-  let downloadState = yield select((state) => state.download);
-
-
   if (response.ok) {
     yield put(interfaceActions.hideLoginDialog());
     // TODO: handle JSON.parse throw
@@ -41,7 +34,11 @@ export function* userLogin(action) {
     yield put(userActions.userLoginRequestSuccess());
     yield put(userActions.storeInfo(userInfo));
     yield put(interfaceActions.snackbarOpen('Login was successful!', tag));
-    yield put(userActions.cartGetAndStore());
+
+    const userSubscriptions = yield select ((state) => state.userSubscriptions);
+    if (!userSubscriptions) {
+      yield fetchSubscriptions ();
+    }
 
     if (window.location.pathname === '/login') {
       let search = new URLSearchParams(window.location.search)
@@ -50,10 +47,15 @@ export function* userLogin(action) {
       if (redirect) {
         window.location.href = `/${redirect}`
       } else {
-       // default to /catalog page
-       window.location.href = '/catalog';
+        // default to /catalog page
+        window.location.href = '/catalog';
       }
     } else {
+
+      // get catalog state
+      let downloadState = yield select((state) => state.download);
+
+
       if (downloadState.currentRequest && downloadState.checkQueryRequestState === states.failed) {
         // retry the query check if the last request failed (it was probably a 401)
         yield put(catalogActions.checkQuerySize(downloadState.currentRequest))
@@ -150,7 +152,6 @@ function* googleLoginRequest(action) {
     var userInfo = JSON.parse(Cookies.get('UserInfo'));
     yield put(userActions.userLoginRequestSuccess());
     yield put(userActions.storeInfo(userInfo));
-    yield put(userActions.cartGetAndStore());
     if (window.location.pathname === '/login') {
       window.location.href = '/';
     }
@@ -303,5 +304,169 @@ export function* watchFetchLastUserTouch() {
   yield takeLatest(
     userActionTypes.REQUEST_USER_API_CALLS_SEND,
     fetchLastDatasetTouch,
+  );
+}
+
+
+/* fetchSubscriptions
+ */
+function* fetchSubscriptions () {
+  const loggedInUser = yield select((state) => state.user);
+  const tag = { tag: 'fetchSubscriptions' };
+
+  if (!loggedInUser) {
+    log.warn ('no user id provided; cannot fetch subscriptions');
+  } else {
+    log.debug ('setting to in-progress; initiating call');
+    yield put (userActions.setFetchSubsRequestStatus (states.inProgress));
+    let result;
+    try {
+      result = yield call(api.user.getSubscriptions);
+    } catch (e) {
+      log.error ('error getting subscriptions', { user: loggedInUser });
+      yield put (userActions.setFetchSubsRequestStatus (states.failed));
+      yield put(interfaceActions.snackbarOpen('Failed to fetch subscriptions', tag));
+      return;
+    }
+    if (result && result.ok) {
+      let subs;
+      try {
+        subs = yield result.json();
+      } catch (e) {
+        log.error ('failed to parse response', { error: e });
+        yield put (userActions.setFetchSubsRequestStatus (states.failed));
+        yield put (interfaceActions.snackbarOpen('Failed to fetch subscriptions', tag));
+      }
+      if (subs) {
+        log.info ('retrieved subscriptions', { subs });
+        yield put(userActions.fetchSubscriptionsSuccess ({ subscriptions: subs }));
+      } else {
+        log.error ('failed to parse response', { result, subs });
+        yield put (userActions.setFetchSubsRequestStatus (states.failed));
+        yield put (interfaceActions.snackbarOpen('Failed to fetch subscriptions', tag));
+      }
+    } else if (result && result.status === 401) {
+      log.error ('request to fetch subscriptions rejected by authetication', { result });
+      yield put (userActions.setFetchSubsRequestStatus (states.failed));
+      yield put(userActions.refreshLogin());
+      return;
+    } else {
+      log.error ('failed to get user subscriptions');
+      yield put (userActions.setFetchSubsRequestStatus (states.failed));
+      yield put (interfaceActions.snackbarOpen('Failed to fetch subscriptions', tag));
+    }
+  }
+} // ⮷ &. Watcher ⮷
+
+export function* watchFetchUserSubscriptions () {
+  yield takeLatest(
+    userActionTypes.FETCH_SUBSCRIPTIONS_SEND,
+    fetchSubscriptions,
+  );
+}
+
+/* createSubscription
+ */
+function* createSubscription (action) {
+  const loggedInUser = yield select((state) => state.user);
+  const tag = { tag: 'createSubscriptions' };
+
+  if (!loggedInUser) {
+    log.warn ('no user; cannot create subscriptions');
+    return;
+  } else if (!action.payload) {
+    log.warn ('no dataset name; cannot create subscriptions');
+    return;
+  } else {
+    log.debug ('setting to in-progress; initiating call');
+    yield put (userActions.setCreateSubsRequestStatus (states.inProgress));
+    let result;
+    try {
+      result = yield call(api.user.createSubscription, action.payload);
+    } catch (e) {
+      log.error ('error creating subscription', { user: loggedInUser });
+      yield put (userActions.setCreateSubsRequestStatus (states.failed));
+      yield put(interfaceActions.snackbarOpen('Failed to create subscriptions', tag));
+      return;
+    }
+    if (result && result.ok) {
+      yield put (userActions.setCreateSubsRequestStatus (states.succeeded));
+      const payload = yield result.json();
+      const message = payload.message; // could be "subscription created" or "subscription already exists"
+      yield put(interfaceActions.snackbarOpen(`Success: ${message}`, tag));
+      // refetch
+      yield fetchSubscriptions ();
+      return;
+    } else if (result && result.status === 401) {
+      log.error ('request to creat subscription rejected by authetication', { result });
+      yield put (userActions.setCreateSubsRequestStatus (states.failed));
+
+      // prompt login
+      yield put(userActions.refreshLogin());
+      return;
+    } else {
+      log.error ('failed to create subscription', result);
+      yield put (userActions.setCreateSubsRequestStatus (states.failed));
+      yield put(interfaceActions.snackbarOpen('Failed to create subscriptions', tag));
+      return;
+    }
+  }
+} // ⮷ &. Watcher ⮷
+
+export function* watchCreateSubscription () {
+  yield takeLatest(
+    userActionTypes.CREATE_SUBSCRIPTION_SEND,
+    createSubscription,
+  );
+}
+
+/* deleteSubscription
+ */
+function* deleteSubscriptions (action) {
+  const loggedInUser = yield select((state) => state.user);
+  const tag = { tag: 'deleteSubscriptions' };
+
+  if (!loggedInUser) {
+    log.warn ('no user; cannot modify subscriptions');
+  } else if (!Array.isArray(action.payload) || action.payload.length === 0) {
+    log.warn ('no dataset names; cannot delete subscriptions');
+  } else {
+    log.debug ('setting to in-progress; initiating call');
+    yield put (userActions.setDeleteSubsRequestStatus (states.inProgress));
+    let result;
+    try {
+      result = yield call(api.user.deleteSubscriptions, action.payload);
+    } catch (e) {
+      log.error ('error deleting subscription', { user: loggedInUser });
+      yield put (userActions.setDeleteSubsRequestStatus (states.failed));
+      yield put(interfaceActions.snackbarOpen('Failed to unsubscribe dataset(s)', tag));
+      return;
+    }
+    if (result && result.ok) {
+      yield put(interfaceActions.snackbarOpen('Success unsubscribing', tag));
+      yield put (userActions.setDeleteSubsRequestStatus (states.succeeded));
+      // refetch
+      yield fetchSubscriptions ();
+      return;
+    } else if (result && result.status === 401) {
+      log.error ('request to delete subscription rejected by authetication', { result });
+      yield put (userActions.setDeleteSubsRequestStatus (states.failed));
+
+      // prompt login
+      yield put(userActions.refreshLogin());
+      return;
+    } else {
+      log.error ('failed to create subscription', result);
+      yield put (userActions.setDeleteSubsRequestStatus (states.failed));
+      yield put(interfaceActions.snackbarOpen('Failed to unsubscribe dataset(s)', tag));
+      return;
+    }
+  }
+} // ⮷ &. Watcher ⮷
+
+export function* watchDeleteSubscriptions () {
+  yield takeLatest(
+    userActionTypes.DELETE_SUBSCRIPTIONS_SEND,
+    deleteSubscriptions,
   );
 }

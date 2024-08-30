@@ -11,7 +11,6 @@ const jss = {
       color: theme.palette.primary.main,
     },
     fontSize: '14px',
-    fontWeight: 100,
     display: 'inline-block',
     cursor: 'pointer',
     verticalAlign: 'middle',

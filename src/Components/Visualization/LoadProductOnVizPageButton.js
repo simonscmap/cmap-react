@@ -8,13 +8,11 @@ import { Map } from '@material-ui/icons';
 import { withRouter } from 'react-router';
 
 import { vizPageDataTargetSet } from '../../Redux/actions/visualization';
-import { setShowCart } from '../../Redux/actions/ui';
 
 const mapStateToProps = (state, ownProps) => ({});
 
 const mapDispatchToProps = {
   vizPageDataTargetSet,
-  setShowCart,
 };
 
 const styles = (theme) => ({
@@ -27,11 +25,10 @@ const styles = (theme) => ({
 });
 
 const LoadProductOnVizPageButton = (props) => {
-  const { product, classes, vizPageDataTargetSet, history, setShowCart } =
+  const { product, classes, vizPageDataTargetSet, history } =
     props;
 
   const handleButtonClick = () => {
-    setShowCart(false);
     vizPageDataTargetSet(product);
     history.push('/visualization');
   };

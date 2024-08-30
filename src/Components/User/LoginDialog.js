@@ -1,20 +1,10 @@
-import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Link from '@material-ui/core/Link';
 import { ThemeProvider, withStyles } from '@material-ui/core/styles';
-import TextField from '@material-ui/core/TextField';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link as RouterLink, withRouter } from 'react-router-dom';
-import states from '../../enums/asyncRequestStates';
-import colors from '../../enums/colors';
 import styles from './loginStyles';
 import { homeTheme } from '../Home/theme';
-import { WhiteButtonSM, GreenButtonSM } from '../Home/buttons';
 import LoginForm from './LoginForm';
 
 import {
@@ -84,7 +74,6 @@ class LoginDialog extends Component {
 
   render() {
     const { classes } = this.props;
-    let loginDisabled = !this.props.username || !this.props.password;
 
     return (
       <ThemeProvider theme={homeTheme}>

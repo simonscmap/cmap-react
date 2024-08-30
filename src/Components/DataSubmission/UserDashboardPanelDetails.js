@@ -229,7 +229,7 @@ export const UserDashboardPanelDetails = (props) => {
       <div className={classes.newCommentDiv}>
         <TextField
           multiline
-          rows={4}
+          minRows={4}
           variant="outlined"
           onChange={(e) => setComment(e.target.value)}
           value={comment}

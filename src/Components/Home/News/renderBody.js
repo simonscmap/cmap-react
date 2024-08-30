@@ -45,7 +45,6 @@ const renderBody = (body) => {
       content.push(links[i]);
     }
   }
-
   return content;
 };
 

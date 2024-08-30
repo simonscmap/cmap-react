@@ -38,6 +38,7 @@ const Sort = () => {
   const dispatch = useDispatch();
   const { direction, field } = useSelector ((state) => state.catalogSortingOptions);
 
+
   const isAscending = direction === 'ASC';
 
   const changeDirection = () => {
@@ -53,6 +54,7 @@ const Sort = () => {
   };
 
   const [fieldState, setFieldState] = useState(field);
+
   useEffect (() => {
     setFieldState (field);
   }, [field]);
@@ -81,7 +83,7 @@ const Sort = () => {
       </ToggleButtonGroup>
 
       <Tooltip title={isAscending ? 'Ascending' : 'Descending'}>
-        <ToggleButton selected={true} classes={{ root: cl.root }} onChange={changeDirection}>
+        <ToggleButton value="direction" selected={true} classes={{ root: cl.root }} onChange={changeDirection}>
           {isAscending ? <TbSortAscending /> : <TbSortDescending />}
         </ToggleButton>
       </Tooltip>

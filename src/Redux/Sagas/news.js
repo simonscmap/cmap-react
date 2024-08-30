@@ -1,7 +1,11 @@
+import { call, put, takeLatest, select } from 'redux-saga/effects';
 import api from '../../api/api';
 import * as newsActions from '../actions/news';
+import * as interfaceActions from '../actions/ui';
 import * as newsActionTypes from '../actionTypes/news';
-import { call, put, takeLatest, select } from 'redux-saga/effects';
+
+import initLog from '../../Services/log-service';
+const log = initLog ('sagas/news');
 
 /* requestNewsList, watchNewsList
  */
@@ -37,12 +41,22 @@ export function* watchRequestNewsList() {
 
 // UPDATE
 export function* updateNewsItem(action) {
-  let response = yield call(api.news.update, action.payload.item);
+  const tag = { tag: 'updateNewsItem' };
+  const response = yield call(api.news.update, action.payload.item);
   if (response.ok) {
     yield put(newsActions.updateNewsItemSuccess());
+    yield put(interfaceActions.snackbarOpen('Update successful', tag));
   } else {
-    yield put(newsActions.updateNewsItemFailure());
-  }
+    let text = '';
+    try {
+      text = yield response.text();
+    } catch (e) {
+      log.error ('error parsing response text', { error: e})
+    }
+    yield put(newsActions.updateNewsItemFailure({ text }));
+    yield put(interfaceActions.snackbarOpen('Failed to update news item', tag));
+    }
+  yield requestNewsList();
 } // ⮷ &. Watcher ⮷ (2 watchers; trigger a refetch of news list after update)
 
 export function* watchUpdateNewsItem() {
@@ -177,7 +191,14 @@ export function* createNewsItem(action) {
   if (response.ok) {
     yield put(newsActions.createNewsItemSuccess());
   } else {
-    yield put(newsActions.createNewsItemFailure());
+    let text = '';
+    try {
+      text = yield response.text();
+    } catch (e) {
+      log.error ('error parsing response text', { error: e })
+    }
+    yield put(newsActions.createNewsItemFailure({ text }));
+    yield put(interfaceActions.snackbarOpen('Failed to create news item'));
   }
 } // ⮷ &. Watcher ⮷ (2 watchers; trigger a refetch of news list after update)
 

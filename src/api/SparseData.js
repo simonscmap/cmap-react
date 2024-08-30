@@ -86,7 +86,7 @@ class SparseData {
     console.log ('SparseData finalized', { count: this.pointCount });
   }
 
-  generatePlotData(subType, splitByDate, splitByDepth) {
+  generatePlotData(/*subType, splitByDate, splitByDepth*/) {
     return this.variableValues;
   }
 

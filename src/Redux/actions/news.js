@@ -25,8 +25,11 @@ export const createNewsItemSuccess = () => ({
   type: newsActionTypes.CREATE_NEWS_ITEM_SUCCESS,
 });
 
-export const createNewsItemFailure = () => ({
+export const createNewsItemFailure = (args = {}) => ({
   type: newsActionTypes.CREATE_NEWS_ITEM_FAILURE,
+  payload: {
+    text: args.text
+  }
 });
 
 // UPDATE
@@ -35,8 +38,11 @@ export const updateNewsItem = (item) => ({
   type: newsActionTypes.UPDATE_NEWS_ITEM_SEND,
 });
 
-export const updateNewsItemFailure = () => ({
+export const updateNewsItemFailure = (args = {}) => ({
   type: newsActionTypes.UPDATE_NEWS_ITEM_FAILURE,
+  payload: {
+    text: args.text
+  }
 });
 
 export const updateNewsItemSuccess = () => ({

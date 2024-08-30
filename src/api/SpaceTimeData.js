@@ -9,7 +9,7 @@ import mergeArrays from '../Utility/mergeArrays';
 import vizSubTypes from '../enums/visualizationSubTypes';
 import temporalResolutions from '../enums/temporalResolutions';
 
-import { subsetKey, mapDeep, rowToVal, sum, toMean3D, roundToDecimal } from './myLib.js';
+import { /* subsetKey, mapDeep, rowToVal, sum, toMean3D, */ roundToDecimal } from './myLib.js';
 import lodash from 'lodash';
 
 // generate a rounding function that rounds floats to the 3rd decimal place,
@@ -19,9 +19,10 @@ import lodash from 'lodash';
 // across charts & queries; this will benefit a user that renders
 // multiple charts along the case lon/lat constraints, but will also
 // potentially consume a lange amount of memory;
-const roundToThousandths = lodash.memoize (roundToDecimal (3));
 
-const isHourly = (tableName) => ['tblWind_NRT_hourly','tblMITgcm_SWOT_2D'].some(s => s === tableName);
+// const roundToThousandths = lodash.memoize (roundToDecimal (3));
+
+// const isHourly = (tableName) => ['tblWind_NRT_hourly','tblMITgcm_SWOT_2D'].some(s => s === tableName);
 
 const { monthlyClimatology } = temporalResolutions;
 

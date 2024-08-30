@@ -1,6 +1,7 @@
 import { versions } from './get-versions';
 import { isProduction } from '../env';
 import threshold from './threshold';
+import { safePath } from '../../Utility/objectUtils';
 
 const tagInfo = {
   versions: {
@@ -60,6 +61,9 @@ function log(level, tags, context, message, isError, data) {
   // only log time and tags in production
   if (isProduction) {
     payload.time = Date.now();
+  }
+
+  if (tags) {
     payload.tags = tags;
   }
 
@@ -94,10 +98,15 @@ function log(level, tags, context, message, isError, data) {
       ? ` | in ${payload.context.module}`
       : '';
 
+  const version = safePath (['tags', 'versions', 'web']) (payload);
+
+  const versionString = version ? `(v${version})` : '';
+
+
   let logContent = [
     `${logLevelString.length ? logLevelString[0].toUpperCase() : '????'} | ${
       payload.message
-    } ${moduleString}\n`,
+    } ${moduleString} ${versionString}\n`,
     payload.data,
   ];
 
@@ -128,9 +137,9 @@ function createNewLogger(moduleName, extraContext = {}) {
 
   let props = {
     tags: tagInfo,
-      context: {
-        module: moduleName
-      }
+    context: {
+      module: moduleName
+    }
   };
 
   if (session) {

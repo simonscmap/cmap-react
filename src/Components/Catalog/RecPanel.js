@@ -1,18 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Button, Grid, Paper, Tabs, Tab, Tooltip, makeStyles } from '@material-ui/core';
-import { useHistory } from 'react-router-dom';
+import Button from '@material-ui/core/Button';
+import Paper from '@material-ui/core/Paper';
+import Tab from '@material-ui/core/Tab';
+import Tabs from '@material-ui/core/Tabs';
+import Tooltip from '@material-ui/core/Tooltip';
+
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 import PopularDatasets, { usePopularDatasetRecs } from './PopularDatasets';
 import RecentDatasets, { useRecentDatasetRecs } from './RecentlyUsed';
 import RecommendedDatasets, { useRecommendedDatasets } from './Recommended';
-import useLastApiCall from './useLastApiCall';
+// import useLastApiCall from './useLastApiCall';
 import { clearLastDatasetTouch } from '../../Redux/actions/user';
+import { showLoginDialog } from '../../Redux/actions/ui';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 const useStyles = makeStyles((theme) => ({
   recPaper: {
     padding: '14px 20px',
-    background: 'rgba(0,0,0,0.2)'
+    background: 'rgba(0,0,0,0.2)',
+    position: 'relative',
   },
   gridContainer: {
     width: '100%',
@@ -63,10 +70,46 @@ const TabPanel = (props) => {
   );
 }
 
+const LoginButton = withStyles ((theme) => ({
+  buttonWrapper: {
+    position: 'absolute',
+    right: 18,
+    top: 18,
+    zIndex: 100,
+  },
+  button: {
+    color: theme.palette.primary.main,
+  },
+}))((props) => {
+  const { classes: cl } = props;
+  const dispatch = useDispatch ();
+  const user = useSelector ((state) => state.user);
+
+  const openLogin = (e) => {
+    e.preventDefault();
+    dispatch (showLoginDialog ())
+  };
+
+  const isLgDown = useMediaQuery('(min-width:1280px)');
+
+  const text = isLgDown ? 'Log in to see recommendations' : 'Log In';
+
+  if (user) {
+    return <React.Fragment />;
+  } else {
+    return (
+      <div className={cl.buttonWrapper}>
+        <Button className={cl.button} onClick={openLogin}>
+          {text}
+        </Button>
+      </div>
+    )
+  }
+});
+
 const RecPanel = () => {
   const cl = useStyles ();
   const dispatch = useDispatch ();
-  const history = useHistory();
 
   const user = useSelector ((state) => state.user);
   const [activeTab, setActiveTab] = useState(0);
@@ -84,15 +127,9 @@ const RecPanel = () => {
     }
   }, [activeTab]);
 
-  const redirectToLogin = () => {
-    history.push (`/login?redirect=catalog`)
-  };
-
-  const isLgDown = useMediaQuery('(min-width:1280px)');
-
   // these hooks fetch recommendation data
   // (placing them in their tab panels delays fetch until tab becomes active)
-  const touchResult = useLastApiCall ();
+  // const touchResult = useLastApiCall ();
   const popularDatasets = usePopularDatasetRecs ();
   const recentDatasets = useRecentDatasetRecs ();
   const recommendedDatasets = useRecommendedDatasets ();
@@ -100,11 +137,11 @@ const RecPanel = () => {
   return (
     <Paper elevation={4} className={cl.recPaper}>
       <div className={cl.gridContainer}>
+        <LoginButton />
         <Tabs
           value={activeTab}
           onChange={handleTabChange}
           indicatorColor="primary"
-          // textColor="white"
           variant="scrollable"
           scrollButtons="auto"
           aria-label="scrollable auto tabs example"
@@ -113,27 +150,17 @@ const RecPanel = () => {
             <Tab label="Popular" />
           </Tooltip>
 
-          {user ? (<Tooltip title="Datasets you have recently viewed">
-            <Tab label="Recent" />
-          </Tooltip>) : ('')}
+          {user ? ([
+            <Tooltip title="Datasets you have recently viewed" key={'recent'}>
+              <Tab label="Recent" />
+            </Tooltip>,
 
-          {user ? (<Tooltip title="Datasets similar to ones you have viewed">
-            <Tab label="See Also" />
-          </Tooltip>)
-            : (
-              <Button
-                className={cl.logInButton}
-                onClick={redirectToLogin}
-              >
-                <Grid container>
-                  <Grid item>
-                    {isLgDown ? 'Log in to see recommendations' : 'Log in'}
-                  </Grid>
-                </Grid>
-              </Button>
-            )}
-
+            <Tooltip title="Datasets similar to ones you have viewed" key={'seealso'}>
+              <Tab label="See Also" />
+            </Tooltip>])
+           : [] }
         </Tabs>
+
         <TabPanel value={activeTab} index={0} className={cl.tabPanel}>
           <PopularDatasets data={popularDatasets} />
         </TabPanel>

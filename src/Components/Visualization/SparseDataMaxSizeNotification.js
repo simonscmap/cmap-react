@@ -16,7 +16,7 @@ import colors from '../../enums/colors';
 
 import { sparseDataMaxSizeNotificationUpdate } from '../../Redux/actions/visualization';
 
-const mapStateToProps = (state, ownProps) => ({
+const mapStateToProps = (state) => ({
   sparseDataMaxSizeNotificationData: state.sparseDataMaxSizeNotificationData,
 });
 
@@ -24,7 +24,7 @@ const mapDispatchToProps = {
   sparseDataMaxSizeNotificationUpdate,
 };
 
-const styles = (theme) => ({
+const styles = () => ({
   dialogPaper: {
     backgroundColor: colors.backgroundGray,
     minWidth: '700px',
@@ -73,7 +73,12 @@ const SparseDataMaxSizeNotification = (props) => {
   if (sparseDataMaxSizeNotificationData === null) {
     return '';
   }
-  const { time, lat, lon, depth } = sparseDataMaxSizeNotificationData;
+  const {
+    time,
+    //  lat,
+    //  lon,
+    //  depth
+  } = sparseDataMaxSizeNotificationData;
 
   const handleClose = () => sparseDataMaxSizeNotificationUpdate(null);
 

@@ -6,7 +6,7 @@ import { Tooltip } from '@material-ui/core';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import { MdMyLocation } from 'react-icons/md';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import MuiAccordion from '@material-ui/core/Accordion';
 import MuiAccordionSummary from '@material-ui/core/AccordionSummary';
 import MuiAccordionDetails from '@material-ui/core/AccordionDetails';
@@ -19,7 +19,6 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import dayjs from 'dayjs';
-import colors from '../../../../enums/colors';
 import InfoIcon from '@material-ui/icons/InfoOutlined';
 
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';

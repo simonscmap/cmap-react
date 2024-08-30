@@ -329,6 +329,21 @@ const useWrapperStyles = makeStyles ((theme) => ({
     flexDirection: 'column',
     justifyContent: 'center',
   },
+  overlayWrapper: {
+    backgroundColor: '#000000',
+    position: 'fixed',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    opacity: 0.5,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100vw',
+    height: '100vh',
+    zIndex: z.LOADING_OVERLAY,
+  }
 }));
 
 export const ErrorWrapper = (props) => {
@@ -350,6 +365,18 @@ export const SpinnerWrapper = (props) => {
     </div>
   );
 };
+
+export const OverlaySpinner = (props) => {
+  const { message } = props;
+  const cl = useWrapperStyles();
+  return (
+    <div className={cl.overlayWrapper}>
+      <Spinner message={message} />
+    </div>
+  );
+};
+
+
 
 
 

@@ -42,6 +42,15 @@ const experimentalStyles = (theme) => ({
     flexDirection: 'row',
     justifyContent: 'space-between',
     flexWrap: 'nowrap',
+    gap: '5px',
+  },
+  actionsContainer: {
+    display: 'inline-block',
+    whiteSpace: 'nowrap',
+    marginTop: '-4px',
+    '& > div': {
+      verticalAlign: 'middle',
+    }
   },
   nameAndCopy: {
     width: '100%',

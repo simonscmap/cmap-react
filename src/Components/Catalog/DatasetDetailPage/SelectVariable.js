@@ -2,10 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import {
-  MenuItem,
   makeStyles,
 } from '@material-ui/core';
-import Button from '@material-ui/core/Button';
 import Radio from '@material-ui/core/Radio';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -16,15 +14,11 @@ import TableRow from '@material-ui/core/TableRow';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import Grow from '@material-ui/core/Grow';
-import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
-
 
 import {
   datasetVariableSelect
 } from '../../../Redux/actions/catalog';
 import { safePath } from '../../../Utility/objectUtils';
-import zIndex from '../../../enums/zIndex';
 
 const useRowStyles = makeStyles({
   root: {

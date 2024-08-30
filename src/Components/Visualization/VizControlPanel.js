@@ -76,7 +76,6 @@ const mapStateToProps = (state) => ({
   showHelp: state.showHelp,
   datasets: state.datasets,
   charts: state.charts,
-  cart: state.cart,
   dataTarget: state.vizPageDataTarget,
   vizPageDataTargetDetails: state.vizPageDataTargetDetails,
   user: state.user,

@@ -261,6 +261,7 @@ export default function (state, action) {
       };
     case helpActionTypes.TOGGLE_INTRO:
       // if tour is being turned on, hide data search
+      // eslint-disable-next-line
       let { pageName, value } = action.payload;
       if (pageName !== VISUALIZATION_PAGE) {
         return state;

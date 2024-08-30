@@ -3,7 +3,7 @@ import * as vizActions from '../actions/visualization';
 import * as vizActionTypes from '../actionTypes/visualization';
 import { call, put, takeEvery } from 'redux-saga/effects';
 
-export function* requestTrajectoryPointCounts (action) {
+export function* requestTrajectoryPointCounts (/* action */) {
   let response = yield call(api.data.trajectoryCounts, null);
   if (response && response.ok) {
     let jsonResponse = yield response.json();

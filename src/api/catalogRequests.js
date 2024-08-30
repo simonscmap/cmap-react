@@ -1,23 +1,14 @@
 // api requests specific to the catalog page
 import { apiUrl, fetchOptions } from './config';
-import { fetchAndParseCSVData } from './apiHelpers';
+// import { fetchAndParseCSVData } from './apiHelpers';
 import logInit from '../Services/log-service';
 const log = logInit('catalogRequests');
 
 const catalogAPI = {};
 
-catalogAPI.datasets = async () => {
-  let endpoint = apiUrl + '/api/catalog/datasets';
-
-  return fetchAndParseCSVData({
-    endpoint,
-    options: {
-      fetchOptions,
-      collectorType: 'keyValue',
-    },
-    collector: (target, record) =>
-      (target[record.Dataset_Long_Name.trim()] = record),
-  });
+catalogAPI.datasetNames = async () => {
+  const endpoint = apiUrl + '/api/catalog/dataset-names';
+  return await fetch (endpoint, fetchOptions);
 };
 
 catalogAPI.submissionOptions = async () => {
@@ -105,8 +96,11 @@ catalogAPI.getDatasetFeatures = async () => {
     log.warn ('error fetching ci datasets', e);
     return null;
   }
-
-  return await response.json();
+  try {
+    return await response.json();
+  } catch (e) {
+    return e;
+  }
 };
 
 catalogAPI.fetchPopularDatasets = async () => {
@@ -174,4 +168,41 @@ catalogAPI.fetchProgramDetails = async (programName) => {
   return await fetch(apiUrl + '/api/catalog/programs/' + programName + '?downSample=true');
 }
 
-export default catalogAPI;
+
+
+// Wrap each endpoint in a try/catch because...
+// if the fetch fails before the request is sent, for example due to a CORS
+// violation or if the network is down,
+// then redux-saga will choke and no subsequent middleware will run,
+// effectively crippling the application.
+// yay error handling.
+
+let safeAPI = Object.entries(catalogAPI)
+  .map(([name, fn]) => {
+    return {
+      [name]: async (...args) => {
+        let result;
+        try {
+          result = await fn.apply(null, args);
+        } catch (e) {
+          if (e) {
+            result = e;
+          } else {
+            result = new Error(
+              'unknown error, the request may not have been sent',
+            );
+          }
+        }
+        return await result;
+      },
+    };
+  })
+  .reduce((accumulator, current) => {
+    return {
+      ...accumulator,
+      ...current,
+    };
+  }, {});
+
+
+export default safeAPI;

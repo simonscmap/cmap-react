@@ -8,6 +8,9 @@ import newsBannerStyles from './newsBannerStyles';
 import renderBody from './renderBody';
 import renderHeadline from './renderHeadline';
 
+
+// Card Componentry
+
 const ChipTheme = createTheme({
   palette: {
     primary: {
@@ -65,5 +68,6 @@ const Card = withStyles(newsBannerStyles)(
     );
   },
 );
+
 
 export default Card;

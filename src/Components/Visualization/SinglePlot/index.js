@@ -80,7 +80,7 @@ const SinglePlot = () => {
   let { viztype, id } = params;
 
   let [ variable, setVariable ] = useState(null);
-  let [ rawData, setRawData ] = useState(null)
+  // let [ rawData, setRawData ] = useState(null)
   let [ chart, setChart ] = useState(null);
 
   // FETCH VARIABLE
@@ -116,8 +116,6 @@ const SinglePlot = () => {
         return;
       }
       if (result && result.finalize) {
-        // console.log ('sparse data result', result);
-        setRawData (result);
         result.finalize();
         setChart ({ subType: payload.subType, data: result });
       } else {
@@ -135,7 +133,6 @@ const SinglePlot = () => {
 
       if (result && result.finalize) {
         // console.log ('stored procedure result', result);
-        setRawData (result);
         result.finalize();
         setChart ({ subType: payload.subType, data: result });
       } else {

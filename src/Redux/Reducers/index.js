@@ -2,6 +2,7 @@ import catalog from './catalog';
 import user from './user';
 import ui from './ui';
 import news from './news';
+import notifications from './notifications';
 import visualization from './visualization';
 import dataSubmission from './dataSubmission.js';
 import help from './help.js';
@@ -89,8 +90,6 @@ const initialState = {
   cruiseFullPageData: {},
 
   // App (General Data)
-  cart: {},
-  showCart: false,
   tablesWithAncillaryData: null,
   tablesWithContinuousIngestion: null,
 
@@ -105,7 +104,7 @@ const initialState = {
   avgSSTData: null,
   avgADTData: null,
 
-  // Interface state pieces
+  // UI
   loginDialogIsOpen: false,
   changePasswordDialogIsOpen: false,
   changeEmailDialogIsOpen: false,
@@ -116,6 +115,13 @@ const initialState = {
   showHelp: false,
   windowHeight: window.innerHeight,
   windowWidth: window.innerWidth,
+  subscribeDatasetDialog: {
+    open: false,
+    shortName: null,
+  },
+  downloadDialog: {
+    open: false,
+  },
 
   // User state pieces
   user: JSON.parse(Cookies.get('UserInfo') || null), // catch much? // block much?
@@ -205,7 +211,15 @@ const initialState = {
       updateViewStatus: states.notTried,
       list: states.notTried,
     }
-  }
+  },
+
+  // Notifications && Subscriptions
+  notificationHistory: {},
+  notificationRecipientProjections: {},
+  notificationRecipientProjectionsRequestStatus: {},
+  sentNotifications: [],
+  sendNotificationsStatus: [],
+  reSendNotificationsStatus: [],
 };
 
 const reducedReducer = reduceReducers(
@@ -219,6 +233,7 @@ const reducedReducer = reduceReducers(
   news,
   highlights,
   data,
+  notifications,
 );
 
 export default reducedReducer;

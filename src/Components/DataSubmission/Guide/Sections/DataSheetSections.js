@@ -63,7 +63,6 @@ const useTableStyles = makeStyles((theme) => ({
       overflow: 'hidden',
     },
     '& ul': {
-      paddingLeft: 0,
       listStylePosition: 'outside',
       paddingLeft: '16px'
     },
@@ -177,7 +176,7 @@ const ColumnSection = (props) => {
       <BulletPoints bullets={item.bullets} />
 
       {Array.isArray(item.images) && item.images.map((image, i) => (
-        <div className={cl.scrollWrapper}>
+        <div className={cl.scrollWrapper} key={`${i}`}>
           <div className={cl.standoutBadgeNoOverlap}>Example: {image.alt}</div>
           <div className={cl.standoutBox} key={`${i}`}>
             <img

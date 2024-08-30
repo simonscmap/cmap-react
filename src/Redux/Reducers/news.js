@@ -28,15 +28,15 @@ const actionToAdminMsg = (action) => {
     case actions.CREATE_NEWS_ITEM_SEND:
       return `Creating new news item`;
     case actions.CREATE_NEWS_ITEM_FAILURE:
-      return `Failed to create news item`;
+    return `Failed to create news item ${action.payload.text}`;
     case actions.CREATE_NEWS_ITEM_SUCCESS:
       return `Successfully created news item`;
 
     //UPDATE
     case actions.UPDATE_NEWS_ITEM_SEND:
-      return `Updating news item with id ${action.payload.item.ID}`;
+      return `Updating news item with id ${action.payload.item.id}`;
     case actions.UPDATE_NEWS_ITEM_FAILURE:
-      return `Failed to update news item.`;
+    return `Failed to update news item. ${action.payload.text}`;
     case actions.UPDATE_NEWS_ITEM_SUCCESS:
       return `Successfully updated news item.`;
 
@@ -109,7 +109,7 @@ const computeAdminMessage = (state, action) => {
   if (msg) {
     // limit messages to the last 10
     return [`[${new Date().toLocaleTimeString()}]\n${msg}`].concat(
-      state.news.adminMessages.slice(0, 10),
+      state.news.adminMessages.slice(0, 100),
     );
   } else {
     return state.news.adminMessages;

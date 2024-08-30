@@ -5,9 +5,8 @@
 // - Page Title
 import React from 'react';
 import clsx from 'clsx';
-import { ThemeProvider, makeStyles } from '@material-ui/core/styles';
-import Typography from '@material-ui/core/Typography';
-import { homeTheme, colors } from '../Home/theme';
+import { makeStyles } from '@material-ui/core/styles';
+import { colors } from '../Home/theme';
 import Footer from '../Home/Footer';
 
 /* ~~~~~~~~~~~ Full Width Container ~~~~~~~~~~~~~*/

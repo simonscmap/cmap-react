@@ -76,7 +76,7 @@ const Results = (props) => {
                 <ChevronRight className={classes.datasetOpenIcon} />
               )}
               <Typography noWrap={true} className={classes.groupedByValue}>
-                { Boolean(groupedCruises[index][groupBy])
+                { groupedCruises[index][groupBy]
                   ? renderGroupTitle(groupBy, groupedCruises[index][groupBy])
                   : 'Other'}
               </Typography>
@@ -131,7 +131,7 @@ const Results = (props) => {
                     </div>
                   </Grid>
                   <Grid item xs={1} className={classes.cruiseItemRow}>
-                    <a href={`/catalog/cruises/${cruise.Name}`} target='_blank'>{cruise.Name}</a>
+                    <a href={`/catalog/cruises/${cruise.Name}`} target='_blank' rel="noreferrer">{cruise.Name}</a>
                   </Grid>
                   <Grid item xs={2} className={classes.cruiseItemRow}>
                     <Tooltip title={cruise.Nickname} enterDelay={200}>

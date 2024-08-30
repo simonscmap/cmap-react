@@ -115,6 +115,7 @@ const newsBannerStyles = (theme) => ({
   newsTitle: {
     width: 'calc(100% - 2em)',
     display: 'flex',
+
     flexDirection: 'row',
     justifyContent: 'flex-start',
     padding: '0 1em 0 0',
@@ -144,7 +145,14 @@ const newsBannerStyles = (theme) => ({
       wordBreak: 'break-word',
     },
     '& h2': {
-      margin: '.75em 0'
+      margin: '.75em 0',
+      color: theme.palette.secondary.main, // #A1F640;
+      fontSize: '1.125rem',
+      fontFamily: 'Montserrat,sans-serif',
+      fontWeight: 500,
+      lineHeight: 1.2,
+      letterSpacing: '0.05em',
+      textTransform: 'uppercase',
     },
     '& h2 a': {
       color: colors.blue.teal,

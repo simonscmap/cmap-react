@@ -73,13 +73,6 @@ export const copyTextToClipboard = (text) => ({
   },
 });
 
-export const setShowCart = (showCart) => ({
-  type: interfaceActionTypes.SET_SHOW_CART,
-  payload: {
-    showCart,
-  },
-});
-
 export const windowResize = (height, width) => ({
   type: interfaceActionTypes.WINDOW_RESIZE,
   payload: {
@@ -87,3 +80,35 @@ export const windowResize = (height, width) => ({
     width,
   },
 });
+
+export const subscribeDatasetDialogOpen = (shortName) => ({
+  type: interfaceActionTypes.SUBSCRIBE_DATASET_DIALOG_OPEN,
+  payload: {
+    shortName
+  }
+});
+
+export const subscribeDatasetDialogClear = () => ({
+  type: interfaceActionTypes.SUBSCRIBE_DATASET_DIALOG_CLEAR,
+});
+
+export const downloadDialogOpen = (shortName) => ({
+  type: interfaceActionTypes.DOWNLOAD_DIALOG_OPEN,
+  payload: {
+    shortName,
+  }
+});
+
+export const downloadDialogClear = () => ({
+  type: interfaceActionTypes.DOWNLOAD_DIALOG_CLEAR,
+});
+
+export const setDownloadDialogData = (data) => ({
+  type: interfaceActionTypes.SET_DOWNLOAD_DIALOG_DATA,
+  payload: data
+});
+
+export const setFetchDownloadDialogDataRequestState = (status) => ({
+  type: interfaceActionTypes.SET_FETCH_DOWNLAD_DIALOG_DATA_REQUEST_STATE,
+  payload: status,
+})

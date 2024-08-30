@@ -6,18 +6,11 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import { withStyles } from '@material-ui/core';
 import {
-  Button,
   Chip,
-  FormControl,
-  FormHelperText,
   Grid,
   InputAdornment,
-  Link,
   makeStyles,
-  MenuItem,
   Paper,
-  Select,
-  Tabs,
   TextField,
   Tooltip,
   Typography,
@@ -26,19 +19,16 @@ import ToggleButton from '@material-ui/lab/ToggleButton';
 import { Search } from '@material-ui/icons';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import { debounce } from 'throttle-debounce';
-import MultiCheckboxDropdown from '../UI/MultiCheckboxDropdown';
 import queryString from 'query-string';
 import colors from '../../enums/colors';
 import Hint from '../Navigation/Help/Hint';
 import SearchHint from './help/keywordSearchHint';
-import SearchFiltersHint from './help/SearchFiltersHint';
 import CatalogPageTitleHint from './help/pageTitleHint';
-import AdditionalFiltersHint from './help/AdditionalFiltersHint';
 import SortingControls from './SortingControls';
 import initLogger from '../../Services/log-service';
 import styles from './searchPanelStyles';
 // New Drop Down
-import { DropDownContainer, CheckboxSet } from '../UI/DropDown';
+import { CheckboxSet } from '../UI/DropDown';
 import { TemporalCoverageOptions } from './TemporalCoverageOptions';
 import { SpatialCoverageOptions } from './SpatialCoverageOptions';
 
@@ -223,20 +213,6 @@ class CatalogSearch extends React.Component {
       .concat ((setToChips ('region') (region)))
       .concat ((setToChips ('dataFeatures') (dataFeatures)))
 
-
-    // taking the page header and its hint out of action for now
-    const hints = (<Hint
-            content={CatalogPageTitleHint}
-            position={{ beacon: 'top-end', hint: 'right' }}
-            styleOverride={{
-              wrapper: { display: 'inline-block' },
-              beacon: { right: '-1.4em', top: '-.2em' },
-            }}
-            size={'large'}
-          >
-            <span className={classes.pageTitle}>Catalog</span>
-          </Hint>);
-
     return (
       <div className={classes.divWrapper}>
         <Paper elevation={4} className={classes.searchPaper}>
@@ -290,7 +266,6 @@ class CatalogSearch extends React.Component {
               {this.state.showAdditionalFilters &&
                 <div className={classes.scrollingOptionsContainer}>
                   <div className={classes.searchOptionsContainer} id="catSearchOptions">
-
 
                     <FilterCard title={'Data Features'}>
                       <CheckboxSet

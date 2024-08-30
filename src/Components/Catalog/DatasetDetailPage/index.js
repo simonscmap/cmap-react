@@ -1,1 +1,1 @@
-export { default } from './DatasetDetailPage';
+export { default, datasetDetailConfig } from './DatasetDetailPage';

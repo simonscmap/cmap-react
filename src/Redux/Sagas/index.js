@@ -54,7 +54,15 @@ import {
   watchContactUs,
   watchNominateNewData,
   watchFetchLastUserTouch,
+  watchFetchUserSubscriptions,
+  watchCreateSubscription,
+  watchDeleteSubscriptions,
 } from './userSagas';
+
+import {
+  watchFetchDatasetNames,
+  watchDownloadDialogOpen,
+} from './catalog';
 
 import {
   watchRequestNewsList,
@@ -77,6 +85,14 @@ import {
   watchCategorizeNewsItem,
   watchCategorizeNewsItemSuccess,
 } from './news';
+
+import {
+  watchFetchNotificationHistory,
+  watchFetchNotificationProjection,
+  watchFetchNotificationPreviews,
+  watchSendNotifications,
+  watchReSendNotifications,
+} from './notifications';
 
 import {
   watchCheckDownloadSize,
@@ -393,20 +409,22 @@ function* updateUserInfoRequest(action) {
   const tag = { tag: 'updateUserInfoRequest' };
   yield put(interfaceActions.setLoadingMessage('Updating your information', tag));
 
-  let result = yield call(api.user.updateUserInfo, action.payload);
+  let response = yield call(api.user.updateUserInfo, action.payload);
 
-  if (result.failed) {
-    yield put(interfaceActions.setLoadingMessage('', tag));
-    if (result.status === 401) {
-      yield put(userActions.refreshLogin());
-    } else {
-      yield put(
-        interfaceActions.snackbarOpen('An error occurred. Please try again.', tag),
-      );
-    }
-  } else {
+  if (response.ok) {
+    const msg = action.payload.successMessage || 'Your information was updated.';
     yield put(userActions.storeInfo(JSON.parse(Cookies.get('UserInfo'))));
-    yield put(interfaceActions.snackbarOpen('Your information was updated', tag));
+    yield put(interfaceActions.snackbarOpen(msg, tag));
+  } else if (response.status === 401) {
+    yield put(interfaceActions.setLoadingMessage('', tag));
+    const snack401Message = 'The request to update your profile failed to authorize, please login again.';
+    yield put(interfaceActions.snackbarOpen(snack401Message, tag));
+    yield put(userActions.refreshLogin());
+  } else {
+    yield put(interfaceActions.setLoadingMessage('', tag));
+    const errorMessage = 'An error occurred. Please try again.';
+    yield put(interfaceActions.snackbarOpen(errorMessage, tag));
+
   }
 
   yield put(interfaceActions.setLoadingMessage('', tag));
@@ -926,8 +944,7 @@ function* retrieveMostRecentFile(action) {
   }
 }
 
-function* fetchSubmissionOptions (action) {
-  const tag = { tag: 'fetchSubmissionOpttions' };
+function* fetchSubmissionOptions () {
   let storedOptions = yield select(
     (state) => state.dataSubmissionSelectOptions,
   );
@@ -1206,7 +1223,6 @@ function* datasetFullPageDataFetch(action) {
   yield put(
     catalogActions.datasetFullPageDataSetLoadingState(states.inProgress),
   );
-  console.log('calling api.catalog.datasetFullPageDataFetch')
   // fullpage data returns Dasaset info and Cruises
   // Dataset info resolves any enum values from reference tables
   // and pulls in dataset stats for spacetime min/max data,
@@ -1218,10 +1234,7 @@ function* datasetFullPageDataFetch(action) {
   );
 
   if (result.ok) {
-    console.log('request ok');
     let results = yield result.json();
-    console.log('marshalled json');
-    console.log(results);
     yield put(catalogActions.datasetFullPageDataStore(results));
     yield put(
       catalogActions.datasetFullPageDataSetLoadingState(states.succeeded),
@@ -1323,39 +1336,6 @@ function* cruiseFullPageDataFetch(action) {
   }
 }
 
-function* cartPersistAddItem(action) {
-  let formData = { itemID: action.payload.datasetID };
-  yield call(api.user.cartPersistAddItem, formData);
-}
-
-function* cartPersistRemoveItem(action) {
-  let formData = { itemID: action.payload.datasetID };
-  yield call(api.user.cartPersistRemoveItem, formData);
-}
-
-function* cartPersistClear() {
-  yield call(api.user.cartPersistClear);
-}
-
-function* cartGetAndStore() {
-  const tag = { tag: 'cartGetAndStore' };
-
-  let result = yield call(api.user.getCart);
-
-  if (result.ok) {
-    let results = yield result.json();
-    let formattedResults = results.reduce((acc, dataset) => {
-      acc[dataset.Long_Name] = dataset;
-      return acc;
-    }, {});
-
-    yield put(catalogActions.cartAddMultiple(formattedResults));
-  } else {
-    yield put(
-      interfaceActions.snackbarOpen('Unable to retrieve cart information', tag),
-    );
-  }
-}
 
 function* vizSearchResultsFetch(action) {
   const tag = { tag: 'vizSearchResultsFetch' };
@@ -1373,7 +1353,6 @@ function* vizSearchResultsFetch(action) {
 
   const searchResponse = yield call(api.visualization.variableSearch, qString);
   const storedOptions = yield select((state) => state.submissionOptions);
-  const cart = yield select((state) => state.cart);
 
   if (searchResponse.ok) {
     const { counts, variables } = yield searchResponse.json();
@@ -1382,7 +1361,7 @@ function* vizSearchResultsFetch(action) {
       storedOptions,
       params,
     );
-    let datasets = groupVariablesByDataset(variables, cart);
+    let datasets = groupVariablesByDataset(variables);
     let makes = groupDatasetsByMake(datasets);
     yield put(
       visualizationActions.vizSearchResultsStoreAndUpdateOptions(
@@ -1987,25 +1966,6 @@ function* watchCruiseFullPageDataFetch() {
   );
 }
 
-function* watchCartPersistAddItem() {
-  yield takeLatest(userActionTypes.CART_PERSIST_ADD_ITEM, cartPersistAddItem);
-}
-
-function* watchCartPersistRemoveItem() {
-  yield takeLatest(
-    userActionTypes.CART_PERSIST_REMOVE_ITEM,
-    cartPersistRemoveItem,
-  );
-}
-
-function* watchCartPersistClear() {
-  yield takeLatest(userActionTypes.CART_PERSIST_CLEAR, cartPersistClear);
-}
-
-function* watchCartGetAndStore() {
-  yield takeLatest(userActionTypes.CART_GET_AND_STORE, cartGetAndStore);
-}
-
 function* watchVizSearchResultsFetch() {
   yield debounce(
     450,
@@ -2090,6 +2050,13 @@ function* watchIngestCookies() {
   yield takeLatest(userActionTypes.INGEST_COOKIES, ingestCookies);
 }
 
+function* watchChangeNewsSubscription () {
+  yield takeLatest (
+    userActionTypes.CHANGE_NEWS_SUBSCRIPTION,
+    updateUserInfoRequest, // use update profile saga
+  );
+}
+
 function* rootSaga() {
   yield all([
     watchUserLogin(),
@@ -2137,10 +2104,6 @@ function* rootSaga() {
     watchDatasetVariablesFetch(),
     watchDatasetVariableUMFetch(),
     watchCruiseFullPageDataFetch(),
-    watchCartPersistAddItem(),
-    watchCartPersistRemoveItem(),
-    watchCartPersistClear(),
-    watchCartGetAndStore(),
     watchVizSearchResultsFetch(),
     watchMemberVariablesFetch(),
     watchAutocompleteVariableNamesFetch(),
@@ -2191,6 +2154,17 @@ function* rootSaga() {
     watchFetchProgramsSend(),
     watchFetchProgramDetailsSend(),
     watchProgramSampleVisDataFetch(),
+    watchFetchUserSubscriptions(),
+    watchCreateSubscription(),
+    watchDeleteSubscriptions(),
+    watchFetchDatasetNames(),
+    watchFetchNotificationHistory(),
+    watchFetchNotificationProjection(),
+    watchChangeNewsSubscription(),
+    watchFetchNotificationPreviews(),
+    watchSendNotifications(),
+    watchReSendNotifications(),
+    watchDownloadDialogOpen(),
   ]);
 }
 

@@ -4,12 +4,10 @@ import {
   Typography,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import React, { useState, useEffect } from 'react';
-import styles from './cruiseSelectorStyles';
+import React, { useEffect } from 'react';
 import ClearIcon from '@material-ui/icons/Clear';
 import {AiOutlineNodeExpand} from 'react-icons/ai';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
-import colors from '../../enums/colors';
 import { snackbarOpen } from '../../Redux/actions/ui';
 import { useDispatch } from 'react-redux';
 
@@ -194,7 +192,7 @@ const SelectorSummary = (props) => {
           {selected.map((selectedCruiseName, i) => (
             <Grid container key={`selected-row-item${i}`} >
               <Grid item xs={3}>
-                <a href={`/catalog/cruises/${selectedCruiseName}`} target="_blank">
+                <a href={`/catalog/cruises/${selectedCruiseName}`} target="_blank" rel="noreferrer">
                   <Typography variant="body1">
                     {selectedCruiseName} <OpenInNewIcon style={{ fontSize: '.9em' }} />
                   </Typography>

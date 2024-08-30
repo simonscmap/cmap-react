@@ -17,8 +17,12 @@ const meta = {
 // Helpers
 
 const rankSort = (a, b) => {
-  if (a.rank >= b.rank) return -1;
-  if (a.rank < b.rank) return 1;
+  if (a.rank >= b.rank) {
+return -1;
+}
+  if (a.rank < b.rank) {
+return 1;
+}
   return 0;
 };
 

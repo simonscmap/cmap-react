@@ -1,27 +1,35 @@
 import React, { useEffect, useState } from 'react';
 import { ThemeProvider, withStyles } from '@material-ui/core/styles';
+import { useDispatch, useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
+
 import Typography from '@material-ui/core/Typography';
+import Accordion from '@material-ui/core/Accordion';
+import AccordionDetails from '@material-ui/core/AccordionDetails';
+import AccordionSummary from '@material-ui/core/AccordionSummary';
+import Button from '@material-ui/core/Button';
+
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+
 import { homeTheme } from '../../Home/theme';
 import Footer from '../../Home/Footer';
-import Section, { FullWidthContainer } from '../../Common/Section';
-import { useDispatch, useSelector } from 'react-redux';
+import { FullWidthContainer, SectionTitle } from '../../Common/Section';
 import { requestNewsList } from '../../../Redux/actions/news';
+import { fetchDatasetNames } from '../../../Redux/actions/catalog';
 import { previewStories } from './lib';
-import { useHistory } from 'react-router-dom';
 import NewsBanner from '../../Home/News';
 import StoryList from './StoryList';
 import Controls from './Controls';
 import Create from './Create';
 import EditRankDraggableList from './EditRanksDraggableList';
-import Link from '@material-ui/core/Link';
 import Guide from './Guide';
 
-const styles = () => ({
+const styles = (theme) => ({
   preview: {
     marginBottom: '2em',
   },
   titleSection: {
-    padding: '150px 0 50px 0',
+    padding: '0 0 50px 0',
   },
   pageContainer: {
     width: '100%',
@@ -36,6 +44,38 @@ const styles = () => ({
     flexDirection: 'row',
     gap: '10px',
   },
+  split: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: '2em',
+    width: 'calc(100% - 80px)', // mimic section width adjustment
+    maxWidth: '1870px', // ditto
+    margin: 'auto',
+  },
+  primary: {
+    flex: 1,
+  },
+  secondary: {
+    padding: '1em',
+    minWidth: '400px',
+  },
+  guideBttn: {
+    padding: '3px 10px',
+    borderRadius: '2em',
+    float: 'right',
+    borderColor: theme.palette.secondary.main,
+    color: 'white',
+  },
+  messages: {
+    marginTop: '1em',
+    maxHeight: '200px',
+    overflowY: 'scroll',
+
+  },
+  spacer: {
+    height: '100px'
+  }
 });
 
 const Dashboard = (props) => {
@@ -45,6 +85,7 @@ const Dashboard = (props) => {
   // redirect if user is not logged in
   // or if user is not an admin
   let user = useSelector((state) => state.user);
+  let messages = useSelector(({ news }) => news.adminMessages);
   let history = useHistory();
 
   if (!user) {
@@ -55,10 +96,12 @@ const Dashboard = (props) => {
 
   useEffect(() => {
     // do this once
-    dispatch(requestNewsList());
+    dispatch (requestNewsList ());
+    dispatch (fetchDatasetNames ());
   }, []);
 
-  let [guideOpen, setGuideOpen] = useState(false);
+  const [guideOpen, setGuideOpen] = useState(false);
+  const [previewOpen, setPreviewOpen] = React.useState(false);
 
   // pass stories into the news banner
   let stories = useSelector((state) => state.news.stories);
@@ -67,31 +110,47 @@ const Dashboard = (props) => {
   return (
     <ThemeProvider theme={homeTheme}>
       <div className={classes.pageContainer}>
-        <FullWidthContainer bgVariant={'slate2'} minWidth={950}>
-          <Section>
-            <div className={classes.titleSection}>
-              <Typography variant="h1">News Admin</Typography>
+        <FullWidthContainer bgVariant={'slate2'} minWidth={950} paddingTop={150}>
+          <div className={classes.split}>
+            <div className={classes.primary}>
+              <SectionTitle title={"News Admin"} />
+              <Accordion expanded={previewOpen} onChange={() => setPreviewOpen(!previewOpen)}>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  Expand to See News Preview
+                </AccordionSummary>
+                <AccordionDetails>
+                  <div className={classes.preview}></div>
+                  <NewsBanner stories={preview} />
+                </AccordionDetails>
+              </Accordion>
             </div>
-            <Link
-              component="button"
-              variant="body2"
-              onClick={() => setGuideOpen(true)}
-              style={{ color: 'white'}}
-            >
-              Open usage guide.
-            </Link>
-          </Section>
+            <div className={classes.secondary}>
+              <Guide open={guideOpen} handleClose={() => setGuideOpen(false)} />
+              <Button
+                className={classes.guideBttn}
+                variant="outlined"
+                onClick={() => setGuideOpen(true)}>
+                Open Usage Guide
+              </Button>
 
-          <Guide open={guideOpen} handleClose={() => setGuideOpen(false)} />
-          <Section title="Preview" textStyles={false}>
-            <div className={classes.preview}></div>
-            <NewsBanner stories={preview} />
-          </Section>
+              <Typography variant="h3">Event Log</Typography>
+              <div className={classes.messages}>
+                {messages.length
+                 ? messages.map((msg, i) => (
+                   <Typography key={i} variant="body2">
+                     {msg}
+                   </Typography>
+                 ))
+                 : 'No messages.'}
+              </div>
+            </div>
+          </div>
 
           <Create />
           <Controls />
           <StoryList />
           <EditRankDraggableList />
+          <div className={classes.spacer}></div>
         </FullWidthContainer>
       </div>
       <Footer />

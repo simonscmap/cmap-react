@@ -12,8 +12,13 @@ import {
   HIDE_CHANGE_EMAIL_DIALOG,
   SHOW_CHANGE_PASSWORD_DIALOG,
   HIDE_CHANGE_PASSWORD_DIALOG,
-  SET_SHOW_CART,
   WINDOW_RESIZE,
+  SUBSCRIBE_DATASET_DIALOG_OPEN,
+  SUBSCRIBE_DATASET_DIALOG_CLEAR,
+  DOWNLOAD_DIALOG_OPEN,
+  DOWNLOAD_DIALOG_CLEAR,
+  SET_DOWNLOAD_DIALOG_DATA,
+  SET_FETCH_DOWNLAD_DIALOG_DATA_REQUEST_STATE,
 } from '../actionTypes/ui';
 
 const uiResetState = {
@@ -27,6 +32,8 @@ const uiResetState = {
   userRegistrationState: null,
   apiKeyRetrievalState: null,
   apiKeyCreationState: null,
+  subscribeDatasetDialog: { open: false },
+  downloadDialog: { open: false },
 };
 
 export default function (state, action) {
@@ -98,17 +105,61 @@ export default function (state, action) {
         ...state,
         changePasswordDialogIsOpen: false,
       };
-    case SET_SHOW_CART:
-      return {
-        ...state,
-        showCart: action.payload.showCart,
-      };
     case WINDOW_RESIZE:
       return {
         ...state,
         windowHeight: action.payload.height,
         windowWidth: action.payload.width,
       };
+    case SUBSCRIBE_DATASET_DIALOG_OPEN:
+      return {
+        ...state,
+        subscribeDatasetDialog: {
+          open: true,
+          shortName: action.payload.shortName,
+        }
+      };
+    case SUBSCRIBE_DATASET_DIALOG_CLEAR:
+      return {
+        ...state,
+        subscribeDatasetDialog: {
+          open: false,
+        }
+      };
+     case DOWNLOAD_DIALOG_OPEN:
+      return {
+        ...state,
+        downloadDialog: {
+          open: true,
+          shortName: action.payload.shortName,
+        }
+      };
+    case DOWNLOAD_DIALOG_CLEAR:
+      return {
+        ...state,
+        downloadDialog: {
+          open: false,
+        }
+      };
+    case SET_DOWNLOAD_DIALOG_DATA:
+      return {
+        ...state,
+        downloadDialog: {
+          // set fullPageData in dialog
+          ...state.downloadDialog,
+          data: action.payload,
+        }
+      };
+    case SET_FETCH_DOWNLAD_DIALOG_DATA_REQUEST_STATE:
+      return {
+        ...state,
+        downloadDialog: {
+          // set fullPageData in dialog
+          ...state.downloadDialog,
+          requestStatus: action.payload,
+        }
+      };
+
     default:
       return state;
   }

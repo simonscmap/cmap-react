@@ -34,7 +34,8 @@ const useStyles = makeStyles((theme) => ({
     whiteSpace: 'nowrap',
   },
   monoValue: {
-    fontFamily: 'mono',
+    fontFamily: 'Courier',
+    fontWeight: 'bold',
     color: theme.palette.primary.light,
   },
 }));

@@ -14,7 +14,6 @@ const useStyles = makeStyles((theme) => ({
   },
   paper: {
     padding: theme.spacing(1),
-    // background: 'rgba(0,0,0,0.2)',
   },
   popContent: {
     display: 'inline-grid',
@@ -39,7 +38,8 @@ const useStyles = makeStyles((theme) => ({
     height: '20px',
   },
   monoValue: {
-    fontFamily: 'mono',
+    fontFamily: 'Courier',
+    fontWeight: 'bold',
     color: theme.palette.primary.light,
   },
 }));
@@ -84,11 +84,11 @@ const PopperCopy = (props) => {
         id={`mouseOverPopperControl_${label || 'x'}`}
         open={isOpen}
         anchorEl={anchorEl}
-        anchorOrigin={{
+        anchororigin={{
           vertical: 'bottom',
           horizontal: 'left',
         }}
-    transformOrigin={{
+        transformorigin={{
           vertical: 'top',
           horizontal: 'left',
         }}

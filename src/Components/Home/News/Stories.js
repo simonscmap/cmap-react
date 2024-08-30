@@ -3,6 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import React, { useLayoutEffect, useState } from 'react';
 import Card from './Card';
 import newsBannerStyles from './newsBannerStyles';
+import Subscribe from '../../User/Subscriptions/SubscribeNews';
 
 const useStyle = makeStyles(newsBannerStyles);
 
@@ -60,6 +61,7 @@ const NewsSection = ({ stories }) => {
     <div className={classes.newsFlowContainer}>
       <div className={classes.sectionTitleContainer} >
         <NewsCategoryHeading title={"News"} />
+        <Subscribe />
       </div>
     <div
       id={'news-flow'}

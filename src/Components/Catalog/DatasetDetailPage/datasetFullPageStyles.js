@@ -26,6 +26,13 @@ const styles = (theme) => ({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
+  buttonsContainer: {
+    whiteSpace: 'nowrap',
+    '& > div': {
+      verticalAlign: 'middle',
+      margin: '0 5px',
+    }
+  },
   divider: {
     backgroundColor: theme.palette.primary.main,
     marginBottom: '8px',
@@ -37,9 +44,11 @@ const styles = (theme) => ({
     fontSize: '.7rem',
   },
   outerContainer: {
-    marginTop: '100px',
+    // marginTop: '100px',
     color: 'white',
-    padding: '0 10px'
+    padding: '0 10px',
+    maxWidth: '1900px',
+    margin: '0 auto',
   },
   errorContainer: {
     paddingTop: '100px',
@@ -50,7 +59,7 @@ const styles = (theme) => ({
   markdown: {
     // minHeight: '500px',
     [theme.breakpoints.down('sm')]: {
-      minHeight: 0,
+      // minHeight: 0,
     },
     '& img': {
       maxWidth: '100%',
@@ -70,12 +79,17 @@ const styles = (theme) => ({
     },
   },
   downloadLink: {
-    color: colors.primary,
+    color: theme.palette.primary.main,
     display: 'inline-block',
     marginRight: '1em',
+    border: `2px solid ${theme.palette.primary.main}`,
+    borderRadius: '2em',
+    padding: '3px 16px',
     '& > svg': {
       marginBottom: '-5px',
       marginRight: '5px',
+      height: '18px',
+      width: '18px',
     },
   },
   smallText: {
@@ -112,7 +126,16 @@ const styles = (theme) => ({
   },
   gridSection: {
     marginTop: '3em'
-  }
+  },
+  horizontalFlex: { // accomodate news in description area
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: '2em',
+  },
+  descriptionContainer: {
+    flex: 2,
+  },
 });
 
 export default styles;

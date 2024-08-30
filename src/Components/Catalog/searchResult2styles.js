@@ -44,7 +44,7 @@ const styles = (theme) => ({
   fixedWidthText: {
     fontSize: '.9rem',
     textOverflow: 'ellipsis',
-    fontFamily: 'mono',
+    fontFamily: 'Courier',
     color: theme.palette.secondary.light,
   },
   cartButtonClass: {
@@ -80,9 +80,12 @@ const styles = (theme) => ({
     alignItems: 'center',
     gap: '.5em',
   },
+  chip: {
+    height: '20px',
+    padding: '0 5px',
+  },
   bottomAlignedText: {
     display: 'inline-block',
-    // marginBottom: '-5px',
     whiteSpace: 'nowrap',
   },
 });

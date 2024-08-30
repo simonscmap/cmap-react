@@ -10,28 +10,37 @@ const editorStyles = (theme) => ({
     margin: '2em 0',
   },
   panelContainer: {
+    margin: '1em 0',
+
+  },
+
+  // ------------
+  editorAndPreview: {
     display: 'flex',
     flexDirection: 'row',
-    alignContent: 'center',
-    alignItems: 'start',
-    justifyContent: 'start',
-    gap: '2em',
+    flexWrap: 'wrap',
+    '& > div': {
+      minWidth: '400px'
+    },
     margin: '1em 0',
-  },
-  first: {
-    width: '50%'
+    gap: '1em'
   },
   cardContainer: {
     display: 'flex',
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignContent: 'start',
   },
   cardBackdrop: {
     margin: '0 0 1em 0',
-    // padding: '30px',
-    overflow: 'hidden',
     position: 'relative',
-    maxWidth: 'calc(100% - 30px)',
+    '& > div': {
+      minWidth: '500px',
+    }
+  },
+  editorContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    flex: 1,
   },
   editor: {
     display: 'flex',
@@ -41,11 +50,28 @@ const editorStyles = (theme) => ({
     padding: '10px',
     overflow: 'hidden',
     position: 'relative',
-    maxWidth: 'calc(100% - 30px)',
-    background: '#07274D',
+    background: 'rgba(0,0,0,0.2)',
     borderRadius: '6px',
   },
+  // ---
+  tagsAndEmail: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    '& > div': {
+      minWidth: '400px'
+    },
+    margin: '1em 0',
+    gap: '1em'
+  },
+  tagManagerContainer: {
 
+  },
+  emailContainer: {
+
+  },
+
+  // =====
   controls: {
     display: 'flex',
     flexDirection: 'row',
@@ -55,7 +81,7 @@ const editorStyles = (theme) => ({
   textField: {
     border: `1px solid ${colors.blue.slate}`,
     borderRadius: '4px',
-    background: colors.blue.dark,
+    background: 'rgba(0,0,0,0.2)',
     '& input': {
       fontSize: `${pxToRem[14]}`,
       border: 0,

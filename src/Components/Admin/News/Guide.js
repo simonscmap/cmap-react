@@ -5,7 +5,6 @@ import renderBody from '../../Home/News/renderBody';
 import newsBannerStyles from '../../Home/News/newsBannerStyles';
 import Typography from '@material-ui/core/Typography';
 import SlideOutPanel from '../../Common/SlideOutPanel';
-import { useSelector } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = {
@@ -132,7 +131,6 @@ const Preview = withStyles(newsBannerStyles)(({ classes, text, children }) => {
 
 const Guide = withStyles(styles)((props) => {
   let { open, handleClose, classes } = props;
-  let messages = useSelector(({ news }) => news.adminMessages);
   return (
     <SlideOutPanel open={open} handleClose={handleClose} title="Usage Guide">
       <div className={classes.guideContainer}>
@@ -182,20 +180,6 @@ const Guide = withStyles(styles)((props) => {
           begin with a forward slash "/".
         </Typography>
 
-        <Typography variant="h3">Messages</Typography>
-        <Typography variant="h6">
-          Messages network operations will appear hear
-        </Typography>
-
-        <Banner variant="blue">
-          {messages.length
-            ? messages.map((msg, i) => (
-                <Typography key={i} variant="body2">
-                  {msg}
-                </Typography>
-              ))
-            : 'No messages.'}
-        </Banner>
       </div>
     </SlideOutPanel>
   );

@@ -14,7 +14,7 @@ export const userLoginRequestProcessing = () => {
 };
 
 // TODO do something with the error
-export const userLoginRequestFailure = (error) => ({
+export const userLoginRequestFailure = (/* error */) => ({
   type: userActionTypes.LOGIN_REQUEST_FAILURE,
 });
 
@@ -257,28 +257,6 @@ export const changeEmailRequestSend = (email, password, username) => ({
   },
 });
 
-export const cartPersistAddItem = (datasetID) => ({
-  type: userActionTypes.CART_PERSIST_ADD_ITEM,
-  payload: {
-    datasetID,
-  },
-});
-
-export const cartPersistRemoveItem = (datasetID) => ({
-  type: userActionTypes.CART_PERSIST_REMOVE_ITEM,
-  payload: {
-    datasetID,
-  },
-});
-
-export const cartPersistClear = () => ({
-  type: userActionTypes.CART_PERSIST_CLEAR,
-});
-
-export const cartGetAndStore = () => ({
-  type: userActionTypes.CART_GET_AND_STORE,
-});
-
 export const guestTokenRequestSend = () => ({
   type: userActionTypes.GUEST_TOKEN_REQUEST_SEND,
 });
@@ -323,4 +301,53 @@ export const setLastDatasetTouch = ({ userId, dateObj }) => ({
 export const clearLastDatasetTouch = ( userId ) => ({
   type: userActionTypes.CLEAR_LAST_DATASET_TOUCH,
   payload: userId,
+});
+
+/* fetch subscriptions */
+export const fetchSubscriptions = () => ({
+  type: userActionTypes.FETCH_SUBSCRIPTIONS_SEND,
+});
+
+export const fetchSubscriptionsSuccess = (result) => ({
+  type: userActionTypes.FETCH_SUBSCRIPTIONS_SUCCESS,
+  payload: result,
+});
+
+export const setFetchSubsRequestStatus = (status) => ({
+  type: userActionTypes.SET_FETCH_SUBSCRIPTIONS_REQUEST_STATUS,
+  payload: status,
+});
+
+/* create subscription */
+export const createSubscription = (args) => ({
+  type: userActionTypes.CREATE_SUBSCRIPTION_SEND,
+  payload: args,
+});
+
+export const setCreateSubsRequestStatus = (status) => ({
+  type: userActionTypes.SET_CREATE_SUBSCRIPTION_REQUEST_STATUS,
+  payload: status,
+});
+
+/* delete subscriptions */
+export const deleteSubscription = (args) => ({
+  type: userActionTypes.DELETE_SUBSCRIPTIONS_SEND,
+  payload: args,
+});
+
+export const setDeleteSubsRequestStatus = (status) => ({
+  type: userActionTypes.SET_DELETE_SUBSCRIPTIONS_REQUEST_STATUS,
+  payload: status,
+});
+
+/* change news subscription */
+
+export const changeNewsSubscription = (subValue) => ({
+  type: userActionTypes.CHANGE_NEWS_SUBSCRIPTION,
+  payload: {
+    successMessage: `You have successfully ${subValue ? 'subscribed to' : 'unsubscribed from'} Simons CMAP News`,
+    userInfo: {
+      isNewsSubscribed: subValue // boolean
+    }
+  },
 });

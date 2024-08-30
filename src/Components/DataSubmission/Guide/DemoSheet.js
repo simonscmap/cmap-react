@@ -121,7 +121,7 @@ const Demo = (props) => {
 
   source.forEach ((row, rix) => {
     orderedColumns.forEach ((colName, cix) => {
-      cells.push (<input className={cl.input} value={row[colName]} key={`${rix}_${cix}`}/>);
+      cells.push (<input className={cl.input} readOnly value={row[colName]} key={`${rix}_${cix}`}/>);
     });
   });
 

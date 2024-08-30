@@ -948,7 +948,7 @@ class ValidationTool extends React.Component {
       <div className={classes.validationToolWrapper}>
         <DeleteEmptyRowConfirmation data={this.state.delRow} remove={this.removeRow} close={this.closeRemoveRowDialog} />
         <StepAssistant step={this.state.step} changeStep={this.handleChangeValidationStep} />
-        <FullWidthContainer>
+        <FullWidthContainer paddingTop={120}>
           <Section>
 
             <Header newLongName={longName} step={validationStep} />

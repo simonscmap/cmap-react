@@ -79,6 +79,7 @@ export const datasetFullPageDataStore = (response) => ({
     references: response.references,
     cruises: response.cruises,
     sensors: response.sensors,
+    news: response.news,
   },
 });
 
@@ -209,33 +210,6 @@ export const cruiseFullPageDataSetLoadingState = (state) => ({
   type: catalogActionTypes.CRUISE_FULL_PAGE_DATA_SET_LOADING_STATE,
   payload: {
     state,
-  },
-});
-
-/************** Favorites **********************/
-
-export const cartAddItem = (item) => ({
-  type: catalogActionTypes.CART_ADD_ITEM,
-  payload: {
-    item,
-  },
-});
-
-export const cartRemoveItem = (item) => ({
-  type: catalogActionTypes.CART_REMOVE_ITEM,
-  payload: {
-    item,
-  },
-});
-
-export const cartClear = () => ({
-  type: catalogActionTypes.CART_CLEAR,
-});
-
-export const cartAddMultiple = (items) => ({
-  type: catalogActionTypes.CART_ADD_MULTIPLE,
-  payload: {
-    items,
   },
 });
 
@@ -394,7 +368,7 @@ export const storeProgramDetails = (programs) => ({
   payload: programs,
 });
 
-export const fetchProgramDetailsFailure = ({ message, error }) => ({
+export const fetchProgramDetailsFailure = ({ message, /* error */ }) => ({
   type: catalogActionTypes.FETCH_PROGRAM_DETAILS_FAILURE,
   payload: {
     message,
@@ -453,4 +427,18 @@ export const programSampleVisDataStore = ({ datasetShortName, variableId, variab
     variableData,
     data,
   },
+});
+
+export const fetchDatasetNames = () => ({
+  type: catalogActionTypes.FETCH_DATASET_NAMES
+});
+
+export const fetchDatasetNamesSuccess = (result) => ({
+  type: catalogActionTypes.FETCH_DATASET_NAMES_SUCCESS,
+  payload: result,
+});
+
+export const setDatasetNamesRequestStatus = (status) => ({
+  type: catalogActionTypes.SET_DATASET_NAMES_REQUEST_STATUS,
+  payload: status,
 });

@@ -148,7 +148,7 @@ class ApiKeyManagement extends Component {
           <Grid
             container={true}
             alignItems="center"
-            justify="center"
+            justifyContent="center"
             spacing={4}
           >
             <Grid item>

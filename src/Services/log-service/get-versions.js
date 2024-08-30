@@ -1,5 +1,6 @@
-import pkg from '../../../package.json';
+import buildInfo from '../../buildInfo.json';
 
 export const versions = {
-  web: pkg.version,
+  web: buildInfo && buildInfo.version,
+  buildTime: buildInfo && buildInfo.buildDate,
 };

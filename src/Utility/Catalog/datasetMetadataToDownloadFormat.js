@@ -1,5 +1,5 @@
 const datasetMetadataToDownloadFormat = (metadata) => {
-  let { dataset, cruises, references, variables, sensors } = metadata;
+  let { dataset, cruises, references, variables, /* sensors */ } = metadata;
   let datasetRows = [];
 
   datasetRows.push({

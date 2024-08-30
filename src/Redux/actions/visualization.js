@@ -133,7 +133,7 @@ export const cruiseTrajectoryZoomTo = (cruiseId) => ({
   payload: cruiseId,
 });
 
-export const cruiseListRequestSend = (id) => ({
+export const cruiseListRequestSend = () => ({
   type: visualizationActionTypes.CRUISE_LIST_REQUEST_SEND,
 });
 

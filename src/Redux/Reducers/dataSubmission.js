@@ -40,6 +40,7 @@ export default function (state, action) {
       };
 
     case STORE_SUBMISSION_COMMENTS:
+      // eslint-disable-next-line
       let updatedComments = [...state.submissionComments];
       updatedComments[action.payload.submissionID] = action.payload.comments;
 

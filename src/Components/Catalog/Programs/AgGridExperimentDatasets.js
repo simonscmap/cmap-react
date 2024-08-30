@@ -2,7 +2,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AgGridReact } from 'ag-grid-react';
-import { debounce } from 'throttle-debounce';
 import TextField from '@material-ui/core/TextField';
 import SearchIcon from '@material-ui/icons/Search';
 import ClearIcon from '@material-ui/icons/Clear';
@@ -176,7 +175,11 @@ const columnDefinitions = [
     // checkboxSelection: true,
     width: 30,
     cellRenderer: (params) => {
-      const { api, node, value } = params;
+      const {
+        // api,
+        node,
+        // value
+      } = params;
       const selected = node.isSelected ();
 
       if (selected) {
@@ -204,7 +207,11 @@ const columnDefinitions = [
     field: "DatasetName",
     flex: 1,
     cellRenderer: (params) => {
-      const { api, node, value } = params;
+      const {
+        // api,
+        node,
+        value
+      } = params;
       return `<div class="link-container">
               <span >${value}</span>
               <a href="/catalog/datasets/${node.data.Dataset_Name}" target="_blank" class="dataset-link">
@@ -230,7 +237,7 @@ const Exp = () => {
   const datasets = program && program.datasets &&
         alphabetizeBy("Dataset_Name") (Object.values (program.datasets).map (transformDataset));
   const selectedShortName = useSelector (selectedProgramDatasetShortNameSelector);
-  const selectedDataset = datasets && datasets.find (d => d.Dataset_Name === selectedShortName);
+  // const selectedDataset = datasets && datasets.find (d => d.Dataset_Name === selectedShortName);
 
 
   const [api, setApi] = useState (null);

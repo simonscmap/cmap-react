@@ -8,7 +8,8 @@ import { connect } from 'react-redux';
 import LoginDialog from '../User/LoginDialog';
 import SnackbarWrapper from './SnackbarWrapper';
 import LoadingOverlay from './LoadingOverlay';
-import Cart from './Cart';
+import SubscribeDatasetDialog from '../User/Subscriptions/SubscribeDialog';
+import GlobalDownloadDialog from '../Catalog/DownloadDialog/GlobalDialogWrapper';
 
 import { loginDialogWasCleared } from '../../Redux/actions/user';
 
@@ -47,8 +48,9 @@ class GlobalUIComponentWrapper extends Component {
           clearState={this.clearState}
         />
         <SnackbarWrapper />
+        <SubscribeDatasetDialog />
+        <GlobalDownloadDialog />
         <LoadingOverlay loadingMessage={this.props.loadingMessage} />
-        <Cart />
       </React.Fragment>
     );
   }

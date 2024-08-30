@@ -21,6 +21,7 @@ const useStyles = makeStyles((theme) => ({
   },
   monoValue: {
     fontFamily: 'mono',
+    fontWeight: 'bold',
     color: 'rgb(135, 255, 244)',
   },
   cell: {

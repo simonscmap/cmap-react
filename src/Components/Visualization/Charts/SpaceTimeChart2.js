@@ -10,7 +10,10 @@ import {
 import { snackbarOpen } from '../../../Redux/actions/ui';
 import countWebGLContexts from '../../../Utility/countWebGLContexts';
 import getChartDimensions from '../../../Utility/getChartDimensions';
-import { truncate60, getLatLonTitles } from './chartHelpers';
+import {
+  truncate60,
+  // getLatLonTitles
+} from './chartHelpers';
 import { spaceTimeChartStyles } from './chartStyles';
 import handleChartDateString from './handleChartDatestring';
 import handleXTicks from './handleXTicks';
@@ -26,8 +29,6 @@ import { getHovertext_, toSetArray,
          spaceTimeGenerateHistogramSubsetPlotsSplitByDepth,
          spaceTimeGenerateHistogram2D,
 } from '../../../api/myLib.js';
-import { format } from 'd3-format';
-
 
 // helpers
 const getDate = (data, splitByDate, splitByDepth, subsetIndex) => {
@@ -74,37 +75,37 @@ const getXTicks = (data) => {
   return  handleXTicks(data) ;
 };
 
- const getHovertext = (subset, data) => {
-   return subset.map((value, i) => {
-     let abs = Math.abs(value);
-     let formatter = abs > 0.01 && abs < 1000 ? '.2f' : '.2e';
-     if (value === null) {
-       return (
-         `Lat: ${format('.2f')(data.lats[i])}\xb0` +
-         `<br>` +
-         `Lon: ${
-           data.lons[i] > 180
-             ? format('.2f')(data.lons[i] - 360)
-             : format('.2f')(data.lons[i])
-         }\xb0`
-       );
-     }
+ // const getHovertext = (subset, data) => {
+ //   return subset.map((value, i) => {
+ //     let abs = Math.abs(value);
+ //     let formatter = abs > 0.01 && abs < 1000 ? '.2f' : '.2e';
+ //     if (value === null) {
+ //       return (
+ //         `Lat: ${format('.2f')(data.lats[i])}\xb0` +
+ //         `<br>` +
+ //         `Lon: ${
+ //           data.lons[i] > 180
+ //             ? format('.2f')(data.lons[i] - 360)
+ //             : format('.2f')(data.lons[i])
+ //         }\xb0`
+ //       );
+ //     }
 
-     return (
-       `Lat: ${format('.2f')(data.lats[i])}\xb0` +
-       `<br>` +
-       `Lon: ${
-         data.lons[i] > 180
-           ? format('.2f')(data.lons[i] - 360)
-           : format('.2f')(data.lons[i])
-       }\xb0` +
-       '<br>' +
-       `${data.parameters.fields}: ${format(formatter)(value)} [${
-         data.metadata.Unit
-       }]`
-     );
-   });
- };
+ //     return (
+ //       `Lat: ${format('.2f')(data.lats[i])}\xb0` +
+ //       `<br>` +
+ //       `Lon: ${
+ //         data.lons[i] > 180
+ //           ? format('.2f')(data.lons[i] - 360)
+ //           : format('.2f')(data.lons[i])
+ //       }\xb0` +
+ //       '<br>' +
+ //       `${data.parameters.fields}: ${format(formatter)(value)} [${
+ //         data.metadata.Unit
+ //       }]`
+ //     );
+ //   });
+ // };
 
 const handleContourMap = (
   subsets,
@@ -125,7 +126,7 @@ const handleContourMap = (
   let contourPlotConfigs = subsets.map((subset, index) => {
     let dateTitle = getDate(data, splitByDate, splitByDepth, index);
     let depthTitle = getDepth(data, index, splitByDate, splitByDepth);
-    let { latTitle, lonTitle } = getLatLonTitles(parameters);
+    // let { latTitle, lonTitle } = getLatLonTitles(parameters);
 
     let uniqY = toSetArray (data.lats);
     let uniqX = toSetArray (data.lons);
@@ -213,7 +214,7 @@ const handleHeatmap = (
   let heatmapPlotConfigs = subsets.map((subset, index) => {
     let dateTitle = getDate(data, splitByDate, splitByDepth, index);
     let depthTitle = getDepth(data, index, splitByDate, splitByDepth);
-    let { latTitle, lonTitle } = getLatLonTitles(parameters);
+    // let { latTitle, lonTitle } = getLatLonTitles(parameters);
 
     let uniqY = toSetArray (data.lats);
     let uniqX = toSetArray (data.lons)
@@ -287,7 +288,7 @@ const handleHeatmap = (
   return heatmapPlotConfigs;
 };
 
-const mapStateToProps = (state, ownProps) => ({
+const mapStateToProps = (state) => ({
   charts: state.charts,
 });
 
