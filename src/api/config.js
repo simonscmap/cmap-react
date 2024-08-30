@@ -12,3 +12,9 @@ export const postOptions = {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
 };
+
+export const deleteOptions = {
+  ...fetchOptions,
+  method: 'DELETE',
+  headers: { 'Content-Type': 'application/json' },
+};

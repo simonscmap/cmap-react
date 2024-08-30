@@ -33,6 +33,7 @@ import styles from './datasetFullPageStyles';
 import SkeletonWrapper from '../../UI/SkeletonWrapper';
 import ErrorCard from '../../Common/ErrorCard';
 import Spacer from '../../Common/Spacer';
+import Page2 from '../../Common/Page2';
 
 import {
   datasetFullPageNavigate,
@@ -44,6 +45,14 @@ import {
 import states from '../../../enums/asyncRequestStates';
 import colors from '../../../enums/colors';
 import metaTags from '../../../enums/metaTags';
+
+export const datasetDetailConfig = {
+  route: '/',
+  video: false,
+  tour: false,
+  hints: true,
+  navigationVariant: 'Center',
+};
 
 const useStyles = makeStyles ((theme) => ({
   sectionHeader: {
@@ -183,126 +192,128 @@ const DatasetFullPage = (props) => {
   }
 
   return (
-    <Grid container className={classes.outerContainer} >
-      {downloadDialogOpen ? (
-        <DownloadDialog
-          dialogOpen={downloadDialogOpen}
-          dataset={data}
-          handleClose={() => setDownloadDialogOpen(false)}
-        />
-      ) : (
-        ''
-      )}
+    <Page2 bgVariant="slate2">
+      <Grid container className={classes.outerContainer} >
+        {downloadDialogOpen ? (
+          <DownloadDialog
+            dialogOpen={downloadDialogOpen}
+            dataset={data}
+            handleClose={() => setDownloadDialogOpen(false)}
+          />
+        ) : (
+          ''
+        )}
 
 
-      <Grid item xs={12}>
-        <Paper className={classes.guideSection} elevation={4}>
-          <SkeletonWrapper loading={loading}>
-            <Typography
-              variant={'h4'}
-              className={classes.pageHeader}
-              style={{ color: 'white' }}
-            >
-              {longName}
-            </Typography>
+        <Grid item xs={12}>
+          {/*<Paper className={classes.guideSection} elevation={4}>*/}
+            <SkeletonWrapper loading={loading}>
+              <Typography
+                variant={'h4'}
+                className={classes.pageHeader}
+                style={{ color: 'white' }}
+              >
+                {longName}
+              </Typography>
 
-            <Link
-              component="button"
-              onClick={() => setDownloadDialogOpen(true)}
-              className={classes.downloadLink}
-            >
-              <CloudDownloadIcon />
-              <span className={classes.bottomAlignedText}>Download Data</span>
-            </Link>
+              <Link
+                component="button"
+                onClick={() => setDownloadDialogOpen(true)}
+                className={classes.downloadLink}
+              >
+                <CloudDownloadIcon />
+                <span className={classes.bottomAlignedText}>Download Data</span>
+              </Link>
 
-            <Grid container spacing={3}>
+              <Grid container spacing={3}>
 
-              <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-                <SectionHeader title={'Description'} />
-                <ReactMarkdown source={description} className={classes.markdown} />
-              </Grid>
-            </Grid>
-
-            <Grid container spacing={3}>
-              <Grid item xs={12} sm={12} md={12} lg={4} xl={4}>
-                <SelectVariable />
-              </Grid>
-              <Grid item xs={12} sm={12} md={12} lg={8} xl={8}>
-                <Visualization />
-              </Grid>
-            </Grid>
-
-            <Grid container spacing={3}>
-              <Grid item xs={12}>
-                <SectionHeader title={'Dataset Overview'} />
-                <DetailsTable dataset={data} sensors={sensors} />
-                <Typography
-                  variant="body1"
-                  className={classes.sectionHeader}
-                  style={{ marginBottom: '16px', color: 'white' }}
-                >
-                  *Temporal and spatial coverage may differ between member variables
-                </Typography>
-              </Grid>
-
-              { unstructuredDatasetMetadata &&
-                <Grid item xs={12}>
-                  <SectionHeader title={'Additional Dataset Metadata'} />
-                  <DatasetMetadata metadata={unstructuredDatasetMetadata} />
+                <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+                  <SectionHeader title={'Description'} />
+                  <ReactMarkdown source={description} className={classes.markdown} />
                 </Grid>
-              }
+              </Grid>
 
-            </Grid>
+              <Grid container spacing={3}>
+                <Grid item xs={12} sm={12} md={12} lg={4} xl={4}>
+                  <SelectVariable />
+                </Grid>
+                <Grid item xs={12} sm={12} md={12} lg={8} xl={8}>
+                  <Visualization />
+                </Grid>
+              </Grid>
 
+              <Grid container spacing={3}>
+                <Grid item xs={12}>
+                  <SectionHeader title={'Dataset Overview'} />
+                  <DetailsTable dataset={data} sensors={sensors} />
+                  <Typography
+                    variant="body1"
+                    className={classes.sectionHeader}
+                    style={{ marginBottom: '16px', color: 'white' }}
+                  >
+                    *Temporal and spatial coverage may differ between member variables
+                  </Typography>
+                </Grid>
 
-            <SectionHeader title={'Variables'} />
-            <DatasetPageAGGrid />
+                { unstructuredDatasetMetadata &&
+                  <Grid item xs={12}>
+                    <SectionHeader title={'Additional Dataset Metadata'} />
+                    <DatasetMetadata metadata={unstructuredDatasetMetadata} />
+                  </Grid>
+                }
 
-    <Grid container spacing={3} className={classes.gridSection}>
-      <ThirdGridContent data={dataSource}>
-        <SectionHeader title={'Data Source'} />
-        <Typography>{urlify(dataSource)}</Typography>
-      </ThirdGridContent>
-      <ThirdGridContent data={distributor}>
-        <SectionHeader title={'Distributor'} />
-        <Typography>{urlify(distributor)}</Typography>
-      </ThirdGridContent>
-      <ThirdGridContent data={acknowledgment}>
-        <SectionHeader title={'Acknowledgement'} />
-        <Typography>{urlify(acknowledgment)}
-        </Typography>
-      </ThirdGridContent>
-    </Grid>
-
-
-
-    <Grid container spacing={3} className={classes.gridSection}>
-      <StandardHalfGridContent data={references}>
-        <SectionHeader title={'References'} />
-        <ReferencesList />
-      </StandardHalfGridContent>
-      <StandardHalfGridContent data={cruises}>
-        <SectionHeader title={'Cruises'} />
-        <CruiseList />
-      </StandardHalfGridContent>
-    </Grid>
+              </Grid>
 
 
+              <SectionHeader title={'Variables'} />
+              <DatasetPageAGGrid />
 
-            {!loading && variables && data && Object.keys(data).length ? (
-              <DatasetJSONLD {...data}
-                cruises={cruises}
-                references={references}
-                sensors={sensors}
-                variables={variables}
-              />
-            ) : (
-              ''
-            )}
-          </SkeletonWrapper>
-        </Paper>
+              <Grid container spacing={3} className={classes.gridSection}>
+                <ThirdGridContent data={dataSource}>
+                  <SectionHeader title={'Data Source'} />
+                  <Typography>{urlify(dataSource)}</Typography>
+                </ThirdGridContent>
+                <ThirdGridContent data={distributor}>
+                  <SectionHeader title={'Distributor'} />
+                  <Typography>{urlify(distributor)}</Typography>
+                </ThirdGridContent>
+                <ThirdGridContent data={acknowledgment}>
+                  <SectionHeader title={'Acknowledgement'} />
+                  <Typography>{urlify(acknowledgment)}
+                  </Typography>
+                </ThirdGridContent>
+              </Grid>
+
+
+
+              <Grid container spacing={3} className={classes.gridSection}>
+                <StandardHalfGridContent data={references}>
+                  <SectionHeader title={'References'} />
+                  <ReferencesList />
+                </StandardHalfGridContent>
+                <StandardHalfGridContent data={cruises}>
+                  <SectionHeader title={'Cruises'} />
+                  <CruiseList />
+                </StandardHalfGridContent>
+              </Grid>
+
+
+
+              {!loading && variables && data && Object.keys(data).length ? (
+                <DatasetJSONLD {...data}
+                               cruises={cruises}
+                               references={references}
+                               sensors={sensors}
+                               variables={variables}
+                />
+              ) : (
+                ''
+              )}
+            </SkeletonWrapper>
+          {/*</Paper>*/}
+        </Grid>
       </Grid>
-    </Grid>
+    </Page2>
   );
 };
 

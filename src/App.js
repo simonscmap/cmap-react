@@ -51,7 +51,7 @@ const SinglePlot = lazy(() => import('./Components/Visualization/SinglePlot'));
 const NewsDashboard = lazy(() => import('./Components/Admin/News/Dashboard'));
 const Cite = lazy(() => import('./Components/Cite'));
 const TestPage = lazy(() => import('./Components/Explorer'));
-const ItemPage = lazy(() => import('./Components/Explorer/Item'));
+const SubscriptionsPage = lazy(() => import('./Components/User/Subscriptions/Subscriptions'));
 
 
 const mapDispatchToProps = {
@@ -153,22 +153,19 @@ class App extends Component {
                       path="/apikeymanagement"
                       component={ApiKeyManagement}
                     />
-
                     <Route exact path="/forgotpass">
                       <ForgotPass />
                     </Route>
-
                     <Route path="/choosepassword">
                       <ChoosePassword />
                     </Route>
+                    <Route exact path="/subscriptions">
+                      <SubscriptionsPage />
+                    </Route>
 
                     {/* TEST */}
-                    <Route path="/test">
-                      <TestPage />
-                    </Route>
-                    <Route path="/item">
-                      <ItemPage />
-                    </Route>
+                    {/*<Route path="/test"><TestPage /></Route>*/}
+
                     <Route path="*">
                       <FourOhFour />
                     </Route>

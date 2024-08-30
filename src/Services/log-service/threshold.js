@@ -8,7 +8,7 @@ let threshold;
 if (localThreshold) {
  threshold = localThreshold;
 } else {
-  threshold = isProduction ? 2 : 4
+  threshold = isProduction ? 2 : 5
 }
 
 export default threshold;

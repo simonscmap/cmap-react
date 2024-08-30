@@ -54,6 +54,9 @@ import {
   watchContactUs,
   watchNominateNewData,
   watchFetchLastUserTouch,
+  watchFetchUserSubscriptions,
+  watchCreateSubscription,
+  watchDeleteSubscriptions,
 } from './userSagas';
 
 import {
@@ -2191,6 +2194,9 @@ function* rootSaga() {
     watchFetchProgramsSend(),
     watchFetchProgramDetailsSend(),
     watchProgramSampleVisDataFetch(),
+    watchFetchUserSubscriptions(),
+    watchCreateSubscription(),
+    watchDeleteSubscriptions(),
   ]);
 }
 

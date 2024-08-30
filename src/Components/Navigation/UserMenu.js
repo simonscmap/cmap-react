@@ -6,8 +6,6 @@ import { Link } from 'react-router-dom';
 import ExpandableItem from './ExpandableItem';
 import {
   showLoginDialog,
-  // snackbarOpen,
-  // toggleShowHelp,
   setShowCart,
 } from '../../Redux/actions/ui';
 import { logOut } from '../../Redux/actions/user';
@@ -28,9 +26,7 @@ const LoggedInMenu = ({ user }) => {
     <div>
       <ExpandableItem linkText={email} isRightEdge={true}>
         <Link to="/profile">Profile</Link>
-        <Link to="#" onClick={showFavorites}>
-          Saved Datasets
-        </Link>
+        <Link to="/subscriptions" >Dataset Subscriptions</Link>
         {isDataSubmissionAdmin && (
           <Link to="/datasubmission/admindashboard">Submissions Dashboard</Link>
         )}

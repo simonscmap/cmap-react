@@ -712,7 +712,6 @@ class CruiseSelector extends Component {
                       value={groupByOptions.indexOf(this.state.groupBy)}
                       onChange={this.handleGroupBySelection}
                       indicatorColor="primary"
-                      textColor="primary"
                       scrollButtons={'auto'}
                       variant={'scrollable'}
                     >

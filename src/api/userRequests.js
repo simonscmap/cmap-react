@@ -1,4 +1,4 @@
-import { postOptions, apiUrl, fetchOptions } from './config';
+import { postOptions, apiUrl, fetchOptions, deleteOptions } from './config';
 
 const userAPI = {};
 
@@ -136,5 +136,24 @@ userAPI.getLastDatasetTouch = async () => {
     return null;
   }
 }
+
+userAPI.getSubscriptions = async () => {
+  console.log ('getSubscriptions api')
+  return await fetch(apiUrl + '/api/user/subscriptions', fetchOptions);
+};
+
+userAPI.createSubscription = async (shortName) => {
+  return await fetch (apiUrl + '/api/user/subscriptions', {
+    ...postOptions,
+    body: JSON.stringify ({ shortName }),
+  });
+};
+
+userAPI.deleteSubscriptions = async (shortNames) => {
+  return await fetch (apiUrl + '/api/user/subscriptions', {
+    ...deleteOptions,
+    body: JSON.stringify ({ shortNames }),
+  });
+};
 
 export default userAPI;

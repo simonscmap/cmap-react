@@ -104,7 +104,6 @@ const RecPanel = () => {
           value={activeTab}
           onChange={handleTabChange}
           indicatorColor="primary"
-          // textColor="white"
           variant="scrollable"
           scrollButtons="auto"
           aria-label="scrollable auto tabs example"

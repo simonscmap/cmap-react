@@ -37,9 +37,11 @@ const styles = (theme) => ({
     fontSize: '.7rem',
   },
   outerContainer: {
-    marginTop: '100px',
+    // marginTop: '100px',
     color: 'white',
-    padding: '0 10px'
+    padding: '0 10px',
+    maxWidth: '1900px',
+    margin: '0 auto',
   },
   errorContainer: {
     paddingTop: '100px',

@@ -2,9 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { withStyles, Grid, ThemeProvider } from '@material-ui/core';
-import {
-  fetchDatasetFeatures,
-} from '../../Redux/actions/catalog';
+import { fetchDatasetFeatures } from '../../Redux/actions/catalog';
+import { fetchSubscriptions } from '../../Redux/actions/user';
+
 
 import CatalogSearch from './CatalogSearch';
 import SearchResults from './SearchResults';
@@ -72,6 +72,7 @@ const Catalog = ({ classes }) => {
   // this only needs to run once
   if (!datasetFeatures) {
     dispatch(fetchDatasetFeatures());
+    dispatch(fetchSubscriptions());
   }
 
   let waitToLoadIntro = useSelector(({ searchResultsLoadingState }) => {
@@ -87,9 +88,7 @@ const Catalog = ({ classes }) => {
       <div className={classes.page}>
         <Intro config={tourConfig} wait={waitToLoadIntro} />
         <div id={`${CATALOG_PAGE}-style-context`} className={classes.wrapper}>
-    <Grid container>
-
-
+          <Grid container>
             <Grid item xs={8}>
               <div className={classes.catalogLiteral}>
                 <h2 className={classes.sectionHeading}>Catalog Search</h2>

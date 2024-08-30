@@ -6,6 +6,7 @@
 
 import { homepageConfig } from '../Home';
 import { catalogConfig } from '../Catalog/Catalog';
+import { datasetDetailConfig } from '../Catalog/DatasetDetailPage';
 import { visualizationConfig } from '../Visualization/Visualization';
 import { cruiseConfig } from '../Catalog/CruiseFullPage';
 import { aboutConfig } from '../About';
@@ -21,6 +22,7 @@ export const enabled = 'enabled';
 const pages = {
   '/': homepageConfig,
   '/catalog': catalogConfig,
+  '/catalog/datasets': datasetDetailConfig,
   '/catalog/programs': programsIndexConfig,
   '/visulization': visualizationConfig,
   '/visualization/charts': visualizationConfig,

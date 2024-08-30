@@ -324,3 +324,40 @@ export const clearLastDatasetTouch = ( userId ) => ({
   type: userActionTypes.CLEAR_LAST_DATASET_TOUCH,
   payload: userId,
 });
+
+/* fetch subscriptions */
+export const fetchSubscriptions = () => ({
+  type: userActionTypes.FETCH_SUBSCRIPTIONS_SEND,
+});
+
+export const fetchSubscriptionsSuccess = (result) => ({
+  type: userActionTypes.FETCH_SUBSCRIPTIONS_SUCCESS,
+  payload: result,
+});
+
+export const setFetchSubsRequestStatus = (status) => ({
+  type: userActionTypes.SET_FETCH_SUBSCRIPTIONS_REQUEST_STATUS,
+  payload: status,
+});
+
+/* create subscription */
+export const createSubscription = (args) => ({
+  type: userActionTypes.CREATE_SUBSCRIPTION_SEND,
+  payload: args,
+});
+
+export const setCreateSubsRequestStatus = (status) => ({
+  type: userActionTypes.SET_CREATE_SUBSCRIPTION_REQUEST_STATUS,
+  payload: status,
+});
+
+/* delete subscriptions */
+export const deleteSubscription = (args) => ({
+  type: userActionTypes.DELETE_SUBSCRIPTIONS_SEND,
+  payload: args,
+});
+
+export const setDeleteSubsRequestStatus = (status) => ({
+  type: userActionTypes.SET_DELETE_SUBSCRIPTIONS_REQUEST_STATUS,
+  payload: status,
+});
