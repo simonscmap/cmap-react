@@ -6,6 +6,8 @@ import { useDispatch } from 'react-redux';
 import { createNewsItem, updateNewsItem } from '../../../Redux/actions/news';
 import Card from '../../Home/News/Card';
 import LinkEditor, { linkType } from './LinkEditor';
+import DatasetTagger from './DatasetTagger';
+import Placeholder from './CardPreviewPlaceholder';
 import editorStyles from './editorStyles';
 
 const useEditorStyles = makeStyles(editorStyles);
@@ -13,32 +15,35 @@ const useEditorStyles = makeStyles(editorStyles);
 const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
   const classes = useEditorStyles();
 
-  let initialValues = storyState
-    ? storyState
-    : {
-        view_status: 2,
-        label: null,
-        headline: '',
-        link: '',
-        date: '',
-        body: {
-          content: '',
-          links: [],
-        },
-      };
+  const initialValues = storyState
+        ? storyState
+        : {
+          view_status: 2,
+          label: null,
+          headline: '',
+          link: '',
+          date: '',
+          body: {
+            content: '',
+            links: [],
+          },
+          tags: [],
+        };
 
-  let [viewStatus, setViewStatus] = useState(initialValues.view_status);
-  let [headline, setHeadline] = useState(initialValues.headline);
-  let [link, setLink] = useState(initialValues.link);
+  const [viewStatus, setViewStatus] = useState(initialValues.view_status);
+  const [headline, setHeadline] = useState(initialValues.headline);
+  const [link, setLink] = useState(initialValues.link);
   // let [rank, setRank] = useState(storyState.rank);
-  let [date, setDate] = useState(initialValues.date);
-  let [content, setContent] = useState(
+  const [date, setDate] = useState(initialValues.date);
+  const [content, setContent] = useState(
     initialValues.body ? initialValues.body.content : '',
   );
-  let [links, setLinks] = useState(
+  const [links, setLinks] = useState(
     initialValues.body ? initialValues.body.links : [],
   );
-  let [label, setLabel] = useState(initialValues.label);
+  const [label, setLabel] = useState(initialValues.label);
+
+  const [taggedDatasets, setTaggedDatasets] = useState([]);
 
   useEffect(() => {
     // update if story state changes in props
@@ -62,8 +67,25 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
         setContent(storyState.body ? storyState.body.content : '');
         setLinks(storyState.body ? storyState.body.links : []);
       }
+      if (storyState.tags && storyState.tags.length) {
+        setTaggedDatasets (storyState.tags);
+      }
     }
   }, [storyState]);
+
+  // DATASET TAGS
+
+  const handleAddTag = (name) => {
+    const tags = new Set (taggedDatasets);
+    tags.add (name);
+    setTaggedDatasets (Array.from (tags));
+  }
+
+  const handleRemoveTag = (name) => {
+    const tags = new Set (taggedDatasets);
+    tags.delete (name);
+    setTaggedDatasets (Array.from (tags));
+  }
 
   // BODY CONTENT LINKS
 
@@ -123,6 +145,7 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
       content,
       links,
     },
+    tags: taggedDatasets,
   };
 
   // DISPATCH
@@ -170,6 +193,9 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
         setContent(storyState.body ? storyState.body.content : '');
         setLinks(storyState.body ? storyState.body.links : []);
       }
+      if (storyState.tags && storyState.tags.length) {
+        setTaggedDatasets (storyState.tags);
+      }
     } else {
       setViewStatus(2);
       setHeadline('');
@@ -177,6 +203,7 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
       setDate('');
       setContent('');
       setLinks([]);
+      setTaggedDatasets([]);
     }
 
     if (typeof onCancel === 'function') {
@@ -191,9 +218,17 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
       <div className={classes.first}>
         <div className={classes.cardContainer}>
           <div className={classes.cardBackdrop}>
-            <Card story={editState} position={0} />
+            {(headline || link || content || label)
+             ? <Card story={editState} position={0} />
+             : <Placeholder />}
           </div>
         </div>
+        <DatasetTagger
+          tags={taggedDatasets}
+          addDataset={handleAddTag}
+          removeDataset={handleRemoveTag}
+          editState={{ headline, link, content, links }}
+        />
       </div>
 
       <div className={classes.editor}>

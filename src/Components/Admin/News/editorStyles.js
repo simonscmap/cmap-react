@@ -32,6 +32,9 @@ const editorStyles = (theme) => ({
     overflow: 'hidden',
     position: 'relative',
     maxWidth: 'calc(100% - 30px)',
+    '& > div': {
+      minWidth: '500px',
+    }
   },
   editor: {
     display: 'flex',
@@ -42,7 +45,7 @@ const editorStyles = (theme) => ({
     overflow: 'hidden',
     position: 'relative',
     maxWidth: 'calc(100% - 30px)',
-    background: '#07274D',
+    background: 'rgba(0,0,0,0.2)',
     borderRadius: '6px',
   },
 
@@ -55,7 +58,7 @@ const editorStyles = (theme) => ({
   textField: {
     border: `1px solid ${colors.blue.slate}`,
     borderRadius: '4px',
-    background: colors.blue.dark,
+    background: 'rgba(0,0,0,0.2)',
     '& input': {
       fontSize: `${pxToRem[14]}`,
       border: 0,

@@ -14,6 +14,8 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 
+import { CustomAlert } from '../../DataSubmission/Guide/Alert';
+
 const useRowStyles = makeStyles({
   root: {
     '& > *': {
@@ -85,7 +87,7 @@ const useListStyles = makeStyles({
 
 });
 const ListSelection = (props) => {
-  const { data, selected, setSelected } = props;
+  const { subs = [], selected, setSelected } = props;
 
   const handleClick = (shortName) => (ev) => {
     setSelected(shortName);
@@ -95,14 +97,7 @@ const ListSelection = (props) => {
     <div>
       <Typography variant="h6">Select Subscribed Dataset</Typography>
       <List>
-        <ListItem
-          selected={selected === undefined}
-          button
-          onClick={handleClick ()}>
-          <ListItemText primary={"All Subscriptions"}/>
-        </ListItem>
-
-        {data && data.map((item, ix) => (
+        {subs.map((item, ix) => (
           <ListItem
             selected={selected === item.Dataset_Name}
             button

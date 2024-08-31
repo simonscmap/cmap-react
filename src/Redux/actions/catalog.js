@@ -454,3 +454,17 @@ export const programSampleVisDataStore = ({ datasetShortName, variableId, variab
     data,
   },
 });
+
+export const fetchDatasetNames = () => ({
+  type: catalogActionTypes.FETCH_DATASET_NAMES
+});
+
+export const fetchDatasetNamesSuccess = (result) => ({
+  type: catalogActionTypes.FETCH_DATASET_NAMES_SUCCESS,
+  payload: result,
+});
+
+export const setDatasetNamesRequestStatus = (status) => ({
+  type: catalogActionTypes.SET_DATASET_NAMES_REQUEST_STATUS,
+  payload: status,
+});

@@ -19,7 +19,7 @@ import DatasetTitleLink from './Display/DatasetTitleLink';
 import DownloadButton from './Display/DownloadButton';
 import Button from '@material-ui/core/Button';
 import { PiRssBold } from "react-icons/pi";
-import ConfirmSubscription from './ConfirmSubscription';
+import ConfirmSubscription from '../User/Subscriptions/ConfirmSubscription';
 import { createSubscription, deleteSubscription } from '../../Redux/actions/user';
 
 const useStyles = makeStyles(styles);

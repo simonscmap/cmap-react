@@ -1,6 +1,7 @@
 import { makeStyles } from '@material-ui/core/styles';
 import React, { useState } from 'react';
 import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
 
 const useNewsStyles = makeStyles({
   item: {
@@ -13,26 +14,27 @@ const useNewsStyles = makeStyles({
 });
 
 const NewsItems = (props) => {
-  const { selected, newsList } = props;
+  const { selected, subscriptions = [] } = props;
   const cl = useNewsStyles ();
+
+  const sub = subscriptions.find (s => s.Dataset_Name === selected);
+  if (!sub) {
+    return (
+      <div>
+        Alert: no subscription found for {selected}
+      </div>
+    );
+  }
+
   return (
     <div>
-      <Typography variant="h6">Past Updates</Typography>
+      <Typography variant="h6">Subscription</Typography>
       <div>
-        {Array.isArray(newsList) && newsList
-         .filter((item) => {
-           if (selected) {
-             return item.datasets.includes(selected)
-           }
-           return true;
-         })
-         .map((item, ix) => (
-           <div className={cl.item} key={ix}>
-             <Typography className={cl.headline}>{item.headline}</Typography>
-             <Typography>Date: {item.date}</Typography>
-             <Typography>Link: {item.link}</Typography>
-           </div>
-         ))}
+        <div className={cl.item}>
+          <Typography className={cl.headline}>{sub.Dataset_Name}</Typography>
+          <Typography>Date Subscribed: {sub.Subscription_Date_Time}</Typography>
+          <Button variant="outlined">Unsubscribe</Button>
+        </div>
       </div>
     </div>
   );

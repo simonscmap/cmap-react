@@ -1,19 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { ThemeProvider, withStyles } from '@material-ui/core/styles';
+import { useDispatch, useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
+
 import Typography from '@material-ui/core/Typography';
+import Accordion from '@material-ui/core/Accordion';
+import AccordionDetails from '@material-ui/core/AccordionDetails';
+import AccordionSummary from '@material-ui/core/AccordionSummary';
+import Link from '@material-ui/core/Link';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+
 import { homeTheme } from '../../Home/theme';
 import Footer from '../../Home/Footer';
 import Section, { FullWidthContainer } from '../../Common/Section';
-import { useDispatch, useSelector } from 'react-redux';
 import { requestNewsList } from '../../../Redux/actions/news';
+import { fetchDatasetNames } from '../../../Redux/actions/catalog';
 import { previewStories } from './lib';
-import { useHistory } from 'react-router-dom';
 import NewsBanner from '../../Home/News';
 import StoryList from './StoryList';
 import Controls from './Controls';
 import Create from './Create';
 import EditRankDraggableList from './EditRanksDraggableList';
-import Link from '@material-ui/core/Link';
 import Guide from './Guide';
 
 const styles = () => ({
@@ -55,10 +62,12 @@ const Dashboard = (props) => {
 
   useEffect(() => {
     // do this once
-    dispatch(requestNewsList());
+    dispatch (requestNewsList ());
+    dispatch (fetchDatasetNames ());
   }, []);
 
-  let [guideOpen, setGuideOpen] = useState(false);
+  const [guideOpen, setGuideOpen] = useState(false);
+  const [previewOpen, setPreviewOpen] = React.useState(true);
 
   // pass stories into the news banner
   let stories = useSelector((state) => state.news.stories);
@@ -84,8 +93,13 @@ const Dashboard = (props) => {
 
           <Guide open={guideOpen} handleClose={() => setGuideOpen(false)} />
           <Section title="Preview" textStyles={false}>
-            <div className={classes.preview}></div>
-            <NewsBanner stories={preview} />
+            <Accordion expanded={previewOpen} onChange={() => setPreviewOpen(!previewOpen)}>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}></AccordionSummary>
+              <AccordionDetails>
+                <div className={classes.preview}></div>
+                <NewsBanner stories={preview} />
+                </AccordionDetails>
+            </Accordion>
           </Section>
 
           <Create />

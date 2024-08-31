@@ -7,12 +7,10 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Paper from '@material-ui/core/Paper';
 import { useSelector, useDispatch } from 'react-redux';
-import LoginForm from '../User/LoginForm';
-import Spacer from '../Common/Spacer';
-import Center from '../Common/Center';
-import Spinner from '../UI/Spinner';
-import states from '../../enums/asyncRequestStates';
-import { showLoginDialog } from '../../Redux/actions/ui';
+import Spacer from '../../Common/Spacer';
+import Spinner from '../../UI/Spinner';
+import states from '../../../enums/asyncRequestStates';
+import { showLoginDialog } from '../../../Redux/actions/ui';
 
 const subscribe = true;
 const unsubscribe = false;

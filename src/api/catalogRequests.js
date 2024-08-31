@@ -6,18 +6,9 @@ const log = logInit('catalogRequests');
 
 const catalogAPI = {};
 
-catalogAPI.datasets = async () => {
-  let endpoint = apiUrl + '/api/catalog/datasets';
-
-  return fetchAndParseCSVData({
-    endpoint,
-    options: {
-      fetchOptions,
-      collectorType: 'keyValue',
-    },
-    collector: (target, record) =>
-      (target[record.Dataset_Long_Name.trim()] = record),
-  });
+catalogAPI.datasetNames = async () => {
+  const endpoint = apiUrl + '/api/catalog/dataset-names';
+  return await fetch (endpoint, fetchOptions);
 };
 
 catalogAPI.submissionOptions = async () => {

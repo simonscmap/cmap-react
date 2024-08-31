@@ -50,7 +50,9 @@ import {
   PROGRAM_DATASET_SELECT,
   PROGRAM_DATASET_VARIABLE_SELECT,
   PROGRAM_SAMPLE_VIS_DATA_SET_LOADING_STATE,
-  PROGRAM_SAMPLE_VIS_DATA_STORE
+  PROGRAM_SAMPLE_VIS_DATA_STORE,
+  FETCH_DATASET_NAMES_SUCCESS,
+  SET_DATASET_NAMES_REQUEST_STATUS,
 } from '../actionTypes/catalog';
 import states from '../../enums/asyncRequestStates';
 import { sortResults } from '../../Components/Catalog/SortingControls';
@@ -591,7 +593,21 @@ export default function (state, action) {
         recommendedDatasetsRequestState: states.failed,
       };
 
-    default:
-      return state;
+    case FETCH_DATASET_NAMES_SUCCESS:
+    return {
+      ...state,
+      datasetNamesFullList: action.payload,
+      datasetNamesRequestStatus: states.succeeded,
+    };
+    case SET_DATASET_NAMES_REQUEST_STATUS:
+    return {
+      ...state,
+      datasetNamesRequestStatus: action.payload,
+    };
+
+
+
+  default:
+    return state;
   }
 }

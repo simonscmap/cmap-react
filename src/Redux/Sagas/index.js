@@ -60,6 +60,10 @@ import {
 } from './userSagas';
 
 import {
+  watchFetchDatasetNames,
+} from './catalog';
+
+import {
   watchRequestNewsList,
   watchUpdateNewsItem,
   watchUpdateNewsItemSuccess,
@@ -2197,6 +2201,7 @@ function* rootSaga() {
     watchFetchUserSubscriptions(),
     watchCreateSubscription(),
     watchDeleteSubscriptions(),
+    watchFetchDatasetNames(),
   ]);
 }
 
