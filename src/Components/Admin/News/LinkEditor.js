@@ -29,7 +29,7 @@ const LinkEditor = withStyles({
   textField: {
     border: `1px solid ${colors.blue.slate}`,
     borderRadius: '4px',
-    background: colors.blue.dark,
+    background: 'rgba(0,0,0,0.2)',
     '& input': {
       fontSize: `${pxToRem[14]}`,
       border: 0,
@@ -45,7 +45,7 @@ const LinkEditor = withStyles({
     },
   },
 })(({ classes, link, onChange, key }) => {
-  let { text, url } = link;
+  let { text = '', url = '' } = link;
   let [t, setT] = useState(text);
   let [u, setU] = useState(url);
   useEffect(() => {

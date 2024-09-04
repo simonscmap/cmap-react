@@ -7,6 +7,7 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Chip from '@material-ui/core/Chip';
+import Tooltip from '@material-ui/core/Tooltip';
 import { datasetNamesFullList } from './newsSelectors';
 
 
@@ -24,6 +25,29 @@ const UnmentionedChip = withStyles ({
     background: '#d3d3d3'
   },
 }) (Chip);
+
+const DatasetListItem = withStyles ({
+  listItem: {
+    '& > span': {
+      fontSize: '0.9em',
+    }
+  },
+
+}) ((props) => {
+  const { classes, name, isSelected} = props;
+
+  if (isSelected) {
+    return (
+      <Tooltip title={`${name} is already tagged`}>
+        <ListItemText primary={name} className={classes.listItem}/>
+      </Tooltip>
+    );
+  }
+
+  return (
+    <ListItemText primary={name} className={classes.listItem}/>
+  );
+});
 
 
 
@@ -48,7 +72,6 @@ const useStyles = makeStyles ((theme) => ({
     borderRadius: '6px',
     padding: '1em',
     boxSizing: 'border-box',
-    width: '500px',
   },
   selectTitle: {
     color: '#69FFF2',
@@ -63,11 +86,7 @@ const useStyles = makeStyles ((theme) => ({
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
   },
-  listItem: {
-    '& > span': {
-      fontSize: '0.9em',
-    }
-  },
+
   chip: {
     margin: '5px',
   }
@@ -89,7 +108,7 @@ const findDiscrepancies = (story, tags, datasetNames) => {
 
   // find unmentioned
   const unmentioned = tags
-        .map (t => datasetNames.find (record => record.shortName === t))
+        .map (t => datasetNames.find (record => record.shortName.toLowerCase() === t.toLowerCase()))
         .filter (({ shortName, longName }) => {
           return !words.has (shortName.toLowerCase())
         })
@@ -99,16 +118,17 @@ const findDiscrepancies = (story, tags, datasetNames) => {
   const missing = links
         .map (({ url }) => tail (url.split ('/')))
         .filter ((lastSegment) => {
-          console.log ('last segment', lastSegment)
           const ls = typeof lastSegment === 'string' && lastSegment.toLowerCase();
-          return !tags.some ((t) => t.toLowerCase() === ls);
+          const isNotTagged = !tags.some ((t) => t.toLowerCase() === ls);
+          const isInDatasetNames = datasetNames.find (({ shortName }) => shortName.toLowerCase () === ls);
+          if (isNotTagged) {
+            console.log (lastSegment, { datasetNames, ls })
+          }
+          return isNotTagged && isInDatasetNames;
         });
 
   return [missing, unmentioned];
 }
-
-
-
 
 const Tagger = (props) => {
   const { addDataset, tags, removeDataset, editState } = props;
@@ -142,20 +162,30 @@ const Tagger = (props) => {
 
   // missing/unmentioned datasets
   useEffect (() => {
+    console.log (`tags for ${editState.headline}`, tags);
     const [ missingTags, unmentionedDatasets ] = findDiscrepancies (editState, tags, datasetNames);
     setMissing (missingTags);
     setUnmentioned (unmentionedDatasets);
-  }, [editState, tags]);
+  }, [editState, tags, datasetNames]);
 
   const handleChange = (ev) => {
     setSearchTerm (ev.target.value.toLowerCase());
   }
 
   const handleAdd = (name) => (ev) => {
-    addDataset (name)
+    // TODO check if tag is already added
+    addDataset (name);
   }
   const handleDelete = (name) => (ev) => {
-    removeDataset (name)
+    removeDataset (name);
+  }
+
+  const isTagged = (target) => {
+    const pred = Boolean (tags.find (t => t.toLowerCase() === target.toLowerCase ()));
+    if (pred) {
+      console.log (`SELECTED ${target}`)
+    }
+    return pred;
   }
 
   return (
@@ -163,22 +193,29 @@ const Tagger = (props) => {
       <div className={cl.tagList}>
         {tags && tags.map((t, ix) => {
           if (unmentioned.includes (t)) {
-            return (<UnmentionedChip
-                     className={cl.chip}
-                     label={t}
-                     onDelete={handleDelete (t)}
-                     color="primary" />)
+            return (
+              <Tooltip title={`This short name is tagged, but not mentioned in the news item.`} placement="bottom-end">
+                <UnmentionedChip
+                  className={cl.chip}
+                  label={t}
+                  onDelete={handleDelete (t)}
+                  color="primary" />
+              </Tooltip>)
           } else {
-            return (<Chip
-                     className={cl.chip}
-                     label={t}
-                     onDelete={handleDelete (t)}
-                      color="primary" />)
-
+            return (
+              <Tooltip title={`This short name is "tagged": it is associated with this news item.`} placement="bottom-end">
+                <Chip
+                  className={cl.chip}
+                  label={t}
+                  onDelete={handleDelete (t)}
+                  color="primary" />
+              </Tooltip>)
           }
         })}
         {missing && missing.map ((n, ix) => (
+          <Tooltip title={'This short name is mentioned in the news item, but is not yet tagged. Click to add.'} placement="bottom-end">
           <MissingChip label={`(+) ${n}`} onClick={handleAdd (n)} className={cl.chip} />
+          </Tooltip>
         ))}
       </div>
       <div className={cl.tagSelect}>
@@ -186,15 +223,20 @@ const Tagger = (props) => {
         <TextField label="Search" onChange={handleChange}/>
         <div className={cl.listContainer}>
           <List>
-            {filteredDatasets && filteredDatasets.map(({ shortName }, ix) => (
-              <ListItem
-                button
-                onClick={handleAdd (shortName)}
-                key={ix}
-              >
-                <ListItemText primary={shortName} className={cl.listItem}/>
-              </ListItem>
-            ))}
+            {filteredDatasets && filteredDatasets.map(({ shortName }, ix) => {
+              const thisDatasetIsTagged = isTagged (shortName);
+              return (
+                <ListItem
+                  selected={thisDatasetIsTagged}
+                  disabled={thisDatasetIsTagged}
+                  button
+                  onClick={handleAdd (shortName)}
+                  key={ix}
+                >
+                  <DatasetListItem name={shortName} isSelected={thisDatasetIsTagged} />
+                </ListItem>
+              )
+            })}
           </List>
         </div>
       </div>

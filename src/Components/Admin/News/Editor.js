@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
 import { WhiteButtonSM } from '../../Common/Buttons';
 import { useDispatch } from 'react-redux';
 import { createNewsItem, updateNewsItem } from '../../../Redux/actions/news';
 import Card from '../../Home/News/Card';
 import LinkEditor, { linkType } from './LinkEditor';
 import DatasetTagger from './DatasetTagger';
+import EmailManager from './EmailManager';
 import Placeholder from './CardPreviewPlaceholder';
 import editorStyles from './editorStyles';
 
@@ -31,17 +33,17 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
         };
 
   const [viewStatus, setViewStatus] = useState(initialValues.view_status);
-  const [headline, setHeadline] = useState(initialValues.headline);
-  const [link, setLink] = useState(initialValues.link);
+  const [headline, setHeadline] = useState(initialValues.headline || '');
+  const [link, setLink] = useState(initialValues.link || '');
   // let [rank, setRank] = useState(storyState.rank);
-  const [date, setDate] = useState(initialValues.date);
+  const [date, setDate] = useState(initialValues.date || '');
   const [content, setContent] = useState(
     initialValues.body ? initialValues.body.content : '',
   );
   const [links, setLinks] = useState(
     initialValues.body ? initialValues.body.links : [],
   );
-  const [label, setLabel] = useState(initialValues.label);
+  const [label, setLabel] = useState(initialValues.label || '');
 
   const [taggedDatasets, setTaggedDatasets] = useState([]);
 
@@ -67,9 +69,9 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
         setContent(storyState.body ? storyState.body.content : '');
         setLinks(storyState.body ? storyState.body.links : []);
       }
-      if (storyState.tags && storyState.tags.length) {
-        setTaggedDatasets (storyState.tags);
-      }
+    }
+    if (storyState && Array.isArray(storyState.tags)) {
+      setTaggedDatasets (storyState.tags);
     }
   }, [storyState]);
 
@@ -215,99 +217,116 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
 
   return (
     <div className={classes.panelContainer}>
-      <div className={classes.first}>
+
+      <div className={classes.editorAndPreview}>
         <div className={classes.cardContainer}>
+          <Typography>Story Preview</Typography>
           <div className={classes.cardBackdrop}>
             {(headline || link || content || label)
              ? <Card story={editState} position={0} />
              : <Placeholder />}
           </div>
         </div>
-        <DatasetTagger
-          tags={taggedDatasets}
-          addDataset={handleAddTag}
-          removeDataset={handleRemoveTag}
-          editState={{ headline, link, content, links }}
-        />
+
+        <div className={classes.editorContainer}>
+          <Typography>Editor</Typography>
+          <div className={classes.editor}>
+            <TextField
+              classes={{
+                root: classes.textField,
+              }}
+              label="Headline"
+              InputLabelProps={{ shrink: true, disableAnimation: true }}
+              name="headline"
+              value={headline}
+              variant="outlined"
+              onChange={(ev) => setHeadline(ev.target.value)}
+              fullWidth
+            />
+            <TextField
+              classes={{
+                root: classes.textField,
+              }}
+              label={`Link (${lt})`}
+              InputLabelProps={{ shrink: true, disableAnimation: true }}
+              name="link"
+              value={link}
+              variant="outlined"
+              onChange={(ev) => setLink(ev.target.value)}
+              fullWidth
+            />
+
+            <TextField
+              classes={{
+                root: classes.textField,
+              }}
+              label="Display Date"
+              InputLabelProps={{ shrink: true, disableAnimation: true }}
+              name="date"
+              value={date}
+              variant="outlined"
+              onChange={(ev) => setDate(ev.target.value)}
+              fullWidth
+            />
+
+            <TextField
+              classes={{
+                root: classes.textField,
+              }}
+              label="label"
+              InputLabelProps={{ shrink: true, disableAnimation: true }}
+              name="label"
+              value={label}
+              variant="outlined"
+              onChange={(ev) => setLabel(ev.target.value.trim())}
+              fullWidth
+            />
+
+            <TextField
+              classes={{
+                root: classes.textField,
+              }}
+              label="Content"
+              InputLabelProps={{ shrink: true, disableAnimation: true }}
+              name="content"
+              value={content}
+              variant="outlined"
+              onChange={(ev) => setContent(ev.target.value)}
+              fullWidth
+              multiline={true}
+            />
+
+            {linkEditors.map((props, i) => (
+              <LinkEditor {...props} key={i} />
+            ))}
+            <div
+              className={classes.controls}
+              style={{ justifyContent: 'flex-end' }}
+            >
+              <WhiteButtonSM onClick={save}>Save</WhiteButtonSM>
+              <WhiteButtonSM onClick={reset}>Cancel</WhiteButtonSM>
+            </div>
+          </div>
+        </div>
+
       </div>
+      <div className={classes.tagsAndEmail}>
+        <div className={classes.tagManagerContainer}>
+          <Typography>Tagged Datasets Manager</Typography>
+          <DatasetTagger
+            tags={taggedDatasets}
+            addDataset={handleAddTag}
+            removeDataset={handleRemoveTag}
+            editState={{ headline, link, content, links }}
+          />
+        </div>
 
-      <div className={classes.editor}>
-        <TextField
-          classes={{
-            root: classes.textField,
-          }}
-          label="Headline"
-          InputLabelProps={{ shrink: true, disableAnimation: true }}
-          name="headline"
-          value={headline}
-          variant="outlined"
-          onChange={(ev) => setHeadline(ev.target.value)}
-          fullWidth
-        />
-        <TextField
-          classes={{
-            root: classes.textField,
-          }}
-          label={`Link (${lt})`}
-          InputLabelProps={{ shrink: true, disableAnimation: true }}
-          name="link"
-          value={link}
-          variant="outlined"
-          onChange={(ev) => setLink(ev.target.value)}
-          fullWidth
-        />
-
-        <TextField
-          classes={{
-            root: classes.textField,
-          }}
-          label="Display Date"
-          InputLabelProps={{ shrink: true, disableAnimation: true }}
-          name="date"
-          value={date}
-          variant="outlined"
-          onChange={(ev) => setDate(ev.target.value)}
-          fullWidth
-        />
-
-        <TextField
-          classes={{
-            root: classes.textField,
-          }}
-          label="label"
-          InputLabelProps={{ shrink: true, disableAnimation: true }}
-          name="label"
-          value={label}
-          variant="outlined"
-          onChange={(ev) => setLabel(ev.target.value.trim())}
-          fullWidth
-        />
-
-        <TextField
-          classes={{
-            root: classes.textField,
-          }}
-          label="Content"
-          InputLabelProps={{ shrink: true, disableAnimation: true }}
-          name="content"
-          value={content}
-          variant="outlined"
-          onChange={(ev) => setContent(ev.target.value)}
-          fullWidth
-          multiline={true}
-        />
-
-        {linkEditors.map((props, i) => (
-          <LinkEditor {...props} key={i} />
-        ))}
-        <div
-          className={classes.controls}
-          style={{ justifyContent: 'flex-end' }}
-        >
-          <WhiteButtonSM onClick={save}>Save</WhiteButtonSM>
-          <WhiteButtonSM onClick={reset}>Cancel</WhiteButtonSM>
+        <div className={classes.emailContainer}>
+          <Typography>Email Notification Manager</Typography>
+          <EmailManager />
         </div>
       </div>
+
     </div>
   );
 };
