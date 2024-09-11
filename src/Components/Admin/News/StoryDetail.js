@@ -1,24 +1,16 @@
 import React  from 'react';
 import { withStyles } from '@material-ui/core/styles';
-// import Typography from '@material-ui/core/Typography';
 import { colors } from '../../Home/theme';
 import { TealButtonSM } from '../../Common/Buttons';
 import { useDispatch, useSelector } from 'react-redux';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
 import {
   publishNewsItem,
   draftNewsItem,
   previewNewsItem,
   unpublishNewsItem,
-  featureNewsItem,
-  categorizeNewsItem,
 } from '../../../Redux/actions/news';
-import Editor from './Editor';
+import Editor from './Editor2';
 import DateDetail from './DateDetail';
-import TextField from '@material-ui/core/TextField';
 
 const Story = withStyles({
   storyDetails: {

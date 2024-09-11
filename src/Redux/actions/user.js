@@ -361,3 +361,14 @@ export const setDeleteSubsRequestStatus = (status) => ({
   type: userActionTypes.SET_DELETE_SUBSCRIPTIONS_REQUEST_STATUS,
   payload: status,
 });
+
+/* change news subscription */
+
+export const changeNewsSubscription = (subValue) => ({
+  type: userActionTypes.CHANGE_NEWS_SUBSCRIPTION,
+  payload: {
+    userInfo: {
+      isNewsSubscribed: subValue // boolean
+    }
+  },
+});

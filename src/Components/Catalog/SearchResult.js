@@ -2,10 +2,8 @@
 
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import {
-  makeStyles,
-  Paper,
-} from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import Paper from '@material-ui/core/Paper';
 import DownloadDialog from './DownloadDialog';
 import api from '../../api/api';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
@@ -17,10 +15,8 @@ import AncillaryDataChip from './Display/AncillaryDataChip';
 import ContinuousIngestionChip from './Display/ContinuousIngestionChip';
 import DatasetTitleLink from './Display/DatasetTitleLink';
 import DownloadButton from './Display/DownloadButton';
-import Button from '@material-ui/core/Button';
-import { PiRssBold } from "react-icons/pi";
-import ConfirmSubscription from '../User/Subscriptions/ConfirmSubscription';
-import { createSubscription, deleteSubscription } from '../../Redux/actions/user';
+
+import SubscribeButton from '../User/Subscriptions/SubscribeButton';
 
 const useStyles = makeStyles(styles);
 
@@ -30,29 +26,17 @@ export const SearchResultPure = (props) => {
     dataset,
     fullDataset,
     onDownloadClick,
-    onSubClick = () => console.log ('no op'),
     setDownloadDialogOpen,
     downloadDialogOpen,
     features,
     style,
     index,
-    userSubscriptions = [],
     options = {},
   } = props;
 
   const cl = useStyles();
 
   const { Icon_URL, Short_Name } = dataset;
-
-  const subscribeClass = userSubscriptions.find (({ Dataset_Name}) =>
-  Dataset_Name === Short_Name)
-        ? cl.subButtonActive : cl.subButton;
-
-  const [open, setOpen] = useState(false);
-
-  const handleOpenClose = (targetState) => {
-    setOpen (targetState);
-  }
 
   return (
     <div style={style} className="result-wrapper">
@@ -61,22 +45,13 @@ export const SearchResultPure = (props) => {
         dataset={(fullDataset && fullDataset.dataset)}
         handleClose={() => setDownloadDialogOpen(false)}
       />
-      <ConfirmSubscription
-        open={open}
-        setOpen={handleOpenClose}
-        name={Short_Name}
-        subs={userSubscriptions}
-        onSub={onSubClick}
-      />
       <div className={cl.wrapper_} key={`${index}_fsl_item`}>
         <Paper className={cl.resultPaper} elevation={4}>
           <div className={cl.wrapper}>
             <div className={cl.title}>
               <DatasetTitleLink dataset={dataset} />
               <div className={cl.actionsContainer}>
-                <Button className={subscribeClass} onClick={() => setOpen (true)}>
-                  <PiRssBold />
-                </Button>
+                <SubscribeButton shortName={Short_Name} />
                 <DownloadButton onClick={onDownloadClick} >
                   <div className={cl.buttonTextSpacer}>
                     <CloudDownloadIcon />{' '}
@@ -166,11 +141,6 @@ const SearchResultState = (props) => {
            features={features}
            style={style}
            index={index}
-           onSubClick={(name, subOrUnsub) => {
-             console.log ('sub', { name, subOrUnsub });
-             const action = subOrUnsub ? createSubscription (name) : deleteSubscription ([name]);
-             dispatch (action);
-           }}
            userSubscriptions={subs}
   />
 };

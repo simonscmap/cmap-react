@@ -52,46 +52,6 @@ const DatasetListItem = withStyles ({
 
 
 
-const useStyles = makeStyles ((theme) => ({
-  container: {
-    fontSize: '0.9em',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    alignItems: 'start',
-    gap: '2em',
-  },
-  tagList: {
-    minWidth: '200px',
-    height: '600px',
-    overflow: 'scroll',
-    flex: 0,
-  },
-  tagSelect: {
-    background: 'rgba(0,0,0,0.2)',
-    borderRadius: '6px',
-    padding: '1em',
-    boxSizing: 'border-box',
-  },
-  selectTitle: {
-    color: '#69FFF2',
-    textTransform: 'uppercase',
-    fontSize: '1.1em',
-  },
-  listContainer: {
-    width: '100%',
-    height: '400px',
-    overflowY: 'scroll',
-    overflowX: 'hidden',
-    whiteSpace: 'nowrap',
-    textOverflow: 'ellipsis',
-  },
-
-  chip: {
-    margin: '5px',
-  }
-}));
-
 
 const tail = (arg) => Array.isArray (arg) && arg.length > 0 && arg[arg.length - 1];
 
@@ -122,13 +82,119 @@ const findDiscrepancies = (story, tags, datasetNames) => {
           const isNotTagged = !tags.some ((t) => t.toLowerCase() === ls);
           const isInDatasetNames = datasetNames.find (({ shortName }) => shortName.toLowerCase () === ls);
           if (isNotTagged) {
-            console.log (lastSegment, { datasetNames, ls })
+            // console.log (lastSegment, { datasetNames, ls })
           }
           return isNotTagged && isInDatasetNames;
         });
 
   return [missing, unmentioned];
 }
+
+const useTagStyles = makeStyles ((theme) => ({
+  tagList: {
+    margin: '-5px',
+  },
+  chip: {
+    margin: '5px',
+  }
+}));
+
+
+const Tags = (props) => {
+  const {
+    handleAdd,
+    handleDelete,
+    tags,
+    unmentioned: unmt,
+    missing: mist,
+  } = props;
+  const cl = useTagStyles ();
+
+  const [tagList, setTagList] = useState([]);
+
+  useEffect (() => {
+    const agg = [];
+    tags.forEach (t => agg.push ({ t,    tag: true }));
+    unmt.forEach (u => agg.push ({ t: u, unmentioned: true }));
+    mist.forEach (m => agg.push ({ t: m, missing: true }));
+    setTagList (agg)
+  }, [tags, unmt, mist]);
+
+  return (
+    <div className={cl.tagList}>
+      {tagList && tagList.map((tag, ix) => {
+        if (tag.unmentioned) {
+          return (
+            <React.Fragment key={`tag${ix}`}>
+              <Tooltip title={`This short name is tagged, but not mentioned in the news item.`} placement="bottom-end">
+                <UnmentionedChip
+                  className={cl.chip}
+                  label={tag.t}
+                  onDelete={handleDelete (tag.t)}
+                  color="primary" />
+              </Tooltip>
+            </React.Fragment>)
+        }
+        if (tag.tag) {
+          return (
+            <React.Fragment key={`tag${ix}`}>
+              <Tooltip title={`This short name is "tagged": it is associated with this news item.`} placement="bottom-end">
+                <Chip
+                  className={cl.chip}
+                  label={tag.t}
+                  onDelete={handleDelete (tag.t)}
+                  color="primary" />
+              </Tooltip>
+            </React.Fragment>)
+        }
+        if (tag.missing) {
+          return (
+            <React.Fragment key={`missing${ix}`}>
+            <Tooltip title={'This short name is mentioned in the news item, but is not yet tagged. Click to add.'} placement="bottom-end">
+              <MissingChip label={`(+) ${tag.t}`} onClick={handleAdd (tag.t)} className={cl.chip} />
+            </Tooltip>
+            </React.Fragment>
+          );
+        }
+      })}
+
+    </div>
+  );
+}
+
+
+// Main Tag Manager Component
+const useStyles = makeStyles ((theme) => ({
+  container: {
+    fontSize: '0.9em',
+    gridColumn: '1 / span 1',
+    gridRow: '2 / span 3',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  manager: {
+    background: 'rgba(0,0,0,0.2)',
+    borderRadius: '6px',
+    boxSizing: 'border-box',
+    padding: '1em',
+    marginTop: '1em',
+  },
+  selectTitle: {
+    color: '#69FFF2',
+    textTransform: 'uppercase',
+    fontSize: '16px',
+    margin: '1em 0 0 0',
+  },
+  listContainer: {
+    flex: 1,
+    maxHeight: '500px',
+    width: '100%',
+    overflowY: 'scroll',
+    overflowX: 'hidden',
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis',
+  },
+}));
 
 const Tagger = (props) => {
   const { addDataset, tags, removeDataset, editState } = props;
@@ -162,7 +228,6 @@ const Tagger = (props) => {
 
   // missing/unmentioned datasets
   useEffect (() => {
-    console.log (`tags for ${editState.headline}`, tags);
     const [ missingTags, unmentionedDatasets ] = findDiscrepancies (editState, tags, datasetNames);
     setMissing (missingTags);
     setUnmentioned (unmentionedDatasets);
@@ -181,45 +246,23 @@ const Tagger = (props) => {
   }
 
   const isTagged = (target) => {
-    const pred = Boolean (tags.find (t => t.toLowerCase() === target.toLowerCase ()));
-    if (pred) {
-      console.log (`SELECTED ${target}`)
-    }
-    return pred;
+    return Boolean (tags.find (t => t.toLowerCase() === target.toLowerCase ()));
   }
 
   return (
     <div className={cl.container}>
-      <div className={cl.tagList}>
-        {tags && tags.map((t, ix) => {
-          if (unmentioned.includes (t)) {
-            return (
-              <Tooltip title={`This short name is tagged, but not mentioned in the news item.`} placement="bottom-end">
-                <UnmentionedChip
-                  className={cl.chip}
-                  label={t}
-                  onDelete={handleDelete (t)}
-                  color="primary" />
-              </Tooltip>)
-          } else {
-            return (
-              <Tooltip title={`This short name is "tagged": it is associated with this news item.`} placement="bottom-end">
-                <Chip
-                  className={cl.chip}
-                  label={t}
-                  onDelete={handleDelete (t)}
-                  color="primary" />
-              </Tooltip>)
-          }
-        })}
-        {missing && missing.map ((n, ix) => (
-          <Tooltip title={'This short name is mentioned in the news item, but is not yet tagged. Click to add.'} placement="bottom-end">
-          <MissingChip label={`(+) ${n}`} onClick={handleAdd (n)} className={cl.chip} />
-          </Tooltip>
-        ))}
-      </div>
-      <div className={cl.tagSelect}>
-        <Typography className={cl.selectTitle}>Tag Datasets</Typography>
+      <Typography className={cl.subTitle}>Tagged Datasets</Typography>
+      <div className={cl.manager}>
+        <Tags
+          handleAdd={handleAdd}
+          handleDelete={handleDelete}
+          tags={tags}
+          unmentioned={unmentioned}
+          missing={missing}
+        />
+
+        <Typography className={cl.selectTitle}>Add Dataset Tags</Typography>
+
         <TextField label="Search" onChange={handleChange}/>
         <div className={cl.listContainer}>
           <List>

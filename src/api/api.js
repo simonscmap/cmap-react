@@ -7,6 +7,7 @@ import userRequests from './userRequests';
 import visualizationRequests from './visualizationRequests';
 import dataRequests from './dataRequests';
 import newsRequests from './news';
+import notificationsRequests from './notifications';
 import highlights from './highlights';
 import bulkDownload from './bulkDownload';
 
@@ -18,6 +19,7 @@ const api = {
   user: userRequests,
   visualization: visualizationRequests,
   news: newsRequests,
+  notifications: notificationsRequests,
   highlights,
   bulkDownload,
 };

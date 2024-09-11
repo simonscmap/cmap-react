@@ -10,17 +10,7 @@ const useStyles = makeStyles (() => ({
       margin: 0
     }
   },
-  splitView: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'start',
-    gap: '3em',
-    margin: '2em 0',
-    '& h6': {
-      color: '#69FFF2'
-    }
-  },
+
   title: {
     display: 'flex',
     flexDirection: 'row',
@@ -53,13 +43,7 @@ const useStyles = makeStyles (() => ({
       }
     }
   },
-  subList: {
-    flex: 0,
-    minWidth: '300px'
-  },
-  subNews: {
-    flex: 1,
-  }
+
 }));
 
 export default useStyles;

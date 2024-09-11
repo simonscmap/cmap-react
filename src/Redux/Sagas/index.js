@@ -86,6 +86,12 @@ import {
 } from './news';
 
 import {
+  watchFetchNotificationHistory,
+  watchFetchNotificationProjection,
+  watchFetchNotificationPreviews,
+} from './notifications';
+
+import {
   watchCheckDownloadSize,
 } from './downloadSagas';
 
@@ -400,20 +406,21 @@ function* updateUserInfoRequest(action) {
   const tag = { tag: 'updateUserInfoRequest' };
   yield put(interfaceActions.setLoadingMessage('Updating your information', tag));
 
-  let result = yield call(api.user.updateUserInfo, action.payload);
+  let response = yield call(api.user.updateUserInfo, action.payload);
 
-  if (result.failed) {
-    yield put(interfaceActions.setLoadingMessage('', tag));
-    if (result.status === 401) {
-      yield put(userActions.refreshLogin());
-    } else {
-      yield put(
-        interfaceActions.snackbarOpen('An error occurred. Please try again.', tag),
-      );
-    }
-  } else {
+  if (response.ok) {
     yield put(userActions.storeInfo(JSON.parse(Cookies.get('UserInfo'))));
     yield put(interfaceActions.snackbarOpen('Your information was updated', tag));
+  } else if (response.status === 401) {
+    yield put(interfaceActions.setLoadingMessage('', tag));
+    const snack401Message = 'The request to update your profile failed to authorize, please login again.';
+    yield put(interfaceActions.snackbarOpen(snack401Message, tag));
+    yield put(userActions.refreshLogin());
+  } else {
+    yield put(interfaceActions.setLoadingMessage('', tag));
+    const errorMessage = 'An error occurred. Please try again.';
+    yield put(interfaceActions.snackbarOpen(errorMessage, tag));
+
   }
 
   yield put(interfaceActions.setLoadingMessage('', tag));
@@ -2097,6 +2104,13 @@ function* watchIngestCookies() {
   yield takeLatest(userActionTypes.INGEST_COOKIES, ingestCookies);
 }
 
+function* watchChangeNewsSubscription () {
+  yield takeLatest (
+    userActionTypes.CHANGE_NEWS_SUBSCRIPTION,
+    updateUserInfoRequest, // use update profile saga
+  );
+}
+
 function* rootSaga() {
   yield all([
     watchUserLogin(),
@@ -2202,6 +2216,10 @@ function* rootSaga() {
     watchCreateSubscription(),
     watchDeleteSubscriptions(),
     watchFetchDatasetNames(),
+    watchFetchNotificationHistory(),
+    watchFetchNotificationProjection(),
+    watchChangeNewsSubscription(),
+    watchFetchNotificationPreviews(),
   ]);
 }
 

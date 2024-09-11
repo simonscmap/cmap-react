@@ -28,6 +28,7 @@ import Visualization from './DatasetVisualization';
 import SelectVariable from './SelectVariable';
 import CruiseList from './CruiseList';
 import ReferencesList from './References';
+import SubscribeButton from '../../User/Subscriptions/SubscribeButton';
 import styles from './datasetFullPageStyles';
 
 import SkeletonWrapper from '../../UI/SkeletonWrapper';
@@ -191,6 +192,8 @@ const DatasetFullPage = (props) => {
     );
   }
 
+  console.log ('data', data);
+
   return (
     <Page2 bgVariant="slate2">
       <Grid container className={classes.outerContainer} >
@@ -224,6 +227,8 @@ const DatasetFullPage = (props) => {
                 <CloudDownloadIcon />
                 <span className={classes.bottomAlignedText}>Download Data</span>
               </Link>
+
+              <SubscribeButton shortName={data && data.Short_Name} />
 
               <Grid container spacing={3}>
 

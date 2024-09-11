@@ -3,7 +3,6 @@ import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles ((theme) => ({
   placeholder: {
-    width: '500px',
     height: '200px',
     borderRadius: '6px',
     display: 'flex',

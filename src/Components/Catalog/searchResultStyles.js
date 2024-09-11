@@ -49,22 +49,6 @@ const experimentalStyles = (theme) => ({
     flexWrap: 'nowrap',
     alignItems: 'center',
   },
-  subButton: {
-    fontSize: '20px',
-    color: 'grey',
-    padding: 0,
-    '&:hover': {
-      color: '#69FFF2'
-    }
-  },
-  subButtonActive: {
-    fontSize: '20px',
-    color: 'rgb(179, 247, 102)',
-    padding: 0,
-    '&:hover': {
-      color: '#69FFF2'
-    }
-  },
   nameAndCopy: {
     width: '100%',
     display: 'flex',

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Editor from './Editor';
+import Editor from './Editor2';
 import Section from '../../Common/Section';
 import { WhiteButtonSM } from '../../Common/Buttons';
 

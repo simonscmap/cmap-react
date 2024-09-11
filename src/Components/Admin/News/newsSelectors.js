@@ -16,3 +16,9 @@ export const datasetNamesFullList = createSelector (
     }
   }
 );
+
+export const notificationHistory = (state) => state.notificationHistory;
+export const notificationRecipientProjections = (state) =>
+state.notificationRecipientProjections;
+export const notificationRecipientProjectionsRequestStatus = (state) =>
+state.notificationRecipientProjectionsRequestStatus;

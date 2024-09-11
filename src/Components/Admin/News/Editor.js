@@ -323,7 +323,7 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
 
         <div className={classes.emailContainer}>
           <Typography>Email Notification Manager</Typography>
-          <EmailManager />
+          <EmailManager id={storyState && storyState.ID} />
         </div>
       </div>
 

@@ -2,6 +2,7 @@ import catalog from './catalog';
 import user from './user';
 import ui from './ui';
 import news from './news';
+import notifications from './notifications';
 import visualization from './visualization';
 import dataSubmission from './dataSubmission.js';
 import help from './help.js';
@@ -205,7 +206,12 @@ const initialState = {
       updateViewStatus: states.notTried,
       list: states.notTried,
     }
-  }
+  },
+
+  // Notifications && Subscriptions
+  notificationHistory: {},
+  notificationRecipientProjections: {},
+  notificationRecipientProjectionsRequestStatus: {},
 };
 
 const reducedReducer = reduceReducers(
@@ -219,6 +225,7 @@ const reducedReducer = reduceReducers(
   news,
   highlights,
   data,
+  notifications,
 );
 
 export default reducedReducer;

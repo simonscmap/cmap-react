@@ -1,7 +1,11 @@
+import { call, put, takeLatest, select } from 'redux-saga/effects';
 import api from '../../api/api';
 import * as newsActions from '../actions/news';
+import * as interfaceActions from '../actions/ui';
 import * as newsActionTypes from '../actionTypes/news';
-import { call, put, takeLatest, select } from 'redux-saga/effects';
+
+import initLog from '../../Services/log-service';
+const log = initLog ('sagas/news');
 
 /* requestNewsList, watchNewsList
  */
@@ -37,12 +41,17 @@ export function* watchRequestNewsList() {
 
 // UPDATE
 export function* updateNewsItem(action) {
-  let response = yield call(api.news.update, action.payload.item);
+  const tag = { tag: 'updateNewsItem' };
+  log.debug ('update news item', { ...action.payload });
+  const response = yield call(api.news.update, action.payload.item);
   if (response.ok) {
     yield put(newsActions.updateNewsItemSuccess());
+    yield put(interfaceActions.snackbarOpen('Update successful', tag));
   } else {
     yield put(newsActions.updateNewsItemFailure());
+    yield put(interfaceActions.snackbarOpen('Failed to update news item', tag));
   }
+  yield requestNewsList();
 } // ⮷ &. Watcher ⮷ (2 watchers; trigger a refetch of news list after update)
 
 export function* watchUpdateNewsItem() {
