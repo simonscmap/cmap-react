@@ -66,28 +66,26 @@ const findDiscrepancies = (story, tags, datasetNames) => {
     add (tail (url.split ('/')));
   });
 
-  // find unmentioned
-  const unmentioned = tags
-        .map (t => datasetNames.find (record => record.shortName.toLowerCase() === t.toLowerCase()))
-        .filter (({ shortName, longName }) => {
-          return !words.has (shortName.toLowerCase())
-        })
-        .map (n => n.shortName);
-
-  // find missing tags
-  const missing = links
+  const missingTags = links
         .map (({ url }) => tail (url.split ('/')))
-        .filter ((lastSegment) => {
-          const ls = typeof lastSegment === 'string' && lastSegment.toLowerCase();
-          const isNotTagged = !tags.some ((t) => t.toLowerCase() === ls);
-          const isInDatasetNames = datasetNames.find (({ shortName }) => shortName.toLowerCase () === ls);
-          if (isNotTagged) {
-            // console.log (lastSegment, { datasetNames, ls })
-          }
-          return isNotTagged && isInDatasetNames;
-        });
+        .map (lastSegment => lastSegment && lastSegment.toLowerCase && lastSegment.toLowerCase())
+        .filter (ls => !tags.some ((t) => t.toLowerCase() === ls)) // narrow to links that are not tagged
+        .filter (ls => datasetNames.find (({ shortName }) => shortName.toLowerCase () === ls)) // narrow to dataset names
+        .map (ls => ({ t: ls, missing: true }));
 
-  return [missing, unmentioned];
+  const isUnmentioned = (shortName) => {
+    return !words.has (shortName.toLowerCase())
+  }
+
+  const tagList = tags.map ((tag) => {
+    const newTag = { t: tag,  };
+    if (isUnmentioned (tag)) {
+      newTag.unmentioned = true;
+    }
+    return newTag;
+  }).concat (missingTags)
+
+  return tagList;
 }
 
 const useTagStyles = makeStyles ((theme) => ({
@@ -105,24 +103,12 @@ const Tags = (props) => {
     handleAdd,
     handleDelete,
     tags,
-    unmentioned: unmt,
-    missing: mist,
   } = props;
   const cl = useTagStyles ();
 
-  const [tagList, setTagList] = useState([]);
-
-  useEffect (() => {
-    const agg = [];
-    tags.forEach (t => agg.push ({ t,    tag: true }));
-    unmt.forEach (u => agg.push ({ t: u, unmentioned: true }));
-    mist.forEach (m => agg.push ({ t: m, missing: true }));
-    setTagList (agg)
-  }, [tags, unmt, mist]);
-
   return (
     <div className={cl.tagList}>
-      {tagList && tagList.map((tag, ix) => {
+      {tags && tags.map((tag, ix) => {
         if (tag.unmentioned) {
           return (
             <React.Fragment key={`tag${ix}`}>
@@ -134,8 +120,15 @@ const Tags = (props) => {
                   color="primary" />
               </Tooltip>
             </React.Fragment>)
-        }
-        if (tag.tag) {
+        } else if (tag.missing) {
+          return (
+            <React.Fragment key={`missing${ix}`}>
+              <Tooltip title={'This short name is mentioned in the news item, but is not yet tagged. Click to add.'} placement="bottom-end">
+                <MissingChip label={`(+) ${tag.t}`} onClick={handleAdd (tag.t)} className={cl.chip} />
+              </Tooltip>
+            </React.Fragment>
+          );
+        } else {
           return (
             <React.Fragment key={`tag${ix}`}>
               <Tooltip title={`This short name is "tagged": it is associated with this news item.`} placement="bottom-end">
@@ -146,15 +139,6 @@ const Tags = (props) => {
                   color="primary" />
               </Tooltip>
             </React.Fragment>)
-        }
-        if (tag.missing) {
-          return (
-            <React.Fragment key={`missing${ix}`}>
-            <Tooltip title={'This short name is mentioned in the news item, but is not yet tagged. Click to add.'} placement="bottom-end">
-              <MissingChip label={`(+) ${tag.t}`} onClick={handleAdd (tag.t)} className={cl.chip} />
-            </Tooltip>
-            </React.Fragment>
-          );
         }
       })}
 
@@ -178,6 +162,7 @@ const useStyles = makeStyles ((theme) => ({
     boxSizing: 'border-box',
     padding: '1em',
     marginTop: '1em',
+    flex: 1, // expand to full height
   },
   selectTitle: {
     color: '#69FFF2',
@@ -205,8 +190,8 @@ const Tagger = (props) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredDatasets, setFilteredDatasets] = useState ([]);
 
-  const [missing, setMissing] = useState([]); // datasets in story but not tagged
-  const [unmentioned, setUnmentioned] = useState([]) // tagged datasets not mentioned in the story
+  const [tagList, setTagList] = useState([]); // datasets in story but not tagged
+
 
   // initialize dataset names when they load
   useEffect (() => {
@@ -226,11 +211,10 @@ const Tagger = (props) => {
     }
   }, [searchTerm, datasetNames]);
 
-  // missing/unmentioned datasets
+  // flag missing/unmentioned datasets
   useEffect (() => {
-    const [ missingTags, unmentionedDatasets ] = findDiscrepancies (editState, tags, datasetNames);
-    setMissing (missingTags);
-    setUnmentioned (unmentionedDatasets);
+    const newTagList = findDiscrepancies (editState, tags, datasetNames);
+    setTagList (newTagList);
   }, [editState, tags, datasetNames]);
 
   const handleChange = (ev) => {
@@ -238,7 +222,6 @@ const Tagger = (props) => {
   }
 
   const handleAdd = (name) => (ev) => {
-    // TODO check if tag is already added
     addDataset (name);
   }
   const handleDelete = (name) => (ev) => {
@@ -256,9 +239,7 @@ const Tagger = (props) => {
         <Tags
           handleAdd={handleAdd}
           handleDelete={handleDelete}
-          tags={tags}
-          unmentioned={unmentioned}
-          missing={missing}
+          tags={tagList}
         />
 
         <Typography className={cl.selectTitle}>Add Dataset Tags</Typography>

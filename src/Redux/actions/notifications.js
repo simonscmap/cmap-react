@@ -54,3 +54,18 @@ export const setFetchNotificationPreviewsRequestStatus = (status) => ({
   type: actionTypes.SET_FETCH_NOTIFICATION_PREVIEWS_REQUEST_STATUS,
   payload: status,
 });
+
+export const sendNotifications = (args) => ({
+  type: actionTypes.SEND_NOTIFICATIONS,
+  payload: args,
+})
+
+export const sendNotificationsResult = (args) => ({
+  type: actionTypes.SEND_NOTIFICATIONS_RESULT,
+  payload: args,
+});
+
+export const setSendNotificationsStatus = (args) => ({
+  type: actionTypes.SET_SEND_NOTIFICATIONS_STATUS,
+  payload: args, // not just a status, but a status + metadata
+});

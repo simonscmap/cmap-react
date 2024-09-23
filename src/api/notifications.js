@@ -25,6 +25,13 @@ notificationsAPI.previews = async (args) => {
   });
 };
 
+notificationsAPI.send = async (args) => {
+  const endpoint = apiUrl + '/api/notifications/send';
+  return await fetch(endpoint, {
+    ...postOptions,
+    body: JSON.stringify(args),
+  });
+};
 
 const safeAPI = Object.entries(notificationsAPI)
   .map(([name, fn]) => {

@@ -199,7 +199,8 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
   const handleAddTag = (name) => {
     const tags = new Set (taggedDatasets);
     tags.add (name);
-    setTaggedDatasets (Array.from (tags));
+    console.log ('result', Array.from (tags))
+    setTaggedDatasets (Array.from(tags))
   }
 
   const handleRemoveTag = (name) => {
@@ -232,7 +233,6 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
 
   if (arrayOfLinkTokens.length > links.length) {
     let missingLinks = arrayOfLinkTokens.length - links.length;
-    console.log ('creating new link editor', links, missingLinks);
     for (let i = 0; i < missingLinks; i++) {
       // push a new link into the links array
       // for each fewer link in the links array than in the tokens array
@@ -249,7 +249,6 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
   }
   if (arrayOfLinkTokens.length < links.length) {
     let excessLinks = links.length - arrayOfLinkTokens.length;
-    console.log ('removing excess link', links, excessLinks);
     linkEditors = linkEditors.slice(0, links.length - excessLinks);
     setLinks (links.slice(0, links.length - excessLinks));
   }
@@ -362,7 +361,8 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
             label="Headline"
             InputLabelProps={{ shrink: true, disableAnimation: true }}
             name="headline"
-            value={headline}
+            // value={headline}
+            defaultValue={initialValues.headline}
             variant="outlined"
             onChange={updateHeadline}
             fullWidth
@@ -374,7 +374,8 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
             label={`Link (${lt})`}
             InputLabelProps={{ shrink: true, disableAnimation: true }}
             name="link"
-            value={link}
+            // value={link}
+            defaultValue={initialValues.link}
             variant="outlined"
             onChange={(ev) => setLink(ev.target.value)}
             fullWidth
@@ -387,7 +388,8 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
             label="Display Date"
             InputLabelProps={{ shrink: true, disableAnimation: true }}
             name="date"
-            value={date}
+            // value={date}
+            defaultValue={initialValues.date}
             variant="outlined"
             onChange={(ev) => setDate(ev.target.value)}
             fullWidth
@@ -400,7 +402,8 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
             label="label"
             InputLabelProps={{ shrink: true, disableAnimation: true }}
             name="label"
-            value={label}
+            // value={label}
+            defaultValue={initialValues.label}
             variant="outlined"
             onChange={(ev) => setLabel(ev.target.value.trim())}
             fullWidth
@@ -413,7 +416,8 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
             label="Content"
             InputLabelProps={{ shrink: true, disableAnimation: true }}
             name="content"
-            value={content}
+            // value={content}
+            defaultValue={initialValues.body.content}
             variant="outlined"
             onChange={(ev) => setContent(ev.target.value)}
             fullWidth
@@ -448,10 +452,16 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
       />
 
       {/* child 4*/}
+      {/* to enable sending notification, news item must be published and not have pending updates */}
       <EmailManager
-        id={storyState && storyState.id}
+        newsId={storyState && storyState.id}
+        modDate={storyState && storyState.modify_date}
         tags={taggedDatasets}
         headline={headline}
+        enabled={{
+          isDirty,
+          viewStatus,
+        }}
       />
 
     </div>

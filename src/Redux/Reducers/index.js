@@ -212,6 +212,8 @@ const initialState = {
   notificationHistory: {},
   notificationRecipientProjections: {},
   notificationRecipientProjectionsRequestStatus: {},
+  sentNotifications: [],
+  sendNotificationsStatus: [],
 };
 
 const reducedReducer = reduceReducers(

@@ -10,6 +10,10 @@ import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import IconButton from '@material-ui/core/IconButton';
+import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
+import Collapse from '@material-ui/core/Collapse';
 import { Button } from '@material-ui/core';
 import states from '../../../enums/asyncRequestStates';
 import generateKey from './generateKey';
@@ -24,6 +28,7 @@ import {
 import {
   fetchNotificationRecipientProjection,
   fetchNotificationPreviews,
+  sendNotifications,
 } from '../../../Redux/actions/notifications';
 
 
@@ -52,9 +57,9 @@ export const CustomButton = withStyles((theme) => ({
 // History Table Row
 const useRowStyles = makeStyles({
   root: {
-    '& > *': {
-      borderBottom: 'unset',
-    },
+    '& td': {
+      borderBottom: 0,
+    }
   },
   expandedContent: {
     display: 'flex',
@@ -70,18 +75,38 @@ function Row(props) {
   const { row } = props;
   const cl = useRowStyles();
 
-  let recipients = row.recipients
+  const [expand, setExpand] = useState (false);
+
+  let recipients = '' + row.recipients
       && Array.isArray (row.recipients.actual)
-      && row.recipients.actual.length;
+      ? row.recipients.actual.length
+      : 0
+
+  const date = new Date (row.Date_Time);
+  const displayDate = `${date.toDateString()} at ${date.toLocaleTimeString()}`;
 
   return (
     <React.Fragment>
       <TableRow className={cl.root}>
+        <TableCell>
+          <IconButton aria-label="expand row" size="small" onClick={() => setExpand(!expand)}>
+            {expand ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </IconButton>
+        </TableCell>
         <TableCell>{row.Email_ID}</TableCell>
-        <TableCell>{row.Date_Time}</TableCell>
+        <TableCell>{displayDate}</TableCell>
         <TableCell>{row.Subject}</TableCell>
-        <TableCell>{row.Body}</TableCell>
         <TableCell>{recipients}</TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={5}>
+          <Collapse in={expand} timeout="auto" unmountOnExit>
+            <div className={cl.previewContainer}>
+              <p>Preview</p>
+              <iframe srcDoc={row.Body} width="555" height="625"/>
+            </div>
+          </Collapse>
+        </TableCell>
       </TableRow>
     </React.Fragment>
   );
@@ -139,6 +164,7 @@ const useStyles = makeStyles ((theme) => ({
     },
     '& td': {
       color: 'white',
+      borderBottom: '0px solid transparent'
     }
   },
 
@@ -146,6 +172,7 @@ const useStyles = makeStyles ((theme) => ({
 
 const EmailManagerPure = (props) => {
   const {
+    newsId,
     history,
     projection,
     headline,
@@ -153,6 +180,9 @@ const EmailManagerPure = (props) => {
     getPreviews,
     send,
     refresh,
+    enabled,
+    sentNotifications,
+    statuses,
   } = props;
   const cl = useStyles ();
 
@@ -161,7 +191,6 @@ const EmailManagerPure = (props) => {
 
   useEffect (() => {
     if (open && !previews) {
-      console.log ('get previews');
       getPreviews ();
     }
   }, [open, previews]);
@@ -169,9 +198,8 @@ const EmailManagerPure = (props) => {
   const handleClose = () => {
     setOpen (false);
   }
-  const handleConfirm = () => {
-    setOpen (false);
-    send ();
+  const handleConfirm = (tempId) => {
+    send (tempId);
   }
 
   return (
@@ -184,6 +212,10 @@ const EmailManagerPure = (props) => {
         history={history}
         headline={headline}
         previews={previews}
+        enabled={enabled}
+        newsId={newsId}
+        statuses={statuses}
+        sentNotifications={sentNotifications}
       />
       <Typography className={cl.title}>Notifications</Typography>
       <div className={cl.subSection}>
@@ -207,10 +239,10 @@ const EmailManagerPure = (props) => {
           <Table size="small" className={cl.table} aria-label="spanning table">
             <TableHead>
               <TableRow>
-                <TableCell>Email ID</TableCell>
+                <TableCell className={cl.colHead}>{/* no header for expand control */}</TableCell>
+                <TableCell className={cl.colHead}>Email ID</TableCell>
                 <TableCell className={cl.colHead}>Date Sent</TableCell>
                 <TableCell className={cl.colHead}>Subject</TableCell>
-                <TableCell className={cl.colHead}>Body</TableCell>
                 <TableCell className={cl.colHead}>Recipients</TableCell>
               </TableRow>
             </TableHead>
@@ -232,59 +264,61 @@ const shouldDispatch = (status) => {
 
 // Email Manager State
 const EmailManager = (props) => {
-  const { id, tags, headline } = props;
+  const { newsId, tags, headline, enabled, modDate } = props;
+
+
   const dispatch = useDispatch ();
   const history = useSelector (notificationHistory);
   const projections = useSelector (notificationRecipientProjections);
   const previews = useSelector ((state) => state.notificationPreviews);
   const projectionRequestStatus = useSelector (notificationRecipientProjectionsRequestStatus);
+  const notificationStatuses = useSelector ((state) => state.sendNotificationsStatus
+                                            .filter (item => item.newsId === newsId));
+   const sentNotifications = useSelector ((state) => state.sentNotifications
+                                            .filter (item => item.newsId === newsId));
 
   const [storyHistory, setStoryHistory] = useState (null);
   const [projection, setProjection] = useState(null);
 
   useEffect (() => {
-    if (history && id) {
-      if (history[id]) {
-        setStoryHistory (history[id]);
+    if (history && newsId) {
+      if (history[newsId]) {
+        setStoryHistory (history[newsId]);
       } else {
-        console.log ('no history found', { id, history })
+        console.log ('no history found', { newsId, history })
       }
     }
   }, [history]);
 
-  useEffect (() => {
-    // when to dispatch?
+  useEffect (() => { // when to dispatch?
     const key = generateKey (tags);
     const status = projectionRequestStatus
           && projectionRequestStatus[key]
           && projectionRequestStatus[key].status;
     const p = projections && projections[key];
 
-    // 1. if there are no projections or projection requests in progress/failed
-    if (!p && shouldDispatch (status)) {
-      dispatch (fetchNotificationRecipientProjection ({ tags, emailId: id }));
+    if (!p && shouldDispatch (status)) { // 1. if there are no projections or projection requests in progress/failed
+      dispatch (fetchNotificationRecipientProjection ({ tags }));
     } else if (p) {
       setProjection (p);
     }
-
   }, [projections, projectionRequestStatus, tags]);
 
   const getPreviews = () => {
-    if (!id) {
+    if (!newsId) {
       console.log ('no news id; cannot fetch preview');
     } else {
-      dispatch (fetchNotificationPreviews ({ newsId: id }));
+      dispatch (fetchNotificationPreviews ({ newsId }));
     }
   }
 
   const refresh = () => {
-    dispatch (fetchNotificationRecipientProjection ({ tags, emailId: id }));
-    dispatch (fetchNotificationPreviews ({ newsId: id }));
+    dispatch (fetchNotificationRecipientProjection ({ tags }));
+    dispatch (fetchNotificationPreviews ({ newsId }));
   }
 
-  const send = () => {
-    // disptach send notification(s)
-    console.log ('SEND NOTIFICATION');
+  const send = (tempId) => {
+    dispatch (sendNotifications ({ newsId, tempId, modDate }));
   }
 
   return <EmailManagerPure
@@ -293,9 +327,12 @@ const EmailManager = (props) => {
            headline={headline}
            getPreviews={getPreviews}
            previews={previews}
-           newsId={id}
+           newsId={newsId}
            send={send}
            refresh={refresh}
+           enabled={enabled}
+           statuses={notificationStatuses}
+           sentNotifications={sentNotifications}
          />
 }
 

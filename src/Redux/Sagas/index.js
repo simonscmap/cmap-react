@@ -89,6 +89,7 @@ import {
   watchFetchNotificationHistory,
   watchFetchNotificationProjection,
   watchFetchNotificationPreviews,
+  watchSendNotifications,
 } from './notifications';
 
 import {
@@ -2220,6 +2221,7 @@ function* rootSaga() {
     watchFetchNotificationProjection(),
     watchChangeNewsSubscription(),
     watchFetchNotificationPreviews(),
+    watchSendNotifications(),
   ]);
 }
 
