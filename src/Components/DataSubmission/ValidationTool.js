@@ -129,6 +129,7 @@ class ValidationTool extends React.Component {
       submissionToUpdate: this.props.submissionToUpdate,
     });
 
+    console.log ('calling workbook Audits', newArgs);
     return workbookAudits(newArgs);
   };
 
@@ -388,7 +389,7 @@ class ValidationTool extends React.Component {
       // console.log ('a change event fired, but state has not changed');
       return;
     } else if (oldValue === null && newValue === '') {
-      // console.log ('a change event fired when a user clicked on an empty cell');
+      console.log ('a change event fired when a user clicked on an empty cell');
       return;
     }
 
@@ -396,7 +397,7 @@ class ValidationTool extends React.Component {
       row: rowIndex, col: column.colId, val: newValue, old: oldValue, sheet: context.sheet
     };
 
-    // console.log ('Cell Value Changed', changeEvent, node);
+    console.log ('Cell Value Changed', changeEvent, node);
 
     // 1. check names
     const shouldResendCheckNameRequest =
@@ -408,12 +409,15 @@ class ValidationTool extends React.Component {
       let shortName = safePath (['dataset_meta_data', '0', 'dataset_short_name']) (this.state);
       let longName = safePath (['dataset_meta_data', '0', 'dataset_long_name']) (this.state);
 
+      console.log ('state.shortName', shortName);
       if (column.colId === 'dataset_short_name') {
+        console.log ('update.shortName', newValue);
         shortName = newValue;
       }
       if (column.colId === 'dataset_long_name') {
         longName = newValue;
       }
+      console.log ('calling check-name api')
       this.props.checkSubmNamesRequestSend({ shortName, longName, submissionId: this.props.submissionToUpdate });
     }
 
@@ -421,8 +425,10 @@ class ValidationTool extends React.Component {
 
     let { sheet } = context;
 
-    console.log (`auditing cell ${column.colId}@${rowIndex}`);
     let newAudit = this.auditCell (newValue, column.colId, rowIndex);
+
+    console.log (`auditing cell ${column.colId}@${rowIndex}`, newValue, { newAudit });
+
 
     let auditReport = {
       ...this.props.auditReport
@@ -460,16 +466,19 @@ class ValidationTool extends React.Component {
     );
 
     // 3. update workbook in state with new data, and add a changeEvent to the change log
+    console.log ('setting state with updated sheet')
     this.setState({
       ...this.state,
       [sheet]: updated,
       changeLog: this.state.changeLog.concat(changeEvent)
     }, () => {
       // redraw rows
+      console.log ('calling redrawRows')
       const row = this.gridApi.getDisplayedRowAtIndex(rowIndex);
       this.gridApi.redrawRows({rowNodes: [row]});
 
       // refresh cells
+      console.log ('calling refreshCells')
       event.api.refreshCells({
         force: true,
         rowNodes: [event.node] // pass rowNode that was edited
@@ -865,7 +874,8 @@ class ValidationTool extends React.Component {
     const nameCheckChanged = this.props.checkSubmissionNameResult !== prevProps.checkSubmissionNameResult;
     if ((subTypeChanged || nameCheckChanged) && this.props.submissionFile) {
       // call perform audit because nameCheck has changed
-      this.performAudit(true, 'componentDidUpdate');
+      // but don't change step after audit
+      this.performAudit(false, 'componentDidUpdate');
     }
 
     // 4. should re-dispatch name check

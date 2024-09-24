@@ -135,7 +135,9 @@ export const Meta = (props) => {
         <TableContainer size="small" className={ts.compactTable}>
           <Table>
             <TableBody className={cl.body}>
-              {meta.required ? <span className={cl.badgeRequired}>Required</span> : <span className={cl.badgeOptional}>Optional</span>}
+              {meta.required
+               ? <TableRow><TableCell><span className={cl.badgeRequired}>Required</span></TableCell></TableRow>
+               : <TableRow><TableCell><span className={cl.badgeOptional}>Optional</span></TableCell></TableRow>}
               {meta.type && <Row property={'Type'} val={meta.type} /> }
               {meta.format && <Row property={'Format'} val={meta.format} /> }
               {meta.unit && <Row property={'Unit'} val={meta.unit} /> }
@@ -176,7 +178,7 @@ const ColumnSection = (props) => {
 
       {Array.isArray(item.images) && item.images.map((image, i) => (
         <div className={cl.scrollWrapper}>
-          <div className={cl.standoutBadge}>Example: {image.alt}</div>
+          <div className={cl.standoutBadgeNoOverlap}>Example: {image.alt}</div>
           <div className={cl.standoutBox} key={`${i}`}>
             <img
               src={image.src}

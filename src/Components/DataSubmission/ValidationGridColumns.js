@@ -35,19 +35,19 @@ const columnDefinitions = {
       headerName: 'lat',
       field: 'lat',
       valueParser: numberParser,
-      cellDataType: 'number',
+      // type: 'number',
     },
     {
       headerName: 'lon',
       field: 'lon',
       valueParser: numberParser,
-      cellDataType: 'number',
+      // type: 'number',
     },
     {
       headerName: 'depth',
       field: 'depth',
       valueParser: numberParser,
-      cellDataType: 'number',
+      // type: 'number',
     },
   ],
 

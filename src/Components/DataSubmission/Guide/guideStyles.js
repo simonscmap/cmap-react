@@ -232,7 +232,6 @@ export const sectionStyles = makeStyles((theme) => ({
     borderRadius: '6px',
     boxSizing: 'border-box',
     border: '1px solid black',
-    // margin: '2em 2em auto 2em',
     position: 'relative',
     boxShadow: `0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12)`,
     '& img': {
@@ -255,6 +254,15 @@ export const sectionStyles = makeStyles((theme) => ({
     fontSize: '14px',
     fontWeight: 'bold',
     border: '1px solid rgb(157, 209, 98)',
+  },
+  standoutBadgeNoOverlap: {
+    display: 'inline-block',
+    color: 'white',
+    fontSize: '14px',
+    fontWeight: 'bold',
+    borderBottom: '1px solid rgb(157, 209, 98)',
+    margin: '1em 0',
+
   },
   badge: {
     display: 'inline-block',
@@ -289,13 +297,12 @@ export const sectionStyles = makeStyles((theme) => ({
   },
 
   scrollWrapper: {
-    padding: '2em 2em 2em 35px',
+    padding: '1em 2em 1em 35px',
     position: 'relative',
     width: '100%',
     boxSizing: 'border-box',
-    display: 'flex',
-
   },
+
 
   standoutBadgeContainer: {
     flex: 1,

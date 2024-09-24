@@ -142,7 +142,7 @@ const getColumns = (sheet, data, tooltipValueGetter) => {
       const def = {
         headerName: nameToHeader (columnName),
         field: columnName,
-        cellDataType: dataType,
+        // type: dataType,
         valueParser: dataType === 'number' ? numberParser : (id) => id,
         tooltipValueGetter,
       };

@@ -32,6 +32,9 @@ const namingConflictsAudit = (standardArgs) => {
   const shortName = safePath(['0', 'dataset_short_name'])(dataset_meta_data);
   const longName = safePath(['0', 'dataset_long_name'])(dataset_meta_data);
 
+  console.log ('check naming conflict audit');
+  console.log ({ shortName, longName })
+
   const newShortNameConflict = (shortNameIsAlreadyInUse || folderExists) && submissionType === 'new';
   const newLongNameConflict =  longNameIsAlreadyInUse && submissionType === 'new';
 
@@ -90,6 +93,7 @@ const namingConflictsAudit = (standardArgs) => {
       detail: `The long name provided, *\`${longName}\`*, is already in use by another dataset submission`,
     })
   }
+  return results;
 }
 
 const auditFn = requireCheckNameResult (AUDIT_NAME, namingConflictsAudit);

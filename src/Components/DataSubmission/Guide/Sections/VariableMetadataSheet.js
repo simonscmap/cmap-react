@@ -26,7 +26,7 @@ const Content = () => {
       </Typography>
 
       <div className={cl.scrollWrapper}>
-        <div className={cl.standoutBadge}>Example Variable Metadata Sheet</div>
+        <div className={cl.standoutBadgeNoOverlap}>Example Variable Metadata Sheet</div>
         <DemoSheet columns={varCols} source={varSheet} />
       </div>
 

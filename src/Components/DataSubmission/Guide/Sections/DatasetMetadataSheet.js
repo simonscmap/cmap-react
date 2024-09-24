@@ -20,7 +20,7 @@ const Content = () => {
       </Typography>
 
       <div className={cl.scrollWrapper}>
-        <div className={cl.standoutBadge}>Example Metadata Sheet</div>
+        <div className={cl.standoutBadgeNoOverlap}>Example Metadata Sheet</div>
         <DemoSheet columns={metaCols} source={metaSheet} />
       </div>
 

@@ -29,14 +29,14 @@ const Content = () => {
       </Typography>
 
       <div className={cl.scrollWrapper}>
-        <div className={cl.standoutBadge}>Example Catalog Entry</div>
+        <div className={cl.standoutBadgeNoOverlap}>Example Catalog Entry</div>
         <div className={cl.standoutBox}>
           <ExampleCatalogEntry />
         </div>
       </div>
 
       <div className={cl.scrollWrapper}>
-        <div className={cl.standoutBadge}>Example Visualization Page Search Interface</div>
+        <div className={cl.standoutBadgeNoOverlap}>Example Visualization Page Search Interface</div>
         <div className={cl.standoutBox} style={{ background: 'black' }}>
           <img
             src={'/images/guide/long_name_in_viz_search.png'}

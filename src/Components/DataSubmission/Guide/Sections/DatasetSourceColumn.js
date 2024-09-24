@@ -22,7 +22,7 @@ const Content = () => {
       </Typography>
 
       <div className={cl.scrollWrapper}>
-        <div className={cl.standoutBadge}>Example Catalog Entry</div>
+        <div className={cl.standoutBadgeNoOverlap}>Example Catalog Entry</div>
         <ArrowRightAltIcon style={{
                              position: 'absolute',
                              top: '228px',
@@ -37,7 +37,7 @@ const Content = () => {
       </div>
 
       <div className={cl.scrollWrapper}>
-        <div className={cl.standoutBadge}>Example Visualization Annotated with Source</div>
+        <div className={cl.standoutBadgeNoOverlap}>Example Visualization Annotated with Source</div>
         <div className={cl.standoutBox}>
           <img
             src={'/images/guide/source_in_chart.png'}
