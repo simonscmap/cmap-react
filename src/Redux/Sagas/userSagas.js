@@ -41,7 +41,6 @@ export function* userLogin(action) {
     yield put(userActions.userLoginRequestSuccess());
     yield put(userActions.storeInfo(userInfo));
     yield put(interfaceActions.snackbarOpen('Login was successful!', tag));
-    yield put(userActions.cartGetAndStore());
 
     if (window.location.pathname === '/login') {
       let search = new URLSearchParams(window.location.search)

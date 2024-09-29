@@ -66,7 +66,8 @@ const Info = (props) => {
     newsSubscribers,
     subscribers,
     totalRecipients,
-    history
+    history,
+    previews,
   } = props;
   return (
     <div>
@@ -103,6 +104,14 @@ const Info = (props) => {
        <Typography className={cl.p}>
          {history.length} email notifications have already been sent for this news item.
        </Typography>}
+      <div>
+        <Typography>Preview</Typography>
+        <div className={cl.previewContainer}>
+          { previews && previews.map ((p, ix) =>
+            <iframe key={ix} srcDoc={p.content} width="555" height="625"/>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -245,9 +254,6 @@ const ConfirmationDialog = (props) => {
   const totalRecipients = Array.from (new Set (recipientIds));
 
   const isEnabled = !enabled.isDirty && enabled.viewStatus === 3;
-  const sendTooltip = isEnabled
-        ? `Click to send out emails`
-        : `Send is disabled because ${enabled.isDirty ? 'you haven\'t saved your updates' : ''} ${(enabled.isDirty && enabled.viewStatus !== 3) ? ' and ' : '' }${enabled.viewStatus !== 3 ? 'the story has not been published yet' : ''}`;
 
   return (
     <div>
@@ -270,19 +276,12 @@ const ConfirmationDialog = (props) => {
                                              subscribers={subscribers}
                                              newsSubscribers={newsSubscribers}
                                              totalRecipients={totalRecipients}
+                                             previews={previews}
                                            />}
             {status === states.inProgress && <SpinnerWrapper message={'Sending...'} />}
             {status === states.failed && <FailedSend sentNotifications={sent} />}
             {status === states.succeeded && <SucceededSend sentNotifications={sent} />}
           </DialogContentText>
-          <div>
-            <Typography>Preview</Typography>
-            <div className={cl.previewContainer}>
-              { previews && previews.map ((p, ix) =>
-                <iframe key={ix} srcDoc={p.content} width="555" height="625"/>
-              )}
-            </div>
-          </div>
         </DialogContent>
         <DialogActions>
           <Button autoFocus onClick={handleClose} color="primary">

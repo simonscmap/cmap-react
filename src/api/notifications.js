@@ -3,10 +3,9 @@ import { apiUrl, fetchOptions, postOptions } from './config';
 const notificationsAPI = {};
 
 notificationsAPI.history = async (args) => {
-  const endpoint = apiUrl + '/api/notifications/history';
+  const endpoint = `${apiUrl}/api/notifications/history?newsId=${args.newsId}`;
   return await fetch(endpoint, {
     ...fetchOptions,
-    ...args
   });
 };
 

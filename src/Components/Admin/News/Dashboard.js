@@ -15,7 +15,6 @@ import Footer from '../../Home/Footer';
 import Section, { FullWidthContainer } from '../../Common/Section';
 import { requestNewsList } from '../../../Redux/actions/news';
 import { fetchDatasetNames } from '../../../Redux/actions/catalog';
-import { fetchNotificationHistory } from '../../../Redux/actions/notifications';
 import { previewStories } from './lib';
 import NewsBanner from '../../Home/News';
 import StoryList from './StoryList';
@@ -65,7 +64,6 @@ const Dashboard = (props) => {
     // do this once
     dispatch (requestNewsList ());
     dispatch (fetchDatasetNames ());
-    dispatch (fetchNotificationHistory ());
   }, []);
 
   const [guideOpen, setGuideOpen] = useState(false);

@@ -176,5 +176,8 @@ export default function ConfirmSubscriptionDialog (props) {
     } else {
       return <ConfirmationDialog {...props} />
     }
+  } else {
+    return <React.Fragment />
   }
+
 }

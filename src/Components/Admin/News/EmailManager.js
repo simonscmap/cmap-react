@@ -19,6 +19,7 @@ import states from '../../../enums/asyncRequestStates';
 import generateKey from './generateKey';
 
 import ConfirmationDialog from './ConfirmSendNotification';
+
 import {
   notificationHistory,
   notificationRecipientProjections,
@@ -26,6 +27,7 @@ import {
 } from './newsSelectors';
 
 import {
+  fetchNotificationHistory,
   fetchNotificationRecipientProjection,
   fetchNotificationPreviews,
   sendNotifications,
@@ -53,9 +55,56 @@ export const CustomButton = withStyles((theme) => ({
   },
 }))(Button);
 
+const useFTableStyles = makeStyles ({
+  tableContainer: {
+    margin: '1em 0',
+  },
+  table: {
+    color: 'white',
+    '& th': {
+      color: 'white',
+    },
+    '& td': {
+      color: 'white',
+      borderBottom: '0px solid transparent'
+    }
+  },
+});
+
+const FailureTable = (props) => {
+  const { failures } = props;
+  const cl = useFTableStyles ();
+
+  if (!failures || failures.length === 0) {
+    return <Typography>Failed to deliver: 0</Typography>;
+  }
+
+  return (
+    <TableContainer className={cl.tableContainer}>
+      <Table size="small" className={cl.table} aria-label="spanning table">
+        <TableHead>
+          <TableRow>
+            <TableCell>User Email</TableCell>
+            <TableCell>Attempts</TableCell>
+            <TableCell>Last Attempt</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {failures.map ((f, fix) => (<TableRow key={`failureRow${fix}`}>
+                                        <TableCell>{f.userEmail}</TableCell>
+                                        <TableCell>{f.attempts === 0 ? '0' : f.attempts ? f.attempts : 'NA'}</TableCell>
+                                        <TableCell>{f.lastAttempt}</TableCell>
+                                      </TableRow>))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+
+  );
+}
+
 
 // History Table Row
-const useRowStyles = makeStyles({
+const useRowStyles = makeStyles((theme) => ({
   root: {
     '& td': {
       borderBottom: 0,
@@ -63,24 +112,57 @@ const useRowStyles = makeStyles({
   },
   expandedContent: {
     display: 'flex',
-    flexDirection: 'row',
+    flexDirection: 'column',
+    gap: '2em',
+    padding: '2em',
+  },
+  subHeader: {
+    color: '#69FFF2',
+    fontSize: '16px',
+    textTransform: 'uppercase',
+    marginBottom: '1em',
   },
   datasetIcon: {
     width: '200px',
     objectFit: 'cover',
+  },
+  refreshButton: {
+    color: theme.palette.primary.main,
+    '&:hover': {
+      color: '#69FFF2',
+    }
+  },
+}));
+
+const getRecipientInfo = (recipients) => {
+  if (!Array.isArray (recipients)) {
+    return {};
   }
-});
+  const totalRecipients = recipients.length || 0;
+  const successes = recipients.filter (r => r.success).length;
+  const failures = recipients.filter (r => !r.success);
+  const successRate = Math.floor (successes / totalRecipients * 100);
+  return {
+    successes,
+    failures,
+    successRate,
+    totalRecipients,
+  }
+}
 
 function Row(props) {
   const { row } = props;
+  const { recipients = [] } = row;
   const cl = useRowStyles();
 
   const [expand, setExpand] = useState (false);
 
-  let recipients = '' + row.recipients
-      && Array.isArray (row.recipients.actual)
-      ? row.recipients.actual.length
-      : 0
+  const {
+    successes,
+    failures,
+    successRate,
+    totalRecipients,
+  } = getRecipientInfo (recipients);
 
   const date = new Date (row.Date_Time);
   const displayDate = `${date.toDateString()} at ${date.toLocaleTimeString()}`;
@@ -96,14 +178,26 @@ function Row(props) {
         <TableCell>{row.Email_ID}</TableCell>
         <TableCell>{displayDate}</TableCell>
         <TableCell>{row.Subject}</TableCell>
-        <TableCell>{recipients}</TableCell>
+        <TableCell>{totalRecipients}</TableCell>
       </TableRow>
       <TableRow>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={5}>
           <Collapse in={expand} timeout="auto" unmountOnExit>
-            <div className={cl.previewContainer}>
-              <p>Preview</p>
-              <iframe srcDoc={row.Body} width="555" height="625"/>
+            <div className={cl.expandedContent}>
+              <div>
+                <Typography className={cl.subHeader}>Recipients</Typography>
+                <Typography>Delivery success rate: {successRate ? `${successRate}%`: 'NA'}</Typography>
+                <Typography>Number delivered: {successes ? `${successes}` : 'NA'}</Typography>
+                <FailureTable failures={failures} />
+                <Button className={cl.refreshButton}>
+                  <RefreshIcon /> {'Re-send to undelivered addresses'}
+                </Button>
+
+              </div>
+              <div className={cl.previewContainer}>
+                <Typography className={cl.subHeader}>Preview</Typography>
+                <iframe srcDoc={row.Body} width="555" height="625"/>
+              </div>
             </div>
           </Collapse>
         </TableCell>
@@ -222,7 +316,7 @@ const EmailManagerPure = (props) => {
         <div className={cl.topLine}>
           <Typography className={cl.subTitle}>History</Typography>
           <div className={cl.actions}>
-            <Tooltip title={'Refresh Notifications History and Recipient Information'}>
+            <Tooltip title={'Refresh Notification History, Preview, and Recipient Information'}>
               <Button onClick={refresh} className={cl.refreshButton}>
                 <RefreshIcon />
               </Button>
@@ -266,7 +360,6 @@ const shouldDispatch = (status) => {
 const EmailManager = (props) => {
   const { newsId, tags, headline, enabled, modDate } = props;
 
-
   const dispatch = useDispatch ();
   const history = useSelector (notificationHistory);
   const projections = useSelector (notificationRecipientProjections);
@@ -281,11 +374,19 @@ const EmailManager = (props) => {
   const [projection, setProjection] = useState(null);
 
   useEffect (() => {
+    if (newsId) {
+      dispatch (fetchNotificationHistory ({ newsId }));
+    } else {
+      console.log ('cannot fetch notification history: missing newsId')
+    }
+  },[]);
+
+  useEffect (() => {
     if (history && newsId) {
       if (history[newsId]) {
         setStoryHistory (history[newsId]);
       } else {
-        console.log ('no history found', { newsId, history })
+        console.log ('no history found for newsId', { newsId, history })
       }
     }
   }, [history]);
@@ -315,6 +416,7 @@ const EmailManager = (props) => {
   const refresh = () => {
     dispatch (fetchNotificationRecipientProjection ({ tags }));
     dispatch (fetchNotificationPreviews ({ newsId }));
+    dispatch (fetchNotificationHistory ({ newsId }));
   }
 
   const send = (tempId) => {

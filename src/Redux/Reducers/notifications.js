@@ -5,10 +5,12 @@ import generateKey from '../../Components/Admin/News/generateKey';
 export default function (state, action) {
   switch (action.type) {
   case actionTypes.FETCH_NOTIFICATION_HISTORY_SUCCESS:
+    // notificationHistory is an object with newsIds as keys
     return {
       ...state,
       notificationHistory: {
         ...state.notificationHistory,
+        // spreading the payload will automatically update any existing keys with new data
         ...action.payload,
       }
     }

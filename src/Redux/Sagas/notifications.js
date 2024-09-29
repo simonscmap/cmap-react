@@ -5,17 +5,21 @@ import states from '../../enums/asyncRequestStates';
 import * as actions from '../actions/notifications';
 import * as actionTypes from '../actionTypes/notifications';
 import * as interfaceActions from '../actions/ui';
+import logInit from '../../Services/log-service';
 
+const log = logInit ('redux/sagas/notifications');
 
 export function* fetchNotificationHistory (action) {
-  let response = yield call(api.notifications.history, null);
+  if (!action.payload.newsId) {
+    log.warn ('missing arg in fetchNotificationHistory', { ...action })
+  }
+  let response = yield call(api.notifications.history, action.payload);
   if (response && response.ok) {
     let jsonResponse = yield response.json();
     yield put(actions.fetchNotificationHistorySuccess (jsonResponse));
   } else {
     yield put(actions.setNotificationHistoryRequestStatus ());
   }
-
 } // ⮷ &. Watcher ⮷
 
 export function* watchFetchNotificationHistory () {
