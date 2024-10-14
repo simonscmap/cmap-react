@@ -398,7 +398,7 @@ const EmailManagerPure = (props) => {
             <CustomButton
               className={cl.sendButton}
               onClick={() => setOpen (true)}
-              // disabled={history && history.length > 1}
+              disabled={history && history.length > 1}
             >
               {`Preview & Send Email Notification`}
             </CustomButton>
