@@ -146,7 +146,7 @@ export function* sendNotifications (action) {
       tempId: action.payload.tempId,
       timestamp: Date.now(),
     }));
-    yield put(interfaceActions.snackbarOpen('Operation failed'));
+    yield put(interfaceActions.snackbarOpen(`Operation failed: ${responseText}`));
   }
   log.info ('kick off polling history 10 times', { newsId: action.payload.newsId });
   yield pollHistory (action.payload.newsId, 10);
