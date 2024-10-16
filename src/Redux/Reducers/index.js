@@ -182,6 +182,7 @@ const initialState = {
   // Data Submission state pieces
   dataSubmissions: [],
   retrieveUserDataSubmsissionsRequestStatus: states.notTried,
+  submissionStep: 0, // start at 0
   submissionType: 'new', // 'new' | 'update'
   submissionToUpdate: null, // Id
   submissionComments: [],

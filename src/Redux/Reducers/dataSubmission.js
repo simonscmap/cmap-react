@@ -17,10 +17,16 @@ const {
   SET_WORKBOOK_AUDIT,
   SET_SHEET_AUDIT,
   CLEAR_SUBMISSION_FILE,
+  SET_SUBMISSION_STEP, // validaitor
 } = dataSubmissionActionTypes;
 
 export default function (state, action) {
   switch (action.type) {
+    case SET_SUBMISSION_STEP:
+      return {
+      ...state,
+      submissionStep: action.payload.step,
+    }
     case STORE_SUBMISSIONS:
       return {
         ...state,

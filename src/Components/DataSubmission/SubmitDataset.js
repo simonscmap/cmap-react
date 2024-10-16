@@ -28,6 +28,7 @@ import NameChangeWarnings from './NameChangeWarning';
 import { StepButton} from './ChooserComponents/Buttons';
 import states from '../../enums/asyncRequestStates';
 import Spinner from '../UI/Spinner';
+import SubscribeNews from '../User/Subscriptions/SubscribeNews';
 
 const useStyles = makeStyles ((theme) => ({
   wrapper: {
@@ -198,6 +199,8 @@ const Step3 = (props) => {
 
   const noErrors = auditReport && auditReport.errorCount.sum === 0;
 
+  const isNewsSubscribed = useSelector ((state) => state.user && state.user.isNewsSubscribed);
+
   if (!userIsOnLastStep) {
     return '';
   }
@@ -255,6 +258,15 @@ const Step3 = (props) => {
               {'return to the start'}
             </Link>.
           </Typography>
+
+        {!isNewsSubscribed &&
+         <React.Fragment>
+           <Typography className={classes.submittedTypography}>
+             Please consider subscribing to receive email notifications whenever Simons CMAP news is published:
+           </Typography>
+           <SubscribeNews />
+         </React.Fragment>
+        }
       </div>
     );
   }

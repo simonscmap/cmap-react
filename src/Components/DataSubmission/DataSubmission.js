@@ -9,7 +9,7 @@ import { snackbarOpen } from '../../Redux/actions/ui';
 import AdminDashboard from './AdminDashboard';
 import NominateDataPage from './NominateDataPage';
 import SubmissionGuide from './Guide/SubmissionGuide2';
-import UserDashboard from './UserDashboard';
+import UserDashboard from './UserDashboard2';
 import ValidationTool from './ValidationTool';
 
 const styles = () => ({
