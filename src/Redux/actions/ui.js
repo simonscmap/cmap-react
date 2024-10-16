@@ -112,3 +112,8 @@ export const setFetchDownloadDialogDataRequestState = (status) => ({
   type: interfaceActionTypes.SET_FETCH_DOWNLAD_DIALOG_DATA_REQUEST_STATE,
   payload: status,
 })
+
+export const setSubscribeIntroState = (trueFalse) => ({
+  type: interfaceActionTypes.SET_SUBSCRIBE_INTRO_STATE,
+  payload: trueFalse,
+})

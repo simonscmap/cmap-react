@@ -14,14 +14,15 @@ import {
 } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
-import { retrieveDataSubmissionsByUser } from '../../Redux/actions/dataSubmission';
 
 import UserDashboardPanelDetails from './UserDashboardPanelDetails';
 import LoginRequiredPrompt from '../User/LoginRequiredPrompt';
+import Section, { FullWidthContainer } from '../Common/Section';
+import Footer from '../Home/Footer';
+import SubscribeDatasetButton from '../User/Subscriptions/SubscribeButton';
+import { retrieveDataSubmissionsByUser } from '../../Redux/actions/dataSubmission';
 
-// import colors from '../../Enums/colors';
-
-const mapStateToProps = (state, ownProps) => ({
+const mapStateToProps = (state) => ({
   user: state.user,
   dataSubmissions: state.dataSubmissions,
 });
@@ -31,25 +32,36 @@ const mapDispatchToProps = {
 };
 
 const styles = (theme) => ({
-  wrapperDiv: {
-    margin: '120px auto 0 auto',
-    maxWidth: '1380px',
+  wrapper: {
+    height: '100vh',
+    '& > div' :{
+      height:'100%',
+    },
+    '& h3': {
+      color: 'white',
+    }
   },
-
+  accordion: {
+    background: 'rgba(0,0,0,0.3)'
+  },
+  summary: {
+    '& .MuiAccordionSummary-content': {
+      margin: 0,
+      alignItems: 'center',
+    }
+  },
   panelSummaryText: {
     flexBasis: '40%',
     textAlign: 'left',
     paddingRight: '20px',
     fontSize: '.8rem',
   },
-
   needHelp: {
     float: 'left',
     color: 'white',
     margin: '12px 0 0 12px',
     letterSpacing: 'normal',
   },
-
    panelDetails: {
     display: 'block',
     textAlign: 'left',
@@ -87,7 +99,7 @@ class UserDashboard extends React.Component {
     // this.expandItem();
   };
 
-  componentDidUpdate = (prevProps, prevState) => {
+  componentDidUpdate = (prevProps) => {
     if (!prevProps.user && this.props.user) {
       this.props.retrieveDataSubmissionsByUser();
     }
@@ -110,39 +122,18 @@ class UserDashboard extends React.Component {
   };
 
   render = () => {
-    if (!this.props.user) return <LoginRequiredPrompt />;
     const { classes, dataSubmissions } = this.props;
     const { expandedPanel } = this.state;
 
-    return (
-      <div className={classes.wrapperDiv}>
-        {dataSubmissions && dataSubmissions.length ? (
-          <React.Fragment>
-            {dataSubmissions.map((e, i) => (
-              <Accordion
-                expanded={expandedPanel === i}
-                onChange={() => this.handleExpansion(i)}
-                key={i}
-                TransitionProps={{ unmountOnExit: true }}
-              >
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                  <Typography noWrap className={classes.panelSummaryText}>
-                    {e.Dataset}
-                  </Typography>
+    // prompt login
+    if (!this.props.user) {
+      return <LoginRequiredPrompt />;
+    }
 
-                  <Typography noWrap className={classes.panelSummaryText}>
-                    {e.Phase}
-                  </Typography>
-                </AccordionSummary>
-
-                <AccordionDetails className={classes.panelDetails}>
-                  <UserDashboardPanelDetails submission={e} />
-                </AccordionDetails>
-
-              </Accordion>
-            ))}
-          </React.Fragment>
-        ) : (
+    // no submissions
+    if (!Array.isArray(dataSubmissions) || dataSubmissions.length === 0) {
+      return (
+        <div className={classes.wrapperDiv}>
           <Typography className={classes.needHelp}>
             We haven't received any submissions from you yet. Need help?
             <Link
@@ -162,7 +153,42 @@ class UserDashboard extends React.Component {
             </Link>
             .
           </Typography>
-        )}
+        </div>
+      );
+
+    }
+
+    // render submissions
+    return (
+      <div className={classes.wrapper}>
+        <FullWidthContainer paddingTop={120}>
+          <Section title="Data Submissions Dashboard">
+            {dataSubmissions.map((e, i) => (
+              <Accordion
+                className={classes.accordion}
+                expanded={expandedPanel === i}
+                onChange={() => this.handleExpansion(i)}
+                key={i}
+                TransitionProps={{ unmountOnExit: true }}
+              >
+                <AccordionSummary expandIcon={<ExpandMoreIcon />} className={classes.summary}>
+                  <Typography noWrap className={classes.panelSummaryText}>
+                    {e.Dataset}
+                  </Typography>
+                  <Typography noWrap className={classes.panelSummaryText}>
+                    {e.Phase}
+                  </Typography>
+                  {e.phaseId === 6 && <SubscribeDatasetButton shortName={e.Dataset} />}
+                </AccordionSummary>
+
+                <AccordionDetails className={classes.panelDetails}>
+                  <UserDashboardPanelDetails submission={e} />
+                </AccordionDetails>
+              </Accordion>
+            ))}
+          </Section>
+        </FullWidthContainer>
+        <Footer />
       </div>
     );
   };

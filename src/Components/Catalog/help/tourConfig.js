@@ -12,16 +12,8 @@ const intro = {
                `,
     },
     {
-      element: '#catSearchOptions',
-      intro: 'Specify data attributes to narrow down the catalog.',
-    },
-    {
-      element: '#catSearchBySpaceTime',
-      intro: 'Restrict the list of datasets to a spatio-temporal bounding box.',
-    },
-    {
-      element: '#catSearchReset',
-      intro: 'Remove all catalog filters and display the entire catalog.',
+      element: '#additional-filters-button',
+      intro: 'Open filter controls, where you can also specify space and time constraints.'
     },
     {
       element: '#catalog-search-result-count',
@@ -36,12 +28,19 @@ const intro = {
     {
       element: '#catalog-dataset-title-link',
       intro:
-        'Dataset name link:  Opens the catalog page for a given dataset to access detailed dataset information and links to download the dataset and metadata.',
+        'Dataset Name:  Opens the catalog page for a given dataset to access detailed dataset information and links to download the dataset and metadata.',
     },
     {
-      element: '#catalog-add-to-cart',
-      intro:
-        'Add to favorites:  Add dataset to favorites list, located in top right of screen.  ‘Favorite’ datasets are listed first on the data visualization page.',
+      element: '#subscribe-dataset-control',
+      intro: 'Click to subscribe to email notifications when there is news related to this dataset.',
+    },
+    {
+      element: '#downoload-button',
+      intro: 'Download data from this dataset.',
+    },
+    {
+      element: '#catalog-recommendations-panel',
+      intro: 'See popular, renently viewed, and recommeneded datasets based on datasets you have used (requires you to be logged in).',
     },
     {
       element: '#nav-help-toggle-button',

@@ -41,7 +41,7 @@ const useMoreStyles = makeStyles((theme) => ({
 const useStyles = makeStyles(styles);
 
 const DatasetTitleLink = (props) => {
-  const { dataset } = props;
+  const { dataset, componentId = {}} = props;
   const { Long_Name, Short_Name } = dataset;
   const cl = useStyles();
   const clextra = useMoreStyles();
@@ -64,7 +64,7 @@ const DatasetTitleLink = (props) => {
   }
 
   return (
-    <div className={cl.linkContainer} onMouseLeave={handlePopoverClose}>
+    <div className={cl.linkContainer} onMouseLeave={handlePopoverClose} {...componentId}>
       <Link
         component={RouterLink}
         to={`/catalog/datasets/${Short_Name}`}

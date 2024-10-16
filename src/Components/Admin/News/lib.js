@@ -178,4 +178,4 @@ export const getRanks = (stories = []) => {
 };
 
 export const prepareRanksPayload = (stories = []) =>
-  stories.map(({ ID }, ix) => ({ ID, rank: ix }));
+  stories.map(({ id }, ix) => ({ id, rank: ix }));

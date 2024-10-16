@@ -126,6 +126,10 @@ const Story = withStyles({
     summaryDate = [publishDate, 'published'];
   }
 
+  const handleDeRank = () => {
+    deRank (storyState.id);
+  };
+
   let dispatch = useDispatch();
 
   return (
@@ -167,7 +171,7 @@ const Story = withStyles({
               <Typography variant="body2">remove</Typography>
               <IconButton
                 style={{ marginTop: '-9px' }}
-                onClick={() => deRank(storyState.ID)}
+                onClick={handleDeRank}
               >
                 <CancelIcon />
               </IconButton>

@@ -20,6 +20,7 @@ import {
   setAudit,
   setSheetAudit,
   setWorkbookAudit,
+  setSubmissionStep,
 } from '../../Redux/actions/dataSubmission';
 import { setLoadingMessage, snackbarOpen } from '../../Redux/actions/ui';
 import Section, { FullWidthContainer } from '../Common/Section';
@@ -69,6 +70,7 @@ const mapStateToProps = (state, ownProps) => ({
   retrieveUserDataSubmsissionsRequestStatus: state.retrieveUserDataSubmsissionsRequestStatus,
   checkSubmissionNameRequestStatus: state.checkSubmissionNameRequestStatus,
   loadingMessage: state.loadingMessage,
+  validationStep: state.submissionStep,
 });
 
 const mapDispatchToProps = {
@@ -83,6 +85,7 @@ const mapDispatchToProps = {
   setAudit,
   setSheetAudit,
   setWorkbookAudit,
+  setSubmissionStep,
 };
 
 class ValidationTool extends React.Component {
@@ -90,7 +93,6 @@ class ValidationTool extends React.Component {
     super(props);
 
     this.state = {
-      validationStep: 0,
       tab: 0,
       file: null,
       data: null,
@@ -318,22 +320,15 @@ class ValidationTool extends React.Component {
     this.props.setAudit(report);
 
     if (shouldAdvanceStep) {
-      const validationStep = 1;
-      this.setState({
-        ...this.state,
-        validationStep,
-        loadingFile: {
-          status: 'complete',
-        }
-      });
-    } else {
-      this.setState({
-        ...this.state,
-        loadingFile: {
-          status: 'complete',
-        }
-      });
+      this.props.setSubmissionStep (1);
     }
+
+    this.setState({
+      ...this.state,
+      loadingFile: {
+        status: 'complete',
+      }
+    });
   };
 
   resetSubmissionFile = () => {
@@ -354,13 +349,16 @@ class ValidationTool extends React.Component {
       data: null,
       dataset_meta_data: null,
       vars_meta_data: null,
-      validationStep: resetStep ? 0 : this.state.validationStep,
       changeLog: [],
       loadingFile: {
         status: 'not-tried',
         totalBytes: 0
       }
     });
+
+    if (resetStep) {
+      this.props.setSubmissionStep(0)
+    }
   };
 
   handleResetState = (resetStep = false, callerName) => {
@@ -371,8 +369,9 @@ class ValidationTool extends React.Component {
 
   handleChangeValidationStep = (validationStep) => {
     if (validationStep >= 0 && validationStep < validationSteps.length) {
-      this.setState({ ...this.state, validationStep });
+      this.props.setSubmissionStep (validationStep);
     }
+
   };
 
   handleCellValueChanged = (event) => {
@@ -931,7 +930,7 @@ class ValidationTool extends React.Component {
     if (!this.props.user) return <LoginRequiredPrompt />;
 
     const { classes } = this.props;
-    const { validationStep } = this.state;
+    const { validationStep } = this.props;
 
     const shortName = safePath (['dataset_meta_data', '0', 'dataset_short_name']) (this.state);
     const longName = safePath (['dataset_meta_data', '0', 'dataset_long_name']) (this.state);
@@ -947,7 +946,7 @@ class ValidationTool extends React.Component {
     return (
       <div className={classes.validationToolWrapper}>
         <DeleteEmptyRowConfirmation data={this.state.delRow} remove={this.removeRow} close={this.closeRemoveRowDialog} />
-        <StepAssistant step={this.state.step} changeStep={this.handleChangeValidationStep} />
+        <StepAssistant step={this.props.validationStep} changeStep={this.handleChangeValidationStep} />
         <FullWidthContainer paddingTop={120}>
           <Section>
 
@@ -964,19 +963,19 @@ class ValidationTool extends React.Component {
             </div>
 
             <Chooser
-              step={this.state.validationStep}
+              step={this.props.validationStep}
               status={this.state.loadingFile}
               reset={this.handleResetState}
             />
 
             <Step1
-              step={this.state.validationStep}
+              step={this.props.validationStep}
               changeStep={this.handleChangeValidationStep}
               reset={this.handleResetState}
             />
 
             <Step2
-              step={this.state.validationStep}
+              step={this.props.validationStep}
               fileData={{
                 data: this.state.data,
                 dataset_meta_data: this.state.dataset_meta_data,

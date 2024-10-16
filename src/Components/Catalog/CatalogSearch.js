@@ -251,6 +251,7 @@ class CatalogSearch extends React.Component {
                 <Tooltip title={this.state.showAdditionalFilters ? 'Collapse Filter Controls' : 'Show Filter Controls'}>
                   <ToggleButton
                     value="check"
+                    id="additional-filters-button"
                     selected={this.state.showAdditionalFilters}
                     onChange={this.handleToggleshowAdditionalFilters}
                     classes={{ root: classes.filtersRoot }}

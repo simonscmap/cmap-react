@@ -1,5 +1,12 @@
 import * as dataSubmissionActionTypes from '../actionTypes/dataSubmission';
 
+export const setSubmissionStep = (step) => ({
+  type: dataSubmissionActionTypes.SET_SUBMISSION_STEP,
+  payload: {
+    step,
+  }
+});
+
 export const retrieveDataSubmissionsByUser = () => ({
   type: dataSubmissionActionTypes.RETRIEVE_SUBMISSIONS_BY_USER,
 });

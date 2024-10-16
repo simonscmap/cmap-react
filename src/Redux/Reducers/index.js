@@ -16,6 +16,7 @@ import {
   localStorageIntroState,
   localStorageHintState,
 } from '../../Components/Navigation/Help/initialState.js';
+import initialSubscribeIntroState from '../../Components/User/Subscriptions/initialIntroState';
 // Consider building this object from initial states from each reducer
 // ** When adding new keys to redux store consider whether they need to be
 // reset on navigation for UI purposes. If so, add them with a default state
@@ -182,6 +183,7 @@ const initialState = {
   // Data Submission state pieces
   dataSubmissions: [],
   retrieveUserDataSubmsissionsRequestStatus: states.notTried,
+  submissionStep: 0, // start at 0
   submissionType: 'new', // 'new' | 'update'
   submissionToUpdate: null, // Id
   submissionComments: [],
@@ -220,6 +222,7 @@ const initialState = {
   sentNotifications: [],
   sendNotificationsStatus: [],
   reSendNotificationsStatus: [],
+  subscribeIntroActive: initialSubscribeIntroState.subscribeIntroActive,
 };
 
 const reducedReducer = reduceReducers(

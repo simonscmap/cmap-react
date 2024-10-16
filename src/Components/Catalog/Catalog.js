@@ -97,8 +97,8 @@ const Catalog = ({ classes }) => {
               </div>
             </Grid>
             <Grid item xs={4}>
-              <div className={classes.catalogRecs}>
-                <h2 className={classes.sectionHeading}>Recommended Datasets</h2>
+              <div className={classes.catalogRecs} >
+                <h2 id="catalog-recommendations-panel"  className={classes.sectionHeading}>Recommended Datasets</h2>
                 <RecPanel />
               </div>
             </Grid>

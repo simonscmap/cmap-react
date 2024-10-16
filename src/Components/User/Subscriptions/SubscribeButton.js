@@ -77,7 +77,7 @@ const subscriptionsSelector = createSelector (
 );
 
 const SubscribeDatasetButton = (props) => {
-  const { shortName } = props;
+  const { shortName, componentId = {} } = props;
   const dispatch = useDispatch ();
   const cl = useStyles();
 
@@ -104,7 +104,7 @@ const SubscribeDatasetButton = (props) => {
         : `Subscribe to dataset updates`;
 
   return (
-    <div className={cl.wrapper}>
+    <div className={cl.wrapper} {...componentId}>
       <ThemeProvider theme={homeTheme}>
         <Tooltip title={tooltipMessage}>
           <span className={cl.buttonWrapper}>
