@@ -95,13 +95,6 @@ const Controls = (props) => {
           </WhiteButtonSM>
           <WhiteButtonSM
             disabled={openRanksEditor}
-            className={accepts(0) ? active : ''}
-            onClick={() => updateFilters(0)}
-          >
-            Hidden
-          </WhiteButtonSM>
-          <WhiteButtonSM
-            disabled={openRanksEditor}
             className={rankFilter ? active : ''}
             onClick={() => dispatch(setRankFilter(!rankFilter))}
           >
