@@ -59,7 +59,7 @@ const NewsSection = ({ stories }) => {
 
   return (
     <div className={classes.newsFlowContainer}>
-      <div className={classes.sectionTitleContainer} >
+      <div className={classes.sectionTitleContainer} id="news_title_bar" >
         <NewsCategoryHeading title={"News"} />
         <Subscribe />
       </div>

@@ -135,7 +135,7 @@ const RecPanel = () => {
   const recommendedDatasets = useRecommendedDatasets ();
 
   return (
-    <Paper elevation={4} className={cl.recPaper}>
+    <Paper elevation={4} className={cl.recPaper} >
       <div className={cl.gridContainer}>
         <LoginButton />
         <Tabs

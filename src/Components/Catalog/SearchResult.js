@@ -32,12 +32,17 @@ export const SearchResultPure = (props) => {
 
   const { Icon_URL, Short_Name } = dataset;
 
+  const extra = {};
+  if (index === 0) {
+    extra.id = 'catalog-dataset-title-link';
+  }
+
   return (
     <div style={style} className="result-wrapper">
       <div className={cl.wrapper_} key={`${index}_fsl_item`}>
         <Paper className={cl.resultPaper} elevation={4}>
           <div className={cl.wrapper}>
-            <div className={cl.title}>
+            <div className={cl.title} {...extra}>
               <DatasetTitleLink dataset={dataset} />
               <div className={cl.actionsContainer}>
                 <SubscribeButton shortName={Short_Name} />
