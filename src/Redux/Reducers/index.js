@@ -151,37 +151,84 @@ const initialState = {
     data: null,
   },
 
+  resumeAction: null, // a literal action to resume, e.g. after user login
+
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // Visualization state pieces
-  maps: [],
   charts: [],
-  trajectoryPointCounts: null,
-  getCruiseTrajectoryRequestState: null,
-  cruiseTrajectories: null,
-  cruiseTrajectoryFocus: null,
-  sampleData: null,
-  queryRequestState: null,
-  getTableStatsRequestState: null,
-  cruiseList: [],
-  getCruiseListRequestState: null,
-  showChartsOnce: null,
+
+  // viz
+  viz: {
+    chart: {
+      controls: {
+        paramLock: false, // lock the spatial-temporal constraints
+        dateTypeMismatch: false, // e.g locked monthly dates with currnt non-monthly target
+        variableResolutionMismatch: false,
+        lockAlertsOpen: false,
+        resolutionMismatch: false,
+        // controlPanelVisible: true,
+        // searchOpen: false,
+      },
+      validation: {
+        sizeCheck: {
+          status: states.notTried,
+          result: null,
+        }
+      },
+      // variables: [],        // (was memberVariables)
+      // targetVariable: null, // (was vizPageDataTarget)
+      // targetDetails: null,  // (was vizPageDataTargetDetails)
+      //
+    },
+  },
+
+  // controls
+  showControlPanel: true,
+  dataSearchMenuOpen: false,
+
+
+  // variables
+  memberVariables: [], // list of variables available for selection in viz control panel
+  memberVariablesLoadingState: states.succeeded,
+
   chartID: 0,
+
   vizPageDataTarget: null,
   vizPageDataTargetDetails: null,
   vizSearchResults: { Observation: [], Model: [] },
   vizSearchResultsFullCounts: { Observation: 0, Model: 0 },
   vizSearchResultsLoadingState: states.succeeded,
-  memberVariables: [],
-  memberVariablesLoadingState: states.succeeded,
+
+  showChartsOnce: null,
+
+  cruiseList: [],
+
+  trajectoryPointCounts: null,
+  getCruiseTrajectoryRequestState: null,
+  cruiseTrajectories: null,
+  cruiseTrajectoryFocus: null,
+
+  sampleData: null,
+  queryRequestState: null,
+  getTableStatsRequestState: null,
+  getCruiseListRequestState: null,
+
   relatedData: [],
   relatedDataLoadingState: states.succeeded,
+
   autocompleteVariableNames: [],
+
   variableDetails: null,
+
   datasetSummary: null,
+
   plotsActiveTab: 0,
+
   sparseDataMaxSizeNotificationData: null,
+
   guestPlotLimitNotificationIsVisible: false,
-  showControlPanel: true,
-  dataSearchMenuOpen: false,
+
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   // Data Submission state pieces
   dataSubmissions: [],

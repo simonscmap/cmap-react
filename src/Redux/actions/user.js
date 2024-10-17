@@ -364,3 +364,17 @@ export const changeNewsSubscription = (subValue) => ({
     }
   },
 });
+
+
+// resume action
+
+export const queueActionToResume = (literalAction) => ({
+  type: userActionTypes.QUEUE_ACTION_TO_RESUME,
+  payload: {
+    actionLiteral: literalAction,
+  },
+});
+
+export const clearResumeAction = () => ({
+  type: userActionTypes.CLEAR_RESUME_ACTION,
+});

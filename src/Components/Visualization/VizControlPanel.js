@@ -1,4 +1,9 @@
 // Monolith component for charts/plots control
+
+import React from 'react';
+import { connect } from 'react-redux';
+import { throttle } from 'throttle-debounce';
+
 import {
   Badge,
   Button,
@@ -20,53 +25,78 @@ import {
   Search,
   ShowChart,
 } from '@material-ui/icons';
-import Cookies from 'js-cookie';
-import React from 'react';
-import { connect } from 'react-redux';
-import { throttle } from 'throttle-debounce';
-import colors from '../../enums/colors';
-import spatialResolutions from '../../enums/spatialResolutions';
-import storedProcedures from '../../enums/storedProcedures';
-import temporalResolutions from '../../enums/temporalResolutions';
-import validation from '../../enums/validation';
-import vizSubTypes from '../../enums/visualizationSubTypes';
-import z from '../../enums/zIndex';
-import { snackbarOpen } from '../../Redux/actions/ui';
-import {
-  clearCharts,
-  cruiseTrajectoryRequestSend,
-  csvDownloadRequestSend,
-  guestPlotLimitNotificationSetIsVisible,
-  setControlPanelVisibility,
-  setDataSearchMenuVisibility,
-  sparseDataQuerySend,
-  storedProcedureRequestSend,
-  vizPageDataTargetSetAndFetchDetails,
-} from '../../Redux/actions/visualization';
-import countWebGLContexts from '../../Utility/countWebGLContexts';
-import depthUtils from '../../Utility/depthCounter';
-import mapSpatialResolutionToNumber from '../../Utility/mapSpatialResolutionToNumber';
-import mapTemporalResolutionToNumber from '../../Utility/mapTemporalResolutionToNumber';
-import isISODateString from '../../Utility/Time/isISO';
-import Hint from '../Navigation/Help/Hint';
+import { ImLock } from "react-icons/im";
+import { ImUnlocked } from "react-icons/im";
+import { LuAlertTriangle } from "react-icons/lu";
+import CloseIcon from '@material-ui/icons/Close';
+
+import DatePicker from 'react-date-picker';
+import 'react-date-picker/dist/DatePicker.css';
+import 'react-calendar/dist/Calendar.css';
+
 import ChartControl from './Charts/ChartControl';
-import DataSearch from './DataSearch';
-import { PageTitleHint, RestrictDataHint, SearchHint } from './help';
+import VariableSelector from './VariableSelector/VariableSelector';
+import { RestrictDataHint, SearchHint } from './help';
+import getTargetFeatures from './ControlPanel/getTargetFeatures';
+import manageDateParams from './ControlPanel/manageDateParams';
+import transformDateStringToMonth from './ControlPanel/transformDateStringToMonth';
+import prepareQueryPayload from './ControlPanel/prepareQueryPayload';
+
 import {
-  aggregateChartDataSize,
+  // aggregateChartDataSize,
   cleanSPParams,
   generateVariableSampleRangeParams,
   mapVizType,
 } from './helpers';
+
 import SparseDataMaxSizeNotification from './SparseDataMaxSizeNotification';
 import VariableDetailsDialog from './VariableDetailsDialog';
 import vizControlStyles from './vizControlStyles';
-import getDataSize from './ControlPanel/estimateDataSize';
+import handleChangeFormInput, {
+  shiftMinMaxDate,
+} from './ControlPanel/handleChangeFormInput';
+import handleValidation from './ControlPanel/handleValidation';
+import Hint from '../Navigation/Help/Hint';
+
+// redux
+import { snackbarOpen } from '../../Redux/actions/ui';
+import {
+  checkVizQuerySize,
+  clearCharts,
+  cruiseTrajectoryRequestSend,
+  csvDownloadRequestSend,
+  guestPlotLimitNotificationSetIsVisible,
+  plotsActiveTabSet,
+  setControlPanelVisibility,
+  setDataSearchMenuVisibility,
+  setLockAlertsOpen,
+  setParamLock,
+  sparseDataQuerySend,
+  storedProcedureRequestSend,
+  vizPageDataTargetSetAndFetchDetails,
+} from '../../Redux/actions/visualization';
+
+// enums
+
+// import states from '../../enums/asyncRequestStates';
+import spatialResolutions from '../../enums/spatialResolutions';
+import storedProcedures from '../../enums/storedProcedures';
+import temporalResolutions from '../../enums/temporalResolutions';
+// import validation from '../../enums/validation';
+// import vizSubTypes from '../../enums/visualizationSubTypes';
+
+// util
+// import countWebGLContexts from '../../Utility/countWebGLContexts';
+// import depthUtils from '../../Utility/depthCounter';
+// import isISODateString from '../../Utility/Time/isISO';
+
+// common
+import { Warning } from '../../Components/Common/Alert';
+
 import initLogger from '../../Services/log-service';
 
-let log = initLogger ('VizControlPanel');
+const log = initLogger ('VizControlPanel');
 
-const dateStringToISO = (dateString) => (new Date(dateString)).toISOString();
 
 const mapStateToProps = (state) => ({
   data: state.data,
@@ -81,22 +111,31 @@ const mapStateToProps = (state) => ({
   user: state.user,
   showControlPanel: state.showControlPanel,
   dataSearchMenuOpen: state.dataSearchMenuOpen,
+  paramLock: state.viz.chart.controls.paramLock,
+  dateTypeMismatch: state.viz.chart.controls.dateTypeMismatch,
+  variableResolutionMismatch: state.viz.chart.controls.variableResolutionMismatch,
+  lockAlertsOpen: state.viz.chart.controls.lockAlertsOpen,
+  sizeCheckStatus: state.viz.chart.validation.sizeCheck.status,
+  sizeCheck: state.viz.chart.validation.sizeCheck.result,
 });
 
 const mapDispatchToProps = {
-  cruiseTrajectoryRequestSend,
+  checkVizQuerySize,
   clearCharts,
+  cruiseTrajectoryRequestSend,
   csvDownloadRequestSend,
-  snackbarOpen,
-  vizPageDataTargetSetAndFetchDetails,
-  storedProcedureRequestSend,
-  sparseDataQuerySend,
   guestPlotLimitNotificationSetIsVisible,
+  plotsActiveTabSet,
   setControlPanelVisibility,
   setDataSearchMenuVisibility,
+  setLockAlertsOpen,
+  setParamLock,
+  snackbarOpen,
+  sparseDataQuerySend,
+  storedProcedureRequestSend,
+  vizPageDataTargetSetAndFetchDetails,
 };
 
-const drawerWidth = 280; // NOTE this magic number is also in ./vizControlStyles
 
 const overrideDisabledStyle = {
   backgroundColor: 'transparent',
@@ -117,10 +156,7 @@ const polygonSymbol = {
     },
   ],
 };
-
-const defaultState = {
-  variableDetailsID: null,
-  tableName: '',
+const defaultParamState = {
   depth1: 0,
   depth2: 0,
   dt1: '1900-01-01T00:00:00.000Z',
@@ -129,137 +165,212 @@ const defaultState = {
   lat2: 0,
   lon1: 0,
   lon2: 0,
+};
+const defaultBaseState = {
+  variableDetailsID: null,
+  tableName: '',
   selectedVizType: '',
   surfaceOnly: false,
   irregularSpatialResolution: false,
   addedGlobeUIListeners: false,
   showDrawHelp: false,
-  storedParams: {
-    depth1: 0,
-    depth2: 0,
-    dt1: '1900-01-01T00:00:00.000Z',
-    dt2: new Date().toISOString(),
-    lat1: 0,
-    lat2: 0,
-    lon1: 0,
-    lon2: 0,
-  }
+}
+const defaultState = {
+  ...defaultParamState,
+  ...defaultBaseState,
 };
 
+
+
+// detect if spatial state has changed
+const spatialStateHasChanged = (prevState, currState) => {
+  return (prevState.lat1 !== currState.lat1 ||
+          prevState.lat2 !== currState.lat2 ||
+          prevState.lon1 !== currState.lon1 ||
+          prevState.lon2 !== currState.lon2 ||
+          prevState.depth1 !== currState.depth1 ||
+          prevState.depth2 !== currState.depth2);
+}
+
+const temporalRangeHasChanged = (prevState, currState) => {
+  return prevState.dt1 !== currState.dt1
+    || prevState.dt2 !== currState.dt2;
+}
+
+// Helper to handle re-drawing polygons on the globe
+// when the region selection has changed
+const updateGlobeWithPolygon = (mapRef, currState) => {
+  if (!mapRef || !mapRef.current) {
+    console.log (`<trace> could not update globe, no ref`);
+    return;
+  }
+  const lat1 = parseFloat(currState.lat1);
+  const lat2 = parseFloat(currState.lat2);
+  const lon1 = parseFloat(currState.lon1);
+  let _lon2 = parseFloat(currState.lon2);
+  const lon2 = _lon2 < lon1 ? _lon2 + 360 : _lon2;
+
+  // clear globe
+  mapRef.current.regionLayer.removeAll();
+
+  // define new polygon
+  const polygon = {
+    type: 'polygon',
+    rings: [
+      [lon1, lat1],
+      [lon2, lat1],
+      [lon2, lat2],
+      [lon1, lat2],
+      [lon1, lat1],
+    ],
+  };
+
+  const regionGraphic = new mapRef.current.props.esriModules.Graphic({
+    geometry: polygon,
+    symbol: polygonSymbol,
+  });
+
+  // draw
+  mapRef.current.regionLayer.add(regionGraphic);
+}
+
+const targetVariableIsNowNull = (prevProps, currProps) => {
+  return currProps.vizPageDataTargetDetails === null
+    && prevProps.vizPageDataTargetDetails !== null;
+}
+
+const newDataTargetDetails = (prevProps, currProps) => {
+  // will help determine whether to reorient the globe to new region
+  return currProps.vizPageDataTargetDetails !== prevProps.vizPageDataTargetDetails
+}
+
+const isSatelliteOrModel = (currProps) => {
+  const { irregularSpatialResolution, monthlyClimatology } = getTargetFeatures (currProps);
+  const isNotIrregularSpatialResolution = !irregularSpatialResolution;
+  const isNotMonthlyClimatology = !monthlyClimatology;
+
+  return isNotIrregularSpatialResolution
+    && isNotMonthlyClimatology;
+}
+
+const reorientGlobe = (globeUIRef, currProps) => {
+  if (!globeUIRef || !globeUIRef.current) {
+    return;
+  }
+  const data = currProps.vizPageDataTargetDetails;
+  const { irregularSpatialResolution } = getTargetFeatures (currProps);
+  const derivedParams = generateVariableSampleRangeParams(data);
+  const { lat1, lat2, lon1, lon2 } = derivedParams;
+
+  if (irregularSpatialResolution) {
+    globeUIRef.current.props.view.goTo(
+      {
+        target: [
+          (parseFloat(lon1) + parseFloat(lon2)) / 2,
+          (parseFloat(lat1) + parseFloat(lat2)) / 2,
+        ],
+        zoom: 3,
+      },
+      {
+        maxDuration: 2500,
+        speedFactor: 0.5,
+      },
+    );
+  }
+}
+
+// help the monthly input fields display a meaningful value if the date range
+// is locked with date-time values
+const ensureMonthlyValue = (dateString) => {
+  if (dateString === undefined) {
+    return 1; // default to January
+  } else if (typeof dateString !== 'string') {
+    return dateString; // most likely a number
+  } else if (dateString.length > 2) {
+    return transformDateStringToMonth (dateString);
+  } else {
+    return dateString;
+  }
+}
+
+const ensureTimeValue = (dateString) => {
+  // if date string does not provide enough information,
+  // default to 0 hours 0 minutes
+  if (dateString === undefined) {
+    return '00:00'; // default to January
+  } else if (typeof dateString !== 'string') {
+    return '00:00';
+  } else if (dateString.length < 16) {
+    return '00:00';
+  } else {
+    return dateString.slice(11,16);
+  }
+}
+
+/* ~~~~~~~~~   VizControlPanel   ~~~~~~~~~~~~ */
 class VizControlPanel extends React.Component {
   state = Object.assign({}, defaultState);
 
   searchInputRef = React.createRef();
 
   componentDidMount = () => {
-    if (!this.props.user)
+    if (!this.props.user) {
       this.props.guestPlotLimitNotificationSetIsVisible(true);
+    }
   };
 
   componentDidUpdate = (prevProps, prevState) => {
-    // TODO: put this in the parent
-    // if there are no charts to display, hide the charts
-    if (prevProps.charts.length && !this.props.charts.length) {
-      this.props.handleShowGlobe(); // this sets state of 'showCharts' in the parent
+    const spatialExtentChange = spatialStateHasChanged (prevState, this.state);
+    const temporalRangeChange = temporalRangeHasChanged (prevState, this.state);
+    const vizTypeChange = prevState.selectedVizType !== this.state.selectedVizType;
+    if (spatialExtentChange) {
+      updateGlobeWithPolygon (this.props.mapContainerRef, this.state);
     }
 
-    if (
-      this.props.mapContainerRef.current &&
-      (prevState.lat1 !== this.state.lat1 ||
-        prevState.lat2 !== this.state.lat2 ||
-        prevState.lon1 !== this.state.lon1 ||
-        prevState.lon2 !== this.state.lon2)
-    ) {
-      const lat1 = parseFloat(this.state.lat1);
-      const lat2 = parseFloat(this.state.lat2);
-      const lon1 = parseFloat(this.state.lon1);
-      let _lon2 = parseFloat(this.state.lon2);
-      const lon2 = _lon2 < lon1 ? _lon2 + 360 : _lon2;
-
-      this.props.mapContainerRef.current.regionLayer.removeAll();
-      var polygon = {
-        type: 'polygon',
-        rings: [
-          [lon1, lat1],
-          [lon2, lat1],
-          [lon2, lat2],
-          [lon1, lat2],
-          [lon1, lat1],
-        ],
-      };
-
-      let regionGraphic = new this.props.mapContainerRef.current.props.esriModules.Graphic(
-        {
-          geometry: polygon,
-          symbol: polygonSymbol,
-        },
-      );
-
-      this.props.mapContainerRef.current.regionLayer.add(regionGraphic);
+    if (spatialExtentChange || temporalRangeChange || vizTypeChange) {
+      this.handleCheckQuerySize();
     }
 
-    // reset state if the variable target has changed, and is null
+    // Reset state if the variable target has changed, and is null
     // NOTE because of the lifecycle of this component, there are several
     // renders between changing the target and getting the data in props
     // This will lead to many data processing bugs if not handled here
-    if (this.props.vizPageDataTargetDetails === null && prevProps.vizPageDataTargetDetails !== null) {
+    if (targetVariableIsNowNull (prevProps, this.props)) {
+      // keep spatial params if param lock is on
       this.setState({
-        ...defaultState,
+        ...this.state,
+        ...defaultBaseState,
+        ...(this.props.paramLock ? {} : defaultParamState),
       });
-    } else if (
-      // QUESTION: what is this really checking? ins't this an object?
-      // shouldn't we be cheking the id?
+      return;
+    }
 
-      this.props.vizPageDataTargetDetails !== prevProps.vizPageDataTargetDetails
-    ) {
-      let data = this.props.vizPageDataTargetDetails;
-      let surfaceOnly = !data.Has_Depth;
-      let irregularSpatialResolution = data.Spatial_Resolution === 'Irregular';
+    if (newDataTargetDetails (prevProps, this.props)) {
+      reorientGlobe (this.props.globeUIRef, this.props);
 
-
-      let derivedParams = generateVariableSampleRangeParams(data);
-
-      let { lat1, lat2, lon1, lon2 } = derivedParams;
-
-      if (irregularSpatialResolution && this.props.globeUIRef.current) {
-        this.props.globeUIRef.current.props.view.goTo(
-          {
-            target: [
-              (parseFloat(lon1) + parseFloat(lon2)) / 2,
-              (parseFloat(lat1) + parseFloat(lat2)) / 2,
-            ],
-            zoom: 3,
-          },
-          {
-            maxDuration: 2500,
-            speedFactor: 0.5,
-          },
-        );
-      }
-
-      if (
-        !irregularSpatialResolution &&
-        data.temporalResolution !== temporalResolutions.monthlyClimatology
-      ) {
+      if (isSatelliteOrModel (this.props)) {
         this.props.snackbarOpen(
-          'Default parameters for satellite and model data will exceed the maximum visualizable size. Please reduce the time range or region size.',
+          'Default parameters for satellite and model data will ' +
+            'exceed the maximum visualizable size. Please ' +
+            'reduce the time range or region size.',
         );
       }
 
-      let newState = {
+      const { surfaceOnly, irregularSpatialResolution } = getTargetFeatures (this.props);
+
+      // derived params are lat, lon ranges
+      const derivedParams = generateVariableSampleRangeParams(this.props.vizPageDataTargetDetails);
+      // if paramLock is active, do not update params
+      const emptyParams = {};
+      const params = this.props.paramLock ? emptyParams : derivedParams;
+
+      this.setState({
         ...this.state,
         surfaceOnly,
         irregularSpatialResolution,
-        ...derivedParams,
-        selectedVizType: '',
-        storedParams: {
-          ...this.state.storedParams,
-          ...derivedParams,
-        },
-      }
-
-      log.debug ('new state', newState);
-      this.setState(newState);
+        ...params,
+        selectedVizType: '', // reset viz type if new target
+      });
     }
   };
 
@@ -274,47 +385,60 @@ class VizControlPanel extends React.Component {
       this.props.mapContainerRef.current.regionLayer.removeAll();
   };
 
+  /* updateDomainFromGraphicExtent
+     take the drawn region from the globe
+     and set state with its lat/lon range
+     NOTE: this state update will trigger reorienting globe
+   */
   updateDomainFromGraphicExtent = (extent) => {
-    var _lon1 = extent.xmin;
+    let _lon1 = extent.xmin;
 
     while (_lon1 < -180) _lon1 += 360;
     while (_lon1 > 180) _lon1 -= 360;
 
-    var _lon2 = extent.xmax;
+    let _lon2 = extent.xmax;
 
     while (_lon2 < -180) _lon2 += 360;
     while (_lon2 > 180) _lon2 -= 360;
 
-    var newCoordinates = {
+    const newCoordinates = {
       lat1: parseFloat(extent.ymin.toFixed(3)),
       lat2: parseFloat(extent.ymax.toFixed(3)),
       lon1: parseFloat(_lon1.toFixed(3)),
       lon2: parseFloat(_lon2.toFixed(3)),
     };
 
+
     this.setState({
       ...this.state,
       ...newCoordinates,
-      storedParams: { ...this.state.storedParams, ...newCoordinates },
     });
   };
 
   handleShowChartsClick = () => {
     if (this.props.plotsActiveTab === 0) {
-      this.props.handlePlotsSetActiveTab(null, 1);
+      this.props.plotsActiveTabSet(1);
     } else {
-      this.props.handlePlotsSetActiveTab(null, 0);
+      this.props.plotsActiveTabSet(0);
     }
   };
 
+  handleCheckQuerySize = () => {
+    const payload = prepareQueryPayload (this.state, this.props);
+    if (!this.state.selectedVizType) {
+      console.log ('no selectedVizType, no dispatch')
+      return;
+    }
+    console.log ('dispatch check viz query size')
+    payload.vizType = this.state.selectedVizType;
+    this.props.checkVizQuerySize (payload);
+  }
+
   // "create vizualization" button is clicked
-  // this method seems very similar to "onVisualize" in the parent
   handleVisualize = () => {
     const {
       depth1,
       depth2,
-      dt1,
-      dt2,
       lat1,
       lat2,
       lon1,
@@ -322,24 +446,16 @@ class VizControlPanel extends React.Component {
       selectedVizType,
     } = this.state;
 
-    let isSparseVariable =
+    const isSparseVariable =
       this.props.vizPageDataTargetDetails.Spatial_Resolution ===
       spatialResolutions.irregular;
 
-    let mapping = mapVizType(selectedVizType);
-    let parameters = cleanSPParams({
+    const mapping = mapVizType(selectedVizType);
+    const dateParams = manageDateParams (this.state, this.props);
+    const parameters = cleanSPParams({
       depth1,
       depth2,
-      dt1:
-        this.props.vizPageDataTargetDetails.Temporal_Resolution ===
-        temporalResolutions.monthlyClimatology
-          ? dt1 + '-01-1900'
-          : dt1,
-      dt2:
-        this.props.vizPageDataTargetDetails.Temporal_Resolution ===
-        temporalResolutions.monthlyClimatology
-          ? dt2 + '-01-1900'
-          : dt2,
+      ...dateParams,
       lat1,
       lat2,
       lon1,
@@ -456,396 +572,18 @@ class VizControlPanel extends React.Component {
    * for date fields, combine date+time
    */
   handleChangeInputValue = (e) => {
-    let parseThese = ['lat1', 'lat2', 'lon1', 'lon2', 'depth1', 'depth2'];
-    let parsed = parseFloat(e.target.value);
-    let name = e.target.name;
-    let value = e.target.value;
-
-    // console.log('value', value);
-
-    if (parseThese.includes(e.target.name)) {
-      if (isNaN(parsed)) {
-        value = e.target.value;
-      } else {
-        value = parsed;
-      }
-    } else {
-      value = e.target.value;
-    }
-
-    if (['date1', 'hour1', 'date2', 'hour2'].includes(e.target.name)) {
-      let { dt1, dt2 } = this.state;
-
-      console.log(name, value)
-      console.log('dt1&2', dt1, dt2);
-      console.log('slice10', dt1.slice(0,10), dt2.slice(0,10));
-
-      if (typeof dt1 !== 'string' || typeof dt2 !== 'string') {
-        console.error ('incorrect types for dt1 and dt1, could not update state', dt1, dt2);
-        return;
-      }
-      let isoTail = ':00.000Z';
-
-      if (value === '' && (name === 'date1' || name === 'date2')) {
-        console.log('date was zeroed out');
-        value = '0000-00-00'
-      }
-
-      if (value === '' && (name === 'hour1' || name === 'hour2')) {
-       value = '00:00';
-      }
-
-      if (value.length > 10 && (name === 'date1' || name === 'date2')) {
-        console.log('date was providede too many characters');
-        value = '0000-00-00';
-      }
-
-      switch (e.target.name) {
-        case 'date1':
-          name = 'dt1';
-          value = value + 'T' + dt1.slice(11, 16) + isoTail;
-          break;
-        case 'hour1':
-          name = 'dt1';
-          value = dt1.slice(0,10) + 'T' + (value ? value : '00:00') + isoTail;
-          break;
-        case 'date2':
-          name = 'dt2';
-          value = value + 'T' + dt2.slice(11, 16) + isoTail;
-          break;
-        case 'hour2':
-          name = 'dt2';
-          value = dt2.slice(0,10) + 'T' + (value ? value : '00:00')+ isoTail;
-          break;
-      }
-    }
-
-    console.log('calculated value', value);
-
-    this.setState({
-      ...this.state,
-      [name]: value,
-      storedParams: { ...this.state.storedParams, [name]: value },
-    });
+    handleChangeFormInput.call (this, e);
   };
 
   handleToggleCharts = () => {};
 
-  estimateDataSize = () => {
-    const { vizPageDataTargetDetails } = this.props;
-    return getDataSize(vizPageDataTargetDetails, this.state);
-  };
-
-  // ~~~~~~~~~~ the following methods are all validation checks ~~~~~~~~~~~~~~~~~ //
-  // TODO: extract and simplify these
-  checkStartDepth = () => {
-    if (this.state.depth1 < 0) return 'Depth cannot be negative';
-    if (this.state.depth1 > this.state.depth2)
-      return 'Start cannot be greater than end';
-    if (this.state.depth1 > this.props.vizPageDataTargetDetails.Depth_Max)
-      return `Maximum depth start is ${this.props.vizPageDataTargetDetails.Depth_Max}`;
-    return '';
-  };
-
-  checkEndDepth = () => {
-    if (this.state.depth2 < 0) return 'Depth cannot be negative';
-    if (this.state.depth1 > this.state.depth2)
-      return 'Start cannot be greater than end';
-    if (this.state.depth2 < this.props.vizPageDataTargetDetails.Depth_Min)
-      return `Minimum depth end is ${this.props.vizPageDataTargetDetails.Depth_Min}`;
-    return '';
-  };
-
-  checkStartDateTime = () => {
-    let isMonthly =
-      this.props.vizPageDataTargetDetails.Temporal_Resolution ===
-      temporalResolutions.monthlyClimatology;
-
-    if (!isMonthly && !isISODateString (this.state.dt1)) {
-      return 'Invalid date/time';
-    }
+  validate = () => {
+    return handleValidation.call (this);
   }
-  checkEndDateTime = () => {
-    let isMonthly =
-      this.props.vizPageDataTargetDetails.Temporal_Resolution ===
-      temporalResolutions.monthlyClimatology;
-
-    if (!isMonthly && !isISODateString (this.state.dt2)) {
-      return 'Invalid date/time';
-    }
-  }
-
-  checkStartDate = () => {
-    let isMonthly =
-      this.props.vizPageDataTargetDetails.Temporal_Resolution ===
-      temporalResolutions.monthlyClimatology;
-
-    if (isMonthly) {
-      if (this.state.dt1 > this.state.dt2) {
-        return 'Start cannot be greater than end';
-      }
-    } else {
-      if (!this.state.dt1 ) {
-        return 'Invalid date';
-      }
-      if (this.state.dt1 > this.state.dt2) {
-        return 'Start cannot be greater than end';
-      }
-
-      // Note the double slice looks odd
-      // first, slice the time component off in order to get a date value that
-      // is only significant to the day
-      // then slice the ISO string so that the string comparison will be
-      // between strings of the same length
-      let isLessThanDatasetTimeMin =
-        this.state.dt1.slice(0, 10) <
-        dateStringToISO(this.props.vizPageDataTargetDetails.Time_Min.slice(0, 10)).slice(0, 10);
-
-      if (isLessThanDatasetTimeMin) {
-        return `Minimum start date is ${
-          this.props.vizPageDataTargetDetails.Time_Min.slice(5, 10) +
-          '-' +
-          this.props.vizPageDataTargetDetails.Time_Min.slice(0, 4)
-        }`;
-      }
-    }
-
-    return '';
-  };
-
-  checkEndDate = () => {
-    let isMonthly =
-      this.props.vizPageDataTargetDetails.Temporal_Resolution ===
-      temporalResolutions.monthlyClimatology;
-
-    if (isMonthly) {
-      if (this.state.dt1 > this.state.dt2) {
-        return 'Start cannot be greater than end';
-      }
-    } else {
-      if (!this.state.dt2 || !isISODateString (this.state.dt2)) {
-        return 'Invalid date';
-      }
-      if (this.state.dt1 > this.state.dt2) {
-        return 'Start cannot be greater than end';
-      }
-
-      // see note on the double slice call in checkStartDate
-      let isGreaterThanDatasetTimeMax =
-        this.state.dt2.slice(0,10) >
-      dateStringToISO (this.props.vizPageDataTargetDetails.Time_Max.slice(0,10)).slice(0,10);
-
-      if (isGreaterThanDatasetTimeMax) {
-        return `Maximum end date is ${
-          this.props.vizPageDataTargetDetails.Time_Max.slice(5, 10) +
-          '-' +
-          this.props.vizPageDataTargetDetails.Time_Max.slice(0, 4)
-        }`;
-      }
-    }
-    return '';
-  };
-
-  checkEndTime = () => {
-    let isMonthly =
-      this.props.vizPageDataTargetDetails.Temporal_Resolution ===
-      temporalResolutions.monthlyClimatology;
-
-    if (isMonthly) {
-      // don't check time
-      return '';
-    }
-
-
-    let maxEndDate = this.props.vizPageDataTargetDetails.Time_Max.slice(0,10);
-    let maxEndTime = this.props.vizPageDataTargetDetails.Time_Max.slice(11,16);
-
-    let endDateTime = this.state.dt2;
-    // check if time is greater that time max
-    if (endDateTime.slice(0,10) === maxEndDate) {
-      if (endDateTime.slice(11,16) > maxEndTime) {
-        return `The maximum end time for ${maxEndDate} is ${maxEndTime}`
-      }
-    }
-    return '';
-  }
-
-  checkStartTime = () => {
-    let isMonthly =
-      this.props.vizPageDataTargetDetails.Temporal_Resolution ===
-      temporalResolutions.monthlyClimatology;
-
-    if (isMonthly) {
-      // don't check time
-      return '';
-    }
-
-    let minStartDate = this.props.vizPageDataTargetDetails.Time_Min.slice(0,10);
-    let minStartTime = this.props.vizPageDataTargetDetails.Time_Min.slice(11,16);
-
-    let startTime = this.state.dt1;
-    // check if time is greater that time max
-    if (startTime.slice(0,10) === minStartDate) {
-      if (startTime.slice(11,16) < minStartTime) {
-        return `The minimum start time for ${minStartDate} is ${minStartTime}`
-      }
-    }
-
-    return '';
-  }
-
-  checkStartLat = () => {
-    if (this.state.lat1 > this.props.vizPageDataTargetDetails.Lat_Max)
-      return `Maximum start lat is ${this.props.vizPageDataTargetDetails.Lat_Max}`;
-    if (this.state.lat1 > this.state.lat2)
-      return `Start cannot be greater than end`;
-    return '';
-  };
-
-  checkEndLat = () => {
-    if (this.state.lat2 < this.props.vizPageDataTargetDetails.Lat_Min)
-      return `Minimum end lat is ${this.props.vizPageDataTargetDetails.Lat_Min}`;
-    if (this.state.lat1 > this.state.lat2)
-      return `Start cannot be greater than end`;
-    return '';
-  };
-
-  checkStartLon = () => {
-    const { lon1, lon2 } = this.state;
-    const { Lon_Min, Lon_Max } = this.props.vizPageDataTargetDetails;
-
-    if (lon2 >= lon1) {
-      if (lon1 > Lon_Max) return `Maximum start lon is ${Lon_Max}`;
-    } else {
-      if (
-        Lon_Min > lon1 ||
-        Lon_Max > lon1 ||
-        Lon_Min < lon2 ||
-        Lon_Max < lon2
-      ) {
-      } else return `Longitude outside dataset coverage`;
-    }
-    return '';
-  };
-
-  checkEndLon = () => {
-    const { lon1, lon2 } = this.state;
-    const { Lon_Min } = this.props.vizPageDataTargetDetails;
-
-    if (lon2 >= lon1) {
-      if (lon2 < Lon_Min) return `Minimum end lon is ${Lon_Min}`;
-    }
-
-    return '';
-  };
-
-  checkHeatmap = () => {
-    if (this.state.irregularSpatialResolution)
-      return validation.type.dataIsIrregular.replace('$', 'Heatmap');
-    return '';
-  };
-
-  checkContour = () => {
-    if (this.state.irregularSpatialResolution)
-      return validation.type.dataIsIrregular.replace('$', 'Contour');
-    return '';
-  };
-
-  checkSection = () => {
-    if (this.state.surfaceOnly)
-      return validation.type.surfaceOnlyDataset.replace('$', 'variable');
-    if (this.state.irregularSpatialResolution)
-      return validation.type.dataIsIrregular.replace('$', 'Section Map');
-    return '';
-  };
-
-  checkHistogram = () => {
-    return '';
-  };
-
-  checkTimeSeries = () => {
-    if (this.state.irregularSpatialResolution)
-      return validation.type.dataIsIrregular.replace('$', 'Time Series');
-    return '';
-  };
-
-  checkDepthProfile = () => {
-    if (this.state.surfaceOnly)
-      return validation.type.surfaceOnlyDataset.replace('$', 'variable');
-    return '';
-  };
-
-  checkSparseMap = () => {
-    if (!this.state.irregularSpatialResolution)
-      return validation.type.irregularOnly;
-    return '';
-  };
-
-  checkGeneralWarn = (dataSize) => {
-    if (!this.props.selectedVizType) return '';
-    if (dataSize > 1200000) return validation.generic.dataSizeWarning;
-    return '';
-  };
-
-  checkGeneralPrevent = (dataSize) => {
-    const webGLCount = countWebGLContexts(this.props.charts);
-    const aggregateSize = aggregateChartDataSize(this.props.charts);
-
-    if (!this.props.user) {
-      let guestPlotCount = parseInt(Cookies.get('guestPlotCount'));
-      if (guestPlotCount && guestPlotCount >= 10)
-        return validation.generic.guestMaximumReached;
-    }
-
-    if (!this.state.selectedVizType) return validation.generic.vizTypeMissing;
-    if (this.state.selectedVizType === vizSubTypes.heatmap && webGLCount > 14)
-      return validation.type.webGLContextLimit;
-    if (this.state.selectedVizType === vizSubTypes.sparse && webGLCount > 11)
-      return validation.type.webGLContextLimit;
-
-    if (this.state.selectedVizType === vizSubTypes.heatmap) {
-      let availableContexts = 16 - webGLCount;
-      const depthCount =
-        depthUtils.count(
-          { data: this.props.vizPageDataTargetDetails },
-          this.props.depth1,
-          this.props.depth2,
-        ) || 1;
-      if (availableContexts - depthCount < 1)
-        return 'Too many distinct depths to render heatmap. Please reduce depth range or select section map.';
-    }
-
-    if (
-      this.state.selectedVizType !== vizSubTypes.histogram &&
-      this.props.selectedVizType !== vizSubTypes.heatmap &&
-      dataSize > 1500000
-    ) {
-      return validation.generic.dataSizePrevent;
-    }
-
-    if (dataSize > 6000000) return validation.generic.dataSizePrevent;
-    if (!this.props.vizPageDataTargetDetails)
-      return validation.generic.variableMissing;
-    if (this.props.charts.length > 9)
-      return 'Total number of plots is too large. Please delete 1 or more';
-
-    // TODO extract magic number
-    if (aggregateSize + dataSize > 4000000)
-      return 'Total rendered data amount is too large. Please delete 1 or more plots.';
-
-    if (
-      !this.state.irregularSpatialResolution &&
-      this.state.selectedVizType !== vizSubTypes.timeSeries &&
-      Date.parse(this.state.dt2) - Date.parse(this.state.dt1) > 86400000 * 365
-    )
-      return 'Maximum date range for non-time series plots of gridded data is 1 year';
-    return '';
-  };
 
   render = () => {
     const {
       classes,
-      handleLatLonChange,
       dataTarget,
       vizPageDataTargetDetails,
       charts,
@@ -869,41 +607,14 @@ class VizControlPanel extends React.Component {
       selectedVizType,
     } = this.state;
 
+    const {
+      disableVisualizeMessage,
+      visualizeButtonTooltip,
+      validationComplete,
+      validations,
+    } = this.validate();
 
-    let details = vizPageDataTargetDetails;
-    let validations;
-
-    const dataSize = this.estimateDataSize();
-
-    if (details) {
-      validations = [
-        this.checkStartDepth(),
-        this.checkEndDepth(),
-        this.checkStartLat(),
-        this.checkEndLat(),
-        this.checkStartLon(),
-        this.checkEndLon(),
-        this.checkHeatmap(),
-        this.checkContour(),
-        this.checkSection(),
-        this.checkHistogram(),
-        this.checkTimeSeries(),
-        this.checkDepthProfile(),
-        this.checkSparseMap(),
-        this.checkGeneralWarn(dataSize),
-        this.checkGeneralPrevent(dataSize),
-        this.checkStartDate(),
-        this.checkEndDate(),
-        this.checkStartTime(),
-        this.checkEndTime(),
-        this.checkStartDateTime(),
-        this.checkEndDateTime(),
-      ];
-    } else {
-      validations = Array(14).fill('');
-    }
-
-    const [
+    const {
       startDepthMessage,
       endDepthMessage,
       startLatMessage,
@@ -924,39 +635,32 @@ class VizControlPanel extends React.Component {
       startTimeMessage,
       endTimeMessage,
       startDateTimeMessage,
-      endDateTimeMessage
-    ] = validations;
+      endDateTimeMessage,
+    } = validations;
 
-    const checkDisableVisualizeList = [
-      startDepthMessage,
-      endDepthMessage,
-      startLatMessage,
-      endLatMessage,
-      startLonMessage,
-      endLonMessage,
-      generalPreventMessage,
-      startDateMessage,
-      endDateMessage,
-      startTimeMessage,
-      endTimeMessage,
-      startDateTimeMessage
-    ];
 
-    const checkDisableVisualize = () => {
-      for (let i = 0; i < checkDisableVisualizeList.length; i++) {
-        if (checkDisableVisualizeList[i]) return checkDisableVisualizeList[i];
-      }
+    const details = vizPageDataTargetDetails;
 
-      return false;
-    };
+    const alerts = [];
 
-    const disableVisualizeMessage = checkDisableVisualize();
-
-    const visualizeButtonTooltip = disableVisualizeMessage
-      ? disableVisualizeMessage
-      : generalWarnMessage
-      ? generalWarnMessage
-      : '';
+    if (this.props.paramLock && this.props.variableResolutionMismatch) {
+      alerts.push(
+        (<Warning>
+           <span>
+             {`The selected varible belongs to a different dataset than the previous variable. The resulting visualization may have a different spatial or temporal resolution and thus incorporate more or fewer snapshots of data.`}
+           </span>
+         </Warning>)
+      );
+    }
+    if (this.props.paramLock && this.props.dateTypeMismatch) {
+      alerts.push (
+        (<Warning>
+           <span>
+             {`There is a mismatch between the locked date range type and the current variable's temporal resolution. Unlock the parameters controls to change the time range.`}
+           </span>
+         </Warning>)
+      );
+    }
 
     return (
       <React.Fragment>
@@ -973,19 +677,6 @@ class VizControlPanel extends React.Component {
         ) : (
           ''
         )}
-
-        <div className={classes.pageTitleWrapper}>
-          <Hint
-            content={PageTitleHint}
-            position={{ beacon: 'right', hint: 'bottom-end' }}
-            styleOverride={{ beacon: { right: '-2em ' } }}
-            size={'large'}
-          >
-            <span className={classes.pageTitle}>
-              Visualization: Charts and Plots
-            </span>
-          </Hint>
-        </div>
 
         {showControlPanel ? (
           <Tooltip title="Hide control panel" placement="right">
@@ -1024,7 +715,40 @@ class VizControlPanel extends React.Component {
           }}
           anchor="left"
         >
-         {/* Begin Variable Search Button */}
+          {alerts.length > 0 &&
+           <div className={classes.alertBoxHandle}>
+             <IconButton
+               onClick={() => {
+                 this.props.setLockAlertsOpen (!this.props.lockAlertsOpen)}}
+             >
+               <LuAlertTriangle />
+             </IconButton>
+           </div>
+          }
+
+          {alerts.length > 0 &&
+           <div className={classes.alertBox}>
+             {this.props.lockAlertsOpen &&
+              <div className={classes.alertList}>
+                {alerts}
+              </div>
+             }
+
+             {this.props.lockAlertsOpen &&
+              <span>
+                <IconButton
+                  onClick={() => {
+                    this.props.setLockAlertsOpen (!this.props.lockAlertsOpen)}}
+                >
+                  <CloseIcon />
+                </IconButton>
+              </span>
+             }
+           </div>
+          }
+
+
+          {/* Begin Variable Search Button */}
           {dataTarget ? (
             <Grid container style={{ borderBottom: '1px solid black' }}>
               <Grid item xs={10}>
@@ -1087,7 +811,7 @@ class VizControlPanel extends React.Component {
               <Button
                 id={'viz-select-primary-variable'}
                 fullWidth={true}
-                className={classes.controlPanelItem}
+                className={`${classes.controlPanelItem} ${classes.varSearchButton}`}
                 style={{ borderBottom: '1px solid black' }}
                 startIcon={
                   <Search
@@ -1134,7 +858,10 @@ class VizControlPanel extends React.Component {
                       id="dt1"
                       label="Start Month"
                       type="number"
-                      value={dt1}
+                      min={1}
+                      max={12}
+                      step={1}
+                      value={ensureMonthlyValue(dt1)}
                       error={(Boolean(startDateMessage))}
                       FormHelperTextProps={{ className: classes.helperText }}
                       helperText={startDateMessage}
@@ -1151,7 +878,9 @@ class VizControlPanel extends React.Component {
                       }}
                       onChange={this.handleChangeInputValue}
                       disabled={
-                        this.state.showDrawHelp || !vizPageDataTargetDetails
+                        this.props.paramLock
+                          ||  this.state.showDrawHelp
+                          || !vizPageDataTargetDetails
                       }
                     />
                   </Grid>
@@ -1166,7 +895,7 @@ class VizControlPanel extends React.Component {
                       min={1}
                       max={12}
                       step={1}
-                      value={dt2}
+                      value={ensureMonthlyValue(dt2)}
                       error={(Boolean(endDateMessage))}
                       FormHelperTextProps={{ className: classes.helperText }}
                       helperText={endDateMessage}
@@ -1183,76 +912,57 @@ class VizControlPanel extends React.Component {
                       }}
                       onChange={this.handleChangeInputValue}
                       disabled={
-                        this.state.showDrawHelp || !vizPageDataTargetDetails
+                        this.props.paramLock
+                          || this.state.showDrawHelp
+                          || !vizPageDataTargetDetails
                       }
                     />
                   </Grid>
                 </>
               ) : (
                 <>
-                 {/* Daily Date Picker */}
+                  {/* Daily Date Picker */}
                   <Grid item xs={6} className={classes.formGridItem}>
-                    <TextField
-                      name="date1"
-                      className={classes.textField}
-                      id="date1"
-                      label="Start Date(m/d/y)"
-                      step={1}
-                      type="date"
-                      value={(typeof dt1 === 'string' ? dt1.slice(0,10) : dt1)}
-                      error={(Boolean(startDateMessage) || Boolean(startDateTimeMessage))}
-                      FormHelperTextProps={{ className: classes.helperText }}
-                      helperText={startDateMessage || startDateTimeMessage}
-                      InputProps={{
-                        className: classes.dateTimeInput,
-                        inputProps: details
-                          ? {
-                              min: details.Time_Min.slice(0, 10),
-                              max: details.Time_Max.slice(0, 10),
-                            }
-                          : {},
-                      }}
-                      InputLabelProps={{
-                        shrink: true,
-                        className: classes.padLeft,
-                      }}
-                      onChange={this.handleChangeInputValue}
-                      disabled={
-                        this.state.showDrawHelp || !vizPageDataTargetDetails
-                      }
-                    />
+                    <div className={classes.datePicker}>
+                      <label>Start Date</label>
+                      <DatePicker
+                        disabled={!details || this.props.paramLock}
+                        value={shiftMinMaxDate(dt1)}
+                        onChange={(date) => this.handleChangeInputValue ({
+                          target: {
+                            name: 'date1',
+                            value: date,
+                          }
+                        })}
+                        clearIcon={null}
+                        shouldOpenCalendar={({ reason }) => "buttonClick" === reason}
+                      />
+                      {startDateMessage ? <span>{startDateMessage}</span> : ''}
+                    </div>
                   </Grid>
 
                   <Grid item xs={6} className={classes.formGridItem}>
-                    <TextField
-                      name="date2"
-                      className={classes.textField}
-                      id="date2"
-                      label="End Date(m/d/y)"
-                      type="date"
-                      value={(typeof dt2 === 'string' ? dt2.slice(0,10) : dt2)}
-                      error={(Boolean(endDateMessage) || Boolean(endDateTimeMessage))}
-                      FormHelperTextProps={{ className: classes.helperText }}
-                      helperText={endDateMessage || endDateTimeMessage}
-                      InputProps={{
-                        className: classes.dateTimeInput,
-                        inputProps: details
-                          ? {
-                              min: details.Time_Min.slice(0, 10),
-                              max: details.Time_Max.slice(0, 10),
-                            }
-                          : {},
-                      }}
-                      InputLabelProps={{
-                        shrink: true,
-                        className: classes.padLeft,
-                      }}
-                      onChange={this.handleChangeInputValue}
-                      disabled={
-                        this.state.showDrawHelp || !vizPageDataTargetDetails
-                      }
-                    />
-                  </Grid>
+                    <div className={classes.datePicker}>
+                      <label>Start Date</label>
+                      <DatePicker
+                        disabled={!details || this.props.paramLock}
+                        value={shiftMinMaxDate(dt2)}
+                        onChange={(date) => this.handleChangeInputValue ({
+                          target: {
+                            name: 'date2',
+                            value: date,
+                          }
+                        })}
+                        clearIcon={null}
+                        shouldOpenCalendar={({ reason }) => {
+                          console.log (reason);
+                          return "buttonClick" === reason;
+                        }}
+                      />
+                      {endDateMessage ? <span>{endDateMessage}</span> : ''}
+                    </div>
+
+                </Grid>
 
                     <Grid item xs={6} className={classes.formGridItem}>
                       <TextField
@@ -1261,13 +971,18 @@ class VizControlPanel extends React.Component {
                         label="Start Time"
                         className={classes.textField}
                         type="time"
-                        value={(typeof dt1 === 'string' ? dt1.slice(11, 16) : undefined)}
+                        value={ensureTimeValue(dt1)}
                         onChange={this.handleChangeInputValue}
                         error={(Boolean(startTimeMessage) || Boolean (startDateTimeMessage))}
                         helperText={startTimeMessage || startDateTimeMessage}
                         disabled={
-                          this.state.showDrawHelp || !vizPageDataTargetDetails
+                          this.props.paramLock
+                            ||  this.state.showDrawHelp
+                            || !vizPageDataTargetDetails
                         }
+                        InputLabelProps={{
+                          className: classes.padLeft,
+                        }}
                       />
                     </Grid><Grid item xs={6} className={classes.formGridItem}>
                       <TextField
@@ -1276,13 +991,18 @@ class VizControlPanel extends React.Component {
                         label="End Time"
                         className={classes.textField}
                         type="time"
-                        value={(typeof dt2 === 'string' ? dt2.slice(11, 16) : undefined)}
+                        value={ensureTimeValue(dt2)}
                         onChange={this.handleChangeInputValue}
                         error={(Boolean(endTimeMessage) || Boolean(endDateTimeMessage))}
                         helperText={endTimeMessage || endDateTimeMessage}
                         disabled={
-                          this.state.showDrawHelp || !vizPageDataTargetDetails
+                          this.props.paramLock
+                            ||this.state.showDrawHelp
+                            || !vizPageDataTargetDetails
                         }
+                        InputLabelProps={{
+                          className: classes.padLeft,
+                        }}
                       />
                     </Grid>
                 </>
@@ -1298,7 +1018,6 @@ class VizControlPanel extends React.Component {
                   label={'Start Lat(\xB0)'}
                   className={classes.textField}
                   value={lat1}
-                  onChange={handleLatLonChange}
                   error={Boolean(startLatMessage)}
                   FormHelperTextProps={{ className: classes.helperText }}
                   helperText={startLatMessage}
@@ -1316,7 +1035,9 @@ class VizControlPanel extends React.Component {
                   name="lat1"
                   onChange={this.handleChangeInputValue}
                   disabled={
-                    this.state.showDrawHelp || !vizPageDataTargetDetails
+                    this.props.paramLock
+                      || this.state.showDrawHelp
+                      || !vizPageDataTargetDetails
                   }
                 ></TextField>
               </Grid>
@@ -1329,7 +1050,6 @@ class VizControlPanel extends React.Component {
                   label={'End Lat(\xB0)'}
                   className={classes.textField}
                   value={lat2}
-                  onChange={handleLatLonChange}
                   FormHelperTextProps={{ className: classes.helperText }}
                   helperText={endLatMessage}
                   name="lat2"
@@ -1346,7 +1066,9 @@ class VizControlPanel extends React.Component {
                   InputLabelProps={{ className: classes.padLeft }}
                   onChange={this.handleChangeInputValue}
                   disabled={
-                    this.state.showDrawHelp || !vizPageDataTargetDetails
+                    this.props.paramLock
+                      ||  this.state.showDrawHelp
+                      || !vizPageDataTargetDetails
                   }
                 ></TextField>
               </Grid>
@@ -1359,7 +1081,6 @@ class VizControlPanel extends React.Component {
                   label={'Start Lon(\xB0)'}
                   className={classes.textField}
                   value={lon1}
-                  onChange={handleLatLonChange}
                   FormHelperTextProps={{ className: classes.helperText }}
                   helperText={startLonMessage}
                   name="lon1"
@@ -1376,7 +1097,9 @@ class VizControlPanel extends React.Component {
                   InputLabelProps={{ className: classes.padLeft }}
                   onChange={this.handleChangeInputValue}
                   disabled={
-                    this.state.showDrawHelp || !vizPageDataTargetDetails
+                    this.props.paramLock
+                      || this.state.showDrawHelp
+                      || !vizPageDataTargetDetails
                   }
                 ></TextField>
               </Grid>
@@ -1389,7 +1112,6 @@ class VizControlPanel extends React.Component {
                   label={'End Lon(\xB0)'}
                   className={classes.textField}
                   value={lon2}
-                  onChange={handleLatLonChange}
                   FormHelperTextProps={{ className: classes.helperText }}
                   helperText={endLonMessage}
                   name="lon2"
@@ -1406,34 +1128,13 @@ class VizControlPanel extends React.Component {
                   InputLabelProps={{ className: classes.padLeft }}
                   onChange={this.handleChangeInputValue}
                   disabled={
-                    this.state.showDrawHelp || !vizPageDataTargetDetails
+                    this.props.paramLock
+                      || this.state.showDrawHelp
+                      || !vizPageDataTargetDetails
                   }
                 ></TextField>
+                {/* draw on globe*/}
 
-                {showControlPanel ? (
-                  <Paper
-                    className={classes.popoutButtonPaper}
-                    style={{ left: drawerWidth + 1, top: '146px' }}
-                  >
-                    <Hint
-                      content={RestrictDataHint}
-                      position={{ beacon: 'right', hint: 'bottom-end' }}
-                      size={'medium'}
-                    >
-                      <span>
-                        <IconButton
-                          className={classes.popoutButtonBase}
-                          onClick={this.handleDrawClick}
-                          disabled={!details || plotsActiveTab !== 0}
-                        >
-                          <Edit className={classes.popoutButtonIcon} />
-                        </IconButton>
-                      </span>
-                    </Hint>
-                  </Paper>
-                ) : (
-                  ''
-                )}
               </Grid>
 
               <Grid item xs={6} className={classes.formGridItem}>
@@ -1460,8 +1161,7 @@ class VizControlPanel extends React.Component {
                   InputLabelProps={{ className: classes.padLeft }}
                   onChange={this.handleChangeInputValue}
                   disabled={
-                    this.state.showDrawHelp ||
-                    this.state.surfaceOnly ||
+                    this.props.paramLock ||
                     !vizPageDataTargetDetails
                   }
                 ></TextField>
@@ -1491,8 +1191,7 @@ class VizControlPanel extends React.Component {
                   InputLabelProps={{ className: classes.padLeft }}
                   onChange={this.handleChangeInputValue}
                   disabled={
-                    this.state.showDrawHelp ||
-                    this.state.surfaceOnly ||
+                    this.props.paramLock ||
                     !vizPageDataTargetDetails
                   }
                 ></TextField>
@@ -1517,36 +1216,63 @@ class VizControlPanel extends React.Component {
                 disabled={this.state.showDrawHelp || !vizPageDataTargetDetails}
               />
 
-              {charts.length && showControlPanel ? (
-                <Paper
-                  className={classes.popoutButtonPaper}
-                  style={{ left: '281px', top: '343px' }}
-                >
+              {showControlPanel ? (
+                <Paper className={classes.popoutButtonPaper}> {/* show globe button */}
+                  <Tooltip placement="right" title={this.props.paramLock ? 'Unlock Space & Time Range' : 'Lock Space & Time Range'}>
+                    <span>
+                      <IconButton
+                        className={classes.lockButtonBase}
+                        onClick={() => this.props.setParamLock (!this.props.paramLock)}
+                        disabled={!details}
+                      >
+                        {this.props.paramLock
+                         ? <ImLock />
+                         : <ImUnlocked />
+                        }
+                      </IconButton>
+                    </span>
+                  </Tooltip>
+
                   <Tooltip
                     title={
                       plotsActiveTab !== 0 ? 'Return to Globe' : 'Show Charts'
                     }
                   >
                     <IconButton
-                      disabled={this.state.showDrawHelp}
+                      disabled={charts.length === 0}
                       className={classes.popoutButtonBase}
                       onClick={this.handleShowChartsClick}
                     >
                       {plotsActiveTab !== 0 ? (
-                        <Language
-                          className={classes.popoutButtonIcon}
-                          style={{ color: colors.primary }}
-                        />
+                        <Language className={classes.popoutButtonIcon}/>
                       ) : (
-                        <Badge badgeContent={charts.length} color="primary">
-                          <ShowChart
-                            className={classes.popoutButtonIcon}
-                            style={{ color: colors.primary }}
-                          />
+                        <Badge badgeContent={charts.length} color="primary"> {/* display chart count*/}
+                          <ShowChart className={classes.popoutButtonIcon}/>
                         </Badge>
                       )}
                     </IconButton>
                   </Tooltip>
+                  <Hint
+                    content={RestrictDataHint}
+                    position={{ beacon: 'right', hint: 'bottom-end' }}
+                    size={'medium'}
+                  >
+                    <Tooltip placement="right" title={'Draw Spatial Range on Globe'}>
+                      <span>
+                        <IconButton
+                          className={classes.popoutButtonBase}
+                          onClick={this.handleDrawClick}
+                          disabled={
+                            !details
+                              || plotsActiveTab !== 0
+                              || this.props.paramLock
+                          }
+                        >
+                          <Edit className={classes.popoutButtonIcon} />
+                        </IconButton>
+                      </span>
+                    </Tooltip>
+                  </Hint>
                 </Paper>
               ) : (
                 ''
@@ -1558,7 +1284,7 @@ class VizControlPanel extends React.Component {
           className={classes.dataSearchMenuPaper}
           style={dataSearchMenuOpen ? {} : { display: 'none' }}
         >
-          <DataSearch
+          <VariableSelector
             handleSelectDataTarget={this.handleSelectDataTarget}
             handleSetVariableDetailsID={this.handleSetVariableDetailsID}
             handleCloseDataSearch={this.handleCloseDataSearch}

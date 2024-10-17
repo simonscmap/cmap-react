@@ -1,5 +1,6 @@
 // Select viz type and create viz button
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import {
   Grid,
@@ -11,6 +12,7 @@ import {
 } from '@material-ui/core';
 import MUISelect from '@material-ui/core/Select';
 import vizSubTypes from '../../../enums/visualizationSubTypes';
+import states from '../../../enums/asyncRequestStates';
 import colors from '../../../enums/colors';
 import Hint from '../../Navigation/Help/Hint';
 import SelectChartTypeHint from '../help/SelectChartTypeHint';
@@ -18,37 +20,71 @@ import CreateVisualizationHint from '../help/CreateVisualizationHint';
 
 const styles = (theme) => ({
   vizTypeSelectFormControl: {
+    marginTop: '10px',
     width: '100%',
-    '&:disabled': {
-      backgroundColor: 'transparent',
+    '& label': {
+      zIndex: 0,
     },
+    '&:disabled': {
+      // backgroundColor: 'transparent',
+      color: theme.palette.primary.light,
+    },
+    '& svg': {
+      color: theme.palette.primary.light,
+      '&.Mui-disabled': {
+        color: theme.palette.primary.light,
+      }
+    }
   },
   vizTypeMenu: {
-    backgroundColor: colors.backgroundGray,
+    // backgroundColor: colors.backgroundGray,
+    background: 'rgba(0,0,0,0.75)',
+    backdropFilter: 'blur(3px)',
   },
   vizTypeMenuItem: {
     '&:hover': { backgroundColor: colors.greenHover },
   },
   visualizeButton: {
+    marginTop: '10px',
     textTransform: 'none',
     height: '56px',
     width: '100%',
-    borderRadius: 0,
-    backgroundColor: colors.backgroundGray,
-    color: theme.palette.primary.main,
+    borderRadius: '5px',
+    border: `1px solid ${theme.palette.primary.main}`,
+    // backgroundColor: colors.backgroundGray,
+    background: theme.palette.primary.main,
+    // color: theme.palette.primary.main,
+    color: 'black',
     fontVariant: 'normal',
     '&:disabled': {
+      color: '#ccc',
       backgroundColor: 'transparent',
+      border: '1px solid #ccc',
     },
     '&:hover': {
       backgroundColor: colors.greenHover,
       color: 'white',
+      border: `1px solid ${theme.palette.primary.main}`,
     },
   },
   vizButtonTooltip: {
     color: 'yellow',
   },
 });
+
+const generateDisabledButtonMessage = (checkQuerySizeStatus, disableVisualizeMessage) => {
+  if (checkQuerySizeStatus === states.succeeded) {
+    return disableVisualizeMessage || 'Create Visualization'
+  } else {
+    if (checkQuerySizeStatus === states.failed) {
+      return 'Unable to determine size of visulization.'
+    } else if (checkQuerySizeStatus === states.inProgress) {
+      return 'Checking query size...'
+    } else if (checkQuerySizeStatus === states.notTried) {
+      return disableVisualizeMessage  || 'Waiting to initialize size check...'
+    }
+  }
+}
 
 const ChartControl = (props) => {
   const {
@@ -69,6 +105,8 @@ const ChartControl = (props) => {
     disabled,
   } = props;
 
+  const checkQuerySizeStatus = useSelector ((state) => state.viz.chart.validation.sizeCheck.status);
+
   return (
     <React.Fragment>
       <Grid container>
@@ -79,13 +117,12 @@ const ChartControl = (props) => {
             size={'medium'}
           >
             <FormControl
-              variant="filled"
+              variant="outlined"
               className={classes.vizTypeSelectFormControl}
             >
               <InputLabel
                 shrink
                 htmlFor="vizSelector"
-                style={disabled ? { color: 'rgba(0,0,0,.38)' } : {}}
               >
                 Select Chart Type
               </InputLabel>
@@ -200,7 +237,7 @@ const ChartControl = (props) => {
                 }
                 fullwidth="true"
               >
-                Create Visualization
+                { generateDisabledButtonMessage (checkQuerySizeStatus, disableVisualizeMessage) }
               </Button>
             </Grid>
           </Tooltip>

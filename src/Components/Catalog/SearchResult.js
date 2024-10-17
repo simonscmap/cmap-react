@@ -21,11 +21,9 @@ const useStyles = makeStyles(styles);
 export const SearchResultPure = (props) => {
   const {
     dataset,
-    onDownloadClick,
     features,
     style,
     index,
-    options = {},
   } = props;
 
   const cl = useStyles();
@@ -34,11 +32,13 @@ export const SearchResultPure = (props) => {
 
   const titleProp = {};
   const subscribeProp = {};
+  const extra = {};
   const downloadProp = {};
   if (index === 0) {
     titleProp.id = 'catalog-dataset-title-link';
     subscribeProp.id = 'subscribe-dataset-control';
     downloadProp.id = 'downoload-button';
+    extra.id = 'catalog-dataset-title-link';
   }
 
   return (
@@ -46,7 +46,7 @@ export const SearchResultPure = (props) => {
       <div className={cl.wrapper_} key={`${index}_fsl_item`}>
         <Paper className={cl.resultPaper} elevation={4}>
           <div className={cl.wrapper}>
-            <div className={cl.title}>
+            <div className={cl.title} {...extra}>
               <DatasetTitleLink
                 dataset={dataset}
                 componentId={titleProp} />

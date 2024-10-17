@@ -199,6 +199,19 @@ export default function (state, action) {
       userDeleteSubscriptionRequestStatus: action.payload,
     };
 
+  case actions.QUEUE_ACTION_TO_RESUME:
+    console.log ('action in reducer', action)
+    return {
+      ...state,
+      resumeAction: action.payload.actionLiteral,
+    };
+
+  case actions.CLEAR_RESUME_ACTION:
+    return {
+      ...state,
+      resumeAction: null,
+    };
+
   default:
     return state;
   }

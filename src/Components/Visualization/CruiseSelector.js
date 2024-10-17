@@ -24,6 +24,7 @@ import {
   cruiseTrajectoryClear,
   cruiseTrajectoryRequestSend,
   fetchTrajectoryPointCounts,
+  plotsActiveTabSet,
 } from '../../Redux/actions/visualization';
 import setsFromList from '../../Utility/setsFromList';
 import styles from './cruiseSelectorStyles';
@@ -40,10 +41,11 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
-  fetchTrajectoryPointCounts,
   cruiseListRequestSend,
-  cruiseTrajectoryRequestSend,
   cruiseTrajectoryClear,
+  cruiseTrajectoryRequestSend,
+  fetchTrajectoryPointCounts,
+  plotsActiveTabSet,
 };
 
 const searchFilterGroupCruises = (
@@ -241,7 +243,7 @@ class CruiseSelector extends Component {
 
 
   componentDidMount = () => {
-    this.props.handleShowGlobe();
+    this.props.plotsActiveTabSet (0);
     if (!this.props.cruiseList || !this.props.cruiseList.length)
       this.props.cruiseListRequestSend();
   };

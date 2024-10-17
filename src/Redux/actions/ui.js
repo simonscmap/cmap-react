@@ -1,8 +1,30 @@
 import * as interfaceActionTypes from '../actionTypes/ui';
 
-export const showLoginDialog = () => ({
+const trace = (action) => {
+  return (...args) => {
+    const result = action.apply(args);
+
+    console.log (`<trace::redux> ${result.type}`);
+    if (args.length > 1) {
+      console.log (args);
+    }
+    const argType = typeof args[0];
+    switch (argType) {
+    case 'number':
+    case 'string':
+      console.log (args[0]);
+      break;
+    case 'object':
+      console.table (args[0]);
+    }
+
+    return result;
+  }
+}
+
+export const showLoginDialog = trace(() => ({
   type: interfaceActionTypes.INTERFACE_SHOW_LOGIN_DIALOG,
-});
+}));
 
 export const hideLoginDialog = () => ({
   type: interfaceActionTypes.INTERFACE_HIDE_LOGIN_DIALOG,

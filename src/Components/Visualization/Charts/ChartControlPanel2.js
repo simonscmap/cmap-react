@@ -47,7 +47,7 @@ const ChartControlPanel = (props) => {
     dataLength >= SIZE_LIMIT,
   );
 
-  console.log ({ showSparseDataSizeWarning, Spatial_Resolution, Temporal_Resolution, dataLength })
+  console.table ({ showSparseDataSizeWarning, Spatial_Resolution, Temporal_Resolution, dataLength })
 
   const limit = SIZE_LIMIT.toLocaleString();
   const total = safePath (['data', 'metadata', 'count']) (chart);

@@ -1,8 +1,22 @@
 import depthUtils from '../../../Utility/depthCounter';
 import temporalResolutions from '../../../enums/temporalResolutions';
 
-const dateStringToISO = (dateString) => (new Date(dateString)).toISOString();
-
+const dateStringToISO = (dateString) => {
+  if (typeof dateString === 'string') {
+    if (dateString.length === 10) {
+      return dateString + 'T00:00:00.000Z';
+    } else if (dateString.length ===  24) {
+      return dateString;
+    } else {
+      // TODO handle case of improperly formatted date
+      // such as 2014-05-20 05:16:09
+      return (new Date (dateString).toISOString());
+    }
+  } else  {
+    console.error ('wrong type for date string', dateString);
+    return (new Date (dateString).toISOString());
+  }
+}
 const generateVariableSampleRangeParams = (varDetails) => {
   let dt1 =
     varDetails.Temporal_Resolution === temporalResolutions.monthlyClimatology
@@ -12,6 +26,9 @@ const generateVariableSampleRangeParams = (varDetails) => {
     varDetails.Temporal_Resolution === temporalResolutions.monthlyClimatology
       ? 1
       : dateStringToISO (varDetails.Time_Max);
+
+  // console.log ('gen params: time min', varDetails.Time_Min, dt1);
+  // console.log ('gen params: time max', varDetails.Time_Max, dt2);
 
   let lat1 = Math.floor(varDetails.Lat_Min * 1000) / 1000;
   let lat2 = Math.ceil(varDetails.Lat_Max * 1000) / 1000;

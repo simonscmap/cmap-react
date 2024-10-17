@@ -115,7 +115,7 @@ const EditRankDraggableList = () => {
     }
   };
 
-  const onDrop = (event) => {
+  const onDrop = () => {
     callSetRankList(dragState.updatedOrder, 'onDrop');
 
     setDragState({
@@ -126,7 +126,7 @@ const EditRankDraggableList = () => {
     });
   };
 
-  const onDragLeave = (event) => {
+  const onDragLeave = () => {
     setDragState({
       ...dragState,
       draggedTo: null,

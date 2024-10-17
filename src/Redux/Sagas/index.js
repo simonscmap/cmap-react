@@ -106,6 +106,7 @@ import {
 
 import {
   watchRequestTrajectoryPointCounts,
+  watchCheckVizQuerySize,
 } from './visualizationSagas';
 
 import {
@@ -1543,15 +1544,20 @@ function* handleGuestVisualization() {
     expires,
   });
 
+  log.debug ('handleGuestVisualization', { guestPlotCount })
+
   if (guestPlotCount >= 9) {
     yield put(
       visualizationActions.guestPlotLimitNotificationSetIsVisible(true),
     );
+  } else {
+    //
   }
 }
 
 function* guestTokenRequestSend() {
   const tag = { tag: 'guestTokenRequestSend' };
+  log.debug ('guestTokenRequestSend', { })
 
   let userIsGuest = yield select((state) => state.userIsGuest);
 
@@ -2102,6 +2108,7 @@ function* rootSaga() {
     watchReSendNotifications(),
     watchDownloadDialogOpen(),
     watchFetchVaultLink(),
+    watchCheckVizQuerySize()
   ]);
 }
 
