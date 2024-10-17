@@ -28,7 +28,15 @@ const intro = {
     {
       element: '#catalog-dataset-title-link',
       intro:
-        'Dataset name link:  Opens the catalog page for a given dataset to access detailed dataset information and links to download the dataset and metadata.',
+        'Dataset Name:  Opens the catalog page for a given dataset to access detailed dataset information and links to download the dataset and metadata.',
+    },
+    {
+      element: '#subscribe-dataset-control',
+      intro: 'Click to subscribe to email notifications when there is news related to this dataset.',
+    },
+    {
+      element: '#downoload-button',
+      intro: 'Download data from this dataset.',
     },
     {
       element: '#catalog-recommendations-panel',

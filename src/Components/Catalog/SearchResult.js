@@ -32,9 +32,13 @@ export const SearchResultPure = (props) => {
 
   const { Icon_URL, Short_Name } = dataset;
 
-  const extra = {};
+  const titleProp = {};
+  const subscribeProp = {};
+  const downloadProp = {};
   if (index === 0) {
-    extra.id = 'catalog-dataset-title-link';
+    titleProp.id = 'catalog-dataset-title-link';
+    subscribeProp.id = 'subscribe-dataset-control';
+    downloadProp.id = 'downoload-button';
   }
 
   return (
@@ -42,11 +46,19 @@ export const SearchResultPure = (props) => {
       <div className={cl.wrapper_} key={`${index}_fsl_item`}>
         <Paper className={cl.resultPaper} elevation={4}>
           <div className={cl.wrapper}>
-            <div className={cl.title} {...extra}>
-              <DatasetTitleLink dataset={dataset} />
+            <div className={cl.title}>
+              <DatasetTitleLink
+                dataset={dataset}
+                componentId={titleProp} />
               <div className={cl.actionsContainer}>
-                <SubscribeButton shortName={Short_Name} />
-                <DownloadButtonFilled shortName={Short_Name} />
+                <SubscribeButton
+                  shortName={Short_Name}
+                  componentId={subscribeProp}
+                />
+                <DownloadButtonFilled
+                  shortName={Short_Name}
+                  componentId={downloadProp}
+                />
               </div>
             </div>
             <div className={cl.contentBox}>

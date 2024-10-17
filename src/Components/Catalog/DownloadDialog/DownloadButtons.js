@@ -43,7 +43,7 @@ const useFilledStyles = makeStyles((theme) => ({
 }));
 
 export const DownloadButtonFilled = (props) => {
-  const { shortName, action } = props;
+  const { shortName, action, componentId = {} } = props;
   const cl = useFilledStyles();
   const dispatch = useDispatch ();
 
@@ -53,7 +53,7 @@ export const DownloadButtonFilled = (props) => {
           dispatch (downloadDialogOpen (shortName))
         }
   return (
-    <div style={{ display: 'inline-block'}}>
+    <div style={{ display: 'inline-block'}} {...componentId}>
       <GreenButtonFilled onClick={onClick}>
         <div className={cl.buttonTextSpacer}>
           <CloudDownloadIcon />{' '}
