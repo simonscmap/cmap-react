@@ -61,7 +61,7 @@ const NewsSection = ({ stories }) => {
     <div className={classes.newsFlowContainer}>
       <div className={classes.sectionTitleContainer} id="news_title_bar" >
         <NewsCategoryHeading title={"News"} />
-        <Subscribe />
+        <Subscribe intro={true}/>
       </div>
     <div
       id={'news-flow'}
@@ -88,8 +88,7 @@ const NewsStories = ({ stories }) => {
   return (
     <div className={classes.news}>
       <NewsSection stories={stories} />
-      <div className={classes.sectionFooter}>
-      </div>
+      <div className={classes.sectionFooter}></div>
     </div>
   );
 };

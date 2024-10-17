@@ -19,6 +19,7 @@ import {
   DOWNLOAD_DIALOG_CLEAR,
   SET_DOWNLOAD_DIALOG_DATA,
   SET_FETCH_DOWNLAD_DIALOG_DATA_REQUEST_STATE,
+  SET_SUBSCRIBE_INTRO_STATE,
 } from '../actionTypes/ui';
 
 const uiResetState = {
@@ -160,6 +161,11 @@ export default function (state, action) {
         }
       };
 
+    case SET_SUBSCRIBE_INTRO_STATE:
+      return {
+        ...state,
+        subscribeIntroActive: action.payload,
+      };
     default:
       return state;
   }

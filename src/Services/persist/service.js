@@ -1,8 +1,8 @@
 /* The persistence service allows for a value that is kept in redux
    to be automatically persisted to local storage.
 
-   The service definition below defines a init function that
-   returns a minimal api that allows consuming components to add,
+   The service definition below defines an init function that
+   returns a minimal api allowing consuming components to add,
    remove, and look-up entries, which are simply stored in an
    enclosed object.
 
