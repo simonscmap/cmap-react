@@ -15,10 +15,10 @@ import {
 } from '@material-ui/core';
 import { Skeleton } from '@material-ui/lab';
 
-import { datasetSummaryFetch } from '../../Redux/actions/visualization';
+import { datasetSummaryFetch } from '../../../Redux/actions/visualization';
 
-import colors from '../../enums/colors';
-import z from '../../enums/zIndex';
+import colors from '../../../enums/colors';
+import z from '../../../enums/zIndex';
 
 const styles = (theme) => ({
   dialogPaper: {

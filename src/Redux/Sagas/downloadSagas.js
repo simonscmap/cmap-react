@@ -6,12 +6,22 @@ import * as userActions from '../actions/user';
 import { call, put, takeLatest, race, delay } from 'redux-saga/effects';
 import states from '../../enums/asyncRequestStates';
 
-export function* checkDownloadSize (action) {
-  // set timeout of 1 minute
-  const { response, timeout} = yield race({
-    response: call (api.data.checkQuerySize, action.payload.query),
+
+export function* makeCheckQuerySizeRequest (query) {
+  const result = yield race({
+    response: call (api.data.checkQuerySize, query),
     timeout: delay (60 * 1000)
   });
+  return result;
+}
+
+export function* checkDownloadSize (action) {
+  // set timeout of 1 minute
+  // const { response, timeout} = yield race({
+  //   response: call (api.data.checkQuerySize, action.payload.query),
+  //   timeout: delay (60 * 1000)
+  // });
+  const { response, timeout } = yield makeCheckQuerySizeRequest (action.payload.query);
 
   if (timeout) {
     yield put(interfaceActions.snackbarOpen('Attempt to validate dowload size timed out.'));

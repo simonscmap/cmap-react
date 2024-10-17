@@ -1,4 +1,11 @@
-// Search overlay for viz page
+/* Variable Search Overlay
+
+   Allows user to select a variable from the catalog,
+   for rendering a Chart or Plot.
+
+   Consists in a search form with filters, and a list of matching results.
+
+  */
 
 import React from 'react';
 import { connect } from 'react-redux';
@@ -9,7 +16,6 @@ import {
   InputAdornment,
   Grid,
   Link,
-  Typography,
   FormControl,
   Select,
   FormHelperText,
@@ -17,25 +23,30 @@ import {
 } from '@material-ui/core';
 import { Autocomplete } from '@material-ui/lab';
 import { Search, Close } from '@material-ui/icons';
-import ProductList from './ProductList';
-import MultiCheckboxDropdown from '../UI/MultiCheckboxDropdown';
-import Hint from '../Navigation/Help/Hint';
-import SearchFiltersHint from './help/SearchFiltersHint';
-import AdditionalFiltersHint from './help/AdditionalFiltersHint';
-import ResetFiltersHint from './help/ResetFiltersHint';
-import SearchHint from './help/SearchHint';
+
+import VariableList from './VariableList';
+import styles from './selectorStyles';
+
+import MultiCheckboxDropdown from '../../UI/MultiCheckboxDropdown';
+import Hint from '../../Navigation/Help/Hint';
+
+import SearchFiltersHint from '../help/SearchFiltersHint';
+import AdditionalFiltersHint from '../help/AdditionalFiltersHint';
+import ResetFiltersHint from '../help/ResetFiltersHint';
+import SearchHint from '../help/SearchHint';
 
 import {
   vizSearchResultsFetch,
   vizSearchResultsSetLoadingState,
   variableNameAutocompleteFetch,
   vizSearchResultsStore,
-} from '../../Redux/actions/visualization';
-import { searchOptionsFetch } from '../../Redux/actions/catalog';
+} from '../../../Redux/actions/visualization';
+import { searchOptionsFetch } from '../../../Redux/actions/catalog';
 
-import colors from '../../enums/colors';
-import states from '../../enums/asyncRequestStates';
-import z from '../../enums/zIndex';
+import states from '../../../enums/asyncRequestStates';
+import colors from '../../../enums/colors';
+import z from '../../../enums/zIndex';
+
 
 const mapStateToProps = (state) => ({
   vizSearchResults: state.vizSearchResults,
@@ -53,85 +64,6 @@ const mapDispatchToProps = {
   vizSearchResultsStore,
   searchOptionsFetch,
 };
-
-const styles = (theme) => ({
-  inputRoot: {
-    border: `1px solid ${colors.primary}`,
-  },
-
-  autocompletePopperPaper: {
-    backgroundColor: 'black',
-    zIndex: z.CONTROL_SECONDARY,
-  },
-
-  autocompleteOptions: {
-    '&[data-focus="true"]': {
-      backgroundColor: colors.greenHover,
-    },
-    textAlign: 'left',
-  },
-
-  resetButton: {
-    textTransform: 'none',
-    width: '160px',
-    height: '37px',
-    color: theme.palette.primary.main,
-    borderColor: theme.palette.primary.main,
-    marginTop: '12px',
-  },
-
-  searchPanelRow: {
-    marginTop: '10px',
-  },
-
-  formControl: {
-    width: '90%',
-    marginBottom: '6px',
-  },
-
-  autoComplete: {
-    width: 'calc(100% - 48px)',
-  },
-
-  showAdvancedWrapper: {
-    textAlign: 'left',
-    marginTop: '16px',
-    width: '100%',
-  },
-
-  regionSelectorInput: {
-    fontSize: '13px',
-  },
-
-  addBorder: {
-    border: `1px solid ${colors.primary}`,
-  },
-
-  shiftedAutocompletePopper: {
-    height: '400px',
-    width: '500px',
-    position: 'absolute',
-    bottom: '190px',
-  },
-
-  shiftedAutocompletePaper: {
-    minHeight: '400px',
-  },
-
-  shiftedAutocompleteListbox: {
-    maxHeight: 0,
-    minHeight: '400px',
-    overflowX: 'hidden',
-  },
-
-  closeIcon: {
-    float: 'right',
-    cursor: 'pointer',
-    color: colors.primary,
-    textTransform: 'none',
-    fontSize: '15px',
-  },
-});
 
 const defaultState = {
   hasDepth: 'any',
@@ -174,7 +106,7 @@ class DataSearch extends React.Component {
   };
 
   handleChangeAutocomplete = (statePiece) => {
-    return (e, v) => {
+    return (_, v) => {
       let newState = { ...this.state, [statePiece]: v };
       this.updateStateAndSearch(newState);
     };
@@ -270,7 +202,7 @@ class DataSearch extends React.Component {
             style={{
               overflowY: 'visible',
               padding: '16px',
-              backgroundColor: 'rgba(0,0,0,.4)',
+              // backgroundColor: 'rgba(0,0,0,.4)',
               display: memberVariablesDataset ? 'none' : '',
               minWidth: '457px',
             }}
@@ -295,7 +227,7 @@ class DataSearch extends React.Component {
                   startAdornment: (
                     <React.Fragment>
                       <InputAdornment position="start">
-                        <Search style={{ color: colors.primary }} />
+                        <Search />
                       </InputAdornment>
                     </React.Fragment>
                   ),
@@ -634,7 +566,7 @@ class DataSearch extends React.Component {
           </Grid>
 
           <Grid item xs={8} style={{ paddingLeft: '3em' }}>
-            <ProductList
+            <VariableList
               options={vizSearchResults}
               handleSelectDataTarget={handleSelectDataTarget}
               handleShowMemberVariables={this.handleShowMemberVariables}

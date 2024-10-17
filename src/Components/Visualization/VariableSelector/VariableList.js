@@ -32,6 +32,7 @@ const ProductList = (props) => {
   const shouldShowModelResults = selectedMakes.has('Model') || noMakesSelected;
 
   // are we showing both Observation and Model results, or just one?
+  // TODO: this could probably just be a flex box instead of manually set group heights
   const isDoubleMakeLayout =
     noMakesSelected ||
     (selectedMakes.has('Observation') && selectedMakes.has('Model'));

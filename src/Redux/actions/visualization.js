@@ -1,11 +1,34 @@
 import * as visualizationActionTypes from '../actionTypes/visualization';
 
-export const queryRequestSend = (query) => ({
+const trace = (action) => {
+  return (...args) => {
+    const result = action.apply(args);
+
+    console.log (`<trace::redux> ${result.type}`);
+    if (args.length > 1) {
+      console.log (args);
+    }
+    const argType = typeof args[0];
+    switch (argType) {
+    case 'number':
+    case 'string':
+      console.log (args[0]);
+      break;
+    case 'object':
+      console.table (args[0]);
+    }
+
+    return result;
+  }
+}
+
+
+export const queryRequestSend = trace((query) => ({
   type: visualizationActionTypes.QUERY_REQUEST_SEND,
   payload: {
     query,
   },
-});
+}));
 
 export const queryRequestSuccess = (data) => ({
   type: visualizationActionTypes.QUERY_REQUEST_SUCCESS,
@@ -46,13 +69,6 @@ export const storeSampleData = (sampleData) => ({
   type: visualizationActionTypes.STORE_SAMPLE_DATA,
   payload: {
     sampleData,
-  },
-});
-
-export const addMap = (mapInfo) => ({
-  type: visualizationActionTypes.ADD_MAP,
-  payload: {
-    mapInfo,
   },
 });
 
@@ -236,12 +252,12 @@ export const vizSearchResultsSetLoadingState = (state) => ({
   },
 });
 
-export const memberVariablesFetch = (datasetID) => ({
+export const memberVariablesFetch = trace((datasetID) => ({
   type: visualizationActionTypes.MEMBER_VARIABLES_FETCH,
   payload: {
     datasetID,
   },
-});
+}));
 
 export const memberVariablesStore = (variables) => ({
   type: visualizationActionTypes.MEMBER_VARIABLES_STORE,
@@ -257,19 +273,19 @@ export const memberVariablesSetLoadingState = (state) => ({
   },
 });
 
-export const relatedDataFetch = (params) => ({
+export const relatedDataFetch = trace((params) => ({
   type: visualizationActionTypes.RELATED_DATA_FETCH,
   payload: {
     params,
   },
-});
+}));
 
-export const relatedDataStore = (data) => ({
+export const relatedDataStore = trace((data) => ({
   type: visualizationActionTypes.RELATED_DATA_STORE,
   payload: {
     data,
   },
-});
+}));
 
 export const relatedDataSetLoadingState = (state) => ({
   type: visualizationActionTypes.RELATED_DATA_SET_LOADING_STATE,
@@ -391,12 +407,12 @@ export const handleGuestVisualization = () => ({
   type: visualizationActionTypes.HANDLE_GUEST_VISUALIZATION,
 });
 
-export const guestPlotLimitNotificationSetIsVisible = (isVisible) => ({
+export const guestPlotLimitNotificationSetIsVisible = trace((isVisible) => ({
   type: visualizationActionTypes.GUEST_PLOT_LIMIT_NOTIFICATION_SET_IS_VISIBLE,
   payload: {
     isVisible,
   },
-});
+}));
 
 export const fetchTrajectoryPointCounts = () => ({
   type: visualizationActionTypes.TRAJECTORY_POINT_COUNT_FETCH,
@@ -408,4 +424,32 @@ export const storeTrajectoryPointCounts = (data) => ({
 });
 export const trajectoryPointCountsFailure = () => ({
   type: visualizationActionTypes.TRAJECTORY_POINT_COUNT_FAILURE,
+});
+
+
+export const setParamLock = (trueFalse) => ({
+  type: visualizationActionTypes.SET_PARAM_LOCK,
+  payload: trueFalse,
+});
+
+export const setLockAlertsOpen = (trueFalse) => ({
+  type: visualizationActionTypes.SET_LOCK_ALERTS_OPEN,
+  payload: trueFalse,
+});
+
+
+export const checkVizQuerySize = (payload) => ({
+  type: visualizationActionTypes.CHECK_VIZ_QUERY_SIZE,
+  payload,
+});
+
+export const setCheckVizQuerySizeStatus = (payload) => ({
+  type: visualizationActionTypes.SET_CHECK_VIZ_QUERY_SIZE_STATUS,
+  payload,
+});
+
+
+export const checkVizQuerySizeStore = (payload) => ({
+  type: visualizationActionTypes.CHECK_VIZ_QUERY_SIZE_STORE,
+  payload,
 });

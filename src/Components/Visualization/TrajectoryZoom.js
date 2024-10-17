@@ -35,7 +35,6 @@ const TrajectoryZoom = (props) => {
     const center = focusedTrajectory.center;
     const zoom = 6.5 - Math.floor(focusedTrajectory.maxDistance / 6);
     if (props.view && props.view.goTo) {
-      console.log ('view', props.view)
       props.view.goTo(
         {
           target: center,

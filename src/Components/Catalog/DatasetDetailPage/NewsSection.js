@@ -89,7 +89,7 @@ const NewsSection = (props) => {
 
   return (
     <div className={cl.container}>
-      <SectionHeader title={'News'} />
+      <SectionHeader title={'Related Announcements'} />
       <div className={cl.newsContainer}>
         <div className={cl.newsScrollContainer}>
           {news

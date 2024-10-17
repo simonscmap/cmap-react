@@ -1,3 +1,6 @@
+/* Main Visualization Component
+   Contains Chart, Trajectories, Control Panel
+ */
 import { ThemeProvider, withStyles } from '@material-ui/core';
 import { loadModules } from 'esri-loader';
 import React, { Component } from 'react';
@@ -5,7 +8,6 @@ import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 import colors from '../../enums/colors';
 import metaTags from '../../enums/metaTags';
-import temporalResolutions from '../../enums/temporalResolutions';
 import { showLoginDialog, snackbarOpen } from '../../Redux/actions/ui';
 import {
   completedShowCharts,
@@ -15,11 +17,8 @@ import {
   queryRequestSend,
   storedProcedureRequestSend,
 } from '../../Redux/actions/visualization';
-import depthUtils from '../../Utility/depthCounter';
-import localDateToString from '../../Utility/localDateToString';
 import stars from '../../Utility/starsBase64';
-import utcDateStringToLocal from '../../Utility/utcDateStringToLocal';
-import { cleanSPParams, mapVizType } from './helpers';
+// import { pick } from '../../Utility/objectUtils';
 import Intro from '../Navigation/Help/Intro';
 import Charts from './Charts/Charts';
 import CruiseSelector from './CruiseSelector';
@@ -40,7 +39,6 @@ const mapStateToProps = (state) => ({
   user: state.user,
   sampleData: state.sampleData,
   queryRequestState: state.queryRequestState,
-  maps: state.maps,
   charts: state.charts,
   data: state.data,
   loadingMessage: state.loadingMessage,
@@ -177,155 +175,20 @@ class Visualization extends Component {
     document.description = metaTags.default.description;
   };
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps /*, prevState */) {
     if (this.props.showChartsOnce) {
+      console.log(`<trace::Visualization> componentDidUpdate w/ showChartsOnce`)
       this.props.completedShowCharts();
       this.setState({ ...this.state, showCharts: true });
     }
   }
 
-  handleChange = (event) => {
-    this.setState({
-      ...this.state,
-      spParams: {
-        ...this.state.spParams,
-        [event.target.name]: event.target.value,
-      },
-    });
-  };
-
-  handleLatLonChange = (event) => {
-    this.setState({
-      ...this.state,
-      spParams: {
-        ...this.state.spParams,
-        [event.target.name]: event.target.value,
-      },
-    });
-  };
-
-  handleStartDateChange = (date) => {
-    if (date) {
-      let newDate = new Date();
-      newDate.setFullYear(date.getFullYear(), date.getMonth(), date.getDate());
-      this.setState({
-        ...this.state,
-        spParams: { ...this.state.spParams, dt1: newDate },
-      });
-    }
-  };
-
-  handleEndDateChange = (date) => {
-    if (date) {
-      let newDate = new Date();
-      newDate.setFullYear(date.getFullYear(), date.getMonth(), date.getDate());
-      this.setState({
-        ...this.state,
-        spParams: { ...this.state.spParams, dt2: newDate },
-      });
-    }
-  };
-
-  handlePlotsSetActiveTab = (event, newValue) => {
+  handlePlotsSetActiveTab = (_, newValue) => {
+    // redux dispatch
     this.props.plotsActiveTabSet(newValue);
   };
 
-  updateFields = (fields) => {
-    if (fields) {
-      let surfaceOnly = !fields.data.Depth_Max;
-      let irregularSpatialResolution =
-        fields.data.Spatial_Resolution === 'Irregular';
-
-      let sparseMaxDate = utcDateStringToLocal(fields.data.Time_Max);
-      sparseMaxDate.setDate(sparseMaxDate.getDate() + 1);
-
-      let dt1 =
-        fields.data.Temporal_Resolution ===
-        temporalResolutions.monthlyClimatology
-          ? this.state.spParams.dt1
-          : utcDateStringToLocal(fields.data.Time_Min);
-      let dt2 =
-        fields.data.Temporal_Resolution ===
-        temporalResolutions.monthlyClimatology
-          ? this.state.spParams.dt2
-          : irregularSpatialResolution
-          ? sparseMaxDate
-          : utcDateStringToLocal(fields.data.Time_Min);
-
-      let latMin = Math.floor(fields.data.Lat_Min * 1000) / 1000;
-      let latMax = Math.ceil(fields.data.Lat_Max * 1000) / 1000;
-      let lonMin = Math.floor(fields.data.Lon_Min * 1000) / 1000;
-      let lonMax = Math.ceil(fields.data.Lon_Max * 1000) / 1000;
-
-      let lat1 = irregularSpatialResolution ? latMin : this.state.spParams.lat1;
-      let lat2 = irregularSpatialResolution ? latMax : this.state.spParams.lat2;
-      let lon1 = irregularSpatialResolution ? lonMin : this.state.spParams.lon1;
-      let lon2 = irregularSpatialResolution ? lonMax : this.state.spParams.lon2;
-      let depth1 = irregularSpatialResolution
-        ? fields.data.Depth_Min || 0
-        : depthUtils.piscesTable.has(fields.data.Table_Name)
-        ? 0
-        : depthUtils.darwinTable.has(fields.data.Table_Name)
-        ? 0
-        : this.state.spParams.depth1;
-
-      let depth2 = irregularSpatialResolution
-        ? fields.data.Depth_Max || 0
-        : depthUtils.piscesTable.has(fields.data.Table_Name)
-        ? (
-            (depthUtils.piscesDepths[0] + depthUtils.piscesDepths[1]) /
-            2
-          ).toFixed(2)
-        : depthUtils.darwinTable.has(fields.data.Table_Name)
-        ? (depthUtils.darwinDepths[0] + depthUtils.darwinDepths[1]) / 2
-        : this.state.spParams.depth2;
-
-      if (irregularSpatialResolution) {
-        this.globeUIRef.current.props.view.goTo(
-          {
-            target: [
-              (parseFloat(lon1) + parseFloat(lon2)) / 2,
-              (parseFloat(lat1) + parseFloat(lat2)) / 2,
-            ],
-            zoom: 3,
-          },
-          {
-            maxDuration: 2500,
-            speedFactor: 0.5,
-          },
-        );
-      }
-
-      let tableName = fields.data.Table_Name;
-
-      this.setState({
-        ...this.state,
-        surfaceOnly,
-        irregularSpatialResolution,
-        spParams: {
-          ...this.state.spParams,
-          fields,
-          dt1,
-          dt2,
-          lat1,
-          lat2,
-          lon1,
-          lon2,
-          depth1,
-          depth2,
-          tableName,
-          selectedVizType: '',
-        },
-      });
-    } else {
-      this.setState({
-        ...this.state,
-        spParams: { ...this.state.spParams, fields, tableName: '' },
-      });
-    }
-  };
-
-  handleShowCharts = () => {
+   handleShowCharts = () => {
     this.setState({ ...this.state, showCharts: true });
   };
 
@@ -394,7 +257,6 @@ class Visualization extends Component {
                   this.updateDomainFromGraphicExtent
                 }
                 esriModules={this.state.esriModules}
-                spParams={this.state.spParams}
                 showCruiseControl={this.state.showCruiseControl}
                 chartControlPanelRef={this.chartControlPanelRef}
                 ref={this.mapContainerRef} // this ref is used by the VizControlPanel
@@ -411,12 +273,7 @@ class Visualization extends Component {
                   {...props}
                   toggleChartView={this.toggleChartView}
                   toggleShowUI={this.toggleShowUI} // TODO move this into child
-                  handleChange={this.handleChange}
-                  handleLatLonChange={this.handleLatLonChange}
-                  handleStartDateChange={this.handleStartDateChange}
-                  handleEndDateChange={this.handleEndDateChange}
                   showUI={this.state.showUI} // TODO no reason for this to be drilled
-                  updateFields={this.updateFields}
                   {...this.state.spParams}
                   surfaceOnly={this.state.surfaceOnly}
                   irregularSpatialResolution={
@@ -424,7 +281,7 @@ class Visualization extends Component {
                   }
                   showCharts={this.state.showCharts}
                   handleShowCharts={this.handleShowCharts}
-                  handleShowGlobe={this.handleShowGlobe}
+                  // handleShowGlobe={this.handleShowGlobe}
                   resetSPParams={this.resetSPParams}
                   handleShowCruiseControl={this.handleShowCruiseControl}
                   showCruiseControl={this.state.showCruiseControl}

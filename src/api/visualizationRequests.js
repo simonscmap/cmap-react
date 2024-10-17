@@ -90,6 +90,25 @@ visualizationAPI.storedProcedureRequest = async (payload) => {
   return vizData;
 };
 
+// with sp params, ask for a sql string back from api
+visualizationAPI.storedProcedureSQLify = async (payload) => {
+  const params = payload.parameters;
+  params.sqlify = true;
+
+  const response = await fetch(
+    apiUrl +
+      '/api/data/sp?' +
+      storedProcedureParametersToUri(payload.parameters),
+    fetchOptions,
+  );
+
+  if (!response.ok) {
+    return { failed: true, status: response.status };
+  } else {
+    return await response.json();
+  }
+}
+
 visualizationAPI.sparseDataQuerysend = async (payload) => {
   const { parameters } = payload;
 
@@ -386,4 +405,34 @@ visualizationAPI.datasetSummaryFetch = async (id) => {
   );
 };
 
-export default visualizationAPI;
+const safeAPI = Object.entries(visualizationAPI)
+  .map(([name, fn]) => {
+    return {
+      [name]: async (...args) => {
+        let result;
+        console.log (`<trace::vizApi> ${name}`)
+        try {
+          result = await fn.apply(null, args);
+        } catch (e) {
+          if (e) {
+            result = e;
+          } else {
+            result = new Error(
+              'unknown error, the request may not have been sent',
+            );
+          }
+        }
+        return await result;
+      },
+    };
+  })
+  .reduce((accumulator, current) => {
+    return {
+      ...accumulator,
+      ...current,
+    };
+  }, {});
+
+
+
+export default safeAPI;
