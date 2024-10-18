@@ -167,8 +167,6 @@ const Controls = (props) => {
           </WhiteButtonSM>
           {openRanksEditor && (
             <WhiteButtonSM
-              disabled={ranks.length === 0}
-
               className={openRanksEditor ? active : ''}
               onClick={saveRanks}
             >

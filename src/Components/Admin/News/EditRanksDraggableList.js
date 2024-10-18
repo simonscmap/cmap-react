@@ -51,8 +51,12 @@ const EditRankDraggableList = () => {
   }, [openRanksEditor]); // only run when editor is first opened
 
   // remove a story from the list
-  let deRank = (id) => {
-    let newList = rankList.filter(({ ID }) => ID !== id);
+  let deRank = (removeId) => {
+    if (removeId === undefined) {
+      console.log ('invalid arg to deRank: expected integer, got undefined');
+      return;
+    }
+    let newList = rankList.filter(({ id }) => id !== removeId);
     callSetRankList(newList, 'deRank');
 
     let payload = prepareRanksPayload(newList);
@@ -60,7 +64,7 @@ const EditRankDraggableList = () => {
 
     setDragState({
       ...dragState,
-      originalOrder: dragState.originalOrder.filter(({ ID }) => ID !== id),
+      originalOrder: dragState.originalOrder.filter(({ id }) => id !== removeId),
     });
 
   };
