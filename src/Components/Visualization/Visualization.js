@@ -16,10 +16,9 @@ import {
   storedProcedureRequestSend,
 } from '../../Redux/actions/visualization';
 import depthUtils from '../../Utility/depthCounter';
-import localDateToString from '../../Utility/localDateToString';
 import stars from '../../Utility/starsBase64';
 import utcDateStringToLocal from '../../Utility/utcDateStringToLocal';
-import { cleanSPParams, mapVizType } from './helpers';
+import { pick } from '../../Utility/objectUtils';
 import Intro from '../Navigation/Help/Intro';
 import Charts from './Charts/Charts';
 import CruiseSelector from './CruiseSelector';
@@ -177,24 +176,17 @@ class Visualization extends Component {
     document.description = metaTags.default.description;
   };
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(/* prevProps */) {
     if (this.props.showChartsOnce) {
+      console.log(`<trace::Visualization> componentDidUpdate w/ showChartsOnce`)
       this.props.completedShowCharts();
       this.setState({ ...this.state, showCharts: true });
     }
   }
 
-  handleChange = (event) => {
-    this.setState({
-      ...this.state,
-      spParams: {
-        ...this.state.spParams,
-        [event.target.name]: event.target.value,
-      },
-    });
-  };
-
   handleLatLonChange = (event) => {
+    console.log(`<trace::Visualization> handleLonChange`)
+    console.table(pick (['name','value']) (event.target));
     this.setState({
       ...this.state,
       spParams: {
@@ -394,7 +386,6 @@ class Visualization extends Component {
                   this.updateDomainFromGraphicExtent
                 }
                 esriModules={this.state.esriModules}
-                spParams={this.state.spParams}
                 showCruiseControl={this.state.showCruiseControl}
                 chartControlPanelRef={this.chartControlPanelRef}
                 ref={this.mapContainerRef} // this ref is used by the VizControlPanel
@@ -411,12 +402,10 @@ class Visualization extends Component {
                   {...props}
                   toggleChartView={this.toggleChartView}
                   toggleShowUI={this.toggleShowUI} // TODO move this into child
-                  handleChange={this.handleChange}
                   handleLatLonChange={this.handleLatLonChange}
                   handleStartDateChange={this.handleStartDateChange}
                   handleEndDateChange={this.handleEndDateChange}
                   showUI={this.state.showUI} // TODO no reason for this to be drilled
-                  updateFields={this.updateFields}
                   {...this.state.spParams}
                   surfaceOnly={this.state.surfaceOnly}
                   irregularSpatialResolution={

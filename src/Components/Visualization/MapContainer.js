@@ -92,8 +92,6 @@ class MapContainer extends Component {
   render = () => {
     const { classes, esriModules, globeUIRef, view } = this.props;
 
-    console.log ('view', view);
-
     return (
       <div className={classes.container} id="found-you">
         <Scene
@@ -135,13 +133,9 @@ class MapContainer extends Component {
           globeUIRef={globeUIRef}
         />
 
-
       </div>
     );
   };
 }
 
-/*
- */
-//
 export default withStyles(styles)(MapContainer);

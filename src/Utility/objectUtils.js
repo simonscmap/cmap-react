@@ -46,3 +46,16 @@ export const safePathOr = (defaultValue) => (pred) => (path) => (obj) => {
     return defaultValue;
   }
 }
+
+export const pick = (arg) => (obj) => {
+  if (!Array.isArray (arg)) {
+    return obj;
+  }
+
+  let result = {};
+  arg.forEach ((key) => {
+    let path = Array.isArray (key) ? key : [key];
+    result[path.join('.')] = safePath (path) (obj);
+  })
+  return result;
+}
