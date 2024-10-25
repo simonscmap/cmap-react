@@ -31,8 +31,6 @@ class SpaceTimeData {
     this.parameters = payload.parameters;
     this.metadata = payload.metadata;
 
-    console.log (payload.metadata);
-
     this.hasDepth = null;
     this.isWind_NRT = false;
     this.isMonthly = null;

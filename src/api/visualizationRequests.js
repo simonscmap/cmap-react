@@ -386,4 +386,34 @@ visualizationAPI.datasetSummaryFetch = async (id) => {
   );
 };
 
-export default visualizationAPI;
+const safeAPI = Object.entries(visualizationAPI)
+  .map(([name, fn]) => {
+    return {
+      [name]: async (...args) => {
+        let result;
+        console.log (`<trace::vizApi> ${name}`)
+        try {
+          result = await fn.apply(null, args);
+        } catch (e) {
+          if (e) {
+            result = e;
+          } else {
+            result = new Error(
+              'unknown error, the request may not have been sent',
+            );
+          }
+        }
+        return await result;
+      },
+    };
+  })
+  .reduce((accumulator, current) => {
+    return {
+      ...accumulator,
+      ...current,
+    };
+  }, {});
+
+
+
+export default safeAPI;

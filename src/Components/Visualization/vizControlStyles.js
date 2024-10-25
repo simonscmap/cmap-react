@@ -4,7 +4,7 @@ import z from '../../enums/zIndex';
 
 const drawerWidth = 280;
 
-const styles = () => ({
+const styles = (theme) => ({
  pageTitleWrapper: {
     position: 'absolute',
     top: '105px',
@@ -25,6 +25,8 @@ const styles = () => ({
     border: 'none',
     overflow: 'visible',
     backgroundColor: colors.backgroundGray,
+    // background: 'rgba(20,20,20,0.2)',
+    // backdropFilter: 'blur(2px)',
   },
 
   openPanelChevron: {
@@ -54,11 +56,30 @@ const styles = () => ({
     overflowY: 'scroll',
   },
 
+  alert: {
+    position: 'absolute',
+    top: 0,
+    left: '287px',
+    width: '340px',
+    zIndex: z.CONTROL_PRIMARY,
+    fontSize: '14px',
+    background: colors.backgroundGray,
+    //background: 'rgba(20,20,20,0.2)',
+    // backdropFilter: 'blur(2px)',
+
+    '& > div': {
+      // border: `1px solid ${theme.palette.primary.main}`,
+      // borderRadius: '6px',
+      color: 'white',
+      textAlign: 'left',
+    }
+  },
+
   formGridItem: {
     border: '1px solid #313131',
     borderBottom: 'none',
     borderTop: 'none',
-    backgroundColor: colors.backgroundGray,
+    // backgroundColor: colors.backgroundGray,
   },
 
   padLeft: {
@@ -119,10 +140,12 @@ const styles = () => ({
 
   popoutButtonPaper: {
     position: 'absolute',
+    top: '121px',
     display: 'flex',
+    flexDirection: 'column',
     borderRadius: '2px',
     boxShadow: '2px 2px  2px 2px #242424',
-    backgroundColor: colors.backgroundGray,
+    // backgroundColor: colors.backgroundGray,
   },
 
   popoutButtonIcon: {

@@ -1,12 +1,12 @@
 import states from '../../enums/asyncRequestStates';
 import { helpActionTypes } from '../actions/help.js';
 import { VISUALIZATION_PAGE } from '../../constants';
+import temporalResolutions from '../../enums/temporalResolutions';
 import {
   QUERY_REQUEST_PROCESSING,
   QUERY_REQUEST_FAILURE,
   QUERY_REQUEST_SUCCESS,
   STORE_SAMPLE_DATA,
-  ADD_MAP,
   ADD_CHART,
   CLEAR_CHARTS,
   CLEAR_MAPS,
@@ -40,8 +40,29 @@ import {
   VIZ_CONTROL_PANEL_VISIBILITY,
   DATA_SEARCH_VISIBILITY,
   TRAJECTORY_POINT_COUNT_SUCCESS,
-
+  SET_PARAM_LOCK,
 } from '../actionTypes/visualization';
+
+const monthlyClimatology = temporalResolutions.monthlyClimatology;
+
+
+const calculateTargetMismatch = (state, action) => {
+  const { type: actionType, payload } = action;
+  const { viz: { chart: { controls: { paramLock, targetMismatch } } } } = state;
+  if (actionType !== VIZ_PAGE_DATA_TARGET_SET) {
+    return targetMismatch; // return prev state;
+  } else if (paramLock) {
+    console.log(action.payload);
+    const prevTargetTemporalResolutionIsMC = state.vizPageDataTarget
+          && state.vizPageDataTarget.Temporal_Resolution === monthlyClimatology;
+    const currTargetTemporalResolutionIsMC = payload && payload.target && payload.target.Temporal_Resolution === monthlyClimatology;
+    if (prevTargetTemporalResolutionIsMC && !currTargetTemporalResolutionIsMC) {
+      return true;
+    }
+  }
+  return targetMismatch;
+
+}
 
 export default function (state, action) {
   switch (action.type) {
@@ -64,11 +85,6 @@ export default function (state, action) {
       return {
         ...state,
         sampleData: action.payload.sampleData,
-      };
-    case ADD_MAP:
-      return {
-        ...state,
-        maps: [...state.maps, action.payload.mapInfo],
       };
     case ADD_CHART:
       return {
@@ -170,7 +186,18 @@ export default function (state, action) {
         ...state,
         vizPageDataTarget: action.payload.target,
         vizPageDataTargetDetails: null,
+        viz: {
+          ...state.viz,
+          chart: {
+            ...state.viz.chart,
+            controls: {
+              ...state.viz.chart.controls,
+              targetMismatch: calculateTargetMismatch (state, action),
+            }
+          }
+        },
       };
+
     case VIZ_PAGE_DATA_TARGET_DETAILS_STORE:
       return {
         ...state,
@@ -278,7 +305,21 @@ export default function (state, action) {
         return state;
       }
 
-
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  case SET_PARAM_LOCK:
+    return {
+      ...state,
+      viz: {
+        ...state.viz,
+        chart: {
+          ...state.viz.chart,
+          controls: {
+            ...state.viz.chart.controls,
+            paramLock: action.payload,
+          }
+        }
+      },
+    }
     default:
       return state;
   }

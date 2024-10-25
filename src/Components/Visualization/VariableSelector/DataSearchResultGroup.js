@@ -3,11 +3,11 @@ import { connect } from 'react-redux';
 import { withStyles, Grid, Tooltip, Typography } from '@material-ui/core';
 import { Info, ExpandMore, ChevronRight, Star } from '@material-ui/icons';
 import { VariableSizeList } from 'react-window';
-import Hint from '../Navigation/Help/Hint';
-import ObservationDataGroupHint from './help/ObservationDataGroupHint';
-import ModelDataGroupHint from './help/ModelDataGroupHint';
-import colors from '../../enums/colors';
-import states from '../../enums/asyncRequestStates';
+import Hint from '../../Navigation/Help/Hint';
+import ObservationDataGroupHint from '../help/ObservationDataGroupHint';
+import ModelDataGroupHint from '../help/ModelDataGroupHint';
+import colors from '../../../enums/colors';
+import states from '../../../enums/asyncRequestStates';
 
 const makeGroupStyles = {
   searchOption: {
@@ -205,9 +205,8 @@ const Header = ({
                 <span>{nonvisualizableString}</span>
               </Tooltip>
             </div>
-          ) : (
-            `${make} Data - No variables found for current search parameters`
-          )}
+          ) : (`${make} Data - No variables found for current search parameters`)
+         }
         </Typography>
       </Grid>
 
