@@ -157,7 +157,10 @@ const initialState = {
     chart: {
       controls: {
         paramLock: false, // lock the spatial-temporal constraints
-        targetMismatch: false, // e.g locked monthly dates with currnt non-monthly target
+        dateTypeMismatch: false, // e.g locked monthly dates with currnt non-monthly target
+        variableResolutionMismatch: false,
+        lockAlertsOpen: false,
+        resolutionMismatch: false,
         // controlPanelVisible: true,
         // searchOpen: false,
       },

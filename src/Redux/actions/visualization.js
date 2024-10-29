@@ -431,3 +431,8 @@ export const setParamLock = (trueFalse) => ({
   type: visualizationActionTypes.SET_PARAM_LOCK,
   payload: trueFalse,
 });
+
+export const setLockAlertsOpen = (trueFalse) => ({
+  type: visualizationActionTypes.SET_LOCK_ALERTS_OPEN,
+  payload: trueFalse,
+});

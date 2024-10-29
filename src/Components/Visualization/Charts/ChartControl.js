@@ -18,26 +18,41 @@ import CreateVisualizationHint from '../help/CreateVisualizationHint';
 
 const styles = (theme) => ({
   vizTypeSelectFormControl: {
+    marginTop: '10px',
     width: '100%',
     '&:disabled': {
-      backgroundColor: 'transparent',
+      // backgroundColor: 'transparent',
+      color: theme.palette.primary.light,
+
     },
+    '& svg': {
+      color: theme.palette.primary.light,
+      '&.Mui-disabled': {
+        color: theme.palette.primary.light,
+      }
+    }
   },
   vizTypeMenu: {
-    backgroundColor: colors.backgroundGray,
+    // backgroundColor: colors.backgroundGray,
+    background: 'rgba(0,0,0,0.75)',
+    backdropFilter: 'blur(3px)',
   },
   vizTypeMenuItem: {
     '&:hover': { backgroundColor: colors.greenHover },
   },
   visualizeButton: {
+    marginTop: '10px',
     textTransform: 'none',
     height: '56px',
     width: '100%',
-    borderRadius: 0,
-    backgroundColor: colors.backgroundGray,
-    color: theme.palette.primary.main,
+    borderRadius: '5px',
+    // backgroundColor: colors.backgroundGray,
+    background: theme.palette.primary.main,
+    // color: theme.palette.primary.main,
+    color: 'black',
     fontVariant: 'normal',
     '&:disabled': {
+      color: '#333',
       backgroundColor: 'transparent',
     },
     '&:hover': {
@@ -79,13 +94,12 @@ const ChartControl = (props) => {
             size={'medium'}
           >
             <FormControl
-              variant="filled"
+              variant="outlined"
               className={classes.vizTypeSelectFormControl}
             >
               <InputLabel
                 shrink
                 htmlFor="vizSelector"
-                style={disabled ? { color: 'rgba(0,0,0,.38)' } : {}}
               >
                 Select Chart Type
               </InputLabel>

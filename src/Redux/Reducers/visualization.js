@@ -2,6 +2,7 @@ import states from '../../enums/asyncRequestStates';
 import { helpActionTypes } from '../actions/help.js';
 import { VISUALIZATION_PAGE } from '../../constants';
 import temporalResolutions from '../../enums/temporalResolutions';
+import { safePath } from '../../Utility/objectUtils';
 import {
   QUERY_REQUEST_PROCESSING,
   QUERY_REQUEST_FAILURE,
@@ -41,28 +42,75 @@ import {
   DATA_SEARCH_VISIBILITY,
   TRAJECTORY_POINT_COUNT_SUCCESS,
   SET_PARAM_LOCK,
+  SET_LOCK_ALERTS_OPEN,
 } from '../actionTypes/visualization';
 
 const monthlyClimatology = temporalResolutions.monthlyClimatology;
 
 
-const calculateTargetMismatch = (state, action) => {
+const paramLockFromState = safePath (['viz', 'chart', 'controls', 'paramLock']);
+
+// for variable selection in the charts page,
+// determine whether there is a date type  mismatch between previous variable and
+// the variable that is set by this action
+const dateTypeMismatchFromState = safePath(['viz', 'chart', 'controls','dateTypeMismatch']);
+const calculateDateTypeMismatch = (state, action) => {
   const { type: actionType, payload } = action;
-  const { viz: { chart: { controls: { paramLock, targetMismatch } } } } = state;
-  if (actionType !== VIZ_PAGE_DATA_TARGET_SET) {
-    return targetMismatch; // return prev state;
-  } else if (paramLock) {
-    console.log(action.payload);
+  const dateTypeMismatch = dateTypeMismatchFromState (state);
+  const paramLock = paramLockFromState (state);
+  if (actionType !== VIZ_PAGE_DATA_TARGET_SET || !paramLock) {
+    return dateTypeMismatch; // return prev state;
+  } else {
     const prevTargetTemporalResolutionIsMC = state.vizPageDataTarget
           && state.vizPageDataTarget.Temporal_Resolution === monthlyClimatology;
     const currTargetTemporalResolutionIsMC = payload && payload.target && payload.target.Temporal_Resolution === monthlyClimatology;
     if (prevTargetTemporalResolutionIsMC && !currTargetTemporalResolutionIsMC) {
       return true;
+    } else {
+      return false;
     }
   }
-  return targetMismatch;
-
 }
+
+// for variable selection in the charts page,
+// determine whether there is a target mismatch between previous variable and
+// the variable that is set by this action
+const variableResolutionMismatchFromState = safePath(['viz', 'chart', 'controls','variableResolutionMismatch']);
+const calculateVariableResolutionMismatch = (state, action) => {
+  const { type: actionType } = action;
+  const variableResolutionMismatch = variableResolutionMismatchFromState (state);
+  const paramLock = paramLockFromState (state);
+  if (actionType !== VIZ_PAGE_DATA_TARGET_SET || !paramLock) {
+    return variableResolutionMismatch; // return prev state;
+  } else {
+    // check
+    const prevDatasetShortName = safePath (['vizPageDataTargetDetails', 'Short_Name']) (state);
+    const newTargetShortName = safePath (['payload', 'target', 'Dataset_Short_Name']) (action);
+    if (prevDatasetShortName && prevDatasetShortName !== newTargetShortName) {
+      return true;
+    }
+    return false;
+  }
+}
+
+const lockAlertsOpen_path = ['viz', 'chart', 'controls','lockAlertsOpen'];
+const shouldOpenLockAlerts = (state, action) => {
+  const isOpen = safePath (lockAlertsOpen_path) (state);
+  if (!isOpen) {
+    // don't calculate this (again) if you don't have to
+    const dateMsmtch = calculateDateTypeMismatch (state, action);
+    const varResMsmtch = calculateVariableResolutionMismatch (state, action);
+    if (dateMsmtch || varResMsmtch) {
+      return true; // open alerts
+    } else {
+      return false; // keep alerts closed;
+    }
+  } else {
+    return isOpen; // don't change open state
+  }
+}
+
+
 
 export default function (state, action) {
   switch (action.type) {
@@ -192,7 +240,9 @@ export default function (state, action) {
             ...state.viz.chart,
             controls: {
               ...state.viz.chart.controls,
-              targetMismatch: calculateTargetMismatch (state, action),
+              dateTypeMismatch: calculateDateTypeMismatch (state, action),
+              variableResolutionMismatch: calculateVariableResolutionMismatch (state, action),
+              lockAlertsOpen: shouldOpenLockAlerts (state, action),
             }
           }
         },
@@ -306,20 +356,35 @@ export default function (state, action) {
       }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  case SET_PARAM_LOCK:
-    return {
-      ...state,
-      viz: {
-        ...state.viz,
-        chart: {
-          ...state.viz.chart,
-          controls: {
-            ...state.viz.chart.controls,
-            paramLock: action.payload,
+    case SET_PARAM_LOCK:
+      return {
+        ...state,
+        viz: {
+          ...state.viz,
+          chart: {
+            ...state.viz.chart,
+            controls: {
+              ...state.viz.chart.controls,
+              paramLock: action.payload,
+            }
           }
-        }
-      },
-    }
+        },
+      }
+
+    case SET_LOCK_ALERTS_OPEN:
+      return {
+        ...state,
+        viz: {
+          ...state.viz,
+          chart: {
+            ...state.viz.chart,
+            controls: {
+              ...state.viz.chart.controls,
+              lockAlertsOpen: action.payload,
+            }
+          }
+        },
+      }
     default:
       return state;
   }

@@ -1,55 +1,51 @@
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
-import Alert from '@material-ui/lab/Alert';
+import { makeStyles } from '@material-ui/core/styles';
+import { LuAlertTriangle } from "react-icons/lu";
 
-// export an Alert component with CMAP colors
 
-const styles = (theme) => ({
-  root: {
-    // width: 'calc(100% - 100px)',
-    // margin: '1em auto',
-    '& .MuiAlert-icon': {
-      fontSize: '30px',
-      alignItems: 'center', // vertically center icons
-      marginRight: '20px',
-    },
-    backgroundColor: 'rgba(0,0,0, 0.2)',
-    // fontWeight: 'bold',
-    fontSize: '1em',
+const yellowAlert = 'rgb(255, 227, 54)';
 
-    '& .MuiTypography-body1': {
-      // fontSize: '1em',
-    },
 
-    '&.MuiAlert-outlinedSuccess': {
-      color: theme.palette.primary.main,
-      border: `1px solid ${theme.palette.primary.main}`,
-      '& .MuiAlert-icon': {
-        color: theme.palette.primary.main,
-      },
-      '& .MuiAlert-message': {
-        color: theme.palette.primary.main,
-      }
-    },
-    '&.MuiAlert-standardWarning': {
-      color: 'rgb(209, 98, 101)',
-      border: `1px solid rgb(209, 98, 101)`
-    },
-    '&.MuiAlert-outlinedWarning': {
-      color: 'rgb(209, 98, 101)',
-      border: `1px solid rgb(209, 98, 101)`
-    },
-    '&.MuiAlert-standardInfo': {
-      color: 'rgb(34, 163, 185)',
-      border: `1px solid rgb(34, 163, 185)`,
-      '& .MuiAlert-icon': {
-        color: 'rgb(34, 163, 185)',
-      },
-    }
+const useWarningStyles = makeStyles ((theme) => ({
+  warning: {
+    color: 'white',
+    border: `1px solid ${yellowAlert}`,
+    borderRadius: '6px',
+    background: 'rgba(20,20,20,0.3)',
+    backdropFilter: 'blur(3px)',
+    display: 'flex',
+    flexDirection: 'row',
+    gap: '0',
+    flexWrap: 'nowrap',
   },
+  iconContainer: {
+    color: yellowAlert,
+    width: '40px',
+    fontSize: '24px',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  textContainer: {
+    flex: 1,
+    textAlign: 'left',
+    fontFamily: '"Lato",sans-serif',
+    fontSize: '14px',
+    padding: '6px 0'
+  }
+}));
 
-});
-
-const CustomAlert = withStyles (styles) (Alert);
-
-export default CustomAlert;
+export const Warning = (props) => {
+  const cl = useWarningStyles();
+  return (
+    <div className={cl.warning}>
+      <div className={cl.iconContainer}>
+        <LuAlertTriangle />
+      </div>
+      <div className={cl.textContainer}>
+        {props.children}
+      </div>
+    </div>
+  )
+}
