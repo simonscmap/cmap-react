@@ -24,30 +24,34 @@ import manageDateParams from './manageDateParams';
 // Payload :: { parameters, subType, metadata }
 
 const fn = (currentState, currentProps) => {
-    const {
-      depth1,
-      depth2,
-      lat1,
-      lat2,
-      lon1,
-      lon2,
-      selectedVizType,
-    } = currentState;
+  const {
+    depth1,
+    depth2,
+    lat1,
+    lat2,
+    lon1,
+    lon2,
+    selectedVizType, // note, selectedVizType must be set in order to prep params
+  } = currentState;
 
-    const mapping = mapVizType(selectedVizType);
-    const dateParams = manageDateParams (currentState, currentProps);
-    const parameters = cleanSPParams({
-      depth1,
-      depth2,
-      ...dateParams,
-      lat1,
-      lat2,
-      lon1,
-      lon2,
-      fields: currentProps.vizPageDataTargetDetails.Variable,
-      tableName: currentProps.vizPageDataTargetDetails.Table_Name,
-      spName: mapping.sp,
-    });
+  if (!selectedVizType) {
+    return null;
+  }
+
+  const mapping = mapVizType(selectedVizType);
+  const dateParams = manageDateParams (currentState, currentProps);
+  const parameters = cleanSPParams({
+    depth1,
+    depth2,
+    ...dateParams,
+    lat1,
+    lat2,
+    lon1,
+    lon2,
+    fields: currentProps.vizPageDataTargetDetails.Variable,
+    tableName: currentProps.vizPageDataTargetDetails.Table_Name,
+    spName: mapping.sp,
+  });
 
   return {
     parameters,

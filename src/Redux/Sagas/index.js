@@ -104,6 +104,7 @@ import {
 
 import {
   watchRequestTrajectoryPointCounts,
+  watchCheckVizQuerySize,
 } from './visualizationSagas';
 
 import {
@@ -2165,6 +2166,7 @@ function* rootSaga() {
     watchSendNotifications(),
     watchReSendNotifications(),
     watchDownloadDialogOpen(),
+    watchCheckVizQuerySize()
   ]);
 }
 

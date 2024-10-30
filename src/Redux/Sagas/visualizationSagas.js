@@ -1,12 +1,23 @@
 import api from '../../api/api';
 import * as vizActions from '../actions/visualization';
 import * as vizActionTypes from '../actionTypes/visualization';
+import * as interfaceActions from '../actions/ui';
 import { call, put, takeEvery, race, delay } from 'redux-saga/effects';
 import { makeCheckQuerySizeRequest } from './downloadSagas';
 import mapVizType from '../../Components/Visualization/helpers/mapVizType';
 import storedProcedures from '../../enums/storedProcedures';
 import spatialResolutions from '../../enums/spatialResolutions';
 import { sparseDataQueryFromPayload } from '../../Components/Visualization/helpers';
+import states from '../../enums/asyncRequestStates';
+
+function* snack(msg) {
+  yield put(interfaceActions.snackbarOpen(msg));
+}
+
+function* fail() {
+  yield put(vizActions.setCheckVizQuerySizeStatus(states.failed));
+  yield snack('Failed to estimate visualization data size.')
+}
 
 export function* requestTrajectoryPointCounts (/* action */) {
   let response = yield call(api.data.trajectoryCounts, null);
@@ -54,11 +65,12 @@ export function* checkVizQuerySize (action) {
     queryString = sparseDataQueryFromPayload (payload);
   } else {
     // otherwise get query string from store procedure API
-    const { result, timeout } = yield sqlifyStoredProcedureRequest ({ parameters });
-    if (timeout || result.failed) {
-      // set status to failed
+    const { response, timeout } = yield sqlifyStoredProcedureRequest ({ parameters });
+    if (timeout || response.failed) { // set status to failed
+      yield fail();
+      return;
     } else {
-      queryString = result.query;
+      queryString = response.query;
     }
   }
 
@@ -67,14 +79,30 @@ export function* checkVizQuerySize (action) {
   try {
     result = yield makeCheckQuerySizeRequest (queryString);
   } catch (e) {
-    // TODO set status to failed
+    yield fail();
+    return;
   }
 
   const { response, timeout } = result;
   if (timeout || !response.ok) {
-    // TODO set status to failed
+    yield fail();
+    return;
   }
 
-  // TODO update state with result
+  let data;
+  try {
+    data = yield response.json();
+  } catch (e) {
+    yield fail();
+    return;
+  }
 
+  yield put (vizActions.checkVizQuerySizeStore(data));
+} // ⮷ &. Watcher ⮷
+
+export function* watchCheckVizQuerySize() {
+  yield takeEvery(
+    vizActionTypes.CHECK_VIZ_QUERY_SIZE,
+    checkVizQuerySize
+  );
 }

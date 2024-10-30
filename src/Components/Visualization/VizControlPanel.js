@@ -183,6 +183,11 @@ const spatialStateHasChanged = (prevState, currState) => {
           prevState.lon2 !== currState.lon2);
 }
 
+const temporalRangeHasChanged = (prevState, currState) => {
+  return prevState.dt1 !== currState.dt1
+    || prevState.dt2 !== currState.dt2;
+}
+
 // Helper to handle re-drawing polygons on the globe
 // when the region selection has changed
 const updateGlobeWithPolygon = (mapRef, currState) => {
@@ -298,8 +303,16 @@ class VizControlPanel extends React.Component {
   };
 
   componentDidUpdate = (prevProps, prevState) => {
-    if (spatialStateHasChanged (prevState, this.state)) {
+    const spatialExtentChange = spatialStateHasChanged (prevState, this.state);
+    const temporalRangeChange = temporalRangeHasChanged (prevState, this.state);
+    const vizTypeChange = prevState.selectedVizType !== this.state.selectedVizType;
+    if (spatialExtentChange) {
       updateGlobeWithPolygon (this.props.mapContainerRef, this.state);
+    }
+
+    if (spatialExtentChange || temporalRangeChange || vizTypeChange) {
+      console.log ('dispatching check query size');
+      this.handleCheckQuerySize();
     }
 
     // Reset state if the variable target has changed, and is null
@@ -396,6 +409,11 @@ class VizControlPanel extends React.Component {
 
   handleCheckQuerySize = () => {
     const payload = prepareQueryPayload (this.state, this.props);
+    if (!this.state.selectedVizType) {
+      console.log ('no selectedVizType, no dispatch')
+      return;
+    }
+    console.log ('dispatch check viz query size')
     payload.vizType = this.state.selectedVizType;
     this.props.checkVizQuerySize (payload);
   }

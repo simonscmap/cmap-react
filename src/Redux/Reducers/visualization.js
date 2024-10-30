@@ -246,6 +246,13 @@ export default function (state, action) {
               dateTypeMismatch: calculateDateTypeMismatch (state, action),
               variableResolutionMismatch: calculateVariableResolutionMismatch (state, action),
               lockAlertsOpen: shouldOpenLockAlerts (state, action),
+            },
+            validation: {
+              ...state.viz.chart.validation,
+              sizeCheck: {
+                status: states.notTried,
+                result: null,
+              }
             }
           }
         },
@@ -398,7 +405,10 @@ export default function (state, action) {
             ...state.viz.chart,
             validation: {
               ...state.viz.chart.validation,
-              status: action.payload.status,
+              sizeCheck: {
+               ...state.viz.chart.validation.sizeCheck,
+               status: states.succeeded,
+              }
             }
           }
         },
@@ -411,9 +421,12 @@ export default function (state, action) {
           ...state.viz,
           chart: {
             ...state.viz.chart,
-             validation: {
+            validation: {
+              ...state.viz.chart.validation,
+              sizeCheck: {
                status: states.succeeded,
                result: action.payload,
+              }
             }
           }
         },
