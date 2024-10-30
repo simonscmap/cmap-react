@@ -43,6 +43,9 @@ import {
   TRAJECTORY_POINT_COUNT_SUCCESS,
   SET_PARAM_LOCK,
   SET_LOCK_ALERTS_OPEN,
+  CHECK_VIZ_QUERY_SIZE,
+  CHECK_VIZ_QUERY_SIZE_STORE,
+  SET_CHECK_VIZ_QUERY_SIZE_STATUS,
 } from '../actionTypes/visualization';
 
 const monthlyClimatology = temporalResolutions.monthlyClimatology;
@@ -381,6 +384,36 @@ export default function (state, action) {
             controls: {
               ...state.viz.chart.controls,
               lockAlertsOpen: action.payload,
+            }
+          }
+        },
+      }
+
+    case SET_CHECK_VIZ_QUERY_SIZE_STATUS:
+      return {
+        ...state,
+        viz: {
+          ...state.viz,
+          chart: {
+            ...state.viz.chart,
+            validation: {
+              ...state.viz.chart.validation,
+              status: action.payload.status,
+            }
+          }
+        },
+      }
+
+    case CHECK_VIZ_QUERY_SIZE_STORE:
+      return {
+        ...state,
+        viz: {
+          ...state.viz,
+          chart: {
+            ...state.viz.chart,
+             validation: {
+               status: states.succeeded,
+               result: action.payload,
             }
           }
         },

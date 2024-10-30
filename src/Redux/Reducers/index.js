@@ -164,6 +164,12 @@ const initialState = {
         // controlPanelVisible: true,
         // searchOpen: false,
       },
+      validation: {
+        sizeCheck: {
+          status: states.notTried,
+          result: null,
+        }
+      },
       // variables: [],        // (was memberVariables)
       // targetVariable: null, // (was vizPageDataTarget)
       // targetDetails: null,  // (was vizPageDataTargetDetails)

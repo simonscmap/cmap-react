@@ -51,10 +51,17 @@ const styles = (theme) => ({
     backdropFilter: 'blur(5px)',
     overflowY: 'scroll',
   },
-
+  alertBoxHandle: {
+    position: 'absolute',
+    top: '11px',
+    left: '294px',
+    '& svg': {
+      color: yellowAlert,
+    }
+  },
   alertBox: {
     position: 'absolute',
-    top: '80px',
+    top: '12px',
     left: '340px',
     width: '500px',
     zIndex: z.CONTROL_PRIMARY,

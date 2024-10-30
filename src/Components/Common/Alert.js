@@ -32,7 +32,7 @@ const useWarningStyles = makeStyles ((theme) => ({
     textAlign: 'left',
     fontFamily: '"Lato",sans-serif',
     fontSize: '14px',
-    padding: '6px 0'
+    padding: '6px 3px'
   }
 }));
 

@@ -29,10 +29,16 @@ import {
 import { ImLock } from "react-icons/im";
 import { ImUnlocked } from "react-icons/im";
 import { LuAlertTriangle } from "react-icons/lu";
+import CloseIcon from '@material-ui/icons/Close';
 
 import ChartControl from './Charts/ChartControl';
 import VariableSelector from './VariableSelector/VariableSelector';
 import { RestrictDataHint, SearchHint } from './help';
+import getTargetFeatures from './ControlPanel/getTargetFeatures';
+import manageDateParams from './ControlPanel/manageDateParams';
+import transformDateStringToMonth from './ControlPanel/transformDateStringToMonth';
+import prepareQueryPayload from './ControlPanel/prepareQueryPayload';
+
 import {
   aggregateChartDataSize,
   cleanSPParams,
@@ -60,10 +66,12 @@ import {
   vizPageDataTargetSetAndFetchDetails,
   setParamLock,
   setLockAlertsOpen,
+  checkVizQuerySize,
 } from '../../Redux/actions/visualization';
 
 // enums
 import colors from '../../enums/colors';
+import states from '../../enums/asyncRequestStates';
 import spatialResolutions from '../../enums/spatialResolutions';
 import storedProcedures from '../../enums/storedProcedures';
 import temporalResolutions from '../../enums/temporalResolutions';
@@ -101,6 +109,8 @@ const mapStateToProps = (state) => ({
   dateTypeMismatch: state.viz.chart.controls.dateTypeMismatch,
   variableResolutionMismatch: state.viz.chart.controls.variableResolutionMismatch,
   lockAlertsOpen: state.viz.chart.controls.lockAlertsOpen,
+  sizeCheckStatus: state.viz.chart.validation.sizeCheck.status,
+  sizeCheck: state.viz.chart.validation.sizeCheck.result,
 });
 
 const mapDispatchToProps = {
@@ -116,9 +126,9 @@ const mapDispatchToProps = {
   setParamLock,
   snackbarOpen,
   setLockAlertsOpen,
+  checkVizQuerySize,
 };
 
-const drawerWidth = 280; // NOTE this magic number is also in ./vizControlStyles
 
 const overrideDisabledStyle = {
   backgroundColor: 'transparent',
@@ -220,18 +230,6 @@ const newDataTargetDetails = (prevProps, currProps) => {
   return currProps.vizPageDataTargetDetails !== prevProps.vizPageDataTargetDetails
 }
 
-const getTargetFeatures = (currProps) => {
-  const data = currProps.vizPageDataTargetDetails;
-  const surfaceOnly = !data.Has_Depth;
-  const irregularSpatialResolution = data.Spatial_Resolution === 'Irregular';
-  const monthlyClimatology = data.Temporal_Resolution === temporalResolutions.monthlyClimatology;
-  return {
-    surfaceOnly,
-    irregularSpatialResolution,
-    monthlyClimatology
-  }
-}
-
 const isSatelliteOrModel = (currProps) => {
   const { irregularSpatialResolution, monthlyClimatology } = getTargetFeatures (currProps);
   const isNotIrregularSpatialResolution = !irregularSpatialResolution;
@@ -267,60 +265,7 @@ const reorientGlobe = (globeUIRef, currProps) => {
   }
 }
 
-const leadingZero = (val) => {
-  const v = '' + val;
-  switch (v.length) {
-    case 0:
-      console.error ('month value should not be empty');
-      return '00'
-    case 1:
-      return '0' + v;
-    default:
-      return v;
-  }
-}
 
-// NOTE: the arg default results in a January default
-// NOTE: the input field is 1-indexed, not 0-indexed, so we add 1 to the result of getUTCMonth
-const transformDateStringToMonth = (dateString = '01-01-1900') => {
-  return (new Date(dateString)).getUTCMonth() + 1;
-}
-
-/* manageDateParam
-   returns adapted dt1 and dt2 values depending on context
-
-   if target is monthlyClimatology, will return a MM-DD-YYYY date string
-
-   if target is monthlyClimatology AND paramLock is active with a locked date-time string,
-   will handle converting a locked date time to a date
- */
-const manageDateParams = (currState, currProps) => {
-  const { paramLock } = currProps;
-  const { monthlyClimatology } = getTargetFeatures(currProps);
-
-  if (monthlyClimatology) {
-    if (paramLock && currState.dt1.length > 2) {
-      // modify locked date-time to date string
-      const newDt1 = `${transformDateStringToMonth(currState.dt1)}-01-1900`;
-      const newDt2 = `${transformDateStringToMonth(currState.dt2)}-01-1900`;
-      return {
-        dt1: newDt1,
-        dt2: newDt2,
-      }
-    } else {
-      return {
-        dt1: `${leadingZero(currState.dt1)}-01-1900`,
-        dt2: `${leadingZero(currState.dt2)}-01-1900`,
-      }
-    }
-  } else {
-    console.log ('not monthly')
-    return {
-      dt1: currState.dt1,
-      dt2: currState.dt2,
-    }
-  }
-}
 
 // help the monthly input fields display a meaningful value if the date range
 // is locked with date-time values
@@ -449,8 +394,13 @@ class VizControlPanel extends React.Component {
     }
   };
 
+  handleCheckQuerySize = () => {
+    const payload = prepareQueryPayload (this.state, this.props);
+    payload.vizType = this.state.selectedVizType;
+    this.props.checkVizQuerySize (payload);
+  }
+
   // "create vizualization" button is clicked
-  // this method seems very similar to "onVisualize" in the parent
   handleVisualize = () => {
     const {
       depth1,
@@ -959,21 +909,38 @@ class VizControlPanel extends React.Component {
         return 'Too many distinct depths to render heatmap. Please reduce depth range or select section map.';
     }
 
+    // DATA SIZE CHECKS
+    const sizeCheckStatus = this.props.sizeCheckStatus;
+    const sizeCheckResult = this.props.sizeCheck;
+
+    if (sizeCheckStatus === states.notTried || sizeCheckStatus === states.inProgress) {
+      return 'Waiting for size check to complete.';
+    }
+
+    if (sizeCheckStatus === states.succeeded && !sizeCheckResult.allow) {
+      return `Extent is too large, select a smaller spatial or temporal range.`
+    }
+
+    // HISTOGRAM & HEATMAP < 1 500 000
     if (
       this.state.selectedVizType !== vizSubTypes.histogram &&
-      this.props.selectedVizType !== vizSubTypes.heatmap &&
-      dataSize > 1500000
+        this.props.selectedVizType !== vizSubTypes.heatmap &&
+        dataSize > 1500000
     ) {
       return validation.generic.dataSizePrevent;
     }
 
-    if (dataSize > 6000000) return validation.generic.dataSizePrevent;
+    // GENERAL SIZE
+    if (dataSize > 6000000) {
+      return validation.generic.dataSizePrevent;
+    }
     if (!this.props.vizPageDataTargetDetails)
       return validation.generic.variableMissing;
     if (this.props.charts.length > 9)
       return 'Total number of plots is too large. Please delete 1 or more';
 
     // TODO extract magic number
+    // AGGREGATO SIZE ACROSS ALL CHARTS
     if (aggregateSize + dataSize > 4000000)
       return 'Total rendered data amount is too large. Please delete 1 or more plots.';
 
@@ -1100,23 +1067,6 @@ class VizControlPanel extends React.Component {
       ? generalWarnMessage
           : '';
 
-
-    const lockValidationList = [
-      startDepthMessage,
-      endDepthMessage,
-      startLatMessage,
-      endLatMessage,
-      startLonMessage,
-      endLonMessage,
-      startDateMessage,
-      endDateMessage,
-      startTimeMessage,
-      endTimeMessage,
-      startDateTimeMessage
-    ];
-
-    const lockValidation = lockValidationList.some ((message) => message && message.length > 0);
-
     const alerts = [];
     if (this.props.paramLock && this.props.variableResolutionMismatch) {
       alerts.push(
@@ -1132,15 +1082,6 @@ class VizControlPanel extends React.Component {
         (<Warning>
            <span>
              {`There is a mismatch between the locked date range type and the current variable's temporal resolution. Unlock the parameters controls to change the time range.`}
-           </span>
-         </Warning>)
-      );
-    }
-    if (lockValidation && this.props.paramLock) {
-      alerts.push (
-        (<Warning>
-           <span>
-             {`Some of the locked parameters are invalid for the selected variable. Unlock the parameter controls to update the invalid ranges.`}
            </span>
          </Warning>)
       );
@@ -1200,23 +1141,36 @@ class VizControlPanel extends React.Component {
           anchor="left"
         >
           {alerts.length > 0 &&
+           <div className={classes.alertBoxHandle}>
+             <IconButton
+               onClick={() => {
+                 this.props.setLockAlertsOpen (!this.props.lockAlertsOpen)}}
+             >
+               <LuAlertTriangle />
+             </IconButton>
+           </div>
+          }
+
+          {alerts.length > 0 &&
            <div className={classes.alertBox}>
              {this.props.lockAlertsOpen &&
               <div className={classes.alertList}>
                 {alerts}
               </div>
              }
-             <span>
-               <IconButton
-                 onClick={() => {
-                   this.props.setLockAlertsOpen (!this.props.lockAlertsOpen)}}
-               >
-                 {this.props.lockAlertsOpen ? <ChevronLeft /> : <LuAlertTriangle />}
-               </IconButton>
-             </span>
-           </div>}
 
-
+             {this.props.lockAlertsOpen &&
+              <span>
+                <IconButton
+                  onClick={() => {
+                    this.props.setLockAlertsOpen (!this.props.lockAlertsOpen)}}
+                >
+                  <CloseIcon />
+                </IconButton>
+              </span>
+             }
+           </div>
+          }
 
 
           {/* Begin Variable Search Button */}

@@ -90,6 +90,25 @@ visualizationAPI.storedProcedureRequest = async (payload) => {
   return vizData;
 };
 
+// with sp params, ask for a sql string back from api
+visualizationAPI.storedProcedureSQLify = async (payload) => {
+  const params = payload.parameters;
+  params.sqlify = true;
+
+  const response = await fetch(
+    apiUrl +
+      '/api/data/sp?' +
+      storedProcedureParametersToUri(payload.parameters),
+    fetchOptions,
+  );
+
+  if (!response.ok) {
+    return { failed: true, status: response.status };
+  } else {
+    return await response.json();
+  }
+}
+
 visualizationAPI.sparseDataQuerysend = async (payload) => {
   const { parameters } = payload;
 

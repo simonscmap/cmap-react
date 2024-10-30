@@ -436,3 +436,20 @@ export const setLockAlertsOpen = (trueFalse) => ({
   type: visualizationActionTypes.SET_LOCK_ALERTS_OPEN,
   payload: trueFalse,
 });
+
+
+export const checkVizQuerySize = (payload) => ({
+  type: visualizationActionTypes.CHECK_VIZ_QUERY_SIZE,
+  payload,
+});
+
+export const setCheckVizQuerySizeStatus = (payload) => ({
+  type: visualizationActionTypes.SET_CHECK_VIZ_QUERY_SIZE_STATUS,
+  payload,
+});
+
+
+export const checkVizQuerySizeStore = (payload) => ({
+  type: visualizationActionTypes.CHECK_VIZ_QUERY_SIZE_STORE,
+  payload,
+});
