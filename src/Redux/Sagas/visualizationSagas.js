@@ -2,7 +2,7 @@ import api from '../../api/api';
 import * as vizActions from '../actions/visualization';
 import * as vizActionTypes from '../actionTypes/visualization';
 import * as interfaceActions from '../actions/ui';
-import { call, put, takeEvery, race, delay } from 'redux-saga/effects';
+import { debounce, call, put, takeEvery, race, delay, select } from 'redux-saga/effects';
 import { makeCheckQuerySizeRequest } from './downloadSagas';
 import mapVizType from '../../Components/Visualization/helpers/mapVizType';
 import storedProcedures from '../../enums/storedProcedures';
@@ -48,6 +48,18 @@ export function* sqlifyStoredProcedureRequest (args) {
 
 
 export function* checkVizQuerySize (action) {
+  const checkStatus = yield select (state => state.viz
+                                    && state.viz.chart
+                                    && state.viz.chart.validation
+                                    && state.viz.chart.validation.sizeCheck
+                                   && state.viz.chart.validation.sizeCheck.status);
+
+  if (checkStatus === states.inProgress) {
+    return;
+  }
+
+  yield put(vizActions.setCheckVizQuerySizeStatus(states.inProgress));
+
   const payload = action.payload;
   const { metadata, parameters, vizType } = payload;
   const mapping = mapVizType(vizType);
@@ -67,10 +79,21 @@ export function* checkVizQuerySize (action) {
     // otherwise get query string from store procedure API
     const { response, timeout } = yield sqlifyStoredProcedureRequest ({ parameters });
     if (timeout || response.failed) { // set status to failed
+      console.log ('sqlify sp failed', response, timeout)
       yield fail();
       return;
     } else {
-      queryString = response.query;
+      // the sqlify option on the sp api will return an EXEC query string
+      // with a bit at the end; if we submit that query as is
+      // to the check-query route, another bit will be added redundantly
+      // so remove the bit
+      const q = response.query;
+      if (q.charAt (q.length - 1) === '1') {
+        const query = q.slice(0, q.lastIndexOf (','));
+        queryString = query;
+      } else {
+        queryString = response.query;
+      }
     }
   }
 
@@ -78,6 +101,8 @@ export function* checkVizQuerySize (action) {
   let result;
   try {
     result = yield makeCheckQuerySizeRequest (queryString);
+    console.log ('query size check failed', result)
+
   } catch (e) {
     yield fail();
     return;
@@ -101,7 +126,8 @@ export function* checkVizQuerySize (action) {
 } // ⮷ &. Watcher ⮷
 
 export function* watchCheckVizQuerySize() {
-  yield takeEvery(
+  yield debounce (
+    450,
     vizActionTypes.CHECK_VIZ_QUERY_SIZE,
     checkVizQuerySize
   );

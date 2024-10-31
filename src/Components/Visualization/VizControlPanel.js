@@ -180,7 +180,9 @@ const spatialStateHasChanged = (prevState, currState) => {
   return (prevState.lat1 !== currState.lat1 ||
           prevState.lat2 !== currState.lat2 ||
           prevState.lon1 !== currState.lon1 ||
-          prevState.lon2 !== currState.lon2);
+          prevState.lon2 !== currState.lon2 ||
+          prevState.depth1 !== currState.depth1 ||
+          prevState.depth2 !== currState.depth2);
 }
 
 const temporalRangeHasChanged = (prevState, currState) => {
@@ -933,6 +935,10 @@ class VizControlPanel extends React.Component {
 
     if (sizeCheckStatus === states.notTried || sizeCheckStatus === states.inProgress) {
       return 'Waiting for size check to complete.';
+    }
+
+    if (sizeCheckStatus === states.failed || sizeCheckResult === null) {
+      return 'Error estimating visualization size.'
     }
 
     if (sizeCheckStatus === states.succeeded && !sizeCheckResult.allow) {
