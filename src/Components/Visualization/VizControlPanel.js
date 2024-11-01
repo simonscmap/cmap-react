@@ -937,8 +937,12 @@ class VizControlPanel extends React.Component {
       return 'Waiting for size check to complete.';
     }
 
-    if (sizeCheckStatus === states.failed || sizeCheckResult === null) {
+    if (sizeCheckStatus === states.failed ) {
       return 'Error estimating visualization size.'
+    }
+
+    if (sizeCheckResult === null) {
+      return 'No size estimation available.'
     }
 
     if (sizeCheckStatus === states.succeeded && !sizeCheckResult.allow) {
@@ -1087,8 +1091,8 @@ class VizControlPanel extends React.Component {
 
     const visualizeButtonTooltip = disableVisualizeMessage
       ? disableVisualizeMessage
-      : generalWarnMessage
-      ? generalWarnMessage
+      : generalPreventMessage
+      ? generalPreventMessage
           : '';
 
     const alerts = [];
