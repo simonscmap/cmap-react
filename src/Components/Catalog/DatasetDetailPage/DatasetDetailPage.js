@@ -17,7 +17,7 @@ import reactStringReplace from 'react-string-replace';
 
 import DatasetPageAGGrid from '../VariablesTable';
 import DatasetJSONLD from './DatasetJSONLD';
-import DownloadDialog from '../DownloadDialog';
+// import DownloadDialog from '../DownloadDialog';
 import DetailsTable from './DatasetDetailsTable';
 import DatasetMetadata from './DatasetMetadata';
 import Visualization from './DatasetVisualization';
@@ -121,7 +121,7 @@ const DatasetFullPage = (props) => {
   const loading = primaryPageLoadingState === states.inProgress;
   const failed = primaryPageLoadingState === states.failed;
 
-  const [downloadDialogOpen, setDownloadDialogOpen] = React.useState(false);
+  // const [downloadDialogOpen, setDownloadDialogOpen] = React.useState(false);
 
   const httpRegx = /\b(https?:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|]|ftp:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|])/g;
 
@@ -177,21 +177,11 @@ const DatasetFullPage = (props) => {
     );
   }
 
-  const hasNews = Array.isArray (news) && news.length > 0;
+  // const hasNews = Array.isArray (news) && news.length > 0;
 
   return (
     <Page2 bgVariant="slate2">
       <Grid container className={classes.outerContainer} >
-        {downloadDialogOpen ? (
-          <DownloadDialog
-            dialogOpen={downloadDialogOpen}
-            dataset={data}
-            handleClose={() => setDownloadDialogOpen(false)}
-          />
-        ) : (
-          ''
-        )}
-
         <Grid item xs={12}>
             <SkeletonWrapper loading={loading}>
               <Typography
@@ -203,7 +193,7 @@ const DatasetFullPage = (props) => {
               </Typography>
 
               <div className={classes.buttonsContainer}>
-                <DownloadButtonOutlined shortName={data && data.ShortName} />
+                <DownloadButtonOutlined shortName={data && data.Short_Name} />
                 <SubscribeButton shortName={data && data.Short_Name} />
               </div>
 

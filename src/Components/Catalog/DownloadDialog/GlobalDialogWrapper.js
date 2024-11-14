@@ -51,8 +51,8 @@ const dataSelector = createSelector (
       return null;
     } else if (fetchedData && fetchedData.Short_Name === shortName) {
       return fetchedData;
-    } else if (detailPageData && detailPageData.dataset.Short_Name === shortName) {
-      return detailPageData.dataset;
+    } else if (detailPageData && detailPageData.Short_Name === shortName) {
+      return detailPageData;
     } else {
       return null;
     }
@@ -64,7 +64,7 @@ const GlobalDialogWrapper = (props) => {
   const cl = useStyles();
 
   const globalDialog = useSelector (state => state.downloadDialog);
-  const { open, shortName } = globalDialog;
+  const { open } = globalDialog;
   const user = useSelector ((state) => state.user);
   const data = useSelector (dataSelector);
 

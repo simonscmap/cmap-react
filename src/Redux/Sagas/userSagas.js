@@ -1,12 +1,16 @@
 import Cookies from 'js-cookie';
-import { call, put, takeLatest, select } from 'redux-saga/effects';
+import { call, put, takeLatest, select, take } from 'redux-saga/effects';
+import { googleLogout } from '@react-oauth/google';
 import api from '../../api/api';
 import * as interfaceActions from '../actions/ui';
 import * as userActions from '../actions/user';
 import * as userActionTypes from '../actionTypes/user';
 import * as catalogActions from '../actions/catalog';
+// import * as communityActions from '../actions/community';
+// import parseError from '../../Utility/parseError';
 import states from '../../enums/asyncRequestStates';
 import logInit from '../../Services/log-service';
+import { safePath } from '../../Utility/objectUtils';
 
 const log = logInit ('redux/sagas/userSagas');
 
@@ -33,7 +37,10 @@ export function* userLogin(action) {
     var userInfo = JSON.parse(Cookies.get('UserInfo'));
     yield put(userActions.userLoginRequestSuccess());
     yield put(userActions.storeInfo(userInfo));
-    yield put(interfaceActions.snackbarOpen('Login was successful!', tag));
+    yield put(interfaceActions.snackbarOpen('You are now logged in.', tag));
+    if (action.payload.username === userInfo.Email) {
+      log.info ('user used email as username', { email: userInfo.Email });
+    }
 
     const userSubscriptions = yield select ((state) => state.userSubscriptions);
     if (!userSubscriptions) {
@@ -126,11 +133,14 @@ export function* watchUserValidation() {
 
 // userLogout, watchUserLogout
 function* userLogout() {
-  let authInstance = yield window.gapi.auth2.getAuthInstance();
-  yield authInstance.signOut();
-  yield call(api.user.logout);
-  yield put(userActions.destroyInfo());
-  yield (window.location.href = '/');
+  googleLogout(); // this just disables One Tap auto select behavior so that the user insn't logged right back in
+  yield put(userActions.destroyInfo()); // clear app state
+  const result = yield call (api.user.logout); // clear jwt
+  if (result.ok) {
+    yield put (interfaceActions.snackbarOpen('You have been logged out.'));
+  } else {
+    yield put (interfaceActions.snackbarOpen('There was an unexpected error while logging out.'));
+  }
 } // ⮷ &. Watcher ⮷
 
 export function* watchUserLogout() {
@@ -140,25 +150,42 @@ export function* watchUserLogout() {
 // googleLoginRequest, watchGoogleloginRequest
 // GOOGLE_LOGIN_REQUEST_SEND
 function* googleLoginRequest(action) {
-  const tag = { tag: 'googleLoginRequest' };
   yield put(userActions.googleLoginRequestProcessing());
-  let result = yield call(
+  const response = yield call(
     api.user.googleLoginRequest,
-    action.payload.userIDToken,
+    action.payload,
   );
 
-  if (result.ok) {
+  if (response.ok) {
     yield put(interfaceActions.hideLoginDialog());
-    var userInfo = JSON.parse(Cookies.get('UserInfo'));
     yield put(userActions.userLoginRequestSuccess());
+    const userInfo = JSON.parse(Cookies.get('UserInfo'));
+    let info;
+    try {
+      info = yield response.json();
+    } catch (e) {
+      console.log ('error parsing json from response', response);
+      yield put(userActions.userLoginRequestFailure());
+      return;
+    }
+
+    if (info && (info.login || info.attach)) {
+      yield put(interfaceActions.snackbarOpen('You are now logged in using your Google Account.'));
+    } else if (info && info.register) {
+      yield put(interfaceActions.snackbarOpen('You have successfully registered using your Google Account.'));
+    } else {
+      console.log ('unknown response from login', response);
+    }
+
     yield put(userActions.storeInfo(userInfo));
+
     if (window.location.pathname === '/login') {
       window.location.href = '/';
     }
   } else {
-    console.log ('google login failure', result);
-    yield put(userActions.userLoginRequestFailure());
-    yield put(interfaceActions.snackbarOpen('Login failed.', tag));
+    console.log ('google login failure', response);
+    yield put(userActions.userLoginRequestFailure(null, ));
+    yield put (userActions.googleLoginRequestFailure (null, response));
   }
 } // ⮷ &. Watcher ⮷
 
@@ -168,6 +195,44 @@ export function* watchGoogleLoginRequest() {
     googleLoginRequest,
   );
 }
+
+/* this saga can be called from the login dialog directly with a custom message,
+   e.g. in the event that the google login component calls the failure callback,
+   or it can be called from the googleLoginRequest saga, in the event that the api
+   returns an non-200 response
+   */
+function* googleLoginRequestFailure(action) {
+  const { message, response } = (action.payload || {});
+  console.log (action);
+
+  yield put(interfaceActions.hideLoginDialog());
+
+  if (response && response.originator == 'login form') {
+    yield put(interfaceActions.snackbarOpen('There was a problem logging you in with your Google Account.'));
+  } else if (response && response.originator == 'register') {
+    yield put(interfaceActions.snackbarOpen('There was a problem registering you with your Google Account.'));
+  } else if (response && response.originator == 'auto login') {
+    // do nothing, because this login attempt can be triggered automatically
+    // and an error message without a prior user action can be confusing
+  } else if (message) {
+    // if the origin is unknown, but the message is set, display the message
+    yield put(interfaceActions.snackbarOpen(message));
+  } if (response && response.status === 401) {
+    yield put(interfaceActions.snackbarOpen('Unable to log in with that Google Account. Please ensure that you have registered with us. If you think you are receiving this message in error, please contact us for help.'));
+  } else if (response && response.status === 500) {
+    yield put(interfaceActions.snackbarOpen('An error occured while trying to log you in. The site administrators have been notified, please try again later or contact us for help.'));
+  } else {
+    // do nothing
+  }
+}
+
+export function* watchGoogleLoginRequestFailure() {
+  yield takeLatest(
+    userActionTypes.GOOGLE_LOGIN_REQUEST_SEND_FAILURE,
+    googleLoginRequestFailure,
+  );
+}
+
 
 // keyRetrieval, watchKeyRetrieval
 function* keyRetrieval() {

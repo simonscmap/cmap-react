@@ -1,6 +1,11 @@
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { WhiteButtonSM } from '../Home/buttons';
+import { useDispatch } from 'react-redux';
+import {
+  promptGSILogin,
+  createRegisterWithGoogleContext
+} from '../../Redux/actions/user';
 
 const styles = (theme) => ({
   wrapper: {
@@ -28,11 +33,25 @@ const styles = (theme) => ({
 });
 
 const GoogleSignInButton = (props) => {
-  const { classes, clickHandlerTarget } = props;
+  const { classes, disabled, register } = props;
+  const dispatch = useDispatch();
+
+  const handleClick = () => {
+    if (register) {
+      // because the google login prompt callback cannot be dynamically parameterized
+      // we create a context in redux which is checked before a request is sent to the api
+      dispatch(createRegisterWithGoogleContext ());
+    }
+    dispatch (promptGSILogin ());
+  }
 
   return (
-    <WhiteButtonSM style={{ padding: '21px 5px', letterSpacing: 0 }}>
-      <div id={clickHandlerTarget} className={classes.wrapper}>
+    <WhiteButtonSM
+      onClick={handleClick}
+      style={{ padding: '21px 5px', letterSpacing: 0 }}
+      disabled={disabled}
+    >
+      <div className={classes.wrapper}>
         <div className={classes.iconContainer}></div>
         <span className={classes.textSpan}>{props.text}</span>
       </div>

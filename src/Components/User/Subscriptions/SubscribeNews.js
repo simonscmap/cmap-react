@@ -91,11 +91,9 @@ const useIntroStyles = makeStyles (() => ({
 
 const IntroBox = (props) => {
   const subscribeIntroActive = useSelector ((state) => state.subscribeIntroActive);
-  console.log ('subscribeIntroActive', subscribeIntroActive)
   const dispatch = useDispatch();
   const cl = useIntroStyles();
   const showHide = subscribeIntroActive ? cl.intro : cl.off;
-  console.log ('showHide', showHide);
   const turnOff = () => dispatch (setSubscribeIntroState (false));
   return (
     <div className={showHide}>

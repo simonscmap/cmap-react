@@ -5,11 +5,12 @@ import React, { Component, lazy, Suspense } from 'react';
 import { connect } from 'react-redux';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import { debounce } from 'throttle-debounce';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import ErrorBoundary from './Components/UI/ErrorBoundary';
 import GlobalUIComponentWrapper from './Components/UI/GlobalUIComponentWrapper';
 import Docs from './Documentation/sidebar';
 import { toggleShowHelp, windowResize } from './Redux/actions/ui';
-import { ingestCookies, initializeGoogleAuth } from './Redux/actions/user';
+import { ingestCookies } from './Redux/actions/user';
 import { ServicesInit } from './Services/Init.js';
 import './Stylesheets/App.scss';
 import './Stylesheets/intro-custom.css';
@@ -43,19 +44,16 @@ const Profile = lazy(() => import('./Components/User/Profile'));
 const ProgramIndex = lazy(() => import('./Components/Catalog/Programs/Index'));
 const ProgramDetailPage = lazy(() => import('./Components/Catalog/Programs/ProgramDetailPage'));
 const Register = lazy(() => import('./Components/User/Register'));
-const SearchResults = lazy(() => import('./Components/Catalog/SearchResults'));
 const Visualization = lazy(() =>
   import('./Components/Visualization/Visualization'),
 );
 const SinglePlot = lazy(() => import('./Components/Visualization/SinglePlot'));
 const NewsDashboard = lazy(() => import('./Components/Admin/News/Dashboard'));
 const Cite = lazy(() => import('./Components/Cite'));
-const TestPage = lazy(() => import('./Components/Explorer'));
 const SubscriptionsPage = lazy(() => import('./Components/User/Subscriptions/Subscriptions'));
 
 
 const mapDispatchToProps = {
-  initializeGoogleAuth,
   toggleShowHelp,
   windowResize,
   ingestCookies,
@@ -63,7 +61,6 @@ const mapDispatchToProps = {
 
 class App extends Component {
   componentDidMount = () => {
-    this.props.initializeGoogleAuth();
     window.onresize = this.handleResize;
     this.props.ingestCookies();
   };
@@ -80,98 +77,97 @@ class App extends Component {
         <div className="App">
           <MuiThemeProvider theme={theme}>
             <ErrorBoundary>
-              <BrowserRouter>
-                <ServicesInit />
-                <GlobalUIComponentWrapper />
-                <Navigation />
-                <Suspense fallback={''}>
-                  <Switch>
-                    {/* HOME */}
-                    <Route exact path="/">
-                      <Home />
-                    </Route>
-                    {/* DATA */}
-                    <Route exact path="/catalog">
-                      <Catalog />
-                    </Route>
-                    <Route
-                      path="/catalog/datasets/:dataset"
-                      component={DatasetDetailPage}
-                    ></Route>
-                    <Route
-                      path="/catalog/cruises/:cruiseName"
-                      component={CruiseFullPage}
-                    ></Route>
-                    <Route exact path="/programs">
-                      <ProgramIndex/>
-                    </Route>
-                    <Route
-                      path="/programs/:programName"
-                      component={ProgramDetailPage}
-                    ></Route>
-                    <Route path="/visualization">
-                      <Visualization />
-                    </Route>
-                    <Route path="/plot"><SinglePlot /></Route>
-                    <Route
-                      path="/datasubmission"
-                      component={DataSubmission}
-                    ></Route>
-                    <Route path="/admin/news" component={NewsDashboard}></Route>
+              <GoogleOAuthProvider clientId="739716651449-7rbvsac1okk8mkd4g1mti8tnhdk1m3a8.apps.googleusercontent.com">
 
-                    {/* ABOUT */}
-                    <Route exact path="/contact">
-                      <ContactUs />
-                    </Route>
-                    <Route path="/about">
-                      <About />
-                    </Route>
-                    <Route path="/how-to-cite">
-                      <Cite />
-                    </Route>
+                <BrowserRouter>
+                  <ServicesInit />
+                  <GlobalUIComponentWrapper />
+                  <Navigation />
+                  <Suspense fallback={''}>
+                    <Switch>
+                      {/* HOME */}
+                      <Route exact path="/">
+                        <Home />
+                      </Route>
+                      {/* DATA */}
+                      <Route exact path="/catalog">
+                        <Catalog />
+                      </Route>
+                      <Route
+                        path="/catalog/datasets/:dataset"
+                        component={DatasetDetailPage}
+                      ></Route>
+                      <Route
+                        path="/catalog/cruises/:cruiseName"
+                        component={CruiseFullPage}
+                      ></Route>
+                      <Route exact path="/programs">
+                        <ProgramIndex/>
+                      </Route>
+                      <Route
+                        path="/programs/:programName"
+                        component={ProgramDetailPage}
+                      ></Route>
+                      <Route path="/visualization">
+                        <Visualization />
+                      </Route>
+                      <Route path="/plot"><SinglePlot /></Route>
+                      <Route
+                        path="/datasubmission"
+                        component={DataSubmission}
+                      ></Route>
+                      <Route path="/admin/news" component={NewsDashboard}></Route>
 
-                    <Route exact path="/documentation">
-                      <Docs />
-                    </Route>
-                    <Route exact path="/gallery">
-                      <Gallery />
-                    </Route>
-                    <Route path="/gallery/:slug" component={Galleries} />
+                      {/* ABOUT */}
+                      <Route exact path="/contact">
+                        <ContactUs />
+                      </Route>
+                      <Route path="/about">
+                        <About />
+                      </Route>
+                      <Route path="/how-to-cite">
+                        <Cite />
+                      </Route>
 
-                    {/* USER */}
-                    <Route exact path="/login">
-                      <Login />
-                    </Route>
-                    <Route exact path="/register">
-                      <Register />
-                    </Route>
-                    <Route exact path="/profile">
-                      <Profile />
-                    </Route>
-                    <Route
-                      exact
-                      path="/apikeymanagement"
-                      component={ApiKeyManagement}
-                    />
-                    <Route exact path="/forgotpass">
-                      <ForgotPass />
-                    </Route>
-                    <Route path="/choosepassword">
-                      <ChoosePassword />
-                    </Route>
-                    <Route exact path="/subscriptions">
-                      <SubscriptionsPage />
-                    </Route>
+                      <Route exact path="/documentation">
+                        <Docs />
+                      </Route>
+                      <Route exact path="/gallery">
+                        <Gallery />
+                      </Route>
+                      <Route path="/gallery/:slug" component={Galleries} />
 
-                    {/* TEST */}
-                    {/*<Route path="/test"><TestPage /></Route>*/}
-
-                    <Route path="*">
-                      <FourOhFour />
-                    </Route>
-                  </Switch>
-                </Suspense>
-              </BrowserRouter>
+                      {/* USER */}
+                      <Route exact path="/login">
+                        <Login />
+                      </Route>
+                      <Route exact path="/register">
+                        <Register />
+                      </Route>
+                      <Route exact path="/profile">
+                        <Profile />
+                      </Route>
+                      <Route
+                        exact
+                        path="/apikeymanagement"
+                        component={ApiKeyManagement}
+                      />
+                      <Route exact path="/forgotpass">
+                        <ForgotPass />
+                      </Route>
+                      <Route path="/choosepassword">
+                        <ChoosePassword />
+                      </Route>
+                      <Route exact path="/subscriptions">
+                        <SubscriptionsPage />
+                      </Route>
+                      <Route path="*">
+                        <FourOhFour />
+                      </Route>
+                    </Switch>
+                  </Suspense>
+                </BrowserRouter>
+              </GoogleOAuthProvider>
             </ErrorBoundary>
           </MuiThemeProvider>
         </div>
