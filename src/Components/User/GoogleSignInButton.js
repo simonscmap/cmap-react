@@ -28,10 +28,10 @@ const styles = (theme) => ({
 });
 
 const GoogleSignInButton = (props) => {
-  const { classes, clickHandlerTarget } = props;
+  const { classes, clickHandlerTarget, disabled } = props;
 
   return (
-    <WhiteButtonSM style={{ padding: '21px 5px', letterSpacing: 0 }}>
+    <WhiteButtonSM style={{ padding: '21px 5px', letterSpacing: 0 }} disabled={disabled}>
       <div id={clickHandlerTarget} className={classes.wrapper}>
         <div className={classes.iconContainer}></div>
         <span className={classes.textSpan}>{props.text}</span>

@@ -33,7 +33,7 @@ export function* userLogin(action) {
     var userInfo = JSON.parse(Cookies.get('UserInfo'));
     yield put(userActions.userLoginRequestSuccess());
     yield put(userActions.storeInfo(userInfo));
-    yield put(interfaceActions.snackbarOpen('Login was successful!', tag));
+    yield put(interfaceActions.snackbarOpen('You are now logged in.', tag));
 
     const userSubscriptions = yield select ((state) => state.userSubscriptions);
     if (!userSubscriptions) {
@@ -126,9 +126,13 @@ export function* watchUserValidation() {
 
 // userLogout, watchUserLogout
 function* userLogout() {
-  let authInstance = yield window.gapi.auth2.getAuthInstance();
-  yield authInstance.signOut();
-  yield call(api.user.logout);
+  try {
+    let authInstance = yield window.gapi.auth2.getAuthInstance();
+    yield authInstance.signOut();
+    yield call(api.user.logout);
+  } catch (e) {
+    console.log ('cannot get auth instance to log user out');
+  }
   yield put(userActions.destroyInfo());
   yield (window.location.href = '/');
 } // ⮷ &. Watcher ⮷
@@ -140,17 +144,17 @@ export function* watchUserLogout() {
 // googleLoginRequest, watchGoogleloginRequest
 // GOOGLE_LOGIN_REQUEST_SEND
 function* googleLoginRequest(action) {
-  const tag = { tag: 'googleLoginRequest' };
   yield put(userActions.googleLoginRequestProcessing());
   let result = yield call(
     api.user.googleLoginRequest,
-    action.payload.userIDToken,
+    action.payload,
   );
 
   if (result.ok) {
     yield put(interfaceActions.hideLoginDialog());
     var userInfo = JSON.parse(Cookies.get('UserInfo'));
     yield put(userActions.userLoginRequestSuccess());
+    yield put(interfaceActions.snackbarOpen('You are now logged in.'));
     yield put(userActions.storeInfo(userInfo));
     if (window.location.pathname === '/login') {
       window.location.href = '/';
@@ -158,7 +162,9 @@ function* googleLoginRequest(action) {
   } else {
     console.log ('google login failure', result);
     yield put(userActions.userLoginRequestFailure());
-    yield put(interfaceActions.snackbarOpen('Login failed.', tag));
+    // removing user message because this login attempt can be triggered automatically
+    // and an error message without a prior user action can be confusing
+    // yield put(interfaceActions.snackbarOpen('Login failed.', tag));
   }
 } // ⮷ &. Watcher ⮷
 

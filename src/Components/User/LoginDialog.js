@@ -43,7 +43,7 @@ const loginClickHandlerTarget = 'g-signin';
 class LoginDialog extends Component {
   onGoogleSignin = (user) => {
     let token = user.getAuthResponse(true).id_token;
-    this.props.googleLoginRequestSend(token);
+    this.props.googleLoginRequestSend(token, 'login form');
   };
 
   componentDidUpdate = (prevProps, prevState) => {

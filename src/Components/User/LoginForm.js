@@ -5,7 +5,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Link from '@material-ui/core/Link';
 import TextField from '@material-ui/core/TextField';
 import { makeStyles } from '@material-ui/core/styles';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
 import states from '../../enums/asyncRequestStates';
@@ -14,7 +14,7 @@ import GoogleSignInButton from './GoogleSignInButton';
 import styles from './loginStyles';
 
 import {
-  // googleLoginRequestSend,
+  googleLoginRequestSend,
   // guestTokenRequestSend,
   userLoginRequestSend,
   loginDialogWasCleared
@@ -40,6 +40,11 @@ const LoginForm = ({ title = "Login "}) => {
   let updateUsername = ({ target }) => setUsername(target.value);
   let updatePassword = ({ target }) => setPassword(target.value);
 
+  const handleClear = () => {
+    setUsername('');
+    setPassword('');
+  }
+
   const loginDisabled = !username || !password;
 
   const handleLogin = () => dispatch(userLoginRequestSend(username, password));
@@ -51,20 +56,39 @@ const LoginForm = ({ title = "Login "}) => {
     dispatch (restoreInterfaceDefaults());
     dispatch (loginDialogWasCleared());
   };
+
+  const handleGoogleSignin = (user) => {
+    let token = user.getAuthResponse(true).id_token;
+    dispatch (googleLoginRequestSend (token, 'login form'))
+  };
+
+  const handleDialogEnter = () => {
+    let auth = window.gapi.auth2;
+    if (auth) {
+      let authInstance = auth.getAuthInstance();
+      authInstance.attachClickHandler(
+        loginClickHandlerTarget,
+        null,
+        handleGoogleSignin,
+        () => console.log ('failed to log in')
+      );
+    } else {
+      setTimeout(handleDialogEnter, 20);
+    }
+  };
+
+  useEffect (() => {
+    handleDialogEnter();
+  }, [])
+
+  const disableGoogleButton = (username + password).trim().length > 0;
+
   return (
     <div>
       <DialogTitle id="form-dialog-title">{title}</DialogTitle>
       <DialogContent style={{ width: '464px' }}>
         <DialogContentText>
-          Please enter your username and password, or{' '}
-          <Link
-            className={classes.colorCorrectionPrimary}
-            onClick={handleClose}
-            component={RouterLink}
-            to={{ pathname: '/register' }}
-          >
-            Register.
-          </Link>
+          Login with your username and password:
         </DialogContentText>
         <form onSubmit={(e) => e.preventDefault()}>
           <div className={classes.inputContainer}>
@@ -111,14 +135,7 @@ const LoginForm = ({ title = "Login "}) => {
           </div>
 
           <DialogActions style={{ padding: '0 0 15px 0' }}>
-            <div className={classes.actionsContainer}>
-              <div className={classes.googleIconWrapper}>
-                <GoogleSignInButton
-                  clickHandlerTarget={loginClickHandlerTarget}
-                  text="Sign in with Google"
-                />
-              </div>
-
+            <div className={classes.actionsContainerRight}>
               <GreenButtonSM onClick={handleClose}>
                 <span>Cancel</span>
               </GreenButtonSM>
@@ -134,6 +151,40 @@ const LoginForm = ({ title = "Login "}) => {
               </GreenButtonSM>
             </div>
           </DialogActions>
+
+          <DialogContentText style={{ marginTop: '1em' }}>
+            Or login with your Google Account:
+          </DialogContentText>
+
+          <DialogActions style={{ padding: '0 0 15px 0', flexDirection: 'column' }}>
+            <div className={classes.actionsContainerLeft}>
+              <div className={classes.googleIconWrapper}>
+                <GoogleSignInButton
+                  clickHandlerTarget={loginClickHandlerTarget}
+                  text="Sign in with Google"
+                  disabled={disableGoogleButton}
+                />
+              </div>
+            </div>
+            {disableGoogleButton && <p>Username and password are not used to sign in with Google: <Link
+                                                                                                    className={classes.colorCorrectionPrimary}
+                                                                                                    onClick={handleClear}
+                                                                                                  >
+                                                                                                    clear
+                                                                                                  </Link>{' '}
+                                    the login form to enable Google Login.</p>}
+          </DialogActions>
+          <DialogContentText style={{ marginTop: '1em' }}>
+            <Link
+              className={classes.colorCorrectionPrimary}
+              onClick={handleClose}
+              component={RouterLink}
+              to={{ pathname: '/register' }}
+            >
+              Register
+            </Link>{' '}
+            if you do not have a Simons CMAP account.
+          </DialogContentText>
         </form>
         {userLoginState === states.failed ? (
           <DialogContentText>

@@ -41,10 +41,10 @@ userAPI.validate = (user) => {
   });
 };
 
-userAPI.googleLoginRequest = async (userIDToken) => {
+userAPI.googleLoginRequest = async (payload) => {
   let response = await fetch(apiUrl + '/api/user/googleauth', {
     ...postOptions,
-    body: JSON.stringify({ userIDToken }),
+    body: JSON.stringify(payload), // object must include userIDToken
   });
 
   return response;

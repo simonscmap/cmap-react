@@ -16,11 +16,18 @@ const styles = (theme) => ({
   textInput: {
     width: 'calc(50% - 10px)',
   },
-  actionsContainer: {
+  actionsContainerRight: {
     width: '100%',
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  actionsContainerLeft: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
     alignItems: 'center',
   },
   googleIconWrapper: {

@@ -437,6 +437,7 @@ function* getGoogleAuthInstance () {
       const gapiGetAuthInstance = window.gapi && window.gapi.auth2 && window.gapi.auth2.getAuthInstance;
       if (gapiGetAuthInstance) {
         const apiResponse = yield call(gapiGetAuthInstance);
+        console.log ('returning api response from getAuthInstance', apiResponse);
         return apiResponse;
       } else if (i >= 4) {
         const { errorMessage, browserInfo, osInfo, stackFirstLine, location } = parseError (new Error ('exhausted 5 attempts to call getAuthInstance'));
@@ -464,19 +465,23 @@ function* authorizeWithGoogle () {
       if (user && user.getAuthResponse) {
         const authResponse = yield user.getAuthResponse(true);
         if (authResponse) {
-          yield put(userActions.googleLoginRequestSend(authResponse.id_token));
+          yield put(userActions.googleLoginRequestSend(authResponse.id_token, 'auto login'));
         } else {
-          console.log ('no auth response', authResponse);
+          console.log ('attempt to get auth token from google returned nothing', { user, authResponse });
         }
       } else {
-        console.log ('auth instance yielded no current user', authInstance);
+        console.log ('attempt to get current google user returned none', authInstance);
       }
     } else {
-      console.log ('no auth instance (with current user)', authInstance);
+      console.log ('could not get auth instance', authInstance);
     }
   } catch (error) {
     console.log ('error', error);
-    yield put (interfaceActions.snackbarOpen ('Unable to automatically sign in with Google.'));
+    const { errorMessage, browserInfo, osInfo, stackFirstLine, location } = parseError (error);
+    yield put (communityActions.errorReportSend(errorMessage, browserInfo, osInfo, stackFirstLine, location));
+    // removing user message because this login attempt to authorize is triggered automatically
+    // and an error message without a prior user action can be confusing
+    // yield put (interfaceActions.snackbarOpen ('Unable to automatically sign in with Google.'));
   }
 }
 
