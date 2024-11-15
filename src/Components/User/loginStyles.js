@@ -22,6 +22,7 @@ const styles = (theme) => ({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
+    gap: '1em'
   },
   actionsContainerLeft: {
     width: '100%',
@@ -46,6 +47,24 @@ const styles = (theme) => ({
   dialogRoot: {
     zIndex: `${z.LOGIN_DIALOG + 1} !important`,
   },
+  warningWrapper: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: '1em',
+    background: 'rgba(0,0,0,0.2)',
+    gap: '1em',
+  },
+  warningIcon: {
+    color: 'rgb(209, 98, 101)',
+    '& svg': {
+      color: 'rgb(209, 98, 101)',
+    }
+  },
+  registerWrapper: {
+    padding: '0.5em 1em',
+    background: 'rgba(0,0,0,0.2)',
+  }
 });
 
 export default styles;

@@ -45,12 +45,12 @@ class Register extends Component {
 
   onGoogleSignup = (user) => {
     let token = user.getAuthResponse(true).id_token;
-    this.props.googleLoginRequestSend(token);
+    this.props.googleLoginRequestSend(token, 'register', true);
   };
 
   registerGoogleClickHandler = () => {
     let _this = this;
-    let auth = window.gapi.auth2;
+    let auth = window.gapi && window.gapi.auth2;
     if (auth) {
       let authInstance = auth.getAuthInstance();
       authInstance.attachClickHandler(
@@ -63,7 +63,7 @@ class Register extends Component {
           ),
       );
     } else {
-      setTimeout(_this.registerGoogleClickHandler, 20);
+      setTimeout(_this.registerGoogleClickHandler, 200);
     }
   };
 

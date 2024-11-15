@@ -126,12 +126,14 @@ export function* watchUserValidation() {
 
 // userLogout, watchUserLogout
 function* userLogout() {
-  try {
-    let authInstance = yield window.gapi.auth2.getAuthInstance();
-    yield authInstance.signOut();
-    yield call(api.user.logout);
-  } catch (e) {
-    console.log ('cannot get auth instance to log user out');
+  if (window.gapi && window.gapi.auth2 && window.gapi.auth2.getAuthInstance) {
+    try {
+      let authInstance = yield window.gapi.auth2.getAuthInstance();
+      yield authInstance.signOut();
+      yield call(api.user.logout);
+    } catch (e) {
+      console.log ('cannot get auth instance to log user out');
+    }
   }
   yield put(userActions.destroyInfo());
   yield (window.location.href = '/');
@@ -145,26 +147,49 @@ export function* watchUserLogout() {
 // GOOGLE_LOGIN_REQUEST_SEND
 function* googleLoginRequest(action) {
   yield put(userActions.googleLoginRequestProcessing());
-  let result = yield call(
+  let response = yield call(
     api.user.googleLoginRequest,
     action.payload,
   );
 
-  if (result.ok) {
+  if (response.ok) {
     yield put(interfaceActions.hideLoginDialog());
-    var userInfo = JSON.parse(Cookies.get('UserInfo'));
     yield put(userActions.userLoginRequestSuccess());
-    yield put(interfaceActions.snackbarOpen('You are now logged in.'));
+
+    const userInfo = JSON.parse(Cookies.get('UserInfo'));
+    let info;
+    try {
+      info = yield response.json();
+    } catch (e) {
+      console.log ('error parsing json from response', response);
+      return;
+    }
+
+    if (info && (info.login || info.attach)) {
+      yield put(interfaceActions.snackbarOpen('You are now logged in using your Google Account.'));
+    } else if (info && info.register) {
+      yield put(interfaceActions.snackbarOpen('You have successfully registered using your Google Account.'));
+    } else {
+      console.log ('unknown response from login', response);
+    }
+
     yield put(userActions.storeInfo(userInfo));
+
     if (window.location.pathname === '/login') {
       window.location.href = '/';
     }
   } else {
-    console.log ('google login failure', result);
+    console.log ('google login failure', response);
     yield put(userActions.userLoginRequestFailure());
-    // removing user message because this login attempt can be triggered automatically
-    // and an error message without a prior user action can be confusing
-    // yield put(interfaceActions.snackbarOpen('Login failed.', tag));
+    if (action.payload.originator == 'login form') {
+      yield put(interfaceActions.snackbarOpen('There was a problem logging you in with your Google Account.'));
+    } else if (action.payload.originator == 'register') {
+      yield put(interfaceActions.snackbarOpen('There was a problem registering you with your Google Account.'));
+    } else {
+      // removing user message because this login attempt can be triggered automatically
+      // and an error message without a prior user action can be confusing
+      // yield put(interfaceActions.snackbarOpen('Login failed.'));
+    }
   }
 } // ⮷ &. Watcher ⮷
 

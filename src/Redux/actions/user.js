@@ -35,11 +35,12 @@ export const userLoginRequestClearError = () => ({
 });
 
 // Google login actions
-export const googleLoginRequestSend = (userIDToken, originator) => ({
+export const googleLoginRequestSend = (userIDToken, originator, register) => ({
   type: userActionTypes.GOOGLE_LOGIN_REQUEST_SEND,
   payload: {
     userIDToken,
     originator,
+    register,
   },
 });
 

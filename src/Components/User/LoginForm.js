@@ -5,6 +5,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Link from '@material-ui/core/Link';
 import TextField from '@material-ui/core/TextField';
 import { makeStyles } from '@material-ui/core/styles';
+import WarningRoundedIcon from '@material-ui/icons/WarningRounded';
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
@@ -63,7 +64,7 @@ const LoginForm = ({ title = "Login "}) => {
   };
 
   const handleDialogEnter = () => {
-    let auth = window.gapi.auth2;
+    let auth = window.gapi && window.gapi.auth2;
     if (auth) {
       let authInstance = auth.getAuthInstance();
       authInstance.attachClickHandler(
@@ -85,7 +86,19 @@ const LoginForm = ({ title = "Login "}) => {
 
   return (
     <div>
-      <DialogTitle id="form-dialog-title">{title}</DialogTitle>
+      {userLoginState === states.failed ? (
+        <DialogContentText>
+          <div className={classes.warningWrapper}>
+            <WarningRoundedIcon className={classes.warningIcon}/>
+            <span> Login failed. Please try again.</span>
+          </div>
+          </DialogContentText>
+        ) : (
+          ''
+        )}
+      <DialogTitle id="form-dialog-title">
+        <span>{title}
+       </span></DialogTitle>
       <DialogContent style={{ width: '464px' }}>
         <DialogContentText>
           Login with your username and password:
@@ -162,38 +175,22 @@ const LoginForm = ({ title = "Login "}) => {
                 <GoogleSignInButton
                   clickHandlerTarget={loginClickHandlerTarget}
                   text="Sign in with Google"
-                  disabled={disableGoogleButton}
                 />
               </div>
             </div>
-            {disableGoogleButton && <p>Username and password are not used to sign in with Google: <Link
-                                                                                                    className={classes.colorCorrectionPrimary}
-                                                                                                    onClick={handleClear}
-                                                                                                  >
-                                                                                                    clear
-                                                                                                  </Link>{' '}
-                                    the login form to enable Google Login.</p>}
           </DialogActions>
-          <DialogContentText style={{ marginTop: '1em' }}>
-            <Link
-              className={classes.colorCorrectionPrimary}
-              onClick={handleClose}
-              component={RouterLink}
-              to={{ pathname: '/register' }}
-            >
-              Register
-            </Link>{' '}
-            if you do not have a Simons CMAP account.
-          </DialogContentText>
+
         </form>
-        {userLoginState === states.failed ? (
-          <DialogContentText>
-            Login failed. Please try again.
-          </DialogContentText>
-        ) : (
-          ''
-        )}
+
       </DialogContent>
+      <div className={classes.registerWrapper}>
+         <p><Link
+            className={classes.colorCorrectionPrimary}
+            onClick={handleClose}
+            component={RouterLink}
+            to={{ pathname: '/register' }}
+          >Register</Link>{' '}if you do not have a Simons CMAP account.</p>
+      </div>
     </div>
   );
 }

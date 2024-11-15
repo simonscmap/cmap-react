@@ -68,7 +68,7 @@
     />
     <script>
       window.gapi.load('auth2', () => {
-        if (window.gapi) {
+        if (window.gapi && window.gapi.auth2) {
           window.gapi.auth2.init({
             client_id:
               '739716651449-7d1e8iijue6srr9l5mi2iogp982sqoa0.apps.googleusercontent.com',
