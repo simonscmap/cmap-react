@@ -31,7 +31,11 @@ const GoogleSignInButton = (props) => {
   const { classes, clickHandlerTarget, disabled } = props;
 
   return (
-    <WhiteButtonSM style={{ padding: '21px 5px', letterSpacing: 0 }} disabled={disabled}>
+    <WhiteButtonSM
+      onClick={() => console.log ('sign in with google button clicked')}
+      style={{ padding: '21px 5px', letterSpacing: 0 }}
+      disabled={disabled}
+    >
       <div id={clickHandlerTarget} className={classes.wrapper}>
         <div className={classes.iconContainer}></div>
         <span className={classes.textSpan}>{props.text}</span>

@@ -6,6 +6,7 @@ import Link from '@material-ui/core/Link';
 import TextField from '@material-ui/core/TextField';
 import { makeStyles } from '@material-ui/core/styles';
 import WarningRoundedIcon from '@material-ui/icons/WarningRounded';
+import CancelOutlinedIcon from '@material-ui/icons/CancelOutlined';
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
@@ -41,11 +42,6 @@ const LoginForm = ({ title = "Login "}) => {
   let updateUsername = ({ target }) => setUsername(target.value);
   let updatePassword = ({ target }) => setPassword(target.value);
 
-  const handleClear = () => {
-    setUsername('');
-    setPassword('');
-  }
-
   const loginDisabled = !username || !password;
 
   const handleLogin = () => dispatch(userLoginRequestSend(username, password));
@@ -60,7 +56,7 @@ const LoginForm = ({ title = "Login "}) => {
 
   const handleGoogleSignin = (user) => {
     let token = user.getAuthResponse(true).id_token;
-    dispatch (googleLoginRequestSend (token, 'login form'))
+    dispatch (googleLoginRequestSend (token, 'login form'));
   };
 
   const handleDialogEnter = () => {
@@ -82,7 +78,11 @@ const LoginForm = ({ title = "Login "}) => {
     handleDialogEnter();
   }, [])
 
-  const disableGoogleButton = (username + password).trim().length > 0;
+  let displayUsernameHelperText = false;
+  if (username && username.includes('@')) {
+    displayUsernameHelperText = true;
+  }
+
 
   return (
     <div>
@@ -96,9 +96,19 @@ const LoginForm = ({ title = "Login "}) => {
         ) : (
           ''
         )}
-      <DialogTitle id="form-dialog-title">
-        <span>{title}
-       </span></DialogTitle>
+      <div className={classes.titleBar}>
+        <DialogTitle id="form-dialog-title">
+          <span>{title}</span>
+
+        </DialogTitle>
+        <Link
+          className={classes.closeLink}
+          onClick={handleClose}
+        >
+          <span>Close</span>
+          <CancelOutlinedIcon />
+        </Link>
+      </div>
       <DialogContent style={{ width: '464px' }}>
         <DialogContentText>
           Login with your username and password:
@@ -119,6 +129,7 @@ const LoginForm = ({ title = "Login "}) => {
               InputLabelProps={{
                 shrink: true,
               }}
+              helperText={displayUsernameHelperText && <span style={{ color: 'rgb(206, 209, 98)'}}>Please use your username, not your email address.</span>}
             />
 
             <TextField
@@ -149,10 +160,6 @@ const LoginForm = ({ title = "Login "}) => {
 
           <DialogActions style={{ padding: '0 0 15px 0' }}>
             <div className={classes.actionsContainerRight}>
-              <GreenButtonSM onClick={handleClose}>
-                <span>Cancel</span>
-              </GreenButtonSM>
-
               <GreenButtonSM
                 color="primary"
                 type="submit"

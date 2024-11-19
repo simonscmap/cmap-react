@@ -11,7 +11,11 @@ const styles = (theme) => ({
     justifyContent: 'space-between',
     gap: '10px',
     alignItems: 'flex-start',
-    paddingBottom: '1.5em',
+  },
+  titleBar: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   textInput: {
     width: 'calc(50% - 10px)',
@@ -31,12 +35,17 @@ const styles = (theme) => ({
     justifyContent: 'flex-start',
     alignItems: 'center',
   },
-  googleIconWrapper: {
-    // marginRight: '100px',
-    // marginLeft: '-8px',
-  },
-  dialogWrapper: {
-    // backgroundColor: colors.solidPaper,
+  closeLink: {
+    color: theme.palette.primary,
+    fontFamily: 'Montserrat',
+    fontSize: '18px',
+    fontWeight: 500,
+    lineHeight: '22px',
+    textTransform: 'uppercase',
+    padding: '16px 24px',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   colorCorrectionPrimary: {
     color: theme.palette.primary,

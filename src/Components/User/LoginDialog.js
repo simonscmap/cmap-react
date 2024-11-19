@@ -30,48 +30,15 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 const mapDispatchToProps = {
-  hideLoginDialog,
-  userLoginRequestSend,
-  restoreInterfaceDefaults,
-  googleLoginRequestSend,
-  snackbarOpen,
-  guestTokenRequestSend,
+  // hideLoginDialog,
+  // userLoginRequestSend,
+  // restoreInterfaceDefaults,
+  // googleLoginRequestSend,
+  // snackbarOpen,
+  // guestTokenRequestSend,
 };
 
-const loginClickHandlerTarget = 'g-signin';
-
 class LoginDialog extends Component {
-  onGoogleSignin = (user) => {
-    let token = user.getAuthResponse(true).id_token;
-    this.props.googleLoginRequestSend(token, 'login form');
-  };
-
-  componentDidUpdate = (prevProps, prevState) => {
-    if (!prevProps.user && this.props.user) {
-      // this.handleClose();
-    }
-  };
-
-  onDialogEnter = () => {
-    // clean up listener on unmount
-    let _this = this;
-    let auth = window.gapi.auth2;
-    if (auth) {
-      let authInstance = auth.getAuthInstance();
-      authInstance.attachClickHandler(
-        loginClickHandlerTarget,
-        null,
-        _this.onGoogleSignin,
-        () =>
-          _this.props.snackbarOpen(
-            'There was a problem accessing your google account',
-          ),
-      );
-    } else {
-      setTimeout(_this.onDialogEnter, 20);
-    }
-  };
-
   render() {
     const { classes } = this.props;
 
@@ -80,7 +47,6 @@ class LoginDialog extends Component {
         <Dialog
           open={this.props.loginDialogIsOpen}
           aria-labelledby="form-dialog-title"
-          onEnter={this.onDialogEnter}
           PaperProps={{
             className: classes.dialogWrapper,
           }}
