@@ -69,6 +69,12 @@ export const loginDialogWasCleared = () => ({
   type: userActionTypes.LOGIN_DIALOG_WAS_CLEARED,
 });
 
+// Auth
+
+export const promptGSILogin = () => ({
+  type: userActionTypes.PROMPT_GOOGLE_LOGIN,
+});
+
 // Validation actions
 export const userValidationRequestSend = (username, email) => ({
   type: userActionTypes.VALIDATION_REQUEST_SEND,
@@ -162,13 +168,9 @@ export const updateUserInfoRequestFailure = () => ({
   type: userActionTypes.UPDATE_USER_INFO_REQUEST_FAILURE,
 });
 
-export const initializeGoogleAuth = () => ({
-  type: userActionTypes.INITIALIZE_GOOGLE_AUTH,
-});
-
-export const storeGoogleAuth = () => ({
-  type: userActionTypes.STORE_GOOGLE_AUTH,
-});
+// export const storeGoogleAuth = () => ({
+//   type: userActionTypes.STORE_GOOGLE_AUTH,
+// });
 
 export const recoverPasswordRequestSend = (email) => ({
   type: userActionTypes.RECOVER_PASSWORD_REQUEST_SEND,

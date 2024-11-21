@@ -1,6 +1,8 @@
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { WhiteButtonSM } from '../Home/buttons';
+import { useDispatch } from 'react-redux';
+import { promptGSILogin } from '../../Redux/actions/user';
 
 const styles = (theme) => ({
   wrapper: {
@@ -28,15 +30,20 @@ const styles = (theme) => ({
 });
 
 const GoogleSignInButton = (props) => {
-  const { classes, clickHandlerTarget, disabled } = props;
+  const { classes,  disabled } = props;
+  const dispatch = useDispatch();
+
+  const handleClick = () => {
+    dispatch (promptGSILogin ());
+  }
 
   return (
     <WhiteButtonSM
-      onClick={() => console.log ('sign in with google button clicked')}
+      onClick={handleClick}
       style={{ padding: '21px 5px', letterSpacing: 0 }}
       disabled={disabled}
     >
-      <div id={clickHandlerTarget} className={classes.wrapper}>
+      <div className={classes.wrapper}>
         <div className={classes.iconContainer}></div>
         <span className={classes.textSpan}>{props.text}</span>
       </div>

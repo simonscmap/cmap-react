@@ -5,6 +5,8 @@ import * as interfaceActions from '../actions/ui';
 import * as userActions from '../actions/user';
 import * as userActionTypes from '../actionTypes/user';
 import * as catalogActions from '../actions/catalog';
+import * as communityActions from '../actions/community';
+import parseError from '../../Utility/parseError';
 import states from '../../enums/asyncRequestStates';
 import logInit from '../../Services/log-service';
 
@@ -126,17 +128,13 @@ export function* watchUserValidation() {
 
 // userLogout, watchUserLogout
 function* userLogout() {
-  if (window.gapi && window.gapi.auth2 && window.gapi.auth2.getAuthInstance) {
-    try {
-      let authInstance = yield window.gapi.auth2.getAuthInstance();
-      yield authInstance.signOut();
-      yield call(api.user.logout);
-    } catch (e) {
-      console.log ('cannot get auth instance to log user out');
-    }
+  yield put(userActions.destroyInfo()); // clear app state
+  const result = yield call (api.user.logout); // clear jwt
+  if (result.ok) {
+    yield put (interfaceActions.snackbarOpen('You have been logged out.'));
+  } else {
+    yield put (interfaceActions.snackbarOpen('There was an unexpected error while logging out.'));
   }
-  yield put(userActions.destroyInfo());
-  yield (window.location.href = '/');
 } // ⮷ &. Watcher ⮷
 
 export function* watchUserLogout() {
@@ -197,6 +195,74 @@ export function* watchGoogleLoginRequest() {
   yield takeLatest(
     userActionTypes.GOOGLE_LOGIN_REQUEST_SEND,
     googleLoginRequest,
+  );
+}
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+function* promptGSILogin () {
+  const user = yield select((state) => state.user);
+  if (user) {
+    console.log ('user is already logged in');
+    return;
+  }
+  const google = window.google;
+  if (google) {
+    if (google.accounts) {
+      if (google.accounts.id) {
+        if (google.accounts.id.prompt) {
+          // the client was initialized with a reference to the callback
+          // that will handle the credential and call the cmap login api
+          // this prompt merely kicks off that process
+          google.accounts.id.prompt((notification) => {
+            const cmapStore = window.cmapStore;
+            const t = notification.getMomentType();
+            switch (t) {
+            case 'display':
+              if (notification.isNotDisplayed()) {
+                const reason = notification.getNotDisplayedReason();
+                console.log ('not displayed', reason);
+                if (cmapStore) {
+                  cmapStore.dispatch({ type: 'INTERFACE_HIDE_LOGIN_DIALOG' });
+                  let message = `Google login is not available`;
+                  if (reason === 'suppressed_by_user') {
+                    message += ' because you have recently closed the Google login prompt. It will be available again after a cooldown period determined by Google. You may create a password and login via password using your email as username.';
+                  }
+                  cmapStore.dispatch({ type: 'SNACKBAR_OPEN', payload: { message }});
+                }
+              }
+              break;
+            case 'skipped':
+              console.log ('google login skipped', notification.getSkippedReason());
+              if (cmapStore) {
+                window.cmapStore.dispatch({ type: 'INTERFACE_HIDE_LOGIN_DIALOG' });
+                window.cmapStore.dispatch({ type: 'SNACKBAR_OPEN', payload: { message: 'Google login is not available' }})
+              }
+              break;
+            case 'dismissed':
+              console.log ('google login dismissed', notification.getDismissedReason())
+              break;
+            }
+
+          });
+        } else {
+          console.log ('no google.accounts.id.prompt');
+        }
+      } else {
+        console.log ('no google.accounts.id object');
+      }
+    } else {
+      console.log ('no google.accounts object');
+    }
+  } else {
+    console.log ('no globale google object loaded');
+  }
+}
+
+export function* watchPromptGoogleLogin() {
+  yield takeLatest(
+    userActionTypes.PROMPT_GOOGLE_LOGIN,
+    promptGSILogin,
   );
 }
 

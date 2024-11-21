@@ -27,8 +27,6 @@ import {
   restoreInterfaceDefaults,
 } from '../../Redux/actions/ui';
 
-const loginClickHandlerTarget = 'g-signin';
-
 const useStyles = makeStyles(styles);
 
 const LoginForm = ({ title = "Login "}) => {
@@ -53,30 +51,6 @@ const LoginForm = ({ title = "Login "}) => {
     dispatch (restoreInterfaceDefaults());
     dispatch (loginDialogWasCleared());
   };
-
-  const handleGoogleSignin = (user) => {
-    let token = user.getAuthResponse(true).id_token;
-    dispatch (googleLoginRequestSend (token, 'login form'));
-  };
-
-  const handleDialogEnter = () => {
-    let auth = window.gapi && window.gapi.auth2;
-    if (auth) {
-      let authInstance = auth.getAuthInstance();
-      authInstance.attachClickHandler(
-        loginClickHandlerTarget,
-        null,
-        handleGoogleSignin,
-        () => console.log ('failed to log in')
-      );
-    } else {
-      setTimeout(handleDialogEnter, 20);
-    }
-  };
-
-  useEffect (() => {
-    handleDialogEnter();
-  }, [])
 
   let displayUsernameHelperText = false;
   if (username && username.includes('@')) {
@@ -180,7 +154,6 @@ const LoginForm = ({ title = "Login "}) => {
             <div className={classes.actionsContainerLeft}>
               <div className={classes.googleIconWrapper}>
                 <GoogleSignInButton
-                  clickHandlerTarget={loginClickHandlerTarget}
                   text="Sign in with Google"
                 />
               </div>

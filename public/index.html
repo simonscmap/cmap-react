@@ -60,23 +60,35 @@
       crossorigin="anonymous"
     />
 
-    <!-- Google OAuth -->
-    <script src="https://apis.google.com/js/platform.js"></script>
-    <meta
-      name="google-signin-client_id"
-      content="739716651449-7d1e8iijue6srr9l5mi2iogp982sqoa0.apps.googleusercontent.com"
-    />
+    <!-- Google Identity Services API for Sign In -->
+    <script src="https://accounts.google.com/gsi/client"></script>
     <script>
-      window.gapi.load('auth2', () => {
-        if (window.gapi && window.gapi.auth2) {
-          window.gapi.auth2.init({
-            client_id:
-              '739716651449-7d1e8iijue6srr9l5mi2iogp982sqoa0.apps.googleusercontent.com',
-          });
-        } else {
-          console.log ('no gapi on window object; cannot init auth2')
-        }
-      });
+     function handoff (credentialResponse) {
+       try {
+         window.cmapStore.dispatch ({
+           type: 'GOOGLE_LOGIN_REQUEST_SEND',
+           payload: {
+             credential: credentialResponse.credential,
+             originator: 'auto login',
+             register: false,
+             selectBy: credentialResponse.select_by,
+           }
+         });
+       } catch (e) {
+         console.log ('error dispatching google login request', e);
+       }
+     }
+
+     window.onload = function () {
+       console.log ('initializing GSI')
+       google.accounts.id.initialize({
+         // prod client
+         client_id: '739716651449-7d1e8iijue6srr9l5mi2iogp982sqoa0.apps.googleusercontent.com',
+         callback: handoff,
+       });
+       // prompt when page loads
+       // google.accounts.id.prompt();
+     };
     </script>
     <title>Simons Collaborative Marine Atlas Project</title>
   </head>

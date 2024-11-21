@@ -9,7 +9,7 @@ import ErrorBoundary from './Components/UI/ErrorBoundary';
 import GlobalUIComponentWrapper from './Components/UI/GlobalUIComponentWrapper';
 import Docs from './Documentation/sidebar';
 import { toggleShowHelp, windowResize } from './Redux/actions/ui';
-import { ingestCookies, initializeGoogleAuth } from './Redux/actions/user';
+import { ingestCookies, promptGSILogin } from './Redux/actions/user';
 import { ServicesInit } from './Services/Init.js';
 import './Stylesheets/App.scss';
 import './Stylesheets/intro-custom.css';
@@ -55,7 +55,7 @@ const SubscriptionsPage = lazy(() => import('./Components/User/Subscriptions/Sub
 
 
 const mapDispatchToProps = {
-  initializeGoogleAuth,
+  promptGSILogin,
   toggleShowHelp,
   windowResize,
   ingestCookies,
@@ -63,7 +63,7 @@ const mapDispatchToProps = {
 
 class App extends Component {
   componentDidMount = () => {
-    this.props.initializeGoogleAuth();
+    this.props.promptGSILogin();
     window.onresize = this.handleResize;
     this.props.ingestCookies();
   };

@@ -24,7 +24,7 @@ import buildSearchOptionsFromVariablesList from '../../Utility/Catalog/buildSear
 import groupDatasetsByMake from '../../Utility/Catalog/groupDatasetsByMake';
 import groupVariablesByDataset from '../../Utility/Catalog/groupVariablesByDataset';
 import ammendSearchResults from '../../Utility/Catalog/ammendSearchResultsWithDatasetFeatures';
-import parseError from '../../Utility/parseError';
+// import parseError from '../../Utility/parseError';
 
 // Action Creators
 import * as catalogActions from '../actions/catalog';
@@ -34,7 +34,7 @@ import * as userActions from '../actions/user'
 import * as visualizationActions from '../actions/visualization';
 import * as catalogActionTypes from '../actionTypes/catalog';
 import * as communityActionTypes from '../actionTypes/community';
-import * as communityActions from '../actions/community';
+// import * as communityActions from '../actions/community';
 import * as dataSubmissionActionTypes from '../actionTypes/dataSubmission';
 import * as interfaceActionTypes from '../actionTypes/ui';
 import * as userActionTypes from '../actionTypes/user';
@@ -49,6 +49,7 @@ import {
   watchUserValidation,
   watchUserLogout,
   watchGoogleLoginRequest,
+  watchPromptGoogleLogin,
   watchKeyRetrieval,
   watchKeyCreationRequest,
   watchContactUs,
@@ -428,71 +429,6 @@ function* updateUserInfoRequest(action) {
   }
 
   yield put(interfaceActions.setLoadingMessage('', tag));
-}
-
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-function* getGoogleAuthInstance () {
-  for (let i = 0; i < 5; i++) {
-    try {
-      const gapiGetAuthInstance = window.gapi && window.gapi.auth2 && window.gapi.auth2.getAuthInstance;
-      if (gapiGetAuthInstance) {
-        const apiResponse = yield call(gapiGetAuthInstance);
-        console.log ('returning api response from getAuthInstance', apiResponse);
-        return apiResponse;
-      } else if (i >= 4) {
-        const { errorMessage, browserInfo, osInfo, stackFirstLine, location } = parseError (new Error ('exhausted 5 attempts to call getAuthInstance'));
-        yield put (communityActions.errorReportSend(errorMessage, browserInfo, osInfo, stackFirstLine, location));
-      } else {
-        yield delay(2000);
-      }
-    } catch (err) {
-      if (i < 4) {
-        const { errorMessage, browserInfo, osInfo, stackFirstLine, location } = parseError (err);
-        yield put (communityActions.errorReportSend(errorMessage, browserInfo, osInfo, stackFirstLine, location));
-        yield delay(2000)
-      }
-    }
-  }
-
-  throw new Error('Get AuthInstance Failed');
-}
-
-function* authorizeWithGoogle () {
-  try {
-    const authInstance = yield call(getGoogleAuthInstance);
-    if (authInstance.currentUser) {
-      const user = yield authInstance.currentUser.get();
-      if (user && user.getAuthResponse) {
-        const authResponse = yield user.getAuthResponse(true);
-        if (authResponse) {
-          yield put(userActions.googleLoginRequestSend(authResponse.id_token, 'auto login'));
-        } else {
-          console.log ('attempt to get auth token from google returned nothing', { user, authResponse });
-        }
-      } else {
-        console.log ('attempt to get current google user returned none', authInstance);
-      }
-    } else {
-      console.log ('could not get auth instance', authInstance);
-    }
-  } catch (error) {
-    console.log ('error', error);
-    const { errorMessage, browserInfo, osInfo, stackFirstLine, location } = parseError (error);
-    yield put (communityActions.errorReportSend(errorMessage, browserInfo, osInfo, stackFirstLine, location));
-    // removing user message because this login attempt to authorize is triggered automatically
-    // and an error message without a prior user action can be confusing
-    // yield put (interfaceActions.snackbarOpen ('Unable to automatically sign in with Google.'));
-  }
-}
-
-
-function* initializeGoogleAuth() {
-  try {
-    yield call(authorizeWithGoogle);
-  } catch (e) {
-    console.log (e);
-    //
-  }
 }
 
 function* recoverPasswordRequest(action) {
@@ -1794,13 +1730,6 @@ function* watchUpdateUserInfoRequest() {
   );
 }
 
-function* watchInitializeGoogleAuth() {
-  yield takeLatest(
-    userActionTypes.INITIALIZE_GOOGLE_AUTH,
-    initializeGoogleAuth,
-  );
-}
-
 function* watchRecoverPasswordRequest() {
   yield takeLatest(
     userActionTypes.RECOVER_PASSWORD_REQUEST_SEND,
@@ -2080,7 +2009,7 @@ function* rootSaga() {
     watchCsvDownloadRequest(),
     watchRefreshLogin(),
     watchUpdateUserInfoRequest(),
-    watchInitializeGoogleAuth(),
+    watchPromptGoogleLogin(),
     watchRecoverPasswordRequest(),
     watchChoosePasswordRequest(),
     watchContactUs(),

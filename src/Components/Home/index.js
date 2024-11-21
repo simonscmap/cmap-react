@@ -1,5 +1,5 @@
 import { ThemeProvider } from '@material-ui/core/styles';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createSelector } from 'reselect';
 import Footer from './Footer';
 import Hero from './Hero';
@@ -22,6 +22,12 @@ const newsSelector = createSelector (
 );
 
 const Home = withStyles(homeStyles)(({ classes }) => {
+  let dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(requestNewsList()); // call once
+  }, [])
+
   let stories = useSelector(newsSelector);
   let [w, setWidth] = useState(0);
   const onResize = () => {
@@ -67,14 +73,7 @@ The figure below provides a real-time summary of two example datasets you can fi
   );
 });
 
-const DataWrapper = () => {
-  let dispatch = useDispatch();
-  // fetch news in a component that will not rerender
-  dispatch(requestNewsList());
-  return <Home />;
-}
-
-export default DataWrapper;
+export default Home;
 
 export const homepageConfig = {
   route: '/',
