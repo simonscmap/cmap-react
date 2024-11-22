@@ -21,6 +21,7 @@ import {
   SET_FETCH_DOWNLAD_DIALOG_DATA_REQUEST_STATE,
   SET_SUBSCRIBE_INTRO_STATE,
 } from '../actionTypes/ui';
+import states from '../../enums/asyncRequestStates';
 
 const uiResetState = {
   catalogRequestState: null,
@@ -43,6 +44,7 @@ export default function (state, action) {
       return {
         ...state,
         loginDialogIsOpen: true,
+        userLoginState: states.notTried,
       };
     case INTERFACE_HIDE_LOGIN_DIALOG:
       return {

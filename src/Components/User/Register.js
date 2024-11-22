@@ -36,39 +36,10 @@ const mapDispatchToProps = {
   googleLoginRequestSend,
 };
 
-const registerClickHandlerTarget = 'g-signup';
 
 class Register extends Component {
   state = {
     showStepper: false,
-  };
-
-  onGoogleSignup = (user) => {
-    let token = user.getAuthResponse(true).id_token;
-    this.props.googleLoginRequestSend(token, 'register', true);
-  };
-
-  registerGoogleClickHandler = () => {
-    let _this = this;
-    let auth = window.gapi && window.gapi.auth2;
-    if (auth) {
-      let authInstance = auth.getAuthInstance();
-      authInstance.attachClickHandler(
-        registerClickHandlerTarget,
-        null,
-        _this.onGoogleSignup,
-        () =>
-          _this.props.snackbarOpen(
-            'There was a problem accessing your google account',
-          ),
-      );
-    } else {
-      setTimeout(_this.registerGoogleClickHandler, 200);
-    }
-  };
-
-  componentDidMount = () => {
-    this.registerGoogleClickHandler();
   };
 
   handleShowStepper = () => {
@@ -95,8 +66,8 @@ class Register extends Component {
 
               <div className={classes.googleWrapper}>
                 <GoogleSignInButton
-                  clickHandlerTarget={registerClickHandlerTarget}
                   text="Sign up with Google"
+                  register={true}
                 />
               </div>
 

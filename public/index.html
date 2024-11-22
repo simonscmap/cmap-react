@@ -79,15 +79,25 @@
        }
      }
 
+     function initCalled () {
+       try {
+         window.cmapStore.dispatch ({
+           type: 'GSI_INITIALIZED',
+         });
+       } catch (e) {
+         console.log ('error dispatching google login request', e);
+       }
+     }
+
      window.onload = function () {
        console.log ('initializing GSI')
        google.accounts.id.initialize({
-         // prod client
-         client_id: '739716651449-7d1e8iijue6srr9l5mi2iogp982sqoa0.apps.googleusercontent.com',
+         client_id:
+'739716651449-7rbvsac1okk8mkd4g1mti8tnhdk1m3a8.apps.googleusercontent.com',
          callback: handoff,
+         use_fedcm_for_prompt: true,
        });
-       // prompt when page loads
-       // google.accounts.id.prompt();
+       initCalled();
      };
     </script>
     <title>Simons Collaborative Marine Atlas Project</title>

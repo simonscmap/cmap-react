@@ -34,6 +34,14 @@ export const userLoginRequestClearError = () => ({
   type: userActionTypes.LOGIN_REQUEST_CLEAR_ERROR,
 });
 
+export const createRegisterWithGoogleContext = () => ({
+  type: userActionTypes.REGISTER_WITH_GOOGLE_CONTEXT,
+});
+
+export const clearRegisterWithGoogleContext = () => ({
+  type: userActionTypes.REGISTER_WITH_GOOGLE_CONTEXT_CLEAR
+});
+
 // Google login actions
 export const googleLoginRequestSend = (userIDToken, originator, register) => ({
   type: userActionTypes.GOOGLE_LOGIN_REQUEST_SEND,

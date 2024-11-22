@@ -4,17 +4,29 @@ import states from '../../enums/asyncRequestStates';
 export default function (state, action) {
   switch (action.type) {
   case actions.LOGIN_REQUEST_PROCESSING:
-    return { ...state, userLoginState: states.inProgress };
+    return {
+      ...state,
+      userLoginState: states.inProgress
+    };
+
   case actions.LOGIN_REQUEST_SUCCESS:
     return {
       ...state,
       userLoginState: states.succeeded,
       userLoginError: null,
     };
+
   case actions.LOGIN_REQUEST_FAILURE:
-    return { ...state, userLoginState: states.failed };
+    return {
+      ...state,
+      userLoginState: states.failed
+    };
+
   case actions.LOGIN_REQUEST_CLEAR_ERROR:
-    return { ...state, userLoginError: null };
+    return {
+      ...state,
+      userLoginError: null
+    };
 
   case actions.STORE_INFO:
     return {
@@ -70,6 +82,22 @@ export default function (state, action) {
     return { ...state, userRegistrationState: states.failed };
   case actions.REGISTRATION_REQUEST_SUCCESS:
     return { ...state, userRegistrationState: states.succeeded };
+
+  case actions.REGISTER_WITH_GOOGLE_CONTEXT:
+    return {
+      ...state,
+      userRegisterWithGoogleContext: true,
+    }
+  case actions.REGISTER_WITH_GOOGLE_CONTEXT_CLEAR:
+    return {
+      ...state,
+      userRegisterWithGoogleContext: false,
+    }
+  case actions.GSI_INITIALIZED:
+    return {
+      ...state,
+      gsiInitialized: true,
+    };
 
   case actions.KEY_RETRIEVAL_REQUEST_SUCCESS:
     return { ...state, apiKeys: action.payload.keys };

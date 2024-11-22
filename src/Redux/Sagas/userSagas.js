@@ -1,14 +1,15 @@
 import Cookies from 'js-cookie';
-import { call, put, takeLatest, select } from 'redux-saga/effects';
+import { call, put, takeLatest, select, take } from 'redux-saga/effects';
 import api from '../../api/api';
 import * as interfaceActions from '../actions/ui';
 import * as userActions from '../actions/user';
 import * as userActionTypes from '../actionTypes/user';
 import * as catalogActions from '../actions/catalog';
-import * as communityActions from '../actions/community';
-import parseError from '../../Utility/parseError';
+// import * as communityActions from '../actions/community';
+// import parseError from '../../Utility/parseError';
 import states from '../../enums/asyncRequestStates';
 import logInit from '../../Services/log-service';
+import { safePath } from '../../Utility/objectUtils';
 
 const log = logInit ('redux/sagas/userSagas');
 
@@ -145,15 +146,20 @@ export function* watchUserLogout() {
 // GOOGLE_LOGIN_REQUEST_SEND
 function* googleLoginRequest(action) {
   yield put(userActions.googleLoginRequestProcessing());
-  let response = yield call(
+  const registerContextActive = yield select((state) =>
+    state.userRegisterWithGoogleContext);
+  const response = yield call(
     api.user.googleLoginRequest,
-    action.payload,
+    {
+      ...action.payload,
+      register: registerContextActive,
+    }
   );
 
   if (response.ok) {
     yield put(interfaceActions.hideLoginDialog());
     yield put(userActions.userLoginRequestSuccess());
-
+    yield put(userActions.clearRegisterWithGoogleContext());
     const userInfo = JSON.parse(Cookies.get('UserInfo'));
     let info;
     try {
@@ -178,6 +184,7 @@ function* googleLoginRequest(action) {
     }
   } else {
     console.log ('google login failure', response);
+    yield put(userActions.clearRegisterWithGoogleContext());
     yield put(userActions.userLoginRequestFailure());
     if (action.payload.originator == 'login form') {
       yield put(interfaceActions.snackbarOpen('There was a problem logging you in with your Google Account.'));
@@ -200,63 +207,68 @@ export function* watchGoogleLoginRequest() {
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+function handleNotification (notification) {
+  const cmapStore = window.cmapStore;
+  const t = notification.getMomentType();
+  switch (t) {
+  case 'display':
+    if (notification.isNotDisplayed()) {
+      const reason = notification.getNotDisplayedReason();
+      console.log ('not displayed', reason);
+      if (cmapStore) {
+        cmapStore.dispatch({ type: 'INTERFACE_HIDE_LOGIN_DIALOG' });
+        let message = `Google login is not available`;
+        if (reason === 'suppressed_by_user') {
+          message += ' because you have recently closed the Google login prompt. It will be available again after a cooldown period determined by Google. You may create a password and login via password using your email as username.';
+        }
+        cmapStore.dispatch({ type: 'SNACKBAR_OPEN', payload: { message }});
+      }
+    }
+    break;
+  case 'skipped':
+    console.log ('google login skipped', notification.getSkippedReason());
+    if (cmapStore) {
+      window.cmapStore.dispatch({ type: 'INTERFACE_HIDE_LOGIN_DIALOG' });
+      window.cmapStore.dispatch({ type: 'SNACKBAR_OPEN', payload: { message: 'Google login is not available' }})
+    }
+    break;
+  case 'dismissed':
+    console.log ('google login dismissed', notification.getDismissedReason())
+    break;
+  }
+}
+
+function handlePrompt (callCount = 0) {
+  const prompt = safePath (['google', 'accounts', 'id', 'prompt']) (window);
+
+  if (!prompt) {
+    console.log ('prompt not ready', callCount);
+    if (callCount < 5) {
+      const delay = 100 + Math.pow (callCount * 10, 2);
+      setTimeout (handlePrompt, delay, callCount + 1);
+    }
+  } else {
+    // the client was initialized with a reference to the callback
+    // that will handle the credential and call the cmap login api
+    // this prompt merely kicks off that process
+    prompt(handleNotification);
+  }
+}
+
 function* promptGSILogin () {
+  console.log ('prompt google login (from init)')
   const user = yield select((state) => state.user);
+  const gsiInitialized = yield select((state) => state.gsiInitialized);
   if (user) {
     console.log ('user is already logged in');
     return;
   }
-  const google = window.google;
-  if (google) {
-    if (google.accounts) {
-      if (google.accounts.id) {
-        if (google.accounts.id.prompt) {
-          // the client was initialized with a reference to the callback
-          // that will handle the credential and call the cmap login api
-          // this prompt merely kicks off that process
-          google.accounts.id.prompt((notification) => {
-            const cmapStore = window.cmapStore;
-            const t = notification.getMomentType();
-            switch (t) {
-            case 'display':
-              if (notification.isNotDisplayed()) {
-                const reason = notification.getNotDisplayedReason();
-                console.log ('not displayed', reason);
-                if (cmapStore) {
-                  cmapStore.dispatch({ type: 'INTERFACE_HIDE_LOGIN_DIALOG' });
-                  let message = `Google login is not available`;
-                  if (reason === 'suppressed_by_user') {
-                    message += ' because you have recently closed the Google login prompt. It will be available again after a cooldown period determined by Google. You may create a password and login via password using your email as username.';
-                  }
-                  cmapStore.dispatch({ type: 'SNACKBAR_OPEN', payload: { message }});
-                }
-              }
-              break;
-            case 'skipped':
-              console.log ('google login skipped', notification.getSkippedReason());
-              if (cmapStore) {
-                window.cmapStore.dispatch({ type: 'INTERFACE_HIDE_LOGIN_DIALOG' });
-                window.cmapStore.dispatch({ type: 'SNACKBAR_OPEN', payload: { message: 'Google login is not available' }})
-              }
-              break;
-            case 'dismissed':
-              console.log ('google login dismissed', notification.getDismissedReason())
-              break;
-            }
-
-          });
-        } else {
-          console.log ('no google.accounts.id.prompt');
-        }
-      } else {
-        console.log ('no google.accounts.id object');
-      }
-    } else {
-      console.log ('no google.accounts object');
-    }
-  } else {
-    console.log ('no globale google object loaded');
+  if (!gsiInitialized) {
+    console.log ('waiting for gsi to be initialized')
+    yield take (userActionTypes.GSI_INITIALIZED);
   }
+  console.log ('calling prompt')
+  handlePrompt();
 }
 
 export function* watchPromptGoogleLogin() {
