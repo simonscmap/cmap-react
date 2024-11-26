@@ -60,8 +60,9 @@ export const googleLoginRequestSuccess = () => ({
   type: userActionTypes.GOOGLE_LOGIN_REQUEST_SEND_SUCCESS,
 });
 
-export const googleLoginRequestFailure = () => ({
+export const googleLoginRequestFailure = (message, response) => ({
   type: userActionTypes.GOOGLE_LOGIN_REQUEST_SEND_FAILURE,
+  payload: { message, response }
 });
 
 // Log out actions

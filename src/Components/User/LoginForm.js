@@ -7,17 +7,17 @@ import TextField from '@material-ui/core/TextField';
 import { makeStyles } from '@material-ui/core/styles';
 import WarningRoundedIcon from '@material-ui/icons/WarningRounded';
 import CancelOutlinedIcon from '@material-ui/icons/CancelOutlined';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
 import states from '../../enums/asyncRequestStates';
 import { GreenButtonSM } from '../Home/buttons';
-import GoogleSignInButton from './GoogleSignInButton';
 import styles from './loginStyles';
 
 import {
   googleLoginRequestSend,
-  // guestTokenRequestSend,
+  googleLoginRequestFailure,
   userLoginRequestSend,
   loginDialogWasCleared
 } from '../../Redux/actions/user';
@@ -44,6 +44,19 @@ const LoginForm = ({ title = "Login "}) => {
 
   const handleLogin = () => dispatch(userLoginRequestSend(username, password));
 
+  const handleGoogleLogin = (response) => {
+    dispatch (googleLoginRequestSend (
+      response.credential,
+      'login form',
+      false,
+    ));
+  };
+
+  const handleGoogleFailure = (args) => {
+    console.log ('login failure', args);
+    dispatch (googleLoginRequestFailure ('There was a problem using Google to sign in. Ensure any browser extesnions that may interfere with network requests or storing cookies are disabled. If the problem persists please contact '));
+  }
+
   const handleClose = () => {
     setUsername('');
     setPassword('');
@@ -56,7 +69,6 @@ const LoginForm = ({ title = "Login "}) => {
   if (username && username.includes('@')) {
     displayUsernameHelperText = true;
   }
-
 
   return (
     <div>
@@ -153,8 +165,9 @@ const LoginForm = ({ title = "Login "}) => {
           <DialogActions style={{ padding: '0 0 15px 0', flexDirection: 'column' }}>
             <div className={classes.actionsContainerLeft}>
               <div className={classes.googleIconWrapper}>
-                <GoogleSignInButton
-                  text="Sign in with Google"
+                <GoogleLogin
+                  onSuccess={handleGoogleLogin}
+                  onError={handleGoogleFailure}
                 />
               </div>
             </div>

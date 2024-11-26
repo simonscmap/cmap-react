@@ -1,5 +1,6 @@
 import Cookies from 'js-cookie';
 import { call, put, takeLatest, select, take } from 'redux-saga/effects';
+import { googleLogout } from '@react-oauth/google';
 import api from '../../api/api';
 import * as interfaceActions from '../actions/ui';
 import * as userActions from '../actions/user';
@@ -129,6 +130,7 @@ export function* watchUserValidation() {
 
 // userLogout, watchUserLogout
 function* userLogout() {
+  googleLogout(); // this just disables One Tap auto select behavior so that the user insn't logged right back in
   yield put(userActions.destroyInfo()); // clear app state
   const result = yield call (api.user.logout); // clear jwt
   if (result.ok) {
@@ -146,26 +148,21 @@ export function* watchUserLogout() {
 // GOOGLE_LOGIN_REQUEST_SEND
 function* googleLoginRequest(action) {
   yield put(userActions.googleLoginRequestProcessing());
-  const registerContextActive = yield select((state) =>
-    state.userRegisterWithGoogleContext);
   const response = yield call(
     api.user.googleLoginRequest,
-    {
-      ...action.payload,
-      register: registerContextActive,
-    }
+    action.payload,
   );
 
   if (response.ok) {
     yield put(interfaceActions.hideLoginDialog());
     yield put(userActions.userLoginRequestSuccess());
-    yield put(userActions.clearRegisterWithGoogleContext());
     const userInfo = JSON.parse(Cookies.get('UserInfo'));
     let info;
     try {
       info = yield response.json();
     } catch (e) {
       console.log ('error parsing json from response', response);
+      yield put(userActions.userLoginRequestFailure());
       return;
     }
 
@@ -184,17 +181,8 @@ function* googleLoginRequest(action) {
     }
   } else {
     console.log ('google login failure', response);
-    yield put(userActions.clearRegisterWithGoogleContext());
-    yield put(userActions.userLoginRequestFailure());
-    if (action.payload.originator == 'login form') {
-      yield put(interfaceActions.snackbarOpen('There was a problem logging you in with your Google Account.'));
-    } else if (action.payload.originator == 'register') {
-      yield put(interfaceActions.snackbarOpen('There was a problem registering you with your Google Account.'));
-    } else {
-      // removing user message because this login attempt can be triggered automatically
-      // and an error message without a prior user action can be confusing
-      // yield put(interfaceActions.snackbarOpen('Login failed.'));
-    }
+    yield put(userActions.userLoginRequestFailure(null, ));
+
   }
 } // ⮷ &. Watcher ⮷
 
@@ -205,78 +193,31 @@ export function* watchGoogleLoginRequest() {
   );
 }
 
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+function* googleLoginRequestFailure(action) {
+  const { message, response } = (action.payload || {});
 
-function handleNotification (notification) {
-  const cmapStore = window.cmapStore;
-  const t = notification.getMomentType();
-  switch (t) {
-  case 'display':
-    if (notification.isNotDisplayed()) {
-      const reason = notification.getNotDisplayedReason();
-      console.log ('not displayed', reason);
-      if (cmapStore) {
-        cmapStore.dispatch({ type: 'INTERFACE_HIDE_LOGIN_DIALOG' });
-        let message = `Google login is not available`;
-        if (reason === 'suppressed_by_user') {
-          message += ' because you have recently closed the Google login prompt. It will be available again after a cooldown period determined by Google. You may create a password and login via password using your email as username.';
-        }
-        cmapStore.dispatch({ type: 'SNACKBAR_OPEN', payload: { message }});
-      }
-    }
-    break;
-  case 'skipped':
-    console.log ('google login skipped', notification.getSkippedReason());
-    if (cmapStore) {
-      window.cmapStore.dispatch({ type: 'INTERFACE_HIDE_LOGIN_DIALOG' });
-      window.cmapStore.dispatch({ type: 'SNACKBAR_OPEN', payload: { message: 'Google login is not available' }})
-    }
-    break;
-  case 'dismissed':
-    console.log ('google login dismissed', notification.getDismissedReason())
-    break;
+  yield put(interfaceActions.hideLoginDialog());
+
+  if (response && response.originator == 'login form') {
+    yield put(interfaceActions.snackbarOpen('There was a problem logging you in with your Google Account.'));
+  } else if (response && response.originator == 'register') {
+    yield put(interfaceActions.snackbarOpen('There was a problem registering you with your Google Account.'));
+  } else if (response && response.originator == 'auto login') {
+    // do nothing, because this login attempt can be triggered automatically
+    // and an error message without a prior user action can be confusing
+  } else if (message) {
+    // if the origin is unknown, but the message is set, display the message
+    yield put(interfaceActions.snackbarOpen(message));
   }
 }
 
-function handlePrompt (callCount = 0) {
-  const prompt = safePath (['google', 'accounts', 'id', 'prompt']) (window);
-
-  if (!prompt) {
-    console.log ('prompt not ready', callCount);
-    if (callCount < 5) {
-      const delay = 100 + Math.pow (callCount * 10, 2);
-      setTimeout (handlePrompt, delay, callCount + 1);
-    }
-  } else {
-    // the client was initialized with a reference to the callback
-    // that will handle the credential and call the cmap login api
-    // this prompt merely kicks off that process
-    prompt(handleNotification);
-  }
-}
-
-function* promptGSILogin () {
-  console.log ('prompt google login (from init)')
-  const user = yield select((state) => state.user);
-  const gsiInitialized = yield select((state) => state.gsiInitialized);
-  if (user) {
-    console.log ('user is already logged in');
-    return;
-  }
-  if (!gsiInitialized) {
-    console.log ('waiting for gsi to be initialized')
-    yield take (userActionTypes.GSI_INITIALIZED);
-  }
-  console.log ('calling prompt')
-  handlePrompt();
-}
-
-export function* watchPromptGoogleLogin() {
+export function* watchGoogleLoginRequestFailure() {
   yield takeLatest(
-    userActionTypes.PROMPT_GOOGLE_LOGIN,
-    promptGSILogin,
+    userActionTypes.GOOGLE_LOGIN_REQUEST_SEND_FAILURE,
+    googleLoginRequestFailure,
   );
 }
+
 
 // keyRetrieval, watchKeyRetrieval
 function* keyRetrieval() {

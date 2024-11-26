@@ -60,46 +60,6 @@
       crossorigin="anonymous"
     />
 
-    <!-- Google Identity Services API for Sign In -->
-    <script src="https://accounts.google.com/gsi/client"></script>
-    <script>
-     function handoff (credentialResponse) {
-       try {
-         window.cmapStore.dispatch ({
-           type: 'GOOGLE_LOGIN_REQUEST_SEND',
-           payload: {
-             credential: credentialResponse.credential,
-             originator: 'auto login',
-             register: false,
-             selectBy: credentialResponse.select_by,
-           }
-         });
-       } catch (e) {
-         console.log ('error dispatching google login request', e);
-       }
-     }
-
-     function initCalled () {
-       try {
-         window.cmapStore.dispatch ({
-           type: 'GSI_INITIALIZED',
-         });
-       } catch (e) {
-         console.log ('error dispatching google login request', e);
-       }
-     }
-
-     window.onload = function () {
-       console.log ('initializing GSI')
-       google.accounts.id.initialize({
-         client_id:
-'739716651449-7rbvsac1okk8mkd4g1mti8tnhdk1m3a8.apps.googleusercontent.com',
-         callback: handoff,
-         use_fedcm_for_prompt: true,
-       });
-       initCalled();
-     };
-    </script>
     <title>Simons Collaborative Marine Atlas Project</title>
   </head>
   <body>

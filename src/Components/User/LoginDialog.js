@@ -2,40 +2,18 @@ import Dialog from '@material-ui/core/Dialog';
 import { ThemeProvider, withStyles } from '@material-ui/core/styles';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link as RouterLink, withRouter } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 import styles from './loginStyles';
 import { homeTheme } from '../Home/theme';
 import LoginForm from './LoginForm';
 
-import {
-  hideLoginDialog,
-  restoreInterfaceDefaults,
-  snackbarOpen,
-} from '../../Redux/actions/ui';
-
-import {
-  googleLoginRequestSend,
-  guestTokenRequestSend,
-  userLoginRequestSend,
-} from '../../Redux/actions/user';
-
-
-const mapStateToProps = (state, ownProps) => {
+const mapStateToProps = (state) => {
   return {
     loginDialogIsOpen: state.loginDialogIsOpen,
     userLoginState: state.userLoginState,
     userLoginError: state.userLoginError,
     user: state.user,
   };
-};
-
-const mapDispatchToProps = {
-  // hideLoginDialog,
-  // userLoginRequestSend,
-  // restoreInterfaceDefaults,
-  // googleLoginRequestSend,
-  // snackbarOpen,
-  // guestTokenRequestSend,
 };
 
 class LoginDialog extends Component {
@@ -62,5 +40,5 @@ class LoginDialog extends Component {
 }
 
 export default withRouter(
-  connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(LoginDialog)),
+  connect(mapStateToProps)(withStyles(styles)(LoginDialog)),
 );
