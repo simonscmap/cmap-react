@@ -38,6 +38,9 @@ export function* userLogin(action) {
     yield put(userActions.userLoginRequestSuccess());
     yield put(userActions.storeInfo(userInfo));
     yield put(interfaceActions.snackbarOpen('You are now logged in.', tag));
+    if (action.payload.username === userInfo.Email) {
+      log.info ('user used email as username', { email: userInfo.Email });
+    }
 
     const userSubscriptions = yield select ((state) => state.userSubscriptions);
     if (!userSubscriptions) {
