@@ -185,7 +185,7 @@ function* googleLoginRequest(action) {
   } else {
     console.log ('google login failure', response);
     yield put(userActions.userLoginRequestFailure(null, ));
-
+    yield put (userActions.googleLoginRequestFailure (null, response));
   }
 } // ⮷ &. Watcher ⮷
 
@@ -196,8 +196,14 @@ export function* watchGoogleLoginRequest() {
   );
 }
 
+/* this saga can be called from the login dialog directly with a custom message,
+   e.g. in the event that the google login component calls the failure callback,
+   or it can be called from the googleLoginRequest saga, in the event that the api
+   returns an non-200 response
+   */
 function* googleLoginRequestFailure(action) {
   const { message, response } = (action.payload || {});
+  console.log (action);
 
   yield put(interfaceActions.hideLoginDialog());
 
@@ -211,6 +217,12 @@ function* googleLoginRequestFailure(action) {
   } else if (message) {
     // if the origin is unknown, but the message is set, display the message
     yield put(interfaceActions.snackbarOpen(message));
+  } if (response && response.status === 401) {
+    yield put(interfaceActions.snackbarOpen('Unable to log in with that Google Account. Please ensure that you have registered with us. If you think you are receiving this message in error, please contact us for help.'));
+  } else if (response && response.status === 500) {
+    yield put(interfaceActions.snackbarOpen('An error occured while trying to log you in. The site administrators have been notified, please try again later or contact us for help.'));
+  } else {
+    // do nothing
   }
 }
 
