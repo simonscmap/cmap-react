@@ -63,6 +63,7 @@ import {
 import {
   watchFetchDatasetNames,
   watchDownloadDialogOpen,
+  watchFetchVaultLink,
 } from './catalog';
 
 import {
@@ -2100,6 +2101,7 @@ function* rootSaga() {
     watchSendNotifications(),
     watchReSendNotifications(),
     watchDownloadDialogOpen(),
+    watchFetchVaultLink(),
   ]);
 }
 

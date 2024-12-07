@@ -27,6 +27,7 @@ const namingConflictsAudit = (standardArgs) => {
     longNameIsAlreadyInUse, // long name is used by an ingested dataset
     longNameUpdateConflict, // long name is used by an ingested dataset
     errors: nameCheckErrors,
+    originalShortName,
   } = checkNameResult;
 
   const shortName = safePath(['0', 'dataset_short_name'])(dataset_meta_data);
@@ -67,11 +68,20 @@ const namingConflictsAudit = (standardArgs) => {
         });
       }
     }
-    results.push({
-      severity: severity.error,
-      title: 'Unable to Update Short Name',
-      detail: `The short name provided, *\`${shortName}\`*, already exists in the CMAP system. Please choose another name.`,
-    })
+
+    if (originalShortName !== shortName && originalShortName.toLowerCase() === shortName.toLowerCase()) {
+      results.push({
+        severity: severity.error,
+        title: 'Unable to Update Short Name',
+        detail: `The short name provided, *\`${shortName}\`* changes the existing short name, *\`${originalShortName}\`*, by modifying only the case of the original name. Name changes must include non-case-sensitive changes.`,
+      });
+    } else {
+      results.push({
+        severity: severity.error,
+        title: 'Unable to Update Short Name',
+        detail: `The short name provided, *\`${shortName}\`*, already exists in the CMAP system. Please choose another name.`,
+      });
+    }
   }
 
   if (nameCheckErrors.includes('No long name provided')) {

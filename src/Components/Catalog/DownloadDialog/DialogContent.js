@@ -4,6 +4,8 @@ import {
   Button,
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
+import Link from '@material-ui/core/Link';
+import { ImDownload } from "react-icons/im";
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { debounce } from 'throttle-debounce';
@@ -27,6 +29,7 @@ import styles from './downloadDialogStyles';
 import {
   datasetDownloadRequestSend,
   checkQuerySize,
+  dropboxModalOpen,
 } from '../../../Redux/actions/catalog';
 
 import { useDatasetFeatures } from '../../../Utility/Catalog/useDatasetFeatures';
@@ -138,6 +141,9 @@ const Dialog = (props) => {
       [event.target.name]: event.target.checked,
     });
   };
+
+  // Dropbox Link
+  const vaultLink = useSelector((state) => state.download.vaultLink);
 
   // Download Size Validation
 
@@ -323,7 +329,10 @@ const Dialog = (props) => {
     }
   }, [querySizes, checkSizeRequestState]);
 
-
+  // open dropbox modal
+  const handleOpenDropboxModal = () => {
+    dispatch (dropboxModalOpen ());
+  };
 
   // download handler
   let handleDownload = () => {
@@ -409,6 +418,18 @@ const Dialog = (props) => {
         />
         <Button onClick={handleClose}>Cancel</Button>
       </DialogActions>
+      <div className={classes.bottomPlate}>
+        <p style={{ padding: '0px 7px'}}>Use the controls above to specify a subset of the data to download, or to include ancillary data in your download. Click the button below to download the data files directly.</p>
+        <div className={classes.dropboxOptionWrapper}>
+          <Button
+            className={classes.dropboxButton}
+            onClick={handleOpenDropboxModal}
+          >
+            <ImDownload/>
+            <span>Direct Download from CMAP Storage</span>
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };

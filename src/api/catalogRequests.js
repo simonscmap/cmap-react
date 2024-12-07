@@ -168,6 +168,11 @@ catalogAPI.fetchProgramDetails = async (programName) => {
   return await fetch(apiUrl + '/api/catalog/programs/' + programName + '?downSample=true');
 }
 
+catalogAPI.fetchVaultLink = async (shortName) => {
+  return await fetch(`${apiUrl}/api/data/share/${shortName}`);
+
+}
+
 
 
 // Wrap each endpoint in a try/catch because...
