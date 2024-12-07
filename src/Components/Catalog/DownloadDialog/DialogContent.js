@@ -139,6 +139,9 @@ const Dialog = (props) => {
     });
   };
 
+  // Dropbox Link
+  const vaultLink = useSelector((state) => state.download.vaultLink);
+
   // Download Size Validation
 
   let downloadState = useSelector((state) => state.download);
@@ -399,6 +402,7 @@ const Dialog = (props) => {
         </DialogContent>
       </div>
       <DialogActions>
+        <a href={vaultLink && vaultLink.shareLink}><span>Download raw file from Dropbox</span></a>
         <DownloadStep
           buttonState={downloadButtonState}
           isInvalid={isInvalid}

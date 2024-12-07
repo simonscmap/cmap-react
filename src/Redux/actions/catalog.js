@@ -442,3 +442,24 @@ export const setDatasetNamesRequestStatus = (status) => ({
   type: catalogActionTypes.SET_DATASET_NAMES_REQUEST_STATUS,
   payload: status,
 });
+
+// ~~~~~~~~
+
+export const fetchVaultLink = (shortName) => ({
+  type: catalogActionTypes.FETCH_VAULT_LINK,
+  payload: {
+    shortName
+  }
+});
+
+export const fetchVaultLinkSuccess = (data) => ({
+  type: catalogActionTypes.FETCH_VAULT_LINK_SUCCESS,
+  payload: data,
+});
+
+export const setFetchVaultLinkRequestStatus = (status) => ({
+  type: catalogActionTypes.SET_FETCH_VAULT_LINK_REQUEST_STATUS,
+  payload: {
+    status
+  },
+});

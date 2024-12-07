@@ -49,6 +49,8 @@ import {
   PROGRAM_SAMPLE_VIS_DATA_STORE,
   FETCH_DATASET_NAMES_SUCCESS,
   SET_DATASET_NAMES_REQUEST_STATUS,
+  FETCH_VAULT_LINK_SUCCESS,
+  SET_FETCH_VAULT_LINK_REQUEST_STATUS,
 } from '../actionTypes/catalog';
 import states from '../../enums/asyncRequestStates';
 import { sortResults } from '../../Components/Catalog/SortingControls';
@@ -565,13 +567,30 @@ export default function (state, action) {
       datasetNamesFullList: action.payload,
       datasetNamesRequestStatus: states.succeeded,
     };
-    case SET_DATASET_NAMES_REQUEST_STATUS:
+  case SET_DATASET_NAMES_REQUEST_STATUS:
     return {
       ...state,
       datasetNamesRequestStatus: action.payload,
     };
 
+  case FETCH_VAULT_LINK_SUCCESS:
+    return {
+      ...state,
+      download: {
+        ...state.download,
+        vaultLink: action.payload,
+        vaultLinkRequestStatus: states.succeeded,
+      }
+    }
 
+  case SET_FETCH_VAULT_LINK_REQUEST_STATUS:
+    return {
+      ...state,
+      download: {
+        ...state.download,
+        vaultLinkRequestStatus: action.payload.status,
+      }
+    }
 
   default:
     return state;
