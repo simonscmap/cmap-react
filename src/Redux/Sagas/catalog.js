@@ -39,6 +39,34 @@ export function* watchFetchDatasetNames () {
 }
 
 
+function* fetchVaultLink (action) {
+  const shortName = action.payload.shortName;
+
+  yield put (catalogActions.setFetchVaultLinkRequestStatus (states.inProgress));
+  let response;
+  try {
+    response = yield call (api.catalog.fetchVaultLink, shortName);
+  } catch (e) {
+    log.error ('error fetching vault link', { shortName, error: e });
+    yield put (catalogActions.setFetchVaultLinkRequestStatus (states.failed));
+    return;
+  }
+
+  if (response && response.ok) {
+    const jsonResponse = yield response.json();
+    yield put (catalogActions.fetchVaultLinkSuccess (jsonResponse));
+  } else {
+    console.log ('failed to get share link',response);
+    yield put (catalogActions.setFetchVaultLinkRequestStatus (states.failed));
+  }
+}
+export function* watchFetchVaultLink() {
+  yield takeLatest(
+    actionTypes.FETCH_VAULT_LINK,
+    fetchVaultLink,
+  );
+}
+
 // when dataset download dialog opens, handle fetching full page data,
 // or retrieving it from cache
 export function* getFullPageDataForDownload (action) {
@@ -47,6 +75,9 @@ export function* getFullPageDataForDownload (action) {
   const dialogData = yield select (state => state.downloadDialog.data);
 
   const detailPageShortName = detailPageData && detailPageData.dataset.Short_Name;
+  // now get dropbox link
+  yield put (catalogActions.fetchVaultLink (shortName));
+
 
   if (!dialogData && detailPageShortName !== shortName) {
     log.info ('fetching dataset metadata for download dialog', { dialogShortName: shortName, detailPageShortName });
@@ -73,6 +104,7 @@ export function* getFullPageDataForDownload (action) {
   } else {
     // dialog component will get data from detail page data
   }
+
 }
 
 export function* watchDownloadDialogOpen() {

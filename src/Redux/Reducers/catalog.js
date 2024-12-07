@@ -49,6 +49,11 @@ import {
   PROGRAM_SAMPLE_VIS_DATA_STORE,
   FETCH_DATASET_NAMES_SUCCESS,
   SET_DATASET_NAMES_REQUEST_STATUS,
+  FETCH_VAULT_LINK_SUCCESS,
+  SET_FETCH_VAULT_LINK_REQUEST_STATUS,
+  DROPBOX_MODAL_OPEN,
+  DROPBOX_MODAL_CLEANUP,
+  DROPBOX_MODAL_CLOSE,
 } from '../actionTypes/catalog';
 import states from '../../enums/asyncRequestStates';
 import { sortResults } from '../../Components/Catalog/SortingControls';
@@ -565,14 +570,62 @@ export default function (state, action) {
       datasetNamesFullList: action.payload,
       datasetNamesRequestStatus: states.succeeded,
     };
-    case SET_DATASET_NAMES_REQUEST_STATUS:
+  case SET_DATASET_NAMES_REQUEST_STATUS:
     return {
       ...state,
       datasetNamesRequestStatus: action.payload,
     };
 
+  case FETCH_VAULT_LINK_SUCCESS:
+    return {
+      ...state,
+      download: {
+        ...state.download,
+        vaultLink: action.payload,
+        vaultLinkRequestStatus: states.succeeded,
+      }
+    }
 
+  case SET_FETCH_VAULT_LINK_REQUEST_STATUS:
+    return {
+      ...state,
+      download: {
+        ...state.download,
+        vaultLinkRequestStatus: action.payload.status,
+        vaultLink: null, // for any status other than success, null vaultLink
+      }
+    }
 
+  case DROPBOX_MODAL_OPEN:
+    return {
+      ...state,
+      download: {
+        ...state.download,
+        dropboxModalOpen: 'open',
+      },
+      downloadDialog: {
+        ...state.downloadDialog,
+        open: false, // when opening or closing dbx modal, ensure download dialog is closed
+      }
+    }
+
+case DROPBOX_MODAL_CLEANUP:
+    return {
+      ...state,
+      download: {
+        ...state.download,
+        dropboxModalOpen: 'cleanup',
+      },
+    }
+
+  case DROPBOX_MODAL_CLOSE:
+    return {
+      ...state,
+      download: {
+        ...state.download,
+        dropboxModalOpen: 'closed',
+      },
+    }
   default:
     return state;
   }

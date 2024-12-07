@@ -76,22 +76,29 @@ export const useNameChangeWarning = () => {
 
 
   const isShortNameChange = isUpdate && nameCheckResult
-                         && !nameCheckResult.shortNameIsAlreadyInUse
-                         && !nameCheckResult.shortNameUpdateConflict
-                         && nameCheckResult.shortName !== nameCheckResult.originalShortName;
+        && !nameCheckResult.shortNameIsAlreadyInUse
+        && !nameCheckResult.shortNameUpdateConflict
+        && nameCheckResult.shortName !== nameCheckResult.originalShortName;
+
+  const shortNameChangeIsCaseOnly = isUpdate && nameCheckResult
+        && nameCheckResult.shortName !== nameCheckResult.originalShortName
+        && nameCheckResult.shortName.toLowerCase() === nameCheckResult.originalShortName.toLowerCase();
 
   const isLongNameChange = isUpdate && nameCheckResult
-                        && !nameCheckResult.longNameIsAlreadyInUse
-                        && !nameCheckResult.longNameUpdateConflict
-                        && nameCheckResult.longName !== nameCheckResult.originalLongName;
+        && !nameCheckResult.longNameIsAlreadyInUse
+        && !nameCheckResult.longNameUpdateConflict
+        && nameCheckResult.longName !== nameCheckResult.originalLongName;
 
-  return {
+  const result = {
     isShortNameChange,
     isLongNameChange,
+    shortNameChangeIsCaseOnly,
     nameCheckResult,
     nameCheckStatus,
     nameCheckRespText,
   };
+
+  return result;
 }
 
 const NameChangeWarnings = () => {
@@ -100,6 +107,7 @@ const NameChangeWarnings = () => {
     isShortNameChange,
     isLongNameChange,
     nameCheckResult,
+    shortNameChangeIsCaseOnly,
   } = useNameChangeWarning ();
 
   return (
@@ -109,7 +117,7 @@ const NameChangeWarnings = () => {
         Name Changes
         </Typography>
       )}
-      {isShortNameChange && <ShortNameWarning data={nameCheckResult} />}
+      {isShortNameChange && !shortNameChangeIsCaseOnly && <ShortNameWarning data={nameCheckResult} />}
       {isLongNameChange && <LongNameWarning data={nameCheckResult} />}
     </div>
   );

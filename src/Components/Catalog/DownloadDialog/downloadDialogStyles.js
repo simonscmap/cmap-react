@@ -87,6 +87,51 @@ const styles = (theme) => ({
     // border: '1px solid black',
     // padding: '1em',
   },
+  bottomPlate: {
+    padding: '0.5em 1em',
+    background: 'rgba(0,0,0,0.2)',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'start',
+  },
+  dropboxOptionWrapper: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: '1em',
+    '& a': {
+      cursor: 'pointer',
+      color: theme.palette.primary.main,
+      '&:visited': {
+        color: theme.palette.primary.main
+      },
+      '&:hover': {
+        color: theme.palette.secondary.main
+      }
+    }
+  },
+  colorCorrectionPrimary: {
+    cursor: 'pointer',
+    color: theme.palette.primary.main,
+  },
+  dropboxButton: {
+    cursor: 'pointer',
+    color: '#fff',
+    '& > span': {
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: '10px',
+    },
+    '& svg': {
+      color: theme.palette.primary.main,
+      fontSize: '2em',
+    },
+    border: `2px solid ${theme.palette.primary.main}`,
+    borderRadius: '6px',
+    marginLeft: '5px',
+    padding: '5px 14px',
+  }
 });
 
 export default styles;

@@ -52,7 +52,10 @@ const initialState = {
     currentRequest: null,
     checkQueryRequestState: states.notTried,
     querySizeChecks: [], // list of { queryString, result }
-  },
+    vaultLink: null,
+    dropboxModalOpen: 'closed',
+  }, // NOTE see also state.downloadDialog
+     // this is an artifact of initially only using redux for the ui state
 
   // Dataset Details Page
   datasetDetailsPage: {

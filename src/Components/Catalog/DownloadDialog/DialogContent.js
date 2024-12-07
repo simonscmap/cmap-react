@@ -2,8 +2,11 @@ import {
   DialogActions,
   DialogContent,
   Button,
+  Dialog,
 } from '@material-ui/core';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, makeStyles } from '@material-ui/core/styles';
+import { ImDownload } from "react-icons/im";
+import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { debounce } from 'throttle-debounce';
@@ -27,6 +30,7 @@ import styles from './downloadDialogStyles';
 import {
   datasetDownloadRequestSend,
   checkQuerySize,
+  dropboxModalOpen,
 } from '../../../Redux/actions/catalog';
 
 import { useDatasetFeatures } from '../../../Utility/Catalog/useDatasetFeatures';
@@ -48,8 +52,38 @@ let checkQuerySizeDispatch = debounce(
     reduxStore.dispatch(checkQuerySize(query));
   });
 
+const useStyles = makeStyles (styles);
+const InfoDialog = (props) => {
+  const {open, handleClose} = props;
+  const classes = useStyles ();
+  return (
+    <Dialog
+      fullScreen={false}
+      className={classes.muiDialog}
+      PaperProps={{
+        className: classes.dialogPaper,
+      }}
+      open={open}
+      onClose={handleClose}
+    >
+      <DialogContent>
+        <p>
+          Use the subset controls along with the "Download" button to specify a subset of the data to download, or to include ancillary data in your download.
+        </p>
+        <p>
+          Click the "Direct Download..." button below to download the data files from CMAP storage directly, with the option on large datasets to download the files in bulk.
+        </p>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleClose}>Close</Button>
+        </DialogActions>
+    </Dialog>
+
+  );
+}
+
 // DIALOG
-const Dialog = (props) => {
+const DownloadDialog = (props) => {
   let {
     dataset: rawDataset,
     handleClose,
@@ -68,6 +102,8 @@ const Dialog = (props) => {
   }
 
   let dispatch = useDispatch();
+
+  const [infoDialogOpen, setInfoDialogOpen] = useState(false);
 
   let datasetHasAncillaryData = useDatasetFeatures(dataset.Table_Name, 'ancillary');
 
@@ -138,6 +174,9 @@ const Dialog = (props) => {
       [event.target.name]: event.target.checked,
     });
   };
+
+  // Dropbox Link
+  const vaultLink = useSelector((state) => state.download.vaultLink);
 
   // Download Size Validation
 
@@ -323,7 +362,10 @@ const Dialog = (props) => {
     }
   }, [querySizes, checkSizeRequestState]);
 
-
+  // open dropbox modal
+  const handleOpenDropboxModal = () => {
+    dispatch (dropboxModalOpen ());
+  };
 
   // download handler
   let handleDownload = () => {
@@ -409,8 +451,23 @@ const Dialog = (props) => {
         />
         <Button onClick={handleClose}>Cancel</Button>
       </DialogActions>
+      <div className={classes.bottomPlate}>
+        <div className={classes.dropboxOptionWrapper}>
+          <Button
+            className={classes.dropboxButton}
+            onClick={handleOpenDropboxModal}
+          >
+            <ImDownload/>
+            <span>Direct Download from CMAP Storage</span>
+          </Button>
+          <div className={classes.infoLink}>
+            <InfoDialog open={infoDialogOpen} handleClose={() => setInfoDialogOpen (false)} />
+            <a onClick={() => setInfoDialogOpen(true)}><InfoOutlinedIcon /></a>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default withStyles(styles)(Dialog);
+export default withStyles(styles)(DownloadDialog);
