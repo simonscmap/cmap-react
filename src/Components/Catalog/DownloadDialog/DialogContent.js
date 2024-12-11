@@ -33,6 +33,7 @@ import { useDatasetFeatures } from '../../../Utility/Catalog/useDatasetFeatures'
 import states from '../../../enums/asyncRequestStates';
 import reduxStore from '../../../Redux/store';
 import logInit from '../../../Services/log-service';
+import DropboxEmbed from './DropboxEmbed';
 
 const log = logInit('Catalog/DownloadDialog/DialogContent');
 
@@ -402,7 +403,7 @@ const Dialog = (props) => {
         </DialogContent>
       </div>
       <DialogActions>
-        <a href={vaultLink && vaultLink.shareLink}><span>Download raw file from Dropbox</span></a>
+        {vaultLink && vaultLink.shareLink && <DropboxEmbed sharedLink={vaultLink.shareLink} />}
         <DownloadStep
           buttonState={downloadButtonState}
           isInvalid={isInvalid}
