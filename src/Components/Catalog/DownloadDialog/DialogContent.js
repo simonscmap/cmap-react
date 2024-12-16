@@ -4,6 +4,7 @@ import {
   Button,
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
+import Link from '@material-ui/core/Link';
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { debounce } from 'throttle-debounce';
@@ -27,13 +28,13 @@ import styles from './downloadDialogStyles';
 import {
   datasetDownloadRequestSend,
   checkQuerySize,
+  setDropboxModalOpen,
 } from '../../../Redux/actions/catalog';
 
 import { useDatasetFeatures } from '../../../Utility/Catalog/useDatasetFeatures';
 import states from '../../../enums/asyncRequestStates';
 import reduxStore from '../../../Redux/store';
 import logInit from '../../../Services/log-service';
-import DropboxEmbed from './DropboxEmbed';
 
 const log = logInit('Catalog/DownloadDialog/DialogContent');
 
@@ -327,7 +328,10 @@ const Dialog = (props) => {
     }
   }, [querySizes, checkSizeRequestState]);
 
-
+  // open dropbox modal
+  const handleOpenDropboxModal = () => {
+    dispatch (setDropboxModalOpen (true));
+  };
 
   // download handler
   let handleDownload = () => {
@@ -403,7 +407,6 @@ const Dialog = (props) => {
         </DialogContent>
       </div>
       <DialogActions>
-        {vaultLink && vaultLink.shareLink && <DropboxEmbed sharedLink={vaultLink.shareLink} />}
         <DownloadStep
           buttonState={downloadButtonState}
           isInvalid={isInvalid}
@@ -414,6 +417,16 @@ const Dialog = (props) => {
         />
         <Button onClick={handleClose}>Cancel</Button>
       </DialogActions>
+      <div className={classes.dropboxOptionWrapper}>
+        <p>
+          <span>Or, {' '}</span>
+          <Link
+            className={classes.colorCorrectionPrimary}
+            onClick={handleOpenDropboxModal}
+          >download raw files from Dropbox</Link>
+          <span>.</span>
+        </p>
+      </div>
     </div>
   );
 };

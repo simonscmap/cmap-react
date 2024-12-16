@@ -463,3 +463,8 @@ export const setFetchVaultLinkRequestStatus = (status) => ({
     status
   },
 });
+
+export const setDropboxModalOpen = (state) => ({
+  type: catalogActionTypes.SET_DROPBOX_MODAL_OPEN,
+  payload: state,
+})

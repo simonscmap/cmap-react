@@ -87,6 +87,14 @@ const styles = (theme) => ({
     // border: '1px solid black',
     // padding: '1em',
   },
+  dropboxOptionWrapper: {
+    padding: '0.5em 1em',
+    background: 'rgba(0,0,0,0.2)',
+  },
+  colorCorrectionPrimary: {
+    cursor: 'pointer',
+    color: theme.palette.primary,
+  },
 });
 
 export default styles;

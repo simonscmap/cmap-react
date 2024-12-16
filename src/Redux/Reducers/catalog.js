@@ -51,6 +51,7 @@ import {
   SET_DATASET_NAMES_REQUEST_STATUS,
   FETCH_VAULT_LINK_SUCCESS,
   SET_FETCH_VAULT_LINK_REQUEST_STATUS,
+  SET_DROPBOX_MODAL_OPEN,
 } from '../actionTypes/catalog';
 import states from '../../enums/asyncRequestStates';
 import { sortResults } from '../../Components/Catalog/SortingControls';
@@ -589,6 +590,20 @@ export default function (state, action) {
       download: {
         ...state.download,
         vaultLinkRequestStatus: action.payload.status,
+        vaultLink: null, // for any status other than success, null vaultLink
+      }
+    }
+
+  case SET_DROPBOX_MODAL_OPEN:
+    return {
+      ...state,
+      download: {
+        ...state.download,
+        dropboxModalOpen: action.payload,
+      },
+      downloadDialog: {
+        ...state.downloadDialog,
+        open: false, // when opening or closing dbx modal, ensure download dialog is closed
       }
     }
 

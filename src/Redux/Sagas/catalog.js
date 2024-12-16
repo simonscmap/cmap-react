@@ -41,6 +41,7 @@ export function* watchFetchDatasetNames () {
 
 function* fetchVaultLink (action) {
   const shortName = action.payload.shortName;
+
   yield put (catalogActions.setFetchVaultLinkRequestStatus (states.inProgress));
   let response;
   try {

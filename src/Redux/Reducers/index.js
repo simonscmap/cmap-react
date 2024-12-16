@@ -53,6 +53,7 @@ const initialState = {
     checkQueryRequestState: states.notTried,
     querySizeChecks: [], // list of { queryString, result }
     vaultLink: null,
+    dropboxDownloadOpen: false,
   }, // NOTE see also state.downloadDialog
      // this is an artifact of initially only using redux for the ui state
 
