@@ -5,6 +5,7 @@ import {
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import Link from '@material-ui/core/Link';
+import { ImDownload } from "react-icons/im";
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { debounce } from 'throttle-debounce';
@@ -418,14 +419,14 @@ const Dialog = (props) => {
         <Button onClick={handleClose}>Cancel</Button>
       </DialogActions>
       <div className={classes.dropboxOptionWrapper}>
-        <p>
-          <span>Or, {' '}</span>
-          <Link
-            className={classes.colorCorrectionPrimary}
-            onClick={handleOpenDropboxModal}
-          >download raw files from Dropbox</Link>
-          <span>.</span>
-        </p>
+        <span>Or {' '}</span>
+        <Button
+          className={classes.dropboxButton}
+          onClick={handleOpenDropboxModal}
+        >
+          <ImDownload/>
+          <span>Download raw files from Dropbox</span>
+        </Button>
       </div>
     </div>
   );

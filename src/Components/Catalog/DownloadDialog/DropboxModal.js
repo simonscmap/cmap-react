@@ -8,6 +8,12 @@ import {
   Button,
 } from '@material-ui/core';
 
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableRow from '@material-ui/core/TableRow';
+
 import DropboxEmbed from './DropboxEmbed';
 import { homeTheme } from '../../Home/theme';
 import { SpinnerWrapper } from '../../UI/Spinner';
@@ -22,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
   titleBar: {
     display: 'flex',
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'end',
   },
   cmapMark: {
     zIndex: 100,
@@ -33,14 +39,26 @@ const useStyles = makeStyles((theme) => ({
     backgroundSize: 'cover',
   },
   metadataContainer: {
-    '& p': {
-      textTransform: 'none',
-      color: 'white',
-    }
+    padding: '1em 1em 1em 0',
+    marginLeft: '-13px',
+    textTransform: 'none',
+    color: 'white',
+    fontSize: '1em',
   },
   fullHeight: {
     height: '100%',
   },
+  closeButton: {
+    color: theme.palette.primary.main,
+  },
+  table: {
+    width: 'auto',
+    tableLayout: 'auto',
+  },
+  tc: {
+    color: 'white',
+    borderBottom: 'none',
+  }
 }));
 
 
@@ -71,8 +89,6 @@ const DropboxModal = () => {
     fileType = 'unknown';
   }
 
-  const files = fileCount > 1 ? 'files' : 'file';
-
   return (
     <ThemeProvider theme={homeTheme}>
       <Dialog
@@ -92,13 +108,34 @@ const DropboxModal = () => {
           </div>
           {vaultLink &&
            <div className={classes.metadataContainer}>
-             <p>Download {fileCount} {fileType} {files} for {shortName}, totaling {totalSize}.</p>
+             <TableContainer>
+               <Table className={classes.table} size="small" aria-label="raw files metadata table">
+                 <TableBody className={classes.tableBody}>
+                   <TableRow>
+                     <TableCell className={classes.tc}>Dataset Name</TableCell>
+                     <TableCell className={classes.tc}>{shortName}</TableCell>
+                   </TableRow>
+                   <TableRow>
+                     <TableCell className={classes.tc}>Data Type</TableCell>
+                     <TableCell className={classes.tc}>{fileType}</TableCell>
+                   </TableRow>
+                   <TableRow>
+                     <TableCell className={classes.tc}>Number of Files</TableCell>
+                     <TableCell className={classes.tc}>{fileCount}</TableCell>
+                   </TableRow>
+                   <TableRow>
+                     <TableCell className={classes.tc}>Total Size</TableCell>
+                     <TableCell className={classes.tc}>{totalSize}</TableCell>
+                   </TableRow>
+                 </TableBody>
+               </Table>
+             </TableContainer>
            </div>}
         </DialogTitle>
         { !vaultLink && <div className={classes.fullHeight}><SpinnerWrapper /></div>}
         <DropboxEmbed />
         <DialogActions>
-          <Button onClick={handleClose}>Close</Button>
+          <Button onClick={handleClose} className={classes.closeButton}>Close</Button>
         </DialogActions>
       </Dialog>
     </ThemeProvider>
