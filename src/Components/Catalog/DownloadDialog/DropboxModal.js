@@ -10,8 +10,8 @@ import {
 
 import DropboxEmbed from './DropboxEmbed';
 import { homeTheme } from '../../Home/theme';
-import { Spinner } from '../../UI/Spinner';
-import { setDropboxModalOpen } from '../../../Redux/actions/catalog';
+import { SpinnerWrapper } from '../../UI/Spinner';
+import { dropboxModalCleanup } from '../../../Redux/actions/catalog';
 import z from '../../../enums/zIndex';
 import { safePath } from '../../../Utility/objectUtils';
 
@@ -49,7 +49,7 @@ const DropboxModal = () => {
   const dispatch = useDispatch();
   const dropboxModalOpen = useSelector((state) => state.download.dropboxModalOpen);
   const vaultLink = useSelector ((state) => state.download.vaultLink);
-  const handleClose = () => dispatch (setDropboxModalOpen(false));
+  const handleClose = () => dispatch (dropboxModalCleanup());
 
   const shortName = safePath (['shortName']) (vaultLink);
   const folderName = safePath (['folderName']) (vaultLink);
@@ -71,11 +71,13 @@ const DropboxModal = () => {
     fileType = 'unknown';
   }
 
+  const files = fileCount > 1 ? 'files' : 'file';
+
   return (
     <ThemeProvider theme={homeTheme}>
       <Dialog
         fullScreen
-        open={dropboxModalOpen}
+        open={dropboxModalOpen !== 'closed'}
         aria-labelledby="dropbox-dialog-title"
         classes={{
           root: classes.dialogRoot,
@@ -90,10 +92,10 @@ const DropboxModal = () => {
           </div>
           {vaultLink &&
            <div className={classes.metadataContainer}>
-             <p>Download {fileCount} {fileType} file(s) for {shortName}, totaling {totalSize}.</p>
+             <p>Download {fileCount} {fileType} {files} for {shortName}, totaling {totalSize}.</p>
            </div>}
         </DialogTitle>
-        { !vaultLink && <div className={classes.fullHeight}><Spinner /></div>}
+        { !vaultLink && <div className={classes.fullHeight}><SpinnerWrapper /></div>}
         <DropboxEmbed />
         <DialogActions>
           <Button onClick={handleClose}>Close</Button>

@@ -28,7 +28,7 @@ import styles from './downloadDialogStyles';
 import {
   datasetDownloadRequestSend,
   checkQuerySize,
-  setDropboxModalOpen,
+  dropboxModalOpen,
 } from '../../../Redux/actions/catalog';
 
 import { useDatasetFeatures } from '../../../Utility/Catalog/useDatasetFeatures';
@@ -330,7 +330,7 @@ const Dialog = (props) => {
 
   // open dropbox modal
   const handleOpenDropboxModal = () => {
-    dispatch (setDropboxModalOpen (true));
+    dispatch (dropboxModalOpen ());
   };
 
   // download handler

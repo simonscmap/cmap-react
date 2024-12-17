@@ -464,7 +464,14 @@ export const setFetchVaultLinkRequestStatus = (status) => ({
   },
 });
 
-export const setDropboxModalOpen = (state) => ({
-  type: catalogActionTypes.SET_DROPBOX_MODAL_OPEN,
-  payload: state,
-})
+export const dropboxModalOpen = () => ({
+  type: catalogActionTypes.DROPBOX_MODAL_OPEN,
+});
+
+export const dropboxModalCleanup = () => ({
+  type: catalogActionTypes.DROPBOX_MODAL_CLEANUP,
+});
+
+export const dropboxModalClose = () => ({
+  type: catalogActionTypes.DROPBOX_MODAL_CLOSE,
+});

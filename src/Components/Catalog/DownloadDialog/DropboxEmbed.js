@@ -1,23 +1,29 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { safePath } from '../../../Utility/objectUtils';
+import { dropboxModalClose } from '../../../Redux/actions/catalog';
 
 const useStyles = makeStyles((theme) => ({
-  height: {
+  embedHeight: {
     height: '100%',
   },
 }));
 
 const DropboxEmbed = () => {
   const classes = useStyles();
+  const dispatch = useDispatch();
   const shareLink = useSelector ((state) =>
     safePath (['download', 'vaultLink', 'shareLink']) (state));
 
-  const [dbxEmbed, setDbxEmbed] = useState();
-  const [ref, setRef] = useState(useRef(null))
-  const visibility = dbxEmbed ? {} : { visibility: 'none' };
+  const dropboxModalOpen = useSelector((state) => state.download.dropboxModalOpen);
 
+
+  const ref = useRef (null);
+
+  const [dbxEmbed, setDbxEmbed] = useState();
+
+  const visibility = shareLink ? {} : { visibility: 'hidden', height: 0 };
 
 
   /* the mounting/unmounting logic depends on the following redux state behavior:
@@ -27,6 +33,7 @@ const DropboxEmbed = () => {
   useEffect(() => {
     if (ref.current) {
       if (shareLink) {
+        console.log ('shareLink', shareLink);
         let embed;
         try {
           console.log ("MOUNT");
@@ -37,26 +44,44 @@ const DropboxEmbed = () => {
         setDbxEmbed (embed);
       } else if (dbxEmbed) {
         try {
-          console.log ("UNMOUNT");
+          console.log ("UNMOUNT no shareLink");
           window.Dropbox.unmount (dbxEmbed);
-setDbxEmbed(null);
-    setRef (useRef(null));
+          setDbxEmbed(null);
         } catch (e) {
           console.log ('there was an error unmounting the dropbox embed');
         }
       } else {
         console.log ('no share link and no existing embed');
       }
+    } else {
+      console.log ("dbx embed: no ref")
     }
+
     return () => {
-      console.log ("UNMOUNT unmount")
-      dbxEmbed && window.Dropbox.unmount(dbxEmbed)
-setDbxEmbed(null);
-    setRef (useRef(null));
+      if (dbxEmbed) {
+        console.log ("UNMOUNT unmount")
+        window.Dropbox.unmount(dbxEmbed);
+        setDbxEmbed(null);
+      } else {
+        console.log ("no embed to unmount");
+      }
     }
   }, [shareLink]);
 
-  return <div ref={ref} stlye={visibility} className={classes.height} />;
+  useEffect (() => {
+    if (dropboxModalOpen === 'cleanup') {
+      if (dbxEmbed) {
+        console.log ('cleanup: unmount embed');
+        window.Dropbox.unmount(dbxEmbed);
+      } else {
+        console.log ('cleanup: no embed to unmount');
+      }
+      setDbxEmbed(null);
+      dispatch (dropboxModalClose ()); // now that we have unmounted dbx, close the modal
+    }
+  }, [dropboxModalOpen])
+
+  return <div ref={ref} style={visibility} className={classes.embedHeight} />;
 };
 
 

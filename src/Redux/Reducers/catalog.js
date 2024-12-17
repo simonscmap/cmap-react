@@ -51,7 +51,9 @@ import {
   SET_DATASET_NAMES_REQUEST_STATUS,
   FETCH_VAULT_LINK_SUCCESS,
   SET_FETCH_VAULT_LINK_REQUEST_STATUS,
-  SET_DROPBOX_MODAL_OPEN,
+  DROPBOX_MODAL_OPEN,
+  DROPBOX_MODAL_CLEANUP,
+  DROPBOX_MODAL_CLOSE,
 } from '../actionTypes/catalog';
 import states from '../../enums/asyncRequestStates';
 import { sortResults } from '../../Components/Catalog/SortingControls';
@@ -594,12 +596,12 @@ export default function (state, action) {
       }
     }
 
-  case SET_DROPBOX_MODAL_OPEN:
+  case DROPBOX_MODAL_OPEN:
     return {
       ...state,
       download: {
         ...state.download,
-        dropboxModalOpen: action.payload,
+        dropboxModalOpen: 'open',
       },
       downloadDialog: {
         ...state.downloadDialog,
@@ -607,6 +609,23 @@ export default function (state, action) {
       }
     }
 
+case DROPBOX_MODAL_CLEANUP:
+    return {
+      ...state,
+      download: {
+        ...state.download,
+        dropboxModalOpen: 'cleanup',
+      },
+    }
+
+  case DROPBOX_MODAL_CLOSE:
+    return {
+      ...state,
+      download: {
+        ...state.download,
+        dropboxModalOpen: 'closed',
+      },
+    }
   default:
     return state;
   }
