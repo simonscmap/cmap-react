@@ -58,6 +58,15 @@ const useStyles = makeStyles((theme) => ({
   tc: {
     color: 'white',
     borderBottom: 'none',
+    '& a': {
+      color: theme.palette.primary.main,
+      '&:visited': {
+        color: theme.palette.primary.main
+      },
+      '&:hover': {
+        color: theme.palette.secondary.main
+      }
+    },
   }
 }));
 
@@ -126,6 +135,10 @@ const DropboxModal = () => {
                    <TableRow>
                      <TableCell className={classes.tc}>Total Size</TableCell>
                      <TableCell className={classes.tc}>{totalSize}</TableCell>
+                   </TableRow>
+                   <TableRow>
+                     <TableCell className={classes.tc}>External Link</TableCell>
+                     <TableCell className={classes.tc}><a href={vaultLink.shareLink} target="_blank">View on Dropbox.com</a></TableCell>
                    </TableRow>
                  </TableBody>
                </Table>
