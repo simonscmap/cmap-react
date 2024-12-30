@@ -27,10 +27,10 @@ const TrajectoryController = (props) => {
 
   useEffect(() => {
     if (globeUIRef.current) {
-      console.log('setting dock disable');
-      console.log(globeUIRef.current);
+      // console.log('setting dock disable');
+      // console.log(globeUIRef.current);
       // this doesn't work
-      globeUIRef.current.props.view.popup.dockEnabled = false;
+      // globeUIRef.current.props.view.popup.dockEnabled = false;
     }
   }, [globeUIRef.current]);
 

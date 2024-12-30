@@ -3,21 +3,21 @@ import { connect } from 'react-redux';
 import { withStyles, Grid, Tooltip, Typography } from '@material-ui/core';
 import { Info, ExpandMore, ChevronRight, Star } from '@material-ui/icons';
 import { VariableSizeList } from 'react-window';
-import Hint from '../Navigation/Help/Hint';
-import ObservationDataGroupHint from './help/ObservationDataGroupHint';
-import ModelDataGroupHint from './help/ModelDataGroupHint';
-import colors from '../../enums/colors';
-import states from '../../enums/asyncRequestStates';
+import Hint from '../../Navigation/Help/Hint';
+import ObservationDataGroupHint from '../help/ObservationDataGroupHint';
+import ModelDataGroupHint from '../help/ModelDataGroupHint';
+import colors from '../../../enums/colors';
+import states from '../../../enums/asyncRequestStates';
 
-const makeGroupStyles = {
+const makeGroupStyles = ((theme) => ({
   searchOption: {
     '&:hover': {
       backgroundColor: colors.greenHover,
     },
     cursor: 'pointer',
     height: '38px',
-    boxShadow: '0px 1px 1px 1px #242424',
-    backgroundColor: 'rgba(0,0,0,.4)',
+    // boxShadow: '0px 1px 1px 1px #242424',
+    // backgroundColor: 'rgba(0,0,0,.4)',
   },
 
   searchOptionsMenuItemText: {
@@ -28,19 +28,23 @@ const makeGroupStyles = {
     textAlign: 'left',
   },
 
+  groupHeading: {
+    borderBottom: `1px solid ${theme.palette.primary.main}`
+  },
+
   heading: {
     textAlign: 'left',
     padding: '8px 6px',
     color: colors.primary,
     fontSize: '16px',
     marginTop: '5px',
-    backgroundColor: 'rgba(0,0,0,.4)',
+    // backgroundColor: 'rgba(0,0,0,.4)',
   },
 
   headingWrapper: {
     position: 'relative',
-    display: 'inline-block',
-    marginRight: '3em',
+    // display: 'inline-block',
+    // marginRight: '3em',
   },
 
   variableItem: {
@@ -54,7 +58,7 @@ const makeGroupStyles = {
   },
 
   variablesWrapper: {
-    backgroundColor: 'rgba(0,0,0,.2)',
+    // backgroundColor: 'rgba(0,0,0,.2)',
     paddingTop: '8px',
   },
 
@@ -75,14 +79,14 @@ const makeGroupStyles = {
 
   listHeader: {
     color: colors.primary,
-    backgroundColor: 'rgba(0,0,0,.2)',
+    // backgroundColor: 'rgba(0,0,0,.2)',
     textAlign: 'left',
   },
 
   variableName: {
     paddingLeft: '48px',
   },
-};
+}));
 
 const mapStateToProps = (state) => ({
   vizSearchResultsLoadingState: state.vizSearchResultsLoadingState,
@@ -174,7 +178,7 @@ const Header = ({
       : ` (${nonvisualizableDatasetCount} hidden)`;
 
   return (
-    <Grid container>
+    <Grid container className={classes.groupHeading}>
       <Grid item xs={9}>
         <Typography
           id={`${make}-data-results-header`}
@@ -194,20 +198,19 @@ const Header = ({
               >
                 <span>
                   {make} Data - Showing {options.length} datasets
-                </span>
-              </Hint>
-
-              <Tooltip
+<Tooltip
                 enterDelay={50}
                 placement="top"
                 title="Variables and datasets which are not flagged as visualizable are not shown on this list, but can be found on the catalog page."
               >
                 <span>{nonvisualizableString}</span>
               </Tooltip>
+                </span>
+              </Hint>
+
             </div>
-          ) : (
-            `${make} Data - No variables found for current search parameters`
-          )}
+          ) : (`${make} Data - No variables found for current search parameters`)
+         }
         </Typography>
       </Grid>
 

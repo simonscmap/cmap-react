@@ -22,7 +22,7 @@ const buildSearchOptionsFromVariableList = (
   };
 
   const columns = Object.keys(options);
-  log.debug('columns', columns);
+  // log.debug('columns', columns);
 
   variables.forEach((v) => {
     columns.forEach((k) => {
@@ -68,7 +68,6 @@ const buildSearchOptionsFromVariableList = (
     });
   }
 
-  log.debug ('resulting options', options);
   return options;
 };
 

@@ -31,8 +31,6 @@ class SpaceTimeData {
     this.parameters = payload.parameters;
     this.metadata = payload.metadata;
 
-    console.log (payload.metadata);
-
     this.hasDepth = null;
     this.isWind_NRT = false;
     this.isMonthly = null;
@@ -61,7 +59,8 @@ class SpaceTimeData {
 
   add(row) {
     if (this.rows.length < 1) {
-      console.log ('variable parameters', this.parameters);
+      console.log ('spacetimedata: variable parameters')
+      console.table(this.parameters);
     }
     let lat = [row[1]]
       .map (parseFloat)
