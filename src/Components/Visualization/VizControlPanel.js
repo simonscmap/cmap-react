@@ -561,6 +561,7 @@ class VizControlPanel extends React.Component {
    * for date fields, combine date+time
    */
   handleChangeInputValue = (e) => {
+    console.log ('change', e.target.value, e.target.name, this.state, this.props);
     const parseThese = ['lat1', 'lat2', 'lon1', 'lon2', 'depth1', 'depth2'];
     const parsed = parseFloat(e.target.value);
     // name and value will may be updated
@@ -578,11 +579,25 @@ class VizControlPanel extends React.Component {
     }
 
     if (['date1', 'hour1', 'date2', 'hour2'].includes(e.target.name)) {
-      let { dt1, dt2 } = this.state;
+      // in some cases, for example after the param lock has been disabled,
+      // the state dt1 is not set, and we need to supplement with the target passed
+      // in via props
+      let dt1, dt2;
+      if (this.state.dt1) {
+        dt1 = this.state.dt1;
+      } else if (this.props.dt1) {
+        dt1 = this.props.dt1;
+      }
+
+      if (this.state.dt2) {
+        dt2 = this.state.dt2;
+      } else if (this.props.dt2) {
+        dt2 = this.props.dt2;
+      }
 
       if (typeof dt1 !== 'string' || typeof dt2 !== 'string') {
         console.error ('incorrect types for dt1 and dt1, could not update state', dt1, dt2);
-        return;
+        // return;
       }
       let isoTail = ':00.000Z';
 
@@ -603,11 +618,11 @@ class VizControlPanel extends React.Component {
       switch (e.target.name) {
         case 'date1':
           name = 'dt1';
-          value = value + 'T' + dt1.slice(11, 16) + isoTail;
+          value = value + 'T' + (dt1 && dt1.slice(11, 16) || '00:00') + isoTail;
           break;
         case 'hour1':
           name = 'dt1';
-          value = dt1.slice(0,10) + 'T' + (value ? value : '00:00') + isoTail;
+          value = (dt1 && dt1.slice(0,10) || '' ) + 'T' + (value ? value : '00:00') + isoTail;
           break;
         case 'date2':
           name = 'dt2';

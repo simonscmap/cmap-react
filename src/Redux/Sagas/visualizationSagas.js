@@ -101,9 +101,8 @@ export function* checkVizQuerySize (action) {
   let result;
   try {
     result = yield makeCheckQuerySizeRequest (queryString);
-    console.log ('query size check failed', result)
-
   } catch (e) {
+    console.log ('query size check failed', result)
     yield fail();
     return;
   }
