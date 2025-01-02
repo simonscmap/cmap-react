@@ -42,8 +42,7 @@ const styles = (theme) => ({
 });
 
 const mapStateToProps = (state) => ({
-  guestPlotLimitNotificationIsVisible:
-    state.guestPlotLimitNotificationIsVisible,
+  guestPlotLimitNotificationIsVisible: state.guestPlotLimitNotificationIsVisible,
   user: state.user,
   userIsGuest: state.userIsGuest,
 });
@@ -90,7 +89,7 @@ const GuestPlotLimitNotification = (props) => {
           Welcome to the Simons CMAP visualization tools. You can explore the
           visualization features as a guest without registering and create up to
           10 plots per day. Registration provides access to the full suite of
-          data submission tools, the data visualization tools and the Simons
+          data submission tools, the data visualization tools, and the Simons
           CMAP API.
         </Typography>
 
