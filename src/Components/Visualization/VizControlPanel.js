@@ -288,6 +288,20 @@ const ensureMonthlyValue = (dateString) => {
   }
 }
 
+const ensureTimeValue = (dateString) => {
+  // if date string does not provide enough information,
+  // default to 0 hours 0 minutes
+  if (dateString === undefined) {
+    return '00:00'; // default to January
+  } else if (typeof dateString !== 'string') {
+    return '00:00';
+  } else if (dateString.length < 16) {
+    return '00:00';
+  } else {
+    return dateString.slice(11,16);
+  }
+}
+
 
 
 
@@ -346,7 +360,12 @@ class VizControlPanel extends React.Component {
       // derived params are lat, lon ranges
       const derivedParams = generateVariableSampleRangeParams(this.props.vizPageDataTargetDetails);
       // if paramLock is active, do not update params
-      const params = this.props.paramLock ? {} : derivedParams;
+      const emptyParams = {
+      };
+      const params = this.props.paramLock ? emptyParams : derivedParams;
+
+      console.log ('update params', params, derivedParams);
+
 
       this.setState({
         ...this.state,
@@ -561,7 +580,12 @@ class VizControlPanel extends React.Component {
    * for date fields, combine date+time
    */
   handleChangeInputValue = (e) => {
-    console.log ('change', e.target.value, e.target.name, this.state, this.props);
+    const isMonthly =
+      this.props.vizPageDataTargetDetails.Temporal_Resolution ===
+      temporalResolutions.monthlyClimatology;
+
+
+    console.log ('change', { value: e.target.value, name: e.target.name, isMonthly }, this.state, this.props);
     const parseThese = ['lat1', 'lat2', 'lon1', 'lon2', 'depth1', 'depth2'];
     const parsed = parseFloat(e.target.value);
     // name and value will may be updated
@@ -585,15 +609,17 @@ class VizControlPanel extends React.Component {
       let dt1, dt2;
       if (this.state.dt1) {
         dt1 = this.state.dt1;
-      } else if (this.props.dt1) {
-        dt1 = this.props.dt1;
+      } else if (this.props.vizPageDataTargetDetails.Time_Min) {
+        dt1 = (new Date(this.props.vizPageDataTargetDetails.Time_Min)).toISOString();
       }
 
       if (this.state.dt2) {
         dt2 = this.state.dt2;
-      } else if (this.props.dt2) {
-        dt2 = this.props.dt2;
+      } else if (this.props.vizPageDataTargetDetails.Time_Max) {
+        dt2 = (new Date(this.props.vizPageDataTargetDetails.Time_Max)).toISOString();
       }
+
+
 
       if (typeof dt1 !== 'string' || typeof dt2 !== 'string') {
         console.error ('incorrect types for dt1 and dt1, could not update state', dt1, dt2);
@@ -1464,7 +1490,7 @@ class VizControlPanel extends React.Component {
                         label="Start Time"
                         className={classes.textField}
                         type="time"
-                        value={(typeof dt1 === 'string' ? dt1.slice(11, 16) : undefined)}
+                        value={ensureTimeValue(dt1)}
                         onChange={this.handleChangeInputValue}
                         error={(Boolean(startTimeMessage) || Boolean (startDateTimeMessage))}
                         helperText={startTimeMessage || startDateTimeMessage}
@@ -1481,7 +1507,7 @@ class VizControlPanel extends React.Component {
                         label="End Time"
                         className={classes.textField}
                         type="time"
-                        value={(typeof dt2 === 'string' ? dt2.slice(11, 16) : undefined)}
+                        value={ensureTimeValue(dt2)}
                         onChange={this.handleChangeInputValue}
                         error={(Boolean(endTimeMessage) || Boolean(endDateTimeMessage))}
                         helperText={endTimeMessage || endDateTimeMessage}
