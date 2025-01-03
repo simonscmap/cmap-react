@@ -302,9 +302,21 @@ const ensureTimeValue = (dateString) => {
   }
 }
 
+const getTimeFromDateStringOrDefault = (dateString) => {
+  if (typeof dateString !== 'string' || dateString.length !== 16) {
+    return '00:00';
+  } else {
+    return dateString.slice(11,16);
+  }
+}
 
-
-
+const getDateFromDateStringOrDefault = (dateString) => {
+  if (typeof dateString !== 'string' || dateString.length !== 16) {
+    return '1900-01-01';
+  } else {
+    return dateString.slice(0,10);
+  }
+}
 
 /* ~~~~~~~~~   VizControlPanel   ~~~~~~~~~~~~ */
 class VizControlPanel extends React.Component {
@@ -327,7 +339,6 @@ class VizControlPanel extends React.Component {
     }
 
     if (spatialExtentChange || temporalRangeChange || vizTypeChange) {
-      console.log ('dispatching check query size');
       this.handleCheckQuerySize();
     }
 
@@ -625,6 +636,7 @@ class VizControlPanel extends React.Component {
         console.error ('incorrect types for dt1 and dt1, could not update state', dt1, dt2);
         // return;
       }
+
       let isoTail = ':00.000Z';
 
       if (value === '' && (name === 'date1' || name === 'date2')) {
@@ -641,22 +653,24 @@ class VizControlPanel extends React.Component {
         value = '0000-00-00';
       }
 
+
+      // if prev dt1 is from locked monthly dataset, it will not be a date string
       switch (e.target.name) {
         case 'date1':
           name = 'dt1';
-          value = value + 'T' + (dt1 && dt1.slice(11, 16) || '00:00') + isoTail;
+          value = value + 'T' + getTimeFromDateStringOrDefault (dt1) + isoTail;
           break;
         case 'hour1':
           name = 'dt1';
-          value = (dt1 && dt1.slice(0,10) || '' ) + 'T' + (value ? value : '00:00') + isoTail;
+          value = getDateFromDateStringOrDefault (dt1) + 'T' + (value ? value : '00:00') + isoTail;
           break;
         case 'date2':
           name = 'dt2';
-          value = value + 'T' + dt2.slice(11, 16) + isoTail;
+          value = value + 'T' + getTimeFromDateStringOrDefault (dt2) + isoTail;
           break;
         case 'hour2':
           name = 'dt2';
-          value = dt2.slice(0,10) + 'T' + (value ? value : '00:00')+ isoTail;
+          value = getDateFromDateStringOrDefault (dt2) + 'T' + (value ? value : '00:00')+ isoTail;
           break;
       }
     }
@@ -983,12 +997,15 @@ class VizControlPanel extends React.Component {
     }
 
     if (sizeCheckResult === null) {
+      console.log ('no size check result; status:', sizeCheckStatus);
       return 'No size estimation available.'
     }
 
-    if (sizeCheckStatus === states.succeeded && !sizeCheckResult.allow) {
+    if (sizeCheckStatus === states.succeeded && (sizeCheckResult && !sizeCheckResult.allow)) {
       return `Extent is too large, select a smaller spatial or temporal range.`
     }
+
+
 
     // HISTOGRAM & HEATMAP < 1 500 000
     if (
