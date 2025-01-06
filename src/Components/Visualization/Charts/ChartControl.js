@@ -1,5 +1,6 @@
 // Select viz type and create viz button
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import {
   Grid,
@@ -11,6 +12,7 @@ import {
 } from '@material-ui/core';
 import MUISelect from '@material-ui/core/Select';
 import vizSubTypes from '../../../enums/visualizationSubTypes';
+import states from '../../../enums/asyncRequestStates';
 import colors from '../../../enums/colors';
 import Hint from '../../Navigation/Help/Hint';
 import SelectChartTypeHint from '../help/SelectChartTypeHint';
@@ -46,24 +48,41 @@ const styles = (theme) => ({
     height: '56px',
     width: '100%',
     borderRadius: '5px',
+    border: `1px solid ${theme.palette.primary.main}`,
     // backgroundColor: colors.backgroundGray,
     background: theme.palette.primary.main,
     // color: theme.palette.primary.main,
     color: 'black',
     fontVariant: 'normal',
     '&:disabled': {
-      color: '#333',
+      color: '#ccc',
       backgroundColor: 'transparent',
+      border: '1px solid #ccc',
     },
     '&:hover': {
       backgroundColor: colors.greenHover,
       color: 'white',
+      border: `1px solid ${theme.palette.primary.main}`,
     },
   },
   vizButtonTooltip: {
     color: 'yellow',
   },
 });
+
+const generateDisabledButtonMessage = (checkQuerySizeStatus, disableVisualizeMessage) => {
+  if (checkQuerySizeStatus === states.succeeded) {
+    return disableVisualizeMessage || 'Create Visualization'
+  } else {
+    if (checkQuerySizeStatus === states.failed) {
+      return 'Unable to determine size of visulization.'
+    } else if (checkQuerySizeStatus === states.inProgress) {
+      return 'Checking query size...'
+    } else if (checkQuerySizeStatus === states.notTried) {
+      return disableVisualizeMessage  || 'Waiting to initialize size check...'
+    }
+  }
+}
 
 const ChartControl = (props) => {
   const {
@@ -83,6 +102,8 @@ const ChartControl = (props) => {
     handleVisualize,
     disabled,
   } = props;
+
+  const checkQuerySizeStatus = useSelector ((state) => state.viz.chart.validation.sizeCheck.status);
 
   return (
     <React.Fragment>
@@ -214,7 +235,7 @@ const ChartControl = (props) => {
                 }
                 fullwidth="true"
               >
-                Create Visualization
+                { generateDisabledButtonMessage (checkQuerySizeStatus, disableVisualizeMessage) }
               </Button>
             </Grid>
           </Tooltip>

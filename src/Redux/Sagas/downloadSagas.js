@@ -8,6 +8,8 @@ import states from '../../enums/asyncRequestStates';
 
 
 export function* makeCheckQuerySizeRequest (query) {
+  yield put(catalogActions.setCheckQueryRequestState(states.inProgress));
+
   const result = yield race({
     response: call (api.data.checkQuerySize, query),
     timeout: delay (60 * 1000)

@@ -571,7 +571,6 @@ class VizControlPanel extends React.Component {
   };
 
   handleSelectDataTarget = (target) => {
-    console.log (`<trace::VizControlPanel> handleSelectDataTarget: ${target}`)
     this.props.setDataSearchMenuVisibility(false);
     this.props.vizPageDataTargetSetAndFetchDetails(target);
   };
@@ -591,12 +590,14 @@ class VizControlPanel extends React.Component {
    * for date fields, combine date+time
    */
   handleChangeInputValue = (e) => {
+    const targetDetails = this.props.vizPageDataTargetDetails;
     const isMonthly =
-      this.props.vizPageDataTargetDetails.Temporal_Resolution ===
+      targetDetails.Temporal_Resolution ===
       temporalResolutions.monthlyClimatology;
 
 
     console.log ('change', { value: e.target.value, name: e.target.name, isMonthly }, this.state, this.props);
+
     const parseThese = ['lat1', 'lat2', 'lon1', 'lon2', 'depth1', 'depth2'];
     const parsed = parseFloat(e.target.value);
     // name and value will may be updated
@@ -620,14 +621,16 @@ class VizControlPanel extends React.Component {
       let dt1, dt2;
       if (this.state.dt1) {
         dt1 = this.state.dt1;
-      } else if (this.props.vizPageDataTargetDetails.Time_Min) {
-        dt1 = (new Date(this.props.vizPageDataTargetDetails.Time_Min)).toISOString();
+      } else if (targetDetails.Time_Min) {
+        dt1 = (new Date(targetDetails.Time_Min)).toISOString();
+        console.log ('update min', targetDetails.Time_Min, dt1);
       }
 
       if (this.state.dt2) {
         dt2 = this.state.dt2;
-      } else if (this.props.vizPageDataTargetDetails.Time_Max) {
-        dt2 = (new Date(this.props.vizPageDataTargetDetails.Time_Max)).toISOString();
+      } else if (targetDetails.Time_Max) {
+        dt2 = (new Date(targetDetails.Time_Max)).toISOString();
+        console.log ('update max', targetDetails.Time_Min, dt1);
       }
 
 
@@ -693,20 +696,39 @@ class VizControlPanel extends React.Component {
   // ~~~~~~~~~~ the following methods are all validation checks ~~~~~~~~~~~~~~~~~ //
   // TODO: extract and simplify these
   checkStartDepth = () => {
-    if (this.state.depth1 < 0) return 'Depth cannot be negative';
-    if (this.state.depth1 > this.state.depth2)
+    const targetDetails = this.props.vizPageDataTargetDetails;
+    const { Has_Depth, Depth_Max } = targetDetails;
+    if (this.state.depth1 < 0) {
+      return 'Depth cannot be negative';
+    }
+    if (this.state.depth1 !== 0 && !Has_Depth) {
+      return 'This variable has no depth parameter, set depth to zero';
+    }
+    if (this.state.depth1 > this.state.depth2) {
       return 'Start cannot be greater than end';
-    if (this.state.depth1 > this.props.vizPageDataTargetDetails.Depth_Max)
-      return `Maximum depth start is ${this.props.vizPageDataTargetDetails.Depth_Max}`;
+    }
+    if (this.state.depth1 > Depth_Max) {
+      return `Maximum depth start is ${Depth_Max}`;
+    }
+
     return '';
   };
 
   checkEndDepth = () => {
-    if (this.state.depth2 < 0) return 'Depth cannot be negative';
-    if (this.state.depth1 > this.state.depth2)
+    const targetDetails = this.props.vizPageDataTargetDetails;
+    const { Has_Depth, Depth_Min } = targetDetails;
+    if (this.state.depth2 < 0) {
+      return 'Depth cannot be negative';
+    }
+    if (this.state.depth2 !== 0 && !Has_Depth) {
+      return 'This variable has no depth parameter, set depth to zero';
+    }
+    if (this.state.depth1 > this.state.depth2) {
       return 'Start cannot be greater than end';
-    if (this.state.depth2 < this.props.vizPageDataTargetDetails.Depth_Min)
-      return `Minimum depth end is ${this.props.vizPageDataTargetDetails.Depth_Min}`;
+    }
+    if (this.state.depth2 < Depth_Min) {
+      return `Minimum depth end is ${Depth_Min}`;
+    }
     return '';
   };
 
@@ -742,7 +764,7 @@ class VizControlPanel extends React.Component {
       if (!this.state.dt1 ) {
         return 'Invalid date';
       }
-      if (parseInt(this.state.dt1) > parseInt(this.state.dt2)) {
+      if (new Date(this.state.dt1) > new Date(this.state.dt2)) {
         return 'Start cannot be greater than end';
       }
 
@@ -787,7 +809,7 @@ class VizControlPanel extends React.Component {
       if (!this.state.dt2 || !isISODateString (this.state.dt2)) {
         return 'Invalid date';
       }
-      if (parseInt(this.state.dt1) > parseInt(this.state.dt2)) {
+      if (new Date(this.state.dt1) > new Date(this.state.dt2)) {
         return 'Start cannot be greater than end';
       }
 
@@ -997,7 +1019,6 @@ class VizControlPanel extends React.Component {
     }
 
     if (sizeCheckResult === null) {
-      console.log ('no size check result; status:', sizeCheckStatus);
       return 'No size estimation available.'
     }
 
@@ -1733,8 +1754,6 @@ class VizControlPanel extends React.Component {
                   onChange={this.handleChangeInputValue}
                   disabled={
                     this.props.paramLock ||
-                    this.state.showDrawHelp ||
-                    this.state.surfaceOnly ||
                     !vizPageDataTargetDetails
                   }
                 ></TextField>
@@ -1765,8 +1784,6 @@ class VizControlPanel extends React.Component {
                   onChange={this.handleChangeInputValue}
                   disabled={
                     this.props.paramLock ||
-                    this.state.showDrawHelp ||
-                    this.state.surfaceOnly ||
                     !vizPageDataTargetDetails
                   }
                 ></TextField>

@@ -395,7 +395,22 @@ export default function (state, action) {
           }
         },
       }
-
+  // case CHECK_VIZ_QUERY_SIZE:
+  //     return {
+  //       ...state,
+  //       viz: {
+  //         ...state.viz,
+  //         chart: {
+  //           ...state.viz.chart,
+  //           validation: {
+  //             ...state.viz.chart.validation,
+  //             sizeCheck: {
+  //              status: states.inProgress,
+  //             }
+  //           }
+  //         }
+  //       },
+  //     }
     case SET_CHECK_VIZ_QUERY_SIZE_STATUS:
       return {
         ...state,
@@ -406,8 +421,8 @@ export default function (state, action) {
             validation: {
               ...state.viz.chart.validation,
               sizeCheck: {
-               ...state.viz.chart.validation.sizeCheck,
-               status: states.succeeded,
+               // ...state.viz.chart.validation.sizeCheck,
+               status: action.payload,
               }
             }
           }

@@ -11,11 +11,11 @@ import transformDateStringToMonth from './transformDateStringToMonth';
    will handle converting a locked date time to a date
  */
 const manageDateParams = (currState, currProps) => {
-  const { paramLock } = currProps;
+  // const { paramLock } = currProps;
   const { monthlyClimatology } = getTargetFeatures(currProps);
 
   if (monthlyClimatology) {
-    if (paramLock && currState.dt1.length > 2) {
+    if (currState.dt1.length > 2) {
       // modify locked date-time to date string
       const newDt1 = `${transformDateStringToMonth(currState.dt1)}-01-1900`;
       const newDt2 = `${transformDateStringToMonth(currState.dt2)}-01-1900`;
