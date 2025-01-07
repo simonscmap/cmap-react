@@ -1762,14 +1762,13 @@ class VizControlPanel extends React.Component {
                 disabled={this.state.showDrawHelp || !vizPageDataTargetDetails}
               />
 
-              {charts.length && showControlPanel ? (
+              {showControlPanel ? (
                 <Paper className={classes.popoutButtonPaper}> {/* show globe button */}
                   <Tooltip placement="right" title={this.props.paramLock ? 'Unlock Space & Time Range' : 'Lock Space & Time Range'}>
                     <span>
                       <IconButton
-                        className={classes.popoutButtonBase}
-                        onClick={() =>
-                          this.props.setParamLock (!this.props.paramLock)}
+                        className={classes.lockButtonBase}
+                        onClick={() => this.props.setParamLock (!this.props.paramLock)}
                         disabled={!details}
                       >
                         {this.props.paramLock
@@ -1779,27 +1778,22 @@ class VizControlPanel extends React.Component {
                       </IconButton>
                     </span>
                   </Tooltip>
+
                   <Tooltip
                     title={
                       plotsActiveTab !== 0 ? 'Return to Globe' : 'Show Charts'
                     }
                   >
                     <IconButton
-                      disabled={this.state.showDrawHelp}
+                      disabled={charts.length === 0}
                       className={classes.popoutButtonBase}
                       onClick={this.handleShowChartsClick}
                     >
                       {plotsActiveTab !== 0 ? (
-                        <Language
-                          className={classes.popoutButtonIcon}
-                          style={{ color: colors.primary }}
-                        />
+                        <Language className={classes.popoutButtonIcon}/>
                       ) : (
                         <Badge badgeContent={charts.length} color="primary"> {/* display chart count*/}
-                          <ShowChart
-                            className={classes.popoutButtonIcon}
-                            style={{ color: colors.primary }}
-                          />
+                          <ShowChart className={classes.popoutButtonIcon}/>
                         </Badge>
                       )}
                     </IconButton>
@@ -1825,8 +1819,6 @@ class VizControlPanel extends React.Component {
                       </span>
                     </Tooltip>
                   </Hint>
-
-
                 </Paper>
               ) : (
                 ''

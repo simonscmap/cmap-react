@@ -173,6 +173,13 @@ const styles = (theme) => ({
       color: '#ccc'
     }
   },
+  lockButtonBase: {
+    padding: '0 0 9px 9px',
+    '&:disabled': {
+      color: '#ccc'
+    }
+
+  },
 });
 
 export default styles;
