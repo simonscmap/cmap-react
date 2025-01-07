@@ -43,7 +43,7 @@ import {
   TRAJECTORY_POINT_COUNT_SUCCESS,
   SET_PARAM_LOCK,
   SET_LOCK_ALERTS_OPEN,
-  CHECK_VIZ_QUERY_SIZE,
+  // CHECK_VIZ_QUERY_SIZE,
   CHECK_VIZ_QUERY_SIZE_STORE,
   SET_CHECK_VIZ_QUERY_SIZE_STATUS,
 } from '../actionTypes/visualization';
@@ -395,22 +395,10 @@ export default function (state, action) {
           }
         },
       }
-  // case CHECK_VIZ_QUERY_SIZE:
-  //     return {
-  //       ...state,
-  //       viz: {
-  //         ...state.viz,
-  //         chart: {
-  //           ...state.viz.chart,
-  //           validation: {
-  //             ...state.viz.chart.validation,
-  //             sizeCheck: {
-  //              status: states.inProgress,
-  //             }
-  //           }
-  //         }
-  //       },
-  //     }
+    // case CHECK_VIZ_QUERY_SIZE:
+    // we don't set status to inProgress here, because the saga
+    // will check to see if a different request is already in progress
+
     case SET_CHECK_VIZ_QUERY_SIZE_STATUS:
       return {
         ...state,

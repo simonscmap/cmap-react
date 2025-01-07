@@ -287,7 +287,6 @@ class Visualization extends Component {
                   showCruiseControl={this.state.showCruiseControl}
                   globeUIRef={this.globeUIRef}
                   mapContainerRef={this.mapContainerRef}
-                  handlePlotsSetActiveTab={this.handlePlotsSetActiveTab}
                   plotsActiveTab={this.props.plotsActiveTab}
                 />
               )}
@@ -295,9 +294,7 @@ class Visualization extends Component {
             <Route
               path="/visualization/cruises"
               render={() => (
-                <CruiseSelector
-                  handleShowGlobe={() => this.handlePlotsSetActiveTab(null, 0)}
-                />
+                <CruiseSelector />
               )}
             />
           </Switch>

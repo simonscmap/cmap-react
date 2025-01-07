@@ -169,6 +169,9 @@ const styles = (theme) => ({
 
   popoutButtonBase: {
     padding: '9px',
+    '&:disabled': {
+      color: '#ccc'
+    }
   },
 });
 

@@ -55,18 +55,19 @@ import Hint from '../Navigation/Help/Hint';
 // redux
 import { snackbarOpen } from '../../Redux/actions/ui';
 import {
+  checkVizQuerySize,
   clearCharts,
   cruiseTrajectoryRequestSend,
   csvDownloadRequestSend,
   guestPlotLimitNotificationSetIsVisible,
+  plotsActiveTabSet,
   setControlPanelVisibility,
   setDataSearchMenuVisibility,
+  setLockAlertsOpen,
+  setParamLock,
   sparseDataQuerySend,
   storedProcedureRequestSend,
   vizPageDataTargetSetAndFetchDetails,
-  setParamLock,
-  setLockAlertsOpen,
-  checkVizQuerySize,
 } from '../../Redux/actions/visualization';
 
 // enums
@@ -114,19 +115,20 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
-  cruiseTrajectoryRequestSend,
+  checkVizQuerySize,
   clearCharts,
+  cruiseTrajectoryRequestSend,
   csvDownloadRequestSend,
-  vizPageDataTargetSetAndFetchDetails,
-  storedProcedureRequestSend,
-  sparseDataQuerySend,
   guestPlotLimitNotificationSetIsVisible,
+  plotsActiveTabSet,
   setControlPanelVisibility,
   setDataSearchMenuVisibility,
+  setLockAlertsOpen,
   setParamLock,
   snackbarOpen,
-  setLockAlertsOpen,
-  checkVizQuerySize,
+  sparseDataQuerySend,
+  storedProcedureRequestSend,
+  vizPageDataTargetSetAndFetchDetails,
 };
 
 
@@ -311,12 +313,14 @@ const getTimeFromDateStringOrDefault = (dateString) => {
 }
 
 const getDateFromDateStringOrDefault = (dateString) => {
-  if (typeof dateString !== 'string' || dateString.length !== 16) {
+  if (typeof dateString !== 'string' || dateString.length < 10) {
     return '1900-01-01';
   } else {
     return dateString.slice(0,10);
   }
 }
+
+
 
 /* ~~~~~~~~~   VizControlPanel   ~~~~~~~~~~~~ */
 class VizControlPanel extends React.Component {
@@ -431,11 +435,9 @@ class VizControlPanel extends React.Component {
 
   handleShowChartsClick = () => {
     if (this.props.plotsActiveTab === 0) {
-      // TODO ...
-      // this is a parent method that just ends up dispatching to redux...
-      this.props.handlePlotsSetActiveTab(null, 1);
+      this.props.plotsActiveTabSet(1);
     } else {
-      this.props.handlePlotsSetActiveTab(null, 0);
+      this.props.plotsActiveTabSet(0);
     }
   };
 
@@ -472,8 +474,6 @@ class VizControlPanel extends React.Component {
       depth1,
       depth2,
       ...dateParams,
-      // dt1: monthlyClimatology ? dt1 + '-01-1900' : dt1,
-      // dt2: monthlyClimatology ? dt2 + '-01-1900' : dt2,
       lat1,
       lat2,
       lon1,
@@ -596,7 +596,7 @@ class VizControlPanel extends React.Component {
       temporalResolutions.monthlyClimatology;
 
 
-    console.log ('change', { value: e.target.value, name: e.target.name, isMonthly }, this.state, this.props);
+    console.log ('param change', { value: e.target.value, name: e.target.name, isMonthly }, this.state, this.props);
 
     const parseThese = ['lat1', 'lat2', 'lon1', 'lon2', 'depth1', 'depth2'];
     const parsed = parseFloat(e.target.value);
@@ -623,14 +623,12 @@ class VizControlPanel extends React.Component {
         dt1 = this.state.dt1;
       } else if (targetDetails.Time_Min) {
         dt1 = (new Date(targetDetails.Time_Min)).toISOString();
-        console.log ('update min', targetDetails.Time_Min, dt1);
       }
 
       if (this.state.dt2) {
         dt2 = this.state.dt2;
       } else if (targetDetails.Time_Max) {
         dt2 = (new Date(targetDetails.Time_Max)).toISOString();
-        console.log ('update max', targetDetails.Time_Min, dt1);
       }
 
 
@@ -656,7 +654,6 @@ class VizControlPanel extends React.Component {
         value = '0000-00-00';
       }
 
-
       // if prev dt1 is from locked monthly dataset, it will not be a date string
       switch (e.target.name) {
         case 'date1':
@@ -677,8 +674,6 @@ class VizControlPanel extends React.Component {
           break;
       }
     }
-
-    console.log(`<trace::VizControlPanel> handleChangeInputValue: ${name} ${value} (${typeof value})`);
 
     this.setState({
       ...this.state,
@@ -1498,7 +1493,7 @@ class VizControlPanel extends React.Component {
                       value={(typeof dt2 === 'string' ? dt2.slice(0,10) : dt2)}
                       error={(Boolean(endDateMessage) || Boolean(endDateTimeMessage))}
                       FormHelperTextProps={{ className: classes.helperText }}
-                      helperText={endDateMessage || endDateTimeMessage}
+                      helperText={endDateMessage || endDateTimeMessage }
                       InputProps={{
                         className: classes.dateTimeInput,
                         inputProps: details
@@ -1684,49 +1679,8 @@ class VizControlPanel extends React.Component {
                       || !vizPageDataTargetDetails
                   }
                 ></TextField>
+                {/* draw on globe*/}
 
-                {showControlPanel ? (
-                  <Paper className={classes.popoutButtonPaper}>
-                    <Hint
-                      content={RestrictDataHint}
-                      position={{ beacon: 'right', hint: 'bottom-end' }}
-                      size={'medium'}
-                    >
-                      <Tooltip placement="right" title={'Draw Spatial Range on Globe'}>
-                        <span>
-                          <IconButton
-                            className={classes.popoutButtonBase}
-                            onClick={this.handleDrawClick}
-                            disabled={
-                              !details
-                                || plotsActiveTab !== 0
-                                || this.props.paramLock
-                            }
-                          >
-                            <Edit className={classes.popoutButtonIcon} />
-                          </IconButton>
-                        </span>
-                      </Tooltip>
-                    </Hint>
-                    <Tooltip placement="right" title={this.props.paramLock ? 'Unlock Space & Time Range' : 'Lock Space & Time Range'}>
-                      <span>
-                        <IconButton
-                          className={classes.popoutButtonBase}
-                          onClick={() =>
-                            this.props.setParamLock (!this.props.paramLock)}
-                          disabled={!details}
-                        >
-                          {this.props.paramLock
-                           ? <ImLock />
-                           : <ImUnlocked />
-                          }
-                        </IconButton>
-                      </span>
-                    </Tooltip>
-                  </Paper>
-                ) : (
-                  ''
-                )}
               </Grid>
 
               <Grid item xs={6} className={classes.formGridItem}>
@@ -1809,7 +1763,22 @@ class VizControlPanel extends React.Component {
               />
 
               {charts.length && showControlPanel ? (
-                <Paper className={classes.popoutButtonPaper}>
+                <Paper className={classes.popoutButtonPaper}> {/* show globe button */}
+                  <Tooltip placement="right" title={this.props.paramLock ? 'Unlock Space & Time Range' : 'Lock Space & Time Range'}>
+                    <span>
+                      <IconButton
+                        className={classes.popoutButtonBase}
+                        onClick={() =>
+                          this.props.setParamLock (!this.props.paramLock)}
+                        disabled={!details}
+                      >
+                        {this.props.paramLock
+                         ? <ImLock />
+                         : <ImUnlocked />
+                        }
+                      </IconButton>
+                    </span>
+                  </Tooltip>
                   <Tooltip
                     title={
                       plotsActiveTab !== 0 ? 'Return to Globe' : 'Show Charts'
@@ -1826,7 +1795,7 @@ class VizControlPanel extends React.Component {
                           style={{ color: colors.primary }}
                         />
                       ) : (
-                        <Badge badgeContent={charts.length} color="primary">
+                        <Badge badgeContent={charts.length} color="primary"> {/* display chart count*/}
                           <ShowChart
                             className={classes.popoutButtonIcon}
                             style={{ color: colors.primary }}
@@ -1835,10 +1804,40 @@ class VizControlPanel extends React.Component {
                       )}
                     </IconButton>
                   </Tooltip>
+                  <Hint
+                    content={RestrictDataHint}
+                    position={{ beacon: 'right', hint: 'bottom-end' }}
+                    size={'medium'}
+                  >
+                    <Tooltip placement="right" title={'Draw Spatial Range on Globe'}>
+                      <span>
+                        <IconButton
+                          className={classes.popoutButtonBase}
+                          onClick={this.handleDrawClick}
+                          disabled={
+                            !details
+                              || plotsActiveTab !== 0
+                              || this.props.paramLock
+                          }
+                        >
+                          <Edit className={classes.popoutButtonIcon} />
+                        </IconButton>
+                      </span>
+                    </Tooltip>
+                  </Hint>
+
+
                 </Paper>
               ) : (
                 ''
               )}
+
+               {showControlPanel ? (
+                  <Paper className={classes.popoutButtonPaper}>
+                                      </Paper>
+                ) : (
+                  ''
+                )}
             </Grid>
           </>
         </Drawer>
