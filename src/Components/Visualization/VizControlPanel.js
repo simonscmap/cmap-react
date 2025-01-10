@@ -923,33 +923,44 @@ class VizControlPanel extends React.Component {
                 <>
                   {/* Daily Date Picker */}
                   <Grid item xs={6} className={classes.formGridItem}>
-                    {startDateMessage ? <label>{startDateMessage}</label> : ''}
-                    <DatePicker
-                      disabled={!details || this.props.paramLock}
-                      value={shiftMinMaxDate(dt1)}
-                      onChange={(date) => this.handleChangeInputValue ({
-                        target: {
-                          name: 'date1',
-                          value: date,
-                        }
-                      })}
-                      clearIcon={null}
-                    />
+                    <div className={classes.datePicker}>
+                      <label>Start Date</label>
+                      <DatePicker
+                        disabled={!details || this.props.paramLock}
+                        value={shiftMinMaxDate(dt1)}
+                        onChange={(date) => this.handleChangeInputValue ({
+                          target: {
+                            name: 'date1',
+                            value: date,
+                          }
+                        })}
+                        clearIcon={null}
+                        shouldOpenCalendar={({ reason }) => "buttonClick" === reason}
+                      />
+                      {startDateMessage ? <span>{startDateMessage}</span> : ''}
+                    </div>
                   </Grid>
 
                   <Grid item xs={6} className={classes.formGridItem}>
-                    {endDateMessage ? <label>{endDateMessage}</label> : ''}
-                    <DatePicker
-                      disabled={!details || this.props.paramLock}
-                      value={shiftMinMaxDate(dt2)}
-                      onChange={(date) => this.handleChangeInputValue ({
-                        target: {
-                          name: 'date2',
-                          value: date,
-                        }
-                      })}
-                      clearIcon={null}
-                    />
+                    <div className={classes.datePicker}>
+                      <label>Start Date</label>
+                      <DatePicker
+                        disabled={!details || this.props.paramLock}
+                        value={shiftMinMaxDate(dt2)}
+                        onChange={(date) => this.handleChangeInputValue ({
+                          target: {
+                            name: 'date2',
+                            value: date,
+                          }
+                        })}
+                        clearIcon={null}
+                        shouldOpenCalendar={({ reason }) => {
+                          console.log (reason);
+                          return "buttonClick" === reason;
+                        }}
+                      />
+                      {endDateMessage ? <span>{endDateMessage}</span> : ''}
+                    </div>
 
                 </Grid>
 
@@ -969,6 +980,9 @@ class VizControlPanel extends React.Component {
                             ||  this.state.showDrawHelp
                             || !vizPageDataTargetDetails
                         }
+                        InputLabelProps={{
+                          className: classes.padLeft,
+                        }}
                       />
                     </Grid><Grid item xs={6} className={classes.formGridItem}>
                       <TextField
@@ -986,6 +1000,9 @@ class VizControlPanel extends React.Component {
                             ||this.state.showDrawHelp
                             || !vizPageDataTargetDetails
                         }
+                        InputLabelProps={{
+                          className: classes.padLeft,
+                        }}
                       />
                     </Grid>
                 </>

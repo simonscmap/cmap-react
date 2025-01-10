@@ -54,7 +54,7 @@ const styles = (theme) => ({
   alertBoxHandle: {
     position: 'absolute',
     top: '11px',
-    left: '294px',
+    left: '316px',
     '& svg': {
       color: yellowAlert,
     }
@@ -62,7 +62,7 @@ const styles = (theme) => ({
   alertBox: {
     position: 'absolute',
     top: '12px',
-    left: '340px',
+    left: '366px',
     width: '500px',
     zIndex: z.CONTROL_PRIMARY,
     display: 'flex',
@@ -84,6 +84,40 @@ const styles = (theme) => ({
 
   padLeft: {
     padding: '6px 0 2px 7px',
+  },
+
+  datePicker: {
+    padding: '0 0 0 7px',
+    '& .react-date-picker': {
+      border: 0,
+      fontSize: '1em',
+      fontFamily: 'Lato, sans-serif',
+      '& span.react-date-picker__inputGroup__divider': {
+        padding: '0 2px', // put a little space around the slashes of the date
+      },
+      '& button svg': {
+        stroke: colors.primary,
+      }
+    },
+    '& .react-date-picker--disabled': {
+      background: 'transparent',
+      color: '#ccc',
+      '& button svg': {
+        stroke: '#ccc',
+      }
+    },
+    '& .react-date-picker__wrapper': {
+      border: 0,
+    },
+    '& > span': { // helper text
+      color: 'yellow',
+      fontSize: '12px'
+    },
+    '& > label':{
+      // padding: '6px 0 2px 7px',
+      color: colors.primary,
+      fontSize: '12px',
+    }
   },
 
   dateTimeInput: {
@@ -176,7 +210,7 @@ const styles = (theme) => ({
     }
   },
   lockButtonBase: {
-    padding: '0 0 9px 9px',
+    padding: '12px 0 9px 10px',
     '&:disabled': {
       color: '#ccc'
     }
