@@ -22,10 +22,12 @@ const styles = (theme) => ({
   vizTypeSelectFormControl: {
     marginTop: '10px',
     width: '100%',
+    '& label': {
+      zIndex: 0,
+    },
     '&:disabled': {
       // backgroundColor: 'transparent',
       color: theme.palette.primary.light,
-
     },
     '& svg': {
       color: theme.palette.primary.light,

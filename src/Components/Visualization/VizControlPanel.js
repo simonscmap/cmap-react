@@ -1,7 +1,6 @@
 // Monolith component for charts/plots control
 
 import React from 'react';
-import Cookies from 'js-cookie';
 import { connect } from 'react-redux';
 import { throttle } from 'throttle-debounce';
 
@@ -31,6 +30,10 @@ import { ImUnlocked } from "react-icons/im";
 import { LuAlertTriangle } from "react-icons/lu";
 import CloseIcon from '@material-ui/icons/Close';
 
+import DatePicker from 'react-date-picker';
+import 'react-date-picker/dist/DatePicker.css';
+import 'react-calendar/dist/Calendar.css';
+
 import ChartControl from './Charts/ChartControl';
 import VariableSelector from './VariableSelector/VariableSelector';
 import { RestrictDataHint, SearchHint } from './help';
@@ -40,7 +43,7 @@ import transformDateStringToMonth from './ControlPanel/transformDateStringToMont
 import prepareQueryPayload from './ControlPanel/prepareQueryPayload';
 
 import {
-  aggregateChartDataSize,
+  // aggregateChartDataSize,
   cleanSPParams,
   generateVariableSampleRangeParams,
   mapVizType,
@@ -49,8 +52,10 @@ import {
 import SparseDataMaxSizeNotification from './SparseDataMaxSizeNotification';
 import VariableDetailsDialog from './VariableDetailsDialog';
 import vizControlStyles from './vizControlStyles';
-import getDataSize from './ControlPanel/estimateDataSize';
-import handleChangeFormInput from './ControlPanel/handleChangeFormInput';
+import handleChangeFormInput, {
+  shiftMinMaxDate,
+} from './ControlPanel/handleChangeFormInput';
+import handleValidation from './ControlPanel/handleValidation';
 import Hint from '../Navigation/Help/Hint';
 
 // redux
@@ -72,18 +77,18 @@ import {
 } from '../../Redux/actions/visualization';
 
 // enums
-import colors from '../../enums/colors';
-import states from '../../enums/asyncRequestStates';
+
+// import states from '../../enums/asyncRequestStates';
 import spatialResolutions from '../../enums/spatialResolutions';
 import storedProcedures from '../../enums/storedProcedures';
 import temporalResolutions from '../../enums/temporalResolutions';
-import validation from '../../enums/validation';
-import vizSubTypes from '../../enums/visualizationSubTypes';
+// import validation from '../../enums/validation';
+// import vizSubTypes from '../../enums/visualizationSubTypes';
 
 // util
-import countWebGLContexts from '../../Utility/countWebGLContexts';
-import depthUtils from '../../Utility/depthCounter';
-import isISODateString from '../../Utility/Time/isISO';
+// import countWebGLContexts from '../../Utility/countWebGLContexts';
+// import depthUtils from '../../Utility/depthCounter';
+// import isISODateString from '../../Utility/Time/isISO';
 
 // common
 import { Warning } from '../../Components/Common/Alert';
@@ -92,7 +97,6 @@ import initLogger from '../../Services/log-service';
 
 const log = initLogger ('VizControlPanel');
 
-const dateStringToISO = (dateString) => (new Date(dateString)).toISOString();
 
 const mapStateToProps = (state) => ({
   data: state.data,
@@ -275,8 +279,6 @@ const reorientGlobe = (globeUIRef, currProps) => {
   }
 }
 
-
-
 // help the monthly input fields display a meaningful value if the date range
 // is locked with date-time values
 const ensureMonthlyValue = (dateString) => {
@@ -355,15 +357,12 @@ class VizControlPanel extends React.Component {
       }
 
       const { surfaceOnly, irregularSpatialResolution } = getTargetFeatures (this.props);
+
       // derived params are lat, lon ranges
       const derivedParams = generateVariableSampleRangeParams(this.props.vizPageDataTargetDetails);
       // if paramLock is active, do not update params
-      const emptyParams = {
-      };
+      const emptyParams = {};
       const params = this.props.paramLock ? emptyParams : derivedParams;
-
-      console.log ('update params', params, derivedParams);
-
 
       this.setState({
         ...this.state,
@@ -578,377 +577,9 @@ class VizControlPanel extends React.Component {
 
   handleToggleCharts = () => {};
 
-  estimateDataSize = () => {
-    const { vizPageDataTargetDetails } = this.props;
-    return getDataSize(vizPageDataTargetDetails, this.state);
-  };
-
-  // ~~~~~~~~~~ the following methods are all validation checks ~~~~~~~~~~~~~~~~~ //
-  // TODO: extract and simplify these
-  checkStartDepth = () => {
-    const targetDetails = this.props.vizPageDataTargetDetails;
-    const { Has_Depth, Depth_Max } = targetDetails;
-    if (this.state.depth1 < 0) {
-      return 'Depth cannot be negative';
-    }
-    if (this.state.depth1 !== 0 && !Has_Depth) {
-      return 'This variable has no depth parameter, set depth to zero';
-    }
-    if (this.state.depth1 > this.state.depth2) {
-      return 'Start cannot be greater than end';
-    }
-    if (this.state.depth1 > Depth_Max) {
-      return `Maximum depth start is ${Depth_Max}`;
-    }
-
-    return '';
-  };
-
-  checkEndDepth = () => {
-    const targetDetails = this.props.vizPageDataTargetDetails;
-    const { Has_Depth, Depth_Min } = targetDetails;
-    if (this.state.depth2 < 0) {
-      return 'Depth cannot be negative';
-    }
-    if (this.state.depth2 !== 0 && !Has_Depth) {
-      return 'This variable has no depth parameter, set depth to zero';
-    }
-    if (this.state.depth1 > this.state.depth2) {
-      return 'Start cannot be greater than end';
-    }
-    if (this.state.depth2 < Depth_Min) {
-      return `Minimum depth end is ${Depth_Min}`;
-    }
-    return '';
-  };
-
-  checkStartDateTime = () => {
-    let isMonthly =
-      this.props.vizPageDataTargetDetails.Temporal_Resolution ===
-      temporalResolutions.monthlyClimatology;
-
-    if (!isMonthly && !isISODateString (this.state.dt1)) {
-      return 'Invalid date/time';
-    }
+  validate = () => {
+    return handleValidation.call (this);
   }
-  checkEndDateTime = () => {
-    let isMonthly =
-      this.props.vizPageDataTargetDetails.Temporal_Resolution ===
-      temporalResolutions.monthlyClimatology;
-
-    if (!isMonthly && !isISODateString (this.state.dt2)) {
-      return 'Invalid date/time';
-    }
-  }
-
-  checkStartDate = () => {
-    let isMonthly =
-      this.props.vizPageDataTargetDetails.Temporal_Resolution ===
-      temporalResolutions.monthlyClimatology;
-
-    if (isMonthly) {
-      if (parseInt(this.state.dt1) > parseInt(this.state.dt2)) {
-        return 'Start cannot be greater than end';
-      }
-    } else {
-      if (!this.state.dt1 ) {
-        return 'Invalid date';
-      }
-      if (new Date(this.state.dt1) > new Date(this.state.dt2)) {
-        return 'Start cannot be greater than end';
-      }
-
-      if (typeof this.state.dt1 === 'number') {
-        // handle case where dt2 is not marked as monthly, but is a number type
-        if (this.state.dt1 < 1 || this.state.dt1 > 12) {
-          return 'Start date is not within range: 1 - 12';
-        }
-      } else if (typeof this.state.dt1 === 'string') {
-        // Note the double slice looks odd
-        // first, slice the time component off in order to get a date value that
-        // is only significant to the day
-        // then slice the ISO string so that the string comparison will be
-        // between strings of the same length
-        let isLessThanDatasetTimeMin =
-            this.state.dt1.slice(0, 10) <
-            dateStringToISO(this.props.vizPageDataTargetDetails.Time_Min.slice(0, 10)).slice(0, 10);
-
-        if (isLessThanDatasetTimeMin) {
-          return `Minimum start date is ${
-          this.props.vizPageDataTargetDetails.Time_Min.slice(5, 10) +
-          '-' +
-          this.props.vizPageDataTargetDetails.Time_Min.slice(0, 4)
-        }`;
-        }
-      }
-    }
-
-    return '';
-  };
-
-  checkEndDate = () => {
-    let isMonthly =
-      this.props.vizPageDataTargetDetails.Temporal_Resolution ===
-      temporalResolutions.monthlyClimatology;
-
-    if (isMonthly) {
-      if (parseInt(this.state.dt1) > parseInt(this.state.dt2)) {
-        return 'Start cannot be greater than end';
-      }
-    } else {
-      if (!this.state.dt2 || !isISODateString (this.state.dt2)) {
-        return 'Invalid date';
-      }
-      if (new Date(this.state.dt1) > new Date(this.state.dt2)) {
-        return 'Start cannot be greater than end';
-      }
-
-      if (typeof this.state.dt2 === 'number') {
-        // handle case where dt2 is not marked as monthly, but is a number type
-        if (this.state.dt2 < 1 || this.state.dt2 > 12) {
-          return 'End date is not within range: 1 - 12';
-        }
-      } else if (typeof this.state.dt2 === 'string') {
-
-        // see note on the double slice call in checkStartDate
-        let isGreaterThanDatasetTimeMax =
-            this.state.dt2.slice(0,10) >
-            dateStringToISO (this.props.vizPageDataTargetDetails.Time_Max.slice(0,10)).slice(0,10);
-
-        if (isGreaterThanDatasetTimeMax) {
-          return `Maximum end date is ${
-          this.props.vizPageDataTargetDetails.Time_Max.slice(5, 10) +
-          '-' +
-          this.props.vizPageDataTargetDetails.Time_Max.slice(0, 4)
-        }`;
-        }
-      }
-    }
-    return '';
-  };
-
-  checkEndTime = () => {
-    let isMonthly =
-      this.props.vizPageDataTargetDetails.Temporal_Resolution ===
-      temporalResolutions.monthlyClimatology;
-
-    if (isMonthly || typeof this.state.dt2 !== 'string') {
-      // don't check time
-      return '';
-    }
-
-
-    let maxEndDate = this.props.vizPageDataTargetDetails.Time_Max.slice(0,10);
-    let maxEndTime = this.props.vizPageDataTargetDetails.Time_Max.slice(11,16);
-
-    let endDateTime = this.state.dt2;
-    // check if time is greater that time max
-    if (endDateTime.slice(0,10) === maxEndDate) {
-      if (endDateTime.slice(11,16) > maxEndTime) {
-        return `The maximum end time for ${maxEndDate} is ${maxEndTime}`
-      }
-    }
-    return '';
-  }
-
-  checkStartTime = () => {
-    let isMonthly =
-      this.props.vizPageDataTargetDetails.Temporal_Resolution ===
-      temporalResolutions.monthlyClimatology;
-
-    if (isMonthly || typeof this.state.dt1 !== 'string') {
-      // don't check time
-      return '';
-    }
-
-    let minStartDate = this.props.vizPageDataTargetDetails.Time_Min.slice(0,10);
-    let minStartTime = this.props.vizPageDataTargetDetails.Time_Min.slice(11,16);
-
-    let startTime = this.state.dt1;
-    // check if time is greater that time max
-    if (startTime.slice(0,10) === minStartDate) {
-      if (startTime.slice(11,16) < minStartTime) {
-        return `The minimum start time for ${minStartDate} is ${minStartTime}`
-      }
-    }
-
-    return '';
-  }
-
-  checkStartLat = () => {
-    if (this.state.lat1 > this.props.vizPageDataTargetDetails.Lat_Max)
-      return `Maximum start lat is ${this.props.vizPageDataTargetDetails.Lat_Max}`;
-    if (this.state.lat1 > this.state.lat2)
-      return `Start cannot be greater than end`;
-    return '';
-  };
-
-  checkEndLat = () => {
-    if (this.state.lat2 < this.props.vizPageDataTargetDetails.Lat_Min)
-      return `Minimum end lat is ${this.props.vizPageDataTargetDetails.Lat_Min}`;
-    if (this.state.lat1 > this.state.lat2)
-      return `Start cannot be greater than end`;
-    return '';
-  };
-
-  checkStartLon = () => {
-    const { lon1, lon2 } = this.state;
-    const { Lon_Min, Lon_Max } = this.props.vizPageDataTargetDetails;
-
-    if (lon2 >= lon1) {
-      if (lon1 > Lon_Max) return `Maximum start lon is ${Lon_Max}`;
-    } else {
-      if (
-        Lon_Min > lon1 ||
-        Lon_Max > lon1 ||
-        Lon_Min < lon2 ||
-        Lon_Max < lon2
-      ) {
-      } else return `Longitude outside dataset coverage`;
-    }
-    return '';
-  };
-
-  checkEndLon = () => {
-    const { lon1, lon2 } = this.state;
-    const { Lon_Min } = this.props.vizPageDataTargetDetails;
-
-    if (lon2 >= lon1) {
-      if (lon2 < Lon_Min) return `Minimum end lon is ${Lon_Min}`;
-    }
-
-    return '';
-  };
-
-  checkHeatmap = () => {
-    if (this.state.irregularSpatialResolution)
-      return validation.type.dataIsIrregular.replace('$', 'Heatmap');
-    return '';
-  };
-
-  checkContour = () => {
-    if (this.state.irregularSpatialResolution)
-      return validation.type.dataIsIrregular.replace('$', 'Contour');
-    return '';
-  };
-
-  checkSection = () => {
-    if (this.state.surfaceOnly)
-      return validation.type.surfaceOnlyDataset.replace('$', 'variable');
-    if (this.state.irregularSpatialResolution)
-      return validation.type.dataIsIrregular.replace('$', 'Section Map');
-    return '';
-  };
-
-  checkHistogram = () => {
-    return '';
-  };
-
-  checkTimeSeries = () => {
-    if (this.state.irregularSpatialResolution)
-      return validation.type.dataIsIrregular.replace('$', 'Time Series');
-    return '';
-  };
-
-  checkDepthProfile = () => {
-    if (this.state.surfaceOnly)
-      return validation.type.surfaceOnlyDataset.replace('$', 'variable');
-    return '';
-  };
-
-  checkSparseMap = () => {
-    if (!this.state.irregularSpatialResolution)
-      return validation.type.irregularOnly;
-    return '';
-  };
-
-  checkGeneralWarn = (dataSize) => {
-    if (!this.props.selectedVizType) return '';
-    if (dataSize > 1200000) return validation.generic.dataSizeWarning;
-    return '';
-  };
-
-  checkGeneralPrevent = (dataSize) => {
-    const webGLCount = countWebGLContexts(this.props.charts);
-    const aggregateSize = aggregateChartDataSize(this.props.charts);
-
-    if (!this.props.user) {
-      let guestPlotCount = parseInt(Cookies.get('guestPlotCount'));
-      if (guestPlotCount && guestPlotCount >= 10)
-        return validation.generic.guestMaximumReached;
-    }
-
-    if (!this.state.selectedVizType) return validation.generic.vizTypeMissing;
-    if (this.state.selectedVizType === vizSubTypes.heatmap && webGLCount > 14)
-      return validation.type.webGLContextLimit;
-    if (this.state.selectedVizType === vizSubTypes.sparse && webGLCount > 11)
-      return validation.type.webGLContextLimit;
-
-    if (this.state.selectedVizType === vizSubTypes.heatmap) {
-      let availableContexts = 16 - webGLCount;
-      const depthCount =
-        depthUtils.count(
-          { data: this.props.vizPageDataTargetDetails },
-          this.props.depth1,
-          this.props.depth2,
-        ) || 1;
-      if (availableContexts - depthCount < 1)
-        return 'Too many distinct depths to render heatmap. Please reduce depth range or select section map.';
-    }
-
-    // DATA SIZE CHECKS
-    const sizeCheckStatus = this.props.sizeCheckStatus;
-    const sizeCheckResult = this.props.sizeCheck;
-
-    if (sizeCheckStatus === states.notTried || sizeCheckStatus === states.inProgress) {
-      return 'Waiting for size check to complete.';
-    }
-
-    if (sizeCheckStatus === states.failed ) {
-      return 'Error estimating visualization size.'
-    }
-
-    if (sizeCheckResult === null) {
-      return 'No size estimation available.'
-    }
-
-    if (sizeCheckStatus === states.succeeded && (sizeCheckResult && !sizeCheckResult.allow)) {
-      return `Extent is too large, select a smaller spatial or temporal range.`
-    }
-
-
-
-    // HISTOGRAM & HEATMAP < 1 500 000
-    if (
-      this.state.selectedVizType !== vizSubTypes.histogram &&
-        this.props.selectedVizType !== vizSubTypes.heatmap &&
-        dataSize > 1500000
-    ) {
-      return validation.generic.dataSizePrevent;
-    }
-
-    // GENERAL SIZE
-    if (dataSize > 6000000) {
-      return validation.generic.dataSizePrevent;
-    }
-    if (!this.props.vizPageDataTargetDetails)
-      return validation.generic.variableMissing;
-    if (this.props.charts.length > 9)
-      return 'Total number of plots is too large. Please delete 1 or more';
-
-    // TODO extract magic number
-    // AGGREGATO SIZE ACROSS ALL CHARTS
-    if (aggregateSize + dataSize > 4000000)
-      return 'Total rendered data amount is too large. Please delete 1 or more plots.';
-
-    if (
-      !this.state.irregularSpatialResolution &&
-      this.state.selectedVizType !== vizSubTypes.timeSeries &&
-      Date.parse(this.state.dt2) - Date.parse(this.state.dt1) > 86400000 * 365
-    )
-      return 'Maximum date range for non-time series plots of gridded data is 1 year';
-    return '';
-  };
 
   render = () => {
     const {
@@ -976,41 +607,14 @@ class VizControlPanel extends React.Component {
       selectedVizType,
     } = this.state;
 
+    const {
+      disableVisualizeMessage,
+      visualizeButtonTooltip,
+      validationComplete,
+      validations,
+    } = this.validate();
 
-    let details = vizPageDataTargetDetails;
-    let validations;
-
-    const dataSize = this.estimateDataSize();
-
-    if (details) {
-      validations = [
-        this.checkStartDepth(),
-        this.checkEndDepth(),
-        this.checkStartLat(),
-        this.checkEndLat(),
-        this.checkStartLon(),
-        this.checkEndLon(),
-        this.checkHeatmap(),
-        this.checkContour(),
-        this.checkSection(),
-        this.checkHistogram(),
-        this.checkTimeSeries(),
-        this.checkDepthProfile(),
-        this.checkSparseMap(),
-        this.checkGeneralWarn(dataSize),
-        this.checkGeneralPrevent(dataSize),
-        this.checkStartDate(),
-        this.checkEndDate(),
-        this.checkStartTime(),
-        this.checkEndTime(),
-        this.checkStartDateTime(),
-        this.checkEndDateTime(),
-      ];
-    } else {
-      validations = Array(14).fill('');
-    }
-
-    const [
+    const {
       startDepthMessage,
       endDepthMessage,
       startLatMessage,
@@ -1031,40 +635,14 @@ class VizControlPanel extends React.Component {
       startTimeMessage,
       endTimeMessage,
       startDateTimeMessage,
-      endDateTimeMessage
-    ] = validations;
+      endDateTimeMessage,
+    } = validations;
 
-    const checkDisableVisualizeList = [
-      startDepthMessage,
-      endDepthMessage,
-      startLatMessage,
-      endLatMessage,
-      startLonMessage,
-      endLonMessage,
-      generalPreventMessage,
-      startDateMessage,
-      endDateMessage,
-      startTimeMessage,
-      endTimeMessage,
-      startDateTimeMessage
-    ];
 
-    const checkDisableVisualize = () => {
-      for (let i = 0; i < checkDisableVisualizeList.length; i++) {
-        if (checkDisableVisualizeList[i]) return checkDisableVisualizeList[i];
-      }
-      return false;
-    };
-
-    const disableVisualizeMessage = checkDisableVisualize();
-
-    const visualizeButtonTooltip = disableVisualizeMessage
-      ? disableVisualizeMessage
-      : generalPreventMessage
-      ? generalPreventMessage
-          : '';
+    const details = vizPageDataTargetDetails;
 
     const alerts = [];
+
     if (this.props.paramLock && this.props.variableResolutionMismatch) {
       alerts.push(
         (<Warning>
@@ -1343,73 +921,37 @@ class VizControlPanel extends React.Component {
                 </>
               ) : (
                 <>
-                 {/* Daily Date Picker */}
+                  {/* Daily Date Picker */}
                   <Grid item xs={6} className={classes.formGridItem}>
-                    <TextField
-                      name="date1"
-                      className={classes.textField}
-                      id="date1"
-                      label="Start Date(m/d/y)"
-                      step={1}
-                      type="date"
-                      value={(typeof dt1 === 'string' ? dt1.slice(0,10) : dt1)}
-                      error={(Boolean(startDateMessage) || Boolean(startDateTimeMessage))}
-                      FormHelperTextProps={{ className: classes.helperText }}
-                      helperText={startDateMessage || startDateTimeMessage}
-                      InputProps={{
-                        className: classes.dateTimeInput,
-                        inputProps: details
-                          ? {
-                              min: details.Time_Min.slice(0, 10),
-                              max: details.Time_Max.slice(0, 10),
-                            }
-                          : {},
-                      }}
-                      InputLabelProps={{
-                        shrink: true,
-                        className: classes.padLeft,
-                      }}
-                      onChange={this.handleChangeInputValue}
-                      disabled={
-                        this.props.paramLock
-                          ||  this.state.showDrawHelp
-                          || !vizPageDataTargetDetails
-                      }
+                    {startDateMessage ? <label>{startDateMessage}</label> : ''}
+                    <DatePicker
+                      disabled={!details || this.props.paramLock}
+                      value={shiftMinMaxDate(dt1)}
+                      onChange={(date) => this.handleChangeInputValue ({
+                        target: {
+                          name: 'date1',
+                          value: date,
+                        }
+                      })}
+                      clearIcon={null}
                     />
                   </Grid>
 
                   <Grid item xs={6} className={classes.formGridItem}>
-                    <TextField
-                      name="date2"
-                      className={classes.textField}
-                      id="date2"
-                      label="End Date(m/d/y)"
-                      type="date"
-                      value={(typeof dt2 === 'string' ? dt2.slice(0,10) : dt2)}
-                      error={(Boolean(endDateMessage) || Boolean(endDateTimeMessage))}
-                      FormHelperTextProps={{ className: classes.helperText }}
-                      helperText={endDateMessage || endDateTimeMessage }
-                      InputProps={{
-                        className: classes.dateTimeInput,
-                        inputProps: details
-                          ? {
-                              min: details.Time_Min.slice(0, 10),
-                              max: details.Time_Max.slice(0, 10),
-                            }
-                          : {},
-                      }}
-                      InputLabelProps={{
-                        shrink: true,
-                        className: classes.padLeft,
-                      }}
-                      onChange={this.handleChangeInputValue}
-                      disabled={
-                        this.props.paramLock
-                          || this.state.showDrawHelp
-                          || !vizPageDataTargetDetails
-                      }
+                    {endDateMessage ? <label>{endDateMessage}</label> : ''}
+                    <DatePicker
+                      disabled={!details || this.props.paramLock}
+                      value={shiftMinMaxDate(dt2)}
+                      onChange={(date) => this.handleChangeInputValue ({
+                        target: {
+                          name: 'date2',
+                          value: date,
+                        }
+                      })}
+                      clearIcon={null}
                     />
-                  </Grid>
+
+                </Grid>
 
                     <Grid item xs={6} className={classes.formGridItem}>
                       <TextField
@@ -1718,13 +1260,6 @@ class VizControlPanel extends React.Component {
               ) : (
                 ''
               )}
-
-               {showControlPanel ? (
-                  <Paper className={classes.popoutButtonPaper}>
-                                      </Paper>
-                ) : (
-                  ''
-                )}
             </Grid>
           </>
         </Drawer>

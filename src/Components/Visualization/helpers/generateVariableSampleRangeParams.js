@@ -27,8 +27,8 @@ const generateVariableSampleRangeParams = (varDetails) => {
       ? 1
       : dateStringToISO (varDetails.Time_Max);
 
-  console.log ('gen params: time min', varDetails.Time_Min, dt1);
-  console.log ('gen params: time max', varDetails.Time_Max, dt2);
+  // console.log ('gen params: time min', varDetails.Time_Min, dt1);
+  // console.log ('gen params: time max', varDetails.Time_Max, dt2);
 
   let lat1 = Math.floor(varDetails.Lat_Min * 1000) / 1000;
   let lat2 = Math.ceil(varDetails.Lat_Max * 1000) / 1000;

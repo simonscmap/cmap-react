@@ -4,6 +4,8 @@
 // - switching between monthly and daily dates after param lock
 // - allowing separate inputs for date and time but needing to store state as one value
 // - handling timezone obfuscation of the date picker
+
+import dayjs from 'dayjs';
 import temporalResolutions from '../../../enums/temporalResolutions';
 
 const getTimeFromDateStringOrDefault = (dateString) => {
@@ -24,6 +26,12 @@ const getDateFromDateStringOrDefault = (dateString) => {
 
 function handleChangeFormInput (e) {
   const targetDetails = this.props.vizPageDataTargetDetails;
+
+  if (!targetDetails) {
+    console.log ('aborting param change, no target')
+    return;
+  }
+
   const isMonthly =
         targetDetails.Temporal_Resolution ===
         temporalResolutions.monthlyClimatology;
@@ -46,6 +54,14 @@ function handleChangeFormInput (e) {
     value = e.target.value;
   }
 
+  if (['date1', 'date2'].includes(name)) {
+    if (value) {
+      value = value.toISOString().slice(0,10);
+    } else {
+      value = '0000-00-00'
+    }
+  }
+
   if (['date1', 'hour1', 'date2', 'hour2'].includes(e.target.name)) {
     // in some cases, for example after the param lock has been disabled,
     // the state dt1 is not set, and we need to supplement with the target passed
@@ -64,7 +80,6 @@ function handleChangeFormInput (e) {
     }
 
 
-
     if (typeof dt1 !== 'string' || typeof dt2 !== 'string') {
       console.error ('incorrect types for dt1 and dt1, could not update state', dt1, dt2);
       // return;
@@ -79,11 +94,6 @@ function handleChangeFormInput (e) {
 
     if (value === '' && (name === 'hour1' || name === 'hour2')) {
       value = '00:00';
-    }
-
-    if (value.length > 10 && (name === 'date1' || name === 'date2')) {
-      console.log('date was provided too many characters');
-      value = '0000-00-00';
     }
 
     // if prev dt1 is from locked monthly dataset, it will not be a date string
@@ -107,6 +117,8 @@ function handleChangeFormInput (e) {
     }
   }
 
+  console.log ('set state', name, value);
+
   this.setState({
     ...this.state,
     [name]: value,
@@ -114,3 +126,23 @@ function handleChangeFormInput (e) {
 };
 
 export default handleChangeFormInput;
+
+export const shiftMinMaxDate = (d) => {
+  console.log ('shift input', d)
+  const date = dayjs(d);
+  const offset = (new Date(d)).getTimezoneOffset();
+  const timeOffsetInMS = offset * 60000;
+  const adjustedDate = date.add(timeOffsetInMS, 'ms');
+  let str;
+  try {
+    str = adjustedDate.toISOString();
+  } catch (e) {
+    // if conveting the adjested date throws
+    // then the adjusted date was invalid, indicating the original was also invaled
+    // so return a default, but adjusted, date
+    return undefined;
+    // str = dayjs('1900-01-01').add(timeOffsetInMS, 'ms').toISOString();
+  }
+  console.log ('shiftDate', d, str, offset, timeOffsetInMS);
+  return str;
+}

@@ -4,7 +4,7 @@ import z from '../../enums/zIndex';
 const salmonAlert = 'rgb(209, 98, 101)';
 const yellowAlert = 'rgb(255, 227, 54)'
 
-const drawerWidth = 280;
+const drawerWidth = 305;
 
 const styles = (theme) => ({
   drawerPaper: {
@@ -35,7 +35,7 @@ const styles = (theme) => ({
     position: 'fixed',
     left: drawerWidth + 23,
     top: '380px',
-    zIndex: z.CONTROL_PRIMARY,
+    // zIndex: z.CONTROL_PRIMARY,
   },
 
   // variable search overlay container
@@ -75,6 +75,7 @@ const styles = (theme) => ({
     gap: '10px',
   },
   formGridItem: {
+    textAlign: 'left',
     // border: '1px solid #313131',
     // borderBottom: 'none',
     // borderTop: 'none',
@@ -125,13 +126,14 @@ const styles = (theme) => ({
     // prevent arrow controls from rendering on firefox
     '& input': {
       '-moz-appearance': 'textfield',
+      zIndex: 0,
     },
     '& label.Mui-disabled': {
       color: theme.palette.primary.main
     },
     '& input.Mui-disabled': {
       color: '#aaa'
-    }
+    },
   },
 
   drawHelpText: {
@@ -150,7 +152,7 @@ const styles = (theme) => ({
   popoutButtonPaper: {
     position: 'absolute',
     top: '119px',
-    left: '298px',
+    left: '320px',
     display: 'flex',
     flexDirection: 'column',
     borderRadius: '5px',
