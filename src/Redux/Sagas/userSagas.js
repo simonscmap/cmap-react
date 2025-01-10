@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie';
-import { call, put, takeLatest, select, take } from 'redux-saga/effects';
+import { call, put, takeLatest, select, take, delay } from 'redux-saga/effects';
 import { googleLogout } from '@react-oauth/google';
 import api from '../../api/api';
 import * as interfaceActions from '../actions/ui';
@@ -58,17 +58,26 @@ export function* userLogin(action) {
         window.location.href = '/catalog';
       }
     } else {
+      const resumeAction = yield select ((state) => state.resumeAction);
+      // if there is a queued action, dispatch it
+      if (resumeAction) {
+        yield put (interfaceActions.snackbarOpen ('Resuming action...'));
+        yield put ((() => JSON.parse(JSON.stringify(resumeAction)))());
+        yield put (userActions.clearResumeAction());
+        yield delay (2000);
+        yield put (interfaceActions.snackbarClose ());
+        return;
+      } else {
+        // get catalog state
+        const downloadState = yield select((state) => state.download);
 
-      // get catalog state
-      let downloadState = yield select((state) => state.download);
-
-
-      if (downloadState.currentRequest && downloadState.checkQueryRequestState === states.failed) {
-        // retry the query check if the last request failed (it was probably a 401)
-        yield put(catalogActions.checkQuerySize(downloadState.currentRequest))
+        if (downloadState.currentRequest && downloadState.checkQueryRequestState === states.failed) {
+          // retry the query check if the last request failed (it was probably a 401)
+          // TODO: use resumeAction pattern here
+          yield put(catalogActions.checkQuerySize(downloadState.currentRequest))
+        }
       }
     }
-
   } else {
     yield put(userActions.userLoginRequestFailure());
     yield put(interfaceActions.snackbarOpen('Login failed.', tag));

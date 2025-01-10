@@ -54,6 +54,7 @@ export function* sqlifyStoredProcedureRequest (args) {
 
 
 export function* checkVizQuerySize (action) {
+  console.log ('action',action)
   const checkStatus = yield select (state => state.viz
                                     && state.viz.chart
                                     && state.viz.chart.validation
@@ -134,8 +135,12 @@ export function* checkVizQuerySize (action) {
     if (response.status === 401) {
       log.error ('api returned 401', { isGuest });
       if (isGuest) {
-        log.error ('guest has exceeded allowed number of requests', { isGuest, response });
-        yield put(userActions.refreshLogin());
+        log.error ('guest has exceeded allowed number of requests, refreshing login and queuing query check', { isGuest, response });
+        yield put (userActions.queueActionToResume (JSON.parse(JSON.stringify({
+          type: action.type,
+          payload: action.payload
+        })))); // re-queue this action
+        yield put (userActions.refreshLogin());
         yield fail ('Nuber of allowed queries exceeded, please register and log in.');
         return;
       }

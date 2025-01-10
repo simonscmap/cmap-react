@@ -151,6 +151,8 @@ const initialState = {
     data: null,
   },
 
+  resumeAction: null, // a literal action to resume, e.g. after user login
+
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // Visualization state pieces
   charts: [],
