@@ -452,7 +452,7 @@ function handleValidation () {
         ? validations.disableVisualizeMessage
         : validations.generalPreventMessage
         ? validations.generalPreventMessage
-        : '';
+        : null;
 
   const payload = {
     disableVisualizeMessage,

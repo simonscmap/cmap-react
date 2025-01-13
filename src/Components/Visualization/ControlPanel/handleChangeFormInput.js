@@ -18,6 +18,7 @@ const getTimeFromDateStringOrDefault = (dateString) => {
 
 const getDateFromDateStringOrDefault = (dateString) => {
   if (typeof dateString !== 'string' || dateString.length < 10) {
+    console.log ('returning default date', dateString)
     return '1900-01-01';
   } else {
     return dateString.slice(0,10);
@@ -68,13 +69,13 @@ function handleChangeFormInput (e) {
     // in via props
     let dt1, dt2;
     if (this.state.dt1) {
-      dt1 = this.state.dt1;
+      dt1 = '' + this.state.dt1;
     } else if (targetDetails.Time_Min) {
       dt1 = (new Date(targetDetails.Time_Min)).toISOString();
     }
 
     if (this.state.dt2) {
-      dt2 = this.state.dt2;
+      dt2 = '' + this.state.dt2;
     } else if (targetDetails.Time_Max) {
       dt2 = (new Date(targetDetails.Time_Max)).toISOString();
     }
@@ -127,8 +128,11 @@ function handleChangeFormInput (e) {
 
 export default handleChangeFormInput;
 
-export const shiftMinMaxDate = (d) => {
-  console.log ('shift input', d)
+export const shiftMinMaxDate = (d, details, minOrMax) => {
+  console.log ('shif date', minOrMax, d)
+  if (typeof d !== 'string' || d.length < 10) {
+    return null;
+  }
   const date = dayjs(d);
   const offset = (new Date(d)).getTimezoneOffset();
   const timeOffsetInMS = offset * 60000;
@@ -140,6 +144,7 @@ export const shiftMinMaxDate = (d) => {
     // if conveting the adjested date throws
     // then the adjusted date was invalid, indicating the original was also invaled
     // so return a default, but adjusted, date
+    console.log ('returning undefined for shift date');
     return undefined;
     // str = dayjs('1900-01-01').add(timeOffsetInMS, 'ms').toISOString();
   }

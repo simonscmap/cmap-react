@@ -20,11 +20,11 @@ const dateStringToISO = (dateString) => {
 const generateVariableSampleRangeParams = (varDetails) => {
   let dt1 =
     varDetails.Temporal_Resolution === temporalResolutions.monthlyClimatology
-      ? 1
+      ? '1'
       : dateStringToISO (varDetails.Time_Min);
   let dt2 =
     varDetails.Temporal_Resolution === temporalResolutions.monthlyClimatology
-      ? 1
+      ? '1'
       : dateStringToISO (varDetails.Time_Max);
 
   // console.log ('gen params: time min', varDetails.Time_Min, dt1);

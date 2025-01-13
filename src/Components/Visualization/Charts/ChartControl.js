@@ -81,11 +81,26 @@ const generateDisabledButtonMessage = (checkQuerySizeStatus, disableVisualizeMes
     } else if (checkQuerySizeStatus === states.inProgress) {
       return 'Checking query size...'
     } else if (checkQuerySizeStatus === states.notTried) {
-      return disableVisualizeMessage  || 'Waiting to initialize size check...'
+      return disableVisualizeMessage  || 'Select a variable.'
     }
   }
 }
 
+const generateButtonTooltip = (visualizeButtonTooltip, checkQuerySizeStatus, disableVisualizeMessage) => {
+  if (disableVisualizeMessage) {
+    return 'Please address the validation issue before proceeding.';
+  } else if (checkQuerySizeStatus === states.succeeded) {
+    return disableVisualizeMessage || 'The query is within size limits, click to create selected visualization.'
+  } else {
+    if (checkQuerySizeStatus === states.failed) {
+      return 'There was an error trying to determine the size of the visualization. Please try again. If the problem persists, please contact us via the contact page.'
+    } else if (checkQuerySizeStatus === states.inProgress) {
+      return 'Checking the size of the query required to make the selected visualization. Some checks may take a few moments.'
+    } else if (checkQuerySizeStatus === states.notTried) {
+      return disableVisualizeMessage  || 'Use the search dialogue above to select a variable, then adjust the space and time parameters and select a visualization type.'
+    }
+  }
+}
 const ChartControl = (props) => {
   const {
     classes,
@@ -222,7 +237,7 @@ const ChartControl = (props) => {
         >
           <Tooltip
             placement="right"
-            title={visualizeButtonTooltip}
+            title={generateButtonTooltip( visualizeButtonTooltip, checkQuerySizeStatus, disableVisualizeMessage)}
             className={classes.vizButtonTooltip}
           >
             <Grid item xs={12} style={{ width: '100%' }}>

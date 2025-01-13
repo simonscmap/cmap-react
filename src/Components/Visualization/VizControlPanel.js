@@ -77,26 +77,15 @@ import {
 } from '../../Redux/actions/visualization';
 
 // enums
-
-// import states from '../../enums/asyncRequestStates';
 import spatialResolutions from '../../enums/spatialResolutions';
 import storedProcedures from '../../enums/storedProcedures';
 import temporalResolutions from '../../enums/temporalResolutions';
-// import validation from '../../enums/validation';
-// import vizSubTypes from '../../enums/visualizationSubTypes';
-
-// util
-// import countWebGLContexts from '../../Utility/countWebGLContexts';
-// import depthUtils from '../../Utility/depthCounter';
-// import isISODateString from '../../Utility/Time/isISO';
 
 // common
 import { Warning } from '../../Components/Common/Alert';
-
 import initLogger from '../../Services/log-service';
 
 const log = initLogger ('VizControlPanel');
-
 
 const mapStateToProps = (state) => ({
   data: state.data,
@@ -922,12 +911,13 @@ class VizControlPanel extends React.Component {
               ) : (
                 <>
                   {/* Daily Date Picker */}
+
                   <Grid item xs={6} className={classes.formGridItem}>
                     <div className={classes.datePicker}>
                       <label>Start Date</label>
                       <DatePicker
                         disabled={!details || this.props.paramLock}
-                        value={shiftMinMaxDate(dt1)}
+                        value={shiftMinMaxDate(dt1, details, 'min')}
                         onChange={(date) => this.handleChangeInputValue ({
                           target: {
                             name: 'date1',
@@ -946,7 +936,7 @@ class VizControlPanel extends React.Component {
                       <label>Start Date</label>
                       <DatePicker
                         disabled={!details || this.props.paramLock}
-                        value={shiftMinMaxDate(dt2)}
+                        value={shiftMinMaxDate(dt2, details, 'max')}
                         onChange={(date) => this.handleChangeInputValue ({
                           target: {
                             name: 'date2',
