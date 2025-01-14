@@ -28,7 +28,7 @@ Logs should have the following properties:
 
 ## Development v Production
 
-There is same variance in logging behavior between production and non-production environments.
+There is some variance in logging behavior between production and non-production environments.
 
 Log levels `trace` and `debug` are not logged in production (see log level guidance below).
 

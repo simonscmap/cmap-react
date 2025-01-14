@@ -97,7 +97,7 @@ export function* checkVizQuerySize (action) {
       if (isGuest) {
         log.error ('guest has exceeded allowed number of requests', { isGuest, response });
         yield put(userActions.refreshLogin());
-        yield fail ('Nuber of allowed queries exceeded, please register and log in.');
+        yield fail ('Number of allowed queries exceeded, please register and log in.');
         return;
       }
     }
@@ -141,7 +141,7 @@ export function* checkVizQuerySize (action) {
           payload: action.payload
         })))); // re-queue this action
         yield put (userActions.refreshLogin());
-        yield fail ('Nuber of allowed queries exceeded, please register and log in.');
+        yield fail ('Number of allowed queries exceeded, please register and log in.');
         return;
       }
     }

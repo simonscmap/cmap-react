@@ -155,6 +155,7 @@ function* queryRequest(action) {
   yield put(visualizationActions.queryRequestSuccess());
 }
 
+// fetch data for visualization
 function* storedProcedureRequest(action) {
   yield put(visualizationActions.storedProcedureRequestProcessing());
   const msg = 'Fetching Data';

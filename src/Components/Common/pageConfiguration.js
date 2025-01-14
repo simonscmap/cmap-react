@@ -13,7 +13,6 @@ import { aboutConfig } from '../About';
 import { galleryConfig } from '../Gallery';
 import { submissionGuideConfig } from '../DataSubmission/Guide/SubmissionGuide2';
 import { documentationConfig } from '../../Documentation/sidebar';
-import { testPageConfig } from '../Explorer';
 import { programsIndexConfig } from '../Catalog/Programs/Index';
 
 export const disabled = 'disabled';
@@ -41,7 +40,6 @@ const pages = {
   '/register': {},
   '/forgotpass': {},
   '/choosepassword': {},
-  '/test': testPageConfig
 };
 
 export const getPageConfiguration = (pathname) => {

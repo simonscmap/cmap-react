@@ -21,5 +21,3 @@ The only solution to this is to declare the child components outside of the scop
 The depth controls will only render if there is a `Depth_Max` and `Depth_Max` and `Depth_Min` are not the same value.
 
 For example in Gradients4-TN397 the `Depth_Max` and `Depth_Min` are both `8`. This would confuse the `Slider` component: because the two slider handles are siblings who use their form value as keys, this would generate a warning that both children have the same key.
-
-# [Up to Catalog](../catalog-doc.md)

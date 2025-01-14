@@ -82,7 +82,7 @@ const HelpNavbarControls = (props) => {
   const pageName = pathNameToPageName(location.pathname);
   // const styleVariant = pageName === VISUALIZATION_PAGE ? 'black' : '#2f769c';
 
-  // TODO replate CATALOG_PAGE with router path
+  // TODO replace CATALOG_PAGE with router path
   const introIsEnabled = useSelector(({ intros }) => intros[pageName]);
   const pageConfig = getPageConfiguration(location.pathname);
 
