@@ -75,35 +75,64 @@ function checkEndDateTime () {
 }
 
 function checkStartDate () {
+  const dt1 = this.state.dt1;
+  const dt2 = this.state.dt2;
+
+  console.log ('check start date', dt1, dt2)
+
   let isMonthly =
       this.props.vizPageDataTargetDetails.Temporal_Resolution ===
       temporalResolutions.monthlyClimatology;
 
   if (isMonthly) {
-    if (parseInt(this.state.dt1) > parseInt(this.state.dt2)) {
-      return 'Start cannot be greater than end';
+    let month1 = dt1;
+    let month2 = dt2;
+
+    if (typeof dt1 === 'string') {
+      if (dt1.length <= 2) {
+        month1 = parseInt(dt1);
+      } else {
+        month1 = (new Date(dt1)).getUTCMonth() + 1;
+      }
+    } else {
+      month1 = parseInt (dt1);
+    }
+
+     if (typeof dt2 === 'string') {
+      if (dt2.length <= 2) {
+        month2 = parseInt(dt2);
+      } else {
+        month2 = (new Date(dt2)).getUTCMonth() + 1;
+      }
+    } else {
+      month2 = parseInt (dt2);
+    }
+
+    console.log (month1, month2);
+    if (month1 > month2) {
+      return 'Start date cannot be greater than end';
     }
   } else {
-    if (!this.state.dt1 ) {
+    if (!dt1 ) {
       return 'Invalid date';
     }
     if (new Date(this.state.dt1) > new Date(this.state.dt2)) {
       return 'Start cannot be greater than end';
     }
 
-    if (typeof this.state.dt1 === 'number') {
+    if (typeof dt1 === 'number') {
       // handle case where dt2 is not marked as monthly, but is a number type
-      if (this.state.dt1 < 1 || this.state.dt1 > 12) {
+      if (dt1 < 1 || dt1 > 12) {
         return 'Start date is not within range: 1 - 12';
       }
-    } else if (typeof this.state.dt1 === 'string') {
+    } else if (typeof dt1 === 'string') {
       // Note the double slice looks odd
       // first, slice the time component off in order to get a date value that
       // is only significant to the day
       // then slice the ISO string so that the string comparison will be
       // between strings of the same length
       let isLessThanDatasetTimeMin =
-          this.state.dt1.slice(0, 10) <
+          dt1.slice(0, 10) <
           dateStringToISO(this.props.vizPageDataTargetDetails.Time_Min.slice(0, 10)).slice(0, 10);
 
       if (isLessThanDatasetTimeMin) {
@@ -124,10 +153,39 @@ function checkEndDate () {
       this.props.vizPageDataTargetDetails.Temporal_Resolution ===
       temporalResolutions.monthlyClimatology;
 
+  const dt1 = this.state.dt1;
+  const dt2 = this.state.dt2;
+
   if (isMonthly) {
-    if (parseInt(this.state.dt1) > parseInt(this.state.dt2)) {
-      return 'Start cannot be greater than end';
+
+    let month1 = dt1;
+    let month2 = dt2;
+
+    if (typeof dt1 === 'string') {
+      if (dt1.length <= 2) {
+        month1 = parseInt(dt1);
+      } else {
+        month1 = (new Date(dt1)).getUTCMonth() + 1; // getUTCMonth is 0 indexed
+      }
+    } else {
+      month1 = parseInt (dt1);
     }
+
+    if (typeof dt2 === 'string') {
+      if (dt2.length <= 2) {
+        month2 = parseInt(dt2);
+      } else {
+        month2 = (new Date(dt2)).getUTCMonth() + 1;// getUTCMonth is 0 indexed
+      }
+    } else {
+      month2 = parseInt (dt2);
+    }
+
+
+    if (month1 > month2) {
+      return 'End date cannot be less than start';
+    }
+
   } else {
     if (!this.state.dt2 || !isISODateString (this.state.dt2)) {
       return 'Invalid date';
