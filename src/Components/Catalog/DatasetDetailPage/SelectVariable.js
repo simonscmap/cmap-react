@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import {
-  makeStyles,
-} from '@material-ui/core';
+import { makeStyles } from '@material-ui/core';
 import Radio from '@material-ui/core/Radio';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -15,9 +13,7 @@ import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import Grow from '@material-ui/core/Grow';
 
-import {
-  datasetVariableSelect
-} from '../../../Redux/actions/catalog';
+import { datasetVariableSelect } from '../../../Redux/actions/catalog';
 import { safePath } from '../../../Utility/objectUtils';
 
 const useRowStyles = makeStyles({
@@ -41,10 +37,10 @@ const useRowStyles = makeStyles({
   },
 });
 
-const useStyles = makeStyles ((theme) => ({
+const useStyles = makeStyles((theme) => ({
   header: {
     height: '100%',
-    minHeight: '500px'
+    minHeight: '500px',
   },
   wrapper: {
     marginTop: '10px',
@@ -62,11 +58,11 @@ const useStyles = makeStyles ((theme) => ({
     height: '100%',
     // zIndex: zIndex.LOADING_OVERLAY + 2,
   },
-  root: { // table header
+  root: {
+    // table header
     '& .MuiTableCell-stickyHeader': {
       backgroundColor: 'rgba(30, 67, 113, 1)',
     },
-
   },
   sectionHeader: {
     color: 'white',
@@ -81,11 +77,9 @@ const useStyles = makeStyles ((theme) => ({
     maxHeight: '500px',
     // zIndex: zIndex.LOADING_OVERLAY + 2,
   },
-  selectedLabel: {
-
-  },
+  selectedLabel: {},
   selectedShortName: {
-    color: theme.palette.primary.main
+    color: theme.palette.primary.main,
   },
   iconWrapper: {
     textAlign: 'center',
@@ -95,34 +89,35 @@ const useStyles = makeStyles ((theme) => ({
     flexDirection: 'column',
     '& img': {
       objectFit: 'contain',
-      maxHeight: '200px'
-    }
-  }
+      maxHeight: '200px',
+    },
+  },
 }));
 
 const SectionHeader = (props) => {
-  const cl = useStyles ()
+  const cl = useStyles();
   const { title } = props;
+  console.log('title', title);
   return (
     <Typography variant="h5" className={cl.sectionHeader}>
       {title}
     </Typography>
   );
-}
+};
 
 const DatasetIcon = (props) => {
   const { url, message = '' } = props;
   const cl = useStyles();
   return (
     <div className={cl.header}>
-      <SectionHeader title={'Visualization'}/>
+      <SectionHeader title={'Visualization'} />
       <div className={cl.iconWrapper}>
         <img src={url} />
         <p>{message}</p>
       </div>
     </div>
   );
-}
+};
 
 const Row = (props) => {
   const { selectedValue, selectVariable, variable } = props;
@@ -138,7 +133,10 @@ const Row = (props) => {
 
   return (
     <React.Fragment>
-      <TableRow className={`${classes.root} ${selectedClass}`} onClick={() => selectVariable (Short_Name)}>
+      <TableRow
+        className={`${classes.root} ${selectedClass}`}
+        onClick={() => selectVariable(Short_Name)}
+      >
         <TableCell padding="checkbox">
           <Radio
             checked={selectedValue && selectedValue === Short_Name}
@@ -155,50 +153,43 @@ const Row = (props) => {
       </TableRow>
     </React.Fragment>
   );
-}
+};
 
 const SelectDatasetVariableForSampleVisualization = (props) => {
   const cl = useStyles();
   const dispatch = useDispatch();
 
-  const datasetData = useSelector ((state) => state.datasetDetailsPage.data || {});
+  const datasetData = useSelector(
+    (state) => state.datasetDetailsPage.data || {},
+  );
 
-  const visVars = useSelector (
-    safePath ([
-      'datasetDetailsPage',
-      'visualizableVariables',
-      'variables'
-  ]));
+  const visVars = useSelector(
+    safePath(['datasetDetailsPage', 'visualizableVariables', 'variables']),
+  );
 
-  const visVarData = useSelector (
-    safePath ([
-      'datasetDetailsPage',
-      'visualizableDataByName',
-  ]));
+  const visVarData = useSelector(
+    safePath(['datasetDetailsPage', 'visualizableDataByName']),
+  );
 
+  const selectedVisVar = useSelector(
+    (state) => state.datasetDetailsPage.visualizationSelection,
+  );
 
-  const selectedVisVar = useSelector ((state) =>
-    state.datasetDetailsPage.visualizationSelection);
-
-  const selectedVarHasData = safePath ([selectedVisVar, 'data']) (visVarData);
+  const selectedVarHasData = safePath([selectedVisVar, 'data'])(visVarData);
 
   let [visible, setVisible] = useState(false);
 
   const selectVariable = (shortName) => {
     if (shortName !== selectedVisVar) {
-      dispatch (datasetVariableSelect(shortName));
+      dispatch(datasetVariableSelect(shortName));
     }
-  }
+  };
 
-
-
-  useEffect (() => {
+  useEffect(() => {
     if (!visible && selectedVarHasData) {
       setVisible(true);
     }
   }, [visVarData]);
-
-
 
   // Display: Loading Variables | Variables Unavailable
   if (!visVars || !visible) {
@@ -218,31 +209,40 @@ const SelectDatasetVariableForSampleVisualization = (props) => {
    *  */
   return (
     <div className={cl.header}>
-      <SectionHeader title={'Visualization'}/>
+      <SectionHeader title={'Visualization'} />
       <div className={cl.inner}>
         <Grow in={visible}>
-            <TableContainer component={Paper} className={cl.container} >
-              <Table aria-label="collapsible table" stickyHeader className={cl.root}>
-                <TableHead>
-                  <TableRow>
-                    <TableCell />
-                    <TableCell>Name</TableCell>
-                    <TableCell>Short Name</TableCell>
-                    <TableCell>Sensor</TableCell>
-                    <TableCell>Unit</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {visVars.map((v) => (
-                    <Row key={v.ID} variable={v} selectVariable={selectVariable} selectedValue={selectedVisVar} />
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Grow>
-        </div>
+          <TableContainer component={Paper} className={cl.container}>
+            <Table
+              aria-label="collapsible table"
+              stickyHeader
+              className={cl.root}
+            >
+              <TableHead>
+                <TableRow>
+                  <TableCell />
+                  <TableCell>Name</TableCell>
+                  <TableCell>Short Name</TableCell>
+                  <TableCell>Sensor</TableCell>
+                  <TableCell>Unit</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {visVars.map((v) => (
+                  <Row
+                    key={v.ID}
+                    variable={v}
+                    selectVariable={selectVariable}
+                    selectedValue={selectedVisVar}
+                  />
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Grow>
+      </div>
     </div>
   );
-}
+};
 
 export default SelectDatasetVariableForSampleVisualization;
