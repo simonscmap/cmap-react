@@ -16,7 +16,7 @@ import { useColorscaleRangeControl } from './ChartControls/ColorscaleRangeContro
 import { useMarkerOptions } from './ChartControls/MarkerControl';
 import ChartTemplate from './ChartTemplate';
 
-const MAP_RENDER_POINT_THRESHOLD = 20000; // twenty thousand
+const MAP_RENDER_POINT_THRESHOLD = 100001;
 
 const getSparseMapPlotConfig = (data, palette, zValues, overrides = {}) => {
   let { parameters, metadata } = data;
