@@ -225,14 +225,16 @@ const DatasetFullPage = (props) => {
               </Grid>
             </Grid>
 
-            <Grid container spacing={3}>
-              <Grid item xs={12} sm={12} md={12} lg={4} xl={4}>
-                {hideGrump && <SelectVariable />}
+            {hideGrump && (
+              <Grid id="visualization-section" container spacing={3}>
+                <Grid item xs={12} sm={12} md={12} lg={4} xl={4}>
+                  <SelectVariable />
+                </Grid>
+                <Grid item xs={12} sm={12} md={12} lg={8} xl={8}>
+                  <Visualization />
+                </Grid>
               </Grid>
-              <Grid item xs={12} sm={12} md={12} lg={8} xl={8}>
-                {hideGrump && <Visualization />}
-              </Grid>
-            </Grid>
+            )}
 
             <Grid container spacing={3}>
               <Grid item xs={12}>

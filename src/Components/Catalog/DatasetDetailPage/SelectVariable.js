@@ -97,7 +97,6 @@ const useStyles = makeStyles((theme) => ({
 const SectionHeader = (props) => {
   const cl = useStyles();
   const { title } = props;
-  console.log('title', title);
   return (
     <Typography variant="h5" className={cl.sectionHeader}>
       {title}
