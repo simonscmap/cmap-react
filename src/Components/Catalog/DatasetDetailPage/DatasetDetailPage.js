@@ -5,12 +5,7 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import {
-  Grid,
-  Link,
-  Typography,
-  withStyles,
-} from '@material-ui/core';
+import { Grid, Link, Typography, withStyles } from '@material-ui/core';
 
 import ReactMarkdown from 'react-markdown';
 import reactStringReplace from 'react-string-replace';
@@ -56,8 +51,6 @@ export const datasetDetailConfig = {
   navigationVariant: 'Center',
 };
 
-
-
 const StandardHalfGridContent = (props) => {
   const { data } = props;
   if (data === undefined || data === null) {
@@ -67,8 +60,8 @@ const StandardHalfGridContent = (props) => {
     <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
       {props.children}
     </Grid>
-  )
-}
+  );
+};
 
 const ThirdGridContent = (props) => {
   const { data } = props;
@@ -79,51 +72,71 @@ const ThirdGridContent = (props) => {
     <Grid item xs={12} sm={12} md={4} lg={4} xl={4}>
       {props.children}
     </Grid>
-  )
-}
-
-
+  );
+};
 
 // Page Component
 const DatasetFullPage = (props) => {
   const { classes } = props;
 
-  const dispatch = useDispatch ();
+  const dispatch = useDispatch();
 
-  const data = useSelector ((state) => state.datasetDetailsPage.data);
-  const cruises = useSelector ((state) => state.datasetDetailsPage.cruises);
-  const references = useSelector ((state) => state.datasetDetailsPage.references);
-  const sensors = useSelector ((state) => state.datasetDetailsPage.sensors);
-  const variables  = useSelector ((state) => state.datasetDetailsPage.variables);
-  const news = useSelector ((state) => state.datasetDetailsPage.news)
-  const primaryPageLoadingState = useSelector ((state) => state.datasetDetailsPage.primaryPageLoadingState);
+  const data = useSelector((state) => state.datasetDetailsPage.data);
+  const cruises = useSelector((state) => state.datasetDetailsPage.cruises);
+  const references = useSelector(
+    (state) => state.datasetDetailsPage.references,
+  );
+  const sensors = useSelector((state) => state.datasetDetailsPage.sensors);
+  const variables = useSelector((state) => state.datasetDetailsPage.variables);
+  const news = useSelector((state) => state.datasetDetailsPage.news);
+  const primaryPageLoadingState = useSelector(
+    (state) => state.datasetDetailsPage.primaryPageLoadingState,
+  );
 
-  const subscriptions = useSelector ((state) => state.userSubscriptions);
+  const subscriptions = useSelector((state) => state.userSubscriptions);
 
-  let unstructuredDatasetMetadata = useSelector ((state) =>
-    state.datasetDetailsPage.data && state.datasetDetailsPage.data.Unstructured_Dataset_Metadata);
+  let unstructuredDatasetMetadata = useSelector(
+    (state) =>
+      state.datasetDetailsPage.data &&
+      state.datasetDetailsPage.data.Unstructured_Dataset_Metadata,
+  );
 
-  let acknowledgment = useSelector ((state) =>
-    state.datasetDetailsPage.data && state.datasetDetailsPage.data.Acknowledgement);
+  let acknowledgment = useSelector(
+    (state) =>
+      state.datasetDetailsPage.data &&
+      state.datasetDetailsPage.data.Acknowledgement,
+  );
 
-  let dataSource = useSelector ((state) =>
-    state.datasetDetailsPage.data && state.datasetDetailsPage.data.Data_Source);
+  let dataSource = useSelector(
+    (state) =>
+      state.datasetDetailsPage.data &&
+      state.datasetDetailsPage.data.Data_Source,
+  );
 
-  let description = useSelector ((state) =>
-    state.datasetDetailsPage.data && state.datasetDetailsPage.data.Description);
+  let description = useSelector(
+    (state) =>
+      state.datasetDetailsPage.data &&
+      state.datasetDetailsPage.data.Description,
+  );
 
-  let distributor =  useSelector ((state) =>
-    state.datasetDetailsPage.data && state.datasetDetailsPage.data.Distributor);
+  let distributor = useSelector(
+    (state) =>
+      state.datasetDetailsPage.data &&
+      state.datasetDetailsPage.data.Distributor,
+  );
 
-  let longName =  useSelector ((state) =>
-    state.datasetDetailsPage.data && state.datasetDetailsPage.data.Long_Name);
+  let longName = useSelector(
+    (state) =>
+      state.datasetDetailsPage.data && state.datasetDetailsPage.data.Long_Name,
+  );
 
   const loading = primaryPageLoadingState === states.inProgress;
   const failed = primaryPageLoadingState === states.failed;
 
   // const [downloadDialogOpen, setDownloadDialogOpen] = React.useState(false);
 
-  const httpRegx = /\b(https?:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|]|ftp:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|])/g;
+  const httpRegx =
+    /\b(https?:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|]|ftp:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;()]*[\-A-Za-z0-9+&@#\/%=~_|])/g;
 
   const urlify = (text) =>
     reactStringReplace(text, httpRegx, (match, i) => (
@@ -141,15 +154,14 @@ const DatasetFullPage = (props) => {
     // trigger fetch of data
     // 'props.match.params.dataset' lets us refer to the named route parameter for this route, called 'dataset',
     // which is declared in App.js
-    dispatch (datasetFullPageNavigate (props.match.params.dataset)); // triggers page data reset
-    dispatch (datasetFullPageDataFetch (props.match.params.dataset));
-    dispatch (datasetVariablesFetch (props.match.params.dataset));
-    dispatch (datasetVariableUMFetch (props.match.params.dataset));
+    dispatch(datasetFullPageNavigate(props.match.params.dataset)); // triggers page data reset
+    dispatch(datasetFullPageDataFetch(props.match.params.dataset));
+    dispatch(datasetVariablesFetch(props.match.params.dataset));
+    dispatch(datasetVariableUMFetch(props.match.params.dataset));
     if (!subscriptions) {
-      dispatch (fetchSubscriptions ())
+      dispatch(fetchSubscriptions());
     }
-    return () =>
-      dispatch (datasetFullPageNavigate (null)); // triggers page data reset
+    return () => dispatch(datasetFullPageNavigate(null)); // triggers page data reset
   }, []);
 
   useEffect(() => {
@@ -166,126 +178,139 @@ const DatasetFullPage = (props) => {
     let details = `You requested to view "${props.match.params.dataset}".`;
     return (
       <div className={classes.errorContainer}>
-      <Spacer>
-      <ErrorCard
-        title="Error"
-        message="There was a problem loading the page."
-        details={details}
-      />
-      </Spacer>
+        <Spacer>
+          <ErrorCard
+            title="Error"
+            message="There was a problem loading the page."
+            details={details}
+          />
+        </Spacer>
       </div>
     );
   }
-
+  const grumpTitle =
+    'Global rRNA Universal Metabarcoding of Plankton database (GRUMP)';
   // const hasNews = Array.isArray (news) && news.length > 0;
-
+  const hideGrump = !(longName === grumpTitle);
   return (
     <Page2 bgVariant="slate2">
-      <Grid container className={classes.outerContainer} >
+      <Grid container className={classes.outerContainer}>
         <Grid item xs={12}>
-            <SkeletonWrapper loading={loading}>
-              <Typography
-                variant={'h4'}
-                className={classes.pageHeader}
-                style={{ color: 'white', marginBottom: '10px' }}
-              >
-                {longName}
-              </Typography>
+          <SkeletonWrapper loading={loading}>
+            <Typography
+              variant={'h4'}
+              className={classes.pageHeader}
+              style={{ color: 'white', marginBottom: '10px' }}
+            >
+              {longName}
+            </Typography>
 
-              <div className={classes.buttonsContainer}>
-                <DownloadButtonOutlined shortName={data && data.Short_Name} />
-                <SubscribeButton shortName={data && data.Short_Name} />
-              </div>
+            <div className={classes.buttonsContainer}>
+              <DownloadButtonOutlined shortName={data && data.Short_Name} />
+              <SubscribeButton shortName={data && data.Short_Name} />
+            </div>
 
-              <Grid container spacing={3}>
-                <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-                  <div className={classes.horizontalFlex}>
-                    <div className={classes.descriptionContainer}>
-                      <SectionHeader title={'Description'} />
-                      <ReactMarkdown source={description} className={classes.markdown} />
-                    </div>
-                    <NewsSection news={news}/>
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+                <div className={classes.horizontalFlex}>
+                  <div className={classes.descriptionContainer}>
+                    <SectionHeader title={'Description'} />
+                    <ReactMarkdown
+                      source={description}
+                      className={classes.markdown}
+                    />
                   </div>
-                </Grid>
+                  <NewsSection news={news} />
+                </div>
               </Grid>
+            </Grid>
 
-              <Grid container spacing={3}>
-                <Grid item xs={12} sm={12} md={12} lg={4} xl={4}>
-                  <SelectVariable />
-                </Grid>
-                <Grid item xs={12} sm={12} md={12} lg={8} xl={8}>
-                  <Visualization />
-                </Grid>
-              </Grid>
-
-              <Grid container spacing={3}>
+            {hideGrump && (
+              <Grid id="visualization-section" container spacing={3}>
                 <Grid item xs={12}>
-                  <SectionHeader title={'Dataset Overview'} />
-                  <DetailsTable dataset={data} sensors={sensors} />
-                  <Typography
-                    variant="body1"
-                    className={classes.sectionHeader}
-                    style={{ marginBottom: '16px', color: 'white' }}
-                  >
-                    *Temporal and spatial coverage may differ between member variables
-                  </Typography>
+                  <SectionHeader title={'Visualization'} />
                 </Grid>
-
-                { unstructuredDatasetMetadata &&
-                  <Grid item xs={12}>
-                    <SectionHeader title={'Additional Dataset Metadata'} />
-                    <DatasetMetadata metadata={unstructuredDatasetMetadata} />
+                <Grid
+                  id="visualization-section-content"
+                  container
+                  item
+                  xs={12}
+                  spacing={3}
+                  style={{ alignItems: 'flex-end' }}
+                >
+                  <Grid item xs={12} sm={12} md={12} lg={4} xl={4}>
+                    <SelectVariable />
                   </Grid>
-                }
+                  <Grid item xs={12} sm={12} md={12} lg={8} xl={8}>
+                    <Visualization />
+                  </Grid>
+                </Grid>
+              </Grid>
+            )}
 
+            <Grid container spacing={3}>
+              <Grid item xs={12}>
+                <SectionHeader title={'Dataset Overview'} />
+                <DetailsTable dataset={data} sensors={sensors} />
+                <Typography
+                  variant="body1"
+                  className={classes.sectionHeader}
+                  style={{ marginBottom: '16px', color: 'white' }}
+                >
+                  *Temporal and spatial coverage may differ between member
+                  variables
+                </Typography>
               </Grid>
 
-
-              <SectionHeader title={'Variables'} />
-              <DatasetPageAGGrid />
-
-              <Grid container spacing={3} className={classes.gridSection}>
-                <ThirdGridContent data={dataSource}>
-                  <SectionHeader title={'Data Source'} />
-                  <Typography>{urlify(dataSource)}</Typography>
-                </ThirdGridContent>
-                <ThirdGridContent data={distributor}>
-                  <SectionHeader title={'Distributor'} />
-                  <Typography>{urlify(distributor)}</Typography>
-                </ThirdGridContent>
-                <ThirdGridContent data={acknowledgment}>
-                  <SectionHeader title={'Acknowledgement'} />
-                  <Typography>{urlify(acknowledgment)}
-                  </Typography>
-                </ThirdGridContent>
-              </Grid>
-
-
-
-              <Grid container spacing={3} className={classes.gridSection}>
-                <StandardHalfGridContent data={references}>
-                  <SectionHeader title={'References'} />
-                  <ReferencesList />
-                </StandardHalfGridContent>
-                <StandardHalfGridContent data={cruises}>
-                  <SectionHeader title={'Cruises'} />
-                  <CruiseList />
-                </StandardHalfGridContent>
-              </Grid>
-
-
-
-              {!loading && variables && data && Object.keys(data).length ? (
-                <DatasetJSONLD {...data}
-                               cruises={cruises}
-                               references={references}
-                               sensors={sensors}
-                               variables={variables}
-                />
-              ) : (
-                ''
+              {unstructuredDatasetMetadata && (
+                <Grid item xs={12}>
+                  <SectionHeader title={'Additional Dataset Metadata'} />
+                  <DatasetMetadata metadata={unstructuredDatasetMetadata} />
+                </Grid>
               )}
-            </SkeletonWrapper>
+            </Grid>
+
+            <SectionHeader title={'Variables'} />
+            <DatasetPageAGGrid />
+
+            <Grid container spacing={3} className={classes.gridSection}>
+              <ThirdGridContent data={dataSource}>
+                <SectionHeader title={'Data Source'} />
+                <Typography>{urlify(dataSource)}</Typography>
+              </ThirdGridContent>
+              <ThirdGridContent data={distributor}>
+                <SectionHeader title={'Distributor'} />
+                <Typography>{urlify(distributor)}</Typography>
+              </ThirdGridContent>
+              <ThirdGridContent data={acknowledgment}>
+                <SectionHeader title={'Acknowledgement'} />
+                <Typography>{urlify(acknowledgment)}</Typography>
+              </ThirdGridContent>
+            </Grid>
+
+            <Grid container spacing={3} className={classes.gridSection}>
+              <StandardHalfGridContent data={references}>
+                <SectionHeader title={'References'} />
+                <ReferencesList />
+              </StandardHalfGridContent>
+              <StandardHalfGridContent data={cruises}>
+                <SectionHeader title={'Cruises'} />
+                <CruiseList />
+              </StandardHalfGridContent>
+            </Grid>
+
+            {!loading && variables && data && Object.keys(data).length ? (
+              <DatasetJSONLD
+                {...data}
+                cruises={cruises}
+                references={references}
+                sensors={sensors}
+                variables={variables}
+              />
+            ) : (
+              ''
+            )}
+          </SkeletonWrapper>
           {/*</Paper>*/}
         </Grid>
       </Grid>

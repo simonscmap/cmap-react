@@ -16,7 +16,7 @@ import { useColorscaleRangeControl } from './ChartControls/ColorscaleRangeContro
 import { useMarkerOptions } from './ChartControls/MarkerControl';
 import ChartTemplate from './ChartTemplate';
 
-const MAP_RENDER_POINT_THRESHOLD = 20000; // twenty thousand
+const MAP_RENDER_POINT_THRESHOLD = 100001;
 
 const getSparseMapPlotConfig = (data, palette, zValues, overrides = {}) => {
   let { parameters, metadata } = data;
@@ -102,7 +102,12 @@ const SparseMap = React.memo((props) => {
   }
   // scatter plots use markerOptions
   let scatterPlots = scatterTypes.map((scatterType, index) => {
-    return getSparseScatterConfig({ data, scatterType, markerOptions, overrides });
+    return getSparseScatterConfig({
+      data,
+      scatterType,
+      markerOptions,
+      overrides,
+    });
   });
 
   // map plot uses palette and colorscaleRonge controls
@@ -128,15 +133,17 @@ const SparseMap = React.memo((props) => {
   // the ChartTemplate nests the contols passed to it in between default controls:
   // [ (0) Dowload CSV, ..., (n-1) Persist Mode Bar, (n) Close Chart ]
   // so we add 1 to get the index of the controls we pass
-  let getShouldDisableControl = (totalCharts) => ({ controlIndex, activeTabIndex }) => {
-    switch (activeTabIndex) {
-      case 0: // map
-        return totalCharts > 4 ? [3].includes(controlIndex) : false; // disable markerControl
-      default:
-        // scatter plots
-        return [1, 2].includes(controlIndex); // disable palette and rangeControl
-    }
-  };
+  let getShouldDisableControl =
+    (totalCharts) =>
+    ({ controlIndex, activeTabIndex }) => {
+      switch (activeTabIndex) {
+        case 0: // map
+          return totalCharts > 4 ? [3].includes(controlIndex) : false; // disable markerControl
+        default:
+          // scatter plots
+          return [1, 2].includes(controlIndex); // disable palette and rangeControl
+      }
+    };
 
   let sparseMapChartConfig = {
     downloadCSVArgs: [
@@ -149,7 +156,7 @@ const SparseMap = React.memo((props) => {
     chartIndex,
     chartControls: controls,
     isTabbedContent: true, // each plot has a 'tabTitle' property
-    getShouldDisableControl: getShouldDisableControl (plots.length),
+    getShouldDisableControl: getShouldDisableControl(plots.length),
     plots,
   };
 
