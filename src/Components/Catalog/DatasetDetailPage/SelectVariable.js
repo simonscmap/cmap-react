@@ -94,22 +94,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const SectionHeader = (props) => {
-  const cl = useStyles();
-  const { title } = props;
-  return (
-    <Typography variant="h5" className={cl.sectionHeader}>
-      {title}
-    </Typography>
-  );
-};
-
 const DatasetIcon = (props) => {
   const { url, message = '' } = props;
   const cl = useStyles();
   return (
     <div className={cl.header}>
-      <SectionHeader title={'Visualization'} />
       <div className={cl.iconWrapper}>
         <img src={url} />
         <p>{message}</p>
@@ -208,7 +197,6 @@ const SelectDatasetVariableForSampleVisualization = (props) => {
    *  */
   return (
     <div className={cl.header}>
-      <SectionHeader title={'Visualization'} />
       <div className={cl.inner}>
         <Grow in={visible}>
           <TableContainer component={Paper} className={cl.container}>

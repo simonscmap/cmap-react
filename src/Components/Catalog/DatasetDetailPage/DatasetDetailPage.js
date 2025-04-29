@@ -227,11 +227,23 @@ const DatasetFullPage = (props) => {
 
             {hideGrump && (
               <Grid id="visualization-section" container spacing={3}>
-                <Grid item xs={12} sm={12} md={12} lg={4} xl={4}>
-                  <SelectVariable />
+                <Grid item xs={12}>
+                  <SectionHeader title={'Visualization'} />
                 </Grid>
-                <Grid item xs={12} sm={12} md={12} lg={8} xl={8}>
-                  <Visualization />
+                <Grid
+                  id="visualization-section-content"
+                  container
+                  item
+                  xs={12}
+                  spacing={3}
+                  style={{ alignItems: 'flex-end' }}
+                >
+                  <Grid item xs={12} sm={12} md={12} lg={4} xl={4}>
+                    <SelectVariable />
+                  </Grid>
+                  <Grid item xs={12} sm={12} md={12} lg={8} xl={8}>
+                    <Visualization />
+                  </Grid>
                 </Grid>
               </Grid>
             )}
