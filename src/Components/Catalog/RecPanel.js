@@ -131,9 +131,9 @@ const RecPanel = () => {
   // (placing them in their tab panels delays fetch until tab becomes active)
   // const touchResult = useLastApiCall ();
 
-  const popularDatasets = usePopularDatasetRecs();
-  const recentDatasets = useRecentDatasetRecs();
-  const recommendedDatasets = useRecommendedDatasets();
+  // const popularDatasets = usePopularDatasetRecs();
+  // const recentDatasets = useRecentDatasetRecs();
+  // const recommendedDatasets = useRecommendedDatasets();
 
   return (
     <Paper elevation={4} className={cl.recPaper}>
@@ -170,15 +170,15 @@ const RecPanel = () => {
             : []}
         </Tabs>
 
-        <TabPanel value={activeTab} index={0} className={cl.tabPanel}>
+        {/* <TabPanel value={activeTab} index={0} className={cl.tabPanel}>
           <PopularDatasets data={popularDatasets} />
-        </TabPanel>
-        <TabPanel value={activeTab} index={1} className={cl.tabPanel}>
+        </TabPanel> */}
+        {/* <TabPanel value={activeTab} index={1} className={cl.tabPanel}>
           <RecentDatasets data={recentDatasets} />
         </TabPanel>
         <TabPanel value={activeTab} index={2} className={cl.tabPanel}>
           <RecommendedDatasets data={recommendedDatasets} />
-        </TabPanel>
+        </TabPanel> */}
       </div>
     </Paper>
   );
