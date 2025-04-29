@@ -28,8 +28,8 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'column',
     gap: '1em',
     '& > div': {
-      display: 'flex'
-    }
+      display: 'flex',
+    },
   },
   tabPanel: {
     height: '100%',
@@ -43,14 +43,14 @@ const useStyles = makeStyles((theme) => ({
     '& > span': {
       width: '100%',
       transform: 'none',
-    }
+    },
   },
   logInButton: {
     color: theme.palette.primary.light,
     textTransform: 'none',
     overflow: 'hidden',
-    marginLeft: '1em'
-  }
+    marginLeft: '1em',
+  },
 }));
 
 /* Tabs */
@@ -68,9 +68,9 @@ const TabPanel = (props) => {
       {children}
     </div>
   );
-}
+};
 
-const LoginButton = withStyles ((theme) => ({
+const LoginButton = withStyles((theme) => ({
   buttonWrapper: {
     position: 'absolute',
     right: 18,
@@ -82,12 +82,12 @@ const LoginButton = withStyles ((theme) => ({
   },
 }))((props) => {
   const { classes: cl } = props;
-  const dispatch = useDispatch ();
-  const user = useSelector ((state) => state.user);
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user);
 
   const openLogin = (e) => {
     e.preventDefault();
-    dispatch (showLoginDialog ())
+    dispatch(showLoginDialog());
   };
 
   const isLgDown = useMediaQuery('(min-width:1280px)');
@@ -103,39 +103,40 @@ const LoginButton = withStyles ((theme) => ({
           {text}
         </Button>
       </div>
-    )
+    );
   }
 });
 
 const RecPanel = () => {
-  const cl = useStyles ();
-  const dispatch = useDispatch ();
+  const cl = useStyles();
+  const dispatch = useDispatch();
 
-  const user = useSelector ((state) => state.user);
+  const user = useSelector((state) => state.user);
   const [activeTab, setActiveTab] = useState(0);
 
   const handleTabChange = (event, tabSelection) => {
-    setActiveTab (tabSelection);
+    setActiveTab(tabSelection);
   };
 
-  useEffect (() => {
+  useEffect(() => {
     if ([1, 2].includes(activeTab)) {
-      console.log (`tab ${activeTab} selected; clearing lastDatasetTouch`);
-      dispatch(clearLastDatasetTouch ())
+      console.log(`tab ${activeTab} selected; clearing lastDatasetTouch`);
+      dispatch(clearLastDatasetTouch());
     } else {
-      console.log ('not clearing lastDatasetTouch', activeTab);
+      console.log('not clearing lastDatasetTouch', activeTab);
     }
   }, [activeTab]);
 
   // these hooks fetch recommendation data
   // (placing them in their tab panels delays fetch until tab becomes active)
   // const touchResult = useLastApiCall ();
-  const popularDatasets = usePopularDatasetRecs ();
-  const recentDatasets = useRecentDatasetRecs ();
-  const recommendedDatasets = useRecommendedDatasets ();
+
+  const popularDatasets = usePopularDatasetRecs();
+  const recentDatasets = useRecentDatasetRecs();
+  const recommendedDatasets = useRecommendedDatasets();
 
   return (
-    <Paper elevation={4} className={cl.recPaper} >
+    <Paper elevation={4} className={cl.recPaper}>
       <div className={cl.gridContainer}>
         <LoginButton />
         <Tabs
@@ -150,15 +151,23 @@ const RecPanel = () => {
             <Tab label="Popular" />
           </Tooltip>
 
-          {user ? ([
-            <Tooltip title="Datasets you have recently viewed" key={'recent'}>
-              <Tab label="Recent" />
-            </Tooltip>,
+          {user
+            ? [
+                <Tooltip
+                  title="Datasets you have recently viewed"
+                  key={'recent'}
+                >
+                  <Tab label="Recent" />
+                </Tooltip>,
 
-            <Tooltip title="Datasets similar to ones you have viewed" key={'seealso'}>
-              <Tab label="See Also" />
-            </Tooltip>])
-           : [] }
+                <Tooltip
+                  title="Datasets similar to ones you have viewed"
+                  key={'seealso'}
+                >
+                  <Tab label="See Also" />
+                </Tooltip>,
+              ]
+            : []}
         </Tabs>
 
         <TabPanel value={activeTab} index={0} className={cl.tabPanel}>
@@ -168,7 +177,7 @@ const RecPanel = () => {
           <RecentDatasets data={recentDatasets} />
         </TabPanel>
         <TabPanel value={activeTab} index={2} className={cl.tabPanel}>
-          <RecommendedDatasets data={recommendedDatasets}/>
+          <RecommendedDatasets data={recommendedDatasets} />
         </TabPanel>
       </div>
     </Paper>
