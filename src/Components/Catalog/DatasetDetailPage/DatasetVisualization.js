@@ -9,7 +9,6 @@ import { ChartWrapperWithoutPaper } from '../../Visualization/Charts/ChartWrappe
 import storedProcedures from '../../../enums/storedProcedures';
 import Spinner from '../../UI/Spinner';
 import { makeStyles } from '@material-ui/core/styles';
-import SPARSE_DATA_QUERY_MAX_SIZE from '../../../enums/sparseDataQueryMaxSize';
 import SAMPLE_VIS_MAX_QUERY_SIZE from '../../../enums/sampleVisMaxQuerySize';
 import { safePath } from '../../../Utility/objectUtils';
 // import visSubTypes from '../../../enums/visualizationSubTypes';
