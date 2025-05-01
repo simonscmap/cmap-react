@@ -3,6 +3,7 @@ import {
   DialogContent,
   Button,
   Dialog,
+  CircularProgress,
 } from '@material-ui/core';
 import { withStyles, makeStyles } from '@material-ui/core/styles';
 import { ImDownload } from 'react-icons/im';
@@ -517,9 +518,20 @@ const DownloadDialog = (props) => {
           <Button
             className={classes.dropboxButton}
             onClick={() => window.open(vaultLink?.shareLink, '_blank')}
+            disabled={!vaultLink?.shareLink}
+            startIcon={
+              !vaultLink?.shareLink ? (
+                <CircularProgress size={20} />
+              ) : (
+                <ImDownload />
+              )
+            }
           >
-            <ImDownload />
-            <span>Direct Download from CMAP Storage</span>
+            <span>
+              {!vaultLink?.shareLink
+                ? 'Loading Direct Download...'
+                : 'Direct Download from CMAP Storage'}
+            </span>
           </Button>
           <div className={classes.infoLink}>
             <InfoDialog
