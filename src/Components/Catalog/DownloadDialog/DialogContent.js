@@ -176,7 +176,6 @@ const DownloadDialog = (props) => {
 
   // Dropbox Link
   const vaultLink = useSelector((state) => state.download.vaultLink);
-
   // Download Size Validation
 
   let downloadState = useSelector((state) => state.download);
@@ -441,7 +440,6 @@ const DownloadDialog = (props) => {
       table: dataset.Table_Name,
       ancillaryData: optionsState.ancillaryData,
     });
-
     dispatch(
       datasetDownloadRequestSend({
         tableName: dataset.Table_Name,
@@ -518,7 +516,7 @@ const DownloadDialog = (props) => {
         <div className={classes.dropboxOptionWrapper}>
           <Button
             className={classes.dropboxButton}
-            onClick={handleOpenDropboxModal}
+            onClick={() => window.open(vaultLink?.shareLink, '_blank')}
           >
             <ImDownload />
             <span>Direct Download from CMAP Storage</span>
