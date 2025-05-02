@@ -102,6 +102,7 @@ const DownloadDialog = (props) => {
   let dispatch = useDispatch();
 
   const [infoDialogOpen, setInfoDialogOpen] = useState(false);
+  const [largeDatasetWarningOpen, setLargeDatasetWarningOpen] = useState(false);
 
   let datasetHasAncillaryData = useDatasetFeatures(
     dataset.Table_Name,
@@ -431,6 +432,33 @@ const DownloadDialog = (props) => {
 
   // download handler
   let handleDownload = () => {
+    // Check if we need to show the large dataset warning
+    // console.log(
+    //   '🚀🚀🚀 | DialogContent.js:442 | handleDownload | !subsetIsDefined:',
+    //   !subsetIsDefined,
+    // );
+    // console.log(
+    //   '🐛🐛🐛 DialogContent.js:440 dataset.Row_Count:',
+    //   dataset.Row_Count,
+    // );
+    // console.log(
+    //   '🚀🚀🚀 | DialogContent.js:443 | handleDownload | dataset.Row_Count > DIRECT_DOWNLOAD_S:',
+    //   dataset.Row_Count > DIRECT_DOWNLOAD_SUGGESTION_THRESHOLD,
+    // );
+    // console.log(
+    //   '🚀🚀🚀 | DialogContent.js:442 | handleDownload | !optionsState.ancillaryData:',
+    //   !optionsState.ancillaryData,
+    // );
+    if (
+      dataset.Row_Count > DIRECT_DOWNLOAD_SUGGESTION_THRESHOLD &&
+      !optionsState.ancillaryData &&
+      !subsetIsDefined
+    ) {
+      console.log('🐛🐛🐛 DialogContent.js:481 OPENED');
+      setLargeDatasetWarningOpen(true);
+      return;
+    }
+
     // log params, resulting query, table, & ancillary data flag
     log.debug('handleDownload', {
       subsetParams,
@@ -458,7 +486,10 @@ const DownloadDialog = (props) => {
   if (error) {
     return <ErrorMessage description={error} />;
   }
-
+  console.log(
+    '🐛🐛🐛 DialogContent.js:489 largeDatasetWarningOpen:',
+    largeDatasetWarningOpen,
+  );
   return (
     <div>
       <ValidationIndicatorBar
@@ -545,8 +576,78 @@ const DownloadDialog = (props) => {
           </div>
         </div>
       </div>
+      <LargeDatasetWarningDialog
+        open={largeDatasetWarningOpen}
+        handleClose={() => setLargeDatasetWarningOpen(false)}
+        handleDownload={() => {
+          setLargeDatasetWarningOpen(false);
+          // Proceed with the actual download
+          log.debug('handleDownload', {
+            subsetParams,
+            query: makeDownloadQuery({
+              subsetParams,
+              ancillaryData: optionsState.ancillaryData,
+              tableName: dataset.Table_Name,
+            }),
+            table: dataset.Table_Name,
+            ancillaryData: optionsState.ancillaryData,
+          });
+          dispatch(
+            datasetDownloadRequestSend({
+              tableName: dataset.Table_Name,
+              shortName: dataset.Short_Name,
+              ancillaryData: optionsState.ancillaryData,
+              subsetParams,
+              fileName: dataset.Long_Name,
+            }),
+          );
+        }}
+        vaultLink={vaultLink}
+      />
     </div>
   );
 };
 
+const LargeDatasetWarningDialog = (props) => {
+  const { open, handleClose, handleDownload, vaultLink } = props;
+  console.log(
+    '🚀🚀🚀 | DialogContent.js:90 | LargeDatasetWarningDialog | open:',
+    open,
+  );
+  const classes = useStyles();
+
+  const handleDirectDownload = () => {
+    window.open(vaultLink?.shareLink, '_blank');
+    handleClose();
+  };
+
+  return (
+    <Dialog
+      fullScreen={false}
+      className={classes.muiDialog}
+      PaperProps={{
+        className: classes.dialogPaper,
+      }}
+      open={open}
+      onClose={handleClose}
+    >
+      <DialogContent>
+        <p>
+          This dataset is quite large. For faster download, you can use the
+          Direct Download option. Alternatively, you can continue with the
+          standard download process.
+        </p>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleDownload} color="primary">
+          Continue with Download
+        </Button>
+        <Button onClick={handleDirectDownload} color="primary">
+          Direct Download
+        </Button>
+        <Button onClick={handleClose}>Cancel</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
 export default withStyles(styles)(DownloadDialog);
