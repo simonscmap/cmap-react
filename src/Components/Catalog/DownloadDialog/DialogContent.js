@@ -642,7 +642,7 @@ const LargeDatasetWarningDialog = (props) => {
           Direct Download
         </Button>
         <Button onClick={handleDownload} color="primary">
-          Continue with Download
+          Continue with Direct Download
         </Button>
         <Button onClick={handleClose}>Cancel</Button>
       </DialogActions>
