@@ -4,7 +4,6 @@ import {
   Button,
   Dialog,
   CircularProgress,
-  Grid,
 } from '@material-ui/core';
 import { withStyles, makeStyles } from '@material-ui/core/styles';
 import { ImDownload } from 'react-icons/im';
@@ -20,11 +19,7 @@ import { AncillaryDataExplainer } from './AncillaryDataDownload';
 import DownloadOption from './DownloadOption';
 import DownloadStep from './DownloadStep';
 import ValidationIndicatorBar from './ValidationIndicatorBar';
-import {
-  validationMessages,
-  buttonStates,
-  downloadButtonText,
-} from './buttonStates';
+import { validationMessages, buttonStates } from './buttonStates';
 import SubsetControls from './SubsetControls';
 import {
   getInitialRangeValues,
@@ -32,6 +27,7 @@ import {
   makeDownloadQuery,
 } from './downloadDialogHelpers';
 import styles from './downloadDialogStyles';
+import DownloadStepWithWarning from './DownloadStepWithWarning';
 
 import {
   datasetDownloadRequestSend,
@@ -89,29 +85,6 @@ const InfoDialog = (props) => {
     </Dialog>
   );
 };
-
-const DownloadStepWithWarning = ({ onOpenWarning, buttonState, isInvalid }) => (
-  <React.Fragment>
-    <Grid
-      container
-      spacing={2}
-      direction="row"
-      justifyContent="flex-end"
-      alignItems="flex-start"
-    >
-      <Grid item>
-        <Button
-          disabled={!buttonState.enabled || isInvalid}
-          onClick={onOpenWarning}
-          color="primary"
-          variant="contained"
-        >
-          {downloadButtonText[buttonState.status]}
-        </Button>
-      </Grid>
-    </Grid>
-  </React.Fragment>
-);
 
 // DIALOG
 const DownloadDialog = (props) => {
