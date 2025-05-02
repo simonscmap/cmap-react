@@ -4,6 +4,7 @@ import {
   Button,
   Dialog,
   CircularProgress,
+  Grid,
 } from '@material-ui/core';
 import { withStyles, makeStyles } from '@material-ui/core/styles';
 import { ImDownload } from 'react-icons/im';
@@ -19,7 +20,11 @@ import { AncillaryDataExplainer } from './AncillaryDataDownload';
 import DownloadOption from './DownloadOption';
 import DownloadStep from './DownloadStep';
 import ValidationIndicatorBar from './ValidationIndicatorBar';
-import { validationMessages, buttonStates } from './buttonStates';
+import {
+  validationMessages,
+  buttonStates,
+  downloadButtonText,
+} from './buttonStates';
 import SubsetControls from './SubsetControls';
 import {
   getInitialRangeValues,
@@ -84,6 +89,29 @@ const InfoDialog = (props) => {
     </Dialog>
   );
 };
+
+const DownloadStepWithWarning = ({ onOpenWarning, buttonState, isInvalid }) => (
+  <React.Fragment>
+    <Grid
+      container
+      spacing={2}
+      direction="row"
+      justifyContent="flex-end"
+      alignItems="flex-start"
+    >
+      <Grid item>
+        <Button
+          disabled={!buttonState.enabled || isInvalid}
+          onClick={onOpenWarning}
+          color="primary"
+          variant="contained"
+        >
+          {downloadButtonText[buttonState.status]}
+        </Button>
+      </Grid>
+    </Grid>
+  </React.Fragment>
+);
 
 // DIALOG
 const DownloadDialog = (props) => {
@@ -432,23 +460,6 @@ const DownloadDialog = (props) => {
 
   // download handler
   let handleDownload = () => {
-    // Check if we need to show the large dataset warning
-    // console.log(
-    //   '🚀🚀🚀 | DialogContent.js:442 | handleDownload | !subsetIsDefined:',
-    //   !subsetIsDefined,
-    // );
-    // console.log(
-    //   '🐛🐛🐛 DialogContent.js:440 dataset.Row_Count:',
-    //   dataset.Row_Count,
-    // );
-    // console.log(
-    //   '🚀🚀🚀 | DialogContent.js:443 | handleDownload | dataset.Row_Count > DIRECT_DOWNLOAD_S:',
-    //   dataset.Row_Count > DIRECT_DOWNLOAD_SUGGESTION_THRESHOLD,
-    // );
-    // console.log(
-    //   '🚀🚀🚀 | DialogContent.js:442 | handleDownload | !optionsState.ancillaryData:',
-    //   !optionsState.ancillaryData,
-    // );
     if (
       dataset.Row_Count > DIRECT_DOWNLOAD_SUGGESTION_THRESHOLD &&
       !optionsState.ancillaryData &&
@@ -535,14 +546,24 @@ const DownloadDialog = (props) => {
         </DialogContent>
       </div>
       <DialogActions>
-        <DownloadStep
-          buttonState={downloadButtonState}
-          isInvalid={isInvalid}
-          handlers={{
-            handleClose,
-            handleDownload,
-          }}
-        />
+        {dataset.Row_Count > DIRECT_DOWNLOAD_SUGGESTION_THRESHOLD &&
+        !optionsState.ancillaryData &&
+        !subsetIsDefined ? (
+          <DownloadStepWithWarning
+            onOpenWarning={() => setLargeDatasetWarningOpen(true)}
+            buttonState={downloadButtonState}
+            isInvalid={isInvalid}
+          />
+        ) : (
+          <DownloadStep
+            buttonState={downloadButtonState}
+            isInvalid={isInvalid}
+            handlers={{
+              handleClose,
+              handleDownload,
+            }}
+          />
+        )}
         <Button onClick={handleClose}>Cancel</Button>
       </DialogActions>
       <div className={classes.bottomPlate}>
