@@ -592,13 +592,14 @@ const DownloadDialog = (props) => {
           );
         }}
         vaultLink={vaultLink}
+        rowCount={dataset.Row_Count}
       />
     </div>
   );
 };
 
 const LargeDatasetWarningDialog = (props) => {
-  const { open, handleClose, handleDownload, vaultLink } = props;
+  const { open, handleClose, handleDownload, vaultLink, rowCount } = props;
   const classes = useStyles();
 
   const handleDirectDownload = () => {
@@ -618,9 +619,9 @@ const LargeDatasetWarningDialog = (props) => {
     >
       <DialogContent>
         <p>
-          This dataset is quite large. For faster download, you can use the
-          Direct Download option. Alternatively, you can continue with the
-          standard download process.
+          This dataset contains {rowCount?.toLocaleString()} rows. For faster
+          download, you can use the Direct Download option. Alternatively, you
+          can continue with the standard download process.
         </p>
       </DialogContent>
       <DialogActions>
