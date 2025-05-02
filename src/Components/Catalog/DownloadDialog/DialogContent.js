@@ -43,6 +43,7 @@ const log = logInit('Catalog/DownloadDialog/DialogContent');
 
 const DOWNLOAD_ROWS_LIMIT = 2000000;
 const CHECK_QUERY_DEBOUNCE_TIME_MS = 2000;
+const DIRECT_DOWNLOAD_SUGGESTION_THRESHOLD = 200000;
 
 // We need to declare this outside the component (or else pass it in through props)
 // because otherwise the debounce clock will get reset every re-render
