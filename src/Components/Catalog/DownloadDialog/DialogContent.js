@@ -570,6 +570,7 @@ const DownloadDialog = (props) => {
         handleClose={() => setLargeDatasetWarningOpen(false)}
         handleDownload={() => {
           setLargeDatasetWarningOpen(false);
+          handleClose(); // Close the main dialog
           // Proceed with the actual download
           log.debug('handleDownload', {
             subsetParams,
@@ -591,6 +592,11 @@ const DownloadDialog = (props) => {
             }),
           );
         }}
+        handleDirectDownload={() => {
+          setLargeDatasetWarningOpen(false);
+          handleClose(); // Close the main dialog
+          window.open(vaultLink?.shareLink, '_blank');
+        }}
         vaultLink={vaultLink}
         rowCount={dataset.Row_Count}
       />
@@ -599,13 +605,15 @@ const DownloadDialog = (props) => {
 };
 
 const LargeDatasetWarningDialog = (props) => {
-  const { open, handleClose, handleDownload, vaultLink, rowCount } = props;
+  const {
+    open,
+    handleClose,
+    handleDownload,
+    handleDirectDownload,
+    vaultLink,
+    rowCount,
+  } = props;
   const classes = useStyles();
-
-  const handleDirectDownload = () => {
-    window.open(vaultLink?.shareLink, '_blank');
-    handleClose();
-  };
 
   return (
     <Dialog
