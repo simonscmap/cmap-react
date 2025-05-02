@@ -438,7 +438,6 @@ const DownloadDialog = (props) => {
       !optionsState.ancillaryData &&
       !subsetIsDefined
     ) {
-      console.log('🐛🐛🐛 DialogContent.js:481 OPENED');
       setLargeDatasetWarningOpen(true);
       return;
     }
@@ -470,10 +469,6 @@ const DownloadDialog = (props) => {
   if (error) {
     return <ErrorMessage description={error} />;
   }
-  console.log(
-    '🐛🐛🐛 DialogContent.js:489 largeDatasetWarningOpen:',
-    largeDatasetWarningOpen,
-  );
   return (
     <div>
       <ValidationIndicatorBar
@@ -604,10 +599,6 @@ const DownloadDialog = (props) => {
 
 const LargeDatasetWarningDialog = (props) => {
   const { open, handleClose, handleDownload, vaultLink } = props;
-  console.log(
-    '🚀🚀🚀 | DialogContent.js:90 | LargeDatasetWarningDialog | open:',
-    open,
-  );
   const classes = useStyles();
 
   const handleDirectDownload = () => {
