@@ -16,8 +16,7 @@ import TabTemplate from './ChartControls/TabTemplate';
 import { safePath } from '../../../Utility/objectUtils';
 import logInit from '../../../Services/log-service';
 
-const log = logInit ('ChartControlPanel');
-
+const log = logInit('ChartControlPanel');
 
 const mapDispatchToProps = {
   sparseDataMaxSizeNotificationUpdate,
@@ -31,27 +30,51 @@ const forceResize = () => {
 const ChartControlPanel = (props) => {
   const { classes, chart, controls, tabContext } = props;
 
-  const dataLength = safePath (['data', 'variableValues', 'length']) (chart);
-  const Temporal_Resolution = safePath (['data', 'metadata', 'Temporal_Resolution']) (chart);
-  const Spatial_Resolution = safePath (['data', 'metadata', 'Spatial_Resolution']) (chart);
-  const isSampleVis = safePath (['tabContext','plotOverrides', 'isSampleVisualization']) (props);
+  const dataLength = safePath(['data', 'variableValues', 'length'])(chart);
+  const Temporal_Resolution = safePath([
+    'data',
+    'metadata',
+    'Temporal_Resolution',
+  ])(chart);
+  const Spatial_Resolution = safePath([
+    'data',
+    'metadata',
+    'Spatial_Resolution',
+  ])(chart);
+  const isSampleVis = safePath([
+    'tabContext',
+    'plotOverrides',
+    'isSampleVisualization',
+  ])(props);
 
   const SIZE_LIMIT = isSampleVis
-                   ? SAMPLE_VIS_MAX_QUERY_SIZE
-                   : SPARSE_DATA_QUERY_MAX_SIZE;
+    ? SAMPLE_VIS_MAX_QUERY_SIZE
+    : SPARSE_DATA_QUERY_MAX_SIZE;
 
-  log.debug (`set query size limit to ${isSampleVis ? 'SAMPLE threshold' : 'regular SPARSE data threshold'}`, { SIZE_LIMIT })
-
-  const showSparseDataSizeWarning = Boolean(
-    (Spatial_Resolution === spatialResolutions.irregular || Temporal_Resolution === temporalResolutions.irregular) &&
-    dataLength >= SIZE_LIMIT,
+  log.debug(
+    `set query size limit to ${
+      isSampleVis ? 'SAMPLE threshold' : 'regular SPARSE data threshold'
+    }`,
+    { SIZE_LIMIT },
   );
 
-  console.table ({ showSparseDataSizeWarning, Spatial_Resolution, Temporal_Resolution, dataLength })
+  const showSparseDataSizeWarning = Boolean(
+    (Spatial_Resolution === spatialResolutions.irregular ||
+      Temporal_Resolution === temporalResolutions.irregular) &&
+      dataLength >= SIZE_LIMIT,
+  );
+
+  console.table({
+    showSparseDataSizeWarning,
+    Spatial_Resolution,
+    Temporal_Resolution,
+    dataLength,
+  });
 
   const limit = SIZE_LIMIT.toLocaleString();
-  const total = safePath (['data', 'metadata', 'count']) (chart);
-  const totalStr = (total && total.toLocaleString) ? total.toLocaleString() : 'unknown';
+  const total = safePath(['data', 'metadata', 'count'])(chart);
+  const totalStr =
+    total && total.toLocaleString ? total.toLocaleString() : 'unknown';
 
   return (
     <React.Fragment>
@@ -62,54 +85,56 @@ const ChartControlPanel = (props) => {
         }}
       >
         {showSparseDataSizeWarning ? (
-          <Tooltip title={`Visualization does not contain all requested data. The number of datapoints was limited to ${limit} out of ${totalStr}.`}>
+          <Tooltip
+            title={`Visualization does not contain all requested data. The number of datapoints was limited to ${limit} out of ${totalStr}.`}
+          >
             <Warning className={classes.sparseDataMaxSizeWarningIcon} />
           </Tooltip>
         ) : (
           ''
         )}
 
-    {/* TODO remove ButtonGroup; it causes console errors re: react not supporting fullWidth attribute */}
+        {/* TODO remove ButtonGroup; it causes console errors re: react not supporting fullWidth attribute */}
 
         <div className={classes.buttonGroup}>
           <div className={classes.tabbedControls}>
-          {/* if this chart has tabbed content, render tab controls*/}
-          {tabContext &&
-            tabContext.tabTitles.map((tabTitle, index) => {
-              return (
-                <TabTemplate
-                  tabTitle={tabTitle}
-                  onClick={() => {
-                    forceResize();
-                    tabContext.setOpenTab(index);
-                  }}
-                  key={`tab-${index}`}
-                  active={index === tabContext.openTab}
-                />
-              );
-            })}
-            </div>
+            {/* if this chart has tabbed content, render tab controls*/}
+            {tabContext &&
+              tabContext.tabTitles.map((tabTitle, index) => {
+                return (
+                  <TabTemplate
+                    tabTitle={tabTitle}
+                    onClick={() => {
+                      forceResize();
+                      tabContext.setOpenTab(index);
+                    }}
+                    key={`tab-${index}`}
+                    active={index === tabContext.openTab}
+                  />
+                );
+              })}
+          </div>
 
           {/* render each control component */}
           {/* TODO: hide controls for tabs that can't use their specific function */}
           <div>
-          {controls.map((controlTuple, index) => {
-            let [Component, argsObject = {}] = controlTuple;
-            let disable =
-              tabContext &&
-              tabContext.getShouldDisableControl({
-                controlIndex: index,
-                activeTabIndex: tabContext.openTab,
-              });
-            return (
-              <Component
-                {...argsObject}
-                disable={disable}
-                key={`controls-${index}`}
-              />
-            );
-          })}
-        </div>
+            {controls.map((controlTuple, index) => {
+              let [Component, argsObject = {}] = controlTuple;
+              let disable =
+                tabContext &&
+                tabContext.getShouldDisableControl({
+                  controlIndex: index,
+                  activeTabIndex: tabContext.openTab,
+                });
+              return (
+                <Component
+                  {...argsObject}
+                  disable={disable}
+                  key={`controls-${index}`}
+                />
+              );
+            })}
+          </div>
         </div>
       </div>
     </React.Fragment>

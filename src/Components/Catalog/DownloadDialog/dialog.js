@@ -11,18 +11,17 @@ import styles from './downloadDialogStyles';
 import Spinner from '../../UI/Spinner';
 import Spacer from '../../Common/Spacer';
 
-
 import { clearFailedSizeChecks } from '../../../Redux/actions/catalog';
 
 const DialogWrapper = (props) => {
   let { dataset, dialogOpen, classes, handleClose } = props;
-  let dispatch = useDispatch ();
+  let dispatch = useDispatch();
   let user = useSelector((state) => state.user);
 
   let close = () => {
-    dispatch (clearFailedSizeChecks ());
+    dispatch(clearFailedSizeChecks());
     handleClose();
-  }
+  };
 
   // https://v4.mui.com/components/dialogs/#optional-sizes
   let dialogWidth = 'md';
@@ -42,13 +41,17 @@ const DialogWrapper = (props) => {
         fullWidth={true}
         maxWidth={dialogWidth}
       >
-        { (!!user && !!dataset)
-          ? <DialogContent {...props} />
-          : (!user)
-          ? <EmbeddedLogin />
-          : (user && !dataset)
-          ? <Spacer><Spinner message="Loading Dataset" /></Spacer>
-          : '' }
+        {!!user && !!dataset ? (
+          <DialogContent {...props} />
+        ) : !user ? (
+          <EmbeddedLogin />
+        ) : user && !dataset ? (
+          <Spacer>
+            <Spinner message="Loading Dataset" />
+          </Spacer>
+        ) : (
+          ''
+        )}
       </Dialog>
     );
   }
