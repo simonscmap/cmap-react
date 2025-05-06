@@ -16,54 +16,58 @@ import useEditorStyles from './editorStyles2';
 
 const required = (defaultText) => (value) => {
   const hasError = !value;
-  return [hasError, hasError ? 'Required' : defaultText ];
+  return [hasError, hasError ? 'Required' : defaultText];
 };
 
 const notRequired = (defaultText) => () => [false, defaultText];
 
 const validations = {
-  headline: required ('The headline is used in both the News card and as the subject for emails'),
-  link: required ('The URL that the headline will link to in the News card'),
-  label: notRequired ('Not Required: if provided will populate a bright label to call attention to the news item'),
-  date: required ('The display date that will appear on the News card'),
-  content: required ('The main text content of the news item'),
-}
+  headline: required(
+    'The headline is used in both the News card and as the subject for emails',
+  ),
+  link: required('The URL that the headline will link to in the News card'),
+  label: notRequired(
+    'Not Required: if provided will populate a bright label to call attention to the news item',
+  ),
+  date: required('The display date that will appear on the News card'),
+  content: required('The main text content of the news item'),
+};
 
 const validate = (name) => (value) => {
   const fn = validations[name];
   if (fn) {
-    return fn (value);
+    return fn(value);
   }
   return [undefined, undefined];
-}
+};
 
 const hasError = (name) => (value) => {
-  const [error] = validate (name) (value);
+  const [error] = validate(name)(value);
   return error;
-}
+};
 
 const getHelpText = (name) => (value) => {
-  const [, reason] = validate (name) (value);
+  const [, reason] = validate(name)(value);
   return reason;
-}
+};
 
 const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
   const classes = useEditorStyles();
 
   const initialValues = storyState
-        ? storyState
-        : {
-          view_status: 2,
-          label: null,
-          headline: '',
-          link: '',
-          date: '',
-          body: {
-            content: '',
-            links: [],
-          },
-          tags: [],
-        };
+    ? storyState
+    : {
+        view_status: 2,
+        label: null,
+        headline: '',
+        link: '',
+        date: '',
+        body: {
+          content: '',
+          links: [],
+        },
+        tags: [],
+      };
 
   const [viewStatus, setViewStatus] = useState(initialValues.view_status);
   const [headline, setHeadline] = useState(initialValues.headline || '');
@@ -79,29 +83,29 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
   const [label, setLabel] = useState(initialValues.label || '');
   const [taggedDatasets, setTaggedDatasets] = useState([]);
 
-  const [isDirty, setIsDirty] = useState (false);
+  const [isDirty, setIsDirty] = useState(false);
   const [hasErrors, setHasErrors] = useState(false);
 
   const getFormFieldValueByName = (name) => {
     switch (name) {
-    case 'headline':
-      return headline;
-    case 'link':
-      return link;
-    case 'date':
-      return date;
-    case 'content':
-      return content;
-    case 'links':
-      return links;
-    case 'label':
-      return label;
-    case 'tags':
-      return taggedDatasets;
-    default:
-      return undefined;
+      case 'headline':
+        return headline;
+      case 'link':
+        return link;
+      case 'date':
+        return date;
+      case 'content':
+        return content;
+      case 'links':
+        return links;
+      case 'label':
+        return label;
+      case 'tags':
+        return taggedDatasets;
+      default:
+        return undefined;
     }
-  }
+  };
 
   useEffect(() => {
     // update if story state changes in props
@@ -127,80 +131,77 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
       }
     }
     if (storyState && Array.isArray(storyState.tags)) {
-      setTaggedDatasets (storyState.tags);
+      setTaggedDatasets(storyState.tags);
     }
   }, [initialValues]);
 
-  useEffect (() => {
+  useEffect(() => {
     // Is the form dirty?
     const fields = [
       initialValues.headline !== headline,
       initialValues.link !== link,
       initialValues.date !== date,
       (initialValues.body && initialValues.body.content) !== content,
-      ((initialValues.label || '') !== (label || '')),
-      initialValues.view_status !== viewStatus
+      (initialValues.label || '') !== (label || ''),
+      initialValues.view_status !== viewStatus,
     ];
-    const formDataChanged = fields.some (x => x);
-    const tagsChanged = initialValues.tags.length !== taggedDatasets.length
-          || initialValues.tags.every (t => !taggedDatasets.includes (t));
+    const formDataChanged = fields.some((x) => x);
+    const tagsChanged =
+      initialValues.tags.length !== taggedDatasets.length ||
+      initialValues.tags.every((t) => !taggedDatasets.includes(t));
 
-    const initialLinks = safePath (['body', 'links' ]) (initialValues) || [];
+    const initialLinks = safePath(['body', 'links'])(initialValues) || [];
 
-    const linksChanged = initialLinks.length + links.length > 0
-          && (initialLinks.length !== links.length
-              || initialLinks.some (l =>
-                !links.find (ln =>
-                  l.text === ln.text && l.url === ln.url )));
+    const linksChanged =
+      initialLinks.length + links.length > 0 &&
+      (initialLinks.length !== links.length ||
+        initialLinks.some(
+          (l) => !links.find((ln) => l.text === ln.text && l.url === ln.url),
+        ));
 
-    setIsDirty (formDataChanged || tagsChanged || linksChanged);
+    setIsDirty(formDataChanged || tagsChanged || linksChanged);
 
     // Does the form have errors?
-    const fieldErrors = Object.keys (validations).map ((name) => {
-      const value = getFormFieldValueByName (name);
+    const fieldErrors = Object.keys(validations).map((name) => {
+      const value = getFormFieldValueByName(name);
       const [hasError] = validations[name](value);
       return hasError;
     });
-    const linkErrors = links.some (({ text, url }) => !(Boolean (text) && Boolean (url)))
-    const formHasErrors = fieldErrors.some (x => x) || linkErrors;
+    const linkErrors = links.some(
+      ({ text, url }) => !(Boolean(text) && Boolean(url)),
+    );
+    const formHasErrors = fieldErrors.some((x) => x) || linkErrors;
 
-    setHasErrors (formHasErrors);
-  },[
-    viewStatus,
-    headline,
-    link,
-    date,
-    content,
-    links,
-    label,
-    taggedDatasets
-  ]);
+    setHasErrors(formHasErrors);
+  }, [viewStatus, headline, link, date, content, links, label, taggedDatasets]);
 
   // DATASET TAGS
 
   const handleAddTag = (name) => {
-    const tags = new Set (taggedDatasets);
-    tags.add (name);
-    setTaggedDatasets (Array.from(tags))
-  }
+    const tags = new Set(taggedDatasets);
+    tags.add(name);
+    setTaggedDatasets(Array.from(tags));
+  };
 
   const handleRemoveTag = (name) => {
-    const tags = new Set (taggedDatasets);
-    tags.delete (name);
-    setTaggedDatasets (Array.from (tags));
-  }
+    const tags = new Set(taggedDatasets);
+    tags.delete(name);
+    setTaggedDatasets(Array.from(tags));
+  };
 
   // BODY CONTENT LINKS
 
-  const debouncedSetLinks = debounce (500, (payload) => {
-    setLinks (payload);
+  const debouncedSetLinks = debounce(500, (payload) => {
+    setLinks(payload);
   });
 
-  let updateLinks = (ix) => ({ text, url }) => {
-    let newLinks = [...links];
-    newLinks[ix] = { text, url };
-    debouncedSetLinks(newLinks);
-  };
+  let updateLinks =
+    (ix) =>
+    ({ text, url }) => {
+      let newLinks = [...links];
+      newLinks[ix] = { text, url };
+      debouncedSetLinks(newLinks);
+    };
 
   // cache the link editors
   let linkEditors = [];
@@ -235,7 +236,7 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
   if (arrayOfLinkTokens.length < links.length) {
     let excessLinks = links.length - arrayOfLinkTokens.length;
     linkEditors = linkEditors.slice(0, links.length - excessLinks);
-    setLinks (links.slice(0, links.length - excessLinks));
+    setLinks(links.slice(0, links.length - excessLinks));
   }
   // PAYLOAD
 
@@ -299,7 +300,7 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
         setLinks(storyState.body ? storyState.body.links : []);
       }
       if (storyState.tags && storyState.tags.length) {
-        setTaggedDatasets (storyState.tags);
+        setTaggedDatasets(storyState.tags);
       }
     } else {
       setViewStatus(2);
@@ -321,47 +322,48 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
   // Update handlers with debounce
   // (otherwise input becomes sluggish)
   const debouncedUpdates = {
-    headline: debounce (500, (event) => {
-      setHeadline (event.target.value.trim());
+    headline: debounce(500, (event) => {
+      setHeadline(event.target.value.trim());
     }),
-    link: debounce (500, (event) => {
-      setLink (event.target.value.trim());
+    link: debounce(500, (event) => {
+      setLink(event.target.value.trim());
     }),
-    date: debounce (500, (event) => {
-      setDate (event.target.value.trim());
+    date: debounce(500, (event) => {
+      setDate(event.target.value.trim());
     }),
-    label: debounce (500, (event) => {
-      setLabel (event.target.value.trim());
+    label: debounce(500, (event) => {
+      setLabel(event.target.value.trim());
     }),
-    content: debounce (500, (event) => {
-      setContent (event.target.value.trim());
+    content: debounce(500, (event) => {
+      setContent(event.target.value.trim());
     }),
   };
   const updateField = (event) => {
-    event.persist ();
+    event.persist();
     const fieldName = event.target.name;
     const updateFn = debouncedUpdates[fieldName];
     if (updateFn) {
-      updateFn (event);
+      updateFn(event);
     }
-  }
+  };
 
   const saveTooltip = hasErrors
-        ? 'Form has validation errors'
-        : !isDirty
-        ? 'No fields have changed'
-        : 'Save to database';
+    ? 'Form has validation errors'
+    : !isDirty
+      ? 'No fields have changed'
+      : 'Save to database';
 
   return (
     <div className={classes.panelContainer}>
-
       {/* child 1*/}
       <div className={classes.cardContainer}>
         <Typography>Story Preview</Typography>
         <div className={classes.cardBackdrop}>
-          {(headline || link || content || label)
-           ? <Card story={editState} position={0} />
-           : <Placeholder />}
+          {headline || link || content || label ? (
+            <Card story={editState} position={0} />
+          ) : (
+            <Placeholder />
+          )}
         </div>
       </div>
 
@@ -373,8 +375,8 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
             classes={{
               root: classes.textField,
             }}
-            error={hasError ('headline') (headline)}
-            helperText={getHelpText ('headline') (headline)}
+            error={hasError('headline')(headline)}
+            helperText={getHelpText('headline')(headline)}
             label="Headline"
             InputLabelProps={{ shrink: true, disableAnimation: true }}
             name="headline"
@@ -387,8 +389,8 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
             classes={{
               root: classes.textField,
             }}
-            error={hasError ('link') (link)}
-            helperText={getHelpText ('link') (link)}
+            error={hasError('link')(link)}
+            helperText={getHelpText('link')(link)}
             label={`Link (${lt})`}
             InputLabelProps={{ shrink: true, disableAnimation: true }}
             name="link"
@@ -402,8 +404,8 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
             classes={{
               root: classes.textField,
             }}
-            error={hasError ('date') (date)}
-            helperText={getHelpText ('date') (date)}
+            error={hasError('date')(date)}
+            helperText={getHelpText('date')(date)}
             label="Display Date"
             InputLabelProps={{ shrink: true, disableAnimation: true }}
             name="date"
@@ -417,8 +419,8 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
             classes={{
               root: classes.textField,
             }}
-            error={hasError ('label') (label)}
-            helperText={getHelpText ('label') (label)}
+            error={hasError('label')(label)}
+            helperText={getHelpText('label')(label)}
             label="Label"
             InputLabelProps={{ shrink: true, disableAnimation: true }}
             name="label"
@@ -433,8 +435,8 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
             classes={{
               root: classes.textField,
             }}
-            error={hasError ('content') (content)}
-            helperText={getHelpText ('content') (content)}
+            error={hasError('content')(content)}
+            helperText={getHelpText('content')(content)}
             label="Content"
             InputLabelProps={{ shrink: true, disableAnimation: true }}
             name="content"
@@ -457,7 +459,8 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
                 <WhiteButtonSM
                   onClick={save}
                   disabled={!isDirty || hasErrors}
-                  className={(isDirty && !hasErrors) ? classes.readyToSave: ''}>
+                  className={isDirty && !hasErrors ? classes.readyToSave : ''}
+                >
                   Save
                 </WhiteButtonSM>
               </span>
@@ -467,7 +470,6 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
         </div>
       </div>
 
-
       {/* child 3*/}
       <div className={classes.taggerContainer}>
         <DatasetTagger
@@ -476,7 +478,7 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
           removeDataset={handleRemoveTag}
           editState={{ headline, link, content, links }}
         />
-        </div>
+      </div>
 
       {/* child 4*/}
       {/* to enable sending notification, news item must be published and not have pending updates */}
@@ -492,7 +494,6 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
           }}
         />
       </div>
-
     </div>
   );
 };

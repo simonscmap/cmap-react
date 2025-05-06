@@ -38,8 +38,8 @@ export const renderDepth = (data) => {
   return !data.hasDepth
     ? 'Surface'
     : parameters.depth1 === parameters.depth2
-    ? `${parameters.depth1}[m]`
-    : `${parameters.depth1}[m] to ${parameters.depth2}[m]`;
+      ? `${parameters.depth1}[m]`
+      : `${parameters.depth1}[m] to ${parameters.depth2}[m]`;
 };
 
 export const truncateString = (limit) => (str) => {

@@ -2,46 +2,48 @@ import * as actionTypes from '../actionTypes/notifications';
 
 export const fetchNotificationHistory = (args) => ({
   type: actionTypes.FETCH_NOTIFICATION_HISTORY,
-  payload: args
+  payload: args,
 });
 
 export const fetchNotificationHistorySuccess = (args) => ({
   type: actionTypes.FETCH_NOTIFICATION_HISTORY_SUCCESS,
-  payload: args
+  payload: args,
 });
 
 export const setNotificationHistoryRequestStatus = (args) => ({
   type: actionTypes.SET_NOTIFICATION_HISTORY_REQUEST_STATUS,
-  payload: args
+  payload: args,
 });
 
 // fetch projection
 
 export const fetchNotificationRecipientProjection = (args) => ({
   type: actionTypes.FETCH_NOTIFICATION_RECIPIENT_PROJECTION,
-  payload: args
+  payload: args,
 });
 
 export const fetchNotificationRecipientProjectionSuccess = (args) => ({
   type: actionTypes.FETCH_NOTIFICATION_RECIPIENT_PROJECTION_SUCCESS,
-  payload: args
+  payload: args,
 });
 
-export const setNotificationRecipientProjectionRequestStatus = ({ tags, status }) => ({
+export const setNotificationRecipientProjectionRequestStatus = ({
+  tags,
+  status,
+}) => ({
   type: actionTypes.SET_NOTIFICATION_RECIPIENT_PROJECTION_REQUEST_STATUS,
   payload: {
     tags,
     status,
-  }
+  },
 });
-
 
 // fetch preview
 
 export const fetchNotificationPreviews = (args) => ({
   type: actionTypes.FETCH_NOTIFICATION_PREVIEWS,
   payload: {
-    newsId: args.newsId
+    newsId: args.newsId,
   },
 });
 
@@ -55,13 +57,12 @@ export const setFetchNotificationPreviewsRequestStatus = (status) => ({
   payload: status,
 });
 
-
 // send
 
 export const sendNotifications = (args) => ({
   type: actionTypes.SEND_NOTIFICATIONS,
   payload: args,
-})
+});
 
 export const sendNotificationsResult = (args) => ({
   type: actionTypes.SEND_NOTIFICATIONS_RESULT,
@@ -77,7 +78,7 @@ export const setSendNotificationsStatus = (args) => ({
 export const reSendNotifications = (args) => ({
   type: actionTypes.RESEND_NOTIFICATIONS,
   payload: args,
-})
+});
 
 export const reSendNotificationsResult = (args) => ({
   type: actionTypes.RESEND_NOTIFICATIONS_RESULT,

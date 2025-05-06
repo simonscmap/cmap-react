@@ -94,7 +94,7 @@ const styles = (theme) => ({
 
 export const SpinnerSVG = () => {
   return (
-    <svg style={{display: 'none'}}>
+    <svg style={{ display: 'none' }}>
       <symbol id="cmapSpinnerInner" viewBox="0 0 100 100">
         <g opacity="0.4">
           <path
@@ -275,7 +275,11 @@ export const SpinnerSVG = () => {
   );
 };
 
-export const Spinner = withStyles(styles)(({ classes, message, variant = {} }) => {
+export const Spinner = withStyles(styles)(({
+  classes,
+  message,
+  variant = {},
+}) => {
   let { spinnerColor = 'lime' } = variant;
   return (
     <div>
@@ -319,9 +323,7 @@ export const Spinner = withStyles(styles)(({ classes, message, variant = {} }) =
 
 export default Spinner;
 
-
-
-const useWrapperStyles = makeStyles ((theme) => ({
+const useWrapperStyles = makeStyles((theme) => ({
   spinnerWrapper: {
     textAlign: 'center',
     height: '100%',
@@ -343,7 +345,7 @@ const useWrapperStyles = makeStyles ((theme) => ({
     width: '100vw',
     height: '100vh',
     zIndex: z.LOADING_OVERLAY,
-  }
+  },
 }));
 
 export const ErrorWrapper = (props) => {
@@ -354,7 +356,7 @@ export const ErrorWrapper = (props) => {
       <p>{message}</p>
     </div>
   );
-}
+};
 
 export const SpinnerWrapper = (props) => {
   const { message } = props;
@@ -376,11 +378,7 @@ export const OverlaySpinner = (props) => {
   );
 };
 
-
-
-
-
-   /*          <div>
+/*          <div>
             <h3>Default</h3>
             <svg height="100px" width="100px">
               <use
@@ -397,7 +395,7 @@ export const OverlaySpinner = (props) => {
               />
             </svg>
           </div> */
-  /*
+/*
           <div>
             <h3>Size</h3>
             <svg className={classes.demoColor}>
@@ -418,7 +416,7 @@ export const OverlaySpinner = (props) => {
 
         */
 
-        /*
+/*
           <div>
             <h3>Combo</h3>
             <div className={classes.demoContained}>

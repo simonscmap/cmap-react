@@ -15,16 +15,10 @@ const Story = withStyles({
   },
   dragTarget: {
     opacity: '0.3',
-    border: '2px dashed black'
+    border: '2px dashed black',
   },
 })(({ story: storyState, classes, dragPackage, ix, deRank }) => {
-  let {
-    onDragStart,
-    onDragOver,
-    onDrop,
-    onDragLeave,
-    dragState,
-  } = dragPackage;
+  let { onDragStart, onDragOver, onDrop, onDragLeave, dragState } = dragPackage;
 
   let isDragTarget = dragState && dragState.draggedTo === ix;
 
@@ -33,7 +27,10 @@ const Story = withStyles({
   // the not in the Edit Ranks mode
   return (
     <div
-      className={clsx(classes.container, isDragTarget ? classes.dragTarget : '')}
+      className={clsx(
+        classes.container,
+        isDragTarget ? classes.dragTarget : '',
+      )}
       draggable={true}
       onDragStart={onDragStart}
       onDragOver={onDragOver}
@@ -41,11 +38,7 @@ const Story = withStyles({
       onDragLeave={onDragLeave}
       data-position={ix}
     >
-      <StorySummary
-        story={storyState}
-        deRank={deRank}
-        ix={ix}
-      />
+      <StorySummary story={storyState} deRank={deRank} ix={ix} />
     </div>
   );
 });

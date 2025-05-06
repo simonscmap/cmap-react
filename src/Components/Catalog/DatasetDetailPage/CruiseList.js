@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import {  makeStyles, Link } from '@material-ui/core';
+import { makeStyles, Link } from '@material-ui/core';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -20,9 +20,9 @@ const useRowStyles = makeStyles({
   },
 });
 
-const useStyles = makeStyles ((theme) => ({
+const useStyles = makeStyles((theme) => ({
   header: {
-    height: '100%'
+    height: '100%',
   },
   wrapper: {
     marginTop: '10px',
@@ -37,7 +37,8 @@ const useStyles = makeStyles ((theme) => ({
     width: '100%',
     height: '100%',
   },
-  root: { // table header
+  root: {
+    // table header
     '& .MuiTableCell-stickyHeader': {
       backgroundColor: 'rgba(30, 67, 113, 1)',
     },
@@ -54,20 +55,12 @@ const Row = (props) => {
   const { cruise } = props;
   const classes = useRowStyles();
 
-  const {
-    Chief_Name,
-    Name,
-    Nickname,
-    Ship_Name,
-  } = cruise;
+  const { Chief_Name, Name, Nickname, Ship_Name } = cruise;
   return (
     <React.Fragment>
-      <TableRow className={classes.root} >
+      <TableRow className={classes.root}>
         <TableCell>
-          <Link
-            component={RouterLink}
-            to={`/catalog/cruises/${Name}`}
-          >
+          <Link component={RouterLink} to={`/catalog/cruises/${Name}`}>
             {Name}
           </Link>
         </TableCell>
@@ -77,32 +70,39 @@ const Row = (props) => {
       </TableRow>
     </React.Fragment>
   );
-}
+};
 
-const sortCruises = (cruises) => cruises.slice().sort((a, b) => {
-  const nameA = a.Name.toUpperCase();
-  const nameB = b.Name.toUpperCase();
-  if (nameA < nameB) {
-    return -1;
-  }
-  if (nameA > nameB) {
-    return 1;
-  }
-  return 0;
-});
+const sortCruises = (cruises) =>
+  cruises.slice().sort((a, b) => {
+    const nameA = a.Name.toUpperCase();
+    const nameB = b.Name.toUpperCase();
+    if (nameA < nameB) {
+      return -1;
+    }
+    if (nameA > nameB) {
+      return 1;
+    }
+    return 0;
+  });
 
 const CruiseList = () => {
   const cl = useStyles();
 
-  const cruises = useSelector (safePathOr ([]) (Array.isArray) (['datasetDetailsPage', 'cruises']));
+  const cruises = useSelector(
+    safePathOr([])(Array.isArray)(['datasetDetailsPage', 'cruises']),
+  );
 
   const sortedCruises = sortCruises(cruises);
 
   return (
     <div className={cl.header}>
       <div className={cl.inner}>
-        <TableContainer component={Paper} className={cl.container} >
-          <Table aria-label="collapsible table" stickyHeader className={cl.root}>
+        <TableContainer component={Paper} className={cl.container}>
+          <Table
+            aria-label="collapsible table"
+            stickyHeader
+            className={cl.root}
+          >
             <TableHead>
               <TableRow>
                 <TableCell>Name</TableCell>
@@ -113,7 +113,7 @@ const CruiseList = () => {
             </TableHead>
             <TableBody>
               {sortedCruises.map((cruise, i) => (
-                <Row key={`row${i}`} cruise={cruise}  />
+                <Row key={`row${i}`} cruise={cruise} />
               ))}
             </TableBody>
           </Table>
@@ -121,6 +121,6 @@ const CruiseList = () => {
       </div>
     </div>
   );
-}
+};
 
 export default CruiseList;

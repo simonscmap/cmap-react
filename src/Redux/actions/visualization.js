@@ -397,12 +397,11 @@ export const fetchTrajectoryPointCounts = () => ({
 
 export const storeTrajectoryPointCounts = (data) => ({
   type: visualizationActionTypes.TRAJECTORY_POINT_COUNT_SUCCESS,
-  payload: data
+  payload: data,
 });
 export const trajectoryPointCountsFailure = () => ({
   type: visualizationActionTypes.TRAJECTORY_POINT_COUNT_FAILURE,
 });
-
 
 export const setParamLock = (trueFalse) => ({
   type: visualizationActionTypes.SET_PARAM_LOCK,
@@ -414,7 +413,6 @@ export const setLockAlertsOpen = (trueFalse) => ({
   payload: trueFalse,
 });
 
-
 export const checkVizQuerySize = (payload) => ({
   type: visualizationActionTypes.CHECK_VIZ_QUERY_SIZE,
   payload,
@@ -424,7 +422,6 @@ export const setCheckVizQuerySizeStatus = (payload) => ({
   type: visualizationActionTypes.SET_CHECK_VIZ_QUERY_SIZE_STATUS,
   payload,
 });
-
 
 export const checkVizQuerySizeStore = (payload) => ({
   type: visualizationActionTypes.CHECK_VIZ_QUERY_SIZE_STORE,

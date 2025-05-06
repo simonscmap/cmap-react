@@ -150,13 +150,13 @@ const CruiseFullPage = (props) => {
     let details = `You requested the cruise with the short name of ${props.match.params.cruiseName}.`;
     return (
       <div className={classes.foo}>
-      <Spacer>
-      <ErrorCard
-        title="Error"
-        message="There was a problem loading the page."
-        details={details}
-      />
-      </Spacer>
+        <Spacer>
+          <ErrorCard
+            title="Error"
+            message="There was a problem loading the page."
+            details={details}
+          />
+        </Spacer>
       </div>
     );
   }
@@ -239,15 +239,20 @@ const CruiseFullPage = (props) => {
               </Table>
 
               <Typography variant="h4">Associated Datasets</Typography>
-              <Typography variant="body1"> Datasets containing data collected on {Name}: </Typography>
+              <Typography variant="body1">
+                {' '}
+                Datasets containing data collected on {Name}:{' '}
+              </Typography>
 
               {datasets && datasets.length ? (
-                <BulkDownloadSelectionTable datasets={datasets} cruiseShortName={Name} />
+                <BulkDownloadSelectionTable
+                  datasets={datasets}
+                  cruiseShortName={Name}
+                />
               ) : (
                 <Typography variant="body1">No associated datasets.</Typography>
-
               )}
-              </SkeletonWrapper>
+            </SkeletonWrapper>
           </Paper>
         </Grid>
       </Grid>

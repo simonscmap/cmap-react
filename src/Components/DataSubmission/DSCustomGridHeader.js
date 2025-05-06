@@ -14,8 +14,7 @@ const sheetToReference = {
 };
 
 const getGuideItem = (sheet, columnId) =>
-      dsGuideItems[sheetToReference[sheet]]
-      .find(({ label }) => label === columnId);
+  dsGuideItems[sheetToReference[sheet]].find(({ label }) => label === columnId);
 
 const styles = (theme) => ({
   header: {
@@ -29,14 +28,12 @@ const styles = (theme) => ({
   icon: {
     margin: '10px',
     fontSize: '18px',
-  }
+  },
 });
 
-
 class DSCustomGridHeader extends React.Component {
-
   constructor(props) {
-    super (props);
+    super(props);
     // const { value, api } = props;
   }
 
@@ -44,7 +41,7 @@ class DSCustomGridHeader extends React.Component {
     const { context, column, displayName, classes } = this.props;
     const { sheet } = context;
 
-    const item = getGuideItem (sheet, column.colId);
+    const item = getGuideItem(sheet, column.colId);
 
     if (!item) {
       return <div className={classes.header}>{`${displayName}`}</div>;

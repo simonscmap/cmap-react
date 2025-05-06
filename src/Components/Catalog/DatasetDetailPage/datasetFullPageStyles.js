@@ -31,7 +31,7 @@ const styles = (theme) => ({
     '& > div': {
       verticalAlign: 'middle',
       margin: '0 5px',
-    }
+    },
   },
   divider: {
     backgroundColor: theme.palette.primary.main,
@@ -125,9 +125,10 @@ const styles = (theme) => ({
     marginBottom: '-5px',
   },
   gridSection: {
-    marginTop: '3em'
+    marginTop: '3em',
   },
-  horizontalFlex: { // accomodate news in description area
+  horizontalFlex: {
+    // accomodate news in description area
     display: 'flex',
     flexDirection: 'row',
     flexWrap: 'wrap',

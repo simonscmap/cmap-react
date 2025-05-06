@@ -10,7 +10,7 @@ import {
 import { ExpandMore, ChevronRight } from '@material-ui/icons';
 
 const useStyles = makeStyles((theme) => ({
-  dropDownGroup: { },
+  dropDownGroup: {},
   icons: {
     color: theme.palette.primary.main,
   },
@@ -28,19 +28,19 @@ const useStyles = makeStyles((theme) => ({
     // boxShadow: '0px 0px 0px 1px #242424',
   },
   labelExtras: {
-    marginLeft: '1em'
+    marginLeft: '1em',
   },
   content: {
-    maxWidth: '200px'
-  }
+    maxWidth: '200px',
+  },
 }));
 
 const ExpandCloseIcon = ({ open }) => {
   const cl = useStyles();
   if (!open) {
-    return <ChevronRight className={cl.icons} />
+    return <ChevronRight className={cl.icons} />;
   } else {
-    return <ExpandMore className={cl.icons} />
+    return <ExpandMore className={cl.icons} />;
   }
 };
 
@@ -49,43 +49,29 @@ const ContentContainer = ({ children, open, maxContentWidth }) => {
   if (!open) {
     return '';
   } else {
-    return (
-      <div className={cl.content}>
-        {children}
-      </div>
-    );
+    return <div className={cl.content}>{children}</div>;
   }
-}
+};
 
 export const DropDownContainer = (props) => {
-  const {
-    children,
-    label,
-    borderStyle,
-    labelExtras,
-  } = props;
+  const { children, label, borderStyle, labelExtras } = props;
   const cl = useStyles();
-  const [isOpen, setOpen] = useState (false);
+  const [isOpen, setOpen] = useState(false);
   return (
     <div className={cl.dropDownGroup}>
       <div
         className={cl.handle}
         onClick={() => setOpen(!isOpen)}
-        style={{ boxShadow: borderStyle || '0px 0px 0px 1px #242424' }}>
+        style={{ boxShadow: borderStyle || '0px 0px 0px 1px #242424' }}
+      >
         <ExpandCloseIcon open={isOpen} />
-          <span>{label}</span>
-          <div className={cl.labelExtras}>
-            {labelExtras ? labelExtras : ''}
-          </div>
-
+        <span>{label}</span>
+        <div className={cl.labelExtras}>{labelExtras ? labelExtras : ''}</div>
       </div>
-      <ContentContainer open={isOpen}>
-        {children}
-      </ContentContainer>
+      <ContentContainer open={isOpen}>{children}</ContentContainer>
     </div>
   );
 };
-
 
 /* Checkboxes */
 
@@ -132,7 +118,7 @@ export const CheckboxSet = (props) => {
     maxHeight = 165,
   } = props;
 
-  const classes = useCheckboxStyles ();
+  const classes = useCheckboxStyles();
   // make a singel checkbox
 
   const makeOption = (label, index) => {
@@ -159,20 +145,21 @@ export const CheckboxSet = (props) => {
     );
   };
 
-  const noOptions = (
-    <Typography variant="body2">{}</Typography>
-  );
+  const noOptions = <Typography variant="body2">{}</Typography>;
 
   // create a set of checkboxes
   return (
     <Grid item xs={12} className={classes.formGroupWrapper}>
-      <div className={classes.dropdownContentWrapper} style={{ maxHeight: `${maxHeight}px` }}>
-        <FormGroup>{options.length > 0 ? options.map(makeOption) : noOptions}</FormGroup>
+      <div
+        className={classes.dropdownContentWrapper}
+        style={{ maxHeight: `${maxHeight}px` }}
+      >
+        <FormGroup>
+          {options.length > 0 ? options.map(makeOption) : noOptions}
+        </FormGroup>
       </div>
     </Grid>
   );
 };
 
-export const SelectSet = () => {
-
-};
+export const SelectSet = () => {};

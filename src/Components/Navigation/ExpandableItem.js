@@ -22,7 +22,7 @@ const ExpandableItem = withStyles(navigationStyles)((props) => {
   }, [location]);
 
   return (
-    <div className={`${classes.expandableItemContainer} ${highlight}`} >
+    <div className={`${classes.expandableItemContainer} ${highlight}`}>
       <ClickAwayListener onClickAway={handleClose}>
         <div>
           <div className={classes.expandableItem} onClick={handleClick}>

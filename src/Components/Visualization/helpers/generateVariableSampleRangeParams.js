@@ -5,27 +5,27 @@ const dateStringToISO = (dateString) => {
   if (typeof dateString === 'string') {
     if (dateString.length === 10) {
       return dateString + 'T00:00:00.000Z';
-    } else if (dateString.length ===  24) {
+    } else if (dateString.length === 24) {
       return dateString;
     } else {
       // TODO handle case of improperly formatted date
       // such as 2014-05-20 05:16:09
-      return (new Date (dateString).toISOString());
+      return new Date(dateString).toISOString();
     }
-  } else  {
-    console.error ('wrong type for date string', dateString);
-    return (new Date (dateString).toISOString());
+  } else {
+    console.error('wrong type for date string', dateString);
+    return new Date(dateString).toISOString();
   }
-}
+};
 const generateVariableSampleRangeParams = (varDetails) => {
   let dt1 =
     varDetails.Temporal_Resolution === temporalResolutions.monthlyClimatology
       ? '1'
-      : dateStringToISO (varDetails.Time_Min);
+      : dateStringToISO(varDetails.Time_Min);
   let dt2 =
     varDetails.Temporal_Resolution === temporalResolutions.monthlyClimatology
       ? '1'
-      : dateStringToISO (varDetails.Time_Max);
+      : dateStringToISO(varDetails.Time_Max);
 
   // console.log ('gen params: time min', varDetails.Time_Min, dt1);
   // console.log ('gen params: time max', varDetails.Time_Max, dt2);
@@ -44,19 +44,25 @@ const generateVariableSampleRangeParams = (varDetails) => {
   let depth1 = surfaceOnly
     ? 0
     : irregularSpatialResolution
-    ? Math.floor(varDetails.Depth_Min * 1000) / 1000 || 0
-    : 0;
+      ? Math.floor(varDetails.Depth_Min * 1000) / 1000 || 0
+      : 0;
 
   // TODO ternary chaining is unreadable
   let depth2 = surfaceOnly
     ? 0
     : irregularSpatialResolution
-    ? Math.ceil(varDetails.Depth_Max * 1000) / 1000 || 0
-    : depthUtils.piscesTable.has(varDetails.Table_Name)
-    ? ((depthUtils.piscesDepths[0] + depthUtils.piscesDepths[1]) / 2).toFixed(2)
-    : depthUtils.darwinTable.has(varDetails.Table_Name)
-    ? ((depthUtils.darwinDepths[0] + depthUtils.darwinDepths[1]) / 2).toFixed(2)
-    : 11000;
+      ? Math.ceil(varDetails.Depth_Max * 1000) / 1000 || 0
+      : depthUtils.piscesTable.has(varDetails.Table_Name)
+        ? (
+            (depthUtils.piscesDepths[0] + depthUtils.piscesDepths[1]) /
+            2
+          ).toFixed(2)
+        : depthUtils.darwinTable.has(varDetails.Table_Name)
+          ? (
+              (depthUtils.darwinDepths[0] + depthUtils.darwinDepths[1]) /
+              2
+            ).toFixed(2)
+          : 11000;
 
   return {
     lat1,

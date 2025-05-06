@@ -31,25 +31,19 @@ const check = (standardAuditArgs) => {
   // check
 
   if (emptyColumns.length) {
-    results.push(makeIssueList (
-      severity.error,
-      'Data Columns Without Any Values',
-      {
+    results.push(
+      makeIssueList(severity.error, 'Data Columns Without Any Values', {
         text: 'The following columns contain no values.',
         list: emptyColumns,
-      }
-    ));
+      }),
+    );
   }
 
   return results;
-}
+};
 
-const auditFn = requireWorkbookAndDataSheet (AUDIT_NAME, check);
+const auditFn = requireWorkbookAndDataSheet(AUDIT_NAME, check);
 
-const audit = auditFactory (
-  AUDIT_NAME,
-  DESCRIPTION,
-  auditFn,
-);
+const audit = auditFactory(AUDIT_NAME, DESCRIPTION, auditFn);
 
 export default audit;

@@ -11,26 +11,27 @@ import DSCellEditorSelect from './DSCellEditorSelect';
 import DSCellRenderWithDelete from './DSCellRenderWithDelete';
 import DSCellRenderDateTime from './DSCellRenderDateTime';
 
-const useStyles = makeStyles ((theme) => ({
+const useStyles = makeStyles((theme) => ({
   gridContainer: {
     height: '600px',
-  }
+  },
 }));
 
 const ValidationGrid = (props) => {
-  const { gridContext, columns, rowData, defaultColumnDef, onCellFocused } = props;
+  const { gridContext, columns, rowData, defaultColumnDef, onCellFocused } =
+    props;
   const cl = useStyles();
 
-  const file = useSelector ((state) => state.submissionFile);
+  const file = useSelector((state) => state.submissionFile);
 
   if (!file) {
-    console.log ('not rendering grid', file)
+    console.log('not rendering grid', file);
     return '';
   }
 
   return (
     <div id="dataSubmission">
-      <div className={cl.gridContainer + ' ag-theme-material' }>
+      <div className={cl.gridContainer + ' ag-theme-material'}>
         <AgGridReact
           singleClickEdit={true}
           // onModelUpdated={this.props.onModelUpdated}
@@ -57,6 +58,6 @@ const ValidationGrid = (props) => {
       </div>
     </div>
   );
-}
+};
 
 export default ValidationGrid;

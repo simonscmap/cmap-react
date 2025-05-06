@@ -103,12 +103,12 @@ const styles = (theme) => ({
       cursor: 'pointer',
       color: theme.palette.primary.main,
       '&:visited': {
-        color: theme.palette.primary.main
+        color: theme.palette.primary.main,
       },
       '&:hover': {
-        color: theme.palette.secondary.main
-      }
-    }
+        color: theme.palette.secondary.main,
+      },
+    },
   },
   colorCorrectionPrimary: {
     cursor: 'pointer',
@@ -131,7 +131,7 @@ const styles = (theme) => ({
     borderRadius: '6px',
     marginLeft: '5px',
     padding: '5px 14px',
-  }
+  },
 });
 
 export default styles;

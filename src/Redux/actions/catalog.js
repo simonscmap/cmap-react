@@ -101,7 +101,7 @@ export const datasetVariablesStore = (variables, datasetShortName) => ({
   type: catalogActionTypes.DATASET_VARIABLES_STORE,
   payload: {
     variables,
-    datasetShortName
+    datasetShortName,
   },
 });
 
@@ -137,7 +137,7 @@ export const visualizableVariablesFetch = (shortname) => ({
   type: catalogActionTypes.DATASET_VISUALIZABLE_VARS_FETCH,
   payload: {
     shortname,
-  }
+  },
 });
 
 export const visualizableVariablesStore = (data) => ({
@@ -150,7 +150,11 @@ export const visualizableVariablesSetLoadingState = (state) => ({
   payload: { state },
 });
 
-export const datasetVariableVisDataFetch = (shortname, variableData, datasetShortName) => ({
+export const datasetVariableVisDataFetch = (
+  shortname,
+  variableData,
+  datasetShortName,
+) => ({
   type: catalogActionTypes.DATASET_VARIABLE_VIS_DATA_FETCH,
   payload: {
     shortname, // variable short name, which acts as a key
@@ -171,7 +175,7 @@ export const datasetVariableVisDataSetLoadingState = (shortname, state) => ({
   type: catalogActionTypes.DATASET_VARIABLE_VIS_DATA_SET_LOADING_STATE,
   payload: {
     shortname,
-    state
+    state,
   },
 });
 
@@ -187,7 +191,7 @@ export const setDatasetVisTabPreference = (variableShortName, n) => ({
   payload: {
     variableShortName,
     tab: n,
-  }
+  },
 });
 
 /************** Cruise Detail Page **********************/
@@ -223,7 +227,7 @@ export const fetchDatasetFeatures = () => ({
 
 export const checkQuerySize = (query) => ({
   type: catalogActionTypes.CHECK_QUERY_SIZE_SEND,
-  payload: { query }
+  payload: { query },
 });
 
 export const setCheckQueryRequestState = (requestState) => ({
@@ -235,8 +239,8 @@ export const storeCheckQueryResult = (queryString, result) => ({
   type: catalogActionTypes.STORE_CHECK_QUERY_SIZE_RESULT,
   payload: {
     queryString,
-    result
-  }
+    result,
+  },
 });
 
 export const clearFailedSizeChecks = () => ({
@@ -276,7 +280,7 @@ export const datasetDownloadRequestSuccess = (text) => ({
 
 export const popularRecsRequestSend = () => ({
   type: catalogActionTypes.FETCH_RECS_POPULAR_SEND,
-})
+});
 
 export const popularRecsRequestSuccess = (result) => ({
   type: catalogActionTypes.FETCH_RECS_POPULAR_SUCCESS,
@@ -288,13 +292,12 @@ export const popularRecsRequestFailure = (err) => ({
   paload: err,
 });
 
-
 export const recentRecsRequestSend = (user_id) => ({
   type: catalogActionTypes.FETCH_RECS_RECENT_SEND,
   payload: {
-    user_id: user_id
-  }
-})
+    user_id: user_id,
+  },
+});
 
 export const recentRecsRequestSuccess = (result) => ({
   type: catalogActionTypes.FETCH_RECS_RECENT_SUCCESS,
@@ -311,13 +314,12 @@ export const recentRecsCacheHit = (cachedResult) => ({
   payload: cachedResult,
 });
 
-
 export const recommendedRecsRequestSend = (user_id) => ({
   type: catalogActionTypes.FETCH_RECS_RECOMMENDED_SEND,
   payload: {
-    user_id: user_id
-  }
-})
+    user_id: user_id,
+  },
+});
 
 export const recommendedRecsRequestSuccess = (result) => ({
   type: catalogActionTypes.FETCH_RECS_RECOMMENDED_SUCCESS,
@@ -353,13 +355,13 @@ export const storePrograms = (programs) => ({
 export const fetchProgramsFailure = ({ message, err }) => ({
   type: catalogActionTypes.FETCH_PROGRAMS_FAILURE,
   message,
-  err
+  err,
 });
 
 export const fetchProgramDetailsSend = (programName) => ({
   type: catalogActionTypes.FETCH_PROGRAM_DETAILS_SEND,
   payload: {
-    programName
+    programName,
   },
 });
 
@@ -368,18 +370,18 @@ export const storeProgramDetails = (programs) => ({
   payload: programs,
 });
 
-export const fetchProgramDetailsFailure = ({ message, /* error */ }) => ({
+export const fetchProgramDetailsFailure = ({ message /* error */ }) => ({
   type: catalogActionTypes.FETCH_PROGRAM_DETAILS_FAILURE,
   payload: {
     message,
-  }
+  },
 });
 
 export const setProgramCruiseTrajectoryFocus = ({ cruiseId }) => ({
   type: catalogActionTypes.SET_PROGRAM_CRUISE_TRAJECTORY_FOCUS,
   payload: {
     cruiseId,
-  }
+  },
 });
 
 // sample vis on program page
@@ -388,19 +390,27 @@ export const selectProgramDataset = ({ shortName, datasetId }) => ({
   payload: {
     shortName,
     datasetId,
-  }
+  },
 });
 
-export const selectProgramDatasetVariable = ({ varShortName, varId, datasetId }) => ({
+export const selectProgramDatasetVariable = ({
+  varShortName,
+  varId,
+  datasetId,
+}) => ({
   type: catalogActionTypes.PROGRAM_DATASET_VARIABLE_SELECT,
   payload: {
     varShortName,
     varId,
-    datasetId
-  }
+    datasetId,
+  },
 });
 
-export const programSampleVisDataFetch = ({ datasetShortName, variableId, variableData }) => ({
+export const programSampleVisDataFetch = ({
+  datasetShortName,
+  variableId,
+  variableData,
+}) => ({
   type: catalogActionTypes.PROGRAM_SAMPLE_VIS_DATA_FETCH,
   payload: {
     datasetShortName,
@@ -409,7 +419,10 @@ export const programSampleVisDataFetch = ({ datasetShortName, variableId, variab
   },
 });
 
-export const programSampleVisDataSetLoadingState = ({ datasetShortName, variableId, variableData }, status) => ({
+export const programSampleVisDataSetLoadingState = (
+  { datasetShortName, variableId, variableData },
+  status,
+) => ({
   type: catalogActionTypes.PROGRAM_SAMPLE_VIS_DATA_SET_LOADING_STATE,
   payload: {
     datasetShortName,
@@ -419,7 +432,10 @@ export const programSampleVisDataSetLoadingState = ({ datasetShortName, variable
   },
 });
 
-export const programSampleVisDataStore = ({ datasetShortName, variableId, variableData }, data) => ({
+export const programSampleVisDataStore = (
+  { datasetShortName, variableId, variableData },
+  data,
+) => ({
   type: catalogActionTypes.PROGRAM_SAMPLE_VIS_DATA_STORE,
   payload: {
     datasetShortName,
@@ -430,7 +446,7 @@ export const programSampleVisDataStore = ({ datasetShortName, variableId, variab
 });
 
 export const fetchDatasetNames = () => ({
-  type: catalogActionTypes.FETCH_DATASET_NAMES
+  type: catalogActionTypes.FETCH_DATASET_NAMES,
 });
 
 export const fetchDatasetNamesSuccess = (result) => ({
@@ -448,8 +464,8 @@ export const setDatasetNamesRequestStatus = (status) => ({
 export const fetchVaultLink = (shortName) => ({
   type: catalogActionTypes.FETCH_VAULT_LINK,
   payload: {
-    shortName
-  }
+    shortName,
+  },
 });
 
 export const fetchVaultLinkSuccess = (data) => ({
@@ -460,7 +476,7 @@ export const fetchVaultLinkSuccess = (data) => ({
 export const setFetchVaultLinkRequestStatus = (status) => ({
   type: catalogActionTypes.SET_FETCH_VAULT_LINK_REQUEST_STATUS,
   payload: {
-    status
+    status,
   },
 });
 

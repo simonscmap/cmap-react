@@ -7,7 +7,7 @@ export const useIsOverflow = (ref, callback) => {
     const { current } = ref;
 
     const trigger = () => {
-      console.log ('trigger', current.scrollWidth);
+      console.log('trigger', current.scrollWidth);
       const hasOverflow = current.scrollWidth > current.clientWidth;
 
       setIsOverflow(hasOverflow);

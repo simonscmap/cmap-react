@@ -11,7 +11,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import { Link } from 'react-router-dom';
 
-const useExStyles = makeStyles ((theme) => ({
+const useExStyles = makeStyles((theme) => ({
   link: {
     color: theme.palette.primary.main,
     '&:visited': {
@@ -21,37 +21,43 @@ const useExStyles = makeStyles ((theme) => ({
       color: theme.palette.secondary.main,
     },
     display: 'inline-block',
-    padding: '3px 5px'
-  }
+    padding: '3px 5px',
+  },
 }));
 const Examples = (props) => {
   const { links } = props;
-  const cl = useExStyles ();
+  const cl = useExStyles();
   if (!links || links.length === 0) {
     return '';
   }
   const linkArray = links
-        .split (',')
-        .map ((l) => l.trim ())
-        .map ((l) => {
-          const segments = l.split ('/');
-          return {
-            link: l,
-            name: segments.pop(),
-          }
-        });
+    .split(',')
+    .map((l) => l.trim())
+    .map((l) => {
+      const segments = l.split('/');
+      return {
+        link: l,
+        name: segments.pop(),
+      };
+    });
   return (
     <React.Fragment>
-      {linkArray.map (({ link, name}, idx) =>
-        <Link to={`/catalog/datasets/${name}`} key={`link_${idx}`} className={cl.link}>{name}</Link>)}
+      {linkArray.map(({ link, name }, idx) => (
+        <Link
+          to={`/catalog/datasets/${name}`}
+          key={`link_${idx}`}
+          className={cl.link}
+        >
+          {name}
+        </Link>
+      ))}
     </React.Fragment>
   );
 };
 
-
 // Component: Group
 
-const useGroupStyles = makeStyles ((theme) => ({
+const useGroupStyles = makeStyles((theme) => ({
   groupLabel: {
     color: '#69FFF2',
     background: 'rgba(0,0,0,0.1)',
@@ -61,12 +67,12 @@ const useGroupStyles = makeStyles ((theme) => ({
   },
   sensor: {
     fontWeight: 'bold',
-  }
+  },
 }));
 
 const Group = (props) => {
   const { data } = props;
-  const cl = useGroupStyles ();
+  const cl = useGroupStyles();
 
   if (!data || !data.members) {
     return '';
@@ -79,32 +85,36 @@ const Group = (props) => {
   return (
     <React.Fragment>
       <TableRow>
-        <TableCell colSpan={3} className={cl.groupLabel}>{groupLabel}</TableCell>
+        <TableCell colSpan={3} className={cl.groupLabel}>
+          {groupLabel}
+        </TableCell>
       </TableRow>
 
-      {data.members.map ((member, idx) => (
+      {data.members.map((member, idx) => (
         <TableRow key={`row_${idx}`}>
           <TableCell className={cl.sensor}>{member.Sensor}</TableCell>
           <TableCell>{member.Description}</TableCell>
-          <TableCell><Examples links={member.exData} /></TableCell>
+          <TableCell>
+            <Examples links={member.exData} />
+          </TableCell>
         </TableRow>
       ))}
     </React.Fragment>
   );
-}
+};
 
-const useTableStyles = makeStyles (() => ({
+const useTableStyles = makeStyles(() => ({
   table: {
     '& .MuiTableCell-root': {
       border: 0,
-    }
+    },
   },
   colHead: {
     fontWeight: 'bold',
     paddingTop: '15px',
     paddingBottom: '15px',
     textTransform: 'uppercase',
-  }
+  },
 }));
 const SensorTable = (props) => {
   const { list } = props;
@@ -121,13 +131,12 @@ const SensorTable = (props) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {list && list.map((g, i) => (<Group key={`${i}`} data={g}/>))}
+          {list && list.map((g, i) => <Group key={`${i}`} data={g} />)}
         </TableBody>
       </Table>
     </TableContainer>
   );
-}
-
+};
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -139,9 +148,7 @@ function TabPanel(props) {
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {value === index && (
-          <div>{children}</div>
-      )}
+      {value === index && <div>{children}</div>}
     </div>
   );
 }
@@ -155,8 +162,8 @@ const useStyles = makeStyles((theme) => ({
     background: 'rgba(0,0,0,0.2)',
     '& .MuiTab-wrapper': {
       color: 'white',
-    }
-  }
+    },
+  },
 }));
 
 const SensorTabs = (props) => {
@@ -190,6 +197,6 @@ const SensorTabs = (props) => {
       </TabPanel>
     </div>
   );
-}
+};
 
 export default SensorTabs;

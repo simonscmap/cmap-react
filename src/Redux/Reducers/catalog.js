@@ -64,50 +64,57 @@ import {
 } from '../../Components/Catalog/Programs/programSelectors';
 
 // cached paths
-const pathToVisData = safePath (['programDetails', 'sampleVisData']);
+const pathToVisData = safePath(['programDetails', 'sampleVisData']);
 
 // reducer helper for dataset detail page variable selection
 // manages cache based on length of stored data
 const reduceDatasetVariableSelect = (state, action) => {
-  const variableIsInList = state.datasetDetailsPage.visualizableVariables.variables.some (v =>
-    v.Short_Name === action.payload.shortname);
+  const variableIsInList =
+    state.datasetDetailsPage.visualizableVariables.variables.some(
+      (v) => v.Short_Name === action.payload.shortname,
+    );
   const oldVariable = state.datasetDetailsPage.visualizationSelection;
 
   const newShortName = action.payload.shortname;
 
   // if the shortname in the payload exists in the list of variable, set it as the selection
   const newVariableSelection = variableIsInList
-                             ? action.payload.shortname
-                             : (() =>
-                               console.log (`no ${newShortName} in var list`))() && oldVariable;
+    ? action.payload.shortname
+    : (() => console.log(`no ${newShortName} in var list`))() && oldVariable;
 
   const dataLengthIsOverThreshold = (varShortName, data) => {
     const THRESHOLD = 10000; // ten thousand datapoints
-    const latsArray = safePath ([varShortName, 'data', 'lats']) (data);
-    if (!Array.isArray (latsArray)) {
+    const latsArray = safePath([varShortName, 'data', 'lats'])(data);
+    if (!Array.isArray(latsArray)) {
       return false;
     } else if (latsArray.length > THRESHOLD) {
-      console.log ('examining variable data for size', `${varShortName} has ${latsArray.length} points`)
+      console.log(
+        'examining variable data for size',
+        `${varShortName} has ${latsArray.length} points`,
+      );
       return true;
     } else {
-      console.log ('examining variable data for size', `${varShortName} has ${latsArray.length} points`)
+      console.log(
+        'examining variable data for size',
+        `${varShortName} has ${latsArray.length} points`,
+      );
       return false;
     }
-  }
+  };
 
   // when switching variables, scan existing data and remove bigger caches of data
   let newData = state.datasetDetailsPage.visualizableDataByName;
   if (newData && typeof newData === 'object') {
-    newData = Object.keys(newData).reduce ((acc, curr) => {
-      const shouldBeCleared = dataLengthIsOverThreshold (curr, newData);
+    newData = Object.keys(newData).reduce((acc, curr) => {
+      const shouldBeCleared = dataLengthIsOverThreshold(curr, newData);
       if (shouldBeCleared) {
-        console.log (`dereferencing ${curr}`);
+        console.log(`dereferencing ${curr}`);
         acc[curr] = {
           data: null, // dereference the data
-          loadingState: states.notTried
+          loadingState: states.notTried,
         };
       } else {
-        console.log (`retaining cache for ${curr}`)
+        console.log(`retaining cache for ${curr}`);
         acc[curr] = newData[curr];
       }
       return acc;
@@ -120,18 +127,15 @@ const reduceDatasetVariableSelect = (state, action) => {
       ...state.datasetDetailsPage,
       visualizationSelection: newVariableSelection,
       visualizableDataByName: newData,
-    }
+    },
   };
-}
-
-
+};
 
 // reducer for catalog data:
 
 export default function (state, action) {
   switch (action.type) {
-
-      /************** Catalog Page **********************/
+    /************** Catalog Page **********************/
 
     case STORE_SUBMISSION_OPTIONS:
       return {
@@ -164,15 +168,16 @@ export default function (state, action) {
       return {
         ...state,
         catalogSortingOptions: action.payload,
-        searchResults: sortResults (state.searchResults, action.payload),
+        searchResults: sortResults(state.searchResults, action.payload),
       };
 
-      /************** Dataset Detail Page **********************/
+    /************** Dataset Detail Page **********************/
 
     case DATASET_FULL_PAGE_NAVIGATE:
       return {
         ...state,
-        datasetDetailsPage: { // reset page, but set new shortname
+        datasetDetailsPage: {
+          // reset page, but set new shortname
           selectedDatasetId: null,
           selectedDatasetShortname: action.payload.shortname || null,
 
@@ -196,7 +201,7 @@ export default function (state, action) {
       };
 
     case DATASET_FULL_PAGE_DATA_STORE:
-    console.log ('payload', action.payload)
+      console.log('payload', action.payload);
       return {
         ...state,
         datasetDetailsPage: {
@@ -208,7 +213,7 @@ export default function (state, action) {
           references: action.payload.references,
           sensors: action.payload.sensors,
           news: action.payload.news,
-        }
+        },
       };
     case DATASET_VARIABLES_STORE:
       return {
@@ -216,15 +221,16 @@ export default function (state, action) {
         datasetDetailsPage: {
           ...state.datasetDetailsPage,
           variables: action.payload.variables,
-        }
+        },
       };
     case DATASET_VARIABLE_UM_STORE:
       return {
         ...state,
         datasetDetailsPage: {
           ...state.datasetDetailsPage,
-          unstructuredVariableMetadata: action.payload.variableUnstructuredMetadata,
-        }
+          unstructuredVariableMetadata:
+            action.payload.variableUnstructuredMetadata,
+        },
       };
     case DATASET_FULL_PAGE_DATA_SET_LOADING_STATE:
       return {
@@ -232,7 +238,7 @@ export default function (state, action) {
         datasetDetailsPage: {
           ...state.datasetDetailsPage,
           primaryPageLoadingState: action.payload.state,
-        }
+        },
       };
     case DATASET_VARIABLES_SET_LOADING_STATE:
       return {
@@ -240,7 +246,7 @@ export default function (state, action) {
         datasetDetailsPage: {
           ...state.datasetDetailsPage,
           variablesLoadingState: action.payload.state,
-        }
+        },
       };
     case DATASET_VARIABLE_UM_SET_LOADING_STATE:
       return {
@@ -248,16 +254,23 @@ export default function (state, action) {
         datasetDetailsPage: {
           ...state.datasetDetailsPage,
           unstructuredMetadataLoadingState: action.payload.state,
-        }
+        },
       };
 
     case DATASET_VISUALIZABLE_VARS_STORE:
       // create an object with a key for every variable
       // eslint-disable-next-line
-      const dataByName = Object.fromEntries (action.payload.variables.map (v =>
-            [v.Short_Name, { data: null, loadingState: states.notTried } ]));
+      const dataByName = Object.fromEntries(
+        action.payload.variables.map((v) => [
+          v.Short_Name,
+          { data: null, loadingState: states.notTried },
+        ]),
+      );
 
-      if (state.datasetDetailsPage.visualizableVariablesLoadingState !== states.succeeded) {
+      if (
+        state.datasetDetailsPage.visualizableVariablesLoadingState !==
+        states.succeeded
+      ) {
         return {
           ...state,
           datasetDetailsPage: {
@@ -266,7 +279,7 @@ export default function (state, action) {
             visualizableVariables: action.payload,
             visualizationSelection: action.payload.variables[0].Short_Name,
             visualizableDataByName: dataByName,
-          }
+          },
         };
       } else {
         return state;
@@ -277,7 +290,7 @@ export default function (state, action) {
         datasetDetailsPage: {
           ...state.datasetDetailsPage,
           visualizableVariablesLoadingState: action.payload.state,
-        }
+        },
       };
 
     case DATASET_VARIABLE_VIS_DATA_STORE:
@@ -287,12 +300,12 @@ export default function (state, action) {
           ...state.datasetDetailsPage,
           visualizableDataByName: {
             ...state.datasetDetailsPage.visualizableDataByName,
-            [action.payload.shortname] : {
+            [action.payload.shortname]: {
               data: action.payload.data,
               loadingState: states.succeeded,
-            }
+            },
           },
-        }
+        },
       };
 
     case DATASET_VARIABLE_VIS_DATA_SET_LOADING_STATE:
@@ -302,16 +315,15 @@ export default function (state, action) {
           ...state.datasetDetailsPage,
           visualizableDataByName: {
             ...state.datasetDetailsPage.visualizableDataByName,
-            [action.payload.shortname] : {
+            [action.payload.shortname]: {
               data: null, // only STORE handles success; for every other state data is null
               loadingState: action.payload.state,
-            }
-          }
-        }
+            },
+          },
+        },
       };
     case DATASET_VARIABLE_SELECT:
-      return reduceDatasetVariableSelect (state, action);
-
+      return reduceDatasetVariableSelect(state, action);
 
     case DATASET_VIS_VAR_TAB_PREFERENCE:
       return {
@@ -319,29 +331,29 @@ export default function (state, action) {
         datasetDetailsPage: {
           ...state.datasetDetailsPage,
           tabPreference: action.payload.tab,
-        }
-      }
+        },
+      };
 
-     /************** Programs Page **********************/
+    /************** Programs Page **********************/
     case FETCH_PROGRAMS_SEND:
       return {
         ...state,
         programsRequestStatus: states.inProgress,
-      }
+      };
 
     case FETCH_PROGRAMS_SUCCESS:
       return {
         ...state,
         programs: action.payload,
         programsRequestStatus: states.succeeded,
-      }
+      };
 
     case FETCH_PROGRAMS_FAILURE:
       return {
         ...state,
         programsRequestStatus: states.failed,
-      }
-      /************** Program Details Page **********************/
+      };
+    /************** Program Details Page **********************/
 
     case FETCH_PROGRAM_DETAILS_SEND:
       return {
@@ -349,7 +361,7 @@ export default function (state, action) {
         programDetailsRequestStatus: states.inProgress,
         programDetails: {},
         programDetailsCruiseFocus: null,
-      }
+      };
 
     case FETCH_PROGRAM_DETAILS_SUCCESS:
       return {
@@ -361,12 +373,15 @@ export default function (state, action) {
           datasets: action.payload.datasets,
 
           // user state
-          programDatasetSelected: getFirstDatasetIdentifier (action.payload.datasets),
-          programDatasetVariableSelected: getDefaultVariableIdentifier (action.payload.datasets),
+          programDatasetSelected: getFirstDatasetIdentifier(
+            action.payload.datasets,
+          ),
+          programDatasetVariableSelected: getDefaultVariableIdentifier(
+            action.payload.datasets,
+          ),
         },
         programDetailsRequestStatus: states.succeeded,
-
-      }
+      };
 
     case FETCH_PROGRAM_DETAILS_FAILURE:
       return {
@@ -376,8 +391,8 @@ export default function (state, action) {
         programDetailsError: {
           message: action.payload.message,
           // other info ?
-        }
-      }
+        },
+      };
 
     case SET_PROGRAM_CRUISE_TRAJECTORY_FOCUS:
       return {
@@ -393,8 +408,8 @@ export default function (state, action) {
           programDatasetSelected: action.payload, // { shortName, datasetId }
           programDatasetVariableSelected: null, // reset
           sampleVisData: null,
-        }
-      }
+        },
+      };
 
     case PROGRAM_DATASET_VARIABLE_SELECT:
       return {
@@ -402,22 +417,23 @@ export default function (state, action) {
         programDetails: {
           ...(state.programDetails ? state.programDetails : {}),
           programDatasetVariableSelected: action.payload, // { varShortName, varId, datasetId }
-        }
-      }
+        },
+      };
 
     case PROGRAM_SAMPLE_VIS_DATA_SET_LOADING_STATE:
       return {
         ...state,
         programDetails: {
           ...(state.programDetails ? state.programDetails : {}),
-          sampleVisData: { // unlike dataset detail page, only keep active vis data
-            ...(pathToVisData (state) ? pathToVisData (state) : {}),
-                           datasetShortName: action.payload.datasetShortName,
-                           variableData: action.payload.variableData,
-                           variableId: action.payload.variableId,
-                           loadingState: action.payload.status,
+          sampleVisData: {
+            // unlike dataset detail page, only keep active vis data
+            ...(pathToVisData(state) ? pathToVisData(state) : {}),
+            datasetShortName: action.payload.datasetShortName,
+            variableData: action.payload.variableData,
+            variableId: action.payload.variableId,
+            loadingState: action.payload.status,
           },
-        }
+        },
       };
 
     case PROGRAM_SAMPLE_VIS_DATA_STORE:
@@ -425,17 +441,18 @@ export default function (state, action) {
         ...state,
         programDetails: {
           ...(state.programDetails ? state.programDetails : {}),
-          sampleVisData: { // unlike dataset detail page, only keep active vis data
-            ...(pathToVisData (state) ? pathToVisData (state) : {}),
-                           datasetShortName: action.payload.datasetShortName,
-                           variableData: action.payload.variableData,
-                           variableId: action.payload.variableId,
-                           loadingState: states.succeeded,
-                           data: action.payload.data,
+          sampleVisData: {
+            // unlike dataset detail page, only keep active vis data
+            ...(pathToVisData(state) ? pathToVisData(state) : {}),
+            datasetShortName: action.payload.datasetShortName,
+            variableData: action.payload.variableData,
+            variableId: action.payload.variableId,
+            loadingState: states.succeeded,
+            data: action.payload.data,
           },
-        }
-      }
-     /************** Cruise Page **********************/
+        },
+      };
+    /************** Cruise Page **********************/
 
     case CRUISE_FULL_PAGE_DATA_STORE:
       return {
@@ -448,7 +465,7 @@ export default function (state, action) {
         cruiseFullPageDataLoadingState: action.payload.state,
       };
 
-      /************** Cache **********************/
+    /************** Cache **********************/
 
     case FETCH_DATASET_FEATURES_SUCCESS:
       return {
@@ -456,12 +473,12 @@ export default function (state, action) {
         catalog: {
           ...state.catalog,
           datasetFeatures: action.payload,
-        }
+        },
       };
 
-      // handle dataset features failure
+    // handle dataset features failure
 
-      /************** Dataset Download **********************/
+    /************** Dataset Download **********************/
 
     case CHECK_QUERY_SIZE_SEND:
       return {
@@ -469,9 +486,9 @@ export default function (state, action) {
         download: {
           ...state.download,
           currentRequest: action.payload.query,
-          checkQueryRequestState: states.inProgress
-        }
-      }
+          checkQueryRequestState: states.inProgress,
+        },
+      };
 
     case SET_CHECK_QUERY_SIZE_REQUEST_STATE:
       return {
@@ -479,7 +496,7 @@ export default function (state, action) {
         download: {
           ...state.download,
           checkQueryRequestState: action.payload,
-        }
+        },
       };
 
     case STORE_CHECK_QUERY_SIZE_RESULT:
@@ -488,10 +505,9 @@ export default function (state, action) {
         download: {
           ...state.download,
           querySizeChecks: state.download.querySizeChecks
-                                .slice(-200) // keep cache size limited, fifo
-                                .concat(action.payload) // { queryString, result }
-
-        }
+            .slice(-200) // keep cache size limited, fifo
+            .concat(action.payload), // { queryString, result }
+        },
       };
 
     case CLEAR_FAILED_SIZE_CHECKS:
@@ -499,9 +515,10 @@ export default function (state, action) {
         ...state,
         download: {
           ...state.download,
-          querySizeChecks: state.download.querySizeChecks
-                                .filter((item) => !item.result.status === 500)
-        }
+          querySizeChecks: state.download.querySizeChecks.filter(
+            (item) => !item.result.status === 500,
+          ),
+        },
       };
 
     case FETCH_RECS_POPULAR_SEND:
@@ -522,7 +539,6 @@ export default function (state, action) {
         ...state,
         popularDatasetsRequestState: states.failed,
       };
-
 
     case FETCH_RECS_RECENT_SEND:
       return {
@@ -565,68 +581,68 @@ export default function (state, action) {
       };
 
     case FETCH_DATASET_NAMES_SUCCESS:
-    return {
-      ...state,
-      datasetNamesFullList: action.payload,
-      datasetNamesRequestStatus: states.succeeded,
-    };
-  case SET_DATASET_NAMES_REQUEST_STATUS:
-    return {
-      ...state,
-      datasetNamesRequestStatus: action.payload,
-    };
+      return {
+        ...state,
+        datasetNamesFullList: action.payload,
+        datasetNamesRequestStatus: states.succeeded,
+      };
+    case SET_DATASET_NAMES_REQUEST_STATUS:
+      return {
+        ...state,
+        datasetNamesRequestStatus: action.payload,
+      };
 
-  case FETCH_VAULT_LINK_SUCCESS:
-    return {
-      ...state,
-      download: {
-        ...state.download,
-        vaultLink: action.payload,
-        vaultLinkRequestStatus: states.succeeded,
-      }
-    }
+    case FETCH_VAULT_LINK_SUCCESS:
+      return {
+        ...state,
+        download: {
+          ...state.download,
+          vaultLink: action.payload,
+          vaultLinkRequestStatus: states.succeeded,
+        },
+      };
 
-  case SET_FETCH_VAULT_LINK_REQUEST_STATUS:
-    return {
-      ...state,
-      download: {
-        ...state.download,
-        vaultLinkRequestStatus: action.payload.status,
-        vaultLink: null, // for any status other than success, null vaultLink
-      }
-    }
+    case SET_FETCH_VAULT_LINK_REQUEST_STATUS:
+      return {
+        ...state,
+        download: {
+          ...state.download,
+          vaultLinkRequestStatus: action.payload.status,
+          vaultLink: null, // for any status other than success, null vaultLink
+        },
+      };
 
-  case DROPBOX_MODAL_OPEN:
-    return {
-      ...state,
-      download: {
-        ...state.download,
-        dropboxModalOpen: 'open',
-      },
-      downloadDialog: {
-        ...state.downloadDialog,
-        open: false, // when opening or closing dbx modal, ensure download dialog is closed
-      }
-    }
+    case DROPBOX_MODAL_OPEN:
+      return {
+        ...state,
+        download: {
+          ...state.download,
+          dropboxModalOpen: 'open',
+        },
+        downloadDialog: {
+          ...state.downloadDialog,
+          open: false, // when opening or closing dbx modal, ensure download dialog is closed
+        },
+      };
 
-case DROPBOX_MODAL_CLEANUP:
-    return {
-      ...state,
-      download: {
-        ...state.download,
-        dropboxModalOpen: 'cleanup',
-      },
-    }
+    case DROPBOX_MODAL_CLEANUP:
+      return {
+        ...state,
+        download: {
+          ...state.download,
+          dropboxModalOpen: 'cleanup',
+        },
+      };
 
-  case DROPBOX_MODAL_CLOSE:
-    return {
-      ...state,
-      download: {
-        ...state.download,
-        dropboxModalOpen: 'closed',
-      },
-    }
-  default:
-    return state;
+    case DROPBOX_MODAL_CLOSE:
+      return {
+        ...state,
+        download: {
+          ...state.download,
+          dropboxModalOpen: 'closed',
+        },
+      };
+    default:
+      return state;
   }
 }

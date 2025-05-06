@@ -19,7 +19,7 @@ import {
   googleLoginRequestSend,
   googleLoginRequestFailure,
   userLoginRequestSend,
-  loginDialogWasCleared
+  loginDialogWasCleared,
 } from '../../Redux/actions/user';
 
 import {
@@ -29,7 +29,7 @@ import {
 
 const useStyles = makeStyles(styles);
 
-const LoginForm = ({ title = "Login "}) => {
+const LoginForm = ({ title = 'Login ' }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
 
@@ -45,24 +45,24 @@ const LoginForm = ({ title = "Login "}) => {
   const handleLogin = () => dispatch(userLoginRequestSend(username, password));
 
   const handleGoogleLogin = (response) => {
-    dispatch (googleLoginRequestSend (
-      response.credential,
-      'login form',
-      false,
-    ));
+    dispatch(googleLoginRequestSend(response.credential, 'login form', false));
   };
 
   const handleGoogleFailure = (args) => {
-    console.log ('login failure', args);
-    dispatch (googleLoginRequestFailure ('There was a problem using Google to sign in. Ensure any browser extesnions that may interfere with network requests or storing cookies are disabled. If the problem persists please contact '));
-  }
+    console.log('login failure', args);
+    dispatch(
+      googleLoginRequestFailure(
+        'There was a problem using Google to sign in. Ensure any browser extesnions that may interfere with network requests or storing cookies are disabled. If the problem persists please contact ',
+      ),
+    );
+  };
 
   const handleClose = () => {
     setUsername('');
     setPassword('');
-    dispatch (hideLoginDialog())
-    dispatch (restoreInterfaceDefaults());
-    dispatch (loginDialogWasCleared());
+    dispatch(hideLoginDialog());
+    dispatch(restoreInterfaceDefaults());
+    dispatch(loginDialogWasCleared());
   };
 
   let displayUsernameHelperText = false;
@@ -75,22 +75,18 @@ const LoginForm = ({ title = "Login "}) => {
       {userLoginState === states.failed ? (
         <DialogContentText>
           <div className={classes.warningWrapper}>
-            <WarningRoundedIcon className={classes.warningIcon}/>
+            <WarningRoundedIcon className={classes.warningIcon} />
             <span> Login failed. Please try again.</span>
           </div>
-          </DialogContentText>
-        ) : (
-          ''
-        )}
+        </DialogContentText>
+      ) : (
+        ''
+      )}
       <div className={classes.titleBar}>
         <DialogTitle id="form-dialog-title">
           <span>{title}</span>
-
         </DialogTitle>
-        <Link
-          className={classes.closeLink}
-          onClick={handleClose}
-        >
+        <Link className={classes.closeLink} onClick={handleClose}>
           <span>Close</span>
           <CancelOutlinedIcon />
         </Link>
@@ -115,7 +111,13 @@ const LoginForm = ({ title = "Login "}) => {
               InputLabelProps={{
                 shrink: true,
               }}
-              helperText={displayUsernameHelperText && <span style={{ color: 'rgb(206, 209, 98)'}}>Please use your username, not your email address.</span>}
+              helperText={
+                displayUsernameHelperText && (
+                  <span style={{ color: 'rgb(206, 209, 98)' }}>
+                    Please use your username, not your email address.
+                  </span>
+                )
+              }
             />
 
             <TextField
@@ -162,7 +164,9 @@ const LoginForm = ({ title = "Login "}) => {
             Or login with your Google Account:
           </DialogContentText>
 
-          <DialogActions style={{ padding: '0 0 15px 0', flexDirection: 'column' }}>
+          <DialogActions
+            style={{ padding: '0 0 15px 0', flexDirection: 'column' }}
+          >
             <div className={classes.actionsContainerLeft}>
               <div className={classes.googleIconWrapper}>
                 <GoogleLogin
@@ -172,20 +176,23 @@ const LoginForm = ({ title = "Login "}) => {
               </div>
             </div>
           </DialogActions>
-
         </form>
-
       </DialogContent>
       <div className={classes.registerWrapper}>
-         <p><Link
+        <p>
+          <Link
             className={classes.colorCorrectionPrimary}
             onClick={handleClose}
             component={RouterLink}
             to={{ pathname: '/register' }}
-          >Register</Link>{' '}if you do not have a Simons CMAP account.</p>
+          >
+            Register
+          </Link>{' '}
+          if you do not have a Simons CMAP account.
+        </p>
       </div>
     </div>
   );
-}
+};
 
 export default LoginForm;

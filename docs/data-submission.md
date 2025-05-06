@@ -18,6 +18,7 @@ The Validator flow has the following steps
 4. Submission
 
 The components governing these steps are:
+
 - [Chooser](../src/Components/DataSubmission/Chooser.js)
 - [Step1](../src/Components/DataSubmission/ValidationToolStep1.js)
 - [Step2](../src/Components/DataSubmission/ValidationToolStep2.js)
@@ -33,10 +34,9 @@ A drag and drop area is provided for new uploads; this is implemented in the `Fi
 
 Restriction on the file type provided is handled first by the `input` element, which has `.xlsx` specified in its `accept` attribute. When a file is selected it is dispatched via `checkSubmissionOptionsAndStoreFile`, which is then handled in the saga of the same name in `/src/Redux/Sagas/index.js` (Note: this should be moved in with the `dataSubmission.js` sagas).
 
-
 ### 2. Validation
 
-When a submission file is selected or uploaded, the `ValidationTool` runs its *audit* (it detects the change in `componentDidUpdate`).
+When a submission file is selected or uploaded, the `ValidationTool` runs its _audit_ (it detects the change in `componentDidUpdate`).
 
 There are 3 separate parts of the audit: `auditCell`, `auditWorkbook` and `auditRows` are each methods on the `ValidationTool` class.
 
@@ -88,10 +88,10 @@ The `handleUploadSubmission` method creates a new XLSX workbook with the edited 
 The `uploadSubmission` saga in `/src/Redux/sagas/index.js` first checks to make sure that the audit report on the submission data is present and reports no errors; then it executes a final name check; thin it then implements the upload of a varying number of files: a new submission will upload both the validated file and the original raw file, both of which require an upload session id.
 
 The `uploadSubmission` saga proceeds in three parts:
+
 1. it creates an upload session for each file it is uploading, calling the `/api/datasubmission/beginuploadsession` API.
 2. it calls `uploadFileParts` on each of the files, which handles chunking the file data and sending them to the `/api/datasubmission/uploadfilepart` API in sequence; this generator function alse handles retries with a limit of 3. The API call requires the session id, the part data, and an offset -- so looping through the chunked data also needs to track the offset it bits. The default chunk size is `5 * 1024 * 1024`, but it can be overridden. The retry is not overly sophisticated; it waits 2 seconds between tries and does not employ exponential backoff.
 3. if the preceeding steps are successufl, the final step is committing the upload by calling `/api/datasubmission/commitupload`. This payload includes metadata about the submission, both the session ids and offsets so that the API can validate the commit, and semantic metadata such as the dataset name and submission type.
-
 
 ## Bugs
 

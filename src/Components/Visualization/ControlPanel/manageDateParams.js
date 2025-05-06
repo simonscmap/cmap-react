@@ -1,5 +1,5 @@
-import getTargetFeatures from "./getTargetFeatures";
-import leadingZero from "./leadingZero";
+import getTargetFeatures from './getTargetFeatures';
+import leadingZero from './leadingZero';
 import transformDateStringToMonth from './transformDateStringToMonth';
 
 /* manageDateParam
@@ -22,19 +22,19 @@ const manageDateParams = (currState, currProps) => {
       return {
         dt1: newDt1,
         dt2: newDt2,
-      }
+      };
     } else {
       return {
         dt1: `${leadingZero(currState.dt1)}-01-1900`,
         dt2: `${leadingZero(currState.dt2)}-01-1900`,
-      }
+      };
     }
   } else {
     return {
       dt1: currState.dt1,
       dt2: currState.dt2,
-    }
+    };
   }
-}
+};
 
 export default manageDateParams;

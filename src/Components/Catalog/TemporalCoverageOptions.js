@@ -1,15 +1,10 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core';
-import {
-  Typography,
-  TextField,
-  Grid,
-} from '@material-ui/core';
+import { Typography, TextField, Grid } from '@material-ui/core';
 // New Drop Down
 import { DropDownContainer } from '../UI/DropDown';
 
-
-const useStyles = makeStyles ((theme) => ({
+const useStyles = makeStyles((theme) => ({
   formControl: {
     width: '90%',
     marginBottom: '6px',
@@ -22,18 +17,13 @@ const useStyles = makeStyles ((theme) => ({
   inputRow: {
     marginTop: '1em',
   },
-}))
+}));
 
 export const TemporalCoverageOptions = (props) => {
-  const { timeStart, timeEnd, handleChangeSearchValue, } = props;
-  const classes = useStyles ();
+  const { timeStart, timeEnd, handleChangeSearchValue } = props;
+  const classes = useStyles();
   return (
-    <Grid
-      item
-      container
-      xs={12}
-      className={classes.searchPanelRow}
-    >
+    <Grid item container xs={12} className={classes.searchPanelRow}>
       <Grid item xs={12}>
         <TextField
           name="timeStart"
@@ -44,13 +34,13 @@ export const TemporalCoverageOptions = (props) => {
           InputLabelProps={{
             shrink: true,
             style: {
-              color: '#96CE57'
-            }
+              color: '#96CE57',
+            },
           }}
           value={timeStart}
           onChange={handleChangeSearchValue}
           inputProps={{
-            style: { fontSize: '16px' }
+            style: { fontSize: '16px' },
           }}
         />
       </Grid>
@@ -64,10 +54,10 @@ export const TemporalCoverageOptions = (props) => {
           type="date"
           InputLabelProps={{
             shrink: true,
-            style: { color: '#96CE57'}
+            style: { color: '#96CE57' },
           }}
           inputProps={{
-            style: { fontSize: '16px' }
+            style: { fontSize: '16px' },
           }}
           value={timeEnd}
           onChange={handleChangeSearchValue}

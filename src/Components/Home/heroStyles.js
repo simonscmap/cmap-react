@@ -12,7 +12,7 @@ const heroStyles = (theme) => ({
       textAlign: 'left',
       '& h6': {
         fontSize: '1.75em',
-      }
+      },
     },
   },
   arrangeLeftSideHeroContent: {
@@ -35,7 +35,7 @@ const heroStyles = (theme) => ({
       },
       [theme.breakpoints.down('xs')]: {
         // width: '60%',
-      }
+      },
     },
   },
   globe: {
@@ -44,12 +44,12 @@ const heroStyles = (theme) => ({
       width: '135%',
       marginTop: '-10%',
       [theme.breakpoints.down('sm')]: {
-        width: '125%'
+        width: '125%',
       },
       [theme.breakpoints.down('xs')]: {
         // marginTop: 0,
-        width: '135%'
-      }
+        width: '135%',
+      },
     },
   },
   tagline: {
@@ -62,9 +62,9 @@ const heroStyles = (theme) => ({
     [theme.breakpoints.down('xs')]: {
       textAlign: 'center',
       '& h2': {
-      fontSize: pxToRem[18],
+        fontSize: pxToRem[18],
+      },
     },
-    }
   },
 });
 

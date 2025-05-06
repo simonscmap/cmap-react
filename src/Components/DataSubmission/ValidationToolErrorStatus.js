@@ -1,13 +1,11 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Typography, Divider } from '@material-ui/core';
-import {
-  ErrorOutline,
-} from '@material-ui/icons';
+import { ErrorOutline } from '@material-ui/icons';
 import { auditKeyToLabel } from './ValidationToolConstants';
 import { makeStyles } from '@material-ui/core/styles';
 
-const useStyles = makeStyles ((theme) => ({
+const useStyles = makeStyles((theme) => ({
   statusArea: {
     color: 'white',
   },
@@ -20,11 +18,11 @@ const useStyles = makeStyles ((theme) => ({
     '& span': {
       display: 'inline-block',
       width: '200px',
-      fontSize: '.9em'
+      fontSize: '.9em',
     },
     '& p': {
       margin: 0,
-    }
+    },
   },
 }));
 
@@ -37,7 +35,7 @@ const errorOutlineStyle = {
 const IssueSummary = (props) => {
   const cl = useStyles();
   const { step } = props;
-  const auditReport = useSelector ((state) => state.auditReport);
+  const auditReport = useSelector((state) => state.auditReport);
   const errorCount = auditReport && auditReport.errorCount;
 
   if (step < 1) {
@@ -48,16 +46,23 @@ const IssueSummary = (props) => {
     return '';
   }
 
-  const noErrors = 0 === Object.keys(errorCount).reduce((acc, curr) => {
-    const count = errorCount[curr] || 0;
-    return acc + count;
-  }, 0);
+  const noErrors =
+    0 ===
+    Object.keys(errorCount).reduce((acc, curr) => {
+      const count = errorCount[curr] || 0;
+      return acc + count;
+    }, 0);
 
   if (noErrors) {
-    return ''
+    return '';
   }
 
-  const categories = ['workbook', 'data', 'dataset_meta_data', 'vars_meta_data'];
+  const categories = [
+    'workbook',
+    'data',
+    'dataset_meta_data',
+    'vars_meta_data',
+  ];
 
   return (
     <div className={cl.statusArea}>
@@ -69,9 +74,7 @@ const IssueSummary = (props) => {
           }
           return (
             <div key={`_${eKey},${i}`} className={cl.errorOverview}>
-              <span>
-                {auditKeyToLabel[eKey]}:
-              </span>
+              <span>{auditKeyToLabel[eKey]}:</span>
               <Typography variant="body2">
                 <ErrorOutline style={errorOutlineStyle} />
                 {errorCount[eKey]} errors

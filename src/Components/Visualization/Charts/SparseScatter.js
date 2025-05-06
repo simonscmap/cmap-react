@@ -47,10 +47,10 @@ const getHovertext = (data, scatterType) => {
           let time = times[i].slice(0, 20);
           time = typeof time === 'string' && time.replace('T', ' ');
           return `Time: ${time}<br>${parameters.fields}: ${format(formatter)(
-          value,
-        )} [${metadata.Unit}]`;
+            value,
+          )} [${metadata.Unit}]`;
         } else {
-          return `${format(formatter)(value)}[${metadata.Unit}]`
+          return `${format(formatter)(value)}[${metadata.Unit}]`;
         }
       });
   }

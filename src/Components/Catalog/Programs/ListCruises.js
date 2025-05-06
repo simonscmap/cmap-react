@@ -12,53 +12,45 @@ const getRows = (cruises) => {
     return [];
   } else {
     return Object.keys(cruises).map((k, i) => {
-      const {
-        Name,
-        Nickname,
-      } = cruises[k];
+      const { Name, Nickname } = cruises[k];
 
       const cells = [
         <TableCell key={`cell_${i}_name`}>
-          <RouterLink
-            to={{ pathname: `/catalog/cruises/${Name}`}}
-          >
+          <RouterLink to={{ pathname: `/catalog/cruises/${Name}` }}>
             {Name}
           </RouterLink>
         </TableCell>,
-        <TableCell key={`nick`}>{Nickname}</TableCell>
+        <TableCell key={`nick`}>{Nickname}</TableCell>,
       ];
 
-      return (
-        <CommonRow key={`common_row_${i}`} cells={cells} />
-      );
-    })
+      return <CommonRow key={`common_row_${i}`} cells={cells} />;
+    });
   }
-}
+};
 
 // return array of column header components
 const getColumns = () => {
   return [
     <TableCell key={`name`}>Name</TableCell>,
-    <TableCell key={`nick`}>Nickname</TableCell>
+    <TableCell key={`nick`}>Nickname</TableCell>,
   ];
 };
 
 const ListCruises = () => {
   // selectors
-  const selectProgramDetailsRequestStatus = (state) => state.programDetailsRequestStatus;
+  const selectProgramDetailsRequestStatus = (state) =>
+    state.programDetailsRequestStatus;
 
   // data
-  const program = useSelector ((state) => state.programDetails);
+  const program = useSelector((state) => state.programDetails);
 
-  const deps = [
-    selectProgramDetailsRequestStatus,
-  ];
+  const deps = [selectProgramDetailsRequestStatus];
 
   return (
     <Proto title={'Cruises'} deps={deps}>
       <CommonTable
         columns={program ? getColumns() : []}
-        rows={program ? getRows (program.cruises) : []}
+        rows={program ? getRows(program.cruises) : []}
       />
     </Proto>
   );

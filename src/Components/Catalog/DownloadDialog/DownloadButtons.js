@@ -1,10 +1,6 @@
 import React from 'react';
-import {
-  withStyles,
-  makeStyles,
-  Button,
-} from '@material-ui/core';
-import {  useDispatch } from 'react-redux';
+import { withStyles, makeStyles, Button } from '@material-ui/core';
+import { useDispatch } from 'react-redux';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import { downloadDialogOpen } from '../../../Redux/actions/ui';
 
@@ -27,10 +23,9 @@ const GreenButtonFilled = withStyles((theme) => ({
     '& span': {
       whiteSpace: 'nowrap',
     },
-    lineBreak: 'none'
+    lineBreak: 'none',
   },
 }))(Button);
-
 
 const useFilledStyles = makeStyles((theme) => ({
   buttonTextSpacer: {
@@ -45,24 +40,23 @@ const useFilledStyles = makeStyles((theme) => ({
 export const DownloadButtonFilled = (props) => {
   const { shortName, action, componentId = {} } = props;
   const cl = useFilledStyles();
-  const dispatch = useDispatch ();
+  const dispatch = useDispatch();
 
   const onClick = action
-        ? action
-        : () => {
-          dispatch (downloadDialogOpen (shortName))
-        }
+    ? action
+    : () => {
+        dispatch(downloadDialogOpen(shortName));
+      };
   return (
-    <div style={{ display: 'inline-block'}} {...componentId}>
+    <div style={{ display: 'inline-block' }} {...componentId}>
       <GreenButtonFilled onClick={onClick}>
         <div className={cl.buttonTextSpacer}>
-          <CloudDownloadIcon />{' '}
-          <span>Download</span>
+          <CloudDownloadIcon /> <span>Download</span>
         </div>
       </GreenButtonFilled>
     </div>
   );
-}
+};
 
 // Outlined Variant
 
@@ -83,7 +77,7 @@ const GreenButtonOutlined = withStyles((theme) => ({
     '& span': {
       whiteSpace: 'nowrap',
     },
-    lineBreak: 'none'
+    lineBreak: 'none',
   },
 }))(Button);
 
@@ -100,21 +94,20 @@ const useOutlinedStyles = makeStyles((theme) => ({
 export const DownloadButtonOutlined = (props) => {
   const { shortName, action } = props;
   const cl = useOutlinedStyles();
-  const dispatch = useDispatch ();
+  const dispatch = useDispatch();
 
   const onClick = action
-        ? action
-        : () => {
-          dispatch (downloadDialogOpen (shortName))
-        }
+    ? action
+    : () => {
+        dispatch(downloadDialogOpen(shortName));
+      };
   return (
-    <div style={{ display: 'inline-block'}}>
+    <div style={{ display: 'inline-block' }}>
       <GreenButtonOutlined onClick={onClick}>
         <div className={cl.buttonTextSpacer}>
-          <CloudDownloadIcon />{' '}
-          <span>Download</span>
+          <CloudDownloadIcon /> <span>Download</span>
         </div>
       </GreenButtonOutlined>
     </div>
   );
-}
+};

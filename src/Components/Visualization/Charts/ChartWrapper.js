@@ -12,7 +12,6 @@ import SpaceTimeChart from './SpaceTimeChart2';
 import SparseMap from './SparseMap';
 import TimeSeriesChart from './TimeSeriesChart2'; // TODO
 
-
 // determine what type of chart to render
 const getChartComponent = (chart) => {
   let storedProcedureName = chart.data.parameters.spName;
@@ -49,7 +48,6 @@ const getChartComponent = (chart) => {
 const ChartWrapper = ({ chart, index, classes }) => {
   let ChartComponent = getChartComponent(chart);
 
-
   // delegate render of chart to selected chart template
   return (
     <Paper elevation={12} className={classes.chartPaper} key={chart.id}>
@@ -61,7 +59,7 @@ const ChartWrapper = ({ chart, index, classes }) => {
 export const ChartWrapperWithoutPaper = ({ chart, overrides }) => {
   let ChartComponent = getChartComponent(chart);
 
-  return (<ChartComponent chart={chart} overrides={overrides} />)
+  return <ChartComponent chart={chart} overrides={overrides} />;
 };
 
-export default withStyles (chartsStyles) (ChartWrapper);
+export default withStyles(chartsStyles)(ChartWrapper);

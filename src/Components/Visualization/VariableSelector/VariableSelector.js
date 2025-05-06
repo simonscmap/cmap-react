@@ -47,7 +47,6 @@ import states from '../../../enums/asyncRequestStates';
 import colors from '../../../enums/colors';
 import z from '../../../enums/zIndex';
 
-
 const mapStateToProps = (state) => ({
   vizSearchResults: state.vizSearchResults,
   vizSearchResultsLoadingState: state.vizSearchResultsLoadingState,
@@ -219,7 +218,9 @@ class DataSearch extends React.Component {
                 onChange={this.handleChangeSearchValue}
                 placeholder="Search"
                 value={searchTerms}
-                ref={(input) => { input && input.focus() }}
+                ref={(input) => {
+                  input && input.focus();
+                }}
                 InputProps={{
                   classes: {
                     root: classes.inputRoot,

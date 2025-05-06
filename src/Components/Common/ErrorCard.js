@@ -25,7 +25,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default function ErrorCard (props) {
+export default function ErrorCard(props) {
   let { title, message, details } = props;
   const classes = useStyles();
 
@@ -33,21 +33,21 @@ export default function ErrorCard (props) {
     <Card className={classes.root} variant="outlined">
       <CardContent>
         <Typography variant="h5" component="h2" color="textSecondary">
-         { title || 'Error'}
+          {title || 'Error'}
         </Typography>
-      <Typography className={classes.pos} variant="body1">
-        { message || 'There was an error performing the current operation.'}
-      </Typography>
-    {details &&
-     <React.Fragment>
-         <Typography variant="h6" component="h3">
-            Details
-         </Typography>
-         <Typography variant="pre" component="p">
-           { details }
-         </Typography>
-      </React.Fragment>
-      }
+        <Typography className={classes.pos} variant="body1">
+          {message || 'There was an error performing the current operation.'}
+        </Typography>
+        {details && (
+          <React.Fragment>
+            <Typography variant="h6" component="h3">
+              Details
+            </Typography>
+            <Typography variant="pre" component="p">
+              {details}
+            </Typography>
+          </React.Fragment>
+        )}
       </CardContent>
     </Card>
   );

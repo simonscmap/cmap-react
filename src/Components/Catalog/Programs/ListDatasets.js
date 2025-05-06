@@ -43,24 +43,21 @@ const useVariableRowStyles = makeStyles((theme) => ({
       '& a': {
         color: theme.palette.primary.main,
         '&:visited': {
-          color: theme.palette.primary.main
-        }
+          color: theme.palette.primary.main,
+        },
       },
     },
-  },}));
+  },
+}));
 
 const VariableRow = (props) => {
   const { variable, selectedVariable, datasetId } = props;
-  const {
-    Short_Name: varShortName,
-    Unit,
-    ID: varId,
-  } = variable;
+  const { Short_Name: varShortName, Unit, ID: varId } = variable;
 
   const cl = useVariableRowStyles();
   const dispatch = useDispatch();
   const handleSelect = () => {
-    dispatch (selectProgramDatasetVariable ({ varShortName, varId, datasetId }));
+    dispatch(selectProgramDatasetVariable({ varShortName, varId, datasetId }));
   };
 
   const unitText = Unit ? `(${Unit})` : '';
@@ -68,20 +65,18 @@ const VariableRow = (props) => {
   const selected = varShortName === selectedVariable;
 
   return (
-      <TableRow className={cl.root} selected={selected} >
-        <TableCell padding="checkbox">
-            <Radio
-              checked={selected}
-              onChange={handleSelect}
-              name="radio-button"
-            />
-        </TableCell>
-        <TableCell className={cl.shortNameCell}>
-            <Typography noWrap={true}>{varShortName} {unitText}</Typography>
-        </TableCell>
-      </TableRow>
+    <TableRow className={cl.root} selected={selected}>
+      <TableCell padding="checkbox">
+        <Radio checked={selected} onChange={handleSelect} name="radio-button" />
+      </TableCell>
+      <TableCell className={cl.shortNameCell}>
+        <Typography noWrap={true}>
+          {varShortName} {unitText}
+        </Typography>
+      </TableCell>
+    </TableRow>
   );
-}
+};
 
 /*~~~~~~~~~~~~  Dataset Row  ~~~~~~~~~~~~~~~*/
 const useRowStyles = makeStyles((theme) => ({
@@ -97,8 +92,8 @@ const useRowStyles = makeStyles((theme) => ({
       '& a': {
         color: theme.palette.primary.main,
         '&:visited': {
-          color: theme.palette.primary.main
-        }
+          color: theme.palette.primary.main,
+        },
       },
     },
   },
@@ -120,32 +115,32 @@ const useRowStyles = makeStyles((theme) => ({
 
 const DatasetRow = (props) => {
   const { dataset, selected } = props;
-  const {
-    Dataset_Name: shortName,
-    Data_Source,
-    ID: datasetId,
-  } = dataset;
+  const { Dataset_Name: shortName, Data_Source, ID: datasetId } = dataset;
 
   const cl = useRowStyles();
   const dispatch = useDispatch();
   const handleSelect = () => {
-    dispatch (selectProgramDataset ({ shortName, datasetId }));
+    dispatch(selectProgramDataset({ shortName, datasetId }));
   };
 
   // const highlight = dataset.cruises.includes(at);
   const isSelected = shortName === selected;
 
-  const rowClasses = [ cl.root ];
+  const rowClasses = [cl.root];
   // if (highlight) {
   //  rowClasses.push (cl.highlight);
   // }
   if (isSelected) {
-    rowClasses.push (cl.selected);
+    rowClasses.push(cl.selected);
   }
 
   return (
     <React.Fragment>
-      <TableRow className={rowClasses.join(' ')} selected={isSelected} stickyHeader={isSelected}>
+      <TableRow
+        className={rowClasses.join(' ')}
+        selected={isSelected}
+        stickyHeader={isSelected}
+      >
         <TableCell padding="checkbox" className={cl.checkBox}>
           <Radio
             checked={shortName === selected}
@@ -156,7 +151,7 @@ const DatasetRow = (props) => {
         <TableCell className={cl.shortNameCell}>
           <div className={cl.shortNameContainer}>
             <Typography noWrap={true}>{shortName}</Typography>
-            <RouterLink to={{pathname: `/catalog/datasets/${shortName}`}}>
+            <RouterLink to={{ pathname: `/catalog/datasets/${shortName}` }}>
               <OpenInNewIcon />
             </RouterLink>
           </div>
@@ -167,10 +162,10 @@ const DatasetRow = (props) => {
       </TableRow>
     </React.Fragment>
   );
-}
+};
 
 /*~~~~~~~~~~~~~~ List ~~~~~~~~~~~~~~~~~~~~*/
-const useStyles = makeStyles ((theme) => ({
+const useStyles = makeStyles((theme) => ({
   container: {
     height: '700px',
     width: '100%',
@@ -200,7 +195,8 @@ const useStyles = makeStyles ((theme) => ({
     position: 'relative',
   },
 
-  datatsetHeaders: { // table container
+  datatsetHeaders: {
+    // table container
     width: '100%',
   },
   variableHeaders: {
@@ -216,23 +212,24 @@ const useStyles = makeStyles ((theme) => ({
     display: 'flex',
     flexDirection: 'column',
   },
-  root: { // table header
+  root: {
+    // table header
     tableLayout: 'fixed',
     '& .MuiTableCell-stickyHeader': {
       backgroundColor: 'rgba(30, 67, 113, 1)',
     },
     '& .MuiTableCell-root': {
       borderBottom: 'unset',
-    }
+    },
   },
   fullHeightWrapper: {
     flexGrow: 1,
   },
-  datasetTable: {  },
+  datasetTable: {},
   hasSelected: {
     marginTop: '40px',
   },
-  variablesTable: { },
+  variablesTable: {},
 
   // cell styles
   checkBoxHeader: {
@@ -254,10 +251,10 @@ const useStyles = makeStyles ((theme) => ({
     },
     '& .MuiRadio-root': {
       padding: '5px',
-    }
+    },
   },
   dummyCheckBoxHeader: {
-    width: '36px'
+    width: '36px',
   },
   nameHeader: {
     width: 'calc(50% - 20px)',
@@ -282,8 +279,8 @@ const useStyles = makeStyles ((theme) => ({
     '& a': {
       color: theme.palette.primary.main,
       '&:visited': {
-          color: theme.palette.primary.main
-      }
+        color: theme.palette.primary.main,
+      },
     },
     '& svg': {
       fontSize: '0.9em',
@@ -313,16 +310,16 @@ const useStyles = makeStyles ((theme) => ({
     transition: 'all 0.5s ease',
     borderRadius: '5px',
     '& svg': {
-      paddingRight: '10px'
+      paddingRight: '10px',
     },
     '& .MuiOutlinedInput-input': {
       border: 'none',
     },
     '& .MuiOutlinedInput-notchedOutline': {
       border: 0,
-    }
+    },
   },
-  searchActive:{
+  searchActive: {
     width: 'calc(100% - 10px)',
     borderRadius: '5px',
     background: 'rgba(0,0,0,0.3)',
@@ -336,10 +333,9 @@ const useStyles = makeStyles ((theme) => ({
     },
     '& .MuiFormControl-root': {
       flexGrow: 3,
-    }
+    },
   },
-  inputRoot: {
-  },
+  inputRoot: {},
   selectVarInstruction: {
     margin: '.5em 0',
     padding: '.5em',
@@ -349,12 +345,12 @@ const useStyles = makeStyles ((theme) => ({
     margin: '.5em 0',
     padding: '.5em',
     border: '2px solid #d16265',
-  }
+  },
 }));
 
-const stringOrEmpty = (x) => typeof x === 'string' ? x : '';
+const stringOrEmpty = (x) => (typeof x === 'string' ? x : '');
 const alphabetizeBy = (prop) => (list) => {
-  return list.sort ((a_ = '', b_ = '') => {
+  return list.sort((a_ = '', b_ = '') => {
     let a = stringOrEmpty(a_[prop]).toLowerCase();
     let b = stringOrEmpty(b_[prop]).toLowerCase();
     if (a > b) {
@@ -366,20 +362,24 @@ const alphabetizeBy = (prop) => (list) => {
     if (a === b) {
       return 0;
     }
-  })
-}
+  });
+};
 
 const DatasetControls = (props) => {
   const { datasets, at } = props;
 
   const cl = useStyles();
-  const selectedShortName = useSelector (selectedProgramDatasetShortNameSelector);
-  const selectedVariableShortName = useSelector (selectedProgramDatasetVariableShortNameSelector);
+  const selectedShortName = useSelector(
+    selectedProgramDatasetShortNameSelector,
+  );
+  const selectedVariableShortName = useSelector(
+    selectedProgramDatasetVariableShortNameSelector,
+  );
 
   // const selectedVariableData = useSelector (selectedVariableDataSelector);
 
-  const selectedDataset = datasets && datasets.find (d => d.Dataset_Name === selectedShortName);
-
+  const selectedDataset =
+    datasets && datasets.find((d) => d.Dataset_Name === selectedShortName);
 
   // Dataset Search
   const dsRef = useRef();
@@ -388,24 +388,25 @@ const DatasetControls = (props) => {
   let [datasetSearchActive, setDatasetSearchActive] = useState(false);
 
   const datasetSearchChange = (x) => {
-    if (typeof safePath(['target','value'])(x) !== 'string') {
+    if (typeof safePath(['target', 'value'])(x) !== 'string') {
       return;
     }
     const newSearchTerm = x.target.value.trim().toLowerCase();
     if (newSearchTerm !== datasetSearchTerm) {
-      setDatasetSearchTerm (newSearchTerm);
+      setDatasetSearchTerm(newSearchTerm);
     }
-  }
+  };
 
   useEffect(() => {
-    if (!datasetSearchTerm  || datasetSearchTerm === '') {
-      setFilteredDatasets (datasets);
+    if (!datasetSearchTerm || datasetSearchTerm === '') {
+      setFilteredDatasets(datasets);
     } else if (datasets) {
-      const filtered = datasets.filter (({Dataset_Name, Data_Source}) => {
-        const subject = (`${Dataset_Name || ''}${Data_Source || ''}`).toLowerCase();
+      const filtered = datasets.filter(({ Dataset_Name, Data_Source }) => {
+        const subject =
+          `${Dataset_Name || ''}${Data_Source || ''}`.toLowerCase();
         return subject.includes(datasetSearchTerm);
       });
-      setFilteredDatasets (filtered);
+      setFilteredDatasets(filtered);
     }
   }, [datasetSearchTerm]);
 
@@ -414,143 +415,196 @@ const DatasetControls = (props) => {
     if (!datasetSearchActive) {
       dsRef && dsRef.current && dsRef.current.focus && dsRef.current.focus();
     }
-    setDatasetSearchActive (!datasetSearchActive);
-    setDatasetSearchTerm (''); // clear search when closed1
-  }
+    setDatasetSearchActive(!datasetSearchActive);
+    setDatasetSearchTerm(''); // clear search when closed1
+  };
 
   // Variable Search
 
   const vsRef = useRef();
   let [filteredVariables, setFilteredVariables] = useState(null);
-  let [searchTerm, setSearchTerm] = useState ('');
+  let [searchTerm, setSearchTerm] = useState('');
   let [variableSearchActive, setVariableSearchActive] = useState(false);
 
   useEffect(() => {
-    const variables = safePath (['visualizableVariables','variables']) (selectedDataset);
+    const variables = safePath(['visualizableVariables', 'variables'])(
+      selectedDataset,
+    );
     if (variables) {
-      const filtered = variables.filter (({Short_Name, Unit}) => {
-        const subject = (`${Short_Name || ''}${Unit || ''}`).toLowerCase();
+      const filtered = variables.filter(({ Short_Name, Unit }) => {
+        const subject = `${Short_Name || ''}${Unit || ''}`.toLowerCase();
         return subject.includes(searchTerm);
       });
-      setFilteredVariables (filtered);
+      setFilteredVariables(filtered);
     }
   }, [searchTerm, selectedDataset]);
 
   const variableSearchChange = (x) => {
-    if (typeof safePath(['target','value'])(x) !== 'string') {
+    if (typeof safePath(['target', 'value'])(x) !== 'string') {
       return;
     }
     const newSearchTerm = x.target.value.trim().toLowerCase();
     if (newSearchTerm !== searchTerm) {
-      setSearchTerm (newSearchTerm);
+      setSearchTerm(newSearchTerm);
     }
-  }
+  };
 
   const handleVarSearchOpenClose = (e) => {
     e.preventDefault();
     if (!variableSearchActive) {
       vsRef && vsRef.current && vsRef.current.focus && vsRef.current.focus();
     }
-    setVariableSearchActive (!variableSearchActive);
-    setSearchTerm (''); // clear search when it is closed
-  }
+    setVariableSearchActive(!variableSearchActive);
+    setSearchTerm(''); // clear search when it is closed
+  };
 
-  const shouldShowSelectInstruction = !selectedVariableShortName
-                                   && (filteredVariables && filteredVariables.length != 0);
+  const shouldShowSelectInstruction =
+    !selectedVariableShortName &&
+    filteredVariables &&
+    filteredVariables.length != 0;
 
-  const shouldShowNoVariablesInfo = !searchTerm && filteredVariables && filteredVariables.length === 0;
-
-
+  const shouldShowNoVariablesInfo =
+    !searchTerm && filteredVariables && filteredVariables.length === 0;
 
   // render
 
   return (
-      <div className={cl.container}>
-        <div className={cl.datasetListContainer}>
-          {/* Dataset Column Headers */}
-          <TableContainer component={Paper} className={cl.datasetHeaders} >
-            <Table aria-label="collapsible table" stickyHeader className={`${cl.root} ${cl.datasetTable}`}>
-              <TableHead>
-                <TableRow>
-                  <TableCell className={cl.checkBoxHeader}/>
-                  <TableCell className={cl.nameHeader}>Dataset Name</TableCell>
-                  <TableCell className={cl.sourceHeader}>Source</TableCell>
-                </TableRow>
-              </TableHead>
-            </Table>
-          </TableContainer>
-          <div className={`${cl.searchContainer} ${(datasetSearchActive && cl.searchActive)}`}>
-            <TextField
-              inputRef={dsRef}
-              name="searchTerms"
-              onChange={datasetSearchChange}
-              placeholder="Search Dataset Name or Source"
-              InputProps={{
-                classes: {
-                  root: cl.inputRoot,
-                }
-              }}
-              variant="outlined"
+    <div className={cl.container}>
+      <div className={cl.datasetListContainer}>
+        {/* Dataset Column Headers */}
+        <TableContainer component={Paper} className={cl.datasetHeaders}>
+          <Table
+            aria-label="collapsible table"
+            stickyHeader
+            className={`${cl.root} ${cl.datasetTable}`}
+          >
+            <TableHead>
+              <TableRow>
+                <TableCell className={cl.checkBoxHeader} />
+                <TableCell className={cl.nameHeader}>Dataset Name</TableCell>
+                <TableCell className={cl.sourceHeader}>Source</TableCell>
+              </TableRow>
+            </TableHead>
+          </Table>
+        </TableContainer>
+        <div
+          className={`${cl.searchContainer} ${datasetSearchActive && cl.searchActive}`}
+        >
+          <TextField
+            inputRef={dsRef}
+            name="searchTerms"
+            onChange={datasetSearchChange}
+            placeholder="Search Dataset Name or Source"
+            InputProps={{
+              classes: {
+                root: cl.inputRoot,
+              },
+            }}
+            variant="outlined"
+          />
+          {datasetSearchActive ? (
+            <ClearIcon
+              style={{ color: 'white', cursor: 'pointer' }}
+              onClick={handleSearchOpenClose}
             />
-            {datasetSearchActive
-             ? <ClearIcon style={{ color: 'white', cursor: 'pointer' }} onClick={handleSearchOpenClose} />
-             : <SearchIcon style={{ color: 'white', cursor: 'pointer' }} onClick={handleSearchOpenClose} />
-            }
-          </div>
-          {/* Dataset List with Sticky Selected Row */}
-          <TableContainer component={Paper} className={cl.tableContainer} >
-            <Table aria-label="collapsible table" stickyHeader className={`${cl.root} ${cl.datasetTable}`}>
-              <TableBody>
-                {filteredDatasets && alphabetizeBy ('Dataset_Name') (filteredDatasets)
-                  .map((k, i) => (
+          ) : (
+            <SearchIcon
+              style={{ color: 'white', cursor: 'pointer' }}
+              onClick={handleSearchOpenClose}
+            />
+          )}
+        </div>
+        {/* Dataset List with Sticky Selected Row */}
+        <TableContainer component={Paper} className={cl.tableContainer}>
+          <Table
+            aria-label="collapsible table"
+            stickyHeader
+            className={`${cl.root} ${cl.datasetTable}`}
+          >
+            <TableBody>
+              {filteredDatasets &&
+                alphabetizeBy('Dataset_Name')(filteredDatasets).map((k, i) => (
                   <DatasetRow
                     key={`program_dataset_row${i}`}
                     dataset={k}
                     at={at}
-                    selected={selectedShortName} />
+                    selected={selectedShortName}
+                  />
                 ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </div>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </div>
 
-        <div className={cl.datasetVariablesListContainer}>
-          {/* Variables Column Headers */}
-          <TableContainer component={Paper} className={cl.variableHeaders}>
-            <Table aria-label="collapsible table" stickyHeader className={`${cl.root} ${cl.variablesTable}`}>
-              <TableHead>
-                <TableRow>
-                  <TableCell className={cl.checkBoxHeader}/>
-                  <TableCell className={cl.nameHeader}>Variable Name</TableCell>
-                </TableRow>
-              </TableHead>
-            </Table>
-          </TableContainer>
-          <div className={`${cl.searchContainer} ${(variableSearchActive && cl.searchActive)}`}>
-            <TextField
-              inputRef={vsRef}
-              name="searchTerms"
-              onChange={variableSearchChange}
-              placeholder="Search Variable Name"
-              InputProps={{
-                classes: {
-                  root: cl.inputRoot,
-                }
-              }}
-              variant="outlined"
+      <div className={cl.datasetVariablesListContainer}>
+        {/* Variables Column Headers */}
+        <TableContainer component={Paper} className={cl.variableHeaders}>
+          <Table
+            aria-label="collapsible table"
+            stickyHeader
+            className={`${cl.root} ${cl.variablesTable}`}
+          >
+            <TableHead>
+              <TableRow>
+                <TableCell className={cl.checkBoxHeader} />
+                <TableCell className={cl.nameHeader}>Variable Name</TableCell>
+              </TableRow>
+            </TableHead>
+          </Table>
+        </TableContainer>
+        <div
+          className={`${cl.searchContainer} ${variableSearchActive && cl.searchActive}`}
+        >
+          <TextField
+            inputRef={vsRef}
+            name="searchTerms"
+            onChange={variableSearchChange}
+            placeholder="Search Variable Name"
+            InputProps={{
+              classes: {
+                root: cl.inputRoot,
+              },
+            }}
+            variant="outlined"
+          />
+          {variableSearchActive ? (
+            <ClearIcon
+              style={{ color: 'white', cursor: 'pointer' }}
+              onClick={handleVarSearchOpenClose}
             />
-            {variableSearchActive
-             ? <ClearIcon style={{ color: 'white', cursor: 'pointer' }} onClick={handleVarSearchOpenClose} />
-             : <SearchIcon style={{ color: 'white', cursor: 'pointer' }} onClick={handleVarSearchOpenClose} />
-            }
-          </div>
-          {shouldShowSelectInstruction  && <Grow in={!selectedVariableShortName}><Paper className={cl.selectVarInstruction}>{'Select a variable'}</Paper></Grow>}
-          {shouldShowNoVariablesInfo && <Grow in={shouldShowNoVariablesInfo}><Paper className={cl.noVarsIndicator}>{'This dataset has no visualizable variables.'}</Paper></Grow>}
-          {/* Variable List with Stick Selected Row */}
-          <TableContainer component={Paper} className={cl.adjustibleTableContainer}>
-            <Table aria-label="collapsible table" className={`${cl.root} ${cl.variablesTable}`}>
-              <TableBody>
-                {filteredVariables && alphabetizeBy ('Short_Name') (filteredVariables).map((k, i) => (
+          ) : (
+            <SearchIcon
+              style={{ color: 'white', cursor: 'pointer' }}
+              onClick={handleVarSearchOpenClose}
+            />
+          )}
+        </div>
+        {shouldShowSelectInstruction && (
+          <Grow in={!selectedVariableShortName}>
+            <Paper className={cl.selectVarInstruction}>
+              {'Select a variable'}
+            </Paper>
+          </Grow>
+        )}
+        {shouldShowNoVariablesInfo && (
+          <Grow in={shouldShowNoVariablesInfo}>
+            <Paper className={cl.noVarsIndicator}>
+              {'This dataset has no visualizable variables.'}
+            </Paper>
+          </Grow>
+        )}
+        {/* Variable List with Stick Selected Row */}
+        <TableContainer
+          component={Paper}
+          className={cl.adjustibleTableContainer}
+        >
+          <Table
+            aria-label="collapsible table"
+            className={`${cl.root} ${cl.variablesTable}`}
+          >
+            <TableBody>
+              {filteredVariables &&
+                alphabetizeBy('Short_Name')(filteredVariables).map((k, i) => (
                   <VariableRow
                     key={`program_dataset_var_row${i}`}
                     variable={k}
@@ -558,30 +612,28 @@ const DatasetControls = (props) => {
                     datasetId={selectedDataset && selectedDataset.ID}
                   />
                 ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </div>
+            </TableBody>
+          </Table>
+        </TableContainer>
       </div>
-    );
+    </div>
+  );
 };
 
 // List Datasets in Program
 const DatasetList = () => {
   // selectors
-  const selectProgramDetailsRequestStatus = (state) => state.programDetailsRequestStatus;
+  const selectProgramDetailsRequestStatus = (state) =>
+    state.programDetailsRequestStatus;
 
   // data
-  const program = useSelector ((state) => state.programDetails);
-  const AT = useSelector (activeTrajectorySelector)
+  const program = useSelector((state) => state.programDetails);
+  const AT = useSelector(activeTrajectorySelector);
 
-  const deps = [
-    selectProgramDetailsRequestStatus,
-  ];
+  const deps = [selectProgramDetailsRequestStatus];
 
-  let datasets = (program && program.datasets)
-               ? Object.values(program.datasets)
-               : [];
+  let datasets =
+    program && program.datasets ? Object.values(program.datasets) : [];
 
   /* if (AT && AT.cruiseId && datasets) {
    *   const pred = (dataset_) => {
@@ -597,7 +649,7 @@ const DatasetList = () => {
 
   return (
     <Proto title={'Program Datasets'} deps={deps}>
-      <DatasetControls datasets={datasets} at={AT && AT.cruiseId}/>
+      <DatasetControls datasets={datasets} at={AT && AT.cruiseId} />
     </Proto>
   );
 };

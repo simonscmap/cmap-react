@@ -18,7 +18,7 @@ const useWarningStyles = makeStyles(() => ({
     right: '1em',
     '& svg': {
       fontSize: '2.5em',
-    }
+    },
   },
   icon: {
     color: '#ffe500',
@@ -39,31 +39,36 @@ const useWarningStyles = makeStyles(() => ({
     justifyContent: 'center',
     gap: '2em',
     cursor: 'pointer',
-    padding: '2em'
+    padding: '2em',
   },
   hide: {
     display: 'none',
-  }
+  },
 }));
 
 const Warning = (props) => {
   const cl = useWarningStyles();
   let [open, setOpen] = useState(false);
 
-
   return (
     <React.Fragment>
       <div className={cl.handle}>
         <WarningRoundedIcon className={cl.icon} onClick={() => setOpen(true)} />
       </div>
-      <div className={`${cl.overlay} ${open ? '' : cl.hide}`} onClick={() => setOpen(false)}>
-        <Typography variant="h5">{'The trajectories rendered here are based on data that has been downsampled and are presented as illustrations, not as references.'}</Typography>
+      <div
+        className={`${cl.overlay} ${open ? '' : cl.hide}`}
+        onClick={() => setOpen(false)}
+      >
+        <Typography variant="h5">
+          {
+            'The trajectories rendered here are based on data that has been downsampled and are presented as illustrations, not as references.'
+          }
+        </Typography>
         <Typography variant="body1">{'(Click to Close)'}</Typography>
       </div>
     </React.Fragment>
   );
 };
-
 
 const styles = (theme) => ({
   container: {
@@ -74,7 +79,8 @@ const styles = (theme) => ({
     margin: '0 auto 0 auto',
     borderRadius: '5px',
     overflow: 'hidden',
-    boxShadow: '0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12)'
+    boxShadow:
+      '0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12)',
   },
 });
 
@@ -89,7 +95,7 @@ class GlobeScene extends Component {
     this.uiRef = props.globeUIRef;
   }
 
-  render () {
+  render() {
     const {
       classes,
       esriModules,
@@ -110,7 +116,7 @@ class GlobeScene extends Component {
         <Scene
           mapProperties={{
             basemap: 'satellite',
-            layers: [this.regionLayer, this.trajectoryLayer]
+            layers: [this.regionLayer, this.trajectoryLayer],
           }}
           viewProperties={{
             center: [-140, 30],
@@ -121,7 +127,6 @@ class GlobeScene extends Component {
               fillOpacity: 0,
               color: 'rgba(0, 0, 0, 0)',
             },
-
           }}
         >
           <UIComponents
@@ -132,7 +137,10 @@ class GlobeScene extends Component {
             }
             ref={globeUIRef}
           />
-          <Zoom view={view} activeTrajectorySelector={activeTrajectorySelector} />
+          <Zoom
+            view={view}
+            activeTrajectorySelector={activeTrajectorySelector}
+          />
           <TrajectoryControls
             trajectoryLayer={this.trajectoryLayer}
             esriModules={esriModules}
@@ -143,10 +151,7 @@ class GlobeScene extends Component {
           />
         </Scene>
 
-        <Legend
-          cruiseSelector={cruiseSelector}
-          onFocus={onCruiseFocus}
-        />
+        <Legend cruiseSelector={cruiseSelector} onFocus={onCruiseFocus} />
 
         {downSampleWarning && <Warning />}
       </div>
@@ -154,4 +159,4 @@ class GlobeScene extends Component {
   }
 }
 
-export default withStyles(styles) (GlobeScene);
+export default withStyles(styles)(GlobeScene);

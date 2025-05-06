@@ -9,7 +9,8 @@ const Content = () => {
   return (
     <div className={cl.container}>
       <Typography>
-        You can reach the Simons CMAP data curation team at <Link href="mailto:simonscmap@uw.edu">simonscmap@uw.edu</Link>.
+        You can reach the Simons CMAP data curation team at{' '}
+        <Link href="mailto:simonscmap@uw.edu">simonscmap@uw.edu</Link>.
       </Typography>
     </div>
   );

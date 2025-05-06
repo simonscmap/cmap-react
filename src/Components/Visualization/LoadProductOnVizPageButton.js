@@ -25,8 +25,7 @@ const styles = (theme) => ({
 });
 
 const LoadProductOnVizPageButton = (props) => {
-  const { product, classes, vizPageDataTargetSet, history } =
-    props;
+  const { product, classes, vizPageDataTargetSet, history } = props;
 
   const handleButtonClick = () => {
     vizPageDataTargetSet(product);

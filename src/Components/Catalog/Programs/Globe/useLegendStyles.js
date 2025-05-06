@@ -8,7 +8,7 @@ const useStyles = makeStyles((theme) => ({
     top: '20px',
     left: '20px',
     color: 'white',
-    '& h6': { }
+    '& h6': {},
   },
   wrapper: {
     display: 'flex',
@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme) => ({
     alignContent: 'flex-start',
     alignItems: 'flex-start',
     '& .MuiPaper-root': {
-      backgroundColor: 'transparent'
+      backgroundColor: 'transparent',
     },
     minHeight: '100px',
     maxHeight: '455px',
@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'space-between',
     gap: '1em',
     width: '245px',
-    margin: '.3em 0'
+    margin: '.3em 0',
   },
   swatch: {
     height: '1em',
@@ -64,7 +64,7 @@ const useStyles = makeStyles((theme) => ({
     },
     '& > div': {
       margin: 0,
-    }
+    },
   },
   detailsContainer: {
     display: 'flex',
@@ -79,14 +79,14 @@ const useStyles = makeStyles((theme) => ({
       },
       '&:hover': {
         color: 'white',
-      }
+      },
     },
     '& p': {
       margin: 0,
     },
     '& > div': {
       margin: 0,
-    }
+    },
   },
   zoomIcon: {
     width: '100%',
@@ -95,7 +95,7 @@ const useStyles = makeStyles((theme) => ({
       fontSize: '1.1em',
       // marginBottom: '-3px'
       margin: '0 5px',
-    }
+    },
   },
   openPageIcon: {
     // color: colors.primary,
@@ -107,7 +107,7 @@ const useStyles = makeStyles((theme) => ({
       marginLeft: '5px',
       fontSize: '1.1em',
       cursor: 'pointer',
-    }
+    },
   },
   summaryFirstGroup: {
     width: '120px',
@@ -120,7 +120,7 @@ const useStyles = makeStyles((theme) => ({
   nick: {
     width: '93px',
     fontSize: '.9em',
-    overflow:'hidden',
+    overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
     fontStyle: 'italic',
@@ -130,7 +130,7 @@ const useStyles = makeStyles((theme) => ({
     '& > svg': {
       fontSize: '.9em',
       color: '#9dd162',
-    }
+    },
   },
 }));
 

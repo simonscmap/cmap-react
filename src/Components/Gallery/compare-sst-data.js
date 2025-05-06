@@ -49,8 +49,13 @@ const styles = () => ({
   },
 });
 
-const Credit = withStyles(styles)(({ classes, children}) => {
-  return (<div><Typography variant="h6">Credit</Typography>{children}</div>);
+const Credit = withStyles(styles)(({ classes, children }) => {
+  return (
+    <div>
+      <Typography variant="h6">Credit</Typography>
+      {children}
+    </div>
+  );
 });
 
 const HeroContent = withStyles(styles)(({ classes }) => {
@@ -72,11 +77,15 @@ const HeroContent = withStyles(styles)(({ classes }) => {
       </Typography>
       <Banner variant="blue">
         <Split items={[level, activityType, resourceLinks]}></Split>
-    </Banner>
-    <Credit>
-    <Typography variant="body2">Sasha Seroy, Univerity of Washington</Typography>
-    <Typography variant="body2">Tansy Clay Burns, University of Washington</Typography>
-    </Credit>
+      </Banner>
+      <Credit>
+        <Typography variant="body2">
+          Sasha Seroy, Univerity of Washington
+        </Typography>
+        <Typography variant="body2">
+          Tansy Clay Burns, University of Washington
+        </Typography>
+      </Credit>
     </div>
   );
 });

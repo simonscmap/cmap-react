@@ -71,11 +71,10 @@ const styles = (theme) => ({
     marginTop: '1em',
     maxHeight: '200px',
     overflowY: 'scroll',
-
   },
   spacer: {
-    height: '100px'
-  }
+    height: '100px',
+  },
 });
 
 const Dashboard = (props) => {
@@ -96,8 +95,8 @@ const Dashboard = (props) => {
 
   useEffect(() => {
     // do this once
-    dispatch (requestNewsList ());
-    dispatch (fetchDatasetNames ());
+    dispatch(requestNewsList());
+    dispatch(fetchDatasetNames());
   }, []);
 
   const [guideOpen, setGuideOpen] = useState(false);
@@ -110,11 +109,18 @@ const Dashboard = (props) => {
   return (
     <ThemeProvider theme={homeTheme}>
       <div className={classes.pageContainer}>
-        <FullWidthContainer bgVariant={'slate2'} minWidth={950} paddingTop={150}>
+        <FullWidthContainer
+          bgVariant={'slate2'}
+          minWidth={950}
+          paddingTop={150}
+        >
           <div className={classes.split}>
             <div className={classes.primary}>
-              <SectionTitle title={"News Admin"} />
-              <Accordion expanded={previewOpen} onChange={() => setPreviewOpen(!previewOpen)}>
+              <SectionTitle title={'News Admin'} />
+              <Accordion
+                expanded={previewOpen}
+                onChange={() => setPreviewOpen(!previewOpen)}
+              >
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                   Expand to See News Preview
                 </AccordionSummary>
@@ -129,19 +135,20 @@ const Dashboard = (props) => {
               <Button
                 className={classes.guideBttn}
                 variant="outlined"
-                onClick={() => setGuideOpen(true)}>
+                onClick={() => setGuideOpen(true)}
+              >
                 Open Usage Guide
               </Button>
 
               <Typography variant="h3">Event Log</Typography>
               <div className={classes.messages}>
                 {messages.length
-                 ? messages.map((msg, i) => (
-                   <Typography key={i} variant="body2">
-                     {msg}
-                   </Typography>
-                 ))
-                 : 'No messages.'}
+                  ? messages.map((msg, i) => (
+                      <Typography key={i} variant="body2">
+                        {msg}
+                      </Typography>
+                    ))
+                  : 'No messages.'}
               </div>
             </div>
           </div>

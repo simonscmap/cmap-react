@@ -1,6 +1,6 @@
 function getCharCodeFromEvent(event) {
   event = event || window.event;
-  return (typeof event.which == "undefined") ? event.keyCode : event.which;
+  return typeof event.which == 'undefined' ? event.keyCode : event.which;
 }
 
 function isCharNumeric(charStr) {
@@ -36,21 +36,20 @@ NumericCellEditor.prototype.init = function (params) {
       if (event.preventDefault) {
         event.preventDefault();
       }
-    } else if (that.isKeyPressedNavigation(event)){
+    } else if (that.isKeyPressedNavigation(event)) {
       event.stopPropagation();
     }
   });
 
   // only start edit if key pressed is a number, not a letter
-  const charPressIsNotANumber = params.charPress && ('1234567890'.indexOf(params.charPress) < 0);
+  const charPressIsNotANumber =
+    params.charPress && '1234567890'.indexOf(params.charPress) < 0;
   this.cancelBeforeStart = charPressIsNotANumber;
 };
 
-NumericCellEditor.prototype.isKeyPressedNavigation = function (event){
-  return event.keyCode===39
-      || event.keyCode===37;
+NumericCellEditor.prototype.isKeyPressedNavigation = function (event) {
+  return event.keyCode === 39 || event.keyCode === 37;
 };
-
 
 // gets called once when grid ready to insert the element
 NumericCellEditor.prototype.getGui = function () {

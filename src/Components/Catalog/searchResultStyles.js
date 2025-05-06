@@ -31,7 +31,7 @@ const experimentalStyles = (theme) => ({
       height: '100%',
       objectFit: 'contain',
       objectPosition: 'top right',
-    }
+    },
   },
   title: {
     width: '100%',
@@ -50,7 +50,7 @@ const experimentalStyles = (theme) => ({
     marginTop: '-4px',
     '& > div': {
       verticalAlign: 'middle',
-    }
+    },
   },
   nameAndCopy: {
     width: '100%',
@@ -73,12 +73,12 @@ const experimentalStyles = (theme) => ({
     '&:visited': {
       // color: theme.palette.secondary.main,
       color: '#69FFF2',
-    }
+    },
   },
   metadataContainer: {
     '& table .MuiTypography-body1': {
       margin: 0,
-    }
+    },
   },
   downloadLink: {
     color: theme.palette.primary.main,
@@ -114,13 +114,11 @@ const experimentalStyles = (theme) => ({
       flexDirection: 'row',
       gap: '.5em',
       alignItems: 'center',
-    }
+    },
   },
   primaryColor: {
     color: theme.palette.secondary.main,
-  }
-
+  },
 });
-
 
 export default experimentalStyles;

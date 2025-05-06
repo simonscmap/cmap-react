@@ -120,29 +120,29 @@ export default function (state, action) {
         subscribeDatasetDialog: {
           open: true,
           shortName: action.payload.shortName,
-        }
+        },
       };
     case SUBSCRIBE_DATASET_DIALOG_CLEAR:
       return {
         ...state,
         subscribeDatasetDialog: {
           open: false,
-        }
+        },
       };
-     case DOWNLOAD_DIALOG_OPEN:
+    case DOWNLOAD_DIALOG_OPEN:
       return {
         ...state,
         downloadDialog: {
           open: true,
           shortName: action.payload.shortName,
-        }
+        },
       };
     case DOWNLOAD_DIALOG_CLEAR:
       return {
         ...state,
         downloadDialog: {
           open: false,
-        }
+        },
       };
     case SET_DOWNLOAD_DIALOG_DATA:
       return {
@@ -151,7 +151,7 @@ export default function (state, action) {
           // set fullPageData in dialog
           ...state.downloadDialog,
           data: action.payload,
-        }
+        },
       };
     case SET_FETCH_DOWNLAD_DIALOG_DATA_REQUEST_STATE:
       return {
@@ -160,7 +160,7 @@ export default function (state, action) {
           // set fullPageData in dialog
           ...state.downloadDialog,
           requestStatus: action.payload,
-        }
+        },
       };
 
     case SET_SUBSCRIBE_INTRO_STATE:

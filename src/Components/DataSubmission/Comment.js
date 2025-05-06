@@ -39,16 +39,18 @@ const DataSubmissionComment = (props) => {
 
   let utcHours = d.getUTCHours();
 
-  let adjustHours = - SERVER_TZ_OFFSET; // correct UTC to server time offset
+  let adjustHours = -SERVER_TZ_OFFSET; // correct UTC to server time offset
 
   d.setUTCHours(utcHours + adjustHours);
 
   let localDateString = d.toLocaleString();
 
-  console.log(`orginal:   ${originalString}\n`,
-              `utc H:     ${utcHours}\n`,
-              `adjust H:  ${adjustHours}\n`,
-              `final:     ${localDateString}\n`);
+  console.log(
+    `orginal:   ${originalString}\n`,
+    `utc H:     ${utcHours}\n`,
+    `adjust H:  ${adjustHours}\n`,
+    `final:     ${localDateString}\n`,
+  );
 
   return (
     <React.Fragment>

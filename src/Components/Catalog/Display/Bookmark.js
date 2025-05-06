@@ -1,18 +1,15 @@
 import React, { useState } from 'react';
-import {
-  makeStyles,
-  useMediaQuery,
- } from '@material-ui/core';
+import { makeStyles, useMediaQuery } from '@material-ui/core';
 import { Star, StarBorder } from '@material-ui/icons';
 import { useSelector, useDispatch } from 'react-redux';
 import { cartAddItem, cartRemoveItem } from '../../Redux/actions/catalog';
-import { cartPersistAddItem, cartPersistRemoveItem } from '../../Redux/actions/user';
-
-
+import {
+  cartPersistAddItem,
+  cartPersistRemoveItem,
+} from '../../Redux/actions/user';
 
 const useStyles = makeStyles((theme) => ({
-  container: {
-  },
+  container: {},
 }));
 
 const Bookmark = (props) => {
@@ -23,15 +20,9 @@ const Bookmark = (props) => {
 
   let isSavedToCart = dataset && cart[longName];
 
-  const onClick = () => {
+  const onClick = () => {};
 
-  }
-
-  return (
-    <div className={cl.container}>
-
-    </div>
-  );
+  return <div className={cl.container}></div>;
 };
 
 export default Bookmark;

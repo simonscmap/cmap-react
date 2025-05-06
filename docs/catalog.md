@@ -1,6 +1,7 @@
 # Overview of `catalog` contents
 
 The contents of /catalog are responsible for 3 main features
+
 - the catalog search page
 - the dataset detail page
 - the download dialog (see [Download Dialog](download-dialog.md))

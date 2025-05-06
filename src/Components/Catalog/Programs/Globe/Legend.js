@@ -26,8 +26,8 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 
 const toDate = (str) => {
-  return dayjs (str).format('YYYY-MM-DD');
-}
+  return dayjs(str).format('YYYY-MM-DD');
+};
 
 const DarkTooltip = withStyles((theme) => ({
   tooltip: {
@@ -35,10 +35,9 @@ const DarkTooltip = withStyles((theme) => ({
     color: 'white',
     boxShadow: theme.shadows[1],
     fontSize: '0.9em',
-    backdropFilter: 'blur(5px)'
+    backdropFilter: 'blur(5px)',
   },
 }))(Tooltip);
-
 
 // Accordion
 
@@ -85,7 +84,6 @@ const AccordionSummary = withStyles({
   expanded: {},
 })(MuiAccordionSummary);
 
-
 const AccordionDetails = withStyles((theme) => ({
   root: {
     padding: '2px 10px 5px 15px',
@@ -116,20 +114,20 @@ const SmallButton = withStyles((theme) => ({
       whiteSpace: 'nowrap',
     },
     '& div': {
-      padding: '0 4px'
-    }
+      padding: '0 4px',
+    },
   },
 }))(Button);
 
 // Cruise Details
-const useDetailStyles = makeStyles ((theme) => ({
-  'root': {
+const useDetailStyles = makeStyles((theme) => ({
+  root: {
     marginLeft: '5px',
     '& .MuiTableCell-root': {
       border: 0,
       padding: '5px 0',
-    }
-  }
+    },
+  },
 }));
 
 const CruiseDetails = (props) => {
@@ -142,53 +140,41 @@ const CruiseDetails = (props) => {
           <TableCell component="th" scope="row">
             {'Chief'}
           </TableCell>
-          <TableCell align="left">
-            {cruise.Chief_Name}
-          </TableCell>
+          <TableCell align="left">{cruise.Chief_Name}</TableCell>
         </TableRow>
 
         <TableRow key={'ship'}>
           <TableCell component="th" scope="row">
             {'Ship'}
           </TableCell>
-          <TableCell align="left">
-            {cruise.Ship_Name}
-          </TableCell>
+          <TableCell align="left">{cruise.Ship_Name}</TableCell>
         </TableRow>
 
         <TableRow key={'Start'}>
           <TableCell component="th" scope="row">
             {'Start'}
           </TableCell>
-          <TableCell align="left">
-            {toDate(cruise.Start_Time)}
-          </TableCell>
+          <TableCell align="left">{toDate(cruise.Start_Time)}</TableCell>
         </TableRow>
 
         <TableRow key={'end'}>
           <TableCell component="th" scope="row">
             {'End'}
           </TableCell>
-          <TableCell align="left">
-            {toDate(cruise.End_Time)}
-          </TableCell>
+          <TableCell align="left">{toDate(cruise.End_Time)}</TableCell>
         </TableRow>
-
       </TableBody>
-     </Table>
-
+    </Table>
   );
-}
+};
 
-
-
-const useCrossProgramInfoStyles = makeStyles ((theme) => ({
+const useCrossProgramInfoStyles = makeStyles((theme) => ({
   container: {
     width: '100%',
     overflow: 'hidden',
     '& .MuiExpansionPanelDetails-root': {
       display: 'unset', // shouldn't be flex
-      padding: 0
+      padding: 0,
     },
     '& .MuiExpansionPanelSummary-root': {
       padding: 0,
@@ -198,12 +184,12 @@ const useCrossProgramInfoStyles = makeStyles ((theme) => ({
       minHeight: 'unset',
       gap: '1em',
       '& .MuiButtonBase-root': {
-        padding: 0
-      }
+        padding: 0,
+      },
     },
     '& .MuiExpansionPanelSummary-content': {
-      margin: 0
-    }
+      margin: 0,
+    },
   },
   pair: {
     marginBottom: '5px',
@@ -214,23 +200,22 @@ const useCrossProgramInfoStyles = makeStyles ((theme) => ({
       width: '100%',
       overflow: 'hidden',
       textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap'
-    }
-
+      whiteSpace: 'nowrap',
+    },
   },
   nameContainer: {
     width: 'calc(100% - 2px)',
     color: 'white', //
     paddingLeft: '22px',
     '& li::marker': {
-      color:theme.palette.primary.main,
+      color: theme.palette.primary.main,
     },
     '& li': {
       width: 'calc(100%)',
       whiteSpace: 'nowrap',
       overflow: 'hidden',
       textOverflow: 'ellipsis',
-    }
+    },
   },
   progContainer: {
     width: 'calc(100% - 10px)',
@@ -241,16 +226,14 @@ const useCrossProgramInfoStyles = makeStyles ((theme) => ({
       content: `"- "`,
       textIndent: '-5px',
     },
-
   },
   dsn: {
     cursor: 'default',
     '&:hover': {
       // color: ''
-      textDecoration: '#22A3B9 underline'
-
-    }
-  }
+      textDecoration: '#22A3B9 underline',
+    },
+  },
 }));
 
 const CrossProgramInfo = (props) => {
@@ -260,28 +243,33 @@ const CrossProgramInfo = (props) => {
     return '';
   }
 
-  return (<div className={cl.container}>
-     <ExpansionPanel>
-       <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-         {'Datasets & Associated Programs'}
-       </ExpansionPanelSummary>
-       <ExpansionPanelDetails>
-         {cruise.datasets.map ((d,i) => (
-           <div className={cl.pair} key={`pair${i}`}>
-             <ul className={cl.nameContainer}>
-               <li>
-                 <DarkTooltip title={d.datasetShortName || `Dataset Id: ${d.datasetId}`}>
-                   <Typography className={cl.dsn}>{d.datasetShortName || d.datasetId}</Typography>
-                 </DarkTooltip>
-               </li>
-             </ul>
-             <ul className={cl.progContainer}>
-               <li>{' '}{d.programNames.join(', ')}</li>
-             </ul>
-           </div>
-         ))}
-       </ExpansionPanelDetails>
-     </ExpansionPanel>
+  return (
+    <div className={cl.container}>
+      <ExpansionPanel>
+        <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+          {'Datasets & Associated Programs'}
+        </ExpansionPanelSummary>
+        <ExpansionPanelDetails>
+          {cruise.datasets.map((d, i) => (
+            <div className={cl.pair} key={`pair${i}`}>
+              <ul className={cl.nameContainer}>
+                <li>
+                  <DarkTooltip
+                    title={d.datasetShortName || `Dataset Id: ${d.datasetId}`}
+                  >
+                    <Typography className={cl.dsn}>
+                      {d.datasetShortName || d.datasetId}
+                    </Typography>
+                  </DarkTooltip>
+                </li>
+              </ul>
+              <ul className={cl.progContainer}>
+                <li> {d.programNames.join(', ')}</li>
+              </ul>
+            </div>
+          ))}
+        </ExpansionPanelDetails>
+      </ExpansionPanel>
     </div>
   );
 };
@@ -291,22 +279,22 @@ const getCrossProgramTooltipText = (cruise) => {
     return '';
   }
   const datasets = cruise.datasets;
-  const programs = datasets.reduce ((acc, d) => {
+  const programs = datasets.reduce((acc, d) => {
     if (!d || !d.programNames || d.programNames.length === 0) {
       return acc;
     }
-    d.programNames.forEach (n => acc.add (n));
+    d.programNames.forEach((n) => acc.add(n));
     return acc;
   }, new Set());
-  const s = Array.from (programs).filter (x => Boolean(x));
-  return `This cruise features multiple programs: ${s.join (', ')}`;
-}
+  const s = Array.from(programs).filter((x) => Boolean(x));
+  return `This cruise features multiple programs: ${s.join(', ')}`;
+};
 
 const Legend = (props) => {
   const { cruiseSelector, onFocus } = props;
   const classes = useLegendStyles();
 
-  const cruises = useSelector (cruiseSelector);
+  const cruises = useSelector(cruiseSelector);
 
   // NOTE these color swatches are generated based on the number of trajectories
   // and the swatches match the trajectory color based on the order of trajectories
@@ -314,52 +302,63 @@ const Legend = (props) => {
   // if local state in either component manipulates their copy of the trajectories array
   const colors = palette('rainbow', cruises.length).map((hex) => `#${hex}`);
 
-  const [expanded, setExpanded] = useState (null);
+  const [expanded, setExpanded] = useState(null);
 
   const handleFocus = (cruiseId) => () => {
     if (!cruiseId) {
       //
     } else if (cruiseId !== expanded) {
-      setExpanded (cruiseId);
+      setExpanded(cruiseId);
     } else {
-      setExpanded (null);
+      setExpanded(null);
       // we also want to deFocus the cruise
       onFocus(null);
     }
-  }
+  };
 
   const handleZoom = (cruiseId) => () => {
     if (!cruiseId) {
       //
     } else {
-      onFocus (cruiseId);
+      onFocus(cruiseId);
     }
-  }
+  };
 
   return (
     <div className={classes.legend}>
       <Paper className={classes.paper}>
         <div className={classes.wrapper}>
           {cruises.map((cruise, i) => (
-            <Accordion square expanded={cruise.ID === expanded} key={`accordian_ ${i}`}>
-              <AccordionSummary id={`${cruise.ID}control`} expandIcon={<ExpandMoreIcon />} onClick={handleFocus(cruise.ID)} >
+            <Accordion
+              square
+              expanded={cruise.ID === expanded}
+              key={`accordian_ ${i}`}
+            >
+              <AccordionSummary
+                id={`${cruise.ID}control`}
+                expandIcon={<ExpandMoreIcon />}
+                onClick={handleFocus(cruise.ID)}
+              >
                 <div className={classes.legendEntry}>
                   <div className={classes.container}>
                     <div
                       className={classes.swatch}
                       style={{ backgroundColor: colors[i] }}
+                    ></div>
+                    <div
+                      className={`${classes.container} ${classes.cruiseTextSummary}`}
                     >
-                    </div>
-                    <div className={`${classes.container} ${classes.cruiseTextSummary}`}>
                       <div className={classes.summaryFirstGroup}>
                         <span>{cruise.Name}</span>
-                        {cruise.isMultiProgram &&
-                            <div className={classes.crossProgramChip}>
-                              <DarkTooltip title={getCrossProgramTooltipText (cruise)}>
-                                <InfoIcon />
-                              </DarkTooltip>
+                        {cruise.isMultiProgram && (
+                          <div className={classes.crossProgramChip}>
+                            <DarkTooltip
+                              title={getCrossProgramTooltipText(cruise)}
+                            >
+                              <InfoIcon />
+                            </DarkTooltip>
                           </div>
-                        }
+                        )}
                       </div>
                       <div className={classes.nick}>
                         <DarkTooltip title={cruise.Nickname}>
@@ -381,22 +380,30 @@ const Legend = (props) => {
                     </SmallButton>
                   </div>
                   <CruiseDetails cruise={cruise} />
-                  <a href={`/catalog/cruises/${cruise.Name}`} target="_blank" rel="noreferrer">
+                  <a
+                    href={`/catalog/cruises/${cruise.Name}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
                     <p className={classes.openPageIcon}>
                       <span>{'View cruise details'}</span>
                       <OpenInNewIcon color="primary" />
                     </p>
                   </a>
-                  {cruise.isMultiProgram && <CrossProgramInfo cruise={cruise}/>}
+                  {cruise.isMultiProgram && (
+                    <CrossProgramInfo cruise={cruise} />
+                  )}
                 </div>
               </AccordionDetails>
             </Accordion>
           ))}
-          {(!Array.isArray(cruises) || cruises.length === 0) && <Typography>Waiting for Trajectory Data</Typography>}
+          {(!Array.isArray(cruises) || cruises.length === 0) && (
+            <Typography>Waiting for Trajectory Data</Typography>
+          )}
         </div>
       </Paper>
     </div>
   );
-}
+};
 
 export default Legend;

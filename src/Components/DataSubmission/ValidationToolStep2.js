@@ -2,14 +2,7 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import {
-  Badge,
-  Button,
-  Typography,
-  Paper,
-  Tab,
-  Tabs,
-} from '@material-ui/core';
+import { Badge, Button, Typography, Paper, Tab, Tabs } from '@material-ui/core';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import { safePath } from '../../Utility/objectUtils';
 import { flattenErrors } from './Helpers/audit';
@@ -24,13 +17,12 @@ import { getChangeForCell } from './Helpers/changeLog';
 
 import ReduxStore from '../../Redux/store';
 
-
-const useStyles = makeStyles ((theme) => ({
+const useStyles = makeStyles((theme) => ({
   wrapper: {
     color: 'white',
     '& > h5': {
       marginBottom: '1em',
-    }
+    },
   },
   workbookTab: {
     textTransform: 'none',
@@ -39,8 +31,8 @@ const useStyles = makeStyles ((theme) => ({
     marginBottom: '1em',
     '& .MuiTab-root': {
       overflow: 'unset',
-      margin: '0 20px'
-    }
+      margin: '0 20px',
+    },
   },
   paper: {
     padding: '10px',
@@ -92,7 +84,7 @@ const getColumns = (sheet, data, tooltipValueGetter) => {
     lon: 'lon',
     lat: 'lat',
     // time: 'time',
-    depth: 'depth'
+    depth: 'depth',
   };
 
   const nameToHeader = (name) => presetColHeaders[name] || name;
@@ -102,30 +94,30 @@ const getColumns = (sheet, data, tooltipValueGetter) => {
     let row = 0;
     let attemptLimit = 100 < data.length ? 100 : data.length;
     while (!t && row < attemptLimit) {
-      const valAtRow = safePath ([row, colId]) (data);
+      const valAtRow = safePath([row, colId])(data);
       if (valAtRow === undefined) {
         continue;
       } else if (valAtRow === '') {
         t = 'string';
       } else if (!isNaN(valAtRow)) {
-        t = 'number'
+        t = 'number';
       }
       row += 1;
     }
     return t;
-  }
+  };
 
   const numberParser = (ev) => {
     const { newValue } = ev;
     if (!Number.isFinite(Number(newValue))) {
-      console.log ('NOT A NUMBER', newValue)
+      console.log('NOT A NUMBER', newValue);
       return null;
     } else {
       const parsedValue = Number(newValue);
-      console.log ('PARSED VALUE', parsedValue)
+      console.log('PARSED VALUE', parsedValue);
       return parsedValue;
     }
-  }
+  };
   /* const numberGetter = (params) => {
    *   console.log (params);
    *   const val = params.data[params.colDef.field];
@@ -133,14 +125,15 @@ const getColumns = (sheet, data, tooltipValueGetter) => {
    * } */
 
   const provideColDef = (columnName) => {
-    const col = ValidationGridColumns.data.find ((colDef) =>
-      colDef.field === columnName);
+    const col = ValidationGridColumns.data.find(
+      (colDef) => colDef.field === columnName,
+    );
     if (col) {
       return Object.assign(col, { tooltipValueGetter });
     } else {
-      const dataType = detectDataType (columnName)
+      const dataType = detectDataType(columnName);
       const def = {
-        headerName: nameToHeader (columnName),
+        headerName: nameToHeader(columnName),
         field: columnName,
         // type: dataType,
         valueParser: dataType === 'number' ? numberParser : (id) => id,
@@ -148,14 +141,14 @@ const getColumns = (sheet, data, tooltipValueGetter) => {
       };
       return def;
     }
-  }
+  };
 
   const columns = Object.keys(data[0])
-                        .filter((key) => !nonKeys.includes(key))
-                        .map(provideColDef);
+    .filter((key) => !nonKeys.includes(key))
+    .map(provideColDef);
 
   return columns;
-}
+};
 
 const getSheet = (n) => {
   switch (n) {
@@ -168,7 +161,7 @@ const getSheet = (n) => {
     default:
       return null;
   }
-}
+};
 
 const goToNextError = (data, gridApi, sheet, auditReport, setMessage) => {
   if (!data) {
@@ -186,7 +179,6 @@ const goToNextError = (data, gridApi, sheet, auditReport, setMessage) => {
 
   let lastFocusedCell = gridApi.getFocusedCell();
 
-
   let lastFocusedRow = -1;
   let lastFocusedColKey = null;
 
@@ -195,59 +187,63 @@ const goToNextError = (data, gridApi, sheet, auditReport, setMessage) => {
     lastFocusedColKey = lastFocusedCell.column.colId;
   }
 
-  console.log ('lastFocusedCell', lastFocusedCell, { lastFocusedRow, lastFocusedColKey })
-
+  console.log('lastFocusedCell', lastFocusedCell, {
+    lastFocusedRow,
+    lastFocusedColKey,
+  });
 
   const allErrorsBySheet = {
-    'data':  flattenErrors (auditReport.data),
-    'dataset_meta_data':flattenErrors (auditReport.dataset_meta_data),
-    'vars_meta_data':flattenErrors (auditReport.vars_meta_data),
+    data: flattenErrors(auditReport.data),
+    dataset_meta_data: flattenErrors(auditReport.dataset_meta_data),
+    vars_meta_data: flattenErrors(auditReport.vars_meta_data),
   };
 
   const lookupErrorMessage = ({ row, col }) => {
-    const auditErrorText = safePath ([sheet, row, col]) (auditReport)
+    const auditErrorText = safePath([sheet, row, col])(auditReport);
     if (auditErrorText && setMessage) {
-      const msg = Array.isArray (auditErrorText)
-                ? auditErrorText.join ('. ')
-                : auditErrorText;
+      const msg = Array.isArray(auditErrorText)
+        ? auditErrorText.join('. ')
+        : auditErrorText;
       setMessage(msg);
     }
-  }
+  };
 
   const goToError = ({ row, col }) => {
-    console.log ('goToError', { row, col })
+    console.log('goToError', { row, col });
     if (gridApi) {
       gridApi.ensureColumnVisible(col);
       gridApi.setFocusedCell(row, col, null);
       gridApi.startEditingCell({ rowIndex: row, colKey: col });
       lookupErrorMessage({ row, col });
     }
-  }
+  };
 
   const thereAreErrorsOnCurrentSheet = allErrorsBySheet[sheet].length > 0;
 
   if (thereAreErrorsOnCurrentSheet) {
-    const positionOfLastError = allErrorsBySheet[sheet].findIndex ((err) =>
-      err.row === lastFocusedRow && err.col === lastFocusedColKey);
-    console.log ('positionOfLastError', positionOfLastError)
+    const positionOfLastError = allErrorsBySheet[sheet].findIndex(
+      (err) => err.row === lastFocusedRow && err.col === lastFocusedColKey,
+    );
+    console.log('positionOfLastError', positionOfLastError);
     if (positionOfLastError > -1) {
       // find next after current
-      const hasNextError = allErrorsBySheet[sheet].length > positionOfLastError + 1;
-      console.log ('hasNextError', hasNextError);
+      const hasNextError =
+        allErrorsBySheet[sheet].length > positionOfLastError + 1;
+      console.log('hasNextError', hasNextError);
       if (hasNextError) {
         const nextError = allErrorsBySheet[sheet][positionOfLastError + 1];
         // go to nextError
-        goToError (nextError);
+        goToError(nextError);
         return;
       } else {
-        console.log ('go to first error', allErrorsBySheet[sheet][0]);
-        goToError (allErrorsBySheet[sheet][0]);
+        console.log('go to first error', allErrorsBySheet[sheet][0]);
+        goToError(allErrorsBySheet[sheet][0]);
         return;
       }
     } else {
       // go to first error
-      console.log ('go to first error', allErrorsBySheet[sheet][0]);
-      goToError (allErrorsBySheet[sheet][0]);
+      console.log('go to first error', allErrorsBySheet[sheet][0]);
+      goToError(allErrorsBySheet[sheet][0]);
       return;
     }
   }
@@ -282,7 +278,7 @@ const Step2 = (props) => {
 
   let [tab, setTab] = useState(0);
 
-  useEffect (() => {
+  useEffect(() => {
     if (step !== 2 && tab !== 0) {
       // reset to first tab every time the user
       // navigates away from this step
@@ -290,7 +286,7 @@ const Step2 = (props) => {
     }
   }, [step]);
 
-  useEffect (() => {
+  useEffect(() => {
     if (gridApi && gridApi.current) {
       // console.log ('SHOULD refresh cells')
       // gridApi.current;
@@ -301,12 +297,12 @@ const Step2 = (props) => {
   const currentSheetLabel = auditKeyToLabel[sheet];
 
   const handleClickTab = (ev, newVal) => {
-    setTab (newVal);
+    setTab(newVal);
   };
 
   const handleOnGridReady = (args) => {
     gridApi.current = args.api;
-    onGridReady (args)
+    onGridReady(args);
   };
 
   const handleFindNext = () => {
@@ -314,15 +310,21 @@ const Step2 = (props) => {
       // console.log ('no ref to gridApi');
     } else {
       const currentSheet = getSheet(tab);
-      goToNextError (fileData, gridApi.current, currentSheet, auditReport, setMessage);
+      goToNextError(
+        fileData,
+        gridApi.current,
+        currentSheet,
+        auditReport,
+        setMessage,
+      );
     }
-  }
+  };
 
   const checkCellStyle = (params) => {
     const row = params.node.childIndex;
     const colId = params.column.colId;
     const { sheet: sheetName } = params.context;
-    const changeLog = getChangeLog ();
+    const changeLog = getChangeLog();
 
     // getting this by the enclosed result of a selector does not work
     const auditReport_ = (ReduxStore.getState() || {}).auditReport;
@@ -330,10 +332,10 @@ const Step2 = (props) => {
     let cellStyle = {};
 
     const path = [sheetName, row, colId];
-    const shouldReStyleWithError = safePath (path) (auditReport_);
+    const shouldReStyleWithError = safePath(path)(auditReport_);
 
     const cevDef = { sheet: sheetName, row, col: colId };
-    const shouldReStyleWithModified = getChangeForCell (changeLog, cevDef);
+    const shouldReStyleWithModified = getChangeForCell(changeLog, cevDef);
 
     if (shouldReStyleWithError) {
       // console.log ('SETTING CELL STYLE: ERROR', row, colId, shouldReStyleWithError)
@@ -349,19 +351,21 @@ const Step2 = (props) => {
   const tooltipValueGetter = (args) => {
     const { rowIndex, column, context } = args;
     if (Number.isInteger(rowIndex) && column && column.colId) {
-      const errorForCell = safePath ([context.sheet, rowIndex, column.colId]) (auditReport);
+      const errorForCell = safePath([context.sheet, rowIndex, column.colId])(
+        auditReport,
+      );
       if (Array.isArray(errorForCell)) {
-        return errorForCell.join (' ');
+        return errorForCell.join(' ');
       }
     } else {
       // console.log ('value getter missing args', rowIndex)
     }
     return null;
-  }
+  };
 
   const onCellFocused = (ev) => {
     setMessage();
-  }
+  };
 
   const defaultColumnDef = {
     menuTabs: [],
@@ -379,24 +383,23 @@ const Step2 = (props) => {
   }
 
   if (!errorCount) {
-    return <React.Fragment/>
+    return <React.Fragment />;
   }
 
   return (
     <div className={cl.wrapper}>
-    <Typography variant={"h5"}>Data Sheet Validation</Typography>
-     { errorCount[sheet] ?
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleFindNext}
-      >
-        Go To Next Error on {currentSheetLabel}
-      </Button> : ''}
-      <Typography variant={"body1"}>{ message }</Typography>
+      <Typography variant={'h5'}>Data Sheet Validation</Typography>
+      {errorCount[sheet] ? (
+        <Button variant="contained" color="primary" onClick={handleFindNext}>
+          Go To Next Error on {currentSheetLabel}
+        </Button>
+      ) : (
+        ''
+      )}
+      <Typography variant={'body1'}>{message}</Typography>
 
       <Paper elevation={2} className={cl.paper}>
-        <Tabs value={tab} onChange={handleClickTab} className={cl.tabs} >
+        <Tabs value={tab} onChange={handleClickTab} className={cl.tabs}>
           <Tab
             value={0}
             label={
@@ -412,40 +415,36 @@ const Step2 = (props) => {
             }
           />
 
-        <Tab
-          value={1}
-          label={
-            errorCount['dataset_meta_data'] > 0 ? (
-              <StyledBadgeRed
-                badgeContent={errorCount['dataset_meta_data']}
-              >
-                Dataset Metadata
-              </StyledBadgeRed>
-            ) : (
-              <StyledBadgeGreen badgeContent={'\u2713'}>
-                Dataset Metadata
-              </StyledBadgeGreen>
-            )
-          }
-        />
+          <Tab
+            value={1}
+            label={
+              errorCount['dataset_meta_data'] > 0 ? (
+                <StyledBadgeRed badgeContent={errorCount['dataset_meta_data']}>
+                  Dataset Metadata
+                </StyledBadgeRed>
+              ) : (
+                <StyledBadgeGreen badgeContent={'\u2713'}>
+                  Dataset Metadata
+                </StyledBadgeGreen>
+              )
+            }
+          />
 
-        <Tab
-          value={2}
-          label={
-            errorCount['vars_meta_data'] > 0 ? (
-              <StyledBadgeRed
-                badgeContent={errorCount['vars_meta_data']}
-              >
-                Variable Metadata
-              </StyledBadgeRed>
-            ) : (
-              <StyledBadgeGreen badgeContent={'\u2713'}>
-                Variable Metadata
-              </StyledBadgeGreen>
-            )
-          }
-        />
-      </Tabs>
+          <Tab
+            value={2}
+            label={
+              errorCount['vars_meta_data'] > 0 ? (
+                <StyledBadgeRed badgeContent={errorCount['vars_meta_data']}>
+                  Variable Metadata
+                </StyledBadgeRed>
+              ) : (
+                <StyledBadgeGreen badgeContent={'\u2713'}>
+                  Variable Metadata
+                </StyledBadgeGreen>
+              )
+            }
+          />
+        </Tabs>
 
         <ValidationGrid
           onGridReady={handleOnGridReady}

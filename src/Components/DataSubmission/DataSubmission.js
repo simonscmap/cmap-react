@@ -49,7 +49,7 @@ const DataSubmission = (props) => {
         component={ValidationTool}
       />
       <Route exact path={match.url + '/validationtool'}>
-        <Redirect to={{ pathname: match.url + '/submission-portal'}}/>
+        <Redirect to={{ pathname: match.url + '/submission-portal' }} />
       </Route>
       <Route
         exact

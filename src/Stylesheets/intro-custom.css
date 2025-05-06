@@ -26,7 +26,7 @@
 /* the 'Next' button */
 .introjs-tooltipReferenceLayer .introjs-button {
   /* background-color: #21526c; */
-    background: #031934;
+  background: #031934;
   color: white !important;
   border: 1px solid white !important;
   text-shadow: none;
@@ -45,8 +45,7 @@
 }
 .introjs-tooltipReferenceLayer .intro-dark .introjs-button:hover {
   /* background-color: #222222;*/
-    background: #031934;
-
+  background: #031934;
 }
 
 .introjs-tooltipReferenceLayer .introjs-button:focus {
@@ -161,7 +160,6 @@
   width: 100%;
   position: absolute;
 }
-
 
 /* get rid of increment/decrement buttons on inputs */
 input::-webkit-inner-spin-button,

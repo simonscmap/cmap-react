@@ -110,26 +110,26 @@ userAPI.getLastDatasetTouch = async () => {
     );
     return response;
   } catch (e) {
-    console.log ('error fetching user data');
+    console.log('error fetching user data');
     return null;
   }
-}
+};
 
 userAPI.getSubscriptions = async () => {
   return await fetch(apiUrl + '/api/user/subscriptions', fetchOptions);
 };
 
 userAPI.createSubscription = async (shortName) => {
-  return await fetch (apiUrl + '/api/user/subscriptions', {
+  return await fetch(apiUrl + '/api/user/subscriptions', {
     ...postOptions,
-    body: JSON.stringify ({ shortName }),
+    body: JSON.stringify({ shortName }),
   });
 };
 
 userAPI.deleteSubscriptions = async (shortNames) => {
-  return await fetch (apiUrl + '/api/user/subscriptions', {
+  return await fetch(apiUrl + '/api/user/subscriptions', {
     ...deleteOptions,
-    body: JSON.stringify ({ shortNames }),
+    body: JSON.stringify({ shortNames }),
   });
 };
 

@@ -17,7 +17,7 @@ const styles = (theme) => ({
     border: '1px solid rgb(157, 209, 98)',
     borderRadius: '2px',
     padding: '2px 6px',
-    width: '100%'
+    width: '100%',
   },
   errors: {
     lineHeight: 1.2,
@@ -25,24 +25,19 @@ const styles = (theme) => ({
     textAlign: 'left',
     maxWidth: '100%',
     whiteSpace: 'pre-wrap',
-  }
+  },
 });
 
 class DSCellEditor extends React.Component {
-  constructor (props) {
-    const {
-      context,
-      rowIndex,
-      column,
-      parseValue,
-      value = '',
-    } = props;
+  constructor(props) {
+    const { context, rowIndex, column, parseValue, value = '' } = props;
     const { getAuditReport, sheet } = context;
     const { colId } = column;
     const auditReport = getAuditReport();
-    const errors = auditReport[sheet][rowIndex] && auditReport[sheet][rowIndex][colId]
-          ? auditReport[sheet][rowIndex][colId]
-          : [];
+    const errors =
+      auditReport[sheet][rowIndex] && auditReport[sheet][rowIndex][colId]
+        ? auditReport[sheet][rowIndex][colId]
+        : [];
 
     super(props);
 
@@ -81,7 +76,7 @@ class DSCellEditor extends React.Component {
 
   handleClickAway = () => {
     if (this.state.attached) {
-      this.props.stopEditing ();
+      this.props.stopEditing();
     }
   };
 
@@ -100,8 +95,11 @@ class DSCellEditor extends React.Component {
               onChange={this.handleChange}
               className={classes.input}
             />
-            {errors.map((err, i) =>
-              (<p key={i} className={classes.errors}>{err}</p>))}
+            {errors.map((err, i) => (
+              <p key={i} className={classes.errors}>
+                {err}
+              </p>
+            ))}
           </div>
         </ClickAwayListener>
       </div>

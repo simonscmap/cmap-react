@@ -8,6 +8,6 @@ const SpatialCoverage = (props) => {
   }
 
   return <Chip color="primary" size="small" label="Continuously Updated" />;
-}
+};
 
 export default SpatialCoverage;

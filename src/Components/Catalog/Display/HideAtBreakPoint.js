@@ -1,19 +1,14 @@
 import React, { useState } from 'react';
-import {
-  makeStyles,
-  useMediaQuery,
- } from '@material-ui/core';
+import { makeStyles, useMediaQuery } from '@material-ui/core';
 
 const useStyles = makeStyles((theme) => ({
-  container: {
-  },
+  container: {},
 }));
 
 const HideAtBreakPoint = React.memo((props) => {
   const { lt, children } = props;
   const cl = useStyles();
   const matches = useMediaQuery(`(max-width: ${lt}px)`);
-
 
   const inline = {
     display: matches ? 'none' : 'block',
@@ -23,11 +18,7 @@ const HideAtBreakPoint = React.memo((props) => {
     return null;
   }
 
-  return (
-    <React.Fragment>
-      {children}
-    </React.Fragment>
-  );
+  return <React.Fragment>{children}</React.Fragment>;
 });
 
 export default HideAtBreakPoint;

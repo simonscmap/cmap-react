@@ -1,6 +1,7 @@
 # Visualization Pages
 
 Contents
+
 1. Caveats
 2. How Charts Work
    - Data Flow
@@ -35,11 +36,11 @@ Visualization is cicked off by the `VizControlPanel.js` component. The control p
 
 2. saga calls api
 
-The sagas responsible for fetching the data are `storedProcedureRequest` or `sparseDataQuerySend`  in `/src/Redux/sagas/index.js`.
+The sagas responsible for fetching the data are `storedProcedureRequest` or `sparseDataQuerySend` in `/src/Redux/sagas/index.js`.
 
 3. response data is processed by data class
 
-The data is processed by instantiating the approprate data model (defined in `/src/api/`), according to what the type of visualization is -- this mapping is implemented in the api wrapper in `/src/api/visualizationRequests.js` and is as follows: the stored procedure can be 1 of 4 types (see `/enums/storedProcedures`): `sectionMap`, `timeSeries`, `spaceTime`, and `depthProfile`. Note that  `spaceTime` has a subType `Sparse`. Thus, when the response is complete, the model is instantiated and returned from the api wrapper to the calling saga.
+The data is processed by instantiating the approprate data model (defined in `/src/api/`), according to what the type of visualization is -- this mapping is implemented in the api wrapper in `/src/api/visualizationRequests.js` and is as follows: the stored procedure can be 1 of 4 types (see `/enums/storedProcedures`): `sectionMap`, `timeSeries`, `spaceTime`, and `depthProfile`. Note that `spaceTime` has a subType `Sparse`. Thus, when the response is complete, the model is instantiated and returned from the api wrapper to the calling saga.
 
 4. processed data is provided to redux
 
@@ -75,13 +76,13 @@ The control panel (`/src/Components/Visualization/VizControlPanel.js`) is respon
 
 Variable selection involves querying the variable catalog with various possible filters.
 
-Selecting constraints is *not* straightforword, due first of all to differences in parameters across datasets (especially time: climatology datasets have the month as their time parameter, while not-climatology datasets have datetimes; also, some datasets have depth and others do not); secondly due to the param-lock feature which allows the user to "lock" the current constraints in place, with the idea that it will aid in the ability to render charts for several variables all with the same coverage; and thirdly because as constraints are set, queries are sent to the API to check if the comibanation of constraint and variable will result in too-large a query.
+Selecting constraints is _not_ straightforword, due first of all to differences in parameters across datasets (especially time: climatology datasets have the month as their time parameter, while not-climatology datasets have datetimes; also, some datasets have depth and others do not); secondly due to the param-lock feature which allows the user to "lock" the current constraints in place, with the idea that it will aid in the ability to render charts for several variables all with the same coverage; and thirdly because as constraints are set, queries are sent to the API to check if the comibanation of constraint and variable will result in too-large a query.
 
 Note that if the user is not logged in, the Guest visualization feature will limit the number of visualizations allowed. The counter is implemented in the passport middleware.
 
 #### Date Handling
 
-Date handling in the Control Panel is somewhat fragile. Variables may be part of a monthly climatology dataset, which have month values as dates (0 - 11), or a non-climatology dataset with date times. There are two sets of form fields controlling these values, one is rendered for variable with monthly values, the other with variables with date times. The component state determining the start and end time *switches* type depending on the variable. It could be a '1' or it could be an ISO String.
+Date handling in the Control Panel is somewhat fragile. Variables may be part of a monthly climatology dataset, which have month values as dates (0 - 11), or a non-climatology dataset with date times. There are two sets of form fields controlling these values, one is rendered for variable with monthly values, the other with variables with date times. The component state determining the start and end time _switches_ type depending on the variable. It could be a '1' or it could be an ISO String.
 
 See the use of `generateVariableSampleRangeParams.js`.
 
@@ -95,7 +96,7 @@ The Control Panel has a feature called "Param Lock" that allows the user to lock
 
 The toggle state of paramLock is persisted in redux as `viz.chart.controls.paramLock`.
 
-When `paramLock` is enabled, it changes the default behavior upon variable selection. The form fields determining the constraints (e.g., Start Date, End Date, Start Lat, etc.) are controlled fields, that is: their value is provided by the components--in this case the values are persisted with component state (note that `VisControlPanel` is still a class component); when a variable is selected its min and max values for each extent are taken from its metadata and set in component state. The Param Lock prevents this, and does so at the level of the `setState` call in `componentDidUpdate`. When `paramLock` is enabled it also *disables* the form fields.
+When `paramLock` is enabled, it changes the default behavior upon variable selection. The form fields determining the constraints (e.g., Start Date, End Date, Start Lat, etc.) are controlled fields, that is: their value is provided by the components--in this case the values are persisted with component state (note that `VisControlPanel` is still a class component); when a variable is selected its min and max values for each extent are taken from its metadata and set in component state. The Param Lock prevents this, and does so at the level of the `setState` call in `componentDidUpdate`. When `paramLock` is enabled it also _disables_ the form fields.
 
 One of the design drawbacks, and the source of various bugs, is that the way state is persisted prevents the component from analyzing where current constraints came from: whether they are from the current variable or the previous.
 

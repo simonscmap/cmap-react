@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles, ThemeProvider } from '@material-ui/core/styles';
-import { MdOutlineMarkEmailUnread } from "react-icons/md";
+import { MdOutlineMarkEmailUnread } from 'react-icons/md';
 import Tooltip from '@material-ui/core/Tooltip';
 import Button from '@material-ui/core/Button';
 import Switch from '@material-ui/core/Switch';
@@ -12,19 +12,17 @@ import { persistenceService } from '../../../Services/persist';
 import { SET_SUBSCRIBE_INTRO_STATE } from '../../../Redux/actionTypes/ui';
 import { setSubscribeIntroState } from '../../../Redux/actions/ui';
 
-import {
-  changeNewsSubscription,
-} from '../../../Redux/actions/user';
+import { changeNewsSubscription } from '../../../Redux/actions/user';
 
 persistenceService.add({
   actionType: SET_SUBSCRIBE_INTRO_STATE,
   key: 'subscribeIntroActive',
   payloadToValue: (currentLocalStorageValueForKey, payload) => {
     return payload;
-  }
+  },
 });
 
-const useIntroStyles = makeStyles (() => ({
+const useIntroStyles = makeStyles(() => ({
   intro: {
     position: 'absolute',
     top: -14,
@@ -36,10 +34,9 @@ const useIntroStyles = makeStyles (() => ({
     zIndex: 0, // placing this behind allows the subscribe button to be interactive
     border: '1px solid rgb(105, 255, 242)',
     borderRadius: '5px',
-    boxShadow: '0 0 20px rgba(105, 255, 242, 0.6), inset 0 0 10px rgba(105, 255, 242, 0.4), 0 2px 0 #000',
+    boxShadow:
+      '0 0 20px rgba(105, 255, 242, 0.6), inset 0 0 10px rgba(105, 255, 242, 0.4), 0 2px 0 #000',
     //boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.4)',
-
-
   },
   off: {
     display: 'none',
@@ -61,8 +58,8 @@ const useIntroStyles = makeStyles (() => ({
     '& p': {
       margin: '0 0 5px 0',
       padding: 0,
-      lineHeight: '22px'
-    }
+      lineHeight: '22px',
+    },
   },
   button: {
     float: 'right',
@@ -75,7 +72,7 @@ const useIntroStyles = makeStyles (() => ({
     '&:hover': {
       border: '1px solid rgb(105, 255, 242)',
       color: 'rgb(105, 255, 242)',
-    }
+    },
   },
   arrow: {
     position: 'absolute',
@@ -86,21 +83,28 @@ const useIntroStyles = makeStyles (() => ({
     borderTop: '5px solid transparent',
     borderBottom: '5px solid transparent',
     borderLeft: '8px solid rgb(105, 255, 242)',
-  }
+  },
 }));
 
 const IntroBox = (props) => {
-  const subscribeIntroActive = useSelector ((state) => state.subscribeIntroActive);
+  const subscribeIntroActive = useSelector(
+    (state) => state.subscribeIntroActive,
+  );
   const dispatch = useDispatch();
   const cl = useIntroStyles();
   const showHide = subscribeIntroActive ? cl.intro : cl.off;
-  const turnOff = () => dispatch (setSubscribeIntroState (false));
+  const turnOff = () => dispatch(setSubscribeIntroState(false));
   return (
     <div className={showHide}>
       <div className={cl.message}>
         <div className={cl.arrow}></div>
-        <p>You can now subscribe to get email notifications whenever there is Simons CMAP news.</p>
-        <button className={cl.button} onClick={turnOff}>Got It</button>
+        <p>
+          You can now subscribe to get email notifications whenever there is
+          Simons CMAP news.
+        </p>
+        <button className={cl.button} onClick={turnOff}>
+          Got It
+        </button>
       </div>
     </div>
   );
@@ -118,7 +122,7 @@ const useStyles = makeStyles((theme) => ({
     margin: '0 5px',
     '& > *': {
       height: '1em',
-    }
+    },
   },
   subButton: {
     fontSize: '20px',
@@ -127,9 +131,8 @@ const useStyles = makeStyles((theme) => ({
     '&:hover': {
       color: '#69FFF2',
       background: 'transparent',
-      border:`2px solid ${theme.palette.secondary.main}`
+      border: `2px solid ${theme.palette.secondary.main}`,
     },
-
   },
   subButtonActive: {
     fontSize: '20px',
@@ -137,7 +140,7 @@ const useStyles = makeStyles((theme) => ({
     '&:hover': {
       color: '#69FFF2',
       background: 'transparent',
-    }
+    },
   },
   mailSubscribed: {
     color: theme.palette.primary.main,
@@ -151,32 +154,29 @@ const useStyles = makeStyles((theme) => ({
     // color: theme.palette.primary.main
   },
   switchUn: {
-    color: '#ddd'
+    color: '#ddd',
   },
-
 }));
 
-
 const SubscribeNewsButton = (props) => {
-  const { intro } = props
-  const isNewsSubscribed = useSelector ((state) => state.user && state.user.isNewsSubscribed);
+  const { intro } = props;
+  const isNewsSubscribed = useSelector(
+    (state) => state.user && state.user.isNewsSubscribed,
+  );
   const dispatch = useDispatch();
   const cl = useStyles();
 
-  const [open, setOpen] = useState (false);
+  const [open, setOpen] = useState(false);
 
   const name = isNewsSubscribed
-        ? 'Confirm Unsubscribe'
-        : 'Confirm News Subscription';
+    ? 'Confirm Unsubscribe'
+    : 'Confirm News Subscription';
 
-  const actionButtonText = isNewsSubscribed
-        ? 'Unsubscribe'
-        : 'Subscribe';
+  const actionButtonText = isNewsSubscribed ? 'Unsubscribe' : 'Subscribe';
 
   const text = isNewsSubscribed
-        ? `Click "Unsubscribe" to unsubscribe from email notifications for Simons CMAP News.`
-        : `Click "Subscribe" to subscribe to email notifications for Simons CMAP News.`;
-
+    ? `Click "Unsubscribe" to unsubscribe from email notifications for Simons CMAP News.`
+    : `Click "Subscribe" to subscribe to email notifications for Simons CMAP News.`;
 
   const confirmationProps = {
     open,
@@ -188,26 +188,20 @@ const SubscribeNewsButton = (props) => {
     actionButtonText,
     onConfirm: () => {
       // changeNewsSubscription takes true/false for subscribe/unsubscribe
-      dispatch (changeNewsSubscription(!isNewsSubscribed));
-      setOpen (false);
+      dispatch(changeNewsSubscription(!isNewsSubscribed));
+      setOpen(false);
     },
   };
 
   const tooltipMessage = isNewsSubscribed
-        ? 'Unsubscribe from email updates'
-        : `Get email notification on updates`;
+    ? 'Unsubscribe from email updates'
+    : `Get email notification on updates`;
 
-  const subscribeClass = isNewsSubscribed
-        ? cl.subButtonActive
-        : cl.subButton;
+  const subscribeClass = isNewsSubscribed ? cl.subButtonActive : cl.subButton;
 
-  const mailIconClass = isNewsSubscribed
-        ? cl.mailSubscribed
-        : cl.mailUn
+  const mailIconClass = isNewsSubscribed ? cl.mailSubscribed : cl.mailUn;
 
-  const switchClass = isNewsSubscribed
-        ? cl.switchSubscribed
-        : cl.switchUn;
+  const switchClass = isNewsSubscribed ? cl.switchSubscribed : cl.switchUn;
 
   return (
     <div className={cl.wrapper}>
@@ -217,18 +211,19 @@ const SubscribeNewsButton = (props) => {
         <Tooltip title={tooltipMessage}>
           <Button
             className={`${cl.button} ${subscribeClass}`}
-            onClick={() => setOpen (true)}
+            onClick={() => setOpen(true)}
           >
             <MdOutlineMarkEmailUnread className={mailIconClass} />
             <Switch
               checked={isNewsSubscribed || false}
               size="small"
-              className={switchClass} />
+              className={switchClass}
+            />
           </Button>
         </Tooltip>
       </ThemeProvider>
     </div>
   );
-}
+};
 
 export default SubscribeNewsButton;

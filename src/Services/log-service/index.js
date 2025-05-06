@@ -80,14 +80,14 @@ function log(level, tags, context, message, isError, data) {
   }
 
   /* console.log(
-*   ...Object.entries(payload).reduce((acc, [key, value]) => {
-*     if (typeof value === 'object') {
-*       return [...acc, `\n${key}:`, value];
-*     } else {
-*       return [...acc, `\n${key}: ${value}`];
-*     }
-*   }, []),
-* ); */
+   *   ...Object.entries(payload).reduce((acc, [key, value]) => {
+   *     if (typeof value === 'object') {
+   *       return [...acc, `\n${key}:`, value];
+   *     } else {
+   *       return [...acc, `\n${key}: ${value}`];
+   *     }
+   *   }, []),
+   * ); */
 
   let logLevelString = Object.entries(logLevel)
     .filter(([, l]) => level === l)
@@ -98,10 +98,9 @@ function log(level, tags, context, message, isError, data) {
       ? ` | in ${payload.context.module}`
       : '';
 
-  const version = safePath (['tags', 'versions', 'web']) (payload);
+  const version = safePath(['tags', 'versions', 'web'])(payload);
 
   const versionString = version ? `(v${version})` : '';
-
 
   let logContent = [
     `${logLevelString.length ? logLevelString[0].toUpperCase() : '????'} | ${
@@ -138,8 +137,8 @@ function createNewLogger(moduleName, extraContext = {}) {
   let props = {
     tags: tagInfo,
     context: {
-      module: moduleName
-    }
+      module: moduleName,
+    },
   };
 
   if (session) {
@@ -159,18 +158,18 @@ function createNewLogger(moduleName, extraContext = {}) {
 
   // methods to set context info
   logger.setModule = (x) => {
-    return createNewLogger (x);
+    return createNewLogger(x);
   };
   logger.setSession = (x) => {
-    return createNewLogger (moduleName, { session: x, extra });
+    return createNewLogger(moduleName, { session: x, extra });
   };
 
   logger.setReqId = (rid) => {
-    return createNewLogger (moduleName, { ...extraContext, requestId: rid });
+    return createNewLogger(moduleName, { ...extraContext, requestId: rid });
   };
 
   logger.addContext = (ctx) => {
-    return createNewLogger (moduleName, { session, extra: ctx });
+    return createNewLogger(moduleName, { session, extra: ctx });
   };
 
   Object.keys(logLevel).forEach((level) => {

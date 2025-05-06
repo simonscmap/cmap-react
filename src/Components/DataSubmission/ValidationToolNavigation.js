@@ -1,8 +1,5 @@
 import React from 'react';
-import {
-  ArrowBack,
-  ArrowForward,
-} from '@material-ui/icons';
+import { ArrowBack, ArrowForward } from '@material-ui/icons';
 import { Tooltip, Badge } from '@material-ui/core';
 import { useSelector } from 'react-redux';
 import { StepButton } from './ChooserComponents/Buttons';
@@ -13,7 +10,7 @@ import states from '../../enums/asyncRequestStates';
 import ErrorStatus from './ValidationToolErrorStatus';
 import DataStatus from './ValidationToolDataSummary';
 
-const useStyles = makeStyles ((theme) => ({
+const useStyles = makeStyles((theme) => ({
   navigationWrapper: {
     color: 'white',
     display: 'flex',
@@ -27,7 +24,7 @@ const useStyles = makeStyles ((theme) => ({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'flex-start',
-    gap: '2em'
+    gap: '2em',
   },
   refHolder: {
     // I'm here so that a my tooltip parent will render
@@ -36,21 +33,21 @@ const useStyles = makeStyles ((theme) => ({
   stepButton: {
     '&:disabled': {
       color: '#ffffff7d',
-      border: `2px solid ${theme.palette.secondary.dark}`
-    }
+      border: `2px solid ${theme.palette.secondary.dark}`,
+    },
   },
   rightSection: {
     display: 'flex',
     flexDirection: 'row',
     gap: '3em',
     justifyContent: 'center',
-    marginBottom: '2em'
-  }
+    marginBottom: '2em',
+  },
 }));
 
 const getStepLabel = (step) => {
-  return validationSteps[step] && validationSteps[step].label || '';
-}
+  return (validationSteps[step] && validationSteps[step].label) || '';
+};
 
 const StyledBadgeRed = withStyles(() => ({
   badge: {
@@ -75,48 +72,43 @@ const StepBadge = (props) => {
   } else {
     return <StyledBadgeGreen>{text}</StyledBadgeGreen>;
   }
-}
+};
 
 const Navigation = (props) => {
   const cl = useStyles();
 
   const { file, step, changeStep, summary } = props;
 
-  const submissionUploadState = useSelector ((state) => state.submissionUploadState);
-  const auditReport = useSelector ((state) => state.auditReport);
+  const submissionUploadState = useSelector(
+    (state) => state.submissionUploadState,
+  );
+  const auditReport = useSelector((state) => state.auditReport);
   const errorCount = auditReport && auditReport.errorCount;
-  const errorSum = errorCount && errorCount.sum || 0;
+  const errorSum = (errorCount && errorCount.sum) || 0;
   const workbookErrors = auditReport && auditReport.workbook.errors.length;
 
   // const fatal = auditReport && auditReport.fatal;
 
   const preventAll = submissionUploadState === states.succeeded;
   const preventBack = step === 0 || preventAll;
-  const preventNext = Boolean(
-    step >= 3
-    || (step === 0 && !file)
-    || preventAll
-  );
+  const preventNext = Boolean(step >= 3 || (step === 0 && !file) || preventAll);
 
   const onLastStep = step >= validationSteps.length;
   const hasErrors = errorSum > 0;
   const onUploadStep = step === 0;
 
-  const forwardArrowTooltip =
-    onUploadStep
+  const forwardArrowTooltip = onUploadStep
     ? 'Upload File to Proceed'
     : onLastStep && hasErrors
-    ? 'Correct Errors to Proceed'
-    : `Next: ${getStepLabel(step + 1)}`;
+      ? 'Correct Errors to Proceed'
+      : `Next: ${getStepLabel(step + 1)}`;
 
-  const backArrowTooltip =
-    onUploadStep ? 'No Prior Step' : `Back to ${getStepLabel (step - 1)}`
+  const backArrowTooltip = onUploadStep
+    ? 'No Prior Step'
+    : `Back to ${getStepLabel(step - 1)}`;
 
   if (submissionUploadState === states.succeeded) {
-    return (
-      <div className={cl.navigationWrapper}>
-      </div>
-    );
+    return <div className={cl.navigationWrapper}></div>;
   }
 
   return (
@@ -134,7 +126,9 @@ const Navigation = (props) => {
               className={cl.stepButton}
             >
               <StepBadge
-                errors={step === 2 ? workbookErrors : step === 3 ? errorSum : null}
+                errors={
+                  step === 2 ? workbookErrors : step === 3 ? errorSum : null
+                }
                 text={'Back'}
               />
             </StepButton>

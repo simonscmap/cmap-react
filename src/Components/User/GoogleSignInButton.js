@@ -4,7 +4,7 @@ import { WhiteButtonSM } from '../Home/buttons';
 import { useDispatch } from 'react-redux';
 import {
   promptGSILogin,
-  createRegisterWithGoogleContext
+  createRegisterWithGoogleContext,
 } from '../../Redux/actions/user';
 
 const styles = (theme) => ({
@@ -23,7 +23,7 @@ const styles = (theme) => ({
   iconContainer: {
     width: '36px',
     height: '36px',
-    backgroundImage: "url(/images/google-g.svg)",
+    backgroundImage: 'url(/images/google-g.svg)',
     backgroundRepeat: 'no-repeat',
     backgroundSize: 'cover',
   },
@@ -40,10 +40,10 @@ const GoogleSignInButton = (props) => {
     if (register) {
       // because the google login prompt callback cannot be dynamically parameterized
       // we create a context in redux which is checked before a request is sent to the api
-      dispatch(createRegisterWithGoogleContext ());
+      dispatch(createRegisterWithGoogleContext());
     }
-    dispatch (promptGSILogin ());
-  }
+    dispatch(promptGSILogin());
+  };
 
   return (
     <WhiteButtonSM

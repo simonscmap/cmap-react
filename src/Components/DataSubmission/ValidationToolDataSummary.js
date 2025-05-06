@@ -3,7 +3,7 @@ import React from 'react';
 import { Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
-const useStyles = makeStyles ((theme) => ({
+const useStyles = makeStyles((theme) => ({
   statusArea: {
     color: 'white',
   },
@@ -16,12 +16,12 @@ const useStyles = makeStyles ((theme) => ({
     '& span': {
       display: 'inline-block',
       width: '125px',
-      fontSize: '.9em'
+      fontSize: '.9em',
     },
     '& p': {
       margin: 0,
       fontSize: '1em',
-    }
+    },
   },
 }));
 
@@ -37,44 +37,24 @@ const DataSummary = (props) => {
       <Typography variant="h6">Data Summary</Typography>
       <div>
         <div className={cl.overview}>
-          <span>
-            {'short_name'}:
-          </span>
-          <Typography variant="body2">
-            {summary.shortName}
-          </Typography>
+          <span>{'short_name'}:</span>
+          <Typography variant="body2">{summary.shortName}</Typography>
         </div>
         <div className={cl.overview}>
-          <span>
-            {'long_name'}:
-          </span>
-          <Typography variant="body2">
-            {summary.longName}
-          </Typography>
+          <span>{'long_name'}:</span>
+          <Typography variant="body2">{summary.longName}</Typography>
         </div>
         <div className={cl.overview}>
-          <span>
-            {'user variables'}:
-          </span>
-          <Typography variant="body2">
-            {summary.vars}
-          </Typography>
+          <span>{'user variables'}:</span>
+          <Typography variant="body2">{summary.vars}</Typography>
         </div>
         <div className={cl.overview}>
-          <span>
-            {'data columns'}:
-          </span>
-          <Typography variant="body2">
-            {summary.cols}
-          </Typography>
+          <span>{'data columns'}:</span>
+          <Typography variant="body2">{summary.cols}</Typography>
         </div>
         <div className={cl.overview}>
-          <span>
-            {'data rows'}:
-          </span>
-          <Typography variant="body2">
-            {summary.rows}
-          </Typography>
+          <span>{'data rows'}:</span>
+          <Typography variant="body2">{summary.rows}</Typography>
         </div>
       </div>
     </div>

@@ -6,7 +6,8 @@ import Section, { FullWidthContainer } from '../Common/Section';
 import { colors } from '../Home/theme';
 import ResizeObserver from 'react-resize-observer';
 
-const nbviewerLink = 'https://nbviewer.org/github/simonscmap/pycmap/blob/master/docs/CruiseMap.ipynb';
+const nbviewerLink =
+  'https://nbviewer.org/github/simonscmap/pycmap/blob/master/docs/CruiseMap.ipynb';
 
 const styles = () => ({
   sectionGap: {
@@ -34,7 +35,7 @@ const styles = () => ({
     flexDirection: 'row',
     marginBottom: '2em',
     gap: '1em',
-  }
+  },
 });
 
 const Credit = withStyles(styles)(({ children }) => {
@@ -57,7 +58,13 @@ const HeroContent = withStyles(styles)(({ classes }) => {
           />
         </a>
         <a href="https://colab.research.google.com/github/simonscmap/pycmap/blob/master/docs/CruiseMap.ipynb">
-          <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open in Colab" title="Open and Execute in Google Colaboratory" target="_blank" align="left" />
+          <img
+            src="https://colab.research.google.com/assets/colab-badge.svg"
+            alt="Open in Colab"
+            title="Open and Execute in Google Colaboratory"
+            target="_blank"
+            align="left"
+          />
         </a>
       </div>
       <Credit>
@@ -100,7 +107,7 @@ const ExerciseDescription = () => {
   // let sectionText = clsx(classes.tallLines, classes.paragraphGap);
   return (
     <Page
-    pageTitle={'GeoSpatial Map Superimposed by Arbitrary Cruise Trajectories'}
+      pageTitle={'GeoSpatial Map Superimposed by Arbitrary Cruise Trajectories'}
       heroContent={<HeroContent />}
     >
       <FullWidthContainer bgVariant={'slate'}>

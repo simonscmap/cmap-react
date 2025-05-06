@@ -5,9 +5,7 @@ import { useSelector } from 'react-redux';
 // hook to provide which data features are available for a particular table
 
 export const useDatasetFeatures = (tableName = '', featureFlag = false) => {
-  let datasetFeatures = useSelector(
-    (state) => state.catalog.datasetFeatures,
-  );
+  let datasetFeatures = useSelector((state) => state.catalog.datasetFeatures);
 
   // if there is no data, return null
   if (!datasetFeatures) {
@@ -29,4 +27,4 @@ export const useDatasetFeatures = (tableName = '', featureFlag = false) => {
 
   // otherwise, return the features for this table
   return tableFeatures;
-}
+};

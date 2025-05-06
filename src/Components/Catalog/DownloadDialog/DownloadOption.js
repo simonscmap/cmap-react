@@ -1,12 +1,7 @@
 // Template for rendering a toggle switch for a download option
 // Uses Grid to lay out a control and an explanation, side by side
 import React, { useState } from 'react';
-import {
-  FormControlLabel,
-  Switch,
-  Grid,
-  Link,
-} from '@material-ui/core';
+import { FormControlLabel, Switch, Grid, Link } from '@material-ui/core';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import HelpIcon from '@material-ui/icons/Help';
 import colors from '../../../enums/colors';

@@ -1,7 +1,4 @@
-import auditFactory, {
-  requireData,
-  makeSimpleIssue,
-} from './auditFactory';
+import auditFactory, { requireData, makeSimpleIssue } from './auditFactory';
 import severity from './severity';
 
 const AUDIT_NAME = 'Radians';
@@ -36,28 +33,27 @@ let checkRadians = (data) => {
 // :: args -> [result]
 const check = (standardAuditArgs) => {
   const { data } = standardAuditArgs;
-  const results = []
+  const results = [];
 
-  let err = checkRadians (data);
+  let err = checkRadians(data);
 
   if (err) {
-    const msg = 'Values supplied for lat and lon indicate the possible use of radian as unit of measurement. Lat and lon must be in degrees north and degrees east, respectively.';
-    results.push (makeSimpleIssue (
-      severity.warning,
-      'Values for lat/lon may be in radians',
-      msg,
-    ));
+    const msg =
+      'Values supplied for lat and lon indicate the possible use of radian as unit of measurement. Lat and lon must be in degrees north and degrees east, respectively.';
+    results.push(
+      makeSimpleIssue(
+        severity.warning,
+        'Values for lat/lon may be in radians',
+        msg,
+      ),
+    );
   }
 
   return results;
-}
+};
 
-const auditFn = requireData (AUDIT_NAME, check);
+const auditFn = requireData(AUDIT_NAME, check);
 
-const audit = auditFactory (
-  AUDIT_NAME,
-  DESCRIPTION,
-  auditFn,
-);
+const audit = auditFactory(AUDIT_NAME, DESCRIPTION, auditFn);
 
 export default audit;

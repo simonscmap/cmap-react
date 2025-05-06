@@ -42,10 +42,7 @@ const DetailsTable = ({ dataset, sensors, classes }) => {
   } = dataset;
 
   return (
-    <Table
-      size="small"
-      style={{ marginTop: '24px' }}
-    >
+    <Table size="small" style={{ marginTop: '24px' }}>
       <TableBody>
         <TableRow className={classes.sampleTableRow}>
           <TableCell className={classes.tableHead}>Make</TableCell>
@@ -60,9 +57,7 @@ const DetailsTable = ({ dataset, sensors, classes }) => {
         </TableRow>
 
         <TableRow className={classes.sampleTableRow}>
-          <TableCell className={classes.tableHead}>
-            Process Level
-          </TableCell>
+          <TableCell className={classes.tableHead}>Process Level</TableCell>
           <TableCell>{Process_Level}</TableCell>
         </TableRow>
 
@@ -88,19 +83,13 @@ const DetailsTable = ({ dataset, sensors, classes }) => {
         </TableRow>
 
         <TableRow className={classes.sampleTableRow}>
-          <TableCell className={classes.tableHead}>
-            Date Start*
-          </TableCell>
-          <TableCell>
-            {Time_Min ? Time_Min.slice(0, 10) : 'NA'}
-          </TableCell>
+          <TableCell className={classes.tableHead}>Date Start*</TableCell>
+          <TableCell>{Time_Min ? Time_Min.slice(0, 10) : 'NA'}</TableCell>
         </TableRow>
 
         <TableRow className={classes.sampleTableRow}>
           <TableCell className={classes.tableHead}>Date End*</TableCell>
-          <TableCell>
-            {Time_Max ? Time_Max.slice(0, 10) : 'NA'}
-          </TableCell>
+          <TableCell>{Time_Max ? Time_Max.slice(0, 10) : 'NA'}</TableCell>
         </TableRow>
 
         <TableRow className={classes.sampleTableRow}>
@@ -131,26 +120,17 @@ const DetailsTable = ({ dataset, sensors, classes }) => {
         </TableRow>
 
         <TableRow className={classes.sampleTableRow}>
-          <TableCell className={classes.tableHead}>
-            Depth Min*
-          </TableCell>
-          <TableCell>
-            {Depth_Max ? Depth_Min + 'm' : 'Surface Only'}
-          </TableCell>
+          <TableCell className={classes.tableHead}>Depth Min*</TableCell>
+          <TableCell>{Depth_Max ? Depth_Min + 'm' : 'Surface Only'}</TableCell>
         </TableRow>
 
         <TableRow className={classes.sampleTableRow}>
-          <TableCell className={classes.tableHead}>
-            Depth Max*
-          </TableCell>
-          <TableCell>
-            {Depth_Max ? Depth_Max + 'm' : 'Surface Only'}
-          </TableCell>
+          <TableCell className={classes.tableHead}>Depth Max*</TableCell>
+          <TableCell>{Depth_Max ? Depth_Max + 'm' : 'Surface Only'}</TableCell>
         </TableRow>
       </TableBody>
     </Table>
-
   );
-}
+};
 
 export default withStyles(styles)(DetailsTable);

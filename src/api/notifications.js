@@ -10,7 +10,7 @@ notificationsAPI.history = async (args) => {
 };
 
 notificationsAPI.recipients = async (args) => {
-  const tags = JSON.stringify (args.tags);
+  const tags = JSON.stringify(args.tags);
   const endpoint = apiUrl + '/api/notifications/recipients' + `?tags=${tags}`;
   return await fetch(endpoint, {
     ...fetchOptions,
@@ -18,7 +18,8 @@ notificationsAPI.recipients = async (args) => {
 };
 
 notificationsAPI.previews = async (args) => {
-  const endpoint = apiUrl + '/api/notifications/preview' + `?newsId=${args.newsId}`;
+  const endpoint =
+    apiUrl + '/api/notifications/preview' + `?newsId=${args.newsId}`;
   return await fetch(endpoint, {
     ...fetchOptions,
   });
@@ -31,7 +32,6 @@ notificationsAPI.send = async (args) => {
     body: JSON.stringify(args),
   });
 };
-
 
 notificationsAPI.reSend = async (args) => {
   const endpoint = apiUrl + '/api/notifications/resend';

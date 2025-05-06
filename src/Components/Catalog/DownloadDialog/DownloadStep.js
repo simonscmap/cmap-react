@@ -4,7 +4,6 @@ import React from 'react';
 import styles from './downloadDialogStyles';
 import { downloadButtonText } from './buttonStates';
 
-
 const DownloadStep = (props) => {
   let { handlers, buttonState, isInvalid } = props;
 
@@ -25,11 +24,12 @@ const DownloadStep = (props) => {
         alignItems="flex-start"
       >
         <Grid item>
-        <Button
-          disabled={!buttonState.enabled || isInvalid}
-          onClick={downloadHandler}
-          color="primary"
-          variant="contained">
+          <Button
+            disabled={!buttonState.enabled || isInvalid}
+            onClick={downloadHandler}
+            color="primary"
+            variant="contained"
+          >
             {downloadButtonText[buttonState.status]}
           </Button>
         </Grid>

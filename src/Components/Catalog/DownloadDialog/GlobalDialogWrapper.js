@@ -7,7 +7,6 @@ import { createSelector } from 'reselect';
 import { Dialog } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
-
 import EmbeddedLogin from './EmbeddedLogin';
 import DialogContent from './DialogContent';
 
@@ -22,8 +21,6 @@ import { safePath } from '../../../Utility/objectUtils';
 import states from '../../../enums/asyncRequestStates';
 import logInit from '../../../Services/log-service';
 
-
-
 const log = logInit('dialog').addContext({
   src: 'Components/Catalog/DownloadDialog',
 });
@@ -37,14 +34,14 @@ const useStyles = makeStyles((theme) => ({
   },
   muiDialog: {
     zIndex: `${zIndex.MUI_DIALOG} !important`,
-  }
+  },
 }));
 
-const dataSelector = createSelector (
+const dataSelector = createSelector(
   [
-    safePath (['downloadDialog', 'shortName']),
-    safePath (['datasetDetailsPage', 'data']),
-    safePath (['downloadDialog', 'data']),
+    safePath(['downloadDialog', 'shortName']),
+    safePath(['datasetDetailsPage', 'data']),
+    safePath(['downloadDialog', 'data']),
   ],
   (shortName, detailPageData, fetchedData) => {
     if (!shortName) {
@@ -56,43 +53,43 @@ const dataSelector = createSelector (
     } else {
       return null;
     }
-  }
+  },
 );
 
 const GlobalDialogWrapper = (props) => {
   const dispatch = useDispatch();
   const cl = useStyles();
 
-  const globalDialog = useSelector (state => state.downloadDialog);
+  const globalDialog = useSelector((state) => state.downloadDialog);
   const { open } = globalDialog;
-  const user = useSelector ((state) => state.user);
-  const data = useSelector (dataSelector);
+  const user = useSelector((state) => state.user);
+  const data = useSelector(dataSelector);
 
   // OPEN/CLOSE
-  const [openState, setOpenState] = useState (open);
+  const [openState, setOpenState] = useState(open);
 
   useEffect(() => {
     if (openState !== open) {
       if (open === false) {
-        dispatch (downloadDialogClear ());
+        dispatch(downloadDialogClear());
       }
-      setOpenState (open);
+      setOpenState(open);
     }
   }, [open]);
 
   const close = () => {
-    setOpenState (false);
-    dispatch (downloadDialogClear ());
-  }
+    setOpenState(false);
+    dispatch(downloadDialogClear());
+  };
 
   const dialogProps = {
     dataset: data,
     handleClose: close,
     dialogOpen: openState,
-  }
+  };
 
   if (!openState) {
-    return <React.Fragment />
+    return <React.Fragment />;
   }
 
   if (openState) {
@@ -108,16 +105,20 @@ const GlobalDialogWrapper = (props) => {
         fullWidth={true}
         maxWidth={DIALOG_WIDTH}
       >
-        { (!!user && !!data)
-          ? <DialogContent {...dialogProps} />
-          : (!user)
-          ? <EmbeddedLogin />
-          : (user && !data)
-          ? <Spacer><Spinner message="Loading Dataset" /></Spacer>
-          : '' }
-      </Dialog>);
+        {!!user && !!data ? (
+          <DialogContent {...dialogProps} />
+        ) : !user ? (
+          <EmbeddedLogin />
+        ) : user && !data ? (
+          <Spacer>
+            <Spinner message="Loading Dataset" />
+          </Spacer>
+        ) : (
+          ''
+        )}
+      </Dialog>
+    );
   }
-
-}
+};
 
 export default GlobalDialogWrapper;

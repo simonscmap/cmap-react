@@ -179,7 +179,6 @@ const Guide = withStyles(styles)((props) => {
           such as "http", but are internal and point to a page on CMAP when they
           begin with a forward slash "/".
         </Typography>
-
       </div>
     </SlideOutPanel>
   );

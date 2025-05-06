@@ -1,10 +1,6 @@
 import React from 'react';
 
-import {
-  makeStyles,
-  Typography,
-  Tooltip,
-} from '@material-ui/core';
+import { makeStyles, Typography, Tooltip } from '@material-ui/core';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 
@@ -44,20 +40,24 @@ const TableRowTextPair = ({ label, value, mono, customComponent }) => {
   const cl = useStyles();
   const textClass = mono ? cl.monoValue : '';
 
-  const RenderValue = customComponent || (() => (
-    <Tooltip title={value} placement="bottom-start">
-      <Typography className={textClass}>{value}</Typography>
-    </Tooltip>
-  ));
+  const RenderValue =
+    customComponent ||
+    (() => (
+      <Tooltip title={value} placement="bottom-start">
+        <Typography className={textClass}>{value}</Typography>
+      </Tooltip>
+    ));
 
-  return <TableRow className={cl.row}>
-    <TableCell component="th" scope="row" className={cl.labelCell}>
-      <Typography className={cl.label}>{label}</Typography>
-    </TableCell>
-    <TableCell className={cl.cell}>
-      <RenderValue text={value} label={label} mono={mono} />
-    </TableCell>
-  </TableRow>;
-}
+  return (
+    <TableRow className={cl.row}>
+      <TableCell component="th" scope="row" className={cl.labelCell}>
+        <Typography className={cl.label}>{label}</Typography>
+      </TableCell>
+      <TableCell className={cl.cell}>
+        <RenderValue text={value} label={label} mono={mono} />
+      </TableCell>
+    </TableRow>
+  );
+};
 
 export default TableRowTextPair;

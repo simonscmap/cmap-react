@@ -6,9 +6,12 @@ import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { retrieveDataSubmissionsByUser } from '../../Redux/actions/dataSubmission';
 import states from '../../enums/asyncRequestStates';
-import { FileUploadArea, ChooseSubmissionType } from './ChooserComponents/index';
+import {
+  FileUploadArea,
+  ChooseSubmissionType,
+} from './ChooserComponents/index';
 
-const useStyles = makeStyles ((theme) => ({
+const useStyles = makeStyles((theme) => ({
   displayNone: {
     display: 'none',
   },
@@ -17,7 +20,7 @@ const useStyles = makeStyles ((theme) => ({
     flexDirection: 'row',
     gap: '1em',
     alignItems: 'top',
-    margin: '1em 0 2em 0'
+    margin: '1em 0 2em 0',
   },
   optionCard: {
     minWidth: '300px',
@@ -27,26 +30,25 @@ const useStyles = makeStyles ((theme) => ({
     flexDirection: 'column',
     alignItems: 'start',
   },
-  chooser: {
-
-  }
+  chooser: {},
 }));
 
 const Chooser = (props) => {
   const { step, status, reset } = props;
   const classes = useStyles();
 
-  const user = useSelector ((state) => state.user);
+  const user = useSelector((state) => state.user);
 
-  const userDataSubsRequestState = useSelector((state) =>
-    (state.retrieveUserDataSubmsissionsRequestStatus));
+  const userDataSubsRequestState = useSelector(
+    (state) => state.retrieveUserDataSubmsissionsRequestStatus,
+  );
 
   const dispatch = useDispatch();
 
   useEffect(() => {
     // if request to get data subsmissions for user has not already been dispatched, do so
     if (user && userDataSubsRequestState === states.notTried) {
-      dispatch (retrieveDataSubmissionsByUser());
+      dispatch(retrieveDataSubmissionsByUser());
     }
   }, [user]);
 

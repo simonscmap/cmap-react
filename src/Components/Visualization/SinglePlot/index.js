@@ -17,21 +17,9 @@ import temporalResolutions from '../../../enums/temporalResolutions';
 import spatialResolutions from '../../../enums/spatialResolutions';
 import storedProcedures from '../../../enums/storedProcedures';
 
-
-
 // taken from VizControlPanel
 const preparePayload = (params, variable) => {
-  let {
-    depth1,
-    depth2,
-    dt1,
-    dt2,
-    lat1,
-    lat2,
-    lon1,
-    lon2,
-    viztype,
-  } = params;
+  let { depth1, depth2, dt1, dt2, lat1, lat2, lon1, lon2, viztype } = params;
 
   // defaults
   depth1 = depth1 || variable.Depth_Min;
@@ -47,10 +35,12 @@ const preparePayload = (params, variable) => {
   let parameters = cleanSPParams({
     depth1,
     depth2,
-    dt1: variable.Temporal_Resolution === temporalResolutions.monthlyClimatology
+    dt1:
+      variable.Temporal_Resolution === temporalResolutions.monthlyClimatology
         ? dt1 + '-01-1900'
         : dt1,
-    dt2: variable.Temporal_Resolution === temporalResolutions.monthlyClimatology
+    dt2:
+      variable.Temporal_Resolution === temporalResolutions.monthlyClimatology
         ? dt2 + '-01-1900'
         : dt2,
     lat1,
@@ -79,9 +69,9 @@ const SinglePlot = () => {
   // console.log(params);
   let { viztype, id } = params;
 
-  let [ variable, setVariable ] = useState(null);
+  let [variable, setVariable] = useState(null);
   // let [ rawData, setRawData ] = useState(null)
-  let [ chart, setChart ] = useState(null);
+  let [chart, setChart] = useState(null);
 
   // FETCH VARIABLE
 
@@ -89,71 +79,75 @@ const SinglePlot = () => {
     async function fetchVariable(variableId) {
       let result;
       try {
-        let resp = await fetch(apiUrl + `/api/catalog/variable?id=${variableId}`, { credentials: 'include' });
+        let resp = await fetch(
+          apiUrl + `/api/catalog/variable?id=${variableId}`,
+          { credentials: 'include' },
+        );
         result = await resp.json();
       } catch (e) {
-        console.log (e);
+        console.log(e);
         return;
       }
       // console.log ('variable result', result);
-      setVariable (result);
+      setVariable(result);
     }
     if (id) {
-      console.log (`fetch variable ${id}`);
-      fetchVariable (id);
+      console.log(`fetch variable ${id}`);
+      fetchVariable(id);
     }
   }, [id]);
 
   // FETCH CHART
 
   useEffect(() => {
-    async function fetchSparseData (payload) {
+    async function fetchSparseData(payload) {
       let result;
       try {
-        result = await api.visualization.sparseDataQuerysend(payload)
+        result = await api.visualization.sparseDataQuerysend(payload);
       } catch (e) {
-        console.log (e);
+        console.log(e);
         return;
       }
       if (result && result.finalize) {
         result.finalize();
-        setChart ({ subType: payload.subType, data: result });
+        setChart({ subType: payload.subType, data: result });
       } else {
-        console.error ('sparse data error', result);
+        console.error('sparse data error', result);
       }
     }
-    async function fetchStoredProcedureData (payload) {
+    async function fetchStoredProcedureData(payload) {
       let result;
       try {
-        result = await api.visualization.storedProcedureRequest(payload)
+        result = await api.visualization.storedProcedureRequest(payload);
       } catch (e) {
-        console.log (e);
+        console.log(e);
         return;
       }
 
       if (result && result.finalize) {
         // console.log ('stored procedure result', result);
         result.finalize();
-        setChart ({ subType: payload.subType, data: result });
+        setChart({ subType: payload.subType, data: result });
       } else {
-        console.error ('stored procedure error', result);
+        console.error('stored procedure error', result);
       }
     }
 
     if (variable && viztype) {
-      let mapping = mapVizType (viztype);
+      let mapping = mapVizType(viztype);
       let isSparseVariable =
-        variable && variable.Spatial_Resolution === spatialResolutions.irregular;
+        variable &&
+        variable.Spatial_Resolution === spatialResolutions.irregular;
 
-      let payload = preparePayload ({ ...params, viztype }, variable);
+      let payload = preparePayload({ ...params, viztype }, variable);
       // console.log ('payload', payload);
       if (isSparseVariable && mapping.sp !== storedProcedures.depthProfile) {
-        fetchSparseData (payload);
+        fetchSparseData(payload);
       } else {
-        fetchStoredProcedureData (payload);
+        fetchStoredProcedureData(payload);
       }
     } else if (!viztype) {
-      console.log ('no viztype parameter');
+      console.log('no viztype parameter');
     }
   }, [variable]);
 
@@ -168,28 +162,37 @@ const SinglePlot = () => {
           </div>
         </Section>
         <Section title="Plot">
-          {chart ? (<div style={{ marginLeft: '-360px' }}>
-            <ChartWrapper chart={chart} /></div>) : (<div>Loading...</div>)}
+          {chart ? (
+            <div style={{ marginLeft: '-360px' }}>
+              <ChartWrapper chart={chart} />
+            </div>
+          ) : (
+            <div>Loading...</div>
+          )}
         </Section>
         <Section title="Variable Info">
           {variable ? (
             <div style={{ border: '10px solid #2B303B' }}>
               <ReactJson theme="ocean" src={variable} />
             </div>
-          ) : (<div>Loading...</div>)}
+          ) : (
+            <div>Loading...</div>
+          )}
         </Section>
         <Section title="Plot Info">
           {chart && (
             <div style={{ border: '10px solid #2B303B' }}>
-              <ReactJson theme="ocean" src={{
-                lats: chart.data.lats.length,
-                lons: chart.data.lons.length,
-                rows: chart.data.rows.length,
-              }} />
+              <ReactJson
+                theme="ocean"
+                src={{
+                  lats: chart.data.lats.length,
+                  lons: chart.data.lons.length,
+                  rows: chart.data.rows.length,
+                }}
+              />
             </div>
           )}
         </Section>
-
       </FullWidthContainer>
     </Page>
   );

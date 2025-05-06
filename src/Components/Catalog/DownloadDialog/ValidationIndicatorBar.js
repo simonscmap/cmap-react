@@ -9,28 +9,32 @@ const useStyles = makeStyles({
   root: {
     width: '100%',
     backgroundColor: '#13374e',
-    paddingBottom: '.5em'
+    paddingBottom: '.5em',
   },
 });
 
 const WarningTheme = createTheme({
   palette: {
     primary: {
-      main: "#d16265;",
+      main: '#d16265;',
     },
     secondary: {
-      main: "#ffd54f",
-    }
+      main: '#ffd54f',
+    },
   },
 });
 
 const WarningBar = ({ color }) => {
   return (
     <ThemeProvider theme={WarningTheme}>
-      <LinearProgress variant="determinate" value={100} color={ color || 'primary' } />
-    </ThemeProvider >
+      <LinearProgress
+        variant="determinate"
+        value={100}
+        color={color || 'primary'}
+      />
+    </ThemeProvider>
   );
-}
+};
 
 const IndicatorBar = (props) => {
   const classes = useStyles();
@@ -42,7 +46,7 @@ const IndicatorBar = (props) => {
   if (buttonState.status === buttonStates.checkFailed) {
     return (
       <div className={classes.root}>
-        <WarningBar color="secondary"/>
+        <WarningBar color="secondary" />
         <ValidationStatusBar state={buttonState} />
       </div>
     );
@@ -77,6 +81,6 @@ const IndicatorBar = (props) => {
 
   // not tried | default case
   return '';
-}
+};
 
 export default IndicatorBar;

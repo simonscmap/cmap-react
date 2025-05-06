@@ -23,11 +23,13 @@ import makeSplitByDepthControl from './ChartControls/SplitByDepthControl';
 import ColorscaleRangeControl from './ChartControls/ColorscaleRangeControl';
 import ChartTemplate from './ChartTemplate';
 
-import { getHovertext_, toSetArray,
-         spaceTimeGenerateHistogramPlotData,
-         spaceTimeGenerateHistogramSubsetPlotsSplitByDate,
-         spaceTimeGenerateHistogramSubsetPlotsSplitByDepth,
-         spaceTimeGenerateHistogram2D,
+import {
+  getHovertext_,
+  toSetArray,
+  spaceTimeGenerateHistogramPlotData,
+  spaceTimeGenerateHistogramSubsetPlotsSplitByDate,
+  spaceTimeGenerateHistogramSubsetPlotsSplitByDepth,
+  spaceTimeGenerateHistogram2D,
 } from '../../../api/myLib.js';
 
 // helpers
@@ -37,22 +39,26 @@ const getDate = (data, splitByDate, splitByDepth, subsetIndex) => {
   return dates.length <= 1
     ? handleChartDateString(dates[0], data.hasHour, data.isMonthly)
     : !splitByDate
-    ? `Averaged Values ${handleChartDateString(
-        dates[0],
-        data.hasHour,
-        data.isMonthly,
-      )} to ${handleChartDateString(
-        dates[dates.length - 1],
-        data.hasHour,
-        data.isMonthly,
-      )}`
-    : splitByDepth
-    ? handleChartDateString(
-        dates[Math.floor(subsetIndex / depths.length)],
-        data.hasHour,
-        data.isMonthly,
-      )
-    : handleChartDateString(dates[subsetIndex], data.hasHour, data.isMonthly);
+      ? `Averaged Values ${handleChartDateString(
+          dates[0],
+          data.hasHour,
+          data.isMonthly,
+        )} to ${handleChartDateString(
+          dates[dates.length - 1],
+          data.hasHour,
+          data.isMonthly,
+        )}`
+      : splitByDepth
+        ? handleChartDateString(
+            dates[Math.floor(subsetIndex / depths.length)],
+            data.hasHour,
+            data.isMonthly,
+          )
+        : handleChartDateString(
+            dates[subsetIndex],
+            data.hasHour,
+            data.isMonthly,
+          );
 };
 
 const getDepth = (data, subsetIndex, splitByDate, splitByDepth) => {
@@ -68,44 +74,44 @@ const getDepth = (data, subsetIndex, splitByDate, splitByDepth) => {
   if (splitByDepth) {
     return depths[subsetIndex] + '[m]';
   }
-  return `Averaged Values ${parameters.depth1}[m] to ${parameters.depth2}[m]`
+  return `Averaged Values ${parameters.depth1}[m] to ${parameters.depth2}[m]`;
 };
 
 const getXTicks = (data) => {
-  return  handleXTicks(data) ;
+  return handleXTicks(data);
 };
 
- // const getHovertext = (subset, data) => {
- //   return subset.map((value, i) => {
- //     let abs = Math.abs(value);
- //     let formatter = abs > 0.01 && abs < 1000 ? '.2f' : '.2e';
- //     if (value === null) {
- //       return (
- //         `Lat: ${format('.2f')(data.lats[i])}\xb0` +
- //         `<br>` +
- //         `Lon: ${
- //           data.lons[i] > 180
- //             ? format('.2f')(data.lons[i] - 360)
- //             : format('.2f')(data.lons[i])
- //         }\xb0`
- //       );
- //     }
+// const getHovertext = (subset, data) => {
+//   return subset.map((value, i) => {
+//     let abs = Math.abs(value);
+//     let formatter = abs > 0.01 && abs < 1000 ? '.2f' : '.2e';
+//     if (value === null) {
+//       return (
+//         `Lat: ${format('.2f')(data.lats[i])}\xb0` +
+//         `<br>` +
+//         `Lon: ${
+//           data.lons[i] > 180
+//             ? format('.2f')(data.lons[i] - 360)
+//             : format('.2f')(data.lons[i])
+//         }\xb0`
+//       );
+//     }
 
- //     return (
- //       `Lat: ${format('.2f')(data.lats[i])}\xb0` +
- //       `<br>` +
- //       `Lon: ${
- //         data.lons[i] > 180
- //           ? format('.2f')(data.lons[i] - 360)
- //           : format('.2f')(data.lons[i])
- //       }\xb0` +
- //       '<br>' +
- //       `${data.parameters.fields}: ${format(formatter)(value)} [${
- //         data.metadata.Unit
- //       }]`
- //     );
- //   });
- // };
+//     return (
+//       `Lat: ${format('.2f')(data.lats[i])}\xb0` +
+//       `<br>` +
+//       `Lon: ${
+//         data.lons[i] > 180
+//           ? format('.2f')(data.lons[i] - 360)
+//           : format('.2f')(data.lons[i])
+//       }\xb0` +
+//       '<br>' +
+//       `${data.parameters.fields}: ${format(formatter)(value)} [${
+//         data.metadata.Unit
+//       }]`
+//     );
+//   });
+// };
 
 const handleContourMap = (
   subsets,
@@ -115,7 +121,7 @@ const handleContourMap = (
   palette,
   zMin,
   zMax,
-  overrides = {}
+  overrides = {},
 ) => {
   const { parameters, metadata } = data;
   const [height, width] = getChartDimensions(data);
@@ -128,9 +134,8 @@ const handleContourMap = (
     let depthTitle = getDepth(data, index, splitByDate, splitByDepth);
     // let { latTitle, lonTitle } = getLatLonTitles(parameters);
 
-    let uniqY = toSetArray (data.lats);
-    let uniqX = toSetArray (data.lons);
-
+    let uniqY = toSetArray(data.lats);
+    let uniqX = toSetArray(data.lons);
 
     let contourPlotConfig = {
       key: index,
@@ -157,7 +162,13 @@ const handleContourMap = (
           colorscale: palette,
 
           hoverinfo: 'text',
-          hovertext: getHovertext_ ({ x: uniqX, y: uniqY, z: subset, fields: data.parameters.fields, unit: data.metadata.Unit}),
+          hovertext: getHovertext_({
+            x: uniqX,
+            y: uniqY,
+            z: subset,
+            fields: data.parameters.fields,
+            unit: data.metadata.Unit,
+          }),
           name: truncate60(metadata.Long_Name),
           type: 'contour',
           contours: {
@@ -187,11 +198,17 @@ const handleContourMap = (
         dateTitle,
         null, // don't render lat
         null, // don't render lon
-        depthTitle
+        depthTitle,
       ],
       annotationArgs: [metadata.Distributor, metadata.Data_Source, overrides],
     };
-    console.log ('plotly params', { z: subset, x: uniqX, y: uniqY, type: 'heatmap', xTicks });
+    console.log('plotly params', {
+      z: subset,
+      x: uniqX,
+      y: uniqY,
+      type: 'heatmap',
+      xTicks,
+    });
     return contourPlotConfig;
   });
   return contourPlotConfigs;
@@ -216,18 +233,18 @@ const handleHeatmap = (
     let depthTitle = getDepth(data, index, splitByDate, splitByDepth);
     // let { latTitle, lonTitle } = getLatLonTitles(parameters);
 
-    let uniqY = toSetArray (data.lats);
-    let uniqX = toSetArray (data.lons)
+    let uniqY = toSetArray(data.lats);
+    let uniqX = toSetArray(data.lons);
 
     let heatmapPlotConfig = {
       key: index,
       style: {
         // width: '100vw',
         // height: '100vh',
-         width: overrides.width || `${width}vw`,
-         height: overrides.height || `${height}vw`,
-         // minWidth: `${width * 10}px`,
-         // minHeight: `${height * 10}px`,
+        width: overrides.width || `${width}vw`,
+        height: overrides.height || `${height}vw`,
+        // minWidth: `${width * 10}px`,
+        // minHeight: `${height * 10}px`,
       },
       useResizeHandler: true,
       data: [
@@ -249,7 +266,13 @@ const handleHeatmap = (
           colorscale: palette,
           autocolorscale: false,
           hoverinfo: 'text',
-          hovertext: getHovertext_ ({ x: uniqX, y: uniqY, z: subset, fields: data.parameters.fields, unit: data.metadata.Unit}),
+          hovertext: getHovertext_({
+            x: uniqX,
+            y: uniqY,
+            z: subset,
+            fields: data.parameters.fields,
+            unit: data.metadata.Unit,
+          }),
 
           colorbar: {
             title: {
@@ -277,12 +300,18 @@ const handleHeatmap = (
         dateTitle,
         null, // don't render latTitle
         null, // don't render lonTitle
-        depthTitle
+        depthTitle,
       ],
       annotationArgs: [metadata.Distributor, metadata.Data_Source, overrides],
       cmapOverrides: overrides,
     };
-    console.log ('plotly params', { z: subset, x: uniqX, y: uniqY, type: 'heatmap', xTicks });
+    console.log('plotly params', {
+      z: subset,
+      x: uniqX,
+      y: uniqY,
+      type: 'heatmap',
+      xTicks,
+    });
     return heatmapPlotConfig;
   });
   return heatmapPlotConfigs;
@@ -315,7 +344,9 @@ const SpaceTimeChart = (props) => {
 
       // NOTE the !splitByDate reads: "if we're about to toggle on splitByDate..."
       if (!splitByDate && chartCount * dates.size > availableWGLContexts) {
-        openSnack('Warning: Exceeded available WebGL Contexts for rendering plots.');
+        openSnack(
+          'Warning: Exceeded available WebGL Contexts for rendering plots.',
+        );
         // NOTE allow users to try to render a split, but give a warning/explanation
         // return;
       }
@@ -327,7 +358,9 @@ const SpaceTimeChart = (props) => {
       // however, hourly datasets will be split by the hour field
       // NOTE see above re: !splitByDate
       if (!splitByDate && chartCount * dates.size > 20) {
-        openSnack('Warning: Exceeded available WebGL Contexts for rendering plots.');
+        openSnack(
+          'Warning: Exceeded available WebGL Contexts for rendering plots.',
+        );
         // return;
       }
     }
@@ -358,14 +391,11 @@ const SpaceTimeChart = (props) => {
     { rangeValues, setRangeValues },
   ];
 
-  let controls = [
-    paletteControlTuple,
-    colorscaleRangeControlTuple,
-  ];
+  let controls = [paletteControlTuple, colorscaleRangeControlTuple];
 
   if (!overrides.isSampleVisualization) {
-    controls.push (splitByDateControlTuple);
-    controls.push (splitByDepthControlTuple);
+    controls.push(splitByDateControlTuple);
+    controls.push(splitByDepthControlTuple);
   }
 
   // Generate Plot Configs
@@ -377,16 +407,16 @@ const SpaceTimeChart = (props) => {
   let mySubsets;
 
   if (splitByDate) {
-    mySubsets = spaceTimeGenerateHistogramSubsetPlotsSplitByDate (data.rows);
+    mySubsets = spaceTimeGenerateHistogramSubsetPlotsSplitByDate(data.rows);
   } else if (splitByDepth) {
-    mySubsets = spaceTimeGenerateHistogramSubsetPlotsSplitByDepth (data.rows);
+    mySubsets = spaceTimeGenerateHistogramSubsetPlotsSplitByDepth(data.rows);
   } else if (!metadata.Has_Depth) {
     // handle case with no depth
-    console.log ('no depth; rendening histogram in as 2D');
-    mySubsets = [spaceTimeGenerateHistogram2D (data.rows)];
+    console.log('no depth; rendening histogram in as 2D');
+    mySubsets = [spaceTimeGenerateHistogram2D(data.rows)];
   } else {
-    console.log ('has detpth; rendering plot data');
-    mySubsets = [spaceTimeGenerateHistogramPlotData (data.rows)];
+    console.log('has detpth; rendering plot data');
+    mySubsets = [spaceTimeGenerateHistogramPlotData(data.rows)];
   }
 
   let mapSubsets = () => {

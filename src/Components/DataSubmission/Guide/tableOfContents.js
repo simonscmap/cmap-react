@@ -39,7 +39,7 @@ export const data = [
             id: 'cruise-column',
             name: 'cruise',
           },
-        ]
+        ],
       },
       {
         id: 'dataset-metadata-sheet',
@@ -143,9 +143,9 @@ export const data = [
             id: 'var_comment-column',
             name: 'var_comment',
           },
-        ]
-      }
-    ]
+        ],
+      },
+    ],
   },
   {
     id: 'dataset-validation',
@@ -161,38 +161,38 @@ export const data = [
         name: 'Submission Portal',
         media: true,
       },
-    ]
+    ],
   },
   {
     id: 'faq',
-    name: 'Frequently Asked Questions'
+    name: 'Frequently Asked Questions',
   },
   {
     id: 'contact',
     name: 'Contact',
     icon: 'email',
-  }
+  },
 ];
 
 const generateSequence = (toc) => {
   const reduceBranch = (node) => {
     const { children, ...nodeData } = node;
     if (children) {
-      const restOfBranchData = children.reduce ((acc, curr) => {
-        return [...acc, ...reduceBranch (curr)];
+      const restOfBranchData = children.reduce((acc, curr) => {
+        return [...acc, ...reduceBranch(curr)];
       }, []);
       return [nodeData, ...restOfBranchData];
     }
-    return [ nodeData ];
-  }
+    return [nodeData];
+  };
 
-  return reduceBranch ({ children: toc, id: 'root' }).slice(1)
-}
+  return reduceBranch({ children: toc, id: 'root' }).slice(1);
+};
 
-export const flatToC = generateSequence (data);
+export const flatToC = generateSequence(data);
 
 export const findNext = (current) => {
-  const indexOfCurrent = flatToC.findIndex ((node) => {
+  const indexOfCurrent = flatToC.findIndex((node) => {
     return node.id === current.id;
   });
   if (indexOfCurrent > -1 && indexOfCurrent !== flatToC.length - 1) {
@@ -200,10 +200,10 @@ export const findNext = (current) => {
   } else {
     return null;
   }
-}
+};
 
 export const findPrev = (current) => {
-  const indexOfCurrent = flatToC.findIndex ((node) => {
+  const indexOfCurrent = flatToC.findIndex((node) => {
     return node.id === current.id;
   });
   if (indexOfCurrent > 0) {
@@ -211,41 +211,43 @@ export const findPrev = (current) => {
   } else {
     return null;
   }
-}
-
+};
 
 // find a node in the table of contents
 // return both the node and the path to it
-const findNodeById = (root) => (path = []) => (id) => {
-  if (Array.isArray (root)) {
-    return root.reduce ((found, current) => {
-      if (found) {
-        return found;
+const findNodeById =
+  (root) =>
+  (path = []) =>
+  (id) => {
+    if (Array.isArray(root)) {
+      return root.reduce((found, current) => {
+        if (found) {
+          return found;
+        } else {
+          return findNodeById(current)(path)(id);
+        }
+      }, null);
+    } else if (root && root.id) {
+      const { children, ...current } = root;
+      if (root.id === id) {
+        return {
+          current,
+          path,
+        };
+      } else if (Array.isArray(children)) {
+        return findNodeById(children)([...path, current])(id);
       } else {
-        return findNodeById (current) (path) (id);
+        return null;
       }
-    }, null);
-  } else if (root && root.id) {
-    const { children, ...current } = root;
-    if (root.id === id) {
-      return {
-        current,
-        path
-      };
-    } else if (Array.isArray (children)) {
-      return findNodeById (children) ([...path, current ]) (id);
-    } else {
-      return null;
     }
-  }
-}
+  };
 
-export const findById = findNodeById (data) ([]);
+export const findById = findNodeById(data)([]);
 
 const capitalizeWord = (str = '') => {
   return str.charAt(0).toUpperCase() + str.slice(1);
-}
+};
 
 export const getImportNameById = (id = '') => {
-  return id.split(/-|_/).map(capitalizeWord).join ('');
-}
+  return id.split(/-|_/).map(capitalizeWord).join('');
+};

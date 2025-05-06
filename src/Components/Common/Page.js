@@ -13,11 +13,13 @@ const Page = (props) => {
       <div className={classes.pageContainer}>
         <FullWidthContainer bgVariant={bgVariant || 'royal'}>
           <Section>
-            {pageTitle && <div className={classes.titleSection}>
-              <Typography variant="h1" className={classes.pageTitle}>
-                {pageTitle}
-              </Typography>
-            </div>}
+            {pageTitle && (
+              <div className={classes.titleSection}>
+                <Typography variant="h1" className={classes.pageTitle}>
+                  {pageTitle}
+                </Typography>
+              </div>
+            )}
             {heroContent}
           </Section>
         </FullWidthContainer>

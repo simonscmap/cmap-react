@@ -7,11 +7,13 @@ const dispatchCustomWindowEvent = (name, payload) => {
     console.error('event name is not a string');
     return;
   }
-  window.dispatchEvent(new CustomEvent(name, {
-    detail: payload,
-    bubbles: true,
-    cancelable: false,
-  }));
+  window.dispatchEvent(
+    new CustomEvent(name, {
+      detail: payload,
+      bubbles: true,
+      cancelable: false,
+    }),
+  );
 };
 
 export default dispatchCustomWindowEvent;

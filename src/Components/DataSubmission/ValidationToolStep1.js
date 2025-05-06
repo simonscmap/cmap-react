@@ -12,9 +12,7 @@ import {
   Typography,
   Link,
 } from '@material-ui/core';
-import {
-  ErrorOutline,
-} from '@material-ui/icons';
+import { ErrorOutline } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import states from '../../enums/asyncRequestStates';
 
@@ -32,16 +30,16 @@ const hasLength = (maybeArray) => {
     return maybeArray.length > 0;
   }
   return false;
-}
+};
 
-const useStyles = makeStyles ((theme) => ({
+const useStyles = makeStyles((theme) => ({
   workbookAuditWrapper: {
     whiteSpace: 'pre-wrap',
     textAlign: 'left',
     color: 'white',
     '& > h5': {
       marginBottom: '1em',
-    }
+    },
   },
   card: {
     margin: '1em 0 ',
@@ -51,13 +49,13 @@ const useStyles = makeStyles ((theme) => ({
     },
     '& .MuiCardContent-root': {
       padding: '0 8px 8px 8px',
-      marginLeft: '50px' // indent text to match title
+      marginLeft: '50px', // indent text to match title
     },
     '& em': {
       fontWeight: 'bold',
       fontStyle: 'normal',
       color: '#69FFF2', // theme.palette.secondary.main,
-    }
+    },
   },
   cardTitleWrapper: {
     display: 'flex',
@@ -71,21 +69,21 @@ const useStyles = makeStyles ((theme) => ({
     paddingTop: '8px',
     '& > svg': {
       fontSize: '1.5em',
-    }
+    },
   },
   warningIcon: {
     color: 'rgb(255, 255, 0)',
     paddingTop: '8px',
     '& > svg': {
       fontSize: '1.5em',
-    }
+    },
   },
   confirmationIcon: {
     color: 'white',
     paddingTop: '8px',
     '& > svg': {
       fontSize: '1.5em',
-    }
+    },
   },
   issueSummary: {
     color: 'white',
@@ -94,7 +92,7 @@ const useStyles = makeStyles ((theme) => ({
     cursor: 'pointer',
     '&:hover': {
       color: theme.palette.secondary.dark,
-    }
+    },
   },
   bright: {
     color: '#69FFF2',
@@ -113,10 +111,14 @@ const ErrorAlert = ({ thereAreErrors, goBack }) => {
     return (
       <Typography>
         One or more parts of your submission did not match CMAP requirements.
-        Please review the information below. You can update your workbook here in the next
-      validation step, or you can edit your file on your computer and {' '}
-         <Link onClick={goBack} className={cl.link}>upload it again</Link>.
-       </Typography>
+        Please review the information below. You can update your workbook here
+        in the next validation step, or you can edit your file on your computer
+        and{' '}
+        <Link onClick={goBack} className={cl.link}>
+          upload it again
+        </Link>
+        .
+      </Typography>
     );
   } else {
     return '';
@@ -127,12 +129,11 @@ const WarningsAlert = ({ thereAreWarnings }) => {
   if (thereAreWarnings) {
     return (
       <React.Fragment>
-      <Typography>
-        We found some potential issues with your submission and have flagged them below as warnings with a yellow icon
-        {' '}
-        <ErrorOutline style={warningOutlineStyle} />. {' '}
-
-      </Typography>
+        <Typography>
+          We found some potential issues with your submission and have flagged
+          them below as warnings with a yellow icon{' '}
+          <ErrorOutline style={warningOutlineStyle} />.{' '}
+        </Typography>
       </React.Fragment>
     );
   } else {
@@ -142,11 +143,7 @@ const WarningsAlert = ({ thereAreWarnings }) => {
 
 const ConfirmationsAlert = ({ thereAreConfirmations }) => {
   if (thereAreConfirmations) {
-    return (
-      <Typography>
-        Please confirm the following changes.
-      </Typography>
-    );
+    return <Typography>Please confirm the following changes.</Typography>;
   } else {
     return '';
   }
@@ -154,29 +151,35 @@ const ConfirmationsAlert = ({ thereAreConfirmations }) => {
 
 const CardTitle = (props) => {
   const { t, title } = props;
-  const cl = useStyles ();
+  const cl = useStyles();
   return (
     <div className={cl.cardTitleWrapper}>
-      <div className={(t === 'error' ? cl.errorIcon : t === 'warning' ? cl.warningIcon : cl.confirmationIcon )} >
+      <div
+        className={
+          t === 'error'
+            ? cl.errorIcon
+            : t === 'warning'
+              ? cl.warningIcon
+              : cl.confirmationIcon
+        }
+      >
         <ErrorOutline />
       </div>
-      <div className={cl.issueSummary}>
-        {renderText(title)}
-      </div>
+      <div className={cl.issueSummary}>{renderText(title)}</div>
     </div>
   );
-}
+};
 
 const IssueCard = (props) => {
   const { t, info } = props;
   const { title, subheader, detail, body, Component, args } = info;
-  const cl = useStyles ();
+  const cl = useStyles();
   return (
     <Card className={cl.card} raised>
-    <CardHeader
-      title={<CardTitle t={t} title={title} />}
-      subheader={subheader}
-    />
+      <CardHeader
+        title={<CardTitle t={t} title={title} />}
+        subheader={subheader}
+      />
       <CardContent>
         {detail && renderText(detail)}
         {body && renderBody(body)}
@@ -188,32 +191,40 @@ const IssueCard = (props) => {
 
 const ShortNameChangeWarning = (props) => {
   const TextComponent = () => {
-    const { nameCheckResult } = useNameChangeWarning ();
+    const { nameCheckResult } = useNameChangeWarning();
     const cls = useStyles();
     return (
-      <Typography variant="body1" className={cls.title}>Short Name will change from <span className={cls.bright}>{nameCheckResult.originalShortName}</span> to <span className={cls.bright}>{nameCheckResult.shortName}</span>.</Typography>
+      <Typography variant="body1" className={cls.title}>
+        Short Name will change from{' '}
+        <span className={cls.bright}>{nameCheckResult.originalShortName}</span>{' '}
+        to <span className={cls.bright}>{nameCheckResult.shortName}</span>.
+      </Typography>
     );
-  }
+  };
 
   return (
     <IssueCard
       t={'warning'}
       info={{
         title: 'Short Name Will Change',
-        Component: TextComponent
+        Component: TextComponent,
       }}
     />
-  )
+  );
 };
 
 const LongNameChangeWarning = (props) => {
-  const { nameCheckResult } = useNameChangeWarning ();
+  const { nameCheckResult } = useNameChangeWarning();
   const TextComponent = () => {
     const cls = useStyles();
     return (
-      <Typography variant="body1" className={cls.title}>Long Name will change from <span className={cls.bright}>{nameCheckResult.originalLongName}</span> to <span className={cls.bright}>{nameCheckResult.longName}</span>.</Typography>
+      <Typography variant="body1" className={cls.title}>
+        Long Name will change from{' '}
+        <span className={cls.bright}>{nameCheckResult.originalLongName}</span>{' '}
+        to <span className={cls.bright}>{nameCheckResult.longName}</span>.
+      </Typography>
     );
-  }
+  };
   return (
     <IssueCard
       t={'warning'}
@@ -226,13 +237,21 @@ const LongNameChangeWarning = (props) => {
 };
 
 const NameCheckFailedWarning = (props) => {
-  const { nameCheckRespText } = useNameChangeWarning ();
+  const { nameCheckRespText } = useNameChangeWarning();
   const TextComponent = () => {
     const cls = useStyles();
     return (
-      <Typography variant="body1" className={cls.title}>We attempted to check the short and long names of the submission for conflicts with other datasets and other submissions, but the check failed {nameCheckRespText ? 'with the following reason: ' + nameCheckRespText : ''}.</Typography>
+      <Typography variant="body1" className={cls.title}>
+        We attempted to check the short and long names of the submission for
+        conflicts with other datasets and other submissions, but the check
+        failed{' '}
+        {nameCheckRespText
+          ? 'with the following reason: ' + nameCheckRespText
+          : ''}
+        .
+      </Typography>
     );
-  }
+  };
   return (
     <IssueCard
       t={'warning'}
@@ -247,23 +266,23 @@ const NameCheckFailedWarning = (props) => {
 // COMPONENT
 const Step1 = (props) => {
   const cl = useStyles();
-  const subType = useSelector ((state) => state.submissionType);
-  const checkName = useSelector ((state) => state.checkSubmissionNameResult);
-  const auditReport = useSelector ((state) => state.auditReport);
+  const subType = useSelector((state) => state.submissionType);
+  const checkName = useSelector((state) => state.checkSubmissionNameResult);
+  const auditReport = useSelector((state) => state.auditReport);
   const { step, changeStep, reset } = props;
   const history = useHistory();
 
   useEffect(() => {
     if (!auditReport) {
       // changeStep (0);
-      history.push('/datasubmission/submission-portal')
+      history.push('/datasubmission/submission-portal');
     }
   }, [auditReport]);
 
   const goBack = () => {
     reset();
     changeStep(0);
-  }
+  };
 
   // name change warning
   const {
@@ -271,22 +290,30 @@ const Step1 = (props) => {
     isLongNameChange,
     nameCheckResult,
     nameCheckStatus,
-  } = useNameChangeWarning ();
+  } = useNameChangeWarning();
 
-  const thereAreErrors = hasLength (safePath (['workbook', 'errors']) (auditReport));
-  const thereAreWarnings = hasLength (safePath (['workbook', 'warnings']) (auditReport))
-  const thereAreConfirmations = hasLength (safePath (['workbook', 'confirmations']) (auditReport))
-  const thereAreFirstOrderWarnings = hasLength (safePath (['workbook', 'first']) (auditReport))
+  const thereAreErrors = hasLength(
+    safePath(['workbook', 'errors'])(auditReport),
+  );
+  const thereAreWarnings = hasLength(
+    safePath(['workbook', 'warnings'])(auditReport),
+  );
+  const thereAreConfirmations = hasLength(
+    safePath(['workbook', 'confirmations'])(auditReport),
+  );
+  const thereAreFirstOrderWarnings = hasLength(
+    safePath(['workbook', 'first'])(auditReport),
+  );
   const nameCheckFailed = nameCheckStatus === states.failed;
 
   // keep errors updated
   let [errors, setErrors] = useState([]);
 
   useEffect(() => {
-    let eArr= [];
+    let eArr = [];
 
     if (thereAreErrors) {
-      const auditWorkbookErrors = safePath (['workbook', 'errors']) (auditReport) ;
+      const auditWorkbookErrors = safePath(['workbook', 'errors'])(auditReport);
       if (auditWorkbookErrors) {
         eArr = eArr.concat(...auditWorkbookErrors);
       }
@@ -294,27 +321,33 @@ const Step1 = (props) => {
     setErrors(eArr);
   }, [subType, checkName, auditReport]);
 
-
   if (step !== 1) {
     return <React.Fragment />;
   }
 
   if (nameCheckStatus === states.inProgress) {
-    return (
-      <Spinner message={'Checking availability of dataset names...'} />
-    );
+    return <Spinner message={'Checking availability of dataset names...'} />;
   }
 
   if (!auditReport) {
     return <Spinner message={'Performing workbook audit...'} />;
   }
 
-  if (!thereAreFirstOrderWarnings && !thereAreErrors && !thereAreWarnings && !thereAreConfirmations && !nameCheckFailed) {
-    return (<div className={cl.workbookAuditWrapper}>
-      <Typography variant={"h5"}>Workbook Validation</Typography>
-      <Typography variant="body1">
-      {'There are no errors or warnings with the workbook. Click "next" to proceed with worksheet validation.'}
-      {/*
+  if (
+    !thereAreFirstOrderWarnings &&
+    !thereAreErrors &&
+    !thereAreWarnings &&
+    !thereAreConfirmations &&
+    !nameCheckFailed
+  ) {
+    return (
+      <div className={cl.workbookAuditWrapper}>
+        <Typography variant={'h5'}>Workbook Validation</Typography>
+        <Typography variant="body1">
+          {
+            'There are no errors or warnings with the workbook. Click "next" to proceed with worksheet validation.'
+          }
+          {/*
           - no orphaned cells
           - no conflicts with dataset name
           - time values are correctly formatted
@@ -331,20 +364,23 @@ const Step1 = (props) => {
           - no outlier values
           - no non-unique variable names
         */}
-      </Typography>
-    </div>);
+        </Typography>
+      </div>
+    );
     // changeStep (2); // don't automatically advance to next step
   }
 
   return (
     <div className={cl.workbookAuditWrapper}>
-      <Typography variant={"h5"}>Workbook Validation</Typography>
+      <Typography variant={'h5'}>Workbook Validation</Typography>
 
-      {thereAreFirstOrderWarnings &&
+      {thereAreFirstOrderWarnings && (
         <div>
-          {auditReport.workbook.first.map((def, i) => (<IssueCard t='warning' info={def} key={`key${i}`} /> ))}
+          {auditReport.workbook.first.map((def, i) => (
+            <IssueCard t="warning" info={def} key={`key${i}`} />
+          ))}
         </div>
-      }
+      )}
 
       {nameCheckStatus === states.failed && <NameCheckFailedWarning />}
 
@@ -354,16 +390,21 @@ const Step1 = (props) => {
         {isLongNameChange && <LongNameChangeWarning />}
       </div>
 
-
       {/* workbook errors */}
 
-      <ErrorAlert thereAreErrors={thereAreErrors} goBack={goBack}/>
+      <ErrorAlert thereAreErrors={thereAreErrors} goBack={goBack} />
 
       {errors.map((e, i) => {
         if (typeof e === 'string') {
-          return <IssueCard key={`errorCard-${i}`} t={'error'} info={{ title: 'Error', detail: e }} />
+          return (
+            <IssueCard
+              key={`errorCard-${i}`}
+              t={'error'}
+              info={{ title: 'Error', detail: e }}
+            />
+          );
         } else {
-          return <IssueCard key={`errorCard-${i}`} t={'error'} info={e} />
+          return <IssueCard key={`errorCard-${i}`} t={'error'} info={e} />;
         }
       })}
 
@@ -371,23 +412,49 @@ const Step1 = (props) => {
 
       <WarningsAlert thereAreWarnings={thereAreWarnings} />
 
-      {auditReport && auditReport.workbook && auditReport.workbook.warnings && auditReport.workbook.warnings.map((e, i) => {
-        if (typeof e === 'string') {
-          return <IssueCard key={`warningCard-${i}`} t={'warning'} info={{ title: 'Warning', detail: e }} />
-        } else {
-          return <IssueCard key={`warningCard-${i}`} t={'warning'} info={e} />
-        }
-      })}
+      {auditReport &&
+        auditReport.workbook &&
+        auditReport.workbook.warnings &&
+        auditReport.workbook.warnings.map((e, i) => {
+          if (typeof e === 'string') {
+            return (
+              <IssueCard
+                key={`warningCard-${i}`}
+                t={'warning'}
+                info={{ title: 'Warning', detail: e }}
+              />
+            );
+          } else {
+            return (
+              <IssueCard key={`warningCard-${i}`} t={'warning'} info={e} />
+            );
+          }
+        })}
 
       <ConfirmationsAlert thereAreConfirmations={thereAreConfirmations} />
 
-      {auditReport && auditReport.workbook && auditReport.workbook.confirmations && auditReport.workbook.confirmations.map((e, i) => {
-        if (typeof e === 'string') {
-          return <IssueCard key={`confirmation-${i}`} t={'confirmation'} info={{ title: 'Please Confirm', detail: e }} />
-        } else {
-          return <IssueCard key={`confirmation-${i}`} t={'confirmation'} info={e} />
-        }
-      })}
+      {auditReport &&
+        auditReport.workbook &&
+        auditReport.workbook.confirmations &&
+        auditReport.workbook.confirmations.map((e, i) => {
+          if (typeof e === 'string') {
+            return (
+              <IssueCard
+                key={`confirmation-${i}`}
+                t={'confirmation'}
+                info={{ title: 'Please Confirm', detail: e }}
+              />
+            );
+          } else {
+            return (
+              <IssueCard
+                key={`confirmation-${i}`}
+                t={'confirmation'}
+                info={e}
+              />
+            );
+          }
+        })}
     </div>
   );
 };

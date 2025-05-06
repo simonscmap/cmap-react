@@ -4,7 +4,7 @@ export const setSubmissionStep = (step) => ({
   type: dataSubmissionActionTypes.SET_SUBMISSION_STEP,
   payload: {
     step,
-  }
+  },
 });
 
 export const retrieveDataSubmissionsByUser = () => ({
@@ -84,7 +84,8 @@ export const setSubmissionCommentHistoryRetrievalState = (state) => ({
   },
 });
 
-export const retrieveMostRecentFile = (submissionID) => ({  type: dataSubmissionActionTypes.RETRIEVE_MOST_RECENT_FILE,
+export const retrieveMostRecentFile = (submissionID) => ({
+  type: dataSubmissionActionTypes.RETRIEVE_MOST_RECENT_FILE,
   payload: {
     submissionID,
   },
@@ -114,7 +115,7 @@ export const setUploadState = (state, shortName) => ({
   type: dataSubmissionActionTypes.SET_UPLOAD_STATE,
   payload: {
     state,
-    shortName
+    shortName,
   },
 });
 
@@ -145,7 +146,11 @@ export const dataSubmissionDelete = (submission) => ({
   },
 });
 
-export const checkSubmNamesRequestSend = ({ shortName, longName, submissionId }) => ({
+export const checkSubmNamesRequestSend = ({
+  shortName,
+  longName,
+  submissionId,
+}) => ({
   type: dataSubmissionActionTypes.CHECK_SUBM_NAME_REQUEST_SEND,
   payload: { shortName, longName, submissionId },
 });
@@ -155,7 +160,7 @@ export const setCheckSubmNameRequestStatus = (status, responseText) => ({
   payload: {
     status,
     responseText,
-  }
+  },
 });
 
 export const checkSubmNameResponseStore = (resp) => ({
