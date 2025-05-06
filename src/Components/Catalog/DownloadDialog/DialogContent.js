@@ -3,9 +3,10 @@ import {
   DialogContent,
   Button,
   Dialog,
+  CircularProgress,
 } from '@material-ui/core';
 import { withStyles, makeStyles } from '@material-ui/core/styles';
-import { ImDownload } from "react-icons/im";
+import { ImDownload } from 'react-icons/im';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -26,6 +27,7 @@ import {
   makeDownloadQuery,
 } from './downloadDialogHelpers';
 import styles from './downloadDialogStyles';
+import DownloadStepWithWarning from './DownloadStepWithWarning';
 
 import {
   datasetDownloadRequestSend,
@@ -42,20 +44,19 @@ const log = logInit('Catalog/DownloadDialog/DialogContent');
 
 const DOWNLOAD_ROWS_LIMIT = 2000000;
 const CHECK_QUERY_DEBOUNCE_TIME_MS = 2000;
+const DIRECT_DOWNLOAD_SUGGESTION_THRESHOLD = 200000;
 
 // We need to declare this outside the component (or else pass it in through props)
 // because otherwise the debounce clock will get reset every re-render
-let checkQuerySizeDispatch = debounce(
-  CHECK_QUERY_DEBOUNCE_TIME_MS,
-  (query) => {
-    console.log('debounced dispatch: checkQuerySize');
-    reduxStore.dispatch(checkQuerySize(query));
-  });
+let checkQuerySizeDispatch = debounce(CHECK_QUERY_DEBOUNCE_TIME_MS, (query) => {
+  console.log('debounced dispatch: checkQuerySize');
+  reduxStore.dispatch(checkQuerySize(query));
+});
 
-const useStyles = makeStyles (styles);
+const useStyles = makeStyles(styles);
 const InfoDialog = (props) => {
-  const {open, handleClose} = props;
-  const classes = useStyles ();
+  const { open, handleClose } = props;
+  const classes = useStyles();
   return (
     <Dialog
       fullScreen={false}
@@ -68,28 +69,26 @@ const InfoDialog = (props) => {
     >
       <DialogContent>
         <p>
-          Use the subset controls along with the "Download" button to specify a subset of the data to download, or to include ancillary data in your download.
+          Use the subset controls along with the "Download" button to specify a
+          subset of the data to download, or to include ancillary data in your
+          download.
         </p>
         <p>
-          Click the "Direct Download..." button below to download the data files from CMAP storage directly, with the option on large datasets to download the files in bulk.
+          Click the "Direct Download..." button below to download the data files
+          from CMAP storage directly, with the option on large datasets to
+          download the files in bulk.
         </p>
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Close</Button>
-        </DialogActions>
+      </DialogActions>
     </Dialog>
-
   );
-}
+};
 
 // DIALOG
 const DownloadDialog = (props) => {
-  let {
-    dataset: rawDataset,
-    handleClose,
-    dialogOpen,
-    classes
-  } = props;
+  let { dataset: rawDataset, handleClose, dialogOpen, classes } = props;
 
   // parse dataset
   let dataset, error;
@@ -104,8 +103,12 @@ const DownloadDialog = (props) => {
   let dispatch = useDispatch();
 
   const [infoDialogOpen, setInfoDialogOpen] = useState(false);
+  const [largeDatasetWarningOpen, setLargeDatasetWarningOpen] = useState(false);
 
-  let datasetHasAncillaryData = useDatasetFeatures(dataset.Table_Name, 'ancillary');
+  let datasetHasAncillaryData = useDatasetFeatures(
+    dataset.Table_Name,
+    'ancillary',
+  );
 
   let { maxDays, lat, lon, time, depth } = getInitialRangeValues(dataset);
 
@@ -126,14 +129,14 @@ const DownloadDialog = (props) => {
   // subset is defined
 
   let subsetIsDefined =
-      latStart !== lat.start ||
-      latEnd !== lat.end ||
-      lonStart !== lon.start ||
-      lonEnd !== lon.end ||
-      timeStart !== time.start ||
-      timeEnd !== time.end ||
-      depthStart !== depth.start ||
-      depthEnd !== depth.end;
+    latStart !== lat.start ||
+    latEnd !== lat.end ||
+    lonStart !== lon.start ||
+    lonEnd !== lon.end ||
+    timeStart !== time.start ||
+    timeEnd !== time.end ||
+    depthStart !== depth.start ||
+    depthEnd !== depth.end;
 
   let subsetParams = {
     subsetIsDefined,
@@ -177,13 +180,14 @@ const DownloadDialog = (props) => {
 
   // Dropbox Link
   const vaultLink = useSelector((state) => state.download.vaultLink);
-
   // Download Size Validation
 
   let downloadState = useSelector((state) => state.download);
   let querySizes = useSelector((state) => state.download.querySizeChecks);
-  let checkSizeRequestState = useSelector ((state) => state.download.checkQueryRequestState);
-  let currentRequest = useSelector ((state) => state.download.currentRequest);
+  let checkSizeRequestState = useSelector(
+    (state) => state.download.checkQueryRequestState,
+  );
+  let currentRequest = useSelector((state) => state.download.currentRequest);
 
   let [isInvalid, setInvalidFlag] = useState(false);
 
@@ -193,8 +197,10 @@ const DownloadDialog = (props) => {
     status: buttonStates.notTried,
   });
 
-  let disableButton = (message, status) => setDownloadButtonState({ enabled: false, message, status });
-  let enableButton = (message, status) => setDownloadButtonState({ enabled: true, message, status });
+  let disableButton = (message, status) =>
+    setDownloadButtonState({ enabled: false, message, status });
+  let enableButton = (message, status) =>
+    setDownloadButtonState({ enabled: true, message, status });
 
   // when subset values update, initiate a querySizeCheck request (if no cached result is available)
   useEffect(() => {
@@ -204,7 +210,7 @@ const DownloadDialog = (props) => {
         setDownloadButtonState({
           enabled: true,
           message: `The full dataset (${dataset.Row_Count} rows) is under the download threshold.`,
-          status: buttonStates.checkSucceededAndDownloadAllowed
+          status: buttonStates.checkSucceededAndDownloadAllowed,
         });
         return;
       } else if (!subsetIsDefined) {
@@ -212,7 +218,7 @@ const DownloadDialog = (props) => {
         setDownloadButtonState({
           enabled: false,
           message: `Dataset is too large (${dataset.Row_Count.toLocaleString()} rows) to download in full.  Please select a subset matching less than ~2 million rows to download.`,
-          status: buttonStates.checkSucceededAndDownloadProhibited
+          status: buttonStates.checkSucceededAndDownloadProhibited,
         });
         return;
       }
@@ -226,11 +232,18 @@ const DownloadDialog = (props) => {
     });
 
     let cachedSizeCheck = querySizes.find((item) => item.queryString === query);
-    let cachedUnconstrainedQuery = querySizes
-        .find((item) => item.queryString.toLowerCase() === `select%20*%20from%20${dataset.Table_Name}`.toLowerCase());
-    let status = cachedSizeCheck && cachedSizeCheck.result && cachedSizeCheck.response && cachedSizeCheck.result.response.status;
+    let cachedUnconstrainedQuery = querySizes.find(
+      (item) =>
+        item.queryString.toLowerCase() ===
+        `select%20*%20from%20${dataset.Table_Name}`.toLowerCase(),
+    );
+    let status =
+      cachedSizeCheck &&
+      cachedSizeCheck.result &&
+      cachedSizeCheck.response &&
+      cachedSizeCheck.result.response.status;
 
-    log.debug ('size state', {
+    log.debug('size state', {
       query,
       currentRequest,
       cachedSizeCheck,
@@ -240,17 +253,17 @@ const DownloadDialog = (props) => {
         subset: {
           lat: [latStart, latEnd],
           lon: [lonStart, lonEnd],
-          time:[ timeStart, timeEnd],
-          depth: [depthStart, depthEnd]
+          time: [timeStart, timeEnd],
+          depth: [depthStart, depthEnd],
         },
         limits: {
           lat: [lat.start, lat.end],
           lon: [lon.start, lon.end],
           time: [time.start, time.end],
           depth: [depth.start, depth.end],
-        }
-      }
-    })
+        },
+      },
+    });
 
     if (cachedSizeCheck) {
       log.debug('query size check result is cached', cachedSizeCheck);
@@ -259,13 +272,17 @@ const DownloadDialog = (props) => {
         setDownloadButtonState({
           enabled: false,
           message: 'Re-attempting Query Size Validation ...',
-          status: buttonStates.checkInProgress
+          status: buttonStates.checkInProgress,
         });
         checkQuerySizeDispatch(query);
       } else {
         // do nothing
       }
-    } else if (!cachedSizeCheck && !subsetIsDefined && cachedUnconstrainedQuery) {
+    } else if (
+      !cachedSizeCheck &&
+      !subsetIsDefined &&
+      cachedUnconstrainedQuery
+    ) {
       // the subset options are all at their default, which is the same as
       // a query for the full dataset, and we have a cache for that query, so don't dispatch a new one
     } else if (query !== currentRequest) {
@@ -275,18 +292,36 @@ const DownloadDialog = (props) => {
       setDownloadButtonState({
         enabled: false,
         message: 'Initiating Size Validation ...',
-        status: buttonStates.checkInProgress
+        status: buttonStates.checkInProgress,
       });
       checkQuerySizeDispatch(query);
     }
-  }, [latStart, latEnd, lonStart, lonEnd, timeStart, timeEnd, depthStart, depthEnd, dialogOpen]);
-
+  }, [
+    latStart,
+    latEnd,
+    lonStart,
+    lonEnd,
+    timeStart,
+    timeEnd,
+    depthStart,
+    depthEnd,
+    dialogOpen,
+  ]);
 
   // manage button state; responds to redux state
   useEffect(() => {
-    if ([states.notTried, states.inProgress, states.failed].includes(checkSizeRequestState)) {
-      if (downloadButtonState.message !== validationMessages[checkSizeRequestState]) {
-        let status = checkSizeRequestState === states.notTried ? buttonStates.notTried
+    if (
+      [states.notTried, states.inProgress, states.failed].includes(
+        checkSizeRequestState,
+      )
+    ) {
+      if (
+        downloadButtonState.message !==
+        validationMessages[checkSizeRequestState]
+      ) {
+        let status =
+          checkSizeRequestState === states.notTried
+            ? buttonStates.notTried
             : checkSizeRequestState === states.inProgress
             ? buttonStates.checkInProgress
             : checkSizeRequestState === states.failed
@@ -296,7 +331,7 @@ const DownloadDialog = (props) => {
         setDownloadButtonState({
           enabled: false,
           message: validationMessages[checkSizeRequestState],
-          status
+          status,
         });
       }
       return;
@@ -310,8 +345,11 @@ const DownloadDialog = (props) => {
     });
 
     let cachedSizeCheck = querySizes.find((item) => item.queryString === query);
-    let cachedUnconstrainedQuery = querySizes
-        .find((item) => item.queryString.toLowerCase() === `select%20*%20from%20${dataset.Table_Name}`.toLowerCase());
+    let cachedUnconstrainedQuery = querySizes.find(
+      (item) =>
+        item.queryString.toLowerCase() ===
+        `select%20*%20from%20${dataset.Table_Name}`.toLowerCase(),
+    );
 
     // no result found
     if (!cachedSizeCheck) {
@@ -324,39 +362,65 @@ const DownloadDialog = (props) => {
       }
     }
 
-    let responseStatus = cachedSizeCheck.result.response && cachedSizeCheck.result.response.status;
-    let size = cachedSizeCheck.result.projection && cachedSizeCheck.result.projection.size;
+    let responseStatus =
+      cachedSizeCheck.result.response && cachedSizeCheck.result.response.status;
+    let size =
+      cachedSizeCheck.result.projection &&
+      cachedSizeCheck.result.projection.size;
     let allowed = cachedSizeCheck.result.allow;
 
     // prohibited
     if (allowed === false) {
       // update message (if needed) to disalow query
-      if (responseStatus === 400 && downloadButtonState.status !== buttonStates.checkSucceededAndDownloadProhibited) {
-        disableButton(
-          `Subset too large ${size ? '(estimated ' + size.toLocaleString() + ' matching rows)' : ''}. Try selecting a smaller subset.`,
+      if (
+        responseStatus === 400 &&
+        downloadButtonState.status !==
           buttonStates.checkSucceededAndDownloadProhibited
+      ) {
+        disableButton(
+          `Subset too large ${
+            size
+              ? '(estimated ' + size.toLocaleString() + ' matching rows)'
+              : ''
+          }. Try selecting a smaller subset.`,
+          buttonStates.checkSucceededAndDownloadProhibited,
         );
         setDownloadOptions({
           ...optionsState,
           subset: true,
-        })
+        });
       } else if (responseStatus === 500) {
-        enableButton(validationMessages[states.failed], buttonStates.checkFailed);
+        enableButton(
+          validationMessages[states.failed],
+          buttonStates.checkFailed,
+        );
       }
     }
 
     // allowed
     if (allowed === true) {
       // update message (if needed) to allow query
-      if (downloadButtonState.status !== buttonStates.checkSucceededAndDownloadAllowed) {
-        let { result: { projection } } = cachedSizeCheck;
-        let estimate = (projection && projection.size && typeof projection.size === 'number') && projection.size;
+      if (
+        downloadButtonState.status !==
+        buttonStates.checkSucceededAndDownloadAllowed
+      ) {
+        let {
+          result: { projection },
+        } = cachedSizeCheck;
+        let estimate =
+          projection &&
+          projection.size &&
+          typeof projection.size === 'number' &&
+          projection.size;
         // a negative estimate is an indication that the matching rows is less than the abs(size)
-        let message = (estimate && estimate > 0)
+        let message =
+          estimate && estimate > 0
             ? `The selected subset of data is under the download threshold. An estimated ${projection.size.toLocaleString()} rows match the selected subset.`
-            : (estimate && estimate < 0)
-            ? `The dataset ${estimate ? '(' + (-estimate.toLocaleString()) + ' rows)' : ''} is under the download threshold and may be downloaded in full.`
-            : ''
+            : estimate && estimate < 0
+            ? `The dataset ${
+                estimate ? '(' + -estimate.toLocaleString() + ' rows)' : ''
+              } is under the download threshold and may be downloaded in full.`
+            : '';
         enableButton(message, buttonStates.checkSucceededAndDownloadAllowed);
       }
     }
@@ -364,11 +428,20 @@ const DownloadDialog = (props) => {
 
   // open dropbox modal
   const handleOpenDropboxModal = () => {
-    dispatch (dropboxModalOpen ());
+    dispatch(dropboxModalOpen());
   };
 
   // download handler
   let handleDownload = () => {
+    if (
+      dataset.Row_Count > DIRECT_DOWNLOAD_SUGGESTION_THRESHOLD &&
+      !optionsState.ancillaryData &&
+      !subsetIsDefined
+    ) {
+      setLargeDatasetWarningOpen(true);
+      return;
+    }
+
     // log params, resulting query, table, & ancillary data flag
     log.debug('handleDownload', {
       subsetParams,
@@ -380,7 +453,6 @@ const DownloadDialog = (props) => {
       table: dataset.Table_Name,
       ancillaryData: optionsState.ancillaryData,
     });
-
     dispatch(
       datasetDownloadRequestSend({
         tableName: dataset.Table_Name,
@@ -397,11 +469,12 @@ const DownloadDialog = (props) => {
   if (error) {
     return <ErrorMessage description={error} />;
   }
-
-
   return (
     <div>
-      <ValidationIndicatorBar downloadState={downloadState} buttonState={downloadButtonState}/>
+      <ValidationIndicatorBar
+        downloadState={downloadState}
+        buttonState={downloadButtonState}
+      />
       <DownloadDialogTitle longName={dataset.Long_Name} />
 
       <div className={classes.dialogInnerWrapper}>
@@ -441,33 +514,139 @@ const DownloadDialog = (props) => {
         </DialogContent>
       </div>
       <DialogActions>
-        <DownloadStep
-          buttonState={downloadButtonState}
-          isInvalid={isInvalid}
-          handlers={{
-            handleClose,
-            handleDownload,
-          }}
-        />
+        {dataset.Row_Count > DIRECT_DOWNLOAD_SUGGESTION_THRESHOLD &&
+        !optionsState.ancillaryData &&
+        !subsetIsDefined ? (
+          <DownloadStepWithWarning
+            onOpenWarning={() => setLargeDatasetWarningOpen(true)}
+            buttonState={downloadButtonState}
+            isInvalid={isInvalid}
+          />
+        ) : (
+          <DownloadStep
+            buttonState={downloadButtonState}
+            isInvalid={isInvalid}
+            handlers={{
+              handleClose,
+              handleDownload,
+            }}
+          />
+        )}
         <Button onClick={handleClose}>Cancel</Button>
       </DialogActions>
       <div className={classes.bottomPlate}>
         <div className={classes.dropboxOptionWrapper}>
           <Button
             className={classes.dropboxButton}
-            onClick={handleOpenDropboxModal}
+            onClick={() => window.open(vaultLink?.shareLink, '_blank')}
+            disabled={!vaultLink?.shareLink}
+            startIcon={
+              !vaultLink?.shareLink ? (
+                <CircularProgress size={20} />
+              ) : (
+                <ImDownload />
+              )
+            }
           >
-            <ImDownload/>
-            <span>Direct Download from CMAP Storage</span>
+            <span>
+              {!vaultLink?.shareLink
+                ? 'Loading Direct Download...'
+                : 'Direct Download from CMAP Storage'}
+            </span>
           </Button>
           <div className={classes.infoLink}>
-            <InfoDialog open={infoDialogOpen} handleClose={() => setInfoDialogOpen (false)} />
-            <a onClick={() => setInfoDialogOpen(true)}><InfoOutlinedIcon /></a>
+            <InfoDialog
+              open={infoDialogOpen}
+              handleClose={() => setInfoDialogOpen(false)}
+            />
+            <a onClick={() => setInfoDialogOpen(true)}>
+              <InfoOutlinedIcon />
+            </a>
           </div>
         </div>
       </div>
+      <LargeDatasetWarningDialog
+        open={largeDatasetWarningOpen}
+        handleClose={() => setLargeDatasetWarningOpen(false)}
+        handleDownload={() => {
+          setLargeDatasetWarningOpen(false);
+          handleClose(); // Close the main dialog
+          // Proceed with the actual download
+          log.debug('handleDownload', {
+            subsetParams,
+            query: makeDownloadQuery({
+              subsetParams,
+              ancillaryData: optionsState.ancillaryData,
+              tableName: dataset.Table_Name,
+            }),
+            table: dataset.Table_Name,
+            ancillaryData: optionsState.ancillaryData,
+          });
+          dispatch(
+            datasetDownloadRequestSend({
+              tableName: dataset.Table_Name,
+              shortName: dataset.Short_Name,
+              ancillaryData: optionsState.ancillaryData,
+              subsetParams,
+              fileName: dataset.Long_Name,
+            }),
+          );
+        }}
+        handleDirectDownload={() => {
+          setLargeDatasetWarningOpen(false);
+          handleClose(); // Close the main dialog
+          window.open(vaultLink?.shareLink, '_blank');
+        }}
+        vaultLink={vaultLink}
+        rowCount={dataset.Row_Count}
+      />
     </div>
   );
 };
 
+const LargeDatasetWarningDialog = (props) => {
+  const {
+    open,
+    handleClose,
+    handleDownload,
+    handleDirectDownload,
+    vaultLink,
+    rowCount,
+  } = props;
+  const classes = useStyles();
+
+  return (
+    <Dialog
+      fullScreen={false}
+      className={classes.muiDialog}
+      PaperProps={{
+        className: classes.dialogPaper,
+      }}
+      open={open}
+      onClose={handleClose}
+    >
+      <DialogContent>
+        <p>
+          This dataset contains {rowCount?.toLocaleString()} rows. For faster
+          download, you can use the Direct Download option. Alternatively, you
+          can continue with the standard download process.
+        </p>
+      </DialogContent>
+      <DialogActions>
+        <Button
+          onClick={handleDirectDownload}
+          color="primary"
+          variant="contained"
+          style={{ minWidth: 120, marginRight: 8 }}
+        >
+          Direct Download
+        </Button>
+        <Button onClick={handleDownload} color="primary">
+          Continue with Standard Download
+        </Button>
+        <Button onClick={handleClose}>Cancel</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
 export default withStyles(styles)(DownloadDialog);

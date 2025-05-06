@@ -7,7 +7,7 @@ import store from '../../../Redux/store';
 import * as interfaceActions from '../../../Redux/actions/ui';
 import initLog from '../../../Services/log-service';
 
-const log = initLog ('catalog/dataRequest');
+const log = initLog('catalog/dataRequest');
 
 // make dataset and metadata requests in parallel
 export const fetchDatasetAndMetadata = async ({ query, shortName }) => {
@@ -16,10 +16,10 @@ export const fetchDatasetAndMetadata = async ({ query, shortName }) => {
     new Promise(async (resolve, reject) => {
       let response;
       try {
-        response = await api.catalog.datasetMetadata (shortName);
+        response = await api.catalog.datasetMetadata(shortName);
       } catch (e) {
-        log.error ('dataset metadata fetch failed', { error: e, shortName })
-        reject (e);
+        log.error('dataset metadata fetch failed', { error: e, shortName });
+        reject(e);
         return;
       }
 
@@ -34,8 +34,8 @@ export const fetchDatasetAndMetadata = async ({ query, shortName }) => {
       try {
         response = await api.data.customQuery(query);
       } catch (e) {
-        log.error ('custom query failed', { error: e, shortName })
-        reject (e);
+        log.error('custom query failed', { error: e, shortName });
+        reject(e);
         return;
       }
 
@@ -52,15 +52,16 @@ export const fetchDatasetAndMetadata = async ({ query, shortName }) => {
     [metadataResp, datasetResp] = await Promise.all(requests);
   } catch (eResp) {
     let { status } = eResp;
-    log.warn ('error in data request', { status, originalError: eResp })
+    log.warn('error in data request', { status, originalError: eResp });
     if (status === 401) {
       throw new Error('UNAUTHORIZED', { cause: eResp });
     } else if (status === 400) {
       let responseText = await eResp.text();
-      let errorMessage = (responseText === 'query exceeds maximum size allowed')
-                       ? '400 TOO LARGE'
-                       : 'BAD REQUEST';
-      throw new Error(errorMessage, { cause: eResp})
+      let errorMessage =
+        responseText === 'query exceeds maximum size allowed'
+          ? '400 TOO LARGE'
+          : 'BAD REQUEST';
+      throw new Error(errorMessage, { cause: eResp });
     } else {
       throw new Error('ERROR', { cause: eResp });
     }
@@ -71,7 +72,7 @@ export const fetchDatasetAndMetadata = async ({ query, shortName }) => {
   try {
     metadataJSON = await metadataResp.json();
   } catch (e) {
-    log.error ('error parsing json', { error: e });
+    log.error('error parsing json', { error: e });
     return;
   }
 
@@ -85,11 +86,11 @@ export const fetchDatasetAndMetadata = async ({ query, shortName }) => {
   }
 
   /* if (!datasetText || datasetText.length === 0) {
-*   console.log('datasetText length', datasetText.length);
-*   console.error('no response text for dataset');
-*   store.dispatch()
-*   return;
-* } */
+   *   console.log('datasetText length', datasetText.length);
+   *   console.error('no response text for dataset');
+   *   store.dispatch()
+   *   return;
+   * } */
 
   return [metadataJSON, datasetText];
 };
