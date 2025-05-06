@@ -3,6 +3,7 @@ import {
   DialogContent,
   Button,
   Dialog,
+  CircularProgress,
 } from '@material-ui/core';
 import { withStyles, makeStyles } from '@material-ui/core/styles';
 import { ImDownload } from 'react-icons/im';
@@ -26,6 +27,7 @@ import {
   makeDownloadQuery,
 } from './downloadDialogHelpers';
 import styles from './downloadDialogStyles';
+import DownloadStepWithWarning from './DownloadStepWithWarning';
 
 import {
   datasetDownloadRequestSend,
@@ -42,6 +44,7 @@ const log = logInit('Catalog/DownloadDialog/DialogContent');
 
 const DOWNLOAD_ROWS_LIMIT = 2000000;
 const CHECK_QUERY_DEBOUNCE_TIME_MS = 2000;
+const DIRECT_DOWNLOAD_SUGGESTION_THRESHOLD = 200000;
 
 // We need to declare this outside the component (or else pass it in through props)
 // because otherwise the debounce clock will get reset every re-render
@@ -100,6 +103,7 @@ const DownloadDialog = (props) => {
   let dispatch = useDispatch();
 
   const [infoDialogOpen, setInfoDialogOpen] = useState(false);
+  const [largeDatasetWarningOpen, setLargeDatasetWarningOpen] = useState(false);
 
   let datasetHasAncillaryData = useDatasetFeatures(
     dataset.Table_Name,
@@ -429,6 +433,15 @@ const DownloadDialog = (props) => {
 
   // download handler
   let handleDownload = () => {
+    if (
+      dataset.Row_Count > DIRECT_DOWNLOAD_SUGGESTION_THRESHOLD &&
+      !optionsState.ancillaryData &&
+      !subsetIsDefined
+    ) {
+      setLargeDatasetWarningOpen(true);
+      return;
+    }
+
     // log params, resulting query, table, & ancillary data flag
     log.debug('handleDownload', {
       subsetParams,
@@ -456,7 +469,6 @@ const DownloadDialog = (props) => {
   if (error) {
     return <ErrorMessage description={error} />;
   }
-
   return (
     <div>
       <ValidationIndicatorBar
@@ -502,14 +514,24 @@ const DownloadDialog = (props) => {
         </DialogContent>
       </div>
       <DialogActions>
-        <DownloadStep
-          buttonState={downloadButtonState}
-          isInvalid={isInvalid}
-          handlers={{
-            handleClose,
-            handleDownload,
-          }}
-        />
+        {dataset.Row_Count > DIRECT_DOWNLOAD_SUGGESTION_THRESHOLD &&
+        !optionsState.ancillaryData &&
+        !subsetIsDefined ? (
+          <DownloadStepWithWarning
+            onOpenWarning={() => setLargeDatasetWarningOpen(true)}
+            buttonState={downloadButtonState}
+            isInvalid={isInvalid}
+          />
+        ) : (
+          <DownloadStep
+            buttonState={downloadButtonState}
+            isInvalid={isInvalid}
+            handlers={{
+              handleClose,
+              handleDownload,
+            }}
+          />
+        )}
         <Button onClick={handleClose}>Cancel</Button>
       </DialogActions>
       <div className={classes.bottomPlate}>
@@ -517,9 +539,20 @@ const DownloadDialog = (props) => {
           <Button
             className={classes.dropboxButton}
             onClick={() => window.open(vaultLink?.shareLink, '_blank')}
+            disabled={!vaultLink?.shareLink}
+            startIcon={
+              !vaultLink?.shareLink ? (
+                <CircularProgress size={20} />
+              ) : (
+                <ImDownload />
+              )
+            }
           >
-            <ImDownload />
-            <span>Direct Download from CMAP Storage</span>
+            <span>
+              {!vaultLink?.shareLink
+                ? 'Loading Direct Download...'
+                : 'Direct Download from CMAP Storage'}
+            </span>
           </Button>
           <div className={classes.infoLink}>
             <InfoDialog
@@ -532,8 +565,88 @@ const DownloadDialog = (props) => {
           </div>
         </div>
       </div>
+      <LargeDatasetWarningDialog
+        open={largeDatasetWarningOpen}
+        handleClose={() => setLargeDatasetWarningOpen(false)}
+        handleDownload={() => {
+          setLargeDatasetWarningOpen(false);
+          handleClose(); // Close the main dialog
+          // Proceed with the actual download
+          log.debug('handleDownload', {
+            subsetParams,
+            query: makeDownloadQuery({
+              subsetParams,
+              ancillaryData: optionsState.ancillaryData,
+              tableName: dataset.Table_Name,
+            }),
+            table: dataset.Table_Name,
+            ancillaryData: optionsState.ancillaryData,
+          });
+          dispatch(
+            datasetDownloadRequestSend({
+              tableName: dataset.Table_Name,
+              shortName: dataset.Short_Name,
+              ancillaryData: optionsState.ancillaryData,
+              subsetParams,
+              fileName: dataset.Long_Name,
+            }),
+          );
+        }}
+        handleDirectDownload={() => {
+          setLargeDatasetWarningOpen(false);
+          handleClose(); // Close the main dialog
+          window.open(vaultLink?.shareLink, '_blank');
+        }}
+        vaultLink={vaultLink}
+        rowCount={dataset.Row_Count}
+      />
     </div>
   );
 };
 
+const LargeDatasetWarningDialog = (props) => {
+  const {
+    open,
+    handleClose,
+    handleDownload,
+    handleDirectDownload,
+    vaultLink,
+    rowCount,
+  } = props;
+  const classes = useStyles();
+
+  return (
+    <Dialog
+      fullScreen={false}
+      className={classes.muiDialog}
+      PaperProps={{
+        className: classes.dialogPaper,
+      }}
+      open={open}
+      onClose={handleClose}
+    >
+      <DialogContent>
+        <p>
+          This dataset contains {rowCount?.toLocaleString()} rows. For faster
+          download, you can use the Direct Download option. Alternatively, you
+          can continue with the standard download process.
+        </p>
+      </DialogContent>
+      <DialogActions>
+        <Button
+          onClick={handleDirectDownload}
+          color="primary"
+          variant="contained"
+          style={{ minWidth: 120, marginRight: 8 }}
+        >
+          Direct Download
+        </Button>
+        <Button onClick={handleDownload} color="primary">
+          Continue with Standard Download
+        </Button>
+        <Button onClick={handleClose}>Cancel</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
 export default withStyles(styles)(DownloadDialog);

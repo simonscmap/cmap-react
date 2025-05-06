@@ -5,7 +5,7 @@ export const DownloadIntro = () => {
   let ExpandedContent = () => (
     <React.Fragment>
       <Typography style={{ margin: '10px 0' }}>
-        Choose dowload options.
+        Choose download options.
       </Typography>
     </React.Fragment>
   );

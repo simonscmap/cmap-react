@@ -191,7 +191,7 @@ const DatasetFullPage = (props) => {
   const grumpTitle =
     'Global rRNA Universal Metabarcoding of Plankton database (GRUMP)';
   // const hasNews = Array.isArray (news) && news.length > 0;
-  const hideGrump = !(longName === grumpTitle);
+  const showGRUMP = !(longName === grumpTitle);
   return (
     <Page2 bgVariant="slate2">
       <Grid container className={classes.outerContainer}>
@@ -225,7 +225,7 @@ const DatasetFullPage = (props) => {
               </Grid>
             </Grid>
 
-            {hideGrump && (
+            {showGRUMP && (
               <Grid id="visualization-section" container spacing={3}>
                 <Grid item xs={12}>
                   <SectionHeader title={'Visualization'} />
