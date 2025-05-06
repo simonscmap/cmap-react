@@ -24,9 +24,9 @@ export default function (state, action) {
   switch (action.type) {
     case SET_SUBMISSION_STEP:
       return {
-      ...state,
-      submissionStep: action.payload.step,
-    }
+        ...state,
+        submissionStep: action.payload.step,
+      };
     case STORE_SUBMISSIONS:
       return {
         ...state,
@@ -60,7 +60,9 @@ export default function (state, action) {
         ...state,
         submissionFile: action.payload.file,
         submissionType: action.payload.submissionId ? 'update' : 'new',
-        submissionToUpdate: action.payload.submissionId ? parseInt (action.payload.submissionId, 10) : null,
+        submissionToUpdate: action.payload.submissionId
+          ? parseInt(action.payload.submissionId, 10)
+          : null,
         submissionUploadState: states.notTried,
       };
 
@@ -93,7 +95,7 @@ export default function (state, action) {
       return {
         ...state,
         checkSubmissionNameRequestStatus: states[action.payload.status],
-        checkSubmissionNameResponseText:  action.payload.responseText
+        checkSubmissionNameResponseText: action.payload.responseText,
       };
 
     case CHECK_SUBM_NAME_RESPONSE_STORE:
@@ -106,7 +108,8 @@ export default function (state, action) {
       return {
         ...state,
         submissionType: action.payload,
-        submissionToUpdate: action.payload === 'new' ? null : state.submissionToUpdate,
+        submissionToUpdate:
+          action.payload === 'new' ? null : state.submissionToUpdate,
       };
 
     case SET_SUBM_ID:
@@ -127,16 +130,16 @@ export default function (state, action) {
         auditReport: amendReportWithErrorCount({
           ...(state.auditReport || {}),
           workbook: action.payload,
-        })
+        }),
       };
 
     case SET_SHEET_AUDIT:
       return {
         ...state,
         auditReport: amendReportWithErrorCount({
-        ...(state.auditReport || {}),
-        [action.payload.sheetName]: action.payload.sheetAudit,
-      })
+          ...(state.auditReport || {}),
+          [action.payload.sheetName]: action.payload.sheetAudit,
+        }),
       };
     default:
       return state;

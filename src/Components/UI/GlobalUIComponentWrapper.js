@@ -12,7 +12,6 @@ import SubscribeDatasetDialog from '../User/Subscriptions/SubscribeDialog';
 import GlobalDownloadDialog from '../Catalog/DownloadDialog/GlobalDialogWrapper';
 import DropboxModal from '../Catalog/DownloadDialog/DropboxModal';
 
-
 import { loginDialogWasCleared } from '../../Redux/actions/user';
 
 const mapStateToProps = (state, ownProps) => ({
@@ -46,9 +45,7 @@ class GlobalUIComponentWrapper extends Component {
   render() {
     return (
       <React.Fragment>
-        <LoginDialog
-          clearState={this.clearState}
-        />
+        <LoginDialog clearState={this.clearState} />
         <SnackbarWrapper />
         <SubscribeDatasetDialog />
         <GlobalDownloadDialog />

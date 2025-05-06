@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 
 import { Link as RouterLink } from 'react-router-dom';
 import styles from '../searchResultStyles';
-import { FaRegCopy } from "react-icons/fa6";
+import { FaRegCopy } from 'react-icons/fa6';
 import GreenButton from './DownloadButton';
 import { copyTextToClipboard } from '../../../Redux/actions/ui';
 
@@ -36,12 +36,12 @@ const useMoreStyles = makeStyles((theme) => ({
     padding: '2px 8px',
     fontSize: '14px',
     minWidth: 'unset',
-  }
+  },
 }));
 const useStyles = makeStyles(styles);
 
 const DatasetTitleLink = (props) => {
-  const { dataset, componentId = {}} = props;
+  const { dataset, componentId = {} } = props;
   const { Long_Name, Short_Name } = dataset;
   const cl = useStyles();
   const clextra = useMoreStyles();
@@ -60,11 +60,15 @@ const DatasetTitleLink = (props) => {
 
   // Copy Text
   const copy = () => {
-    dispatch (copyTextToClipboard (Long_Name));
-  }
+    dispatch(copyTextToClipboard(Long_Name));
+  };
 
   return (
-    <div className={cl.linkContainer} onMouseLeave={handlePopoverClose} {...componentId}>
+    <div
+      className={cl.linkContainer}
+      onMouseLeave={handlePopoverClose}
+      {...componentId}
+    >
       <Link
         component={RouterLink}
         to={`/catalog/datasets/${Short_Name}`}
@@ -90,7 +94,9 @@ const DatasetTitleLink = (props) => {
       >
         <div className={clextra.popContent}>
           <div>{Long_Name}</div>
-          <GreenButton onClick={copy} className={clextra.button}><FaRegCopy /></GreenButton>
+          <GreenButton onClick={copy} className={clextra.button}>
+            <FaRegCopy />
+          </GreenButton>
         </div>
       </Popper>
     </div>

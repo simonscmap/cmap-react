@@ -16,8 +16,8 @@ const featureGridStyles = () => ({
     columnGap: '120px',
     '@media (max-width:900px)': {
       flexDirection: 'column',
-      rowGap: '60px'
-    }
+      rowGap: '60px',
+    },
   },
   sectionTextContainer: {
     '& h3': {
@@ -27,12 +27,11 @@ const featureGridStyles = () => ({
       '& button': {
         padding: '20px', // reduce from 23px
         // otherwise in "submit data" don't fit
-      }
+      },
     },
     '@media (max-width:900px)': {
       order: 2,
     },
-
   },
   art: {
     width: '100%',
@@ -42,13 +41,13 @@ const featureGridStyles = () => ({
     alignContent: 'center',
     justifyContent: 'center',
     '& img': {
-      maxWidth: '300px'
-    }
+      maxWidth: '300px',
+    },
   },
   sectionArtFlexContainer: {
     '@media (max-width:1280px)': {
       order: 1,
-    }
+    },
   },
   textAlignLeft: {
     textAlign: 'left',
@@ -61,7 +60,7 @@ const featureGridStyles = () => ({
     gap: '2em',
     '@media (max-width: 500px)': {
       flexDirection: 'column',
-    }
+    },
   },
   gridHR: {
     border: '1px solid rgba(255, 255, 255, 0.2)',

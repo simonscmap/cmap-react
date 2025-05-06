@@ -19,12 +19,7 @@ const useStyles = makeStyles(styles);
 
 // a rendering component for a search result
 export const SearchResultPure = (props) => {
-  const {
-    dataset,
-    features,
-    style,
-    index,
-  } = props;
+  const { dataset, features, style, index } = props;
 
   const cl = useStyles();
 
@@ -47,9 +42,7 @@ export const SearchResultPure = (props) => {
         <Paper className={cl.resultPaper} elevation={4}>
           <div className={cl.wrapper}>
             <div className={cl.title} {...extra}>
-              <DatasetTitleLink
-                dataset={dataset}
-                componentId={titleProp} />
+              <DatasetTitleLink dataset={dataset} componentId={titleProp} />
               <div className={cl.actionsContainer}>
                 <SubscribeButton
                   shortName={Short_Name}
@@ -69,15 +62,14 @@ export const SearchResultPure = (props) => {
                       <AncillaryDataChip features={features} />
                       <ContinuousIngestionChip features={features} />
                     </div>
-                    <div className={cl.rightGroup}>
-                    </div>
+                    <div className={cl.rightGroup}></div>
                   </div>
                   <MetadataContent dataset={dataset} />
                 </div>
               </div>
               <div className={cl.rightContent}>
                 <HideAtBreakPoint lt={1570}>
-                  <div className={cl.graphicContainer} >
+                  <div className={cl.graphicContainer}>
                     <img src={Icon_URL} />
                   </div>
                 </HideAtBreakPoint>
@@ -90,13 +82,12 @@ export const SearchResultPure = (props) => {
   );
 };
 
-
 const SearchResultState = (props) => {
   const { index, style } = props;
 
-  const dispatch = useDispatch ();
+  const dispatch = useDispatch();
   const searchResults = useSelector((state) => state.searchResults);
-  const subs = useSelector ((state) => state.userSubscriptions);
+  const subs = useSelector((state) => state.userSubscriptions);
 
   const dataset = searchResults[index];
 
@@ -106,22 +97,22 @@ const SearchResultState = (props) => {
     return <React.Fragment />;
   }
 
-  const {
-    Short_Name,
-  } = dataset;
+  const { Short_Name } = dataset;
 
   const onDownloadClick = () => {
-    dispatch (downloadDialogOpen (Short_Name));
+    dispatch(downloadDialogOpen(Short_Name));
   };
 
-  return <SearchResultPure
-           dataset={dataset}
-           onDownloadClick={onDownloadClick}
-           features={features}
-           style={style}
-           index={index}
-           userSubscriptions={subs}
-  />
+  return (
+    <SearchResultPure
+      dataset={dataset}
+      onDownloadClick={onDownloadClick}
+      features={features}
+      style={style}
+      index={index}
+      userSubscriptions={subs}
+    />
+  );
 };
 
 export default SearchResultState;

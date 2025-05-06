@@ -20,10 +20,10 @@ import Hint from '../Navigation/Help/Hint';
 import { useDatasetFeatures } from '../../Utility/Catalog/useDatasetFeatures';
 import { downloadDialogOpen } from '../../Redux/actions/ui';
 
-const useStyles = makeStyles (styles);
+const useStyles = makeStyles(styles);
 
 const SearchResult = (props) => {
-  const cl = useStyles ();
+  const cl = useStyles();
   const { index } = props;
   const {
     Icon_URL,
@@ -35,19 +35,22 @@ const SearchResult = (props) => {
     Regions,
   } = props.dataset;
 
-  const dispatch = useDispatch ();
+  const dispatch = useDispatch();
 
   /* Dataset Features (Chips) */
-  const features = useDatasetFeatures (Table_Name);
+  const features = useDatasetFeatures(Table_Name);
 
   const AncillaryDataChip = () => {
     const cl = useStyles();
     if (features && features.ancillary) {
-      return <Chip
-               className={cl.chip}
-               color="primary"
-               size="small"
-               label="Ancillary Data" />;
+      return (
+        <Chip
+          className={cl.chip}
+          color="primary"
+          size="small"
+          label="Ancillary Data"
+        />
+      );
     } else {
       return '';
     }
@@ -56,11 +59,14 @@ const SearchResult = (props) => {
   const CIDataChip = () => {
     const cl = useStyles();
     if (features && features.ci) {
-      return <Chip
-               className={cl.chip}
-               color="primary"
-               size="small"
-               label="Continuously Updated" />;
+      return (
+        <Chip
+          className={cl.chip}
+          color="primary"
+          size="small"
+          label="Continuously Updated"
+        />
+      );
     } else {
       return '';
     }
@@ -76,7 +82,6 @@ const SearchResult = (props) => {
         >
           {Long_Name}
         </Link>
-
       </React.Fragment>
     ) : (
       <React.Fragment>
@@ -95,13 +100,12 @@ const SearchResult = (props) => {
             {Long_Name}
           </Link>
         </Hint>
-
       </React.Fragment>
     );
   };
 
   const onDownloadClick = async () => {
-    dispatch (downloadDialogOpen (Short_Name));
+    dispatch(downloadDialogOpen(Short_Name));
   };
 
   return (
@@ -109,7 +113,6 @@ const SearchResult = (props) => {
       <Paper className={cl.resultPaper} elevation={4}>
         <Grid container className={cl.resultWrapper}>
           <Grid item md={12} lg={8} className={cl.gridRow}>
-
             <DatasetTitleLink />
 
             <div className={cl.resultActions}>
@@ -127,19 +130,18 @@ const SearchResult = (props) => {
             <Typography className={cl.denseText}>
               Temporal Coverage:{' '}
               {Time_Min && Time_Max
-               ? ` ${Time_Min.slice(0, 10)} to ${Time_Max.slice(0, 10)}`
-               : 'NA'}
+                ? ` ${Time_Min.slice(0, 10)} to ${Time_Max.slice(0, 10)}`
+                : 'NA'}
             </Typography>
 
             <Typography className={cl.denseText}>
-              Regions:{' '}
-              {Regions && Regions}
+              Regions: {Regions && Regions}
             </Typography>
 
-            <Typography component={'span'}className={cl.denseText}>
+            <Typography component={'span'} className={cl.denseText}>
               Table Name:{' '}
             </Typography>
-            <Typography component={'span'}className={cl.fixedWidthText}>
+            <Typography component={'span'} className={cl.fixedWidthText}>
               {Table_Name}
             </Typography>
           </Grid>
@@ -152,7 +154,6 @@ const SearchResult = (props) => {
               ></div>
             </Grid>
           </Hidden>
-
         </Grid>
       </Paper>
     </div>

@@ -2,7 +2,7 @@ import colors from '../../enums/colors';
 import z from '../../enums/zIndex';
 
 const salmonAlert = 'rgb(209, 98, 101)';
-const yellowAlert = 'rgb(255, 227, 54)'
+const yellowAlert = 'rgb(255, 227, 54)';
 
 const drawerWidth = 305;
 
@@ -57,7 +57,7 @@ const styles = (theme) => ({
     left: '316px',
     '& svg': {
       color: yellowAlert,
-    }
+    },
   },
   alertBox: {
     position: 'absolute',
@@ -97,27 +97,28 @@ const styles = (theme) => ({
       },
       '& button svg': {
         stroke: colors.primary,
-      }
+      },
     },
     '& .react-date-picker--disabled': {
       background: 'transparent',
       color: '#ccc',
       '& button svg': {
         stroke: '#ccc',
-      }
+      },
     },
     '& .react-date-picker__wrapper': {
       border: 0,
     },
-    '& > span': { // helper text
+    '& > span': {
+      // helper text
       color: 'yellow',
-      fontSize: '12px'
+      fontSize: '12px',
     },
-    '& > label':{
+    '& > label': {
       // padding: '6px 0 2px 7px',
       color: colors.primary,
       fontSize: '12px',
-    }
+    },
   },
 
   dateTimeInput: {
@@ -163,10 +164,10 @@ const styles = (theme) => ({
       zIndex: 0,
     },
     '& label.Mui-disabled': {
-      color: theme.palette.primary.main
+      color: theme.palette.primary.main,
     },
     '& input.Mui-disabled': {
-      color: '#aaa'
+      color: '#aaa',
     },
   },
 
@@ -206,15 +207,14 @@ const styles = (theme) => ({
   popoutButtonBase: {
     padding: '9px',
     '&:disabled': {
-      color: '#ccc'
-    }
+      color: '#ccc',
+    },
   },
   lockButtonBase: {
     padding: '12px 0 9px 10px',
     '&:disabled': {
-      color: '#ccc'
-    }
-
+      color: '#ccc',
+    },
   },
 });
 

@@ -70,19 +70,19 @@ const compileResults = (results) => {
     first: [],
   };
 
-  results.forEach ((r) => {
+  results.forEach((r) => {
     switch (r.severity) {
       case severity.error:
-        report.errors.push (r);
+        report.errors.push(r);
         return;
       case severity.warning:
-        report.warnings.push (r);
+        report.warnings.push(r);
         return;
       case severity.confirmation:
-        report.confirmations.push (r);
+        report.confirmations.push(r);
         return;
       default:
-        report.warnings.push (r);
+        report.warnings.push(r);
         return;
     }
   });
@@ -90,25 +90,28 @@ const compileResults = (results) => {
   // console.log ('compiled workbook audit', results, report);
 
   return report;
-}
+};
 
 const reportTime = (auditTimes, times, elapsed) => {
-  const report = auditTimes.map ((a, i) => ({
-    tag: a.name,
-    share: times[i] / elapsed,
-    duration: times[i],
-  })).sort ((a, b) => {
-    if (a.share > b.share) {
-      return -1;
-    } else if (a.share < b.share) {
-      return 1
-    } else {
-      return 0;
-    }
-  }).map (formatEvent);
+  const report = auditTimes
+    .map((a, i) => ({
+      tag: a.name,
+      share: times[i] / elapsed,
+      duration: times[i],
+    }))
+    .sort((a, b) => {
+      if (a.share > b.share) {
+        return -1;
+      } else if (a.share < b.share) {
+        return 1;
+      } else {
+        return 0;
+      }
+    })
+    .map(formatEvent);
 
-  console.log ('Workbook Audits\' Profile:');
-  console.table (report);
+  console.log("Workbook Audits' Profile:");
+  console.table(report);
 };
 
 const mainAuditExecution = (args) => {
@@ -118,13 +121,13 @@ const mainAuditExecution = (args) => {
   const overallStartTime = Date.now();
 
   // iterate over audits, collecting results
-  audits.forEach ((audit, i) => {
+  audits.forEach((audit, i) => {
     const { name, description, fn } = audit;
     const timeStart = Date.now();
 
     let auditResult;
     if (fn && fn.call) {
-      auditResult = fn.call (null, args);
+      auditResult = fn.call(null, args);
     }
 
     if (Array.isArray(auditResult)) {
@@ -133,13 +136,13 @@ const mainAuditExecution = (args) => {
       // console.log (`${name} gave no result`)
     }
     const elapsedTime = Date.now() - timeStart;
-    times.push (elapsedTime);
+    times.push(elapsedTime);
   });
 
   const overallElapsedTime = Date.now() - overallStartTime;
 
-  reportTime (audits, times, overallElapsedTime);
-  const compiledResults = compileResults (results);
+  reportTime(audits, times, overallElapsedTime);
+  const compiledResults = compileResults(results);
   return compiledResults;
 };
 

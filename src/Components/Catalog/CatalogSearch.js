@@ -84,9 +84,10 @@ class CatalogSearch extends React.Component {
 
       // convert string values to array values
       ['region', 'sensor', 'make', 'dataFeatures'].forEach((filterKey) => {
-        params[filterKey] = typeof params[filterKey] === 'string'
-                  ? [params[filterKey]]
-                  : params[filterKey];
+        params[filterKey] =
+          typeof params[filterKey] === 'string'
+            ? [params[filterKey]]
+            : params[filterKey];
       });
       let newState = {
         ...params,
@@ -106,7 +107,7 @@ class CatalogSearch extends React.Component {
   };
 
   handleToggleshowAdditionalFilters = () => {
-    this.props.setIsExpanded (!this.state.showAdditionalFilters);
+    this.props.setIsExpanded(!this.state.showAdditionalFilters);
     this.setState({
       showAdditionalFilters: !this.state.showAdditionalFilters,
     });
@@ -145,7 +146,11 @@ class CatalogSearch extends React.Component {
 
   handleClickCheckbox = (e, checked) => {
     let [column, value] = e.target.name.split('!!');
-    log.debug ('handleClickCheckbox', { column, value, targetName: e.target.name });
+    log.debug('handleClickCheckbox', {
+      column,
+      value,
+      targetName: e.target.name,
+    });
     let newSet = new Set(this.state[column]);
 
     if (checked) {
@@ -193,7 +198,7 @@ class CatalogSearch extends React.Component {
 
     // log.debug ('state', { dataFeatures, submissionOptions });
 
-    const setToChips = (key) => (s) => (
+    const setToChips = (key) => (s) =>
       Array.from(s).map((val, i) => (
         <Chip
           key={`chip${i}`}
@@ -201,17 +206,19 @@ class CatalogSearch extends React.Component {
           variant="outlined"
           label={val}
           onDelete={() => {
-            this.handleClickCheckbox({ target: { name: `${key}!!${val}` } }, false)
+            this.handleClickCheckbox(
+              { target: { name: `${key}!!${val}` } },
+              false,
+            );
           }}
           color="primary"
         />
-      ))
-    );
+      ));
 
-    const chips = (setToChips ('make') (make))
-      .concat ((setToChips ('sensor') (sensor)))
-      .concat ((setToChips ('region') (region)))
-      .concat ((setToChips ('dataFeatures') (dataFeatures)))
+    const chips = setToChips('make')(make)
+      .concat(setToChips('sensor')(sensor))
+      .concat(setToChips('region')(region))
+      .concat(setToChips('dataFeatures')(dataFeatures));
 
     return (
       <div className={classes.divWrapper}>
@@ -248,7 +255,13 @@ class CatalogSearch extends React.Component {
                     />
                   </Hint>
                 </div>
-                <Tooltip title={this.state.showAdditionalFilters ? 'Collapse Filter Controls' : 'Show Filter Controls'}>
+                <Tooltip
+                  title={
+                    this.state.showAdditionalFilters
+                      ? 'Collapse Filter Controls'
+                      : 'Show Filter Controls'
+                  }
+                >
                   <ToggleButton
                     value="check"
                     id="additional-filters-button"
@@ -261,13 +274,14 @@ class CatalogSearch extends React.Component {
                 </Tooltip>
                 <SortingControls />
                 {chips}
-
               </div>
 
-              {this.state.showAdditionalFilters &&
+              {this.state.showAdditionalFilters && (
                 <div className={classes.scrollingOptionsContainer}>
-                  <div className={classes.searchOptionsContainer} id="catSearchOptions">
-
+                  <div
+                    className={classes.searchOptionsContainer}
+                    id="catSearchOptions"
+                  >
                     <FilterCard title={'Data Features'}>
                       <CheckboxSet
                         options={submissionOptions.DataFeatures}
@@ -304,7 +318,7 @@ class CatalogSearch extends React.Component {
                       />
                     </FilterCard>
 
-                    <FilterCard title={'Temporal Coverage'} >
+                    <FilterCard title={'Temporal Coverage'}>
                       <TemporalCoverageOptions
                         timeStart={timeStart}
                         timeEnd={timeEnd}
@@ -312,7 +326,7 @@ class CatalogSearch extends React.Component {
                       />
                     </FilterCard>
 
-                    <FilterCard title={'Spatial Coverage'} >
+                    <FilterCard title={'Spatial Coverage'}>
                       <SpatialCoverageOptions
                         latStart={latStart}
                         latEnd={latEnd}
@@ -322,12 +336,10 @@ class CatalogSearch extends React.Component {
                         handleChangeSearchValue={this.handleChangeSearchValue}
                       />
                     </FilterCard>
-
                   </div>
                 </div>
-              }
+              )}
             </Grid>
-
           </Grid>
         </Paper>
       </div>
@@ -343,7 +355,7 @@ export default connect(mapStateToProps)(
 const useFilterCardStyles = makeStyles((theme) => ({
   container: {
     minWidth: '200px',
-    maxWidth: '300px'
+    maxWidth: '300px',
   },
   title: {
     fontSize: '1.1em',
@@ -355,21 +367,19 @@ const useFilterCardStyles = makeStyles((theme) => ({
     marginBottom: '.5em',
   },
   content: {
-    maxWidth: '300px'
-  }
+    maxWidth: '300px',
+  },
 }));
 
 const FilterCard = (props) => {
   const cl = useFilterCardStyles();
-  const { children, title } = props
+  const { children, title } = props;
   return (
     <div className={cl.container}>
       <div className={cl.titleContainer}>
         <Typography className={cl.title}>{title}</Typography>
       </div>
-      <div className={cl.content}>
-        {children}
-      </div>
+      <div className={cl.content}>{children}</div>
     </div>
   );
-}
+};

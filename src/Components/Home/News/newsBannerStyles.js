@@ -4,7 +4,7 @@ const newsBannerStyles = (theme) => ({
   news: {
     width: '100%',
     position: 'relative',
-    paddingTop: '.5em' // prevent newsFlow's scrollbar from peeking up past the title
+    paddingTop: '.5em', // prevent newsFlow's scrollbar from peeking up past the title
   },
   date: {
     opacity: '0.8',
@@ -45,7 +45,7 @@ const newsBannerStyles = (theme) => ({
       justifyContent: 'flex-start',
       gap: '1em',
       width: 'calc(100% - 1em)',
-    }
+    },
   },
   sectionTitleContainer: {
     // contains title; blurs news flow scrolling underneath
@@ -78,7 +78,7 @@ const newsBannerStyles = (theme) => ({
       fontSize: '.8em',
       color: 'white',
       cursor: 'pointer',
-    }
+    },
   },
   pager: {
     display: 'flex',
@@ -87,7 +87,7 @@ const newsBannerStyles = (theme) => ({
     alignItems: 'center',
     gap: '.5em',
     '& p': {
-      color:'#93a9c3',
+      color: '#93a9c3',
       textTransform: 'uppercase',
       fontWeight: 'bold',
       fontSize: '.8em',
@@ -102,8 +102,8 @@ const newsBannerStyles = (theme) => ({
     color: 'white',
     cursor: 'pointer',
     '&:hover': {
-      color: 'grey'
-    }
+      color: 'grey',
+    },
   },
   cardTopLine: {
     width: '100%',
@@ -135,8 +135,8 @@ const newsBannerStyles = (theme) => ({
     scrollSnapAlign: 'start',
     scrollSnapStop: 'always',
     '&:nth-child(0)': {
-      marginTop: '2.8em'
-    }
+      marginTop: '2.8em',
+    },
   },
   newsCardContent: {
     textAlign: 'left',
@@ -172,7 +172,7 @@ const newsBannerStyles = (theme) => ({
       },
       '&:hover': {
         color: theme.palette.secondary.light,
-      }
+      },
     },
     '& em': {
       fontWeight: 700,

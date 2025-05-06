@@ -11,25 +11,21 @@ import {
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 
 // action creators
-import {
-  setSubmissionType
-} from '../../../Redux/actions/dataSubmission';
+import { setSubmissionType } from '../../../Redux/actions/dataSubmission';
 import SubmissionSelect from './SubmissionSelect';
 
-
-const useStyles = makeStyles ((theme) => ({
+const useStyles = makeStyles((theme) => ({
   typeChooserWrapper: {
     color: 'white',
     '& > h5': {
-      marginBottom: '1em'
-    }
+      marginBottom: '1em',
+    },
   },
   formContent: {
     display: 'flex',
     flexDirection: 'column',
     gap: '2em',
-    '& > div': {
-    }
+    '& > div': {},
   },
   selectWrapper: {
     // border: `1px solid ${theme.palette.primary.light}`,
@@ -51,19 +47,16 @@ const useStyles = makeStyles ((theme) => ({
     },
     '& .MuiFilledInput-root': {
       background: 'rgba(0,0,0,0.1)',
-      borderRadius: '5px'
+      borderRadius: '5px',
     },
   },
   selectFormControl: {
     '& .MuiFilledInput-underline::before': {
       borderBottom: 0,
-    }
+    },
   },
-  overrides: createStyles({
-  })
+  overrides: createStyles({}),
 }));
-
-
 
 // UX --
 // A binary radio group, which shows only when the user has active submissions,
@@ -79,47 +72,52 @@ const useStyles = makeStyles ((theme) => ({
 // • whether user has active submissions
 
 const TypeChooser = (props) => {
-  const cl = useStyles ();
+  const cl = useStyles();
 
   // pull in global state
-  const subType = useSelector ((state) => state.submissionType);
+  const subType = useSelector((state) => state.submissionType);
 
   // handlers
   const dispatch = useDispatch();
-  const setSubType = (t) => dispatch (setSubmissionType (t));
+  const setSubType = (t) => dispatch(setSubmissionType(t));
 
   const handleSetType = (e) => {
     const t = e.target.value;
-    setSubType (t);
-  }
+    setSubType(t);
+  };
 
   return (
     <div className={cl.typeChooserWrapper}>
-      <Typography variant={"h5"}>Upload Workbook</Typography>
+      <Typography variant={'h5'}>Upload Workbook</Typography>
       <div className={cl.formContent}>
         <div className={cl.radioWrapper}>
           <FormControl component="fieldset">
-            <RadioGroup name="submission-type" value={subType} onChange={handleSetType}>
+            <RadioGroup
+              name="submission-type"
+              value={subType}
+              onChange={handleSetType}
+            >
               <FormControlLabel
-                value={"new"}
+                value={'new'}
                 control={<Radio />}
-                label={"Create a new submission"}
+                label={'Create a new submission'}
               />
               <FormControlLabel
-                value={"update"}
+                value={'update'}
                 control={<Radio />}
-                label={"Update a submission already in progress"}
+                label={'Update a submission already in progress'}
               />
             </RadioGroup>
           </FormControl>
-          {(subType === "update") &&
-           <div className={cl.selectWrapper}>
-             <Typography variant={"body1"}>Pick Submission to Update:</Typography>
-             <SubmissionSelect />
+          {subType === 'update' && (
+            <div className={cl.selectWrapper}>
+              <Typography variant={'body1'}>
+                Pick Submission to Update:
+              </Typography>
+              <SubmissionSelect />
             </div>
-          }
+          )}
         </div>
-
       </div>
     </div>
   );

@@ -37,15 +37,12 @@ dataAPI.trajectoryCounts = async () => {
     fetchOptions,
   );
   return response;
-}
+};
 
 dataAPI.named = async (name) => {
-  let response = await fetch(
-    apiUrl + `/api/data/named/${name}`,
-    fetchOptions,
-  );
+  let response = await fetch(apiUrl + `/api/data/named/${name}`, fetchOptions);
   return response;
-}
+};
 
 // Wrap each endpoint in a try/catch because...
 // if the fetch fails before the request is sent, for example due to a CORS
@@ -80,6 +77,5 @@ let safeAPI = Object.entries(dataAPI)
       ...current,
     };
   }, {});
-
 
 export default safeAPI;

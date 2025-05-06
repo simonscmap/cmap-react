@@ -10,13 +10,14 @@ import { CustomAlert } from '../Alert';
 import DemoSheet from '../DemoSheet';
 import { metaCols, metaSheet } from '../demoSheetData';
 
-
 const Content = () => {
   const cl = sectionStyles();
   return (
     <div className={cl.container}>
       <Typography>
-        This sheet, labeled <code>dataset_meta_data</code>, holds a list of top-level attributes about the dataset such as the dataset name and description.
+        This sheet, labeled <code>dataset_meta_data</code>, holds a list of
+        top-level attributes about the dataset such as the dataset name and
+        description.
       </Typography>
 
       <div className={cl.scrollWrapper}>
@@ -24,9 +25,10 @@ const Content = () => {
         <DemoSheet columns={metaCols} source={metaSheet} />
       </div>
 
-
       <CustomAlert severity="info">
-        <Typography>Please review the example datasets for a full view of the sheet.</Typography>
+        <Typography>
+          Please review the example datasets for a full view of the sheet.
+        </Typography>
         <List>
           <ListItem>
             <ListItemText>
@@ -50,7 +52,6 @@ const Content = () => {
           </ListItem>
         </List>
       </CustomAlert>
-
     </div>
   );
 };

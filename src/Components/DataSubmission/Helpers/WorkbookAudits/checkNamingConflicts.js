@@ -8,7 +8,7 @@ const DESCRIPTION = 'Check short and long names for conflicts';
 
 const namingConflictsAudit = (standardArgs) => {
   const {
-    dataset_meta_data,  // the metadata sheet
+    dataset_meta_data, // the metadata sheet
     checkNameResult,
     userDataSubmissions, // array of submissions owned by current user
     submissionType,
@@ -33,11 +33,13 @@ const namingConflictsAudit = (standardArgs) => {
   const shortName = safePath(['0', 'dataset_short_name'])(dataset_meta_data);
   const longName = safePath(['0', 'dataset_long_name'])(dataset_meta_data);
 
-  console.log ('check naming conflict audit');
-  console.log ({ shortName, longName })
+  console.log('check naming conflict audit');
+  console.log({ shortName, longName });
 
-  const newShortNameConflict = (shortNameIsAlreadyInUse || folderExists) && submissionType === 'new';
-  const newLongNameConflict =  longNameIsAlreadyInUse && submissionType === 'new';
+  const newShortNameConflict =
+    (shortNameIsAlreadyInUse || folderExists) && submissionType === 'new';
+  const newLongNameConflict =
+    longNameIsAlreadyInUse && submissionType === 'new';
 
   const results = [];
 
@@ -45,7 +47,8 @@ const namingConflictsAudit = (standardArgs) => {
     results.push({
       severity: severity.error,
       title: 'Dataset Short Name is Missing',
-      detail: 'No short name was provided. Please add a name in the *`dataset_short_name`* field in the *`dataset_meta_data`* worksheet.',
+      detail:
+        'No short name was provided. Please add a name in the *`dataset_short_name`* field in the *`dataset_meta_data`* worksheet.',
     });
   } else if (newShortNameConflict) {
     results.push({
@@ -55,12 +58,19 @@ const namingConflictsAudit = (standardArgs) => {
     });
   } else if (shortNameUpdateConflict) {
     if (userDataSubmissions && userDataSubmissions.length) {
-      const shortNameBelongsToOtherSubmission = userDataSubmissions.find ((sub) => {
-        return sub.Dataset === shortName && sub.Submission_ID !== submissionToUpdate;
-      });
-      const targetDataset = userDataSubmissions.find ((sub) => sub.Submission_ID === submissionToUpdate);
+      const shortNameBelongsToOtherSubmission = userDataSubmissions.find(
+        (sub) => {
+          return (
+            sub.Dataset === shortName &&
+            sub.Submission_ID !== submissionToUpdate
+          );
+        },
+      );
+      const targetDataset = userDataSubmissions.find(
+        (sub) => sub.Submission_ID === submissionToUpdate,
+      );
       if (shortNameBelongsToOtherSubmission && targetDataset) {
-        results.push ({
+        results.push({
           severity: severity.warning,
           priority: 'first',
           title: 'Did you pick the right file?',
@@ -69,7 +79,10 @@ const namingConflictsAudit = (standardArgs) => {
       }
     }
 
-    if (originalShortName !== shortName && originalShortName.toLowerCase() === shortName.toLowerCase()) {
+    if (
+      originalShortName !== shortName &&
+      originalShortName.toLowerCase() === shortName.toLowerCase()
+    ) {
       results.push({
         severity: severity.error,
         title: 'Unable to Update Short Name',
@@ -88,30 +101,27 @@ const namingConflictsAudit = (standardArgs) => {
     results.push({
       severity: severity.error,
       title: 'Dataset Long Name is Missing',
-      detail: 'No long name was provided. Please add a name in the *`dataset_long_name`* field in the *`dataset_meta_data`* worksheet.',
+      detail:
+        'No long name was provided. Please add a name in the *`dataset_long_name`* field in the *`dataset_meta_data`* worksheet.',
     });
   } else if (newLongNameConflict) {
     results.push({
       severity: severity.error,
       title: 'Dataset Long Name is Unavailable',
       detail: messages.longNameIsTaken(longName),
-    })
+    });
   } else if (longNameUpdateConflict) {
     results.push({
       severity: severity.error,
       title: 'Unable to Update Long Name',
       detail: `The long name provided, *\`${longName}\`*, is already in use by another dataset submission`,
-    })
+    });
   }
   return results;
-}
+};
 
-const auditFn = requireCheckNameResult (AUDIT_NAME, namingConflictsAudit);
+const auditFn = requireCheckNameResult(AUDIT_NAME, namingConflictsAudit);
 
-const orphanedCellsAudit = auditFactory (
-  AUDIT_NAME,
-  DESCRIPTION,
-  auditFn,
-);
+const orphanedCellsAudit = auditFactory(AUDIT_NAME, DESCRIPTION, auditFn);
 
 export default orphanedCellsAudit;

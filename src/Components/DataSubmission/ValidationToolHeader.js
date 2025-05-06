@@ -6,9 +6,9 @@ import styles from './ValidationToolStyles';
 import { makeStyles } from '@material-ui/core/styles';
 import states from '../../enums/asyncRequestStates';
 
-const useStyles = makeStyles (styles);
+const useStyles = makeStyles(styles);
 
-const useHeaderStyles = makeStyles ((theme) => ({
+const useHeaderStyles = makeStyles((theme) => ({
   container: {
     display: 'flex',
     flexDirection: 'row',
@@ -20,7 +20,7 @@ const useHeaderStyles = makeStyles ((theme) => ({
     fontFamily: `source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace`,
     color: theme.palette.primary.main,
     fontSize: '32px',
-    fontWeight: 100
+    fontWeight: 100,
   },
   nameChangeWarning: {
     display: 'flex',
@@ -37,21 +37,20 @@ const useHeaderStyles = makeStyles ((theme) => ({
   },
   title: {
     color: 'white',
-  }
+  },
 }));
-
-
 
 const Header = (props) => {
   const classes = useStyles();
   const cl = useHeaderStyles();
   const { newLongName, step } = props;
 
-  const subType = useSelector ((state) => state.submissionType);
-  const subToUpdate = useSelector ((state) => {
+  const subType = useSelector((state) => state.submissionType);
+  const subToUpdate = useSelector((state) => {
     if (state.submissionType === 'update' && state.submissionToUpdate) {
-      const s = state.dataSubmissions
-                     .find ((sub) => sub.Submission_ID === state.submissionToUpdate);
+      const s = state.dataSubmissions.find(
+        (sub) => sub.Submission_ID === state.submissionToUpdate,
+      );
       if (s) {
         return s;
       } else {
@@ -59,19 +58,20 @@ const Header = (props) => {
       }
     }
   });
-  const submissionStatus = useSelector ((state) => state.submissionUploadState);
+  const submissionStatus = useSelector((state) => state.submissionUploadState);
 
   if (submissionStatus === states.succeeded) {
     return (
       <div className={cl.container}>
         <Typography variant="h1" className={classes.title}>
-         {'Dataset Submitted!'}
+          {'Dataset Submitted!'}
         </Typography>
       </div>
     );
   }
 
-  const headerText = subType === 'new' ? 'Begin New Data Submission' : 'Update Submission:'
+  const headerText =
+    subType === 'new' ? 'Begin New Data Submission' : 'Update Submission:';
 
   let name;
 
@@ -95,12 +95,14 @@ const Header = (props) => {
     <React.Fragment>
       <div className={cl.container}>
         <Typography variant="h1" className={classes.title}>
-         {headerText}
+          {headerText}
         </Typography>
         {name && (
           <React.Fragment>
             <Typography variant="h1" className={cl.pre}>
-              {'"'}{name}{'"'}
+              {'"'}
+              {name}
+              {'"'}
             </Typography>
           </React.Fragment>
         )}
@@ -118,14 +120,14 @@ const Header = (props) => {
         &nbsp;a blank template, or view the{' '}
         <Link
           className={classes.needHelpLink}
-            component={RouterLink}
-            to="/datasubmission/guide"
-         >
-           Data Submission Guide
-         </Link>
-         .
-       </Typography>
-     </React.Fragment>
+          component={RouterLink}
+          to="/datasubmission/guide"
+        >
+          Data Submission Guide
+        </Link>
+        .
+      </Typography>
+    </React.Fragment>
   );
 };
 

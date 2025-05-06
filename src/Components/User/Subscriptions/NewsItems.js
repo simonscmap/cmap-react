@@ -5,25 +5,21 @@ import Button from '@material-ui/core/Button';
 
 const useNewsStyles = makeStyles({
   item: {
-    margin: '1em 0'
+    margin: '1em 0',
   },
   headline: {
     fontWeight: 'bold',
     fontSize: '1.2em',
-  }
+  },
 });
 
 const NewsItems = (props) => {
   const { selected, subscriptions = [] } = props;
-  const cl = useNewsStyles ();
+  const cl = useNewsStyles();
 
-  const sub = subscriptions.find (s => s.Dataset_Name === selected);
+  const sub = subscriptions.find((s) => s.Dataset_Name === selected);
   if (!sub) {
-    return (
-      <div>
-        Alert: no subscription found for {selected}
-      </div>
-    );
+    return <div>Alert: no subscription found for {selected}</div>;
   }
 
   return (
@@ -38,6 +34,6 @@ const NewsItems = (props) => {
       </div>
     </div>
   );
-}
+};
 
 export default NewsItems;

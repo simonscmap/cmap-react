@@ -4,17 +4,14 @@ import userMenuStyles from './userMenuStyles';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { useGoogleOneTapLogin } from '@react-oauth/google';
-import { googleLoginRequestSend } from '../../Redux/actions/user'
+import { googleLoginRequestSend } from '../../Redux/actions/user';
 import ExpandableItem from './ExpandableItem';
-import {
-  showLoginDialog,
-} from '../../Redux/actions/ui';
+import { showLoginDialog } from '../../Redux/actions/ui';
 import { logOut } from '../../Redux/actions/user';
 
 const LoggedInMenu = ({ user }) => {
   const dispatch = useDispatch();
   const logOutUser = () => dispatch(logOut());
-
 
   if (!user) {
     console.log('attempted to render user menu when no user provided');
@@ -27,7 +24,7 @@ const LoggedInMenu = ({ user }) => {
     <div id="userMenu">
       <ExpandableItem linkText={email} isRightEdge={true}>
         <Link to="/profile">Profile</Link>
-        <Link to="/subscriptions" >Dataset Subscriptions</Link>
+        <Link to="/subscriptions">Dataset Subscriptions</Link>
         {isDataSubmissionAdmin && (
           <Link to="/datasubmission/admindashboard">Submissions Dashboard</Link>
         )}
@@ -45,13 +42,14 @@ const LoggedOutMenu = () => {
   let openLoginDialog = () => dispatch(showLoginDialog());
 
   const handleGoogleLogin = (response) => {
-    dispatch (googleLoginRequestSend (response.credential, 'auto login', false));
-  }
+    dispatch(googleLoginRequestSend(response.credential, 'auto login', false));
+  };
 
-  useGoogleOneTapLogin ({
+  useGoogleOneTapLogin({
     onSuccess: handleGoogleLogin,
     onError: () => console.log('one tap failed'),
-    promptMomentNotification: (data) => console.log('one tap notification', data),
+    promptMomentNotification: (data) =>
+      console.log('one tap notification', data),
   });
 
   return (

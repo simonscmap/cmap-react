@@ -33,15 +33,15 @@ const Test = ({ classes }) => {
   let [panelOpen, setPanelOpen] = useState(false);
 
   let togglePanel = (e) => {
-    e.preventDefault()
+    e.preventDefault();
     console.log('toggle', panelOpen);
     setPanelOpen(!panelOpen);
   };
 
   let handleClose = () => {
-    console.log('handle close', panelOpen)
+    console.log('handle close', panelOpen);
     setPanelOpen(false);
-  }
+  };
   return (
     <Page pageTitle={'Test Slide Out Panel'} heroContent={<HeroContent />}>
       <FullWidthContainer bgVariant={'slate'}>
@@ -66,7 +66,11 @@ const Test = ({ classes }) => {
             {panelOpen ? 'Close Panel' : 'Open Panel'}
           </GreenButtonSM>
         </Section>
-        <SlideOutPanel open={panelOpen} handleClose={handleClose} title="Slide Out Panel Test">
+        <SlideOutPanel
+          open={panelOpen}
+          handleClose={handleClose}
+          title="Slide Out Panel Test"
+        >
           <Typography>Content</Typography>
         </SlideOutPanel>
       </FullWidthContainer>

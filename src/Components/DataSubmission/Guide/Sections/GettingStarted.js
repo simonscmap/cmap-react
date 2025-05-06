@@ -5,7 +5,7 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 
-import { RxDotFilled } from "react-icons/rx";
+import { RxDotFilled } from 'react-icons/rx';
 import { sectionStyles } from '../guideStyles';
 import { GuideLink } from '../Links';
 
@@ -15,7 +15,11 @@ const Content = (props) => {
   return (
     <div className={cl.container}>
       <Typography>
-        Data submitted to <span style={{ fontWeight: 600 }}>Simons Collaborative Marine Atlas Project </span> must be precisely formatted to maintain a high level of usability.
+        Data submitted to{' '}
+        <span style={{ fontWeight: 600 }}>
+          Simons Collaborative Marine Atlas Project{' '}
+        </span>{' '}
+        must be precisely formatted to maintain a high level of usability.
       </Typography>
 
       <Typography style={{ marginTop: '16px' }}>
@@ -24,13 +28,17 @@ const Content = (props) => {
 
       <List>
         <ListItem>
-          <ListItemIcon><RxDotFilled/></ListItemIcon>
+          <ListItemIcon>
+            <RxDotFilled />
+          </ListItemIcon>
           <ListItemText>
             Preparing the dataset for inclusion in Simons CMAP
           </ListItemText>
         </ListItem>
         <ListItem>
-          <ListItemIcon><RxDotFilled/></ListItemIcon>
+          <ListItemIcon>
+            <RxDotFilled />
+          </ListItemIcon>
           <ListItemText>
             Ensuring that the dataset is discoverable via CMAP search
             capabilities and infrastructure
@@ -38,17 +46,15 @@ const Content = (props) => {
         </ListItem>
 
         <ListItem>
-          <ListItemIcon><RxDotFilled/></ListItemIcon>
+          <ListItemIcon>
+            <RxDotFilled />
+          </ListItemIcon>
           <ListItemText>
             Ensuring that the dataset contains the information that users
             require to understand the dataset
           </ListItemText>
         </ListItem>
       </List>
-
-
-
-
     </div>
   );
 };

@@ -11,14 +11,13 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableRow from '@material-ui/core/TableRow';
 import { CustomAlert } from '../Alert';
 
-
 const BulletPoints = (props) => {
   const { bullets } = props;
   if (!Array.isArray(bullets) || bullets.length < 1) {
     return '';
   }
   if (bullets.length === 1) {
-    return <Typography>{bullets[0]}</Typography>
+    return <Typography>{bullets[0]}</Typography>;
   } else {
     return (
       <ul>
@@ -64,14 +63,14 @@ const useTableStyles = makeStyles((theme) => ({
     },
     '& ul': {
       listStylePosition: 'outside',
-      paddingLeft: '16px'
+      paddingLeft: '16px',
     },
     '& li': {
       fontSize: '1.2em',
-    }
+    },
   },
   textValue: {
-    fontSize: '1em'
+    fontSize: '1em',
   },
   labelCell: {
     verticalAlign: 'top',
@@ -90,38 +89,34 @@ const useTableStyles = makeStyles((theme) => ({
       // fontSize: '.9em',
       padding: 0,
       // textIndent: '.5em'
-    }
-  }
+    },
+  },
 }));
-
 
 const Row = (props) => {
   const { property, val, children } = props;
-  const ts = useTableStyles ();
+  const ts = useTableStyles();
 
   const v = val && typeof val !== 'object' ? val.toString() : val;
 
   return (
-    <TableRow className={ts.row} >
+    <TableRow className={ts.row}>
       <TableCell className={ts.propcell}>
         <Typography className={ts.textValue}>{property}</Typography>
       </TableCell>
       <TableCell className={ts.valuecell}>
-        {val && <Typography className={ts.textValue}>
-                  {v}
-                </Typography>}
+        {val && <Typography className={ts.textValue}>{v}</Typography>}
 
-          {children && children}
+        {children && children}
       </TableCell>
     </TableRow>
   );
-}
-
+};
 
 export const Meta = (props) => {
   const { meta } = props;
-  const cl = sectionStyles ();
-  const ts = useTableStyles ();
+  const cl = sectionStyles();
+  const ts = useTableStyles();
 
   if (!meta) {
     return '';
@@ -134,34 +129,50 @@ export const Meta = (props) => {
         <TableContainer size="small" className={ts.compactTable}>
           <Table>
             <TableBody className={cl.body}>
-              {meta.required
-               ? <TableRow><TableCell><span className={cl.badgeRequired}>Required</span></TableCell></TableRow>
-               : <TableRow><TableCell><span className={cl.badgeOptional}>Optional</span></TableCell></TableRow>}
-              {meta.type && <Row property={'Type'} val={meta.type} /> }
-              {meta.format && <Row property={'Format'} val={meta.format} /> }
-              {meta.unit && <Row property={'Unit'} val={meta.unit} /> }
-              {Array.isArray(meta.constraints) &&
-               <Row property={'Constraints'} >
-                 <BulletPoints bullets={meta.constraints} />
-               </Row>
-              }
-              {meta.example && <Row property={'Example'}>{ typeof meta.example === 'function' ? meta.example.call() : meta.example }</Row> }
+              {meta.required ? (
+                <TableRow>
+                  <TableCell>
+                    <span className={cl.badgeRequired}>Required</span>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                <TableRow>
+                  <TableCell>
+                    <span className={cl.badgeOptional}>Optional</span>
+                  </TableCell>
+                </TableRow>
+              )}
+              {meta.type && <Row property={'Type'} val={meta.type} />}
+              {meta.format && <Row property={'Format'} val={meta.format} />}
+              {meta.unit && <Row property={'Unit'} val={meta.unit} />}
+              {Array.isArray(meta.constraints) && (
+                <Row property={'Constraints'}>
+                  <BulletPoints bullets={meta.constraints} />
+                </Row>
+              )}
+              {meta.example && (
+                <Row property={'Example'}>
+                  {typeof meta.example === 'function'
+                    ? meta.example.call()
+                    : meta.example}
+                </Row>
+              )}
             </TableBody>
           </Table>
         </TableContainer>
       </div>
     </CustomAlert>
   );
-}
+};
 
 const ColumnSection = (props) => {
   const { tocId, focus } = props;
-  const cl = sectionStyles ();
+  const cl = sectionStyles();
 
   const item = map.get(tocId);
 
   if (!item) {
-    console.log ('no item for', tocId)
+    console.log('no item for', tocId);
     return '';
   }
 
@@ -175,18 +186,21 @@ const ColumnSection = (props) => {
 
       <BulletPoints bullets={item.bullets} />
 
-      {Array.isArray(item.images) && item.images.map((image, i) => (
-        <div className={cl.scrollWrapper} key={`${i}`}>
-          <div className={cl.standoutBadgeNoOverlap}>Example: {image.alt}</div>
-          <div className={cl.standoutBox} key={`${i}`}>
-            <img
-              src={image.src}
-              alt={image.alt}
-              width={image.width || '100%'}
-            />
+      {Array.isArray(item.images) &&
+        item.images.map((image, i) => (
+          <div className={cl.scrollWrapper} key={`${i}`}>
+            <div className={cl.standoutBadgeNoOverlap}>
+              Example: {image.alt}
+            </div>
+            <div className={cl.standoutBox} key={`${i}`}>
+              <img
+                src={image.src}
+                alt={image.alt}
+                width={image.width || '100%'}
+              />
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
     </div>
   );
 };

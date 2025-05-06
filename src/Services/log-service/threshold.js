@@ -6,9 +6,9 @@ const localThreshold = localStorageApi.get('logThreshold');
 let threshold;
 
 if (localThreshold) {
- threshold = localThreshold;
+  threshold = localThreshold;
 } else {
-  threshold = isProduction ? 2 : 5
+  threshold = isProduction ? 2 : 5;
 }
 
 export default threshold;

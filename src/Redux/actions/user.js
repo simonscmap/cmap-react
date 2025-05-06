@@ -39,7 +39,7 @@ export const createRegisterWithGoogleContext = () => ({
 });
 
 export const clearRegisterWithGoogleContext = () => ({
-  type: userActionTypes.REGISTER_WITH_GOOGLE_CONTEXT_CLEAR
+  type: userActionTypes.REGISTER_WITH_GOOGLE_CONTEXT_CLEAR,
 });
 
 // Google login actions
@@ -62,7 +62,7 @@ export const googleLoginRequestSuccess = () => ({
 
 export const googleLoginRequestFailure = (message, response) => ({
   type: userActionTypes.GOOGLE_LOGIN_REQUEST_SEND_FAILURE,
-  payload: { message, response }
+  payload: { message, response },
 });
 
 // Log out actions
@@ -245,7 +245,7 @@ export const nominateNewDataRequestFailure = ({ message }) => ({
   type: userActionTypes.NOMINATE_NEW_DATA_REQUEST_FAILURE,
   payload: {
     message,
-  }
+  },
 });
 
 export const changePasswordRequestSend = (
@@ -311,7 +311,7 @@ export const setLastDatasetTouch = ({ userId, dateObj }) => ({
   },
 });
 
-export const clearLastDatasetTouch = ( userId ) => ({
+export const clearLastDatasetTouch = (userId) => ({
   type: userActionTypes.CLEAR_LAST_DATASET_TOUCH,
   payload: userId,
 });
@@ -360,11 +360,10 @@ export const changeNewsSubscription = (subValue) => ({
   payload: {
     successMessage: `You have successfully ${subValue ? 'subscribed to' : 'unsubscribed from'} Simons CMAP News`,
     userInfo: {
-      isNewsSubscribed: subValue // boolean
-    }
+      isNewsSubscribed: subValue, // boolean
+    },
   },
 });
-
 
 // resume action
 

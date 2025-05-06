@@ -17,7 +17,7 @@ const useStyles = makeStyles({
     justifyContent: 'flex-start',
     gap: '1em',
   },
- container: {
+  container: {
     width: '250px',
     display: 'flex',
     flexDirection: 'column',
@@ -52,7 +52,7 @@ const useStyles = makeStyles({
     '& svg': {
       height: '1.2em',
       width: '1.2em',
-    }
+    },
   },
   logoContainer: {
     height: '35px',
@@ -63,12 +63,12 @@ const useStyles = makeStyles({
     justifyContent: 'space-evenly',
     margin: '1em auto',
     '& img': {
-      height: '35px'
-    }
+      height: '35px',
+    },
   },
   center: {
-    margin: '0 auto'
-  }
+    margin: '0 auto',
+  },
 });
 
 const LargeButton = withStyles((theme) => ({
@@ -80,8 +80,8 @@ const LargeButton = withStyles((theme) => ({
       backgroundColor: theme.palette.primary.main,
       color: '#000000',
       '& svg': {
-        color: '#000000'
-      }
+        color: '#000000',
+      },
     },
     border: `2px solid ${theme.palette.primary.main}`,
     borderRadius: '36px',
@@ -102,7 +102,6 @@ const LargeButton = withStyles((theme) => ({
     '& span': {
       whiteSpace: 'nowrap',
     },
-
   },
 }))(Button);
 
@@ -139,8 +138,20 @@ const Segways = () => {
           </LargeButton>
         </div>
         <div className={classes.logoContainer}>
-          <a href="https://github.com/simonscmap/pycmap" target="_blank" rel="noreferrer"><img src="/images/home/python-logo-0.png" /></a>
-          <a href="https://github.com/simonscmap/cmap4r" target="_blank" rel="noreferrer"><img src="/images/home/Rlogo.png" /></a>
+          <a
+            href="https://github.com/simonscmap/pycmap"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <img src="/images/home/python-logo-0.png" />
+          </a>
+          <a
+            href="https://github.com/simonscmap/cmap4r"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <img src="/images/home/Rlogo.png" />
+          </a>
         </div>
       </div>
     </div>

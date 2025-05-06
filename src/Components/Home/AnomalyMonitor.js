@@ -4,12 +4,15 @@ import { useSelector, useDispatch } from 'react-redux';
 import Plotly from 'react-plotly.js';
 import { Skeleton } from '@material-ui/lab';
 import states from '../../enums/asyncRequestStates';
-import { requestAvgSSTAnomalyDataSend, requestAvgADTAnomalyDataSend } from '../../Redux/actions/data';
+import {
+  requestAvgSSTAnomalyDataSend,
+  requestAvgADTAnomalyDataSend,
+} from '../../Redux/actions/data';
 import dayjs from 'dayjs';
 
 const useStyles = makeStyles((theme) => ({
   mainWrapper: {
-    width: '100%'
+    width: '100%',
   },
   viz: {
     margin: '.5em 0',
@@ -36,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'flex-start',
     alignItems: 'center',
     gap: '10px',
-  }
+  },
 }));
 
 const margin = {
@@ -47,7 +50,7 @@ const margin = {
   pad: {
     l: 30,
     r: 30,
-  }
+  },
 };
 
 const layout = {
@@ -65,14 +68,14 @@ const layout = {
   },
   margin,
   hoverlabel: {
-    bgcolor: 'rgba(0,0,0,0.8)'
+    bgcolor: 'rgba(0,0,0,0.8)',
   },
   xaxis: {
     type: 'date',
     automargin: true,
     title: {
       text: 'Time [Monthly]',
-      standoff: 30
+      standoff: 30,
     },
     titlefont: { size: 16 },
     color: 'rgb(105, 255, 242)',
@@ -84,15 +87,16 @@ const layout = {
     zerolinecolor: '#ffffff',
     zerolinewidth: '2px',
     mirror: 'ticks',
-    tickformatstops: [ {
-        "dtickrange": [null, "M12"],
-        "value": "%b %Y"
+    tickformatstops: [
+      {
+        dtickrange: [null, 'M12'],
+        value: '%b %Y',
       },
       {
-        "dtickrange": ["M12", null],
-        "value": "%Y"
-      }
-    ]
+        dtickrange: ['M12', null],
+        value: '%Y',
+      },
+    ],
   },
   yaxis: {
     title: {
@@ -111,7 +115,8 @@ const layout = {
     mirror: 'ticks',
   },
   showlegend: false,
-  shapes: [{
+  shapes: [
+    {
       type: 'line',
       x0: 0,
       y0: 0,
@@ -119,8 +124,9 @@ const layout = {
       x1: new Date(),
       line: {
         color: '#ffffff',
-      }
-  }],
+      },
+    },
+  ],
 };
 
 const Placeholder = (props) => {
@@ -134,8 +140,11 @@ const Placeholder = (props) => {
       </div>
       <div className={cl.right}>
         <Skeleton variant="rect" width={400} height={30}></Skeleton>
-        <Skeleton variant="rect" width={width - 100} height={550 - 80}>
-        </Skeleton>
+        <Skeleton
+          variant="rect"
+          width={width - 100}
+          height={550 - 80}
+        ></Skeleton>
         <Skeleton variant="rect" width={width - 100} height={30}></Skeleton>
       </div>
     </div>
@@ -144,7 +153,7 @@ const Placeholder = (props) => {
 
 const AnomalyMonitor = (props) => {
   const { dim } = props;
-  const dispatch = useDispatch ();
+  const dispatch = useDispatch();
   const cl = useStyles();
 
   const avgSSTReqStatus = useSelector((s) => s.avgSstReqStatus);
@@ -153,25 +162,28 @@ const AnomalyMonitor = (props) => {
   const avgSSTData = useSelector((s) => s.avgSSTData);
   const avgADTData = useSelector((s) => s.avgADTData);
 
-  useEffect (() => {
+  useEffect(() => {
     if (avgSSTReqStatus === states.notTried) {
-      dispatch (requestAvgSSTAnomalyDataSend ());
+      dispatch(requestAvgSSTAnomalyDataSend());
     }
-  }, [avgSSTReqStatus])
+  }, [avgSSTReqStatus]);
 
-  useEffect (() => {
-    if (avgADTReqStatus=== states.notTried) {
-      dispatch (requestAvgADTAnomalyDataSend ());
+  useEffect(() => {
+    if (avgADTReqStatus === states.notTried) {
+      dispatch(requestAvgADTAnomalyDataSend());
     }
-  }, [avgADTReqStatus])
+  }, [avgADTReqStatus]);
 
   const [dualLayout, setDualLayout] = useState(null);
 
-  const dualLayoutTemplate = JSON.parse (JSON.stringify (layout));
+  const dualLayoutTemplate = JSON.parse(JSON.stringify(layout));
 
   useEffect(() => {
     if (avgSSTData && avgADTData) {
-      const sortedSSTDates = avgSSTData[0].x.slice().map(d => d.toISOString()).sort();
+      const sortedSSTDates = avgSSTData[0].x
+        .slice()
+        .map((d) => d.toISOString())
+        .sort();
       const startDate = sortedSSTDates.shift();
       const endDate = sortedSSTDates.pop();
       setDualLayout({
@@ -179,11 +191,14 @@ const AnomalyMonitor = (props) => {
         width: dim.width - 100,
         xaxis: {
           ...dualLayoutTemplate.xaxis,
-          range: [ dayjs(startDate).subtract(10, 'M').toDate(), dayjs(endDate).add(10, 'M').toDate() ] // gives chart area padding along x axis
+          range: [
+            dayjs(startDate).subtract(10, 'M').toDate(),
+            dayjs(endDate).add(10, 'M').toDate(),
+          ], // gives chart area padding along x axis
         },
         yaxis: {
           ...dualLayoutTemplate.yaxis,
-          color: 'rgba(161, 246, 64, 1)'
+          color: 'rgba(161, 246, 64, 1)',
         },
         yaxis2: {
           ...dualLayoutTemplate.yaxis,
@@ -204,14 +219,20 @@ const AnomalyMonitor = (props) => {
   const config = { displayLogo: false };
 
   return (
-    <div className={cl.mainWrapper} id='monitor'>
+    <div className={cl.mainWrapper} id="monitor">
       <div className={cl.viz}>
-        {(avgSSTData && avgADTData) && <div>
-          <Plotly data={[avgSSTData[0], { ...avgADTData[0], yaxis: 'y2' }]} layout={dualLayout} config={config} />
-        </div>}
+        {avgSSTData && avgADTData && (
+          <div>
+            <Plotly
+              data={[avgSSTData[0], { ...avgADTData[0], yaxis: 'y2' }]}
+              layout={dualLayout}
+              config={config}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
-}
+};
 
 export default AnomalyMonitor;

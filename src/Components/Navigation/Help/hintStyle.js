@@ -1,5 +1,9 @@
 import { makeStyles } from '@material-ui/core';
-import { CATALOG_PAGE, VISUALIZATION_PAGE, DEFAULT_HINT_POSITION } from '../../../constants.js';
+import {
+  CATALOG_PAGE,
+  VISUALIZATION_PAGE,
+  DEFAULT_HINT_POSITION,
+} from '../../../constants.js';
 
 // map MUI placement variant to absolute positioning the Beacon
 // this function assumes that the Beacon is 1em square

@@ -4,11 +4,11 @@ import Page2 from '../../Common/Page2';
 import ProgramsList from './List2';
 import { Grid } from '@material-ui/core';
 
-const useStyles = makeStyles (() => ({
+const useStyles = makeStyles(() => ({
   container: {
     color: 'white',
     padding: '20px 25px',
-  }
+  },
 }));
 
 const Programs = () => {

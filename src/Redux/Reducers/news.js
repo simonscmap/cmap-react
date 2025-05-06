@@ -28,7 +28,7 @@ const actionToAdminMsg = (action) => {
     case actions.CREATE_NEWS_ITEM_SEND:
       return `Creating new news item`;
     case actions.CREATE_NEWS_ITEM_FAILURE:
-    return `Failed to create news item ${action.payload.text}`;
+      return `Failed to create news item ${action.payload.text}`;
     case actions.CREATE_NEWS_ITEM_SUCCESS:
       return `Successfully created news item`;
 
@@ -36,7 +36,7 @@ const actionToAdminMsg = (action) => {
     case actions.UPDATE_NEWS_ITEM_SEND:
       return `Updating news item with id ${action.payload.item.id}`;
     case actions.UPDATE_NEWS_ITEM_FAILURE:
-    return `Failed to update news item. ${action.payload.text}`;
+      return `Failed to update news item. ${action.payload.text}`;
     case actions.UPDATE_NEWS_ITEM_SUCCESS:
       return `Successfully updated news item.`;
 
@@ -262,7 +262,7 @@ export default function (state, action) {
         },
         adminMessages: computeAdminMessage(state, action),
       });
-      // FEATURE / UNFEATURE
+    // FEATURE / UNFEATURE
     case actions.FEATURE_NEWS_ITEM_FAILURE:
       return mergeWithState({
         requestStatus: {
@@ -272,7 +272,7 @@ export default function (state, action) {
         adminMessages: computeAdminMessage(state, action),
       });
 
-      // CATEGORIZE
+    // CATEGORIZE
     case actions.CATEGORIZE_NEWS_ITEM_SUCCESS:
       return mergeWithState({
         requestStatus: {
@@ -289,7 +289,6 @@ export default function (state, action) {
         },
         adminMessages: computeAdminMessage(state, action),
       });
-
 
     // DASHBOARD STATE
     case actions.SET_VIEW_STATE_FILTER:

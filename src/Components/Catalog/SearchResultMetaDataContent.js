@@ -1,8 +1,5 @@
 import React from 'react';
-import {
-  makeStyles,
-  Typography,
-} from '@material-ui/core';
+import { makeStyles, Typography } from '@material-ui/core';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableContainer from '@material-ui/core/TableContainer';
@@ -16,24 +13,28 @@ import PopperCopy from './Display/PopperCopy';
 import Ack from './Display/Ack';
 
 const useStyles = makeStyles((theme) => ({
-   gridContainer: { // arrange the 3 metadata columns
+  gridContainer: {
+    // arrange the 3 metadata columns
     height: '235px',
     width: '100%',
     display: 'inline-grid',
     gridTemplateColumns: '3fr 1fr 1fr',
-     columnGap: '2em',
+    columnGap: '2em',
 
-    '@media (max-width: 2400px)': {  // sensors and regions column is hidden
+    '@media (max-width: 2400px)': {
+      // sensors and regions column is hidden
       gridTemplateColumns: '2fr 1fr',
     },
-    '@media (max-width: 1960px)': { // spatial and temporal extent column is hidden
+    '@media (max-width: 1960px)': {
+      // spatial and temporal extent column is hidden
       gridTemplateColumns: 'unset',
       gridAutoFlow: 'column',
     },
-    '@media (max-width: 1570px)': { // graphic is hidden
+    '@media (max-width: 1570px)': {
+      // graphic is hidden
       gridTemplateColumns: 'unset',
       gridAutoFlow: 'column',
-    }
+    },
   },
   group: {
     height: '100%',
@@ -41,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
       tableLayout: 'fixed',
       overflow: 'hidden',
       textOverflow: 'ellipsis',
-    }
+    },
   },
   special: {
     display: 'flex',
@@ -50,8 +51,8 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     height: '235px',
     '& > div': {
-     // padding: '1em 1em 0 1em',
-    }
+      // padding: '1em 1em 0 1em',
+    },
   },
   ack: {
     width: '100%',
@@ -67,13 +68,13 @@ const useStyles = makeStyles((theme) => ({
       color: 'rgb(135, 255, 244)',
       whiteSpace: 'nowrap',
       fontSize: '.9em',
-    }
+    },
   },
   ackTextContainer: {
     textAlign: 'left',
     '& p.MuiTypography-root': {
       fontSize: '.9em',
-    }
+    },
   },
 }));
 
@@ -92,7 +93,9 @@ const Meta = (props) => {
     Temporal_Resolution,
   } = dataset;
 
-  const depthLevels = Depth_Max ? 'Multiple Depth Levels' : 'Surface Level Data';
+  const depthLevels = Depth_Max
+    ? 'Multiple Depth Levels'
+    : 'Surface Level Data';
 
   return (
     <React.Fragment>
@@ -101,9 +104,20 @@ const Meta = (props) => {
           <TableContainer size="small">
             <Table>
               <TableBody>
-                <TableRowTextPair label={'Table Name'} value={Table_Name} mono={true} customComponent={PopperCopy} />
-                <TableRowTextPair label={'Temporal Resolution'} value={Temporal_Resolution} />
-                <TableRowTextPair label={'Spatial Resolution'} value={Spatial_Resolution} />
+                <TableRowTextPair
+                  label={'Table Name'}
+                  value={Table_Name}
+                  mono={true}
+                  customComponent={PopperCopy}
+                />
+                <TableRowTextPair
+                  label={'Temporal Resolution'}
+                  value={Temporal_Resolution}
+                />
+                <TableRowTextPair
+                  label={'Spatial Resolution'}
+                  value={Spatial_Resolution}
+                />
                 <TableRowTextPair label={'Depth'} value={depthLevels} />
                 <TableRowTextPair label={'Source'} value={Data_Source} />
                 <TableRowTextPair label={'Distributor'} value={Distributor} />

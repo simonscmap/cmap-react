@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { colors } from '../../Home/theme';
-import { CiCalendar } from "react-icons/ci";
-
+import { CiCalendar } from 'react-icons/ci';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -26,9 +25,8 @@ const useStyles = makeStyles((theme) => ({
   },
   icon: {
     textAlign: 'center',
-    fontSize: '3em'
-  }
-
+    fontSize: '3em',
+  },
 }));
 
 const TemporalCoverage = (props) => {
@@ -53,13 +51,15 @@ const TemporalCoverage = (props) => {
         <div className={cl.label}>Start</div>
         <div className={cl.val}>{min}</div>
       </div>
-      <div className={cl.icon}><CiCalendar color={colors.blue.teal} /></div>
+      <div className={cl.icon}>
+        <CiCalendar color={colors.blue.teal} />
+      </div>
       <div className={cl.labelSet}>
         <div className={cl.label}>End</div>
         <div className={cl.val}>{max}</div>
       </div>
     </div>
   );
-}
+};
 
 export default TemporalCoverage;

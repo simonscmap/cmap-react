@@ -13,18 +13,9 @@ const performAudit = (args) => {
 
   let report = {
     workbook: workbookAudit,
-    data: this.auditRows(
-      data,
-      'data'
-    ),
-    dataset_meta_data: this.auditRows(
-      dataset_meta_data,
-      'dataset_meta_data',
-    ),
-    vars_meta_data: this.auditRows(
-      vars_meta_data,
-      'vars_meta_data'
-    ),
+    data: this.auditRows(data, 'data'),
+    dataset_meta_data: this.auditRows(dataset_meta_data, 'dataset_meta_data'),
+    vars_meta_data: this.auditRows(vars_meta_data, 'vars_meta_data'),
   };
 
   return report;

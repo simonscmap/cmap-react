@@ -11,7 +11,7 @@ import Footer from '../Home/Footer';
 
 /* ~~~~~~~~~~~ Full Width Container ~~~~~~~~~~~~~*/
 
-const useContainerStyles = makeStyles ((theme) => ({
+const useContainerStyles = makeStyles((theme) => ({
   fullWidthContainer: {
     width: '100%',
     textAlign: 'left',
@@ -24,7 +24,8 @@ const useContainerStyles = makeStyles ((theme) => ({
   royal: {
     background: colors.gradient.royal,
   },
-  slate: { // default
+  slate: {
+    // default
     background: colors.gradient.slate,
   },
   slate2: {
@@ -35,10 +36,9 @@ const useContainerStyles = makeStyles ((theme) => ({
   },
 }));
 
-
 export const FullWidthContainer = (props) => {
   const { bgVariant, children, minWidth } = props;
-  const cl = useContainerStyles ();
+  const cl = useContainerStyles();
   return (
     <div
       className={clsx(
@@ -50,13 +50,11 @@ export const FullWidthContainer = (props) => {
       {children}
     </div>
   );
-}
-
-
+};
 
 /* ~~~~~~~~~~~ Page ~~~~~~~~~~~~~*/
 
-const usePageStyles = makeStyles ((theme) => ({
+const usePageStyles = makeStyles((theme) => ({
   pageContainer: {
     // use a stacked grid layout to ensure that the child FillWidthContainer
     // and the footer take up at least 100% of vertical space
@@ -78,21 +76,19 @@ const usePageStyles = makeStyles ((theme) => ({
         textDecoration: 'none',
       },
     },
-
   },
-
 }));
 
 const Page2 = (props) => {
   const { children, bgVariant } = props;
-  const cl = usePageStyles ();
+  const cl = usePageStyles();
   return (
-      <div className={cl.pageContainer}>
-        <FullWidthContainer bgVariant={bgVariant || 'royal'}>
-          {children}
-        </FullWidthContainer>
-        <Footer />
-      </div>
+    <div className={cl.pageContainer}>
+      <FullWidthContainer bgVariant={bgVariant || 'royal'}>
+        {children}
+      </FullWidthContainer>
+      <Footer />
+    </div>
   );
 };
 

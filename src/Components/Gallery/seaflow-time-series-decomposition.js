@@ -44,14 +44,14 @@ const Credit = withStyles(styles)(({ children }) => {
 const HeroContent = withStyles(styles)(() => {
   return (
     <div>
-    <div style={{ marginBottom: '2em' }}>
-      <a href="https://doi.org/10.5281/zenodo.7320268">
-        <img
-          src="https://zenodo.org/badge/DOI/10.5281/zenodo.7320268.svg"
-          alt="DOI"
-        />
-      </a>
-    </div>
+      <div style={{ marginBottom: '2em' }}>
+        <a href="https://doi.org/10.5281/zenodo.7320268">
+          <img
+            src="https://zenodo.org/badge/DOI/10.5281/zenodo.7320268.svg"
+            alt="DOI"
+          />
+        </a>
+      </div>
       <Credit>
         <Typography variant="body2">
           Katherine Qi, Univerity of Washington

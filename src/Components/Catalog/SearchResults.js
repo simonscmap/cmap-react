@@ -20,8 +20,8 @@ import '../../Stylesheets/catalog-search-results.css';
 import SearchResult from './SearchResult';
 
 import {
-    searchResultsFetch,
-    searchResultsSetLoadingState,
+  searchResultsFetch,
+  searchResultsSetLoadingState,
 } from '../../Redux/actions/catalog';
 import initLogger from '../../Services/log-service';
 import states from '../../enums/asyncRequestStates';
@@ -65,8 +65,6 @@ const InfoShelf = ({ classes, children }) => {
   // wraps results counter and dowload button above results list
   return <div className={classes.infoShelf}>{children}</div>;
 };
-
-
 
 const SearchResults = (props) => {
   const {
@@ -113,22 +111,24 @@ const SearchResults = (props) => {
   };
 
   const [wrapperWidth, setWrapperWidth] = useState(0);
-  const [listHeight, setListHeight] = useState(Math.floor (window.innerHeight - 250));
+  const [listHeight, setListHeight] = useState(
+    Math.floor(window.innerHeight - 250),
+  );
 
   const onResize = (rect) => {
     const { width } = rect;
-    const intWidth = Math.floor (width);
-    log.debug ('results resize', intWidth)
+    const intWidth = Math.floor(width);
+    log.debug('results resize', intWidth);
     if (wrapperWidth !== intWidth) {
-      setWrapperWidth (intWidth);
+      setWrapperWidth(intWidth);
     }
   };
 
-  useEffect (() => {
+  useEffect(() => {
     // make the list area shorter when search filters are expanded
-    const h = Math.floor (window.innerHeight - (searchIsExpanded ? 500 : 275));
+    const h = Math.floor(window.innerHeight - (searchIsExpanded ? 500 : 275));
     if (h !== listHeight) {
-      setListHeight (h);
+      setListHeight(h);
     }
   }, [wrapperWidth, searchIsExpanded]);
 
@@ -169,17 +169,16 @@ const SearchResults = (props) => {
         </InfoShelf>
 
         <FixedSizeList
-          className={`${classes.fixedSizeList} ${hasScrolled && classes.fixedSizeListScrolled
-            } search-results-fixed-size-list`}
+          className={`${classes.fixedSizeList} ${
+            hasScrolled && classes.fixedSizeListScrolled
+          } search-results-fixed-size-list`}
           itemData={searchResults}
           itemCount={itemCount}
           height={listHeight}
           itemSize={420}
           onScroll={onScroll}
         >
-          {({ index, style }) => (
-            <SearchResult style={style} index={index} />
-          )}
+          {({ index, style }) => <SearchResult style={style} index={index} />}
         </FixedSizeList>
       </Paper>
     </div>

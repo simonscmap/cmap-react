@@ -1,4 +1,4 @@
-import React  from 'react';
+import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { colors } from '../../Home/theme';
 import { TealButtonSM } from '../../Common/Buttons';
@@ -51,10 +51,10 @@ const Story = withStyles({
     // Status_ID: storyCategory,
   } = storyState;
 
-  let publish = () => dispatch (publishNewsItem (storyState.id));
-  let preview = () => dispatch (previewNewsItem (storyState.id));
-  let draft = () => dispatch (draftNewsItem (storyState.id));
-  let unpublish = () => dispatch (unpublishNewsItem (storyState.id));
+  let publish = () => dispatch(publishNewsItem(storyState.id));
+  let preview = () => dispatch(previewNewsItem(storyState.id));
+  let draft = () => dispatch(draftNewsItem(storyState.id));
+  let unpublish = () => dispatch(unpublishNewsItem(storyState.id));
   // let feature = () => dispatch (featureNewsItem (storyState.ID));
   // let unfeature = feature; // this is a toggle
   // let categorize = (ev) => dispatch (categorizeNewsItem (storyState.ID, ev.target.value));

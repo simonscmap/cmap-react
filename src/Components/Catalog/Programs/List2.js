@@ -1,22 +1,20 @@
 import React, { useEffect } from 'react';
 import Typography from '@material-ui/core/Typography';
-import {  makeStyles, Link } from '@material-ui/core';
+import { makeStyles, Link } from '@material-ui/core';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import { safePath } from '../../../Utility/objectUtils';
 import states from '../../../enums/asyncRequestStates';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  fetchProgramsSend,
-} from '../../../Redux/actions/catalog';
+import { fetchProgramsSend } from '../../../Redux/actions/catalog';
 import Spinner from '../../UI/Spinner';
 import { Link as RouterLink } from 'react-router-dom';
 import { intro, matchProgram } from './programData';
 
 /*~~~~~~~~~~~~  Spinner ~~~~~~~~~~~~~~~*/
 
-const useSpinnerStyles = makeStyles ((theme) => ({
+const useSpinnerStyles = makeStyles((theme) => ({
   spinnerWrapper: {
     textAlign: 'center',
     height: '100%',
@@ -37,7 +35,7 @@ const SpinnerWrapper = (props) => {
 };
 
 /*~~~~~~~~~~~~  Spinner ~~~~~~~~~~~~~~~*/
-const useSponsorsStyles = makeStyles ((theme) => ({
+const useSponsorsStyles = makeStyles((theme) => ({
   container: {
     '& > div': {
       display: 'flex',
@@ -60,7 +58,7 @@ const useSponsorsStyles = makeStyles ((theme) => ({
 
 const logoMap = {
   'simons-foundation': 'simons-foundation-logo-white.png',
-}
+};
 
 const Sponsors = (props) => {
   const { programData } = props;
@@ -75,13 +73,16 @@ const Sponsors = (props) => {
     <div className={cl.container}>
       <div>
         {sponsors.map((s, i) => (
-          <img src={`/images/${logoMap[s]}`} key={`logo-${i}`} alt={`${s} logo`} />))}
+          <img
+            src={`/images/${logoMap[s]}`}
+            key={`logo-${i}`}
+            alt={`${s} logo`}
+          />
+        ))}
       </div>
     </div>
   );
-
-}
-
+};
 
 /* [
  *   'name name',
@@ -90,7 +91,6 @@ const Sponsors = (props) => {
  *   'sponsor sponsor',
  *   'link link',
  * ], */
-
 
 /*~~~~~~~~~~~~  Row  ~~~~~~~~~~~~~~~*/
 const useRowStyles = makeStyles((theme) => ({
@@ -103,7 +103,7 @@ const useRowStyles = makeStyles((theme) => ({
     height: '100%',
     boxSizing: 'border-box',
     '& h3 a': {
-      fontFamily: 'Montserrat,sans-serif'
+      fontFamily: 'Montserrat,sans-serif',
     },
     display: 'grid',
     gridTemplateColumns: '100%',
@@ -131,7 +131,7 @@ const useRowStyles = makeStyles((theme) => ({
       objectFit: 'contain',
       width: '90%',
       maxHeight: '100%',
-    }
+    },
   },
   fullName: {
     color: '#69FFF2', //theme.palette.secondary.light,
@@ -165,56 +165,59 @@ const useRowStyles = makeStyles((theme) => ({
       fontSize: '.9em',
       marginBottom: '5px',
       color: '#69FFF2',
-    }
+    },
   },
-
 }));
 
 const ProgramCard = (props) => {
   const { program: name } = props;
   const cl = useRowStyles();
 
-  const pData = matchProgram (name);
+  const pData = matchProgram(name);
 
   return (
     <div className={cl.card}>
       <Paper className={cl.paperRoot} elevation={3}>
-         <Typography variant="h3" className={cl.name}>
-           <Link component={RouterLink} to={`/programs/${name}`}>
+        <Typography variant="h3" className={cl.name}>
+          <Link component={RouterLink} to={`/programs/${name}`}>
             {name}
-           </Link>
-         </Typography>
-         <Typography className={cl.fullName}>
-            {pData.fullName}
-         </Typography>
-         <div className={cl.blurbContainer}>
-           {pData && pData.logo && <div className={cl.logo}><img src={`/images/${pData.logo}`} /></div>}
-           <Typography>{pData.blurb}</Typography>
-         </div>
-         <div className={cl.footer}>
-           <Grid container>
-             <Grid item xs={7}>
-               <div className={cl.link}>
-                 <div>
-                   <OpenInNewIcon color="primary" />
-                   <Typography noWrap={true}>
-                     <a href={pData.link} target="_blank" rel="noreferrer">{pData.link}</a>
-                   </Typography>
-                 </div>
-               </div>
-             </Grid>
-             <Grid item xs={5}>
-               <Sponsors programData={pData} />
-             </Grid>
+          </Link>
+        </Typography>
+        <Typography className={cl.fullName}>{pData.fullName}</Typography>
+        <div className={cl.blurbContainer}>
+          {pData && pData.logo && (
+            <div className={cl.logo}>
+              <img src={`/images/${pData.logo}`} />
+            </div>
+          )}
+          <Typography>{pData.blurb}</Typography>
+        </div>
+        <div className={cl.footer}>
+          <Grid container>
+            <Grid item xs={7}>
+              <div className={cl.link}>
+                <div>
+                  <OpenInNewIcon color="primary" />
+                  <Typography noWrap={true}>
+                    <a href={pData.link} target="_blank" rel="noreferrer">
+                      {pData.link}
+                    </a>
+                  </Typography>
+                </div>
+              </div>
+            </Grid>
+            <Grid item xs={5}>
+              <Sponsors programData={pData} />
+            </Grid>
           </Grid>
         </div>
       </Paper>
     </div>
   );
-}
+};
 
 /*~~~~~~~~~~~~~~ List ~~~~~~~~~~~~~~~~~~~~*/
-const useStyles = makeStyles (() => ({
+const useStyles = makeStyles(() => ({
   wrapper: {
     display: 'flex',
     gap: '4em',
@@ -228,7 +231,7 @@ const useStyles = makeStyles (() => ({
       color: 'rgba(161, 246, 64,0.2)',
       background: 'rgba(161, 246, 64,0.2)',
       border: 0,
-    }
+    },
   },
   container: {
     width: '100%',
@@ -243,11 +246,11 @@ const useStyles = makeStyles (() => ({
     '& .MuiPaper-root': {
       padding: '1em',
       height: '100%',
-      background: 'rgba(0,0,0,0.3)'
+      background: 'rgba(0,0,0,0.3)',
     },
   },
-  root: { // table header
-
+  root: {
+    // table header
   },
   container_: {
     backgroundColor: 'rgba(16, 43, 60, 0.6)',
@@ -267,17 +270,17 @@ const ProgramsList = () => {
   const cl = useStyles();
   const dispatch = useDispatch();
 
-  const programs = useSelector (safePath (['programs']));
-  const reqStatus = useSelector (safePath (['programsRequestStatus']));
+  const programs = useSelector(safePath(['programs']));
+  const reqStatus = useSelector(safePath(['programsRequestStatus']));
 
-  useEffect (() => {
+  useEffect(() => {
     if (reqStatus === states.notTried) {
-      dispatch (fetchProgramsSend());
+      dispatch(fetchProgramsSend());
     }
   }, []);
 
   if (!programs && reqStatus === states.inProgress) {
-    return <SpinnerWrapper message={'Fetching Programs'} />
+    return <SpinnerWrapper message={'Fetching Programs'} />;
   } else if (programs && reqStatus === states.succeeded) {
     return (
       <div className={cl.wrapper}>
@@ -287,15 +290,18 @@ const ProgramsList = () => {
         </div>
         <hr />
         <div className={cl.container}>
-          {programs.map((p) => p.name).sort().map((prog, i) => (
-            <ProgramCard key={`program_card_${i}`} program={prog}  />
-          ))}
+          {programs
+            .map((p) => p.name)
+            .sort()
+            .map((prog, i) => (
+              <ProgramCard key={`program_card_${i}`} program={prog} />
+            ))}
         </div>
       </div>
     );
   } else {
     return '';
   }
-}
+};
 
 export default ProgramsList;

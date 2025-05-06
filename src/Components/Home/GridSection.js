@@ -10,11 +10,7 @@ let useStyle = makeStyles(featureGridStyles);
 // exception: id === findData (then render a search box)
 const Art = ({ children }) => {
   let classes = useStyle();
-  return (
-    <div className={classes.art}>
-      {children}
-    </div>
-  );
+  return <div className={classes.art}>{children}</div>;
 };
 
 const Copy = ({ data, children }) => {
@@ -28,9 +24,7 @@ const Copy = ({ data, children }) => {
       <Typography variant="h5" className={classes.textAlignLeft}>
         {text}
       </Typography>
-      <div className={classes.buttonsContainer}>
-        {children}
-      </div>
+      <div className={classes.buttonsContainer}>{children}</div>
     </div>
   );
 };
@@ -38,13 +32,11 @@ const Copy = ({ data, children }) => {
 const Section = (props) => {
   let { data, children } = props;
 
-  let direction = data.variant === 'left'
-                ? 'row'
-                : 'row-reverse';
+  let direction = data.variant === 'left' ? 'row' : 'row-reverse';
 
   return (
     <Grid container item direction={direction} spacing={2} wrap={'no-wrap'}>
-      <Grid item xs={12} sm={5} >
+      <Grid item xs={12} sm={5}>
         <Art data={data}>{children[0]}</Art>
       </Grid>
       <Grid item xs={12} sm={7}>

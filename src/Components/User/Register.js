@@ -14,12 +14,12 @@ import Section from '../Common/Section';
 import { GreenButtonSM } from '../Home/buttons';
 import RegistrationStepper from './RegistrationStepper';
 
-const useStyles = makeStyles (() => ({
+const useStyles = makeStyles(() => ({
   registerContainer: {
     padding: '0 0 200px 0',
     '& h2': {
-      margin: '0 0 20px 0'
-    }
+      margin: '0 0 20px 0',
+    },
   },
   emailSignUpButton: {
     textTransform: 'none',
@@ -34,7 +34,7 @@ const useStyles = makeStyles (() => ({
     justifyContent: 'flex-start',
     alignItems: 'center',
     gap: '2em',
-  }
+  },
 }));
 
 const Register = () => {
@@ -42,27 +42,29 @@ const Register = () => {
   const dispatch = useDispatch();
   const [showStepper, setStepper] = useState(false);
 
-
   const handleShowStepper = () => {
     setStepper(true);
   };
 
   const handleHideStepper = () => {
-    setStepper(false)
+    setStepper(false);
   };
 
   const handleGoogleRegister = (response) => {
-    dispatch (googleLoginRequestSend (
-      response.credential,
-      'register',
-      true, // indicate user should be registered
-    ));
-  }
+    dispatch(
+      googleLoginRequestSend(
+        response.credential,
+        'register',
+        true, // indicate user should be registered
+      ),
+    );
+  };
 
-  const msg = 'There was a problem using Google to register. Consider disabling any browser extesnions that may block communication with Google. You can always sign up with a username and password.';
+  const msg =
+    'There was a problem using Google to register. Consider disabling any browser extesnions that may block communication with Google. You can always sign up with a username and password.';
   const handleGoogleFailure = () => {
-    dispatch (googleLoginRequestFailure (msg));
-  }
+    dispatch(googleLoginRequestFailure(msg));
+  };
 
   return (
     <Page bgVariant="slate2">
@@ -71,12 +73,13 @@ const Register = () => {
           <Typography variant="h2">Register</Typography>
           {!showStepper && (
             <React.Fragment>
-              <Typography variant="subtitle1" >
+              <Typography variant="subtitle1">
                 Create an account to access your favorites list between sessions
                 and devices, or submit data to CMAP.
               </Typography>
               <Typography>
-                You may sign up using your Google account, or you can create a username and password.
+                You may sign up using your Google account, or you can create a
+                username and password.
               </Typography>
 
               <div className={classes.buttons}>
@@ -103,11 +106,10 @@ const Register = () => {
           {showStepper && (
             <RegistrationStepper handleHideStepper={handleHideStepper} />
           )}
-
         </div>
       </Section>
     </Page>
   );
-}
+};
 
 export default Register;

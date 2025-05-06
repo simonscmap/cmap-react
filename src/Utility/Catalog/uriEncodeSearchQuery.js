@@ -10,7 +10,7 @@ export default ({
   sensor,
 }) => {
   if (Array.isArray(keywords) && typeof keywords !== 'string') {
-    return "";
+    return '';
   }
   let qString = '';
   keywords

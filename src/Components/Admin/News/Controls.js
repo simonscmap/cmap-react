@@ -64,9 +64,9 @@ const Controls = (props) => {
   };
 
   let saveRanks = () => {
-    dispatch(updateNewsRanks(ranks))
+    dispatch(updateNewsRanks(ranks));
     dispatch(setOpenRanksEditor(false));
-  }
+  };
 
   return (
     <Section title="List Controls">

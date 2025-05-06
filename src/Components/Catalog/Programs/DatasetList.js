@@ -6,9 +6,8 @@ import Variables from './AgGridExperimentVars';
 
 import Proto from './Proto';
 
-
 /*~~~~~~~~~~~~~~ List ~~~~~~~~~~~~~~~~~~~~*/
-const useStyles = makeStyles ((theme) => ({
+const useStyles = makeStyles((theme) => ({
   container: {
     height: '700px',
     width: '100%',
@@ -38,7 +37,8 @@ const useStyles = makeStyles ((theme) => ({
     position: 'relative',
   },
 
-  datatsetHeaders: { // table container
+  datatsetHeaders: {
+    // table container
     width: '100%',
   },
   variableHeaders: {
@@ -54,23 +54,24 @@ const useStyles = makeStyles ((theme) => ({
     display: 'flex',
     flexDirection: 'column',
   },
-  root: { // table header
+  root: {
+    // table header
     tableLayout: 'fixed',
     '& .MuiTableCell-stickyHeader': {
       backgroundColor: 'rgba(30, 67, 113, 1)',
     },
     '& .MuiTableCell-root': {
       borderBottom: 'unset',
-    }
+    },
   },
   fullHeightWrapper: {
     flexGrow: 1,
   },
-  datasetTable: {  },
+  datasetTable: {},
   hasSelected: {
     marginTop: '40px',
   },
-  variablesTable: { },
+  variablesTable: {},
 
   // cell styles
   checkBoxHeader: {
@@ -92,10 +93,10 @@ const useStyles = makeStyles ((theme) => ({
     },
     '& .MuiRadio-root': {
       padding: '5px',
-    }
+    },
   },
   dummyCheckBoxHeader: {
-    width: '36px'
+    width: '36px',
   },
   nameHeader: {
     width: 'calc(50% - 20px)',
@@ -120,8 +121,8 @@ const useStyles = makeStyles ((theme) => ({
     '& a': {
       color: theme.palette.primary.main,
       '&:visited': {
-          color: theme.palette.primary.main
-      }
+        color: theme.palette.primary.main,
+      },
     },
     '& svg': {
       fontSize: '0.9em',
@@ -151,16 +152,16 @@ const useStyles = makeStyles ((theme) => ({
     transition: 'all 0.5s ease',
     borderRadius: '5px',
     '& svg': {
-      paddingRight: '10px'
+      paddingRight: '10px',
     },
     '& .MuiOutlinedInput-input': {
       border: 'none',
     },
     '& .MuiOutlinedInput-notchedOutline': {
       border: 0,
-    }
+    },
   },
-  searchActive:{
+  searchActive: {
     width: 'calc(100% - 10px)',
     borderRadius: '5px',
     background: 'rgba(0,0,0,0.3)',
@@ -174,10 +175,9 @@ const useStyles = makeStyles ((theme) => ({
     },
     '& .MuiFormControl-root': {
       flexGrow: 3,
-    }
+    },
   },
-  inputRoot: {
-  },
+  inputRoot: {},
   selectVarInstruction: {
     margin: '.5em 0',
     padding: '.5em',
@@ -187,37 +187,34 @@ const useStyles = makeStyles ((theme) => ({
     margin: '.5em 0',
     padding: '.5em',
     border: '2px solid #d16265',
-  }
+  },
 }));
-
 
 const DatasetControls = (props) => {
   const cl = useStyles();
   return (
-      <div className={cl.container}>
-        <div className={cl.datasetListContainer}>
-          {/* Dataset Column Headers */}
-          <Datasets />
-        </div>
-
-        <div className={cl.datasetVariablesListContainer}>
-          {/* Variables Column Headers */}
-          <Variables />
-        </div>
+    <div className={cl.container}>
+      <div className={cl.datasetListContainer}>
+        {/* Dataset Column Headers */}
+        <Datasets />
       </div>
-    );
+
+      <div className={cl.datasetVariablesListContainer}>
+        {/* Variables Column Headers */}
+        <Variables />
+      </div>
+    </div>
+  );
 };
 
 // List Datasets in Program
 
 const DatasetList = () => {
   // selectors
-  const selectProgramDetailsRequestStatus = (state) => state.programDetailsRequestStatus;
+  const selectProgramDetailsRequestStatus = (state) =>
+    state.programDetailsRequestStatus;
 
-  const deps = [
-    selectProgramDetailsRequestStatus,
-  ];
-
+  const deps = [selectProgramDetailsRequestStatus];
 
   return (
     <Proto title={'Program Datasets'} deps={deps}>

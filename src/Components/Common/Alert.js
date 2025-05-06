@@ -1,12 +1,10 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { LuAlertTriangle } from "react-icons/lu";
-
+import { LuAlertTriangle } from 'react-icons/lu';
 
 const yellowAlert = 'rgb(255, 227, 54)';
 
-
-const useWarningStyles = makeStyles ((theme) => ({
+const useWarningStyles = makeStyles((theme) => ({
   warning: {
     color: 'white',
     border: `1px solid ${yellowAlert}`,
@@ -32,8 +30,8 @@ const useWarningStyles = makeStyles ((theme) => ({
     textAlign: 'left',
     fontFamily: '"Lato",sans-serif',
     fontSize: '14px',
-    padding: '6px 3px'
-  }
+    padding: '6px 3px',
+  },
 }));
 
 export const Warning = (props) => {
@@ -43,9 +41,7 @@ export const Warning = (props) => {
       <div className={cl.iconContainer}>
         <LuAlertTriangle />
       </div>
-      <div className={cl.textContainer}>
-        {props.children}
-      </div>
+      <div className={cl.textContainer}>{props.children}</div>
     </div>
-  )
-}
+  );
+};

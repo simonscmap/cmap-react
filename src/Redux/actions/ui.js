@@ -4,23 +4,23 @@ const trace = (action) => {
   return (...args) => {
     const result = action.apply(args);
 
-    console.log (`<trace::redux> ${result.type}`);
+    console.log(`<trace::redux> ${result.type}`);
     if (args.length > 1) {
-      console.log (args);
+      console.log(args);
     }
     const argType = typeof args[0];
     switch (argType) {
-    case 'number':
-    case 'string':
-      console.log (args[0]);
-      break;
-    case 'object':
-      console.table (args[0]);
+      case 'number':
+      case 'string':
+        console.log(args[0]);
+        break;
+      case 'object':
+        console.table(args[0]);
     }
 
     return result;
-  }
-}
+  };
+};
 
 export const showLoginDialog = trace(() => ({
   type: interfaceActionTypes.INTERFACE_SHOW_LOGIN_DIALOG,
@@ -45,13 +45,13 @@ export const restoreInterfaceDefaults = () => ({
 // TODO consider ability to forward a secondary/followup action
 // e.g. a "click for more info" or "report this error"
 export const snackbarOpen = (message, meta) => {
-  return ({
+  return {
     type: interfaceActionTypes.SNACKBAR_OPEN,
     payload: {
       message,
       meta,
-    }
-  });
+    },
+  };
 };
 
 export const snackbarClose = () => ({
@@ -59,13 +59,13 @@ export const snackbarClose = () => ({
 });
 
 export const setLoadingMessage = (message, meta) => {
-  return ({
+  return {
     type: interfaceActionTypes.SET_LOADING_MESSAGE,
     payload: {
       message,
       meta,
-    }
-  });
+    },
+  };
 };
 
 export const toggleShowHelp = () => ({
@@ -106,8 +106,8 @@ export const windowResize = (height, width) => ({
 export const subscribeDatasetDialogOpen = (shortName) => ({
   type: interfaceActionTypes.SUBSCRIBE_DATASET_DIALOG_OPEN,
   payload: {
-    shortName
-  }
+    shortName,
+  },
 });
 
 export const subscribeDatasetDialogClear = () => ({
@@ -118,7 +118,7 @@ export const downloadDialogOpen = (shortName) => ({
   type: interfaceActionTypes.DOWNLOAD_DIALOG_OPEN,
   payload: {
     shortName,
-  }
+  },
 });
 
 export const downloadDialogClear = () => ({
@@ -127,15 +127,15 @@ export const downloadDialogClear = () => ({
 
 export const setDownloadDialogData = (data) => ({
   type: interfaceActionTypes.SET_DOWNLOAD_DIALOG_DATA,
-  payload: data
+  payload: data,
 });
 
 export const setFetchDownloadDialogDataRequestState = (status) => ({
   type: interfaceActionTypes.SET_FETCH_DOWNLAD_DIALOG_DATA_REQUEST_STATE,
   payload: status,
-})
+});
 
 export const setSubscribeIntroState = (trueFalse) => ({
   type: interfaceActionTypes.SET_SUBSCRIBE_INTRO_STATE,
   payload: trueFalse,
-})
+});

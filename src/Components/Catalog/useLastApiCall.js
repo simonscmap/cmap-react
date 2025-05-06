@@ -18,39 +18,38 @@ const getRecCacheCreationTimes = (userId) => {
   const seeAlsoRecs = localStorageApi.get('seeAlsoRecs');
 
   try {
-    const parsedRecent = JSON.parse (recentRecs);
+    const parsedRecent = JSON.parse(recentRecs);
     if (parsedRecent && parsedRecent.updated) {
       if (parsedRecent.userId !== userId) {
-        console.log ('user id mismatch');
+        console.log('user id mismatch');
       } else {
         result.recentRecsCacheTime = new Date(parsedRecent.updated);
       }
     }
   } catch (e) {
-    console.log ('check cache time error', e);
+    console.log('check cache time error', e);
   }
 
   try {
-    const parsedSeeAlso = JSON.parse (seeAlsoRecs);
-    console.log ('parsedSeeAlso', parsedSeeAlso)
+    const parsedSeeAlso = JSON.parse(seeAlsoRecs);
+    console.log('parsedSeeAlso', parsedSeeAlso);
     if (parsedSeeAlso && parsedSeeAlso.updated) {
       if (parsedSeeAlso.userId !== userId) {
-        console.log ('user id mismatch');
+        console.log('user id mismatch');
       } else {
         result.seeAlsoCacheTime = new Date(parsedSeeAlso.updated);
       }
     }
   } catch (e) {
-    console.log ('check cache time error', e);
+    console.log('check cache time error', e);
   }
 
   return result;
-}
-
+};
 
 export const useLastApiCall = () => {
   const dispatch = useDispatch();
-  const user = useSelector ((state) => state.user);
+  const user = useSelector((state) => state.user);
   const userLastTouch = user && user.lastDatasetTouch;
 
   const recState = useSelector((state) => ({
@@ -68,33 +67,33 @@ export const useLastApiCall = () => {
   //   1. clear cache
   //   2. trigger re-fetch of recommendation data
 
-  useEffect (() => {
+  useEffect(() => {
     const notTried = recState.userApiCallsRequestStatus === states.notTried;
-    const loggedIn = Boolean (user);
+    const loggedIn = Boolean(user);
     if (loggedIn && notTried) {
-      console.log ('dispatching api calls request');
-      dispatch (requestUserApiCallsSend (user.id));
+      console.log('dispatching api calls request');
+      dispatch(requestUserApiCallsSend(user.id));
     }
   }, [recState.userApiCallsRequestStatus]);
 
   useEffect(() => {
     const lastTouchSuccess =
       recState.userApiCallsRequestStatus === states.succeeded;
-    const loggedIn = Boolean (user);
+    const loggedIn = Boolean(user);
 
     if (loggedIn && user.lastDatasetTouch && lastTouchSuccess) {
       const lastTouch = user.lastDatasetTouch;
       const cacheTimes = getRecCacheCreationTimes(user.id);
-      console.log ('comparing', lastTouch, cacheTimes);
+      console.log('comparing', lastTouch, cacheTimes);
       if (lastTouch > cacheTimes.recentRecsCacheTime) {
-        console.log ('recent recs local cache is stale');
+        console.log('recent recs local cache is stale');
         localStorageApi.del('recentRecs');
-        dispatch (recentRecsRequestSend (user.id));
+        dispatch(recentRecsRequestSend(user.id));
       }
       if (lastTouch > cacheTimes.seeAlsoCacheTime) {
-        console.log ('see-also local cache is stale');
-        localStorageApi.del ('seeAlsoRecs');
-        dispatch (recommendedRecsRequestSend (user.id));
+        console.log('see-also local cache is stale');
+        localStorageApi.del('seeAlsoRecs');
+        dispatch(recommendedRecsRequestSend(user.id));
       }
     }
   }, [user, recState.userApiCallsRequestStatus]);

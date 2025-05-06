@@ -137,7 +137,8 @@ export const homeTheme = createTheme({
       lineHeight: '1.3em',
       fontSize: pxToRem[20],
       color: '#ffffff',
-      '@media (max-width:1280px)': { // "lg" breakpoint
+      '@media (max-width:1280px)': {
+        // "lg" breakpoint
         fontSize: pxToRem[18],
       },
     },
@@ -158,7 +159,6 @@ export const homeTheme = createTheme({
     primary: {
       main: colors.green.lime,
       // dark: colors.green.basil,
-
     },
     secondary: {
       main: colors.blue.teal,
@@ -244,14 +244,14 @@ export const homeTheme = createTheme({
       },
     },
     /* MuiInputBase: {
-*   input: {
-*     border: `2px solid ${colors.blue.royal}`,
-*     background: colors.blue.dark,
-*     '&$focus': {
-*       border: `2px solid ${colors.blue.royal}`,
-*     },
-*   },
-* }, */
+     *   input: {
+     *     border: `2px solid ${colors.blue.royal}`,
+     *     background: colors.blue.dark,
+     *     '&$focus': {
+     *       border: `2px solid ${colors.blue.royal}`,
+     *     },
+     *   },
+     * }, */
     MuiInput: {
       root: {
         color: 'white',
@@ -311,9 +311,9 @@ export const homeTheme = createTheme({
     },
     MuiTooltip: {
       tooltip: {
-        fontSize: "1em",
-        backgroundColor: 'rgba(0,0,0,0.85)'
-      }
-    }
+        fontSize: '1em',
+        backgroundColor: 'rgba(0,0,0,0.85)',
+      },
+    },
   },
 });

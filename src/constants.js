@@ -53,8 +53,9 @@ export const DEFAULT_HINT_POSITION = 'left';
 
 // Help
 export const HOMEPAGE_VIDEO = 'https://player.vimeo.com/video/809907083';
-export const CATALOG_OVERVIEW_VIDEO = 'https://player.vimeo.com/video/701009719';
-  // 'https://player.vimeo.com/video/620160138';
+export const CATALOG_OVERVIEW_VIDEO =
+  'https://player.vimeo.com/video/701009719';
+// 'https://player.vimeo.com/video/620160138';
 export const VISUALIZATION_OVERVIEW_VIDEO =
   'https://player.vimeo.com/video/668819801'; // old: 657984891
 

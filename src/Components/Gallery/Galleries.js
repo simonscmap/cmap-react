@@ -20,10 +20,10 @@ const ResourceSwitch = (props) => {
   let Resource;
 
   if (idx[slug]) {
-    Resource = idx[slug]
+    Resource = idx[slug];
   }
 
-  return Resource ? <Resource /> : <FourOhFour />
+  return Resource ? <Resource /> : <FourOhFour />;
 };
 
 export default ResourceSwitch;

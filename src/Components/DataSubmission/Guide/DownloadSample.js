@@ -9,11 +9,9 @@ import { CustomAlert } from './Alert';
 const DownloadSampleAlert = (props) => {
   const { text } = props;
   return (
-      <CustomAlert severity="info">
-        <Typography>
-          { text }
-        </Typography>
-        <List>
+    <CustomAlert severity="info">
+      <Typography>{text}</Typography>
+      <List>
         <ListItem>
           <ListItemText>
             <GuideLink
@@ -37,6 +35,6 @@ const DownloadSampleAlert = (props) => {
       </List>
     </CustomAlert>
   );
-}
+};
 
 export default DownloadSampleAlert;

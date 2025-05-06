@@ -25,7 +25,7 @@ let local = {
     try {
       return localStorage.setItem(k, preparedValue);
     } catch (e) {
-      console.log (`error attempting to set item "${k}" in local storage`);
+      console.log(`error attempting to set item "${k}" in local storage`);
       return null;
     }
   },

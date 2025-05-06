@@ -24,7 +24,7 @@ const styles = {
     textTransform: 'uppercase',
     '-webkit-text-stroke-width': '3px',
     '-webkit-text-stroke-color': colors.green.lime,
-    fontFamily:['Montserrat', 'Lato', 'sans-serif'].join(','),
+    fontFamily: ['Montserrat', 'Lato', 'sans-serif'].join(','),
     '-webkit-font-smoothing': 'antialiased',
   },
 };
@@ -32,9 +32,9 @@ const styles = {
 const FourOhFour = withStyles(styles)(({ classes }) => {
   let Hero = () => (
     <div className={classes.container}>
-    <h2 className={classes.text}>
-      4<br />0<br />4
-    </h2>
+      <h2 className={classes.text}>
+        4<br />0<br />4
+      </h2>
     </div>
   );
 

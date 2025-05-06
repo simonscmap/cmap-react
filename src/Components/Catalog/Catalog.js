@@ -5,7 +5,6 @@ import { withStyles, Grid, ThemeProvider } from '@material-ui/core';
 import { fetchDatasetFeatures } from '../../Redux/actions/catalog';
 import { fetchSubscriptions } from '../../Redux/actions/user';
 
-
 import CatalogSearch from './CatalogSearch';
 import SearchResults from './SearchResults';
 import RecPanel from './RecPanel';
@@ -44,7 +43,7 @@ const styles = (theme) => ({
     '& > div': {
       flex: 1,
       display: 'flex',
-    }
+    },
   },
   recPaper: {
     padding: '14px 20px',
@@ -54,9 +53,7 @@ const styles = (theme) => ({
 const Catalog = ({ classes }) => {
   let dispatch = useDispatch();
 
-  let datasetFeatures = useSelector(
-    (state) => state.catalog.datasetFeatures,
-  );
+  let datasetFeatures = useSelector((state) => state.catalog.datasetFeatures);
 
   useEffect(() => {
     document.title = metaTags.catalog.title;
@@ -64,7 +61,7 @@ const Catalog = ({ classes }) => {
     return () => {
       document.title = metaTags.default.title;
       document.description = metaTags.default.description;
-     };
+    };
   });
 
   // on load, send request to load dataset features, which indicate
@@ -81,7 +78,7 @@ const Catalog = ({ classes }) => {
   });
 
   // share a bit of UI state between Search and Results
-  const [searchFiltersOpen, setSearchFiltersOpen] = useState (false);
+  const [searchFiltersOpen, setSearchFiltersOpen] = useState(false);
 
   return (
     <ThemeProvider theme={homeTheme}>
@@ -97,8 +94,13 @@ const Catalog = ({ classes }) => {
               </div>
             </Grid>
             <Grid item xs={4}>
-              <div className={classes.catalogRecs} >
-                <h2 id="catalog-recommendations-panel"  className={classes.sectionHeading}>Recommended Datasets</h2>
+              <div className={classes.catalogRecs}>
+                <h2
+                  id="catalog-recommendations-panel"
+                  className={classes.sectionHeading}
+                >
+                  Recommended Datasets
+                </h2>
                 <RecPanel />
               </div>
             </Grid>

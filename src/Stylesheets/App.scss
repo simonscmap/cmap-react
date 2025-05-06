@@ -110,19 +110,19 @@ $row-stub-background-color: #22a3b9;
 }
 
 @media screen and (min-width: 480px) {
-    #DatasetAGGrid .ag-theme-material .ag-tool-panel-wrapper {
-        width: 300px;
-    }
+  #DatasetAGGrid .ag-theme-material .ag-tool-panel-wrapper {
+    width: 300px;
+  }
 }
 @media screen and (min-width: 800px) {
-    #DatasetAGGrid .ag-theme-material .ag-tool-panel-wrapper {
-        width: 500px;
-    }
+  #DatasetAGGrid .ag-theme-material .ag-tool-panel-wrapper {
+    width: 500px;
+  }
 }
 @media screen and (min-width: 1200px) {
-    #DatasetAGGrid .ag-theme-material .ag-tool-panel-wrapper {
-        width: 900px;
-    }
+  #DatasetAGGrid .ag-theme-material .ag-tool-panel-wrapper {
+    width: 900px;
+  }
 }
 
 #DatasetAGGrid .ag-theme-material .ag-tool-panel-wrapper .ag-react-container {
@@ -133,45 +133,44 @@ $row-stub-background-color: #22a3b9;
 }
 
 #DatasetAGGrid h4 {
-    padding: 5px;
-    margin: 18px auto;
-    border-bottom: 2px solid #9dd162;
+  padding: 5px;
+  margin: 18px auto;
+  border-bottom: 2px solid #9dd162;
 }
 
 // force select to look like part of the theme
 #DatasetAGGrid .ag-theme-material .ag-tab-body .ag-filter-select {
-   color: white;
-   background-color: #184562;
-   border: 1px solid #9dd162;
-   border-radius: 3px;
-   padding: 5px;
+  color: white;
+  background-color: #184562;
+  border: 1px solid #9dd162;
+  border-radius: 3px;
+  padding: 5px;
 }
 
 // make the input label more visible
-#DatasetAGGrid .ag-theme-material .ag-filter input[type="text"]::placeholder, .ag-theme-material .ag-filter input[type="date"]::placeholder {
-    color: rgba(255, 255, 255, 0.38);
+#DatasetAGGrid .ag-theme-material .ag-filter input[type='text']::placeholder,
+.ag-theme-material .ag-filter input[type='date']::placeholder {
+  color: rgba(255, 255, 255, 0.38);
 }
 
 // make the input value more visible
 #DatasetAGGrid .ag-theme-material .ag-floating-filter-body input {
-    padding-bottom: 0;
-    font-size: 14px;
-    font-weight: bold;
+  padding-bottom: 0;
+  font-size: 14px;
+  font-weight: bold;
 }
 // add a bolder box shadow to make the filter menue easier to see
 #DatasetAGGrid .ag-theme-material .ag-menu {
-    box-shadow: 10px 10px 10px 0px rgba(0, 0, 0, 0.25), 0 2px 2px 0 rgba(0, 0, 0, 0.25), 0 1px 5px 0 rgba(0, 0, 0, 0.25);
+  box-shadow:
+    10px 10px 10px 0px rgba(0, 0, 0, 0.25),
+    0 2px 2px 0 rgba(0, 0, 0, 0.25),
+    0 1px 5px 0 rgba(0, 0, 0, 0.25);
 }
 
 #DatasetAGGrid .ag-row-focus {
-    // border: 2px solid #9dd162;
-    background: rgba(0,0,0,0.4);
+  // border: 2px solid #9dd162;
+  background: rgba(0, 0, 0, 0.4);
 }
-
-
-
-
-
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Data Submission Ag Grid Style
@@ -186,7 +185,7 @@ $row-stub-background-color: #22a3b9;
 }
 
 #dataSubmission .ag-theme-material .ag-cell.ag-cell-inline-editing {
-    background-color: #184562;
+  background-color: #184562;
 }
 
 .ag-theme-material .ag-cell-inline-editing,
@@ -206,19 +205,19 @@ $row-stub-background-color: #22a3b9;
 }
 
 @media screen and (min-width: 480px) {
-    #dataSubmission .ag-theme-material .ag-tool-panel-wrapper {
-        width: 300px;
-    }
+  #dataSubmission .ag-theme-material .ag-tool-panel-wrapper {
+    width: 300px;
+  }
 }
 @media screen and (min-width: 800px) {
-    #dataSubmission .ag-theme-material .ag-tool-panel-wrapper {
-        width: 500px;
-    }
+  #dataSubmission .ag-theme-material .ag-tool-panel-wrapper {
+    width: 500px;
+  }
 }
 @media screen and (min-width: 1200px) {
-    #dataSubmission .ag-theme-material .ag-tool-panel-wrapper {
-        width: 900px;
-    }
+  #dataSubmission .ag-theme-material .ag-tool-panel-wrapper {
+    width: 900px;
+  }
 }
 
 #dataSubmission .ag-theme-material .ag-tool-panel-wrapper .ag-react-container {
@@ -230,34 +229,38 @@ $row-stub-background-color: #22a3b9;
 
 // force select to look like part of the theme
 #dataSubmission .ag-theme-material .ag-tab-body .ag-filter-select {
-   color: white;
-   background-color: #184562;
-   border: 1px solid #9dd162;
-   border-radius: 3px;
-   padding: 5px;
+  color: white;
+  background-color: #184562;
+  border: 1px solid #9dd162;
+  border-radius: 3px;
+  padding: 5px;
 }
 
 // make the input label more visible
-#dataSubmission .ag-theme-material .ag-filter input[type="text"]::placeholder, .ag-theme-material .ag-filter input[type="date"]::placeholder {
-    color: rgba(255, 255, 255, 0.38);
+#dataSubmission .ag-theme-material .ag-filter input[type='text']::placeholder,
+.ag-theme-material .ag-filter input[type='date']::placeholder {
+  color: rgba(255, 255, 255, 0.38);
 }
 
 // make the input value more visible
 #dataSubmission .ag-theme-material .ag-floating-filter-body input {
-    padding-bottom: 0;
-    font-size: 14px;
-    font-weight: bold;
+  padding-bottom: 0;
+  font-size: 14px;
+  font-weight: bold;
 }
 // add a bolder box shadow to make the filter menue easier to see
 #dataSubmission .ag-theme-material .ag-menu {
-    box-shadow: 10px 10px 10px 0px rgba(0, 0, 0, 0.25), 0 2px 2px 0 rgba(0, 0, 0, 0.25), 0 1px 5px 0 rgba(0, 0, 0, 0.25);
+  box-shadow:
+    10px 10px 10px 0px rgba(0, 0, 0, 0.25),
+    0 2px 2px 0 rgba(0, 0, 0, 0.25),
+    0 1px 5px 0 rgba(0, 0, 0, 0.25);
 }
 
 #dataSubmission .ag-row-focus {
-    // border: 2px solid #9dd162;
-    background: rgba(0,0,0,0.4);
+  // border: 2px solid #9dd162;
+  background: rgba(0, 0, 0, 0.4);
 }
 
 #dataSubmission .ag-theme-material .ag-cell {
-    border-radius: 2px;
+  border-radius: 2px;
 }

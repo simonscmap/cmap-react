@@ -4,7 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 // $green: rgb(33, 115, 70);
 // $gray-dark: rgb(230, 230, 230);
 // $gray-darker: rgb(205, 205, 205);
-const useStyles = makeStyles (() => ({
+const useStyles = makeStyles(() => ({
   container: {
     width: '100%',
     margin: '0 0 2em 0',
@@ -59,14 +59,15 @@ const useStyles = makeStyles (() => ({
     background: 'rgb(230, 230, 230)',
     position: 'relative',
     '&:after': {
-      content: "",
+      content: '',
       position: 'absolute',
       right: '4px',
       bottom: '4px',
       height: '80%',
       width: '100%',
-      background: 'linear-gradient(135deg, transparent 30px, #bbb 30px, #bbb 55px, transparent 55px)',
-    }
+      background:
+        'linear-gradient(135deg, transparent 30px, #bbb 30px, #bbb 55px, transparent 55px)',
+    },
   },
   alphabet: {
     fontFamily: 'Noto Sans, sans-serif',
@@ -82,8 +83,8 @@ const useStyles = makeStyles (() => ({
     '& > span': {
       display: 'inline-block',
       margin: '0 auto',
-      padding: '0 5px'
-    }
+      padding: '0 5px',
+    },
   },
   number: {
     fontFamily: 'Noto Sans, sans-serif',
@@ -97,45 +98,61 @@ const useStyles = makeStyles (() => ({
   input: {
     border: 'none',
     padding: '0 6px',
-  }
-
+  },
 }));
 
 const Demo = (props) => {
   const { columns, source } = props;
-  const cl = useStyles ();
+  const cl = useStyles();
 
-  console.log ({ columns, source });
+  console.log({ columns, source });
 
   const numberOfColumns = columns.length;
 
-  const orderedColumns = columns.map (c => c.name);
+  const orderedColumns = columns.map((c) => c.name);
 
   const rowNumbers = [];
 
   for (let k = 0; k < source.length; k++) {
-    rowNumbers.push (<div className={cl.number} key={`cell_rownum${k}`}>{k + 1}</div>);
+    rowNumbers.push(
+      <div className={cl.number} key={`cell_rownum${k}`}>
+        {k + 1}
+      </div>,
+    );
   }
 
   const cells = [];
 
-  source.forEach ((row, rix) => {
-    orderedColumns.forEach ((colName, cix) => {
-      cells.push (<input className={cl.input} readOnly value={row[colName]} key={`${rix}_${cix}`}/>);
+  source.forEach((row, rix) => {
+    orderedColumns.forEach((colName, cix) => {
+      cells.push(
+        <input
+          className={cl.input}
+          readOnly
+          value={row[colName]}
+          key={`${rix}_${cix}`}
+        />,
+      );
     });
   });
 
-  const cols = orderedColumns.map ((c, ix) =>
-    (<div className={cl.alphabet} key={`cell_head${ix}`}><span>{c}</span></div>));
+  const cols = orderedColumns.map((c, ix) => (
+    <div className={cl.alphabet} key={`cell_head${ix}`}>
+      <span>{c}</span>
+    </div>
+  ));
 
-
-  const containerHeight = source.length > 5 ? 'containerHeightLarge' : `containerHeight${source.length}`;
-
+  const containerHeight =
+    source.length > 5
+      ? 'containerHeightLarge'
+      : `containerHeight${source.length}`;
 
   return (
     <div className={`${cl.container} ${cl[containerHeight]}`}>
       <div className={cl.grid}>
-        <div className={`${cl.cells} ${cl['col'+numberOfColumns]} ${cl['row'+source.length]}`}>
+        <div
+          className={`${cl.cells} ${cl['col' + numberOfColumns]} ${cl['row' + source.length]}`}
+        >
           <div className={cl.spacer}></div>
           {cols}
           {rowNumbers}
@@ -143,7 +160,7 @@ const Demo = (props) => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default Demo;

@@ -13,9 +13,10 @@ const Content = () => {
     <div className={cl.container}>
       <Typography>
         Once your submission has been approved the data curation team will
-        request a DOI for the data. Information on DOIs can be found in
-        the <Link href="#faq-doi">DOI Help Section</Link>. The DOI can be
-        submitted using the messaging feature of the <Link href="#dashboard">user dashboard</Link>.
+        request a DOI for the data. Information on DOIs can be found in the{' '}
+        <Link href="#faq-doi">DOI Help Section</Link>. The DOI can be submitted
+        using the messaging feature of the{' '}
+        <Link href="#dashboard">user dashboard</Link>.
       </Typography>
     </div>
   );

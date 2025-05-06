@@ -32,9 +32,7 @@ const styles = () => ({
     '@media(max-width: 600px)': {
       width: 'calc(100% - 20px)',
     },
-    '& > h3': {
-
-    },
+    '& > h3': {},
   },
   textStyles: {
     '& p': {
@@ -115,28 +113,31 @@ const styles = () => ({
   },
   slate2: {
     background: colors.gradient.slate2,
-
   },
   purple: {
     background: colors.gradient.newsBlock,
   },
 });
 
-export const FullWidthContainer = withStyles(styles)(
-  ({ classes, bgVariant, children, minWidth = 0, paddingTop = 0 }) => {
-    return (
-      <div
-        className={clsx(
-          classes.fullWidthContainer,
-          bgVariant ? classes[bgVariant] : classes.slate,
-        )}
-        style={{ minWidth: minWidth, paddingTop }}
-      >
-        {children}
-      </div>
-    );
-  },
-);
+export const FullWidthContainer = withStyles(styles)(({
+  classes,
+  bgVariant,
+  children,
+  minWidth = 0,
+  paddingTop = 0,
+}) => {
+  return (
+    <div
+      className={clsx(
+        classes.fullWidthContainer,
+        bgVariant ? classes[bgVariant] : classes.slate,
+      )}
+      style={{ minWidth: minWidth, paddingTop }}
+    >
+      {children}
+    </div>
+  );
+});
 
 const GroupTitle = withStyles(styles)(({ classes, title, titleLink }) => {
   if (titleLink) {
@@ -164,7 +165,7 @@ export const Group = withStyles(styles)(
   ),
 );
 
-export const SectionTitle = withStyles ({
+export const SectionTitle = withStyles({
   sectionTitle: {
     margin: '0 0 .5em 0',
     display: 'inline-block',
@@ -193,7 +194,7 @@ export const SectionTitle = withStyles ({
       </div>
     );
   } else {
-    return <React.Fragment />
+    return <React.Fragment />;
   }
 });
 

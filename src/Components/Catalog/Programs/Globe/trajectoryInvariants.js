@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 
 export const popupTemplate = {
-  'type': "fields",
+  type: 'fields',
   fieldInfos: [
     {
       fieldName: 'lon',
@@ -24,7 +24,7 @@ export const popupTemplate = {
       label: 'Nickname',
     },
     {
-      fieldName: "cruiseId",
+      fieldName: 'cruiseId',
       label: 'Cruise ID',
     },
     {
@@ -42,49 +42,49 @@ export const popupTemplate = {
     {
       fieldName: 'chief',
       label: 'Chief Scientist',
-    }
-  ]
+    },
+  ],
 };
 
-export const polylinePopupTemplate_ = (vertex, cruise) => ([
+export const polylinePopupTemplate_ = (vertex, cruise) => [
   {
-    'type': "text",
-    text: `<span>lat ${vertex.lat}</span><br /><span>lon ${vertex.lon}</span>`
+    type: 'text',
+    text: `<span>lat ${vertex.lat}</span><br /><span>lon ${vertex.lon}</span>`,
   },
   {
-  'type': "fields",
-  fieldInfos: [
-    {
-      fieldName: 'name',
-      label: 'Cruise Name',
-    },
-    {
-      fieldName: 'nick',
-      label: 'Nickname',
-    },
-    {
-      fieldName: "cruiseId",
-      label: 'Cruise ID',
-    },
-    {
-      fieldName: 'ship',
-      label: 'Ship Name',
-    },
-    {
-      fieldName: 'start',
-      label: 'Cruise Start Time',
-    },
-    {
-      fieldName: 'end',
-      label: 'Cruise End Time',
-    },
-    {
-      fieldName: 'chief',
-      label: 'Chief Scientist',
-    }
-  ]
-}
-]);
+    type: 'fields',
+    fieldInfos: [
+      {
+        fieldName: 'name',
+        label: 'Cruise Name',
+      },
+      {
+        fieldName: 'nick',
+        label: 'Nickname',
+      },
+      {
+        fieldName: 'cruiseId',
+        label: 'Cruise ID',
+      },
+      {
+        fieldName: 'ship',
+        label: 'Ship Name',
+      },
+      {
+        fieldName: 'start',
+        label: 'Cruise Start Time',
+      },
+      {
+        fieldName: 'end',
+        label: 'Cruise End Time',
+      },
+      {
+        fieldName: 'chief',
+        label: 'Chief Scientist',
+      },
+    ],
+  },
+];
 
 export const polylinePopupTemplate = (vertex, cruise) => `
   <tr>

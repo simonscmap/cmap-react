@@ -6,19 +6,15 @@ import TextField from '@material-ui/core/TextField';
 import SearchIcon from '@material-ui/icons/Search';
 import ClearIcon from '@material-ui/icons/Clear';
 
-import {
-  selectProgramDataset,
-} from '../../../Redux/actions/catalog';
+import { selectProgramDataset } from '../../../Redux/actions/catalog';
 
-import {
-  selectedProgramDatasetShortNameSelector
-} from './programSelectors';
+import { selectedProgramDatasetShortNameSelector } from './programSelectors';
 
 import { safePath } from '../../../Utility/objectUtils';
 
 const ROW_HEIGHT = 35; // px
 
-const useStyles = makeStyles ((theme) => ({
+const useStyles = makeStyles((theme) => ({
   container: {
     position: 'relative',
     height: '700px',
@@ -48,10 +44,10 @@ const useStyles = makeStyles ((theme) => ({
       paddingRight: '5px',
     },
     '& .ag-theme-material .ag-row-selected': {
-      backgroundColor: 'rgba(16, 43, 60, 1)'
+      backgroundColor: 'rgba(16, 43, 60, 1)',
     },
     '& .ag-theme-material .ag-icon-checkbox-checked': {
-       backgroundColor: '#9dd162'
+      backgroundColor: '#9dd162',
     },
     '& .radio-select': {
       position: 'relative',
@@ -66,7 +62,7 @@ const useStyles = makeStyles ((theme) => ({
         transform: 'none',
         position: 'absolute',
         width: '.85em',
-        height: '.85em'
+        height: '.85em',
       },
     },
     '& .radio-select.selected': {
@@ -83,18 +79,19 @@ const useStyles = makeStyles ((theme) => ({
         overflow: 'hidden',
         whiteSpace: 'nowrap',
         textOverflow: 'ellipsis',
-      }
+      },
     },
     '& .dataset-link': {
       color: '#9dd162',
       '& .MuiSvgIcon-root': {
         fontSize: '1em',
-      }
+      },
     },
   },
   agGridStyles: {
     borderRadius: '6px',
-    boxShadow: '0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12)',
+    boxShadow:
+      '0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12)',
     overflow: 'hidden',
   },
   searchContainer: {
@@ -114,16 +111,16 @@ const useStyles = makeStyles ((theme) => ({
     transition: 'all 0.5s ease',
     borderRadius: '5px',
     '& svg': {
-      paddingRight: '10px'
+      paddingRight: '10px',
     },
     '& .MuiOutlinedInput-input': {
       border: 'none',
     },
     '& .MuiOutlinedInput-notchedOutline': {
       border: 0,
-    }
+    },
   },
-  searchActive:{
+  searchActive: {
     width: 'calc(100% - 10px)',
     borderRadius: '5px',
     background: 'rgba(0,0,0,0.3)',
@@ -137,18 +134,15 @@ const useStyles = makeStyles ((theme) => ({
     },
     '& .MuiFormControl-root': {
       flexGrow: 3,
-    }
+    },
   },
 }));
 
-
-
-
 // Helpers
 
-const stringOrEmpty = (x) => typeof x === 'string' ? x : '';
+const stringOrEmpty = (x) => (typeof x === 'string' ? x : '');
 const alphabetizeBy = (prop) => (list) => {
-  return list.sort ((a_ = '', b_ = '') => {
+  return list.sort((a_ = '', b_ = '') => {
     let a = stringOrEmpty(a_[prop]).toLowerCase();
     let b = stringOrEmpty(b_[prop]).toLowerCase();
     if (a > b) {
@@ -160,8 +154,8 @@ const alphabetizeBy = (prop) => (list) => {
     if (a === b) {
       return 0;
     }
-  })
-}
+  });
+};
 
 const transformDataset = (d) => ({
   ...d,
@@ -180,7 +174,7 @@ const columnDefinitions = [
         node,
         // value
       } = params;
-      const selected = node.isSelected ();
+      const selected = node.isSelected();
 
       if (selected) {
         return `<div class="radio-select selected">
@@ -188,9 +182,8 @@ const columnDefinitions = [
 <svg class="MuiSvgIcon-root" focusable="false" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"></path></svg>
 <svg class="MuiSvgIcon-root PrivateRadioButtonIcon-layer-199" focusable="false" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.465 8.465C9.37 7.56 10.62 7 12 7C14.76 7 17 9.24 17 12C17 13.38 16.44 14.63 15.535 15.535C14.63 16.44 13.38 17 12 17C9.24 17 7 14.76 7 12C7 10.62 7.56 9.37 8.465 8.465Z"></path></svg>
 
-</div>`
+</div>`;
       } else {
-
         return `<div class="radio-select">
  <svg class="MuiSvgIcon-root" focusable="false" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"></path></svg>
 
@@ -198,19 +191,19 @@ const columnDefinitions = [
       }
     },
     onCellClicked: (event) => {
-      console.log (event)
-      event.node.setSelected (true);
-      event.api.redrawRows (); // allows for style change
-    }
+      console.log(event);
+      event.node.setSelected(true);
+      event.api.redrawRows(); // allows for style change
+    },
   },
   {
-    field: "DatasetName",
+    field: 'DatasetName',
     flex: 1,
     cellRenderer: (params) => {
       const {
         // api,
         node,
-        value
+        value,
       } = params;
       return `<div class="link-container">
               <span >${value}</span>
@@ -219,66 +212,72 @@ const columnDefinitions = [
                   <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"></path>
                 </svg>
               </a>
-            </div>`
+            </div>`;
     },
   },
   {
-    field: "Source",
-    flex: 1
+    field: 'Source',
+    flex: 1,
   },
 ];
-
 
 const Exp = () => {
   const cl = useStyles();
   const dispatch = useDispatch();
 
-  const program = useSelector ((state) => state.programDetails);
-  const datasets = program && program.datasets &&
-        alphabetizeBy("Dataset_Name") (Object.values (program.datasets).map (transformDataset));
-  const selectedShortName = useSelector (selectedProgramDatasetShortNameSelector);
+  const program = useSelector((state) => state.programDetails);
+  const datasets =
+    program &&
+    program.datasets &&
+    alphabetizeBy('Dataset_Name')(
+      Object.values(program.datasets).map(transformDataset),
+    );
+  const selectedShortName = useSelector(
+    selectedProgramDatasetShortNameSelector,
+  );
   // const selectedDataset = datasets && datasets.find (d => d.Dataset_Name === selectedShortName);
 
-
-  const [api, setApi] = useState (null);
+  const [api, setApi] = useState(null);
 
   // const [rowData, setRowData] = useState([]);
   let [filteredDatasets, setFilteredDatasets] = useState([]);
 
-  useEffect (() => {
+  useEffect(() => {
     if (datasets) {
-      setFilteredDatasets (datasets);
+      setFilteredDatasets(datasets);
     }
   }, [program]);
 
-  useEffect (() => {
+  useEffect(() => {
     if (api) {
-      api.forEachNode ((params) => {
+      api.forEachNode((params) => {
         if (params.data.Dataset_Name === selectedShortName) {
-          console.log ('set selected', params.setSelected);
-          params && params.setSelected && params.setSelected (true);
-          api.redrawRows ();
+          console.log('set selected', params.setSelected);
+          params && params.setSelected && params.setSelected(true);
+          api.redrawRows();
         }
-      })
+      });
     }
-  }, [selectedShortName, api])
+  }, [selectedShortName, api]);
 
   // handle change in dataset selection
   const handleChange = (/* data */) => {
     const rows = api && api.getSelectedRows();
-    const dataset  = rows&& rows.length && rows[0];
+    const dataset = rows && rows.length && rows[0];
 
-    dispatch (selectProgramDataset ({
-      shortName: dataset.Dataset_Name,
-      datasetId: dataset.ID
-    }));
-  }
+    dispatch(
+      selectProgramDataset({
+        shortName: dataset.Dataset_Name,
+        datasetId: dataset.ID,
+      }),
+    );
+  };
 
   // bootstrap grid
   const onGridReady = (params) => {
-    setApi (params.api);
+    setApi(params.api);
     params.api.sizeColumnsToFit();
-  }
+  };
 
   // Search overlay ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -287,40 +286,43 @@ const Exp = () => {
   let [datasetSearchActive, setDatasetSearchActive] = useState(false);
 
   const datasetSearchChange = (x) => {
-    if (typeof safePath(['target','value']) (x) !== 'string') {
+    if (typeof safePath(['target', 'value'])(x) !== 'string') {
       return;
     }
     const newSearchTerm = x.target.value.trim().toLowerCase();
     if (newSearchTerm !== datasetSearchTerm) {
-      setDatasetSearchTerm (newSearchTerm);
+      setDatasetSearchTerm(newSearchTerm);
     }
-  }
+  };
 
   const handleSearchOpenClose = (e) => {
     e.preventDefault();
     if (!datasetSearchActive) {
       dsRef && dsRef.current && dsRef.current.focus && dsRef.current.focus();
     }
-    setDatasetSearchActive (!datasetSearchActive);
-    setDatasetSearchTerm (''); // clear search when closed1
-  }
+    setDatasetSearchActive(!datasetSearchActive);
+    setDatasetSearchTerm(''); // clear search when closed1
+  };
 
   useEffect(() => {
-    if (!datasetSearchTerm  || datasetSearchTerm === '') {
-      setFilteredDatasets (datasets);
+    if (!datasetSearchTerm || datasetSearchTerm === '') {
+      setFilteredDatasets(datasets);
     } else if (datasets) {
-      const filtered = datasets.filter (({Dataset_Name, Data_Source}) => {
-        const subject = (`${Dataset_Name || ''}${Data_Source || ''}`).toLowerCase();
+      const filtered = datasets.filter(({ Dataset_Name, Data_Source }) => {
+        const subject =
+          `${Dataset_Name || ''}${Data_Source || ''}`.toLowerCase();
         return subject.includes(datasetSearchTerm);
       });
-      setFilteredDatasets (filtered);
+      setFilteredDatasets(filtered);
     }
   }, [datasetSearchTerm]);
 
   // Render
   return (
     <div className={cl.container}>
-      <div className={`${cl.searchContainer} ${(datasetSearchActive && cl.searchActive)}`}>
+      <div
+        className={`${cl.searchContainer} ${datasetSearchActive && cl.searchActive}`}
+      >
         <TextField
           inputRef={dsRef}
           name="searchTerms"
@@ -329,32 +331,43 @@ const Exp = () => {
           InputProps={{
             classes: {
               root: cl.inputRoot,
-            }
+            },
           }}
           variant="outlined"
         />
-        {datasetSearchActive
-         ? <ClearIcon style={{ color: 'white', cursor: 'pointer' }} onClick={handleSearchOpenClose} />
-         : <SearchIcon style={{ color: 'white', cursor: 'pointer' }} onClick={handleSearchOpenClose} />
-        }
+        {datasetSearchActive ? (
+          <ClearIcon
+            style={{ color: 'white', cursor: 'pointer' }}
+            onClick={handleSearchOpenClose}
+          />
+        ) : (
+          <SearchIcon
+            style={{ color: 'white', cursor: 'pointer' }}
+            onClick={handleSearchOpenClose}
+          />
+        )}
       </div>
       <div
         className={`ag-theme-material ${cl.agGridStyles}`} // applying the Data Grid theme
         style={{ height: '635px', width: '100%' }} // the Data Grid will fill the size of the parent container
       >
-      <AgGridReact
-        rowHeight={ROW_HEIGHT}
-        rowSelection="single"
-        onGridReady={onGridReady}
-        rowData={filteredDatasets}
-        columnDefs={columnDefinitions}
-        defaultColDef={{ resizable: true, sortable: true, suppressMenu: true }}
-        onSelectionChanged={handleChange}
-        suppressRowClickSelection={true}
-      />
+        <AgGridReact
+          rowHeight={ROW_HEIGHT}
+          rowSelection="single"
+          onGridReady={onGridReady}
+          rowData={filteredDatasets}
+          columnDefs={columnDefinitions}
+          defaultColDef={{
+            resizable: true,
+            sortable: true,
+            suppressMenu: true,
+          }}
+          onSelectionChanged={handleChange}
+          suppressRowClickSelection={true}
+        />
       </div>
     </div>
   );
-}
+};
 
 export default Exp;

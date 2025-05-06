@@ -46,7 +46,6 @@ const initialState = {
   recommendedDatasetsRequestState: states.notTried,
   recommendedDatasets: null,
 
-
   // Dataset Download
   download: {
     currentRequest: null,
@@ -55,7 +54,7 @@ const initialState = {
     vaultLink: null,
     dropboxModalOpen: 'closed',
   }, // NOTE see also state.downloadDialog
-     // this is an artifact of initially only using redux for the ui state
+  // this is an artifact of initially only using redux for the ui state
 
   // Dataset Details Page
   datasetDetailsPage: {
@@ -173,7 +172,7 @@ const initialState = {
         sizeCheck: {
           status: states.notTried,
           result: null,
-        }
+        },
       },
       // variables: [],        // (was memberVariables)
       // targetVariable: null, // (was vizPageDataTarget)
@@ -185,7 +184,6 @@ const initialState = {
   // controls
   showControlPanel: true,
   dataSearchMenuOpen: false,
-
 
   // variables
   memberVariables: [], // list of variables available for selection in viz control panel
@@ -248,7 +246,7 @@ const initialState = {
   // News
   news: {
     stories: [],
-    viewStateFilter: [1,2,3],
+    viewStateFilter: [1, 2, 3],
     rankFilter: false,
     sortTerm: 'modify_date',
     orderOfImportance: 'descending',
@@ -262,7 +260,7 @@ const initialState = {
       updateRanks: states.notTried,
       updateViewStatus: states.notTried,
       list: states.notTried,
-    }
+    },
   },
 
   // Notifications && Subscriptions

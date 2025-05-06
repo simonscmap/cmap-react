@@ -15,35 +15,33 @@ persistenceService.add({
   actionType: FETCH_RECS_RECENT_SUCCESS,
   key: 'recentRecs',
   payloadToValue: (currentLocalStateForKey, payload, store) => {
-    const reduxState = store.getState ();
+    const reduxState = store.getState();
     const userId = reduxState && reduxState.user && reduxState.user.id;
     return {
       userId,
-      updated: (new Date()).toISOString(),
+      updated: new Date().toISOString(),
       data: payload,
     };
-  }
+  },
 });
 
 export const useRecentDatasetRecs = () => {
   const dispatch = useDispatch();
 
-  const user = useSelector ((state) => state.user);
-  const recentDatasets = useSelector(
-    (state) => state.recentDatasets,
-  );
+  const user = useSelector((state) => state.user);
+  const recentDatasets = useSelector((state) => state.recentDatasets);
   const recentDatasetsRequestState = useSelector(
     (state) => state.recentDatasetsRequestState,
   );
 
-  useEffect (() => {
+  useEffect(() => {
     if (recentDatasetsRequestState === states.notTried && user) {
-      dispatch (recentRecsRequestSend (user.id));
+      dispatch(recentRecsRequestSend(user.id));
     }
   }, [recentDatasets, recentDatasetsRequestState, user]);
 
   return recentDatasets;
-}
+};
 
 const useStyles = makeStyles((theme) => ({
   list: {
@@ -53,13 +51,13 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
     height: '100%',
     '& > div': {
-      marginTop: '2em'
-    }
-  }
+      marginTop: '2em',
+    },
+  },
 }));
 
 const RecentDatasets = (props) => {
-  const cl = useStyles ()
+  const cl = useStyles();
   const { data: recentDatasets } = props;
 
   const recentDatasetsRequestState = useSelector(
@@ -68,33 +66,39 @@ const RecentDatasets = (props) => {
 
   const Row = ({ index, style }) => {
     if (recentDatasets && recentDatasets[index]) {
-      return (<div style={style} key={`popular-dataset-${index}`}>
-        <RecResult dataset={recentDatasets[index]} index={index} />
-      </div>);
+      return (
+        <div style={style} key={`popular-dataset-${index}`}>
+          <RecResult dataset={recentDatasets[index]} index={index} />
+        </div>
+      );
     } else {
       return '';
     }
   };
 
-
   if (recentDatasets) {
     return (
-        <FixedSizeList
-          className={cl.list}
-          height={window.innerHeight - 250}
-          itemSize={175}
-          itemCount={recentDatasets ? recentDatasets.length : 0}
-          itemData={recentDatasets || []}>
-          {Row}
-        </FixedSizeList>
+      <FixedSizeList
+        className={cl.list}
+        height={window.innerHeight - 250}
+        itemSize={175}
+        itemCount={recentDatasets ? recentDatasets.length : 0}
+        itemData={recentDatasets || []}
+      >
+        {Row}
+      </FixedSizeList>
     );
   } else if (recentDatasetsRequestState === states.inProgress) {
-    return <div className={cl.spinnerPositioner}><Spinner /></div>;
+    return (
+      <div className={cl.spinnerPositioner}>
+        <Spinner />
+      </div>
+    );
   } else if (recentDatasetsRequestState === states.failed) {
-    return <span>Failed to load recently viewed datasets.</span>
+    return <span>Failed to load recently viewed datasets.</span>;
   } else {
-    return <span></span>
+    return <span></span>;
   }
-}
+};
 
 export default RecentDatasets;

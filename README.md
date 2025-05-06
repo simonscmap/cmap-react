@@ -21,7 +21,7 @@ Ensure you have node 12.18.1 installed in your local environment.
 The API endpoint is derived from the value of the `NODE_ENV` environment variable as follows:
 
 | NODE_ENV           | Host                     |
-|:-------------------|:-------------------------|
+| :----------------- | :----------------------- |
 | development        | localhost:8080           |
 | <all other values> | window.location.hostname |
 
@@ -39,7 +39,6 @@ There are select tests in the /Tests directory, using Jest.
 
 This project continues to use the default lint rules and setup provided by create-react-app. In order to change them, you will need to "eject" the configuration files. See create-react-app documentation.
 
-
 ### Building and Deploying
 
 - `npm run build` to build the application. The result will be placed in the `/build` directory. These files should be placed in the `/public` directory of the web server.
@@ -51,7 +50,6 @@ NOTE: the build command generates a buildInfo.json file, which is used to provid
 `cmap-react` is a [react](https://reactjs.org/) application which has spanned several changes in react idoms, and uses uses both class and functional components; it uses [redux](https://redux.js.org/) for global state with both the connect paradigm and useSelector/useDispatch hooks paradigm. For managing side-effects, the application uses [redux-saga](https://redux-saga.js.org/).
 
 For component styling and layout, this application uses [material-ui v4](https://v4.mui.com/).
-
 
 ## Documentation
 

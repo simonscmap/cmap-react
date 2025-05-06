@@ -48,22 +48,20 @@ const LinkEditor = withStyles({
     '& p': {
       color: 'grey',
       marginTop: 0,
-    }
+    },
   },
 })(({ classes, link, onChange, key }) => {
   let { text = '', url = '' } = link;
   let [t, setT] = useState(text);
   let [u, setU] = useState(url);
 
-
   useEffect(() => {
     // let update = { text: t, url: u };
     // debouncedUpdate (update);
     if (onChange && onChange.call) {
-      onChange.call (null, { text: t, url: u })
+      onChange.call(null, { text: t, url: u });
     }
   }, [t, u]);
-
 
   return (
     <div className={classes.container}>
@@ -72,7 +70,11 @@ const LinkEditor = withStyles({
           root: classes.textField,
         }}
         error={!t}
-        helperText={!t ? 'Link text must not be empty' : 'Text that is displayed for this link'}
+        helperText={
+          !t
+            ? 'Link text must not be empty'
+            : 'Text that is displayed for this link'
+        }
         name="text"
         label={'Link Text'}
         InputLabelProps={{ shrink: true, disableAnimation: true }}
@@ -83,7 +85,9 @@ const LinkEditor = withStyles({
       />
       <TextField
         error={!u}
-        helperText={!u ? 'URL must not be empty' : 'The URL target for this link'}
+        helperText={
+          !u ? 'URL must not be empty' : 'The URL target for this link'
+        }
         classes={{
           root: classes.textField,
         }}

@@ -20,7 +20,7 @@ const unstructuredMetadataFilterParams = {
   debounceMs: 200,
   textMatcher: (params) => {
     return true;
-  }
+  },
 };
 
 export const columnDefs = [
@@ -34,9 +34,13 @@ export const columnDefs = [
         filter: 'agTextColumnFilter',
         floatingFilter: true,
         filterParams: variableFilterParams,
-        colId: 'variableName'
+        colId: 'variableName',
       },
-      { headerName: 'Short Name', field: 'Variable',filter: 'agTextColumnFilter' },
+      {
+        headerName: 'Short Name',
+        field: 'Variable',
+        filter: 'agTextColumnFilter',
+      },
       { headerName: 'Sensor', field: 'Sensor' },
       { headerName: 'Unit', field: 'Unit' },
       {
@@ -48,9 +52,11 @@ export const columnDefs = [
           if (!params.data.Comment) {
             return '';
           }
-          let { eParentOfValue: { clientWidth } } = params
+          let {
+            eParentOfValue: { clientWidth },
+          } = params;
           return `<a style="cursor: pointer;">${params.data.Comment.slice(0, Math.floor(clientWidth / 8))}...</a>`;
-        }
+        },
       },
       {
         headerName: 'Additional Metadata',
@@ -65,31 +71,71 @@ export const columnDefs = [
         },
         filter: 'agTextColumnFilter',
         filterParams: unstructuredMetadataFilterParams,
-      }
+      },
     ],
   },
 
   {
     headerName: 'Coverage',
     children: [
-      { headerName: 'Lat Start', field: 'Lat_Min', filter: 'agNumberColumnFilter', },
-      { headerName: 'Lat End', field: 'Lat_Max', filter: 'agNumberColumnFilter', },
-      { headerName: 'Lon Start', field: 'Lon_Min', filter: 'agNumberColumnFilter', },
-      { headerName: 'Long End', field: 'Lon_Max', filter: 'agNumberColumnFilter', },
+      {
+        headerName: 'Lat Start',
+        field: 'Lat_Min',
+        filter: 'agNumberColumnFilter',
+      },
+      {
+        headerName: 'Lat End',
+        field: 'Lat_Max',
+        filter: 'agNumberColumnFilter',
+      },
+      {
+        headerName: 'Lon Start',
+        field: 'Lon_Min',
+        filter: 'agNumberColumnFilter',
+      },
+      {
+        headerName: 'Long End',
+        field: 'Lon_Max',
+        filter: 'agNumberColumnFilter',
+      },
       { headerName: 'Time Start', field: 'Time_Min' },
       { headerName: 'Time End', field: 'Time_Max' },
-      { headerName: 'Depth Start', field: 'Depth_Min',filter: 'agNumberColumnFilter', },
-      { headername: 'Depth End', field: 'Depth_Max', filter: 'agNumberColumnFilter', },
+      {
+        headerName: 'Depth Start',
+        field: 'Depth_Min',
+        filter: 'agNumberColumnFilter',
+      },
+      {
+        headername: 'Depth End',
+        field: 'Depth_Max',
+        filter: 'agNumberColumnFilter',
+      },
     ],
   },
 
   {
     headerName: 'Table Statistics',
     children: [
-      { headerName: 'Database Row Count', field: 'Variable_Count', filter: 'agNumberColumnFilter', },
-      { headerName: 'Mean Value', field: 'Variable_Mean', filter: 'agNumberColumnFilter', },
-      { headerName: 'Min Value', field: 'Variable_Min', filter: 'agNumberColumnFilter', },
-      { headerName: 'Max Value', field: 'Variable_Max', filter: 'agNumberColumnFilter', },
+      {
+        headerName: 'Database Row Count',
+        field: 'Variable_Count',
+        filter: 'agNumberColumnFilter',
+      },
+      {
+        headerName: 'Mean Value',
+        field: 'Variable_Mean',
+        filter: 'agNumberColumnFilter',
+      },
+      {
+        headerName: 'Min Value',
+        field: 'Variable_Min',
+        filter: 'agNumberColumnFilter',
+      },
+      {
+        headerName: 'Max Value',
+        field: 'Variable_Max',
+        filter: 'agNumberColumnFilter',
+      },
       { headerName: 'STD', field: 'Variable_STD' },
       { headerName: '25th Quantile', field: 'Variable_25th' },
       { headerName: '50th Quantile', field: 'Variable_50th' },

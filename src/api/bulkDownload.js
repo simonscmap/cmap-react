@@ -11,18 +11,18 @@ const log = logInit('bulk-download');
 const bulkDownloadAPI = {};
 
 bulkDownloadAPI.post = async (datasetShortNames) => {
-  log.debug ('starting bulk download', { datasetShortNames });
+  log.debug('starting bulk download', { datasetShortNames });
   const endpoint = apiUrl + `/api/data/bulk-download`;
 
-  const form = document.createElement("form");
-  form.setAttribute("method", "post");
-  form.setAttribute("action", endpoint);
-  form.setAttribute("id", "test-bulk-download-form");
+  const form = document.createElement('form');
+  form.setAttribute('method', 'post');
+  form.setAttribute('action', endpoint);
+  form.setAttribute('id', 'test-bulk-download-form');
 
-  const hiddenField = document.createElement("input");
-  hiddenField.setAttribute("type", "hidden");
-  hiddenField.setAttribute("name", "shortNames");
-  hiddenField.setAttribute("value", JSON.stringify(datasetShortNames));
+  const hiddenField = document.createElement('input');
+  hiddenField.setAttribute('type', 'hidden');
+  hiddenField.setAttribute('name', 'shortNames');
+  hiddenField.setAttribute('value', JSON.stringify(datasetShortNames));
   form.appendChild(hiddenField);
   document.body.appendChild(form);
   form.submit();

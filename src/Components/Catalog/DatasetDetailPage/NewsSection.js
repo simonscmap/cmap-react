@@ -19,7 +19,7 @@ import renderHeadline from '../../Home/News/renderHeadline';
 
 // );
 
-const useStyles = makeStyles ((theme) => ({
+const useStyles = makeStyles((theme) => ({
   container: {
     position: 'relative',
     flex: 1,
@@ -61,7 +61,7 @@ const useStyles = makeStyles ((theme) => ({
         color: '#69FFF2',
         fontSize: '1.2rem',
         textTransform: 'uppercase',
-      }
+      },
     },
     '& p.body': {
       fontSize: '0.95rem',
@@ -69,22 +69,19 @@ const useStyles = makeStyles ((theme) => ({
         color: '#fff',
         textDecoration: 'underline',
         '&:hover': {
-          color: '#69FFF2'
-        }
-      }
-    }
-  }
+          color: '#69FFF2',
+        },
+      },
+    },
+  },
 }));
-
-
-
 
 const NewsSection = (props) => {
   const { news } = props;
   const cl = useStyles();
 
-  if (!Array.isArray (news) || news.length === 0) {
-    return <React.Fragment />
+  if (!Array.isArray(news) || news.length === 0) {
+    return <React.Fragment />;
   }
 
   return (
@@ -93,15 +90,18 @@ const NewsSection = (props) => {
       <div className={cl.newsContainer}>
         <div className={cl.newsScrollContainer}>
           {news
-           .map ((n) => ({...n, body: JSON.parse(n.body)}))
-           .map ((n) => (<div className={cl.story}>
-                           <span>{`${dayjs(n.publish_date).format('MMM D YYYY')}`}</span>
-                           {renderHeadline(n.headline, n.link)}
-                           <p className="body">{renderBody(n.body)}</p>
-                         </div>))}
+            .map((n) => ({ ...n, body: JSON.parse(n.body) }))
+            .map((n) => (
+              <div className={cl.story}>
+                <span>{`${dayjs(n.publish_date).format('MMM D YYYY')}`}</span>
+                {renderHeadline(n.headline, n.link)}
+                <p className="body">{renderBody(n.body)}</p>
+              </div>
+            ))}
         </div>
       </div>
-    </div>)
-}
+    </div>
+  );
+};
 
 export default NewsSection;

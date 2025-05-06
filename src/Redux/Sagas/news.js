@@ -5,7 +5,7 @@ import * as interfaceActions from '../actions/ui';
 import * as newsActionTypes from '../actionTypes/news';
 
 import initLog from '../../Services/log-service';
-const log = initLog ('sagas/news');
+const log = initLog('sagas/news');
 
 /* requestNewsList, watchNewsList
  */
@@ -51,11 +51,11 @@ export function* updateNewsItem(action) {
     try {
       text = yield response.text();
     } catch (e) {
-      log.error ('error parsing response text', { error: e})
+      log.error('error parsing response text', { error: e });
     }
     yield put(newsActions.updateNewsItemFailure({ text }));
     yield put(interfaceActions.snackbarOpen('Failed to update news item', tag));
-    }
+  }
   yield requestNewsList();
 } // ⮷ &. Watcher ⮷ (2 watchers; trigger a refetch of news list after update)
 
@@ -140,14 +140,19 @@ export function* watchUnpublishNewsItemSuccess() {
 
 // Feature / Unfeature (toggle)
 export function* featureNewsItem(action) {
-  let storyToUpdate = yield select ((state) =>
-    state.news.stories.find (s => s.ID === action.payload.id));
+  let storyToUpdate = yield select((state) =>
+    state.news.stories.find((s) => s.ID === action.payload.id),
+  );
   if (!storyToUpdate) {
     yield put(newsActions.featureNewsItemFailure());
     return;
   }
 
-  let response = yield call(api.news.feature, action.payload.id, storyToUpdate.Highlight);
+  let response = yield call(
+    api.news.feature,
+    action.payload.id,
+    storyToUpdate.Highlight,
+  );
   if (response.ok) {
     yield put(newsActions.featureNewsItemSuccess());
   } else {
@@ -159,15 +164,16 @@ export function* watchFeatureNewsItem() {
   yield takeLatest(newsActionTypes.FEATURE_NEWS_ITEM_SEND, featureNewsItem);
 }
 export function* watchFeatureNewsItemSuccess() {
-  yield takeLatest(
-    newsActionTypes.FEATURE_NEWS_ITEM_SUCCESS,
-    requestNewsList,
-  );
+  yield takeLatest(newsActionTypes.FEATURE_NEWS_ITEM_SUCCESS, requestNewsList);
 }
 
 // Categorize
 export function* categorizeNewsItem(action) {
-  let response = yield call(api.news.categorize, action.payload.id, action.payload.category);
+  let response = yield call(
+    api.news.categorize,
+    action.payload.id,
+    action.payload.category,
+  );
   if (response.ok) {
     yield put(newsActions.categorizeNewsItemSuccess());
   } else {
@@ -176,7 +182,10 @@ export function* categorizeNewsItem(action) {
 } // ⮷ &. Watcher ⮷ (2 watchers; trigger a refetch of news list after update)
 
 export function* watchCategorizeNewsItem() {
-  yield takeLatest(newsActionTypes.CATEGORIZE_NEWS_ITEM_SEND, categorizeNewsItem);
+  yield takeLatest(
+    newsActionTypes.CATEGORIZE_NEWS_ITEM_SEND,
+    categorizeNewsItem,
+  );
 }
 export function* watchCategorizeNewsItemSuccess() {
   yield takeLatest(
@@ -195,7 +204,7 @@ export function* createNewsItem(action) {
     try {
       text = yield response.text();
     } catch (e) {
-      log.error ('error parsing response text', { error: e })
+      log.error('error parsing response text', { error: e });
     }
     yield put(newsActions.createNewsItemFailure({ text }));
     yield put(interfaceActions.snackbarOpen('Failed to create news item'));

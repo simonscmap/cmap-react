@@ -5,20 +5,20 @@ import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 
 dayjs.extend(utc);
 dayjs.extend(tz);
-dayjs.extend(LocalizedFormat)
+dayjs.extend(LocalizedFormat);
 
 const numberParser = (ev) => {
   const { newValue } = ev;
   return isNaN(newValue) ? null : Number(newValue);
-}
+};
 
 const dateParser = (ev) => {
   const { newValue } = ev;
-  if (dayjs.utc (newValue).isValid ()) {
-    return dayjs.utc (newValue).format ('YYYY-MM-DD');
+  if (dayjs.utc(newValue).isValid()) {
+    return dayjs.utc(newValue).format('YYYY-MM-DD');
   }
   return newValue;
-}
+};
 
 const columnDefinitions = {
   data: [

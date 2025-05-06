@@ -9,7 +9,9 @@ import mergeArrays from '../Utility/mergeArrays';
 import vizSubTypes from '../enums/visualizationSubTypes';
 import temporalResolutions from '../enums/temporalResolutions';
 
-import { /* subsetKey, mapDeep, rowToVal, sum, toMean3D, */ roundToDecimal } from './myLib.js';
+import {
+  /* subsetKey, mapDeep, rowToVal, sum, toMean3D, */ roundToDecimal,
+} from './myLib.js';
 import lodash from 'lodash';
 
 // generate a rounding function that rounds floats to the 3rd decimal place,
@@ -59,28 +61,25 @@ class SpaceTimeData {
 
   add(row) {
     if (this.rows.length < 1) {
-      console.log ('spacetimedata: variable parameters')
+      console.log('spacetimedata: variable parameters');
       console.table(this.parameters);
     }
     let lat = [row[1]]
-      .map (parseFloat)
+      .map(parseFloat)
       // .map (roundToThousandths)
-      .shift ();
+      .shift();
 
     let lon = [row[2]]
-      .map (parseFloat)
-      .map (n => n < this.parameters.lon1 ? n + 360 : n)
+      .map(parseFloat)
+      .map((n) => (n < this.parameters.lon1 ? n + 360 : n))
       //.map (roundToThousandths)
-      .shift ();
+      .shift();
 
-    let value = row.length === 5
-              ? parseFloat(row[4])
-              : parseFloat(row[3]);
+    let value = row.length === 5 ? parseFloat(row[4]) : parseFloat(row[3]);
 
     if (this.hasDepth === null) {
       this.isWind_NRT = this.metadata.Table_Name === 'tblWind_NRT_hourly';
-      this.isMonthly =
-        this.metadata.Temporal_Resolution === monthlyClimatology;
+      this.isMonthly = this.metadata.Temporal_Resolution === monthlyClimatology;
       // TODO: get hasDepth from catalog, don't infer it
       // this.hasDepth = row.length === 5 && !this.isWind_NRT;
       this.hasDepth = this.metadata.Has_Depth;
@@ -107,7 +106,7 @@ class SpaceTimeData {
     this.variableValues.push(value);
     if (this.hasDepth) {
       // if this data is coming from tblWind_NRT, row[3] is hour
-      this.depths.add(parseFloat (row[3]));
+      this.depths.add(parseFloat(row[3]));
     }
 
     if (lon < this.lonMin) this.lonMin = lon;
@@ -119,7 +118,7 @@ class SpaceTimeData {
 
     // NOTE this rows field normalizes depth at row[3],
     // whereas tblWind_NRT_hourly query result has hour at row[3]
-    this.rows.push ([time, lat, lon, depth, value]);
+    this.rows.push([time, lat, lon, depth, value]);
   }
 
   finalize() {

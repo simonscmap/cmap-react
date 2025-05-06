@@ -15,7 +15,7 @@ const chartWrapperCommon = {
 
 export const spaceTimeChartStyles = (theme) => ({
   chartWrapper: {
-    ...chartWrapperCommon
+    ...chartWrapperCommon,
   },
   buttonBlock: {
     display: 'block',
@@ -27,7 +27,7 @@ export const spaceTimeChartStyles = (theme) => ({
 
 export const histogramStyles = (theme) => ({
   chartWrapper: {
-    ...chartWrapperCommon
+    ...chartWrapperCommon,
   },
   buttonBlock: {
     display: 'block',
@@ -39,7 +39,7 @@ export const histogramStyles = (theme) => ({
 
 export const sparseMapStyles = (theme) => ({
   chartWrapper: {
-    ...chartWrapperCommon
+    ...chartWrapperCommon,
   },
 
   buttonBlock: {
@@ -60,7 +60,7 @@ export const sparseMapStyles = (theme) => ({
 
 export const timeSeriesChartStyles = (theme) => ({
   chartWrapper: {
-    ...chartWrapperCommon
+    ...chartWrapperCommon,
   },
   buttonBlock: {
     display: 'block',
@@ -69,7 +69,7 @@ export const timeSeriesChartStyles = (theme) => ({
 
 export const depthProfileChartStyles = (theme) => ({
   chartWrapper: {
-    ...chartWrapperCommon
+    ...chartWrapperCommon,
   },
   buttonBlock: {
     display: 'block',
@@ -78,7 +78,7 @@ export const depthProfileChartStyles = (theme) => ({
 
 export const sectionMapChartStyles = (theme) => ({
   chartWrapper: {
-    ...chartWrapperCommon
+    ...chartWrapperCommon,
   },
   buttonBlock: {
     display: 'block',
@@ -161,7 +161,7 @@ export const chartControlPanelStyles = (theme) => ({
     margin: '0 0 10px 0',
     pointerEvents: 'auto',
     flexWrap: 'wrap',
-    gap: '1em'
+    gap: '1em',
   },
 
   depressed: {

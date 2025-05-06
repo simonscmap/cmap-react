@@ -43,7 +43,7 @@ const styles = (theme) => ({
     display: 'flex',
     justifyContent: 'space-between',
     paddingLeft: '22px',
-    marginRight: '22px'
+    marginRight: '22px',
   },
   fixedSizeList: {
     // padding allows beacons to render without being clipped

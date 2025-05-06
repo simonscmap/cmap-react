@@ -1,14 +1,14 @@
 import { makeStyles } from '@material-ui/core/styles';
 
-const useStyles = makeStyles (() => ({
+const useStyles = makeStyles(() => ({
   container: {
     margin: '0 auto',
     padding: 0,
     maxWidth: '1860px',
     minHeight: '800px',
     '& h4': {
-      margin: 0
-    }
+      margin: 0,
+    },
   },
 
   title: {
@@ -33,17 +33,16 @@ const useStyles = makeStyles (() => ({
       background: 'none',
       color: 'white',
       '&:hover': {
-        color: '#69FFF2'
+        color: '#69FFF2',
       },
       '& > span': {
         fontSize: '1.1rem',
       },
       '& > svg': {
-        fontSize: '1.8rem'
-      }
-    }
+        fontSize: '1.8rem',
+      },
+    },
   },
-
 }));
 
 export default useStyles;

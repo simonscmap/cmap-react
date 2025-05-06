@@ -1,11 +1,9 @@
-import auditFactory, {
-  requireData,
-  makeIssueList,
-} from './auditFactory';
+import auditFactory, { requireData, makeIssueList } from './auditFactory';
 import severity from './severity';
 
 const AUDIT_NAME = 'User Vars Type Consistency';
-const DESCRIPTION = 'Check data for user defined variables for type consistency';
+const DESCRIPTION =
+  'Check data for user defined variables for type consistency';
 
 let checkTypeConsistency = (data, userVariables) => {
   // Look for mixture of strings and numbers
@@ -38,7 +36,7 @@ let checkTypeConsistency = (data, userVariables) => {
 // :: args -> [result]
 const check = (standardAuditArgs) => {
   const { data } = standardAuditArgs;
-  const results = []
+  const results = [];
 
   let fixedVariables = new Set(['time', 'lat', 'lon', 'depth']);
   let userVariables = new Set(
@@ -47,27 +45,22 @@ const check = (standardAuditArgs) => {
 
   const inconsistencies = checkTypeConsistency(data, userVariables);
   if (inconsistencies.length) {
-    results.push(makeIssueList (
-      severity.warning,
-      'Possible data type inconsistency',
-      {
+    results.push(
+      makeIssueList(severity.warning, 'Possible data type inconsistency', {
         text: 'Found rows with a mixture of string and numerical data',
-        list: inconsistencies.map ((e) =>
-          `Column ${e.column} contained a value of unexpected type in row ${e.row}`,
-        )
-      }
-    ));
+        list: inconsistencies.map(
+          (e) =>
+            `Column ${e.column} contained a value of unexpected type in row ${e.row}`,
+        ),
+      }),
+    );
   }
 
   return results;
-}
+};
 
-const auditFn = requireData (AUDIT_NAME, check);
+const auditFn = requireData(AUDIT_NAME, check);
 
-const audit = auditFactory (
-  AUDIT_NAME,
-  DESCRIPTION,
-  auditFn,
-);
+const audit = auditFactory(AUDIT_NAME, DESCRIPTION, auditFn);
 
 export default audit;

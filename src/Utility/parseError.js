@@ -1,14 +1,14 @@
 import Bowser from 'bowser';
 
 const parseError = (e) => {
-  console.log ('parseError', e);
+  console.log('parseError', e);
   let info = Bowser.parse(window.navigator.userAgent);
   let browserInfo = `${info.browser.name || 'Unknown browser'} ${
-      info.browser.version || 'Unknown version'
-    }`;
+    info.browser.version || 'Unknown version'
+  }`;
   let osInfo = `${info.os.name || 'Unknown OS'} ${
-      info.os.versionName || 'Unknown version'
-    }`;
+    info.os.versionName || 'Unknown version'
+  }`;
 
   let errorMessage = e && e.toString && e.toString();
   let stackArr = e && e.stack && e.stack.split && e.stack.split('\n');
@@ -20,7 +20,7 @@ const parseError = (e) => {
     browserInfo,
     osInfo,
     stackFirstLine,
-    location
+    location,
   };
 };
 

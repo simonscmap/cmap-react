@@ -31,7 +31,7 @@ const buildSearchOptionsFromDatasetList = (
     columns.forEach((column) => {
       if (dataset[column]) {
         if (Array.isArray(dataset[column])) {
-          dataset[column].forEach(item => options[column].add(item));
+          dataset[column].forEach((item) => options[column].add(item));
         } else {
           options[column].add(dataset[column]);
         }
@@ -54,7 +54,7 @@ const buildSearchOptionsFromDatasetList = (
       try {
         return a.toLowerCase().localeCompare(b.toLowerCase());
       } catch (e) {
-        log.debug ('failed to cmapare columns', { col, a, b });
+        log.debug('failed to cmapare columns', { col, a, b });
       }
     });
   });
@@ -80,9 +80,13 @@ const buildSearchOptionsFromDatasetList = (
   }
 
   // DataFeatures
-  if (params.dataFeatures && params.dataFeatures.length && storedOptions.DataFeatures.length) {
-    log.debug ('converting options.DataFeatures to array', {
-      DataFeatures: options.DataFeatures
+  if (
+    params.dataFeatures &&
+    params.dataFeatures.length &&
+    storedOptions.DataFeatures.length
+  ) {
+    log.debug('converting options.DataFeatures to array', {
+      DataFeatures: options.DataFeatures,
     });
     options.DataFeatures = Array.from(options.DataFeatures);
   } else {

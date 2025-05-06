@@ -174,6 +174,4 @@ const NominateDataForm = ({ classes, user }) => {
   );
 };
 
-export default connect(
-  mapStateToProps,
-)(withStyles(styles)(NominateDataForm));
+export default connect(mapStateToProps)(withStyles(styles)(NominateDataForm));
