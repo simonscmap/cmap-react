@@ -18,6 +18,4 @@ const TabTemplate = (props) => {
   );
 };
 
-
-
 export default withStyles(chartControlTabButton)(TabTemplate);

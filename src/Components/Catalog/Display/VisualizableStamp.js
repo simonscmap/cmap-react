@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { makeStyles, Tooltip } from '@material-ui/core';
-import { BsFillBarChartLineFill } from "react-icons/bs";
+import { BsFillBarChartLineFill } from 'react-icons/bs';
 import styles from '../searchResultStyles';
 
 const useStyles = makeStyles(styles);
@@ -10,7 +10,7 @@ const Visualizable = (props) => {
   if (props.show) {
     return (
       <Tooltip title="This dataset supports visualization">
-        <BsFillBarChartLineFill className={cl.primaryColor}/>
+        <BsFillBarChartLineFill className={cl.primaryColor} />
       </Tooltip>
     );
   } else {

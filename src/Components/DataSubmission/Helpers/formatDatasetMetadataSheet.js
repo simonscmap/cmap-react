@@ -7,11 +7,14 @@ dayjs.extend(utc);
 dayjs.extend(tz);
 dayjs.extend(LocalizedFormat);
 
-const convertExcelNumeric = (val) => { // for 1904 format times
+const convertExcelNumeric = (val) => {
+  // for 1904 format times
   const rounded = Math.ceil(val * 10000000) / 10000000;
-  const numericToUTC = dayjs.utc((rounded - 25569) * 86400 * 1000).format('YYYY-MM-DD')
+  const numericToUTC = dayjs
+    .utc((rounded - 25569) * 86400 * 1000)
+    .format('YYYY-MM-DD');
   return numericToUTC;
-}
+};
 
 const parseReleaseDate = (releaseDate, workbook) => {
   const is1904 = !!((workbook.Workbook || {}).WBProps || {}).date1904;
@@ -20,17 +23,16 @@ const parseReleaseDate = (releaseDate, workbook) => {
     if (is1904) {
       // audit will raise error
     } else {
-      return convertExcelNumeric (releaseDate);
+      return convertExcelNumeric(releaseDate);
     }
   } else if (typeof releaseDate === 'string') {
-    if (dayjs (releaseDate).isValid ()) {
-      return dayjs.utc (releaseDate).format ('YYYY-MM-DD');
+    if (dayjs(releaseDate).isValid()) {
+      return dayjs.utc(releaseDate).format('YYYY-MM-DD');
     }
   }
   // default: return unchanged value
   return releaseDate;
-}
-
+};
 
 export default (metadata, workbook) => {
   if (!metadata || !metadata.length) {
@@ -38,9 +40,9 @@ export default (metadata, workbook) => {
   }
 
   const sample = metadata[0];
-  const parsedReleaseDateValue = parseReleaseDate (
+  const parsedReleaseDateValue = parseReleaseDate(
     sample.dataset_release_date,
-    workbook
+    workbook,
   );
 
   sample.dataset_release_date = parsedReleaseDateValue;

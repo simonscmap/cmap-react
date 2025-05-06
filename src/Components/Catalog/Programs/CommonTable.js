@@ -28,18 +28,13 @@ const useRowStyles = makeStyles((theme) => ({
 export const CommonRow = (props) => {
   const classes = useRowStyles();
   const { cells } = props;
-  return (
-      <TableRow className={classes.root} >
-        {cells}
-      </TableRow>
-  );
-}
-
+  return <TableRow className={classes.root}>{cells}</TableRow>;
+};
 
 /*~~~~~~~~~~~~~~ Common Table ~~~~~~~~~~~~~~~~~~~~*/
-const useStyles = makeStyles ((theme) => ({
+const useStyles = makeStyles((theme) => ({
   header: {
-    height: '100%'
+    height: '100%',
   },
   wrapper: {
     marginTop: '10px',
@@ -54,7 +49,8 @@ const useStyles = makeStyles ((theme) => ({
     width: '100%',
     height: '100%',
   },
-  root: { // table header
+  root: {
+    // table header
     '& .MuiTableCell-stickyHeader': {
       backgroundColor: 'rgba(30, 67, 113, 1)',
     },
@@ -74,31 +70,27 @@ const useStyles = makeStyles ((theme) => ({
     '& a': {
       color: theme.palette.primary.main,
       '&:visited': {
-        color: theme.palette.primary.main
-      }
+        color: theme.palette.primary.main,
+      },
     },
-  }
+  },
 }));
 
 export const CommonTable = (props) => {
   const cl = useStyles();
   const { columns, rows } = props;
   return (
-      <div className={cl.header}>
-        <div className={cl.inner}>
-          <TableContainer component={Paper} className={cl.container} >
-            <Table stickyHeader className={cl.root}>
-              <TableHead>
-                <TableRow>
-                  {columns}
-                </TableRow>
-              </TableHead>
-              <TableBody className={cl.body}>
-                {rows}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </div>
+    <div className={cl.header}>
+      <div className={cl.inner}>
+        <TableContainer component={Paper} className={cl.container}>
+          <Table stickyHeader className={cl.root}>
+            <TableHead>
+              <TableRow>{columns}</TableRow>
+            </TableHead>
+            <TableBody className={cl.body}>{rows}</TableBody>
+          </Table>
+        </TableContainer>
       </div>
-    );
+    </div>
+  );
 };

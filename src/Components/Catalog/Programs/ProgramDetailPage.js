@@ -21,10 +21,10 @@ import {
   setProgramCruiseTrajectoryFocus,
 } from '../../../Redux/actions/catalog';
 
-const useStyles = makeStyles (() => ({
+const useStyles = makeStyles(() => ({
   container: {
     color: 'white',
-    padding: '50px 25px'
+    padding: '50px 25px',
   },
   blurbContainer: {
     height: '500px',
@@ -41,24 +41,26 @@ const useStyles = makeStyles (() => ({
     hyphens: 'auto',
     '& img': {
       width: '180px',
-      margin: '0'
+      margin: '0',
     },
     '& h6': {
       marginBottom: '2em',
-    }
+    },
   },
   verticalPlaceholder: {
     height: '700px',
   },
   visVerticalPlaceholder: {
     height: '700px',
-    '& > div': { // pull the visualization up in line with the top of the table headers
-      margin: '-58px 0 0 0'
+    '& > div': {
+      // pull the visualization up in line with the top of the table headers
+      margin: '-58px 0 0 0',
     },
     '& .js-plotly-plot': {
       borderRadius: '5px',
       overflow: 'hidden',
-      boxShadow: '0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12)'
+      boxShadow:
+        '0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12)',
     },
   },
   logoContainer: {
@@ -69,13 +71,13 @@ const useStyles = makeStyles (() => ({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-  }
+  },
 }));
 
 const ProgramDetail = (props) => {
   const cl = useStyles();
   const routeParam = props.match.params.programName; // param defined in App.js
-  const pData = matchProgram (routeParam);
+  const pData = matchProgram(routeParam);
 
   const dispatch = useDispatch();
   const history = useHistory();
@@ -83,32 +85,38 @@ const ProgramDetail = (props) => {
   useEffect(() => {
     // navigate action
     if (pData) {
-      dispatch (fetchProgramDetailsSend(pData.title));
+      dispatch(fetchProgramDetailsSend(pData.title));
     }
     return () => {
       // unload action
-    }
+    };
   }, []);
 
   if (!pData) {
-    history.push ('/catalog/programs')
+    history.push('/catalog/programs');
     return '';
   }
 
   const onCruiseFocus = (cruiseId) => {
-    dispatch (setProgramCruiseTrajectoryFocus({ cruiseId }));
-  }
+    dispatch(setProgramCruiseTrajectoryFocus({ cruiseId }));
+  };
 
   const copy = pData.detail || [pData.blurb];
 
   return (
-     <Page2 bgVariant={'slate2'}>
+    <Page2 bgVariant={'slate2'}>
       <Grid container spacing={3} className={cl.container}>
         <Grid item xs={5}>
           <div className={cl.blurbContainer}>
             <div className={cl.paragraphs}>
-              <div className={cl.logoContainer}>{pData.logo && <img src={`/images/${pData.logo}`} />}</div>
-              {copy.map ((c, ix) => (<Typography variant="h6" key={`copy_${ix}`}>{c}</Typography>))}
+              <div className={cl.logoContainer}>
+                {pData.logo && <img src={`/images/${pData.logo}`} />}
+              </div>
+              {copy.map((c, ix) => (
+                <Typography variant="h6" key={`copy_${ix}`}>
+                  {c}
+                </Typography>
+              ))}
             </div>
           </div>
         </Grid>

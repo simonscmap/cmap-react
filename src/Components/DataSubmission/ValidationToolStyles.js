@@ -1,10 +1,11 @@
 const styles = (theme) => ({
   validationToolWrapper: {
     position: 'relative',
-    '& > div': { // FullWidthContainer
+    '& > div': {
+      // FullWidthContainer
       minHeight: 'calc(100vh - 120px)',
       paddingTop: '120px', // space from nav
-    }
+    },
   },
   title: {
     color: 'white',
@@ -25,7 +26,7 @@ const styles = (theme) => ({
     letterSpacing: 'normal',
   },
 
-    addBorder: {
+  addBorder: {
     border: `1px dashed ${theme.palette.primary.main}`,
   },
 
@@ -61,7 +62,6 @@ const styles = (theme) => ({
   currentlyViewingTypography: {
     marginLeft: '4px',
   },
-
 });
 
 export default styles;

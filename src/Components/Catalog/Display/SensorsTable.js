@@ -1,8 +1,5 @@
 import React from 'react';
-import {
-  makeStyles,
-  Typography,
-} from '@material-ui/core';
+import { makeStyles, Typography } from '@material-ui/core';
 
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -49,9 +46,9 @@ const useStyles = makeStyles((theme) => ({
     '& td': {
       fontSize: '.9em',
       padding: 0,
-      textIndent: '.5em'
-    }
-  }
+      textIndent: '.5em',
+    },
+  },
 }));
 
 const SensorsTable = ({ sensors }) => {
@@ -71,12 +68,13 @@ const SensorsTable = ({ sensors }) => {
             </TableRow>
           </TableHead>
           <TableBody className={cl.body}>
-            {sensors.map((s, i) =>
-            (<TableRow className={cl.row} key={i}>
-              <TableCell className={cl.cell}>
-                <Typography className={cl.textValue}>{s.trim()}</Typography>
-              </TableCell>
-            </TableRow>))}
+            {sensors.map((s, i) => (
+              <TableRow className={cl.row} key={i}>
+                <TableCell className={cl.cell}>
+                  <Typography className={cl.textValue}>{s.trim()}</Typography>
+                </TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </TableContainer>

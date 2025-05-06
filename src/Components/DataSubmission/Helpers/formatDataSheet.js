@@ -9,19 +9,23 @@ import utc from 'dayjs/plugin/utc';
 dayjs.extend(utc);
 dayjs.extend(tz);
 
-
 const is1904Format = (workbook) => {
   return Boolean(((workbook.Workbook || {}).WBProps || {}).date1904);
-}
+};
 
-const convertExcelNumeric = (val) => { // for 1904 format times
+const convertExcelNumeric = (val) => {
+  // for 1904 format times
   const rounded = Math.ceil(val * 10000000) / 10000000;
-  const numericToUTC = dayjs.utc((rounded - 25569) * 86400 * 1000).format()
+  const numericToUTC = dayjs.utc((rounded - 25569) * 86400 * 1000).format();
   return numericToUTC;
-}
+};
 
 const isNumericFormat = (data) => {
-  if (!data || !Array.isArray(data) || (data[0] && data[0].time === undefined)) {
+  if (
+    !data ||
+    !Array.isArray(data) ||
+    (data[0] && data[0].time === undefined)
+  ) {
     return undefined;
   }
   const sample = data[0].time;
@@ -30,10 +34,14 @@ const isNumericFormat = (data) => {
   } else {
     return false;
   }
-}
+};
 
 const isExcelDateTimeFormat = (data) => {
-  if (!data || !Array.isArray(data) || (data[0] && data[0].time === undefined)) {
+  if (
+    !data ||
+    !Array.isArray(data) ||
+    (data[0] && data[0].time === undefined)
+  ) {
     return undefined;
   }
   const sample = data[0].time;
@@ -43,7 +51,7 @@ const isExcelDateTimeFormat = (data) => {
   } else {
     return false;
   }
-}
+};
 
 const deleteEmptyRows = (data) => {
   let cols = Object.keys(data[0]);
@@ -63,14 +71,14 @@ const deleteEmptyRows = (data) => {
   }
 
   return keysContaining__EMPTY;
-}
+};
 
 const convertExcelDateTimeToString = (data) => {
   data.forEach((row) => {
-    const newUTCDateString = convertExcelNumeric (row.time);
+    const newUTCDateString = convertExcelNumeric(row.time);
     row.time = newUTCDateString;
   });
-}
+};
 
 /* The following formatting aims to provide a minimal parsing of time values:
    - if the value in numeric it will be converted to a string
@@ -81,24 +89,24 @@ const convertExcelDateTimeToString = (data) => {
 export default (data, workbook) => {
   // flags
   let numericDateFormatConverted = false;
-    // predicates
-  const isNumeric = isNumericFormat (data);
-  const is1904 = is1904Format (workbook);
-  const isExcelDateTime = isExcelDateTimeFormat (data);
+  // predicates
+  const isNumeric = isNumericFormat(data);
+  const is1904 = is1904Format(workbook);
+  const isExcelDateTime = isExcelDateTimeFormat(data);
 
   if (isNumeric) {
     if (isExcelDateTime) {
       if (is1904) {
         // audit will raise error
       } else {
-        convertExcelDateTimeToString (data);
+        convertExcelDateTimeToString(data);
         numericDateFormatConverted = true;
       }
     }
   }
 
   // remove empty rows
-  const deletedKeys = deleteEmptyRows (data);
+  const deletedKeys = deleteEmptyRows(data);
 
   return {
     data,
@@ -107,7 +115,7 @@ export default (data, workbook) => {
     is1904,
     numericDateFormatConverted,
   };
-}
+};
 
 const _oldFormattingFn = (data, workbook) => {
   if (!data || !data.length) {
@@ -116,7 +124,8 @@ const _oldFormattingFn = (data, workbook) => {
 
   try {
     let sample = data[0].time;
-    let regex = /^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(\\.[0-9]+)?(Z)?$/;
+    let regex =
+      /^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(\\.[0-9]+)?(Z)?$/;
     // Test sample row for correct format
     if (!regex.test(sample)) {
       let is1904 = !!((workbook.Workbook || {}).WBProps || {}).date1904;

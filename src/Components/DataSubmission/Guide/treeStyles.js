@@ -1,6 +1,6 @@
 import { makeStyles } from '@material-ui/core/styles';
 
-const useStyles = makeStyles ((theme) => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     '& .MuiTreeItem-label': {
       fontSize: '1.2em',
@@ -20,7 +20,7 @@ const useStyles = makeStyles ((theme) => ({
     },
     '& .MuiTreeItem-root.Mui-selected:focus .MuiTreeItem-label': {
       backgroundColor: 'unset',
-    }
+    },
   },
   item: {
     background: 'none',
@@ -38,10 +38,10 @@ const useStyles = makeStyles ((theme) => ({
     gap: '1em',
   },
   labelText: {
-    fontSize: '20px'
+    fontSize: '20px',
   },
   labelIcon: {
-    paddingTop: '1px'
+    paddingTop: '1px',
   },
   highlight: {
     '&.MuiTreeItem-root > .MuiTreeItem-content .MuiTreeItem-label': {
@@ -54,14 +54,16 @@ const useStyles = makeStyles ((theme) => ({
       background: 'white',
       backgroundColor: 'white',
     },
-    '&.MuiTreeItem-root.Mui-selected > .MuiTreeItem-content .MuiTreeItem-label:hover': {
-      background: 'white',
-      backgroundColor: 'white',
-    },
-    '&.MuiTreeItem-root.Mui-selected:focus > .MuiTreeItem-content > .MuiTreeItem-label': {
-      backgroundColor: 'white',
-    }
-  }
+    '&.MuiTreeItem-root.Mui-selected > .MuiTreeItem-content .MuiTreeItem-label:hover':
+      {
+        background: 'white',
+        backgroundColor: 'white',
+      },
+    '&.MuiTreeItem-root.Mui-selected:focus > .MuiTreeItem-content > .MuiTreeItem-label':
+      {
+        backgroundColor: 'white',
+      },
+  },
 }));
 
 export default useStyles;

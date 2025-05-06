@@ -9,7 +9,7 @@ import ModelDataGroupHint from '../help/ModelDataGroupHint';
 import colors from '../../../enums/colors';
 import states from '../../../enums/asyncRequestStates';
 
-const makeGroupStyles = ((theme) => ({
+const makeGroupStyles = (theme) => ({
   searchOption: {
     '&:hover': {
       backgroundColor: colors.greenHover,
@@ -29,7 +29,7 @@ const makeGroupStyles = ((theme) => ({
   },
 
   groupHeading: {
-    borderBottom: `1px solid ${theme.palette.primary.main}`
+    borderBottom: `1px solid ${theme.palette.primary.main}`,
   },
 
   heading: {
@@ -86,7 +86,7 @@ const makeGroupStyles = ((theme) => ({
   variableName: {
     paddingLeft: '48px',
   },
-}));
+});
 
 const mapStateToProps = (state) => ({
   vizSearchResultsLoadingState: state.vizSearchResultsLoadingState,
@@ -198,23 +198,29 @@ const Header = ({
               >
                 <span>
                   {make} Data - Showing {options.length} datasets
-<Tooltip
-                enterDelay={50}
-                placement="top"
-                title="Variables and datasets which are not flagged as visualizable are not shown on this list, but can be found on the catalog page."
-              >
-                <span>{nonvisualizableString}</span>
-              </Tooltip>
+                  <Tooltip
+                    enterDelay={50}
+                    placement="top"
+                    title="Variables and datasets which are not flagged as visualizable are not shown on this list, but can be found on the catalog page."
+                  >
+                    <span>{nonvisualizableString}</span>
+                  </Tooltip>
                 </span>
               </Hint>
-
             </div>
-          ) : (`${make} Data - No variables found for current search parameters`)
-         }
+          ) : (
+            `${make} Data - No variables found for current search parameters`
+          )}
         </Typography>
       </Grid>
 
-      <Grid item xs={3} container justifyContent="flex-start" alignItems="center">
+      <Grid
+        item
+        xs={3}
+        container
+        justifyContent="flex-start"
+        alignItems="center"
+      >
         <Typography
           id={`${make}-variable-count-label`}
           variant="caption"
@@ -315,7 +321,6 @@ const DataSearchResultGroup = (props) => {
                 datasetID={options[index].variables[0].Dataset_ID}
                 classes={classes}
               />
-
             </Grid>
 
             {index === openIndex && ( // if this entry is expanded, render an entry for each matching variable

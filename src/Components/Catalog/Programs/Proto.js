@@ -42,15 +42,15 @@ const isAsyncState = (s) => Boolean(states[s]);
 const useAsyncDeps = (deps) => {
   const [s, setS] = useState([notTried]);
 
-  const statuses = useSelector ((state) => {
-    return deps.map ((fn) => fn.call(null, state));
+  const statuses = useSelector((state) => {
+    return deps.map((fn) => fn.call(null, state));
   })
-    .filter (isAsyncState)
-    .sort (sortAsyncStates);
+    .filter(isAsyncState)
+    .sort(sortAsyncStates);
 
-  useEffect (() => {
+  useEffect(() => {
     if (statuses.length && s.length && statuses[0] !== s[0]) {
-      setS (statuses);
+      setS(statuses);
     }
   }, [statuses]);
 
@@ -61,34 +61,32 @@ const useAsyncDeps = (deps) => {
   }
 };
 
-
 // ~~~~~~~~~~ HEADER ~~~~~~~~~~~
-const useHeaderStyles = makeStyles ((theme) => ({
+const useHeaderStyles = makeStyles((theme) => ({
   sectionHeader: {
     color: 'white',
     margin: '16px 0 16px 0',
     // fontWeight: 100,
     fontFamily: '"roboto", Serif',
   },
-
 }));
 
 export const SectionHeader = (props) => {
-  const cl = useHeaderStyles ()
+  const cl = useHeaderStyles();
   const { title } = props;
   if (title) {
     return (
       <Typography variant="h5" className={cl.sectionHeader}>
-      {title}
+        {title}
       </Typography>
     );
   } else {
-    return <React.Fragment />
+    return <React.Fragment />;
   }
-}
+};
 
 // ~~~~~~~~~~ Spinner ~~~~~~~~~~~
-const useStyles = makeStyles (() => ({
+const useStyles = makeStyles(() => ({
   spinnerWrapper: {
     textAlign: 'center',
     height: '100%',
@@ -98,9 +96,8 @@ const useStyles = makeStyles (() => ({
   },
   container: {
     height: '100%',
-  }
+  },
 }));
-
 
 const SpinnerWrapper = (props) => {
   const { message } = props;
@@ -118,7 +115,7 @@ const Proto = (props) => {
     title,
     description,
     deps, // array of selector functions that point to state enums
-    children
+    children,
   } = props;
 
   const cl = useStyles();
@@ -134,24 +131,27 @@ const Proto = (props) => {
     content = (
       <Typography variant="body1">Data is unavailable at this time.</Typography>
     );
-  } else if ([inProgress, streaming, processing].includes (overallStatus)) {
-    content = <SpinnerWrapper message={'Loading...'}/>
+  } else if ([inProgress, streaming, processing].includes(overallStatus)) {
+    content = <SpinnerWrapper message={'Loading...'} />;
   } else {
     content = children;
   }
 
   return (
-      <Grid container className={cl.container}>
-        <Grid item xs={12}>
-          <SectionHeader title={title} />
-        </Grid>
-        {description && <Grid item xs={12}>{description}</Grid>}
-        <Grid item xs={12}>
-          {content}
-        </Grid>
+    <Grid container className={cl.container}>
+      <Grid item xs={12}>
+        <SectionHeader title={title} />
       </Grid>
+      {description && (
+        <Grid item xs={12}>
+          {description}
+        </Grid>
+      )}
+      <Grid item xs={12}>
+        {content}
+      </Grid>
+    </Grid>
   );
-
 };
 
 export default Proto;

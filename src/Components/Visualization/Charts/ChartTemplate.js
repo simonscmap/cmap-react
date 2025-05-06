@@ -63,23 +63,28 @@ const ChartTemplate = (props) => {
 
   // create tab controls, if tabs chart requires tabbed content
   // set default to tab preference, if it exists
-  const tabPreference = useSelector ((state) => state.datasetDetailsPage.tabPreference);
-  const startingTab = (tabPreference && !Number.isInteger(chartIndex)) ? tabPreference : 0;
+  const tabPreference = useSelector(
+    (state) => state.datasetDetailsPage.tabPreference,
+  );
+  const startingTab =
+    tabPreference && !Number.isInteger(chartIndex) ? tabPreference : 0;
   let [openTab, setOpenTab] = useState(startingTab);
 
   const handleTabClick = (n) => {
     if (!Number.isInteger(chartIndex)) {
       // the absence of an index indicates this chart is not being rendered on the visualization page
-      const variableShortName = safePath (['data','metadata', 'Short_Name']) (chartData);
+      const variableShortName = safePath(['data', 'metadata', 'Short_Name'])(
+        chartData,
+      );
       if (variableShortName) {
-        console.log ('should set tab preference', variableShortName, n);
-        dispatch (setDatasetVisTabPreference (variableShortName, n));
+        console.log('should set tab preference', variableShortName, n);
+        dispatch(setDatasetVisTabPreference(variableShortName, n));
       } else {
-        console.log ('no variable short name???', variableShortName, chartData);
+        console.log('no variable short name???', variableShortName, chartData);
       }
     }
     setOpenTab(n);
-  }
+  };
 
   let tabContext;
   if (isTabbedContent) {
@@ -107,15 +112,12 @@ const ChartTemplate = (props) => {
   let CloseChartButtonTuple = [CloseChartControl, { chartIndex }];
   let PersistModeBarTuple = [makeModeBarControl([persistModeBar, setPersist])];
 
-  let controls = [
-    DownloadCSVControlTuple,
-    ...chartControls,
-  ];
+  let controls = [DownloadCSVControlTuple, ...chartControls];
 
   // if the rendering context is the visualization page, this chart will have an index
   // and we can include these tools
   if (Number.isInteger(chartIndex)) {
-    controls.push (PersistModeBarTuple, CloseChartButtonTuple)
+    controls.push(PersistModeBarTuple, CloseChartButtonTuple);
   }
 
   return (
@@ -147,7 +149,10 @@ const ChartTemplate = (props) => {
       {plotObjects.map((args, index) => {
         // hide plot if this is tabbed content, and it is not the active index
         return (
-          <div key={`plot-${index}`} hidden={isTabbedContent && openTab !== index}>
+          <div
+            key={`plot-${index}`}
+            hidden={isTabbedContent && openTab !== index}
+          >
             <Plotly {...args} key={`plot-${index}`} />
           </div>
         );

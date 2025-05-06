@@ -28,7 +28,6 @@ export const gridStyles = () => ({
   helpButton: {
     margin: '0 0 -40px 6px',
   },
-
 });
 
 export const toolPanelStyles = () => ({
@@ -40,7 +39,7 @@ export const toolPanelStyles = () => ({
     fontSize: '1em',
     alignContent: 'center',
     '& span': {
-      borderBottom: `1px solid ${colors.primary}`
+      borderBottom: `1px solid ${colors.primary}`,
     },
   },
   toolPanelContainer: {
@@ -65,7 +64,7 @@ export const toolPanelStyles = () => ({
     '& span': {
       borderBottom: 'none',
       lineHeight: '24px',
-    }
+    },
   },
   customIcon: {
     color: colors.primary,
@@ -100,7 +99,7 @@ export const toolPanelStyles = () => ({
     },
     '&:hover': {
       color: colors.primary,
-    }
+    },
   },
 
   // list view
@@ -110,7 +109,7 @@ export const toolPanelStyles = () => ({
     textAlign: 'right',
     '& span': {
       fontWeight: 'none',
-    }
+    },
   },
 
   allCommentsRow: {
@@ -136,7 +135,7 @@ export const toolPanelStyles = () => ({
   vumListContainer: {
     '& table': {
       width: '100%',
-    }
+    },
   },
   vumListRow: {
     overflow: 'scroll',
@@ -146,15 +145,15 @@ export const toolPanelStyles = () => ({
     border: '1px solid rgba(0, 0, 0, 0.05)',
     marginBottom: '1em',
     '&:hover': {
-      background: 'rgba(0, 0, 0, 0.3)'
+      background: 'rgba(0, 0, 0, 0.3)',
     },
   },
 
   keyLabel: {
     padding: '0.5em 0 1em 0',
     '& code': {
-      color: colors.primary
-    }
+      color: colors.primary,
+    },
   },
   headers: {
     display: 'flex',
@@ -211,7 +210,7 @@ export const toolPanelStyles = () => ({
     color: colors.primary,
   },
   blobContainer: {
-   //  marginLeft: '2em',
+    //  marginLeft: '2em',
     marginTop: '2em',
     borderTop: `1px solid rgba(157, 209, 98, 0.3)`,
     borderRight: `1px solid rgba(157, 209, 98, 0.3)`,
@@ -244,8 +243,7 @@ export const toolPanelStyles = () => ({
         width: '300px',
       },
     },
-    '& div:first-child': {
-    },
+    '& div:first-child': {},
     flexWrap: 'nowrap',
     justifyContent: 'flex-start',
     paddingTop: '1em',
@@ -258,11 +256,10 @@ export const toolPanelStyles = () => ({
     },
   },
 
-
   // displaying variable UM
   vumContainer: {
     '& > div:hover': {
-      background: 'rgba(0, 0, 0, 0.3)'
+      background: 'rgba(0, 0, 0, 0.3)',
     },
     '& a': {
       color: colors.primary,
@@ -281,8 +278,8 @@ export const toolPanelStyles = () => ({
     fontSize: '1.1em',
     '& code': {
       fontWeight: 'bold',
-      color: colors.primary
-    }
+      color: colors.primary,
+    },
   },
   blobValuesContainer: {
     display: 'flex',
@@ -292,9 +289,7 @@ export const toolPanelStyles = () => ({
     padding: '1em',
     borderTop: `1px solid ${colors.primary}`,
   },
-  blobKeyV: {
-
-  },
+  blobKeyV: {},
   objKVWrapper: {
     display: 'flex',
     flexDirection: 'row',
@@ -306,7 +301,6 @@ export const toolPanelStyles = () => ({
       color: 'rgba(255, 255, 255, 0.5)',
     },
     lineHeight: '1em',
-
   },
   objKVNodeWrapper: {
     display: 'flex',
@@ -316,6 +310,6 @@ export const toolPanelStyles = () => ({
     width: '100%',
   },
   blobDesc: {
-   paddingLeft: '1em',
+    paddingLeft: '1em',
   },
 });

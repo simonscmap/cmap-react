@@ -15,7 +15,6 @@ import Paper from '@material-ui/core/Paper';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 
-
 import { connect, useSelector, useDispatch } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import { withRouter } from 'react-router';
@@ -30,7 +29,6 @@ import {
 
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
-
 import UserDashboardPanelDetails from './UserDashboardPanelDetails';
 import LoginRequiredPrompt from '../User/LoginRequiredPrompt';
 import Section, { FullWidthContainer } from '../Common/Section';
@@ -40,7 +38,7 @@ import SubscribeDatasetButton from '../User/Subscriptions/SubscribeButton';
 import { retrieveDataSubmissionsByUser } from '../../Redux/actions/dataSubmission';
 
 const renderDate = (dateString) => {
-  const d = new Date (dateString);
+  const d = new Date(dateString);
   return `${d.toDateString()} at ${d.toLocaleTimeString()}`;
 };
 
@@ -56,13 +54,17 @@ function Row(props) {
   const { row } = props;
   const [open, setOpen] = React.useState(false);
   const classes = useRowStyles();
-  const startDate = renderDate (row.Start_Date_Time);
+  const startDate = renderDate(row.Start_Date_Time);
 
   return (
     <React.Fragment>
       <TableRow className={classes.root}>
         <TableCell>
-          <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
+          <IconButton
+            aria-label="expand row"
+            size="small"
+            onClick={() => setOpen(!open)}
+          >
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
@@ -86,24 +88,23 @@ function Row(props) {
   );
 }
 
-
-const useStyles = makeStyles ((theme) => ({
+const useStyles = makeStyles((theme) => ({
   wrapper: {
-    '& > div' :{
-      height:'100%',
+    '& > div': {
+      height: '100%',
     },
     '& h3': {
       color: 'white',
-    }
+    },
   },
   accordion: {
-    background: 'rgba(0,0,0,0.3)'
+    background: 'rgba(0,0,0,0.3)',
   },
   summary: {
     '& .MuiAccordionSummary-content': {
       margin: 0,
       alignItems: 'center',
-    }
+    },
   },
   panelSummaryText: {
     flexBasis: '40%',
@@ -117,25 +118,31 @@ const useStyles = makeStyles ((theme) => ({
     margin: '12px 0 0 12px',
     letterSpacing: 'normal',
   },
-   panelDetails: {
+  panelDetails: {
     display: 'block',
     textAlign: 'left',
   },
 }));
 
 const UserSubmissionDashboard = (props) => {
-  const dataSubmissions = useSelector ((state) => state.dataSubmissions);
-  const submissionFetchStatus = useSelector ((state) => state.retrieveUserDataSubmsissionsRequestStatus);
+  const dataSubmissions = useSelector((state) => state.dataSubmissions);
+  const submissionFetchStatus = useSelector(
+    (state) => state.retrieveUserDataSubmsissionsRequestStatus,
+  );
   const classes = useStyles();
-  const dispatch = useDispatch ();
+  const dispatch = useDispatch();
 
-  const shouldFetch = !submissionFetchStatus || submissionFetchStatus === 'notTried';
+  const shouldFetch =
+    !submissionFetchStatus || submissionFetchStatus === 'notTried';
   const fetchInProgress = submissionFetchStatus === 'inProgress';
-  const noData = !fetchInProgress && !shouldFetch && (!Array.isArray(dataSubmissions) || dataSubmissions.length === 0);
+  const noData =
+    !fetchInProgress &&
+    !shouldFetch &&
+    (!Array.isArray(dataSubmissions) || dataSubmissions.length === 0);
 
-  useEffect (() => {
+  useEffect(() => {
     if (!submissionFetchStatus || submissionFetchStatus === 'notTried') {
-      dispatch (retrieveDataSubmissionsByUser ());
+      dispatch(retrieveDataSubmissionsByUser());
     }
   }, []);
 
@@ -143,13 +150,11 @@ const UserSubmissionDashboard = (props) => {
     return (
       <div className={classes.wrapper}>
         <FullWidthContainer paddingTop={120}>
-          <Section title="Data Submissions Dashboard">
-
-          </Section>
+          <Section title="Data Submissions Dashboard"></Section>
         </FullWidthContainer>
         <Footer />
       </div>
-    )
+    );
   }
 
   if (noData) {
@@ -178,7 +183,6 @@ const UserSubmissionDashboard = (props) => {
                 Data Submission Guide
               </Link>
             </Typography>
-
           </Section>
         </FullWidthContainer>
         <Footer />
@@ -213,6 +217,6 @@ const UserSubmissionDashboard = (props) => {
       <Footer />
     </div>
   );
-}
+};
 
 export default UserSubmissionDashboard;

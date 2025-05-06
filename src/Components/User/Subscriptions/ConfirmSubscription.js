@@ -17,25 +17,25 @@ const unsubscribe = false;
 
 const ConfirmationDialog = (props) => {
   const { setOpen, open, name, onSub } = props;
-  const user = useSelector ((state) => state.user)
-  const subs = useSelector ((state) => state.userSubscriptions);
+  const user = useSelector((state) => state.user);
+  const subs = useSelector((state) => state.userSubscriptions);
 
   const handleClose = () => {
-    setOpen (false);
-  }
+    setOpen(false);
+  };
 
   const handleSubscribe = () => {
-    onSub (name, true);
-    setOpen (false);
-  }
+    onSub(name, true);
+    setOpen(false);
+  };
 
   const handleUnsubscribe = () => {
-    onSub (name, false);
-    setOpen (false);
-  }
+    onSub(name, false);
+    setOpen(false);
+  };
 
   let action = subscribe;
-  if (subs && subs.find ((s) => s.Dataset_Name === name)) {
+  if (subs && subs.find((s) => s.Dataset_Name === name)) {
     // there is already a subscription
     action = unsubscribe;
   }
@@ -49,9 +49,7 @@ const ConfirmationDialog = (props) => {
           PaperComponent={Paper}
           aria-labelledby="draggable-dialog-title"
         >
-          <DialogTitle>
-            Confirm Subscribe
-          </DialogTitle>
+          <DialogTitle>Confirm Subscribe</DialogTitle>
           <DialogContent>
             <DialogContentText>
               Please login to update your subscriptions.
@@ -68,32 +66,32 @@ const ConfirmationDialog = (props) => {
         </Dialog>
       </div>
     );
-  } if (action === subscribe) {
+  }
+  if (action === subscribe) {
     return (
       <div>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        PaperComponent={Paper}
-        aria-labelledby="draggable-dialog-title"
-      >
-        <DialogTitle>
-          Confirm Subscribe
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Click Subscribe to receive email notifications when <code>{name}</code> is updated, or in the event it is retired.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button autoFocus onClick={handleClose} color="primary">
-            Cancel
-          </Button>
-          <Button disabled={!user} onClick={handleSubscribe} color="primary">
-            Subscribe
-          </Button>
-        </DialogActions>
-      </Dialog>
+        <Dialog
+          open={open}
+          onClose={handleClose}
+          PaperComponent={Paper}
+          aria-labelledby="draggable-dialog-title"
+        >
+          <DialogTitle>Confirm Subscribe</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Click Subscribe to receive email notifications when{' '}
+              <code>{name}</code> is updated, or in the event it is retired.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button autoFocus onClick={handleClose} color="primary">
+              Cancel
+            </Button>
+            <Button disabled={!user} onClick={handleSubscribe} color="primary">
+              Subscribe
+            </Button>
+          </DialogActions>
+        </Dialog>
       </div>
     );
   } else if (action === unsubscribe) {
@@ -105,19 +103,22 @@ const ConfirmationDialog = (props) => {
           PaperComponent={Paper}
           aria-labelledby="draggable-dialog-title"
         >
-          <DialogTitle>
-            Confirm Unsubscribe
-          </DialogTitle>
+          <DialogTitle>Confirm Unsubscribe</DialogTitle>
           <DialogContent>
             <DialogContentText>
-              Click Unsubscribe to stop receiving email notifications for <code>{name}</code>.
+              Click Unsubscribe to stop receiving email notifications for{' '}
+              <code>{name}</code>.
             </DialogContentText>
           </DialogContent>
           <DialogActions>
             <Button autoFocus onClick={handleClose} color="primary">
               Cancel
             </Button>
-            <Button disabled={!user} onClick={handleUnsubscribe} color="primary">
+            <Button
+              disabled={!user}
+              onClick={handleUnsubscribe}
+              color="primary"
+            >
               Unsubscribe
             </Button>
           </DialogActions>
@@ -127,12 +128,12 @@ const ConfirmationDialog = (props) => {
   } else {
     return '';
   }
-}
+};
 
 const AlertFailed = (props) => {
   const { open } = props;
-  const [ isOpen, setOpen ] = useState (open);
-  const handleClose = () => setOpen (false);
+  const [isOpen, setOpen] = useState(open);
+  const handleClose = () => setOpen(false);
   return (
     <div>
       <Dialog
@@ -141,12 +142,11 @@ const AlertFailed = (props) => {
         PaperComponent={Paper}
         aria-labelledby="draggable-dialog-title"
       >
-        <DialogTitle>
-          Failed to fetch subscriptions
-        </DialogTitle>
+        <DialogTitle>Failed to fetch subscriptions</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            There was a problem fetching your dataset subscriptions. Please refresh the page.
+            There was a problem fetching your dataset subscriptions. Please
+            refresh the page.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -157,27 +157,33 @@ const AlertFailed = (props) => {
       </Dialog>
     </div>
   );
-}
+};
 
-export default function ConfirmSubscriptionDialog (props) {
-  const dispatch = useDispatch ();
-  const user = useSelector ((state) => state.user)
-  const subsReqState = useSelector ((state) => state.userSubscriptionsRequestState);
+export default function ConfirmSubscriptionDialog(props) {
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user);
+  const subsReqState = useSelector(
+    (state) => state.userSubscriptionsRequestState,
+  );
 
   if (props.open) {
     if (!user) {
-      dispatch (showLoginDialog ());
-    } if (user & subsReqState !== states.succeeded) {
+      dispatch(showLoginDialog());
+    }
+    if (user & (subsReqState !== states.succeeded)) {
       if (subsReqState === states.failed) {
-        return <AlertFailed open={true} />
+        return <AlertFailed open={true} />;
       } else {
-        return <Spacer><Spinner message="Loading Subscriptions" /></Spacer>;
+        return (
+          <Spacer>
+            <Spinner message="Loading Subscriptions" />
+          </Spacer>
+        );
       }
     } else {
-      return <ConfirmationDialog {...props} />
+      return <ConfirmationDialog {...props} />;
     }
   } else {
-    return <React.Fragment />
+    return <React.Fragment />;
   }
-
 }

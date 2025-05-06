@@ -23,10 +23,10 @@ const truncate75 = truncateString(75);
 const makeAnnotations = (distributor, dataSource = '', overrides = {}) => {
   // let yshift = ((document.documentElement.clientWidth * (height / 100)) / -2) + 20;
 
-  const ds = truncate60 (dataSource);
+  const ds = truncate60(dataSource);
   let _dataSource = `Source:<br>${ds}`;
 
-  const dr = truncate75 (distributor);
+  const dr = truncate75(distributor);
   let _distributor = `Distributor:<br>${dr}`;
 
   let cmapCredit = 'Simons CMAP';
@@ -57,18 +57,19 @@ const makeAnnotations = (distributor, dataSource = '', overrides = {}) => {
       // textItems.unshift ('The data is this chart has been truncated due to size');
     }
 
-    const keys = keyItems.map ((k, i) =>
-      Object.assign ({}, base, {
+    const keys = keyItems.map((k, i) =>
+      Object.assign({}, base, {
         text: k,
         x: 0,
         y: 0,
         xanchor: 'left',
         yshift: -55 - i * 15,
         align: 'left',
-    }));
+      }),
+    );
 
-    const txt = textItems.map ((k, i) =>
-      Object.assign ({}, base, {
+    const txt = textItems.map((k, i) =>
+      Object.assign({}, base, {
         text: k,
         x: 0,
         y: 0,
@@ -76,27 +77,27 @@ const makeAnnotations = (distributor, dataSource = '', overrides = {}) => {
         yshift: -55 - i * 15,
         xshift: 100,
         align: 'left',
-    }));
-
+      }),
+    );
 
     return keys.concat(txt);
   } else {
     const creditText = [
-      Object.assign ({}, base, {
+      Object.assign({}, base, {
         text: _dataSource,
         x: 0,
         y: 0,
         yshift: -45,
         xanchor: 'left',
       }),
-      Object.assign ({}, base, {
+      Object.assign({}, base, {
         text: cmapCredit,
         x: 0.5,
         y: 0,
         yshift: -60,
         xanchor: 'center',
       }),
-      Object.assign ({}, base, {
+      Object.assign({}, base, {
         text: _distributor,
         x: 1,
         y: 0,
@@ -112,11 +113,11 @@ const makeAnnotations = (distributor, dataSource = '', overrides = {}) => {
 const makeTitle = (metadata, date, lat, lon, depth) => {
   const titleText = [];
 
-  titleText.push (metadata.Dataset_Name);
-  titleText.push (truncate60(metadata.Long_Name) + `[${metadata.Unit}]`);
-  titleText.push (`${date}, ${depth}`);
+  titleText.push(metadata.Dataset_Name);
+  titleText.push(truncate60(metadata.Long_Name) + `[${metadata.Unit}]`);
+  titleText.push(`${date}, ${depth}`);
   if (lat && lon) {
-    titleText.push (`Lat: ${lat}, Lon: ${lon}`);
+    titleText.push(`Lat: ${lat}, Lon: ${lon}`);
   }
 
   /* let titleText =
@@ -126,7 +127,7 @@ const makeTitle = (metadata, date, lat, lon, depth) => {
    *   `<br>Lat: ${lat}, Lon: ${lon}`;
    */
   return {
-    text: titleText.join ('<br>'),
+    text: titleText.join('<br>'),
     font: {
       size: 13,
     },

@@ -39,7 +39,7 @@ export const ToCBase = withStyles(tocStyles)((props) => {
 // TableOfContents is a simple flat list of items
 // which link to bookmarks
 const TableOfContents = (props) => {
-  let { pageName} = props;
+  let { pageName } = props;
   return (
     <Section name={`${pageName}-toc`}>
       <ToCBase {...props} />

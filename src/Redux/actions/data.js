@@ -5,7 +5,7 @@ export const requestSSTAnomalyDataSend = () => ({
   type: dataActionTypes.SST_ANOMALY_DATA_REQUEST_SEND,
   payload: {
     namedDataName: 'sst',
-  }
+  },
 });
 
 export const sstAnomalyDataStreaming = () => ({
@@ -30,7 +30,7 @@ export const requestADTAnomalyDataSend = () => ({
   type: dataActionTypes.ADT_ANOMALY_DATA_REQUEST_SEND,
   payload: {
     namedDataName: 'adt',
-  }
+  },
 });
 
 export const adtAnomalyDataStreaming = () => ({
@@ -55,7 +55,7 @@ export const requestAvgSSTAnomalyDataSend = () => ({
   type: dataActionTypes.AVG_SST_ANOMALY_DATA_REQUEST_SEND,
   payload: {
     namedDataName: 'avg-sst',
-  }
+  },
 });
 
 export const avgSstAnomalyDataStreaming = () => ({
@@ -81,7 +81,7 @@ export const requestAvgADTAnomalyDataSend = () => ({
   type: dataActionTypes.AVG_ADT_ANOMALY_DATA_REQUEST_SEND,
   payload: {
     namedDataName: 'avg-adt',
-  }
+  },
 });
 
 export const avgAdtAnomalyDataStreaming = () => ({

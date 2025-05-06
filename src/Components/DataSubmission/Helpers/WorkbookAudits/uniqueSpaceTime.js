@@ -1,7 +1,4 @@
-import auditFactory, {
-  requireData,
-  makeIssueList,
-} from './auditFactory';
+import auditFactory, { requireData, makeIssueList } from './auditFactory';
 import severity from './severity';
 
 const AUDIT_NAME = 'Unique Spate Time';
@@ -41,7 +38,7 @@ let checkUniqueSpaceTime = (data) => {
 
         if (
           obj[data[i].time][data[i].lat][data[i].lon][data[i].depth] ===
-            undefined
+          undefined
         ) {
           obj[data[i].time][data[i].lat][data[i].lon][data[i].depth] = i + 2;
         } else {
@@ -62,38 +59,33 @@ let checkUniqueSpaceTime = (data) => {
   return result;
 };
 
-
-
 // :: args -> [result]
 const check = (standardAuditArgs) => {
   const { data } = standardAuditArgs;
-  const results = []
+  const results = [];
 
   // check
 
   const duplicates = checkUniqueSpaceTime(data);
 
-
   if (duplicates.length) {
-    results.push(makeIssueList (
-      severity.warning,
-      'Rows with duplicate space-time values detected',
-      {
-        text: 'Found non-unique space and time value combinations:',
-        list: duplicates.map((e) => `Row ${e.row} matched ${e.matched}`)
-      }
-    ));
+    results.push(
+      makeIssueList(
+        severity.warning,
+        'Rows with duplicate space-time values detected',
+        {
+          text: 'Found non-unique space and time value combinations:',
+          list: duplicates.map((e) => `Row ${e.row} matched ${e.matched}`),
+        },
+      ),
+    );
   }
 
   return results;
-}
+};
 
-const auditFn = requireData (AUDIT_NAME, check)
+const auditFn = requireData(AUDIT_NAME, check);
 
-const audit = auditFactory (
-  AUDIT_NAME,
-  DESCRIPTION,
-  auditFn,
-);
+const audit = auditFactory(AUDIT_NAME, DESCRIPTION, auditFn);
 
 export default audit;

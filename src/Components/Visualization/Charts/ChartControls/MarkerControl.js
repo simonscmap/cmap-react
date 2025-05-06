@@ -46,7 +46,6 @@ function usePreviousOpacity(value) {
   return ref.current;
 }
 
-
 const MarkerOptions = (props) => {
   let {
     setMarkerOptions, // a useState setter provided by parent
@@ -279,7 +278,7 @@ export const useMarkerOptions = (initialState) => {
   const defaultMarkerState = {
     opacity: 0.7,
     color: green,
-    size: 6
+    size: 6,
   };
 
   // TODO incorporate initialState

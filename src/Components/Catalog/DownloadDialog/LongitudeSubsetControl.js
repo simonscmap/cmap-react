@@ -4,8 +4,9 @@ import React from 'react';
 import styles from './downloadDialogStyles';
 import logInit from '../../../Services/log-service';
 
-const log = logInit('LongitudeSubsetControl')
-  .addContext({ src: 'Components/Catalog/DownloadDialog'});
+const log = logInit('LongitudeSubsetControl').addContext({
+  src: 'Components/Catalog/DownloadDialog',
+});
 
 const LongitudeControl = (props) => {
   let { classes, dataset, subsetState, setLonStart, setLonEnd } = props;

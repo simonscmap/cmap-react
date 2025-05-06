@@ -11,10 +11,10 @@ export default function (state, action) {
           ...state.home,
           highlights: {
             ...(state.home.highlights || {}),
-            [payload.key]: payload.value
-          }
-        }
-      }
+            [payload.key]: payload.value,
+          },
+        },
+      };
     default:
       return state;
   }

@@ -64,47 +64,56 @@ const DetailsTable = ({ metadata, classes }) => {
 
   // calculate which rows (a.k.a blobs) get rendered
   // this involves filtering at two levels
-  let rows = blobs.map((blob) => {
-    if (searchTerm.length === 0) {
-      return blob;
-    }
+  let rows = blobs
+    .map((blob) => {
+      if (searchTerm.length === 0) {
+        return blob;
+      }
 
-    let entries = Object.entries(blob);
+      let entries = Object.entries(blob);
 
-    let filteredEntries = entries.map((entry) => {
-      let [metadataKey, { values, descriptions }] = entry;
-      // filter out value/description pairs that do not match the search term
-      let filteredValues = values.reduce((acc, curr, idx) => {
-        if (typeof curr === 'string') {
-          if (curr.toLowerCase().includes(searchTerm.toLowerCase())) {
-            acc.values.push(curr);
-            acc.descriptions.push(descriptions[idx]);
-            return acc;
-          }
-        }
-        if (typeof curr === 'object') {
-          if (JSON.stringify(curr).toLowerCase().includes(searchTerm.toLowerCase())) {
-            acc.values.push(curr);
-            acc.descriptions.push(descriptions[idx]);
-            return acc;
-          }
-        }
-        return acc;
-      }, { values: [], descriptions: []});
+      let filteredEntries = entries
+        .map((entry) => {
+          let [metadataKey, { values, descriptions }] = entry;
+          // filter out value/description pairs that do not match the search term
+          let filteredValues = values.reduce(
+            (acc, curr, idx) => {
+              if (typeof curr === 'string') {
+                if (curr.toLowerCase().includes(searchTerm.toLowerCase())) {
+                  acc.values.push(curr);
+                  acc.descriptions.push(descriptions[idx]);
+                  return acc;
+                }
+              }
+              if (typeof curr === 'object') {
+                if (
+                  JSON.stringify(curr)
+                    .toLowerCase()
+                    .includes(searchTerm.toLowerCase())
+                ) {
+                  acc.values.push(curr);
+                  acc.descriptions.push(descriptions[idx]);
+                  return acc;
+                }
+              }
+              return acc;
+            },
+            { values: [], descriptions: [] },
+          );
 
-      return [metadataKey, filteredValues];
-    }).filter((entry) => {
-      return entry && Array.isArray(entry) && entry[1].values.length > 0; // filter out entries that do not have any values
-    });
+          return [metadataKey, filteredValues];
+        })
+        .filter((entry) => {
+          return entry && Array.isArray(entry) && entry[1].values.length > 0; // filter out entries that do not have any values
+        });
 
-    if (filteredEntries) {
-      return Object.fromEntries(filteredEntries);
-    }
+      if (filteredEntries) {
+        return Object.fromEntries(filteredEntries);
+      }
 
-    return null;
-
-  }).filter((row) => row); // filter out blobs that were removed because no values matched
-
+      return null;
+    })
+    .filter((row) => row); // filter out blobs that were removed because no values matched
 
   return (
     <div className={classes.container}>
@@ -129,13 +138,11 @@ const DetailsTable = ({ metadata, classes }) => {
         />
       </div>
 
-    {
-      rows.map((r, i) => {
-        return <BlobRender blob={r} key={i} />
-      })
-    }
+      {rows.map((r, i) => {
+        return <BlobRender blob={r} key={i} />;
+      })}
     </div>
   );
-}
+};
 
 export default withStyles(styles)(DetailsTable);

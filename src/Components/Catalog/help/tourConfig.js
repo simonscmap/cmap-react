@@ -13,7 +13,8 @@ const intro = {
     },
     {
       element: '#additional-filters-button',
-      intro: 'Open filter controls, where you can also specify space and time constraints.'
+      intro:
+        'Open filter controls, where you can also specify space and time constraints.',
     },
     {
       element: '#catalog-search-result-count',
@@ -32,7 +33,8 @@ const intro = {
     },
     {
       element: '#subscribe-dataset-control',
-      intro: 'Click to subscribe to email notifications when there is news related to this dataset.',
+      intro:
+        'Click to subscribe to email notifications when there is news related to this dataset.',
     },
     {
       element: '#downoload-button',
@@ -40,7 +42,8 @@ const intro = {
     },
     {
       element: '#catalog-recommendations-panel',
-      intro: 'See popular, renently viewed, and recommeneded datasets based on datasets you have used (requires you to be logged in).',
+      intro:
+        'See popular, renently viewed, and recommeneded datasets based on datasets you have used (requires you to be logged in).',
     },
     {
       element: '#nav-help-toggle-button',

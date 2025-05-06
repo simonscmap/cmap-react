@@ -72,7 +72,7 @@ export const sortStories = (sortTerm, stories, order) => {
     sortedStories = [].concat(stories).sort((a, b) => {
       let result;
       // if either has a rank, produce a comparison result
-      if (typeIsNumber (a.rank) || typeIsNumber (b.rank)) {
+      if (typeIsNumber(a.rank) || typeIsNumber(b.rank)) {
         if (typeIsNumber(a.rank) && isNotANumber(b.rank)) {
           result = -1;
         } else if (isNotANumber(a.rank) && typeIsNumber(b.rank)) {
@@ -84,9 +84,8 @@ export const sortStories = (sortTerm, stories, order) => {
             result = 1;
           }
         }
-
-      } else // otherwise, try to get a comparison of pub dates
-        if (a.publish_date && !b.publish_date) {
+      } else if (a.publish_date && !b.publish_date) {
+        // otherwise, try to get a comparison of pub dates
         result = -1;
       } else if (!a.publish_date && b.publish_date) {
         result = 1;
@@ -96,10 +95,10 @@ export const sortStories = (sortTerm, stories, order) => {
         } else {
           result = 1;
         }
-      } else // as a last resort, sort by create_date
+      } else if (!a.publish_date && !b.publish_date) {
+        // as a last resort, sort by create_date
         // this should only happen if all stories are in 'preview'
-        if (!a.publish_date && !b.publish_date) {
-                if (a.create_date >= b.create_date) {
+        if (a.create_date >= b.create_date) {
           result = -1;
         } else {
           result = 1;

@@ -48,8 +48,8 @@ const useEditorStyles = makeStyles((theme) => ({
     borderRadius: '6px',
   },
   readyToSave: {
-    boxShadow: '0 0 20px rgba(105, 255, 242, 0.6), inset 0 0 10px rgba(105, 255, 242, 0.4), 0 2px 0 #000'
-
+    boxShadow:
+      '0 0 20px rgba(105, 255, 242, 0.6), inset 0 0 10px rgba(105, 255, 242, 0.4), 0 2px 0 #000',
   },
   // --------------- 3
   // tagManagerContainer: {
@@ -65,8 +65,6 @@ const useEditorStyles = makeStyles((theme) => ({
     gridColumn: 'col 2 / span 2',
     gridRow: 'row 4',
   },
-
-
 
   controls: {
     display: 'flex',
@@ -94,7 +92,7 @@ const useEditorStyles = makeStyles((theme) => ({
     '& p': {
       color: 'grey',
       marginTop: 0,
-    }
+    },
   },
 }));
 

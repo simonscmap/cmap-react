@@ -1,7 +1,5 @@
 import React from 'react';
-import {
-  makeStyles,
-} from '@material-ui/core';
+import { makeStyles } from '@material-ui/core';
 import PopperCopy from './PopperCopy';
 
 const useStyles = makeStyles((theme) => ({
@@ -12,9 +10,8 @@ const useStyles = makeStyles((theme) => ({
       '-webkit-box-orient': 'vertical',
       overflow: 'hidden',
     },
-  }
+  },
 }));
-
 
 const Ack = (props) => {
   const cl = useStyles();
@@ -22,9 +19,13 @@ const Ack = (props) => {
 
   return (
     <div className={cl.ackText}>
-      <PopperCopy text={text} label={'ack'} contentStyle={{ maxWidth: '60%' }} />
+      <PopperCopy
+        text={text}
+        label={'ack'}
+        contentStyle={{ maxWidth: '60%' }}
+      />
     </div>
   );
-}
+};
 
 export default Ack;

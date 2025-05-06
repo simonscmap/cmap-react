@@ -41,7 +41,7 @@ const useTableStyles = makeStyles({
   root: {
     '& .MuiTableCell-stickyHeader': {
       backgroundColor: 'rgb(5, 27, 54)',
-    }
+    },
   },
   container: {
     maxHeight: 440,
@@ -54,10 +54,11 @@ function Row(props) {
   const { submission, selectedValue, handleSelect } = props;
   const classes = useRowStyles();
 
-  const lastUpdatedDate =  submission.QC1_Completion_Date_Time
-                        || submission.QC2_Completion_Date_Time
-                        || submission.DOI_Accepted_Date_Time
-                        || 'NA';
+  const lastUpdatedDate =
+    submission.QC1_Completion_Date_Time ||
+    submission.QC2_Completion_Date_Time ||
+    submission.DOI_Accepted_Date_Time ||
+    'NA';
 
   // Note: the Submission_ID is stored in the database, and in redux, as an Integer
   // Radio values are cast to string, so a conversion is made from string to integer
@@ -67,11 +68,13 @@ function Row(props) {
       <TableRow className={classes.root}>
         <TableCell padding="checkbox">
           <Radio
-            checked={selectedValue && selectedValue === submission.Submission_ID}
+            checked={
+              selectedValue && selectedValue === submission.Submission_ID
+            }
             onChange={handleSelect}
             value={submission.Submission_ID}
             name="radio-button"
-            inputProps={{ 'aria-label': submission.Dataset}}
+            inputProps={{ 'aria-label': submission.Dataset }}
           />
         </TableCell>
         <TableCell>{submission.Dataset}</TableCell>
@@ -85,27 +88,28 @@ function Row(props) {
 }
 
 const SubmissionSelect = () => {
-  const subId = useSelector ((state) => state.submissionToUpdate);
-  const user = useSelector ((state) => state.user);
+  const subId = useSelector((state) => state.submissionToUpdate);
+  const user = useSelector((state) => state.user);
 
   const submsInProgress = useSelector((state) =>
-    (state.dataSubmissions || [])
-      .filter (subIsNotComplete));
+    (state.dataSubmissions || []).filter(subIsNotComplete),
+  );
 
   const cl = useTableStyles();
 
-  const userDataSubsRequestState = useSelector((state) =>
-    (state.retrieveUserDataSubmsissionsRequestStatus));
+  const userDataSubsRequestState = useSelector(
+    (state) => state.retrieveUserDataSubmsissionsRequestStatus,
+  );
 
   // make request for user subs, if not already in flight
   const dispatch = useDispatch();
 
-  const setSubId = (id) => dispatch (setSubmissionId (id));
+  const setSubId = (id) => dispatch(setSubmissionId(id));
 
   useEffect(() => {
     // if request to get data subsmissions for user has not already been dispatched, do so
     if (user && userDataSubsRequestState === states.notTried) {
-      dispatch (retrieveDataSubmissionsByUser());
+      dispatch(retrieveDataSubmissionsByUser());
     }
   }, [user]);
 
@@ -113,7 +117,7 @@ const SubmissionSelect = () => {
   useEffect(() => {
     if (subId === null && submsInProgress.length > 0) {
       // set default
-      setSubId (submsInProgress[0].Submission_ID);
+      setSubId(submsInProgress[0].Submission_ID);
     }
   }, [submsInProgress, subId]);
 
@@ -121,33 +125,39 @@ const SubmissionSelect = () => {
     try {
       // radio values are always dispatched as strings,
       // and must be converted back to integer here to keep the correct type
-     const val = parseInt(event.target.value, 10);
-      setSubId (val)
+      const val = parseInt(event.target.value, 10);
+      setSubId(val);
     } catch (e) {
-      console.log ('unable to set submission id', e);
+      console.log('unable to set submission id', e);
     }
-  }
+  };
 
   if (userDataSubsRequestState === states.failed) {
     return (
-      <Typography variant="body1">Failed to retrieve list of active submissions. Please refresh the page.</Typography>
+      <Typography variant="body1">
+        Failed to retrieve list of active submissions. Please refresh the page.
+      </Typography>
     );
   }
 
   if (userDataSubsRequestState === states.inProgress) {
     return (
-      <Typography variant="body1">Fetching list of active submissions...</Typography>
+      <Typography variant="body1">
+        Fetching list of active submissions...
+      </Typography>
     );
   }
 
-  if (userDataSubsRequestState === states.succeeded && (Array.isArray(submsInProgress) && submsInProgress.length === 0)) {
-    return (
-      <Typography variant="body1">No active submissions.</Typography>
-    );
+  if (
+    userDataSubsRequestState === states.succeeded &&
+    Array.isArray(submsInProgress) &&
+    submsInProgress.length === 0
+  ) {
+    return <Typography variant="body1">No active submissions.</Typography>;
   }
 
   return (
-    <TableContainer component={Paper} className={cl.container} >
+    <TableContainer component={Paper} className={cl.container}>
       <Table aria-label="collapsible table" stickyHeader className={cl.root}>
         <TableHead>
           <TableRow>
@@ -161,12 +171,17 @@ const SubmissionSelect = () => {
         </TableHead>
         <TableBody>
           {submsInProgress.map((s) => (
-            <Row key={s.Dataset} submission={s} handleSelect={handleSelect} selectedValue={subId} />
+            <Row
+              key={s.Dataset}
+              submission={s}
+              handleSelect={handleSelect}
+              selectedValue={subId}
+            />
           ))}
         </TableBody>
       </Table>
     </TableContainer>
   );
-}
+};
 
 export default SubmissionSelect;

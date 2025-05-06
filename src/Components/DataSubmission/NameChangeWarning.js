@@ -1,12 +1,10 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import {
-  Typography,
-} from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { ErrorOutline } from '@material-ui/icons';
 
-const useStyles = makeStyles ((theme) => ({
+const useStyles = makeStyles((theme) => ({
   changeSummaryHeader: {
     fontSize: '1.1em',
     fontWeight: 'bold',
@@ -36,10 +34,11 @@ const ShortNameWarning = (props) => {
   const { data } = props;
   return (
     <Typography variant="body1" className={cl.title}>
-      <ErrorOutline className={cl.warningIcon} />{' '}
-      Short Name will change from <span className={cl.bright}>{data.originalShortName}</span> to <span className={cl.bright}>{data.shortName}</span>.
+      <ErrorOutline className={cl.warningIcon} /> Short Name will change from{' '}
+      <span className={cl.bright}>{data.originalShortName}</span> to{' '}
+      <span className={cl.bright}>{data.shortName}</span>.
     </Typography>
-  )
+  );
 };
 
 const LongNameWarning = (props) => {
@@ -47,19 +46,19 @@ const LongNameWarning = (props) => {
   const { data } = props;
   return (
     <Typography variant="body1" className={cl.title}>
-      <ErrorOutline className={cl.warningIcon} />{' '}
-      Long Name will change from {' '}
-      <span className={cl.bright}>{data.originalLongName}</span> to {' '}
+      <ErrorOutline className={cl.warningIcon} /> Long Name will change from{' '}
+      <span className={cl.bright}>{data.originalLongName}</span> to{' '}
       <span className={cl.bright}>{data.longName}</span>.
     </Typography>
-  )
+  );
 };
 
 export const useNameChangeWarning = () => {
-  const subToUpdate = useSelector ((state) => {
+  const subToUpdate = useSelector((state) => {
     if (state.submissionType === 'update' && state.submissionToUpdate) {
-      const s = state.dataSubmissions
-                     .find ((sub) => sub.Submission_ID === state.submissionToUpdate);
+      const s = state.dataSubmissions.find(
+        (sub) => sub.Submission_ID === state.submissionToUpdate,
+      );
       if (s) {
         return s;
       } else {
@@ -70,24 +69,36 @@ export const useNameChangeWarning = () => {
 
   const isUpdate = Boolean(subToUpdate);
 
-  const nameCheckResult = useSelector ((state) => state.checkSubmissionNameResult);
-  const nameCheckStatus = useSelector ((state) => state.checkSubmissionNameRequestStatus);
-  const nameCheckRespText = useSelector ((state) => state.checkSubmissionNameResponseText);
+  const nameCheckResult = useSelector(
+    (state) => state.checkSubmissionNameResult,
+  );
+  const nameCheckStatus = useSelector(
+    (state) => state.checkSubmissionNameRequestStatus,
+  );
+  const nameCheckRespText = useSelector(
+    (state) => state.checkSubmissionNameResponseText,
+  );
 
+  const isShortNameChange =
+    isUpdate &&
+    nameCheckResult &&
+    !nameCheckResult.shortNameIsAlreadyInUse &&
+    !nameCheckResult.shortNameUpdateConflict &&
+    nameCheckResult.shortName !== nameCheckResult.originalShortName;
 
-  const isShortNameChange = isUpdate && nameCheckResult
-        && !nameCheckResult.shortNameIsAlreadyInUse
-        && !nameCheckResult.shortNameUpdateConflict
-        && nameCheckResult.shortName !== nameCheckResult.originalShortName;
+  const shortNameChangeIsCaseOnly =
+    isUpdate &&
+    nameCheckResult &&
+    nameCheckResult.shortName !== nameCheckResult.originalShortName &&
+    nameCheckResult.shortName.toLowerCase() ===
+      nameCheckResult.originalShortName.toLowerCase();
 
-  const shortNameChangeIsCaseOnly = isUpdate && nameCheckResult
-        && nameCheckResult.shortName !== nameCheckResult.originalShortName
-        && nameCheckResult.shortName.toLowerCase() === nameCheckResult.originalShortName.toLowerCase();
-
-  const isLongNameChange = isUpdate && nameCheckResult
-        && !nameCheckResult.longNameIsAlreadyInUse
-        && !nameCheckResult.longNameUpdateConflict
-        && nameCheckResult.longName !== nameCheckResult.originalLongName;
+  const isLongNameChange =
+    isUpdate &&
+    nameCheckResult &&
+    !nameCheckResult.longNameIsAlreadyInUse &&
+    !nameCheckResult.longNameUpdateConflict &&
+    nameCheckResult.longName !== nameCheckResult.originalLongName;
 
   const result = {
     isShortNameChange,
@@ -99,7 +110,7 @@ export const useNameChangeWarning = () => {
   };
 
   return result;
-}
+};
 
 const NameChangeWarnings = () => {
   const classes = useStyles();
@@ -108,16 +119,18 @@ const NameChangeWarnings = () => {
     isLongNameChange,
     nameCheckResult,
     shortNameChangeIsCaseOnly,
-  } = useNameChangeWarning ();
+  } = useNameChangeWarning();
 
   return (
     <div className={classes.nameChangeWarning}>
       {(isShortNameChange || isLongNameChange) && (
         <Typography className={classes.changeSummaryHeader}>
-        Name Changes
+          Name Changes
         </Typography>
       )}
-      {isShortNameChange && !shortNameChangeIsCaseOnly && <ShortNameWarning data={nameCheckResult} />}
+      {isShortNameChange && !shortNameChangeIsCaseOnly && (
+        <ShortNameWarning data={nameCheckResult} />
+      )}
       {isLongNameChange && <LongNameWarning data={nameCheckResult} />}
     </div>
   );

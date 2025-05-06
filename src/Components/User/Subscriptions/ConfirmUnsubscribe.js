@@ -1,5 +1,9 @@
 import React from 'react';
-import { ThemeProvider, makeStyles, withStyles } from '@material-ui/core/styles';
+import {
+  ThemeProvider,
+  makeStyles,
+  withStyles,
+} from '@material-ui/core/styles';
 import { homeTheme } from '../../Home/theme';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
@@ -41,12 +45,11 @@ const ConfirmUnsubscribe = (props) => {
         PaperComponent={Paper}
         aria-labelledby="draggable-dialog-title"
       >
-        <DialogTitle>
-          Confirm Unsubscribe
-        </DialogTitle>
+        <DialogTitle>Confirm Unsubscribe</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Click Unsubscribe to stop receiving email notifications for <code>{shortName}</code>.
+            Click Unsubscribe to stop receiving email notifications for{' '}
+            <code>{shortName}</code>.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -60,6 +63,6 @@ const ConfirmUnsubscribe = (props) => {
       </Dialog>
     </ThemeProvider>
   );
-}
+};
 
 export default ConfirmUnsubscribe;

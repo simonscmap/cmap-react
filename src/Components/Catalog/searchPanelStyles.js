@@ -30,14 +30,15 @@ const styles = (theme) => ({
     alignItems: 'center',
     margin: '0',
   },
-  root: { // search root
+  root: {
+    // search root
     width: '400px',
     '& > *': {
-      border: `1px solid ${theme.palette.primary.light}`
+      border: `1px solid ${theme.palette.primary.light}`,
     },
     '@media (max-width: 900px)': {
-      width: 'unset'
-    }
+      width: 'unset',
+    },
   },
   scrollingOptionsContainer: {
     maxHeight: '216px',
@@ -57,7 +58,6 @@ const styles = (theme) => ({
       borderRadius: '5px',
       border: 'none',
     },
-
   },
   searchOptionsContainer: {
     display: 'flex',
@@ -79,7 +79,7 @@ const styles = (theme) => ({
     '&.Mui-selected': {
       color: theme.palette.secondary.light,
     },
-  }
+  },
 });
 
 export default styles;

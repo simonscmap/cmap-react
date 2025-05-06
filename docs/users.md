@@ -6,7 +6,7 @@ For more information about the Google API, see the InfrastructureOverview doc.
 
 Users can sign in with password or their google account.
 
-Note that user accounts *can* have both password and google account.
+Note that user accounts _can_ have both password and google account.
 
 The logged-in state is maintained with the exchange of JWTs. The user model is encoded in the JWT and informs the web client about user profile information, including information about news subscriptions, etc.
 

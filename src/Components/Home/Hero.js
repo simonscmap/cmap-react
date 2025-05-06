@@ -8,8 +8,15 @@ import Segways from './Segways';
 const Hero = (props) => {
   let { classes } = props;
   return (
-    <Grid id="hero-container" container item direction={'column'} spacing={5} className={classes.hero} wrap='nowrap'>
-
+    <Grid
+      id="hero-container"
+      container
+      item
+      direction={'column'}
+      spacing={5}
+      className={classes.hero}
+      wrap="nowrap"
+    >
       <Grid container direction={'row'} spacing={2} item xs={12}>
         <Grid item xs={6}>
           <div className={classes.arrangeLeftSideHeroContent}>
@@ -28,7 +35,6 @@ const Hero = (props) => {
           <img src="images/home/hero.svg" />
         </Grid>
       </Grid>
-
     </Grid>
   );
 };

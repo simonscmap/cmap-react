@@ -3,7 +3,6 @@ const esriFontColor = 'white';
 const esriFonts =
   '"Avenir Next W00","Helvetica Neue",Helvetica,Arial,sans-serif';
 
-
 const styles = (theme) => ({
   outerDiv: {
     padding: '12px',
@@ -85,7 +84,7 @@ const styles = (theme) => ({
     color: theme.palette.primary.main,
     borderColor: theme.palette.primary.main,
     marginTop: '12px',
-    whiteSpace: 'nowrap'
+    whiteSpace: 'nowrap',
   },
   label: {
     color: theme.palette.primary.main,
@@ -105,11 +104,11 @@ const styles = (theme) => ({
     color: theme.palette.primary.main,
     fontWeight: 'bold',
     whiteSpace: 'nowrap',
-    paddingRight: '1em'
+    paddingRight: '1em',
   },
   variablesWrapper: {
     paddingTop: '10px',
-    paddingBottom: '10px'
+    paddingBottom: '10px',
   },
   variableItem: {
     height: '38px',
@@ -146,8 +145,8 @@ const styles = (theme) => ({
       '& >div': {
         position: 'absolute',
         zIndex: 2500,
-      }
-    }
+      },
+    },
   },
   controlRowLabel: {
     display: 'flex',
@@ -171,7 +170,7 @@ const styles = (theme) => ({
     '& >svg': {
       marginBottom: '0px !important',
       padding: 0,
-    }
+    },
   },
   heading: {
     textAlign: 'left',
@@ -195,7 +194,7 @@ const styles = (theme) => ({
     '& a': {
       color: 'white',
       textDecoration: 'underline',
-    }
+    },
   },
   filtersHeader: {
     textIndent: '.5em',
@@ -203,22 +202,22 @@ const styles = (theme) => ({
     marginBottom: '.5em',
   },
   dataPoints: {
-    marginTop: '1em'
+    marginTop: '1em',
   },
   paper: {
     background: '#000000',
   },
   groupBySelectItem: {
-      textAlign: 'left'
+    textAlign: 'left',
   },
   formControl: {
-    minWidth: '150px'
+    minWidth: '150px',
   },
 
   filterChips: {
     '& > div': {
-      margin: '0 .5em'
-    }
+      margin: '0 .5em',
+    },
   },
   searchAndFilterWrapper: {
     paddingRight: '2em',
@@ -242,7 +241,7 @@ const styles = (theme) => ({
         fill: '#eee',
       },
     },
-  }
+  },
 });
 
 export default styles;

@@ -20,29 +20,27 @@ import { makeStyles } from '@material-ui/core/styles';
 import { ErrorOutline } from '@material-ui/icons';
 import { Link as RouterLink } from 'react-router-dom';
 import { getChangeSummary } from './Helpers/changeLog';
-import {
-  validationSteps,
-} from './ValidationToolConstants';
+import { validationSteps } from './ValidationToolConstants';
 
 import NameChangeWarnings from './NameChangeWarning';
-import { StepButton} from './ChooserComponents/Buttons';
+import { StepButton } from './ChooserComponents/Buttons';
 import states from '../../enums/asyncRequestStates';
 import Spinner from '../UI/Spinner';
 import SubscribeNews from '../User/Subscriptions/SubscribeNews';
 
-const useStyles = makeStyles ((theme) => ({
+const useStyles = makeStyles((theme) => ({
   wrapper: {
     color: 'white',
     '& h5': {
-      marginBottom: '1em'
-    }
+      marginBottom: '1em',
+    },
   },
   fileSelectPaper: {
     padding: '12px',
     whiteSpace: 'pre-wrap',
     '& button': {
       color: 'black',
-    }
+    },
   },
   submittedTypography: {
     marginBottom: '12px',
@@ -58,8 +56,8 @@ const useStyles = makeStyles ((theme) => ({
     textTransform: 'uppercase',
     '&:disabled': {
       color: '#ffffff7d',
-      border: `2px solid ${theme.palette.secondary.dark}`
-    }
+      border: `2px solid ${theme.palette.secondary.dark}`,
+    },
   },
   changeSummaryHeader: {
     fontSize: '1.1em',
@@ -70,7 +68,7 @@ const useStyles = makeStyles ((theme) => ({
   tableRoot: {
     '& .MuiTableCell-stickyHeader': {
       backgroundColor: 'rgb(5, 27, 54)',
-    }
+    },
   },
   changeTableContainer: {
     maxHeight: 440,
@@ -82,7 +80,7 @@ const useStyles = makeStyles ((theme) => ({
     fontFamily: `source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace`,
     color: theme.palette.primary.main,
     fontSize: '32px',
-    fontWeight: 100
+    fontWeight: 100,
   },
 
   warningIcon: {
@@ -114,23 +112,26 @@ const ChangeRow = (props) => {
 };
 
 const ChangeTable = (props) => {
-  const cl = useStyles ();
+  const cl = useStyles();
   const { getChangeLog, handleDownloadWorkbook } = props;
 
-  const changeLog = getChangeLog ();
+  const changeLog = getChangeLog();
 
   if (!changeLog || !Array.isArray(changeLog)) {
     return '';
   }
 
-  const summary = getChangeSummary (changeLog);
+  const summary = getChangeSummary(changeLog);
 
   if (summary.length === 0) {
     return (
       <div>
-        <Typography className={cl.changeSummaryHeader}>Change Summary</Typography>
+        <Typography className={cl.changeSummaryHeader}>
+          Change Summary
+        </Typography>
         <Typography className={cl.submittedTypography}>
-          No changes to the uploaded submission file were made in the validation process.
+          No changes to the uploaded submission file were made in the validation
+          process.
         </Typography>
       </div>
     );
@@ -138,11 +139,11 @@ const ChangeTable = (props) => {
 
   return (
     <div>
-      <Typography className={cl.changeSummaryHeader}>
-        Change Summary
-      </Typography>
+      <Typography className={cl.changeSummaryHeader}>Change Summary</Typography>
       <Typography className={cl.submittedTypography}>
-        The changes you made to the uploaded file during the this validation process are listed below. You can download the edited workbook by clicking {' '}
+        The changes you made to the uploaded file during the this validation
+        process are listed below. You can download the edited workbook by
+        clicking{' '}
         <Link
           style={{ display: 'inline-block' }}
           className={cl.needHelpLink}
@@ -150,10 +151,15 @@ const ChangeTable = (props) => {
           component="span"
         >
           here
-        </Link>.
+        </Link>
+        .
       </Typography>
-      <TableContainer component={Paper} className={cl.changeTableContainer} >
-        <Table aria-label="collapsible table" stickyHeader className={cl.tableRoot}>
+      <TableContainer component={Paper} className={cl.changeTableContainer}>
+        <Table
+          aria-label="collapsible table"
+          stickyHeader
+          className={cl.tableRoot}
+        >
           <TableHead>
             <TableRow>
               <TableCell>Sheet</TableCell>
@@ -164,8 +170,9 @@ const ChangeTable = (props) => {
             </TableRow>
           </TableHead>
           <TableBody>
-          {summary.map ((change, i) =>
-            (<ChangeRow data={change} key={`change_row_${i}`} />))}
+            {summary.map((change, i) => (
+              <ChangeRow data={change} key={`change_row_${i}`} />
+            ))}
           </TableBody>
         </Table>
       </TableContainer>
@@ -183,23 +190,27 @@ const Step3 = (props) => {
     resetState,
   } = props;
 
-  const classes = useStyles ();
+  const classes = useStyles();
 
-  const userIsOnLastStep =
-    Boolean(validationStep === validationSteps.length - 1);
+  const userIsOnLastStep = Boolean(
+    validationStep === validationSteps.length - 1,
+  );
 
-  const submissionUploadState = useSelector ((state) =>
-    state.submissionUploadState);
+  const submissionUploadState = useSelector(
+    (state) => state.submissionUploadState,
+  );
 
-  const auditReport = useSelector ((state) =>
-    state.auditReport);
+  const auditReport = useSelector((state) => state.auditReport);
 
-  const lastSuccessfulSub = useSelector ((state) =>
-    state.lastSuccessfulSubmission);
+  const lastSuccessfulSub = useSelector(
+    (state) => state.lastSuccessfulSubmission,
+  );
 
   const noErrors = auditReport && auditReport.errorCount.sum === 0;
 
-  const isNewsSubscribed = useSelector ((state) => state.user && state.user.isNewsSubscribed);
+  const isNewsSubscribed = useSelector(
+    (state) => state.user && state.user.isNewsSubscribed,
+  );
 
   if (!userIsOnLastStep) {
     return '';
@@ -208,10 +219,10 @@ const Step3 = (props) => {
   if (states.inProgress === submissionUploadState) {
     return (
       <div className={classes.wrapper}>
-         <Typography variant={"h5"}>Upload Submission</Typography>
-         <div className={classes.spinnerContainer}>
-           <Spinner message={'Uploading'} />
-         </div>
+        <Typography variant={'h5'}>Upload Submission</Typography>
+        <div className={classes.spinnerContainer}>
+          <Spinner message={'Uploading'} />
+        </div>
       </div>
     );
   }
@@ -219,54 +230,59 @@ const Step3 = (props) => {
   if (states.succeeded === submissionUploadState) {
     return (
       <div className={classes.wrapper}>
-          <Typography className={classes.submittedTypography}>
-            Your dataset has been successfully submitted, and will be reviewed by our data curation team.
-          </Typography>
+        <Typography className={classes.submittedTypography}>
+          Your dataset has been successfully submitted, and will be reviewed by
+          our data curation team.
+        </Typography>
 
-          <Typography className={classes.submittedTypography}>
-            You can view the status of your submission{' '}
-            <Link
-              style={{ display: 'inline-block' }}
-              className={classes.needHelpLink}
-              component={RouterLink}
-              to={`/datasubmission/userdashboard?datasetName=${encodeURI(lastSuccessfulSub)}`}
-            >
-              here.
-            </Link>
-          </Typography>
+        <Typography className={classes.submittedTypography}>
+          You can view the status of your submission{' '}
+          <Link
+            style={{ display: 'inline-block' }}
+            className={classes.needHelpLink}
+            component={RouterLink}
+            to={`/datasubmission/userdashboard?datasetName=${encodeURI(lastSuccessfulSub)}`}
+          >
+            here.
+          </Link>
+        </Typography>
 
-          <Typography className={classes.submittedTypography}>
-            A detailed description of remaining steps in the submission process can be found in the{' '}
-            <Link
-              style={{ display: 'inline-block' }}
-              className={classes.needHelpLink}
-              component={RouterLink}
-              to="/datasubmission/guide"
-            >
-              Data Submission Guide
-            </Link>.
-          </Typography>
+        <Typography className={classes.submittedTypography}>
+          A detailed description of remaining steps in the submission process
+          can be found in the{' '}
+          <Link
+            style={{ display: 'inline-block' }}
+            className={classes.needHelpLink}
+            component={RouterLink}
+            to="/datasubmission/guide"
+          >
+            Data Submission Guide
+          </Link>
+          .
+        </Typography>
 
-          <Typography className={classes.submittedTypography}>
-            To start over and submit another dataset {' '}
-            <Link
-              style={{ display: 'inline-block' }}
-              className={classes.needHelpLink}
-              onClick={() => resetState(true, 'submit: start over')}
-              component="span"
-            >
-              {'return to the start'}
-            </Link>.
-          </Typography>
+        <Typography className={classes.submittedTypography}>
+          To start over and submit another dataset{' '}
+          <Link
+            style={{ display: 'inline-block' }}
+            className={classes.needHelpLink}
+            onClick={() => resetState(true, 'submit: start over')}
+            component="span"
+          >
+            {'return to the start'}
+          </Link>
+          .
+        </Typography>
 
-        {!isNewsSubscribed &&
-         <React.Fragment>
-           <Typography className={classes.submittedTypography}>
-             Please consider subscribing to receive email notifications whenever Simons CMAP news is published:
-           </Typography>
-           <SubscribeNews />
-         </React.Fragment>
-        }
+        {!isNewsSubscribed && (
+          <React.Fragment>
+            <Typography className={classes.submittedTypography}>
+              Please consider subscribing to receive email notifications
+              whenever Simons CMAP news is published:
+            </Typography>
+            <SubscribeNews />
+          </React.Fragment>
+        )}
       </div>
     );
   }
@@ -274,57 +290,55 @@ const Step3 = (props) => {
   if (states.failed === submissionUploadState) {
     return (
       <div className={classes.wrapper}>
-        <Typography variant={"h5"}>Upload Submission</Typography>
-            <List>
-              <ListItem>
-                <ListItemIcon style={{ color: 'rgba(255, 0, 0, .7)' }}>
-                <ErrorOutline />
-              </ListItemIcon>
-              <ListItemText
-                primary="There was an error when attempting to submit your dataset. A message has already been sent to the CMAP team. You can contact us at cmap-data-submission@uw.edu." />
-              <Typography className={classes.submittedTypography}>
-                To start over and submit another dataset click{' '}
-                <Link
-                  style={{ display: 'inline-block' }}
-                  className={classes.needHelpLink}
-                  onClick={() => resetState (true, 'submit failed: start over')}
-                  component="span"
-                >
-                  here
-                </Link>.
-              </Typography>
-            </ListItem>
-          </List>
+        <Typography variant={'h5'}>Upload Submission</Typography>
+        <List>
+          <ListItem>
+            <ListItemIcon style={{ color: 'rgba(255, 0, 0, .7)' }}>
+              <ErrorOutline />
+            </ListItemIcon>
+            <ListItemText primary="There was an error when attempting to submit your dataset. A message has already been sent to the CMAP team. You can contact us at cmap-data-submission@uw.edu." />
+            <Typography className={classes.submittedTypography}>
+              To start over and submit another dataset click{' '}
+              <Link
+                style={{ display: 'inline-block' }}
+                className={classes.needHelpLink}
+                onClick={() => resetState(true, 'submit failed: start over')}
+                component="span"
+              >
+                here
+              </Link>
+              .
+            </Typography>
+          </ListItem>
+        </List>
       </div>
     );
   }
 
-
   if (noErrors) {
     return (
       <div className={classes.wrapper}>
-        <Typography variant={"h5"}>Upload Submission</Typography>
-          <Typography>
-            Validation is complete!
-          </Typography>
-          <Typography>
-            Click the button below to upload your workbook.
-          </Typography>
+        <Typography variant={'h5'}>Upload Submission</Typography>
+        <Typography>Validation is complete!</Typography>
+        <Typography>Click the button below to upload your workbook.</Typography>
 
-          <NameChangeWarnings />
+        <NameChangeWarnings />
 
-          <ChangeTable getChangeLog={getChangeLog} handleDownloadWorkbook={handleDownloadWorkbook} />
+        <ChangeTable
+          getChangeLog={getChangeLog}
+          handleDownloadWorkbook={handleDownloadWorkbook}
+        />
 
-          <StepButton
-            size="small"
-            variant="contained"
-            color="primary"
-            className={classes.submitButton}
-            onClick={handleUploadSubmission}
-            disabled={!noErrors}
-          >
-            {'Submit Dataset'}
-          </StepButton>
+        <StepButton
+          size="small"
+          variant="contained"
+          color="primary"
+          className={classes.submitButton}
+          onClick={handleUploadSubmission}
+          disabled={!noErrors}
+        >
+          {'Submit Dataset'}
+        </StepButton>
       </div>
     );
   }
@@ -332,25 +346,29 @@ const Step3 = (props) => {
   if (!noErrors) {
     return (
       <div className={classes.wrapper}>
-        <Typography variant={"h5"}>Upload Submission</Typography>
-          <Typography>
-            There are still validation errors in previous steps. Please address these errors before submitting the dataset.
-          </Typography>
+        <Typography variant={'h5'}>Upload Submission</Typography>
+        <Typography>
+          There are still validation errors in previous steps. Please address
+          these errors before submitting the dataset.
+        </Typography>
 
-          <NameChangeWarnings />
+        <NameChangeWarnings />
 
-          <ChangeTable getChangeLog={getChangeLog} handleDownloadWorkbook={handleDownloadWorkbook} />
+        <ChangeTable
+          getChangeLog={getChangeLog}
+          handleDownloadWorkbook={handleDownloadWorkbook}
+        />
 
-          <StepButton
-            size="small"
-            variant="contained"
-            color="primary"
-            className={classes.submitButton}
-            onClick={handleUploadSubmission}
-            disabled={!noErrors}
-          >
-            {'Submit Dataset'}
-          </StepButton>
+        <StepButton
+          size="small"
+          variant="contained"
+          color="primary"
+          className={classes.submitButton}
+          onClick={handleUploadSubmission}
+          disabled={!noErrors}
+        >
+          {'Submit Dataset'}
+        </StepButton>
       </div>
     );
   }

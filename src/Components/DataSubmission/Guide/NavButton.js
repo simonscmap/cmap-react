@@ -8,7 +8,7 @@ export const NavButton = withStyles((theme) => ({
     backgroundColor: 'transparent',
     border: `2px solid ${theme.palette.primary.main}`,
     '&:hover': {
-      backgroundColor: theme.palette.primary.main ,
+      backgroundColor: theme.palette.primary.main,
       color: 'black',
     },
     '&.MuiButton-root.Mui-disabled': {

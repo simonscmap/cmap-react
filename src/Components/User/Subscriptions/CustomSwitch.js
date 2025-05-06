@@ -9,7 +9,7 @@ const useStyles = makeStyles((theme) => ({
     position: 'relative',
     '& > div': {
       transition: 'all .5s ease-out',
-    }
+    },
   },
   track: {
     position: 'absolute',
@@ -38,26 +38,23 @@ const useStyles = makeStyles((theme) => ({
     right: 'unset',
     left: 3,
     backgroundColor: '#aaa',
-  }
+  },
 }));
 
 const Switch = (props) => {
-  const { width, state = false} = props;
+  const { width, state = false } = props;
   const cl = useStyles();
 
-  const dot = state
-        ? cl.dotOn
-        : cl.dotOff;
+  const dot = state ? cl.dotOn : cl.dotOff;
 
-  const widthOverride = width ? {
-    width: `${width}px`
-  } : undefined ;
+  const widthOverride = width
+    ? {
+        width: `${width}px`,
+      }
+    : undefined;
 
   return (
-    <div
-      className={cl.wrapper}
-      style={widthOverride}
-    >
+    <div className={cl.wrapper} style={widthOverride}>
       <div className={cl.track}></div>
       <div className={`${cl.dot} ${dot}`}></div>
     </div>

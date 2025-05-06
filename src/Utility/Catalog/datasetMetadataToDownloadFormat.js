@@ -1,5 +1,5 @@
 const datasetMetadataToDownloadFormat = (metadata) => {
-  let { dataset, cruises, references, variables, /* sensors */ } = metadata;
+  let { dataset, cruises, references, variables /* sensors */ } = metadata;
   let datasetRows = [];
 
   datasetRows.push({
@@ -50,7 +50,8 @@ const datasetMetadataToDownloadFormat = (metadata) => {
       visualize: e.Visualize ? 1 : 0,
       var_keywords: e.Keywords || '',
       var_comment: e.Comment || '',
-      var_unstructured_variable_metadata: e.Unstructured_Variable_Metadata || '',
+      var_unstructured_variable_metadata:
+        e.Unstructured_Variable_Metadata || '',
     });
 
     summaryStatisticsRows.push({

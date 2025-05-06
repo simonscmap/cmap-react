@@ -38,9 +38,9 @@ const StoryStatus = withStyles({
   let statuses = ['Hidden', 'Draft', 'Preview', 'Published'];
   return (
     <div className={classes.spacer}>
-    <div className={clsx(classes['status' + statuses[status]], classes.chip)}>
-      {statuses[status]}
-    </div>
+      <div className={clsx(classes['status' + statuses[status]], classes.chip)}>
+        {statuses[status]}
+      </div>
     </div>
   );
 });

@@ -92,12 +92,12 @@ const guideItems = {
           Please do not include units in these columns; units are recorded in
           the Variable Metadata sheet. Leave a given cell empty for those
           instances when data was not taken and a value is missing. Do not
-          replace the missing data with arbitrary values such as <code>99999</code>, “0”,
-          “UNKNOWN”, etc. If you wish to flag specific column values, please add
-          relevant flag columns with descriptions of flag values in the
-          vars_meta_data comment column. Please review the example datasets in
-          the <Link href="#resources">resources</Link> section for more
-          information.
+          replace the missing data with arbitrary values such as{' '}
+          <code>99999</code>, “0”, “UNKNOWN”, etc. If you wish to flag specific
+          column values, please add relevant flag columns with descriptions of
+          flag values in the vars_meta_data comment column. Please review the
+          example datasets in the <Link href="#resources">resources</Link>{' '}
+          section for more information.
         </React.Fragment>,
       ],
       plainText: [''],

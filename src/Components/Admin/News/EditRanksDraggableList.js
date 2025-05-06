@@ -53,7 +53,7 @@ const EditRankDraggableList = () => {
   // remove a story from the list
   let deRank = (removeId) => {
     if (removeId === undefined) {
-      console.log ('invalid arg to deRank: expected integer, got undefined');
+      console.log('invalid arg to deRank: expected integer, got undefined');
       return;
     }
     let newList = rankList.filter(({ id }) => id !== removeId);
@@ -64,9 +64,10 @@ const EditRankDraggableList = () => {
 
     setDragState({
       ...dragState,
-      originalOrder: dragState.originalOrder.filter(({ id }) => id !== removeId),
+      originalOrder: dragState.originalOrder.filter(
+        ({ id }) => id !== removeId,
+      ),
     });
-
   };
 
   const onDragStart = (event) => {

@@ -112,12 +112,12 @@ const Navigation = (props) => {
   );
 
   const isActive = (rex) => {
-    if (rex && rex.test && rex.test (location.pathname) ) {
+    if (rex && rex.test && rex.test(location.pathname)) {
       return classes.highlight;
     } else {
       return '';
     }
-  }
+  };
 
   return (
     <div className={classes.navigationContainer}>
@@ -142,14 +142,24 @@ const Navigation = (props) => {
                 className={innerContainerClasses}
               >
                 <div className={classes.navigationGroupFirst}>
-                  <Link to="/catalog" className={isActive(/\/catalog/)}>Catalog</Link>
-                  <ExpandableItem linkText={'Visualization'} highlight={isActive(/\/visualization/)}>
+                  <Link to="/catalog" className={isActive(/\/catalog/)}>
+                    Catalog
+                  </Link>
+                  <ExpandableItem
+                    linkText={'Visualization'}
+                    highlight={isActive(/\/visualization/)}
+                  >
                     <Link to="/visualization/charts">Charts & Plots</Link>
                     <Link to="/visualization/cruises">Cruises</Link>
                   </ExpandableItem>
-                  <Link to="/programs" className={isActive(/\programs/)}>Programs</Link>
-                  <ExpandableItem linkText={'Data Submission'} highlight={isActive(/\/datasubmission/)}>
-                    <Link to="/datasubmission/guide" >Submission Guide</Link>
+                  <Link to="/programs" className={isActive(/\programs/)}>
+                    Programs
+                  </Link>
+                  <ExpandableItem
+                    linkText={'Data Submission'}
+                    highlight={isActive(/\/datasubmission/)}
+                  >
+                    <Link to="/datasubmission/guide">Submission Guide</Link>
                     <DataSubmissionLink />
                     <Link to="/datasubmission/nominate-data">
                       Nominate New Data
@@ -158,12 +168,21 @@ const Navigation = (props) => {
                       Data Submission Dashboard
                     </Link>
                   </ExpandableItem>
-                  <ExpandableItem linkText={'Documentation'} highlight={isActive(/\/documentation/)}>
+                  <ExpandableItem
+                    linkText={'Documentation'}
+                    highlight={isActive(/\/documentation/)}
+                  >
                     <Link to="/apikeymanagement">API Key</Link>
                     <Link to="/documentation">Documentation</Link>
                   </ExpandableItem>
-                  <Link to="/gallery" className={isActive(/\/gallery/)}>Gallery</Link>
-                  <ExpandableItem linkText={'About'} highlight={isActive(/\/about|\/contact/)} isRightEdge={menuHasTwoRows && true}>
+                  <Link to="/gallery" className={isActive(/\/gallery/)}>
+                    Gallery
+                  </Link>
+                  <ExpandableItem
+                    linkText={'About'}
+                    highlight={isActive(/\/about|\/contact/)}
+                    isRightEdge={menuHasTwoRows && true}
+                  >
                     <Link to="/about">About</Link>
                     <Link to="/contact">Contact Us</Link>
                   </ExpandableItem>
@@ -189,7 +208,7 @@ const NavSwitcher = () => {
   let config = getPageConfiguration(location.pathname);
   let variant =
     config && config.navigationVariant ? config.navigationVariant : 'Center';
-  return <Nav variant={variant}  />;
+  return <Nav variant={variant} />;
 };
 
 export default NavSwitcher;

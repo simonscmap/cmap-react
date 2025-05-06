@@ -1,5 +1,10 @@
 import { Grid, Slider, TextField, Typography } from '@material-ui/core';
-import { withStyles, makeStyles, ThemeProvider, createTheme } from '@material-ui/core/styles';
+import {
+  withStyles,
+  makeStyles,
+  ThemeProvider,
+  createTheme,
+} from '@material-ui/core/styles';
 import NotInterestedIcon from '@material-ui/icons/NotInterested';
 import React, { useState, useEffect } from 'react';
 import {
@@ -21,19 +26,20 @@ let shortenDate = (str) =>
 const WarningTheme = createTheme({
   palette: {
     primary: {
-      main: "#d16265;",
+      main: '#d16265;',
     },
     secondary: {
-      main: "#ffd54f",
-    }
+      main: '#ffd54f',
+    },
   },
 });
 const ProhibitedIcon = () => {
-  return (<ThemeProvider theme={WarningTheme}>
-    <NotInterestedIcon color={'primary'} />
-  </ThemeProvider >
+  return (
+    <ThemeProvider theme={WarningTheme}>
+      <NotInterestedIcon color={'primary'} />
+    </ThemeProvider>
   );
-}
+};
 
 const useMessageStyles = makeStyles(() => ({
   container: {
@@ -55,9 +61,9 @@ const useMessageStyles = makeStyles(() => ({
     bottom: '-10px',
     borderRight: '5px solid transparent',
     borderLeft: '5px solid transparent',
-    borderTop: '10px solid rgba(0,0,0,0.2)'
+    borderTop: '10px solid rgba(0,0,0,0.2)',
   },
-}))
+}));
 
 const InvalidInputMessage = (props) => {
   const cl = useMessageStyles();
@@ -182,7 +188,14 @@ const MonthlyDateControl = withStyles(styles)((props) => {
 */
 
 const DailyDateControl = withStyles(styles)((props) => {
-  let { classes, dataset, subsetState, setTimeStart, setTimeEnd, setInvalidFlag } = props;
+  let {
+    classes,
+    dataset,
+    subsetState,
+    setTimeStart,
+    setTimeEnd,
+    setInvalidFlag,
+  } = props;
   let { Time_Min, Time_Max } = dataset; // Date Objects
 
   // timeStart & timeEnd are integers representing days (not Dates!)
@@ -190,14 +203,10 @@ const DailyDateControl = withStyles(styles)((props) => {
   let { timeStart, timeEnd, maxDays } = subsetState;
 
   const dateIsWithinBounds = (date) => {
-    let tmin = dateToDateString (Time_Min); // compare the DAY, not the to the full Date Time
-    let tmax = dateToDateString (Time_Max); // ditto
-    let d = dateToDateString (date);
-    let result = d < tmin
-                      ? false
-                      : d > tmax
-                             ? false
-                             : true;
+    let tmin = dateToDateString(Time_Min); // compare the DAY, not the to the full Date Time
+    let tmax = dateToDateString(Time_Max); // ditto
+    let d = dateToDateString(date);
+    let result = d < tmin ? false : d > tmax ? false : true;
     console.log('date is within range', { date, tmin, tmax, result });
     return result;
   };
@@ -207,50 +216,58 @@ const DailyDateControl = withStyles(styles)((props) => {
   let [validMax, setValidMax] = useState(true);
 
   const setMinValidity = (b) => {
-    setValidMin (b);
-    if (validMax) { // don't update flag if other control is invalid
-      setInvalidFlag (!b); // report valid/invalid control state
+    setValidMin(b);
+    if (validMax) {
+      // don't update flag if other control is invalid
+      setInvalidFlag(!b); // report valid/invalid control state
     }
   };
   const setMaxValidity = (b) => {
-    setValidMax (b);
-    if (validMin) { // don't update flag if other control is invalid
-      setInvalidFlag (!b); // report valid/invalid control state
+    setValidMax(b);
+    if (validMin) {
+      // don't update flag if other control is invalid
+      setInvalidFlag(!b); // report valid/invalid control state
     }
-  }
+  };
   // use updatedTimeMin an an intermediate value to negotiate
   // updates to the date field based timeMin
 
-
   // Time Min
-  let [updatedTimeMin, setUpdatedTimeMin] = useState(dateToDateString(Time_Min));
+  let [updatedTimeMin, setUpdatedTimeMin] = useState(
+    dateToDateString(Time_Min),
+  );
   useEffect(() => {
-    console.log (`updating local timeStart from parent state`, Time_Min, timeStart)
+    console.log(
+      `updating local timeStart from parent state`,
+      Time_Min,
+      timeStart,
+    );
     // this variable is passed as the "value" attribute
     // to the time field
-    const newMin = dayToDateString (Time_Min, timeStart);
-    setUpdatedTimeMin (newMin);
-    setMinValidity (true);
+    const newMin = dayToDateString(Time_Min, timeStart);
+    setUpdatedTimeMin(newMin);
+    setMinValidity(true);
 
     // resetting it to undefined will switch the filed to "uncontrolled"
     // allowing the input to change freely, until we next decide to update it
-    setTimeout(() => setUpdatedTimeMin(undefined), 5)
+    setTimeout(() => setUpdatedTimeMin(undefined), 5);
   }, [timeStart]);
 
   // Time Max
-  let [updatedTimeMax, setUpdatedTimeMax] = useState(dateToDateString(Time_Max));
+  let [updatedTimeMax, setUpdatedTimeMax] = useState(
+    dateToDateString(Time_Max),
+  );
   // console.log('updatedTimeMax', updatedTimeMax, timeEnd);
   useEffect(() => {
-    console.log (`updating local timeEnd from parent state`, timeEnd)
+    console.log(`updating local timeEnd from parent state`, timeEnd);
     // this variable is passed as the "value" attribute
     // to the time field
     setUpdatedTimeMax(dayToDateString(Time_Min, timeEnd));
-    setMaxValidity (true);
+    setMaxValidity(true);
     // resetting it to undefined will switch the filed to "uncontrolled"
     // allowing the input to change freely, until we next decide to update it
     setTimeout(() => setUpdatedTimeMax(undefined), 5);
   }, [timeEnd]);
-
 
   const extractDateFromString = (stringDate) => {
     let [year, month, day] = stringDate.split('-');
@@ -261,8 +278,10 @@ const DailyDateControl = withStyles(styles)((props) => {
   // handler for the date picker
   let handleSetStartDate = (e) => {
     if (!e.target.value) {
-      console.error('no target value in event; expected a string representing a date;');
-      setMinValidity (false);
+      console.error(
+        'no target value in event; expected a string representing a date;',
+      );
+      setMinValidity(false);
       return;
     }
 
@@ -274,18 +293,19 @@ const DailyDateControl = withStyles(styles)((props) => {
     if (shouldUpdate) {
       let newStartDay = dateToDay(dataset.Time_Min, date);
       setTimeStart(newStartDay);
-      setMinValidity (true);
+      setMinValidity(true);
     } else {
       setMinValidity(false);
-      console.log ('will not update start date', date, Time_Min);
+      console.log('will not update start date', date, Time_Min);
     }
   };
-
 
   // handler for the date picker
   let handleSetEndDate = (e) => {
     if (!e.target.value) {
-      console.error('no target value in event; expected a string representing a date;');
+      console.error(
+        'no target value in event; expected a string representing a date;',
+      );
       setMaxValidity(false);
       return;
     }
@@ -369,7 +389,9 @@ const DailyDateControl = withStyles(styles)((props) => {
             value={updatedTimeMin}
             onChange={handleSetStartDate}
           />
-          <InvalidInputMessage message={validMin ? null : 'Invalid Start Date'} />
+          <InvalidInputMessage
+            message={validMin ? null : 'Invalid Start Date'}
+          />
         </Grid>
 
         <Grid item xs={6} md={4} className={classes.relative}>

@@ -13,6 +13,6 @@ const EmbeddedLogin = () => {
       </Spacer>
     </div>
   );
-}
+};
 
 export default EmbeddedLogin;

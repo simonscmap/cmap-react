@@ -2,9 +2,9 @@ import { createSelector } from 'reselect';
 import { safePath } from '../../../Utility/objectUtils';
 
 // aplhabetize an array of objects by a property
-const stringOrEmpty = (x) => typeof x === 'string' ? x : '';
+const stringOrEmpty = (x) => (typeof x === 'string' ? x : '');
 export const alphabetizeBy = (prop) => (list) => {
-  return list.sort ((a_ = '', b_ = '') => {
+  return list.sort((a_ = '', b_ = '') => {
     let a = stringOrEmpty(a_[prop]).toLowerCase();
     let b = stringOrEmpty(b_[prop]).toLowerCase();
     if (a > b) {
@@ -16,23 +16,23 @@ export const alphabetizeBy = (prop) => (list) => {
     if (a === b) {
       return 0;
     }
-  })
-}
+  });
+};
 
 export const getFirstDatasetIdentifier = (datasets) => {
   if (!datasets) {
     return;
   }
-  const ids = (alphabetizeBy ('Dataset_Name') (Object.values (datasets)))
-    .filter ((d) => {
-      const visVars = safePath (['visualizableVariables', 'variables']) (d);
+  const ids = alphabetizeBy('Dataset_Name')(Object.values(datasets))
+    .filter((d) => {
+      const visVars = safePath(['visualizableVariables', 'variables'])(d);
       if (!visVars || visVars.length === 0) {
         return false;
       } else {
         return true;
       }
     })
-    .map (({ID}) => ID);
+    .map(({ ID }) => ID);
 
   if (ids.length) {
     const d = datasets[ids[0]];
@@ -41,22 +41,22 @@ export const getFirstDatasetIdentifier = (datasets) => {
       datasetId: d.ID,
     };
   } else {
-    console.log ('no dataset ids to choose from');
+    console.log('no dataset ids to choose from');
     return;
   }
-}
+};
 
 export const getDefaultVariableIdentifier = (datasets) => {
-  const d_ = getFirstDatasetIdentifier (datasets);
+  const d_ = getFirstDatasetIdentifier(datasets);
   if (!d_) {
-    console.log ('could not identify a default variable: to default dataset');
+    console.log('could not identify a default variable: to default dataset');
     return;
   }
   const d = datasets[`${d_.datasetId}`];
-  const variables = safePath (['visualizableVariables', 'variables']) (d);
+  const variables = safePath(['visualizableVariables', 'variables'])(d);
 
   if (!variables) {
-    console.log ('no variables array when selecting default variable')
+    console.log('no variables array when selecting default variable');
     return;
   }
 
@@ -70,36 +70,36 @@ export const getDefaultVariableIdentifier = (datasets) => {
       datasetId: d_.datasetId,
     };
   } else {
-    console.log ('no variable ids to choose from')
+    console.log('no variable ids to choose from');
     return;
   }
 };
 
 export const trajectorySelector = createSelector(
-  [ (state) => state.programDetails && state.programDetails.cruises ],
+  [(state) => state.programDetails && state.programDetails.cruises],
   (cruises) => {
     if (!cruises) {
       return [];
     } else {
       return Object.keys(cruises).reduce((acc, currKey) => {
         if (cruises[currKey] && cruises[currKey].trajectory) {
-          Object.assign(acc, { [currKey]: cruises[currKey].trajectory })
+          Object.assign(acc, { [currKey]: cruises[currKey].trajectory });
         }
         return acc;
       }, {});
     }
-  }
+  },
 );
 
 export const cruiseSelector = createSelector(
-  [ (state) => state.programDetails && state.programDetails.cruises ],
+  [(state) => state.programDetails && state.programDetails.cruises],
   (cruises) => {
     if (!cruises) {
       return [];
     } else {
       return Object.values(cruises);
     }
-  }
+  },
 );
 
 export const activeTrajectorySelector = createSelector(
@@ -113,7 +113,9 @@ export const activeTrajectorySelector = createSelector(
       return null;
     } else if (!focusId) {
       if (programName === 'BATS') {
-        const batsCruises = Object.values(cruises).filter (({ Nickname }) => Nickname.includes ('BATS'));
+        const batsCruises = Object.values(cruises).filter(({ Nickname }) =>
+          Nickname.includes('BATS'),
+        );
         const firstBatsCruise = batsCruises.length && batsCruises[0];
         if (firstBatsCruise) {
           return {
@@ -140,41 +142,45 @@ export const activeTrajectorySelector = createSelector(
         return {
           cruiseId: focusId,
           trajectory: cruises[focusId].trajectory,
-        }
+        };
       } else {
         return null;
       }
     }
-  }
+  },
 );
 
 export const programDatasetsSelector = createSelector(
-  [ (state) => state.programDetails && state.programDetails ],
-  (programDetails) => programDetails && programDetails.datasets
+  [(state) => state.programDetails && state.programDetails],
+  (programDetails) => programDetails && programDetails.datasets,
 );
 
 // user selection: dataset variable
 export const selectedProgramDatasetVariableSelector = createSelector(
-  [ (state) => state.programDetails && state.programDetails ],
+  [(state) => state.programDetails && state.programDetails],
   (programDetails) => {
     if (programDetails && programDetails.programDatasetVariableSelected) {
       return programDetails.programDatasetVariableSelected;
     } else {
       return null;
     }
-  }
+  },
 );
 
 // user selection: dataset short name
 export const selectedProgramDatasetShortNameSelector = createSelector(
-  [ (state) => state.programDetails && state.programDetails.programDatasetSelected ],
-  (selectedDataset) => selectedDataset && selectedDataset.shortName
+  [
+    (state) =>
+      state.programDetails && state.programDetails.programDatasetSelected,
+  ],
+  (selectedDataset) => selectedDataset && selectedDataset.shortName,
 );
 
 // selected dataset data
 export const selectedProgramDatasetDataSelector = createSelector(
   [
-    (state) => state.programDetails && state.programDetails.programDatasetSelected,
+    (state) =>
+      state.programDetails && state.programDetails.programDatasetSelected,
     programDatasetsSelector,
   ],
   (selectedDataset, datasets) => {
@@ -188,37 +194,39 @@ export const selectedProgramDatasetDataSelector = createSelector(
     } else {
       return null;
     }
-  }
+  },
 );
 
 export const selectedProgramDatasetVariableShortNameSelector = createSelector(
-  [
-    selectedProgramDatasetVariableSelector,
-  ],
+  [selectedProgramDatasetVariableSelector],
   (selectedVariable) => {
     if (!selectedVariable) {
       return null;
     } else {
-      const { varShortName } = selectedVariable
-      return varShortName
+      const { varShortName } = selectedVariable;
+      return varShortName;
     }
-  }
+  },
 );
 
-export const selectedVariableDataSelector = createSelector (
+export const selectedVariableDataSelector = createSelector(
   [
-    (state) => state.programDetails && state.programDetails && state.programDetails.programDatasetVariableSelected,
-    programDatasetsSelector
+    (state) =>
+      state.programDetails &&
+      state.programDetails &&
+      state.programDetails.programDatasetVariableSelected,
+    programDatasetsSelector,
   ],
   (selectedVar, datasets) => {
     if (!selectedVar || !datasets) {
       return null;
     }
     const { varShortName, datasetId } = selectedVar;
-    const dataset = Object.values(datasets).find ((d) => d.ID === datasetId);
+    const dataset = Object.values(datasets).find((d) => d.ID === datasetId);
     if (dataset && dataset.visualizableVariables) {
-      const variable = dataset.visualizableVariables.variables.find ((v) =>
-        v.Short_Name === varShortName);
+      const variable = dataset.visualizableVariables.variables.find(
+        (v) => v.Short_Name === varShortName,
+      );
       if (variable) {
         return variable;
       } else {
@@ -227,22 +235,20 @@ export const selectedVariableDataSelector = createSelector (
     } else {
       return null;
     }
-  }
+  },
 );
 
 // sample vis data
 export const _sampleVisualizationDataSelector = createSelector(
-  [ (state) => state.programDetails && state.programDetails.sampleVisData ],
-  (visData) => visData
+  [(state) => state.programDetails && state.programDetails.sampleVisData],
+  (visData) => visData,
 );
 
-export const sampleVisualizationDataSelector =
-  (state) => state.programDetails && state.programDetails.sampleVisData;
-
-
+export const sampleVisualizationDataSelector = (state) =>
+  state.programDetails && state.programDetails.sampleVisData;
 
 // sample vis data loading state
 export const sampleVisualizationDataLoadingStateSelector = createSelector(
-  [ sampleVisualizationDataSelector ],
-  (visData) => visData && visData.loadingState
+  [sampleVisualizationDataSelector],
+  (visData) => visData && visData.loadingState,
 );

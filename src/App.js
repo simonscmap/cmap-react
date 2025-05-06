@@ -20,38 +20,41 @@ import FourOhFour from './Components/FourOhFour';
 
 // Lasy loaded components
 const About = lazy(() => import('./Components/About.js'));
-const ApiKeyManagement = lazy(() =>
-  import('./Components/User/ApiKeyManagement'),
+const ApiKeyManagement = lazy(
+  () => import('./Components/User/ApiKeyManagement'),
 );
 const Catalog = lazy(() => import('./Components/Catalog/Catalog'));
 const Gallery = lazy(() => import('./Components/Gallery'));
 const Galleries = lazy(() => import('./Components/Gallery/Galleries'));
 const ChoosePassword = lazy(() => import('./Components/User/ChoosePassword'));
 const ContactUs = lazy(() => import('./Components/Contact'));
-const CruiseFullPage = lazy(() =>
-  import('./Components/Catalog/CruiseFullPage'),
+const CruiseFullPage = lazy(
+  () => import('./Components/Catalog/CruiseFullPage'),
 );
-const DataSubmission = lazy(() =>
-  import('./Components/DataSubmission/DataSubmission'),
+const DataSubmission = lazy(
+  () => import('./Components/DataSubmission/DataSubmission'),
 );
-const DatasetDetailPage = lazy(() =>
-  import('./Components/Catalog/DatasetDetailPage'),
+const DatasetDetailPage = lazy(
+  () => import('./Components/Catalog/DatasetDetailPage'),
 );
 const ForgotPass = lazy(() => import('./Components/User/ForgotPass'));
 const Home = lazy(() => import('./Components/Home'));
 const Login = lazy(() => import('./Components/User/Login'));
 const Profile = lazy(() => import('./Components/User/Profile'));
 const ProgramIndex = lazy(() => import('./Components/Catalog/Programs/Index'));
-const ProgramDetailPage = lazy(() => import('./Components/Catalog/Programs/ProgramDetailPage'));
+const ProgramDetailPage = lazy(
+  () => import('./Components/Catalog/Programs/ProgramDetailPage'),
+);
 const Register = lazy(() => import('./Components/User/Register'));
-const Visualization = lazy(() =>
-  import('./Components/Visualization/Visualization'),
+const Visualization = lazy(
+  () => import('./Components/Visualization/Visualization'),
 );
 const SinglePlot = lazy(() => import('./Components/Visualization/SinglePlot'));
 const NewsDashboard = lazy(() => import('./Components/Admin/News/Dashboard'));
 const Cite = lazy(() => import('./Components/Cite'));
-const SubscriptionsPage = lazy(() => import('./Components/User/Subscriptions/Subscriptions'));
-
+const SubscriptionsPage = lazy(
+  () => import('./Components/User/Subscriptions/Subscriptions'),
+);
 
 const mapDispatchToProps = {
   toggleShowHelp,
@@ -78,7 +81,6 @@ class App extends Component {
           <MuiThemeProvider theme={theme}>
             <ErrorBoundary>
               <GoogleOAuthProvider clientId="739716651449-7rbvsac1okk8mkd4g1mti8tnhdk1m3a8.apps.googleusercontent.com">
-
                 <BrowserRouter>
                   <ServicesInit />
                   <GlobalUIComponentWrapper />
@@ -102,7 +104,7 @@ class App extends Component {
                         component={CruiseFullPage}
                       ></Route>
                       <Route exact path="/programs">
-                        <ProgramIndex/>
+                        <ProgramIndex />
                       </Route>
                       <Route
                         path="/programs/:programName"
@@ -111,12 +113,17 @@ class App extends Component {
                       <Route path="/visualization">
                         <Visualization />
                       </Route>
-                      <Route path="/plot"><SinglePlot /></Route>
+                      <Route path="/plot">
+                        <SinglePlot />
+                      </Route>
                       <Route
                         path="/datasubmission"
                         component={DataSubmission}
                       ></Route>
-                      <Route path="/admin/news" component={NewsDashboard}></Route>
+                      <Route
+                        path="/admin/news"
+                        component={NewsDashboard}
+                      ></Route>
 
                       {/* ABOUT */}
                       <Route exact path="/contact">

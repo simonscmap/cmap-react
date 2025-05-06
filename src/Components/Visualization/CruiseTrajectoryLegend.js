@@ -1,7 +1,4 @@
-import {
-  Paper,
-  Typography,
-} from '@material-ui/core';
+import { Paper, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import { MdMyLocation } from 'react-icons/md';
@@ -18,9 +15,7 @@ const useStyles = makeStyles((theme) => ({
     top: '268px',
     left: '14px',
     color: 'white',
-    '& h6': {
-
-    }
+    '& h6': {},
   },
   wrapper: {
     display: 'flex',
@@ -33,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
     border: '1px solid black',
     backdropFilter: 'blur(5px)',
     width: '172px',
-    padding: '1em'
+    padding: '1em',
   },
   legendEntry: {
     cursor: 'pointer',
@@ -43,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'space-between',
     gap: '1em',
     width: '100%',
-    margin: '.3em 0'
+    margin: '.3em 0',
   },
   swatch: {
     height: '1em',
@@ -67,16 +62,16 @@ const useStyles = makeStyles((theme) => ({
         color: 'white',
         '&:hover': {
           textDecoration: 'underline',
-        }
-      }
-    }
+        },
+      },
+    },
   },
   zoomIcon: {
     color: colors.primary,
     '& svg': {
       fontSize: '1.1em',
-      marginBottom: '-3px'
-    }
+      marginBottom: '-3px',
+    },
   },
   openPageIcon: {
     color: colors.primary,
@@ -84,30 +79,35 @@ const useStyles = makeStyles((theme) => ({
       marginBottom: '-4px',
       marginLeft: '5px',
       fontSize: '1.1em',
-    }
-  }
+    },
+  },
 }));
 
 const Legend = () => {
   const classes = useStyles();
   const dispatch = useDispatch();
 
-  const renderedCruiseIds = useSelector ((state) =>
-    Object.entries((state.cruiseTrajectories || {}))
-      .map(([key]) => parseInt(key, 10)));
+  const renderedCruiseIds = useSelector((state) =>
+    Object.entries(state.cruiseTrajectories || {}).map(([key]) =>
+      parseInt(key, 10),
+    ),
+  );
 
-  const cruises = useSelector ((state) =>
-    state.cruiseList.filter(c => renderedCruiseIds.includes(c.ID)));
+  const cruises = useSelector((state) =>
+    state.cruiseList.filter((c) => renderedCruiseIds.includes(c.ID)),
+  );
 
   if (!renderedCruiseIds || renderedCruiseIds.length === 0) {
     return '';
   }
 
-  const colors = palette('rainbow', renderedCruiseIds.length).map((hex) => `#${hex}`);
+  const colors = palette('rainbow', renderedCruiseIds.length).map(
+    (hex) => `#${hex}`,
+  );
 
   const handleFocus = (cruiseId) => {
-    dispatch (cruiseTrajectoryZoomTo (cruiseId));
-  }
+    dispatch(cruiseTrajectoryZoomTo(cruiseId));
+  };
 
   return (
     <div className={classes.legend}>
@@ -119,10 +119,13 @@ const Legend = () => {
                 <div
                   className={classes.swatch}
                   style={{ backgroundColor: colors[i] }}
-                >
-                </div>
+                ></div>
                 <div className={classes.container}>
-                  <a href={`/catalog/cruises/${cruise.Name}`} target="_blank" rel="noreferrer">
+                  <a
+                    href={`/catalog/cruises/${cruise.Name}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
                     <p className={classes.openPageIcon}>
                       <span>{cruise.Name}</span>
                       <OpenInNewIcon color="primary" />
@@ -132,7 +135,10 @@ const Legend = () => {
               </div>
               <div className={classes.container}>
                 <p className={classes.zoomIcon}>
-                  <MdMyLocation color="primary" onClick={() => handleFocus(cruise.ID)} />
+                  <MdMyLocation
+                    color="primary"
+                    onClick={() => handleFocus(cruise.ID)}
+                  />
                 </p>
               </div>
             </div>
@@ -141,6 +147,6 @@ const Legend = () => {
       </Paper>
     </div>
   );
-}
+};
 
 export default Legend;

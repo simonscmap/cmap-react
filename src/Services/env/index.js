@@ -3,7 +3,7 @@ import { localStorageApi } from '../persist/local';
 
 export const getEnv = () => {
   // first check if local storage contains a value for envOverride
- const override = localStorageApi.get('envOverride');
+  const override = localStorageApi.get('envOverride');
   if (override && ENV[override]) {
     return ENV[override];
   }
@@ -22,7 +22,7 @@ export const getEnv = () => {
       console.log('env not detected');
       return ENV.production;
   }
-}
+};
 
 export const isProduction = getEnv() === ENV.production;
 export const isStaging = getEnv() === ENV.staging;

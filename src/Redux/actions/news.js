@@ -28,8 +28,8 @@ export const createNewsItemSuccess = () => ({
 export const createNewsItemFailure = (args = {}) => ({
   type: newsActionTypes.CREATE_NEWS_ITEM_FAILURE,
   payload: {
-    text: args.text
-  }
+    text: args.text,
+  },
 });
 
 // UPDATE
@@ -41,8 +41,8 @@ export const updateNewsItem = (item) => ({
 export const updateNewsItemFailure = (args = {}) => ({
   type: newsActionTypes.UPDATE_NEWS_ITEM_FAILURE,
   payload: {
-    text: args.text
-  }
+    text: args.text,
+  },
 });
 
 export const updateNewsItemSuccess = () => ({

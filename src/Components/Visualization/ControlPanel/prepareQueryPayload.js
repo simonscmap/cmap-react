@@ -1,4 +1,4 @@
-import { mapVizType, cleanSPParams, } from '../helpers';
+import { mapVizType, cleanSPParams } from '../helpers';
 import manageDateParams from './manageDateParams';
 
 /* parameters :: {
@@ -39,7 +39,7 @@ const fn = (currentState, currentProps) => {
   }
 
   const mapping = mapVizType(selectedVizType);
-  const dateParams = manageDateParams (currentState, currentProps);
+  const dateParams = manageDateParams(currentState, currentProps);
   const parameters = cleanSPParams({
     depth1,
     depth2,
@@ -57,7 +57,7 @@ const fn = (currentState, currentProps) => {
     parameters,
     subType: mapping.subType,
     metadata: currentProps.vizPageDataTargetDetails,
-  }
-}
+  };
+};
 
 export default fn;

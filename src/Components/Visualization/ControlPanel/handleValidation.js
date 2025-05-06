@@ -15,9 +15,9 @@ import isISODateString from '../../../Utility/Time/isISO';
 
 import states from '../../../enums/asyncRequestStates';
 
-const dateStringToISO = (dateString) => (new Date(dateString)).toISOString();
+const dateStringToISO = (dateString) => new Date(dateString).toISOString();
 
-function checkStartDepth () {
+function checkStartDepth() {
   const targetDetails = this.props.vizPageDataTargetDetails;
   const { Has_Depth, Depth_Max } = targetDetails;
   if (this.state.depth1 < 0) {
@@ -34,9 +34,9 @@ function checkStartDepth () {
   }
 
   return '';
-};
+}
 
-function checkEndDepth () {
+function checkEndDepth() {
   const targetDetails = this.props.vizPageDataTargetDetails;
   const { Has_Depth, Depth_Min } = targetDetails;
   if (this.state.depth2 < 0) {
@@ -52,37 +52,37 @@ function checkEndDepth () {
     return `Minimum depth end is ${Depth_Min}`;
   }
   return '';
-};
+}
 
-function checkStartDateTime () {
+function checkStartDateTime() {
   let isMonthly =
-      this.props.vizPageDataTargetDetails.Temporal_Resolution ===
-      temporalResolutions.monthlyClimatology;
+    this.props.vizPageDataTargetDetails.Temporal_Resolution ===
+    temporalResolutions.monthlyClimatology;
 
-  if (!isMonthly && !isISODateString (this.state.dt1)) {
+  if (!isMonthly && !isISODateString(this.state.dt1)) {
     return 'Invalid date/time';
   }
 }
 
-function checkEndDateTime () {
+function checkEndDateTime() {
   let isMonthly =
-      this.props.vizPageDataTargetDetails.Temporal_Resolution ===
-      temporalResolutions.monthlyClimatology;
+    this.props.vizPageDataTargetDetails.Temporal_Resolution ===
+    temporalResolutions.monthlyClimatology;
 
-  if (!isMonthly && !isISODateString (this.state.dt2)) {
+  if (!isMonthly && !isISODateString(this.state.dt2)) {
     return 'Invalid date/time';
   }
 }
 
-function checkStartDate () {
+function checkStartDate() {
   const dt1 = this.state.dt1;
   const dt2 = this.state.dt2;
 
-  console.log ('check start date', dt1, dt2)
+  console.log('check start date', dt1, dt2);
 
   let isMonthly =
-      this.props.vizPageDataTargetDetails.Temporal_Resolution ===
-      temporalResolutions.monthlyClimatology;
+    this.props.vizPageDataTargetDetails.Temporal_Resolution ===
+    temporalResolutions.monthlyClimatology;
 
   if (isMonthly) {
     let month1 = dt1;
@@ -92,28 +92,28 @@ function checkStartDate () {
       if (dt1.length <= 2) {
         month1 = parseInt(dt1);
       } else {
-        month1 = (new Date(dt1)).getUTCMonth() + 1;
+        month1 = new Date(dt1).getUTCMonth() + 1;
       }
     } else {
-      month1 = parseInt (dt1);
+      month1 = parseInt(dt1);
     }
 
-     if (typeof dt2 === 'string') {
+    if (typeof dt2 === 'string') {
       if (dt2.length <= 2) {
         month2 = parseInt(dt2);
       } else {
-        month2 = (new Date(dt2)).getUTCMonth() + 1;
+        month2 = new Date(dt2).getUTCMonth() + 1;
       }
     } else {
-      month2 = parseInt (dt2);
+      month2 = parseInt(dt2);
     }
 
-    console.log (month1, month2);
+    console.log(month1, month2);
     if (month1 > month2) {
       return 'Start date cannot be greater than end';
     }
   } else {
-    if (!dt1 ) {
+    if (!dt1) {
       return 'Invalid date';
     }
     if (new Date(this.state.dt1) > new Date(this.state.dt2)) {
@@ -132,8 +132,10 @@ function checkStartDate () {
       // then slice the ISO string so that the string comparison will be
       // between strings of the same length
       let isLessThanDatasetTimeMin =
-          dt1.slice(0, 10) <
-          dateStringToISO(this.props.vizPageDataTargetDetails.Time_Min.slice(0, 10)).slice(0, 10);
+        dt1.slice(0, 10) <
+        dateStringToISO(
+          this.props.vizPageDataTargetDetails.Time_Min.slice(0, 10),
+        ).slice(0, 10);
 
       if (isLessThanDatasetTimeMin) {
         return `Minimum start date is ${
@@ -146,18 +148,17 @@ function checkStartDate () {
   }
 
   return '';
-};
+}
 
-function checkEndDate () {
+function checkEndDate() {
   let isMonthly =
-      this.props.vizPageDataTargetDetails.Temporal_Resolution ===
-      temporalResolutions.monthlyClimatology;
+    this.props.vizPageDataTargetDetails.Temporal_Resolution ===
+    temporalResolutions.monthlyClimatology;
 
   const dt1 = this.state.dt1;
   const dt2 = this.state.dt2;
 
   if (isMonthly) {
-
     let month1 = dt1;
     let month2 = dt2;
 
@@ -165,29 +166,27 @@ function checkEndDate () {
       if (dt1.length <= 2) {
         month1 = parseInt(dt1);
       } else {
-        month1 = (new Date(dt1)).getUTCMonth() + 1; // getUTCMonth is 0 indexed
+        month1 = new Date(dt1).getUTCMonth() + 1; // getUTCMonth is 0 indexed
       }
     } else {
-      month1 = parseInt (dt1);
+      month1 = parseInt(dt1);
     }
 
     if (typeof dt2 === 'string') {
       if (dt2.length <= 2) {
         month2 = parseInt(dt2);
       } else {
-        month2 = (new Date(dt2)).getUTCMonth() + 1;// getUTCMonth is 0 indexed
+        month2 = new Date(dt2).getUTCMonth() + 1; // getUTCMonth is 0 indexed
       }
     } else {
-      month2 = parseInt (dt2);
+      month2 = parseInt(dt2);
     }
-
 
     if (month1 > month2) {
       return 'End date cannot be less than start';
     }
-
   } else {
-    if (!this.state.dt2 || !isISODateString (this.state.dt2)) {
+    if (!this.state.dt2 || !isISODateString(this.state.dt2)) {
       return 'Invalid date';
     }
     if (new Date(this.state.dt1) > new Date(this.state.dt2)) {
@@ -200,11 +199,12 @@ function checkEndDate () {
         return 'End date is not within range: 1 - 12';
       }
     } else if (typeof this.state.dt2 === 'string') {
-
       // see note on the double slice call in checkStartDate
       let isGreaterThanDatasetTimeMax =
-          this.state.dt2.slice(0,10) >
-          dateStringToISO (this.props.vizPageDataTargetDetails.Time_Max.slice(0,10)).slice(0,10);
+        this.state.dt2.slice(0, 10) >
+        dateStringToISO(
+          this.props.vizPageDataTargetDetails.Time_Max.slice(0, 10),
+        ).slice(0, 10);
 
       if (isGreaterThanDatasetTimeMax) {
         return `Maximum end date is ${
@@ -216,91 +216,85 @@ function checkEndDate () {
     }
   }
   return '';
-};
+}
 
-function checkEndTime () {
+function checkEndTime() {
   let isMonthly =
-      this.props.vizPageDataTargetDetails.Temporal_Resolution ===
-      temporalResolutions.monthlyClimatology;
+    this.props.vizPageDataTargetDetails.Temporal_Resolution ===
+    temporalResolutions.monthlyClimatology;
 
   if (isMonthly || typeof this.state.dt2 !== 'string') {
     // don't check time
     return '';
   }
 
-
-  let maxEndDate = this.props.vizPageDataTargetDetails.Time_Max.slice(0,10);
-  let maxEndTime = this.props.vizPageDataTargetDetails.Time_Max.slice(11,16);
+  let maxEndDate = this.props.vizPageDataTargetDetails.Time_Max.slice(0, 10);
+  let maxEndTime = this.props.vizPageDataTargetDetails.Time_Max.slice(11, 16);
 
   let endDateTime = this.state.dt2;
   // check if time is greater that time max
-  if (endDateTime.slice(0,10) === maxEndDate) {
-    if (endDateTime.slice(11,16) > maxEndTime) {
-      return `The maximum end time for ${maxEndDate} is ${maxEndTime}`
+  if (endDateTime.slice(0, 10) === maxEndDate) {
+    if (endDateTime.slice(11, 16) > maxEndTime) {
+      return `The maximum end time for ${maxEndDate} is ${maxEndTime}`;
     }
   }
   return '';
 }
 
-function checkStartTime () {
+function checkStartTime() {
   let isMonthly =
-      this.props.vizPageDataTargetDetails.Temporal_Resolution ===
-      temporalResolutions.monthlyClimatology;
+    this.props.vizPageDataTargetDetails.Temporal_Resolution ===
+    temporalResolutions.monthlyClimatology;
 
   if (isMonthly || typeof this.state.dt1 !== 'string') {
     // don't check time
     return '';
   }
 
-  let minStartDate = this.props.vizPageDataTargetDetails.Time_Min.slice(0,10);
-  let minStartTime = this.props.vizPageDataTargetDetails.Time_Min.slice(11,16);
+  let minStartDate = this.props.vizPageDataTargetDetails.Time_Min.slice(0, 10);
+  let minStartTime = this.props.vizPageDataTargetDetails.Time_Min.slice(11, 16);
 
   let startTime = this.state.dt1;
   // check if time is greater that time max
-  if (startTime.slice(0,10) === minStartDate) {
-    if (startTime.slice(11,16) < minStartTime) {
-      return `The minimum start time for ${minStartDate} is ${minStartTime}`
+  if (startTime.slice(0, 10) === minStartDate) {
+    if (startTime.slice(11, 16) < minStartTime) {
+      return `The minimum start time for ${minStartDate} is ${minStartTime}`;
     }
   }
 
   return '';
 }
 
-function checkStartLat () {
+function checkStartLat() {
   if (this.state.lat1 > this.props.vizPageDataTargetDetails.Lat_Max)
     return `Maximum start lat is ${this.props.vizPageDataTargetDetails.Lat_Max}`;
   if (this.state.lat1 > this.state.lat2)
     return `Start cannot be greater than end`;
   return '';
-};
+}
 
-function checkEndLat () {
+function checkEndLat() {
   if (this.state.lat2 < this.props.vizPageDataTargetDetails.Lat_Min)
     return `Minimum end lat is ${this.props.vizPageDataTargetDetails.Lat_Min}`;
   if (this.state.lat1 > this.state.lat2)
     return `Start cannot be greater than end`;
   return '';
-};
+}
 
-function checkStartLon () {
+function checkStartLon() {
   const { lon1, lon2 } = this.state;
   const { Lon_Min, Lon_Max } = this.props.vizPageDataTargetDetails;
 
   if (lon2 >= lon1) {
     if (lon1 > Lon_Max) return `Maximum start lon is ${Lon_Max}`;
   } else {
-    if (
-      Lon_Min > lon1 ||
-        Lon_Max > lon1 ||
-        Lon_Min < lon2 ||
-        Lon_Max < lon2
-    ) {
+    if (Lon_Min > lon1 || Lon_Max > lon1 || Lon_Min < lon2 || Lon_Max < lon2) {
     } else return `Longitude outside dataset coverage`;
   }
   return '';
-};
+}
 
-function checkEndLon () {
+function checkEndLon() {
   const { lon1, lon2 } = this.state;
   const { Lon_Min } = this.props.vizPageDataTargetDetails;
 
@@ -309,57 +303,57 @@ function checkEndLon () {
   }
 
   return '';
-};
+}
 
-function checkHeatmap () {
+function checkHeatmap() {
   if (this.state.irregularSpatialResolution)
     return validation.type.dataIsIrregular.replace('$', 'Heatmap');
   return '';
-};
+}
 
-function checkContour () {
+function checkContour() {
   if (this.state.irregularSpatialResolution)
     return validation.type.dataIsIrregular.replace('$', 'Contour');
   return '';
-};
+}
 
-function checkSection () {
+function checkSection() {
   if (this.state.surfaceOnly)
     return validation.type.surfaceOnlyDataset.replace('$', 'variable');
   if (this.state.irregularSpatialResolution)
     return validation.type.dataIsIrregular.replace('$', 'Section Map');
   return '';
-};
+}
 
-function checkHistogram () {
+function checkHistogram() {
   return '';
-};
+}
 
-function checkTimeSeries () {
+function checkTimeSeries() {
   if (this.state.irregularSpatialResolution)
     return validation.type.dataIsIrregular.replace('$', 'Time Series');
   return '';
-};
+}
 
-function checkDepthProfile () {
+function checkDepthProfile() {
   if (this.state.surfaceOnly)
     return validation.type.surfaceOnlyDataset.replace('$', 'variable');
   return '';
-};
+}
 
-function checkSparseMap () {
+function checkSparseMap() {
   if (!this.state.irregularSpatialResolution)
     return validation.type.irregularOnly;
   return '';
-};
+}
 
-function checkGeneralWarn (dataSize) {
+function checkGeneralWarn(dataSize) {
   if (!this.props.selectedVizType) return '';
   if (dataSize > 1200000) return validation.generic.dataSizeWarning;
   return '';
-};
+}
 
-function checkGeneralPrevent (dataSize)  {
+function checkGeneralPrevent(dataSize) {
   const webGLCount = countWebGLContexts(this.props.charts);
   const aggregateSize = aggregateChartDataSize(this.props.charts);
 
@@ -378,11 +372,11 @@ function checkGeneralPrevent (dataSize)  {
   if (this.state.selectedVizType === vizSubTypes.heatmap) {
     let availableContexts = 16 - webGLCount;
     const depthCount =
-          depthUtils.count(
-            { data: this.props.vizPageDataTargetDetails },
-            this.props.depth1,
-            this.props.depth2,
-          ) || 1;
+      depthUtils.count(
+        { data: this.props.vizPageDataTargetDetails },
+        this.props.depth1,
+        this.props.depth2,
+      ) || 1;
     if (availableContexts - depthCount < 1)
       return 'Too many distinct depths to render heatmap. Please reduce depth range or select section map.';
   }
@@ -391,28 +385,34 @@ function checkGeneralPrevent (dataSize)  {
   const sizeCheckStatus = this.props.sizeCheckStatus;
   const sizeCheckResult = this.props.sizeCheck;
 
-  if (sizeCheckStatus === states.notTried || sizeCheckStatus === states.inProgress) {
+  if (
+    sizeCheckStatus === states.notTried ||
+    sizeCheckStatus === states.inProgress
+  ) {
     return 'Waiting for size check to complete.';
   }
 
-  if (sizeCheckStatus === states.failed ) {
-    return 'Error estimating visualization size.'
+  if (sizeCheckStatus === states.failed) {
+    return 'Error estimating visualization size.';
   }
 
   if (sizeCheckResult === null) {
-    return 'No size estimation available.'
+    return 'No size estimation available.';
   }
 
-  if (sizeCheckStatus === states.succeeded && (sizeCheckResult && !sizeCheckResult.allow)) {
-    return `Extent is too large, select a smaller spatial or temporal range.`
+  if (
+    sizeCheckStatus === states.succeeded &&
+    sizeCheckResult &&
+    !sizeCheckResult.allow
+  ) {
+    return `Extent is too large, select a smaller spatial or temporal range.`;
   }
-
 
   // HISTOGRAM & HEATMAP < 1 500 000
   if (
     this.state.selectedVizType !== vizSubTypes.histogram &&
-      this.props.selectedVizType !== vizSubTypes.heatmap &&
-      dataSize > 1500000
+    this.props.selectedVizType !== vizSubTypes.heatmap &&
+    dataSize > 1500000
   ) {
     return validation.generic.dataSizePrevent;
   }
@@ -433,20 +433,20 @@ function checkGeneralPrevent (dataSize)  {
 
   if (
     !this.state.irregularSpatialResolution &&
-      this.state.selectedVizType !== vizSubTypes.timeSeries &&
-      Date.parse(this.state.dt2) - Date.parse(this.state.dt1) > 86400000 * 365
+    this.state.selectedVizType !== vizSubTypes.timeSeries &&
+    Date.parse(this.state.dt2) - Date.parse(this.state.dt1) > 86400000 * 365
   )
     return 'Maximum date range for non-time series plots of gridded data is 1 year';
   return '';
-};
+}
 
-function estimateDataSize () {
-    const { vizPageDataTargetDetails } = this.props;
-    return getDataSize(vizPageDataTargetDetails, this.state);
-};
+function estimateDataSize() {
+  const { vizPageDataTargetDetails } = this.props;
+  return getDataSize(vizPageDataTargetDetails, this.state);
+}
 
-function handleValidation () {
-  console.log ('validating...');
+function handleValidation() {
+  console.log('validating...');
   const details = this.props.vizPageDataTargetDetails;
   if (!details) {
     return {
@@ -455,7 +455,7 @@ function handleValidation () {
     };
   }
 
-  const dataSize = estimateDataSize.call (this);
+  const dataSize = estimateDataSize.call(this);
 
   const validations = {
     startDepthMessage: checkStartDepth.call(this),
@@ -494,23 +494,22 @@ function handleValidation () {
     'endDateMessage',
     'startTimeMessage',
     'endTimeMessage',
-    'startDateTimeMessage'
+    'startDateTimeMessage',
   ];
 
   const disableVisualizeMessages = checkDisableVisualizeList
-        .map (name => validations[name])
-        .filter(message => !!message);
-
+    .map((name) => validations[name])
+    .filter((message) => !!message);
 
   const disableVisualizeMessage = disableVisualizeMessages.length
-        ? disableVisualizeMessages[0]
-        : '';
+    ? disableVisualizeMessages[0]
+    : '';
 
   const visualizeButtonTooltip = validations.disableVisualizeMessage
-        ? validations.disableVisualizeMessage
-        : validations.generalPreventMessage
-        ? validations.generalPreventMessage
-        : null;
+    ? validations.disableVisualizeMessage
+    : validations.generalPreventMessage
+      ? validations.generalPreventMessage
+      : null;
 
   const payload = {
     disableVisualizeMessage,
@@ -519,9 +518,8 @@ function handleValidation () {
     validations,
   };
 
-  console.log ('validation complete', payload);
+  console.log('validation complete', payload);
   return payload;
-
 }
 
 export default handleValidation;

@@ -76,7 +76,8 @@ class DSCellEditorSelect extends React.Component {
 
     let validOpts = new Set(
       this.props.context.selectOptions[this.props.column.colId].map((e) =>
-        typeof e === 'string' ? e.toLowerCase() : e),
+        typeof e === 'string' ? e.toLowerCase() : e,
+      ),
     );
     if (!validOpts.has(value))
       opts.push(

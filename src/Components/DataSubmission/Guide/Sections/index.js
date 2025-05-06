@@ -12,7 +12,6 @@ export { default as UserDashboard } from './UserDashboard';
 export { default as Faq } from './FAQ';
 export { default as Contact } from './Contact';
 
-
 export * from './DataSheetSections';
 // custom data sheet sections
 export { default as DatasetLongNameColumn } from './DatasetLongName';

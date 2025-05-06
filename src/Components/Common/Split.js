@@ -13,15 +13,16 @@ const styles = {
     '& > div': {
       flexBasis: 'content',
       marginBottom: '2em',
-    }
+    },
   },
-
-}
+};
 
 const Split = withStyles(styles)(({ classes, items }) => {
   return (
     <div className={classes.splitContainer}>
-      {items.map((item, ix) => <div key={`item=${ix}`}>{item}</div>)}
+      {items.map((item, ix) => (
+        <div key={`item=${ix}`}>{item}</div>
+      ))}
     </div>
   );
 });

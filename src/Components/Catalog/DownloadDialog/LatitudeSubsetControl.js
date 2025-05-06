@@ -105,7 +105,6 @@ const LatitudeSubsetControl = (props) => {
   let { Lat_Max, Lat_Min } = dataset;
   let { latStart, latEnd } = subsetState;
 
-
   // handler for the slider
   let handleSlider = (e, value) => {
     let [start, end] = value;

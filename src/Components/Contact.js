@@ -117,9 +117,9 @@ const ContactForm = ({ user, classes }) => {
   );
 };
 
-const ConnectedContactForm = connect(
-  mapStateToProps,
-)(withStyles(styles)(ContactForm));
+const ConnectedContactForm = connect(mapStateToProps)(
+  withStyles(styles)(ContactForm),
+);
 
 const mapStateToProps2 = (state) => ({
   contactUs: state.contactUs,

@@ -3,8 +3,9 @@
 // stored in the dataset metadata,
 // namely Continuous Ingestion and Ancillary Data flags
 import initLogger from '../../Services/log-service';
-const log = initLogger('Utility/Catalog/ammendSearchResultsWithDatasetFeatures');
-
+const log = initLogger(
+  'Utility/Catalog/ammendSearchResultsWithDatasetFeatures',
+);
 
 export const CONTINUOUSLY_UPDATED = 'Continuously Updated';
 export const ANCILLARY_DATA = 'Ancillary Data';
@@ -32,13 +33,13 @@ const ammendResults = (resultArray, datasetFeatures) => {
         // console.log (`no dataset features for ${Table_Name}`);
       }
     } else {
-      log.error ('table name was not a string', { Table_Name });
+      log.error('table name was not a string', { Table_Name });
     }
 
     return Object.assign(datasetMetadata, ammendation);
   });
 
   return results;
-}
+};
 
 export default ammendResults;

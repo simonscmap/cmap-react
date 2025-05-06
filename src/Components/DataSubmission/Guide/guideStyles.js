@@ -1,18 +1,17 @@
 import { makeStyles } from '@material-ui/core/styles';
 
-const useStyles = makeStyles ((theme) => ({
+const useStyles = makeStyles((theme) => ({
   container: {
     margin: '0 auto',
     padding: '1em',
     maxWidth: '1860px',
     '& li': {
-      margin: '.5em 0'
+      margin: '.5em 0',
     },
     '& figure': {
       maxWidth: 'calc(100% - 32px)',
-      margin: '1em auto'
+      margin: '1em auto',
     },
-
   },
   layout: {
     marginBottom: '50px',
@@ -46,7 +45,7 @@ const useStyles = makeStyles ((theme) => ({
     '& svg': {
       color: theme.palette.secondary.main,
       margin: '0 .5em',
-    }
+    },
   },
   title: {
     color: 'white',
@@ -65,12 +64,12 @@ const useStyles = makeStyles ((theme) => ({
       // fontSize: '1.5em'
     },
     '& .MuiTypography-body1': {
-      fontSize: '1.2em'
+      fontSize: '1.2em',
     },
 
-    '& .MuiListItemIcon-root':{
-      color: 'white'
-    }
+    '& .MuiListItemIcon-root': {
+      color: 'white',
+    },
   },
   contentTitle: {
     fontSize: '1.5em',
@@ -106,7 +105,7 @@ const useStyles = makeStyles ((theme) => ({
     flex: 1,
     '& .MuiSvgIcon-root': {
       fontSize: '42px',
-    }
+    },
   },
   fwd: {
     display: 'flex',
@@ -118,9 +117,8 @@ const useStyles = makeStyles ((theme) => ({
     flex: 1,
     '& .MuiSvgIcon-root': {
       fontSize: '42px',
-    }
-  }
-
+    },
+  },
 }));
 
 export default useStyles;
@@ -162,11 +160,11 @@ export const sectionStyles = makeStyles((theme) => ({
     },
     // most paragraphs need vertical margin
     '& .MuiTypography-body1': {
-      margin: '.5em 0'
+      margin: '.5em 0',
     },
     // but not in lists
     '& .MuiListItemText-primary.MuiTypography-body1': {
-      margin: '0'
+      margin: '0',
     },
 
     // ACCORDIONS
@@ -181,19 +179,19 @@ export const sectionStyles = makeStyles((theme) => ({
       '& svg': {
         fontSize: '24px',
         // paddingTop: '3px'
-      }
+      },
     },
     '& .MuiAccordionDetails-root': {
       paddingLeft: '60px',
       paddingRight: '50px',
       overflow: 'hidden',
-    }
+    },
   },
   divider: {
     '&.MuiDivider-root': {
       backgroundColor: '#47a3b369', // 'white',
       margin: '1em 0',
-    }
+    },
   },
   icon: {
     fontSize: '30px',
@@ -220,7 +218,7 @@ export const sectionStyles = makeStyles((theme) => ({
     margin: '0 2em',
     cursor: 'crosshair',
     '& svg': {
-      fontSize: '24px'
+      fontSize: '24px',
     },
     display: 'flex',
     flexDirection: 'row',
@@ -262,7 +260,6 @@ export const sectionStyles = makeStyles((theme) => ({
     fontWeight: 'bold',
     borderBottom: '1px solid rgb(157, 209, 98)',
     margin: '1em 0',
-
   },
   badge: {
     display: 'inline-block',
@@ -303,7 +300,6 @@ export const sectionStyles = makeStyles((theme) => ({
     boxSizing: 'border-box',
   },
 
-
   standoutBadgeContainer: {
     flex: 1,
     position: 'relative',
@@ -326,13 +322,12 @@ export const sectionStyles = makeStyles((theme) => ({
     flexDirection: 'row',
     gap: '.5em',
     alignItems: 'center',
-    padding: '6px 8px'
+    padding: '6px 8px',
   },
 
   focusPadding: {
-    padding: '6px 8px'
+    padding: '6px 8px',
   },
-
 
   metaContainer: {
     fontSize: '1em',
@@ -343,8 +338,6 @@ export const sectionStyles = makeStyles((theme) => ({
     // boxShadow: `0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12)`,
   },
 
-
-
   glow: {
     animation: '$glow 1000ms ease-out infinite alternate',
     border: `1px solid rgba(157, 209, 98, 0.1)`,
@@ -352,17 +345,19 @@ export const sectionStyles = makeStyles((theme) => ({
     '& svg': {
       color: 'rgb(105, 255, 242)',
       padding: 0,
-    }
+    },
   },
 
   '@keyframes glow': {
     '0%': {
       borderColor: '#393',
-      boxShadow: '0 0 5px rgba(105, 255, 242, 0.2), inset 0 0 5px rgba(105, 255, 242, 0.1), 0 2px 0 #000'
+      boxShadow:
+        '0 0 5px rgba(105, 255, 242, 0.2), inset 0 0 5px rgba(105, 255, 242, 0.1), 0 2px 0 #000',
     },
     '100%': {
       borderColor: '#6f6',
-      boxShadow: '0 0 20px rgba(105, 255, 242, 0.6), inset 0 0 10px rgba(105, 255, 242, 0.4), 0 2px 0 #000'
+      boxShadow:
+        '0 0 20px rgba(105, 255, 242, 0.6), inset 0 0 10px rgba(105, 255, 242, 0.4), 0 2px 0 #000',
     },
   },
 
@@ -375,12 +370,11 @@ export const sectionStyles = makeStyles((theme) => ({
   pointerArrow: {
     stroke: '#8fbcbb',
     strokeWidth: '1.5px',
-    fill: 'none'
+    fill: 'none',
   },
   arrowHead: {
-    fill: '#8fbcbb'
-  }
-
+    fill: '#8fbcbb',
+  },
 }));
 
 // const blue = 'rgb(105, 255, 242)'

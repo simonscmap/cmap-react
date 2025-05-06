@@ -17,36 +17,26 @@ import vizSubTypes from '../../../enums/visualizationSubTypes';
 import depthUtils from '../../../Utility/depthCounter';
 
 function estimateDataSize(vizPageDataTargetDetails, state) {
-  const {
-    dt1,
-    dt2,
-    lat1,
-    lat2,
-    lon1,
-    lon2,
-    depth1,
-    depth2,
-    selectedVizType,
-  } = state;
+  const { dt1, dt2, lat1, lat2, lon1, lon2, depth1, depth2, selectedVizType } =
+    state;
 
   if (!vizPageDataTargetDetails) {
     return 0;
   }
 
   if (
-    vizPageDataTargetDetails.Spatial_Resolution ===
-    spatialResolutions.irregular
+    vizPageDataTargetDetails.Spatial_Resolution === spatialResolutions.irregular
   ) {
     return 1;
   } else {
     const date1 =
       vizPageDataTargetDetails.Temporal_Resolution ===
-        temporalResolutions.monthlyClimatology
+      temporalResolutions.monthlyClimatology
         ? dt1
         : Date.parse(dt1);
     const date2 =
       vizPageDataTargetDetails.Temporal_Resolution ===
-        temporalResolutions.monthlyClimatology
+      temporalResolutions.monthlyClimatology
         ? dt2
         : Date.parse(dt2);
 
@@ -57,20 +47,19 @@ function estimateDataSize(vizPageDataTargetDetails, state) {
     );
     var dateCount =
       vizPageDataTargetDetails.Temporal_Resolution ===
-        temporalResolutions.monthlyClimatology
+      temporalResolutions.monthlyClimatology
         ? date2 - date1 + 1
         : Math.floor(
-          dayDiff /
-          mapTemporalResolutionToNumber(
-            vizPageDataTargetDetails.Temporal_Resolution,
-          ),
-        ) || 1;
+            dayDiff /
+              mapTemporalResolutionToNumber(
+                vizPageDataTargetDetails.Temporal_Resolution,
+              ),
+          ) || 1;
 
     dateCount *= 1.4; // add more weight to date because of sql indexing
 
     const depthCount =
-      depthUtils.count({ data: vizPageDataTargetDetails }, depth1, depth2) ||
-      1;
+      depthUtils.count({ data: vizPageDataTargetDetails }, depth1, depth2) || 1;
 
     const latCount = (lat2 - lat1) / res;
     const lonCount =

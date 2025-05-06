@@ -1,5 +1,5 @@
-import React, { useState, useEffect  } from 'react';
-import {  withStyles } from '@material-ui/core';
+import React, { useState, useEffect } from 'react';
+import { withStyles } from '@material-ui/core';
 import { Close } from '@material-ui/icons';
 import { toolPanelStyles } from './gridStyles';
 import copyTextToClipboard from '../../../Utility/Clipboard/copyTextToClipboard';
@@ -7,21 +7,29 @@ import dispatchCustomWindowEvent from '../../../Utility/Events/dispatchCustomWin
 import { zip, isStringURL } from './datagridHelpers';
 
 export const RenderString = ({ str, k }) => {
-  let isURL = isStringURL (str);
+  let isURL = isStringURL(str);
   if (isURL) {
-    return <a href={str} target="_blank" rel="noreferrer">{str}</a>;
+    return (
+      <a href={str} target="_blank" rel="noreferrer">
+        {str}
+      </a>
+    );
   } else if (k) {
     return <code>{str}:&nbsp;</code>; // render this as the key of an object
   } else {
     return <span>{str}</span>;
   }
-}
+};
 
-export const RenderObject = withStyles(toolPanelStyles)(({ classes, obj, indent }) => {
+export const RenderObject = withStyles(toolPanelStyles)(({
+  classes,
+  obj,
+  indent,
+}) => {
   return Object.entries(obj).map(([k, v], i) => {
     // TODO detect nested object/array values
     // need to handle them here in such a way that they indet properly
-    let isLeaf = (typeof v === 'object') ? false : true;
+    let isLeaf = typeof v === 'object' ? false : true;
 
     if (isLeaf) {
       return (
@@ -33,10 +41,13 @@ export const RenderObject = withStyles(toolPanelStyles)(({ classes, obj, indent 
     } else {
       return (
         <div key={`k${k}-node-${i}`}>
-          <div className={classes.objKVWrapper} >
+          <div className={classes.objKVWrapper}>
             <RenderString str={k} k={true} />
           </div>
-          <div className={classes.objKVNodeWrapper} style={{ paddingLeft: '2em' }}>
+          <div
+            className={classes.objKVNodeWrapper}
+            style={{ paddingLeft: '2em' }}
+          >
             <RenderValue val={v} />
           </div>
         </div>
@@ -49,7 +60,7 @@ const RenderValue = ({ val }) => {
   let valT = typeof val;
   switch (valT) {
     case 'object':
-      return <RenderObject obj={val} /> ;
+      return <RenderObject obj={val} />;
     case 'string':
       return <RenderString str={val} />;
     case 'number':
@@ -69,15 +80,19 @@ export const BlobRender = withStyles(toolPanelStyles)(({ blob, classes }) => {
   let keys = Object.keys(blob);
 
   return (
-    <div className={classes.blobContainer} >
+    <div className={classes.blobContainer}>
       {keys.map((key, keyIdx) => {
         // for each metadata "key" of the UM for this variable, spit out its description/value pairs
         let { values, descriptions } = blob[key];
         let zipped = zip(values, descriptions);
         return (
-          <div className={classes.blobKeyContainer} key={`blobKey-${key}(${keyIdx})`}>
+          <div
+            className={classes.blobKeyContainer}
+            key={`blobKey-${key}(${keyIdx})`}
+          >
             <div className={classes.keyLabel}>
-              <span>Additional Metadata for key: </span><code>{key}</code>
+              <span>Additional Metadata for key: </span>
+              <code>{key}</code>
             </div>
             <div className={classes.headers}>
               <div>Description</div>
@@ -86,9 +101,7 @@ export const BlobRender = withStyles(toolPanelStyles)(({ blob, classes }) => {
             {zipped.map(([value, description], idx) => {
               return (
                 <div className={classes.valuePair} key={`value${idx}`}>
-                  <div className={classes.description}>
-                    {description}
-                  </div>
+                  <div className={classes.description}>{description}</div>
                   <div className={classes.value}>
                     <RenderValue val={value} />
                   </div>
@@ -99,58 +112,75 @@ export const BlobRender = withStyles(toolPanelStyles)(({ blob, classes }) => {
         );
       })}
     </div>
-  )
+  );
 });
 
+export const VariableRowRender = withStyles(toolPanelStyles)(
+  React.memo(function BlobRenderFC({
+    um,
+    longName,
+    classes,
+    handleVariableLink,
+  }) {
+    let handler = handleVariableLink || (() => {});
+    let blobs = um;
 
-export const VariableRowRender = withStyles(toolPanelStyles)(React.memo(function BlobRenderFC({ um, longName, classes, handleVariableLink }) {
-  let handler = handleVariableLink || (() => {});
-  let blobs = um;
+    if (!blobs) {
+      return '';
+    }
 
-  if (!blobs) {
-    return '';
-  }
-
-  return (
-    <div className={classes.vumListRow}>
-      <div className={classes.variableName}>
-        <div>
-          <a onClick={() => handler(longName)}>
-            {longName || 'no name'}
-          </a>
+    return (
+      <div className={classes.vumListRow}>
+        <div className={classes.variableName}>
+          <div>
+            <a onClick={() => handler(longName)}>{longName || 'no name'}</a>
+          </div>
+          <div>
+            <div className={classes.longNameChip}>Variable</div>
+          </div>
         </div>
-        <div>
-          <div className={classes.longNameChip}>Variable</div>
-        </div>
+        {Array.isArray(blobs) &&
+          blobs.map((blob, blobIndex) => {
+            return <BlobRender blob={blob} key={blobIndex} />;
+          })}
       </div>
-      {Array.isArray(blobs) && blobs.map((blob, blobIndex) => {
-        return <BlobRender blob={blob} key={blobIndex} />;
-      })}
-    </div>
-  )
-}));
+    );
+  }),
+);
 
-export const ListRender = withStyles(toolPanelStyles)(({ rows, classes, handleVariableLink }) => {
+export const ListRender = withStyles(toolPanelStyles)(({
+  rows,
+  classes,
+  handleVariableLink,
+}) => {
   if (!rows) {
     return '';
   }
 
   return (
     <div className={classes.vumListContainer}>
-      <div className={classes.allCommentsLabel}>Metadata <span>({rows.length} matching variables with metadata)</span></div>
+      <div className={classes.allCommentsLabel}>
+        Metadata <span>({rows.length} matching variables with metadata)</span>
+      </div>
       {rows.map((r, i) => {
         let um = r.Unstructured_Variable_Metadata;
         // for each row, spit out a portion of the table with UM
-        return <VariableRowRender um={um} longName={r.Long_Name} handleVariableLink={handleVariableLink} key={`blob-${i}`} />
-      })
-      }
+        return (
+          <VariableRowRender
+            um={um}
+            longName={r.Long_Name}
+            handleVariableLink={handleVariableLink}
+            key={`blob-${i}`}
+          />
+        );
+      })}
     </div>
-  )
+  );
 });
 
 const VUMList = ({ shouldDisplay }) => {
-  let [ isLoaded, setIsLoaded] = useState(false);
-  let [ rows, setRows ] = useState([]);
+  let [isLoaded, setIsLoaded] = useState(false);
+  let [rows, setRows] = useState([]);
 
   let handleModel = (e) => {
     let { detail: currentRows } = e;
@@ -165,35 +195,39 @@ const VUMList = ({ shouldDisplay }) => {
   // --> if the parent component dispatches initial model before this component registers a listener,
   //     then this component will not get its initial data
   useEffect(() => {
-    window.addEventListener("variablesTableModel", handleModel, false);
+    window.addEventListener('variablesTableModel', handleModel, false);
     if (rows.length < 1 && !isLoaded) {
       // ask for a new dispatch of the table model
       // console.log('metadata tool panel asking for updated model');
-      dispatchCustomWindowEvent("clearFocusEvent", null);
+      dispatchCustomWindowEvent('clearFocusEvent', null);
     }
     return () => {
-      window.removeEventListener("variablesTableModel", handleModel, false);
+      window.removeEventListener('variablesTableModel', handleModel, false);
     };
   }, []);
 
-  let rowsWithUM = rows.filter((row) => row && row.Unstructured_Variable_Metadata);
+  let rowsWithUM = rows.filter(
+    (row) => row && row.Unstructured_Variable_Metadata,
+  );
 
   // set the focus of the table to the row of the varibale that was clicked
   let handleVariableLink = (longName) => {
-    dispatchCustomWindowEvent("askForFocus", { longName });
+    dispatchCustomWindowEvent('askForFocus', { longName });
   };
 
   if (!shouldDisplay) {
     return '';
   }
 
-  return <ListRender rows={rowsWithUM} handleVariableLink={handleVariableLink} />;
+  return (
+    <ListRender rows={rowsWithUM} handleVariableLink={handleVariableLink} />
+  );
 };
 
 const SidebarMetadataToolPanel = withStyles(toolPanelStyles)((props) => {
   let { classes } = props;
-  let [ eventPayload, setData ] = useState(null);
-  let [ isFocusView, setIsFocusView ] = useState(false);
+  let [eventPayload, setData] = useState(null);
+  let [isFocusView, setIsFocusView] = useState(false);
 
   let handleFocus = (e) => {
     let { detail } = e;
@@ -202,27 +236,27 @@ const SidebarMetadataToolPanel = withStyles(toolPanelStyles)((props) => {
       setData(detail);
       setIsFocusView(true);
     }
-  }
+  };
 
   let handleCopy = (e) => {
     let { detail } = e;
     if (detail) {
       copyTextToClipboard(detail);
     }
-  }
+  };
 
   // when another tool panel clears focus, it should shift this tool panel
   // into a list view as well
   const handleClearFocus = () => {
-      // console.log('metadata tool panel clear focus');
-      setIsFocusView (false);
-  }
+    // console.log('metadata tool panel clear focus');
+    setIsFocusView(false);
+  };
 
   // listen for event containing current panel content
   useEffect(() => {
-    window.addEventListener("setFocusEvent", handleFocus, false);
-    window.addEventListener("copyToClipboard", handleCopy, false);
-    window.addEventListener("clearFocusEvent", handleClearFocus, false);
+    window.addEventListener('setFocusEvent', handleFocus, false);
+    window.addEventListener('copyToClipboard', handleCopy, false);
+    window.addEventListener('clearFocusEvent', handleClearFocus, false);
     return () => {
       window.removeEventListener('setFocusEvent', handleFocus);
       window.removeEventListener('copyToClipboard', handleCopy);
@@ -231,25 +265,27 @@ const SidebarMetadataToolPanel = withStyles(toolPanelStyles)((props) => {
   }, []);
 
   let handleDeselect = () => {
-    dispatchCustomWindowEvent("clearFocusEvent", {});
-    setIsFocusView (false);
-  }
+    dispatchCustomWindowEvent('clearFocusEvent', {});
+    setIsFocusView(false);
+  };
 
   let handleExit = () => {
-    dispatchCustomWindowEvent("exitToolBar", {});
-  }
+    dispatchCustomWindowEvent('exitToolBar', {});
+  };
 
   return (
     <div className={classes.toolPanelContainer}>
       <div className={classes.title}>
-        <div><span>Additional Metadata Tool Panel</span></div>
+        <div>
+          <span>Additional Metadata Tool Panel</span>
+        </div>
         <div onClick={handleExit} className={classes.toolBarClose}>
           <span>Exit Tool Panel</span>
           <Close />
         </div>
       </div>
 
-      {isFocusView && eventPayload &&
+      {isFocusView && eventPayload && (
         <div>
           <div className={classes.variableFocusLabelContainer}>
             <div className={classes.variableLabel}>{/* removed */}</div>
@@ -257,10 +293,13 @@ const SidebarMetadataToolPanel = withStyles(toolPanelStyles)((props) => {
               <span>Deselect Variable</span>
               <Close />
             </div>
+          </div>
+          <VariableRowRender
+            um={eventPayload.unstructuredMetadata}
+            longName={eventPayload.longName}
+          />
         </div>
-          <VariableRowRender um={eventPayload.unstructuredMetadata} longName={eventPayload.longName} />
-        </div>
-      }
+      )}
       <VUMList shouldDisplay={!isFocusView} />
     </div>
   );

@@ -30,7 +30,7 @@ const useRowStyles = makeStyles({
   datasetIcon: {
     width: '200px',
     objectFit: 'cover',
-  }
+  },
 });
 
 function Row(props) {
@@ -38,11 +38,11 @@ function Row(props) {
   const cl = useRowStyles();
 
   const handleChange = (ev) => {
-    console.log ('handle change', ev.target.name, ev.target.value)
+    console.log('handle change', ev.target.name, ev.target.value);
     const name = ev.target.name;
     const value = ev.target.value;
-    updateSub (name, value);
-  }
+    updateSub(name, value);
+  };
 
   return (
     <React.Fragment>
@@ -61,34 +61,35 @@ function Row(props) {
 }
 
 const useTableStyles = makeStyles({
-  table: {
-  },
+  table: {},
   colHead: {
     fontWeight: 'bold',
-  }
+  },
 });
 
 const SubTable = (props) => {
   const { data = [], handleSave } = props;
-  const cl = useTableStyles ();
+  const cl = useTableStyles();
 
-  const state = data.map (s => ({ shortName: s.shortName, active: true }));
+  const state = data.map((s) => ({ shortName: s.shortName, active: true }));
 
-  const [ subState, setSubState] = useState (state);
+  const [subState, setSubState] = useState(state);
 
   const updateSub = (name, value) => {
-    console.log ('update', name);
-    setSubState (subState.map ((s) => {
-      if (s.shortName === name) {
-        return {
-          shortName: s.shortName,
-          active: value,
+    console.log('update', name);
+    setSubState(
+      subState.map((s) => {
+        if (s.shortName === name) {
+          return {
+            shortName: s.shortName,
+            active: value,
+          };
+        } else {
+          return s;
         }
-      } else {
-        return s;
-      }
-    }));
-  }
+      }),
+    );
+  };
 
   return (
     <TableContainer>
@@ -100,19 +101,21 @@ const SubTable = (props) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {subState.map((g, i) => (<Row key={`${i}`} row={g} updateSub={updateSub}/>))}
+          {subState.map((g, i) => (
+            <Row key={`${i}`} row={g} updateSub={updateSub} />
+          ))}
         </TableBody>
       </Table>
     </TableContainer>
   );
-}
+};
 
-const useStyles = makeStyles ((theme) => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     '& .MuiPaper-root': {
-      background: 'linear-gradient(103.17deg, #213d5e 18.14%, #07274D 79.18%)'
-    }
-  }
+      background: 'linear-gradient(103.17deg, #213d5e 18.14%, #07274D 79.18%)',
+    },
+  },
 }));
 
 export default function ResponsiveDialog(props) {
@@ -127,14 +130,14 @@ export default function ResponsiveDialog(props) {
   };
 
   const handleSave = (data) => {
-    console.log ('handle save', data);
-  }
+    console.log('handle save', data);
+  };
 
   return (
     <div>
       <Dialog
         classes={{
-          root: cl.root
+          root: cl.root,
         }}
         fullScreen={fullScreen}
         maxWidth={'lg'}
@@ -142,9 +145,9 @@ export default function ResponsiveDialog(props) {
         onClose={handleClose}
         aria-labelledby="responsive-dialog-title"
       >
-        <DialogTitle>{"Manage Subscriptions"}</DialogTitle>
+        <DialogTitle>{'Manage Subscriptions'}</DialogTitle>
         <DialogContent>
-          <SubTable data={subs} handleSave={handleSave}/>
+          <SubTable data={subs} handleSave={handleSave} />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="primary" autoFocus>

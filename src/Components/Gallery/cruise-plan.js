@@ -6,7 +6,8 @@ import Section, { FullWidthContainer } from '../Common/Section';
 import { colors } from '../Home/theme';
 import ResizeObserver from 'react-resize-observer';
 
-let nbviewerLink = 'https://nbviewer.org/github/simonscmap/pycmap/blob/master/docs/CruisePlan.ipynb';
+let nbviewerLink =
+  'https://nbviewer.org/github/simonscmap/pycmap/blob/master/docs/CruisePlan.ipynb';
 
 const styles = () => ({
   sectionGap: {
@@ -34,7 +35,7 @@ const styles = () => ({
     flexDirection: 'row',
     marginBottom: '2em',
     gap: '1em',
-  }
+  },
 });
 
 const Credit = withStyles(styles)(({ children }) => {
@@ -57,7 +58,13 @@ const HeroContent = withStyles(styles)(({ classes }) => {
           />
         </a>
         <a href="https://colab.research.google.com/github/simonscmap/pycmap/blob/master/docs/CruisePlan.ipynb">
-          <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open in Colab" title="Open and Execute in Google Colaboratory" target="_blank" align="left" />
+          <img
+            src="https://colab.research.google.com/assets/colab-badge.svg"
+            alt="Open in Colab"
+            title="Open and Execute in Google Colaboratory"
+            target="_blank"
+            align="left"
+          />
         </a>
       </div>
       <Credit>

@@ -14,11 +14,15 @@ const Story = withStyles({
   },
 })(({ story: storyState, classes }) => {
   let [expand, setExpand] = useState(false);
-  let toggle = () => setExpand(!expand)
+  let toggle = () => setExpand(!expand);
   return (
     <div className={classes.container}>
       <StorySummary story={storyState} toggle={toggle} />
-      <StoryDetail story={storyState} expand={expand} onCancel={() => setExpand(false)} />
+      <StoryDetail
+        story={storyState}
+        expand={expand}
+        onCancel={() => setExpand(false)}
+      />
     </div>
   );
 });

@@ -4,13 +4,13 @@ import { useSelector } from 'react-redux';
 const TrajectoryZoom = (props) => {
   const { view, activeTrajectorySelector } = props;
 
-  const focusedTrajectory = useSelector (activeTrajectorySelector);
+  const focusedTrajectory = useSelector(activeTrajectorySelector);
 
   useEffect(() => {
     if (!view) {
-      console.error (`Map Zoom control has no ref for map "view"`);
+      console.error(`Map Zoom control has no ref for map "view"`);
     } else if (!focusedTrajectory) {
-      console.log (`Map Zoom control has no focusedTrajectory to use`);
+      console.log(`Map Zoom control has no focusedTrajectory to use`);
       view.goTo(
         {
           target: [-140, 30],
@@ -43,7 +43,9 @@ const TrajectoryZoom = (props) => {
         },
       );
     } else {
-      console.log ('Map Zoom tried to zoom to trajector, but had no reference to view or view.goTo method');
+      console.log(
+        'Map Zoom tried to zoom to trajector, but had no reference to view or view.goTo method',
+      );
     }
   } catch (e) {
     console.log('error while changing esri view to center of trajectory', e);

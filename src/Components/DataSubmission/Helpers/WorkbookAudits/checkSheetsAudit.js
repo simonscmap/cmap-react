@@ -6,12 +6,12 @@ const DESCRIPTION = 'Check required worksheets exist and are not empty';
 
 let checkAllSheetsExist = (workbook) => {
   let expected = ['data', 'vars_meta_data', 'dataset_meta_data'];
-  return expected.filter ((e) => !workbook.Sheets[e]);
+  return expected.filter((e) => !workbook.Sheets[e]);
 };
 
 let checkAllSheetsHaveData = (workbook) => {
   let expected = ['data', 'vars_meta_data', 'dataset_meta_data'];
-  return expected.filter ((e) => workbook.Sheets[e].length === 0);
+  return expected.filter((e) => workbook.Sheets[e].length === 0);
 };
 
 // Result1 :: { severity, title, detail }
@@ -24,54 +24,58 @@ let checkAllSheetsHaveData = (workbook) => {
 const auditFn = (standardArgs) => {
   const { workbook } = standardArgs;
 
-  const results = []
+  const results = [];
 
   // check
   let sheetCheck = checkAllSheetsExist(workbook);
 
   if (sheetCheck.length) {
-    const inflect = (sheetCheck.length > 1 ? 's' : '');
+    const inflect = sheetCheck.length > 1 ? 's' : '';
     const wrapInPreQuotes = (s) => `*\`${s}\`*`;
-    const stringOfSheetNames = sheetCheck.map(wrapInPreQuotes).join (', ');
+    const stringOfSheetNames = sheetCheck.map(wrapInPreQuotes).join(', ');
     results.push({
       severity: severity.error,
       title: 'Workbook is missing worksheet' + inflect,
       body: {
         content: `Workbook is missing required sheet ${inflect}: ${stringOfSheetNames}. Please add worksheet${inflect} and {0}.`,
-        links: [{
-          text: 'resubmit',
-          url: '/datasubmission/submission-portal#step0'
-        }]
-      }
+        links: [
+          {
+            text: 'resubmit',
+            url: '/datasubmission/submission-portal#step0',
+          },
+        ],
+      },
     });
   }
 
-  const notEmptyCheck = checkAllSheetsHaveData (workbook);
+  const notEmptyCheck = checkAllSheetsHaveData(workbook);
 
   if (notEmptyCheck.length) {
-    const inflect = (notEmptyCheck.length > 1 ? 's' : '');
+    const inflect = notEmptyCheck.length > 1 ? 's' : '';
     const wrapInPreQuotes = (s) => `*\`${s}\`*`;
-    const stringOfSheetNames = notEmptyCheck.map(wrapInPreQuotes).join (', ');
+    const stringOfSheetNames = notEmptyCheck.map(wrapInPreQuotes).join(', ');
     results.push({
       severity: severity.error,
       title: `Worksheet${inflect} are empty`,
       body: {
         content: `Some worksheets are missing data. Please check the ${stringOfSheetNames} worksheet${inflect} and {0}.`,
-        links: [{
-          text: 'resubmit',
-          url: '/datasubmission/submission-portal#step0'
-        }]
-      }
+        links: [
+          {
+            text: 'resubmit',
+            url: '/datasubmission/submission-portal#step0',
+          },
+        ],
+      },
     });
   }
 
   return results;
-}
+};
 
-const audit = auditFactory (
+const audit = auditFactory(
   AUDIT_NAME,
   DESCRIPTION,
-  requireWorkbookArg (AUDIT_NAME, auditFn),
+  requireWorkbookArg(AUDIT_NAME, auditFn),
 );
 
 export default audit;

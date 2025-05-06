@@ -12,8 +12,7 @@ import {
 // New Drop Down
 import { DropDownContainer } from '../UI/DropDown';
 
-
-const useStyles = makeStyles ((theme) => ({
+const useStyles = makeStyles((theme) => ({
   formControl: {
     width: '90%',
     marginBottom: '6px',
@@ -31,24 +30,26 @@ const useStyles = makeStyles ((theme) => ({
   },
   selectLabel: {
     fontSize: '15px',
-    color: '#96CE57' // olive
+    color: '#96CE57', // olive
   },
 
   select: {
     fontSize: '15px',
-  }
-}))
+  },
+}));
 
 export const SpatialCoverageOptions = (props) => {
-  const { latStart, latEnd, lonStart, lonEnd, hasDepth, handleChangeSearchValue, } = props;
+  const {
+    latStart,
+    latEnd,
+    lonStart,
+    lonEnd,
+    hasDepth,
+    handleChangeSearchValue,
+  } = props;
   const classes = useStyles();
   return (
-    <Grid
-      item
-      container
-      xs={12}
-      className={classes.searchPanelRow}
-    >
+    <Grid item container xs={12} className={classes.searchPanelRow}>
       <Grid item xs={6}>
         <TextField
           name="latStart"
@@ -58,13 +59,13 @@ export const SpatialCoverageOptions = (props) => {
           inputProps={{
             min: -90,
             max: 90,
-            style: { fontSize: '16px'}
+            style: { fontSize: '16px' },
           }}
           InputLabelProps={{
             shrink: true,
             style: {
-              color: '#96CE57'
-            }
+              color: '#96CE57',
+            },
           }}
           value={latStart}
           onChange={handleChangeSearchValue}
@@ -80,13 +81,13 @@ export const SpatialCoverageOptions = (props) => {
           inputProps={{
             min: -90,
             max: 90,
-            style: { fontSize: '16px'}
+            style: { fontSize: '16px' },
           }}
           InputLabelProps={{
             shrink: true,
             style: {
-              color: '#96CE57'
-            }
+              color: '#96CE57',
+            },
           }}
           value={latEnd}
           onChange={handleChangeSearchValue}
@@ -102,13 +103,13 @@ export const SpatialCoverageOptions = (props) => {
           inputProps={{
             min: -180,
             max: 180,
-            style: { fontSize: '16px'}
+            style: { fontSize: '16px' },
           }}
           InputLabelProps={{
             shrink: true,
             style: {
-              color: '#96CE57'
-            }
+              color: '#96CE57',
+            },
           }}
           value={lonStart}
           onChange={handleChangeSearchValue}
@@ -124,13 +125,13 @@ export const SpatialCoverageOptions = (props) => {
           inputProps={{
             min: -180,
             max: 180,
-            style: { fontSize: '16px'}
+            style: { fontSize: '16px' },
           }}
           InputLabelProps={{
             shrink: true,
             style: {
-              color: '#96CE57'
-            }
+              color: '#96CE57',
+            },
           }}
           value={lonEnd}
           onChange={handleChangeSearchValue}
@@ -148,9 +149,15 @@ export const SpatialCoverageOptions = (props) => {
             name="hasDepth"
             className={classes.select}
           >
-            <MenuItem value="any" className={classes.select}>Any</MenuItem>
-            <MenuItem value="yes" className={classes.select}>Multiple Levels</MenuItem>
-            <MenuItem value="no" className={classes.select}>Surface Only</MenuItem>
+            <MenuItem value="any" className={classes.select}>
+              Any
+            </MenuItem>
+            <MenuItem value="yes" className={classes.select}>
+              Multiple Levels
+            </MenuItem>
+            <MenuItem value="no" className={classes.select}>
+              Surface Only
+            </MenuItem>
           </Select>
         </FormControl>
       </Grid>

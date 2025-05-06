@@ -12,16 +12,13 @@ import {
   selectedProgramDatasetShortNameSelector,
   selectedProgramDatasetVariableShortNameSelector,
 } from './programSelectors';
-import {
-  selectProgramDatasetVariable,
-} from '../../../Redux/actions/catalog';
-
+import { selectProgramDatasetVariable } from '../../../Redux/actions/catalog';
 
 import { safePath } from '../../../Utility/objectUtils';
 
 const ROW_HEIGHT = 35; // px
 
-const useStyles = makeStyles ((theme) => ({
+const useStyles = makeStyles((theme) => ({
   container: {
     position: 'relative',
     height: '700px',
@@ -51,7 +48,7 @@ const useStyles = makeStyles ((theme) => ({
       paddingRight: '5px',
     },
     '& .ag-theme-material .ag-row-selected': {
-      backgroundColor: 'rgba(16, 43, 60, 1)'
+      backgroundColor: 'rgba(16, 43, 60, 1)',
     },
     '& .radio-select': {
       position: 'relative',
@@ -66,7 +63,7 @@ const useStyles = makeStyles ((theme) => ({
         transform: 'none',
         position: 'absolute',
         width: '.85em',
-        height: '.85em'
+        height: '.85em',
       },
     },
     '& .radio-select.selected': {
@@ -75,7 +72,8 @@ const useStyles = makeStyles ((theme) => ({
   },
   agGridStyles: {
     borderRadius: '6px',
-    boxShadow: '0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12)',
+    boxShadow:
+      '0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12)',
     overflow: 'hidden',
   },
   messageContainer: {
@@ -104,16 +102,16 @@ const useStyles = makeStyles ((theme) => ({
     transition: 'all 0.5s ease',
     borderRadius: '5px',
     '& svg': {
-      paddingRight: '10px'
+      paddingRight: '10px',
     },
     '& .MuiOutlinedInput-input': {
       border: 'none',
     },
     '& .MuiOutlinedInput-notchedOutline': {
       border: 0,
-    }
+    },
   },
-  searchActive:{
+  searchActive: {
     width: 'calc(100% - 10px)',
     borderRadius: '5px',
     background: 'rgba(0,0,0,0.3)',
@@ -127,7 +125,7 @@ const useStyles = makeStyles ((theme) => ({
     },
     '& .MuiFormControl-root': {
       flexGrow: 3,
-    }
+    },
   },
   selectVarInstruction: {
     margin: '.5em 0',
@@ -152,144 +150,159 @@ const useStyles = makeStyles ((theme) => ({
     borderLeft: '5px solid transparent',
     borderRight: '5px solid transparent',
     borderTop: '5px solid #d16265',
-  }
+  },
 }));
 
 const columnDefinitions = [
-  { field: '',
+  {
+    field: '',
     width: ROW_HEIGHT,
-    cellRenderer:(params) => {
+    cellRenderer: (params) => {
       const { api, node, value } = params;
-      const selected = node.isSelected ();
+      const selected = node.isSelected();
       if (selected) {
         return `<div class="radio-select selected">
 <svg class="MuiSvgIcon-root" focusable="false" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"></path></svg>
 <svg class="MuiSvgIcon-root PrivateRadioButtonIcon-layer-199" focusable="false" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.465 8.465C9.37 7.56 10.62 7 12 7C14.76 7 17 9.24 17 12C17 13.38 16.44 14.63 15.535 15.535C14.63 16.44 13.38 17 12 17C9.24 17 7 14.76 7 12C7 10.62 7.56 9.37 8.465 8.465Z"></path></svg>
 
-</div>`
+</div>`;
       } else {
-
         return `<div class="radio-select">
  <svg class="MuiSvgIcon-root" focusable="false" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"></path></svg>
 </div >`;
       }
     },
     onCellClicked: (event) => {
-      console.log (event)
-      event.node.setSelected (true);
-      event.api.redrawRows (); // allows for style change
-    }
+      console.log(event);
+      event.node.setSelected(true);
+      event.api.redrawRows(); // allows for style change
+    },
   },
-  { field: "VariableName", flex: 1 },
+  { field: 'VariableName', flex: 1 },
 ];
 
 const Exp = (props) => {
   const cl = useStyles();
   const dispatch = useDispatch();
 
-  const program = useSelector ((state) => state.programDetails);
-  const datasets = program && program.datasets && Object.values(program.datasets);
-  const selectedShortName = useSelector (selectedProgramDatasetShortNameSelector);
-  const selectedDataset = datasets && datasets.find (d => d.Dataset_Name === selectedShortName);
-  const selectedVariableShortName = useSelector (selectedProgramDatasetVariableShortNameSelector);
-
+  const program = useSelector((state) => state.programDetails);
+  const datasets =
+    program && program.datasets && Object.values(program.datasets);
+  const selectedShortName = useSelector(
+    selectedProgramDatasetShortNameSelector,
+  );
+  const selectedDataset =
+    datasets && datasets.find((d) => d.Dataset_Name === selectedShortName);
+  const selectedVariableShortName = useSelector(
+    selectedProgramDatasetVariableShortNameSelector,
+  );
 
   const [api, setApi] = useState(null);
 
   let [filteredVariables, setFilteredVariables] = useState(null);
 
-  useEffect (() => {
+  useEffect(() => {
     if (datasets && selectedDataset) {
-      const variables = safePath (['visualizableVariables','variables']) (selectedDataset);
+      const variables = safePath(['visualizableVariables', 'variables'])(
+        selectedDataset,
+      );
 
-      setFilteredVariables (variables.map ((v) => ({
-        ...v,
-        VariableName: v.Short_Name,
-      })))
+      setFilteredVariables(
+        variables.map((v) => ({
+          ...v,
+          VariableName: v.Short_Name,
+        })),
+      );
     }
-  }, [selectedDataset])
+  }, [selectedDataset]);
 
-
-  useEffect (() => {
+  useEffect(() => {
     if (api) {
-      api.forEachNode ((params) => {
+      api.forEachNode((params) => {
         if (params.data.Short_Name === selectedVariableShortName) {
-          console.log ('set selected', params.setSelected);
-          params && params.setSelected && params.setSelected (true);
-          api.redrawRows ();
+          console.log('set selected', params.setSelected);
+          params && params.setSelected && params.setSelected(true);
+          api.redrawRows();
         }
-      })
+      });
     }
-  }, [selectedVariableShortName, api])
+  }, [selectedVariableShortName, api]);
 
   const handleChange = (data) => {
     const rows = api && api.getSelectedRows();
     const variable = rows && rows.length && rows[0];
 
-    dispatch (selectProgramDatasetVariable ({
-      varShortName: variable.Short_Name,
-      varId: variable.ID,
-      datasetId: selectedDataset && selectedDataset.ID,
-    }));
-  }
+    dispatch(
+      selectProgramDatasetVariable({
+        varShortName: variable.Short_Name,
+        varId: variable.ID,
+        datasetId: selectedDataset && selectedDataset.ID,
+      }),
+    );
+  };
 
   const onGridReady = (params) => {
-    setApi (params.api);
+    setApi(params.api);
     // params.api.sizeColumnsToFit();
-  }
+  };
 
   const vsRef = useRef();
-  let [searchTerm, setSearchTerm] = useState ('');
+  let [searchTerm, setSearchTerm] = useState('');
   let [variableSearchActive, setVariableSearchActive] = useState(false);
 
   useEffect(() => {
-    const variables = safePath (['visualizableVariables','variables']) (selectedDataset);
-      if (variables) {
-      const filtered = variables.filter (({Short_Name, Unit}) => {
-        const subject = (`${Short_Name || ''}${Unit || ''}`).toLowerCase();
+    const variables = safePath(['visualizableVariables', 'variables'])(
+      selectedDataset,
+    );
+    if (variables) {
+      const filtered = variables.filter(({ Short_Name, Unit }) => {
+        const subject = `${Short_Name || ''}${Unit || ''}`.toLowerCase();
         return subject.includes(searchTerm);
       });
-        setFilteredVariables (filtered.map (((v) => ({
+      setFilteredVariables(
+        filtered.map((v) => ({
           ...v,
           VariableName: v.Short_Name,
-        }))));
+        })),
+      );
     }
   }, [searchTerm, selectedDataset]);
 
   const variableSearchChange = (x) => {
-    if (typeof safePath(['target','value'])(x) !== 'string') {
+    if (typeof safePath(['target', 'value'])(x) !== 'string') {
       return;
     }
     const newSearchTerm = x.target.value.trim().toLowerCase();
     if (newSearchTerm !== searchTerm) {
-      setSearchTerm (newSearchTerm);
+      setSearchTerm(newSearchTerm);
     }
-  }
+  };
 
   const handleVarSearchOpenClose = (e) => {
     e.preventDefault();
     if (!variableSearchActive) {
       vsRef && vsRef.current && vsRef.current.focus && vsRef.current.focus();
     }
-    setVariableSearchActive (!variableSearchActive);
-    setSearchTerm (''); // clear search when it is closed
-  }
+    setVariableSearchActive(!variableSearchActive);
+    setSearchTerm(''); // clear search when it is closed
+  };
 
-  const shouldShowSelectInstruction = !variableSearchActive
-        && !selectedVariableShortName
-        && (filteredVariables
-            && filteredVariables.length != 0
-           );
+  const shouldShowSelectInstruction =
+    !variableSearchActive &&
+    !selectedVariableShortName &&
+    filteredVariables &&
+    filteredVariables.length != 0;
 
-  const shouldShowNoVariablesInfo = !searchTerm
-        && filteredVariables
-        && filteredVariables.length === 0;
+  const shouldShowNoVariablesInfo =
+    !searchTerm && filteredVariables && filteredVariables.length === 0;
 
   const messageOpen = shouldShowSelectInstruction || shouldShowNoVariablesInfo;
 
   return (
     <div className={cl.container}>
-      <div className={`${cl.searchContainer} ${(variableSearchActive && cl.searchActive)}`}>
+      <div
+        className={`${cl.searchContainer} ${variableSearchActive && cl.searchActive}`}
+      >
         <TextField
           inputRef={vsRef}
           name="searchTerms"
@@ -298,48 +311,63 @@ const Exp = (props) => {
           InputProps={{
             classes: {
               root: cl.inputRoot,
-            }
+            },
           }}
           variant="outlined"
         />
-        {variableSearchActive
-         ? <ClearIcon style={{ color: 'white', cursor: 'pointer' }} onClick={handleVarSearchOpenClose} />
-         : <SearchIcon style={{ color: 'white', cursor: 'pointer' }} onClick={handleVarSearchOpenClose} />
-        }
+        {variableSearchActive ? (
+          <ClearIcon
+            style={{ color: 'white', cursor: 'pointer' }}
+            onClick={handleVarSearchOpenClose}
+          />
+        ) : (
+          <SearchIcon
+            style={{ color: 'white', cursor: 'pointer' }}
+            onClick={handleVarSearchOpenClose}
+          />
+        )}
       </div>
 
-      <div className={`${cl.messageContainer} ${messageOpen && cl.messageContainerActive}`}>
-        {shouldShowSelectInstruction  &&
-         <Grow in={!selectedVariableShortName}>
-           <Paper className={cl.selectVarInstruction}>
-             {'Select a variable'}
-           </Paper>
-         </Grow>}
+      <div
+        className={`${cl.messageContainer} ${messageOpen && cl.messageContainerActive}`}
+      >
+        {shouldShowSelectInstruction && (
+          <Grow in={!selectedVariableShortName}>
+            <Paper className={cl.selectVarInstruction}>
+              {'Select a variable'}
+            </Paper>
+          </Grow>
+        )}
 
-        {shouldShowNoVariablesInfo &&
-         <Grow in={shouldShowNoVariablesInfo}>
-           <Paper className={cl.noVarsIndicator}>
-             {'This dataset has no visualizable variables.'}
-           </Paper>
-         </Grow>}
+        {shouldShowNoVariablesInfo && (
+          <Grow in={shouldShowNoVariablesInfo}>
+            <Paper className={cl.noVarsIndicator}>
+              {'This dataset has no visualizable variables.'}
+            </Paper>
+          </Grow>
+        )}
         {messageOpen && <div className={cl.mark}></div>}
       </div>
       <div
         className={`ag-theme-material ${cl.agGridStyles}`} // applying the Data Grid theme
         style={{ height: '635px', width: '100%' }} // the Data Grid will fill the size of the parent container
       >
-      <AgGridReact
-        rowHeight={ROW_HEIGHT}
-        rowSelection="single"
-        onGridReady={onGridReady}
-        rowData={filteredVariables}
-        columnDefs={columnDefinitions}
-        defaultColDef={{ resizable: true, sortable: true, suppressMenu: true }}
-        onSelectionChanged={handleChange}
-      />
+        <AgGridReact
+          rowHeight={ROW_HEIGHT}
+          rowSelection="single"
+          onGridReady={onGridReady}
+          rowData={filteredVariables}
+          columnDefs={columnDefinitions}
+          defaultColDef={{
+            resizable: true,
+            sortable: true,
+            suppressMenu: true,
+          }}
+          onSelectionChanged={handleChange}
+        />
       </div>
     </div>
   );
-}
+};
 
 export default Exp;

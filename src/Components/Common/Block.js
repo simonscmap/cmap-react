@@ -35,7 +35,7 @@ const styles = {
       padding: '0',
       background: 'none',
       borderRadius: 'none',
-    }
+    },
   },
   visualIndent: {
     position: 'absolute',
