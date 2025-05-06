@@ -323,10 +323,10 @@ const DownloadDialog = (props) => {
           checkSizeRequestState === states.notTried
             ? buttonStates.notTried
             : checkSizeRequestState === states.inProgress
-              ? buttonStates.checkInProgress
-              : checkSizeRequestState === states.failed
-                ? buttonStates.checkFailed
-                : buttonStates.notTried; // default
+            ? buttonStates.checkInProgress
+            : checkSizeRequestState === states.failed
+            ? buttonStates.checkFailed
+            : buttonStates.notTried; // default
 
         setDownloadButtonState({
           enabled: false,
@@ -417,10 +417,10 @@ const DownloadDialog = (props) => {
           estimate && estimate > 0
             ? `The selected subset of data is under the download threshold. An estimated ${projection.size.toLocaleString()} rows match the selected subset.`
             : estimate && estimate < 0
-              ? `The dataset ${
-                  estimate ? '(' + -estimate.toLocaleString() + ' rows)' : ''
-                } is under the download threshold and may be downloaded in full.`
-              : '';
+            ? `The dataset ${
+                estimate ? '(' + -estimate.toLocaleString() + ' rows)' : ''
+              } is under the download threshold and may be downloaded in full.`
+            : '';
         enableButton(message, buttonStates.checkSucceededAndDownloadAllowed);
       }
     }
