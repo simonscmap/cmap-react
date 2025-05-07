@@ -422,7 +422,7 @@ const safeAPI = Object.entries(visualizationAPI)
     return {
       [name]: async (...args) => {
         let result;
-        console.log(`<trace::vizApi> ${name}`);
+        // console.log(`<trace::vizApi> ${name}`);
         try {
           result = await fn.apply(null, args);
         } catch (e) {
