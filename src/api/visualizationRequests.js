@@ -175,12 +175,17 @@ visualizationAPI.variableSampleVisRequest = async (payload) => {
   const { ID } = variableData;
   const { visType, parameters, metadata } = variableData.meta;
 
-  const dataModel =
-    visType === 'Heatmap'
-      ? new SpaceTimeData({ parameters, metadata })
-      : visType === 'Sparse'
-        ? new SparseData({ parameters, metadata })
-        : null;
+  let dataModel;
+  switch (visType) {
+    case 'Heatmap':
+      dataModel = new SpaceTimeData({ parameters, metadata });
+      break;
+    case 'Sparse':
+      dataModel = new SparseData({ parameters, metadata });
+      break;
+    default:
+      dataModel = null;
+  }
 
   if (!dataModel) {
     return { failed: true, status: 'NO DATA MODEL IDENTIFIED' };
@@ -239,12 +244,17 @@ visualizationAPI.datasetDetailPageVariableVisualizationRequest = async (
   const { meta } = variableData;
   const { visType, parameters, metadata } = meta;
 
-  const dataModel =
-    visType === 'Heatmap'
-      ? new SpaceTimeData({ parameters, metadata })
-      : visType === 'Sparse'
-        ? new SparseData({ parameters, metadata })
-        : null;
+  let dataModel;
+  switch (visType) {
+    case 'Heatmap':
+      dataModel = new SpaceTimeData({ parameters, metadata });
+      break;
+    case 'Sparse':
+      dataModel = new SparseData({ parameters, metadata });
+      break;
+    default:
+      dataModel = null;
+  }
 
   if (!dataModel) {
     return { failed: true, status: 'NO DATA MODEL IDENTIFIED' };

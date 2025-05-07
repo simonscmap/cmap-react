@@ -1409,6 +1409,10 @@ function* vizSearchResultsFetch(action) {
     });
 
   const searchResponse = yield call(api.visualization.variableSearch, qString);
+  console.log(
+    '🚀🚀🚀 | index.js:1412 | function*vizSearchResultsFetch | searchResponse:',
+    searchResponse,
+  );
   const storedOptions = yield select((state) => state.submissionOptions);
 
   if (searchResponse.ok) {
