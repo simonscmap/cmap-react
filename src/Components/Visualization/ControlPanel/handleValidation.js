@@ -446,7 +446,7 @@ function estimateDataSize() {
 }
 
 function handleValidation() {
-  console.log('validating...');
+  // console.log('validating...');
   const details = this.props.vizPageDataTargetDetails;
   if (!details) {
     return {

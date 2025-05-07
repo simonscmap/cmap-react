@@ -144,7 +144,7 @@ function handleChangeFormInput(e) {
 export default handleChangeFormInput;
 
 export const shiftMinMaxDate = (d, details, minOrMax) => {
-  console.log('shif date', minOrMax, d);
+  // console.log('shif date', minOrMax, d);
   if (typeof d !== 'string' || d.length < 10) {
     return null;
   }
@@ -163,6 +163,6 @@ export const shiftMinMaxDate = (d, details, minOrMax) => {
     return undefined;
     // str = dayjs('1900-01-01').add(timeOffsetInMS, 'ms').toISOString();
   }
-  console.log('shiftDate', d, str, offset, timeOffsetInMS);
+  // console.log('shiftDate', d, str, offset, timeOffsetInMS);
   return str;
 };
