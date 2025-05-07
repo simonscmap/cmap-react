@@ -82,7 +82,7 @@
     "short-uuid": "^4.2.0",
     "text-encoding": "^0.7.0",
     "throttle-debounce": "^2.2.1",
-    "xlsx": "^0.16.3"
+    "xlsx": "^0.17.0"
   },
   "eslintConfig": {
     "extends": "react-app"
