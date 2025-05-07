@@ -1,6 +1,6 @@
 {
   "name": "cmap_react",
-  "version": "1.21.4",
+  "version": "1.21.5",
   "private": true,
   "scripts": {
     "start": "npm run pre-build && react-scripts --max_old_space_size=4096 start",
