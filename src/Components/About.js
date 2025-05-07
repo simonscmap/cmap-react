@@ -7,11 +7,9 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { Link } from 'react-router-dom';
 import React, { useState } from 'react';
 import Page2 from './Common/Page2';
-import TableOfContents, { ToCBase } from './Common/TableOfContents';
+import { ToCBase } from './Common/TableOfContents';
 import Section, { Group } from './Common/Section';
-import Banner from './Common/Banner';
 import Block from './Common/Block';
-import { colors } from './Home/theme';
 
 const styles = () => ({
   fontSize: '1.2em',
@@ -58,19 +56,6 @@ const styles = () => ({
     },
   },
 });
-
-const tocList = [
-  {
-    text: 'Project Support',
-    bookmark: 'support',
-  },
-  {
-    text: 'How to Cite Simons CMAP',
-    bookmark: 'cite',
-  },
-  { text: 'People', bookmark: 'people' },
-  { text: 'Participate', bookmark: 'participate' },
-];
 
 const sections = {
   support: 'support',
@@ -129,7 +114,7 @@ const About = ({ classes }) => {
                   Tansy Burns, Research Coordinator
                 </Typography>
                 <Typography variant="body1">
-                  Walker Malling, Web Engineer
+                  Howard Wayne Kim, Web Engineer
                 </Typography>
               </Group>
               <Group title="University of Washington, Department of Human Centered Design and Engineering">
