@@ -102,16 +102,16 @@ const DialogComponent = (props) => {
 const GenericConfirmationDialog = (props) => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user);
-  const loginIsActive = useSelector((state) => state.loginDialogIsOpen);
+  // const loginIsActive = useSelector((state) => state.loginDialogIsOpen);
 
   const {
     open,
-    openClose,
+    // openClose,
     loading,
     loadingMsg,
     error,
-    errorMsg,
-    name,
+    // errorMsg,
+    // name,
     // text
     // actionButtonText
     // actionButtonDisabled
