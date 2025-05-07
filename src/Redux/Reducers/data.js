@@ -2,7 +2,6 @@ import * as dataActionTypes from '../actionTypes/data';
 import states from '../../enums/asyncRequestStates';
 
 export default function (state, action) {
-
   switch (action.type) {
     /* SST */
 
@@ -55,7 +54,6 @@ export default function (state, action) {
         ...state,
         adtReqStatus: states.failed,
       };
-
 
     /* AVG SST */
 

@@ -5,11 +5,7 @@ import { sectionStyles } from '../guideStyles';
 
 const Content = () => {
   const cl = sectionStyles();
-  return (
-    <div className={cl.container}>
-
-    </div>
-  );
+  return <div className={cl.container}></div>;
 };
 
 export default Content;

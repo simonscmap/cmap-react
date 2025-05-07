@@ -1,11 +1,9 @@
-import auditFactory, {
-  requireData,
-  makeIssueList,
-} from './auditFactory';
+import auditFactory, { requireData, makeIssueList } from './auditFactory';
 import severity from './severity';
 
 const AUDIT_NAME = 'Identical Values';
-const DESCRIPTION = 'Check if any user defined varibles have all identical values';
+const DESCRIPTION =
+  'Check if any user defined varibles have all identical values';
 
 const colHasAllIdenticalValues = (data, col) => {
   if (data.length < 2) {
@@ -30,12 +28,11 @@ const colHasAllIdenticalValues = (data, col) => {
   return true;
 };
 
-
 const checkAllSameValue = (data, userVariables) => {
   let result = [];
 
   userVariables.forEach((varName) => {
-    let allSame = colHasAllIdenticalValues (data, varName);
+    let allSame = colHasAllIdenticalValues(data, varName);
     if (allSame) {
       result.push(varName);
     }
@@ -47,7 +44,7 @@ const checkAllSameValue = (data, userVariables) => {
 // :: args -> [result]
 const check = (standardAuditArgs) => {
   const { data } = standardAuditArgs;
-  const results = []
+  const results = [];
 
   const fixedVariables = new Set(['time', 'lat', 'lon', 'depth']);
   const userVariables = new Set(
@@ -57,24 +54,18 @@ const check = (standardAuditArgs) => {
   const colsWithSameValue = checkAllSameValue(data, userVariables);
 
   if (colsWithSameValue.length) {
-    results.push(makeIssueList (
-      severity.warning,
-      'All Values for Column Are Identical',
-      {
+    results.push(
+      makeIssueList(severity.warning, 'All Values for Column Are Identical', {
         text: 'The following columns had all identical values',
         list: colsWithSameValue,
-      }
-    ));
+      }),
+    );
   }
   return results;
-}
+};
 
-const auditFn = requireData (AUDIT_NAME, check);
+const auditFn = requireData(AUDIT_NAME, check);
 
-const audit = auditFactory (
-  AUDIT_NAME,
-  DESCRIPTION,
-  auditFn,
-);
+const audit = auditFactory(AUDIT_NAME, DESCRIPTION, auditFn);
 
 export default audit;

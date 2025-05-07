@@ -52,8 +52,8 @@ const useStyles = makeStyles((theme) => ({
   },
   guideStepper: {
     '& .MuiStep-root .MuiSvgIcon-root': {
-      color: '#9dd162'
-    }
+      color: '#9dd162',
+    },
   },
 }));
 
@@ -113,22 +113,28 @@ const getActiveStepFromPhase = (phase) => {
     default:
       return 1;
   }
-}
+};
 
 // Stepper used in Guide (TODO put these in sync)
 export const UserDashboardStepper = (props) => {
   const { activeStep, submission } = props;
   return (
-    <Stepper style={{ borderRadius: '5px'}} alternativeLabel  activeStep={activeStep}>
+    <Stepper
+      style={{ borderRadius: '5px' }}
+      alternativeLabel
+      activeStep={activeStep}
+    >
       {steps.map((item, i) => {
         return (
           <Step key={i}>
             <StepLabel>
               {item.label}
-              <span style={{ opacity: 0.9, fontSize: '11px', display: 'block'}}>
+              <span
+                style={{ opacity: 0.9, fontSize: '11px', display: 'block' }}
+              >
                 {submission[item.timeStampKey] && activeStep > i
-                 ? submission[item.timeStampKey].slice(0, 10)
-                 : ''}
+                  ? submission[item.timeStampKey].slice(0, 10)
+                  : ''}
               </span>
             </StepLabel>
           </Step>
@@ -149,25 +155,25 @@ export const GuideStepper = (props) => {
   ];
 
   const { activeStep, submission } = props;
-  const cl = useStyles ();
+  const cl = useStyles();
   return (
-    <Stepper className={cl.guideStepper} style={{ borderRadius: '5px'}} alternativeLabel nonLinear activeStep={activeStep}>
+    <Stepper
+      className={cl.guideStepper}
+      style={{ borderRadius: '5px' }}
+      alternativeLabel
+      nonLinear
+      activeStep={activeStep}
+    >
       {steps.map((item, i) => {
         return (
           <Step key={i}>
-            <StepLabel>
-              {item}
-            </StepLabel>
+            <StepLabel>{item}</StepLabel>
           </Step>
         );
       })}
     </Stepper>
   );
 };
-
-
-
-
 
 export const UserDashboardPanelDetails = (props) => {
   const { submission, submissionComments } = props;
@@ -178,7 +184,7 @@ export const UserDashboardPanelDetails = (props) => {
   let comments = submissionComments[submission.Submission_ID];
   let renderComments = Boolean(comments && comments.length);
 
-  const activeStep = getActiveStepFromPhase (submission.Phase);
+  const activeStep = getActiveStepFromPhase(submission.Phase);
 
   useEffect(() => {
     props.retrieveSubmissionCommentHistory(submission.Submission_ID);
@@ -196,17 +202,19 @@ export const UserDashboardPanelDetails = (props) => {
       <UserDashboardStepper activeStep={activeStep} submission={submission} />
 
       {/* Disallow updates from completed submissions. */}
-      {activeStep !== 6 && <Typography className={classes.newUpload}>
-        <Link
-          component={RouterLink}
-          to={`/datasubmission/submission-portal?submissionID=${encodeURIComponent(
-            submission.Submission_ID,
-          )}`}
-        >
-          Update
-        </Link>{' '}
-        {'this submission.'}
-      </Typography>}
+      {activeStep !== 6 && (
+        <Typography className={classes.newUpload}>
+          <Link
+            component={RouterLink}
+            to={`/datasubmission/submission-portal?submissionID=${encodeURIComponent(
+              submission.Submission_ID,
+            )}`}
+          >
+            Update
+          </Link>{' '}
+          {'this submission.'}
+        </Typography>
+      )}
 
       <Typography className={classes.newUpload}>
         <Link
@@ -248,7 +256,6 @@ export const UserDashboardPanelDetails = (props) => {
     </div>
   );
 };
-
 
 export default connect(
   mapStateToProps,

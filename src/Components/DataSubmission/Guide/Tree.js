@@ -9,7 +9,6 @@ import clsx from 'clsx';
 import { data, findById } from './tableOfContents';
 import useStyles from './treeStyles';
 
-
 const NavigationTree = (props) => {
   const { setContent, current } = props;
   const cl = useStyles();
@@ -22,26 +21,29 @@ const NavigationTree = (props) => {
   };
 
   const handleSelect = (event, nodeId) => {
-    setContent (nodeId, true); // true flag for clearing focus
-    setSelected (nodeId);
+    setContent(nodeId, true); // true flag for clearing focus
+    setSelected(nodeId);
   };
 
+  useEffect(() => {
+    const c = findById(current.id);
+    const itemsToExpand = c.path.map(({ id }) => id);
 
-  useEffect (() => {
-    const c = findById (current.id);
-    const itemsToExpand = c.path.map (({ id }) => id);
-
-    if (!itemsToExpand.every ((requiredId) => expanded.some ((expId) => expId === requiredId))) {
+    if (
+      !itemsToExpand.every((requiredId) =>
+        expanded.some((expId) => expId === requiredId),
+      )
+    ) {
       // ensure path to current item is expanded
-      setExpanded (itemsToExpand);
+      setExpanded(itemsToExpand);
     }
     // scroll
-    const scrollContainer = document.getElementById ('nav-scroll-container');
+    const scrollContainer = document.getElementById('nav-scroll-container');
     const el = document.querySelector(`[dataid="${current.id}"]`);
     if (el && scrollContainer) {
-      setTimeout (() => {
+      setTimeout(() => {
         scrollContainer.scrollTop = el.offsetTop - 132;
-      }, 1)
+      }, 1);
     }
   }, [current]);
 
@@ -49,7 +51,7 @@ const NavigationTree = (props) => {
   const renderTree = (nodes) => {
     const classes = [cl.item];
     if (nodes.id === current.id) {
-      classes.push (cl.highlight); // highlight the currently shown item
+      classes.push(cl.highlight); // highlight the currently shown item
       // NOTE this differs from the 'selected' behavior of the TreeView
       // which allows for multiple items to be selected
     }
@@ -62,22 +64,20 @@ const NavigationTree = (props) => {
         key={`tree_node-${nodes.id}`}
         label={
           <div className={cl.itemLabel}>
-            <span className={cl.labelText}>
-              {nodes.name}
-            </span>
-            {nodes.media && <PlayCircleOutlineIcon className={cl.labelIcon}/>}
-            {nodes.icon === 'email' && <MailOutlineIcon className={cl.labelIcon}/>}
+            <span className={cl.labelText}>{nodes.name}</span>
+            {nodes.media && <PlayCircleOutlineIcon className={cl.labelIcon} />}
+            {nodes.icon === 'email' && (
+              <MailOutlineIcon className={cl.labelIcon} />
+            )}
           </div>
         }
       >
-        {
-          Array.isArray(nodes.children)
-            ? nodes.children.map((node) => renderTree(node))
-            : null
-        }
+        {Array.isArray(nodes.children)
+          ? nodes.children.map((node) => renderTree(node))
+          : null}
       </TreeItem>
     );
-  }
+  };
 
   // Return Tree
   return (
@@ -91,7 +91,7 @@ const NavigationTree = (props) => {
       onNodeToggle={handleToggle}
       onNodeSelect={handleSelect}
     >
-      {data.map (renderTree)}
+      {data.map(renderTree)}
     </TreeView>
   );
 };

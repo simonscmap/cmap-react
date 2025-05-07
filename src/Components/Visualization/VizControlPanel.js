@@ -25,9 +25,9 @@ import {
   Search,
   ShowChart,
 } from '@material-ui/icons';
-import { ImLock } from "react-icons/im";
-import { ImUnlocked } from "react-icons/im";
-import { LuAlertTriangle } from "react-icons/lu";
+import { ImLock } from 'react-icons/im';
+import { ImUnlocked } from 'react-icons/im';
+import { LuAlertTriangle } from 'react-icons/lu';
 import CloseIcon from '@material-ui/icons/Close';
 
 import DatePicker from 'react-date-picker';
@@ -85,7 +85,7 @@ import temporalResolutions from '../../enums/temporalResolutions';
 import { Warning } from '../../Components/Common/Alert';
 import initLogger from '../../Services/log-service';
 
-const log = initLogger ('VizControlPanel');
+const log = initLogger('VizControlPanel');
 
 const mapStateToProps = (state) => ({
   data: state.data,
@@ -102,7 +102,8 @@ const mapStateToProps = (state) => ({
   dataSearchMenuOpen: state.dataSearchMenuOpen,
   paramLock: state.viz.chart.controls.paramLock,
   dateTypeMismatch: state.viz.chart.controls.dateTypeMismatch,
-  variableResolutionMismatch: state.viz.chart.controls.variableResolutionMismatch,
+  variableResolutionMismatch:
+    state.viz.chart.controls.variableResolutionMismatch,
   lockAlertsOpen: state.viz.chart.controls.lockAlertsOpen,
   sizeCheckStatus: state.viz.chart.validation.sizeCheck.status,
   sizeCheck: state.viz.chart.validation.sizeCheck.result,
@@ -124,7 +125,6 @@ const mapDispatchToProps = {
   storedProcedureRequestSend,
   vizPageDataTargetSetAndFetchDetails,
 };
-
 
 const overrideDisabledStyle = {
   backgroundColor: 'transparent',
@@ -163,34 +163,33 @@ const defaultBaseState = {
   irregularSpatialResolution: false,
   addedGlobeUIListeners: false,
   showDrawHelp: false,
-}
+};
 const defaultState = {
   ...defaultParamState,
   ...defaultBaseState,
 };
 
-
-
 // detect if spatial state has changed
 const spatialStateHasChanged = (prevState, currState) => {
-  return (prevState.lat1 !== currState.lat1 ||
-          prevState.lat2 !== currState.lat2 ||
-          prevState.lon1 !== currState.lon1 ||
-          prevState.lon2 !== currState.lon2 ||
-          prevState.depth1 !== currState.depth1 ||
-          prevState.depth2 !== currState.depth2);
-}
+  return (
+    prevState.lat1 !== currState.lat1 ||
+    prevState.lat2 !== currState.lat2 ||
+    prevState.lon1 !== currState.lon1 ||
+    prevState.lon2 !== currState.lon2 ||
+    prevState.depth1 !== currState.depth1 ||
+    prevState.depth2 !== currState.depth2
+  );
+};
 
 const temporalRangeHasChanged = (prevState, currState) => {
-  return prevState.dt1 !== currState.dt1
-    || prevState.dt2 !== currState.dt2;
-}
+  return prevState.dt1 !== currState.dt1 || prevState.dt2 !== currState.dt2;
+};
 
 // Helper to handle re-drawing polygons on the globe
 // when the region selection has changed
 const updateGlobeWithPolygon = (mapRef, currState) => {
   if (!mapRef || !mapRef.current) {
-    console.log (`<trace> could not update globe, no ref`);
+    console.log(`<trace> could not update globe, no ref`);
     return;
   }
   const lat1 = parseFloat(currState.lat1);
@@ -221,33 +220,37 @@ const updateGlobeWithPolygon = (mapRef, currState) => {
 
   // draw
   mapRef.current.regionLayer.add(regionGraphic);
-}
+};
 
 const targetVariableIsNowNull = (prevProps, currProps) => {
-  return currProps.vizPageDataTargetDetails === null
-    && prevProps.vizPageDataTargetDetails !== null;
-}
+  return (
+    currProps.vizPageDataTargetDetails === null &&
+    prevProps.vizPageDataTargetDetails !== null
+  );
+};
 
 const newDataTargetDetails = (prevProps, currProps) => {
   // will help determine whether to reorient the globe to new region
-  return currProps.vizPageDataTargetDetails !== prevProps.vizPageDataTargetDetails
-}
+  return (
+    currProps.vizPageDataTargetDetails !== prevProps.vizPageDataTargetDetails
+  );
+};
 
 const isSatelliteOrModel = (currProps) => {
-  const { irregularSpatialResolution, monthlyClimatology } = getTargetFeatures (currProps);
+  const { irregularSpatialResolution, monthlyClimatology } =
+    getTargetFeatures(currProps);
   const isNotIrregularSpatialResolution = !irregularSpatialResolution;
   const isNotMonthlyClimatology = !monthlyClimatology;
 
-  return isNotIrregularSpatialResolution
-    && isNotMonthlyClimatology;
-}
+  return isNotIrregularSpatialResolution && isNotMonthlyClimatology;
+};
 
 const reorientGlobe = (globeUIRef, currProps) => {
   if (!globeUIRef || !globeUIRef.current) {
     return;
   }
   const data = currProps.vizPageDataTargetDetails;
-  const { irregularSpatialResolution } = getTargetFeatures (currProps);
+  const { irregularSpatialResolution } = getTargetFeatures(currProps);
   const derivedParams = generateVariableSampleRangeParams(data);
   const { lat1, lat2, lon1, lon2 } = derivedParams;
 
@@ -266,7 +269,7 @@ const reorientGlobe = (globeUIRef, currProps) => {
       },
     );
   }
-}
+};
 
 // help the monthly input fields display a meaningful value if the date range
 // is locked with date-time values
@@ -276,11 +279,11 @@ const ensureMonthlyValue = (dateString) => {
   } else if (typeof dateString !== 'string') {
     return dateString; // most likely a number
   } else if (dateString.length > 2) {
-    return transformDateStringToMonth (dateString);
+    return transformDateStringToMonth(dateString);
   } else {
     return dateString;
   }
-}
+};
 
 const ensureTimeValue = (dateString) => {
   // if date string does not provide enough information,
@@ -292,9 +295,9 @@ const ensureTimeValue = (dateString) => {
   } else if (dateString.length < 16) {
     return '00:00';
   } else {
-    return dateString.slice(11,16);
+    return dateString.slice(11, 16);
   }
-}
+};
 
 /* ~~~~~~~~~   VizControlPanel   ~~~~~~~~~~~~ */
 class VizControlPanel extends React.Component {
@@ -309,11 +312,12 @@ class VizControlPanel extends React.Component {
   };
 
   componentDidUpdate = (prevProps, prevState) => {
-    const spatialExtentChange = spatialStateHasChanged (prevState, this.state);
-    const temporalRangeChange = temporalRangeHasChanged (prevState, this.state);
-    const vizTypeChange = prevState.selectedVizType !== this.state.selectedVizType;
+    const spatialExtentChange = spatialStateHasChanged(prevState, this.state);
+    const temporalRangeChange = temporalRangeHasChanged(prevState, this.state);
+    const vizTypeChange =
+      prevState.selectedVizType !== this.state.selectedVizType;
     if (spatialExtentChange) {
-      updateGlobeWithPolygon (this.props.mapContainerRef, this.state);
+      updateGlobeWithPolygon(this.props.mapContainerRef, this.state);
     }
 
     if (spatialExtentChange || temporalRangeChange || vizTypeChange) {
@@ -324,7 +328,7 @@ class VizControlPanel extends React.Component {
     // NOTE because of the lifecycle of this component, there are several
     // renders between changing the target and getting the data in props
     // This will lead to many data processing bugs if not handled here
-    if (targetVariableIsNowNull (prevProps, this.props)) {
+    if (targetVariableIsNowNull(prevProps, this.props)) {
       // keep spatial params if param lock is on
       this.setState({
         ...this.state,
@@ -334,10 +338,10 @@ class VizControlPanel extends React.Component {
       return;
     }
 
-    if (newDataTargetDetails (prevProps, this.props)) {
-      reorientGlobe (this.props.globeUIRef, this.props);
+    if (newDataTargetDetails(prevProps, this.props)) {
+      reorientGlobe(this.props.globeUIRef, this.props);
 
-      if (isSatelliteOrModel (this.props)) {
+      if (isSatelliteOrModel(this.props)) {
         this.props.snackbarOpen(
           'Default parameters for satellite and model data will ' +
             'exceed the maximum visualizable size. Please ' +
@@ -345,10 +349,14 @@ class VizControlPanel extends React.Component {
         );
       }
 
-      const { surfaceOnly, irregularSpatialResolution } = getTargetFeatures (this.props);
+      const { surfaceOnly, irregularSpatialResolution } = getTargetFeatures(
+        this.props,
+      );
 
       // derived params are lat, lon ranges
-      const derivedParams = generateVariableSampleRangeParams(this.props.vizPageDataTargetDetails);
+      const derivedParams = generateVariableSampleRangeParams(
+        this.props.vizPageDataTargetDetails,
+      );
       // if paramLock is active, do not update params
       const emptyParams = {};
       const params = this.props.paramLock ? emptyParams : derivedParams;
@@ -397,7 +405,6 @@ class VizControlPanel extends React.Component {
       lon2: parseFloat(_lon2.toFixed(3)),
     };
 
-
     this.setState({
       ...this.state,
       ...newCoordinates,
@@ -413,34 +420,27 @@ class VizControlPanel extends React.Component {
   };
 
   handleCheckQuerySize = () => {
-    const payload = prepareQueryPayload (this.state, this.props);
+    const payload = prepareQueryPayload(this.state, this.props);
     if (!this.state.selectedVizType) {
-      console.log ('no selectedVizType, no dispatch')
+      console.log('no selectedVizType, no dispatch');
       return;
     }
-    console.log ('dispatch check viz query size')
+    console.log('dispatch check viz query size');
     payload.vizType = this.state.selectedVizType;
-    this.props.checkVizQuerySize (payload);
-  }
+    this.props.checkVizQuerySize(payload);
+  };
 
   // "create vizualization" button is clicked
   handleVisualize = () => {
-    const {
-      depth1,
-      depth2,
-      lat1,
-      lat2,
-      lon1,
-      lon2,
-      selectedVizType,
-    } = this.state;
+    const { depth1, depth2, lat1, lat2, lon1, lon2, selectedVizType } =
+      this.state;
 
     const isSparseVariable =
       this.props.vizPageDataTargetDetails.Spatial_Resolution ===
       spatialResolutions.irregular;
 
     const mapping = mapVizType(selectedVizType);
-    const dateParams = manageDateParams (this.state, this.props);
+    const dateParams = manageDateParams(this.state, this.props);
     const parameters = cleanSPParams({
       depth1,
       depth2,
@@ -561,14 +561,14 @@ class VizControlPanel extends React.Component {
    * for date fields, combine date+time
    */
   handleChangeInputValue = (e) => {
-    handleChangeFormInput.call (this, e);
+    handleChangeFormInput.call(this, e);
   };
 
   handleToggleCharts = () => {};
 
   validate = () => {
-    return handleValidation.call (this);
-  }
+    return handleValidation.call(this);
+  };
 
   render = () => {
     const {
@@ -627,27 +627,26 @@ class VizControlPanel extends React.Component {
       endDateTimeMessage,
     } = validations;
 
-
     const details = vizPageDataTargetDetails;
 
     const alerts = [];
 
     if (this.props.paramLock && this.props.variableResolutionMismatch) {
       alerts.push(
-        (<Warning>
-           <span>
-             {`The selected varible belongs to a different dataset than the previous variable. The resulting visualization may have a different spatial or temporal resolution and thus incorporate more or fewer snapshots of data.`}
-           </span>
-         </Warning>)
+        <Warning>
+          <span>
+            {`The selected varible belongs to a different dataset than the previous variable. The resulting visualization may have a different spatial or temporal resolution and thus incorporate more or fewer snapshots of data.`}
+          </span>
+        </Warning>,
       );
     }
     if (this.props.paramLock && this.props.dateTypeMismatch) {
-      alerts.push (
-        (<Warning>
-           <span>
-             {`There is a mismatch between the locked date range type and the current variable's temporal resolution. Unlock the parameters controls to change the time range.`}
-           </span>
-         </Warning>)
+      alerts.push(
+        <Warning>
+          <span>
+            {`There is a mismatch between the locked date range type and the current variable's temporal resolution. Unlock the parameters controls to change the time range.`}
+          </span>
+        </Warning>,
       );
     }
 
@@ -704,38 +703,37 @@ class VizControlPanel extends React.Component {
           }}
           anchor="left"
         >
-          {alerts.length > 0 &&
-           <div className={classes.alertBoxHandle}>
-             <IconButton
-               onClick={() => {
-                 this.props.setLockAlertsOpen (!this.props.lockAlertsOpen)}}
-             >
-               <LuAlertTriangle />
-             </IconButton>
-           </div>
-          }
+          {alerts.length > 0 && (
+            <div className={classes.alertBoxHandle}>
+              <IconButton
+                onClick={() => {
+                  this.props.setLockAlertsOpen(!this.props.lockAlertsOpen);
+                }}
+              >
+                <LuAlertTriangle />
+              </IconButton>
+            </div>
+          )}
 
-          {alerts.length > 0 &&
-           <div className={classes.alertBox}>
-             {this.props.lockAlertsOpen &&
-              <div className={classes.alertList}>
-                {alerts}
-              </div>
-             }
+          {alerts.length > 0 && (
+            <div className={classes.alertBox}>
+              {this.props.lockAlertsOpen && (
+                <div className={classes.alertList}>{alerts}</div>
+              )}
 
-             {this.props.lockAlertsOpen &&
-              <span>
-                <IconButton
-                  onClick={() => {
-                    this.props.setLockAlertsOpen (!this.props.lockAlertsOpen)}}
-                >
-                  <CloseIcon />
-                </IconButton>
-              </span>
-             }
-           </div>
-          }
-
+              {this.props.lockAlertsOpen && (
+                <span>
+                  <IconButton
+                    onClick={() => {
+                      this.props.setLockAlertsOpen(!this.props.lockAlertsOpen);
+                    }}
+                  >
+                    <CloseIcon />
+                  </IconButton>
+                </span>
+              )}
+            </div>
+          )}
 
           {/* Begin Variable Search Button */}
           {dataTarget ? (
@@ -814,11 +812,11 @@ class VizControlPanel extends React.Component {
                   );
                   if (searchEl) {
                     // console.log('setting focus');
-                    searchEl.focus()
+                    searchEl.focus();
                   } else {
-                    console.log('couldn\'t find element')
+                    console.log("couldn't find element");
                   }
-                  }}
+                }}
                 classes={{
                   label: classes.controlPanelItemLabel,
                   startIcon: classes.controlPanelItemStartIcon,
@@ -836,7 +834,7 @@ class VizControlPanel extends React.Component {
               {/* Start Date Field, Varying on Monthly vs Daily  */}
 
               {details &&
-                details.Temporal_Resolution ===
+              details.Temporal_Resolution ===
                 temporalResolutions.monthlyClimatology ? (
                 <>
                   {/* Monthly Date Picker  */}
@@ -851,7 +849,7 @@ class VizControlPanel extends React.Component {
                       max={12}
                       step={1}
                       value={ensureMonthlyValue(dt1)}
-                      error={(Boolean(startDateMessage))}
+                      error={Boolean(startDateMessage)}
                       FormHelperTextProps={{ className: classes.helperText }}
                       helperText={startDateMessage}
                       InputProps={{
@@ -867,9 +865,9 @@ class VizControlPanel extends React.Component {
                       }}
                       onChange={this.handleChangeInputValue}
                       disabled={
-                        this.props.paramLock
-                          ||  this.state.showDrawHelp
-                          || !vizPageDataTargetDetails
+                        this.props.paramLock ||
+                        this.state.showDrawHelp ||
+                        !vizPageDataTargetDetails
                       }
                     />
                   </Grid>
@@ -885,7 +883,7 @@ class VizControlPanel extends React.Component {
                       max={12}
                       step={1}
                       value={ensureMonthlyValue(dt2)}
-                      error={(Boolean(endDateMessage))}
+                      error={Boolean(endDateMessage)}
                       FormHelperTextProps={{ className: classes.helperText }}
                       helperText={endDateMessage}
                       InputProps={{
@@ -901,9 +899,9 @@ class VizControlPanel extends React.Component {
                       }}
                       onChange={this.handleChangeInputValue}
                       disabled={
-                        this.props.paramLock
-                          || this.state.showDrawHelp
-                          || !vizPageDataTargetDetails
+                        this.props.paramLock ||
+                        this.state.showDrawHelp ||
+                        !vizPageDataTargetDetails
                       }
                     />
                   </Grid>
@@ -918,14 +916,18 @@ class VizControlPanel extends React.Component {
                       <DatePicker
                         disabled={!details || this.props.paramLock}
                         value={shiftMinMaxDate(dt1, details, 'min')}
-                        onChange={(date) => this.handleChangeInputValue ({
-                          target: {
-                            name: 'date1',
-                            value: date,
-                          }
-                        })}
+                        onChange={(date) =>
+                          this.handleChangeInputValue({
+                            target: {
+                              name: 'date1',
+                              value: date,
+                            },
+                          })
+                        }
                         clearIcon={null}
-                        shouldOpenCalendar={({ reason }) => "buttonClick" === reason}
+                        shouldOpenCalendar={({ reason }) =>
+                          'buttonClick' === reason
+                        }
                       />
                       {startDateMessage ? <span>{startDateMessage}</span> : ''}
                     </div>
@@ -937,69 +939,75 @@ class VizControlPanel extends React.Component {
                       <DatePicker
                         disabled={!details || this.props.paramLock}
                         value={shiftMinMaxDate(dt2, details, 'max')}
-                        onChange={(date) => this.handleChangeInputValue ({
-                          target: {
-                            name: 'date2',
-                            value: date,
-                          }
-                        })}
+                        onChange={(date) =>
+                          this.handleChangeInputValue({
+                            target: {
+                              name: 'date2',
+                              value: date,
+                            },
+                          })
+                        }
                         clearIcon={null}
                         shouldOpenCalendar={({ reason }) => {
-                          console.log (reason);
-                          return "buttonClick" === reason;
+                          console.log(reason);
+                          return 'buttonClick' === reason;
                         }}
                       />
                       {endDateMessage ? <span>{endDateMessage}</span> : ''}
                     </div>
+                  </Grid>
 
-                </Grid>
-
-                    <Grid item xs={6} className={classes.formGridItem}>
-                      <TextField
-                        name="hour1"
-                        id="hour1"
-                        label="Start Time"
-                        className={classes.textField}
-                        type="time"
-                        value={ensureTimeValue(dt1)}
-                        onChange={this.handleChangeInputValue}
-                        error={(Boolean(startTimeMessage) || Boolean (startDateTimeMessage))}
-                        helperText={startTimeMessage || startDateTimeMessage}
-                        disabled={
-                          this.props.paramLock
-                            ||  this.state.showDrawHelp
-                            || !vizPageDataTargetDetails
-                        }
-                        InputLabelProps={{
-                          className: classes.padLeft,
-                        }}
-                      />
-                    </Grid><Grid item xs={6} className={classes.formGridItem}>
-                      <TextField
-                        name="hour2"
-                        id="hour2"
-                        label="End Time"
-                        className={classes.textField}
-                        type="time"
-                        value={ensureTimeValue(dt2)}
-                        onChange={this.handleChangeInputValue}
-                        error={(Boolean(endTimeMessage) || Boolean(endDateTimeMessage))}
-                        helperText={endTimeMessage || endDateTimeMessage}
-                        disabled={
-                          this.props.paramLock
-                            ||this.state.showDrawHelp
-                            || !vizPageDataTargetDetails
-                        }
-                        InputLabelProps={{
-                          className: classes.padLeft,
-                        }}
-                      />
-                    </Grid>
+                  <Grid item xs={6} className={classes.formGridItem}>
+                    <TextField
+                      name="hour1"
+                      id="hour1"
+                      label="Start Time"
+                      className={classes.textField}
+                      type="time"
+                      value={ensureTimeValue(dt1)}
+                      onChange={this.handleChangeInputValue}
+                      error={
+                        Boolean(startTimeMessage) ||
+                        Boolean(startDateTimeMessage)
+                      }
+                      helperText={startTimeMessage || startDateTimeMessage}
+                      disabled={
+                        this.props.paramLock ||
+                        this.state.showDrawHelp ||
+                        !vizPageDataTargetDetails
+                      }
+                      InputLabelProps={{
+                        className: classes.padLeft,
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={6} className={classes.formGridItem}>
+                    <TextField
+                      name="hour2"
+                      id="hour2"
+                      label="End Time"
+                      className={classes.textField}
+                      type="time"
+                      value={ensureTimeValue(dt2)}
+                      onChange={this.handleChangeInputValue}
+                      error={
+                        Boolean(endTimeMessage) || Boolean(endDateTimeMessage)
+                      }
+                      helperText={endTimeMessage || endDateTimeMessage}
+                      disabled={
+                        this.props.paramLock ||
+                        this.state.showDrawHelp ||
+                        !vizPageDataTargetDetails
+                      }
+                      InputLabelProps={{
+                        className: classes.padLeft,
+                      }}
+                    />
+                  </Grid>
                 </>
               )}
 
               {/* End Date Field */}
-
 
               <Grid item xs={6} className={classes.formGridItem}>
                 <TextField
@@ -1025,9 +1033,9 @@ class VizControlPanel extends React.Component {
                   name="lat1"
                   onChange={this.handleChangeInputValue}
                   disabled={
-                    this.props.paramLock
-                      || this.state.showDrawHelp
-                      || !vizPageDataTargetDetails
+                    this.props.paramLock ||
+                    this.state.showDrawHelp ||
+                    !vizPageDataTargetDetails
                   }
                 ></TextField>
               </Grid>
@@ -1056,9 +1064,9 @@ class VizControlPanel extends React.Component {
                   InputLabelProps={{ className: classes.padLeft }}
                   onChange={this.handleChangeInputValue}
                   disabled={
-                    this.props.paramLock
-                      ||  this.state.showDrawHelp
-                      || !vizPageDataTargetDetails
+                    this.props.paramLock ||
+                    this.state.showDrawHelp ||
+                    !vizPageDataTargetDetails
                   }
                 ></TextField>
               </Grid>
@@ -1087,9 +1095,9 @@ class VizControlPanel extends React.Component {
                   InputLabelProps={{ className: classes.padLeft }}
                   onChange={this.handleChangeInputValue}
                   disabled={
-                    this.props.paramLock
-                      || this.state.showDrawHelp
-                      || !vizPageDataTargetDetails
+                    this.props.paramLock ||
+                    this.state.showDrawHelp ||
+                    !vizPageDataTargetDetails
                   }
                 ></TextField>
               </Grid>
@@ -1118,13 +1126,12 @@ class VizControlPanel extends React.Component {
                   InputLabelProps={{ className: classes.padLeft }}
                   onChange={this.handleChangeInputValue}
                   disabled={
-                    this.props.paramLock
-                      || this.state.showDrawHelp
-                      || !vizPageDataTargetDetails
+                    this.props.paramLock ||
+                    this.state.showDrawHelp ||
+                    !vizPageDataTargetDetails
                   }
                 ></TextField>
                 {/* draw on globe*/}
-
               </Grid>
 
               <Grid item xs={6} className={classes.formGridItem}>
@@ -1150,10 +1157,7 @@ class VizControlPanel extends React.Component {
                   }}
                   InputLabelProps={{ className: classes.padLeft }}
                   onChange={this.handleChangeInputValue}
-                  disabled={
-                    this.props.paramLock ||
-                    !vizPageDataTargetDetails
-                  }
+                  disabled={this.props.paramLock || !vizPageDataTargetDetails}
                 ></TextField>
               </Grid>
 
@@ -1180,10 +1184,7 @@ class VizControlPanel extends React.Component {
                   }}
                   InputLabelProps={{ className: classes.padLeft }}
                   onChange={this.handleChangeInputValue}
-                  disabled={
-                    this.props.paramLock ||
-                    !vizPageDataTargetDetails
-                  }
+                  disabled={this.props.paramLock || !vizPageDataTargetDetails}
                 ></TextField>
               </Grid>
 
@@ -1207,22 +1208,29 @@ class VizControlPanel extends React.Component {
               />
 
               {showControlPanel ? (
-                <Paper className={classes.popoutButtonPaper}> {/* show globe button */}
-                  <Tooltip placement="right" title={this.props.paramLock ? 'Unlock Space & Time Range' : 'Lock Space & Time Range'}>
+                <Paper className={classes.popoutButtonPaper}>
+                  {' '}
+                  {/* show globe button */}
+                  <Tooltip
+                    placement="right"
+                    title={
+                      this.props.paramLock
+                        ? 'Unlock Space & Time Range'
+                        : 'Lock Space & Time Range'
+                    }
+                  >
                     <span>
                       <IconButton
                         className={classes.lockButtonBase}
-                        onClick={() => this.props.setParamLock (!this.props.paramLock)}
+                        onClick={() =>
+                          this.props.setParamLock(!this.props.paramLock)
+                        }
                         disabled={!details}
                       >
-                        {this.props.paramLock
-                         ? <ImLock />
-                         : <ImUnlocked />
-                        }
+                        {this.props.paramLock ? <ImLock /> : <ImUnlocked />}
                       </IconButton>
                     </span>
                   </Tooltip>
-
                   <Tooltip
                     title={
                       plotsActiveTab !== 0 ? 'Return to Globe' : 'Show Charts'
@@ -1234,10 +1242,12 @@ class VizControlPanel extends React.Component {
                       onClick={this.handleShowChartsClick}
                     >
                       {plotsActiveTab !== 0 ? (
-                        <Language className={classes.popoutButtonIcon}/>
+                        <Language className={classes.popoutButtonIcon} />
                       ) : (
-                        <Badge badgeContent={charts.length} color="primary"> {/* display chart count*/}
-                          <ShowChart className={classes.popoutButtonIcon}/>
+                        <Badge badgeContent={charts.length} color="primary">
+                          {' '}
+                          {/* display chart count*/}
+                          <ShowChart className={classes.popoutButtonIcon} />
                         </Badge>
                       )}
                     </IconButton>
@@ -1247,15 +1257,18 @@ class VizControlPanel extends React.Component {
                     position={{ beacon: 'right', hint: 'bottom-end' }}
                     size={'medium'}
                   >
-                    <Tooltip placement="right" title={'Draw Spatial Range on Globe'}>
+                    <Tooltip
+                      placement="right"
+                      title={'Draw Spatial Range on Globe'}
+                    >
                       <span>
                         <IconButton
                           className={classes.popoutButtonBase}
                           onClick={this.handleDrawClick}
                           disabled={
-                            !details
-                              || plotsActiveTab !== 0
-                              || this.props.paramLock
+                            !details ||
+                            plotsActiveTab !== 0 ||
+                            this.props.paramLock
                           }
                         >
                           <Edit className={classes.popoutButtonIcon} />

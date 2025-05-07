@@ -29,11 +29,11 @@ const styles = (theme) => ({
       },
       '& .MuiAlert-message': {
         color: theme.palette.primary.main,
-      }
+      },
     },
     '&.MuiAlert-outlinedWarning': {
       color: 'rgb(209, 98, 101)',
-      border: `1px solid rgb(209, 98, 101)`
+      border: `1px solid rgb(209, 98, 101)`,
     },
     '&.MuiAlert-standardInfo': {
       color: 'rgb(34, 163, 185)',
@@ -41,9 +41,8 @@ const styles = (theme) => ({
       '& .MuiAlert-icon': {
         color: 'rgb(34, 163, 185)',
       },
-    }
+    },
   },
-
 });
 
-export const CustomAlert = withStyles (styles) (Alert);
+export const CustomAlert = withStyles(styles)(Alert);

@@ -20,12 +20,12 @@ import states from '../../../enums/asyncRequestStates';
 import { safePathOr } from '../../../Utility/objectUtils';
 import generateTempId from '../../../Utility/generateTempId';
 
-const useStyles = makeStyles ((theme) => ({
+const useStyles = makeStyles((theme) => ({
   dialogTitle: {
     background: 'rgba(0,0,0,0.2)',
     '& h2': {
       color: 'white',
-    }
+    },
   },
   tableWrapper: {
     display: 'inline-block',
@@ -40,17 +40,17 @@ const useStyles = makeStyles ((theme) => ({
     },
     '& td': {
       color: 'white',
-    }
+    },
   },
   p: {
-    margin: '1em 0'
+    margin: '1em 0',
   },
   previewContainer: {
     display: 'flex',
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-around',
-  }
+  },
 }));
 
 const Info = (props) => {
@@ -69,7 +69,8 @@ const Info = (props) => {
         Are you sure you want to send out email notifications for "{headline}"?
       </Typography>
       <Typography className={cl.p}>
-        This action will send email notifications to {totalRecipients.length} recipents.
+        This action will send email notifications to {totalRecipients.length}{' '}
+        recipents.
       </Typography>
       <div className={cl.tableWrapper}>
         <TableContainer className={cl.tableContainer}>
@@ -94,22 +95,24 @@ const Info = (props) => {
         </TableContainer>
       </div>
 
-      {(history && history.length > 0) &&
-       <Typography className={cl.p}>
-         {history.length} email notifications have already been sent for this news item.
-       </Typography>}
+      {history && history.length > 0 && (
+        <Typography className={cl.p}>
+          {history.length} email notifications have already been sent for this
+          news item.
+        </Typography>
+      )}
       <div>
         <Typography>Preview</Typography>
         <div className={cl.previewContainer}>
-          { previews && previews.map ((p, ix) =>
-            <iframe key={ix} srcDoc={p.content} width="555" height="625"/>
-          )}
+          {previews &&
+            previews.map((p, ix) => (
+              <iframe key={ix} srcDoc={p.content} width="555" height="625" />
+            ))}
         </div>
       </div>
     </div>
   );
-}
-
+};
 
 const FailedSend = () => {
   const cl = useStyles();
@@ -127,15 +130,15 @@ const SucceededSend = (props) => {
   const cl = useStyles();
   const { sentNotifications = [] } = props;
 
-  const results = sentNotifications.map (item => item.data).flat ();
-  const resultsByEmailId = results.reduce ((acc, curr) => {
+  const results = sentNotifications.map((item) => item.data).flat();
+  const resultsByEmailId = results.reduce((acc, curr) => {
     if (Array.isArray(acc[curr.emailId])) {
-      acc[curr.emailId].push (curr.success);
+      acc[curr.emailId].push(curr.success);
     } else {
       acc[curr.emailId] = [curr.success];
     }
     return acc;
-  }, {})
+  }, {});
 
   return (
     <div>
@@ -157,8 +160,12 @@ const SucceededSend = (props) => {
               {Object.keys(resultsByEmailId).map((key) => (
                 <TableRow>
                   <TableCell>{key}</TableCell>
-                  <TableCell>{resultsByEmailId[key].filter (x => x).length}</TableCell>
-                  <TableCell>{resultsByEmailId[key].filter (x => !x).length}</TableCell>
+                  <TableCell>
+                    {resultsByEmailId[key].filter((x) => x).length}
+                  </TableCell>
+                  <TableCell>
+                    {resultsByEmailId[key].filter((x) => !x).length}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -169,12 +176,12 @@ const SucceededSend = (props) => {
   );
 };
 
-
-const sortByTimestamp = ({ timestamp: timeA }, {timestamp: timeB}) => {
+const sortByTimestamp = ({ timestamp: timeA }, { timestamp: timeB }) => {
   return timeA < timeB ? 1 : -1;
-}
+};
 
-const safeHead = (acc, curr) => { // reduce
+const safeHead = (acc, curr) => {
+  // reduce
   if (acc) {
     return acc;
   } else if (curr) {
@@ -182,25 +189,31 @@ const safeHead = (acc, curr) => { // reduce
   } else {
     return null;
   }
-}
+};
 
 const getStatus = (statuses, tempId) => {
-  if (!Array.isArray (statuses) || statuses.length === 0) {
+  if (!Array.isArray(statuses) || statuses.length === 0) {
     return states.notTried;
   }
 
-  const relevantStatuses = statuses.filter (item => item.tempId === tempId);
-  const newestStatus = relevantStatuses.sort (sortByTimestamp).reduce (safeHead, null);
+  const relevantStatuses = statuses.filter((item) => item.tempId === tempId);
+  const newestStatus = relevantStatuses
+    .sort(sortByTimestamp)
+    .reduce(safeHead, null);
 
   if (!newestStatus) {
     return states.notTried;
   }
 
-  if ([states.failed, states.inProgress, states.succeeded].includes (newestStatus.status)) {
+  if (
+    [states.failed, states.inProgress, states.succeeded].includes(
+      newestStatus.status,
+    )
+  ) {
     return newestStatus.status;
   }
   // else unknown, undefined
-}
+};
 
 const ConfirmationDialog = (props) => {
   const {
@@ -217,30 +230,33 @@ const ConfirmationDialog = (props) => {
     sentNotifications,
   } = props;
 
-  const cl = useStyles ();
+  const cl = useStyles();
 
-  const [tempId, setTempId] = useState ();
+  const [tempId, setTempId] = useState();
 
-  useEffect (() => {
-    setTempId (generateTempId (newsId))
+  useEffect(() => {
+    setTempId(generateTempId(newsId));
   }, [open]);
 
-  const status = getStatus (statuses, tempId);
+  const status = getStatus(statuses, tempId);
 
-
-  const sent = sentNotifications.filter (item => item.tempId === tempId);
+  const sent = sentNotifications.filter((item) => item.tempId === tempId);
 
   const send = () => {
-    handleConfirm (tempId);
-  }
+    handleConfirm(tempId);
+  };
 
-  const safePath = safePathOr ([]) (Array.isArray);
+  const safePath = safePathOr([])(Array.isArray);
 
-  const subscribers = safePath (['projection', 'subscribed']) (projection);
-  const newsSubscribers = safePath (['projection', 'newsSubscribers']) (projection);
+  const subscribers = safePath(['projection', 'subscribed'])(projection);
+  const newsSubscribers = safePath(['projection', 'newsSubscribers'])(
+    projection,
+  );
 
-  const recipientIds = [...newsSubscribers, ...subscribers].map (s => s.userId);
-  const totalRecipients = Array.from (new Set (recipientIds));
+  const recipientIds = [...newsSubscribers, ...subscribers].map(
+    (s) => s.userId,
+  );
+  const totalRecipients = Array.from(new Set(recipientIds));
 
   const isEnabled = !enabled.isDirty && enabled.viewStatus === 3;
 
@@ -258,32 +274,37 @@ const ConfirmationDialog = (props) => {
           Confirm Send Email Notification
         </DialogTitle>
         <DialogContent>
-            {status === states.notTried && <Info
-                                             headline={headline}
-                                             history={history}
-                                             subscribers={subscribers}
-                                             newsSubscribers={newsSubscribers}
-                                             totalRecipients={totalRecipients}
-                                             previews={previews}
-                                           />}
-            {status === states.inProgress && <SpinnerWrapper message={'Sending...'} />}
-            {status === states.failed && <FailedSend sentNotifications={sent} />}
-            {status === states.succeeded && <SucceededSend sentNotifications={sent} />}
+          {status === states.notTried && (
+            <Info
+              headline={headline}
+              history={history}
+              subscribers={subscribers}
+              newsSubscribers={newsSubscribers}
+              totalRecipients={totalRecipients}
+              previews={previews}
+            />
+          )}
+          {status === states.inProgress && (
+            <SpinnerWrapper message={'Sending...'} />
+          )}
+          {status === states.failed && <FailedSend sentNotifications={sent} />}
+          {status === states.succeeded && (
+            <SucceededSend sentNotifications={sent} />
+          )}
         </DialogContent>
         <DialogActions>
           <Button autoFocus onClick={handleClose} color="primary">
             {status === !states.succeeded ? 'Cancel' : 'Close'}
           </Button>
-          {status === states.notTried &&
-           <Button disabled={!isEnabled} onClick={send} color="primary">
-             Send
-           </Button>
-          }
-
+          {status === states.notTried && (
+            <Button disabled={!isEnabled} onClick={send} color="primary">
+              Send
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
     </div>
   );
-}
+};
 
 export default ConfirmationDialog;

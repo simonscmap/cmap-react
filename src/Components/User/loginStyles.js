@@ -26,7 +26,7 @@ const styles = (theme) => ({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    gap: '1em'
+    gap: '1em',
   },
   actionsContainerLeft: {
     width: '100%',
@@ -68,12 +68,12 @@ const styles = (theme) => ({
     color: 'rgb(209, 98, 101)',
     '& svg': {
       color: 'rgb(209, 98, 101)',
-    }
+    },
   },
   registerWrapper: {
     padding: '0.5em 1em',
     background: 'rgba(0,0,0,0.2)',
-  }
+  },
 });
 
 export default styles;

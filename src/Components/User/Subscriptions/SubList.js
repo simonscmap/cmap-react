@@ -49,22 +49,22 @@ const useRowStyles = makeStyles({
   },
 });
 
-function Row (props) {
+function Row(props) {
   const { row, handleUnsubscribe } = props;
   const cl = useRowStyles();
 
-  const [confirmationOpen, setConfirmationOpen] = useState (false);
+  const [confirmationOpen, setConfirmationOpen] = useState(false);
   const handleClick = () => {
-    setConfirmationOpen (true);
-  }
+    setConfirmationOpen(true);
+  };
 
   return (
     <React.Fragment>
       <ConfirmUnsubscribe
         open={confirmationOpen}
-        handleClose={() => setConfirmationOpen (false)}
+        handleClose={() => setConfirmationOpen(false)}
         shortName={row.Dataset_Name}
-        handleUnsubscribe={() => handleUnsubscribe (row.Dataset_Name)}
+        handleUnsubscribe={() => handleUnsubscribe(row.Dataset_Name)}
       />
       <TableRow className={cl.root}>
         <TableCell>{row.Dataset_Name}</TableCell>
@@ -85,24 +85,28 @@ const useTableStyles = makeStyles({
     margin: '1em 0',
     fontSize: '16px',
     textTransform: 'uppercase',
-    color: '#69FFF2'
+    color: '#69FFF2',
   },
   controlWrapper: {
-    margin: '1em 0'
-  }
+    margin: '1em 0',
+  },
 });
 const SubList = (props) => {
   const { subs = [], user, unsubscribe, changeNewsSubscription } = props;
-  const cl = useTableStyles ();
+  const cl = useTableStyles();
 
   const handleSwitch = (ev) => {
-    changeNewsSubscription (!user.isNewsSubscribed);
-  }
+    changeNewsSubscription(!user.isNewsSubscribed);
+  };
 
   return (
     <div>
       <Typography className={cl.subTitle}>News</Typography>
-      <Typography>When you subscribe to Simons CMAP News you will receive an email notification whenever any news item is published. News items include new dataset announcements, changes to existing datasets, and site news.</Typography>
+      <Typography>
+        When you subscribe to Simons CMAP News you will receive an email
+        notification whenever any news item is published. News items include new
+        dataset announcements, changes to existing datasets, and site news.
+      </Typography>
       <div className={cl.controlWrapper}>
         <Typography>Subscribe to news notifications:</Typography>
         <Switch
@@ -113,7 +117,11 @@ const SubList = (props) => {
       </div>
 
       <Typography className={cl.subTitle}>Datasets</Typography>
-      <Typography>When you subscribe to a dataset, you will receive an email notification whenever there are changes to that dataset or news related to it. You can subscribe to a dataset from it's  entry or its page in the Catalog.</Typography>
+      <Typography>
+        When you subscribe to a dataset, you will receive an email notification
+        whenever there are changes to that dataset or news related to it. You
+        can subscribe to a dataset from it's entry or its page in the Catalog.
+      </Typography>
       <div className={cl.controlWrapper}>
         <TableContainer>
           <Table size="small" aria-label="subscriptions table">
@@ -126,46 +134,46 @@ const SubList = (props) => {
             </TableHead>
 
             <TableBody>
-              {subs.map((item, ix) => (<Row
-                                         key={`${ix}`}
-                                         row={item}
-                                         handleUnsubscribe={unsubscribe}
-                                       />))}
-
+              {subs.map((item, ix) => (
+                <Row key={`${ix}`} row={item} handleUnsubscribe={unsubscribe} />
+              ))}
             </TableBody>
           </Table>
         </TableContainer>
       </div>
     </div>
   );
-}
+};
 
 const SubListStateWrapper = () => {
-  const subs = useSelector ((state) => state.userSubscriptions);
-  const user = useSelector ((state) => state.user);
-  const dispatch = useDispatch ();
+  const subs = useSelector((state) => state.userSubscriptions);
+  const user = useSelector((state) => state.user);
+  const dispatch = useDispatch();
 
   if (!user) {
-    return <LoginRequiredPrompt />
+    return <LoginRequiredPrompt />;
   }
 
   if (!subs) {
-    dispatch (fetchSubscriptions ());
+    dispatch(fetchSubscriptions());
   }
 
   const unsubscribe = (shortName) => {
-    dispatch (deleteSubscription ([shortName]));
-  }
+    dispatch(deleteSubscription([shortName]));
+  };
 
   const switchNewsSubscription = (value) => {
-    dispatch (changeNewsSubscription (Boolean (value)));
-  }
+    dispatch(changeNewsSubscription(Boolean(value)));
+  };
 
-  return <SubList
-           subs={subs}
-           user={user}
-           unsubscribe={unsubscribe}
-           changeNewsSubscription={switchNewsSubscription} />
-}
+  return (
+    <SubList
+      subs={subs}
+      user={user}
+      unsubscribe={unsubscribe}
+      changeNewsSubscription={switchNewsSubscription}
+    />
+  );
+};
 
 export default SubListStateWrapper;

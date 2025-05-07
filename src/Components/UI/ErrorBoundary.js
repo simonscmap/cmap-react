@@ -21,19 +21,14 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    const {
-      errorMessage,
-      browserInfo,
-      osInfo,
-      stackFirstLine,
-      location
-    } = parseError (error);
+    const { errorMessage, browserInfo, osInfo, stackFirstLine, location } =
+      parseError(error);
     this.props.errorReportSend(
       errorMessage,
       browserInfo,
       osInfo,
       stackFirstLine,
-      location
+      location,
     );
   }
 

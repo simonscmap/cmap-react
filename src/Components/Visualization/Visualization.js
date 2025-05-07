@@ -77,7 +77,7 @@ const styles = () => ({
     textAlign: 'left',
     display: 'flex',
     flexDirection: 'column',
-    gap: '40px'
+    gap: '40px',
   },
 
   vizWrapper: {
@@ -143,7 +143,7 @@ class Visualization extends Component {
       'SketchViewModel',
       'Utils',
       'Graphic',
-      'FeatureLayer'
+      'FeatureLayer',
     ];
 
     var loadedModules = await loadModules(
@@ -177,7 +177,9 @@ class Visualization extends Component {
 
   componentDidUpdate(prevProps /*, prevState */) {
     if (this.props.showChartsOnce) {
-      console.log(`<trace::Visualization> componentDidUpdate w/ showChartsOnce`)
+      console.log(
+        `<trace::Visualization> componentDidUpdate w/ showChartsOnce`,
+      );
       this.props.completedShowCharts();
       this.setState({ ...this.state, showCharts: true });
     }
@@ -188,7 +190,7 @@ class Visualization extends Component {
     this.props.plotsActiveTabSet(newValue);
   };
 
-   handleShowCharts = () => {
+  handleShowCharts = () => {
     this.setState({ ...this.state, showCharts: true });
   };
 
@@ -293,9 +295,7 @@ class Visualization extends Component {
             />
             <Route
               path="/visualization/cruises"
-              render={() => (
-                <CruiseSelector />
-              )}
+              render={() => <CruiseSelector />}
             />
           </Switch>
 

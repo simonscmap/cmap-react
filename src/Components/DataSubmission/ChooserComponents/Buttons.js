@@ -18,7 +18,7 @@ export const StepButton = withStyles((theme) => ({
     fontWeight: 500,
     fontFamily: ['Montserrat', 'sans-serif'].join(','),
     letterSpacing: '0.03em',
-    minWidth: '175px'
+    minWidth: '175px',
   },
 }))(Button);
 

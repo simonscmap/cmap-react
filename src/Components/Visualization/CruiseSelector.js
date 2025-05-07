@@ -12,7 +12,7 @@ import {
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import { Close, Search } from '@material-ui/icons';
-import {GiWireframeGlobe} from 'react-icons/gi';
+import { GiWireframeGlobe } from 'react-icons/gi';
 import { IoCalendarClearOutline } from 'react-icons/io5';
 import { BsFillPersonFill, BsListNested } from 'react-icons/bs';
 import { LuShip } from 'react-icons/lu';
@@ -57,10 +57,8 @@ const searchFilterGroupCruises = (
   selectedSeries,
   selectedSensors,
   search,
-  groupBy
+  groupBy,
 ) => {
-
-
   let filteredCruises = [...cruises];
   // narrow by search text
   if (searchField) {
@@ -72,7 +70,9 @@ const searchFilterGroupCruises = (
   }
   // narrow by selected chief scientists
   if (selectedChiefScientists && selectedChiefScientists.size) {
-    filteredCruises = filteredCruises.filter((e) => selectedChiefScientists.has(e.Chief_Name));
+    filteredCruises = filteredCruises.filter((e) =>
+      selectedChiefScientists.has(e.Chief_Name),
+    );
   }
   // narrow by selected regions
   if (selectedRegions && selectedRegions.size) {
@@ -82,7 +82,9 @@ const searchFilterGroupCruises = (
   }
   // narrow by selected series
   if (selectedSeries && selectedSeries.size) {
-    filteredCruises = filteredCruises.filter((e) => selectedSeries.has(e.Series));
+    filteredCruises = filteredCruises.filter((e) =>
+      selectedSeries.has(e.Series),
+    );
   }
   // narrow by selected series
   if (selectedSensors && selectedSensors.size) {
@@ -93,7 +95,10 @@ const searchFilterGroupCruises = (
 
   // group by year
   let groupedCruises = filteredCruises.reduce((acc, cur) => {
-    if (!Boolean(cur[groupBy]) || (Array.isArray(cur[groupBy]) && cur[groupBy].length === 0)) {
+    if (
+      !Boolean(cur[groupBy]) ||
+      (Array.isArray(cur[groupBy]) && cur[groupBy].length === 0)
+    ) {
       if (!acc['Other']) {
         acc['Other'] = [];
       }
@@ -109,7 +114,6 @@ const searchFilterGroupCruises = (
     return acc;
   }, {});
 
-
   groupedCruises = Object.keys(groupedCruises)
     .map((key) => ({ [groupBy]: key, cruises: groupedCruises[key] }))
     .sort((a, b) => {
@@ -124,12 +128,15 @@ const searchFilterGroupCruises = (
   }
 
   // move 'Other' to the bottom
-  const otherIdx = groupedCruises.findIndex ((group) => group[groupBy] === 'Other');
+  const otherIdx = groupedCruises.findIndex(
+    (group) => group[groupBy] === 'Other',
+  );
 
   if (otherIdx > -1) {
-    groupedCruises = groupedCruises.slice (0, otherIdx)
-                                   .concat (groupedCruises.slice(otherIdx + 1))
-                                   .concat (groupedCruises[otherIdx]);
+    groupedCruises = groupedCruises
+      .slice(0, otherIdx)
+      .concat(groupedCruises.slice(otherIdx + 1))
+      .concat(groupedCruises[otherIdx]);
   }
 
   console.log({
@@ -159,7 +166,6 @@ const defaultSearchAndFilterState = {
 //   Series: new Set(),
 //   Sensors: new Set(),
 // };
-
 
 const groupByOptions = ['Year', 'Chief_Name', 'Series', 'Regions', 'Ship_Name'];
 const groupByLabels = ['Year', 'Chief Scientist', 'Series', 'Regions', 'Ship'];
@@ -205,16 +211,16 @@ class CruiseSelector extends Component {
     let { groupedCruises, cruises } =
       this.props.cruiseList && this.props.cruiseList.length
         ? searchFilterGroupCruises(
-          this.props.cruiseList,
-          '',          // search field
-          new Set(),   // selectedYears
-          new Set(),   // selectedChiefScientist
-          new Set(),   // selectedRegions
-          new Set(),   // selectedSeries
-          new Set(),   // selectedSensors
-          search,
-          'Year', // group By
-        )
+            this.props.cruiseList,
+            '', // search field
+            new Set(), // selectedYears
+            new Set(), // selectedChiefScientist
+            new Set(), // selectedRegions
+            new Set(), // selectedSeries
+            new Set(), // selectedSensors
+            search,
+            'Year', // group By
+          )
         : { groupedCruises: [], cruises: [] };
 
     let optionSets = setsFromList(cruises, [
@@ -235,15 +241,14 @@ class CruiseSelector extends Component {
       cruises,
       optionSets,
       ...defaultSearchAndFilterState,
-      groupBy: 'Year' // year, ship, chief, series,
+      groupBy: 'Year', // year, ship, chief, series,
     };
 
     // console.log ('state', this.state);
   }
 
-
   componentDidMount = () => {
-    this.props.plotsActiveTabSet (0);
+    this.props.plotsActiveTabSet(0);
     if (!this.props.cruiseList || !this.props.cruiseList.length)
       this.props.cruiseListRequestSend();
   };
@@ -254,34 +259,37 @@ class CruiseSelector extends Component {
 
   handleCruiseSelect = (selection) => {
     // trajectory point counds (from redux; fetched when component loads)
-    console.log ('handling selection toggle for: ', selection && selection.Name);
+    console.log('handling selection toggle for: ', selection && selection.Name);
 
     const counts = this.props.trajectoryPointCounts || {};
 
-    const getPointCount = (list) => list
-      .map((name) => {
-        const c = this.props.cruiseList.find(c => c.Name === name);
-        if (!c) {
-          console.log ('no cruise found for name', name);
-        }
-        return c;
-      })
-      .reduce((acc, curr, i, arr) => {
-        if (!curr) {
-          console.log ('no item in reduce at index ' + i, arr);
-          return acc;
-        }
-        return acc + (counts[curr.ID] || 0)
-      }, 0);
+    const getPointCount = (list) =>
+      list
+        .map((name) => {
+          const c = this.props.cruiseList.find((c) => c.Name === name);
+          if (!c) {
+            console.log('no cruise found for name', name);
+          }
+          return c;
+        })
+        .reduce((acc, curr, i, arr) => {
+          if (!curr) {
+            console.log('no item in reduce at index ' + i, arr);
+            return acc;
+          }
+          return acc + (counts[curr.ID] || 0);
+        }, 0);
 
     // add selected cruise to list, or if already preset remove it
     if (this.state.selected.includes(selection.Name)) {
-      const newSelectedList = this.state.selected.filter(name => name !== selection.Name);
+      const newSelectedList = this.state.selected.filter(
+        (name) => name !== selection.Name,
+      );
       // const newPointCount = getPointCount(newSelectedList);
       this.setState({
         ...this.state,
         selected: newSelectedList,
-        pointCount: getPointCount(newSelectedList)
+        pointCount: getPointCount(newSelectedList),
       });
     } else {
       const newSelectedList = [...this.state.selected, selection.Name];
@@ -290,7 +298,7 @@ class CruiseSelector extends Component {
         ...this.state,
         selected: newSelectedList,
         lastSelection: selection,
-        pointCount: getPointCount (newSelectedList)
+        pointCount: getPointCount(newSelectedList),
       });
     }
   };
@@ -299,14 +307,16 @@ class CruiseSelector extends Component {
     this.setState({
       ...this.state,
       selected: [],
-      pointCount: 0
+      pointCount: 0,
     });
-  }
+  };
 
   handleTrajectoryRender = () => {
-    const ids = this.state.cruises.filter (({ Name }) => {
-      return this.state.selected.includes (Name);
-    }).map (({ ID }) => ID );
+    const ids = this.state.cruises
+      .filter(({ Name }) => {
+        return this.state.selected.includes(Name);
+      })
+      .map(({ ID }) => ID);
 
     // fetch selected cruise trajectories; once they are on the store, they will render
     this.props.cruiseTrajectoryRequestSend(ids);
@@ -314,7 +324,7 @@ class CruiseSelector extends Component {
     this.setState({
       ...this.state,
       searchMenuOpen: false,
-    })
+    });
   };
 
   componentDidUpdate = (prevProps, prevState) => {
@@ -326,12 +336,12 @@ class CruiseSelector extends Component {
       this.state.search.addDocuments(this.props.cruiseList);
       let { groupedCruises, cruises } = searchFilterGroupCruises(
         this.props.cruiseList,
-        '',          // search field
-        new Set(),   // selectedYears
-        new Set(),   // selectedChiefScientist
-        new Set(),   // selectedRegions
-        new Set(),   // selectedSeries
-        new Set(),   // selectedSensors
+        '', // search field
+        new Set(), // selectedYears
+        new Set(), // selectedChiefScientist
+        new Set(), // selectedRegions
+        new Set(), // selectedSeries
+        new Set(), // selectedSensors
         this.state.search,
         this.state.groupBy, // groupBy
       );
@@ -354,7 +364,7 @@ class CruiseSelector extends Component {
     if (prevState.groupedCruises !== this.state.groupedCruises)
       listRef.current.resetAfterIndex(0);
 
-    console.log('component did update', this.state)
+    console.log('component did update', this.state);
   };
 
   handleChangeSearchValue = (e) => {
@@ -521,7 +531,7 @@ class CruiseSelector extends Component {
         : newOptionSets.Sensors,
     };
 
-    console.log ('setting cruises during checkbox event', cruises);
+    console.log('setting cruises during checkbox event', cruises);
 
     this.setState({
       ...tempNewState,
@@ -532,7 +542,7 @@ class CruiseSelector extends Component {
   };
 
   handleSetOpenGroup = (index, groupByValue) => {
-    console.log ('handleSetOpenGroup', index, groupByValue);
+    console.log('handleSetOpenGroup', index, groupByValue);
     if (listRef.current) {
       // Make sure the group being opened is in view
       let listHeight = this.props.windowHeight - 249;
@@ -557,27 +567,25 @@ class CruiseSelector extends Component {
   };
 
   findGroupAndOpen = (cruiseName) => {
-    console.log ('findGroupAndOpen', cruiseName)
+    console.log('findGroupAndOpen', cruiseName);
     const groupedCruises = this.state.groupedCruises;
 
     const groupKeys = groupedCruises.map((g) => g[this.state.groupBy]);
 
-
-
-    const index = groupedCruises.findIndex ((group) => {
-      if (group.cruises.find (({ Name }) => Name === cruiseName)) {
+    const index = groupedCruises.findIndex((group) => {
+      if (group.cruises.find(({ Name }) => Name === cruiseName)) {
         return true;
       } else {
         return false;
       }
     });
 
-    console.log ('found index', index, groupKeys[index], groupKeys);
+    console.log('found index', index, groupKeys[index], groupKeys);
 
-    this.handleSetOpenGroup (index, groupKeys[index]);
-  }
+    this.handleSetOpenGroup(index, groupKeys[index]);
+  };
 
-  handleGroupBySelection =  (event, newValue) => {
+  handleGroupBySelection = (event, newValue) => {
     const newSelection = groupByOptions[newValue];
 
     let { groupedCruises, cruises } = searchFilterGroupCruises(
@@ -589,7 +597,7 @@ class CruiseSelector extends Component {
       this.state.selectedSeries,
       this.state.selectedSensors,
       this.state.search,
-      newSelection
+      newSelection,
     );
 
     this.setState({
@@ -597,8 +605,8 @@ class CruiseSelector extends Component {
       groupBy: newSelection,
       groupedCruises,
       cruises,
-    })
-  }
+    });
+  };
 
   render() {
     const {
@@ -619,11 +627,21 @@ class CruiseSelector extends Component {
     // mimic checkbox name so that the same method can be used to deselect via chip
     const selectedFilters = [];
     const sf = selectedFilters;
-    Array.from(selectedYears).forEach((val) => sf.push('selectedYears!!' + val));
-    Array.from(selectedChiefScientists).forEach((val) => sf.push('selectedChiefScientists!!' + val));
-    Array.from(selectedRegions).forEach((val) => sf.push('selectedRegions!!' + val));
-    Array.from(selectedSeries).forEach((val) => sf.push('selectedSeries!!' + val));
-    Array.from(selectedSensors).forEach((val) => sf.push('selectedSensors!!' + val));
+    Array.from(selectedYears).forEach((val) =>
+      sf.push('selectedYears!!' + val),
+    );
+    Array.from(selectedChiefScientists).forEach((val) =>
+      sf.push('selectedChiefScientists!!' + val),
+    );
+    Array.from(selectedRegions).forEach((val) =>
+      sf.push('selectedRegions!!' + val),
+    );
+    Array.from(selectedSeries).forEach((val) =>
+      sf.push('selectedSeries!!' + val),
+    );
+    Array.from(selectedSensors).forEach((val) =>
+      sf.push('selectedSensors!!' + val),
+    );
 
     const {
       classes,
@@ -637,7 +655,6 @@ class CruiseSelector extends Component {
           style={searchMenuOpen ? {} : { display: 'none' }}
         >
           <div className={classes.listControls}>
-
             <Grid container>
               {/* Search and Filter: Left Column */}
               <Grid item xs={3}>
@@ -686,15 +703,16 @@ class CruiseSelector extends Component {
                     handleClearMultiSelect={this.handleClearMultiSelect}
                     handleResetSearch={this.handleResetSearch}
                   />
-
                 </div>
               </Grid>
 
               <Grid item xs={9} className={classes.liftRightGridUp}>
                 {/* tabs */}
                 <Grid container>
-                  <Grid item xs={1} className={classes.controlRowLabel} >
-                    <Typography variant="body1" color="primary">Sort By:</Typography>
+                  <Grid item xs={1} className={classes.controlRowLabel}>
+                    <Typography variant="body1" color="primary">
+                      Sort By:
+                    </Typography>
                   </Grid>
                   <Grid item xs={9}>
                     <Tabs
@@ -704,21 +722,41 @@ class CruiseSelector extends Component {
                       scrollButtons={'auto'}
                       variant={'scrollable'}
                     >
-                      <Tab icon={<IoCalendarClearOutline />} label={groupByLabels[0]} classes={{
-                        wrapper: classes.tabWrapper
-                      }} />
-                      <Tab icon={<BsFillPersonFill />} label={groupByLabels[1]} classes={{
-                        wrapper: classes.tabWrapper
-                      }} />
-                      <Tab icon={<BsListNested />} label={groupByLabels[2]} classes={{
-                        wrapper: classes.tabWrapper
-                      }} />
-                      <Tab icon={<GiWireframeGlobe />} label={groupByLabels[3]} classes={{
-                        wrapper: classes.tabWrapper
-                      }} />
-                      <Tab icon={<LuShip />} label={groupByLabels[4]} classes={{
-                        wrapper: classes.tabWrapper
-                      }} />
+                      <Tab
+                        icon={<IoCalendarClearOutline />}
+                        label={groupByLabels[0]}
+                        classes={{
+                          wrapper: classes.tabWrapper,
+                        }}
+                      />
+                      <Tab
+                        icon={<BsFillPersonFill />}
+                        label={groupByLabels[1]}
+                        classes={{
+                          wrapper: classes.tabWrapper,
+                        }}
+                      />
+                      <Tab
+                        icon={<BsListNested />}
+                        label={groupByLabels[2]}
+                        classes={{
+                          wrapper: classes.tabWrapper,
+                        }}
+                      />
+                      <Tab
+                        icon={<GiWireframeGlobe />}
+                        label={groupByLabels[3]}
+                        classes={{
+                          wrapper: classes.tabWrapper,
+                        }}
+                      />
+                      <Tab
+                        icon={<LuShip />}
+                        label={groupByLabels[4]}
+                        classes={{
+                          wrapper: classes.tabWrapper,
+                        }}
+                      />
                     </Tabs>
                   </Grid>
                   <Grid item xs={2} className={classes.controlRowCloseBtn}>
@@ -730,44 +768,64 @@ class CruiseSelector extends Component {
                       Close Search
                     </Button>
                   </Grid>
-      </Grid>
+                </Grid>
 
                 {/* filter chips */}
 
                 <Grid container className={classes.filterChipsGrid}>
                   <Grid item xs={1}>
-                    {selectedFilters.length ?
-                      (<div className={classes.controlRowLabel}>
-                        <Typography variant="body1" color="primary">Filters: </Typography>
-                      </div>)
-                      : ''}
+                    {selectedFilters.length ? (
+                      <div className={classes.controlRowLabel}>
+                        <Typography variant="body1" color="primary">
+                          Filters:{' '}
+                        </Typography>
+                      </div>
+                    ) : (
+                      ''
+                    )}
                   </Grid>
                   <Grid item xs={11}>
-                    {selectedFilters.length ?
+                    {selectedFilters.length ? (
                       <div className={classes.filterChips}>
-                        {selectedFilters.length ? selectedFilters.map((f, i) => {
-                          const [, val] = f.split('!!');
-                          return <Chip
-                            key={`chip${i}`}
-                            size="medium"
-                            variant="outlined"
-                            label={val}
-                            onDelete={() => {
-                              console.log('delete', f);
-                              this.handleClickCheckbox({ target: { name: f } }, false)
-                            }}
-                            color="primary"
-                          />;
-                        }) : <Typography variant="body2">No active filters</Typography>}
+                        {selectedFilters.length ? (
+                          selectedFilters.map((f, i) => {
+                            const [, val] = f.split('!!');
+                            return (
+                              <Chip
+                                key={`chip${i}`}
+                                size="medium"
+                                variant="outlined"
+                                label={val}
+                                onDelete={() => {
+                                  console.log('delete', f);
+                                  this.handleClickCheckbox(
+                                    { target: { name: f } },
+                                    false,
+                                  );
+                                }}
+                                color="primary"
+                              />
+                            );
+                          })
+                        ) : (
+                          <Typography variant="body2">
+                            No active filters
+                          </Typography>
+                        )}
                       </div>
-                      : ''}
+                    ) : (
+                      ''
+                    )}
                   </Grid>
-
                 </Grid>
 
                 {/* results list */}
 
-                <Grid item xs={12} style={{ paddingTop: '12px', border: '0px solid blue' }}>
+                <Grid
+                  item
+                  xs={12}
+                  style={{ paddingTop: '12px', border: '0px solid blue' }}
+                >
                   <ResultsList
                     listRef={listRef}
                     groupedCruises={groupedCruises}
@@ -779,16 +837,15 @@ class CruiseSelector extends Component {
                     handleCruiseSelect={this.handleCruiseSelect}
                   />
                 </Grid>
-
-              </Grid>{/* end Grid9 */}
-            </Grid>{/* end Grid container */}
-
-
+              </Grid>
+              {/* end Grid9 */}
+            </Grid>
+            {/* end Grid container */}
           </div>
         </Paper>
 
         <div id="cruise-selector" className={classes.outerDiv}>
-          {!searchMenuOpen &&
+          {!searchMenuOpen && (
             <Paper className={classes.openSearchButtonPaper}>
               <Button
                 startIcon={<Search />}
@@ -799,7 +856,8 @@ class CruiseSelector extends Component {
               >
                 Search Cruises
               </Button>
-            </Paper>}
+            </Paper>
+          )}
         </div>
         <CruiseTrajectoryLegend />
       </>

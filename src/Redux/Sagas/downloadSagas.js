@@ -6,33 +6,40 @@ import * as userActions from '../actions/user';
 import { call, put, takeLatest, race, delay } from 'redux-saga/effects';
 import states from '../../enums/asyncRequestStates';
 
-
-export function* makeCheckQuerySizeRequest (query) {
+export function* makeCheckQuerySizeRequest(query) {
   yield put(catalogActions.setCheckQueryRequestState(states.inProgress));
 
   const result = yield race({
-    response: call (api.data.checkQuerySize, query),
-    timeout: delay (60 * 1000)
+    response: call(api.data.checkQuerySize, query),
+    timeout: delay(60 * 1000),
   });
   return result;
 }
 
-export function* checkDownloadSize (action) {
+export function* checkDownloadSize(action) {
   // set timeout of 1 minute
   // const { response, timeout} = yield race({
   //   response: call (api.data.checkQuerySize, action.payload.query),
   //   timeout: delay (60 * 1000)
   // });
-  const { response, timeout } = yield makeCheckQuerySizeRequest (action.payload.query);
+  const { response, timeout } = yield makeCheckQuerySizeRequest(
+    action.payload.query,
+  );
 
   if (timeout) {
-    yield put(interfaceActions.snackbarOpen('Attempt to validate dowload size timed out.'));
+    yield put(
+      interfaceActions.snackbarOpen(
+        'Attempt to validate dowload size timed out.',
+      ),
+    );
     yield put(catalogActions.setCheckQueryRequestState(states.failed));
   } else if (response && response.ok) {
     let jsonResponse = yield response.json();
     // pass back the exact query string as submitted; this will be used
     // to look up the response in the cache
-    yield put(catalogActions.storeCheckQueryResult(action.payload.query, jsonResponse));
+    yield put(
+      catalogActions.storeCheckQueryResult(action.payload.query, jsonResponse),
+    );
     yield put(catalogActions.setCheckQueryRequestState(states.succeeded));
   } else if (response.status === 401) {
     yield put(catalogActions.setCheckQueryRequestState(states.failed));
@@ -41,11 +48,8 @@ export function* checkDownloadSize (action) {
     yield put(catalogActions.setCheckQueryRequestState(states.failed));
   }
 }
-export function* watchCheckDownloadSize () {
-  yield takeLatest(
-    catalogActionTypes.CHECK_QUERY_SIZE_SEND,
-    checkDownloadSize
-  );
+export function* watchCheckDownloadSize() {
+  yield takeLatest(catalogActionTypes.CHECK_QUERY_SIZE_SEND, checkDownloadSize);
 }
 
 // TODO: move the other download sagas in here

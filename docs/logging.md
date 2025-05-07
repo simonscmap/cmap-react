@@ -3,7 +3,7 @@
 Logs should have the following properties:
 
 | property name | type           | note                                                        |
-|---------------|----------------|-------------------------------------------------------------|
+| ------------- | -------------- | ----------------------------------------------------------- |
 | time          | utc            |                                                             |
 | tags          | tag object     |                                                             |
 | context       | context object |                                                             |
@@ -14,14 +14,14 @@ Logs should have the following properties:
 
 ### tags object
 
-| property name | type   | note                               |
-|---------------|--------|------------------------------------|
-| versions      | obj    | { web: `semver` }, TODO detect api |
+| property name | type | note                               |
+| ------------- | ---- | ---------------------------------- |
+| versions      | obj  | { web: `semver` }, TODO detect api |
 
 ### context object
 
 | property name | type   | note                       |
-|---------------|--------|----------------------------|
+| ------------- | ------ | -------------------------- |
 | session       | uuid   | session Id if avaliable    |
 | module        | string | module name, if set        |
 | request       | uuid   | request id, if istrumented |
@@ -37,7 +37,7 @@ Until logs are forwarded to persistence, there is no need to alter formatting fo
 ## Log Levels
 
 | Level | Name  | Guidance                                                      |
-|-------|-------|---------------------------------------------------------------|
+| ----- | ----- | ------------------------------------------------------------- |
 | 5     | Trace | for helping identify execution sequence and code path         |
 | 4     | Debug | diagnostic information                                        |
 | 3     | Info  | information that is generally helpful                         |
@@ -56,28 +56,29 @@ Until logs are forwarded to persistence, there is no need to alter formatting fo
                    ▼                                  ▼
           ┌──────────────┐                      ┌───────────────┐
           │Do you need to│                      │Are you logging│
-NOPE ─────┤  log state ? ├──── YES    NOPE  ────┤unwanted state?├───  YES
-          └──────────────┘                      └───────────────┘
-  │                             │       │                              │
-  │                             │       │                              │
-  ▼                             ▼       ▼                              │
-  ▼                             ▼       ▼                              │
-                                                               ┌───────┴───────┐
-TRACE                         DEBUG   INFO                     │Can the process│
-                                                       YES ────┤   continue    │
-                                                               │   with the    ├──── NO!
-                                                        │      │unwanted state?│
-                                                        │      └───────────────┘      │
-                                                        ▼                             │
-                                                        ▼                             ▼
-                                                                                      ▼
-                                                      WARN                    ┌───────────────┐
-                                                                              │Can the service│
-                                                                      YES ────┤   continue    ├──── NO!
-                                                                              │   with the    │
-                                                                       │      │unwanted state?│      │
-                                                                       │      └───────────────┘      │
-                                                                       ▼                             ▼
-                                                                       ▼                             ▼
+
+NOPE ─────┤ log state ? ├──── YES NOPE ────┤unwanted state?├─── YES
+└──────────────┘ └───────────────┘
+│ │ │ │
+│ │ │ │
+▼ ▼ ▼ │
+▼ ▼ ▼ │
+┌───────┴───────┐
+TRACE DEBUG INFO │Can the process│
+YES ────┤ continue │
+│ with the ├──── NO!
+│ │unwanted state?│
+│ └───────────────┘ │
+▼ │
+▼ ▼
+▼
+WARN ┌───────────────┐
+│Can the service│
+YES ────┤ continue ├──── NO!
+│ with the │
+│ │unwanted state?│ │
+│ └───────────────┘ │
+▼ ▼
+▼ ▼
 
                                                                      ERROR                         FATAL

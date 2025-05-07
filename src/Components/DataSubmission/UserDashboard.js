@@ -14,7 +14,6 @@ import {
 } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
-
 import UserDashboardPanelDetails from './UserDashboardPanelDetails';
 import LoginRequiredPrompt from '../User/LoginRequiredPrompt';
 import Section, { FullWidthContainer } from '../Common/Section';
@@ -34,21 +33,21 @@ const mapDispatchToProps = {
 const styles = (theme) => ({
   wrapper: {
     height: '100vh',
-    '& > div' :{
-      height:'100%',
+    '& > div': {
+      height: '100%',
     },
     '& h3': {
       color: 'white',
-    }
+    },
   },
   accordion: {
-    background: 'rgba(0,0,0,0.3)'
+    background: 'rgba(0,0,0,0.3)',
   },
   summary: {
     '& .MuiAccordionSummary-content': {
       margin: 0,
       alignItems: 'center',
-    }
+    },
   },
   panelSummaryText: {
     flexBasis: '40%',
@@ -62,7 +61,7 @@ const styles = (theme) => ({
     margin: '12px 0 0 12px',
     letterSpacing: 'normal',
   },
-   panelDetails: {
+  panelDetails: {
     display: 'block',
     textAlign: 'left',
   },
@@ -79,20 +78,22 @@ class UserDashboard extends React.Component {
     let submissionID = params.get('submissionID');
     let datasetName = params.get('datasetName');
 
-    const shouldExpandItem = subs.findIndex ((s) => {
-      return s.Submission_ID === submissionID || s.Dataset.trim() === datasetName
+    const shouldExpandItem = subs.findIndex((s) => {
+      return (
+        s.Submission_ID === submissionID || s.Dataset.trim() === datasetName
+      );
     });
 
     if (shouldExpandItem >= 0) {
-      console.log (`found item`, { submissionID, datasetName }, subs);
+      console.log(`found item`, { submissionID, datasetName }, subs);
       this.setState({
         ...this.state,
         expandedPanel: shouldExpandItem,
       });
     } else {
-      console.log (`could not find item`, { submissionID, datasetName }, subs);
+      console.log(`could not find item`, { submissionID, datasetName }, subs);
     }
-  }
+  };
 
   componentDidMount = () => {
     this.props.retrieveDataSubmissionsByUser();
@@ -103,8 +104,13 @@ class UserDashboard extends React.Component {
     if (!prevProps.user && this.props.user) {
       this.props.retrieveDataSubmissionsByUser();
     }
-    if (prevProps.dataSubmissions.length !== this.props.dataSubmissions.length) {
-      console.log ('component did update AND dataSub length differ', { prevProps, curr: this.props })
+    if (
+      prevProps.dataSubmissions.length !== this.props.dataSubmissions.length
+    ) {
+      console.log('component did update AND dataSub length differ', {
+        prevProps,
+        curr: this.props,
+      });
       this.expandItem();
     }
   };
@@ -155,7 +161,6 @@ class UserDashboard extends React.Component {
           </Typography>
         </div>
       );
-
     }
 
     // render submissions
@@ -171,14 +176,19 @@ class UserDashboard extends React.Component {
                 key={i}
                 TransitionProps={{ unmountOnExit: true }}
               >
-                <AccordionSummary expandIcon={<ExpandMoreIcon />} className={classes.summary}>
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  className={classes.summary}
+                >
                   <Typography noWrap className={classes.panelSummaryText}>
                     {e.Dataset}
                   </Typography>
                   <Typography noWrap className={classes.panelSummaryText}>
                     {e.Phase}
                   </Typography>
-                  {e.phaseId === 6 && <SubscribeDatasetButton shortName={e.Dataset} />}
+                  {e.phaseId === 6 && (
+                    <SubscribeDatasetButton shortName={e.Dataset} />
+                  )}
                 </AccordionSummary>
 
                 <AccordionDetails className={classes.panelDetails}>

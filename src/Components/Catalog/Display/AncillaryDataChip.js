@@ -8,6 +8,6 @@ const SpatialCoverage = (props) => {
   }
 
   return <Chip color="primary" size="small" label="Ancillary Data" />;
-}
+};
 
 export default SpatialCoverage;

@@ -64,19 +64,19 @@ const Story = withStyles({
     },
   },
   data2: {
-    'display': 'flex',
-    'flexDirection': 'row',
-    'justifyContent': 'flex-start',
-    'alignContent': 'center',
-    'alignItems': 'baseline',
-    'gap': '.75em',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignContent: 'center',
+    alignItems: 'baseline',
+    gap: '.75em',
     '& > p': {
       color: 'rgba(255,255,255,0.5)',
       fontWeight: 500,
     },
     '& h3': {
-     fontSize: '1em',
-    }
+      fontSize: '1em',
+    },
   },
   rankWidth: {
     width: '100px',
@@ -99,8 +99,8 @@ const Story = withStyles({
   prospectiveRank: {
     '& > h5': {
       color: 'red',
-    }
-  }
+    },
+  },
 })(({ story: storyState, classes, toggle, deRank, ix }) => {
   // NOTE deRank will only be passed as a prop when StorySummary
   // is used in the draggable list
@@ -117,7 +117,9 @@ const Story = withStyles({
 
   let sortTerm = useSelector(({ news }) => news.sortTerm);
   let openRanksEditor = useSelector(({ news }) => news.openRanksEditor);
-  let storyIsInAddRank = useSelector(({ news }) => news.addRank.some(({ ID }) => storyState.ID === ID ));
+  let storyIsInAddRank = useSelector(({ news }) =>
+    news.addRank.some(({ ID }) => storyState.ID === ID),
+  );
 
   let summaryDate = [modifyDate, 'modified'];
   if (sortTerm === 'create_date') {
@@ -127,7 +129,7 @@ const Story = withStyles({
   }
 
   const handleDeRank = () => {
-    deRank (storyState.id);
+    deRank(storyState.id);
   };
 
   let dispatch = useDispatch();
@@ -147,7 +149,13 @@ const Story = withStyles({
             </div>
           )}
           {!rankIsSet && openRanksEditor && (
-            <div className={clsx(classes.data, classes.rankWidth, classes.prospectiveRank)}>
+            <div
+              className={clsx(
+                classes.data,
+                classes.rankWidth,
+                classes.prospectiveRank,
+              )}
+            >
               <Typography variant="body2">rank</Typography>
               <Typography variant="h5">{ix + 1}</Typography>
             </div>
@@ -155,7 +163,10 @@ const Story = withStyles({
           {!rankIsSet && !openRanksEditor && (
             <div className={clsx(classes.data, classes.pinWidth)}>
               <Typography variant="body2">pin</Typography>
-              <IconButton disabled={storyIsInAddRank} onClick={() => dispatch(addRank({ ...storyState }))}>
+              <IconButton
+                disabled={storyIsInAddRank}
+                onClick={() => dispatch(addRank({ ...storyState }))}
+              >
                 <FormatListNumberedIcon />
               </IconButton>
             </div>
@@ -169,17 +180,16 @@ const Story = withStyles({
           {deRank && (
             <div className={clsx(classes.data, classes.deRankWidth)}>
               <Typography variant="body2">remove</Typography>
-              <IconButton
-                style={{ marginTop: '-9px' }}
-                onClick={handleDeRank}
-              >
+              <IconButton style={{ marginTop: '-9px' }} onClick={handleDeRank}>
                 <CancelIcon />
               </IconButton>
             </div>
           )}
           <div className={classes.data2}>
             <Typography variant="body2">category</Typography>
-            <Typography variant="h3">{toCategoryTitle[storyState.Status_ID]}</Typography>
+            <Typography variant="h3">
+              {toCategoryTitle[storyState.Status_ID]}
+            </Typography>
           </div>
         </div>
         <div className={classes.handleRight}>

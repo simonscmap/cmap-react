@@ -26,81 +26,73 @@ import { OverlaySpinner } from '../../UI/Spinner';
 
 import {
   createSubscription,
-  deleteSubscription
+  deleteSubscription,
 } from '../../../Redux/actions/user';
 
-import {
-  subscribeDatasetDialogClear,
-} from '../../../Redux/actions/ui';
+import { subscribeDatasetDialogClear } from '../../../Redux/actions/ui';
 
-const log = initLogger('Components/User/Subscriptions/SubscribeButton')
+const log = initLogger('Components/User/Subscriptions/SubscribeButton');
 
-const subscriptionsSelector = createSelector (
+const subscriptionsSelector = createSelector(
   [(state) => state.userSubscriptions],
   (subs) => {
-    if (Array.isArray (subs)) {
+    if (Array.isArray(subs)) {
       return subs;
     }
     return [];
-  }
+  },
 );
 
-const actionInProgressSelector = createSelector (
+const actionInProgressSelector = createSelector(
   [
     (state) => state.userDeleteSubscriptionRequestStatus,
-    (state) => state.userCreateSubscriptionRequestStatus
+    (state) => state.userCreateSubscriptionRequestStatus,
   ],
   (deleteStatus, createStatus) => {
-    return [deleteStatus, createStatus].some (s => s === states.inProgress);
-  }
+    return [deleteStatus, createStatus].some((s) => s === states.inProgress);
+  },
 );
-
 
 const useStyles = makeStyles((theme) => ({}));
 
 const SubscribeDatasetDialog = (props) => {
-  const dispatch = useDispatch ();
+  const dispatch = useDispatch();
   const cl = useStyles();
 
-  const subscriptions = useSelector (subscriptionsSelector);
-  const dialog = useSelector ((state) => state.subscribeDatasetDialog || {});
-  const actionInProgress = useSelector (actionInProgressSelector);
+  const subscriptions = useSelector(subscriptionsSelector);
+  const dialog = useSelector((state) => state.subscribeDatasetDialog || {});
+  const actionInProgress = useSelector(actionInProgressSelector);
 
-  const isSubscribed = subscriptions.find ((sub) => {
-    return sub.Dataset_Name === dialog.shortName
+  const isSubscribed = subscriptions.find((sub) => {
+    return sub.Dataset_Name === dialog.shortName;
   });
 
   const handleClose = () => {
-    dispatch (subscribeDatasetDialogClear ());
-  }
+    dispatch(subscribeDatasetDialogClear());
+  };
 
   const onConfirm = () => {
     if (isSubscribed) {
-      dispatch (deleteSubscription ([shortName]));
-      dispatch (subscribeDatasetDialogClear ());
+      dispatch(deleteSubscription([shortName]));
+      dispatch(subscribeDatasetDialogClear());
     } else {
-      dispatch (createSubscription (shortName));
-      dispatch (subscribeDatasetDialogClear ());
+      dispatch(createSubscription(shortName));
+      dispatch(subscribeDatasetDialogClear());
     }
-  }
+  };
 
   const { shortName } = dialog;
 
-  const name = isSubscribed
-        ? 'Confirm Unsubscribe'
-        : 'Confirm Subscribe';
+  const name = isSubscribed ? 'Confirm Unsubscribe' : 'Confirm Subscribe';
 
   const text = isSubscribed
-        ? `You are currently subscribed to receive email notifications for news related to the ${shortName} dataset. Click "Unsubscribe" to stop receiving email notifications for this dataset.`
-        : `Click "Subscribe" to receive email notifications related to the ${shortName} dataset.`;
+    ? `You are currently subscribed to receive email notifications for news related to the ${shortName} dataset. Click "Unsubscribe" to stop receiving email notifications for this dataset.`
+    : `Click "Subscribe" to receive email notifications related to the ${shortName} dataset.`;
 
-  const actionButtonText = isSubscribed
-        ? 'Unsubscribe'
-        : 'Subscribe';
-
+  const actionButtonText = isSubscribed ? 'Unsubscribe' : 'Subscribe';
 
   const confirmationProps = {
-    open: Boolean (dialog.open),
+    open: Boolean(dialog.open),
     openClose: handleClose,
     loading: false,
     error: false,
@@ -112,7 +104,9 @@ const SubscribeDatasetDialog = (props) => {
 
   return (
     <div>
-      {(!dialog.open && actionInProgress) && <OverlaySpinner message={'in progress'} />}
+      {!dialog.open && actionInProgress && (
+        <OverlaySpinner message={'in progress'} />
+      )}
       <Confirmation {...confirmationProps} />
     </div>
   );

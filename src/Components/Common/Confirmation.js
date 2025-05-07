@@ -18,8 +18,8 @@ import { homeTheme } from '../Home/theme';
 const Alert = (props) => {
   const { open, errorMessage, openClose } = props;
   const handleClose = () => {
-    openClose (false);
-  }
+    openClose(false);
+  };
   return (
     <div>
       <Dialog
@@ -28,13 +28,9 @@ const Alert = (props) => {
         PaperComponent={Paper}
         aria-labelledby="draggable-dialog-title"
       >
-        <DialogTitle>
-          {'Error'}
-        </DialogTitle>
+        <DialogTitle>{'Error'}</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            {errorMessage}
-          </DialogContentText>
+          <DialogContentText>{errorMessage}</DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button autoFocus onClick={handleClose} color="primary">
@@ -44,27 +40,31 @@ const Alert = (props) => {
       </Dialog>
     </div>
   );
-}
+};
 
 const DialogComponent = (props) => {
   const {
     open,
     openClose,
-    name = "Confirm Action",
-    text = "",
-    actionButtonText = "Confirm",
+    name = 'Confirm Action',
+    text = '',
+    actionButtonText = 'Confirm',
     actionButtonDisabled = false,
     onConfirm,
-    cancelButtonText = "Cancel",
+    cancelButtonText = 'Cancel',
     onCancel,
   } = props;
 
-  const handleCancel = onCancel || (() => {
-    openClose (false);
-  });
-  const handleConfirm = onConfirm || (() => {
-    onConfirm ();
-  });
+  const handleCancel =
+    onCancel ||
+    (() => {
+      openClose(false);
+    });
+  const handleConfirm =
+    onConfirm ||
+    (() => {
+      onConfirm();
+    });
 
   return (
     <div>
@@ -84,33 +84,34 @@ const DialogComponent = (props) => {
             </Button>
             <Button
               disabled={actionButtonDisabled}
-              onClick={handleConfirm} color="primary">
+              onClick={handleConfirm}
+              color="primary"
+            >
               {actionButtonText}
             </Button>
           </DialogActions>
         </Dialog>
       </ThemeProvider>
-
     </div>
   );
-}
+};
 
 // Generic Confirmation Dialog
 // - when open, checks if user is logged in
 // - all actions are provided by props
 const GenericConfirmationDialog = (props) => {
-  const dispatch = useDispatch ();
-  const user = useSelector ((state) => state.user);
-  const loginIsActive = useSelector ((state) => state.loginDialogIsOpen);
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user);
+  // const loginIsActive = useSelector((state) => state.loginDialogIsOpen);
 
   const {
     open,
-    openClose,
+    // openClose,
     loading,
     loadingMsg,
     error,
-    errorMsg,
-    name
+    // errorMsg,
+    // name,
     // text
     // actionButtonText
     // actionButtonDisabled
@@ -123,32 +124,32 @@ const GenericConfirmationDialog = (props) => {
 
   useEffect(() => {
     if (openState !== open) {
-      setOpenState (open);
+      setOpenState(open);
     }
   }, [open]);
 
-  useEffect (() => {
+  useEffect(() => {
     if (openState && !user) {
-      dispatch (showLoginDialog ());
+      dispatch(showLoginDialog());
     }
-  }, [openState, user])
+  }, [openState, user]);
 
   if (!openState) {
-    return <React.Fragment />
+    return <React.Fragment />;
   }
 
   if (openState) {
     if (loading) {
-      const msg = loadingMsg || 'Loading...'
-      return <SpinnerWrapper message={msg} />
+      const msg = loadingMsg || 'Loading...';
+      return <SpinnerWrapper message={msg} />;
     }
 
     if (error) {
-      return <Alert {...props} />
+      return <Alert {...props} />;
     }
 
     return <DialogComponent {...props} />;
   }
-}
+};
 
 export default GenericConfirmationDialog;

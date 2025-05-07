@@ -32,7 +32,7 @@ class LoginDialog extends Component {
             root: classes.dialogRoot,
           }}
         >
-         <LoginForm {...this.props}  />
+          <LoginForm {...this.props} />
         </Dialog>
       </ThemeProvider>
     );

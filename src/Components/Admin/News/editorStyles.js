@@ -11,7 +11,6 @@ const editorStyles = (theme) => ({
   },
   panelContainer: {
     margin: '1em 0',
-
   },
 
   // ------------
@@ -20,10 +19,10 @@ const editorStyles = (theme) => ({
     flexDirection: 'row',
     flexWrap: 'wrap',
     '& > div': {
-      minWidth: '400px'
+      minWidth: '400px',
     },
     margin: '1em 0',
-    gap: '1em'
+    gap: '1em',
   },
   cardContainer: {
     display: 'flex',
@@ -35,7 +34,7 @@ const editorStyles = (theme) => ({
     position: 'relative',
     '& > div': {
       minWidth: '500px',
-    }
+    },
   },
   editorContainer: {
     display: 'flex',
@@ -59,17 +58,13 @@ const editorStyles = (theme) => ({
     flexDirection: 'row',
     flexWrap: 'wrap',
     '& > div': {
-      minWidth: '400px'
+      minWidth: '400px',
     },
     margin: '1em 0',
-    gap: '1em'
+    gap: '1em',
   },
-  tagManagerContainer: {
-
-  },
-  emailContainer: {
-
-  },
+  tagManagerContainer: {},
+  emailContainer: {},
 
   // =====
   controls: {

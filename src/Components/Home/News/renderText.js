@@ -6,7 +6,7 @@ const renderText = (text) => {
   for (let i = 0; i < text.length; i++) {
     // NOTE: because of javascript escape semantics, the string '\\' has length of 1,
     // and the '\\' is considered the equivalent of a '\' char
-    const escaped = (i > 0) && (text.charAt(i-1) === '\\');
+    const escaped = i > 0 && text.charAt(i - 1) === '\\';
 
     switch (text.charAt(i)) {
       case '*':
@@ -82,7 +82,7 @@ export const renderTextNoUnderlineConversion = (text) => {
   for (let i = 0; i < text.length; i++) {
     // NOTE: because of javascript escape semantics, the string '\\' has length of 1,
     // and the '\\' is considered the equivalent of a '\' char
-    const escaped = (i > 0) && (text.charAt(i-1) === '\\');
+    const escaped = i > 0 && text.charAt(i - 1) === '\\';
 
     switch (text.charAt(i)) {
       case '*':

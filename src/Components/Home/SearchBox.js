@@ -15,7 +15,7 @@ import { debounce } from 'throttle-debounce';
 let styles = {
   container: {
     width: '300px',
-    paddingTop: '38px' // helps align box with paired text
+    paddingTop: '38px', // helps align box with paired text
   },
   resultsContainer: {
     textAlign: 'left',
@@ -99,8 +99,8 @@ const SearchBox = ({ classes: cl }) => {
   };
 
   useEffect(() => {
-   search(searchTerm);
-  }, [searchTerm ]);
+    search(searchTerm);
+  }, [searchTerm]);
 
   return (
     <div className={cl.container}>

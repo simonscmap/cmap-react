@@ -54,7 +54,7 @@ const styles = (theme) => ({
     textTransform: 'none',
     '&.MuiButtonBase-root.Mui-disabled': {
       pointerEvents: 'auto',
-    }
+    },
   },
 
   deleteButton: {
@@ -111,11 +111,11 @@ const toEnum = (phaseId) => {
     case 6:
       return 'Complete';
     case 7:
-      return 'Awaiting QC2'
+      return 'Awaiting QC2';
     default:
       return `Unknown phase "${phaseId}"`;
   }
-}
+};
 
 const AdminDashboardPanelDetails = (props) => {
   const { classes, submission, setSubmissionPhase: dispatchSetPhase } = props;
@@ -141,14 +141,15 @@ const AdminDashboardPanelDetails = (props) => {
   };
 
   const handleChangePhase = () => {
-    dispatchSetPhase (submission.Submission_ID, selectedPhase);
+    dispatchSetPhase(submission.Submission_ID, selectedPhase);
   };
 
-  const tooltipContent = phaseId === 6
-                    ? 'Cannot update a completed submission.'
-                       : phaseId === selectedPhase
-                    ? `Submission phase is already ${phaseId}: "${toEnum (phaseId)}"`
-                       : `Set Phase to ${selectedPhase}: "${toEnum (selectedPhase)}"`
+  const tooltipContent =
+    phaseId === 6
+      ? 'Cannot update a completed submission.'
+      : phaseId === selectedPhase
+        ? `Submission phase is already ${phaseId}: "${toEnum(phaseId)}"`
+        : `Set Phase to ${selectedPhase}: "${toEnum(selectedPhase)}"`;
 
   return (
     <AccordionDetails className={classes.panelDetails}>
@@ -176,7 +177,7 @@ const AdminDashboardPanelDetails = (props) => {
           <MenuItem value={6}>Complete</MenuItem>
         </Select>
 
-    <Tooltip title={tooltipContent}>
+        <Tooltip title={tooltipContent}>
           <Button
             variant="contained"
             color="primary"

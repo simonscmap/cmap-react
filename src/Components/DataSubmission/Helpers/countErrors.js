@@ -12,19 +12,19 @@ const countErrors = (auditReport) => {
 
   auditReport['data'].forEach((e) => {
     if (e) {
-      counts.data += (Object.keys(e).length || 0)
+      counts.data += Object.keys(e).length || 0;
     }
   });
 
   auditReport['dataset_meta_data'].forEach((e) => {
     if (e) {
-      counts.dataset_meta_data += (Object.keys(e).length || 0);
+      counts.dataset_meta_data += Object.keys(e).length || 0;
     }
   });
 
   auditReport['vars_meta_data'].forEach((e) => {
     if (e) {
-      counts.vars_meta_data += (Object.keys(e).length || 0);
+      counts.vars_meta_data += Object.keys(e).length || 0;
     }
   });
 
@@ -35,12 +35,12 @@ const countErrors = (auditReport) => {
   counts.sum = errorSum;
 
   return counts;
-}
+};
 
 export const amendReportWithErrorCount = (auditReport) => {
   return Object.assign(auditReport, {
-    errorCount: countErrors (auditReport)
+    errorCount: countErrors(auditReport),
   });
-}
+};
 
 export default countErrors;

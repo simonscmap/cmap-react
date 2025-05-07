@@ -31,17 +31,18 @@ export const makeSubsetQuery = (tableName, selection) => {
 
   let timeUnit = isMonthyClimatology ? 'month' : 'cast(time as date)';
 
-  let toTimeEndISO = (day) => [day]
-    .map ((d) => dayToDateString (Time_Min, d))
-    .map ((d) => new Date (d))
-    .map ((d) => d.toISOString())
-    .map ((s) => s.slice(0, 10) + 'T23:59:59Z')
-    .shift ()
+  let toTimeEndISO = (day) =>
+    [day]
+      .map((d) => dayToDateString(Time_Min, d))
+      .map((d) => new Date(d))
+      .map((d) => d.toISOString())
+      .map((s) => s.slice(0, 10) + 'T23:59:59Z')
+      .shift();
 
   const _timeStart = isMonthyClimatology
     ? timeStart
     : dayToDateString(Time_Min, timeStart);
-  const _timeEnd = isMonthyClimatology ? timeEnd : toTimeEndISO (timeEnd);
+  const _timeEnd = isMonthyClimatology ? timeEnd : toTimeEndISO(timeEnd);
 
   let query =
     `select * from ${tableName} where ${timeUnit} between '${_timeStart}' and '${_timeEnd}' and ` +
@@ -94,7 +95,9 @@ sproc template:
   const _timeStart = isMonthyClimatology
     ? timeStart
     : dayToDateString(Time_Min, timeStart);
-  const _timeEnd = isMonthyClimatology ? timeEnd : dayToDateString(Time_Min, timeEnd);
+  const _timeEnd = isMonthyClimatology
+    ? timeEnd
+    : dayToDateString(Time_Min, timeEnd);
   // + 'T23:59:59Z'
 
   // NOTE: the CIP bit at the end is hard coded for the moment
@@ -170,15 +173,8 @@ log.debug('get max days', {
 };
 
 export const getInitialRangeValues = (dataset) => {
-  let {
-    Lat_Max,
-    Lat_Min,
-    Lon_Max,
-    Lon_Min,
-    Time_Min,
-    Depth_Max,
-    Depth_Min,
-  } = dataset;
+  let { Lat_Max, Lat_Min, Lon_Max, Lon_Min, Time_Min, Depth_Max, Depth_Min } =
+    dataset;
 
   let maxDays = getMaxDays(dataset);
 
@@ -230,7 +226,9 @@ export const getBoundedDateValueFromClickEvent = (
   initialMax,
 ) => {
   if (!clickEvent.target.value) {
-    console.error(`no value in event; expected a string representing a date; received target ${clickEvent && clickEvent.target && clickEvent.target.value}`);
+    console.error(
+      `no value in event; expected a string representing a date; received target ${clickEvent && clickEvent.target && clickEvent.target.value}`,
+    );
     return;
   }
 
@@ -253,7 +251,7 @@ export const getBoundedDateValueFromClickEvent = (
 // Note: a Date String is in the format "yyyy-mm-dd"
 export const dayToDateString = (min, days) => {
   if (!min) {
-    console.error ('dayToDateString received no value for min');
+    console.error('dayToDateString received no value for min');
   }
   let value = new Date(min);
 
@@ -273,9 +271,9 @@ export const dayToDateString = (min, days) => {
 };
 
 export const dateStringToISO = (dateString) => {
-  let d = new Date (dateString);
+  let d = new Date(dateString);
   return d.toISOString();
-}
+};
 
 // :: Date -> DateString
 export const dateToDateString = (date) => {

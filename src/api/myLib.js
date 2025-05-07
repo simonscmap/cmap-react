@@ -7,13 +7,13 @@ import { format } from 'd3-format';
 */
 export const subsetKey = (keyIndex) => (dataArray) => {
   // only create a subset for unique values
-  let uniqueValues = new Set ();
-  dataArray.forEach (row => uniqueValues.add (row[keyIndex]));
+  let uniqueValues = new Set();
+  dataArray.forEach((row) => uniqueValues.add(row[keyIndex]));
 
   /* eslint-disable-next-line */
-  let subsets = new Array (uniqueValues.size);
+  let subsets = new Array(uniqueValues.size);
   for (let i = 0; i < subsets.length; i++) {
-  /* eslint-disable-next-line */
+    /* eslint-disable-next-line */
     subsets[i] = new Array();
   }
 
@@ -58,21 +58,22 @@ export const subsetKey = (keyIndex) => (dataArray) => {
 // map the values at a certain depth of nested array
 export const mapDeep = (fn) => (level) => (src) => {
   if (level === 0) {
-    return (fn.call (null, src));
+    return fn.call(null, src);
   } else {
-    return src.map (mapDeep (fn) (level - 1));
+    return src.map(mapDeep(fn)(level - 1));
   }
 };
 
 export const rowToVal = (row) => row[4];
 
-export const sum = (values) => values.reduce((acc, curr) => {
-  if (curr === undefined || isNaN(curr)) {
-    // console.log('non number in sum ');
-    return acc;
-  }
-  return acc + curr
-}, 0);
+export const sum = (values) =>
+  values.reduce((acc, curr) => {
+    if (curr === undefined || isNaN(curr)) {
+      // console.log('non number in sum ');
+      return acc;
+    }
+    return acc + curr;
+  }, 0);
 
 // calculate mean for an array of 2d matrices
 export const toMean2D = (matrices) => {
@@ -81,18 +82,23 @@ export const toMean2D = (matrices) => {
     // for this lat, create an array of values for each lon,
     // where the value is the mean of that lat/lon across all matrices
     /* eslint-disable-next-line */
-    subset.push(new Array ());
+    subset.push(new Array());
     for (let lon = 0; lon < matrices[0][lat].length; lon++) {
-      let values = matrices.reduce ((acc, matrix) => {
-        if (matrix && matrix[lat] && matrix[lat][lon] !== null && !isNaN(matrix[lat][lon])) {
-          acc.push (matrix[lat][lon]);
+      let values = matrices.reduce((acc, matrix) => {
+        if (
+          matrix &&
+          matrix[lat] &&
+          matrix[lat][lon] !== null &&
+          !isNaN(matrix[lat][lon])
+        ) {
+          acc.push(matrix[lat][lon]);
         } else {
           // console.warn ('skip', `lat ${lat} lon ${lon}`, matrix[lat][lon]);
         }
         return acc;
       }, []);
-      let mean = values.length ? ( sum(values) / values.length) : undefined;
-      subset[lat].push (mean);
+      let mean = values.length ? sum(values) / values.length : undefined;
+      subset[lat].push(mean);
     }
   }
   return subset;
@@ -109,12 +115,11 @@ export const toMean2D = (matrices) => {
 export const toMean3D = (matrices) => {
   let subset = [];
   for (let lat = 0; lat < matrices[0][0].length; lat++) {
-      /* eslint-disable-next-line */
+    /* eslint-disable-next-line */
     subset.push(new Array());
     for (let lon = 0; lon < matrices[0][0][lat].length; lon++) {
-
       let values = matrices.reduce((acc, timeGroup) => {
-        timeGroup.forEach ((depthGroup) => {
+        timeGroup.forEach((depthGroup) => {
           if (depthGroup && depthGroup[lat] && depthGroup[lat][lon]) {
             acc.push(depthGroup[lat][lon]);
           }
@@ -123,7 +128,7 @@ export const toMean3D = (matrices) => {
         return acc;
       }, []);
 
-      let mean = values.length ? (sum(values) / values.length) : undefined;
+      let mean = values.length ? sum(values) / values.length : undefined;
 
       subset[lat].push(mean);
     }
@@ -134,38 +139,33 @@ export const toMean3D = (matrices) => {
 export const getHovertext_ = ({ z, x, y, fields, unit }) => {
   let result = [];
   z.forEach((row, i) => {
-      /* eslint-disable-next-line */
+    /* eslint-disable-next-line */
     result.push(new Array());
     row.forEach((value, j) => {
       let abs = Math.abs(value);
       let formatter = abs > 0.01 && abs < 1000 ? '.2f' : '.2e';
 
-
       if (value === null) {
-       result[i].push (
-         `Lat: ${format('.2f')(y[i])}\xb0` +
-         `<br>` +
-         `Lon: ${
-           x[j] > 180
-             ? format('.2f')(x[j] - 360)
-             : format('.2f')(x[j])
-         }\xb0`
-       );
-     } else {
-      // result[i].push(`x: ${x[j]} y: ${y[i]}<br /> z: ${z[i][j]}`);
+        result[i].push(
+          `Lat: ${format('.2f')(y[i])}\xb0` +
+            `<br>` +
+            `Lon: ${
+              x[j] > 180 ? format('.2f')(x[j] - 360) : format('.2f')(x[j])
+            }\xb0`,
+        );
+      } else {
+        // result[i].push(`x: ${x[j]} y: ${y[i]}<br /> z: ${z[i][j]}`);
 
-      result[i].push (
-       `Lat: ${format('.2f')(y[i])}\xb0` +
-       `<br>` +
-       `Lon: ${
-         x[j] > 180
-           ? format('.2f')(x[j] - 360)
-           : format('.2f')(x[j])
-       }\xb0` +
-       '<br>' +
-       `${fields}: ${format(formatter)(value)} [${unit}]`
-      );
-     }
+        result[i].push(
+          `Lat: ${format('.2f')(y[i])}\xb0` +
+            `<br>` +
+            `Lon: ${
+              x[j] > 180 ? format('.2f')(x[j] - 360) : format('.2f')(x[j])
+            }\xb0` +
+            '<br>' +
+            `${fields}: ${format(formatter)(value)} [${unit}]`,
+        );
+      }
     });
   });
   return result;
@@ -173,12 +173,12 @@ export const getHovertext_ = ({ z, x, y, fields, unit }) => {
 
 export const toSetArray = (data) => {
   if (!data || !Array.isArray(data)) {
-    console.error ('toSetArray received incorrect arg; expecting arrray ', data);
+    console.error('toSetArray received incorrect arg; expecting arrray ', data);
     return [];
   }
   let p = new Set();
-  data.forEach (p.add, p);
-  return Array.from (p);
+  data.forEach(p.add, p);
+  return Array.from(p);
 };
 
 // See Amr Ali's answer to
@@ -186,9 +186,8 @@ export const toSetArray = (data) => {
 // Solution 3
 export const roundToDecimal = (decimal) => (numberToRound) => {
   let powers = [
-    1e0, 1e1, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7,
-    1e8, 1e9, 1e10, 1e11, 1e12, 1e13, 1e14, 1e15,
-    1e16, 1e17, 1e18, 1e19, 1e20, 1e21, 1e22
+    1, 1e1, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9, 1e10, 1e11, 1e12, 1e13,
+    1e14, 1e15, 1e16, 1e17, 1e18, 1e19, 1e20, 1e21, 1e22,
   ];
 
   let intpow10 = (power) => {
@@ -209,14 +208,14 @@ export const roundToDecimal = (decimal) => (numberToRound) => {
 
   let decimalAdjustRound = (num, decimalPlaces) => {
     if (num < 0) {
-      return decimalAdjustRound (-num, decimalPlaces);
+      return decimalAdjustRound(-num, decimalPlaces);
     }
     var p = intpow10(decimalPlaces || 0);
     var n = stripError(num * p);
     return Math.round(n) / p;
   };
 
-  let result = decimalAdjustRound (numberToRound, decimal);
+  let result = decimalAdjustRound(numberToRound, decimal);
 
   // conserve sign
   if (result > 0 && numberToRound < 0) {
@@ -230,7 +229,7 @@ export const roundToDecimal = (decimal) => (numberToRound) => {
 // alternative to subsetKey
 export const splitByKey = (key) => (dataArray) => {
   if (!Array.isArray(dataArray)) {
-    console.error (`received incorrect arg type in splitByKey`, dataArray);
+    console.error(`received incorrect arg type in splitByKey`, dataArray);
     return [];
   }
 
@@ -238,10 +237,10 @@ export const splitByKey = (key) => (dataArray) => {
   let i = 0;
   while (dataArray[i]) {
     if (dataArray[i][key] !== (dataArray[i - 1] && dataArray[i - 1][key])) {
-        /* eslint-disable-next-line */
-      result.push (new Array());
+      /* eslint-disable-next-line */
+      result.push(new Array());
     }
-    result[result.length - 1].push (dataArray[i]);
+    result[result.length - 1].push(dataArray[i]);
     i++;
   }
   return result;
@@ -249,7 +248,7 @@ export const splitByKey = (key) => (dataArray) => {
 
 export const spaceTimeGenerateHistogramPlotData = (rows) => {
   // structure data into subsets
-  let r = (subsetKey(0)(rows)) // split by date
+  let r = subsetKey(0)(rows) // split by date
     .map(subsetKey(3)) // split by depth
     .map((timeGroup) => timeGroup.map(subsetKey(1))); // split by lat
 
@@ -265,13 +264,12 @@ export const spaceTimeGenerateHistogramPlotData = (rows) => {
 // There is a new top level of iteration across the subsets,
 // but a removed layer of iteration in the value picking from the 'group'
 export const meanWithSplit = (subsets) => {
-  let subsetsResults = subsets.map ((subset) => {
+  let subsetsResults = subsets.map((subset) => {
     let result = [];
     for (let lat = 0; lat < subset[0].length; lat++) {
-        /* eslint-disable-next-line */
+      /* eslint-disable-next-line */
       result.push(new Array());
       for (let lon = 0; lon < subset[0][lat].length; lon++) {
-
         let values = subset.reduce((acc, group) => {
           if (!isNaN(group[lat][lon])) {
             acc.push(group[lat][lon]);
@@ -279,7 +277,7 @@ export const meanWithSplit = (subsets) => {
           return acc;
         }, []);
 
-        let mean = values.length ? (sum(values) / values.length) : undefined;
+        let mean = values.length ? sum(values) / values.length : undefined;
         result[lat].push(mean);
       }
     }
@@ -291,31 +289,31 @@ export const meanWithSplit = (subsets) => {
 };
 
 export const spaceTimeGenerateHistogramSubsetPlotsSplitByDate = (rows) => {
-  let r = (subsetKey (0) (rows)) // split by date
-    .map (subsetKey (3))
-    .map (group => group.map (subsetKey (1)));
+  let r = subsetKey(0)(rows) // split by date
+    .map(subsetKey(3))
+    .map((group) => group.map(subsetKey(1)));
 
-  let t = mapDeep (rowToVal) (4) (r);
+  let t = mapDeep(rowToVal)(4)(r);
 
-  return meanWithSplit (t);
-}
+  return meanWithSplit(t);
+};
 
 export const spaceTimeGenerateHistogramSubsetPlotsSplitByDepth = (rows) => {
-  let r = (subsetKey (3) (rows)) // split by depth
-    .map (subsetKey (0)) // split by date
-    .map (group => group.map (subsetKey (1)));
+  let r = subsetKey(3)(rows) // split by depth
+    .map(subsetKey(0)) // split by date
+    .map((group) => group.map(subsetKey(1)));
 
-  let t = mapDeep (rowToVal) (4) (r);
+  let t = mapDeep(rowToVal)(4)(r);
 
-  return meanWithSplit (t);
-}
+  return meanWithSplit(t);
+};
 
 export const spaceTimeGenerateHistogram2D = (rows) => {
   // structure data into subsets
 
-  let r = (subsetKey (0) (rows)) // split by date
+  let r = subsetKey(0)(rows); // split by date
 
-  r = r.map(subsetKey (1)); // split by lat
+  r = r.map(subsetKey(1)); // split by lat
 
   // map row data to the observation value
   r = mapDeep(rowToVal)(3)(r);
@@ -324,4 +322,4 @@ export const spaceTimeGenerateHistogram2D = (rows) => {
   let result = toMean2D(r);
 
   return result;
-}
+};

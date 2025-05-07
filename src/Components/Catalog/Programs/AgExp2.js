@@ -1,7 +1,7 @@
-"use strict";
+'use strict';
 
-import React, { Component } from "react";
-import { AgGridReact } from "ag-grid-react";
+import React, { Component } from 'react';
+import { AgGridReact } from 'ag-grid-react';
 
 class GridExample extends Component {
   constructor(props) {
@@ -10,77 +10,79 @@ class GridExample extends Component {
     this.state = {
       rowData: [
         {
-          name: "Ireland",
-          continent: "Europe",
-          language: "English",
-          code: "ie",
+          name: 'Ireland',
+          continent: 'Europe',
+          language: 'English',
+          code: 'ie',
           population: 4000000,
-          summary: "Master Drinkers"
+          summary: 'Master Drinkers',
         },
         {
-          name: "Spain",
-          continent: "Europe",
-          language: "Spanish",
-          code: "es",
+          name: 'Spain',
+          continent: 'Europe',
+          language: 'Spanish',
+          code: 'es',
           population: 4000000,
-          summary: "Bull Fighters"
+          summary: 'Bull Fighters',
         },
         {
-          name: "United Kingdom",
-          continent: "Europe",
-          language: "English",
-          code: "gb",
+          name: 'United Kingdom',
+          continent: 'Europe',
+          language: 'English',
+          code: 'gb',
           population: 4000000,
-          summary: "Center of the World"
+          summary: 'Center of the World',
         },
         {
-          name: "France",
-          continent: "Europe",
-          language: "French",
-          code: "fr",
+          name: 'France',
+          continent: 'Europe',
+          language: 'French',
+          code: 'fr',
           population: 4000000,
-          summary: "Best Lovers"
+          summary: 'Best Lovers',
         },
         {
-          name: "Germany",
-          continent: "Europe",
-          language: "German",
-          code: "de",
+          name: 'Germany',
+          continent: 'Europe',
+          language: 'German',
+          code: 'de',
           population: 4000000,
-          summary: "Always on Time"
+          summary: 'Always on Time',
         },
         {
-          name: "Sweden",
-          continent: "Europe",
-          language: "Swedish",
-          code: "se",
+          name: 'Sweden',
+          continent: 'Europe',
+          language: 'Swedish',
+          code: 'se',
           population: 4000000,
-          summary: "Home of Vikings"
+          summary: 'Home of Vikings',
         },
-
       ],
       columnDefs: getColumnDefs(),
-      isFullWidthCell: function(rowNode) {
+      isFullWidthCell: function (rowNode) {
         var rowIsNestedRow = rowNode.flower;
         return rowIsNestedRow;
       },
       fullWidthCellRenderer: getFullWidthCellRenderer(),
-      getRowHeight: function(params) {
+      getRowHeight: function (params) {
         var rowIsNestedRow = params.node.flower;
         return rowIsNestedRow ? 100 : 25;
       },
-      doesDataFlower: function(dataItem) {
-        return dataItem.name !== "Venezuela";
-      }
+      doesDataFlower: function (dataItem) {
+        return dataItem.name !== 'Venezuela';
+      },
     };
   }
 
-  onGridReady = params => {
+  onGridReady = (params) => {
     this.gridApi = params.api;
     this.gridColumnApi = params.columnApi;
 
-    params.api.forEachLeafNode(function(rowNode) {
-      if (rowNode.data.name === "Ireland" || rowNode.data.name === "United Kingdom") {
+    params.api.forEachLeafNode(function (rowNode) {
+      if (
+        rowNode.data.name === 'Ireland' ||
+        rowNode.data.name === 'United Kingdom'
+      ) {
         rowNode.expanded = true;
       }
     });
@@ -89,12 +91,12 @@ class GridExample extends Component {
 
   render() {
     return (
-      <div style={{ width: "100%" }}>
+      <div style={{ width: '100%' }}>
         <div
           id="myGrid"
           style={{
-            height: "300px",
-            width: "100%"
+            height: '300px',
+            width: '100%',
           }}
           className="ag-theme-balham"
         >
@@ -116,45 +118,41 @@ class GridExample extends Component {
 function getColumnDefs() {
   var columnDefs = [
     {
-      headerName: "Name",
-      field: "name",
+      headerName: 'Name',
+      field: 'name',
       width: 150,
-      cellRenderer: "agGroupCellRenderer",
+      cellRenderer: 'agGroupCellRenderer',
     },
     {
-      headerName: "Continent",
-      field: "continent",
-      width: 150
+      headerName: 'Continent',
+      field: 'continent',
+      width: 150,
     },
     {
-      headerName: "Language",
-      field: "language",
-      width: 150
-    }
+      headerName: 'Language',
+      field: 'language',
+      width: 150,
+    },
   ];
   return columnDefs;
 }
 
-
 function getFullWidthCellRenderer() {
   function FullWidthCellRenderer() {}
 
-  FullWidthCellRenderer.prototype.init = function(params) {
-    var eTemp = document.createElement("div");
+  FullWidthCellRenderer.prototype.init = function (params) {
+    var eTemp = document.createElement('div');
     eTemp.innerHTML = this.getTemplate(params);
     this.eGui = eTemp.firstElementChild;
   };
 
-  FullWidthCellRenderer.prototype.getTemplate = function(params) {
+  FullWidthCellRenderer.prototype.getTemplate = function (params) {
     var data = params.node.data;
-    var template =
-      '<div class="full-width-panel">' +
-        `${data}` +
-      "</div>";
+    var template = '<div class="full-width-panel">' + `${data}` + '</div>';
     return template;
   };
 
-  FullWidthCellRenderer.prototype.getGui = function() {
+  FullWidthCellRenderer.prototype.getGui = function () {
     return this.eGui;
   };
 

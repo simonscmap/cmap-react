@@ -18,11 +18,8 @@ import { polylinePopupTemplate } from './trajectoryInvariants';
  */
 
 const distance = (x1, y1, x2, y2) => {
-  return Math.sqrt (
-    Math.pow((x1 - x2), 2) +
-    Math.pow((y1 - y2), 2)
-  );
-}
+  return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+};
 
 const findNearestVertex = (loc, paths) => {
   // loc is an esrip view location
@@ -34,7 +31,7 @@ const findNearestVertex = (loc, paths) => {
   for (let k = 0; k < paths.length; k++) {
     const p = paths[k];
     const [lon2, lat2] = p;
-    const thisDistance = distance (lat1, lon1, lat2, lon2);
+    const thisDistance = distance(lat1, lon1, lat2, lon2);
     if (thisDistance < shortestDistanceSoFar) {
       shortestDistanceSoFar = thisDistance;
       lastIndex = k;
@@ -43,48 +40,52 @@ const findNearestVertex = (loc, paths) => {
 
   return {
     lon: paths[lastIndex][0],
-    lat: paths[lastIndex][1]
+    lat: paths[lastIndex][1],
   };
-}
+};
 
 const splitLineAtAntimeridian = (path) => {
-  const path_ = path.map (([lon, lat]) => ([lon + 360, lat]));
-  const paths = path_.reduce((acc, curr) => {
-    const latestPath = acc[acc.length - 1];
-    if (latestPath.length === 0) {
-      latestPath.push (curr);
-      return acc;
-    }
-    const [lon1 ] = latestPath[latestPath.length - 1];
-    const [lon2 ] = curr;
+  const path_ = path.map(([lon, lat]) => [lon + 360, lat]);
+  const paths = path_.reduce(
+    (acc, curr) => {
+      const latestPath = acc[acc.length - 1];
+      if (latestPath.length === 0) {
+        latestPath.push(curr);
+        return acc;
+      }
+      const [lon1] = latestPath[latestPath.length - 1];
+      const [lon2] = curr;
 
-    // if ((lon1 < 180 && lon2 > 180) || (lon1 > 180 && lon2 < 180)) {
-    if (lon1 - lon2 > 180 || lon2 - lon1 > 180) {
-      // crossing
-      // terminate latest path
+      // if ((lon1 < 180 && lon2 > 180) || (lon1 > 180 && lon2 < 180)) {
+      if (lon1 - lon2 > 180 || lon2 - lon1 > 180) {
+        // crossing
+        // terminate latest path
 
-      // create new path with new point
-      acc.push ([curr]);
-      return acc;
-    } else {
-      latestPath.push (curr);
-      return acc;
-    }
-  }, [[]]); // acc is an array of paths
+        // create new path with new point
+        acc.push([curr]);
+        return acc;
+      } else {
+        latestPath.push(curr);
+        return acc;
+      }
+    },
+    [[]],
+  ); // acc is an array of paths
 
-  return paths.map (p => p.map (([lon, lat]) => ([lon - 360, lat])));
-}
-
+  return paths.map((p) => p.map(([lon, lat]) => [lon - 360, lat]));
+};
 
 // https://developers.arcgis.com/javascript/latest/api-reference/esri-Color.html
 // https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
-function hexToRgb (hex) {
+function hexToRgb(hex) {
   var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result ? {
-    r: parseInt(result[1], 16),
-    g: parseInt(result[2], 16),
-    b: parseInt(result[3], 16)
-  } : null;
+  return result
+    ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16),
+      }
+    : null;
 }
 
 /* cruiseSelector :: (state) => [Cruise] */
@@ -99,24 +100,29 @@ const TrajectoryController = (props) => {
     view,
   } = props;
 
-  const cruiseTrajectories = useSelector (trajectorySelector);
-  const cruiseList = useSelector (cruiseSelector);
-  const activeTrajectory = useSelector (activeTrajectorySelector);
+  const cruiseTrajectories = useSelector(trajectorySelector);
+  const cruiseList = useSelector(cruiseSelector);
+  const activeTrajectory = useSelector(activeTrajectorySelector);
 
-  const dispatch = useDispatch ();
+  const dispatch = useDispatch();
 
-  const thereAreTrajectoriesToRender = cruiseTrajectories &&
-    Object.entries(cruiseTrajectories).length > 0;
+  const thereAreTrajectoriesToRender =
+    cruiseTrajectories && Object.entries(cruiseTrajectories).length > 0;
 
   // pre-determine cruise -> color map
   const numberOfTrajectories = Object.entries(cruiseTrajectories).length;
-  const colors = palette('rainbow', numberOfTrajectories).map((hex) => `#${hex}`);
+  const colors = palette('rainbow', numberOfTrajectories).map(
+    (hex) => `#${hex}`,
+  );
 
-  const colorMap = Object.entries(cruiseTrajectories).reduce((m, currEntry, idx) => {
-    const [id] = currEntry;
-    Object.assign(m, { [id]: colors[idx] });
-    return m;
-  }, {});
+  const colorMap = Object.entries(cruiseTrajectories).reduce(
+    (m, currEntry, idx) => {
+      const [id] = currEntry;
+      Object.assign(m, { [id]: colors[idx] });
+      return m;
+    },
+    {},
+  );
 
   // If No Data, Remove Layer and Return Camera to Default
   useEffect(() => {
@@ -124,13 +130,14 @@ const TrajectoryController = (props) => {
   }, [thereAreTrajectoriesToRender, cruiseTrajectories]);
 
   const idToCruise = (id) => {
-    let result = (cruiseList || []).find (c =>
-      parseInt(c.ID, 10) === parseInt(id, 10));
+    let result = (cruiseList || []).find(
+      (c) => parseInt(c.ID, 10) === parseInt(id, 10),
+    );
     return result || null;
-  }
+  };
 
   // return a reducs set of lat/lon
-  function downsample (trajectoryData) {
+  function downsample(trajectoryData) {
     const { lons, lats, times } = trajectoryData;
 
     const downSampleCoeff = Math.floor(lons.length / 1000) + 1;
@@ -150,7 +157,7 @@ const TrajectoryController = (props) => {
   }
 
   // Render Each Trajectory
-  function renderTrajectory (trajectoryData, cruiseId) {
+  function renderTrajectory(trajectoryData, cruiseId) {
     if (!trajectoryData) {
       return; // this shouldn't be needed
     }
@@ -161,7 +168,7 @@ const TrajectoryController = (props) => {
     if (activeTrajectory && activeTrajectory.cruiseId) {
       if (parseInt(cruiseId, 10) !== activeTrajectory.cruiseId) {
         // 1. add transparency to this trajectory
-        const rgb = hexToRgb (newColor);
+        const rgb = hexToRgb(newColor);
         if (rgb) {
           rgb.a = 0.2;
           newColor = rgb;
@@ -173,7 +180,7 @@ const TrajectoryController = (props) => {
       }
     }
 
-    const cruise = idToCruise (cruiseId);
+    const cruise = idToCruise(cruiseId);
 
     let tdata = trajectoryData;
     if (downSample) {
@@ -183,7 +190,7 @@ const TrajectoryController = (props) => {
     const { lats, lons } = tdata;
 
     if (!lons) {
-      console.log (`no lons for cruise ${cruiseId}`, trajectoryData, tdata)
+      console.log(`no lons for cruise ${cruiseId}`, trajectoryData, tdata);
       return;
     }
 
@@ -191,11 +198,11 @@ const TrajectoryController = (props) => {
 
     const path = [];
     for (let k = 0; k < lons.length; k++) {
-      path.push ([lons[k], lats[k]]);
+      path.push([lons[k], lats[k]]);
     }
 
     const simpleLineSymbol = {
-      type: "simple-line",
+      type: 'simple-line',
       color: newColor,
       width: strokeWidth,
       style: 'short-dash',
@@ -206,7 +213,7 @@ const TrajectoryController = (props) => {
         geometry: graphic,
         symbol: simpleLineSymbol,
         popupTemplate: {
-          title: "Cruise Trajectory Point for {name}",
+          title: 'Cruise Trajectory Point for {name}',
           returnGeometry: true,
           content: (feature) => {
             const loc = view && view.popup.location;
@@ -214,29 +221,29 @@ const TrajectoryController = (props) => {
 
             // FINDE NEAREST VERTEX
 
-            const nearestVertex = findNearestVertex (loc, paths_);
-            console.log ({
+            const nearestVertex = findNearestVertex(loc, paths_);
+            console.log({
               loc: { lat: loc.latitude, lon: loc.longitude },
               nearestVertex,
             });
 
-            const template = polylinePopupTemplate (nearestVertex, cruise);
+            const template = polylinePopupTemplate(nearestVertex, cruise);
             const table = document.createElement('tbody');
             table.innerHTML = template;
             return table;
-          }
-        }
+          },
+        },
       });
     };
 
-    const geometries = splitLineAtAntimeridian (path).map ((p) => ({
-      'type': 'polyline',
-      paths: p
+    const geometries = splitLineAtAntimeridian(path).map((p) => ({
+      type: 'polyline',
+      paths: p,
     }));
 
-    geometries.forEach (g => {
-      const graphic = makePolylineGraphic (g);
-      trajectoryLayer.add(graphic)
+    geometries.forEach((g) => {
+      const graphic = makePolylineGraphic(g);
+      trajectoryLayer.add(graphic);
     });
   }
 
@@ -249,24 +256,29 @@ const TrajectoryController = (props) => {
         trajectoryLayer.removeAll();
       }
 
-      let trajectories = Object.entries(cruiseTrajectories)
-                               .filter (([id, data]) =>
-                                 Boolean (id && data && data.lats && data.lons && data.times));
+      let trajectories = Object.entries(cruiseTrajectories).filter(
+        ([id, data]) =>
+          Boolean(id && data && data.lats && data.lons && data.times),
+      );
 
-      const indexOfSelected = trajectories.findIndex (([id]) => {
-        if (isNaN (ATID)) {
-          console.log ('could not identify index because active trajectory is NaN', activeTrajectory);
+      const indexOfSelected = trajectories.findIndex(([id]) => {
+        if (isNaN(ATID)) {
+          console.log(
+            'could not identify index because active trajectory is NaN',
+            activeTrajectory,
+          );
           return false;
         }
-        return parseInt(id, 10) === parseInt(ATID, 10)
+        return parseInt(id, 10) === parseInt(ATID, 10);
       });
 
-      if (indexOfSelected >= 0 && (indexOfSelected !== (trajectories.length - 1))) {
+      if (indexOfSelected >= 0 && indexOfSelected !== trajectories.length - 1) {
         const AT = trajectories[indexOfSelected]; // copy
-        trajectories = trajectories
-          .filter ((entry, idx) => idx !== indexOfSelected);
+        trajectories = trajectories.filter(
+          (entry, idx) => idx !== indexOfSelected,
+        );
 
-        trajectories.push(AT)
+        trajectories.push(AT);
       }
 
       trajectories.forEach(([id, data]) => renderTrajectory(data, id));
@@ -276,13 +288,7 @@ const TrajectoryController = (props) => {
 
       dispatch(cruiseTrajectoryZoomTo(firstTrajectoryId));
     }
-  }, [
-    thereAreTrajectoriesToRender,
-    cruiseTrajectories,
-    activeTrajectory,
-  ]);
-
+  }, [thereAreTrajectoriesToRender, cruiseTrajectories, activeTrajectory]);
 };
-
 
 export default React.memo(TrajectoryController);

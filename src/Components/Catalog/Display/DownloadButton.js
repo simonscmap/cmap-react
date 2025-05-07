@@ -1,10 +1,5 @@
 import React, { useState } from 'react';
-import {
-  withStyles,
-  Button,
- } from '@material-ui/core';
-
-
+import { withStyles, Button } from '@material-ui/core';
 
 const GreenButton = withStyles((theme) => ({
   root: {
@@ -25,7 +20,7 @@ const GreenButton = withStyles((theme) => ({
     '& span': {
       whiteSpace: 'nowrap',
     },
-    lineBreak: 'none'
+    lineBreak: 'none',
   },
 }))(Button);
 

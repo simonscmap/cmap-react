@@ -4,15 +4,17 @@ import { useSelector } from 'react-redux';
 
 const TrajectoryZoom = (props) => {
   const { view } = props;
-  const activeCruise = useSelector ((state) => state.cruiseTrajectoryFocus);
-  const nonce = useSelector ((state) => state.cruiseTrajectoryFocusNonce);
+  const activeCruise = useSelector((state) => state.cruiseTrajectoryFocus);
+  const nonce = useSelector((state) => state.cruiseTrajectoryFocusNonce);
 
-  const focusedTrajectory = useSelector ((state) =>
-    state.cruiseTrajectories && state.cruiseTrajectories[activeCruise]);
+  const focusedTrajectory = useSelector(
+    (state) =>
+      state.cruiseTrajectories && state.cruiseTrajectories[activeCruise],
+  );
 
   useEffect(() => {
     if (!view) {
-      console.error ('no ref to view');
+      console.error('no ref to view');
     } else if (!focusedTrajectory) {
       view.goTo(
         {
@@ -46,9 +48,8 @@ const TrajectoryZoom = (props) => {
         },
       );
     } else {
-      console.log ('no reference to view or view.goTo');
+      console.log('no reference to view or view.goTo');
     }
-
   } catch (e) {
     console.log('error changing esri view to center of trajectory', e);
   }

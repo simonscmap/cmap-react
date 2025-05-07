@@ -1,6 +1,6 @@
 // https://www.ag-grid.com/archive/20.2.0/javascript-grid-cell-rendering-components/
 
-import React, {Component} from "react";
+import React, { Component } from 'react';
 
 export default class DSCellRenderWithDelete extends Component {
   constructor(props) {
@@ -10,17 +10,23 @@ export default class DSCellRenderWithDelete extends Component {
 
   handler = (e) => {
     // e.preventDefault ();
-    this.props.setValue (null);
-  }
+    this.props.setValue(null);
+  };
 
   render() {
     if (this.props.value || this.props.value === 0) {
       return (
         <span>
           {`${this.props.value}`}{' '}
-        <button style={{height: 20, lineHeight: 0.5}} onClick={this.handler} className="btn btn-info">Clear</button>
+          <button
+            style={{ height: 20, lineHeight: 0.5 }}
+            onClick={this.handler}
+            className="btn btn-info"
+          >
+            Clear
+          </button>
         </span>
-      )
+      );
     }
     return '';
   }

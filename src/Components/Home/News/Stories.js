@@ -10,26 +10,29 @@ const useStyle = makeStyles(newsBannerStyles);
 const NewsCategoryHeading = ({ title, extraMargin }) => {
   let classes = useStyle();
   let style = { marginTop: extraMargin ? '1em' : 0 };
-  return (<div className={classes.newsTitle} style={style} >
-    <Typography variant="h2">{title}</Typography>
-  </div>);
-}
+  return (
+    <div className={classes.newsTitle} style={style}>
+      <Typography variant="h2">{title}</Typography>
+    </div>
+  );
+};
 
 const NewsSection = ({ stories }) => {
   let classes = useStyle();
 
   let [ref, setRef] = useState(null);
-  let [intervalId, setIntervalId ] = useState (null)
+  let [intervalId, setIntervalId] = useState(null);
 
-  useLayoutEffect (() => {
+  useLayoutEffect(() => {
     if (ref) {
-      const s = () => ref.scroll ({
-        top: 445,
-        left: 0,
-        behavior: "instant",
-      });
-      const id = setInterval (s, 100)
-      setIntervalId (id);
+      const s = () =>
+        ref.scroll({
+          top: 445,
+          left: 0,
+          behavior: 'instant',
+        });
+      const id = setInterval(s, 100);
+      setIntervalId(id);
     } else {
       // console.log ('ref is null')
     }
@@ -41,47 +44,42 @@ const NewsSection = ({ stories }) => {
       if (pos < 400) {
         const scrollBack = () => {
           if (ref) {
-            ref.scroll ({
+            ref.scroll({
               top: 445,
               left: 0,
-              behavior: "instant",
+              behavior: 'instant',
             });
           }
-        }
-        setTimeout (scrollBack, 200);
+        };
+        setTimeout(scrollBack, 200);
       }
     }
     if (intervalId) {
-      clearInterval (intervalId);
+      clearInterval(intervalId);
     }
-  }
-
+  };
 
   return (
     <div className={classes.newsFlowContainer}>
-      <div className={classes.sectionTitleContainer} id="news_title_bar" >
-        <NewsCategoryHeading title={"News"} />
-        <Subscribe intro={true}/>
+      <div className={classes.sectionTitleContainer} id="news_title_bar">
+        <NewsCategoryHeading title={'News'} />
+        <Subscribe intro={true} />
       </div>
-    <div
-      id={'news-flow'}
-      className={classes.newsFlow}
-      ref={setRef}
-      onScroll={handleScroll}
-    >
+      <div
+        id={'news-flow'}
+        className={classes.newsFlow}
+        ref={setRef}
+        onScroll={handleScroll}
+      >
         <div>
-          {stories
-            .map((story, idx) => (
-              <Card
-                key={`news-story-${idx}`}
-                story={story}
-              />
-            ))}
+          {stories.map((story, idx) => (
+            <Card key={`news-story-${idx}`} story={story} />
+          ))}
         </div>
       </div>
     </div>
   );
-}
+};
 
 const NewsStories = ({ stories }) => {
   let classes = useStyle();

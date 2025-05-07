@@ -107,7 +107,7 @@ visualizationAPI.storedProcedureSQLify = async (payload) => {
   } else {
     return await response.json();
   }
-}
+};
 
 visualizationAPI.sparseDataQuerysend = async (payload) => {
   const { parameters } = payload;
@@ -173,13 +173,19 @@ visualizationAPI.sparseDataQuerysend = async (payload) => {
 visualizationAPI.variableSampleVisRequest = async (payload) => {
   const { variableData, datasetShortName } = payload;
   const { ID } = variableData;
-  const { visType, parameters, metadata } = variableData.meta
+  const { visType, parameters, metadata } = variableData.meta;
 
-  const dataModel = visType === 'Heatmap'
-                  ? new SpaceTimeData({ parameters, metadata })
-                  : visType === 'Sparse'
-                  ? new SparseData ({ parameters, metadata })
-                  : null;
+  let dataModel;
+  switch (visType) {
+    case 'Heatmap':
+      dataModel = new SpaceTimeData({ parameters, metadata });
+      break;
+    case 'Sparse':
+      dataModel = new SparseData({ parameters, metadata });
+      break;
+    default:
+      dataModel = null;
+  }
 
   if (!dataModel) {
     return { failed: true, status: 'NO DATA MODEL IDENTIFIED' };
@@ -193,7 +199,7 @@ visualizationAPI.variableSampleVisRequest = async (payload) => {
   try {
     response = await fetch(url, fetchOptions);
   } catch (e) {
-    console.log ('variable sample vis request failed', { url });
+    console.log('variable sample vis request failed', { url });
     return { failed: true, status: response && response.status };
   }
 
@@ -231,16 +237,24 @@ visualizationAPI.variableSampleVisRequest = async (payload) => {
 };
 
 // deprecated
-visualizationAPI.datasetDetailPageVariableVisualizationRequest = async (payload) => {
+visualizationAPI.datasetDetailPageVariableVisualizationRequest = async (
+  payload,
+) => {
   const { variableData } = payload;
   const { meta } = variableData;
   const { visType, parameters, metadata } = meta;
 
-  const dataModel = visType === 'Heatmap'
-                  ? new SpaceTimeData({ parameters, metadata })
-                  : visType === 'Sparse'
-                  ? new SparseData ({ parameters, metadata })
-                  : null;
+  let dataModel;
+  switch (visType) {
+    case 'Heatmap':
+      dataModel = new SpaceTimeData({ parameters, metadata });
+      break;
+    case 'Sparse':
+      dataModel = new SparseData({ parameters, metadata });
+      break;
+    default:
+      dataModel = null;
+  }
 
   if (!dataModel) {
     return { failed: true, status: 'NO DATA MODEL IDENTIFIED' };
@@ -250,7 +264,6 @@ visualizationAPI.datasetDetailPageVariableVisualizationRequest = async (payload)
   const api = visType === 'Heatmap' ? 'sp' : 'query';
   const qsStart = visType === 'Sparse' ? 'query=' : '';
   const url = `${apiUrl}/api/data/${api}?${qsStart}${encodeURI(meta.query)}`;
-
 
   let response = await fetch(url, fetchOptions);
 
@@ -285,7 +298,7 @@ visualizationAPI.datasetDetailPageVariableVisualizationRequest = async (payload)
   }
 
   return dataModel;
-}
+};
 
 visualizationAPI.getTableStats = async (tableName) => {
   let response = await fetch(
@@ -303,9 +316,9 @@ visualizationAPI.cruiseTrajectoryRequest = async (payload) => {
   // fetch cruise trajectories
   let response;
   try {
-    response = await fetch (endpoint, {
+    response = await fetch(endpoint, {
       ...postOptions,
-      body: JSON.stringify({ cruise_ids: payload.ids })
+      body: JSON.stringify({ cruise_ids: payload.ids }),
     });
   } catch (e) {
     return { failed: true, status: response.status };
@@ -326,7 +339,7 @@ visualizationAPI.cruiseTrajectoryRequest = async (payload) => {
         lats: [],
         lons: [],
         times: [],
-      }
+      },
     });
   }, {});
 
@@ -337,10 +350,9 @@ visualizationAPI.cruiseTrajectoryRequest = async (payload) => {
     return acc;
   }, accumulator);
 
-
   // ammend trajectories with center/maxDistance data
   Object.keys(trajectories).forEach((key) => {
-    Object.assign(trajectories[key], analyzeTrajectory (trajectories[key]));
+    Object.assign(trajectories[key], analyzeTrajectory(trajectories[key]));
   });
 
   return trajectories;
@@ -359,12 +371,12 @@ visualizationAPI.cruiseList = async () => {
 // this fetches metadata that is included in the csv file1
 visualizationAPI.csvDownload = async (query) => {
   if (!query) {
-    console.error ('incorrect args for csv metadata download request');
-    return { failed: true, status: 'not sent'};
+    console.error('incorrect args for csv metadata download request');
+    return { failed: true, status: 'not sent' };
   }
   let response = await fetch(
     apiUrl + `/api/data/query?query=${query}`,
-   fetchOptions,
+    fetchOptions,
   );
 
   if (response.ok) {
@@ -410,7 +422,7 @@ const safeAPI = Object.entries(visualizationAPI)
     return {
       [name]: async (...args) => {
         let result;
-        console.log (`<trace::vizApi> ${name}`)
+        // console.log(`<trace::vizApi> ${name}`);
         try {
           result = await fn.apply(null, args);
         } catch (e) {
@@ -432,7 +444,5 @@ const safeAPI = Object.entries(visualizationAPI)
       ...current,
     };
   }, {});
-
-
 
 export default safeAPI;

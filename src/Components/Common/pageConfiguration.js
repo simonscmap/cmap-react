@@ -50,10 +50,10 @@ export const getPageConfiguration = (pathname) => {
   if (pages[pathname]) {
     return pages[pathname];
   } else {
-    const lastSlash = pathname.lastIndexOf ('/');
+    const lastSlash = pathname.lastIndexOf('/');
     if (lastSlash > 0) {
       const parentPath = pathname.slice(0, lastSlash);
-      return getPageConfiguration (parentPath);
+      return getPageConfiguration(parentPath);
     }
   }
   // Todo: this is a bad way to encode a failure case

@@ -29,7 +29,7 @@ const styles = () => ({
       '& > div': {
         maxWidth: '45%',
       },
-    }
+    },
   },
 
   card: {
@@ -55,7 +55,7 @@ const styles = () => ({
         '&:hover': {
           color: 'white',
           textDecoration: 'underline',
-        }
+        },
       },
       // h4 no longer in use
       '& h4': {
@@ -85,14 +85,13 @@ const styles = () => ({
     justifyContent: 'space-between',
   },
 
-
   galleryThumb: {
     width: '100%',
     '& > img': {
       margin: '1em 0',
       width: '100%',
       height: '100%',
-    }
+    },
   },
   badges: {
     display: 'flex',
@@ -101,8 +100,8 @@ const styles = () => ({
     flexWrap: 'wrap',
     '& > a': {
       marginRight: '5px',
-    }
-  }
+    },
+  },
 });
 
 const HeroContent = withStyles(styles)(() => (
@@ -112,11 +111,13 @@ const HeroContent = withStyles(styles)(() => (
       can be used to advance ocean science.
     </Typography>
     <Typography variant="body1">
-      The Simons CMAP gallery features use cases highlighting how the community is using Simons CMAP to advance ocean science.
-      Please consider submitting use cases from your own work for inclusion in the gallery.
+      The Simons CMAP gallery features use cases highlighting how the community
+      is using Simons CMAP to advance ocean science. Please consider submitting
+      use cases from your own work for inclusion in the gallery.
     </Typography>
     <Typography variant="body1">
-      Contact us at <a href="mailto:simonscmap@uw.edu">simonscmap@uw.edu</a> to get started.
+      Contact us at <a href="mailto:simonscmap@uw.edu">simonscmap@uw.edu</a> to
+      get started.
     </Typography>
   </div>
 ));
@@ -129,66 +130,47 @@ const Card = withStyles(styles)(({ classes, children }) => (
 
 const About = ({ classes }) => {
   return (
-    <Page pageTitle={'Gallery'} heroContent={<HeroContent />} bgVariant={'slate2'}>
+    <Page
+      pageTitle={'Gallery'}
+      heroContent={<HeroContent />}
+      bgVariant={'slate2'}
+    >
+      <Section name={'gettingStarted'} title={'Getting Started'}>
+        <div className={classes.cardList}>
+          <Card>
+            <div className={classes.contentVerticalFlex}>
+              <div>
+                <Typography variant="body1">
+                  <Link to="/gallery/getting-started-cruise-plan">
+                    Cruise Planning: Contemporaneous Sampling Along An Arbitrary
+                    Cruise Trajectory
+                  </Link>
+                </Typography>
 
-        <Section name={'gettingStarted'} title={'Getting Started'}>
-          <div className={classes.cardList}>
-            <Card>
-              <div className={classes.contentVerticalFlex}>
-                <div>
-                  <Typography variant="body1">
-                    <Link to="/gallery/getting-started-cruise-plan">
-                      Cruise Planning: Contemporaneous Sampling Along An Arbitrary Cruise Trajectory
-                    </Link>
-                  </Typography>
-
-                  <div className={classes.badges}>
-                    <a href="https://doi.org/10.5281/zenodo.7839055">
-                      <img
-                        src="https://zenodo.org/badge/DOI/10.5281/zenodo.7839055.svg"
-                        alt="DOI"
-                      />
-                    </a>
-                    <a href="https://colab.research.google.com/github/simonscmap/pycmap/blob/master/docs/CruisePlan.ipynb">
-                      <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open in Colab" title="Open and Execute in Google Colaboratory" target="_blank" align="left" />
-                    </a>
-                  </div>
-
-                  <div className={classes.galleryThumb}>
-                    <img src="/images/gallery/getting-started-cruise-plan.jpg" alt="Cruise plan graph" />
-                  </div>
-    </div>
-
-                <div className={classes.contributors}>
-
-                  <Typography variant="body2">
-                    Contributors: Mohammad Ashkezari, Ginger Armbrust
-                  </Typography>
+                <div className={classes.badges}>
+                  <a href="https://doi.org/10.5281/zenodo.7839055">
+                    <img
+                      src="https://zenodo.org/badge/DOI/10.5281/zenodo.7839055.svg"
+                      alt="DOI"
+                    />
+                  </a>
+                  <a href="https://colab.research.google.com/github/simonscmap/pycmap/blob/master/docs/CruisePlan.ipynb">
+                    <img
+                      src="https://colab.research.google.com/assets/colab-badge.svg"
+                      alt="Open in Colab"
+                      title="Open and Execute in Google Colaboratory"
+                      target="_blank"
+                      align="left"
+                    />
+                  </a>
                 </div>
-              </div>
-            </Card>
 
-            <Card>
-              <Typography variant="body1">
-                <Link to="/gallery/getting-started-cruise-map">
-                  GeoSpatial Map Superimposed by Arbitrary Cruise Trajectories
-                </Link>
-              </Typography>
-
-              <div className={classes.badges}>
-                <a href="https://doi.org/10.5281/zenodo.7839055">
+                <div className={classes.galleryThumb}>
                   <img
-                    src="https://zenodo.org/badge/DOI/10.5281/zenodo.7839055.svg"
-                    alt="DOI"
+                    src="/images/gallery/getting-started-cruise-plan.jpg"
+                    alt="Cruise plan graph"
                   />
-                </a>
-                <a href="https://colab.research.google.com/github/simonscmap/pycmap/blob/master/docs/CruiseMap.ipynb">
-                  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open in Colab" title="Open and Execute in Google Colaboratory" target="_blank" align="left" />
-                </a>
-              </div>
-
-              <div className={classes.galleryThumb}>
-                <img src="/images/gallery/getting-started-cruise-map.png" alt="Geospacial cruise map" />
+                </div>
               </div>
 
               <div className={classes.contributors}>
@@ -196,59 +178,97 @@ const About = ({ classes }) => {
                   Contributors: Mohammad Ashkezari, Ginger Armbrust
                 </Typography>
               </div>
+            </div>
+          </Card>
 
-            </Card>
-          </div>
-        </Section>
+          <Card>
+            <Typography variant="body1">
+              <Link to="/gallery/getting-started-cruise-map">
+                GeoSpatial Map Superimposed by Arbitrary Cruise Trajectories
+              </Link>
+            </Typography>
 
-
-        <Section name={'studies'} title={'Research'}>
-          <div className={classes.cardList}>
-            <Card>
-              <Typography variant="body1">
-                <Link to="/gallery/seaflow-time-series-decomposition">
-                  Using Simons CMAP to decompose SeaFlow time series data and
-                  estimate diel variation over cruises
-                </Link>
-              </Typography>
-
-              <a href="https://doi.org/10.5281/zenodo.7320268">
+            <div className={classes.badges}>
+              <a href="https://doi.org/10.5281/zenodo.7839055">
                 <img
-                  src="https://zenodo.org/badge/DOI/10.5281/zenodo.7320268.svg"
+                  src="https://zenodo.org/badge/DOI/10.5281/zenodo.7839055.svg"
                   alt="DOI"
                 />
               </a>
+              <a href="https://colab.research.google.com/github/simonscmap/pycmap/blob/master/docs/CruiseMap.ipynb">
+                <img
+                  src="https://colab.research.google.com/assets/colab-badge.svg"
+                  alt="Open in Colab"
+                  title="Open and Execute in Google Colaboratory"
+                  target="_blank"
+                  align="left"
+                />
+              </a>
+            </div>
 
+            <div className={classes.galleryThumb}>
+              <img
+                src="/images/gallery/getting-started-cruise-map.png"
+                alt="Geospacial cruise map"
+              />
+            </div>
 
-              <div className={classes.galleryThumb}>
-                <img src="/images/gallery/seaflow-time-series-decomposition.png" alt="Seaflow time series graphs" />
-              </div>
-
+            <div className={classes.contributors}>
               <Typography variant="body2">
-                Contributors: Katherine Qi
+                Contributors: Mohammad Ashkezari, Ginger Armbrust
               </Typography>
-            </Card>
-          </div>
-        </Section>
+            </div>
+          </Card>
+        </div>
+      </Section>
 
-        <Section name={'support'} title={'Instructional Resources'}>
-          <div className={classes.cardList}>
-            <Card>
-              <Typography variant="body1">
-                <Link
-                  to="/gallery/compare-sst-data"
-                  className={classes.linkWhite}
-                >
-                  Using Simons CMAP to compare sea surface temperature data
-                  collected by different instruments
-                </Link>
-              </Typography>
-              <Typography variant="body2">
-                Contributors: Sasha Seroy, Tansy Clay Burns
-              </Typography>
-            </Card>
-          </div>
-        </Section>
+      <Section name={'studies'} title={'Research'}>
+        <div className={classes.cardList}>
+          <Card>
+            <Typography variant="body1">
+              <Link to="/gallery/seaflow-time-series-decomposition">
+                Using Simons CMAP to decompose SeaFlow time series data and
+                estimate diel variation over cruises
+              </Link>
+            </Typography>
+
+            <a href="https://doi.org/10.5281/zenodo.7320268">
+              <img
+                src="https://zenodo.org/badge/DOI/10.5281/zenodo.7320268.svg"
+                alt="DOI"
+              />
+            </a>
+
+            <div className={classes.galleryThumb}>
+              <img
+                src="/images/gallery/seaflow-time-series-decomposition.png"
+                alt="Seaflow time series graphs"
+              />
+            </div>
+
+            <Typography variant="body2">Contributors: Katherine Qi</Typography>
+          </Card>
+        </div>
+      </Section>
+
+      <Section name={'support'} title={'Instructional Resources'}>
+        <div className={classes.cardList}>
+          <Card>
+            <Typography variant="body1">
+              <Link
+                to="/gallery/compare-sst-data"
+                className={classes.linkWhite}
+              >
+                Using Simons CMAP to compare sea surface temperature data
+                collected by different instruments
+              </Link>
+            </Typography>
+            <Typography variant="body2">
+              Contributors: Sasha Seroy, Tansy Clay Burns
+            </Typography>
+          </Card>
+        </div>
+      </Section>
     </Page>
   );
 };

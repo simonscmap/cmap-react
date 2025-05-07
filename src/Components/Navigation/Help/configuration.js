@@ -11,9 +11,7 @@ export const enabled = 'enabled';
 
 const pages = {
   '/': homepageConfig,
-  catalog: {
-
-  },
+  catalog: {},
   visulization: {},
   'visualization/charts': {},
   'visualization/cruises': {},

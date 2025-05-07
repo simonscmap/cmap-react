@@ -43,20 +43,23 @@ const styles = {
   },
 };
 
-const Banner = withStyles(styles)(
-  ({ classes, children, variant, citation }) => {
-    let bannerVariant = variant === 'blue' ? classes.blue : classes.purple;
-    return (
-      <div className={clsx(classes.banner, bannerVariant)}>
-        <div className={classes.innerBanner}>{children}</div>
-        {citation && (
-          <div className={classes.citation}>
-            <Typography variant="body2">{citation}</Typography>
-          </div>
-        )}
-      </div>
-    );
-  },
-);
+const Banner = withStyles(styles)(({
+  classes,
+  children,
+  variant,
+  citation,
+}) => {
+  let bannerVariant = variant === 'blue' ? classes.blue : classes.purple;
+  return (
+    <div className={clsx(classes.banner, bannerVariant)}>
+      <div className={classes.innerBanner}>{children}</div>
+      {citation && (
+        <div className={classes.citation}>
+          <Typography variant="body2">{citation}</Typography>
+        </div>
+      )}
+    </div>
+  );
+});
 
 export default Banner;

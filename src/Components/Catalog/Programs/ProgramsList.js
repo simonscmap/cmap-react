@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import {  makeStyles, Link } from '@material-ui/core';
+import { makeStyles, Link } from '@material-ui/core';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -10,15 +10,13 @@ import Paper from '@material-ui/core/Paper';
 import { safePath } from '../../../Utility/objectUtils';
 import states from '../../../enums/asyncRequestStates';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  fetchProgramsSend,
-} from '../../../Redux/actions/catalog';
+import { fetchProgramsSend } from '../../../Redux/actions/catalog';
 import Spinner from '../../UI/Spinner';
 import { Link as RouterLink } from 'react-router-dom';
 
 /*~~~~~~~~~~~~  Spinner ~~~~~~~~~~~~~~~*/
 
-const useSpinnerStyles = makeStyles ((theme) => ({
+const useSpinnerStyles = makeStyles((theme) => ({
   spinnerWrapper: {
     textAlign: 'center',
     height: '100%',
@@ -53,24 +51,21 @@ const Row = (props) => {
 
   return (
     <React.Fragment>
-      <TableRow className={classes.root} >
+      <TableRow className={classes.root}>
         <TableCell>
-          <Link
-            component={RouterLink}
-            to={`/catalog/programs/${programName}`}
-          >
+          <Link component={RouterLink} to={`/catalog/programs/${programName}`}>
             {programName}
           </Link>
         </TableCell>
       </TableRow>
     </React.Fragment>
   );
-}
+};
 
 /*~~~~~~~~~~~~~~ List ~~~~~~~~~~~~~~~~~~~~*/
-const useStyles = makeStyles (() => ({
+const useStyles = makeStyles(() => ({
   header: {
-    height: '100%'
+    height: '100%',
   },
   wrapper: {
     marginTop: '10px',
@@ -85,7 +80,8 @@ const useStyles = makeStyles (() => ({
     width: '100%',
     height: '100%',
   },
-  root: { // table header
+  root: {
+    // table header
     '& .MuiTableCell-stickyHeader': {
       backgroundColor: 'rgba(30, 67, 113, 1)',
     },
@@ -98,28 +94,31 @@ const useStyles = makeStyles (() => ({
   },
 }));
 
-
 const ProgramsList = () => {
   const cl = useStyles();
   const dispatch = useDispatch();
 
-  const programs = useSelector (safePath (['programs']));
-  const reqStatus = useSelector (safePath (['programsRequestStatus']));
+  const programs = useSelector(safePath(['programs']));
+  const reqStatus = useSelector(safePath(['programsRequestStatus']));
 
-  useEffect (() => {
+  useEffect(() => {
     if (reqStatus === states.notTried) {
-      dispatch (fetchProgramsSend());
+      dispatch(fetchProgramsSend());
     }
   }, []);
 
   if (!programs && reqStatus === states.inProgress) {
-    return <SpinnerWrapper message={'Fetching Programs'} />
+    return <SpinnerWrapper message={'Fetching Programs'} />;
   } else if (programs && reqStatus === states.succeeded) {
     return (
       <div className={cl.header}>
         <div className={cl.inner}>
-          <TableContainer component={Paper} className={cl.container} >
-            <Table aria-label="collapsible table" stickyHeader className={cl.root}>
+          <TableContainer component={Paper} className={cl.container}>
+            <Table
+              aria-label="collapsible table"
+              stickyHeader
+              className={cl.root}
+            >
               <TableHead>
                 <TableRow>
                   <TableCell>Name</TableCell>
@@ -127,7 +126,7 @@ const ProgramsList = () => {
               </TableHead>
               <TableBody>
                 {programs.map((prog, i) => (
-                  <Row key={`program_row_${i}`} programName={prog.name}  />
+                  <Row key={`program_row_${i}`} programName={prog.name} />
                 ))}
               </TableBody>
             </Table>
@@ -138,6 +137,6 @@ const ProgramsList = () => {
   } else {
     return '';
   }
-}
+};
 
 export default ProgramsList;

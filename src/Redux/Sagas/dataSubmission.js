@@ -5,34 +5,40 @@ import states from '../../enums/asyncRequestStates';
 
 import { call, put, takeLatest, delay } from 'redux-saga/effects';
 
-export function* checkSubmissionName (action) {
+export function* checkSubmissionName(action) {
   let response;
   try {
     response = yield call(api.dataSubmission.checkName, action.payload);
   } catch (e) {
-     yield put(dataSubmissionActions.setCheckSubmNameRequestStatus(states.failed));
+    yield put(
+      dataSubmissionActions.setCheckSubmNameRequestStatus(states.failed),
+    );
   }
   if (response && response.ok) {
     let jsonResponse = yield response.json();
     yield put(dataSubmissionActions.checkSubmNameResponseStore(jsonResponse));
   } else {
     let responseText = yield response.text();
-    yield put(dataSubmissionActions.setCheckSubmNameRequestStatus(states.failed, responseText));
+    yield put(
+      dataSubmissionActions.setCheckSubmNameRequestStatus(
+        states.failed,
+        responseText,
+      ),
+    );
   }
 }
 
-export function* watchCheckSubmissionNameRequestSend () {
+export function* watchCheckSubmissionNameRequestSend() {
   yield takeLatest(
     dataSubmissionActionTypes.CHECK_SUBM_NAME_REQUEST_SEND,
-    checkSubmissionName
+    checkSubmissionName,
   );
 }
 
-
 // utils
 
-export function* uploadFileParts ({ uploadSessionId, file, customChunkSize }) {
-  console.log ('start uploadFileParts');
+export function* uploadFileParts({ uploadSessionId, file, customChunkSize }) {
+  console.log('start uploadFileParts');
 
   let offset = 0;
   let retries = 0;
@@ -41,7 +47,8 @@ export function* uploadFileParts ({ uploadSessionId, file, customChunkSize }) {
   let currentPartSucceeded = false;
 
   let error = false;
-  while (offset < file.size && !error) { // while more chunks, upload part
+  while (offset < file.size && !error) {
+    // while more chunks, upload part
     currentPartSucceeded = false;
 
     while (currentPartSucceeded === false && retries < 3) {
@@ -52,9 +59,13 @@ export function* uploadFileParts ({ uploadSessionId, file, customChunkSize }) {
       formData.append('offset', offset);
       formData.append('sessionID', uploadSessionId);
 
-      console.log ('decide if upload part should close', file.size, offset + chunkSize);
-      if (file.size < offset + chunkSize)  {
-        formData.append ('close', true);
+      console.log(
+        'decide if upload part should close',
+        file.size,
+        offset + chunkSize,
+      );
+      if (file.size < offset + chunkSize) {
+        formData.append('close', true);
       }
 
       let uploadPartResponse = yield call(
@@ -76,6 +87,6 @@ export function* uploadFileParts ({ uploadSessionId, file, customChunkSize }) {
       offset += chunkSize;
     }
   }
-  console.log ('uploadFileParts done', `offset: ${offset}`,`error: ${error}`);
+  console.log('uploadFileParts done', `offset: ${offset}`, `error: ${error}`);
   return [error];
 }

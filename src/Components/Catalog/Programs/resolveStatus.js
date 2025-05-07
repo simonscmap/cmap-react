@@ -37,18 +37,17 @@ const isAsyncState = (s) => Boolean(states[s]);
 // to determine the overall status
 
 const resolveStatus = (asyncStatuses = []) => {
-
   let overallStatus = states.notTried;
 
   let sortedAsyncStates = asyncStatuses
-    .filter (isAsyncState)
-    .sort (sortAsyncStates);
+    .filter(isAsyncState)
+    .sort(sortAsyncStates);
 
   if (sortedAsyncStates.length) {
     overallStatus = sortedAsyncStates[0];
   }
 
   return [overallStatus, sortedAsyncStates];
-}
+};
 
 export default resolveStatus;

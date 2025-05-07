@@ -11,12 +11,12 @@ export const flattenErrors = (auditSheet) => {
       const keys = Object.keys(currRow);
       if (keys.length > 0) {
         const rowErrors = keys.reduce((errors, currColKey) => {
-          return errors.concat ({
+          return errors.concat({
             row: rowIndex,
             col: currColKey,
           });
         }, []);
-        return accRows.concat (...rowErrors);
+        return accRows.concat(...rowErrors);
       }
     }
     return accRows;

@@ -1,12 +1,8 @@
-import {
-  Button,
-  Grid,
-  Typography,
-} from '@material-ui/core';
+import { Button, Grid, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import React, { useEffect } from 'react';
 import ClearIcon from '@material-ui/icons/Clear';
-import {AiOutlineNodeExpand} from 'react-icons/ai';
+import { AiOutlineNodeExpand } from 'react-icons/ai';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import { snackbarOpen } from '../../Redux/actions/ui';
 import { useDispatch } from 'react-redux';
@@ -31,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
     },
     '& a': {
       color: 'white',
-    }
+    },
   },
   renderButton: {
     textTransform: 'none',
@@ -64,7 +60,7 @@ const useStyles = makeStyles((theme) => ({
     cursor: 'pointer',
     '& p:hover': {
       color: theme.palette.primary.main,
-    }
+    },
   },
   biggerIcon: {
     fontSize: '1.2em',
@@ -86,14 +82,14 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'space-around',
     '& p': {
       fontStyle: 'italic',
-    }
+    },
   },
   buttonWrapper: {
     width: '100%',
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'flex-end',
-  }
+  },
 }));
 
 const findNick = (cruises, selectedCruiseName) => {
@@ -106,7 +102,7 @@ const findNick = (cruises, selectedCruiseName) => {
   } else {
     return '';
   }
-}
+};
 
 const SelectorSummary = (props) => {
   const {
@@ -121,28 +117,33 @@ const SelectorSummary = (props) => {
     removeAll,
   } = props;
 
-  const dispatch = useDispatch ();
+  const dispatch = useDispatch();
   const classes = useStyles();
 
   const deselect = (cruiseName) => {
-    const cruise = cruises && cruises.find ((c) => c.Name === cruiseName);
+    const cruise = cruises && cruises.find((c) => c.Name === cruiseName);
     if (!cruise) {
-      console.error ('cannot match cruise with cruise name', cruiseName);
+      console.error('cannot match cruise with cruise name', cruiseName);
     } else {
-      removeOne (cruise);
+      removeOne(cruise);
     }
-  }
+  };
 
   const noneSelected = !selected || selected.length === 0;
   const someSelected = !noneSelected;
-  const selectedOverLimit =(selected.length > 1 && pointCount > TRAJECTORY_POINTS_LIMIT);
+  const selectedOverLimit =
+    selected.length > 1 && pointCount > TRAJECTORY_POINTS_LIMIT;
   const buttonDisabled = selectedOverLimit || noneSelected;
 
   useEffect(() => {
     if (selectedOverLimit) {
-      dispatch (snackbarOpen ('The last cruise selected would have caused the total trajectory points to exceed the allowed amount for a single render and has been automatically deselected.'));
+      dispatch(
+        snackbarOpen(
+          'The last cruise selected would have caused the total trajectory points to exceed the allowed amount for a single render and has been automatically deselected.',
+        ),
+      );
       // remove last selection
-      handleCruiseSelect (lastSelection);
+      handleCruiseSelect(lastSelection);
     }
   }, [selectedOverLimit]);
 
@@ -158,43 +159,62 @@ const SelectorSummary = (props) => {
   return (
     <div>
       <div className={classes.summaryHeader}>
-        <Typography variant="h6" component="p">Selected Cruises</Typography>
-        {someSelected ?
-          (<div onClick={removeAll} className={classes.clearAllControl}>
-            <Typography variant="body2" component="p">Clear All
+        <Typography variant="h6" component="p">
+          Selected Cruises
+        </Typography>
+        {someSelected ? (
+          <div onClick={removeAll} className={classes.clearAllControl}>
+            <Typography variant="body2" component="p">
+              Clear All
             </Typography>
             <ClearIcon color="primary" />
-          </div>) : ''}
+          </div>
+        ) : (
+          ''
+        )}
       </div>
       <div className={classes.selectedCruises}>
         <div className={classes.selectedListScrollable}>
-          {someSelected ?
-            (<Grid container>
+          {someSelected ? (
+            <Grid container>
               <Grid item xs={3}>
-                <Typography variant="body2" color="primary">Name</Typography>
+                <Typography variant="body2" color="primary">
+                  Name
+                </Typography>
               </Grid>
               <Grid item xs={5}>
-                <Typography variant="body2" color="primary">Nickname</Typography>
+                <Typography variant="body2" color="primary">
+                  Nickname
+                </Typography>
               </Grid>
               <Grid item xs={2}>
-                <Typography variant="body2" color="primary">Go To</Typography>
+                <Typography variant="body2" color="primary">
+                  Go To
+                </Typography>
               </Grid>
               <Grid item xs={2}>
-                <Typography variant="body2" color="primary">Deselect</Typography>
+                <Typography variant="body2" color="primary">
+                  Deselect
+                </Typography>
               </Grid>
-            </Grid>)
-            :
+            </Grid>
+          ) : (
             <div className={classes.noneSelectedWrapper}>
               <Typography variant="body2">None Selected</Typography>
             </div>
-          }
+          )}
 
           {selected.map((selectedCruiseName, i) => (
-            <Grid container key={`selected-row-item${i}`} >
+            <Grid container key={`selected-row-item${i}`}>
               <Grid item xs={3}>
-                <a href={`/catalog/cruises/${selectedCruiseName}`} target="_blank" rel="noreferrer">
+                <a
+                  href={`/catalog/cruises/${selectedCruiseName}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
                   <Typography variant="body1">
-                    {selectedCruiseName} <OpenInNewIcon style={{ fontSize: '.9em' }} />
+                    {selectedCruiseName}{' '}
+                    <OpenInNewIcon style={{ fontSize: '.9em' }} />
                   </Typography>
                 </a>
               </Grid>
@@ -204,12 +224,22 @@ const SelectorSummary = (props) => {
                 </Typography>
               </Grid>
               <Grid item xs={2}>
-                <Typography variant="body2" color={'primary'} className={classes.biggerIcon}>
-                  <AiOutlineNodeExpand onClick={() => openContainingGroup(selectedCruiseName)} />
+                <Typography
+                  variant="body2"
+                  color={'primary'}
+                  className={classes.biggerIcon}
+                >
+                  <AiOutlineNodeExpand
+                    onClick={() => openContainingGroup(selectedCruiseName)}
+                  />
                 </Typography>
               </Grid>
               <Grid item xs={2}>
-                <Typography variant="body2" color={'primary'} className={classes.pointer}>
+                <Typography
+                  variant="body2"
+                  color={'primary'}
+                  className={classes.pointer}
+                >
                   <ClearIcon onClick={() => deselect(selectedCruiseName)} />
                 </Typography>
               </Grid>
@@ -221,13 +251,14 @@ const SelectorSummary = (props) => {
             disabled={buttonDisabled}
             onClick={handleTrajectoryRender}
             variant="outlined"
-            className={classes.renderButton}>
+            className={classes.renderButton}
+          >
             {buttonText}
           </Button>
         </div>
       </div>
     </div>
   );
-}
+};
 
 export default SelectorSummary;

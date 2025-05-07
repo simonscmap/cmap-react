@@ -18,19 +18,19 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
   const classes = useEditorStyles();
 
   const initialValues = storyState
-        ? storyState
-        : {
-          view_status: 2,
-          label: null,
-          headline: '',
-          link: '',
-          date: '',
-          body: {
-            content: '',
-            links: [],
-          },
-          tags: [],
-        };
+    ? storyState
+    : {
+        view_status: 2,
+        label: null,
+        headline: '',
+        link: '',
+        date: '',
+        body: {
+          content: '',
+          links: [],
+        },
+        tags: [],
+      };
 
   const [viewStatus, setViewStatus] = useState(initialValues.view_status);
   const [headline, setHeadline] = useState(initialValues.headline || '');
@@ -71,31 +71,33 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
       }
     }
     if (storyState && Array.isArray(storyState.tags)) {
-      setTaggedDatasets (storyState.tags);
+      setTaggedDatasets(storyState.tags);
     }
   }, [storyState]);
 
   // DATASET TAGS
 
   const handleAddTag = (name) => {
-    const tags = new Set (taggedDatasets);
-    tags.add (name);
-    setTaggedDatasets (Array.from (tags));
-  }
+    const tags = new Set(taggedDatasets);
+    tags.add(name);
+    setTaggedDatasets(Array.from(tags));
+  };
 
   const handleRemoveTag = (name) => {
-    const tags = new Set (taggedDatasets);
-    tags.delete (name);
-    setTaggedDatasets (Array.from (tags));
-  }
+    const tags = new Set(taggedDatasets);
+    tags.delete(name);
+    setTaggedDatasets(Array.from(tags));
+  };
 
   // BODY CONTENT LINKS
 
-  let updateLinks = (ix) => ({ text, url }) => {
-    let newLinks = [...links];
-    newLinks[ix] = { text, url };
-    setLinks(newLinks);
-  };
+  let updateLinks =
+    (ix) =>
+    ({ text, url }) => {
+      let newLinks = [...links];
+      newLinks[ix] = { text, url };
+      setLinks(newLinks);
+    };
 
   // cache the link editors
   let linkEditors = [];
@@ -113,7 +115,7 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
 
   if (arrayOfLinkTokens.length > links.length) {
     let missingLinks = arrayOfLinkTokens.length - links.length;
-    console.log ('creating new link editor', links, missingLinks);
+    console.log('creating new link editor', links, missingLinks);
     for (let i = 0; i < missingLinks; i++) {
       // push a new link into the links array
       // for each fewer link in the links array than in the tokens array
@@ -130,9 +132,9 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
   }
   if (arrayOfLinkTokens.length < links.length) {
     let excessLinks = links.length - arrayOfLinkTokens.length;
-    console.log ('removing excess link', links, excessLinks);
+    console.log('removing excess link', links, excessLinks);
     linkEditors = linkEditors.slice(0, links.length - excessLinks);
-    setLinks (links.slice(0, links.length - excessLinks));
+    setLinks(links.slice(0, links.length - excessLinks));
   }
   // PAYLOAD
 
@@ -196,7 +198,7 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
         setLinks(storyState.body ? storyState.body.links : []);
       }
       if (storyState.tags && storyState.tags.length) {
-        setTaggedDatasets (storyState.tags);
+        setTaggedDatasets(storyState.tags);
       }
     } else {
       setViewStatus(2);
@@ -217,14 +219,15 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
 
   return (
     <div className={classes.panelContainer}>
-
       <div className={classes.editorAndPreview}>
         <div className={classes.cardContainer}>
           <Typography>Story Preview</Typography>
           <div className={classes.cardBackdrop}>
-            {(headline || link || content || label)
-             ? <Card story={editState} position={0} />
-             : <Placeholder />}
+            {headline || link || content || label ? (
+              <Card story={editState} position={0} />
+            ) : (
+              <Placeholder />
+            )}
           </div>
         </div>
 
@@ -308,7 +311,6 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
             </div>
           </div>
         </div>
-
       </div>
       <div className={classes.tagsAndEmail}>
         <div className={classes.tagManagerContainer}>
@@ -326,7 +328,6 @@ const Editor = ({ story: storyState, action, onSubmit, onCancel }) => {
           <EmailManager id={storyState && storyState.ID} />
         </div>
       </div>
-
     </div>
   );
 };

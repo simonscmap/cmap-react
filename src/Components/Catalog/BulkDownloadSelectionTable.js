@@ -44,26 +44,26 @@ const useRowStyles = makeStyles({
     },
     '& table': {
       marginBottom: '2em',
-    }
+    },
   },
   noWrap: {
-    whiteSpace: 'nowrap'
-  }
+    whiteSpace: 'nowrap',
+  },
 });
 
 const Row = (props) => {
   const { dataset, handleSelect, selectedRows = [] } = props;
-  const { variables, Dataset_Long_Name, Dataset_Name, JSON_stats  } = dataset;
+  const { variables, Dataset_Long_Name, Dataset_Name, JSON_stats } = dataset;
   const [open, setOpen] = useState(false);
   const classes = useRowStyles();
-  const isSelected = selectedRows.includes (Dataset_Name);
+  const isSelected = selectedRows.includes(Dataset_Name);
 
   let datapointsCount;
   try {
     const stats = JSON.parse(JSON_stats);
     datapointsCount = stats.lat.count.toLocaleString();
   } catch (e) {
-    console.log ('failed to parse JSON_stats', JSON_stats, Dataset_Name);
+    console.log('failed to parse JSON_stats', JSON_stats, Dataset_Name);
   }
 
   return (
@@ -76,10 +76,12 @@ const Row = (props) => {
           />
         </TableCell>
         <TableCell component="th" scope="row">
-          <Link to={'/catalog/datasets/' + Dataset_Name }>{Dataset_Long_Name}</Link>
+          <Link to={'/catalog/datasets/' + Dataset_Name}>
+            {Dataset_Long_Name}
+          </Link>
         </TableCell>
         <TableCell align="left">{datapointsCount || ''}</TableCell>
-        <TableCell align="left" className={classes.noWrap} >
+        <TableCell align="left" className={classes.noWrap}>
           <span className={classes.link} onClick={() => setOpen(!open)}>
             {variables.length} Variables
           </span>
@@ -99,7 +101,9 @@ const Row = (props) => {
                 <TableBody>
                   {variables.map((variable) => (
                     <TableRow key={variable.Long_Name}>
-                      <TableCell>{variable.Long_Name} ({variable.Short_Name})</TableCell>
+                      <TableCell>
+                        {variable.Long_Name} ({variable.Short_Name})
+                      </TableCell>
                       <TableCell>{variable.Unit}</TableCell>
                     </TableRow>
                   ))}
@@ -111,18 +115,17 @@ const Row = (props) => {
       </TableRow>
     </React.Fragment>
   );
-}
-
+};
 
 const useTableStyles = makeStyles({
   tableHead: {
     '& > th': {
       paddingLeft: 0,
-      paddingRight: '1em'
-    }
+      paddingRight: '1em',
+    },
   },
   noWrap: {
-    whiteSpace: 'nowrap'
+    whiteSpace: 'nowrap',
   },
   toolbar: {
     display: 'flex',
@@ -135,7 +138,7 @@ const useTableStyles = makeStyles({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-  }
+  },
 });
 
 const DatasetSelectionTable = (props) => {
@@ -144,24 +147,23 @@ const DatasetSelectionTable = (props) => {
   let [selected, setSelected] = useState([]);
   let [selectAll, setSelectAll] = useState(false);
 
-
   const handleSelect = (name) => {
     if (selected.includes(name)) {
-      setSelected(selected.filter(n => name !== n))
+      setSelected(selected.filter((n) => name !== n));
     } else {
       setSelected([...selected, name]);
     }
-  }
+  };
 
   const handleSelectAll = () => {
     if (selectAll) {
       setSelected([]);
       setSelectAll(false);
     } else {
-      setSelected(datasets.map(dataset => dataset.Dataset_Name));
+      setSelected(datasets.map((dataset) => dataset.Dataset_Name));
       setSelectAll(true);
     }
-  }
+  };
 
   const user = useSelector((s) => s.user);
   const history = useHistory();
@@ -169,23 +171,28 @@ const DatasetSelectionTable = (props) => {
 
   const initiateDownload = () => {
     if (selected.length === 0) {
-      dispatch (snackbarOpen ('No datasets selected. Please select datasets to download.'));
+      dispatch(
+        snackbarOpen(
+          'No datasets selected. Please select datasets to download.',
+        ),
+      );
     } else if (!user) {
       history.push('/login?redirect=catalog/cruises/' + cruiseShortName);
     } else {
-      dispatch (snackbarOpen ('Your dowload will start momentarily. Please do not close your browser window until it completes.'));
+      dispatch(
+        snackbarOpen(
+          'Your dowload will start momentarily. Please do not close your browser window until it completes.',
+        ),
+      );
       api.bulkDownload.post(selected);
     }
   };
 
   return (
     <React.Fragment>
-    <div className={ classes.toolbar}>
+      <div className={classes.toolbar}>
         <div className={classes.selectAllControl}>
-          <Checkbox
-            checked={selectAll}
-            onClick={handleSelectAll}
-          />
+          <Checkbox checked={selectAll} onClick={handleSelectAll} />
           <Typography>Select All</Typography>
         </div>
         <Button onClick={initiateDownload} variant="contained" color="primary">
@@ -199,18 +206,25 @@ const DatasetSelectionTable = (props) => {
               <TableCell>Select</TableCell>
               <TableCell>Dataset Name</TableCell>
               <TableCell>Rows</TableCell>
-              <TableCell className={classes.noWrap}>Variables (Click to Expand)</TableCell>
+              <TableCell className={classes.noWrap}>
+                Variables (Click to Expand)
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {datasets.map((dataset) => (
-              <Row key={dataset.Dataset_ID} dataset={dataset} handleSelect={handleSelect} selectedRows={selected} />
+              <Row
+                key={dataset.Dataset_ID}
+                dataset={dataset}
+                handleSelect={handleSelect}
+                selectedRows={selected}
+              />
             ))}
           </TableBody>
         </Table>
       </TableContainer>
     </React.Fragment>
   );
-}
+};
 
 export default DatasetSelectionTable;

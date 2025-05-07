@@ -3,8 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Paper, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import { SiMicrosoftexcel } from "react-icons/si";
-import { TbDragDrop } from "react-icons/tb";
+import { SiMicrosoftexcel } from 'react-icons/si';
+import { TbDragDrop } from 'react-icons/tb';
 
 // components
 import { StepButton } from './Buttons';
@@ -19,7 +19,7 @@ import {
   clearSubmissionFile,
 } from '../../../Redux/actions/dataSubmission';
 
-const useStyles = makeStyles ((theme) => ({
+const useStyles = makeStyles((theme) => ({
   paperArea: {
     display: 'flex',
     flexDirection: 'row',
@@ -28,7 +28,7 @@ const useStyles = makeStyles ((theme) => ({
     margin: '30px 0',
     padding: '1.5em',
     whiteSpace: 'pre-wrap',
-    border: `1px dashed ${theme.palette.primary.light}`
+    border: `1px dashed ${theme.palette.primary.light}`,
   },
   rowOne: {
     display: 'flex',
@@ -55,23 +55,24 @@ const useStyles = makeStyles ((theme) => ({
       color: theme.palette.primary.light,
       fontSize: '3em',
       marginRight: '.2em',
-    }
+    },
   },
   stepButton: {
-    fontSize: '1em'
-  }
+    fontSize: '1em',
+  },
 }));
 
 const FileUploadArea = (props) => {
   const { loadingStatus, reset } = props;
   const dispatch = useDispatch();
-  const cl = useStyles ();
+  const cl = useStyles();
 
-  const subType = useSelector ((state) => state.submissionType);
-  const subNameToUpdate = useSelector ((state) => {
+  const subType = useSelector((state) => state.submissionType);
+  const subNameToUpdate = useSelector((state) => {
     if (state.submissionType === 'update' && state.submissionToUpdate) {
-      const s = state.dataSubmissions
-                     .find ((sub) => sub.Submission_ID === state.submissionToUpdate);
+      const s = state.dataSubmissions.find(
+        (sub) => sub.Submission_ID === state.submissionToUpdate,
+      );
       if (s) {
         return s.Dataset_Long_Name;
       } else {
@@ -80,32 +81,32 @@ const FileUploadArea = (props) => {
     }
   });
 
-  const subToUpdate = useSelector ((state) => state.submissionToUpdate);
+  const subToUpdate = useSelector((state) => state.submissionToUpdate);
 
   const clearPrev = () => {
     reset();
-    dispatch (clearSubmissionFile ())
+    dispatch(clearSubmissionFile());
   };
 
   const selectFile = (file) => {
-    dispatch (checkSubmissionOptionsAndStoreFile (file, subToUpdate));
-  }
+    dispatch(checkSubmissionOptionsAndStoreFile(file, subToUpdate));
+  };
 
   const handleFileDrop = (e) => {
-    console.log ('file dropped; processing', e);
+    console.log('file dropped; processing', e);
     e.preventDefault();
     clearPrev();
     const file = e.dataTransfer.items[0].getAsFile();
-    selectFile (file);
+    selectFile(file);
   };
 
   const handleFileSelect = (e) => {
-    clearPrev ();
-    const file = safePath (['target', 'files', '0']) (e);
+    clearPrev();
+    const file = safePath(['target', 'files', '0'])(e);
     if (!file) {
-      console.log ('NO FILE!!', e);
+      console.log('NO FILE!!', e);
     } else {
-      selectFile (file)
+      selectFile(file);
     }
     e.target.value = null;
   };
@@ -114,36 +115,38 @@ const FileUploadArea = (props) => {
     e.preventDefault();
   };
 
-  let [loading, setLoading] = useState (false);
+  let [loading, setLoading] = useState(false);
 
-  useEffect (() => {
+  useEffect(() => {
     if (loading && !loadingStatus) {
-      setLoading (false);
+      setLoading(false);
     }
 
-    const message = ['reading', 'parsing', 'validating'].some((status) =>
-      status === (loadingStatus && loadingStatus.status));
+    const message = ['reading', 'parsing', 'validating'].some(
+      (status) => status === (loadingStatus && loadingStatus.status),
+    );
 
     let largeFile = false;
-    if (loadingStatus && loadingStatus.totalBytes > 1000000) { // greater than about 1 MB
+    if (loadingStatus && loadingStatus.totalBytes > 1000000) {
+      // greater than about 1 MB
       largeFile = true;
     }
 
     if (message) {
       let msg;
       if (loadingStatus.status === 'reading') {
-        msg = `Reading File (${formatBytes (loadingStatus.totalBytes)})`;
+        msg = `Reading File (${formatBytes(loadingStatus.totalBytes)})`;
       } else if (loadingStatus.status === 'parsing') {
-        msg = `Parsing File (${formatBytes (loadingStatus.totalBytes)})`;
+        msg = `Parsing File (${formatBytes(loadingStatus.totalBytes)})`;
       } else if (loadingStatus.status === 'validating') {
         msg = 'Validating Data';
       }
       if (largeFile) {
-        msg += '\nProcessing a large file may take time, please wait.'
+        msg += '\nProcessing a large file may take time, please wait.';
       }
-      setLoading (msg);
+      setLoading(msg);
     } else if (!message && loading) {
-      setLoading (false);
+      setLoading(false);
     }
   }, [loadingStatus]);
 
@@ -154,30 +157,33 @@ const FileUploadArea = (props) => {
       onDragOver={handleDragOver}
       onDrop={handleFileDrop}
     >
-    {loading ? (
-      <Spinner message={loading} />
-    ) : (
-      <div className={cl.content}>
-      <Typography variant="body2" className={cl.uploadInstruction}>
-        To {subType === "new"
-             ? ` start a new submission `
-             : ` update submission "${subNameToUpdate || '...'}" `
-        } drop an .xlsx file here <span className={cl.dropOption}><TbDragDrop /> </span> or browse with the file finder {' '}
-         <StepButton component="label" className={cl.stepButton} >
-            <SiMicrosoftexcel/>{' '} Browse
-            <input
-              onChange={handleFileSelect}
-              accept=".xlsx"
-              id="select-file-input"
-              type="file"
-              hidden
-            />
-          </StepButton>
-
-      </Typography>
-      </div>
-    )}
-
+      {loading ? (
+        <Spinner message={loading} />
+      ) : (
+        <div className={cl.content}>
+          <Typography variant="body2" className={cl.uploadInstruction}>
+            To{' '}
+            {subType === 'new'
+              ? ` start a new submission `
+              : ` update submission "${subNameToUpdate || '...'}" `}{' '}
+            drop an .xlsx file here{' '}
+            <span className={cl.dropOption}>
+              <TbDragDrop />{' '}
+            </span>{' '}
+            or browse with the file finder{' '}
+            <StepButton component="label" className={cl.stepButton}>
+              <SiMicrosoftexcel /> Browse
+              <input
+                onChange={handleFileSelect}
+                accept=".xlsx"
+                id="select-file-input"
+                type="file"
+                hidden
+              />
+            </StepButton>
+          </Typography>
+        </div>
+      )}
     </Paper>
   );
 };

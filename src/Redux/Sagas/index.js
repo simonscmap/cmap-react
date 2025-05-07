@@ -30,7 +30,7 @@ import ammendSearchResults from '../../Utility/Catalog/ammendSearchResultsWithDa
 import * as catalogActions from '../actions/catalog';
 import * as dataSubmissionActions from '../actions/dataSubmission';
 import * as interfaceActions from '../actions/ui';
-import * as userActions from '../actions/user'
+import * as userActions from '../actions/user';
 import * as visualizationActions from '../actions/visualization';
 import * as catalogActionTypes from '../actionTypes/catalog';
 import * as communityActionTypes from '../actionTypes/community';
@@ -96,13 +96,9 @@ import {
   watchReSendNotifications,
 } from './notifications';
 
-import {
-  watchCheckDownloadSize,
-} from './downloadSagas';
+import { watchCheckDownloadSize } from './downloadSagas';
 
-import {
-  watchRequestHighlightsSend
-} from './highlights';
+import { watchRequestHighlightsSend } from './highlights';
 
 import {
   watchRequestTrajectoryPointCounts,
@@ -136,14 +132,15 @@ import { localStorageApi } from '../../Services/persist/local';
 import logInit from '../../Services/log-service';
 const log = logInit('sagas').addContext({ src: 'Redux/Sagas' });
 
-function* updateLoadingMessage () {
+function* updateLoadingMessage() {
   // if "Loading Data" is still showing 15 seconds after making a request
   // update the message
-  yield delay (1000 * 15); // 15 seconds
+  yield delay(1000 * 15); // 15 seconds
   let loadingMessage = yield select((state) => state.loadingMessage);
   if (loadingMessage === 'Fetching Data') {
-    const msg = 'Fetching Data... Large queries may take a long time to complete.';
-    const meta = { tag: 'updateLoadingMessage'} ;
+    const msg =
+      'Fetching Data... Large queries may take a long time to complete.';
+    const meta = { tag: 'updateLoadingMessage' };
     yield put(interfaceActions.setLoadingMessage(msg, meta));
   }
 }
@@ -230,7 +227,9 @@ function* cruiseTrajectoryRequest(action) {
     if (result.status === 401) {
       yield put(userActions.refreshLogin());
     } else {
-      yield put(interfaceActions.snackbarOpen(`Unable to Fetch Cruise Data`, tag));
+      yield put(
+        interfaceActions.snackbarOpen(`Unable to Fetch Cruise Data`, tag),
+      );
     }
   } else {
     yield put(visualizationActions.cruiseTrajectoryRequestSuccess(result));
@@ -256,7 +255,9 @@ function* cruiseListRequest() {
 function* tableStatsRequest(action) {
   const tag = { tag: 'tableStatsRequest' };
   yield put(visualizationActions.tableStatsRequestProcessing());
-  yield put(interfaceActions.setLoadingMessage('Fetching Dataset Information', tag));
+  yield put(
+    interfaceActions.setLoadingMessage('Fetching Dataset Information', tag),
+  );
   let result = yield call(
     api.visualization.getTableStats,
     action.payload.tableName,
@@ -268,7 +269,10 @@ function* tableStatsRequest(action) {
       yield put(userActions.refreshLogin());
     } else {
       yield put(
-        interfaceActions.snackbarOpen(`Unable to Fetch Dataset Information`, tag),
+        interfaceActions.snackbarOpen(
+          `Unable to Fetch Dataset Information`,
+          tag,
+        ),
       );
     }
   } else {
@@ -299,7 +303,10 @@ function* csvDownloadRequest(action) {
       yield put(userActions.refreshLogin());
     } else {
       yield put(
-        interfaceActions.snackbarOpen('An error occurred. Please try again.', tag),
+        interfaceActions.snackbarOpen(
+          'An error occurred. Please try again.',
+          tag,
+        ),
       );
     }
   } else {
@@ -311,7 +318,12 @@ function* csvDownloadRequest(action) {
         ),
       );
     } else {
-      yield put(interfaceActions.snackbarOpen('No data found. Please expand query range.', tag));
+      yield put(
+        interfaceActions.snackbarOpen(
+          'No data found. Please expand query range.',
+          tag,
+        ),
+      );
     }
   }
 }
@@ -334,14 +346,27 @@ function* csvFromVizRequest(action) {
   );
 
   if (typeof metadataResponse !== 'string') {
-    console.error ('error in csvFromVizRequest; expected stringified response', metadataResponse);
+    console.error(
+      'error in csvFromVizRequest; expected stringified response',
+      metadataResponse,
+    );
     yield put(interfaceActions.setLoadingMessage('', tag));
-    if (metadataResponse && metadataResponse.status && metadataResponse.status === 401) {
-      yield put(interfaceActions.snackbarOpen('Please log in to download data', tag));
+    if (
+      metadataResponse &&
+      metadataResponse.status &&
+      metadataResponse.status === 401
+    ) {
+      yield put(
+        interfaceActions.snackbarOpen('Please log in to download data', tag),
+      );
     } else {
-      yield put(interfaceActions.snackbarOpen('Failed to download variable metadata', tag));
+      yield put(
+        interfaceActions.snackbarOpen(
+          'Failed to download variable metadata',
+          tag,
+        ),
+      );
     }
-
   } else {
     let metadataWB = XLSX.read(metadataResponse, { type: 'string' });
     let workbook = XLSX.utils.book_new();
@@ -370,13 +395,8 @@ function* downloadRequest(action) {
   yield put(catalogActions.datasetDownloadRequestProcessing());
   yield put(interfaceActions.setLoadingMessage('Processing Request', tag));
 
-  let {
-    subsetParams,
-    ancillaryData,
-    tableName,
-    shortName,
-    fileName,
-  } = action.payload;
+  let { subsetParams, ancillaryData, tableName, shortName, fileName } =
+    action.payload;
 
   let truncatedFileName = fileName.slice(0, 100);
 
@@ -388,15 +408,23 @@ function* downloadRequest(action) {
     let data = yield call(fetchDatasetAndMetadata, { query, shortName });
     makeZip(data, truncatedFileName, shortName);
   } catch (e) {
-    console.log (e.message);
+    console.log(e.message);
     yield put(interfaceActions.setLoadingMessage('', tag));
     if (e.message === 'UNAUTHORIZED') {
       yield put(userActions.refreshLogin());
     } else if (e.message === '400 TOO LARGE') {
-      yield put (interfaceActions.snackbarOpen ('Requested data exceeds size limits.', tag));
+      yield put(
+        interfaceActions.snackbarOpen(
+          'Requested data exceeds size limits.',
+          tag,
+        ),
+      );
     } else {
       yield put(
-        interfaceActions.snackbarOpen('There was an error requesting the dataset.', tag)
+        interfaceActions.snackbarOpen(
+          'There was an error requesting the dataset.',
+          tag,
+        ),
       );
     }
   }
@@ -411,24 +439,27 @@ function* refreshLogin() {
 
 function* updateUserInfoRequest(action) {
   const tag = { tag: 'updateUserInfoRequest' };
-  yield put(interfaceActions.setLoadingMessage('Updating your information', tag));
+  yield put(
+    interfaceActions.setLoadingMessage('Updating your information', tag),
+  );
 
   let response = yield call(api.user.updateUserInfo, action.payload);
 
   if (response.ok) {
-    const msg = action.payload.successMessage || 'Your information was updated.';
+    const msg =
+      action.payload.successMessage || 'Your information was updated.';
     yield put(userActions.storeInfo(JSON.parse(Cookies.get('UserInfo'))));
     yield put(interfaceActions.snackbarOpen(msg, tag));
   } else if (response.status === 401) {
     yield put(interfaceActions.setLoadingMessage('', tag));
-    const snack401Message = 'The request to update your profile failed to authorize, please login again.';
+    const snack401Message =
+      'The request to update your profile failed to authorize, please login again.';
     yield put(interfaceActions.snackbarOpen(snack401Message, tag));
     yield put(userActions.refreshLogin());
   } else {
     yield put(interfaceActions.setLoadingMessage('', tag));
     const errorMessage = 'An error occurred. Please try again.';
     yield put(interfaceActions.snackbarOpen(errorMessage, tag));
-
   }
 
   yield put(interfaceActions.setLoadingMessage('', tag));
@@ -457,17 +488,22 @@ function* changePasswordRequest(action) {
 
   if (result.ok) {
     yield put(interfaceActions.hideChangePasswordDialog());
-    yield put(interfaceActions.snackbarOpen('Your password has been updated.', tag));
+    yield put(
+      interfaceActions.snackbarOpen('Your password has been updated.', tag),
+    );
   } else if (result.status === 401) {
     yield put(
       interfaceActions.snackbarOpen(
         'The current password you entered is not correct.',
-        tag
+        tag,
       ),
     );
   } else {
     yield put(
-      interfaceActions.snackbarOpen('An error occurred with your request.', tag),
+      interfaceActions.snackbarOpen(
+        'An error occurred with your request.',
+        tag,
+      ),
     );
   }
 }
@@ -481,24 +517,30 @@ function* changeEmailRequest(action) {
     yield put(userActions.storeInfo(JSON.parse(Cookies.get('UserInfo'))));
     yield put(interfaceActions.hideChangeEmailDialog());
     yield put(
-      interfaceActions.snackbarOpen('Your email address has been updated.', tag),
+      interfaceActions.snackbarOpen(
+        'Your email address has been updated.',
+        tag,
+      ),
     );
   } else if (result.status === 401) {
     yield put(
       interfaceActions.snackbarOpen(
         'The current password you entered is not correct.',
-        tag
+        tag,
       ),
     );
   } else if (result.status === 409) {
     yield put(
-      interfaceActions.snackbarOpen('That email address is already in use.', tag),
+      interfaceActions.snackbarOpen(
+        'That email address is already in use.',
+        tag,
+      ),
     );
   } else {
     yield put(
       interfaceActions.snackbarOpen(
         'We were not able to update your email address.',
-        tag
+        tag,
       ),
     );
   }
@@ -519,7 +561,9 @@ function* copyTextToClipboard(action) {
 function* retrieveSubmissionsByUser() {
   const msg = 'Fetching submission information';
   yield put(
-    interfaceActions.setLoadingMessage(msg, { tag: 'retrieveSubmissionsByUser' }),
+    interfaceActions.setLoadingMessage(msg, {
+      tag: 'retrieveSubmissionsByUser',
+    }),
   );
   let response = yield call(api.dataSubmission.retrieveSubmissionByUser);
   if (response.ok) {
@@ -530,13 +574,15 @@ function* retrieveSubmissionsByUser() {
   } else {
     yield put(interfaceActions.snackbarOpen('Unable to retrieve submissions'));
   }
-  let currentMessage = yield select(
-    (state) => state.loadingMessage,
-  );
+  let currentMessage = yield select((state) => state.loadingMessage);
   // don't clear other messages that may have been displayed in the meantime
   if (currentMessage === msg) {
     // current message can be cleared
-    yield put(interfaceActions.setLoadingMessage('', { tag: 'retrieveSubmissionsByUser' }));
+    yield put(
+      interfaceActions.setLoadingMessage('', {
+        tag: 'retrieveSubmissionsByUser',
+      }),
+    );
   }
 }
 
@@ -554,7 +600,9 @@ function* retrieveAllSubmissions() {
   } else if (response.status === 401) {
     yield put(userActions.refreshLogin());
   } else {
-    yield put(interfaceActions.snackbarOpen('Unable to retrieve submissions', tag));
+    yield put(
+      interfaceActions.snackbarOpen('Unable to retrieve submissions', tag),
+    );
   }
 }
 
@@ -639,28 +687,46 @@ function* uploadSubmission(action) {
 
   // check
   if (!file) {
-    log.error ('no file provided to uploadSubmission saga', { ...action.payload });
+    log.error('no file provided to uploadSubmission saga', {
+      ...action.payload,
+    });
     yield put(dataSubmissionActions.setUploadState(states.failed));
-    yield put(interfaceActions.snackbarOpen('There was an error beginning file upload.', tag));
+    yield put(
+      interfaceActions.snackbarOpen(
+        'There was an error beginning file upload.',
+        tag,
+      ),
+    );
     return;
   }
 
   if (submissionType === 'new' && !rawFile) {
-    log.error ('no raw file provided to uploadSubmission saga', { ...action.payload });
+    log.error('no raw file provided to uploadSubmission saga', {
+      ...action.payload,
+    });
     yield put(dataSubmissionActions.setUploadState(states.failed));
-    yield put(interfaceActions.snackbarOpen('There was an error beginning file upload.', tag));
+    yield put(
+      interfaceActions.snackbarOpen(
+        'There was an error beginning file upload.',
+        tag,
+      ),
+    );
     return;
   }
 
   // check audit
-  const auditReport = yield select(
-    (state) => state.auditReport,
-  );
+  const auditReport = yield select((state) => state.auditReport);
 
-  const totalErrors = auditReport && auditReport.errorCount && auditReport.errorCount.sum;
+  const totalErrors =
+    auditReport && auditReport.errorCount && auditReport.errorCount.sum;
   if (totalErrors !== 0) {
     yield put(dataSubmissionActions.setUploadState(states.failed));
-    yield put(interfaceActions.snackbarOpen('There are validation errors preventing submission', tag));
+    yield put(
+      interfaceActions.snackbarOpen(
+        'There are validation errors preventing submission',
+        tag,
+      ),
+    );
     return;
   }
 
@@ -675,7 +741,9 @@ function* uploadSubmission(action) {
     response = yield call(api.dataSubmission.checkName, checkNamePayload);
   } catch (e) {
     yield put(dataSubmissionActions.setUploadState(states.failed));
-    yield put(dataSubmissionActions.setCheckSubmNameRequestStatus(states.failed));
+    yield put(
+      dataSubmissionActions.setCheckSubmNameRequestStatus(states.failed),
+    );
     return;
   }
   if (response && response.ok) {
@@ -689,7 +757,11 @@ function* uploadSubmission(action) {
       longNameUpdateConflict,
     } = jsonResponse;
 
-    const conflict = shortNameIsAlreadyInUse || shortNameUpdateConflict || longNameIsAlreadyInUse || longNameUpdateConflict;
+    const conflict =
+      shortNameIsAlreadyInUse ||
+      shortNameUpdateConflict ||
+      longNameIsAlreadyInUse ||
+      longNameUpdateConflict;
 
     if (conflict) {
       yield put(interfaceActions.snackbarOpen('Name check failed', tag));
@@ -698,7 +770,9 @@ function* uploadSubmission(action) {
     }
   } else {
     yield put(dataSubmissionActions.setUploadState(states.failed));
-    yield put(dataSubmissionActions.setCheckSubmNameRequestStatus(states.failed));
+    yield put(
+      dataSubmissionActions.setCheckSubmNameRequestStatus(states.failed),
+    );
     return;
   }
 
@@ -728,22 +802,27 @@ function* uploadSubmission(action) {
       let idsArray = jsonResp.sessionIds;
 
       // if sessionIds are not set in this block, the generator will exit and display an error to the user
-      if (!Array.isArray (idsArray)) {
-        log.error ("error retrieving session ids for upload: expected sessionIds array", { idsArray });
+      if (!Array.isArray(idsArray)) {
+        log.error(
+          'error retrieving session ids for upload: expected sessionIds array',
+          { idsArray },
+        );
       } else if (submissionType === 'new') {
-        if (contains2SessionIds (idsArray)) {
+        if (contains2SessionIds(idsArray)) {
           sessionIds = idsArray.slice();
         } else {
-          log.error ("expected 2 session ids for new submission", { idsArray });
+          log.error('expected 2 session ids for new submission', { idsArray });
         }
       } else if (submissionType === 'update') {
-        if (contains1SessionId (idsArray)) {
+        if (contains1SessionId(idsArray)) {
           sessionIds = idsArray.slice();
         } else {
-          log.error ("expected 1 session ids for new submission", { idsArray });
+          log.error('expected 1 session ids for new submission', { idsArray });
         }
       } else {
-        log.error ("error retrieving session ids unexpected result", { jsonResp });
+        log.error('error retrieving session ids unexpected result', {
+          jsonResp,
+        });
       }
     } else {
       let message = yield beginSessionResponse.text();
@@ -753,7 +832,7 @@ function* uploadSubmission(action) {
       } else if (message === 'noRecord') {
         yield put(dataSubmissionActions.setUploadState(states.failed));
         yield put(interfaceActions.snackbarOpen('No submission found', tag));
-        log.error ('no submission found', { submissionId });
+        log.error('no submission found', { submissionId });
       } else {
         getSessionRetries++;
         yield delay(2000);
@@ -762,14 +841,16 @@ function* uploadSubmission(action) {
   }
 
   if (!sessionIds.length) {
-    yield put(interfaceActions.snackbarOpen('Failed to begin upload session', tag));
+    yield put(
+      interfaceActions.snackbarOpen('Failed to begin upload session', tag),
+    );
     return;
   }
 
   // 2: attempt upload with sessionId
 
   // 2 (a) upload file chunks
-  const [uploadError] = yield uploadFileParts ({
+  const [uploadError] = yield uploadFileParts({
     uploadSessionId: sessionIds[0],
     file,
   });
@@ -777,7 +858,7 @@ function* uploadSubmission(action) {
   // 2 (b) upload raw file as well
   let rawFileUploadError;
   if (submissionType === 'new' && rawFile) {
-    [rawFileUploadError] = yield uploadFileParts ({
+    [rawFileUploadError] = yield uploadFileParts({
       uploadSessionId: sessionIds[1],
       file: rawFile,
     });
@@ -795,17 +876,17 @@ function* uploadSubmission(action) {
   let fileSize = file.size;
   let rawFileSize = rawFile ? rawFile.size : 0;
 
-  console.log (`expected offsets. file: ${fileSize}, raw: ${rawFileSize}`)
+  console.log(`expected offsets. file: ${fileSize}, raw: ${rawFileSize}`);
 
   let formData = new FormData();
   formData.append('shortName', datasetName);
   formData.append('offsets', fileSize);
   if (submissionType === 'new') {
-    formData.append ('offsets', rawFileSize);
+    formData.append('offsets', rawFileSize);
   }
-  sessionIds.forEach ((sid) => {
+  sessionIds.forEach((sid) => {
     formData.append('sessionIds', sid);
-  })
+  });
   formData.append('dataSource', dataSource);
   formData.append('datasetLongName', datasetLongName);
   formData.append('submissionType', submissionType);
@@ -827,10 +908,14 @@ function* uploadSubmission(action) {
 
   if (commitSucceeded === true) {
     yield put(interfaceActions.setLoadingMessage('', tag));
-    yield put(dataSubmissionActions.setUploadState(states.succeeded, datasetName));
+    yield put(
+      dataSubmissionActions.setUploadState(states.succeeded, datasetName),
+    );
   } else {
     const respStatus = commitFileResponse && commitFileResponse.status;
-    log.error (`API responded to commit request with ${respStatus}`, { ...commitFileResponse });
+    log.error(`API responded to commit request with ${respStatus}`, {
+      ...commitFileResponse,
+    });
     yield put(dataSubmissionActions.setUploadState(states.failed));
     yield put(interfaceActions.setLoadingMessage('', tag));
     yield put(interfaceActions.snackbarOpen('Failed to upload', tag));
@@ -852,7 +937,9 @@ function* setDataSubmissionPhase(action) {
   } else if (response.status === 401) {
     yield put(userActions.refreshLogin());
   } else {
-    yield put(interfaceActions.snackbarOpen('Failed to retrieve submissions', tag));
+    yield put(
+      interfaceActions.snackbarOpen('Failed to retrieve submissions', tag),
+    );
   }
 }
 
@@ -878,17 +965,24 @@ function* retrieveMostRecentFile(action) {
     let blob = yield getFileResponse.blob();
     blob.name = `${dataset}.xlsx`;
 
-    yield put(dataSubmissionActions.checkSubmissionOptionsAndStoreFile(blob, submissionId ));
+    yield put(
+      dataSubmissionActions.checkSubmissionOptionsAndStoreFile(
+        blob,
+        submissionId,
+      ),
+    );
   } else if (linkResponse.status === 401) {
     yield put(interfaceActions.setLoadingMessage('', tag));
     yield put(userActions.refreshLogin());
   } else {
     yield put(interfaceActions.setLoadingMessage('', tag));
-    yield put(interfaceActions.snackbarOpen('Failed to retrieve submissions', tag));
+    yield put(
+      interfaceActions.snackbarOpen('Failed to retrieve submissions', tag),
+    );
   }
 }
 
-function* fetchSubmissionOptions () {
+function* fetchSubmissionOptions() {
   let storedOptions = yield select(
     (state) => state.dataSubmissionSelectOptions,
   );
@@ -928,7 +1022,10 @@ function* checkSubmissionOptionsAndStoreFile(action) {
     let result = yield call(api.catalog.submissionOptions);
     if (!result.ok) {
       return put(
-        interfaceActions.snackbarOpen('Unable to retrieve validation options', tag),
+        interfaceActions.snackbarOpen(
+          'Unable to retrieve validation options',
+          tag,
+        ),
       );
     } else {
       options = yield result.json();
@@ -944,7 +1041,12 @@ function* checkSubmissionOptionsAndStoreFile(action) {
     }
   }
 
-  yield put(dataSubmissionActions.storeSubmissionFile(action.payload.file, action.payload.submissionId));
+  yield put(
+    dataSubmissionActions.storeSubmissionFile(
+      action.payload.file,
+      action.payload.submissionId,
+    ),
+  );
 }
 
 function* downloadMostRecentFile(action) {
@@ -953,7 +1055,10 @@ function* downloadMostRecentFile(action) {
   const { submissionID } = action.payload;
 
   yield put(
-    interfaceActions.setLoadingMessage('Downloading the latest submission', tag),
+    interfaceActions.setLoadingMessage(
+      'Downloading the latest submission',
+      tag,
+    ),
   );
 
   let linkResponse = yield call(
@@ -1026,7 +1131,9 @@ function* searchResultsFetch(action) {
   if (result.ok) {
     const storedOptions = yield select((state) => state.submissionOptions);
     const params = queryString.parse(action.payload.queryString);
-    const datasetFeatures = yield select((state) => state.catalog.datasetFeatures);
+    const datasetFeatures = yield select(
+      (state) => state.catalog.datasetFeatures,
+    );
 
     let results = yield result.json();
 
@@ -1048,7 +1155,7 @@ function* searchResultsFetch(action) {
     yield put(
       interfaceActions.snackbarOpen(
         'Failed to retrieve search results. Please try again later.',
-        tag
+        tag,
       ),
     );
   }
@@ -1057,48 +1164,53 @@ function* searchResultsFetch(action) {
 
 /* fetch data for recommendations */
 
-function* fetchPopularDatasets () {
+function* fetchPopularDatasets() {
   const tag = { tag: 'fetchPopularDatasets' };
   let response = yield call(api.catalog.fetchPopularDatasets);
-  if (response && Array.isArray (response)) {
+  if (response && Array.isArray(response)) {
     yield put(catalogActions.popularRecsRequestSuccess(response));
   } else {
-    yield put (catalogActions.popularRecsRequestFailure (response));
+    yield put(catalogActions.popularRecsRequestFailure(response));
     yield put(
       interfaceActions.snackbarOpen(
         'Failed to retrieve popular datasets.',
-        tag
+        tag,
       ),
     );
   }
 }
 
-function* fetchRecentDatasets (action) {
+function* fetchRecentDatasets(action) {
   const tag = { tag: 'fetchRecentDatasets' };
 
   // check cache
-  const localValue = localStorageApi.get ('recentRecs');
+  const localValue = localStorageApi.get('recentRecs');
 
   let parsedLocalValue;
   try {
-    parsedLocalValue = JSON.parse (localValue);
+    parsedLocalValue = JSON.parse(localValue);
   } catch (e) {
-    console.log ('error parsing string from local storage');
+    console.log('error parsing string from local storage');
   }
 
-  const localValueUpdated = (parsedLocalValue && parsedLocalValue.updated)
-    ? new Date(parsedLocalValue.updated)
-    : null;
+  const localValueUpdated =
+    parsedLocalValue && parsedLocalValue.updated
+      ? new Date(parsedLocalValue.updated)
+      : null;
 
   const oneHourInMS = 1000 * 60 * 60;
   const localValueIsStale = localValueUpdated
     ? new Date() - localValueUpdated > oneHourInMS
     : true;
 
-  const shouldRefetchData = localValueIsStale || parsedLocalValue.userId !== action.payload.user_id;
+  const shouldRefetchData =
+    localValueIsStale || parsedLocalValue.userId !== action.payload.user_id;
 
   if (shouldRefetchData) {
-    let response = yield call(api.catalog.fetchRecentDatasets, action.payload.user_id);
+    let response = yield call(
+      api.catalog.fetchRecentDatasets,
+      action.payload.user_id,
+    );
     if (response && Array.isArray(response)) {
       yield put(catalogActions.recentRecsRequestSuccess(response));
     } else {
@@ -1106,42 +1218,47 @@ function* fetchRecentDatasets (action) {
       yield put(
         interfaceActions.snackbarOpen(
           'Failed to retrieve recent datasets.',
-          tag
+          tag,
         ),
       );
     }
   } else {
-    console.log ('cache hit: recent datasets')
-    yield put (catalogActions.recentRecsCacheHit (parsedLocalValue.data));
+    console.log('cache hit: recent datasets');
+    yield put(catalogActions.recentRecsCacheHit(parsedLocalValue.data));
   }
 }
 
-function* fetchRecommendedDatasets (action) {
+function* fetchRecommendedDatasets(action) {
   const tag = { tag: 'fetchRecommendedDatasets' };
 
   // check cache
-  const localValue = localStorageApi.get ('seeAlsoRecs');
+  const localValue = localStorageApi.get('seeAlsoRecs');
   let parsedLocalValue;
   try {
-    parsedLocalValue = JSON.parse (localValue);
+    parsedLocalValue = JSON.parse(localValue);
   } catch (e) {
-    console.log ('error parsing string from local storage');
+    console.log('error parsing string from local storage');
   }
 
-  const localValueUpdated = (parsedLocalValue && parsedLocalValue.updated)
-    ? new Date(parsedLocalValue.updated)
-    : null;
+  const localValueUpdated =
+    parsedLocalValue && parsedLocalValue.updated
+      ? new Date(parsedLocalValue.updated)
+      : null;
 
   const oneHourInMS = 1000 * 60 * 60;
   const localValueIsStale = localValueUpdated
     ? new Date() - localValueUpdated > oneHourInMS
     : true;
 
-  const shouldRefetchData = localValueIsStale || parsedLocalValue.userId !== action.payload.user_id;
+  const shouldRefetchData =
+    localValueIsStale || parsedLocalValue.userId !== action.payload.user_id;
 
   if (shouldRefetchData) {
     // fetch data from server
-    let response = yield call(api.catalog.fetchRecommendedDatasets, action.payload.user_id);
+    let response = yield call(
+      api.catalog.fetchRecommendedDatasets,
+      action.payload.user_id,
+    );
     if (response && Array.isArray(response)) {
       yield put(catalogActions.recommendedRecsRequestSuccess(response));
     } else {
@@ -1149,13 +1266,13 @@ function* fetchRecommendedDatasets (action) {
       yield put(
         interfaceActions.snackbarOpen(
           'Failed to retrieve recommended datasets.',
-          tag
+          tag,
         ),
       );
     }
   } else {
-    console.log ('seeAlso: cache hit');
-    yield put (catalogActions.recommendedRecsCacheHit (parsedLocalValue.data));
+    console.log('seeAlso: cache hit');
+    yield put(catalogActions.recommendedRecsCacheHit(parsedLocalValue.data));
   }
 }
 
@@ -1187,12 +1304,10 @@ function* datasetFullPageDataFetch(action) {
     yield put(
       interfaceActions.snackbarOpen(
         'Failed to retrieve information. Please try again later.',
-        tag
+        tag,
       ),
     );
-    yield put(
-      catalogActions.datasetFullPageDataSetLoadingState(states.failed),
-    );
+    yield put(catalogActions.datasetFullPageDataSetLoadingState(states.failed));
   }
 }
 
@@ -1208,23 +1323,23 @@ function* datasetVariablesFetch(action) {
 
   if (result.ok) {
     let results = yield result.json();
-    yield put(catalogActions.datasetVariablesStore(results, action.payload.shortname));
+    yield put(
+      catalogActions.datasetVariablesStore(results, action.payload.shortname),
+    );
     yield put(catalogActions.datasetVariablesSetLoadingState(states.succeeded));
   } else {
     yield put(
       interfaceActions.snackbarOpen(
         'Failed to retrieve dataset variables. Please try again later.',
-        tag
+        tag,
       ),
     );
-    yield put(
-      catalogActions.datasetVariablesSetLoadingState(states.failed),
-    );
+    yield put(catalogActions.datasetVariablesSetLoadingState(states.failed));
   }
 }
 
 // um
-function* datasetVariableUMFetch (action) {
+function* datasetVariableUMFetch(action) {
   const tag = { tag: 'datasetVariableUMFetch' };
 
   yield put(catalogActions.datasetVariableUMSetLoadingState(states.inProgress));
@@ -1237,18 +1352,19 @@ function* datasetVariableUMFetch (action) {
   if (result.ok) {
     let results = yield result.json();
     yield put(catalogActions.datasetVariableUMStore(results));
-    yield put(catalogActions.datasetVariableUMSetLoadingState(states.succeeded));
+    yield put(
+      catalogActions.datasetVariableUMSetLoadingState(states.succeeded),
+    );
   } else {
     yield put(
       interfaceActions.snackbarOpen(
         'Failed to retrieve variable metadata.',
-        tag
+        tag,
       ),
     );
     yield put(catalogActions.datasetVariableUMSetLoadingState(states.failed));
   }
 }
-
 
 function* cruiseFullPageDataFetch(action) {
   const tag = { tag: 'cruiseFullPageFetch' };
@@ -1271,15 +1387,12 @@ function* cruiseFullPageDataFetch(action) {
     yield put(
       interfaceActions.snackbarOpen(
         'Failed to retrieve information. Please try again later.',
-        tag
+        tag,
       ),
     );
-    yield put(
-      catalogActions.cruiseFullPageDataSetLoadingState(states.failed),
-    );
+    yield put(catalogActions.cruiseFullPageDataSetLoadingState(states.failed));
   }
 }
-
 
 function* vizSearchResultsFetch(action) {
   const tag = { tag: 'vizSearchResultsFetch' };
@@ -1336,7 +1449,10 @@ function* memberVariablesFetch(action) {
     yield put(visualizationActions.memberVariablesStore(variables));
   } else {
     yield put(
-      interfaceActions.snackbarOpen('Unable to get variables at this time', tag),
+      interfaceActions.snackbarOpen(
+        'Unable to get variables at this time',
+        tag,
+      ),
     );
   }
 }
@@ -1381,7 +1497,7 @@ function* variableFetch(action) {
       yield put(
         interfaceActions.snackbarOpen(
           'Unable to fetch variable details. Please try again later',
-          tag
+          tag,
         ),
       );
     }
@@ -1406,7 +1522,7 @@ function* datasetSummaryFetch(action) {
       yield put(
         interfaceActions.snackbarOpen(
           'Unable to fetch dataset summary. Please try again later',
-          tag
+          tag,
         ),
       );
     }
@@ -1436,7 +1552,7 @@ function* vizPageDataTargetSetAndFetchDetails(action) {
     yield put(
       interfaceActions.snackbarOpen(
         'Unable to fetch variable details. Please try again later',
-        tag
+        tag,
       ),
     );
   }
@@ -1454,14 +1570,14 @@ function* dataSubmissionDelete(action) {
     yield put(
       interfaceActions.snackbarOpen(
         `Successfully deleted ${action.payload.submission.Dataset}`,
-        tag
+        tag,
       ),
     );
   } else {
     yield put(
       interfaceActions.snackbarOpen(
         `Failed to delete ${action.payload.submission.Dataset}`,
-        tag
+        tag,
       ),
     );
   }
@@ -1490,7 +1606,7 @@ function* sparseDataQuerySend(action) {
       yield put(
         interfaceActions.snackbarOpen(
           'An unexpected error occurred. Please reduce the size of your query and try again.',
-          tag
+          tag,
         ),
       );
     }
@@ -1520,7 +1636,7 @@ function* sparseDataQuerySend(action) {
       yield put(
         interfaceActions.snackbarOpen(
           `No data found for ${action.payload.parameters.fields} in the requested ranges. Try selecting a different date or depth range.`,
-          tag
+          tag,
         ),
       );
     }
@@ -1545,7 +1661,7 @@ function* handleGuestVisualization() {
     expires,
   });
 
-  log.debug ('handleGuestVisualization', { guestPlotCount })
+  log.debug('handleGuestVisualization', { guestPlotCount });
 
   if (guestPlotCount >= 9) {
     yield put(
@@ -1558,7 +1674,7 @@ function* handleGuestVisualization() {
 
 function* guestTokenRequestSend() {
   const tag = { tag: 'guestTokenRequestSend' };
-  log.debug ('guestTokenRequestSend', { })
+  log.debug('guestTokenRequestSend', {});
 
   let userIsGuest = yield select((state) => state.userIsGuest);
 
@@ -1582,7 +1698,7 @@ function* guestTokenRequestSend() {
       yield put(
         interfaceActions.snackbarOpen(
           'Guest login is currently unavailable. Please try again later, log in, or register a new account. ',
-          tag
+          tag,
         ),
       );
     }
@@ -1605,9 +1721,9 @@ function* fetchDatasetFeatures() {
 
   // if not, fetch it
   if (!data) {
-    log.debug ('fetching dataset features', { store: data });
+    log.debug('fetching dataset features', { store: data });
     let fetchedData = yield call(api.catalog.getDatasetFeatures);
-    log.debug ('fetched data', fetchedData);
+    log.debug('fetched data', fetchedData);
     if (fetchedData) {
       yield put({
         type: catalogActionTypes.FETCH_DATASET_FEATURES_SUCCESS,
@@ -1630,7 +1746,7 @@ function* updateCatalogWithDatasetFeatures() {
   // let searchOptions = yield select((state) => state.searchOptions);
   let datasetFeatures = yield select((state) => state.catalog.datasetFeatures);
   let params = queryString.parse(window.location.search);
-  log.debug ('updateCatalogWithDatasetFeatures', { params });
+  log.debug('updateCatalogWithDatasetFeatures', { params });
 
   // 1. update the results
 
@@ -1648,7 +1764,6 @@ function* updateCatalogWithDatasetFeatures() {
   );
 
   yield put(catalogActions.searchResultsStore(results, options));
-
 }
 
 function* watchFetchDatasetFeatures() {
@@ -1664,7 +1779,6 @@ function* watchUpdateCatalogWithDatasetFeatures() {
     updateCatalogWithDatasetFeatures,
   );
 }
-
 
 // Continuous Ingestion
 
@@ -1862,21 +1976,21 @@ function* watchSearchResultsFetch() {
 function* watchPopularDatasetsFetch() {
   yield takeLatest(
     catalogActionTypes.FETCH_RECS_POPULAR_SEND,
-    fetchPopularDatasets
+    fetchPopularDatasets,
   );
 }
 
 function* watchRecentDatasetsFetch() {
   yield takeLatest(
     catalogActionTypes.FETCH_RECS_RECENT_SEND,
-    fetchRecentDatasets
+    fetchRecentDatasets,
   );
 }
 
 function* watchRecommendedDatasetsFetch() {
   yield takeLatest(
     catalogActionTypes.FETCH_RECS_RECOMMENDED_SEND,
-    fetchRecommendedDatasets
+    fetchRecommendedDatasets,
   );
 }
 
@@ -1992,8 +2106,8 @@ function* watchIngestCookies() {
   yield takeLatest(userActionTypes.INGEST_COOKIES, ingestCookies);
 }
 
-function* watchChangeNewsSubscription () {
-  yield takeLatest (
+function* watchChangeNewsSubscription() {
+  yield takeLatest(
     userActionTypes.CHANGE_NEWS_SUBSCRIPTION,
     updateUserInfoRequest, // use update profile saga
   );
@@ -2109,7 +2223,7 @@ function* rootSaga() {
     watchReSendNotifications(),
     watchDownloadDialogOpen(),
     watchFetchVaultLink(),
-    watchCheckVizQuerySize()
+    watchCheckVizQuerySize(),
   ]);
 }
 

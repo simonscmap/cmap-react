@@ -4,7 +4,7 @@ import { createSelector } from 'reselect';
 import { makeStyles, ThemeProvider } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Tooltip from '@material-ui/core/Tooltip';
-import { MdOutlineMarkEmailUnread } from "react-icons/md";
+import { MdOutlineMarkEmailUnread } from 'react-icons/md';
 import CustomSwitch from './CustomSwitch';
 import { subscribeDatasetDialogOpen } from '../../../Redux/actions/ui';
 
@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme) => ({
   wrapper: {
     display: 'inline-block',
     overflow: 'hidden',
-    marginTop: '2px'
+    marginTop: '2px',
   },
   buttonWrapper: {
     display: 'inline-block',
@@ -36,9 +36,8 @@ const useStyles = makeStyles((theme) => ({
     '&:hover': {
       color: '#69FFF2',
       background: 'transparent',
-      border:`2px solid ${theme.palette.secondary.main}`
+      border: `2px solid ${theme.palette.secondary.main}`,
     },
-
   },
   subButtonActive: {
     fontSize: '20px',
@@ -46,7 +45,7 @@ const useStyles = makeStyles((theme) => ({
     '&:hover': {
       color: '#69FFF2',
       background: 'transparent',
-    }
+    },
   },
   mailSubscribed: {
     color: theme.palette.primary.main,
@@ -59,49 +58,46 @@ const useStyles = makeStyles((theme) => ({
   switchWrapper: {
     display: 'inline-block',
   },
-  switchSubscribed: {
-  },
+  switchSubscribed: {},
   switchUn: {
-    color: '#ddd'
+    color: '#ddd',
   },
 }));
 
-const subscriptionsSelector = createSelector (
+const subscriptionsSelector = createSelector(
   [(state) => state.userSubscriptions],
   (subs) => {
-    if (Array.isArray (subs)) {
+    if (Array.isArray(subs)) {
       return subs;
     }
     return [];
-  }
+  },
 );
 
 const SubscribeDatasetButton = (props) => {
   const { shortName, componentId = {} } = props;
-  const dispatch = useDispatch ();
+  const dispatch = useDispatch();
   const cl = useStyles();
 
-  const subscriptions = useSelector (subscriptionsSelector);
+  const subscriptions = useSelector(subscriptionsSelector);
 
-  const isSubscribed = Boolean(subscriptions.find ((sub) => {
-    return sub.Dataset_Name === shortName
-  }));
+  const isSubscribed = Boolean(
+    subscriptions.find((sub) => {
+      return sub.Dataset_Name === shortName;
+    }),
+  );
 
   const handleClick = () => {
-    dispatch (subscribeDatasetDialogOpen (shortName));
-  }
+    dispatch(subscribeDatasetDialogOpen(shortName));
+  };
 
-  const subscribeClass = isSubscribed
-        ? cl.subButtonActive
-        : cl.subButton;
+  const subscribeClass = isSubscribed ? cl.subButtonActive : cl.subButton;
 
-  const mailIconClass = isSubscribed
-        ? cl.mailSubscribed
-        : cl.mailUn
+  const mailIconClass = isSubscribed ? cl.mailSubscribed : cl.mailUn;
 
   const tooltipMessage = isSubscribed
-        ? `Unsubscribe from dataset updates`
-        : `Subscribe to dataset updates`;
+    ? `Unsubscribe from dataset updates`
+    : `Subscribe to dataset updates`;
 
   return (
     <div className={cl.wrapper} {...componentId}>
@@ -116,7 +112,6 @@ const SubscribeDatasetButton = (props) => {
               <CustomSwitch state={isSubscribed} />
             </Button>
           </span>
-
         </Tooltip>
       </ThemeProvider>
     </div>

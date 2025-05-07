@@ -2,9 +2,9 @@ export default (infoObject) => {
   let { lons } = infoObject;
 
   if (!(lons instanceof Set)) {
-    console.log ('expected type Set', typeof lons, lons);
+    console.log('expected type Set', typeof lons, lons);
   } else {
-    console.log ('handle X ticks', lons, Array.from(lons).sort());
+    console.log('handle X ticks', lons, Array.from(lons).sort());
   }
 
   // the lonMin & lonMax are calculated when the data object is marshalled
@@ -13,9 +13,9 @@ export default (infoObject) => {
   // actually represents (-360 + 184) or -176.
 
   let lonSet = Array.from(new Set(lons));
-  let sxn = Math.floor (lonSet.length / 6);
+  let sxn = Math.floor(lonSet.length / 6);
   let tickvals = lonSet.sort().map((v, i) => {
-    if (i % (sxn) === 0) {
+    if (i % sxn === 0) {
       return v;
     } else {
       return undefined;
@@ -27,12 +27,11 @@ export default (infoObject) => {
   // an antimeridian crossing)
   let ticktext = tickvals.map((e) => {
     if (e !== undefined) {
-     return (e > 180 ? ('' + (e - 360)) : '' + e);
+      return e > 180 ? '' + (e - 360) : '' + e;
     }
   });
 
   return {};
-
 
   return {
     tickmode: 'array',

@@ -9,13 +9,13 @@ const StepAssistant = (props) => {
   useEffect(() => {
     if (location && location.hash) {
       const h = location.hash;
-      const indicatesStep = h.slice(1, -1) === "step"; // hash has form of "#stepN" where N is a digit
+      const indicatesStep = h.slice(1, -1) === 'step'; // hash has form of "#stepN" where N is a digit
       if (indicatesStep) {
-        const stepIndicated = parseInt (h.slice(-1), 10);
-        if (isNaN (stepIndicated)) {
+        const stepIndicated = parseInt(h.slice(-1), 10);
+        if (isNaN(stepIndicated)) {
           return;
         } else if (stepIndicated !== currentStep) {
-          changeStep (stepIndicated);
+          changeStep(stepIndicated);
         }
       }
     }

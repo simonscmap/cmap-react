@@ -5,20 +5,20 @@ import { useSelector, useDispatch } from 'react-redux';
 import { cruiseTrajectoryZoomTo } from '../../Redux/actions/visualization';
 
 const TrajectoryController = (props) => {
-  const { trajectoryLayer, esriModules, globeUIRef} = props;
-  const cruiseTrajectories = useSelector ((state) => state.cruiseTrajectories);
-  const renderedCruises = useSelector ((state) => {
-    return Object.entries(state.cruiseTrajectories || {}).map (([ctId]) => {
-      return (state.cruiseList || []).find ((c) => {
+  const { trajectoryLayer, esriModules, globeUIRef } = props;
+  const cruiseTrajectories = useSelector((state) => state.cruiseTrajectories);
+  const renderedCruises = useSelector((state) => {
+    return Object.entries(state.cruiseTrajectories || {}).map(([ctId]) => {
+      return (state.cruiseList || []).find((c) => {
         return parseInt(c.ID, 10) === parseInt(ctId, 10);
-      })
-    })
+      });
+    });
   });
 
-  const dispatch = useDispatch ();
+  const dispatch = useDispatch();
 
-  const thereAreTrajectoriesToRender = cruiseTrajectories &&
-    Object.entries(cruiseTrajectories).length > 0;
+  const thereAreTrajectoriesToRender =
+    cruiseTrajectories && Object.entries(cruiseTrajectories).length > 0;
 
   // If No Data, Remove Layer and Return Camera to Default
   useEffect(() => {
@@ -34,15 +34,15 @@ const TrajectoryController = (props) => {
     }
   }, [globeUIRef.current]);
 
-
   const idToCruise = (id) => {
-    let result = (renderedCruises || []).find (c =>
-      parseInt(c.ID, 10) === parseInt(id, 10));
+    let result = (renderedCruises || []).find(
+      (c) => parseInt(c.ID, 10) === parseInt(id, 10),
+    );
     return result || null;
-  }
+  };
 
   // return a reducs set of lat/lon
-  function downsample (trajectoryData) {
+  function downsample(trajectoryData) {
     const { lons, lats, times } = trajectoryData;
 
     const downSampleCoeff = Math.floor(lons.length / 1000) + 1;
@@ -62,10 +62,10 @@ const TrajectoryController = (props) => {
   }
 
   // Render Each Trajectory
-  function renderTrajectory (trajectoryData, color, cruiseId) {
+  function renderTrajectory(trajectoryData, color, cruiseId) {
     const newColor = color;
 
-    const cruise = idToCruise (cruiseId);
+    const cruise = idToCruise(cruiseId);
 
     const markerSymbol = {
       type: 'simple-marker',
@@ -105,10 +105,10 @@ const TrajectoryController = (props) => {
           chief: cruise && cruise.Chief_Name,
         },
         popupTemplate: {
-          title: "Cruise Trajectory Point for {name}",
+          title: 'Cruise Trajectory Point for {name}',
           content: [
             {
-              type: "fields",
+              type: 'fields',
               fieldInfos: [
                 {
                   fieldName: 'lon',
@@ -131,7 +131,7 @@ const TrajectoryController = (props) => {
                   label: 'Nickname',
                 },
                 {
-                  fieldName: "cruiseId",
+                  fieldName: 'cruiseId',
                   label: 'Cruise ID',
                 },
                 {
@@ -149,11 +149,11 @@ const TrajectoryController = (props) => {
                 {
                   fieldName: 'chief',
                   label: 'Chief Scientist',
-                }
-              ]
-            }
-          ]
-        }
+                },
+              ],
+            },
+          ],
+        },
       });
       trajectoryLayer.add(pointGraphic);
     });
@@ -163,22 +163,20 @@ const TrajectoryController = (props) => {
   useEffect(() => {
     if (thereAreTrajectoriesToRender) {
       const numberOfTrajectories = Object.entries(cruiseTrajectories).length;
-      const colors = palette('rainbow', numberOfTrajectories).map((hex) => `#${hex}`)
+      const colors = palette('rainbow', numberOfTrajectories).map(
+        (hex) => `#${hex}`,
+      );
 
-      Object.entries(cruiseTrajectories)
-        .map(([id, data], index) => renderTrajectory(data, colors[index], id));
+      Object.entries(cruiseTrajectories).map(([id, data], index) =>
+        renderTrajectory(data, colors[index], id),
+      );
 
       // Try to Center the Camera on First Trajectory
       const [firstTrajectoryId] = Object.entries(cruiseTrajectories)[0];
 
       dispatch(cruiseTrajectoryZoomTo(firstTrajectoryId));
     }
-  }, [
-    thereAreTrajectoriesToRender,
-    cruiseTrajectories
-  ]);
-
+  }, [thereAreTrajectoriesToRender, cruiseTrajectories]);
 };
-
 
 export default React.memo(TrajectoryController);

@@ -33,8 +33,8 @@ const styles = (theme) => ({
       color: theme.palette.primary.light,
       '&.Mui-disabled': {
         color: theme.palette.primary.light,
-      }
-    }
+      },
+    },
   },
   vizTypeMenu: {
     // backgroundColor: colors.backgroundGray,
@@ -72,35 +72,48 @@ const styles = (theme) => ({
   },
 });
 
-const generateDisabledButtonMessage = (checkQuerySizeStatus, disableVisualizeMessage) => {
+const generateDisabledButtonMessage = (
+  checkQuerySizeStatus,
+  disableVisualizeMessage,
+) => {
   if (checkQuerySizeStatus === states.succeeded) {
-    return disableVisualizeMessage || 'Create Visualization'
+    return disableVisualizeMessage || 'Create Visualization';
   } else {
     if (checkQuerySizeStatus === states.failed) {
-      return 'Unable to determine size of visulization.'
+      return 'Unable to determine size of visulization.';
     } else if (checkQuerySizeStatus === states.inProgress) {
-      return 'Checking query size...'
+      return 'Checking query size...';
     } else if (checkQuerySizeStatus === states.notTried) {
-      return disableVisualizeMessage  || 'Select a variable.'
+      return disableVisualizeMessage || 'Select a variable.';
     }
   }
-}
+};
 
-const generateButtonTooltip = (visualizeButtonTooltip, checkQuerySizeStatus, disableVisualizeMessage) => {
+const generateButtonTooltip = (
+  visualizeButtonTooltip,
+  checkQuerySizeStatus,
+  disableVisualizeMessage,
+) => {
   if (disableVisualizeMessage) {
     return 'Please address the validation issue before proceeding.';
   } else if (checkQuerySizeStatus === states.succeeded) {
-    return disableVisualizeMessage || 'The query is within size limits, click to create selected visualization.'
+    return (
+      disableVisualizeMessage ||
+      'The query is within size limits, click to create selected visualization.'
+    );
   } else {
     if (checkQuerySizeStatus === states.failed) {
-      return 'There was an error trying to determine the size of the visualization. Please try again. If the problem persists, please contact us via the contact page.'
+      return 'There was an error trying to determine the size of the visualization. Please try again. If the problem persists, please contact us via the contact page.';
     } else if (checkQuerySizeStatus === states.inProgress) {
-      return 'Checking the size of the query required to make the selected visualization. Some checks may take a few moments.'
+      return 'Checking the size of the query required to make the selected visualization. Some checks may take a few moments.';
     } else if (checkQuerySizeStatus === states.notTried) {
-      return disableVisualizeMessage  || 'Use the search dialogue above to select a variable, then adjust the space and time parameters and select a visualization type.'
+      return (
+        disableVisualizeMessage ||
+        'Use the search dialogue above to select a variable, then adjust the space and time parameters and select a visualization type.'
+      );
     }
   }
-}
+};
 const ChartControl = (props) => {
   const {
     classes,
@@ -120,7 +133,9 @@ const ChartControl = (props) => {
     disabled,
   } = props;
 
-  const checkQuerySizeStatus = useSelector ((state) => state.viz.chart.validation.sizeCheck.status);
+  const checkQuerySizeStatus = useSelector(
+    (state) => state.viz.chart.validation.sizeCheck.status,
+  );
 
   return (
     <React.Fragment>
@@ -135,10 +150,7 @@ const ChartControl = (props) => {
               variant="outlined"
               className={classes.vizTypeSelectFormControl}
             >
-              <InputLabel
-                shrink
-                htmlFor="vizSelector"
-              >
+              <InputLabel shrink htmlFor="vizSelector">
                 Select Chart Type
               </InputLabel>
               <MUISelect
@@ -237,7 +249,11 @@ const ChartControl = (props) => {
         >
           <Tooltip
             placement="right"
-            title={generateButtonTooltip( visualizeButtonTooltip, checkQuerySizeStatus, disableVisualizeMessage)}
+            title={generateButtonTooltip(
+              visualizeButtonTooltip,
+              checkQuerySizeStatus,
+              disableVisualizeMessage,
+            )}
             className={classes.vizButtonTooltip}
           >
             <Grid item xs={12} style={{ width: '100%' }}>
@@ -252,7 +268,10 @@ const ChartControl = (props) => {
                 }
                 fullwidth="true"
               >
-                { generateDisabledButtonMessage (checkQuerySizeStatus, disableVisualizeMessage) }
+                {generateDisabledButtonMessage(
+                  checkQuerySizeStatus,
+                  disableVisualizeMessage,
+                )}
               </Button>
             </Grid>
           </Tooltip>

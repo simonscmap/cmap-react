@@ -6,19 +6,19 @@ import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import MailOutlineIcon from '@material-ui/icons/MailOutline';
 import GetAppIcon from '@material-ui/icons/GetApp';
 
-const useStyles = makeStyles ((theme) => ({
+const useStyles = makeStyles((theme) => ({
   linkWithIcon: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
     '& svg': {
       fontSize: '1em',
-      paddingLeft: '2px'
-    }
+      paddingLeft: '2px',
+    },
   },
   container: {
     display: 'inline-block',
-  }
+  },
 }));
 
 // wrapper for links in the submission guide
@@ -27,49 +27,57 @@ const useStyles = makeStyles ((theme) => ({
 
 export const GuideLink = (props) => {
   const { href, hash, download, children } = props;
-  const cl = useStyles ();
+  const cl = useStyles();
 
   if (href) {
-    if (href.slice(0, 7) === 'mailto:') { // detect mailto
+    if (href.slice(0, 7) === 'mailto:') {
+      // detect mailto
       return (
         <span className={cl.container}>
           <Link href={href} className={cl.linkWithIcon}>
-            { children }
+            {children}
             <MailOutlineIcon />
           </Link>
-        </span>);
-    } else if (href.slice(0, 1) === '#' ) { // detect a bookmark
+        </span>
+      );
+    } else if (href.slice(0, 1) === '#') {
+      // detect a bookmark
       return (
         <span className={cl.container}>
           <Link href={href} className={cl.linkWithIcon}>
-            § { children }
+            § {children}
           </Link>
-        </span>);
-    } else if (download) { // detect download
+        </span>
+      );
+    } else if (download) {
+      // detect download
       return (
         <span className={cl.container}>
           <Link href={href} className={cl.linkWithIcon}>
-            { children }
+            {children}
             <GetAppIcon />
           </Link>
-        </span>);
+        </span>
+      );
     } else {
       return (
         <span className={cl.container}>
           <Link href={href} className={cl.linkWithIcon} target="_blank">
-            { children }
+            {children}
             <OpenInNewIcon />
           </Link>
-        </span>);
+        </span>
+      );
     }
   } else if (hash) {
     return (
       <span className={cl.container}>
-        <Link href={hash}className={cl.linkWithIcon}>
-          § { children }
+        <Link href={hash} className={cl.linkWithIcon}>
+          § {children}
         </Link>
-      </span>);
+      </span>
+    );
   } else {
-    return {children};
+    return { children };
   }
 };

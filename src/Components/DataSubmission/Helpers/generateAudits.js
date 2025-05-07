@@ -6,7 +6,6 @@ import { detectFormat } from './workbookAuditLib/time';
 dayjs.extend(utc);
 dayjs.extend(tz);
 
-
 export default (submissionOptions) => {
   const {
     Make,
@@ -38,16 +37,16 @@ export default (submissionOptions) => {
   };
 
   const validTime = (value) => {
-    const f = detectFormat (value);
+    const f = detectFormat(value);
     switch (f) {
       case 'integer':
-        return 'Value is integer type.'
+        return 'Value is integer type.';
       case 'decimal':
       case 'date string':
       case 'datetime string':
         return undefined;
       case 'invalid string':
-        return 'Value is incorrect string format.'
+        return 'Value is incorrect string format.';
       case undefined:
       default:
         return 'Value is missing or unknown type.';
@@ -84,7 +83,7 @@ export default (submissionOptions) => {
         return;
       }
       value = value + '';
-      if ((value.length < min) || (value.length > max)) {
+      if (value.length < min || value.length > max) {
         return `Must be ${min} to ${max} characters in length`;
       }
     };
@@ -136,7 +135,7 @@ export default (submissionOptions) => {
     if (row !== 0) {
       return;
     }
-    return codeFriendly (value, row);
+    return codeFriendly(value, row);
   };
 
   const binaryOrEmpty = (value) => {
@@ -150,7 +149,7 @@ export default (submissionOptions) => {
   const firstRowBinary = (value, row) => {
     if (row === 0 && (value == 1 || value == 0)) {
       return;
-    } else if (row === 0 && (value !== 0 && value !== 1)) {
+    } else if (row === 0 && value !== 0 && value !== 1) {
       return 'Must be 0 or 1.';
     } else if (row > 0 && value) {
       return 'Only first row may have a value';
@@ -185,7 +184,6 @@ export default (submissionOptions) => {
     if (value > 11000) {
       return 'Cannot be greater than 11000';
     }
-
   };
 
   const releaseDate = (value, row) => {

@@ -36,7 +36,7 @@ const loadEsriModules = async (done) => {
     return acc;
   }, {});
 
-  done (esriModules);
+  done(esriModules);
 };
 
 const GlobeContainer = (props) => {
@@ -45,14 +45,14 @@ const GlobeContainer = (props) => {
     cruiseSelector,
     activeTrajectorySelector,
     onCruiseFocus,
-    downSampleWarning
+    downSampleWarning,
   } = props;
   const globeUIRef = React.createRef();
   const mapContainerRef = React.createRef();
 
   const [esriModules, setEsriModules] = useState(null);
 
-  useEffect (() => {
+  useEffect(() => {
     loadEsriModules(setEsriModules);
   }, []);
 
@@ -78,6 +78,6 @@ const GlobeContainer = (props) => {
       />
     );
   }
-}
+};
 
 export default GlobeContainer;

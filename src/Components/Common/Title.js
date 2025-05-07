@@ -3,15 +3,13 @@ import { makeStyles } from '@material-ui/core/styles';
 
 /* ~~~~~~~~~~~ Title ~~~~~~~~~~~~~*/
 
-const useTitleStyles = makeStyles ((theme) => ({
-  container: {
-
-  },
+const useTitleStyles = makeStyles((theme) => ({
+  container: {},
   title: {
     color: '#fff',
     fontSize: '1.6rem',
-    fontWeight: '100'
-  }
+    fontWeight: '100',
+  },
 }));
 
 const Title = (props) => {
@@ -25,6 +23,6 @@ const Title = (props) => {
       <h2 className={cl.title}>{text}</h2>
     </div>
   );
-}
+};
 
 export default Title;

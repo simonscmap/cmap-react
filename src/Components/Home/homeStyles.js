@@ -20,11 +20,11 @@ const homeStyles = (theme) => ({
     paddingTop: '150px',
     '@media (max-width: 1920px)': {
       paddingLeft: '20px',
-      paddingRight: '1em'
+      paddingRight: '1em',
     },
     [theme.breakpoints.down('sm')]: {
       paddingTop: '130px',
-    }
+    },
   },
   sectionTitle: {
     textAlign: 'left',
@@ -39,9 +39,7 @@ const homeStyles = (theme) => ({
       textUnderlineOffset: '8px',
       marginBottom: '1em',
     },
-    '& p': {
-
-    }
+    '& p': {},
   },
   anomalyIntroText: {
     '& a': {
@@ -53,12 +51,12 @@ const homeStyles = (theme) => ({
     '& a:hover': {
       color: colors.green.lime,
     },
-
   },
-  rightGridContainer: { // keep summary and news pushed to top
+  rightGridContainer: {
+    // keep summary and news pushed to top
     flexDirection: 'column',
     justifyContent: 'flex-start',
-  }
+  },
 });
 
 export default homeStyles;

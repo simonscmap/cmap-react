@@ -5,18 +5,13 @@ import { copyTextToClipboard } from '../../Redux/actions/ui';
 
 // Wraps a tooltip and span with click event handler for copying to clipboard
 const CopyableText = (props) => {
-  const {
-    tooltipPlacement,
-    text,
-    innerSpanProps,
-    hideTooltip,
-    textInTooltip,
-  } = props;
+  const { tooltipPlacement, text, innerSpanProps, hideTooltip, textInTooltip } =
+    props;
 
   const dispatch = useDispatch();
 
   const handleCopyText = () => {
-    dispatch (copyTextToClipboard(text));
+    dispatch(copyTextToClipboard(text));
   };
 
   const title = textInTooltip ? text : 'Click to copy';

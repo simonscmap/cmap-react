@@ -8,7 +8,7 @@ const catalogAPI = {};
 
 catalogAPI.datasetNames = async () => {
   const endpoint = apiUrl + '/api/catalog/dataset-names';
-  return await fetch (endpoint, fetchOptions);
+  return await fetch(endpoint, fetchOptions);
 };
 
 catalogAPI.submissionOptions = async () => {
@@ -58,9 +58,9 @@ catalogAPI.datasetVariablesFetch = async (shortname) => {
 };
 
 catalogAPI.datasetVisualizableVariablesFetch = async (shortname) => {
-  return await fetch (
+  return await fetch(
     apiUrl + `/api/catalog/visualizable-variables?shortname=${shortname}`,
-    fetchOptions
+    fetchOptions,
   );
 };
 
@@ -88,12 +88,9 @@ catalogAPI.cruiseSearch = async (qString) => {
 catalogAPI.getDatasetFeatures = async () => {
   let response;
   try {
-    response = await fetch(
-      apiUrl + `/api/data/dataset-features`,
-      fetchOptions,
-    );
+    response = await fetch(apiUrl + `/api/data/dataset-features`, fetchOptions);
   } catch (e) {
-    log.warn ('error fetching ci datasets', e);
+    log.warn('error fetching ci datasets', e);
     return null;
   }
   try {
@@ -111,12 +108,12 @@ catalogAPI.fetchPopularDatasets = async () => {
       fetchOptions,
     );
   } catch (e) {
-    log.warn ('error fetching popular datasets', e);
+    log.warn('error fetching popular datasets', e);
     return e;
   }
 
   try {
-    return await response.json ();
+    return await response.json();
   } catch (e) {
     return e;
   }
@@ -130,12 +127,12 @@ catalogAPI.fetchRecentDatasets = async (user_id) => {
       fetchOptions,
     );
   } catch (e) {
-    log.warn ('error fetching recent datasets', e);
+    log.warn('error fetching recent datasets', e);
     return e;
   }
 
   try {
-    return await response.json ();
+    return await response.json();
   } catch (e) {
     return e;
   }
@@ -149,12 +146,12 @@ catalogAPI.fetchRecommendedDatasets = async (user_id) => {
       fetchOptions,
     );
   } catch (e) {
-    log.warn ('error fetching recommended datasets', e);
+    log.warn('error fetching recommended datasets', e);
     return e;
   }
 
   try {
-    return await response.json ();
+    return await response.json();
   } catch (e) {
     return e;
   }
@@ -162,18 +159,17 @@ catalogAPI.fetchRecommendedDatasets = async (user_id) => {
 
 catalogAPI.fetchPrograms = async () => {
   return await fetch(apiUrl + '/api/catalog/programs');
-}
+};
 
 catalogAPI.fetchProgramDetails = async (programName) => {
-  return await fetch(apiUrl + '/api/catalog/programs/' + programName + '?downSample=true');
-}
+  return await fetch(
+    apiUrl + '/api/catalog/programs/' + programName + '?downSample=true',
+  );
+};
 
 catalogAPI.fetchVaultLink = async (shortName) => {
   return await fetch(`${apiUrl}/api/data/share/${shortName}`);
-
-}
-
-
+};
 
 // Wrap each endpoint in a try/catch because...
 // if the fetch fails before the request is sent, for example due to a CORS
@@ -208,6 +204,5 @@ let safeAPI = Object.entries(catalogAPI)
       ...current,
     };
   }, {});
-
 
 export default safeAPI;

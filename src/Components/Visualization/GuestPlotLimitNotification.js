@@ -42,7 +42,8 @@ const styles = (theme) => ({
 });
 
 const mapStateToProps = (state) => ({
-  guestPlotLimitNotificationIsVisible: state.guestPlotLimitNotificationIsVisible,
+  guestPlotLimitNotificationIsVisible:
+    state.guestPlotLimitNotificationIsVisible,
   user: state.user,
   userIsGuest: state.userIsGuest,
 });

@@ -4,7 +4,7 @@ function isIsoDate(str) {
     return false;
   }
   const d = new Date(str);
-  return d instanceof Date && !isNaN(d) && d.toISOString( )=== str;
+  return d instanceof Date && !isNaN(d) && d.toISOString() === str;
 }
 
 export default isIsoDate;

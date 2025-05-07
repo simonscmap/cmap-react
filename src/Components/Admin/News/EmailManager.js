@@ -38,14 +38,10 @@ import {
   reSendNotifications,
 } from '../../../Redux/actions/notifications';
 
-
 // Warning
 const Warning = (props) => (
-  <Alert severity="warning">
-    {props.message || 'Warning'}
-  </Alert>
+  <Alert severity="warning">{props.message || 'Warning'}</Alert>
 );
-
 
 // Button
 export const CustomButton = withStyles((theme) => ({
@@ -71,12 +67,12 @@ export const CustomButton = withStyles((theme) => ({
       '&:hover': {
         backgroundColor: 'transparent',
         color: 'rgba(255,255,255,0.3)',
-      }
-    }
+      },
+    },
   },
 }))(Button);
 
-const useFTableStyles = makeStyles ({
+const useFTableStyles = makeStyles({
   tableContainer: {
     margin: '1em 0',
   },
@@ -87,21 +83,21 @@ const useFTableStyles = makeStyles ({
     },
     '& td': {
       color: 'white',
-      borderBottom: '0px solid transparent'
-    }
+      borderBottom: '0px solid transparent',
+    },
   },
 });
 
 const FailureTable = (props) => {
   const { failures } = props;
-  const cl = useFTableStyles ();
+  const cl = useFTableStyles();
 
   if (!failures || failures.length === 0) {
     return <Typography>Failed to deliver: 0</Typography>;
   }
 
   const renderDate = (dateString) => {
-    const d = new Date (dateString);
+    const d = new Date(dateString);
     return `${d.toDateString()} at ${d.toLocaleTimeString()}`;
   };
 
@@ -118,25 +114,30 @@ const FailureTable = (props) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {failures.map ((f, fix) => (<TableRow key={`failureRow${fix}`}>
-                                          <TableCell>{f.userEmail}</TableCell>
-                                          <TableCell>{f.attempt === 0 ? '0' : f.attempt ? f.attempt : 'NA'}</TableCell>
-                                          <TableCell>{f.lastAttempt ? renderDate (f.lastAttempt) : f.lastAttempt}</TableCell>
-                                        </TableRow>))}
+            {failures.map((f, fix) => (
+              <TableRow key={`failureRow${fix}`}>
+                <TableCell>{f.userEmail}</TableCell>
+                <TableCell>
+                  {f.attempt === 0 ? '0' : f.attempt ? f.attempt : 'NA'}
+                </TableCell>
+                <TableCell>
+                  {f.lastAttempt ? renderDate(f.lastAttempt) : f.lastAttempt}
+                </TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </TableContainer>
     </div>
   );
-}
-
+};
 
 // History Table Row
 const useRowStyles = makeStyles((theme) => ({
   root: {
     '& td': {
       borderBottom: 0,
-    }
+    },
   },
   expandedContent: {
     display: 'flex',
@@ -159,25 +160,25 @@ const useRowStyles = makeStyles((theme) => ({
     '&:hover': {
       color: '#69FFF2',
     },
-    border: `1px solid ${theme.palette.primary.main}`
+    border: `1px solid ${theme.palette.primary.main}`,
   },
 }));
 
 const getRecipientInfo = (recipients) => {
-  if (!Array.isArray (recipients)) {
+  if (!Array.isArray(recipients)) {
     return {};
   }
   const totalRecipients = recipients.length || 0;
-  const successes = recipients.filter (r => r.success).length;
-  const failures = recipients.filter (r => !r.success);
-  const successRate = Math.floor (successes / totalRecipients * 100);
-  const lastAttemptOverall = recipients.reduce ((mostRecent, curr) => {
-    const currLastAttempt = new Date (curr.lastAttempt);
+  const successes = recipients.filter((r) => r.success).length;
+  const failures = recipients.filter((r) => !r.success);
+  const successRate = Math.floor((successes / totalRecipients) * 100);
+  const lastAttemptOverall = recipients.reduce((mostRecent, curr) => {
+    const currLastAttempt = new Date(curr.lastAttempt);
     if (currLastAttempt > mostRecent) {
       return currLastAttempt;
     }
     return mostRecent;
-  }, (new Date ('1900')));
+  }, new Date('1900'));
 
   return {
     successes,
@@ -185,30 +186,30 @@ const getRecipientInfo = (recipients) => {
     successRate,
     lastAttemptOverall,
     totalRecipients,
-  }
-}
+  };
+};
 
 function Row(props) {
   const { row, reSend } = props;
   const { recipients = [] } = row;
   const cl = useRowStyles();
 
-  const [expand, setExpand] = useState (false);
-  const [openConfirm, setOpenConfirm] = useState (false);
-  const [now, setNow] = useState (new Date());
+  const [expand, setExpand] = useState(false);
+  const [openConfirm, setOpenConfirm] = useState(false);
+  const [now, setNow] = useState(new Date());
 
   const updateNow = () => {
     const newNow = new Date();
-    setNow (newNow);
-  }
+    setNow(newNow);
+  };
 
-  useEffect (() => {
+  useEffect(() => {
     // every 10 seconds update the time
-    const id = setInterval (updateNow, 1000 * 10);
+    const id = setInterval(updateNow, 1000 * 10);
     return () => {
-      clearInterval (id);
-    }
-  },[])
+      clearInterval(id);
+    };
+  }, []);
 
   const {
     successes,
@@ -216,7 +217,7 @@ function Row(props) {
     successRate,
     totalRecipients,
     lastAttemptOverall,
-  } = getRecipientInfo (recipients);
+  } = getRecipientInfo(recipients);
 
   const resendConfirmationProps = {
     open: openConfirm,
@@ -226,24 +227,29 @@ function Row(props) {
     name: `Confirm Re-Send Email ${row.Subject}`,
     text: `Click "Send" to re-send this email to the ${failures ? failures.length : '0'} recipients for whom previous notification attempts failed.`,
     onConfirm: () => {
-      reSend (row.Email_ID);
-      setOpenConfirm (false);
+      reSend(row.Email_ID);
+      setOpenConfirm(false);
     },
   };
 
-  const date = new Date (row.Date_Time);
+  const date = new Date(row.Date_Time);
   const displayDate = `${date.toDateString()} at ${date.toLocaleTimeString()}`;
 
-
   // if latest attempt to send notifications is within 5 minutes, flag cooldown
-  const cooldown = dayjs (lastAttemptOverall).isAfter (dayjs(now).subtract (5, 'm'));
+  const cooldown = dayjs(lastAttemptOverall).isAfter(
+    dayjs(now).subtract(5, 'm'),
+  );
 
   return (
     <React.Fragment>
       <Confirmation {...resendConfirmationProps} />
       <TableRow className={cl.root}>
         <TableCell>
-          <IconButton aria-label="expand row" size="small" onClick={() => setExpand(!expand)}>
+          <IconButton
+            aria-label="expand row"
+            size="small"
+            onClick={() => setExpand(!expand)}
+          >
             {expand ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
@@ -258,18 +264,28 @@ function Row(props) {
             <div className={cl.expandedContent}>
               <div>
                 <Typography className={cl.subHeader}>Recipients</Typography>
-                <Typography>Delivery success rate: {successRate ? `${successRate}%`: 'NA'}</Typography>
-                <Typography>Number delivered: {successes ? `${successes}` : 'NA'}</Typography>
+                <Typography>
+                  Delivery success rate:{' '}
+                  {successRate ? `${successRate}%` : 'NA'}
+                </Typography>
+                <Typography>
+                  Number delivered: {successes ? `${successes}` : 'NA'}
+                </Typography>
                 <FailureTable failures={failures} />
-                {(failures && failures.length > 0) &&
-                 <Button disabled={cooldown} onClick={() => setOpenConfirm (true)} className={cl.refreshButton}>
-                  <RefreshIcon /> {'Re-send to undelivered addresses'}
-                </Button>}
+                {failures && failures.length > 0 && (
+                  <Button
+                    disabled={cooldown}
+                    onClick={() => setOpenConfirm(true)}
+                    className={cl.refreshButton}
+                  >
+                    <RefreshIcon /> {'Re-send to undelivered addresses'}
+                  </Button>
+                )}
               </div>
 
               <div className={cl.previewContainer}>
                 <Typography className={cl.subHeader}>Preview</Typography>
-                <iframe srcDoc={row.Body} width="555" height="625"/>
+                <iframe srcDoc={row.Body} width="555" height="625" />
               </div>
             </div>
           </Collapse>
@@ -280,7 +296,7 @@ function Row(props) {
 }
 
 // Email Manager Main Render
-const useStyles = makeStyles ((theme) => ({
+const useStyles = makeStyles((theme) => ({
   container: {
     // gridColumn: '2 / span 2',
     // gridRow: '4 / span 1',
@@ -308,7 +324,7 @@ const useStyles = makeStyles ((theme) => ({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    gap: '1em'
+    gap: '1em',
   },
   refreshButton: {
     color: theme.palette.primary.main,
@@ -331,10 +347,9 @@ const useStyles = makeStyles ((theme) => ({
     },
     '& td': {
       color: 'white',
-      borderBottom: '0px solid transparent'
-    }
+      borderBottom: '0px solid transparent',
+    },
   },
-
 }));
 
 const EmailManagerPure = (props) => {
@@ -352,23 +367,23 @@ const EmailManagerPure = (props) => {
     sentNotifications,
     statuses,
   } = props;
-  const cl = useStyles ();
+  const cl = useStyles();
 
   // confirmation dialog controls
-  const [open, setOpen] = useState (false);
+  const [open, setOpen] = useState(false);
 
-  useEffect (() => {
+  useEffect(() => {
     if (open && !previews) {
-      getPreviews ();
+      getPreviews();
     }
   }, [open, previews]);
 
   const handleClose = () => {
-    setOpen (false);
-  }
+    setOpen(false);
+  };
   const handleConfirm = (tempId) => {
-    send (tempId);
-  }
+    send(tempId);
+  };
 
   return (
     <div className={cl.container}>
@@ -390,14 +405,22 @@ const EmailManagerPure = (props) => {
         <div className={cl.topLine}>
           <Typography className={cl.subTitle}>History</Typography>
           <div className={cl.actions}>
-            <Tooltip title={'Refresh Notification History, Preview, and Recipient Information'}>
-              <Button variant="outlined" onClick={refresh} className={cl.refreshButton}>
+            <Tooltip
+              title={
+                'Refresh Notification History, Preview, and Recipient Information'
+              }
+            >
+              <Button
+                variant="outlined"
+                onClick={refresh}
+                className={cl.refreshButton}
+              >
                 <RefreshIcon />
               </Button>
             </Tooltip>
             <CustomButton
               className={cl.sendButton}
-              onClick={() => setOpen (true)}
+              onClick={() => setOpen(true)}
               disabled={history && history.length > 1}
             >
               {`Preview & Send Email Notification`}
@@ -405,14 +428,16 @@ const EmailManagerPure = (props) => {
           </div>
         </div>
 
-        {(history && history.length > 1) &&
-         <Warning message="Detected more than one email notification for this news item!" />
-        }
+        {history && history.length > 1 && (
+          <Warning message="Detected more than one email notification for this news item!" />
+        )}
         <TableContainer className={cl.tableContainer}>
           <Table size="small" className={cl.table} aria-label="spanning table">
             <TableHead>
               <TableRow>
-                <TableCell className={cl.colHead}>{/* no header for expand control */}</TableCell>
+                <TableCell className={cl.colHead}>
+                  {/* no header for expand control */}
+                </TableCell>
                 <TableCell className={cl.colHead}>Email ID</TableCell>
                 <TableCell className={cl.colHead}>Date Sent</TableCell>
                 <TableCell className={cl.colHead}>Subject</TableCell>
@@ -420,105 +445,116 @@ const EmailManagerPure = (props) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {Array.isArray (history) && history.map((g, i) => (<Row key={`${i}`} row={g} reSend={reSend} />))}
+              {Array.isArray(history) &&
+                history.map((g, i) => (
+                  <Row key={`${i}`} row={g} reSend={reSend} />
+                ))}
             </TableBody>
           </Table>
         </TableContainer>
       </div>
     </div>
   );
-}
-
+};
 
 const shouldDispatch = (status) => {
-  return !status || ![states.inProgress, states.failed].includes (status);
-}
+  return !status || ![states.inProgress, states.failed].includes(status);
+};
 
 // Email Manager State
 const EmailManager = (props) => {
   const { newsId, tags, headline, enabled, modDate } = props;
 
-  const dispatch = useDispatch ();
-  const history = useSelector (notificationHistory);
-  const projections = useSelector (notificationRecipientProjections);
-  const previews = useSelector ((state) => state.notificationPreviews);
-  const projectionRequestStatus = useSelector (notificationRecipientProjectionsRequestStatus);
-  const notificationStatuses = useSelector ((state) => state.sendNotificationsStatus
-                                            .filter (item => item.newsId === newsId));
-   const sentNotifications = useSelector ((state) => state.sentNotifications
-                                            .filter (item => item.newsId === newsId));
+  const dispatch = useDispatch();
+  const history = useSelector(notificationHistory);
+  const projections = useSelector(notificationRecipientProjections);
+  const previews = useSelector((state) => state.notificationPreviews);
+  const projectionRequestStatus = useSelector(
+    notificationRecipientProjectionsRequestStatus,
+  );
+  const notificationStatuses = useSelector((state) =>
+    state.sendNotificationsStatus.filter((item) => item.newsId === newsId),
+  );
+  const sentNotifications = useSelector((state) =>
+    state.sentNotifications.filter((item) => item.newsId === newsId),
+  );
 
-  const [storyHistory, setStoryHistory] = useState (null);
+  const [storyHistory, setStoryHistory] = useState(null);
   const [projection, setProjection] = useState(null);
 
-  useEffect (() => {
+  useEffect(() => {
     if (newsId) {
-      dispatch (fetchNotificationHistory ({ newsId }));
+      dispatch(fetchNotificationHistory({ newsId }));
     } else {
-      console.log ('cannot fetch notification history: missing newsId')
+      console.log('cannot fetch notification history: missing newsId');
     }
-  },[]);
+  }, []);
 
-  useEffect (() => {
+  useEffect(() => {
     if (history && newsId) {
       if (history[newsId]) {
-        setStoryHistory (history[newsId]);
+        setStoryHistory(history[newsId]);
       } else {
-        console.log ('no history found for newsId', { newsId, history })
+        console.log('no history found for newsId', { newsId, history });
       }
     }
   }, [history]);
 
-  useEffect (() => { // when to dispatch?
-    const key = generateKey (tags);
-    const status = projectionRequestStatus
-          && projectionRequestStatus[key]
-          && projectionRequestStatus[key].status;
+  useEffect(() => {
+    // when to dispatch?
+    const key = generateKey(tags);
+    const status =
+      projectionRequestStatus &&
+      projectionRequestStatus[key] &&
+      projectionRequestStatus[key].status;
     const p = projections && projections[key];
 
-    if (!p && shouldDispatch (status)) { // 1. if there are no projections or projection requests in progress/failed
-      dispatch (fetchNotificationRecipientProjection ({ tags }));
+    if (!p && shouldDispatch(status)) {
+      // 1. if there are no projections or projection requests in progress/failed
+      dispatch(fetchNotificationRecipientProjection({ tags }));
     } else if (p) {
-      setProjection (p);
+      setProjection(p);
     }
   }, [projections, projectionRequestStatus, tags]);
 
   const getPreviews = () => {
     if (!newsId) {
-      console.log ('no news id; cannot fetch preview');
+      console.log('no news id; cannot fetch preview');
     } else {
-      dispatch (fetchNotificationPreviews ({ newsId }));
+      dispatch(fetchNotificationPreviews({ newsId }));
     }
-  }
+  };
 
   const refresh = () => {
-    dispatch (fetchNotificationRecipientProjection ({ tags }));
-    dispatch (fetchNotificationPreviews ({ newsId }));
-    dispatch (fetchNotificationHistory ({ newsId }));
-  }
+    dispatch(fetchNotificationRecipientProjection({ tags }));
+    dispatch(fetchNotificationPreviews({ newsId }));
+    dispatch(fetchNotificationHistory({ newsId }));
+  };
 
   const send = (tempId) => {
-    dispatch (sendNotifications ({ newsId, tempId, modDate }));
-  }
+    dispatch(sendNotifications({ newsId, tempId, modDate }));
+  };
 
   const reSend = (emailId) => {
-    dispatch (reSendNotifications ({ newsId, emailId }));
-  }
+    dispatch(reSendNotifications({ newsId, emailId }));
+  };
 
-  return <EmailManagerPure
-           history={storyHistory || []}
-           projection={projection}
-           headline={headline}
-           getPreviews={getPreviews}
-           previews={previews}
-           newsId={newsId}
-           send={send}
-           reSend={reSend}
-           refresh={refresh}
-           enabled={enabled}
-           statuses={notificationStatuses}
-           sentNotifications={sentNotifications}
-         />
-}
+  return (
+    <EmailManagerPure
+      history={storyHistory || []}
+      projection={projection}
+      headline={headline}
+      getPreviews={getPreviews}
+      previews={previews}
+      newsId={newsId}
+      send={send}
+      reSend={reSend}
+      refresh={refresh}
+      enabled={enabled}
+      statuses={notificationStatuses}
+      sentNotifications={sentNotifications}
+    />
+  );
+};
 
 export default EmailManager;
