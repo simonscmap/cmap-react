@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { LicenseManager } from 'ag-grid-enterprise';
 import * as Sentry from '@sentry/react';
+import { Integrations } from '@sentry/tracing';
 import * as serviceWorker from './serviceWorker';
 import store from './Redux/store';
 import App from './App';
@@ -22,10 +23,7 @@ Sentry.init({
   // Setting this option to true will send default PII data to Sentry.
   // For example, automatic IP address collection on events
   sendDefaultPii: true,
-  integrations: [
-    Sentry.browserTracingIntegration(),
-    Sentry.replayIntegration(),
-  ],
+  integrations: [new Integrations.BrowserTracing()],
   // Tracing
   tracesSampleRate: 1.0, //  Capture 100% of the transactions
   // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
