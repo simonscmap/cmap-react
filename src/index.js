@@ -18,20 +18,31 @@ Object.assign(window, { cmapStore: store });
 
 serviceWorker.unregister();
 
-Sentry.init({
-  dsn: 'https://235dc211fb6c038ff5713280b5172696@o4509317255004160.ingest.us.sentry.io/4509317256249344',
-  // Setting this option to true will send default PII data to Sentry.
-  // For example, automatic IP address collection on events
-  sendDefaultPii: true,
-  integrations: [new Integrations.BrowserTracing()],
-  // Tracing
-  tracesSampleRate: 1.0, //  Capture 100% of the transactions
-  // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
-  tracePropagationTargets: ['localhost', /^https:\/\/yourserver\.io\/api/],
-  // Session Replay
-  replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
-  replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
-});
+// `npm run start:sentry` will set process.env.REACT_APP_ENABLE_SENTRY to true
+// for enabling Sentry locally for the dev-staging-frontend project in Sentry
+if (
+  process.env.NODE_ENV !== 'development' ||
+  process.env.REACT_APP_ENABLE_SENTRY === 'true'
+) {
+  console.log(
+    '🐛🐛🐛 index.js:37 process.env.REACT_APP_SENTRY_DSN:',
+    process.env.REACT_APP_SENTRY_DSN,
+  );
+  Sentry.init({
+    dsn: process.env.REACT_APP_SENTRY_DSN,
+    // Setting this option to true will send default PII data to Sentry.
+    // For example, automatic IP address collection on events
+    sendDefaultPii: true,
+    integrations: [new Integrations.BrowserTracing()],
+    // Tracing
+    tracesSampleRate: 1.0, //  Capture 100% of the transactions
+    // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
+    tracePropagationTargets: ['localhost', /^https:\/\/yourserver\.io\/api/],
+    // Session Replay
+    replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
+    replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
+  });
+}
 
 const rootElement = document.getElementById('root');
 
