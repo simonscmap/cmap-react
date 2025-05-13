@@ -18,6 +18,9 @@ LicenseManager.setLicenseKey(
 
 const rootElement = document.getElementById('root');
 
+// We're using React 16.13.1 where ReactDOM.render is the standard API.
+// The createRoot API is not available in React 16, so this warning can be safely ignored.
+/* eslint-disable react/no-deprecated */
 ReactDOM.render(
   <Provider store={store}>
     <App />
