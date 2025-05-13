@@ -3,7 +3,8 @@
   "version": "1.21.5",
   "private": true,
   "scripts": {
-    "start": "npm run pre-build && react-scripts --max_old_space_size=4096 start",
+    "start": "export REACT_APP_ENABLE_SENTRY=false && npm run pre-build && react-scripts --max_old_space_size=4096 start",
+    "start:sentry": "export REACT_APP_ENABLE_SENTRY=true && npm run pre-build && react-scripts --max_old_space_size=4096 start",
     "pre-build": "node generateBuildInfo.js > src/buildInfo.json",
     "build": "npm run pre-build && react-scripts --max_old_space_size=4096 build && npm run tagv && mv ./build/index.html ./build/app.html",
     "tagv": "./scripts/create-tag-file.js",
