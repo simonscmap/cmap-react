@@ -24,6 +24,7 @@
     "@material-ui/pickers": "^3.2.10",
     "@react-oauth/google": "^0.12.1",
     "@sentry/react": "^6.19.7",
+    "@sentry/tracing": "^6.19.7",
     "ag-grid-community": "^22.0.0",
     "ag-grid-enterprise": "^22.0.0",
     "ag-grid-react": "^22.0.0",
