@@ -19,7 +19,7 @@ Object.assign(window, { cmapStore: store });
 serviceWorker.unregister();
 
 // `npm run start:sentry` will set process.env.REACT_APP_ENABLE_SENTRY to true
-// for enabling Sentry locally for the dev-staging-frontend project in Sentry
+// for enabling Sentry locally
 if (
   process.env.NODE_ENV !== 'development' ||
   process.env.REACT_APP_ENABLE_SENTRY === 'true'
@@ -30,6 +30,12 @@ if (
   );
   Sentry.init({
     dsn: process.env.REACT_APP_SENTRY_DSN,
+    release: process.env.REACT_APP_SENTRY_RELEASE,
+    transportOptions: {
+      headers: {
+        'X-Sentry-Token': process.env.REACT_APP_X_SENTRY_TOKEN,
+      },
+    },
     // Setting this option to true will send default PII data to Sentry.
     // For example, automatic IP address collection on events
     sendDefaultPii: true,
