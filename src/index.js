@@ -25,19 +25,11 @@ if (
   process.env.NODE_ENV === 'staging' ||
   process.env.REACT_APP_ENABLE_SENTRY === 'true'
 ) {
-  console.log(
-    '🐛🐛🐛 index.js:37 process.env.REACT_APP_SENTRY_DSN:',
-    process.env.REACT_APP_SENTRY_DSN,
-  );
   Sentry.init({
     dsn: process.env.REACT_APP_SENTRY_DSN,
     release: process.env.REACT_APP_SENTRY_RELEASE,
     environment: process.env.NODE_ENV,
-    transportOptions: {
-      headers: {
-        'X-Sentry-Token': process.env.REACT_APP_X_SENTRY_TOKEN,
-      },
-    },
+
     // Setting this option to true will send default PII data to Sentry.
     // For example, automatic IP address collection on events
     sendDefaultPii: true,
