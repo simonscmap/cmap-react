@@ -27,7 +27,7 @@ if (
 ) {
   Sentry.init({
     dsn: process.env.REACT_APP_SENTRY_DSN,
-    release: process.env.REACT_APP_SENTRY_RELEASE,
+    release: process.env.REACT_APP_SENTRY_RELEASE || 'development',
     environment: process.env.NODE_ENV,
 
     // Setting this option to true will send default PII data to Sentry.
