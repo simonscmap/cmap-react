@@ -21,7 +21,8 @@ serviceWorker.unregister();
 // `npm run start:sentry` will set process.env.REACT_APP_ENABLE_SENTRY to true
 // for enabling Sentry locally
 if (
-  process.env.NODE_ENV !== 'development' ||
+  process.env.NODE_ENV === 'production' ||
+  process.env.NODE_ENV === 'staging' ||
   process.env.REACT_APP_ENABLE_SENTRY === 'true'
 ) {
   console.log(
@@ -31,6 +32,7 @@ if (
   Sentry.init({
     dsn: process.env.REACT_APP_SENTRY_DSN,
     release: process.env.REACT_APP_SENTRY_RELEASE,
+    environment: process.env.NODE_ENV,
     transportOptions: {
       headers: {
         'X-Sentry-Token': process.env.REACT_APP_X_SENTRY_TOKEN,
