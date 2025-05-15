@@ -97,7 +97,6 @@
     "not op_mini all"
   ],
   "devDependencies": {
-    "@sentry/cli": "^1.65.0",
     "cheerio": "^1.0.0-rc.12",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",
