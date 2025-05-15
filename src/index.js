@@ -27,7 +27,7 @@ if (
 
     // Setting this option to true will send default PII data to Sentry.
     // For example, automatic IP address collection on events
-    sendDefaultPii: true,
+    sendDefaultPii: false,
     integrations: [new Integrations.BrowserTracing()],
     // Tracing
     tracesSampleRate: 1.0, //  Capture 100% of the transactions
