@@ -22,7 +22,6 @@ serviceWorker.unregister();
 // for enabling Sentry locally
 if (
   process.env.NODE_ENV === 'production' ||
-  process.env.NODE_ENV === 'staging' ||
   process.env.REACT_APP_ENABLE_SENTRY === 'true'
 ) {
   Sentry.init({
