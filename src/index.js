@@ -14,10 +14,6 @@ LicenseManager.setLicenseKey(
   'School_of_Oceanography_Simons_CMAP_1Devs_1Deployment_19_June_2020__MTU5MjUyMTIwMDAwMA==aec33f954c06d90afed06467402921bd',
 );
 
-Object.assign(window, { cmapStore: store });
-
-serviceWorker.unregister();
-
 // `npm run start:sentry` will set process.env.REACT_APP_ENABLE_SENTRY to true
 // for enabling Sentry locally
 if (
@@ -54,3 +50,7 @@ ReactDOM.render(
   </Provider>,
   rootElement,
 );
+
+Object.assign(window, { cmapStore: store });
+
+serviceWorker.unregister();
