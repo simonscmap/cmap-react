@@ -45,40 +45,24 @@ Until logs are forwarded to persistence, there is no need to alter formatting fo
 | 1     | Error | errors which prevent the application from running as intended |
 | 0     | Fatal | errers which prevent the service from operating; data loss    |
 
-## Decision Tree
+## Logging Decision Tree
 
-                                ┌──────────┐
-                                │Who is the│
-               Developer  ◄──── │ log for? ├────►   Admin
-                   │            └──────────┘          │
-                   │                                  │
-                   ▼                                  ▼
-                   ▼                                  ▼
-          ┌──────────────┐                      ┌───────────────┐
-          │Do you need to│                      │Are you logging│
-
-NOPE ─────┤ log state ? ├──── YES NOPE ────┤unwanted state?├─── YES
-└──────────────┘ └───────────────┘
-│ │ │ │
-│ │ │ │
-▼ ▼ ▼ │
-▼ ▼ ▼ │
-┌───────┴───────┐
-TRACE DEBUG INFO │Can the process│
-YES ────┤ continue │
-│ with the ├──── NO!
-│ │unwanted state?│
-│ └───────────────┘ │
-▼ │
-▼ ▼
-▼
-WARN ┌───────────────┐
-│Can the service│
-YES ────┤ continue ├──── NO!
-│ with the │
-│ │unwanted state?│ │
-│ └───────────────┘ │
-▼ ▼
-▼ ▼
-
-                                                                     ERROR                         FATAL
+```mermaid
+flowchart TD
+    A[Who is the log for?] --> B[Developer]
+    A --> C[Admin]
+    
+    B --> D{Do you need to log state?}
+    D -->|No| E[TRACE]
+    D -->|Yes| F[DEBUG]
+    
+    C --> G{Are you logging unwanted state?}
+    G -->|No| H[INFO]
+    G -->|Yes| I{Can the process continue with the unwanted state?}
+    
+    I -->|Yes| J[WARN]
+    I -->|No| K{Can the service continue with the unwanted state?}
+    
+    K -->|Yes| L[ERROR]
+    K -->|No| M[FATAL]
+```
