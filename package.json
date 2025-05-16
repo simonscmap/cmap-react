@@ -1,9 +1,10 @@
 {
   "name": "cmap_react",
-  "version": "1.21.5",
+  "version": "1.21.6",
   "private": true,
   "scripts": {
-    "start": "npm run pre-build && react-scripts --max_old_space_size=4096 start",
+    "start": "export REACT_APP_ENABLE_SENTRY=false && npm run pre-build && react-scripts --max_old_space_size=4096 start",
+    "start:sentry": "export REACT_APP_ENABLE_SENTRY=true && npm run pre-build && react-scripts --max_old_space_size=4096 start",
     "pre-build": "node generateBuildInfo.js > src/buildInfo.json",
     "build": "npm run pre-build && react-scripts --max_old_space_size=4096 build && npm run tagv && mv ./build/index.html ./build/app.html",
     "tagv": "./scripts/create-tag-file.js",
@@ -23,6 +24,8 @@
     "@material-ui/lab": "^4.0.0-alpha.56",
     "@material-ui/pickers": "^3.2.10",
     "@react-oauth/google": "^0.12.1",
+    "@sentry/react": "^6.19.7",
+    "@sentry/tracing": "^6.19.7",
     "ag-grid-community": "^22.0.0",
     "ag-grid-enterprise": "^22.0.0",
     "ag-grid-react": "^22.0.0",
