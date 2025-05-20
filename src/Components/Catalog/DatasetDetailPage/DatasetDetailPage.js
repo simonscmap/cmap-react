@@ -29,6 +29,7 @@ import SkeletonWrapper from '../../UI/SkeletonWrapper';
 import ErrorCard from '../../Common/ErrorCard';
 import Spacer from '../../Common/Spacer';
 import Page2 from '../../Common/Page2';
+import ExpandableContent from '../../Common/ExpandableContent';
 
 import {
   datasetFullPageNavigate,
@@ -215,10 +216,12 @@ const DatasetFullPage = (props) => {
                 <div className={classes.horizontalFlex}>
                   <div className={classes.descriptionContainer}>
                     <SectionHeader title={'Description'} />
-                    <ReactMarkdown
-                      source={description}
-                      className={classes.markdown}
-                    />
+                    <ExpandableContent maxHeight={400}>
+                      <ReactMarkdown
+                        source={description}
+                        className={classes.markdown}
+                      />
+                    </ExpandableContent>
                   </div>
                   <NewsSection news={news} />
                 </div>
@@ -284,7 +287,9 @@ const DatasetFullPage = (props) => {
               </ThirdGridContent>
               <ThirdGridContent data={acknowledgment}>
                 <SectionHeader title={'Acknowledgement'} />
-                <Typography>{urlify(acknowledgment)}</Typography>
+                <ExpandableContent maxHeight={200}>
+                  <Typography>{urlify(acknowledgment)}</Typography>
+                </ExpandableContent>
               </ThirdGridContent>
             </Grid>
 
