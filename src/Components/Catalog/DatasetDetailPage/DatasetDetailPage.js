@@ -216,7 +216,7 @@ const DatasetFullPage = (props) => {
                 <div className={classes.horizontalFlex}>
                   <div className={classes.descriptionContainer}>
                     <SectionHeader title={'Description'} />
-                    <ExpandableContent maxHeight={400}>
+                    <ExpandableContent maxHeight={600}>
                       <ReactMarkdown
                         source={description}
                         className={classes.markdown}

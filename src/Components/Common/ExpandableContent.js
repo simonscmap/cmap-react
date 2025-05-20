@@ -10,7 +10,6 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
   },
   content: {
-    overflow: 'hidden',
     transition: 'all 0.3s ease-out',
   },
   gradient: {
@@ -43,13 +42,11 @@ const ExpandableContent = ({ children, maxHeight = 300 }) => {
   const classes = useStyles();
   const [isExpanded, setIsExpanded] = useState(false);
   const [needsExpansion, setNeedsExpansion] = useState(false);
-  const [contentHeight, setContentHeight] = useState(0);
   const contentRef = useRef(null);
 
   useEffect(() => {
     if (contentRef.current) {
       const height = contentRef.current.scrollHeight;
-      setContentHeight(height);
       setNeedsExpansion(height > maxHeight);
     }
   }, [children, maxHeight]);
@@ -64,7 +61,8 @@ const ExpandableContent = ({ children, maxHeight = 300 }) => {
         ref={contentRef}
         className={classes.content}
         style={{
-          maxHeight: isExpanded ? `${contentHeight}px` : `${maxHeight}px`,
+          height: isExpanded ? 'auto' : `${maxHeight}px`,
+          overflow: isExpanded ? 'visible' : 'hidden',
         }}
       >
         {children}
