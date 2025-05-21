@@ -29,7 +29,6 @@ import SkeletonWrapper from '../../UI/SkeletonWrapper';
 import ErrorCard from '../../Common/ErrorCard';
 import Spacer from '../../Common/Spacer';
 import Page2 from '../../Common/Page2';
-import ExpandableContent from '../../Common/ExpandableContent';
 
 import {
   datasetFullPageNavigate,
