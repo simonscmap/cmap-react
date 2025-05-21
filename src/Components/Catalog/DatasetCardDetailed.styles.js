@@ -1,4 +1,4 @@
-const styles = (theme) => ({
+const datasetCardDetailedStyles = (theme) => ({
   resultPaper: {
     background: 'rgba(0,0,0,0.2)',
     boxShadow: 'none',
@@ -52,6 +52,29 @@ const styles = (theme) => ({
       verticalAlign: 'middle',
     },
   },
+  metadataContainer: {
+    '& table .MuiTypography-body1': {
+      margin: 0,
+    },
+  },
+  actionBox: {
+    height: '24px',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: '1em',
+    paddingBottom: '.5em',
+    '& > div': {
+      display: 'flex',
+      flexDirection: 'row',
+      gap: '.5em',
+      alignItems: 'center',
+    },
+  },
+});
+
+const otherComponentStyles = (theme) => ({
   nameAndCopy: {
     width: '100%',
     display: 'flex',
@@ -68,16 +91,9 @@ const styles = (theme) => ({
   },
   titleLink: {
     width: '100%',
-    // color: theme.palette.secondary.main,
     color: '#69FFF2',
     '&:visited': {
-      // color: theme.palette.secondary.main,
       color: '#69FFF2',
-    },
-  },
-  metadataContainer: {
-    '& table .MuiTypography-body1': {
-      margin: 0,
     },
   },
   downloadLink: {
@@ -101,24 +117,14 @@ const styles = (theme) => ({
     gap: '.75em',
     alignItems: 'center',
   },
-  actionBox: {
-    height: '24px',
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: '1em',
-    paddingBottom: '.5em',
-    '& > div': {
-      display: 'flex',
-      flexDirection: 'row',
-      gap: '.5em',
-      alignItems: 'center',
-    },
-  },
   primaryColor: {
     color: theme.palette.secondary.main,
   },
+});
+
+const styles = (theme) => ({
+  ...datasetCardDetailedStyles(theme),
+  ...otherComponentStyles(theme),
 });
 
 export default styles;
