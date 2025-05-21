@@ -94,8 +94,10 @@ const navigationStyles = (theme) => ({
       fontWeight: 700,
       lineHeight: '27px',
       textAlign: 'left',
-      display: 'block',
+      display: 'flex',
+      alignItems: 'center',
       borderRadius: '4px',
+      verticalAlign: 'middle',
     },
     '& a': {
       // marginTop: '3px', // this top margin corrects for the flex center
@@ -254,8 +256,10 @@ const navigationStyles = (theme) => ({
   // EXPANDABLE MENU ITEMS
 
   expandableItemContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    height: '30px',
     // height: 'calc(30px + 6px)', // plus the child's 6px of vertical padding
-    borderRadius: '6px',
     '@media (max-width:900px)': {
       width: '100%',
       textAlign: 'left',
@@ -275,7 +279,8 @@ const navigationStyles = (theme) => ({
     fontWeight: 700,
     lineHeight: '27px',
     padding: '3px 14px',
-    borderRadius: '6px',
+    // borderRadius: '6px', // remove border radius for alignment
+    verticalAlign: 'middle',
     '&:hover': {
       background: 'rgba(255, 255, 255, 0.2)',
       textDecoration: 'none',
