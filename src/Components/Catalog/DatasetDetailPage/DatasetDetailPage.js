@@ -215,10 +215,12 @@ const DatasetFullPage = (props) => {
                 <div className={classes.horizontalFlex}>
                   <div className={classes.descriptionContainer}>
                     <SectionHeader title={'Description'} />
-                    <ReactMarkdown
-                      source={description}
-                      className={classes.markdown}
-                    />
+                    <div className={classes.descriptionContent}>
+                      <ReactMarkdown
+                        source={description}
+                        className={classes.markdown}
+                      />
+                    </div>
                   </div>
                   <NewsSection news={news} />
                 </div>
@@ -284,7 +286,9 @@ const DatasetFullPage = (props) => {
               </ThirdGridContent>
               <ThirdGridContent data={acknowledgment}>
                 <SectionHeader title={'Acknowledgement'} />
-                <Typography>{urlify(acknowledgment)}</Typography>
+                <div className={classes.acknowledgmentContent}>
+                  <Typography>{urlify(acknowledgment)}</Typography>
+                </div>
               </ThirdGridContent>
             </Grid>
 
