@@ -86,18 +86,29 @@ const navigationStyles = (theme) => ({
     height: '110px',
     marginLeft: '104px',
     '& > a': {
-      padding: '3px 14px',
-      height: '30px',
+      // Desktop styles
+      '@media (min-width:901px)': {
+        display: 'flex',
+        alignItems: 'center',
+        height: '30px',
+        verticalAlign: 'middle',
+        padding: '3px 14px',
+      },
+      // Mobile styles (original)
+      '@media (max-width:900px)': {
+        display: 'block',
+        alignItems: 'unset',
+        height: 'auto',
+        verticalAlign: 'unset',
+        padding: '8px 14px',
+      },
       color: 'white',
       fontFamily: 'Lato, sans-serif',
       fontStyle: 'normal',
       fontWeight: 700,
       lineHeight: '27px',
       textAlign: 'left',
-      display: 'flex',
-      alignItems: 'center',
       borderRadius: '4px',
-      verticalAlign: 'middle',
     },
     '& a': {
       // marginTop: '3px', // this top margin corrects for the flex center
@@ -256,31 +267,46 @@ const navigationStyles = (theme) => ({
   // EXPANDABLE MENU ITEMS
 
   expandableItemContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    height: '30px',
-    // height: 'calc(30px + 6px)', // plus the child's 6px of vertical padding
+    // Desktop styles
+    '@media (min-width:901px)': {
+      display: 'flex',
+      alignItems: 'center',
+      height: '30px',
+    },
+    // Mobile styles (original)
     '@media (max-width:900px)': {
       width: '100%',
       textAlign: 'left',
+      display: 'block',
+      alignItems: 'unset',
+      height: 'unset',
     },
   },
   expandableItem: {
-    // looks exactly like a link
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    height: '30px',
+    // Desktop styles
+    '@media (min-width:901px)': {
+      display: 'flex',
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      height: '30px',
+      verticalAlign: 'middle',
+      padding: '3px 14px',
+    },
+    // Mobile styles (original)
+    '@media (max-width:900px)': {
+      display: 'block',
+      height: 'auto',
+      padding: '8px 14px',
+      verticalAlign: 'unset',
+    },
     cursor: 'pointer',
     color: 'white',
     fontFamily: 'Lato, sans-serif',
     fontStyle: 'normal',
     fontWeight: 700,
     lineHeight: '27px',
-    padding: '3px 14px',
-    // borderRadius: '6px', // remove border radius for alignment
-    verticalAlign: 'middle',
+    // borderRadius: '6px', // keep as before
     '&:hover': {
       background: 'rgba(255, 255, 255, 0.2)',
       textDecoration: 'none',
