@@ -313,6 +313,7 @@ const navigationStyles = (theme) => ({
     },
   },
   expandableChevronOpen: {
+    display: 'inline-block',
     lineHeight: '27px',
     height: '27px',
     marginLeft: '7px',
@@ -322,8 +323,10 @@ const navigationStyles = (theme) => ({
       height: '21px',
       width: '21px',
     },
+    transform: 'rotate(0deg)',
   },
   expandableChevronClose: {
+    display: 'inline-block',
     lineHeight: '27px',
     height: '27px',
     marginLeft: '7px',
