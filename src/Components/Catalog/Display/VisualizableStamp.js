@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { makeStyles, Tooltip } from '@material-ui/core';
 import { BsFillBarChartLineFill } from 'react-icons/bs';
-import styles from '../searchResultStyles';
+import styles from '../DatasetCardDetailed.styles';
 
 const useStyles = makeStyles(styles);
 

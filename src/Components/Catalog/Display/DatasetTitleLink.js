@@ -3,7 +3,7 @@ import { makeStyles, Link, Popper } from '@material-ui/core';
 import { useDispatch } from 'react-redux';
 
 import { Link as RouterLink } from 'react-router-dom';
-import styles from '../searchResultStyles';
+import styles from '../DatasetCardDetailed.styles';
 import { FaRegCopy } from 'react-icons/fa6';
 import GreenButton from './DownloadButton';
 import { copyTextToClipboard } from '../../../Redux/actions/ui';
