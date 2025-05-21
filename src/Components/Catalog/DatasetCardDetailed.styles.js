@@ -74,7 +74,7 @@ const datasetCardDetailedStyles = (theme) => ({
   },
 });
 
-const otherComponentStyles = (theme) => ({
+const datasetTitleLinkStyles = (theme) => ({
   nameAndCopy: {
     width: '100%',
     display: 'flex',
@@ -117,14 +117,11 @@ const otherComponentStyles = (theme) => ({
     gap: '.75em',
     alignItems: 'center',
   },
-  primaryColor: {
-    color: theme.palette.secondary.main,
-  },
 });
 
 const styles = (theme) => ({
   ...datasetCardDetailedStyles(theme),
-  ...otherComponentStyles(theme),
+  ...datasetTitleLinkStyles(theme),
 });
 
 export default styles;
