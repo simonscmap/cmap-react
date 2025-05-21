@@ -283,7 +283,6 @@ const navigationStyles = (theme) => ({
     },
   },
   expandableItem: {
-    // Desktop styles
     '@media (min-width:901px)': {
       display: 'flex',
       flexDirection: 'row',
@@ -293,9 +292,10 @@ const navigationStyles = (theme) => ({
       verticalAlign: 'middle',
       padding: '3px 14px',
     },
-    // Mobile styles (original)
     '@media (max-width:900px)': {
-      display: 'block',
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'center',
       height: 'auto',
       padding: '8px 14px',
       verticalAlign: 'unset',
@@ -306,7 +306,6 @@ const navigationStyles = (theme) => ({
     fontStyle: 'normal',
     fontWeight: 700,
     lineHeight: '27px',
-    // borderRadius: '6px', // keep as before
     '&:hover': {
       background: 'rgba(255, 255, 255, 0.2)',
       textDecoration: 'none',
@@ -314,28 +313,28 @@ const navigationStyles = (theme) => ({
   },
   expandableChevronOpen: {
     display: 'inline-block',
-    lineHeight: '27px',
-    height: '27px',
     marginLeft: '7px',
     transition: 'transform .2s ease-out',
+    verticalAlign: 'middle',
     '& svg': {
-      marginTop: '3px',
       height: '21px',
       width: '21px',
+      // marginTop removed
+      verticalAlign: 'middle',
     },
     transform: 'rotate(0deg)',
   },
   expandableChevronClose: {
     display: 'inline-block',
-    lineHeight: '27px',
-    height: '27px',
     marginLeft: '7px',
     transform: 'rotate(180deg)',
     transition: 'transform .2s ease-out',
+    verticalAlign: 'middle',
     '& svg': {
-      marginTop: '3px',
       height: '21px',
       width: '21px',
+      // marginTop removed
+      verticalAlign: 'middle',
     },
   },
   effectContainer: {
