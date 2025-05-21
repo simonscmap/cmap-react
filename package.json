@@ -1,6 +1,6 @@
 {
   "name": "cmap_react",
-  "version": "1.21.6",
+  "version": "1.21.7",
   "private": true,
   "scripts": {
     "start": "export REACT_APP_ENABLE_SENTRY=false && npm run pre-build && react-scripts --max_old_space_size=4096 start",
