@@ -1,4 +1,4 @@
-const experimentalStyles = (theme) => ({
+const styles = (theme) => ({
   resultPaper: {
     background: 'rgba(0,0,0,0.2)',
     boxShadow: 'none',
@@ -121,4 +121,4 @@ const experimentalStyles = (theme) => ({
   },
 });
 
-export default experimentalStyles;
+export default styles;
