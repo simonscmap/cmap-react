@@ -3,17 +3,17 @@ import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
-import { useDatasetFeatures } from '../../Utility/Catalog/useDatasetFeatures';
+import { useDatasetFeatures } from '../../../Utility/Catalog/useDatasetFeatures';
 import styles from './DatasetCardDetailed.styles';
-import MetadataContent from './SearchResultMetaDataContent';
-import HideAtBreakPoint from './Display/HideAtBreakPoint';
-import AncillaryDataChip from './Display/AncillaryDataChip';
-import ContinuousIngestionChip from './Display/ContinuousIngestionChip';
-import DatasetTitleLink from './Display/DatasetTitleLink';
-import { DownloadButtonFilled } from './DownloadDialog/DownloadButtons';
+import MetadataContent from '../SearchResultMetaDataContent';
+import HideAtBreakPoint from '../Display/HideAtBreakPoint';
+import AncillaryDataChip from '../Display/AncillaryDataChip';
+import ContinuousIngestionChip from '../Display/ContinuousIngestionChip';
+import DatasetTitleLink from '../Display/DatasetTitleLink';
+import { DownloadButtonFilled } from '../DownloadDialog/DownloadButtons';
 
-import SubscribeButton from '../User/Subscriptions/SubscribeButton';
-import { downloadDialogOpen } from '../../Redux/actions/ui';
+import SubscribeButton from '../../User/Subscriptions/SubscribeButton';
+import { downloadDialogOpen } from '../../../Redux/actions/ui';
 
 const useStyles = makeStyles(styles);
 

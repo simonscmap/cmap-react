@@ -17,7 +17,7 @@ import ResizeObserver from 'react-resize-observer';
 import { withRouter } from 'react-router';
 import { FixedSizeList } from 'react-window';
 import '../../Stylesheets/catalog-search-results.css';
-import SearchResult from './DatasetCardDetailed';
+import SearchResult from './DatasetCard/DatasetCardDetailed';
 
 import {
   searchResultsFetch,
