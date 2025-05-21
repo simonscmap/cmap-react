@@ -137,6 +137,25 @@ const styles = (theme) => ({
   descriptionContainer: {
     flex: 2,
   },
+  descriptionContent: {
+    maxHeight: '60vh',
+    overflowY: 'auto',
+    paddingRight: '1em',
+    '&::-webkit-scrollbar': {
+      width: '8px',
+    },
+    '&::-webkit-scrollbar-track': {
+      background: 'rgba(255, 255, 255, 0.1)',
+      borderRadius: '4px',
+    },
+    '&::-webkit-scrollbar-thumb': {
+      background: 'rgba(255, 255, 255, 0.2)',
+      borderRadius: '4px',
+      '&:hover': {
+        background: 'rgba(255, 255, 255, 0.3)',
+      },
+    },
+  },
 });
 
 export default styles;
