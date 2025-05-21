@@ -8,6 +8,7 @@ export const mapPageNameToIntroVideo = (pageName) => {
   switch (pageName) {
     case 'catalog':
       return CATALOG_OVERVIEW_VIDEO;
+    case 'charts':
     case 'visualization':
       return VISUALIZATION_OVERVIEW_VIDEO;
     case 'homepage':
