@@ -287,9 +287,9 @@ const DatasetFullPage = (props) => {
               </ThirdGridContent>
               <ThirdGridContent data={acknowledgment}>
                 <SectionHeader title={'Acknowledgement'} />
-                <ExpandableContent maxHeight={200}>
+                <div className={classes.acknowledgmentContent}>
                   <Typography>{urlify(acknowledgment)}</Typography>
-                </ExpandableContent>
+                </div>
               </ThirdGridContent>
             </Grid>
 
