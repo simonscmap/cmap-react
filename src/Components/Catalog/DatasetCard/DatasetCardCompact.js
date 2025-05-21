@@ -1,6 +1,6 @@
-// An individual result from catalog search
+// An individual result from used in reccommendation datasets
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useDispatch } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
 import {
@@ -41,7 +41,6 @@ const SearchResult = (props) => {
   const features = useDatasetFeatures(Table_Name);
 
   const AncillaryDataChip = () => {
-    const cl = useStyles();
     if (features && features.ancillary) {
       return (
         <Chip
@@ -57,7 +56,6 @@ const SearchResult = (props) => {
   };
 
   const CIDataChip = () => {
-    const cl = useStyles();
     if (features && features.ci) {
       return (
         <Chip

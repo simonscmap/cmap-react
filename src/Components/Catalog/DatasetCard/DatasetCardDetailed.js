@@ -1,4 +1,5 @@
 // An individual result from catalog search
+
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
