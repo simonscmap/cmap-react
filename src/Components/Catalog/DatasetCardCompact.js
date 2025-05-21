@@ -14,7 +14,7 @@ import {
   makeStyles,
 } from '@material-ui/core';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
-import styles from './searchResult2styles';
+import styles from './DatasetCardCompact.styles';
 import DatasetTitleHint from './help/datasetTitleHint';
 import Hint from '../Navigation/Help/Hint';
 import { useDatasetFeatures } from '../../Utility/Catalog/useDatasetFeatures';

@@ -6,7 +6,7 @@ import { FixedSizeList } from 'react-window';
 import { recentRecsRequestSend } from '../../Redux/actions/catalog';
 import { FETCH_RECS_RECENT_SUCCESS } from '../../Redux/actionTypes/catalog';
 import states from '../../enums/asyncRequestStates';
-import RecResult from './SearchResult2';
+import RecResult from './DatasetCardCompact';
 import Spinner from '../UI/Spinner';
 import { persistenceService } from '../../Services/persist';
 

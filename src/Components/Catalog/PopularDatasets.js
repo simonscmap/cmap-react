@@ -5,7 +5,7 @@ import { makeStyles } from '@material-ui/core';
 import { FixedSizeList } from 'react-window';
 import { popularRecsRequestSend } from '../../Redux/actions/catalog';
 import states from '../../enums/asyncRequestStates';
-import RecResult from './SearchResult2';
+import RecResult from './DatasetCardCompact';
 import Spinner from '../UI/Spinner';
 
 export const usePopularDatasetRecs = () => {

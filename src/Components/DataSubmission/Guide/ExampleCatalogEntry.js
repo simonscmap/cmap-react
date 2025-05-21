@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { SearchResultPure } from '../../Catalog/SearchResult';
+import { SearchResultPure } from '../../Catalog/DatasetCardDetailed';
 
 // mock dataset
 const mockDataset = {
