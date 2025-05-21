@@ -1,4 +1,4 @@
-const datasetCardDetailedStyles = (theme) => ({
+const styles = () => ({
   resultPaper: {
     background: 'rgba(0,0,0,0.2)',
     boxShadow: 'none',
@@ -72,10 +72,6 @@ const datasetCardDetailedStyles = (theme) => ({
       alignItems: 'center',
     },
   },
-});
-
-const styles = (theme) => ({
-  ...datasetCardDetailedStyles(theme),
 });
 
 export default styles;
