@@ -132,6 +132,10 @@ const Meta = (props) => {
                   label={'Date Range'}
                   value={`${min} – ${max}`}
                 />
+                <TableRowTextPair
+                  label={'Acknowledgment'}
+                  value={Acknowledgement}
+                />
               </TableBody>
             </Table>
           </TableContainer>
@@ -153,14 +157,14 @@ const Meta = (props) => {
         </HideAtBreakPoint>
       </div>
 
-      <div className={cl.ack}>
+      {/* <div className={cl.ack}>
         <div className={cl.ackLabel}>
           <Typography>Acknowledgment</Typography>
         </div>
         <div className={cl.ackTextContainer}>
           <Ack text={Acknowledgement} />
         </div>
-      </div>
+      </div> */}
     </React.Fragment>
   );
 };
