@@ -7,14 +7,18 @@ const styles = (theme) => ({
     justifyContent: 'space-between',
   },
   linkContainer: {
-    width: '100%',
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    flex: 'auto',
+    display: 'flex',
+    alignItems: 'center',
+    width: 'auto',
+    minWidth: 0,
   },
   titleLink: {
-    width: '100%',
+    minWidth: 0,
+    flex: '1 1 0%',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    display: 'block',
     color: '#69FFF2',
     '&:visited': {
       color: '#69FFF2',
@@ -42,9 +46,10 @@ const styles = (theme) => ({
     alignItems: 'center',
   },
   inlineCopy: {
-    display: 'inline-flex',
+    display: 'flex',
     alignItems: 'center',
     gap: '8px',
+    minWidth: 0,
   },
 });
 
