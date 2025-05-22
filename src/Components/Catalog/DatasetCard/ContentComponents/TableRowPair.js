@@ -49,35 +49,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const TableRowTextPair = ({
-  label,
-  value,
-  mono,
-  customComponent,
-  copyable,
-}) => {
+const TableRowTextPair = ({ label, value, mono, copyable }) => {
   const cl = useStyles();
   const textClass = mono ? cl.monoValue : '';
-
-  let RenderValue;
-  if (customComponent) {
-    RenderValue = customComponent;
-  } else if (copyable) {
-    RenderValue = function InlineCopyValue() {
-      return (
-        <span className={cl.inlineCopy}>
-          <span className={`${cl.textTruncate} ${textClass}`}>{value}</span>
-          <CopyButton text={value} />
-        </span>
-      );
-    };
-    RenderValue.displayName = 'InlineCopyValue';
-  } else {
-    RenderValue = function DefaultValue() {
-      return <Typography className={textClass}>{value}</Typography>;
-    };
-    RenderValue.displayName = 'DefaultValue';
-  }
 
   return (
     <TableRow className={cl.row}>
@@ -85,7 +59,14 @@ const TableRowTextPair = ({
         <Typography className={cl.label}>{label}</Typography>
       </TableCell>
       <TableCell className={cl.cell}>
-        <RenderValue text={value} label={label} mono={mono} />
+        {copyable ? (
+          <Typography className={cl.inlineCopy}>
+            <span className={`${cl.textTruncate} ${textClass}`}>{value}</span>
+            <CopyButton text={value} className={cl.copyButton} />
+          </Typography>
+        ) : (
+          <Typography className={textClass}>{value}</Typography>
+        )}
       </TableCell>
     </TableRow>
   );
