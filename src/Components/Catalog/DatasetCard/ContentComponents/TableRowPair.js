@@ -35,7 +35,7 @@ const useStyles = makeStyles((theme) => ({
   monoValue: {
     fontFamily: 'Courier',
     fontWeight: 'bold',
-    color: theme.palette.primary.light,
+    color: theme.palette.common.white,
   },
   inlineCopy: {
     display: 'inline-flex',
