@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { makeStyles, Typography, Popper } from '@material-ui/core';
+import { makeStyles, Typography, Popper, Button } from '@material-ui/core';
 import { useDispatch } from 'react-redux';
 import { FaRegCopy } from 'react-icons/fa6';
-import GreenButton from './DownloadButton';
 import { copyTextToClipboard } from '../../../../Redux/actions/ui';
 
 const useStyles = makeStyles((theme) => ({
@@ -36,6 +35,19 @@ const useStyles = makeStyles((theme) => ({
     fontSize: '14px',
     minWidth: 'unset',
     height: '20px',
+    color: 'black',
+    backgroundColor: theme.palette.primary.main,
+    '&:hover': {
+      backgroundColor: theme.palette.secondary.light,
+    },
+    borderRadius: '36px',
+    boxSizing: 'border-box',
+    lineHeight: 'unset',
+    textTransform: 'none',
+    '& span': {
+      whiteSpace: 'nowrap',
+    },
+    lineBreak: 'none',
   },
   monoValue: {
     fontFamily: 'Courier',
@@ -104,9 +116,9 @@ const PopperCopy = (props) => {
       >
         <div className={cl.popContent} style={inline}>
           <div>{text}</div>
-          <GreenButton onClick={copy} className={cl.button}>
+          <Button onClick={copy} className={cl.button}>
             <FaRegCopy />
-          </GreenButton>
+          </Button>
         </div>
       </Popper>
     </div>
