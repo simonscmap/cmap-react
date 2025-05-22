@@ -90,7 +90,15 @@ const Meta = (props) => {
     Spatial_Resolution,
     Table_Name,
     Temporal_Resolution,
+    Time_Max,
+    Time_Min,
   } = dataset;
+  if (typeof Time_Min !== 'string' || typeof Time_Max !== 'string') {
+    return '';
+  }
+
+  const min = Time_Min.slice(0, 10);
+  const max = Time_Max.slice(0, 10);
 
   const depthLevels = Depth_Max
     ? 'Multiple Depth Levels'
@@ -120,6 +128,10 @@ const Meta = (props) => {
                 <TableRowTextPair label={'Depth'} value={depthLevels} />
                 <TableRowTextPair label={'Source'} value={Data_Source} />
                 <TableRowTextPair label={'Distributor'} value={Distributor} />
+                <TableRowTextPair
+                  label={'Date Range'}
+                  value={`${min} – ${max}`}
+                />
               </TableBody>
             </Table>
           </TableContainer>
@@ -129,7 +141,6 @@ const Meta = (props) => {
           <div className={cl.group}>
             <div className={cl.special}>
               <SpatialCoverage dataset={dataset} />
-              <TemporalCoverage dataset={dataset} />
             </div>
           </div>
         </HideAtBreakPoint>
