@@ -37,57 +37,49 @@ export const SearchResultPure = (props) => {
   }
 
   return (
-    <div style={style} className="result-wrapper">
-      <div className={cl.wrapper_} key={`${index}_fsl_item`}>
-        <Paper className={cl.resultPaper} elevation={4}>
-          <div className={cl.wrapper}>
-            <div className={cl.title} {...extra}>
-              <DatasetTitleLink dataset={dataset} componentId={titleProp} />
-              <div className={cl.actionsContainer}>
-                <SubscribeButton
-                  shortName={Short_Name}
-                  componentId={subscribeProp}
-                />
-                <DownloadButtonOutlined
-                  shortName={Short_Name}
-                  componentId={downloadProp}
-                />
-              </div>
+    <div style={style} className={cl.wrapper_} key={`${index}_fsl_item`}>
+      <Paper className={cl.resultPaper} elevation={4}>
+        <div className={cl.wrapper}>
+          <div className={cl.title} {...extra}>
+            <DatasetTitleLink dataset={dataset} componentId={titleProp} />
+            <div className={cl.actionsContainer}>
+              <SubscribeButton
+                shortName={Short_Name}
+                componentId={subscribeProp}
+              />
+              <DownloadButtonOutlined
+                shortName={Short_Name}
+                componentId={downloadProp}
+              />
             </div>
-            <div className={cl.contentBox}>
-              <div className={cl.textContainer}>
-                <div className={cl.metadataContainer}>
-                  <div className={cl.actionBox}>
-                    <div className={cl.leftGroup}>
-                      {features?.ancillary && (
-                        <Chip
-                          color="primary"
-                          size="small"
-                          label="Ancillary Data"
-                        />
-                      )}
-                      {features?.ci && (
-                        <Chip
-                          color="primary"
-                          size="small"
-                          label="Continuously Updated"
-                        />
-                      )}
-                    </div>
-                    <div className={cl.rightGroup}></div>
-                  </div>
-                  <MetadataContent id="metadata-content" dataset={dataset} />
+          </div>
+          <div className={cl.contentBox}>
+            <div className={cl.metadataContainer}>
+              <div className={cl.actionBox}>
+                <div className={cl.leftGroup}>
+                  {features?.ancillary && (
+                    <Chip color="primary" size="small" label="Ancillary Data" />
+                  )}
+                  {features?.ci && (
+                    <Chip
+                      color="primary"
+                      size="small"
+                      label="Continuously Updated"
+                    />
+                  )}
                 </div>
+                <div className={cl.rightGroup}></div>
               </div>
-              <div className={cl.rightContent}>
-                <div className={cl.graphicContainer}>
-                  <img src={Icon_URL} />
-                </div>
+              <MetadataContent id="metadata-content" dataset={dataset} />
+            </div>
+            <div className={cl.rightContent}>
+              <div className={cl.graphicContainer}>
+                <img src={Icon_URL} />
               </div>
             </div>
           </div>
-        </Paper>
-      </div>
+        </div>
+      </Paper>
     </div>
   );
 };
