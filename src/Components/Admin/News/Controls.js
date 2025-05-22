@@ -2,7 +2,7 @@ import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Section, { Group } from '../../Common/Section';
 import { useSelector, useDispatch } from 'react-redux';
-import { WhiteButtonSM } from '../../Home/buttons';
+import { WhiteButtonSM } from '../../Common/Buttons';
 import {
   setSortTerm,
   setRankFilter,

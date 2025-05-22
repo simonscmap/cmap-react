@@ -11,7 +11,7 @@ import {
 
 import Page from '../Common/Page2';
 import Section from '../Common/Section';
-import { GreenButtonSM } from '../Home/buttons';
+import { GreenButtonSM } from '../Common/Buttons';
 import RegistrationStepper from './RegistrationStepper';
 
 const useStyles = makeStyles(() => ({
