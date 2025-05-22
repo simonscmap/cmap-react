@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { makeStyles, Typography, Tooltip } from '@material-ui/core';
+import { makeStyles, Typography } from '@material-ui/core';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import CopyButton from '../../../UI/CopyButton';
@@ -66,9 +66,7 @@ const TableRowTextPair = ({
     RenderValue = function InlineCopyValue() {
       return (
         <span className={cl.inlineCopy}>
-          <Tooltip title={value} placement="bottom-start">
-            <span className={`${cl.textTruncate} ${textClass}`}>{value}</span>
-          </Tooltip>
+          <span className={`${cl.textTruncate} ${textClass}`}>{value}</span>
           <CopyButton text={value} />
         </span>
       );
@@ -76,11 +74,7 @@ const TableRowTextPair = ({
     RenderValue.displayName = 'InlineCopyValue';
   } else {
     RenderValue = function DefaultValue() {
-      return (
-        <Tooltip title={value} placement="bottom-start">
-          <Typography className={textClass}>{value}</Typography>
-        </Tooltip>
-      );
+      return <Typography className={textClass}>{value}</Typography>;
     };
     RenderValue.displayName = 'DefaultValue';
   }
