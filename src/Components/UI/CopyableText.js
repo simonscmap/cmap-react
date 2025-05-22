@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import { Tooltip } from '@material-ui/core';
 import { copyTextToClipboard } from '../../Redux/actions/ui';
 
+// todo refactor with UI/CopyButton.js
 // Wraps a tooltip and span with click event handler for copying to clipboard
 const CopyableText = (props) => {
   const { tooltipPlacement, text, innerSpanProps, hideTooltip, textInTooltip } =

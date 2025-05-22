@@ -3,7 +3,7 @@ import { withStyles } from '@material-ui/core/styles';
 import React, { useState } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { nominateNewDataRequestSend } from '../../Redux/actions/user';
-import { GreenButton } from '../Home/buttons';
+import { GreenButton } from '../Common/Buttons';
 
 const styles = {
   container: {

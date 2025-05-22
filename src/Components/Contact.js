@@ -5,7 +5,7 @@ import { connect, useDispatch } from 'react-redux';
 import { contactUsRequestSend } from '../Redux/actions/user';
 import Banner from './Common/Banner';
 import Page from './Common/Page';
-import { GreenButton } from './Home/buttons';
+import { GreenButton } from './Common/Buttons';
 import requestStates from '../enums/asyncRequestStates';
 import Spacer from './Common/Spacer';
 import Spinner from './UI/Spinner';

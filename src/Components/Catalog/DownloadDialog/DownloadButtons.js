@@ -27,7 +27,7 @@ const GreenButtonFilled = withStyles((theme) => ({
   },
 }))(Button);
 
-const useFilledStyles = makeStyles((theme) => ({
+const useFilledStyles = makeStyles(() => ({
   buttonTextSpacer: {
     display: 'flex',
     flexDirection: 'row',
@@ -81,7 +81,7 @@ const GreenButtonOutlined = withStyles((theme) => ({
   },
 }))(Button);
 
-const useOutlinedStyles = makeStyles((theme) => ({
+const useOutlinedStyles = makeStyles(() => ({
   buttonTextSpacer: {
     display: 'flex',
     flexDirection: 'row',

@@ -1,6 +1,6 @@
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import { WhiteButtonSM } from '../Home/buttons';
+import { WhiteButtonSM } from '../Common/Buttons';
 import { useDispatch } from 'react-redux';
 import {
   promptGSILogin,

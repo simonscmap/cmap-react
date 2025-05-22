@@ -1,7 +1,7 @@
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import React from 'react';
-import { GreenButton } from './buttons';
+import { GreenButton } from '../Common/Buttons';
 import featureGridStyles from './featureGridStyles';
 import Section from './GridSection';
 import { useHistory } from 'react-router-dom';

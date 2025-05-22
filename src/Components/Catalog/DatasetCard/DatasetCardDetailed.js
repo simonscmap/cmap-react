@@ -1,19 +1,19 @@
 // An individual result from catalog search
+
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
-import { useDatasetFeatures } from '../../Utility/Catalog/useDatasetFeatures';
-import styles from './searchResultStyles';
-import MetadataContent from './SearchResultMetaDataContent';
-import HideAtBreakPoint from './Display/HideAtBreakPoint';
-import AncillaryDataChip from './Display/AncillaryDataChip';
-import ContinuousIngestionChip from './Display/ContinuousIngestionChip';
-import DatasetTitleLink from './Display/DatasetTitleLink';
-import { DownloadButtonFilled } from './DownloadDialog/DownloadButtons';
+import { Chip } from '@material-ui/core';
+import { useDatasetFeatures } from '../../../Utility/Catalog/useDatasetFeatures';
+import styles from './DatasetCardDetailed.styles';
+import MetadataContent from './DatasetCardContent';
+import HideAtBreakPoint from './ContentComponents/HideAtBreakPoint';
+import DatasetTitleLink from './DatasetTitleLink';
+import { DownloadButtonOutlined } from '../DownloadDialog/DownloadButtons';
 
-import SubscribeButton from '../User/Subscriptions/SubscribeButton';
-import { downloadDialogOpen } from '../../Redux/actions/ui';
+import SubscribeButton from '../../User/Subscriptions/SubscribeButton';
+import { downloadDialogOpen } from '../../../Redux/actions/ui';
 
 const useStyles = makeStyles(styles);
 
@@ -48,7 +48,7 @@ export const SearchResultPure = (props) => {
                   shortName={Short_Name}
                   componentId={subscribeProp}
                 />
-                <DownloadButtonFilled
+                <DownloadButtonOutlined
                   shortName={Short_Name}
                   componentId={downloadProp}
                 />
@@ -59,8 +59,20 @@ export const SearchResultPure = (props) => {
                 <div className={cl.metadataContainer}>
                   <div className={cl.actionBox}>
                     <div className={cl.leftGroup}>
-                      <AncillaryDataChip features={features} />
-                      <ContinuousIngestionChip features={features} />
+                      {features?.ancillary && (
+                        <Chip
+                          color="primary"
+                          size="small"
+                          label="Ancillary Data"
+                        />
+                      )}
+                      {features?.ci && (
+                        <Chip
+                          color="primary"
+                          size="small"
+                          label="Continuously Updated"
+                        />
+                      )}
                     </div>
                     <div className={cl.rightGroup}></div>
                   </div>

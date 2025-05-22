@@ -2,7 +2,7 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core';
 import PopperCopy from './PopperCopy';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   ackText: {
     '& p': {
       display: '-webkit-box',
