@@ -13,13 +13,19 @@ const DatasetTitleLink = (props) => {
 
   return (
     <div className={cl.linkContainer} {...componentId}>
-      <Link
-        component={RouterLink}
-        to={`/catalog/datasets/${Short_Name}`}
-        className={cl.titleLink}
+      <PopperCopy
+        text={Long_Name}
+        label="dataset-title"
+        contentStyle={{ width: '100%' }}
       >
-        <PopperCopy text={Long_Name} label="dataset-title" />
-      </Link>
+        <Link
+          component={RouterLink}
+          to={`/catalog/datasets/${Short_Name}`}
+          className={cl.titleLink}
+        >
+          {Long_Name}
+        </Link>
+      </PopperCopy>
     </div>
   );
 };

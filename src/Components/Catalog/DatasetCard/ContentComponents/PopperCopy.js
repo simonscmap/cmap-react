@@ -45,7 +45,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const PopperCopy = (props) => {
-  const { text, label, mono, contentStyle } = props;
+  const { text, label, mono, contentStyle, children } = props;
   const cl = useStyles();
   const dispatch = useDispatch();
 
@@ -72,13 +72,19 @@ const PopperCopy = (props) => {
 
   return (
     <div className={cl.container} onMouseLeave={handlePopoverClose}>
-      <Typography
-        component="p"
-        className={textClass}
-        onMouseEnter={handlePopoverOpen}
-      >
-        {text}
-      </Typography>
+      {children ? (
+        React.cloneElement(children, {
+          onMouseEnter: handlePopoverOpen,
+        })
+      ) : (
+        <Typography
+          component="p"
+          className={textClass}
+          onMouseEnter={handlePopoverOpen}
+        >
+          {text}
+        </Typography>
+      )}
       <Popper
         id={`mouseOverPopperControl_${label || 'x'}`}
         open={isOpen}
