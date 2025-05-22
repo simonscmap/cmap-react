@@ -12,4 +12,6 @@ const HideAtBreakPoint = React.memo((props) => {
   return <React.Fragment>{children}</React.Fragment>;
 });
 
+HideAtBreakPoint.displayName = 'HideAtBreakPoint';
+
 export default HideAtBreakPoint;
