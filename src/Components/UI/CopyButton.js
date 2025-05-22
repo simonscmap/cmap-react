@@ -1,5 +1,5 @@
-import React from 'react';
-import { makeStyles, Button } from '@material-ui/core';
+import React, { useState } from 'react';
+import { makeStyles, Button, Tooltip } from '@material-ui/core';
 import { FaRegCopy } from 'react-icons/fa6';
 
 // todo refactor with UI/CopyableText.js
@@ -34,19 +34,24 @@ const useStyles = makeStyles((theme) => ({
 
 const CopyButton = ({ text }) => {
   const cl = useStyles();
+  const [showTooltip, setShowTooltip] = useState(false);
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(text);
+      setShowTooltip(true);
+      setTimeout(() => setShowTooltip(false), 900);
     } catch (err) {
       console.error('Failed to copy text: ', err);
     }
   };
 
   return (
-    <Button onClick={handleCopy} className={cl.button} disableRipple>
-      <FaRegCopy className={cl.icon} />
-    </Button>
+    <Tooltip open={showTooltip} title="Copied!" placement="top" arrow>
+      <Button onClick={handleCopy} className={cl.button} disableRipple>
+        <FaRegCopy className={cl.icon} />
+      </Button>
+    </Tooltip>
   );
 };
 
