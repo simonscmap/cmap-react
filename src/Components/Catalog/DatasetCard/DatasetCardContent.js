@@ -9,28 +9,9 @@ import {
 } from './ContentComponents/TableRowPair';
 
 const useStyles = makeStyles(() => ({
-  gridContainer: {
-    // arrange the 3 metadata columns
-    height: '235px',
+  container: {
+    height: '100%',
     width: '100%',
-    display: 'inline-grid',
-    gridTemplateColumns: '3fr 1fr 1fr',
-    columnGap: '2em',
-
-    '@media (max-width: 2400px)': {
-      // sensors and regions column is hidden
-      gridTemplateColumns: '2fr 1fr',
-    },
-    '@media (max-width: 1960px)': {
-      // spatial and temporal extent column is hidden
-      gridTemplateColumns: 'unset',
-      gridAutoFlow: 'column',
-    },
-    '@media (max-width: 1570px)': {
-      // graphic is hidden
-      gridTemplateColumns: 'unset',
-      gridAutoFlow: 'column',
-    },
   },
   group: {
     height: '100%',
@@ -78,7 +59,7 @@ const Meta = (props) => {
 
   return (
     <React.Fragment>
-      <div className={cl.gridContainer}>
+      <div className={cl.container}>
         <div className={cl.group}>
           <TableContainer size="small">
             <Table>
