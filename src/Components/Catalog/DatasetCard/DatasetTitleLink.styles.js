@@ -41,6 +41,11 @@ const styles = (theme) => ({
     gap: '.75em',
     alignItems: 'center',
   },
+  inlineCopy: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '8px',
+  },
 });
 
 export default styles;

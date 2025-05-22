@@ -13,7 +13,7 @@ const DatasetTitleLink = (props) => {
 
   return (
     <div className={cl.linkContainer} {...componentId}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <span className={cl.inlineCopy}>
         <Link
           component={RouterLink}
           to={`/catalog/datasets/${Short_Name}`}
@@ -22,7 +22,7 @@ const DatasetTitleLink = (props) => {
           {Long_Name}
         </Link>
         <CopyButton text={Long_Name} />
-      </div>
+      </span>
     </div>
   );
 };
