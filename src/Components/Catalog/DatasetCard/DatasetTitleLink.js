@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
 import styles from './DatasetTitleLink.styles';
 import { FaRegCopy } from 'react-icons/fa6';
-import GreenButton from '../Display/DownloadButton';
+import GreenButton from './MetadataComponents/DownloadButton';
 import { copyTextToClipboard } from '../../../Redux/actions/ui';
 
 const useStyles = makeStyles(styles);

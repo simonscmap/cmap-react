@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { colors } from '../../Home/theme';
+import { colors } from '../../../Home/theme';
 import { CiCalendar } from 'react-icons/ci';
 
 const useStyles = makeStyles((theme) => ({

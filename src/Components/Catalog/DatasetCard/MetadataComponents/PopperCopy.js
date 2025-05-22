@@ -3,7 +3,7 @@ import { makeStyles, Typography, Popper } from '@material-ui/core';
 import { useDispatch } from 'react-redux';
 import { FaRegCopy } from 'react-icons/fa6';
 import GreenButton from './DownloadButton';
-import { copyTextToClipboard } from '../../../Redux/actions/ui';
+import { copyTextToClipboard } from '../../../../Redux/actions/ui';
 
 const useStyles = makeStyles((theme) => ({
   container: {

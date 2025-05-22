@@ -3,14 +3,14 @@ import { makeStyles, Typography } from '@material-ui/core';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableContainer from '@material-ui/core/TableContainer';
-import HideAtBreakPoint from '../Display/HideAtBreakPoint';
-import SpatialCoverage from '../Display/SpatialCoverage';
-import TemporalCoverage from '../Display/TemporalCoverage';
-import RegionsTable from '../Display/RegionsTable';
-import SensorsTable from '../Display/SensorsTable';
-import TableRowTextPair from '../Display/TableRowPair';
-import PopperCopy from '../Display/PopperCopy';
-import Ack from '../Display/Ack';
+import HideAtBreakPoint from './MetadataComponents/HideAtBreakPoint';
+import SpatialCoverage from './MetadataComponents/SpatialCoverage';
+import TemporalCoverage from './MetadataComponents/TemporalCoverage';
+import RegionsTable from './MetadataComponents/RegionsTable';
+import SensorsTable from './MetadataComponents/SensorsTable';
+import TableRowTextPair from './MetadataComponents/TableRowPair';
+import PopperCopy from './MetadataComponents/PopperCopy';
+import Ack from './MetadataComponents/Ack';
 
 const useStyles = makeStyles(() => ({
   gridContainer: {

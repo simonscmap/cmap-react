@@ -7,7 +7,7 @@ import Paper from '@material-ui/core/Paper';
 import { useDatasetFeatures } from '../../../Utility/Catalog/useDatasetFeatures';
 import styles from './DatasetCardDetailed.styles';
 import MetadataContent from './SearchResultMetaDataContent';
-import HideAtBreakPoint from '../Display/HideAtBreakPoint';
+import HideAtBreakPoint from './MetadataComponents/HideAtBreakPoint';
 import AncillaryDataChip from './AncillaryDataChip';
 import ContinuousIngestionChip from './ContinuousIngestionChip';
 import DatasetTitleLink from './DatasetTitleLink';
