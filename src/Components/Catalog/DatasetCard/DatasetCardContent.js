@@ -3,7 +3,10 @@ import { makeStyles } from '@material-ui/core';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableContainer from '@material-ui/core/TableContainer';
-import TableRowTextPair from './ContentComponents/TableRowPair';
+import {
+  TableRowTextPair,
+  TableRowImagePair,
+} from './ContentComponents/TableRowPair';
 
 const useStyles = makeStyles(() => ({
   gridContainer: {
@@ -123,6 +126,10 @@ const Meta = (props) => {
                   label={'Acknowledgment'}
                   value={Acknowledgement}
                   copyable={true}
+                />
+                <TableRowImagePair
+                  label={'Preview Image'}
+                  imageUrl={dataset.Icon_URL}
                 />
               </TableBody>
             </Table>

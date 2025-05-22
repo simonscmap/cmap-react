@@ -8,7 +8,6 @@ import { Chip } from '@material-ui/core';
 import { useDatasetFeatures } from '../../../Utility/Catalog/useDatasetFeatures';
 import styles from './DatasetCardDetailed.styles';
 import MetadataContent from './DatasetCardContent';
-import HideAtBreakPoint from './ContentComponents/HideAtBreakPoint';
 import DatasetTitleLink from './DatasetTitleLink';
 import { DownloadButtonOutlined } from '../DownloadDialog/DownloadButtons';
 
@@ -23,7 +22,7 @@ export const SearchResultPure = (props) => {
 
   const cl = useStyles();
 
-  const { Icon_URL, Short_Name } = dataset;
+  const { Short_Name } = dataset;
 
   const titleProp = {};
   const subscribeProp = {};
@@ -57,10 +56,10 @@ export const SearchResultPure = (props) => {
             <div className={cl.metadataContainer}>
               <div className={cl.actionBox}>
                 <div className={cl.leftGroup}>
-                  {features?.ancillary && (
+                  {features && features.ancillary && (
                     <Chip color="primary" size="small" label="Ancillary Data" />
                   )}
-                  {features?.ci && (
+                  {features && features.ci && (
                     <Chip
                       color="primary"
                       size="small"
@@ -71,11 +70,6 @@ export const SearchResultPure = (props) => {
                 <div className={cl.rightGroup}></div>
               </div>
               <MetadataContent id="metadata-content" dataset={dataset} />
-            </div>
-            <div className={cl.rightContent}>
-              <div className={cl.graphicContainer}>
-                <img src={Icon_URL} />
-              </div>
             </div>
           </div>
         </div>

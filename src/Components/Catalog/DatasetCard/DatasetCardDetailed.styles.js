@@ -9,7 +9,6 @@ const styles = () => ({
     height: '770px',
   },
   contentBox: {
-    width: '100%',
     display: 'flex',
     flexDirection: 'column',
     gap: '.5em',

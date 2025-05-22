@@ -74,4 +74,29 @@ const TableRowTextPair = ({ label, value, mono, copyable }) => {
 
 TableRowTextPair.displayName = 'TableRowTextPair';
 
-export default TableRowTextPair;
+const TableRowImagePair = ({ label, imageUrl }) => {
+  const cl = useStyles();
+
+  return (
+    <TableRow className={cl.row}>
+      <TableCell component="th" scope="row" className={cl.labelCell}>
+        <Typography className={cl.label}>{label}</Typography>
+      </TableCell>
+      <TableCell className={cl.cell}>
+        <img
+          src={imageUrl}
+          style={{
+            maxWidth: '100%',
+            maxHeight: '200px',
+            objectFit: 'contain',
+          }}
+          alt="Preview"
+        />
+      </TableCell>
+    </TableRow>
+  );
+};
+
+TableRowImagePair.displayName = 'TableRowImagePair';
+
+export { TableRowTextPair, TableRowImagePair };
