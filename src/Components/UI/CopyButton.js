@@ -1,8 +1,6 @@
 import React from 'react';
 import { makeStyles, Button } from '@material-ui/core';
 import { FaRegCopy } from 'react-icons/fa6';
-import { useDispatch } from 'react-redux';
-import { copyTextToClipboard } from '../../Redux/actions/ui';
 
 // todo refactor with UI/CopyableText.js
 const useStyles = makeStyles((theme) => ({
@@ -29,10 +27,13 @@ const useStyles = makeStyles((theme) => ({
 
 const CopyButton = ({ text }) => {
   const cl = useStyles();
-  const dispatch = useDispatch();
 
-  const handleCopy = () => {
-    dispatch(copyTextToClipboard(text));
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
   };
 
   return (
