@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import { withStyles, Button } from '@material-ui/core';
 
 const GreenButton = withStyles((theme) => ({
