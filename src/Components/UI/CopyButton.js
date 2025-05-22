@@ -9,10 +9,12 @@ const useStyles = makeStyles((theme) => ({
     fontSize: '14px',
     minWidth: 'unset',
     height: '20px',
-    color: 'black',
-    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.main,
+    backgroundColor: 'transparent',
+    border: 'none',
+    boxShadow: 'none',
     '&:hover': {
-      backgroundColor: theme.palette.secondary.light,
+      backgroundColor: 'rgba(105,255,242,0.08)',
     },
     borderRadius: '36px',
     boxSizing: 'border-box',
@@ -22,6 +24,11 @@ const useStyles = makeStyles((theme) => ({
       whiteSpace: 'nowrap',
     },
     lineBreak: 'none',
+  },
+  icon: {
+    color: theme.palette.primary.main,
+    fontSize: '1.1em',
+    verticalAlign: 'middle',
   },
 }));
 
@@ -37,8 +44,8 @@ const CopyButton = ({ text }) => {
   };
 
   return (
-    <Button onClick={handleCopy} className={cl.button}>
-      <FaRegCopy />
+    <Button onClick={handleCopy} className={cl.button} disableRipple>
+      <FaRegCopy className={cl.icon} />
     </Button>
   );
 };
