@@ -41,34 +41,6 @@ const styles = (theme) => ({
     gap: '.75em',
     alignItems: 'center',
   },
-  popover: {
-    pointerEvents: 'none',
-  },
-  paper: {
-    padding: theme.spacing(1),
-    background: 'rgba(0,0,0,0.2)',
-  },
-  popContent: {
-    display: 'inline-grid',
-    gridAutoFlow: 'column',
-    columnGap: '1em',
-    background: 'rgba(0,0,0,0.65)',
-    backdropFilter: 'blur(5px)',
-    border: `1px solid ${theme.palette.primary.light}`,
-    borderRadius: '4px',
-    padding: '.8em 1.5em',
-    color: 'white',
-    fontSize: '14px',
-    '& > div': {
-      alignSelf: 'center',
-      placeSelf: 'center',
-    },
-  },
-  button: {
-    padding: '2px 8px',
-    fontSize: '14px',
-    minWidth: 'unset',
-  },
 });
 
 export default styles;
