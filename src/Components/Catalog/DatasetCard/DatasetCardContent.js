@@ -135,13 +135,14 @@ const Meta = (props) => {
                 <TableRowTextPair
                   label={'Acknowledgment'}
                   value={Acknowledgement}
+                  copyable={true}
                 />
               </TableBody>
             </Table>
           </TableContainer>
         </div>
 
-        <HideAtBreakPoint lt={1960}>
+        {/* <HideAtBreakPoint lt={1960}>
           <div className={cl.group}>
             <div className={cl.special}>
               <SpatialCoverage dataset={dataset} />
@@ -154,7 +155,7 @@ const Meta = (props) => {
             <SensorsTable sensors={Sensors} />
             <RegionsTable regions={Regions} />
           </div>
-        </HideAtBreakPoint>
+        </HideAtBreakPoint> */}
       </div>
 
       {/* <div className={cl.ack}>

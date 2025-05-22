@@ -19,17 +19,9 @@ const useStyles = makeStyles((theme) => ({
   cell: {
     borderBottom: 'none',
     padding: '.1em .3em .5em 0em',
-    '& p': {
-      width: '100%',
-      whiteSpace: 'nowrap',
-      textOverflow: 'ellipsis',
-      overflow: 'hidden',
-      margin: 0,
-      display: 'inline',
-    },
   },
   label: {
-    color: 'rgb(135, 255, 244)', //theme.palette.secondary.light,
+    color: 'rgb(135, 255, 244)',
     whiteSpace: 'nowrap',
   },
   monoValue: {
@@ -41,6 +33,19 @@ const useStyles = makeStyles((theme) => ({
     display: 'inline-flex',
     alignItems: 'center',
     gap: '4px',
+    maxWidth: '100%',
+  },
+  textTruncate: {
+    display: 'inline-block',
+    maxWidth: '100%',
+    minWidth: 0,
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    verticalAlign: 'middle',
+  },
+  copyButton: {
+    flexShrink: 0,
   },
 }));
 
@@ -62,9 +67,7 @@ const TableRowTextPair = ({
       return (
         <span className={cl.inlineCopy}>
           <Tooltip title={value} placement="bottom-start">
-            <Typography className={textClass} noWrap>
-              {value}
-            </Typography>
+            <span className={`${cl.textTruncate} ${textClass}`}>{value}</span>
           </Tooltip>
           <CopyButton text={value} />
         </span>
