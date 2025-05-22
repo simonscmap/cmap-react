@@ -175,7 +175,7 @@ const SearchResults = (props) => {
           itemData={searchResults}
           itemCount={itemCount}
           height={listHeight}
-          itemSize={420}
+          itemSize={620}
           onScroll={onScroll}
         >
           {({ index, style }) => (
