@@ -10,7 +10,7 @@ import styles from './DatasetCardDetailed.styles';
 import MetadataContent from './DatasetCardContent';
 import HideAtBreakPoint from './ContentComponents/HideAtBreakPoint';
 import DatasetTitleLink from './DatasetTitleLink';
-import { DownloadButtonFilled } from '../DownloadDialog/DownloadButtons';
+import { DownloadButtonOutlined } from '../DownloadDialog/DownloadButtons';
 
 import SubscribeButton from '../../User/Subscriptions/SubscribeButton';
 import { downloadDialogOpen } from '../../../Redux/actions/ui';
@@ -48,7 +48,7 @@ export const SearchResultPure = (props) => {
                   shortName={Short_Name}
                   componentId={subscribeProp}
                 />
-                <DownloadButtonFilled
+                <DownloadButtonOutlined
                   shortName={Short_Name}
                   componentId={downloadProp}
                 />
