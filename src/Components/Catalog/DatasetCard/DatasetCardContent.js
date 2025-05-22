@@ -135,7 +135,7 @@ const Meta = (props) => {
           </div>
         </HideAtBreakPoint>
 
-        <HideAtBreakPoint lt={00}>
+        <HideAtBreakPoint lt={2400}>
           <div className={cl.group}>
             <SensorsTable sensors={Sensors} />
             <RegionsTable regions={Regions} />
