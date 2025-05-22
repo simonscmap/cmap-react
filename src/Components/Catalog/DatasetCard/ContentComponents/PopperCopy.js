@@ -1,54 +1,9 @@
-import React, { useState } from 'react';
-import { makeStyles, Typography, Popper, Button } from '@material-ui/core';
-import { useDispatch } from 'react-redux';
-import { FaRegCopy } from 'react-icons/fa6';
-import { copyTextToClipboard } from '../../../../Redux/actions/ui';
+import React from 'react';
+import { makeStyles, Typography } from '@material-ui/core';
+import HoverPopper from '../../../UI/HoverPopper';
+import CopyButton from '../../../UI/CopyButton';
 
 const useStyles = makeStyles((theme) => ({
-  container: {
-    display: 'inline-block',
-  },
-  popover: {
-    pointerEvents: 'none',
-  },
-  paper: {
-    padding: theme.spacing(1),
-  },
-  popContent: {
-    display: 'inline-grid',
-    gridAutoFlow: 'column',
-    columnGap: '1em',
-    background: 'rgba(0,0,0,0.65)',
-    backdropFilter: 'blur(5px)',
-    border: `1px solid ${theme.palette.primary.light}`,
-    borderRadius: '4px',
-    padding: '.8em 1.5em',
-    color: 'white',
-    fontSize: '14px',
-    '& > div': {
-      alignSelf: 'center',
-      placeSelf: 'center',
-    },
-  },
-  button: {
-    padding: '2px 8px',
-    fontSize: '14px',
-    minWidth: 'unset',
-    height: '20px',
-    color: 'black',
-    backgroundColor: theme.palette.primary.main,
-    '&:hover': {
-      backgroundColor: theme.palette.secondary.light,
-    },
-    borderRadius: '36px',
-    boxSizing: 'border-box',
-    lineHeight: 'unset',
-    textTransform: 'none',
-    '& span': {
-      whiteSpace: 'nowrap',
-    },
-    lineBreak: 'none',
-  },
   monoValue: {
     fontFamily: 'Courier',
     fontWeight: 'bold',
@@ -59,69 +14,29 @@ const useStyles = makeStyles((theme) => ({
 const PopperCopy = (props) => {
   const { text, label, mono, contentStyle, children } = props;
   const cl = useStyles();
-  const dispatch = useDispatch();
-
-  // Popover State & Event Handling
-  const [anchorEl, setAnchorEl] = useState(null);
-  const handlePopoverOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handlePopoverClose = () => {
-    setAnchorEl(null);
-  };
-
-  const isOpen = Boolean(anchorEl);
-
-  // Copy Text
-  const copy = () => {
-    dispatch(copyTextToClipboard(text));
-  };
-
   const textClass = mono ? cl.monoValue : '';
 
-  const inline = contentStyle || {};
+  const popperContent = (
+    <>
+      <div>{text}</div>
+      <CopyButton text={text} />
+    </>
+  );
 
   return (
-    <div className={cl.container} onMouseLeave={handlePopoverClose}>
+    <HoverPopper
+      content={popperContent}
+      label={label}
+      contentStyle={contentStyle}
+    >
       {children ? (
-        React.cloneElement(children, {
-          onMouseEnter: handlePopoverOpen,
-        })
+        children
       ) : (
-        <Typography
-          component="p"
-          className={textClass}
-          onMouseEnter={handlePopoverOpen}
-        >
+        <Typography component="p" className={textClass}>
           {text}
         </Typography>
       )}
-      <Popper
-        id={`mouseOverPopperControl_${label || 'x'}`}
-        open={isOpen}
-        anchorEl={anchorEl}
-        anchororigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
-        transformorigin={{
-          vertical: 'top',
-          horizontal: 'left',
-        }}
-        placement="bottom-end"
-        onClose={handlePopoverClose}
-        disablePortal={true}
-        style={{ zIndex: 9000 }}
-      >
-        <div className={cl.popContent} style={inline}>
-          <div>{text}</div>
-          <Button onClick={copy} className={cl.button}>
-            <FaRegCopy />
-          </Button>
-        </div>
-      </Popper>
-    </div>
+    </HoverPopper>
   );
 };
 
