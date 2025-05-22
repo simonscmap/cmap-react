@@ -18,6 +18,11 @@ const useStyles = makeStyles(() => ({
       margin: 0,
     },
   },
+  inlineCopy: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '4px',
+  },
 }));
 
 const Ack = (props) => {
@@ -27,9 +32,11 @@ const Ack = (props) => {
   return (
     <div className={cl.container}>
       <div className={cl.ackText}>
-        <p>{text}</p>
+        <span className={cl.inlineCopy}>
+          <p>{text}</p>
+          <CopyButton text={text} />
+        </span>
       </div>
-      <CopyButton text={text} />
     </div>
   );
 };
