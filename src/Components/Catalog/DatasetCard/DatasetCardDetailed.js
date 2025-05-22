@@ -76,7 +76,7 @@ export const SearchResultPure = (props) => {
                     </div>
                     <div className={cl.rightGroup}></div>
                   </div>
-                  <MetadataContent dataset={dataset} />
+                  <MetadataContent id="metadata-content" dataset={dataset} />
                 </div>
               </div>
               <div className={cl.rightContent}>

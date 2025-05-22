@@ -1,15 +1,9 @@
 import React from 'react';
-import { makeStyles, Typography } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableContainer from '@material-ui/core/TableContainer';
-import HideAtBreakPoint from './ContentComponents/HideAtBreakPoint';
-import SpatialCoverage from './ContentComponents/SpatialCoverage';
-import TemporalCoverage from './ContentComponents/TemporalCoverage';
-import RegionsTable from './ContentComponents/RegionsTable';
-import SensorsTable from './ContentComponents/SensorsTable';
 import TableRowTextPair from './ContentComponents/TableRowPair';
-import Ack from './ContentComponents/Ack';
 
 const useStyles = makeStyles(() => ({
   gridContainer: {
@@ -43,38 +37,6 @@ const useStyles = makeStyles(() => ({
       textOverflow: 'ellipsis',
     },
   },
-  special: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    height: '235px',
-    '& > div': {
-      // padding: '1em 1em 0 1em',
-    },
-  },
-  ack: {
-    width: '100%',
-    display: 'grid', // use grid, not flex, so that label div doesn't collapse below desired width
-    gridTemplateColumns: '200px 1fr',
-    paddingTop: '1em',
-  },
-  ackLabel: {
-    width: '200px',
-    paddingRight: '.3em',
-    textAlign: 'left',
-    '& p.MuiTypography-root': {
-      color: 'rgb(135, 255, 244)',
-      whiteSpace: 'nowrap',
-      fontSize: '.9em',
-    },
-  },
-  ackTextContainer: {
-    textAlign: 'left',
-    '& p.MuiTypography-root': {
-      fontSize: '.9em',
-    },
-  },
 }));
 
 const Meta = (props) => {
@@ -92,6 +54,10 @@ const Meta = (props) => {
     Temporal_Resolution,
     Time_Max,
     Time_Min,
+    Lat_Min,
+    Lat_Max,
+    Lon_Min,
+    Lon_Max,
   } = dataset;
   if (typeof Time_Min !== 'string' || typeof Time_Max !== 'string') {
     return '';
@@ -103,6 +69,9 @@ const Meta = (props) => {
   const depthLevels = Depth_Max
     ? 'Multiple Depth Levels'
     : 'Surface Level Data';
+
+  const latitudeRange = `${Lat_Min.toFixed(2)}°S – ${Lat_Max.toFixed(2)}°N`;
+  const longitudeRange = `${Lon_Min.toFixed(2)}°W – ${Lon_Max.toFixed(2)}°E`;
 
   return (
     <React.Fragment>
@@ -127,10 +96,28 @@ const Meta = (props) => {
                 />
                 <TableRowTextPair label={'Depth'} value={depthLevels} />
                 <TableRowTextPair label={'Source'} value={Data_Source} />
+                <TableRowTextPair
+                  label={'Regions'}
+                  value={Regions.split(',').join(', ')}
+                />
                 <TableRowTextPair label={'Distributor'} value={Distributor} />
+                <TableRowTextPair
+                  label={'Sensors'}
+                  value={Sensors.join(', ')}
+                />
                 <TableRowTextPair
                   label={'Date Range'}
                   value={`${min} – ${max}`}
+                />
+                <TableRowTextPair
+                  label={'Latitude Range'}
+                  value={latitudeRange}
+                  mono={true}
+                />
+                <TableRowTextPair
+                  label={'Longitude Range'}
+                  value={longitudeRange}
+                  mono={true}
                 />
                 <TableRowTextPair
                   label={'Acknowledgment'}
@@ -141,31 +128,7 @@ const Meta = (props) => {
             </Table>
           </TableContainer>
         </div>
-
-        {/* <HideAtBreakPoint lt={1960}>
-          <div className={cl.group}>
-            <div className={cl.special}>
-              <SpatialCoverage dataset={dataset} />
-            </div>
-          </div>
-        </HideAtBreakPoint>
-
-        <HideAtBreakPoint lt={2400}>
-          <div className={cl.group}>
-            <SensorsTable sensors={Sensors} />
-            <RegionsTable regions={Regions} />
-          </div>
-        </HideAtBreakPoint> */}
       </div>
-
-      {/* <div className={cl.ack}>
-        <div className={cl.ackLabel}>
-          <Typography>Acknowledgment</Typography>
-        </div>
-        <div className={cl.ackTextContainer}>
-          <Ack text={Acknowledgement} />
-        </div>
-      </div> */}
     </React.Fragment>
   );
 };
