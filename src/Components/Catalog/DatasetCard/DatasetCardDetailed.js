@@ -4,12 +4,11 @@ import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
+import { Chip } from '@material-ui/core';
 import { useDatasetFeatures } from '../../../Utility/Catalog/useDatasetFeatures';
 import styles from './DatasetCardDetailed.styles';
 import MetadataContent from './DatasetCardContent';
 import HideAtBreakPoint from './ContentComponents/HideAtBreakPoint';
-import AncillaryDataChip from './AncillaryDataChip';
-import ContinuousIngestionChip from './ContinuousIngestionChip';
 import DatasetTitleLink from './DatasetTitleLink';
 import { DownloadButtonFilled } from '../DownloadDialog/DownloadButtons';
 
@@ -60,8 +59,20 @@ export const SearchResultPure = (props) => {
                 <div className={cl.metadataContainer}>
                   <div className={cl.actionBox}>
                     <div className={cl.leftGroup}>
-                      <AncillaryDataChip features={features} />
-                      <ContinuousIngestionChip features={features} />
+                      {features?.ancillary && (
+                        <Chip
+                          color="primary"
+                          size="small"
+                          label="Ancillary Data"
+                        />
+                      )}
+                      {features?.ci && (
+                        <Chip
+                          color="primary"
+                          size="small"
+                          label="Continuously Updated"
+                        />
+                      )}
                     </div>
                     <div className={cl.rightGroup}></div>
                   </div>
