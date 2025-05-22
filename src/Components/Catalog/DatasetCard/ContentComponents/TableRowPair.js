@@ -47,6 +47,12 @@ const useStyles = makeStyles((theme) => ({
   copyButton: {
     flexShrink: 0,
   },
+  previewImage: {
+    maxWidth: '100%',
+    maxHeight: '200px',
+    objectFit: 'contain',
+    marginTop: '10px',
+  },
 }));
 
 const TableRowTextPair = ({ label, value, mono, copyable }) => {
@@ -83,15 +89,7 @@ const TableRowImagePair = ({ label, imageUrl }) => {
         <Typography className={cl.label}>{label}</Typography>
       </TableCell>
       <TableCell className={cl.cell}>
-        <img
-          src={imageUrl}
-          style={{
-            maxWidth: '100%',
-            maxHeight: '200px',
-            objectFit: 'contain',
-          }}
-          alt="Preview"
-        />
+        <img src={imageUrl} className={cl.previewImage} alt="Preview" />
       </TableCell>
     </TableRow>
   );
