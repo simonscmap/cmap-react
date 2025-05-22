@@ -30,6 +30,15 @@ const useStyles = makeStyles((theme) => ({
     fontSize: '1.1em',
     verticalAlign: 'middle',
   },
+  tooltip: {
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    color: '#333',
+    fontSize: '12px',
+    padding: '4px 8px',
+    borderRadius: '4px',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    fontWeight: 600,
+  },
 }));
 
 const CopyButton = ({ text }) => {
@@ -47,7 +56,13 @@ const CopyButton = ({ text }) => {
   };
 
   return (
-    <Tooltip open={showTooltip} title="Copied!" placement="top" arrow>
+    <Tooltip
+      open={showTooltip}
+      title="Copied!"
+      placement="top"
+      classes={{ tooltip: cl.tooltip }}
+      arrow={false}
+    >
       <Button onClick={handleCopy} className={cl.button} disableRipple>
         <FaRegCopy className={cl.icon} />
       </Button>
