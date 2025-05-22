@@ -2,7 +2,7 @@ import React from 'react';
 import { makeStyles, Link } from '@material-ui/core';
 import { Link as RouterLink } from 'react-router-dom';
 import styles from './DatasetTitleLink.styles';
-import PopperCopy from './ContentComponents/PopperCopy';
+import CopyButton from '../../UI/CopyButton';
 
 const useStyles = makeStyles(styles);
 
@@ -13,11 +13,7 @@ const DatasetTitleLink = (props) => {
 
   return (
     <div className={cl.linkContainer} {...componentId}>
-      <PopperCopy
-        text={Long_Name}
-        label="dataset-title"
-        contentStyle={{ width: '100%' }}
-      >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <Link
           component={RouterLink}
           to={`/catalog/datasets/${Short_Name}`}
@@ -25,7 +21,8 @@ const DatasetTitleLink = (props) => {
         >
           {Long_Name}
         </Link>
-      </PopperCopy>
+        <CopyButton text={Long_Name} />
+      </div>
     </div>
   );
 };

@@ -9,7 +9,7 @@ import TemporalCoverage from './ContentComponents/TemporalCoverage';
 import RegionsTable from './ContentComponents/RegionsTable';
 import SensorsTable from './ContentComponents/SensorsTable';
 import TableRowTextPair from './ContentComponents/TableRowPair';
-import PopperCopy from './ContentComponents/PopperCopy';
+import CopyButton from '../../UI/CopyButton';
 import Ack from './ContentComponents/Ack';
 
 const useStyles = makeStyles(() => ({
@@ -97,6 +97,13 @@ const Meta = (props) => {
     ? 'Multiple Depth Levels'
     : 'Surface Level Data';
 
+  const TableNameWithCopy = ({ text }) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <Typography className={cl.monoValue}>{text}</Typography>
+      <CopyButton text={text} />
+    </div>
+  );
+
   return (
     <React.Fragment>
       <div className={cl.gridContainer}>
@@ -108,7 +115,7 @@ const Meta = (props) => {
                   label={'Table Name'}
                   value={Table_Name}
                   mono={true}
-                  customComponent={PopperCopy}
+                  customComponent={TableNameWithCopy}
                 />
                 <TableRowTextPair
                   label={'Temporal Resolution'}
