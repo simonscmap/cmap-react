@@ -4,6 +4,7 @@ import { FaRegCopy } from 'react-icons/fa6';
 import { useDispatch } from 'react-redux';
 import { copyTextToClipboard } from '../../Redux/actions/ui';
 
+// todo refactor with UI/CopyableText.js
 const useStyles = makeStyles((theme) => ({
   button: {
     padding: '2px 8px',
