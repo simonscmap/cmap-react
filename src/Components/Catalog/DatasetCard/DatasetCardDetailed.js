@@ -80,11 +80,9 @@ export const SearchResultPure = (props) => {
                 </div>
               </div>
               <div className={cl.rightContent}>
-                <HideAtBreakPoint lt={1570}>
-                  <div className={cl.graphicContainer}>
-                    <img src={Icon_URL} />
-                  </div>
-                </HideAtBreakPoint>
+                <div className={cl.graphicContainer}>
+                  <img src={Icon_URL} />
+                </div>
               </div>
             </div>
           </div>

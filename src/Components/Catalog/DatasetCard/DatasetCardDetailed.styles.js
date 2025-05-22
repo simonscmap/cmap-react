@@ -6,11 +6,12 @@ const styles = () => ({
   },
   wrapper: {
     padding: '.9em',
-    height: '370px',
+    height: '770px',
   },
   contentBox: {
     width: '100%',
     display: 'flex',
+    flexDirection: 'column',
     gap: '.5em',
   },
   textContainer: {
