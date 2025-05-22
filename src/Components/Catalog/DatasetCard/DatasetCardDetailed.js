@@ -94,7 +94,7 @@ export const SearchResultPure = (props) => {
   );
 };
 
-const SearchResultState = (props) => {
+const DataSetCardDetailed = (props) => {
   const { index, style } = props;
 
   const dispatch = useDispatch();
@@ -127,4 +127,4 @@ const SearchResultState = (props) => {
   );
 };
 
-export default SearchResultState;
+export default DataSetCardDetailed;

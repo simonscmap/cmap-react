@@ -17,7 +17,7 @@ import ResizeObserver from 'react-resize-observer';
 import { withRouter } from 'react-router';
 import { FixedSizeList } from 'react-window';
 import '../../Stylesheets/catalog-search-results.css';
-import SearchResult from './DatasetCard/DatasetCardDetailed';
+import DataSetCardDetailed from './DatasetCard/DatasetCardDetailed';
 
 import {
   searchResultsFetch,
@@ -178,7 +178,9 @@ const SearchResults = (props) => {
           itemSize={420}
           onScroll={onScroll}
         >
-          {({ index, style }) => <SearchResult style={style} index={index} />}
+          {({ index, style }) => (
+            <DataSetCardDetailed style={style} index={index} />
+          )}
         </FixedSizeList>
       </Paper>
     </div>
