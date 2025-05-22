@@ -3,9 +3,9 @@ import { makeStyles, Link, Popper } from '@material-ui/core';
 import { useDispatch } from 'react-redux';
 
 import { Link as RouterLink } from 'react-router-dom';
-import styles from './DatasetTitleLink.styles';
+import styles from '../Display/DatasetTitleLink.styles';
 import { FaRegCopy } from 'react-icons/fa6';
-import GreenButton from './DownloadButton';
+import GreenButton from '../Display/DownloadButton';
 import { copyTextToClipboard } from '../../../Redux/actions/ui';
 
 const useStyles = makeStyles(styles);

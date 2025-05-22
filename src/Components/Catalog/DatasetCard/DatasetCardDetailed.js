@@ -6,11 +6,11 @@ import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import { useDatasetFeatures } from '../../../Utility/Catalog/useDatasetFeatures';
 import styles from './DatasetCardDetailed.styles';
-import MetadataContent from '../SearchResultMetaDataContent';
+import MetadataContent from './SearchResultMetaDataContent';
 import HideAtBreakPoint from '../Display/HideAtBreakPoint';
-import AncillaryDataChip from '../Display/AncillaryDataChip';
-import ContinuousIngestionChip from '../Display/ContinuousIngestionChip';
-import DatasetTitleLink from '../Display/DatasetTitleLink';
+import AncillaryDataChip from './AncillaryDataChip';
+import ContinuousIngestionChip from './ContinuousIngestionChip';
+import DatasetTitleLink from './DatasetTitleLink';
 import { DownloadButtonFilled } from '../DownloadDialog/DownloadButtons';
 
 import SubscribeButton from '../../User/Subscriptions/SubscribeButton';

@@ -3,16 +3,16 @@ import { makeStyles, Typography } from '@material-ui/core';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableContainer from '@material-ui/core/TableContainer';
-import HideAtBreakPoint from './Display/HideAtBreakPoint';
-import SpatialCoverage from './Display/SpatialCoverage';
-import TemporalCoverage from './Display/TemporalCoverage';
-import RegionsTable from './Display/RegionsTable';
-import SensorsTable from './Display/SensorsTable';
-import TableRowTextPair from './Display/TableRowPair';
-import PopperCopy from './Display/PopperCopy';
-import Ack from './Display/Ack';
+import HideAtBreakPoint from '../Display/HideAtBreakPoint';
+import SpatialCoverage from '../Display/SpatialCoverage';
+import TemporalCoverage from '../Display/TemporalCoverage';
+import RegionsTable from '../Display/RegionsTable';
+import SensorsTable from '../Display/SensorsTable';
+import TableRowTextPair from '../Display/TableRowPair';
+import PopperCopy from '../Display/PopperCopy';
+import Ack from '../Display/Ack';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   gridContainer: {
     // arrange the 3 metadata columns
     height: '235px',
