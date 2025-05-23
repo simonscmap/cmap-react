@@ -8,6 +8,15 @@ import CopyButton from '../../../UI/CopyButton';
 const useStyles = makeStyles((theme) => ({
   row: {
     fontSize: '.9em',
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
+  },
+  mobileRow: {
+    display: 'none',
+    [theme.breakpoints.down('sm')]: {
+      display: 'table-row',
+    },
   },
   labelCell: {
     verticalAlign: 'top',
@@ -53,15 +62,6 @@ const useStyles = makeStyles((theme) => ({
     objectFit: 'contain',
     marginTop: '10px',
   },
-  [theme.breakpoints.down('sm')]: {
-    labelCell: {
-      width: '100%',
-      minWidth: '100%',
-    },
-    valueCell: {
-      width: '100%',
-    },
-  },
 }));
 
 const TableRowPairGroup = ({
@@ -105,16 +105,37 @@ const TableRowPairGroup = ({
   };
 
   return (
-    <TableRow className={cl.row}>
-      <TableCell component="th" scope="row" className={cl.labelCell}>
-        <Typography className={cl.label}>{firstPair.label}</Typography>
-      </TableCell>
-      <TableCell className={cl.valueCell}>{renderValue(firstPair)}</TableCell>
-      <TableCell component="th" scope="row" className={cl.labelCell}>
-        <Typography className={cl.label}>{secondPair.label}</Typography>
-      </TableCell>
-      <TableCell className={cl.valueCell}>{renderValue(secondPair)}</TableCell>
-    </TableRow>
+    <>
+      {/* Desktop view - single row with four cells */}
+      <TableRow className={cl.row}>
+        <TableCell component="th" scope="row" className={cl.labelCell}>
+          <Typography className={cl.label}>{firstPair.label}</Typography>
+        </TableCell>
+        <TableCell className={cl.valueCell}>{renderValue(firstPair)}</TableCell>
+        <TableCell component="th" scope="row" className={cl.labelCell}>
+          <Typography className={cl.label}>{secondPair.label}</Typography>
+        </TableCell>
+        <TableCell className={cl.valueCell}>
+          {renderValue(secondPair)}
+        </TableCell>
+      </TableRow>
+
+      {/* Mobile view - two separate rows */}
+      <TableRow className={cl.mobileRow}>
+        <TableCell component="th" scope="row" className={cl.labelCell}>
+          <Typography className={cl.label}>{firstPair.label}</Typography>
+        </TableCell>
+        <TableCell className={cl.valueCell}>{renderValue(firstPair)}</TableCell>
+      </TableRow>
+      <TableRow className={cl.mobileRow}>
+        <TableCell component="th" scope="row" className={cl.labelCell}>
+          <Typography className={cl.label}>{secondPair.label}</Typography>
+        </TableCell>
+        <TableCell className={cl.valueCell}>
+          {renderValue(secondPair)}
+        </TableCell>
+      </TableRow>
+    </>
   );
 };
 
