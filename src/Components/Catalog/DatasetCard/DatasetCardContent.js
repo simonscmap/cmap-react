@@ -58,6 +58,9 @@ const Meta = (props) => {
   const depthLevels = Depth_Max
     ? 'Multiple Depth Levels'
     : 'Surface Level Data';
+  // Safely format Regions, only if it's a string
+  const formattedRegions =
+    typeof Regions === 'string' ? Regions.split(',').join(', ') : Regions;
 
   return (
     <React.Fragment>
@@ -82,10 +85,7 @@ const Meta = (props) => {
                 />
                 <TableRowTextPair label={'Depth'} value={depthLevels} />
                 <TableRowTextPair label={'Source'} value={Data_Source} />
-                <TableRowTextPair
-                  label={'Regions'}
-                  value={Regions?.split(',').join(', ')}
-                />
+                <TableRowTextPair label={'Regions'} value={formattedRegions} />
                 <TableRowTextPair label={'Distributor'} value={Distributor} />
                 <TableRowTextPair
                   label={'Sensors'}
