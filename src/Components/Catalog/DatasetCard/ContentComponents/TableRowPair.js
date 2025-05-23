@@ -110,4 +110,19 @@ const TableRowImagePair = ({ label, imageUrl }) => {
 
 TableRowImagePair.displayName = 'TableRowImagePair';
 
-export { TableRowTextPair, TableRowImagePair };
+const TableRowComponentPair = ({ label, component }) => {
+  const cl = useStyles();
+
+  return (
+    <TableRow className={cl.row}>
+      <TableCell component="th" scope="row" className={cl.labelCell}>
+        <Typography className={cl.label}>{label}</Typography>
+      </TableCell>
+      <TableCell className={cl.cell}>{component}</TableCell>
+    </TableRow>
+  );
+};
+
+TableRowComponentPair.displayName = 'TableRowComponentPair';
+
+export { TableRowTextPair, TableRowImagePair, TableRowComponentPair };
