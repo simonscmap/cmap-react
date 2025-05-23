@@ -25,6 +25,14 @@ const useStyles = makeStyles((theme) => ({
     width: '200px',
     minWidth: '200px',
   },
+  secondLabelCell: {
+    verticalAlign: 'top',
+    borderBottom: 'none',
+    padding: '.1em .3em .1em 0',
+    width: '200px',
+    minWidth: '200px',
+    paddingLeft: '20px',
+  },
   valueCell: {
     borderBottom: 'none',
     padding: '.1em .3em .5em 0em',
@@ -112,7 +120,7 @@ const TableRowPairGroup = ({
           <Typography className={cl.label}>{firstPair.label}</Typography>
         </TableCell>
         <TableCell className={cl.valueCell}>{renderValue(firstPair)}</TableCell>
-        <TableCell component="th" scope="row" className={cl.labelCell}>
+        <TableCell component="th" scope="row" className={cl.secondLabelCell}>
           <Typography className={cl.label}>{secondPair.label}</Typography>
         </TableCell>
         <TableCell className={cl.valueCell}>
