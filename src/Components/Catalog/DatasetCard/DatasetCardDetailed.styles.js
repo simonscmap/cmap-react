@@ -45,9 +45,9 @@ const styles = () => ({
     gap: '5px',
   },
   actionsContainer: {
-    display: 'inline-block',
-    whiteSpace: 'nowrap',
-    marginTop: '-4px',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
     '& > div': {
       verticalAlign: 'middle',
     },
@@ -71,6 +71,17 @@ const styles = () => ({
       gap: '.5em',
       alignItems: 'center',
     },
+  },
+  buttonGroup: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  chipGroup: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: '20px',
   },
 });
 

@@ -47,28 +47,19 @@ export const SearchResultPure = (props) => {
               <div className={cl.actionBox}>
                 <div className={cl.leftGroup}>
                   <div className={cl.actionsContainer}>
-                    <SubscribeButton
-                      shortName={Short_Name}
-                      componentId={subscribeProp}
-                    />
-                    <DownloadButtonOutlined
-                      shortName={Short_Name}
-                      componentId={downloadProp}
-                    />
-                    {features && features.ancillary && (
-                      <Chip
-                        color="primary"
-                        size="small"
-                        label="Ancillary Data"
+                    <div className={cl.buttonGroup}>
+                      <SubscribeButton
+                        shortName={Short_Name}
+                        componentId={subscribeProp}
                       />
-                    )}
-                    {features && features.ci && (
-                      <Chip
-                        color="primary"
-                        size="small"
-                        label="Continuously Updated"
+                      <DownloadButtonOutlined
+                        shortName={Short_Name}
+                        componentId={downloadProp}
                       />
-                    )}
+                    </div>
+                    <div className={cl.chipGroup}>
+                      <FeatureChips features={features} />
+                    </div>
                   </div>
                 </div>
                 <div className={cl.rightGroup}></div>
@@ -81,6 +72,23 @@ export const SearchResultPure = (props) => {
     </div>
   );
 };
+
+// FeatureChips component to render feature chips with left margin
+function FeatureChips({ features }) {
+  if (!features) {
+    return null;
+  }
+  return (
+    <div style={{ display: 'flex', gap: '5px' }}>
+      {features.ancillary && (
+        <Chip color="primary" size="small" label="Ancillary Data" />
+      )}
+      {features.ci && (
+        <Chip color="primary" size="small" label="Continuously Updated" />
+      )}
+    </div>
+  );
+}
 
 const DataSetCardDetailed = (props) => {
   const { index, style } = props;
