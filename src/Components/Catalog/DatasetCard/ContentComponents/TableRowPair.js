@@ -23,17 +23,23 @@ const useStyles = makeStyles((theme) => ({
   label: {
     color: 'rgb(135, 255, 244)',
     whiteSpace: 'nowrap',
+    fontSize: '0.9em',
   },
   monoValue: {
     fontFamily: 'Courier',
     fontWeight: 'bold',
     color: theme.palette.common.white,
+    fontSize: '0.9em',
+  },
+  value: {
+    fontSize: '0.9em',
   },
   inlineCopy: {
     display: 'inline-flex',
     alignItems: 'center',
     gap: '4px',
     maxWidth: '100%',
+    fontSize: '0.9em',
   },
   textTruncate: {
     display: 'inline-block',
@@ -57,7 +63,7 @@ const useStyles = makeStyles((theme) => ({
 
 const TableRowTextPair = ({ label, value, mono, copyable }) => {
   const cl = useStyles();
-  const textClass = mono ? cl.monoValue : '';
+  const textClass = mono ? cl.monoValue : cl.value;
   // Normalize empty values to empty string
   // Normalize empty values to "N/A" and warn on non-string inputs
   let normalizedValue = 'N/A';
