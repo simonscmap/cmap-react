@@ -23,6 +23,7 @@ const styles = (theme) => ({
     '&:visited': {
       color: '#69FFF2',
     },
+    fontSize: '.85em',
   },
   downloadLink: {
     color: theme.palette.primary.main,
