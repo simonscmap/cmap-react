@@ -3,7 +3,10 @@ import { makeStyles } from '@material-ui/core';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableContainer from '@material-ui/core/TableContainer';
-import { TableRowTextPair } from './ContentComponents/TableRowPair';
+import {
+  TableRowTextPair,
+  TableRowImagePair,
+} from './ContentComponents/TableRowPair';
 import TableRowPairGroup from './ContentComponents/TableRowPairGroup';
 import SpatialCoverage from './ContentComponents/SpatialCoverage';
 
@@ -98,16 +101,9 @@ const Meta = (props) => {
                   copyable={true}
                 />
                 {Icon_URL && (
-                  <TableRowPairGroup
-                    firstPair={{
-                      type: 'image',
-                      label: 'Preview Image',
-                      value: Icon_URL,
-                    }}
-                    secondPair={{
-                      type: 'component',
-                      component: <SpatialCoverage dataset={dataset} />,
-                    }}
+                  <TableRowImagePair
+                    label={'Preview Image'}
+                    imageUrl={Icon_URL}
                   />
                 )}
               </TableBody>
