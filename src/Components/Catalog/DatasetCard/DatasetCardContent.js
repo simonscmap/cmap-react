@@ -61,6 +61,10 @@ const Meta = (props) => {
   // Safely format Regions, only if it's a string
   const formattedRegions =
     typeof Regions === 'string' ? Regions.split(',').join(', ') : Regions;
+  // Safely format Sensors, only if it's an array
+  const formattedSensors = Array.isArray(Sensors)
+    ? Sensors.join(', ')
+    : Sensors;
 
   return (
     <React.Fragment>
@@ -87,10 +91,7 @@ const Meta = (props) => {
                 <TableRowTextPair label={'Source'} value={Data_Source} />
                 <TableRowTextPair label={'Regions'} value={formattedRegions} />
                 <TableRowTextPair label={'Distributor'} value={Distributor} />
-                <TableRowTextPair
-                  label={'Sensors'}
-                  value={Sensors?.join(', ')}
-                />
+                <TableRowTextPair label={'Sensors'} value={formattedSensors} />
                 <TableRowTextPair
                   label={'Date Range'}
                   value={`${min} – ${max}`}
