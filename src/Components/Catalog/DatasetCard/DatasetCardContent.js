@@ -49,8 +49,8 @@ const Meta = (props) => {
   const min = typeof Time_Min === 'string' ? Time_Min.slice(0, 10) : Time_Min;
   const max = typeof Time_Max === 'string' ? Time_Max.slice(0, 10) : Time_Max;
 
-  const latitudeRange = `${Lat_Min.toFixed(2)}°S – ${Lat_Max.toFixed(2)}°N`;
-  const longitudeRange = `${Lon_Min.toFixed(2)}°W – ${Lon_Max.toFixed(2)}°E`;
+  const latitudeRange = `${Lat_Min?.toFixed(2)}°S – ${Lat_Max?.toFixed(2)}°N`;
+  const longitudeRange = `${Lon_Min?.toFixed(2)}°W – ${Lon_Max?.toFixed(2)}°E`;
 
   const depthLevels = Depth_Max
     ? 'Multiple Depth Levels'
