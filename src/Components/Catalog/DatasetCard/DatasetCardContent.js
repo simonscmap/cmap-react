@@ -8,7 +8,6 @@ import {
   TableRowImagePair,
   TableRowComponentPair,
 } from './ContentComponents/TableRowPair';
-import TableRowPairGroup from './ContentComponents/TableRowPairGroup';
 import SpatialCoverage from './ContentComponents/SpatialCoverage';
 
 const useStyles = makeStyles(() => ({
