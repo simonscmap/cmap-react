@@ -44,6 +44,7 @@ const Meta = (props) => {
     Time_Max,
     Time_Min,
   } = dataset;
+
   if (typeof Time_Min !== 'string' || typeof Time_Max !== 'string') {
     return '';
   }
@@ -51,12 +52,12 @@ const Meta = (props) => {
   const min = Time_Min.slice(0, 10);
   const max = Time_Max.slice(0, 10);
 
+  const latitudeRange = `${Lat_Min.toFixed(2)}°S – ${Lat_Max.toFixed(2)}°N`;
+  const longitudeRange = `${Lon_Min.toFixed(2)}°W – ${Lon_Max.toFixed(2)}°E`;
+
   const depthLevels = Depth_Max
     ? 'Multiple Depth Levels'
     : 'Surface Level Data';
-
-  const latitudeRange = `${Lat_Min.toFixed(2)}°S – ${Lat_Max.toFixed(2)}°N`;
-  const longitudeRange = `${Lon_Min.toFixed(2)}°W – ${Lon_Max.toFixed(2)}°E`;
 
   return (
     <React.Fragment>
