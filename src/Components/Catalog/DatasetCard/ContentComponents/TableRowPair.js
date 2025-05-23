@@ -59,7 +59,16 @@ const TableRowTextPair = ({ label, value, mono, copyable }) => {
   const cl = useStyles();
   const textClass = mono ? cl.monoValue : '';
   // Normalize empty values to empty string
-  const normalizedValue = value ?? '';
+  // Normalize empty values to "N/A" and warn on non-string inputs
+  let normalizedValue = 'N/A';
+  if (value !== null && value !== undefined) {
+    if (typeof value !== 'string') {
+      console.warn('TableRowTextPair received non-string value:', value);
+      normalizedValue = 'N/A';
+    } else {
+      normalizedValue = value.trim() || 'N/A';
+    }
+  }
 
   return (
     <TableRow className={cl.row}>
