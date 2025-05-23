@@ -82,12 +82,12 @@ const Meta = (props) => {
                 <TableRowTextPair label={'Source'} value={Data_Source} />
                 <TableRowTextPair
                   label={'Regions'}
-                  value={Regions.split(',').join(', ')}
+                  value={Regions?.split(',').join(', ')}
                 />
                 <TableRowTextPair label={'Distributor'} value={Distributor} />
                 <TableRowTextPair
                   label={'Sensors'}
-                  value={Sensors.join(', ')}
+                  value={Sensors?.join(', ')}
                 />
                 <TableRowTextPair
                   label={'Date Range'}
