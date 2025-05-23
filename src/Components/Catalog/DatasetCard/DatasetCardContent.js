@@ -45,12 +45,9 @@ const Meta = (props) => {
     Time_Min,
   } = dataset;
 
-  if (typeof Time_Min !== 'string' || typeof Time_Max !== 'string') {
-    return '';
-  }
-
-  const min = Time_Min.slice(0, 10);
-  const max = Time_Max.slice(0, 10);
+  // Safely format time values, only if they're strings
+  const min = typeof Time_Min === 'string' ? Time_Min.slice(0, 10) : Time_Min;
+  const max = typeof Time_Max === 'string' ? Time_Max.slice(0, 10) : Time_Max;
 
   const latitudeRange = `${Lat_Min.toFixed(2)}°S – ${Lat_Max.toFixed(2)}°N`;
   const longitudeRange = `${Lon_Min.toFixed(2)}°W – ${Lon_Max.toFixed(2)}°E`;
