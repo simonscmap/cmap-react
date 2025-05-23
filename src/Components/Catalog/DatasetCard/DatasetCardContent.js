@@ -6,6 +6,7 @@ import TableContainer from '@material-ui/core/TableContainer';
 import {
   TableRowTextPair,
   TableRowImagePair,
+  TableRowComponentPair,
 } from './ContentComponents/TableRowPair';
 import TableRowPairGroup from './ContentComponents/TableRowPairGroup';
 import SpatialCoverage from './ContentComponents/SpatialCoverage';
@@ -34,10 +35,10 @@ const Meta = (props) => {
     Depth_Max,
     Distributor,
     Icon_URL,
-    Lat_Max,
-    Lat_Min,
-    Lon_Max,
-    Lon_Min,
+    // Lat_Max,
+    // Lat_Min,
+    // Lon_Max,
+    // Lon_Min,
     Regions,
     Sensors,
     Spatial_Resolution,
@@ -51,8 +52,9 @@ const Meta = (props) => {
   const min = typeof Time_Min === 'string' ? Time_Min.slice(0, 10) : Time_Min;
   const max = typeof Time_Max === 'string' ? Time_Max.slice(0, 10) : Time_Max;
   const dateRange = `${min} – ${max}`;
-  const latRange = `${Lat_Min?.toFixed(2)}°S – ${Lat_Max?.toFixed(2)}°N`;
-  const lonRange = `${Lon_Min?.toFixed(2)}°W – ${Lon_Max?.toFixed(2)}°E`;
+
+  // const latRange = `${Lat_Min?.toFixed(2)}°S – ${Lat_Max?.toFixed(2)}°N`;
+  // const lonRange = `${Lon_Min?.toFixed(2)}°W – ${Lon_Max?.toFixed(2)}°E`;
 
   // Safely format Regions, only if it's a string
   const formattedRegions =
@@ -93,8 +95,8 @@ const Meta = (props) => {
                 <TableRowTextPair label={'Distributor'} value={Distributor} />
                 <TableRowTextPair label={'Sensors'} value={formattedSensors} />
                 <TableRowTextPair label={'Date Range'} value={dateRange} />
-                <TableRowTextPair label={'Latitude Range'} value={latRange} />
-                <TableRowTextPair label={'Longitude Range'} value={lonRange} />
+                {/* <TableRowTextPair label={'Latitude Range'} value={latRange} />
+                <TableRowTextPair label={'Longitude Range'} value={lonRange} /> */}
                 <TableRowTextPair
                   label={'Acknowledgment'}
                   value={Acknowledgement}
@@ -106,6 +108,10 @@ const Meta = (props) => {
                     imageUrl={Icon_URL}
                   />
                 )}
+                <TableRowComponentPair
+                  label={'Spatial Coverage'}
+                  component={<SpatialCoverage dataset={dataset} />}
+                />
               </TableBody>
             </Table>
           </TableContainer>
