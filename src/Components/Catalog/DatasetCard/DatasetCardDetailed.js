@@ -41,31 +41,35 @@ export const SearchResultPure = (props) => {
         <div className={cl.wrapper}>
           <div className={cl.title} {...extra}>
             <DatasetTitleLink dataset={dataset} componentId={titleProp} />
-            <div className={cl.actionsContainer}>
-              <SubscribeButton
-                shortName={Short_Name}
-                componentId={subscribeProp}
-              />
-              <DownloadButtonOutlined
-                shortName={Short_Name}
-                componentId={downloadProp}
-              />
-            </div>
           </div>
           <div className={cl.contentBox}>
             <div className={cl.metadataContainer}>
               <div className={cl.actionBox}>
                 <div className={cl.leftGroup}>
-                  {features && features.ancillary && (
-                    <Chip color="primary" size="small" label="Ancillary Data" />
-                  )}
-                  {features && features.ci && (
-                    <Chip
-                      color="primary"
-                      size="small"
-                      label="Continuously Updated"
+                  <div className={cl.actionsContainer}>
+                    <SubscribeButton
+                      shortName={Short_Name}
+                      componentId={subscribeProp}
                     />
-                  )}
+                    <DownloadButtonOutlined
+                      shortName={Short_Name}
+                      componentId={downloadProp}
+                    />
+                    {features && features.ancillary && (
+                      <Chip
+                        color="primary"
+                        size="small"
+                        label="Ancillary Data"
+                      />
+                    )}
+                    {features && features.ci && (
+                      <Chip
+                        color="primary"
+                        size="small"
+                        label="Continuously Updated"
+                      />
+                    )}
+                  </div>
                 </div>
                 <div className={cl.rightGroup}></div>
               </div>
