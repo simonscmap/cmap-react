@@ -48,21 +48,22 @@ const Meta = (props) => {
   // Safely format time values, only if they're strings
   const min = typeof Time_Min === 'string' ? Time_Min.slice(0, 10) : Time_Min;
   const max = typeof Time_Max === 'string' ? Time_Max.slice(0, 10) : Time_Max;
+  const dateRange = `${min} – ${max}`;
+  const latRange = `${Lat_Min?.toFixed(2)}°S – ${Lat_Max?.toFixed(2)}°N`;
+  const lonRange = `${Lon_Min?.toFixed(2)}°W – ${Lon_Max?.toFixed(2)}°E`;
 
-  const latitudeRange = `${Lat_Min?.toFixed(2)}°S – ${Lat_Max?.toFixed(2)}°N`;
-  const longitudeRange = `${Lon_Min?.toFixed(2)}°W – ${Lon_Max?.toFixed(2)}°E`;
-
-  const depthLevels = Depth_Max
-    ? 'Multiple Depth Levels'
-    : 'Surface Level Data';
   // Safely format Regions, only if it's a string
   const formattedRegions =
     typeof Regions === 'string' ? Regions.split(',').join(', ') : Regions;
+
   // Safely format Sensors, only if it's an array
   const formattedSensors = Array.isArray(Sensors)
     ? Sensors.join(', ')
     : Sensors;
 
+  const depthLevels = Depth_Max
+    ? 'Multiple Depth Levels'
+    : 'Surface Level Data';
   return (
     <React.Fragment>
       <div className={cl.container}>
@@ -89,20 +90,9 @@ const Meta = (props) => {
                 <TableRowTextPair label={'Regions'} value={formattedRegions} />
                 <TableRowTextPair label={'Distributor'} value={Distributor} />
                 <TableRowTextPair label={'Sensors'} value={formattedSensors} />
-                <TableRowTextPair
-                  label={'Date Range'}
-                  value={`${min} – ${max}`}
-                />
-                <TableRowTextPair
-                  label={'Latitude Range'}
-                  value={latitudeRange}
-                  mono={true}
-                />
-                <TableRowTextPair
-                  label={'Longitude Range'}
-                  value={longitudeRange}
-                  mono={true}
-                />
+                <TableRowTextPair label={'Date Range'} value={dateRange} />
+                <TableRowTextPair label={'Latitude Range'} value={latRange} />
+                <TableRowTextPair label={'Longitude Range'} value={lonRange} />
                 <TableRowTextPair
                   label={'Acknowledgment'}
                   value={Acknowledgement}
