@@ -8,13 +8,13 @@ import CopyButton from '../../../UI/CopyButton';
 const useStyles = makeStyles((theme) => ({
   row: {
     fontSize: '.9em',
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       display: 'none',
     },
   },
   mobileRow: {
     display: 'none',
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       display: 'table-row',
     },
   },

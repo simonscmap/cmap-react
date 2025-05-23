@@ -5,6 +5,7 @@ import TableBody from '@material-ui/core/TableBody';
 import TableContainer from '@material-ui/core/TableContainer';
 import { TableRowTextPair } from './ContentComponents/TableRowPair';
 import TableRowPairGroup from './ContentComponents/TableRowPairGroup';
+import SpatialCoverage from './ContentComponents/SpatialCoverage';
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -100,13 +101,12 @@ const Meta = (props) => {
                   <TableRowPairGroup
                     firstPair={{
                       type: 'image',
-                      label: 'Preview Image 1',
+                      label: 'Preview Image',
                       value: Icon_URL,
                     }}
                     secondPair={{
-                      type: 'image',
-                      label: 'Preview Image 2',
-                      value: Icon_URL,
+                      type: 'component',
+                      component: <SpatialCoverage dataset={dataset} />,
                     }}
                   />
                 )}
