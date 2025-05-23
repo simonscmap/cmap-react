@@ -5,6 +5,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import CopyButton from '../../../UI/CopyButton';
 
+const fontSize = '1em';
 const useStyles = makeStyles((theme) => ({
   row: {
     fontSize: '.9em',
@@ -23,23 +24,23 @@ const useStyles = makeStyles((theme) => ({
   label: {
     color: 'rgb(135, 255, 244)',
     whiteSpace: 'nowrap',
-    fontSize: '0.9em',
+    fontSize: fontSize,
   },
   monoValue: {
     fontFamily: 'Courier',
     fontWeight: 'bold',
     color: theme.palette.common.white,
-    fontSize: '0.9em',
+    fontSize: fontSize,
   },
   value: {
-    fontSize: '0.9em',
+    fontSize: fontSize,
   },
   inlineCopy: {
     display: 'inline-flex',
     alignItems: 'center',
     gap: '4px',
     maxWidth: '100%',
-    fontSize: '0.9em',
+    fontSize: fontSize,
   },
   textTruncate: {
     display: 'inline-block',
