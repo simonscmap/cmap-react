@@ -31,6 +31,11 @@ const Meta = (props) => {
     Data_Source,
     Depth_Max,
     Distributor,
+    Icon_URL,
+    Lat_Max,
+    Lat_Min,
+    Lon_Max,
+    Lon_Min,
     Regions,
     Sensors,
     Spatial_Resolution,
@@ -38,10 +43,6 @@ const Meta = (props) => {
     Temporal_Resolution,
     Time_Max,
     Time_Min,
-    Lat_Min,
-    Lat_Max,
-    Lon_Min,
-    Lon_Max,
   } = dataset;
   if (typeof Time_Min !== 'string' || typeof Time_Max !== 'string') {
     return '';
@@ -108,10 +109,12 @@ const Meta = (props) => {
                   value={Acknowledgement}
                   copyable={true}
                 />
-                <TableRowImagePair
-                  label={'Preview Image'}
-                  imageUrl={dataset.Icon_URL}
-                />
+                {Icon_URL && (
+                  <TableRowImagePair
+                    label={'Preview Image'}
+                    imageUrl={dataset.Icon_URL}
+                  />
+                )}
               </TableBody>
             </Table>
           </TableContainer>

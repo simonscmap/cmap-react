@@ -58,6 +58,8 @@ const useStyles = makeStyles((theme) => ({
 const TableRowTextPair = ({ label, value, mono, copyable }) => {
   const cl = useStyles();
   const textClass = mono ? cl.monoValue : '';
+  // Normalize empty values to empty string
+  const normalizedValue = value ?? '';
 
   return (
     <TableRow className={cl.row}>
@@ -67,11 +69,13 @@ const TableRowTextPair = ({ label, value, mono, copyable }) => {
       <TableCell className={cl.cell}>
         {copyable ? (
           <Typography className={cl.inlineCopy}>
-            <span className={`${cl.textTruncate} ${textClass}`}>{value}</span>
-            <CopyButton text={value} className={cl.copyButton} />
+            <span className={`${cl.textTruncate} ${textClass}`}>
+              {normalizedValue}
+            </span>
+            <CopyButton text={normalizedValue} className={cl.copyButton} />
           </Typography>
         ) : (
-          <Typography className={textClass}>{value}</Typography>
+          <Typography className={textClass}>{normalizedValue}</Typography>
         )}
       </TableCell>
     </TableRow>
