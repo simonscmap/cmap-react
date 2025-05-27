@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-import { makeStyles, Typography } from '@material-ui/core';
-import TableCell from '@material-ui/core/TableCell';
-import TableRow from '@material-ui/core/TableRow';
+import { makeStyles, TableCell, TableRow, Typography } from '@material-ui/core';
+
 import CopyButton from '../../../UI/CopyButton';
 
 const fontSize = '1em';
@@ -63,6 +62,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const TableRowTextPair = ({ label, value, mono, copyable }) => {
+  const [expanded, setExpanded] = useState(false);
+
   const cl = useStyles();
   const textClass = mono ? cl.monoValue : cl.value;
   // Normalize empty values to empty string
