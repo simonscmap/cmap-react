@@ -86,12 +86,16 @@ const TableRowTextPair = ({ label, value, mono, copyable }) => {
       <TableCell className={cl.cell}>
         {copyable ? (
           <Typography className={cl.inlineCopy}>
-            <span className={`${cl.textTruncate} ${textClass}`}>
+            <span
+              className={`${!expanded ? cl.textTruncate : ''} ${textClass}`}
+            >
               {normalizedValue}
             </span>
-            <span onClick={() => setExpanded(!expanded)}>
-              {expanded ? 'Show Less' : 'Show More'}
-            </span>
+            {normalizedValue.length > 100 && (
+              <div onClick={() => setExpanded(!expanded)}>
+                {expanded ? '[Show Less]' : '[Show More]'}
+              </div>
+            )}
             <CopyButton text={normalizedValue} className={cl.copyButton} />
           </Typography>
         ) : (
