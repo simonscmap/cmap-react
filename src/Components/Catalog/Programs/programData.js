@@ -76,7 +76,7 @@ export const data = {
     link: 'https://ccomp-stc.org/',
     blurb:
       'The Center for Chemical Currencies of a Microbial Planet (C-CoMP) leverages recent advances in analytical and data sciences, incorporates new ocean sampling technologies and an open-science framework, and engages scientists, educators, and policy-makers who bring a variety of expertise, experiences, and viewpoints to bear on promoting a deeper understanding and appreciation of the chemicals and microbial processes that underpin ocean ecosystems and other microbiomes that affect our daily life.',
-    logo: 'amt-notext-logo.png',
+    logo: 'c-comp-logo.png',
     detail: [
       'The Center for Chemical Currencies of a Microbial Planet (C-CoMP) leverages recent advances in analytical and data sciences, incorporates new ocean sampling technologies and an open-science framework, and engages scientists, educators, and policy-makers who bring a variety of expertise, experiences, and viewpoints to bear on promoting a deeper understanding and appreciation of the chemicals and microbial processes that underpin ocean ecosystems and other microbiomes that affect our daily life.',
     ],
