@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import { makeStyles, TableCell, TableRow, Typography } from '@material-ui/core';
 
-import CopyButton from '../../../UI/CopyButton';
+import CopyButton from '../../UI/CopyButton';
 
 const fontSize = '1em';
 const useStyles = makeStyles((theme) => ({

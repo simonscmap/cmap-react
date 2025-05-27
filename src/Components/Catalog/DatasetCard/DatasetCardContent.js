@@ -3,10 +3,7 @@ import { makeStyles } from '@material-ui/core';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableContainer from '@material-ui/core/TableContainer';
-import {
-  TableRowTextPair,
-  TableRowLongTextPair,
-} from './ContentComponents/TableRowPair';
+import { TableRowTextPair, TableRowLongTextPair } from './TableRowPair';
 
 const useStyles = makeStyles(() => ({
   container: {
