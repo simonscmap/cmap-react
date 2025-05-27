@@ -6,7 +6,6 @@ const styles = () => ({
   },
   wrapper: {
     padding: '.9em',
-    height: '770px',
   },
   contentBox: {
     display: 'flex',
