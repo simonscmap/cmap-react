@@ -94,7 +94,7 @@ const styles = () => ({
     flexDirection: 'row',
     gap: '10px',
     '@media (max-width: 1600px)': {
-      flexDirection: 'column',
+      flexDirection: 'column-reverse',
     },
   },
 });
