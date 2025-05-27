@@ -108,7 +108,7 @@ const TableRowTextPair = ({ label, value, mono, copyable }) => {
                   display: 'block',
                   cursor: 'pointer',
                   marginTop: 2,
-                  color: '#2196f3', // Material-UI default blue
+                  color: 'rgb(135, 255, 244)',
                   textDecoration: 'underline',
                   fontWeight: 500,
                 }}
