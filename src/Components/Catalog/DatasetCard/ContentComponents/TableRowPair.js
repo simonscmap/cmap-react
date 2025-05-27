@@ -6,6 +6,7 @@ import CopyButton from '../../../UI/CopyButton';
 
 const fontSize = '1em';
 const useStyles = makeStyles((theme) => ({
+  // Base styles shared by all components
   row: {
     fontSize: '.9em',
   },
@@ -23,33 +24,26 @@ const useStyles = makeStyles((theme) => ({
   label: {
     color: 'rgb(135, 255, 244)',
     whiteSpace: 'nowrap',
-    fontSize: fontSize,
+    fontSize,
   },
-  monoValue: {
+  // Text styles
+  text: {
+    fontSize,
+  },
+  monoText: {
     fontFamily: 'Courier',
     fontWeight: 'bold',
     color: theme.palette.common.white,
-    fontSize: fontSize,
+    fontSize,
   },
-  value: {
-    fontSize: fontSize,
-  },
-  inlineCopy: {
+  // Copy container styles
+  copyContainer: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
     gap: '4px',
     maxWidth: '100%',
-    fontSize: fontSize,
-  },
-  textTruncate: {
-    display: 'inline-block',
-    maxWidth: '100%',
-    minWidth: 0,
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    verticalAlign: 'middle',
+    fontSize,
   },
   flexContainer: {
     display: 'flex',
@@ -58,6 +52,16 @@ const useStyles = makeStyles((theme) => ({
   },
   copyButton: {
     flexShrink: 0,
+  },
+  // Long text specific styles
+  textTruncate: {
+    display: 'inline-block',
+    maxWidth: '100%',
+    minWidth: 0,
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    verticalAlign: 'middle',
   },
   expandButton: {
     display: 'block',
@@ -98,11 +102,11 @@ const TableRowLongTextPair = ({ label, value, mono }) => {
   const [expanded, setExpanded] = useState(false);
   const cl = useStyles();
   const normalizedValue = useTableRowValue(value);
-  const textClass = mono ? cl.monoValue : cl.value;
+  const textClass = mono ? cl.monoText : cl.text;
 
   return (
     <TableRowBase label={label}>
-      <Typography className={cl.inlineCopy}>
+      <Typography className={cl.copyContainer}>
         <span className={cl.flexContainer}>
           <span className={`${!expanded ? cl.textTruncate : ''} ${textClass}`}>
             {normalizedValue}
@@ -127,12 +131,12 @@ TableRowLongTextPair.displayName = 'TableRowLongTextPair';
 const TableRowTextPair = ({ label, value, mono, copyable }) => {
   const cl = useStyles();
   const normalizedValue = useTableRowValue(value);
-  const textClass = mono ? cl.monoValue : cl.value;
+  const textClass = mono ? cl.monoText : cl.text;
 
   return (
     <TableRowBase label={label}>
       {copyable ? (
-        <Typography className={cl.inlineCopy}>
+        <Typography className={cl.copyContainer}>
           <span className={cl.flexContainer}>
             <span className={textClass}>{normalizedValue}</span>
             <CopyButton text={normalizedValue} className={cl.copyButton} />
