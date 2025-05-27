@@ -5,12 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import ResizeObserver from 'react-resize-observer';
-import {
-  AutoSizer,
-  List as VirtualizedList,
-  CellMeasurer,
-  CellMeasurerCache,
-} from 'react-virtualized';
+import { Virtuoso } from 'react-virtuoso';
 import '../../Stylesheets/catalog-search-results.css';
 import DataSetCardDetailed from './DatasetCard/DatasetCardDetailed';
 
@@ -87,6 +82,7 @@ const SearchResults = (props) => {
   };
 
   const [wrapperWidth, setWrapperWidth] = useState(0);
+
   const onResize = (rect) => {
     const { width } = rect;
     const intWidth = Math.floor(width);
@@ -96,12 +92,6 @@ const SearchResults = (props) => {
   };
 
   const loading = searchResultsLoadingState === states.inProgress;
-
-  // Create a cache for measured row heights
-  const cache = new CellMeasurerCache({
-    fixedWidth: true, // Only remeasure if width changes
-    defaultHeight: 400,
-  });
 
   return (
     <div className={classes.wrapperDiv}>
@@ -134,39 +124,20 @@ const SearchResults = (props) => {
           )}
         </InfoShelf>
 
-        <AutoSizer>
-          {({ height, width }) => (
-            <VirtualizedList
-              width={width}
-              height={Math.floor(
-                window.innerHeight - (searchIsExpanded ? 500 : 275),
-              )}
-              rowCount={searchResults.length}
-              deferredMeasurementCache={cache}
-              rowHeight={cache.rowHeight}
-              overscanRowCount={3}
-              rowRenderer={({ key, index, style, parent }) => (
-                <CellMeasurer
-                  key={key}
-                  cache={cache}
-                  parent={parent}
-                  columnIndex={0}
-                  rowIndex={index}
-                >
-                  {({ registerChild }) => (
-                    <div
-                      ref={registerChild}
-                      style={style}
-                      className="dataset-card-row"
-                    >
-                      <DataSetCardDetailed index={index} />
-                    </div>
-                  )}
-                </CellMeasurer>
-              )}
-            />
+        <Virtuoso
+          className={classes.fixedSizeList}
+          style={{
+            height: Math.floor(
+              window.innerHeight - (searchIsExpanded ? 500 : 275),
+            ),
+          }}
+          data={searchResults}
+          itemContent={(index, dataset) => (
+            <div className="dataset-card-row">
+              <DataSetCardDetailed index={index} />
+            </div>
           )}
-        </AutoSizer>
+        />
       </Paper>
     </div>
   );
