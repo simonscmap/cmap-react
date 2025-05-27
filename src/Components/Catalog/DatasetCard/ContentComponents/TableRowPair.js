@@ -104,9 +104,16 @@ const TableRowTextPair = ({ label, value, mono, copyable }) => {
             {normalizedValue.length > 200 && (
               <div
                 onClick={() => setExpanded(!expanded)}
-                style={{ display: 'block', cursor: 'pointer', marginTop: 4 }}
+                style={{
+                  display: 'block',
+                  cursor: 'pointer',
+                  marginTop: 2,
+                  color: '#2196f3', // Material-UI default blue
+                  textDecoration: 'underline',
+                  fontWeight: 500,
+                }}
               >
-                {expanded ? '[Show All]' : '[Show More]'}
+                {expanded ? '[Show Less]' : '[Show All]'}
               </div>
             )}
           </Typography>
