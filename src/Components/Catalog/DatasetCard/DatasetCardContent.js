@@ -77,6 +77,11 @@ const Meta = (props) => {
                   mono={true}
                   copyable={true}
                 />
+                <TableRowTextPair label={'Date Range'} value={dateRange} />
+                <TableRowTextPair label={'Latitude Range'} value={latRange} />
+                <TableRowTextPair label={'Longitude Range'} value={lonRange} />
+                <TableRowTextPair label={'Depth'} value={depthLevels} />
+                <TableRowTextPair label={'Regions'} value={formattedRegions} />
                 <TableRowTextPair
                   label={'Temporal Resolution'}
                   value={Temporal_Resolution}
@@ -85,14 +90,9 @@ const Meta = (props) => {
                   label={'Spatial Resolution'}
                   value={Spatial_Resolution}
                 />
-                <TableRowTextPair label={'Depth'} value={depthLevels} />
-                <TableRowTextPair label={'Source'} value={Data_Source} />
-                <TableRowTextPair label={'Regions'} value={formattedRegions} />
-                <TableRowTextPair label={'Distributor'} value={Distributor} />
                 <TableRowTextPair label={'Sensors'} value={formattedSensors} />
-                <TableRowTextPair label={'Date Range'} value={dateRange} />
-                <TableRowTextPair label={'Latitude Range'} value={latRange} />
-                <TableRowTextPair label={'Longitude Range'} value={lonRange} />
+                <TableRowTextPair label={'Source'} value={Data_Source} />
+                <TableRowTextPair label={'Distributor'} value={Distributor} />
                 <TableRowLongTextPair
                   label={'Acknowledgment'}
                   value={Acknowledgement}
