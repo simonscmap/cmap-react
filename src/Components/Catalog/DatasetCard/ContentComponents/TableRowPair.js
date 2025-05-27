@@ -106,7 +106,7 @@ const TableRowTextPair = ({ label, value, mono, copyable }) => {
                 onClick={() => setExpanded(!expanded)}
                 style={{ display: 'block', cursor: 'pointer', marginTop: 4 }}
               >
-                {expanded ? '[Show Less]' : '[Show More]'}
+                {expanded ? '[Show All]' : '[Show More]'}
               </div>
             )}
           </Typography>
