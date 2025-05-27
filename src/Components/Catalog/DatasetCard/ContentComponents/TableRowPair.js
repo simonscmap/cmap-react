@@ -107,8 +107,6 @@ const TableRowTextPair = ({ label, value, mono, copyable }) => {
                 style={{
                   display: 'block',
                   cursor: 'pointer',
-                  marginTop: 2,
-                  color: 'rgb(135, 255, 244)',
                   textDecoration: 'underline',
                   fontWeight: 500,
                 }}
