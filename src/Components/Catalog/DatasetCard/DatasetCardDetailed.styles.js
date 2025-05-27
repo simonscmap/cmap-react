@@ -86,12 +86,16 @@ const styles = () => ({
     maxWidth: '100%',
     maxHeight: '200px',
     objectFit: 'contain',
+    alignSelf: 'flex-start',
   },
   contentContainer: {
     marginTop: '10px',
     display: 'flex',
     flexDirection: 'row',
     gap: '10px',
+    '@media (max-width: 1700px)': {
+      flexDirection: 'column',
+    },
   },
 });
 
