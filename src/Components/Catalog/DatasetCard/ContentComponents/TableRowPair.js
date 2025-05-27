@@ -100,36 +100,4 @@ const TableRowTextPair = ({ label, value, mono, copyable }) => {
 
 TableRowTextPair.displayName = 'TableRowTextPair';
 
-const TableRowImagePair = ({ label, imageUrl }) => {
-  const cl = useStyles();
-
-  return (
-    <TableRow className={cl.row}>
-      <TableCell component="th" scope="row" className={cl.labelCell}>
-        <Typography className={cl.label}>{label}</Typography>
-      </TableCell>
-      <TableCell className={cl.cell}>
-        <img src={imageUrl} className={cl.previewImage} alt="Preview" />
-      </TableCell>
-    </TableRow>
-  );
-};
-
-TableRowImagePair.displayName = 'TableRowImagePair';
-
-const TableRowComponentPair = ({ label, component }) => {
-  const cl = useStyles();
-
-  return (
-    <TableRow className={cl.row}>
-      <TableCell component="th" scope="row" className={cl.labelCell}>
-        <Typography className={cl.label}>{label}</Typography>
-      </TableCell>
-      <TableCell className={cl.cell}>{component}</TableCell>
-    </TableRow>
-  );
-};
-
-TableRowComponentPair.displayName = 'TableRowComponentPair';
-
-export { TableRowTextPair, TableRowImagePair, TableRowComponentPair };
+export { TableRowTextPair };
