@@ -93,7 +93,7 @@ const styles = () => ({
     display: 'flex',
     flexDirection: 'row',
     gap: '10px',
-    '@media (max-width: 1700px)': {
+    '@media (max-width: 1600px)': {
       flexDirection: 'column',
     },
   },
