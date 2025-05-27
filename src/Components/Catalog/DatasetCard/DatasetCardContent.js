@@ -3,7 +3,10 @@ import { makeStyles } from '@material-ui/core';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableContainer from '@material-ui/core/TableContainer';
-import { TableRowTextPair } from './ContentComponents/TableRowPair';
+import {
+  TableRowTextPair,
+  TableRowLongTextPair,
+} from './ContentComponents/TableRowPair';
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -90,7 +93,7 @@ const Meta = (props) => {
                 <TableRowTextPair label={'Date Range'} value={dateRange} />
                 <TableRowTextPair label={'Latitude Range'} value={latRange} />
                 <TableRowTextPair label={'Longitude Range'} value={lonRange} />
-                <TableRowTextPair
+                <TableRowLongTextPair
                   label={'Acknowledgment'}
                   value={Acknowledgement}
                   copyable={true}
