@@ -133,7 +133,7 @@ const SearchResults = (props) => {
           }}
           data={searchResults}
           itemContent={(index, dataset) => (
-            <div className="dataset-card-row">
+            <div style={{ marginBottom: '16px' }}>
               <DataSetCardDetailed index={index} />
             </div>
           )}
