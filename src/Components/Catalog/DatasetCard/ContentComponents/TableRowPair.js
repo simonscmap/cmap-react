@@ -35,8 +35,9 @@ const useStyles = makeStyles((theme) => ({
     fontSize: fontSize,
   },
   inlineCopy: {
-    display: 'inline-flex',
-    alignItems: 'center',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
     gap: '4px',
     maxWidth: '100%',
     fontSize: fontSize,
@@ -87,16 +88,27 @@ const TableRowTextPair = ({ label, value, mono, copyable }) => {
         {copyable ? (
           <Typography className={cl.inlineCopy}>
             <span
-              className={`${!expanded ? cl.textTruncate : ''} ${textClass}`}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                maxWidth: '100%',
+              }}
             >
-              {normalizedValue}
+              <span
+                className={`${!expanded ? cl.textTruncate : ''} ${textClass}`}
+              >
+                {normalizedValue}
+              </span>
+              <CopyButton text={normalizedValue} className={cl.copyButton} />
             </span>
-            {normalizedValue.length > 100 && (
-              <div onClick={() => setExpanded(!expanded)}>
+            {normalizedValue.length > 200 && (
+              <div
+                onClick={() => setExpanded(!expanded)}
+                style={{ display: 'block', cursor: 'pointer', marginTop: 4 }}
+              >
                 {expanded ? '[Show Less]' : '[Show More]'}
               </div>
             )}
-            <CopyButton text={normalizedValue} className={cl.copyButton} />
           </Typography>
         ) : (
           <Typography className={textClass}>{normalizedValue}</Typography>
