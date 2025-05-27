@@ -1,11 +1,4 @@
-const styles = (theme) => ({
-  nameAndCopy: {
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'nowrap',
-    justifyContent: 'space-between',
-  },
+const styles = () => ({
   linkContainer: {
     display: 'flex',
     alignItems: 'center',
@@ -24,27 +17,6 @@ const styles = (theme) => ({
       color: '#69FFF2',
     },
     fontSize: '.85em',
-  },
-  downloadLink: {
-    color: theme.palette.primary.main,
-    cursor: 'pointer',
-    textTransform: 'none',
-    textIndent: '.5em',
-    textSize: '1.5em',
-    padding: 0,
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'nowrap',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    minWidth: 0,
-  },
-  buttonTextSpacer: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: '.75em',
-    alignItems: 'center',
   },
   inlineCopy: {
     display: 'flex',
