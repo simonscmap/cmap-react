@@ -60,6 +60,17 @@ const useStyles = makeStyles((theme) => ({
     objectFit: 'contain',
     marginTop: '10px',
   },
+  flexContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    maxWidth: '100%',
+  },
+  expandButton: {
+    display: 'block',
+    cursor: 'pointer',
+    textDecoration: 'underline',
+    fontWeight: 500,
+  },
 }));
 
 const TableRowTextPair = ({ label, value, mono, copyable }) => {
@@ -87,13 +98,7 @@ const TableRowTextPair = ({ label, value, mono, copyable }) => {
       <TableCell className={cl.cell}>
         {copyable ? (
           <Typography className={cl.inlineCopy}>
-            <span
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                maxWidth: '100%',
-              }}
-            >
+            <span className={cl.flexContainer}>
               <span
                 className={`${!expanded ? cl.textTruncate : ''} ${textClass}`}
               >
@@ -104,12 +109,7 @@ const TableRowTextPair = ({ label, value, mono, copyable }) => {
             {normalizedValue.length > 200 && (
               <div
                 onClick={() => setExpanded(!expanded)}
-                style={{
-                  display: 'block',
-                  cursor: 'pointer',
-                  textDecoration: 'underline',
-                  fontWeight: 500,
-                }}
+                className={cl.expandButton}
               >
                 {expanded ? '[Show Less]' : '[Show All]'}
               </div>
