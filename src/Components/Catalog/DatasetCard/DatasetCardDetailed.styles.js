@@ -1,4 +1,4 @@
-const experimentalStyles = (theme) => ({
+const styles = () => ({
   resultPaper: {
     background: 'rgba(0,0,0,0.2)',
     boxShadow: 'none',
@@ -6,11 +6,10 @@ const experimentalStyles = (theme) => ({
   },
   wrapper: {
     padding: '.9em',
-    height: '370px',
   },
   contentBox: {
-    width: '100%',
     display: 'flex',
+    flexDirection: 'column',
     gap: '.5em',
   },
   textContainer: {
@@ -45,61 +44,17 @@ const experimentalStyles = (theme) => ({
     gap: '5px',
   },
   actionsContainer: {
-    display: 'inline-block',
-    whiteSpace: 'nowrap',
-    marginTop: '-4px',
-    '& > div': {
-      verticalAlign: 'middle',
-    },
-  },
-  nameAndCopy: {
-    width: '100%',
     display: 'flex',
     flexDirection: 'row',
-    flexWrap: 'nowrap',
-    justifyContent: 'space-between',
-  },
-  linkContainer: {
-    width: '100%',
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    flex: 'auto',
-  },
-  titleLink: {
-    width: '100%',
-    // color: theme.palette.secondary.main,
-    color: '#69FFF2',
-    '&:visited': {
-      // color: theme.palette.secondary.main,
-      color: '#69FFF2',
+    alignItems: 'center',
+    '& > div': {
+      verticalAlign: 'middle',
     },
   },
   metadataContainer: {
     '& table .MuiTypography-body1': {
       margin: 0,
     },
-  },
-  downloadLink: {
-    color: theme.palette.primary.main,
-    cursor: 'pointer',
-    textTransform: 'none',
-    textIndent: '.5em',
-    textSize: '1.5em',
-    padding: 0,
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'nowrap',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    minWidth: 0,
-  },
-  buttonTextSpacer: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: '.75em',
-    alignItems: 'center',
   },
   actionBox: {
     height: '24px',
@@ -116,9 +71,32 @@ const experimentalStyles = (theme) => ({
       alignItems: 'center',
     },
   },
-  primaryColor: {
-    color: theme.palette.secondary.main,
+  buttonGroup: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  chipGroup: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: '20px',
+  },
+  previewImage: {
+    maxWidth: '100%',
+    maxHeight: '200px',
+    objectFit: 'contain',
+    alignSelf: 'flex-start',
+  },
+  contentContainer: {
+    marginTop: '10px',
+    display: 'flex',
+    flexDirection: 'row',
+    gap: '10px',
+    '@media (max-width: 1600px)': {
+      flexDirection: 'column-reverse',
+    },
   },
 });
 
-export default experimentalStyles;
+export default styles;
