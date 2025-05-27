@@ -3,12 +3,7 @@ import { makeStyles } from '@material-ui/core';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableContainer from '@material-ui/core/TableContainer';
-import {
-  TableRowTextPair,
-  TableRowImagePair,
-  TableRowComponentPair,
-} from './ContentComponents/TableRowPair';
-import SpatialCoverage from './ContentComponents/SpatialCoverage';
+import { TableRowTextPair } from './ContentComponents/TableRowPair';
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -33,7 +28,6 @@ const Meta = (props) => {
     Data_Source,
     Depth_Max,
     Distributor,
-    Icon_URL,
     Lat_Max,
     Lat_Min,
     Lon_Max,
@@ -101,16 +95,6 @@ const Meta = (props) => {
                   value={Acknowledgement}
                   copyable={true}
                 />
-                {Icon_URL && (
-                  <TableRowImagePair
-                    label={'Preview Image'}
-                    imageUrl={Icon_URL}
-                  />
-                )}
-                {/* <TableRowComponentPair
-                  label={'Spatial Coverage'}
-                  component={<SpatialCoverage dataset={dataset} />}
-                /> */}
               </TableBody>
             </Table>
           </TableContainer>

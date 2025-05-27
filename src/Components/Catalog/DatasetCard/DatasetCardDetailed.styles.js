@@ -83,6 +83,17 @@ const styles = () => ({
     alignItems: 'center',
     marginLeft: '20px',
   },
+  previewImage: {
+    maxWidth: '100%',
+    maxHeight: '200px',
+    objectFit: 'contain',
+  },
+  contentContainer: {
+    marginTop: '10px',
+    display: 'flex',
+    flexDirection: 'row',
+    gap: '10px',
+  },
 });
 
 export default styles;

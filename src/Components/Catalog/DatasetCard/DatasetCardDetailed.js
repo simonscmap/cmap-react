@@ -22,7 +22,7 @@ export const SearchResultPure = (props) => {
 
   const cl = useStyles();
 
-  const { Short_Name } = dataset;
+  const { Icon_URL, Short_Name } = dataset;
 
   const titleProp = {};
   const subscribeProp = {};
@@ -64,8 +64,15 @@ export const SearchResultPure = (props) => {
                 </div>
                 <div className={cl.rightGroup}></div>
               </div>
-              <div style={{ marginTop: '10px' }}>
+              <div className={cl.contentContainer}>
                 <MetadataContent id="metadata-content" dataset={dataset} />
+                {Icon_URL && (
+                  <img
+                    src={Icon_URL}
+                    className={cl.previewImage}
+                    alt="Preview"
+                  />
+                )}
               </div>
             </div>
           </div>
