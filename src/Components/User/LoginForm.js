@@ -12,7 +12,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import states from '../../enums/asyncRequestStates';
-import { GreenButtonSM } from '../Home/buttons';
+import { GreenButtonSM } from '../Common/Buttons';
 import styles from './loginStyles';
 
 import {

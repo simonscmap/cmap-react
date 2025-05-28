@@ -183,14 +183,16 @@ const ProgramCard = (props) => {
             {name}
           </Link>
         </Typography>
-        <Typography className={cl.fullName}>{pData.fullName}</Typography>
+        <Typography className={cl.fullName}>
+          {pData?.fullName || 'Missing full name'}
+        </Typography>
         <div className={cl.blurbContainer}>
           {pData && pData.logo && (
             <div className={cl.logo}>
               <img src={`/images/${pData.logo}`} />
             </div>
           )}
-          <Typography>{pData.blurb}</Typography>
+          <Typography>{pData?.blurb || 'Missing description'}</Typography>
         </div>
         <div className={cl.footer}>
           <Grid container>
@@ -199,8 +201,8 @@ const ProgramCard = (props) => {
                 <div>
                   <OpenInNewIcon color="primary" />
                   <Typography noWrap={true}>
-                    <a href={pData.link} target="_blank" rel="noreferrer">
-                      {pData.link}
+                    <a href={pData?.link} target="_blank" rel="noreferrer">
+                      {pData?.link || 'Missing link'}
                     </a>
                   </Typography>
                 </div>

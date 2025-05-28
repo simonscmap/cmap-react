@@ -1,5 +1,5 @@
 import { makeStyles } from '@material-ui/core/styles';
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 
 import Datasets from './AgGridExperimentDatasets';
 import Variables from './AgGridExperimentVars';
@@ -190,7 +190,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const DatasetControls = (props) => {
+const DatasetControls = () => {
   const cl = useStyles();
   return (
     <div className={cl.container}>

@@ -1,19 +1,9 @@
 import React, { useState } from 'react';
-import { makeStyles, Typography, Popper } from '@material-ui/core';
-import { useDispatch } from 'react-redux';
-import { FaRegCopy } from 'react-icons/fa6';
-import GreenButton from './DownloadButton';
-import { copyTextToClipboard } from '../../../Redux/actions/ui';
+import { makeStyles, Popper } from '@material-ui/core';
 
 const useStyles = makeStyles((theme) => ({
   container: {
     display: 'inline-block',
-  },
-  popover: {
-    pointerEvents: 'none',
-  },
-  paper: {
-    padding: theme.spacing(1),
   },
   popContent: {
     display: 'inline-grid',
@@ -31,26 +21,12 @@ const useStyles = makeStyles((theme) => ({
       placeSelf: 'center',
     },
   },
-  button: {
-    padding: '2px 8px',
-    fontSize: '14px',
-    minWidth: 'unset',
-    height: '20px',
-  },
-  monoValue: {
-    fontFamily: 'Courier',
-    fontWeight: 'bold',
-    color: theme.palette.primary.light,
-  },
 }));
 
-const PopperCopy = (props) => {
-  const { text, label, mono, contentStyle } = props;
+const HoverPopper = ({ children, content, label, contentStyle }) => {
   const cl = useStyles();
-  const dispatch = useDispatch();
-
-  // Popover State & Event Handling
   const [anchorEl, setAnchorEl] = useState(null);
+
   const handlePopoverOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -60,25 +36,13 @@ const PopperCopy = (props) => {
   };
 
   const isOpen = Boolean(anchorEl);
-
-  // Copy Text
-  const copy = () => {
-    dispatch(copyTextToClipboard(text));
-  };
-
-  const textClass = mono ? cl.monoValue : '';
-
   const inline = contentStyle || {};
 
   return (
     <div className={cl.container} onMouseLeave={handlePopoverClose}>
-      <Typography
-        component="p"
-        className={textClass}
-        onMouseEnter={handlePopoverOpen}
-      >
-        {text}
-      </Typography>
+      {React.cloneElement(children, {
+        onMouseEnter: handlePopoverOpen,
+      })}
       <Popper
         id={`mouseOverPopperControl_${label || 'x'}`}
         open={isOpen}
@@ -97,14 +61,11 @@ const PopperCopy = (props) => {
         style={{ zIndex: 9000 }}
       >
         <div className={cl.popContent} style={inline}>
-          <div>{text}</div>
-          <GreenButton onClick={copy} className={cl.button}>
-            <FaRegCopy />
-          </GreenButton>
+          {content}
         </div>
       </Popper>
     </div>
   );
 };
 
-export default PopperCopy;
+export default HoverPopper;
