@@ -141,7 +141,6 @@ const useStyles = makeStyles((theme) => ({
   },
   mark: {
     position: 'absolute',
-    position: 'absolute',
     display: 'block',
     left: '30px',
     bottom: '3px',
@@ -301,7 +300,9 @@ const Exp = (props) => {
   return (
     <div className={cl.container}>
       <div
-        className={`${cl.searchContainer} ${variableSearchActive && cl.searchActive}`}
+        className={`${cl.searchContainer} ${
+          variableSearchActive && cl.searchActive
+        }`}
       >
         <TextField
           inputRef={vsRef}
@@ -329,7 +330,9 @@ const Exp = (props) => {
       </div>
 
       <div
-        className={`${cl.messageContainer} ${messageOpen && cl.messageContainerActive}`}
+        className={`${cl.messageContainer} ${
+          messageOpen && cl.messageContainerActive
+        }`}
       >
         {shouldShowSelectInstruction && (
           <Grow in={!selectedVariableShortName}>
