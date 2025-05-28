@@ -57,7 +57,6 @@ export const detectFormat = (timeValue) => {
   }
   if (typeof timeValue === 'string') {
     const len = timeValue.length;
-    console.log('🐛🐛🐛 time.js:92 len:', len);
     if (len === 10 && isValidDateString(timeValue)) {
       return 'date string';
     } else if (len === 19 || len === 20 || len === 23 || len === 24) {
