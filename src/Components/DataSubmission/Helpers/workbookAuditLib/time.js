@@ -12,38 +12,6 @@ dayjs.extend(tz);
 dayjs.extend(customParseFormat);
 // see test in Tests/Utility/DataSubmission/workbookAuditLib.test.js
 
-const isNumericFormat = (data) => {
-  if (
-    !data ||
-    !Array.isArray(data) ||
-    (data[0] && data[0].time === undefined)
-  ) {
-    return undefined;
-  }
-  const sample = data[0].time;
-  if (typeof sample === 'number') {
-    return true;
-  } else {
-    return false;
-  }
-};
-
-const isIntegerFormat = (data) => {
-  if (
-    !data ||
-    !Array.isArray(data) ||
-    (data[0] && data[0].time === undefined)
-  ) {
-    return undefined;
-  }
-  const sample = data[0].time;
-  if (typeof sample === 'number' && Number.isInteger(sample)) {
-    return true;
-  } else {
-    return false;
-  }
-};
-
 export const validateTimeValues = (data) => {
   let negativeNumberDate = false;
   let integerDate = false;
@@ -89,7 +57,7 @@ export const detectFormat = (timeValue) => {
   }
   if (typeof timeValue === 'string') {
     const len = timeValue.length;
-
+    console.log('🐛🐛🐛 time.js:92 len:', len);
     if (len === 10 && isValidDateString(timeValue)) {
       return 'date string';
     } else if (len === 19 || len === 20 || len === 23 || len === 24) {
@@ -162,6 +130,7 @@ export const isValidDateTimeString = (dateString) => {
   // 20, 2010-02-09T18:15:00Z
   // 23, 2010-02-09T18:15:00.000
   // 24, 2010-02-09T18:15:00.000Z
+  // 25, 2009-10-20T04:38:00+00:00
 
   // 19
   const len = dateString.length;
