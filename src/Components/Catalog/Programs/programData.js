@@ -70,6 +70,17 @@ export const data = {
       'The Atlantic Meridional Transect (AMT) program is a long-term oceanographic research initiative that studies the variability in the physical, chemical, and biological properties of the Atlantic Ocean. The primary aim of the AMT program is to understand the spatial and temporal variability of ocean ecosystems along a meridional transect from the UK to the South Atlantic. This helps in understanding the role of the Atlantic Ocean in global biogeochemical cycles and climate change. The program focuses on various research areas including phytoplankton dynamics, primary productivity, biogeochemical cycling of nutrients and carbon, ocean-atmosphere interactions, and the impacts of climate change on oceanic processes. AMT cruises collect a comprehensive suite of measurements including physical parameters (temperature, salinity), chemical properties (nutrients, dissolved gases), and biological data (plankton biomass, species composition, primary production). These data are collected using a combination of shipboard sensors, water sampling, and autonomous instruments.',
     ],
   },
+  'c-comp': {
+    title: 'C-CoMP',
+    fullName: 'The Center for Chemical Currencies of a Microbial Planet',
+    link: 'https://ccomp-stc.org/',
+    blurb:
+      'The Center for Chemical Currencies of a Microbial Planet (C-CoMP) leverages recent advances in analytical and data sciences, incorporates new ocean sampling technologies and an open-science framework, and engages scientists, educators, and policy-makers who bring a variety of expertise, experiences, and viewpoints to bear on promoting a deeper understanding and appreciation of the chemicals and microbial processes that underpin ocean ecosystems and other microbiomes that affect our daily life.',
+    logo: 'c-comp-logo.png',
+    detail: [
+      'The Center for Chemical Currencies of a Microbial Planet (C-CoMP) leverages recent advances in analytical and data sciences, incorporates new ocean sampling technologies and an open-science framework, and engages scientists, educators, and policy-makers who bring a variety of expertise, experiences, and viewpoints to bear on promoting a deeper understanding and appreciation of the chemicals and microbial processes that underpin ocean ecosystems and other microbiomes that affect our daily life.',
+    ],
+  },
 };
 
 export const matchProgram = (str) => {
