@@ -1,6 +1,5 @@
 import React from 'react';
 // import Typography from '@material-ui/core/Typography';
-import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import TableCell from '@material-ui/core/TableCell';
 import { Link as RouterLink } from 'react-router-dom';
