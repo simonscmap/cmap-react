@@ -1,7 +1,7 @@
 import { makeStyles } from '@material-ui/core/styles';
 import React from 'react';
 import Page2 from '../../Common/Page2';
-import ProgramsList from './List2';
+import ProgramsList from './ProgramList';
 import { Grid } from '@material-ui/core';
 
 const useStyles = makeStyles(() => ({
