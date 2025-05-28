@@ -53,6 +53,7 @@ export const SearchResultPure = (props) => {
                         componentId={subscribeProp}
                       />
                       <DownloadButtonOutlined
+                        style={{ marginTop: '1px' }}
                         shortName={Short_Name}
                         componentId={downloadProp}
                       />
