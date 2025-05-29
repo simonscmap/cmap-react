@@ -262,44 +262,42 @@ export const isValidRealDateTime = (input) => {
     return false;
   }
 
-  const parsedDate = new Date(input);
+  // Basic pattern checking - look for ISO 8601 format
+  // YYYY-MM-DDThh:mm:ss with optional .sss, Z, or timezone offset
+  const basicPattern =
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?(?:Z|[+-]\d{2}(?::?\d{2})?)?$/;
 
-  if (isNaN(parsedDate.getTime())) {
+  if (!basicPattern.test(input)) {
     return false;
   }
 
-  // Extract date and time parts (including optional timezone info)
-  const dateTimeRegex =
-    /^(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2})(?::(\d{2}))?(?:\.(\d{1,3}))?(?:Z|(?:[+-]\d{2}:?\d{2}))?$/;
-  const match = input.match(dateTimeRegex);
-
-  if (!match) {
+  // If it passes the pattern test, use Date parsing to verify it's a valid date/time
+  const date = new Date(input);
+  if (isNaN(date.getTime())) {
     return false;
   }
 
-  // Basic validation of date/time components
-  const [, yearStr, monthStr, dayStr, hourStr, minuteStr, secondStr = '0'] =
-    match;
+  // Extract individual parts for additional validation
+  const parts = input.split(/[-T:.Z+]/);
 
-  const year = parseInt(yearStr, 10);
-  const month = parseInt(monthStr, 10);
-  const day = parseInt(dayStr, 10);
-  const hour = parseInt(hourStr, 10);
-  const minute = parseInt(minuteStr, 10);
-  const second = parseInt(secondStr, 10);
+  // Validate year, month, day, hour, minute, second
+  const year = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10);
+  const day = parseInt(parts[2], 10);
+  const hour = parseInt(parts[3], 10);
+  const minute = parseInt(parts[4], 10);
+  const second = parseInt(parts[5], 10);
 
-  // Check if month is 1-12
   if (month < 1 || month > 12) {
     return false;
   }
 
-  // Check if day is valid for the month
-  const lastDayOfMonth = new Date(year, month, 0).getDate();
-  if (day < 1 || day > lastDayOfMonth) {
+  // Check days in month
+  const daysInMonth = new Date(year, month, 0).getDate();
+  if (day < 1 || day > daysInMonth) {
     return false;
   }
 
-  // Check time components
   if (hour < 0 || hour > 23) {
     return false;
   }
