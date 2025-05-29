@@ -59,6 +59,32 @@ export const detectFormat = (timeValue) => {
     const len = timeValue.length;
     if (len === 10 && isValidDateString(timeValue)) {
       return 'date string';
+    } else if (len === 19 || len === 20 || len === 23 || len === 24) {
+      if (isValidDateTimeString(timeValue)) {
+        return 'datetime string';
+      }
+    }
+    return 'invalid string';
+  }
+
+  return undefined;
+};
+
+export const detectFormatNew = (timeValue) => {
+  if (!timeValue) {
+    return undefined;
+  }
+  if (typeof timeValue === 'number') {
+    if (Number.isInteger(timeValue)) {
+      return 'integer';
+    } else {
+      return 'decimal';
+    }
+  }
+  if (typeof timeValue === 'string') {
+    const len = timeValue.length;
+    if (len === 10 && isValidDateString(timeValue)) {
+      return 'date string';
     } else if (isValidRealDateTime(timeValue)) {
       return 'datetime string';
     }

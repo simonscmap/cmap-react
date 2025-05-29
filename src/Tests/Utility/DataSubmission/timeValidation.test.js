@@ -1,5 +1,6 @@
 import {
   detectFormat,
+  detectFormatNew,
   isValidDateString,
   isValidDateTimeString,
   isValidRealDateTime
@@ -82,6 +83,64 @@ describe('titan of time', () => {
       expect(detectFormat({})).toBe(undefined);
       expect(detectFormat([])).toBe(undefined);
       expect(detectFormat(true)).toBe(undefined);
+    });
+  });
+
+  describe('detectFormatNew', () => {
+    test('should detect integer values', () => {
+      expect(detectFormatNew(123)).toBe('integer');
+      expect(detectFormatNew(0)).toBe(undefined);
+      expect(detectFormatNew(-456)).toBe('integer');
+    });
+
+    test('should detect decimal values', () => {
+      expect(detectFormatNew(123.45)).toBe('decimal');
+      expect(detectFormatNew(0.789)).toBe('decimal');
+      expect(detectFormatNew(-456.78)).toBe('decimal');
+    });
+
+    test('should detect valid date strings', () => {
+      expect(detectFormatNew('2022-01-01')).toBe('date string');
+      expect(detectFormatNew('2019-12-31')).toBe('date string');
+    });
+
+    test('should detect validate datetime strings', () => {
+      expect(detectFormatNew('2022-01-01T12:30:45')).toBe('datetime string');
+      expect(detectFormatNew('2022-01-01T12:30:45Z')).toBe('datetime string');
+      expect(detectFormatNew('2022-01-01T12:30:45.123')).toBe('datetime string');
+      expect(detectFormatNew('2022-01-01T12:30:45.123Z')).toBe('datetime string');
+    });
+    
+    describe('should detect datetime strings with timezone information', () => {
+      test('with timezone offset', () => {
+        expect(detectFormatNew('2009-10-20T04:38:00+0000')).toBe('datetime string');
+        expect(detectFormatNew('2009-10-20T04:38:00-0500')).toBe('datetime string');
+        expect(detectFormatNew('2009-10-20T04:38:00+00:00')).toBe('datetime string');
+        expect(detectFormatNew('2009-10-20T04:38:00-05:00')).toBe('datetime string');
+        expect(detectFormatNew('2009-10-20T04:38:00+00')).toBe('datetime string');
+        expect(detectFormatNew('2009-10-20T04:38:00-05')).toBe('datetime string');
+        expect(detectFormatNew('2009-10-20T04:38:00.123+00:00')).toBe('datetime string');
+        expect(detectFormatNew('2009-10-20T04:38:00.123-05:00')).toBe('datetime string');
+      });
+    });
+
+    test('should detect invalid string formats', () => {
+      expect(detectFormatNew('not-a-date')).toBe('invalid string');
+      expect(detectFormatNew('2022/01/01')).toBe('invalid string');
+      expect(detectFormatNew('01-01-2022')).toBe('invalid string');
+      expect(detectFormatNew('2022-01-01 12:30:45')).toBe('invalid string'); // Space instead of T
+    });
+
+    test('should handle undefined or null values', () => {
+      expect(detectFormatNew(undefined)).toBe(undefined);
+      expect(detectFormatNew(null)).toBe(undefined);
+      expect(detectFormatNew('')).toBe(undefined);
+    });
+
+    test('should handle non-string and non-number values', () => {
+      expect(detectFormatNew({})).toBe(undefined);
+      expect(detectFormatNew([])).toBe(undefined);
+      expect(detectFormatNew(true)).toBe(undefined);
     });
   });
 
