@@ -59,7 +59,10 @@ export const detectFormat = (timeValue) => {
     const len = timeValue.length;
     if (len === 10 && isValidDateString(timeValue)) {
       return 'date string';
-    } else if (isValidRealDateTime(timeValue)) {
+    } else if (
+      isValidDateTimePattern(timeValue) &&
+      isValidDateTimeComponents(timeValue)
+    ) {
       return 'datetime string';
     }
 
@@ -113,109 +116,6 @@ export const isValidDateString = (dateString) => {
   }
 
   return true;
-};
-
-export const isValidDateTimeString = (dateString) => {
-  if (!isString(dateString)) {
-    return undefined;
-  }
-
-  // use different regex based on string length
-  // there is only one valid format per string length:
-
-  // 19, 2010-02-09T18:15:00
-  // 20, 2010-02-09T18:15:00Z
-  // 23, 2010-02-09T18:15:00.000
-  // 24, 2010-02-09T18:15:00.000Z
-  // 25, 2009-10-20T04:38:00+00:00
-
-  // 19
-  const len = dateString.length;
-
-  if (len === 19) {
-    const re = new RegExp(
-      /[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}/,
-    );
-    const result = re.test(dateString);
-
-    if (result === false) {
-      return false;
-    }
-    // NOTE the hack to use dayjs is to replace the ISO separator 'T' with a  space
-    // because dayjs validation doesn't have a way of representing 'T' as a separator
-    // but we can still use isValid to validate the rest of the time
-    const isValid = dayjs(
-      dateString.replace('T', ' '),
-      'YYYY-MM-DD HH:mm:ss',
-      true,
-    ).isValid();
-    return isValid;
-  } else if (len === 20) {
-    const re = new RegExp(
-      /[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z/,
-    );
-    const result = re.test(dateString);
-
-    if (result === false) {
-      return false;
-    }
-    // NOTE the hack to use dayjs is to replace the ISO separator 'T' with a  space
-    // because dayjs validation doesn't have a way of representing 'T' as a separator
-    // but we can still use isValid to validate the rest of the time
-    // ditto 'Z'
-    const d = dateString.replace('T', ' ').replace('Z', '');
-    const isValid = dayjs(d, 'YYYY-MM-DD HH:mm:ss', true).isValid();
-    return isValid;
-  } else if (len === 23) {
-    const re = new RegExp(
-      /[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}/,
-    );
-    const result = re.test(dateString);
-
-    if (result === false) {
-      return false;
-    }
-    // NOTE the hack to use dayjs is to replace the ISO separator 'T' with a  space
-    // because dayjs validation doesn't have a way of representing 'T' as a separator
-    // but we can still use isValid to validate the rest of the time
-    const d = dateString.replace('T', ' ');
-    const isValid = dayjs(d, 'YYYY-MM-DD HH:mm:ss.SSS', true).isValid();
-    return isValid;
-  } else if (len === 24) {
-    const re = new RegExp(
-      /[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}Z/,
-    );
-    const result = re.test(dateString);
-
-    if (result === false) {
-      return false;
-    }
-    // NOTE the hack to use dayjs is to replace the ISO separator 'T' with a  space
-    // because dayjs validation doesn't have a way of representing 'T' as a separator
-    // but we can still use isValid to validate the rest of the time
-    // ditto 'Z'
-    const d = dateString.replace('T', ' ').replace('Z', '');
-    const isValid = dayjs(d, 'YYYY-MM-DD HH:mm:ss.SSS', true).isValid();
-    return isValid;
-  }
-
-  // date string is not one of the valid string lengths
-  return false;
-};
-
-/**
- * Checks if the input string can be parsed by JavaScript's Date object.
- * This does not guarantee that the resulting date is real (e.g., Feb 30th will "roll over" to Mar 2nd).
- */
-export const isParseableDate = (input) => {
-  if (!input || typeof input !== 'string') {
-    return false;
-  }
-
-  const parsedDate = new Date(input);
-
-  // JavaScript's Date is "Invalid Date" if parsing fails
-  return !isNaN(parsedDate.getTime());
 };
 
 /**
@@ -272,18 +172,4 @@ const isValidDateTimeComponents = (input) => {
   }
 
   return true;
-};
-
-/**
- * Checks if the input string is both parseable as a date-time string
- * AND that its individual components (year, month, day, hour, minute, second)
- * exactly match the parsed Date object (no rollovers like Feb 30th → Mar 2nd),
- * accounting for input timezone offsets.
- */
-export const isValidRealDateTime = (input) => {
-  if (!isValidDateTimePattern(input)) {
-    return false;
-  }
-
-  return isValidDateTimeComponents(input);
 };
