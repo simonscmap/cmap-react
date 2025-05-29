@@ -249,9 +249,6 @@ export const isParseableDate = (input) => {
 
 /**
  * Checks if the input string matches a valid ISO 8601 datetime pattern.
- *
- * @param {string} input - The date-time string to validate.
- * @returns {boolean} True if the string matches the ISO 8601 pattern, false otherwise.
  */
 export const isValidDateTimePattern = (input) => {
   if (!input || typeof input !== 'string') {
@@ -269,11 +266,8 @@ export const isValidDateTimePattern = (input) => {
 /**
  * Validates that a date-time string represents a real date and time
  * with no component rollovers (like Feb 30th → Mar 2nd).
- *
- * @param {string} input - The date-time string to validate.
- * @returns {boolean} True if all date-time components are valid, false otherwise.
  */
-export const isValidDateTimeComponents = (input) => {
+const isValidDateTimeComponents = (input) => {
   // This function assumes input has already passed the isValidDateTimePattern check
 
   // Extract individual parts for validation
@@ -291,7 +285,6 @@ export const isValidDateTimeComponents = (input) => {
     return false;
   }
 
-  // Check days in month
   const daysInMonth = new Date(year, month, 0).getDate();
   if (day < 1 || day > daysInMonth) {
     return false;
@@ -315,15 +308,11 @@ export const isValidDateTimeComponents = (input) => {
  * AND that its individual components (year, month, day, hour, minute, second)
  * exactly match the parsed Date object (no rollovers like Feb 30th → Mar 2nd),
  * accounting for input timezone offsets.
- *
- * @param {string} input - The date-time string to validate.
- * @returns {boolean} True if the date-time string is real and matches exactly, false otherwise.
  */
 export const isValidRealDateTime = (input) => {
   if (!isValidDateTimePattern(input)) {
     return false;
   }
 
-  // Validate individual components
   return isValidDateTimeComponents(input);
 };
