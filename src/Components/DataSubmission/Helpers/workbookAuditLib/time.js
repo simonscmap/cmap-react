@@ -204,3 +204,76 @@ export const isValidDateTimeString = (dateString) => {
   // date string is not one of the valid string lengths
   return false;
 };
+
+/**
+ * Checks if the input string can be parsed by JavaScript's Date object.
+ * This does not guarantee that the resulting date is real (e.g., Feb 30th will "roll over" to Mar 2nd).
+ *
+ * @param {string} input - The date string to validate.
+ * @returns {boolean} True if the input can be parsed into a Date object, false otherwise.
+ */
+export const isParseableDate = (input) => {
+  if (!input || typeof input !== 'string') {
+    return false;
+  }
+
+  const parsedDate = new Date(input);
+
+  // JavaScript's Date is "Invalid Date" if parsing fails
+  return !isNaN(parsedDate.getTime());
+};
+
+/**
+ * Checks if the input string is both parseable as a date-time string
+ * AND that its individual components (year, month, day, hour, minute, second)
+ * exactly match the parsed Date object (no rollovers like Feb 30th → Mar 2nd),
+ * accounting for input timezone offsets.
+ *
+ * @param {string} input - The date-time string to validate.
+ * @returns {boolean} True if the date-time string is real and matches exactly, false otherwise.
+ */
+
+export const isValidRealDateTime = (input) => {
+  if (!input || typeof input !== 'string') {
+    return false;
+  }
+
+  const parsedDate = new Date(input);
+
+  if (isNaN(parsedDate.getTime())) {
+    return false;
+  }
+
+  // Extract date and time parts (including optional timezone info)
+  const dateTimeRegex =
+    /^(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2})(?::(\d{2}))?/;
+  const match = input.match(dateTimeRegex);
+
+  if (!match) {
+    return false;
+  }
+
+  const [, yearStr, monthStr, dayStr, hourStr, minuteStr, secondStr = '0'] =
+    match;
+
+  const year = parseInt(yearStr, 10);
+  const month = parseInt(monthStr, 10);
+  const day = parseInt(dayStr, 10);
+  const hour = parseInt(hourStr, 10);
+  const minute = parseInt(minuteStr, 10);
+  const second = parseInt(secondStr, 10);
+
+  // Use local date-time components, since the input's timezone is respected by Date parsing
+  if (
+    parsedDate.getFullYear() !== year ||
+    parsedDate.getMonth() + 1 !== month ||
+    parsedDate.getDate() !== day ||
+    parsedDate.getHours() !== hour ||
+    parsedDate.getMinutes() !== minute ||
+    parsedDate.getSeconds() !== second
+  ) {
+    return false;
+  }
+
+  return true;
+};

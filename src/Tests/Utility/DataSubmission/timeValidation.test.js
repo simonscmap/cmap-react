@@ -4,6 +4,18 @@ import {
   isValidDateTimeString
 } from '../../../Components/DataSubmission/Helpers/workbookAuditLib/time.js';
 
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+
+import tz from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+
+
+dayjs.extend(utc);
+dayjs.extend(tz);
+
+dayjs.extend(customParseFormat);
+
 describe('titan of time', () => {
   describe('detectFormat', () => {
     test('should detect integer values', () => {
@@ -96,6 +108,14 @@ describe('titan of time', () => {
       expect(isValidDateTimeString(null)).toBe(undefined);
       expect(isValidDateTimeString(undefined)).toBe(undefined);
       expect(isValidDateTimeString({})).toBe(undefined);
+    });
+  });
+
+  describe('dayjs tests', () => {
+    test('should validate different datetime string formats', () => {
+      expect(dayjs('2022-01-33').isValid()).toBe(true);
+      expect(dayjs('2022-02-33').isValid()).toBe(true);
+      expect(dayjs('2022-02-30', 'YYYY-MM-DD', true).isValid()).toBe(false);
     });
   });
 });
