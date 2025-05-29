@@ -59,10 +59,8 @@ export const detectFormat = (timeValue) => {
     const len = timeValue.length;
     if (len === 10 && isValidDateString(timeValue)) {
       return 'date string';
-    } else if (len === 19 || len === 20 || len === 23 || len === 24) {
-      if (isValidDateTimeString(timeValue)) {
-        return 'datetime string';
-      }
+    } else if (isValidRealDateTime(timeValue)) {
+      return 'datetime string';
     }
 
     return 'invalid string';

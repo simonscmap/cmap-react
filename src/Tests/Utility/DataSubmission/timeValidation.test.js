@@ -1,7 +1,8 @@
 import {
   detectFormat,
   isValidDateString,
-  isValidDateTimeString
+  isValidDateTimeString,
+  isValidRealDateTime
 } from '../../../Components/DataSubmission/Helpers/workbookAuditLib/time.js';
 
 import dayjs from 'dayjs';
@@ -132,6 +133,29 @@ describe('titan of time', () => {
       expect(isValidDateTimeString({})).toBe(undefined);
     });
   });
+
+  // describe('isValidRealDateTime', () => {
+  //   test('should validate real date-time values', () => {
+  //     expect(isValidRealDateTime('2022-01-01T12:30:45')).toBe(true);
+  //     expect(isValidRealDateTime('2022-01-01T12:30:45Z')).toBe(true);
+  //     expect(isValidRealDateTime('2022-01-01T12:30:45.123')).toBe(true);
+  //     expect(isValidRealDateTime('2022-01-01T12:30:45.123Z')).toBe(true);
+  //   });
+
+  //   test('should reject invalid date-time values', () => {
+  //     expect(isValidRealDateTime('2022-02-30T12:30:45')).toBe(false); // February 30th doesn't exist
+  //     expect(isValidRealDateTime('2022-01-01T25:30:45')).toBe(false); // Invalid hour
+  //     expect(isValidRealDateTime('2022-01-01T12:60:45')).toBe(false); // Invalid minute
+  //     expect(isValidRealDateTime('2022-01-01T12:30:61')).toBe(false); // Invalid second
+  //   });
+
+  //   test('should handle non-string inputs', () => {
+  //     expect(isValidRealDateTime(20220101123045)).toBe(false);
+  //     expect(isValidRealDateTime(null)).toBe(false);
+  //     expect(isValidRealDateTime(undefined)).toBe(false);
+  //     expect(isValidRealDateTime({})).toBe(false);
+  //   });
+  // });
 
   describe('dayjs tests', () => {
     test('should validate different datetime string formats', () => {
