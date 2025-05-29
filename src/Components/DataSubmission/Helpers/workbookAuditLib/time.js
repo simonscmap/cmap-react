@@ -182,3 +182,90 @@ const isValidDateTimeComponents = (input) => {
 
   return true;
 };
+
+export const isValidDateTimeString = (dateString) => {
+  if (!isString(dateString)) {
+    return undefined;
+  }
+
+  // use different regex based on string length
+  // there is only one valid format per string length:
+
+  // 19, 2010-02-09T18:15:00
+  // 20, 2010-02-09T18:15:00Z
+  // 23, 2010-02-09T18:15:00.000
+  // 24, 2010-02-09T18:15:00.000Z
+
+  // 19
+  const len = dateString.length;
+
+  if (len === 19) {
+    const re = new RegExp(
+      /[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}/,
+    );
+    const result = re.test(dateString);
+
+    if (result === false) {
+      return false;
+    }
+    // NOTE the hack to use dayjs is to replace the ISO separator 'T' with a  space
+    // because dayjs validation doesn't have a way of representing 'T' as a separator
+    // but we can still use isValid to validate the rest of the time
+    const isValid = dayjs(
+      dateString.replace('T', ' '),
+      'YYYY-MM-DD HH:mm:ss',
+      true,
+    ).isValid();
+    return isValid;
+  } else if (len === 20) {
+    const re = new RegExp(
+      /[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z/,
+    );
+    const result = re.test(dateString);
+
+    if (result === false) {
+      return false;
+    }
+    // NOTE the hack to use dayjs is to replace the ISO separator 'T' with a  space
+    // because dayjs validation doesn't have a way of representing 'T' as a separator
+    // but we can still use isValid to validate the rest of the time
+    // ditto 'Z'
+    const d = dateString.replace('T', ' ').replace('Z', '');
+    const isValid = dayjs(d, 'YYYY-MM-DD HH:mm:ss', true).isValid();
+    return isValid;
+  } else if (len === 23) {
+    const re = new RegExp(
+      /[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}/,
+    );
+    const result = re.test(dateString);
+
+    if (result === false) {
+      return false;
+    }
+    // NOTE the hack to use dayjs is to replace the ISO separator 'T' with a  space
+    // because dayjs validation doesn't have a way of representing 'T' as a separator
+    // but we can still use isValid to validate the rest of the time
+    const d = dateString.replace('T', ' ');
+    const isValid = dayjs(d, 'YYYY-MM-DD HH:mm:ss.SSS', true).isValid();
+    return isValid;
+  } else if (len === 24) {
+    const re = new RegExp(
+      /[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}Z/,
+    );
+    const result = re.test(dateString);
+
+    if (result === false) {
+      return false;
+    }
+    // NOTE the hack to use dayjs is to replace the ISO separator 'T' with a  space
+    // because dayjs validation doesn't have a way of representing 'T' as a separator
+    // but we can still use isValid to validate the rest of the time
+    // ditto 'Z'
+    const d = dateString.replace('T', ' ').replace('Z', '');
+    const isValid = dayjs(d, 'YYYY-MM-DD HH:mm:ss.SSS', true).isValid();
+    return isValid;
+  }
+
+  // date string is not one of the valid string lengths
+  return false;
+};
