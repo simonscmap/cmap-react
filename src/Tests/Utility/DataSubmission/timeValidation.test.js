@@ -1,7 +1,8 @@
 import {
   detectFormat,
+  isValidDateString,
+  isValidDateTimeString
 } from '../../../Components/DataSubmission/Helpers/workbookAuditLib/time.js';
-import { validTime } from '../../../Components/DataSubmission/Helpers/generateAudits.js';
 
 describe('titan of time', () => {
   describe('detectFormat', () => {
@@ -49,39 +50,52 @@ describe('titan of time', () => {
     });
   });
 
-  describe('validTime', () => {
-    test('should pass valid time formats', () => {
-      expect(validTime(123.45)).toBe(undefined); // decimal - valid
-      expect(validTime('2022-01-01')).toBe(undefined); // date string - valid
-      expect(validTime('2022-01-01T12:30:45')).toBe(undefined); // datetime string - valid
-      expect(validTime('2022-01-01T12:30:45Z')).toBe(undefined); // datetime string with Z - valid
-      expect(validTime('2022-01-01T12:30:45.123')).toBe(undefined); // datetime string with ms - valid
-      expect(validTime('2022-01-01T12:30:45.123Z')).toBe(undefined); // datetime string with ms and Z - valid
+  describe('isValidDateString', () => {
+    test('should validate correct date strings', () => {
+      expect(isValidDateString('2022-01-01')).toBe(true);
+      expect(isValidDateString('2019-12-31')).toBe(true);
+      expect(isValidDateString('2020-02-29')).toBe(true); // Leap year
     });
 
-    test('should reject integer time values', () => {
-      expect(validTime(123)).toBe('Value is integer type.');
-      expect(validTime(0)).toBe('Value is integer type.');
-      expect(validTime(-456)).toBe('Value is integer type.');
+    test('should reject invalid date strings', () => {
+      expect(isValidDateString('2022/01/01')).toBe(false);
+      expect(isValidDateString('01-01-2022')).toBe(false);
+      expect(isValidDateString('2022-13-01')).toBe(false); // Invalid month
+      expect(isValidDateString('2022-01-32')).toBe(false); // Invalid day
+      expect(isValidDateString('2021-02-29')).toBe(false); // Not a leap year
+      expect(isValidDateString('not-a-date')).toBe(false);
     });
 
-    test('should reject invalid string formats', () => {
-      expect(validTime('not-a-date')).toBe('Value is incorrect string format.');
-      expect(validTime('2022/01/01')).toBe('Value is incorrect string format.');
-      expect(validTime('01-01-2022')).toBe('Value is incorrect string format.');
-      expect(validTime('2022-01-01 12:30:45')).toBe('Value is incorrect string format.'); // Space instead of T
+    test('should handle non-string values', () => {
+      expect(isValidDateString(20220101)).toBe(undefined);
+      expect(isValidDateString(null)).toBe(undefined);
+      expect(isValidDateString(undefined)).toBe(undefined);
+      expect(isValidDateString({})).toBe(undefined);
+    });
+  });
+
+  describe('isValidDateTimeString', () => {
+    test('should validate different datetime string formats', () => {
+      expect(isValidDateTimeString('2022-01-01T12:30:45')).toBe(true);
+      expect(isValidDateTimeString('2022-01-01T12:30:45Z')).toBe(true);
+      expect(isValidDateTimeString('2022-01-01T12:30:45.123')).toBe(true);
+      expect(isValidDateTimeString('2022-01-01T12:30:45.123Z')).toBe(true);
     });
 
-    test('should reject missing or undefined values', () => {
-      expect(validTime(undefined)).toBe('Value is missing or unknown type.');
-      expect(validTime(null)).toBe('Value is missing or unknown type.');
-      expect(validTime('')).toBe('Value is incorrect string format.');
+    test('should reject invalid datetime strings', () => {
+      expect(isValidDateTimeString('2022-01-01 12:30:45')).toBe(false); // Space instead of T
+      expect(isValidDateTimeString('2022-01-01T25:30:45')).toBe(false); // Invalid hour
+      expect(isValidDateTimeString('2022-01-01T12:60:45')).toBe(false); // Invalid minute
+      expect(isValidDateTimeString('2022-01-01T12:30:61')).toBe(false); // Invalid second
+      expect(isValidDateTimeString('2022-01-01T12:30')).toBe(false); // Missing seconds
+      expect(isValidDateTimeString('2022-01-01T12:30:45.1234')).toBe(false); // Too many millisecond digits
     });
 
-    test('should reject non-string and non-number values', () => {
-      expect(validTime({})).toBe('Value is missing or unknown type.');
-      expect(validTime([])).toBe('Value is missing or unknown type.');
-      expect(validTime(true)).toBe('Value is missing or unknown type.');
+    test('should handle non-string values', () => {
+      expect(isValidDateTimeString(20220101123045)).toBe(undefined);
+      expect(isValidDateTimeString(null)).toBe(undefined);
+      expect(isValidDateTimeString(undefined)).toBe(undefined);
+      expect(isValidDateTimeString({})).toBe(undefined);
     });
   });
 });
