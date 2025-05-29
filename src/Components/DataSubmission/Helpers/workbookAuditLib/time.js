@@ -118,6 +118,16 @@ export const isValidDateString = (dateString) => {
   return true;
 };
 
+const isValidRealDateTime = (input) => {
+  if (!input || typeof input !== 'string') {
+    return false;
+  }
+
+  const parsedDate = new Date(input);
+
+  return !isNaN(parsedDate.getTime());
+};
+
 /**
  * Checks if the input string matches a valid ISO 8601 datetime pattern.
  */
@@ -126,7 +136,6 @@ export const isValidDateTimePattern = (input) => {
     return false;
   }
 
-  // Basic pattern checking - look for ISO 8601 format
   // YYYY-MM-DDThh:mm:ss with optional .sss, Z, or timezone offset
   const basicPattern =
     /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?(?:Z|[+-]\d{2}(?::?\d{2})?)?$/;
