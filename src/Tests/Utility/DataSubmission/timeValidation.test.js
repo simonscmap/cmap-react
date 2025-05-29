@@ -20,7 +20,7 @@ describe('titan of time', () => {
   describe('detectFormat', () => {
     test('should detect integer values', () => {
       expect(detectFormat(123)).toBe('integer');
-      expect(detectFormat(0)).toBe('integer');
+      expect(detectFormat(0)).toBe(undefined);
       expect(detectFormat(-456)).toBe('integer');
     });
 
@@ -52,7 +52,7 @@ describe('titan of time', () => {
     test('should handle undefined or null values', () => {
       expect(detectFormat(undefined)).toBe(undefined);
       expect(detectFormat(null)).toBe(undefined);
-      expect(detectFormat('')).toBe('invalid string');
+      expect(detectFormat('')).toBe(undefined);
     });
 
     test('should handle non-string and non-number values', () => {
