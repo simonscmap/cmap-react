@@ -270,13 +270,14 @@ export const isValidRealDateTime = (input) => {
 
   // Extract date and time parts (including optional timezone info)
   const dateTimeRegex =
-    /^(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2})(?::(\d{2}))?/;
+    /^(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2})(?::(\d{2}))?(?:\.(\d{1,3}))?(?:Z|(?:[+-]\d{2}:?\d{2}))?$/;
   const match = input.match(dateTimeRegex);
 
   if (!match) {
     return false;
   }
 
+  // Basic validation of date/time components
   const [, yearStr, monthStr, dayStr, hourStr, minuteStr, secondStr = '0'] =
     match;
 
@@ -287,15 +288,25 @@ export const isValidRealDateTime = (input) => {
   const minute = parseInt(minuteStr, 10);
   const second = parseInt(secondStr, 10);
 
-  // Use local date-time components, since the input's timezone is respected by Date parsing
-  if (
-    parsedDate.getFullYear() !== year ||
-    parsedDate.getMonth() + 1 !== month ||
-    parsedDate.getDate() !== day ||
-    parsedDate.getHours() !== hour ||
-    parsedDate.getMinutes() !== minute ||
-    parsedDate.getSeconds() !== second
-  ) {
+  // Check if month is 1-12
+  if (month < 1 || month > 12) {
+    return false;
+  }
+
+  // Check if day is valid for the month
+  const lastDayOfMonth = new Date(year, month, 0).getDate();
+  if (day < 1 || day > lastDayOfMonth) {
+    return false;
+  }
+
+  // Check time components
+  if (hour < 0 || hour > 23) {
+    return false;
+  }
+  if (minute < 0 || minute > 59) {
+    return false;
+  }
+  if (second < 0 || second > 59) {
     return false;
   }
 
