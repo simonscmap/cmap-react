@@ -35,11 +35,33 @@ describe('titan of time', () => {
       expect(detectFormat('2019-12-31')).toBe('date string');
     });
 
-    test('should detect valid datetime strings', () => {
+    test('should detect validate ORIGINAL datetime strings', () => {
       expect(detectFormat('2022-01-01T12:30:45')).toBe('datetime string');
       expect(detectFormat('2022-01-01T12:30:45Z')).toBe('datetime string');
       expect(detectFormat('2022-01-01T12:30:45.123')).toBe('datetime string');
       expect(detectFormat('2022-01-01T12:30:45.123Z')).toBe('datetime string');
+    });
+    
+    describe('should detect datetime strings with timezone information (future support)', () => {
+      test('length 24 - no colon in timezone offset', () => {
+        expect(detectFormat('2009-10-20T04:38:00+0000')).toBe('datetime string');
+        expect(detectFormat('2009-10-20T04:38:00-0500')).toBe('datetime string');
+      });
+
+      test('length 25 - with colon in timezone offset', () => {
+        expect(detectFormat('2009-10-20T04:38:00+00:00')).toBe('datetime string');
+        expect(detectFormat('2009-10-20T04:38:00-05:00')).toBe('datetime string');
+      });
+
+      test('length 22 - short timezone offset', () => {
+        expect(detectFormat('2009-10-20T04:38:00+00')).toBe('datetime string');
+        expect(detectFormat('2009-10-20T04:38:00-05')).toBe('datetime string');
+      });
+
+      test('length 29 - with milliseconds and timezone offset', () => {
+        expect(detectFormat('2009-10-20T04:38:00.123+00:00')).toBe('datetime string');
+        expect(detectFormat('2009-10-20T04:38:00.123-05:00')).toBe('datetime string');
+      });
     });
 
     test('should detect invalid string formats', () => {
