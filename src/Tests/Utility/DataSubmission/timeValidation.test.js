@@ -3,6 +3,7 @@ import {
   isValidDateString,
   isValidDateTimeString,
   isValidDateTimeComponents,
+  isValidDateTimePattern,
 } from '../../../Components/DataSubmission/Helpers/workbookAuditLib/time.js';
 
 describe('titan of time', () => {
@@ -140,6 +141,59 @@ describe('titan of time', () => {
       expect(isValidDateTimeComponents('2022-01-01T12:60:45')).toBe(false); // Invalid minute
       expect(isValidDateTimeComponents('2022-01-01T12:30:61')).toBe(false); // Invalid second
       expect(isValidDateTimeComponents('2022-01-01T12:30:45.1234')).toBe(false); // Too many millisecond digits
+    });
+  });
+
+  describe('isValidDateTimePattern', () => {
+    test('should validate basic datetime formats', () => {
+      expect(isValidDateTimePattern('2022-01-01T12:30:45')).toBe(true);
+    });
+
+    test('should validate datetime with Z suffix', () => {
+      expect(isValidDateTimePattern('2022-01-01T12:30:45Z')).toBe(true);
+    });
+
+    test('should validate datetime with milliseconds', () => {
+      expect(isValidDateTimePattern('2022-01-01T12:30:45.123')).toBe(true);
+      expect(isValidDateTimePattern('2022-01-01T12:30:45.1')).toBe(true);
+      expect(isValidDateTimePattern('2022-01-01T12:30:45.12')).toBe(true);
+    });
+
+    test('should validate datetime with milliseconds and Z suffix', () => {
+      expect(isValidDateTimePattern('2022-01-01T12:30:45.123Z')).toBe(true);
+    });
+
+    test('should validate datetime with timezone offsets', () => {
+      expect(isValidDateTimePattern('2022-01-01T12:30:45+00:00')).toBe(true);
+      expect(isValidDateTimePattern('2022-01-01T12:30:45-05:00')).toBe(true);
+      expect(isValidDateTimePattern('2022-01-01T12:30:45+0000')).toBe(true);
+      expect(isValidDateTimePattern('2022-01-01T12:30:45-0500')).toBe(true);
+      expect(isValidDateTimePattern('2022-01-01T12:30:45+00')).toBe(true);
+      expect(isValidDateTimePattern('2022-01-01T12:30:45-05')).toBe(true);
+    });
+
+    test('should validate datetime with milliseconds and timezone offsets', () => {
+      expect(isValidDateTimePattern('2022-01-01T12:30:45.123+00:00')).toBe(true);
+      expect(isValidDateTimePattern('2022-01-01T12:30:45.123-05:00')).toBe(true);
+      expect(isValidDateTimePattern('2022-01-01T12:30:45.123+0000')).toBe(true);
+      expect(isValidDateTimePattern('2022-01-01T12:30:45.123-0500')).toBe(true);
+    });
+
+    test('should reject invalid datetime patterns', () => {
+      expect(isValidDateTimePattern('2022-01-01 12:30:45')).toBe(false); // Space instead of T
+      expect(isValidDateTimePattern('2022/01/01T12:30:45')).toBe(false); // Wrong date separator
+      expect(isValidDateTimePattern('01-01-2022T12:30:45')).toBe(false); // Wrong date format
+      expect(isValidDateTimePattern('2022-01-01T12:30')).toBe(false); // Missing seconds
+      expect(isValidDateTimePattern('2022-01-01T12')).toBe(false); // Missing minutes and seconds
+      expect(isValidDateTimePattern('2022-01-01')).toBe(false); // No time part
+      expect(isValidDateTimePattern('not-a-date')).toBe(false); // Invalid format
+    });
+
+    test('should handle non-string values', () => {
+      expect(isValidDateTimePattern(20220101123045)).toBe(false);
+      expect(isValidDateTimePattern(null)).toBe(false);
+      expect(isValidDateTimePattern(undefined)).toBe(false);
+      expect(isValidDateTimePattern({})).toBe(false);
     });
   });
 });
