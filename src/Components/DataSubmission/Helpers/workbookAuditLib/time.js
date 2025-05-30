@@ -133,7 +133,7 @@ export const isValidDateTimePattern = (input) => {
  * Validates that a date-time string represents a real date and time
  * with no component rollovers (like Feb 30th → Mar 2nd).
  */
-const isValidDateTimeComponents = (input) => {
+export const isValidDateTimeComponents = (input) => {
   // This function assumes input has already passed the isValidDateTimePattern check
 
   // Extract individual parts for validation
@@ -146,6 +146,7 @@ const isValidDateTimeComponents = (input) => {
   const hour = parseInt(parts[3], 10);
   const minute = parseInt(parts[4], 10);
   const second = parseInt(parts[5], 10);
+  const millisecond = parseInt(parts[6], 10);
 
   if (month < 1 || month > 12) {
     return false;
@@ -163,6 +164,9 @@ const isValidDateTimeComponents = (input) => {
     return false;
   }
   if (second < 0 || second > 59) {
+    return false;
+  }
+  if (millisecond < 0 || millisecond > 999) {
     return false;
   }
 
