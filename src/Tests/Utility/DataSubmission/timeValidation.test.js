@@ -2,6 +2,7 @@ import {
   detectFormat,
   isValidDateString,
   isValidDateTimeString,
+  isValidDateTimeComponents,
 } from '../../../Components/DataSubmission/Helpers/workbookAuditLib/time.js';
 
 describe('titan of time', () => {
@@ -118,6 +119,26 @@ describe('titan of time', () => {
       expect(isValidDateTimeString(null)).toBe(undefined);
       expect(isValidDateTimeString(undefined)).toBe(undefined);
       expect(isValidDateTimeString({})).toBe(undefined);
+    });
+  });
+
+  describe('isValidDateTimeComponents', () => {
+    test('should validate correct datetime components', () => {
+      expect(isValidDateTimeComponents('2022-01-01T12:30:45')).toBe(true);
+      expect(isValidDateTimeComponents('2022-01-01T12:30:45Z')).toBe(true);
+      expect(isValidDateTimeComponents('2022-01-01T12:30:45.123')).toBe(true);
+      expect(isValidDateTimeComponents('2022-01-01T12:30:45.123Z')).toBe(true);
+      expect(isValidDateTimeComponents('2009-10-20T04:38:00.123+00:00')).toBe(true);
+      expect(isValidDateTimeComponents('2009-10-20T04:38:00.123-05:00')).toBe(true);
+      expect(isValidDateTimeComponents('2009-10-20T04:38:00.103')).toBe(true);
+    });
+
+    test('should reject invalid datetime components', () => {
+      expect(isValidDateTimeComponents('2022-01-01 12:30:45')).toBe(false); // Space instead of T
+      expect(isValidDateTimeComponents('2022-01-01T25:30:45')).toBe(false); // Invalid hour
+      expect(isValidDateTimeComponents('2022-01-01T12:60:45')).toBe(false); // Invalid minute
+      expect(isValidDateTimeComponents('2022-01-01T12:30:61')).toBe(false); // Invalid second
+      expect(isValidDateTimeComponents('2022-01-01T12:30:45.1234')).toBe(false); // Too many millisecond digits
     });
   });
 });
