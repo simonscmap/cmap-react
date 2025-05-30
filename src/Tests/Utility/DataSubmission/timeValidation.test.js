@@ -134,6 +134,7 @@ describe('titan of time', () => {
     });
 
     test('should reject invalid datetime components', () => {
+      expect(isValidDateTimeComponents('howard')).toBe(false); // Space instead of T
       expect(isValidDateTimeComponents('2022-01-01 12:30:45')).toBe(false); // Space instead of T
       expect(isValidDateTimeComponents('2022-01-01T25:30:45')).toBe(false); // Invalid hour
       expect(isValidDateTimeComponents('2022-01-01T12:60:45')).toBe(false); // Invalid minute

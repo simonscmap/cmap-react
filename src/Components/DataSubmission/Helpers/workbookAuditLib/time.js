@@ -102,10 +102,7 @@ export const detectFormat = (timeValue) => {
     const len = timeValue.length;
     if (len === 10 && isValidDateString(timeValue)) {
       return 'date string';
-    } else if (
-      isValidDateTimePattern(timeValue) &&
-      isValidDateTimeComponents(timeValue)
-    ) {
+    } else if (isValidDateTimeComponents(timeValue)) {
       return 'datetime string';
     }
 
@@ -134,7 +131,9 @@ export const isValidDateTimePattern = (input) => {
  * with no component rollovers (like Feb 30th → Mar 2nd).
  */
 export const isValidDateTimeComponents = (input) => {
-  // This function assumes input has already passed the isValidDateTimePattern check
+  if (!isValidDateTimePattern(input)) {
+    return false;
+  }
 
   // Extract individual parts for validation
   const parts = input.split(/[-T:.Z+]/);
