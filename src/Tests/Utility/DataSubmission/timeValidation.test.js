@@ -4,18 +4,6 @@ import {
   isValidDateTimeString,
 } from '../../../Components/DataSubmission/Helpers/workbookAuditLib/time.js';
 
-import dayjs from 'dayjs';
-import customParseFormat from 'dayjs/plugin/customParseFormat';
-
-import tz from 'dayjs/plugin/timezone';
-import utc from 'dayjs/plugin/utc';
-
-
-dayjs.extend(utc);
-dayjs.extend(tz);
-
-dayjs.extend(customParseFormat);
-
 describe('titan of time', () => {
   describe('detectFormat', () => {
     test('should detect integer values', () => {
@@ -59,8 +47,8 @@ describe('titan of time', () => {
       });
 
       test('length 29 - with milliseconds and timezone offset', () => {
-        expect(detectFormat('2009-10-20T04:38:00.123+00:00')).toBe('invalid string');
-        expect(detectFormat('2009-10-20T04:38:00.123-05:00')).toBe('invalid string');
+        expect(detectFormat('2009-10-20T04:38:00.123+00:00')).toBe('datetime string');
+        expect(detectFormat('2009-10-20T04:38:00.123-05:00')).toBe('datetime string');
       });
     });
 
@@ -83,74 +71,6 @@ describe('titan of time', () => {
       expect(detectFormat(true)).toBe(undefined);
     });
   });
-
-  // describe('detectFormatNew', () => {
-  //   test('should detect integer values', () => {
-  //     expect(detectFormatNew(123)).toBe('integer');
-  //     expect(detectFormatNew(0)).toBe(undefined);
-  //     expect(detectFormatNew(-456)).toBe('integer');
-  //   });
-
-  //   test('should detect decimal values', () => {
-  //     expect(detectFormatNew(123.45)).toBe('decimal');
-  //     expect(detectFormatNew(0.789)).toBe('decimal');
-  //     expect(detectFormatNew(-456.78)).toBe('decimal');
-  //   });
-
-  //   test('should detect valid date strings', () => {
-  //     expect(detectFormatNew('2022-01-01')).toBe('date string');
-  //     expect(detectFormatNew('2019-12-31')).toBe('date string');
-  //   });
-
-  //   test('should detect validate datetime strings', () => {
-  //     expect(detectFormatNew('2022-01-01T12:30:45')).toBe('datetime string');
-  //     expect(detectFormatNew('2022-01-01T12:30:45Z')).toBe('datetime string');
-  //     expect(detectFormatNew('2022-01-01T12:30:45.123')).toBe('datetime string');
-  //     expect(detectFormatNew('2022-01-01T12:30:45.123Z')).toBe('datetime string');
-  //   });
-
-  //   describe('should detect datetime strings with timezone information ', () => {
-  //     test('length 24 - no colon in timezone offset', () => {
-  //       expect(detectFormatNew('2009-10-20T04:38:00+0000')).toBe('datetime string');
-  //       expect(detectFormatNew('2009-10-20T04:38:00-0500')).toBe('datetime string');
-
-  //     });
-
-  //     test('length 25 - with colon in timezone offset', () => {
-  //       expect(detectFormatNew('2009-10-20T04:38:00+00:00')).toBe('datetime string');
-  //       expect(detectFormatNew('2009-10-20T04:38:00-05:00')).toBe('datetime string');
-  //     });
-
-  //     test('length 22 - short timezone offset', () => {
-  //       expect(detectFormatNew('2009-10-20T04:38:00+00')).toBe('datetime string');
-  //       expect(detectFormatNew('2009-10-20T04:38:00-05')).toBe('datetime string');
-  //     });
-
-  //     test('length 29 - with milliseconds and timezone offset', () => {
-  //       expect(detectFormat('2009-10-20T04:38:00.123+00:00')).toBe('invalid string');
-  //       expect(detectFormat('2009-10-20T04:38:00.123-05:00')).toBe('invalid string');
-  //     });
-  //   });
-
-  //   test('should detect invalid string formats', () => {
-  //     expect(detectFormatNew('not-a-date')).toBe('invalid string');
-  //     expect(detectFormatNew('2022/01/01')).toBe('invalid string');
-  //     expect(detectFormatNew('01-01-2022')).toBe('invalid string');
-  //     expect(detectFormatNew('2022-01-01 12:30:45')).toBe('invalid string'); // Space instead of T
-  //   });
-
-  //   test('should handle undefined or null values', () => {
-  //     expect(detectFormatNew(undefined)).toBe(undefined);
-  //     expect(detectFormatNew(null)).toBe(undefined);
-  //     expect(detectFormatNew('')).toBe(undefined);
-  //   });
-
-  //   test('should handle non-string and non-number values', () => {
-  //     expect(detectFormatNew({})).toBe(undefined);
-  //     expect(detectFormatNew([])).toBe(undefined);
-  //     expect(detectFormatNew(true)).toBe(undefined);
-  //   });
-  // });
 
   describe('isValidDateString', () => {
     test('should validate correct date strings', () => {
@@ -176,7 +96,7 @@ describe('titan of time', () => {
     });
   });
 
-  describe('isValidDateTimeString', () => {
+  describe('DEPRECATEisValidDateTimeString', () => {
     test('should validate different datetime string formats', () => {
       expect(isValidDateTimeString('2022-01-01T12:30:45')).toBe(true);
       expect(isValidDateTimeString('2022-01-01T12:30:45Z')).toBe(true);
@@ -198,37 +118,6 @@ describe('titan of time', () => {
       expect(isValidDateTimeString(null)).toBe(undefined);
       expect(isValidDateTimeString(undefined)).toBe(undefined);
       expect(isValidDateTimeString({})).toBe(undefined);
-    });
-  });
-
-  // describe('isValidRealDateTime', () => {
-  //   test('should validate real date-time values', () => {
-  //     expect(isValidRealDateTime('2022-01-01T12:30:45')).toBe(true);
-  //     expect(isValidRealDateTime('2022-01-01T12:30:45Z')).toBe(true);
-  //     expect(isValidRealDateTime('2022-01-01T12:30:45.123')).toBe(true);
-  //     expect(isValidRealDateTime('2022-01-01T12:30:45.123Z')).toBe(true);
-  //   });
-
-  //   test('should reject invalid date-time values', () => {
-  //     expect(isValidRealDateTime('2022-02-30T12:30:45')).toBe(false); // February 30th doesn't exist
-  //     expect(isValidRealDateTime('2022-01-01T25:30:45')).toBe(false); // Invalid hour
-  //     expect(isValidRealDateTime('2022-01-01T12:60:45')).toBe(false); // Invalid minute
-  //     expect(isValidRealDateTime('2022-01-01T12:30:61')).toBe(false); // Invalid second
-  //   });
-
-  //   test('should handle non-string inputs', () => {
-  //     expect(isValidRealDateTime(20220101123045)).toBe(false);
-  //     expect(isValidRealDateTime(null)).toBe(false);
-  //     expect(isValidRealDateTime(undefined)).toBe(false);
-  //     expect(isValidRealDateTime({})).toBe(false);
-  //   });
-  // });
-
-  describe('dayjs tests', () => {
-    test('should validate different datetime string formats', () => {
-      expect(dayjs('2022-01-33').isValid()).toBe(true);
-      expect(dayjs('2022-02-33').isValid()).toBe(true);
-      expect(dayjs('2022-02-30', 'YYYY-MM-DD', true).isValid()).toBe(false);
     });
   });
 });

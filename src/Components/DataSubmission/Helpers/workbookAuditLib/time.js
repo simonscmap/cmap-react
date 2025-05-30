@@ -4,13 +4,10 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 import tz from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 
-// import standardFormat from './standardUTCDateTime';
-
 dayjs.extend(utc);
 dayjs.extend(tz);
 
 dayjs.extend(customParseFormat);
-// see test in Tests/Utility/DataSubmission/workbookAuditLib.test.js
 
 export const validateTimeValues = (data) => {
   let negativeNumberDate = false;
@@ -42,34 +39,6 @@ export const validateTimeValues = (data) => {
     integerDate,
     missingDate,
   };
-};
-
-export const detectFormat = (timeValue) => {
-  if (!timeValue) {
-    return undefined;
-  }
-  if (typeof timeValue === 'number') {
-    if (Number.isInteger(timeValue)) {
-      return 'integer';
-    } else {
-      return 'decimal';
-    }
-  }
-  if (typeof timeValue === 'string') {
-    const len = timeValue.length;
-    if (len === 10 && isValidDateString(timeValue)) {
-      return 'date string';
-    } else if (
-      isValidDateTimePattern(timeValue) &&
-      isValidDateTimeComponents(timeValue)
-    ) {
-      return 'datetime string';
-    }
-
-    return 'invalid string';
-  }
-
-  return undefined;
 };
 
 // check consistency of time values
@@ -118,25 +87,42 @@ export const isValidDateString = (dateString) => {
   return true;
 };
 
-const isValidRealDateTime = (input) => {
-  if (!input || typeof input !== 'string') {
-    return false;
+export const detectFormat = (timeValue) => {
+  if (!timeValue) {
+    return undefined;
+  }
+  if (typeof timeValue === 'number') {
+    if (Number.isInteger(timeValue)) {
+      return 'integer';
+    } else {
+      return 'decimal';
+    }
+  }
+  if (typeof timeValue === 'string') {
+    const len = timeValue.length;
+    if (len === 10 && isValidDateString(timeValue)) {
+      return 'date string';
+    } else if (
+      isValidDateTimePattern(timeValue) &&
+      isValidDateTimeComponents(timeValue)
+    ) {
+      return 'datetime string';
+    }
+
+    return 'invalid string';
   }
 
-  const parsedDate = new Date(input);
-
-  return !isNaN(parsedDate.getTime());
+  return undefined;
 };
-
 /**
  * Checks if the input string matches a valid ISO 8601 datetime pattern.
+ * YYYY-MM-DDThh:mm:ss with optional .sss, Z, or timezone offset
  */
 export const isValidDateTimePattern = (input) => {
   if (!input || typeof input !== 'string') {
     return false;
   }
 
-  // YYYY-MM-DDThh:mm:ss with optional .sss, Z, or timezone offset
   const basicPattern =
     /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?(?:Z|[+-]\d{2}(?::?\d{2})?)?$/;
 
@@ -268,4 +254,13 @@ export const isValidDateTimeString = (dateString) => {
 
   // date string is not one of the valid string lengths
   return false;
+};
+const isValidRealDateTime = (input) => {
+  if (!input || typeof input !== 'string') {
+    return false;
+  }
+
+  const parsedDate = new Date(input);
+
+  return !isNaN(parsedDate.getTime());
 };
