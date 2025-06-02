@@ -1,5 +1,6 @@
 // https://stackoverflow.com/questions/16229494/converting-excel-date-serial-number-to-date-using-javascript
 import dayjs from 'dayjs';
+import XLSX from 'xlsx';
 
 import tz from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
@@ -33,21 +34,67 @@ const convertExcelSerialDateToUTC = (excelSerialDate, is1904 = false) => {
   return utcISOString;
 };
 
-const isExcelDateTimeFormat = (data) => {
-  if (
-    !data ||
-    !Array.isArray(data) ||
-    (data[0] && data[0].time === undefined)
-  ) {
-    return undefined;
+/**
+ * Finds the column letter (A, B, C, etc.) that contains the specified header name
+ * @param {Object} dataSheet - The worksheet object from the workbook
+ * @param {String} headerName - The name of the header to find
+ * @returns {String|null} - The column letter or null if not found
+ */
+const findColumnLetterByHeaderName = (dataSheet, headerName) => {
+  if (!dataSheet || !dataSheet['!ref'] || !headerName) {
+    return null;
   }
-  const sample = data[0].time;
-  // excel date formats are decimal values
-  if (typeof sample === 'number' && !Number.isInteger(sample)) {
-    return true;
-  } else {
+
+  // Find column reference (like 'A' or 'B' etc.)
+  const range = XLSX.utils.decode_range(dataSheet['!ref'] || 'A1');
+  for (let c = range.s.c; c <= range.e.c; c++) {
+    const cellRef = XLSX.utils.encode_cell({ r: 0, c }); // Header row
+    const cell = dataSheet[cellRef];
+    if (cell && cell.v === headerName) {
+      return XLSX.utils.encode_col(c);
+    }
+  }
+
+  return null;
+};
+
+/**
+ * Deterministically checks if a cell contains an Excel date value
+ * @param {Object} cell - The cell object from the worksheet
+ * @returns {Boolean} - True if the cell is a date
+ */
+const isCellDate = (cell) => {
+  // Check if cell exists and is numeric
+  if (!cell || cell.t !== 'n') {
     return false;
   }
+
+  // Use XLSX.js built-in date detection
+  return XLSX.SSF.is_date(cell.z);
+};
+
+const isExcelDateTimeFormat = (workbook) => {
+  // Check if workbook is valid
+  if (!workbook || typeof workbook !== 'object') {
+    return false;
+  }
+
+  const dataSheet = workbook.Sheets ? workbook.Sheets['data'] : null;
+  if (!dataSheet) {
+    return false;
+  }
+
+  // Find which column contains 'time'
+  const timeColumn = findColumnLetterByHeaderName(dataSheet, 'time');
+  if (!timeColumn) {
+    return false;
+  }
+
+  // Check the first data cell in the time column
+  const firstDataCellRef = timeColumn + '2'; // Assuming row 2 is the first data row
+  const firstDataCell = dataSheet[firstDataCellRef];
+
+  return isCellDate(firstDataCell);
 };
 
 const deleteEmptyRows = (data) => {
@@ -87,7 +134,7 @@ export default (data, workbook) => {
   let numericDateFormatConverted = false;
 
   const is1904 = is1904Format(workbook);
-  const isExcelDateTime = isExcelDateTimeFormat(data);
+  const isExcelDateTime = isExcelDateTimeFormat(workbook);
 
   if (isExcelDateTime) {
     convertExcelDateTimeToString(data, is1904);
