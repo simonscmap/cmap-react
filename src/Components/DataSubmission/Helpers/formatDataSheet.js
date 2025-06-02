@@ -11,11 +11,26 @@ const is1904Format = (workbook) => {
   return Boolean(((workbook.Workbook || {}).WBProps || {}).date1904);
 };
 
-const convertExcelNumeric = (val) => {
-  // for 1904 format times
-  const rounded = Math.ceil(val * 10000000) / 10000000;
-  const numericToUTC = dayjs.utc((rounded - 25569) * 86400 * 1000).format();
-  return numericToUTC;
+const convertExcelSerialDateToUTC = (excelSerialDate, is1904 = false) => {
+  const EXCEL_EPOCH_OFFSET = 25569; // Days from 1900-01-01 to 1970-01-01
+  const MS_PER_DAY = 86400 * 1000; // Milliseconds in one day
+  const DAYS_BETWEEN_1900_AND_1904 = 1462; // Days difference for 1904-based Excel dates
+
+  // Adjust for 1904 date system if needed
+  const adjustedSerialDate = is1904
+    ? excelSerialDate + DAYS_BETWEEN_1900_AND_1904
+    : excelSerialDate;
+
+  // Round to 7 decimal places for precision
+  const roundedValue = Math.ceil(adjustedSerialDate * 1e7) / 1e7;
+
+  // Convert to milliseconds since Unix epoch
+  const utcMilliseconds = (roundedValue - EXCEL_EPOCH_OFFSET) * MS_PER_DAY;
+
+  // Format as ISO 8601 string in UTC
+  const utcISOString = dayjs.utc(utcMilliseconds).format();
+
+  return utcISOString;
 };
 
 const isNumericFormat = (data) => {
@@ -71,9 +86,9 @@ const deleteEmptyRows = (data) => {
   return keysContaining__EMPTY;
 };
 
-const convertExcelDateTimeToString = (data) => {
+const convertExcelDateTimeToString = (data, is1904 = false) => {
   data.forEach((row) => {
-    const newUTCDateString = convertExcelNumeric(row.time);
+    const newUTCDateString = convertExcelSerialDateToUTC(row.time, is1904);
     row.time = newUTCDateString;
   });
 };
@@ -85,6 +100,8 @@ const convertExcelDateTimeToString = (data) => {
    - a critical error will be flagged if a numeric date is negative, or if a string cannot become a valid date
  */
 export default (data, workbook) => {
+  // parseable date? Convert to UTC string
+  // is1904?
   // flags
   let numericDateFormatConverted = false;
   // predicates
@@ -97,7 +114,7 @@ export default (data, workbook) => {
       if (is1904) {
         // audit will raise error
       } else {
-        convertExcelDateTimeToString(data);
+        convertExcelDateTimeToString(data, is1904);
         numericDateFormatConverted = true;
       }
     }
