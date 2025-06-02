@@ -57,6 +57,37 @@ import states from '../../enums/asyncRequestStates';
 
 import { debugTimer } from '../../Utility/debugTimer';
 
+// Extracted utility function for downloading workbook
+export const downloadWorkbook = ({
+  data,
+  dataset_meta_data,
+  vars_meta_data,
+  setLoadingMessage,
+}) => {
+  const tag = { tag: 'ValidationTool#handleDownload' };
+  setLoadingMessage('Downloading', tag);
+  setTimeout(() => {
+    window.requestAnimationFrame(() => setLoadingMessage('', tag));
+  }, 50);
+  let workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(
+    workbook,
+    XLSX.utils.json_to_sheet(data),
+    'data',
+  );
+  XLSX.utils.book_append_sheet(
+    workbook,
+    XLSX.utils.json_to_sheet(dataset_meta_data),
+    'dataset_meta_data',
+  );
+  XLSX.utils.book_append_sheet(
+    workbook,
+    XLSX.utils.json_to_sheet(vars_meta_data),
+    'vars_meta_data',
+  );
+  XLSX.writeFile(workbook, dataset_meta_data[0].dataset_short_name + '.xlsx');
+};
+
 const mapStateToProps = (state, ownProps) => ({
   submissionFile: state.submissionFile,
   userDataSubmissions: state.dataSubmissions,
@@ -818,34 +849,6 @@ class ValidationTool extends React.Component {
     });
   };
 
-  handleDownload = () => {
-    const tag = { tag: 'ValidationTool#handleDownload' };
-    this.props.setLoadingMessage('Downloading', tag);
-    setTimeout(() => {
-      window.requestAnimationFrame(() => this.props.setLoadingMessage('', tag));
-    }, 50);
-    let workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(
-      workbook,
-      XLSX.utils.json_to_sheet(this.state.data),
-      'data',
-    );
-    XLSX.utils.book_append_sheet(
-      workbook,
-      XLSX.utils.json_to_sheet(this.state.dataset_meta_data),
-      'dataset_meta_data',
-    );
-    XLSX.utils.book_append_sheet(
-      workbook,
-      XLSX.utils.json_to_sheet(this.state.vars_meta_data),
-      'vars_meta_data',
-    );
-    XLSX.writeFile(
-      workbook,
-      this.state.dataset_meta_data[0].dataset_short_name + '.xlsx',
-    );
-  };
-
   onGridReady = (params) => {
     this.gridApi = params.api;
     this.columnApi = params.columnApi;
@@ -1050,7 +1053,14 @@ class ValidationTool extends React.Component {
               validationStep={validationStep}
               handleUploadSubmission={this.handleUploadSubmission}
               shortName={shortName}
-              handleDownloadWorkbook={this.handleDownload}
+              handleDownloadWorkbook={() =>
+                downloadWorkbook({
+                  data: this.state.data,
+                  dataset_meta_data: this.state.dataset_meta_data,
+                  vars_meta_data: this.state.vars_meta_data,
+                  setLoadingMessage: this.props.setLoadingMessage,
+                })
+              }
               resetState={this.handleResetState}
               getChangeLog={() => this.state.changeLog}
             />
