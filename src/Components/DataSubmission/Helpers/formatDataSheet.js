@@ -33,22 +33,6 @@ const convertExcelSerialDateToUTC = (excelSerialDate, is1904 = false) => {
   return utcISOString;
 };
 
-const isNumericFormat = (data) => {
-  if (
-    !data ||
-    !Array.isArray(data) ||
-    (data[0] && data[0].time === undefined)
-  ) {
-    return undefined;
-  }
-  const sample = data[0].time;
-  if (typeof sample === 'number') {
-    return true;
-  } else {
-    return false;
-  }
-};
-
 const isExcelDateTimeFormat = (data) => {
   if (
     !data ||
@@ -100,25 +84,14 @@ const convertExcelDateTimeToString = (data, is1904 = false) => {
    - a critical error will be flagged if a numeric date is negative, or if a string cannot become a valid date
  */
 export default (data, workbook) => {
-  // parseable date? Convert to UTC string
-  // is1904?
-  // flags
   let numericDateFormatConverted = false;
-  // predicates
-  const isNumeric = isNumericFormat(data);
+
   const is1904 = is1904Format(workbook);
   const isExcelDateTime = isExcelDateTimeFormat(data);
 
-  if (isNumeric) {
-    if (isExcelDateTime) {
-      // TODO HWK: confirm handling of 1904, and remove this code
-      if (is1904) {
-        // audit will raise error
-      } else {
-        convertExcelDateTimeToString(data, is1904);
-        numericDateFormatConverted = true;
-      }
-    }
+  if (isExcelDateTime) {
+    convertExcelDateTimeToString(data, is1904);
+    numericDateFormatConverted = true;
   }
 
   const deletedKeys = deleteEmptyRows(data);
