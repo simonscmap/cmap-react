@@ -111,6 +111,7 @@ export default (data, workbook) => {
 
   if (isNumeric) {
     if (isExcelDateTime) {
+      // TODO HWK: confirm handling of 1904, and remove this code
       if (is1904) {
         // audit will raise error
       } else {
