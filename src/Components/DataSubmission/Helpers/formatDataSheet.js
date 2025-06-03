@@ -111,6 +111,7 @@ export default (workbook) => {
     // Return empty data if no valid sheet found
     return {
       data: [],
+      dataChanges: [],
       deletedKeys: [],
       is1904: false,
       numericDateFormatConverted: false,
@@ -128,6 +129,7 @@ export default (workbook) => {
     // No data or no time column
     return {
       data,
+      dataChanges: [],
       deletedKeys: deleteEmptyRows(data),
       is1904: false,
       numericDateFormatConverted: false,
@@ -137,32 +139,40 @@ export default (workbook) => {
   const is1904 = is1904Format(workbook);
   let numericDateFormatConverted = false;
 
+  // Create a parallel dataChanges object to track conversions
+  const dataChanges = new Array(data.length);
+
   // Process all rows at once
-  data.forEach((row) => {
+  data.forEach((row, index) => {
     // Skip null values
     if (row.time === null) {
+      dataChanges[index] = { timeConversionType: TIME_CONVERSION_TYPES.NONE };
       return;
     }
 
-    // Add a field to store the conversion type
-    row._timeConversionType = TIME_CONVERSION_TYPES.NONE;
+    // Default conversion type
+    let conversionType = TIME_CONVERSION_TYPES.NONE;
 
     if (typeof row.time === 'number') {
       // Convert the numeric Excel date to UTC string
       row.time = convertExcelSerialDateToUTC(row.time, is1904);
-      row._timeConversionType = TIME_CONVERSION_TYPES.EXCEL_TO_UTC;
+      conversionType = TIME_CONVERSION_TYPES.EXCEL_TO_UTC;
       numericDateFormatConverted = true;
     } else if (typeof row.time === 'string') {
       // Process string time values
       const result = processTimeString(row.time);
       row.time = result.value;
-      row._timeConversionType = result.conversionType;
+      conversionType = result.conversionType;
     }
+
+    // Store conversion type in dataChanges
+    dataChanges[index] = { timeConversionType: conversionType };
   });
 
   const deletedKeys = deleteEmptyRows(data);
   return {
     data,
+    dataChanges,
     deletedKeys,
     is1904,
     numericDateFormatConverted,
