@@ -11,8 +11,7 @@ const DESCRIPTION = 'Report changes made to the time column';
 const check = (standardAuditArgs) => {
   const { dataChanges } = standardAuditArgs;
   const results = [];
-  console.log('🐛🐛🐛 timeColumnChanges.js: checking time column changes');
-
+  console.log('🐛🐛🐛 timeColumnChanges.js:14 dataChanges:', dataChanges);
   if (dataChanges) {
     results.push(
       makeSimpleIssue(

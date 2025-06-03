@@ -146,27 +146,39 @@ export default (workbook) => {
   data.forEach((row, index) => {
     // Skip null values
     if (row.time === null) {
-      dataChanges[index] = { timeConversionType: TIME_CONVERSION_TYPES.NONE };
+      dataChanges[index] = {
+        timeConversionType: TIME_CONVERSION_TYPES.NONE,
+        prevValue: null,
+        newValue: null,
+      };
       return;
     }
 
     // Default conversion type
     let conversionType = TIME_CONVERSION_TYPES.NONE;
+    const prevValue = row.time;
+    let newValue = prevValue;
 
     if (typeof row.time === 'number') {
       // Convert the numeric Excel date to UTC string
-      row.time = convertExcelSerialDateToUTC(row.time, is1904);
+      newValue = convertExcelSerialDateToUTC(row.time, is1904);
+      row.time = newValue;
       conversionType = TIME_CONVERSION_TYPES.EXCEL_TO_UTC;
       numericDateFormatConverted = true;
     } else if (typeof row.time === 'string') {
       // Process string time values
       const result = processTimeString(row.time);
-      row.time = result.value;
+      newValue = result.value;
+      row.time = newValue;
       conversionType = result.conversionType;
     }
 
-    // Store conversion type in dataChanges
-    dataChanges[index] = { timeConversionType: conversionType };
+    // Store conversion type and values in dataChanges
+    dataChanges[index] = {
+      timeConversionType: conversionType,
+      prevValue: prevValue,
+      newValue: newValue,
+    };
   });
 
   const deletedKeys = deleteEmptyRows(data);
