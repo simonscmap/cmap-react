@@ -5,8 +5,18 @@ import XLSX from 'xlsx';
 import tz from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 
+import { isValidDateTimeComponents } from './workbookAuditLib/time';
+
 dayjs.extend(utc);
 dayjs.extend(tz);
+
+// Enum-like constants for time conversion types
+const TIME_CONVERSION_TYPES = {
+  NONE: 'NONE', // No conversion was needed
+  EXCEL_TO_UTC: 'EXCEL_TO_UTC', // Excel numeric date converted to UTC
+  STRING_NO_TZ_TO_UTC: 'STRING_NO_TZ_TO_UTC', // String without timezone converted to UTC
+  STRING_NON_UTC_TO_UTC: 'STRING_NON_UTC_TO_UTC', // String with non-UTC timezone converted to UTC
+};
 
 const is1904Format = (workbook) => {
   return Boolean(((workbook.Workbook || {}).WBProps || {}).date1904);
@@ -34,67 +44,40 @@ const convertExcelSerialDateToUTC = (excelSerialDate, is1904 = false) => {
   return utcISOString;
 };
 
-/**
- * Finds the column letter (A, B, C, etc.) that contains the specified header name
- * @param {Object} dataSheet - The worksheet object from the workbook
- * @param {String} headerName - The name of the header to find
- * @returns {String|null} - The column letter or null if not found
- */
-const findColumnLetterByHeaderName = (dataSheet, headerName) => {
-  if (!dataSheet || !dataSheet['!ref'] || !headerName) {
-    return null;
+const processTimeString = (timeString) => {
+  if (!isValidDateTimeComponents(timeString)) {
+    return {
+      value: timeString,
+      conversionType: TIME_CONVERSION_TYPES.NONE,
+    };
   }
 
-  // Find column reference (like 'A' or 'B' etc.)
-  const range = XLSX.utils.decode_range(dataSheet['!ref'] || 'A1');
-  for (let c = range.s.c; c <= range.e.c; c++) {
-    const cellRef = XLSX.utils.encode_cell({ r: 0, c }); // Header row
-    const cell = dataSheet[cellRef];
-    if (cell && cell.v === headerName) {
-      return XLSX.utils.encode_col(c);
+  const parsedDate = dayjs(timeString);
+  const hasTimezoneInfo = timeString.match(/[Z]|[+-]\d{2}(:?\d{2})?$/);
+
+  if (!hasTimezoneInfo) {
+    // No timezone info, convert to UTC
+    return {
+      value: parsedDate.utc().format(),
+      conversionType: TIME_CONVERSION_TYPES.STRING_NO_TZ_TO_UTC,
+    };
+  } else {
+    // Has timezone info - check if it's already UTC
+    const offset = parsedDate.utcOffset();
+
+    // If offset is 0, it's already in UTC
+    if (offset === 0) {
+      return {
+        value: timeString,
+        conversionType: TIME_CONVERSION_TYPES.NONE,
+      };
+    } else {
+      return {
+        value: parsedDate.utc().format(),
+        conversionType: TIME_CONVERSION_TYPES.STRING_NON_UTC_TO_UTC,
+      };
     }
   }
-
-  return null;
-};
-
-/**
- * Deterministically checks if a cell contains an Excel date value
- * @param {Object} cell - The cell object from the worksheet
- * @returns {Boolean} - True if the cell is a date
- */
-const isCellDate = (cell) => {
-  // Check if cell exists and is numeric
-  if (!cell || cell.t !== 'n') {
-    return false;
-  }
-
-  // Use XLSX.js built-in date detection
-  return XLSX.SSF.is_date(cell.z);
-};
-
-const isExcelDateTimeFormat = (workbook) => {
-  // Check if workbook is valid
-  if (!workbook || typeof workbook !== 'object') {
-    return false;
-  }
-
-  const dataSheet = workbook.Sheets ? workbook.Sheets['data'] : null;
-  if (!dataSheet) {
-    return false;
-  }
-
-  // Find which column contains 'time'
-  const timeColumn = findColumnLetterByHeaderName(dataSheet, 'time');
-  if (!timeColumn) {
-    return false;
-  }
-
-  // Check the first data cell in the time column
-  const firstDataCellRef = timeColumn + '2'; // Assuming row 2 is the first data row
-  const firstDataCell = dataSheet[firstDataCellRef];
-
-  return isCellDate(firstDataCell);
 };
 
 const deleteEmptyRows = (data) => {
@@ -117,36 +100,67 @@ const deleteEmptyRows = (data) => {
   return keysContaining__EMPTY;
 };
 
-const convertExcelDateTimeToString = (data, is1904 = false) => {
-  data.forEach((row) => {
-    const newUTCDateString = convertExcelSerialDateToUTC(row.time, is1904);
-    row.time = newUTCDateString;
-  });
-};
-
-/* The following formatting aims to provide a minimal parsing of time values:
-   - if the value in numeric it will be converted to a string
-   - if the provided sheet is in 1904 excel format, a appropriate specifc conversion will be used
-   - if the value is a string, it will merely be tested to see if it can be instantiated as a valid date object
-   - a critical error will be flagged if a numeric date is negative, or if a string cannot become a valid date
+/**
+ * Processes Excel date-time values in one pass through the workbook
+ * @param {Object} workbook - The workbook object
+ * @returns {Object} - Data, metadata, and conversion status
  */
 export default (workbook) => {
-  let data = XLSX.utils.sheet_to_json(workbook.Sheets['data'], {
-    defval: null,
-  });
-
-  let numericDateFormatConverted = false;
-
-  const is1904 = is1904Format(workbook);
-  const isExcelDateTime = isExcelDateTimeFormat(workbook);
-
-  if (isExcelDateTime) {
-    convertExcelDateTimeToString(data, is1904);
-    numericDateFormatConverted = true;
+  const dataSheet = workbook.Sheets ? workbook.Sheets['data'] : null;
+  if (!dataSheet || !dataSheet['!ref']) {
+    // Return empty data if no valid sheet found
+    return {
+      data: [],
+      deletedKeys: [],
+      is1904: false,
+      numericDateFormatConverted: false,
+    };
   }
 
-  const deletedKeys = deleteEmptyRows(data);
+  // Extract data with the original format
+  let data = XLSX.utils.sheet_to_json(dataSheet, {
+    defval: null,
+  });
+  if (
+    data.length === 0 ||
+    !Object.prototype.hasOwnProperty.call(data[0], 'time')
+  ) {
+    // No data or no time column
+    return {
+      data,
+      deletedKeys: deleteEmptyRows(data),
+      is1904: false,
+      numericDateFormatConverted: false,
+    };
+  }
 
+  const is1904 = is1904Format(workbook);
+  let numericDateFormatConverted = false;
+
+  // Process all rows at once
+  data.forEach((row) => {
+    // Skip null values
+    if (row.time === null) {
+      return;
+    }
+
+    // Add a field to store the conversion type
+    row._timeConversionType = TIME_CONVERSION_TYPES.NONE;
+
+    if (typeof row.time === 'number') {
+      // Convert the numeric Excel date to UTC string
+      row.time = convertExcelSerialDateToUTC(row.time, is1904);
+      row._timeConversionType = TIME_CONVERSION_TYPES.EXCEL_TO_UTC;
+      numericDateFormatConverted = true;
+    } else if (typeof row.time === 'string') {
+      // Process string time values
+      const result = processTimeString(row.time);
+      row.time = result.value;
+      row._timeConversionType = result.conversionType;
+    }
+  });
+
+  const deletedKeys = deleteEmptyRows(data);
   return {
     data,
     deletedKeys,
