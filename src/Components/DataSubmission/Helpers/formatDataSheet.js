@@ -130,7 +130,11 @@ const convertExcelDateTimeToString = (data, is1904 = false) => {
    - if the value is a string, it will merely be tested to see if it can be instantiated as a valid date object
    - a critical error will be flagged if a numeric date is negative, or if a string cannot become a valid date
  */
-export default (data, workbook) => {
+export default (workbook) => {
+  let data = XLSX.utils.sheet_to_json(workbook.Sheets['data'], {
+    defval: null,
+  });
+
   let numericDateFormatConverted = false;
 
   const is1904 = is1904Format(workbook);

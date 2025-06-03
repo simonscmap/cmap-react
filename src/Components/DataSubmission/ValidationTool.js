@@ -664,14 +664,11 @@ class ValidationTool extends React.Component {
       }
 
       timer.add('sheet_to_json: data');
-      let _data = XLSX.utils.sheet_to_json(workbook.Sheets['data'], {
-        defval: null,
-      });
 
       let formatResult;
       try {
         timer.add('format data sheet');
-        formatResult = formatDataSheet(_data, workbook);
+        formatResult = formatDataSheet(workbook);
       } catch (e) {
         console.log('error loading file', e);
         this.props.snackbarOpen('Error parsing file.');
