@@ -41,6 +41,8 @@ export default (submissionOptions) => {
     switch (f) {
       case 'integer':
         return 'Value is integer type.';
+      case 'invalid date number':
+        return 'Value is invalid excel date number.';
       case 'decimal':
       case 'date string':
       case 'datetime string':

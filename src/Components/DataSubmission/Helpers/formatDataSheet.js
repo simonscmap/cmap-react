@@ -22,7 +22,10 @@ const is1904Format = (workbook) => {
   return Boolean(((workbook.Workbook || {}).WBProps || {}).date1904);
 };
 
-const convertExcelSerialDateToUTC = (excelSerialDate, is1904 = false) => {
+export const convertExcelSerialDateToUTC = (
+  excelSerialDate,
+  is1904 = false,
+) => {
   const EXCEL_EPOCH_OFFSET = 25569; // Days from 1900-01-01 to 1970-01-01
   const MS_PER_DAY = 86400 * 1000; // Milliseconds in one day
   const DAYS_BETWEEN_1900_AND_1904 = 1462; // Days difference for 1904-based Excel dates
