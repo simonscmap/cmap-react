@@ -4,6 +4,8 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 import tz from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 
+import { convertExcelSerialDateToUTC } from '../formatDataSheet';
+
 dayjs.extend(utc);
 dayjs.extend(tz);
 
@@ -91,9 +93,13 @@ export const detectFormat = (timeValue) => {
   if (!timeValue) {
     return undefined;
   }
+  //
   if (typeof timeValue === 'number') {
     if (Number.isInteger(timeValue)) {
       return 'integer';
+      // TODO conversion function used for validation
+    } else if (convertExcelSerialDateToUTC(timeValue) === null) {
+      return 'invalid date number';
     } else {
       return 'decimal';
     }
