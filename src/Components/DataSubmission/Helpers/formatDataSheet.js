@@ -70,8 +70,13 @@ const processTimeString = (timeString) => {
     // Has timezone info - check if it's already UTC
     const offset = parsedDate.utcOffset();
 
-    // If offset is 0, it's already in UTC
-    if (offset === 0) {
+    // Consider both exact zero and very small offsets (floating point precision) as UTC
+    // Also explicitly check for +00:00 or Z in the string for redundancy
+    if (
+      Math.abs(offset) < 1 ||
+      timeString.endsWith('Z') ||
+      timeString.endsWith('+00:00')
+    ) {
       return {
         value: timeString,
         conversionType: TIME_CONVERSION_TYPES.NONE,

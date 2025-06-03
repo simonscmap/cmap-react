@@ -11,9 +11,10 @@ const DESCRIPTION = 'Report changes made to the time column';
 // Descriptions for each conversion type
 const CONVERSION_DESCRIPTIONS = {
   NONE: 'No conversion was needed',
-  EXCEL_TO_UTC: 'Excel numeric date format was converted to UTC ISO format',
+  EXCEL_TO_UTC:
+    'Excel numeric date format does not include timezone information, assumed to be UTC',
   STRING_NO_TZ_TO_UTC:
-    'String time without timezone information was converted to UTC',
+    'String time without timezone information assumed to be UTC',
   STRING_NON_UTC_TO_UTC:
     'String time with non-UTC timezone was converted to UTC',
 };
