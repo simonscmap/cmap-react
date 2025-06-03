@@ -18,6 +18,7 @@ import multiCruiseFormat from './multipleCruisesFormat';
 import extraColumns from './extraColumns';
 import checkDuplicateVarNames from './checkDuplicateVarNames';
 import missingCruise from './missingCruise';
+import timeColumnChanges from './timeColumnChanges';
 
 import { formatEvent } from '../../../../Utility/debugTimer';
 
@@ -41,6 +42,7 @@ const audits = [
   extraColumns,
   checkDuplicateVarNames,
   missingCruise,
+  timeColumnChanges,
 ];
 
 /*
