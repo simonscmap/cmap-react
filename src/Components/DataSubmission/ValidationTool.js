@@ -57,6 +57,37 @@ import states from '../../enums/asyncRequestStates';
 
 import { debugTimer } from '../../Utility/debugTimer';
 
+// Extracted utility function for downloading workbook
+export const downloadWorkbook = ({
+  data,
+  dataset_meta_data,
+  vars_meta_data,
+  setLoadingMessage,
+}) => {
+  const tag = { tag: 'ValidationTool#handleDownload' };
+  setLoadingMessage('Downloading', tag);
+  setTimeout(() => {
+    window.requestAnimationFrame(() => setLoadingMessage('', tag));
+  }, 50);
+  let workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(
+    workbook,
+    XLSX.utils.json_to_sheet(data),
+    'data',
+  );
+  XLSX.utils.book_append_sheet(
+    workbook,
+    XLSX.utils.json_to_sheet(dataset_meta_data),
+    'dataset_meta_data',
+  );
+  XLSX.utils.book_append_sheet(
+    workbook,
+    XLSX.utils.json_to_sheet(vars_meta_data),
+    'vars_meta_data',
+  );
+  XLSX.writeFile(workbook, dataset_meta_data[0].dataset_short_name + '.xlsx');
+};
+
 const mapStateToProps = (state, ownProps) => ({
   submissionFile: state.submissionFile,
   userDataSubmissions: state.dataSubmissions,
@@ -281,34 +312,35 @@ class ValidationTool extends React.Component {
   performAudit = (shouldAdvanceStep, callerName) => {
     // console.log ('perform audit', { shouldAdvanceStep, callerName })
     const {
-      workbook,
+      // flags
       data,
       dataset_meta_data,
-      vars_meta_data,
-      // flags
-      is1904,
-      numericDateFormatConverted,
-      invalidDateString,
-      negativeNumberDate,
+      dataChanges,
       integerDate,
+      invalidDateString,
+      is1904,
       missingDate,
+      negativeNumberDate,
+      numericDateFormatConverted,
+      vars_meta_data,
+      workbook,
     } = this.state;
 
     const { userDataSubmissions } = this.props;
-
     const argsObj = {
-      workbook,
+      // flags
       data,
       dataset_meta_data,
-      vars_meta_data,
-      userDataSubmissions,
-      // flags
-      is1904,
-      numericDateFormatConverted,
-      invalidDateString,
-      negativeNumberDate,
+      dataChanges,
       integerDate,
+      invalidDateString,
+      is1904,
       missingDate,
+      negativeNumberDate,
+      numericDateFormatConverted,
+      userDataSubmissions,
+      vars_meta_data,
+      workbook,
     };
 
     if (!workbook) {
@@ -633,14 +665,11 @@ class ValidationTool extends React.Component {
       }
 
       timer.add('sheet_to_json: data');
-      let _data = XLSX.utils.sheet_to_json(workbook.Sheets['data'], {
-        defval: null,
-      });
 
       let formatResult;
       try {
         timer.add('format data sheet');
-        formatResult = formatDataSheet(_data, workbook);
+        formatResult = formatDataSheet(workbook);
       } catch (e) {
         console.log('error loading file', e);
         this.props.snackbarOpen('Error parsing file.');
@@ -656,14 +685,15 @@ class ValidationTool extends React.Component {
       }
 
       let {
-        data,
         // flags
-        is1904,
-        numericDateFormatConverted,
-        invalidDateString,
-        negativeNumberDate,
+        data,
+        dataChanges,
         integerDate,
+        invalidDateString,
+        is1904,
         missingDate,
+        negativeNumberDate,
+        numericDateFormatConverted,
       } = formatResult;
 
       // parse metadata sheets
@@ -732,21 +762,22 @@ class ValidationTool extends React.Component {
       this.setState(
         {
           ...this.state,
-          workbook,
+          // flags
           data,
           dataset_meta_data,
-          vars_meta_data,
-          // flags
-          is1904,
-          numericDateFormatConverted,
-          invalidDateString,
-          negativeNumberDate,
+          dataChanges,
           integerDate,
-          missingDate,
+          invalidDateString,
+          is1904,
           loadingFile: {
             status: 'validating',
             totalBytes,
           },
+          missingDate,
+          negativeNumberDate,
+          numericDateFormatConverted,
+          vars_meta_data,
+          workbook,
         },
         () => {
           this.props.setLoadingMessage('', {
@@ -816,34 +847,6 @@ class ValidationTool extends React.Component {
       dataSource: this.state.dataset_meta_data[0].dataset_source,
       datasetLongName: this.state.dataset_meta_data[0].dataset_long_name,
     });
-  };
-
-  handleDownload = () => {
-    const tag = { tag: 'ValidationTool#handleDownload' };
-    this.props.setLoadingMessage('Downloading', tag);
-    setTimeout(() => {
-      window.requestAnimationFrame(() => this.props.setLoadingMessage('', tag));
-    }, 50);
-    let workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(
-      workbook,
-      XLSX.utils.json_to_sheet(this.state.data),
-      'data',
-    );
-    XLSX.utils.book_append_sheet(
-      workbook,
-      XLSX.utils.json_to_sheet(this.state.dataset_meta_data),
-      'dataset_meta_data',
-    );
-    XLSX.utils.book_append_sheet(
-      workbook,
-      XLSX.utils.json_to_sheet(this.state.vars_meta_data),
-      'vars_meta_data',
-    );
-    XLSX.writeFile(
-      workbook,
-      this.state.dataset_meta_data[0].dataset_short_name + '.xlsx',
-    );
   };
 
   onGridReady = (params) => {
@@ -1050,7 +1053,14 @@ class ValidationTool extends React.Component {
               validationStep={validationStep}
               handleUploadSubmission={this.handleUploadSubmission}
               shortName={shortName}
-              handleDownloadWorkbook={this.handleDownload}
+              handleDownloadWorkbook={() =>
+                downloadWorkbook({
+                  data: this.state.data,
+                  dataset_meta_data: this.state.dataset_meta_data,
+                  vars_meta_data: this.state.vars_meta_data,
+                  setLoadingMessage: this.props.setLoadingMessage,
+                })
+              }
               resetState={this.handleResetState}
               getChangeLog={() => this.state.changeLog}
             />
