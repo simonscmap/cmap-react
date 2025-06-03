@@ -3,7 +3,7 @@ import auditFactory, {
   makeIssueWithCustomComponent,
 } from './auditFactory';
 import severity from './severity';
-import TimeChangesTable from '../TimeChangesTable';
+import TimeChangesTable from './TimeChangesTable';
 
 const AUDIT_NAME = 'Time Column Changes';
 const DESCRIPTION = 'Report changes made to the time column';

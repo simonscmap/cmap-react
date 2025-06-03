@@ -41,6 +41,11 @@ const convertExcelSerialDateToUTC = (excelSerialDate, is1904 = false) => {
   // Format as ISO 8601 string in UTC
   const utcISOString = dayjs.utc(utcMilliseconds).format();
 
+  // Verify the result is a valid date
+  if (utcISOString === 'Invalid Date') {
+    return null;
+  }
+
   return utcISOString;
 };
 
@@ -141,7 +146,6 @@ export default (workbook) => {
 
   // Create a parallel dataChanges object to track conversions
   const dataChanges = new Array(data.length);
-
   // Process all rows at once
   data.forEach((row, index) => {
     // Skip null values
@@ -161,10 +165,15 @@ export default (workbook) => {
 
     if (typeof row.time === 'number') {
       // Convert the numeric Excel date to UTC string
-      newValue = convertExcelSerialDateToUTC(row.time, is1904);
-      row.time = newValue;
-      conversionType = TIME_CONVERSION_TYPES.EXCEL_TO_UTC;
-      numericDateFormatConverted = true;
+      const convertedDate = convertExcelSerialDateToUTC(row.time, is1904);
+
+      // Only update if we got a valid date
+      if (convertedDate !== null) {
+        newValue = convertedDate;
+        row.time = newValue;
+        conversionType = TIME_CONVERSION_TYPES.EXCEL_TO_UTC;
+        numericDateFormatConverted = true;
+      }
     } else if (typeof row.time === 'string') {
       // Process string time values
       const result = processTimeString(row.time);
