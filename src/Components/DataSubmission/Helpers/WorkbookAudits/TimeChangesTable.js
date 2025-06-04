@@ -30,7 +30,11 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   description: {
+    marginBottom: theme.spacing(1),
+  },
+  note: {
     marginBottom: theme.spacing(2),
+    fontStyle: 'italic',
   },
   row: {
     '&:nth-of-type(odd)': {
@@ -53,7 +57,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const TimeChangesTable = (props) => {
-  const { summary, changes, descriptions } = props;
+  const { summary, note, changes, descriptions } = props;
   const classes = useStyles();
 
   if (!changes || changes.length === 0) {
@@ -74,6 +78,9 @@ const TimeChangesTable = (props) => {
       <Typography className={classes.description}>
         {renderText(summary)}
       </Typography>
+      {note && (
+        <Typography className={classes.note}>{renderText(note)}</Typography>
+      )}
 
       <TableContainer component={Paper} className={classes.container}>
         <Table stickyHeader className={classes.table} size="small">

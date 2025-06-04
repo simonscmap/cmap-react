@@ -51,7 +51,8 @@ const check = (standardAuditArgs) => {
       'Time Column Changes',
       TimeChangesTable,
       {
-        summary: `${dataChanges.length} rows had time format conversions applied. Showing one example of each conversion type:`,
+        summary: `${dataChanges.length} rows had time format conversions applied.`,
+        note: 'Showing one example of each conversion type:',
         changes: exampleChanges,
         descriptions: CONVERSION_DESCRIPTIONS,
       },
