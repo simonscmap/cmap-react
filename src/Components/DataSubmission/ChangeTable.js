@@ -12,6 +12,7 @@ import {
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { getChangeSummary } from './Helpers/changeLog';
+import TimeChangesTable from './Helpers/WorkbookAudits/TimeChangesTable';
 
 const useStyles = makeStyles((theme) => ({
   changeSummaryHeader: {
@@ -36,6 +37,12 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.primary.main,
     cursor: 'pointer',
   },
+  sectionHeader: {
+    fontSize: '1em',
+    fontWeight: 'bold',
+    marginTop: '16px',
+    marginBottom: '8px',
+  },
 }));
 
 const ChangeRow = (props) => {
@@ -57,13 +64,12 @@ const ChangeTable = (props) => {
   const { getChangeLog, handleDownloadWorkbook, dataChanges } = props;
   const changeLog = getChangeLog();
 
-  if (!changeLog || !Array.isArray(changeLog)) {
-    return '';
-  }
+  const hasUserChanges =
+    changeLog && Array.isArray(changeLog) && changeLog.length > 0;
+  const hasAutoChanges =
+    dataChanges && Array.isArray(dataChanges) && dataChanges.length > 0;
 
-  const summary = getChangeSummary(changeLog);
-
-  if (summary.length === 0) {
+  if (!hasUserChanges && !hasAutoChanges) {
     return (
       <div>
         <Typography className={cl.changeSummaryHeader}>
@@ -77,13 +83,32 @@ const ChangeTable = (props) => {
     );
   }
 
+  const userChangeSummary = hasUserChanges ? getChangeSummary(changeLog) : [];
+
+  // Process automatic changes to group by conversion type
+  const processedAutoChanges = [];
+  const seenConversionTypes = new Set();
+
+  if (hasAutoChanges) {
+    dataChanges.forEach((change) => {
+      if (!seenConversionTypes.has(change.timeConversionType)) {
+        seenConversionTypes.add(change.timeConversionType);
+        processedAutoChanges.push({
+          row: change.rowIndex + 2, // 1-indexed for display
+          conversionType: change.timeConversionType,
+          prevValue: String(change.prevValue),
+          newValue: String(change.newValue),
+        });
+      }
+    });
+  }
+
   return (
     <div>
       <Typography className={cl.changeSummaryHeader}>Change Summary</Typography>
       <Typography className={cl.submittedTypography}>
-        The changes you made to the uploaded file during the this validation
-        process are listed below. You can download the edited workbook by
-        clicking{' '}
+        The changes made to the uploaded file during the validation process are
+        listed below. You can download the edited workbook by clicking{' '}
         <Link
           style={{ display: 'inline-block' }}
           className={cl.needHelpLink}
@@ -94,28 +119,49 @@ const ChangeTable = (props) => {
         </Link>
         .
       </Typography>
-      <TableContainer component={Paper} className={cl.changeTableContainer}>
-        <Table
-          aria-label="collapsible table"
-          stickyHeader
-          className={cl.tableRoot}
-        >
-          <TableHead>
-            <TableRow>
-              <TableCell>Sheet</TableCell>
-              <TableCell>Row</TableCell>
-              <TableCell>Column</TableCell>
-              <TableCell>Original Value</TableCell>
-              <TableCell>Changed Value</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {summary.map((change, i) => (
-              <ChangeRow data={change} key={`change_row_${i}`} />
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+
+      {hasAutoChanges && (
+        <>
+          <Typography className={cl.sectionHeader}>
+            Automatic Format Changes (Step 1)
+          </Typography>
+          <TimeChangesTable
+            summary={`${dataChanges.length} rows had time format conversions applied during initial file processing.`}
+            note="Showing one example of each conversion type:"
+            changes={processedAutoChanges}
+          />
+        </>
+      )}
+
+      {hasUserChanges && (
+        <>
+          <Typography className={cl.sectionHeader}>
+            User-Made Changes (Step 2)
+          </Typography>
+          <TableContainer component={Paper} className={cl.changeTableContainer}>
+            <Table
+              aria-label="user changes table"
+              stickyHeader
+              className={cl.tableRoot}
+            >
+              <TableHead>
+                <TableRow>
+                  <TableCell>Sheet</TableCell>
+                  <TableCell>Row</TableCell>
+                  <TableCell>Column</TableCell>
+                  <TableCell>Original Value</TableCell>
+                  <TableCell>Changed Value</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {userChangeSummary.map((change, i) => (
+                  <ChangeRow data={change} key={`user_change_row_${i}`} />
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </>
+      )}
     </div>
   );
 };
