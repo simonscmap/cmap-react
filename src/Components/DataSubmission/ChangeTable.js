@@ -13,6 +13,7 @@ import {
 import { makeStyles } from '@material-ui/core/styles';
 import { getChangeSummary } from './Helpers/changeLog';
 import TimeChangesTable from './Helpers/WorkbookAudits/TimeChangesTable';
+import { groupTimeChangesByConversionType } from './Helpers/formatDataSheet';
 
 const useStyles = makeStyles((theme) => ({
   changeSummaryHeader: {
@@ -85,23 +86,10 @@ const ChangeTable = (props) => {
 
   const userChangeSummary = hasUserChanges ? getChangeSummary(changeLog) : [];
 
-  // Process automatic changes to group by conversion type
-  const processedAutoChanges = [];
-  const seenConversionTypes = new Set();
-
-  if (hasAutoChanges) {
-    dataChanges.forEach((change) => {
-      if (!seenConversionTypes.has(change.timeConversionType)) {
-        seenConversionTypes.add(change.timeConversionType);
-        processedAutoChanges.push({
-          row: change.rowIndex + 2, // 1-indexed for display
-          conversionType: change.timeConversionType,
-          prevValue: String(change.prevValue),
-          newValue: String(change.newValue),
-        });
-      }
-    });
-  }
+  // Process automatic changes using the shared utility
+  const processedAutoChanges = hasAutoChanges
+    ? groupTimeChangesByConversionType(dataChanges)
+    : [];
 
   return (
     <div>

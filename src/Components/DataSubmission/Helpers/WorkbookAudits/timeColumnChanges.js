@@ -4,6 +4,7 @@ import auditFactory, {
 } from './auditFactory';
 import severity from './severity';
 import TimeChangesTable from './TimeChangesTable';
+import { groupTimeChangesByConversionType } from '../formatDataSheet';
 
 const AUDIT_NAME = 'Time Column Changes';
 const DESCRIPTION = 'Report changes made to the time column';
@@ -17,22 +18,8 @@ const check = (standardAuditArgs) => {
     return results;
   }
 
-  // Track conversion types we've already seen
-  const seenConversionTypes = new Set();
-  const exampleChanges = [];
-
-  // Process the changes - only keep one example of each conversion type
-  dataChanges.forEach((change) => {
-    if (!seenConversionTypes.has(change.timeConversionType)) {
-      seenConversionTypes.add(change.timeConversionType);
-      exampleChanges.push({
-        row: change.rowIndex + 2, // match row number in data sheet (1-indexed for display)
-        conversionType: change.timeConversionType,
-        prevValue: String(change.prevValue),
-        newValue: String(change.newValue),
-      });
-    }
-  });
+  // Process the changes using the shared utility
+  const exampleChanges = groupTimeChangesByConversionType(dataChanges);
 
   // Use the custom table component to display the changes
   results.push(

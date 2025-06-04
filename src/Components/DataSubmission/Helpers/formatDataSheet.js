@@ -114,6 +114,35 @@ const deleteEmptyRows = (data) => {
 };
 
 /**
+ * Group time column changes by conversion type with one example per type
+ *
+ * @param {Array} dataChanges - Array of time column changes
+ * @returns {Array} - Processed changes with one example per conversion type
+ */
+export const groupTimeChangesByConversionType = (dataChanges) => {
+  if (!dataChanges || dataChanges.length === 0) {
+    return [];
+  }
+
+  const seenConversionTypes = new Set();
+  const processedChanges = [];
+
+  dataChanges.forEach((change) => {
+    if (!seenConversionTypes.has(change.timeConversionType)) {
+      seenConversionTypes.add(change.timeConversionType);
+      processedChanges.push({
+        row: change.rowIndex + 2, // 1-indexed for display
+        conversionType: change.timeConversionType,
+        prevValue: String(change.prevValue),
+        newValue: String(change.newValue),
+      });
+    }
+  });
+
+  return processedChanges;
+};
+
+/**
  * Processes Excel date-time values in one pass through the workbook
  * @param {Object} workbook - The workbook object
  * @returns {Object} - Data, metadata, and conversion status
