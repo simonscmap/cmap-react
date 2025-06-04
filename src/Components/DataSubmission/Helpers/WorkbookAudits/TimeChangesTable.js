@@ -30,7 +30,11 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   description: {
+    marginBottom: theme.spacing(1),
+  },
+  note: {
     marginBottom: theme.spacing(2),
+    fontStyle: 'italic',
   },
   row: {
     '&:nth-of-type(odd)': {
@@ -51,9 +55,17 @@ const useStyles = makeStyles((theme) => ({
     fontStyle: 'italic',
   },
 }));
+const descriptions = {
+  EXCEL_TO_UTC:
+    'Excel numeric date format does not include timezone information, assumed to be UTC',
+  STRING_NO_TZ_TO_UTC:
+    'String time without timezone information assumed to be UTC',
+  STRING_NON_UTC_TO_UTC:
+    'String time with non-UTC timezone was converted to UTC',
+};
 
 const TimeChangesTable = (props) => {
-  const { summary, changes, descriptions } = props;
+  const { summary, note, changes } = props;
   const classes = useStyles();
 
   if (!changes || changes.length === 0) {
@@ -74,6 +86,9 @@ const TimeChangesTable = (props) => {
       <Typography className={classes.description}>
         {renderText(summary)}
       </Typography>
+      {note && (
+        <Typography className={classes.note}>{renderText(note)}</Typography>
+      )}
 
       <TableContainer component={Paper} className={classes.container}>
         <Table stickyHeader className={classes.table} size="small">
