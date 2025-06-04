@@ -111,7 +111,7 @@ const ChangeTable = (props) => {
       {hasAutoChanges && (
         <>
           <Typography className={cl.sectionHeader}>
-            Automatic Format Changes (Step 1)
+            Automatic Time Format Changes
           </Typography>
           <TimeChangesTable
             summary={`${dataChanges.length} rows had time format conversions applied during initial file processing.`}
@@ -123,9 +123,7 @@ const ChangeTable = (props) => {
 
       {hasUserChanges && (
         <>
-          <Typography className={cl.sectionHeader}>
-            User-Made Changes (Step 2)
-          </Typography>
+          <Typography className={cl.sectionHeader}>Manual Changes</Typography>
           <TableContainer component={Paper} className={cl.changeTableContainer}>
             <Table
               aria-label="user changes table"
