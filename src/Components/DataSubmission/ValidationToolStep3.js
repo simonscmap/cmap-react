@@ -212,65 +212,44 @@ const Step3 = (props) => {
     );
   }
 
-  if (noErrors) {
-    return (
-      <div className={classes.wrapper}>
-        <Typography variant={'h5'}>Upload Submission</Typography>
-        <Typography>Validation is complete!</Typography>
-        <Typography>Click the button below to upload your workbook.</Typography>
+  return (
+    <div className={classes.wrapper}>
+      <Typography variant={'h5'}>Upload Submission</Typography>
 
-        <NameChangeWarnings />
-
-        <ChangeTable
-          getChangeLog={getChangeLog}
-          handleDownloadWorkbook={handleDownloadWorkbook}
-          dataChanges={dataChanges}
-        />
-
-        <StepButton
-          size="small"
-          variant="contained"
-          color="primary"
-          className={classes.submitButton}
-          onClick={handleUploadSubmission}
-          disabled={!noErrors}
-        >
-          {'Submit Dataset'}
-        </StepButton>
-      </div>
-    );
-  }
-
-  if (!noErrors) {
-    return (
-      <div className={classes.wrapper}>
-        <Typography variant={'h5'}>Upload Submission</Typography>
+      {noErrors ? (
+        <>
+          <Typography>Validation is complete!</Typography>
+          <Typography>
+            Click the button below to upload your workbook.
+          </Typography>
+        </>
+      ) : (
         <Typography>
           There are still validation errors in previous steps. Please address
           these errors before submitting the dataset.
         </Typography>
+      )}
 
-        <NameChangeWarnings />
+      <NameChangeWarnings />
 
-        <ChangeTable
-          getChangeLog={getChangeLog}
-          handleDownloadWorkbook={handleDownloadWorkbook}
-          dataChanges={dataChanges}
-        />
+      <ChangeTable
+        getChangeLog={getChangeLog}
+        handleDownloadWorkbook={handleDownloadWorkbook}
+        dataChanges={dataChanges}
+      />
 
-        <StepButton
-          size="small"
-          variant="contained"
-          color="primary"
-          className={classes.submitButton}
-          onClick={handleUploadSubmission}
-          disabled={!noErrors}
-        >
-          {'Submit Dataset'}
-        </StepButton>
-      </div>
-    );
-  }
+      <StepButton
+        size="small"
+        variant="contained"
+        color="primary"
+        className={classes.submitButton}
+        onClick={handleUploadSubmission}
+        disabled={!noErrors}
+      >
+        {'Submit Dataset'}
+      </StepButton>
+    </div>
+  );
 };
 
 export default Step3;
