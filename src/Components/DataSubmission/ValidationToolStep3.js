@@ -78,13 +78,13 @@ const useStyles = makeStyles((theme) => ({
 
 const Step3 = (props) => {
   const {
-    validationStep,
-    handleUploadSubmission,
-    handleDownloadWorkbook,
+    dataChanges,
     getChangeLog,
+    handleDownloadWorkbook,
+    handleUploadSubmission,
     resetState,
+    validationStep,
   } = props;
-
   const classes = useStyles();
 
   const userIsOnLastStep = Boolean(
@@ -224,6 +224,7 @@ const Step3 = (props) => {
         <ChangeTable
           getChangeLog={getChangeLog}
           handleDownloadWorkbook={handleDownloadWorkbook}
+          dataChanges={dataChanges}
         />
 
         <StepButton
@@ -254,6 +255,7 @@ const Step3 = (props) => {
         <ChangeTable
           getChangeLog={getChangeLog}
           handleDownloadWorkbook={handleDownloadWorkbook}
+          dataChanges={dataChanges}
         />
 
         <StepButton

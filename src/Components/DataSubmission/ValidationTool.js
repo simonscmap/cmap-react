@@ -1063,6 +1063,7 @@ class ValidationTool extends React.Component {
               }
               resetState={this.handleResetState}
               getChangeLog={() => this.state.changeLog}
+              dataChanges={this.state.dataChanges}
             />
           </Section>
         </FullWidthContainer>

@@ -54,8 +54,7 @@ const ChangeRow = (props) => {
 
 const ChangeTable = (props) => {
   const cl = useStyles();
-  const { getChangeLog, handleDownloadWorkbook } = props;
-
+  const { getChangeLog, handleDownloadWorkbook, dataChanges } = props;
   const changeLog = getChangeLog();
 
   if (!changeLog || !Array.isArray(changeLog)) {
