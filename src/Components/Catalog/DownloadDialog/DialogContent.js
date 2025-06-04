@@ -28,6 +28,7 @@ import {
 } from './downloadDialogHelpers';
 import styles from './downloadDialogStyles';
 import DownloadStepWithWarning from './DownloadStepWithWarning';
+import DropboxFileSelectionModal from './DropboxFileSelectionModal';
 
 import {
   datasetDownloadRequestSend,
@@ -104,6 +105,7 @@ const DownloadDialog = (props) => {
 
   const [infoDialogOpen, setInfoDialogOpen] = useState(false);
   const [largeDatasetWarningOpen, setLargeDatasetWarningOpen] = useState(false);
+  const [fileSelectionModalOpen, setFileSelectionModalOpen] = useState(false);
 
   let datasetHasAncillaryData = useDatasetFeatures(
     dataset.Table_Name,
@@ -181,6 +183,7 @@ const DownloadDialog = (props) => {
   // Dropbox Link
   const vaultLink = useSelector((state) => state.download.vaultLink);
   // Download Size Validation
+  console.log('🐛🐛🐛 DialogContent.js:184 vaultLink:', vaultLink);
 
   let downloadState = useSelector((state) => state.download);
   let querySizes = useSelector((state) => state.download.querySizeChecks);
@@ -538,18 +541,14 @@ const DownloadDialog = (props) => {
         <div className={classes.dropboxOptionWrapper}>
           <Button
             className={classes.dropboxButton}
-            onClick={() => window.open(vaultLink?.shareLink, '_blank')}
-            disabled={!vaultLink?.shareLink}
+            onClick={() => setFileSelectionModalOpen(true)}
+            disabled={!vaultLink}
             startIcon={
-              !vaultLink?.shareLink ? (
-                <CircularProgress size={20} />
-              ) : (
-                <ImDownload />
-              )
+              !vaultLink ? <CircularProgress size={20} /> : <ImDownload />
             }
           >
             <span>
-              {!vaultLink?.shareLink
+              {!vaultLink
                 ? 'Loading Direct Download...'
                 : 'Direct Download from CMAP Storage'}
             </span>
@@ -595,10 +594,15 @@ const DownloadDialog = (props) => {
         handleDirectDownload={() => {
           setLargeDatasetWarningOpen(false);
           handleClose(); // Close the main dialog
-          window.open(vaultLink?.shareLink, '_blank');
+          setFileSelectionModalOpen(true);
         }}
         vaultLink={vaultLink}
         rowCount={dataset.Row_Count}
+      />
+      <DropboxFileSelectionModal
+        open={fileSelectionModalOpen}
+        handleClose={() => setFileSelectionModalOpen(false)}
+        vaultLink={vaultLink}
       />
     </div>
   );
