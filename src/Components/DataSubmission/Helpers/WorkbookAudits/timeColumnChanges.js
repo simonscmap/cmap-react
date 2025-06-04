@@ -10,7 +10,6 @@ const DESCRIPTION = 'Report changes made to the time column';
 
 // Descriptions for each conversion type
 const CONVERSION_DESCRIPTIONS = {
-  NONE: 'No conversion was needed',
   EXCEL_TO_UTC:
     'Excel numeric date format does not include timezone information, assumed to be UTC',
   STRING_NO_TZ_TO_UTC:
@@ -23,34 +22,18 @@ const CONVERSION_DESCRIPTIONS = {
 const check = (standardAuditArgs) => {
   const { dataChanges } = standardAuditArgs;
   const results = [];
-  // Check if any conversion type other than NONE exists
-  const hasActualConversions = dataChanges.some(
-    (change) => change && change.timeConversionType !== 'NONE',
-  );
 
-  if (!dataChanges || dataChanges.length === 0 || !hasActualConversions) {
+  if (!dataChanges || dataChanges.length === 0) {
     return results;
   }
 
-  // Count different types of conversions
-  const changedRows = [];
-
-  dataChanges.forEach((change, index) => {
-    if (!change) {
-      return;
-    }
-
-    const { timeConversionType, prevValue, newValue } = change;
-    // Only collect details for rows that had actual conversion (not NONE)
-    if (timeConversionType !== 'NONE') {
-      changedRows.push({
-        row: index + 2, // match row number in data sheet
-        conversionType: timeConversionType,
-        prevValue: String(prevValue),
-        newValue: String(newValue),
-      });
-    }
-  });
+  // Process the changes - each change now already has a rowIndex property
+  const changedRows = dataChanges.map((change) => ({
+    row: change.rowIndex + 2, // match row number in data sheet (1-indexed for display)
+    conversionType: change.timeConversionType,
+    prevValue: String(change.prevValue),
+    newValue: String(change.newValue),
+  }));
 
   // Use the custom table component to display the changes
   results.push(

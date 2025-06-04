@@ -152,17 +152,13 @@ export default (workbook) => {
   const is1904 = is1904Format(workbook);
   let numericDateFormatConverted = false;
 
-  // Create a parallel dataChanges object to track conversions
-  const dataChanges = new Array(data.length);
+  // Create a dynamic array to store only actual changes
+  const dataChanges = [];
+
   // Process all rows at once
   data.forEach((row, index) => {
     // Skip null values
     if (row.time === null) {
-      dataChanges[index] = {
-        timeConversionType: TIME_CONVERSION_TYPES.NONE,
-        prevValue: null,
-        newValue: null,
-      };
       return;
     }
 
@@ -190,12 +186,15 @@ export default (workbook) => {
       conversionType = result.conversionType;
     }
 
-    // Store conversion type and values in dataChanges
-    dataChanges[index] = {
-      timeConversionType: conversionType,
-      prevValue: prevValue,
-      newValue: newValue,
-    };
+    // Only store if an actual change was made (conversionType is not NONE)
+    if (conversionType !== TIME_CONVERSION_TYPES.NONE) {
+      dataChanges.push({
+        rowIndex: index, // Store the row index for reference
+        timeConversionType: conversionType,
+        prevValue: prevValue,
+        newValue: newValue,
+      });
+    }
   });
 
   const deletedKeys = deleteEmptyRows(data);
