@@ -55,9 +55,17 @@ const useStyles = makeStyles((theme) => ({
     fontStyle: 'italic',
   },
 }));
+const descriptions = {
+  EXCEL_TO_UTC:
+    'Excel numeric date format does not include timezone information, assumed to be UTC',
+  STRING_NO_TZ_TO_UTC:
+    'String time without timezone information assumed to be UTC',
+  STRING_NON_UTC_TO_UTC:
+    'String time with non-UTC timezone was converted to UTC',
+};
 
 const TimeChangesTable = (props) => {
-  const { summary, note, changes, descriptions } = props;
+  const { summary, note, changes } = props;
   const classes = useStyles();
 
   if (!changes || changes.length === 0) {
