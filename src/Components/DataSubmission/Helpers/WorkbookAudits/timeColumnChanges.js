@@ -27,13 +27,22 @@ const check = (standardAuditArgs) => {
     return results;
   }
 
-  // Process the changes - each change now already has a rowIndex property
-  const changedRows = dataChanges.map((change) => ({
-    row: change.rowIndex + 2, // match row number in data sheet (1-indexed for display)
-    conversionType: change.timeConversionType,
-    prevValue: String(change.prevValue),
-    newValue: String(change.newValue),
-  }));
+  // Track conversion types we've already seen
+  const seenConversionTypes = new Set();
+  const exampleChanges = [];
+
+  // Process the changes - only keep one example of each conversion type
+  dataChanges.forEach((change) => {
+    if (!seenConversionTypes.has(change.timeConversionType)) {
+      seenConversionTypes.add(change.timeConversionType);
+      exampleChanges.push({
+        row: change.rowIndex + 2, // match row number in data sheet (1-indexed for display)
+        conversionType: change.timeConversionType,
+        prevValue: String(change.prevValue),
+        newValue: String(change.newValue),
+      });
+    }
+  });
 
   // Use the custom table component to display the changes
   results.push(
@@ -42,8 +51,8 @@ const check = (standardAuditArgs) => {
       'Time Column Changes',
       TimeChangesTable,
       {
-        summary: `${changedRows.length} rows had time format conversions applied.`,
-        changes: changedRows,
+        summary: `${dataChanges.length} rows had time format conversions applied. Showing one example of each conversion type:`,
+        changes: exampleChanges,
         descriptions: CONVERSION_DESCRIPTIONS,
       },
     ),
