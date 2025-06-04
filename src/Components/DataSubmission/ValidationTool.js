@@ -30,7 +30,7 @@ import Navigation from './ValidationToolNavigation';
 import Chooser from './Chooser';
 import Step1 from './ValidationToolStep1';
 import Step2 from './ValidationToolStep2';
-import Step3 from './SubmitDataset';
+import Step3 from './ValidationToolStep3';
 import StepAssistant from './StepAssistant';
 
 import LoginRequiredPrompt from '../User/LoginRequiredPrompt';
