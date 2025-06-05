@@ -5,22 +5,78 @@ import {
   Button,
   Dialog,
   Checkbox,
-  FormControlLabel,
-  List,
-  ListItem,
-  ListItemText,
   Typography,
   Divider,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import styles from './downloadDialogStyles';
 
-const useStyles = makeStyles(styles);
+const useStyles = makeStyles((theme) => ({
+  ...styles(theme),
+  container: {
+    marginTop: theme.spacing(2),
+    maxHeight: '400px',
+    backgroundColor: 'rgba(16, 43, 60, 0.6)',
+    backdropFilter: 'blur(20px)',
+  },
+  table: {
+    '& th': {
+      fontWeight: 'bold',
+      backgroundColor: 'rgba(30, 67, 113, 1)',
+      color: theme.palette.common.white,
+    },
+    '& td': {
+      borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+    },
+  },
+  row: {
+    '&:nth-of-type(odd)': {
+      backgroundColor: 'rgba(30, 67, 113, 0.2)',
+    },
+  },
+}));
 
 const DropboxFileSelectionModal = (props) => {
   const { open, handleClose, vaultLink } = props;
   const classes = useStyles();
   const [selectedFiles, setSelectedFiles] = useState([]);
+
+  // Prepare a flat list of all files with their folder information
+  const allFiles = React.useMemo(() => {
+    if (!vaultLink || !vaultLink.files) {
+      return [];
+    }
+
+    const files = [];
+
+    // Add files from each category with folder information
+    if (vaultLink.files.rep) {
+      vaultLink.files.rep.forEach((file) =>
+        files.push({ ...file, folder: 'REP' }),
+      );
+    }
+
+    if (vaultLink.files.nrt) {
+      vaultLink.files.nrt.forEach((file) =>
+        files.push({ ...file, folder: 'NRT' }),
+      );
+    }
+
+    if (vaultLink.files.raw) {
+      vaultLink.files.raw.forEach((file) =>
+        files.push({ ...file, folder: 'RAW' }),
+      );
+    }
+
+    return files;
+  }, [vaultLink]);
 
   // Calculate total size and count for selected files
   const totalSize = React.useMemo(() => {
@@ -46,39 +102,13 @@ const DropboxFileSelectionModal = (props) => {
     }
   };
 
-  // Handle select all for a specific category
-  const handleSelectCategory = (category, isSelected) => {
-    if (isSelected) {
-      const categoryFiles =
-        (vaultLink && vaultLink.files && vaultLink.files[category]) || [];
-      const newSelectedFiles = [...selectedFiles];
-      categoryFiles.forEach((file) => {
-        if (!selectedFiles.some((f) => f.path === file.path)) {
-          newSelectedFiles.push(file);
-        }
-      });
-      setSelectedFiles(newSelectedFiles);
+  // Handle select all files
+  const handleSelectAll = (event) => {
+    if (event.target.checked) {
+      setSelectedFiles(allFiles);
     } else {
-      const categoryFilePaths = (
-        (vaultLink && vaultLink.files && vaultLink.files[category]) ||
-        []
-      ).map((file) => file.path);
-      setSelectedFiles(
-        selectedFiles.filter((file) => !categoryFilePaths.includes(file.path)),
-      );
+      setSelectedFiles([]);
     }
-  };
-
-  // Check if all files in a category are selected
-  const isCategorySelected = (category) => {
-    const categoryFiles =
-      (vaultLink && vaultLink.files && vaultLink.files[category]) || [];
-    if (categoryFiles.length === 0) {
-      return false;
-    }
-    return categoryFiles.every((file) =>
-      selectedFiles.some((f) => f.path === file.path),
-    );
   };
 
   // Handle download button click
@@ -87,6 +117,10 @@ const DropboxFileSelectionModal = (props) => {
     handleClose();
   };
 
+  // Check if all files are selected
+  const areAllSelected =
+    allFiles.length > 0 && selectedFiles.length === allFiles.length;
+
   return (
     <Dialog
       fullWidth
@@ -94,156 +128,62 @@ const DropboxFileSelectionModal = (props) => {
       open={open}
       onClose={handleClose}
       className={classes.muiDialog}
+      style={{ zIndex: 9999 }}
       PaperProps={{
         className: classes.dialogPaper,
+        style: { overflow: 'visible' },
       }}
     >
-      <DialogContent>
+      <DialogContent style={{ overflow: 'visible' }}>
         <Typography variant="h6">Select Files to Download</Typography>
         <Typography variant="body2" gutterBottom>
           Dataset: {vaultLink && vaultLink.shortName}
         </Typography>
 
-        {/* REP Files */}
-        {vaultLink &&
-          vaultLink.files &&
-          vaultLink.files.rep &&
-          vaultLink.files.rep.length > 0 && (
-            <>
-              <Typography variant="subtitle1" style={{ marginTop: 16 }}>
-                <FormControlLabel
-                  control={
+        <TableContainer component={Paper} className={classes.container}>
+          <Table stickyHeader className={classes.table} size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell padding="checkbox">
+                  <Checkbox
+                    indeterminate={
+                      selectedFiles.length > 0 &&
+                      selectedFiles.length < allFiles.length
+                    }
+                    checked={areAllSelected}
+                    onChange={handleSelectAll}
+                    color="primary"
+                  />
+                </TableCell>
+                <TableCell>Filename</TableCell>
+                <TableCell>Size</TableCell>
+                <TableCell>Folder</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {allFiles.map((file, index) => (
+                <TableRow
+                  key={`file-${index}`}
+                  className={classes.row}
+                  hover
+                  onClick={() => handleToggleFile(file)}
+                >
+                  <TableCell padding="checkbox">
                     <Checkbox
-                      checked={isCategorySelected('rep')}
-                      onChange={(e) =>
-                        handleSelectCategory('rep', e.target.checked)
-                      }
-                      color="primary"
-                    />
-                  }
-                  label={
-                    <strong>REP Files ({vaultLink.files.rep.length})</strong>
-                  }
-                />
-              </Typography>
-              <List dense>
-                {vaultLink.files.rep.map((file, index) => (
-                  <ListItem
-                    key={`rep-${index}`}
-                    dense
-                    button
-                    onClick={() => handleToggleFile(file)}
-                  >
-                    <Checkbox
-                      edge="start"
                       checked={selectedFiles.some((f) => f.path === file.path)}
-                      tabIndex={-1}
-                      disableRipple
                       color="primary"
                     />
-                    <ListItemText
-                      primary={file.name}
-                      secondary={file.sizeFormatted}
-                    />
-                  </ListItem>
-                ))}
-              </List>
-            </>
-          )}
-
-        {/* NRT Files */}
-        {vaultLink &&
-          vaultLink.files &&
-          vaultLink.files.nrt &&
-          vaultLink.files.nrt.length > 0 && (
-            <>
-              <Typography variant="subtitle1" style={{ marginTop: 16 }}>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={isCategorySelected('nrt')}
-                      onChange={(e) =>
-                        handleSelectCategory('nrt', e.target.checked)
-                      }
-                      color="primary"
-                    />
-                  }
-                  label={
-                    <strong>NRT Files ({vaultLink.files.nrt.length})</strong>
-                  }
-                />
-              </Typography>
-              <List dense>
-                {vaultLink.files.nrt.map((file, index) => (
-                  <ListItem
-                    key={`nrt-${index}`}
-                    dense
-                    button
-                    onClick={() => handleToggleFile(file)}
-                  >
-                    <Checkbox
-                      edge="start"
-                      checked={selectedFiles.some((f) => f.path === file.path)}
-                      tabIndex={-1}
-                      disableRipple
-                      color="primary"
-                    />
-                    <ListItemText
-                      primary={file.name}
-                      secondary={file.sizeFormatted}
-                    />
-                  </ListItem>
-                ))}
-              </List>
-            </>
-          )}
-
-        {/* RAW Files */}
-        {vaultLink &&
-          vaultLink.files &&
-          vaultLink.files.raw &&
-          vaultLink.files.raw.length > 0 && (
-            <>
-              <Typography variant="subtitle1" style={{ marginTop: 16 }}>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={isCategorySelected('raw')}
-                      onChange={(e) =>
-                        handleSelectCategory('raw', e.target.checked)
-                      }
-                      color="primary"
-                    />
-                  }
-                  label={
-                    <strong>RAW Files ({vaultLink.files.raw.length})</strong>
-                  }
-                />
-              </Typography>
-              <List dense>
-                {vaultLink.files.raw.map((file, index) => (
-                  <ListItem
-                    key={`raw-${index}`}
-                    dense
-                    button
-                    onClick={() => handleToggleFile(file)}
-                  >
-                    <Checkbox
-                      edge="start"
-                      checked={selectedFiles.some((f) => f.path === file.path)}
-                      tabIndex={-1}
-                      disableRipple
-                      color="primary"
-                    />
-                    <ListItemText
-                      primary={file.name}
-                      secondary={file.sizeFormatted}
-                    />
-                  </ListItem>
-                ))}
-              </List>
-            </>
-          )}
+                  </TableCell>
+                  <TableCell>{file.name}</TableCell>
+                  <TableCell>
+                    {file.sizeFormatted || formatBytes(file.size)}
+                  </TableCell>
+                  <TableCell>{file.folder}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
 
         <Divider style={{ margin: '16px 0' }} />
 
