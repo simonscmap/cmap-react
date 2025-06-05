@@ -17,6 +17,7 @@ import {
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import styles from './downloadDialogStyles';
+import catalogAPI from '../../../api/catalogRequests';
 
 const useStyles = makeStyles((theme) => ({
   ...styles(theme),
@@ -112,9 +113,59 @@ const DropboxFileSelectionModal = (props) => {
   };
 
   // Handle download button click
-  const handleSubmit = () => {
-    console.log('Selected files for download:', selectedFiles);
-    handleClose(true);
+  const handleSubmit = async () => {
+    try {
+      // Show loading state
+      const loadingState = {
+        isLoading: true,
+        message: 'Preparing your download...',
+      };
+      handleClose(false, loadingState);
+
+      // Get the response from the API
+      const response = await catalogAPI.downloadVaultFiles(
+        vaultLink.shortName,
+        selectedFiles.map((file) => ({
+          path: file.path,
+          name: file.name,
+          folder: file.folder,
+        })),
+      );
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+      }
+
+      // Get filename from Content-Disposition header or use a default
+      const contentDisposition = response.headers.get('Content-Disposition');
+      const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+      const matches = filenameRegex.exec(contentDisposition);
+      const filename =
+        matches && matches[1]
+          ? matches[1].replace(/['"]/g, '')
+          : `${vaultLink.shortName}_files.zip`;
+
+      // Convert response to blob and trigger download
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+
+      // Clean up
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      // Close modal with success state
+      handleClose(true, { isSuccess: true });
+    } catch (error) {
+      console.error('Download error:', error);
+      // Close modal with error state
+      handleClose(false, { isError: true, message: error.message });
+    }
   };
 
   // Check if all files are selected
@@ -126,7 +177,7 @@ const DropboxFileSelectionModal = (props) => {
       fullWidth
       maxWidth="md"
       open={open}
-      onClose={handleClose}
+      onClose={() => handleClose(false)}
       className={classes.muiDialog}
       style={{ zIndex: 9999 }}
       PaperProps={{
@@ -210,7 +261,7 @@ const DropboxFileSelectionModal = (props) => {
         >
           Download Selected Files
         </Button>
-        <Button onClick={handleClose}>Cancel</Button>
+        <Button onClick={() => handleClose(false)}>Cancel</Button>
       </DialogActions>
     </Dialog>
   );

@@ -171,6 +171,24 @@ catalogAPI.fetchVaultLink = async (shortName) => {
   return await fetch(`${apiUrl}/api/data/vaultfiles/${shortName}`);
 };
 
+catalogAPI.downloadVaultFiles = async (shortName, selectedFiles) => {
+  const endpoint = `${apiUrl}/api/data/download-vault-files`;
+  const requestOptions = {
+    ...fetchOptions,
+    method: 'POST',
+    headers: {
+      ...fetchOptions.headers,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      shortName,
+      files: selectedFiles,
+    }),
+  };
+
+  return await fetch(endpoint, requestOptions);
+};
+
 // Wrap each endpoint in a try/catch because...
 // if the fetch fails before the request is sent, for example due to a CORS
 // violation or if the network is down,
