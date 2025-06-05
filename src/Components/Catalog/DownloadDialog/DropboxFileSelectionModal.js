@@ -114,7 +114,7 @@ const DropboxFileSelectionModal = (props) => {
   // Handle download button click
   const handleSubmit = () => {
     console.log('Selected files for download:', selectedFiles);
-    handleClose();
+    handleClose(true);
   };
 
   // Check if all files are selected

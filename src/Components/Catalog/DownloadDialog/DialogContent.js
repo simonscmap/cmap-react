@@ -601,7 +601,12 @@ const DownloadDialog = (props) => {
       />
       <DropboxFileSelectionModal
         open={fileSelectionModalOpen}
-        handleClose={() => setFileSelectionModalOpen(false)}
+        handleClose={(closeParentToo) => {
+          setFileSelectionModalOpen(false);
+          if (closeParentToo) {
+            handleClose(); // Close the parent dialog as well
+          }
+        }}
         vaultLink={vaultLink}
       />
     </div>
