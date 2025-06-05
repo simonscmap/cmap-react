@@ -167,6 +167,10 @@ catalogAPI.fetchProgramDetails = async (programName) => {
   );
 };
 
+// catalogAPI.fetchVaultLink = async (shortName) => {
+//   return await fetch(`${apiUrl}/api/data/share/${shortName}`);
+// };
+
 catalogAPI.fetchVaultLink = async (shortName) => {
   return await fetch(`${apiUrl}/api/data/dropbox-vault/get-files/${shortName}`);
 };
@@ -194,7 +198,7 @@ catalogAPI.downloadVaultFiles = async (shortName, selectedFiles) => {
 // violation or if the network is down,
 // then redux-saga will choke and no subsequent middleware will run,
 // effectively crippling the application.
-// yay error handling.
+// yay error eandling.
 
 let safeAPI = Object.entries(catalogAPI)
   .map(([name, fn]) => {
