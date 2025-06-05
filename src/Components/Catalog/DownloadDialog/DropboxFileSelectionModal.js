@@ -122,16 +122,19 @@ const DropboxFileSelectionModal = (props) => {
       };
       handleClose(false, loadingState);
 
-      // Get the response from the API
-      const response = await catalogAPI.downloadVaultFiles(
+      const response = await catalogAPI.downloadDropboxVaultFiles(
         vaultLink.shortName,
+        vaultLink.datasetId,
         selectedFiles.map((file) => ({
           path: file.path,
           name: file.name,
           folder: file.folder,
         })),
       );
-
+      console.log(
+        '🐛🐛🐛 DropboxFileSelectionModal.js:134 response:',
+        response,
+      );
       if (!response.ok) {
         throw new Error(`Error: ${response.status} ${response.statusText}`);
       }

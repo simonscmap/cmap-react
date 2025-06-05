@@ -172,11 +172,17 @@ catalogAPI.fetchProgramDetails = async (programName) => {
 // };
 
 catalogAPI.fetchVaultLink = async (shortName) => {
-  return await fetch(`${apiUrl}/api/data/dropbox-vault/get-files/${shortName}`);
+  return await fetch(
+    `${apiUrl}/api/data/dropbox-vault/get-files-info/${shortName}`,
+  );
 };
 
-catalogAPI.downloadVaultFiles = async (shortName, selectedFiles) => {
-  const endpoint = `${apiUrl}/api/data/download-vault-files`;
+catalogAPI.downloadDropboxVaultFiles = async (
+  shortName,
+  datasetId,
+  selectedFiles,
+) => {
+  const endpoint = `${apiUrl}/api/data/dropbox-vault/download-files`;
   const requestOptions = {
     ...fetchOptions,
     method: 'POST',
@@ -186,6 +192,7 @@ catalogAPI.downloadVaultFiles = async (shortName, selectedFiles) => {
     },
     body: JSON.stringify({
       shortName,
+      datasetId,
       files: selectedFiles,
     }),
   };

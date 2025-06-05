@@ -183,7 +183,6 @@ const DownloadDialog = (props) => {
   // Dropbox Link
   const vaultLink = useSelector((state) => state.download.vaultLink);
   // Download Size Validation
-  console.log('🐛🐛🐛 DialogContent.js:184 vaultLink:', vaultLink);
 
   let downloadState = useSelector((state) => state.download);
   let querySizes = useSelector((state) => state.download.querySizeChecks);
