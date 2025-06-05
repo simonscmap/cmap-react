@@ -168,7 +168,7 @@ catalogAPI.fetchProgramDetails = async (programName) => {
 };
 
 catalogAPI.fetchVaultLink = async (shortName) => {
-  return await fetch(`${apiUrl}/api/data/vaultfiles/${shortName}`);
+  return await fetch(`${apiUrl}/api/data/dropbox-vault/get-files/${shortName}`);
 };
 
 catalogAPI.downloadVaultFiles = async (shortName, selectedFiles) => {
