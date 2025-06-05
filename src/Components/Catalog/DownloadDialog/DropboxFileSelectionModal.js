@@ -126,7 +126,7 @@ const DropboxFileSelectionModal = (props) => {
         vaultLink.shortName,
         vaultLink.datasetId,
         selectedFiles.map((file) => ({
-          path: file.path,
+          filePath: file.path,
           name: file.name,
           folder: file.folder,
         })),
