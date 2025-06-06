@@ -266,18 +266,22 @@ function checkStartTime() {
 }
 
 function checkStartLat() {
-  if (this.state.lat1 > this.props.vizPageDataTargetDetails.Lat_Max)
+  if (this.state.lat1 > this.props.vizPageDataTargetDetails.Lat_Max) {
     return `Maximum start lat is ${this.props.vizPageDataTargetDetails.Lat_Max}`;
-  if (this.state.lat1 > this.state.lat2)
+  }
+  if (this.state.lat1 > this.state.lat2) {
     return `Start cannot be greater than end`;
+  }
   return '';
 }
 
 function checkEndLat() {
-  if (this.state.lat2 < this.props.vizPageDataTargetDetails.Lat_Min)
+  if (this.state.lat2 < this.props.vizPageDataTargetDetails.Lat_Min) {
     return `Minimum end lat is ${this.props.vizPageDataTargetDetails.Lat_Min}`;
-  if (this.state.lat1 > this.state.lat2)
+  }
+  if (this.state.lat1 > this.state.lat2) {
     return `Start cannot be greater than end`;
+  }
   return '';
 }
 
@@ -286,10 +290,14 @@ function checkStartLon() {
   const { Lon_Min, Lon_Max } = this.props.vizPageDataTargetDetails;
 
   if (lon2 >= lon1) {
-    if (lon1 > Lon_Max) return `Maximum start lon is ${Lon_Max}`;
+    if (lon1 > Lon_Max) {
+      return `Maximum start lon is ${Lon_Max}`;
+    }
   } else {
     if (Lon_Min > lon1 || Lon_Max > lon1 || Lon_Min < lon2 || Lon_Max < lon2) {
-    } else return `Longitude outside dataset coverage`;
+    } else {
+      return `Longitude outside dataset coverage`;
+    }
   }
   return '';
 }
@@ -299,29 +307,35 @@ function checkEndLon() {
   const { Lon_Min } = this.props.vizPageDataTargetDetails;
 
   if (lon2 >= lon1) {
-    if (lon2 < Lon_Min) return `Minimum end lon is ${Lon_Min}`;
+    if (lon2 < Lon_Min) {
+      return `Minimum end lon is ${Lon_Min}`;
+    }
   }
 
   return '';
 }
 
 function checkHeatmap() {
-  if (this.state.irregularSpatialResolution)
+  if (this.state.irregularSpatialResolution) {
     return validation.type.dataIsIrregular.replace('$', 'Heatmap');
+  }
   return '';
 }
 
 function checkContour() {
-  if (this.state.irregularSpatialResolution)
+  if (this.state.irregularSpatialResolution) {
     return validation.type.dataIsIrregular.replace('$', 'Contour');
+  }
   return '';
 }
 
 function checkSection() {
-  if (this.state.surfaceOnly)
+  if (this.state.surfaceOnly) {
     return validation.type.surfaceOnlyDataset.replace('$', 'variable');
-  if (this.state.irregularSpatialResolution)
+  }
+  if (this.state.irregularSpatialResolution) {
     return validation.type.dataIsIrregular.replace('$', 'Section Map');
+  }
   return '';
 }
 
@@ -330,26 +344,33 @@ function checkHistogram() {
 }
 
 function checkTimeSeries() {
-  if (this.state.irregularSpatialResolution)
+  if (this.state.irregularSpatialResolution) {
     return validation.type.dataIsIrregular.replace('$', 'Time Series');
+  }
   return '';
 }
 
 function checkDepthProfile() {
-  if (this.state.surfaceOnly)
+  if (this.state.surfaceOnly) {
     return validation.type.surfaceOnlyDataset.replace('$', 'variable');
+  }
   return '';
 }
 
 function checkSparseMap() {
-  if (!this.state.irregularSpatialResolution)
+  if (!this.state.irregularSpatialResolution) {
     return validation.type.irregularOnly;
+  }
   return '';
 }
 
 function checkGeneralWarn(dataSize) {
-  if (!this.props.selectedVizType) return '';
-  if (dataSize > 1200000) return validation.generic.dataSizeWarning;
+  if (!this.props.selectedVizType) {
+    return '';
+  }
+  if (dataSize > 1200000) {
+    return validation.generic.dataSizeWarning;
+  }
   return '';
 }
 
@@ -359,15 +380,20 @@ function checkGeneralPrevent(dataSize) {
 
   if (!this.props.user) {
     let guestPlotCount = parseInt(Cookies.get('guestPlotCount'));
-    if (guestPlotCount && guestPlotCount >= 10)
+    if (guestPlotCount && guestPlotCount >= 10) {
       return validation.generic.guestMaximumReached;
+    }
   }
 
-  if (!this.state.selectedVizType) return validation.generic.vizTypeMissing;
-  if (this.state.selectedVizType === vizSubTypes.heatmap && webGLCount > 14)
+  if (!this.state.selectedVizType) {
+    return validation.generic.vizTypeMissing;
+  }
+  if (this.state.selectedVizType === vizSubTypes.heatmap && webGLCount > 14) {
     return validation.type.webGLContextLimit;
-  if (this.state.selectedVizType === vizSubTypes.sparse && webGLCount > 11)
+  }
+  if (this.state.selectedVizType === vizSubTypes.sparse && webGLCount > 11) {
     return validation.type.webGLContextLimit;
+  }
 
   if (this.state.selectedVizType === vizSubTypes.heatmap) {
     let availableContexts = 16 - webGLCount;
@@ -377,8 +403,9 @@ function checkGeneralPrevent(dataSize) {
         this.props.depth1,
         this.props.depth2,
       ) || 1;
-    if (availableContexts - depthCount < 1)
+    if (availableContexts - depthCount < 1) {
       return 'Too many distinct depths to render heatmap. Please reduce depth range or select section map.';
+    }
   }
 
   // DATA SIZE CHECKS
@@ -421,22 +448,26 @@ function checkGeneralPrevent(dataSize) {
   if (dataSize > 6000000) {
     return validation.generic.dataSizePrevent;
   }
-  if (!this.props.vizPageDataTargetDetails)
+  if (!this.props.vizPageDataTargetDetails) {
     return validation.generic.variableMissing;
-  if (this.props.charts.length > 9)
+  }
+  if (this.props.charts.length > 9) {
     return 'Total number of plots is too large. Please delete 1 or more';
+  }
 
   // TODO extract magic number
   // AGGREGATO SIZE ACROSS ALL CHARTS
-  if (aggregateSize + dataSize > 4000000)
+  if (aggregateSize + dataSize > 4000000) {
     return 'Total rendered data amount is too large. Please delete 1 or more plots.';
+  }
 
   if (
     !this.state.irregularSpatialResolution &&
     this.state.selectedVizType !== vizSubTypes.timeSeries &&
     Date.parse(this.state.dt2) - Date.parse(this.state.dt1) > 86400000 * 365
-  )
+  ) {
     return 'Maximum date range for non-time series plots of gridded data is 1 year';
+  }
   return '';
 }
 
@@ -508,8 +539,8 @@ function handleValidation() {
   const visualizeButtonTooltip = validations.disableVisualizeMessage
     ? validations.disableVisualizeMessage
     : validations.generalPreventMessage
-      ? validations.generalPreventMessage
-      : null;
+    ? validations.generalPreventMessage
+    : null;
 
   const payload = {
     disableVisualizeMessage,
