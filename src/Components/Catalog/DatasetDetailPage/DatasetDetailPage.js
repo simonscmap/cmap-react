@@ -23,7 +23,7 @@ import NewsSection from './NewsSection';
 import SectionHeader from './SectionHeader';
 import SubscribeButton from '../../User/Subscriptions/SubscribeButton';
 import { DownloadButtonOutlined } from '../DownloadDialog/DownloadButtons';
-import styles from './datasetFullPageStyles';
+import styles from './DatasetDetailPage.style';
 
 import SkeletonWrapper from '../../UI/SkeletonWrapper';
 import ErrorCard from '../../Common/ErrorCard';
