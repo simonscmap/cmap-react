@@ -11,7 +11,7 @@ import temporalResolutions from '../../../enums/temporalResolutions';
 // util
 import countWebGLContexts from '../../../Utility/countWebGLContexts';
 import depthUtils from '../../../Utility/depthCounter';
-import isISODateString from '../../../Utility/Time/isISO';
+import isUtcDateTimeString from '../../../Utility/Time/isISO';
 
 import states from '../../../enums/asyncRequestStates';
 
@@ -59,7 +59,7 @@ function checkStartDateTime() {
     this.props.vizPageDataTargetDetails.Temporal_Resolution ===
     temporalResolutions.monthlyClimatology;
 
-  if (!isMonthly && !isISODateString(this.state.dt1)) {
+  if (!isMonthly && !isUtcDateTimeString(this.state.dt1)) {
     return 'Invalid date/time';
   }
 }
@@ -68,8 +68,7 @@ function checkEndDateTime() {
   let isMonthly =
     this.props.vizPageDataTargetDetails.Temporal_Resolution ===
     temporalResolutions.monthlyClimatology;
-
-  if (!isMonthly && !isISODateString(this.state.dt2)) {
+  if (!isMonthly && !isUtcDateTimeString(this.state.dt2)) {
     return 'Invalid date/time';
   }
 }
@@ -186,7 +185,7 @@ function checkEndDate() {
       return 'End date cannot be less than start';
     }
   } else {
-    if (!this.state.dt2 || !isISODateString(this.state.dt2)) {
+    if (!this.state.dt2 || !isUtcDateTimeString(this.state.dt2)) {
       return 'Invalid date';
     }
     if (new Date(this.state.dt1) > new Date(this.state.dt2)) {
@@ -477,7 +476,6 @@ function estimateDataSize() {
 }
 
 function handleValidation() {
-  // console.log('validating...');
   const details = this.props.vizPageDataTargetDetails;
   if (!details) {
     return {
