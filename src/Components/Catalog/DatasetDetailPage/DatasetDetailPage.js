@@ -2,7 +2,7 @@
 // Text on this page has inline styling for font color because ag-grid's theme classes override mui classes when a dialog is opened
 // from inside the grid
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { Grid, Link, Typography, withStyles } from '@material-ui/core';
@@ -174,6 +174,41 @@ const DatasetFullPage = (props) => {
     };
   }, [longName]);
 
+  let [ref, setRef] = useState(null);
+  let [intervalId, setIntervalId] = useState(null);
+  useLayoutEffect(() => {
+    if (ref) {
+      const s = () =>
+        ref.scroll({
+          top: 1,
+          left: 0,
+          behavior: 'instant',
+        });
+      const id = setInterval(s, 100);
+      setIntervalId(id);
+    }
+  }, [ref]);
+  const handleScroll = () => {
+    if (ref) {
+      const pos = ref.scrollTop;
+      if (pos < 1) {
+        const scrollBack = () => {
+          if (ref) {
+            ref.scroll({
+              top: 1,
+              left: 0,
+              behavior: 'instant',
+            });
+          }
+        };
+        setTimeout(scrollBack, 200);
+      }
+    }
+    if (intervalId) {
+      clearInterval(intervalId);
+    }
+  };
+
   if (failed) {
     let details = `You requested to view "${props.match.params.dataset}".`;
     return (
@@ -215,7 +250,11 @@ const DatasetFullPage = (props) => {
                 <div className={classes.horizontalFlex}>
                   <div className={classes.descriptionContainer}>
                     <SectionHeader title={'Description'} />
-                    <div className={classes.descriptionContent}>
+                    <div
+                      className={classes.descriptionContent}
+                      ref={setRef}
+                      onScroll={handleScroll}
+                    >
                       <ReactMarkdown
                         source={description}
                         className={classes.markdown}
