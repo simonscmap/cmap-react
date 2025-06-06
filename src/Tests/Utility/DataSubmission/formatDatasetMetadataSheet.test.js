@@ -3,7 +3,7 @@ import XLSX from 'xlsx';
 import createTestWorkbook from '../../TestUtils/createTestWorkbook';
 import formatDatasetMetadata from '../../../Components/DataSubmission/Helpers/formatDatasetMetadataSheet';
 
-describe('Correctly formats dates', () => {
+describe('formatDatasetMetadataSheet', () => {
     test('Handle excel date serialization formats', () => {
         let wb = createTestWorkbook.excelDate();
         let metadata = XLSX.utils.sheet_to_json(wb.Sheets['dataset_meta_data'], {defval: null});
