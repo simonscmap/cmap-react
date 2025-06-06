@@ -174,6 +174,8 @@ const DatasetFullPage = (props) => {
     };
   }, [longName]);
 
+  // Scroll to the top of the description content when the page loads to hint at scrollability
+  // (macOS won't show scrollbar unless scrolling). Copied from Stories.js.
   let [ref, setRef] = useState(null);
   let [intervalId, setIntervalId] = useState(null);
   useLayoutEffect(() => {
@@ -188,6 +190,7 @@ const DatasetFullPage = (props) => {
       setIntervalId(id);
     }
   }, [ref]);
+
   const handleScroll = () => {
     if (ref) {
       const pos = ref.scrollTop;
