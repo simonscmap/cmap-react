@@ -30,19 +30,6 @@ import states from '../../../enums/asyncRequestStates';
 
 import { gridStyles } from './gridStyles';
 
-// Simple test component to verify tool panel functionality
-const SimpleTestToolPanel = () => {
-  console.log('SimpleTestToolPanel rendering');
-  return (
-    <div style={{ padding: '20px' }}>
-      <h3>Simple Test Tool Panel</h3>
-      <p>
-        This is a test panel to verify custom components work in the sidebar.
-      </p>
-    </div>
-  );
-};
-
 const DatasetPageAGGrid = (props) => {
   const { variables, classes } = props;
   const gridRef = useRef();
@@ -307,15 +294,6 @@ const DatasetPageAGGrid = (props) => {
                   setCurrentFocus,
                 },
               },
-              {
-                id: 'testPanel',
-                labelKey: 'Test Panel',
-                labelDefault: 'Test Panel',
-                minWidth: 225,
-                width: 225,
-                iconKey: 'grip',
-                toolPanelFramework: SimpleTestToolPanel,
-              },
             ],
           }}
         />
@@ -367,10 +345,7 @@ const DatasetVariablesTableWithLoadingState = connect(mapStateToProps)(
           Unstructured_Variable_Metadata: metadata[variable.Variable] || null,
         });
       });
-      console.log(
-        '🐛🐛🐛 DatasetPageAGGrid.js:360 ammendedVariables:',
-        ammendedVariables,
-      );
+
       return <DatasetVariables variables={ammendedVariables} />;
     } else if (eitherHasFailed) {
       return (

@@ -1,7 +1,3 @@
-import { getVariableUMFromParams } from './datagridHelpers';
-import OpenInNewIcon from '@material-ui/icons/OpenInNew';
-import React from 'react';
-
 export const defaultColumnDef = {
   cellStyle: { fontSize: '12px', lineHeight: '38px' },
   menuTabs: [],
@@ -18,7 +14,7 @@ const variableFilterParams = {
 const unstructuredMetadataFilterParams = {
   filterOptions: ['contains', 'notContains'],
   debounceMs: 200,
-  textMatcher: (params) => {
+  textMatcher: () => {
     return true;
   },
 };
@@ -52,10 +48,7 @@ export const columnDefs = [
           if (!params.data.Comment) {
             return '';
           }
-          let {
-            eParentOfValue: { clientWidth },
-          } = params;
-          return `<a style="cursor: pointer;">${params.data.Comment.slice(0, Math.floor(clientWidth / 8))}...</a>`;
+          return `<div style="cursor: pointer; font-size: 10px; text-decoration: underline; color: rgb(105, 255, 242);">View comment</div>`;
         },
       },
       {
