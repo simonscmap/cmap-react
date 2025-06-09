@@ -19,13 +19,21 @@ export const VariableRowRender = withStyles(toolPanelStyles)(
     if (!comment) {
       return '';
     }
-
+    console.log('🐛🐛🐛 CommentToolPanel.js:22 comment:', comment);
     return (
-      <div className={classes.vumListRow}>
-        <div className={classes.variableName}>
+      <div
+        className={classes.vumListRow}
+        data-testid="variable-comment-row"
+        id="variable-comment-row"
+      >
+        <div
+          className={classes.variableName}
+          data-testid="variable-name-container"
+        >
           <div>
             <a onClick={() => handler(longName)}>{longName || 'no name'}</a>
           </div>
+          <div>BLOOPIE BOOP</div>
           <div>
             <div className={classes.longNameChip}>Variable</div>
           </div>
@@ -36,35 +44,33 @@ export const VariableRowRender = withStyles(toolPanelStyles)(
   }),
 );
 
-export const ListRender = withStyles(toolPanelStyles)(({
-  rows,
-  classes,
-  handleVariableLink,
-}) => {
-  if (!rows) {
-    return '';
-  }
-
-  return (
-    <div className={classes.vumListContainer}>
-      <div className={classes.allCommentsLabel}>
-        Comments <span>({rows.length} matching variables with comments)</span>
+export const ListRender = withStyles(toolPanelStyles)(
+  ({ rows, classes, handleVariableLink }) => {
+    if (!rows) {
+      return '';
+    }
+    console.log('🐛🐛🐛 CommentToolPanel.js:44 rows:', rows);
+    return (
+      <div className={classes.vumListContainer}>
+        <div className={classes.allCommentsLabel}>
+          Comments <span>({rows.length} matching variables with comments)</span>
+        </div>
+        {rows.map((r, i) => {
+          let comment = r.Comment;
+          // for each row, spit out a portion of the table with UM
+          return (
+            <VariableRowRender
+              comment={comment}
+              longName={r.Long_Name}
+              handleVariableLink={handleVariableLink}
+              key={`blob-${i}`}
+            />
+          );
+        })}
       </div>
-      {rows.map((r, i) => {
-        let comment = r.Comment;
-        // for each row, spit out a portion of the table with UM
-        return (
-          <VariableRowRender
-            comment={comment}
-            longName={r.Long_Name}
-            handleVariableLink={handleVariableLink}
-            key={`blob-${i}`}
-          />
-        );
-      })}
-    </div>
-  );
-});
+    );
+  },
+);
 
 const CommentList = ({ shouldDisplay }) => {
   let [isLoaded, setIsLoaded] = useState(false);
