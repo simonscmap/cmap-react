@@ -36,7 +36,7 @@ export const toolPanelStyles = () => ({
     flexDirection: 'row',
     flexWrap: 'nowrap',
     justifyContent: 'space-between',
-    fontSize: '1em',
+    fontSize: '1.5em',
     alignContent: 'center',
     '& span': {
       borderBottom: `1px solid ${colors.primary}`,

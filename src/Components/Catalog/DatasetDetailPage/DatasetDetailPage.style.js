@@ -95,6 +95,7 @@ const styles = (theme) => ({
       textAlign: 'justify',
       fontWeight: 400,
       lineHeight: 1.5,
+      whiteSpace: 'pre-line',
     },
   },
   downloadLink: {

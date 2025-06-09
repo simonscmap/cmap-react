@@ -266,11 +266,11 @@ const DatasetPageAGGrid = (props) => {
                 // The default label if `labelKey` is missing or does not map to valid text through localisation.
                 labelDefault: 'Additional Variable Metadata',
                 // The min width of the tool panel. Default: `100`
-                minWidth: 300,
+                minWidth: 225,
                 // The max width of the tool panel. Default: `undefined`
                 // maxWidth: number,
                 // The initial width of the tool panel. Default: `$side-bar-panel-width (theme variable)`
-                width: 500,
+                width: 225,
                 // The key of the icon to be used as a graphical aid beside the label in the side bar.
                 iconKey: 'grip',
                 // The tool panel component to use as the panel.
@@ -281,26 +281,17 @@ const DatasetPageAGGrid = (props) => {
                 // toolPanelParams?: any;
               },
               {
-                // The unique ID for this panel. Used in the API and elsewhere to refer to the panel.
                 id: 'comments',
-                // The key used for localisation for displaying the label. The label is displayed in the tab button.
                 labelKey: 'comments',
-                // The default label if `labelKey` is missing or does not map to valid text through localisation.
                 labelDefault: 'Comments',
-                // The min width of the tool panel. Default: `100`
-                minWidth: 300,
-                // The max width of the tool panel. Default: `undefined`
-                // maxWidth: number,
-                // The initial width of the tool panel. Default: `$side-bar-panel-width (theme variable)`
-                width: 500,
-                // The key of the icon to be used as a graphical aid beside the label in the side bar.
+                minWidth: 225,
+                width: 225,
                 iconKey: 'grip',
-                // The tool panel component to use as the panel.
-                // The provided panels use components `agColumnsToolPanel` and `agFiltersToolPanel`.
-                // To provide your own custom panel component, you reference it here.
                 toolPanelFramework: CommentToolPanel,
-                // Customise the parameters provided to the `toolPanel` component.
-                // toolPanelParams?: any;
+                toolPanelParams: {
+                  currentFocus,
+                  setCurrentFocus,
+                },
               },
             ],
           }}
@@ -321,67 +312,68 @@ const mapStateToProps = (state) => ({
   metadata: state.datasetDetailsPage.unstructuredVariableMetadata,
 });
 
-const DatasetVariablesTableWithLoadingState = connect(mapStateToProps)((
-  props,
-) => {
-  let { loadingState, metadataLoadingState, dataset, variables, metadata } =
-    props;
+const DatasetVariablesTableWithLoadingState = connect(mapStateToProps)(
+  (props) => {
+    let { loadingState, metadataLoadingState, dataset, variables, metadata } =
+      props;
 
-  let eitherHasFailed = [loadingState, metadataLoadingState].some(
-    (s) => s === states.failed,
-  );
-  let eitherIsPending = [loadingState, metadataLoadingState].some(
-    (s) => s === states.inProgress,
-  );
-  let bothHaveSucceeded = [loadingState, metadataLoadingState].every(
-    (s) => s === states.succeeded,
-  );
-
-  if (bothHaveSucceeded && dataset) {
-    let datasetStats = {
-      Time_Min: dataset.Time_Min,
-      Time_Max: dataset.Time_Max,
-      Lat_Min: dataset.Lat_Min,
-      Lat_Max: dataset.Lat_Max,
-      Lon_Min: dataset.Lon_Min,
-      Lon_Max: dataset.Lon_Max,
-      Depth_Min: dataset.Depth_Min,
-      Depth_Max: dataset.Depth_Max,
-    };
-
-    let ammendedVariables = variables.map((variable) => {
-      return Object.assign({}, variable, datasetStats, {
-        Unstructured_Variable_Metadata: metadata[variable.Variable] || null,
-      });
-    });
-
-    return <DatasetVariables variables={ammendedVariables} />;
-  } else if (eitherHasFailed) {
-    return (
-      <Typography>
-        Oops! There was an error loading the dataset variables.
-      </Typography>
+    let eitherHasFailed = [loadingState, metadataLoadingState].some(
+      (s) => s === states.failed,
     );
-  } else if (eitherIsPending) {
-    return (
-      <div id="DatasetAGGrid">
-        <div
-          className={'ag-theme-material'}
-          style={{
-            height: '400px',
-            border: '1px solid black',
-            lineHeight: '400px',
-          }}
-        >
-          <div style={{ margin: '0 auto' }}>
-            <Spinner />
+    let eitherIsPending = [loadingState, metadataLoadingState].some(
+      (s) => s === states.inProgress,
+    );
+    let bothHaveSucceeded = [loadingState, metadataLoadingState].every(
+      (s) => s === states.succeeded,
+    );
+
+    if (bothHaveSucceeded && dataset) {
+      let datasetStats = {
+        Time_Min: dataset.Time_Min,
+        Time_Max: dataset.Time_Max,
+        Lat_Min: dataset.Lat_Min,
+        Lat_Max: dataset.Lat_Max,
+        Lon_Min: dataset.Lon_Min,
+        Lon_Max: dataset.Lon_Max,
+        Depth_Min: dataset.Depth_Min,
+        Depth_Max: dataset.Depth_Max,
+      };
+
+      let ammendedVariables = variables.map((variable) => {
+        return Object.assign({}, variable, datasetStats, {
+          Unstructured_Variable_Metadata: metadata[variable.Variable] || null,
+        });
+      });
+
+      return <DatasetVariables variables={ammendedVariables} />;
+    } else if (eitherHasFailed) {
+      return (
+        <Typography>
+          Oops! There was an error loading the dataset variables.
+        </Typography>
+      );
+    } else if (eitherIsPending) {
+      return (
+        <div id="DatasetAGGrid">
+          <div
+            className={'ag-theme-material'}
+            style={{
+              height: '400px',
+              border: '1px solid black',
+              lineHeight: '400px',
+            }}
+          >
+            Doopie Doopie Doopie
+            <div style={{ margin: '0 auto' }}>
+              <Spinner />
+            </div>
           </div>
         </div>
-      </div>
-    );
-  } else {
-    return '';
-  }
-});
+      );
+    } else {
+      return '';
+    }
+  },
+);
 
 export default DatasetVariablesTableWithLoadingState;
