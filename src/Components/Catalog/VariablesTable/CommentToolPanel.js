@@ -120,6 +120,7 @@ const CommentList = ({ shouldDisplay }) => {
 };
 
 const SidebarCommentToolPanel = withStyles(toolPanelStyles)((props) => {
+  console.log('SidebarCommentToolPanel being rendered with props:', props);
   let { classes } = props;
   let [focusedVariableData, setFocusedVariableData] = useState(null);
   let [isFocusView, setIsFocusView] = useState(false);
@@ -175,7 +176,10 @@ const SidebarCommentToolPanel = withStyles(toolPanelStyles)((props) => {
   let handleExit = () => {
     dispatchCustomWindowEvent('exitToolBar', {});
   };
-
+  console.log(
+    '🐛🐛🐛 CommentToolPanel.js:178 focusedVariableData:',
+    focusedVariableData,
+  );
   // if render comment, render single comment from event payload
   // else render all comments
   return (
@@ -190,7 +194,7 @@ const SidebarCommentToolPanel = withStyles(toolPanelStyles)((props) => {
         </div>
       </div>
 
-      {isFocusView && focusedVariableData && (
+      {focusedVariableData && (
         <div>
           <div className={classes.variableFocusLabelContainer}>
             <div className={classes.variableLabel}>{/* removed */}</div>
@@ -205,9 +209,22 @@ const SidebarCommentToolPanel = withStyles(toolPanelStyles)((props) => {
           />
         </div>
       )}
-      <CommentList shouldDisplay={!isFocusView} />
+      <CommentList shouldDisplay={isFocusView} />
     </div>
   );
 });
+
+// Simple test component to verify tool panel functionality
+export const SimpleTestToolPanel = () => {
+  console.log('SimpleTestToolPanel rendering');
+  return (
+    <div style={{ padding: '20px' }}>
+      <h3>Simple Test Tool Panel</h3>
+      <p>
+        This is a test panel to verify custom components work in the sidebar.
+      </p>
+    </div>
+  );
+};
 
 export default SidebarCommentToolPanel;
