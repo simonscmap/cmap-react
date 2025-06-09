@@ -15,7 +15,7 @@ import ReactDOMServer from 'react-dom/server';
 import HelpButtonAndDialog from '../../Navigation/Help/HelpButtonAndDialog';
 import VariableGridHelpContents from './VariableGridHelpContents';
 import MetadataToolPanel from './MetadataToolPanel';
-import CommentToolPanel, { SimpleTestToolPanel } from './CommentToolPanel';
+import CommentToolPanel from './CommentToolPanel';
 import { columnDefs, defaultColumnDef } from './columnDefinitions';
 import {
   dispatchVariableFocusEvent,
@@ -29,6 +29,19 @@ import Spinner from '../../UI/Spinner';
 import states from '../../../enums/asyncRequestStates';
 
 import { gridStyles } from './gridStyles';
+
+// Simple test component to verify tool panel functionality
+const SimpleTestToolPanel = () => {
+  console.log('SimpleTestToolPanel rendering');
+  return (
+    <div style={{ padding: '20px' }}>
+      <h3>Simple Test Tool Panel</h3>
+      <p>
+        This is a test panel to verify custom components work in the sidebar.
+      </p>
+    </div>
+  );
+};
 
 const DatasetPageAGGrid = (props) => {
   const { variables, classes } = props;
