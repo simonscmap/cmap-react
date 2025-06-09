@@ -88,7 +88,6 @@ const DatasetPageAGGrid = (props) => {
       // dispatch both event to load variable data into both tool panels
       openToolPanel('metadata');
     } else if (colId === 'Comment') {
-      console.log('🐛🐛🐛 DatasetPageAGGrid.js:91 openToolPanel for Comment:');
       openToolPanel('comments');
     } else if (colId === 'unknown') {
       console.error('could not extract colId from cell click event', e);
