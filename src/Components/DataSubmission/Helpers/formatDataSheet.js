@@ -31,73 +31,61 @@ const is1904Format = (workbook) => {
  * @param {Object} dataSheet - The Excel worksheet object from XLSX
  * @param {number} rowIndex - The row index in the Excel file
  * @param {string} columnName - The column name in the Excel file
- * @returns {string} - Human-readable date string as displayed in Excel
+ * @returns {string|null} - Human-readable date string as displayed in Excel, or null if not a number
  */
 export const formatExcelDateForDisplay = (
   excelSerialDate,
-  is1904 = false,
   dataSheet = null,
   rowIndex = null,
   columnName = 'time',
 ) => {
-  if (
-    excelSerialDate === null ||
-    excelSerialDate === undefined ||
-    isNaN(excelSerialDate)
-  ) {
-    return String(excelSerialDate);
+  // Only process numeric values
+  if (typeof excelSerialDate !== 'number') {
+    return null;
   }
 
   // Try to get the formatted string directly from the worksheet
   try {
     // Find the cell reference (e.g., 'A1', 'B2') for the time column in this row
-    // First, find column letter for 'time'
-    const timeColRef = Object.keys(dataSheet).find((key) => {
-      const match = key.match(/([A-Z]+)([0-9]+)/);
-      if (!match) {
+    if (dataSheet && rowIndex !== null) {
+      // First, find column letter for 'time'
+      const timeColRef = Object.keys(dataSheet).find((key) => {
+        const match = key.match(/([A-Z]+)([0-9]+)/);
+        if (!match) {
+          return false;
+        }
+
+        const col = match[1];
+        const row = parseInt(match[2], 10);
+
+        // Check header row (assume row 1 is header)
+        if (
+          row === 1 &&
+          dataSheet[`${col}1`] &&
+          dataSheet[`${col}1`].v.toLowerCase() === columnName.toLowerCase()
+        ) {
+          return true;
+        }
         return false;
-      }
+      });
 
-      const col = match[1];
-      const row = parseInt(match[2], 10);
+      if (timeColRef) {
+        const colLetter = timeColRef.match(/([A-Z]+)/)[1];
+        // Add 2 to rowIndex because Excel is 1-indexed and we also have a header row
+        const cellRef = `${colLetter}${rowIndex + 2}`;
 
-      // Check header row (assume row 1 is header)
-      if (
-        row === 1 &&
-        dataSheet[`${col}1`] &&
-        dataSheet[`${col}1`].v.toLowerCase() === columnName.toLowerCase()
-      ) {
-        return true;
-      }
-      return false;
-    });
-
-    if (timeColRef) {
-      const colLetter = timeColRef.match(/([A-Z]+)/)[1];
-      // Add 2 to rowIndex because Excel is 1-indexed and we also have a header row
-      const cellRef = `${colLetter}${rowIndex + 2}`;
-
-      // Get the formatted value if available
-      if (dataSheet[cellRef] && dataSheet[cellRef].w) {
-        return dataSheet[cellRef].w;
+        // Get the formatted value if available
+        if (dataSheet[cellRef] && dataSheet[cellRef].w) {
+          return dataSheet[cellRef].w;
+        }
       }
     }
 
+    // If we couldn't get the formatted value from the cell directly, use XLSX formatting
     return XLSX.SSF.format('yyyy-mm-dd hh:mm:ss', excelSerialDate);
   } catch (error) {
     console.error('Error formatting Excel date:', error);
-    // Fallback to simple date formatting
-    const EXCEL_EPOCH_OFFSET = 25569;
-    const MS_PER_DAY = 86400 * 1000;
-    const DAYS_BETWEEN_1900_AND_1904 = 1462;
-
-    const adjustedSerialDate = is1904
-      ? excelSerialDate + DAYS_BETWEEN_1900_AND_1904
-      : excelSerialDate;
-
-    const roundedValue = Math.ceil(adjustedSerialDate * 1e7) / 1e7;
-    const utcMilliseconds = (roundedValue - EXCEL_EPOCH_OFFSET) * MS_PER_DAY;
-    return dayjs.utc(utcMilliseconds).format('YYYY-MM-DD HH:mm:ss');
+    return null;
   }
 };
 
@@ -276,14 +264,18 @@ export default (workbook) => {
     let conversionType = TIME_CONVERSION_TYPES.NONE;
     const prevValue = row.time;
     let newValue = prevValue;
-    let prevValueExcelFormatted = formatExcelDateForDisplay(
-      prevValue,
-      is1904,
-      dataSheet,
-      index,
-      'time',
-    );
+    let prevValueExcelFormatted = null;
+
     if (typeof row.time === 'number') {
+      // Get formatted display value for numeric Excel dates
+      prevValueExcelFormatted = formatExcelDateForDisplay(
+        prevValue,
+        is1904,
+        dataSheet,
+        index,
+        'time',
+      );
+
       // Convert the numeric Excel date to UTC string
       const convertedDate = convertExcelSerialDateToUTC(row.time, is1904);
 
