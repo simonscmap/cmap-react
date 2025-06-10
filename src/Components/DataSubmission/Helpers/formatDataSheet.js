@@ -53,6 +53,7 @@ export const convertExcelSerialDateToUTC = (
 };
 
 const processTimeString = (timeString) => {
+  console.log('🐛🐛🐛 formatDataSheet.js:56 timeString:', timeString);
   if (!isValidDateTimeComponents(timeString)) {
     return {
       value: timeString,
@@ -60,17 +61,19 @@ const processTimeString = (timeString) => {
     };
   }
 
-  const parsedDate = dayjs(timeString);
   const hasTimezoneInfo = timeString.match(/[Z]|[+-]\d{2}(:?\d{2})?$/);
 
   if (!hasTimezoneInfo) {
-    // No timezone info, convert to UTC
+    // No timezone info, assume it's already UTC and add Z suffix
+    // Parse as UTC directly instead of using local timezone
+    const parsedDateUtc = dayjs.utc(timeString);
     return {
-      value: parsedDate.utc().format(),
+      value: parsedDateUtc.format(),
       conversionType: TIME_CONVERSION_TYPES.STRING_NO_TZ_TO_UTC,
     };
   } else {
     // Has timezone info - check if it's already UTC
+    const parsedDate = dayjs(timeString);
     const offset = parsedDate.utcOffset();
 
     // Consider both exact zero and very small offsets (floating point precision) as UTC
@@ -210,6 +213,7 @@ export default (workbook) => {
     } else if (typeof row.time === 'string') {
       // Process string time values
       const result = processTimeString(row.time);
+      console.log('🐛🐛🐛 formatDataSheet.js:214 result:', result);
       newValue = result.value;
       row.time = newValue;
       conversionType = result.conversionType;
