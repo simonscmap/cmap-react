@@ -94,7 +94,7 @@ const TimeChangesTable = (props) => {
         <Table stickyHeader className={classes.table} size="small">
           <TableHead>
             <TableRow>
-              <TableCell>Row</TableCell>
+              <TableCell>Excel Row</TableCell>
               <TableCell>Original Value</TableCell>
               <TableCell>Converted Value</TableCell>
               <TableCell>Conversion Type</TableCell>
