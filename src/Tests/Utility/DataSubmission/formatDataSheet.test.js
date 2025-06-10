@@ -59,6 +59,7 @@ describe('processTimeString', () => {
         const result = processTimeString(nonUtcDate);
         
         // Should be converted to UTC (7 hours ahead)
+        console.log('🐛🐛🐛 formatDataSheet.test.js:62 result:', result);
         expect(result.value).toMatch('2022-05-15T19:30:45Z');
         expect(result.conversionType).toBe(TIME_CONVERSION_TYPES.STRING_NON_UTC_TO_UTC);
     });

@@ -212,7 +212,6 @@ export default (workbook) => {
     } else if (typeof row.time === 'string') {
       // Process string time values
       const result = processTimeString(row.time);
-      console.log('🐛🐛🐛 formatDataSheet.js:214 result:', result);
       newValue = result.value;
       row.time = newValue;
       conversionType = result.conversionType;
