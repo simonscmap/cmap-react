@@ -105,7 +105,9 @@ const TimeChangesTable = (props) => {
               <TableRow key={row.row} className={classes.row}>
                 <TableCell>{row.row}</TableCell>
                 <TableCell className={classes.cellBefore}>
-                  {row.prevValue}
+                  {row.prevValueExcelFormatted
+                    ? row.prevValueExcelFormatted
+                    : row.prevValue}
                 </TableCell>
                 <TableCell className={classes.cellAfter}>
                   {row.newValue}

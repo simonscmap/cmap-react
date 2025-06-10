@@ -48,22 +48,6 @@ export const formatExcelDateForDisplay = (
     return String(excelSerialDate);
   }
 
-  // // If we don't have the worksheet, use a default format
-  // if (!dataSheet) {
-  //   // Default to ISO format as a fallback
-  //   const EXCEL_EPOCH_OFFSET = 25569;
-  //   const MS_PER_DAY = 86400 * 1000;
-  //   const DAYS_BETWEEN_1900_AND_1904 = 1462;
-
-  //   const adjustedSerialDate = is1904
-  //     ? excelSerialDate + DAYS_BETWEEN_1900_AND_1904
-  //     : excelSerialDate;
-
-  //   const roundedValue = Math.ceil(adjustedSerialDate * 1e7) / 1e7;
-  //   const utcMilliseconds = (roundedValue - EXCEL_EPOCH_OFFSET) * MS_PER_DAY;
-  //   return dayjs.utc(utcMilliseconds).format('YYYY-MM-DD HH:mm:ss');
-  // }
-
   // Try to get the formatted string directly from the worksheet
   try {
     // Find the cell reference (e.g., 'A1', 'B2') for the time column in this row
@@ -99,16 +83,7 @@ export const formatExcelDateForDisplay = (
       }
     }
 
-    // If we couldn't extract the formatted value, format it ourselves
-    // Get the default date format from the workbook or use ISO
-    const date = XLSX.SSF.parse_date_code(excelSerialDate, {
-      date1904: is1904,
-    });
-    const formattedDate = XLSX.SSF.format(
-      'yyyy-mm-dd hh:mm:ss',
-      excelSerialDate,
-    );
-    return formattedDate;
+    return XLSX.SSF.format('yyyy-mm-dd hh:mm:ss', excelSerialDate);
   } catch (error) {
     console.error('Error formatting Excel date:', error);
     // Fallback to simple date formatting
@@ -241,6 +216,7 @@ export const groupTimeChangesByConversionType = (dataChanges) => {
         conversionType: change.timeConversionType,
         prevValue: String(change.prevValue),
         newValue: String(change.newValue),
+        prevValueExcelFormatted: change.prevValueExcelFormatted,
       });
     }
   });
@@ -307,7 +283,6 @@ export default (workbook) => {
       index,
       'time',
     );
-
     if (typeof row.time === 'number') {
       // Convert the numeric Excel date to UTC string
       const convertedDate = convertExcelSerialDateToUTC(row.time, is1904);

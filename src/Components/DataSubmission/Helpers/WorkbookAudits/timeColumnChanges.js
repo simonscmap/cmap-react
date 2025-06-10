@@ -20,7 +20,7 @@ const check = (standardAuditArgs) => {
 
   // Process the changes using the shared utility
   const exampleChanges = groupTimeChangesByConversionType(dataChanges);
-
+  console.log('🐛🐛🐛 timeColumnChanges.js:23 exampleChanges:', exampleChanges);
   // Use the custom table component to display the changes
   results.push(
     makeIssueWithCustomComponent(
