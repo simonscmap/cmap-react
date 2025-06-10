@@ -197,6 +197,7 @@ export default (workbook) => {
     let conversionType = TIME_CONVERSION_TYPES.NONE;
     const prevValue = row.time;
     let newValue = prevValue;
+    let prevValueExcelFormatted = prevValue;
 
     if (typeof row.time === 'number') {
       // Convert the numeric Excel date to UTC string
@@ -208,6 +209,7 @@ export default (workbook) => {
         row.time = newValue;
         conversionType = TIME_CONVERSION_TYPES.EXCEL_TO_UTC;
         numericDateFormatConverted = true;
+        prevValueExcelFormatted = row.time;
       }
     } else if (typeof row.time === 'string') {
       // Process string time values
@@ -224,6 +226,7 @@ export default (workbook) => {
         timeConversionType: conversionType,
         prevValue: prevValue,
         newValue: newValue,
+        prevValueExcelFormatted,
       });
     }
   });
