@@ -52,8 +52,7 @@ export const convertExcelSerialDateToUTC = (
   return utcISOString;
 };
 
-const processTimeString = (timeString) => {
-  console.log('🐛🐛🐛 formatDataSheet.js:56 timeString:', timeString);
+export const processTimeString = (timeString) => {
   if (!isValidDateTimeComponents(timeString)) {
     return {
       value: timeString,
