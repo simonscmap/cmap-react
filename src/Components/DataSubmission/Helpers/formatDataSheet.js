@@ -11,7 +11,7 @@ dayjs.extend(utc);
 dayjs.extend(tz);
 
 // Enum-like constants for time conversion types
-const TIME_CONVERSION_TYPES = {
+export const TIME_CONVERSION_TYPES = {
   NONE: 'NONE', // No conversion was needed
   EXCEL_TO_UTC: 'EXCEL_TO_UTC', // Excel numeric date converted to UTC
   STRING_NO_TZ_TO_UTC: 'STRING_NO_TZ_TO_UTC', // String without timezone converted to UTC

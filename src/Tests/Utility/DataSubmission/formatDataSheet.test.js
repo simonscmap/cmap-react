@@ -1,7 +1,7 @@
 import XLSX from 'xlsx';
 
 import createTestWorkbook from '../../TestUtils/createTestWorkbook';
-import formatDataSheet from '../../../Components/DataSubmission/Helpers/formatDataSheet';
+import formatDataSheet, { processTimeString } from '../../../Components/DataSubmission/Helpers/formatDataSheet';
 
 describe('formatDataSheet', () => {
     test('Handle excel date serialization formats', () => {
