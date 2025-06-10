@@ -22,6 +22,110 @@ const is1904Format = (workbook) => {
   return Boolean(((workbook.Workbook || {}).WBProps || {}).date1904);
 };
 
+/**
+ * Formats an Excel numeric date value to a human-readable string
+ * that matches what users would see in Excel
+ *
+ * @param {number} excelSerialDate - Excel numeric date value
+ * @param {boolean} is1904 - Whether the workbook uses the 1904 date system
+ * @param {Object} dataSheet - The Excel worksheet object from XLSX
+ * @param {number} rowIndex - The row index in the Excel file
+ * @param {string} columnName - The column name in the Excel file
+ * @returns {string} - Human-readable date string as displayed in Excel
+ */
+export const formatExcelDateForDisplay = (
+  excelSerialDate,
+  is1904 = false,
+  dataSheet = null,
+  rowIndex = null,
+  columnName = 'time',
+) => {
+  if (
+    excelSerialDate === null ||
+    excelSerialDate === undefined ||
+    isNaN(excelSerialDate)
+  ) {
+    return String(excelSerialDate);
+  }
+
+  // // If we don't have the worksheet, use a default format
+  // if (!dataSheet) {
+  //   // Default to ISO format as a fallback
+  //   const EXCEL_EPOCH_OFFSET = 25569;
+  //   const MS_PER_DAY = 86400 * 1000;
+  //   const DAYS_BETWEEN_1900_AND_1904 = 1462;
+
+  //   const adjustedSerialDate = is1904
+  //     ? excelSerialDate + DAYS_BETWEEN_1900_AND_1904
+  //     : excelSerialDate;
+
+  //   const roundedValue = Math.ceil(adjustedSerialDate * 1e7) / 1e7;
+  //   const utcMilliseconds = (roundedValue - EXCEL_EPOCH_OFFSET) * MS_PER_DAY;
+  //   return dayjs.utc(utcMilliseconds).format('YYYY-MM-DD HH:mm:ss');
+  // }
+
+  // Try to get the formatted string directly from the worksheet
+  try {
+    // Find the cell reference (e.g., 'A1', 'B2') for the time column in this row
+    // First, find column letter for 'time'
+    const timeColRef = Object.keys(dataSheet).find((key) => {
+      const match = key.match(/([A-Z]+)([0-9]+)/);
+      if (!match) {
+        return false;
+      }
+
+      const col = match[1];
+      const row = parseInt(match[2], 10);
+
+      // Check header row (assume row 1 is header)
+      if (
+        row === 1 &&
+        dataSheet[`${col}1`] &&
+        dataSheet[`${col}1`].v.toLowerCase() === columnName.toLowerCase()
+      ) {
+        return true;
+      }
+      return false;
+    });
+
+    if (timeColRef) {
+      const colLetter = timeColRef.match(/([A-Z]+)/)[1];
+      // Add 2 to rowIndex because Excel is 1-indexed and we also have a header row
+      const cellRef = `${colLetter}${rowIndex + 2}`;
+
+      // Get the formatted value if available
+      if (dataSheet[cellRef] && dataSheet[cellRef].w) {
+        return dataSheet[cellRef].w;
+      }
+    }
+
+    // If we couldn't extract the formatted value, format it ourselves
+    // Get the default date format from the workbook or use ISO
+    const date = XLSX.SSF.parse_date_code(excelSerialDate, {
+      date1904: is1904,
+    });
+    const formattedDate = XLSX.SSF.format(
+      'yyyy-mm-dd hh:mm:ss',
+      excelSerialDate,
+    );
+    return formattedDate;
+  } catch (error) {
+    console.error('Error formatting Excel date:', error);
+    // Fallback to simple date formatting
+    const EXCEL_EPOCH_OFFSET = 25569;
+    const MS_PER_DAY = 86400 * 1000;
+    const DAYS_BETWEEN_1900_AND_1904 = 1462;
+
+    const adjustedSerialDate = is1904
+      ? excelSerialDate + DAYS_BETWEEN_1900_AND_1904
+      : excelSerialDate;
+
+    const roundedValue = Math.ceil(adjustedSerialDate * 1e7) / 1e7;
+    const utcMilliseconds = (roundedValue - EXCEL_EPOCH_OFFSET) * MS_PER_DAY;
+    return dayjs.utc(utcMilliseconds).format('YYYY-MM-DD HH:mm:ss');
+  }
+};
+
 export const convertExcelSerialDateToUTC = (
   excelSerialDate,
   is1904 = false,
@@ -192,12 +296,17 @@ export default (workbook) => {
     if (row.time === null) {
       return;
     }
-
     // Default conversion type
     let conversionType = TIME_CONVERSION_TYPES.NONE;
     const prevValue = row.time;
     let newValue = prevValue;
-    let prevValueExcelFormatted = prevValue;
+    let prevValueExcelFormatted = formatExcelDateForDisplay(
+      prevValue,
+      is1904,
+      dataSheet,
+      index,
+      'time',
+    );
 
     if (typeof row.time === 'number') {
       // Convert the numeric Excel date to UTC string
@@ -209,7 +318,6 @@ export default (workbook) => {
         row.time = newValue;
         conversionType = TIME_CONVERSION_TYPES.EXCEL_TO_UTC;
         numericDateFormatConverted = true;
-        prevValueExcelFormatted = row.time;
       }
     } else if (typeof row.time === 'string') {
       // Process string time values
