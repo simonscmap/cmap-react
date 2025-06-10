@@ -24,6 +24,7 @@ import SectionHeader from './SectionHeader';
 import SubscribeButton from '../../User/Subscriptions/SubscribeButton';
 import { DownloadButtonOutlined } from '../DownloadDialog/DownloadButtons';
 import styles from './DatasetDetailPage.style';
+import ScrollHintOverlay from './ScrollHintOverlay';
 
 import SkeletonWrapper from '../../UI/SkeletonWrapper';
 import ErrorCard from '../../Common/ErrorCard';
@@ -174,43 +175,43 @@ const DatasetFullPage = (props) => {
     };
   }, [longName]);
 
-  // Scroll to the top of the description content when the page loads to hint at scrollability
-  // (macOS won't show scrollbar unless scrolling). Copied from Stories.js.
-  let [ref, setRef] = useState(null);
-  let [intervalId, setIntervalId] = useState(null);
-  useLayoutEffect(() => {
-    if (ref) {
-      const s = () =>
-        ref.scroll({
-          top: 1,
-          left: 0,
-          behavior: 'instant',
-        });
-      const id = setInterval(s, 100);
-      setIntervalId(id);
-    }
-  }, [ref]);
+  // // Scroll to the top of the description content when the page loads to hint at scrollability
+  // // (macOS won't show scrollbar unless scrolling). Copied from Stories.js.
+  // let [ref, setRef] = useState(null);
+  // let [intervalId, setIntervalId] = useState(null);
+  // useLayoutEffect(() => {
+  //   if (ref) {
+  //     const s = () =>
+  //       ref.scroll({
+  //         top: 1,
+  //         left: 0,
+  //         behavior: 'instant',
+  //       });
+  //     const id = setInterval(s, 100);
+  //     setIntervalId(id);
+  //   }
+  // }, [ref]);
 
-  const handleScroll = () => {
-    if (ref) {
-      const pos = ref.scrollTop;
-      if (pos < 1) {
-        const scrollBack = () => {
-          if (ref) {
-            ref.scroll({
-              top: 1,
-              left: 0,
-              behavior: 'instant',
-            });
-          }
-        };
-        setTimeout(scrollBack, 200);
-      }
-    }
-    if (intervalId) {
-      clearInterval(intervalId);
-    }
-  };
+  // const handleScroll = () => {
+  //   if (ref) {
+  //     const pos = ref.scrollTop;
+  //     if (pos < 1) {
+  //       const scrollBack = () => {
+  //         if (ref) {
+  //           ref.scroll({
+  //             top: 1,
+  //             left: 0,
+  //             behavior: 'instant',
+  //           });
+  //         }
+  //       };
+  //       setTimeout(scrollBack, 200);
+  //     }
+  //   }
+  //   if (intervalId) {
+  //     clearInterval(intervalId);
+  //   }
+  // };
 
   if (failed) {
     let details = `You requested to view "${props.match.params.dataset}".`;
@@ -255,8 +256,8 @@ const DatasetFullPage = (props) => {
                     <SectionHeader title={'Description'} />
                     <div
                       className={classes.descriptionContent}
-                      ref={setRef}
-                      onScroll={handleScroll}
+                      // ref={setRef}
+                      // onScroll={handleScroll}
                     >
                       <ReactMarkdown
                         source={description}
