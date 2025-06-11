@@ -6,6 +6,7 @@ export default function ScrollHintOverlay({ children }) {
   const containerRef = useRef(null);
   const [showHint, setShowHint] = useState(false);
   const [hasScrolled, setHasScrolled] = useState(false);
+  const [scrollbarHeight, setScrollbarHeight] = useState(0);
 
   useEffect(() => {
     const updateHintVisibility = () => {
@@ -17,6 +18,10 @@ export default function ScrollHintOverlay({ children }) {
       const scrollable = container.scrollHeight > container.clientHeight;
       const nativeScrollbarVisible =
         container.offsetWidth > container.clientWidth;
+
+      const ratio = container.clientHeight / container.scrollHeight;
+      const height = Math.max(container.clientHeight * ratio, 20); // minimum height
+      setScrollbarHeight(height);
 
       setShowHint(true);
     };
@@ -54,7 +59,7 @@ export default function ScrollHintOverlay({ children }) {
             top: 0,
             right: 2,
             width: '7px',
-            height: '100px',
+            height: `${scrollbarHeight}px`,
             backgroundColor: colors.primary,
             borderRadius: '3px',
             animation: 'fadeOut 3s ease-out forwards',
