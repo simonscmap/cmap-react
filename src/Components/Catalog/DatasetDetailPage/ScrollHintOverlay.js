@@ -46,7 +46,7 @@ export default function ScrollHintOverlay({ children }) {
     <div
       ref={containerRef}
       onScroll={handleScroll}
-      style={{ position: 'relative', overflowY: 'auto', maxHeight: '100%' }}
+      style={{ position: 'relative', overflowY: 'auto' }}
     >
       <style>{`
         @keyframes fadeOut {
