@@ -227,7 +227,6 @@ export default (workbook) => {
       dataChanges: [],
       deletedKeys: [],
       is1904: false,
-      numericDateFormatConverted: false,
     };
   }
 
@@ -245,12 +244,10 @@ export default (workbook) => {
       dataChanges: [],
       deletedKeys: deleteEmptyRows(data),
       is1904: false,
-      numericDateFormatConverted: false,
     };
   }
 
   const is1904 = is1904Format(workbook);
-  let numericDateFormatConverted = false;
 
   // Create a dynamic array to store only actual changes
   const dataChanges = [];
@@ -284,7 +281,6 @@ export default (workbook) => {
         newValue = convertedDate;
         row.time = newValue;
         conversionType = TIME_CONVERSION_TYPES.EXCEL_TO_UTC;
-        numericDateFormatConverted = true;
       }
     } else if (typeof row.time === 'string') {
       // Process string time values
@@ -312,6 +308,5 @@ export default (workbook) => {
     dataChanges,
     deletedKeys,
     is1904,
-    numericDateFormatConverted,
   };
 };
