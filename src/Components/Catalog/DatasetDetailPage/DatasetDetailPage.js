@@ -254,16 +254,18 @@ const DatasetFullPage = (props) => {
                 <div className={classes.horizontalFlex}>
                   <div className={classes.descriptionContainer}>
                     <SectionHeader title={'Description'} />
-                    <div
-                      className={classes.descriptionContent}
-                      // ref={setRef}
-                      // onScroll={handleScroll}
-                    >
-                      <ReactMarkdown
-                        source={description}
-                        className={classes.markdown}
-                      />
-                    </div>
+                    <ScrollHintOverlay>
+                      <div
+                        className={classes.descriptionContent}
+                        // ref={setRef}
+                        // onScroll={handleScroll}
+                      >
+                        <ReactMarkdown
+                          source={description}
+                          className={classes.markdown}
+                        />
+                      </div>
+                    </ScrollHintOverlay>
                   </div>
                   <NewsSection news={news} />
                 </div>
