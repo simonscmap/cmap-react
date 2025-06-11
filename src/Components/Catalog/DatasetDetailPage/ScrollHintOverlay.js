@@ -17,10 +17,10 @@ export default function ScrollHintOverlay({ children }) {
       const nativeScrollbarVisible =
         container.offsetWidth > container.clientWidth;
 
-      const ratio = container.clientHeight / container.scrollHeight;
+      const ratio = 1 - container.clientHeight / container.scrollHeight;
       const height = Math.max(
-        Math.min(container.clientHeight * ratio, container.clientHeight * 0.2),
-        20,
+        container.clientHeight * ratio,
+        container.clientHeight * 0.2,
       );
       setScrollbarHeight(height);
 
