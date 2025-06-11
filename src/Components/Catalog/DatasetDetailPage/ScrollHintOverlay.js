@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import colors from '../../../enums/colors';
 
 export default function ScrollHintOverlay({ children }) {
   const containerRef = useRef(null);
@@ -18,7 +17,11 @@ export default function ScrollHintOverlay({ children }) {
         container.offsetWidth > container.clientWidth;
 
       const ratio = container.clientHeight / container.scrollHeight;
-      const height = Math.max(container.clientHeight * ratio, 20); // minimum height
+      // Clamp height: min 20px, max 50% of container height
+      const height = Math.max(
+        Math.min(container.clientHeight * ratio, container.clientHeight * 0.2),
+        20,
+      );
       setScrollbarHeight(height);
 
       setShowHint(scrollable && !nativeScrollbarVisible && !hasScrolled);
@@ -58,9 +61,9 @@ export default function ScrollHintOverlay({ children }) {
             right: 2,
             width: '7px',
             height: `${scrollbarHeight}px`,
-            backgroundColor: colors.primary,
+            backgroundColor: '#5F9B2B',
             borderRadius: '3px',
-            animation: 'fadeOut 1s ease-out forwards',
+            animation: 'fadeOut 0.75s ease-out forwards',
             pointerEvents: 'none',
           }}
         ></div>

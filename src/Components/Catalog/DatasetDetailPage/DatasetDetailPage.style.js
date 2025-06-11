@@ -156,6 +156,10 @@ const styles = (theme) => ({
   },
   descriptionContainer: {
     flex: 2,
+    maxHeight: '60vh',
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column',
   },
   descriptionContent: {
     maxHeight: '60vh',
