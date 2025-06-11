@@ -60,7 +60,7 @@ export default function ScrollHintOverlay({ children }) {
             height: `${scrollbarHeight}px`,
             backgroundColor: colors.primary,
             borderRadius: '3px',
-            animation: 'fadeOut 3s ease-out forwards',
+            animation: 'fadeOut 1s ease-out forwards',
             pointerEvents: 'none',
           }}
         ></div>
