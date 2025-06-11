@@ -13,7 +13,6 @@ export default function ScrollHintOverlay({ children }) {
       if (!container) {
         return;
       }
-
       const scrollable = container.scrollHeight > container.clientHeight;
       const nativeScrollbarVisible =
         container.offsetWidth > container.clientWidth;
@@ -22,8 +21,7 @@ export default function ScrollHintOverlay({ children }) {
       const height = Math.max(container.clientHeight * ratio, 20); // minimum height
       setScrollbarHeight(height);
 
-      // setShowHint(scrollable && !nativeScrollbarVisible && !hasScrolled);
-      setShowHint(true);
+      setShowHint(scrollable && !nativeScrollbarVisible && !hasScrolled);
     };
 
     updateHintVisibility();
