@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-// import { KeyboardArrowDown } from '@material-ui/icons';
 import colors from '../../../enums/colors';
 
 export default function ScrollHintOverlay({ children }) {
@@ -66,9 +65,7 @@ export default function ScrollHintOverlay({ children }) {
             animation: 'fadeOut 3s ease-out forwards',
             pointerEvents: 'none',
           }}
-        >
-          {/* <KeyboardArrowDown fontSize="large" style={{ color: 'red' }} /> */}
-        </div>
+        ></div>
       )}
     </div>
   );
