@@ -23,7 +23,7 @@ const is1904Format = (workbook) => {
   return Boolean(((workbook.Workbook || {}).WBProps || {}).date1904);
 };
 
-function findHeaderCellReference(dataSheet, columnName) {
+function findHeaderCellReference(dataSheet, columnHeaderName) {
   return Object.keys(dataSheet).find((key) => {
     const match = key.match(/([A-Z]+)([0-9]+)/);
     if (!match) {
@@ -37,7 +37,7 @@ function findHeaderCellReference(dataSheet, columnName) {
     if (
       row === 1 &&
       dataSheet[`${col}1`] &&
-      dataSheet[`${col}1`].v.toLowerCase() === columnName.toLowerCase()
+      dataSheet[`${col}1`].v.toLowerCase() === columnHeaderName.toLowerCase()
     ) {
       return true;
     }
