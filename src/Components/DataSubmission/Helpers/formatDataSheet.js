@@ -151,7 +151,7 @@ export const normalizeTimeStringToUTC = (timeString) => {
     };
   }
 
-  const hasTimezoneInfo = timeString.match(/[Z]|[+-]\d{2}(:?\d{2})?$/);
+  const hasTimezoneInfo = /(?:Z|[+-]\d{2}(?::?\d{2})?)$/.test(timeString);
 
   if (!hasTimezoneInfo) {
     // No timezone info, assume it's already UTC and add Z suffix
@@ -162,14 +162,14 @@ export const normalizeTimeStringToUTC = (timeString) => {
       conversionType: TIME_CONVERSION_TYPES.STRING_NO_TZ_TO_UTC,
     };
   } else {
-    // Has timezone info - check if it's already UTC
+    // Assumes local timezone on device unless timeString hasTimezoneInfo
     const parsedDate = dayjs(timeString);
-    const offset = parsedDate.utcOffset();
+    const offsetInMinutes = parsedDate.utcOffset();
 
     // Consider both exact zero and very small offsets (floating point precision) as UTC
     // Also explicitly check for +00:00 or Z in the string for redundancy
     if (
-      Math.abs(offset) < 1 ||
+      Math.abs(offsetInMinutes) < 1 ||
       timeString.endsWith('Z') ||
       timeString.endsWith('+00:00')
     ) {
