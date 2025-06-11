@@ -5,6 +5,7 @@ export default function ScrollHintOverlay({ children }) {
   const [showHint, setShowHint] = useState(false);
   const [hasScrolled, setHasScrolled] = useState(false);
   const [scrollbarHeight, setScrollbarHeight] = useState(0);
+  const [animateFadeOut, setAnimateFadeOut] = useState(false);
 
   useEffect(() => {
     const updateHintVisibility = () => {
@@ -17,7 +18,6 @@ export default function ScrollHintOverlay({ children }) {
         container.offsetWidth > container.clientWidth;
 
       const ratio = container.clientHeight / container.scrollHeight;
-      // Clamp height: min 20px, max 50% of container height
       const height = Math.max(
         Math.min(container.clientHeight * ratio, container.clientHeight * 0.2),
         20,
@@ -35,7 +35,10 @@ export default function ScrollHintOverlay({ children }) {
   const handleScroll = () => {
     if (!hasScrolled) {
       setHasScrolled(true);
-      setShowHint(false);
+      setAnimateFadeOut(true);
+      setTimeout(() => {
+        setShowHint(false);
+      }, 750); // Match the duration of the fadeOut animation
     }
   };
 
@@ -63,7 +66,9 @@ export default function ScrollHintOverlay({ children }) {
             height: `${scrollbarHeight}px`,
             backgroundColor: '#5F9B2B',
             borderRadius: '3px',
-            animation: 'fadeOut 0.75s ease-out forwards',
+            animation: animateFadeOut
+              ? 'fadeOut 0.75s ease-out forwards'
+              : 'none',
             pointerEvents: 'none',
           }}
         ></div>
