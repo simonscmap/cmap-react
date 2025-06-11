@@ -46,16 +46,22 @@ function findHeaderCellReference(dataSheet, columnName) {
 }
 
 /**
- * Formats an Excel numeric date value to a human-readable string
- * that matches what users would see in Excel
+ * Returns the display-formatted string shown in Excel for a given cell, if
+ * available. This is the value that users would see in Excel, such as a
+ * formatted date string.
+ *
+ * Excel stores date-time values as numeric serials under the hood, but users
+ * typically only see the formatted string (e.g., "2/18/2023"). This function
+ * retrieves that string from the worksheet if available, which is useful for
+ * auditing or comparing the original user-visible value.
  *
  * @param {number} excelSerialDate - Excel numeric date value
  * @param {Object} dataSheet - The Excel worksheet object from XLSX
  * @param {number} rowIndex - The row index in the Excel file
  * @param {string} columnName - The column name in the Excel file
- * @returns {string|null} - Human-readable date string as displayed in Excel, or null if not a number
+ * @returns {string|null}
  */
-export const formatExcelDateForDisplay = (
+export const getExcelCellDisplayValue = (
   excelSerialDate,
   dataSheet = null,
   rowIndex = null,
@@ -267,7 +273,7 @@ export default (workbook) => {
 
     if (typeof row.time === 'number') {
       // Get formatted display value for numeric Excel dates
-      prevValueExcelFormatted = formatExcelDateForDisplay(
+      prevValueExcelFormatted = getExcelCellDisplayValue(
         prevValue,
         dataSheet,
         index,
