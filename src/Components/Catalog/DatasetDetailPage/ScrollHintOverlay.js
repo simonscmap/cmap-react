@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
+// import { KeyboardArrowDown } from '@material-ui/icons';
+import colors from '../../../enums/colors';
 
 export default function ScrollHintOverlay({ children }) {
   const containerRef = useRef(null);
@@ -16,7 +18,7 @@ export default function ScrollHintOverlay({ children }) {
       const nativeScrollbarVisible =
         container.offsetWidth > container.clientWidth;
 
-      setShowHint(scrollable && !nativeScrollbarVisible && !hasScrolled);
+      setShowHint(true);
     };
 
     updateHintVisibility();
@@ -51,14 +53,16 @@ export default function ScrollHintOverlay({ children }) {
             position: 'absolute',
             top: 0,
             right: 2,
-            width: '6px',
-            height: '40px',
-            backgroundColor: 'rgba(0, 0, 0, 0.3)',
+            width: '7px',
+            height: '100px',
+            backgroundColor: colors.primary,
             borderRadius: '3px',
             animation: 'fadeOut 3s ease-out forwards',
             pointerEvents: 'none',
           }}
-        />
+        >
+          {/* <KeyboardArrowDown fontSize="large" style={{ color: 'red' }} /> */}
+        </div>
       )}
     </div>
   );
