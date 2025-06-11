@@ -22,12 +22,33 @@ const is1904Format = (workbook) => {
   return Boolean(((workbook.Workbook || {}).WBProps || {}).date1904);
 };
 
+function findHeaderCellReference(dataSheet, columnName) {
+  return Object.keys(dataSheet).find((key) => {
+    const match = key.match(/([A-Z]+)([0-9]+)/);
+    if (!match) {
+      return false;
+    }
+
+    const col = match[1];
+    const row = parseInt(match[2], 10);
+
+    // Check header row (assume row 1 is header)
+    if (
+      row === 1 &&
+      dataSheet[`${col}1`] &&
+      dataSheet[`${col}1`].v.toLowerCase() === columnName.toLowerCase()
+    ) {
+      return true;
+    }
+    return false;
+  });
+}
+
 /**
  * Formats an Excel numeric date value to a human-readable string
  * that matches what users would see in Excel
  *
  * @param {number} excelSerialDate - Excel numeric date value
- * @param {boolean} is1904 - Whether the workbook uses the 1904 date system
  * @param {Object} dataSheet - The Excel worksheet object from XLSX
  * @param {number} rowIndex - The row index in the Excel file
  * @param {string} columnName - The column name in the Excel file
@@ -44,31 +65,11 @@ export const formatExcelDateForDisplay = (
     return null;
   }
 
-  // Try to get the formatted string directly from the worksheet
   try {
     // Find the cell reference (e.g., 'A1', 'B2') for the time column in this row
     if (dataSheet && rowIndex !== null) {
       // First, find column letter for 'time'
-      const timeColRef = Object.keys(dataSheet).find((key) => {
-        const match = key.match(/([A-Z]+)([0-9]+)/);
-        if (!match) {
-          return false;
-        }
-
-        const col = match[1];
-        const row = parseInt(match[2], 10);
-
-        // Check header row (assume row 1 is header)
-        if (
-          row === 1 &&
-          dataSheet[`${col}1`] &&
-          dataSheet[`${col}1`].v.toLowerCase() === columnName.toLowerCase()
-        ) {
-          return true;
-        }
-        return false;
-      });
-
+      const timeColRef = findHeaderCellReference(dataSheet, columnName);
       if (timeColRef) {
         const colLetter = timeColRef.match(/([A-Z]+)/)[1];
         // Add 2 to rowIndex because Excel is 1-indexed and we also have a header row
@@ -81,8 +82,8 @@ export const formatExcelDateForDisplay = (
       }
     }
 
-    // If we couldn't get the formatted value from the cell directly, use XLSX formatting
-    return XLSX.SSF.format('yyyy-mm-dd hh:mm:ss', excelSerialDate);
+    // If we couldn't get the formatted value from the cell directly, return null
+    return null;
   } catch (error) {
     console.error('Error formatting Excel date:', error);
     return null;
@@ -270,7 +271,6 @@ export default (workbook) => {
       // Get formatted display value for numeric Excel dates
       prevValueExcelFormatted = formatExcelDateForDisplay(
         prevValue,
-        is1904,
         dataSheet,
         index,
         'time',
