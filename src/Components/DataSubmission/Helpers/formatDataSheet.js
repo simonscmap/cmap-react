@@ -1,6 +1,7 @@
 // https://stackoverflow.com/questions/16229494/converting-excel-date-serial-number-to-date-using-javascript
 import dayjs from 'dayjs';
 import XLSX from 'xlsx';
+import * as Sentry from '@sentry/react';
 
 import tz from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
@@ -85,7 +86,7 @@ export const formatExcelDateForDisplay = (
     // If we couldn't get the formatted value from the cell directly, return null
     return null;
   } catch (error) {
-    console.error('Error formatting Excel date:', error);
+    Sentry.captureException(error);
     return null;
   }
 };
