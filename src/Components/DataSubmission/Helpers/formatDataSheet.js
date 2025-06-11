@@ -127,7 +127,23 @@ export const convertExcelSerialDateToUTC = (
   return utcISOString;
 };
 
-export const processTimeString = (timeString) => {
+/**
+ * Normalizes a time string to UTC ISO 8601 format.
+ *
+ * This function inspects a date-time string and returns a normalized version
+ * in ISO 8601 UTC format, along with metadata describing the type of conversion
+ * performed. It handles three scenarios:
+ *   1. If the string is invalid or malformed, it returns the original string
+ *      with no conversion.
+ *   2. If the string is valid but lacks timezone information, it assumes UTC
+ *      and appends a 'Z'.
+ *   3. If the string includes a non-UTC timezone, it converts it to UTC.
+ *
+ * @param {string} timeString - A string representing a date-time value.
+ * @returns {{ value: string, conversionType: string }} An object with the
+ *   normalized value and the type of conversion.
+ */
+export const normalizeTimeStringToUTC = (timeString) => {
   if (!isValidDateTimeComponents(timeString)) {
     return {
       value: timeString,
@@ -290,8 +306,7 @@ export default (workbook) => {
         conversionType = TIME_CONVERSION_TYPES.EXCEL_TO_UTC;
       }
     } else if (typeof row.time === 'string') {
-      // Process string time values
-      const result = processTimeString(row.time);
+      const result = normalizeTimeStringToUTC(row.time);
       newValue = result.value;
       row.time = newValue;
       conversionType = result.conversionType;
