@@ -20,7 +20,6 @@ const check = (standardAuditArgs) => {
 
   // Process the changes using the shared utility
   const exampleChanges = groupTimeChangesByConversionType(dataChanges);
-
   // Use the custom table component to display the changes
   results.push(
     makeIssueWithCustomComponent(

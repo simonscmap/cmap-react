@@ -321,7 +321,6 @@ class ValidationTool extends React.Component {
       is1904,
       missingDate,
       negativeNumberDate,
-      numericDateFormatConverted,
       vars_meta_data,
       workbook,
     } = this.state;
@@ -337,7 +336,6 @@ class ValidationTool extends React.Component {
       is1904,
       missingDate,
       negativeNumberDate,
-      numericDateFormatConverted,
       userDataSubmissions,
       vars_meta_data,
       workbook,
@@ -550,7 +548,6 @@ class ValidationTool extends React.Component {
       vars_meta_data,
       // flags
       is1904,
-      numericDateFormatConverted,
       invalidDateString,
       negativeNumberDate,
       integerDate,
@@ -564,7 +561,6 @@ class ValidationTool extends React.Component {
       vars_meta_data,
       // flags
       is1904,
-      numericDateFormatConverted,
       invalidDateString,
       negativeNumberDate,
       integerDate,
@@ -693,7 +689,6 @@ class ValidationTool extends React.Component {
         is1904,
         missingDate,
         negativeNumberDate,
-        numericDateFormatConverted,
       } = formatResult;
 
       // parse metadata sheets
@@ -775,7 +770,6 @@ class ValidationTool extends React.Component {
           },
           missingDate,
           negativeNumberDate,
-          numericDateFormatConverted,
           vars_meta_data,
           workbook,
         },
