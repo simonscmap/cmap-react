@@ -166,7 +166,8 @@ export const normalizeTimeStringToUTC = (timeString) => {
     const parsedDate = dayjs(timeString);
     const offsetInMinutes = parsedDate.utcOffset();
 
-    // Consider both exact zero and very small offsets (floating point precision) as UTC
+    // Consider both exact zero and very small offsets (floating point
+    // precision) as UTC.
     // Also explicitly check for +00:00 or Z in the string for redundancy
     if (
       Math.abs(offsetInMinutes) < 1 ||
