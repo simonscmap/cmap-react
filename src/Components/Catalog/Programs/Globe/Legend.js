@@ -20,10 +20,14 @@ import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import dayjs from 'dayjs';
 import InfoIcon from '@material-ui/icons/InfoOutlined';
+import Spinner from '../../../UI/Spinner';
+import states from '../../../../enums/asyncRequestStates';
 
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+
+const { inProgress, streaming, processing } = states;
 
 const toDate = (str) => {
   return dayjs(str).format('YYYY-MM-DD');
@@ -290,11 +294,37 @@ const getCrossProgramTooltipText = (cruise) => {
   return `This cruise features multiple programs: ${s.join(', ')}`;
 };
 
+const useSpinnerStyles = makeStyles(() => ({
+  spinnerWrapper: {
+    textAlign: 'center',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+  },
+}));
+
+const SpinnerWrapper = (props) => {
+  const { message } = props;
+  const cl = useSpinnerStyles();
+  return (
+    <div className={cl.spinnerWrapper}>
+      <Spinner message={message} />
+    </div>
+  );
+};
+
 const Legend = (props) => {
   const { cruiseSelector, onFocus } = props;
   const classes = useLegendStyles();
 
   const cruises = useSelector(cruiseSelector);
+  const programDetailsRequestStatus = useSelector(
+    (state) => state.programDetailsRequestStatus,
+  );
+  const isLoading = [inProgress, streaming, processing].includes(
+    programDetailsRequestStatus,
+  );
 
   // NOTE these color swatches are generated based on the number of trajectories
   // and the swatches match the trajectory color based on the order of trajectories
@@ -328,77 +358,80 @@ const Legend = (props) => {
     <div className={classes.legend}>
       <Paper className={classes.paper}>
         <div className={classes.wrapper}>
-          {cruises.map((cruise, i) => (
-            <Accordion
-              square
-              expanded={cruise.ID === expanded}
-              key={`accordian_ ${i}`}
-            >
-              <AccordionSummary
-                id={`${cruise.ID}control`}
-                expandIcon={<ExpandMoreIcon />}
-                onClick={handleFocus(cruise.ID)}
+          {isLoading ? (
+            <SpinnerWrapper message={'Loading trajectory data...'} />
+          ) : cruises.length > 0 ? (
+            cruises.map((cruise, i) => (
+              <Accordion
+                square
+                expanded={cruise.ID === expanded}
+                key={`accordian_ ${i}`}
               >
-                <div className={classes.legendEntry}>
-                  <div className={classes.container}>
-                    <div
-                      className={classes.swatch}
-                      style={{ backgroundColor: colors[i] }}
-                    ></div>
-                    <div
-                      className={`${classes.container} ${classes.cruiseTextSummary}`}
-                    >
-                      <div className={classes.summaryFirstGroup}>
-                        <span>{cruise.Name}</span>
-                        {cruise.isMultiProgram && (
-                          <div className={classes.crossProgramChip}>
-                            <DarkTooltip
-                              title={getCrossProgramTooltipText(cruise)}
-                            >
-                              <InfoIcon />
-                            </DarkTooltip>
-                          </div>
-                        )}
-                      </div>
-                      <div className={classes.nick}>
-                        <DarkTooltip title={cruise.Nickname}>
-                          <span>{cruise.Nickname}</span>
-                        </DarkTooltip>
+                <AccordionSummary
+                  id={`${cruise.ID}control`}
+                  expandIcon={<ExpandMoreIcon />}
+                  onClick={handleFocus(cruise.ID)}
+                >
+                  <div className={classes.legendEntry}>
+                    <div className={classes.container}>
+                      <div
+                        className={classes.swatch}
+                        style={{ backgroundColor: colors[i] }}
+                      ></div>
+                      <div
+                        className={`${classes.container} ${classes.cruiseTextSummary}`}
+                      >
+                        <div className={classes.summaryFirstGroup}>
+                          <span>{cruise.Name}</span>
+                          {cruise.isMultiProgram && (
+                            <div className={classes.crossProgramChip}>
+                              <DarkTooltip
+                                title={getCrossProgramTooltipText(cruise)}
+                              >
+                                <InfoIcon />
+                              </DarkTooltip>
+                            </div>
+                          )}
+                        </div>
+                        <div className={classes.nick}>
+                          <DarkTooltip title={cruise.Nickname}>
+                            <span>{cruise.Nickname}</span>
+                          </DarkTooltip>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </AccordionSummary>
-              <AccordionDetails>
-                <div className={classes.detailsContainer}>
-                  <div className={classes.zoomIcon}>
-                    <SmallButton onClick={handleZoom(cruise.ID)}>
-                      <div>
-                        <span>{'Go to trajectory'}</span>
-                        <MdMyLocation color={colors.primary} />
-                      </div>
-                    </SmallButton>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <div className={classes.detailsContainer}>
+                    <div className={classes.zoomIcon}>
+                      <SmallButton onClick={handleZoom(cruise.ID)}>
+                        <div>
+                          <span>{'Go to trajectory'}</span>
+                          <MdMyLocation color={colors.primary} />
+                        </div>
+                      </SmallButton>
+                    </div>
+                    <CruiseDetails cruise={cruise} />
+                    <a
+                      href={`/catalog/cruises/${cruise.Name}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <p className={classes.openPageIcon}>
+                        <span>{'View cruise details'}</span>
+                        <OpenInNewIcon color="primary" />
+                      </p>
+                    </a>
+                    {cruise.isMultiProgram && (
+                      <CrossProgramInfo cruise={cruise} />
+                    )}
                   </div>
-                  <CruiseDetails cruise={cruise} />
-                  <a
-                    href={`/catalog/cruises/${cruise.Name}`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <p className={classes.openPageIcon}>
-                      <span>{'View cruise details'}</span>
-                      <OpenInNewIcon color="primary" />
-                    </p>
-                  </a>
-                  {cruise.isMultiProgram && (
-                    <CrossProgramInfo cruise={cruise} />
-                  )}
-                </div>
-              </AccordionDetails>
-            </Accordion>
-          ))}
-          {(!Array.isArray(cruises) || cruises.length === 0) && (
-            <Typography>Waiting for Trajectory Data</Typography>
+                </AccordionDetails>
+              </Accordion>
+            ))
+          ) : (
+            <Typography>No trajectory data available</Typography>
           )}
         </div>
       </Paper>
