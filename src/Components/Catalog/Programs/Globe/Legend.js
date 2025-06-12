@@ -20,7 +20,6 @@ import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import dayjs from 'dayjs';
 import InfoIcon from '@material-ui/icons/InfoOutlined';
-import Spinner from '../../../UI/Spinner';
 import states from '../../../../enums/asyncRequestStates';
 
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
@@ -88,7 +87,7 @@ const AccordionSummary = withStyles({
   expanded: {},
 })(MuiAccordionSummary);
 
-const AccordionDetails = withStyles((theme) => ({
+const AccordionDetails = withStyles(() => ({
   root: {
     padding: '2px 10px 5px 15px',
   },
@@ -124,7 +123,7 @@ const SmallButton = withStyles((theme) => ({
 }))(Button);
 
 // Cruise Details
-const useDetailStyles = makeStyles((theme) => ({
+const useDetailStyles = makeStyles(() => ({
   root: {
     marginLeft: '5px',
     '& .MuiTableCell-root': {
@@ -294,26 +293,6 @@ const getCrossProgramTooltipText = (cruise) => {
   return `This cruise features multiple programs: ${s.join(', ')}`;
 };
 
-const useSpinnerStyles = makeStyles(() => ({
-  spinnerWrapper: {
-    textAlign: 'center',
-    height: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-  },
-}));
-
-const SpinnerWrapper = (props) => {
-  const { message } = props;
-  const cl = useSpinnerStyles();
-  return (
-    <div className={cl.spinnerWrapper}>
-      <Spinner message={message} />
-    </div>
-  );
-};
-
 const Legend = (props) => {
   const { cruiseSelector, onFocus } = props;
   const classes = useLegendStyles();
@@ -359,7 +338,7 @@ const Legend = (props) => {
       <Paper className={classes.paper}>
         <div className={classes.wrapper}>
           {isLoading ? (
-            <SpinnerWrapper message={'Loading trajectory data...'} />
+            <Typography>Loading trajectory data...</Typography>
           ) : cruises.length > 0 ? (
             cruises.map((cruise, i) => (
               <Accordion
@@ -431,7 +410,7 @@ const Legend = (props) => {
               </Accordion>
             ))
           ) : (
-            <Typography>No trajectory data available</Typography>
+            <Typography></Typography>
           )}
         </div>
       </Paper>
