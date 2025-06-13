@@ -46,6 +46,44 @@ function findHeaderCellReference(dataSheet, columnHeaderName) {
 }
 
 /**
+ * Determines whether a given Excel cell contains a date, time, or datetime value.
+ *
+ * @param {Object} cell - A single cell object from the dataSheet (e.g., dataSheet["A2"])
+ * @returns {string|null} - Returns "date", "time", "datetime", or null if none apply
+ */
+export function getCellDateType(cell) {
+  // To determine if a cell represents a date, time, or datetime, all of the following must be true:
+  // - The cell must exist and not be null or undefined
+  // - The cell must be of numeric type (`t === 'n'`), as Excel stores dates/times as numbers
+  // - The cell must include a `.w` property (formatted string), which shows how the value appears in Excel (e.g., "2/18/2023")
+  if (
+    !cell ||
+    cell.v === null ||
+    cell.v === undefined ||
+    cell.t !== 'n' ||
+    !cell.w
+  ) {
+    return null;
+  }
+
+  const formatted = cell.w;
+
+  if (formatted.match(/^\d{1,2}:\d{2}(:\d{2})?(\s?[AP]M)?$/i)) {
+    return 'time';
+  }
+
+  if (formatted.match(/^\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\s\d{1,2}:\d{2}/)) {
+    return 'datetime';
+  }
+
+  if (formatted.match(/^\d{1,2}[/-]\d{1,2}[/-]\d{2,4}$/)) {
+    return 'date';
+  }
+
+  return null;
+}
+
+/**
  * Identifies date, time, and datetime columns in an Excel worksheet using metadata
  *
  * @param {Object} dataSheet - The Excel worksheet object from XLSX
