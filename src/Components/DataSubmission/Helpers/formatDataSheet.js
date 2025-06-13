@@ -74,10 +74,10 @@ export const identifyDateTimeColumns = (dataSheet) => {
     return result;
   })();
 
-  const colLetters = Object.keys(headers);
+  const columnLetters = Object.keys(headers);
 
-  colLetters.forEach((colLetter) => {
-    const headerName = headers[colLetter];
+  columnLetters.forEach((columnLetter) => {
+    const headerName = headers[columnLetter];
 
     // Skip the 'time' column as it's handled separately
     if (headerName.toLowerCase() === 'time') {
@@ -86,7 +86,7 @@ export const identifyDateTimeColumns = (dataSheet) => {
 
     // Only check the first cell in the column (row 2)
     const rowIndex = 2;
-    const cellRef = `${colLetter}${rowIndex}`;
+    const cellRef = `${columnLetter}${rowIndex}`;
     const cell = dataSheet[cellRef];
     console.log('🐛🐛🐛 formatDataSheet.js:88 cell:', cell);
     // Skip if cell doesn't exist or has no value
