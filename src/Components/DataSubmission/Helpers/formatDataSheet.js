@@ -46,6 +46,86 @@ function findHeaderCellReference(dataSheet, columnHeaderName) {
 }
 
 /**
+ * Identifies date, time, and datetime columns in an Excel worksheet using metadata
+ *
+ * @param {Object} dataSheet - The Excel worksheet object from XLSX
+ * @returns {Object} - Object containing arrays of column headers for date, time, and datetime columns
+ */
+export const identifyDateTimeColumns = (dataSheet) => {
+  if (!dataSheet || !dataSheet['!ref']) {
+    return { dateColumns: [], timeColumns: [], dateTimeColumns: [] };
+  }
+
+  const dateColumns = [];
+  const timeColumns = [];
+  const dateTimeColumns = [];
+
+  // Get all column headers (row 1)
+  const headers = {};
+  Object.keys(dataSheet).forEach((cellRef) => {
+    const match = cellRef.match(/([A-Z]+)([0-9]+)/);
+    if (match && match[2] === '1' && dataSheet[cellRef].v) {
+      const colLetter = match[1];
+      headers[colLetter] = dataSheet[cellRef].v;
+    }
+  });
+
+  // Skip the first row (headers) and examine only the first data cell in each column
+  const colLetters = Object.keys(headers);
+
+  colLetters.forEach((colLetter) => {
+    const headerName = headers[colLetter];
+
+    // Skip the 'time' column as it's handled separately
+    if (headerName.toLowerCase() === 'time') {
+      return;
+    }
+
+    // Only check the first cell in the column (row 2)
+    const rowIndex = 2;
+    const cellRef = `${colLetter}${rowIndex}`;
+    const cell = dataSheet[cellRef];
+
+    // Skip if cell doesn't exist or has no value
+    if (!cell || cell.v === null || cell.v === undefined) {
+      return;
+    }
+
+    // Check if the cell is explicitly formatted as a date in Excel
+    const isDateFormatted =
+      cell.t === 'n' &&
+      cell.w &&
+      // Check for date formatting in the displayed value
+      (cell.w.match(/^\d{1,2}[/-]\d{1,2}[/-]\d{2,4}$/) ||
+        cell.w.match(/^\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\s\d{1,2}:\d{2}/) ||
+        // Check for time formatting in the displayed value
+        cell.w.match(/^\d{1,2}:\d{2}(:\d{2})?(\s?[AP]M)?$/i));
+
+    // Only consider numeric cells that Excel has formatted as dates/times
+    if (cell.t === 'n' && isDateFormatted) {
+      if (cell.w.match(/^\d{1,2}:\d{2}(:\d{2})?(\s?[AP]M)?$/i)) {
+        // Time format like HH:MM:SS or HH:MM AM/PM
+        timeColumns.push(headerName);
+      } else if (
+        cell.w.match(/^\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\s\d{1,2}:\d{2}/)
+      ) {
+        // DateTime format like MM/DD/YYYY HH:MM
+        dateTimeColumns.push(headerName);
+      } else if (cell.w.match(/^\d{1,2}[/-]\d{1,2}[/-]\d{2,4}$/)) {
+        // Date format like MM/DD/YYYY
+        dateColumns.push(headerName);
+      }
+    }
+  });
+
+  return {
+    dateColumns,
+    timeColumns,
+    dateTimeColumns,
+  };
+};
+
+/**
  * Returns the display-formatted string shown in Excel for a given cell, if
  * available. This is the value that users would see in Excel, such as a
  * formatted date string.
@@ -335,6 +415,16 @@ export default function formatDataSheet(workbook) {
   }
 
   const is1904 = is1904Format(workbook);
+
+  // Identify date, time, and datetime columns
+  const { dateColumns, timeColumns, dateTimeColumns } =
+    identifyDateTimeColumns(dataSheet);
+  console.log('🐛🐛🐛 formatDataSheet.js:441 dateColumns:', dateColumns);
+  console.log('🐛🐛🐛 formatDataSheet.js:442 timeColumns:', timeColumns);
+  console.log(
+    '🐛🐛🐛 formatDataSheet.js:443 dateTimeColumns:',
+    dateTimeColumns,
+  );
 
   const dataChanges = [];
 
