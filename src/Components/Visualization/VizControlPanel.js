@@ -935,7 +935,7 @@ class VizControlPanel extends React.Component {
 
                   <Grid item xs={6} className={classes.formGridItem}>
                     <div className={classes.datePicker}>
-                      <label>Start Date</label>
+                      <label>End Date</label>
                       <DatePicker
                         disabled={!details || this.props.paramLock}
                         value={shiftMinMaxDate(dt2, details, 'max')}

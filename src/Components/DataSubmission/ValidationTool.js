@@ -56,37 +56,7 @@ import {
 import states from '../../enums/asyncRequestStates';
 
 import { debugTimer } from '../../Utility/debugTimer';
-
-// Extracted utility function for downloading workbook
-export const downloadWorkbook = ({
-  data,
-  dataset_meta_data,
-  vars_meta_data,
-  setLoadingMessage,
-}) => {
-  const tag = { tag: 'ValidationTool#handleDownload' };
-  setLoadingMessage('Downloading', tag);
-  setTimeout(() => {
-    window.requestAnimationFrame(() => setLoadingMessage('', tag));
-  }, 50);
-  let workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(
-    workbook,
-    XLSX.utils.json_to_sheet(data),
-    'data',
-  );
-  XLSX.utils.book_append_sheet(
-    workbook,
-    XLSX.utils.json_to_sheet(dataset_meta_data),
-    'dataset_meta_data',
-  );
-  XLSX.utils.book_append_sheet(
-    workbook,
-    XLSX.utils.json_to_sheet(vars_meta_data),
-    'vars_meta_data',
-  );
-  XLSX.writeFile(workbook, dataset_meta_data[0].dataset_short_name + '.xlsx');
-};
+import { downloadWorkbook } from './downloadWorkbook';
 
 const mapStateToProps = (state, ownProps) => ({
   submissionFile: state.submissionFile,
@@ -133,6 +103,7 @@ class ValidationTool extends React.Component {
       auditReport: null,
       changeLog: [],
       delRow: null,
+      originalWorkbook: null,
     };
   }
 
@@ -321,7 +292,6 @@ class ValidationTool extends React.Component {
       is1904,
       missingDate,
       negativeNumberDate,
-      numericDateFormatConverted,
       vars_meta_data,
       workbook,
     } = this.state;
@@ -337,7 +307,6 @@ class ValidationTool extends React.Component {
       is1904,
       missingDate,
       negativeNumberDate,
-      numericDateFormatConverted,
       userDataSubmissions,
       vars_meta_data,
       workbook,
@@ -550,7 +519,6 @@ class ValidationTool extends React.Component {
       vars_meta_data,
       // flags
       is1904,
-      numericDateFormatConverted,
       invalidDateString,
       negativeNumberDate,
       integerDate,
@@ -564,7 +532,6 @@ class ValidationTool extends React.Component {
       vars_meta_data,
       // flags
       is1904,
-      numericDateFormatConverted,
       invalidDateString,
       negativeNumberDate,
       integerDate,
@@ -693,7 +660,6 @@ class ValidationTool extends React.Component {
         is1904,
         missingDate,
         negativeNumberDate,
-        numericDateFormatConverted,
       } = formatResult;
 
       // parse metadata sheets
@@ -775,7 +741,6 @@ class ValidationTool extends React.Component {
           },
           missingDate,
           negativeNumberDate,
-          numericDateFormatConverted,
           vars_meta_data,
           workbook,
         },
