@@ -60,15 +60,17 @@ export const identifyDateTimeColumns = (dataSheet) => {
   const timeColumns = [];
   const dateTimeColumns = [];
 
-  // Get all column headers (row 1)
-  const headers = {};
-  Object.keys(dataSheet).forEach((cellRef) => {
-    const match = cellRef.match(/([A-Z]+)([0-9]+)/);
-    if (match && match[2] === '1' && dataSheet[cellRef].v) {
-      const colLetter = match[1];
-      headers[colLetter] = dataSheet[cellRef].v;
-    }
-  });
+  const headers = (() => {
+    const result = {};
+    Object.keys(dataSheet).forEach((cellRef) => {
+      const match = cellRef.match(/([A-Z]+)([0-9]+)/);
+      if (match && match[2] === '1' && dataSheet[cellRef].v) {
+        const colLetter = match[1];
+        result[colLetter] = dataSheet[cellRef].v;
+      }
+    });
+    return result;
+  })();
 
   // Skip the first row (headers) and examine only the first data cell in each column
   const colLetters = Object.keys(headers);
@@ -85,7 +87,7 @@ export const identifyDateTimeColumns = (dataSheet) => {
     const rowIndex = 2;
     const cellRef = `${colLetter}${rowIndex}`;
     const cell = dataSheet[cellRef];
-
+    console.log('🐛🐛🐛 formatDataSheet.js:88 cell:', cell);
     // Skip if cell doesn't exist or has no value
     if (!cell || cell.v === null || cell.v === undefined) {
       return;
