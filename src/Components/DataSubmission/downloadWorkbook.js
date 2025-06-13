@@ -7,7 +7,6 @@ export const downloadWorkbook = ({
   dataset_meta_data,
   vars_meta_data,
   setLoadingMessage,
-  originalWorkbook,
 }) => {
   const tag = { tag: 'ValidationTool#handleDownload' };
   setLoadingMessage('Downloading', tag);

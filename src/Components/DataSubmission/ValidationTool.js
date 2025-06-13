@@ -1024,7 +1024,6 @@ class ValidationTool extends React.Component {
                   dataset_meta_data: this.state.dataset_meta_data,
                   vars_meta_data: this.state.vars_meta_data,
                   setLoadingMessage: this.props.setLoadingMessage,
-                  originalWorkbook: this.state.workbook,
                 })
               }
               resetState={this.handleResetState}
