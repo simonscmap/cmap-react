@@ -242,7 +242,7 @@ export const groupTimeChangesByConversionType = (dataChanges) => {
  * @param {Object} workbook - The workbook object
  * @returns {Object} - Data, metadata, and conversion status
  */
-export default (workbook) => {
+export default function formatDataSheet(workbook) {
   const dataSheet = workbook.Sheets ? workbook.Sheets['data'] : null;
   if (!dataSheet || !dataSheet['!ref']) {
     // Return empty data if no valid sheet found
@@ -332,4 +332,4 @@ export default (workbook) => {
     deletedKeys,
     is1904,
   };
-};
+}
