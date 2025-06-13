@@ -138,7 +138,6 @@ export const identifyDateTimeColumns = (dataSheet) => {
     const rowIndex = 2;
     const cellRef = `${columnLetter}${rowIndex}`;
     const cell = dataSheet[cellRef];
-    console.log('🐛🐛🐛 formatDataSheet.js:88 cell:', cell);
     // Skip if cell doesn't exist or has no value
     if (!cell || cell.v === null || cell.v === undefined) {
       return;
@@ -449,10 +448,10 @@ export default function formatDataSheet(workbook) {
   // Identify date, time, and datetime columns
   const dateTimeColumns = identifyDateTimeColumns(dataSheet);
 
-  // Replace other dateTime column numeric values with Excel formatted strings, and process time column
+  // Replace other dateTime column numeric values with Excel formatted strings
+  // and process time column
   const dataChanges = [];
   data.forEach((row, index) => {
-    // Process time column separately
     const timeResult = processTimeColumn(row, index, dataSheet, is1904);
 
     if (timeResult.wasChanged) {
