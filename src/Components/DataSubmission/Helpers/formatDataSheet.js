@@ -108,8 +108,6 @@ export const identifyDateTimeColumns = (dataSheet) => {
     return { dateColumns: [], timeColumns: [], dateTimeColumns: [] };
   }
 
-  const dateColumns = [];
-  const timeColumns = [];
   const dateTimeColumns = [];
 
   // mapping column letters to their header values from row 1.
@@ -149,20 +147,12 @@ export const identifyDateTimeColumns = (dataSheet) => {
     // Use getCellDateType to classify the date/time type
     const dateType = getCellDateType(cell);
 
-    if (dateType === 'time') {
-      timeColumns.push(headerName);
-    } else if (dateType === 'datetime') {
+    if (dateType === 'time' || dateType === 'datetime' || dateType === 'date') {
       dateTimeColumns.push(headerName);
-    } else if (dateType === 'date') {
-      dateColumns.push(headerName);
     }
   });
 
-  return {
-    dateColumns,
-    timeColumns,
-    dateTimeColumns,
-  };
+  return dateTimeColumns;
 };
 
 /**
@@ -457,14 +447,7 @@ export default function formatDataSheet(workbook) {
   const is1904 = is1904Format(workbook);
 
   // Identify date, time, and datetime columns
-  const { dateColumns, timeColumns, dateTimeColumns } =
-    identifyDateTimeColumns(dataSheet);
-  console.log('🐛🐛🐛 formatDataSheet.js:441 dateColumns:', dateColumns);
-  console.log('🐛🐛🐛 formatDataSheet.js:442 timeColumns:', timeColumns);
-  console.log(
-    '🐛🐛🐛 formatDataSheet.js:443 dateTimeColumns:',
-    dateTimeColumns,
-  );
+  const dateTimeColumns = identifyDateTimeColumns(dataSheet);
 
   const dataChanges = [];
 
