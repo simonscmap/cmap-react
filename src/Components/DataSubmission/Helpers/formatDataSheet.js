@@ -219,6 +219,7 @@ export const getExcelCellDisplayValue = (
  *   - Conditionally adding 0.5 seconds to avoid rounding errors.
  *   - Rounding the value to the nearest second.
  *   - Formatting the result as a UTC ISO 8601 string.
+ * I know. Excel datetimes are whack.
  *
  * @param {number} excelSerialDate - The Excel serial date value (numeric)
  * @param {boolean} is1904 - Whether the workbook uses the 1904 date system
