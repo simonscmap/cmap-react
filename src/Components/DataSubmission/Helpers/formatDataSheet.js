@@ -132,30 +132,15 @@ export const identifyDateTimeColumns = (dataSheet) => {
       return;
     }
 
-    // Check if the cell is explicitly formatted as a date in Excel
-    const isDateFormatted =
-      cell.t === 'n' &&
-      cell.w &&
-      // Check for date formatting in the displayed value
-      (cell.w.match(/^\d{1,2}[/-]\d{1,2}[/-]\d{2,4}$/) ||
-        cell.w.match(/^\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\s\d{1,2}:\d{2}/) ||
-        // Check for time formatting in the displayed value
-        cell.w.match(/^\d{1,2}:\d{2}(:\d{2})?(\s?[AP]M)?$/i));
+    // Use getCellDateType to classify the date/time type
+    const dateType = getCellDateType(cell);
 
-    // Only consider numeric cells that Excel has formatted as dates/times
-    if (cell.t === 'n' && isDateFormatted) {
-      if (cell.w.match(/^\d{1,2}:\d{2}(:\d{2})?(\s?[AP]M)?$/i)) {
-        // Time format like HH:MM:SS or HH:MM AM/PM
-        timeColumns.push(headerName);
-      } else if (
-        cell.w.match(/^\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\s\d{1,2}:\d{2}/)
-      ) {
-        // DateTime format like MM/DD/YYYY HH:MM
-        dateTimeColumns.push(headerName);
-      } else if (cell.w.match(/^\d{1,2}[/-]\d{1,2}[/-]\d{2,4}$/)) {
-        // Date format like MM/DD/YYYY
-        dateColumns.push(headerName);
-      }
+    if (dateType === 'time') {
+      timeColumns.push(headerName);
+    } else if (dateType === 'datetime') {
+      dateTimeColumns.push(headerName);
+    } else if (dateType === 'date') {
+      dateColumns.push(headerName);
     }
   });
 
