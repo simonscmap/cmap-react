@@ -449,9 +449,10 @@ export default function formatDataSheet(workbook) {
   // Identify date, time, and datetime columns
   const dateTimeColumns = identifyDateTimeColumns(dataSheet);
 
+  // Replace other dateTime column numeric values with Excel formatted strings, and process time column
   const dataChanges = [];
-
   data.forEach((row, index) => {
+    // Process time column separately
     const timeResult = processTimeColumn(row, index, dataSheet, is1904);
 
     if (timeResult.wasChanged) {
@@ -463,6 +464,25 @@ export default function formatDataSheet(workbook) {
         prevValueExcelFormatted: timeResult.prevValueExcelFormatted,
       });
     }
+
+    // Replace other dateTime column numeric values with Excel formatted strings
+    dateTimeColumns.forEach((colHeader) => {
+      if (colHeader.toLowerCase() === 'time') {
+        return;
+      } // Skip 'time' column
+
+      if (typeof row[colHeader] === 'number') {
+        const colRef = findHeaderCellReference(dataSheet, colHeader);
+        if (colRef) {
+          const colLetter = colRef.match(/([A-Z]+)/)[1];
+          const cellRef = `${colLetter}${index + 2}`; // Row index is 0-based, Excel starts at 1 + header row
+          const cell = dataSheet[cellRef];
+          if (cell && cell.w) {
+            row[colHeader] = cell.w;
+          }
+        }
+      }
+    });
   });
 
   const deletedKeys = deleteEmptyRows(data);
