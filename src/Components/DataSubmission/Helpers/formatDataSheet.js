@@ -219,11 +219,10 @@ export const convertExcelSerialDateToUTC = (
     ? excelSerialDate + DAYS_BETWEEN_1900_AND_1904
     : excelSerialDate;
 
-  // Round to 7 decimal places for precision
-  const roundedValue = Math.ceil(adjustedSerialDate * 1e7) / 1e7;
-
-  // Convert to milliseconds since Unix epoch
-  const utcMilliseconds = (roundedValue - EXCEL_EPOCH_OFFSET) * MS_PER_DAY;
+  // Convert to milliseconds and round to nearest second to avoid float precision issues
+  const utcMilliseconds = Math.round(
+    (adjustedSerialDate + 0.5 / 86400 - EXCEL_EPOCH_OFFSET) * MS_PER_DAY,
+  );
 
   // Format as ISO 8601 string in UTC
   const utcISOString = dayjs.utc(utcMilliseconds).format();
