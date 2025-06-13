@@ -350,9 +350,6 @@ export default function formatDataSheet(workbook) {
         prevValueExcelFormatted: timeResult.prevValueExcelFormatted,
       });
     }
-
-    // Here you can add processing for other columns
-    // e.g., processDepthColumn(row, index, dataSheet);
   });
 
   const deletedKeys = deleteEmptyRows(data);
