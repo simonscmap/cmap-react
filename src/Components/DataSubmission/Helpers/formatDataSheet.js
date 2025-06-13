@@ -238,6 +238,69 @@ export const groupTimeChangesByConversionType = (dataChanges) => {
 };
 
 /**
+ * Process the time column value for a row
+ *
+ * @param {Object} row - The data row being processed
+ * @param {number} index - The index of the row in the data array
+ * @param {Object} dataSheet - The Excel worksheet object from XLSX
+ * @param {boolean} is1904 - Whether the workbook uses the 1904 date system
+ * @returns {Object} - Object containing conversion results and metadata
+ */
+export const processTimeColumn = (row, index, dataSheet, is1904) => {
+  // Skip null values
+  if (row.time === null) {
+    return {
+      conversionType: TIME_CONVERSION_TYPES.NONE,
+      prevValue: null,
+      newValue: null,
+      prevValueExcelFormatted: null,
+      wasChanged: false,
+    };
+  }
+
+  // Default conversion type
+  let conversionType = TIME_CONVERSION_TYPES.NONE;
+  const prevValue = row.time;
+  let newValue = prevValue;
+  let prevValueExcelFormatted = null;
+
+  if (typeof row.time === 'number') {
+    // Get formatted display value for numeric Excel dates
+    prevValueExcelFormatted = getExcelCellDisplayValue(
+      prevValue,
+      dataSheet,
+      index,
+      'time',
+    );
+
+    // Convert the numeric Excel date to UTC string
+    const convertedDate = convertExcelSerialDateToUTC(row.time, is1904);
+
+    // Only update if we got a valid date
+    if (convertedDate !== null) {
+      newValue = convertedDate;
+      row.time = newValue;
+      conversionType = TIME_CONVERSION_TYPES.EXCEL_TO_UTC;
+    }
+  } else if (typeof row.time === 'string') {
+    const result = normalizeTimeStringToUTC(row.time);
+    newValue = result.value;
+    row.time = newValue;
+    conversionType = result.conversionType;
+  }
+
+  const wasChanged = conversionType !== TIME_CONVERSION_TYPES.NONE;
+
+  return {
+    conversionType,
+    prevValue,
+    newValue,
+    prevValueExcelFormatted,
+    wasChanged,
+  };
+};
+
+/**
  * Processes Excel date-time values in one pass through the workbook
  * @param {Object} workbook - The workbook object
  * @returns {Object} - Data, metadata, and conversion status
@@ -278,51 +341,22 @@ export default function formatDataSheet(workbook) {
 
   // Process all rows at once
   data.forEach((row, index) => {
-    // Skip null values
-    if (row.time === null) {
-      return;
-    }
-    // Default conversion type
-    let conversionType = TIME_CONVERSION_TYPES.NONE;
-    const prevValue = row.time;
-    let newValue = prevValue;
-    let prevValueExcelFormatted = null;
+    // Process time column
+    const timeResult = processTimeColumn(row, index, dataSheet, is1904);
 
-    if (typeof row.time === 'number') {
-      // Get formatted display value for numeric Excel dates
-      prevValueExcelFormatted = getExcelCellDisplayValue(
-        prevValue,
-        dataSheet,
-        index,
-        'time',
-      );
-
-      // Convert the numeric Excel date to UTC string
-      const convertedDate = convertExcelSerialDateToUTC(row.time, is1904);
-
-      // Only update if we got a valid date
-      if (convertedDate !== null) {
-        newValue = convertedDate;
-        row.time = newValue;
-        conversionType = TIME_CONVERSION_TYPES.EXCEL_TO_UTC;
-      }
-    } else if (typeof row.time === 'string') {
-      const result = normalizeTimeStringToUTC(row.time);
-      newValue = result.value;
-      row.time = newValue;
-      conversionType = result.conversionType;
-    }
-
-    // Only store if an actual change was made (conversionType is not NONE)
-    if (conversionType !== TIME_CONVERSION_TYPES.NONE) {
+    // Only store if an actual change was made
+    if (timeResult.wasChanged) {
       dataChanges.push({
         rowIndex: index, // Store the row index for reference
-        timeConversionType: conversionType,
-        prevValue: prevValue,
-        newValue: newValue,
-        prevValueExcelFormatted,
+        timeConversionType: timeResult.conversionType,
+        prevValue: timeResult.prevValue,
+        newValue: timeResult.newValue,
+        prevValueExcelFormatted: timeResult.prevValueExcelFormatted,
       });
     }
+
+    // Here you can add processing for other columns
+    // e.g., processDepthColumn(row, index, dataSheet);
   });
 
   const deletedKeys = deleteEmptyRows(data);
