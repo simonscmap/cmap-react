@@ -336,11 +336,11 @@ const Legend = (props) => {
   return (
     <div className={classes.legend}>
       <Paper className={classes.paper}>
-        <div className={classes.wrapper}>
-          {isLoading ? (
-            <Typography>Loading trajectory data...</Typography>
-          ) : cruises.length > 0 ? (
-            cruises.map((cruise, i) => (
+        {isLoading ? (
+          <Typography>Loading trajectory data...</Typography>
+        ) : cruises.length > 0 ? (
+          <div className={classes.wrapper}>
+            {cruises.map((cruise, i) => (
               <Accordion
                 square
                 expanded={cruise.ID === expanded}
@@ -408,11 +408,11 @@ const Legend = (props) => {
                   </div>
                 </AccordionDetails>
               </Accordion>
-            ))
-          ) : (
-            <Typography></Typography>
-          )}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <Typography></Typography>
+        )}
       </Paper>
     </div>
   );
