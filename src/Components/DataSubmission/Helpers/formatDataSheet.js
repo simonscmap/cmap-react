@@ -206,6 +206,24 @@ export const getExcelCellDisplayValue = (
   }
 };
 
+/**
+ * Converts an Excel serial date number to a UTC ISO 8601 string.
+ *
+ * Excel stores dates as serial numbers (days since an epoch). This function
+ * converts those serial numbers to UTC ISO 8601 strings, accounting for both
+ * the standard 1900 and alternate 1904 date systems. The logic includes:
+ *   - Adjusting the serial number if the workbook uses the 1904 date system.
+ *   - Converting the (possibly adjusted) serial to milliseconds since Unix epoch.
+ *   - Detecting if the millisecond value is near a rounding-down boundary
+ *     (e.g., x.9995 seconds, which could otherwise round down incorrectly).
+ *   - Conditionally adding 0.5 seconds to avoid rounding errors.
+ *   - Rounding the value to the nearest second.
+ *   - Formatting the result as a UTC ISO 8601 string.
+ *
+ * @param {number} excelSerialDate - The Excel serial date value (numeric)
+ * @param {boolean} is1904 - Whether the workbook uses the 1904 date system
+ * @returns {string|null} UTC ISO 8601 string, or null if invalid
+ */
 export const convertExcelSerialDateToUTC = (
   excelSerialDate,
   is1904 = false,
@@ -214,20 +232,24 @@ export const convertExcelSerialDateToUTC = (
   const MS_PER_DAY = 86400 * 1000; // Milliseconds in one day
   const DAYS_BETWEEN_1900_AND_1904 = 1462; // Days difference for 1904-based Excel dates
 
-  // Adjust for 1904 date system if needed
+  // Step 1: Adjust for 1904 date system if needed
   const adjustedSerialDate = is1904
     ? excelSerialDate + DAYS_BETWEEN_1900_AND_1904
     : excelSerialDate;
 
-  // Improved logic for 0.5-second adjustment
+  // Step 2: Convert to milliseconds since Unix epoch
   const rawMilliseconds =
     (adjustedSerialDate - EXCEL_EPOCH_OFFSET) * MS_PER_DAY;
+
+  // Step 3: Detect if fractional milliseconds are near a rounding-down boundary (e.g., 999.5ms)
   const fractionalMilliseconds = rawMilliseconds % 1000;
 
-  // Only add 0.5 seconds if we're within 10ms of rounding down incorrectly
+  // Step 4: Conditionally add 0.5 seconds if we're within 10ms of rounding down incorrectly
+  // This helps avoid rounding errors for certain Excel serials
   const correctedMilliseconds =
     fractionalMilliseconds > 990 ? rawMilliseconds : rawMilliseconds + 500;
 
+  // Step 5: Final rounding to nearest second
   const utcMilliseconds = Math.round(correctedMilliseconds);
 
   // Format as ISO 8601 string in UTC
