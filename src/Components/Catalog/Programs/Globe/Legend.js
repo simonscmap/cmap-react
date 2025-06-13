@@ -337,7 +337,7 @@ const Legend = (props) => {
     <div className={classes.legend}>
       <Paper className={classes.paper}>
         {isLoading ? (
-          <Typography>Loading trajectory data...</Typography>
+          <Typography>Loading data...</Typography>
         ) : cruises.length > 0 ? (
           <div className={classes.wrapper}>
             {cruises.map((cruise, i) => (
