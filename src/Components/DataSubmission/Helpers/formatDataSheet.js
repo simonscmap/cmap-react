@@ -79,7 +79,18 @@ export function getCellDateType(cell) {
     return 'datetime';
   }
 
-  if (formatted.match(/^\d{1,2}[/-]\d{1,2}[/-]\d{2,4}$/)) {
+  if (
+    // Numeric formats: YYYY-MM-DD, YYYY/MM/DD
+    formatted.match(/^\d{4}[/-]\d{1,2}[/-]\d{1,2}$/) ||
+    // Numeric formats: MM/DD/YYYY, DD/MM/YYYY, M/D/YY, etc.
+    formatted.match(/^\d{1,2}[/-]\d{1,2}[/-]\d{2,4}$/) ||
+    // Text month: 14-Mar-2012, 14-Mar-12, Mar-14-2012, Mar-14-12
+    formatted.match(
+      /^(?:\d{1,2}|[A-Za-z]{3})[ -][A-Za-z]{3}[ -](?:\d{2}|\d{4})$/,
+    ) ||
+    // Reversed text month: 14-March-2012 or 14 March 2012
+    formatted.match(/^\d{1,2}[ -][A-Za-z]+[ -]\d{4}$/)
+  ) {
     return 'date';
   }
 
