@@ -336,15 +336,11 @@ export default function formatDataSheet(workbook) {
 
   const is1904 = is1904Format(workbook);
 
-  // Create a dynamic array to store only actual changes
   const dataChanges = [];
 
-  // Process all rows at once
   data.forEach((row, index) => {
-    // Process time column
     const timeResult = processTimeColumn(row, index, dataSheet, is1904);
 
-    // Only store if an actual change was made
     if (timeResult.wasChanged) {
       dataChanges.push({
         rowIndex: index, // Store the row index for reference
