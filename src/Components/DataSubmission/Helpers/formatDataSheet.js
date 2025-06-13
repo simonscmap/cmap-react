@@ -60,6 +60,8 @@ export const identifyDateTimeColumns = (dataSheet) => {
   const timeColumns = [];
   const dateTimeColumns = [];
 
+  // mapping column letters to their header values from row 1.
+  // {A: 'time', B: 'depth', ...}
   const headers = (() => {
     const result = {};
     Object.keys(dataSheet).forEach((cellRef) => {
@@ -72,7 +74,6 @@ export const identifyDateTimeColumns = (dataSheet) => {
     return result;
   })();
 
-  // Skip the first row (headers) and examine only the first data cell in each column
   const colLetters = Object.keys(headers);
 
   colLetters.forEach((colLetter) => {
