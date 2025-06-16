@@ -18,7 +18,7 @@ export default function ScrollHintOverlay({ children, style }) {
         container.offsetWidth > container.clientWidth;
 
       const visibleRatio = container.clientHeight / container.scrollHeight;
-      const height = (container.clientHeight - 28) * visibleRatio;
+      const height = (container.clientHeight - 35) * visibleRatio;
       setScrollbarHeight(height);
 
       setShowHint(scrollable && !nativeScrollbarVisible && !hasScrolled);
