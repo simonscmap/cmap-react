@@ -216,7 +216,7 @@ const DatasetFullPage = (props) => {
                 <div className={classes.horizontalFlex}>
                   <div className={classes.descriptionContainer}>
                     <SectionHeader title={'Description'} />
-                    <ScrollHintOverlay>
+                    <ScrollHintOverlay style={{ maxHeight: '60vh' }}>
                       <div
                         className={classes.descriptionContent}
                         // ref={setRef}

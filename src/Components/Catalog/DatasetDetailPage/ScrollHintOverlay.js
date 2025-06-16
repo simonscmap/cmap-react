@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-export default function ScrollHintOverlay({ children }) {
+export default function ScrollHintOverlay({ children, style }) {
   const containerRef = useRef(null);
   const [showHint, setShowHint] = useState(false);
   const [hasScrolled, setHasScrolled] = useState(false);
@@ -46,7 +46,13 @@ export default function ScrollHintOverlay({ children }) {
     <div
       ref={containerRef}
       onScroll={handleScroll}
-      style={{ position: 'relative', overflowY: 'auto' }}
+      style={{
+        position: 'relative',
+        overflowY: 'auto',
+        maxHeight: '60vh',
+        paddingRight: '1em',
+        ...style,
+      }}
     >
       <style>{`
         @keyframes fadeOut {
