@@ -217,16 +217,10 @@ const DatasetFullPage = (props) => {
                   <div className={classes.descriptionContainer}>
                     <SectionHeader title={'Description'} />
                     <ScrollHintOverlay style={{ maxHeight: '60vh' }}>
-                      <div
-                        className={classes.descriptionContent}
-                        // ref={setRef}
-                        // onScroll={handleScroll}
-                      >
-                        <ReactMarkdown
-                          source={description}
-                          className={classes.markdown}
-                        />
-                      </div>
+                      <ReactMarkdown
+                        source={description}
+                        className={classes.markdown}
+                      />
                     </ScrollHintOverlay>
                   </div>
                   <NewsSection news={news} />

@@ -159,9 +159,6 @@ const styles = (theme) => ({
     display: 'flex',
     flexDirection: 'column',
   },
-  descriptionContent: {
-    paddingRight: '1em',
-  },
   acknowledgmentContent: {
     maxHeight: '30vh',
     ...scrollableStyles,
