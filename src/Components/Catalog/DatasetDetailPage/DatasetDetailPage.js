@@ -23,7 +23,6 @@ import NewsSection from './NewsSection';
 import SectionHeader from './SectionHeader';
 import SubscribeButton from '../../User/Subscriptions/SubscribeButton';
 import { DownloadButtonOutlined } from '../DownloadDialog/DownloadButtons';
-import styles from './DatasetDetailPage.style';
 import ScrollHintOverlay from './ScrollHintOverlay';
 
 import SkeletonWrapper from '../../UI/SkeletonWrapper';
@@ -43,6 +42,7 @@ import { fetchSubscriptions } from '../../../Redux/actions/user';
 import states from '../../../enums/asyncRequestStates';
 import colors from '../../../enums/colors';
 import metaTags from '../../../enums/metaTags';
+import styles from './DatasetDetailPage.style';
 
 export const datasetDetailConfig = {
   route: '/',
