@@ -2,7 +2,7 @@
 // Text on this page has inline styling for font color because ag-grid's theme classes override mui classes when a dialog is opened
 // from inside the grid
 
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { Grid, Link, Typography, withStyles } from '@material-ui/core';
@@ -174,44 +174,6 @@ const DatasetFullPage = (props) => {
       document.description = metaTags.default.description;
     };
   }, [longName]);
-
-  // // Scroll to the top of the description content when the page loads to hint at scrollability
-  // // (macOS won't show scrollbar unless scrolling). Copied from Stories.js.
-  // let [ref, setRef] = useState(null);
-  // let [intervalId, setIntervalId] = useState(null);
-  // useLayoutEffect(() => {
-  //   if (ref) {
-  //     const s = () =>
-  //       ref.scroll({
-  //         top: 1,
-  //         left: 0,
-  //         behavior: 'instant',
-  //       });
-  //     const id = setInterval(s, 100);
-  //     setIntervalId(id);
-  //   }
-  // }, [ref]);
-
-  // const handleScroll = () => {
-  //   if (ref) {
-  //     const pos = ref.scrollTop;
-  //     if (pos < 1) {
-  //       const scrollBack = () => {
-  //         if (ref) {
-  //           ref.scroll({
-  //             top: 1,
-  //             left: 0,
-  //             behavior: 'instant',
-  //           });
-  //         }
-  //       };
-  //       setTimeout(scrollBack, 200);
-  //     }
-  //   }
-  //   if (intervalId) {
-  //     clearInterval(intervalId);
-  //   }
-  // };
 
   if (failed) {
     let details = `You requested to view "${props.match.params.dataset}".`;
