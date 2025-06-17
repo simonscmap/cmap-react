@@ -1,5 +1,4 @@
 import { Paper } from '@material-ui/core';
-import { withStyles } from '@material-ui/core/styles';
 import React from 'react';
 import spatialResolutions from '../../../enums/spatialResolutions';
 import storedProcedures from '../../../enums/storedProcedures';
@@ -45,9 +44,9 @@ const getChartComponent = (chart) => {
   }
 };
 
-const ChartWrapper = ({ chart, index, classes }) => {
+const ChartWrapper = ({ chart, index }) => {
+  const classes = chartsStyles();
   let ChartComponent = getChartComponent(chart);
-
   // delegate render of chart to selected chart template
   return (
     <Paper elevation={12} className={classes.chartPaper} key={chart.id}>
@@ -62,4 +61,4 @@ export const ChartWrapperWithoutPaper = ({ chart, overrides }) => {
   return <ChartComponent chart={chart} overrides={overrides} />;
 };
 
-export default withStyles(chartsStyles)(ChartWrapper);
+export default ChartWrapper;
