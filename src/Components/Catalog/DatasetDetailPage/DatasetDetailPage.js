@@ -2,7 +2,7 @@
 // Text on this page has inline styling for font color because ag-grid's theme classes override mui classes when a dialog is opened
 // from inside the grid
 
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { Grid, Link, Typography, withStyles } from '@material-ui/core';
@@ -23,7 +23,7 @@ import NewsSection from './NewsSection';
 import SectionHeader from './SectionHeader';
 import SubscribeButton from '../../User/Subscriptions/SubscribeButton';
 import { DownloadButtonOutlined } from '../DownloadDialog/DownloadButtons';
-import styles from './DatasetDetailPage.style';
+import ScrollHintOverlay from './ScrollHintOverlay';
 
 import SkeletonWrapper from '../../UI/SkeletonWrapper';
 import ErrorCard from '../../Common/ErrorCard';
@@ -42,6 +42,7 @@ import { fetchSubscriptions } from '../../../Redux/actions/user';
 import states from '../../../enums/asyncRequestStates';
 import colors from '../../../enums/colors';
 import metaTags from '../../../enums/metaTags';
+import styles from './DatasetDetailPage.style';
 
 export const datasetDetailConfig = {
   route: '/',
@@ -174,44 +175,6 @@ const DatasetFullPage = (props) => {
     };
   }, [longName]);
 
-  // Scroll to the top of the description content when the page loads to hint at scrollability
-  // (macOS won't show scrollbar unless scrolling). Copied from Stories.js.
-  let [ref, setRef] = useState(null);
-  let [intervalId, setIntervalId] = useState(null);
-  useLayoutEffect(() => {
-    if (ref) {
-      const s = () =>
-        ref.scroll({
-          top: 1,
-          left: 0,
-          behavior: 'instant',
-        });
-      const id = setInterval(s, 100);
-      setIntervalId(id);
-    }
-  }, [ref]);
-
-  const handleScroll = () => {
-    if (ref) {
-      const pos = ref.scrollTop;
-      if (pos < 1) {
-        const scrollBack = () => {
-          if (ref) {
-            ref.scroll({
-              top: 1,
-              left: 0,
-              behavior: 'instant',
-            });
-          }
-        };
-        setTimeout(scrollBack, 200);
-      }
-    }
-    if (intervalId) {
-      clearInterval(intervalId);
-    }
-  };
-
   if (failed) {
     let details = `You requested to view "${props.match.params.dataset}".`;
     return (
@@ -253,16 +216,12 @@ const DatasetFullPage = (props) => {
                 <div className={classes.horizontalFlex}>
                   <div className={classes.descriptionContainer}>
                     <SectionHeader title={'Description'} />
-                    <div
-                      className={classes.descriptionContent}
-                      ref={setRef}
-                      onScroll={handleScroll}
-                    >
+                    <ScrollHintOverlay style={{ maxHeight: '60vh' }}>
                       <ReactMarkdown
                         source={description}
                         className={classes.markdown}
                       />
-                    </div>
+                    </ScrollHintOverlay>
                   </div>
                   <NewsSection news={news} />
                 </div>
