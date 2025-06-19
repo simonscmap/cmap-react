@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { withStyles } from '@material-ui/core';
 import { Close } from '@material-ui/icons';
 import { toolPanelStyles } from './gridStyles';
 import copyTextToClipboard from '../../../Utility/Clipboard/copyTextToClipboard';
@@ -21,11 +20,9 @@ export const RenderString = ({ str, k }) => {
   }
 };
 
-export const RenderObject = withStyles(toolPanelStyles)(({
-  classes,
-  obj,
-  indent,
-}) => {
+export const RenderObject = ({ obj, indent }) => {
+  const classes = toolPanelStyles();
+
   return Object.entries(obj).map(([k, v], i) => {
     // TODO detect nested object/array values
     // need to handle them here in such a way that they indet properly
@@ -33,7 +30,7 @@ export const RenderObject = withStyles(toolPanelStyles)(({
 
     if (isLeaf) {
       return (
-        <div className={classes.objKVWrapper} key={`k(${k})-leaf-${i}`}>
+        <div style={classes.objKVWrapper} key={`k(${k})-leaf-${i}`}>
           <RenderString str={k} k={true} />
           <RenderValue val={v} indent={indent + 1} />
         </div>
@@ -41,20 +38,17 @@ export const RenderObject = withStyles(toolPanelStyles)(({
     } else {
       return (
         <div key={`k${k}-node-${i}`}>
-          <div className={classes.objKVWrapper}>
+          <div style={classes.objKVWrapper}>
             <RenderString str={k} k={true} />
           </div>
-          <div
-            className={classes.objKVNodeWrapper}
-            style={{ paddingLeft: '2em' }}
-          >
+          <div style={{ ...classes.objKVNodeWrapper, paddingLeft: '2em' }}>
             <RenderValue val={v} />
           </div>
         </div>
       );
     }
   });
-});
+};
 
 const RenderValue = ({ val }) => {
   let valT = typeof val;
@@ -72,7 +66,9 @@ const RenderValue = ({ val }) => {
   }
 };
 
-export const BlobRender = withStyles(toolPanelStyles)(({ blob, classes }) => {
+export const BlobRender = ({ blob }) => {
+  const classes = toolPanelStyles();
+
   if (!blob || typeof blob !== 'object') {
     console.log('did not receive blob, or correct type of blob', blob);
     return '';
@@ -80,29 +76,29 @@ export const BlobRender = withStyles(toolPanelStyles)(({ blob, classes }) => {
   let keys = Object.keys(blob);
 
   return (
-    <div className={classes.blobContainer}>
+    <div style={classes.blobContainer}>
       {keys.map((key, keyIdx) => {
         // for each metadata "key" of the UM for this variable, spit out its description/value pairs
         let { values, descriptions } = blob[key];
         let zipped = zip(values, descriptions);
         return (
           <div
-            className={classes.blobKeyContainer}
+            style={classes.blobKeyContainer}
             key={`blobKey-${key}(${keyIdx})`}
           >
-            <div className={classes.keyLabel}>
+            <div style={classes.keyLabel}>
               <span>Additional Metadata for key: </span>
               <code>{key}</code>
             </div>
-            <div className={classes.headers}>
+            <div style={classes.headers}>
               <div>Description</div>
               <div>Value</div>
             </div>
             {zipped.map(([value, description], idx) => {
               return (
-                <div className={classes.valuePair} key={`value${idx}`}>
-                  <div className={classes.description}>{description}</div>
-                  <div className={classes.value}>
+                <div style={classes.valuePair} key={`value${idx}`}>
+                  <div style={classes.description}>{description}</div>
+                  <div style={classes.value}>
                     <RenderValue val={value} />
                   </div>
                 </div>
@@ -113,53 +109,49 @@ export const BlobRender = withStyles(toolPanelStyles)(({ blob, classes }) => {
       })}
     </div>
   );
+};
+
+export const VariableRowRender = React.memo(function BlobRenderFC({
+  um,
+  longName,
+  handleVariableLink,
+}) {
+  const classes = toolPanelStyles();
+  let handler = handleVariableLink || (() => {});
+  let blobs = um;
+
+  if (!blobs) {
+    return '';
+  }
+
+  return (
+    <div style={classes.vumListRow}>
+      <div style={classes.variableName}>
+        <div>
+          <a onClick={() => handler(longName)}>{longName || 'no name'}</a>
+        </div>
+        <div>
+          <div style={classes.longNameChip}>Variable</div>
+        </div>
+      </div>
+      {Array.isArray(blobs) &&
+        blobs.map((blob, blobIndex) => {
+          return <BlobRender blob={blob} key={blobIndex} />;
+        })}
+    </div>
+  );
 });
 
-export const VariableRowRender = withStyles(toolPanelStyles)(
-  React.memo(function BlobRenderFC({
-    um,
-    longName,
-    classes,
-    handleVariableLink,
-  }) {
-    let handler = handleVariableLink || (() => {});
-    let blobs = um;
+export const ListRender = ({ rows, handleVariableLink }) => {
+  const classes = toolPanelStyles();
 
-    if (!blobs) {
-      return '';
-    }
-
-    return (
-      <div className={classes.vumListRow}>
-        <div className={classes.variableName}>
-          <div>
-            <a onClick={() => handler(longName)}>{longName || 'no name'}</a>
-          </div>
-          <div>
-            <div className={classes.longNameChip}>Variable</div>
-          </div>
-        </div>
-        {Array.isArray(blobs) &&
-          blobs.map((blob, blobIndex) => {
-            return <BlobRender blob={blob} key={blobIndex} />;
-          })}
-      </div>
-    );
-  }),
-);
-
-export const ListRender = withStyles(toolPanelStyles)(({
-  rows,
-  classes,
-  handleVariableLink,
-}) => {
   if (!rows) {
     return '';
   }
 
   return (
-    <div className={classes.vumListContainer}>
-      <div className={classes.allCommentsLabel}>
+    <div style={classes.vumListContainer}>
+      <div style={classes.allCommentsLabel}>
         Metadata <span>({rows.length} matching variables with metadata)</span>
       </div>
       {rows.map((r, i) => {
@@ -176,7 +168,7 @@ export const ListRender = withStyles(toolPanelStyles)(({
       })}
     </div>
   );
-});
+};
 
 const VUMList = ({ shouldDisplay }) => {
   let [isLoaded, setIsLoaded] = useState(false);
@@ -224,8 +216,8 @@ const VUMList = ({ shouldDisplay }) => {
   );
 };
 
-const SidebarMetadataToolPanel = withStyles(toolPanelStyles)((props) => {
-  let { classes } = props;
+const SidebarMetadataToolPanel = (props) => {
+  const classes = toolPanelStyles();
   let [eventPayload, setData] = useState(null);
   let [isFocusView, setIsFocusView] = useState(false);
 
@@ -274,22 +266,16 @@ const SidebarMetadataToolPanel = withStyles(toolPanelStyles)((props) => {
   };
 
   return (
-    <div className={classes.toolPanelContainer}>
-      <div className={classes.title}>
-        <div>
-          <span>Additional Metadata Tool Panel</span>
-        </div>
-        <div onClick={handleExit} className={classes.toolBarClose}>
-          <span>Exit Tool Panel</span>
-          <Close />
-        </div>
+    <div style={classes.toolPanelContainer}>
+      <div onClick={handleExit} style={classes.toolBarClose}>
+        <Close />
       </div>
-
+      <div style={classes.title}>Additional Metadata</div>
       {isFocusView && eventPayload && (
         <div>
-          <div className={classes.variableFocusLabelContainer}>
-            <div className={classes.variableLabel}>{/* removed */}</div>
-            <div onClick={handleDeselect} className={classes.closeBox}>
+          <div style={classes.variableFocusLabelContainer}>
+            <div style={classes.variableLabel}>{/* removed */}</div>
+            <div onClick={handleDeselect} style={classes.closeBox}>
               <span>Deselect Variable</span>
               <Close />
             </div>
@@ -303,6 +289,6 @@ const SidebarMetadataToolPanel = withStyles(toolPanelStyles)((props) => {
       <VUMList shouldDisplay={!isFocusView} />
     </div>
   );
-});
+};
 
 export default SidebarMetadataToolPanel;
