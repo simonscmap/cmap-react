@@ -276,8 +276,16 @@ const SidebarMetadataToolPanel = (props) => {
           <div style={classes.variableFocusLabelContainer}>
             <div style={classes.variableLabel}>{/* removed */}</div>
             <div onClick={handleDeselect} style={classes.closeBox}>
-              <span>Deselect Variable</span>
-              <Close />
+              <span
+                style={{
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  textDecoration: 'underline',
+                  color: 'rgb(105, 255, 242)',
+                }}
+              >
+                Show All Metadata
+              </span>
             </div>
           </div>
           <VariableRowRender

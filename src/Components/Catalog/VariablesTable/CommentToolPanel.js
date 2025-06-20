@@ -194,8 +194,16 @@ const SidebarCommentToolPanel = () => {
           <div style={classes.variableFocusLabelContainer}>
             <div style={classes.variableLabel}>{/* removed */}</div>
             <div onClick={handleClose} style={classes.closeBox}>
-              <span>Deselect Variable</span>
-              <Close />
+              <span
+                style={{
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  textDecoration: 'underline',
+                  color: 'rgb(105, 255, 242)',
+                }}
+              >
+                Show All Comments
+              </span>
             </div>
           </div>
           <VariableRowRender
