@@ -35,6 +35,7 @@ const DatasetPageAGGrid = (props) => {
   const gridRef = useRef();
 
   let [currentFocus, setCurrentFocus] = useState(null);
+  const [openedFromClick, setOpenedFromClick] = useState(false);
 
   const openToolPanel = (panelId) => {
     gridRef && gridRef.current && gridRef.current.api.openToolPanel(panelId);
@@ -71,6 +72,7 @@ const DatasetPageAGGrid = (props) => {
 
       dispatchVariableFocusEvent(payload);
       setCurrentFocus(longName);
+      setOpenedFromClick(true);
     }
   };
 
@@ -86,6 +88,7 @@ const DatasetPageAGGrid = (props) => {
       // Always dispatch focus event first
       dispatchVariableFocusEvent(payload);
       setCurrentFocus(payload.longName);
+      setOpenedFromClick(true);
 
       // Then open the appropriate panel
       if (colId === 'Unstructured_Variable_Metadata') {
@@ -100,6 +103,7 @@ const DatasetPageAGGrid = (props) => {
       if (currentFocus !== payload.longName) {
         dispatchVariableFocusEvent(payload);
         setCurrentFocus(payload.longName);
+        setOpenedFromClick(true);
       }
     }
   };
@@ -230,17 +234,19 @@ const DatasetPageAGGrid = (props) => {
           // onColumnResized={(args) => console.log(args)}
           onModelUpdated={dispatchCurrentTableModel}
           onToolPanelVisibleChanged={(event) => {
-            // When a tool panel becomes visible, make sure the current focus is maintained
+            if (event.visible === false) {
+              dispatchClearFocusEvent();
+              setCurrentFocus(null); // <-- ensure local state is cleared too
+              return;
+            }
+
             if (
-              // For tool panel opening, visible might be undefined or true
-              (event.visible === undefined || event.visible === true) &&
-              currentFocus &&
-              // The source can be the panel ID (e.g., 'comments') or 'toolPanelUi'
               (event.source === 'toolPanelUi' ||
                 event.source === 'comments' ||
-                event.source === 'metadata')
+                event.source === 'metadata') &&
+              currentFocus &&
+              openedFromClick
             ) {
-              // Re-dispatch the focus event to ensure the tool panel shows the correct data
               const model = gridRef.current.api.getModel();
               if (model) {
                 const rows = model.rowsToDisplay;
@@ -259,6 +265,7 @@ const DatasetPageAGGrid = (props) => {
                   dispatchVariableFocusEvent(payload);
                 }
               }
+              setOpenedFromClick(false);
             }
           }}
           colResizeDefault={'shift'}
