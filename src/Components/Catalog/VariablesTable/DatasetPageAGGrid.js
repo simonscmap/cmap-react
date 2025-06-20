@@ -35,6 +35,7 @@ const DatasetPageAGGrid = (props) => {
   const gridRef = useRef();
 
   let [currentFocus, setCurrentFocus] = useState(null);
+  const [openedFromClick, setOpenedFromClick] = useState(false);
 
   const openToolPanel = (panelId) => {
     gridRef && gridRef.current && gridRef.current.api.openToolPanel(panelId);
@@ -71,6 +72,7 @@ const DatasetPageAGGrid = (props) => {
 
       dispatchVariableFocusEvent(payload);
       setCurrentFocus(longName);
+      setOpenedFromClick(true);
     }
   };
 
@@ -78,19 +80,31 @@ const DatasetPageAGGrid = (props) => {
   const onCellClick = (e) => {
     // send data to tool panels
     let payload = makeVariableFocusPayload(e);
-    if (currentFocus !== payload.longName) {
-      dispatchVariableFocusEvent(payload);
-    }
 
     // open requested tool panel
     let colId = getColIdFromCellClickEvent(e);
-    if (colId === 'Unstructured_Variable_Metadata') {
-      // dispatch both event to load variable data into both tool panels
-      openToolPanel('metadata');
-    } else if (colId === 'Comment') {
-      openToolPanel('comments');
+
+    if (colId === 'Unstructured_Variable_Metadata' || colId === 'Comment') {
+      // Always dispatch focus event first
+      dispatchVariableFocusEvent(payload);
+      setCurrentFocus(payload.longName);
+      setOpenedFromClick(true);
+
+      // Then open the appropriate panel
+      if (colId === 'Unstructured_Variable_Metadata') {
+        setTimeout(() => openToolPanel('metadata'), 50);
+      } else if (colId === 'Comment') {
+        setTimeout(() => openToolPanel('comments'), 50);
+      }
     } else if (colId === 'unknown') {
       console.error('could not extract colId from cell click event', e);
+    } else {
+      // For other columns, just update the focus if needed
+      if (currentFocus !== payload.longName) {
+        dispatchVariableFocusEvent(payload);
+        setCurrentFocus(payload.longName);
+        setOpenedFromClick(true);
+      }
     }
   };
 
@@ -182,11 +196,17 @@ const DatasetPageAGGrid = (props) => {
     window.addEventListener('setFocusEvent', handleFocus, false);
     window.addEventListener('askForFocus', giveVariableFocus, false);
     window.addEventListener('exitToolBar', closeSideBar, false);
+    window.addEventListener('askForModel', dispatchCurrentTableModel, false);
     return () => {
       window.removeEventListener('clearFocusEvent', handleClearFocus);
       window.removeEventListener('setFocusEvent', handleFocus, false);
       window.removeEventListener('askForFocus', giveVariableFocus, false);
-      window.addEventListener('exitToolBar', closeSideBar, false);
+      window.removeEventListener('exitToolBar', closeSideBar, false);
+      window.removeEventListener(
+        'askForModel',
+        dispatchCurrentTableModel,
+        false,
+      );
     };
   }, []);
   return (
@@ -213,6 +233,41 @@ const DatasetPageAGGrid = (props) => {
           onCellClicked={onCellClick}
           // onColumnResized={(args) => console.log(args)}
           onModelUpdated={dispatchCurrentTableModel}
+          onToolPanelVisibleChanged={(event) => {
+            if (event.visible === false) {
+              dispatchClearFocusEvent();
+              setCurrentFocus(null); // <-- ensure local state is cleared too
+              return;
+            }
+
+            if (
+              (event.source === 'toolPanelUi' ||
+                event.source === 'comments' ||
+                event.source === 'metadata') &&
+              currentFocus &&
+              openedFromClick
+            ) {
+              const model = gridRef.current.api.getModel();
+              if (model) {
+                const rows = model.rowsToDisplay;
+
+                const match = rows.find(
+                  (r) => r && r.data && r.data.Long_Name === currentFocus,
+                );
+
+                if (match) {
+                  const payload = {
+                    longName: currentFocus,
+                    comment: match.data.Comment,
+                    unstructuredMetadata:
+                      match.data.Unstructured_Variable_Metadata,
+                  };
+                  dispatchVariableFocusEvent(payload);
+                }
+              }
+              setOpenedFromClick(false);
+            }
+          }}
           colResizeDefault={'shift'}
           enableCellTextSelection={true} // this does not seem to work
           // enableFilter={true}
@@ -262,9 +317,9 @@ const DatasetPageAGGrid = (props) => {
                 // The unique ID for this panel. Used in the API and elsewhere to refer to the panel.
                 id: 'metadata',
                 // The key used for localisation for displaying the label. The label is displayed in the tab button.
-                labelKey: 'Additional Variable Metadata',
+                labelKey: 'Additional Metadata',
                 // The default label if `labelKey` is missing or does not map to valid text through localisation.
-                labelDefault: 'Additional Variable Metadata',
+                labelDefault: 'Additional Metadata',
                 // The min width of the tool panel. Default: `100`
                 minWidth: 225,
                 // The max width of the tool panel. Default: `undefined`
