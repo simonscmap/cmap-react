@@ -334,11 +334,11 @@ function* csvFromVizRequest(action) {
   const csvData = yield action.payload.vizObject.generateCsv();
   let dataWB = XLSX.read(csvData, { type: 'string' });
   let { payload } = action;
-  let { tableName, shortName } = payload;
+  let { tableName: shortName, shortName: variableName } = payload;
 
   yield put(interfaceActions.setLoadingMessage('Fetching metadata', tag));
 
-  const metadataQuery = `exec uspVariableMetadata '${tableName}', '${shortName}'`;
+  const metadataQuery = `exec uspVariableMetadata '${shortName}', '${variableName}'`;
 
   let metadataResponse = yield call(
     api.visualization.csvDownload,
