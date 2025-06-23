@@ -13,6 +13,9 @@ import XLSX from 'xlsx';
 import api from '../../api/api';
 import {
   fetchDatasetAndMetadata,
+  fetchDatasetMetadata,
+  filterMetadataForVariable,
+  makeMetadataWorkbook,
   makeZip,
 } from '../../Components/Catalog/DownloadDialog/dataRequest';
 import { makeDownloadQuery } from '../../Components/Catalog/DownloadDialog/downloadDialogHelpers';
@@ -334,28 +337,87 @@ function* csvFromVizRequest(action) {
   const csvData = yield action.payload.vizObject.generateCsv();
   let dataWB = XLSX.read(csvData, { type: 'string' });
   let { payload } = action;
-  let { tableName: shortName, shortName: variableName } = payload;
+  let { tableName, shortName: variableName } = payload;
+
+  // Remove 'tbl' prefix from tableName to get the actual shortName
+  const shortName = tableName.startsWith('tbl')
+    ? tableName.substring(3)
+    : tableName;
+
+  log.debug('csvFromVizRequest parameters', {
+    originalTableName: tableName,
+    shortName,
+    variableName,
+  });
 
   yield put(interfaceActions.setLoadingMessage('Fetching metadata', tag));
 
-  const metadataQuery = `exec uspVariableMetadata '${shortName}', '${variableName}'`;
+  try {
+    // Fetch the complete dataset metadata
+    log.debug('Fetching dataset metadata', { shortName });
+    const metadataJSON = yield call(fetchDatasetMetadata, shortName);
 
-  let metadataResponse = yield call(
-    api.visualization.csvDownload,
-    metadataQuery,
-  );
-
-  if (typeof metadataResponse !== 'string') {
-    console.error(
-      'error in csvFromVizRequest; expected stringified response',
-      metadataResponse,
+    // Filter metadata for the specific variable
+    log.debug('Filtering metadata for variable', {
+      variableName,
+      variablesCount: metadataJSON?.variables?.length || 0,
+    });
+    const filteredMetadata = filterMetadataForVariable(
+      metadataJSON,
+      variableName,
     );
+
+    if (!filteredMetadata) {
+      log.error('No metadata found for variable', { shortName, variableName });
+      yield put(interfaceActions.setLoadingMessage('', tag));
+      yield put(
+        interfaceActions.snackbarOpen(
+          'Failed to retrieve variable metadata',
+          tag,
+        ),
+      );
+      return;
+    }
+
+    log.debug('Creating metadata workbook', {
+      filteredVariablesCount: filteredMetadata.variables.length,
+    });
+
+    // Create a proper metadata workbook with all three sheets
+    const metadataBlob = makeMetadataWorkbook(filteredMetadata);
+
+    // Create a workbook with data and metadata
+    let workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, dataWB.Sheets.Sheet1, 'Data');
+
+    // Read the metadata workbook and append its sheets
+    const metadataWB = XLSX.read(metadataBlob, { type: 'array' });
+
+    // Append each sheet from the metadata workbook
+    Object.keys(metadataWB.Sheets).forEach((sheetName) => {
+      log.debug('Appending metadata sheet', { sheetName });
+      XLSX.utils.book_append_sheet(
+        workbook,
+        metadataWB.Sheets[sheetName],
+        sheetName,
+      );
+    });
+
+    // Write the workbook to a file
+    log.debug('Writing workbook to file', {
+      fileName: action.payload.longName,
+    });
+    XLSX.writeFile(workbook, `${action.payload.longName}.xlsx`);
     yield put(interfaceActions.setLoadingMessage('', tag));
-    if (
-      metadataResponse &&
-      metadataResponse.status &&
-      metadataResponse.status === 401
-    ) {
+  } catch (e) {
+    log.error('Error in csvFromVizRequest', {
+      error: e.message,
+      stack: e.stack,
+    });
+    console.error('Error in csvFromVizRequest:', e);
+    yield put(interfaceActions.setLoadingMessage('', tag));
+
+    if (e.message === 'UNAUTHORIZED') {
       yield put(
         interfaceActions.snackbarOpen('Please log in to download data', tag),
       );
@@ -367,17 +429,6 @@ function* csvFromVizRequest(action) {
         ),
       );
     }
-  } else {
-    let metadataWB = XLSX.read(metadataResponse, { type: 'string' });
-    let workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, dataWB.Sheets.Sheet1, 'Data');
-    XLSX.utils.book_append_sheet(
-      workbook,
-      metadataWB.Sheets.Sheet1,
-      'Variable Metadata',
-    );
-    XLSX.writeFile(workbook, `${action.payload.longName}.xlsx`);
-    yield put(interfaceActions.setLoadingMessage('', tag));
   }
 }
 

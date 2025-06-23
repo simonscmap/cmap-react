@@ -13,37 +13,41 @@ const log = initLog('catalog/dataRequest');
 export const fetchDatasetAndMetadata = async ({ query, shortName }) => {
   // to try/catch
   let requests = [
-    new Promise(async (resolve, reject) => {
+    new Promise((resolve, reject) => {
       let response;
-      try {
-        response = await api.catalog.datasetMetadata(shortName);
-      } catch (e) {
-        log.error('dataset metadata fetch failed', { error: e, shortName });
-        reject(e);
-        return;
-      }
+      (async () => {
+        try {
+          response = await api.catalog.datasetMetadata(shortName);
+        } catch (e) {
+          log.error('dataset metadata fetch failed', { error: e, shortName });
+          reject(e);
+          return;
+        }
 
-      if (response.ok) {
-        resolve(response);
-      } else {
-        reject(response);
-      }
+        if (response.ok) {
+          resolve(response);
+        } else {
+          reject(response);
+        }
+      })();
     }),
-    new Promise(async (resolve, reject) => {
+    new Promise((resolve, reject) => {
       let response;
-      try {
-        response = await api.data.customQuery(query);
-      } catch (e) {
-        log.error('custom query failed', { error: e, shortName });
-        reject(e);
-        return;
-      }
+      (async () => {
+        try {
+          response = await api.data.customQuery(query);
+        } catch (e) {
+          log.error('custom query failed', { error: e, shortName });
+          reject(e);
+          return;
+        }
 
-      if (response.ok) {
-        resolve(response);
-      } else {
-        reject(response);
-      }
+        if (response.ok) {
+          resolve(response);
+        } else {
+          reject(response);
+        }
+      })();
     }),
   ];
 
@@ -93,6 +97,47 @@ export const fetchDatasetAndMetadata = async ({ query, shortName }) => {
    * } */
 
   return [metadataJSON, datasetText];
+};
+
+// Fetch just the metadata for a dataset
+export const fetchDatasetMetadata = async (shortName) => {
+  try {
+    const response = await api.catalog.datasetMetadata(shortName);
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error('UNAUTHORIZED', { cause: response });
+      } else {
+        throw new Error('ERROR', { cause: response });
+      }
+    }
+
+    const metadataJSON = await response.json();
+    return metadataJSON;
+  } catch (e) {
+    log.error('dataset metadata fetch failed', { error: e, shortName });
+    throw e;
+  }
+};
+
+// Filter metadata for a specific variable
+export const filterMetadataForVariable = (metadata, variableName) => {
+  if (!metadata || !metadata.variables) {
+    return null;
+  }
+
+  // Create a copy of the metadata object
+  const filteredMetadata = {
+    ...metadata,
+    variables: metadata.variables.filter((v) => v.Variable === variableName),
+  };
+
+  // If no matching variable was found, return null
+  if (filteredMetadata.variables.length === 0) {
+    return null;
+  }
+
+  return filteredMetadata;
 };
 
 export const makeMetadataWorkbook = (metadataJSON) => {
