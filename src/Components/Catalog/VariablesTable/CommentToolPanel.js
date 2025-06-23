@@ -68,6 +68,7 @@ const CommentList = ({ shouldDisplay }) => {
 
   let handleModel = (e) => {
     let { detail: currentRows } = e;
+
     if (currentRows) {
       setRows([...currentRows]);
       setIsLoaded(true);
@@ -82,8 +83,7 @@ const CommentList = ({ shouldDisplay }) => {
     window.addEventListener('variablesTableModel', handleModel, false);
     if (rows.length < 1 && !isLoaded) {
       // ask for a new dispatch of the table model
-      // console.log('comment tool panel asking for updated model')
-      dispatchCustomWindowEvent('clearFocusEvent', null);
+      dispatchCustomWindowEvent('askForModel', null);
     }
     return () => {
       window.removeEventListener('variablesTableModel', handleModel, false);
@@ -116,14 +116,13 @@ const SidebarCommentToolPanel = () => {
 
   let handleFocus = (e) => {
     let { detail } = e;
+
     if (detail) {
-      if (
-        !focusedVariableData ||
-        detail.longName !== focusedVariableData.longName
-      ) {
-        setFocusedVariableData(detail);
-        setIsFocusView(true);
-      }
+      // Always set isFocusView to true when receiving a focus event
+      setIsFocusView(true);
+
+      // Update the focused variable data
+      setFocusedVariableData(detail);
     }
   };
 
@@ -140,17 +139,32 @@ const SidebarCommentToolPanel = () => {
     setIsFocusView(false);
   };
 
+  // Add an effect to check if this tool panel is active
+  useEffect(() => {
+    // This effect runs when the component mounts or when focusedVariableData changes
+    if (focusedVariableData) {
+      setIsFocusView(true);
+    }
+  }, [focusedVariableData]);
+
   // listen for event containing current panel content
   useEffect(() => {
     window.addEventListener('setFocusEvent', handleFocus, false);
     window.addEventListener('copyToClipboard', handleCopy, false);
     window.addEventListener('clearFocusEvent', handleClearFocus, false);
+
+    // Don't dispatch clearFocusEvent when the component mounts
+    // Only ask for updated model if we don't already have data
+    if (!focusedVariableData) {
+      dispatchCustomWindowEvent('askForModel', null);
+    }
+
     return () => {
       window.removeEventListener('setFocusEvent', handleFocus);
       window.removeEventListener('copyToClipboard', handleCopy);
       window.removeEventListener('clearFocusEvent', handleClearFocus);
     };
-  }, []);
+  }, [focusedVariableData, isFocusView]);
 
   /* let copyToClipboard = () => {
    *   dispatchCustomWindowEvent("copyToClipboard", focusedVariableData);
@@ -173,15 +187,23 @@ const SidebarCommentToolPanel = () => {
       <div onClick={handleExit} style={classes.toolBarClose}>
         <Close />
       </div>
-      <div style={classes.title}>Comment Tool Panel</div>
+      <div style={classes.title}>Comments</div>
 
       {isFocusView && focusedVariableData && (
         <div>
           <div style={classes.variableFocusLabelContainer}>
             <div style={classes.variableLabel}>{/* removed */}</div>
             <div onClick={handleClose} style={classes.closeBox}>
-              <span>Deselect Variable</span>
-              <Close />
+              <span
+                style={{
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  textDecoration: 'underline',
+                  color: 'rgb(105, 255, 242)',
+                }}
+              >
+                Show All Comments
+              </span>
             </div>
           </div>
           <VariableRowRender

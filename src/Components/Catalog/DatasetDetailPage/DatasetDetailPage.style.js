@@ -156,10 +156,8 @@ const styles = (theme) => ({
   },
   descriptionContainer: {
     flex: 2,
-  },
-  descriptionContent: {
-    maxHeight: '60vh',
-    ...scrollableStyles,
+    display: 'flex',
+    flexDirection: 'column',
   },
   acknowledgmentContent: {
     maxHeight: '30vh',
