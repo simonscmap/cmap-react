@@ -360,7 +360,10 @@ function* csvFromVizRequest(action) {
     // Filter metadata for the specific variable
     log.debug('Filtering metadata for variable', {
       variableName,
-      variablesCount: metadataJSON?.variables?.length || 0,
+      variablesCount:
+        metadataJSON && metadataJSON.variables
+          ? metadataJSON.variables.length
+          : 0,
     });
     const filteredMetadata = filterMetadataForVariable(
       metadataJSON,

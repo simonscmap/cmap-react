@@ -13,24 +13,7 @@ const log = initLog('catalog/dataRequest');
 export const fetchDatasetAndMetadata = async ({ query, shortName }) => {
   // to try/catch
   let requests = [
-    new Promise((resolve, reject) => {
-      let response;
-      (async () => {
-        try {
-          response = await api.catalog.datasetMetadata(shortName);
-        } catch (e) {
-          log.error('dataset metadata fetch failed', { error: e, shortName });
-          reject(e);
-          return;
-        }
-
-        if (response.ok) {
-          resolve(response);
-        } else {
-          reject(response);
-        }
-      })();
-    }),
+    fetchDatasetMetadata(shortName),
     new Promise((resolve, reject) => {
       let response;
       (async () => {
@@ -51,9 +34,9 @@ export const fetchDatasetAndMetadata = async ({ query, shortName }) => {
     }),
   ];
 
-  let metadataResp, datasetResp;
+  let metadataJSON, datasetResp;
   try {
-    [metadataResp, datasetResp] = await Promise.all(requests);
+    [metadataJSON, datasetResp] = await Promise.all(requests);
   } catch (eResp) {
     let { status } = eResp;
     log.warn('error in data request', { status, originalError: eResp });
@@ -69,15 +52,6 @@ export const fetchDatasetAndMetadata = async ({ query, shortName }) => {
     } else {
       throw new Error('ERROR', { cause: eResp });
     }
-  }
-
-  // get data in correct format
-  let metadataJSON;
-  try {
-    metadataJSON = await metadataResp.json();
-  } catch (e) {
-    log.error('error parsing json', { error: e });
-    return;
   }
 
   let datasetText;
