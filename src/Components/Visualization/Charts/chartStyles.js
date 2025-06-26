@@ -197,7 +197,7 @@ export const chartsStyles = (theme) => ({
   chartPaper: {
     backgroundColor: colors.backgroundGray,
     marginBottom: '5h',
-    paddingTop: theme.spacing(1),
+    paddingTop: '8px',
     paddingRight: '10px',
     boxShadow: '2px 2px 2px 2px #242424',
     margin: '0 0 0 360px',
