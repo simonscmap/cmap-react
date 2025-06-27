@@ -186,18 +186,11 @@ export const downloadTextAsCsv = (text, fileName) => ({
   },
 });
 
-export const csvFromVizRequestSend = (
-  vizObject,
-  tableName,
-  shortName,
-  longName,
-) => ({
+export const csvFromVizRequestSend = (vizObject, csvDownloadArgs) => ({
   type: visualizationActionTypes.CSV_FROM_VIZ_REQUEST_SEND,
   payload: {
     vizObject, // data models, such as src/api/SpaceTimeData.js; need generateCSV method on it
-    tableName,
-    shortName,
-    longName,
+    ...csvDownloadArgs,
   },
 });
 

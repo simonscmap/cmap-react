@@ -111,12 +111,7 @@ const TimeSeriesChart = (props) => {
   };
 
   const timeSeriesConfig = {
-    downloadCSVArgs: [
-      data,
-      metadata.Table_Name,
-      metadata.Variable,
-      metadata.Long_Name,
-    ],
+    downloadCSVArgs: [data, data.csvDownloadArgs],
     chartData: chart,
     chartIndex,
     chartControls: controls,

@@ -84,7 +84,6 @@ const getSparseMapPlotConfig = (data, palette, zValues, overrides = {}) => {
 const SparseMapComponent = (props) => {
   const { chart, chartIndex, overrides = {} } = props;
   const { data } = chart;
-  const { metadata } = data;
 
   const { pointCount } = data;
   const { varyWithSize } = overrides;
@@ -146,13 +145,7 @@ const SparseMapComponent = (props) => {
     };
 
   let sparseMapChartConfig = {
-    downloadCSVArgs: [
-      data,
-      metadata.Table_Name,
-      // metadata.Variable,
-      metadata.Short_Name,
-      metadata.Long_Name,
-    ],
+    downloadCSVArgs: [data, data.csvDownloadArgs],
     chartData: chart,
     chartIndex,
     chartControls: controls,
