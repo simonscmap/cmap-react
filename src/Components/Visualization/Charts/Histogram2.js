@@ -22,9 +22,7 @@ const Histogram = (props) => {
   const { chart, chartIndex } = props;
   const { data } = chart;
   const { metadata, parameters } = data;
-  const { Table_Name, Variable, Long_Name } = metadata;
 
-  const downloadCSVArgs = [data, Table_Name, Variable, Long_Name];
   const date = renderDate(parameters);
   const lat = renderLat(parameters);
   const lon = renderLon(parameters);
@@ -64,7 +62,7 @@ const Histogram = (props) => {
   };
 
   const chartConfig = {
-    downloadCSVArgs,
+    downloadCSVArgs: [data, data.csvDownloadArgs],
     chartData: chart,
     chartIndex,
     chartControls: [
