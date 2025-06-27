@@ -63,15 +63,15 @@ const makeLatAndLonTitles = (
     orientation === 'meridional'
       ? `${parameters.lat1}\xb0 to ${parameters.lat2}\xb0`
       : splitBySpace
-        ? dmopfs[index % dmopfs.length] + '\xb0'
-        : `Averaged Values ${parameters.lat1}\xb0 to ${parameters.lat2}\xb0`;
+      ? dmopfs[index % dmopfs.length] + '\xb0'
+      : `Averaged Values ${parameters.lat1}\xb0 to ${parameters.lat2}\xb0`;
 
   let lonTitle =
     orientation === 'zonal'
       ? `${parameters.lon1}\xb0 to ${parameters.lon2}\xb0`
       : splitBySpace
-        ? dmopfs[index % dmopfs.length] + '\xb0'
-        : `Averaged Values ${parameters.lon1}\xb0 to ${parameters.lon2}\xb0`;
+      ? dmopfs[index % dmopfs.length] + '\xb0'
+      : `Averaged Values ${parameters.lon1}\xb0 to ${parameters.lon2}\xb0`;
   return [latTitle, lonTitle];
 };
 
@@ -80,21 +80,21 @@ const makeDate = (dates, data, splits, dmopfs, index) => {
   return dates.length < 2
     ? handleChartDateString(dates[0], data.hasHour, data.isMonthly)
     : splitByDate && splitBySpace
-      ? handleChartDateString(
-          dates[Math.floor(index / dmopfs.length)],
-          data.hasHour,
-          data.isMonthly,
-        )
-      : splitByDate
-        ? handleChartDateString(dates[index], data.hasHour, data.isMonthly)
-        : 'Averaged Values ' +
-          handleChartDateString(dates[0], data.hasHour, data.isMonthly) +
-          ' to ' +
-          handleChartDateString(
-            dates[dates.length - 1],
-            data.hasHour,
-            data.isMonthly,
-          );
+    ? handleChartDateString(
+        dates[Math.floor(index / dmopfs.length)],
+        data.hasHour,
+        data.isMonthly,
+      )
+    : splitByDate
+    ? handleChartDateString(dates[index], data.hasHour, data.isMonthly)
+    : 'Averaged Values ' +
+      handleChartDateString(dates[0], data.hasHour, data.isMonthly) +
+      ' to ' +
+      handleChartDateString(
+        dates[dates.length - 1],
+        data.hasHour,
+        data.isMonthly,
+      );
 };
 
 const makeHovertext = (axisData, orientation, data) => {
@@ -352,12 +352,7 @@ const SectionMapChart = (props) => {
   });
 
   let sectionMapChartConfig = {
-    downloadCSVArgs: [
-      data,
-      metadata.Table_Name,
-      metadata.Variable,
-      metadata.Long_Name,
-    ],
+    downloadCSVArgs: [data, data.csvDownloadArgs],
     chartData: chart,
     chartIndex,
     chartControls: controls,
