@@ -86,7 +86,11 @@ visualizationAPI.storedProcedureRequest = async (payload) => {
       csvParser.write(decoder.decode(chunk.value));
     }
   }
-
+  vizData.csvDownloadArgs = {
+    datasetShortName: vizData.metadata.Short_Name,
+    variableShortName: vizData.metadata.Variable,
+    variableLongName: vizData.metadata.Long_Name,
+  };
   return vizData;
 };
 
