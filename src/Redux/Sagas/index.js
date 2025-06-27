@@ -333,33 +333,29 @@ function* csvDownloadRequest(action) {
 
 function* csvFromVizRequest(action) {
   const tag = { tag: 'csvFromVizRequest' };
+
   yield put(interfaceActions.setLoadingMessage('Processing Data', tag));
   const csvData = yield action.payload.vizObject.generateCsv();
   let dataWB = XLSX.read(csvData, { type: 'string' });
   let { payload } = action;
-  let { tableName, shortName: variableName } = payload;
-
-  // Remove 'tbl' prefix from tableName to get the actual shortName
-  const shortName = tableName.startsWith('tbl')
-    ? tableName.substring(3)
-    : tableName;
+  let { datasetShortName, variableShortName, variableLongName } = payload;
 
   log.debug('csvFromVizRequest parameters', {
-    originalTableName: tableName,
-    shortName,
-    variableName,
+    datasetShortName,
+    variableShortName,
+    variableLongName,
   });
 
   yield put(interfaceActions.setLoadingMessage('Fetching metadata', tag));
 
   try {
     // Fetch the complete dataset metadata
-    log.debug('Fetching dataset metadata', { shortName });
-    const metadataJSON = yield call(fetchDatasetMetadata, shortName);
+    log.debug('Fetching dataset metadata', { datasetShortName });
+    const metadataJSON = yield call(fetchDatasetMetadata, datasetShortName);
 
     // Filter metadata for the specific variable
     log.debug('Filtering metadata for variable', {
-      variableName,
+      variableShortName,
       variablesCount:
         metadataJSON && metadataJSON.variables
           ? metadataJSON.variables.length
@@ -367,11 +363,13 @@ function* csvFromVizRequest(action) {
     });
     const filteredMetadata = filterMetadataForVariable(
       metadataJSON,
-      variableName,
+      variableShortName,
     );
-
     if (!filteredMetadata) {
-      log.error('No metadata found for variable', { shortName, variableName });
+      log.error('No metadata found for variable', {
+        datasetShortName,
+        variableShortName,
+      });
       yield put(interfaceActions.setLoadingMessage('', tag));
       yield put(
         interfaceActions.snackbarOpen(
@@ -408,9 +406,9 @@ function* csvFromVizRequest(action) {
 
     // Write the workbook to a file
     log.debug('Writing workbook to file', {
-      fileName: action.payload.longName,
+      fileName: `${variableLongName}_${datasetShortName}.xlsx`,
     });
-    XLSX.writeFile(workbook, `${action.payload.longName}.xlsx`);
+    XLSX.writeFile(workbook, `${variableLongName}_${datasetShortName}.xlsx`);
     yield put(interfaceActions.setLoadingMessage('', tag));
   } catch (e) {
     log.error('Error in csvFromVizRequest', {
