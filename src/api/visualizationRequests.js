@@ -166,7 +166,11 @@ visualizationAPI.sparseDataQuerysend = async (payload) => {
       csvParser.write(decoder.decode(chunk.value));
     }
   }
-
+  vizData.csvDownloadArgs = {
+    datasetShortName: vizData.metadata.Short_Name,
+    variableShortName: vizData.metadata.Variable,
+    variableLongName: vizData.metadata.Long_Name,
+  };
   return vizData;
 };
 
@@ -232,6 +236,13 @@ visualizationAPI.variableSampleVisRequest = async (payload) => {
       csvParser.write(decoder.decode(chunk.value));
     }
   }
+
+  // Add csvDownloadArgs to dataModel
+  dataModel.csvDownloadArgs = {
+    datasetShortName,
+    variableShortName: metadata.Short_Name,
+    variableLongName: metadata.Long_Name,
+  };
 
   return dataModel;
 };
