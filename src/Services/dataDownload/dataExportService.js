@@ -339,6 +339,51 @@ class DataExportService {
 
     return filteredMetadata;
   }
+
+  /**
+   * Parse CSV string data to JSON array
+   * @param {string} csvData - CSV formatted string data
+   * @returns {Array<Object>} Array of objects with headers as keys
+   * @throws {Error} If CSV data is invalid or empty
+   */
+  static parseCSVToJSON(csvData) {
+    if (!csvData || typeof csvData !== 'string') {
+      throw new Error('Invalid CSV data: must be a non-empty string');
+    }
+
+    const trimmedData = csvData.trim();
+    if (!trimmedData) {
+      throw new Error('CSV data is empty');
+    }
+
+    const lines = trimmedData.split('\n');
+    if (lines.length < 2) {
+      throw new Error(
+        'CSV data must have at least a header row and one data row',
+      );
+    }
+
+    const headers = lines[0].split(',').map((header) => header.trim());
+    const data = lines.slice(1).map((line, lineIndex) => {
+      const values = line.split(',');
+
+      // Ensure we have the same number of values as headers
+      if (values.length !== headers.length) {
+        throw new Error(
+          `CSV row ${lineIndex + 2} has ${values.length} values but expected ${
+            headers.length
+          } (matching headers)`,
+        );
+      }
+
+      return headers.reduce((obj, header, index) => {
+        obj[header] = values[index]?.trim() || '';
+        return obj;
+      }, {});
+    });
+
+    return data;
+  }
 }
 
 export default DataExportService;

@@ -285,15 +285,7 @@ export function* csvFromVizRequest(action) {
     const csvData = yield vizObject.generateCsv();
 
     // Parse CSV data to JSON for the export service
-    const lines = csvData.trim().split('\n');
-    const headers = lines[0].split(',');
-    const data = lines.slice(1).map((line) => {
-      const values = line.split(',');
-      return headers.reduce((obj, header, index) => {
-        obj[header] = values[index];
-        return obj;
-      }, {});
-    });
+    const data = DataExportService.parseCSVToJSON(csvData);
 
     yield put(interfaceActions.setLoadingMessage('Fetching metadata', tag));
 
