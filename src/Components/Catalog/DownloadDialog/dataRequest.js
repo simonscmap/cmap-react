@@ -2,7 +2,7 @@ import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
 import XLSX from 'xlsx';
 import api from '../../../api/api';
-import datasetMetadataToDownloadFormat from '../../../Utility/Catalog/datasetMetadataToDownloadFormat';
+import datasetMetadataToDownloadFormat from '../../../Services/dataDownload/datasetMetadataToDownloadFormat';
 import store from '../../../Redux/store';
 import * as interfaceActions from '../../../Redux/actions/ui';
 import initLog from '../../../Services/log-service';

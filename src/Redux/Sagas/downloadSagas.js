@@ -25,7 +25,7 @@ import * as visualizationActionTypes from '../actionTypes/visualization';
 import * as visualizationActions from '../actions/visualization';
 import states from '../../enums/asyncRequestStates';
 import logInit from '../../Services/log-service';
-import DataExportService from '../../Services/dataExportService';
+import DataExportService from '../../Services/dataDownload/dataExportService';
 
 const log = logInit('sagas/downloadSagas').addContext({
   src: 'Redux/Sagas/downloadSagas',

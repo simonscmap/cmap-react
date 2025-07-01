@@ -1,4 +1,4 @@
-import DownloadService from '../../services/downloadService';
+import DownloadService from '../../Services/dataDownload/downloadService';
 import { saveAs } from 'file-saver';
 import XLSX from 'xlsx';
 import JSZip from 'jszip';

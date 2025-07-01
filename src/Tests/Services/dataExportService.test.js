@@ -1,5 +1,5 @@
-import DataExportService from '../../services/dataExportService';
-import DownloadService from '../../services/downloadService';
+import DataExportService from '../../Services/dataDownload/dataExportService';
+import DownloadService from '../../Services/dataDownload/downloadService';
 import apiService from '../../api/api';
 
 // Mock dependencies

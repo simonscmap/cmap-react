@@ -1,6 +1,6 @@
 import DownloadService from './downloadService';
-import apiService from '../api/api';
-import datasetMetadataToDownloadFormat from '../Utility/Catalog/datasetMetadataToDownloadFormat';
+import apiService from '../../api/api';
+import datasetMetadataToDownloadFormat from './datasetMetadataToDownloadFormat';
 /**
  * Unified data export service for handling all export operations
  */
