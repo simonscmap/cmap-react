@@ -48,13 +48,15 @@ class DownloadService {
 
     // Determine columns from data if not provided
     const headers = columns || Object.keys(data[0]);
-    
+
     // Create header row
-    const headerRow = headers.map(header => this.escapeCSVValue(header)).join(',');
-    
+    const headerRow = headers
+      .map((header) => this.escapeCSVValue(header))
+      .join(',');
+
     // Create data rows
-    const dataRows = data.map(row => 
-      headers.map(header => this.escapeCSVValue(row[header])).join(',')
+    const dataRows = data.map((row) =>
+      headers.map((header) => this.escapeCSVValue(row[header])).join(','),
     );
 
     return [headerRow, ...dataRows].join('\n');
@@ -69,14 +71,18 @@ class DownloadService {
     if (value === null || value === undefined) {
       return '';
     }
-    
+
     const stringValue = String(value);
-    
+
     // Check if value needs to be quoted
-    if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+    if (
+      stringValue.includes(',') ||
+      stringValue.includes('"') ||
+      stringValue.includes('\n')
+    ) {
       return `"${stringValue.replace(/"/g, '""')}"`;
     }
-    
+
     return stringValue;
   }
 
@@ -88,12 +94,12 @@ class DownloadService {
    */
   static createExcelWorkbook(sheets) {
     const workbook = XLSX.utils.book_new();
-    
+
     sheets.forEach(({ name, data }) => {
       const worksheet = XLSX.utils.json_to_sheet(data);
       XLSX.utils.book_append_sheet(workbook, worksheet, name);
     });
-    
+
     return workbook;
   }
 
@@ -114,11 +120,11 @@ class DownloadService {
    */
   static async createZip(files) {
     const zip = new JSZip();
-    
+
     files.forEach(({ filename, content }) => {
       zip.file(filename, content);
     });
-    
+
     return await zip.generateAsync({ type: 'blob' });
   }
 
@@ -172,21 +178,23 @@ class DownloadService {
     if (metadata.dataset) {
       sheets.push({
         name: 'Dataset Metadata',
-        data: Array.isArray(metadata.dataset) ? metadata.dataset : [metadata.dataset]
+        data: Array.isArray(metadata.dataset)
+          ? metadata.dataset
+          : [metadata.dataset],
       });
     }
 
     if (metadata.variables && metadata.variables.length > 0) {
       sheets.push({
         name: 'Variable Metadata',
-        data: metadata.variables
+        data: metadata.variables,
       });
     }
 
     if (metadata.variableStats && metadata.variableStats.length > 0) {
       sheets.push({
         name: 'Variable Summary Statistics',
-        data: metadata.variableStats
+        data: metadata.variableStats,
       });
     }
 
