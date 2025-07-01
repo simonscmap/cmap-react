@@ -298,10 +298,10 @@ export function* csvFromVizRequest(action) {
     yield put(interfaceActions.setLoadingMessage('Fetching metadata', tag));
 
     // Fetch metadata using the export service
-    const metadata = yield call(DataExportService.fetchDatasetMetadata, {
+    const metadata = yield call(
+      DataExportService.fetchDatasetMetadata,
       datasetShortName,
-      fields: variableShortName,
-    });
+    );
     // Filter metadata for the specific variable
     const filteredMetadata = {
       dataset: metadata.dataset,
@@ -365,7 +365,12 @@ export function* csvFromVizRequest(action) {
 export function* downloadRequest(action) {
   const tag = { tag: 'downloadRequest' };
   const { payload } = action;
-  const { subsetParams, ancillaryData, tableName, shortName } = payload;
+  const {
+    subsetParams,
+    ancillaryData,
+    tableName,
+    shortName: datasetShortName,
+  } = payload;
 
   // Check if user is logged in
   const user = yield select((state) => state.user);
@@ -385,7 +390,7 @@ export function* downloadRequest(action) {
 
     log.info('[downloadRequest] Requesting dataset download', {
       tableName,
-      shortName,
+      datasetShortName,
       ancillaryData,
     });
 
@@ -394,7 +399,7 @@ export function* downloadRequest(action) {
       query: {
         query,
         tableName,
-        shortName,
+        datasetShortName,
         fields: query.fields || '*',
       },
     });
@@ -402,7 +407,10 @@ export function* downloadRequest(action) {
     yield put(interfaceActions.setLoadingMessage('', tag));
     yield put(catalogActions.datasetDownloadRequestSuccess());
 
-    log.info('Successfully downloaded dataset', { tableName, shortName });
+    log.info('Successfully downloaded dataset', {
+      tableName,
+      datasetShortName,
+    });
   } catch (error) {
     log.error('Error in downloadRequest', {
       error: error.message,

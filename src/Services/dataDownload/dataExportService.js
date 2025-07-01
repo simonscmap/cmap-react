@@ -58,7 +58,9 @@ class DataExportService {
       const promises = [apiService.data.customQuery(queryString)];
 
       if (!metadata) {
-        promises.push(DataExportService.fetchDatasetMetadata(query));
+        promises.push(
+          DataExportService.fetchDatasetMetadata(query.datasetShortName),
+        );
       }
 
       const [dataResponse, fetchedMetadata] = await Promise.all(promises);
@@ -127,13 +129,13 @@ class DataExportService {
 
   /**
    * Fetch dataset metadata from API
-   * @param {Object} query - API query parameters
+   * @param {string} datasetShortName - Short name of the dataset
    * @returns {Promise<Object>} Metadata object
    */
-  static async fetchDatasetMetadata(query) {
+  static async fetchDatasetMetadata(datasetShortName) {
     try {
       const response = await apiService.catalog.datasetMetadata(
-        query.shortName,
+        datasetShortName,
       );
 
       if (!response.ok) {
