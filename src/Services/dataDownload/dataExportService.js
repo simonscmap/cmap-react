@@ -305,7 +305,7 @@ class DataExportService {
    * Filter metadata for a specific variable
    * @param {Object} metadata - Complete metadata object
    * @param {string} variableShortName - Short name of the variable to filter for
-   * @param {string} variableLongName - Long name of the variable to filter for
+   * @param {string} variableLongName - Long name of the variable to filter for (optional)
    * @returns {Object} Filtered metadata object
    * @throws {Error} If no metadata is found for the variable
    */
@@ -314,22 +314,28 @@ class DataExportService {
     variableShortName,
     variableLongName,
   ) {
-    const filteredMetadata = {
-      dataset: metadata.dataset,
-      variables: metadata.variables.filter(
-        (v) => v.var_short_name === variableShortName,
-      ),
-      variableStats: metadata.variableStats.filter(
-        (v) => v.Variable === variableLongName,
-      ),
-    };
+    // Filter variables by short name
+    const filteredVariables = metadata.variables.filter(
+      (v) => v.var_short_name === variableShortName,
+    );
 
-    if (
-      !filteredMetadata.variables ||
-      filteredMetadata.variables.length === 0
-    ) {
+    if (!filteredVariables || filteredVariables.length === 0) {
       throw new Error('No metadata found for variable');
     }
+
+    // If variableLongName is not provided, get it from the filtered variables
+    let resolvedVariableLongName = variableLongName;
+    if (!resolvedVariableLongName) {
+      resolvedVariableLongName = filteredVariables[0].var_long_name;
+    }
+
+    const filteredMetadata = {
+      dataset: metadata.dataset,
+      variables: filteredVariables,
+      variableStats: metadata.variableStats.filter(
+        (v) => v.Variable === resolvedVariableLongName,
+      ),
+    };
 
     return filteredMetadata;
   }
