@@ -46,22 +46,7 @@ import * as visualizationActionTypes from '../actionTypes/visualization';
 // watchers
 // NOTE: the functions the watchers call do not need to be imported here
 // they are simply referenced in the watcher functions
-import {
-  watchUserLogin,
-  watchUserRegistration,
-  watchUserValidation,
-  watchUserLogout,
-  watchGoogleLoginRequest,
-  watchGoogleLoginRequestFailure,
-  watchKeyRetrieval,
-  watchKeyCreationRequest,
-  watchContactUs,
-  watchNominateNewData,
-  watchFetchLastUserTouch,
-  watchFetchUserSubscriptions,
-  watchCreateSubscription,
-  watchDeleteSubscriptions,
-} from './userSagas';
+import userSaga from './userSagas';
 
 import {
   watchFetchDatasetNames,
@@ -2167,14 +2152,7 @@ function* watchChangeNewsSubscription() {
 
 function* rootSaga() {
   yield all([
-    watchUserLogin(),
-    watchUserRegistration(),
-    watchUserValidation(),
-    watchUserLogout(),
-    watchGoogleLoginRequest(),
-    watchGoogleLoginRequestFailure(),
-    watchKeyRetrieval(),
-    watchKeyCreationRequest(),
+    userSaga(),
     watchQueryRequest(),
     watchStoredProcedureRequest(),
     watchStoredProcedureRequest2(),
@@ -2187,8 +2165,7 @@ function* rootSaga() {
     // watchPromptGoogleLogin(),
     watchRecoverPasswordRequest(),
     watchChoosePasswordRequest(),
-    watchContactUs(),
-    watchNominateNewData(),
+
     watchChangePasswordRequest(),
     watchChangeEmailRequest(),
     watchCsvFromVizRequest(),
@@ -2256,16 +2233,12 @@ function* rootSaga() {
     // watchRequestADTAnomalyDataSend(),
     watchRequestAvgSSTAnomalyDataSend(),
     watchRequestAvgADTAnomalyDataSend(),
-    watchFetchLastUserTouch(),
     watchCheckSubmissionNameRequestSend(),
     watchVisualizableVariablesFetch(),
     watchDatasetVariableVisDataFetch(),
     watchFetchProgramsSend(),
     watchFetchProgramDetailsSend(),
     watchProgramSampleVisDataFetch(),
-    watchFetchUserSubscriptions(),
-    watchCreateSubscription(),
-    watchDeleteSubscriptions(),
     watchFetchDatasetNames(),
     watchFetchNotificationHistory(),
     watchFetchNotificationProjection(),

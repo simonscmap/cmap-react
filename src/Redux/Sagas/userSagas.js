@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie';
-import { call, put, takeLatest, select, take, delay } from 'redux-saga/effects';
+import { call, put, takeLatest, select, delay, all } from 'redux-saga/effects';
 import { googleLogout } from '@react-oauth/google';
 import api from '../../api/api';
 import * as interfaceActions from '../actions/ui';
@@ -10,7 +10,6 @@ import * as catalogActions from '../actions/catalog';
 // import parseError from '../../Utility/parseError';
 import states from '../../enums/asyncRequestStates';
 import logInit from '../../Services/log-service';
-import { safePath } from '../../Utility/objectUtils';
 
 const log = logInit('redux/sagas/userSagas');
 
@@ -605,3 +604,25 @@ export function* watchDeleteSubscriptions() {
     deleteSubscriptions,
   );
 }
+
+// User saga that handles all user-related watchers
+function* userSaga() {
+  yield all([
+    watchUserLogin(),
+    watchUserRegistration(),
+    watchUserValidation(),
+    watchUserLogout(),
+    watchGoogleLoginRequest(),
+    watchGoogleLoginRequestFailure(),
+    watchKeyRetrieval(),
+    watchKeyCreationRequest(),
+    watchContactUs(),
+    watchNominateNewData(),
+    watchFetchLastUserTouch(),
+    watchFetchUserSubscriptions(),
+    watchCreateSubscription(),
+    watchDeleteSubscriptions(),
+  ]);
+}
+
+export default userSaga;
