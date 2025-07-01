@@ -33,11 +33,11 @@ class DataExportService {
       const sheets = [
         {
           name: 'Data',
-          data: this.normalizeVisualizationData(data),
+          data: DataExportService.normalizeVisualizationData(data),
         },
         ...DownloadService.createMetadataSheets(metadata),
       ];
-
+      console.log('🐛🐛🐛 dataExportService.js:41 sheets:', sheets);
       DownloadService.downloadExcel(sheets, filename);
     }
   }
@@ -172,10 +172,11 @@ class DataExportService {
     }
 
     // Normalize data first to ensure consistent structure
-    const normalizedData = this.normalizeVisualizationData(data);
+    const normalizedData = DataExportService.normalizeVisualizationData(data);
 
     // Determine column order based on data type
-    const columns = this.determineVisualizationColumns(normalizedData);
+    const columns =
+      DataExportService.determineVisualizationColumns(normalizedData);
 
     return DownloadService.jsonToCSV(normalizedData, columns);
   }
@@ -206,7 +207,7 @@ class DataExportService {
 
       // Ensure consistent date formatting
       if (row.time) {
-        normalized.time = this.formatDate(row.time);
+        normalized.time = DataExportService.formatDate(row.time);
       }
 
       // Ensure numeric values are properly formatted
@@ -215,7 +216,7 @@ class DataExportService {
           typeof normalized[key] === 'number' &&
           !Number.isInteger(normalized[key])
         ) {
-          normalized[key] = this.formatFloat(normalized[key]);
+          normalized[key] = DataExportService.formatFloat(normalized[key]);
         }
       });
 
