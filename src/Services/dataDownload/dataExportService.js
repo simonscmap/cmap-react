@@ -58,7 +58,7 @@ class DataExportService {
       const promises = [apiService.data.customQuery(queryString)];
 
       if (!metadata) {
-        promises.push(this.fetchDatasetMetadata(query));
+        promises.push(DataExportService.fetchDatasetMetadata(query));
       }
 
       const [dataResponse, fetchedMetadata] = await Promise.all(promises);
