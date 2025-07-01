@@ -37,7 +37,6 @@ class DataExportService {
         },
         ...DownloadService.createMetadataSheets(metadata),
       ];
-      console.log('🐛🐛🐛 dataExportService.js:41 sheets:', sheets);
       DownloadService.downloadExcel(sheets, filename);
     }
   }
