@@ -383,7 +383,7 @@ export function* downloadRequest(action) {
 
     yield put(interfaceActions.setLoadingMessage('Fetching Data', tag));
 
-    log.info('Requesting dataset download', {
+    log.info('[downloadRequest] Requesting dataset download', {
       tableName,
       shortName,
       ancillaryData,
@@ -392,8 +392,9 @@ export function* downloadRequest(action) {
     // Use the export service to handle the download
     yield call(DataExportService.exportDataset, {
       query: {
-        ...query,
+        query,
         tableName,
+        shortName,
         fields: query.fields || '*',
       },
     });

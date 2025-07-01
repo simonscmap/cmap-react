@@ -133,7 +133,7 @@ class DataExportService {
   static async fetchDatasetMetadata(query) {
     try {
       const response = await apiService.catalog.datasetMetadata(
-        query.datasetShortName,
+        query.shortName,
       );
 
       if (!response.ok) {
