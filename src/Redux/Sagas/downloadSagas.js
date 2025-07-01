@@ -299,7 +299,7 @@ export function* csvFromVizRequest(action) {
 
     // Fetch metadata using the export service
     const metadata = yield call(DataExportService.fetchDatasetMetadata, {
-      tableName: datasetShortName,
+      datasetShortName,
       fields: variableShortName,
     });
     // Filter metadata for the specific variable
