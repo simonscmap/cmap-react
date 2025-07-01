@@ -25,6 +25,7 @@ import * as visualizationActionTypes from '../actionTypes/visualization';
 import * as visualizationActions from '../actions/visualization';
 import states from '../../enums/asyncRequestStates';
 import logInit from '../../Services/log-service';
+import DataExportService from '../../Services/dataExportService';
 
 const log = logInit('sagas/downloadSagas').addContext({
   src: 'Redux/Sagas/downloadSagas',
@@ -116,7 +117,7 @@ function* csvDownloadRequest(action) {
   }
 }
 
-function* csvFromVizRequest(action) {
+function* csvFromVizRequest_OLD(action) {
   const tag = { tag: 'csvFromVizRequest' };
 
   yield put(interfaceActions.setLoadingMessage('Processing Data', tag));
@@ -218,7 +219,7 @@ function* csvFromVizRequest(action) {
   }
 }
 
-function* downloadRequest(action) {
+function* downloadRequest_OLD(action) {
   const tag = { tag: 'downloadRequest' };
   // from DATASET_DOWNLOAD_REQUEST_SEND
   // payload should include (1) subsetParam, (2) tableName, (3) shortName
@@ -250,6 +251,172 @@ function* downloadRequest(action) {
     if (e.message === 'UNAUTHORIZED') {
       yield put(userActions.refreshLogin());
     } else if (e.message === '400 TOO LARGE') {
+      yield put(
+        interfaceActions.snackbarOpen(
+          'Requested data exceeds size limits.',
+          tag,
+        ),
+      );
+    } else {
+      yield put(
+        interfaceActions.snackbarOpen(
+          'There was an error requesting the dataset.',
+          tag,
+        ),
+      );
+    }
+  }
+}
+
+/**
+ * Saga for handling visualization CSV/Excel download requests
+ * Refactored to use the new unified DataExportService
+ */
+export function* csvFromVizRequest(action) {
+  const tag = { tag: 'csvFromVizRequest' };
+  const { payload } = action;
+  const { vizObject, datasetShortName, variableShortName, variableLongName } =
+    payload;
+
+  yield put(interfaceActions.setLoadingMessage('Processing Data', tag));
+
+  try {
+    // Generate CSV data from visualization object
+    const csvData = yield vizObject.generateCsv();
+
+    // Parse CSV data to JSON for the export service
+    const lines = csvData.trim().split('\n');
+    const headers = lines[0].split(',');
+    const data = lines.slice(1).map((line) => {
+      const values = line.split(',');
+      return headers.reduce((obj, header, index) => {
+        obj[header] = values[index];
+        return obj;
+      }, {});
+    });
+
+    yield put(interfaceActions.setLoadingMessage('Fetching metadata', tag));
+
+    // Fetch metadata using the export service
+    const metadata = yield call(DataExportService.fetchDatasetMetadata, {
+      tableName: datasetShortName,
+      fields: variableShortName,
+    });
+    // Filter metadata for the specific variable
+    const filteredMetadata = {
+      dataset: metadata.dataset,
+      variables: metadata.variables.filter(
+        (v) => v.var_short_name === variableShortName,
+      ),
+      variableStats: metadata.variableStats.filter(
+        (v) => v.Variable === variableLongName,
+      ),
+    };
+    if (
+      !filteredMetadata.variables ||
+      filteredMetadata.variables.length === 0
+    ) {
+      throw new Error('No metadata found for variable');
+    }
+
+    // Export data with metadata as Excel
+    yield call(DataExportService.exportVisualizationData, {
+      data,
+      metadata: filteredMetadata,
+      datasetName: datasetShortName,
+      variableName: variableLongName,
+      format: 'excel',
+    });
+
+    yield put(interfaceActions.setLoadingMessage('', tag));
+    log.info('Successfully exported visualization data', {
+      datasetShortName,
+      variableShortName,
+    });
+  } catch (error) {
+    log.error('Error in csvFromVizRequest', {
+      error: error.message,
+      stack: error.stack,
+    });
+
+    yield put(interfaceActions.setLoadingMessage('', tag));
+
+    if (error.message === 'UNAUTHORIZED') {
+      yield put(
+        interfaceActions.snackbarOpen('Please log in to download data', tag),
+      );
+    } else if (error.message === 'No metadata found for variable') {
+      yield put(
+        interfaceActions.snackbarOpen(
+          'Failed to retrieve variable metadata',
+          tag,
+        ),
+      );
+    } else {
+      yield put(interfaceActions.snackbarOpen('Failed to download data', tag));
+    }
+  }
+}
+
+/**
+ * Saga for handling dataset download requests
+ * Refactored to use the new unified DataExportService
+ */
+export function* downloadRequest(action) {
+  const tag = { tag: 'downloadRequest' };
+  const { payload } = action;
+  const { subsetParams, ancillaryData, tableName, shortName } = payload;
+
+  // Check if user is logged in
+  const user = yield select((state) => state.user);
+  if (!user) {
+    yield put(userActions.refreshLogin());
+    return;
+  }
+
+  yield put(catalogActions.datasetDownloadRequestProcessing());
+  yield put(interfaceActions.setLoadingMessage('Processing Request', tag));
+
+  try {
+    // Create query from subset parameters
+    const query = makeDownloadQuery({ subsetParams, ancillaryData, tableName });
+
+    yield put(interfaceActions.setLoadingMessage('Fetching Data', tag));
+
+    log.info('Requesting dataset download', {
+      tableName,
+      shortName,
+      ancillaryData,
+    });
+
+    // Use the export service to handle the download
+    yield call(DataExportService.exportDataset, {
+      query: {
+        ...query,
+        tableName,
+        fields: query.fields || '*',
+      },
+    });
+
+    yield put(interfaceActions.setLoadingMessage('', tag));
+    yield put(catalogActions.datasetDownloadRequestSuccess());
+
+    log.info('Successfully downloaded dataset', { tableName, shortName });
+  } catch (error) {
+    log.error('Error in downloadRequest', {
+      error: error.message,
+      stack: error.stack,
+    });
+
+    yield put(interfaceActions.setLoadingMessage('', tag));
+    // yield put(catalogActions.datasetDownloadRequestFailure());
+
+    if (error.message === 'UNAUTHORIZED') {
+      yield put(userActions.refreshLogin());
+    } else if (
+      error.message === '400 TOO LARGE' ||
+      error.message.includes('TOO LARGE')
+    ) {
       yield put(
         interfaceActions.snackbarOpen(
           'Requested data exceeds size limits.',
