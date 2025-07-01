@@ -18,7 +18,7 @@
   "rules": {
     "no-console": "off",
     "strict": ["error", "global"],
-    "curly": ["error", "multi-or-nest", "consistent"],
+    "curly": ["error", "multi-line", "consistent"],
     "no-unused-vars": "error",
     "no-shadow": ["error"],
     "react/prop-types": [0],
