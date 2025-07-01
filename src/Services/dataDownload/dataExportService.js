@@ -300,6 +300,39 @@ class DataExportService {
       }
     });
   }
+
+  /**
+   * Filter metadata for a specific variable
+   * @param {Object} metadata - Complete metadata object
+   * @param {string} variableShortName - Short name of the variable to filter for
+   * @param {string} variableLongName - Long name of the variable to filter for
+   * @returns {Object} Filtered metadata object
+   * @throws {Error} If no metadata is found for the variable
+   */
+  static filterMetadataForVariable(
+    metadata,
+    variableShortName,
+    variableLongName,
+  ) {
+    const filteredMetadata = {
+      dataset: metadata.dataset,
+      variables: metadata.variables.filter(
+        (v) => v.var_short_name === variableShortName,
+      ),
+      variableStats: metadata.variableStats.filter(
+        (v) => v.Variable === variableLongName,
+      ),
+    };
+
+    if (
+      !filteredMetadata.variables ||
+      filteredMetadata.variables.length === 0
+    ) {
+      throw new Error('No metadata found for variable');
+    }
+
+    return filteredMetadata;
+  }
 }
 
 export default DataExportService;

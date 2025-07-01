@@ -303,21 +303,11 @@ export function* csvFromVizRequest(action) {
       datasetShortName,
     );
     // Filter metadata for the specific variable
-    const filteredMetadata = {
-      dataset: metadata.dataset,
-      variables: metadata.variables.filter(
-        (v) => v.var_short_name === variableShortName,
-      ),
-      variableStats: metadata.variableStats.filter(
-        (v) => v.Variable === variableLongName,
-      ),
-    };
-    if (
-      !filteredMetadata.variables ||
-      filteredMetadata.variables.length === 0
-    ) {
-      throw new Error('No metadata found for variable');
-    }
+    const filteredMetadata = DataExportService.filterMetadataForVariable(
+      metadata,
+      variableShortName,
+      variableLongName,
+    );
 
     // Export data with metadata as Excel
     yield call(DataExportService.exportVisualizationData, {
