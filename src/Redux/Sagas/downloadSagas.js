@@ -14,7 +14,6 @@ import * as catalogActionTypes from '../actionTypes/catalog';
 import * as interfaceActions from '../actions/ui';
 import * as userActions from '../actions/user';
 import * as visualizationActionTypes from '../actionTypes/visualization';
-import * as visualizationActions from '../actions/visualization';
 import states from '../../enums/asyncRequestStates';
 import logInit from '../../Services/log-service';
 import DataExportService from '../../Services/dataDownload/dataExportService';
@@ -68,7 +67,7 @@ export function* checkDownloadSize(action) {
 
 /**
  * Saga for handling visualization CSV/Excel download requests
- * Refactored to use the new unified DataExportService
+ * Uses the unified export method that automatically chooses format based on data size
  */
 export function* csvFromVizRequest(action) {
   const tag = { tag: 'csvFromVizRequest' };
@@ -82,9 +81,6 @@ export function* csvFromVizRequest(action) {
     // Generate CSV data from visualization object
     const csvData = yield vizObject.generateCsv();
 
-    // Parse CSV data to JSON for the export service
-    const data = DataExportService.parseCSVToJSON(csvData);
-
     yield put(interfaceActions.setLoadingMessage('Fetching metadata', tag));
 
     // Fetch metadata using the export service
@@ -92,6 +88,7 @@ export function* csvFromVizRequest(action) {
       DataExportService.fetchDatasetMetadata,
       datasetShortName,
     );
+
     // Filter metadata for the specific variable
     const filteredMetadata = DataExportService.filterMetadataForVariable(
       metadata,
@@ -99,13 +96,14 @@ export function* csvFromVizRequest(action) {
       variableLongName,
     );
 
-    // Export data with metadata as Excel
-    yield call(DataExportService.exportVisualizationData, {
-      data,
+    yield put(interfaceActions.setLoadingMessage('Preparing download', tag));
+
+    // Use unified export method - automatically chooses Excel or ZIP based on data size
+    yield call(DataExportService.exportDataWithMetadata, {
+      data: csvData, // Pass CSV string directly
       metadata: filteredMetadata,
       datasetName: datasetShortName,
       variableName: variableLongName,
-      format: 'excel',
     });
 
     yield put(interfaceActions.setLoadingMessage('', tag));
@@ -140,7 +138,7 @@ export function* csvFromVizRequest(action) {
 
 /**
  * Saga for handling dataset download requests
- * Refactored to use the new unified DataExportService
+ * Uses the unified export method that automatically chooses format based on data size
  */
 export function* downloadRequest(action) {
   const tag = { tag: 'downloadRequest' };
@@ -174,14 +172,39 @@ export function* downloadRequest(action) {
       ancillaryData,
     });
 
-    // Use the export service to handle the download
-    yield call(DataExportService.exportDataset, {
-      query: {
-        query,
-        tableName,
-        datasetShortName,
-        fields: query.fields || '*',
-      },
+    // Fetch data and metadata in parallel
+    const [dataResponse, metadata] = yield all([
+      call(api.data.customQuery, query),
+      call(DataExportService.fetchDatasetMetadata, datasetShortName),
+    ]);
+
+    // Handle data response errors
+    if (!dataResponse.ok) {
+      if (dataResponse.status === 401) {
+        throw new Error('UNAUTHORIZED');
+      } else if (dataResponse.status === 400) {
+        const responseText = yield dataResponse.text();
+        const errorMessage =
+          responseText === 'query exceeds maximum size allowed'
+            ? '400 TOO LARGE'
+            : 'BAD REQUEST';
+        throw new Error(errorMessage);
+      } else {
+        throw new Error('Failed to fetch data');
+      }
+    }
+
+    // Get data as text (CSV format)
+    const dataArrayBuffer = yield dataResponse.arrayBuffer();
+    const csvData = new TextDecoder().decode(dataArrayBuffer);
+
+    yield put(interfaceActions.setLoadingMessage('Preparing download', tag));
+
+    // Use unified export method - automatically chooses Excel or ZIP based on data size
+    yield call(DataExportService.exportDataWithMetadata, {
+      data: csvData, // Pass CSV string directly
+      metadata: metadata,
+      datasetName: tableName,
     });
 
     yield put(interfaceActions.setLoadingMessage('', tag));

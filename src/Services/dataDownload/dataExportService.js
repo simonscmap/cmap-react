@@ -6,125 +6,110 @@ import datasetMetadataToDownloadFormat from './datasetMetadataToDownloadFormat';
  */
 class DataExportService {
   /**
-   * Export visualization data with metadata
+   * UNIFIED EXPORT METHOD
+   * Exports data with metadata, automatically choosing format based on data size
    * @param {Object} params - Export parameters
-   * @param {Array} params.data - The visualization data
+   * @param {Array|string} params.data - Data as JSON array or CSV string
    * @param {Object} params.metadata - Dataset and variable metadata
    * @param {string} params.datasetName - Name of the dataset
-   * @param {string} params.variableName - Name of the variable
-   * @param {string} params.format - Export format ('csv' | 'excel')
+   * @param {string} params.variableName - Name of the variable (optional)
+   * @param {boolean} params.forceZip - Force ZIP format regardless of size
    * @returns {Promise<void>}
    */
-  static async exportVisualizationData({
+  static async exportDataWithMetadata({
     data,
     metadata,
     datasetName,
-    variableName,
-    format = 'excel',
+    variableName = null,
+    forceZip = false,
   }) {
-    const filename = `${datasetName}_${variableName}_${DownloadService.formatDateForFilename()}`;
+    // Normalize data to consistent format
+    let normalizedData;
+    let csvData;
 
-    if (format === 'csv') {
-      // For CSV, just export the data
-      const csvContent = this.convertVisualizationDataToCSV(data);
-      DownloadService.downloadCSV(csvContent, filename);
+    if (typeof data === 'string') {
+      // Data is CSV string
+      csvData = data;
+      normalizedData = DataExportService.parseCSVToJSON(data);
+    } else if (Array.isArray(data)) {
+      // Data is JSON array
+      normalizedData = DataExportService.normalizeVisualizationData(data);
+      csvData = DataExportService.convertVisualizationDataToCSV(data);
     } else {
-      // For Excel, include data and metadata sheets
-      const sheets = [
-        {
-          name: 'Data',
-          data: DataExportService.normalizeVisualizationData(data),
-        },
-        ...DownloadService.createMetadataSheets(metadata),
-      ];
-      DownloadService.downloadExcel(sheets, filename);
+      throw new Error('Data must be either a CSV string or JSON array');
     }
-  }
 
-  /**
-   * Export dataset with metadata as ZIP
-   * @param {Object} params - Export parameters
-   * @param {Object} params.query - API query parameters
-   * @param {Object} params.metadata - Pre-fetched metadata (optional)
-   * @returns {Promise<void>}
-   */
-  static async exportDataset({ query, metadata = null }) {
-    try {
-      // Build the query string for the API
-      const queryString =
-        typeof query === 'string' ? query : query.query || query;
+    // Determine if data is too large for Excel
+    const shouldUseZip =
+      forceZip || DataExportService.shouldUseZipFormat(normalizedData, csvData);
 
-      // Fetch data and metadata in parallel if metadata not provided
-      const promises = [apiService.data.customQuery(queryString)];
+    // Generate filename components
+    const baseFilename = variableName
+      ? `${datasetName}_${variableName}_${DownloadService.formatDateForFilename()}`
+      : `${datasetName}_${DownloadService.formatDateForFilename()}`;
 
-      if (!metadata) {
-        promises.push(
-          DataExportService.fetchDatasetMetadata(query.datasetShortName),
-        );
-      }
-
-      const [dataResponse, fetchedMetadata] = await Promise.all(promises);
-
-      if (!dataResponse.ok) {
-        if (dataResponse.status === 401) {
-          throw new Error('UNAUTHORIZED');
-        } else if (dataResponse.status === 400) {
-          const responseText = await dataResponse.text();
-          const errorMessage =
-            responseText === 'query exceeds maximum size allowed'
-              ? '400 TOO LARGE'
-              : 'BAD REQUEST';
-          throw new Error(errorMessage);
-        } else {
-          throw new Error('Failed to fetch data');
-        }
-      }
-
-      const finalMetadata = metadata || fetchedMetadata;
-
-      // Get data as array buffer
-      const dataArrayBuffer = await dataResponse.arrayBuffer();
-      const dataText = new TextDecoder().decode(dataArrayBuffer);
-
-      // Create metadata workbook
+    if (shouldUseZip) {
+      // Export as ZIP with CSV data and Excel metadata
       const metadataWorkbook = DownloadService.createExcelWorkbook(
-        DownloadService.createMetadataSheets(finalMetadata),
+        DownloadService.createMetadataSheets(metadata),
       );
       const metadataBuffer = DownloadService.workbookToBuffer(metadataWorkbook);
 
-      // Create ZIP with data and metadata
       const files = [
         {
-          filename: 'data.csv',
-          content: dataText,
+          filename: `${datasetName}_data.csv`,
+          content: csvData,
         },
         {
-          filename: 'metadata.xlsx',
+          filename: `${datasetName}_metadata.xlsx`,
           content: metadataBuffer,
         },
       ];
 
-      const zipFilename = `${
-        query.tableName
-      }_${DownloadService.formatDateForFilename()}`;
-      await DownloadService.downloadZip(files, zipFilename);
-    } catch (error) {
-      console.error('Error exporting dataset:', error);
-      throw error;
+      await DownloadService.downloadZip(files, baseFilename);
+    } else {
+      // Export as single Excel file with data and metadata sheets
+      const sheets = [
+        {
+          name: 'Data',
+          data: normalizedData,
+        },
+        ...DownloadService.createMetadataSheets(metadata),
+      ];
+
+      DownloadService.downloadExcel(sheets, baseFilename);
     }
   }
 
   /**
-   * Export metadata only as Excel
-   * @param {Object} params - Export parameters
-   * @param {string} params.datasetName - Name of the dataset
-   * @param {Object} params.metadata - Metadata object
-   * @returns {void}
+   * Determines if ZIP format should be used based on data size
+   * @param {Array} normalizedData - Data as JSON array
+   * @param {string} csvData - Data as CSV string
+   * @returns {boolean} True if ZIP format should be used
    */
-  static exportMetadataOnly({ datasetName, metadata }) {
-    const sheets = DownloadService.createMetadataSheets(metadata);
-    const filename = `${datasetName}_metadata_${DownloadService.formatDateForFilename()}`;
-    DownloadService.downloadExcel(sheets, filename);
+  static shouldUseZipFormat(normalizedData, csvData) {
+    // Excel practical limits:
+    // - ~1 million rows (1,048,576 actual limit)
+    // - Memory considerations for large datasets
+    // - File size considerations
+
+    const MAX_EXCEL_ROWS = 500000; // Conservative limit for performance
+    const MAX_CSV_SIZE_MB = 50; // 50MB CSV size limit for Excel export
+
+    // Check row count
+    if (normalizedData && normalizedData.length > MAX_EXCEL_ROWS) {
+      return true;
+    }
+
+    // Check approximate file size (CSV string length as rough estimate)
+    if (csvData) {
+      const csvSizeMB = new Blob([csvData]).size / (1024 * 1024);
+      if (csvSizeMB > MAX_CSV_SIZE_MB) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   /**
@@ -180,20 +165,6 @@ class DataExportService {
       DataExportService.determineVisualizationColumns(normalizedData);
 
     return DownloadService.jsonToCSV(normalizedData, columns);
-  }
-
-  /**
-   * Convert dataset API response to CSV format
-   * @param {Array} data - Dataset data from API
-   * @returns {string} CSV formatted string
-   */
-  static convertDatasetToCSV(data) {
-    if (!data || data.length === 0) {
-      return '';
-    }
-
-    // Dataset data is typically already in the correct format
-    return DownloadService.jsonToCSV(data);
   }
 
   /**
@@ -288,20 +259,6 @@ class DataExportService {
   }
 
   /**
-   * Validate export parameters
-   * @param {Object} params - Parameters to validate
-   * @param {Array<string>} required - Required parameter names
-   * @throws {Error} If validation fails
-   */
-  static validateExportParams(params, required) {
-    required.forEach((param) => {
-      if (!params[param]) {
-        throw new Error(`Missing required parameter: ${param}`);
-      }
-    });
-  }
-
-  /**
    * Filter metadata for a specific variable
    * @param {Object} metadata - Complete metadata object
    * @param {string} variableShortName - Short name of the variable to filter for
@@ -377,7 +334,7 @@ class DataExportService {
       }
 
       return headers.reduce((obj, header, index) => {
-        obj[header] = values[index]?.trim() || '';
+        obj[header] = values[index] ? values[index].trim() : '';
         return obj;
       }, {});
     });

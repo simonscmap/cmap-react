@@ -147,26 +147,6 @@ describe('DataExportService', () => {
     });
   });
 
-  describe('exportMetadataOnly', () => {
-    it('should export metadata as Excel file', () => {
-      const params = {
-        datasetName: 'TestDataset',
-        metadata: {
-          dataset: { name: 'Test' },
-          variables: []
-        }
-      };
-
-      DataExportService.exportMetadataOnly(params);
-
-      expect(DownloadService.createMetadataSheets).toHaveBeenCalledWith(params.metadata);
-      expect(DownloadService.downloadExcel).toHaveBeenCalledWith(
-        [{ name: 'Metadata', data: [] }],
-        'TestDataset_metadata_2023-12-25'
-      );
-    });
-  });
-
   describe('fetchDatasetMetadata', () => {
     it('should fetch metadata and transform it', async () => {
       const mockMetadataJSON = {
@@ -235,21 +215,6 @@ describe('DataExportService', () => {
     it('should handle empty data', () => {
       expect(DataExportService.convertVisualizationDataToCSV([])).toBe('');
       expect(DataExportService.convertVisualizationDataToCSV(null)).toBe('');
-    });
-  });
-
-  describe('convertDatasetToCSV', () => {
-    it('should convert dataset data to CSV', () => {
-      const data = [{ col1: 'val1', col2: 'val2' }];
-      
-      DataExportService.convertDatasetToCSV(data);
-      
-      expect(DownloadService.jsonToCSV).toHaveBeenCalledWith(data);
-    });
-
-    it('should handle empty data', () => {
-      expect(DataExportService.convertDatasetToCSV([])).toBe('');
-      expect(DataExportService.convertDatasetToCSV(null)).toBe('');
     });
   });
 
@@ -325,31 +290,6 @@ describe('DataExportService', () => {
     it('should format float with custom precision', () => {
       expect(DataExportService.formatFloat(123.123456789, 2)).toBe(123.12);
       expect(DataExportService.formatFloat(123.123456789, 8)).toBe(123.12345679);
-    });
-  });
-
-  describe('validateExportParams', () => {
-    it('should not throw for valid params', () => {
-      const params = { field1: 'value1', field2: 'value2' };
-      const required = ['field1', 'field2'];
-      
-      expect(() => DataExportService.validateExportParams(params, required)).not.toThrow();
-    });
-
-    it('should throw for missing required params', () => {
-      const params = { field1: 'value1' };
-      const required = ['field1', 'field2'];
-      
-      expect(() => DataExportService.validateExportParams(params, required))
-        .toThrow('Missing required parameter: field2');
-    });
-
-    it('should throw for null/undefined required params', () => {
-      const params = { field1: null, field2: undefined };
-      const required = ['field1', 'field2'];
-      
-      expect(() => DataExportService.validateExportParams(params, required))
-        .toThrow('Missing required parameter: field1');
     });
   });
 });
