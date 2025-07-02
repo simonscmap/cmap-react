@@ -49,34 +49,15 @@ const DropboxFileSelectionModal = (props) => {
   const classes = useStyles();
   const [selectedFiles, setSelectedFiles] = useState([]);
 
-  // Prepare a flat list of all files with their folder information
+  // Prepare a flat list of all files - now simplified since backend returns files from one directory only
   const allFiles = React.useMemo(() => {
     if (!vaultLink || !vaultLink.files) {
       return [];
     }
 
-    const files = [];
-
-    // Add files from each category with folder information
-    if (vaultLink.files.rep) {
-      vaultLink.files.rep.forEach((file) =>
-        files.push({ ...file, folder: 'REP' }),
-      );
-    }
-
-    if (vaultLink.files.nrt) {
-      vaultLink.files.nrt.forEach((file) =>
-        files.push({ ...file, folder: 'NRT' }),
-      );
-    }
-
-    if (vaultLink.files.raw) {
-      vaultLink.files.raw.forEach((file) =>
-        files.push({ ...file, folder: 'RAW' }),
-      );
-    }
-
-    return files;
+    // Backend now returns files from only one directory (REP, NRT, or RAW)
+    // We can directly use the files without folder categorization
+    return vaultLink.files || [];
   }, [vaultLink]);
 
   // Calculate total size and count for selected files
@@ -128,7 +109,6 @@ const DropboxFileSelectionModal = (props) => {
         selectedFiles.map((file) => ({
           filePath: file.path,
           name: file.name,
-          folder: file.folder,
         })),
       );
       console.log(
@@ -211,7 +191,6 @@ const DropboxFileSelectionModal = (props) => {
                 </TableCell>
                 <TableCell>Filename</TableCell>
                 <TableCell>Size</TableCell>
-                <TableCell>Folder</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -232,7 +211,6 @@ const DropboxFileSelectionModal = (props) => {
                   <TableCell>
                     {file.sizeFormatted || formatBytes(file.size)}
                   </TableCell>
-                  <TableCell>{file.folder}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
