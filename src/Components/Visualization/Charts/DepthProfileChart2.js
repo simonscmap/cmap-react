@@ -117,18 +117,12 @@ const DepthProfileChart = (props) => {
   };
 
   const chartConfig = {
-    downloadCSVArgs: [
-      data,
-      metadata.Table_Name,
-      metadata.Variable,
-      metadata.Long_Name,
-    ],
+    downloadCSVArgs: [data, data.csvDownloadArgs],
     chartData: chart,
     chartIndex,
     chartControls: controls,
     plots: [depthProfilePlot],
   };
-
   return <ChartTemplate {...chartConfig} />;
 };
 

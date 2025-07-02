@@ -39,26 +39,22 @@ const getDate = (data, splitByDate, splitByDepth, subsetIndex) => {
   return dates.length <= 1
     ? handleChartDateString(dates[0], data.hasHour, data.isMonthly)
     : !splitByDate
-      ? `Averaged Values ${handleChartDateString(
-          dates[0],
-          data.hasHour,
-          data.isMonthly,
-        )} to ${handleChartDateString(
-          dates[dates.length - 1],
-          data.hasHour,
-          data.isMonthly,
-        )}`
-      : splitByDepth
-        ? handleChartDateString(
-            dates[Math.floor(subsetIndex / depths.length)],
-            data.hasHour,
-            data.isMonthly,
-          )
-        : handleChartDateString(
-            dates[subsetIndex],
-            data.hasHour,
-            data.isMonthly,
-          );
+    ? `Averaged Values ${handleChartDateString(
+        dates[0],
+        data.hasHour,
+        data.isMonthly,
+      )} to ${handleChartDateString(
+        dates[dates.length - 1],
+        data.hasHour,
+        data.isMonthly,
+      )}`
+    : splitByDepth
+    ? handleChartDateString(
+        dates[Math.floor(subsetIndex / depths.length)],
+        data.hasHour,
+        data.isMonthly,
+      )
+    : handleChartDateString(dates[subsetIndex], data.hasHour, data.isMonthly);
 };
 
 const getDepth = (data, subsetIndex, splitByDate, splitByDepth) => {
@@ -445,12 +441,7 @@ const SpaceTimeChart = (props) => {
 
   // Assemble Config
   let spaceTimeChartConfig = {
-    downloadCSVArgs: [
-      data,
-      metadata.Table_Name,
-      metadata.Variable,
-      metadata.Long_Name,
-    ],
+    downloadCSVArgs: [data, data.csvDownloadArgs],
     chartData: chart,
     chartIndex,
     chartControls: controls,

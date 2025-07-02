@@ -49,7 +49,7 @@ const ChartWrapper = ({ chart, index }) => {
   let ChartComponent = getChartComponent(chart);
   // delegate render of chart to selected chart template
   return (
-    <Paper elevation={12} className={classes.chartPaper} key={chart.id}>
+    <Paper elevation={12} style={classes.chartPaper} key={chart.id}>
       <ChartComponent chart={chart} chartIndex={index} />
     </Paper>
   );
