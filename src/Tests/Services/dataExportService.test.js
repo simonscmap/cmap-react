@@ -292,29 +292,4 @@ describe('DataExportService', () => {
       expect(DataExportService.formatFloat(123.123456789, 8)).toBe(123.12345679);
     });
   });
-
-  describe('validateExportParams', () => {
-    it('should not throw for valid params', () => {
-      const params = { field1: 'value1', field2: 'value2' };
-      const required = ['field1', 'field2'];
-      
-      expect(() => DataExportService.validateExportParams(params, required)).not.toThrow();
-    });
-
-    it('should throw for missing required params', () => {
-      const params = { field1: 'value1' };
-      const required = ['field1', 'field2'];
-      
-      expect(() => DataExportService.validateExportParams(params, required))
-        .toThrow('Missing required parameter: field2');
-    });
-
-    it('should throw for null/undefined required params', () => {
-      const params = { field1: null, field2: undefined };
-      const required = ['field1', 'field2'];
-      
-      expect(() => DataExportService.validateExportParams(params, required))
-        .toThrow('Missing required parameter: field1');
-    });
-  });
 });

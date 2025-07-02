@@ -259,20 +259,6 @@ class DataExportService {
   }
 
   /**
-   * Validate export parameters
-   * @param {Object} params - Parameters to validate
-   * @param {Array<string>} required - Required parameter names
-   * @throws {Error} If validation fails
-   */
-  static validateExportParams(params, required) {
-    required.forEach((param) => {
-      if (!params[param]) {
-        throw new Error(`Missing required parameter: ${param}`);
-      }
-    });
-  }
-
-  /**
    * Filter metadata for a specific variable
    * @param {Object} metadata - Complete metadata object
    * @param {string} variableShortName - Short name of the variable to filter for
