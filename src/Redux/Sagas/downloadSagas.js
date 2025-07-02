@@ -66,49 +66,6 @@ export function* checkDownloadSize(action) {
   }
 }
 
-function* csvDownloadRequest(action) {
-  const tag = { tag: 'csvDownloadRequest' };
-  yield put(visualizationActions.csvDownloadRequestProcessing());
-  yield put(interfaceActions.setLoadingMessage('Fetching Data', tag));
-
-  let dataResponse = yield call(
-    api.visualization.csvDownload,
-    action.payload.query,
-  );
-
-  yield put(interfaceActions.setLoadingMessage('', tag));
-
-  if (dataResponse.failed) {
-    // if unauthorized
-    if (dataResponse.status === 401) {
-      yield put(userActions.refreshLogin());
-    } else {
-      yield put(
-        interfaceActions.snackbarOpen(
-          'An error occurred. Please try again.',
-          tag,
-        ),
-      );
-    }
-  } else {
-    if (dataResponse.length > 1) {
-      yield put(
-        visualizationActions.downloadTextAsCsv(
-          dataResponse,
-          action.payload.fileName,
-        ),
-      );
-    } else {
-      yield put(
-        interfaceActions.snackbarOpen(
-          'No data found. Please expand query range.',
-          tag,
-        ),
-      );
-    }
-  }
-}
-
 /**
  * Saga for handling visualization CSV/Excel download requests
  * Refactored to use the new unified DataExportService
@@ -285,20 +242,12 @@ export function* watchDownloadRequest() {
   );
 }
 
-export function* watchCsvDownloadRequest() {
-  yield takeLatest(
-    visualizationActionTypes.CSV_DOWNLOAD_REQUEST_SEND,
-    csvDownloadRequest,
-  );
-}
-
 // Download saga that handles all download-related watchers
 function* downloadSaga() {
   yield all([
     watchCheckDownloadSize(),
     watchCsvFromVizRequest(),
     watchDownloadRequest(),
-    watchCsvDownloadRequest(),
   ]);
 }
 
