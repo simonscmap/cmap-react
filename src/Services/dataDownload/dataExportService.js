@@ -7,6 +7,7 @@ import datasetMetadataToDownloadFormat from './datasetMetadataToDownloadFormat';
 class DataExportService {
   /**
    * Export visualization data with metadata
+   * @deprecated Use exportDataWithMetadata() instead for unified format selection
    * @param {Object} params - Export parameters
    * @param {Array} params.data - The visualization data
    * @param {Object} params.metadata - Dataset and variable metadata
@@ -43,6 +44,7 @@ class DataExportService {
 
   /**
    * Export dataset with metadata as ZIP
+   * @deprecated Use exportDataWithMetadata() instead for unified format selection
    * @param {Object} params - Export parameters
    * @param {Object} params.query - API query parameters
    * @param {Object} params.metadata - Pre-fetched metadata (optional)
@@ -125,6 +127,113 @@ class DataExportService {
     const sheets = DownloadService.createMetadataSheets(metadata);
     const filename = `${datasetName}_metadata_${DownloadService.formatDateForFilename()}`;
     DownloadService.downloadExcel(sheets, filename);
+  }
+
+  /**
+   * UNIFIED EXPORT METHOD
+   * Exports data with metadata, automatically choosing format based on data size
+   * @param {Object} params - Export parameters
+   * @param {Array|string} params.data - Data as JSON array or CSV string
+   * @param {Object} params.metadata - Dataset and variable metadata
+   * @param {string} params.datasetName - Name of the dataset
+   * @param {string} params.variableName - Name of the variable (optional)
+   * @param {boolean} params.forceZip - Force ZIP format regardless of size
+   * @returns {Promise<void>}
+   */
+  static async exportDataWithMetadata({
+    data,
+    metadata,
+    datasetName,
+    variableName = null,
+    forceZip = false,
+  }) {
+    // Normalize data to consistent format
+    let normalizedData;
+    let csvData;
+
+    if (typeof data === 'string') {
+      // Data is CSV string
+      csvData = data;
+      normalizedData = DataExportService.parseCSVToJSON(data);
+    } else if (Array.isArray(data)) {
+      // Data is JSON array
+      normalizedData = DataExportService.normalizeVisualizationData(data);
+      csvData = DataExportService.convertVisualizationDataToCSV(data);
+    } else {
+      throw new Error('Data must be either a CSV string or JSON array');
+    }
+
+    // Determine if data is too large for Excel
+    const shouldUseZip =
+      forceZip || DataExportService.shouldUseZipFormat(normalizedData, csvData);
+
+    // Generate filename components
+    const baseFilename = variableName
+      ? `${datasetName}_${variableName}_${DownloadService.formatDateForFilename()}`
+      : `${datasetName}_${DownloadService.formatDateForFilename()}`;
+
+    if (shouldUseZip) {
+      // Export as ZIP with CSV data and Excel metadata
+      const metadataWorkbook = DownloadService.createExcelWorkbook(
+        DownloadService.createMetadataSheets(metadata),
+      );
+      const metadataBuffer = DownloadService.workbookToBuffer(metadataWorkbook);
+
+      const files = [
+        {
+          filename: 'data.csv',
+          content: csvData,
+        },
+        {
+          filename: 'metadata.xlsx',
+          content: metadataBuffer,
+        },
+      ];
+
+      await DownloadService.downloadZip(files, baseFilename);
+    } else {
+      // Export as single Excel file with data and metadata sheets
+      const sheets = [
+        {
+          name: 'Data',
+          data: normalizedData,
+        },
+        ...DownloadService.createMetadataSheets(metadata),
+      ];
+
+      DownloadService.downloadExcel(sheets, baseFilename);
+    }
+  }
+
+  /**
+   * Determines if ZIP format should be used based on data size
+   * @param {Array} normalizedData - Data as JSON array
+   * @param {string} csvData - Data as CSV string
+   * @returns {boolean} True if ZIP format should be used
+   */
+  static shouldUseZipFormat(normalizedData, csvData) {
+    // Excel practical limits:
+    // - ~1 million rows (1,048,576 actual limit)
+    // - Memory considerations for large datasets
+    // - File size considerations
+
+    const MAX_EXCEL_ROWS = 500000; // Conservative limit for performance
+    const MAX_CSV_SIZE_MB = 50; // 50MB CSV size limit for Excel export
+
+    // Check row count
+    if (normalizedData && normalizedData.length > MAX_EXCEL_ROWS) {
+      return true;
+    }
+
+    // Check approximate file size (CSV string length as rough estimate)
+    if (csvData) {
+      const csvSizeMB = new Blob([csvData]).size / (1024 * 1024);
+      if (csvSizeMB > MAX_CSV_SIZE_MB) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   /**
@@ -377,7 +486,7 @@ class DataExportService {
       }
 
       return headers.reduce((obj, header, index) => {
-        obj[header] = values[index]?.trim() || '';
+        obj[header] = values[index] ? values[index].trim() : '';
         return obj;
       }, {});
     });
