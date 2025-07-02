@@ -181,11 +181,11 @@ class DataExportService {
 
       const files = [
         {
-          filename: 'data.csv',
+          filename: `${datasetName}_data.csv`,
           content: csvData,
         },
         {
-          filename: 'metadata.xlsx',
+          filename: `${datasetName}_metadata.xlsx`,
           content: metadataBuffer,
         },
       ];
