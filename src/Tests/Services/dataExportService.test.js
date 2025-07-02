@@ -147,26 +147,6 @@ describe('DataExportService', () => {
     });
   });
 
-  describe('exportMetadataOnly', () => {
-    it('should export metadata as Excel file', () => {
-      const params = {
-        datasetName: 'TestDataset',
-        metadata: {
-          dataset: { name: 'Test' },
-          variables: []
-        }
-      };
-
-      DataExportService.exportMetadataOnly(params);
-
-      expect(DownloadService.createMetadataSheets).toHaveBeenCalledWith(params.metadata);
-      expect(DownloadService.downloadExcel).toHaveBeenCalledWith(
-        [{ name: 'Metadata', data: [] }],
-        'TestDataset_metadata_2023-12-25'
-      );
-    });
-  });
-
   describe('fetchDatasetMetadata', () => {
     it('should fetch metadata and transform it', async () => {
       const mockMetadataJSON = {
@@ -235,21 +215,6 @@ describe('DataExportService', () => {
     it('should handle empty data', () => {
       expect(DataExportService.convertVisualizationDataToCSV([])).toBe('');
       expect(DataExportService.convertVisualizationDataToCSV(null)).toBe('');
-    });
-  });
-
-  describe('convertDatasetToCSV', () => {
-    it('should convert dataset data to CSV', () => {
-      const data = [{ col1: 'val1', col2: 'val2' }];
-      
-      DataExportService.convertDatasetToCSV(data);
-      
-      expect(DownloadService.jsonToCSV).toHaveBeenCalledWith(data);
-    });
-
-    it('should handle empty data', () => {
-      expect(DataExportService.convertDatasetToCSV([])).toBe('');
-      expect(DataExportService.convertDatasetToCSV(null)).toBe('');
     });
   });
 

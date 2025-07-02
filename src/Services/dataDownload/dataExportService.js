@@ -6,19 +6,6 @@ import datasetMetadataToDownloadFormat from './datasetMetadataToDownloadFormat';
  */
 class DataExportService {
   /**
-   * Export metadata only as Excel
-   * @param {Object} params - Export parameters
-   * @param {string} params.datasetName - Name of the dataset
-   * @param {Object} params.metadata - Metadata object
-   * @returns {void}
-   */
-  static exportMetadataOnly({ datasetName, metadata }) {
-    const sheets = DownloadService.createMetadataSheets(metadata);
-    const filename = `${datasetName}_metadata_${DownloadService.formatDateForFilename()}`;
-    DownloadService.downloadExcel(sheets, filename);
-  }
-
-  /**
    * UNIFIED EXPORT METHOD
    * Exports data with metadata, automatically choosing format based on data size
    * @param {Object} params - Export parameters
@@ -178,20 +165,6 @@ class DataExportService {
       DataExportService.determineVisualizationColumns(normalizedData);
 
     return DownloadService.jsonToCSV(normalizedData, columns);
-  }
-
-  /**
-   * Convert dataset API response to CSV format
-   * @param {Array} data - Dataset data from API
-   * @returns {string} CSV formatted string
-   */
-  static convertDatasetToCSV(data) {
-    if (!data || data.length === 0) {
-      return '';
-    }
-
-    // Dataset data is typically already in the correct format
-    return DownloadService.jsonToCSV(data);
   }
 
   /**
