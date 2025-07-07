@@ -54,9 +54,6 @@ import {
   DROPBOX_MODAL_OPEN,
   DROPBOX_MODAL_CLEANUP,
   DROPBOX_MODAL_CLOSE,
-  DROPBOX_FILES_DOWNLOAD_REQUEST,
-  DROPBOX_FILES_DOWNLOAD_SUCCESS,
-  DROPBOX_FILES_DOWNLOAD_FAILURE,
 } from '../actionTypes/catalog';
 import states from '../../enums/asyncRequestStates';
 import { sortResults } from '../../Components/Catalog/SortingControls';
@@ -635,12 +632,6 @@ export default function (state, action) {
           ...state.download,
           dropboxModalOpen: 'cleanup',
         },
-        dropboxDownload: {
-          isLoading: false,
-          success: false,
-          error: null,
-          downloadLink: null,
-        },
       };
 
     case DROPBOX_MODAL_CLOSE:
@@ -652,41 +643,6 @@ export default function (state, action) {
         },
       };
 
-    case DROPBOX_FILES_DOWNLOAD_REQUEST:
-      return {
-        ...state,
-        dropboxDownload: {
-          ...state.dropboxDownload,
-          isLoading: true,
-          error: null,
-          success: false,
-          downloadLink: null,
-        },
-      };
-
-    case DROPBOX_FILES_DOWNLOAD_SUCCESS:
-      return {
-        ...state,
-        dropboxDownload: {
-          ...state.dropboxDownload,
-          isLoading: false,
-          success: true,
-          downloadLink: action.payload.downloadLink,
-          error: null,
-        },
-      };
-
-    case DROPBOX_FILES_DOWNLOAD_FAILURE:
-      return {
-        ...state,
-        dropboxDownload: {
-          ...state.dropboxDownload,
-          isLoading: false,
-          success: false,
-          error: action.payload.error,
-          downloadLink: null,
-        },
-      };
     default:
       return state;
   }

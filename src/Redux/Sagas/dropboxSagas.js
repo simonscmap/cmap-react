@@ -1,7 +1,7 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
 import catalogAPI from '../../api/catalogRequests';
-import * as catalogActions from '../actions/catalog';
-import * as catalogActionTypes from '../actionTypes/catalog';
+import * as dropboxActions from '../actions/dropbox';
+import * as dropboxActionTypes from '../actionTypes/dropbox';
 import * as interfaceActions from '../actions/ui';
 import logInit from '../../Services/log-service';
 
@@ -47,7 +47,7 @@ export function* downloadDropboxFiles(action) {
     }
     // Dispatch success action with the download link
     yield put(
-      catalogActions.dropboxFilesDownloadSuccess(responseData.downloadLink),
+      dropboxActions.dropboxFilesDownloadSuccess(responseData.downloadLink),
     );
 
     log.info('Successfully prepared dropbox files download', {
@@ -62,7 +62,7 @@ export function* downloadDropboxFiles(action) {
     });
 
     // Dispatch failure action
-    yield put(catalogActions.dropboxFilesDownloadFailure(error.message));
+    yield put(dropboxActions.dropboxFilesDownloadFailure(error.message));
 
     // Show error message
     yield put(
@@ -80,7 +80,7 @@ export function* downloadDropboxFiles(action) {
 // Watcher saga
 export function* watchDownloadDropboxFiles() {
   yield takeLatest(
-    catalogActionTypes.DROPBOX_FILES_DOWNLOAD_REQUEST,
+    dropboxActionTypes.DROPBOX_FILES_DOWNLOAD_REQUEST,
     downloadDropboxFiles,
   );
 }

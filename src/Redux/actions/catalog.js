@@ -491,30 +491,3 @@ export const dropboxModalCleanup = () => ({
 export const dropboxModalClose = () => ({
   type: catalogActionTypes.DROPBOX_MODAL_CLOSE,
 });
-
-export const dropboxFilesDownloadRequest = (
-  shortName,
-  datasetId,
-  selectedFiles,
-) => ({
-  type: catalogActionTypes.DROPBOX_FILES_DOWNLOAD_REQUEST,
-  payload: {
-    shortName,
-    datasetId,
-    selectedFiles,
-  },
-});
-
-export const dropboxFilesDownloadSuccess = (downloadLink) => ({
-  type: catalogActionTypes.DROPBOX_FILES_DOWNLOAD_SUCCESS,
-  payload: {
-    downloadLink,
-  },
-});
-
-export const dropboxFilesDownloadFailure = (error) => ({
-  type: catalogActionTypes.DROPBOX_FILES_DOWNLOAD_FAILURE,
-  payload: {
-    error,
-  },
-});

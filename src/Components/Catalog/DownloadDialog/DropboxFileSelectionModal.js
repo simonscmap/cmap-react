@@ -17,7 +17,7 @@ import {
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import styles from './downloadDialogStyles';
-import { dropboxFilesDownloadRequest } from '../../../Redux/actions/catalog';
+import { dropboxFilesDownloadRequest } from '../../../Redux/actions/dropbox';
 import { useDispatch, useSelector } from 'react-redux';
 
 const useStyles = makeStyles((theme) => ({
@@ -52,9 +52,7 @@ const DropboxFileSelectionModal = (props) => {
   const [selectedFiles, setSelectedFiles] = useState([]);
 
   // Redux state selectors
-  const dropboxDownloadState = useSelector(
-    (state) => state.catalog.dropboxDownload || {},
-  );
+  const dropboxDownloadState = useSelector((state) => state.dropbox || {});
 
   // Handle saga results
   useEffect(() => {
