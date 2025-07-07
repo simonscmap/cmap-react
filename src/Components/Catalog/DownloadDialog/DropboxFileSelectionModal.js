@@ -18,7 +18,10 @@ import {
 import { makeStyles } from '@material-ui/core/styles';
 import styles from './downloadDialogStyles';
 import catalogAPI from '../../../api/catalogRequests';
-import { setLoadingMessage } from '../../../Redux/actions/ui';
+import {
+  setLoadingMessage,
+  closeLoadingMessage,
+} from '../../../Redux/actions/ui';
 import { useDispatch } from 'react-redux';
 
 const useStyles = makeStyles((theme) => ({
@@ -144,7 +147,7 @@ const DropboxFileSelectionModal = (props) => {
       // Close modal with error state
       handleClose(false, { isError: true, message: error.message });
     } finally {
-      dispatch(setLoadingMessage(''));
+      dispatch(closeLoadingMessage());
     }
   };
 
