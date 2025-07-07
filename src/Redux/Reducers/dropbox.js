@@ -11,7 +11,7 @@ const initialState = {
   downloadLink: null,
 };
 
-export default function dropboxReducer(state, action) {
+export default function dropboxReducer(state = initialState, action) {
   switch (action.type) {
     case DROPBOX_FILES_DOWNLOAD_REQUEST:
       console.log('🐛🐛🐛 dropbox.js:17 action:', action);
