@@ -14,7 +14,6 @@ const initialState = {
 export default function dropboxReducer(state = initialState, action) {
   switch (action.type) {
     case DROPBOX_FILES_DOWNLOAD_REQUEST:
-      console.log('🐛🐛🐛 dropbox.js:17 action:', action);
       return {
         ...state,
         dropbox: {
@@ -27,7 +26,6 @@ export default function dropboxReducer(state = initialState, action) {
       };
 
     case DROPBOX_FILES_DOWNLOAD_SUCCESS:
-      console.log('🐛🐛🐛 dropbox.js:27 SUCCESS action:', action);
       return {
         ...state,
         dropbox: {
