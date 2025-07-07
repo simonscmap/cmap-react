@@ -119,27 +119,21 @@ const DropboxFileSelectionModal = (props) => {
         throw new Error(`Error: ${response.status} ${response.statusText}`);
       }
 
-      // Get filename from Content-Disposition header or use a default
-      const contentDisposition = response.headers.get('Content-Disposition');
-      const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-      const matches = filenameRegex.exec(contentDisposition);
-      const filename =
-        matches && matches[1]
-          ? matches[1].replace(/['"]/g, '')
-          : `${vaultLink.shortName}_files.zip`;
+      // Parse the JSON response to get the download link
+      const responseData = await response.json();
+      if (!responseData.success || !responseData.downloadLink) {
+        throw new Error(responseData.message || 'Download link not received');
+      }
 
-      // Convert response to blob and trigger download
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+      // Trigger download using the provided download link
       const a = document.createElement('a');
       a.style.display = 'none';
-      a.href = url;
-      a.download = filename;
+      a.href = responseData.downloadLink;
+      a.download = `${vaultLink.shortName}_files.zip`;
       document.body.appendChild(a);
       a.click();
 
       // Clean up
-      window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
 
       // Close modal with success state
