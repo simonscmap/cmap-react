@@ -45,10 +45,6 @@ export function* downloadDropboxFiles(action) {
     if (!responseData.success || !responseData.downloadLink) {
       throw new Error(responseData.message || 'Download link not received');
     }
-    console.log(
-      '🐛🐛🐛 dropboxSagas.js:48 responseData:',
-      responseData.downloadLink,
-    );
     // Dispatch success action with the download link
     yield put(
       catalogActions.dropboxFilesDownloadSuccess(responseData.downloadLink),

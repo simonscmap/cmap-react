@@ -429,9 +429,6 @@ const DownloadDialog = (props) => {
   }, [querySizes, checkSizeRequestState]);
 
   // open dropbox modal
-  const handleOpenDropboxModal = () => {
-    dispatch(dropboxModalOpen());
-  };
 
   // download handler
   let handleDownload = () => {
@@ -613,14 +610,8 @@ const DownloadDialog = (props) => {
 };
 
 const LargeDatasetWarningDialog = (props) => {
-  const {
-    open,
-    handleClose,
-    handleDownload,
-    handleDirectDownload,
-    vaultLink,
-    rowCount,
-  } = props;
+  const { open, handleClose, handleDownload, handleDirectDownload, rowCount } =
+    props;
   const classes = useStyles();
 
   return (
