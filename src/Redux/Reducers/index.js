@@ -57,6 +57,14 @@ const initialState = {
   }, // NOTE see also state.downloadDialog
   // this is an artifact of initially only using redux for the ui state
 
+  // Dropbox Download
+  dropbox: {
+    isLoading: false,
+    success: false,
+    error: null,
+    downloadLink: null,
+  },
+
   // Dataset Details Page
   datasetDetailsPage: {
     selectedDatasetId: null,
