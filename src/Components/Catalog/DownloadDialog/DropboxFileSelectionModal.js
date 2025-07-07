@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   DialogActions,
   DialogContent,
@@ -17,12 +17,8 @@ import {
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import styles from './downloadDialogStyles';
-import catalogAPI from '../../../api/catalogRequests';
-import {
-  setLoadingMessage,
-  closeLoadingMessage,
-} from '../../../Redux/actions/ui';
-import { useDispatch } from 'react-redux';
+import { dropboxFilesDownloadRequest } from '../../../Redux/actions/catalog';
+import { useDispatch, useSelector } from 'react-redux';
 
 const useStyles = makeStyles((theme) => ({
   ...styles(theme),
@@ -54,6 +50,34 @@ const DropboxFileSelectionModal = (props) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const [selectedFiles, setSelectedFiles] = useState([]);
+
+  // Redux state selectors
+  const dropboxDownloadState = useSelector(
+    (state) => state.catalog.dropboxDownload || {},
+  );
+
+  // Handle saga results
+  useEffect(() => {
+    if (dropboxDownloadState.success && dropboxDownloadState.downloadLink) {
+      // Trigger download using the provided download link
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = dropboxDownloadState.downloadLink;
+      a.download = `${vaultLink.shortName}_files.zip`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      // Close modal with success state
+      handleClose(true, { isSuccess: true });
+    } else if (dropboxDownloadState.error) {
+      // Close modal with error state
+      handleClose(false, {
+        isError: true,
+        message: dropboxDownloadState.error,
+      });
+    }
+  }, [dropboxDownloadState, handleClose, vaultLink]);
 
   // Prepare a flat list of all files - now simplified since backend returns files from one directory only
   const allFiles = React.useMemo(() => {
@@ -100,55 +124,25 @@ const DropboxFileSelectionModal = (props) => {
   };
 
   // Handle download button click
-  const handleSubmit = async () => {
-    try {
-      dispatch(setLoadingMessage('Preparing your download...'));
-      // Show loading state
-      const loadingState = {
-        isLoading: true,
-        message: 'Preparing your download...',
-      };
-      handleClose(false, loadingState);
+  const handleSubmit = () => {
+    // Show loading state
+    const loadingState = {
+      isLoading: true,
+      message: 'Preparing your download...',
+    };
+    handleClose(false, loadingState);
 
-      const response = await catalogAPI.downloadDropboxVaultFiles(
+    // Dispatch the redux action to start the download process
+    dispatch(
+      dropboxFilesDownloadRequest(
         vaultLink.shortName,
         vaultLink.datasetId,
         selectedFiles.map((file) => ({
-          filePath: file.path,
+          path: file.path,
           name: file.name,
         })),
-      );
-
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-      }
-
-      // Parse the JSON response to get the download link
-      const responseData = await response.json();
-      if (!responseData.success || !responseData.downloadLink) {
-        throw new Error(responseData.message || 'Download link not received');
-      }
-
-      // Trigger download using the provided download link
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = responseData.downloadLink;
-      a.download = `${vaultLink.shortName}_files.zip`;
-      document.body.appendChild(a);
-      a.click();
-
-      // Clean up
-      document.body.removeChild(a);
-
-      // Close modal with success state
-      handleClose(true, { isSuccess: true });
-    } catch (error) {
-      console.error('Download error:', error);
-      // Close modal with error state
-      handleClose(false, { isError: true, message: error.message });
-    } finally {
-      dispatch(closeLoadingMessage());
-    }
+      ),
+    );
   };
 
   // Check if all files are selected

@@ -45,6 +45,8 @@ import {
   watchFetchVaultLink,
 } from './catalog';
 
+import { watchDownloadDropboxFiles } from './dropboxSagas';
+
 import {
   watchRequestNewsList,
   watchUpdateNewsItem,
@@ -2015,6 +2017,7 @@ function* rootSaga() {
     watchReSendNotifications(),
     watchDownloadDialogOpen(),
     watchFetchVaultLink(),
+    watchDownloadDropboxFiles(),
     watchCheckVizQuerySize(),
   ]);
 }
