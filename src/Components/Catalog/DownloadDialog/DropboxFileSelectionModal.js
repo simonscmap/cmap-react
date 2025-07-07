@@ -18,6 +18,8 @@ import {
 import { makeStyles } from '@material-ui/core/styles';
 import styles from './downloadDialogStyles';
 import catalogAPI from '../../../api/catalogRequests';
+import { setLoadingMessage } from '../../../Redux/actions/ui';
+import { useDispatch } from 'react-redux';
 
 const useStyles = makeStyles((theme) => ({
   ...styles(theme),
@@ -47,6 +49,7 @@ const useStyles = makeStyles((theme) => ({
 const DropboxFileSelectionModal = (props) => {
   const { open, handleClose, vaultLink } = props;
   const classes = useStyles();
+  const dispatch = useDispatch();
   const [selectedFiles, setSelectedFiles] = useState([]);
 
   // Prepare a flat list of all files - now simplified since backend returns files from one directory only
@@ -96,6 +99,7 @@ const DropboxFileSelectionModal = (props) => {
   // Handle download button click
   const handleSubmit = async () => {
     try {
+      dispatch(setLoadingMessage('Preparing your download...'));
       // Show loading state
       const loadingState = {
         isLoading: true,
@@ -111,10 +115,7 @@ const DropboxFileSelectionModal = (props) => {
           name: file.name,
         })),
       );
-      console.log(
-        '🐛🐛🐛 DropboxFileSelectionModal.js:134 response:',
-        response,
-      );
+
       if (!response.ok) {
         throw new Error(`Error: ${response.status} ${response.statusText}`);
       }
@@ -142,6 +143,8 @@ const DropboxFileSelectionModal = (props) => {
       console.error('Download error:', error);
       // Close modal with error state
       handleClose(false, { isError: true, message: error.message });
+    } finally {
+      dispatch(setLoadingMessage(''));
     }
   };
 
