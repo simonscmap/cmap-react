@@ -2,7 +2,7 @@
 
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { Link as RouterLink } from 'react-router-dom';
 import validate from './validatePassword';
 
