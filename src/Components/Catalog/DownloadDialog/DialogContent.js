@@ -537,6 +537,24 @@ const DownloadDialog = (props) => {
         <div className={classes.dropboxOptionWrapper}>
           <Button
             className={classes.dropboxButton}
+            onClick={() => window.open(vaultLink?.shareLink, '_blank')}
+            disabled={!vaultLink?.shareLink}
+            startIcon={
+              !vaultLink?.shareLink ? (
+                <CircularProgress size={20} />
+              ) : (
+                <ImDownload />
+              )
+            }
+          >
+            <span>
+              {!vaultLink?.shareLink
+                ? 'Loading Direct Download...'
+                : 'Direct Download from CMAP Storage'}
+            </span>
+          </Button>
+          {/* <Button
+            className={classes.dropboxButton}
             onClick={() => setFileSelectionModalOpen(true)}
             disabled={!vaultLink}
             startIcon={
@@ -548,7 +566,7 @@ const DownloadDialog = (props) => {
                 ? 'Loading Direct Download...'
                 : 'Direct Download from CMAP Storage'}
             </span>
-          </Button>
+          </Button> */}
           <div className={classes.infoLink}>
             <InfoDialog
               open={infoDialogOpen}
@@ -590,12 +608,13 @@ const DownloadDialog = (props) => {
         handleDirectDownload={() => {
           setLargeDatasetWarningOpen(false);
           handleClose(); // Close the main dialog
-          setFileSelectionModalOpen(true);
+          window.open(vaultLink?.shareLink, '_blank');
+          // setFileSelectionModalOpen(true);
         }}
         vaultLink={vaultLink}
         rowCount={dataset.Row_Count}
       />
-      <DropboxFileSelectionModal
+      {/* <DropboxFileSelectionModal
         open={fileSelectionModalOpen}
         handleClose={(closeParentToo) => {
           setFileSelectionModalOpen(false);
@@ -604,14 +623,20 @@ const DownloadDialog = (props) => {
           }
         }}
         vaultLink={vaultLink}
-      />
+      /> */}
     </div>
   );
 };
 
 const LargeDatasetWarningDialog = (props) => {
-  const { open, handleClose, handleDownload, handleDirectDownload, rowCount } =
-    props;
+  const {
+    open,
+    handleClose,
+    handleDownload,
+    handleDirectDownload,
+    vaultLink,
+    rowCount,
+  } = props;
   const classes = useStyles();
 
   return (
