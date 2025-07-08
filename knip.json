@@ -1,0 +1,11 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": ["src/index.js", "src/App.js", "src/serviceWorker.js"],
+  "project": [
+    "src/**/*.{js,jsx}",
+    "!src/**/*.test.{js,jsx}",
+    "!src/**/*.spec.{js,jsx}",
+    "!src/setupTests.js"
+  ],
+  "ignore": ["src/serviceWorker.js"]
+}
