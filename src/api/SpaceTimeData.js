@@ -233,7 +233,7 @@ class SpaceTimeData {
     return variableValueSubsets;
   }
 
-  generateCsv = () => {
+  generateCsv() {
     let dates = Array.from(this.dates);
     let depths = Array.from(this.depths);
     var csvArray;
@@ -272,7 +272,7 @@ class SpaceTimeData {
     }
 
     return csvArray.join('\n');
-  };
+  }
 }
 
 export default SpaceTimeData;

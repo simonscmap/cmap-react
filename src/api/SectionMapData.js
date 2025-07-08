@@ -129,7 +129,7 @@ class SectionMapData {
     return variableValueSubsets;
   }
 
-  generateCsv = () => {
+  generateCsv() {
     let dates = Array.from(this.dates);
     let depths = Array.from(this.depths);
     let lons = Array.from(this.lons);
@@ -153,7 +153,7 @@ class SectionMapData {
     }
 
     return csvArray.join('\n');
-  };
+  }
 }
 
 export default SectionMapData;

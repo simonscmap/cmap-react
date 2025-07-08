@@ -68,6 +68,10 @@ export const setLoadingMessage = (message, meta) => {
   };
 };
 
+export const closeLoadingMessage = () => ({
+  type: interfaceActionTypes.CLOSE_LOADING_MESSAGE,
+});
+
 export const toggleShowHelp = () => ({
   type: interfaceActionTypes.TOGGLE_SHOW_HELP,
 });

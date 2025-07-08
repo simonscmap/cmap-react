@@ -8,6 +8,7 @@ import dataSubmission from './dataSubmission.js';
 import help from './help.js';
 import highlights from './highlights';
 import data from './data';
+import dropbox from './dropbox';
 import reduceReducers from 'reduce-reducers';
 import Cookies from 'js-cookie';
 import states from '../../enums/asyncRequestStates';
@@ -285,6 +286,7 @@ const reducedReducer = reduceReducers(
   highlights,
   data,
   notifications,
+  dropbox,
 );
 
 export default reducedReducer;

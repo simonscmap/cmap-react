@@ -28,6 +28,7 @@ import {
 } from './downloadDialogHelpers';
 import styles from './downloadDialogStyles';
 import DownloadStepWithWarning from './DownloadStepWithWarning';
+import DropboxFileSelectionModal from './DropboxFileSelectionModal';
 
 import {
   datasetDownloadRequestSend,
@@ -104,6 +105,7 @@ const DownloadDialog = (props) => {
 
   const [infoDialogOpen, setInfoDialogOpen] = useState(false);
   const [largeDatasetWarningOpen, setLargeDatasetWarningOpen] = useState(false);
+  const [fileSelectionModalOpen, setFileSelectionModalOpen] = useState(false);
 
   let datasetHasAncillaryData = useDatasetFeatures(
     dataset.Table_Name,
@@ -427,9 +429,6 @@ const DownloadDialog = (props) => {
   }, [querySizes, checkSizeRequestState]);
 
   // open dropbox modal
-  const handleOpenDropboxModal = () => {
-    dispatch(dropboxModalOpen());
-  };
 
   // download handler
   let handleDownload = () => {
@@ -554,6 +553,20 @@ const DownloadDialog = (props) => {
                 : 'Direct Download from CMAP Storage'}
             </span>
           </Button>
+          {/* <Button
+            className={classes.dropboxButton}
+            onClick={() => setFileSelectionModalOpen(true)}
+            disabled={!vaultLink}
+            startIcon={
+              !vaultLink ? <CircularProgress size={20} /> : <ImDownload />
+            }
+          >
+            <span>
+              {!vaultLink
+                ? 'Loading Direct Download...'
+                : 'Direct Download from CMAP Storage'}
+            </span>
+          </Button> */}
           <div className={classes.infoLink}>
             <InfoDialog
               open={infoDialogOpen}
@@ -596,10 +609,21 @@ const DownloadDialog = (props) => {
           setLargeDatasetWarningOpen(false);
           handleClose(); // Close the main dialog
           window.open(vaultLink?.shareLink, '_blank');
+          // setFileSelectionModalOpen(true);
         }}
         vaultLink={vaultLink}
         rowCount={dataset.Row_Count}
       />
+      {/* <DropboxFileSelectionModal
+        open={fileSelectionModalOpen}
+        handleClose={(closeParentToo) => {
+          setFileSelectionModalOpen(false);
+          if (closeParentToo) {
+            handleClose(); // Close the parent dialog as well
+          }
+        }}
+        vaultLink={vaultLink}
+      /> */}
     </div>
   );
 };

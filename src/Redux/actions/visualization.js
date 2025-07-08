@@ -153,30 +153,6 @@ export const completedShowCharts = () => ({
   type: visualizationActionTypes.COMPLETED_SHOW_CHARTS,
 });
 
-export const csvDownloadRequestSend = (query, fileName, tableName) => ({
-  type: visualizationActionTypes.CSV_DOWNLOAD_REQUEST_SEND,
-  payload: {
-    query,
-    fileName,
-    tableName,
-  },
-});
-
-export const csvDownloadRequestFailure = () => ({
-  type: visualizationActionTypes.CSV_DOWNLOAD_REQUEST_FAILURE,
-});
-
-export const csvDownloadRequestProcessing = () => ({
-  type: visualizationActionTypes.CSV_DOWNLOAD_REQUEST_PROCESSING,
-});
-
-export const csvDownloadRequestSuccess = (text) => ({
-  type: visualizationActionTypes.CSV_DOWNLOAD_REQUEST_SUCCESS,
-  payload: {
-    text,
-  },
-});
-
 //dataset download
 export const downloadTextAsCsv = (text, fileName) => ({
   type: visualizationActionTypes.DOWNLOAD_TEXT_AS_CSV,

@@ -7,24 +7,16 @@ import {
   select,
   all,
 } from 'redux-saga/effects';
-import XLSX from 'xlsx';
 import api from '../../api/api';
-import {
-  fetchDatasetAndMetadata,
-  fetchDatasetMetadata,
-  filterMetadataForVariable,
-  makeMetadataWorkbook,
-  makeZip,
-} from '../../Components/Catalog/DownloadDialog/dataRequest';
 import { makeDownloadQuery } from '../../Components/Catalog/DownloadDialog/downloadDialogHelpers';
 import * as catalogActions from '../actions/catalog';
 import * as catalogActionTypes from '../actionTypes/catalog';
 import * as interfaceActions from '../actions/ui';
 import * as userActions from '../actions/user';
 import * as visualizationActionTypes from '../actionTypes/visualization';
-import * as visualizationActions from '../actions/visualization';
 import states from '../../enums/asyncRequestStates';
 import logInit from '../../Services/log-service';
+import DataExportService from '../../Services/dataDownload/dataExportService';
 
 const log = logInit('sagas/downloadSagas').addContext({
   src: 'Redux/Sagas/downloadSagas',
@@ -73,183 +65,170 @@ export function* checkDownloadSize(action) {
   }
 }
 
-function* csvDownloadRequest(action) {
-  const tag = { tag: 'csvDownloadRequest' };
-  yield put(visualizationActions.csvDownloadRequestProcessing());
-  yield put(interfaceActions.setLoadingMessage('Fetching Data', tag));
-
-  let dataResponse = yield call(
-    api.visualization.csvDownload,
-    action.payload.query,
-  );
-
-  yield put(interfaceActions.setLoadingMessage('', tag));
-
-  if (dataResponse.failed) {
-    // if unauthorized
-    if (dataResponse.status === 401) {
-      yield put(userActions.refreshLogin());
-    } else {
-      yield put(
-        interfaceActions.snackbarOpen(
-          'An error occurred. Please try again.',
-          tag,
-        ),
-      );
-    }
-  } else {
-    if (dataResponse.length > 1) {
-      yield put(
-        visualizationActions.downloadTextAsCsv(
-          dataResponse,
-          action.payload.fileName,
-        ),
-      );
-    } else {
-      yield put(
-        interfaceActions.snackbarOpen(
-          'No data found. Please expand query range.',
-          tag,
-        ),
-      );
-    }
-  }
-}
-
-function* csvFromVizRequest(action) {
+/**
+ * Saga for handling visualization CSV/Excel download requests
+ * Uses the unified export method that automatically chooses format based on data size
+ */
+export function* csvFromVizRequest(action) {
   const tag = { tag: 'csvFromVizRequest' };
+  const { payload } = action;
+  const { vizObject, datasetShortName, variableShortName, variableLongName } =
+    payload;
 
   yield put(interfaceActions.setLoadingMessage('Processing Data', tag));
-  const csvData = yield action.payload.vizObject.generateCsv();
-  let dataWB = XLSX.read(csvData, { type: 'string' });
-  let { payload } = action;
-  let { datasetShortName, variableShortName, variableLongName } = payload;
-
-  log.debug('csvFromVizRequest parameters', {
-    datasetShortName,
-    variableShortName,
-    variableLongName,
-  });
-
-  yield put(interfaceActions.setLoadingMessage('Fetching metadata', tag));
 
   try {
-    // Fetch the complete dataset metadata
-    log.debug('Fetching dataset metadata', { datasetShortName });
-    const metadataJSON = yield call(fetchDatasetMetadata, datasetShortName);
+    // Generate CSV data from visualization object
+    const csvData = yield vizObject.generateCsv();
+
+    yield put(interfaceActions.setLoadingMessage('Fetching metadata', tag));
+
+    // Fetch metadata using the export service
+    const metadata = yield call(
+      DataExportService.fetchDatasetMetadata,
+      datasetShortName,
+    );
 
     // Filter metadata for the specific variable
-    log.debug('Filtering metadata for variable', {
+    const filteredMetadata = DataExportService.filterMetadataForVariable(
+      metadata,
       variableShortName,
-      variablesCount:
-        metadataJSON && metadataJSON.variables
-          ? metadataJSON.variables.length
-          : 0,
-    });
-    const filteredMetadata = filterMetadataForVariable(
-      metadataJSON,
-      variableShortName,
+      variableLongName,
     );
-    if (!filteredMetadata) {
-      log.error('No metadata found for variable', {
-        datasetShortName,
-        variableShortName,
-      });
-      yield put(interfaceActions.setLoadingMessage('', tag));
+
+    yield put(interfaceActions.setLoadingMessage('Preparing download', tag));
+
+    // Use unified export method - automatically chooses Excel or ZIP based on data size
+    yield call(DataExportService.exportDataWithMetadata, {
+      data: csvData, // Pass CSV string directly
+      metadata: filteredMetadata,
+      datasetName: datasetShortName,
+      variableName: variableLongName,
+    });
+
+    yield put(interfaceActions.setLoadingMessage('', tag));
+    log.info('Successfully exported visualization data', {
+      datasetShortName,
+      variableShortName,
+    });
+  } catch (error) {
+    log.error('Error in csvFromVizRequest', {
+      error: error.message,
+      stack: error.stack,
+    });
+
+    yield put(interfaceActions.setLoadingMessage('', tag));
+
+    if (error.message === 'UNAUTHORIZED') {
+      yield put(
+        interfaceActions.snackbarOpen('Please log in to download data', tag),
+      );
+    } else if (error.message === 'No metadata found for variable') {
       yield put(
         interfaceActions.snackbarOpen(
           'Failed to retrieve variable metadata',
           tag,
         ),
       );
-      return;
-    }
-
-    log.debug('Creating metadata workbook', {
-      filteredVariablesCount: filteredMetadata.variables.length,
-    });
-
-    // Create a proper metadata workbook with all three sheets
-    const metadataBlob = makeMetadataWorkbook(filteredMetadata);
-
-    // Create a workbook with data and metadata
-    let workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, dataWB.Sheets.Sheet1, 'Data');
-
-    // Read the metadata workbook and append its sheets
-    const metadataWB = XLSX.read(metadataBlob, { type: 'array' });
-
-    // Append each sheet from the metadata workbook
-    Object.keys(metadataWB.Sheets).forEach((sheetName) => {
-      log.debug('Appending metadata sheet', { sheetName });
-      XLSX.utils.book_append_sheet(
-        workbook,
-        metadataWB.Sheets[sheetName],
-        sheetName,
-      );
-    });
-
-    // Write the workbook to a file
-    log.debug('Writing workbook to file', {
-      fileName: `${variableLongName}_${datasetShortName}.xlsx`,
-    });
-    XLSX.writeFile(workbook, `${variableLongName}_${datasetShortName}.xlsx`);
-    yield put(interfaceActions.setLoadingMessage('', tag));
-  } catch (e) {
-    log.error('Error in csvFromVizRequest', {
-      error: e.message,
-      stack: e.stack,
-    });
-    console.error('Error in csvFromVizRequest:', e);
-    yield put(interfaceActions.setLoadingMessage('', tag));
-
-    if (e.message === 'UNAUTHORIZED') {
-      yield put(
-        interfaceActions.snackbarOpen('Please log in to download data', tag),
-      );
     } else {
-      yield put(
-        interfaceActions.snackbarOpen(
-          'Failed to download variable metadata',
-          tag,
-        ),
-      );
+      yield put(interfaceActions.snackbarOpen('Failed to download data', tag));
     }
   }
 }
 
-function* downloadRequest(action) {
+/**
+ * Saga for handling dataset download requests
+ * Uses the unified export method that automatically chooses format based on data size
+ */
+export function* downloadRequest(action) {
   const tag = { tag: 'downloadRequest' };
-  // from DATASET_DOWNLOAD_REQUEST_SEND
-  // payload should include (1) subsetParam, (2) tableName, (3) shortName
-  // TODO extract query-making out of Component
-  let user = yield select((state) => state.user);
+  const { payload } = action;
+  const {
+    subsetParams,
+    ancillaryData,
+    tableName,
+    shortName: datasetShortName,
+  } = payload;
 
+  // Check if user is logged in
+  const user = yield select((state) => state.user);
   if (!user) {
     yield put(userActions.refreshLogin());
+    return;
   }
 
   yield put(catalogActions.datasetDownloadRequestProcessing());
   yield put(interfaceActions.setLoadingMessage('Processing Request', tag));
 
-  let { subsetParams, ancillaryData, tableName, shortName, fileName } =
-    action.payload;
-
-  let truncatedFileName = fileName.slice(0, 100);
-
-  let query = makeDownloadQuery({ subsetParams, ancillaryData, tableName });
-  yield put(interfaceActions.setLoadingMessage('Fetching Data', tag));
-
   try {
-    log.info('requesting download', { ancillaryData, tableName, query });
-    let data = yield call(fetchDatasetAndMetadata, { query, shortName });
-    makeZip(data, truncatedFileName, shortName);
-  } catch (e) {
-    console.log(e.message);
+    // Create query from subset parameters
+    const query = makeDownloadQuery({ subsetParams, ancillaryData, tableName });
+
+    yield put(interfaceActions.setLoadingMessage('Fetching Data', tag));
+
+    log.info('[downloadRequest] Requesting dataset download', {
+      tableName,
+      datasetShortName,
+      ancillaryData,
+    });
+
+    // Fetch data and metadata in parallel
+    const [dataResponse, metadata] = yield all([
+      call(api.data.customQuery, query),
+      call(DataExportService.fetchDatasetMetadata, datasetShortName),
+    ]);
+
+    // Handle data response errors
+    if (!dataResponse.ok) {
+      if (dataResponse.status === 401) {
+        throw new Error('UNAUTHORIZED');
+      } else if (dataResponse.status === 400) {
+        const responseText = yield dataResponse.text();
+        const errorMessage =
+          responseText === 'query exceeds maximum size allowed'
+            ? '400 TOO LARGE'
+            : 'BAD REQUEST';
+        throw new Error(errorMessage);
+      } else {
+        throw new Error('Failed to fetch data');
+      }
+    }
+
+    // Get data as text (CSV format)
+    const dataArrayBuffer = yield dataResponse.arrayBuffer();
+    const csvData = new TextDecoder().decode(dataArrayBuffer);
+
+    yield put(interfaceActions.setLoadingMessage('Preparing download', tag));
+
+    // Use unified export method - automatically chooses Excel or ZIP based on data size
+    yield call(DataExportService.exportDataWithMetadata, {
+      data: csvData, // Pass CSV string directly
+      metadata: metadata,
+      datasetName: tableName,
+    });
+
     yield put(interfaceActions.setLoadingMessage('', tag));
-    if (e.message === 'UNAUTHORIZED') {
+    yield put(catalogActions.datasetDownloadRequestSuccess());
+
+    log.info('Successfully downloaded dataset', {
+      tableName,
+      datasetShortName,
+    });
+  } catch (error) {
+    log.error('Error in downloadRequest', {
+      error: error.message,
+      stack: error.stack,
+    });
+
+    yield put(interfaceActions.setLoadingMessage('', tag));
+    // yield put(catalogActions.datasetDownloadRequestFailure());
+
+    if (error.message === 'UNAUTHORIZED') {
       yield put(userActions.refreshLogin());
-    } else if (e.message === '400 TOO LARGE') {
+    } else if (
+      error.message === '400 TOO LARGE' ||
+      error.message.includes('TOO LARGE')
+    ) {
       yield put(
         interfaceActions.snackbarOpen(
           'Requested data exceeds size limits.',
@@ -286,20 +265,12 @@ export function* watchDownloadRequest() {
   );
 }
 
-export function* watchCsvDownloadRequest() {
-  yield takeLatest(
-    visualizationActionTypes.CSV_DOWNLOAD_REQUEST_SEND,
-    csvDownloadRequest,
-  );
-}
-
 // Download saga that handles all download-related watchers
 function* downloadSaga() {
   yield all([
     watchCheckDownloadSize(),
     watchCsvFromVizRequest(),
     watchDownloadRequest(),
-    watchCsvDownloadRequest(),
   ]);
 }
 
