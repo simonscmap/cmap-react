@@ -7,6 +7,7 @@ import {
   SNACKBAR_OPEN,
   SNACKBAR_CLOSE,
   SET_LOADING_MESSAGE,
+  CLOSE_LOADING_MESSAGE,
   TOGGLE_SHOW_HELP,
   SHOW_CHANGE_EMAIL_DIALOG,
   HIDE_CHANGE_EMAIL_DIALOG,
@@ -82,6 +83,11 @@ export default function (state, action) {
       return {
         ...state,
         loadingMessage: action.payload.message,
+      };
+    case CLOSE_LOADING_MESSAGE:
+      return {
+        ...state,
+        loadingMessage: '',
       };
     case TOGGLE_SHOW_HELP:
       return {

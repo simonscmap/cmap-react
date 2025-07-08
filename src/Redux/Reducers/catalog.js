@@ -642,6 +642,7 @@ export default function (state, action) {
           dropboxModalOpen: 'closed',
         },
       };
+
     default:
       return state;
   }
