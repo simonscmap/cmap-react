@@ -7,5 +7,11 @@
     "!src/**/*.spec.{js,jsx}",
     "!src/setupTests.js"
   ],
-  "ignore": ["src/serviceWorker.js"]
+  "ignore": [
+    "src/serviceWorker.js",
+    "src/enums/regions.js",
+    "src/Components/DataSubmission/Guide/Sections/_template.js",
+    "src/Components/DataSubmission/Helpers/WorkbookAudits/**template**.js",
+    "src/Stylesheets/JSS.js"
+  ]
 }
