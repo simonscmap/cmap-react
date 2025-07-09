@@ -535,7 +535,7 @@ const DownloadDialog = (props) => {
       </DialogActions>
       <div className={classes.bottomPlate}>
         <div className={classes.dropboxOptionWrapper}>
-          <Button
+          {/* <Button
             className={classes.dropboxButton}
             onClick={() => window.open(vaultLink?.shareLink, '_blank')}
             disabled={!vaultLink?.shareLink}
@@ -552,8 +552,8 @@ const DownloadDialog = (props) => {
                 ? 'Loading Direct Download...'
                 : 'Direct Download from CMAP Storage'}
             </span>
-          </Button>
-          {/* <Button
+          </Button> */}
+          <Button
             className={classes.dropboxButton}
             onClick={() => setFileSelectionModalOpen(true)}
             disabled={!vaultLink}
@@ -566,7 +566,7 @@ const DownloadDialog = (props) => {
                 ? 'Loading Direct Download...'
                 : 'Direct Download from CMAP Storage'}
             </span>
-          </Button> */}
+          </Button>
           <div className={classes.infoLink}>
             <InfoDialog
               open={infoDialogOpen}
@@ -608,13 +608,13 @@ const DownloadDialog = (props) => {
         handleDirectDownload={() => {
           setLargeDatasetWarningOpen(false);
           handleClose(); // Close the main dialog
-          window.open(vaultLink?.shareLink, '_blank');
-          // setFileSelectionModalOpen(true);
+          // window.open(vaultLink?.shareLink, '_blank');
+          setFileSelectionModalOpen(true);
         }}
         vaultLink={vaultLink}
         rowCount={dataset.Row_Count}
       />
-      {/* <DropboxFileSelectionModal
+      <DropboxFileSelectionModal
         open={fileSelectionModalOpen}
         handleClose={(closeParentToo) => {
           setFileSelectionModalOpen(false);
@@ -623,7 +623,7 @@ const DownloadDialog = (props) => {
           }
         }}
         vaultLink={vaultLink}
-      /> */}
+      />
     </div>
   );
 };
@@ -634,7 +634,7 @@ const LargeDatasetWarningDialog = (props) => {
     handleClose,
     handleDownload,
     handleDirectDownload,
-    vaultLink,
+    // vaultLink,
     rowCount,
   } = props;
   const classes = useStyles();
