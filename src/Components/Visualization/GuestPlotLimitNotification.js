@@ -12,7 +12,7 @@ import {
 import Cookies from 'js-cookie';
 import React from 'react';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { Link as RouterLink } from 'react-router-dom';
 import colors from '../../enums/colors';
 import z from '../../enums/zIndex';

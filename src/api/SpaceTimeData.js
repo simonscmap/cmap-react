@@ -9,11 +9,6 @@ import mergeArrays from '../Utility/mergeArrays';
 import vizSubTypes from '../enums/visualizationSubTypes';
 import temporalResolutions from '../enums/temporalResolutions';
 
-import {
-  /* subsetKey, mapDeep, rowToVal, sum, toMean3D, */ roundToDecimal,
-} from './myLib.js';
-import lodash from 'lodash';
-
 // generate a rounding function that rounds floats to the 3rd decimal place,
 // and use lodash.memoize to cache results, since for large datasets, we'll
 // see many of the same values for longitudes or latitudes

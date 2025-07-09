@@ -3,7 +3,7 @@ import { CloudDownload } from '@material-ui/icons';
 import stringify from 'csv-stringify/lib/sync';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import ResizeObserver from 'react-resize-observer';
 import { Virtuoso } from 'react-virtuoso';
 import '../../Stylesheets/catalog-search-results.css';

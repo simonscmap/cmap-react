@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { makeStyles } from '@material-ui/styles';
+import React from 'react';
 import Typography from '@material-ui/core/Typography';
 import { useSelector } from 'react-redux';
 import { Meta } from './DataSheetSections';
@@ -80,34 +79,8 @@ const mungeSensors = (sensors) => {
   return categorized;
 };
 
-// Component: Section Conten for Sensor
-const useSensorStyles = makeStyles((theme) => ({
-  sensorList: {
-    display: 'grid',
-    'grid-template-columns': 'repeat(3, 1fr)',
-    gridGap: '0',
-    padding: '0 20px',
-  },
-  sensorColumn: {
-    minWidth: 0,
-    padding: '0 20px',
-  },
-
-  contentContainer: {
-    padding: 0,
-    margin: '0 auto',
-    '& > span': {
-      color: '#69FFF2',
-      fontSize: '1.2em',
-      padding: '0 0 10px 0',
-      display: 'inline-block',
-    },
-  },
-}));
-
 const Content = () => {
   const cl = sectionStyles();
-  const ss = useSensorStyles();
 
   const sensors = useSelector(
     (state) =>
