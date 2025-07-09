@@ -61,7 +61,7 @@ const DropboxFileSelectionModal = (props) => {
       const a = document.createElement('a');
       a.style.display = 'none';
       a.href = dropboxDownloadState.downloadLink;
-      a.download = `${vaultLink.shortName}_files.zip`;
+      a.download = `${vaultLink?.shortName || 'dataset'}_files.zip`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -123,6 +123,10 @@ const DropboxFileSelectionModal = (props) => {
 
   // Handle download button click
   const handleSubmit = () => {
+    if (!vaultLink) {
+      return;
+    }
+
     // Show loading state
     const loadingState = {
       isLoading: true,
@@ -147,6 +151,11 @@ const DropboxFileSelectionModal = (props) => {
   const areAllSelected =
     allFiles.length > 0 && selectedFiles.length === allFiles.length;
 
+  // Don't render if vaultLink is not available
+  if (!vaultLink) {
+    return null;
+  }
+
   return (
     <Dialog
       fullWidth
@@ -163,7 +172,7 @@ const DropboxFileSelectionModal = (props) => {
       <DialogContent style={{ overflow: 'visible' }}>
         <Typography variant="h6">Select Files to Download</Typography>
         <Typography variant="body2" gutterBottom>
-          Dataset: {vaultLink && vaultLink.shortName}
+          Dataset: {vaultLink.shortName}
         </Typography>
 
         <TableContainer component={Paper} className={classes.container}>
