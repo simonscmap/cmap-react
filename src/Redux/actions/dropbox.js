@@ -26,3 +26,7 @@ export const dropboxFilesDownloadFailure = (error) => ({
     error,
   },
 });
+
+export const dropboxFilesDownloadClear = () => ({
+  type: dropboxActionTypes.DROPBOX_FILES_DOWNLOAD_CLEAR,
+});

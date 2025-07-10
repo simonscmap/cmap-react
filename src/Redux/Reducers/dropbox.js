@@ -2,6 +2,7 @@ import {
   DROPBOX_FILES_DOWNLOAD_REQUEST,
   DROPBOX_FILES_DOWNLOAD_SUCCESS,
   DROPBOX_FILES_DOWNLOAD_FAILURE,
+  DROPBOX_FILES_DOWNLOAD_CLEAR,
 } from '../actionTypes/dropbox';
 
 const initialState = {
@@ -46,6 +47,14 @@ export default function dropboxReducer(state = initialState, action) {
           success: false,
           error: action.payload.error,
           downloadLink: null,
+        },
+      };
+
+    case DROPBOX_FILES_DOWNLOAD_CLEAR:
+      return {
+        ...state,
+        dropbox: {
+          ...initialState,
         },
       };
 

@@ -17,7 +17,10 @@ import {
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import styles from './downloadDialogStyles';
-import { dropboxFilesDownloadRequest } from '../../../Redux/actions/dropbox';
+import {
+  dropboxFilesDownloadRequest,
+  dropboxFilesDownloadClear,
+} from '../../../Redux/actions/dropbox';
 import { useDispatch, useSelector } from 'react-redux';
 
 const useStyles = makeStyles((theme) => ({
@@ -53,7 +56,6 @@ const DropboxFileSelectionModal = (props) => {
 
   // Redux state selectors
   const dropboxDownloadState = useSelector((state) => state.dropbox || {});
-
   // Handle saga results
   useEffect(() => {
     if (dropboxDownloadState.success && dropboxDownloadState.downloadLink) {
@@ -65,6 +67,9 @@ const DropboxFileSelectionModal = (props) => {
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
+
+      // Clear the dropbox download state to prevent re-triggering
+      dispatch(dropboxFilesDownloadClear());
 
       // Close modal with success state
       handleClose(true, { isSuccess: true });

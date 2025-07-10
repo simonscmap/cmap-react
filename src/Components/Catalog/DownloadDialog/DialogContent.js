@@ -651,9 +651,12 @@ const LargeDatasetWarningDialog = (props) => {
     >
       <DialogContent>
         <p>
-          This dataset contains {rowCount?.toLocaleString()} rows. For faster
-          download, you can use the Direct Download option. Alternatively, you
-          can continue with the standard download process.
+          This dataset contains{' '}
+          {rowCount && rowCount.toLocaleString
+            ? rowCount.toLocaleString()
+            : rowCount}{' '}
+          rows. For faster download, you can use the Direct Download option.
+          Alternatively, you can continue with the standard download process.
         </p>
       </DialogContent>
       <DialogActions>
