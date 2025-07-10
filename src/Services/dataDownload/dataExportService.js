@@ -1,6 +1,7 @@
 import DownloadService from './downloadService';
 import apiService from '../../api/api';
 import datasetMetadataToDownloadFormat from './datasetMetadataToDownloadFormat';
+import Papa from 'papaparse';
 /**
  * Unified data export service for handling all export operations
  */
@@ -313,33 +314,42 @@ class DataExportService {
       throw new Error('CSV data is empty');
     }
 
-    const lines = trimmedData.split('\n');
-    if (lines.length < 2) {
-      throw new Error(
-        'CSV data must have at least a header row and one data row',
-      );
-    }
+    try {
+      // Use Papa Parse for robust CSV parsing that handles escaping properly
+      const parseResult = Papa.parse(trimmedData, {
+        header: true,
+        skipEmptyLines: true,
+        transformHeader: (header) => header.trim(),
+        transform: (value) => value.trim(),
+      });
 
-    const headers = lines[0].split(',').map((header) => header.trim());
-    const data = lines.slice(1).map((line, lineIndex) => {
-      const values = line.split(',');
-
-      // Ensure we have the same number of values as headers
-      if (values.length !== headers.length) {
+      if (parseResult.errors && parseResult.errors.length > 0) {
+        // Log the first parsing error for debugging
+        const firstError = parseResult.errors[0];
         throw new Error(
-          `CSV row ${lineIndex + 2} has ${values.length} values but expected ${
-            headers.length
-          } (matching headers)`,
+          `CSV parsing error at row ${firstError.row}: ${firstError.message}`,
         );
       }
 
-      return headers.reduce((obj, header, index) => {
-        obj[header] = values[index] ? values[index].trim() : '';
-        return obj;
-      }, {});
-    });
+      if (!parseResult.data || parseResult.data.length === 0) {
+        throw new Error(
+          'CSV data must have at least a header row and one data row',
+        );
+      }
 
-    return data;
+      return parseResult.data;
+    } catch (error) {
+      // If it's already our custom error, re-throw it
+      if (
+        error.message.includes('CSV parsing error') ||
+        error.message.includes('CSV data must have')
+      ) {
+        throw error;
+      }
+
+      // Otherwise, wrap the Papa Parse error with more context
+      throw new Error(`Failed to parse CSV data: ${error.message}`);
+    }
   }
 }
 
