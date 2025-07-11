@@ -46,9 +46,9 @@ function* fetchVaultLink(action) {
   let response;
   try {
     // Fetch initial page with default pagination
-    response = yield call(api.catalog.fetchVaultLink, shortName, {
+    response = yield call(api.dropbox.fetchDropboxVaultFiles, shortName, {
       page: 1,
-      pageSize: 100
+      pageSize: 100,
     });
   } catch (e) {
     log.error('error fetching vault link', { shortName, error: e });

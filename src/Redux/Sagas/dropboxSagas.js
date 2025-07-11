@@ -1,5 +1,5 @@
 import { call, put, takeLatest, takeEvery } from 'redux-saga/effects';
-import catalogAPI from '../../api/catalogRequests';
+import api from '../../api/api';
 import * as dropboxActions from '../actions/dropbox';
 import * as dropboxActionTypes from '../actionTypes/dropbox';
 import * as interfaceActions from '../actions/ui';
@@ -27,7 +27,7 @@ export function* downloadDropboxFiles(action) {
 
     // Make API call to download files
     const response = yield call(
-      catalogAPI.downloadDropboxVaultFiles,
+      api.dropbox.downloadDropboxVaultFiles,
       shortName,
       datasetId,
       selectedFiles.map((file) => ({
@@ -83,7 +83,7 @@ function* fetchVaultFilesPage(action) {
 
   try {
     const response = yield call(
-      catalogAPI.fetchVaultLink,
+      api.dropbox.fetchDropboxVaultFiles,
       shortName,
       paginationParams,
     );

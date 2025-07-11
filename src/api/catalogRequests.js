@@ -167,47 +167,6 @@ catalogAPI.fetchProgramDetails = async (programName) => {
   );
 };
 
-// catalogAPI.fetchVaultLink = async (shortName) => {
-//   return await fetch(`${apiUrl}/api/data/share/${shortName}`);
-// };
-
-catalogAPI.fetchVaultLink = async (shortName, paginationParams = {}) => {
-  const { page, pageSize, cursor } = paginationParams;
-  const params = new URLSearchParams();
-  
-  if (page) params.append('page', page);
-  if (pageSize) params.append('pageSize', pageSize);
-  if (cursor) params.append('cursor', cursor);
-  
-  const queryString = params.toString();
-  const url = `${apiUrl}/api/data/dropbox-vault/get-files-info/${shortName}${queryString ? `?${queryString}` : ''}`;
-  
-  return await fetch(url);
-};
-
-catalogAPI.downloadDropboxVaultFiles = async (
-  shortName,
-  datasetId,
-  selectedFiles,
-) => {
-  const endpoint = `${apiUrl}/api/data/dropbox-vault/download-files`;
-  const requestOptions = {
-    ...fetchOptions,
-    method: 'POST',
-    headers: {
-      ...fetchOptions.headers,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      shortName,
-      datasetId,
-      files: selectedFiles,
-    }),
-  };
-
-  return await fetch(endpoint, requestOptions);
-};
-
 // Wrap each endpoint in a try/catch because...
 // if the fetch fails before the request is sent, for example due to a CORS
 // violation or if the network is down,

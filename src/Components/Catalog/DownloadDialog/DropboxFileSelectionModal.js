@@ -333,7 +333,7 @@ const DropboxFileSelectionModal = (props) => {
             <FormControl variant="outlined" size="small">
               <InputLabel>Page Size</InputLabel>
               <Select
-                value={vaultFilesPagination.pageSize || 100}
+                value={vaultFilesPagination.pageSize || 25}
                 onChange={handlePageSizeChange}
                 label="Page Size"
               >
