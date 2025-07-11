@@ -54,6 +54,16 @@ const initialState = {
     querySizeChecks: [], // list of { queryString, result }
     vaultLink: null,
     dropboxModalOpen: 'closed',
+    vaultFilesPagination: {
+      isLoading: false,
+      page: 1,
+      pageSize: 100,
+      hasMore: false,
+      cursor: null,
+      totalCount: null,
+      totalPages: null,
+      error: null,
+    },
   }, // NOTE see also state.downloadDialog
   // this is an artifact of initially only using redux for the ui state
 

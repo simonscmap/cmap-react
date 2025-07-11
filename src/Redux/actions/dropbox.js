@@ -31,8 +31,12 @@ export const dropboxFilesDownloadClear = () => ({
   type: dropboxActionTypes.DROPBOX_FILES_DOWNLOAD_CLEAR,
 });
 
-export const fetchVaultFilesPage = () => ({
+export const fetchVaultFilesPage = (shortName, paginationParams) => ({
   type: dropboxActionTypes.FETCH_VAULT_FILES_PAGE,
+  payload: {
+    shortName,
+    paginationParams,
+  },
 });
 
 export const fetchVaultFilesPageSuccess = (data) => ({

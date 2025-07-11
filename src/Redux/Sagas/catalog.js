@@ -45,7 +45,11 @@ function* fetchVaultLink(action) {
   yield put(catalogActions.setFetchVaultLinkRequestStatus(states.inProgress));
   let response;
   try {
-    response = yield call(api.catalog.fetchVaultLink, shortName);
+    // Fetch initial page with default pagination
+    response = yield call(api.catalog.fetchVaultLink, shortName, {
+      page: 1,
+      pageSize: 100
+    });
   } catch (e) {
     log.error('error fetching vault link', { shortName, error: e });
     yield put(catalogActions.setFetchVaultLinkRequestStatus(states.failed));
