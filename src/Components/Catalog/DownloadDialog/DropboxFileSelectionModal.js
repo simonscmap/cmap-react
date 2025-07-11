@@ -99,7 +99,7 @@ const DropboxFileSelectionModal = (props) => {
   // Redux state selectors
   const dropboxDownloadState = useSelector((state) => state.dropbox || {});
   const vaultFilesPagination = useSelector(
-    (state) => state.download.vaultFilesPagination || {},
+    (state) => state.dropbox.vaultFilesPagination || {},
   );
 
   // Reset pagination when modal closes

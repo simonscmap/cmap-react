@@ -108,7 +108,7 @@ function* fetchVaultFilesPage(action) {
 
 export function* watchFetchVaultFilesPage() {
   yield takeEvery(
-    dropboxActionTypes.FETCH_VAULT_FILES_PAGE,
+    dropboxActionTypes.FETCH_DROPBOX_VAULT_FILES_PAGE,
     fetchVaultFilesPage,
   );
 }
@@ -116,7 +116,7 @@ export function* watchFetchVaultFilesPage() {
 // Watcher saga
 export function* watchDownloadDropboxFiles() {
   yield takeLatest(
-    dropboxActionTypes.DROPBOX_FILES_DOWNLOAD_REQUEST,
+    dropboxActionTypes.DOWNLOAD_DROPBOX_VAULT_FILES_REQUEST,
     downloadDropboxFiles,
   );
 }

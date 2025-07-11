@@ -55,12 +55,6 @@ import {
   DROPBOX_MODAL_CLEANUP,
   DROPBOX_MODAL_CLOSE,
 } from '../actionTypes/catalog';
-import {
-  FETCH_VAULT_FILES_PAGE,
-  FETCH_VAULT_FILES_PAGE_SUCCESS,
-  FETCH_VAULT_FILES_PAGE_FAILURE,
-  RESET_VAULT_FILES_PAGINATION,
-} from '../actionTypes/dropbox';
 import states from '../../enums/asyncRequestStates';
 import { sortResults } from '../../Components/Catalog/SortingControls';
 import { safePath } from '../../Utility/objectUtils';
@@ -605,16 +599,6 @@ export default function (state, action) {
           ...state.download,
           vaultLink: action.payload,
           vaultLinkRequestStatus: states.succeeded,
-          vaultFilesPagination: action.payload.pagination ? {
-            isLoading: false,
-            page: action.payload.pagination.page,
-            pageSize: action.payload.pagination.pageSize,
-            hasMore: action.payload.pagination.hasMore,
-            cursor: action.payload.pagination.cursor,
-            totalCount: action.payload.pagination.totalCount,
-            totalPages: action.payload.pagination.totalPages,
-            error: null,
-          } : state.download.vaultFilesPagination,
         },
       };
 
@@ -656,71 +640,6 @@ export default function (state, action) {
         download: {
           ...state.download,
           dropboxModalOpen: 'closed',
-        },
-      };
-
-    // Vault Files Pagination
-    case FETCH_VAULT_FILES_PAGE:
-      return {
-        ...state,
-        download: {
-          ...state.download,
-          vaultFilesPagination: {
-            ...state.download.vaultFilesPagination,
-            isLoading: true,
-          },
-        },
-      };
-
-    case FETCH_VAULT_FILES_PAGE_SUCCESS:
-      return {
-        ...state,
-        download: {
-          ...state.download,
-          vaultLink: {
-            ...state.download.vaultLink,
-            files: action.payload.files,
-          },
-          vaultFilesPagination: {
-            isLoading: false,
-            page: action.payload.pagination.page,
-            pageSize: action.payload.pagination.pageSize,
-            hasMore: action.payload.pagination.hasMore,
-            cursor: action.payload.pagination.cursor,
-            totalCount: action.payload.pagination.totalCount,
-            totalPages: action.payload.pagination.totalPages,
-          },
-        },
-      };
-
-    case FETCH_VAULT_FILES_PAGE_FAILURE:
-      return {
-        ...state,
-        download: {
-          ...state.download,
-          vaultFilesPagination: {
-            ...state.download.vaultFilesPagination,
-            isLoading: false,
-            error: action.payload.error,
-          },
-        },
-      };
-
-    case RESET_VAULT_FILES_PAGINATION:
-      return {
-        ...state,
-        download: {
-          ...state.download,
-          vaultFilesPagination: {
-            isLoading: false,
-            page: 1,
-            pageSize: 100,
-            hasMore: false,
-            cursor: null,
-            totalCount: null,
-            totalPages: null,
-            error: null,
-          },
         },
       };
 

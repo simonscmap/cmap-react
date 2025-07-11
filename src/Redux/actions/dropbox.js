@@ -5,7 +5,7 @@ export const dropboxFilesDownloadRequest = (
   datasetId,
   selectedFiles,
 ) => ({
-  type: dropboxActionTypes.DROPBOX_FILES_DOWNLOAD_REQUEST,
+  type: dropboxActionTypes.DOWNLOAD_DROPBOX_VAULT_FILES_REQUEST,
   payload: {
     shortName,
     datasetId,
@@ -14,25 +14,25 @@ export const dropboxFilesDownloadRequest = (
 });
 
 export const dropboxFilesDownloadSuccess = (downloadLink) => ({
-  type: dropboxActionTypes.DROPBOX_FILES_DOWNLOAD_SUCCESS,
+  type: dropboxActionTypes.DOWNLOAD_DROPBOX_VAULT_FILES_SUCCESS,
   payload: {
     downloadLink,
   },
 });
 
 export const dropboxFilesDownloadFailure = (error) => ({
-  type: dropboxActionTypes.DROPBOX_FILES_DOWNLOAD_FAILURE,
+  type: dropboxActionTypes.DOWNLOAD_DROPBOX_VAULT_FILES_FAILURE,
   payload: {
     error,
   },
 });
 
 export const dropboxFilesDownloadClear = () => ({
-  type: dropboxActionTypes.DROPBOX_FILES_DOWNLOAD_CLEAR,
+  type: dropboxActionTypes.DOWNLOAD_DROPBOX_VAULT_FILES_CLEAR,
 });
 
 export const fetchVaultFilesPage = (shortName, paginationParams) => ({
-  type: dropboxActionTypes.FETCH_VAULT_FILES_PAGE,
+  type: dropboxActionTypes.FETCH_DROPBOX_VAULT_FILES_PAGE,
   payload: {
     shortName,
     paginationParams,
@@ -40,20 +40,20 @@ export const fetchVaultFilesPage = (shortName, paginationParams) => ({
 });
 
 export const fetchVaultFilesPageSuccess = (data) => ({
-  type: dropboxActionTypes.FETCH_VAULT_FILES_PAGE_SUCCESS,
+  type: dropboxActionTypes.FETCH_DROPBOX_VAULT_FILES_PAGE_SUCCESS,
   payload: data,
 });
 
 export const fetchVaultFilesPageFailure = (error) => ({
-  type: dropboxActionTypes.FETCH_VAULT_FILES_PAGE_FAILURE,
+  type: dropboxActionTypes.FETCH_DROPBOX_VAULT_FILES_PAGE_FAILURE,
   payload: { error },
 });
 
 export const setVaultFilesPagination = (pagination) => ({
-  type: dropboxActionTypes.SET_VAULT_FILES_PAGINATION,
+  type: dropboxActionTypes.SET_DROPBOX_VAULT_FILES_PAGINATION,
   payload: pagination,
 });
 
 export const resetVaultFilesPagination = () => ({
-  type: dropboxActionTypes.RESET_VAULT_FILES_PAGINATION,
+  type: dropboxActionTypes.RESET_DROPBOX_VAULT_FILES_PAGINATION,
 });
