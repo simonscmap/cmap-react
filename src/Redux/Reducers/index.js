@@ -272,6 +272,13 @@ const initialState = {
   sendNotificationsStatus: [],
   reSendNotificationsStatus: [],
   subscribeIntroActive: initialSubscribeIntroState.subscribeIntroActive,
+  // Add dropbox state
+  dropbox: {
+    isLoading: false,
+    success: false,
+    error: null,
+    downloadLink: null,
+  },
 };
 
 const reducedReducer = reduceReducers(

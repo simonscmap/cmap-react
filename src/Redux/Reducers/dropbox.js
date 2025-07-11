@@ -5,14 +5,7 @@ import {
   DROPBOX_FILES_DOWNLOAD_CLEAR,
 } from '../actionTypes/dropbox';
 
-const initialState = {
-  isLoading: false,
-  success: false,
-  error: null,
-  downloadLink: null,
-};
-
-export default function dropboxReducer(state = initialState, action) {
+export default function dropboxReducer(state, action) {
   switch (action.type) {
     case DROPBOX_FILES_DOWNLOAD_REQUEST:
       return {
@@ -54,7 +47,10 @@ export default function dropboxReducer(state = initialState, action) {
       return {
         ...state,
         dropbox: {
-          ...initialState,
+          isLoading: false,
+          success: false,
+          error: null,
+          downloadLink: null,
         },
       };
 

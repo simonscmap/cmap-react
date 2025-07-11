@@ -107,7 +107,10 @@ function* fetchVaultFilesPage(action) {
 }
 
 export function* watchFetchVaultFilesPage() {
-  yield takeEvery(dropboxActions.FETCH_VAULT_FILES_PAGE, fetchVaultFilesPage);
+  yield takeEvery(
+    dropboxActionTypes.FETCH_VAULT_FILES_PAGE,
+    fetchVaultFilesPage,
+  );
 }
 
 // Watcher saga
