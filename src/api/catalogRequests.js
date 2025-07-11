@@ -171,10 +171,18 @@ catalogAPI.fetchProgramDetails = async (programName) => {
 //   return await fetch(`${apiUrl}/api/data/share/${shortName}`);
 // };
 
-catalogAPI.fetchVaultLink = async (shortName) => {
-  return await fetch(
-    `${apiUrl}/api/data/dropbox-vault/get-files-info/${shortName}`,
-  );
+catalogAPI.fetchVaultLink = async (shortName, paginationParams = {}) => {
+  const { page, pageSize, cursor } = paginationParams;
+  const params = new URLSearchParams();
+  
+  if (page) params.append('page', page);
+  if (pageSize) params.append('pageSize', pageSize);
+  if (cursor) params.append('cursor', cursor);
+  
+  const queryString = params.toString();
+  const url = `${apiUrl}/api/data/dropbox-vault/get-files-info/${shortName}${queryString ? `?${queryString}` : ''}`;
+  
+  return await fetch(url);
 };
 
 catalogAPI.downloadDropboxVaultFiles = async (

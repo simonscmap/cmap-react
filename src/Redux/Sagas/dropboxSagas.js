@@ -1,4 +1,4 @@
-import { call, put, takeLatest } from 'redux-saga/effects';
+import { call, put, takeLatest, takeEvery } from 'redux-saga/effects';
 import catalogAPI from '../../api/catalogRequests';
 import * as dropboxActions from '../actions/dropbox';
 import * as dropboxActionTypes from '../actionTypes/dropbox';
@@ -75,6 +75,39 @@ export function* downloadDropboxFiles(action) {
     // Clear loading state
     yield put(interfaceActions.closeLoadingMessage(tag));
   }
+}
+
+// Pagination saga for vault files
+function* fetchVaultFilesPage(action) {
+  const { shortName, paginationParams } = action.payload;
+
+  try {
+    const response = yield call(
+      catalogAPI.fetchVaultLink,
+      shortName,
+      paginationParams,
+    );
+
+    if (response && response.ok) {
+      const jsonResponse = yield response.json();
+      yield put(dropboxActions.fetchVaultFilesPageSuccess(jsonResponse));
+    } else {
+      yield put(
+        dropboxActions.fetchVaultFilesPageFailure('Failed to fetch files'),
+      );
+    }
+  } catch (error) {
+    log.error('error fetching vault files page', {
+      shortName,
+      paginationParams,
+      error,
+    });
+    yield put(dropboxActions.fetchVaultFilesPageFailure(error.message));
+  }
+}
+
+export function* watchFetchVaultFilesPage() {
+  yield takeEvery(dropboxActions.FETCH_VAULT_FILES_PAGE, fetchVaultFilesPage);
 }
 
 // Watcher saga
