@@ -28,7 +28,7 @@ import {
 } from './downloadDialogHelpers';
 import styles from './downloadDialogStyles';
 import DownloadStepWithWarning from './DownloadStepWithWarning';
-import DropboxFileSelectionModal from './DropboxFileSelectionModal';
+import DropboxFileSelectionModal from './DropboxFileSelection';
 
 import {
   datasetDownloadRequestSend,
