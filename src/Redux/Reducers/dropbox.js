@@ -73,6 +73,10 @@ export default function dropboxReducer(state, action) {
       };
 
     case FETCH_DROPBOX_VAULT_FILES_PAGE_SUCCESS:
+      const sortedFiles =
+        action.payload.files?.sort((a, b) => a.name.localeCompare(b.name)) ||
+        [];
+
       return {
         ...state,
         dropbox: {
@@ -85,7 +89,7 @@ export default function dropboxReducer(state, action) {
             cursor: action.payload.pagination.cursor,
             totalCount: action.payload.pagination.totalCount,
             totalPages: action.payload.pagination.totalPages,
-            files: action.payload.files,
+            files: sortedFiles,
             error: null,
           },
         },
