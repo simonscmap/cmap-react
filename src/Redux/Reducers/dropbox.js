@@ -75,13 +75,6 @@ export default function dropboxReducer(state, action) {
     case FETCH_DROPBOX_VAULT_FILES_PAGE_SUCCESS:
       return {
         ...state,
-        download: {
-          ...state.download,
-          vaultLink: {
-            ...state.download.vaultLink,
-            files: action.payload.files,
-          },
-        },
         dropbox: {
           ...state.dropbox,
           vaultFilesPagination: {
@@ -92,6 +85,7 @@ export default function dropboxReducer(state, action) {
             cursor: action.payload.pagination.cursor,
             totalCount: action.payload.pagination.totalCount,
             totalPages: action.payload.pagination.totalPages,
+            files: action.payload.files,
             error: null,
           },
         },
@@ -123,6 +117,7 @@ export default function dropboxReducer(state, action) {
             cursor: null,
             totalCount: null,
             totalPages: null,
+            files: [],
             error: null,
           },
         },

@@ -286,6 +286,7 @@ const initialState = {
       cursor: null,
       totalCount: null,
       totalPages: null,
+      files: [],
       error: null,
     },
   },

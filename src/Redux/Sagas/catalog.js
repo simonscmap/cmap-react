@@ -1,5 +1,6 @@
 import api from '../../api/api';
 import * as catalogActions from '../actions/catalog';
+import * as dropboxActions from '../actions/dropbox';
 import * as actionTypes from '../actionTypes/catalog';
 import * as interfaceActionTypes from '../actionTypes/ui';
 import * as interfaceActions from '../actions/ui';
@@ -80,7 +81,9 @@ export function* getFullPageDataForDownload(action) {
   const detailPageShortName =
     detailPageData && detailPageData.dataset.Short_Name;
   // now get dropbox link
-  yield put(catalogActions.fetchVaultLink(shortName));
+  yield put(
+    dropboxActions.fetchVaultFilesPage(shortName, { page: 1, pageSize: 100 }),
+  );
 
   if (!dialogData && detailPageShortName !== shortName) {
     log.info('fetching dataset metadata for download dialog', {

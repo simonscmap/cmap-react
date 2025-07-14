@@ -87,7 +87,6 @@ function* fetchVaultFilesPage(action) {
       shortName,
       paginationParams,
     );
-
     if (response && response.ok) {
       const jsonResponse = yield response.json();
       yield put(dropboxActions.fetchVaultFilesPageSuccess(jsonResponse));

@@ -33,7 +33,6 @@ import DropboxFileSelectionModal from './DropboxFileSelectionModal';
 import {
   datasetDownloadRequestSend,
   checkQuerySize,
-  dropboxModalOpen,
 } from '../../../Redux/actions/catalog';
 
 import { useDatasetFeatures } from '../../../Utility/Catalog/useDatasetFeatures';
@@ -180,8 +179,9 @@ const DownloadDialog = (props) => {
     });
   };
 
-  // Dropbox Link
-  const vaultLink = useSelector((state) => state.download.vaultLink);
+  // Dropbox state - new implementation
+  const vaultFilesPagination = useSelector((state) => (state.dropbox && state.dropbox.vaultFilesPagination) || {});
+  const isVaultFilesLoaded = !vaultFilesPagination.isLoading && vaultFilesPagination.totalCount > 0;
   // Download Size Validation
 
   let downloadState = useSelector((state) => state.download);
@@ -556,13 +556,13 @@ const DownloadDialog = (props) => {
           <Button
             className={classes.dropboxButton}
             onClick={() => setFileSelectionModalOpen(true)}
-            disabled={!vaultLink}
+            disabled={!isVaultFilesLoaded}
             startIcon={
-              !vaultLink ? <CircularProgress size={20} /> : <ImDownload />
+              !isVaultFilesLoaded ? <CircularProgress size={20} /> : <ImDownload />
             }
           >
             <span>
-              {!vaultLink
+              {!isVaultFilesLoaded
                 ? 'Loading Direct Download...'
                 : 'Direct Download from CMAP Storage'}
             </span>
@@ -608,10 +608,9 @@ const DownloadDialog = (props) => {
         handleDirectDownload={() => {
           setLargeDatasetWarningOpen(false);
           handleClose(); // Close the main dialog
-          // window.open(vaultLink?.shareLink, '_blank');
           setFileSelectionModalOpen(true);
         }}
-        vaultLink={vaultLink}
+        dataset={dataset}
         rowCount={dataset.Row_Count}
       />
       <DropboxFileSelectionModal
@@ -622,7 +621,8 @@ const DownloadDialog = (props) => {
             handleClose(); // Close the parent dialog as well
           }
         }}
-        vaultLink={vaultLink}
+        dataset={dataset}
+        vaultFilesPagination={vaultFilesPagination}
       />
     </div>
   );

@@ -91,35 +91,32 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const DropboxFileSelectionModal = (props) => {
-  const { open, handleClose, vaultLink } = props;
+  const {
+    open,
+    handleClose,
+    dataset,
+    // vaultFilesPagination: vaultFilesPaginationProp,
+  } = props;
   const classes = useStyles();
   const dispatch = useDispatch();
   const [selectedFiles, setSelectedFiles] = useState([]);
 
-  // Redux state selectors
   const dropboxDownloadState = useSelector((state) => state.dropbox || {});
   const vaultFilesPagination = useSelector(
     (state) => state.dropbox.vaultFilesPagination || {},
   );
+  console.log(
+    '🐛🐛🐛 DropboxFileSelectionModal.js:104 vaultFilesPagination:',
+    vaultFilesPagination,
+  );
 
-  // Reset pagination when modal closes
-  useEffect(() => {
-    return () => {
-      if (!open) {
-        dispatch(resetVaultFilesPagination());
-        setSelectedFiles([]); // Clear selections when modal closes
-      }
-    };
-  }, [open, dispatch]);
-
-  // Handle saga results
   useEffect(() => {
     if (dropboxDownloadState.success && dropboxDownloadState.downloadLink) {
       // Trigger download using the provided download link
       const a = document.createElement('a');
       a.style.display = 'none';
       a.href = dropboxDownloadState.downloadLink;
-      a.download = `${vaultLink?.shortName || 'dataset'}_files.zip`;
+      a.download = `${(dataset && dataset.Short_Name) || 'dataset'}_files.zip`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -129,24 +126,22 @@ const DropboxFileSelectionModal = (props) => {
 
       // Close modal with success state
       handleClose(true, { isSuccess: true });
+      dispatch(resetVaultFilesPagination());
     } else if (dropboxDownloadState.error) {
       // Close modal with error state
       handleClose(false, {
         isError: true,
         message: dropboxDownloadState.error,
       });
+      dispatch(resetVaultFilesPagination());
     }
-  }, [dropboxDownloadState, handleClose, vaultLink]);
+  }, [dropboxDownloadState, handleClose, dataset]);
 
-  // Use files from vaultLink - now paginated
+  // Use files from pagination state
   const allFiles = React.useMemo(() => {
-    if (!vaultLink || !vaultLink.files) {
-      return [];
-    }
-
-    // Backend now returns paginated files from only one directory (REP, NRT, or RAW)
-    return vaultLink.files || [];
-  }, [vaultLink]);
+    // Files are now stored in the pagination response from the API
+    return vaultFilesPagination.files || [];
+  }, [vaultFilesPagination]);
 
   // Calculate total size and count for selected files
   const totalSize = React.useMemo(() => {
@@ -183,7 +178,7 @@ const DropboxFileSelectionModal = (props) => {
 
   // Handle download button click
   const handleSubmit = () => {
-    if (!vaultLink) {
+    if (!dataset) {
       return;
     }
 
@@ -197,8 +192,8 @@ const DropboxFileSelectionModal = (props) => {
     // Dispatch the redux action to start the download process
     dispatch(
       dropboxFilesDownloadRequest(
-        vaultLink.shortName,
-        vaultLink.datasetId,
+        dataset.Short_Name,
+        dataset.Dataset_ID,
         selectedFiles.map((file) => ({
           path: file.path,
           name: file.name,
@@ -215,7 +210,7 @@ const DropboxFileSelectionModal = (props) => {
   const handlePageChange = (direction) => {
     if (direction === 'next' && vaultFilesPagination.hasMore) {
       dispatch(
-        fetchVaultFilesPage(vaultLink.shortName, {
+        fetchVaultFilesPage(dataset.Short_Name, {
           cursor: vaultFilesPagination.cursor,
           pageSize: vaultFilesPagination.pageSize,
         }),
@@ -223,7 +218,7 @@ const DropboxFileSelectionModal = (props) => {
     } else if (direction === 'prev' && vaultFilesPagination.page > 1) {
       // For previous page, we need to use page number
       dispatch(
-        fetchVaultFilesPage(vaultLink.shortName, {
+        fetchVaultFilesPage(dataset.Short_Name, {
           page: vaultFilesPagination.page - 1,
           pageSize: vaultFilesPagination.pageSize,
         }),
@@ -236,7 +231,7 @@ const DropboxFileSelectionModal = (props) => {
     const newPageSize = event.target.value;
     // Reset to first page with new page size
     dispatch(
-      fetchVaultFilesPage(vaultLink.shortName, {
+      fetchVaultFilesPage(dataset.Short_Name, {
         page: 1,
         pageSize: newPageSize,
       }),
@@ -245,8 +240,8 @@ const DropboxFileSelectionModal = (props) => {
     setSelectedFiles([]);
   };
 
-  // Don't render if vaultLink is not available
-  if (!vaultLink) {
+  // Don't render if dataset is not available
+  if (!dataset) {
     return null;
   }
 
@@ -266,7 +261,7 @@ const DropboxFileSelectionModal = (props) => {
       <DialogContent style={{ overflow: 'visible' }}>
         <Typography variant="h6">Select Files to Download</Typography>
         <Typography variant="body2" gutterBottom>
-          Dataset: {vaultLink.shortName}
+          Dataset: {dataset.Short_Name}
           {vaultFilesPagination.totalCount && (
             <span> • Total Files: {vaultFilesPagination.totalCount}</span>
           )}
