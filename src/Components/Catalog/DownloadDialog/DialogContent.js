@@ -181,7 +181,7 @@ const DownloadDialog = (props) => {
 
   // Dropbox state - new implementation
   const vaultFilesPagination = useSelector((state) => (state.dropbox && state.dropbox.vaultFilesPagination) || {});
-  const isVaultFilesLoaded = !vaultFilesPagination.isLoading && vaultFilesPagination.totalCount > 0;
+  const isVaultFilesLoaded = !vaultFilesPagination.backend?.isLoading && vaultFilesPagination.totalFileCount > 0;
   // Download Size Validation
 
   let downloadState = useSelector((state) => state.download);
