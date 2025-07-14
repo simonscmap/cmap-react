@@ -25,7 +25,7 @@ const PaginationControls = ({
         <FormControl variant="outlined" size="small">
           <InputLabel>Page Size</InputLabel>
           <Select
-            value={vaultFilesPagination.pageSize || 25}
+            value={vaultFilesPagination.local?.pageSize || 25}
             onChange={onPageSizeChange}
             label="Page Size"
           >
@@ -37,9 +37,9 @@ const PaginationControls = ({
         </FormControl>
 
         <Typography variant="body2">
-          Page {vaultFilesPagination.page || 1}
-          {vaultFilesPagination.totalPages &&
-            ` of ${vaultFilesPagination.totalPages}`}
+          Page {vaultFilesPagination.local?.currentPage || 1}
+          {vaultFilesPagination.local?.totalPages &&
+            ` of ${vaultFilesPagination.local.totalPages}`}
         </Typography>
       </div>
 
@@ -47,7 +47,8 @@ const PaginationControls = ({
         <Button
           onClick={() => onPageChange('prev')}
           disabled={
-            vaultFilesPagination.page <= 1 || vaultFilesPagination.isLoading
+            vaultFilesPagination.local?.currentPage <= 1 || 
+            vaultFilesPagination.backend?.isLoading
           }
         >
           Previous
@@ -55,7 +56,8 @@ const PaginationControls = ({
         <Button
           onClick={() => onPageChange('next')}
           disabled={
-            !vaultFilesPagination.hasMore || vaultFilesPagination.isLoading
+            vaultFilesPagination.local?.currentPage >= vaultFilesPagination.local?.totalPages ||
+            vaultFilesPagination.backend?.isLoading
           }
         >
           Next

@@ -82,7 +82,7 @@ export function* getFullPageDataForDownload(action) {
     detailPageData && detailPageData.dataset.Short_Name;
   // now get dropbox link
   yield put(
-    dropboxActions.fetchVaultFilesPage(shortName, { page: 1, pageSize: 100 }),
+    dropboxActions.fetchVaultFilesPage(shortName, { page: 1, pageSize: 200 }),
   );
 
   if (!dialogData && detailPageShortName !== shortName) {

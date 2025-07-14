@@ -35,8 +35,8 @@ const DropboxFileSelectionModal = (props) => {
   );
 
   const allFiles = useMemo(() => {
-    return vaultFilesPagination.files || [];
-  }, [vaultFilesPagination]);
+    return vaultFilesPagination.currentPageFiles || [];
+  }, [vaultFilesPagination.currentPageFiles]);
 
   const {
     selectedFiles,
@@ -102,8 +102,8 @@ const DropboxFileSelectionModal = (props) => {
         <Typography variant="h6">Select Files to Download</Typography>
         <Typography variant="body2" gutterBottom>
           Dataset: {dataset.Short_Name}
-          {vaultFilesPagination.totalCount && (
-            <span> • Total Files: {vaultFilesPagination.totalCount}</span>
+          {vaultFilesPagination.totalFileCount && (
+            <span> • Total Files: {vaultFilesPagination.totalFileCount}</span>
           )}
         </Typography>
 

@@ -57,3 +57,13 @@ export const setVaultFilesPagination = (pagination) => ({
 export const resetVaultFilesPagination = () => ({
   type: dropboxActionTypes.RESET_DROPBOX_VAULT_FILES_PAGINATION,
 });
+
+export const setLocalPaginationPage = (page) => ({
+  type: dropboxActionTypes.SET_LOCAL_PAGINATION_PAGE,
+  payload: { page },
+});
+
+export const setLocalPaginationSize = (pageSize) => ({
+  type: dropboxActionTypes.SET_LOCAL_PAGINATION_SIZE,
+  payload: { pageSize },
+});

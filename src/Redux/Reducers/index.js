@@ -279,14 +279,24 @@ const initialState = {
     error: null,
     downloadLink: null,
     vaultFilesPagination: {
-      isLoading: false,
-      page: 1,
-      pageSize: 25,
-      hasMore: false,
-      cursor: null,
-      totalCount: null,
-      totalPages: null,
-      files: [],
+      // Backend State (for API management)
+      backend: {
+        cursor: null,
+        hasMore: false,
+        chunkSize: 200,
+        isLoading: false,
+      },
+      // Local State (for display)
+      local: {
+        currentPage: 1,
+        pageSize: 25,
+        totalPages: null,
+      },
+      // File Management
+      totalFileCount: null,
+      allCachedFiles: [],
+      currentPageFiles: [],
+      // Status
       error: null,
     },
   },

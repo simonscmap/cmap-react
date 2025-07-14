@@ -1,35 +1,45 @@
 import { useDispatch } from 'react-redux';
-import { fetchVaultFilesPage } from '../../../../../Redux/actions/dropbox';
+import {
+  fetchVaultFilesPage,
+  setLocalPaginationPage,
+  setLocalPaginationSize,
+} from '../../../../../Redux/actions/dropbox';
 
 export const useFilePagination = (dataset, vaultFilesPagination) => {
   const dispatch = useDispatch();
 
   const handlePageChange = (direction) => {
-    if (direction === 'next' && vaultFilesPagination.hasMore) {
-      dispatch(
-        fetchVaultFilesPage(dataset.Short_Name, {
-          cursor: vaultFilesPagination.cursor,
-          pageSize: vaultFilesPagination.pageSize,
-        }),
-      );
-    } else if (direction === 'prev' && vaultFilesPagination.page > 1) {
-      dispatch(
-        fetchVaultFilesPage(dataset.Short_Name, {
-          page: vaultFilesPagination.page - 1,
-          pageSize: vaultFilesPagination.pageSize,
-        }),
-      );
+    const { local, backend, allCachedFiles, totalFileCount } = vaultFilesPagination;
+    
+    if (direction === 'next') {
+      const nextPage = local.currentPage + 1;
+      const requiredFiles = nextPage * local.pageSize;
+      
+      // Check if we have enough cached files
+      if (allCachedFiles.length >= requiredFiles || 
+          allCachedFiles.length >= totalFileCount) {
+        // Use local pagination
+        dispatch(setLocalPaginationPage(nextPage));
+      } else if (backend.hasMore) {
+        // Fetch more from backend
+        dispatch(fetchVaultFilesPage(dataset.Short_Name, {
+          cursor: backend.cursor,
+          pageSize: backend.chunkSize,
+        }));
+      }
+    } else if (direction === 'prev' && local.currentPage > 1) {
+      // Always use local pagination for previous
+      dispatch(setLocalPaginationPage(local.currentPage - 1));
     }
   };
 
   const handlePageSizeChange = (event, clearSelections) => {
-    const newPageSize = event.target.value;
-    dispatch(
-      fetchVaultFilesPage(dataset.Short_Name, {
-        page: 1,
-        pageSize: newPageSize,
-      }),
-    );
+    const newPageSize = parseInt(event.target.value);
+    
+    // Update local pagination with new page size
+    dispatch(setLocalPaginationSize(newPageSize));
+    
+    // Clear selections when page size changes
     clearSelections();
   };
 
