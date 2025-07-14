@@ -79,36 +79,38 @@ export default function dropboxReducer(state, action) {
 
     case FETCH_DROPBOX_VAULT_FILES_PAGE_SUCCESS: {
       const newFiles = action.payload.files || [];
-      const isInitialRequest = !state.dropbox.vaultFilesPagination.backend.cursor;
-      
+      const isInitialRequest =
+        !state.dropbox.vaultFilesPagination.backend.cursor;
       // Accumulate files from all requests
-      const allFiles = isInitialRequest 
-        ? newFiles 
+      const allFiles = isInitialRequest
+        ? newFiles
         : [...state.dropbox.vaultFilesPagination.allCachedFiles, ...newFiles];
-      
+
       // Sort all accumulated files
-      const sortedAllFiles = allFiles.sort((a, b) => a.name.localeCompare(b.name));
-      
+      const sortedAllFiles = allFiles.sort((a, b) =>
+        a.name.localeCompare(b.name),
+      );
+
       // Preserve total count from initial request only
-      const totalCount = isInitialRequest 
-        ? action.payload.pagination.totalCount 
+      const totalCount = isInitialRequest
+        ? action.payload.pagination.totalCount
         : state.dropbox.vaultFilesPagination.totalFileCount;
-      
+
       // Calculate local pagination
       const pageSize = state.dropbox.vaultFilesPagination.local.pageSize;
       const totalPages = totalCount ? Math.ceil(totalCount / pageSize) : null;
-      
+
       // If this was a cursor request (not initial), advance to next page
       let currentPage = state.dropbox.vaultFilesPagination.local.currentPage;
       if (!isInitialRequest && newFiles.length > 0) {
         currentPage = currentPage + 1;
       }
-      
+
       // Slice current page files
       const startIndex = (currentPage - 1) * pageSize;
       const endIndex = startIndex + pageSize;
       const currentPageFiles = sortedAllFiles.slice(startIndex, endIndex);
-      
+
       return {
         ...state,
         dropbox: {
@@ -179,12 +181,15 @@ export default function dropboxReducer(state, action) {
       const newPage = action.payload.page;
       const currentPageSize = state.dropbox.vaultFilesPagination.local.pageSize;
       const cachedFiles = state.dropbox.vaultFilesPagination.allCachedFiles;
-      
+
       // Calculate slice for new page
       const pageStartIndex = (newPage - 1) * currentPageSize;
       const pageEndIndex = pageStartIndex + currentPageSize;
-      const newCurrentPageFiles = cachedFiles.slice(pageStartIndex, pageEndIndex);
-      
+      const newCurrentPageFiles = cachedFiles.slice(
+        pageStartIndex,
+        pageEndIndex,
+      );
+
       return {
         ...state,
         dropbox: {
@@ -204,14 +209,16 @@ export default function dropboxReducer(state, action) {
     case SET_LOCAL_PAGINATION_SIZE: {
       const newPageSize = action.payload.pageSize;
       const totalFileCount = state.dropbox.vaultFilesPagination.totalFileCount;
-      const newTotalPages = totalFileCount ? Math.ceil(totalFileCount / newPageSize) : null;
+      const newTotalPages = totalFileCount
+        ? Math.ceil(totalFileCount / newPageSize)
+        : null;
       const allCachedFiles = state.dropbox.vaultFilesPagination.allCachedFiles;
-      
+
       // Reset to page 1 with new page size
       const newStartIndex = 0;
       const newEndIndex = newPageSize;
       const newPageFiles = allCachedFiles.slice(newStartIndex, newEndIndex);
-      
+
       return {
         ...state,
         dropbox: {
