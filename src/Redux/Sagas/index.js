@@ -45,7 +45,7 @@ import {
   watchFetchVaultLink,
 } from './catalog';
 
-import { watchDownloadDropboxFiles, watchFetchVaultFilesPage } from './dropboxSagas';
+import { watchDownloadDropboxFiles, watchFetchVaultFilesPage } from '../../features/datasetDownloadDropbox/store/sagas';
 
 import {
   watchRequestNewsList,

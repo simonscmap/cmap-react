@@ -1,6 +1,6 @@
 import api from '../../api/api';
 import * as catalogActions from '../actions/catalog';
-import * as dropboxActions from '../actions/dropbox';
+import * as dropboxActions from '../../features/datasetDownloadDropbox/store/actions';
 import * as actionTypes from '../actionTypes/catalog';
 import * as interfaceActionTypes from '../actionTypes/ui';
 import * as interfaceActions from '../actions/ui';
