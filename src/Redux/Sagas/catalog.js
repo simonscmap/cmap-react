@@ -1,5 +1,6 @@
 import api from '../../api/api';
 import * as catalogActions from '../actions/catalog';
+import * as dropboxActions from '../../features/datasetDownloadDropbox/state/actions';
 import * as actionTypes from '../actionTypes/catalog';
 import * as interfaceActionTypes from '../actionTypes/ui';
 import * as interfaceActions from '../actions/ui';
@@ -45,7 +46,11 @@ function* fetchVaultLink(action) {
   yield put(catalogActions.setFetchVaultLinkRequestStatus(states.inProgress));
   let response;
   try {
-    response = yield call(api.catalog.fetchVaultLink, shortName);
+    // Fetch initial page with default pagination
+    response = yield call(api.dropbox.fetchDropboxVaultFiles, shortName, {
+      page: 1,
+      pageSize: 100,
+    });
   } catch (e) {
     log.error('error fetching vault link', { shortName, error: e });
     yield put(catalogActions.setFetchVaultLinkRequestStatus(states.failed));
@@ -76,7 +81,7 @@ export function* getFullPageDataForDownload(action) {
   const detailPageShortName =
     detailPageData && detailPageData.dataset.Short_Name;
   // now get dropbox link
-  yield put(catalogActions.fetchVaultLink(shortName));
+  yield put(dropboxActions.fetchVaultFilesPage(shortName, {}));
 
   if (!dialogData && detailPageShortName !== shortName) {
     log.info('fetching dataset metadata for download dialog', {

@@ -28,12 +28,11 @@ import {
 } from './downloadDialogHelpers';
 import styles from './downloadDialogStyles';
 import DownloadStepWithWarning from './DownloadStepWithWarning';
-import DropboxFileSelectionModal from './DropboxFileSelectionModal';
+import { DropboxFileSelectionModal } from '../../../features/datasetDownloadDropbox';
 
 import {
   datasetDownloadRequestSend,
   checkQuerySize,
-  dropboxModalOpen,
 } from '../../../Redux/actions/catalog';
 
 import { useDatasetFeatures } from '../../../Utility/Catalog/useDatasetFeatures';
@@ -180,8 +179,9 @@ const DownloadDialog = (props) => {
     });
   };
 
-  // Dropbox Link
-  const vaultLink = useSelector((state) => state.download.vaultLink);
+  // Dropbox state - new implementation
+  const vaultFilesPagination = useSelector((state) => (state.dropbox && state.dropbox.vaultFilesPagination) || {});
+  const isVaultFilesLoaded = !vaultFilesPagination.backend?.isLoading && vaultFilesPagination.totalFileCount > 0;
   // Download Size Validation
 
   let downloadState = useSelector((state) => state.download);
@@ -535,7 +535,7 @@ const DownloadDialog = (props) => {
       </DialogActions>
       <div className={classes.bottomPlate}>
         <div className={classes.dropboxOptionWrapper}>
-          <Button
+          {/* <Button
             className={classes.dropboxButton}
             onClick={() => window.open(vaultLink?.shareLink, '_blank')}
             disabled={!vaultLink?.shareLink}
@@ -552,21 +552,21 @@ const DownloadDialog = (props) => {
                 ? 'Loading Direct Download...'
                 : 'Direct Download from CMAP Storage'}
             </span>
-          </Button>
-          {/* <Button
+          </Button> */}
+          <Button
             className={classes.dropboxButton}
             onClick={() => setFileSelectionModalOpen(true)}
-            disabled={!vaultLink}
+            disabled={!isVaultFilesLoaded}
             startIcon={
-              !vaultLink ? <CircularProgress size={20} /> : <ImDownload />
+              !isVaultFilesLoaded ? <CircularProgress size={20} /> : <ImDownload />
             }
           >
             <span>
-              {!vaultLink
+              {!isVaultFilesLoaded
                 ? 'Loading Direct Download...'
                 : 'Direct Download from CMAP Storage'}
             </span>
-          </Button> */}
+          </Button>
           <div className={classes.infoLink}>
             <InfoDialog
               open={infoDialogOpen}
@@ -608,13 +608,12 @@ const DownloadDialog = (props) => {
         handleDirectDownload={() => {
           setLargeDatasetWarningOpen(false);
           handleClose(); // Close the main dialog
-          window.open(vaultLink?.shareLink, '_blank');
-          // setFileSelectionModalOpen(true);
+          setFileSelectionModalOpen(true);
         }}
-        vaultLink={vaultLink}
+        dataset={dataset}
         rowCount={dataset.Row_Count}
       />
-      {/* <DropboxFileSelectionModal
+      <DropboxFileSelectionModal
         open={fileSelectionModalOpen}
         handleClose={(closeParentToo) => {
           setFileSelectionModalOpen(false);
@@ -622,8 +621,9 @@ const DownloadDialog = (props) => {
             handleClose(); // Close the parent dialog as well
           }
         }}
-        vaultLink={vaultLink}
-      /> */}
+        dataset={dataset}
+        vaultFilesPagination={vaultFilesPagination}
+      />
     </div>
   );
 };
@@ -634,7 +634,7 @@ const LargeDatasetWarningDialog = (props) => {
     handleClose,
     handleDownload,
     handleDirectDownload,
-    vaultLink,
+    // vaultLink,
     rowCount,
   } = props;
   const classes = useStyles();
@@ -651,9 +651,12 @@ const LargeDatasetWarningDialog = (props) => {
     >
       <DialogContent>
         <p>
-          This dataset contains {rowCount?.toLocaleString()} rows. For faster
-          download, you can use the Direct Download option. Alternatively, you
-          can continue with the standard download process.
+          This dataset contains{' '}
+          {rowCount && rowCount.toLocaleString
+            ? rowCount.toLocaleString()
+            : rowCount}{' '}
+          rows. For faster download, you can use the Direct Download option.
+          Alternatively, you can continue with the standard download process.
         </p>
       </DialogContent>
       <DialogActions>
