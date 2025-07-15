@@ -10,7 +10,7 @@ import {
 import { makeStyles } from '@material-ui/core/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import styles from '../../../../Components/Catalog/DownloadDialog/downloadDialogStyles';
-import { dropboxFilesDownloadRequest } from '../../store/actions';
+import { dropboxFilesDownloadRequest } from '../../state/actions';
 import { useFileSelection } from '../../hooks/useFileSelection';
 import { useDropboxDownload } from '../../hooks/useDropboxDownload';
 import { useFilePagination } from '../../hooks/useFilePagination';

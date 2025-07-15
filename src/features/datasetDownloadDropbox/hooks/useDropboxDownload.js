@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import {
   dropboxFilesDownloadClear,
   resetVaultFilesPagination,
-} from '../store/actions';
+} from '../state/actions';
 
 export const useDropboxDownload = (
   dropboxDownloadState,

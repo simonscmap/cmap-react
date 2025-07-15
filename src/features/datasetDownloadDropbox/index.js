@@ -3,6 +3,6 @@ export { default as DropboxFileSelectionModal } from './components/DropboxFileSe
 export * from './hooks';
 export * from './utils';
 export * from './constants';
-export { default as dropboxReducer } from './store/reducer';
-export * from './store/actions';
-export * from './store/selectors';
+export { default as dropboxReducer } from './state/reducer';
+export * from './state/actions';
+export * from './state/selectors';
