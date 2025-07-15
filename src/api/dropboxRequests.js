@@ -9,11 +9,12 @@ dropboxAPI.fetchDropboxVaultFiles = async (
   shortName,
   paginationParams = {},
 ) => {
-  const { page, pageSize, cursor } = paginationParams;
+  const { page, chunkSize, cursor } = paginationParams;
   const params = new URLSearchParams();
 
   if (page) params.append('page', page);
-  if (pageSize) params.append('pageSize', pageSize);
+  if (chunkSize) params.append('chunkSize', chunkSize);
+  // if (pageSize) params.append('pageSize', pageSize);
   if (cursor) params.append('cursor', cursor);
 
   const queryString = params.toString();
