@@ -13,7 +13,7 @@ import {
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { fileTableStyles } from './styles';
-import { formatBytes } from '../../../features/datasetDownloadDropbox/utils/fileUtils';
+import { formatBytes } from '../../utils/fileUtils';
 
 const useStyles = makeStyles(fileTableStyles);
 
@@ -29,9 +29,7 @@ const FileTable = ({
 
   return (
     <Box position="relative">
-      {isLoading && (
-        <CircularProgress className={classes.loadingSpinner} />
-      )}
+      {isLoading && <CircularProgress className={classes.loadingSpinner} />}
       <TableContainer
         component={Paper}
         className={`${classes.container} ${

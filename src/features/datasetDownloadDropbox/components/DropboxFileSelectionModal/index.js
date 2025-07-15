@@ -17,7 +17,8 @@ import {
   useFilePagination,
 } from '../../hooks';
 import { formatBytes } from '../../utils/fileUtils';
-import { FileTable, PaginationControls } from '../../../../shared/components';
+import FileTable from '../FileTable';
+import PaginationControls from '../PaginationControls';
 
 const useStyles = makeStyles((theme) => ({
   ...styles(theme),
