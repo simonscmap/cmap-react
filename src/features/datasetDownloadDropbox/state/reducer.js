@@ -119,7 +119,7 @@ export default function dropboxReducer(state, action) {
             backend: {
               cursor: action.payload.pagination.cursor,
               hasMore: action.payload.pagination.hasMore,
-              chunkSize: action.payload.pagination.pageSize || 200,
+              chunkSize: action.payload.pagination.chunkSize,
               isLoading: false,
             },
             local: {
@@ -161,7 +161,7 @@ export default function dropboxReducer(state, action) {
             backend: {
               cursor: null,
               hasMore: false,
-              chunkSize: 200,
+              chunkSize: null,
               isLoading: false,
             },
             local: {

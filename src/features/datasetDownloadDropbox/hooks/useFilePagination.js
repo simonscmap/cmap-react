@@ -28,7 +28,6 @@ export const useFilePagination = (dataset, vaultFilesPagination) => {
         dispatch(
           fetchVaultFilesPage(dataset.Short_Name, {
             cursor: backend.cursor,
-            pageSize: backend.chunkSize,
           }),
         );
       }

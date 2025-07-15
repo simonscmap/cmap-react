@@ -81,7 +81,7 @@ export function* getFullPageDataForDownload(action) {
   const detailPageShortName =
     detailPageData && detailPageData.dataset.Short_Name;
   // now get dropbox link
-  yield put(dropboxActions.fetchVaultFilesPage(shortName, { page: 1 }));
+  yield put(dropboxActions.fetchVaultFilesPage(shortName, {}));
 
   if (!dialogData && detailPageShortName !== shortName) {
     log.info('fetching dataset metadata for download dialog', {
