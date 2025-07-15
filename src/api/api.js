@@ -10,6 +10,7 @@ import newsRequests from './news';
 import notificationsRequests from './notifications';
 import highlights from './highlights';
 import bulkDownload from './bulkDownload';
+import dropboxRequests from '../features/datasetDownloadDropbox/services/dropboxApi';
 
 const api = {
   catalog: catalogRequests,
@@ -22,6 +23,7 @@ const api = {
   notifications: notificationsRequests,
   highlights,
   bulkDownload,
+  dropbox: dropboxRequests,
 };
 
 export default api;

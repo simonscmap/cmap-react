@@ -167,39 +167,6 @@ catalogAPI.fetchProgramDetails = async (programName) => {
   );
 };
 
-catalogAPI.fetchVaultLink = async (shortName) => {
-  return await fetch(`${apiUrl}/api/data/share/${shortName}`);
-};
-
-// catalogAPI.fetchVaultLink = async (shortName) => {
-//   return await fetch(
-//     `${apiUrl}/api/data/dropbox-vault/get-files-info/${shortName}`,
-//   );
-// };
-
-catalogAPI.downloadDropboxVaultFiles = async (
-  shortName,
-  datasetId,
-  selectedFiles,
-) => {
-  const endpoint = `${apiUrl}/api/data/dropbox-vault/download-files`;
-  const requestOptions = {
-    ...fetchOptions,
-    method: 'POST',
-    headers: {
-      ...fetchOptions.headers,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      shortName,
-      datasetId,
-      files: selectedFiles,
-    }),
-  };
-
-  return await fetch(endpoint, requestOptions);
-};
-
 // Wrap each endpoint in a try/catch because...
 // if the fetch fails before the request is sent, for example due to a CORS
 // violation or if the network is down,

@@ -1,12 +1,12 @@
-import { call, put, takeLatest } from 'redux-saga/effects';
-import catalogAPI from '../../api/catalogRequests';
-import * as dropboxActions from '../actions/dropbox';
-import * as dropboxActionTypes from '../actionTypes/dropbox';
-import * as interfaceActions from '../actions/ui';
-import logInit from '../../Services/log-service';
+import { call, put, takeLatest, takeEvery } from 'redux-saga/effects';
+import api from '../../../api/api';
+import * as dropboxActions from './actions';
+import * as dropboxActionTypes from './actionTypes';
+import * as interfaceActions from '../../../Redux/actions/ui';
+import logInit from '../../../Services/log-service';
 
 const log = logInit('sagas/dropboxSagas').addContext({
-  src: 'Redux/Sagas/dropboxSagas',
+  src: 'features/datasetDownloadDropbox/store/sagas',
 });
 
 export function* downloadDropboxFiles(action) {
@@ -27,7 +27,7 @@ export function* downloadDropboxFiles(action) {
 
     // Make API call to download files
     const response = yield call(
-      catalogAPI.downloadDropboxVaultFiles,
+      api.dropbox.downloadDropboxVaultFiles,
       shortName,
       datasetId,
       selectedFiles.map((file) => ({
@@ -77,10 +77,45 @@ export function* downloadDropboxFiles(action) {
   }
 }
 
+// Pagination saga for vault files
+function* fetchVaultFilesPage(action) {
+  const { shortName, paginationParams } = action.payload;
+
+  try {
+    const response = yield call(
+      api.dropbox.fetchDropboxVaultFiles,
+      shortName,
+      paginationParams,
+    );
+    if (response && response.ok) {
+      const jsonResponse = yield response.json();
+      yield put(dropboxActions.fetchVaultFilesPageSuccess(jsonResponse));
+    } else {
+      yield put(
+        dropboxActions.fetchVaultFilesPageFailure('Failed to fetch files'),
+      );
+    }
+  } catch (error) {
+    log.error('error fetching vault files page', {
+      shortName,
+      paginationParams,
+      error,
+    });
+    yield put(dropboxActions.fetchVaultFilesPageFailure(error.message));
+  }
+}
+
+export function* watchFetchVaultFilesPage() {
+  yield takeEvery(
+    dropboxActionTypes.FETCH_DROPBOX_VAULT_FILES_PAGE,
+    fetchVaultFilesPage,
+  );
+}
+
 // Watcher saga
 export function* watchDownloadDropboxFiles() {
   yield takeLatest(
-    dropboxActionTypes.DROPBOX_FILES_DOWNLOAD_REQUEST,
+    dropboxActionTypes.DOWNLOAD_DROPBOX_VAULT_FILES_REQUEST,
     downloadDropboxFiles,
   );
 }
