@@ -1,7 +1,5 @@
 // api requests specific to dropbox vault functionality
 import { apiUrl, fetchOptions } from '../../../api/config';
-import logInit from '../../../Services/log-service';
-const log = logInit('datasetDownloadDropbox/services/dropboxApi');
 
 const dropboxAPI = {};
 
