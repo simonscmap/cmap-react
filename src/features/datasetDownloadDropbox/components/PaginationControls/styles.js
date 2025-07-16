@@ -12,6 +12,8 @@ export const paginationControlsStyles = (theme) => ({
     gap: theme.spacing(2),
   },
   pageSizeSelect: {
+    minWidth: '50px',
+    whiteSpace: 'nowrap',
     '& .MuiSelect-root': {
       zIndex: '9900 !important',
     },
@@ -20,6 +22,9 @@ export const paginationControlsStyles = (theme) => ({
     },
     '& .MuiPaper-root': {
       zIndex: '9900 !important',
+    },
+    '& .MuiInputLabel-root': {
+      whiteSpace: 'nowrap',
     },
   },
 });
