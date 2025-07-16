@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import {
   DialogActions,
   DialogContent,
@@ -15,17 +15,21 @@ import {
   selectAvailableFolders,
   selectMainFolder,
   selectCurrentTab,
+  selectFolderPagination,
+  selectFolderFiles,
+  selectFolderPaginationInfo,
 } from '../../state/selectors';
 import {
   useFileSelection,
   useDropboxDownload,
-  useFilePagination,
+  useFolderPagination,
 } from '../../hooks';
 import { formatBytes, getTabConfiguration } from '../../utils';
 import FileTable from '../FileTable';
 import PaginationControls from '../PaginationControls';
 import TabNavigation from '../TabNavigation';
 import TabPanel from '../TabPanel';
+import { setCurrentFolderTab } from '../../state/actions';
 
 const useStyles = makeStyles((theme) => ({
   ...styles(theme),
@@ -37,9 +41,6 @@ const DropboxFileSelectionModal = (props) => {
   const dispatch = useDispatch();
 
   const dropboxDownloadState = useSelector((state) => state.dropbox || {});
-  const vaultFilesPagination = useSelector(
-    (state) => state.dropbox.vaultFilesPagination || {},
-  );
   const availableFolders = useSelector(selectAvailableFolders);
   const mainFolder = useSelector(selectMainFolder);
   const currentTabFromState = useSelector(selectCurrentTab);
@@ -49,12 +50,17 @@ const DropboxFileSelectionModal = (props) => {
     return getTabConfiguration(availableFolders, mainFolder);
   }, [availableFolders, mainFolder]);
 
-  // Local tab state - defaults to current tab from state or main folder
-  const [activeTab, setActiveTab] = useState(currentTabFromState || mainFolder || 'rep');
+  // Use current tab from state or main folder
+  const activeTab = currentTabFromState || mainFolder || 'rep';
+  
+  // Get folder-specific pagination
+  const folderPagination = useSelector((state) => selectFolderPagination(state, activeTab));
+  const folderFiles = useSelector((state) => selectFolderFiles(state, activeTab));
+  const folderPaginationInfo = useSelector((state) => selectFolderPaginationInfo(state, activeTab));
 
   const allFiles = useMemo(() => {
-    return vaultFilesPagination.currentPageFiles || [];
-  }, [vaultFilesPagination.currentPageFiles]);
+    return folderFiles || [];
+  }, [folderFiles]);
 
   const {
     selectedFiles,
@@ -67,9 +73,10 @@ const DropboxFileSelectionModal = (props) => {
 
   useDropboxDownload(dropboxDownloadState, handleClose, dataset);
 
-  const { handlePageChange, handlePageSizeChange } = useFilePagination(
+  const { handlePageChange, handlePageSizeChange } = useFolderPagination(
     dataset,
-    vaultFilesPagination,
+    folderPagination,
+    activeTab,
   );
 
   const handleSubmit = () => {
@@ -103,6 +110,11 @@ const DropboxFileSelectionModal = (props) => {
     return null;
   }
 
+  // Check if we're still loading initial data or no data exists yet
+  const isInitialLoading = !folderPagination || 
+    (!folderPagination && !folderFiles.length) ||
+    (folderPaginationInfo.isLoading && !folderFiles.length);
+
   return (
     <Dialog
       fullWidth
@@ -120,8 +132,8 @@ const DropboxFileSelectionModal = (props) => {
         <Typography variant="h6">Select Files to Download</Typography>
         <Typography variant="body2" gutterBottom>
           Dataset: {dataset.Short_Name}
-          {vaultFilesPagination.totalFileCount && (
-            <span> • Total Files: {vaultFilesPagination.totalFileCount}</span>
+          {folderPaginationInfo.totalFileCount && (
+            <span> • Total Files: {folderPaginationInfo.totalFileCount}</span>
           )}
         </Typography>
 
@@ -129,31 +141,37 @@ const DropboxFileSelectionModal = (props) => {
           <TabNavigation
             currentTab={activeTab}
             tabs={tabConfig.tabs}
-            onChange={setActiveTab}
+            onChange={(newTab) => dispatch(setCurrentFolderTab(newTab))}
           />
         )}
 
-        {tabConfig.tabs.map((tab) => (
-          <TabPanel key={tab.key} value={activeTab} index={tab.key}>
-            <FileTable
-              allFiles={allFiles}
-              selectedFiles={selectedFiles}
-              areAllSelected={areAllSelected}
-              onSelectAll={handleSelectAll}
-              onToggleFile={handleToggleFile}
-              isLoading={vaultFilesPagination.backend && vaultFilesPagination.backend.isLoading}
-            />
+        {isInitialLoading ? (
+          <div style={{ padding: '40px', textAlign: 'center' }}>
+            <Typography variant="body1">Loading files...</Typography>
+          </div>
+        ) : (
+          tabConfig.tabs.map((tab) => (
+            <TabPanel key={tab.key} value={activeTab} index={tab.key}>
+              <FileTable
+                allFiles={allFiles}
+                selectedFiles={selectedFiles}
+                areAllSelected={areAllSelected}
+                onSelectAll={handleSelectAll}
+                onToggleFile={handleToggleFile}
+                isLoading={folderPaginationInfo.isLoading}
+              />
 
-            <PaginationControls
-              currentPage={vaultFilesPagination.local && vaultFilesPagination.local.currentPage}
-              totalPages={vaultFilesPagination.local && vaultFilesPagination.local.totalPages}
-              pageSize={vaultFilesPagination.local && vaultFilesPagination.local.pageSize}
-              onPageChange={handlePageChange}
-              onPageSizeChange={onPageSizeChange}
-              isLoading={vaultFilesPagination.backend && vaultFilesPagination.backend.isLoading}
-            />
-          </TabPanel>
-        ))}
+              <PaginationControls
+                currentPage={folderPaginationInfo.currentPage}
+                totalPages={folderPaginationInfo.totalPages}
+                pageSize={folderPaginationInfo.pageSize}
+                onPageChange={handlePageChange}
+                onPageSizeChange={onPageSizeChange}
+                isLoading={folderPaginationInfo.isLoading}
+              />
+            </TabPanel>
+          ))
+        )}
 
         <Divider style={{ margin: '16px 0' }} />
 

@@ -1,4 +1,4 @@
-import { call, put, takeLatest, takeEvery } from 'redux-saga/effects';
+import { call, put, takeLatest, takeEvery, select } from 'redux-saga/effects';
 import api from '../../../api/api';
 import * as dropboxActions from './actions';
 import * as dropboxActionTypes from './actionTypes';
@@ -114,6 +114,33 @@ export function* watchFetchVaultFilesPage() {
 }
 
 // Watcher saga
+// Saga to handle folder tab changes
+function* handleFolderTabChange(action) {
+  const { folderType } = action.payload;
+  
+  // Get current state
+  const state = yield select();
+  const paginationByFolder = state.dropbox.paginationByFolder || {};
+  const folderPagination = paginationByFolder[folderType];
+  
+  // If this folder hasn't been fetched yet, fetch it
+  if (!folderPagination || !folderPagination.allCachedFiles.length) {
+    // Get the dataset short name from the download dialog
+    const shortName = state.downloadDialog.shortName;
+    
+    if (shortName) {
+      yield put(dropboxActions.fetchVaultFilesPage(shortName, { folderType }));
+    }
+  }
+}
+
+export function* watchFolderTabChange() {
+  yield takeEvery(
+    dropboxActionTypes.SET_CURRENT_FOLDER_TAB,
+    handleFolderTabChange,
+  );
+}
+
 export function* watchDownloadDropboxFiles() {
   yield takeLatest(
     dropboxActionTypes.DOWNLOAD_DROPBOX_VAULT_FILES_REQUEST,
