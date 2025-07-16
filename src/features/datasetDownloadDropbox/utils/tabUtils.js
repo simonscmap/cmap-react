@@ -9,18 +9,18 @@ export const getTabConfiguration = (availableFolders, mainFolder) => {
     // Single tab case
     return {
       showTabs: false,
-      mainTabLabel: getMainTabLabel(mainFolder),
-      tabs: [{ key: mainFolder, label: getMainTabLabel(mainFolder) }]
+      mainTabLabel: 'Main Files',
+      tabs: [{ key: mainFolder, label: 'Main Files' }]
     };
   }
   
   // Two tab case: Main + RAW
   return {
     showTabs: true,
-    mainTabLabel: getMainTabLabel(mainFolder),
+    mainTabLabel: 'Main Files',
     tabs: [
-      { key: mainFolder, label: getMainTabLabel(mainFolder) },
-      { key: 'raw', label: 'RAW' }
+      { key: mainFolder, label: 'Main Files' },
+      { key: 'raw', label: 'Raw Files' }
     ]
   };
 };

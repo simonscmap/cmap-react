@@ -20,7 +20,7 @@ import {
   selectFolderPaginationInfo,
 } from '../../state/selectors';
 import {
-  useFileSelection,
+  useFileSelectionPerFolder,
   useDropboxDownload,
   useFolderPagination,
 } from '../../hooks';
@@ -69,7 +69,7 @@ const DropboxFileSelectionModal = (props) => {
     handleSelectAll,
     clearSelections,
     areAllSelected,
-  } = useFileSelection(allFiles);
+  } = useFileSelectionPerFolder(allFiles, activeTab);
 
   useDropboxDownload(dropboxDownloadState, handleClose, dataset);
 
@@ -195,7 +195,7 @@ const DropboxFileSelectionModal = (props) => {
           variant="contained"
           disabled={selectedFiles.length === 0}
         >
-          Download Selected Files
+          Download {activeTab === 'raw' ? 'Raw' : 'Main'} Files
         </Button>
         <Button onClick={() => handleClose(false)}>Cancel</Button>
       </DialogActions>
