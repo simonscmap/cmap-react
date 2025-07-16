@@ -80,6 +80,7 @@ export function* downloadDropboxFiles(action) {
 // Pagination saga for vault files
 function* fetchVaultFilesPage(action) {
   const { shortName, paginationParams } = action.payload;
+  const folderType = paginationParams && paginationParams.folderType;
 
   try {
     const response = yield call(
@@ -92,7 +93,7 @@ function* fetchVaultFilesPage(action) {
       yield put(dropboxActions.fetchVaultFilesPageSuccess(jsonResponse));
     } else {
       yield put(
-        dropboxActions.fetchVaultFilesPageFailure('Failed to fetch files'),
+        dropboxActions.fetchVaultFilesPageFailure('Failed to fetch files', folderType),
       );
     }
   } catch (error) {
@@ -101,7 +102,7 @@ function* fetchVaultFilesPage(action) {
       paginationParams,
       error,
     });
-    yield put(dropboxActions.fetchVaultFilesPageFailure(error.message));
+    yield put(dropboxActions.fetchVaultFilesPageFailure(error.message, folderType));
   }
 }
 
