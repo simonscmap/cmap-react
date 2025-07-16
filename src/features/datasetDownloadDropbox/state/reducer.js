@@ -111,10 +111,17 @@ export default function dropboxReducer(state, action) {
       const endIndex = startIndex + pageSize;
       const currentPageFiles = sortedAllFiles.slice(startIndex, endIndex);
 
+      // Extract new fields from API response
+      const { availableFolders, mainFolder, folderType } = action.payload;
+
       return {
         ...state,
         dropbox: {
           ...state.dropbox,
+          // Add new fields
+          availableFolders: availableFolders || state.dropbox.availableFolders,
+          mainFolder: mainFolder || state.dropbox.mainFolder,
+          currentTab: folderType || mainFolder || state.dropbox.currentTab,
           vaultFilesPagination: {
             backend: {
               cursor: action.payload.pagination.cursor,
@@ -157,6 +164,10 @@ export default function dropboxReducer(state, action) {
         ...state,
         dropbox: {
           ...state.dropbox,
+          // Reset folder fields to defaults
+          availableFolders: { hasRep: false, hasNrt: false, hasRaw: false },
+          mainFolder: null,
+          currentTab: null,
           vaultFilesPagination: {
             backend: {
               cursor: null,

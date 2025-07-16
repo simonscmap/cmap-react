@@ -278,6 +278,10 @@ const initialState = {
     success: false,
     error: null,
     downloadLink: null,
+    // New fields for folder support
+    availableFolders: { hasRep: false, hasNrt: false, hasRaw: false },
+    mainFolder: null,
+    currentTab: null,
     vaultFilesPagination: {
       // Backend State (for API management)
       backend: {

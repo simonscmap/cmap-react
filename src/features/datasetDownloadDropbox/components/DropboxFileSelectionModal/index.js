@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   DialogActions,
   DialogContent,
@@ -12,13 +12,20 @@ import { useDispatch, useSelector } from 'react-redux';
 import styles from '../../../../Components/Catalog/DownloadDialog/downloadDialogStyles';
 import { dropboxFilesDownloadRequest } from '../../state/actions';
 import {
+  selectAvailableFolders,
+  selectMainFolder,
+  selectCurrentTab,
+} from '../../state/selectors';
+import {
   useFileSelection,
   useDropboxDownload,
   useFilePagination,
 } from '../../hooks';
-import { formatBytes } from '../../utils/fileUtils';
+import { formatBytes, getTabConfiguration } from '../../utils';
 import FileTable from '../FileTable';
 import PaginationControls from '../PaginationControls';
+import TabNavigation from '../TabNavigation';
+import TabPanel from '../TabPanel';
 
 const useStyles = makeStyles((theme) => ({
   ...styles(theme),
@@ -33,6 +40,17 @@ const DropboxFileSelectionModal = (props) => {
   const vaultFilesPagination = useSelector(
     (state) => state.dropbox.vaultFilesPagination || {},
   );
+  const availableFolders = useSelector(selectAvailableFolders);
+  const mainFolder = useSelector(selectMainFolder);
+  const currentTabFromState = useSelector(selectCurrentTab);
+
+  // Tab configuration
+  const tabConfig = useMemo(() => {
+    return getTabConfiguration(availableFolders, mainFolder);
+  }, [availableFolders, mainFolder]);
+
+  // Local tab state - defaults to current tab from state or main folder
+  const [activeTab, setActiveTab] = useState(currentTabFromState || mainFolder || 'rep');
 
   const allFiles = useMemo(() => {
     return vaultFilesPagination.currentPageFiles || [];
@@ -107,23 +125,35 @@ const DropboxFileSelectionModal = (props) => {
           )}
         </Typography>
 
-        <FileTable
-          allFiles={allFiles}
-          selectedFiles={selectedFiles}
-          areAllSelected={areAllSelected}
-          onSelectAll={handleSelectAll}
-          onToggleFile={handleToggleFile}
-          isLoading={vaultFilesPagination.backend?.isLoading}
-        />
+        {tabConfig.showTabs && (
+          <TabNavigation
+            currentTab={activeTab}
+            tabs={tabConfig.tabs}
+            onChange={setActiveTab}
+          />
+        )}
 
-        <PaginationControls
-          currentPage={vaultFilesPagination.local?.currentPage}
-          totalPages={vaultFilesPagination.local?.totalPages}
-          pageSize={vaultFilesPagination.local?.pageSize}
-          onPageChange={handlePageChange}
-          onPageSizeChange={onPageSizeChange}
-          isLoading={vaultFilesPagination.backend?.isLoading}
-        />
+        {tabConfig.tabs.map((tab) => (
+          <TabPanel key={tab.key} value={activeTab} index={tab.key}>
+            <FileTable
+              allFiles={allFiles}
+              selectedFiles={selectedFiles}
+              areAllSelected={areAllSelected}
+              onSelectAll={handleSelectAll}
+              onToggleFile={handleToggleFile}
+              isLoading={vaultFilesPagination.backend && vaultFilesPagination.backend.isLoading}
+            />
+
+            <PaginationControls
+              currentPage={vaultFilesPagination.local && vaultFilesPagination.local.currentPage}
+              totalPages={vaultFilesPagination.local && vaultFilesPagination.local.totalPages}
+              pageSize={vaultFilesPagination.local && vaultFilesPagination.local.pageSize}
+              onPageChange={handlePageChange}
+              onPageSizeChange={onPageSizeChange}
+              isLoading={vaultFilesPagination.backend && vaultFilesPagination.backend.isLoading}
+            />
+          </TabPanel>
+        ))}
 
         <Divider style={{ margin: '16px 0' }} />
 

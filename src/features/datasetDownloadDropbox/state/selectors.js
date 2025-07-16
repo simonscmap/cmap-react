@@ -31,3 +31,13 @@ export const selectAllCachedFiles = (state) =>
 
 export const selectPaginationError = (state) =>
   (state.dropbox && state.dropbox.vaultFilesPagination && state.dropbox.vaultFilesPagination.error) || null;
+
+// New selectors for folder support
+export const selectAvailableFolders = (state) =>
+  (state.dropbox && state.dropbox.availableFolders) || { hasRep: false, hasNrt: false, hasRaw: false };
+
+export const selectMainFolder = (state) =>
+  (state.dropbox && state.dropbox.mainFolder) || null;
+
+export const selectCurrentTab = (state) =>
+  (state.dropbox && state.dropbox.currentTab) || null;
