@@ -40,10 +40,29 @@ export const useFileSelectionPerFolder = (allFiles, currentFolder) => {
   };
 
   const handleSelectAll = (event) => {
-    setSelectionsByFolder(prev => ({
-      ...prev,
-      [currentFolder]: event.target.checked ? allFiles : []
-    }));
+    setSelectionsByFolder(prev => {
+      const currentSelections = prev[currentFolder] || [];
+      
+      if (event.target.checked) {
+        // ADD current page files that aren't already selected
+        const filesToAdd = allFiles.filter(file => 
+          !currentSelections.some(selected => selected.path === file.path)
+        );
+        return {
+          ...prev,
+          [currentFolder]: [...currentSelections, ...filesToAdd]
+        };
+      } else {
+        // REMOVE current page files from selections
+        const filesToKeep = currentSelections.filter(selected =>
+          !allFiles.some(file => file.path === selected.path)
+        );
+        return {
+          ...prev,
+          [currentFolder]: filesToKeep
+        };
+      }
+    });
   };
 
   const clearSelections = () => {
@@ -58,7 +77,13 @@ export const useFileSelectionPerFolder = (allFiles, currentFolder) => {
   };
 
   const areAllSelected =
-    allFiles.length > 0 && selectedFiles.length === allFiles.length;
+    allFiles.length > 0 && 
+    allFiles.every(file => selectedFiles.some(selected => selected.path === file.path));
+
+  const areIndeterminate = 
+    allFiles.length > 0 && 
+    allFiles.some(file => selectedFiles.some(selected => selected.path === file.path)) &&
+    !areAllSelected;
 
   // Get total selections across all folders
   const totalSelectionsAllFolders = useMemo(() => {
@@ -80,6 +105,7 @@ export const useFileSelectionPerFolder = (allFiles, currentFolder) => {
     clearSelections,
     clearAllSelections,
     areAllSelected,
+    areIndeterminate,
     selectionsByFolder,
     totalSelectionsAllFolders,
     allSelectedFiles,

@@ -75,6 +75,7 @@ const DropboxFileSelectionModal = (props) => {
     handleSelectAll,
     clearSelections,
     areAllSelected,
+    areIndeterminate,
   } = useFileSelectionPerFolder(allFiles, activeTab);
 
   useDropboxDownload(dropboxDownloadState, handleClose, dataset);
@@ -163,6 +164,7 @@ const DropboxFileSelectionModal = (props) => {
                 allFiles={allFiles}
                 selectedFiles={selectedFiles}
                 areAllSelected={areAllSelected}
+                areIndeterminate={areIndeterminate}
                 onSelectAll={handleSelectAll}
                 onToggleFile={handleToggleFile}
                 isLoading={folderPaginationInfo.isLoading}
