@@ -11,4 +11,15 @@ export const paginationControlsStyles = (theme) => ({
     alignItems: 'center',
     gap: theme.spacing(2),
   },
+  pageSizeSelect: {
+    '& .MuiSelect-root': {
+      zIndex: '9900 !important',
+    },
+    '& .MuiPopover-root': {
+      zIndex: '9900 !important',
+    },
+    '& .MuiPaper-root': {
+      zIndex: '9900 !important',
+    },
+  },
 });

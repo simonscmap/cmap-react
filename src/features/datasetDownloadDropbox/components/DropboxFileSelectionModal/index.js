@@ -52,11 +52,17 @@ const DropboxFileSelectionModal = (props) => {
 
   // Use current tab from state or main folder
   const activeTab = currentTabFromState || mainFolder || 'rep';
-  
+
   // Get folder-specific pagination
-  const folderPagination = useSelector((state) => selectFolderPagination(state, activeTab));
-  const folderFiles = useSelector((state) => selectFolderFiles(state, activeTab));
-  const folderPaginationInfo = useSelector((state) => selectFolderPaginationInfo(state, activeTab));
+  const folderPagination = useSelector((state) =>
+    selectFolderPagination(state, activeTab),
+  );
+  const folderFiles = useSelector((state) =>
+    selectFolderFiles(state, activeTab),
+  );
+  const folderPaginationInfo = useSelector((state) =>
+    selectFolderPaginationInfo(state, activeTab),
+  );
 
   const allFiles = useMemo(() => {
     return folderFiles || [];
@@ -111,7 +117,8 @@ const DropboxFileSelectionModal = (props) => {
   }
 
   // Check if we're still loading initial data or no data exists yet
-  const isInitialLoading = !folderPagination || 
+  const isInitialLoading =
+    !folderPagination ||
     (!folderPagination && !folderFiles.length) ||
     (folderPaginationInfo.isLoading && !folderFiles.length);
 
@@ -122,7 +129,7 @@ const DropboxFileSelectionModal = (props) => {
       open={open}
       onClose={() => handleClose(false)}
       className={classes.muiDialog}
-      style={{ zIndex: 9999 }}
+      style={{ zIndex: 10 }}
       PaperProps={{
         className: classes.dialogPaper,
         style: { overflow: 'visible' },

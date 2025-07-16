@@ -1,11 +1,17 @@
 import React from 'react';
-import { Tabs, Tab } from '@material-ui/core';
+import { Tabs, Tab, Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import InfoTooltip from '../../../../shared/components/InfoTooltip';
 
 const useStyles = makeStyles((theme) => ({
   tabs: {
     borderBottom: `1px solid ${theme.palette.divider}`,
     marginBottom: theme.spacing(2),
+  },
+  tabWithInfo: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: theme.spacing(0.5),
   },
 }));
 
@@ -16,6 +22,7 @@ const TabNavigation = ({ currentTab, tabs, onChange }) => {
     onChange(newValue);
   };
 
+
   return (
     <Tabs
       value={currentTab}
@@ -25,7 +32,23 @@ const TabNavigation = ({ currentTab, tabs, onChange }) => {
       textColor="primary"
     >
       {tabs.map((tab) => (
-        <Tab key={tab.key} label={tab.label} value={tab.key} />
+        <Tab 
+          key={tab.key} 
+          value={tab.key}
+          label={
+            tab.key === 'raw' ? (
+              <div className={classes.tabWithInfo}>
+                <span>{tab.label}</span>
+                <InfoTooltip 
+                  title="These files are the original files uploaded prior to processing into the CMAP database"
+                  fontSize="small"
+                />
+              </div>
+            ) : (
+              tab.label
+            )
+          }
+        />
       ))}
     </Tabs>
   );
