@@ -1,11 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Checkbox,
-  Menu,
-  MenuItem,
-  IconButton,
-  Box,
-} from '@material-ui/core';
+import { Checkbox, Menu, MenuItem, IconButton, Box } from '@material-ui/core';
 import { ArrowDropDown } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -76,6 +70,7 @@ const SelectAllDropdown = ({
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={handleClose}
+        style={{ zIndex: 9999 }}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'left',

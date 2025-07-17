@@ -132,7 +132,6 @@ const DropboxFileSelectionModal = (props) => {
       open={open}
       onClose={() => handleClose(false)}
       className={classes.muiDialog}
-      style={{ zIndex: 10 }}
       PaperProps={{
         className: classes.dialogPaper,
         style: { overflow: 'visible' },
