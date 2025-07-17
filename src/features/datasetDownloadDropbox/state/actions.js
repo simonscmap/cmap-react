@@ -44,9 +44,9 @@ export const fetchVaultFilesPageSuccess = (data) => ({
   payload: data,
 });
 
-export const fetchVaultFilesPageFailure = (error) => ({
+export const fetchVaultFilesPageFailure = (error, folderType = null) => ({
   type: dropboxActionTypes.FETCH_DROPBOX_VAULT_FILES_PAGE_FAILURE,
-  payload: { error },
+  payload: { error, folderType },
 });
 
 export const setVaultFilesPagination = (pagination) => ({
@@ -58,12 +58,18 @@ export const resetVaultFilesPagination = () => ({
   type: dropboxActionTypes.RESET_DROPBOX_VAULT_FILES_PAGINATION,
 });
 
-export const setLocalPaginationPage = (page) => ({
+export const setLocalPaginationPage = (page, folderType = null) => ({
   type: dropboxActionTypes.SET_LOCAL_PAGINATION_PAGE,
-  payload: { page },
+  payload: { page, folderType },
 });
 
-export const setLocalPaginationSize = (pageSize) => ({
+export const setLocalPaginationSize = (pageSize, folderType = null) => ({
   type: dropboxActionTypes.SET_LOCAL_PAGINATION_SIZE,
-  payload: { pageSize },
+  payload: { pageSize, folderType },
+});
+
+// Action to switch between folder tabs
+export const setCurrentFolderTab = (folderType) => ({
+  type: dropboxActionTypes.SET_CURRENT_FOLDER_TAB,
+  payload: { folderType },
 });
