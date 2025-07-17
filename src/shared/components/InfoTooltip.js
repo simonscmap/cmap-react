@@ -1,13 +1,13 @@
 import React from 'react';
-import InfoIcon from '@material-ui/icons/Info';
+import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import { Tooltip } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { colors } from '../../Components/Home/theme';
 
 const useStyles = makeStyles(() => ({
   infoIcon: {
     padding: 4,
     marginLeft: 4,
-    cursor: 'help',
   },
   tooltip: {
     zIndex: '9901 !important',
@@ -27,12 +27,12 @@ const InfoTooltip = ({ title, fontSize = 'small' }) => {
       title={title}
       classes={{ tooltip: classes.tooltip }}
       PopperProps={{
-        style: { zIndex: 9901 }
+        style: { zIndex: 9901 },
       }}
     >
-      <InfoIcon
+      <InfoOutlinedIcon
         fontSize={fontSize}
-        color="action"
+        color={colors.green.lime}
         className={classes.infoIcon}
         onClick={handleClick}
       />
