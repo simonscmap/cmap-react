@@ -59,6 +59,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Persistence middleware for maintaining state across sessions
 - Organized into feature-based modules (catalog, visualization, user, etc.)
 - Uses reduceReducers and NOT combineReducers. Thus, reducers take in entire state, not state slices.
+- Because reduceReducers, the initial state lives inside `src/Redux/Reducers/index.js`
 
 ### API Configuration
 
