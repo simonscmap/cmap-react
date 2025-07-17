@@ -48,7 +48,10 @@ export const useFileSelectionPerFolder = (allFiles, currentFolder) => {
     setSelectionsByFolder(prev => {
       const currentSelections = prev[currentFolder] || [];
       
-      if (event.target.checked) {
+      // Handle both event objects and direct calls
+      const shouldSelect = event && event.target ? event.target.checked : !areAllSelected;
+      
+      if (shouldSelect) {
         // ADD current page files that aren't already selected
         const filesToAdd = allFiles.filter(file => 
           !currentSelections.some(selected => selected.path === file.path)
