@@ -21,6 +21,7 @@ const FileTable = ({
   allFiles,
   selectedFiles,
   areAllSelected,
+  areIndeterminate,
   onSelectAll,
   onToggleFile,
   isLoading = false,
@@ -41,10 +42,7 @@ const FileTable = ({
             <TableRow>
               <TableCell padding="checkbox">
                 <Checkbox
-                  indeterminate={
-                    selectedFiles.length > 0 &&
-                    selectedFiles.length < allFiles.length
-                  }
+                  indeterminate={areIndeterminate}
                   checked={areAllSelected}
                   onChange={onSelectAll}
                   color="primary"

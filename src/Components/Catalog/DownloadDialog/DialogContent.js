@@ -39,6 +39,7 @@ import { useDatasetFeatures } from '../../../Utility/Catalog/useDatasetFeatures'
 import states from '../../../enums/asyncRequestStates';
 import reduxStore from '../../../Redux/store';
 import logInit from '../../../Services/log-service';
+import { selectAvailableFolders, selectMainFolder } from '../../../features/datasetDownloadDropbox/state/selectors';
 
 const log = logInit('Catalog/DownloadDialog/DialogContent');
 
@@ -180,8 +181,11 @@ const DownloadDialog = (props) => {
   };
 
   // Dropbox state - new implementation
-  const vaultFilesPagination = useSelector((state) => (state.dropbox && state.dropbox.vaultFilesPagination) || {});
-  const isVaultFilesLoaded = !vaultFilesPagination.backend?.isLoading && vaultFilesPagination.totalFileCount > 0;
+  const availableFolders = useSelector(selectAvailableFolders);
+  const mainFolder = useSelector(selectMainFolder);
+  
+  // Check if vault files are loaded - we have folders available and a main folder set
+  const isVaultFilesLoaded = (availableFolders.hasRep || availableFolders.hasNrt || availableFolders.hasRaw) && mainFolder !== null;
   // Download Size Validation
 
   let downloadState = useSelector((state) => state.download);
@@ -622,7 +626,6 @@ const DownloadDialog = (props) => {
           }
         }}
         dataset={dataset}
-        vaultFilesPagination={vaultFilesPagination}
       />
     </div>
   );

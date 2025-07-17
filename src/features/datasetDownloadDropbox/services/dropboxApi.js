@@ -7,11 +7,12 @@ dropboxAPI.fetchDropboxVaultFiles = async (
   shortName,
   paginationParams = {},
 ) => {
-  const { chunkSize, cursor } = paginationParams;
+  const { chunkSize, cursor, folderType } = paginationParams;
   const params = new URLSearchParams();
 
   if (chunkSize) params.append('chunkSize', chunkSize);
   if (cursor) params.append('cursor', cursor);
+  if (folderType) params.append('folderType', folderType);
 
   const queryString = params.toString();
   const url = `${apiUrl}/api/data/dropbox-vault/get-files-info/${shortName}${
@@ -42,6 +43,15 @@ dropboxAPI.downloadDropboxVaultFiles = async (
   };
 
   return await fetch(endpoint, requestOptions);
+};
+
+// Convenience methods for folder-specific requests
+dropboxAPI.getMainFolderFiles = (shortName, options = {}) => {
+  return dropboxAPI.fetchDropboxVaultFiles(shortName, options);
+};
+
+dropboxAPI.getRawFolderFiles = (shortName, options = {}) => {
+  return dropboxAPI.fetchDropboxVaultFiles(shortName, { ...options, folderType: 'raw' });
 };
 
 export default dropboxAPI;

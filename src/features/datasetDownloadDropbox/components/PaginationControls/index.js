@@ -26,12 +26,16 @@ const PaginationControls = ({
   return (
     <div className={classes.paginationControls}>
       <div className={classes.paginationInfo}>
-        <FormControl variant="outlined" size="small">
+        <FormControl variant="outlined" size="small" className={classes.pageSizeSelect}>
           <InputLabel>Page Size</InputLabel>
           <Select
             value={pageSize}
             onChange={onPageSizeChange}
             label="Page Size"
+            MenuProps={{
+              style: { zIndex: 9900 },
+              PaperProps: { style: { zIndex: 9900 } }
+            }}
           >
             {pageSizeOptions.map((size) => (
               <MenuItem key={size} value={size}>
@@ -56,9 +60,7 @@ const PaginationControls = ({
         </Button>
         <Button
           onClick={() => onPageChange('next')}
-          disabled={
-            (totalPages && currentPage >= totalPages) || isLoading
-          }
+          disabled={(totalPages && currentPage >= totalPages) || isLoading}
         >
           Next
         </Button>

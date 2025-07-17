@@ -278,6 +278,13 @@ const initialState = {
     success: false,
     error: null,
     downloadLink: null,
+    // New fields for folder support
+    availableFolders: { hasRep: false, hasNrt: false, hasRaw: false },
+    mainFolder: null,
+    currentTab: null,
+    // Pagination state for each folder type (initialized dynamically as needed)
+    paginationByFolder: {},
+    // Keep old structure for backward compatibility during transition
     vaultFilesPagination: {
       // Backend State (for API management)
       backend: {
