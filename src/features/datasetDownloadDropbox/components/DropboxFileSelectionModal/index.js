@@ -112,7 +112,7 @@ const DropboxFileSelectionModal = (props) => {
   };
 
   const onPageSizeChange = (event) => {
-    handlePageSizeChange(event, clearSelections);
+    handlePageSizeChange(event);
   };
 
   if (!dataset) {
