@@ -73,6 +73,8 @@ const DropboxFileSelectionModal = (props) => {
     totalSize,
     handleToggleFile,
     handleSelectAll,
+    handleSelectAllInFolder,
+    handleClearPageSelections,
     clearSelections,
     areAllSelected,
     areIndeterminate,
@@ -166,6 +168,9 @@ const DropboxFileSelectionModal = (props) => {
                 areAllSelected={areAllSelected}
                 areIndeterminate={areIndeterminate}
                 onSelectAll={handleSelectAll}
+                onSelectAllInFolder={handleSelectAllInFolder}
+                onClearPageSelections={handleClearPageSelections}
+                onClearAll={clearSelections}
                 onToggleFile={handleToggleFile}
                 isLoading={folderPaginationInfo.isLoading}
               />
