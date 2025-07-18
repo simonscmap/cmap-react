@@ -1,8 +1,13 @@
 import { useState, useMemo, useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { selectFolderAllCachedFiles } from '../state/selectors';
 
 export const useFileSelectionPerFolder = (allFiles, currentFolder) => {
   // Track selections per folder
   const [selectionsByFolder, setSelectionsByFolder] = useState({});
+
+  // Get all cached files for current folder (for select all functionality)
+  const allCachedFiles = useSelector((state) => selectFolderAllCachedFiles(state, currentFolder));
 
   // Get current folder's selections
   const selectedFiles = useMemo(() => {
@@ -43,7 +48,10 @@ export const useFileSelectionPerFolder = (allFiles, currentFolder) => {
     setSelectionsByFolder(prev => {
       const currentSelections = prev[currentFolder] || [];
       
-      if (event.target.checked) {
+      // Handle both event objects and direct calls
+      const shouldSelect = event && event.target ? event.target.checked : !areAllSelected;
+      
+      if (shouldSelect) {
         // ADD current page files that aren't already selected
         const filesToAdd = allFiles.filter(file => 
           !currentSelections.some(selected => selected.path === file.path)
@@ -76,6 +84,40 @@ export const useFileSelectionPerFolder = (allFiles, currentFolder) => {
     setSelectionsByFolder({});
   };
 
+  // NEW: Select all files in the entire folder (not just current page)
+  const handleSelectAllInFolder = () => {
+    setSelectionsByFolder(prev => {
+      const currentSelections = prev[currentFolder] || [];
+      
+      // Add all cached files that aren't already selected
+      const filesToAdd = allCachedFiles.filter(file => 
+        !currentSelections.some(selected => selected.path === file.path)
+      );
+      
+      return {
+        ...prev,
+        [currentFolder]: [...currentSelections, ...filesToAdd]
+      };
+    });
+  };
+
+  // NEW: Clear selections only for current page
+  const handleClearPageSelections = () => {
+    setSelectionsByFolder(prev => {
+      const currentSelections = prev[currentFolder] || [];
+      
+      // Remove only current page files from selections
+      const filesToKeep = currentSelections.filter(selected =>
+        !allFiles.some(file => file.path === selected.path)
+      );
+      
+      return {
+        ...prev,
+        [currentFolder]: filesToKeep
+      };
+    });
+  };
+
   const areAllSelected =
     allFiles.length > 0 && 
     allFiles.every(file => selectedFiles.some(selected => selected.path === file.path));
@@ -102,6 +144,8 @@ export const useFileSelectionPerFolder = (allFiles, currentFolder) => {
     totalSize,
     handleToggleFile,
     handleSelectAll,
+    handleSelectAllInFolder,
+    handleClearPageSelections,
     clearSelections,
     clearAllSelections,
     areAllSelected,

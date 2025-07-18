@@ -41,14 +41,11 @@ export const useFolderPagination = (dataset, folderPagination, folderType) => {
     }
   };
 
-  const handlePageSizeChange = (event, clearSelections) => {
+  const handlePageSizeChange = (event) => {
     const newPageSize = parseInt(event.target.value);
 
     // Update local pagination with new page size
     dispatch(setLocalPaginationSize(newPageSize, folderType));
-
-    // Clear selections when page size changes
-    clearSelections();
   };
 
   return {
