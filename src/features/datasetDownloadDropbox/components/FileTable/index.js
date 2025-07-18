@@ -14,6 +14,7 @@ import {
 import { makeStyles } from '@material-ui/core/styles';
 import { fileTableStyles } from './styles';
 import { formatBytes } from '../../utils/fileUtils';
+import SelectAllDropdown from '../SelectAllDropdown';
 
 const useStyles = makeStyles(fileTableStyles);
 
@@ -23,6 +24,9 @@ const FileTable = ({
   areAllSelected,
   areIndeterminate,
   onSelectAll,
+  onSelectAllInFolder,
+  onClearPageSelections,
+  onClearAll,
   onToggleFile,
   isLoading = false,
 }) => {
@@ -41,11 +45,13 @@ const FileTable = ({
           <TableHead>
             <TableRow>
               <TableCell padding="checkbox">
-                <Checkbox
-                  indeterminate={areIndeterminate}
-                  checked={areAllSelected}
-                  onChange={onSelectAll}
-                  color="primary"
+                <SelectAllDropdown
+                  areAllSelected={areAllSelected}
+                  areIndeterminate={areIndeterminate}
+                  onSelectPage={onSelectAll}
+                  onSelectAll={onSelectAllInFolder}
+                  onClearPage={onClearPageSelections}
+                  onClearAll={onClearAll}
                 />
               </TableCell>
               <TableCell>Filename</TableCell>

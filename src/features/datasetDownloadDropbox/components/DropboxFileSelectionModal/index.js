@@ -73,6 +73,8 @@ const DropboxFileSelectionModal = (props) => {
     totalSize,
     handleToggleFile,
     handleSelectAll,
+    handleSelectAllInFolder,
+    handleClearPageSelections,
     clearSelections,
     areAllSelected,
     areIndeterminate,
@@ -110,7 +112,7 @@ const DropboxFileSelectionModal = (props) => {
   };
 
   const onPageSizeChange = (event) => {
-    handlePageSizeChange(event, clearSelections);
+    handlePageSizeChange(event);
   };
 
   if (!dataset) {
@@ -130,7 +132,6 @@ const DropboxFileSelectionModal = (props) => {
       open={open}
       onClose={() => handleClose(false)}
       className={classes.muiDialog}
-      style={{ zIndex: 10 }}
       PaperProps={{
         className: classes.dialogPaper,
         style: { overflow: 'visible' },
@@ -166,6 +167,9 @@ const DropboxFileSelectionModal = (props) => {
                 areAllSelected={areAllSelected}
                 areIndeterminate={areIndeterminate}
                 onSelectAll={handleSelectAll}
+                onSelectAllInFolder={handleSelectAllInFolder}
+                onClearPageSelections={handleClearPageSelections}
+                onClearAll={clearSelections}
                 onToggleFile={handleToggleFile}
                 isLoading={folderPaginationInfo.isLoading}
               />
