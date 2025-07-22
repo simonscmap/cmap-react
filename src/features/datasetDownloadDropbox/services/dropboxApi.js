@@ -26,6 +26,7 @@ dropboxAPI.downloadDropboxVaultFiles = async (
   shortName,
   datasetId,
   selectedFiles,
+  totalSize,
 ) => {
   const endpoint = `${apiUrl}/api/data/dropbox-vault/download-files`;
   const requestOptions = {
@@ -39,6 +40,7 @@ dropboxAPI.downloadDropboxVaultFiles = async (
       shortName,
       datasetId,
       files: selectedFiles,
+      totalSize,
     }),
   };
 
@@ -51,7 +53,10 @@ dropboxAPI.getMainFolderFiles = (shortName, options = {}) => {
 };
 
 dropboxAPI.getRawFolderFiles = (shortName, options = {}) => {
-  return dropboxAPI.fetchDropboxVaultFiles(shortName, { ...options, folderType: 'raw' });
+  return dropboxAPI.fetchDropboxVaultFiles(shortName, {
+    ...options,
+    folderType: 'raw',
+  });
 };
 
 export default dropboxAPI;

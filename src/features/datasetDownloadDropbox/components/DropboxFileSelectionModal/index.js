@@ -107,6 +107,7 @@ const DropboxFileSelectionModal = (props) => {
           path: file.path,
           name: file.name,
         })),
+        totalSize,
       ),
     );
   };

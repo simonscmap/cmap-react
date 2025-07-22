@@ -11,8 +11,7 @@ const log = logInit('sagas/dropboxSagas').addContext({
 
 export function* downloadDropboxFiles(action) {
   const tag = { tag: 'downloadDropboxFiles' };
-  const { shortName, datasetId, selectedFiles } = action.payload;
-
+  const { shortName, datasetId, selectedFiles, totalSize } = action.payload;
   try {
     // Set loading state
     yield put(
@@ -23,6 +22,7 @@ export function* downloadDropboxFiles(action) {
       shortName,
       datasetId,
       fileCount: selectedFiles.length,
+      totalSize,
     });
 
     // Make API call to download files
@@ -34,6 +34,7 @@ export function* downloadDropboxFiles(action) {
         filePath: file.path,
         name: file.name,
       })),
+      totalSize,
     );
 
     if (!response.ok) {
@@ -93,7 +94,10 @@ function* fetchVaultFilesPage(action) {
       yield put(dropboxActions.fetchVaultFilesPageSuccess(jsonResponse));
     } else {
       yield put(
-        dropboxActions.fetchVaultFilesPageFailure('Failed to fetch files', folderType),
+        dropboxActions.fetchVaultFilesPageFailure(
+          'Failed to fetch files',
+          folderType,
+        ),
       );
     }
   } catch (error) {
@@ -102,7 +106,9 @@ function* fetchVaultFilesPage(action) {
       paginationParams,
       error,
     });
-    yield put(dropboxActions.fetchVaultFilesPageFailure(error.message, folderType));
+    yield put(
+      dropboxActions.fetchVaultFilesPageFailure(error.message, folderType),
+    );
   }
 }
 
@@ -117,17 +123,17 @@ export function* watchFetchVaultFilesPage() {
 // Saga to handle folder tab changes
 function* handleFolderTabChange(action) {
   const { folderType } = action.payload;
-  
+
   // Get current state
   const state = yield select();
   const paginationByFolder = state.dropbox.paginationByFolder || {};
   const folderPagination = paginationByFolder[folderType];
-  
+
   // If this folder hasn't been fetched yet, fetch it
   if (!folderPagination || !folderPagination.allCachedFiles.length) {
     // Get the dataset short name from the download dialog
     const shortName = state.downloadDialog.shortName;
-    
+
     if (shortName) {
       yield put(dropboxActions.fetchVaultFilesPage(shortName, { folderType }));
     }
