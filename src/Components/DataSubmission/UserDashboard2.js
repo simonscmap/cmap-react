@@ -17,7 +17,7 @@ import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 
 import { connect, useSelector, useDispatch } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { Link as RouterLink } from 'react-router-dom';
 
 import {
