@@ -4,12 +4,14 @@ export const dropboxFilesDownloadRequest = (
   shortName,
   datasetId,
   selectedFiles,
+  totalSize,
 ) => ({
   type: dropboxActionTypes.DOWNLOAD_DROPBOX_VAULT_FILES_REQUEST,
   payload: {
     shortName,
     datasetId,
     selectedFiles,
+    totalSize,
   },
 });
 
