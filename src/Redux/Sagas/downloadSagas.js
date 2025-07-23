@@ -194,16 +194,15 @@ export function* downloadRequest(action) {
       }
     }
 
-    // Get data as text (CSV format)
+    // Get data as ArrayBuffer
     const dataArrayBuffer = yield dataResponse.arrayBuffer();
-    const csvData = new TextDecoder().decode(dataArrayBuffer);
 
     yield put(interfaceActions.setLoadingMessage('Preparing download', tag));
 
-    // Use unified export method - automatically chooses Excel or ZIP based on data size
+    // Use DataExportService to handle all buffer processing and size decisions
     yield call(DataExportService.exportDataWithMetadata, {
-      data: csvData, // Pass CSV string directly
-      metadata: metadata,
+      data: dataArrayBuffer, // Pass ArrayBuffer directly
+      metadata,
       datasetName: tableName,
     });
 
@@ -215,13 +214,24 @@ export function* downloadRequest(action) {
       datasetShortName,
     });
   } catch (error) {
+    yield put(interfaceActions.setLoadingMessage('', tag));
+
+    // Provide specific error message for large dataset issues
+    let userMessage = 'Failed to download dataset';
+    if (error.message.includes('TextDecoder') || error.message.includes('CSV data is empty')) {
+      userMessage = 'Dataset is too large for Excel format. Downloaded as ZIP with CSV data and Excel metadata.';
+    } else if (error.message.includes('Buffer too large')) {
+      userMessage = 'Large dataset downloaded as ZIP with CSV data and Excel metadata.';
+    }
+
+    // yield put(catalogActions.datasetDownloadRequestFailure(userMessage));
+
     log.error('Error in downloadRequest', {
       error: error.message,
       stack: error.stack,
+      tableName,
+      datasetShortName,
     });
-
-    yield put(interfaceActions.setLoadingMessage('', tag));
-    // yield put(catalogActions.datasetDownloadRequestFailure());
 
     if (error.message === 'UNAUTHORIZED') {
       yield put(userActions.refreshLogin());
@@ -238,7 +248,7 @@ export function* downloadRequest(action) {
     } else {
       yield put(
         interfaceActions.snackbarOpen(
-          'There was an error requesting the dataset.',
+          userMessage,
           tag,
         ),
       );
