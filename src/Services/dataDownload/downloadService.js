@@ -109,8 +109,12 @@ class DownloadService {
    * @param {string} filename - The filename (without extension)
    */
   static downloadExcel(sheets, filename) {
-    const workbook = this.createExcelWorkbook(sheets);
-    XLSX.writeFile(workbook, `${filename}.xlsx`);
+    try {
+      const workbook = this.createExcelWorkbook(sheets);
+      XLSX.writeFile(workbook, `${filename}.xlsx`);
+    } catch (error) {
+      console.log('❌ Error downloading Excel file:', error);
+    }
   }
 
   /**
