@@ -611,7 +611,6 @@ const DownloadDialog = (props) => {
         }}
         handleDirectDownload={() => {
           setLargeDatasetWarningOpen(false);
-          handleClose(); // Close the main dialog
           setFileSelectionModalOpen(true);
         }}
         dataset={dataset}
