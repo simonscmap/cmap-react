@@ -117,7 +117,34 @@ class DataExportService {
         ...DownloadService.createMetadataSheets(metadata),
       ];
 
-      DownloadService.downloadExcel(sheets, baseFilename);
+      try {
+        DownloadService.downloadExcel(sheets, baseFilename);
+      } catch (error) {
+        console.warn(
+          'Excel download failed, falling back to ZIP format:',
+          error.message,
+        );
+
+        // Fallback to ZIP format
+        const metadataWorkbook = DownloadService.createExcelWorkbook(
+          DownloadService.createMetadataSheets(metadata),
+        );
+        const metadataBuffer =
+          DownloadService.workbookToBuffer(metadataWorkbook);
+
+        const files = [
+          {
+            filename: `${datasetName}_data.csv`,
+            content: csvData,
+          },
+          {
+            filename: `${datasetName}_metadata.xlsx`,
+            content: metadataBuffer,
+          },
+        ];
+
+        await DownloadService.downloadZip(files, baseFilename);
+      }
     }
   }
 
@@ -134,7 +161,7 @@ class DataExportService {
     // - File size considerations
 
     const MAX_EXCEL_ROWS = 500000; // Conservative limit for performance
-    const MAX_CSV_SIZE_MB = 50; // 50MB CSV size limit for Excel export
+    const MAX_CSV_SIZE_MB = 25; // 50MB CSV size limit for Excel export
 
     // Check row count
     if (normalizedData && normalizedData.length > MAX_EXCEL_ROWS) {

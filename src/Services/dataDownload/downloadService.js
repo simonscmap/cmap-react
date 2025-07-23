@@ -107,6 +107,7 @@ class DownloadService {
    * Downloads an Excel file with multiple sheets
    * @param {Array<{name: string, data: Array<Object>}>} sheets - Array of sheet definitions
    * @param {string} filename - The filename (without extension)
+   * @throws {Error} When Excel file creation or download fails
    */
   static downloadExcel(sheets, filename) {
     try {
@@ -114,6 +115,7 @@ class DownloadService {
       XLSX.writeFile(workbook, `${filename}.xlsx`);
     } catch (error) {
       console.log('❌ Error downloading Excel file:', error);
+      throw new Error(`Excel download failed: ${error.message}`);
     }
   }
 
