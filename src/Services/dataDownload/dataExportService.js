@@ -27,37 +27,37 @@ class DataExportService {
     // Handle ArrayBuffer input (new capability for large datasets)
     if (data instanceof ArrayBuffer) {
       const bufferSize = data.byteLength;
-      
-      console.info('Processing download buffer', { 
-        bufferSizeMB: (bufferSize / (1024 * 1024)).toFixed(1),
-        datasetName 
-      });
-      
+
       if (!DataExportService.canSafelyDecodeBuffer(bufferSize)) {
-        console.warn('Buffer too large for TextDecoder, using direct CSV download', {
-          bufferSizeMB: (bufferSize / (1024 * 1024)).toFixed(1),
-          maxAllowedMB: (100).toFixed(1)
-        });
-        
-        return DataExportService.downloadLargeBufferAsCSV(data, datasetName, metadata);
+        return DataExportService.downloadLargeBufferAsCSV(
+          data,
+          datasetName,
+          metadata,
+        );
       }
-      
+
       // Convert to string for normal processing
       try {
         data = new TextDecoder().decode(data);
-        
+
         // Validate conversion was successful
         if (!data || data.length === 0) {
           throw new Error('TextDecoder returned empty string');
         }
-        
       } catch (decodingError) {
-        console.error('TextDecoder failed, falling back to direct CSV download', {
-          error: decodingError.message,
-          bufferSize: bufferSize
-        });
-        
-        return DataExportService.downloadLargeBufferAsCSV(data, datasetName, metadata);
+        console.error(
+          'TextDecoder failed, falling back to direct CSV download',
+          {
+            error: decodingError.message,
+            bufferSize: bufferSize,
+          },
+        );
+
+        return DataExportService.downloadLargeBufferAsCSV(
+          data,
+          datasetName,
+          metadata,
+        );
       }
     }
 
@@ -74,7 +74,9 @@ class DataExportService {
       normalizedData = DataExportService.normalizeVisualizationData(data);
       csvData = DataExportService.convertVisualizationDataToCSV(data);
     } else {
-      throw new Error('Data must be either a CSV string, JSON array, or ArrayBuffer');
+      throw new Error(
+        'Data must be either a CSV string, JSON array, or ArrayBuffer',
+      );
     }
 
     // Determine if data is too large for Excel
@@ -355,7 +357,7 @@ class DataExportService {
   static async downloadLargeBufferAsCSV(buffer, datasetName, metadata) {
     try {
       const baseFilename = `${datasetName}_${DownloadService.formatDateForFilename()}`;
-      
+
       // Create Excel metadata file
       const metadataWorkbook = DownloadService.createExcelWorkbook(
         DownloadService.createMetadataSheets(metadata),
@@ -375,13 +377,16 @@ class DataExportService {
       ];
 
       await DownloadService.downloadZip(files, baseFilename);
-      
-      console.info('Successfully downloaded large dataset as ZIP', { 
+
+      console.info('Successfully downloaded large dataset as ZIP', {
         datasetName,
-        sizeMB: (buffer.byteLength / (1024 * 1024)).toFixed(1) 
+        sizeMB: (buffer.byteLength / (1024 * 1024)).toFixed(1),
       });
     } catch (error) {
-      console.error('Failed to download large buffer as ZIP', { error: error.message, datasetName });
+      console.error('Failed to download large buffer as ZIP', {
+        error: error.message,
+        datasetName,
+      });
       throw new Error(`Failed to download dataset: ${error.message}`);
     }
   }
