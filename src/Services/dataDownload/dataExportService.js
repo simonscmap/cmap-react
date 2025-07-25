@@ -8,13 +8,12 @@ import Papa from 'papaparse';
 class DataExportService {
   /**
    * UNIFIED EXPORT METHOD
-   * Exports data with metadata, automatically choosing format based on data size
+   * Exports data with metadata as ZIP containing CSV data and Excel metadata
    * @param {Object} params - Export parameters
    * @param {Array|string|ArrayBuffer} params.data - Data as JSON array, CSV string, or ArrayBuffer
    * @param {Object} params.metadata - Dataset and variable metadata
    * @param {string} params.datasetName - Name of the dataset
    * @param {string} params.variableName - Name of the variable (optional)
-   * @param {boolean} params.forceZip - Force ZIP format regardless of size
    * @returns {Promise<void>}
    */
   static async exportDataWithMetadata({
@@ -22,56 +21,35 @@ class DataExportService {
     metadata,
     datasetName,
     variableName = null,
-    forceZip = false,
   }) {
-    // Handle ArrayBuffer input (new capability for large datasets)
+    // Handle ArrayBuffer input - always use ZIP path
     if (data instanceof ArrayBuffer) {
-      const bufferSize = data.byteLength;
+      const baseFilename = variableName
+        ? `${datasetName}_${variableName}_${DownloadService.formatDateForFilename()}`
+        : `${datasetName}_${DownloadService.formatDateForFilename()}`;
 
-      if (!DataExportService.canSafelyDecodeBuffer(bufferSize)) {
-        return DataExportService.downloadLargeBufferAsCSV(
-          data,
-          datasetName,
-          metadata,
-        );
-      }
+      const metadataWorkbook = DownloadService.createExcelWorkbook(
+        DownloadService.createMetadataSheets(metadata),
+      );
+      const metadataBuffer = DownloadService.workbookToBuffer(metadataWorkbook);
 
-      // Convert to string for normal processing
-      try {
-        data = new TextDecoder().decode(data);
+      const files = [
+        { filename: `${datasetName}_data.csv`, content: data },
+        { filename: `${datasetName}_metadata.xlsx`, content: metadataBuffer }
+      ];
 
-        // Validate conversion was successful
-        if (!data || data.length === 0) {
-          throw new Error('TextDecoder returned empty string');
-        }
-      } catch (decodingError) {
-        console.error(
-          'TextDecoder failed, falling back to direct CSV download',
-          {
-            error: decodingError.message,
-            bufferSize: bufferSize,
-          },
-        );
-
-        return DataExportService.downloadLargeBufferAsCSV(
-          data,
-          datasetName,
-          metadata,
-        );
-      }
+      await DownloadService.downloadZip(files, baseFilename);
+      return;
     }
 
-    // Normalize data to consistent format
-    let normalizedData;
+    // Convert data to CSV format
     let csvData;
 
     if (typeof data === 'string') {
-      // Data is CSV string
+      // Data is already CSV string
       csvData = data;
-      normalizedData = DataExportService.parseCSVToJSON(data);
     } else if (Array.isArray(data)) {
-      // Data is JSON array
-      normalizedData = DataExportService.normalizeVisualizationData(data);
+      // Data is JSON array - convert to CSV
       csvData = DataExportService.convertVisualizationDataToCSV(data);
     } else {
       throw new Error(
@@ -79,105 +57,30 @@ class DataExportService {
       );
     }
 
-    // Determine if data is too large for Excel
-    const shouldUseZip =
-      forceZip || DataExportService.shouldUseZipFormat(normalizedData, csvData);
-
-    // Generate filename components
+    // Always use ZIP format with CSV data and Excel metadata
     const baseFilename = variableName
       ? `${datasetName}_${variableName}_${DownloadService.formatDateForFilename()}`
       : `${datasetName}_${DownloadService.formatDateForFilename()}`;
 
-    if (shouldUseZip) {
-      // Export as ZIP with CSV data and Excel metadata
-      const metadataWorkbook = DownloadService.createExcelWorkbook(
-        DownloadService.createMetadataSheets(metadata),
-      );
-      const metadataBuffer = DownloadService.workbookToBuffer(metadataWorkbook);
+    const metadataWorkbook = DownloadService.createExcelWorkbook(
+      DownloadService.createMetadataSheets(metadata),
+    );
+    const metadataBuffer = DownloadService.workbookToBuffer(metadataWorkbook);
 
-      const files = [
-        {
-          filename: `${datasetName}_data.csv`,
-          content: csvData,
-        },
-        {
-          filename: `${datasetName}_metadata.xlsx`,
-          content: metadataBuffer,
-        },
-      ];
+    const files = [
+      {
+        filename: `${datasetName}_data.csv`,
+        content: csvData,
+      },
+      {
+        filename: `${datasetName}_metadata.xlsx`,
+        content: metadataBuffer,
+      },
+    ];
 
-      await DownloadService.downloadZip(files, baseFilename);
-    } else {
-      // Export as single Excel file with data and metadata sheets
-      const sheets = [
-        {
-          name: 'Data',
-          data: normalizedData,
-        },
-        ...DownloadService.createMetadataSheets(metadata),
-      ];
-
-      try {
-        DownloadService.downloadExcel(sheets, baseFilename);
-      } catch (error) {
-        console.warn(
-          'Excel download failed, falling back to ZIP format:',
-          error.message,
-        );
-
-        // Fallback to ZIP format
-        const metadataWorkbook = DownloadService.createExcelWorkbook(
-          DownloadService.createMetadataSheets(metadata),
-        );
-        const metadataBuffer =
-          DownloadService.workbookToBuffer(metadataWorkbook);
-
-        const files = [
-          {
-            filename: `${datasetName}_data.csv`,
-            content: csvData,
-          },
-          {
-            filename: `${datasetName}_metadata.xlsx`,
-            content: metadataBuffer,
-          },
-        ];
-
-        await DownloadService.downloadZip(files, baseFilename);
-      }
-    }
+    await DownloadService.downloadZip(files, baseFilename);
   }
 
-  /**
-   * Determines if ZIP format should be used based on data size
-   * @param {Array} normalizedData - Data as JSON array
-   * @param {string} csvData - Data as CSV string
-   * @returns {boolean} True if ZIP format should be used
-   */
-  static shouldUseZipFormat(normalizedData, csvData) {
-    // Excel practical limits:
-    // - ~1 million rows (1,048,576 actual limit)
-    // - Memory considerations for large datasets
-    // - File size considerations
-
-    const MAX_EXCEL_ROWS = 500000; // Conservative limit for performance
-    const MAX_CSV_SIZE_MB = 25; // 50MB CSV size limit for Excel export
-
-    // Check row count
-    if (normalizedData && normalizedData.length > MAX_EXCEL_ROWS) {
-      return true;
-    }
-
-    // Check approximate file size (CSV string length as rough estimate)
-    if (csvData) {
-      const csvSizeMB = new Blob([csvData]).size / (1024 * 1024);
-      if (csvSizeMB > MAX_CSV_SIZE_MB) {
-        return true;
-      }
-    }
-
-    return false;
-  }
 
   /**
    * Fetch dataset metadata from API
@@ -364,59 +267,7 @@ class DataExportService {
     return filteredMetadata;
   }
 
-  /**
-   * Check if buffer can be safely decoded by TextDecoder
-   * @param {number} bufferSize - Size in bytes
-   * @returns {boolean} True if safe to decode
-   */
-  static canSafelyDecodeBuffer(bufferSize) {
-    const MAX_TEXTDECODER_BUFFER = 100 * 1024 * 1024; // 100MB safe limit for TextDecoder
-    return bufferSize <= MAX_TEXTDECODER_BUFFER;
-  }
 
-  /**
-   * Download large buffer as ZIP with CSV data and Excel metadata
-   * @param {ArrayBuffer} buffer - Raw data buffer from API
-   * @param {string} datasetName - Name of the dataset
-   * @param {Object} metadata - Dataset metadata for Excel generation
-   * @returns {Promise<void>}
-   */
-  static async downloadLargeBufferAsCSV(buffer, datasetName, metadata) {
-    try {
-      const baseFilename = `${datasetName}_${DownloadService.formatDateForFilename()}`;
-
-      // Create Excel metadata file
-      const metadataWorkbook = DownloadService.createExcelWorkbook(
-        DownloadService.createMetadataSheets(metadata),
-      );
-      const metadataBuffer = DownloadService.workbookToBuffer(metadataWorkbook);
-
-      // Create ZIP with CSV data and Excel metadata
-      const files = [
-        {
-          filename: `${datasetName}_data.csv`,
-          content: buffer, // ArrayBuffer content
-        },
-        {
-          filename: `${datasetName}_metadata.xlsx`,
-          content: metadataBuffer,
-        },
-      ];
-
-      await DownloadService.downloadZip(files, baseFilename);
-
-      console.info('Successfully downloaded large dataset as ZIP', {
-        datasetName,
-        sizeMB: (buffer.byteLength / (1024 * 1024)).toFixed(1),
-      });
-    } catch (error) {
-      console.error('Failed to download large buffer as ZIP', {
-        error: error.message,
-        datasetName,
-      });
-      throw new Error(`Failed to download dataset: ${error.message}`);
-    }
-  }
 
   /**
    * Parse CSV string data to JSON array
