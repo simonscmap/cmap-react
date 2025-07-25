@@ -66,8 +66,8 @@ export function* checkDownloadSize(action) {
 }
 
 /**
- * Saga for handling visualization CSV/Excel download requests
- * Uses the unified export method that automatically chooses format based on data size
+ * Saga for handling visualization data download requests
+ * Uses the unified export method that exports data as ZIP with CSV data and Excel metadata
  */
 export function* csvFromVizRequest(action) {
   const tag = { tag: 'csvFromVizRequest' };
@@ -98,7 +98,7 @@ export function* csvFromVizRequest(action) {
 
     yield put(interfaceActions.setLoadingMessage('Preparing download', tag));
 
-    // Use unified export method - automatically chooses Excel or ZIP based on data size
+    // Use unified export method - exports as ZIP with CSV data and Excel metadata
     yield call(DataExportService.exportDataWithMetadata, {
       data: csvData, // Pass CSV string directly
       metadata: filteredMetadata,
@@ -138,7 +138,7 @@ export function* csvFromVizRequest(action) {
 
 /**
  * Saga for handling dataset download requests
- * Uses the unified export method that automatically chooses format based on data size
+ * Uses the unified export method that exports data as ZIP with CSV data and Excel metadata
  */
 export function* downloadRequest(action) {
   const tag = { tag: 'downloadRequest' };
@@ -216,13 +216,8 @@ export function* downloadRequest(action) {
   } catch (error) {
     yield put(interfaceActions.setLoadingMessage('', tag));
 
-    // Provide specific error message for large dataset issues
-    let userMessage = 'Failed to download dataset';
-    if (error.message.includes('TextDecoder') || error.message.includes('CSV data is empty')) {
-      userMessage = 'Dataset is too large for Excel format. Downloaded as ZIP with CSV data and Excel metadata.';
-    } else if (error.message.includes('Buffer too large')) {
-      userMessage = 'Large dataset downloaded as ZIP with CSV data and Excel metadata.';
-    }
+    // Set user message for download failures
+    const userMessage = 'Failed to download dataset';
 
     // yield put(catalogActions.datasetDownloadRequestFailure(userMessage));
 
