@@ -22,23 +22,9 @@ class DataExportService {
     datasetName,
     variableName = null,
   }) {
-    // Handle ArrayBuffer input - always use ZIP path
+    // Handle ArrayBuffer input - use directly
     if (data instanceof ArrayBuffer) {
-      const baseFilename = variableName
-        ? `${datasetName}_${variableName}_${DownloadService.formatDateForFilename()}`
-        : `${datasetName}_${DownloadService.formatDateForFilename()}`;
-
-      const metadataWorkbook = DownloadService.createExcelWorkbook(
-        DownloadService.createMetadataSheets(metadata),
-      );
-      const metadataBuffer = DownloadService.workbookToBuffer(metadataWorkbook);
-
-      const files = [
-        { filename: `${datasetName}_data.csv`, content: data },
-        { filename: `${datasetName}_metadata.xlsx`, content: metadataBuffer }
-      ];
-
-      await DownloadService.downloadZip(files, baseFilename);
+      await DataExportService.createAndDownloadZip(data, metadata, datasetName, variableName);
       return;
     }
 
@@ -57,28 +43,8 @@ class DataExportService {
       );
     }
 
-    // Always use ZIP format with CSV data and Excel metadata
-    const baseFilename = variableName
-      ? `${datasetName}_${variableName}_${DownloadService.formatDateForFilename()}`
-      : `${datasetName}_${DownloadService.formatDateForFilename()}`;
-
-    const metadataWorkbook = DownloadService.createExcelWorkbook(
-      DownloadService.createMetadataSheets(metadata),
-    );
-    const metadataBuffer = DownloadService.workbookToBuffer(metadataWorkbook);
-
-    const files = [
-      {
-        filename: `${datasetName}_data.csv`,
-        content: csvData,
-      },
-      {
-        filename: `${datasetName}_metadata.xlsx`,
-        content: metadataBuffer,
-      },
-    ];
-
-    await DownloadService.downloadZip(files, baseFilename);
+    // Create and download ZIP with CSV data and Excel metadata
+    await DataExportService.createAndDownloadZip(csvData, metadata, datasetName, variableName);
   }
 
 
@@ -226,6 +192,32 @@ class DataExportService {
    */
   static formatFloat(value, precision = 6) {
     return parseFloat(value.toFixed(precision));
+  }
+
+  /**
+   * Create ZIP files with data and metadata
+   * @param {string|ArrayBuffer} csvData - CSV data content
+   * @param {Object} metadata - Metadata object
+   * @param {string} datasetName - Name of the dataset
+   * @param {string} variableName - Name of the variable (optional)
+   * @returns {Promise<void>}
+   */
+  static async createAndDownloadZip(csvData, metadata, datasetName, variableName = null) {
+    const baseFilename = variableName
+      ? `${datasetName}_${variableName}_${DownloadService.formatDateForFilename()}`
+      : `${datasetName}_${DownloadService.formatDateForFilename()}`;
+
+    const metadataWorkbook = DownloadService.createExcelWorkbook(
+      DownloadService.createMetadataSheets(metadata),
+    );
+    const metadataBuffer = DownloadService.workbookToBuffer(metadataWorkbook);
+
+    const files = [
+      { filename: `${datasetName}_data.csv`, content: csvData },
+      { filename: `${datasetName}_metadata.xlsx`, content: metadataBuffer }
+    ];
+
+    await DownloadService.downloadZip(files, baseFilename);
   }
 
   /**
