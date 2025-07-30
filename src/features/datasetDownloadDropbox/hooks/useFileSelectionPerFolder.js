@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { selectFolderAllCachedFiles } from '../state/selectors';
+import { estimateDownloadTimeInSeconds } from '../utils/fileUtils';
 
 export const useFileSelectionPerFolder = (allFiles, currentFolder) => {
   // Track selections per folder
@@ -18,6 +19,11 @@ export const useFileSelectionPerFolder = (allFiles, currentFolder) => {
   const totalSize = useMemo(() => {
     return selectedFiles.reduce((total, file) => total + file.size, 0);
   }, [selectedFiles]);
+
+  // Calculate estimated download time for current folder's selections
+  const estimatedTimeSeconds = useMemo(() => {
+    return estimateDownloadTimeInSeconds(selectedFiles.length);
+  }, [selectedFiles.length]);
 
   // Clear selections when files change (e.g., on pagination)
   useEffect(() => {
@@ -142,6 +148,7 @@ export const useFileSelectionPerFolder = (allFiles, currentFolder) => {
   return {
     selectedFiles,
     totalSize,
+    estimatedTimeSeconds,
     handleToggleFile,
     handleSelectAll,
     handleSelectAllInFolder,
