@@ -28,7 +28,7 @@ import {
 } from './downloadDialogHelpers';
 import styles from './downloadDialogStyles';
 import DownloadStepWithWarning from './DownloadStepWithWarning';
-import { DropboxFileSelectionModal } from '../../../features/datasetDownloadDropbox';
+import { DropboxFileSelectionModal, useAutoDownload } from '../../../features/datasetDownloadDropbox';
 
 import {
   datasetDownloadRequestSend,
@@ -186,6 +186,18 @@ const DownloadDialog = (props) => {
   
   // Check if vault files are loaded - we have folders available and a main folder set
   const isVaultFilesLoaded = (availableFolders.hasRep || availableFolders.hasNrt || availableFolders.hasRaw) && mainFolder !== null;
+  
+  // Auto-download hook for smart download logic
+  const { handleSmartDownload } = useAutoDownload();
+  
+  // Handle download click with smart download logic
+  const handleDownloadClick = () => {
+    const result = handleSmartDownload();
+    if (result === 'openModal') {
+      setFileSelectionModalOpen(true);
+    }
+    // If auto-download, the hook handles it internally
+  };
   // Download Size Validation
 
   let downloadState = useSelector((state) => state.download);
@@ -559,7 +571,7 @@ const DownloadDialog = (props) => {
           </Button> */}
           <Button
             className={classes.dropboxButton}
-            onClick={() => setFileSelectionModalOpen(true)}
+            onClick={handleDownloadClick}
             disabled={!isVaultFilesLoaded}
             startIcon={
               !isVaultFilesLoaded ? <CircularProgress size={20} /> : <ImDownload />
@@ -611,7 +623,7 @@ const DownloadDialog = (props) => {
         }}
         handleDirectDownload={() => {
           setLargeDatasetWarningOpen(false);
-          setFileSelectionModalOpen(true);
+          handleDownloadClick();
         }}
         dataset={dataset}
         rowCount={dataset.Row_Count}
