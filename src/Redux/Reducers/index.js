@@ -272,38 +272,32 @@ const initialState = {
   sendNotificationsStatus: [],
   reSendNotificationsStatus: [],
   subscribeIntroActive: initialSubscribeIntroState.subscribeIntroActive,
-  // Add dropbox state
   dropbox: {
     isLoading: false,
     success: false,
     error: null,
     downloadLink: null,
-    // New fields for folder support
+    autoDownloadEligible: false,
+    directDownloadLink: null,
     availableFolders: { hasRep: false, hasNrt: false, hasRaw: false },
     mainFolder: null,
     currentTab: null,
-    // Pagination state for each folder type (initialized dynamically as needed)
     paginationByFolder: {},
-    // Keep old structure for backward compatibility during transition
     vaultFilesPagination: {
-      // Backend State (for API management)
       backend: {
         cursor: null,
         hasMore: false,
         chunkSize: null,
         isLoading: false,
       },
-      // Local State (for display)
       local: {
         currentPage: 1,
         pageSize: 25,
         totalPages: null,
       },
-      // File Management
       totalFileCount: null,
       allCachedFiles: [],
       currentPageFiles: [],
-      // Status
       error: null,
     },
   },
