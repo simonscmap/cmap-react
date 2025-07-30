@@ -29,3 +29,23 @@ export const formatEstimatedTime = (seconds) => {
     return `${minutes}m ${remainingSeconds}s`;
   }
 };
+
+export const checkSizeLimit = (currentTotalSize, fileToAdd, maxSizeLimit) => {
+  const newTotalSize = currentTotalSize + fileToAdd.size;
+  return {
+    wouldExceed: newTotalSize > maxSizeLimit,
+    newTotalSize,
+    remainingCapacity: Math.max(0, maxSizeLimit - currentTotalSize)
+  };
+};
+
+export const checkCombinedLimits = (currentFileCount, currentTotalSize, fileToAdd, maxFileCount, maxSizeLimit) => {
+  const fileCheck = currentFileCount >= maxFileCount;
+  const sizeCheck = (currentTotalSize + fileToAdd.size) > maxSizeLimit;
+  return {
+    fileCountExceeded: fileCheck,
+    sizeExceeded: sizeCheck,
+    canAdd: !fileCheck && !sizeCheck,
+    limitType: fileCheck ? 'file-count' : sizeCheck ? 'size' : null
+  };
+};

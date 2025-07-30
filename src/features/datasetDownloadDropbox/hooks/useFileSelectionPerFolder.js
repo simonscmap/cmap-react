@@ -1,7 +1,8 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { selectFolderAllCachedFiles } from '../state/selectors';
-import { estimateDownloadTimeInSeconds } from '../utils/fileUtils';
+import { estimateDownloadTimeInSeconds, checkCombinedLimits } from '../utils/fileUtils';
+import { MAX_FILES_LIMIT, MAX_SIZE_LIMIT_BYTES } from '../constants/defaults';
 
 export const useFileSelectionPerFolder = (allFiles, currentFolder) => {
   // Track selections per folder
@@ -38,6 +39,25 @@ export const useFileSelectionPerFolder = (allFiles, currentFolder) => {
       
       let newSelections;
       if (fileIndex === -1) {
+        // Check if adding this file would exceed either file count or size limits
+        const currentTotalSelections = Object.values(prev).reduce((total, folderSelections) => 
+          total + folderSelections.length, 0
+        );
+        const currentTotalSize = Object.values(prev).flat().reduce((total, f) => total + f.size, 0);
+        
+        const combinedCheck = checkCombinedLimits(
+          currentTotalSelections,
+          currentTotalSize,
+          file,
+          MAX_FILES_LIMIT,
+          MAX_SIZE_LIMIT_BYTES
+        );
+        
+        if (!combinedCheck.canAdd) {
+          // Don't add the file if we're at either limit
+          return prev;
+        }
+        
         newSelections = [...currentSelections, file];
       } else {
         newSelections = currentSelections.filter((_, index) => index !== fileIndex);
@@ -58,13 +78,43 @@ export const useFileSelectionPerFolder = (allFiles, currentFolder) => {
       const shouldSelect = event && event.target ? event.target.checked : !areAllSelected;
       
       if (shouldSelect) {
-        // ADD current page files that aren't already selected
+        // Calculate current total selections and size across all folders
+        const currentTotalSelections = Object.values(prev).reduce((total, folderSelections) => 
+          total + folderSelections.length, 0
+        );
+        const currentTotalSize = Object.values(prev).flat().reduce((total, f) => total + f.size, 0);
+        
+        // ADD current page files that aren't already selected, but respect both limits
         const filesToAdd = allFiles.filter(file => 
           !currentSelections.some(selected => selected.path === file.path)
         );
+        
+        // Add files one by one, checking both limits
+        const filesToAddLimited = [];
+        let runningFileCount = currentTotalSelections;
+        let runningSize = currentTotalSize;
+        
+        for (const file of filesToAdd) {
+          const combinedCheck = checkCombinedLimits(
+            runningFileCount,
+            runningSize,
+            file,
+            MAX_FILES_LIMIT,
+            MAX_SIZE_LIMIT_BYTES
+          );
+          
+          if (combinedCheck.canAdd) {
+            filesToAddLimited.push(file);
+            runningFileCount++;
+            runningSize += file.size;
+          } else {
+            break; // Stop when we hit either limit
+          }
+        }
+        
         return {
           ...prev,
-          [currentFolder]: [...currentSelections, ...filesToAdd]
+          [currentFolder]: [...currentSelections, ...filesToAddLimited]
         };
       } else {
         // REMOVE current page files from selections
@@ -95,14 +145,43 @@ export const useFileSelectionPerFolder = (allFiles, currentFolder) => {
     setSelectionsByFolder(prev => {
       const currentSelections = prev[currentFolder] || [];
       
-      // Add all cached files that aren't already selected
+      // Calculate current total selections and size across all folders
+      const currentTotalSelections = Object.values(prev).reduce((total, folderSelections) => 
+        total + folderSelections.length, 0
+      );
+      const currentTotalSize = Object.values(prev).flat().reduce((total, f) => total + f.size, 0);
+      
+      // Add all cached files that aren't already selected, but respect both limits
       const filesToAdd = allCachedFiles.filter(file => 
         !currentSelections.some(selected => selected.path === file.path)
       );
       
+      // Add files one by one, checking both limits
+      const filesToAddLimited = [];
+      let runningFileCount = currentTotalSelections;
+      let runningSize = currentTotalSize;
+      
+      for (const file of filesToAdd) {
+        const combinedCheck = checkCombinedLimits(
+          runningFileCount,
+          runningSize,
+          file,
+          MAX_FILES_LIMIT,
+          MAX_SIZE_LIMIT_BYTES
+        );
+        
+        if (combinedCheck.canAdd) {
+          filesToAddLimited.push(file);
+          runningFileCount++;
+          runningSize += file.size;
+        } else {
+          break; // Stop when we hit either limit
+        }
+      }
+      
       return {
         ...prev,
-        [currentFolder]: [...currentSelections, ...filesToAdd]
+        [currentFolder]: [...currentSelections, ...filesToAddLimited]
       };
     });
   };
@@ -145,6 +224,48 @@ export const useFileSelectionPerFolder = (allFiles, currentFolder) => {
     return Object.values(selectionsByFolder).flat();
   }, [selectionsByFolder]);
 
+  // Calculate total size across all folders
+  const totalSizeAllFolders = useMemo(() => {
+    return allSelectedFiles.reduce((total, file) => total + file.size, 0);
+  }, [allSelectedFiles]);
+
+  // File limit checking
+  const isFileLimitReached = useMemo(() => {
+    return totalSelectionsAllFolders >= MAX_FILES_LIMIT;
+  }, [totalSelectionsAllFolders]);
+
+  const remainingFileSlots = useMemo(() => {
+    return Math.max(0, MAX_FILES_LIMIT - totalSelectionsAllFolders);
+  }, [totalSelectionsAllFolders]);
+
+  // Size limit checking
+  const isSizeLimitReached = useMemo(() => {
+    return totalSizeAllFolders >= MAX_SIZE_LIMIT_BYTES;
+  }, [totalSizeAllFolders]);
+
+  const remainingSizeCapacity = useMemo(() => {
+    return Math.max(0, MAX_SIZE_LIMIT_BYTES - totalSizeAllFolders);
+  }, [totalSizeAllFolders]);
+
+  const canSelectFile = (file) => {
+    // Can select if file is already selected (for deselection)
+    const isAlreadySelected = selectedFiles.some(selected => selected.path === file.path);
+    if (isAlreadySelected) {
+      return true;
+    }
+    
+    // Check both file count and size limits
+    const combinedCheck = checkCombinedLimits(
+      totalSelectionsAllFolders,
+      totalSizeAllFolders,
+      file,
+      MAX_FILES_LIMIT,
+      MAX_SIZE_LIMIT_BYTES
+    );
+    
+    return combinedCheck.canAdd;
+  };
+
   return {
     selectedFiles,
     totalSize,
@@ -160,5 +281,11 @@ export const useFileSelectionPerFolder = (allFiles, currentFolder) => {
     selectionsByFolder,
     totalSelectionsAllFolders,
     allSelectedFiles,
+    totalSizeAllFolders,
+    isFileLimitReached,
+    remainingFileSlots,
+    isSizeLimitReached,
+    remainingSizeCapacity,
+    canSelectFile,
   };
 };

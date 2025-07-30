@@ -6,22 +6,4 @@ export const PAGE_SIZE_OPTIONS = [25, 50, 100, 250];
 
 // File selection limits
 export const MAX_FILES_LIMIT = 400;
-export const MAX_SIZE_LIMIT_BYTES = 2 * 1024 * 1024 * 1024; // 2GB in bytes
-
-export const INITIAL_PAGINATION_STATE = {
-  backend: {
-    cursor: null,
-    hasMore: false,
-    chunkSize: null,
-    isLoading: false,
-  },
-  local: {
-    currentPage: DEFAULT_CURRENT_PAGE,
-    pageSize: DEFAULT_PAGE_SIZE,
-    totalPages: null,
-  },
-  totalFileCount: null,
-  allCachedFiles: [],
-  currentPageFiles: [],
-  error: null,
-};
+export const MAX_SIZE_LIMIT_BYTES = 10 * 1024 * 1024 * 1024; // 10GB
