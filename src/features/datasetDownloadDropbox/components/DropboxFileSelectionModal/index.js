@@ -24,7 +24,11 @@ import {
   useDropboxDownload,
   useFolderPagination,
 } from '../../hooks';
-import { formatBytes, formatEstimatedTime, getTabConfiguration } from '../../utils';
+import {
+  formatBytes,
+  formatEstimatedTime,
+  getTabConfiguration,
+} from '../../utils';
 import FileTable from '../FileTable';
 import PaginationControls from '../PaginationControls';
 import TabNavigation from '../TabNavigation';
@@ -202,8 +206,9 @@ const DropboxFileSelectionModal = (props) => {
               <>
                 {` (${formatBytes(totalSize)})`}
                 <br />
-                <span style={{ fontSize: '0.875rem', color: 'rgba(0, 0, 0, 0.6)' }}>
-                  Estimated time to start download: {formatEstimatedTime(estimatedTimeSeconds)}
+                <span style={{ fontSize: '0.9em' }}>
+                  Estimated time to start download:{' '}
+                  {formatEstimatedTime(estimatedTimeSeconds)}
                 </span>
               </>
             )}
