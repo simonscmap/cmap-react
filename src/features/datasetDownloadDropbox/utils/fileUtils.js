@@ -6,3 +6,46 @@ export const formatBytes = (bytes) => {
   const i = Math.floor(Math.log(bytes) / Math.log(1024));
   return (bytes / Math.pow(1024, i)).toFixed(2) + ' ' + sizes[i];
 };
+
+export const estimateDownloadTimeInSeconds = (fileCount) => {
+  if (fileCount <= 25) {
+    return 10;
+  } else if (fileCount <= 100) {
+    return fileCount * 0.4;
+  } else {
+    return fileCount * 0.3;
+  }
+};
+
+export const formatEstimatedTime = (seconds) => {
+  if (seconds < 60) {
+    return `${Math.round(seconds)} seconds`;
+  } else {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.round(seconds % 60);
+    if (remainingSeconds === 0) {
+      return `${minutes} minute${minutes > 1 ? 's' : ''}`;
+    }
+    return `${minutes}m ${remainingSeconds}s`;
+  }
+};
+
+export const checkSizeLimit = (currentTotalSize, fileToAdd, maxSizeLimit) => {
+  const newTotalSize = currentTotalSize + fileToAdd.size;
+  return {
+    wouldExceed: newTotalSize > maxSizeLimit,
+    newTotalSize,
+    remainingCapacity: Math.max(0, maxSizeLimit - currentTotalSize)
+  };
+};
+
+export const checkCombinedLimits = (currentFileCount, currentTotalSize, fileToAdd, maxFileCount, maxSizeLimit) => {
+  const fileCheck = currentFileCount >= maxFileCount;
+  const sizeCheck = (currentTotalSize + fileToAdd.size) > maxSizeLimit;
+  return {
+    fileCountExceeded: fileCheck,
+    sizeExceeded: sizeCheck,
+    canAdd: !fileCheck && !sizeCheck,
+    limitType: fileCheck ? 'file-count' : sizeCheck ? 'size' : null
+  };
+};

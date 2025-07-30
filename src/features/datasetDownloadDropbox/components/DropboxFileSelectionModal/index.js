@@ -6,7 +6,9 @@ import {
   Dialog,
   Typography,
   Divider,
+  Box,
 } from '@material-ui/core';
+import { Alert } from '@material-ui/lab';
 import { makeStyles } from '@material-ui/core/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import styles from '../../../../Components/Catalog/DownloadDialog/downloadDialogStyles';
@@ -24,7 +26,12 @@ import {
   useDropboxDownload,
   useFolderPagination,
 } from '../../hooks';
-import { formatBytes, getTabConfiguration } from '../../utils';
+import {
+  formatBytes,
+  formatEstimatedTime,
+  getTabConfiguration,
+} from '../../utils';
+import { MAX_FILES_LIMIT, MAX_SIZE_LIMIT_BYTES } from '../../constants/defaults';
 import FileTable from '../FileTable';
 import PaginationControls from '../PaginationControls';
 import TabNavigation from '../TabNavigation';
@@ -70,7 +77,7 @@ const DropboxFileSelectionModal = (props) => {
 
   const {
     selectedFiles,
-    totalSize,
+    estimatedTimeSeconds,
     handleToggleFile,
     handleSelectAll,
     handleSelectAllInFolder,
@@ -78,6 +85,13 @@ const DropboxFileSelectionModal = (props) => {
     clearSelections,
     areAllSelected,
     areIndeterminate,
+    totalSelectionsAllFolders,
+    totalSizeAllFolders,
+    isFileLimitReached,
+    remainingFileSlots,
+    isSizeLimitReached,
+    remainingSizeCapacity,
+    canSelectFile,
   } = useFileSelectionPerFolder(allFiles, activeTab);
 
   useDropboxDownload(dropboxDownloadState, handleClose, dataset);
@@ -172,6 +186,10 @@ const DropboxFileSelectionModal = (props) => {
                 onClearAll={clearSelections}
                 onToggleFile={handleToggleFile}
                 isLoading={folderPaginationInfo.isLoading}
+                isFileLimitReached={isFileLimitReached}
+                canSelectFile={canSelectFile}
+                remainingFileSlots={remainingFileSlots}
+                isSizeLimitReached={isSizeLimitReached}
               />
 
               <PaginationControls
@@ -196,17 +214,64 @@ const DropboxFileSelectionModal = (props) => {
           }}
         >
           <Typography variant="subtitle1">
-            <strong>Selected: {selectedFiles.length} files</strong>
-            {selectedFiles.length > 0 && ` (${formatBytes(totalSize)})`}
+            <strong>Selected: {totalSelectionsAllFolders}/{MAX_FILES_LIMIT} files</strong>
+            {totalSelectionsAllFolders > 0 && (
+              <>
+                {` (${formatBytes(totalSizeAllFolders)} / ${formatBytes(MAX_SIZE_LIMIT_BYTES)})`}
+                <br />
+                <span style={{ fontSize: '0.9em' }}>
+                  Estimated time to start download:{' '}
+                  {formatEstimatedTime(estimatedTimeSeconds)}
+                </span>
+              </>
+            )}
           </Typography>
         </div>
+
+        {/* File limit warnings */}
+        {isFileLimitReached && (
+          <Box mt={2}>
+            <Alert severity="warning">
+              File limit reached! You have selected the maximum of {MAX_FILES_LIMIT} files. 
+              To select more files, please remove some current selections first.
+            </Alert>
+          </Box>
+        )}
+
+        {/* Size limit warnings */}
+        {isSizeLimitReached && (
+          <Box mt={2}>
+            <Alert severity="warning">
+              Size limit reached! You have selected the maximum of {formatBytes(MAX_SIZE_LIMIT_BYTES)}. 
+              To select more files, please remove some current selections first.
+            </Alert>
+          </Box>
+        )}
+        
+        {/* Show warning when approaching file limit */}
+        {!isFileLimitReached && remainingFileSlots <= 50 && remainingFileSlots > 0 && (
+          <Box mt={2}>
+            <Alert severity="info">
+              You can select {remainingFileSlots} more files before reaching the {MAX_FILES_LIMIT} file limit.
+            </Alert>
+          </Box>
+        )}
+
+        {/* Show warning when approaching size limit */}
+        {!isSizeLimitReached && remainingSizeCapacity <= 200 * 1024 * 1024 && remainingSizeCapacity > 0 && (
+          <Box mt={2}>
+            <Alert severity="info">
+              You have {formatBytes(remainingSizeCapacity)} remaining before reaching the {formatBytes(MAX_SIZE_LIMIT_BYTES)} size limit.
+            </Alert>
+          </Box>
+        )}
       </DialogContent>
       <DialogActions>
         <Button
           onClick={handleSubmit}
           color="primary"
           variant="contained"
-          disabled={selectedFiles.length === 0}
+          disabled={totalSelectionsAllFolders === 0}
         >
           Download {activeTab === 'raw' ? 'Raw' : 'Main'} Files
         </Button>
