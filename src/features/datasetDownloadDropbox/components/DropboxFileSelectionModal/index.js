@@ -29,6 +29,7 @@ import {
   formatEstimatedTime,
   getTabConfiguration,
 } from '../../utils';
+import { MAX_FILES_LIMIT, MAX_SIZE_LIMIT_BYTES } from '../../constants/defaults';
 import FileTable from '../FileTable';
 import PaginationControls from '../PaginationControls';
 import TabNavigation from '../TabNavigation';
@@ -74,7 +75,6 @@ const DropboxFileSelectionModal = (props) => {
 
   const {
     selectedFiles,
-    totalSize,
     estimatedTimeSeconds,
     handleToggleFile,
     handleSelectAll,
@@ -83,6 +83,8 @@ const DropboxFileSelectionModal = (props) => {
     clearSelections,
     areAllSelected,
     areIndeterminate,
+    totalSelectionsAllFolders,
+    allSelectedFiles,
   } = useFileSelectionPerFolder(allFiles, activeTab);
 
   useDropboxDownload(dropboxDownloadState, handleClose, dataset);
@@ -92,6 +94,11 @@ const DropboxFileSelectionModal = (props) => {
     folderPagination,
     activeTab,
   );
+
+  // Calculate total size across all selected files from all folders
+  const totalSizeAllFolders = useMemo(() => {
+    return allSelectedFiles.reduce((total, file) => total + file.size, 0);
+  }, [allSelectedFiles]);
 
   const handleSubmit = () => {
     if (!dataset) {
@@ -201,10 +208,10 @@ const DropboxFileSelectionModal = (props) => {
           }}
         >
           <Typography variant="subtitle1">
-            <strong>Selected: {selectedFiles.length} files</strong>
-            {selectedFiles.length > 0 && (
+            <strong>Selected: {totalSelectionsAllFolders}/{MAX_FILES_LIMIT} files</strong>
+            {totalSelectionsAllFolders > 0 && (
               <>
-                {` (${formatBytes(totalSize)})`}
+                {` (${formatBytes(totalSizeAllFolders)} / ${formatBytes(MAX_SIZE_LIMIT_BYTES)})`}
                 <br />
                 <span style={{ fontSize: '0.9em' }}>
                   Estimated time to start download:{' '}
@@ -220,7 +227,7 @@ const DropboxFileSelectionModal = (props) => {
           onClick={handleSubmit}
           color="primary"
           variant="contained"
-          disabled={selectedFiles.length === 0}
+          disabled={totalSelectionsAllFolders === 0}
         >
           Download {activeTab === 'raw' ? 'Raw' : 'Main'} Files
         </Button>
