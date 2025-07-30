@@ -195,8 +195,10 @@ const DownloadDialog = (props) => {
     const result = handleSmartDownload();
     if (result === 'openModal') {
       setFileSelectionModalOpen(true);
+    } else if (result === 'autoDownload') {
+      // Close the dialog when auto-download is triggered
+      handleClose();
     }
-    // If auto-download, the hook handles it internally
   };
   // Download Size Validation
 
