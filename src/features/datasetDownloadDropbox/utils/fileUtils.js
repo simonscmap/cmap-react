@@ -8,12 +8,12 @@ export const formatBytes = (bytes) => {
 };
 
 export const estimateDownloadTimeInSeconds = (fileCount) => {
-  if (fileCount <= 50) {
-    return fileCount * 0.600;
-  } else if (fileCount <= 300) {
-    return fileCount * 0.163;
+  if (fileCount <= 25) {
+    return 10;
+  } else if (fileCount <= 100) {
+    return fileCount * 0.4;
   } else {
-    return fileCount * 0.264;
+    return fileCount * 0.3;
   }
 };
 
