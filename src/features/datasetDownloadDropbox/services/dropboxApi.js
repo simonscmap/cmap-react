@@ -3,6 +3,17 @@ import { apiUrl, fetchOptions } from '../../../api/config';
 
 const dropboxAPI = {};
 
+/**
+ * Fetch dropbox vault files with pagination and auto-download eligibility
+ * @param {string} shortName - Dataset short name
+ * @param {Object} paginationParams - Pagination parameters
+ * @param {number} paginationParams.chunkSize - Number of files per chunk
+ * @param {string} paginationParams.cursor - Cursor for pagination
+ * @param {string} paginationParams.folderType - Type of folder ('rep', 'nrt', 'raw')
+ * @returns {Promise<Response>} Response object with enhanced structure including:
+ *   - autoDownloadEligible: boolean indicating if auto-download is available
+ *   - directDownloadLink: string URL for direct download (if eligible)
+ */
 dropboxAPI.fetchDropboxVaultFiles = async (
   shortName,
   paginationParams = {},

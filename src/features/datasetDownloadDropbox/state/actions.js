@@ -73,3 +73,17 @@ export const setCurrentFolderTab = (folderType) => ({
   type: dropboxActionTypes.SET_CURRENT_FOLDER_TAB,
   payload: { folderType },
 });
+
+// Auto-download actions
+export const setAutoDownloadEligibility = (autoDownloadEligible, directDownloadLink = null) => ({
+  type: dropboxActionTypes.SET_AUTO_DOWNLOAD_ELIGIBILITY,
+  payload: {
+    autoDownloadEligible,
+    directDownloadLink,
+  },
+});
+
+export const triggerDirectDownload = (downloadLink) => ({
+  type: dropboxActionTypes.TRIGGER_DIRECT_DOWNLOAD,
+  payload: { downloadLink },
+});

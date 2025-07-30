@@ -115,3 +115,15 @@ export const selectFolderError = (state, folderType) => {
   const folderPagination = selectFolderPagination(state, folderType);
   return (folderPagination && folderPagination.error) || null;
 };
+
+// Auto-download selectors
+export const selectAutoDownloadEligible = (state) =>
+  (state.dropbox && state.dropbox.autoDownloadEligible) || false;
+
+export const selectDirectDownloadLink = (state) =>
+  (state.dropbox && state.dropbox.directDownloadLink) || null;
+
+export const selectIsVaultFilesLoaded = (state) => {
+  const pagination = selectVaultFilesPagination(state);
+  return !!(pagination.allCachedFiles && pagination.allCachedFiles.length > 0);
+};

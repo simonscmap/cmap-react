@@ -10,6 +10,8 @@ import {
   SET_LOCAL_PAGINATION_PAGE,
   SET_LOCAL_PAGINATION_SIZE,
   SET_CURRENT_FOLDER_TAB,
+  SET_AUTO_DOWNLOAD_ELIGIBILITY,
+  TRIGGER_DIRECT_DOWNLOAD,
 } from './actionTypes';
 
 // Helper function to create initial pagination state for a folder
@@ -279,6 +281,9 @@ export default function dropboxReducer(state, action) {
           paginationByFolder: {},
           // Reset legacy pagination
           vaultFilesPagination: createInitialFolderPaginationState(),
+          // Clear auto-download state
+          autoDownloadEligible: false,
+          directDownloadLink: null,
         },
       };
     }
@@ -408,6 +413,31 @@ export default function dropboxReducer(state, action) {
           currentTab: folderType,
           // Update legacy pagination to match the current tab (if folder pagination exists)
           vaultFilesPagination: folderPagination || state.dropbox.vaultFilesPagination,
+        },
+      };
+    }
+
+    case SET_AUTO_DOWNLOAD_ELIGIBILITY: {
+      const { autoDownloadEligible, directDownloadLink } = action.payload;
+      
+      return {
+        ...state,
+        dropbox: {
+          ...state.dropbox,
+          autoDownloadEligible,
+          directDownloadLink,
+        },
+      };
+    }
+
+    case TRIGGER_DIRECT_DOWNLOAD: {
+      // This action triggers a direct download via window.location.href
+      // The reducer doesn't need to modify state, but can track the action
+      return {
+        ...state,
+        dropbox: {
+          ...state.dropbox,
+          lastDirectDownloadTriggered: action.payload.downloadLink,
         },
       };
     }
