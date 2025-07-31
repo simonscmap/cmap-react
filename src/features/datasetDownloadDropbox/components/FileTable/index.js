@@ -29,10 +29,9 @@ const FileTable = ({
   onClearAll,
   onToggleFile,
   isLoading = false,
-  isFileLimitReached = false,
+  isCurrentTabFileLimitReached = false,
   canSelectFile = () => true,
-  remainingFileSlots = 0,
-  isSizeLimitReached = false,
+  isCurrentTabSizeLimitReached = false,
 }) => {
   const classes = useStyles();
 
@@ -56,9 +55,8 @@ const FileTable = ({
                   onSelectAll={onSelectAllInFolder}
                   onClearPage={onClearPageSelections}
                   onClearAll={onClearAll}
-                  isFileLimitReached={isFileLimitReached}
-                  remainingFileSlots={remainingFileSlots}
-                  isSizeLimitReached={isSizeLimitReached}
+                  isCurrentTabFileLimitReached={isCurrentTabFileLimitReached}
+                  isCurrentTabSizeLimitReached={isCurrentTabSizeLimitReached}
                 />
               </TableCell>
               <TableCell>Filename</TableCell>

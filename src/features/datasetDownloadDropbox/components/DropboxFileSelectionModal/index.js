@@ -85,12 +85,10 @@ const DropboxFileSelectionModal = (props) => {
     clearSelections,
     areAllSelected,
     areIndeterminate,
-    totalSelectionsAllFolders,
-    totalSizeAllFolders,
-    isFileLimitReached,
-    remainingFileSlots,
-    isSizeLimitReached,
-    remainingSizeCapacity,
+    currentTabFileCount,
+    currentTabTotalSize,
+    isCurrentTabFileLimitReached,
+    isCurrentTabSizeLimitReached,
     canSelectFile,
   } = useFileSelectionPerFolder(allFiles, activeTab);
 
@@ -186,10 +184,9 @@ const DropboxFileSelectionModal = (props) => {
                 onClearAll={clearSelections}
                 onToggleFile={handleToggleFile}
                 isLoading={folderPaginationInfo.isLoading}
-                isFileLimitReached={isFileLimitReached}
+                isCurrentTabFileLimitReached={isCurrentTabFileLimitReached}
                 canSelectFile={canSelectFile}
-                remainingFileSlots={remainingFileSlots}
-                isSizeLimitReached={isSizeLimitReached}
+                isCurrentTabSizeLimitReached={isCurrentTabSizeLimitReached}
               />
 
               <PaginationControls
@@ -214,10 +211,10 @@ const DropboxFileSelectionModal = (props) => {
           }}
         >
           <Typography variant="subtitle1">
-            <strong>Selected: {totalSelectionsAllFolders}/{MAX_FILES_LIMIT} files</strong>
-            {totalSelectionsAllFolders > 0 && (
+            <strong>Selected: {currentTabFileCount}/{MAX_FILES_LIMIT} files</strong>
+            {currentTabFileCount > 0 && (
               <>
-                {` (${formatBytes(totalSizeAllFolders)} / ${formatBytes(MAX_SIZE_LIMIT_BYTES)})`}
+                {` (${formatBytes(currentTabTotalSize)} / ${formatBytes(MAX_SIZE_LIMIT_BYTES)})`}
                 <br />
                 <span style={{ fontSize: '0.9em' }}>
                   Estimated time to start download:{' '}
@@ -229,7 +226,7 @@ const DropboxFileSelectionModal = (props) => {
         </div>
 
         {/* File limit warnings */}
-        {isFileLimitReached && (
+        {isCurrentTabFileLimitReached && (
           <Box mt={2}>
             <Alert severity="warning">
               File limit reached! You have selected the maximum of {MAX_FILES_LIMIT} files. 
@@ -239,7 +236,7 @@ const DropboxFileSelectionModal = (props) => {
         )}
 
         {/* Size limit warnings */}
-        {isSizeLimitReached && (
+        {isCurrentTabSizeLimitReached && (
           <Box mt={2}>
             <Alert severity="warning">
               Size limit reached! You have selected the maximum of {formatBytes(MAX_SIZE_LIMIT_BYTES)}. 
@@ -249,29 +246,35 @@ const DropboxFileSelectionModal = (props) => {
         )}
         
         {/* Show warning when approaching file limit */}
-        {!isFileLimitReached && remainingFileSlots <= 50 && remainingFileSlots > 0 && (
-          <Box mt={2}>
-            <Alert severity="info">
-              You can select {remainingFileSlots} more files before reaching the {MAX_FILES_LIMIT} file limit.
-            </Alert>
-          </Box>
-        )}
+        {(() => {
+          const remainingFileSlots = MAX_FILES_LIMIT - currentTabFileCount;
+          return !isCurrentTabFileLimitReached && remainingFileSlots <= 50 && remainingFileSlots > 0 && (
+            <Box mt={2}>
+              <Alert severity="info">
+                You can select {remainingFileSlots} more files before reaching the {MAX_FILES_LIMIT} file limit.
+              </Alert>
+            </Box>
+          );
+        })()}
 
         {/* Show warning when approaching size limit */}
-        {!isSizeLimitReached && remainingSizeCapacity <= 200 * 1024 * 1024 && remainingSizeCapacity > 0 && (
-          <Box mt={2}>
-            <Alert severity="info">
-              You have {formatBytes(remainingSizeCapacity)} remaining before reaching the {formatBytes(MAX_SIZE_LIMIT_BYTES)} size limit.
-            </Alert>
-          </Box>
-        )}
+        {(() => {
+          const remainingSizeCapacity = MAX_SIZE_LIMIT_BYTES - currentTabTotalSize;
+          return !isCurrentTabSizeLimitReached && remainingSizeCapacity <= 200 * 1024 * 1024 && remainingSizeCapacity > 0 && (
+            <Box mt={2}>
+              <Alert severity="info">
+                You have {formatBytes(remainingSizeCapacity)} remaining before reaching the {formatBytes(MAX_SIZE_LIMIT_BYTES)} size limit.
+              </Alert>
+            </Box>
+          );
+        })()}
       </DialogContent>
       <DialogActions>
         <Button
           onClick={handleSubmit}
           color="primary"
           variant="contained"
-          disabled={totalSelectionsAllFolders === 0}
+          disabled={currentTabFileCount === 0}
         >
           Download {activeTab === 'raw' ? 'Raw' : 'Main'} Files
         </Button>
