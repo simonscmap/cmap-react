@@ -66,8 +66,8 @@ export function* checkDownloadSize(action) {
 }
 
 /**
- * Saga for handling visualization CSV/Excel download requests
- * Uses the unified export method that automatically chooses format based on data size
+ * Saga for handling visualization data download requests
+ * Uses the unified export method that exports data as ZIP with CSV data and Excel metadata
  */
 export function* csvFromVizRequest(action) {
   const tag = { tag: 'csvFromVizRequest' };
@@ -98,7 +98,7 @@ export function* csvFromVizRequest(action) {
 
     yield put(interfaceActions.setLoadingMessage('Preparing download', tag));
 
-    // Use unified export method - automatically chooses Excel or ZIP based on data size
+    // Use unified export method - exports as ZIP with CSV data and Excel metadata
     yield call(DataExportService.exportDataWithMetadata, {
       data: csvData, // Pass CSV string directly
       metadata: filteredMetadata,
@@ -138,7 +138,7 @@ export function* csvFromVizRequest(action) {
 
 /**
  * Saga for handling dataset download requests
- * Uses the unified export method that automatically chooses format based on data size
+ * Uses the unified export method that exports data as ZIP with CSV data and Excel metadata
  */
 export function* downloadRequest(action) {
   const tag = { tag: 'downloadRequest' };
@@ -194,16 +194,15 @@ export function* downloadRequest(action) {
       }
     }
 
-    // Get data as text (CSV format)
+    // Get data as ArrayBuffer
     const dataArrayBuffer = yield dataResponse.arrayBuffer();
-    const csvData = new TextDecoder().decode(dataArrayBuffer);
 
     yield put(interfaceActions.setLoadingMessage('Preparing download', tag));
 
-    // Use unified export method - automatically chooses Excel or ZIP based on data size
+    // Use DataExportService to handle all buffer processing and size decisions
     yield call(DataExportService.exportDataWithMetadata, {
-      data: csvData, // Pass CSV string directly
-      metadata: metadata,
+      data: dataArrayBuffer, // Pass ArrayBuffer directly
+      metadata,
       datasetName: tableName,
     });
 
@@ -215,13 +214,19 @@ export function* downloadRequest(action) {
       datasetShortName,
     });
   } catch (error) {
+    yield put(interfaceActions.setLoadingMessage('', tag));
+
+    // Set user message for download failures
+    const userMessage = 'Failed to download dataset';
+
+    // yield put(catalogActions.datasetDownloadRequestFailure(userMessage));
+
     log.error('Error in downloadRequest', {
       error: error.message,
       stack: error.stack,
+      tableName,
+      datasetShortName,
     });
-
-    yield put(interfaceActions.setLoadingMessage('', tag));
-    // yield put(catalogActions.datasetDownloadRequestFailure());
 
     if (error.message === 'UNAUTHORIZED') {
       yield put(userActions.refreshLogin());
@@ -238,7 +243,7 @@ export function* downloadRequest(action) {
     } else {
       yield put(
         interfaceActions.snackbarOpen(
-          'There was an error requesting the dataset.',
+          userMessage,
           tag,
         ),
       );

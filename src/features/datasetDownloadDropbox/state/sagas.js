@@ -90,6 +90,13 @@ function* fetchVaultFilesPage(action) {
     );
     if (response && response.ok) {
       const jsonResponse = yield response.json();
+      
+      // Handle new auto-download fields from API response
+      const { autoDownloadEligible, directDownloadLink } = jsonResponse;
+      if (typeof autoDownloadEligible === 'boolean') {
+        yield put(dropboxActions.setAutoDownloadEligibility(autoDownloadEligible, directDownloadLink));
+      }
+      
       yield put(dropboxActions.fetchVaultFilesPageSuccess(jsonResponse));
     } else {
       yield put(
@@ -138,6 +145,32 @@ export function* watchFolderTabChange() {
   yield takeEvery(
     dropboxActionTypes.SET_CURRENT_FOLDER_TAB,
     handleFolderTabChange,
+  );
+}
+
+// Saga to handle direct download trigger
+function* handleDirectDownload(action) {
+  const { downloadLink } = action.payload;
+  
+  try {
+    yield log.info('Triggering direct download', { downloadLink });
+    
+    // Trigger the download by setting window.location.href
+    if (typeof window !== 'undefined' && downloadLink) {
+      window.location.href = downloadLink;
+    }
+  } catch (error) {
+    yield log.error('Error triggering direct download', {
+      downloadLink,
+      error: error.message,
+    });
+  }
+}
+
+export function* watchDirectDownload() {
+  yield takeLatest(
+    dropboxActionTypes.TRIGGER_DIRECT_DOWNLOAD,
+    handleDirectDownload,
   );
 }
 

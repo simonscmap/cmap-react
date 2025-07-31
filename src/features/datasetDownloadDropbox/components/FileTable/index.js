@@ -29,6 +29,9 @@ const FileTable = ({
   onClearAll,
   onToggleFile,
   isLoading = false,
+  isCurrentTabFileLimitReached = false,
+  canSelectFile = () => true,
+  isCurrentTabSizeLimitReached = false,
 }) => {
   const classes = useStyles();
 
@@ -52,6 +55,8 @@ const FileTable = ({
                   onSelectAll={onSelectAllInFolder}
                   onClearPage={onClearPageSelections}
                   onClearAll={onClearAll}
+                  isCurrentTabFileLimitReached={isCurrentTabFileLimitReached}
+                  isCurrentTabSizeLimitReached={isCurrentTabSizeLimitReached}
                 />
               </TableCell>
               <TableCell>Filename</TableCell>
@@ -59,25 +64,36 @@ const FileTable = ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {allFiles.map((file, index) => (
-              <TableRow
-                key={`file-${index}`}
-                className={classes.row}
-                hover
-                onClick={() => onToggleFile(file)}
-              >
-                <TableCell padding="checkbox">
-                  <Checkbox
-                    checked={selectedFiles.some((f) => f.path === file.path)}
-                    color="primary"
-                  />
-                </TableCell>
-                <TableCell>{file.name}</TableCell>
-                <TableCell>
-                  {file.sizeFormatted || formatBytes(file.size)}
-                </TableCell>
-              </TableRow>
-            ))}
+            {allFiles.map((file, index) => {
+              const isSelected = selectedFiles.some((f) => f.path === file.path);
+              const canSelect = canSelectFile(file);
+              const isDisabled = !canSelect;
+              
+              return (
+                <TableRow
+                  key={`file-${index}`}
+                  className={classes.row}
+                  hover={canSelect}
+                  onClick={() => canSelect && onToggleFile(file)}
+                  style={{ 
+                    opacity: isDisabled ? 0.5 : 1,
+                    cursor: canSelect ? 'pointer' : 'not-allowed'
+                  }}
+                >
+                  <TableCell padding="checkbox">
+                    <Checkbox
+                      checked={isSelected}
+                      disabled={isDisabled}
+                      color="primary"
+                    />
+                  </TableCell>
+                  <TableCell>{file.name}</TableCell>
+                  <TableCell>
+                    {file.sizeFormatted || formatBytes(file.size)}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>
