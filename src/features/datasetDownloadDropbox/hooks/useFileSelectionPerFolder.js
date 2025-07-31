@@ -39,22 +39,20 @@ export const useFileSelectionPerFolder = (allFiles, currentFolder) => {
       
       let newSelections;
       if (fileIndex === -1) {
-        // Check if adding this file would exceed either file count or size limits
-        const currentTotalSelections = Object.values(prev).reduce((total, folderSelections) => 
-          total + folderSelections.length, 0
-        );
-        const currentTotalSize = Object.values(prev).flat().reduce((total, f) => total + f.size, 0);
+        // Check if adding this file would exceed either file count or size limits for current tab only
+        const currentTabFileCount = currentSelections.length;
+        const currentTabTotalSize = currentSelections.reduce((total, f) => total + f.size, 0);
         
         const combinedCheck = checkCombinedLimits(
-          currentTotalSelections,
-          currentTotalSize,
+          currentTabFileCount,
+          currentTabTotalSize,
           file,
           MAX_FILES_LIMIT,
           MAX_SIZE_LIMIT_BYTES
         );
         
         if (!combinedCheck.canAdd) {
-          // Don't add the file if we're at either limit
+          // Don't add the file if we're at either limit for this tab
           return prev;
         }
         
@@ -78,21 +76,19 @@ export const useFileSelectionPerFolder = (allFiles, currentFolder) => {
       const shouldSelect = event && event.target ? event.target.checked : !areAllSelected;
       
       if (shouldSelect) {
-        // Calculate current total selections and size across all folders
-        const currentTotalSelections = Object.values(prev).reduce((total, folderSelections) => 
-          total + folderSelections.length, 0
-        );
-        const currentTotalSize = Object.values(prev).flat().reduce((total, f) => total + f.size, 0);
+        // Calculate current tab selections and size (current folder only)
+        const currentTabFileCount = currentSelections.length;
+        const currentTabTotalSize = currentSelections.reduce((total, f) => total + f.size, 0);
         
-        // ADD current page files that aren't already selected, but respect both limits
+        // ADD current page files that aren't already selected, but respect both limits for this tab only
         const filesToAdd = allFiles.filter(file => 
           !currentSelections.some(selected => selected.path === file.path)
         );
         
-        // Add files one by one, checking both limits
+        // Add files one by one, checking both limits for current tab only
         const filesToAddLimited = [];
-        let runningFileCount = currentTotalSelections;
-        let runningSize = currentTotalSize;
+        let runningFileCount = currentTabFileCount;
+        let runningSize = currentTabTotalSize;
         
         for (const file of filesToAdd) {
           const combinedCheck = checkCombinedLimits(
@@ -108,7 +104,7 @@ export const useFileSelectionPerFolder = (allFiles, currentFolder) => {
             runningFileCount++;
             runningSize += file.size;
           } else {
-            break; // Stop when we hit either limit
+            break; // Stop when we hit either limit for this tab
           }
         }
         
@@ -145,21 +141,19 @@ export const useFileSelectionPerFolder = (allFiles, currentFolder) => {
     setSelectionsByFolder(prev => {
       const currentSelections = prev[currentFolder] || [];
       
-      // Calculate current total selections and size across all folders
-      const currentTotalSelections = Object.values(prev).reduce((total, folderSelections) => 
-        total + folderSelections.length, 0
-      );
-      const currentTotalSize = Object.values(prev).flat().reduce((total, f) => total + f.size, 0);
+      // Calculate current tab selections and size (current folder only)
+      const currentTabFileCount = currentSelections.length;
+      const currentTabTotalSize = currentSelections.reduce((total, f) => total + f.size, 0);
       
-      // Add all cached files that aren't already selected, but respect both limits
+      // Add all cached files that aren't already selected, but respect both limits for this tab only
       const filesToAdd = allCachedFiles.filter(file => 
         !currentSelections.some(selected => selected.path === file.path)
       );
       
-      // Add files one by one, checking both limits
+      // Add files one by one, checking both limits for current tab only
       const filesToAddLimited = [];
-      let runningFileCount = currentTotalSelections;
-      let runningSize = currentTotalSize;
+      let runningFileCount = currentTabFileCount;
+      let runningSize = currentTabTotalSize;
       
       for (const file of filesToAdd) {
         const combinedCheck = checkCombinedLimits(
@@ -175,7 +169,7 @@ export const useFileSelectionPerFolder = (allFiles, currentFolder) => {
           runningFileCount++;
           runningSize += file.size;
         } else {
-          break; // Stop when we hit either limit
+          break; // Stop when we hit either limit for this tab
         }
       }
       
@@ -212,40 +206,23 @@ export const useFileSelectionPerFolder = (allFiles, currentFolder) => {
     allFiles.some(file => selectedFiles.some(selected => selected.path === file.path)) &&
     !areAllSelected;
 
-  // Get total selections across all folders
-  const totalSelectionsAllFolders = useMemo(() => {
-    return Object.values(selectionsByFolder).reduce((total, folderSelections) => 
-      total + folderSelections.length, 0
-    );
-  }, [selectionsByFolder]);
+  // Get current tab file count (current folder only)
+  const currentTabFileCount = useMemo(() => {
+    return selectedFiles.length;
+  }, [selectedFiles.length]);
 
-  // Get all selected files from all folders
-  const allSelectedFiles = useMemo(() => {
-    return Object.values(selectionsByFolder).flat();
-  }, [selectionsByFolder]);
+  // Get current tab total size (already calculated as totalSize)
+  const currentTabTotalSize = totalSize;
 
-  // Calculate total size across all folders
-  const totalSizeAllFolders = useMemo(() => {
-    return allSelectedFiles.reduce((total, file) => total + file.size, 0);
-  }, [allSelectedFiles]);
+  // File limit checking (current tab only)
+  const isCurrentTabFileLimitReached = useMemo(() => {
+    return currentTabFileCount >= MAX_FILES_LIMIT;
+  }, [currentTabFileCount]);
 
-  // File limit checking
-  const isFileLimitReached = useMemo(() => {
-    return totalSelectionsAllFolders >= MAX_FILES_LIMIT;
-  }, [totalSelectionsAllFolders]);
-
-  const remainingFileSlots = useMemo(() => {
-    return Math.max(0, MAX_FILES_LIMIT - totalSelectionsAllFolders);
-  }, [totalSelectionsAllFolders]);
-
-  // Size limit checking
-  const isSizeLimitReached = useMemo(() => {
-    return totalSizeAllFolders >= MAX_SIZE_LIMIT_BYTES;
-  }, [totalSizeAllFolders]);
-
-  const remainingSizeCapacity = useMemo(() => {
-    return Math.max(0, MAX_SIZE_LIMIT_BYTES - totalSizeAllFolders);
-  }, [totalSizeAllFolders]);
+  // Size limit checking (current tab only)
+  const isCurrentTabSizeLimitReached = useMemo(() => {
+    return currentTabTotalSize >= MAX_SIZE_LIMIT_BYTES;
+  }, [currentTabTotalSize]);
 
   const canSelectFile = (file) => {
     // Can select if file is already selected (for deselection)
@@ -254,10 +231,10 @@ export const useFileSelectionPerFolder = (allFiles, currentFolder) => {
       return true;
     }
     
-    // Check both file count and size limits
+    // Check both file count and size limits for current tab only
     const combinedCheck = checkCombinedLimits(
-      totalSelectionsAllFolders,
-      totalSizeAllFolders,
+      currentTabFileCount,
+      currentTabTotalSize,
       file,
       MAX_FILES_LIMIT,
       MAX_SIZE_LIMIT_BYTES
@@ -279,13 +256,10 @@ export const useFileSelectionPerFolder = (allFiles, currentFolder) => {
     areAllSelected,
     areIndeterminate,
     selectionsByFolder,
-    totalSelectionsAllFolders,
-    allSelectedFiles,
-    totalSizeAllFolders,
-    isFileLimitReached,
-    remainingFileSlots,
-    isSizeLimitReached,
-    remainingSizeCapacity,
+    currentTabFileCount,
+    currentTabTotalSize,
+    isCurrentTabFileLimitReached,
+    isCurrentTabSizeLimitReached,
     canSelectFile,
   };
 };
