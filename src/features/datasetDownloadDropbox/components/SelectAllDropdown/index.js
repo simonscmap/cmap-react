@@ -35,9 +35,8 @@ const SelectAllDropdown = ({
   onSelectAll,
   onClearPage,
   onClearAll,
-  isFileLimitReached = false,
-  remainingFileSlots = 0,
-  isSizeLimitReached = false,
+  isCurrentTabFileLimitReached = false,
+  isCurrentTabSizeLimitReached = false,
 }) => {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -88,16 +87,16 @@ const SelectAllDropdown = ({
         <MenuItem
           onClick={() => handleMenuItemClick(onSelectPage)}
           className={classes.menuItem}
-          disabled={(isFileLimitReached && remainingFileSlots === 0) || isSizeLimitReached}
+          disabled={isCurrentTabFileLimitReached || isCurrentTabSizeLimitReached}
         >
-          Select Page {((isFileLimitReached && remainingFileSlots === 0) || isSizeLimitReached) && '(Limit reached)'}
+          Select Page {(isCurrentTabFileLimitReached || isCurrentTabSizeLimitReached) && '(Limit reached)'}
         </MenuItem>
         <MenuItem
           onClick={() => handleMenuItemClick(onSelectAll)}
           className={classes.menuItem}
-          disabled={(isFileLimitReached && remainingFileSlots === 0) || isSizeLimitReached}
+          disabled={isCurrentTabFileLimitReached || isCurrentTabSizeLimitReached}
         >
-          Select All {((isFileLimitReached && remainingFileSlots === 0) || isSizeLimitReached) && '(Limit reached)'}
+          Select All {(isCurrentTabFileLimitReached || isCurrentTabSizeLimitReached) && '(Limit reached)'}
         </MenuItem>
         <MenuItem
           onClick={() => handleMenuItemClick(onClearPage)}
