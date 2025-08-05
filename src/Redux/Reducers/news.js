@@ -1,18 +1,25 @@
 import * as actions from '../actionTypes/news';
 import states from '../../enums/asyncRequestStates';
 
-/* initial state for 'news' key
- * news: {
- *   stories: [],
- *   viewStateFilter: [1,2,3],
- *   rankFilter: false,
- *   sortTerm: 'modify_date',
- *   orderOfImportance: 'descending',
- *   openRanksEditor: false,
- *   ranks: [],
- *   addRank: [],
- *   adminMessages: [],
- * } */
+// News slice initial state
+const initialNewsState = {
+  stories: [],
+  viewStateFilter: [1, 2, 3],
+  rankFilter: false,
+  sortTerm: 'modify_date',
+  orderOfImportance: 'descending',
+  openRanksEditor: false,
+  ranks: [],
+  addRank: [],
+  adminMessages: [],
+  requestStatus: {
+    create: states.notTried,
+    update: states.notTried,
+    updateRanks: states.notTried,
+    updateViewStatus: states.notTried,
+    list: states.notTried,
+  },
+};
 
 const actionToAdminMsg = (action) => {
   switch (action.type) {
@@ -104,37 +111,34 @@ const actionToAdminMsg = (action) => {
   }
 };
 
-const computeAdminMessage = (state, action) => {
+const computeAdminMessage = (newsState, action) => {
   let msg = actionToAdminMsg(action);
   if (msg) {
     // limit messages to the last 10
     return [`[${new Date().toLocaleTimeString()}]\n${msg}`].concat(
-      state.news.adminMessages.slice(0, 100),
+      newsState.adminMessages.slice(0, 100),
     );
   } else {
-    return state.news.adminMessages;
+    return newsState.adminMessages;
   }
 };
 
-const merge = (state, action) => (stringMap) => ({
-  ...state,
-  news: {
-    ...state.news,
-    adminMessages: computeAdminMessage(state, action),
-    ...stringMap,
-  },
+const merge = (newsState, action) => (stringMap) => ({
+  ...newsState,
+  adminMessages: computeAdminMessage(newsState, action),
+  ...stringMap,
 });
 
-export default function (state, action) {
+export default function (newsState = initialNewsState, action) {
   let { payload } = action;
-  let mergeWithState = merge(state, action);
+  let mergeWithState = merge(newsState, action);
 
   switch (action.type) {
     // CREATE
     case actions.CREATE_NEWS_ITEM_SEND:
       return mergeWithState({
         requestStatus: {
-          ...state.news.requestStatus,
+          ...newsState.requestStatus,
           create: states.inProgress,
         },
       });
@@ -142,7 +146,7 @@ export default function (state, action) {
     case actions.CREATE_NEWS_ITEM_FAILURE:
       return mergeWithState({
         requestStatus: {
-          ...state.news.requestStatus,
+          ...newsState.requestStatus,
           create: states.failed,
         },
       });
@@ -150,7 +154,7 @@ export default function (state, action) {
     case actions.CREATE_NEWS_ITEM_SUCCESS:
       return mergeWithState({
         requestStatus: {
-          ...state.news.requestStatus,
+          ...newsState.requestStatus,
           create: states.succeeded,
         },
       });
@@ -159,7 +163,7 @@ export default function (state, action) {
     case actions.REQUEST_NEWS_LIST_SEND:
       return mergeWithState({
         requestStatus: {
-          ...state.news.requestStatus,
+          ...newsState.requestStatus,
           list: states.inProgress,
         },
       });
@@ -167,14 +171,14 @@ export default function (state, action) {
       return mergeWithState({
         stories: payload.stories,
         requestStatus: {
-          ...state.news.requestStatus,
+          ...newsState.requestStatus,
           list: states.succeeded,
         },
       });
     case actions.REQUEST_NEWS_LIST_FAILURE:
       return mergeWithState({
         requestStatus: {
-          ...state.news.requestStatus,
+          ...newsState.requestStatus,
           list: states.failed,
         },
       });
@@ -182,21 +186,21 @@ export default function (state, action) {
     case actions.UPDATE_NEWS_ITEM_SEND:
       return mergeWithState({
         requestStatus: {
-          ...state.news.requestStatus,
+          ...newsState.requestStatus,
           update: states.inProgress,
         },
       });
     case actions.UPDATE_NEWS_ITEM_FAILURE:
       return mergeWithState({
         requestStatus: {
-          ...state.news.requestStatus,
+          ...newsState.requestStatus,
           update: states.failed,
         },
       });
     case actions.UPDATE_NEWS_ITEM_SUCCESS:
       return mergeWithState({
         requestStatus: {
-          ...state.news.requestStatus,
+          ...newsState.requestStatus,
           update: states.succeeded,
         },
       });
@@ -204,21 +208,21 @@ export default function (state, action) {
     case actions.UPDATE_NEWS_RANKS_SEND:
       return mergeWithState({
         requestStatus: {
-          ...state.news.requestStatus,
+          ...newsState.requestStatus,
           updateRanks: states.inProgress,
         },
       });
     case actions.UPDATE_NEWS_RANKS_FAILURE:
       return mergeWithState({
         requestStatus: {
-          ...state.news.requestStatus,
+          ...newsState.requestStatus,
           updateRanks: states.failed,
         },
       });
     case actions.UPDATE_NEWS_RANKS_SUCCESS:
       return mergeWithState({
         requestStatus: {
-          ...state.news.requestStatus,
+          ...newsState.requestStatus,
           updateRanks: states.succeeded,
         },
       });
@@ -229,7 +233,7 @@ export default function (state, action) {
     case actions.UNPUBLISH_NEWS_ITEM_SEND:
       return mergeWithState({
         requestStatus: {
-          ...state.news.requestStatus,
+          ...newsState.requestStatus,
           updateViewStatus: states.inProgress,
         },
       });
@@ -239,7 +243,7 @@ export default function (state, action) {
     case actions.UNPUBLISH_NEWS_ITEM_FAILURE:
       return mergeWithState({
         requestStatus: {
-          ...state.news.requestStatus,
+          ...newsState.requestStatus,
           updateViewStatus: states.succeeded,
         },
       });
@@ -249,7 +253,7 @@ export default function (state, action) {
     case actions.UNPUBLISH_NEWS_ITEM_SUCCESS:
       return mergeWithState({
         requestStatus: {
-          ...state.news.requestStatus,
+          ...newsState.requestStatus,
           updateViewStatus: states.succeeded,
         },
       });
@@ -257,137 +261,113 @@ export default function (state, action) {
     case actions.FEATURE_NEWS_ITEM_SUCCESS:
       return mergeWithState({
         requestStatus: {
-          ...state.news.requestStatus,
+          ...newsState.requestStatus,
           updateFeature: states.succeeded,
         },
-        adminMessages: computeAdminMessage(state, action),
+        adminMessages: computeAdminMessage(newsState, action),
       });
     // FEATURE / UNFEATURE
     case actions.FEATURE_NEWS_ITEM_FAILURE:
       return mergeWithState({
         requestStatus: {
-          ...state.news.requestStatus,
+          ...newsState.requestStatus,
           updateFeature: states.failed,
         },
-        adminMessages: computeAdminMessage(state, action),
+        adminMessages: computeAdminMessage(newsState, action),
       });
 
     // CATEGORIZE
     case actions.CATEGORIZE_NEWS_ITEM_SUCCESS:
       return mergeWithState({
         requestStatus: {
-          ...state.news.requestStatus,
+          ...newsState.requestStatus,
           updateCategory: states.succeeded,
         },
-        adminMessages: computeAdminMessage(state, action),
+        adminMessages: computeAdminMessage(newsState, action),
       });
     case actions.CATEGORIZE_NEWS_ITEM_FAILURE:
       return mergeWithState({
         requestStatus: {
-          ...state.news.requestStatus,
+          ...newsState.requestStatus,
           updateCategory: states.failed,
         },
-        adminMessages: computeAdminMessage(state, action),
+        adminMessages: computeAdminMessage(newsState, action),
       });
 
     // DASHBOARD STATE
     case actions.SET_VIEW_STATE_FILTER:
       return {
-        ...state,
-        news: {
-          ...state.news,
-          viewStateFilter: payload.filter,
-          adminMessages: computeAdminMessage(state, action),
-        },
+        ...newsState,
+        viewStateFilter: payload.filter,
+        adminMessages: computeAdminMessage(newsState, action),
       };
     case actions.SET_RANK_FILTER:
       return {
-        ...state,
-        news: {
-          ...state.news,
-          rankFilter: payload.filter,
-          adminMessages: computeAdminMessage(state, action),
-        },
+        ...newsState,
+        rankFilter: payload.filter,
+        adminMessages: computeAdminMessage(newsState, action),
       };
     case actions.SET_SORT_TERM:
       return {
-        ...state,
-        news: {
-          ...state.news,
-          sortTerm: payload.sortTerm,
-          // in addition to updating the sort term,
-          // if the term is 'simulate', then update the
-          // order and filters to simulate the news banner
-          orderOfImportance:
-            payload.sortTerm === 'simulate'
-              ? 'descending'
-              : state.news.orderOfImportance,
-          viewStateFilter:
-            payload.sortTerm === 'simulate'
-              ? [2, 3]
-              : state.news.viewStateFilter,
-          adminMessages: computeAdminMessage(state, action),
-        },
+        ...newsState,
+        sortTerm: payload.sortTerm,
+        // in addition to updating the sort term,
+        // if the term is 'simulate', then update the
+        // order and filters to simulate the news banner
+        orderOfImportance:
+          payload.sortTerm === 'simulate'
+            ? 'descending'
+            : newsState.orderOfImportance,
+        viewStateFilter:
+          payload.sortTerm === 'simulate' ? [2, 3] : newsState.viewStateFilter,
+        adminMessages: computeAdminMessage(newsState, action),
       };
     case actions.SET_ORDER_OF_IMPORTANCE:
       return {
-        ...state,
-        news: {
-          ...state.news,
-          orderOfImportance: payload.orderOfImportance,
-          // if the order of importance is changing from descending to ascending
-          // AND the sortTerm is set to 'simulate',
-          // THEN deselect 'simulate' as the sort, term,
-          // because changing the order of importance breaks the simulation
-          sortTerm:
-            payload.orderOfImportance === 'ascending' &&
-            state.news.sortTerm === 'simulate'
-              ? ''
-              : state.news.sortTerm,
-          adminMessages: computeAdminMessage(state, action),
-        },
+        ...newsState,
+        orderOfImportance: payload.orderOfImportance,
+        // if the order of importance is changing from descending to ascending
+        // AND the sortTerm is set to 'simulate',
+        // THEN deselect 'simulate' as the sort, term,
+        // because changing the order of importance breaks the simulation
+        sortTerm:
+          payload.orderOfImportance === 'ascending' &&
+          newsState.sortTerm === 'simulate'
+            ? ''
+            : newsState.sortTerm,
+        adminMessages: computeAdminMessage(newsState, action),
       };
     case actions.OPEN_RANKS_EDITOR:
       return {
-        ...state,
-        news: {
-          ...state.news,
-          openRanksEditor: payload.openRanksEditor,
-          // when the editor closes, clear the addRank array
-          addRank: payload.openRanksEditor ? state.news.addRank : [],
-          adminMessages: computeAdminMessage(state, action),
-        },
+        ...newsState,
+        openRanksEditor: payload.openRanksEditor,
+        // when the editor closes, clear the addRank array
+        addRank: payload.openRanksEditor ? newsState.addRank : [],
+        adminMessages: computeAdminMessage(newsState, action),
       };
     case actions.SET_NEWS_RANKS:
       return {
-        ...state,
-        news: {
-          ...state.news,
-          ranks: payload.ranks,
-          // clean any items in the addRank array
-          addRank: [],
-          adminMessages: computeAdminMessage(state, action),
-        },
+        ...newsState,
+        ranks: payload.ranks,
+        // clean any items in the addRank array
+        addRank: [],
+        adminMessages: computeAdminMessage(newsState, action),
       };
     case actions.ADD_RANK:
       return {
-        ...state,
-        news: {
-          ...state.news,
-          addRank: state.news.addRank.concat(payload.story),
-          adminMessages: computeAdminMessage(state, action),
-        },
+        ...newsState,
+        addRank: newsState.addRank.concat(payload.story),
+        adminMessages: computeAdminMessage(newsState, action),
       };
 
     // for default, compute admin messages, so that we don't need a case
     // for all the actions that don't otherwise update state
     default:
       return {
-        ...state,
-        news: {
-          ...state.news,
-          adminMessages: computeAdminMessage(state, action),
-        },
+        ...newsState,
+        adminMessages: computeAdminMessage(newsState, action),
       };
   }
 }
+
+export { initialNewsState };

@@ -14,6 +14,37 @@ import {
   TRIGGER_DIRECT_DOWNLOAD,
 } from './actionTypes';
 
+// Dropbox slice initial state - extracted from main initialState object
+const initialDropboxState = {
+  isLoading: false,
+  success: false,
+  error: null,
+  downloadLink: null,
+  autoDownloadEligible: false,
+  directDownloadLink: null,
+  availableFolders: { hasRep: false, hasNrt: false, hasRaw: false },
+  mainFolder: null,
+  currentTab: null,
+  paginationByFolder: {},
+  vaultFilesPagination: {
+    backend: {
+      cursor: null,
+      hasMore: false,
+      chunkSize: null,
+      isLoading: false,
+    },
+    local: {
+      currentPage: 1,
+      pageSize: 25,
+      totalPages: null,
+    },
+    totalFileCount: null,
+    allCachedFiles: [],
+    currentPageFiles: [],
+    error: null,
+  },
+};
+
 // Helper function to create initial pagination state for a folder
 const createInitialFolderPaginationState = () => ({
   backend: {
@@ -44,66 +75,62 @@ const ensureFolderPaginationExists = (paginationByFolder, folderType) => {
   return paginationByFolder;
 };
 
-export default function dropboxReducer(state, action) {
+export default function dropboxReducer(
+  dropboxState = initialDropboxState,
+  action,
+) {
   switch (action.type) {
     case DOWNLOAD_DROPBOX_VAULT_FILES_REQUEST:
       return {
-        ...state,
-        dropbox: {
-          ...state.dropbox,
-          isLoading: true,
-          error: null,
-          success: false,
-          downloadLink: null,
-        },
+        ...dropboxState,
+        isLoading: true,
+        error: null,
+        success: false,
+        downloadLink: null,
       };
 
     case DOWNLOAD_DROPBOX_VAULT_FILES_SUCCESS:
       return {
-        ...state,
-        dropbox: {
-          ...state.dropbox,
-          isLoading: false,
-          success: true,
-          downloadLink: action.payload.downloadLink,
-          error: null,
-        },
+        ...dropboxState,
+        isLoading: false,
+        success: true,
+        downloadLink: action.payload.downloadLink,
+        error: null,
       };
 
     case DOWNLOAD_DROPBOX_VAULT_FILES_FAILURE:
       return {
-        ...state,
-        dropbox: {
-          ...state.dropbox,
-          isLoading: false,
-          success: false,
-          error: action.payload.error,
-          downloadLink: null,
-        },
+        ...dropboxState,
+        isLoading: false,
+        success: false,
+        error: action.payload.error,
+        downloadLink: null,
       };
 
     case DOWNLOAD_DROPBOX_VAULT_FILES_CLEAR:
       return {
-        ...state,
-        dropbox: {
-          ...state.dropbox,
-          isLoading: false,
-          success: false,
-          error: null,
-          downloadLink: null,
-        },
+        ...dropboxState,
+        isLoading: false,
+        success: false,
+        error: null,
+        downloadLink: null,
       };
 
     // Vault Files Pagination
     case FETCH_DROPBOX_VAULT_FILES_PAGE: {
-      const folderType = (action.payload.paginationParams && action.payload.paginationParams.folderType) || state.dropbox.currentTab || state.dropbox.mainFolder || 'rep';
-      
+      const folderType =
+        (action.payload.paginationParams &&
+          action.payload.paginationParams.folderType) ||
+        dropboxState.currentTab ||
+        dropboxState.mainFolder ||
+        'rep';
+
       // Ensure folder pagination exists
       const paginationByFolder = ensureFolderPaginationExists(
-        state.dropbox.paginationByFolder,
-        folderType
+        dropboxState.paginationByFolder,
+        folderType,
       );
-      
+
       // Update folder-specific state
       const updatedPaginationByFolder = {
         ...paginationByFolder,
@@ -115,19 +142,16 @@ export default function dropboxReducer(state, action) {
           },
         },
       };
-      
+
       // Also update legacy structure for backward compatibility
       return {
-        ...state,
-        dropbox: {
-          ...state.dropbox,
-          paginationByFolder: updatedPaginationByFolder,
-          vaultFilesPagination: {
-            ...state.dropbox.vaultFilesPagination,
-            backend: {
-              ...state.dropbox.vaultFilesPagination.backend,
-              isLoading: true,
-            },
+        ...dropboxState,
+        paginationByFolder: updatedPaginationByFolder,
+        vaultFilesPagination: {
+          ...dropboxState.vaultFilesPagination,
+          backend: {
+            ...dropboxState.vaultFilesPagination.backend,
+            isLoading: true,
           },
         },
       };
@@ -136,19 +160,20 @@ export default function dropboxReducer(state, action) {
     case FETCH_DROPBOX_VAULT_FILES_PAGE_SUCCESS: {
       const newFiles = action.payload.files || [];
       const { availableFolders, mainFolder, folderType } = action.payload;
-      
+
       // Determine which folder we're working with
-      const activeFolder = folderType || state.dropbox.currentTab || mainFolder || 'rep';
-      
+      const activeFolder =
+        folderType || dropboxState.currentTab || mainFolder || 'rep';
+
       // Ensure folder pagination exists
       const paginationByFolder = ensureFolderPaginationExists(
-        state.dropbox.paginationByFolder,
-        activeFolder
+        dropboxState.paginationByFolder,
+        activeFolder,
       );
       const folderPagination = paginationByFolder[activeFolder];
-      
+
       const isInitialRequest = !folderPagination.backend.cursor;
-      
+
       // Accumulate files from all requests for this folder
       const allFiles = isInitialRequest
         ? newFiles
@@ -202,42 +227,44 @@ export default function dropboxReducer(state, action) {
       };
 
       // Also update legacy structure for current tab
-      const legacyPagination = activeFolder === (state.dropbox.currentTab || state.dropbox.mainFolder)
-        ? updatedPaginationByFolder[activeFolder]
-        : state.dropbox.vaultFilesPagination;
+      const legacyPagination =
+        activeFolder === (dropboxState.currentTab || dropboxState.mainFolder)
+          ? updatedPaginationByFolder[activeFolder]
+          : dropboxState.vaultFilesPagination;
 
       return {
-        ...state,
-        dropbox: {
-          ...state.dropbox,
-          // Update folder metadata
-          availableFolders: availableFolders || state.dropbox.availableFolders,
-          mainFolder: mainFolder || state.dropbox.mainFolder,
-          currentTab: activeFolder,
-          // Update folder-specific pagination
-          paginationByFolder: updatedPaginationByFolder,
-          // Update legacy structure for backward compatibility
-          vaultFilesPagination: {
-            backend: legacyPagination.backend,
-            local: legacyPagination.local,
-            totalFileCount: legacyPagination.totalFileCount,
-            allCachedFiles: legacyPagination.allCachedFiles,
-            currentPageFiles: legacyPagination.currentPageFiles,
-            error: null,
-          },
+        ...dropboxState,
+        // Update folder metadata
+        availableFolders: availableFolders || dropboxState.availableFolders,
+        mainFolder: mainFolder || dropboxState.mainFolder,
+        currentTab: activeFolder,
+        // Update folder-specific pagination
+        paginationByFolder: updatedPaginationByFolder,
+        // Update legacy structure for backward compatibility
+        vaultFilesPagination: {
+          backend: legacyPagination.backend,
+          local: legacyPagination.local,
+          totalFileCount: legacyPagination.totalFileCount,
+          allCachedFiles: legacyPagination.allCachedFiles,
+          currentPageFiles: legacyPagination.currentPageFiles,
+          error: null,
         },
       };
     }
 
     case FETCH_DROPBOX_VAULT_FILES_PAGE_FAILURE: {
-      const folderType = action.payload.folderType || state.dropbox.currentTab || state.dropbox.mainFolder || 'rep';
-      
+      const folderType =
+        action.payload.folderType ||
+        dropboxState.currentTab ||
+        dropboxState.mainFolder ||
+        'rep';
+
       // Ensure folder pagination exists
       const paginationByFolder = ensureFolderPaginationExists(
-        state.dropbox.paginationByFolder,
-        folderType
+        dropboxState.paginationByFolder,
+        folderType,
       );
-      
+
       // Update folder-specific state
       const updatedPaginationByFolder = {
         ...paginationByFolder,
@@ -250,55 +277,53 @@ export default function dropboxReducer(state, action) {
           error: action.payload.error,
         },
       };
-      
+
       return {
-        ...state,
-        dropbox: {
-          ...state.dropbox,
-          paginationByFolder: updatedPaginationByFolder,
-          vaultFilesPagination: {
-            ...state.dropbox.vaultFilesPagination,
-            backend: {
-              ...state.dropbox.vaultFilesPagination.backend,
-              isLoading: false,
-            },
-            error: action.payload.error,
+        ...dropboxState,
+        paginationByFolder: updatedPaginationByFolder,
+        vaultFilesPagination: {
+          ...dropboxState.vaultFilesPagination,
+          backend: {
+            ...dropboxState.vaultFilesPagination.backend,
+            isLoading: false,
           },
+          error: action.payload.error,
         },
       };
     }
 
     case RESET_DROPBOX_VAULT_FILES_PAGINATION: {
       return {
-        ...state,
-        dropbox: {
-          ...state.dropbox,
-          // Reset folder fields to defaults
-          availableFolders: { hasRep: false, hasNrt: false, hasRaw: false },
-          mainFolder: null,
-          currentTab: null,
-          // Reset all folder-specific pagination to empty object
-          paginationByFolder: {},
-          // Reset legacy pagination
-          vaultFilesPagination: createInitialFolderPaginationState(),
-          // Clear auto-download state
-          autoDownloadEligible: false,
-          directDownloadLink: null,
-        },
+        ...dropboxState,
+        // Reset folder fields to defaults
+        availableFolders: { hasRep: false, hasNrt: false, hasRaw: false },
+        mainFolder: null,
+        currentTab: null,
+        // Reset all folder-specific pagination to empty object
+        paginationByFolder: {},
+        // Reset legacy pagination
+        vaultFilesPagination: createInitialFolderPaginationState(),
+        // Clear auto-download state
+        autoDownloadEligible: false,
+        directDownloadLink: null,
       };
     }
 
     case SET_LOCAL_PAGINATION_PAGE: {
       const newPage = action.payload.page;
-      const folderType = action.payload.folderType || state.dropbox.currentTab || state.dropbox.mainFolder || 'rep';
-      
+      const folderType =
+        action.payload.folderType ||
+        dropboxState.currentTab ||
+        dropboxState.mainFolder ||
+        'rep';
+
       // Ensure folder pagination exists
       const paginationByFolder = ensureFolderPaginationExists(
-        state.dropbox.paginationByFolder,
-        folderType
+        dropboxState.paginationByFolder,
+        folderType,
       );
       const folderPagination = paginationByFolder[folderType];
-      
+
       const currentPageSize = folderPagination.local.pageSize;
       const cachedFiles = folderPagination.allCachedFiles;
 
@@ -324,36 +349,40 @@ export default function dropboxReducer(state, action) {
       };
 
       // Update legacy structure if this is the current tab
-      const updateLegacy = folderType === (state.dropbox.currentTab || state.dropbox.mainFolder);
+      const updateLegacy =
+        folderType === (dropboxState.currentTab || dropboxState.mainFolder);
 
       return {
-        ...state,
-        dropbox: {
-          ...state.dropbox,
-          paginationByFolder: updatedPaginationByFolder,
-          vaultFilesPagination: updateLegacy ? {
-            ...state.dropbox.vaultFilesPagination,
-            local: {
-              ...state.dropbox.vaultFilesPagination.local,
-              currentPage: newPage,
-            },
-            currentPageFiles: newCurrentPageFiles,
-          } : state.dropbox.vaultFilesPagination,
-        },
+        ...dropboxState,
+        paginationByFolder: updatedPaginationByFolder,
+        vaultFilesPagination: updateLegacy
+          ? {
+              ...dropboxState.vaultFilesPagination,
+              local: {
+                ...dropboxState.vaultFilesPagination.local,
+                currentPage: newPage,
+              },
+              currentPageFiles: newCurrentPageFiles,
+            }
+          : dropboxState.vaultFilesPagination,
       };
     }
 
     case SET_LOCAL_PAGINATION_SIZE: {
       const newPageSize = action.payload.pageSize;
-      const folderType = action.payload.folderType || state.dropbox.currentTab || state.dropbox.mainFolder || 'rep';
-      
+      const folderType =
+        action.payload.folderType ||
+        dropboxState.currentTab ||
+        dropboxState.mainFolder ||
+        'rep';
+
       // Ensure folder pagination exists
       const paginationByFolder = ensureFolderPaginationExists(
-        state.dropbox.paginationByFolder,
-        folderType
+        dropboxState.paginationByFolder,
+        folderType,
       );
       const folderPagination = paginationByFolder[folderType];
-      
+
       const totalFileCount = folderPagination.totalFileCount;
       const newTotalPages = totalFileCount
         ? Math.ceil(totalFileCount / newPageSize)
@@ -380,53 +409,48 @@ export default function dropboxReducer(state, action) {
       };
 
       // Update legacy structure if this is the current tab
-      const updateLegacy = folderType === (state.dropbox.currentTab || state.dropbox.mainFolder);
+      const updateLegacy =
+        folderType === (dropboxState.currentTab || dropboxState.mainFolder);
 
       return {
-        ...state,
-        dropbox: {
-          ...state.dropbox,
-          paginationByFolder: updatedPaginationByFolder,
-          vaultFilesPagination: updateLegacy ? {
-            ...state.dropbox.vaultFilesPagination,
-            local: {
-              currentPage: 1,
-              pageSize: newPageSize,
-              totalPages: newTotalPages,
-            },
-            currentPageFiles: newPageFiles,
-          } : state.dropbox.vaultFilesPagination,
-        },
+        ...dropboxState,
+        paginationByFolder: updatedPaginationByFolder,
+        vaultFilesPagination: updateLegacy
+          ? {
+              ...dropboxState.vaultFilesPagination,
+              local: {
+                currentPage: 1,
+                pageSize: newPageSize,
+                totalPages: newTotalPages,
+              },
+              currentPageFiles: newPageFiles,
+            }
+          : dropboxState.vaultFilesPagination,
       };
     }
 
     case SET_CURRENT_FOLDER_TAB: {
       const { folderType } = action.payload;
-      
+
       // Get the pagination for the new tab (if it exists)
-      const folderPagination = state.dropbox.paginationByFolder[folderType];
-      
+      const folderPagination = dropboxState.paginationByFolder[folderType];
+
       return {
-        ...state,
-        dropbox: {
-          ...state.dropbox,
-          currentTab: folderType,
-          // Update legacy pagination to match the current tab (if folder pagination exists)
-          vaultFilesPagination: folderPagination || state.dropbox.vaultFilesPagination,
-        },
+        ...dropboxState,
+        currentTab: folderType,
+        // Update legacy pagination to match the current tab (if folder pagination exists)
+        vaultFilesPagination:
+          folderPagination || dropboxState.vaultFilesPagination,
       };
     }
 
     case SET_AUTO_DOWNLOAD_ELIGIBILITY: {
       const { autoDownloadEligible, directDownloadLink } = action.payload;
-      
+
       return {
-        ...state,
-        dropbox: {
-          ...state.dropbox,
-          autoDownloadEligible,
-          directDownloadLink,
-        },
+        ...dropboxState,
+        autoDownloadEligible,
+        directDownloadLink,
       };
     }
 
@@ -434,15 +458,14 @@ export default function dropboxReducer(state, action) {
       // This action triggers a direct download via window.location.href
       // The reducer doesn't need to modify state, but can track the action
       return {
-        ...state,
-        dropbox: {
-          ...state.dropbox,
-          lastDirectDownloadTriggered: action.payload.downloadLink,
-        },
+        ...dropboxState,
+        lastDirectDownloadTriggered: action.payload.downloadLink,
       };
     }
 
     default:
-      return state;
+      return dropboxState;
   }
 }
+
+export { initialDropboxState };

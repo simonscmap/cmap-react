@@ -1,6 +1,23 @@
 import * as dataSubmissionActionTypes from '../actionTypes/dataSubmission';
 import states from '../../enums/asyncRequestStates';
 import { amendReportWithErrorCount } from '../../Components/DataSubmission/Helpers/countErrors';
+
+// Define initial state for dataSubmission slice reducer
+export const initialDataSubmissionState = {
+  dataSubmissions: [],
+  retrieveUserDataSubmsissionsRequestStatus: states.notTried,
+  submissionStep: 0, // start at 0
+  submissionType: 'new', // 'new' | 'update'
+  submissionToUpdate: null, // Id
+  submissionComments: [],
+  submissionCommentHistoryRetrievalState: states.succeeded,
+  submissionFile: null,
+  submissionUploadState: null,
+  dataSubmissionSelectOptions: null,
+  auditReport: null,
+  checkSubmissionNameRequestStatus: states.notTried,
+  checkSubmissionNameResult: null,
+};
 const {
   STORE_SUBMISSIONS,
   SET_SUBMISSION_COMMENT_HISTORY_RETRIEVAL_STATE,
@@ -20,7 +37,7 @@ const {
   SET_SUBMISSION_STEP, // validaitor
 } = dataSubmissionActionTypes;
 
-export default function (state, action) {
+export default function (state = initialDataSubmissionState, action) {
   switch (action.type) {
     case SET_SUBMISSION_STEP:
       return {
