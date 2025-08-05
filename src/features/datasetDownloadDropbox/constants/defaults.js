@@ -7,6 +7,3 @@ export const PAGE_SIZE_OPTIONS = [25, 50, 100, 250];
 // File selection limits
 export const MAX_FILES_LIMIT = 400;
 export const MAX_SIZE_LIMIT_BYTES = 10 * 1024 * 1024 * 1024; // 10GB
-
-// Search feature threshold
-export const SEARCH_ACTIVATION_THRESHOLD = 1000; // Files count threshold for activating search interface
