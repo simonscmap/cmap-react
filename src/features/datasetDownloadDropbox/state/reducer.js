@@ -47,16 +47,22 @@ const initialDropboxState = {
     currentPageFiles: [],
     error: null,
   },
-  // Search state extension following architecture specification
-  search: {
-    isActive: false,        // Whether search mode is enabled
-    query: '',              // Current search query
-    filteredFiles: [],      // Files matching search query
-    highlightMatches: [],   // Match data for highlighting
-    searchStartTime: null,  // Performance tracking
-    lastSearchDuration: null,
+  // Search state extension - now per folder like pagination
+  searchByFolder: {
+    // Structure: { [folderType]: searchState } where folderType can be 'rep', 'nrt', or 'raw'
+    // UI shows 2 tabs: Main Files (rep/nrt) and Raw Files (raw), each with separate search state
   },
 };
+
+// Helper function to create initial search state for a folder
+const createInitialFolderSearchState = () => ({
+  isActive: false, // Whether search mode is enabled
+  query: '', // Current search query
+  filteredFiles: [], // Files matching search query
+  highlightMatches: [], // Match data for highlighting
+  searchStartTime: null, // Performance tracking
+  lastSearchDuration: null,
+});
 
 // Helper function to create initial pagination state for a folder
 const createInitialFolderPaginationState = () => ({
@@ -86,6 +92,17 @@ const ensureFolderPaginationExists = (paginationByFolder, folderType) => {
     };
   }
   return paginationByFolder;
+};
+
+// Helper to ensure folder search state exists
+const ensureFolderSearchExists = (searchByFolder, folderType) => {
+  if (!searchByFolder[folderType]) {
+    return {
+      ...searchByFolder,
+      [folderType]: createInitialFolderSearchState(),
+    };
+  }
+  return searchByFolder;
 };
 
 export default function dropboxReducer(
@@ -314,6 +331,8 @@ export default function dropboxReducer(
         currentTab: null,
         // Reset all folder-specific pagination to empty object
         paginationByFolder: {},
+        // Reset all folder-specific search states
+        searchByFolder: {},
         // Reset legacy pagination
         vaultFilesPagination: createInitialFolderPaginationState(),
         // Clear auto-download state
@@ -478,56 +497,108 @@ export default function dropboxReducer(
 
     // Search state handlers
     case SET_SEARCH_QUERY: {
-      const { query, timestamp } = action.payload;
+      const { query, timestamp, folderType } = action.payload;
+      const activeFolder = folderType || dropboxState.currentTab || 'rep';
+
+      // Ensure folder search exists
+      const searchByFolder = ensureFolderSearchExists(
+        dropboxState.searchByFolder,
+        activeFolder,
+      );
+
       return {
         ...dropboxState,
-        search: {
-          ...dropboxState.search,
-          query,
-          isActive: query.length > 0,
-          searchStartTime: timestamp,
-          // Clear previous results when query changes
-          filteredFiles: query.length === 0 ? [] : dropboxState.search.filteredFiles,
-          highlightMatches: query.length === 0 ? [] : dropboxState.search.highlightMatches,
+        searchByFolder: {
+          ...searchByFolder,
+          [activeFolder]: {
+            ...searchByFolder[activeFolder],
+            query,
+            isActive: query.length > 0,
+            searchStartTime: timestamp,
+            // Clear previous results when query changes
+            filteredFiles:
+              query.length === 0
+                ? []
+                : searchByFolder[activeFolder].filteredFiles,
+            highlightMatches:
+              query.length === 0
+                ? []
+                : searchByFolder[activeFolder].highlightMatches,
+          },
         },
       };
     }
 
     case SET_SEARCH_RESULTS: {
-      const { filteredFiles, highlightMatches, searchDuration } = action.payload;
+      const { filteredFiles, highlightMatches, searchDuration, folderType } =
+        action.payload;
+      const activeFolder = folderType || dropboxState.currentTab || 'rep';
+
+      // Ensure folder search exists
+      const searchByFolder = ensureFolderSearchExists(
+        dropboxState.searchByFolder,
+        activeFolder,
+      );
+
       return {
         ...dropboxState,
-        search: {
-          ...dropboxState.search,
-          filteredFiles,
-          highlightMatches,
-          lastSearchDuration: searchDuration,
+        searchByFolder: {
+          ...searchByFolder,
+          [activeFolder]: {
+            ...searchByFolder[activeFolder],
+            filteredFiles,
+            highlightMatches,
+            lastSearchDuration: searchDuration,
+          },
         },
       };
     }
 
     case CLEAR_SEARCH: {
+      const { folderType } = action.payload || {};
+      const activeFolder = folderType || dropboxState.currentTab || 'rep';
+
+      // Ensure folder search exists
+      const searchByFolder = ensureFolderSearchExists(
+        dropboxState.searchByFolder,
+        activeFolder,
+      );
+
       return {
         ...dropboxState,
-        search: {
-          ...dropboxState.search,
-          isActive: false,
-          query: '',
-          filteredFiles: [],
-          highlightMatches: [],
-          searchStartTime: null,
-          lastSearchDuration: null,
+        searchByFolder: {
+          ...searchByFolder,
+          [activeFolder]: {
+            ...searchByFolder[activeFolder],
+            isActive: false,
+            query: '',
+            filteredFiles: [],
+            highlightMatches: [],
+            searchStartTime: null,
+            lastSearchDuration: null,
+          },
         },
       };
     }
 
     case SET_SEARCH_ACTIVE: {
-      const { isActive } = action.payload;
+      const { isActive, folderType } = action.payload;
+      const activeFolder = folderType || dropboxState.currentTab || 'rep';
+
+      // Ensure folder search exists
+      const searchByFolder = ensureFolderSearchExists(
+        dropboxState.searchByFolder,
+        activeFolder,
+      );
+
       return {
         ...dropboxState,
-        search: {
-          ...dropboxState.search,
-          isActive,
+        searchByFolder: {
+          ...searchByFolder,
+          [activeFolder]: {
+            ...searchByFolder[activeFolder],
+            isActive,
+          },
         },
       };
     }

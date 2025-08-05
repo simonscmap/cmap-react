@@ -1,6 +1,12 @@
 import React from 'react';
-import { Box } from '@material-ui/core';
+import { Box, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { useSelector } from 'react-redux';
+import {
+  selectCurrentTab,
+  selectMainFolder,
+  selectFolderSearchState,
+} from '../../state/selectors';
 import { SEARCH_ACTIVATION_THRESHOLD } from '../../constants/searchConstants';
 
 const useStyles = makeStyles((theme) => ({
@@ -11,10 +17,37 @@ const useStyles = makeStyles((theme) => ({
     border: `1px solid ${theme.palette.divider}`,
     borderRadius: theme.shape.borderRadius,
   },
+  searchHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: theme.spacing(1),
+  },
+  searchTitle: {
+    fontWeight: 500,
+    color: theme.palette.text.primary,
+  },
+  fileCountBadge: {
+    fontSize: '0.8em',
+    padding: theme.spacing(0.5, 1),
+    backgroundColor: theme.palette.primary.light,
+    color: theme.palette.primary.contrastText,
+    borderRadius: theme.shape.borderRadius,
+  },
 }));
 
-const SearchInterface = ({ files }) => {
+const SearchInterface = ({ files, folderType }) => {
   const classes = useStyles();
+
+  // Get current folder type
+  const currentTab = useSelector(selectCurrentTab);
+  const mainFolder = useSelector(selectMainFolder);
+  const activeFolder = folderType || currentTab || mainFolder || 'rep';
+
+  // Get search state for this specific folder
+  const searchState = useSelector((state) =>
+    selectFolderSearchState(state, activeFolder),
+  );
 
   // Check if search should be active based on file count threshold
   const shouldShowSearch = files.length > SEARCH_ACTIVATION_THRESHOLD;
@@ -23,10 +56,24 @@ const SearchInterface = ({ files }) => {
     return null;
   }
 
+  const folderDisplayName = activeFolder === 'rep' ? 'Main Files' : 'Raw Files';
+
   return (
     <Box className={classes.searchContainer}>
+      <div className={classes.searchHeader}>
+        <Typography variant="h6" className={classes.searchTitle}>
+          Search {folderDisplayName}
+        </Typography>
+        <span className={classes.fileCountBadge}>{files.length} files</span>
+      </div>
       {/* SearchInput component will be added in Task 4 */}
-      <div>Search Interface Placeholder - Files: {files.length}</div>
+      <div>
+        Search Interface for {folderDisplayName} - {files.length} files
+        available
+      </div>
+      {searchState.isActive && (
+        <div>Search is active: "{searchState.query}"</div>
+      )}
       {/* PatternDisplay component will be added in Task 4 */}
     </Box>
   );
