@@ -1,5 +1,5 @@
 // Search activation threshold - when to show search interface
-export const SEARCH_ACTIVATION_THRESHOLD = 1000;
+export const SEARCH_ACTIVATION_THRESHOLD = 499;
 
 // Search performance target (milliseconds)
 export const SEARCH_PERFORMANCE_TARGET = 100;
@@ -27,5 +27,5 @@ export const SEARCH_STATES = {
   SEARCHING: 'searching',
   RESULTS: 'results',
   NO_RESULTS: 'no_results',
-  ERROR: 'error'
+  ERROR: 'error',
 };

@@ -20,6 +20,7 @@ import {
   selectFolderPagination,
   selectFolderFiles,
   selectFolderPaginationInfo,
+  selectFolderAllCachedFiles,
 } from '../../state/selectors';
 import {
   useFileSelectionPerFolder,
@@ -36,6 +37,7 @@ import FileTable from '../FileTable';
 import PaginationControls from '../PaginationControls';
 import TabNavigation from '../TabNavigation';
 import TabPanel from '../TabPanel';
+import SearchInterface from '../SearchInterface';
 import { setCurrentFolderTab } from '../../state/actions';
 
 const useStyles = makeStyles((theme) => ({
@@ -69,6 +71,9 @@ const DropboxFileSelectionModal = (props) => {
   );
   const folderPaginationInfo = useSelector((state) =>
     selectFolderPaginationInfo(state, activeTab),
+  );
+  const allCachedFiles = useSelector((state) =>
+    selectFolderAllCachedFiles(state, activeTab),
   );
 
   const allFiles = useMemo(() => {
@@ -173,6 +178,10 @@ const DropboxFileSelectionModal = (props) => {
         ) : (
           tabConfig.tabs.map((tab) => (
             <TabPanel key={tab.key} value={activeTab} index={tab.key}>
+              <SearchInterface
+                files={allCachedFiles}
+              />
+
               <FileTable
                 allFiles={allFiles}
                 selectedFiles={selectedFiles}
