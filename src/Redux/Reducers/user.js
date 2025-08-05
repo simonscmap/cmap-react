@@ -1,7 +1,52 @@
 import * as actions from '../actionTypes/user';
 import states from '../../enums/asyncRequestStates';
+import Cookies from 'js-cookie';
 
-export default function (state, action) {
+// Initial state for user slice - contains all properties managed by user reducer
+export const initialUserState = {
+  // User authentication and profile
+  user: JSON.parse(Cookies.get('UserInfo') || null),
+  userLoginState: null,
+  userLoginError: null,
+  userValidationState: null,
+  userRegistrationState: null,
+  clearLoginDialog: false,
+  userRegisterWithGoogleContext: false,
+  gsiInitialized: false,
+  userIsGuest: false,
+  
+  // API keys management
+  apiKeys: null,
+  apiKeyRetrievalState: null,
+  apiKeyCreationState: null,
+  
+  // User API calls tracking
+  userApiCallsRequestStatus: states.notTried,
+  
+  // Password management
+  choosePasswordState: null,
+  
+  // Contact forms
+  contactUs: {
+    requestState: states.notTried,
+    data: null,
+  },
+  nominateNewData: {
+    requestState: states.notTried,
+    data: null,
+  },
+  
+  // Subscriptions
+  userSubscriptionsRequestStatus: undefined,
+  userSubscriptions: undefined,
+  userCreateSubscriptionRequestStatus: undefined,
+  userDeleteSubscriptionRequestStatus: undefined,
+  
+  // Action resumption after login
+  resumeAction: null,
+};
+
+export default function (state = initialUserState, action) {
   switch (action.type) {
     case actions.LOGIN_REQUEST_PROCESSING:
       return {

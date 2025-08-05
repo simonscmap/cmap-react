@@ -23,6 +23,52 @@ import {
   SET_SUBSCRIBE_INTRO_STATE,
 } from '../actionTypes/ui';
 import states from '../../enums/asyncRequestStates';
+import initialSubscribeIntroState from '../../Components/User/Subscriptions/initialIntroState';
+
+// Initial state for UI slice reducer
+// Single source of truth pattern: export initial state for use in hybrid reducer
+export const initialUiState = {
+  // Dialog states
+  loginDialogIsOpen: false,
+  changePasswordDialogIsOpen: false,
+  changeEmailDialogIsOpen: false,
+  registrationActiveStep: 0,
+  
+  // Snackbar states
+  snackbarIsOpen: false,
+  snackbarMessage: null,
+  
+  // Loading states
+  loadingMessage: '',
+  
+  // Help state
+  showHelp: false,
+  
+  // Window dimensions
+  windowHeight: window.innerHeight,
+  windowWidth: window.innerWidth,
+  
+  // Dialog components
+  subscribeDatasetDialog: {
+    open: false,
+    shortName: null,
+  },
+  downloadDialog: {
+    open: false,
+  },
+  
+  // User-related UI states (login, validation, etc.)
+  userLoginState: null,
+  userLoginError: null,
+  userValidationState: null,
+  userValidationError: null,
+  userRegistrationState: null,
+  apiKeyRetrievalState: null,
+  apiKeyCreationState: null,
+  
+  // Subscription intro state
+  subscribeIntroActive: initialSubscribeIntroState.subscribeIntroActive,
+};
 
 const uiResetState = {
   catalogRequestState: null,
@@ -39,7 +85,7 @@ const uiResetState = {
   downloadDialog: { open: false },
 };
 
-export default function (state, action) {
+export default function (state = initialUiState, action) {
   switch (action.type) {
     case INTERFACE_SHOW_LOGIN_DIALOG:
       return {

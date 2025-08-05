@@ -62,6 +62,83 @@ import {
   getFirstDatasetIdentifier,
   getDefaultVariableIdentifier,
 } from '../../Components/Catalog/Programs/programSelectors';
+import buildSearchOptionsFromVariableList from '../../Utility/Catalog/buildSearchOptionsFromVariablesList';
+
+// Initial state for catalog slice (extracted from main initialState for single source of truth)
+export const initialCatalogState = {
+  // Catalog state pieces
+  catalogRequestState: null,
+  catalog: {},
+  datasetRequestState: null,
+  datasets: null,
+  submissionOptions: buildSearchOptionsFromVariableList([]),
+  keywords: [],
+  searchOptions: {},
+  searchResults: [],
+  searchResultsLoadingState: states.notTried,
+  catalogSortingOptions: {
+    direction: 'DESC',
+    field: 'id',
+  },
+
+  // Catalog Recommendations
+  popularDatasetsRequestState: states.notTried,
+  popularDatasets: null,
+  recentDatasetsRequestState: states.notTried,
+  recentDatasets: null,
+  recommendedDatasetsRequestState: states.notTried,
+  recommendedDatasets: null,
+
+  // Dataset Download
+  download: {
+    currentRequest: null,
+    checkQueryRequestState: states.notTried,
+    querySizeChecks: [], // list of { queryString, result }
+    vaultLink: null,
+    dropboxModalOpen: 'closed',
+  }, // NOTE see also state.downloadDialog
+  // this is an artifact of initially only using redux for the ui state
+
+  // Dataset Details Page
+  datasetDetailsPage: {
+    selectedDatasetId: null,
+    selectedDatasetShortname: null,
+
+    primaryPageLoadingState: states.notTried,
+    variablesLoadingState: states.notTried,
+    unstructuredMetadataLoadingState: states.notTried,
+
+    data: null,
+    cruises: null,
+    references: null,
+    variables: null,
+    sensors: null,
+    unstructuredVariableMetadata: null,
+
+    visualizableVariables: null,
+    visualizableVariablesLoadingState: states.notTried,
+    visualizationSelection: null,
+    visualizableDataByName: null,
+
+    tabPreference: 0,
+  },
+
+  // Programs
+  programs: [],
+  programsRequestStatus: states.notTried,
+  programDetails: null,
+  programDetailsRequestStates: states.notTried,
+  programDetailsErrMessage: null,
+
+  // Program Detail Page
+
+  // Cruise Page
+  cruiseFullPageData: {},
+
+  // App (General Data)
+  tablesWithAncillaryData: null,
+  tablesWithContinuousIngestion: null,
+};
 
 // cached paths
 const pathToVisData = safePath(['programDetails', 'sampleVisData']);
@@ -133,7 +210,7 @@ const reduceDatasetVariableSelect = (state, action) => {
 
 // reducer for catalog data:
 
-export default function (state, action) {
+export default function (state = initialCatalogState, action) {
   switch (action.type) {
     /************** Catalog Page **********************/
 

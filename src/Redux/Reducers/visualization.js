@@ -19,6 +19,7 @@ import {
   CRUISE_TRAJECTORY_ZOOM_TO,
   CRUISE_LIST_REQUEST_PROCESSING,
   CRUISE_LIST_REQUEST_SUCCESS,
+  CRUISE_LIST_REQUEST_FAILURE,
   TRIGGER_SHOW_CHARTS,
   COMPLETED_SHOW_CHARTS,
   TABLE_STATS_REQUEST_SUCCESS,
@@ -49,6 +50,80 @@ import {
 } from '../actionTypes/visualization';
 
 const monthlyClimatology = temporalResolutions.monthlyClimatology;
+
+// Initial state for visualization slice
+export const initialVisualizationState = {
+  // Chart management
+  charts: [],
+  chartID: 0,
+  plotsActiveTab: 0,
+  maps: [],
+
+  // Query and sample data
+  queryRequestState: null,
+  sampleData: null,
+
+  // Cruise trajectory and list
+  cruiseTrajectories: null,
+  getCruiseTrajectoryRequestState: null,
+  cruiseTrajectoryFocus: null,
+  cruiseTrajectoryFocusNonce: null,
+  cruiseList: [],
+  getCruiseListRequestState: null,
+  trajectoryPointCounts: null,
+
+  // Chart display control
+  showChartsOnce: null,
+
+  // Data target and search
+  vizPageDataTarget: null,
+  vizPageDataTargetDetails: null,
+  vizSearchResults: { Observation: [], Model: [] },
+  vizSearchResultsFullCounts: { Observation: 0, Model: 0 },
+  vizSearchResultsLoadingState: states.succeeded,
+
+  // Variable management
+  memberVariables: [],
+  memberVariablesLoadingState: states.succeeded,
+  variableDetails: null,
+  variableFetchLoadingState: states.succeeded,
+  autocompleteVariableNames: [],
+
+  // Related data
+  relatedData: [],
+  relatedDataLoadingState: states.succeeded,
+
+  // Dataset management
+  datasets: {},
+  datasetSummary: null,
+
+  // Notifications
+  sparseDataMaxSizeNotificationData: null,
+  guestPlotLimitNotificationIsVisible: false,
+
+  // UI controls
+  showControlPanel: true,
+  dataSearchMenuOpen: false,
+
+  // Chart controls and validation (nested viz object)
+  viz: {
+    chart: {
+      controls: {
+        paramLock: false,
+        dateTypeMismatch: false,
+        variableResolutionMismatch: false,
+        lockAlertsOpen: false,
+        resolutionMismatch: false,
+      },
+      validation: {
+        sizeCheck: {
+          status: states.notTried,
+          result: null,
+        },
+      },
+    },
+  },
+};
 
 const paramLockFromState = safePath(['viz', 'chart', 'controls', 'paramLock']);
 
@@ -133,7 +208,7 @@ const shouldOpenLockAlerts = (state, action) => {
   }
 };
 
-export default function (state, action) {
+export default function (state = initialVisualizationState, action) {
   switch (action.type) {
     case QUERY_REQUEST_PROCESSING:
       return {
@@ -228,6 +303,11 @@ export default function (state, action) {
         ...state,
         getCruiseListRequestState: states.succeeded,
         cruiseList: action.payload.cruiseList,
+      };
+    case CRUISE_LIST_REQUEST_FAILURE:
+      return {
+        ...state,
+        getCruiseListRequestState: states.failed,
       };
     case TRIGGER_SHOW_CHARTS:
       return {
