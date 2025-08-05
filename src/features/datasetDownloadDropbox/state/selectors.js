@@ -127,3 +127,64 @@ export const selectIsVaultFilesLoaded = (state) => {
   const pagination = selectVaultFilesPagination(state);
   return !!(pagination.allCachedFiles && pagination.allCachedFiles.length > 0);
 };
+
+// Search selectors
+export const selectSearchState = (state) =>
+  (state.dropbox && state.dropbox.search) || {
+    isActive: false,
+    query: '',
+    filteredFiles: [],
+    highlightMatches: [],
+    searchStartTime: null,
+    lastSearchDuration: null,
+  };
+
+export const selectSearchQuery = (state) => {
+  const searchState = selectSearchState(state);
+  return searchState.query || '';
+};
+
+export const selectIsSearchActive = (state) => {
+  const searchState = selectSearchState(state);
+  return searchState.isActive || false;
+};
+
+export const selectSearchResults = (state) => {
+  const searchState = selectSearchState(state);
+  return searchState.filteredFiles || [];
+};
+
+export const selectSearchHighlightMatches = (state) => {
+  const searchState = selectSearchState(state);
+  return searchState.highlightMatches || [];
+};
+
+export const selectSearchDuration = (state) => {
+  const searchState = selectSearchState(state);
+  return searchState.lastSearchDuration;
+};
+
+export const selectSearchPerformanceData = (state) => {
+  const searchState = selectSearchState(state);
+  return {
+    startTime: searchState.searchStartTime,
+    duration: searchState.lastSearchDuration,
+  };
+};
+
+// Integration selector to determine which files to display (search results or normal pagination)
+export const selectDisplayFiles = (state) => {
+  const isSearchActive = selectIsSearchActive(state);
+  if (isSearchActive) {
+    return selectSearchResults(state);
+  }
+  // Return current folder's cached files when search is not active
+  return selectCurrentFolderFiles(state);
+};
+
+// Selector to get all files available for search from current folder
+export const selectSearchableFiles = (state) => {
+  const currentTab = selectCurrentTab(state) || selectMainFolder(state);
+  if (!currentTab) return [];
+  return selectFolderAllCachedFiles(state, currentTab);
+};

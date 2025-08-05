@@ -87,3 +87,23 @@ export const triggerDirectDownload = (downloadLink) => ({
   type: dropboxActionTypes.TRIGGER_DIRECT_DOWNLOAD,
   payload: { downloadLink },
 });
+
+// Search action creators
+export const setSearchQuery = (query, folderType) => ({
+  type: dropboxActionTypes.SET_SEARCH_QUERY,
+  payload: { query, folderType, timestamp: Date.now() },
+});
+
+export const setSearchResults = (filteredFiles, highlightMatches, searchDuration) => ({
+  type: dropboxActionTypes.SET_SEARCH_RESULTS,
+  payload: { filteredFiles, highlightMatches, searchDuration },
+});
+
+export const clearSearch = () => ({
+  type: dropboxActionTypes.CLEAR_SEARCH,
+});
+
+export const setSearchActive = (isActive) => ({
+  type: dropboxActionTypes.SET_SEARCH_ACTIVE,
+  payload: { isActive },
+});

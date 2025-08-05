@@ -12,6 +12,10 @@ import {
   SET_CURRENT_FOLDER_TAB,
   SET_AUTO_DOWNLOAD_ELIGIBILITY,
   TRIGGER_DIRECT_DOWNLOAD,
+  SET_SEARCH_QUERY,
+  SET_SEARCH_RESULTS,
+  CLEAR_SEARCH,
+  SET_SEARCH_ACTIVE,
 } from './actionTypes';
 
 // Dropbox slice initial state - extracted from main initialState object
@@ -42,6 +46,15 @@ const initialDropboxState = {
     allCachedFiles: [],
     currentPageFiles: [],
     error: null,
+  },
+  // Search state extension following architecture specification
+  search: {
+    isActive: false,        // Whether search mode is enabled
+    query: '',              // Current search query
+    filteredFiles: [],      // Files matching search query
+    highlightMatches: [],   // Match data for highlighting
+    searchStartTime: null,  // Performance tracking
+    lastSearchDuration: null,
   },
 };
 
@@ -460,6 +473,62 @@ export default function dropboxReducer(
       return {
         ...dropboxState,
         lastDirectDownloadTriggered: action.payload.downloadLink,
+      };
+    }
+
+    // Search state handlers
+    case SET_SEARCH_QUERY: {
+      const { query, timestamp } = action.payload;
+      return {
+        ...dropboxState,
+        search: {
+          ...dropboxState.search,
+          query,
+          isActive: query.length > 0,
+          searchStartTime: timestamp,
+          // Clear previous results when query changes
+          filteredFiles: query.length === 0 ? [] : dropboxState.search.filteredFiles,
+          highlightMatches: query.length === 0 ? [] : dropboxState.search.highlightMatches,
+        },
+      };
+    }
+
+    case SET_SEARCH_RESULTS: {
+      const { filteredFiles, highlightMatches, searchDuration } = action.payload;
+      return {
+        ...dropboxState,
+        search: {
+          ...dropboxState.search,
+          filteredFiles,
+          highlightMatches,
+          lastSearchDuration: searchDuration,
+        },
+      };
+    }
+
+    case CLEAR_SEARCH: {
+      return {
+        ...dropboxState,
+        search: {
+          ...dropboxState.search,
+          isActive: false,
+          query: '',
+          filteredFiles: [],
+          highlightMatches: [],
+          searchStartTime: null,
+          lastSearchDuration: null,
+        },
+      };
+    }
+
+    case SET_SEARCH_ACTIVE: {
+      const { isActive } = action.payload;
+      return {
+        ...dropboxState,
+        search: {
+          ...dropboxState.search,
+          isActive,
+        },
       };
     }
 
