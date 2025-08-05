@@ -5,9 +5,9 @@ import { useSelector } from 'react-redux';
 import {
   selectCurrentTab,
   selectMainFolder,
-  selectFolderSearchState,
 } from '../../state/selectors';
 import { SEARCH_ACTIVATION_THRESHOLD } from '../../constants/searchConstants';
+import SearchInput from '../SearchInput';
 
 const useStyles = makeStyles((theme) => ({
   searchContainer: {
@@ -44,10 +44,6 @@ const SearchInterface = ({ files, folderType }) => {
   const mainFolder = useSelector(selectMainFolder);
   const activeFolder = folderType || currentTab || mainFolder || 'rep';
 
-  // Get search state for this specific folder
-  const searchState = useSelector((state) =>
-    selectFolderSearchState(state, activeFolder),
-  );
 
   // Check if search should be active based on file count threshold
   const shouldShowSearch = files.length > SEARCH_ACTIVATION_THRESHOLD;
@@ -64,17 +60,8 @@ const SearchInterface = ({ files, folderType }) => {
         <Typography variant="h6" className={classes.searchTitle}>
           Search {folderDisplayName}
         </Typography>
-        <span className={classes.fileCountBadge}>{files.length} files</span>
       </div>
-      {/* SearchInput component will be added in Task 4 */}
-      <div>
-        Search Interface for {folderDisplayName} - {files.length} files
-        available
-      </div>
-      {searchState.isActive && (
-        <div>Search is active: "{searchState.query}"</div>
-      )}
-      {/* PatternDisplay component will be added in Task 4 */}
+      <SearchInput files={files} folderType={activeFolder} />
     </Box>
   );
 };

@@ -120,8 +120,8 @@ export function getPatternHints(files) {
   const sortedFiles = [...files].sort((a, b) => a.name.localeCompare(b.name));
   
   return {
-    first: sortedFiles[0]?.name || '',
-    last: sortedFiles[sortedFiles.length - 1]?.name || ''
+    first: sortedFiles[0] ? sortedFiles[0].name : '',
+    last: sortedFiles[sortedFiles.length - 1] ? sortedFiles[sortedFiles.length - 1].name : ''
   };
 }
 

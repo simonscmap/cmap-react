@@ -21,6 +21,7 @@ import {
   selectFolderFiles,
   selectFolderPaginationInfo,
   selectFolderAllCachedFiles,
+  selectIsSearchActive,
 } from '../../state/selectors';
 import {
   useFileSelectionPerFolder,
@@ -41,6 +42,7 @@ import PaginationControls from '../PaginationControls';
 import TabNavigation from '../TabNavigation';
 import TabPanel from '../TabPanel';
 import SearchInterface from '../SearchInterface';
+import SearchResults from '../SearchResults';
 import { setCurrentFolderTab } from '../../state/actions';
 
 const useStyles = makeStyles((theme) => ({
@@ -77,6 +79,9 @@ const DropboxFileSelectionModal = (props) => {
   );
   const allCachedFiles = useSelector((state) =>
     selectFolderAllCachedFiles(state, activeTab),
+  );
+  const isSearchActive = useSelector((state) =>
+    selectIsSearchActive(state, activeTab),
   );
 
   const allFiles = useMemo(() => {
@@ -183,6 +188,23 @@ const DropboxFileSelectionModal = (props) => {
             <TabPanel key={tab.key} value={activeTab} index={tab.key}>
               <SearchInterface files={allCachedFiles} folderType={activeTab} />
 
+              {isSearchActive && (
+                <SearchResults
+                  folderType={activeTab}
+                  selectedFiles={selectedFiles}
+                  onToggleFile={handleToggleFile}
+                  onSelectAll={handleSelectAll}
+                  onSelectAllInFolder={handleSelectAllInFolder}
+                  onClearPageSelections={handleClearPageSelections}
+                  onClearAll={clearSelections}
+                  areAllSelected={areAllSelected}
+                  areIndeterminate={areIndeterminate}
+                  canSelectFile={canSelectFile}
+                  isCurrentTabFileLimitReached={isCurrentTabFileLimitReached}
+                  isCurrentTabSizeLimitReached={isCurrentTabSizeLimitReached}
+                />
+              )}
+
               <FileTable
                 allFiles={allFiles}
                 selectedFiles={selectedFiles}
@@ -199,14 +221,16 @@ const DropboxFileSelectionModal = (props) => {
                 isCurrentTabSizeLimitReached={isCurrentTabSizeLimitReached}
               />
 
-              <PaginationControls
-                currentPage={folderPaginationInfo.currentPage}
-                totalPages={folderPaginationInfo.totalPages}
-                pageSize={folderPaginationInfo.pageSize}
-                onPageChange={handlePageChange}
-                onPageSizeChange={onPageSizeChange}
-                isLoading={folderPaginationInfo.isLoading}
-              />
+              {!isSearchActive && (
+                <PaginationControls
+                  currentPage={folderPaginationInfo.currentPage}
+                  totalPages={folderPaginationInfo.totalPages}
+                  pageSize={folderPaginationInfo.pageSize}
+                  onPageChange={handlePageChange}
+                  onPageSizeChange={onPageSizeChange}
+                  isLoading={folderPaginationInfo.isLoading}
+                />
+              )}
             </TabPanel>
           ))
         )}
