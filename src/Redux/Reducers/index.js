@@ -11,8 +11,14 @@ import data from './data';
 import dropbox from '../../features/datasetDownloadDropbox/state/reducer';
 import reduceReducers from 'reduce-reducers';
 import { combineReducers } from 'redux';
-// localStorageIntroState and localStorageHintState now imported directly in help reducer
-// Import initial states from migrated reducers for single source of truth
+import states from '../../enums/asyncRequestStates';
+import buildSearchOptionsFromVariableList from '../../Utility/Catalog/buildSearchOptionsFromVariablesList';
+import {
+  localStorageIntroState,
+  localStorageHintState,
+} from '../../Components/Navigation/Help/initialState.js';
+import initialSubscribeIntroState from '../../Components/User/Subscriptions/initialIntroState';
+
 import { initialHelpState } from './help';
 import { initialHighlightsState } from './highlights';
 import { initialUserState } from './user';
@@ -23,23 +29,214 @@ import { initialDataSubmissionState } from './dataSubmission';
 // to the uiResetState in the ui reducer **
 
 const initialState = {
-  // catalog state pieces moved to catalog slice reducer
-  // UI state pieces moved to ui slice reducer
+  // Catalog state pieces
+  catalogRequestState: null,
+  catalog: {},
+  datasetRequestState: null,
+  datasets: null,
+  submissionOptions: buildSearchOptionsFromVariableList([]),
+  keywords: [],
+  searchOptions: {},
+  searchResults: [],
+  searchResultsLoadingState: states.notTried,
+  catalogSortingOptions: {
+    direction: 'DESC',
+    field: 'id',
+  },
+
+  // Catalog Recommendations
+  popularDatasetsRequestState: states.notTried,
+  popularDatasets: null,
+  recentDatasetsRequestState: states.notTried,
+  recentDatasets: null,
+  recommendedDatasetsRequestState: states.notTried,
+  recommendedDatasets: null,
+
+  // Dataset Download
+  download: {
+    currentRequest: null,
+    checkQueryRequestState: states.notTried,
+    querySizeChecks: [], // list of { queryString, result }
+    vaultLink: null,
+    dropboxModalOpen: 'closed',
+  }, // NOTE see also state.downloadDialog
+  // this is an artifact of initially only using redux for the ui state
+
+  // Dataset Details Page
+  datasetDetailsPage: {
+    selectedDatasetId: null,
+    selectedDatasetShortname: null,
+
+    primaryPageLoadingState: states.notTried,
+    variablesLoadingState: states.notTried,
+    unstructuredMetadataLoadingState: states.notTried,
+
+    data: null,
+    cruises: null,
+    references: null,
+    variables: null,
+    sensors: null,
+    unstructuredVariableMetadata: null,
+
+    visualizableVariables: null,
+    visualizableVariablesLoadingState: states.notTried,
+    visualizationSelection: null,
+    visualizableDataByName: null,
+
+    tabPreference: 0,
+  },
+
+  // Programs
+  programs: [],
+  programsRequestStatus: states.notTried,
+  programDetails: null,
+  programDetailsRequestStates: states.notTried,
+  programDetailsErrMessage: null,
+
+  // Program Detail Page
+
+  // Cruise Page
+  cruiseFullPageData: {},
+
+  // App (General Data)
+  tablesWithAncillaryData: null,
+  tablesWithContinuousIngestion: null,
+
+  // Homepage
+  home: {},
+
+  // Homepage Anomaly Monitor Data
+  sstReqStatus: states.notTried,
+  adtReqStatus: states.notTried,
+  avgSstReqStatus: states.notTried,
+  avgAdtReqStatus: states.notTried,
+  avgSSTData: null,
+  avgADTData: null,
+
+  // UI
+  loginDialogIsOpen: false,
+  changePasswordDialogIsOpen: false,
+  changeEmailDialogIsOpen: false,
+  registrationActiveStep: 0,
+  snackbarIsOpen: false,
+  snackbarMessage: null,
+  loadingMessage: '',
+  showHelp: false,
+  windowHeight: window.innerHeight,
+  windowWidth: window.innerWidth,
+  subscribeDatasetDialog: {
+    open: false,
+    shortName: null,
+  },
+  downloadDialog: {
+    open: false,
+  },
+
   // User state pieces moved to user slice reducer
 
   preferences: {},
-  // intros and hints now managed by help slice reducer
+  intros: localStorageIntroState,
+  hints: localStorageHintState,
+
+  resumeAction: null, // a literal action to resume, e.g. after user login
 
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  // Visualization state pieces moved to visualization slice reducer
+  // Visualization state pieces
+  charts: [],
 
+  // viz
+  viz: {
+    chart: {
+      controls: {
+        paramLock: false, // lock the spatial-temporal constraints
+        dateTypeMismatch: false, // e.g locked monthly dates with currnt non-monthly target
+        variableResolutionMismatch: false,
+        lockAlertsOpen: false,
+        resolutionMismatch: false,
+        // controlPanelVisible: true,
+        // searchOpen: false,
+      },
+      validation: {
+        sizeCheck: {
+          status: states.notTried,
+          result: null,
+        },
+      },
+      // variables: [],        // (was memberVariables)
+      // targetVariable: null, // (was vizPageDataTarget)
+      // targetDetails: null,  // (was vizPageDataTargetDetails)
+      //
+    },
+  },
+
+  // controls
+  showControlPanel: true,
+  dataSearchMenuOpen: false,
+
+  // variables
+  memberVariables: [], // list of variables available for selection in viz control panel
+  memberVariablesLoadingState: states.succeeded,
+
+  chartID: 0,
+
+  vizPageDataTarget: null,
+  vizPageDataTargetDetails: null,
+  vizSearchResults: { Observation: [], Model: [] },
+  vizSearchResultsFullCounts: { Observation: 0, Model: 0 },
+  vizSearchResultsLoadingState: states.succeeded,
+
+  showChartsOnce: null,
+
+  cruiseList: [],
+
+  trajectoryPointCounts: null,
+  getCruiseTrajectoryRequestState: null,
+  cruiseTrajectories: null,
+  cruiseTrajectoryFocus: null,
+
+  sampleData: null,
+  queryRequestState: null,
   getTableStatsRequestState: null,
+  getCruiseListRequestState: null,
+
+  relatedData: [],
+  relatedDataLoadingState: states.succeeded,
+
+  autocompleteVariableNames: [],
+
+  variableDetails: null,
+
+  datasetSummary: null,
+
+  plotsActiveTab: 0,
+
+  sparseDataMaxSizeNotificationData: null,
+
+  guestPlotLimitNotificationIsVisible: false,
 
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   // Data Submission state pieces - MIGRATED to dataSubmission slice reducer
 
-  // News - news initial state moved to slice reducer in news.js
+  // News
+  news: {
+    stories: [],
+    viewStateFilter: [1, 2, 3],
+    rankFilter: false,
+    sortTerm: 'modify_date',
+    orderOfImportance: 'descending',
+    openRanksEditor: false,
+    ranks: [],
+    addRank: [],
+    adminMessages: [],
+    requestStatus: {
+      create: states.notTried,
+      update: states.notTried,
+      updateRanks: states.notTried,
+      updateViewStatus: states.notTried,
+      list: states.notTried,
+    },
+  },
 
   // Notifications && Subscriptions
   notificationHistory: {},
@@ -48,7 +245,7 @@ const initialState = {
   sentNotifications: [],
   sendNotificationsStatus: [],
   reSendNotificationsStatus: [],
-  // subscribeIntroActive moved to ui slice reducer
+  subscribeIntroActive: initialSubscribeIntroState.subscribeIntroActive,
   // dropbox initial state moved to slice reducer in dropbox/reducer.js
 };
 
@@ -64,9 +261,7 @@ const createCombinedSliceReducers = () => {
   });
 };
 
-// Stage 2: Initialize the slice reducers foundation
-
-// Stage 3: Hybrid root reducer combining slice-based and full-state patterns
+// Stage 2: Hybrid root reducer combining slice-based and full-state patterns
 // Custom hybrid reducer that properly partitions state between combineReducers and full-state reducers
 const reducedReducer = (state = initialState, action) => {
   // Step 1: Extract slice state for combineReducers (only the keys it manages)
@@ -106,7 +301,7 @@ const reducedReducer = (state = initialState, action) => {
     ...(newSliceState.dataSubmission || initialDataSubmissionState),
   };
 
-  // Step 4: Process through full-state reducers in sequence
+  // Step 3: Process through full-state reducers in sequence
   return reduceReducers(
     stateWithSliceUpdates,
     catalog, // Full-state reducer (reverted from slice pattern)
