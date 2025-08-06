@@ -37,6 +37,7 @@ import {
   MAX_FILES_LIMIT,
   MAX_SIZE_LIMIT_BYTES,
 } from '../../constants/defaults';
+import { SEARCH_ACTIVATION_THRESHOLD } from '../../constants/searchConstants';
 import FileTable from '../FileTable';
 import PaginationControls from '../PaginationControls';
 import TabNavigation from '../TabNavigation';
@@ -81,13 +82,17 @@ const DropboxFileSelectionModal = (props) => {
   const allCachedFiles = useSelector((state) =>
     selectFolderAllCachedFiles(state, activeTab),
   );
-  const isSearchActive = useSelector((state) =>
-    selectIsSearchActive(state, activeTab),
-  );
+  // Note: isSearchActive was previously used but is now replaced by shouldShowSearchInterface
+  // const isSearchActive = useSelector((state) =>
+  //   selectIsSearchActive(state, activeTab),
+  // );
 
   const allFiles = useMemo(() => {
     return folderFiles || [];
   }, [folderFiles]);
+
+  // Check if search interface should be shown (same logic as SearchInterface)
+  const shouldShowSearchInterface = allCachedFiles.length > SEARCH_ACTIVATION_THRESHOLD;
 
   const {
     selectedFiles,
@@ -194,12 +199,11 @@ const DropboxFileSelectionModal = (props) => {
                 onToggleFile={handleToggleFile}
               />
 
-              {/* Show SelectedFilesTable when search is active, otherwise show FileTable */}
-              {isSearchActive ? (
+              {/* Show SelectedFilesTable when search interface is shown, otherwise show FileTable */}
+              {shouldShowSearchInterface ? (
                 <SelectedFilesTable
                   selectedFiles={selectedFiles}
                   onRemoveFile={handleToggleFile}
-                  folderType={activeTab}
                 />
               ) : (
                 <FileTable
@@ -219,7 +223,7 @@ const DropboxFileSelectionModal = (props) => {
                 />
               )}
 
-              {!isSearchActive && (
+              {!shouldShowSearchInterface && (
                 <PaginationControls
                   currentPage={folderPaginationInfo.currentPage}
                   totalPages={folderPaginationInfo.totalPages}

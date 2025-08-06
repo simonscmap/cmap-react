@@ -333,7 +333,13 @@ const SearchInput = ({ selectedFiles = [], onToggleFile }) => {
                   <Box px={1} py={1}>
                     <Checkbox
                       checked={isSelected}
-                      onChange={() => handleFileSelect(file)}
+                      onChange={(e) => {
+                        e.stopPropagation(); // Prevent parent onClick from firing
+                        handleFileSelect(file);
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent parent onClick from firing
+                      }}
                       size="small"
                       style={{
                         color: '#9dd162',
