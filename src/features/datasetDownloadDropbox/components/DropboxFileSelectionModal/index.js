@@ -42,6 +42,7 @@ import PaginationControls from '../PaginationControls';
 import TabNavigation from '../TabNavigation';
 import TabPanel from '../TabPanel';
 import SearchInterface from '../SearchInterface';
+import SelectedFilesTable from '../SelectedFilesTable';
 // import SearchResults from '../SearchResults'; // Now integrated into SearchInput dropdown
 import { setCurrentFolderTab } from '../../state/actions';
 
@@ -186,41 +187,37 @@ const DropboxFileSelectionModal = (props) => {
         ) : (
           tabConfig.tabs.map((tab) => (
             <TabPanel key={tab.key} value={activeTab} index={tab.key}>
-              <SearchInterface files={allCachedFiles} folderType={activeTab} />
+              <SearchInterface 
+                files={allCachedFiles} 
+                folderType={activeTab}
+                selectedFiles={selectedFiles}
+                onToggleFile={handleToggleFile}
+              />
 
-              {/* SearchResults now integrated into SearchInput dropdown - commenting out old component */}
-              {/* {isSearchActive && (
-                <SearchResults
-                  folderType={activeTab}
+              {/* Show SelectedFilesTable when search is active, otherwise show FileTable */}
+              {isSearchActive ? (
+                <SelectedFilesTable
                   selectedFiles={selectedFiles}
-                  onToggleFile={handleToggleFile}
+                  onRemoveFile={handleToggleFile}
+                  folderType={activeTab}
+                />
+              ) : (
+                <FileTable
+                  allFiles={allFiles}
+                  selectedFiles={selectedFiles}
+                  areAllSelected={areAllSelected}
+                  areIndeterminate={areIndeterminate}
                   onSelectAll={handleSelectAll}
                   onSelectAllInFolder={handleSelectAllInFolder}
                   onClearPageSelections={handleClearPageSelections}
                   onClearAll={clearSelections}
-                  areAllSelected={areAllSelected}
-                  areIndeterminate={areIndeterminate}
-                  canSelectFile={canSelectFile}
+                  onToggleFile={handleToggleFile}
+                  isLoading={folderPaginationInfo.isLoading}
                   isCurrentTabFileLimitReached={isCurrentTabFileLimitReached}
+                  canSelectFile={canSelectFile}
                   isCurrentTabSizeLimitReached={isCurrentTabSizeLimitReached}
                 />
-              )} */}
-
-              <FileTable
-                allFiles={allFiles}
-                selectedFiles={selectedFiles}
-                areAllSelected={areAllSelected}
-                areIndeterminate={areIndeterminate}
-                onSelectAll={handleSelectAll}
-                onSelectAllInFolder={handleSelectAllInFolder}
-                onClearPageSelections={handleClearPageSelections}
-                onClearAll={clearSelections}
-                onToggleFile={handleToggleFile}
-                isLoading={folderPaginationInfo.isLoading}
-                isCurrentTabFileLimitReached={isCurrentTabFileLimitReached}
-                canSelectFile={canSelectFile}
-                isCurrentTabSizeLimitReached={isCurrentTabSizeLimitReached}
-              />
+              )}
 
               {!isSearchActive && (
                 <PaginationControls

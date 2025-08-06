@@ -36,7 +36,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const SearchInterface = ({ files, folderType }) => {
+const SearchInterface = ({ files, folderType, selectedFiles, onToggleFile }) => {
   const classes = useStyles();
 
   // Get current folder type
@@ -61,7 +61,12 @@ const SearchInterface = ({ files, folderType }) => {
           Search {folderDisplayName}
         </Typography>
       </div>
-      <SearchInput files={files} folderType={activeFolder} />
+      <SearchInput 
+        files={files} 
+        folderType={activeFolder} 
+        selectedFiles={selectedFiles}
+        onToggleFile={onToggleFile}
+      />
     </Box>
   );
 };

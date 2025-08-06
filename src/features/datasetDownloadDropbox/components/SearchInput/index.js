@@ -37,7 +37,7 @@ import { formatBytes } from '../../utils/fileUtils';
 const DEBOUNCE_DELAY = 300;
 const MIN_SEARCH_LENGTH = 3;
 
-const SearchInput = () => {
+const SearchInput = ({ selectedFiles = [], onToggleFile }) => {
   const dispatch = useDispatch();
   const currentTabFromSelector = useSelector(selectCurrentTab);
   const mainFolder = useSelector(selectMainFolder);
@@ -48,7 +48,6 @@ const SearchInput = () => {
   // Local input state for immediate UI response
   const [inputValue, setInputValue] = useState(searchState.query || '');
   const [showDropdown, setShowDropdown] = useState(false);
-  const [selectedDropdownFiles, setSelectedDropdownFiles] = useState(new Set());
   
   // Get search results for dropdown
   const searchResults = useSelector((state) => selectSearchResults(state, currentTab));
@@ -154,8 +153,16 @@ const SearchInput = () => {
 
   // Clear all dropdown selections
   const handleClearDropdownSelections = useCallback(() => {
-    setSelectedDropdownFiles(new Set());
-  }, []);
+    if (onToggleFile) {
+      // Remove all currently selected files that are visible in the dropdown
+      const searchResultPaths = new Set(searchResults.map(file => file.path));
+      selectedFiles.forEach(file => {
+        if (searchResultPaths.has(file.path)) {
+          onToggleFile(file);
+        }
+      });
+    }
+  }, [selectedFiles, searchResults, onToggleFile]);
 
   // Handle input focus
   const handleInputFocus = useCallback(() => {
@@ -166,17 +173,11 @@ const SearchInput = () => {
 
   // Handle file selection in dropdown
   const handleFileSelect = useCallback((file) => {
-    setSelectedDropdownFiles(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(file.path)) {
-        newSet.delete(file.path);
-      } else {
-        newSet.add(file.path);
-      }
-      return newSet;
-    });
+    if (onToggleFile) {
+      onToggleFile(file);
+    }
     // Don't close dropdown on selection - user may select multiple files
-  }, []);
+  }, [onToggleFile]);
 
   // Generate placeholder text from file patterns
   const placeholderText = React.useMemo(() => {
@@ -281,13 +282,13 @@ const SearchInput = () => {
             >
               <Typography variant="body2" style={{ color: '#9dd162', fontWeight: 500 }}>
                 {searchResults.length} files found
-                {selectedDropdownFiles.size > 0 && (
+                {selectedFiles.length > 0 && (
                   <Typography component="span" style={{ color: '#ffffff', marginLeft: 8 }}>
-                    ({selectedDropdownFiles.size} selected)
+                    ({selectedFiles.length} selected)
                   </Typography>
                 )}
               </Typography>
-              {selectedDropdownFiles.size > 0 && (
+              {selectedFiles.length > 0 && (
                 <Typography 
                   variant="caption" 
                   style={{ 
@@ -305,7 +306,7 @@ const SearchInput = () => {
             
             {/* File list */}
             {searchResults.slice(0, 8).map((file, index) => {
-              const isSelected = selectedDropdownFiles.has(file.path);
+              const isSelected = selectedFiles.some(f => f.path === file.path);
               return (
                 <Box
                   key={`dropdown-${file.path}-${index}`}
