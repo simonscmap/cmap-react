@@ -75,7 +75,10 @@ export const setCurrentFolderTab = (folderType) => ({
 });
 
 // Auto-download actions
-export const setAutoDownloadEligibility = (autoDownloadEligible, directDownloadLink = null) => ({
+export const setAutoDownloadEligibility = (
+  autoDownloadEligible,
+  directDownloadLink = null,
+) => ({
   type: dropboxActionTypes.SET_AUTO_DOWNLOAD_ELIGIBILITY,
   payload: {
     autoDownloadEligible,
@@ -86,4 +89,30 @@ export const setAutoDownloadEligibility = (autoDownloadEligible, directDownloadL
 export const triggerDirectDownload = (downloadLink) => ({
   type: dropboxActionTypes.TRIGGER_DIRECT_DOWNLOAD,
   payload: { downloadLink },
+});
+
+// Search action creators
+export const setSearchQuery = (query, folderType) => ({
+  type: dropboxActionTypes.SET_SEARCH_QUERY,
+  payload: { query, folderType, timestamp: Date.now() },
+});
+
+export const setSearchResults = (
+  filteredFiles,
+  highlightMatches,
+  searchDuration,
+  folderType,
+) => ({
+  type: dropboxActionTypes.SET_SEARCH_RESULTS,
+  payload: { filteredFiles, highlightMatches, searchDuration, folderType },
+});
+
+export const clearSearch = (folderType) => ({
+  type: dropboxActionTypes.CLEAR_SEARCH,
+  payload: { folderType },
+});
+
+export const setSearchActive = (isActive, folderType) => ({
+  type: dropboxActionTypes.SET_SEARCH_ACTIVE,
+  payload: { isActive, folderType },
 });

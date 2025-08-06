@@ -20,6 +20,8 @@ import {
   selectFolderPagination,
   selectFolderFiles,
   selectFolderPaginationInfo,
+  selectFolderAllCachedFiles,
+  selectIsSearchActive,
 } from '../../state/selectors';
 import {
   useFileSelectionPerFolder,
@@ -31,11 +33,16 @@ import {
   formatEstimatedTime,
   getTabConfiguration,
 } from '../../utils';
-import { MAX_FILES_LIMIT, MAX_SIZE_LIMIT_BYTES } from '../../constants/defaults';
+import {
+  MAX_FILES_LIMIT,
+  MAX_SIZE_LIMIT_BYTES,
+} from '../../constants/defaults';
 import FileTable from '../FileTable';
 import PaginationControls from '../PaginationControls';
 import TabNavigation from '../TabNavigation';
 import TabPanel from '../TabPanel';
+import SearchInterface from '../SearchInterface';
+// import SearchResults from '../SearchResults'; // Now integrated into SearchInput dropdown
 import { setCurrentFolderTab } from '../../state/actions';
 
 const useStyles = makeStyles((theme) => ({
@@ -69,6 +76,12 @@ const DropboxFileSelectionModal = (props) => {
   );
   const folderPaginationInfo = useSelector((state) =>
     selectFolderPaginationInfo(state, activeTab),
+  );
+  const allCachedFiles = useSelector((state) =>
+    selectFolderAllCachedFiles(state, activeTab),
+  );
+  const isSearchActive = useSelector((state) =>
+    selectIsSearchActive(state, activeTab),
   );
 
   const allFiles = useMemo(() => {
@@ -173,6 +186,26 @@ const DropboxFileSelectionModal = (props) => {
         ) : (
           tabConfig.tabs.map((tab) => (
             <TabPanel key={tab.key} value={activeTab} index={tab.key}>
+              <SearchInterface files={allCachedFiles} folderType={activeTab} />
+
+              {/* SearchResults now integrated into SearchInput dropdown - commenting out old component */}
+              {/* {isSearchActive && (
+                <SearchResults
+                  folderType={activeTab}
+                  selectedFiles={selectedFiles}
+                  onToggleFile={handleToggleFile}
+                  onSelectAll={handleSelectAll}
+                  onSelectAllInFolder={handleSelectAllInFolder}
+                  onClearPageSelections={handleClearPageSelections}
+                  onClearAll={clearSelections}
+                  areAllSelected={areAllSelected}
+                  areIndeterminate={areIndeterminate}
+                  canSelectFile={canSelectFile}
+                  isCurrentTabFileLimitReached={isCurrentTabFileLimitReached}
+                  isCurrentTabSizeLimitReached={isCurrentTabSizeLimitReached}
+                />
+              )} */}
+
               <FileTable
                 allFiles={allFiles}
                 selectedFiles={selectedFiles}
@@ -189,14 +222,16 @@ const DropboxFileSelectionModal = (props) => {
                 isCurrentTabSizeLimitReached={isCurrentTabSizeLimitReached}
               />
 
-              <PaginationControls
-                currentPage={folderPaginationInfo.currentPage}
-                totalPages={folderPaginationInfo.totalPages}
-                pageSize={folderPaginationInfo.pageSize}
-                onPageChange={handlePageChange}
-                onPageSizeChange={onPageSizeChange}
-                isLoading={folderPaginationInfo.isLoading}
-              />
+              {!isSearchActive && (
+                <PaginationControls
+                  currentPage={folderPaginationInfo.currentPage}
+                  totalPages={folderPaginationInfo.totalPages}
+                  pageSize={folderPaginationInfo.pageSize}
+                  onPageChange={handlePageChange}
+                  onPageSizeChange={onPageSizeChange}
+                  isLoading={folderPaginationInfo.isLoading}
+                />
+              )}
             </TabPanel>
           ))
         )}
@@ -211,10 +246,14 @@ const DropboxFileSelectionModal = (props) => {
           }}
         >
           <Typography variant="subtitle1">
-            <strong>Selected: {currentTabFileCount}/{MAX_FILES_LIMIT} files</strong>
+            <strong>
+              Selected: {currentTabFileCount}/{MAX_FILES_LIMIT} files
+            </strong>
             {currentTabFileCount > 0 && (
               <>
-                {` (${formatBytes(currentTabTotalSize)} / ${formatBytes(MAX_SIZE_LIMIT_BYTES)})`}
+                {` (${formatBytes(currentTabTotalSize)} / ${formatBytes(
+                  MAX_SIZE_LIMIT_BYTES,
+                )})`}
                 <br />
                 <span style={{ fontSize: '0.9em' }}>
                   Estimated time to start download:{' '}
@@ -229,8 +268,9 @@ const DropboxFileSelectionModal = (props) => {
         {isCurrentTabFileLimitReached && (
           <Box mt={2}>
             <Alert severity="warning">
-              File limit reached! You have selected the maximum of {MAX_FILES_LIMIT} files. 
-              To select more files, please remove some current selections first.
+              File limit reached! You have selected the maximum of{' '}
+              {MAX_FILES_LIMIT} files. To select more files, please remove some
+              current selections first.
             </Alert>
           </Box>
         )}
@@ -239,33 +279,45 @@ const DropboxFileSelectionModal = (props) => {
         {isCurrentTabSizeLimitReached && (
           <Box mt={2}>
             <Alert severity="warning">
-              Size limit reached! You have selected the maximum of {formatBytes(MAX_SIZE_LIMIT_BYTES)}. 
-              To select more files, please remove some current selections first.
+              Size limit reached! You have selected the maximum of{' '}
+              {formatBytes(MAX_SIZE_LIMIT_BYTES)}. To select more files, please
+              remove some current selections first.
             </Alert>
           </Box>
         )}
-        
+
         {/* Show warning when approaching file limit */}
         {(() => {
           const remainingFileSlots = MAX_FILES_LIMIT - currentTabFileCount;
-          return !isCurrentTabFileLimitReached && remainingFileSlots <= 50 && remainingFileSlots > 0 && (
-            <Box mt={2}>
-              <Alert severity="info">
-                You can select {remainingFileSlots} more files before reaching the {MAX_FILES_LIMIT} file limit.
-              </Alert>
-            </Box>
+          return (
+            !isCurrentTabFileLimitReached &&
+            remainingFileSlots <= 50 &&
+            remainingFileSlots > 0 && (
+              <Box mt={2}>
+                <Alert severity="info">
+                  You can select {remainingFileSlots} more files before reaching
+                  the {MAX_FILES_LIMIT} file limit.
+                </Alert>
+              </Box>
+            )
           );
         })()}
 
         {/* Show warning when approaching size limit */}
         {(() => {
-          const remainingSizeCapacity = MAX_SIZE_LIMIT_BYTES - currentTabTotalSize;
-          return !isCurrentTabSizeLimitReached && remainingSizeCapacity <= 200 * 1024 * 1024 && remainingSizeCapacity > 0 && (
-            <Box mt={2}>
-              <Alert severity="info">
-                You have {formatBytes(remainingSizeCapacity)} remaining before reaching the {formatBytes(MAX_SIZE_LIMIT_BYTES)} size limit.
-              </Alert>
-            </Box>
+          const remainingSizeCapacity =
+            MAX_SIZE_LIMIT_BYTES - currentTabTotalSize;
+          return (
+            !isCurrentTabSizeLimitReached &&
+            remainingSizeCapacity <= 200 * 1024 * 1024 &&
+            remainingSizeCapacity > 0 && (
+              <Box mt={2}>
+                <Alert severity="info">
+                  You have {formatBytes(remainingSizeCapacity)} remaining before
+                  reaching the {formatBytes(MAX_SIZE_LIMIT_BYTES)} size limit.
+                </Alert>
+              </Box>
+            )
           );
         })()}
       </DialogContent>
