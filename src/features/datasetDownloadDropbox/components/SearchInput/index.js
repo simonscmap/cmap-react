@@ -34,6 +34,7 @@ import {
   SearchPerformanceMonitor,
 } from '../../utils/searchUtils';
 import { formatBytes } from '../../utils/fileUtils';
+import FileExamples from './FileExamples';
 
 const DEBOUNCE_DELAY = 300;
 const MIN_SEARCH_LENGTH = 3;
@@ -197,8 +198,8 @@ const SearchInput = ({ selectedFiles = [], onToggleFile }) => {
   // Generate placeholder text from file patterns
   const placeholderText = React.useMemo(() => {
     const patterns = getPatternHints(searchableFiles);
-    if (patterns.first && patterns.last) {
-      return `Search files (e.g., ${patterns.first.split('.')[0]}...)`;
+    if (patterns.first) {
+      return `Search files (e.g., ${patterns.first})`;
     }
     return 'Search files...';
   }, [searchableFiles]);
@@ -265,8 +266,11 @@ const SearchInput = ({ selectedFiles = [], onToggleFile }) => {
               </InputAdornment>
             ),
           }}
-          style={{ marginBottom: 16 }}
+          style={{ marginBottom: 8 }}
         />
+
+        {/* File examples from dataset */}
+        <FileExamples searchableFiles={searchableFiles} />
 
         {/* Google-style search dropdown */}
         {showDropdown &&

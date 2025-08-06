@@ -110,17 +110,19 @@ export function performSearch(searchInstance, query, performanceMonitor) {
 }
 
 /**
- * Get pattern hints from file list (first and last filename)
+ * Get pattern hints from file list (first, middle, and last filename)
  */
 export function getPatternHints(files) {
   if (!files || files.length === 0) {
-    return { first: '', last: '' };
+    return { first: '', middle: '', last: '' };
   }
 
   const sortedFiles = [...files].sort((a, b) => a.name.localeCompare(b.name));
+  const middleIndex = Math.floor(sortedFiles.length / 2);
   
   return {
     first: sortedFiles[0] ? sortedFiles[0].name : '',
+    middle: sortedFiles[middleIndex] ? sortedFiles[middleIndex].name : '',
     last: sortedFiles[sortedFiles.length - 1] ? sortedFiles[sortedFiles.length - 1].name : ''
   };
 }
