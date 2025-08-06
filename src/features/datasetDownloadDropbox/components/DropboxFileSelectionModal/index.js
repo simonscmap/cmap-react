@@ -42,7 +42,7 @@ import PaginationControls from '../PaginationControls';
 import TabNavigation from '../TabNavigation';
 import TabPanel from '../TabPanel';
 import SearchInterface from '../SearchInterface';
-import SearchResults from '../SearchResults';
+// import SearchResults from '../SearchResults'; // Now integrated into SearchInput dropdown
 import { setCurrentFolderTab } from '../../state/actions';
 
 const useStyles = makeStyles((theme) => ({
@@ -188,7 +188,8 @@ const DropboxFileSelectionModal = (props) => {
             <TabPanel key={tab.key} value={activeTab} index={tab.key}>
               <SearchInterface files={allCachedFiles} folderType={activeTab} />
 
-              {isSearchActive && (
+              {/* SearchResults now integrated into SearchInput dropdown - commenting out old component */}
+              {/* {isSearchActive && (
                 <SearchResults
                   folderType={activeTab}
                   selectedFiles={selectedFiles}
@@ -203,7 +204,7 @@ const DropboxFileSelectionModal = (props) => {
                   isCurrentTabFileLimitReached={isCurrentTabFileLimitReached}
                   isCurrentTabSizeLimitReached={isCurrentTabSizeLimitReached}
                 />
-              )}
+              )} */}
 
               <FileTable
                 allFiles={allFiles}

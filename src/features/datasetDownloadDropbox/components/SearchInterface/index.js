@@ -13,8 +13,8 @@ const useStyles = makeStyles((theme) => ({
   searchContainer: {
     marginBottom: theme.spacing(2),
     padding: theme.spacing(2),
-    backgroundColor: theme.palette.background.paper,
-    border: `1px solid ${theme.palette.divider}`,
+    backgroundColor: '#184562', // Use app's solidPaper color instead of grey
+    border: `1px solid #2c6b8f`,
     borderRadius: theme.shape.borderRadius,
   },
   searchHeader: {

@@ -9,7 +9,6 @@ import {
   TableRow,
   Paper,
   Checkbox,
-  Chip,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
@@ -27,10 +26,12 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(2),
     maxHeight: 400,
     overflow: 'auto',
+    backgroundColor: theme.palette.background.paper, // Use app's dark theme
+    color: theme.palette.text.primary,
   },
   header: {
     padding: theme.spacing(1, 2),
-    backgroundColor: theme.palette.grey[50],
+    backgroundColor: theme.palette.background.paper, // Remove grey background
     borderBottom: `1px solid ${theme.palette.divider}`,
     display: 'flex',
     alignItems: 'center',
@@ -38,8 +39,13 @@ const useStyles = makeStyles((theme) => ({
   },
   table: {
     '& .MuiTableCell-head': {
-      backgroundColor: theme.palette.grey[100],
+      backgroundColor: theme.palette.background.paper, // Use app's dark theme
+      color: theme.palette.text.primary,
       fontWeight: 600,
+    },
+    '& .MuiTableCell-root': {
+      color: theme.palette.text.primary,
+      borderBottom: `1px solid ${theme.palette.divider}`,
     },
   },
   row: {
@@ -177,12 +183,9 @@ const SearchResults = ({
       <div className={classes.header}>
         <Typography variant="subtitle1" component="div">
           Search Results
-          <Chip 
-            label={`${searchResults.length} files`}
-            size="small"
-            color="primary"
-            style={{ marginLeft: 8 }}
-          />
+          <Typography component="span" variant="body2" className={classes.resultCount} style={{ marginLeft: 8 }}>
+            {searchResults.length} files
+          </Typography>
         </Typography>
         {searchQuery && (
           <Typography variant="body2" className={classes.resultCount}>
