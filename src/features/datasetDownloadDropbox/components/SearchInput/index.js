@@ -18,6 +18,7 @@ import {
   setSearchActive,
   clearSearch,
 } from '../../state/actions';
+import { SEARCH_RESULTS_DISPLAY_LIMIT } from '../../constants/searchConstants';
 import {
   selectCurrentFolderSearchState,
   selectCurrentTab,
@@ -305,7 +306,7 @@ const SearchInput = ({ selectedFiles = [], onToggleFile }) => {
             </Box>
             
             {/* File list */}
-            {searchResults.slice(0, 8).map((file, index) => {
+            {searchResults.slice(0, SEARCH_RESULTS_DISPLAY_LIMIT).map((file, index) => {
               const isSelected = selectedFiles.some(f => f.path === file.path);
               return (
                 <Box
@@ -314,7 +315,7 @@ const SearchInput = ({ selectedFiles = [], onToggleFile }) => {
                     display: 'flex',
                     alignItems: 'center',
                     cursor: 'pointer',
-                    borderBottom: index < Math.min(searchResults.length, 8) - 1 ? '1px solid #2c6b8f' : 'none',
+                    borderBottom: index < Math.min(searchResults.length, SEARCH_RESULTS_DISPLAY_LIMIT) - 1 ? '1px solid #2c6b8f' : 'none',
                     transition: 'background-color 0.2s ease',
                   }}
                   onMouseEnter={(e) => {
@@ -390,10 +391,10 @@ const SearchInput = ({ selectedFiles = [], onToggleFile }) => {
             })}
             
             {/* Show more indicator */}
-            {searchResults.length > 8 && (
+            {searchResults.length > SEARCH_RESULTS_DISPLAY_LIMIT && (
               <Box px={2} py={1} textAlign="center" style={{ borderTop: '1px solid #2c6b8f' }}>
                 <Typography variant="caption" style={{ color: '#9dd162', fontStyle: 'italic' }}>
-                  and {searchResults.length - 8} more files...
+                  and {searchResults.length - SEARCH_RESULTS_DISPLAY_LIMIT} more files...
                 </Typography>
               </Box>
             )}

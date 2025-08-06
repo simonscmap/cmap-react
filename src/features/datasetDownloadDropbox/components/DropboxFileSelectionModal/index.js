@@ -246,22 +246,23 @@ const DropboxFileSelectionModal = (props) => {
             alignItems: 'center',
           }}
         >
-          <Typography variant="subtitle1">
+          <Typography 
+            variant="subtitle1" 
+            style={{ 
+              visibility: currentTabFileCount > 0 ? 'visible' : 'hidden' 
+            }}
+          >
             <strong>
               Selected: {currentTabFileCount}/{MAX_FILES_LIMIT} files
             </strong>
-            {currentTabFileCount > 0 && (
-              <>
-                {` (${formatBytes(currentTabTotalSize)} / ${formatBytes(
-                  MAX_SIZE_LIMIT_BYTES,
-                )})`}
-                <br />
-                <span style={{ fontSize: '0.9em' }}>
-                  Estimated time to start download:{' '}
-                  {formatEstimatedTime(estimatedTimeSeconds)}
-                </span>
-              </>
-            )}
+            {` (${formatBytes(currentTabTotalSize)} / ${formatBytes(
+              MAX_SIZE_LIMIT_BYTES,
+            )})`}
+            <br />
+            <span style={{ fontSize: '0.9em' }}>
+              Estimated time to start download:{' '}
+              {formatEstimatedTime(estimatedTimeSeconds)}
+            </span>
           </Typography>
         </div>
 
