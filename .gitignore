@@ -33,3 +33,15 @@ yarn-error.log*
 notes
 .sentryclirc
 .nvmrc
+
+# BMAD
+.bmad-core
+.bmad-infrastructure-devops
+.cursor
+.gemini
+.web-bundles
+
+.claude/commands/BMad
+.claude/commands/bmadInfraDevOps
+
+docs

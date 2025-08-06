@@ -10,7 +10,7 @@ import highlights from './highlights';
 import data from './data';
 import dropbox from '../../features/datasetDownloadDropbox/state/reducer';
 import reduceReducers from 'reduce-reducers';
-import Cookies from 'js-cookie';
+import { combineReducers } from 'redux';
 import states from '../../enums/asyncRequestStates';
 import buildSearchOptionsFromVariableList from '../../Utility/Catalog/buildSearchOptionsFromVariablesList';
 import {
@@ -18,6 +18,11 @@ import {
   localStorageHintState,
 } from '../../Components/Navigation/Help/initialState.js';
 import initialSubscribeIntroState from '../../Components/User/Subscriptions/initialIntroState';
+
+import { initialHelpState } from './help';
+import { initialHighlightsState } from './highlights';
+import { initialUserState } from './user';
+import { initialDataSubmissionState } from './dataSubmission';
 // Consider building this object from initial states from each reducer
 // ** When adding new keys to redux store consider whether they need to be
 // reset on navigation for UI purposes. If so, add them with a default state
@@ -127,29 +132,11 @@ const initialState = {
     open: false,
   },
 
-  // User state pieces
-  user: JSON.parse(Cookies.get('UserInfo') || null), // catch much? // block much?
-  userApiCallsRequestStatus: states.notTried,
-  userIsGuest: false,
-  apiKeys: null,
-  apiKeyRetrievalState: null,
-  apiKeyCreationState: null,
-  clearLoginDialog: false,
-  userLoginState: null,
-  userValidationState: null,
-  userRegistrationState: null,
-  choosePasswordState: null,
+  // User state pieces moved to user slice reducer
+
   preferences: {},
   intros: localStorageIntroState,
   hints: localStorageHintState,
-  contactUs: {
-    requestState: states.notTried,
-    data: null,
-  },
-  nominateNewData: {
-    requestState: states.notTried,
-    data: null,
-  },
 
   resumeAction: null, // a literal action to resume, e.g. after user login
 
@@ -229,20 +216,7 @@ const initialState = {
 
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  // Data Submission state pieces
-  dataSubmissions: [],
-  retrieveUserDataSubmsissionsRequestStatus: states.notTried,
-  submissionStep: 0, // start at 0
-  submissionType: 'new', // 'new' | 'update'
-  submissionToUpdate: null, // Id
-  submissionComments: [],
-  submissionCommentHistoryRetrievalState: states.succeeded,
-  submissionFile: null,
-  submissionUploadState: null,
-  dataSubmissionSelectOptions: null,
-  auditReport: null,
-  checkSubmissionNameRequestStatus: states.notTried,
-  checkSubmissionNameResult: null,
+  // Data Submission state pieces - MIGRATED to dataSubmission slice reducer
 
   // News
   news: {
@@ -272,50 +246,75 @@ const initialState = {
   sendNotificationsStatus: [],
   reSendNotificationsStatus: [],
   subscribeIntroActive: initialSubscribeIntroState.subscribeIntroActive,
-  dropbox: {
-    isLoading: false,
-    success: false,
-    error: null,
-    downloadLink: null,
-    autoDownloadEligible: false,
-    directDownloadLink: null,
-    availableFolders: { hasRep: false, hasNrt: false, hasRaw: false },
-    mainFolder: null,
-    currentTab: null,
-    paginationByFolder: {},
-    vaultFilesPagination: {
-      backend: {
-        cursor: null,
-        hasMore: false,
-        chunkSize: null,
-        isLoading: false,
-      },
-      local: {
-        currentPage: 1,
-        pageSize: 25,
-        totalPages: null,
-      },
-      totalFileCount: null,
-      allCachedFiles: [],
-      currentPageFiles: [],
-      error: null,
-    },
-  },
+  // dropbox initial state moved to slice reducer in dropbox/reducer.js
 };
 
-const reducedReducer = reduceReducers(
-  initialState,
-  catalog,
-  user,
-  ui,
-  visualization,
-  dataSubmission,
-  help,
-  news,
-  highlights,
-  data,
-  notifications,
-  dropbox,
-);
+// Stage 1: Create combineReducers structure for migrated slice reducers
+// This function is updated as individual reducers are migrated to slice pattern
+const createCombinedSliceReducers = () => {
+  return combineReducers({
+    user: user, // Migrated to slice reducer pattern
+    dropbox: dropbox, // Migrated to slice reducer pattern
+    help: help, // Migrated to slice reducer pattern
+    highlights: highlights, // Migrated to slice reducer pattern
+    dataSubmission: dataSubmission, // Migrated to slice reducer pattern
+  });
+};
 
+// Stage 2: Hybrid root reducer combining slice-based and full-state patterns
+// Custom hybrid reducer that properly partitions state between combineReducers and full-state reducers
+const reducedReducer = (state = initialState, action) => {
+  // Step 1: Extract slice state for combineReducers (only the keys it manages)
+  // Note: For newly migrated slices, state.sliceName might not exist yet on first initialization
+  const sliceState = {
+    user: state.user || undefined, // user slice manages its own state now, undefined allows reducer to use default
+    dropbox: state.dropbox,
+    help: state.help || undefined, // help slice manages its own state now, undefined allows reducer to use default
+    highlights: state.highlights || undefined, // highlights slice manages its own state now, undefined allows reducer to use default
+    dataSubmission: state.dataSubmission || undefined, // dataSubmission slice manages its own state now, undefined allows reducer to use default
+  };
+
+  // Step 2: Process slice reducers with combineReducers
+  const combinedSliceReducer = createCombinedSliceReducers();
+  const newSliceState = combinedSliceReducer(sliceState, action);
+
+  // Step 3: Create updated state with slice changes and compatibility mappings
+  // SINGLE SOURCE OF TRUTH PATTERN: Use imported initial states from each reducer
+  // instead of hardcoded fallbacks to eliminate duplication and ensure consistency
+  const stateWithSliceUpdates = {
+    ...state,
+    ...newSliceState, // Direct merge for state shape compatible slices (e.g., dropbox, user)
+    // STATE SHAPE TRANSFORMATIONS: Required when slice shape differs from original
+
+    ...(newSliceState.user || initialUserState),
+    intros: newSliceState.help
+      ? newSliceState.help.intros
+      : initialHelpState.intros,
+    hints: newSliceState.help
+      ? newSliceState.help.hints
+      : initialHelpState.hints,
+    home: {
+      ...state.home,
+      highlights: newSliceState.highlights || initialHighlightsState,
+    },
+    // Spread dataSubmission slice state directly into root state shape
+    ...(newSliceState.dataSubmission || initialDataSubmissionState),
+  };
+
+  // Step 3: Process through full-state reducers in sequence
+  return reduceReducers(
+    stateWithSliceUpdates,
+    catalog, // Full-state reducer (reverted from slice pattern)
+    ui, // Full-state reducer (reverted from slice pattern)
+    visualization, // Full-state reducer (reverted from slice pattern)
+    news, // Full-state reducer (reverted from slice pattern)
+    // user, // MIGRATED to slice reducer pattern
+    // dataSubmission, // MIGRATED to slice reducer pattern
+    // highlights, // MIGRATED to slice reducer pattern
+    data, // Full-state reducer (unmigrated)
+    notifications, // Full-state reducer (unmigrated)
+  )(stateWithSliceUpdates, action);
+};
+
+// Export the hybrid reducer as default (current usage)
 export default reducedReducer;
