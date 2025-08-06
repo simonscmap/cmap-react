@@ -11,16 +11,11 @@ import data from './data';
 import dropbox from '../../features/datasetDownloadDropbox/state/reducer';
 import reduceReducers from 'reduce-reducers';
 import { combineReducers } from 'redux';
-import states from '../../enums/asyncRequestStates';
 // localStorageIntroState and localStorageHintState now imported directly in help reducer
 // Import initial states from migrated reducers for single source of truth
 import { initialHelpState } from './help';
-import { initialNewsState } from './news';
 import { initialHighlightsState } from './highlights';
-import { initialCatalogState } from './catalog';
 import { initialUserState } from './user';
-import { initialUiState } from './ui';
-import { initialVisualizationState } from './visualization';
 import { initialDataSubmissionState } from './dataSubmission';
 // Consider building this object from initial states from each reducer
 // ** When adding new keys to redux store consider whether they need to be
@@ -61,14 +56,10 @@ const initialState = {
 // This function is updated as individual reducers are migrated to slice pattern
 const createCombinedSliceReducers = () => {
   return combineReducers({
-    catalog: catalog, // Migrated to slice reducer pattern
     user: user, // Migrated to slice reducer pattern
-    ui: ui, // Migrated to slice reducer pattern
-    visualization: visualization, // Migrated to slice reducer pattern
     dropbox: dropbox, // Migrated to slice reducer pattern
     help: help, // Migrated to slice reducer pattern
     highlights: highlights, // Migrated to slice reducer pattern
-    news: news, // Migrated to slice reducer pattern
     dataSubmission: dataSubmission, // Migrated to slice reducer pattern
   });
 };
@@ -81,14 +72,10 @@ const reducedReducer = (state = initialState, action) => {
   // Step 1: Extract slice state for combineReducers (only the keys it manages)
   // Note: For newly migrated slices, state.sliceName might not exist yet on first initialization
   const sliceState = {
-    catalog: state.catalog || undefined, // catalog slice manages its own state now, undefined allows reducer to use default
     user: state.user || undefined, // user slice manages its own state now, undefined allows reducer to use default
-    ui: state.ui || undefined, // ui slice manages its own state now, undefined allows reducer to use default
-    visualization: state.visualization || undefined, // visualization slice manages its own state now, undefined allows reducer to use default
     dropbox: state.dropbox,
     help: state.help || undefined, // help slice manages its own state now, undefined allows reducer to use default
     highlights: state.highlights || undefined, // highlights slice manages its own state now, undefined allows reducer to use default
-    news: state.news || undefined, // news slice manages its own state now, undefined allows reducer to use default
     dataSubmission: state.dataSubmission || undefined, // dataSubmission slice manages its own state now, undefined allows reducer to use default
   };
 
@@ -101,13 +88,10 @@ const reducedReducer = (state = initialState, action) => {
   // instead of hardcoded fallbacks to eliminate duplication and ensure consistency
   const stateWithSliceUpdates = {
     ...state,
-    ...newSliceState, // Direct merge for state shape compatible slices (e.g., dropbox, catalog)
+    ...newSliceState, // Direct merge for state shape compatible slices (e.g., dropbox, user)
     // STATE SHAPE TRANSFORMATIONS: Required when slice shape differs from original
 
-    ...(newSliceState.catalog || initialCatalogState),
     ...(newSliceState.user || initialUserState),
-    ...(newSliceState.ui || initialUiState),
-    ...(newSliceState.visualization || initialVisualizationState),
     intros: newSliceState.help
       ? newSliceState.help.intros
       : initialHelpState.intros,
@@ -118,7 +102,6 @@ const reducedReducer = (state = initialState, action) => {
       ...state.home,
       highlights: newSliceState.highlights || initialHighlightsState,
     },
-    news: newSliceState.news || initialNewsState,
     // Spread dataSubmission slice state directly into root state shape
     ...(newSliceState.dataSubmission || initialDataSubmissionState),
   };
@@ -126,12 +109,12 @@ const reducedReducer = (state = initialState, action) => {
   // Step 4: Process through full-state reducers in sequence
   return reduceReducers(
     stateWithSliceUpdates,
-    // catalog, // MIGRATED to slice reducer pattern
+    catalog, // Full-state reducer (reverted from slice pattern)
+    ui, // Full-state reducer (reverted from slice pattern)
+    visualization, // Full-state reducer (reverted from slice pattern)
+    news, // Full-state reducer (reverted from slice pattern)
     // user, // MIGRATED to slice reducer pattern
-    // ui, // MIGRATED to slice reducer pattern
-    // visualization, // MIGRATED to slice reducer pattern
     // dataSubmission, // MIGRATED to slice reducer pattern
-    // news, // MIGRATED to slice reducer pattern
     // highlights, // MIGRATED to slice reducer pattern
     data, // Full-state reducer (unmigrated)
     notifications, // Full-state reducer (unmigrated)
