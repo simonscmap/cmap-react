@@ -247,7 +247,7 @@ const SearchInput = ({ selectedFiles = [], onToggleFile }) => {
               </InputAdornment>
             ),
           }}
-          style={{ marginBottom: showDropdown ? 0 : 16 }}
+          style={{ marginBottom: 16 }}
         />
         
         {/* Google-style search dropdown */}

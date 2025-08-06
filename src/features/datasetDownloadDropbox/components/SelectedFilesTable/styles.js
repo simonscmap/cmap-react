@@ -7,9 +7,12 @@ export const selectedFilesTableStyles = (theme) => ({
   container: {
     marginTop: theme.spacing(1),
     marginBottom: theme.spacing(2),
-    maxHeight: '300px',
+    // Fixed height to accommodate header + 7 rows to prevent layout shifts
+    // Header: ~42px + 7 data rows: ~33px each = ~273px total
+    height: '280px', // Slightly larger for padding
     backgroundColor: 'rgba(16, 43, 60, 0.6)',
     backdropFilter: 'blur(20px)',
+    overflow: 'auto', // Enable scrolling when more than 7 files
   },
   table: {
     '& th': {
@@ -44,7 +47,16 @@ export const selectedFilesTableStyles = (theme) => ({
   },
   emptyStateCell: {
     textAlign: 'center',
-    padding: theme.spacing(4),
+    height: '240px', // Height for proper centering (280px container - header)
+    verticalAlign: 'middle',
+    position: 'relative',
+    '& > div': {
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      width: '100%',
+    },
   },
   emptyStateText: {
     color: theme.palette.text.secondary,

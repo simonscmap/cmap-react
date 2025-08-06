@@ -47,9 +47,11 @@ const SelectedFilesTable = ({
             {selectedFiles.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={3} className={classes.emptyStateCell}>
-                  <Typography variant="body2" className={classes.emptyStateText}>
-                    No files selected yet
-                  </Typography>
+                  <div>
+                    <Typography variant="body2" className={classes.emptyStateText}>
+                      No files selected yet
+                    </Typography>
+                  </div>
                 </TableCell>
               </TableRow>
             ) : (
