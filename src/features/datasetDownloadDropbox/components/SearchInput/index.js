@@ -30,11 +30,10 @@ import {
 import {
   createSearchInstance,
   performSearch,
-  getPatternHints,
   SearchPerformanceMonitor,
 } from '../../utils/searchUtils';
 import { formatBytes } from '../../utils/fileUtils';
-import FileExamples from './FileExamples';
+import FileExampleBasic from './FileExampleBasic';
 
 const DEBOUNCE_DELAY = 300;
 const MIN_SEARCH_LENGTH = 3;
@@ -195,14 +194,8 @@ const SearchInput = ({ selectedFiles = [], onToggleFile }) => {
     [onToggleFile],
   );
 
-  // Generate placeholder text from file patterns
-  const placeholderText = React.useMemo(() => {
-    const patterns = getPatternHints(searchableFiles);
-    if (patterns.first) {
-      return `Search files (e.g., ${patterns.first})`;
-    }
-    return 'Search files...';
-  }, [searchableFiles]);
+  // Simple placeholder instructions
+  const placeholderText = 'Type part of a filename to search (minimum 3 characters)';
 
   // Generate tooltip content
   const tooltipContent = React.useMemo(
@@ -270,7 +263,7 @@ const SearchInput = ({ selectedFiles = [], onToggleFile }) => {
         />
 
         {/* File examples from dataset */}
-        <FileExamples searchableFiles={searchableFiles} />
+        <FileExampleBasic searchableFiles={searchableFiles} />
 
         {/* Google-style search dropdown */}
         {showDropdown &&
