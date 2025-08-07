@@ -16,8 +16,6 @@ import {
   SET_SEARCH_RESULTS,
   CLEAR_SEARCH,
   SET_SEARCH_ACTIVE,
-  SET_SEARCH_PAGINATION_DATA,
-  CLEAR_SEARCH_PAGINATION_CONTEXT,
 } from './actionTypes';
 
 // Dropbox slice initial state - extracted from main initialState object
@@ -663,38 +661,6 @@ export default function dropboxReducer(
       };
     }
 
-    case SET_SEARCH_PAGINATION_DATA: {
-      const { searchContextKey, paginationData } = action.payload;
-      
-      // Create or update search pagination context
-      return {
-        ...dropboxState,
-        paginationByFolder: {
-          ...dropboxState.paginationByFolder,
-          [searchContextKey]: {
-            ...paginationData,
-            // Ensure backend hasMore is false for search contexts
-            backend: {
-              ...paginationData.backend,
-              hasMore: false,
-            },
-          },
-        },
-      };
-    }
-
-    case CLEAR_SEARCH_PAGINATION_CONTEXT: {
-      const { searchContextKey } = action.payload;
-      
-      // Remove the search pagination context
-      const { [searchContextKey]: removed, ...remainingPagination } = 
-        dropboxState.paginationByFolder;
-      
-      return {
-        ...dropboxState,
-        paginationByFolder: remainingPagination,
-      };
-    }
 
     default:
       return dropboxState;

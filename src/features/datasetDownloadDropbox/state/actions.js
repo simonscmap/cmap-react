@@ -116,14 +116,3 @@ export const setSearchActive = (isActive, folderType) => ({
   type: dropboxActionTypes.SET_SEARCH_ACTIVE,
   payload: { isActive, folderType },
 });
-
-// Search pagination action creators
-export const setSearchPaginationData = (searchContextKey, paginationData) => ({
-  type: dropboxActionTypes.SET_SEARCH_PAGINATION_DATA,
-  payload: { searchContextKey, paginationData },
-});
-
-export const clearSearchPaginationContext = (searchContextKey) => ({
-  type: dropboxActionTypes.CLEAR_SEARCH_PAGINATION_CONTEXT,
-  payload: { searchContextKey },
-});

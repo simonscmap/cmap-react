@@ -25,8 +25,8 @@ import {
 import {
   useFileSelectionPerFolder,
   useDropboxDownload,
+  useFolderPagination,
 } from '../../hooks';
-import { useSearchPagination } from '../../hooks/useSearchPagination';
 import {
   formatBytes,
   formatEstimatedTime,
@@ -67,9 +67,19 @@ const DropboxFileSelectionModal = (props) => {
   // Use current tab from state or main folder
   const activeTab = currentTabFromState || mainFolder || 'rep';
 
-  // Get active pagination (search or folder based on context)
+  // Check if search is active to compute dynamic pagination key
+  const isSearchActive = useSelector((state) =>
+    state.dropbox?.searchByFolder?.[activeTab]?.isActive || false
+  );
+  
+  // Compute pagination key dynamically based on search state
+  const paginationKey = isSearchActive 
+    ? `${activeTab.toLowerCase()}-search` 
+    : activeTab;
+
+  // Get active pagination using dynamic key
   const folderPagination = useSelector((state) =>
-    selectFolderPagination(state, activeTab),
+    selectFolderPagination(state, paginationKey),
   );
   const activePageFiles = useSelector((state) =>
     selectActivePageFiles(state, activeTab),
@@ -81,11 +91,11 @@ const DropboxFileSelectionModal = (props) => {
     selectFolderAllCachedFiles(state, activeTab),
   );
 
-  // Use search pagination hook to manage dynamic pagination context
+  // Use folder pagination directly with computed key
   const {
-    handlePageChange: searchAwarePageChange,
-    handlePageSizeChange: searchAwarePageSizeChange,
-  } = useSearchPagination(dataset, activeTab);
+    handlePageChange,
+    handlePageSizeChange,
+  } = useFolderPagination(dataset, folderPagination, paginationKey);
 
   const allFiles = useMemo(() => {
     // Always use activePageFiles which comes from the correct pagination context
@@ -138,7 +148,7 @@ const DropboxFileSelectionModal = (props) => {
   };
 
   const onPageSizeChange = (event) => {
-    searchAwarePageSizeChange(event);
+    handlePageSizeChange(event);
   };
 
   if (!dataset) {
@@ -217,7 +227,7 @@ const DropboxFileSelectionModal = (props) => {
                 currentPage={activePaginationInfo.currentPage}
                 totalPages={activePaginationInfo.totalPages}
                 pageSize={activePaginationInfo.pageSize}
-                onPageChange={searchAwarePageChange}
+                onPageChange={handlePageChange}
                 onPageSizeChange={onPageSizeChange}
                 isLoading={activePaginationInfo.isLoading}
               />
