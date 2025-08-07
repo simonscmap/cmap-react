@@ -18,17 +18,15 @@ import {
   selectMainFolder,
   selectCurrentTab,
   selectFolderPagination,
-  selectFolderFiles,
-  selectFolderPaginationInfo,
   selectFolderAllCachedFiles,
-  selectIsSearchActive,
-  selectSearchResults,
+  selectActivePageFiles,
+  selectActivePaginationInfo,
 } from '../../state/selectors';
 import {
   useFileSelectionPerFolder,
   useDropboxDownload,
-  useFolderPagination,
 } from '../../hooks';
+import { useSearchPagination } from '../../hooks/useSearchPagination';
 import {
   formatBytes,
   formatEstimatedTime,
@@ -69,33 +67,30 @@ const DropboxFileSelectionModal = (props) => {
   // Use current tab from state or main folder
   const activeTab = currentTabFromState || mainFolder || 'rep';
 
-  // Get folder-specific pagination
+  // Get active pagination (search or folder based on context)
   const folderPagination = useSelector((state) =>
     selectFolderPagination(state, activeTab),
   );
-  const folderFiles = useSelector((state) =>
-    selectFolderFiles(state, activeTab),
+  const activePageFiles = useSelector((state) =>
+    selectActivePageFiles(state, activeTab),
   );
-  const folderPaginationInfo = useSelector((state) =>
-    selectFolderPaginationInfo(state, activeTab),
+  const activePaginationInfo = useSelector((state) =>
+    selectActivePaginationInfo(state, activeTab),
   );
   const allCachedFiles = useSelector((state) =>
     selectFolderAllCachedFiles(state, activeTab),
   );
-  const isSearchActive = useSelector((state) =>
-    selectIsSearchActive(state, activeTab),
-  );
-  const searchResults = useSelector((state) =>
-    selectSearchResults(state, activeTab),
-  );
+
+  // Use search pagination hook to manage dynamic pagination context
+  const {
+    handlePageChange: searchAwarePageChange,
+    handlePageSizeChange: searchAwarePageSizeChange,
+  } = useSearchPagination(dataset, activeTab);
 
   const allFiles = useMemo(() => {
-    // Return search results when search is active, otherwise return folderFiles
-    if (isSearchActive && searchResults && searchResults.length > 0) {
-      return searchResults;
-    }
-    return folderFiles || [];
-  }, [folderFiles, isSearchActive, searchResults]);
+    // Always use activePageFiles which comes from the correct pagination context
+    return activePageFiles || [];
+  }, [activePageFiles]);
 
   // Check if search interface should be shown (same logic as SearchInterface)
   const shouldShowSearchInterface = allCachedFiles.length > SEARCH_ACTIVATION_THRESHOLD;
@@ -118,12 +113,6 @@ const DropboxFileSelectionModal = (props) => {
   } = useFileSelectionPerFolder(allFiles, activeTab);
 
   useDropboxDownload(dropboxDownloadState, handleClose, dataset);
-
-  const { handlePageChange, handlePageSizeChange } = useFolderPagination(
-    dataset,
-    folderPagination,
-    activeTab,
-  );
 
   const handleSubmit = () => {
     if (!dataset) {
@@ -149,7 +138,7 @@ const DropboxFileSelectionModal = (props) => {
   };
 
   const onPageSizeChange = (event) => {
-    handlePageSizeChange(event);
+    searchAwarePageSizeChange(event);
   };
 
   if (!dataset) {
@@ -159,8 +148,8 @@ const DropboxFileSelectionModal = (props) => {
   // Check if we're still loading initial data or no data exists yet
   const isInitialLoading =
     !folderPagination ||
-    (!folderPagination && !folderFiles.length) ||
-    (folderPaginationInfo.isLoading && !folderFiles.length);
+    (!folderPagination && !activePageFiles.length) ||
+    (activePaginationInfo.isLoading && !activePageFiles.length);
 
   return (
     <Dialog
@@ -178,8 +167,8 @@ const DropboxFileSelectionModal = (props) => {
         <Typography variant="h6">Select Files to Download</Typography>
         <Typography variant="body2" gutterBottom>
           Dataset: {dataset.Short_Name}
-          {folderPaginationInfo.totalFileCount && (
-            <span> • Total Files: {folderPaginationInfo.totalFileCount}</span>
+          {activePaginationInfo.totalFileCount && (
+            <span> • Total Files: {activePaginationInfo.totalFileCount}</span>
           )}
         </Typography>
 
@@ -217,23 +206,21 @@ const DropboxFileSelectionModal = (props) => {
                 onClearPageSelections={handleClearPageSelections}
                 onClearAll={clearSelections}
                 onToggleFile={handleToggleFile}
-                isLoading={folderPaginationInfo.isLoading}
+                isLoading={activePaginationInfo.isLoading}
                 isCurrentTabFileLimitReached={isCurrentTabFileLimitReached}
                 canSelectFile={canSelectFile}
                 isCurrentTabSizeLimitReached={isCurrentTabSizeLimitReached}
               />
 
-              {/* Show PaginationControls only when not searching */}
-              {!isSearchActive && (
-                <PaginationControls
-                  currentPage={folderPaginationInfo.currentPage}
-                  totalPages={folderPaginationInfo.totalPages}
-                  pageSize={folderPaginationInfo.pageSize}
-                  onPageChange={handlePageChange}
-                  onPageSizeChange={onPageSizeChange}
-                  isLoading={folderPaginationInfo.isLoading}
-                />
-              )}
+              {/* Always show PaginationControls - they work for both search and folder contexts */}
+              <PaginationControls
+                currentPage={activePaginationInfo.currentPage}
+                totalPages={activePaginationInfo.totalPages}
+                pageSize={activePaginationInfo.pageSize}
+                onPageChange={searchAwarePageChange}
+                onPageSizeChange={onPageSizeChange}
+                isLoading={activePaginationInfo.isLoading}
+              />
             </TabPanel>
           ))
         )}
