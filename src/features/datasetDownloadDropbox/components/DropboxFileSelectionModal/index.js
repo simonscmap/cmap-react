@@ -22,6 +22,7 @@ import {
   selectFolderPaginationInfo,
   selectFolderAllCachedFiles,
   selectIsSearchActive,
+  selectSearchResults,
 } from '../../state/selectors';
 import {
   useFileSelectionPerFolder,
@@ -43,7 +44,6 @@ import PaginationControls from '../PaginationControls';
 import TabNavigation from '../TabNavigation';
 import TabPanel from '../TabPanel';
 import SearchInterface from '../SearchInterface';
-import SelectedFilesTable from '../SelectedFilesTable';
 // import SearchResults from '../SearchResults'; // Now integrated into SearchInput dropdown
 import { setCurrentFolderTab } from '../../state/actions';
 
@@ -82,14 +82,20 @@ const DropboxFileSelectionModal = (props) => {
   const allCachedFiles = useSelector((state) =>
     selectFolderAllCachedFiles(state, activeTab),
   );
-  // Note: isSearchActive was previously used but is now replaced by shouldShowSearchInterface
-  // const isSearchActive = useSelector((state) =>
-  //   selectIsSearchActive(state, activeTab),
-  // );
+  const isSearchActive = useSelector((state) =>
+    selectIsSearchActive(state, activeTab),
+  );
+  const searchResults = useSelector((state) =>
+    selectSearchResults(state, activeTab),
+  );
 
   const allFiles = useMemo(() => {
+    // Return search results when search is active, otherwise return folderFiles
+    if (isSearchActive && searchResults && searchResults.length > 0) {
+      return searchResults;
+    }
     return folderFiles || [];
-  }, [folderFiles]);
+  }, [folderFiles, isSearchActive, searchResults]);
 
   // Check if search interface should be shown (same logic as SearchInterface)
   const shouldShowSearchInterface = allCachedFiles.length > SEARCH_ACTIVATION_THRESHOLD;
@@ -192,38 +198,33 @@ const DropboxFileSelectionModal = (props) => {
         ) : (
           tabConfig.tabs.map((tab) => (
             <TabPanel key={tab.key} value={activeTab} index={tab.key}>
-              <SearchInterface 
-                files={allCachedFiles} 
-                folderType={activeTab}
-                selectedFiles={selectedFiles}
-                onToggleFile={handleToggleFile}
-              />
-
-              {/* Show SelectedFilesTable when search interface is shown, otherwise show FileTable */}
-              {shouldShowSearchInterface ? (
-                <SelectedFilesTable
-                  selectedFiles={selectedFiles}
-                  onRemoveFile={handleToggleFile}
-                />
-              ) : (
-                <FileTable
-                  allFiles={allFiles}
-                  selectedFiles={selectedFiles}
-                  areAllSelected={areAllSelected}
-                  areIndeterminate={areIndeterminate}
-                  onSelectAll={handleSelectAll}
-                  onSelectAllInFolder={handleSelectAllInFolder}
-                  onClearPageSelections={handleClearPageSelections}
-                  onClearAll={clearSelections}
-                  onToggleFile={handleToggleFile}
-                  isLoading={folderPaginationInfo.isLoading}
-                  isCurrentTabFileLimitReached={isCurrentTabFileLimitReached}
-                  canSelectFile={canSelectFile}
-                  isCurrentTabSizeLimitReached={isCurrentTabSizeLimitReached}
+              {/* Show SearchInterface only when there are enough files */}
+              {shouldShowSearchInterface && (
+                <SearchInterface 
+                  files={allCachedFiles} 
+                  folderType={activeTab}
                 />
               )}
 
-              {!shouldShowSearchInterface && (
+              {/* Always show FileTable with dynamic file array */}
+              <FileTable
+                allFiles={allFiles}
+                selectedFiles={selectedFiles}
+                areAllSelected={areAllSelected}
+                areIndeterminate={areIndeterminate}
+                onSelectAll={handleSelectAll}
+                onSelectAllInFolder={handleSelectAllInFolder}
+                onClearPageSelections={handleClearPageSelections}
+                onClearAll={clearSelections}
+                onToggleFile={handleToggleFile}
+                isLoading={folderPaginationInfo.isLoading}
+                isCurrentTabFileLimitReached={isCurrentTabFileLimitReached}
+                canSelectFile={canSelectFile}
+                isCurrentTabSizeLimitReached={isCurrentTabSizeLimitReached}
+              />
+
+              {/* Show PaginationControls only when not searching */}
+              {!isSearchActive && (
                 <PaginationControls
                   currentPage={folderPaginationInfo.currentPage}
                   totalPages={folderPaginationInfo.totalPages}

@@ -4,6 +4,5 @@ export { default as PaginationControls } from './PaginationControls';
 export { default as SearchInput } from './SearchInput';
 export { default as SearchInterface } from './SearchInterface';
 export { default as SearchResults } from './SearchResults';
-export { default as SelectedFilesTable } from './SelectedFilesTable';
 export { default as TabNavigation } from './TabNavigation';
 export { default as TabPanel } from './TabPanel';
