@@ -25,7 +25,7 @@ import {
 import {
   useFileSelectionPerFolder,
   useDropboxDownload,
-  useFolderPagination,
+  useSearchPagination,
 } from '../../hooks';
 import {
   formatBytes,
@@ -67,19 +67,9 @@ const DropboxFileSelectionModal = (props) => {
   // Use current tab from state or main folder
   const activeTab = currentTabFromState || mainFolder || 'rep';
 
-  // Check if search is active to compute dynamic pagination key
-  const isSearchActive = useSelector((state) =>
-    state.dropbox?.searchByFolder?.[activeTab]?.isActive || false
-  );
-  
-  // Compute pagination key dynamically based on search state
-  const paginationKey = isSearchActive 
-    ? `${activeTab.toLowerCase()}-search` 
-    : activeTab;
-
-  // Get active pagination using dynamic key
+  // Get active pagination (search or folder based on context)
   const folderPagination = useSelector((state) =>
-    selectFolderPagination(state, paginationKey),
+    selectFolderPagination(state, activeTab),
   );
   const activePageFiles = useSelector((state) =>
     selectActivePageFiles(state, activeTab),
@@ -91,11 +81,11 @@ const DropboxFileSelectionModal = (props) => {
     selectFolderAllCachedFiles(state, activeTab),
   );
 
-  // Use folder pagination directly with computed key
+  // Use search pagination hook to manage dynamic pagination context
   const {
-    handlePageChange,
-    handlePageSizeChange,
-  } = useFolderPagination(dataset, folderPagination, paginationKey);
+    handlePageChange: searchAwarePageChange,
+    handlePageSizeChange: searchAwarePageSizeChange,
+  } = useSearchPagination(dataset, activeTab);
 
   const allFiles = useMemo(() => {
     // Always use activePageFiles which comes from the correct pagination context
@@ -103,7 +93,8 @@ const DropboxFileSelectionModal = (props) => {
   }, [activePageFiles]);
 
   // Check if search interface should be shown (same logic as SearchInterface)
-  const shouldShowSearchInterface = allCachedFiles.length > SEARCH_ACTIVATION_THRESHOLD;
+  const shouldShowSearchInterface =
+    allCachedFiles.length > SEARCH_ACTIVATION_THRESHOLD;
 
   const {
     selectedFiles,
@@ -148,7 +139,7 @@ const DropboxFileSelectionModal = (props) => {
   };
 
   const onPageSizeChange = (event) => {
-    handlePageSizeChange(event);
+    searchAwarePageSizeChange(event);
   };
 
   if (!dataset) {
@@ -199,8 +190,8 @@ const DropboxFileSelectionModal = (props) => {
             <TabPanel key={tab.key} value={activeTab} index={tab.key}>
               {/* Show SearchInterface only when there are enough files */}
               {shouldShowSearchInterface && (
-                <SearchInterface 
-                  files={allCachedFiles} 
+                <SearchInterface
+                  files={allCachedFiles}
                   folderType={activeTab}
                 />
               )}
@@ -227,7 +218,7 @@ const DropboxFileSelectionModal = (props) => {
                 currentPage={activePaginationInfo.currentPage}
                 totalPages={activePaginationInfo.totalPages}
                 pageSize={activePaginationInfo.pageSize}
-                onPageChange={handlePageChange}
+                onPageChange={searchAwarePageChange}
                 onPageSizeChange={onPageSizeChange}
                 isLoading={activePaginationInfo.isLoading}
               />
@@ -244,10 +235,10 @@ const DropboxFileSelectionModal = (props) => {
             alignItems: 'center',
           }}
         >
-          <Typography 
-            variant="subtitle1" 
-            style={{ 
-              visibility: currentTabFileCount > 0 ? 'visible' : 'hidden' 
+          <Typography
+            variant="subtitle1"
+            style={{
+              visibility: currentTabFileCount > 0 ? 'visible' : 'hidden',
             }}
           >
             <strong>
