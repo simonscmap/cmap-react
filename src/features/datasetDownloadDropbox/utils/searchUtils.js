@@ -155,34 +155,47 @@ export function shouldActivateSearch(fileCount, threshold) {
  * @returns {RegExp} - Compiled regex pattern
  */
 export function wildcardToRegex(pattern) {
-  // Escape regex special characters except *
-  const escaped = pattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&');
-  // Convert * to .* for regex matching
-  const regexPattern = escaped.replace(/\*/g, '.*');
-  return new RegExp(`^${regexPattern}$`, 'i'); // Case insensitive
+  let adjustedPattern = pattern;
+
+  // Add * to end if not already present
+  if (!adjustedPattern.endsWith('*')) {
+    adjustedPattern += '*';
+  }
+
+  // Escape regex special characters except '*'
+  const escaped = adjustedPattern.replace(/[-[\]/{}()+?.\\^$|]/g, '\\$&');
+
+  // Convert '*' to '.*' for regex
+  const regexStr = '^' + escaped.replace(/\*/g, '.*') + '$';
+
+  return new RegExp(regexStr, 'i'); // Case-insensitive
 }
 
 /**
- * Rank wildcard results by match type
- * @param {Array} matches - Array of {item, matchType} objects
- * @returns {Array} - Sorted array of file items
+ * Sort files by relevance based on search input
+ * @param {Array} files - Files to sort
+ * @param {string} input - Search input (with or without wildcards)
+ * @returns {Array} - Sorted array of files
  */
-export function rankWildcardResults(matches) {
-  const ranked = matches.map(({ item, matchType }) => ({
-    item,
-    rank: matchType,
-  }));
+export function sortByRelevance(files, input) {
+  const lowerInput = input.replace(/\*/g, '').toLowerCase();
 
-  // Sort by rank (exact → prefix → suffix → substring → alphabetical)
-  ranked.sort((a, b) => {
-    if (a.rank !== b.rank) {
-      return a.rank - b.rank;
-    }
-    // If same rank, sort alphabetically by filename
-    return a.item.name.localeCompare(b.item.name);
+  function score(file) {
+    const name = file.name.toLowerCase();
+
+    if (name === lowerInput) return 0; // exact match
+    if (name.startsWith(lowerInput)) return 1; // starts with
+    if (name.includes(lowerInput)) return 2; // contains
+    return 3; // weak match via wildcard
+  }
+
+  return [...files].sort((a, b) => {
+    const scoreA = score(a);
+    const scoreB = score(b);
+
+    if (scoreA !== scoreB) return scoreA - scoreB;
+    return a.name.localeCompare(b.name); // alphabetical tiebreaker
   });
-
-  return ranked.map((r) => r.item);
 }
 
 /**
@@ -198,32 +211,29 @@ export function performWildcardSearch(files, query) {
 
   const trimmedQuery = query.trim();
   const regex = wildcardToRegex(trimmedQuery);
-  const matches = [];
 
-  for (const file of files) {
-    if (regex.test(file.name)) {
-      let matchType;
-      const lowerName = file.name.toLowerCase();
-      const lowerQuery = trimmedQuery.toLowerCase();
+  // Filter files that match the pattern
+  const matchedFiles = files.filter((file) => regex.test(file.name));
 
-      // Determine match type for ranking
-      if (lowerName === lowerQuery.replace(/\*/g, '')) {
-        matchType = 1; // Exact match (ignoring wildcards)
-      } else if (lowerQuery.startsWith('*') && lowerQuery.endsWith('*')) {
-        matchType = 4; // Substring match (*term*)
-      } else if (lowerQuery.startsWith('*')) {
-        matchType = 3; // Suffix match (*term)
-      } else if (lowerQuery.endsWith('*')) {
-        matchType = 2; // Prefix match (term*)
-      } else {
-        matchType = 4; // Other patterns treated as substring
-      }
+  // Sort by relevance
+  return sortByRelevance(matchedFiles, trimmedQuery);
+}
 
-      matches.push({ item: file, matchType });
+// Keep rankWildcardResults for backward compatibility if needed
+export function rankWildcardResults(matches) {
+  const ranked = matches.map(({ item, matchType }) => ({
+    item,
+    rank: matchType,
+  }));
+
+  ranked.sort((a, b) => {
+    if (a.rank !== b.rank) {
+      return a.rank - b.rank;
     }
-  }
+    return a.item.name.localeCompare(b.item.name);
+  });
 
-  return rankWildcardResults(matches);
+  return ranked.map((r) => r.item);
 }
 
 /**
