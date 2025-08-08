@@ -22,7 +22,6 @@ const TabNavigation = ({ currentTab, tabs, onChange }) => {
     onChange(newValue);
   };
 
-
   return (
     <Tabs
       value={currentTab}
@@ -32,15 +31,23 @@ const TabNavigation = ({ currentTab, tabs, onChange }) => {
       textColor="primary"
     >
       {tabs.map((tab) => (
-        <Tab 
-          key={tab.key} 
+        <Tab
+          key={tab.key}
           value={tab.key}
           label={
             tab.key === 'raw' ? (
               <div className={classes.tabWithInfo}>
                 <span>{tab.label}</span>
-                <InfoTooltip 
+                <InfoTooltip
                   title="These files are the original files uploaded prior to processing into the CMAP database"
+                  fontSize="small"
+                />
+              </div>
+            ) : tab.key === 'main' ? (
+              <div className={classes.tabWithInfo}>
+                <span>{tab.label}</span>
+                <InfoTooltip
+                  title="These files are processed by CMAP to be ingested into the CMAP database"
                   fontSize="small"
                 />
               </div>

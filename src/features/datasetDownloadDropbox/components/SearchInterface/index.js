@@ -49,7 +49,8 @@ const SearchInterface = ({ files, folderType }) => {
     return null;
   }
 
-  const folderDisplayName = activeFolder === 'rep' ? 'Main Files' : 'Raw Files';
+  const folderDisplayName =
+    activeFolder === 'rep' ? 'Processed Files' : 'Raw Files';
 
   return (
     <Box className={classes.searchContainer}>
