@@ -21,8 +21,8 @@ export const getTabConfiguration = (availableFolders, mainFolder) => {
       // Only main folder exists (rep/nrt)
       return {
         showTabs: false,
-        mainTabLabel: 'Main Files',
-        tabs: [{ key: mainFolder, label: 'Main Files' }],
+        mainTabLabel: 'Processed Files',
+        tabs: [{ key: mainFolder, label: 'Processed Files' }],
       };
     }
   }
@@ -30,9 +30,9 @@ export const getTabConfiguration = (availableFolders, mainFolder) => {
   // Two tab case: Main + RAW (both exist)
   return {
     showTabs: true,
-    mainTabLabel: 'Main Files',
+    mainTabLabel: 'Processed Files',
     tabs: [
-      { key: mainFolder, label: 'Main Files' },
+      { key: mainFolder, label: 'Processed Files' },
       { key: 'raw', label: 'Raw Files' },
     ],
   };
