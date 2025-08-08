@@ -7,6 +7,9 @@ export const SEARCH_PERFORMANCE_TARGET = 100;
 // Search debounce delay (milliseconds) - delay before performing search after user stops typing
 export const SEARCH_DEBOUNCE_DELAY = 300;
 
+// Maximum number of search results to display in dropdown
+export const SEARCH_RESULTS_DISPLAY_LIMIT = 10000;
+
 // Fuse.js search configuration
 export const SEARCH_CONFIG = {
   keys: ['name'], // Search filename only

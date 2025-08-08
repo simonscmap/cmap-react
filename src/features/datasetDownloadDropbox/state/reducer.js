@@ -349,12 +349,20 @@ export default function dropboxReducer(
         dropboxState.mainFolder ||
         'rep';
 
-      // Ensure folder pagination exists
-      const paginationByFolder = ensureFolderPaginationExists(
-        dropboxState.paginationByFolder,
-        folderType,
-      );
+      // Check if this is a search context or regular folder
+      const isSearchContext = folderType === 'main-search' || folderType === 'raw-search';
+      
+      // Ensure folder pagination exists (works for both search and regular contexts)
+      const paginationByFolder = isSearchContext
+        ? dropboxState.paginationByFolder
+        : ensureFolderPaginationExists(dropboxState.paginationByFolder, folderType);
+      
       const folderPagination = paginationByFolder[folderType];
+      
+      // If context doesn't exist, return unchanged state
+      if (!folderPagination) {
+        return dropboxState;
+      }
 
       const currentPageSize = folderPagination.local.pageSize;
       const cachedFiles = folderPagination.allCachedFiles;
@@ -380,8 +388,8 @@ export default function dropboxReducer(
         },
       };
 
-      // Update legacy structure if this is the current tab
-      const updateLegacy =
+      // Update legacy structure if this is the current tab (not for search contexts)
+      const updateLegacy = !isSearchContext &&
         folderType === (dropboxState.currentTab || dropboxState.mainFolder);
 
       return {
@@ -408,12 +416,20 @@ export default function dropboxReducer(
         dropboxState.mainFolder ||
         'rep';
 
-      // Ensure folder pagination exists
-      const paginationByFolder = ensureFolderPaginationExists(
-        dropboxState.paginationByFolder,
-        folderType,
-      );
+      // Check if this is a search context or regular folder
+      const isSearchContext = folderType === 'main-search' || folderType === 'raw-search';
+      
+      // Ensure folder pagination exists (works for both search and regular contexts)
+      const paginationByFolder = isSearchContext
+        ? dropboxState.paginationByFolder
+        : ensureFolderPaginationExists(dropboxState.paginationByFolder, folderType);
+      
       const folderPagination = paginationByFolder[folderType];
+      
+      // If context doesn't exist, return unchanged state
+      if (!folderPagination) {
+        return dropboxState;
+      }
 
       const totalFileCount = folderPagination.totalFileCount;
       const newTotalPages = totalFileCount
@@ -440,8 +456,8 @@ export default function dropboxReducer(
         },
       };
 
-      // Update legacy structure if this is the current tab
-      const updateLegacy =
+      // Update legacy structure if this is the current tab (not for search contexts)
+      const updateLegacy = !isSearchContext &&
         folderType === (dropboxState.currentTab || dropboxState.mainFolder);
 
       return {
@@ -540,6 +556,34 @@ export default function dropboxReducer(
         activeFolder,
       );
 
+      // Determine search context key based on active folder/tab
+      const searchContextKey = activeFolder === 'raw' ? 'raw-search' : 'main-search';
+      
+      // Calculate pagination for search results
+      const pageSize = 25; // Use default page size
+      const totalFileCount = filteredFiles.length;
+      const totalPages = Math.ceil(totalFileCount / pageSize);
+      const currentPageFiles = filteredFiles.slice(0, pageSize);
+
+      // Create search pagination context
+      const searchPaginationState = {
+        local: {
+          currentPage: 1,
+          pageSize,
+          totalPages,
+        },
+        backend: {
+          cursor: null,
+          hasMore: false, // Search results are complete
+          chunkSize: null,
+          isLoading: false,
+        },
+        totalFileCount,
+        allCachedFiles: filteredFiles,
+        currentPageFiles,
+        error: null,
+      };
+
       return {
         ...dropboxState,
         searchByFolder: {
@@ -550,6 +594,11 @@ export default function dropboxReducer(
             highlightMatches,
             lastSearchDuration: searchDuration,
           },
+        },
+        // Add search pagination context
+        paginationByFolder: {
+          ...dropboxState.paginationByFolder,
+          [searchContextKey]: searchPaginationState,
         },
       };
     }
@@ -563,6 +612,13 @@ export default function dropboxReducer(
         dropboxState.searchByFolder,
         activeFolder,
       );
+
+      // Determine search context key to clean up
+      const searchContextKey = activeFolder === 'raw' ? 'raw-search' : 'main-search';
+      
+      // Remove the search pagination context
+      const { [searchContextKey]: removed, ...remainingPagination } = 
+        dropboxState.paginationByFolder;
 
       return {
         ...dropboxState,
@@ -578,6 +634,8 @@ export default function dropboxReducer(
             lastSearchDuration: null,
           },
         },
+        // Clean up search pagination context
+        paginationByFolder: remainingPagination,
       };
     }
 
@@ -602,6 +660,7 @@ export default function dropboxReducer(
         },
       };
     }
+
 
     default:
       return dropboxState;

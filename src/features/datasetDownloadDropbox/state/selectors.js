@@ -237,3 +237,25 @@ export const selectSearchableFiles = (state, folderType) => {
     folderType || selectCurrentTab(state) || selectMainFolder(state) || 'rep';
   return selectFolderAllCachedFiles(state, currentTab);
 };
+
+// Dynamic pagination selector based on search state
+export const selectActivePaginationContext = (state, activeTab) => {
+  const isSearchActive = selectIsSearchActive(state, activeTab);
+  if (isSearchActive) {
+    const searchContextKey = activeTab === 'Raw' || activeTab === 'raw'
+      ? 'raw-search'
+      : 'main-search';
+    return searchContextKey;
+  }
+  return activeTab || selectCurrentTab(state) || selectMainFolder(state) || 'rep';
+};
+
+export const selectActivePaginationInfo = (state, activeTab) => {
+  const contextKey = selectActivePaginationContext(state, activeTab);
+  return selectFolderPaginationInfo(state, contextKey);
+};
+
+export const selectActivePageFiles = (state, activeTab) => {
+  const contextKey = selectActivePaginationContext(state, activeTab);
+  return selectFolderFiles(state, contextKey);
+};

@@ -13,9 +13,10 @@ const useStyles = makeStyles((theme) => ({
   searchContainer: {
     marginBottom: theme.spacing(2),
     padding: theme.spacing(2),
-    backgroundColor: '#184562', // Use app's solidPaper color instead of grey
-    border: `1px solid #2c6b8f`,
-    borderRadius: theme.shape.borderRadius,
+    // Removed visible background and border for cleaner look
+    // backgroundColor: '#184562',
+    // border: `1px solid #2c6b8f`,
+    // borderRadius: theme.shape.borderRadius,
   },
   searchHeader: {
     display: 'flex',
@@ -61,7 +62,7 @@ const SearchInterface = ({ files, folderType }) => {
           Search {folderDisplayName}
         </Typography>
       </div>
-      <SearchInput files={files} folderType={activeFolder} />
+      <SearchInput />
     </Box>
   );
 };

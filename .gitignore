@@ -34,7 +34,7 @@ notes
 .sentryclirc
 .nvmrc
 
-# BMAD
+# BMAD Start
 .bmad-core
 .bmad-infrastructure-devops
 .cursor
@@ -43,5 +43,6 @@ notes
 
 .claude/commands/BMad
 .claude/commands/bmadInfraDevOps
+# BMAD End
 
-docs
+/docs/
