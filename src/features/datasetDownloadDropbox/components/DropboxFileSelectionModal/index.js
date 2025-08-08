@@ -81,6 +81,9 @@ const DropboxFileSelectionModal = (props) => {
     selectFolderAllCachedFiles(state, activeTab),
   );
 
+  // Get the total unfiltered file count from folder pagination
+  const totalUnfilteredFileCount = folderPagination?.totalFileCount || null;
+
   // Use search pagination hook to manage dynamic pagination context
   const {
     handlePageChange: searchAwarePageChange,
@@ -168,8 +171,8 @@ const DropboxFileSelectionModal = (props) => {
         <Typography variant="h6">Select Files to Download</Typography>
         <Typography variant="body2" gutterBottom>
           Dataset: {dataset.Short_Name}
-          {activePaginationInfo.totalFileCount && (
-            <span> • Total Files: {activePaginationInfo.totalFileCount}</span>
+          {totalUnfilteredFileCount && (
+            <span> • Total Files: {totalUnfilteredFileCount}</span>
           )}
         </Typography>
 
