@@ -1,5 +1,5 @@
 // Search activation threshold - when to show search interface
-export const SEARCH_ACTIVATION_THRESHOLD = 497;
+export const SEARCH_ACTIVATION_THRESHOLD = 25;
 
 // Search performance target (milliseconds)
 export const SEARCH_PERFORMANCE_TARGET = 100;
@@ -9,6 +9,8 @@ export const SEARCH_DEBOUNCE_DELAY = 300;
 
 // Maximum number of search results to display in dropdown
 export const SEARCH_RESULTS_DISPLAY_LIMIT = 10000;
+
+export const MIN_SEARCH_LENGTH = 1;
 
 // Fuse.js search configuration
 export const SEARCH_CONFIG = {

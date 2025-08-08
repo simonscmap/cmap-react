@@ -19,9 +19,10 @@ import {
   performSearch,
   SearchPerformanceMonitor,
 } from '../../utils/searchUtils';
-
-const DEBOUNCE_DELAY = 300;
-const MIN_SEARCH_LENGTH = 3;
+import {
+  MIN_SEARCH_LENGTH,
+  SEARCH_DEBOUNCE_DELAY,
+} from '../../constants/searchConstants';
 
 const SearchInput = () => {
   const dispatch = useDispatch();
@@ -106,7 +107,7 @@ const SearchInput = () => {
               ),
             );
           }
-        }, DEBOUNCE_DELAY);
+        }, SEARCH_DEBOUNCE_DELAY);
       });
     },
     [dispatch, currentTab],
