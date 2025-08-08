@@ -161,6 +161,7 @@ export const selectFolderSearchState = (state, folderType) => {
       searchStartTime: null,
       lastSearchDuration: null,
       useFuzzySearch: false,
+      searchEngine: 'wildcard', // Default to wildcard engine
     }
   );
 };
@@ -267,4 +268,17 @@ export const selectFuzzySearchEnabled = (state, folderType) => {
     folderType || selectCurrentTab(state) || selectMainFolder(state) || 'rep';
   const searchState = selectFolderSearchState(state, currentTab);
   return searchState.useFuzzySearch || false;
+};
+
+export const selectSearchEngine = (state, folderType) => {
+  const currentTab =
+    folderType || selectCurrentTab(state) || selectMainFolder(state) || 'rep';
+  const searchState = selectFolderSearchState(state, currentTab);
+  return searchState.searchEngine || 'wildcard';
+};
+
+export const selectCurrentFolderSearchEngine = (state) => {
+  const currentTab =
+    selectCurrentTab(state) || selectMainFolder(state) || 'rep';
+  return selectSearchEngine(state, currentTab);
 };

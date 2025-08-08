@@ -17,7 +17,9 @@ import {
   CLEAR_SEARCH,
   SET_SEARCH_ACTIVE,
   SET_FUZZY_SEARCH_ENABLED,
+  SET_SEARCH_ENGINE,
 } from './actionTypes';
+import { SEARCH_ENGINES } from '../constants/searchConstants';
 
 // Dropbox slice initial state - extracted from main initialState object
 const initialDropboxState = {
@@ -63,7 +65,8 @@ const createInitialFolderSearchState = () => ({
   highlightMatches: [], // Match data for highlighting
   searchStartTime: null, // Performance tracking
   lastSearchDuration: null,
-  useFuzzySearch: false, // Whether to use fuzzy search configuration
+  useFuzzySearch: false, // Whether to use fuzzy search configuration (deprecated)
+  searchEngine: SEARCH_ENGINES.WILDCARD, // Current search engine (wildcard by default)
 });
 
 // Helper function to create initial pagination state for a folder
@@ -647,6 +650,7 @@ export default function dropboxReducer(
             searchStartTime: null,
             lastSearchDuration: null,
             useFuzzySearch: false, // Reset fuzzy search to default
+            searchEngine: SEARCH_ENGINES.WILDCARD, // Reset to default engine
           },
         },
         // Clean up search pagination context
@@ -686,13 +690,45 @@ export default function dropboxReducer(
         activeFolder,
       );
 
+      // Convert the legacy useFuzzySearch boolean to new engine type
+      const searchEngine = enabled
+        ? SEARCH_ENGINES.FUZZY
+        : SEARCH_ENGINES.WILDCARD;
+
       return {
         ...dropboxState,
         searchByFolder: {
           ...searchByFolder,
           [activeFolder]: {
             ...searchByFolder[activeFolder],
-            useFuzzySearch: enabled,
+            useFuzzySearch: enabled, // Keep for backward compatibility
+            searchEngine, // New engine selection
+          },
+        },
+      };
+    }
+
+    case SET_SEARCH_ENGINE: {
+      const { engine, folderType } = action.payload;
+      const activeFolder = folderType || dropboxState.currentTab || 'rep';
+
+      // Ensure folder search exists
+      const searchByFolder = ensureFolderSearchExists(
+        dropboxState.searchByFolder,
+        activeFolder,
+      );
+
+      // Update legacy useFuzzySearch for backward compatibility
+      const useFuzzySearch = engine === SEARCH_ENGINES.FUZZY;
+
+      return {
+        ...dropboxState,
+        searchByFolder: {
+          ...searchByFolder,
+          [activeFolder]: {
+            ...searchByFolder[activeFolder],
+            searchEngine: engine,
+            useFuzzySearch, // Keep for backward compatibility
           },
         },
       };

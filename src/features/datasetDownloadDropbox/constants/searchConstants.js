@@ -12,32 +12,24 @@ export const SEARCH_RESULTS_DISPLAY_LIMIT = 10000;
 
 export const MIN_SEARCH_LENGTH = 1;
 
-// Fuse.js search configuration
+// Search engine types
+export const SEARCH_ENGINES = {
+  WILDCARD: 'wildcard',
+  FUZZY: 'fuzzy',
+};
+
+// Fuse.js search configuration - unified single configuration for fuzzy search
 export const SEARCH_CONFIG = {
-  fuzzy: {
-    keys: ['name'], // Search filename only
-    threshold: 0.4, // 0.0 = exact match, 1.0 = match anything
-    distance: 200, // Maximum distance for fuzzy matching
-    minMatchCharLength: 1, // Minimum character length to trigger search
-    includeMatches: true, // Include match data for highlighting
-    includeScore: true, // Include search score
-    shouldSort: true, // Sort results by score
-    location: 0, // Expected location of match
-    maxPatternLength: 100, // Maximum pattern length
-    findAllMatches: false, // Stop after first match per item
-  },
-  default: {
-    keys: ['name'], // Search filename only
-    threshold: 0.0, // 0.0 = exact match, 1.0 = match anything
-    distance: 200, // Maximum distance for fuzzy matching
-    minMatchCharLength: 1, // Minimum character length to trigger search
-    includeMatches: true, // Include match data for highlighting
-    includeScore: true, // Include search score
-    shouldSort: true, // Sort results by score
-    location: 0, // Expected location of match
-    maxPatternLength: 100, // Maximum pattern length
-    findAllMatches: false, // Stop after first match per item
-  },
+  keys: ['name'], // Search filename only
+  threshold: 0.4, // 0.0 = exact match, 1.0 = match anything
+  distance: 200, // Maximum distance for fuzzy matching
+  minMatchCharLength: 1, // Minimum character length to trigger search
+  includeMatches: true, // Include match data for highlighting
+  includeScore: true, // Include search score
+  shouldSort: true, // Sort results by score
+  location: 0, // Expected location of match
+  maxPatternLength: 100, // Maximum pattern length
+  findAllMatches: false, // Stop after first match per item
 };
 
 // Search state constants

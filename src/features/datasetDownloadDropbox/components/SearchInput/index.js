@@ -17,6 +17,7 @@ import {
   setSearchActive,
   clearSearch,
   setFuzzySearchEnabled,
+  setSearchEngine,
 } from '../../state/actions';
 import {
   selectCurrentFolderSearchState,
@@ -24,15 +25,17 @@ import {
   selectMainFolder,
   selectSearchableFiles,
   selectFuzzySearchEnabled,
+  selectCurrentFolderSearchEngine,
 } from '../../state/selectors';
 import {
   createSearchInstance,
-  performSearch,
   SearchPerformanceMonitor,
+  performUnifiedSearch,
 } from '../../utils/searchUtils';
 import {
   MIN_SEARCH_LENGTH,
   SEARCH_DEBOUNCE_DELAY,
+  SEARCH_ENGINES,
 } from '../../constants/searchConstants';
 import InfoTooltip from '../../../../shared/components/InfoTooltip';
 
@@ -58,6 +61,7 @@ const SearchInput = () => {
   const useFuzzySearch = useSelector((state) =>
     selectFuzzySearchEnabled(state, currentTab),
   );
+  const searchEngine = useSelector(selectCurrentFolderSearchEngine);
 
   // Local input state for immediate UI response
   const [inputValue, setInputValue] = useState(searchState.query || '');
@@ -67,16 +71,15 @@ const SearchInput = () => {
   const searchInstanceRef = useRef(null);
   const performanceMonitorRef = useRef(new SearchPerformanceMonitor());
 
-  // Update search instance when files or config type changes
+  // Update search instance when files change (only needed for fuzzy search)
   useEffect(() => {
     if (searchableFiles && searchableFiles.length > 0) {
-      const configType = useFuzzySearch ? 'fuzzy' : 'default';
-      searchInstanceRef.current = createSearchInstance(
-        searchableFiles,
-        configType,
-      );
+      // Only create Fuse.js instance for fuzzy search - wildcard search doesn't need it
+      if (searchEngine === SEARCH_ENGINES.FUZZY) {
+        searchInstanceRef.current = createSearchInstance(searchableFiles);
+      }
     }
-  }, [searchableFiles, useFuzzySearch]);
+  }, [searchableFiles, searchEngine]);
 
   // Sync local input state with Redux when search state changes externally
   useEffect(() => {
@@ -118,28 +121,26 @@ const SearchInput = () => {
         dispatch(setSearchActive(true, currentTab));
 
         debounceTimeoutRef.current = setTimeout(() => {
-          if (searchInstanceRef.current) {
-            const searchResult = performSearch(
-              searchInstanceRef.current,
-              value,
-              performanceMonitorRef.current,
-            );
+          // Use unified search function that handles both engines
+          const searchResult = performUnifiedSearch(
+            searchableFiles,
+            value,
+            searchEngine,
+            performanceMonitorRef.current,
+          );
 
-            dispatch(
-              setSearchResults(
-                searchResult.results,
-                searchResult.matches,
-                searchResult.performance
-                  ? searchResult.performance.duration
-                  : 0,
-                currentTab,
-              ),
-            );
-          }
+          dispatch(
+            setSearchResults(
+              searchResult.results,
+              searchResult.matches,
+              searchResult.performance ? searchResult.performance.duration : 0,
+              currentTab,
+            ),
+          );
         }, SEARCH_DEBOUNCE_DELAY);
       });
     },
-    [dispatch, currentTab],
+    [dispatch, currentTab, searchableFiles, searchEngine],
   );
 
   // Handle clear button click
@@ -157,14 +158,20 @@ const SearchInput = () => {
   const handleFuzzySearchToggle = useCallback(
     (event) => {
       const enabled = event.target.checked;
+      const engine = enabled ? SEARCH_ENGINES.FUZZY : SEARCH_ENGINES.WILDCARD;
+
+      // Update both new and legacy state for backward compatibility
+      dispatch(setSearchEngine(engine, currentTab));
       dispatch(setFuzzySearchEnabled(enabled, currentTab));
     },
     [dispatch, currentTab],
   );
 
-  // Simple placeholder instructions
+  // Dynamic placeholder instructions based on search engine
   const placeholderText =
-    'Type part of a filename to filter. Use * for wildcard.';
+    searchEngine === SEARCH_ENGINES.WILDCARD
+      ? 'Search files with wildcards: *.txt, fd*, *10*.txt'
+      : 'Search files with fuzzy matching: approximate and typo-tolerant';
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -242,7 +249,7 @@ const SearchInput = () => {
             label="Fuzzy Search"
           />
           <InfoTooltip
-            title="Fuzzy search finds approximate matches allowing for typos and variations. Default search requires more exact matching."
+            title="Toggle between Wildcard search (supports patterns like *.txt, fd*) and Fuzzy search (typo-tolerant approximate matching)."
             fontSize="small"
           />
         </Box>
