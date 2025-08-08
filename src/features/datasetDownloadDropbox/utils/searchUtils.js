@@ -199,10 +199,10 @@ export function sortByRelevance(files, input) {
 }
 
 /**
- * Perform wildcard search with intelligent ranking
+ * Perform wildcard search (filtering only, no sorting)
  * @param {Array} files - Files to search through
  * @param {string} query - Wildcard search query
- * @returns {Array} - Matched and ranked files
+ * @returns {Array} - Matched files (unsorted)
  */
 export function performWildcardSearch(files, query) {
   if (!query || !query.trim()) {
@@ -213,10 +213,7 @@ export function performWildcardSearch(files, query) {
   const regex = wildcardToRegex(trimmedQuery);
 
   // Filter files that match the pattern
-  const matchedFiles = files.filter((file) => regex.test(file.name));
-
-  // Sort by relevance
-  return sortByRelevance(matchedFiles, trimmedQuery);
+  return files.filter((file) => regex.test(file.name));
 }
 
 // Keep rankWildcardResults for backward compatibility if needed
@@ -258,8 +255,25 @@ export function performUnifiedSearch(files, query, engine, performanceMonitor) {
   let matches = [];
 
   if (engine === SEARCH_ENGINES.WILDCARD) {
-    // Perform wildcard search
+    // Perform wildcard search (filtering only)
     results = performWildcardSearch(files, query);
+  } else {
+    // Perform fuzzy search using existing Fuse.js logic
+    const searchInstance = createSearchInstance(files);
+    const fuseResults = searchInstance.search(query.trim());
+
+    // Get the matched files from Fuse.js
+    results = fuseResults.map((result) => result.item);
+
+    // Store the fuse results for later match data mapping
+    matches = fuseResults;
+  }
+
+  // Sort all results by relevance, regardless of search engine
+  results = sortByRelevance(results, query);
+
+  // Create matches array after sorting
+  if (engine === SEARCH_ENGINES.WILDCARD) {
     // Create matches array compatible with fuzzy search format
     matches = results.map((item) => ({
       item,
@@ -267,20 +281,8 @@ export function performUnifiedSearch(files, query, engine, performanceMonitor) {
       score: 0, // Perfect score for wildcard matches
     }));
   } else {
-    // Perform fuzzy search using existing Fuse.js logic
-    const searchInstance = createSearchInstance(files);
-    const fuseResults = searchInstance.search(query.trim());
-
-    // Get the matched files from Fuse.js
-    const fuzzyMatchedFiles = fuseResults.map((result) => result.item);
-
-    // Sort the fuzzy results using our relevance algorithm for better ranking
-    results = sortByRelevance(fuzzyMatchedFiles, query);
-
-    // Create matches array with original Fuse.js match data but reordered
-    const matchMap = new Map(
-      fuseResults.map((result) => [result.item, result]),
-    );
+    // Map the sorted results to their original Fuse.js match data
+    const matchMap = new Map(matches.map((result) => [result.item, result]));
     matches = results.map((item) => {
       const fuseResult = matchMap.get(item);
       return {
