@@ -6,6 +6,8 @@ import {
   IconButton,
   Box,
   Typography,
+  Checkbox,
+  FormControlLabel,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { Search, Clear } from '@material-ui/icons';
@@ -14,12 +16,14 @@ import {
   setSearchResults,
   setSearchActive,
   clearSearch,
+  setFuzzySearchEnabled,
 } from '../../state/actions';
 import {
   selectCurrentFolderSearchState,
   selectCurrentTab,
   selectMainFolder,
   selectSearchableFiles,
+  selectFuzzySearchEnabled,
 } from '../../state/selectors';
 import {
   createSearchInstance,
@@ -30,6 +34,7 @@ import {
   MIN_SEARCH_LENGTH,
   SEARCH_DEBOUNCE_DELAY,
 } from '../../constants/searchConstants';
+import InfoTooltip from '../../../../shared/components/InfoTooltip';
 
 const useStyles = makeStyles((theme) => ({
   resultCount: {
@@ -50,6 +55,9 @@ const SearchInput = () => {
   const searchableFiles = useSelector((state) =>
     selectSearchableFiles(state, currentTab),
   );
+  const useFuzzySearch = useSelector((state) =>
+    selectFuzzySearchEnabled(state, currentTab),
+  );
 
   // Local input state for immediate UI response
   const [inputValue, setInputValue] = useState(searchState.query || '');
@@ -59,12 +67,16 @@ const SearchInput = () => {
   const searchInstanceRef = useRef(null);
   const performanceMonitorRef = useRef(new SearchPerformanceMonitor());
 
-  // Update search instance when files change
+  // Update search instance when files or config type changes
   useEffect(() => {
     if (searchableFiles && searchableFiles.length > 0) {
-      searchInstanceRef.current = createSearchInstance(searchableFiles);
+      const configType = useFuzzySearch ? 'fuzzy' : 'default';
+      searchInstanceRef.current = createSearchInstance(
+        searchableFiles,
+        configType,
+      );
     }
-  }, [searchableFiles]);
+  }, [searchableFiles, useFuzzySearch]);
 
   // Sync local input state with Redux when search state changes externally
   useEffect(() => {
@@ -141,6 +153,15 @@ const SearchInput = () => {
     }
   }, [dispatch, currentTab]);
 
+  // Handle fuzzy search toggle
+  const handleFuzzySearchToggle = useCallback(
+    (event) => {
+      const enabled = event.target.checked;
+      dispatch(setFuzzySearchEnabled(enabled, currentTab));
+    },
+    [dispatch, currentTab],
+  );
+
   // Simple placeholder instructions
   const placeholderText =
     'Type part of a filename to filter. Use * for wildcard.';
@@ -197,17 +218,35 @@ const SearchInput = () => {
           ),
         }}
       />
-      <Typography className={classes.resultCount}>
-        {searchState.isActive && inputValue.length >= MIN_SEARCH_LENGTH ? (
-          <>
-            {resultCount} {resultCount === 1 ? 'file' : 'files'} found
-            {totalFiles > 0 && ` out of ${totalFiles.toLocaleString()}`}
-          </>
-        ) : (
-          // Empty space to prevent layout shift
-          <span>&nbsp;</span>
-        )}
-      </Typography>
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Typography className={classes.resultCount}>
+          {searchState.isActive && inputValue.length >= MIN_SEARCH_LENGTH ? (
+            <>
+              {resultCount} {resultCount === 1 ? 'file' : 'files'} found
+              {totalFiles > 0 && ` out of ${totalFiles.toLocaleString()}`}
+            </>
+          ) : (
+            // Empty space to prevent layout shift
+            <span>&nbsp;</span>
+          )}
+        </Typography>
+        <Box display="flex" alignItems="center">
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={useFuzzySearch}
+                onChange={handleFuzzySearchToggle}
+                size="small"
+              />
+            }
+            label="Fuzzy Search"
+          />
+          <InfoTooltip
+            title="Fuzzy search finds approximate matches allowing for typos and variations. Default search requires more exact matching."
+            fontSize="small"
+          />
+        </Box>
+      </Box>
     </Box>
   );
 };
