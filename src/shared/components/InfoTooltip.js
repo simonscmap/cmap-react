@@ -8,7 +8,7 @@ const useStyles = makeStyles(() => ({
   infoIcon: {
     padding: 4,
     marginLeft: 4,
-    color: colors.green.lime,
+    color: colors.green.olive,
   },
   tooltip: {
     zIndex: '9901 !important',
