@@ -1,11 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import {
-  TextField,
-  InputAdornment,
-  IconButton,
-  Box,
-} from '@material-ui/core';
+import { TextField, InputAdornment, IconButton, Box } from '@material-ui/core';
 import { Search, Clear } from '@material-ui/icons';
 import {
   setSearchQuery,
@@ -24,7 +19,6 @@ import {
   performSearch,
   SearchPerformanceMonitor,
 } from '../../utils/searchUtils';
-import FileExampleBasic from './FileExampleBasic';
 
 const DEBOUNCE_DELAY = 300;
 const MIN_SEARCH_LENGTH = 3;
@@ -41,7 +35,6 @@ const SearchInput = () => {
 
   // Local input state for immediate UI response
   const [inputValue, setInputValue] = useState(searchState.query || '');
-
 
   // Refs for managing debounced search
   const debounceTimeoutRef = useRef(null);
@@ -67,7 +60,6 @@ const SearchInput = () => {
 
       // Immediate state update for UI responsiveness
       setInputValue(value);
-
 
       // Clear any pending debounced search
       if (debounceTimeoutRef.current) {
@@ -131,9 +123,9 @@ const SearchInput = () => {
     }
   }, [dispatch, currentTab]);
 
-
   // Simple placeholder instructions
-  const placeholderText = 'Type part of a filename to search (minimum 3 characters)';
+  const placeholderText =
+    'Type part of a filename to search (minimum 3 characters)';
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -181,9 +173,6 @@ const SearchInput = () => {
         }}
         style={{ marginBottom: 8 }}
       />
-
-      {/* File examples from dataset */}
-      <FileExampleBasic searchableFiles={searchableFiles} />
     </Box>
   );
 };
