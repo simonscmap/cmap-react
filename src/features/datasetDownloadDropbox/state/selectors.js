@@ -160,6 +160,8 @@ export const selectFolderSearchState = (state, folderType) => {
       highlightMatches: [],
       searchStartTime: null,
       lastSearchDuration: null,
+      useFuzzySearch: false,
+      searchEngine: 'wildcard', // Default to wildcard engine
     }
   );
 };
@@ -242,12 +244,13 @@ export const selectSearchableFiles = (state, folderType) => {
 export const selectActivePaginationContext = (state, activeTab) => {
   const isSearchActive = selectIsSearchActive(state, activeTab);
   if (isSearchActive) {
-    const searchContextKey = activeTab === 'Raw' || activeTab === 'raw'
-      ? 'raw-search'
-      : 'main-search';
+    const searchContextKey =
+      activeTab === 'Raw' || activeTab === 'raw' ? 'raw-search' : 'main-search';
     return searchContextKey;
   }
-  return activeTab || selectCurrentTab(state) || selectMainFolder(state) || 'rep';
+  return (
+    activeTab || selectCurrentTab(state) || selectMainFolder(state) || 'rep'
+  );
 };
 
 export const selectActivePaginationInfo = (state, activeTab) => {
@@ -258,4 +261,24 @@ export const selectActivePaginationInfo = (state, activeTab) => {
 export const selectActivePageFiles = (state, activeTab) => {
   const contextKey = selectActivePaginationContext(state, activeTab);
   return selectFolderFiles(state, contextKey);
+};
+
+export const selectFuzzySearchEnabled = (state, folderType) => {
+  const currentTab =
+    folderType || selectCurrentTab(state) || selectMainFolder(state) || 'rep';
+  const searchState = selectFolderSearchState(state, currentTab);
+  return searchState.useFuzzySearch || false;
+};
+
+export const selectSearchEngine = (state, folderType) => {
+  const currentTab =
+    folderType || selectCurrentTab(state) || selectMainFolder(state) || 'rep';
+  const searchState = selectFolderSearchState(state, currentTab);
+  return searchState.searchEngine || 'wildcard';
+};
+
+export const selectCurrentFolderSearchEngine = (state) => {
+  const currentTab =
+    selectCurrentTab(state) || selectMainFolder(state) || 'rep';
+  return selectSearchEngine(state, currentTab);
 };

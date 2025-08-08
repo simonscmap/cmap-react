@@ -1,8 +1,5 @@
 // Search activation threshold - when to show search interface
-export const SEARCH_ACTIVATION_THRESHOLD = 497;
-
-// Search performance target (milliseconds)
-export const SEARCH_PERFORMANCE_TARGET = 100;
+export const SEARCH_ACTIVATION_THRESHOLD = 25;
 
 // Search debounce delay (milliseconds) - delay before performing search after user stops typing
 export const SEARCH_DEBOUNCE_DELAY = 300;
@@ -10,7 +7,15 @@ export const SEARCH_DEBOUNCE_DELAY = 300;
 // Maximum number of search results to display in dropdown
 export const SEARCH_RESULTS_DISPLAY_LIMIT = 10000;
 
-// Fuse.js search configuration
+export const MIN_SEARCH_LENGTH = 1;
+
+// Search engine types
+export const SEARCH_ENGINES = {
+  WILDCARD: 'wildcard',
+  FUZZY: 'fuzzy',
+};
+
+// Fuse.js search configuration - unified single configuration for fuzzy search
 export const SEARCH_CONFIG = {
   keys: ['name'], // Search filename only
   threshold: 0.4, // 0.0 = exact match, 1.0 = match anything

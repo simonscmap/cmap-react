@@ -2,10 +2,7 @@ import React from 'react';
 import { Box, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
-import {
-  selectCurrentTab,
-  selectMainFolder,
-} from '../../state/selectors';
+import { selectCurrentTab, selectMainFolder } from '../../state/selectors';
 import { SEARCH_ACTIVATION_THRESHOLD } from '../../constants/searchConstants';
 import SearchInput from '../SearchInput';
 
@@ -45,7 +42,6 @@ const SearchInterface = ({ files, folderType }) => {
   const mainFolder = useSelector(selectMainFolder);
   const activeFolder = folderType || currentTab || mainFolder || 'rep';
 
-
   // Check if search should be active based on file count threshold
   const shouldShowSearch = files.length > SEARCH_ACTIVATION_THRESHOLD;
 
@@ -59,7 +55,7 @@ const SearchInterface = ({ files, folderType }) => {
     <Box className={classes.searchContainer}>
       <div className={classes.searchHeader}>
         <Typography variant="h6" className={classes.searchTitle}>
-          Search {folderDisplayName}
+          Filter {folderDisplayName}
         </Typography>
       </div>
       <SearchInput />

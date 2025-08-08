@@ -1,29 +1,54 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { TextField, InputAdornment, IconButton, Box } from '@material-ui/core';
+import {
+  TextField,
+  InputAdornment,
+  IconButton,
+  Box,
+  Typography,
+  Checkbox,
+  FormControlLabel,
+} from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 import { Search, Clear } from '@material-ui/icons';
 import {
   setSearchQuery,
   setSearchResults,
   setSearchActive,
   clearSearch,
+  setFuzzySearchEnabled,
+  setSearchEngine,
 } from '../../state/actions';
 import {
   selectCurrentFolderSearchState,
   selectCurrentTab,
   selectMainFolder,
   selectSearchableFiles,
+  selectFuzzySearchEnabled,
+  selectCurrentFolderSearchEngine,
 } from '../../state/selectors';
 import {
   createSearchInstance,
-  performSearch,
-  SearchPerformanceMonitor,
+  performUnifiedSearch,
 } from '../../utils/searchUtils';
+import {
+  MIN_SEARCH_LENGTH,
+  SEARCH_DEBOUNCE_DELAY,
+  SEARCH_ENGINES,
+} from '../../constants/searchConstants';
+import InfoTooltip from '../../../../shared/components/InfoTooltip';
 
-const DEBOUNCE_DELAY = 300;
-const MIN_SEARCH_LENGTH = 3;
+const useStyles = makeStyles((theme) => ({
+  resultCount: {
+    minHeight: '24px', // Reserve space to prevent layout shift
+    marginBottom: 8,
+    fontSize: '0.875rem',
+    color: theme.palette.text.secondary,
+  },
+}));
 
 const SearchInput = () => {
+  const classes = useStyles();
   const dispatch = useDispatch();
   const currentTabFromSelector = useSelector(selectCurrentTab);
   const mainFolder = useSelector(selectMainFolder);
@@ -32,6 +57,10 @@ const SearchInput = () => {
   const searchableFiles = useSelector((state) =>
     selectSearchableFiles(state, currentTab),
   );
+  const useFuzzySearch = useSelector((state) =>
+    selectFuzzySearchEnabled(state, currentTab),
+  );
+  const searchEngine = useSelector(selectCurrentFolderSearchEngine);
 
   // Local input state for immediate UI response
   const [inputValue, setInputValue] = useState(searchState.query || '');
@@ -39,14 +68,16 @@ const SearchInput = () => {
   // Refs for managing debounced search
   const debounceTimeoutRef = useRef(null);
   const searchInstanceRef = useRef(null);
-  const performanceMonitorRef = useRef(new SearchPerformanceMonitor());
 
-  // Update search instance when files change
+  // Update search instance when files change (only needed for fuzzy search)
   useEffect(() => {
     if (searchableFiles && searchableFiles.length > 0) {
-      searchInstanceRef.current = createSearchInstance(searchableFiles);
+      // Only create Fuse.js instance for fuzzy search - wildcard search doesn't need it
+      if (searchEngine === SEARCH_ENGINES.FUZZY) {
+        searchInstanceRef.current = createSearchInstance(searchableFiles);
+      }
     }
-  }, [searchableFiles]);
+  }, [searchableFiles, searchEngine]);
 
   // Sync local input state with Redux when search state changes externally
   useEffect(() => {
@@ -88,28 +119,25 @@ const SearchInput = () => {
         dispatch(setSearchActive(true, currentTab));
 
         debounceTimeoutRef.current = setTimeout(() => {
-          if (searchInstanceRef.current) {
-            const searchResult = performSearch(
-              searchInstanceRef.current,
-              value,
-              performanceMonitorRef.current,
-            );
+          // Use unified search function that handles both engines
+          const searchResult = performUnifiedSearch(
+            searchableFiles,
+            value,
+            searchEngine,
+          );
 
-            dispatch(
-              setSearchResults(
-                searchResult.results,
-                searchResult.matches,
-                searchResult.performance
-                  ? searchResult.performance.duration
-                  : 0,
-                currentTab,
-              ),
-            );
-          }
-        }, DEBOUNCE_DELAY);
+          dispatch(
+            setSearchResults(
+              searchResult.results,
+              searchResult.matches,
+              0, // Duration no longer tracked
+              currentTab,
+            ),
+          );
+        }, SEARCH_DEBOUNCE_DELAY);
       });
     },
-    [dispatch, currentTab],
+    [dispatch, currentTab, searchableFiles, searchEngine],
   );
 
   // Handle clear button click
@@ -123,9 +151,24 @@ const SearchInput = () => {
     }
   }, [dispatch, currentTab]);
 
-  // Simple placeholder instructions
+  // Handle fuzzy search toggle
+  const handleFuzzySearchToggle = useCallback(
+    (event) => {
+      const enabled = event.target.checked;
+      const engine = enabled ? SEARCH_ENGINES.FUZZY : SEARCH_ENGINES.WILDCARD;
+
+      // Update both new and legacy state for backward compatibility
+      dispatch(setSearchEngine(engine, currentTab));
+      dispatch(setFuzzySearchEnabled(enabled, currentTab));
+    },
+    [dispatch, currentTab],
+  );
+
+  // Dynamic placeholder instructions based on search engine
   const placeholderText =
-    'Type part of a filename to search (minimum 3 characters)';
+    searchEngine === SEARCH_ENGINES.WILDCARD
+      ? 'Search files with wildcards: *.txt, fd*, *10*.txt'
+      : 'Search files with fuzzy matching: approximate and typo-tolerant';
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -136,6 +179,12 @@ const SearchInput = () => {
     };
   }, []);
 
+  // Calculate search result count
+  const resultCount = searchState.isActive
+    ? searchState.filteredFiles.length
+    : 0;
+  const totalFiles = searchableFiles ? searchableFiles.length : 0;
+
   return (
     <Box>
       <TextField
@@ -145,6 +194,7 @@ const SearchInput = () => {
         value={inputValue}
         onChange={handleInputChange}
         placeholder={placeholderText}
+        style={{ marginBottom: 8 }}
         InputProps={{
           startAdornment: (
             <InputAdornment position="start">
@@ -157,7 +207,7 @@ const SearchInput = () => {
                 <IconButton
                   size="small"
                   onClick={handleClear}
-                  aria-label="Clear search"
+                  aria-label="Clear filter"
                   edge="end"
                 >
                   <Clear />
@@ -171,8 +221,36 @@ const SearchInput = () => {
             </InputAdornment>
           ),
         }}
-        style={{ marginBottom: 8 }}
       />
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Typography className={classes.resultCount}>
+          {searchState.isActive && inputValue.length >= MIN_SEARCH_LENGTH ? (
+            <>
+              {resultCount} {resultCount === 1 ? 'file' : 'files'} found
+              {totalFiles > 0 && ` out of ${totalFiles.toLocaleString()}`}
+            </>
+          ) : (
+            // Empty space to prevent layout shift
+            <span>&nbsp;</span>
+          )}
+        </Typography>
+        <Box display="flex" alignItems="center">
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={useFuzzySearch}
+                onChange={handleFuzzySearchToggle}
+                size="small"
+              />
+            }
+            label="Fuzzy Search"
+          />
+          <InfoTooltip
+            title="Toggle between Wildcard search (supports patterns like *.txt, fd*) and Fuzzy search (typo-tolerant approximate matching)."
+            fontSize="small"
+          />
+        </Box>
+      </Box>
     </Box>
   );
 };

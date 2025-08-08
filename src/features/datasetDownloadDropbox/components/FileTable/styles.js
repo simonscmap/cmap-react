@@ -1,7 +1,7 @@
 export const fileTableStyles = (theme) => ({
   container: {
     marginTop: theme.spacing(2),
-    maxHeight: '400px',
+    height: '400px', // Fixed height to prevent modal resizing
     backgroundColor: 'rgba(16, 43, 60, 0.6)',
     backdropFilter: 'blur(20px)',
   },

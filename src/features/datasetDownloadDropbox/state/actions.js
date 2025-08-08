@@ -116,3 +116,13 @@ export const setSearchActive = (isActive, folderType) => ({
   type: dropboxActionTypes.SET_SEARCH_ACTIVE,
   payload: { isActive, folderType },
 });
+
+export const setFuzzySearchEnabled = (enabled, folderType) => ({
+  type: dropboxActionTypes.SET_FUZZY_SEARCH_ENABLED,
+  payload: { enabled, folderType },
+});
+
+export const setSearchEngine = (engine, folderType) => ({
+  type: dropboxActionTypes.SET_SEARCH_ENGINE,
+  payload: { engine, folderType },
+});
