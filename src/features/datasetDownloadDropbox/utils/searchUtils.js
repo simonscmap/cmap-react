@@ -270,12 +270,25 @@ export function performUnifiedSearch(files, query, engine, performanceMonitor) {
     // Perform fuzzy search using existing Fuse.js logic
     const searchInstance = createSearchInstance(files);
     const fuseResults = searchInstance.search(query.trim());
-    results = fuseResults.map((result) => result.item);
-    matches = fuseResults.map((result) => ({
-      item: result.item,
-      matches: result.matches || [],
-      score: result.score,
-    }));
+
+    // Get the matched files from Fuse.js
+    const fuzzyMatchedFiles = fuseResults.map((result) => result.item);
+
+    // Sort the fuzzy results using our relevance algorithm for better ranking
+    results = sortByRelevance(fuzzyMatchedFiles, query);
+
+    // Create matches array with original Fuse.js match data but reordered
+    const matchMap = new Map(
+      fuseResults.map((result) => [result.item, result]),
+    );
+    matches = results.map((item) => {
+      const fuseResult = matchMap.get(item);
+      return {
+        item,
+        matches: fuseResult?.matches || [],
+        score: fuseResult?.score || 1,
+      };
+    });
   }
 
   const performance = performanceMonitor.endTimer(
