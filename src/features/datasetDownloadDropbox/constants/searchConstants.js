@@ -1,9 +1,6 @@
 // Search activation threshold - when to show search interface
 export const SEARCH_ACTIVATION_THRESHOLD = 25;
 
-// Search performance target (milliseconds)
-export const SEARCH_PERFORMANCE_TARGET = 100;
-
 // Search debounce delay (milliseconds) - delay before performing search after user stops typing
 export const SEARCH_DEBOUNCE_DELAY = 300;
 

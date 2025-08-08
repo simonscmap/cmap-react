@@ -1,82 +1,5 @@
 import Fuse from 'fuse.js';
-import {
-  SEARCH_CONFIG,
-  SEARCH_PERFORMANCE_TARGET,
-  SEARCH_ENGINES,
-} from '../constants/searchConstants';
-
-/**
- * Performance monitoring utility for search operations
- */
-export class SearchPerformanceMonitor {
-  constructor() {
-    this.metrics = {
-      searchCount: 0,
-      totalTime: 0,
-      averageTime: 0,
-      maxTime: 0,
-      minTime: Infinity,
-      violationCount: 0, // Times search exceeded target time
-    };
-  }
-
-  startTimer() {
-    return performance.now();
-  }
-
-  endTimer(startTime, query, resultCount) {
-    const endTime = performance.now();
-    const duration = endTime - startTime;
-
-    this.updateMetrics(duration);
-
-    // Log performance violation
-    if (duration > SEARCH_PERFORMANCE_TARGET) {
-      console.warn(
-        `Search performance violation: ${duration.toFixed(2)}ms > ${SEARCH_PERFORMANCE_TARGET}ms`,
-        {
-          query,
-          resultCount,
-          duration,
-        },
-      );
-    }
-
-    return {
-      duration,
-      violatesTarget: duration > SEARCH_PERFORMANCE_TARGET,
-      metrics: this.getMetrics(),
-    };
-  }
-
-  updateMetrics(duration) {
-    this.metrics.searchCount++;
-    this.metrics.totalTime += duration;
-    this.metrics.averageTime =
-      this.metrics.totalTime / this.metrics.searchCount;
-    this.metrics.maxTime = Math.max(this.metrics.maxTime, duration);
-    this.metrics.minTime = Math.min(this.metrics.minTime, duration);
-
-    if (duration > SEARCH_PERFORMANCE_TARGET) {
-      this.metrics.violationCount++;
-    }
-  }
-
-  getMetrics() {
-    return { ...this.metrics };
-  }
-
-  reset() {
-    this.metrics = {
-      searchCount: 0,
-      totalTime: 0,
-      averageTime: 0,
-      maxTime: 0,
-      minTime: Infinity,
-      violationCount: 0,
-    };
-  }
-}
+import { SEARCH_CONFIG, SEARCH_ENGINES } from '../constants/searchConstants';
 
 /**
  * Initialize Fuse.js search instance with optimized configuration
@@ -87,18 +10,16 @@ export function createSearchInstance(files) {
 }
 
 /**
- * Perform fuzzy search with performance monitoring
+ * Perform fuzzy search
  */
-export function performSearch(searchInstance, query, performanceMonitor) {
+export function performSearch(searchInstance, query) {
   if (!query || !query.trim()) {
     return {
       results: [],
       matches: [],
-      performance: null,
     };
   }
 
-  const startTime = performanceMonitor.startTimer();
   const fuseResults = searchInstance.search(query.trim());
 
   // Extract results and match data
@@ -109,16 +30,9 @@ export function performSearch(searchInstance, query, performanceMonitor) {
     score: result.score,
   }));
 
-  const performance = performanceMonitor.endTimer(
-    startTime,
-    query,
-    results.length,
-  );
-
   return {
     results,
     matches,
-    performance,
   };
 }
 
@@ -238,19 +152,16 @@ export function rankWildcardResults(matches) {
  * @param {Array} files - Files to search through
  * @param {string} query - Search query
  * @param {string} engine - Search engine type ('wildcard' or 'fuzzy')
- * @param {SearchPerformanceMonitor} performanceMonitor - Performance monitor instance
- * @returns {Object} - Search results with performance data
+ * @returns {Object} - Search results
  */
-export function performUnifiedSearch(files, query, engine, performanceMonitor) {
+export function performUnifiedSearch(files, query, engine) {
   if (!query || !query.trim()) {
     return {
       results: [],
       matches: [],
-      performance: null,
     };
   }
 
-  const startTime = performanceMonitor.startTimer();
   let results = [];
   let matches = [];
 
@@ -293,15 +204,8 @@ export function performUnifiedSearch(files, query, engine, performanceMonitor) {
     });
   }
 
-  const performance = performanceMonitor.endTimer(
-    startTime,
-    query,
-    results.length,
-  );
-
   return {
     results,
     matches,
-    performance,
   };
 }

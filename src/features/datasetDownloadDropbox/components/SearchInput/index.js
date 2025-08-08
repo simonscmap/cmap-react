@@ -29,7 +29,6 @@ import {
 } from '../../state/selectors';
 import {
   createSearchInstance,
-  SearchPerformanceMonitor,
   performUnifiedSearch,
 } from '../../utils/searchUtils';
 import {
@@ -69,7 +68,6 @@ const SearchInput = () => {
   // Refs for managing debounced search
   const debounceTimeoutRef = useRef(null);
   const searchInstanceRef = useRef(null);
-  const performanceMonitorRef = useRef(new SearchPerformanceMonitor());
 
   // Update search instance when files change (only needed for fuzzy search)
   useEffect(() => {
@@ -126,14 +124,13 @@ const SearchInput = () => {
             searchableFiles,
             value,
             searchEngine,
-            performanceMonitorRef.current,
           );
 
           dispatch(
             setSearchResults(
               searchResult.results,
               searchResult.matches,
-              searchResult.performance ? searchResult.performance.duration : 0,
+              0, // Duration no longer tracked
               currentTab,
             ),
           );
