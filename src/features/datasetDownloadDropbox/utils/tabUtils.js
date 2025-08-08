@@ -1,14 +1,14 @@
-export const shouldShowTabs = (availableFolders) => {
+export const shouldShowTabs = (availableFolders, mainFolder) => {
   // Show tabs if we have both main folder (REP/NRT) AND RAW
   const hasMainFolder = availableFolders.hasRep || availableFolders.hasNrt;
-  return hasMainFolder && availableFolders.hasRaw;
+  return hasMainFolder && availableFolders.hasRaw && mainFolder !== 'raw';
 };
 
-export const getTabConfiguration = (availableFolders) => {
+export const getTabConfiguration = (availableFolders, mainFolder) => {
   const hasMainFolder = availableFolders.hasRep || availableFolders.hasNrt;
   const hasRawFolder = availableFolders.hasRaw;
 
-  if (!shouldShowTabs(availableFolders)) {
+  if (!shouldShowTabs(availableFolders, mainFolder)) {
     // Single tab case - either only main folder or only raw folder
     if (hasRawFolder && !hasMainFolder) {
       // Only raw folder exists
@@ -22,7 +22,7 @@ export const getTabConfiguration = (availableFolders) => {
       return {
         showTabs: false,
         mainTabLabel: 'Main Files',
-        tabs: [{ key: 'main', label: 'Main Files' }],
+        tabs: [{ key: mainFolder, label: 'Main Files' }],
       };
     }
   }
@@ -32,7 +32,7 @@ export const getTabConfiguration = (availableFolders) => {
     showTabs: true,
     mainTabLabel: 'Main Files',
     tabs: [
-      { key: 'main', label: 'Main Files' },
+      { key: mainFolder, label: 'Main Files' },
       { key: 'raw', label: 'Raw Files' },
     ],
   };
