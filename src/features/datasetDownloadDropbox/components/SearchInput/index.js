@@ -1,6 +1,13 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { TextField, InputAdornment, IconButton, Box } from '@material-ui/core';
+import {
+  TextField,
+  InputAdornment,
+  IconButton,
+  Box,
+  Typography,
+} from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 import { Search, Clear } from '@material-ui/icons';
 import {
   setSearchQuery,
@@ -24,7 +31,17 @@ import {
   SEARCH_DEBOUNCE_DELAY,
 } from '../../constants/searchConstants';
 
+const useStyles = makeStyles((theme) => ({
+  resultCount: {
+    minHeight: '24px', // Reserve space to prevent layout shift
+    marginBottom: 8,
+    fontSize: '0.875rem',
+    color: theme.palette.text.secondary,
+  },
+}));
+
 const SearchInput = () => {
+  const classes = useStyles();
   const dispatch = useDispatch();
   const currentTabFromSelector = useSelector(selectCurrentTab);
   const mainFolder = useSelector(selectMainFolder);
@@ -126,7 +143,7 @@ const SearchInput = () => {
 
   // Simple placeholder instructions
   const placeholderText =
-    'Type part of a filename to search (minimum 3 characters)';
+    'Type part of a filename to filter. Use * for wildcard.';
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -137,6 +154,12 @@ const SearchInput = () => {
     };
   }, []);
 
+  // Calculate search result count
+  const resultCount = searchState.isActive
+    ? searchState.filteredFiles.length
+    : 0;
+  const totalFiles = searchableFiles ? searchableFiles.length : 0;
+
   return (
     <Box>
       <TextField
@@ -146,6 +169,7 @@ const SearchInput = () => {
         value={inputValue}
         onChange={handleInputChange}
         placeholder={placeholderText}
+        style={{ marginBottom: 8 }}
         InputProps={{
           startAdornment: (
             <InputAdornment position="start">
@@ -158,7 +182,7 @@ const SearchInput = () => {
                 <IconButton
                   size="small"
                   onClick={handleClear}
-                  aria-label="Clear search"
+                  aria-label="Clear filter"
                   edge="end"
                 >
                   <Clear />
@@ -172,8 +196,18 @@ const SearchInput = () => {
             </InputAdornment>
           ),
         }}
-        style={{ marginBottom: 8 }}
       />
+      <Typography className={classes.resultCount}>
+        {searchState.isActive && inputValue.length >= MIN_SEARCH_LENGTH ? (
+          <>
+            {resultCount} {resultCount === 1 ? 'file' : 'files'} found
+            {totalFiles > 0 && ` out of ${totalFiles.toLocaleString()}`}
+          </>
+        ) : (
+          // Empty space to prevent layout shift
+          <span>&nbsp;</span>
+        )}
+      </Typography>
     </Box>
   );
 };
