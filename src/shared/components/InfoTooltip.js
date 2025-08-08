@@ -8,6 +8,7 @@ const useStyles = makeStyles(() => ({
   infoIcon: {
     padding: 4,
     marginLeft: 4,
+    color: colors.green.lime,
   },
   tooltip: {
     zIndex: '9901 !important',
@@ -32,7 +33,6 @@ const InfoTooltip = ({ title, fontSize = 'small' }) => {
     >
       <InfoOutlinedIcon
         fontSize={fontSize}
-        color={colors.green.lime}
         className={classes.infoIcon}
         onClick={handleClick}
       />
