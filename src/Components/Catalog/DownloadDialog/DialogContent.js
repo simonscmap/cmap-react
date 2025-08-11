@@ -28,7 +28,10 @@ import {
 } from './downloadDialogHelpers';
 import styles from './downloadDialogStyles';
 import DownloadStepWithWarning from './DownloadStepWithWarning';
-import { DropboxFileSelectionModal, useAutoDownload } from '../../../features/datasetDownloadDropbox';
+import {
+  DropboxFileSelectionModal,
+  useAutoDownload,
+} from '../../../features/datasetDownloadDropbox';
 
 import {
   datasetDownloadRequestSend,
@@ -39,7 +42,10 @@ import { useDatasetFeatures } from '../../../Utility/Catalog/useDatasetFeatures'
 import states from '../../../enums/asyncRequestStates';
 import reduxStore from '../../../Redux/store';
 import logInit from '../../../Services/log-service';
-import { selectAvailableFolders, selectMainFolder } from '../../../features/datasetDownloadDropbox/state/selectors';
+import {
+  selectAvailableFolders,
+  selectMainFolder,
+} from '../../../features/datasetDownloadDropbox/state/selectors';
 
 const log = logInit('Catalog/DownloadDialog/DialogContent');
 
@@ -183,13 +189,17 @@ const DownloadDialog = (props) => {
   // Dropbox state - new implementation
   const availableFolders = useSelector(selectAvailableFolders);
   const mainFolder = useSelector(selectMainFolder);
-  
+
   // Check if vault files are loaded - we have folders available and a main folder set
-  const isVaultFilesLoaded = (availableFolders.hasRep || availableFolders.hasNrt || availableFolders.hasRaw) && mainFolder !== null;
-  
+  const isVaultFilesLoaded =
+    (availableFolders.hasRep ||
+      availableFolders.hasNrt ||
+      availableFolders.hasRaw) &&
+    mainFolder !== null;
+
   // Auto-download hook for smart download logic
   const { handleSmartDownload } = useAutoDownload();
-  
+
   // Handle download click with smart download logic
   const handleDownloadClick = () => {
     const result = handleSmartDownload();
@@ -326,6 +336,20 @@ const DownloadDialog = (props) => {
     depthStart,
     depthEnd,
     dialogOpen,
+    dataset,
+    subsetParams,
+    optionsState.ancillaryData,
+    querySizes,
+    currentRequest,
+    subsetIsDefined,
+    lat.start,
+    lat.end,
+    lon.start,
+    lon.end,
+    time.start,
+    time.end,
+    depth.start,
+    depth.end,
   ]);
 
   // manage button state; responds to redux state
@@ -343,10 +367,10 @@ const DownloadDialog = (props) => {
           checkSizeRequestState === states.notTried
             ? buttonStates.notTried
             : checkSizeRequestState === states.inProgress
-            ? buttonStates.checkInProgress
-            : checkSizeRequestState === states.failed
-            ? buttonStates.checkFailed
-            : buttonStates.notTried; // default
+              ? buttonStates.checkInProgress
+              : checkSizeRequestState === states.failed
+                ? buttonStates.checkFailed
+                : buttonStates.notTried; // default
 
         setDownloadButtonState({
           enabled: false,
@@ -437,14 +461,23 @@ const DownloadDialog = (props) => {
           estimate && estimate > 0
             ? `The selected subset of data is under the download threshold. An estimated ${projection.size.toLocaleString()} rows match the selected subset.`
             : estimate && estimate < 0
-            ? `The dataset ${
-                estimate ? '(' + -estimate.toLocaleString() + ' rows)' : ''
-              } is under the download threshold and may be downloaded in full.`
-            : '';
+              ? `The dataset ${
+                  estimate ? '(' + -estimate.toLocaleString() + ' rows)' : ''
+                } is under the download threshold and may be downloaded in full.`
+              : '';
         enableButton(message, buttonStates.checkSucceededAndDownloadAllowed);
       }
     }
-  }, [querySizes, checkSizeRequestState]);
+  }, [
+    querySizes,
+    checkSizeRequestState,
+    subsetParams,
+    optionsState,
+    dataset.Table_Name,
+    downloadButtonState.message,
+    downloadButtonState.status,
+    subsetIsDefined,
+  ]);
 
   // open dropbox modal
 
@@ -576,7 +609,11 @@ const DownloadDialog = (props) => {
             onClick={handleDownloadClick}
             disabled={!isVaultFilesLoaded}
             startIcon={
-              !isVaultFilesLoaded ? <CircularProgress size={20} /> : <ImDownload />
+              !isVaultFilesLoaded ? (
+                <CircularProgress size={20} />
+              ) : (
+                <ImDownload />
+              )
             }
           >
             <span>
