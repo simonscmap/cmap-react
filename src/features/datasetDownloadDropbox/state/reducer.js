@@ -193,8 +193,21 @@ export default function dropboxReducer(
     }
 
     case FETCH_DROPBOX_VAULT_FILES_PAGE_SUCCESS: {
+      const reducerStartTime = performance.now();
+      console.log(
+        '🔧 [PERF] Reducer FETCH_DROPBOX_VAULT_FILES_PAGE_SUCCESS started',
+        { timestamp: Date.now() },
+      );
+
       const newFiles = action.payload.files || [];
       const { availableFolders, mainFolder, folderType } = action.payload;
+
+      console.log('📁 [PERF] Files received in reducer', {
+        newFileCount: newFiles.length,
+        availableFolders,
+        mainFolder,
+        timestamp: Date.now(),
+      });
 
       // Determine which folder we're working with
       const activeFolder =
@@ -209,15 +222,43 @@ export default function dropboxReducer(
 
       const isInitialRequest = !folderPagination.backend.cursor;
 
+      console.log('🔗 [PERF] Starting file accumulation', {
+        isInitialRequest,
+        existingFileCount: folderPagination.allCachedFiles.length,
+        newFileCount: newFiles.length,
+        timestamp: Date.now(),
+      });
+      const accumulationStartTime = performance.now();
+
       // Accumulate files from all requests for this folder
       const allFiles = isInitialRequest
         ? newFiles
         : [...folderPagination.allCachedFiles, ...newFiles];
 
+      const accumulationEndTime = performance.now();
+      console.log('📊 [PERF] File accumulation completed', {
+        totalFileCount: allFiles.length,
+        accumulationDuration: `${(accumulationEndTime - accumulationStartTime).toFixed(2)}ms`,
+        timestamp: Date.now(),
+      });
+
       // Sort all accumulated files
+      console.log('🔄 [PERF] Starting file sorting', {
+        fileCount: allFiles.length,
+        timestamp: Date.now(),
+      });
+      const sortStartTime = performance.now();
+
       const sortedAllFiles = allFiles.sort((a, b) =>
         a.name.localeCompare(b.name),
       );
+
+      const sortEndTime = performance.now();
+      console.log('📈 [PERF] File sorting completed', {
+        fileCount: sortedAllFiles.length,
+        sortDuration: `${(sortEndTime - sortStartTime).toFixed(2)}ms`,
+        timestamp: Date.now(),
+      });
 
       // Preserve total count from initial request only
       const totalCount = isInitialRequest
@@ -267,7 +308,7 @@ export default function dropboxReducer(
           ? updatedPaginationByFolder[activeFolder]
           : dropboxState.vaultFilesPagination;
 
-      return {
+      const newState = {
         ...dropboxState,
         // Update folder metadata
         availableFolders: availableFolders || dropboxState.availableFolders,
@@ -285,6 +326,25 @@ export default function dropboxReducer(
           error: null,
         },
       };
+
+      const reducerEndTime = performance.now();
+      console.log(
+        '🏁 [PERF] Reducer FETCH_DROPBOX_VAULT_FILES_PAGE_SUCCESS completed',
+        {
+          totalReducerDuration: `${(reducerEndTime - reducerStartTime).toFixed(2)}ms`,
+          finalFileCount: sortedAllFiles.length,
+          availableFolders: newState.availableFolders,
+          mainFolder: newState.mainFolder,
+          isVaultFilesLoadedWillBe:
+            (newState.availableFolders.hasRep ||
+              newState.availableFolders.hasNrt ||
+              newState.availableFolders.hasRaw) &&
+            newState.mainFolder !== null,
+          timestamp: Date.now(),
+        },
+      );
+
+      return newState;
     }
 
     case FETCH_DROPBOX_VAULT_FILES_PAGE_FAILURE: {

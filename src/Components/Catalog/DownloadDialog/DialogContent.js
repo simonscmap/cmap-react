@@ -336,20 +336,6 @@ const DownloadDialog = (props) => {
     depthStart,
     depthEnd,
     dialogOpen,
-    dataset,
-    subsetParams,
-    optionsState.ancillaryData,
-    querySizes,
-    currentRequest,
-    subsetIsDefined,
-    lat.start,
-    lat.end,
-    lon.start,
-    lon.end,
-    time.start,
-    time.end,
-    depth.start,
-    depth.end,
   ]);
 
   // manage button state; responds to redux state
