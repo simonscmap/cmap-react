@@ -73,6 +73,7 @@ export function* watchFetchVaultLink() {
 // or retrieving it from cache
 export function* getFullPageDataForDownload(action) {
   const shortName = action.payload.shortName;
+
   const detailPageData = yield select(
     (state) => state.datasetDetailPage && state.datasetDetailPage.dataset.data,
   );
@@ -80,8 +81,37 @@ export function* getFullPageDataForDownload(action) {
 
   const detailPageShortName =
     detailPageData && detailPageData.dataset.Short_Name;
-  // now get dropbox link
-  yield put(dropboxActions.fetchVaultFilesPage(shortName, {}));
+  // now get dropbox vault files directly
+  try {
+    const vaultResponse = yield call(
+      api.dropbox.fetchDropboxVaultFiles,
+      shortName,
+      {},
+    );
+    if (vaultResponse && vaultResponse.ok) {
+      const jsonResponse = yield vaultResponse.json();
+
+      // Handle auto-download fields from API response
+      const { autoDownloadEligible, directDownloadLink } = jsonResponse;
+      if (typeof autoDownloadEligible === 'boolean') {
+        yield put(
+          dropboxActions.setAutoDownloadEligibility(
+            autoDownloadEligible,
+            directDownloadLink,
+          ),
+        );
+      }
+
+      yield put(dropboxActions.fetchVaultFilesPageSuccess(jsonResponse));
+    } else {
+      yield put(
+        dropboxActions.fetchVaultFilesPageFailure('Failed to fetch files'),
+      );
+    }
+  } catch (error) {
+    log.error('error fetching vault files', { shortName, error });
+    yield put(dropboxActions.fetchVaultFilesPageFailure(error.message));
+  }
 
   if (!dialogData && detailPageShortName !== shortName) {
     log.info('fetching dataset metadata for download dialog', {

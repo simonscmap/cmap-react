@@ -65,16 +65,20 @@ export function shouldActivateSearch(fileCount, threshold) {
 
 /**
  * Convert wildcard pattern to regex
+ * Rules:
+ * 1. If no asterisk (*) in input, add wildcard at the end
+ * 2. If asterisk exists in input, treat it as the wildcard (no additional asterisk added)
  * @param {string} pattern - Wildcard pattern with * characters
  * @returns {RegExp} - Compiled regex pattern
  */
 export function wildcardToRegex(pattern) {
   let adjustedPattern = pattern;
 
-  // Add * to end if not already present
-  if (!adjustedPattern.endsWith('*')) {
+  // Rule 1: Add * to end only if no asterisk exists anywhere in the pattern
+  if (!adjustedPattern.includes('*')) {
     adjustedPattern += '*';
   }
+  // Rule 2: If asterisk exists, use pattern as-is (no additional asterisk)
 
   // Escape regex special characters except '*'
   const escaped = adjustedPattern.replace(/[-[\]/{}()+?.\\^$|]/g, '\\$&');
@@ -114,6 +118,16 @@ export function sortByRelevance(files, input) {
 
 /**
  * Perform wildcard search (filtering only, no sorting)
+ *
+ * Wildcard Rules:
+ * 1. If no asterisk (*) in query, adds wildcard at end (e.g., "test" becomes "test*")
+ * 2. If asterisk exists in query, uses it as-is (e.g., "test*middle" stays "test*middle")
+ *
+ * Examples:
+ * - "data" → matches "data.csv", "dataset.txt", etc.
+ * - "data*2023" → matches "data_jan_2023.csv", "data-feb-2023.txt", etc.
+ * - "*report*" → matches "monthly_report_final.pdf", "status_report.docx", etc.
+ *
  * @param {Array} files - Files to search through
  * @param {string} query - Wildcard search query
  * @returns {Array} - Matched files (unsorted)

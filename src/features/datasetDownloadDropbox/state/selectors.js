@@ -25,8 +25,8 @@ export const selectPaginationInfo = (state) => {
     pageSize: (pagination.local && pagination.local.pageSize) || 25,
     totalPages: (pagination.local && pagination.local.totalPages) || null,
     totalFileCount: pagination.totalFileCount || null,
-    hasMore: (pagination.backend && pagination.backend.hasMore) || false,
-    isLoading: (pagination.backend && pagination.backend.isLoading) || false,
+    hasMore: false, // Always false for local-only pagination
+    isLoading: false, // Always false for local-only pagination
   };
 };
 
@@ -102,10 +102,8 @@ export const selectFolderPaginationInfo = (state, folderType) => {
     totalPages:
       (folderPagination.local && folderPagination.local.totalPages) || null,
     totalFileCount: folderPagination.totalFileCount || null,
-    hasMore:
-      (folderPagination.backend && folderPagination.backend.hasMore) || false,
-    isLoading:
-      (folderPagination.backend && folderPagination.backend.isLoading) || false,
+    hasMore: false, // Always false for local-only pagination
+    isLoading: false, // Always false for local-only pagination
   };
 };
 

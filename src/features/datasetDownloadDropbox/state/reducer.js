@@ -3,7 +3,6 @@ import {
   DOWNLOAD_DROPBOX_VAULT_FILES_SUCCESS,
   DOWNLOAD_DROPBOX_VAULT_FILES_FAILURE,
   DOWNLOAD_DROPBOX_VAULT_FILES_CLEAR,
-  FETCH_DROPBOX_VAULT_FILES_PAGE,
   FETCH_DROPBOX_VAULT_FILES_PAGE_SUCCESS,
   FETCH_DROPBOX_VAULT_FILES_PAGE_FAILURE,
   RESET_DROPBOX_VAULT_FILES_PAGINATION,
@@ -34,12 +33,6 @@ const initialDropboxState = {
   currentTab: null,
   paginationByFolder: {},
   vaultFilesPagination: {
-    backend: {
-      cursor: null,
-      hasMore: false,
-      chunkSize: null,
-      isLoading: false,
-    },
     local: {
       currentPage: 1,
       pageSize: 25,
@@ -71,12 +64,6 @@ const createInitialFolderSearchState = () => ({
 
 // Helper function to create initial pagination state for a folder
 const createInitialFolderPaginationState = () => ({
-  backend: {
-    cursor: null,
-    hasMore: false,
-    chunkSize: null,
-    isLoading: false,
-  },
   local: {
     currentPage: 1,
     pageSize: 25,
@@ -152,45 +139,6 @@ export default function dropboxReducer(
       };
 
     // Vault Files Pagination
-    case FETCH_DROPBOX_VAULT_FILES_PAGE: {
-      const folderType =
-        (action.payload.paginationParams &&
-          action.payload.paginationParams.folderType) ||
-        dropboxState.currentTab ||
-        dropboxState.mainFolder ||
-        'rep';
-
-      // Ensure folder pagination exists
-      const paginationByFolder = ensureFolderPaginationExists(
-        dropboxState.paginationByFolder,
-        folderType,
-      );
-
-      // Update folder-specific state
-      const updatedPaginationByFolder = {
-        ...paginationByFolder,
-        [folderType]: {
-          ...paginationByFolder[folderType],
-          backend: {
-            ...paginationByFolder[folderType].backend,
-            isLoading: true,
-          },
-        },
-      };
-
-      // Also update legacy structure for backward compatibility
-      return {
-        ...dropboxState,
-        paginationByFolder: updatedPaginationByFolder,
-        vaultFilesPagination: {
-          ...dropboxState.vaultFilesPagination,
-          backend: {
-            ...dropboxState.vaultFilesPagination.backend,
-            isLoading: true,
-          },
-        },
-      };
-    }
 
     case FETCH_DROPBOX_VAULT_FILES_PAGE_SUCCESS: {
       const newFiles = action.payload.files || [];
@@ -207,7 +155,7 @@ export default function dropboxReducer(
       );
       const folderPagination = paginationByFolder[activeFolder];
 
-      const isInitialRequest = !folderPagination.backend.cursor;
+      const isInitialRequest = folderPagination.allCachedFiles.length === 0;
 
       // Accumulate files from all requests for this folder
       const allFiles = isInitialRequest
@@ -215,13 +163,15 @@ export default function dropboxReducer(
         : [...folderPagination.allCachedFiles, ...newFiles];
 
       // Sort all accumulated files
+
       const sortedAllFiles = allFiles.sort((a, b) =>
         a.name.localeCompare(b.name),
       );
 
       // Preserve total count from initial request only
+      // Handle new API response format
       const totalCount = isInitialRequest
-        ? action.payload.pagination.totalCount
+        ? action.payload.totalCount
         : folderPagination.totalFileCount;
 
       // Calculate local pagination
@@ -243,12 +193,6 @@ export default function dropboxReducer(
       const updatedPaginationByFolder = {
         ...paginationByFolder,
         [activeFolder]: {
-          backend: {
-            cursor: action.payload.pagination.cursor,
-            hasMore: action.payload.pagination.hasMore,
-            chunkSize: action.payload.pagination.chunkSize,
-            isLoading: false,
-          },
           local: {
             currentPage,
             pageSize,
@@ -267,7 +211,7 @@ export default function dropboxReducer(
           ? updatedPaginationByFolder[activeFolder]
           : dropboxState.vaultFilesPagination;
 
-      return {
+      const newState = {
         ...dropboxState,
         // Update folder metadata
         availableFolders: availableFolders || dropboxState.availableFolders,
@@ -277,7 +221,6 @@ export default function dropboxReducer(
         paginationByFolder: updatedPaginationByFolder,
         // Update legacy structure for backward compatibility
         vaultFilesPagination: {
-          backend: legacyPagination.backend,
           local: legacyPagination.local,
           totalFileCount: legacyPagination.totalFileCount,
           allCachedFiles: legacyPagination.allCachedFiles,
@@ -285,6 +228,8 @@ export default function dropboxReducer(
           error: null,
         },
       };
+
+      return newState;
     }
 
     case FETCH_DROPBOX_VAULT_FILES_PAGE_FAILURE: {
@@ -305,10 +250,6 @@ export default function dropboxReducer(
         ...paginationByFolder,
         [folderType]: {
           ...paginationByFolder[folderType],
-          backend: {
-            ...paginationByFolder[folderType].backend,
-            isLoading: false,
-          },
           error: action.payload.error,
         },
       };
@@ -318,10 +259,6 @@ export default function dropboxReducer(
         paginationByFolder: updatedPaginationByFolder,
         vaultFilesPagination: {
           ...dropboxState.vaultFilesPagination,
-          backend: {
-            ...dropboxState.vaultFilesPagination.backend,
-            isLoading: false,
-          },
           error: action.payload.error,
         },
       };
@@ -587,12 +524,6 @@ export default function dropboxReducer(
           currentPage: 1,
           pageSize,
           totalPages,
-        },
-        backend: {
-          cursor: null,
-          hasMore: false, // Search results are complete
-          chunkSize: null,
-          isLoading: false,
         },
         totalFileCount,
         allCachedFiles: filteredFiles,

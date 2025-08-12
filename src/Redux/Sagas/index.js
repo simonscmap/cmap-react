@@ -47,7 +47,6 @@ import {
 
 import {
   watchDownloadDropboxFiles,
-  watchFetchVaultFilesPage,
   watchFolderTabChange,
 } from '../../features/datasetDownloadDropbox/state/sagas';
 
@@ -2022,7 +2021,6 @@ function* rootSaga() {
     watchDownloadDialogOpen(),
     watchFetchVaultLink(),
     watchDownloadDropboxFiles(),
-    watchFetchVaultFilesPage(),
     watchFolderTabChange(),
     watchCheckVizQuerySize(),
   ]);
