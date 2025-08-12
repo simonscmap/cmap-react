@@ -206,6 +206,8 @@ export default function dropboxReducer(
         newFileCount: newFiles.length,
         availableFolders,
         mainFolder,
+        hasLegacyPagination: !!action.payload.pagination,
+        hasNewTotalCount: typeof action.payload.totalCount === 'number',
         timestamp: Date.now(),
       });
 
@@ -261,8 +263,9 @@ export default function dropboxReducer(
       });
 
       // Preserve total count from initial request only
+      // Handle both new and old API response formats for backward compatibility
       const totalCount = isInitialRequest
-        ? action.payload.pagination.totalCount
+        ? (action.payload.totalCount ?? action.payload.pagination?.totalCount)
         : folderPagination.totalFileCount;
 
       // Calculate local pagination
@@ -285,9 +288,9 @@ export default function dropboxReducer(
         ...paginationByFolder,
         [activeFolder]: {
           backend: {
-            cursor: action.payload.pagination.cursor,
-            hasMore: action.payload.pagination.hasMore,
-            chunkSize: action.payload.pagination.chunkSize,
+            cursor: action.payload.pagination?.cursor ?? null,
+            hasMore: action.payload.pagination?.hasMore ?? false,
+            chunkSize: action.payload.pagination?.chunkSize ?? null,
             isLoading: false,
           },
           local: {
