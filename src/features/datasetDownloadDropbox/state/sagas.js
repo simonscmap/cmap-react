@@ -77,107 +77,6 @@ export function* downloadDropboxFiles(action) {
   }
 }
 
-// Pagination saga for vault files
-function* fetchVaultFilesPage(action) {
-  const { shortName, paginationParams } = action.payload;
-  const folderType = paginationParams && paginationParams.folderType;
-
-  console.log('🚀 [PERF] Starting fetchVaultFilesPage API call', {
-    shortName,
-    folderType,
-    timestamp: Date.now(),
-  });
-  const apiStartTime = performance.now();
-
-  try {
-    const response = yield call(
-      api.dropbox.fetchDropboxVaultFiles,
-      shortName,
-      paginationParams,
-    );
-
-    const apiEndTime = performance.now();
-    console.log('⚡ [PERF] API call completed', {
-      shortName,
-      folderType,
-      apiDuration: `${(apiEndTime - apiStartTime).toFixed(2)}ms`,
-      timestamp: Date.now(),
-    });
-
-    if (response && response.ok) {
-      console.log('🔄 [PERF] Starting JSON parsing', {
-        shortName,
-        timestamp: Date.now(),
-      });
-      const jsonParseStart = performance.now();
-
-      const jsonResponse = yield response.json();
-
-      const jsonParseEnd = performance.now();
-      console.log('📊 [PERF] JSON parsing completed', {
-        shortName,
-        fileCount: jsonResponse.files ? jsonResponse.files.length : 0,
-        parseDuration: `${(jsonParseEnd - jsonParseStart).toFixed(2)}ms`,
-        timestamp: Date.now(),
-      });
-
-      // Handle new auto-download fields from API response
-      const { autoDownloadEligible, directDownloadLink } = jsonResponse;
-      if (typeof autoDownloadEligible === 'boolean') {
-        yield put(
-          dropboxActions.setAutoDownloadEligibility(
-            autoDownloadEligible,
-            directDownloadLink,
-          ),
-        );
-      }
-
-      console.log(
-        '📤 [PERF] Dispatching fetchVaultFilesPageSuccess to reducer',
-        {
-          shortName,
-          fileCount: jsonResponse.files ? jsonResponse.files.length : 0,
-          timestamp: Date.now(),
-        },
-      );
-      const dispatchStart = performance.now();
-
-      yield put(dropboxActions.fetchVaultFilesPageSuccess(jsonResponse));
-
-      const dispatchEnd = performance.now();
-      console.log('✅ [PERF] Reducer processing completed', {
-        shortName,
-        dispatchDuration: `${(dispatchEnd - dispatchStart).toFixed(2)}ms`,
-        totalDuration: `${(dispatchEnd - apiStartTime).toFixed(2)}ms`,
-        timestamp: Date.now(),
-      });
-    } else {
-      yield put(
-        dropboxActions.fetchVaultFilesPageFailure(
-          'Failed to fetch files',
-          folderType,
-        ),
-      );
-    }
-  } catch (error) {
-    log.error('error fetching vault files page', {
-      shortName,
-      paginationParams,
-      error,
-    });
-    yield put(
-      dropboxActions.fetchVaultFilesPageFailure(error.message, folderType),
-    );
-  }
-}
-
-export function* watchFetchVaultFilesPage() {
-  yield takeEvery(
-    dropboxActionTypes.FETCH_DROPBOX_VAULT_FILES_PAGE,
-    fetchVaultFilesPage,
-  );
-}
-
 // Watcher saga
 // Saga to handle folder tab changes
 function* handleFolderTabChange(action) {
@@ -194,7 +93,47 @@ function* handleFolderTabChange(action) {
     const shortName = state.downloadDialog.shortName;
 
     if (shortName) {
-      yield put(dropboxActions.fetchVaultFilesPage(shortName, { folderType }));
+      // Fetch files for this folder type directly (no backend pagination)
+      try {
+        const response = yield call(
+          api.dropbox.fetchDropboxVaultFiles,
+          shortName,
+          { folderType },
+        );
+
+        if (response && response.ok) {
+          const jsonResponse = yield response.json();
+
+          // Handle auto-download fields from API response
+          const { autoDownloadEligible, directDownloadLink } = jsonResponse;
+          if (typeof autoDownloadEligible === 'boolean') {
+            yield put(
+              dropboxActions.setAutoDownloadEligibility(
+                autoDownloadEligible,
+                directDownloadLink,
+              ),
+            );
+          }
+
+          yield put(dropboxActions.fetchVaultFilesPageSuccess(jsonResponse));
+        } else {
+          yield put(
+            dropboxActions.fetchVaultFilesPageFailure(
+              'Failed to fetch files',
+              folderType,
+            ),
+          );
+        }
+      } catch (error) {
+        log.error('error fetching vault files for folder tab', {
+          shortName,
+          folderType,
+          error,
+        });
+        yield put(
+          dropboxActions.fetchVaultFilesPageFailure(error.message, folderType),
+        );
+      }
     }
   }
 }

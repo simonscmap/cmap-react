@@ -4,25 +4,18 @@ import { apiUrl, fetchOptions } from '../../../api/config';
 const dropboxAPI = {};
 
 /**
- * Fetch dropbox vault files with pagination and auto-download eligibility
+ * Fetch dropbox vault files with auto-download eligibility
  * @param {string} shortName - Dataset short name
- * @param {Object} paginationParams - Pagination parameters
- * @param {number} paginationParams.chunkSize - Number of files per chunk
- * @param {string} paginationParams.cursor - Cursor for pagination
- * @param {string} paginationParams.folderType - Type of folder ('rep', 'nrt', 'raw')
+ * @param {Object} options - Optional parameters
+ * @param {string} options.folderType - Type of folder ('rep', 'nrt', 'raw')
  * @returns {Promise<Response>} Response object with enhanced structure including:
  *   - autoDownloadEligible: boolean indicating if auto-download is available
  *   - directDownloadLink: string URL for direct download (if eligible)
  */
-dropboxAPI.fetchDropboxVaultFiles = async (
-  shortName,
-  paginationParams = {},
-) => {
-  const { chunkSize, cursor, folderType } = paginationParams;
+dropboxAPI.fetchDropboxVaultFiles = async (shortName, options = {}) => {
+  const { folderType } = options;
   const params = new URLSearchParams();
 
-  if (chunkSize) params.append('chunkSize', chunkSize);
-  if (cursor) params.append('cursor', cursor);
   if (folderType) params.append('folderType', folderType);
 
   const queryString = params.toString();
@@ -62,7 +55,10 @@ dropboxAPI.getMainFolderFiles = (shortName, options = {}) => {
 };
 
 dropboxAPI.getRawFolderFiles = (shortName, options = {}) => {
-  return dropboxAPI.fetchDropboxVaultFiles(shortName, { ...options, folderType: 'raw' });
+  return dropboxAPI.fetchDropboxVaultFiles(shortName, {
+    ...options,
+    folderType: 'raw',
+  });
 };
 
 export default dropboxAPI;

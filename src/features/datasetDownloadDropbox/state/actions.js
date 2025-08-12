@@ -31,14 +31,6 @@ export const dropboxFilesDownloadClear = () => ({
   type: dropboxActionTypes.DOWNLOAD_DROPBOX_VAULT_FILES_CLEAR,
 });
 
-export const fetchVaultFilesPage = (shortName, paginationParams) => ({
-  type: dropboxActionTypes.FETCH_DROPBOX_VAULT_FILES_PAGE,
-  payload: {
-    shortName,
-    paginationParams,
-  },
-});
-
 export const fetchVaultFilesPageSuccess = (data) => ({
   type: dropboxActionTypes.FETCH_DROPBOX_VAULT_FILES_PAGE_SUCCESS,
   payload: data,
@@ -47,11 +39,6 @@ export const fetchVaultFilesPageSuccess = (data) => ({
 export const fetchVaultFilesPageFailure = (error, folderType = null) => ({
   type: dropboxActionTypes.FETCH_DROPBOX_VAULT_FILES_PAGE_FAILURE,
   payload: { error, folderType },
-});
-
-export const setVaultFilesPagination = (pagination) => ({
-  type: dropboxActionTypes.SET_DROPBOX_VAULT_FILES_PAGINATION,
-  payload: pagination,
 });
 
 export const resetVaultFilesPagination = () => ({
