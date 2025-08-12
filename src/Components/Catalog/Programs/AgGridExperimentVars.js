@@ -1,5 +1,5 @@
 import { makeStyles } from '@material-ui/core/styles';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AgGridReact } from 'ag-grid-react';
 import TextField from '@material-ui/core/TextField';
@@ -174,7 +174,7 @@ const columnDefinitions = [
     onCellClicked: (event) => {
       console.log(event);
       event.node.setSelected(true);
-      event.api.redrawRows(); // allows for style change
+      setTimeout(() => event.api.redrawRows(), 0); // allows for style change
     },
   },
   { field: 'VariableName', flex: 1 },
@@ -185,8 +185,9 @@ const Exp = (props) => {
   const dispatch = useDispatch();
 
   const program = useSelector((state) => state.programDetails);
-  const datasets =
-    program && program.datasets && Object.values(program.datasets);
+  const datasets = useMemo(() => {
+    return program && program.datasets && Object.values(program.datasets);
+  }, [program]);
   const selectedShortName = useSelector(
     selectedProgramDatasetShortNameSelector,
   );
@@ -213,7 +214,7 @@ const Exp = (props) => {
         })),
       );
     }
-  }, [selectedDataset]);
+  }, [datasets, selectedDataset]);
 
   useEffect(() => {
     if (api) {
@@ -221,7 +222,7 @@ const Exp = (props) => {
         if (params.data.Short_Name === selectedVariableShortName) {
           console.log('set selected', params.setSelected);
           params && params.setSelected && params.setSelected(true);
-          api.redrawRows();
+          setTimeout(() => api.redrawRows(), 0);
         }
       });
     }
