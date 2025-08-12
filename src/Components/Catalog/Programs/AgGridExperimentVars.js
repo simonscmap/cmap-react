@@ -1,5 +1,5 @@
 import { makeStyles } from '@material-ui/core/styles';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AgGridReact } from 'ag-grid-react';
 import TextField from '@material-ui/core/TextField';
@@ -185,8 +185,9 @@ const Exp = (props) => {
   const dispatch = useDispatch();
 
   const program = useSelector((state) => state.programDetails);
-  const datasets =
-    program && program.datasets && Object.values(program.datasets);
+  const datasets = useMemo(() => {
+    return program && program.datasets && Object.values(program.datasets);
+  }, [program]);
   const selectedShortName = useSelector(
     selectedProgramDatasetShortNameSelector,
   );

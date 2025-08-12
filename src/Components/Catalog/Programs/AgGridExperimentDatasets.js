@@ -1,5 +1,5 @@
 import { makeStyles } from '@material-ui/core/styles';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AgGridReact } from 'ag-grid-react';
 import TextField from '@material-ui/core/TextField';
@@ -226,12 +226,14 @@ const Exp = () => {
   const dispatch = useDispatch();
 
   const program = useSelector((state) => state.programDetails);
-  const datasets =
-    program &&
-    program.datasets &&
-    alphabetizeBy('Dataset_Name')(
-      Object.values(program.datasets).map(transformDataset),
-    );
+  const datasets = useMemo(() => {
+    if (program && program.datasets) {
+      return alphabetizeBy('Dataset_Name')(
+        Object.values(program.datasets).map(transformDataset),
+      );
+    }
+    return null;
+  }, [program]);
   const selectedShortName = useSelector(
     selectedProgramDatasetShortNameSelector,
   );
@@ -246,7 +248,7 @@ const Exp = () => {
     if (datasets) {
       setFilteredDatasets(datasets);
     }
-  }, [datasets, program]);
+  }, [datasets]);
 
   useEffect(() => {
     if (api) {
