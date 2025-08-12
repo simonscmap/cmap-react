@@ -154,7 +154,6 @@ export default function dropboxReducer(
         newFileCount: newFiles.length,
         availableFolders,
         mainFolder,
-        hasLegacyPagination: !!action.payload.pagination,
         hasNewTotalCount: typeof action.payload.totalCount === 'number',
         timestamp: Date.now(),
       });
