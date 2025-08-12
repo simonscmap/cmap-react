@@ -193,7 +193,7 @@ const columnDefinitions = [
     onCellClicked: (event) => {
       console.log(event);
       event.node.setSelected(true);
-      event.api.redrawRows(); // allows for style change
+      setTimeout(() => event.api.redrawRows(), 0); // allows for style change
     },
   },
   {
@@ -246,7 +246,7 @@ const Exp = () => {
     if (datasets) {
       setFilteredDatasets(datasets);
     }
-  }, [program]);
+  }, [datasets, program]);
 
   useEffect(() => {
     if (api) {
@@ -254,7 +254,7 @@ const Exp = () => {
         if (params.data.Dataset_Name === selectedShortName) {
           console.log('set selected', params.setSelected);
           params && params.setSelected && params.setSelected(true);
-          api.redrawRows();
+          setTimeout(() => api.redrawRows(), 0);
         }
       });
     }
@@ -315,7 +315,7 @@ const Exp = () => {
       });
       setFilteredDatasets(filtered);
     }
-  }, [datasetSearchTerm]);
+  }, [datasetSearchTerm, datasets]);
 
   // Render
   return (

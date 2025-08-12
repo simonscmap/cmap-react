@@ -174,7 +174,7 @@ const columnDefinitions = [
     onCellClicked: (event) => {
       console.log(event);
       event.node.setSelected(true);
-      event.api.redrawRows(); // allows for style change
+      setTimeout(() => event.api.redrawRows(), 0); // allows for style change
     },
   },
   { field: 'VariableName', flex: 1 },
@@ -213,7 +213,7 @@ const Exp = (props) => {
         })),
       );
     }
-  }, [selectedDataset]);
+  }, [datasets, selectedDataset]);
 
   useEffect(() => {
     if (api) {
@@ -221,7 +221,7 @@ const Exp = (props) => {
         if (params.data.Short_Name === selectedVariableShortName) {
           console.log('set selected', params.setSelected);
           params && params.setSelected && params.setSelected(true);
-          api.redrawRows();
+          setTimeout(() => api.redrawRows(), 0);
         }
       });
     }
