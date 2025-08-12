@@ -73,10 +73,6 @@ export function* watchFetchVaultLink() {
 // or retrieving it from cache
 export function* getFullPageDataForDownload(action) {
   const shortName = action.payload.shortName;
-  console.log('🔥 [PERF] Download dialog opened, starting vault files fetch', {
-    shortName,
-    timestamp: Date.now(),
-  });
 
   const detailPageData = yield select(
     (state) => state.datasetDetailPage && state.datasetDetailPage.dataset.data,
