@@ -36,7 +36,7 @@ import {
 import {
   datasetDownloadRequestSend,
   checkQuerySize,
-} from '../../../Redux/actions/catalog';
+} from '../../../features/datasetDownload/state';
 
 import { useDatasetFeatures } from '../../../Utility/Catalog/useDatasetFeatures';
 import states from '../../../enums/asyncRequestStates';

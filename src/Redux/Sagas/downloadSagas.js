@@ -10,7 +10,9 @@ import {
 import api from '../../api/api';
 import { makeDownloadQuery } from '../../Components/Catalog/DownloadDialog/downloadDialogHelpers';
 import * as catalogActions from '../actions/catalog';
+import * as datasetDownloadActions from '../../features/datasetDownload/state';
 import * as catalogActionTypes from '../actionTypes/catalog';
+import * as datasetDownloadActionTypes from '../../features/datasetDownload/state/actionTypes';
 import * as interfaceActions from '../actions/ui';
 import * as userActions from '../actions/user';
 import * as visualizationActionTypes from '../actionTypes/visualization';
@@ -23,7 +25,9 @@ const log = logInit('sagas/downloadSagas').addContext({
 });
 
 export function* makeCheckQuerySizeRequest(query) {
-  yield put(catalogActions.setCheckQueryRequestState(states.inProgress));
+  yield put(
+    datasetDownloadActions.setCheckQueryRequestState(states.inProgress),
+  );
 
   const result = yield race({
     response: call(api.data.checkQuerySize, query),
@@ -48,20 +52,25 @@ export function* checkDownloadSize(action) {
         'Attempt to validate dowload size timed out.',
       ),
     );
-    yield put(catalogActions.setCheckQueryRequestState(states.failed));
+    yield put(datasetDownloadActions.setCheckQueryRequestState(states.failed));
   } else if (response && response.ok) {
     let jsonResponse = yield response.json();
     // pass back the exact query string as submitted; this will be used
     // to look up the response in the cache
     yield put(
-      catalogActions.storeCheckQueryResult(action.payload.query, jsonResponse),
+      datasetDownloadActions.storeCheckQueryResult(
+        action.payload.query,
+        jsonResponse,
+      ),
     );
-    yield put(catalogActions.setCheckQueryRequestState(states.succeeded));
+    yield put(
+      datasetDownloadActions.setCheckQueryRequestState(states.succeeded),
+    );
   } else if (response.status === 401) {
-    yield put(catalogActions.setCheckQueryRequestState(states.failed));
+    yield put(datasetDownloadActions.setCheckQueryRequestState(states.failed));
     yield put(userActions.refreshLogin());
   } else {
-    yield put(catalogActions.setCheckQueryRequestState(states.failed));
+    yield put(datasetDownloadActions.setCheckQueryRequestState(states.failed));
   }
 }
 
@@ -157,7 +166,7 @@ export function* downloadRequest(action) {
     return;
   }
 
-  yield put(catalogActions.datasetDownloadRequestProcessing());
+  yield put(datasetDownloadActions.datasetDownloadRequestProcessing());
   yield put(interfaceActions.setLoadingMessage('Processing Request', tag));
 
   try {
@@ -207,7 +216,7 @@ export function* downloadRequest(action) {
     });
 
     yield put(interfaceActions.setLoadingMessage('', tag));
-    yield put(catalogActions.datasetDownloadRequestSuccess());
+    yield put(datasetDownloadActions.datasetDownloadRequestSuccess());
 
     log.info('Successfully downloaded dataset', {
       tableName,
@@ -241,19 +250,17 @@ export function* downloadRequest(action) {
         ),
       );
     } else {
-      yield put(
-        interfaceActions.snackbarOpen(
-          userMessage,
-          tag,
-        ),
-      );
+      yield put(interfaceActions.snackbarOpen(userMessage, tag));
     }
   }
 }
 
 // Watcher functions
 export function* watchCheckDownloadSize() {
-  yield takeLatest(catalogActionTypes.CHECK_QUERY_SIZE_SEND, checkDownloadSize);
+  yield takeLatest(
+    datasetDownloadActionTypes.CHECK_QUERY_SIZE_SEND,
+    checkDownloadSize,
+  );
 }
 
 export function* watchCsvFromVizRequest() {
@@ -265,7 +272,7 @@ export function* watchCsvFromVizRequest() {
 
 export function* watchDownloadRequest() {
   yield takeLatest(
-    catalogActionTypes.DATASET_DOWNLOAD_REQUEST_SEND,
+    datasetDownloadActionTypes.DATASET_DOWNLOAD_REQUEST_SEND,
     downloadRequest,
   );
 }

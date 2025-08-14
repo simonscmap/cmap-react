@@ -14,7 +14,7 @@ import DropboxEmbed from './DropboxEmbed';
 import { CustomAlert } from '../../DataSubmission/Guide/Alert';
 import { homeTheme } from '../../Home/theme';
 import { SpinnerWrapper } from '../../UI/Spinner';
-import { dropboxModalCleanup } from '../../../Redux/actions/catalog';
+import { dropboxModalCleanup } from '../../../features/datasetDownload/state';
 import z from '../../../enums/zIndex';
 import { safePath } from '../../../Utility/objectUtils';
 

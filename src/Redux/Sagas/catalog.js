@@ -1,7 +1,9 @@
 import api from '../../api/api';
 import * as catalogActions from '../actions/catalog';
+import * as datasetDownloadActions from '../../features/datasetDownload/state';
 import * as dropboxActions from '../../features/datasetDownloadDropbox/state/actions';
 import * as actionTypes from '../actionTypes/catalog';
+import * as datasetDownloadActionTypes from '../../features/datasetDownload/state/actionTypes';
 import * as interfaceActionTypes from '../actionTypes/ui';
 import * as interfaceActions from '../actions/ui';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
@@ -43,7 +45,9 @@ export function* watchFetchDatasetNames() {
 function* fetchVaultLink(action) {
   const shortName = action.payload.shortName;
 
-  yield put(catalogActions.setFetchVaultLinkRequestStatus(states.inProgress));
+  yield put(
+    datasetDownloadActions.setFetchVaultLinkRequestStatus(states.inProgress),
+  );
   let response;
   try {
     // Fetch initial page with default pagination
@@ -53,20 +57,24 @@ function* fetchVaultLink(action) {
     });
   } catch (e) {
     log.error('error fetching vault link', { shortName, error: e });
-    yield put(catalogActions.setFetchVaultLinkRequestStatus(states.failed));
+    yield put(
+      datasetDownloadActions.setFetchVaultLinkRequestStatus(states.failed),
+    );
     return;
   }
 
   if (response && response.ok) {
     const jsonResponse = yield response.json();
-    yield put(catalogActions.fetchVaultLinkSuccess(jsonResponse));
+    yield put(datasetDownloadActions.fetchVaultLinkSuccess(jsonResponse));
   } else {
     console.log('failed to get share link', response);
-    yield put(catalogActions.setFetchVaultLinkRequestStatus(states.failed));
+    yield put(
+      datasetDownloadActions.setFetchVaultLinkRequestStatus(states.failed),
+    );
   }
 }
 export function* watchFetchVaultLink() {
-  yield takeLatest(actionTypes.FETCH_VAULT_LINK, fetchVaultLink);
+  yield takeLatest(datasetDownloadActionTypes.FETCH_VAULT_LINK, fetchVaultLink);
 }
 
 // when dataset download dialog opens, handle fetching full page data,
