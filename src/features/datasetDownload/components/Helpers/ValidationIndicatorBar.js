@@ -2,8 +2,8 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { ThemeProvider, createTheme } from '@material-ui/core/styles';
 import LinearProgress from '@material-ui/core/LinearProgress';
-import { buttonStates } from './buttonStates';
-import ValidationStatusBar from './StatusBar';
+import { buttonStates } from '../../utils/buttonStates';
+import ValidationStatusBar from '../DownloadDialog/StatusBar';
 
 const useStyles = makeStyles({
   root: {

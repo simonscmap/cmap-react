@@ -22,7 +22,7 @@ import ReferencesList from './References';
 import NewsSection from './NewsSection';
 import SectionHeader from './SectionHeader';
 import SubscribeButton from '../../User/Subscriptions/SubscribeButton';
-import { DownloadButtonOutlined } from '../DownloadDialog/DownloadButtons';
+import { DownloadButtonOutlined } from '../../../features/datasetDownload/components/DownloadDialog/DownloadButtons';
 import ScrollHintOverlay from './ScrollHintOverlay';
 
 import SkeletonWrapper from '../../UI/SkeletonWrapper';

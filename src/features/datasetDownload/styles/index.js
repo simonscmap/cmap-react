@@ -1,4 +1,4 @@
-// Dataset Download Style exports
-// Placeholder for download dialog and component styling
+// Style exports
+// Files will be moved here: downloadDialogStyles.js
 
-export {};
+export * from './downloadDialogStyles';

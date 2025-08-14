@@ -8,7 +8,7 @@ import {
   all,
 } from 'redux-saga/effects';
 import api from '../../api/api';
-import { makeDownloadQuery } from '../../Components/Catalog/DownloadDialog/downloadDialogHelpers';
+import { makeDownloadQuery } from '../../features/datasetDownload/utils/downloadDialogHelpers';
 import * as catalogActions from '../actions/catalog';
 import * as datasetDownloadActions from '../../features/datasetDownload/state';
 import * as catalogActionTypes from '../actionTypes/catalog';

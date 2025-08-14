@@ -11,7 +11,7 @@ import {
 import { Alert } from '@material-ui/lab';
 import { makeStyles } from '@material-ui/core/styles';
 import { useDispatch, useSelector } from 'react-redux';
-import styles from '../../../../Components/Catalog/DownloadDialog/downloadDialogStyles';
+import styles from '../../../datasetDownload/styles/downloadDialogStyles';
 import { dropboxFilesDownloadRequest } from '../../state/actions';
 import {
   selectAvailableFolders,

@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { FormControlLabel, Switch, Grid, Link } from '@material-ui/core';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import HelpIcon from '@material-ui/icons/Help';
-import colors from '../../../enums/colors';
+import colors from '../../../../enums/colors';
 
 import { withStyles } from '@material-ui/core/styles';
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Grid } from '@material-ui/core';
-import { downloadButtonText } from './buttonStates';
+import { downloadButtonText } from '../../utils/buttonStates';
 
 const DownloadStepWithWarning = ({ onOpenWarning, buttonState, isInvalid }) => (
   <React.Fragment>

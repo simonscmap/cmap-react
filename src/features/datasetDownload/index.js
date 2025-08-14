@@ -1,20 +1,23 @@
 // Dataset Download Feature - Public API
 // Main entry point for dataset download functionality
 
-// Component exports
+// Component exports - Primary components for external use
 export * from './components';
 
-// Hook exports
-export * from './hooks';
+// Commonly used components (direct exports for convenience)
+export { GlobalDialogWrapper } from './components/DownloadDialog';
+export {
+  DownloadButtons,
+  DownloadButtonOutlined,
+  DownloadButtonFilled,
+} from './components/DownloadButtons';
+export { DropboxModal } from './components/DropboxIntegration';
 
-// State exports (actions, selectors)
+// State exports (actions, selectors) - already migrated in Phase 2
 export * from './state';
 
 // Utility exports
 export * from './utils';
-
-// API exports
-export * from './api';
 
 // Style exports
 export * from './styles';

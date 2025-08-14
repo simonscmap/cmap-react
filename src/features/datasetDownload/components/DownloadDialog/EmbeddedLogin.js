@@ -1,7 +1,7 @@
 import React from 'react';
-import LoginForm from '../../User/LoginForm';
-import Spacer from '../../Common/Spacer';
-import Center from '../../Common/Center';
+import LoginForm from '../../../../Components/User/LoginForm';
+import Spacer from '../../../../Components/Common/Spacer';
+import Center from '../../../../Components/Common/Center';
 
 const EmbeddedLogin = () => {
   return (

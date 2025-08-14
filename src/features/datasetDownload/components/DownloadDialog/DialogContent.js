@@ -12,40 +12,37 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { debounce } from 'throttle-debounce';
 
-import ErrorMessage from './ErrorMessage';
 import { DownloadDialogTitle } from './Header';
 import { DownloadIntro } from './Intro';
 import { AncillaryDataExplainer } from './AncillaryDataDownload';
 import DownloadOption from './DownloadOption';
 import DownloadStep from './DownloadStep';
-import ValidationIndicatorBar from './ValidationIndicatorBar';
-import { validationMessages, buttonStates } from './buttonStates';
-import SubsetControls from './SubsetControls';
+import ValidationIndicatorBar from '../Helpers/ValidationIndicatorBar';
+import ErrorMessage from '../Helpers/ErrorMessage';
+import { validationMessages, buttonStates } from '../../utils/buttonStates';
+import SubsetControls from '../SubsetControls/SubsetControls';
 import {
   getInitialRangeValues,
   parseDataset,
   makeDownloadQuery,
-} from './downloadDialogHelpers';
-import styles from './downloadDialogStyles';
+} from '../../utils/downloadDialogHelpers';
+import styles from '../../styles/downloadDialogStyles';
 import DownloadStepWithWarning from './DownloadStepWithWarning';
 import {
   DropboxFileSelectionModal,
   useAutoDownload,
-} from '../../../features/datasetDownloadDropbox';
+} from '../../../datasetDownloadDropbox';
 
-import {
-  datasetDownloadRequestSend,
-  checkQuerySize,
-} from '../../../features/datasetDownload/state';
+import { datasetDownloadRequestSend, checkQuerySize } from '../../state';
 
-import { useDatasetFeatures } from '../../../Utility/Catalog/useDatasetFeatures';
-import states from '../../../enums/asyncRequestStates';
-import reduxStore from '../../../Redux/store';
-import logInit from '../../../Services/log-service';
+import { useDatasetFeatures } from '../../../../Utility/Catalog/useDatasetFeatures';
+import states from '../../../../enums/asyncRequestStates';
+import reduxStore from '../../../../Redux/store';
+import logInit from '../../../../Services/log-service';
 import {
   selectAvailableFolders,
   selectMainFolder,
-} from '../../../features/datasetDownloadDropbox/state/selectors';
+} from '../../../datasetDownloadDropbox/state/selectors';
 
 const log = logInit('Catalog/DownloadDialog/DialogContent');
 
