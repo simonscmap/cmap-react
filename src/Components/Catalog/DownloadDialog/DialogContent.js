@@ -12,13 +12,13 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { debounce } from 'throttle-debounce';
 
-import ErrorMessage from './ErrorMessage';
 import { DownloadDialogTitle } from './Header';
 import { DownloadIntro } from './Intro';
 import { AncillaryDataExplainer } from './AncillaryDataDownload';
 import DownloadOption from './DownloadOption';
 import DownloadStep from './DownloadStep';
-import ValidationIndicatorBar from './ValidationIndicatorBar';
+import ValidationIndicatorBar from '../../../features/datasetDownload/components/Helpers/ValidationIndicatorBar';
+import ErrorMessage from '../../../features/datasetDownload/components/Helpers/ErrorMessage';
 import {
   validationMessages,
   buttonStates,
