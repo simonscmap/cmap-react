@@ -23,7 +23,7 @@ import {
   validationMessages,
   buttonStates,
 } from '../../../features/datasetDownload/utils/buttonStates';
-import SubsetControls from './SubsetControls';
+import SubsetControls from '../../../features/datasetDownload/components/SubsetControls/SubsetControls';
 import {
   getInitialRangeValues,
   parseDataset,

@@ -1,13 +1,13 @@
 import React, { useState, useRef } from 'react';
 import { Collapse } from '@material-ui/core';
 
-import DateSubsetControl from '../../../features/datasetDownload/components/SubsetControls/DateSubsetControl';
-import LatitudeSubsetControl from '../../../features/datasetDownload/components/SubsetControls/LatitudeSubsetControl';
-import LongitudeSubsetControl from './LongitudeSubsetControl';
-import DepthSubsetControl from '../../../features/datasetDownload/components/SubsetControls/DepthSubsetControl';
-import DownloadOption from './DownloadOption';
+import DateSubsetControl from './DateSubsetControl';
+import LatitudeSubsetControl from './LatitudeSubsetControl';
+import LongitudeSubsetControl from '../../../../Components/Catalog/DownloadDialog/LongitudeSubsetControl';
+import DepthSubsetControl from './DepthSubsetControl';
+import DownloadOption from '../../../../Components/Catalog/DownloadDialog/DownloadOption';
 
-import logInit from '../../../Services/log-service';
+import logInit from '../../../../Services/log-service';
 const log = logInit('dialog subset controls').addContext({
   src: 'Components/Catalog/DownloadDialog',
 });
