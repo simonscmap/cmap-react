@@ -1,20 +1,4 @@
 import * as catalogActionTypes from '../actionTypes/catalog';
-// Legacy compatibility imports from datasetDownload feature module
-import {
-  checkQuerySize as _checkQuerySize,
-  setCheckQueryRequestState as _setCheckQueryRequestState,
-  storeCheckQueryResult as _storeCheckQueryResult,
-  clearFailedSizeChecks as _clearFailedSizeChecks,
-  datasetDownloadRequestSend as _datasetDownloadRequestSend,
-  datasetDownloadRequestProcessing as _datasetDownloadRequestProcessing,
-  datasetDownloadRequestSuccess as _datasetDownloadRequestSuccess,
-  fetchVaultLink as _fetchVaultLink,
-  fetchVaultLinkSuccess as _fetchVaultLinkSuccess,
-  setFetchVaultLinkRequestStatus as _setFetchVaultLinkRequestStatus,
-  dropboxModalOpen as _dropboxModalOpen,
-  dropboxModalCleanup as _dropboxModalCleanup,
-  dropboxModalClose as _dropboxModalClose,
-} from '../../features/datasetDownload/state';
 
 export const submissionOptionsRetrieval = () => ({
   type: catalogActionTypes.SUBMISSION_OPTIONS_RETRIEVAL,
@@ -240,16 +224,7 @@ export const fetchDatasetFeatures = () => ({
 });
 
 /************** Dataset Download **********************/
-
-// Legacy exports for backward compatibility - these are re-exported from datasetDownload module
-export const checkQuerySize = _checkQuerySize;
-export const setCheckQueryRequestState = _setCheckQueryRequestState;
-export const storeCheckQueryResult = _storeCheckQueryResult;
-export const clearFailedSizeChecks = _clearFailedSizeChecks;
-export const datasetDownloadRequestSend = _datasetDownloadRequestSend;
-export const datasetDownloadRequestProcessing =
-  _datasetDownloadRequestProcessing;
-export const datasetDownloadRequestSuccess = _datasetDownloadRequestSuccess;
+// Download actions moved to datasetDownload feature module
 
 /* Recommendations */
 
@@ -435,11 +410,4 @@ export const setDatasetNamesRequestStatus = (status) => ({
 });
 
 // ~~~~~~~~
-
-// Legacy exports for backward compatibility - these are re-exported from datasetDownload module
-export const fetchVaultLink = _fetchVaultLink;
-export const fetchVaultLinkSuccess = _fetchVaultLinkSuccess;
-export const setFetchVaultLinkRequestStatus = _setFetchVaultLinkRequestStatus;
-export const dropboxModalOpen = _dropboxModalOpen;
-export const dropboxModalCleanup = _dropboxModalCleanup;
-export const dropboxModalClose = _dropboxModalClose;
+// Vault link and dropbox modal actions moved to datasetDownload feature module

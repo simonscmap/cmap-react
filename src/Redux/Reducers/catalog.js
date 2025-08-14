@@ -45,8 +45,8 @@ import {
   PROGRAM_SAMPLE_VIS_DATA_STORE,
   FETCH_DATASET_NAMES_SUCCESS,
   SET_DATASET_NAMES_REQUEST_STATUS,
-  DROPBOX_MODAL_OPEN,
 } from '../actionTypes/catalog';
+import { DROPBOX_MODAL_OPEN } from '../../features/datasetDownload/state/actionTypes';
 import states from '../../enums/asyncRequestStates';
 import { sortResults } from '../../Components/Catalog/SortingControls';
 import { safePath } from '../../Utility/objectUtils';

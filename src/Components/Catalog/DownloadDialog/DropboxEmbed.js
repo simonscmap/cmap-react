@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { safePath } from '../../../Utility/objectUtils';
-import { dropboxModalClose } from '../../../Redux/actions/catalog';
+import { dropboxModalClose } from '../../../features/datasetDownload/state';
 
 const useStyles = makeStyles((theme) => ({
   embedHeight: {

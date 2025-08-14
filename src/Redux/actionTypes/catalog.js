@@ -1,23 +1,4 @@
-// Legacy compatibility imports from datasetDownload feature module
-import * as datasetDownloadActionTypes from '../../features/datasetDownload/state/actionTypes';
-
-// Legacy exports for backward compatibility - these are re-exported from datasetDownload module
-export const DATASET_DOWNLOAD_REQUEST_SEND =
-  datasetDownloadActionTypes.DATASET_DOWNLOAD_REQUEST_SEND;
-export const DATASET_DOWNLOAD_REQUEST_SUCCESS =
-  datasetDownloadActionTypes.DATASET_DOWNLOAD_REQUEST_SUCCESS;
-export const DATASET_DOWNLOAD_REQUEST_FAILURE =
-  datasetDownloadActionTypes.DATASET_DOWNLOAD_REQUEST_FAILURE;
-export const DATASET_DOWNLOAD_REQUEST_PROCESSING =
-  datasetDownloadActionTypes.DATASET_DOWNLOAD_REQUEST_PROCESSING;
-export const CHECK_QUERY_SIZE_SEND =
-  datasetDownloadActionTypes.CHECK_QUERY_SIZE_SEND;
-export const SET_CHECK_QUERY_SIZE_REQUEST_STATE =
-  datasetDownloadActionTypes.SET_CHECK_QUERY_SIZE_REQUEST_STATE;
-export const STORE_CHECK_QUERY_SIZE_RESULT =
-  datasetDownloadActionTypes.STORE_CHECK_QUERY_SIZE_RESULT;
-export const CLEAR_FAILED_SIZE_CHECKS =
-  datasetDownloadActionTypes.CLEAR_FAILED_SIZE_CHECKS;
+// Download action types moved to datasetDownload feature module
 
 export const SUBMISSION_OPTIONS_RETRIEVAL = 'SUBMISSION_OPTIONS_RETRIEVAL';
 export const STORE_SUBMISSION_OPTIONS = 'STORE_SUBMISSION_OPTIONS';
@@ -128,13 +109,4 @@ export const FETCH_DATASET_NAMES_SUCCESS = 'FETCH_DATASET_NAMES_SUCCESS';
 export const SET_DATASET_NAMES_REQUEST_STATUS =
   'SET_DATASET_NAMES_REQUEST_STATUS';
 
-export const FETCH_VAULT_LINK = datasetDownloadActionTypes.FETCH_VAULT_LINK;
-export const FETCH_VAULT_LINK_SUCCESS =
-  datasetDownloadActionTypes.FETCH_VAULT_LINK_SUCCESS;
-export const SET_FETCH_VAULT_LINK_REQUEST_STATUS =
-  datasetDownloadActionTypes.SET_FETCH_VAULT_LINK_REQUEST_STATUS;
-export const DROPBOX_MODAL_OPEN = datasetDownloadActionTypes.DROPBOX_MODAL_OPEN;
-export const DROPBOX_MODAL_CLEANUP =
-  datasetDownloadActionTypes.DROPBOX_MODAL_CLEANUP;
-export const DROPBOX_MODAL_CLOSE =
-  datasetDownloadActionTypes.DROPBOX_MODAL_CLOSE;
+// Vault link and dropbox modal action types moved to datasetDownload feature module
