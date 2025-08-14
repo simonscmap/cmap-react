@@ -16,7 +16,7 @@ import { DownloadDialogTitle } from '../../../features/datasetDownload/component
 import { DownloadIntro } from '../../../features/datasetDownload/components/DownloadDialog/Intro';
 import { AncillaryDataExplainer } from './AncillaryDataDownload';
 import DownloadOption from './DownloadOption';
-import DownloadStep from './DownloadStep';
+import DownloadStep from '../../../features/datasetDownload/components/DownloadDialog/DownloadStep';
 import ValidationIndicatorBar from '../../../features/datasetDownload/components/Helpers/ValidationIndicatorBar';
 import ErrorMessage from '../../../features/datasetDownload/components/Helpers/ErrorMessage';
 import {
@@ -30,7 +30,7 @@ import {
   makeDownloadQuery,
 } from '../../../features/datasetDownload/utils/downloadDialogHelpers';
 import styles from '../../../features/datasetDownload/styles/downloadDialogStyles';
-import DownloadStepWithWarning from './DownloadStepWithWarning';
+import DownloadStepWithWarning from '../../../features/datasetDownload/components/DownloadDialog/DownloadStepWithWarning';
 import {
   DropboxFileSelectionModal,
   useAutoDownload,

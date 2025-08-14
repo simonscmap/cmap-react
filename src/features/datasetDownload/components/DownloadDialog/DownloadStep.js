@@ -1,8 +1,8 @@
 import { Button, Grid } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import React from 'react';
-import styles from '../../../features/datasetDownload/styles/downloadDialogStyles';
-import { downloadButtonText } from '../../../features/datasetDownload/utils/buttonStates';
+import styles from '../../styles/downloadDialogStyles';
+import { downloadButtonText } from '../../utils/buttonStates';
 
 const DownloadStep = (props) => {
   let { handlers, buttonState, isInvalid } = props;
