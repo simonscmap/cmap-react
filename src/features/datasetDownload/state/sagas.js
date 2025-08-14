@@ -7,21 +7,21 @@ import {
   select,
   all,
 } from 'redux-saga/effects';
-import api from '../../api/api';
-import { makeDownloadQuery } from '../../features/datasetDownload/utils/downloadDialogHelpers';
-import * as catalogActions from '../actions/catalog';
-import * as datasetDownloadActions from '../../features/datasetDownload/state';
-import * as catalogActionTypes from '../actionTypes/catalog';
-import * as datasetDownloadActionTypes from '../../features/datasetDownload/state/actionTypes';
-import * as interfaceActions from '../actions/ui';
-import * as userActions from '../actions/user';
-import * as visualizationActionTypes from '../actionTypes/visualization';
-import states from '../../enums/asyncRequestStates';
-import logInit from '../../Services/log-service';
-import DataExportService from '../../Services/dataDownload/dataExportService';
+import api from '../../../api/api';
+import { makeDownloadQuery } from '../utils/downloadDialogHelpers';
+import * as catalogActions from '../../../Redux/actions/catalog';
+import * as datasetDownloadActions from './index';
+import * as catalogActionTypes from '../../../Redux/actionTypes/catalog';
+import * as datasetDownloadActionTypes from './actionTypes';
+import * as interfaceActions from '../../../Redux/actions/ui';
+import * as userActions from '../../../Redux/actions/user';
+import * as visualizationActionTypes from '../../../Redux/actionTypes/visualization';
+import states from '../../../enums/asyncRequestStates';
+import logInit from '../../../Services/log-service';
+import DataExportService from '../../../Services/dataDownload/dataExportService';
 
 const log = logInit('sagas/downloadSagas').addContext({
-  src: 'Redux/Sagas/downloadSagas',
+  src: 'features/datasetDownload/state/sagas',
 });
 
 export function* makeCheckQuerySizeRequest(query) {

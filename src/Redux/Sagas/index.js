@@ -76,7 +76,7 @@ import {
   watchReSendNotifications,
 } from './notifications';
 
-import downloadSaga from './downloadSagas';
+import downloadSaga from '../../features/datasetDownload/state/sagas';
 
 import { watchRequestHighlightsSend } from './highlights';
 
