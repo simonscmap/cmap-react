@@ -44,7 +44,9 @@ import {
   selectMainFolder,
 } from '../../../datasetDownloadDropbox/state/selectors';
 
-const log = logInit('Catalog/DownloadDialog/DialogContent');
+const log = logInit(
+  'features/datasetDownload/components/DownloadDialog/DialogContent',
+);
 
 const DOWNLOAD_ROWS_LIMIT = 2000000;
 const CHECK_QUERY_DEBOUNCE_TIME_MS = 2000;
