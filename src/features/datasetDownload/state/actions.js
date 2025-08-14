@@ -3,7 +3,7 @@ import * as datasetDownloadActionTypes from './actionTypes';
 // Query size check actions
 export const checkQuerySize = (query) => ({
   type: datasetDownloadActionTypes.CHECK_QUERY_SIZE_SEND,
-  payload: query,
+  payload: { query },
 });
 
 export const setCheckQueryRequestState = (requestState) => ({
@@ -11,9 +11,12 @@ export const setCheckQueryRequestState = (requestState) => ({
   payload: requestState,
 });
 
-export const storeCheckQueryResult = (result) => ({
+export const storeCheckQueryResult = (queryString, result) => ({
   type: datasetDownloadActionTypes.STORE_CHECK_QUERY_SIZE_RESULT,
-  payload: result,
+  payload: {
+    queryString,
+    result,
+  },
 });
 
 export const clearFailedSizeChecks = () => ({
@@ -21,35 +24,57 @@ export const clearFailedSizeChecks = () => ({
 });
 
 // Dataset download request actions
-export const datasetDownloadRequestSend = (query) => ({
+export const datasetDownloadRequestSend = ({
+  subsetParams,
+  ancillaryData,
+  tableName,
+  shortName,
+  fileName,
+}) => ({
   type: datasetDownloadActionTypes.DATASET_DOWNLOAD_REQUEST_SEND,
-  payload: query,
+  payload: {
+    subsetParams,
+    ancillaryData,
+    tableName,
+    shortName,
+    fileName,
+  },
 });
 
 export const datasetDownloadRequestProcessing = () => ({
   type: datasetDownloadActionTypes.DATASET_DOWNLOAD_REQUEST_PROCESSING,
 });
 
-export const datasetDownloadRequestSuccess = (result) => ({
+export const datasetDownloadRequestSuccess = (text) => ({
   type: datasetDownloadActionTypes.DATASET_DOWNLOAD_REQUEST_SUCCESS,
-  payload: result,
+  payload: {
+    text,
+  },
 });
 
 // Vault link actions
-export const fetchVaultLink = (query) => ({
+export const fetchVaultLink = (shortName) => ({
   type: datasetDownloadActionTypes.FETCH_VAULT_LINK,
-  payload: query,
+  payload: {
+    shortName,
+  },
 });
 
-export const fetchVaultLinkSuccess = (result) => ({
+export const fetchVaultLinkSuccess = (data) => ({
   type: datasetDownloadActionTypes.FETCH_VAULT_LINK_SUCCESS,
-  payload: result,
+  payload: data,
+});
+
+export const setFetchVaultLinkRequestStatus = (status) => ({
+  type: datasetDownloadActionTypes.SET_FETCH_VAULT_LINK_REQUEST_STATUS,
+  payload: {
+    status,
+  },
 });
 
 // Dropbox modal actions
-export const dropboxModalOpen = (dataset) => ({
+export const dropboxModalOpen = () => ({
   type: datasetDownloadActionTypes.DROPBOX_MODAL_OPEN,
-  payload: dataset,
 });
 
 export const dropboxModalCleanup = () => ({

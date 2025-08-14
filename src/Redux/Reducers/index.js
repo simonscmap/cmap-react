@@ -9,6 +9,7 @@ import help from './help.js';
 import highlights from './highlights';
 import data from './data';
 import dropbox from '../../features/datasetDownloadDropbox/state/reducer';
+import { datasetDownloadReducer } from '../../features/datasetDownload/state';
 import reduceReducers from 'reduce-reducers';
 import { combineReducers } from 'redux';
 import states from '../../enums/asyncRequestStates';
@@ -52,14 +53,7 @@ const initialState = {
   recommendedDatasetsRequestState: states.notTried,
   recommendedDatasets: null,
 
-  // Dataset Download
-  download: {
-    currentRequest: null,
-    checkQueryRequestState: states.notTried,
-    querySizeChecks: [], // list of { queryString, result }
-    vaultLink: null,
-    dropboxModalOpen: 'closed',
-  }, // NOTE see also state.downloadDialog
+  // Dataset Download state moved to slice reducer in datasetDownload/state/reducer.js
   // this is an artifact of initially only using redux for the ui state
 
   // Dataset Details Page
@@ -258,6 +252,7 @@ const createCombinedSliceReducers = () => {
     help: help, // Migrated to slice reducer pattern
     highlights: highlights, // Migrated to slice reducer pattern
     dataSubmission: dataSubmission, // Migrated to slice reducer pattern
+    download: datasetDownloadReducer, // Migrated to slice reducer pattern
   });
 };
 
@@ -272,6 +267,7 @@ const reducedReducer = (state = initialState, action) => {
     help: state.help || undefined, // help slice manages its own state now, undefined allows reducer to use default
     highlights: state.highlights || undefined, // highlights slice manages its own state now, undefined allows reducer to use default
     dataSubmission: state.dataSubmission || undefined, // dataSubmission slice manages its own state now, undefined allows reducer to use default
+    download: state.download || undefined, // download slice manages its own state now, undefined allows reducer to use default
   };
 
   // Step 2: Process slice reducers with combineReducers
