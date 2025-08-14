@@ -25,7 +25,7 @@ import {
   getInitialRangeValues,
   parseDataset,
   makeDownloadQuery,
-} from './downloadDialogHelpers';
+} from '../../../features/datasetDownload/utils/downloadDialogHelpers';
 import styles from './downloadDialogStyles';
 import DownloadStepWithWarning from './DownloadStepWithWarning';
 import {

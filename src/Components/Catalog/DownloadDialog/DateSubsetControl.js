@@ -12,7 +12,7 @@ import {
   dayToDateString,
   dateToDateString,
   getIsMonthlyClimatology,
-} from './downloadDialogHelpers';
+} from '../../../features/datasetDownload/utils/downloadDialogHelpers';
 import styles from './downloadDialogStyles';
 
 // convert a date string like "2007-04-09" to "4/9"
