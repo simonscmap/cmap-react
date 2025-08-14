@@ -9,7 +9,7 @@ import { useDatasetFeatures } from '../../../Utility/Catalog/useDatasetFeatures'
 import styles from './DatasetCardDetailed.styles';
 import MetadataContent from './DatasetCardContent';
 import DatasetTitleLink from './DatasetTitleLink';
-import { DownloadButtonOutlined } from '../DownloadDialog/DownloadButtons';
+import { DownloadButtonOutlined } from '../../../features/datasetDownload/components/DownloadDialog/DownloadButtons';
 
 import SubscribeButton from '../../User/Subscriptions/SubscribeButton';
 import { downloadDialogOpen } from '../../../Redux/actions/ui';

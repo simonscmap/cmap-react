@@ -3,9 +3,9 @@ import { Collapse } from '@material-ui/core';
 
 import DateSubsetControl from './DateSubsetControl';
 import LatitudeSubsetControl from './LatitudeSubsetControl';
-import LongitudeSubsetControl from '../../../../Components/Catalog/DownloadDialog/LongitudeSubsetControl';
+import LongitudeSubsetControl from '../DownloadDialog/LongitudeSubsetControl';
 import DepthSubsetControl from './DepthSubsetControl';
-import DownloadOption from '../../../../Components/Catalog/DownloadDialog/DownloadOption';
+import DownloadOption from '../DownloadDialog/DownloadOption';
 
 import logInit from '../../../../Services/log-service';
 const log = logInit('dialog subset controls').addContext({

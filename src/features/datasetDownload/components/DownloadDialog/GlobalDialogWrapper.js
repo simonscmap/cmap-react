@@ -10,16 +10,16 @@ import { makeStyles } from '@material-ui/core/styles';
 import EmbeddedLogin from './EmbeddedLogin';
 import DialogContent from './DialogContent';
 
-import Spinner from '../../UI/Spinner';
-import Spacer from '../../Common/Spacer';
+import Spinner from '../../../../Components/UI/Spinner';
+import Spacer from '../../../../Components/Common/Spacer';
 
-import { downloadDialogClear } from '../../../Redux/actions/ui';
+import { downloadDialogClear } from '../../../../Redux/actions/ui';
 
-import colors from '../../../enums/colors';
-import zIndex from '../../../enums/zIndex';
-import { safePath } from '../../../Utility/objectUtils';
-import states from '../../../enums/asyncRequestStates';
-import logInit from '../../../Services/log-service';
+import colors from '../../../../enums/colors';
+import zIndex from '../../../../enums/zIndex';
+import { safePath } from '../../../../Utility/objectUtils';
+import states from '../../../../enums/asyncRequestStates';
+import logInit from '../../../../Services/log-service';
 
 const log = logInit('dialog').addContext({
   src: 'Components/Catalog/DownloadDialog',

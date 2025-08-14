@@ -2,7 +2,7 @@ import React from 'react';
 import { withStyles, makeStyles, Button } from '@material-ui/core';
 import { useDispatch } from 'react-redux';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
-import { downloadDialogOpen } from '../../../Redux/actions/ui';
+import { downloadDialogOpen } from '../../../../Redux/actions/ui';
 
 // Filled Variant
 

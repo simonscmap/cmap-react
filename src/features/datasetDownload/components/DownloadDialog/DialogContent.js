@@ -12,43 +12,37 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { debounce } from 'throttle-debounce';
 
-import { DownloadDialogTitle } from '../../../features/datasetDownload/components/DownloadDialog/Header';
-import { DownloadIntro } from '../../../features/datasetDownload/components/DownloadDialog/Intro';
-import { AncillaryDataExplainer } from '../../../features/datasetDownload/components/DownloadDialog/AncillaryDataDownload';
+import { DownloadDialogTitle } from './Header';
+import { DownloadIntro } from './Intro';
+import { AncillaryDataExplainer } from './AncillaryDataDownload';
 import DownloadOption from './DownloadOption';
-import DownloadStep from '../../../features/datasetDownload/components/DownloadDialog/DownloadStep';
-import ValidationIndicatorBar from '../../../features/datasetDownload/components/Helpers/ValidationIndicatorBar';
-import ErrorMessage from '../../../features/datasetDownload/components/Helpers/ErrorMessage';
-import {
-  validationMessages,
-  buttonStates,
-} from '../../../features/datasetDownload/utils/buttonStates';
-import SubsetControls from '../../../features/datasetDownload/components/SubsetControls/SubsetControls';
+import DownloadStep from './DownloadStep';
+import ValidationIndicatorBar from '../Helpers/ValidationIndicatorBar';
+import ErrorMessage from '../Helpers/ErrorMessage';
+import { validationMessages, buttonStates } from '../../utils/buttonStates';
+import SubsetControls from '../SubsetControls/SubsetControls';
 import {
   getInitialRangeValues,
   parseDataset,
   makeDownloadQuery,
-} from '../../../features/datasetDownload/utils/downloadDialogHelpers';
-import styles from '../../../features/datasetDownload/styles/downloadDialogStyles';
-import DownloadStepWithWarning from '../../../features/datasetDownload/components/DownloadDialog/DownloadStepWithWarning';
+} from '../../utils/downloadDialogHelpers';
+import styles from '../../styles/downloadDialogStyles';
+import DownloadStepWithWarning from './DownloadStepWithWarning';
 import {
   DropboxFileSelectionModal,
   useAutoDownload,
-} from '../../../features/datasetDownloadDropbox';
+} from '../../../datasetDownloadDropbox';
 
-import {
-  datasetDownloadRequestSend,
-  checkQuerySize,
-} from '../../../features/datasetDownload/state';
+import { datasetDownloadRequestSend, checkQuerySize } from '../../state';
 
-import { useDatasetFeatures } from '../../../Utility/Catalog/useDatasetFeatures';
-import states from '../../../enums/asyncRequestStates';
-import reduxStore from '../../../Redux/store';
-import logInit from '../../../Services/log-service';
+import { useDatasetFeatures } from '../../../../Utility/Catalog/useDatasetFeatures';
+import states from '../../../../enums/asyncRequestStates';
+import reduxStore from '../../../../Redux/store';
+import logInit from '../../../../Services/log-service';
 import {
   selectAvailableFolders,
   selectMainFolder,
-} from '../../../features/datasetDownloadDropbox/state/selectors';
+} from '../../../datasetDownloadDropbox/state/selectors';
 
 const log = logInit('Catalog/DownloadDialog/DialogContent');
 

@@ -9,7 +9,7 @@ import LoginDialog from '../User/LoginDialog';
 import SnackbarWrapper from './SnackbarWrapper';
 import LoadingOverlay from './LoadingOverlay';
 import SubscribeDatasetDialog from '../User/Subscriptions/SubscribeDialog';
-import GlobalDownloadDialog from '../Catalog/DownloadDialog/GlobalDialogWrapper';
+import GlobalDownloadDialog from '../../features/datasetDownload/components/DownloadDialog/GlobalDialogWrapper';
 
 import { loginDialogWasCleared } from '../../Redux/actions/user';
 
