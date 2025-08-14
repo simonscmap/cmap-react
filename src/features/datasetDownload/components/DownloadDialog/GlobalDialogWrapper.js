@@ -22,7 +22,7 @@ import states from '../../../../enums/asyncRequestStates';
 import logInit from '../../../../Services/log-service';
 
 const log = logInit('dialog').addContext({
-  src: 'Components/Catalog/DownloadDialog',
+  src: 'features/datasetDownload/components/DownloadDialog',
 });
 
 // https://v4.mui.com/components/dialogs/#optional-sizes

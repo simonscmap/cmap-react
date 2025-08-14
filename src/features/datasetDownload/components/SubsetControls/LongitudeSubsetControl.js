@@ -5,7 +5,7 @@ import styles from '../../styles/downloadDialogStyles';
 import logInit from '../../../../Services/log-service';
 
 const log = logInit('LongitudeSubsetControl').addContext({
-  src: 'Components/Catalog/DownloadDialog',
+  src: 'features/datasetDownload/components/DownloadDialog',
 });
 
 const LongitudeControl = (props) => {

@@ -3,13 +3,13 @@ import { Collapse } from '@material-ui/core';
 
 import DateSubsetControl from './DateSubsetControl';
 import LatitudeSubsetControl from './LatitudeSubsetControl';
-import LongitudeSubsetControl from '../DownloadDialog/LongitudeSubsetControl';
+import LongitudeSubsetControl from './LongitudeSubsetControl';
 import DepthSubsetControl from './DepthSubsetControl';
 import DownloadOption from '../DownloadDialog/DownloadOption';
 
 import logInit from '../../../../Services/log-service';
 const log = logInit('dialog subset controls').addContext({
-  src: 'Components/Catalog/DownloadDialog',
+  src: 'features/datasetDownload/components/SubsetControls',
 });
 
 // This component gathers the four sets of control fields and passes
