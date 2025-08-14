@@ -2,7 +2,7 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { ThemeProvider, createTheme } from '@material-ui/core/styles';
 import LinearProgress from '@material-ui/core/LinearProgress';
-import { buttonStates } from './buttonStates';
+import { buttonStates } from '../../../features/datasetDownload/utils/buttonStates';
 import ValidationStatusBar from './StatusBar';
 
 const useStyles = makeStyles({

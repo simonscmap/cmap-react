@@ -19,14 +19,17 @@ import { AncillaryDataExplainer } from './AncillaryDataDownload';
 import DownloadOption from './DownloadOption';
 import DownloadStep from './DownloadStep';
 import ValidationIndicatorBar from './ValidationIndicatorBar';
-import { validationMessages, buttonStates } from './buttonStates';
+import {
+  validationMessages,
+  buttonStates,
+} from '../../../features/datasetDownload/utils/buttonStates';
 import SubsetControls from './SubsetControls';
 import {
   getInitialRangeValues,
   parseDataset,
   makeDownloadQuery,
 } from '../../../features/datasetDownload/utils/downloadDialogHelpers';
-import styles from './downloadDialogStyles';
+import styles from '../../../features/datasetDownload/styles/downloadDialogStyles';
 import DownloadStepWithWarning from './DownloadStepWithWarning';
 import {
   DropboxFileSelectionModal,

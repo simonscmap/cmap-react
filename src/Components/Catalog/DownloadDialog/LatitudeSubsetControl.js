@@ -1,7 +1,7 @@
 import { Grid, Slider, TextField, Typography } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import React from 'react';
-import styles from './downloadDialogStyles';
+import styles from '../../../features/datasetDownload/styles/downloadDialogStyles';
 
 const LatStartTextInput = ({
   Lat_Min,

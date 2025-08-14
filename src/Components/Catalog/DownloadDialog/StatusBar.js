@@ -15,7 +15,7 @@ import WarningIcon from '@material-ui/icons/Warning';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import NotInterestedIcon from '@material-ui/icons/NotInterested';
 
-import { buttonStates } from './buttonStates';
+import { buttonStates } from '../../../features/datasetDownload/utils/buttonStates';
 
 const useStyles = makeStyles((theme) => ({
   root: {
