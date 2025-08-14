@@ -1,10 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { Collapse } from '@material-ui/core';
 
-import DateSubsetControl from './DateSubsetControl';
-import LatitudeSubsetControl from './LatitudeSubsetControl';
+import DateSubsetControl from '../../../features/datasetDownload/components/SubsetControls/DateSubsetControl';
+import LatitudeSubsetControl from '../../../features/datasetDownload/components/SubsetControls/LatitudeSubsetControl';
 import LongitudeSubsetControl from './LongitudeSubsetControl';
-import DepthSubsetControl from './DepthSubsetControl';
+import DepthSubsetControl from '../../../features/datasetDownload/components/SubsetControls/DepthSubsetControl';
 import DownloadOption from './DownloadOption';
 
 import logInit from '../../../Services/log-service';
