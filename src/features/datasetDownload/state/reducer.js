@@ -5,8 +5,6 @@ import states from '../../../enums/asyncRequestStates';
 const initialDatasetDownloadState = {
   requestStatus: states.notTried,
   querySizeChecks: [], // list of { queryString, result }
-  vaultLink: null,
-  dropboxModalOpen: 'closed',
 };
 
 export default function datasetDownloadReducer(
@@ -66,45 +64,6 @@ export default function datasetDownloadReducer(
       return {
         ...datasetDownloadState,
         requestStatus: states.failed,
-      };
-
-    // Vault link actions
-    case actionTypes.FETCH_VAULT_LINK:
-      return {
-        ...datasetDownloadState,
-        requestStatus: states.inProgress,
-      };
-
-    case actionTypes.FETCH_VAULT_LINK_SUCCESS:
-      return {
-        ...datasetDownloadState,
-        vaultLink: action.payload,
-        requestStatus: states.succeeded,
-      };
-
-    case actionTypes.SET_FETCH_VAULT_LINK_REQUEST_STATUS:
-      return {
-        ...datasetDownloadState,
-        requestStatus: action.payload.status,
-      };
-
-    // Dropbox modal actions
-    case actionTypes.DROPBOX_MODAL_OPEN:
-      return {
-        ...datasetDownloadState,
-        dropboxModalOpen: 'open',
-      };
-
-    case actionTypes.DROPBOX_MODAL_CLEANUP:
-      return {
-        ...datasetDownloadState,
-        dropboxModalOpen: 'closed',
-      };
-
-    case actionTypes.DROPBOX_MODAL_CLOSE:
-      return {
-        ...datasetDownloadState,
-        dropboxModalOpen: 'closed',
       };
 
     default:

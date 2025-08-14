@@ -42,41 +42,6 @@ export function* watchFetchDatasetNames() {
   yield takeLatest(actionTypes.FETCH_DATASET_NAMES, fetchDatasetNames);
 }
 
-function* fetchVaultLink(action) {
-  const shortName = action.payload.shortName;
-
-  yield put(
-    datasetDownloadActions.setFetchVaultLinkRequestStatus(states.inProgress),
-  );
-  let response;
-  try {
-    // Fetch initial page with default pagination
-    response = yield call(api.dropbox.fetchDropboxVaultFiles, shortName, {
-      page: 1,
-      pageSize: 100,
-    });
-  } catch (e) {
-    log.error('error fetching vault link', { shortName, error: e });
-    yield put(
-      datasetDownloadActions.setFetchVaultLinkRequestStatus(states.failed),
-    );
-    return;
-  }
-
-  if (response && response.ok) {
-    const jsonResponse = yield response.json();
-    yield put(datasetDownloadActions.fetchVaultLinkSuccess(jsonResponse));
-  } else {
-    console.log('failed to get share link', response);
-    yield put(
-      datasetDownloadActions.setFetchVaultLinkRequestStatus(states.failed),
-    );
-  }
-}
-export function* watchFetchVaultLink() {
-  yield takeLatest(datasetDownloadActionTypes.FETCH_VAULT_LINK, fetchVaultLink);
-}
-
 // when dataset download dialog opens, handle fetching full page data,
 // or retrieving it from cache
 export function* getFullPageDataForDownload(action) {

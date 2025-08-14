@@ -34,7 +34,13 @@ module.exports = {
     'no-unreachable': 'error',
     'react/jsx-no-duplicate-props': 'error',
     'brace-style': 'warn',
-    
+
+    // Keep react-hooks exhaustive-deps as warning but disable autofix
+    'react-hooks/exhaustive-deps': [
+      'warn',
+      { enableDangerousAutofixer: false },
+    ],
+
     // Allow console for now since it's widely used in the codebase
     'no-console': 'off',
   },

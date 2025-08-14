@@ -51,36 +51,3 @@ export const datasetDownloadRequestSuccess = (text) => ({
     text,
   },
 });
-
-// Vault link actions
-export const fetchVaultLink = (shortName) => ({
-  type: datasetDownloadActionTypes.FETCH_VAULT_LINK,
-  payload: {
-    shortName,
-  },
-});
-
-export const fetchVaultLinkSuccess = (data) => ({
-  type: datasetDownloadActionTypes.FETCH_VAULT_LINK_SUCCESS,
-  payload: data,
-});
-
-export const setFetchVaultLinkRequestStatus = (status) => ({
-  type: datasetDownloadActionTypes.SET_FETCH_VAULT_LINK_REQUEST_STATUS,
-  payload: {
-    status,
-  },
-});
-
-// Dropbox modal actions
-export const dropboxModalOpen = () => ({
-  type: datasetDownloadActionTypes.DROPBOX_MODAL_OPEN,
-});
-
-export const dropboxModalCleanup = () => ({
-  type: datasetDownloadActionTypes.DROPBOX_MODAL_CLEANUP,
-});
-
-export const dropboxModalClose = () => ({
-  type: datasetDownloadActionTypes.DROPBOX_MODAL_CLOSE,
-});
