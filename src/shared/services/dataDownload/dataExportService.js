@@ -1,5 +1,5 @@
 import DownloadService from './downloadService';
-import apiService from '../../api/api';
+import apiService from '../../../api/api';
 import datasetMetadataToDownloadFormat from './datasetMetadataToDownloadFormat';
 import Papa from 'papaparse';
 class DataExportService {
@@ -20,7 +20,12 @@ class DataExportService {
     variableName = null,
   }) {
     if (data instanceof ArrayBuffer) {
-      await DataExportService.createAndDownloadZip(data, metadata, datasetName, variableName);
+      await DataExportService.createAndDownloadZip(
+        data,
+        metadata,
+        datasetName,
+        variableName,
+      );
       return;
     }
 
@@ -36,9 +41,13 @@ class DataExportService {
       );
     }
 
-    await DataExportService.createAndDownloadZip(csvData, metadata, datasetName, variableName);
+    await DataExportService.createAndDownloadZip(
+      csvData,
+      metadata,
+      datasetName,
+      variableName,
+    );
   }
-
 
   /**
    * Fetch dataset metadata from API
@@ -47,9 +56,8 @@ class DataExportService {
    */
   static async fetchDatasetMetadata(datasetShortName) {
     try {
-      const response = await apiService.catalog.datasetMetadata(
-        datasetShortName,
-      );
+      const response =
+        await apiService.catalog.datasetMetadata(datasetShortName);
 
       if (!response.ok) {
         if (response.status === 401) {
@@ -151,7 +159,12 @@ class DataExportService {
     return parseFloat(value.toFixed(precision));
   }
 
-  static async createAndDownloadZip(csvData, metadata, datasetName, variableName = null) {
+  static async createAndDownloadZip(
+    csvData,
+    metadata,
+    datasetName,
+    variableName = null,
+  ) {
     const baseFilename = variableName
       ? `${datasetName}_${variableName}_${DownloadService.formatDateForFilename()}`
       : `${datasetName}_${DownloadService.formatDateForFilename()}`;
@@ -163,7 +176,7 @@ class DataExportService {
 
     const files = [
       { filename: `${datasetName}_data.csv`, content: csvData },
-      { filename: `${datasetName}_metadata.xlsx`, content: metadataBuffer }
+      { filename: `${datasetName}_metadata.xlsx`, content: metadataBuffer },
     ];
 
     await DownloadService.downloadZip(files, baseFilename);
@@ -205,8 +218,6 @@ class DataExportService {
 
     return filteredMetadata;
   }
-
-
 
   static parseCSVToJSON(csvData) {
     if (!csvData || typeof csvData !== 'string') {
