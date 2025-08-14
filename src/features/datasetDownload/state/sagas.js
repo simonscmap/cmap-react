@@ -18,7 +18,7 @@ import * as userActions from '../../../Redux/actions/user';
 import * as visualizationActionTypes from '../../../Redux/actionTypes/visualization';
 import states from '../../../enums/asyncRequestStates';
 import logInit from '../../../Services/log-service';
-import DataExportService from '../../../Services/dataDownload/dataExportService';
+import DataExportService from '../../../shared/services/dataDownload/dataExportService';
 
 const log = logInit('sagas/downloadSagas').addContext({
   src: 'features/datasetDownload/state/sagas',
