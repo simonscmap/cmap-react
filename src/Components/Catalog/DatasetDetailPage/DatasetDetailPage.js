@@ -12,7 +12,6 @@ import reactStringReplace from 'react-string-replace';
 
 import DatasetPageAGGrid from '../VariablesTable';
 import DatasetJSONLD from './DatasetJSONLD';
-// import DownloadDialog from '../DownloadDialog';
 import DetailsTable from './DatasetDetailsTable';
 import DatasetMetadata from './DatasetMetadata';
 import Visualization from './DatasetVisualization';
