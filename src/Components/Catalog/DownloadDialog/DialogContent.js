@@ -12,7 +12,7 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { debounce } from 'throttle-debounce';
 
-import { DownloadDialogTitle } from './Header';
+import { DownloadDialogTitle } from '../../../features/datasetDownload/components/DownloadDialog/Header';
 import { DownloadIntro } from './Intro';
 import { AncillaryDataExplainer } from './AncillaryDataDownload';
 import DownloadOption from './DownloadOption';
