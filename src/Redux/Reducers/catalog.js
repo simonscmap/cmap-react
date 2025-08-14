@@ -46,7 +46,6 @@ import {
   FETCH_DATASET_NAMES_SUCCESS,
   SET_DATASET_NAMES_REQUEST_STATUS,
 } from '../actionTypes/catalog';
-import { DROPBOX_MODAL_OPEN } from '../../features/datasetDownload/state/actionTypes';
 import states from '../../enums/asyncRequestStates';
 import { sortResults } from '../../Components/Catalog/SortingControls';
 import { safePath } from '../../Utility/objectUtils';
@@ -542,15 +541,6 @@ export default function (state, action) {
       return {
         ...state,
         datasetNamesRequestStatus: action.payload,
-      };
-
-    case DROPBOX_MODAL_OPEN:
-      return {
-        ...state,
-        downloadDialog: {
-          ...state.downloadDialog,
-          open: false, // when opening or closing dbx modal, ensure download dialog is closed
-        },
       };
 
     default:

@@ -39,11 +39,7 @@ import * as visualizationActionTypes from '../actionTypes/visualization';
 // they are simply referenced in the watcher functions
 import userSaga from './userSagas';
 
-import {
-  watchFetchDatasetNames,
-  watchDownloadDialogOpen,
-  watchFetchVaultLink,
-} from './catalog';
+import { watchFetchDatasetNames, watchDownloadDialogOpen } from './catalog';
 
 import {
   watchDownloadDropboxFiles,
@@ -2019,7 +2015,6 @@ function* rootSaga() {
     watchSendNotifications(),
     watchReSendNotifications(),
     watchDownloadDialogOpen(),
-    watchFetchVaultLink(),
     watchDownloadDropboxFiles(),
     watchFolderTabChange(),
     watchCheckVizQuerySize(),
