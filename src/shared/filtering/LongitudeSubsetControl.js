@@ -1,7 +1,7 @@
 import { Grid, Slider, TextField, Typography } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import React from 'react';
-import styles from '../../styles/downloadDialogStyles';
+import styles from '../../features/datasetDownload/styles/downloadDialogStyles';
 import logInit from '../../Services/log-service';
 
 const log = logInit('LongitudeSubsetControl').addContext({

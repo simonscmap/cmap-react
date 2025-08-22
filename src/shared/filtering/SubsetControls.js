@@ -5,7 +5,7 @@ import DateSubsetControl from './DateSubsetControl';
 import LatitudeSubsetControl from './LatitudeSubsetControl';
 import LongitudeSubsetControl from './LongitudeSubsetControl';
 import DepthSubsetControl from './DepthSubsetControl';
-import DownloadOption from '../DownloadDialog/DownloadOption';
+import DownloadOption from '../../features/datasetDownload/components/DownloadDialog/DownloadOption';
 
 import logInit from '../../Services/log-service';
 const log = logInit('dialog subset controls').addContext({

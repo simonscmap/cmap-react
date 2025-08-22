@@ -20,7 +20,7 @@ import DownloadStep from './DownloadStep';
 import ValidationIndicatorBar from '../Helpers/ValidationIndicatorBar';
 import ErrorMessage from '../Helpers/ErrorMessage';
 import { validationMessages, buttonStates } from '../../utils/buttonStates';
-import SubsetControls from '../SubsetControls/SubsetControls';
+import SubsetControls from '../../../../shared/filtering/SubsetControls';
 import {
   getInitialRangeValues,
   parseDataset,
