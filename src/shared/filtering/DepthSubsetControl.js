@@ -1,7 +1,7 @@
 import React from 'react';
 import { Grid, Slider, TextField, Typography } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
-import styles from '../../styles/downloadDialogStyles';
+import styles from '../../features/datasetDownload/styles/downloadDialogStyles';
 
 const DepthSubsetControl = (props) => {
   let { classes, dataset, subsetState, setDepthStart, setDepthEnd } = props;
