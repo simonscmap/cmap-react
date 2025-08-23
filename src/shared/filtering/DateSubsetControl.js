@@ -13,7 +13,7 @@ import {
   dateToDateString,
   getIsMonthlyClimatology,
 } from '../../features/datasetDownload/utils/downloadDialogHelpers';
-import styles from '../../features/datasetDownload/styles/downloadDialogStyles';
+import styles from './styles/subsetControlStyles';
 
 // convert a date string like "2007-04-09" to "4/9"
 let shortenDate = (str) =>
