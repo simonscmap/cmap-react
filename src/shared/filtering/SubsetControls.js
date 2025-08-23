@@ -5,9 +5,9 @@ import DateSubsetControl from './DateSubsetControl';
 import LatitudeSubsetControl from './LatitudeSubsetControl';
 import LongitudeSubsetControl from './LongitudeSubsetControl';
 import DepthSubsetControl from './DepthSubsetControl';
-import DownloadOption from '../DownloadDialog/DownloadOption';
+import ToggleWithHelp from '../components/ToggleWithHelp';
 
-import logInit from '../../../../Services/log-service';
+import logInit from '../../Services/log-service';
 const log = logInit('dialog subset controls').addContext({
   src: 'features/datasetDownload/components/SubsetControls',
 });
@@ -52,7 +52,7 @@ let SubsetControls = (props) => {
 
   return (
     <React.Fragment>
-      <DownloadOption
+      <ToggleWithHelp
         downloadOption={{
           handler: handleSwitch,
           switchState: optionsState.subset,

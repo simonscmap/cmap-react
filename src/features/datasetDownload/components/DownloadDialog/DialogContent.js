@@ -15,12 +15,12 @@ import { debounce } from 'throttle-debounce';
 import { DownloadDialogTitle } from './Header';
 import { DownloadIntro } from './Intro';
 import { AncillaryDataExplainer } from './AncillaryDataDownload';
-import DownloadOption from './DownloadOption';
+import ToggleWithHelp from '../../../../shared/components/ToggleWithHelp';
 import DownloadStep from './DownloadStep';
 import ValidationIndicatorBar from '../Helpers/ValidationIndicatorBar';
 import ErrorMessage from '../Helpers/ErrorMessage';
 import { validationMessages, buttonStates } from '../../utils/buttonStates';
-import SubsetControls from '../SubsetControls/SubsetControls';
+import SubsetControls from '../../../../shared/filtering/SubsetControls';
 import {
   getInitialRangeValues,
   parseDataset,
@@ -520,7 +520,7 @@ const DownloadDialog = (props) => {
           <div className={classes.stepContent}>
             <DownloadIntro longName={dataset.Long_Name} />
 
-            <DownloadOption
+            <ToggleWithHelp
               downloadOption={{
                 handler: handleSwitch,
                 switchState: optionsState.ancillaryData,
