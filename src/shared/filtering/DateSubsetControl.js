@@ -8,11 +8,10 @@ import {
 import NotInterestedIcon from '@material-ui/icons/NotInterested';
 import React, { useState, useEffect } from 'react';
 import {
-  dateToDay,
   dayToDateString,
-  dateToDateString,
   getIsMonthlyClimatology,
 } from '../../features/datasetDownload/utils/downloadDialogHelpers';
+import { dateToDay, dateToDateString } from './dateHelpers';
 import styles from './styles/subsetControlStyles';
 
 // convert a date string like "2007-04-09" to "4/9"
