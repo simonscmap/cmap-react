@@ -21,8 +21,8 @@ import ValidationIndicatorBar from '../Helpers/ValidationIndicatorBar';
 import ErrorMessage from '../Helpers/ErrorMessage';
 import { validationMessages, buttonStates } from '../../utils/buttonStates';
 import SubsetControls from '../../../../shared/filtering/SubsetControls';
+import { useSubsetControls } from '../../../../shared/filtering';
 import {
-  getInitialRangeValues,
   parseDataset,
   makeDownloadQuery,
 } from '../../utils/downloadDialogHelpers';
@@ -117,73 +117,36 @@ const DownloadDialog = (props) => {
     'ancillary',
   );
 
-  let { maxDays, lat, lon, time, depth } = getInitialRangeValues(dataset);
-
-  // state for subset parameters
-  let [latStart, setLatStart] = useState(lat.start);
-  let [latEnd, setLatEnd] = useState(lat.end);
-
-  let [lonStart, setLonStart] = useState(lon.start);
-  let [lonEnd, setLonEnd] = useState(lon.end);
-
-  // time is represented as an integer day, 0 - 12
-  let [timeStart, setTimeStart] = useState(time.start);
-  let [timeEnd, setTimeEnd] = useState(time.end);
-
-  let [depthStart, setDepthStart] = useState(depth.start);
-  let [depthEnd, setDepthEnd] = useState(depth.end);
-
-  // subset is defined
-
-  let subsetIsDefined =
-    latStart !== lat.start ||
-    latEnd !== lat.end ||
-    lonStart !== lon.start ||
-    lonEnd !== lon.end ||
-    timeStart !== time.start ||
-    timeEnd !== time.end ||
-    depthStart !== depth.start ||
-    depthEnd !== depth.end;
-
-  let subsetParams = {
+  // Use subset controls hook for state management
+  const {
+    subsetParams,
+    subsetSetters,
     subsetIsDefined,
-    temporalResolution: dataset.Temporal_Resolution,
-    lonStart,
-    lonEnd,
+    maxDays,
+    optionsState,
+    handleSwitch,
+    setInvalidFlag: hookSetInvalidFlag,
+    setOptionsState,
+  } = useSubsetControls(dataset, {
+    includeOptionsState: true,
+    initialOptions: {
+      ancillaryData: datasetHasAncillaryData,
+      subset: false,
+      // TODO: add metadata switch (when we provide zip archive of data & metadata)
+    },
+  });
+
+  // Destructure individual values for easier access
+  const {
     latStart,
     latEnd,
+    lonStart,
+    lonEnd,
     timeStart,
-    Time_Max: dataset.Time_Max,
-    Time_Min: dataset.Time_Min,
     timeEnd,
     depthStart,
     depthEnd,
-  };
-
-  let subsetSetters = {
-    setTimeStart,
-    setTimeEnd,
-    setLatStart,
-    setLatEnd,
-    setLonStart,
-    setLonEnd,
-    setDepthStart,
-    setDepthEnd,
-  };
-
-  // Download Options (Mui Switch state)
-  const [optionsState, setDownloadOptions] = useState({
-    ancillaryData: datasetHasAncillaryData,
-    subset: false,
-    // TODO: add metadata switch (when we provide zip archive of data & metadata)
-  });
-
-  const handleSwitch = (event) => {
-    setDownloadOptions({
-      ...optionsState,
-      [event.target.name]: event.target.checked,
-    });
-  };
+  } = subsetParams;
 
   // Dropbox state - new implementation
   const availableFolders = useSelector(selectAvailableFolders);
@@ -219,6 +182,12 @@ const DownloadDialog = (props) => {
   let currentRequest = useSelector((state) => state.download.currentRequest);
 
   let [isInvalid, setInvalidFlag] = useState(false);
+
+  // Use hook's setInvalidFlag but also maintain local isInvalid state
+  const handleSetInvalidFlag = (invalid) => {
+    setInvalidFlag(invalid);
+    hookSetInvalidFlag(invalid);
+  };
 
   let [downloadButtonState, setDownloadButtonState] = useState({
     enabled: false,
@@ -284,12 +253,6 @@ const DownloadDialog = (props) => {
           lon: [lonStart, lonEnd],
           time: [timeStart, timeEnd],
           depth: [depthStart, depthEnd],
-        },
-        limits: {
-          lat: [lat.start, lat.end],
-          lon: [lon.start, lon.end],
-          time: [time.start, time.end],
-          depth: [depth.start, depth.end],
         },
       },
     });
@@ -414,7 +377,7 @@ const DownloadDialog = (props) => {
           }. Try selecting a smaller subset.`,
           buttonStates.checkSucceededAndDownloadProhibited,
         );
-        setDownloadOptions({
+        setOptionsState({
           ...optionsState,
           subset: true,
         });
@@ -538,7 +501,7 @@ const DownloadDialog = (props) => {
             <SubsetControls
               subsetParams={subsetParams}
               subsetSetters={subsetSetters}
-              setInvalidFlag={setInvalidFlag}
+              setInvalidFlag={handleSetInvalidFlag}
               dataset={dataset}
               handleSwitch={handleSwitch}
               optionsState={optionsState}
