@@ -11,16 +11,14 @@ import {
   dayToDateString,
   getIsMonthlyClimatology,
 } from '../../features/datasetDownload/utils/downloadDialogHelpers';
-import { dateToDay, dateToDateString } from './dateHelpers';
+import {
+  dateToDay,
+  dateToDateString,
+  shortenDate,
+  extractDateFromString,
+  emptyStringOrNumber,
+} from './dateHelpers';
 import styles from './styles/subsetControlStyles';
-
-// convert a date string like "2007-04-09" to "4/9"
-let shortenDate = (str) =>
-  str
-    .split('-')
-    .slice(1)
-    .map((n) => parseInt(n, 10))
-    .join('/');
 
 const WarningTheme = createTheme({
   palette: {
@@ -88,10 +86,6 @@ const MonthlyDateControl = withStyles(styles)((props) => {
     let [start, end] = value;
     setTimeStart(start);
     setTimeEnd(end);
-  };
-
-  let emptyStringOrNumber = (val) => {
-    return val === '' ? '' : Number(val);
   };
 
   let handleSetStart = (e) => {
@@ -267,12 +261,6 @@ const DailyDateControl = withStyles(styles)((props) => {
     // allowing the input to change freely, until we next decide to update it
     setTimeout(() => setUpdatedTimeMax(undefined), 5);
   }, [timeEnd]);
-
-  const extractDateFromString = (stringDate) => {
-    let [year, month, day] = stringDate.split('-');
-    const date = new Date(year, parseInt(month) - 1, day);
-    return date;
-  };
 
   // handler for the date picker
   let handleSetStartDate = (e) => {

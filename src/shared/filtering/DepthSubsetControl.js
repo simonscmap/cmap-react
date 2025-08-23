@@ -2,6 +2,7 @@ import React from 'react';
 import { Grid, Slider, TextField, Typography } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import styles from './styles/subsetControlStyles';
+import { emptyStringOrNumber } from './dateHelpers';
 
 const DepthSubsetControl = (props) => {
   let { classes, dataset, subsetState, setDepthStart, setDepthEnd } = props;
@@ -13,10 +14,6 @@ const DepthSubsetControl = (props) => {
     let [start, end] = value;
     setDepthStart(start);
     setDepthEnd(end);
-  };
-
-  let emptyStringOrNumber = (val) => {
-    return val === '' ? '' : Number(val);
   };
 
   let handleSetStart = (e) => {

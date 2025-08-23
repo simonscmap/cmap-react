@@ -3,6 +3,7 @@ import { withStyles } from '@material-ui/core/styles';
 import React from 'react';
 import styles from './styles/subsetControlStyles';
 import logInit from '../../Services/log-service';
+import { emptyStringOrNumber } from './dateHelpers';
 
 const log = logInit('LongitudeSubsetControl').addContext({
   src: 'features/datasetDownload/components/DownloadDialog',
@@ -19,10 +20,6 @@ const LongitudeControl = (props) => {
     log.debug('handleSlider', { e: e.target.value, value });
     setLonStart(start);
     setLonEnd(end);
-  };
-
-  let emptyStringOrNumber = (val) => {
-    return val === '' ? '' : Number(val);
   };
 
   let handleSetStart = (e) => {

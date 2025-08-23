@@ -2,6 +2,7 @@ import { Grid, Slider, TextField, Typography } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import React from 'react';
 import styles from './styles/subsetControlStyles';
+import { emptyStringOrNumber } from './dateHelpers';
 
 const LatStartTextInput = ({
   Lat_Min,
@@ -110,10 +111,6 @@ const LatitudeSubsetControl = (props) => {
     let [start, end] = value;
     setLatStart(start);
     setLatEnd(end);
-  };
-
-  let emptyStringOrNumber = (val) => {
-    return val === '' ? '' : Number(val);
   };
 
   let handleSetStart = (e) => {

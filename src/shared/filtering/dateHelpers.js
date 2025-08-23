@@ -19,3 +19,21 @@ export const dateToDateString = (date) => {
 
 export const dateToDay = (min, date) =>
   Math.ceil((new Date(date).getTime() - new Date(min).getTime()) / 86400000);
+
+// convert a date string like "2007-04-09" to "4/9"
+export const shortenDate = (str) =>
+  str
+    .split('-')
+    .slice(1)
+    .map((n) => parseInt(n, 10))
+    .join('/');
+
+export const extractDateFromString = (stringDate) => {
+  let [year, month, day] = stringDate.split('-');
+  const date = new Date(year, parseInt(month) - 1, day);
+  return date;
+};
+
+export const emptyStringOrNumber = (val) => {
+  return val === '' ? '' : Number(val);
+};
