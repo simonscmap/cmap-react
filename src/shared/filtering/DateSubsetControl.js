@@ -179,6 +179,8 @@ const DailyDateControl = withStyles(styles)((props) => {
   let {
     classes,
     dataset,
+    timeMin,
+    timeMax,
     subsetState,
     setTimeStart,
     setTimeEnd,
@@ -189,29 +191,24 @@ const DailyDateControl = withStyles(styles)((props) => {
     validTimeMin,
     validTimeMax,
   } = props;
-  let { Time_Min, Time_Max } = dataset; // Date Objects
 
   // timeStart & timeEnd are integers representing days (not Dates!)
   let { timeStart, timeEnd, maxDays } = subsetState;
   // use updatedTimeMin and updatedTimeMax for controlled input behavior
-  let [updatedTimeMin, setUpdatedTimeMin] = useState(
-    dateToDateString(Time_Min),
-  );
+  let [updatedTimeMin, setUpdatedTimeMin] = useState(dateToDateString(timeMin));
   useEffect(() => {
-    const newMin = dayToDateString(Time_Min, timeStart);
+    const newMin = dayToDateString(timeMin, timeStart);
     setUpdatedTimeMin(newMin);
     // reset to undefined to allow free input
     setTimeout(() => setUpdatedTimeMin(undefined), 5);
-  }, [timeStart, Time_Min]);
+  }, [timeStart, timeMin]);
 
-  let [updatedTimeMax, setUpdatedTimeMax] = useState(
-    dateToDateString(Time_Max),
-  );
+  let [updatedTimeMax, setUpdatedTimeMax] = useState(dateToDateString(timeMax));
   useEffect(() => {
-    setUpdatedTimeMax(dayToDateString(Time_Min, timeEnd));
+    setUpdatedTimeMax(dayToDateString(timeMin, timeEnd));
     // reset to undefined to allow free input
     setTimeout(() => setUpdatedTimeMax(undefined), 5);
-  }, [timeEnd, Time_Min]);
+  }, [timeEnd, timeMin]);
 
   // Wrapper handlers for the date inputs
   const handleStartDateChange = (e) => {
@@ -232,19 +229,19 @@ const DailyDateControl = withStyles(styles)((props) => {
   // and, length allowing, to the midpoint, and quarter values
   let markLabel = (i, length) => {
     if (i === 0) {
-      return dayToDateString(Time_Min, i);
+      return dayToDateString(timeMin, i);
     }
     if (i === length - 1) {
-      return dayToDateString(Time_Min, i);
+      return dayToDateString(timeMin, i);
     }
     if (length >= 3 && i === Math.floor(length / 2)) {
-      return shortenDate(dayToDateString(Time_Min, i));
+      return shortenDate(dayToDateString(timeMin, i));
     }
     if (length >= 5 && i === Math.floor(length / 4)) {
-      return shortenDate(dayToDateString(Time_Min, i));
+      return shortenDate(dayToDateString(timeMin, i));
     }
     if (length >= 5 && i === Math.floor(length * 0.75)) {
-      return shortenDate(dayToDateString(Time_Min, i));
+      return shortenDate(dayToDateString(timeMin, i));
     }
     return undefined;
   };
@@ -253,8 +250,8 @@ const DailyDateControl = withStyles(styles)((props) => {
     // prevent large datasets from exploding the time slider
     if (maxDays > 365) {
       return [
-        { value: 0, label: dayToDateString(Time_Min, 0) },
-        { value: maxDays, label: dayToDateString(Time_Min, maxDays) },
+        { value: 0, label: dayToDateString(timeMin, 0) },
+        { value: maxDays, label: dayToDateString(timeMin, maxDays) },
       ];
     }
     return new Array(maxDays + 1).fill(0).map((_, i, arr) => ({

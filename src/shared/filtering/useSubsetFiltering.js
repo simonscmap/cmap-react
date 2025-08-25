@@ -211,6 +211,8 @@ const useSubsetFiltering = (dataset) => {
     lonMax: dataset?.Lon_Max,
     depthMin: dataset?.Depth_Min,
     depthMax: dataset?.Depth_Max,
+    timeMin: dataset?.Time_Min,
+    timeMax: dataset?.Time_Max,
 
     // Utility functions
     setInvalidFlag,

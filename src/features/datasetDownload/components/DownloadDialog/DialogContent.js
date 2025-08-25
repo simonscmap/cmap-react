@@ -131,6 +131,8 @@ const DownloadDialog = (props) => {
     lonMax,
     depthMin,
     depthMax,
+    timeMin,
+    timeMax,
     // Date-specific functionality
     handleSetStartDate,
     handleSetEndDate,
@@ -527,6 +529,8 @@ const DownloadDialog = (props) => {
               lonMax={lonMax}
               depthMin={depthMin}
               depthMax={depthMax}
+              timeMin={timeMin}
+              timeMax={timeMax}
               handleSwitch={handleSwitch}
               optionsState={optionsState}
               maxDays={maxDays}

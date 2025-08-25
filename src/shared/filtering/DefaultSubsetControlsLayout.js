@@ -19,6 +19,8 @@ const DefaultSubsetControlsLayout = (props) => {
     lonMax,
     depthMin,
     depthMax,
+    timeMin,
+    timeMax,
     handleSwitch,
     optionsState,
     maxDays,
@@ -70,6 +72,8 @@ const DefaultSubsetControlsLayout = (props) => {
         <div className={classes.subsetStep}>
           <DateSubsetControl
             dataset={dataset}
+            timeMin={timeMin}
+            timeMax={timeMax}
             setTimeStart={setTimeStart}
             setTimeEnd={setTimeEnd}
             subsetState={{ timeStart, timeEnd, maxDays }}
