@@ -26,6 +26,12 @@ let SubsetControls = (props) => {
     optionsState,
     maxDays,
     classes,
+    // Date-specific props from the hook
+    handleSetStartDate,
+    handleSetEndDate,
+    validTimeMin,
+    validTimeMax,
+    isMonthlyClimatology,
   } = props;
 
   let {
@@ -72,6 +78,11 @@ let SubsetControls = (props) => {
             setTimeEnd={setTimeEnd}
             subsetState={{ timeStart, timeEnd, maxDays }}
             setInvalidFlag={setInvalidFlag}
+            handleSetStartDate={handleSetStartDate}
+            handleSetEndDate={handleSetEndDate}
+            validTimeMin={validTimeMin}
+            validTimeMax={validTimeMax}
+            isMonthlyClimatology={isMonthlyClimatology}
           />
 
           <LatitudeSubsetControl

@@ -127,6 +127,12 @@ const DownloadDialog = (props) => {
     handleSwitch,
     setInvalidFlag: hookSetInvalidFlag,
     setOptionsState,
+    // Date-specific functionality
+    handleSetStartDate,
+    handleSetEndDate,
+    validTimeMin,
+    validTimeMax,
+    isMonthlyClimatology,
   } = useSubsetControls(dataset, {
     includeOptionsState: true,
     initialOptions: {
@@ -507,6 +513,11 @@ const DownloadDialog = (props) => {
               optionsState={optionsState}
               maxDays={maxDays}
               classes={classes}
+              handleSetStartDate={handleSetStartDate}
+              handleSetEndDate={handleSetEndDate}
+              validTimeMin={validTimeMin}
+              validTimeMax={validTimeMax}
+              isMonthlyClimatology={isMonthlyClimatology}
             />
           </div>
         </DialogContent>

@@ -1,5 +1,13 @@
 import { useState, useMemo } from 'react';
-import { getInitialRangeValues } from '../../features/datasetDownload/utils/downloadDialogHelpers';
+import {
+  getInitialRangeValues,
+  getIsMonthlyClimatology,
+} from '../../features/datasetDownload/utils/downloadDialogHelpers';
+import {
+  dateToDateString,
+  dateToDay,
+  extractDateFromString,
+} from './dateHelpers';
 
 /**
  * Custom hook for managing subset control state and logic
@@ -40,6 +48,80 @@ const useSubsetControls = (dataset, options = {}) => {
   // Options state (optional)
   const [optionsState, setOptionsState] = useState(initialOptions);
   const [isInvalid, setInvalidFlag] = useState(false);
+
+  // Date validation state
+  const [validTimeMin, setValidTimeMin] = useState(true);
+  const [validTimeMax, setValidTimeMax] = useState(true);
+
+  // Date validation functions
+  const dateIsWithinBounds = useMemo(() => {
+    if (!dataset?.Time_Min || !dataset?.Time_Max) return () => true;
+
+    return (date) => {
+      const tmin = dateToDateString(dataset.Time_Min);
+      const tmax = dateToDateString(dataset.Time_Max);
+      const d = dateToDateString(date);
+      return d >= tmin && d <= tmax;
+    };
+  }, [dataset?.Time_Min, dataset?.Time_Max]);
+
+  const setTimeMinValidity = (isValid) => {
+    setValidTimeMin(isValid);
+    if (validTimeMax) {
+      setInvalidFlag(!isValid);
+    }
+  };
+
+  const setTimeMaxValidity = (isValid) => {
+    setValidTimeMax(isValid);
+    if (validTimeMin) {
+      setInvalidFlag(!isValid);
+    }
+  };
+
+  // Date handlers for text inputs
+  const handleSetStartDate = (value) => {
+    if (!value) {
+      setTimeMinValidity(false);
+      return;
+    }
+
+    const date = extractDateFromString(value);
+    const shouldUpdate = dateIsWithinBounds(date);
+
+    if (shouldUpdate && dataset?.Time_Min) {
+      const newStartDay = dateToDay(dataset.Time_Min, date);
+      setTimeStart(newStartDay);
+      setTimeMinValidity(true);
+    } else {
+      setTimeMinValidity(false);
+    }
+  };
+
+  const handleSetEndDate = (value) => {
+    if (!value) {
+      setTimeMaxValidity(false);
+      return;
+    }
+
+    const date = extractDateFromString(value);
+    const shouldUpdate = dateIsWithinBounds(date);
+
+    if (shouldUpdate && dataset?.Time_Min) {
+      const newEndDay = dateToDay(dataset.Time_Min, date);
+      setTimeEnd(newEndDay);
+      setTimeMaxValidity(true);
+    } else {
+      setTimeMaxValidity(false);
+    }
+  };
+
+  // Check if dataset is monthly climatology
+  const isMonthlyClimatology = useMemo(() => {
+    return dataset?.Temporal_Resolution
+      ? getIsMonthlyClimatology(dataset.Temporal_Resolution)
+      : false;
+  }, [dataset?.Temporal_Resolution]);
 
   // Determine if subset is defined (different from defaults)
   const subsetIsDefined = useMemo(() => {
@@ -138,6 +220,8 @@ const useSubsetControls = (dataset, options = {}) => {
     setDepthStart(depth.start);
     setDepthEnd(depth.end);
     setInvalidFlag(false);
+    setValidTimeMin(true);
+    setValidTimeMax(true);
   };
 
   // Set specific subset values
@@ -171,6 +255,16 @@ const useSubsetControls = (dataset, options = {}) => {
     setInvalidFlag,
     resetToDefaults,
     setSubsetValues,
+
+    // Date-specific functionality
+    dateIsWithinBounds,
+    handleSetStartDate,
+    handleSetEndDate,
+    validTimeMin,
+    validTimeMax,
+    setTimeMinValidity,
+    setTimeMaxValidity,
+    isMonthlyClimatology,
 
     // Individual state values (for direct access if needed)
     values: {
