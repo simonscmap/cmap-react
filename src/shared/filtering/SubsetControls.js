@@ -1,6 +1,5 @@
 import React from 'react';
 import DefaultSubsetControlsLayout from './DefaultSubsetControlsLayout';
-import useSubsetFiltering from './useSubsetFiltering';
 
 import logInit from '../../Services/log-service';
 const log = logInit('dialog subset controls').addContext({
@@ -8,10 +7,9 @@ const log = logInit('dialog subset controls').addContext({
 });
 
 // This component serves as a coordinating container that:
-// 1. Manages subset filtering logic via useSubsetFiltering hook
-// 2. Transforms raw hook data into organized, clean props for layouts
-// 3. Simplifies consumer usage by requiring only essential props
-// 4. Maintains clean separation between data management and presentation
+// 1. Transforms raw hook data into organized, clean props for layouts
+// 2. Simplifies consumer usage by requiring only essential props
+// 3. Maintains clean separation between data management and presentation
 
 const SubsetControls = ({
   dataset,
@@ -20,12 +18,10 @@ const SubsetControls = ({
   setInvalidFlag,
   classes,
   children,
+  subsetFiltering,
   // Legacy props for backward compatibility during transition
   ...legacyProps
 }) => {
-  // Get all raw hook data (must be called unconditionally)
-  const hookData = useSubsetFiltering(dataset);
-
   // If legacy props are provided, use the old behavior temporarily
   if (Object.keys(legacyProps).length > 0) {
     log.warn(
@@ -44,60 +40,60 @@ const SubsetControls = ({
     controls: {
       date: {
         data: {
-          timeStart: hookData.subsetParams.timeStart,
-          timeEnd: hookData.subsetParams.timeEnd,
-          maxDays: hookData.maxDays,
-          isMonthlyClimatology: hookData.isMonthlyClimatology,
+          timeStart: subsetFiltering.subsetParams.timeStart,
+          timeEnd: subsetFiltering.subsetParams.timeEnd,
+          maxDays: subsetFiltering.maxDays,
+          isMonthlyClimatology: subsetFiltering.isMonthlyClimatology,
         },
         handlers: {
-          setTimeStart: hookData.subsetSetters.setTimeStart,
-          setTimeEnd: hookData.subsetSetters.setTimeEnd,
-          handleSetStartDate: hookData.handleSetStartDate,
-          handleSetEndDate: hookData.handleSetEndDate,
+          setTimeStart: subsetFiltering.subsetSetters.setTimeStart,
+          setTimeEnd: subsetFiltering.subsetSetters.setTimeEnd,
+          handleSetStartDate: subsetFiltering.handleSetStartDate,
+          handleSetEndDate: subsetFiltering.handleSetEndDate,
         },
         validation: {
-          validTimeMin: hookData.validTimeMin,
-          validTimeMax: hookData.validTimeMax,
+          validTimeMin: subsetFiltering.validTimeMin,
+          validTimeMax: subsetFiltering.validTimeMax,
         },
         setInvalidFlag,
         dataset,
       },
       latitude: {
         data: {
-          latStart: hookData.subsetParams.latStart,
-          latEnd: hookData.subsetParams.latEnd,
-          latMin: hookData.latMin,
-          latMax: hookData.latMax,
+          latStart: subsetFiltering.subsetParams.latStart,
+          latEnd: subsetFiltering.subsetParams.latEnd,
+          latMin: subsetFiltering.latMin,
+          latMax: subsetFiltering.latMax,
         },
         handlers: {
-          setLatStart: hookData.subsetSetters.setLatStart,
-          setLatEnd: hookData.subsetSetters.setLatEnd,
+          setLatStart: subsetFiltering.subsetSetters.setLatStart,
+          setLatEnd: subsetFiltering.subsetSetters.setLatEnd,
         },
         dataset,
       },
       longitude: {
         data: {
-          lonStart: hookData.subsetParams.lonStart,
-          lonEnd: hookData.subsetParams.lonEnd,
-          lonMin: hookData.lonMin,
-          lonMax: hookData.lonMax,
+          lonStart: subsetFiltering.subsetParams.lonStart,
+          lonEnd: subsetFiltering.subsetParams.lonEnd,
+          lonMin: subsetFiltering.lonMin,
+          lonMax: subsetFiltering.lonMax,
         },
         handlers: {
-          setLonStart: hookData.subsetSetters.setLonStart,
-          setLonEnd: hookData.subsetSetters.setLonEnd,
+          setLonStart: subsetFiltering.subsetSetters.setLonStart,
+          setLonEnd: subsetFiltering.subsetSetters.setLonEnd,
         },
         dataset,
       },
       depth: {
         data: {
-          depthStart: hookData.subsetParams.depthStart,
-          depthEnd: hookData.subsetParams.depthEnd,
-          depthMin: hookData.depthMin,
-          depthMax: hookData.depthMax,
+          depthStart: subsetFiltering.subsetParams.depthStart,
+          depthEnd: subsetFiltering.subsetParams.depthEnd,
+          depthMin: subsetFiltering.depthMin,
+          depthMax: subsetFiltering.depthMax,
         },
         handlers: {
-          setDepthStart: hookData.subsetSetters.setDepthStart,
-          setDepthEnd: hookData.subsetSetters.setDepthEnd,
+          setDepthStart: subsetFiltering.subsetSetters.setDepthStart,
+          setDepthEnd: subsetFiltering.subsetSetters.setDepthEnd,
         },
         dataset,
       },

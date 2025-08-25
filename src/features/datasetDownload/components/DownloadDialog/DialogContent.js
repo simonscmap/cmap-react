@@ -118,11 +118,12 @@ const DownloadDialog = (props) => {
   );
 
   // Use subset filtering hook for filtering logic - now only need subsetParams and subsetIsDefined
+  const subsetFiltering = useSubsetFiltering(dataset);
   const {
     subsetParams,
     subsetIsDefined,
     setInvalidFlag: hookSetInvalidFlag,
-  } = useSubsetFiltering(dataset);
+  } = subsetFiltering;
 
   // UI-specific state (moved from useSubsetControls)
   const [optionsState, setOptionsState] = useState({
@@ -507,6 +508,7 @@ const DownloadDialog = (props) => {
               handleSwitch={handleSwitch}
               setInvalidFlag={handleSetInvalidFlag}
               classes={classes}
+              subsetFiltering={subsetFiltering}
             />
           </div>
         </DialogContent>
