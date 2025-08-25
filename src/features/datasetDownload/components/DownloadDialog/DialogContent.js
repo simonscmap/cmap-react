@@ -21,7 +21,7 @@ import ValidationIndicatorBar from '../Helpers/ValidationIndicatorBar';
 import ErrorMessage from '../Helpers/ErrorMessage';
 import { validationMessages, buttonStates } from '../../utils/buttonStates';
 import SubsetControls from '../../../../shared/filtering/SubsetControls';
-import { useSubsetControls } from '../../../../shared/filtering';
+import useSubsetFiltering from '../../../../shared/filtering/useSubsetFiltering';
 import {
   parseDataset,
   makeDownloadQuery,
@@ -117,30 +117,35 @@ const DownloadDialog = (props) => {
     'ancillary',
   );
 
-  // Use subset controls hook for state management
+  // Use subset filtering hook for filtering logic
   const {
     subsetParams,
     subsetSetters,
     subsetIsDefined,
     maxDays,
-    optionsState,
-    handleSwitch,
     setInvalidFlag: hookSetInvalidFlag,
-    setOptionsState,
     // Date-specific functionality
     handleSetStartDate,
     handleSetEndDate,
     validTimeMin,
     validTimeMax,
     isMonthlyClimatology,
-  } = useSubsetControls(dataset, {
-    includeOptionsState: true,
-    initialOptions: {
-      ancillaryData: datasetHasAncillaryData,
-      subset: false,
-      // TODO: add metadata switch (when we provide zip archive of data & metadata)
-    },
+  } = useSubsetFiltering(dataset);
+
+  // UI-specific state (moved from useSubsetControls)
+  const [optionsState, setOptionsState] = useState({
+    ancillaryData: datasetHasAncillaryData,
+    subset: false,
+    // TODO: add metadata switch (when we provide zip archive of data & metadata)
   });
+
+  // Options switch handler (UI-specific logic)
+  const handleSwitch = (event) => {
+    setOptionsState((prev) => ({
+      ...prev,
+      [event.target.name]: event.target.checked,
+    }));
+  };
 
   // Destructure individual values for easier access
   const {
