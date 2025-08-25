@@ -9,7 +9,7 @@ import ToggleWithHelp from '../components/ToggleWithHelp';
 
 import logInit from '../../Services/log-service';
 const log = logInit('dialog subset controls').addContext({
-  src: 'features/datasetDownload/components/SubsetControls',
+  src: 'shared/filtering/SubsetControls',
 });
 
 // This component gathers the four sets of control fields and passes

@@ -6,7 +6,7 @@ import logInit from '../../Services/log-service';
 import { emptyStringOrNumber } from './dateHelpers';
 
 const log = logInit('LongitudeSubsetControl').addContext({
-  src: 'features/datasetDownload/components/DownloadDialog',
+  src: 'shared/filtering/LongitudeSubsetControl',
 });
 
 const LongitudeControl = (props) => {
