@@ -4,8 +4,6 @@ import logInit from '../../../Services/log-service';
 import { getIsMonthlyClimatology } from '../../../shared/filtering/dateHelpers';
 const log = logInit('dowloadDialogHelpers');
 
-const MILLISECONDS_PER_DAY = 86400000;
-
 // Queries
 
 export const makeSubsetQuery = (tableName, selection) => {
@@ -143,59 +141,6 @@ export const makeDownloadQuery = ({
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-// with the begin and end dates of a dataset,
-// calculate the span of days
-export const getMaxDays = (dataset) => {
-  let endTime = new Date(dataset.Time_Max).getTime();
-  let startTime = new Date(dataset.Time_Min).getTime();
-  let differenceInMilliseconds = endTime - startTime;
-  let intervalInDays = Math.floor(
-    differenceInMilliseconds / MILLISECONDS_PER_DAY,
-  );
-
-  /*
-log.debug('get max days', {
-    startTime: new Date(startTime),
-    endTime: new Date(endTime),
-    intervalInDays,
-    interval: differenceInMilliseconds / MILLISECONDS_PER_DAY,
-    dataset,
-  });
-
-   */
-
-  return intervalInDays;
-};
-
-export const getInitialRangeValues = (dataset) => {
-  let { Lat_Max, Lat_Min, Lon_Max, Lon_Min, Time_Min, Depth_Max, Depth_Min } =
-    dataset;
-
-  let maxDays = getMaxDays(dataset);
-
-  let initialValues = {
-    lat: {
-      start: Math.floor(Lat_Min * 10) / 10,
-      end: Math.ceil(Lat_Max * 10) / 10,
-    },
-    lon: {
-      start: Math.floor(Lon_Min * 10) / 10,
-      end: Math.ceil(Lon_Max * 10) / 10,
-    },
-    time: {
-      start: Time_Min ? 0 : 1,
-      end: Time_Min ? maxDays : 12,
-    },
-    depth: {
-      start: Math.floor(Depth_Min),
-      end: Math.ceil(Depth_Max),
-    },
-    maxDays,
-  };
-
-  return initialValues;
-};
 
 export const formatDateString = (year, month, day) => {
   return `${year}-${month}-${day}`;
