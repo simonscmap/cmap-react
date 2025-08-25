@@ -56,24 +56,13 @@ const useSubsetFiltering = (dataset) => {
     };
   }, [dataset?.Time_Min, dataset?.Time_Max]);
 
-  const setTimeMinValidity = (isValid) => {
-    setValidTimeMin(isValid);
-    if (validTimeMax) {
-      setInvalidFlag(!isValid);
-    }
-  };
-
-  const setTimeMaxValidity = (isValid) => {
-    setValidTimeMax(isValid);
-    if (validTimeMin) {
-      setInvalidFlag(!isValid);
-    }
-  };
-
   // Date handlers for text inputs
   const handleSetStartDate = (value) => {
     if (!value) {
-      setTimeMinValidity(false);
+      setValidTimeMin(false);
+      if (validTimeMax) {
+        setInvalidFlag(true);
+      }
       return;
     }
 
@@ -83,15 +72,24 @@ const useSubsetFiltering = (dataset) => {
     if (shouldUpdate && dataset?.Time_Min) {
       const newStartDay = dateToDay(dataset.Time_Min, date);
       setTimeStart(newStartDay);
-      setTimeMinValidity(true);
+      setValidTimeMin(true);
+      if (validTimeMax) {
+        setInvalidFlag(false);
+      }
     } else {
-      setTimeMinValidity(false);
+      setValidTimeMin(false);
+      if (validTimeMax) {
+        setInvalidFlag(true);
+      }
     }
   };
 
   const handleSetEndDate = (value) => {
     if (!value) {
-      setTimeMaxValidity(false);
+      setValidTimeMax(false);
+      if (validTimeMin) {
+        setInvalidFlag(true);
+      }
       return;
     }
 
@@ -101,9 +99,15 @@ const useSubsetFiltering = (dataset) => {
     if (shouldUpdate && dataset?.Time_Min) {
       const newEndDay = dateToDay(dataset.Time_Min, date);
       setTimeEnd(newEndDay);
-      setTimeMaxValidity(true);
+      setValidTimeMax(true);
+      if (validTimeMin) {
+        setInvalidFlag(false);
+      }
     } else {
-      setTimeMaxValidity(false);
+      setValidTimeMax(false);
+      if (validTimeMin) {
+        setInvalidFlag(true);
+      }
     }
   };
 
@@ -192,33 +196,6 @@ const useSubsetFiltering = (dataset) => {
     [],
   );
 
-  // Reset to defaults
-  const resetToDefaults = () => {
-    setLatStart(lat.start);
-    setLatEnd(lat.end);
-    setLonStart(lon.start);
-    setLonEnd(lon.end);
-    setTimeStart(time.start);
-    setTimeEnd(time.end);
-    setDepthStart(depth.start);
-    setDepthEnd(depth.end);
-    setInvalidFlag(false);
-    setValidTimeMin(true);
-    setValidTimeMax(true);
-  };
-
-  // Set specific subset values
-  const setSubsetValues = (values) => {
-    if (values.latStart !== undefined) setLatStart(values.latStart);
-    if (values.latEnd !== undefined) setLatEnd(values.latEnd);
-    if (values.lonStart !== undefined) setLonStart(values.lonStart);
-    if (values.lonEnd !== undefined) setLonEnd(values.lonEnd);
-    if (values.timeStart !== undefined) setTimeStart(values.timeStart);
-    if (values.timeEnd !== undefined) setTimeEnd(values.timeEnd);
-    if (values.depthStart !== undefined) setDepthStart(values.depthStart);
-    if (values.depthEnd !== undefined) setDepthEnd(values.depthEnd);
-  };
-
   return {
     // State values
     subsetParams,
@@ -229,39 +206,13 @@ const useSubsetFiltering = (dataset) => {
 
     // Utility functions
     setInvalidFlag,
-    resetToDefaults,
-    setSubsetValues,
 
     // Date-specific functionality
-    dateIsWithinBounds,
     handleSetStartDate,
     handleSetEndDate,
     validTimeMin,
     validTimeMax,
-    setTimeMinValidity,
-    setTimeMaxValidity,
     isMonthlyClimatology,
-
-    // Individual state values (for direct access if needed)
-    values: {
-      latStart,
-      latEnd,
-      lonStart,
-      lonEnd,
-      timeStart,
-      timeEnd,
-      depthStart,
-      depthEnd,
-    },
-
-    // Default ranges
-    defaults: {
-      lat,
-      lon,
-      time,
-      depth,
-      maxDays,
-    },
   };
 };
 
