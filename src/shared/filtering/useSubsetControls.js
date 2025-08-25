@@ -1,12 +1,10 @@
 import { useState, useMemo } from 'react';
-import {
-  getInitialRangeValues,
-  getIsMonthlyClimatology,
-} from '../../features/datasetDownload/utils/downloadDialogHelpers';
+import { getInitialRangeValues } from '../../features/datasetDownload/utils/downloadDialogHelpers';
 import {
   dateToDateString,
   dateToDay,
   extractDateFromString,
+  getIsMonthlyClimatology,
 } from './dateHelpers';
 
 /**

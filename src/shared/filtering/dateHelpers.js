@@ -1,3 +1,5 @@
+import temporalResolutions from '../../enums/temporalResolutions';
+
 const formatDateString = (year, month, day) => {
   return `${year}-${month}-${day}`;
 };
@@ -36,4 +38,8 @@ export const extractDateFromString = (stringDate) => {
 
 export const emptyStringOrNumber = (val) => {
   return val === '' ? '' : Number(val);
+};
+
+export const getIsMonthlyClimatology = (temporalResolution) => {
+  return Boolean(temporalResolution === temporalResolutions.monthlyClimatology);
 };

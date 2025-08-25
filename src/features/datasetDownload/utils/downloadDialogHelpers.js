@@ -1,14 +1,10 @@
 import temporalResolutions from '../../../enums/temporalResolutions';
 import depthUtils from '../../../Utility/depthCounter';
 import logInit from '../../../Services/log-service';
-
+import { getIsMonthlyClimatology } from '../../../shared/filtering/dateHelpers';
 const log = logInit('dowloadDialogHelpers');
 
 const MILLISECONDS_PER_DAY = 86400000;
-
-export const getIsMonthlyClimatology = (temporalResolution) => {
-  return Boolean(temporalResolution === temporalResolutions.monthlyClimatology);
-};
 
 // Queries
 
