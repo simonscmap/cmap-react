@@ -69,6 +69,29 @@ log.debug('get max days', {
   return intervalInDays;
 };
 
+// starting with a min date, return a string representation
+// of the date N days later
+// :: Date -> Days Int -> Date String
+// Note: a Date String is in the format "yyyy-mm-dd"
+export const dayToDateString = (min, days) => {
+  if (!min) {
+    console.error('dayToDateString received no value for min');
+  }
+  let value = new Date(min);
+
+  value.setDate(value.getDate() + days);
+
+  let month = value.getMonth() + 1;
+  month = month > 9 ? month : '0' + month;
+
+  let day = value.getDate();
+  day = day > 9 ? day : '0' + day;
+
+  let fullYear = value.getFullYear();
+
+  return formatDateString(fullYear, month, day);
+};
+
 export const getInitialRangeValues = (dataset) => {
   let { Lat_Max, Lat_Min, Lon_Max, Lon_Min, Time_Min, Depth_Max, Depth_Min } =
     dataset;

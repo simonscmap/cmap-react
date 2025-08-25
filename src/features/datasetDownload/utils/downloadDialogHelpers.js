@@ -1,7 +1,10 @@
 import temporalResolutions from '../../../enums/temporalResolutions';
 import depthUtils from '../../../Utility/depthCounter';
 import logInit from '../../../Services/log-service';
-import { getIsMonthlyClimatology } from '../../../shared/filtering/dateHelpers';
+import {
+  getIsMonthlyClimatology,
+  dayToDateString,
+} from '../../../shared/filtering/dateHelpers';
 const log = logInit('dowloadDialogHelpers');
 
 // Queries
@@ -184,31 +187,6 @@ export const getBoundedDateValueFromClickEvent = (
   );
 
   return target;
-};
-
-// starting with a min date, return a string representation
-// of the date N days later
-// :: Date -> Days Int -> Date String
-// Note: a Date String is in the format "yyyy-mm-dd"
-export const dayToDateString = (min, days) => {
-  if (!min) {
-    console.error('dayToDateString received no value for min');
-  }
-  let value = new Date(min);
-
-  value.setDate(value.getDate() + days);
-
-  let month = value.getMonth() + 1;
-  month = month > 9 ? month : '0' + month;
-
-  let day = value.getDate();
-  day = day > 9 ? day : '0' + day;
-
-  let fullYear = value.getFullYear();
-
-  let result = formatDateString(fullYear, month, day);
-
-  return result;
 };
 
 export const dateStringToISO = (dateString) => {

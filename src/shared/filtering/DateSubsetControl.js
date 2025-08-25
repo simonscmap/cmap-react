@@ -7,9 +7,9 @@ import {
 } from '@material-ui/core/styles';
 import NotInterestedIcon from '@material-ui/icons/NotInterested';
 import React, { useState, useEffect } from 'react';
-import { dayToDateString } from '../../features/datasetDownload/utils/downloadDialogHelpers';
 import {
   dateToDateString,
+  dayToDateString,
   emptyStringOrNumber,
   shortenDate,
 } from './dateHelpers';
