@@ -204,6 +204,14 @@ const useSubsetFiltering = (dataset) => {
     maxDays,
     isInvalid,
 
+    // Explicit dataset props for components
+    latMin: dataset?.Lat_Min,
+    latMax: dataset?.Lat_Max,
+    lonMin: dataset?.Lon_Min,
+    lonMax: dataset?.Lon_Max,
+    depthMin: dataset?.Depth_Min,
+    depthMax: dataset?.Depth_Max,
+
     // Utility functions
     setInvalidFlag,
 

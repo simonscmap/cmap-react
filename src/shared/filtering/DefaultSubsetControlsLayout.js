@@ -13,6 +13,12 @@ const DefaultSubsetControlsLayout = (props) => {
     subsetSetters,
     setInvalidFlag,
     dataset,
+    latMin,
+    latMax,
+    lonMin,
+    lonMax,
+    depthMin,
+    depthMax,
     handleSwitch,
     optionsState,
     maxDays,
@@ -76,24 +82,24 @@ const DefaultSubsetControlsLayout = (props) => {
           />
 
           <LatitudeSubsetControl
-            latMin={dataset.Lat_Min}
-            latMax={dataset.Lat_Max}
+            latMin={latMin}
+            latMax={latMax}
             setLatStart={setLatStart}
             setLatEnd={setLatEnd}
             subsetState={{ latStart, latEnd }}
           />
 
           <LongitudeSubsetControl
-            lonMin={dataset.Lon_Min}
-            lonMax={dataset.Lon_Max}
+            lonMin={lonMin}
+            lonMax={lonMax}
             setLonStart={setLonStart}
             setLonEnd={setLonEnd}
             subsetState={{ lonStart, lonEnd }}
           />
 
           <DepthSubsetControl
-            depthMin={dataset.Depth_Min}
-            depthMax={dataset.Depth_Max}
+            depthMin={depthMin}
+            depthMax={depthMax}
             setDepthStart={setDepthStart}
             setDepthEnd={setDepthEnd}
             subsetState={{ depthStart, depthEnd }}

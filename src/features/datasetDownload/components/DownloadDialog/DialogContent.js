@@ -124,6 +124,13 @@ const DownloadDialog = (props) => {
     subsetIsDefined,
     maxDays,
     setInvalidFlag: hookSetInvalidFlag,
+    // Explicit dataset props for components
+    latMin,
+    latMax,
+    lonMin,
+    lonMax,
+    depthMin,
+    depthMax,
     // Date-specific functionality
     handleSetStartDate,
     handleSetEndDate,
@@ -514,6 +521,12 @@ const DownloadDialog = (props) => {
               subsetSetters={subsetSetters}
               setInvalidFlag={handleSetInvalidFlag}
               dataset={dataset}
+              latMin={latMin}
+              latMax={latMax}
+              lonMin={lonMin}
+              lonMax={lonMax}
+              depthMin={depthMin}
+              depthMax={depthMax}
               handleSwitch={handleSwitch}
               optionsState={optionsState}
               maxDays={maxDays}
