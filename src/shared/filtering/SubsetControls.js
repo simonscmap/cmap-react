@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React from 'react';
 import { Collapse } from '@material-ui/core';
 
 import DateSubsetControl from './DateSubsetControl';
