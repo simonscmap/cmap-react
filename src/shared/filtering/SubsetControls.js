@@ -1,114 +1,23 @@
 import React from 'react';
-import { Collapse } from '@material-ui/core';
-
-import DateSubsetControl from './DateSubsetControl';
-import LatitudeSubsetControl from './LatitudeSubsetControl';
-import LongitudeSubsetControl from './LongitudeSubsetControl';
-import DepthSubsetControl from './DepthSubsetControl';
-import ToggleWithHelp from '../components/ToggleWithHelp';
+import DefaultSubsetControlsLayout from './DefaultSubsetControlsLayout';
 
 import logInit from '../../Services/log-service';
 const log = logInit('dialog subset controls').addContext({
   src: 'shared/filtering/SubsetControls',
 });
 
-// This component gathers the four sets of control fields and passes
-// state and setters down into those control components;
-// There is no local state
+// This component provides filtering state to either:
+// 1. Default layout (backward compatible)
+// 2. Custom layout passed as children (composition pattern)
 
-let SubsetControls = (props) => {
-  let {
-    subsetParams,
-    subsetSetters,
-    setInvalidFlag,
-    dataset,
-    handleSwitch,
-    optionsState,
-    maxDays,
-    classes,
-    // Date-specific props from the hook
-    handleSetStartDate,
-    handleSetEndDate,
-    validTimeMin,
-    validTimeMax,
-    isMonthlyClimatology,
-  } = props;
+let SubsetControls = ({ children, ...filteringProps }) => {
+  // If children provided, use composition pattern
+  if (children) {
+    return React.cloneElement(children, filteringProps);
+  }
 
-  let {
-    timeStart,
-    timeEnd,
-    latStart,
-    latEnd,
-    lonStart,
-    lonEnd,
-    depthStart,
-    depthEnd,
-  } = subsetParams;
-
-  let {
-    setTimeStart,
-    setTimeEnd,
-    setLatStart,
-    setLatEnd,
-    setLonStart,
-    setLonEnd,
-    setDepthStart,
-    setDepthEnd,
-  } = subsetSetters;
-
-  return (
-    <React.Fragment>
-      <ToggleWithHelp
-        downloadOption={{
-          handler: handleSwitch,
-          switchState: optionsState.subset,
-          name: 'subset',
-          label: 'Define Subset',
-        }}
-        description={
-          'Define a subset of the data for download by specifying time, lat, lon, and depth parameters.'
-        }
-      />
-
-      <Collapse in={optionsState.subset}>
-        <div className={classes.subsetStep}>
-          <DateSubsetControl
-            dataset={dataset}
-            setTimeStart={setTimeStart}
-            setTimeEnd={setTimeEnd}
-            subsetState={{ timeStart, timeEnd, maxDays }}
-            setInvalidFlag={setInvalidFlag}
-            handleSetStartDate={handleSetStartDate}
-            handleSetEndDate={handleSetEndDate}
-            validTimeMin={validTimeMin}
-            validTimeMax={validTimeMax}
-            isMonthlyClimatology={isMonthlyClimatology}
-          />
-
-          <LatitudeSubsetControl
-            dataset={dataset}
-            setLatStart={setLatStart}
-            setLatEnd={setLatEnd}
-            subsetState={{ latStart, latEnd }}
-          />
-
-          <LongitudeSubsetControl
-            dataset={dataset}
-            setLonStart={setLonStart}
-            setLonEnd={setLonEnd}
-            subsetState={{ lonStart, lonEnd }}
-          />
-
-          <DepthSubsetControl
-            dataset={dataset}
-            setDepthStart={setDepthStart}
-            setDepthEnd={setDepthEnd}
-            subsetState={{ depthStart, depthEnd }}
-          />
-        </div>
-      </Collapse>
-    </React.Fragment>
-  );
+  // Otherwise, use default layout (zero breaking changes)
+  return <DefaultSubsetControlsLayout {...filteringProps} />;
 };
 
 export default SubsetControls;
