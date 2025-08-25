@@ -5,8 +5,8 @@ import styles from './styles/subsetControlStyles';
 import { emptyStringOrNumber } from './dateHelpers';
 
 const LatStartTextInput = ({
-  Lat_Min,
-  Lat_Max,
+  latMin,
+  latMax,
   latStart,
   handleSetStart,
   classes,
@@ -19,8 +19,8 @@ const LatStartTextInput = ({
       type="number"
       inputProps={{
         step: 0.1,
-        min: Math.floor(Lat_Min * 10) / 10,
-        max: Math.ceil(Lat_Max * 10) / 10,
+        min: Math.floor(latMin * 10) / 10,
+        max: Math.ceil(latMax * 10) / 10,
         className: classes.input,
       }}
       InputLabelProps={{
@@ -32,13 +32,7 @@ const LatStartTextInput = ({
   );
 };
 
-const LatEndTextInput = ({
-  Lat_Min,
-  Lat_Max,
-  classes,
-  latEnd,
-  handleSetEnd,
-}) => {
+const LatEndTextInput = ({ latMin, latMax, classes, latEnd, handleSetEnd }) => {
   return (
     <TextField
       id="textInputEndLat"
@@ -47,8 +41,8 @@ const LatEndTextInput = ({
       type="number"
       inputProps={{
         step: 0.1,
-        min: Math.floor(Lat_Min * 10) / 10,
-        max: Math.ceil(Lat_Max * 10) / 10,
+        min: Math.floor(latMin * 10) / 10,
+        max: Math.ceil(latMax * 10) / 10,
         className: classes.input,
       }}
       InputLabelProps={{
@@ -61,8 +55,8 @@ const LatEndTextInput = ({
 };
 
 const LatSlider = ({
-  Lat_Min,
-  Lat_Max,
+  latMin,
+  latMax,
   latStart,
   latEnd,
   handleSlider,
@@ -72,8 +66,8 @@ const LatSlider = ({
     <Slider
       id="latSlider"
       key="latSlider"
-      min={Math.floor(Lat_Min * 10) / 10}
-      max={Math.ceil(Lat_Max * 10) / 10}
+      min={Math.floor(latMin * 10) / 10}
+      max={Math.ceil(latMax * 10) / 10}
       step={0.1}
       value={[
         typeof latStart === 'number' ? latStart : -90,
@@ -86,15 +80,15 @@ const LatSlider = ({
         markLabel: classes.markLabel,
       }}
       className={classes.slider}
-      disabled={Lat_Min === Lat_Max}
+      disabled={latMin === latMax}
       marks={[
         {
-          value: Math.floor(Lat_Min * 10) / 10,
-          label: `${Math.floor(Lat_Min * 10) / 10}`,
+          value: Math.floor(latMin * 10) / 10,
+          label: `${Math.floor(latMin * 10) / 10}`,
         },
         {
-          value: Math.ceil(Lat_Max * 10) / 10,
-          label: `${Math.ceil(Lat_Max * 10) / 10}`,
+          value: Math.ceil(latMax * 10) / 10,
+          label: `${Math.ceil(latMax * 10) / 10}`,
         },
       ]}
     />
@@ -102,8 +96,7 @@ const LatSlider = ({
 };
 
 const LatitudeSubsetControl = (props) => {
-  let { classes, dataset, subsetState, setLatStart, setLatEnd } = props;
-  let { Lat_Max, Lat_Min } = dataset;
+  let { classes, latMin, latMax, subsetState, setLatStart, setLatEnd } = props;
   let { latStart, latEnd } = subsetState;
 
   // handler for the slider
@@ -135,8 +128,8 @@ const LatitudeSubsetControl = (props) => {
 
         <Grid item xs={6} md={4}>
           <LatStartTextInput
-            Lat_Min={Lat_Min}
-            Lat_Max={Lat_Max}
+            latMin={latMin}
+            latMax={latMax}
             latStart={latStart}
             handleSetStart={handleSetStart}
             classes={classes}
@@ -145,8 +138,8 @@ const LatitudeSubsetControl = (props) => {
 
         <Grid item xs={6} md={4}>
           <LatEndTextInput
-            Lat_Min={Lat_Min}
-            Lat_Max={Lat_Max}
+            latMin={latMin}
+            latMax={latMax}
             latEnd={latEnd}
             handleSetEnd={handleSetEnd}
             classes={classes}
@@ -154,8 +147,8 @@ const LatitudeSubsetControl = (props) => {
         </Grid>
       </Grid>
       <LatSlider
-        Lat_Min={Lat_Min}
-        Lat_Max={Lat_Max}
+        latMin={latMin}
+        latMax={latMax}
         latEnd={latEnd}
         latStart={latStart}
         handleSlider={handleSlider}

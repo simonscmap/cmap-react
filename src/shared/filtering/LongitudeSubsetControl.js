@@ -10,8 +10,7 @@ const log = logInit('LongitudeSubsetControl').addContext({
 });
 
 const LongitudeControl = (props) => {
-  let { classes, dataset, subsetState, setLonStart, setLonEnd } = props;
-  let { Lon_Max, Lon_Min } = dataset;
+  let { classes, lonMin, lonMax, subsetState, setLonStart, setLonEnd } = props;
   let { lonStart, lonEnd } = subsetState;
 
   // handler for the slider
@@ -49,8 +48,8 @@ const LongitudeControl = (props) => {
             type="number"
             inputProps={{
               step: 0.1,
-              min: Math.floor(Lon_Min * 10) / 10,
-              max: Math.ceil(Lon_Max * 10) / 10,
+              min: Math.floor(lonMin * 10) / 10,
+              max: Math.ceil(lonMax * 10) / 10,
               className: classes.input,
             }}
             InputLabelProps={{
@@ -67,8 +66,8 @@ const LongitudeControl = (props) => {
             type="number"
             inputProps={{
               step: 0.1,
-              min: Math.floor(Lon_Min * 10) / 10,
-              max: Math.ceil(Lon_Max * 10) / 10,
+              min: Math.floor(lonMin * 10) / 10,
+              max: Math.ceil(lonMax * 10) / 10,
               className: classes.input,
             }}
             InputLabelProps={{
@@ -81,8 +80,8 @@ const LongitudeControl = (props) => {
       </Grid>
 
       <Slider
-        min={Math.floor(Lon_Min * 10) / 10}
-        max={Math.ceil(Lon_Max * 10) / 10}
+        min={Math.floor(lonMin * 10) / 10}
+        max={Math.ceil(lonMax * 10) / 10}
         step={0.1}
         value={[
           typeof lonStart === 'number' ? lonStart : -90,
@@ -95,15 +94,15 @@ const LongitudeControl = (props) => {
           markLabel: classes.markLabel,
         }}
         className={classes.slider}
-        disabled={Lon_Min === Lon_Max}
+        disabled={lonMin === lonMax}
         marks={[
           {
-            value: Math.floor(Lon_Min * 10) / 10,
-            label: `${Math.floor(Lon_Min * 10) / 10}`,
+            value: Math.floor(lonMin * 10) / 10,
+            label: `${Math.floor(lonMin * 10) / 10}`,
           },
           {
-            value: Math.ceil(Lon_Max * 10) / 10,
-            label: `${Math.ceil(Lon_Max * 10) / 10}`,
+            value: Math.ceil(lonMax * 10) / 10,
+            label: `${Math.ceil(lonMax * 10) / 10}`,
           },
         ]}
       />
