@@ -1,17 +1,15 @@
 import { Grid, Slider, TextField, Typography } from '@material-ui/core';
-import { withStyles } from '@material-ui/core/styles';
 import React from 'react';
 import styles from './styles/subsetControlStyles';
 import logInit from '../../Services/log-service';
 import { emptyStringOrNumber } from './dateHelpers';
 
 const log = logInit('LongitudeSubsetControl').addContext({
-  src: 'features/datasetDownload/components/DownloadDialog',
+  src: 'shared/filtering/LongitudeSubsetControl',
 });
 
 const LongitudeControl = (props) => {
-  let { classes, dataset, subsetState, setLonStart, setLonEnd } = props;
-  let { Lon_Max, Lon_Min } = dataset;
+  let { lonMin, lonMax, subsetState, setLonStart, setLonEnd } = props;
   let { lonStart, lonEnd } = subsetState;
 
   // handler for the slider
@@ -38,9 +36,9 @@ const LongitudeControl = (props) => {
 
   return (
     <React.Fragment>
-      <Grid container className={classes.formGrid}>
+      <Grid container style={styles.formGrid}>
         <Grid item xs={12} md={4}>
-          <Typography className={classes.formLabel}>{title}</Typography>
+          <Typography style={styles.formLabel}>{title}</Typography>
         </Grid>
 
         <Grid item xs={6} md={4}>
@@ -49,9 +47,9 @@ const LongitudeControl = (props) => {
             type="number"
             inputProps={{
               step: 0.1,
-              min: Math.floor(Lon_Min * 10) / 10,
-              max: Math.ceil(Lon_Max * 10) / 10,
-              className: classes.input,
+              min: Math.floor(lonMin * 10) / 10,
+              max: Math.ceil(lonMax * 10) / 10,
+              className: styles.input,
             }}
             InputLabelProps={{
               shrink: true,
@@ -67,9 +65,9 @@ const LongitudeControl = (props) => {
             type="number"
             inputProps={{
               step: 0.1,
-              min: Math.floor(Lon_Min * 10) / 10,
-              max: Math.ceil(Lon_Max * 10) / 10,
-              className: classes.input,
+              min: Math.floor(lonMin * 10) / 10,
+              max: Math.ceil(lonMax * 10) / 10,
+              className: styles.input,
             }}
             InputLabelProps={{
               shrink: true,
@@ -81,8 +79,8 @@ const LongitudeControl = (props) => {
       </Grid>
 
       <Slider
-        min={Math.floor(Lon_Min * 10) / 10}
-        max={Math.ceil(Lon_Max * 10) / 10}
+        min={Math.floor(lonMin * 10) / 10}
+        max={Math.ceil(lonMax * 10) / 10}
         step={0.1}
         value={[
           typeof lonStart === 'number' ? lonStart : -90,
@@ -90,20 +88,20 @@ const LongitudeControl = (props) => {
         ]}
         onChange={handleSlider}
         classes={{
-          valueLabel: classes.sliderValueLabel,
-          thumb: classes.sliderThumb,
-          markLabel: classes.markLabel,
+          valueLabel: styles.sliderValueLabel,
+          thumb: styles.sliderThumb,
+          markLabel: styles.markLabel,
         }}
-        className={classes.slider}
-        disabled={Lon_Min === Lon_Max}
+        style={styles.slider}
+        disabled={lonMin === lonMax}
         marks={[
           {
-            value: Math.floor(Lon_Min * 10) / 10,
-            label: `${Math.floor(Lon_Min * 10) / 10}`,
+            value: Math.floor(lonMin * 10) / 10,
+            label: `${Math.floor(lonMin * 10) / 10}`,
           },
           {
-            value: Math.ceil(Lon_Max * 10) / 10,
-            label: `${Math.ceil(Lon_Max * 10) / 10}`,
+            value: Math.ceil(lonMax * 10) / 10,
+            label: `${Math.ceil(lonMax * 10) / 10}`,
           },
         ]}
       />
@@ -111,4 +109,4 @@ const LongitudeControl = (props) => {
   );
 };
 
-export default withStyles(styles)(LongitudeControl);
+export default LongitudeControl;

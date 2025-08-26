@@ -1,12 +1,10 @@
 import React from 'react';
 import { Grid, Slider, TextField, Typography } from '@material-ui/core';
-import { withStyles } from '@material-ui/core/styles';
 import styles from './styles/subsetControlStyles';
 import { emptyStringOrNumber } from './dateHelpers';
 
 const DepthSubsetControl = (props) => {
-  let { classes, dataset, subsetState, setDepthStart, setDepthEnd } = props;
-  let { Depth_Min, Depth_Max } = dataset;
+  let { depthMin, depthMax, subsetState, setDepthStart, setDepthEnd } = props;
   let { depthStart, depthEnd } = subsetState;
 
   // handler for the slider
@@ -30,15 +28,15 @@ const DepthSubsetControl = (props) => {
 
   // do not render controls if dataset has no depth
   // or if depth is static
-  if (!Depth_Max || Depth_Min === Depth_Max) {
+  if (!depthMax || depthMin === depthMax) {
     return '';
   }
 
   return (
     <React.Fragment>
-      <Grid container className={classes.formGrid}>
+      <Grid container style={styles.formGrid}>
         <Grid item xs={12} md={4}>
-          <Typography className={classes.formLabel}>{title}</Typography>
+          <Typography style={styles.formLabel}>{title}</Typography>
         </Grid>
 
         <Grid item xs={6} md={4}>
@@ -46,9 +44,9 @@ const DepthSubsetControl = (props) => {
             label="Start"
             type="number"
             inputProps={{
-              min: Math.floor(Depth_Min),
-              max: Math.ceil(Depth_Max),
-              className: classes.input,
+              min: Math.floor(depthMin),
+              max: Math.ceil(depthMax),
+              className: styles.input,
             }}
             InputLabelProps={{
               shrink: true,
@@ -63,9 +61,9 @@ const DepthSubsetControl = (props) => {
             label="End"
             type="number"
             inputProps={{
-              min: Math.floor(Depth_Min),
-              max: Math.ceil(Depth_Max),
-              className: classes.input,
+              min: Math.floor(depthMin),
+              max: Math.ceil(depthMax),
+              className: styles.input,
             }}
             InputLabelProps={{
               shrink: true,
@@ -77,27 +75,27 @@ const DepthSubsetControl = (props) => {
       </Grid>
 
       <Slider
-        min={Math.floor(Depth_Min)}
-        max={Math.ceil(Depth_Max)}
+        min={Math.floor(depthMin)}
+        max={Math.ceil(depthMax)}
         value={[
           typeof depthStart === 'number' ? depthStart : -90,
           typeof depthEnd === 'number' ? depthEnd : 90,
         ]}
         onChange={handleSlider}
         classes={{
-          valueLabel: classes.sliderValueLabel,
-          thumb: classes.sliderThumb,
-          markLabel: classes.markLabel,
+          valueLabel: styles.sliderValueLabel,
+          thumb: styles.sliderThumb,
+          markLabel: styles.markLabel,
         }}
-        className={classes.slider}
+        style={styles.slider}
         marks={[
           {
-            value: Math.floor(Depth_Min),
-            label: `${Math.floor(Depth_Min)}`,
+            value: Math.floor(depthMin),
+            label: `${Math.floor(depthMin)}`,
           },
           {
-            value: Math.ceil(Depth_Max),
-            label: `${Math.ceil(Depth_Max)}`,
+            value: Math.ceil(depthMax),
+            label: `${Math.ceil(depthMax)}`,
           },
         ]}
       />
@@ -105,4 +103,4 @@ const DepthSubsetControl = (props) => {
   );
 };
 
-export default withStyles(styles)(DepthSubsetControl);
+export default DepthSubsetControl;

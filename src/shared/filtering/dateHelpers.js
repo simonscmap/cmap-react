@@ -1,3 +1,7 @@
+import temporalResolutions from '../../enums/temporalResolutions';
+
+const MILLISECONDS_PER_DAY = 86400000;
+
 const formatDateString = (year, month, day) => {
   return `${year}-${month}-${day}`;
 };
@@ -36,4 +40,83 @@ export const extractDateFromString = (stringDate) => {
 
 export const emptyStringOrNumber = (val) => {
   return val === '' ? '' : Number(val);
+};
+
+export const getIsMonthlyClimatology = (temporalResolution) => {
+  return Boolean(temporalResolution === temporalResolutions.monthlyClimatology);
+};
+// with the begin and end dates of a dataset,
+// calculate the span of days
+export const getMaxDays = (dataset) => {
+  let endTime = new Date(dataset.Time_Max).getTime();
+  let startTime = new Date(dataset.Time_Min).getTime();
+  let differenceInMilliseconds = endTime - startTime;
+  let intervalInDays = Math.floor(
+    differenceInMilliseconds / MILLISECONDS_PER_DAY,
+  );
+
+  /*
+log.debug('get max days', {
+    startTime: new Date(startTime),
+    endTime: new Date(endTime),
+    intervalInDays,
+    interval: differenceInMilliseconds / MILLISECONDS_PER_DAY,
+    dataset,
+  });
+
+   */
+
+  return intervalInDays;
+};
+
+// starting with a min date, return a string representation
+// of the date N days later
+// :: Date -> Days Int -> Date String
+// Note: a Date String is in the format "yyyy-mm-dd"
+export const dayToDateString = (min, days) => {
+  if (!min) {
+    console.error('dayToDateString received no value for min');
+  }
+  let value = new Date(min);
+
+  value.setDate(value.getDate() + days);
+
+  let month = value.getMonth() + 1;
+  month = month > 9 ? month : '0' + month;
+
+  let day = value.getDate();
+  day = day > 9 ? day : '0' + day;
+
+  let fullYear = value.getFullYear();
+
+  return formatDateString(fullYear, month, day);
+};
+
+export const getInitialRangeValues = (dataset) => {
+  let { Lat_Max, Lat_Min, Lon_Max, Lon_Min, Time_Min, Depth_Max, Depth_Min } =
+    dataset;
+
+  let maxDays = getMaxDays(dataset);
+
+  let initialValues = {
+    lat: {
+      start: Math.floor(Lat_Min * 10) / 10,
+      end: Math.ceil(Lat_Max * 10) / 10,
+    },
+    lon: {
+      start: Math.floor(Lon_Min * 10) / 10,
+      end: Math.ceil(Lon_Max * 10) / 10,
+    },
+    time: {
+      start: Time_Min ? 0 : 1,
+      end: Time_Min ? maxDays : 12,
+    },
+    depth: {
+      start: Math.floor(Depth_Min),
+      end: Math.ceil(Depth_Max),
+    },
+    maxDays,
+  };
+
+  return initialValues;
 };

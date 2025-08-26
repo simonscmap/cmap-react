@@ -1,4 +1,4 @@
-const styles = (theme) => ({
+const styles = {
   relative: {
     position: 'relative',
   },
@@ -6,7 +6,7 @@ const styles = (theme) => ({
     top: -22,
     '& *': {
       background: 'transparent',
-      color: theme.palette.primary.main,
+      color: '#9dd162',
     },
     left: -14,
   },
@@ -35,6 +35,31 @@ const styles = (theme) => ({
     marginTop: '13px',
     fontSize: '.92rem',
   },
-});
+  // Message styles from DateSubsetControl
+  messageContainer: {
+    position: 'absolute',
+    bottom: '45px',
+    padding: '5px 10px',
+    borderRadius: '5px',
+    background: 'rgba(0,0,0,0.2)',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: '.5em',
+    fontSize: '.9em',
+  },
+  messageArrow: {
+    position: 'absolute',
+    width: 0,
+    height: 0,
+    bottom: '-10px',
+    borderRight: '5px solid transparent',
+    borderLeft: '5px solid transparent',
+    borderTop: '10px solid rgba(0,0,0,0.2)',
+  },
+  prohibitedIcon: {
+    color: '#d16265',
+  },
+};
 
 export default styles;
