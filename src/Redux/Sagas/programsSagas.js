@@ -24,6 +24,32 @@ export function* watchFetchProgramsSend() {
 }
 
 // fetch details for a single program
+// Helper function to enhance datasets with flattened metadata for multi-dataset download
+function enhanceDatasetWithDownloadMetadata(dataset) {
+  if (!dataset.visualizableVariables) {
+    return dataset;
+  }
+
+  const { visualizableVariables } = dataset;
+
+  return {
+    ...dataset,
+    // Flatten spatial bounds for filtering system compatibility
+    Lat_Min: visualizableVariables.lat?.min,
+    Lat_Max: visualizableVariables.lat?.max,
+    Lon_Min: visualizableVariables.lon?.min,
+    Lon_Max: visualizableVariables.lon?.max,
+
+    // Flatten temporal bounds
+    Time_Min: visualizableVariables.time?.min,
+    Time_Max: visualizableVariables.time?.max,
+
+    // Flatten depth bounds
+    Depth_Min: visualizableVariables.depth?.min,
+    Depth_Max: visualizableVariables.depth?.max,
+  };
+}
+
 export function* fetchProgramDetails(action) {
   const { programName } = action.payload;
   if (typeof programName !== 'string' || programName.length === 0) {
@@ -39,6 +65,18 @@ export function* fetchProgramDetails(action) {
   if (response && response.ok) {
     let jsonResponse = yield response.json();
     jsonResponse.programName = programName;
+
+    // Enhance datasets with flattened metadata for multi-dataset download
+    if (jsonResponse.datasets) {
+      const enhancedDatasets = {};
+      Object.keys(jsonResponse.datasets).forEach((key) => {
+        enhancedDatasets[key] = enhanceDatasetWithDownloadMetadata(
+          jsonResponse.datasets[key],
+        );
+      });
+      jsonResponse.datasets = enhancedDatasets;
+    }
+
     yield put(catalogActions.storeProgramDetails(jsonResponse));
   } else {
     yield put(
