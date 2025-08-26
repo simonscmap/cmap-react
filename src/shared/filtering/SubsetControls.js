@@ -55,7 +55,6 @@ const SubsetControls = ({
           setLatStart: subsetFiltering.subsetSetters.setLatStart,
           setLatEnd: subsetFiltering.subsetSetters.setLatEnd,
         },
-        dataset,
       },
       longitude: {
         data: {
@@ -68,7 +67,6 @@ const SubsetControls = ({
           setLonStart: subsetFiltering.subsetSetters.setLonStart,
           setLonEnd: subsetFiltering.subsetSetters.setLonEnd,
         },
-        dataset,
       },
       depth: {
         data: {
@@ -81,7 +79,6 @@ const SubsetControls = ({
           setDepthStart: subsetFiltering.subsetSetters.setDepthStart,
           setDepthEnd: subsetFiltering.subsetSetters.setDepthEnd,
         },
-        dataset,
       },
     },
     // Toggle state
