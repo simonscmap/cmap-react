@@ -41,6 +41,12 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     set({ datasets });
   },
 
+  initializeDatasets: (datasets) => {
+    if (datasets && datasets.length > 0) {
+      set({ datasets });
+    }
+  },
+
   setFilters: (filters) => {
     set({ filters });
   },

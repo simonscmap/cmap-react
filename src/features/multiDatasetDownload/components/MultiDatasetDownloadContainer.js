@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Box, Typography } from '@material-ui/core';
 import SubsetControls from '../../../shared/filtering/SubsetControls';
 import useSubsetFiltering from '../../../shared/filtering/useSubsetFiltering';
@@ -9,7 +9,7 @@ import DownloadButton from './DownloadButton';
 
 const MultiDatasetDownloadContainer = ({ datasets = [] }) => {
   // Initialize Zustand store with datasets
-  const { setDatasets } = useMultiDatasetDownloadStore();
+  const { initializeDatasets } = useMultiDatasetDownloadStore();
 
   // State for toggle controls (required by SubsetControls)
   const [optionsState, setOptionsState] = useState({
@@ -33,10 +33,10 @@ const MultiDatasetDownloadContainer = ({ datasets = [] }) => {
   // Bridge to sync subset filtering state with Zustand store
   useFilteringBridge(subsetFiltering);
 
-  // Update store when datasets prop changes
-  useEffect(() => {
-    setDatasets(datasets);
-  }, [datasets, setDatasets]);
+  // Initialize store once on mount
+  useMemo(() => {
+    initializeDatasets(datasets);
+  }, []);
 
   return (
     <Box>

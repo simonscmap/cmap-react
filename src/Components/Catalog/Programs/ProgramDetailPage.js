@@ -1,5 +1,5 @@
 import { makeStyles } from '@material-ui/core/styles';
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useHistory } from 'react-router-dom';
 import Page2 from '../../Common/Page2';
 import { Grid } from '@material-ui/core';
@@ -86,48 +86,32 @@ const ProgramDetail = (props) => {
   // Get program details from Redux state for datasets
   const program = useSelector((state) => state.programDetails);
 
-  // Helper function to enhance datasets with flattened metadata for multi-dataset download
-  const enhanceDatasetWithDownloadMetadata = React.useCallback((dataset) => {
-    if (!dataset.visualizableVariables) {
-      return dataset;
-    }
+  // Transform datasets once for MultiDatasetDownloadContainer
+  const datasets = useMemo(() => {
+    if (!program?.datasets) return [];
 
-    const { visualizableVariables } = dataset;
-
-    return {
+    return Object.values(program.datasets).map((dataset) => ({
       ...dataset,
-      // Flatten spatial bounds for filtering system compatibility
-      Lat_Min: visualizableVariables.lat?.min,
-      Lat_Max: visualizableVariables.lat?.max,
-      Lon_Min: visualizableVariables.lon?.min,
-      Lon_Max: visualizableVariables.lon?.max,
-
-      // Flatten temporal bounds
-      Time_Min: visualizableVariables.time?.min,
-      Time_Max: visualizableVariables.time?.max,
-
-      // Flatten depth bounds
-      Depth_Min: visualizableVariables.depth?.min,
-      Depth_Max: visualizableVariables.depth?.max,
-    };
-  }, []);
-
-  // Transform datasets for MultiDatasetDownloadContainer with enhanced metadata
-  const datasets = React.useMemo(() => {
-    if (program && program.datasets) {
-      return Object.values(program.datasets).map((d) => {
-        const enhanced = enhanceDatasetWithDownloadMetadata(d);
-        return {
-          ...enhanced,
-          Dataset_Name: enhanced.Dataset_Name,
-          Long_Name: enhanced.Long_Name,
-          Row_Count: enhanced.Row_Count,
-        };
-      });
-    }
-    return [];
-  }, [program, enhanceDatasetWithDownloadMetadata]);
-
+      // Flatten visualizable variables for filtering compatibility
+      ...(dataset.visualizableVariables?.lat && {
+        Lat_Min: dataset.visualizableVariables.lat.min,
+        Lat_Max: dataset.visualizableVariables.lat.max,
+      }),
+      ...(dataset.visualizableVariables?.lon && {
+        Lon_Min: dataset.visualizableVariables.lon.min,
+        Lon_Max: dataset.visualizableVariables.lon.max,
+      }),
+      ...(dataset.visualizableVariables?.time && {
+        Time_Min: dataset.visualizableVariables.time.min,
+        Time_Max: dataset.visualizableVariables.time.max,
+      }),
+      ...(dataset.visualizableVariables?.depth && {
+        Depth_Min: dataset.visualizableVariables.depth.min,
+        Depth_Max: dataset.visualizableVariables.depth.max,
+      }),
+    }));
+  }, [program]);
+  console.log('🐛🐛🐛 ProgramDetailPage.js:115 datasets[0]:', datasets[0]);
   useEffect(() => {
     // navigate action
     if (pData) {
