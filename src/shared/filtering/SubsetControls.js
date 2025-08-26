@@ -19,21 +19,7 @@ const SubsetControls = ({
   classes,
   children,
   subsetFiltering,
-  // Legacy props for backward compatibility during transition
-  ...legacyProps
 }) => {
-  // If legacy props are provided, use the old behavior temporarily
-  if (Object.keys(legacyProps).length > 0) {
-    log.warn(
-      'Using legacy prop-forwarding behavior. Please update to use the new coordinating container pattern.',
-    );
-    return children ? (
-      React.cloneElement(children, legacyProps)
-    ) : (
-      <DefaultSubsetControlsLayout {...legacyProps} />
-    );
-  }
-
   // Transform into clean layout props
   const layoutProps = {
     // Organized control configs instead of scattered props
