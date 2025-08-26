@@ -57,6 +57,9 @@ const styles = {
     borderLeft: '5px solid transparent',
     borderTop: '10px solid rgba(0,0,0,0.2)',
   },
+  prohibitedIcon: {
+    color: '#d16265',
+  },
 };
 
 export default styles;

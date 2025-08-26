@@ -1,10 +1,4 @@
 import { Grid, Slider, TextField, Typography } from '@material-ui/core';
-import {
-  withStyles,
-  makeStyles,
-  ThemeProvider,
-  createTheme,
-} from '@material-ui/core/styles';
 import NotInterestedIcon from '@material-ui/icons/NotInterested';
 import React, { useState, useEffect } from 'react';
 import {
@@ -15,69 +9,26 @@ import {
 } from './dateHelpers';
 import styles from './styles/subsetControlStyles';
 
-const WarningTheme = createTheme({
-  palette: {
-    primary: {
-      main: '#d16265;',
-    },
-    secondary: {
-      main: '#ffd54f',
-    },
-  },
-});
-const ProhibitedIcon = () => {
-  return (
-    <ThemeProvider theme={WarningTheme}>
-      <NotInterestedIcon color={'primary'} />
-    </ThemeProvider>
-  );
-};
-
-const useMessageStyles = makeStyles(() => ({
-  container: {
-    position: 'absolute',
-    bottom: '45px',
-    padding: '5px 10px',
-    borderRadius: '5px',
-    background: 'rgba(0,0,0,0.2)',
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: '.5em',
-    fontSize: '.9em',
-  },
-  arrow: {
-    position: 'absolute',
-    width: 0,
-    height: 0,
-    bottom: '-10px',
-    borderRight: '5px solid transparent',
-    borderLeft: '5px solid transparent',
-    borderTop: '10px solid rgba(0,0,0,0.2)',
-  },
-}));
-
 const InvalidInputMessage = (props) => {
-  const cl = useMessageStyles();
   if (!props.message) {
     return '';
   }
   return (
-    <div className={cl.container}>
-      <ProhibitedIcon />
+    <div style={styles.messageContainer}>
+      <NotInterestedIcon style={styles.prohibitedIcon} />
       <span>{props.message}</span>
-      <div className={cl.arrow}></div>
+      <div style={styles.messageArrow}></div>
     </div>
   );
 };
 
-const MonthlyDateControl = withStyles(styles)((props) => {
-  let { classes, subsetState, setTimeStart, setTimeEnd } = props;
+const MonthlyDateControl = (props) => {
+  let { subsetState, setTimeStart, setTimeEnd } = props;
 
   let { timeStart, timeEnd } = subsetState;
 
   // handler for the slider
-  let handleSlider = (e, value) => {
+  let handleSlider = (_, value) => {
     let [start, end] = value;
     setTimeStart(start);
     setTimeEnd(end);
@@ -95,9 +46,9 @@ const MonthlyDateControl = withStyles(styles)((props) => {
 
   return (
     <React.Fragment>
-      <Grid container className={classes.formGrid}>
+      <Grid container style={styles.formGrid}>
         <Grid item xs={12} md={4}>
-          <Typography className={classes.formLabel}>Month</Typography>
+          <Typography style={styles.formLabel}>Month</Typography>
         </Grid>
 
         {/* Manual Entry for Start Time */}
@@ -108,7 +59,7 @@ const MonthlyDateControl = withStyles(styles)((props) => {
             inputProps={{
               min: 1,
               max: 12,
-              className: classes.input,
+              style: styles.input,
             }}
             InputLabelProps={{
               shrink: true,
@@ -126,7 +77,7 @@ const MonthlyDateControl = withStyles(styles)((props) => {
             inputProps={{
               min: 1,
               max: 12,
-              className: classes.input,
+              style: styles.input,
             }}
             InputLabelProps={{
               shrink: true,
@@ -143,20 +94,15 @@ const MonthlyDateControl = withStyles(styles)((props) => {
         max={12}
         value={[timeStart, timeEnd]}
         onChange={handleSlider}
-        classes={{
-          valueLabel: classes.sliderValueLabel,
-          thumb: classes.sliderThumb,
-          markLabel: classes.markLabel,
-        }}
-        className={classes.slider}
-        marks={new Array(12).fill(0).map((v, i) => ({
+        style={styles.slider}
+        marks={new Array(12).fill(0).map((_, i) => ({
           value: i + 1,
           label: i + 1,
         }))}
       />
     </React.Fragment>
   );
-});
+};
 
 /* Daily Date Control
 
@@ -175,16 +121,13 @@ const MonthlyDateControl = withStyles(styles)((props) => {
 
 */
 
-const DailyDateControl = withStyles(styles)((props) => {
+const DailyDateControl = (props) => {
   let {
-    classes,
-    dataset,
     timeMin,
     timeMax,
     subsetState,
     setTimeStart,
     setTimeEnd,
-    setInvalidFlag,
     // New props from the hook
     handleSetStartDate,
     handleSetEndDate,
@@ -219,7 +162,7 @@ const DailyDateControl = withStyles(styles)((props) => {
     handleSetEndDate(e.target.value);
   };
 
-  let handleSlider = (e, value) => {
+  let handleSlider = (_, value) => {
     let [start, end] = value;
     setTimeStart(start);
     setTimeEnd(end);
@@ -262,17 +205,17 @@ const DailyDateControl = withStyles(styles)((props) => {
 
   return (
     <React.Fragment>
-      <Grid container className={classes.formGrid}>
+      <Grid container style={styles.formGrid}>
         <Grid item xs={12} md={4}>
-          <Typography className={classes.formLabel}>Date</Typography>
+          <Typography style={styles.formLabel}>Date</Typography>
         </Grid>
 
-        <Grid item xs={6} md={4} className={classes.relative}>
+        <Grid item xs={6} md={4} style={styles.relative}>
           <TextField
             label="Start"
             type="date"
             inputProps={{
-              className: classes.input,
+              style: styles.input,
             }}
             InputLabelProps={{
               shrink: true,
@@ -286,12 +229,12 @@ const DailyDateControl = withStyles(styles)((props) => {
           />
         </Grid>
 
-        <Grid item xs={6} md={4} className={classes.relative}>
+        <Grid item xs={6} md={4} style={styles.relative}>
           <TextField
             label="End"
             type="date"
             inputProps={{
-              className: classes.input,
+              style: styles.input,
             }}
             InputLabelProps={{
               shrink: true,
@@ -312,19 +255,14 @@ const DailyDateControl = withStyles(styles)((props) => {
           max={maxDays}
           value={[timeStart, timeEnd]}
           onChange={handleSlider}
-          classes={{
-            valueLabel: classes.sliderValueLabel,
-            thumb: classes.sliderThumb,
-            markLabel: classes.markLabel,
-          }}
-          className={classes.slider}
+          style={styles.slider}
           step={maxDays < 365 ? null : 1} // disallow values not marked, unless large dataset
           marks={getMarks()}
         />
       </div>
     </React.Fragment>
   );
-});
+};
 
 // render a different date control depending on
 // whether the dataset is monthly climatology
