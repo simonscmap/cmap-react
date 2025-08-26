@@ -1,5 +1,5 @@
 import { makeStyles } from '@material-ui/core/styles';
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import Page2 from '../../Common/Page2';
 import { Grid } from '@material-ui/core';
@@ -86,31 +86,29 @@ const ProgramDetail = (props) => {
   // Get program details from Redux state for datasets
   const program = useSelector((state) => state.programDetails);
 
-  // Transform datasets once for MultiDatasetDownloadContainer
-  const datasets = useMemo(() => {
-    if (!program?.datasets) return [];
-
-    return Object.values(program.datasets).map((dataset) => ({
-      ...dataset,
-      // Flatten visualizable variables for filtering compatibility
-      ...(dataset.visualizableVariables?.lat && {
-        Lat_Min: dataset.visualizableVariables.lat.min,
-        Lat_Max: dataset.visualizableVariables.lat.max,
-      }),
-      ...(dataset.visualizableVariables?.lon && {
-        Lon_Min: dataset.visualizableVariables.lon.min,
-        Lon_Max: dataset.visualizableVariables.lon.max,
-      }),
-      ...(dataset.visualizableVariables?.time && {
-        Time_Min: dataset.visualizableVariables.time.min,
-        Time_Max: dataset.visualizableVariables.time.max,
-      }),
-      ...(dataset.visualizableVariables?.depth && {
-        Depth_Min: dataset.visualizableVariables.depth.min,
-        Depth_Max: dataset.visualizableVariables.depth.max,
-      }),
-    }));
-  }, [program]);
+  // Transform datasets for MultiDatasetDownloadContainer
+  const datasets = !program?.datasets
+    ? []
+    : Object.values(program.datasets).map((dataset) => ({
+        ...dataset,
+        // Flatten visualizable variables for filtering compatibility
+        ...(dataset.visualizableVariables?.lat && {
+          Lat_Min: dataset.visualizableVariables.lat.min,
+          Lat_Max: dataset.visualizableVariables.lat.max,
+        }),
+        ...(dataset.visualizableVariables?.lon && {
+          Lon_Min: dataset.visualizableVariables.lon.min,
+          Lon_Max: dataset.visualizableVariables.lon.max,
+        }),
+        ...(dataset.visualizableVariables?.time && {
+          Time_Min: dataset.visualizableVariables.time.min,
+          Time_Max: dataset.visualizableVariables.time.max,
+        }),
+        ...(dataset.visualizableVariables?.depth && {
+          Depth_Min: dataset.visualizableVariables.depth.min,
+          Depth_Max: dataset.visualizableVariables.depth.max,
+        }),
+      }));
   console.log('🐛🐛🐛 ProgramDetailPage.js:115 datasets[0]:', datasets[0]);
   useEffect(() => {
     // navigate action
