@@ -18,8 +18,8 @@ const LatStartTextInput = ({
       type="number"
       inputProps={{
         step: 0.1,
-        min: Math.floor(latMin * 10) / 10,
-        max: Math.ceil(latMax * 10) / 10,
+        min: isNaN(latMin) ? -90 : Math.floor(latMin * 10) / 10,
+        max: isNaN(latMax) ? 90 : Math.ceil(latMax * 10) / 10,
         className: styles.input,
       }}
       InputLabelProps={{
@@ -40,8 +40,8 @@ const LatEndTextInput = ({ latMin, latMax, classes, latEnd, handleSetEnd }) => {
       type="number"
       inputProps={{
         step: 0.1,
-        min: Math.floor(latMin * 10) / 10,
-        max: Math.ceil(latMax * 10) / 10,
+        min: isNaN(latMin) ? -90 : Math.floor(latMin * 10) / 10,
+        max: isNaN(latMax) ? 90 : Math.ceil(latMax * 10) / 10,
         className: styles.input,
       }}
       InputLabelProps={{
@@ -58,8 +58,8 @@ const LatSlider = ({ latMin, latMax, latStart, latEnd, handleSlider }) => {
     <Slider
       id="latSlider"
       key="latSlider"
-      min={Math.floor(latMin * 10) / 10}
-      max={Math.ceil(latMax * 10) / 10}
+      min={isNaN(latMin) ? -90 : Math.floor(latMin * 10) / 10}
+      max={isNaN(latMax) ? 90 : Math.ceil(latMax * 10) / 10}
       step={0.1}
       value={[
         typeof latStart === 'number' ? latStart : -90,

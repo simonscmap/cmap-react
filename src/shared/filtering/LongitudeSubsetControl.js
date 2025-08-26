@@ -47,8 +47,8 @@ const LongitudeControl = (props) => {
             type="number"
             inputProps={{
               step: 0.1,
-              min: Math.floor(lonMin * 10) / 10,
-              max: Math.ceil(lonMax * 10) / 10,
+              min: isNaN(lonMin) ? -180 : Math.floor(lonMin * 10) / 10,
+              max: isNaN(lonMax) ? 180 : Math.ceil(lonMax * 10) / 10,
               className: styles.input,
             }}
             InputLabelProps={{
@@ -65,8 +65,8 @@ const LongitudeControl = (props) => {
             type="number"
             inputProps={{
               step: 0.1,
-              min: Math.floor(lonMin * 10) / 10,
-              max: Math.ceil(lonMax * 10) / 10,
+              min: isNaN(lonMin) ? -180 : Math.floor(lonMin * 10) / 10,
+              max: isNaN(lonMax) ? 180 : Math.ceil(lonMax * 10) / 10,
               className: styles.input,
             }}
             InputLabelProps={{
@@ -79,8 +79,8 @@ const LongitudeControl = (props) => {
       </Grid>
 
       <Slider
-        min={Math.floor(lonMin * 10) / 10}
-        max={Math.ceil(lonMax * 10) / 10}
+        min={isNaN(lonMin) ? -180 : Math.floor(lonMin * 10) / 10}
+        max={isNaN(lonMax) ? 180 : Math.ceil(lonMax * 10) / 10}
         step={0.1}
         value={[
           typeof lonStart === 'number' ? lonStart : -90,
@@ -96,12 +96,12 @@ const LongitudeControl = (props) => {
         disabled={lonMin === lonMax}
         marks={[
           {
-            value: Math.floor(lonMin * 10) / 10,
-            label: `${Math.floor(lonMin * 10) / 10}`,
+            value: isNaN(lonMin) ? -180 : Math.floor(lonMin * 10) / 10,
+            label: `${isNaN(lonMin) ? -180 : Math.floor(lonMin * 10) / 10}`,
           },
           {
-            value: Math.ceil(lonMax * 10) / 10,
-            label: `${Math.ceil(lonMax * 10) / 10}`,
+            value: isNaN(lonMax) ? 180 : Math.ceil(lonMax * 10) / 10,
+            label: `${isNaN(lonMax) ? 180 : Math.ceil(lonMax * 10) / 10}`,
           },
         ]}
       />
