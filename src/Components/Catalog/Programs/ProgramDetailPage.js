@@ -86,18 +86,47 @@ const ProgramDetail = (props) => {
   // Get program details from Redux state for datasets
   const program = useSelector((state) => state.programDetails);
 
-  // Transform datasets for MultiDatasetDownloadContainer (same as AgGridExperimentDatasets)
+  // Helper function to enhance datasets with flattened metadata for multi-dataset download
+  const enhanceDatasetWithDownloadMetadata = React.useCallback((dataset) => {
+    if (!dataset.visualizableVariables) {
+      return dataset;
+    }
+
+    const { visualizableVariables } = dataset;
+
+    return {
+      ...dataset,
+      // Flatten spatial bounds for filtering system compatibility
+      Lat_Min: visualizableVariables.lat?.min,
+      Lat_Max: visualizableVariables.lat?.max,
+      Lon_Min: visualizableVariables.lon?.min,
+      Lon_Max: visualizableVariables.lon?.max,
+
+      // Flatten temporal bounds
+      Time_Min: visualizableVariables.time?.min,
+      Time_Max: visualizableVariables.time?.max,
+
+      // Flatten depth bounds
+      Depth_Min: visualizableVariables.depth?.min,
+      Depth_Max: visualizableVariables.depth?.max,
+    };
+  }, []);
+
+  // Transform datasets for MultiDatasetDownloadContainer with enhanced metadata
   const datasets = React.useMemo(() => {
     if (program && program.datasets) {
-      return Object.values(program.datasets).map((d) => ({
-        ...d,
-        Dataset_Name: d.Dataset_Name,
-        Long_Name: d.Long_Name,
-        Row_Count: d.Row_Count,
-      }));
+      return Object.values(program.datasets).map((d) => {
+        const enhanced = enhanceDatasetWithDownloadMetadata(d);
+        return {
+          ...enhanced,
+          Dataset_Name: enhanced.Dataset_Name,
+          Long_Name: enhanced.Long_Name,
+          Row_Count: enhanced.Row_Count,
+        };
+      });
     }
     return [];
-  }, [program]);
+  }, [program, enhanceDatasetWithDownloadMetadata]);
 
   useEffect(() => {
     // navigate action
