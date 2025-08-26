@@ -4,6 +4,8 @@ import SubsetControls from '../../../shared/filtering/SubsetControls';
 import useSubsetFiltering from '../../../shared/filtering/useSubsetFiltering';
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
 import useFilteringBridge from '../hooks/useFilteringBridge';
+import MultiDatasetDownloadTable from './MultiDatasetDownloadTable';
+import DownloadButton from './DownloadButton';
 
 const MultiDatasetDownloadContainer = ({ datasets = [] }) => {
   // Initialize Zustand store with datasets
@@ -25,14 +27,11 @@ const MultiDatasetDownloadContainer = ({ datasets = [] }) => {
     }));
   };
 
-  // State for invalid flag (required by SubsetControls)
-  const [isInvalid, setInvalidFlag] = useState(false);
-
   // Initialize subset filtering without specific dataset (multi-dataset mode)
   const subsetFiltering = useSubsetFiltering(null);
 
   // Bridge to sync subset filtering state with Zustand store
-  const { isConnected, hasFilters } = useFilteringBridge(subsetFiltering);
+  useFilteringBridge(subsetFiltering);
 
   // Update store when datasets prop changes
   useEffect(() => {
@@ -50,23 +49,17 @@ const MultiDatasetDownloadContainer = ({ datasets = [] }) => {
           dataset={null} // Multi-dataset mode - no specific dataset
           optionsState={optionsState}
           handleSwitch={handleSwitch}
-          setInvalidFlag={setInvalidFlag}
+          setInvalidFlag={subsetFiltering.setInvalidFlag}
           subsetFiltering={subsetFiltering}
         />
       </Box>
 
-      {/* Placeholder for MultiDatasetDownloadTable - Task 3 */}
-      <Box mb={2}>
-        <Typography variant="body2" color="textSecondary">
-          Dataset selection table will be implemented in Task 3
-        </Typography>
+      <Box mb={3}>
+        <MultiDatasetDownloadTable />
       </Box>
 
-      {/* Placeholder for DownloadButton - Task 5 */}
       <Box>
-        <Typography variant="body2" color="textSecondary">
-          Download button will be implemented in Task 5
-        </Typography>
+        <DownloadButton />
       </Box>
     </Box>
   );
