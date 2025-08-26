@@ -1,25 +1,14 @@
 import React from 'react';
 import { Collapse } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
 
 import DateSubsetControl from './DateSubsetControl';
 import LatitudeSubsetControl from './LatitudeSubsetControl';
 import LongitudeSubsetControl from './LongitudeSubsetControl';
 import DepthSubsetControl from './DepthSubsetControl';
 import ToggleWithHelp from '../components/ToggleWithHelp';
-
-const useStyles = makeStyles({
-  subsetStep: {
-    margin: '0 40px',
-    '@media (max-width: 600px)': {
-      margin: 0,
-    },
-    height: '420px',
-  },
-});
+import styles from './styles/DefaultSubsetControlsLayoutStyles';
 
 const DefaultSubsetControlsLayout = ({ controls, toggle }) => {
-  const classes = useStyles();
   return (
     <React.Fragment>
       <ToggleWithHelp
@@ -33,7 +22,7 @@ const DefaultSubsetControlsLayout = ({ controls, toggle }) => {
       />
 
       <Collapse in={toggle.optionsState.subset}>
-        <div className={classes.subsetStep}>
+        <div style={styles.subsetStep}>
           <DateSubsetControl
             dataset={controls.date.dataset}
             timeMin={controls.date.dataset?.Time_Min}
