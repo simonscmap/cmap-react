@@ -1,5 +1,4 @@
 import { Grid, Slider, TextField, Typography } from '@material-ui/core';
-import { withStyles } from '@material-ui/core/styles';
 import React from 'react';
 import styles from './styles/subsetControlStyles';
 import { emptyStringOrNumber } from './dateHelpers';
@@ -21,7 +20,7 @@ const LatStartTextInput = ({
         step: 0.1,
         min: Math.floor(latMin * 10) / 10,
         max: Math.ceil(latMax * 10) / 10,
-        className: classes.input,
+        className: styles.input,
       }}
       InputLabelProps={{
         shrink: true,
@@ -43,7 +42,7 @@ const LatEndTextInput = ({ latMin, latMax, classes, latEnd, handleSetEnd }) => {
         step: 0.1,
         min: Math.floor(latMin * 10) / 10,
         max: Math.ceil(latMax * 10) / 10,
-        className: classes.input,
+        className: styles.input,
       }}
       InputLabelProps={{
         shrink: true,
@@ -54,14 +53,7 @@ const LatEndTextInput = ({ latMin, latMax, classes, latEnd, handleSetEnd }) => {
   );
 };
 
-const LatSlider = ({
-  latMin,
-  latMax,
-  latStart,
-  latEnd,
-  handleSlider,
-  classes,
-}) => {
+const LatSlider = ({ latMin, latMax, latStart, latEnd, handleSlider }) => {
   return (
     <Slider
       id="latSlider"
@@ -75,11 +67,11 @@ const LatSlider = ({
       ]}
       onChange={handleSlider}
       classes={{
-        valueLabel: classes.sliderValueLabel,
-        thumb: classes.sliderThumb,
-        markLabel: classes.markLabel,
+        valueLabel: styles.sliderValueLabel,
+        thumb: styles.sliderThumb,
+        markLabel: styles.markLabel,
       }}
-      className={classes.slider}
+      style={styles.slider}
       disabled={latMin === latMax}
       marks={[
         {
@@ -96,7 +88,7 @@ const LatSlider = ({
 };
 
 const LatitudeSubsetControl = (props) => {
-  let { classes, latMin, latMax, subsetState, setLatStart, setLatEnd } = props;
+  let { latMin, latMax, subsetState, setLatStart, setLatEnd } = props;
   let { latStart, latEnd } = subsetState;
 
   // handler for the slider
@@ -121,9 +113,9 @@ const LatitudeSubsetControl = (props) => {
 
   return (
     <React.Fragment>
-      <Grid container className={classes.formGrid}>
+      <Grid container style={styles.formGrid}>
         <Grid item xs={12} md={4}>
-          <Typography className={classes.formLabel}>{controlTitle}</Typography>
+          <Typography style={styles.formLabel}>{controlTitle}</Typography>
         </Grid>
 
         <Grid item xs={6} md={4}>
@@ -132,7 +124,6 @@ const LatitudeSubsetControl = (props) => {
             latMax={latMax}
             latStart={latStart}
             handleSetStart={handleSetStart}
-            classes={classes}
           />
         </Grid>
 
@@ -142,7 +133,6 @@ const LatitudeSubsetControl = (props) => {
             latMax={latMax}
             latEnd={latEnd}
             handleSetEnd={handleSetEnd}
-            classes={classes}
           />
         </Grid>
       </Grid>
@@ -152,10 +142,9 @@ const LatitudeSubsetControl = (props) => {
         latEnd={latEnd}
         latStart={latStart}
         handleSlider={handleSlider}
-        classes={classes}
       />
     </React.Fragment>
   );
 };
 
-export default withStyles(styles)(LatitudeSubsetControl);
+export default LatitudeSubsetControl;

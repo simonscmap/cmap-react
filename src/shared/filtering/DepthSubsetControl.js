@@ -1,12 +1,10 @@
 import React from 'react';
 import { Grid, Slider, TextField, Typography } from '@material-ui/core';
-import { withStyles } from '@material-ui/core/styles';
 import styles from './styles/subsetControlStyles';
 import { emptyStringOrNumber } from './dateHelpers';
 
 const DepthSubsetControl = (props) => {
-  let { classes, depthMin, depthMax, subsetState, setDepthStart, setDepthEnd } =
-    props;
+  let { depthMin, depthMax, subsetState, setDepthStart, setDepthEnd } = props;
   let { depthStart, depthEnd } = subsetState;
 
   // handler for the slider
@@ -36,9 +34,9 @@ const DepthSubsetControl = (props) => {
 
   return (
     <React.Fragment>
-      <Grid container className={classes.formGrid}>
+      <Grid container style={styles.formGrid}>
         <Grid item xs={12} md={4}>
-          <Typography className={classes.formLabel}>{title}</Typography>
+          <Typography style={styles.formLabel}>{title}</Typography>
         </Grid>
 
         <Grid item xs={6} md={4}>
@@ -48,7 +46,7 @@ const DepthSubsetControl = (props) => {
             inputProps={{
               min: Math.floor(depthMin),
               max: Math.ceil(depthMax),
-              className: classes.input,
+              className: styles.input,
             }}
             InputLabelProps={{
               shrink: true,
@@ -65,7 +63,7 @@ const DepthSubsetControl = (props) => {
             inputProps={{
               min: Math.floor(depthMin),
               max: Math.ceil(depthMax),
-              className: classes.input,
+              className: styles.input,
             }}
             InputLabelProps={{
               shrink: true,
@@ -85,11 +83,11 @@ const DepthSubsetControl = (props) => {
         ]}
         onChange={handleSlider}
         classes={{
-          valueLabel: classes.sliderValueLabel,
-          thumb: classes.sliderThumb,
-          markLabel: classes.markLabel,
+          valueLabel: styles.sliderValueLabel,
+          thumb: styles.sliderThumb,
+          markLabel: styles.markLabel,
         }}
-        className={classes.slider}
+        style={styles.slider}
         marks={[
           {
             value: Math.floor(depthMin),
@@ -105,4 +103,4 @@ const DepthSubsetControl = (props) => {
   );
 };
 
-export default withStyles(styles)(DepthSubsetControl);
+export default DepthSubsetControl;

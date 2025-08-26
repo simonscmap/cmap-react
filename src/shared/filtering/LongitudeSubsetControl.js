@@ -1,5 +1,4 @@
 import { Grid, Slider, TextField, Typography } from '@material-ui/core';
-import { withStyles } from '@material-ui/core/styles';
 import React from 'react';
 import styles from './styles/subsetControlStyles';
 import logInit from '../../Services/log-service';
@@ -10,7 +9,7 @@ const log = logInit('LongitudeSubsetControl').addContext({
 });
 
 const LongitudeControl = (props) => {
-  let { classes, lonMin, lonMax, subsetState, setLonStart, setLonEnd } = props;
+  let { lonMin, lonMax, subsetState, setLonStart, setLonEnd } = props;
   let { lonStart, lonEnd } = subsetState;
 
   // handler for the slider
@@ -37,9 +36,9 @@ const LongitudeControl = (props) => {
 
   return (
     <React.Fragment>
-      <Grid container className={classes.formGrid}>
+      <Grid container style={styles.formGrid}>
         <Grid item xs={12} md={4}>
-          <Typography className={classes.formLabel}>{title}</Typography>
+          <Typography style={styles.formLabel}>{title}</Typography>
         </Grid>
 
         <Grid item xs={6} md={4}>
@@ -50,7 +49,7 @@ const LongitudeControl = (props) => {
               step: 0.1,
               min: Math.floor(lonMin * 10) / 10,
               max: Math.ceil(lonMax * 10) / 10,
-              className: classes.input,
+              className: styles.input,
             }}
             InputLabelProps={{
               shrink: true,
@@ -68,7 +67,7 @@ const LongitudeControl = (props) => {
               step: 0.1,
               min: Math.floor(lonMin * 10) / 10,
               max: Math.ceil(lonMax * 10) / 10,
-              className: classes.input,
+              className: styles.input,
             }}
             InputLabelProps={{
               shrink: true,
@@ -89,11 +88,11 @@ const LongitudeControl = (props) => {
         ]}
         onChange={handleSlider}
         classes={{
-          valueLabel: classes.sliderValueLabel,
-          thumb: classes.sliderThumb,
-          markLabel: classes.markLabel,
+          valueLabel: styles.sliderValueLabel,
+          thumb: styles.sliderThumb,
+          markLabel: styles.markLabel,
         }}
-        className={classes.slider}
+        style={styles.slider}
         disabled={lonMin === lonMax}
         marks={[
           {
@@ -110,4 +109,4 @@ const LongitudeControl = (props) => {
   );
 };
 
-export default withStyles(styles)(LongitudeControl);
+export default LongitudeControl;
