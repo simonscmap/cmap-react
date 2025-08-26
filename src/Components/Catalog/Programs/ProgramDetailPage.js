@@ -4,11 +4,12 @@ import { useHistory } from 'react-router-dom';
 import Page2 from '../../Common/Page2';
 import { Grid } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { SectionHeader } from './Proto';
 import SampleVisualization from './SampleVisualization/SampleVisualization';
 import Globe from './Globe/Globe';
 import DatasetList2 from './DatasetList';
+import MultiDatasetDownloadContainer from '../../../features/multiDatasetDownload/components/MultiDatasetDownloadContainer';
 import { matchProgram } from './programData';
 import {
   trajectorySelector,
@@ -82,6 +83,22 @@ const ProgramDetail = (props) => {
   const dispatch = useDispatch();
   const history = useHistory();
 
+  // Get program details from Redux state for datasets
+  const program = useSelector((state) => state.programDetails);
+
+  // Transform datasets for MultiDatasetDownloadContainer (same as AgGridExperimentDatasets)
+  const datasets = React.useMemo(() => {
+    if (program && program.datasets) {
+      return Object.values(program.datasets).map((d) => ({
+        ...d,
+        Dataset_Name: d.Dataset_Name,
+        Long_Name: d.Long_Name,
+        Row_Count: d.Row_Count,
+      }));
+    }
+    return [];
+  }, [program]);
+
   useEffect(() => {
     // navigate action
     if (pData) {
@@ -133,6 +150,9 @@ const ProgramDetail = (props) => {
           <div className={cl.verticalPlaceholder}>
             <DatasetList2 />
           </div>
+        </Grid>
+        <Grid item xs={12}>
+          <MultiDatasetDownloadContainer datasets={datasets} />
         </Grid>
         <Grid item xs={12} md={12} lg={7}>
           <div className={cl.visVerticalPlaceholder}>

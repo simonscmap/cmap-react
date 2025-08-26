@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, CircularProgress, Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import GetAppIcon from '@material-ui/icons/GetApp';
-import { useMultiDatasetDownloadStore } from '../stores/multiDatasetDownloadStore';
+import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
 
 const useStyles = makeStyles((theme) => ({
   downloadButton: {
