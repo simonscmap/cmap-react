@@ -507,7 +507,6 @@ const DownloadDialog = (props) => {
               optionsState={optionsState}
               handleSwitch={handleSwitch}
               setInvalidFlag={handleSetInvalidFlag}
-              classes={classes}
               subsetFiltering={subsetFiltering}
             />
           </div>

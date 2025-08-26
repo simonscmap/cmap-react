@@ -16,7 +16,6 @@ const SubsetControls = ({
   optionsState,
   handleSwitch,
   setInvalidFlag,
-  classes,
   children,
   subsetFiltering,
 }) => {
@@ -86,7 +85,6 @@ const SubsetControls = ({
       optionsState,
       handleSwitch,
     },
-    classes,
   };
 
   return children ? (
