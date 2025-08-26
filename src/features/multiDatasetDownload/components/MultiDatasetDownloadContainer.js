@@ -3,6 +3,7 @@ import { Box, Typography } from '@material-ui/core';
 import SubsetControls from '../../../shared/filtering/SubsetControls';
 import useSubsetFiltering from '../../../shared/filtering/useSubsetFiltering';
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
+import useFilteringBridge from '../hooks/useFilteringBridge';
 
 const MultiDatasetDownloadContainer = ({ datasets = [] }) => {
   // Initialize Zustand store with datasets
@@ -29,6 +30,9 @@ const MultiDatasetDownloadContainer = ({ datasets = [] }) => {
 
   // Initialize subset filtering without specific dataset (multi-dataset mode)
   const subsetFiltering = useSubsetFiltering(null);
+
+  // Bridge to sync subset filtering state with Zustand store
+  const { isConnected, hasFilters } = useFilteringBridge(subsetFiltering);
 
   // Update store when datasets prop changes
   useEffect(() => {
