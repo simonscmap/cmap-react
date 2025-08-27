@@ -55,6 +55,30 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     set({ isDownloading });
   },
 
+  downloadDatasets: async () => {
+    const { datasets, selectedDatasets, filters } = get();
+    console.log('🐛🐛🐛 multiDatasetDownloadStore.js:60 filters:', filters);
+    console.log(
+      '🐛🐛🐛 multiDatasetDownloadStore.js:61 selectedDatasets:',
+      selectedDatasets,
+    );
+    try {
+      set({ isDownloading: true });
+
+      const selectedDatasetObjects = datasets.filter((dataset) =>
+        selectedDatasets.has(dataset.Dataset_Name),
+      );
+
+      const { bulkDownload } = await import('../../../api/bulkDownload');
+      await bulkDownload(selectedDatasetObjects, filters);
+    } catch (error) {
+      console.error('Download failed:', error);
+      throw error;
+    } finally {
+      set({ isDownloading: false });
+    }
+  },
+
   // Computed getters
   getSelectedDatasetCount: () => {
     const { selectedDatasets } = get();

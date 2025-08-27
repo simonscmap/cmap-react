@@ -5,7 +5,7 @@ import DefaultSubsetControlsLayout from '../../../shared/filtering/DefaultSubset
 import useSubsetFiltering from '../../../shared/filtering/useSubsetFiltering';
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
 import useFilteringBridge from '../hooks/useFilteringBridge';
-import MultiDatasetDownloadTable2 from './MultiDatasetDownloadTable2';
+import MultiDatasetDownloadTable2 from './MultiDatasetDownloadTable';
 import DownloadButton from './DownloadButton';
 
 const MultiDatasetDownloadContainer = ({ datasets = [] }) => {

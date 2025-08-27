@@ -22,13 +22,8 @@ const useStyles = makeStyles((theme) => ({
 
 const DownloadButton = () => {
   const classes = useStyles();
-  const {
-    selectedDatasets,
-    isDownloading,
-    setIsDownloading,
-    filters,
-    datasets,
-  } = useMultiDatasetDownloadStore();
+  const { selectedDatasets, isDownloading, downloadDatasets } =
+    useMultiDatasetDownloadStore();
 
   const isDisabled = selectedDatasets.size === 0 || isDownloading;
   const selectedCount = selectedDatasets.size;
@@ -37,23 +32,9 @@ const DownloadButton = () => {
     if (isDisabled) return;
 
     try {
-      setIsDownloading(true);
-
-      // Get selected dataset objects
-      const selectedDatasetObjects = datasets.filter((dataset) =>
-        selectedDatasets.has(dataset.Dataset_Name),
-      );
-
-      // Import bulk download API
-      const { bulkDownload } = await import('../../../api/bulkDownload');
-
-      // Call enhanced bulk download API with filters
-      await bulkDownload(selectedDatasetObjects, filters);
+      await downloadDatasets();
     } catch (error) {
-      console.error('Download failed:', error);
       // TODO: Add proper error handling UI in future story
-    } finally {
-      setIsDownloading(false);
     }
   };
 
