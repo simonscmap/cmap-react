@@ -20,8 +20,10 @@ import DownloadStep from './DownloadStep';
 import ValidationIndicatorBar from '../Helpers/ValidationIndicatorBar';
 import ErrorMessage from '../Helpers/ErrorMessage';
 import { validationMessages, buttonStates } from '../../utils/buttonStates';
-import SubsetControls from '../../../../shared/filtering/SubsetControls';
-import useSubsetFiltering from '../../../../shared/filtering/useSubsetFiltering';
+import {
+  useSubsetFiltering,
+  SubsetControls,
+} from '../../../../shared/filtering/';
 import {
   parseDataset,
   makeDownloadQuery,
