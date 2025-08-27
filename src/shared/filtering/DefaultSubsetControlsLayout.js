@@ -8,20 +8,25 @@ import DepthSubsetControl from './DepthSubsetControl';
 import ToggleWithHelp from '../components/ToggleWithHelp';
 import styles from './styles/DefaultSubsetControlsLayoutStyles';
 
-const DefaultSubsetControlsLayout = ({ controls, toggle }) => {
+const DefaultSubsetControlsLayout = ({
+  optionsState, // Direct props from parent (toggle state)
+  handleSwitch, // Direct props from parent (toggle handler)
+  controls, // From layoutProps via React.cloneElement (filtering data)
+  ...layoutProps // Any additional props from SubsetControls via React.cloneElement
+}) => {
   return (
     <React.Fragment>
       <ToggleWithHelp
         downloadOption={{
-          handler: toggle.handleSwitch,
-          switchState: toggle.optionsState.subset,
+          handler: handleSwitch,
+          switchState: optionsState.subset,
           name: 'subset',
           label: 'Define Subset',
         }}
         description="Define a subset of the data for download by specifying time, lat, lon, and depth parameters."
       />
 
-      <Collapse in={toggle.optionsState.subset}>
+      <Collapse in={optionsState.subset}>
         <div style={styles.subsetStep}>
           <DateSubsetControl
             timeMin={controls.date.data.timeMin}

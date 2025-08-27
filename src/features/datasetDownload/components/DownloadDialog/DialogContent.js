@@ -24,6 +24,7 @@ import {
   useSubsetFiltering,
   SubsetControls,
 } from '../../../../shared/filtering/';
+import DefaultSubsetControlsLayout from '../../../../shared/filtering/DefaultSubsetControlsLayout';
 import {
   parseDataset,
   makeDownloadQuery,
@@ -496,14 +497,17 @@ const DownloadDialog = (props) => {
             />
 
             <SubsetControls
-              optionsState={optionsState}
-              handleSwitch={handleSwitch}
               setInvalidFlag={setInvalidFlag}
               filterValues={filterValues}
               filterSetters={filterSetters}
               datasetFilterBounds={datasetFilterBounds}
               dateHandling={dateHandling}
-            />
+            >
+              <DefaultSubsetControlsLayout
+                optionsState={{ subset: optionsState.subset }}
+                handleSwitch={handleSwitch}
+              />
+            </SubsetControls>
           </div>
         </DialogContent>
       </div>
