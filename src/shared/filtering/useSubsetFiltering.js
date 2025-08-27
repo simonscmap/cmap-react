@@ -8,11 +8,17 @@ import {
 } from './dateHelpers';
 
 /**
- * Pure filtering hook for managing filter parameters
- * Contains all pure filtering logic without UI-specific state
- *
- * @param {Object} dataset - Dataset object containing metadata
- * @returns {Object} Pure filtering state and handlers
+ * Pure filtering hook for managing subset filter parameters
+ * @param {Object} dataset - Dataset object containing spatial and temporal bounds
+ * @param {number} dataset.Lat_Min - Minimum latitude boundary
+ * @param {number} dataset.Lat_Max - Maximum latitude boundary
+ * @param {number} dataset.Lon_Min - Minimum longitude boundary
+ * @param {number} dataset.Lon_Max - Maximum longitude boundary
+ * @param {number} dataset.Depth_Min - Minimum depth boundary
+ * @param {number} dataset.Depth_Max - Maximum depth boundary
+ * @param {string} dataset.Time_Min - Minimum time boundary (ISO date string)
+ * @param {string} dataset.Time_Max - Maximum time boundary (ISO date string)
+ * @param {string} dataset.Temporal_Resolution - Temporal resolution (e.g., "monthly", "daily")
  */
 const useSubsetFiltering = (dataset) => {
   // Get initial range values from dataset
