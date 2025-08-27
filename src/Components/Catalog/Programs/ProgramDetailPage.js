@@ -92,21 +92,21 @@ const ProgramDetail = (props) => {
     : Object.values(program.datasets).map((dataset) => ({
         ...dataset,
         // Flatten visualizable variables for filtering compatibility
-        ...(dataset.visualizableVariables?.lat && {
-          Lat_Min: dataset.visualizableVariables.lat.min,
-          Lat_Max: dataset.visualizableVariables.lat.max,
+        ...(dataset.visualizableVariables?.stats?.lat && {
+          Lat_Min: dataset.visualizableVariables.stats.lat.min,
+          Lat_Max: dataset.visualizableVariables.stats.lat.max,
         }),
-        ...(dataset.visualizableVariables?.lon && {
-          Lon_Min: dataset.visualizableVariables.lon.min,
-          Lon_Max: dataset.visualizableVariables.lon.max,
+        ...(dataset.visualizableVariables?.stats?.lon && {
+          Lon_Min: dataset.visualizableVariables.stats.lon.min,
+          Lon_Max: dataset.visualizableVariables.stats.lon.max,
         }),
-        ...(dataset.visualizableVariables?.time && {
-          Time_Min: dataset.visualizableVariables.time.min,
-          Time_Max: dataset.visualizableVariables.time.max,
+        ...(dataset.visualizableVariables?.stats?.time && {
+          Time_Min: dataset.visualizableVariables.stats.time.min,
+          Time_Max: dataset.visualizableVariables.stats.time.max,
         }),
-        ...(dataset.visualizableVariables?.depth && {
-          Depth_Min: dataset.visualizableVariables.depth.min,
-          Depth_Max: dataset.visualizableVariables.depth.max,
+        ...(dataset.visualizableVariables?.stats?.depth && {
+          Depth_Min: dataset.visualizableVariables.stats.depth.min,
+          Depth_Max: dataset.visualizableVariables.stats.depth.max,
         }),
       }));
   console.log('🐛🐛🐛 ProgramDetailPage.js:115 datasets[0]:', datasets[0]);
