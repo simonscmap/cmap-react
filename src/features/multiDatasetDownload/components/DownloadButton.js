@@ -33,10 +33,7 @@ const DownloadButton = ({ subsetFiltering }) => {
     if (isDisabled) return;
 
     try {
-      const transformedFilters = subsetFiltering
-        ? transformSubsetFiltersForAPI(subsetFiltering)
-        : null;
-      await downloadDatasets(transformedFilters);
+      await downloadDatasets(subsetFiltering);
     } catch (error) {
       // TODO: Add proper error handling UI in future story
     }

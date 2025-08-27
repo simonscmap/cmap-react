@@ -35,7 +35,7 @@ export const transformSubsetFiltersForAPI = (subsetFiltering) => {
         }
       : null;
 
-  // Transform spatial filters (lat/lon are already in correct format)
+  // Transform spatial filters to API format
   const spatial =
     filterValues.isFiltered &&
     (filterValues.latStart !== undefined ||
@@ -43,21 +43,21 @@ export const transformSubsetFiltersForAPI = (subsetFiltering) => {
       filterValues.lonStart !== undefined ||
       filterValues.lonEnd !== undefined)
       ? {
-          latStart: filterValues.latStart,
-          latEnd: filterValues.latEnd,
-          lonStart: filterValues.lonStart,
-          lonEnd: filterValues.lonEnd,
+          latMin: filterValues.latStart,
+          latMax: filterValues.latEnd,
+          lonMin: filterValues.lonStart,
+          lonMax: filterValues.lonEnd,
         }
       : null;
 
-  // Transform depth filters (already in correct format)
+  // Transform depth filters to API format
   const depth =
     filterValues.isFiltered &&
     (filterValues.depthStart !== undefined ||
       filterValues.depthEnd !== undefined)
       ? {
-          depthStart: filterValues.depthStart,
-          depthEnd: filterValues.depthEnd,
+          min: filterValues.depthStart,
+          max: filterValues.depthEnd,
         }
       : null;
 

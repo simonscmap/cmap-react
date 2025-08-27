@@ -24,21 +24,21 @@ const transformFiltersForAPI = (filters) => {
     };
   }
 
-  // Transform spatial filters - lat/lon already in API format
+  // Transform spatial filters - map to API format
   if (filters.spatial) {
     apiFilters.spatial = {
-      latStart: filters.spatial.latStart,
-      latEnd: filters.spatial.latEnd,
-      lonStart: filters.spatial.lonStart,
-      lonEnd: filters.spatial.lonEnd,
+      latMin: filters.spatial.latStart,
+      latMax: filters.spatial.latEnd,
+      lonMin: filters.spatial.lonStart,
+      lonMax: filters.spatial.lonEnd,
     };
   }
 
-  // Transform depth filters - already in API format
+  // Transform depth filters - map to API format
   if (filters.depth) {
     apiFilters.depth = {
-      depthStart: filters.depth.depthStart,
-      depthEnd: filters.depth.depthEnd,
+      min: filters.depth.depthStart,
+      max: filters.depth.depthEnd,
     };
   }
 

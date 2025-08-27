@@ -1,35 +1,5 @@
 import { create } from 'zustand';
-const transformFiltersForAPI = (filters) => {
-  const apiFilters = {};
 
-  // Transform temporal filters - use startDate/endDate for API compatibility
-  if (filters.temporal) {
-    apiFilters.temporal = {
-      startDate: filters.temporal.startDate,
-      endDate: filters.temporal.endDate,
-    };
-  }
-
-  // Transform spatial filters - lat/lon already in API format
-  if (filters.spatial) {
-    apiFilters.spatial = {
-      latStart: filters.spatial.latStart,
-      latEnd: filters.spatial.latEnd,
-      lonStart: filters.spatial.lonStart,
-      lonEnd: filters.spatial.lonEnd,
-    };
-  }
-
-  // Transform depth filters - already in API format
-  if (filters.depth) {
-    apiFilters.depth = {
-      depthStart: filters.depth.depthStart,
-      depthEnd: filters.depth.depthEnd,
-    };
-  }
-
-  return apiFilters;
-};
 const useMultiDatasetDownloadStore = create((set, get) => ({
   // State
   selectedDatasets: new Set(),
@@ -86,23 +56,21 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
   },
 
   downloadDatasets: async (overrideFilters) => {
+    console.log(
+      '🐛🐛🐛 multiDatasetDownloadStore.js:89 overrideFilters:',
+      overrideFilters,
+    );
     const { selectedDatasets, filters: storeFilters } = get();
     const filters = overrideFilters || storeFilters;
+
     try {
       set({ isDownloading: true });
 
       const bulkDownloadAPI = (await import('../../../api/bulkDownload'))
         .default;
       console.log('🐛🐛🐛 multiDatasetDownloadStore.js:60 filters:', filters);
-      console.log(
-        '🐛🐛🐛 multiDatasetDownloadStore.js:61 selectedDatasets:',
-        selectedDatasets,
-      );
-      console.log(
-        '🐛🐛🐛 multiDatasetDownloadStore.js:100 transformFiltersForAPI(filters):',
-        transformFiltersForAPI(filters),
-      );
-      // await bulkDownloadAPI.post(Array.from(selectedDatasets), filters);
+
+      await bulkDownloadAPI.post(Array.from(selectedDatasets), filters);
     } catch (error) {
       console.error('Download failed:', error);
       throw error;
