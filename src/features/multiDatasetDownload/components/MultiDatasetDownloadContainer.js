@@ -46,7 +46,6 @@ const MultiDatasetDownloadContainer = ({ datasets = [] }) => {
 
       <Box mb={3}>
         <SubsetControls
-          dataset={null} // Multi-dataset mode - no specific dataset
           optionsState={optionsState}
           handleSwitch={handleSwitch}
           setInvalidFlag={subsetFiltering.setInvalidFlag}

@@ -505,7 +505,6 @@ const DownloadDialog = (props) => {
             />
 
             <SubsetControls
-              dataset={dataset}
               optionsState={optionsState}
               handleSwitch={handleSwitch}
               setInvalidFlag={handleSetInvalidFlag}

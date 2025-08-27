@@ -12,7 +12,6 @@ const log = logInit('dialog subset controls').addContext({
 // 3. Maintains clean separation between data management and presentation
 
 const SubsetControls = ({
-  dataset,
   optionsState,
   handleSwitch,
   setInvalidFlag,
@@ -41,7 +40,6 @@ const SubsetControls = ({
           validTimeMax: subsetFiltering.validTimeMax,
         },
         setInvalidFlag,
-        dataset,
       },
       latitude: {
         data: {
