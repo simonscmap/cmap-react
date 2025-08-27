@@ -24,8 +24,8 @@ const DefaultSubsetControlsLayout = ({ controls, toggle }) => {
       <Collapse in={toggle.optionsState.subset}>
         <div style={styles.subsetStep}>
           <DateSubsetControl
-            timeMin={controls.date.dataset?.Time_Min}
-            timeMax={controls.date.dataset?.Time_Max}
+            timeMin={controls.date.data.timeMin}
+            timeMax={controls.date.data.timeMax}
             setTimeStart={controls.date.handlers.setTimeStart}
             setTimeEnd={controls.date.handlers.setTimeEnd}
             subsetState={{

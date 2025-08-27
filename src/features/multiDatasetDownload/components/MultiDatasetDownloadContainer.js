@@ -49,7 +49,10 @@ const MultiDatasetDownloadContainer = ({ datasets = [] }) => {
           optionsState={optionsState}
           handleSwitch={handleSwitch}
           setInvalidFlag={subsetFiltering.setInvalidFlag}
-          subsetFiltering={subsetFiltering}
+          filterValues={subsetFiltering.filterValues}
+          filterSetters={subsetFiltering.filterSetters}
+          datasetFilterBounds={subsetFiltering.datasetFilterBounds}
+          dateHandling={subsetFiltering.dateHandling}
         />
       </Box>
 

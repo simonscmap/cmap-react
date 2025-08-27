@@ -31,6 +31,8 @@ const SubsetControls = ({
           timeEnd: filterValues.timeEnd,
           maxDays: datasetFilterBounds.maxDays,
           isMonthlyClimatology: dateHandling.isMonthlyClimatology,
+          timeMin: datasetFilterBounds.timeMin,
+          timeMax: datasetFilterBounds.timeMax,
         },
         handlers: {
           setTimeStart: filterSetters.setTimeStart,
