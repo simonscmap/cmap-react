@@ -20,8 +20,10 @@ import DownloadStep from './DownloadStep';
 import ValidationIndicatorBar from '../Helpers/ValidationIndicatorBar';
 import ErrorMessage from '../Helpers/ErrorMessage';
 import { validationMessages, buttonStates } from '../../utils/buttonStates';
-import SubsetControls from '../../../../shared/filtering/SubsetControls';
-import useSubsetFiltering from '../../../../shared/filtering/useSubsetFiltering';
+import {
+  useSubsetFiltering,
+  SubsetControls,
+} from '../../../../shared/filtering/';
 import {
   parseDataset,
   makeDownloadQuery,
@@ -117,13 +119,16 @@ const DownloadDialog = (props) => {
     'ancillary',
   );
 
-  // Use subset filtering hook for filtering logic - now only need subsetParams and subsetIsDefined
-  const subsetFiltering = useSubsetFiltering(dataset);
+  // Use subset filtering hook for filtering logic
   const {
-    subsetParams,
-    subsetIsDefined,
-    setInvalidFlag: hookSetInvalidFlag,
-  } = subsetFiltering;
+    filterValues,
+    filterSetters,
+    datasetFilterBounds,
+    dateHandling,
+    isFiltered,
+    isInvalid,
+    setInvalidFlag,
+  } = useSubsetFiltering(dataset);
 
   // UI-specific state (moved from useSubsetControls)
   const [optionsState, setOptionsState] = useState({
@@ -150,7 +155,7 @@ const DownloadDialog = (props) => {
     timeEnd,
     depthStart,
     depthEnd,
-  } = subsetParams;
+  } = filterValues;
 
   // Dropbox state - new implementation
   const availableFolders = useSelector(selectAvailableFolders);
@@ -185,14 +190,6 @@ const DownloadDialog = (props) => {
   );
   let currentRequest = useSelector((state) => state.download.currentRequest);
 
-  let [isInvalid, setInvalidFlag] = useState(false);
-
-  // Use hook's setInvalidFlag but also maintain local isInvalid state
-  const handleSetInvalidFlag = (invalid) => {
-    setInvalidFlag(invalid);
-    hookSetInvalidFlag(invalid);
-  };
-
   let [downloadButtonState, setDownloadButtonState] = useState({
     enabled: false,
     message: validationMessages[checkSizeRequestState] || '',
@@ -215,7 +212,7 @@ const DownloadDialog = (props) => {
           status: buttonStates.checkSucceededAndDownloadAllowed,
         });
         return;
-      } else if (!subsetIsDefined) {
+      } else if (!isFiltered) {
         // the row count is over the limit and the download is not constrained, so prevent it
         setDownloadButtonState({
           enabled: false,
@@ -228,7 +225,7 @@ const DownloadDialog = (props) => {
 
     // (2)  use cache or make api call to get size check
     let query = makeDownloadQuery({
-      subsetParams,
+      subsetParams: filterValues,
       ancillaryData: optionsState.ancillaryData,
       tableName: dataset.Table_Name,
     });
@@ -250,7 +247,7 @@ const DownloadDialog = (props) => {
       currentRequest,
       cachedSizeCheck,
       cachedUnconstrainedQuery,
-      subsetIsDefined,
+      isFiltered,
       params: {
         subset: {
           lat: [latStart, latEnd],
@@ -274,11 +271,7 @@ const DownloadDialog = (props) => {
       } else {
         // do nothing
       }
-    } else if (
-      !cachedSizeCheck &&
-      !subsetIsDefined &&
-      cachedUnconstrainedQuery
-    ) {
+    } else if (!cachedSizeCheck && !isFiltered && cachedUnconstrainedQuery) {
       // the subset options are all at their default, which is the same as
       // a query for the full dataset, and we have a cache for that query, so don't dispatch a new one
     } else if (query !== currentRequest) {
@@ -335,7 +328,7 @@ const DownloadDialog = (props) => {
 
     // check if information about the current subset is cached
     let query = makeDownloadQuery({
-      subsetParams,
+      subsetParams: filterValues,
       ancillaryData: optionsState.ancillaryData,
       tableName: dataset.Table_Name,
     });
@@ -349,7 +342,7 @@ const DownloadDialog = (props) => {
 
     // no result found
     if (!cachedSizeCheck) {
-      if (!subsetIsDefined && cachedUnconstrainedQuery) {
+      if (!isFiltered && cachedUnconstrainedQuery) {
         // the subset options are all at their default, which is the same as
         // a query for the full dataset, and we have a cache for that query, so don't dispatch a new one
         cachedSizeCheck = cachedUnconstrainedQuery;
@@ -423,12 +416,12 @@ const DownloadDialog = (props) => {
   }, [
     querySizes,
     checkSizeRequestState,
-    subsetParams,
+    filterValues,
     optionsState,
     dataset.Table_Name,
     downloadButtonState.message,
     downloadButtonState.status,
-    subsetIsDefined,
+    isFiltered,
   ]);
 
   // open dropbox modal
@@ -438,7 +431,7 @@ const DownloadDialog = (props) => {
     if (
       dataset.Row_Count > DIRECT_DOWNLOAD_SUGGESTION_THRESHOLD &&
       !optionsState.ancillaryData &&
-      !subsetIsDefined
+      !isFiltered
     ) {
       setLargeDatasetWarningOpen(true);
       return;
@@ -446,9 +439,9 @@ const DownloadDialog = (props) => {
 
     // log params, resulting query, table, & ancillary data flag
     log.debug('handleDownload', {
-      subsetParams,
+      filterValues,
       query: makeDownloadQuery({
-        subsetParams,
+        subsetParams: filterValues,
         ancillaryData: optionsState.ancillaryData,
         tableName: dataset.Table_Name,
       }),
@@ -460,7 +453,7 @@ const DownloadDialog = (props) => {
         tableName: dataset.Table_Name,
         shortName: dataset.Short_Name,
         ancillaryData: optionsState.ancillaryData,
-        subsetParams,
+        subsetParams: filterValues,
         fileName: dataset.Long_Name,
       }),
     );
@@ -503,11 +496,13 @@ const DownloadDialog = (props) => {
             />
 
             <SubsetControls
-              dataset={dataset}
               optionsState={optionsState}
               handleSwitch={handleSwitch}
-              setInvalidFlag={handleSetInvalidFlag}
-              subsetFiltering={subsetFiltering}
+              setInvalidFlag={setInvalidFlag}
+              filterValues={filterValues}
+              filterSetters={filterSetters}
+              datasetFilterBounds={datasetFilterBounds}
+              dateHandling={dateHandling}
             />
           </div>
         </DialogContent>
@@ -515,7 +510,7 @@ const DownloadDialog = (props) => {
       <DialogActions>
         {dataset.Row_Count > DIRECT_DOWNLOAD_SUGGESTION_THRESHOLD &&
         !optionsState.ancillaryData &&
-        !subsetIsDefined ? (
+        !isFiltered ? (
           <DownloadStepWithWarning
             onOpenWarning={() => setLargeDatasetWarningOpen(true)}
             buttonState={downloadButtonState}
@@ -590,9 +585,9 @@ const DownloadDialog = (props) => {
           handleClose(); // Close the main dialog
           // Proceed with the actual download
           log.debug('handleDownload', {
-            subsetParams,
+            filterValues,
             query: makeDownloadQuery({
-              subsetParams,
+              subsetParams: filterValues,
               ancillaryData: optionsState.ancillaryData,
               tableName: dataset.Table_Name,
             }),
@@ -604,7 +599,7 @@ const DownloadDialog = (props) => {
               tableName: dataset.Table_Name,
               shortName: dataset.Short_Name,
               ancillaryData: optionsState.ancillaryData,
-              subsetParams,
+              subsetParams: filterValues,
               fileName: dataset.Long_Name,
             }),
           );

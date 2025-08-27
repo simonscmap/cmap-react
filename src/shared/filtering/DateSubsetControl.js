@@ -134,7 +134,6 @@ const DailyDateControl = (props) => {
     validTimeMin,
     validTimeMax,
   } = props;
-
   // timeStart & timeEnd are integers representing days (not Dates!)
   let { timeStart, timeEnd, maxDays } = subsetState;
   // use updatedTimeMin and updatedTimeMax for controlled input behavior

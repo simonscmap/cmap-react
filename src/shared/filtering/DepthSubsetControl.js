@@ -44,8 +44,8 @@ const DepthSubsetControl = (props) => {
             label="Start"
             type="number"
             inputProps={{
-              min: Math.floor(depthMin),
-              max: Math.ceil(depthMax),
+              min: isNaN(depthMin) ? 0 : Math.floor(depthMin),
+              max: isNaN(depthMax) ? 6000 : Math.ceil(depthMax),
               className: styles.input,
             }}
             InputLabelProps={{
@@ -61,8 +61,8 @@ const DepthSubsetControl = (props) => {
             label="End"
             type="number"
             inputProps={{
-              min: Math.floor(depthMin),
-              max: Math.ceil(depthMax),
+              min: isNaN(depthMin) ? 0 : Math.floor(depthMin),
+              max: isNaN(depthMax) ? 6000 : Math.ceil(depthMax),
               className: styles.input,
             }}
             InputLabelProps={{
@@ -75,8 +75,8 @@ const DepthSubsetControl = (props) => {
       </Grid>
 
       <Slider
-        min={Math.floor(depthMin)}
-        max={Math.ceil(depthMax)}
+        min={isNaN(depthMin) ? 0 : Math.floor(depthMin)}
+        max={isNaN(depthMax) ? 6000 : Math.ceil(depthMax)}
         value={[
           typeof depthStart === 'number' ? depthStart : -90,
           typeof depthEnd === 'number' ? depthEnd : 90,
@@ -90,12 +90,12 @@ const DepthSubsetControl = (props) => {
         style={styles.slider}
         marks={[
           {
-            value: Math.floor(depthMin),
-            label: `${Math.floor(depthMin)}`,
+            value: isNaN(depthMin) ? 0 : Math.floor(depthMin),
+            label: `${isNaN(depthMin) ? 0 : Math.floor(depthMin)}`,
           },
           {
-            value: Math.ceil(depthMax),
-            label: `${Math.ceil(depthMax)}`,
+            value: isNaN(depthMax) ? 6000 : Math.ceil(depthMax),
+            label: `${isNaN(depthMax) ? 6000 : Math.ceil(depthMax)}`,
           },
         ]}
       />

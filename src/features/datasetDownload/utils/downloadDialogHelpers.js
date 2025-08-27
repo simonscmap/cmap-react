@@ -128,14 +128,14 @@ export const makeDownloadQuery = ({
 }) => {
   if (ancillaryData) {
     // user has requested ancillary data
-    if (subsetParams.subsetIsDefined) {
+    if (subsetParams.isFiltered) {
       return makeSubsetQueryWithAncillaryData(tableName, subsetParams);
     } else {
       return makeFullDatasetQueryWithAncillaryData(tableName);
     }
   } else {
     // user has requested no ancillary data, or ancillary data is not available
-    if (subsetParams.subsetIsDefined) {
+    if (subsetParams.isFiltered) {
       return makeSubsetQuery(tableName, subsetParams);
     } else {
       return `select%20*%20from%20${tableName}`;

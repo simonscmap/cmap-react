@@ -12,12 +12,14 @@ const log = logInit('dialog subset controls').addContext({
 // 3. Maintains clean separation between data management and presentation
 
 const SubsetControls = ({
-  dataset,
   optionsState,
   handleSwitch,
   setInvalidFlag,
   children,
-  subsetFiltering,
+  filterValues,
+  filterSetters,
+  datasetFilterBounds,
+  dateHandling,
 }) => {
   // Transform into clean layout props
   const layoutProps = {
@@ -25,58 +27,59 @@ const SubsetControls = ({
     controls: {
       date: {
         data: {
-          timeStart: subsetFiltering.subsetParams.timeStart,
-          timeEnd: subsetFiltering.subsetParams.timeEnd,
-          maxDays: subsetFiltering.maxDays,
-          isMonthlyClimatology: subsetFiltering.isMonthlyClimatology,
+          timeStart: filterValues.timeStart,
+          timeEnd: filterValues.timeEnd,
+          maxDays: datasetFilterBounds.maxDays,
+          isMonthlyClimatology: dateHandling.isMonthlyClimatology,
+          timeMin: datasetFilterBounds.timeMin,
+          timeMax: datasetFilterBounds.timeMax,
         },
         handlers: {
-          setTimeStart: subsetFiltering.subsetSetters.setTimeStart,
-          setTimeEnd: subsetFiltering.subsetSetters.setTimeEnd,
-          handleSetStartDate: subsetFiltering.handleSetStartDate,
-          handleSetEndDate: subsetFiltering.handleSetEndDate,
+          setTimeStart: filterSetters.setTimeStart,
+          setTimeEnd: filterSetters.setTimeEnd,
+          handleSetStartDate: dateHandling.handleSetStartDate,
+          handleSetEndDate: dateHandling.handleSetEndDate,
         },
         validation: {
-          validTimeMin: subsetFiltering.validTimeMin,
-          validTimeMax: subsetFiltering.validTimeMax,
+          validTimeMin: dateHandling.validTimeMin,
+          validTimeMax: dateHandling.validTimeMax,
         },
         setInvalidFlag,
-        dataset,
       },
       latitude: {
         data: {
-          latStart: subsetFiltering.subsetParams.latStart,
-          latEnd: subsetFiltering.subsetParams.latEnd,
-          latMin: subsetFiltering.latMin,
-          latMax: subsetFiltering.latMax,
+          latStart: filterValues.latStart,
+          latEnd: filterValues.latEnd,
+          latMin: datasetFilterBounds.latMin,
+          latMax: datasetFilterBounds.latMax,
         },
         handlers: {
-          setLatStart: subsetFiltering.subsetSetters.setLatStart,
-          setLatEnd: subsetFiltering.subsetSetters.setLatEnd,
+          setLatStart: filterSetters.setLatStart,
+          setLatEnd: filterSetters.setLatEnd,
         },
       },
       longitude: {
         data: {
-          lonStart: subsetFiltering.subsetParams.lonStart,
-          lonEnd: subsetFiltering.subsetParams.lonEnd,
-          lonMin: subsetFiltering.lonMin,
-          lonMax: subsetFiltering.lonMax,
+          lonStart: filterValues.lonStart,
+          lonEnd: filterValues.lonEnd,
+          lonMin: datasetFilterBounds.lonMin,
+          lonMax: datasetFilterBounds.lonMax,
         },
         handlers: {
-          setLonStart: subsetFiltering.subsetSetters.setLonStart,
-          setLonEnd: subsetFiltering.subsetSetters.setLonEnd,
+          setLonStart: filterSetters.setLonStart,
+          setLonEnd: filterSetters.setLonEnd,
         },
       },
       depth: {
         data: {
-          depthStart: subsetFiltering.subsetParams.depthStart,
-          depthEnd: subsetFiltering.subsetParams.depthEnd,
-          depthMin: subsetFiltering.depthMin,
-          depthMax: subsetFiltering.depthMax,
+          depthStart: filterValues.depthStart,
+          depthEnd: filterValues.depthEnd,
+          depthMin: datasetFilterBounds.depthMin,
+          depthMax: datasetFilterBounds.depthMax,
         },
         handlers: {
-          setDepthStart: subsetFiltering.subsetSetters.setDepthStart,
-          setDepthEnd: subsetFiltering.subsetSetters.setDepthEnd,
+          setDepthStart: filterSetters.setDepthStart,
+          setDepthEnd: filterSetters.setDepthEnd,
         },
       },
     },
