@@ -119,13 +119,48 @@ const DownloadDialog = (props) => {
     'ancillary',
   );
 
-  // Use subset filtering hook for filtering logic - now only need subsetParams and subsetIsDefined
-  const subsetFiltering = useSubsetFiltering(dataset);
+  // Use subset filtering hook for filtering logic
   const {
     subsetParams,
+    subsetSetters,
     subsetIsDefined,
+    maxDays,
+    isMonthlyClimatology,
+    handleSetStartDate,
+    handleSetEndDate,
+    validTimeMin,
+    validTimeMax,
+    latMin,
+    latMax,
+    lonMin,
+    lonMax,
+    depthMin,
+    depthMax,
+    timeMin,
+    timeMax,
     setInvalidFlag: hookSetInvalidFlag,
-  } = subsetFiltering;
+  } = useSubsetFiltering(dataset);
+
+  // Group props for SubsetControls
+  const datasetBounds = {
+    latMin,
+    latMax,
+    lonMin,
+    lonMax,
+    depthMin,
+    depthMax,
+    timeMin,
+    timeMax,
+  };
+
+  const dateHandling = {
+    maxDays,
+    isMonthlyClimatology,
+    handleSetStartDate,
+    handleSetEndDate,
+    validTimeMin,
+    validTimeMax,
+  };
 
   // UI-specific state (moved from useSubsetControls)
   const [optionsState, setOptionsState] = useState({
@@ -508,7 +543,10 @@ const DownloadDialog = (props) => {
               optionsState={optionsState}
               handleSwitch={handleSwitch}
               setInvalidFlag={handleSetInvalidFlag}
-              subsetFiltering={subsetFiltering}
+              subsetParams={subsetParams}
+              subsetSetters={subsetSetters}
+              datasetBounds={datasetBounds}
+              dateHandling={dateHandling}
             />
           </div>
         </DialogContent>
