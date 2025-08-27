@@ -59,7 +59,7 @@ const StyledBodyTableCell = styled(TableCell)(({ theme }) => ({
   whiteSpace: 'nowrap',
 }));
 
-const MultiDatasetDownloadTable2 = () => {
+const MultiDatasetDownloadTable = () => {
   const { datasets, isDatasetSelected, toggleDatasetSelection } =
     useMultiDatasetDownloadStore();
 
@@ -132,4 +132,4 @@ const MultiDatasetDownloadTable2 = () => {
   );
 };
 
-export default MultiDatasetDownloadTable2;
+export default MultiDatasetDownloadTable;
