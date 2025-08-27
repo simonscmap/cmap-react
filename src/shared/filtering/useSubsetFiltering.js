@@ -197,32 +197,35 @@ const useSubsetFiltering = (dataset) => {
   );
 
   return {
-    // State values
+    // Core data objects
     subsetParams,
     subsetSetters,
+
+    // Logical groupings for SubsetControls
+    datasetBounds: {
+      latMin: dataset?.Lat_Min,
+      latMax: dataset?.Lat_Max,
+      lonMin: dataset?.Lon_Min,
+      lonMax: dataset?.Lon_Max,
+      depthMin: dataset?.Depth_Min,
+      depthMax: dataset?.Depth_Max,
+      timeMin: dataset?.Time_Min,
+      timeMax: dataset?.Time_Max,
+    },
+
+    dateHandling: {
+      maxDays,
+      isMonthlyClimatology,
+      handleSetStartDate,
+      handleSetEndDate,
+      validTimeMin,
+      validTimeMax,
+    },
+
+    // Individual state values
     subsetIsDefined,
-    maxDays,
     isInvalid,
-
-    // Explicit dataset props for components
-    latMin: dataset?.Lat_Min,
-    latMax: dataset?.Lat_Max,
-    lonMin: dataset?.Lon_Min,
-    lonMax: dataset?.Lon_Max,
-    depthMin: dataset?.Depth_Min,
-    depthMax: dataset?.Depth_Max,
-    timeMin: dataset?.Time_Min,
-    timeMax: dataset?.Time_Max,
-
-    // Utility functions
     setInvalidFlag,
-
-    // Date-specific functionality
-    handleSetStartDate,
-    handleSetEndDate,
-    validTimeMin,
-    validTimeMax,
-    isMonthlyClimatology,
   };
 };
 

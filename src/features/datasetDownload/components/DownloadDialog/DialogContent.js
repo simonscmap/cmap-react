@@ -123,44 +123,11 @@ const DownloadDialog = (props) => {
   const {
     subsetParams,
     subsetSetters,
+    datasetBounds,
+    dateHandling,
     subsetIsDefined,
-    maxDays,
-    isMonthlyClimatology,
-    handleSetStartDate,
-    handleSetEndDate,
-    validTimeMin,
-    validTimeMax,
-    latMin,
-    latMax,
-    lonMin,
-    lonMax,
-    depthMin,
-    depthMax,
-    timeMin,
-    timeMax,
     setInvalidFlag: hookSetInvalidFlag,
   } = useSubsetFiltering(dataset);
-
-  // Group props for SubsetControls
-  const datasetBounds = {
-    latMin,
-    latMax,
-    lonMin,
-    lonMax,
-    depthMin,
-    depthMax,
-    timeMin,
-    timeMax,
-  };
-
-  const dateHandling = {
-    maxDays,
-    isMonthlyClimatology,
-    handleSetStartDate,
-    handleSetEndDate,
-    validTimeMin,
-    validTimeMax,
-  };
 
   // UI-specific state (moved from useSubsetControls)
   const [optionsState, setOptionsState] = useState({
