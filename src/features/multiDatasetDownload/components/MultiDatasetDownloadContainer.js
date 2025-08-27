@@ -11,6 +11,42 @@ import DownloadButton from './DownloadButton';
 const MultiDatasetDownloadContainer = ({ datasets = [] }) => {
   // Initialize Zustand store with datasets
   const { initializeDatasets } = useMultiDatasetDownloadStore();
+  // Compute aggregate dataset bounds for multi-dataset filtering
+  const aggregateDataset = useMemo(() => {
+    if (!datasets || datasets.length === 0) {
+      return null;
+    }
+
+    const validDatasets = datasets.filter(
+      (d) =>
+        d.Lat_Min !== undefined &&
+        d.Lat_Max !== undefined &&
+        d.Lon_Min !== undefined &&
+        d.Lon_Max !== undefined,
+    );
+
+    if (validDatasets.length === 0) return null;
+
+    return {
+      Lat_Min: Math.min(...validDatasets.map((d) => d.Lat_Min)),
+      Lat_Max: Math.max(...validDatasets.map((d) => d.Lat_Max)),
+      Lon_Min: Math.min(...validDatasets.map((d) => d.Lon_Min)),
+      Lon_Max: Math.max(...validDatasets.map((d) => d.Lon_Max)),
+      Depth_Min: Math.min(...validDatasets.map((d) => d.Depth_Min || 0)),
+      Depth_Max: Math.max(...validDatasets.map((d) => d.Depth_Max || 0)),
+      Time_Min: validDatasets.reduce(
+        (min, d) =>
+          !min || (d.Time_Min && d.Time_Min < min) ? d.Time_Min : min,
+        null,
+      ),
+      Time_Max: validDatasets.reduce(
+        (max, d) =>
+          !max || (d.Time_Max && d.Time_Max > max) ? d.Time_Max : max,
+        null,
+      ),
+      Temporal_Resolution: validDatasets[0]?.Temporal_Resolution || 'daily',
+    };
+  }, [datasets]);
 
   // State for toggle controls (required by layout components)
   const [optionsState, setOptionsState] = useState({
@@ -24,9 +60,12 @@ const MultiDatasetDownloadContainer = ({ datasets = [] }) => {
       [controlType]: !prev[controlType],
     }));
   };
-
+  console.log(
+    '🐛🐛🐛 MultiDatasetDownloadContainer.js:63 aggregateDataset:',
+    aggregateDataset,
+  );
   // Initialize subset filtering without specific dataset (multi-dataset mode)
-  const subsetFiltering = useSubsetFiltering(null);
+  const subsetFiltering = useSubsetFiltering(aggregateDataset);
 
   // Bridge to sync subset filtering state with Zustand store
   useFilteringBridge(subsetFiltering);
