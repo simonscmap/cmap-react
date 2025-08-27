@@ -88,7 +88,7 @@ const columnDefinitions = [
     },
   },
   {
-    field: 'Long_Name',
+    field: 'Dataset_Long_Name',
     headerName: 'Description',
     flex: 3,
     cellRenderer: (params) => {
