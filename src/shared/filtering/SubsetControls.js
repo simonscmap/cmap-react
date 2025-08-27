@@ -11,6 +11,17 @@ const log = logInit('dialog subset controls').addContext({
 // 2. Simplifies consumer usage by requiring only essential props
 // 3. Maintains clean separation between data management and presentation
 
+/**
+ * Subset controls for filtering data by time, latitude, longitude, and depth
+ * @param {Object} optionsState - Toggle states for subset controls
+ * @param {Function} handleSwitch - Handler for toggling subset options
+ * @param {Function} setInvalidFlag - Sets validation error flags
+ * @param {React.ReactNode} children - Optional custom layout component
+ * @param {Object} filterValues - Current filter values { timeStart, timeEnd, latStart, latEnd, lonStart, lonEnd, depthStart, depthEnd }
+ * @param {Object} filterSetters - Setter functions { setTimeStart, setTimeEnd, setLatStart, setLatEnd, setLonStart, setLonEnd, setDepthStart, setDepthEnd }
+ * @param {Object} datasetFilterBounds - Min/max bounds { timeMin, timeMax, latMin, latMax, lonMin, lonMax, depthMin, depthMax, maxDays }
+ * @param {Object} dateHandling - Date-specific handlers and validation { isMonthlyClimatology, handleSetStartDate, handleSetEndDate, validTimeMin, validTimeMax }
+ */
 const SubsetControls = ({
   optionsState,
   handleSwitch,
