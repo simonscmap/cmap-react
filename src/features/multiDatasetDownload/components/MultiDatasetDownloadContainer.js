@@ -77,7 +77,9 @@ const MultiDatasetDownloadContainer = ({ datasets = [] }) => {
   }, [datasets, initializeDatasets]);
 
   return (
-    <Box>
+    <Box
+      sx={{ maxWidth: '100vw', overflow: 'hidden', boxSizing: 'border-box' }}
+    >
       <Typography variant="h6" gutterBottom>
         Multi-Dataset Download
       </Typography>
