@@ -60,20 +60,14 @@ const MultiDatasetDownloadContainer = ({ datasets = [] }) => {
       [controlType]: !prev[controlType],
     }));
   };
-  console.log(
-    '🐛🐛🐛 MultiDatasetDownloadContainer.js:63 aggregateDataset:',
-    aggregateDataset,
-  );
-  // Initialize subset filtering without specific dataset (multi-dataset mode)
   const subsetFiltering = useSubsetFiltering(aggregateDataset);
 
-  // Bridge to sync subset filtering state with Zustand store
   useFilteringBridge(subsetFiltering);
 
-  // Initialize store once on mount
+  // Initialize store when datasets change
   useMemo(() => {
     initializeDatasets(datasets);
-  }, []);
+  }, [datasets, initializeDatasets]);
 
   return (
     <Box>

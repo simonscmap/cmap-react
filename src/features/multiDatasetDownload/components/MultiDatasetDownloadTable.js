@@ -112,6 +112,7 @@ const columnDefinitions = [
 const MultiDatasetDownloadTable = () => {
   const classes = useStyles();
   const { datasets } = useMultiDatasetDownloadStore();
+  console.log('🐛🐛🐛 MultiDatasetDownloadTable.js:115 datasets:', datasets);
   const [api, setApi] = useState(null);
 
   const onGridReady = (params) => {
