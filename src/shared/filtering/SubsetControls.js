@@ -16,9 +16,9 @@ const SubsetControls = ({
   handleSwitch,
   setInvalidFlag,
   children,
-  subsetParams,
-  subsetSetters,
-  datasetBounds,
+  filterValues,
+  filterSetters,
+  datasetFilterBounds,
   dateHandling,
 }) => {
   // Transform into clean layout props
@@ -27,14 +27,14 @@ const SubsetControls = ({
     controls: {
       date: {
         data: {
-          timeStart: subsetParams.timeStart,
-          timeEnd: subsetParams.timeEnd,
-          maxDays: dateHandling.maxDays,
+          timeStart: filterValues.timeStart,
+          timeEnd: filterValues.timeEnd,
+          maxDays: datasetFilterBounds.maxDays,
           isMonthlyClimatology: dateHandling.isMonthlyClimatology,
         },
         handlers: {
-          setTimeStart: subsetSetters.setTimeStart,
-          setTimeEnd: subsetSetters.setTimeEnd,
+          setTimeStart: filterSetters.setTimeStart,
+          setTimeEnd: filterSetters.setTimeEnd,
           handleSetStartDate: dateHandling.handleSetStartDate,
           handleSetEndDate: dateHandling.handleSetEndDate,
         },
@@ -46,38 +46,38 @@ const SubsetControls = ({
       },
       latitude: {
         data: {
-          latStart: subsetParams.latStart,
-          latEnd: subsetParams.latEnd,
-          latMin: datasetBounds.latMin,
-          latMax: datasetBounds.latMax,
+          latStart: filterValues.latStart,
+          latEnd: filterValues.latEnd,
+          latMin: datasetFilterBounds.latMin,
+          latMax: datasetFilterBounds.latMax,
         },
         handlers: {
-          setLatStart: subsetSetters.setLatStart,
-          setLatEnd: subsetSetters.setLatEnd,
+          setLatStart: filterSetters.setLatStart,
+          setLatEnd: filterSetters.setLatEnd,
         },
       },
       longitude: {
         data: {
-          lonStart: subsetParams.lonStart,
-          lonEnd: subsetParams.lonEnd,
-          lonMin: datasetBounds.lonMin,
-          lonMax: datasetBounds.lonMax,
+          lonStart: filterValues.lonStart,
+          lonEnd: filterValues.lonEnd,
+          lonMin: datasetFilterBounds.lonMin,
+          lonMax: datasetFilterBounds.lonMax,
         },
         handlers: {
-          setLonStart: subsetSetters.setLonStart,
-          setLonEnd: subsetSetters.setLonEnd,
+          setLonStart: filterSetters.setLonStart,
+          setLonEnd: filterSetters.setLonEnd,
         },
       },
       depth: {
         data: {
-          depthStart: subsetParams.depthStart,
-          depthEnd: subsetParams.depthEnd,
-          depthMin: datasetBounds.depthMin,
-          depthMax: datasetBounds.depthMax,
+          depthStart: filterValues.depthStart,
+          depthEnd: filterValues.depthEnd,
+          depthMin: datasetFilterBounds.depthMin,
+          depthMax: datasetFilterBounds.depthMax,
         },
         handlers: {
-          setDepthStart: subsetSetters.setDepthStart,
-          setDepthEnd: subsetSetters.setDepthEnd,
+          setDepthStart: filterSetters.setDepthStart,
+          setDepthEnd: filterSetters.setDepthEnd,
         },
       },
     },

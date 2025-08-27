@@ -8,7 +8,7 @@ import {
 } from './dateHelpers';
 
 /**
- * Pure filtering hook for managing subset parameters
+ * Pure filtering hook for managing filter parameters
  * Contains all pure filtering logic without UI-specific state
  *
  * @param {Object} dataset - Dataset object containing metadata
@@ -28,7 +28,7 @@ const useSubsetFiltering = (dataset) => {
         };
   }, [dataset]);
 
-  // State for subset parameters
+  // State for filter parameters
   const [latStart, setLatStart] = useState(lat.start);
   const [latEnd, setLatEnd] = useState(lat.end);
   const [lonStart, setLonStart] = useState(lon.start);
@@ -118,8 +118,8 @@ const useSubsetFiltering = (dataset) => {
       : false;
   }, [dataset?.Temporal_Resolution]);
 
-  // Determine if subset is defined (different from defaults)
-  const subsetIsDefined = useMemo(() => {
+  // Determine if filter is defined (different from defaults)
+  const isFiltered = useMemo(() => {
     return (
       latStart !== lat.start ||
       latEnd !== lat.end ||
@@ -149,27 +149,23 @@ const useSubsetFiltering = (dataset) => {
     depth.end,
   ]);
 
-  // Subset parameters object
-  const subsetParams = useMemo(
+  // Filter parameters object
+  const filterValues = useMemo(
     () => ({
-      subsetIsDefined,
+      isFiltered,
       temporalResolution: dataset?.Temporal_Resolution,
       lonStart,
       lonEnd,
       latStart,
       latEnd,
       timeStart,
-      Time_Max: dataset?.Time_Max,
-      Time_Min: dataset?.Time_Min,
       timeEnd,
       depthStart,
       depthEnd,
     }),
     [
-      subsetIsDefined,
+      isFiltered,
       dataset?.Temporal_Resolution,
-      dataset?.Time_Max,
-      dataset?.Time_Min,
       lonStart,
       lonEnd,
       latStart,
@@ -181,8 +177,8 @@ const useSubsetFiltering = (dataset) => {
     ],
   );
 
-  // Subset setters object
-  const subsetSetters = useMemo(
+  // Filter setters object
+  const filterSetters = useMemo(
     () => ({
       setTimeStart,
       setTimeEnd,
@@ -198,11 +194,11 @@ const useSubsetFiltering = (dataset) => {
 
   return {
     // Core data objects
-    subsetParams,
-    subsetSetters,
+    filterValues,
+    filterSetters,
 
     // Logical groupings for SubsetControls
-    datasetBounds: {
+    datasetFilterBounds: {
       latMin: dataset?.Lat_Min,
       latMax: dataset?.Lat_Max,
       lonMin: dataset?.Lon_Min,
@@ -211,10 +207,10 @@ const useSubsetFiltering = (dataset) => {
       depthMax: dataset?.Depth_Max,
       timeMin: dataset?.Time_Min,
       timeMax: dataset?.Time_Max,
+      maxDays,
     },
 
     dateHandling: {
-      maxDays,
       isMonthlyClimatology,
       handleSetStartDate,
       handleSetEndDate,
@@ -223,7 +219,7 @@ const useSubsetFiltering = (dataset) => {
     },
 
     // Individual state values
-    subsetIsDefined,
+    isFiltered,
     isInvalid,
     setInvalidFlag,
   };
