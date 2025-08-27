@@ -85,8 +85,9 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     set({ isDownloading });
   },
 
-  downloadDatasets: async () => {
-    const { selectedDatasets, filters } = get();
+  downloadDatasets: async (overrideFilters) => {
+    const { selectedDatasets, filters: storeFilters } = get();
+    const filters = overrideFilters || storeFilters;
     try {
       set({ isDownloading: true });
 

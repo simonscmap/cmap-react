@@ -3,6 +3,7 @@ import { Button, CircularProgress, Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
+import { transformSubsetFiltersForAPI } from '../../../shared/filtering/filterTransformUtils';
 
 const useStyles = makeStyles((theme) => ({
   downloadButton: {
@@ -20,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const DownloadButton = () => {
+const DownloadButton = ({ subsetFiltering }) => {
   const classes = useStyles();
   const { selectedDatasets, isDownloading, downloadDatasets } =
     useMultiDatasetDownloadStore();
@@ -32,7 +33,10 @@ const DownloadButton = () => {
     if (isDisabled) return;
 
     try {
-      await downloadDatasets();
+      const transformedFilters = subsetFiltering
+        ? transformSubsetFiltersForAPI(subsetFiltering)
+        : null;
+      await downloadDatasets(transformedFilters);
     } catch (error) {
       // TODO: Add proper error handling UI in future story
     }

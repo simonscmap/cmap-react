@@ -4,7 +4,6 @@ import SubsetControls from '../../../shared/filtering/SubsetControls';
 import DefaultSubsetControlsLayout from '../../../shared/filtering/DefaultSubsetControlsLayout';
 import useSubsetFiltering from '../../../shared/filtering/useSubsetFiltering';
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
-import useFilteringBridge from '../hooks/useFilteringBridge';
 import MultiDatasetDownloadTable from './MultiDatasetDownloadTable';
 import DownloadButton from './DownloadButton';
 
@@ -62,8 +61,6 @@ const MultiDatasetDownloadContainer = ({ datasets = [] }) => {
   };
   const subsetFiltering = useSubsetFiltering(aggregateDataset);
 
-  useFilteringBridge(subsetFiltering);
-
   // Initialize store when datasets change
   useMemo(() => {
     initializeDatasets(datasets);
@@ -95,7 +92,7 @@ const MultiDatasetDownloadContainer = ({ datasets = [] }) => {
       </Box>
 
       <Box>
-        <DownloadButton />
+        <DownloadButton subsetFiltering={subsetFiltering} />
       </Box>
     </Box>
   );
