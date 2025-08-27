@@ -162,6 +162,7 @@ const useSubsetFiltering = (dataset) => {
       timeEnd,
       depthStart,
       depthEnd,
+      Time_Min: dataset?.Time_Min,
     }),
     [
       isFiltered,
@@ -174,6 +175,7 @@ const useSubsetFiltering = (dataset) => {
       timeEnd,
       depthStart,
       depthEnd,
+      dataset?.Time_Min,
     ],
   );
 
