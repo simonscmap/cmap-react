@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Box, Typography } from '@material-ui/core';
 import SubsetControls from '../../../shared/filtering/SubsetControls';
+import DefaultSubsetControlsLayout from '../../../shared/filtering/DefaultSubsetControlsLayout';
 import useSubsetFiltering from '../../../shared/filtering/useSubsetFiltering';
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
 import useFilteringBridge from '../hooks/useFilteringBridge';
@@ -11,12 +12,9 @@ const MultiDatasetDownloadContainer = ({ datasets = [] }) => {
   // Initialize Zustand store with datasets
   const { initializeDatasets } = useMultiDatasetDownloadStore();
 
-  // State for toggle controls (required by SubsetControls)
+  // State for toggle controls (required by layout components)
   const [optionsState, setOptionsState] = useState({
-    date: true,
-    latitude: true,
-    longitude: true,
-    depth: true,
+    subset: true,
   });
 
   // Handle toggle switch for subset controls
@@ -46,14 +44,17 @@ const MultiDatasetDownloadContainer = ({ datasets = [] }) => {
 
       <Box mb={3}>
         <SubsetControls
-          optionsState={optionsState}
-          handleSwitch={handleSwitch}
           setInvalidFlag={subsetFiltering.setInvalidFlag}
           filterValues={subsetFiltering.filterValues}
           filterSetters={subsetFiltering.filterSetters}
           datasetFilterBounds={subsetFiltering.datasetFilterBounds}
           dateHandling={subsetFiltering.dateHandling}
-        />
+        >
+          <DefaultSubsetControlsLayout
+            optionsState={optionsState}
+            handleSwitch={handleSwitch}
+          />
+        </SubsetControls>
       </Box>
 
       <Box mb={3}>

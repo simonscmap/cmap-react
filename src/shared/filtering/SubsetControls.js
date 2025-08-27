@@ -1,5 +1,4 @@
 import React from 'react';
-import DefaultSubsetControlsLayout from './DefaultSubsetControlsLayout';
 
 import logInit from '../../Services/log-service';
 const log = logInit('dialog subset controls').addContext({
@@ -12,21 +11,18 @@ const log = logInit('dialog subset controls').addContext({
 // 3. Maintains clean separation between data management and presentation
 
 /**
- * Subset controls for filtering data by time, latitude, longitude, and depth
- * @param {Object} optionsState - Toggle states for subset controls
- * @param {Function} handleSwitch - Handler for toggling subset options
+ * Headless subset controls component for filtering data by time, latitude, longitude, and depth
+ * Provides filtering data to layout components without managing any UI state
  * @param {Function} setInvalidFlag - Sets validation error flags
- * @param {React.ReactNode} children - Optional custom layout component
+ * @param {React.ReactNode} children - Required layout component (no default layout)
  * @param {Object} filterValues - Current filter values { timeStart, timeEnd, latStart, latEnd, lonStart, lonEnd, depthStart, depthEnd }
  * @param {Object} filterSetters - Setter functions { setTimeStart, setTimeEnd, setLatStart, setLatEnd, setLonStart, setLonEnd, setDepthStart, setDepthEnd }
  * @param {Object} datasetFilterBounds - Min/max bounds { timeMin, timeMax, latMin, latMax, lonMin, lonMax, depthMin, depthMax, maxDays }
  * @param {Object} dateHandling - Date-specific handlers and validation { isMonthlyClimatology, handleSetStartDate, handleSetEndDate, validTimeMin, validTimeMax }
  */
 const SubsetControls = ({
-  optionsState,
-  handleSwitch,
   setInvalidFlag,
-  children,
+  children, // Required - no default layout
   filterValues,
   filterSetters,
   datasetFilterBounds,
@@ -94,18 +90,9 @@ const SubsetControls = ({
         },
       },
     },
-    // Toggle state
-    toggle: {
-      optionsState,
-      handleSwitch,
-    },
   };
 
-  return children ? (
-    React.cloneElement(children, layoutProps)
-  ) : (
-    <DefaultSubsetControlsLayout {...layoutProps} />
-  );
+  return React.cloneElement(children, layoutProps);
 };
 
 export default SubsetControls;
