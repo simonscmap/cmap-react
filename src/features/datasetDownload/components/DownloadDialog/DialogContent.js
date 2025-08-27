@@ -126,7 +126,8 @@ const DownloadDialog = (props) => {
     datasetFilterBounds,
     dateHandling,
     isFiltered,
-    setInvalidFlag: hookSetInvalidFlag,
+    isInvalid,
+    setInvalidFlag,
   } = useSubsetFiltering(dataset);
 
   // UI-specific state (moved from useSubsetControls)
@@ -188,14 +189,6 @@ const DownloadDialog = (props) => {
     (state) => state.download.checkQueryRequestState,
   );
   let currentRequest = useSelector((state) => state.download.currentRequest);
-
-  let [isInvalid, setInvalidFlag] = useState(false);
-
-  // Use hook's setInvalidFlag but also maintain local isInvalid state
-  const handleSetInvalidFlag = (invalid) => {
-    setInvalidFlag(invalid);
-    hookSetInvalidFlag(invalid);
-  };
 
   let [downloadButtonState, setDownloadButtonState] = useState({
     enabled: false,
@@ -505,7 +498,7 @@ const DownloadDialog = (props) => {
             <SubsetControls
               optionsState={optionsState}
               handleSwitch={handleSwitch}
-              setInvalidFlag={handleSetInvalidFlag}
+              setInvalidFlag={setInvalidFlag}
               filterValues={filterValues}
               filterSetters={filterSetters}
               datasetFilterBounds={datasetFilterBounds}
