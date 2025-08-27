@@ -51,7 +51,10 @@ const MultiDatasetDownloadContainer = ({ datasets = [] }) => {
   const [optionsState, setOptionsState] = useState({
     subset: true,
   });
-
+  console.log(
+    '🐛🐛🐛 MultiDatasetDownloadContainer.js:54 aggregateDataset:',
+    aggregateDataset,
+  );
   // Handle toggle switch for subset controls
   const handleSwitch = (controlType) => {
     setOptionsState((prev) => ({
@@ -59,7 +62,14 @@ const MultiDatasetDownloadContainer = ({ datasets = [] }) => {
       [controlType]: !prev[controlType],
     }));
   };
-  const subsetFiltering = useSubsetFiltering(aggregateDataset);
+
+  const {
+    setInvalidFlag,
+    filterValues,
+    filterSetters,
+    datasetFilterBounds,
+    dateHandling,
+  } = useSubsetFiltering(aggregateDataset);
 
   // Initialize store when datasets change
   useMemo(() => {
@@ -74,11 +84,11 @@ const MultiDatasetDownloadContainer = ({ datasets = [] }) => {
 
       <Box mb={3}>
         <SubsetControls
-          setInvalidFlag={subsetFiltering.setInvalidFlag}
-          filterValues={subsetFiltering.filterValues}
-          filterSetters={subsetFiltering.filterSetters}
-          datasetFilterBounds={subsetFiltering.datasetFilterBounds}
-          dateHandling={subsetFiltering.dateHandling}
+          setInvalidFlag={setInvalidFlag}
+          filterValues={filterValues}
+          filterSetters={filterSetters}
+          datasetFilterBounds={datasetFilterBounds}
+          dateHandling={dateHandling}
         >
           <DefaultSubsetControlsLayout
             optionsState={optionsState}
@@ -92,7 +102,15 @@ const MultiDatasetDownloadContainer = ({ datasets = [] }) => {
       </Box>
 
       <Box>
-        <DownloadButton subsetFiltering={subsetFiltering} />
+        <DownloadButton
+          subsetFiltering={{
+            setInvalidFlag,
+            filterValues,
+            filterSetters,
+            datasetFilterBounds,
+            dateHandling,
+          }}
+        />
       </Box>
     </Box>
   );
