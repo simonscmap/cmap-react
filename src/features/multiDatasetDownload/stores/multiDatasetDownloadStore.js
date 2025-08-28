@@ -70,7 +70,10 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
         .default;
       console.log('🐛🐛🐛 multiDatasetDownloadStore.js:60 filters:', filters);
 
-      await bulkDownloadAPI.post(Array.from(selectedDatasets), filters);
+      await bulkDownloadAPI.post(
+        Array.from(selectedDatasets),
+        filters.filterValues,
+      );
     } catch (error) {
       console.error('Download failed:', error);
       throw error;
