@@ -3,6 +3,7 @@ import bulkDownloadAPI from '../../../api/bulkDownload';
 
 const useRowCountStore = create((set, get) => ({
   // State
+  datasetNames: [],
   originalRowCounts: {},
   dynamicRowCounts: {},
   rowCountsLoading: {},
@@ -10,12 +11,17 @@ const useRowCountStore = create((set, get) => ({
   debounceTimer: null,
 
   // Actions
-  setOriginalRowCounts: (datasets) => {
-    set({ originalRowCounts: { ...datasets } });
+  initializeWithDatasets: (datasets) => {
+    const datasetNames = Object.keys(datasets);
+    set({
+      datasetNames,
+      originalRowCounts: { ...datasets },
+    });
   },
 
-  updateRowCountsForFilters: (datasetNames, filters) => {
+  updateRowCountsForFilters: (filters) => {
     const state = get();
+    const { datasetNames } = state;
 
     // Clear existing timer
     if (state.debounceTimer) {

@@ -68,7 +68,7 @@ const MultiDatasetDownloadTable = () => {
     getEffectiveRowCount,
     isRowCountLoading,
     getRowCountError,
-    setOriginalRowCounts,
+    initializeWithDatasets,
   } = useRowCountStore();
 
   const handleToggle = (datasetName) => (event) => {
@@ -106,7 +106,7 @@ const MultiDatasetDownloadTable = () => {
           rowCountData[dataset.Dataset_Name] = dataset.Row_Count;
         }
       });
-      setOriginalRowCounts(rowCountData);
+      initializeWithDatasets(rowCountData);
     }
   }, []);
 
