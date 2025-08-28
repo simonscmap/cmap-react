@@ -51,36 +51,82 @@ const transformFiltersForAPI = (filters) => {
   return apiFilters;
 };
 
-const bulkDownloadAPI = {};
-
-bulkDownloadAPI.post = async (datasetShortNames, filters = null) => {
-  log.debug('starting bulk download', { datasetShortNames, filters });
-  const endpoint = apiUrl + `/api/data/bulk-download`;
-
+/**
+ * Create and submit a form for file download
+ * @param {string} endpoint - API endpoint URL
+ * @param {Object} data - Data to submit in form
+ */
+const submitDownloadForm = (endpoint, data) => {
   const form = document.createElement('form');
   form.setAttribute('method', 'post');
   form.setAttribute('action', endpoint);
-  form.setAttribute('id', 'test-bulk-download-form');
+  form.setAttribute('id', 'bulk-download-form');
 
-  const hiddenField = document.createElement('input');
-  hiddenField.setAttribute('type', 'hidden');
-  hiddenField.setAttribute('name', 'shortNames');
-  hiddenField.setAttribute('value', JSON.stringify(datasetShortNames));
-  form.appendChild(hiddenField);
-
-  if (filters) {
-    const apiFilters = transformFiltersForAPI(filters);
-    const filtersField = document.createElement('input');
-    filtersField.setAttribute('type', 'hidden');
-    filtersField.setAttribute('name', 'filters');
-    filtersField.setAttribute('value', JSON.stringify(apiFilters));
-    form.appendChild(filtersField);
-  }
+  // Add form fields for each data property
+  Object.entries(data).forEach(([key, value]) => {
+    const hiddenField = document.createElement('input');
+    hiddenField.setAttribute('type', 'hidden');
+    hiddenField.setAttribute('name', key);
+    hiddenField.setAttribute('value', JSON.stringify(value));
+    form.appendChild(hiddenField);
+  });
 
   document.body.appendChild(form);
   form.submit();
-  // cleanup
   document.body.removeChild(form);
+};
+
+const bulkDownloadAPI = {};
+
+/**
+ * Download datasets as files
+ * @param {Array<string>} datasetShortNames - Array of dataset short names
+ * @param {Object} filters - Optional filter criteria
+ */
+bulkDownloadAPI.downloadData = async (datasetShortNames, filters = null) => {
+  log.debug('starting bulk download', { datasetShortNames, filters });
+  const endpoint = apiUrl + `/api/data/bulk-download`;
+
+  const formData = { shortNames: datasetShortNames };
+
+  if (filters) {
+    formData.filters = transformFiltersForAPI(filters);
+  }
+
+  submitDownloadForm(endpoint, formData);
+};
+
+/**
+ * Get row counts for datasets with optional filters
+ * @param {Array<string>} datasetShortNames - Array of dataset short names
+ * @param {Object} filters - Optional filter criteria
+ * @returns {Promise<Object>} Object with dataset names as keys and row counts as values
+ */
+bulkDownloadAPI.getRowCounts = async (datasetShortNames, filters = null) => {
+  log.debug('getting row counts', { datasetShortNames, filters });
+  const endpoint = apiUrl + `/api/data/bulk-download-row-counts`;
+
+  const requestBody = { shortNames: datasetShortNames };
+
+  if (filters) {
+    requestBody.filters = transformFiltersForAPI(filters);
+  }
+
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(requestBody),
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to get row counts: ${response.status} ${response.statusText}`,
+    );
+  }
+
+  return response.json();
 };
 
 export default safeApi(bulkDownloadAPI);

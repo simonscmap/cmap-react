@@ -1,15 +1,17 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Box, Typography } from '@material-ui/core';
 import SubsetControls from '../../../shared/filtering/SubsetControls';
 import DefaultSubsetControlsLayout from '../../../shared/filtering/DefaultSubsetControlsLayout';
 import useSubsetFiltering from '../../../shared/filtering/useSubsetFiltering';
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
+import useRowCountStore from '../stores/useRowCountStore';
 import MultiDatasetDownloadTable from './MultiDatasetDownloadTable';
 import DownloadButton from './DownloadButton';
 
 const MultiDatasetDownloadContainer = ({ datasetsMetadata = [] }) => {
   // Initialize Zustand store with datasets
   const { initializeDatasetsMetadata } = useMultiDatasetDownloadStore();
+  const { updateRowCountsForFilters } = useRowCountStore();
   // Compute aggregate dataset bounds for multi-dataset filtering
   const aggregateDatasetMetadata = useMemo(() => {
     if (!datasetsMetadata || datasetsMetadata.length === 0) {
@@ -71,6 +73,13 @@ const MultiDatasetDownloadContainer = ({ datasetsMetadata = [] }) => {
   useMemo(() => {
     initializeDatasetsMetadata(datasetsMetadata);
   }, [datasetsMetadata, initializeDatasetsMetadata]);
+
+  // Update row counts when filters change
+  useEffect(() => {
+    if (filterValues.isFiltered) {
+      updateRowCountsForFilters(filterValues);
+    }
+  }, [filterValues, updateRowCountsForFilters]);
 
   return (
     <Box

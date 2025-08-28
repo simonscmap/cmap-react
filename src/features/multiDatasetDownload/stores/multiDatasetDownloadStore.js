@@ -64,7 +64,7 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
 
       const bulkDownloadAPI = (await import('../../../api/bulkDownload'))
         .default;
-      await bulkDownloadAPI.post(
+      await bulkDownloadAPI.downloadData(
         Array.from(selectedDatasets),
         filters.filterValues,
       );
