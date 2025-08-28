@@ -10,6 +10,7 @@ import SampleVisualization from './SampleVisualization/SampleVisualization';
 import Globe from './Globe/Globe';
 import DatasetList2 from './DatasetList';
 import MultiDatasetDownloadContainer from '../../../features/multiDatasetDownload/components/MultiDatasetDownloadContainer';
+import { createDatasetTransformer } from '../../../features/multiDatasetDownload/utils/datasetStatsTransform';
 import { matchProgram } from './programData';
 import {
   trajectorySelector,
@@ -75,35 +76,10 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const getRowCount = (dataset) => {
-  const stats = dataset.visualizableVariables?.stats;
-  if (!stats) return null;
-
-  return stats.lat?.count ?? stats.lon?.count ?? stats.time?.count ?? null;
-};
-
-const transformDatasetMetadata = (datasets) => {
-  return Object.values(datasets).map((dataset) => ({
-    ...dataset,
-    Row_Count: getRowCount(dataset),
-    ...(dataset.visualizableVariables?.stats?.lat && {
-      Lat_Min: dataset.visualizableVariables.stats.lat.min,
-      Lat_Max: dataset.visualizableVariables.stats.lat.max,
-    }),
-    ...(dataset.visualizableVariables?.stats?.lon && {
-      Lon_Min: dataset.visualizableVariables.stats.lon.min,
-      Lon_Max: dataset.visualizableVariables.stats.lon.max,
-    }),
-    ...(dataset.visualizableVariables?.stats?.time && {
-      Time_Min: dataset.visualizableVariables.stats.time.min,
-      Time_Max: dataset.visualizableVariables.stats.time.max,
-    }),
-    ...(dataset.visualizableVariables?.stats?.depth && {
-      Depth_Min: dataset.visualizableVariables.stats.depth.min,
-      Depth_Max: dataset.visualizableVariables.stats.depth.max,
-    }),
-  }));
-};
+// Create a transformer specific to programs page data structure
+const transformProgramDatasets = createDatasetTransformer(
+  (dataset) => dataset.visualizableVariables?.stats,
+);
 
 const ProgramDetail = (props) => {
   const cl = useStyles();
@@ -119,7 +95,7 @@ const ProgramDetail = (props) => {
   // Extract Metadata for datasets for MultiDatasetDownloadContainer
   const datasetsMetadata = !program?.datasets
     ? []
-    : transformDatasetMetadata(program.datasets);
+    : transformProgramDatasets(Object.values(program.datasets));
 
   useEffect(() => {
     // navigate action
