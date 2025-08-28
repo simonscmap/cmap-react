@@ -75,6 +75,36 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
+const getRowCount = (dataset) => {
+  const stats = dataset.visualizableVariables?.stats;
+  if (!stats) return null;
+
+  return stats.lat?.count ?? stats.lon?.count ?? stats.time?.count ?? null;
+};
+
+const transformDatasetMetadata = (datasets) => {
+  return Object.values(datasets).map((dataset) => ({
+    ...dataset,
+    Row_Count: getRowCount(dataset),
+    ...(dataset.visualizableVariables?.stats?.lat && {
+      Lat_Min: dataset.visualizableVariables.stats.lat.min,
+      Lat_Max: dataset.visualizableVariables.stats.lat.max,
+    }),
+    ...(dataset.visualizableVariables?.stats?.lon && {
+      Lon_Min: dataset.visualizableVariables.stats.lon.min,
+      Lon_Max: dataset.visualizableVariables.stats.lon.max,
+    }),
+    ...(dataset.visualizableVariables?.stats?.time && {
+      Time_Min: dataset.visualizableVariables.stats.time.min,
+      Time_Max: dataset.visualizableVariables.stats.time.max,
+    }),
+    ...(dataset.visualizableVariables?.stats?.depth && {
+      Depth_Min: dataset.visualizableVariables.stats.depth.min,
+      Depth_Max: dataset.visualizableVariables.stats.depth.max,
+    }),
+  }));
+};
+
 const ProgramDetail = (props) => {
   const cl = useStyles();
   const routeParam = props.match.params.programName; // param defined in App.js
@@ -86,29 +116,11 @@ const ProgramDetail = (props) => {
   // Get program details from Redux state for datasets
   const program = useSelector((state) => state.programDetails);
 
-  // Transform datasets for MultiDatasetDownloadContainer
+  // Extract Metadata for datasets for MultiDatasetDownloadContainer
   const datasetsMetadata = !program?.datasets
     ? []
-    : Object.values(program.datasets).map((dataset) => ({
-        ...dataset,
-        // Flatten visualizable variables for filtering compatibility
-        ...(dataset.visualizableVariables?.stats?.lat && {
-          Lat_Min: dataset.visualizableVariables.stats.lat.min,
-          Lat_Max: dataset.visualizableVariables.stats.lat.max,
-        }),
-        ...(dataset.visualizableVariables?.stats?.lon && {
-          Lon_Min: dataset.visualizableVariables.stats.lon.min,
-          Lon_Max: dataset.visualizableVariables.stats.lon.max,
-        }),
-        ...(dataset.visualizableVariables?.stats?.time && {
-          Time_Min: dataset.visualizableVariables.stats.time.min,
-          Time_Max: dataset.visualizableVariables.stats.time.max,
-        }),
-        ...(dataset.visualizableVariables?.stats?.depth && {
-          Depth_Min: dataset.visualizableVariables.stats.depth.min,
-          Depth_Max: dataset.visualizableVariables.stats.depth.max,
-        }),
-      }));
+    : transformDatasetMetadata(program.datasets);
+
   useEffect(() => {
     // navigate action
     if (pData) {
