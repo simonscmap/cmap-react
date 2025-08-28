@@ -93,7 +93,9 @@ const MultiDatasetDownloadTable = () => {
     }
     return (
       <Typography variant="body2" noWrap>
-        {effectiveCount ? effectiveCount.toLocaleString() : 'N/A'}
+        {effectiveCount !== null && effectiveCount !== undefined
+          ? effectiveCount.toLocaleString()
+          : 'N/A'}
       </Typography>
     );
   };
