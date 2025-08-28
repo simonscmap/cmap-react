@@ -6,6 +6,7 @@ import {
 } from './config';
 import safeApi from './safeApi';
 import logInit from '../Services/log-service';
+import { dayToDateString } from '../shared/filtering/dateHelpers';
 const log = logInit('bulk-download');
 
 /**
@@ -16,29 +17,34 @@ const log = logInit('bulk-download');
 const transformFiltersForAPI = (filters) => {
   const apiFilters = {};
 
-  // Transform temporal filters - use startDate/endDate for API compatibility
-  if (filters.temporal) {
+  // Transform temporal filters - use Time_Min and dayToDateString
+  if (filters.Time_Min) {
     apiFilters.temporal = {
-      startDate: filters.temporal.startDate,
-      endDate: filters.temporal.endDate,
+      startDate: dayToDateString(filters.Time_Min, filters.timeStart),
+      endDate: dayToDateString(filters.Time_Min, filters.timeEnd),
     };
   }
 
-  // Transform spatial filters - lat/lon already in API format
-  if (filters.spatial) {
+  // Transform spatial filters - map to API format
+  if (
+    filters.latStart !== undefined ||
+    filters.latEnd !== undefined ||
+    filters.lonStart !== undefined ||
+    filters.lonEnd !== undefined
+  ) {
     apiFilters.spatial = {
-      latStart: filters.spatial.latStart,
-      latEnd: filters.spatial.latEnd,
-      lonStart: filters.spatial.lonStart,
-      lonEnd: filters.spatial.lonEnd,
+      latMin: filters.latStart,
+      latMax: filters.latEnd,
+      lonMin: filters.lonStart,
+      lonMax: filters.lonEnd,
     };
   }
 
-  // Transform depth filters - already in API format
-  if (filters.depth) {
+  // Transform depth filters - map to API format
+  if (filters.depthStart !== undefined || filters.depthEnd !== undefined) {
     apiFilters.depth = {
-      depthStart: filters.depth.depthStart,
-      depthEnd: filters.depth.depthEnd,
+      min: filters.depthStart,
+      max: filters.depthEnd,
     };
   }
 

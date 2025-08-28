@@ -91,7 +91,6 @@ const SubsetControls = ({
       },
     },
   };
-
   return React.cloneElement(children, layoutProps);
 };
 

@@ -10,6 +10,7 @@ import SampleVisualization from './SampleVisualization/SampleVisualization';
 import Globe from './Globe/Globe';
 import DatasetList2 from './DatasetList';
 import MultiDatasetDownloadContainer from '../../../features/multiDatasetDownload/components/MultiDatasetDownloadContainer';
+import { createDatasetTransformer } from '../../../features/multiDatasetDownload/utils/datasetStatsTransform';
 import { matchProgram } from './programData';
 import {
   trajectorySelector,
@@ -75,6 +76,11 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
+// Create a transformer specific to programs page data structure
+const transformProgramDatasets = createDatasetTransformer(
+  (dataset) => dataset.visualizableVariables?.stats,
+);
+
 const ProgramDetail = (props) => {
   const cl = useStyles();
   const routeParam = props.match.params.programName; // param defined in App.js
@@ -86,30 +92,11 @@ const ProgramDetail = (props) => {
   // Get program details from Redux state for datasets
   const program = useSelector((state) => state.programDetails);
 
-  // Transform datasets for MultiDatasetDownloadContainer
-  const datasets = !program?.datasets
+  // Extract Metadata for datasets for MultiDatasetDownloadContainer
+  const datasetsMetadata = !program?.datasets
     ? []
-    : Object.values(program.datasets).map((dataset) => ({
-        ...dataset,
-        // Flatten visualizable variables for filtering compatibility
-        ...(dataset.visualizableVariables?.stats?.lat && {
-          Lat_Min: dataset.visualizableVariables.stats.lat.min,
-          Lat_Max: dataset.visualizableVariables.stats.lat.max,
-        }),
-        ...(dataset.visualizableVariables?.stats?.lon && {
-          Lon_Min: dataset.visualizableVariables.stats.lon.min,
-          Lon_Max: dataset.visualizableVariables.stats.lon.max,
-        }),
-        ...(dataset.visualizableVariables?.stats?.time && {
-          Time_Min: dataset.visualizableVariables.stats.time.min,
-          Time_Max: dataset.visualizableVariables.stats.time.max,
-        }),
-        ...(dataset.visualizableVariables?.stats?.depth && {
-          Depth_Min: dataset.visualizableVariables.stats.depth.min,
-          Depth_Max: dataset.visualizableVariables.stats.depth.max,
-        }),
-      }));
-  console.log('🐛🐛🐛 ProgramDetailPage.js:115 datasets[0]:', datasets[0]);
+    : transformProgramDatasets(Object.values(program.datasets));
+
   useEffect(() => {
     // navigate action
     if (pData) {
@@ -162,9 +149,13 @@ const ProgramDetail = (props) => {
             <DatasetList2 />
           </div>
         </Grid>
-        <Grid item xs={12}>
-          <MultiDatasetDownloadContainer datasets={datasets} />
-        </Grid>
+        {datasetsMetadata.length > 0 && (
+          <Grid item xs={12}>
+            <MultiDatasetDownloadContainer
+              datasetsMetadata={datasetsMetadata}
+            />
+          </Grid>
+        )}
         <Grid item xs={12} md={12} lg={7}>
           <div className={cl.visVerticalPlaceholder}>
             <SectionHeader title={'Sample Visualization'} />

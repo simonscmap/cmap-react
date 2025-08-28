@@ -4,19 +4,53 @@ import SubsetControls from '../../../shared/filtering/SubsetControls';
 import DefaultSubsetControlsLayout from '../../../shared/filtering/DefaultSubsetControlsLayout';
 import useSubsetFiltering from '../../../shared/filtering/useSubsetFiltering';
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
-import useFilteringBridge from '../hooks/useFilteringBridge';
 import MultiDatasetDownloadTable from './MultiDatasetDownloadTable';
 import DownloadButton from './DownloadButton';
 
-const MultiDatasetDownloadContainer = ({ datasets = [] }) => {
+const MultiDatasetDownloadContainer = ({ datasetsMetadata = [] }) => {
   // Initialize Zustand store with datasets
-  const { initializeDatasets } = useMultiDatasetDownloadStore();
+  const { initializeDatasetsMetadata } = useMultiDatasetDownloadStore();
+  // Compute aggregate dataset bounds for multi-dataset filtering
+  const aggregateDatasetMetadata = useMemo(() => {
+    if (!datasetsMetadata || datasetsMetadata.length === 0) {
+      return null;
+    }
+
+    const validDatasets = datasetsMetadata.filter(
+      (d) =>
+        d.Lat_Min !== undefined &&
+        d.Lat_Max !== undefined &&
+        d.Lon_Min !== undefined &&
+        d.Lon_Max !== undefined,
+    );
+
+    if (validDatasets.length === 0) return null;
+
+    return {
+      Lat_Min: Math.min(...validDatasets.map((d) => d.Lat_Min)),
+      Lat_Max: Math.max(...validDatasets.map((d) => d.Lat_Max)),
+      Lon_Min: Math.min(...validDatasets.map((d) => d.Lon_Min)),
+      Lon_Max: Math.max(...validDatasets.map((d) => d.Lon_Max)),
+      Depth_Min: Math.min(...validDatasets.map((d) => d.Depth_Min || 0)),
+      Depth_Max: Math.max(...validDatasets.map((d) => d.Depth_Max || 0)),
+      Time_Min: validDatasets.reduce(
+        (min, d) =>
+          !min || (d.Time_Min && d.Time_Min < min) ? d.Time_Min : min,
+        null,
+      ),
+      Time_Max: validDatasets.reduce(
+        (max, d) =>
+          !max || (d.Time_Max && d.Time_Max > max) ? d.Time_Max : max,
+        null,
+      ),
+      Temporal_Resolution: validDatasets[0]?.Temporal_Resolution || 'daily',
+    };
+  }, [datasetsMetadata]);
 
   // State for toggle controls (required by layout components)
   const [optionsState, setOptionsState] = useState({
     subset: true,
   });
-
   // Handle toggle switch for subset controls
   const handleSwitch = (controlType) => {
     setOptionsState((prev) => ({
@@ -25,30 +59,34 @@ const MultiDatasetDownloadContainer = ({ datasets = [] }) => {
     }));
   };
 
-  // Initialize subset filtering without specific dataset (multi-dataset mode)
-  const subsetFiltering = useSubsetFiltering(null);
+  const {
+    setInvalidFlag,
+    filterValues,
+    filterSetters,
+    datasetFilterBounds,
+    dateHandling,
+  } = useSubsetFiltering(aggregateDatasetMetadata);
 
-  // Bridge to sync subset filtering state with Zustand store
-  useFilteringBridge(subsetFiltering);
-
-  // Initialize store once on mount
+  // Initialize store when datasets change
   useMemo(() => {
-    initializeDatasets(datasets);
-  }, []);
+    initializeDatasetsMetadata(datasetsMetadata);
+  }, [datasetsMetadata, initializeDatasetsMetadata]);
 
   return (
-    <Box>
+    <Box
+      sx={{ maxWidth: '100vw', overflow: 'hidden', boxSizing: 'border-box' }}
+    >
       <Typography variant="h6" gutterBottom>
         Multi-Dataset Download
       </Typography>
 
       <Box mb={3}>
         <SubsetControls
-          setInvalidFlag={subsetFiltering.setInvalidFlag}
-          filterValues={subsetFiltering.filterValues}
-          filterSetters={subsetFiltering.filterSetters}
-          datasetFilterBounds={subsetFiltering.datasetFilterBounds}
-          dateHandling={subsetFiltering.dateHandling}
+          setInvalidFlag={setInvalidFlag}
+          filterValues={filterValues}
+          filterSetters={filterSetters}
+          datasetFilterBounds={datasetFilterBounds}
+          dateHandling={dateHandling}
         >
           <DefaultSubsetControlsLayout
             optionsState={optionsState}
@@ -62,7 +100,15 @@ const MultiDatasetDownloadContainer = ({ datasets = [] }) => {
       </Box>
 
       <Box>
-        <DownloadButton />
+        <DownloadButton
+          subsetFiltering={{
+            setInvalidFlag,
+            filterValues,
+            filterSetters,
+            datasetFilterBounds,
+            dateHandling,
+          }}
+        />
       </Box>
     </Box>
   );

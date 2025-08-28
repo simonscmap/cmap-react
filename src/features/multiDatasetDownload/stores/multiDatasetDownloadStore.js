@@ -3,7 +3,7 @@ import { create } from 'zustand';
 const useMultiDatasetDownloadStore = create((set, get) => ({
   // State
   selectedDatasets: new Set(),
-  datasets: [],
+  datasetsMetadata: [],
   filters: {
     temporal: null,
     spatial: null,
@@ -26,9 +26,9 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
   },
 
   selectAll: () => {
-    const { datasets } = get();
+    const { datasetsMetadata } = get();
     const allDatasetNames = new Set(
-      datasets.map((dataset) => dataset.Dataset_Name),
+      datasetsMetadata.map((dataset) => dataset.Dataset_Name),
     );
     set({ selectedDatasets: allDatasetNames });
   },
@@ -37,13 +37,13 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     set({ selectedDatasets: new Set() });
   },
 
-  setDatasets: (datasets) => {
-    set({ datasets });
+  setDatasetsMetadata: (datasetsMetadata) => {
+    set({ datasetsMetadata });
   },
 
-  initializeDatasets: (datasets) => {
-    if (datasets && datasets.length > 0) {
-      set({ datasets });
+  initializeDatasetsMetadata: (datasetsMetadata) => {
+    if (datasetsMetadata && datasetsMetadata.length > 0) {
+      set({ datasetsMetadata });
     }
   },
 
@@ -53,6 +53,27 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
 
   setIsDownloading: (isDownloading) => {
     set({ isDownloading });
+  },
+
+  downloadDatasets: async (overrideFilters) => {
+    const { selectedDatasets, filters: storeFilters } = get();
+    const filters = overrideFilters || storeFilters;
+
+    try {
+      set({ isDownloading: true });
+
+      const bulkDownloadAPI = (await import('../../../api/bulkDownload'))
+        .default;
+      await bulkDownloadAPI.post(
+        Array.from(selectedDatasets),
+        filters.filterValues,
+      );
+    } catch (error) {
+      console.error('Download failed:', error);
+      throw error;
+    } finally {
+      set({ isDownloading: false });
+    }
   },
 
   // Computed getters
@@ -67,8 +88,8 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
   },
 
   getSelectedDatasets: () => {
-    const { selectedDatasets, datasets } = get();
-    return datasets.filter((dataset) =>
+    const { selectedDatasets, datasetsMetadata } = get();
+    return datasetsMetadata.filter((dataset) =>
       selectedDatasets.has(dataset.Dataset_Name),
     );
   },
