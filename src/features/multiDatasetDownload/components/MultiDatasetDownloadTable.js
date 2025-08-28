@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -10,10 +10,12 @@ import {
   Checkbox,
   Typography,
   Box,
+  CircularProgress,
 } from '@material-ui/core';
 import { styled } from '@material-ui/core/styles';
 
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
+import useRowCountStore from '../stores/useRowCountStore';
 
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   maxHeight: 400,
@@ -62,11 +64,51 @@ const StyledBodyTableCell = styled(TableCell)(({ theme }) => ({
 const MultiDatasetDownloadTable = () => {
   const { datasetsMetadata, isDatasetSelected, toggleDatasetSelection } =
     useMultiDatasetDownloadStore();
+  const {
+    getEffectiveRowCount,
+    isRowCountLoading,
+    getRowCountError,
+    setOriginalRowCounts,
+  } = useRowCountStore();
 
   const handleToggle = (datasetName) => (event) => {
     event.stopPropagation();
     toggleDatasetSelection(datasetName);
   };
+
+  const renderRowCount = (datasetName) => {
+    const effectiveCount = getEffectiveRowCount(datasetName);
+    const isLoading = isRowCountLoading(datasetName);
+    const error = getRowCountError(datasetName);
+
+    if (isLoading) {
+      return <CircularProgress size={16} color="primary" />;
+    }
+    if (error) {
+      return (
+        <Typography variant="body2" color="error">
+          Error
+        </Typography>
+      );
+    }
+    return (
+      <Typography variant="body2" noWrap>
+        {effectiveCount ? effectiveCount.toLocaleString() : 'N/A'}
+      </Typography>
+    );
+  };
+
+  useEffect(() => {
+    if (datasetsMetadata?.length > 0) {
+      const rowCountData = {};
+      datasetsMetadata.forEach((dataset) => {
+        if (dataset.Row_Count) {
+          rowCountData[dataset.Dataset_Name] = dataset.Row_Count;
+        }
+      });
+      setOriginalRowCounts(rowCountData);
+    }
+  }, []);
 
   if (!datasetsMetadata || datasetsMetadata.length === 0) {
     return (
@@ -117,11 +159,7 @@ const MultiDatasetDownloadTable = () => {
                   </Typography>
                 </StyledBodyTableCell>
                 <StyledBodyTableCell>
-                  <Typography variant="body2" noWrap>
-                    {datasetMetadata.Row_Count
-                      ? datasetMetadata.Row_Count.toLocaleString()
-                      : 'N/A'}
-                  </Typography>
+                  {renderRowCount(datasetMetadata.Dataset_Name)}
                 </StyledBodyTableCell>
               </StyledTableRow>
             );

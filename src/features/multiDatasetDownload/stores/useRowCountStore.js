@@ -72,22 +72,6 @@ const useRowCountStore = create((set, get) => ({
     set({ debounceTimer: timer });
   },
 
-  clearDynamicRowCounts: () => {
-    const state = get();
-
-    // Clear existing timer
-    if (state.debounceTimer) {
-      clearTimeout(state.debounceTimer);
-    }
-
-    set({
-      dynamicRowCounts: {},
-      rowCountsLoading: {},
-      rowCountsError: {},
-      debounceTimer: null,
-    });
-  },
-
   // Getters
   getEffectiveRowCount: (datasetName) => {
     const state = get();
