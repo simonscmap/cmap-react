@@ -9,7 +9,7 @@ import DownloadButton from './DownloadButton';
 
 const MultiDatasetDownloadContainer = ({ datasetsMetadata = [] }) => {
   // Initialize Zustand store with datasets
-  const { initializeDatasets } = useMultiDatasetDownloadStore();
+  const { initializeDatasetsMetadata } = useMultiDatasetDownloadStore();
   // Compute aggregate dataset bounds for multi-dataset filtering
   const aggregateDatasetMetadata = useMemo(() => {
     if (!datasetsMetadata || datasetsMetadata.length === 0) {
@@ -69,8 +69,8 @@ const MultiDatasetDownloadContainer = ({ datasetsMetadata = [] }) => {
 
   // Initialize store when datasets change
   useMemo(() => {
-    initializeDatasets(datasetsMetadata);
-  }, [datasetsMetadata, initializeDatasets]);
+    initializeDatasetsMetadata(datasetsMetadata);
+  }, [datasetsMetadata, initializeDatasetsMetadata]);
 
   return (
     <Box

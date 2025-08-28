@@ -60,7 +60,7 @@ const StyledBodyTableCell = styled(TableCell)(({ theme }) => ({
 }));
 
 const MultiDatasetDownloadTable = () => {
-  const { datasets, isDatasetSelected, toggleDatasetSelection } =
+  const { datasetsMetadata, isDatasetSelected, toggleDatasetSelection } =
     useMultiDatasetDownloadStore();
 
   const handleToggle = (datasetName) => (event) => {
@@ -68,7 +68,7 @@ const MultiDatasetDownloadTable = () => {
     toggleDatasetSelection(datasetName);
   };
 
-  if (!datasets || datasets.length === 0) {
+  if (!datasetsMetadata || datasetsMetadata.length === 0) {
     return (
       <Box p={3} textAlign="center">
         <Typography variant="body1" color="textSecondary">
@@ -90,36 +90,36 @@ const MultiDatasetDownloadTable = () => {
           </TableRow>
         </StyledTableHead>
         <TableBody>
-          {datasets.map((dataset) => {
-            const isSelected = isDatasetSelected(dataset.Dataset_Name);
+          {datasetsMetadata.map((datasetMetadata) => {
+            const isSelected = isDatasetSelected(datasetMetadata.Dataset_Name);
             return (
               <StyledTableRow
-                key={dataset.Dataset_Name}
+                key={datasetMetadata.Dataset_Name}
                 selected={isSelected}
                 hover
               >
                 <StyledBodyTableCell>
                   <Checkbox
                     checked={isSelected}
-                    onChange={handleToggle(dataset.Dataset_Name)}
+                    onChange={handleToggle(datasetMetadata.Dataset_Name)}
                     color="primary"
                     size="small"
                   />
                 </StyledBodyTableCell>
                 <StyledBodyTableCell>
                   <Typography variant="body2" noWrap>
-                    {dataset.Dataset_Name || ''}
+                    {datasetMetadata.Dataset_Name || ''}
                   </Typography>
                 </StyledBodyTableCell>
                 <StyledBodyTableCell>
                   <Typography variant="body2" noWrap>
-                    {dataset.Dataset_Long_Name || ''}
+                    {datasetMetadata.Dataset_Long_Name || ''}
                   </Typography>
                 </StyledBodyTableCell>
                 <StyledBodyTableCell>
                   <Typography variant="body2" noWrap>
-                    {dataset.Row_Count
-                      ? dataset.Row_Count.toLocaleString()
+                    {datasetMetadata.Row_Count
+                      ? datasetMetadata.Row_Count.toLocaleString()
                       : 'N/A'}
                   </Typography>
                 </StyledBodyTableCell>
