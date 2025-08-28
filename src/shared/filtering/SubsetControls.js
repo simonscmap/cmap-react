@@ -91,7 +91,6 @@ const SubsetControls = ({
       },
     },
   };
-  console.log('🐛🐛🐛 SubsetControls.js:94 layoutProps:', layoutProps);
   return React.cloneElement(children, layoutProps);
 };
 

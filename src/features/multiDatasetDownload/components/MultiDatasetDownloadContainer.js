@@ -51,10 +51,6 @@ const MultiDatasetDownloadContainer = ({ datasets = [] }) => {
   const [optionsState, setOptionsState] = useState({
     subset: true,
   });
-  console.log(
-    '🐛🐛🐛 MultiDatasetDownloadContainer.js:54 aggregateDataset:',
-    aggregateDataset,
-  );
   // Handle toggle switch for subset controls
   const handleSwitch = (controlType) => {
     setOptionsState((prev) => ({

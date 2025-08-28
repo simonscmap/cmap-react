@@ -109,7 +109,6 @@ const ProgramDetail = (props) => {
           Depth_Max: dataset.visualizableVariables.stats.depth.max,
         }),
       }));
-  console.log('🐛🐛🐛 ProgramDetailPage.js:115 datasets[0]:', datasets[0]);
   useEffect(() => {
     // navigate action
     if (pData) {

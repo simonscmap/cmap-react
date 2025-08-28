@@ -56,10 +56,6 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
   },
 
   downloadDatasets: async (overrideFilters) => {
-    console.log(
-      '🐛🐛🐛 multiDatasetDownloadStore.js:89 overrideFilters:',
-      overrideFilters,
-    );
     const { selectedDatasets, filters: storeFilters } = get();
     const filters = overrideFilters || storeFilters;
 
@@ -68,8 +64,6 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
 
       const bulkDownloadAPI = (await import('../../../api/bulkDownload'))
         .default;
-      console.log('🐛🐛🐛 multiDatasetDownloadStore.js:60 filters:', filters);
-
       await bulkDownloadAPI.post(
         Array.from(selectedDatasets),
         filters.filterValues,
