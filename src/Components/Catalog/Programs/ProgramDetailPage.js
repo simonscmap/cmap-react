@@ -87,7 +87,7 @@ const ProgramDetail = (props) => {
   const program = useSelector((state) => state.programDetails);
 
   // Transform datasets for MultiDatasetDownloadContainer
-  const datasets = !program?.datasets
+  const datasetsMetadata = !program?.datasets
     ? []
     : Object.values(program.datasets).map((dataset) => ({
         ...dataset,
@@ -161,9 +161,11 @@ const ProgramDetail = (props) => {
             <DatasetList2 />
           </div>
         </Grid>
-        {datasets.length > 0 && (
+        {datasetsMetadata.length > 0 && (
           <Grid item xs={12}>
-            <MultiDatasetDownloadContainer datasets={datasets} />
+            <MultiDatasetDownloadContainer
+              datasetsMetadata={datasetsMetadata}
+            />
           </Grid>
         )}
         <Grid item xs={12} md={12} lg={7}>

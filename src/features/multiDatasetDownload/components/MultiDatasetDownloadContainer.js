@@ -7,16 +7,16 @@ import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
 import MultiDatasetDownloadTable from './MultiDatasetDownloadTable';
 import DownloadButton from './DownloadButton';
 
-const MultiDatasetDownloadContainer = ({ datasets = [] }) => {
+const MultiDatasetDownloadContainer = ({ datasetsMetadata = [] }) => {
   // Initialize Zustand store with datasets
   const { initializeDatasets } = useMultiDatasetDownloadStore();
   // Compute aggregate dataset bounds for multi-dataset filtering
-  const aggregateDataset = useMemo(() => {
-    if (!datasets || datasets.length === 0) {
+  const aggregateDatasetMetadata = useMemo(() => {
+    if (!datasetsMetadata || datasetsMetadata.length === 0) {
       return null;
     }
 
-    const validDatasets = datasets.filter(
+    const validDatasets = datasetsMetadata.filter(
       (d) =>
         d.Lat_Min !== undefined &&
         d.Lat_Max !== undefined &&
@@ -45,7 +45,7 @@ const MultiDatasetDownloadContainer = ({ datasets = [] }) => {
       ),
       Temporal_Resolution: validDatasets[0]?.Temporal_Resolution || 'daily',
     };
-  }, [datasets]);
+  }, [datasetsMetadata]);
 
   // State for toggle controls (required by layout components)
   const [optionsState, setOptionsState] = useState({
@@ -65,12 +65,12 @@ const MultiDatasetDownloadContainer = ({ datasets = [] }) => {
     filterSetters,
     datasetFilterBounds,
     dateHandling,
-  } = useSubsetFiltering(aggregateDataset);
+  } = useSubsetFiltering(aggregateDatasetMetadata);
 
   // Initialize store when datasets change
   useMemo(() => {
-    initializeDatasets(datasets);
-  }, [datasets, initializeDatasets]);
+    initializeDatasets(datasetsMetadata);
+  }, [datasetsMetadata, initializeDatasets]);
 
   return (
     <Box
