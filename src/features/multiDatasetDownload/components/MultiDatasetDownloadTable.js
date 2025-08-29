@@ -76,6 +76,10 @@ const MultiDatasetDownloadTable = () => {
     toggleDatasetSelection(datasetName);
   };
 
+  const getValueOrNA = (value) => {
+    return value !== null && value !== undefined ? value : 'N/A';
+  };
+
   const renderRowCount = (datasetName) => {
     const effectiveCount = getEffectiveRowCount(datasetName);
     const isLoading = isRowCountLoading(datasetName);
@@ -129,7 +133,14 @@ const MultiDatasetDownloadTable = () => {
           <TableRow>
             <StyledTableCell width={50} />
             <StyledTableCell>Dataset Name</StyledTableCell>
-            <StyledTableCell>Description</StyledTableCell>
+            <StyledTableCell width={80}>Lat Min</StyledTableCell>
+            <StyledTableCell width={80}>Lat Max</StyledTableCell>
+            <StyledTableCell width={80}>Lon Min</StyledTableCell>
+            <StyledTableCell width={80}>Lon Max</StyledTableCell>
+            <StyledTableCell width={80}>Time Min</StyledTableCell>
+            <StyledTableCell width={80}>Time Max</StyledTableCell>
+            <StyledTableCell width={80}>Depth Min</StyledTableCell>
+            <StyledTableCell width={80}>Depth Max</StyledTableCell>
             <StyledTableCell width={120}>Row Count</StyledTableCell>
           </TableRow>
         </StyledTableHead>
@@ -157,7 +168,42 @@ const MultiDatasetDownloadTable = () => {
                 </StyledBodyTableCell>
                 <StyledBodyTableCell>
                   <Typography variant="body2" noWrap>
-                    {datasetMetadata.Dataset_Long_Name || ''}
+                    {getValueOrNA(datasetMetadata.Lat_Min)}
+                  </Typography>
+                </StyledBodyTableCell>
+                <StyledBodyTableCell>
+                  <Typography variant="body2" noWrap>
+                    {getValueOrNA(datasetMetadata.Lat_Max)}
+                  </Typography>
+                </StyledBodyTableCell>
+                <StyledBodyTableCell>
+                  <Typography variant="body2" noWrap>
+                    {getValueOrNA(datasetMetadata.Lon_Min)}
+                  </Typography>
+                </StyledBodyTableCell>
+                <StyledBodyTableCell>
+                  <Typography variant="body2" noWrap>
+                    {getValueOrNA(datasetMetadata.Lon_Max)}
+                  </Typography>
+                </StyledBodyTableCell>
+                <StyledBodyTableCell>
+                  <Typography variant="body2" noWrap>
+                    {getValueOrNA(datasetMetadata.Time_Min)}
+                  </Typography>
+                </StyledBodyTableCell>
+                <StyledBodyTableCell>
+                  <Typography variant="body2" noWrap>
+                    {getValueOrNA(datasetMetadata.Time_Max)}
+                  </Typography>
+                </StyledBodyTableCell>
+                <StyledBodyTableCell>
+                  <Typography variant="body2" noWrap>
+                    {getValueOrNA(datasetMetadata.Depth_Min)}
+                  </Typography>
+                </StyledBodyTableCell>
+                <StyledBodyTableCell>
+                  <Typography variant="body2" noWrap>
+                    {getValueOrNA(datasetMetadata.Depth_Max)}
                   </Typography>
                 </StyledBodyTableCell>
                 <StyledBodyTableCell>
