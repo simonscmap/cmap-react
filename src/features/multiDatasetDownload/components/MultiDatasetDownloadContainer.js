@@ -79,10 +79,11 @@ const MultiDatasetDownloadContainer = ({ datasetsMetadata = [] }) => {
 
   // State for toggle controls (required by layout components)
   const [optionsState, setOptionsState] = useState({
-    subset: true,
+    subset: false,
   });
   // Handle toggle switch for subset controls
-  const handleSwitch = (controlType) => {
+  const handleSwitch = (event) => {
+    const controlType = event.target.name;
     setOptionsState((prev) => ({
       ...prev,
       [controlType]: !prev[controlType],
@@ -124,7 +125,7 @@ const MultiDatasetDownloadContainer = ({ datasetsMetadata = [] }) => {
         Multi-Dataset Download
       </Typography>
 
-      <Box mb={3}>
+      <Box mb={3} p={2}>
         <SubsetControls
           setInvalidFlag={setInvalidFlag}
           filterValues={filterValues}
