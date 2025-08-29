@@ -1,7 +1,8 @@
 import React from 'react';
 import { Collapse } from '@material-ui/core';
 
-import DateSubsetControl from './DateSubsetControl';
+import MonthlyDateSubsetControl from './MonthlyDateSubsetControl';
+import DailyDateSubsetControl from './DailyDateSubsetControl';
 import LatitudeSubsetControl from './LatitudeSubsetControl';
 import LongitudeSubsetControl from './LongitudeSubsetControl';
 import DepthSubsetControl from './DepthSubsetControl';
@@ -28,23 +29,33 @@ const DefaultSubsetControlsLayout = ({
 
       <Collapse in={optionsState.subset}>
         <div style={styles.subsetStep}>
-          <DateSubsetControl
-            timeMin={controls.date.data.timeMin}
-            timeMax={controls.date.data.timeMax}
-            setTimeStart={controls.date.handlers.setTimeStart}
-            setTimeEnd={controls.date.handlers.setTimeEnd}
-            subsetState={{
-              timeStart: controls.date.data.timeStart,
-              timeEnd: controls.date.data.timeEnd,
-              maxDays: controls.date.data.maxDays,
-            }}
-            setInvalidFlag={controls.date.setInvalidFlag}
-            handleSetStartDate={controls.date.handlers.handleSetStartDate}
-            handleSetEndDate={controls.date.handlers.handleSetEndDate}
-            validTimeMin={controls.date.validation.validTimeMin}
-            validTimeMax={controls.date.validation.validTimeMax}
-            isMonthlyClimatology={controls.date.data.isMonthlyClimatology}
-          />
+          {controls.date.data.isMonthlyClimatology ? (
+            <MonthlyDateSubsetControl
+              setTimeStart={controls.date.handlers.setTimeStart}
+              setTimeEnd={controls.date.handlers.setTimeEnd}
+              subsetState={{
+                timeStart: controls.date.data.timeStart,
+                timeEnd: controls.date.data.timeEnd,
+              }}
+            />
+          ) : (
+            <DailyDateSubsetControl
+              timeMin={controls.date.data.timeMin}
+              timeMax={controls.date.data.timeMax}
+              setTimeStart={controls.date.handlers.setTimeStart}
+              setTimeEnd={controls.date.handlers.setTimeEnd}
+              subsetState={{
+                timeStart: controls.date.data.timeStart,
+                timeEnd: controls.date.data.timeEnd,
+                maxDays: controls.date.data.maxDays,
+              }}
+              setInvalidFlag={controls.date.setInvalidFlag}
+              handleSetStartDate={controls.date.handlers.handleSetStartDate}
+              handleSetEndDate={controls.date.handlers.handleSetEndDate}
+              validTimeMin={controls.date.validation.validTimeMin}
+              validTimeMax={controls.date.validation.validTimeMax}
+            />
+          )}
           <LatitudeSubsetControl
             latMin={controls.latitude.data.latMin}
             latMax={controls.latitude.data.latMax}
