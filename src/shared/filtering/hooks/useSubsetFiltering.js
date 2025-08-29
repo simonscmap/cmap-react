@@ -5,7 +5,7 @@ import {
   extractDateFromString,
   getIsMonthlyClimatology,
   getInitialRangeValues,
-} from './dateHelpers';
+} from '../utils/dateHelpers';
 
 /**
  * Pure filtering hook for managing subset filter parameters

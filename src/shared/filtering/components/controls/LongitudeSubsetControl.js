@@ -1,8 +1,8 @@
 import { Grid, Slider, TextField, Typography } from '@material-ui/core';
 import React from 'react';
-import styles from './styles/subsetControlStyles';
-import logInit from '../../Services/log-service';
-import { emptyStringOrNumber } from './dateHelpers';
+import styles from '../../styles/subsetControlStyles';
+import logInit from '../../../../Services/log-service';
+import { emptyStringOrNumber } from '../../utils/dateHelpers';
 
 const log = logInit('LongitudeSubsetControl').addContext({
   src: 'shared/filtering/LongitudeSubsetControl',

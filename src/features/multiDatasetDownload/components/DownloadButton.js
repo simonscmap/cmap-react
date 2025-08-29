@@ -5,7 +5,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
-import { transformSubsetFiltersForAPI } from '../../../shared/filtering/filterTransformUtils';
+import { transformSubsetFiltersForAPI } from '../../../shared/filtering/utils/filterTransformUtils';
 import { showLoginDialog } from '../../../Redux/actions/ui';
 
 const useStyles = makeStyles((theme) => ({

@@ -24,7 +24,7 @@ import {
   useSubsetFiltering,
   SubsetControls,
 } from '../../../../shared/filtering/';
-import DefaultSubsetControlsLayout from '../../../../shared/filtering/DefaultSubsetControlsLayout';
+import DefaultSubsetControlsLayout from '../../../../shared/filtering/components/DefaultSubsetControlsLayout';
 import {
   parseDataset,
   makeDownloadQuery,

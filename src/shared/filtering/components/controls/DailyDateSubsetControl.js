@@ -1,8 +1,12 @@
 import { Grid, Slider, TextField, Typography } from '@material-ui/core';
 import NotInterestedIcon from '@material-ui/icons/NotInterested';
 import React, { useState, useEffect } from 'react';
-import { dateToDateString, dayToDateString, shortenDate } from './dateHelpers';
-import styles from './styles/subsetControlStyles';
+import {
+  dateToDateString,
+  dayToDateString,
+  shortenDate,
+} from '../../utils/dateHelpers';
+import styles from '../../styles/subsetControlStyles';
 
 const InvalidInputMessage = (props) => {
   if (!props.message) {
