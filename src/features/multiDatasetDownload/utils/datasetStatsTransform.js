@@ -27,6 +27,22 @@ export const transformStatsToDownloadFormat = (stats) => {
   };
 };
 
+/**
+ * Creates a dataset transformer function that extracts stats from datasets
+ * and transforms them to download format.
+ *
+ * @param {Function} statsExtractor - Function that extracts stats from a dataset
+ *   Example: (dataset) => dataset.visualizableVariables?.stats
+ * @returns {Function} A transformer function that accepts an array of datasets
+ *
+ * Usage:
+ * const transformProgramDatasets = createDatasetTransformer(
+ *   (dataset) => dataset.visualizableVariables?.stats,
+ * );
+ *
+ * // Execute with explicit array of datasets:
+ * transformProgramDatasets(Object.values(program.datasets));
+ */
 export const createDatasetTransformer = (statsExtractor) => {
   return (datasets) => {
     return datasets.map((dataset) => ({
