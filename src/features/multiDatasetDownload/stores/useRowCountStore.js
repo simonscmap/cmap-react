@@ -95,6 +95,24 @@ const useRowCountStore = create((set, get) => ({
     const state = get();
     return state.rowCountsError[datasetName];
   },
+
+  // Reset all state to initial values
+  resetStore: () => {
+    const state = get();
+    // Clear any pending debounce timer
+    if (state.debounceTimer) {
+      clearTimeout(state.debounceTimer);
+    }
+
+    set({
+      datasetNames: [],
+      originalRowCounts: {},
+      dynamicRowCounts: {},
+      rowCountsLoading: {},
+      rowCountsError: {},
+      debounceTimer: null,
+    });
+  },
 }));
 
 export default useRowCountStore;

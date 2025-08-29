@@ -37,7 +37,8 @@ import DownloadButton from './DownloadButton';
  */
 const MultiDatasetDownloadContainer = ({ datasetsMetadata = [] }) => {
   // Initialize Zustand store with datasets
-  const { initializeDatasetsMetadata } = useMultiDatasetDownloadStore();
+  const { initializeDatasetsMetadata, resetStore } =
+    useMultiDatasetDownloadStore();
   const { updateRowCountsForFilters } = useRowCountStore();
   // Compute aggregate dataset bounds for multi-dataset filtering
   const aggregateDatasetMetadata = useMemo(() => {
@@ -78,10 +79,11 @@ const MultiDatasetDownloadContainer = ({ datasetsMetadata = [] }) => {
 
   // State for toggle controls (required by layout components)
   const [optionsState, setOptionsState] = useState({
-    subset: true,
+    subset: false,
   });
   // Handle toggle switch for subset controls
-  const handleSwitch = (controlType) => {
+  const handleSwitch = (event) => {
+    const controlType = event.target.name;
     setOptionsState((prev) => ({
       ...prev,
       [controlType]: !prev[controlType],
@@ -108,6 +110,13 @@ const MultiDatasetDownloadContainer = ({ datasetsMetadata = [] }) => {
     }
   }, [filterValues, updateRowCountsForFilters]);
 
+  // Reset store when component unmounts
+  useEffect(() => {
+    return () => {
+      resetStore();
+    };
+  }, [resetStore]);
+
   return (
     <Box
       sx={{ maxWidth: '100vw', overflow: 'hidden', boxSizing: 'border-box' }}
@@ -116,7 +125,7 @@ const MultiDatasetDownloadContainer = ({ datasetsMetadata = [] }) => {
         Multi-Dataset Download
       </Typography>
 
-      <Box mb={3}>
+      <Box mb={3} p={2}>
         <SubsetControls
           setInvalidFlag={setInvalidFlag}
           filterValues={filterValues}

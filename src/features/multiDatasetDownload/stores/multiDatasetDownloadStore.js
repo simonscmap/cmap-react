@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import bulkDownloadAPI from '../../../api/bulkDownload';
 
 const useMultiDatasetDownloadStore = create((set, get) => ({
   // State
@@ -62,8 +63,6 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     try {
       set({ isDownloading: true });
 
-      const bulkDownloadAPI = (await import('../../../api/bulkDownload'))
-        .default;
       await bulkDownloadAPI.downloadData(
         Array.from(selectedDatasets),
         filters.filterValues,
@@ -92,6 +91,20 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     return datasetsMetadata.filter((dataset) =>
       selectedDatasets.has(dataset.Dataset_Name),
     );
+  },
+
+  // Reset all state to initial values
+  resetStore: () => {
+    set({
+      selectedDatasets: new Set(),
+      datasetsMetadata: [],
+      filters: {
+        temporal: null,
+        spatial: null,
+        depth: null,
+      },
+      isDownloading: false,
+    });
   },
 }));
 

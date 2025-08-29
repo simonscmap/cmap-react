@@ -1,15 +1,21 @@
 import React from 'react';
 import { Button, CircularProgress, Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { useSelector, useDispatch } from 'react-redux';
 import GetAppIcon from '@material-ui/icons/GetApp';
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
 import { transformSubsetFiltersForAPI } from '../../../shared/filtering/filterTransformUtils';
+import { showLoginDialog } from '../../../Redux/actions/ui';
 
 const useStyles = makeStyles((theme) => ({
   downloadButton: {
     marginTop: theme.spacing(2),
     minWidth: 200,
     height: 48,
+    '&.Mui-disabled': {
+      color: '#ccc',
+    },
   },
   buttonContent: {
     display: 'flex',
@@ -23,13 +29,21 @@ const useStyles = makeStyles((theme) => ({
 
 const DownloadButton = ({ subsetFiltering }) => {
   const classes = useStyles();
+  const dispatch = useDispatch();
   const { selectedDatasets, isDownloading, downloadDatasets } =
     useMultiDatasetDownloadStore();
+
+  const user = useSelector((state) => state.user);
 
   const isDisabled = selectedDatasets.size === 0 || isDownloading;
   const selectedCount = selectedDatasets.size;
 
   const handleDownload = async () => {
+    if (!user) {
+      dispatch(showLoginDialog());
+      return;
+    }
+
     if (isDisabled) return;
 
     try {
@@ -43,6 +57,9 @@ const DownloadButton = ({ subsetFiltering }) => {
     if (isDownloading) {
       return 'Downloading...';
     }
+    if (!user) {
+      return 'Login Now to Download';
+    }
     if (selectedCount === 0) {
       return 'Select Datasets to Download';
     }
@@ -55,7 +72,7 @@ const DownloadButton = ({ subsetFiltering }) => {
         variant="contained"
         color="primary"
         className={classes.downloadButton}
-        disabled={isDisabled}
+        disabled={isDisabled && user}
         onClick={handleDownload}
         startIcon={
           isDownloading ? (
@@ -64,6 +81,8 @@ const DownloadButton = ({ subsetFiltering }) => {
               size={20}
               color="inherit"
             />
+          ) : !user ? (
+            <AccountCircleIcon />
           ) : (
             <GetAppIcon />
           )
