@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import bulkDownloadAPI from '../../../api/bulkDownload';
 
 const useMultiDatasetDownloadStore = create((set, get) => ({
   // State
@@ -62,8 +63,6 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     try {
       set({ isDownloading: true });
 
-      const bulkDownloadAPI = (await import('../../../api/bulkDownload'))
-        .default;
       await bulkDownloadAPI.downloadData(
         Array.from(selectedDatasets),
         filters.filterValues,
