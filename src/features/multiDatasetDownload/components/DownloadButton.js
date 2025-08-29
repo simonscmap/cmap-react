@@ -3,6 +3,7 @@ import { Button, CircularProgress, Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector, useDispatch } from 'react-redux';
 import GetAppIcon from '@material-ui/icons/GetApp';
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
 import { transformSubsetFiltersForAPI } from '../../../shared/filtering/filterTransformUtils';
 import { showLoginDialog } from '../../../Redux/actions/ui';
@@ -80,6 +81,8 @@ const DownloadButton = ({ subsetFiltering }) => {
               size={20}
               color="inherit"
             />
+          ) : !user ? (
+            <AccountCircleIcon />
           ) : (
             <GetAppIcon />
           )
