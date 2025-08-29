@@ -1,12 +1,7 @@
 import { Grid, Slider, TextField, Typography } from '@material-ui/core';
 import NotInterestedIcon from '@material-ui/icons/NotInterested';
 import React, { useState, useEffect } from 'react';
-import {
-  dateToDateString,
-  dayToDateString,
-  emptyStringOrNumber,
-  shortenDate,
-} from './dateHelpers';
+import { dateToDateString, dayToDateString, shortenDate } from './dateHelpers';
 import styles from './styles/subsetControlStyles';
 
 const InvalidInputMessage = (props) => {
@@ -22,106 +17,7 @@ const InvalidInputMessage = (props) => {
   );
 };
 
-const MonthlyDateControl = (props) => {
-  let { subsetState, setTimeStart, setTimeEnd } = props;
-
-  let { timeStart, timeEnd } = subsetState;
-
-  // handler for the slider
-  let handleSlider = (_, value) => {
-    let [start, end] = value;
-    setTimeStart(start);
-    setTimeEnd(end);
-  };
-
-  let handleSetStart = (e) => {
-    let newStartTime = emptyStringOrNumber(e.target.value);
-    setTimeStart(newStartTime);
-  };
-
-  let handleSetEnd = (e) => {
-    let newEndTime = emptyStringOrNumber(e.target.value);
-    setTimeEnd(newEndTime);
-  };
-
-  return (
-    <React.Fragment>
-      <Grid container style={styles.formGrid}>
-        <Grid item xs={12} md={4}>
-          <Typography style={styles.formLabel}>Month</Typography>
-        </Grid>
-
-        {/* Manual Entry for Start Time */}
-        <Grid item xs={6} md={4}>
-          <TextField
-            label="Start"
-            type="number"
-            inputProps={{
-              min: 1,
-              max: 12,
-              style: styles.input,
-            }}
-            InputLabelProps={{
-              shrink: true,
-            }}
-            value={timeStart}
-            onChange={handleSetStart}
-          />
-        </Grid>
-
-        {/* Manual Entry for End Time */}
-        <Grid item xs={6} md={4}>
-          <TextField
-            label="End"
-            type="number"
-            inputProps={{
-              min: 1,
-              max: 12,
-              style: styles.input,
-            }}
-            InputLabelProps={{
-              shrink: true,
-            }}
-            value={timeEnd}
-            onChange={handleSetEnd}
-          />
-        </Grid>
-      </Grid>
-
-      {/* Slider Control */}
-      <Slider
-        min={1}
-        max={12}
-        value={[timeStart, timeEnd]}
-        onChange={handleSlider}
-        style={styles.slider}
-        marks={new Array(12).fill(0).map((_, i) => ({
-          value: i + 1,
-          label: i + 1,
-        }))}
-      />
-    </React.Fragment>
-  );
-};
-
-/* Daily Date Control
-
-   Date control is a filed with two modes of input: the text input and the slider.
-
-   The state values they are responsible for updating are timeStart and timeEnd,
-   which are integers representing ordinal days of the dataset data (for example,
-   day 0 is the first day of a cruise).
-
-   The text intput is a type=date input; its emitted value is in the
-   form "yyyy-mm-dd", and therefore conversion is needed.
-
-   (In order to construct the eventual sql query in makeSubsetQuery, timeStart and
-   timeEnd are converted to a date with dayToDateString; Note that this conversion is
-   only specific to the day, and does not contain hour/min/second.)
-
-*/
-
-const DailyDateControl = (props) => {
+const DailyDateSubsetControl = (props) => {
   let {
     timeMin,
     timeMax,
@@ -263,15 +159,4 @@ const DailyDateControl = (props) => {
   );
 };
 
-// render a different date control depending on
-// whether the dataset is monthly climatology
-const DateSubsetControl = (props) => {
-  let { isMonthlyClimatology } = props;
-  if (isMonthlyClimatology) {
-    return <MonthlyDateControl {...props} />;
-  } else {
-    return <DailyDateControl {...props} />;
-  }
-};
-
-export default DateSubsetControl;
+export default DailyDateSubsetControl;
