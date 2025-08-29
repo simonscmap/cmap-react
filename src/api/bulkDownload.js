@@ -1,5 +1,5 @@
 // api requests specific to the catalog page
-import { apiUrl, fetchOptions } from './config';
+import { apiUrl, postOptions } from './config';
 import safeApi from './safeApi';
 import logInit from '../Services/log-service';
 import { dayToDateString } from '../shared/filtering/dateHelpers';
@@ -81,11 +81,7 @@ bulkDownloadAPI.downloadData = async (datasetShortNames, filters = null) => {
   }
 
   const response = await fetch(endpoint, {
-    ...fetchOptions,
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    ...postOptions,
     body: JSON.stringify(requestBody),
   });
 
