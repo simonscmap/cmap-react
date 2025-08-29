@@ -1,9 +1,5 @@
 // api requests specific to the catalog page
-import {
-  apiUrl,
-  // postOptions,
-  // fetchOptions
-} from './config';
+import { apiUrl, fetchOptions } from './config';
 import safeApi from './safeApi';
 import logInit from '../Services/log-service';
 import { dayToDateString } from '../shared/filtering/dateHelpers';
@@ -52,34 +48,25 @@ const transformFiltersForAPI = (filters) => {
 };
 
 /**
- * Create and submit a form for file download
- * @param {string} endpoint - API endpoint URL
- * @param {Object} data - Data to submit in form
+ * Trigger a browser download from blob data
+ * @param {Blob} blob - The blob containing the download data
+ * @param {string} filename - Name for the downloaded file
  */
-const submitDownloadForm = (endpoint, data) => {
-  const form = document.createElement('form');
-  form.setAttribute('method', 'post');
-  form.setAttribute('action', endpoint);
-  form.setAttribute('id', 'bulk-download-form');
-
-  // Add form fields for each data property
-  Object.entries(data).forEach(([key, value]) => {
-    const hiddenField = document.createElement('input');
-    hiddenField.setAttribute('type', 'hidden');
-    hiddenField.setAttribute('name', key);
-    hiddenField.setAttribute('value', JSON.stringify(value));
-    form.appendChild(hiddenField);
-  });
-
-  document.body.appendChild(form);
-  form.submit();
-  document.body.removeChild(form);
+const triggerBlobDownload = (blob, filename) => {
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
 };
 
 const bulkDownloadAPI = {};
 
 /**
- * Download datasets as files
+ * Download datasets as files using fetch API
  * @param {Array<string>} datasetShortNames - Array of dataset short names
  * @param {Object} filters - Optional filter criteria
  */
@@ -87,13 +74,35 @@ bulkDownloadAPI.downloadData = async (datasetShortNames, filters = null) => {
   log.debug('starting bulk download', { datasetShortNames, filters });
   const endpoint = apiUrl + `/api/data/bulk-download`;
 
-  const formData = { shortNames: datasetShortNames };
+  const requestBody = { shortNames: datasetShortNames };
 
   if (filters) {
-    formData.filters = transformFiltersForAPI(filters);
+    requestBody.filters = transformFiltersForAPI(filters);
   }
 
-  submitDownloadForm(endpoint, formData);
+  const response = await fetch(endpoint, {
+    ...fetchOptions,
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(requestBody),
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Download failed: ${response.status} ${response.statusText}`,
+    );
+  }
+
+  // Get the blob from the response
+  const blob = await response.blob();
+
+  // Generate a filename (you might want to get this from response headers)
+  const filename = `datasets_${Date.now()}.zip`;
+
+  // Trigger the download
+  triggerBlobDownload(blob, filename);
 };
 
 /**
