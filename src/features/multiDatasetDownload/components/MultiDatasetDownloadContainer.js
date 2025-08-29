@@ -37,7 +37,8 @@ import DownloadButton from './DownloadButton';
  */
 const MultiDatasetDownloadContainer = ({ datasetsMetadata = [] }) => {
   // Initialize Zustand store with datasets
-  const { initializeDatasetsMetadata } = useMultiDatasetDownloadStore();
+  const { initializeDatasetsMetadata, resetStore } =
+    useMultiDatasetDownloadStore();
   const { updateRowCountsForFilters } = useRowCountStore();
   // Compute aggregate dataset bounds for multi-dataset filtering
   const aggregateDatasetMetadata = useMemo(() => {
@@ -107,6 +108,13 @@ const MultiDatasetDownloadContainer = ({ datasetsMetadata = [] }) => {
       updateRowCountsForFilters(filterValues);
     }
   }, [filterValues, updateRowCountsForFilters]);
+
+  // Reset store when component unmounts
+  useEffect(() => {
+    return () => {
+      resetStore();
+    };
+  }, [resetStore]);
 
   return (
     <Box

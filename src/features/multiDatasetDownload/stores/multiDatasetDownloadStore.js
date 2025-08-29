@@ -93,6 +93,20 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
       selectedDatasets.has(dataset.Dataset_Name),
     );
   },
+
+  // Reset all state to initial values
+  resetStore: () => {
+    set({
+      selectedDatasets: new Set(),
+      datasetsMetadata: [],
+      filters: {
+        temporal: null,
+        spatial: null,
+        depth: null,
+      },
+      isDownloading: false,
+    });
+  },
 }));
 
 export default useMultiDatasetDownloadStore;

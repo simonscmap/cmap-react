@@ -68,6 +68,7 @@ const MultiDatasetDownloadTable = () => {
     isRowCountLoading,
     getRowCountError,
     initializeWithDatasets,
+    resetStore: resetRowCountStore,
   } = useRowCountStore();
 
   const [hoveredRow, setHoveredRow] = React.useState(null);
@@ -131,6 +132,13 @@ const MultiDatasetDownloadTable = () => {
       initializeWithDatasets(rowCountData);
     }
   }, []);
+
+  // Reset row count store when component unmounts
+  useEffect(() => {
+    return () => {
+      resetRowCountStore();
+    };
+  }, [resetRowCountStore]);
 
   if (!datasetsMetadata || datasetsMetadata.length === 0) {
     return (
