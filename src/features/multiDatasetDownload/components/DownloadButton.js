@@ -1,10 +1,11 @@
 import React from 'react';
 import { Button, CircularProgress, Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
 import { transformSubsetFiltersForAPI } from '../../../shared/filtering/filterTransformUtils';
+import { showLoginDialog } from '../../../Redux/actions/ui';
 
 const useStyles = makeStyles((theme) => ({
   downloadButton: {
@@ -27,15 +28,21 @@ const useStyles = makeStyles((theme) => ({
 
 const DownloadButton = ({ subsetFiltering }) => {
   const classes = useStyles();
+  const dispatch = useDispatch();
   const { selectedDatasets, isDownloading, downloadDatasets } =
     useMultiDatasetDownloadStore();
 
   const user = useSelector((state) => state.user);
 
-  const isDisabled = selectedDatasets.size === 0 || isDownloading || !user;
+  const isDisabled = selectedDatasets.size === 0 || isDownloading;
   const selectedCount = selectedDatasets.size;
 
   const handleDownload = async () => {
+    if (!user) {
+      dispatch(showLoginDialog());
+      return;
+    }
+
     if (isDisabled) return;
 
     try {
@@ -64,7 +71,7 @@ const DownloadButton = ({ subsetFiltering }) => {
         variant="contained"
         color="primary"
         className={classes.downloadButton}
-        disabled={isDisabled}
+        disabled={isDisabled && user}
         onClick={handleDownload}
         startIcon={
           isDownloading ? (
