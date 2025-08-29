@@ -1,8 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Box, Typography } from '@material-ui/core';
-import SubsetControls from '../../../shared/filtering/SubsetControls';
-import DefaultSubsetControlsLayout from '../../../shared/filtering/DefaultSubsetControlsLayout';
-import useSubsetFiltering from '../../../shared/filtering/useSubsetFiltering';
+import SubsetControls from '../../../shared/filtering/core/SubsetControls';
+import DefaultSubsetControlsLayout from '../../../shared/filtering/components/DefaultSubsetControlsLayout';
+import useSubsetFiltering from '../../../shared/filtering/hooks/useSubsetFiltering';
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
 import useRowCountStore from '../stores/useRowCountStore';
 import MultiDatasetDownloadTable from './MultiDatasetDownloadTable';

@@ -1,7 +1,7 @@
 import { Grid, Slider, TextField, Typography } from '@material-ui/core';
 import React from 'react';
-import styles from './styles/subsetControlStyles';
-import { emptyStringOrNumber } from './dateHelpers';
+import styles from '../../styles/subsetControlStyles';
+import { emptyStringOrNumber } from '../../utils/dateHelpers';
 
 const LatStartTextInput = ({
   latMin,

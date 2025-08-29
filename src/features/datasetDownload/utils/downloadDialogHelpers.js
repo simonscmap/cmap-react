@@ -4,7 +4,7 @@ import logInit from '../../../Services/log-service';
 import {
   getIsMonthlyClimatology,
   dayToDateString,
-} from '../../../shared/filtering/dateHelpers';
+} from '../../../shared/filtering/utils/dateHelpers';
 const log = logInit('dowloadDialogHelpers');
 
 // Queries

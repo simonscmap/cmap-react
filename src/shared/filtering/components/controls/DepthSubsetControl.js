@@ -1,7 +1,7 @@
 import React from 'react';
 import { Grid, Slider, TextField, Typography } from '@material-ui/core';
-import styles from './styles/subsetControlStyles';
-import { emptyStringOrNumber } from './dateHelpers';
+import styles from '../../styles/subsetControlStyles';
+import { emptyStringOrNumber } from '../../utils/dateHelpers';
 
 const DepthSubsetControl = (props) => {
   let { depthMin, depthMax, subsetState, setDepthStart, setDepthEnd } = props;

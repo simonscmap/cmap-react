@@ -1,13 +1,13 @@
 import React from 'react';
 import { Collapse } from '@material-ui/core';
 
-import MonthlyDateSubsetControl from './MonthlyDateSubsetControl';
-import DailyDateSubsetControl from './DailyDateSubsetControl';
-import LatitudeSubsetControl from './LatitudeSubsetControl';
-import LongitudeSubsetControl from './LongitudeSubsetControl';
-import DepthSubsetControl from './DepthSubsetControl';
-import ToggleWithHelp from '../components/ToggleWithHelp';
-import styles from './styles/DefaultSubsetControlsLayoutStyles';
+import MonthlyDateSubsetControl from './controls/MonthlyDateSubsetControl';
+import DailyDateSubsetControl from './controls/DailyDateSubsetControl';
+import LatitudeSubsetControl from './controls/LatitudeSubsetControl';
+import LongitudeSubsetControl from './controls/LongitudeSubsetControl';
+import DepthSubsetControl from './controls/DepthSubsetControl';
+import ToggleWithHelp from '../../components/ToggleWithHelp';
+import styles from '../styles/DefaultSubsetControlsLayoutStyles';
 
 const DefaultSubsetControlsLayout = ({
   optionsState, // Direct props from parent (toggle state)

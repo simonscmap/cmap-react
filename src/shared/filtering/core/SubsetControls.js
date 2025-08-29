@@ -1,6 +1,6 @@
 import React from 'react';
 
-import logInit from '../../Services/log-service';
+import logInit from '../../../Services/log-service';
 const log = logInit('dialog subset controls').addContext({
   src: 'shared/filtering/SubsetControls',
 });

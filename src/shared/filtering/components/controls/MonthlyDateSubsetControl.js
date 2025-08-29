@@ -1,7 +1,7 @@
 import { Grid, Slider, TextField, Typography } from '@material-ui/core';
 import React from 'react';
-import { emptyStringOrNumber } from './dateHelpers';
-import styles from './styles/subsetControlStyles';
+import { emptyStringOrNumber } from '../../utils/dateHelpers';
+import styles from '../../styles/subsetControlStyles';
 
 const MonthlyDateSubsetControl = (props) => {
   let { subsetState, setTimeStart, setTimeEnd } = props;

@@ -15,7 +15,7 @@ import {
 
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
 import useRowCountStore from '../stores/useRowCountStore';
-import { dateToDateString } from '../../../shared/filtering/dateHelpers';
+import { dateToDateString } from '../../../shared/filtering/utils/dateHelpers';
 
 const styles = {
   tableContainerStyle: {

@@ -1,4 +1,4 @@
-import temporalResolutions from '../../enums/temporalResolutions';
+import temporalResolutions from '../../../enums/temporalResolutions';
 
 const MILLISECONDS_PER_DAY = 86400000;
 
