@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, CircularProgress, Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { useSelector } from 'react-redux';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
 import { transformSubsetFiltersForAPI } from '../../../shared/filtering/filterTransformUtils';
@@ -10,6 +11,9 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(2),
     minWidth: 200,
     height: 48,
+    '&.Mui-disabled': {
+      color: '#ccc',
+    },
   },
   buttonContent: {
     display: 'flex',
@@ -26,7 +30,9 @@ const DownloadButton = ({ subsetFiltering }) => {
   const { selectedDatasets, isDownloading, downloadDatasets } =
     useMultiDatasetDownloadStore();
 
-  const isDisabled = selectedDatasets.size === 0 || isDownloading;
+  const user = useSelector((state) => state.user);
+
+  const isDisabled = selectedDatasets.size === 0 || isDownloading || !user;
   const selectedCount = selectedDatasets.size;
 
   const handleDownload = async () => {
@@ -42,6 +48,9 @@ const DownloadButton = ({ subsetFiltering }) => {
   const getButtonText = () => {
     if (isDownloading) {
       return 'Downloading...';
+    }
+    if (!user) {
+      return 'Login Now to Download';
     }
     if (selectedCount === 0) {
       return 'Select Datasets to Download';
