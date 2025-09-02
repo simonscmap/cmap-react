@@ -24,10 +24,10 @@ import DownloadButton from './DownloadButton';
  * @param {number} dataset.Lon_Max - Maximum longitude boundary
  * @param {string} dataset.Time_Min - Minimum time boundary (ISO date string)
  * @param {string} dataset.Time_Max - Maximum time boundary (ISO date string)
+ * @param {number} dataset.Row_Count - Initial row count for the dataset (displayed in table)
  *
  * OPTIONAL FIELDS:
  * @param {string} [dataset.Dataset_Long_Name] - Human-readable dataset description (displayed in table)
- * @param {number} [dataset.Row_Count] - Initial row count for the dataset (displayed in table)
  * @param {number} [dataset.Depth_Min=0] - Minimum depth boundary (defaults to 0)
  * @param {number} [dataset.Depth_Max=0] - Maximum depth boundary (defaults to 0)
  * @param {string} [dataset.Temporal_Resolution="daily"] - Temporal resolution (e.g., "monthly", "daily")
