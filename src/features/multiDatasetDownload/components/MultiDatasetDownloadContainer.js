@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Box, Typography } from '@material-ui/core';
+import { Box, Typography, CircularProgress } from '@material-ui/core';
 import SubsetControls from '../../../shared/filtering/core/SubsetControls';
 import DefaultSubsetControlsLayout from '../../../shared/filtering/components/DefaultSubsetControlsLayout';
 import useSubsetFiltering from '../../../shared/filtering/hooks/useSubsetFiltering';
@@ -24,10 +24,9 @@ import DownloadButton from './DownloadButton';
  * @param {number} dataset.Lon_Max - Maximum longitude boundary
  * @param {string} dataset.Time_Min - Minimum time boundary (ISO date string)
  * @param {string} dataset.Time_Max - Maximum time boundary (ISO date string)
+ * @param {number} dataset.Row_Count - Initial row count for the dataset (displayed in table)
  *
  * OPTIONAL FIELDS:
- * @param {string} [dataset.Dataset_Long_Name] - Human-readable dataset description (displayed in table)
- * @param {number} [dataset.Row_Count] - Initial row count for the dataset (displayed in table)
  * @param {number} [dataset.Depth_Min=0] - Minimum depth boundary (defaults to 0)
  * @param {number} [dataset.Depth_Max=0] - Maximum depth boundary (defaults to 0)
  * @param {string} [dataset.Temporal_Resolution="daily"] - Temporal resolution (e.g., "monthly", "daily")
@@ -35,10 +34,8 @@ import DownloadButton from './DownloadButton';
  * The component automatically computes aggregate bounds across all datasets for filtering
  * and initializes internal Zustand stores for state management.
  */
-const MultiDatasetDownloadContainer = ({ datasetsMetadata = [] }) => {
-  // Initialize Zustand store with datasets
-  const { initializeDatasetsMetadata, resetStore } =
-    useMultiDatasetDownloadStore();
+const MultiDatasetDownloadContainerInner = ({ datasetsMetadata }) => {
+  const { resetStore } = useMultiDatasetDownloadStore();
   const { updateRowCountsForFilters } = useRowCountStore();
   // Compute aggregate dataset bounds for multi-dataset filtering
   const aggregateDatasetMetadata = useMemo(() => {
@@ -98,11 +95,6 @@ const MultiDatasetDownloadContainer = ({ datasetsMetadata = [] }) => {
     dateHandling,
   } = useSubsetFiltering(aggregateDatasetMetadata);
 
-  // Initialize store when datasets change
-  useMemo(() => {
-    initializeDatasetsMetadata(datasetsMetadata);
-  }, [datasetsMetadata, initializeDatasetsMetadata]);
-
   // Update row counts when filters change
   useEffect(() => {
     if (filterValues.isFiltered) {
@@ -141,7 +133,9 @@ const MultiDatasetDownloadContainer = ({ datasetsMetadata = [] }) => {
       </Box>
 
       <Box mb={3}>
-        <MultiDatasetDownloadTable />
+        {datasetsMetadata && datasetsMetadata.length > 0 && (
+          <MultiDatasetDownloadTable />
+        )}
       </Box>
 
       <Box>
@@ -156,6 +150,25 @@ const MultiDatasetDownloadContainer = ({ datasetsMetadata = [] }) => {
         />
       </Box>
     </Box>
+  );
+};
+
+const MultiDatasetDownloadContainer = ({ datasetShortNames }) => {
+  const { datasetsMetadata, fetchDatasetsMetadata, isLoading } =
+    useMultiDatasetDownloadStore();
+
+  useEffect(() => {
+    if (datasetShortNames && datasetShortNames.length > 0) {
+      fetchDatasetsMetadata(datasetShortNames);
+    }
+  }, [datasetShortNames, fetchDatasetsMetadata]);
+
+  if (isLoading || !datasetsMetadata || datasetsMetadata.length === 0) {
+    return null;
+  }
+
+  return (
+    <MultiDatasetDownloadContainerInner datasetsMetadata={datasetsMetadata} />
   );
 };
 

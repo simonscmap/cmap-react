@@ -1,8 +1,8 @@
 // api requests specific to the catalog page
-import { apiUrl, postOptions } from './config';
-import safeApi from './safeApi';
-import logInit from '../Services/log-service';
-import { dayToDateString } from '../shared/filtering/utils/dateHelpers';
+import { apiUrl, postOptions } from '../../../api/config';
+import safeApi from '../../../api/safeApi';
+import logInit from '../../../Services/log-service';
+import { dayToDateString } from '../../../shared/filtering/utils/dateHelpers';
 const log = logInit('bulk-download');
 
 /**
@@ -128,6 +128,34 @@ bulkDownloadAPI.getRowCounts = async (datasetShortNames, filters = null) => {
   if (!response.ok) {
     throw new Error(
       `Failed to get row counts: ${response.status} ${response.statusText}`,
+    );
+  }
+
+  return response.json();
+};
+
+/**
+ * Initialize bulk download feature by getting datasets metadata
+ * @param {Array<string>} datasetShortNames - Array of dataset short names
+ * @returns {Promise<Object>} Object containing datasets metadata
+ */
+bulkDownloadAPI.initBulkDownload = async (datasetShortNames) => {
+  log.debug('initializing bulk download', { datasetShortNames });
+  const endpoint = apiUrl + `/api/data/bulk-download-init`;
+
+  const requestBody = { shortNames: datasetShortNames };
+
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(requestBody),
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to initialize bulk download: ${response.status} ${response.statusText}`,
     );
   }
 
