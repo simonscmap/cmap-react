@@ -35,8 +35,15 @@ import DownloadButton from './DownloadButton';
  * The component automatically computes aggregate bounds across all datasets for filtering
  * and initializes internal Zustand stores for state management.
  */
-const MultiDatasetDownloadContainer = ({ datasetsMetadata = [] }) => {
+const MultiDatasetDownloadContainer = ({
+  datasetsMetadata = [],
+  datasetShortNames,
+}) => {
   // Initialize Zustand store with datasets
+  console.log(
+    '🐛🐛🐛 MultiDatasetDownloadContainer.js:43 datasetShortNames:',
+    datasetShortNames,
+  );
   const { initializeDatasetsMetadata, resetStore } =
     useMultiDatasetDownloadStore();
   const { updateRowCountsForFilters } = useRowCountStore();

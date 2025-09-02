@@ -92,6 +92,16 @@ const ProgramDetail = (props) => {
   // Get program details from Redux state for datasets
   const program = useSelector((state) => state.programDetails);
 
+  // Function to extract and sort Dataset_Name values alphabetically
+  const getDatasetNamesSorted = (datasets) => {
+    if (!datasets) return [];
+    return Object.values(datasets)
+      .map((dataset) => dataset.Dataset_Name)
+      .sort();
+  };
+
+  // Console log the sorted dataset names
+  const sortedDatasetNames = getDatasetNamesSorted(program?.datasets);
   // Extract Metadata for datasets for MultiDatasetDownloadContainer
   const datasetsMetadata = !program?.datasets
     ? []
@@ -153,6 +163,7 @@ const ProgramDetail = (props) => {
           <Grid item xs={12}>
             <MultiDatasetDownloadContainer
               datasetsMetadata={datasetsMetadata}
+              datasetShortNames={sortedDatasetNames}
             />
           </Grid>
         )}
