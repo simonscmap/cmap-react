@@ -34,14 +34,8 @@ import DownloadButton from './DownloadButton';
  * The component automatically computes aggregate bounds across all datasets for filtering
  * and initializes internal Zustand stores for state management.
  */
-const MultiDatasetDownloadContainer = ({ datasetShortNames }) => {
-  const {
-    datasetsMetadata,
-    fetchDatasetsMetadata,
-    resetStore,
-    isLoading,
-    error,
-  } = useMultiDatasetDownloadStore();
+const MultiDatasetDownloadContainerInner = ({ datasetsMetadata }) => {
+  const { resetStore } = useMultiDatasetDownloadStore();
   const { updateRowCountsForFilters } = useRowCountStore();
   // Compute aggregate dataset bounds for multi-dataset filtering
   const aggregateDatasetMetadata = useMemo(() => {
@@ -101,13 +95,6 @@ const MultiDatasetDownloadContainer = ({ datasetShortNames }) => {
     dateHandling,
   } = useSubsetFiltering(aggregateDatasetMetadata);
 
-  // Fetch datasets metadata once on component mount
-  useEffect(() => {
-    if (datasetShortNames && datasetShortNames.length > 0) {
-      fetchDatasetsMetadata(datasetShortNames);
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
   // Update row counts when filters change
   useEffect(() => {
     if (filterValues.isFiltered) {
@@ -163,6 +150,25 @@ const MultiDatasetDownloadContainer = ({ datasetShortNames }) => {
         />
       </Box>
     </Box>
+  );
+};
+
+const MultiDatasetDownloadContainer = ({ datasetShortNames }) => {
+  const { datasetsMetadata, fetchDatasetsMetadata, isLoading } =
+    useMultiDatasetDownloadStore();
+
+  useEffect(() => {
+    if (datasetShortNames && datasetShortNames.length > 0) {
+      fetchDatasetsMetadata(datasetShortNames);
+    }
+  }, [datasetShortNames, fetchDatasetsMetadata]);
+
+  if (isLoading || !datasetsMetadata || datasetsMetadata.length === 0) {
+    return null;
+  }
+
+  return (
+    <MultiDatasetDownloadContainerInner datasetsMetadata={datasetsMetadata} />
   );
 };
 
