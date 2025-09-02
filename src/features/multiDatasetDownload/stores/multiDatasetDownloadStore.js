@@ -11,6 +11,8 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     depth: null,
   },
   isDownloading: false,
+  isLoading: false,
+  error: null,
 
   // Actions
   toggleDatasetSelection: (datasetName) => {
@@ -54,6 +56,35 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
 
   setIsDownloading: (isDownloading) => {
     set({ isDownloading });
+  },
+
+  fetchDatasetsMetadata: async (datasetShortNames) => {
+    if (!datasetShortNames || datasetShortNames.length === 0) {
+      return;
+    }
+
+    try {
+      set({ isLoading: true, error: null });
+
+      const { datasetsMetadata } =
+        await bulkDownloadAPI.initBulkDownload(datasetShortNames);
+      console.log(
+        '🐛🐛🐛 multiDatasetDownloadStore.js:71 datasetsMetadata:',
+        datasetsMetadata,
+      );
+      set({
+        datasetsMetadata,
+        isLoading: false,
+        selectedDatasets: new Set(), // Reset selections when new data is fetched
+      });
+    } catch (error) {
+      console.error('Failed to fetch datasets metadata:', error);
+      set({
+        error: error.message || 'Failed to fetch datasets metadata',
+        isLoading: false,
+        datasetsMetadata: [],
+      });
+    }
   },
 
   downloadDatasets: async (overrideFilters) => {
@@ -104,6 +135,8 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
         depth: null,
       },
       isDownloading: false,
+      isLoading: false,
+      error: null,
     });
   },
 }));
