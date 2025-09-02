@@ -60,6 +60,59 @@ const styles = {
   prohibitedIcon: {
     color: '#d16265',
   },
+  // DatePicker styling to match TextField
+  datePickerWrapper: {
+    position: 'relative',
+    '& .custom-date-picker': {
+      '& .react-date-picker__inputGroup': {
+        fontSize: '13px',
+        padding: '2px 0',
+        border: 'none',
+        borderBottom: '1px solid rgba(0, 0, 0, 0.42)',
+        borderRadius: '0',
+        background: 'transparent',
+        minHeight: '19px',
+      },
+      '& .react-date-picker__inputGroup__input': {
+        fontSize: '13px',
+        border: 'none',
+        outline: 'none',
+        background: 'transparent',
+        padding: '0',
+        margin: '0 1px',
+        color: 'rgba(0, 0, 0, 0.87)',
+      },
+      '& .react-date-picker__inputGroup__divider': {
+        color: 'rgba(0, 0, 0, 0.54)',
+      },
+      '& .react-date-picker__clear-button': {
+        display: 'none',
+      },
+      '& .react-date-picker__calendar-button': {
+        display: 'none',
+      },
+    },
+    '& .custom-date-picker.error': {
+      '& .react-date-picker__inputGroup': {
+        borderBottom: '2px solid #f44336',
+      },
+      '& .react-date-picker__inputGroup__input': {
+        color: '#f44336',
+      },
+    },
+  },
+  datePickerLabel: {
+    position: 'absolute',
+    top: '-16px',
+    left: '0',
+    fontSize: '12px',
+    color: 'rgba(0, 0, 0, 0.54)',
+    transition: 'color 200ms cubic-bezier(0.0, 0, 0.2, 1) 0ms',
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    fontWeight: 400,
+    lineHeight: 1,
+    letterSpacing: '0.00938em',
+  },
 };
 
 export default styles;

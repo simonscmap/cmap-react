@@ -1,4 +1,8 @@
-import { Grid, Slider, TextField, Typography } from '@material-ui/core';
+import { Grid, Slider, Typography } from '@material-ui/core';
+import DatePicker from 'react-date-picker';
+import 'react-date-picker/dist/DatePicker.css';
+import 'react-calendar/dist/Calendar.css';
+import './DatePickerStyles.css';
 import NotInterestedIcon from '@material-ui/icons/NotInterested';
 import React, { useState, useEffect } from 'react';
 import {
@@ -53,12 +57,37 @@ const DailyDateSubsetControl = (props) => {
   }, [timeEnd, timeMin]);
 
   // Wrapper handlers for the date inputs
-  const handleStartDateChange = (e) => {
-    handleSetStartDate(e.target.value);
+  const handleStartDateChange = (date) => {
+    if (date) {
+      const dateString = date.toISOString().split('T')[0];
+      handleSetStartDate(dateString);
+    } else {
+      handleSetStartDate('');
+    }
   };
 
-  const handleEndDateChange = (e) => {
-    handleSetEndDate(e.target.value);
+  const handleEndDateChange = (date) => {
+    if (date) {
+      const dateString = date.toISOString().split('T')[0];
+      handleSetEndDate(dateString);
+    } else {
+      handleSetEndDate('');
+    }
+  };
+
+  // Convert string dates back to Date objects for DatePicker
+  const getStartDateValue = () => {
+    if (updatedTimeMin) {
+      return new Date(updatedTimeMin);
+    }
+    return null;
+  };
+
+  const getEndDateValue = () => {
+    if (updatedTimeMax) {
+      return new Date(updatedTimeMax);
+    }
+    return null;
   };
 
   let handleSlider = (_, value) => {
@@ -110,38 +139,44 @@ const DailyDateSubsetControl = (props) => {
         </Grid>
 
         <Grid item xs={6} md={4} style={styles.relative}>
-          <TextField
-            label="Start"
-            type="date"
-            inputProps={{
-              style: styles.input,
-            }}
-            InputLabelProps={{
-              shrink: true,
-            }}
-            error={!validTimeMin}
-            value={updatedTimeMin}
-            onChange={handleStartDateChange}
-          />
+          <div style={styles.datePickerWrapper}>
+            <label style={{
+              ...styles.datePickerLabel,
+              color: !validTimeMin ? '#f44336' : 'rgba(0, 0, 0, 0.54)'
+            }}>Start</label>
+            <DatePicker
+              value={getStartDateValue()}
+              onChange={handleStartDateChange}
+              shouldOpenCalendar={() => false}
+              format="MM/dd/yyyy"
+              dayPlaceholder="MM"
+              monthPlaceholder="DD"
+              yearPlaceholder="YYYY"
+              className={`custom-date-picker ${!validTimeMin ? 'error' : ''}`}
+            />
+          </div>
           <InvalidInputMessage
             message={validTimeMin ? null : 'Invalid Start Date'}
           />
         </Grid>
 
         <Grid item xs={6} md={4} style={styles.relative}>
-          <TextField
-            label="End"
-            type="date"
-            inputProps={{
-              style: styles.input,
-            }}
-            InputLabelProps={{
-              shrink: true,
-            }}
-            error={!validTimeMax}
-            value={updatedTimeMax}
-            onChange={handleEndDateChange}
-          />
+          <div style={styles.datePickerWrapper}>
+            <label style={{
+              ...styles.datePickerLabel,
+              color: !validTimeMax ? '#f44336' : 'rgba(0, 0, 0, 0.54)'
+            }}>End</label>
+            <DatePicker
+              value={getEndDateValue()}
+              onChange={handleEndDateChange}
+              shouldOpenCalendar={() => false}
+              format="MM/dd/yyyy"
+              dayPlaceholder="MM"
+              monthPlaceholder="DD"
+              yearPlaceholder="YYYY"
+              className={`custom-date-picker ${!validTimeMax ? 'error' : ''}`}
+            />
+          </div>
           <InvalidInputMessage
             message={validTimeMax ? null : 'Invalid End Date'}
           />
