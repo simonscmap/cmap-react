@@ -9,7 +9,7 @@ import dataRequests from './dataRequests';
 import newsRequests from './news';
 import notificationsRequests from './notifications';
 import highlights from './highlights';
-import bulkDownload from './bulkDownload';
+import { bulkDownloadAPI as bulkDownload } from '../features/multiDatasetDownload/api';
 import dropboxRequests from '../features/datasetDownloadDropbox/api/dropboxApi';
 
 const api = {

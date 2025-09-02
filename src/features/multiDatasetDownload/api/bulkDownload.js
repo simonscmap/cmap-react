@@ -1,8 +1,8 @@
 // api requests specific to the catalog page
-import { apiUrl, postOptions } from './config';
-import safeApi from './safeApi';
-import logInit from '../Services/log-service';
-import { dayToDateString } from '../shared/filtering/utils/dateHelpers';
+import { apiUrl, postOptions } from '../../../api/config';
+import safeApi from '../../../api/safeApi';
+import logInit from '../../../Services/log-service';
+import { dayToDateString } from '../../../shared/filtering/utils/dateHelpers';
 const log = logInit('bulk-download');
 
 /**

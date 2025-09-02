@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import bulkDownloadAPI from '../../../api/bulkDownload';
+import bulkDownloadAPI from '../api/bulkDownload';
 
 const useMultiDatasetDownloadStore = create((set, get) => ({
   // State
