@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Box, Typography } from '@material-ui/core';
+import { Box, Typography, CircularProgress } from '@material-ui/core';
 import SubsetControls from '../../../shared/filtering/core/SubsetControls';
 import DefaultSubsetControlsLayout from '../../../shared/filtering/components/DefaultSubsetControlsLayout';
 import useSubsetFiltering from '../../../shared/filtering/hooks/useSubsetFiltering';
@@ -146,7 +146,9 @@ const MultiDatasetDownloadContainer = ({ datasetShortNames }) => {
       </Box>
 
       <Box mb={3}>
-        <MultiDatasetDownloadTable />
+        {datasetsMetadata && datasetsMetadata.length > 0 && (
+          <MultiDatasetDownloadTable />
+        )}
       </Box>
 
       <Box>
