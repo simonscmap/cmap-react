@@ -68,10 +68,6 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
 
       const { datasetsMetadata } =
         await bulkDownloadAPI.initBulkDownload(datasetShortNames);
-      console.log(
-        '🐛🐛🐛 multiDatasetDownloadStore.js:71 datasetsMetadata:',
-        datasetsMetadata,
-      );
       set({
         datasetsMetadata,
         isLoading: false,
