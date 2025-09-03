@@ -67,16 +67,32 @@
   transition: all 0.2s ease;
 }
 
+/* Animated focus underline that expands from center */
+.date-picker-underline::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background-color: #9dd162;
+  transform: translateX(-50%);
+  transition: width 0.2s ease;
+}
+
 /* Hover state - white underline with same thickness as focus */
 .date-picker-container:hover .date-picker-underline {
   height: 2px;
   background-color: rgba(255, 255, 255, 0.8);
 }
 
-/* Focus state - green underline with thicker height */
+/* Focus state - expand green underline from center */
 .date-picker-container:focus-within .date-picker-underline {
   height: 2px;
-  background-color: #9dd162;
+}
+
+.date-picker-container:focus-within .date-picker-underline::after {
+  width: 100%;
 }
 
 /* Error state - red underline (overrides hover and focus) */
