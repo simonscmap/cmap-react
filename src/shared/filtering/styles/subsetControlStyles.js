@@ -60,6 +60,22 @@ const styles = {
   prohibitedIcon: {
     color: '#d16265',
   },
+  // Custom styles for react-date-picker to match Material-UI TextField appearance
+  datePickerContainer: {
+    position: 'relative',
+    width: '100%',
+    marginTop: '13px', // Match formLabel marginTop
+  },
+  datePickerLabel: {
+    fontSize: '.72rem',
+    color: '#9dd162', // Green color to match other labels
+    marginBottom: '4px',
+    display: 'block',
+  },
+  datePickerField: {
+    position: 'relative',
+    width: '100%',
+  },
 };
 
 export default styles;
