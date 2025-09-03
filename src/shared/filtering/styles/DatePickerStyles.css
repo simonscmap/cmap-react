@@ -48,3 +48,45 @@
 .custom-date-picker .react-date-picker__clear-button {
   display: none !important;
 }
+
+/* Container for DatePicker with underline */
+.date-picker-container {
+  position: relative;
+  display: inline-block;
+}
+
+/* Base underline styling */
+.date-picker-underline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: auto;
+  width: 100%;
+  height: 1px;
+  background-color: rgba(0, 0, 0, 0.42);
+  transition: all 0.2s ease;
+}
+
+/* Hover state - white underline with same thickness as focus */
+.date-picker-container:hover .date-picker-underline {
+  height: 2px;
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+/* Focus state - green underline with thicker height */
+.date-picker-container:focus-within .date-picker-underline {
+  height: 2px;
+  background-color: #9dd162;
+}
+
+/* Error state - red underline (overrides hover and focus) */
+.date-picker-container.error .date-picker-underline {
+  height: 2px;
+  background-color: #f44336;
+}
+
+.date-picker-container.error:hover .date-picker-underline,
+.date-picker-container.error:focus-within .date-picker-underline {
+  height: 2px;
+  background-color: #f44336;
+}

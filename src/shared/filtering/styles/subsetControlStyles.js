@@ -85,25 +85,6 @@ const styles = {
     backgroundColor: 'transparent',
     color: 'inherit',
   },
-  datePickerUnderline: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 'auto',
-    width: '100%',
-    height: '1px',
-    backgroundColor: 'rgba(0, 0, 0, 0.42)', // Default Material-UI underline
-    transition: 'all 0.2s ease',
-  },
-  datePickerUnderlineFocused: {
-    height: '2px',
-    backgroundColor: '#9dd162', // Green focus color
-    transition: 'all 0.2s ease',
-  },
-  datePickerUnderlineError: {
-    height: '2px',
-    backgroundColor: '#f44336', // Red error color
-  },
 };
 
 export default styles;

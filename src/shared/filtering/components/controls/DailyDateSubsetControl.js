@@ -56,10 +56,6 @@ const DailyDateSubsetControl = (props) => {
     setTimeout(() => setUpdatedTimeMax(undefined), 5);
   }, [timeEnd, timeMin]);
 
-  // State for focus tracking to animate underlines
-  const [startDateFocused, setStartDateFocused] = useState(false);
-  const [endDateFocused, setEndDateFocused] = useState(false);
-
   // TODO: Convert string date to Date object for DatePicker
   const convertStringToDate = (dateString) => {
     // TODO: Implement conversion from YYYY-MM-DD string to Date object
@@ -151,27 +147,19 @@ const DailyDateSubsetControl = (props) => {
           <div style={styles.datePickerContainer}>
             <label style={styles.datePickerLabel}>Start</label>
             <div style={styles.datePickerField}>
-              <div style={{ position: 'relative', display: 'inline-block' }}>
+              <div
+                className={`date-picker-container ${!validTimeMin ? 'error' : ''}`}
+              >
                 <DatePicker
                   shouldOpenCalendar={() => false}
                   calendarIcon={null}
                   clearIcon={null}
                   value={convertStringToDate(updatedTimeMin)}
                   onChange={handleStartDatePickerChange}
-                  onFocus={() => setStartDateFocused(true)}
-                  onBlur={() => setStartDateFocused(false)}
                   format="MM/dd/yyyy"
                   className="custom-date-picker"
                 />
-                <div
-                  style={{
-                    ...styles.datePickerUnderline,
-                    ...(startDateFocused
-                      ? styles.datePickerUnderlineFocused
-                      : {}),
-                    ...(!validTimeMin ? styles.datePickerUnderlineError : {}),
-                  }}
-                />
+                <div className="date-picker-underline" />
               </div>
             </div>
           </div>
@@ -184,27 +172,19 @@ const DailyDateSubsetControl = (props) => {
           <div style={styles.datePickerContainer}>
             <label style={styles.datePickerLabel}>End</label>
             <div style={styles.datePickerField}>
-              <div style={{ position: 'relative', display: 'inline-block' }}>
+              <div
+                className={`date-picker-container ${!validTimeMax ? 'error' : ''}`}
+              >
                 <DatePicker
                   shouldOpenCalendar={() => false}
                   calendarIcon={null}
                   clearIcon={null}
                   value={convertStringToDate(updatedTimeMax)}
                   onChange={handleEndDatePickerChange}
-                  onFocus={() => setEndDateFocused(true)}
-                  onBlur={() => setEndDateFocused(false)}
                   format="MM/dd/yyyy"
                   className="custom-date-picker"
                 />
-                <div
-                  style={{
-                    ...styles.datePickerUnderline,
-                    ...(endDateFocused
-                      ? styles.datePickerUnderlineFocused
-                      : {}),
-                    ...(!validTimeMax ? styles.datePickerUnderlineError : {}),
-                  }}
-                />
+                <div className="date-picker-underline" />
               </div>
             </div>
           </div>
