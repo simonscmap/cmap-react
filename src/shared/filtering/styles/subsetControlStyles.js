@@ -67,7 +67,7 @@ const styles = {
     marginTop: '13px', // Match formLabel marginTop
   },
   datePickerLabel: {
-    fontSize: '.92rem',
+    fontSize: '.72rem',
     color: '#9dd162', // Green color to match other labels
     marginBottom: '4px',
     display: 'block',
@@ -75,15 +75,6 @@ const styles = {
   datePickerField: {
     position: 'relative',
     width: '100%',
-  },
-  datePickerInput: {
-    fontSize: '13px',
-    padding: '8px 0 7px 0', // Match Material-UI TextField padding
-    border: 'none',
-    outline: 'none',
-    width: '100%',
-    backgroundColor: 'transparent',
-    color: 'inherit',
   },
 };
 
