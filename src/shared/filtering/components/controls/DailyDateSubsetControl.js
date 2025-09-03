@@ -2,7 +2,9 @@ import { Grid, Slider, TextField, Typography } from '@material-ui/core';
 import NotInterestedIcon from '@material-ui/icons/NotInterested';
 import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-date-picker';
-// Note: Intentionally NOT importing CSS files to avoid default styling
+// Note: Intentionally NOT importing default CSS files to avoid default styling
+// Import our custom CSS to style the DatePicker components
+import '../../styles/DatePickerStyles.css';
 import {
   dateToDateString,
   dayToDateString,
@@ -53,6 +55,10 @@ const DailyDateSubsetControl = (props) => {
     // reset to undefined to allow free input
     setTimeout(() => setUpdatedTimeMax(undefined), 5);
   }, [timeEnd, timeMin]);
+
+  // State for focus tracking to animate underlines
+  const [startDateFocused, setStartDateFocused] = useState(false);
+  const [endDateFocused, setEndDateFocused] = useState(false);
 
   // TODO: Convert string date to Date object for DatePicker
   const convertStringToDate = (dateString) => {
@@ -142,22 +148,32 @@ const DailyDateSubsetControl = (props) => {
         </Grid>
 
         <Grid item xs={6} md={4} style={styles.relative}>
-          <div style={styles.datePickerWrapper}>
-            <label style={{ fontSize: '12px', color: 'rgba(0, 0, 0, 0.54)' }}>
-              Start
-            </label>
-            <DatePicker
-              shouldOpenCalendar={() => false}
-              calendarIcon={null}
-              clearIcon={null}
-              value={convertStringToDate(updatedTimeMin)}
-              onChange={handleStartDatePickerChange}
-              style={{
-                ...styles.datePickerInput,
-                ...(validTimeMin ? {} : styles.datePickerError),
-              }}
-              format="MM/dd/yyyy"
-            />
+          <div style={styles.datePickerContainer}>
+            <label style={styles.datePickerLabel}>Start</label>
+            <div style={styles.datePickerField}>
+              <div style={{ position: 'relative', display: 'inline-block' }}>
+                <DatePicker
+                  shouldOpenCalendar={() => false}
+                  calendarIcon={null}
+                  clearIcon={null}
+                  value={convertStringToDate(updatedTimeMin)}
+                  onChange={handleStartDatePickerChange}
+                  onFocus={() => setStartDateFocused(true)}
+                  onBlur={() => setStartDateFocused(false)}
+                  format="MM/dd/yyyy"
+                  className="custom-date-picker"
+                />
+                <div
+                  style={{
+                    ...styles.datePickerUnderline,
+                    ...(startDateFocused
+                      ? styles.datePickerUnderlineFocused
+                      : {}),
+                    ...(!validTimeMin ? styles.datePickerUnderlineError : {}),
+                  }}
+                />
+              </div>
+            </div>
           </div>
           <InvalidInputMessage
             message={validTimeMin ? null : 'Invalid Start Date'}
@@ -165,22 +181,32 @@ const DailyDateSubsetControl = (props) => {
         </Grid>
 
         <Grid item xs={6} md={4} style={styles.relative}>
-          <div style={styles.datePickerWrapper}>
-            <label style={{ fontSize: '12px', color: 'rgba(0, 0, 0, 0.54)' }}>
-              End
-            </label>
-            <DatePicker
-              shouldOpenCalendar={() => false}
-              calendarIcon={null}
-              clearIcon={null}
-              value={convertStringToDate(updatedTimeMax)}
-              onChange={handleEndDatePickerChange}
-              style={{
-                ...styles.datePickerInput,
-                ...(validTimeMax ? {} : styles.datePickerError),
-              }}
-              format="MM/dd/yyyy"
-            />
+          <div style={styles.datePickerContainer}>
+            <label style={styles.datePickerLabel}>End</label>
+            <div style={styles.datePickerField}>
+              <div style={{ position: 'relative', display: 'inline-block' }}>
+                <DatePicker
+                  shouldOpenCalendar={() => false}
+                  calendarIcon={null}
+                  clearIcon={null}
+                  value={convertStringToDate(updatedTimeMax)}
+                  onChange={handleEndDatePickerChange}
+                  onFocus={() => setEndDateFocused(true)}
+                  onBlur={() => setEndDateFocused(false)}
+                  format="MM/dd/yyyy"
+                  className="custom-date-picker"
+                />
+                <div
+                  style={{
+                    ...styles.datePickerUnderline,
+                    ...(endDateFocused
+                      ? styles.datePickerUnderlineFocused
+                      : {}),
+                    ...(!validTimeMax ? styles.datePickerUnderlineError : {}),
+                  }}
+                />
+              </div>
+            </div>
           </div>
           <InvalidInputMessage
             message={validTimeMax ? null : 'Invalid End Date'}

@@ -60,21 +60,49 @@ const styles = {
   prohibitedIcon: {
     color: '#d16265',
   },
-  // Custom styles for react-date-picker to match TextField appearance
-  datePickerWrapper: {
+  // Custom styles for react-date-picker to match Material-UI TextField appearance
+  datePickerContainer: {
+    position: 'relative',
+    width: '100%',
+    marginTop: '13px', // Match formLabel marginTop
+  },
+  datePickerLabel: {
+    fontSize: '.92rem',
+    color: '#9dd162', // Green color to match other labels
+    marginBottom: '4px',
+    display: 'block',
+  },
+  datePickerField: {
     position: 'relative',
     width: '100%',
   },
   datePickerInput: {
     fontSize: '13px',
-    padding: '2px 0',
+    padding: '8px 0 7px 0', // Match Material-UI TextField padding
     border: 'none',
     outline: 'none',
     width: '100%',
     backgroundColor: 'transparent',
+    color: 'inherit',
   },
-  datePickerError: {
-    borderBottom: '2px solid #f44336',
+  datePickerUnderline: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 'auto',
+    width: '100%',
+    height: '1px',
+    backgroundColor: 'rgba(0, 0, 0, 0.42)', // Default Material-UI underline
+    transition: 'all 0.2s ease',
+  },
+  datePickerUnderlineFocused: {
+    height: '2px',
+    backgroundColor: '#9dd162', // Green focus color
+    transition: 'all 0.2s ease',
+  },
+  datePickerUnderlineError: {
+    height: '2px',
+    backgroundColor: '#f44336', // Red error color
   },
 };
 
