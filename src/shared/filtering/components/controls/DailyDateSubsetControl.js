@@ -1,6 +1,8 @@
 import { Grid, Slider, TextField, Typography } from '@material-ui/core';
 import NotInterestedIcon from '@material-ui/icons/NotInterested';
 import React, { useState, useEffect } from 'react';
+import DatePicker from 'react-date-picker';
+// Note: Intentionally NOT importing CSS files to avoid default styling
 import {
   dateToDateString,
   dayToDateString,
@@ -52,12 +54,42 @@ const DailyDateSubsetControl = (props) => {
     setTimeout(() => setUpdatedTimeMax(undefined), 5);
   }, [timeEnd, timeMin]);
 
+  // TODO: Convert string date to Date object for DatePicker
+  const convertStringToDate = (dateString) => {
+    // TODO: Implement conversion from YYYY-MM-DD string to Date object
+    return null; // Placeholder
+  };
+
+  // TODO: Convert Date object back to string for existing logic
+  const convertDateToString = (dateObj) => {
+    // TODO: Implement conversion from Date object to YYYY-MM-DD string
+    return ''; // Placeholder
+  };
+
+  // TODO: Handle DatePicker change for start date
+  const handleStartDatePickerChange = (date) => {
+    // TODO: Convert Date to string and call existing handleStartDateChange
+    // const stringDate = convertDateToString(date);
+    // handleStartDateChange({ target: { value: stringDate } });
+  };
+
+  // TODO: Handle DatePicker change for end date
+  const handleEndDatePickerChange = (date) => {
+    // TODO: Convert Date to string and call existing handleEndDateChange
+    // const stringDate = convertDateToString(date);
+    // handleEndDateChange({ target: { value: stringDate } });
+  };
+
   // Wrapper handlers for the date inputs
   const handleStartDateChange = (e) => {
+    // TODO: This function expects e.target.value string format
+    // May need modification to work with DatePicker Date objects
     handleSetStartDate(e.target.value);
   };
 
   const handleEndDateChange = (e) => {
+    // TODO: This function expects e.target.value string format
+    // May need modification to work with DatePicker Date objects
     handleSetEndDate(e.target.value);
   };
 
@@ -110,38 +142,46 @@ const DailyDateSubsetControl = (props) => {
         </Grid>
 
         <Grid item xs={6} md={4} style={styles.relative}>
-          <TextField
-            label="Start"
-            type="date"
-            inputProps={{
-              style: styles.input,
-            }}
-            InputLabelProps={{
-              shrink: true,
-            }}
-            error={!validTimeMin}
-            value={updatedTimeMin}
-            onChange={handleStartDateChange}
-          />
+          <div style={styles.datePickerWrapper}>
+            <label style={{ fontSize: '12px', color: 'rgba(0, 0, 0, 0.54)' }}>
+              Start
+            </label>
+            <DatePicker
+              shouldOpenCalendar={() => false}
+              calendarIcon={null}
+              clearIcon={null}
+              value={convertStringToDate(updatedTimeMin)}
+              onChange={handleStartDatePickerChange}
+              style={{
+                ...styles.datePickerInput,
+                ...(validTimeMin ? {} : styles.datePickerError),
+              }}
+              format="MM/dd/yyyy"
+            />
+          </div>
           <InvalidInputMessage
             message={validTimeMin ? null : 'Invalid Start Date'}
           />
         </Grid>
 
         <Grid item xs={6} md={4} style={styles.relative}>
-          <TextField
-            label="End"
-            type="date"
-            inputProps={{
-              style: styles.input,
-            }}
-            InputLabelProps={{
-              shrink: true,
-            }}
-            error={!validTimeMax}
-            value={updatedTimeMax}
-            onChange={handleEndDateChange}
-          />
+          <div style={styles.datePickerWrapper}>
+            <label style={{ fontSize: '12px', color: 'rgba(0, 0, 0, 0.54)' }}>
+              End
+            </label>
+            <DatePicker
+              shouldOpenCalendar={() => false}
+              calendarIcon={null}
+              clearIcon={null}
+              value={convertStringToDate(updatedTimeMax)}
+              onChange={handleEndDatePickerChange}
+              style={{
+                ...styles.datePickerInput,
+                ...(validTimeMax ? {} : styles.datePickerError),
+              }}
+              format="MM/dd/yyyy"
+            />
+          </div>
           <InvalidInputMessage
             message={validTimeMax ? null : 'Invalid End Date'}
           />

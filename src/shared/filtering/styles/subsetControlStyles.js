@@ -60,6 +60,22 @@ const styles = {
   prohibitedIcon: {
     color: '#d16265',
   },
+  // Custom styles for react-date-picker to match TextField appearance
+  datePickerWrapper: {
+    position: 'relative',
+    width: '100%',
+  },
+  datePickerInput: {
+    fontSize: '13px',
+    padding: '2px 0',
+    border: 'none',
+    outline: 'none',
+    width: '100%',
+    backgroundColor: 'transparent',
+  },
+  datePickerError: {
+    borderBottom: '2px solid #f44336',
+  },
 };
 
 export default styles;
