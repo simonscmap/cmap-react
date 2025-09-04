@@ -286,6 +286,301 @@ describe('useSubsetFiltering', () => {
         });
       });
 
+      describe('Date Handling Validation and Edge Cases', () => {
+        describe('handleSetStartDate and handleSetEndDate with valid dates', () => {
+          test('handles valid dates within dataset bounds', () => {
+            const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+            // Mock date conversion functions
+            dateHelpers.extractDateFromString.mockReturnValue(
+              new Date('2020-06-15'),
+            );
+            dateHelpers.dateToDay.mockReturnValue(165); // ~6 months into year
+
+            act(() => {
+              result.current.dateHandling.handleSetStartDate('2020-06-15');
+            });
+
+            expect(dateHelpers.extractDateFromString).toHaveBeenCalledWith(
+              '2020-06-15',
+            );
+            expect(result.current.dateHandling.validTimeMin).toBe(true);
+            expect(result.current.filterValues.timeStart).toBe(165);
+          });
+
+          test('handles edge dates exactly at min bounds', () => {
+            const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+            dateHelpers.extractDateFromString.mockReturnValue(
+              new Date('2020-01-01'),
+            );
+            dateHelpers.dateToDay.mockReturnValue(0);
+
+            act(() => {
+              result.current.dateHandling.handleSetStartDate('2020-01-01');
+            });
+
+            expect(result.current.dateHandling.validTimeMin).toBe(true);
+            expect(result.current.filterValues.timeStart).toBe(0);
+          });
+
+          test('handles edge dates exactly at max bounds', () => {
+            const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+            dateHelpers.extractDateFromString.mockReturnValue(
+              new Date('2023-12-31'),
+            );
+            dateHelpers.dateToDay.mockReturnValue(1461);
+
+            act(() => {
+              result.current.dateHandling.handleSetEndDate('2023-12-31');
+            });
+
+            expect(result.current.dateHandling.validTimeMax).toBe(true);
+            expect(result.current.filterValues.timeEnd).toBe(1461);
+          });
+
+          test('handles different date format variations', () => {
+            const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+            // Test with different valid date strings
+            const testDates = ['2021-03-15', '2021-12-01', '2022-06-30'];
+
+            testDates.forEach((dateString, index) => {
+              const mockDate = new Date(dateString);
+              const mockDayValue = 100 + index * 100;
+
+              dateHelpers.extractDateFromString.mockReturnValue(mockDate);
+              dateHelpers.dateToDay.mockReturnValue(mockDayValue);
+
+              act(() => {
+                result.current.dateHandling.handleSetStartDate(dateString);
+              });
+
+              expect(result.current.dateHandling.validTimeMin).toBe(true);
+              expect(result.current.filterValues.timeStart).toBe(mockDayValue);
+            });
+          });
+        });
+
+        describe('Date boundary validation', () => {
+          test('rejects dates outside dataset time range', () => {
+            const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+            // Mock extractDateFromString to return a date outside bounds
+            dateHelpers.extractDateFromString.mockReturnValue(
+              new Date('2024-01-01'),
+            );
+
+            // Mock dateToDateString to simulate date comparison in dateIsWithinBounds
+            dateHelpers.dateToDateString.mockImplementation((date) => {
+              if (date === mockDatasets.normal.Time_Min) return '2020-01-01';
+              if (date === mockDatasets.normal.Time_Max) return '2023-12-31';
+              return '2024-01-01'; // Outside bounds
+            });
+
+            act(() => {
+              result.current.dateHandling.handleSetStartDate('2024-01-01');
+            });
+
+            expect(result.current.dateHandling.validTimeMin).toBe(false);
+            expect(result.current.isInvalid).toBe(true);
+          });
+
+          test('handles invalid date strings gracefully', () => {
+            const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+            // Mock invalid date - create a date that will be invalid
+            const invalidDate = new Date('invalid');
+            dateHelpers.extractDateFromString.mockReturnValue(invalidDate);
+
+            // Mock dateToDateString to handle invalid dates properly
+            dateHelpers.dateToDateString.mockImplementation((date) => {
+              if (date === mockDatasets.normal.Time_Min) return '2020-01-01';
+              if (date === mockDatasets.normal.Time_Max) return '2023-12-31';
+              // For invalid dates, return an invalid date string that fails bounds check
+              if (isNaN(date.getTime())) return 'invalid-date';
+              return new Date(date).toISOString().split('T')[0];
+            });
+
+            act(() => {
+              result.current.dateHandling.handleSetStartDate('invalid-date');
+            });
+
+            expect(result.current.dateHandling.validTimeMin).toBe(false);
+            expect(result.current.isInvalid).toBe(true);
+          });
+
+          test('handles empty/null date inputs', () => {
+            const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+            act(() => {
+              result.current.dateHandling.handleSetStartDate('');
+            });
+
+            expect(result.current.dateHandling.validTimeMin).toBe(false);
+            expect(result.current.isInvalid).toBe(true);
+
+            act(() => {
+              result.current.dateHandling.handleSetEndDate(null);
+            });
+
+            expect(result.current.dateHandling.validTimeMax).toBe(false);
+            expect(result.current.isInvalid).toBe(true);
+          });
+        });
+
+        describe('Validation state updates', () => {
+          test('validTimeMin flag updates correctly', () => {
+            const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+            // Initially valid
+            expect(result.current.dateHandling.validTimeMin).toBe(true);
+
+            // Set invalid date
+            act(() => {
+              result.current.dateHandling.handleSetStartDate('');
+            });
+
+            expect(result.current.dateHandling.validTimeMin).toBe(false);
+
+            // Set valid date again
+            dateHelpers.extractDateFromString.mockReturnValue(
+              new Date('2021-06-15'),
+            );
+            dateHelpers.dateToDay.mockReturnValue(500);
+
+            act(() => {
+              result.current.dateHandling.handleSetStartDate('2021-06-15');
+            });
+
+            expect(result.current.dateHandling.validTimeMin).toBe(true);
+          });
+
+          test('validTimeMax flag updates correctly', () => {
+            const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+            // Initially valid
+            expect(result.current.dateHandling.validTimeMax).toBe(true);
+
+            // Set invalid date
+            act(() => {
+              result.current.dateHandling.handleSetEndDate('');
+            });
+
+            expect(result.current.dateHandling.validTimeMax).toBe(false);
+
+            // Set valid date again
+            dateHelpers.extractDateFromString.mockReturnValue(
+              new Date('2022-06-15'),
+            );
+            dateHelpers.dateToDay.mockReturnValue(900);
+
+            act(() => {
+              result.current.dateHandling.handleSetEndDate('2022-06-15');
+            });
+
+            expect(result.current.dateHandling.validTimeMax).toBe(true);
+          });
+
+          test('isInvalid flag logic when one date is invalid', () => {
+            const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+            // Initially not invalid
+            expect(result.current.isInvalid).toBe(false);
+
+            // Make start date invalid while end date remains valid
+            act(() => {
+              result.current.dateHandling.handleSetStartDate('');
+            });
+
+            expect(result.current.isInvalid).toBe(true);
+            expect(result.current.dateHandling.validTimeMin).toBe(false);
+            expect(result.current.dateHandling.validTimeMax).toBe(true);
+          });
+
+          test('isInvalid flag logic when both dates are invalid', () => {
+            const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+            // Make both dates invalid
+            act(() => {
+              result.current.dateHandling.handleSetStartDate('');
+              result.current.dateHandling.handleSetEndDate('');
+            });
+
+            expect(result.current.isInvalid).toBe(true);
+            expect(result.current.dateHandling.validTimeMin).toBe(false);
+            expect(result.current.dateHandling.validTimeMax).toBe(false);
+          });
+
+          test('state transitions between valid/invalid states', () => {
+            const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+            // Start valid
+            expect(result.current.isInvalid).toBe(false);
+
+            // Transition to invalid
+            act(() => {
+              result.current.dateHandling.handleSetStartDate('');
+            });
+            expect(result.current.isInvalid).toBe(true);
+
+            // Transition back to valid
+            dateHelpers.extractDateFromString.mockReturnValue(
+              new Date('2021-06-15'),
+            );
+            dateHelpers.dateToDay.mockReturnValue(500);
+
+            act(() => {
+              result.current.dateHandling.handleSetStartDate('2021-06-15');
+            });
+
+            expect(result.current.isInvalid).toBe(false);
+            expect(result.current.dateHandling.validTimeMin).toBe(true);
+          });
+        });
+
+        describe('Monthly climatology detection', () => {
+          test('isMonthlyClimatology returns true for climatology datasets', () => {
+            dateHelpers.getIsMonthlyClimatology.mockReturnValue(true);
+
+            const { result } = renderHook(() =>
+              useHook(mockDatasets.monthlyClimatology),
+            );
+
+            expect(result.current.dateHandling.isMonthlyClimatology).toBe(true);
+            expect(dateHelpers.getIsMonthlyClimatology).toHaveBeenCalledWith(
+              'monthly climatology',
+            );
+          });
+
+          test('isMonthlyClimatology returns false for regular datasets', () => {
+            dateHelpers.getIsMonthlyClimatology.mockReturnValue(false);
+
+            const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+            expect(result.current.dateHandling.isMonthlyClimatology).toBe(
+              false,
+            );
+            expect(dateHelpers.getIsMonthlyClimatology).toHaveBeenCalledWith(
+              'monthly',
+            );
+          });
+
+          test('isMonthlyClimatology returns false when Temporal_Resolution is missing', () => {
+            dateHelpers.getIsMonthlyClimatology.mockReturnValue(false);
+
+            const { result } = renderHook(() =>
+              useHook(mockDatasets.missingOptionalFields),
+            );
+
+            expect(result.current.dateHandling.isMonthlyClimatology).toBe(
+              false,
+            );
+          });
+        });
+      });
+
       describe('isFiltered Logic and State Change Detection', () => {
         test('returns false when all values match initial defaults', () => {
           const { result } = renderHook(() => useHook(mockDatasets.normal));
@@ -475,6 +770,330 @@ describe('useSubsetFiltering', () => {
           // Should now be filtered
           expect(result.current.filterValues.isFiltered).toBe(true);
           expect(result.current.filterValues.latStart).toBe(-30);
+        });
+      });
+
+      describe('Filter Setters and State Updates', () => {
+        describe('Setter functions update their respective state values', () => {
+          test('setLatStart and setLatEnd update latitude values', () => {
+            const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+            act(() => {
+              result.current.filterSetters.setLatStart(-30);
+            });
+
+            expect(result.current.filterValues.latStart).toBe(-30);
+
+            act(() => {
+              result.current.filterSetters.setLatEnd(60);
+            });
+
+            expect(result.current.filterValues.latEnd).toBe(60);
+          });
+
+          test('setLonStart and setLonEnd update longitude values', () => {
+            const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+            act(() => {
+              result.current.filterSetters.setLonStart(-120);
+            });
+
+            expect(result.current.filterValues.lonStart).toBe(-120);
+
+            act(() => {
+              result.current.filterSetters.setLonEnd(120);
+            });
+
+            expect(result.current.filterValues.lonEnd).toBe(120);
+          });
+
+          test('setTimeStart and setTimeEnd update time values', () => {
+            const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+            act(() => {
+              result.current.filterSetters.setTimeStart(365);
+            });
+
+            expect(result.current.filterValues.timeStart).toBe(365);
+
+            act(() => {
+              result.current.filterSetters.setTimeEnd(730);
+            });
+
+            expect(result.current.filterValues.timeEnd).toBe(730);
+          });
+
+          test('setDepthStart and setDepthEnd update depth values', () => {
+            const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+            act(() => {
+              result.current.filterSetters.setDepthStart(100);
+            });
+
+            expect(result.current.filterValues.depthStart).toBe(100);
+
+            act(() => {
+              result.current.filterSetters.setDepthEnd(2000);
+            });
+
+            expect(result.current.filterValues.depthEnd).toBe(2000);
+          });
+        });
+
+        describe('Setter function stability and memoization', () => {
+          test('setter functions maintain referential equality across re-renders', () => {
+            const { result, rerender } = renderHook(() =>
+              useHook(mockDatasets.normal),
+            );
+
+            // Capture initial setter references
+            const initialSetters = { ...result.current.filterSetters };
+
+            // Force a re-render by changing dataset (but use same data)
+            rerender();
+
+            // Verify all setters maintain referential equality
+            expect(result.current.filterSetters.setLatStart).toBe(
+              initialSetters.setLatStart,
+            );
+            expect(result.current.filterSetters.setLatEnd).toBe(
+              initialSetters.setLatEnd,
+            );
+            expect(result.current.filterSetters.setLonStart).toBe(
+              initialSetters.setLonStart,
+            );
+            expect(result.current.filterSetters.setLonEnd).toBe(
+              initialSetters.setLonEnd,
+            );
+            expect(result.current.filterSetters.setTimeStart).toBe(
+              initialSetters.setTimeStart,
+            );
+            expect(result.current.filterSetters.setTimeEnd).toBe(
+              initialSetters.setTimeEnd,
+            );
+            expect(result.current.filterSetters.setDepthStart).toBe(
+              initialSetters.setDepthStart,
+            );
+            expect(result.current.filterSetters.setDepthEnd).toBe(
+              initialSetters.setDepthEnd,
+            );
+          });
+
+          test('functions remain stable even after state changes', () => {
+            const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+            // Capture initial setter references
+            const initialSetters = { ...result.current.filterSetters };
+
+            // Change state via setters
+            act(() => {
+              result.current.filterSetters.setLatStart(-30);
+              result.current.filterSetters.setLonEnd(90);
+              result.current.filterSetters.setDepthStart(100);
+            });
+
+            // Verify setters are still the same references
+            expect(result.current.filterSetters.setLatStart).toBe(
+              initialSetters.setLatStart,
+            );
+            expect(result.current.filterSetters.setLatEnd).toBe(
+              initialSetters.setLatEnd,
+            );
+            expect(result.current.filterSetters.setLonStart).toBe(
+              initialSetters.setLonStart,
+            );
+            expect(result.current.filterSetters.setLonEnd).toBe(
+              initialSetters.setLonEnd,
+            );
+            expect(result.current.filterSetters.setTimeStart).toBe(
+              initialSetters.setTimeStart,
+            );
+            expect(result.current.filterSetters.setTimeEnd).toBe(
+              initialSetters.setTimeEnd,
+            );
+            expect(result.current.filterSetters.setDepthStart).toBe(
+              initialSetters.setDepthStart,
+            );
+            expect(result.current.filterSetters.setDepthEnd).toBe(
+              initialSetters.setDepthEnd,
+            );
+          });
+        });
+
+        describe('filterValues object updates correctly when state changes', () => {
+          test('object reference changes when values change', () => {
+            const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+            // Capture initial filterValues reference
+            const initialFilterValues = result.current.filterValues;
+
+            // Change a value
+            act(() => {
+              result.current.filterSetters.setLatStart(-30);
+            });
+
+            // Object reference should change
+            expect(result.current.filterValues).not.toBe(initialFilterValues);
+            expect(result.current.filterValues.latStart).toBe(-30);
+          });
+
+          test('all properties reflect current state after multiple changes', () => {
+            const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+            // Make multiple changes
+            act(() => {
+              result.current.filterSetters.setLatStart(-25);
+              result.current.filterSetters.setLatEnd(45);
+              result.current.filterSetters.setLonStart(-90);
+              result.current.filterSetters.setLonEnd(90);
+              result.current.filterSetters.setTimeStart(100);
+              result.current.filterSetters.setTimeEnd(900);
+              result.current.filterSetters.setDepthStart(50);
+              result.current.filterSetters.setDepthEnd(1500);
+            });
+
+            // Verify all properties reflect the changes
+            expect(result.current.filterValues.latStart).toBe(-25);
+            expect(result.current.filterValues.latEnd).toBe(45);
+            expect(result.current.filterValues.lonStart).toBe(-90);
+            expect(result.current.filterValues.lonEnd).toBe(90);
+            expect(result.current.filterValues.timeStart).toBe(100);
+            expect(result.current.filterValues.timeEnd).toBe(900);
+            expect(result.current.filterValues.depthStart).toBe(50);
+            expect(result.current.filterValues.depthEnd).toBe(1500);
+            expect(result.current.filterValues.isFiltered).toBe(true);
+          });
+
+          test('filterValues includes all expected properties after state changes', () => {
+            const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+            // Change some values
+            act(() => {
+              result.current.filterSetters.setLatStart(-30);
+              result.current.filterSetters.setDepthEnd(1000);
+            });
+
+            const { filterValues } = result.current;
+
+            // Verify all properties are still present
+            expect(filterValues).toHaveProperty('isFiltered', true);
+            expect(filterValues).toHaveProperty(
+              'temporalResolution',
+              'monthly',
+            );
+            expect(filterValues).toHaveProperty(
+              'lonStart',
+              mockInitialRangeValues.lon.start,
+            );
+            expect(filterValues).toHaveProperty(
+              'lonEnd',
+              mockInitialRangeValues.lon.end,
+            );
+            expect(filterValues).toHaveProperty('latStart', -30);
+            expect(filterValues).toHaveProperty(
+              'latEnd',
+              mockInitialRangeValues.lat.end,
+            );
+            expect(filterValues).toHaveProperty(
+              'timeStart',
+              mockInitialRangeValues.time.start,
+            );
+            expect(filterValues).toHaveProperty(
+              'timeEnd',
+              mockInitialRangeValues.time.end,
+            );
+            expect(filterValues).toHaveProperty(
+              'depthStart',
+              mockInitialRangeValues.depth.start,
+            );
+            expect(filterValues).toHaveProperty('depthEnd', 1000);
+            expect(filterValues).toHaveProperty(
+              'Time_Min',
+              mockDatasets.normal.Time_Min,
+            );
+          });
+        });
+
+        describe('Edge cases and boundary conditions', () => {
+          test('handles setting values outside dataset bounds', () => {
+            const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+            // Set latitude values outside dataset bounds
+            act(() => {
+              result.current.filterSetters.setLatStart(-95); // Outside dataset min of -45.5
+              result.current.filterSetters.setLatEnd(95); // Outside dataset max of 67.8
+            });
+
+            // Values should still be set (validation happens elsewhere)
+            expect(result.current.filterValues.latStart).toBe(-95);
+            expect(result.current.filterValues.latEnd).toBe(95);
+            expect(result.current.isFiltered).toBe(true);
+          });
+
+          test('handles negative values where appropriate', () => {
+            const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+            // Negative values are valid for lat/lon
+            act(() => {
+              result.current.filterSetters.setLatStart(-89);
+              result.current.filterSetters.setLonStart(-179);
+            });
+
+            expect(result.current.filterValues.latStart).toBe(-89);
+            expect(result.current.filterValues.lonStart).toBe(-179);
+
+            // Negative depth could be unusual but should be handled
+            act(() => {
+              result.current.filterSetters.setDepthStart(-10);
+            });
+
+            expect(result.current.filterValues.depthStart).toBe(-10);
+          });
+
+          test('handles setting start values greater than end values', () => {
+            const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+            // Set start greater than end (validation logic is elsewhere)
+            act(() => {
+              result.current.filterSetters.setLatStart(70); // Greater than initial latEnd of 67.8
+              result.current.filterSetters.setTimeStart(1500); // Greater than initial timeEnd of 1461
+            });
+
+            // Values should be set as requested
+            expect(result.current.filterValues.latStart).toBe(70);
+            expect(result.current.filterValues.timeStart).toBe(1500);
+            expect(result.current.isFiltered).toBe(true);
+          });
+
+          test('handles extreme numeric values', () => {
+            const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+            const extremeValues = {
+              veryLarge: 999999999,
+              verySmall: -999999999,
+              zero: 0,
+            };
+
+            act(() => {
+              result.current.filterSetters.setLatStart(extremeValues.verySmall);
+              result.current.filterSetters.setLatEnd(extremeValues.veryLarge);
+              result.current.filterSetters.setDepthStart(extremeValues.zero);
+              result.current.filterSetters.setDepthEnd(extremeValues.veryLarge);
+            });
+
+            expect(result.current.filterValues.latStart).toBe(
+              extremeValues.verySmall,
+            );
+            expect(result.current.filterValues.latEnd).toBe(
+              extremeValues.veryLarge,
+            );
+            expect(result.current.filterValues.depthStart).toBe(
+              extremeValues.zero,
+            );
+            expect(result.current.filterValues.depthEnd).toBe(
+              extremeValues.veryLarge,
+            );
+          });
         });
       });
     });
