@@ -1,6 +1,12 @@
 import { create } from 'zustand';
 import bulkDownloadAPI from '../api/bulkDownload';
 
+// Threshold configuration constants
+const THRESHOLD_CONFIG = {
+  maxRowThreshold: 3_000_000,
+  warningThreshold: 0.9, // 90% of max threshold
+};
+
 const useRowCountStore = create((set, get) => ({
   // State
   datasetNames: [],
@@ -94,6 +100,60 @@ const useRowCountStore = create((set, get) => ({
   getRowCountError: (datasetName) => {
     const state = get();
     return state.rowCountsError[datasetName];
+  },
+
+  // Threshold management methods
+  getTotalSelectedRows: (selectedDatasets) => {
+    const state = get();
+    let totalRows = 0;
+
+    selectedDatasets.forEach((datasetName) => {
+      const effectiveRowCount =
+        state.dynamicRowCounts[datasetName] !== undefined
+          ? state.dynamicRowCounts[datasetName]
+          : state.originalRowCounts[datasetName];
+
+      if (effectiveRowCount && typeof effectiveRowCount === 'number') {
+        totalRows += effectiveRowCount;
+      }
+    });
+
+    return totalRows;
+  },
+
+  isOverThreshold: (selectedDatasets) => {
+    const totalRows = get().getTotalSelectedRows(selectedDatasets);
+    return totalRows > THRESHOLD_CONFIG.maxRowThreshold;
+  },
+
+  isAnyRowCountLoading: () => {
+    const state = get();
+    return Object.values(state.rowCountsLoading).some((loading) =>
+      Boolean(loading),
+    );
+  },
+
+  getThresholdStatus: (selectedDatasets) => {
+    const state = get();
+    const totalRows = state.getTotalSelectedRows(selectedDatasets);
+    const maxRows = THRESHOLD_CONFIG.maxRowThreshold;
+    const warningThreshold = Math.floor(
+      maxRows * THRESHOLD_CONFIG.warningThreshold,
+    );
+    const isLoading = state.isAnyRowCountLoading();
+    const isOverThreshold = totalRows > maxRows;
+    const isApproachingThreshold =
+      totalRows > warningThreshold && !isOverThreshold;
+
+    return {
+      totalRows,
+      maxRows,
+      warningThreshold,
+      isLoading,
+      isOverThreshold,
+      isApproachingThreshold,
+      percentageUsed: maxRows > 0 ? (totalRows / maxRows) * 100 : 0,
+    };
   },
 
   // Reset all state to initial values
