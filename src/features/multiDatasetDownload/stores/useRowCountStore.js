@@ -3,7 +3,7 @@ import bulkDownloadAPI from '../api/bulkDownload';
 
 // Threshold configuration constants
 const THRESHOLD_CONFIG = {
-  maxRowThreshold: 3000000,
+  maxRowThreshold: 2000000,
   warningThreshold: 0.9, // 90% of max threshold
 };
 
