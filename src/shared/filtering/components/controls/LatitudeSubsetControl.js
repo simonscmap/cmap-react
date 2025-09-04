@@ -8,6 +8,7 @@ const LatStartTextInput = ({
   latMax,
   displayValue,
   handleSetStart,
+  handleBlurStart,
   classes,
 }) => {
   return (
@@ -27,6 +28,7 @@ const LatStartTextInput = ({
       }}
       value={displayValue}
       onChange={handleSetStart}
+      onBlur={handleBlurStart}
     />
   );
 };
@@ -37,6 +39,7 @@ const LatEndTextInput = ({
   classes,
   displayValue,
   handleSetEnd,
+  handleBlurEnd,
 }) => {
   return (
     <TextField
@@ -55,6 +58,7 @@ const LatEndTextInput = ({
       }}
       value={displayValue}
       onChange={handleSetEnd}
+      onBlur={handleBlurEnd}
     />
   );
 };
@@ -126,6 +130,69 @@ const LatitudeSubsetControl = (props) => {
     setLocalEndValue(e.target.value);
   };
 
+  // Helper function to round to step=0.1
+  const roundToStep = (value) => {
+    return Math.round(value * 10) / 10;
+  };
+
+  // Helper function to clamp value between min and max
+  const clampValue = (value, min, max) => {
+    return Math.max(min, Math.min(max, value));
+  };
+
+  // onBlur handlers for committing values with validation, rounding, and clamping
+  let handleBlurStart = () => {
+    let value = parseFloat(localStartValue);
+
+    // Handle empty fields - restore to minimum
+    if (isNaN(value) || localStartValue.trim() === '') {
+      const defaultValue = isNaN(latMin) ? -90 : Math.floor(latMin * 10) / 10;
+      setLatStart(defaultValue);
+      return;
+    }
+
+    // Round to step=0.1
+    value = roundToStep(value);
+
+    // Clamp to dataset bounds
+    const minBound = isNaN(latMin) ? -90 : Math.floor(latMin * 10) / 10;
+    const maxBound = isNaN(latMax) ? 90 : Math.ceil(latMax * 10) / 10;
+    value = clampValue(value, minBound, maxBound);
+
+    // Ensure start <= end constraint
+    if (latEnd !== null && value > latEnd) {
+      value = latEnd;
+    }
+
+    setLatStart(value);
+  };
+
+  let handleBlurEnd = () => {
+    let value = parseFloat(localEndValue);
+
+    // Handle empty fields - restore to maximum
+    if (isNaN(value) || localEndValue.trim() === '') {
+      const defaultValue = isNaN(latMax) ? 90 : Math.ceil(latMax * 10) / 10;
+      setLatEnd(defaultValue);
+      return;
+    }
+
+    // Round to step=0.1
+    value = roundToStep(value);
+
+    // Clamp to dataset bounds
+    const minBound = isNaN(latMin) ? -90 : Math.floor(latMin * 10) / 10;
+    const maxBound = isNaN(latMax) ? 90 : Math.ceil(latMax * 10) / 10;
+    value = clampValue(value, minBound, maxBound);
+
+    // Ensure start <= end constraint
+    if (latStart !== null && value < latStart) {
+      value = latStart;
+    }
+
+    setLatEnd(value);
+  };
+
   let controlTitle = 'Latitude[\xB0]';
   // Latitude[{'\xB0'}]
 
@@ -142,6 +209,7 @@ const LatitudeSubsetControl = (props) => {
             latMax={latMax}
             displayValue={localStartValue}
             handleSetStart={handleSetStart}
+            handleBlurStart={handleBlurStart}
           />
         </Grid>
 
@@ -151,6 +219,7 @@ const LatitudeSubsetControl = (props) => {
             latMax={latMax}
             displayValue={localEndValue}
             handleSetEnd={handleSetEnd}
+            handleBlurEnd={handleBlurEnd}
           />
         </Grid>
       </Grid>
