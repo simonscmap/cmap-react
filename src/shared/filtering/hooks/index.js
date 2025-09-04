@@ -1,1 +1,1 @@
-export { default as useSubsetFiltering } from './DEPuseSubsetFiltering';
+export { default as useSubsetFiltering } from './useSubsetFiltering';
