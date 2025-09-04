@@ -285,6 +285,198 @@ describe('useSubsetFiltering', () => {
           expect(result.current.dateHandling.isMonthlyClimatology).toBe(false);
         });
       });
+
+      describe('isFiltered Logic and State Change Detection', () => {
+        test('returns false when all values match initial defaults', () => {
+          const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+          // Initially, all values should match defaults so isFiltered should be false
+          expect(result.current.isFiltered).toBe(false);
+          expect(result.current.filterValues.isFiltered).toBe(false);
+        });
+
+        test('returns false when values are explicitly set to initial bounds', () => {
+          const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+          // Explicitly set values to their initial bounds
+          act(() => {
+            result.current.filterSetters.setLatStart(
+              mockInitialRangeValues.lat.start,
+            );
+            result.current.filterSetters.setLatEnd(
+              mockInitialRangeValues.lat.end,
+            );
+            result.current.filterSetters.setLonStart(
+              mockInitialRangeValues.lon.start,
+            );
+            result.current.filterSetters.setLonEnd(
+              mockInitialRangeValues.lon.end,
+            );
+            result.current.filterSetters.setTimeStart(
+              mockInitialRangeValues.time.start,
+            );
+            result.current.filterSetters.setTimeEnd(
+              mockInitialRangeValues.time.end,
+            );
+            result.current.filterSetters.setDepthStart(
+              mockInitialRangeValues.depth.start,
+            );
+            result.current.filterSetters.setDepthEnd(
+              mockInitialRangeValues.depth.end,
+            );
+          });
+
+          expect(result.current.isFiltered).toBe(false);
+          expect(result.current.filterValues.isFiltered).toBe(false);
+        });
+
+        test('returns true when latitude start changes', () => {
+          const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+          act(() => {
+            result.current.filterSetters.setLatStart(-30); // Different from initial -45.5
+          });
+
+          expect(result.current.isFiltered).toBe(true);
+          expect(result.current.filterValues.isFiltered).toBe(true);
+        });
+
+        test('returns true when latitude end changes', () => {
+          const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+          act(() => {
+            result.current.filterSetters.setLatEnd(50); // Different from initial 67.8
+          });
+
+          expect(result.current.isFiltered).toBe(true);
+          expect(result.current.filterValues.isFiltered).toBe(true);
+        });
+
+        test('returns true when longitude start changes', () => {
+          const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+          act(() => {
+            result.current.filterSetters.setLonStart(-90); // Different from initial -180
+          });
+
+          expect(result.current.isFiltered).toBe(true);
+          expect(result.current.filterValues.isFiltered).toBe(true);
+        });
+
+        test('returns true when longitude end changes', () => {
+          const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+          act(() => {
+            result.current.filterSetters.setLonEnd(90); // Different from initial 180
+          });
+
+          expect(result.current.isFiltered).toBe(true);
+          expect(result.current.filterValues.isFiltered).toBe(true);
+        });
+
+        test('returns true when time start changes', () => {
+          const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+          act(() => {
+            result.current.filterSetters.setTimeStart(100); // Different from initial 0
+          });
+
+          expect(result.current.isFiltered).toBe(true);
+          expect(result.current.filterValues.isFiltered).toBe(true);
+        });
+
+        test('returns true when time end changes', () => {
+          const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+          act(() => {
+            result.current.filterSetters.setTimeEnd(1000); // Different from initial 1461
+          });
+
+          expect(result.current.isFiltered).toBe(true);
+          expect(result.current.filterValues.isFiltered).toBe(true);
+        });
+
+        test('returns true when depth start changes', () => {
+          const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+          act(() => {
+            result.current.filterSetters.setDepthStart(10); // Different from initial 0
+          });
+
+          expect(result.current.isFiltered).toBe(true);
+          expect(result.current.filterValues.isFiltered).toBe(true);
+        });
+
+        test('returns true when depth end changes', () => {
+          const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+          act(() => {
+            result.current.filterSetters.setDepthEnd(1000); // Different from initial 5000
+          });
+
+          expect(result.current.isFiltered).toBe(true);
+          expect(result.current.filterValues.isFiltered).toBe(true);
+        });
+
+        test('returns true when multiple filters are changed simultaneously', () => {
+          const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+          act(() => {
+            result.current.filterSetters.setLatStart(-30);
+            result.current.filterSetters.setLonEnd(90);
+            result.current.filterSetters.setDepthStart(10);
+            result.current.filterSetters.setTimeEnd(1000);
+          });
+
+          expect(result.current.isFiltered).toBe(true);
+          expect(result.current.filterValues.isFiltered).toBe(true);
+        });
+
+        test('returns false when filters are changed then reset to original values', () => {
+          const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+          // First change some values
+          act(() => {
+            result.current.filterSetters.setLatStart(-30);
+            result.current.filterSetters.setLonEnd(90);
+            result.current.filterSetters.setDepthStart(10);
+          });
+
+          expect(result.current.isFiltered).toBe(true);
+
+          // Then reset back to original values
+          act(() => {
+            result.current.filterSetters.setLatStart(
+              mockInitialRangeValues.lat.start,
+            );
+            result.current.filterSetters.setLonEnd(
+              mockInitialRangeValues.lon.end,
+            );
+            result.current.filterSetters.setDepthStart(
+              mockInitialRangeValues.depth.start,
+            );
+          });
+
+          expect(result.current.isFiltered).toBe(false);
+          expect(result.current.filterValues.isFiltered).toBe(false);
+        });
+
+        test('correctly reflects state changes in filterValues object', () => {
+          const { result } = renderHook(() => useHook(mockDatasets.normal));
+
+          // Initially not filtered
+          expect(result.current.filterValues.isFiltered).toBe(false);
+
+          // Change a value
+          act(() => {
+            result.current.filterSetters.setLatStart(-30);
+          });
+
+          // Should now be filtered
+          expect(result.current.filterValues.isFiltered).toBe(true);
+          expect(result.current.filterValues.latStart).toBe(-30);
+        });
+      });
     });
   });
 });
