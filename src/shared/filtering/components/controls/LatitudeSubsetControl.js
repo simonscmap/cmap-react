@@ -1,12 +1,12 @@
 import { Grid, Slider, TextField, Typography } from '@material-ui/core';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from '../../styles/subsetControlStyles';
 import { emptyStringOrNumber } from '../../utils/dateHelpers';
 
 const LatStartTextInput = ({
   latMin,
   latMax,
-  latStart,
+  displayValue,
   handleSetStart,
   classes,
 }) => {
@@ -25,13 +25,19 @@ const LatStartTextInput = ({
       InputLabelProps={{
         shrink: true,
       }}
-      value={latStart}
+      value={displayValue}
       onChange={handleSetStart}
     />
   );
 };
 
-const LatEndTextInput = ({ latMin, latMax, classes, latEnd, handleSetEnd }) => {
+const LatEndTextInput = ({
+  latMin,
+  latMax,
+  classes,
+  displayValue,
+  handleSetEnd,
+}) => {
   return (
     <TextField
       id="textInputEndLat"
@@ -47,7 +53,7 @@ const LatEndTextInput = ({ latMin, latMax, classes, latEnd, handleSetEnd }) => {
       InputLabelProps={{
         shrink: true,
       }}
-      value={latEnd}
+      value={displayValue}
       onChange={handleSetEnd}
     />
   );
@@ -91,6 +97,19 @@ const LatitudeSubsetControl = (props) => {
   let { latMin, latMax, subsetState, setLatStart, setLatEnd } = props;
   let { latStart, latEnd } = subsetState;
 
+  // Local state for typing values (two-phase updates)
+  const [localStartValue, setLocalStartValue] = useState('');
+  const [localEndValue, setLocalEndValue] = useState('');
+
+  // Update local values when committed values change
+  useEffect(() => {
+    setLocalStartValue(latStart === null ? '' : String(latStart));
+  }, [latStart]);
+
+  useEffect(() => {
+    setLocalEndValue(latEnd === null ? '' : String(latEnd));
+  }, [latEnd]);
+
   // handler for the slider
   let handleSlider = (e, value) => {
     let [start, end] = value;
@@ -98,14 +117,13 @@ const LatitudeSubsetControl = (props) => {
     setLatEnd(end);
   };
 
+  // onChange handlers for text inputs - update local state only
   let handleSetStart = (e) => {
-    let newLatStart = emptyStringOrNumber(e.target.value);
-    setLatStart(newLatStart);
+    setLocalStartValue(e.target.value);
   };
 
   let handleSetEnd = (e) => {
-    let newLatEnd = emptyStringOrNumber(e.target.value);
-    setLatEnd(newLatEnd);
+    setLocalEndValue(e.target.value);
   };
 
   let controlTitle = 'Latitude[\xB0]';
@@ -122,7 +140,7 @@ const LatitudeSubsetControl = (props) => {
           <LatStartTextInput
             latMin={latMin}
             latMax={latMax}
-            latStart={latStart}
+            displayValue={localStartValue}
             handleSetStart={handleSetStart}
           />
         </Grid>
@@ -131,7 +149,7 @@ const LatitudeSubsetControl = (props) => {
           <LatEndTextInput
             latMin={latMin}
             latMax={latMax}
-            latEnd={latEnd}
+            displayValue={localEndValue}
             handleSetEnd={handleSetEnd}
           />
         </Grid>
