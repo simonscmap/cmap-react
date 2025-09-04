@@ -28,12 +28,41 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     set({ selectedDatasets: newSelectedDatasets });
   },
 
-  selectAll: () => {
+  selectAll: (getRowCountStore) => {
     const { datasetsMetadata } = get();
-    const allDatasetNames = new Set(
-      datasetsMetadata.map((dataset) => dataset.Dataset_Name),
-    );
-    set({ selectedDatasets: allDatasetNames });
+
+    if (!getRowCountStore) {
+      // Fallback to original behavior if row count store not provided
+      const allDatasetNames = new Set(
+        datasetsMetadata.map((dataset) => dataset.Dataset_Name),
+      );
+      set({ selectedDatasets: allDatasetNames });
+      return;
+    }
+
+    const rowCountStore = getRowCountStore();
+    const { maxRowThreshold } = rowCountStore.getThresholdConfig();
+    const selectedDatasets = new Set();
+    let currentTotal = 0;
+
+    // Add datasets sequentially until we exceed the threshold
+    for (const dataset of datasetsMetadata) {
+      const datasetName = dataset.Dataset_Name;
+      const rowCount = rowCountStore.getEffectiveRowCount(datasetName);
+
+      selectedDatasets.add(datasetName);
+
+      if (rowCount) {
+        currentTotal += rowCount;
+
+        // Stop adding more datasets after we exceed the threshold
+        if (currentTotal > maxRowThreshold) {
+          break;
+        }
+      }
+    }
+
+    set({ selectedDatasets });
   },
 
   clearSelections: () => {
@@ -118,6 +147,20 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     return datasetsMetadata.filter((dataset) =>
       selectedDatasets.has(dataset.Dataset_Name),
     );
+  },
+
+  getSelectAllCheckboxState: () => {
+    const { selectedDatasets, datasetsMetadata } = get();
+    const totalCount = datasetsMetadata.length;
+    const selectedCount = selectedDatasets.size;
+
+    if (selectedCount === 0) {
+      return { checked: false, indeterminate: false };
+    } else if (selectedCount === totalCount) {
+      return { checked: true, indeterminate: false };
+    } else {
+      return { checked: false, indeterminate: true };
+    }
   },
 
   // Reset all state to initial values
