@@ -156,6 +156,10 @@ const useRowCountStore = create((set, get) => ({
     };
   },
 
+  getThresholdConfig: () => {
+    return THRESHOLD_CONFIG;
+  },
+
   // Reset all state to initial values
   resetStore: () => {
     const state = get();
