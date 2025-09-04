@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react-hooks';
 import useSubsetFiltering from '../../../../src/shared/filtering/hooks/useSubsetFiltering';
-import useSubsetFilteringZustand2 from '../../../../src/shared/filtering/hooks/useSubsetFilteringZustand2';
+import useSubsetFilteringZustand from '../../../../src/shared/filtering/hooks/useSubsetFilteringZustand';
 import * as dateHelpers from '../../../../src/shared/filtering/utils/dateHelpers';
 
 // Mock the date helpers to ensure consistent test behavior
