@@ -12,7 +12,22 @@ const LatTextInput = ({
   validationMessage,
   label,
   id,
+  constraintMin,
+  constraintMax,
 }) => {
+  const effectiveMin =
+    constraintMin !== undefined
+      ? constraintMin
+      : isNaN(latMin)
+        ? -90
+        : Math.floor(latMin * 10) / 10;
+  const effectiveMax =
+    constraintMax !== undefined
+      ? constraintMax
+      : isNaN(latMax)
+        ? 90
+        : Math.ceil(latMax * 10) / 10;
+
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
       <TextField
@@ -22,8 +37,8 @@ const LatTextInput = ({
         type="number"
         inputProps={{
           step: 0.1,
-          min: isNaN(latMin) ? -90 : Math.floor(latMin * 10) / 10,
-          max: isNaN(latMax) ? 90 : Math.ceil(latMax * 10) / 10,
+          min: effectiveMin,
+          max: effectiveMax,
           className: styles.input,
         }}
         InputLabelProps={{
@@ -233,6 +248,7 @@ const LatitudeSubsetControl = (props) => {
             validationMessage={startMessage}
             label="Start"
             id="textInputStartLat"
+            constraintMax={latEnd !== null ? latEnd : undefined}
           />
         </Grid>
 
@@ -246,6 +262,7 @@ const LatitudeSubsetControl = (props) => {
             validationMessage={endMessage}
             label="End"
             id="textInputEndLat"
+            constraintMin={latStart !== null ? latStart : undefined}
           />
         </Grid>
       </Grid>
