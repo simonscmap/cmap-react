@@ -75,6 +75,7 @@ const MultiDatasetDownloadTable = () => {
     getRowCountError,
     initializeWithDatasets,
     resetStore: resetRowCountStore,
+    getThresholdConfig,
   } = useRowCountStore();
 
   const [hoveredRow, setHoveredRow] = React.useState(null);
@@ -101,13 +102,13 @@ const MultiDatasetDownloadTable = () => {
         clearSelections();
       } else {
         selectAll(() => ({
-          getThresholdConfig: () => ({ maxRowThreshold: 2000000 }),
+          getThresholdConfig: getThresholdConfig,
           getEffectiveRowCount: getEffectiveRowCount,
         }));
       }
     } else {
       selectAll(() => ({
-        getThresholdConfig: () => ({ maxRowThreshold: 2000000 }),
+        getThresholdConfig: getThresholdConfig,
         getEffectiveRowCount: getEffectiveRowCount,
       }));
     }
