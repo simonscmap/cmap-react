@@ -167,6 +167,12 @@ const LatitudeSubsetControl = (props) => {
             ? 90
             : Math.ceil(latMax * 10) / 10;
         setValue(defaultValue);
+        // Update local display value immediately
+        if (isStart) {
+          setLocalStartValue(String(defaultValue));
+        } else {
+          setLocalEndValue(String(defaultValue));
+        }
         showMessage(
           setMessage,
           isStart ? 'Restored to min' : 'Restored to max',
