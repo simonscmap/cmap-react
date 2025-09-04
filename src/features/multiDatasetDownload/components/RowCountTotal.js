@@ -60,8 +60,9 @@ const RowCountTotal = () => {
   return (
     <Box style={styles.container}>
       <Typography variant="body2" style={styles.text}>
-        {selectedDatasets.length} dataset
-        {selectedDatasets.length !== 1 ? 's' : ''} selected
+        {selectedDatasets.size === 0
+          ? 'No datasets selected'
+          : `${selectedDatasets.size} dataset${selectedDatasets.size !== 1 ? 's' : ''} selected`}
       </Typography>
       <Typography variant="body2" style={styles.text}>
         Total: {isLoading ? 'Calculating...' : totalRows.toLocaleString()} of{' '}
