@@ -10,7 +10,6 @@ import SampleVisualization from './SampleVisualization/SampleVisualization';
 import Globe from './Globe/Globe';
 import DatasetList2 from './DatasetList';
 import MultiDatasetDownloadContainer from '../../../features/multiDatasetDownload/components/MultiDatasetDownloadContainer';
-import { createDatasetTransformer } from '../../../features/multiDatasetDownload/utils/datasetStatsTransform';
 import { matchProgram } from './programData';
 import {
   trajectorySelector,
@@ -76,11 +75,6 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-// Create a transformer specific to programs page data structure
-const transformProgramDatasets = createDatasetTransformer(
-  (dataset) => dataset.visualizableVariables?.stats,
-);
-
 const ProgramDetail = (props) => {
   const cl = useStyles();
   const routeParam = props.match.params.programName; // param defined in App.js
@@ -102,10 +96,6 @@ const ProgramDetail = (props) => {
 
   // Console log the sorted dataset names
   const sortedDatasetNames = getDatasetNamesSorted(program?.datasets);
-  // Extract Metadata for datasets for MultiDatasetDownloadContainer
-  const datasetsMetadata = !program?.datasets
-    ? []
-    : transformProgramDatasets(Object.values(program.datasets));
 
   useEffect(() => {
     // navigate action
@@ -159,10 +149,9 @@ const ProgramDetail = (props) => {
             <DatasetList2 />
           </div>
         </Grid>
-        {datasetsMetadata.length > 0 && (
+        {sortedDatasetNames.length > 0 && (
           <Grid item xs={12}>
             <MultiDatasetDownloadContainer
-              datasetsMetadata={datasetsMetadata}
               datasetShortNames={sortedDatasetNames}
             />
           </Grid>
