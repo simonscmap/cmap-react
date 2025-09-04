@@ -191,7 +191,7 @@ const useSubsetFiltering = (dataset) => {
   // Initialize store when dataset changes
   useMemo(() => {
     initializeWithDataset(dataset);
-  }, [dataset, initializeWithDataset]);
+  }, [dataset]);
 
   // Get initial range values from dataset
   const { maxDays, lat, lon, time, depth } = useMemo(() => {
