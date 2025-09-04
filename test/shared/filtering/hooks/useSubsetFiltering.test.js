@@ -1,5 +1,6 @@
 import { renderHook, act } from '@testing-library/react-hooks';
 import useSubsetFiltering from '../../../../src/shared/filtering/hooks/useSubsetFiltering';
+import useSubsetFilteringZustand2 from '../../../../src/shared/filtering/hooks/useSubsetFilteringZustand2';
 import * as dateHelpers from '../../../../src/shared/filtering/utils/dateHelpers';
 
 // Mock the date helpers to ensure consistent test behavior
@@ -9,7 +10,7 @@ describe('useSubsetFiltering', () => {
   // Test implementation array - ready for future Zustand implementation
   const testCases = [
     { name: 'React Hook', useHook: useSubsetFiltering },
-    // Future: { name: 'Zustand Hook', useHook: useSubsetFilteringZustand },
+    { name: 'Zustand Hook', useHook: useSubsetFilteringZustand2 },
   ];
 
   // Mock dataset fixtures
