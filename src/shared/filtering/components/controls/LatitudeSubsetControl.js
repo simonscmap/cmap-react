@@ -9,27 +9,43 @@ const LatStartTextInput = ({
   displayValue,
   handleSetStart,
   handleBlurStart,
+  validationMessage,
   classes,
 }) => {
   return (
-    <TextField
-      id="textInputStartLat"
-      key="textInputStartLat"
-      label="Start"
-      type="number"
-      inputProps={{
-        step: 0.1,
-        min: isNaN(latMin) ? -90 : Math.floor(latMin * 10) / 10,
-        max: isNaN(latMax) ? 90 : Math.ceil(latMax * 10) / 10,
-        className: styles.input,
-      }}
-      InputLabelProps={{
-        shrink: true,
-      }}
-      value={displayValue}
-      onChange={handleSetStart}
-      onBlur={handleBlurStart}
-    />
+    <div>
+      <TextField
+        id="textInputStartLat"
+        key="textInputStartLat"
+        label="Start"
+        type="number"
+        inputProps={{
+          step: 0.1,
+          min: isNaN(latMin) ? -90 : Math.floor(latMin * 10) / 10,
+          max: isNaN(latMax) ? 90 : Math.ceil(latMax * 10) / 10,
+          className: styles.input,
+        }}
+        InputLabelProps={{
+          shrink: true,
+        }}
+        value={displayValue}
+        onChange={handleSetStart}
+        onBlur={handleBlurStart}
+      />
+      {validationMessage && (
+        <Typography
+          variant="caption"
+          style={{
+            fontSize: '0.75rem',
+            color: 'rgba(0, 0, 0, 0.6)',
+            marginTop: '4px',
+            display: 'block',
+          }}
+        >
+          {validationMessage}
+        </Typography>
+      )}
+    </div>
   );
 };
 
@@ -40,26 +56,42 @@ const LatEndTextInput = ({
   displayValue,
   handleSetEnd,
   handleBlurEnd,
+  validationMessage,
 }) => {
   return (
-    <TextField
-      id="textInputEndLat"
-      key="textInputEndLat"
-      label="End"
-      type="number"
-      inputProps={{
-        step: 0.1,
-        min: isNaN(latMin) ? -90 : Math.floor(latMin * 10) / 10,
-        max: isNaN(latMax) ? 90 : Math.ceil(latMax * 10) / 10,
-        className: styles.input,
-      }}
-      InputLabelProps={{
-        shrink: true,
-      }}
-      value={displayValue}
-      onChange={handleSetEnd}
-      onBlur={handleBlurEnd}
-    />
+    <div>
+      <TextField
+        id="textInputEndLat"
+        key="textInputEndLat"
+        label="End"
+        type="number"
+        inputProps={{
+          step: 0.1,
+          min: isNaN(latMin) ? -90 : Math.floor(latMin * 10) / 10,
+          max: isNaN(latMax) ? 90 : Math.ceil(latMax * 10) / 10,
+          className: styles.input,
+        }}
+        InputLabelProps={{
+          shrink: true,
+        }}
+        value={displayValue}
+        onChange={handleSetEnd}
+        onBlur={handleBlurEnd}
+      />
+      {validationMessage && (
+        <Typography
+          variant="caption"
+          style={{
+            fontSize: '0.75rem',
+            color: 'rgba(0, 0, 0, 0.6)',
+            marginTop: '4px',
+            display: 'block',
+          }}
+        >
+          {validationMessage}
+        </Typography>
+      )}
+    </div>
   );
 };
 
@@ -105,6 +137,10 @@ const LatitudeSubsetControl = (props) => {
   const [localStartValue, setLocalStartValue] = useState('');
   const [localEndValue, setLocalEndValue] = useState('');
 
+  // Validation message state
+  const [startMessage, setStartMessage] = useState('');
+  const [endMessage, setEndMessage] = useState('');
+
   // Update local values when committed values change
   useEffect(() => {
     setLocalStartValue(latStart === null ? '' : String(latStart));
@@ -140,14 +176,22 @@ const LatitudeSubsetControl = (props) => {
     return Math.max(min, Math.min(max, value));
   };
 
+  // Helper function to show validation message with auto-hide
+  const showMessage = (setMessage, message) => {
+    setMessage(message);
+    setTimeout(() => setMessage(''), 3000);
+  };
+
   // onBlur handlers for committing values with validation, rounding, and clamping
   let handleBlurStart = () => {
     let value = parseFloat(localStartValue);
+    const originalValue = value;
 
     // Handle empty fields - restore to minimum
     if (isNaN(value) || localStartValue.trim() === '') {
       const defaultValue = isNaN(latMin) ? -90 : Math.floor(latMin * 10) / 10;
       setLatStart(defaultValue);
+      showMessage(setStartMessage, 'Restored to min');
       return;
     }
 
@@ -157,11 +201,20 @@ const LatitudeSubsetControl = (props) => {
     // Clamp to dataset bounds
     const minBound = isNaN(latMin) ? -90 : Math.floor(latMin * 10) / 10;
     const maxBound = isNaN(latMax) ? 90 : Math.ceil(latMax * 10) / 10;
+    const originalAfterRounding = value;
     value = clampValue(value, minBound, maxBound);
+
+    // Check if clamping occurred
+    if (value < originalAfterRounding) {
+      showMessage(setStartMessage, `Min is ${minBound}`);
+    } else if (value > originalAfterRounding) {
+      showMessage(setStartMessage, `Max is ${maxBound}`);
+    }
 
     // Ensure start <= end constraint
     if (latEnd !== null && value > latEnd) {
       value = latEnd;
+      showMessage(setStartMessage, `Max is ${latEnd}`);
     }
 
     setLatStart(value);
@@ -174,6 +227,7 @@ const LatitudeSubsetControl = (props) => {
     if (isNaN(value) || localEndValue.trim() === '') {
       const defaultValue = isNaN(latMax) ? 90 : Math.ceil(latMax * 10) / 10;
       setLatEnd(defaultValue);
+      showMessage(setEndMessage, 'Restored to max');
       return;
     }
 
@@ -183,11 +237,20 @@ const LatitudeSubsetControl = (props) => {
     // Clamp to dataset bounds
     const minBound = isNaN(latMin) ? -90 : Math.floor(latMin * 10) / 10;
     const maxBound = isNaN(latMax) ? 90 : Math.ceil(latMax * 10) / 10;
+    const originalAfterRounding = value;
     value = clampValue(value, minBound, maxBound);
+
+    // Check if clamping occurred
+    if (value < originalAfterRounding) {
+      showMessage(setEndMessage, `Min is ${minBound}`);
+    } else if (value > originalAfterRounding) {
+      showMessage(setEndMessage, `Max is ${maxBound}`);
+    }
 
     // Ensure start <= end constraint
     if (latStart !== null && value < latStart) {
       value = latStart;
+      showMessage(setEndMessage, `Min is ${latStart}`);
     }
 
     setLatEnd(value);
@@ -210,6 +273,7 @@ const LatitudeSubsetControl = (props) => {
             displayValue={localStartValue}
             handleSetStart={handleSetStart}
             handleBlurStart={handleBlurStart}
+            validationMessage={startMessage}
           />
         </Grid>
 
@@ -220,6 +284,7 @@ const LatitudeSubsetControl = (props) => {
             displayValue={localEndValue}
             handleSetEnd={handleSetEnd}
             handleBlurEnd={handleBlurEnd}
+            validationMessage={endMessage}
           />
         </Grid>
       </Grid>
