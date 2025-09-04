@@ -158,7 +158,7 @@ const LatitudeSubsetControl = (props) => {
     localValue,
     setValue,
     setMessage,
-    otherValue,
+    setLocalValue,
   ) => {
     return () => {
       let value = parseFloat(localValue);
@@ -196,14 +196,21 @@ const LatitudeSubsetControl = (props) => {
         showMessage(setMessage, `Max is ${maxBound}`);
       }
 
-      // Ensure start <= end constraint
-      if (otherValue !== null) {
-        if (isStart && value > otherValue) {
-          value = otherValue;
-          showMessage(setMessage, `Max is ${otherValue}`);
-        } else if (!isStart && value < otherValue) {
-          value = otherValue;
-          showMessage(setMessage, `Min is ${otherValue}`);
+      // Ensure start <= end constraint by using current state values
+      const currentOtherValue = isStart ? latEnd : latStart;
+      if (currentOtherValue !== null) {
+        const originalBeforeConstraint = value;
+        if (isStart && value > currentOtherValue) {
+          value = currentOtherValue;
+          showMessage(setMessage, `Max is ${currentOtherValue}`);
+        } else if (!isStart && value < currentOtherValue) {
+          value = currentOtherValue;
+          showMessage(setMessage, `Min is ${currentOtherValue}`);
+        }
+
+        // If value was clamped by constraint, immediately update local display
+        if (value !== originalBeforeConstraint) {
+          setLocalValue(String(value));
         }
       }
 
@@ -217,7 +224,7 @@ const LatitudeSubsetControl = (props) => {
     localStartValue,
     setLatStart,
     setStartMessage,
-    latEnd,
+    setLocalStartValue,
   );
 
   const handleBlurEnd = createBlurHandler(
@@ -225,7 +232,7 @@ const LatitudeSubsetControl = (props) => {
     localEndValue,
     setLatEnd,
     setEndMessage,
-    latStart,
+    setLocalEndValue,
   );
 
   let controlTitle = 'Latitude[\xB0]';
