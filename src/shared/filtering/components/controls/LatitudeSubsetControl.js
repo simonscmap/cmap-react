@@ -3,21 +3,22 @@ import React, { useState, useEffect } from 'react';
 import styles from '../../styles/subsetControlStyles';
 import { emptyStringOrNumber } from '../../utils/dateHelpers';
 
-const LatStartTextInput = ({
+const LatTextInput = ({
   latMin,
   latMax,
   displayValue,
-  handleSetStart,
-  handleBlurStart,
+  handleChange,
+  handleBlur,
   validationMessage,
-  classes,
+  label,
+  id,
 }) => {
   return (
     <div>
       <TextField
-        id="textInputStartLat"
-        key="textInputStartLat"
-        label="Start"
+        id={id}
+        key={id}
+        label={label}
         type="number"
         inputProps={{
           step: 0.1,
@@ -29,54 +30,8 @@ const LatStartTextInput = ({
           shrink: true,
         }}
         value={displayValue}
-        onChange={handleSetStart}
-        onBlur={handleBlurStart}
-      />
-      {validationMessage && (
-        <Typography
-          variant="caption"
-          style={{
-            fontSize: '0.75rem',
-            color: 'rgba(0, 0, 0, 0.6)',
-            marginTop: '4px',
-            display: 'block',
-          }}
-        >
-          {validationMessage}
-        </Typography>
-      )}
-    </div>
-  );
-};
-
-const LatEndTextInput = ({
-  latMin,
-  latMax,
-  classes,
-  displayValue,
-  handleSetEnd,
-  handleBlurEnd,
-  validationMessage,
-}) => {
-  return (
-    <div>
-      <TextField
-        id="textInputEndLat"
-        key="textInputEndLat"
-        label="End"
-        type="number"
-        inputProps={{
-          step: 0.1,
-          min: isNaN(latMin) ? -90 : Math.floor(latMin * 10) / 10,
-          max: isNaN(latMax) ? 90 : Math.ceil(latMax * 10) / 10,
-          className: styles.input,
-        }}
-        InputLabelProps={{
-          shrink: true,
-        }}
-        value={displayValue}
-        onChange={handleSetEnd}
-        onBlur={handleBlurEnd}
+        onChange={handleChange}
+        onBlur={handleBlur}
       />
       {validationMessage && (
         <Typography
@@ -182,79 +137,81 @@ const LatitudeSubsetControl = (props) => {
     setTimeout(() => setMessage(''), 3000);
   };
 
-  // onBlur handlers for committing values with validation, rounding, and clamping
-  let handleBlurStart = () => {
-    let value = parseFloat(localStartValue);
-    const originalValue = value;
+  // Generic blur handler for both start and end inputs
+  const createBlurHandler = (
+    isStart,
+    localValue,
+    setValue,
+    setMessage,
+    otherValue,
+  ) => {
+    return () => {
+      let value = parseFloat(localValue);
 
-    // Handle empty fields - restore to minimum
-    if (isNaN(value) || localStartValue.trim() === '') {
-      const defaultValue = isNaN(latMin) ? -90 : Math.floor(latMin * 10) / 10;
-      setLatStart(defaultValue);
-      showMessage(setStartMessage, 'Restored to min');
-      return;
-    }
+      // Handle empty fields - restore to default
+      if (isNaN(value) || localValue.trim() === '') {
+        const defaultValue = isStart
+          ? isNaN(latMin)
+            ? -90
+            : Math.floor(latMin * 10) / 10
+          : isNaN(latMax)
+            ? 90
+            : Math.ceil(latMax * 10) / 10;
+        setValue(defaultValue);
+        showMessage(
+          setMessage,
+          isStart ? 'Restored to min' : 'Restored to max',
+        );
+        return;
+      }
 
-    // Round to step=0.1
-    value = roundToStep(value);
+      // Round to step=0.1
+      value = roundToStep(value);
 
-    // Clamp to dataset bounds
-    const minBound = isNaN(latMin) ? -90 : Math.floor(latMin * 10) / 10;
-    const maxBound = isNaN(latMax) ? 90 : Math.ceil(latMax * 10) / 10;
-    const originalAfterRounding = value;
-    value = clampValue(value, minBound, maxBound);
+      // Clamp to dataset bounds
+      const minBound = isNaN(latMin) ? -90 : Math.floor(latMin * 10) / 10;
+      const maxBound = isNaN(latMax) ? 90 : Math.ceil(latMax * 10) / 10;
+      const originalAfterRounding = value;
+      value = clampValue(value, minBound, maxBound);
 
-    // Check if clamping occurred
-    if (value < originalAfterRounding) {
-      showMessage(setStartMessage, `Min is ${minBound}`);
-    } else if (value > originalAfterRounding) {
-      showMessage(setStartMessage, `Max is ${maxBound}`);
-    }
+      // Check if clamping occurred
+      if (value < originalAfterRounding) {
+        showMessage(setMessage, `Min is ${minBound}`);
+      } else if (value > originalAfterRounding) {
+        showMessage(setMessage, `Max is ${maxBound}`);
+      }
 
-    // Ensure start <= end constraint
-    if (latEnd !== null && value > latEnd) {
-      value = latEnd;
-      showMessage(setStartMessage, `Max is ${latEnd}`);
-    }
+      // Ensure start <= end constraint
+      if (otherValue !== null) {
+        if (isStart && value > otherValue) {
+          value = otherValue;
+          showMessage(setMessage, `Max is ${otherValue}`);
+        } else if (!isStart && value < otherValue) {
+          value = otherValue;
+          showMessage(setMessage, `Min is ${otherValue}`);
+        }
+      }
 
-    setLatStart(value);
+      setValue(value);
+    };
   };
 
-  let handleBlurEnd = () => {
-    let value = parseFloat(localEndValue);
+  // Create specific blur handlers using the generic function
+  const handleBlurStart = createBlurHandler(
+    true,
+    localStartValue,
+    setLatStart,
+    setStartMessage,
+    latEnd,
+  );
 
-    // Handle empty fields - restore to maximum
-    if (isNaN(value) || localEndValue.trim() === '') {
-      const defaultValue = isNaN(latMax) ? 90 : Math.ceil(latMax * 10) / 10;
-      setLatEnd(defaultValue);
-      showMessage(setEndMessage, 'Restored to max');
-      return;
-    }
-
-    // Round to step=0.1
-    value = roundToStep(value);
-
-    // Clamp to dataset bounds
-    const minBound = isNaN(latMin) ? -90 : Math.floor(latMin * 10) / 10;
-    const maxBound = isNaN(latMax) ? 90 : Math.ceil(latMax * 10) / 10;
-    const originalAfterRounding = value;
-    value = clampValue(value, minBound, maxBound);
-
-    // Check if clamping occurred
-    if (value < originalAfterRounding) {
-      showMessage(setEndMessage, `Min is ${minBound}`);
-    } else if (value > originalAfterRounding) {
-      showMessage(setEndMessage, `Max is ${maxBound}`);
-    }
-
-    // Ensure start <= end constraint
-    if (latStart !== null && value < latStart) {
-      value = latStart;
-      showMessage(setEndMessage, `Min is ${latStart}`);
-    }
-
-    setLatEnd(value);
-  };
+  const handleBlurEnd = createBlurHandler(
+    false,
+    localEndValue,
+    setLatEnd,
+    setEndMessage,
+    latStart,
+  );
 
   let controlTitle = 'Latitude[\xB0]';
   // Latitude[{'\xB0'}]
@@ -267,24 +224,28 @@ const LatitudeSubsetControl = (props) => {
         </Grid>
 
         <Grid item xs={6} md={4}>
-          <LatStartTextInput
+          <LatTextInput
             latMin={latMin}
             latMax={latMax}
             displayValue={localStartValue}
-            handleSetStart={handleSetStart}
-            handleBlurStart={handleBlurStart}
+            handleChange={handleSetStart}
+            handleBlur={handleBlurStart}
             validationMessage={startMessage}
+            label="Start"
+            id="textInputStartLat"
           />
         </Grid>
 
         <Grid item xs={6} md={4}>
-          <LatEndTextInput
+          <LatTextInput
             latMin={latMin}
             latMax={latMax}
             displayValue={localEndValue}
-            handleSetEnd={handleSetEnd}
-            handleBlurEnd={handleBlurEnd}
+            handleChange={handleSetEnd}
+            handleBlur={handleBlurEnd}
             validationMessage={endMessage}
+            label="End"
+            id="textInputEndLat"
           />
         </Grid>
       </Grid>
