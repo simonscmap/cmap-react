@@ -86,9 +86,25 @@ const MultiDatasetDownloadTable = () => {
 
   const handleSelectAllToggle = (event) => {
     event.stopPropagation();
-    const { checked } = getSelectAllCheckboxState();
+    const { checked, indeterminate } = getSelectAllCheckboxState();
+
     if (checked) {
       clearSelections();
+    } else if (indeterminate) {
+      // Check if current selection is at or over the limit
+      const selectedDatasetNames = datasetsMetadata
+        .filter((dataset) => isDatasetSelected(dataset.Dataset_Name))
+        .map((dataset) => dataset.Dataset_Name);
+
+      const { isOverThreshold } = useRowCountStore.getState();
+      if (isOverThreshold(selectedDatasetNames)) {
+        clearSelections();
+      } else {
+        selectAll(() => ({
+          getThresholdConfig: () => ({ maxRowThreshold: 2000000 }),
+          getEffectiveRowCount: getEffectiveRowCount,
+        }));
+      }
     } else {
       selectAll(() => ({
         getThresholdConfig: () => ({ maxRowThreshold: 2000000 }),
