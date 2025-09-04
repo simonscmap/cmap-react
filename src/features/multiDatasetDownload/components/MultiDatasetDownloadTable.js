@@ -90,7 +90,10 @@ const MultiDatasetDownloadTable = () => {
     if (checked) {
       clearSelections();
     } else {
-      selectAll();
+      selectAll(() => ({
+        getThresholdConfig: () => ({ maxRowThreshold: 2000000 }),
+        getEffectiveRowCount: getEffectiveRowCount,
+      }));
     }
   };
 

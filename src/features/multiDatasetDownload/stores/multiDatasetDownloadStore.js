@@ -28,12 +28,43 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     set({ selectedDatasets: newSelectedDatasets });
   },
 
-  selectAll: () => {
+  selectAll: (getRowCountStore) => {
     const { datasetsMetadata } = get();
-    const allDatasetNames = new Set(
-      datasetsMetadata.map((dataset) => dataset.Dataset_Name),
-    );
-    set({ selectedDatasets: allDatasetNames });
+
+    if (!getRowCountStore) {
+      // Fallback to original behavior if row count store not provided
+      const allDatasetNames = new Set(
+        datasetsMetadata.map((dataset) => dataset.Dataset_Name),
+      );
+      set({ selectedDatasets: allDatasetNames });
+      return;
+    }
+
+    const rowCountStore = getRowCountStore();
+    const { maxRowThreshold } = rowCountStore.getThresholdConfig();
+    const selectedDatasets = new Set();
+    let currentTotal = 0;
+
+    // Add datasets sequentially until we exceed the threshold
+    for (const dataset of datasetsMetadata) {
+      const datasetName = dataset.Dataset_Name;
+      const rowCount = rowCountStore.getEffectiveRowCount(datasetName);
+
+      if (rowCount && typeof rowCount === 'number') {
+        selectedDatasets.add(datasetName);
+        currentTotal += rowCount;
+
+        // Stop adding more datasets after we exceed the threshold
+        if (currentTotal > maxRowThreshold) {
+          break;
+        }
+      } else {
+        // If we don't have row count data, add it anyway (shouldn't happen in normal flow)
+        selectedDatasets.add(datasetName);
+      }
+    }
+
+    set({ selectedDatasets });
   },
 
   clearSelections: () => {
