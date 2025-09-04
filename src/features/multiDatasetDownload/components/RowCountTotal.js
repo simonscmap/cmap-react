@@ -5,7 +5,7 @@ import useRowCountStore from '../stores/useRowCountStore';
 
 const styles = {
   container: {
-    minHeight: 48, // Prevent layout shift - increased for potential warning text
+    height: 72, // Fixed height to completely prevent layout shift
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -60,20 +60,23 @@ const RowCountTotal = () => {
   return (
     <Box style={styles.container}>
       <Typography variant="body2" style={styles.text}>
+        {selectedDatasets.length} dataset
+        {selectedDatasets.length !== 1 ? 's' : ''} selected
+      </Typography>
+      <Typography variant="body2" style={styles.text}>
         Total: {isLoading ? 'Calculating...' : totalRows.toLocaleString()} of{' '}
         {maxRows.toLocaleString()} rows
       </Typography>
-      {warningMessage && !isLoading && (
-        <Typography
-          variant="body2"
-          style={{
-            ...styles.warningText,
-            color: warningColor,
-          }}
-        >
-          {warningMessage}
-        </Typography>
-      )}
+      <Typography
+        variant="body2"
+        style={{
+          ...styles.warningText,
+          color: warningMessage && !isLoading ? warningColor : 'transparent',
+          visibility: warningMessage && !isLoading ? 'visible' : 'hidden',
+        }}
+      >
+        {warningMessage || 'Placeholder text for layout consistency'}
+      </Typography>
     </Box>
   );
 };
