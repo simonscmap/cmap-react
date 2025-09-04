@@ -52,7 +52,7 @@ const useSubsetFiltering = (dataset) => {
 
   // Date validation functions
   const dateIsWithinBounds = useMemo(() => {
-    if (!dataset?.Time_Min || !dataset?.Time_Max) return () => true;
+    if (!dataset || !dataset.Time_Min || !dataset.Time_Max) return () => true;
 
     return (date) => {
       const tmin = dateToDateString(dataset.Time_Min);
@@ -60,7 +60,7 @@ const useSubsetFiltering = (dataset) => {
       const d = dateToDateString(date);
       return d >= tmin && d <= tmax;
     };
-  }, [dataset?.Time_Min, dataset?.Time_Max]);
+  }, [dataset && dataset.Time_Min, dataset && dataset.Time_Max]);
 
   // Date handlers for text inputs
   const handleSetStartDate = (value) => {
@@ -75,7 +75,7 @@ const useSubsetFiltering = (dataset) => {
     const date = extractDateFromString(value);
     const shouldUpdate = dateIsWithinBounds(date);
 
-    if (shouldUpdate && dataset?.Time_Min) {
+    if (shouldUpdate && dataset && dataset.Time_Min) {
       const newStartDay = dateToDay(dataset.Time_Min, date);
       setTimeStart(newStartDay);
       setValidTimeMin(true);
@@ -102,7 +102,7 @@ const useSubsetFiltering = (dataset) => {
     const date = extractDateFromString(value);
     const shouldUpdate = dateIsWithinBounds(date);
 
-    if (shouldUpdate && dataset?.Time_Min) {
+    if (shouldUpdate && dataset && dataset.Time_Min) {
       const newEndDay = dateToDay(dataset.Time_Min, date);
       setTimeEnd(newEndDay);
       setValidTimeMax(true);
@@ -119,10 +119,10 @@ const useSubsetFiltering = (dataset) => {
 
   // Check if dataset is monthly climatology
   const isMonthlyClimatology = useMemo(() => {
-    return dataset?.Temporal_Resolution
+    return dataset && dataset.Temporal_Resolution
       ? getIsMonthlyClimatology(dataset.Temporal_Resolution)
       : false;
-  }, [dataset?.Temporal_Resolution]);
+  }, [dataset && dataset.Temporal_Resolution]);
 
   // Determine if filter is defined (different from defaults)
   const isFiltered = useMemo(() => {
@@ -159,7 +159,7 @@ const useSubsetFiltering = (dataset) => {
   const filterValues = useMemo(
     () => ({
       isFiltered,
-      temporalResolution: dataset?.Temporal_Resolution,
+      temporalResolution: dataset && dataset.Temporal_Resolution,
       lonStart,
       lonEnd,
       latStart,
@@ -168,11 +168,11 @@ const useSubsetFiltering = (dataset) => {
       timeEnd,
       depthStart,
       depthEnd,
-      Time_Min: dataset?.Time_Min,
+      Time_Min: dataset && dataset.Time_Min,
     }),
     [
       isFiltered,
-      dataset?.Temporal_Resolution,
+      dataset && dataset.Temporal_Resolution,
       lonStart,
       lonEnd,
       latStart,
@@ -181,7 +181,7 @@ const useSubsetFiltering = (dataset) => {
       timeEnd,
       depthStart,
       depthEnd,
-      dataset?.Time_Min,
+      dataset && dataset.Time_Min,
     ],
   );
 
@@ -207,14 +207,14 @@ const useSubsetFiltering = (dataset) => {
 
     // Logical groupings for SubsetControls
     datasetFilterBounds: {
-      latMin: dataset?.Lat_Min,
-      latMax: dataset?.Lat_Max,
-      lonMin: dataset?.Lon_Min,
-      lonMax: dataset?.Lon_Max,
-      depthMin: dataset?.Depth_Min,
-      depthMax: dataset?.Depth_Max,
-      timeMin: dataset?.Time_Min,
-      timeMax: dataset?.Time_Max,
+      latMin: dataset && dataset.Lat_Min,
+      latMax: dataset && dataset.Lat_Max,
+      lonMin: dataset && dataset.Lon_Min,
+      lonMax: dataset && dataset.Lon_Max,
+      depthMin: dataset && dataset.Depth_Min,
+      depthMax: dataset && dataset.Depth_Max,
+      timeMin: dataset && dataset.Time_Min,
+      timeMax: dataset && dataset.Time_Max,
       maxDays,
     },
 
