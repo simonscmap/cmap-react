@@ -7,6 +7,7 @@ import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
 import useRowCountStore from '../stores/useRowCountStore';
 import MultiDatasetDownloadTable from './MultiDatasetDownloadTable';
 import DownloadButton from './DownloadButton';
+import RowCountTotal from './RowCountTotal';
 
 /**
  * Multi-Dataset Download Container Component
@@ -139,6 +140,7 @@ const MultiDatasetDownloadContainerInner = ({ datasetsMetadata }) => {
       </Box>
 
       <Box>
+        <RowCountTotal />
         <DownloadButton
           subsetFiltering={{
             setInvalidFlag,
