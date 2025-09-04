@@ -50,17 +50,15 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
       const datasetName = dataset.Dataset_Name;
       const rowCount = rowCountStore.getEffectiveRowCount(datasetName);
 
-      if (rowCount && typeof rowCount === 'number') {
-        selectedDatasets.add(datasetName);
+      selectedDatasets.add(datasetName);
+
+      if (rowCount) {
         currentTotal += rowCount;
 
         // Stop adding more datasets after we exceed the threshold
         if (currentTotal > maxRowThreshold) {
           break;
         }
-      } else {
-        // If we don't have row count data, add it anyway (shouldn't happen in normal flow)
-        selectedDatasets.add(datasetName);
       }
     }
 
