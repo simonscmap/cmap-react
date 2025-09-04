@@ -120,6 +120,20 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     );
   },
 
+  getSelectAllCheckboxState: () => {
+    const { selectedDatasets, datasetsMetadata } = get();
+    const totalCount = datasetsMetadata.length;
+    const selectedCount = selectedDatasets.size;
+
+    if (selectedCount === 0) {
+      return { checked: false, indeterminate: false };
+    } else if (selectedCount === totalCount) {
+      return { checked: true, indeterminate: false };
+    } else {
+      return { checked: false, indeterminate: true };
+    }
+  },
+
   // Reset all state to initial values
   resetStore: () => {
     set({

@@ -61,8 +61,14 @@ const styles = {
 };
 
 const MultiDatasetDownloadTable = () => {
-  const { datasetsMetadata, isDatasetSelected, toggleDatasetSelection } =
-    useMultiDatasetDownloadStore();
+  const {
+    datasetsMetadata,
+    isDatasetSelected,
+    toggleDatasetSelection,
+    selectAll,
+    clearSelections,
+    getSelectAllCheckboxState,
+  } = useMultiDatasetDownloadStore();
   const {
     getEffectiveRowCount,
     isRowCountLoading,
@@ -76,6 +82,16 @@ const MultiDatasetDownloadTable = () => {
   const handleToggle = (datasetName) => (event) => {
     event.stopPropagation();
     toggleDatasetSelection(datasetName);
+  };
+
+  const handleSelectAllToggle = (event) => {
+    event.stopPropagation();
+    const { checked } = getSelectAllCheckboxState();
+    if (checked) {
+      clearSelections();
+    } else {
+      selectAll();
+    }
   };
 
   const formatLatLon = (value) => {
@@ -155,7 +171,14 @@ const MultiDatasetDownloadTable = () => {
       <Table stickyHeader size="small" aria-label="dataset selection table">
         <TableHead style={styles.tableHeadStyle}>
           <TableRow>
-            <TableCell width={50} style={styles.headerCellStyle} />
+            <TableCell width={50} style={styles.headerCellStyle}>
+              <Checkbox
+                {...getSelectAllCheckboxState()}
+                onChange={handleSelectAllToggle}
+                color="primary"
+                size="small"
+              />
+            </TableCell>
             <TableCell
               style={{ ...styles.headerCellStyle, width: 'fit-content' }}
             >
