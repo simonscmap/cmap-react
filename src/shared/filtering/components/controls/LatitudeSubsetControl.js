@@ -14,7 +14,7 @@ const LatTextInput = ({
   id,
 }) => {
   return (
-    <div>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
       <TextField
         id={id}
         key={id}
@@ -33,19 +33,19 @@ const LatTextInput = ({
         onChange={handleChange}
         onBlur={handleBlur}
       />
-      {validationMessage && (
-        <Typography
-          variant="caption"
-          style={{
-            fontSize: '0.75rem',
-            color: 'rgba(0, 0, 0, 0.6)',
-            marginTop: '4px',
-            display: 'block',
-          }}
-        >
-          {validationMessage}
-        </Typography>
-      )}
+      <Typography
+        variant="caption"
+        style={{
+          fontSize: '0.75rem',
+          color: 'white',
+          minWidth: '120px',
+          height: '18px',
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
+        {validationMessage || ''}
+      </Typography>
     </div>
   );
 };
@@ -175,9 +175,9 @@ const LatitudeSubsetControl = (props) => {
       value = clampValue(value, minBound, maxBound);
 
       // Check if clamping occurred
-      if (value < originalAfterRounding) {
+      if (value > originalAfterRounding) {
         showMessage(setMessage, `Min is ${minBound}`);
-      } else if (value > originalAfterRounding) {
+      } else if (value < originalAfterRounding) {
         showMessage(setMessage, `Max is ${maxBound}`);
       }
 
