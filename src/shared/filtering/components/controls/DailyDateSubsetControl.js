@@ -46,14 +46,16 @@ const DailyDateSubsetControl = (props) => {
     const newMin = dayToDateString(timeMin, timeStart);
     setUpdatedTimeMin(newMin);
     // reset to undefined to allow free input
-    setTimeout(() => setUpdatedTimeMin(undefined), 5);
+    const timeoutId = setTimeout(() => setUpdatedTimeMin(undefined), 5);
+    return () => clearTimeout(timeoutId);
   }, [timeStart, timeMin]);
 
   let [updatedTimeMax, setUpdatedTimeMax] = useState(dateToDateString(timeMax));
   useEffect(() => {
     setUpdatedTimeMax(dayToDateString(timeMin, timeEnd));
     // reset to undefined to allow free input
-    setTimeout(() => setUpdatedTimeMax(undefined), 5);
+    const timeoutId = setTimeout(() => setUpdatedTimeMax(undefined), 5);
+    return () => clearTimeout(timeoutId);
   }, [timeEnd, timeMin]);
 
   // TODO: Convert string date to Date object for DatePicker

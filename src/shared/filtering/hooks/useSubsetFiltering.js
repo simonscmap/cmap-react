@@ -145,6 +145,25 @@ const useSubsetFilterStore = create((set, get) => ({
       }
     }
   },
+
+  // Reset store to initial state
+  resetStore: () => {
+    set({
+      latStart: 0,
+      latEnd: 0,
+      lonStart: 0,
+      lonEnd: 0,
+      timeStart: 0,
+      timeEnd: 0,
+      depthStart: 0,
+      depthEnd: 0,
+      isInvalid: false,
+      validTimeMin: true,
+      validTimeMax: true,
+      dataset: null,
+      initialRanges: null,
+    });
+  },
 }));
 
 /**
@@ -186,6 +205,7 @@ const useSubsetFiltering = (dataset) => {
     initializeWithDataset,
     handleSetStartDate,
     handleSetEndDate,
+    resetStore,
   } = useSubsetFilterStore();
 
   // Initialize store when dataset changes
@@ -328,6 +348,9 @@ const useSubsetFiltering = (dataset) => {
     isFiltered,
     isInvalid,
     setInvalidFlag,
+
+    // Store management
+    resetStore,
   };
 };
 
