@@ -9,6 +9,10 @@ export {
   wildcardSearch,
   fuzzySearch,
   createFuseInstance,
+  performSearch,
+  wildcardToRegex,
+  DEFAULT_FUSE_OPTIONS,
+  SEARCH_ENGINES as SEARCH_ENGINE_TYPES,
 } from './utils/searchEngines';
 
 export {
@@ -22,4 +26,5 @@ export {
   SEARCH_CONFIG,
   SEARCH_ENGINES,
   DEFAULT_SETTINGS,
+  SEARCH_STATES,
 } from './constants/searchConstants';
