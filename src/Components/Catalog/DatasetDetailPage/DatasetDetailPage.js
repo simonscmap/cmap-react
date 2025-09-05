@@ -282,7 +282,9 @@ const DatasetFullPage = (props) => {
               </ThirdGridContent>
               <ThirdGridContent data={distributor}>
                 <SectionHeader title={'Distributor'} />
-                <Typography>{urlify(distributor)}</Typography>
+                <Typography className={classes.urlText}>
+                  {urlify(distributor)}
+                </Typography>
               </ThirdGridContent>
               <ThirdGridContent data={acknowledgment}>
                 <SectionHeader title={'Acknowledgement'} />
