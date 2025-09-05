@@ -35,7 +35,6 @@ function createSearchStore(initialConfig = {}) {
     resultCount: items.length,
     totalCount: items.length,
     isSearching: false,
-    lastSearchTime: 0,
 
     // Actions
     setItems: (newItems) =>
@@ -91,7 +90,6 @@ function createSearchStore(initialConfig = {}) {
             filteredItems: state.items,
             resultCount: state.items.length,
             isActive: false,
-            isSearching: false,
           };
         }
 
@@ -103,54 +101,34 @@ function createSearchStore(initialConfig = {}) {
             filteredItems: state.items,
             resultCount: state.items.length,
             isActive: false,
-            isSearching: false,
           };
         }
 
-        try {
-          const searchResults = performSearch(
-            state.items,
-            trimmedQuery,
-            state.searchKeys,
-            state.searchEngine,
-            state.fuseOptions,
-          );
+        const searchResults = performSearch(
+          state.items,
+          trimmedQuery,
+          state.searchKeys,
+          state.searchEngine,
+          state.fuseOptions,
+        );
 
-          return {
-            searchQuery: query,
-            filteredItems: searchResults.results,
-            resultCount: searchResults.results.length,
-            isActive: true,
-            isSearching: false,
-            lastSearchTime: Date.now(),
-          };
-        } catch (error) {
-          console.error('Search failed:', error);
-          return {
-            searchQuery: query,
-            filteredItems: [],
-            resultCount: 0,
-            isActive: true,
-            isSearching: false,
-          };
-        }
+        return {
+          searchQuery: query,
+          filteredItems: searchResults.results,
+          resultCount: searchResults.results.length,
+          isActive: true,
+        };
       }),
 
     setSearchEngine: (engine) =>
       set((state) => {
-        if (!Object.values(SEARCH_ENGINES).includes(engine)) {
-          throw new Error(
-            `Invalid search engine: ${engine}. Must be one of: ${Object.values(
-              SEARCH_ENGINES,
-            ).join(', ')}`,
-          );
-        }
+        const newState = { searchEngine: engine };
 
-        if (!state.searchQuery.trim()) {
-          return { searchEngine: engine };
-        }
-
-        try {
+        // Re-run search if there's an active query
+        if (
+          state.searchQuery.trim() &&
+          state.searchQuery.trim().length >= state.activationThreshold
+        ) {
           const searchResults = performSearch(
             state.items,
             state.searchQuery,
@@ -159,20 +137,11 @@ function createSearchStore(initialConfig = {}) {
             state.fuseOptions,
           );
 
-          return {
-            searchEngine: engine,
-            filteredItems: searchResults.results,
-            resultCount: searchResults.results.length,
-            lastSearchTime: Date.now(),
-          };
-        } catch (error) {
-          console.error('Search engine change failed:', error);
-          return {
-            searchEngine: engine,
-            filteredItems: [],
-            resultCount: 0,
-          };
+          newState.filteredItems = searchResults.results;
+          newState.resultCount = searchResults.results.length;
         }
+
+        return newState;
       }),
 
     clearSearch: () =>
@@ -181,16 +150,7 @@ function createSearchStore(initialConfig = {}) {
         filteredItems: state.items,
         resultCount: state.items.length,
         isActive: false,
-        isSearching: false,
       })),
-
-    setIsSearching: (searching) => set({ isSearching: searching }),
-
-    // Configuration updates
-    setDebounceMs: (ms) => set({ debounceMs: ms }),
-    setActivationThreshold: (threshold) =>
-      set({ activationThreshold: threshold }),
-    setFuseOptions: (options) => set({ fuseOptions: options }),
   }));
 }
 
@@ -252,18 +212,6 @@ export const useSearch = (config = {}) => {
     store.getState().setSearchKeys(searchKeys);
   }, [searchKeys, store]);
 
-  useEffect(() => {
-    store.getState().setDebounceMs(debounceMs);
-  }, [debounceMs, store]);
-
-  useEffect(() => {
-    store.getState().setActivationThreshold(activationThreshold);
-  }, [activationThreshold, store]);
-
-  useEffect(() => {
-    store.getState().setFuseOptions(fuseOptions);
-  }, [fuseOptions, store]);
-
   // Debounced search function
   const debouncedSetQuery = useCallback(
     (query) => {
@@ -271,9 +219,6 @@ export const useSearch = (config = {}) => {
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
       }
-
-      // Set searching state immediately for UI feedback
-      store.getState().setIsSearching(true);
 
       // Debounce the actual search
       debounceTimerRef.current = setTimeout(() => {
@@ -304,24 +249,14 @@ export const useSearch = (config = {}) => {
     totalCount: state.totalCount,
     searchQuery: state.searchQuery,
     isActive: state.isActive,
-    isSearching: state.isSearching,
     searchEngine: state.searchEngine,
-    lastSearchTime: state.lastSearchTime,
 
     // Actions
     setQuery: debouncedSetQuery,
-    setQueryImmediate: store.getState().setQuery, // Non-debounced version
     setSearchEngine: store.getState().setSearchEngine,
     clearSearch: store.getState().clearSearch,
     setItems: store.getState().setItems,
     setSearchKeys: store.getState().setSearchKeys,
-
-    // Configuration
-    debounceMs: state.debounceMs,
-    activationThreshold: state.activationThreshold,
-    setDebounceMs: store.getState().setDebounceMs,
-    setActivationThreshold: store.getState().setActivationThreshold,
-    setFuseOptions: store.getState().setFuseOptions,
 
     // Cleanup
     cleanup,
