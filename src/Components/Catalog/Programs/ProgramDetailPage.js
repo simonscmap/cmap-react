@@ -9,7 +9,7 @@ import { SectionHeader } from './Proto';
 import SampleVisualization from './SampleVisualization/SampleVisualization';
 import Globe from './Globe/Globe';
 import DatasetList2 from './DatasetList';
-import MultiDatasetDownloadContainer from '../../../features/multiDatasetDownload/components/MultiDatasetDownloadContainer';
+// import MultiDatasetDownloadContainer from '../../../features/multiDatasetDownload/components/MultiDatasetDownloadContainer';
 import { matchProgram } from './programData';
 import {
   trajectorySelector,
@@ -84,18 +84,18 @@ const ProgramDetail = (props) => {
   const history = useHistory();
 
   // Get program details from Redux state for datasets
-  const program = useSelector((state) => state.programDetails);
+  // const program = useSelector((state) => state.programDetails);
 
   // Function to extract and sort Dataset_Name values alphabetically
-  const getDatasetNamesSorted = (datasets) => {
-    if (!datasets) return [];
-    return Object.values(datasets)
-      .map((dataset) => dataset.Dataset_Name)
-      .sort();
-  };
+  // const getDatasetNamesSorted = (datasets) => {
+  //   if (!datasets) return [];
+  //   return Object.values(datasets)
+  //     .map((dataset) => dataset.Dataset_Name)
+  //     .sort();
+  // };
 
   // Console log the sorted dataset names
-  const sortedDatasetNames = getDatasetNamesSorted(program?.datasets);
+  // const sortedDatasetNames = getDatasetNamesSorted(program?.datasets);
 
   useEffect(() => {
     // navigate action
@@ -149,13 +149,13 @@ const ProgramDetail = (props) => {
             <DatasetList2 />
           </div>
         </Grid>
-        {sortedDatasetNames.length > 0 && (
+        {/* {sortedDatasetNames.length > 0 && (
           <Grid item xs={12}>
             <MultiDatasetDownloadContainer
               datasetShortNames={sortedDatasetNames}
             />
           </Grid>
-        )}
+        )} */}
         <Grid item xs={12} md={12} lg={7}>
           <div className={cl.visVerticalPlaceholder}>
             <SectionHeader title={'Sample Visualization'} />
