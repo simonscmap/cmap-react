@@ -145,9 +145,7 @@ const MultiDatasetDownloadContainerInner = ({ datasetsMetadata }) => {
       </Box>
 
       <Box mb={3}>
-        {filteredItems.length > 0 && (
-          <MultiDatasetDownloadTable datasetsMetadata={filteredItems} />
-        )}
+        <MultiDatasetDownloadTable datasetsMetadata={filteredItems} />
       </Box>
 
       <Box>
