@@ -53,8 +53,7 @@ const createSearchStore = (initProps) =>
       },
 
       setSearchEngine: (engine) => {
-        console.log('🐛🐛🐛 useSearch.js:56 engine:', engine);
-        // set({ searchEngine: engine });
+        set({ searchEngine: engine });
       },
 
       clearSearch: () => {
