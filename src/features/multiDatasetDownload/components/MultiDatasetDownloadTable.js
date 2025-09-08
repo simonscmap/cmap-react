@@ -60,9 +60,8 @@ const styles = {
   },
 };
 
-const MultiDatasetDownloadTable = () => {
+const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
   const {
-    datasetsMetadata,
     isDatasetSelected,
     toggleDatasetSelection,
     selectAll,
@@ -77,7 +76,10 @@ const MultiDatasetDownloadTable = () => {
     resetStore: resetRowCountStore,
     getThresholdConfig,
   } = useRowCountStore();
-
+  console.log(
+    '🐛🐛🐛 MultiDatasetDownloadTable.js:79 datasetMetadata:',
+    datasetsMetadata,
+  );
   const [hoveredRow, setHoveredRow] = React.useState(null);
 
   const handleToggle = (datasetName) => (event) => {
@@ -176,16 +178,6 @@ const MultiDatasetDownloadTable = () => {
     };
   }, [resetRowCountStore]);
 
-  if (!datasetsMetadata || datasetsMetadata.length === 0) {
-    return (
-      <Box p={3} textAlign="center">
-        <Typography variant="body1" color="textSecondary">
-          No datasets available
-        </Typography>
-      </Box>
-    );
-  }
-
   return (
     <TableContainer component={Paper} style={styles.tableContainerStyle}>
       <Table stickyHeader size="small" aria-label="dataset selection table">
@@ -197,6 +189,7 @@ const MultiDatasetDownloadTable = () => {
                 onChange={handleSelectAllToggle}
                 color="primary"
                 size="small"
+                disabled={!datasetsMetadata || datasetsMetadata.length === 0}
               />
             </TableCell>
             <TableCell
@@ -234,78 +227,95 @@ const MultiDatasetDownloadTable = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {datasetsMetadata.map((datasetMetadata) => {
-            const isSelected = isDatasetSelected(datasetMetadata.Dataset_Name);
-            const isHovered = hoveredRow === datasetMetadata.Dataset_Name;
-            return (
-              <TableRow
-                key={datasetMetadata.Dataset_Name}
-                selected={isSelected}
-                style={
-                  isHovered ? styles.tableRowHoverStyle : styles.tableRowStyle
-                }
-                onMouseEnter={() => setHoveredRow(datasetMetadata.Dataset_Name)}
-                onMouseLeave={() => setHoveredRow(null)}
+          {!datasetsMetadata || datasetsMetadata.length === 0 ? (
+            <TableRow>
+              <TableCell
+                colSpan={11}
+                style={{ ...styles.bodyCellStyle, textAlign: 'center' }}
               >
-                <TableCell style={styles.bodyCellStyle}>
-                  <Checkbox
-                    checked={isSelected}
-                    onChange={handleToggle(datasetMetadata.Dataset_Name)}
-                    color="primary"
-                    size="small"
-                  />
-                </TableCell>
-                <TableCell style={styles.bodyCellStyle}>
-                  <Typography variant="body2" noWrap>
-                    {datasetMetadata.Dataset_Name || ''}
-                  </Typography>
-                </TableCell>
-                <TableCell align="right" style={styles.bodyCellStyle}>
-                  {renderRowCount(datasetMetadata.Dataset_Name)}
-                </TableCell>
-                <TableCell style={styles.bodyCellStyle}>
-                  <Typography variant="body2" noWrap>
-                    {formatTime(datasetMetadata.Time_Min)}
-                  </Typography>
-                </TableCell>
-                <TableCell style={styles.bodyCellStyle}>
-                  <Typography variant="body2" noWrap>
-                    {formatTime(datasetMetadata.Time_Max)}
-                  </Typography>
-                </TableCell>
-                <TableCell style={styles.bodyCellStyle}>
-                  <Typography variant="body2" noWrap>
-                    {formatLatLon(datasetMetadata.Lat_Min)}
-                  </Typography>
-                </TableCell>
-                <TableCell style={styles.bodyCellStyle}>
-                  <Typography variant="body2" noWrap>
-                    {formatLatLon(datasetMetadata.Lat_Max)}
-                  </Typography>
-                </TableCell>
-                <TableCell style={styles.bodyCellStyle}>
-                  <Typography variant="body2" noWrap>
-                    {formatLatLon(datasetMetadata.Lon_Min)}
-                  </Typography>
-                </TableCell>
-                <TableCell style={styles.bodyCellStyle}>
-                  <Typography variant="body2" noWrap>
-                    {formatLatLon(datasetMetadata.Lon_Max)}
-                  </Typography>
-                </TableCell>
-                <TableCell style={styles.bodyCellStyle}>
-                  <Typography variant="body2" noWrap>
-                    {formatDepth(datasetMetadata.Depth_Min)}
-                  </Typography>
-                </TableCell>
-                <TableCell style={styles.bodyCellStyle}>
-                  <Typography variant="body2" noWrap>
-                    {formatDepth(datasetMetadata.Depth_Max)}
-                  </Typography>
-                </TableCell>
-              </TableRow>
-            );
-          })}
+                <Typography variant="body1" color="textSecondary">
+                  No datasets available
+                </Typography>
+              </TableCell>
+            </TableRow>
+          ) : (
+            datasetsMetadata.map((datasetMetadata) => {
+              const isSelected = isDatasetSelected(
+                datasetMetadata.Dataset_Name,
+              );
+              const isHovered = hoveredRow === datasetMetadata.Dataset_Name;
+              return (
+                <TableRow
+                  key={datasetMetadata.Dataset_Name}
+                  selected={isSelected}
+                  style={
+                    isHovered ? styles.tableRowHoverStyle : styles.tableRowStyle
+                  }
+                  onMouseEnter={() =>
+                    setHoveredRow(datasetMetadata.Dataset_Name)
+                  }
+                  onMouseLeave={() => setHoveredRow(null)}
+                >
+                  <TableCell style={styles.bodyCellStyle}>
+                    <Checkbox
+                      checked={isSelected}
+                      onChange={handleToggle(datasetMetadata.Dataset_Name)}
+                      color="primary"
+                      size="small"
+                    />
+                  </TableCell>
+                  <TableCell style={styles.bodyCellStyle}>
+                    <Typography variant="body2" noWrap>
+                      {datasetMetadata.Dataset_Name || ''}
+                    </Typography>
+                  </TableCell>
+                  <TableCell align="right" style={styles.bodyCellStyle}>
+                    {renderRowCount(datasetMetadata.Dataset_Name)}
+                  </TableCell>
+                  <TableCell style={styles.bodyCellStyle}>
+                    <Typography variant="body2" noWrap>
+                      {formatTime(datasetMetadata.Time_Min)}
+                    </Typography>
+                  </TableCell>
+                  <TableCell style={styles.bodyCellStyle}>
+                    <Typography variant="body2" noWrap>
+                      {formatTime(datasetMetadata.Time_Max)}
+                    </Typography>
+                  </TableCell>
+                  <TableCell style={styles.bodyCellStyle}>
+                    <Typography variant="body2" noWrap>
+                      {formatLatLon(datasetMetadata.Lat_Min)}
+                    </Typography>
+                  </TableCell>
+                  <TableCell style={styles.bodyCellStyle}>
+                    <Typography variant="body2" noWrap>
+                      {formatLatLon(datasetMetadata.Lat_Max)}
+                    </Typography>
+                  </TableCell>
+                  <TableCell style={styles.bodyCellStyle}>
+                    <Typography variant="body2" noWrap>
+                      {formatLatLon(datasetMetadata.Lon_Min)}
+                    </Typography>
+                  </TableCell>
+                  <TableCell style={styles.bodyCellStyle}>
+                    <Typography variant="body2" noWrap>
+                      {formatLatLon(datasetMetadata.Lon_Max)}
+                    </Typography>
+                  </TableCell>
+                  <TableCell style={styles.bodyCellStyle}>
+                    <Typography variant="body2" noWrap>
+                      {formatDepth(datasetMetadata.Depth_Min)}
+                    </Typography>
+                  </TableCell>
+                  <TableCell style={styles.bodyCellStyle}>
+                    <Typography variant="body2" noWrap>
+                      {formatDepth(datasetMetadata.Depth_Max)}
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              );
+            })
+          )}
         </TableBody>
       </Table>
     </TableContainer>

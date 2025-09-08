@@ -8,6 +8,11 @@ import useRowCountStore from '../stores/useRowCountStore';
 import MultiDatasetDownloadTable from './MultiDatasetDownloadTable';
 import DownloadButton from './DownloadButton';
 import RowCountTotal from './RowCountTotal';
+import {
+  SearchProvider,
+  SearchInput,
+  useFilteredItems,
+} from '../../../shared/UniversalSearch';
 
 /**
  * Multi-Dataset Download Container Component
@@ -38,6 +43,8 @@ import RowCountTotal from './RowCountTotal';
 const MultiDatasetDownloadContainerInner = ({ datasetsMetadata }) => {
   const { resetStore } = useMultiDatasetDownloadStore();
   const { updateRowCountsForFilters } = useRowCountStore();
+  const filteredItems = useFilteredItems();
+
   // Compute aggregate dataset bounds for multi-dataset filtering
   const aggregateDatasetMetadata = useMemo(() => {
     if (!datasetsMetadata || datasetsMetadata.length === 0) {
@@ -133,10 +140,12 @@ const MultiDatasetDownloadContainerInner = ({ datasetsMetadata }) => {
         </SubsetControls>
       </Box>
 
+      <Box mb={3} p={2}>
+        <SearchInput placeholder="Search datasets..." />
+      </Box>
+
       <Box mb={3}>
-        {datasetsMetadata && datasetsMetadata.length > 0 && (
-          <MultiDatasetDownloadTable />
-        )}
+        <MultiDatasetDownloadTable datasetsMetadata={filteredItems} />
       </Box>
 
       <Box>
@@ -170,7 +179,9 @@ const MultiDatasetDownloadContainer = ({ datasetShortNames }) => {
   }
 
   return (
-    <MultiDatasetDownloadContainerInner datasetsMetadata={datasetsMetadata} />
+    <SearchProvider items={datasetsMetadata} searchKeys={['Dataset_Name']}>
+      <MultiDatasetDownloadContainerInner datasetsMetadata={datasetsMetadata} />
+    </SearchProvider>
   );
 };
 
