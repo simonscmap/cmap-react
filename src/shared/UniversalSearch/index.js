@@ -4,6 +4,18 @@
 // Core Hook
 export { useSearch } from './hooks/useSearch';
 
+// Search State Management
+export {
+  SearchProvider,
+  useFilteredItems,
+  useSearchQuery,
+  useSearchEngine,
+  useIsSearchActive,
+  useResultCount,
+  useTotalCount,
+  useSearchActions,
+} from './state/useSearch';
+
 // Utilities
 export {
   wildcardSearch,
