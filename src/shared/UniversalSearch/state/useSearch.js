@@ -5,21 +5,16 @@ import { performSearch, SEARCH_ENGINES } from '../utils/searchEngines';
 // Factory function creates store instances with props
 const createSearchStore = (initProps) =>
   createStore((set, get, store) => ({
-    // Core State (Story Points 1-2)
     items: initProps.items || [],
     searchKeys: initProps.searchKeys || [],
     filteredItems: initProps.items || [],
     searchQuery: '',
-
-    // Enhanced State (Story Points 3-4)
     searchEngine: 'wildcard',
     isActive: false,
     resultCount: initProps.items?.length || 0,
     totalCount: initProps.items?.length || 0,
 
-    // Actions
     actions: {
-      // Core Action (Story Points 1-2)
       setSearchQuery: (query) => {
         const { items, searchKeys, searchEngine } = get();
 
@@ -57,7 +52,6 @@ const createSearchStore = (initProps) =>
         }
       },
 
-      // Enhanced Actions (Story Points 3-4)
       setSearchEngine: (engine) => {
         const { searchQuery } = get();
         set({ searchEngine: engine });
@@ -82,10 +76,8 @@ const createSearchStore = (initProps) =>
     },
   }));
 
-// Context for store instance
 const SearchContext = createContext(null);
 
-// Provider component
 export function SearchProvider({ children, items, searchKeys }) {
   const store = useRef(createSearchStore({ items, searchKeys })).current;
 
@@ -94,7 +86,6 @@ export function SearchProvider({ children, items, searchKeys }) {
   );
 }
 
-// Internal store hook
 const useSearchStore = (selector) => {
   const store = useContext(SearchContext);
   if (!store) {
@@ -103,7 +94,6 @@ const useSearchStore = (selector) => {
   return useStore(store, selector);
 };
 
-// Exported atomic selectors
 export const useFilteredItems = () =>
   useSearchStore((state) => state.filteredItems);
 export const useSearchQuery = () =>
