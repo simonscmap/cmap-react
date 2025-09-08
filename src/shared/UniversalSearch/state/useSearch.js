@@ -53,13 +53,8 @@ const createSearchStore = (initProps) =>
       },
 
       setSearchEngine: (engine) => {
-        const { searchQuery } = get();
-        set({ searchEngine: engine });
-
-        // Re-run search with new engine if query exists
-        if (searchQuery) {
-          get().actions.setSearchQuery(searchQuery);
-        }
+        console.log('🐛🐛🐛 useSearch.js:56 engine:', engine);
+        // set({ searchEngine: engine });
       },
 
       clearSearch: () => {
