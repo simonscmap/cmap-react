@@ -1,6 +1,10 @@
 // Universal Search Component - Public API
 // Main entry point for Universal Search functionality
 
+// UI Components
+export { default as SearchInput } from './components/SearchInput';
+export { default as SearchableInterface } from './components/SearchableInterface';
+
 // Core Hook
 export { useSearch } from './hooks/useSearch';
 
