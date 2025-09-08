@@ -8,6 +8,22 @@ import useRowCountStore from '../stores/useRowCountStore';
 import MultiDatasetDownloadTable from './MultiDatasetDownloadTable';
 import DownloadButton from './DownloadButton';
 import RowCountTotal from './RowCountTotal';
+import {
+  SearchProvider,
+  SearchInput,
+  useFilteredItems,
+} from '../../../shared/UniversalSearch';
+
+// Component to handle search results and console logging
+const SearchLogger = () => {
+  const filteredItems = useFilteredItems();
+
+  useEffect(() => {
+    console.log('Search Results:', filteredItems);
+  }, [filteredItems]);
+
+  return null;
+};
 
 /**
  * Multi-Dataset Download Container Component
@@ -111,47 +127,57 @@ const MultiDatasetDownloadContainerInner = ({ datasetsMetadata }) => {
   }, [resetStore]);
 
   return (
-    <Box
-      sx={{ maxWidth: '100vw', overflow: 'hidden', boxSizing: 'border-box' }}
+    <SearchProvider
+      items={datasetsMetadata}
+      searchKeys={['Dataset_Name', 'Long_Name', 'Data_Source']}
     >
-      <Typography variant="h6" gutterBottom>
-        Multi-Dataset Download
-      </Typography>
+      <Box
+        sx={{ maxWidth: '100vw', overflow: 'hidden', boxSizing: 'border-box' }}
+      >
+        <Typography variant="h6" gutterBottom>
+          Multi-Dataset Download
+        </Typography>
 
-      <Box mb={3} p={2}>
-        <SubsetControls
-          setInvalidFlag={setInvalidFlag}
-          filterValues={filterValues}
-          filterSetters={filterSetters}
-          datasetFilterBounds={datasetFilterBounds}
-          dateHandling={dateHandling}
-        >
-          <DefaultSubsetControlsLayout
-            optionsState={optionsState}
-            handleSwitch={handleSwitch}
+        <Box mb={3} p={2}>
+          <SubsetControls
+            setInvalidFlag={setInvalidFlag}
+            filterValues={filterValues}
+            filterSetters={filterSetters}
+            datasetFilterBounds={datasetFilterBounds}
+            dateHandling={dateHandling}
+          >
+            <DefaultSubsetControlsLayout
+              optionsState={optionsState}
+              handleSwitch={handleSwitch}
+            />
+          </SubsetControls>
+        </Box>
+
+        <Box mb={3} p={2}>
+          <SearchInput placeholder="Search datasets..." />
+          <SearchLogger />
+        </Box>
+
+        <Box mb={3}>
+          {datasetsMetadata && datasetsMetadata.length > 0 && (
+            <MultiDatasetDownloadTable />
+          )}
+        </Box>
+
+        <Box>
+          <RowCountTotal />
+          <DownloadButton
+            subsetFiltering={{
+              setInvalidFlag,
+              filterValues,
+              filterSetters,
+              datasetFilterBounds,
+              dateHandling,
+            }}
           />
-        </SubsetControls>
+        </Box>
       </Box>
-
-      <Box mb={3}>
-        {datasetsMetadata && datasetsMetadata.length > 0 && (
-          <MultiDatasetDownloadTable />
-        )}
-      </Box>
-
-      <Box>
-        <RowCountTotal />
-        <DownloadButton
-          subsetFiltering={{
-            setInvalidFlag,
-            filterValues,
-            filterSetters,
-            datasetFilterBounds,
-            dateHandling,
-          }}
-        />
-      </Box>
-    </Box>
+    </SearchProvider>
   );
 };
 
