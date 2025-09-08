@@ -60,9 +60,8 @@ const styles = {
   },
 };
 
-const MultiDatasetDownloadTable = () => {
+const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
   const {
-    datasetsMetadata,
     isDatasetSelected,
     toggleDatasetSelection,
     selectAll,

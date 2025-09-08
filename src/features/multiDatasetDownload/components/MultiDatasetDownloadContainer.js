@@ -40,6 +40,19 @@ import {
  * The component automatically computes aggregate bounds across all datasets for filtering
  * and initializes internal Zustand stores for state management.
  */
+// Component that uses search context - must be inside SearchProvider
+const TableSection = () => {
+  const filteredItems = useFilteredItems();
+
+  return (
+    <Box mb={3}>
+      {filteredItems.length > 0 && (
+        <MultiDatasetDownloadTable datasetsMetadata={filteredItems} />
+      )}
+    </Box>
+  );
+};
+
 const MultiDatasetDownloadContainerInner = ({ datasetsMetadata }) => {
   const { resetStore } = useMultiDatasetDownloadStore();
   const { updateRowCountsForFilters } = useRowCountStore();
@@ -146,11 +159,7 @@ const MultiDatasetDownloadContainerInner = ({ datasetsMetadata }) => {
           <SearchInput placeholder="Search datasets..." />
         </Box>
 
-        <Box mb={3}>
-          {datasetsMetadata && datasetsMetadata.length > 0 && (
-            <MultiDatasetDownloadTable />
-          )}
-        </Box>
+        <TableSection />
 
         <Box>
           <RowCountTotal />
