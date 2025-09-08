@@ -10,7 +10,8 @@ import {
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { Search, Clear } from '@material-ui/icons';
-import InfoTooltip from '../../components/InfoTooltip';
+import InfoTooltip from '../../../shared/components/InfoTooltip';
+
 import {
   useSearchQuery,
   useSearchEngine,
