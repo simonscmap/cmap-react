@@ -6,7 +6,7 @@ export { default as SearchInput } from './components/SearchInput';
 export { default as SearchableInterface } from './components/SearchableInterface';
 
 // Core Hook
-export { useSearch } from './hooks/useSearch';
+// export { useSearch } from './hooks/useSearch';
 
 // Search State Management
 export {

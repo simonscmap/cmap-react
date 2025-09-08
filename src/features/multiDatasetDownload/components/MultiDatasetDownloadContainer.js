@@ -14,17 +14,6 @@ import {
   useFilteredItems,
 } from '../../../shared/UniversalSearch';
 
-// Component to handle search results and console logging
-const SearchLogger = () => {
-  const filteredItems = useFilteredItems();
-
-  useEffect(() => {
-    console.log('Search Results:', filteredItems);
-  }, [filteredItems]);
-
-  return null;
-};
-
 /**
  * Multi-Dataset Download Container Component
  * Provides a complete interface for downloading multiple datasets with filtering capabilities
@@ -155,7 +144,6 @@ const MultiDatasetDownloadContainerInner = ({ datasetsMetadata }) => {
 
         <Box mb={3} p={2}>
           <SearchInput placeholder="Search datasets..." />
-          <SearchLogger />
         </Box>
 
         <Box mb={3}>
