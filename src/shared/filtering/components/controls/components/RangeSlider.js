@@ -8,6 +8,7 @@ const RangeSlider = ({
   start,
   end,
   handleSlider,
+  handleSliderCommit,
   step = 0.1,
   disabled = false,
   unit = '',
@@ -23,6 +24,7 @@ const RangeSlider = ({
         typeof end === 'number' ? end : max,
       ]}
       onChange={handleSlider}
+      onChangeCommitted={handleSliderCommit}
       classes={{
         valueLabel: styles.sliderValueLabel,
         thumb: styles.sliderThumb,

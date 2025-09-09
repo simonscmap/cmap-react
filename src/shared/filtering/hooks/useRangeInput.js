@@ -28,6 +28,10 @@ const useRangeInput = ({
   const [localStartValue, setLocalStartValue] = useState('');
   const [localEndValue, setLocalEndValue] = useState('');
 
+  // Local state for slider preview (drag state)
+  const [sliderPreviewStart, setSliderPreviewStart] = useState(null);
+  const [sliderPreviewEnd, setSliderPreviewEnd] = useState(null);
+
   // Validation message state
   const [startMessage, setStartMessage] = useState('');
   const [endMessage, setEndMessage] = useState('');
@@ -41,10 +45,33 @@ const useRangeInput = ({
     setLocalEndValue(end === null ? '' : String(end));
   }, [end]);
 
-  // handler for the slider
+  // Slider preview handler - updates local state during drag
   const handleSlider = (e, [startValue, endValue]) => {
-    setStart(startValue);
-    setEnd(endValue);
+    setSliderPreviewStart(startValue);
+    setSliderPreviewEnd(endValue);
+  };
+
+  // Slider commit handler - applies validation and updates canonical store
+  const handleSliderCommit = (e, [startValue, endValue]) => {
+    const bounds = getEffectiveBounds(min, max, defaultMin, defaultMax);
+
+    // Round and clamp both values
+    let roundedStart = roundToStep(startValue, step);
+    let roundedEnd = roundToStep(endValue, step);
+    const clampedStart = clampValue(roundedStart, bounds.min, bounds.max);
+    const clampedEnd = clampValue(roundedEnd, bounds.min, bounds.max);
+
+    // Enforce start <= end invariant
+    const finalStart = Math.min(clampedStart, clampedEnd);
+    const finalEnd = Math.max(clampedStart, clampedEnd);
+
+    // Update canonical store with same setters as text inputs
+    setStart(finalStart);
+    setEnd(finalEnd);
+
+    // Clear preview state
+    setSliderPreviewStart(null);
+    setSliderPreviewEnd(null);
   };
 
   // onChange handlers for text inputs - update local state only
@@ -147,6 +174,7 @@ const useRangeInput = ({
     startMessage,
     endMessage,
     handleSlider,
+    handleSliderCommit,
   };
 };
 
