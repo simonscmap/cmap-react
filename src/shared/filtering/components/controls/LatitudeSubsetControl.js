@@ -2,6 +2,29 @@ import React, { useState, useEffect } from 'react';
 import { Grid, Slider, TextField, Typography } from '@material-ui/core';
 import styles from '../../styles/subsetControlStyles';
 
+// Utility functions
+const DEFAULT_LAT_MIN = -90;
+const DEFAULT_LAT_MAX = 90;
+const LAT_STEP = 0.1;
+
+const roundToStep = (value, step = LAT_STEP) => {
+  return Math.round(value / step) * step;
+};
+
+const clampValue = (value, min, max) => {
+  return Math.max(min, Math.min(max, value));
+};
+
+const getEffectiveBounds = (latMin, latMax) => ({
+  min: isNaN(latMin) ? DEFAULT_LAT_MIN : Math.floor(latMin * 10) / 10,
+  max: isNaN(latMax) ? DEFAULT_LAT_MAX : Math.ceil(latMax * 10) / 10,
+});
+
+const getDefaultValue = (isStart, latMin, latMax) => {
+  const bounds = getEffectiveBounds(latMin, latMax);
+  return isStart ? bounds.min : bounds.max;
+};
+
 const LatTextInput = ({
   latMin,
   latMax,
@@ -14,19 +37,9 @@ const LatTextInput = ({
   constraintMin,
   constraintMax,
 }) => {
-  const effectiveMin =
-    constraintMin !== undefined
-      ? constraintMin
-      : isNaN(latMin)
-        ? -90
-        : Math.floor(latMin * 10) / 10;
-
-  const effectiveMax =
-    constraintMax !== undefined
-      ? constraintMax
-      : isNaN(latMax)
-        ? 90
-        : Math.ceil(latMax * 10) / 10;
+  const bounds = getEffectiveBounds(latMin, latMax);
+  const effectiveMin = constraintMin !== undefined ? constraintMin : bounds.min;
+  const effectiveMax = constraintMax !== undefined ? constraintMax : bounds.max;
 
   return (
     <div style={styles.latInputContainer}>
@@ -36,7 +49,7 @@ const LatTextInput = ({
         label={label}
         type="number"
         inputProps={{
-          step: 0.1,
+          step: LAT_STEP,
           min: effectiveMin,
           max: effectiveMax,
           className: styles.input,
@@ -56,16 +69,18 @@ const LatTextInput = ({
 };
 
 const LatSlider = ({ latMin, latMax, latStart, latEnd, handleSlider }) => {
+  const bounds = getEffectiveBounds(latMin, latMax);
+
   return (
     <Slider
       id="latSlider"
       key="latSlider"
-      min={isNaN(latMin) ? -90 : Math.floor(latMin * 10) / 10}
-      max={isNaN(latMax) ? 90 : Math.ceil(latMax * 10) / 10}
-      step={0.1}
+      min={bounds.min}
+      max={bounds.max}
+      step={LAT_STEP}
       value={[
-        typeof latStart === 'number' ? latStart : -90,
-        typeof latEnd === 'number' ? latEnd : 90,
+        typeof latStart === 'number' ? latStart : DEFAULT_LAT_MIN,
+        typeof latEnd === 'number' ? latEnd : DEFAULT_LAT_MAX,
       ]}
       onChange={handleSlider}
       classes={{
@@ -77,12 +92,12 @@ const LatSlider = ({ latMin, latMax, latStart, latEnd, handleSlider }) => {
       disabled={latMin === latMax}
       marks={[
         {
-          value: Math.floor(latMin * 10) / 10,
-          label: `${Math.floor(latMin * 10) / 10}`,
+          value: bounds.min,
+          label: `${bounds.min}`,
         },
         {
-          value: Math.ceil(latMax * 10) / 10,
-          label: `${Math.ceil(latMax * 10) / 10}`,
+          value: bounds.max,
+          label: `${bounds.max}`,
         },
       ]}
     />
@@ -126,16 +141,6 @@ const LatitudeSubsetControl = (props) => {
     setLocalEndValue(e.target.value);
   };
 
-  // Helper function to round to step=0.1
-  const roundToStep = (value) => {
-    return Math.round(value * 10) / 10;
-  };
-
-  // Helper function to clamp value between min and max
-  const clampValue = (value, min, max) => {
-    return Math.max(min, Math.min(max, value));
-  };
-
   // Helper function to show validation message with auto-hide
   const showMessage = (setMessage, message) => {
     setMessage(message);
@@ -146,16 +151,11 @@ const LatitudeSubsetControl = (props) => {
   const createBlurHandler = (isStart, localValue, setValue, setMessage) => {
     return () => {
       let value = parseFloat(localValue);
+      const bounds = getEffectiveBounds(latMin, latMax);
 
       // Handle empty fields - restore to default
       if (isNaN(value) || localValue.trim() === '') {
-        const defaultValue = isStart
-          ? isNaN(latMin)
-            ? -90
-            : Math.floor(latMin * 10) / 10
-          : isNaN(latMax)
-            ? 90
-            : Math.ceil(latMax * 10) / 10;
+        const defaultValue = getDefaultValue(isStart, latMin, latMax);
         setValue(defaultValue);
         // Update local display value immediately
         if (isStart) {
@@ -170,20 +170,18 @@ const LatitudeSubsetControl = (props) => {
         return;
       }
 
-      // Round to step=0.1
+      // Round to step
       value = roundToStep(value);
 
       // Clamp to dataset bounds
-      const minBound = isNaN(latMin) ? -90 : Math.floor(latMin * 10) / 10;
-      const maxBound = isNaN(latMax) ? 90 : Math.ceil(latMax * 10) / 10;
       const originalAfterRounding = value;
-      value = clampValue(value, minBound, maxBound);
+      value = clampValue(value, bounds.min, bounds.max);
 
       // Check if clamping occurred
       if (value > originalAfterRounding) {
-        showMessage(setMessage, `Min is ${minBound}`);
+        showMessage(setMessage, `Min is ${bounds.min}`);
       } else if (value < originalAfterRounding) {
-        showMessage(setMessage, `Max is ${maxBound}`);
+        showMessage(setMessage, `Max is ${bounds.max}`);
       }
 
       // Ensure start <= end constraint
