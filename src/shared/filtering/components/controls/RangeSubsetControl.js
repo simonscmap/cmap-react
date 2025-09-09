@@ -17,8 +17,6 @@ const RangeSubsetControl = ({
   setEnd,
   min,
   max,
-  defaultMin,
-  defaultMax,
   step = 0.1,
   unit = '',
   startLabel = 'Start',
@@ -44,8 +42,6 @@ const RangeSubsetControl = ({
     setEnd,
     min,
     max,
-    defaultMin,
-    defaultMax,
     step,
   });
 
