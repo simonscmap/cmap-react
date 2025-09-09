@@ -76,6 +76,21 @@ const styles = {
     position: 'relative',
     width: '100%',
   },
+  // Latitude input container styles
+  latInputContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+  },
+  // Validation message styles
+  validationMessage: {
+    fontSize: '0.75rem',
+    color: 'white',
+    minWidth: '120px',
+    height: '18px',
+    display: 'flex',
+    alignItems: 'center',
+  },
 };
 
 export default styles;

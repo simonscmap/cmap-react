@@ -21,6 +21,7 @@ const LatTextInput = ({
       : isNaN(latMin)
         ? -90
         : Math.floor(latMin * 10) / 10;
+
   const effectiveMax =
     constraintMax !== undefined
       ? constraintMax
@@ -29,7 +30,7 @@ const LatTextInput = ({
         : Math.ceil(latMax * 10) / 10;
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+    <div style={styles.latInputContainer}>
       <TextField
         id={id}
         key={id}
@@ -48,17 +49,7 @@ const LatTextInput = ({
         onChange={handleChange}
         onBlur={handleBlur}
       />
-      <Typography
-        variant="caption"
-        style={{
-          fontSize: '0.75rem',
-          color: 'white',
-          minWidth: '120px',
-          height: '18px',
-          display: 'flex',
-          alignItems: 'center',
-        }}
-      >
+      <Typography variant="caption" style={styles.validationMessage}>
         {validationMessage || ''}
       </Typography>
     </div>
