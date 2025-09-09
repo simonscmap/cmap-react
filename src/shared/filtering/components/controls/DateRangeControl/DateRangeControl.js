@@ -39,6 +39,7 @@ const DateRangeControl = ({
     setEnd,
     min,
     max,
+    timeMin, // Pass timeMin to the hook
     step: 1, // Days are discrete units
   });
 
