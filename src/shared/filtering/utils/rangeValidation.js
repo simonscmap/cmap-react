@@ -2,20 +2,28 @@
 // Extracted from LatitudeSubsetControl.js lines 6-26
 
 const roundToStep = (value, step = 0.1) => {
-  return Math.round(value / step) * step;
+  const factor = 1 / step;
+  return Math.round(value * factor) / factor;
 };
 
 const clampValue = (value, min, max) => {
   return Math.max(min, Math.min(max, value));
 };
 
-const getEffectiveBounds = (min, max, defaultMin, defaultMax) => ({
-  min: isNaN(min) ? defaultMin : Math.floor(min * 10) / 10,
-  max: isNaN(max) ? defaultMax : Math.ceil(max * 10) / 10,
+const getEffectiveBounds = (min, max, defaultMin, defaultMax, step = 0.1) => ({
+  min: isNaN(min) ? defaultMin : roundToStep(min, step),
+  max: isNaN(max) ? defaultMax : roundToStep(max, step),
 });
 
-const getDefaultValue = (isStart, min, max, defaultMin, defaultMax) => {
-  const bounds = getEffectiveBounds(min, max, defaultMin, defaultMax);
+const getDefaultValue = (
+  isStart,
+  min,
+  max,
+  defaultMin,
+  defaultMax,
+  step = 0.1,
+) => {
+  const bounds = getEffectiveBounds(min, max, defaultMin, defaultMax, step);
   return isStart ? bounds.min : bounds.max;
 };
 

@@ -53,7 +53,7 @@ const useRangeInput = ({
 
   // Slider commit handler - applies validation and updates canonical store
   const handleSliderCommit = (e, [startValue, endValue]) => {
-    const bounds = getEffectiveBounds(min, max, defaultMin, defaultMax);
+    const bounds = getEffectiveBounds(min, max, defaultMin, defaultMax, step);
 
     // Round and clamp both values
     let roundedStart = roundToStep(startValue, step);
@@ -93,7 +93,7 @@ const useRangeInput = ({
   const createBlurHandler = (isStart, localValue, setValue, setMessage) => {
     return () => {
       let value = parseFloat(localValue);
-      const bounds = getEffectiveBounds(min, max, defaultMin, defaultMax);
+      const bounds = getEffectiveBounds(min, max, defaultMin, defaultMax, step);
 
       // Handle empty fields - restore to default
       if (isNaN(value) || localValue.trim() === '') {
@@ -103,6 +103,7 @@ const useRangeInput = ({
           max,
           defaultMin,
           defaultMax,
+          step,
         );
         setValue(defaultValue);
         // Update local display value immediately

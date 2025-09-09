@@ -1,6 +1,7 @@
 import React from 'react';
 import { Slider } from '@material-ui/core';
 import styles from '../../../styles/subsetControlStyles';
+import { roundToStep } from '../../../utils/rangeValidation';
 
 const RangeSlider = ({
   min,
@@ -13,15 +14,19 @@ const RangeSlider = ({
   disabled = false,
   unit = '',
 }) => {
+  // Format min/max values to match step precision
+  const formattedMin = roundToStep(min, step);
+  const formattedMax = roundToStep(max, step);
+
   return (
     <Slider
       id="rangeSlider"
-      min={min}
-      max={max}
+      min={formattedMin}
+      max={formattedMax}
       step={step}
       value={[
-        typeof start === 'number' ? start : min,
-        typeof end === 'number' ? end : max,
+        typeof start === 'number' ? start : formattedMin,
+        typeof end === 'number' ? end : formattedMax,
       ]}
       onChange={handleSlider}
       onChangeCommitted={handleSliderCommit}
@@ -35,12 +40,12 @@ const RangeSlider = ({
       disabled={disabled}
       marks={[
         {
-          value: min,
-          label: `${min}${unit}`,
+          value: formattedMin,
+          label: `${formattedMin}${unit}`,
         },
         {
-          value: max,
-          label: `${max}${unit}`,
+          value: formattedMax,
+          label: `${formattedMax}${unit}`,
         },
       ]}
     />

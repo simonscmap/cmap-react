@@ -1,4 +1,5 @@
 import temporalResolutions from '../../../enums/temporalResolutions';
+import { formatLatitude, formatLongitude } from './numberFormatting';
 
 const MILLISECONDS_PER_DAY = 86400000;
 
@@ -100,12 +101,12 @@ export const getInitialRangeValues = (dataset) => {
 
   let initialValues = {
     lat: {
-      start: Math.floor(Lat_Min * 10) / 10,
-      end: Math.ceil(Lat_Max * 10) / 10,
+      start: formatLatitude(Lat_Min),
+      end: formatLatitude(Lat_Max),
     },
     lon: {
-      start: Math.floor(Lon_Min * 10) / 10,
-      end: Math.ceil(Lon_Max * 10) / 10,
+      start: formatLongitude(Lon_Min),
+      end: formatLongitude(Lon_Max),
     },
     time: {
       start: Time_Min ? 0 : 1,
