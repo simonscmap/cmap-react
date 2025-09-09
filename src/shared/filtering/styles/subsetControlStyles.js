@@ -91,6 +91,17 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
   },
+  // Custom value label tooltip styles
+  customValueLabelTooltip: {
+    backgroundColor: 'transparent !important',
+    color: '#9dd162 !important',
+    fontSize: '0.75rem !important',
+    padding: '2px 6px !important',
+    borderRadius: '2px !important',
+    whiteSpace: 'nowrap !important',
+    minWidth: 'max-content !important',
+    boxShadow: 'none !important',
+  },
 };
 
 export default styles;

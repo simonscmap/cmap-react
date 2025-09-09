@@ -2,6 +2,7 @@ import React from 'react';
 import { Slider } from '@material-ui/core';
 import styles from '../../../styles/subsetControlStyles';
 import { roundToStep } from '../../../utils/rangeValidation';
+import CustomValueLabel from './CustomValueLabel';
 
 const RangeSlider = ({
   min,
@@ -44,8 +45,8 @@ const RangeSlider = ({
       onChangeCommitted={handleSliderCommit}
       valueLabelDisplay="auto"
       valueLabelFormat={getValueLabel}
+      ValueLabelComponent={CustomValueLabel}
       classes={{
-        valueLabel: styles.sliderValueLabel,
         thumb: styles.sliderThumb,
         markLabel: styles.markLabel,
       }}
