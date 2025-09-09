@@ -45,7 +45,6 @@ const LatTextInput = ({
     <div style={styles.latInputContainer}>
       <TextField
         id={id}
-        key={id}
         label={label}
         type="number"
         inputProps={{
@@ -74,7 +73,6 @@ const LatSlider = ({ latMin, latMax, latStart, latEnd, handleSlider }) => {
   return (
     <Slider
       id="latSlider"
-      key="latSlider"
       min={bounds.min}
       max={bounds.max}
       step={LAT_STEP}
@@ -105,8 +103,13 @@ const LatSlider = ({ latMin, latMax, latStart, latEnd, handleSlider }) => {
 };
 
 const LatitudeSubsetControl = (props) => {
-  let { latMin, latMax, subsetState, setLatStart, setLatEnd } = props;
-  let { latStart, latEnd } = subsetState;
+  let {
+    latMin,
+    latMax,
+    subsetState: { latStart, latEnd },
+    setLatStart,
+    setLatEnd,
+  } = props;
 
   // Local state for typing values (two-phase updates)
   const [localStartValue, setLocalStartValue] = useState('');
@@ -126,8 +129,7 @@ const LatitudeSubsetControl = (props) => {
   }, [latEnd]);
 
   // handler for the slider
-  let handleSlider = (e, value) => {
-    let [start, end] = value;
+  let handleSlider = (e, [start, end]) => {
     setLatStart(start);
     setLatEnd(end);
   };
@@ -171,18 +173,17 @@ const LatitudeSubsetControl = (props) => {
       }
 
       // Round to step
-      value = roundToStep(value);
-
-      // Clamp to dataset bounds
-      const originalAfterRounding = value;
-      value = clampValue(value, bounds.min, bounds.max);
+      const roundedValue = roundToStep(value);
+      const clampedValue = clampValue(roundedValue, bounds.min, bounds.max);
 
       // Check if clamping occurred
-      if (value > originalAfterRounding) {
+      if (clampedValue > roundedValue) {
         showMessage(setMessage, `Min is ${bounds.min}`);
-      } else if (value < originalAfterRounding) {
+      } else if (clampedValue < roundedValue) {
         showMessage(setMessage, `Max is ${bounds.max}`);
       }
+
+      value = clampedValue;
 
       // Ensure start <= end constraint
       const otherValue = isStart ? latEnd : latStart;
@@ -218,7 +219,6 @@ const LatitudeSubsetControl = (props) => {
   );
 
   let controlTitle = 'Latitude[\xB0]';
-  // Latitude[{'\xB0'}]
 
   return (
     <React.Fragment>
