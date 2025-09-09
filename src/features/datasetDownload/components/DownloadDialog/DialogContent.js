@@ -129,6 +129,7 @@ const DownloadDialog = (props) => {
     isFiltered,
     isInvalid,
     setInvalidFlag,
+    resetStore,
   } = useSubsetFiltering(dataset);
 
   // UI-specific state (moved from useSubsetControls)
@@ -182,6 +183,13 @@ const DownloadDialog = (props) => {
       handleClose();
     }
   };
+
+  // Reset subset filtering store when component unmounts
+  useEffect(() => {
+    return () => {
+      resetStore();
+    };
+  }, []);
   // Download Size Validation
 
   let downloadState = useSelector((state) => state.download);

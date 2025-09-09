@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
+import { create } from 'zustand';
 import {
   dateToDateString,
   dateToDay,
@@ -7,8 +8,166 @@ import {
   getInitialRangeValues,
 } from '../utils/dateHelpers';
 
+// Helper function for date validation
+const dateIsWithinBounds = (date, dataset) => {
+  if (!dataset?.Time_Min || !dataset?.Time_Max) return true;
+  const tmin = dateToDateString(dataset.Time_Min);
+  const tmax = dateToDateString(dataset.Time_Max);
+  const d = dateToDateString(date);
+  return d >= tmin && d <= tmax;
+};
+
+// Zustand store for subset filtering state
+const useSubsetFilterStore = create((set, get) => ({
+  // Filter values
+  latStart: 0,
+  latEnd: 0,
+  lonStart: 0,
+  lonEnd: 0,
+  timeStart: 0,
+  timeEnd: 0,
+  depthStart: 0,
+  depthEnd: 0,
+
+  // Validation state
+  isInvalid: false,
+  validTimeMin: true,
+  validTimeMax: true,
+
+  // Dataset bounds for validation
+  dataset: null,
+  initialRanges: null,
+
+  // Actions
+  setLatStart: (value) => set({ latStart: value }),
+  setLatEnd: (value) => set({ latEnd: value }),
+  setLonStart: (value) => set({ lonStart: value }),
+  setLonEnd: (value) => set({ lonEnd: value }),
+  setTimeStart: (value) => set({ timeStart: value }),
+  setTimeEnd: (value) => set({ timeEnd: value }),
+  setDepthStart: (value) => set({ depthStart: value }),
+  setDepthEnd: (value) => set({ depthEnd: value }),
+
+  setInvalidFlag: (value) => set({ isInvalid: value }),
+  setValidTimeMin: (value) => set({ validTimeMin: value }),
+  setValidTimeMax: (value) => set({ validTimeMax: value }),
+
+  // Initialize with dataset
+  initializeWithDataset: (dataset) => {
+    const initialRanges = dataset
+      ? getInitialRangeValues(dataset)
+      : {
+          maxDays: 0,
+          lat: { start: 0, end: 0 },
+          lon: { start: 0, end: 0 },
+          time: { start: 0, end: 0 },
+          depth: { start: 0, end: 0 },
+        };
+
+    set({
+      dataset,
+      initialRanges,
+      latStart: initialRanges.lat.start,
+      latEnd: initialRanges.lat.end,
+      lonStart: initialRanges.lon.start,
+      lonEnd: initialRanges.lon.end,
+      timeStart: initialRanges.time.start,
+      timeEnd: initialRanges.time.end,
+      depthStart: initialRanges.depth.start,
+      depthEnd: initialRanges.depth.end,
+      isInvalid: false,
+      validTimeMin: true,
+      validTimeMax: true,
+    });
+  },
+
+  // Date handlers
+  handleSetStartDate: (value) => {
+    const state = get();
+    const { dataset, validTimeMax } = state;
+
+    if (!value) {
+      set({ validTimeMin: false });
+      if (validTimeMax) {
+        set({ isInvalid: true });
+      }
+      return;
+    }
+
+    const date = extractDateFromString(value);
+    const shouldUpdate = dateIsWithinBounds(date, dataset);
+
+    if (shouldUpdate && dataset?.Time_Min) {
+      const newStartDay = dateToDay(dataset.Time_Min, date);
+      set({
+        timeStart: newStartDay,
+        validTimeMin: true,
+      });
+      if (validTimeMax) {
+        set({ isInvalid: false });
+      }
+    } else {
+      set({ validTimeMin: false });
+      if (validTimeMax) {
+        set({ isInvalid: true });
+      }
+    }
+  },
+
+  handleSetEndDate: (value) => {
+    const state = get();
+    const { dataset, validTimeMin } = state;
+
+    if (!value) {
+      set({ validTimeMax: false });
+      if (validTimeMin) {
+        set({ isInvalid: true });
+      }
+      return;
+    }
+
+    const date = extractDateFromString(value);
+    const shouldUpdate = dateIsWithinBounds(date, dataset);
+
+    if (shouldUpdate && dataset?.Time_Min) {
+      const newEndDay = dateToDay(dataset.Time_Min, date);
+      set({
+        timeEnd: newEndDay,
+        validTimeMax: true,
+      });
+      if (validTimeMin) {
+        set({ isInvalid: false });
+      }
+    } else {
+      set({ validTimeMax: false });
+      if (validTimeMin) {
+        set({ isInvalid: true });
+      }
+    }
+  },
+
+  // Reset store to initial state
+  resetStore: () => {
+    set({
+      latStart: 0,
+      latEnd: 0,
+      lonStart: 0,
+      lonEnd: 0,
+      timeStart: 0,
+      timeEnd: 0,
+      depthStart: 0,
+      depthEnd: 0,
+      isInvalid: false,
+      validTimeMin: true,
+      validTimeMax: true,
+      dataset: null,
+      initialRanges: null,
+    });
+  },
+}));
+
 /**
- * Pure filtering hook for managing subset filter parameters
+ * Pure filtering hook for managing subset filter parameters (Zustand version)
  * @param {Object} dataset - Dataset object containing spatial and temporal bounds
  * @param {number} dataset.Lat_Min - Minimum latitude boundary
  * @param {number} dataset.Lat_Max - Maximum latitude boundary
@@ -21,6 +180,39 @@ import {
  * @param {string} dataset.Temporal_Resolution - Temporal resolution (e.g., "monthly", "daily")
  */
 const useSubsetFiltering = (dataset) => {
+  // Get state and actions from Zustand store
+  const {
+    latStart,
+    latEnd,
+    lonStart,
+    lonEnd,
+    timeStart,
+    timeEnd,
+    depthStart,
+    depthEnd,
+    isInvalid,
+    validTimeMin,
+    validTimeMax,
+    setLatStart,
+    setLatEnd,
+    setLonStart,
+    setLonEnd,
+    setTimeStart,
+    setTimeEnd,
+    setDepthStart,
+    setDepthEnd,
+    setInvalidFlag,
+    initializeWithDataset,
+    handleSetStartDate,
+    handleSetEndDate,
+    resetStore,
+  } = useSubsetFilterStore();
+
+  // Initialize store when dataset changes
+  useMemo(() => {
+    initializeWithDataset(dataset);
+  }, [dataset]);
+
   // Get initial range values from dataset
   const { maxDays, lat, lon, time, depth } = useMemo(() => {
     return dataset
@@ -33,89 +225,6 @@ const useSubsetFiltering = (dataset) => {
           depth: { start: 0, end: 0 },
         };
   }, [dataset]);
-
-  // State for filter parameters
-  const [latStart, setLatStart] = useState(lat.start);
-  const [latEnd, setLatEnd] = useState(lat.end);
-  const [lonStart, setLonStart] = useState(lon.start);
-  const [lonEnd, setLonEnd] = useState(lon.end);
-  const [timeStart, setTimeStart] = useState(time.start);
-  const [timeEnd, setTimeEnd] = useState(time.end);
-  const [depthStart, setDepthStart] = useState(depth.start);
-  const [depthEnd, setDepthEnd] = useState(depth.end);
-
-  const [isInvalid, setInvalidFlag] = useState(false);
-
-  // Date validation state
-  const [validTimeMin, setValidTimeMin] = useState(true);
-  const [validTimeMax, setValidTimeMax] = useState(true);
-
-  // Date validation functions
-  const dateIsWithinBounds = useMemo(() => {
-    if (!dataset?.Time_Min || !dataset?.Time_Max) return () => true;
-
-    return (date) => {
-      const tmin = dateToDateString(dataset.Time_Min);
-      const tmax = dateToDateString(dataset.Time_Max);
-      const d = dateToDateString(date);
-      return d >= tmin && d <= tmax;
-    };
-  }, [dataset?.Time_Min, dataset?.Time_Max]);
-
-  // Date handlers for text inputs
-  const handleSetStartDate = (value) => {
-    if (!value) {
-      setValidTimeMin(false);
-      if (validTimeMax) {
-        setInvalidFlag(true);
-      }
-      return;
-    }
-
-    const date = extractDateFromString(value);
-    const shouldUpdate = dateIsWithinBounds(date);
-
-    if (shouldUpdate && dataset?.Time_Min) {
-      const newStartDay = dateToDay(dataset.Time_Min, date);
-      setTimeStart(newStartDay);
-      setValidTimeMin(true);
-      if (validTimeMax) {
-        setInvalidFlag(false);
-      }
-    } else {
-      setValidTimeMin(false);
-      if (validTimeMax) {
-        setInvalidFlag(true);
-      }
-    }
-  };
-
-  const handleSetEndDate = (value) => {
-    if (!value) {
-      setValidTimeMax(false);
-      if (validTimeMin) {
-        setInvalidFlag(true);
-      }
-      return;
-    }
-
-    const date = extractDateFromString(value);
-    const shouldUpdate = dateIsWithinBounds(date);
-
-    if (shouldUpdate && dataset?.Time_Min) {
-      const newEndDay = dateToDay(dataset.Time_Min, date);
-      setTimeEnd(newEndDay);
-      setValidTimeMax(true);
-      if (validTimeMin) {
-        setInvalidFlag(false);
-      }
-    } else {
-      setValidTimeMax(false);
-      if (validTimeMin) {
-        setInvalidFlag(true);
-      }
-    }
-  };
 
   // Check if dataset is monthly climatology
   const isMonthlyClimatology = useMemo(() => {
@@ -197,7 +306,16 @@ const useSubsetFiltering = (dataset) => {
       setDepthStart,
       setDepthEnd,
     }),
-    [],
+    [
+      setTimeStart,
+      setTimeEnd,
+      setLatStart,
+      setLatEnd,
+      setLonStart,
+      setLonEnd,
+      setDepthStart,
+      setDepthEnd,
+    ],
   );
 
   return {
@@ -230,6 +348,9 @@ const useSubsetFiltering = (dataset) => {
     isFiltered,
     isInvalid,
     setInvalidFlag,
+
+    // Store management
+    resetStore,
   };
 };
 
