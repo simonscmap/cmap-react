@@ -10,20 +10,13 @@ const clampValue = (value, min, max) => {
   return Math.max(min, Math.min(max, value));
 };
 
-const getEffectiveBounds = (min, max, defaultMin, defaultMax, step = 0.1) => ({
-  min: isNaN(min) ? defaultMin : roundToStep(min, step),
-  max: isNaN(max) ? defaultMax : roundToStep(max, step),
+const getEffectiveBounds = (min, max, step = 0.1) => ({
+  min: roundToStep(min, step),
+  max: roundToStep(max, step),
 });
 
-const getDefaultValue = (
-  isStart,
-  min,
-  max,
-  defaultMin,
-  defaultMax,
-  step = 0.1,
-) => {
-  const bounds = getEffectiveBounds(min, max, defaultMin, defaultMax, step);
+const getDefaultValue = (isStart, min, max, step = 0.1) => {
+  const bounds = getEffectiveBounds(min, max, step);
   return isStart ? bounds.min : bounds.max;
 };
 

@@ -64,8 +64,6 @@ const DefaultSubsetControlsLayout = ({
             setEnd={controls.latitude.handlers.setLatEnd}
             min={controls.latitude.data.latMin}
             max={controls.latitude.data.latMax}
-            defaultMin={-90}
-            defaultMax={90}
             step={0.1}
             unit="°"
           />
