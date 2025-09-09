@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import useRangeInput from './useRangeInput';
 import {
   dayToDateString,
+  dayToSliderDateString,
   dateToDay,
   extractDateFromString,
 } from '../utils/dateHelpers';
@@ -32,6 +33,15 @@ const formatDateString = (dayNumber, timeMin) => {
   if (dayNumber === null || dayNumber === undefined || !timeMin) return '';
   try {
     return dayToDateString(timeMin, dayNumber);
+  } catch (error) {
+    return '';
+  }
+};
+
+const formatSliderDateString = (dayNumber, timeMin) => {
+  if (dayNumber === null || dayNumber === undefined || !timeMin) return '';
+  try {
+    return dayToSliderDateString(timeMin, dayNumber);
   } catch (error) {
     return '';
   }
@@ -225,11 +235,11 @@ const useDateRangeInput = ({
 
   // Date formatter functions for slider
   const formatSliderLabel = (dayNumber) => {
-    return formatDateString(dayNumber, timeMin);
+    return formatSliderDateString(dayNumber, timeMin);
   };
 
   const formatSliderValueLabel = (dayNumber) => {
-    return formatDateString(dayNumber, timeMin);
+    return formatSliderDateString(dayNumber, timeMin);
   };
 
   return {

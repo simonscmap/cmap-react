@@ -7,6 +7,10 @@ const formatDateString = (year, month, day) => {
   return `${year}-${month}-${day}`;
 };
 
+const formatSliderDateString = (year, month, day) => {
+  return `${year}/${month}/${day}`;
+};
+
 // :: Date -> DateString
 export const dateToDateString = (date) => {
   let value = new Date(date);
@@ -91,6 +95,29 @@ export const dayToDateString = (min, days) => {
   let fullYear = value.getFullYear();
 
   return formatDateString(fullYear, month, day);
+};
+
+// starting with a min date, return a slider-formatted string representation
+// of the date N days later
+// :: Date -> Days Int -> Date String
+// Note: a Date String is in the format "yyyy/mm/dd" for sliders
+export const dayToSliderDateString = (min, days) => {
+  if (!min) {
+    console.error('dayToSliderDateString received no value for min');
+  }
+  let value = new Date(min);
+
+  value.setDate(value.getDate() + days);
+
+  let month = value.getMonth() + 1;
+  month = month > 9 ? month : '0' + month;
+
+  let day = value.getDate();
+  day = day > 9 ? day : '0' + day;
+
+  let fullYear = value.getFullYear();
+
+  return formatSliderDateString(fullYear, month, day);
 };
 
 export const getInitialRangeValues = (dataset) => {
