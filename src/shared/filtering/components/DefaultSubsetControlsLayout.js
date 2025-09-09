@@ -4,8 +4,6 @@ import { Collapse } from '@material-ui/core';
 import MonthlyDateSubsetControl from './controls/MonthlyDateSubsetControl';
 import DailyDateSubsetControl from './controls/DailyDateSubsetControl';
 import RangeSubsetControl from './controls/RangeSubsetControl';
-import LongitudeSubsetControl from './controls/LongitudeSubsetControl';
-import DepthSubsetControl from './controls/DepthSubsetControl';
 import ToggleWithHelp from '../../components/ToggleWithHelp';
 import styles from '../styles/DefaultSubsetControlsLayoutStyles';
 
@@ -67,25 +65,27 @@ const DefaultSubsetControlsLayout = ({
             step={0.1}
             unit="°"
           />
-          <LongitudeSubsetControl
-            lonMin={controls.longitude.data.lonMin}
-            lonMax={controls.longitude.data.lonMax}
-            setLonStart={controls.longitude.handlers.setLonStart}
-            setLonEnd={controls.longitude.handlers.setLonEnd}
-            subsetState={{
-              lonStart: controls.longitude.data.lonStart,
-              lonEnd: controls.longitude.data.lonEnd,
-            }}
+          <RangeSubsetControl
+            title="Longitude[°]"
+            start={controls.longitude.data.lonStart}
+            end={controls.longitude.data.lonEnd}
+            setStart={controls.longitude.handlers.setLonStart}
+            setEnd={controls.longitude.handlers.setLonEnd}
+            min={controls.longitude.data.lonMin}
+            max={controls.longitude.data.lonMax}
+            step={0.1}
+            unit="°"
           />
-          <DepthSubsetControl
-            depthMin={controls.depth.data.depthMin}
-            depthMax={controls.depth.data.depthMax}
-            setDepthStart={controls.depth.handlers.setDepthStart}
-            setDepthEnd={controls.depth.handlers.setDepthEnd}
-            subsetState={{
-              depthStart: controls.depth.data.depthStart,
-              depthEnd: controls.depth.data.depthEnd,
-            }}
+          <RangeSubsetControl
+            title="Depth[m]"
+            start={controls.depth.data.depthStart}
+            end={controls.depth.data.depthEnd}
+            setStart={controls.depth.handlers.setDepthStart}
+            setEnd={controls.depth.handlers.setDepthEnd}
+            min={controls.depth.data.depthMin}
+            max={controls.depth.data.depthMax}
+            step={1}
+            unit="m"
           />
         </div>
       </Collapse>
