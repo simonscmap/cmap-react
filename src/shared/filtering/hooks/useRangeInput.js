@@ -175,6 +175,9 @@ const useRangeInput = ({
     endMessage,
     handleSlider,
     handleSliderCommit,
+    // For slider display - use preview values during drag, canonical values otherwise
+    sliderStart: sliderPreviewStart !== null ? sliderPreviewStart : start,
+    sliderEnd: sliderPreviewEnd !== null ? sliderPreviewEnd : end,
   };
 };
 

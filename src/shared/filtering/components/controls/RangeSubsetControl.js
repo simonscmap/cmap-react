@@ -35,6 +35,8 @@ const RangeSubsetControl = ({
     endMessage,
     handleSlider,
     handleSliderCommit,
+    sliderStart,
+    sliderEnd,
   } = useRangeInput({
     start,
     end,
@@ -85,8 +87,8 @@ const RangeSubsetControl = ({
       <RangeSlider
         min={min}
         max={max}
-        start={start}
-        end={end}
+        start={sliderStart}
+        end={sliderEnd}
         handleSlider={handleSlider}
         handleSliderCommit={handleSliderCommit}
         step={step}
