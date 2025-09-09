@@ -2,7 +2,7 @@ import React from 'react';
 import { Collapse } from '@material-ui/core';
 
 import MonthlyDateSubsetControl from './controls/MonthlyDateSubsetControl';
-import DailyDateSubsetControl from './controls/DailyDateSubsetControl';
+import DateRangeControl from './controls/DateRangeControl';
 import RangeSubsetControl from './controls/RangeSubsetControl';
 import ToggleWithHelp from '../../components/ToggleWithHelp';
 import styles from '../styles/DefaultSubsetControlsLayoutStyles';
@@ -37,21 +37,15 @@ const DefaultSubsetControlsLayout = ({
               }}
             />
           ) : (
-            <DailyDateSubsetControl
+            <DateRangeControl
+              title="Date"
+              start={controls.date.data.timeStart}
+              end={controls.date.data.timeEnd}
+              setStart={controls.date.handlers.setTimeStart}
+              setEnd={controls.date.handlers.setTimeEnd}
+              min={0}
+              max={controls.date.data.maxDays}
               timeMin={controls.date.data.timeMin}
-              timeMax={controls.date.data.timeMax}
-              setTimeStart={controls.date.handlers.setTimeStart}
-              setTimeEnd={controls.date.handlers.setTimeEnd}
-              subsetState={{
-                timeStart: controls.date.data.timeStart,
-                timeEnd: controls.date.data.timeEnd,
-                maxDays: controls.date.data.maxDays,
-              }}
-              setInvalidFlag={controls.date.setInvalidFlag}
-              handleSetStartDate={controls.date.handlers.handleSetStartDate}
-              handleSetEndDate={controls.date.handlers.handleSetEndDate}
-              validTimeMin={controls.date.validation.validTimeMin}
-              validTimeMax={controls.date.validation.validTimeMax}
             />
           )}
           <RangeSubsetControl
