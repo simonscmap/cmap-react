@@ -85,7 +85,7 @@ const RangeDateInput = ({
             className={`date-picker-container ${validationMessage ? 'error' : ''}`}
           >
             <DatePicker
-              shouldOpenCalendar={() => true} // Allow calendar to open
+              shouldOpenCalendar={() => false}
               calendarIcon={null}
               clearIcon={null}
               value={currentDate}
