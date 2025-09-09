@@ -8,8 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - `npm start` - Start development server (without Sentry)
 - `npm run start:sentry` - Start development server with Sentry enabled
-- `npm test` - Run all tests
-- `npm run test <file>` - Run specific test file (e.g., `npm run test src/Tests/Utility/objectUtils.test.js`)
+- `npm test` - Legacy test command (not used - see Testing section below)
 - `npm run build` - Build for production (generates buildInfo.json and moves index.html to app.html)
 - `npm run lint` - Run ESLint on src directory
 
@@ -75,3 +74,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Uses lazy loading for route components to optimize bundle size
 - Custom build process that renames index.html to app.html
 - Material-UI theming system with custom theme configuration
+
+## Testing
+
+**This project uses manual testing only. Do not create or suggest unit tests, integration tests, or automated tests of any kind.** All features and functionality are validated through manual testing in the browser.
