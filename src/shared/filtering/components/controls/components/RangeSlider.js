@@ -25,6 +25,7 @@ const RangeSlider = ({
       ]}
       onChange={handleSlider}
       onChangeCommitted={handleSliderCommit}
+      valueLabelDisplay="auto"
       classes={{
         valueLabel: styles.sliderValueLabel,
         thumb: styles.sliderThumb,
