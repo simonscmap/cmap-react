@@ -3,7 +3,7 @@ import { Collapse } from '@material-ui/core';
 
 import MonthlyDateSubsetControl from './controls/MonthlyDateSubsetControl';
 import DailyDateSubsetControl from './controls/DailyDateSubsetControl';
-import LatitudeSubsetControl from './controls/LatitudeSubsetControl';
+import RangeSubsetControl from './controls/RangeSubsetControl';
 import LongitudeSubsetControl from './controls/LongitudeSubsetControl';
 import DepthSubsetControl from './controls/DepthSubsetControl';
 import ToggleWithHelp from '../../components/ToggleWithHelp';
@@ -56,15 +56,18 @@ const DefaultSubsetControlsLayout = ({
               validTimeMax={controls.date.validation.validTimeMax}
             />
           )}
-          <LatitudeSubsetControl
-            latMin={controls.latitude.data.latMin}
-            latMax={controls.latitude.data.latMax}
-            setLatStart={controls.latitude.handlers.setLatStart}
-            setLatEnd={controls.latitude.handlers.setLatEnd}
-            subsetState={{
-              latStart: controls.latitude.data.latStart,
-              latEnd: controls.latitude.data.latEnd,
-            }}
+          <RangeSubsetControl
+            title="Latitude[°]"
+            start={controls.latitude.data.latStart}
+            end={controls.latitude.data.latEnd}
+            setStart={controls.latitude.handlers.setLatStart}
+            setEnd={controls.latitude.handlers.setLatEnd}
+            min={controls.latitude.data.latMin}
+            max={controls.latitude.data.latMax}
+            defaultMin={-90}
+            defaultMax={90}
+            step={0.1}
+            unit="°"
           />
           <LongitudeSubsetControl
             lonMin={controls.longitude.data.lonMin}
