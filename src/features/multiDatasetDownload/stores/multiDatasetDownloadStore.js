@@ -28,12 +28,12 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     set({ selectedDatasets: newSelectedDatasets });
   },
 
-  selectAll: (getRowCountStore) => {
-    const { datasetsMetadata, selectedDatasets: currentSelections } = get();
+  selectAll: (getRowCountStore, filteredDatasets) => {
+    const { selectedDatasets: currentSelections } = get();
 
     if (!getRowCountStore) {
       const allDatasetNames = new Set(
-        datasetsMetadata.map((dataset) => dataset.Dataset_Name),
+        filteredDatasets.map((dataset) => dataset.Dataset_Name),
       );
       set({ selectedDatasets: allDatasetNames });
       return { addedCount: allDatasetNames.size };
@@ -49,7 +49,7 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
       Array.from(selectedDatasets),
     );
 
-    for (const dataset of datasetsMetadata) {
+    for (const dataset of filteredDatasets) {
       const datasetName = dataset.Dataset_Name;
 
       if (selectedDatasets.has(datasetName)) {
@@ -77,8 +77,22 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     return { addedCount };
   },
 
-  clearSelections: () => {
-    set({ selectedDatasets: new Set() });
+  clearSelections: (filteredDatasets) => {
+    const { selectedDatasets } = get();
+
+    if (!filteredDatasets) {
+      // Clear all selections if no filter provided
+      set({ selectedDatasets: new Set() });
+      return;
+    }
+
+    // Clear only filtered datasets from selections
+    const newSelectedDatasets = new Set(selectedDatasets);
+    filteredDatasets.forEach((dataset) => {
+      newSelectedDatasets.delete(dataset.Dataset_Name);
+    });
+
+    set({ selectedDatasets: newSelectedDatasets });
   },
 
   fetchDatasetsMetadata: async (datasetShortNames) => {
@@ -136,14 +150,16 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     return selectedDatasets.has(datasetName);
   },
 
-  getSelectAllCheckboxState: () => {
-    const { selectedDatasets, datasetsMetadata } = get();
-    const totalCount = datasetsMetadata.length;
-    const selectedCount = selectedDatasets.size;
+  getSelectAllCheckboxState: (filteredDatasets) => {
+    const { selectedDatasets } = get();
+    const totalCount = filteredDatasets.length;
+    const selectedInFilteredCount = filteredDatasets.filter((dataset) =>
+      selectedDatasets.has(dataset.Dataset_Name),
+    ).length;
 
-    if (selectedCount === 0) {
+    if (selectedInFilteredCount === 0) {
       return { checked: false, indeterminate: false };
-    } else if (selectedCount === totalCount) {
+    } else if (selectedInFilteredCount === totalCount) {
       return { checked: true, indeterminate: false };
     } else {
       return { checked: false, indeterminate: true };

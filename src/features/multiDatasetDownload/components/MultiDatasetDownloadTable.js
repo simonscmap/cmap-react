@@ -94,7 +94,8 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
 
   const handleSelectAllToggle = (event) => {
     event.stopPropagation();
-    const { checked, indeterminate } = getSelectAllCheckboxState();
+    const { checked, indeterminate } =
+      getSelectAllCheckboxState(datasetsMetadata);
 
     const getRowCountStoreConfig = () => ({
       getThresholdConfig: getThresholdConfig,
@@ -107,16 +108,19 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
       (indeterminate &&
         (() => {
           // Try to add more datasets - if none can be added (at threshold), clear all
-          const selectionResult = selectAll(getRowCountStoreConfig);
+          const selectionResult = selectAll(
+            getRowCountStoreConfig,
+            datasetsMetadata,
+          );
           const noNewDatasetsAdded =
             selectionResult && selectionResult.addedCount === 0;
           return noNewDatasetsAdded;
         })());
 
     if (shouldClear) {
-      clearSelections();
+      clearSelections(datasetsMetadata);
     } else {
-      selectAll(getRowCountStoreConfig);
+      selectAll(getRowCountStoreConfig, datasetsMetadata);
     }
   };
 
@@ -189,7 +193,7 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
           <TableRow>
             <TableCell width={50} style={styles.headerCellStyle}>
               <Checkbox
-                {...getSelectAllCheckboxState()}
+                {...getSelectAllCheckboxState(datasetsMetadata)}
                 onChange={handleSelectAllToggle}
                 color="primary"
                 size="small"
