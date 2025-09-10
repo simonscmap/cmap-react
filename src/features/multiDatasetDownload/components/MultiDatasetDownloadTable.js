@@ -325,7 +325,9 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
                   </TableCell>
                   <TableCell style={styles.bodyCellStyle}>
                     <Box display="flex" flexWrap="wrap" style={{ gap: '3px' }}>
-                      {datasetMetadata.Programs?.map((program, index) => (
+                      {datasetMetadata.Programs?.filter(
+                        (program) => program !== 'NA',
+                      ).map((program, index) => (
                         <Chip
                           key={index}
                           label={program}
