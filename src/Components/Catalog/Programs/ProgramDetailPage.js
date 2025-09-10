@@ -1,8 +1,8 @@
 import { makeStyles } from '@material-ui/core/styles';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import Page2 from '../../Common/Page2';
-import { Grid } from '@material-ui/core';
+import { Grid, Tabs, Tab } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
 import { useDispatch, useSelector } from 'react-redux';
 import { SectionHeader } from './Proto';
@@ -73,6 +73,20 @@ const useStyles = makeStyles(() => ({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  tabs: {
+    marginTop: '32px',
+    '& .MuiTabs-indicator': {
+      backgroundColor: '#7CB342',
+    },
+    '& .MuiTab-root': {
+      fontSize: '1.2rem',
+      paddingLeft: '16px',
+      paddingRight: '16px',
+    },
+  },
+  tabContent: {
+    marginTop: '24px',
+  },
 }));
 
 const ProgramDetail = (props) => {
@@ -96,6 +110,13 @@ const ProgramDetail = (props) => {
 
   // Console log the sorted dataset names
   const sortedDatasetNames = getDatasetNamesSorted(program?.datasets);
+
+  // Tab state
+  const [tabValue, setTabValue] = useState(0);
+
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
+  };
 
   useEffect(() => {
     // navigate action
@@ -144,23 +165,42 @@ const ProgramDetail = (props) => {
             downSampleWarning={true}
           />
         </Grid>
-        <Grid item xs={12} md={12} lg={5}>
-          <div className={cl.verticalPlaceholder}>
-            <DatasetList2 />
+        <Grid item xs={12}>
+          <Tabs value={tabValue} onChange={handleTabChange} className={cl.tabs}>
+            <Tab label="Visualization" />
+            <Tab label="Download" />
+          </Tabs>
+
+          <div
+            className={cl.tabContent}
+            style={{ display: tabValue === 0 ? 'block' : 'none' }}
+          >
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={12} lg={5}>
+                <div className={cl.verticalPlaceholder}>
+                  <DatasetList2 />
+                </div>
+              </Grid>
+              <Grid item xs={12} md={12} lg={7}>
+                <div className={cl.visVerticalPlaceholder}>
+                  <SectionHeader title={'Sample Visualization'} />
+                  <SampleVisualization />
+                </div>
+              </Grid>
+            </Grid>
           </div>
-        </Grid>
-        {sortedDatasetNames.length > 0 && (
-          <Grid item xs={12}>
-            <MultiDatasetDownloadContainer
-              datasetShortNames={sortedDatasetNames}
-            />
-          </Grid>
-        )}
-        <Grid item xs={12} md={12} lg={7}>
-          <div className={cl.visVerticalPlaceholder}>
-            <SectionHeader title={'Sample Visualization'} />
-            <SampleVisualization />
-          </div>
+
+          {sortedDatasetNames.length > 0 && (
+            <div
+              className={cl.tabContent}
+              style={{ display: tabValue === 1 ? 'block' : 'none' }}
+            >
+              <SectionHeader title={'Multi-Dataset Download'} />
+              <MultiDatasetDownloadContainer
+                datasetShortNames={sortedDatasetNames}
+              />
+            </div>
+          )}
         </Grid>
       </Grid>
     </Page2>

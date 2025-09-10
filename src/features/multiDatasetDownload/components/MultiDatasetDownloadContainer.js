@@ -121,10 +121,6 @@ const MultiDatasetDownloadContainerInner = ({ datasetsMetadata }) => {
     <Box
       sx={{ maxWidth: '100vw', overflow: 'hidden', boxSizing: 'border-box' }}
     >
-      <Typography variant="h6" gutterBottom>
-        Multi-Dataset Download
-      </Typography>
-
       <Box mb={3} p={2}>
         <SubsetControls
           setInvalidFlag={setInvalidFlag}
