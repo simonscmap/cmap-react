@@ -13,6 +13,7 @@ import {
   CircularProgress,
   Chip,
 } from '@material-ui/core';
+import { useHistory } from 'react-router-dom';
 
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
 import useRowCountStore from '../stores/useRowCountStore';
@@ -62,6 +63,7 @@ const styles = {
 };
 
 const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
+  const history = useHistory();
   const {
     isDatasetSelected,
     toggleDatasetSelection,
@@ -86,6 +88,11 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
   const handleToggle = (datasetName) => (event) => {
     event.stopPropagation();
     toggleDatasetSelection(datasetName);
+  };
+
+  const handleProgramClick = (program) => (event) => {
+    event.stopPropagation();
+    history.push(`/programs/${program}`);
   };
 
   const handleSelectAllToggle = (event) => {
@@ -323,11 +330,14 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
                           key={index}
                           label={program}
                           size="small"
+                          clickable
+                          onClick={handleProgramClick(program)}
                           style={{
                             backgroundColor: '#8bc34a',
                             color: '#000000',
                             fontSize: '0.75rem',
                             height: '20px',
+                            cursor: 'pointer',
                           }}
                         />
                       )) || (
