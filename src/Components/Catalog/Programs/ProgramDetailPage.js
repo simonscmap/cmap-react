@@ -1,8 +1,8 @@
 import { makeStyles } from '@material-ui/core/styles';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import Page2 from '../../Common/Page2';
-import { Grid } from '@material-ui/core';
+import { Grid, Tabs, Tab, Box } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
 import { useDispatch, useSelector } from 'react-redux';
 import { SectionHeader } from './Proto';
@@ -73,6 +73,11 @@ const useStyles = makeStyles(() => ({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  tabs: {
+    '& .MuiTabs-indicator': {
+      backgroundColor: '#7CB342', // Green color for tab indicator matching image
+    },
+  },
 }));
 
 const ProgramDetail = (props) => {
@@ -96,6 +101,13 @@ const ProgramDetail = (props) => {
 
   // Console log the sorted dataset names
   const sortedDatasetNames = getDatasetNamesSorted(program?.datasets);
+
+  // Tab state
+  const [tabValue, setTabValue] = useState(0);
+
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
+  };
 
   useEffect(() => {
     // navigate action
@@ -144,24 +156,38 @@ const ProgramDetail = (props) => {
             downSampleWarning={true}
           />
         </Grid>
-        <Grid item xs={12} md={12} lg={5}>
-          <div className={cl.verticalPlaceholder}>
-            <DatasetList2 />
-          </div>
+        <Grid item xs={12}>
+          <Tabs value={tabValue} onChange={handleTabChange} className={cl.tabs}>
+            <Tab label="Visualization" />
+            <Tab label="Download" />
+          </Tabs>
+
+          {tabValue === 0 && (
+            <Box pt={2}>
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={12} lg={5}>
+                  <div className={cl.verticalPlaceholder}>
+                    <DatasetList2 />
+                  </div>
+                </Grid>
+                <Grid item xs={12} md={12} lg={7}>
+                  <div className={cl.visVerticalPlaceholder}>
+                    <SectionHeader title={'Sample Visualization'} />
+                    <SampleVisualization />
+                  </div>
+                </Grid>
+              </Grid>
+            </Box>
+          )}
+
+          {tabValue === 1 && sortedDatasetNames.length > 0 && (
+            <Box pt={2}>
+              <MultiDatasetDownloadContainer
+                datasetShortNames={sortedDatasetNames}
+              />
+            </Box>
+          )}
         </Grid>
-        <Grid item xs={12} md={12} lg={7}>
-          <div className={cl.visVerticalPlaceholder}>
-            <SectionHeader title={'Sample Visualization'} />
-            <SampleVisualization />
-          </div>
-        </Grid>
-        {sortedDatasetNames.length > 0 && (
-          <Grid item xs={12}>
-            <MultiDatasetDownloadContainer
-              datasetShortNames={sortedDatasetNames}
-            />
-          </Grid>
-        )}
       </Grid>
     </Page2>
   );
