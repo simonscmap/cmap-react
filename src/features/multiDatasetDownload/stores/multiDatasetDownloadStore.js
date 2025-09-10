@@ -119,10 +119,15 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     try {
       set({ isDownloading: true });
 
-      await bulkDownloadAPI.downloadData(
+      const result = await bulkDownloadAPI.downloadData(
         Array.from(selectedDatasets),
         filters.filterValues,
       );
+
+      // safeApi returns errors as values instead of throwing them
+      if (result instanceof Error) {
+        throw result;
+      }
     } catch (error) {
       console.error('Download failed:', error);
       throw error;

@@ -7,7 +7,7 @@ import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
 import useRowCountStore from '../stores/useRowCountStore';
 import { transformSubsetFiltersForAPI } from '../../../shared/filtering/utils/filterTransformUtils';
-import { showLoginDialog } from '../../../Redux/actions/ui';
+import { showLoginDialog, snackbarOpen } from '../../../Redux/actions/ui';
 
 const useStyles = makeStyles((theme) => ({
   downloadButton: {
@@ -58,7 +58,11 @@ const DownloadButton = ({ subsetFiltering }) => {
     try {
       await downloadDatasets(subsetFiltering);
     } catch (error) {
-      // TODO: Add proper error handling UI in future story
+      if (error.status === 413) {
+        dispatch(snackbarOpen(error.message));
+      } else {
+        console.error('Download failed:', error);
+      }
     }
   };
 

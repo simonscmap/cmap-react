@@ -79,10 +79,6 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
     resetStore: resetRowCountStore,
     getThresholdConfig,
   } = useRowCountStore();
-  console.log(
-    '🐛🐛🐛 MultiDatasetDownloadTable.js:79 datasetMetadata:',
-    datasetsMetadata,
-  );
   const [hoveredRow, setHoveredRow] = React.useState(null);
 
   const handleToggle = (datasetName) => (event) => {
