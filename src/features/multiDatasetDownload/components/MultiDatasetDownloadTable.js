@@ -96,25 +96,24 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
     event.stopPropagation();
     const { checked, indeterminate } = getSelectAllCheckboxState();
 
-    if (checked) {
-      clearSelections();
-    } else if (indeterminate) {
-      // Try to add more datasets, if none are added, clear all selections
-      const result = selectAll(() => ({
-        getThresholdConfig: getThresholdConfig,
-        getEffectiveRowCount: getEffectiveRowCount,
-        getTotalSelectedRows: getTotalSelectedRows,
-      }));
+    const getRowCountStoreConfig = () => ({
+      getThresholdConfig: getThresholdConfig,
+      getEffectiveRowCount: getEffectiveRowCount,
+      getTotalSelectedRows: getTotalSelectedRows,
+    });
 
-      if (result && result.addedCount === 0) {
-        clearSelections();
-      }
+    const shouldClear =
+      checked ||
+      (indeterminate &&
+        (() => {
+          const result = selectAll(getRowCountStoreConfig);
+          return result && result.addedCount === 0;
+        })());
+
+    if (shouldClear) {
+      clearSelections();
     } else {
-      selectAll(() => ({
-        getThresholdConfig: getThresholdConfig,
-        getEffectiveRowCount: getEffectiveRowCount,
-        getTotalSelectedRows: getTotalSelectedRows,
-      }));
+      selectAll(getRowCountStoreConfig);
     }
   };
 
