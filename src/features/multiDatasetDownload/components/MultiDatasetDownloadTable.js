@@ -11,7 +11,9 @@ import {
   Typography,
   Box,
   CircularProgress,
+  Chip,
 } from '@material-ui/core';
+import { useHistory } from 'react-router-dom';
 
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
 import useRowCountStore from '../stores/useRowCountStore';
@@ -61,6 +63,7 @@ const styles = {
 };
 
 const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
+  const history = useHistory();
   const {
     isDatasetSelected,
     toggleDatasetSelection,
@@ -85,6 +88,11 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
   const handleToggle = (datasetName) => (event) => {
     event.stopPropagation();
     toggleDatasetSelection(datasetName);
+  };
+
+  const handleProgramClick = (program) => (event) => {
+    event.stopPropagation();
+    history.push(`/programs/${program}`);
   };
 
   const handleSelectAllToggle = (event) => {
@@ -224,13 +232,16 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
             <TableCell width={80} style={styles.headerCellStyle}>
               Depth Max
             </TableCell>
+            <TableCell width={120} style={styles.headerCellStyle}>
+              Programs
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {!datasetsMetadata || datasetsMetadata.length === 0 ? (
             <TableRow>
               <TableCell
-                colSpan={11}
+                colSpan={12}
                 style={{ ...styles.bodyCellStyle, textAlign: 'center' }}
               >
                 <Typography variant="body1" color="textSecondary">
@@ -311,6 +322,32 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
                     <Typography variant="body2" noWrap>
                       {formatDepth(datasetMetadata.Depth_Max)}
                     </Typography>
+                  </TableCell>
+                  <TableCell style={styles.bodyCellStyle}>
+                    <Box display="flex" flexWrap="wrap" style={{ gap: '3px' }}>
+                      {datasetMetadata.Programs?.filter(
+                        (program) => program !== 'NA',
+                      ).map((program, index) => (
+                        <Chip
+                          key={index}
+                          label={program}
+                          size="small"
+                          clickable
+                          onClick={handleProgramClick(program)}
+                          style={{
+                            backgroundColor: '#8bc34a',
+                            color: '#000000',
+                            fontSize: '0.75rem',
+                            height: '20px',
+                            cursor: 'pointer',
+                          }}
+                        />
+                      )) || (
+                        <Typography variant="body2" noWrap>
+                          N/A
+                        </Typography>
+                      )}
+                    </Box>
                   </TableCell>
                 </TableRow>
               );
