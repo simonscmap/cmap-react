@@ -11,6 +11,7 @@ import {
   Typography,
   Box,
   CircularProgress,
+  Chip,
 } from '@material-ui/core';
 
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
@@ -224,13 +225,16 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
             <TableCell width={80} style={styles.headerCellStyle}>
               Depth Max
             </TableCell>
+            <TableCell width={120} style={styles.headerCellStyle}>
+              Programs
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {!datasetsMetadata || datasetsMetadata.length === 0 ? (
             <TableRow>
               <TableCell
-                colSpan={11}
+                colSpan={12}
                 style={{ ...styles.bodyCellStyle, textAlign: 'center' }}
               >
                 <Typography variant="body1" color="textSecondary">
@@ -311,6 +315,28 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
                     <Typography variant="body2" noWrap>
                       {formatDepth(datasetMetadata.Depth_Max)}
                     </Typography>
+                  </TableCell>
+                  <TableCell style={styles.bodyCellStyle}>
+                    <Box display="flex" flexWrap="wrap" gap={0.5}>
+                      {datasetMetadata.Programs?.map((program, index) => (
+                        <Chip
+                          key={index}
+                          label={program}
+                          size="small"
+                          variant="outlined"
+                          style={{
+                            color: '#ffffff',
+                            borderColor: '#8bc34a',
+                            fontSize: '0.75rem',
+                            height: '20px',
+                          }}
+                        />
+                      )) || (
+                        <Typography variant="body2" noWrap>
+                          N/A
+                        </Typography>
+                      )}
+                    </Box>
                   </TableCell>
                 </TableRow>
               );
