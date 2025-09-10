@@ -99,20 +99,15 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
     if (checked) {
       clearSelections();
     } else if (indeterminate) {
-      // Check if current selection is at or over the limit
-      const selectedDatasetNames = datasetsMetadata
-        .filter((dataset) => isDatasetSelected(dataset.Dataset_Name))
-        .map((dataset) => dataset.Dataset_Name);
+      // Try to add more datasets, if none are added, clear all selections
+      const result = selectAll(() => ({
+        getThresholdConfig: getThresholdConfig,
+        getEffectiveRowCount: getEffectiveRowCount,
+        getTotalSelectedRows: getTotalSelectedRows,
+      }));
 
-      const { isOverThreshold } = useRowCountStore.getState();
-      if (isOverThreshold(selectedDatasetNames)) {
+      if (result && result.addedCount === 0) {
         clearSelections();
-      } else {
-        selectAll(() => ({
-          getThresholdConfig: getThresholdConfig,
-          getEffectiveRowCount: getEffectiveRowCount,
-          getTotalSelectedRows: getTotalSelectedRows,
-        }));
       }
     } else {
       selectAll(() => ({

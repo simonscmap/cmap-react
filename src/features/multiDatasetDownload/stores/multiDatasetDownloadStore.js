@@ -36,13 +36,14 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
         datasetsMetadata.map((dataset) => dataset.Dataset_Name),
       );
       set({ selectedDatasets: allDatasetNames });
-      return;
+      return { addedCount: allDatasetNames.size };
     }
 
     const rowCountStore = getRowCountStore();
     const { maxRowThreshold } = rowCountStore.getThresholdConfig();
 
     const selectedDatasets = new Set(currentSelections);
+    const initialCount = selectedDatasets.size;
 
     let currentTotal = rowCountStore.getTotalSelectedRows(
       Array.from(selectedDatasets),
@@ -71,7 +72,9 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
       }
     }
 
+    const addedCount = selectedDatasets.size - initialCount;
     set({ selectedDatasets });
+    return { addedCount };
   },
 
   clearSelections: () => {
