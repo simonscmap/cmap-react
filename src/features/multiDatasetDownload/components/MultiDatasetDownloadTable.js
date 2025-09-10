@@ -317,16 +317,15 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
                     </Typography>
                   </TableCell>
                   <TableCell style={styles.bodyCellStyle}>
-                    <Box display="flex" flexWrap="wrap" gap={0.5}>
+                    <Box display="flex" flexWrap="wrap" style={{ gap: '3px' }}>
                       {datasetMetadata.Programs?.map((program, index) => (
                         <Chip
                           key={index}
                           label={program}
                           size="small"
-                          variant="outlined"
                           style={{
-                            color: '#ffffff',
-                            borderColor: '#8bc34a',
+                            backgroundColor: '#8bc34a',
+                            color: '#000000',
                             fontSize: '0.75rem',
                             height: '20px',
                           }}
