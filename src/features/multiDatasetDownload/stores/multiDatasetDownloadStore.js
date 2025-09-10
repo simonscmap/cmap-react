@@ -32,7 +32,6 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     const { datasetsMetadata, selectedDatasets: currentSelections } = get();
 
     if (!getRowCountStore) {
-      // Fallback to original behavior if row count store not provided
       const allDatasetNames = new Set(
         datasetsMetadata.map((dataset) => dataset.Dataset_Name),
       );
@@ -43,34 +42,32 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     const rowCountStore = getRowCountStore();
     const { maxRowThreshold } = rowCountStore.getThresholdConfig();
 
-    // Start with existing selections to preserve them
     const selectedDatasets = new Set(currentSelections);
 
-    // Calculate current total from existing selections using existing helper
     let currentTotal = rowCountStore.getTotalSelectedRows(
       Array.from(selectedDatasets),
     );
 
-    // Add datasets sequentially until we exceed the threshold
     for (const dataset of datasetsMetadata) {
       const datasetName = dataset.Dataset_Name;
 
-      // Skip if already selected (preserve existing selections)
       if (selectedDatasets.has(datasetName)) {
         continue;
       }
 
       const rowCount = rowCountStore.getEffectiveRowCount(datasetName);
 
-      selectedDatasets.add(datasetName);
-
       if (rowCount) {
-        currentTotal += rowCount;
+        const potentialTotal = currentTotal + rowCount;
 
-        // Stop adding more datasets after we exceed the threshold
-        if (currentTotal > maxRowThreshold) {
-          break;
+        if (potentialTotal > maxRowThreshold) {
+          continue;
         }
+
+        selectedDatasets.add(datasetName);
+        currentTotal = potentialTotal;
+      } else {
+        selectedDatasets.add(datasetName);
       }
     }
 
