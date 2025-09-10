@@ -142,7 +142,7 @@ const useRowCountStore = create((set, get) => ({
       maxRows * THRESHOLD_CONFIG.warningThreshold,
     );
     const isLoading = state.isAnyRowCountLoading();
-    const isOverThreshold = totalRows > maxRows;
+    const isOverThreshold = state.isOverThreshold(selectedDatasets);
     const isApproachingThreshold =
       totalRows > warningThreshold && !isOverThreshold;
 
