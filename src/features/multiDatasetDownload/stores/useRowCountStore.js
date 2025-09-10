@@ -123,7 +123,8 @@ const useRowCountStore = create((set, get) => ({
 
   isOverThreshold: (selectedDatasets) => {
     const totalRows = get().getTotalSelectedRows(selectedDatasets);
-    return totalRows > THRESHOLD_CONFIG.maxRowThreshold;
+    const datasetCount = selectedDatasets.size || selectedDatasets.length || 0;
+    return totalRows > THRESHOLD_CONFIG.maxRowThreshold && datasetCount > 1;
   },
 
   isAnyRowCountLoading: () => {
