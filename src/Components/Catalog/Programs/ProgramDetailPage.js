@@ -2,7 +2,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import Page2 from '../../Common/Page2';
-import { Grid, Tabs, Tab, Box } from '@material-ui/core';
+import { Grid, Tabs, Tab } from '@material-ui/core';
+import { TabPanel, TabContext } from '@material-ui/lab';
 import Typography from '@material-ui/core/Typography';
 import { useDispatch, useSelector } from 'react-redux';
 import { SectionHeader } from './Proto';
@@ -79,7 +80,7 @@ const useStyles = makeStyles(() => ({
       backgroundColor: '#7CB342',
     },
     '& .MuiTab-root': {
-      fontSize: '1.3rem',
+      fontSize: '1.2rem',
       paddingLeft: '16px',
       paddingRight: '16px',
     },
@@ -163,13 +164,17 @@ const ProgramDetail = (props) => {
           />
         </Grid>
         <Grid item xs={12}>
-          <Tabs value={tabValue} onChange={handleTabChange} className={cl.tabs}>
-            <Tab label="Visualization" />
-            <Tab label="Download" />
-          </Tabs>
+          <TabContext value={tabValue.toString()}>
+            <Tabs
+              value={tabValue}
+              onChange={handleTabChange}
+              className={cl.tabs}
+            >
+              <Tab label="Visualization" />
+              <Tab label="Download" />
+            </Tabs>
 
-          {tabValue === 0 && (
-            <Box pt={2}>
+            <TabPanel value="0">
               <Grid container spacing={3}>
                 <Grid item xs={12} md={12} lg={5}>
                   <div className={cl.verticalPlaceholder}>
@@ -183,17 +188,17 @@ const ProgramDetail = (props) => {
                   </div>
                 </Grid>
               </Grid>
-            </Box>
-          )}
+            </TabPanel>
 
-          {tabValue === 1 && sortedDatasetNames.length > 0 && (
-            <Box pt={2}>
-              <SectionHeader title={'Multi-Dataset Download'} />
-              <MultiDatasetDownloadContainer
-                datasetShortNames={sortedDatasetNames}
-              />
-            </Box>
-          )}
+            {sortedDatasetNames.length > 0 && (
+              <TabPanel value="1">
+                <SectionHeader title={'Multi-Dataset Download'} />
+                <MultiDatasetDownloadContainer
+                  datasetShortNames={sortedDatasetNames}
+                />
+              </TabPanel>
+            )}
+          </TabContext>
         </Grid>
       </Grid>
     </Page2>
