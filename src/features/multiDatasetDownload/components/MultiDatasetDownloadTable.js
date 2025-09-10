@@ -78,6 +78,7 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
     initializeWithDatasets,
     resetStore: resetRowCountStore,
     getThresholdConfig,
+    getTotalSelectedRows,
   } = useRowCountStore();
   const [hoveredRow, setHoveredRow] = React.useState(null);
 
@@ -110,12 +111,14 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
         selectAll(() => ({
           getThresholdConfig: getThresholdConfig,
           getEffectiveRowCount: getEffectiveRowCount,
+          getTotalSelectedRows: getTotalSelectedRows,
         }));
       }
     } else {
       selectAll(() => ({
         getThresholdConfig: getThresholdConfig,
         getEffectiveRowCount: getEffectiveRowCount,
+        getTotalSelectedRows: getTotalSelectedRows,
       }));
     }
   };

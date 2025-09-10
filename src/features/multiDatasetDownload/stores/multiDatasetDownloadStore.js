@@ -46,14 +46,10 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     // Start with existing selections to preserve them
     const selectedDatasets = new Set(currentSelections);
 
-    // Calculate current total from existing selections
-    let currentTotal = 0;
-    for (const datasetName of selectedDatasets) {
-      const rowCount = rowCountStore.getEffectiveRowCount(datasetName);
-      if (rowCount) {
-        currentTotal += rowCount;
-      }
-    }
+    // Calculate current total from existing selections using existing helper
+    let currentTotal = rowCountStore.getTotalSelectedRows(
+      Array.from(selectedDatasets),
+    );
 
     // Add datasets sequentially until we exceed the threshold
     for (const dataset of datasetsMetadata) {
