@@ -145,7 +145,7 @@ const useRowCountStore = create((set, get) => ({
     const isOverThreshold = state.isOverThreshold(selectedDatasets);
     const isApproachingThreshold =
       totalRows > warningThreshold && !isOverThreshold;
-
+    const percentageUsed = maxRows > 0 ? (totalRows / maxRows) * 100 : 0;
     return {
       totalRows,
       maxRows,
@@ -153,7 +153,7 @@ const useRowCountStore = create((set, get) => ({
       isLoading,
       isOverThreshold,
       isApproachingThreshold,
-      percentageUsed: maxRows > 0 ? (totalRows / maxRows) * 100 : 0,
+      percentageUsed,
     };
   },
 
