@@ -74,11 +74,14 @@ const useStyles = makeStyles(() => ({
     alignItems: 'center',
   },
   tabs: {
+    marginTop: '32px',
     '& .MuiTabs-indicator': {
-      backgroundColor: '#7CB342', // Green color for tab indicator matching image
+      backgroundColor: '#7CB342',
     },
     '& .MuiTab-root': {
-      fontSize: '1.3rem', // Increased from default (text-lg equivalent)
+      fontSize: '1.3rem',
+      paddingLeft: '16px',
+      paddingRight: '16px',
     },
   },
 }));

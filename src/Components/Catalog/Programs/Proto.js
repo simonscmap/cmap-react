@@ -64,7 +64,7 @@ const useAsyncDeps = (deps) => {
 // ~~~~~~~~~~ HEADER ~~~~~~~~~~~
 const useHeaderStyles = makeStyles((theme) => ({
   sectionHeader: {
-    color: 'white',
+    color: 'rgba(255, 255, 255, 0.7)',
     margin: '16px 0 16px 0',
   },
 }));
