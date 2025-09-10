@@ -69,24 +69,6 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     set({ selectedDatasets: new Set() });
   },
 
-  setDatasetsMetadata: (datasetsMetadata) => {
-    set({ datasetsMetadata });
-  },
-
-  initializeDatasetsMetadata: (datasetsMetadata) => {
-    if (datasetsMetadata && datasetsMetadata.length > 0) {
-      set({ datasetsMetadata });
-    }
-  },
-
-  setFilters: (filters) => {
-    set({ filters });
-  },
-
-  setIsDownloading: (isDownloading) => {
-    set({ isDownloading });
-  },
-
   fetchDatasetsMetadata: async (datasetShortNames) => {
     if (!datasetShortNames || datasetShortNames.length === 0) {
       return;
@@ -137,21 +119,9 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
   },
 
   // Computed getters
-  getSelectedDatasetCount: () => {
-    const { selectedDatasets } = get();
-    return selectedDatasets.size;
-  },
-
   isDatasetSelected: (datasetName) => {
     const { selectedDatasets } = get();
     return selectedDatasets.has(datasetName);
-  },
-
-  getSelectedDatasets: () => {
-    const { selectedDatasets, datasetsMetadata } = get();
-    return datasetsMetadata.filter((dataset) =>
-      selectedDatasets.has(dataset.Dataset_Name),
-    );
   },
 
   getSelectAllCheckboxState: () => {
