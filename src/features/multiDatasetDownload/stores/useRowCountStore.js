@@ -123,7 +123,8 @@ const useRowCountStore = create((set, get) => ({
 
   isOverThreshold: (selectedDatasets) => {
     const totalRows = get().getTotalSelectedRows(selectedDatasets);
-    return totalRows > THRESHOLD_CONFIG.maxRowThreshold;
+    const datasetCount = selectedDatasets.size || selectedDatasets.length || 0;
+    return totalRows > THRESHOLD_CONFIG.maxRowThreshold && datasetCount > 1;
   },
 
   isAnyRowCountLoading: () => {
@@ -137,22 +138,13 @@ const useRowCountStore = create((set, get) => ({
     const state = get();
     const totalRows = state.getTotalSelectedRows(selectedDatasets);
     const maxRows = THRESHOLD_CONFIG.maxRowThreshold;
-    const warningThreshold = Math.floor(
-      maxRows * THRESHOLD_CONFIG.warningThreshold,
-    );
     const isLoading = state.isAnyRowCountLoading();
-    const isOverThreshold = totalRows > maxRows;
-    const isApproachingThreshold =
-      totalRows > warningThreshold && !isOverThreshold;
-
+    const isOverThreshold = state.isOverThreshold(selectedDatasets);
     return {
       totalRows,
       maxRows,
-      warningThreshold,
       isLoading,
       isOverThreshold,
-      isApproachingThreshold,
-      percentageUsed: maxRows > 0 ? (totalRows / maxRows) * 100 : 0,
     };
   },
 

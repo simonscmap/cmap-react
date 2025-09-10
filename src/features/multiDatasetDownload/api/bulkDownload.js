@@ -86,6 +86,13 @@ bulkDownloadAPI.downloadData = async (datasetShortNames, filters = null) => {
   });
 
   if (!response.ok) {
+    if (response.status === 413) {
+      const error = new Error(
+        'Request too large. Please apply filters to reduce the size of your download.',
+      );
+      error.status = 413;
+      throw error;
+    }
     throw new Error(
       `Download failed: ${response.status} ${response.statusText}`,
     );
