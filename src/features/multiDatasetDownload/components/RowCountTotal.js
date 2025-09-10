@@ -29,17 +29,10 @@ const RowCountTotal = () => {
   const { getThresholdStatus } = useRowCountStore();
 
   const thresholdStatus = getThresholdStatus(selectedDatasets);
-  const {
-    totalRows,
-    maxRows,
-    isLoading,
-    isOverThreshold,
-    isApproachingThreshold,
-  } = thresholdStatus;
+  const { totalRows, maxRows, isLoading, isOverThreshold } = thresholdStatus;
 
   const getWarningColor = () => {
     if (isOverThreshold) return '#f44336'; // Red
-    if (isApproachingThreshold) return '#ff9800'; // Orange
     return null;
   };
 
@@ -48,9 +41,7 @@ const RowCountTotal = () => {
       const excessRows = totalRows - maxRows;
       return `Selection exceeds limit by ${excessRows.toLocaleString()} rows`;
     }
-    if (isApproachingThreshold) {
-      return 'Approaching row count limit';
-    }
+
     return null;
   };
 
