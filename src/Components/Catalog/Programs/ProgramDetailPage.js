@@ -149,6 +149,12 @@ const ProgramDetail = (props) => {
             <DatasetList2 />
           </div>
         </Grid>
+        <Grid item xs={12} md={12} lg={7}>
+          <div className={cl.visVerticalPlaceholder}>
+            <SectionHeader title={'Sample Visualization'} />
+            <SampleVisualization />
+          </div>
+        </Grid>
         {sortedDatasetNames.length > 0 && (
           <Grid item xs={12}>
             <MultiDatasetDownloadContainer
@@ -156,12 +162,6 @@ const ProgramDetail = (props) => {
             />
           </Grid>
         )}
-        <Grid item xs={12} md={12} lg={7}>
-          <div className={cl.visVerticalPlaceholder}>
-            <SectionHeader title={'Sample Visualization'} />
-            <SampleVisualization />
-          </div>
-        </Grid>
       </Grid>
     </Page2>
   );
