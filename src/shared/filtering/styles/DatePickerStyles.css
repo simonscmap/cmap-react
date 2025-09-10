@@ -33,9 +33,23 @@
   font-family: inherit !important;
 }
 
+/* Override padding for inputs without leading zeros */
+.custom-date-picker
+  .react-date-picker__inputGroup__input:not(
+    .react-date-picker__inputGroup__input--hasLeadingZero
+  ) {
+  padding: 0 2px !important;
+}
+
 .custom-date-picker .react-date-picker__inputGroup__input:focus {
   outline: none !important;
   box-shadow: none !important;
+}
+
+/* Fix for leading zero overlap issue */
+.custom-date-picker .react-date-picker__inputGroup__input--hasLeadingZero {
+  margin-left: -0.54em !important;
+  padding-left: calc(1px + 0.54em) !important;
 }
 
 .custom-date-picker .react-date-picker__inputGroup__divider {

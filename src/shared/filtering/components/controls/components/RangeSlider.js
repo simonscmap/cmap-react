@@ -2,6 +2,7 @@ import React from 'react';
 import { Slider } from '@material-ui/core';
 import styles from '../../../styles/subsetControlStyles';
 import { roundToStep } from '../../../utils/rangeValidation';
+import CustomValueLabel from './CustomValueLabel';
 
 const RangeSlider = ({
   min,
@@ -13,10 +14,22 @@ const RangeSlider = ({
   step = 0.1,
   disabled = false,
   unit = '',
+  formatLabel,
+  formatValueLabel,
 }) => {
   // Format min/max values to match step precision
   const formattedMin = roundToStep(min, step);
   const formattedMax = roundToStep(max, step);
+
+  // Use custom formatters if provided, otherwise fall back to default behavior
+  const getMarkLabel = (value) => {
+    if (formatLabel) {
+      return formatLabel(value);
+    }
+    return `${value}${unit}`;
+  };
+
+  const getValueLabel = formatValueLabel || ((value) => `${value}${unit}`);
 
   return (
     <Slider
@@ -31,8 +44,9 @@ const RangeSlider = ({
       onChange={handleSlider}
       onChangeCommitted={handleSliderCommit}
       valueLabelDisplay="auto"
+      valueLabelFormat={getValueLabel}
+      ValueLabelComponent={CustomValueLabel}
       classes={{
-        valueLabel: styles.sliderValueLabel,
         thumb: styles.sliderThumb,
         markLabel: styles.markLabel,
       }}
@@ -41,11 +55,11 @@ const RangeSlider = ({
       marks={[
         {
           value: formattedMin,
-          label: `${formattedMin}${unit}`,
+          label: getMarkLabel(formattedMin),
         },
         {
           value: formattedMax,
-          label: `${formattedMax}${unit}`,
+          label: getMarkLabel(formattedMax),
         },
       ]}
     />
