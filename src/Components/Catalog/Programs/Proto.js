@@ -66,8 +66,6 @@ const useHeaderStyles = makeStyles((theme) => ({
   sectionHeader: {
     color: 'white',
     margin: '16px 0 16px 0',
-    // fontWeight: 100,
-    fontFamily: '"roboto", Serif',
   },
 }));
 
@@ -76,7 +74,7 @@ export const SectionHeader = (props) => {
   const { title } = props;
   if (title) {
     return (
-      <Typography variant="h5" className={cl.sectionHeader}>
+      <Typography variant="h6" className={cl.sectionHeader}>
         {title}
       </Typography>
     );

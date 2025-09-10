@@ -77,6 +77,9 @@ const useStyles = makeStyles(() => ({
     '& .MuiTabs-indicator': {
       backgroundColor: '#7CB342', // Green color for tab indicator matching image
     },
+    '& .MuiTab-root': {
+      fontSize: '1.3rem', // Increased from default (text-lg equivalent)
+    },
   },
 }));
 
@@ -182,6 +185,7 @@ const ProgramDetail = (props) => {
 
           {tabValue === 1 && sortedDatasetNames.length > 0 && (
             <Box pt={2}>
+              <SectionHeader title={'Multi-Dataset Download'} />
               <MultiDatasetDownloadContainer
                 datasetShortNames={sortedDatasetNames}
               />
