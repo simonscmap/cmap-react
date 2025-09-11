@@ -108,8 +108,13 @@ class App extends Component {
                       </Route>
                       <Route
                         path="/programs/:programName"
-                        component={ProgramDetailPage}
-                      ></Route>
+                        render={(props) => (
+                          <ProgramDetailPage
+                            key={props.match.params.programName}
+                            {...props}
+                          />
+                        )}
+                      />
                       <Route path="/visualization">
                         <Visualization />
                       </Route>
@@ -124,7 +129,6 @@ class App extends Component {
                         path="/admin/news"
                         component={NewsDashboard}
                       ></Route>
-
                       {/* ABOUT */}
                       <Route exact path="/contact">
                         <ContactUs />
@@ -135,7 +139,6 @@ class App extends Component {
                       <Route path="/how-to-cite">
                         <Cite />
                       </Route>
-
                       <Route exact path="/documentation">
                         <Docs />
                       </Route>
@@ -143,7 +146,6 @@ class App extends Component {
                         <Gallery />
                       </Route>
                       <Route path="/gallery/:slug" component={Galleries} />
-
                       {/* USER */}
                       <Route exact path="/login">
                         <Login />
