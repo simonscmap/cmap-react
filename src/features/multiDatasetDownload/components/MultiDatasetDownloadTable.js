@@ -89,7 +89,7 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
 
   const handleProgramClick = (program) => (event) => {
     event.stopPropagation();
-    history.push(`/programs/${program}`);
+    window.open(`/programs/${program}`, '_blank');
   };
 
   const handleSelectAllToggle = (event) => {
