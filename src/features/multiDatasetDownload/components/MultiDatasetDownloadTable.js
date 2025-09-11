@@ -14,11 +14,13 @@ import {
   Chip,
 } from '@material-ui/core';
 import { useHistory } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
 import useRowCountStore from '../stores/useRowCountStore';
 import { dateToDateString } from '../../../shared/filtering/utils/dateHelpers';
 import SelectAllDropdown from './SelectAllDropdown';
+import { snackbarOpen } from '../../../Redux/actions/ui';
 
 const styles = {
   tableContainerStyle: {
@@ -65,12 +67,14 @@ const styles = {
 
 const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
   const history = useHistory();
+  const dispatch = useDispatch();
   const {
     isDatasetSelected,
     toggleDatasetSelection,
     selectAll,
     clearSelections,
     getSelectAllCheckboxState,
+    selectedDatasets,
   } = useMultiDatasetDownloadStore();
   const {
     getEffectiveRowCount,
@@ -99,8 +103,45 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
     getTotalSelectedRows: getTotalSelectedRows,
   });
 
+  const checkForPartialSelection = (
+    beforeCount,
+    afterCount,
+    totalAvailable,
+  ) => {
+    const expectedAfterSelection = totalAvailable;
+    const actuallySelected = afterCount;
+    const wasPartialSelection = actuallySelected < expectedAfterSelection;
+    const skippedCount = expectedAfterSelection - actuallySelected;
+
+    return { wasPartialSelection, skippedCount };
+  };
+
   const handleSelectAll = () => {
+    const beforeSelectionCount = selectedDatasets.size;
+    const totalAvailableDatasets = datasetsMetadata.length;
+
     selectAll(getRowCountStoreConfig, datasetsMetadata);
+
+    // Get the updated selection count after selectAll
+    const afterSelectionCount =
+      useMultiDatasetDownloadStore.getState().selectedDatasets.size;
+
+    const { wasPartialSelection, skippedCount } = checkForPartialSelection(
+      beforeSelectionCount,
+      afterSelectionCount,
+      totalAvailableDatasets,
+    );
+
+    if (wasPartialSelection && skippedCount > 0) {
+      const { maxRowThreshold } = getThresholdConfig();
+      const formattedThreshold = (maxRowThreshold / 1000000).toFixed(0);
+
+      dispatch(
+        snackbarOpen(
+          `${skippedCount} dataset${skippedCount === 1 ? '' : 's'} could not be selected because they would exceed the ${formattedThreshold}M row limit.`,
+        ),
+      );
+    }
   };
 
   const handleClearAll = () => {
