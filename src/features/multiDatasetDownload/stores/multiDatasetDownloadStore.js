@@ -28,57 +28,71 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     set({ selectedDatasets: newSelectedDatasets });
   },
 
-  selectAll: (getRowCountStore) => {
-    const { datasetsMetadata, selectedDatasets: currentSelections } = get();
+  selectAll: (getRowCountStore, filteredDatasets) => {
+    const { selectedDatasets: currentSelections } = get();
 
     if (!getRowCountStore) {
-      // Fallback to original behavior if row count store not provided
       const allDatasetNames = new Set(
-        datasetsMetadata.map((dataset) => dataset.Dataset_Name),
+        filteredDatasets.map((dataset) => dataset.Dataset_Name),
       );
       set({ selectedDatasets: allDatasetNames });
-      return;
+      return { addedCount: allDatasetNames.size };
     }
 
     const rowCountStore = getRowCountStore();
     const { maxRowThreshold } = rowCountStore.getThresholdConfig();
 
-    // Start with existing selections to preserve them
     const selectedDatasets = new Set(currentSelections);
+    const initialCount = selectedDatasets.size;
 
-    // Calculate current total from existing selections using existing helper
     let currentTotal = rowCountStore.getTotalSelectedRows(
       Array.from(selectedDatasets),
     );
 
-    // Add datasets sequentially until we exceed the threshold
-    for (const dataset of datasetsMetadata) {
+    for (const dataset of filteredDatasets) {
       const datasetName = dataset.Dataset_Name;
 
-      // Skip if already selected (preserve existing selections)
       if (selectedDatasets.has(datasetName)) {
         continue;
       }
 
       const rowCount = rowCountStore.getEffectiveRowCount(datasetName);
 
-      selectedDatasets.add(datasetName);
-
       if (rowCount) {
-        currentTotal += rowCount;
+        const potentialTotal = currentTotal + rowCount;
 
-        // Stop adding more datasets after we exceed the threshold
-        if (currentTotal > maxRowThreshold) {
-          break;
+        if (potentialTotal > maxRowThreshold) {
+          continue;
         }
+
+        selectedDatasets.add(datasetName);
+        currentTotal = potentialTotal;
+      } else {
+        selectedDatasets.add(datasetName);
       }
     }
 
+    const addedCount = selectedDatasets.size - initialCount;
     set({ selectedDatasets });
+    return { addedCount };
   },
 
-  clearSelections: () => {
-    set({ selectedDatasets: new Set() });
+  clearSelections: (filteredDatasets) => {
+    const { selectedDatasets } = get();
+
+    if (!filteredDatasets) {
+      // Clear all selections if no filter provided
+      set({ selectedDatasets: new Set() });
+      return;
+    }
+
+    // Clear only filtered datasets from selections
+    const newSelectedDatasets = new Set(selectedDatasets);
+    filteredDatasets.forEach((dataset) => {
+      newSelectedDatasets.delete(dataset.Dataset_Name);
+    });
+
+    set({ selectedDatasets: newSelectedDatasets });
   },
 
   fetchDatasetsMetadata: async (datasetShortNames) => {
@@ -136,14 +150,16 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     return selectedDatasets.has(datasetName);
   },
 
-  getSelectAllCheckboxState: () => {
-    const { selectedDatasets, datasetsMetadata } = get();
-    const totalCount = datasetsMetadata.length;
-    const selectedCount = selectedDatasets.size;
+  getSelectAllCheckboxState: (filteredDatasets) => {
+    const { selectedDatasets } = get();
+    const totalCount = filteredDatasets.length;
+    const selectedInFilteredCount = filteredDatasets.filter((dataset) =>
+      selectedDatasets.has(dataset.Dataset_Name),
+    ).length;
 
-    if (selectedCount === 0) {
+    if (selectedInFilteredCount === 0) {
       return { checked: false, indeterminate: false };
-    } else if (selectedCount === totalCount) {
+    } else if (selectedInFilteredCount === totalCount) {
       return { checked: true, indeterminate: false };
     } else {
       return { checked: false, indeterminate: true };

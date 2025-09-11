@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useRef } from 'react';
 import { createStore, useStore } from 'zustand';
-import { performSearch, SEARCH_ENGINES } from '../utils/searchEngines';
+import { performSearch } from '../utils/searchEngines';
 
 // Factory function creates store instances with props
 const createSearchStore = (initProps) =>

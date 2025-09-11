@@ -94,32 +94,33 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
 
   const handleSelectAllToggle = (event) => {
     event.stopPropagation();
-    const { checked, indeterminate } = getSelectAllCheckboxState();
+    const { checked, indeterminate } =
+      getSelectAllCheckboxState(datasetsMetadata);
 
-    if (checked) {
-      clearSelections();
-    } else if (indeterminate) {
-      // Check if current selection is at or over the limit
-      const selectedDatasetNames = datasetsMetadata
-        .filter((dataset) => isDatasetSelected(dataset.Dataset_Name))
-        .map((dataset) => dataset.Dataset_Name);
+    const getRowCountStoreConfig = () => ({
+      getThresholdConfig: getThresholdConfig,
+      getEffectiveRowCount: getEffectiveRowCount,
+      getTotalSelectedRows: getTotalSelectedRows,
+    });
 
-      const { isOverThreshold } = useRowCountStore.getState();
-      if (isOverThreshold(selectedDatasetNames)) {
-        clearSelections();
-      } else {
-        selectAll(() => ({
-          getThresholdConfig: getThresholdConfig,
-          getEffectiveRowCount: getEffectiveRowCount,
-          getTotalSelectedRows: getTotalSelectedRows,
-        }));
-      }
+    const shouldClear =
+      checked ||
+      (indeterminate &&
+        (() => {
+          // Try to add more datasets - if none can be added (at threshold), clear all
+          const selectionResult = selectAll(
+            getRowCountStoreConfig,
+            datasetsMetadata,
+          );
+          const noNewDatasetsAdded =
+            selectionResult && selectionResult.addedCount === 0;
+          return noNewDatasetsAdded;
+        })());
+
+    if (shouldClear) {
+      clearSelections(datasetsMetadata);
     } else {
-      selectAll(() => ({
-        getThresholdConfig: getThresholdConfig,
-        getEffectiveRowCount: getEffectiveRowCount,
-        getTotalSelectedRows: getTotalSelectedRows,
-      }));
+      selectAll(getRowCountStoreConfig, datasetsMetadata);
     }
   };
 
@@ -192,7 +193,7 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
           <TableRow>
             <TableCell width={50} style={styles.headerCellStyle}>
               <Checkbox
-                {...getSelectAllCheckboxState()}
+                {...getSelectAllCheckboxState(datasetsMetadata)}
                 onChange={handleSelectAllToggle}
                 color="primary"
                 size="small"
