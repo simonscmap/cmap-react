@@ -18,6 +18,7 @@ import { useHistory } from 'react-router-dom';
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
 import useRowCountStore from '../stores/useRowCountStore';
 import { dateToDateString } from '../../../shared/filtering/utils/dateHelpers';
+import SelectAllDropdown from './SelectAllDropdown';
 
 const styles = {
   tableContainerStyle: {
@@ -92,24 +93,18 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
     window.open(`/programs/${program}`, '_blank');
   };
 
-  const handleSelectAllToggle = (event) => {
-    event.stopPropagation();
-    const { checked, indeterminate } =
-      getSelectAllCheckboxState(datasetsMetadata);
+  const getRowCountStoreConfig = () => ({
+    getThresholdConfig: getThresholdConfig,
+    getEffectiveRowCount: getEffectiveRowCount,
+    getTotalSelectedRows: getTotalSelectedRows,
+  });
 
-    const getRowCountStoreConfig = () => ({
-      getThresholdConfig: getThresholdConfig,
-      getEffectiveRowCount: getEffectiveRowCount,
-      getTotalSelectedRows: getTotalSelectedRows,
-    });
+  const handleSelectAll = () => {
+    selectAll(getRowCountStoreConfig, datasetsMetadata);
+  };
 
-    const shouldClear = checked || indeterminate;
-
-    if (shouldClear) {
-      clearSelections(datasetsMetadata);
-    } else {
-      selectAll(getRowCountStoreConfig, datasetsMetadata);
-    }
+  const handleClearAll = () => {
+    clearSelections(datasetsMetadata);
   };
 
   const formatLatLon = (value) => {
@@ -180,11 +175,15 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
         <TableHead style={styles.tableHeadStyle}>
           <TableRow>
             <TableCell width={50} style={styles.headerCellStyle}>
-              <Checkbox
-                {...getSelectAllCheckboxState(datasetsMetadata)}
-                onChange={handleSelectAllToggle}
-                color="primary"
-                size="small"
+              <SelectAllDropdown
+                areAllSelected={
+                  getSelectAllCheckboxState(datasetsMetadata).checked
+                }
+                areIndeterminate={
+                  getSelectAllCheckboxState(datasetsMetadata).indeterminate
+                }
+                onSelectAll={handleSelectAll}
+                onClearAll={handleClearAll}
                 disabled={!datasetsMetadata || datasetsMetadata.length === 0}
               />
             </TableCell>
