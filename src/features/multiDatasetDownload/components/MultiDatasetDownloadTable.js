@@ -103,19 +103,7 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
       getTotalSelectedRows: getTotalSelectedRows,
     });
 
-    const shouldClear =
-      checked ||
-      (indeterminate &&
-        (() => {
-          // Try to add more datasets - if none can be added (at threshold), clear all
-          const selectionResult = selectAll(
-            getRowCountStoreConfig,
-            datasetsMetadata,
-          );
-          const noNewDatasetsAdded =
-            selectionResult && selectionResult.addedCount === 0;
-          return noNewDatasetsAdded;
-        })());
+    const shouldClear = checked || indeterminate;
 
     if (shouldClear) {
       clearSelections(datasetsMetadata);
