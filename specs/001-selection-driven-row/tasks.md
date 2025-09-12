@@ -63,8 +63,8 @@ This feature optimizes row count calculations to only fetch counts for selected 
 
 ## Phase 4: Component Integration
 
-- [ ] T011 Update MultiDatasetDownloadContainer for new selection flow
-  - **File**: `src/Components/Catalog/Programs/MultiDatasetDownload/MultiDatasetDownloadContainer.js`
+- [x] T011 Update MultiDatasetDownloadContainer for new selection flow
+  - **File**: `src/features/multiDatasetDownload/components/MultiDatasetDownloadContainer.js`
   - **Current behavior**: Calls `updateRowCountsForFilters()` on any filter change (see [research.md:50-55](research.md))
   - **Current Analysis**: [current-vs-desired-state.md:117-161](current-vs-desired-state.md)
   - **Integration Points**: [COMPONENT_INTEGRATION_MAPPING.md:88-100](COMPONENT_INTEGRATION_MAPPING.md)
