@@ -30,21 +30,25 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
 
   selectAll: (getRowCountStore, filteredDatasets) => {
     const { selectedDatasets: currentSelections } = get();
+    const totalAvailable = filteredDatasets.length;
 
     if (!getRowCountStore) {
       const allDatasetNames = new Set(
         filteredDatasets.map((dataset) => dataset.Dataset_Name),
       );
       set({ selectedDatasets: allDatasetNames });
-      return { addedCount: allDatasetNames.size };
+      return {
+        totalAvailable,
+        actuallySelected: allDatasetNames.size,
+        wasPartialSelection: false,
+      };
     }
 
     const rowCountStore = getRowCountStore();
     const { maxRowThreshold } = rowCountStore.getThresholdConfig();
+    const formattedThreshold = (maxRowThreshold / 1000000).toFixed(0);
 
     const selectedDatasets = new Set(currentSelections);
-    const initialCount = selectedDatasets.size;
-
     let currentTotal = rowCountStore.getTotalSelectedRows(
       Array.from(selectedDatasets),
     );
@@ -60,11 +64,9 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
 
       if (rowCount) {
         const potentialTotal = currentTotal + rowCount;
-
         if (potentialTotal > maxRowThreshold) {
           continue;
         }
-
         selectedDatasets.add(datasetName);
         currentTotal = potentialTotal;
       } else {
@@ -72,9 +74,16 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
       }
     }
 
-    const addedCount = selectedDatasets.size - initialCount;
+    const actuallySelected = selectedDatasets.size;
+    const wasPartialSelection = actuallySelected < totalAvailable;
+
     set({ selectedDatasets });
-    return { addedCount };
+    return {
+      totalAvailable,
+      actuallySelected,
+      wasPartialSelection,
+      formattedThreshold,
+    };
   },
 
   clearSelections: (filteredDatasets) => {

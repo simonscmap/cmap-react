@@ -13,11 +13,13 @@ import {
   CircularProgress,
   Chip,
 } from '@material-ui/core';
-import { useHistory } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
 import useRowCountStore from '../stores/useRowCountStore';
 import { dateToDateString } from '../../../shared/filtering/utils/dateHelpers';
+import SelectAllDropdown from './SelectAllDropdown';
+import { snackbarOpen } from '../../../Redux/actions/ui';
 
 const styles = {
   tableContainerStyle: {
@@ -63,7 +65,7 @@ const styles = {
 };
 
 const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
-  const history = useHistory();
+  const dispatch = useDispatch();
   const {
     isDatasetSelected,
     toggleDatasetSelection,
@@ -92,36 +94,26 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
     window.open(`/programs/${program}`, '_blank');
   };
 
-  const handleSelectAllToggle = (event) => {
-    event.stopPropagation();
-    const { checked, indeterminate } =
-      getSelectAllCheckboxState(datasetsMetadata);
+  const getRowCountStoreConfig = () => ({
+    getThresholdConfig: getThresholdConfig,
+    getEffectiveRowCount: getEffectiveRowCount,
+    getTotalSelectedRows: getTotalSelectedRows,
+  });
 
-    const getRowCountStoreConfig = () => ({
-      getThresholdConfig: getThresholdConfig,
-      getEffectiveRowCount: getEffectiveRowCount,
-      getTotalSelectedRows: getTotalSelectedRows,
-    });
+  const handleSelectAll = () => {
+    const result = selectAll(getRowCountStoreConfig, datasetsMetadata);
 
-    const shouldClear =
-      checked ||
-      (indeterminate &&
-        (() => {
-          // Try to add more datasets - if none can be added (at threshold), clear all
-          const selectionResult = selectAll(
-            getRowCountStoreConfig,
-            datasetsMetadata,
-          );
-          const noNewDatasetsAdded =
-            selectionResult && selectionResult.addedCount === 0;
-          return noNewDatasetsAdded;
-        })());
-
-    if (shouldClear) {
-      clearSelections(datasetsMetadata);
-    } else {
-      selectAll(getRowCountStoreConfig, datasetsMetadata);
+    if (result.wasPartialSelection) {
+      dispatch(
+        snackbarOpen(
+          `Not all datasets could be selected because they would exceed the ${result.formattedThreshold}M row limit.`,
+        ),
+      );
     }
+  };
+
+  const handleClearAll = () => {
+    clearSelections(datasetsMetadata);
   };
 
   const formatLatLon = (value) => {
@@ -192,11 +184,15 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
         <TableHead style={styles.tableHeadStyle}>
           <TableRow>
             <TableCell width={50} style={styles.headerCellStyle}>
-              <Checkbox
-                {...getSelectAllCheckboxState(datasetsMetadata)}
-                onChange={handleSelectAllToggle}
-                color="primary"
-                size="small"
+              <SelectAllDropdown
+                areAllSelected={
+                  getSelectAllCheckboxState(datasetsMetadata).checked
+                }
+                areIndeterminate={
+                  getSelectAllCheckboxState(datasetsMetadata).indeterminate
+                }
+                onSelectAll={handleSelectAll}
+                onClearAll={handleClearAll}
                 disabled={!datasetsMetadata || datasetsMetadata.length === 0}
               />
             </TableCell>
