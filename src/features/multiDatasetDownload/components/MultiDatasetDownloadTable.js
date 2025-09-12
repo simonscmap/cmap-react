@@ -13,7 +13,6 @@ import {
   CircularProgress,
   Chip,
 } from '@material-ui/core';
-import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
@@ -66,7 +65,6 @@ const styles = {
 };
 
 const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
-  const history = useHistory();
   const dispatch = useDispatch();
   const {
     isDatasetSelected,
@@ -74,7 +72,6 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
     selectAll,
     clearSelections,
     getSelectAllCheckboxState,
-    selectedDatasets,
   } = useMultiDatasetDownloadStore();
   const {
     getEffectiveRowCount,
@@ -103,11 +100,7 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
     getTotalSelectedRows: getTotalSelectedRows,
   });
 
-  const checkForPartialSelection = (
-    beforeCount,
-    afterCount,
-    totalAvailable,
-  ) => {
+  const checkForPartialSelection = (afterCount, totalAvailable) => {
     const expectedAfterSelection = totalAvailable;
     const actuallySelected = afterCount;
     const wasPartialSelection = actuallySelected < expectedAfterSelection;
@@ -117,7 +110,6 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
   };
 
   const handleSelectAll = () => {
-    const beforeSelectionCount = selectedDatasets.size;
     const totalAvailableDatasets = datasetsMetadata.length;
 
     selectAll(getRowCountStoreConfig, datasetsMetadata);
@@ -127,7 +119,6 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
       useMultiDatasetDownloadStore.getState().selectedDatasets.size;
 
     const { wasPartialSelection, skippedCount } = checkForPartialSelection(
-      beforeSelectionCount,
       afterSelectionCount,
       totalAvailableDatasets,
     );

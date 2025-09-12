@@ -11,7 +11,7 @@ const useStyles = makeStyles(() => ({
     marginLeft: '-9px', // Offset to align with row checkboxes
   },
   checkbox: {
-    padding: '9px', // Match default Material-UI checkbox padding
+    padding: '9px', // Keep default padding for small size alignment
   },
   dropdownButton: {
     padding: '2px',
@@ -51,15 +51,27 @@ const SelectAllDropdown = ({
     handleClose();
   };
 
+  const handleCheckboxClick = (event) => {
+    event.stopPropagation();
+    const shouldClear = areAllSelected || areIndeterminate;
+
+    if (shouldClear) {
+      onClearAll();
+    } else {
+      onSelectAll();
+    }
+  };
+
   return (
     <Box className={classes.container}>
       <Checkbox
         indeterminate={areIndeterminate}
         checked={areAllSelected}
         color="primary"
+        size="small"
         className={classes.checkbox}
         disabled={disabled}
-        // Remove onChange since dropdown handles the actions
+        onClick={handleCheckboxClick}
       />
       <IconButton
         onClick={handleDropdownClick}
