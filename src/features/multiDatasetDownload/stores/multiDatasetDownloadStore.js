@@ -1,9 +1,12 @@
 import { create } from 'zustand';
+import { debounce } from 'throttle-debounce';
 import bulkDownloadAPI from '../api/bulkDownload';
 
 const useMultiDatasetDownloadStore = create((set, get) => ({
   // State
   selectedDatasets: new Set(),
+  batchedSelections: new Set(), // Datasets waiting for debounced row count fetch
+  debounceTimer: null, // Timer for 150ms debouncing
   datasetsMetadata: [],
   filters: {
     temporal: null,
@@ -15,21 +18,81 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
   error: null,
 
   // Actions
-  toggleDatasetSelection: (datasetName) => {
-    const { selectedDatasets } = get();
-    const newSelectedDatasets = new Set(selectedDatasets);
+  addToBatch: (datasetId) => {
+    const { batchedSelections } = get();
+    const newBatch = new Set(batchedSelections);
+    newBatch.add(datasetId);
+    set({ batchedSelections: newBatch });
+  },
 
-    if (newSelectedDatasets.has(datasetName)) {
-      newSelectedDatasets.delete(datasetName);
-    } else {
-      newSelectedDatasets.add(datasetName);
+  processBatch: (getRowCountStore, delay = 150) => {
+    const { debounceTimer } = get();
+
+    // Clear existing timer
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
     }
 
-    set({ selectedDatasets: newSelectedDatasets });
+    // Set up new debounced processing
+    const timer = setTimeout(() => {
+      const { batchedSelections, selectedDatasets } = get();
+
+      if (batchedSelections.size === 0) {
+        return;
+      }
+
+      // Commit batched changes to actual selections
+      const newSelectedDatasets = new Set(selectedDatasets);
+      batchedSelections.forEach((datasetId) => {
+        if (newSelectedDatasets.has(datasetId)) {
+          newSelectedDatasets.delete(datasetId);
+        } else {
+          newSelectedDatasets.add(datasetId);
+        }
+      });
+
+      // Clear the batch
+      set({
+        selectedDatasets: newSelectedDatasets,
+        batchedSelections: new Set(),
+        debounceTimer: null,
+      });
+
+      // Trigger row count update for newly selected datasets if rowCountStore is available
+      if (getRowCountStore) {
+        const rowCountStore = getRowCountStore();
+        const newlySelected = Array.from(newSelectedDatasets);
+
+        // Only fetch row counts for selected datasets
+        if (
+          newlySelected.length > 0 &&
+          rowCountStore.debouncedFetchForSelected
+        ) {
+          // Use current filters - this would need to be passed or accessed from context
+          rowCountStore.debouncedFetchForSelected(newlySelected, {});
+        }
+      }
+    }, delay);
+
+    set({ debounceTimer: timer });
+  },
+  toggleDatasetSelection: (datasetName, getRowCountStore) => {
+    // Add to batch instead of immediate update
+    get().addToBatch(datasetName);
+
+    // Process batch with debouncing
+    get().processBatch(getRowCountStore);
   },
 
   selectAll: (getRowCountStore, filteredDatasets) => {
-    const { selectedDatasets: currentSelections } = get();
+    const { selectedDatasets: currentSelections, debounceTimer } = get();
+
+    // Clear any pending batches since we're doing a bulk operation
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+      set({ debounceTimer: null, batchedSelections: new Set() });
+    }
+
     const totalAvailable = filteredDatasets.length;
 
     if (!getRowCountStore) {
@@ -78,6 +141,13 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     const wasPartialSelection = actuallySelected < totalAvailable;
 
     set({ selectedDatasets });
+
+    // Trigger row count update for selected datasets
+    const newlySelected = Array.from(selectedDatasets);
+    if (newlySelected.length > 0 && rowCountStore.debouncedFetchForSelected) {
+      rowCountStore.debouncedFetchForSelected(newlySelected, {});
+    }
+
     return {
       totalAvailable,
       actuallySelected,
@@ -86,12 +156,26 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     };
   },
 
-  clearSelections: (filteredDatasets) => {
-    const { selectedDatasets } = get();
+  clearSelections: (filteredDatasets, getRowCountStore) => {
+    const { selectedDatasets, debounceTimer } = get();
+
+    // Cancel any pending batches
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+      set({ debounceTimer: null, batchedSelections: new Set() });
+    }
 
     if (!filteredDatasets) {
       // Clear all selections if no filter provided
       set({ selectedDatasets: new Set() });
+
+      // Cancel any pending row count requests for cleared datasets
+      if (getRowCountStore) {
+        const rowCountStore = getRowCountStore();
+        if (rowCountStore.cancelPendingRequests) {
+          rowCountStore.cancelPendingRequests();
+        }
+      }
       return;
     }
 
@@ -102,6 +186,18 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     });
 
     set({ selectedDatasets: newSelectedDatasets });
+
+    // Update row count store to only track remaining selected datasets
+    if (getRowCountStore) {
+      const rowCountStore = getRowCountStore();
+      const remainingSelected = Array.from(newSelectedDatasets);
+      if (
+        remainingSelected.length > 0 &&
+        rowCountStore.debouncedFetchForSelected
+      ) {
+        rowCountStore.debouncedFetchForSelected(remainingSelected, {});
+      }
+    }
   },
 
   fetchDatasetsMetadata: async (datasetShortNames) => {
@@ -159,6 +255,53 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     return selectedDatasets.has(datasetName);
   },
 
+  // Additional getters for batching system
+  getSelectedIds: () => {
+    const { selectedDatasets } = get();
+    return Array.from(selectedDatasets);
+  },
+
+  getSelectionCount: () => {
+    const { selectedDatasets } = get();
+    return selectedDatasets.size;
+  },
+
+  getBatchedSelections: () => {
+    const { batchedSelections } = get();
+    return Array.from(batchedSelections);
+  },
+
+  // Additional selection methods for compatibility with spec
+  selectDataset: (datasetId, getRowCountStore) => {
+    const { selectedDatasets } = get();
+    if (!selectedDatasets.has(datasetId)) {
+      get().addToBatch(datasetId);
+      get().processBatch(getRowCountStore);
+    }
+  },
+
+  deselectDataset: (datasetId, getRowCountStore) => {
+    const { selectedDatasets } = get();
+    if (selectedDatasets.has(datasetId)) {
+      get().addToBatch(datasetId);
+      get().processBatch(getRowCountStore);
+    }
+  },
+
+  selectMultiple: (datasetIds, getRowCountStore) => {
+    const { selectedDatasets } = get();
+
+    // Add all datasets that aren't already selected to the batch
+    datasetIds.forEach((datasetId) => {
+      if (!selectedDatasets.has(datasetId)) {
+        get().addToBatch(datasetId);
+      }
+    });
+
+    // Process the batch
+    get().processBatch(getRowCountStore);
+  },
+
   getSelectAllCheckboxState: (filteredDatasets) => {
     const { selectedDatasets } = get();
     const totalCount = filteredDatasets.length;
@@ -177,8 +320,17 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
 
   // Reset all state to initial values
   resetStore: () => {
+    const { debounceTimer } = get();
+
+    // Clear any pending timer
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+    }
+
     set({
       selectedDatasets: new Set(),
+      batchedSelections: new Set(),
+      debounceTimer: null,
       datasetsMetadata: [],
       filters: {
         temporal: null,
