@@ -8,15 +8,14 @@ const useStyles = makeStyles(() => ({
     display: 'flex',
     alignItems: 'center',
     position: 'relative',
-    marginLeft: '-9px', // Offset to align with row checkboxes
   },
   checkbox: {
-    padding: '9px', // Keep default padding for small size alignment
+    padding: '9px',
   },
   dropdownButton: {
     padding: '2px',
     minWidth: 'auto',
-    marginLeft: '-4px', // Reduce gap between checkbox and dropdown arrow
+    marginLeft: '-6px',
     '& .MuiSvgIcon-root': {
       fontSize: '16px',
     },
