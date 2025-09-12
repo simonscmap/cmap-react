@@ -20,14 +20,14 @@ This feature optimizes row count calculations to only fetch counts for selected 
 
 ## Phase 2: Core Store Implementation
 
-- [ ] T006 [P] Enhanced row count store with selection awareness
+- [x] T006 [P] Enhanced row count store with selection awareness
   - **File**: `src/features/multiDatasetDownload/stores/useRowCountStore.js`
   - **Spec**: [contracts/state-management-contract.md:9-47](contracts/state-management-contract.md)
   - **Current Analysis**: [current-vs-desired-state.md:9-62](current-vs-desired-state.md)
   - **Key changes**: Add `fetchRowCountsForSelected()`, `cancelPendingRequests()`, `pendingRequests` Map
   - **Validation**: Manual test using [quickstart.md scenario 2](quickstart.md)
 
-- [ ] T007 [P] Enhanced dataset selection store with debouncing
+- [x] T007 [P] Enhanced dataset selection store with debouncing
   - **File**: `src/features/multiDatasetDownload/stores/useMultiDatasetDownloadStore.js`
   - **Spec**: [contracts/state-management-contract.md:54-93](contracts/state-management-contract.md)
   - **Current Analysis**: [current-vs-desired-state.md:65-114](current-vs-desired-state.md)
@@ -41,11 +41,20 @@ This feature optimizes row count calculations to only fetch counts for selected 
   - **Requirements**: Support for per-request cancellation, cleanup on filter changes
   - **Validation**: Manual test using [quickstart.md scenario 6](quickstart.md)
 
-- [ ] T009 API integration for selection-driven row count requests
-  - **File**: `src/features/multiDatasetDownload/api/rowCountApi.js`
+- [x] T009 ~~API integration for selection-driven row count requests~~ **REDUNDANT - SKIPPED**
+  - **File**: ~~`src/features/multiDatasetDownload/api/rowCountApi.js`~~ **NOT NEEDED**
   - **Spec**: [contracts/row-count-api.yaml:24-176](contracts/row-count-api.yaml)
-  - **Key changes**: Batch requests for selected datasets, AbortController integration
+  - **Key changes**: ~~Batch requests for selected datasets, AbortController integration~~
   - **Current endpoint**: `/api/data/bulk-download-row-counts` (see [research.md:110-117](research.md))
+  - **REDUNDANCY EXPLANATION**:
+    - The existing `bulkDownloadAPI.getRowCounts()` already provides all needed functionality:
+      - ✅ AbortSignal support for request cancellation
+      - ✅ Filter transformation (`transformFiltersForAPI()`)
+      - ✅ Clean data access to `/api/data/bulk-download-row-counts` endpoint
+    - **Selection-driven logic belongs in stores (T006), not data access layer**
+    - **Batch request logic belongs in stores (T006), not API layer**
+    - Creating a separate `rowCountApi.js` would duplicate existing functionality
+    - Data access layer should remain clean and simple; business logic goes in stores
 
 - [ ] T010 Filter integration hook for request cancellation
   - **File**: `src/features/multiDatasetDownload/hooks/useFilterIntegration.js`
