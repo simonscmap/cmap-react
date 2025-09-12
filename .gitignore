@@ -40,9 +40,9 @@ notes
 .cursor
 .gemini
 .web-bundles
+.specify
+.claude/commands/
 
-.claude/commands/BMad
-.claude/commands/bmadInfraDevOps
 # BMAD End
 
 /docs/
