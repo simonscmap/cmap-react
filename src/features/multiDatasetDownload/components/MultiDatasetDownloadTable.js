@@ -100,36 +100,13 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
     getTotalSelectedRows: getTotalSelectedRows,
   });
 
-  const checkForPartialSelection = (afterCount, totalAvailable) => {
-    const expectedAfterSelection = totalAvailable;
-    const actuallySelected = afterCount;
-    const wasPartialSelection = actuallySelected < expectedAfterSelection;
-    const skippedCount = expectedAfterSelection - actuallySelected;
-
-    return { wasPartialSelection, skippedCount };
-  };
-
   const handleSelectAll = () => {
-    const totalAvailableDatasets = datasetsMetadata.length;
+    const result = selectAll(getRowCountStoreConfig, datasetsMetadata);
 
-    selectAll(getRowCountStoreConfig, datasetsMetadata);
-
-    // Get the updated selection count after selectAll
-    const afterSelectionCount =
-      useMultiDatasetDownloadStore.getState().selectedDatasets.size;
-
-    const { wasPartialSelection, skippedCount } = checkForPartialSelection(
-      afterSelectionCount,
-      totalAvailableDatasets,
-    );
-
-    if (wasPartialSelection && skippedCount > 0) {
-      const { maxRowThreshold } = getThresholdConfig();
-      const formattedThreshold = (maxRowThreshold / 1000000).toFixed(0);
-
+    if (result.wasPartialSelection) {
       dispatch(
         snackbarOpen(
-          `${skippedCount} dataset${skippedCount === 1 ? '' : 's'} could not be selected because they would exceed the ${formattedThreshold}M row limit.`,
+          `Not all datasets could be selected because they would exceed the ${result.formattedThreshold}M row limit.`,
         ),
       );
     }
