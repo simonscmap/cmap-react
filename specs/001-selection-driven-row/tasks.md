@@ -36,7 +36,7 @@ This feature optimizes row count calculations to only fetch counts for selected 
 
 ## Phase 3: API & Utilities
 
-- [ ] T008 Request cancellation utilities with AbortController
+- [x] T008 Request cancellation utilities with AbortController
   - **File**: `src/features/multiDatasetDownload/utils/requestCancellation.js`
   - **Requirements**: Support for per-request cancellation, cleanup on filter changes
   - **Validation**: Manual test using [quickstart.md scenario 6](quickstart.md)
@@ -56,7 +56,7 @@ This feature optimizes row count calculations to only fetch counts for selected 
     - Creating a separate `rowCountApi.js` would duplicate existing functionality
     - Data access layer should remain clean and simple; business logic goes in stores
 
-- [ ] T010 Filter integration hook for request cancellation
+- [x] T010 Filter integration hook for request cancellation
   - **File**: `src/features/multiDatasetDownload/hooks/useFilterIntegration.js`
   - **Spec**: [contracts/state-management-contract.md:98-128](contracts/state-management-contract.md)
   - **Integration**: Uses existing `useSubsetFiltering` hook (see [research.md:43-49](research.md))
