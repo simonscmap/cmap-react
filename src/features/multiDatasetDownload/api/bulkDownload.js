@@ -112,9 +112,14 @@ bulkDownloadAPI.downloadData = async (datasetShortNames, filters = null) => {
  * Get row counts for datasets with optional filters
  * @param {Array<string>} datasetShortNames - Array of dataset short names
  * @param {Object} filters - Optional filter criteria
+ * @param {AbortSignal} signal - Optional abort signal for cancellation
  * @returns {Promise<Object>} Object with dataset names as keys and row counts as values
  */
-bulkDownloadAPI.getRowCounts = async (datasetShortNames, filters = null) => {
+bulkDownloadAPI.getRowCounts = async (
+  datasetShortNames,
+  filters = null,
+  signal = null,
+) => {
   log.debug('getting row counts', { datasetShortNames, filters });
   const endpoint = apiUrl + `/api/data/bulk-download-row-counts`;
 
@@ -124,13 +129,20 @@ bulkDownloadAPI.getRowCounts = async (datasetShortNames, filters = null) => {
     requestBody.filters = transformFiltersForAPI(filters);
   }
 
-  const response = await fetch(endpoint, {
+  const fetchOptions = {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(requestBody),
-  });
+  };
+
+  // Add abort signal if provided
+  if (signal) {
+    fetchOptions.signal = signal;
+  }
+
+  const response = await fetch(endpoint, fetchOptions);
 
   if (!response.ok) {
     throw new Error(
