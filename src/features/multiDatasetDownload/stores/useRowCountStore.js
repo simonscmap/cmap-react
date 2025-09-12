@@ -121,24 +121,16 @@ const useRowCountStore = create((set, get) => ({
     return totalRows;
   },
 
-  getTotalOriginalRows: (selectedDatasets) => {
+  getTotalOriginalRows: () => {
     const state = get();
-    let totalRows = 0;
-
-    selectedDatasets.forEach((datasetName) => {
-      const originalRowCount = state.originalRowCounts[datasetName];
-
-      if (originalRowCount && typeof originalRowCount === 'number') {
-        totalRows += originalRowCount;
-      }
-    });
-
-    return totalRows;
+    return Object.values(state.originalRowCounts).reduce(
+      (sum, count) => sum + (typeof count === 'number' ? count : 0),
+      0,
+    );
   },
 
   isOverThreshold: (selectedDatasets) => {
-    const state = get();
-    const totalOriginalRows = state.getTotalOriginalRows(selectedDatasets);
+    const totalOriginalRows = get().getTotalOriginalRows();
     const datasetCount = selectedDatasets.size || selectedDatasets.length || 0;
 
     // If original data sum is under threshold, never restrict
@@ -153,7 +145,7 @@ const useRowCountStore = create((set, get) => ({
     }
 
     // Multiple datasets - apply current row restrictions
-    const totalCurrentRows = state.getTotalSelectedRows(selectedDatasets);
+    const totalCurrentRows = get().getTotalSelectedRows(selectedDatasets);
     return totalCurrentRows > THRESHOLD_CONFIG.maxRowThreshold;
   },
 
