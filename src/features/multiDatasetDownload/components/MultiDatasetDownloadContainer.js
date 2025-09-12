@@ -42,7 +42,7 @@ import {
  * and initializes internal Zustand stores for state management.
  */
 const MultiDatasetDownloadContainerInner = ({ datasetsMetadata }) => {
-  const { resetStore, getSelectedDatasets } = useMultiDatasetDownloadStore();
+  const { resetStore, getSelectedIds } = useMultiDatasetDownloadStore();
   const { fetchRowCountsForSelected, cancelPendingRequests } =
     useRowCountStore();
   const filteredItems = useFilteredItems();
@@ -118,7 +118,7 @@ const MultiDatasetDownloadContainerInner = ({ datasetsMetadata }) => {
   // Update row counts when filters change - selection-driven approach
   useEffect(() => {
     if (filterValues.isFiltered) {
-      const selectedDatasetIds = getSelectedDatasets();
+      const selectedDatasetIds = getSelectedIds();
 
       // Cancel any pending requests on filter changes
       cancelPendingRequests();
@@ -128,7 +128,7 @@ const MultiDatasetDownloadContainerInner = ({ datasetsMetadata }) => {
     }
   }, [
     filterValues,
-    getSelectedDatasets,
+    getSelectedIds,
     cancelPendingRequests,
     debouncedFilterChange,
   ]);
