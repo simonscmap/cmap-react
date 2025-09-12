@@ -64,7 +64,7 @@ const styles = {
   },
 };
 
-const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
+const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
   const dispatch = useDispatch();
   const {
     isDatasetSelected,
@@ -86,7 +86,11 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
 
   const handleToggle = (datasetName) => (event) => {
     event.stopPropagation();
-    toggleDatasetSelection(datasetName);
+    toggleDatasetSelection(
+      datasetName,
+      () => useRowCountStore.getState(),
+      filterValues,
+    );
   };
 
   const handleProgramClick = (program) => (event) => {

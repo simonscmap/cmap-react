@@ -25,7 +25,7 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     set({ batchedSelections: newBatch });
   },
 
-  processBatch: (getRowCountStore, delay = 150) => {
+  processBatch: (getRowCountStore, filters = {}, delay = 150) => {
     const { debounceTimer } = get();
 
     // Clear existing timer
@@ -68,20 +68,20 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
           newlySelected.length > 0 &&
           rowCountStore.debouncedFetchForSelected
         ) {
-          // Use current filters - this would need to be passed or accessed from context
-          rowCountStore.debouncedFetchForSelected(newlySelected, {});
+          // Use the passed filters for row count fetching
+          rowCountStore.debouncedFetchForSelected(newlySelected, filters);
         }
       }
     }, delay);
 
     set({ debounceTimer: timer });
   },
-  toggleDatasetSelection: (datasetName, getRowCountStore) => {
+  toggleDatasetSelection: (datasetName, getRowCountStore, filters = {}) => {
     // Add to batch instead of immediate update
     get().addToBatch(datasetName);
 
     // Process batch with debouncing
-    get().processBatch(getRowCountStore);
+    get().processBatch(getRowCountStore, filters);
   },
 
   selectAll: (getRowCountStore, filteredDatasets) => {
@@ -272,23 +272,23 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
   },
 
   // Additional selection methods for compatibility with spec
-  selectDataset: (datasetId, getRowCountStore) => {
+  selectDataset: (datasetId, getRowCountStore, filters = {}) => {
     const { selectedDatasets } = get();
     if (!selectedDatasets.has(datasetId)) {
       get().addToBatch(datasetId);
-      get().processBatch(getRowCountStore);
+      get().processBatch(getRowCountStore, filters);
     }
   },
 
-  deselectDataset: (datasetId, getRowCountStore) => {
+  deselectDataset: (datasetId, getRowCountStore, filters = {}) => {
     const { selectedDatasets } = get();
     if (selectedDatasets.has(datasetId)) {
       get().addToBatch(datasetId);
-      get().processBatch(getRowCountStore);
+      get().processBatch(getRowCountStore, filters);
     }
   },
 
-  selectMultiple: (datasetIds, getRowCountStore) => {
+  selectMultiple: (datasetIds, getRowCountStore, filters = {}) => {
     const { selectedDatasets } = get();
 
     // Add all datasets that aren't already selected to the batch
@@ -299,7 +299,7 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     });
 
     // Process the batch
-    get().processBatch(getRowCountStore);
+    get().processBatch(getRowCountStore, filters);
   },
 
   getSelectAllCheckboxState: (filteredDatasets) => {
