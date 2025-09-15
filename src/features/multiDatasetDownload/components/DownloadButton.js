@@ -44,7 +44,8 @@ const DownloadButton = ({ subsetFiltering }) => {
     selectedDatasets.size === 0 ||
     isDownloading ||
     isRowCountsLoading ||
-    isOverRowThreshold;
+    isOverRowThreshold ||
+    !user;
   const selectedCount = selectedDatasets.size;
 
   const handleDownload = async () => {
@@ -93,7 +94,7 @@ const DownloadButton = ({ subsetFiltering }) => {
         variant="contained"
         color="primary"
         className={classes.downloadButton}
-        disabled={isDisabled && user}
+        disabled={isDisabled}
         onClick={handleDownload}
         startIcon={
           isDownloading ? (

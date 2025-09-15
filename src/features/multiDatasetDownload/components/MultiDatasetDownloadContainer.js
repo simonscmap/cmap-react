@@ -1,5 +1,6 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Box, Typography } from '@material-ui/core';
+import { debounce } from 'throttle-debounce';
 import SubsetControls from '../../../shared/filtering/core/SubsetControls';
 import DefaultSubsetControlsLayout from '../../../shared/filtering/components/DefaultSubsetControlsLayout';
 import useSubsetFiltering from '../../../shared/filtering/hooks/useSubsetFiltering';
@@ -41,8 +42,9 @@ import {
  * and initializes internal Zustand stores for state management.
  */
 const MultiDatasetDownloadContainerInner = ({ datasetsMetadata }) => {
-  const { resetStore } = useMultiDatasetDownloadStore();
-  const { updateRowCountsForFilters } = useRowCountStore();
+  const { resetStore, getSelectedIds } = useMultiDatasetDownloadStore();
+  const { fetchRowCountsForSelected, cancelPendingRequests } =
+    useRowCountStore();
   const filteredItems = useFilteredItems();
 
   // Compute aggregate dataset bounds for multi-dataset filtering
@@ -103,12 +105,31 @@ const MultiDatasetDownloadContainerInner = ({ datasetsMetadata }) => {
     dateHandling,
   } = useSubsetFiltering(aggregateDatasetMetadata);
 
-  // Update row counts when filters change
+  // Debounced filter change handler for selection-driven row count updates
+  const debouncedFilterChange = useCallback(
+    debounce(300, false, (selectedDatasetIds, filters) => {
+      if (selectedDatasetIds.length > 0) {
+        fetchRowCountsForSelected(selectedDatasetIds, filters);
+      }
+    }),
+    [fetchRowCountsForSelected],
+  );
+
+  // Update row counts when filters change - selection-driven approach
   useEffect(() => {
-    if (filterValues.isFiltered) {
-      updateRowCountsForFilters(filterValues);
-    }
-  }, [filterValues, updateRowCountsForFilters]);
+    const selectedDatasetIds = getSelectedIds();
+
+    // Cancel any pending requests on filter changes
+    cancelPendingRequests();
+
+    // Always fetch row counts for selected datasets - let store handle transition logic
+    debouncedFilterChange(selectedDatasetIds, filterValues);
+  }, [
+    filterValues,
+    getSelectedIds,
+    cancelPendingRequests,
+    debouncedFilterChange,
+  ]);
 
   // Reset store when component unmounts
   useEffect(() => {
@@ -141,7 +162,10 @@ const MultiDatasetDownloadContainerInner = ({ datasetsMetadata }) => {
       </Box>
 
       <Box mb={3}>
-        <MultiDatasetDownloadTable datasetsMetadata={filteredItems} />
+        <MultiDatasetDownloadTable
+          datasetsMetadata={filteredItems}
+          filterValues={filterValues}
+        />
       </Box>
 
       <Box>

@@ -64,7 +64,7 @@ const styles = {
   },
 };
 
-const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
+const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
   const dispatch = useDispatch();
   const {
     isDatasetSelected,
@@ -86,7 +86,11 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
 
   const handleToggle = (datasetName) => (event) => {
     event.stopPropagation();
-    toggleDatasetSelection(datasetName);
+    toggleDatasetSelection(
+      datasetName,
+      () => useRowCountStore.getState(),
+      filterValues,
+    );
   };
 
   const handleProgramClick = (program) => (event) => {
@@ -94,21 +98,35 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
     window.open(`/programs/${program}`, '_blank');
   };
 
-  const getRowCountStoreConfig = () => ({
-    getThresholdConfig: getThresholdConfig,
-    getEffectiveRowCount: getEffectiveRowCount,
-    getTotalSelectedRows: getTotalSelectedRows,
-  });
+  const rowCountStoreActions = useRowCountStore();
 
-  const handleSelectAll = () => {
-    const result = selectAll(getRowCountStoreConfig, datasetsMetadata);
+  const getRowCountStoreInstance = () => {
+    return {
+      ...rowCountStoreActions,
+      getThresholdConfig: getThresholdConfig,
+      getEffectiveRowCount: getEffectiveRowCount,
+      getTotalSelectedRows: getTotalSelectedRows,
+    };
+  };
 
-    if (result.wasPartialSelection) {
-      dispatch(
-        snackbarOpen(
-          `Not all datasets could be selected because they would exceed the ${result.formattedThreshold}M row limit.`,
-        ),
+  const handleSelectAll = async () => {
+    try {
+      const result = await selectAll(
+        getRowCountStoreInstance,
+        datasetsMetadata,
+        filterValues,
       );
+
+      if (result.wasPartialSelection) {
+        dispatch(
+          snackbarOpen(
+            `Not all datasets could be selected because they would exceed the ${result.formattedThreshold}M row limit.`,
+          ),
+        );
+      }
+    } catch (error) {
+      console.error('Failed to select all datasets:', error);
+      dispatch(snackbarOpen('Failed to select datasets. Please try again.'));
     }
   };
 
@@ -135,21 +153,41 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
     }
   };
 
-  const renderRowCount = (datasetName) => {
+  const getOriginalRowCount = (datasetName) => {
+    const { originalRowCounts } = useRowCountStore.getState();
+    return originalRowCounts[datasetName];
+  };
+
+  const renderRowCount = (datasetName, isSelected) => {
     const effectiveCount = getEffectiveRowCount(datasetName);
     const isLoading = isRowCountLoading(datasetName);
     const error = getRowCountError(datasetName);
+    const originalCount = getOriginalRowCount(datasetName);
 
-    if (isLoading) {
+    // Only show loading indicators for selected datasets
+    if (isSelected && isLoading) {
       return <CircularProgress size={16} color="primary" />;
     }
-    if (error) {
+
+    // Only show errors for selected datasets
+    if (isSelected && error) {
       return (
         <Typography variant="body2" color="error">
           Error
         </Typography>
       );
     }
+
+    // Show "≤ [count]" for unselected datasets when filters are active
+    if (!isSelected && filterValues?.isFiltered && originalCount) {
+      return (
+        <Typography variant="body2" noWrap>
+          ≤ {originalCount.toLocaleString()}
+        </Typography>
+      );
+    }
+
+    // Default display logic
     return (
       <Typography variant="body2" noWrap>
         {effectiveCount !== null && effectiveCount !== undefined
@@ -277,7 +315,7 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata }) => {
                     </Typography>
                   </TableCell>
                   <TableCell align="right" style={styles.bodyCellStyle}>
-                    {renderRowCount(datasetMetadata.Dataset_Name)}
+                    {renderRowCount(datasetMetadata.Dataset_Name, isSelected)}
                   </TableCell>
                   <TableCell style={styles.bodyCellStyle}>
                     <Typography variant="body2" noWrap>

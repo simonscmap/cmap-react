@@ -1,4 +1,6 @@
 import { create } from 'zustand';
+import { debounce } from 'throttle-debounce';
+import { SELECTION_DEBOUNCE_DELAY_MS } from '../constants/constants';
 import bulkDownloadAPI from '../api/bulkDownload';
 
 // Threshold configuration constants
@@ -14,7 +16,8 @@ const useRowCountStore = create((set, get) => ({
   dynamicRowCounts: {},
   rowCountsLoading: {},
   rowCountsError: {},
-  debounceTimer: null,
+  pendingRequests: {}, // datasetId -> AbortController
+  previousFilters: null, // Track filter state for transition detection
 
   // Actions
   initializeWithDatasets: (datasets) => {
@@ -25,66 +28,221 @@ const useRowCountStore = create((set, get) => ({
     });
   },
 
+  // Helper function to detect filter transitions
+  detectTransition: (newFilters) => {
+    const state = get();
+    const prev = state.previousFilters;
+    const result = {
+      isTransitionToUnfiltered:
+        prev?.isFiltered === true && !newFilters?.isFiltered,
+    };
+    return result;
+  },
+
+  // Helper function to restore original counts for selected datasets
+  restoreOriginalCountsForSelected: (datasetIds) => {
+    const state = get();
+    const updatedDynamicRowCounts = { ...state.dynamicRowCounts };
+    const clearedLoadingStates = {};
+
+    datasetIds.forEach((datasetId) => {
+      // Remove any stale dynamic counts - getEffectiveRowCount will fall back to original
+      if (updatedDynamicRowCounts[datasetId] !== undefined) {
+        delete updatedDynamicRowCounts[datasetId];
+      }
+      clearedLoadingStates[datasetId] = false;
+    });
+
+    set({
+      dynamicRowCounts: updatedDynamicRowCounts,
+      rowCountsLoading: { ...state.rowCountsLoading, ...clearedLoadingStates },
+    });
+  },
+
+  fetchRowCountsForSelected: async (datasetIds, filters) => {
+    const state = get();
+
+    // Detect transition and update previous filters for next call
+    const transition = state.detectTransition(filters);
+    set({ previousFilters: filters ? { ...filters } : null });
+
+    // Cancel existing requests first
+    state.cancelPendingRequests();
+
+    if (!datasetIds || datasetIds.length === 0) {
+      return;
+    }
+
+    // Handle filtered → unfiltered transition
+    if (transition.isTransitionToUnfiltered) {
+      state.restoreOriginalCountsForSelected(datasetIds);
+      return;
+    }
+
+    // If no filters are applied, skip API call since result would be identical to originalRowCounts
+    if (!filters?.isFiltered) {
+      // Clear any loading states and return early
+      const loadingStates = {};
+      datasetIds.forEach((datasetId) => {
+        loadingStates[datasetId] = false;
+      });
+      set((state) => ({
+        rowCountsLoading: { ...state.rowCountsLoading, ...loadingStates },
+      }));
+      return;
+    }
+
+    // Set loading states for selected datasets
+    const loadingStates = {};
+    const errorStates = {};
+    const pendingRequests = {};
+
+    datasetIds.forEach((datasetId) => {
+      loadingStates[datasetId] = true;
+      errorStates[datasetId] = null;
+    });
+
+    set((state) => ({
+      rowCountsLoading: { ...state.rowCountsLoading, ...loadingStates },
+      rowCountsError: { ...state.rowCountsError, ...errorStates },
+    }));
+
+    try {
+      // Create AbortController for this batch of requests
+      const abortController = new AbortController();
+      datasetIds.forEach((datasetId) => {
+        pendingRequests[datasetId] = abortController;
+      });
+
+      set((state) => ({
+        pendingRequests: { ...state.pendingRequests, ...pendingRequests },
+      }));
+
+      const rowCounts = await bulkDownloadAPI.getRowCounts(
+        datasetIds,
+        filters,
+        abortController.signal,
+      );
+
+      // Update row counts and clear loading states
+      const updatedRowCounts = {};
+      const updatedLoadingStates = {};
+
+      datasetIds.forEach((datasetId) => {
+        if (rowCounts[datasetId] !== undefined) {
+          updatedRowCounts[datasetId] = rowCounts[datasetId];
+        }
+        updatedLoadingStates[datasetId] = false;
+      });
+
+      // Clear pending requests for completed datasets
+      const updatedPendingRequests = { ...get().pendingRequests };
+      datasetIds.forEach((datasetId) => {
+        delete updatedPendingRequests[datasetId];
+      });
+
+      set((state) => ({
+        dynamicRowCounts: { ...state.dynamicRowCounts, ...updatedRowCounts },
+        rowCountsLoading: {
+          ...state.rowCountsLoading,
+          ...updatedLoadingStates,
+        },
+        pendingRequests: updatedPendingRequests,
+      }));
+    } catch (error) {
+      // Only handle errors if the request wasn't aborted
+      if (error.name !== 'AbortError') {
+        const updatedErrorStates = {};
+        const updatedLoadingStates = {};
+        const updatedPendingRequests = { ...get().pendingRequests };
+
+        datasetIds.forEach((datasetId) => {
+          updatedErrorStates[datasetId] =
+            error.message || 'Failed to load row count';
+          updatedLoadingStates[datasetId] = false;
+          delete updatedPendingRequests[datasetId];
+        });
+
+        set((state) => ({
+          rowCountsError: { ...state.rowCountsError, ...updatedErrorStates },
+          rowCountsLoading: {
+            ...state.rowCountsLoading,
+            ...updatedLoadingStates,
+          },
+          pendingRequests: updatedPendingRequests,
+        }));
+      }
+    }
+  },
+
+  cancelPendingRequests: () => {
+    const state = get();
+
+    // Abort all pending requests
+    Object.values(state.pendingRequests).forEach((abortController) => {
+      if (abortController && typeof abortController.abort === 'function') {
+        abortController.abort();
+      }
+    });
+
+    // Clear pending requests
+    set({ pendingRequests: {} });
+  },
+
+  // Debounced version for batching requests
+  debouncedFetchForSelected: debounce(
+    SELECTION_DEBOUNCE_DELAY_MS,
+    false,
+    (datasetIds, filters) => {
+      const state = get();
+      state.fetchRowCountsForSelected(datasetIds, filters);
+    },
+  ),
+
+  setRowCount: (datasetId, count) => {
+    set((state) => ({
+      dynamicRowCounts: { ...state.dynamicRowCounts, [datasetId]: count },
+    }));
+  },
+
+  setLoadingState: (datasetId, isLoading) => {
+    set((state) => ({
+      rowCountsLoading: { ...state.rowCountsLoading, [datasetId]: isLoading },
+    }));
+  },
+
+  setErrorState: (datasetId, error) => {
+    set((state) => ({
+      rowCountsError: { ...state.rowCountsError, [datasetId]: error },
+    }));
+  },
+
+  // Legacy method - maintained for backward compatibility
   updateRowCountsForFilters: (filters) => {
     const state = get();
     const { datasetNames } = state;
 
-    // Clear existing timer
-    if (state.debounceTimer) {
-      clearTimeout(state.debounceTimer);
-    }
-
-    // Set up new debounced API call
-    const timer = setTimeout(async () => {
-      // Set loading states for all datasets
-      const loadingStates = {};
-      datasetNames.forEach((name) => {
-        loadingStates[name] = true;
-      });
-
-      set((state) => ({
-        rowCountsLoading: { ...state.rowCountsLoading, ...loadingStates },
-        rowCountsError: {
-          ...state.rowCountsError,
-          ...Object.fromEntries(datasetNames.map((name) => [name, null])),
-        },
-      }));
-
-      try {
-        const rowCounts = await bulkDownloadAPI.getRowCounts(
-          datasetNames,
-          filters,
-        );
-
-        // Update dynamic row counts and clear loading states
-        set((state) => ({
-          dynamicRowCounts: { ...state.dynamicRowCounts, ...rowCounts },
-          rowCountsLoading: {
-            ...state.rowCountsLoading,
-            ...Object.fromEntries(datasetNames.map((name) => [name, false])),
-          },
-        }));
-      } catch (error) {
-        // Set error states and clear loading states
-        const errorStates = {};
-        datasetNames.forEach((name) => {
-          errorStates[name] = error.message || 'Failed to load row count';
-        });
-
-        set((state) => ({
-          rowCountsError: { ...state.rowCountsError, ...errorStates },
-          rowCountsLoading: {
-            ...state.rowCountsLoading,
-            ...Object.fromEntries(datasetNames.map((name) => [name, false])),
-          },
-        }));
-      }
-    }, 500);
-
-    set({ debounceTimer: timer });
+    // Use the new method but fetch for all datasets to maintain compatibility
+    state.debouncedFetchForSelected(datasetNames, filters);
   },
 
-  // Getters
+  // Getters - new methods for contract compliance
+  getRowCount: (datasetId) => {
+    const state = get();
+    return state.getEffectiveRowCount(datasetId);
+  },
+
+  isLoading: (datasetId) => {
+    const state = get();
+    return Boolean(state.rowCountsLoading[datasetId]);
+  },
+
+  getError: (datasetId) => {
+    const state = get();
+    return state.rowCountsError[datasetId] || null;
+  },
+
+  // Legacy getters - maintained for backward compatibility
   getEffectiveRowCount: (datasetName) => {
     const state = get();
     return state.dynamicRowCounts[datasetName] !== undefined
@@ -108,10 +266,8 @@ const useRowCountStore = create((set, get) => ({
     let totalRows = 0;
 
     selectedDatasets.forEach((datasetName) => {
-      const effectiveRowCount =
-        state.dynamicRowCounts[datasetName] !== undefined
-          ? state.dynamicRowCounts[datasetName]
-          : state.originalRowCounts[datasetName];
+      // Use getEffectiveRowCount for consistent logic
+      const effectiveRowCount = state.getEffectiveRowCount(datasetName);
 
       if (effectiveRowCount && typeof effectiveRowCount === 'number') {
         totalRows += effectiveRowCount;
@@ -177,10 +333,9 @@ const useRowCountStore = create((set, get) => ({
   // Reset all state to initial values
   resetStore: () => {
     const state = get();
-    // Clear any pending debounce timer
-    if (state.debounceTimer) {
-      clearTimeout(state.debounceTimer);
-    }
+
+    // Cancel any pending requests first
+    state.cancelPendingRequests();
 
     set({
       datasetNames: [],
@@ -188,7 +343,8 @@ const useRowCountStore = create((set, get) => ({
       dynamicRowCounts: {},
       rowCountsLoading: {},
       rowCountsError: {},
-      debounceTimer: null,
+      pendingRequests: {},
+      previousFilters: null,
     });
   },
 }));

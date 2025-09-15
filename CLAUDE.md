@@ -23,6 +23,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - **React 16.13.1** with both class and functional components
 - **Redux** for state management with redux-saga for side effects
+- **Zustand 4.5.7** for modern feature-specific state management
 - **Material-UI v4** for styling and components
 - **AG Grid Enterprise** for data tables (licensed)
 - **Plotly.js** for data visualization charts
@@ -48,17 +49,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Data Catalog**: Scientific dataset search and discovery
 - **Visualization**: Interactive chart creation with multiple chart types
 - **Data Submission**: Workflow for submitting scientific datasets with validation
+- **Multi-Dataset Download**: Bulk dataset downloads with selection-driven row count optimization
 - **User Management**: Authentication with Google OAuth integration
 - **Admin Panel**: News management and dataset administration
 
-### Redux Architecture
+### State Management Architecture
 
-- Uses both connect() HOC and hooks (useSelector/useDispatch) patterns
-- Redux-saga for handling async operations and API calls
-- Persistence middleware for maintaining state across sessions
-- Organized into feature-based modules (catalog, visualization, user, etc.)
+- **Redux**: Legacy global state with connect() HOC and hooks (useSelector/useDispatch) patterns
+- **Redux-saga**: Handling async operations and API calls
+- **Zustand**: Modern feature-specific state (multi-dataset download, row counts)
 - Uses reduceReducers and NOT combineReducers. Thus, reducers take in entire state, not state slices.
-- Because reduceReducers, the initial state lives inside `src/Redux/Reducers/index.js`
+- Initial state lives inside `src/Redux/Reducers/index.js`
+- **Migration Pattern**: New features use Zustand, existing features remain Redux
 
 ### API Configuration
 
@@ -78,3 +80,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Testing
 
 **This project uses manual testing only. Do not create or suggest unit tests, integration tests, or automated tests of any kind.** All features and functionality are validated through manual testing in the browser.
+
+## Recent Features & Patterns
+
+### Multi-Dataset Download Optimization (2025-09)
+
+- **Selection-Driven Row Counts**: Only calculates row counts for selected datasets
+- **Request Debouncing**: 150ms delay for selection batching, 300ms for filter changes
+- **Request Cancellation**: AbortController pattern for filter change interruptions
+- **Zustand State Pattern**: Feature-isolated stores with `useMultiDatasetDownloadStore` and `useRowCountStore`
+- **Performance Threshold**: 2M row limit with smart threshold display for unselected datasets
+
+### Performance Patterns
+
+- **Debouncing**: Use throttle-debounce library, prefer selection-aware debouncing
+- **Request Management**: Implement cancellation for filter changes, batch selections within timeframes
+- **Memory Management**: Clean up stale data, limit cache sizes, proper event listener cleanup
+- **State Isolation**: Use Zustand for new features to avoid Redux complexity
