@@ -46,10 +46,10 @@ const RangeSlider = ({
       valueLabelDisplay="auto"
       valueLabelFormat={getValueLabel}
       ValueLabelComponent={CustomValueLabel}
-      classes={{
-        thumb: styles.sliderThumb,
-        markLabel: styles.markLabel,
-      }}
+      // classes={{
+      //   thumb: styles.sliderThumb,
+      //   markLabel: styles.markLabel,
+      // }}
       style={styles.slider}
       disabled={disabled}
       marks={[
