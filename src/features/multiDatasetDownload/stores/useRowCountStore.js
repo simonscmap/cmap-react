@@ -17,6 +17,7 @@ const useRowCountStore = create((set, get) => ({
   rowCountsLoading: {},
   rowCountsError: {},
   pendingRequests: {}, // datasetId -> AbortController
+  previousFilters: null, // Track filter state for transition detection
 
   // Actions
   initializeWithDatasets: (datasets) => {
@@ -27,13 +28,53 @@ const useRowCountStore = create((set, get) => ({
     });
   },
 
+  // Helper function to detect filter transitions
+  detectTransition: (newFilters) => {
+    const state = get();
+    const prev = state.previousFilters;
+    return {
+      isTransitionToUnfiltered:
+        prev?.isFiltered === true && !newFilters?.isFiltered,
+    };
+  },
+
+  // Helper function to restore original counts for selected datasets
+  restoreOriginalCountsForSelected: (datasetIds) => {
+    const state = get();
+    const updatedDynamicRowCounts = { ...state.dynamicRowCounts };
+    const clearedLoadingStates = {};
+
+    datasetIds.forEach((datasetId) => {
+      // Remove any stale dynamic counts - getEffectiveRowCount will fall back to original
+      if (updatedDynamicRowCounts[datasetId] !== undefined) {
+        delete updatedDynamicRowCounts[datasetId];
+      }
+      clearedLoadingStates[datasetId] = false;
+    });
+
+    set({
+      dynamicRowCounts: updatedDynamicRowCounts,
+      rowCountsLoading: { ...state.rowCountsLoading, ...clearedLoadingStates },
+    });
+  },
+
   fetchRowCountsForSelected: async (datasetIds, filters) => {
     const state = get();
+
+    // Detect transition and update previous filters for next call
+    const transition = state.detectTransition(filters);
+    set({ previousFilters: filters ? { ...filters } : null });
 
     // Cancel existing requests first
     state.cancelPendingRequests();
 
     if (!datasetIds || datasetIds.length === 0) {
+      return;
+    }
+
+    // Handle filtered → unfiltered transition
+    if (transition.isTransitionToUnfiltered) {
+      state.restoreOriginalCountsForSelected(datasetIds);
       return;
     }
 
@@ -302,6 +343,7 @@ const useRowCountStore = create((set, get) => ({
       rowCountsLoading: {},
       rowCountsError: {},
       pendingRequests: {},
+      previousFilters: null,
     });
   },
 }));
