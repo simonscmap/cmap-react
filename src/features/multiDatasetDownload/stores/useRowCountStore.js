@@ -32,10 +32,11 @@ const useRowCountStore = create((set, get) => ({
   detectTransition: (newFilters) => {
     const state = get();
     const prev = state.previousFilters;
-    return {
+    const result = {
       isTransitionToUnfiltered:
         prev?.isFiltered === true && !newFilters?.isFiltered,
     };
+    return result;
   },
 
   // Helper function to restore original counts for selected datasets

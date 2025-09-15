@@ -117,15 +117,13 @@ const MultiDatasetDownloadContainerInner = ({ datasetsMetadata }) => {
 
   // Update row counts when filters change - selection-driven approach
   useEffect(() => {
-    if (filterValues.isFiltered) {
-      const selectedDatasetIds = getSelectedIds();
+    const selectedDatasetIds = getSelectedIds();
 
-      // Cancel any pending requests on filter changes
-      cancelPendingRequests();
+    // Cancel any pending requests on filter changes
+    cancelPendingRequests();
 
-      // Only fetch row counts for selected datasets with debouncing
-      debouncedFilterChange(selectedDatasetIds, filterValues);
-    }
+    // Always fetch row counts for selected datasets - let store handle transition logic
+    debouncedFilterChange(selectedDatasetIds, filterValues);
   }, [
     filterValues,
     getSelectedIds,
