@@ -92,6 +92,18 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     }
     set({ selectedDatasets: newSelectedDatasets });
 
+    // IMMEDIATE: Show spinner for newly selected datasets
+    if (getRowCountStore && newSelectedDatasets.has(datasetName)) {
+      const rowCountStore = getRowCountStore();
+      rowCountStore.setLoadingState(datasetName, true);
+    }
+
+    // IMMEDIATE: Clear spinner for newly deselected datasets
+    if (getRowCountStore && !newSelectedDatasets.has(datasetName)) {
+      const rowCountStore = getRowCountStore();
+      rowCountStore.setLoadingState(datasetName, false);
+    }
+
     // SEPARATE: Queue row count API call with existing debounce
     if (getRowCountStore) {
       const rowCountStore = getRowCountStore();
