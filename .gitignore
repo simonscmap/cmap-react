@@ -42,7 +42,7 @@ notes
 .web-bundles
 .specify
 .claude/commands/
-
+specs/*
 # BMAD End
 
 /docs/
