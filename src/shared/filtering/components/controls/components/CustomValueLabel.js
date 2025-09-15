@@ -14,9 +14,6 @@ const CustomValueLabel = ({ children, open, value }) => {
           pointerEvents: 'none',
         },
       }}
-      // classes={{
-      //   tooltip: styles.customValueLabelTooltip,
-      // }}
     >
       {children}
     </Tooltip>
