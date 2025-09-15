@@ -37,6 +37,19 @@ const useRowCountStore = create((set, get) => ({
       return;
     }
 
+    // If no filters are applied, skip API call since result would be identical to originalRowCounts
+    if (!filters?.isFiltered) {
+      // Clear any loading states and return early
+      const loadingStates = {};
+      datasetIds.forEach((datasetId) => {
+        loadingStates[datasetId] = false;
+      });
+      set((state) => ({
+        rowCountsLoading: { ...state.rowCountsLoading, ...loadingStates },
+      }));
+      return;
+    }
+
     // Set loading states for selected datasets
     const loadingStates = {};
     const errorStates = {};
