@@ -139,21 +139,41 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
     }
   };
 
-  const renderRowCount = (datasetName) => {
+  const getOriginalRowCount = (datasetName) => {
+    const { originalRowCounts } = useRowCountStore.getState();
+    return originalRowCounts[datasetName];
+  };
+
+  const renderRowCount = (datasetName, isSelected) => {
     const effectiveCount = getEffectiveRowCount(datasetName);
     const isLoading = isRowCountLoading(datasetName);
     const error = getRowCountError(datasetName);
+    const originalCount = getOriginalRowCount(datasetName);
 
-    if (isLoading) {
+    // Only show loading indicators for selected datasets
+    if (isSelected && isLoading) {
       return <CircularProgress size={16} color="primary" />;
     }
-    if (error) {
+
+    // Only show errors for selected datasets
+    if (isSelected && error) {
       return (
         <Typography variant="body2" color="error">
           Error
         </Typography>
       );
     }
+
+    // Show "≤ [count]" for unselected datasets when filters are active
+    if (!isSelected && filterValues?.isFiltered && originalCount) {
+      return (
+        <Typography variant="body2" noWrap>
+          ≤ {originalCount.toLocaleString()}
+        </Typography>
+      );
+    }
+
+    // Default display logic
     return (
       <Typography variant="body2" noWrap>
         {effectiveCount !== null && effectiveCount !== undefined
@@ -281,7 +301,7 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
                     </Typography>
                   </TableCell>
                   <TableCell align="right" style={styles.bodyCellStyle}>
-                    {renderRowCount(datasetMetadata.Dataset_Name)}
+                    {renderRowCount(datasetMetadata.Dataset_Name, isSelected)}
                   </TableCell>
                   <TableCell style={styles.bodyCellStyle}>
                     <Typography variant="body2" noWrap>

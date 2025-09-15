@@ -79,7 +79,7 @@ This feature optimizes row count calculations to only fetch counts for selected 
   - **New display logic**: Show "≤ [count]" for unselected with filters, loading only for selected
   - **Validation**: Manual test using [quickstart.md scenario 7](quickstart.md)
 
-- [ ] T013 Update RowCountTotal component for selected-only counting
+- [x] T013 Update RowCountTotal component for selected-only counting
   - **File**: `src/Components/Catalog/Programs/MultiDatasetDownload/RowCountTotal.js`
   - **Current behavior**: Shows total for all visible datasets (see [research.md:157-163](research.md))
   - **Current Analysis**: [current-vs-desired-state.md:212-248](current-vs-desired-state.md)
