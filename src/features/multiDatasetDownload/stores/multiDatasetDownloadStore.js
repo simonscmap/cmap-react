@@ -82,11 +82,26 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     set({ debounceTimer: timer });
   },
   toggleDatasetSelection: (datasetName, getRowCountStore, filters = {}) => {
-    // Add to batch instead of immediate update
-    get().addToBatch(datasetName);
+    // IMMEDIATE UI UPDATE - no delay
+    const { selectedDatasets } = get();
+    const newSelectedDatasets = new Set(selectedDatasets);
+    if (newSelectedDatasets.has(datasetName)) {
+      newSelectedDatasets.delete(datasetName);
+    } else {
+      newSelectedDatasets.add(datasetName);
+    }
+    set({ selectedDatasets: newSelectedDatasets });
 
-    // Process batch with debouncing
-    get().processBatch(getRowCountStore, filters);
+    // SEPARATE: Queue row count API call with existing debounce
+    if (getRowCountStore) {
+      const rowCountStore = getRowCountStore();
+      if (rowCountStore.debouncedFetchForSelected) {
+        rowCountStore.debouncedFetchForSelected(
+          Array.from(newSelectedDatasets),
+          filters,
+        );
+      }
+    }
   },
 
   selectAll: (getRowCountStore, filteredDatasets) => {
