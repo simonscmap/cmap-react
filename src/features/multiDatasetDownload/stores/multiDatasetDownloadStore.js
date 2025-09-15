@@ -92,8 +92,12 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     }
     set({ selectedDatasets: newSelectedDatasets });
 
-    // IMMEDIATE: Show spinner for newly selected datasets
-    if (getRowCountStore && newSelectedDatasets.has(datasetName)) {
+    // IMMEDIATE: Show spinner for newly selected datasets (only if filters are applied)
+    if (
+      getRowCountStore &&
+      newSelectedDatasets.has(datasetName) &&
+      filters.isFiltered
+    ) {
       const rowCountStore = getRowCountStore();
       rowCountStore.setLoadingState(datasetName, true);
     }
