@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { SELECTION_DEBOUNCE_DELAY_MS } from '../constants';
 import { debounce } from 'throttle-debounce';
 import bulkDownloadAPI from '../api/bulkDownload';
 
@@ -6,7 +7,7 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
   // State
   selectedDatasets: new Set(),
   batchedSelections: new Set(), // Datasets waiting for debounced row count fetch
-  debounceTimer: null, // Timer for 150ms debouncing
+  debounceTimer: null, // Timer for selection debouncing
   datasetsMetadata: [],
   filters: {
     temporal: null,
@@ -25,7 +26,11 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     set({ batchedSelections: newBatch });
   },
 
-  processBatch: (getRowCountStore, filters = {}, delay = 150) => {
+  processBatch: (
+    getRowCountStore,
+    filters = {},
+    delay = SELECTION_DEBOUNCE_DELAY_MS,
+  ) => {
     const { debounceTimer } = get();
 
     // Clear existing timer

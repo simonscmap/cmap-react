@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { debounce } from 'throttle-debounce';
+import { SELECTION_DEBOUNCE_DELAY_MS } from '../constants';
 import bulkDownloadAPI from '../api/bulkDownload';
 
 // Threshold configuration constants
@@ -134,10 +135,14 @@ const useRowCountStore = create((set, get) => ({
   },
 
   // Debounced version for batching requests
-  debouncedFetchForSelected: debounce(150, false, (datasetIds, filters) => {
-    const state = get();
-    state.fetchRowCountsForSelected(datasetIds, filters);
-  }),
+  debouncedFetchForSelected: debounce(
+    SELECTION_DEBOUNCE_DELAY_MS,
+    false,
+    (datasetIds, filters) => {
+      const state = get();
+      state.fetchRowCountsForSelected(datasetIds, filters);
+    },
+  ),
 
   setRowCount: (datasetId, count) => {
     set((state) => ({
