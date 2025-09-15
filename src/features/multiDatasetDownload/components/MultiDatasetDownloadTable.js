@@ -98,21 +98,35 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
     window.open(`/programs/${program}`, '_blank');
   };
 
-  const getRowCountStoreConfig = () => ({
-    getThresholdConfig: getThresholdConfig,
-    getEffectiveRowCount: getEffectiveRowCount,
-    getTotalSelectedRows: getTotalSelectedRows,
-  });
+  const rowCountStoreActions = useRowCountStore();
 
-  const handleSelectAll = () => {
-    const result = selectAll(getRowCountStoreConfig, datasetsMetadata);
+  const getRowCountStoreInstance = () => {
+    return {
+      ...rowCountStoreActions,
+      getThresholdConfig: getThresholdConfig,
+      getEffectiveRowCount: getEffectiveRowCount,
+      getTotalSelectedRows: getTotalSelectedRows,
+    };
+  };
 
-    if (result.wasPartialSelection) {
-      dispatch(
-        snackbarOpen(
-          `Not all datasets could be selected because they would exceed the ${result.formattedThreshold}M row limit.`,
-        ),
+  const handleSelectAll = async () => {
+    try {
+      const result = await selectAll(
+        getRowCountStoreInstance,
+        datasetsMetadata,
+        filterValues,
       );
+
+      if (result.wasPartialSelection) {
+        dispatch(
+          snackbarOpen(
+            `Not all datasets could be selected because they would exceed the ${result.formattedThreshold}M row limit.`,
+          ),
+        );
+      }
+    } catch (error) {
+      console.error('Failed to select all datasets:', error);
+      dispatch(snackbarOpen('Failed to select datasets. Please try again.'));
     }
   };
 

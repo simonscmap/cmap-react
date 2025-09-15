@@ -120,7 +120,7 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     }
   },
 
-  selectAll: (getRowCountStore, filteredDatasets) => {
+  selectAll: async (getRowCountStore, filteredDatasets, filters = {}) => {
     const { selectedDatasets: currentSelections, debounceTimer } = get();
 
     // Clear any pending batches since we're doing a bulk operation
@@ -146,6 +146,22 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     const rowCountStore = getRowCountStore();
     const { maxRowThreshold } = rowCountStore.getThresholdConfig();
     const formattedThreshold = (maxRowThreshold / 1000000).toFixed(0);
+
+    // If filters are applied, fetch filtered row counts for all datasets first
+    if (filters.isFiltered) {
+      const allDatasetNames = filteredDatasets.map(
+        (dataset) => dataset.Dataset_Name,
+      );
+      try {
+        await rowCountStore.fetchRowCountsForSelected(allDatasetNames, filters);
+      } catch (error) {
+        console.error(
+          'Failed to fetch filtered row counts for selectAll:',
+          error,
+        );
+        // Continue with existing logic using available counts
+      }
+    }
 
     const selectedDatasets = new Set(currentSelections);
     let currentTotal = rowCountStore.getTotalSelectedRows(
@@ -177,12 +193,6 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     const wasPartialSelection = actuallySelected < totalAvailable;
 
     set({ selectedDatasets });
-
-    // Trigger row count update for selected datasets
-    const newlySelected = Array.from(selectedDatasets);
-    if (newlySelected.length > 0 && rowCountStore.debouncedFetchForSelected) {
-      rowCountStore.debouncedFetchForSelected(newlySelected, {});
-    }
 
     return {
       totalAvailable,
