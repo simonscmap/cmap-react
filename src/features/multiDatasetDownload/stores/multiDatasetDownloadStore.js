@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { SELECTION_DEBOUNCE_DELAY_MS } from '../constants';
+import { SELECTION_DEBOUNCE_DELAY_MS } from '../constants/constants';
 import { debounce } from 'throttle-debounce';
 import bulkDownloadAPI from '../api/bulkDownload';
 

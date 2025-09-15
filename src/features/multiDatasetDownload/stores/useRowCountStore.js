@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { debounce } from 'throttle-debounce';
-import { SELECTION_DEBOUNCE_DELAY_MS } from '../constants';
+import { SELECTION_DEBOUNCE_DELAY_MS } from '../constants/constants';
 import bulkDownloadAPI from '../api/bulkDownload';
 
 // Threshold configuration constants
