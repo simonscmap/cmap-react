@@ -201,7 +201,9 @@ const MultiDatasetDownloadContainer = ({ datasetShortNames }) => {
       fetchDatasetsMetadata(datasetShortNames);
     }
   }, [datasetShortNames, fetchDatasetsMetadata]);
-
+  if (!datasetShortNames || datasetShortNames.length === 0) {
+    return <SpinnerWrapper message="Loading program data..." />;
+  }
   if (shouldShowSpinner) {
     return <SpinnerWrapper message="Loading datasets..." />;
   }
