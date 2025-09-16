@@ -6,7 +6,6 @@ import DateRangeControl from './controls/DateRangeControl';
 import RangeSubsetControl from './controls/RangeSubsetControl';
 import ToggleWithHelp from '../../components/ToggleWithHelp';
 import styles from '../styles/DefaultSubsetControlsLayoutStyles';
-import { dayToDateString, extractDateFromString } from '../utils/dateHelpers';
 
 const DefaultSubsetControlsLayout = ({
   optionsState, // Direct props from parent (toggle state)
@@ -14,53 +13,6 @@ const DefaultSubsetControlsLayout = ({
   controls, // From layoutProps via React.cloneElement (filtering data)
   ...layoutProps // Any additional props from SubsetControls via React.cloneElement
 }) => {
-  // Helper functions to convert between day numbers and Date objects
-  const dayNumberToDate = (dayNumber, timeMin) => {
-    if (dayNumber === null || dayNumber === undefined || !timeMin) return null;
-    try {
-      const dateString = dayToDateString(timeMin, dayNumber);
-      return extractDateFromString(dateString);
-    } catch (error) {
-      return null;
-    }
-  };
-
-  const dateToDayNumber = (date, timeMin) => {
-    if (!date || !timeMin) return null;
-    try {
-      return Math.ceil(
-        (date.getTime() - new Date(timeMin).getTime()) / 86400000,
-      );
-    } catch (error) {
-      return null;
-    }
-  };
-
-  // Convert day numbers to Date objects for the new DateRangeControl API
-  const startDate = dayNumberToDate(
-    controls.date.data.timeStart,
-    controls.date.data.timeMin,
-  );
-  const endDate = dayNumberToDate(
-    controls.date.data.timeEnd,
-    controls.date.data.timeMin,
-  );
-  const minDate = dayNumberToDate(0, controls.date.data.timeMin);
-  const maxDate = dayNumberToDate(
-    controls.date.data.maxDays,
-    controls.date.data.timeMin,
-  );
-
-  // Wrapper handlers to convert Date objects back to day numbers
-  const handleStartDateChange = (date) => {
-    const dayNumber = dateToDayNumber(date, controls.date.data.timeMin);
-    controls.date.handlers.setTimeStart(dayNumber);
-  };
-
-  const handleEndDateChange = (date) => {
-    const dayNumber = dateToDayNumber(date, controls.date.data.timeMin);
-    controls.date.handlers.setTimeEnd(dayNumber);
-  };
   return (
     <React.Fragment>
       <ToggleWithHelp
@@ -87,12 +39,13 @@ const DefaultSubsetControlsLayout = ({
           ) : (
             <DateRangeControl
               title="Date"
-              startDate={startDate}
-              endDate={endDate}
-              minDate={minDate}
-              maxDate={maxDate}
-              onStartChange={handleStartDateChange}
-              onEndChange={handleEndDateChange}
+              start={controls.date.data.timeStart}
+              end={controls.date.data.timeEnd}
+              setStart={controls.date.handlers.setTimeStart}
+              setEnd={controls.date.handlers.setTimeEnd}
+              min={0}
+              max={controls.date.data.maxDays}
+              timeMin={controls.date.data.timeMin}
             />
           )}
           <RangeSubsetControl
