@@ -2,45 +2,46 @@ import React from 'react';
 import { Grid, Typography } from '@material-ui/core';
 import styles from '../../../styles/subsetControlStyles';
 import useDateRangeInput from '../../../hooks/useDateRangeInput';
-import { RangeDateInput, RangeSlider } from '../components';
+import DateRangeSlider from './DateRangeSlider';
+import RangeDateInput from './RangeDateInput';
 
 /**
  * Date range subset control component
  * Provides date picker inputs and a slider for selecting date ranges
- * Works with day number values internally while displaying formatted dates to users
+ * Works directly with Date objects
  */
 const DateRangeControl = ({
   title,
-  start,
-  end,
-  setStart,
-  setEnd,
-  min,
-  max,
-  timeMin, // Base date for day number calculations
+  startDate, // Date object
+  endDate, // Date object
+  setStartDate, // (date) => void
+  setEndDate, // (date) => void
+  minDate, // Date object
+  maxDate, // Date object
   startLabel = 'Start Date',
   endLabel = 'End Date',
 }) => {
+  // Handle date changes
+  const handleStartChange = (date) => {
+    setStartDate(date);
+  };
+
+  const handleEndChange = (date) => {
+    setEndDate(date);
+  };
+
   const {
     handleDateStartBlur,
     handleDateEndBlur,
     startDateMessage,
     endDateMessage,
-    handleSlider,
-    handleSliderCommit,
-    sliderStart,
-    sliderEnd,
-    formatSliderLabel,
-    formatSliderValueLabel,
   } = useDateRangeInput({
-    start,
-    end,
-    setStart,
-    setEnd,
-    min,
-    max,
-    timeMin, // Pass timeMin to the hook
-    step: 1, // Days are discrete units
+    start: startDate,
+    end: endDate,
+    setStart: setStartDate,
+    setEnd: setEndDate,
+    min: minDate,
+    max: maxDate,
   });
 
   return (
@@ -52,44 +53,38 @@ const DateRangeControl = ({
 
         <Grid item xs={6} md={4}>
           <RangeDateInput
-            min={min}
-            max={max}
-            displayValue={start}
-            handleChange={(e) => setStart(e.target.value)}
-            handleBlur={handleDateStartBlur}
+            minDate={minDate}
+            maxDate={maxDate}
+            value={startDate}
+            onChange={handleStartChange}
+            onBlur={handleDateStartBlur}
             validationMessage={startDateMessage}
             label={startLabel}
             id={`dateInputStart${title.replace(/[^a-zA-Z0-9]/g, '')}`}
-            timeMin={timeMin}
           />
         </Grid>
 
         <Grid item xs={6} md={4}>
           <RangeDateInput
-            min={min}
-            max={max}
-            displayValue={end}
-            handleChange={(e) => setEnd(e.target.value)}
-            handleBlur={handleDateEndBlur}
+            minDate={minDate}
+            maxDate={maxDate}
+            value={endDate}
+            onChange={handleEndChange}
+            onBlur={handleDateEndBlur}
             validationMessage={endDateMessage}
             label={endLabel}
             id={`dateInputEnd${title.replace(/[^a-zA-Z0-9]/g, '')}`}
-            timeMin={timeMin}
           />
         </Grid>
       </Grid>
-      <RangeSlider
-        min={min}
-        max={max}
-        start={sliderStart}
-        end={sliderEnd}
-        handleSlider={handleSlider}
-        handleSliderCommit={handleSliderCommit}
-        step={1}
-        disabled={min === max}
-        unit=""
-        formatLabel={formatSliderLabel}
-        formatValueLabel={formatSliderValueLabel}
+      <DateRangeSlider
+        startDate={startDate}
+        endDate={endDate}
+        minDate={minDate}
+        maxDate={maxDate}
+        onStartChange={handleStartChange}
+        onEndChange={handleEndChange}
+        disabled={minDate === maxDate}
       />
     </React.Fragment>
   );

@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import {
   dateToDateString,
-  dateToDay,
   extractDateFromString,
   getIsMonthlyClimatology,
   getInitialRangeValues,
@@ -75,9 +74,8 @@ const useSubsetFiltering = (dataset) => {
     const date = extractDateFromString(value);
     const shouldUpdate = dateIsWithinBounds(date);
 
-    if (shouldUpdate && dataset?.Time_Min) {
-      const newStartDay = dateToDay(dataset.Time_Min, date);
-      setTimeStart(newStartDay);
+    if (shouldUpdate) {
+      setTimeStart(date);
       setValidTimeMin(true);
       if (validTimeMax) {
         setInvalidFlag(false);
@@ -102,9 +100,8 @@ const useSubsetFiltering = (dataset) => {
     const date = extractDateFromString(value);
     const shouldUpdate = dateIsWithinBounds(date);
 
-    if (shouldUpdate && dataset?.Time_Min) {
-      const newEndDay = dateToDay(dataset.Time_Min, date);
-      setTimeEnd(newEndDay);
+    if (shouldUpdate) {
+      setTimeEnd(date);
       setValidTimeMax(true);
       if (validTimeMin) {
         setInvalidFlag(false);
@@ -169,6 +166,7 @@ const useSubsetFiltering = (dataset) => {
       depthStart,
       depthEnd,
       Time_Min: dataset?.Time_Min,
+      Time_Max: dataset?.Time_Max,
     }),
     [
       isFiltered,
@@ -182,6 +180,7 @@ const useSubsetFiltering = (dataset) => {
       depthStart,
       depthEnd,
       dataset?.Time_Min,
+      dataset?.Time_Max,
     ],
   );
 
@@ -213,8 +212,8 @@ const useSubsetFiltering = (dataset) => {
       lonMax: dataset?.Lon_Max,
       depthMin: dataset?.Depth_Min,
       depthMax: dataset?.Depth_Max,
-      timeMin: dataset?.Time_Min,
-      timeMax: dataset?.Time_Max,
+      timeMin: dataset?.Time_Min ? new Date(dataset.Time_Min) : null,
+      timeMax: dataset?.Time_Max ? new Date(dataset.Time_Max) : null,
       maxDays,
     },
 

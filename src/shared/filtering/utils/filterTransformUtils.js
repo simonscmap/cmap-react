@@ -1,69 +1,38 @@
-import { dayToDateString } from './dateHelpers';
+import { dateToDateString } from './dateHelpers';
 
-/**
- * Transform useSubsetFiltering state into API-compatible filter format
- * @param {Object} subsetFiltering - Result from useSubsetFiltering hook
- * @returns {Object} Transformed filters for API consumption
- */
-export const transformSubsetFiltersForAPI = (subsetFiltering) => {
-  if (!subsetFiltering?.filterValues) {
-    return {
-      temporal: null,
-      spatial: null,
-      depth: null,
+export const transformFiltersForAPI = (filters) => {
+  const apiFilters = {};
+
+  // Transform temporal filters - convert Date objects to date strings
+  if (filters.Time_Min) {
+    apiFilters.temporal = {
+      startDate: dateToDateString(filters.timeStart),
+      endDate: dateToDateString(filters.timeEnd),
     };
   }
 
-  const { filterValues } = subsetFiltering;
+  // Transform spatial filters - map to API format
+  if (
+    filters.latStart !== undefined ||
+    filters.latEnd !== undefined ||
+    filters.lonStart !== undefined ||
+    filters.lonEnd !== undefined
+  ) {
+    apiFilters.spatial = {
+      latMin: filters.latStart,
+      latMax: filters.latEnd,
+      lonMin: filters.lonStart,
+      lonMax: filters.lonEnd,
+    };
+  }
 
-  // Transform temporal filters from days to date strings for API
-  const temporal =
-    filterValues.isFiltered &&
-    filterValues.Time_Min &&
-    filterValues.timeStart !== undefined &&
-    filterValues.timeEnd !== undefined
-      ? {
-          startDate: dayToDateString(
-            filterValues.Time_Min,
-            filterValues.timeStart,
-          ),
-          endDate: dayToDateString(filterValues.Time_Min, filterValues.timeEnd),
-          timeMin: filterValues.Time_Min,
-          timeMax: subsetFiltering.datasetFilterBounds.timeMax,
-          timeStart: filterValues.timeStart,
-          timeEnd: filterValues.timeEnd,
-        }
-      : null;
+  // Transform depth filters - map to API format
+  if (filters.depthStart !== undefined || filters.depthEnd !== undefined) {
+    apiFilters.depth = {
+      min: filters.depthStart,
+      max: filters.depthEnd,
+    };
+  }
 
-  // Transform spatial filters to API format
-  const spatial =
-    filterValues.isFiltered &&
-    (filterValues.latStart !== undefined ||
-      filterValues.latEnd !== undefined ||
-      filterValues.lonStart !== undefined ||
-      filterValues.lonEnd !== undefined)
-      ? {
-          latMin: filterValues.latStart,
-          latMax: filterValues.latEnd,
-          lonMin: filterValues.lonStart,
-          lonMax: filterValues.lonEnd,
-        }
-      : null;
-
-  // Transform depth filters to API format
-  const depth =
-    filterValues.isFiltered &&
-    (filterValues.depthStart !== undefined ||
-      filterValues.depthEnd !== undefined)
-      ? {
-          min: filterValues.depthStart,
-          max: filterValues.depthEnd,
-        }
-      : null;
-
-  return {
-    temporal,
-    spatial,
-    depth,
-  };
+  return apiFilters;
 };

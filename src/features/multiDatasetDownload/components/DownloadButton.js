@@ -6,7 +6,6 @@ import GetAppIcon from '@material-ui/icons/GetApp';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
 import useRowCountStore from '../stores/useRowCountStore';
-import { transformSubsetFiltersForAPI } from '../../../shared/filtering/utils/filterTransformUtils';
 import { showLoginDialog, snackbarOpen } from '../../../Redux/actions/ui';
 
 const useStyles = makeStyles((theme) => ({

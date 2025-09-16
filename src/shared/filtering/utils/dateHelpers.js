@@ -121,8 +121,16 @@ export const dayToSliderDateString = (min, days) => {
 };
 
 export const getInitialRangeValues = (dataset) => {
-  let { Lat_Max, Lat_Min, Lon_Max, Lon_Min, Time_Min, Depth_Max, Depth_Min } =
-    dataset;
+  let {
+    Lat_Max,
+    Lat_Min,
+    Lon_Max,
+    Lon_Min,
+    Time_Min,
+    Time_Max,
+    Depth_Max,
+    Depth_Min,
+  } = dataset;
 
   let maxDays = getMaxDays(dataset);
 
@@ -136,8 +144,8 @@ export const getInitialRangeValues = (dataset) => {
       end: formatLongitude(Lon_Max),
     },
     time: {
-      start: Time_Min ? 0 : 1,
-      end: Time_Min ? maxDays : 12,
+      start: Time_Min ? new Date(Time_Min) : new Date(),
+      end: Time_Max ? new Date(Time_Max) : new Date(),
     },
     depth: {
       start: Math.floor(Depth_Min),
