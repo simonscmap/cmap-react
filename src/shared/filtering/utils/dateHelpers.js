@@ -26,17 +26,6 @@ export const dateToDateString = (date) => {
   return formatDateString(fullYear, month, day);
 };
 
-export const dateToDay = (min, date) =>
-  Math.ceil((new Date(date).getTime() - new Date(min).getTime()) / 86400000);
-
-// convert a date string like "2007-04-09" to "4/9"
-export const shortenDate = (str) =>
-  str
-    .split('-')
-    .slice(1)
-    .map((n) => parseInt(n, 10))
-    .join('/');
-
 export const extractDateFromString = (stringDate) => {
   let [year, month, day] = stringDate.split('-');
   const date = new Date(year, parseInt(month) - 1, day);
@@ -49,29 +38,6 @@ export const emptyStringOrNumber = (val) => {
 
 export const getIsMonthlyClimatology = (temporalResolution) => {
   return Boolean(temporalResolution === temporalResolutions.monthlyClimatology);
-};
-// with the begin and end dates of a dataset,
-// calculate the span of days
-export const getMaxDays = (dataset) => {
-  let endTime = new Date(dataset.Time_Max).getTime();
-  let startTime = new Date(dataset.Time_Min).getTime();
-  let differenceInMilliseconds = endTime - startTime;
-  let intervalInDays = Math.floor(
-    differenceInMilliseconds / MILLISECONDS_PER_DAY,
-  );
-
-  /*
-log.debug('get max days', {
-    startTime: new Date(startTime),
-    endTime: new Date(endTime),
-    intervalInDays,
-    interval: differenceInMilliseconds / MILLISECONDS_PER_DAY,
-    dataset,
-  });
-
-   */
-
-  return intervalInDays;
 };
 
 // starting with a min date, return a string representation
@@ -95,29 +61,6 @@ export const dayToDateString = (min, days) => {
   let fullYear = value.getFullYear();
 
   return formatDateString(fullYear, month, day);
-};
-
-// starting with a min date, return a slider-formatted string representation
-// of the date N days later
-// :: Date -> Days Int -> Date String
-// Note: a Date String is in the format "yyyy/mm/dd" for sliders
-export const dayToSliderDateString = (min, days) => {
-  if (!min) {
-    console.error('dayToSliderDateString received no value for min');
-  }
-  let value = new Date(min);
-
-  value.setDate(value.getDate() + days);
-
-  let month = value.getMonth() + 1;
-  month = month > 9 ? month : '0' + month;
-
-  let day = value.getDate();
-  day = day > 9 ? day : '0' + day;
-
-  let fullYear = value.getFullYear();
-
-  return formatSliderDateString(fullYear, month, day);
 };
 
 export const formatDateToYearMonthDay = (date) => {
