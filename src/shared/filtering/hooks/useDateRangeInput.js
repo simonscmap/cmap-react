@@ -114,24 +114,9 @@ const useDateRangeInput = ({
     step,
   });
 
-  // Local state for date input values (formatted strings)
-  const [localStartDateValue, setLocalStartDateValue] = useState('');
-  const [localEndDateValue, setLocalEndDateValue] = useState('');
-
   // Date-specific validation messages
   const [startDateMessage, setStartDateMessage] = useState('');
   const [endDateMessage, setEndDateMessage] = useState('');
-
-  // Update local date values when committed values change
-  useEffect(() => {
-    setLocalStartDateValue(
-      start === null ? '' : formatDateString(start, timeMin),
-    );
-  }, [start, timeMin]);
-
-  useEffect(() => {
-    setLocalEndDateValue(end === null ? '' : formatDateString(end, timeMin));
-  }, [end, timeMin]);
 
   // Computed formatted date values for display
   const formattedDates = useMemo(
@@ -156,80 +141,20 @@ const useDateRangeInput = ({
     setTimeout(() => setMessage(''), 3000);
   };
 
-  // Date input change handlers
-  const handleDateStartChange = (dateValue) => {
-    setLocalStartDateValue(dateValue);
-  };
-
-  const handleDateEndChange = (dateValue) => {
-    setLocalEndDateValue(dateValue);
-  };
-
   // Date input blur handlers with validation
   const handleDateStartBlur = () => {
-    const dayNumber = parseDateString(localStartDateValue, timeMin);
-
-    if (localStartDateValue.trim() === '') {
-      // Handle empty field - restore to min or default
-      const defaultValue = min !== undefined ? min : 0;
-      setStart(defaultValue);
-      setLocalStartDateValue(formatDateString(defaultValue, timeMin));
-      showDateMessage(setStartDateMessage, 'Restored to minimum date');
-      return;
-    }
-
-    if (dayNumber === null) {
-      showDateMessage(setStartDateMessage, 'Invalid date format');
-      setLocalStartDateValue(formatDateString(start, timeMin)); // Restore previous valid value
-      return;
-    }
-
-    // Apply validation
-    const errors = validateDateRange(dayNumber, end, min, max, timeMin);
+    // Apply validation for start date
+    const errors = validateDateRange(start, end, min, max, timeMin);
     if (errors.length > 0) {
       showDateMessage(setStartDateMessage, errors[0]);
-      // Apply clamping
-      let clampedValue = dayNumber;
-      if (min !== undefined && dayNumber < min) clampedValue = min;
-      if (end !== null && dayNumber > end) clampedValue = end;
-      setStart(clampedValue);
-      setLocalStartDateValue(formatDateString(clampedValue, timeMin));
-    } else {
-      setStart(dayNumber);
     }
   };
 
   const handleDateEndBlur = () => {
-    const dayNumber = parseDateString(localEndDateValue, timeMin);
-
-    if (localEndDateValue.trim() === '') {
-      // Handle empty field - restore to max or default
-      const defaultValue =
-        max !== undefined ? max : toDayNumber(new Date(), timeMin);
-      setEnd(defaultValue);
-      setLocalEndDateValue(formatDateString(defaultValue, timeMin));
-      showDateMessage(setEndDateMessage, 'Restored to maximum date');
-      return;
-    }
-
-    if (dayNumber === null) {
-      showDateMessage(setEndDateMessage, 'Invalid date format');
-      setLocalEndDateValue(formatDateString(end, timeMin)); // Restore previous valid value
-      return;
-    }
-
-    // Apply validation
-    const errors = validateDateRange(start, dayNumber, min, max, timeMin);
+    // Apply validation for end date
+    const errors = validateDateRange(start, end, min, max, timeMin);
     if (errors.length > 0) {
       showDateMessage(setEndDateMessage, errors[0]);
-      // Apply clamping
-      let clampedValue = dayNumber;
-      if (max !== undefined && dayNumber > max) clampedValue = max;
-      if (start !== null && dayNumber < start) clampedValue = start;
-      setEnd(clampedValue);
-      setLocalEndDateValue(formatDateString(clampedValue, timeMin));
-    } else {
-      setEnd(dayNumber);
     }
   };
 
@@ -246,11 +171,7 @@ const useDateRangeInput = ({
     // Inherit all base range input functionality
     ...rangeInput,
 
-    // Date-specific input values and handlers
-    localStartDateValue,
-    localEndDateValue,
-    handleDateStartChange,
-    handleDateEndChange,
+    // Date-specific blur handlers
     handleDateStartBlur,
     handleDateEndBlur,
 
@@ -264,16 +185,6 @@ const useDateRangeInput = ({
     // Slider date formatters
     formatSliderLabel,
     formatSliderValueLabel,
-
-    // Date utility functions (exposed for component use)
-    dateUtils: {
-      toDate: (dayNumber) => toDate(dayNumber, timeMin),
-      toDayNumber: (date) => toDayNumber(date, timeMin),
-      formatDateString: (dayNumber) => formatDateString(dayNumber, timeMin),
-      parseDateString: (dateString) => parseDateString(dateString, timeMin),
-      validateDateRange: (startDayNumber, endDayNumber, min, max) =>
-        validateDateRange(startDayNumber, endDayNumber, min, max, timeMin),
-    },
   };
 };
 
