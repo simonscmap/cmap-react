@@ -81,6 +81,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
+    fontFamily: 'Lato',
   },
   // Validation message styles
   validationMessage: {
