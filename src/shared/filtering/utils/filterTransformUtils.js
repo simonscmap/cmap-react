@@ -26,7 +26,7 @@ export const transformSubsetFiltersForAPI = (subsetFiltering) => {
           startDate: dateToDateString(filterValues.timeStart),
           endDate: dateToDateString(filterValues.timeEnd),
           timeMin: filterValues.Time_Min,
-          timeMax: subsetFiltering.datasetFilterBounds.timeMax,
+          timeMax: filterValues.Time_Max,
           timeStart: filterValues.timeStart,
           timeEnd: filterValues.timeEnd,
         }

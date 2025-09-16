@@ -166,6 +166,7 @@ const useSubsetFiltering = (dataset) => {
       depthStart,
       depthEnd,
       Time_Min: dataset?.Time_Min,
+      Time_Max: dataset?.Time_Max,
     }),
     [
       isFiltered,
@@ -179,6 +180,7 @@ const useSubsetFiltering = (dataset) => {
       depthStart,
       depthEnd,
       dataset?.Time_Min,
+      dataset?.Time_Max,
     ],
   );
 
@@ -210,8 +212,8 @@ const useSubsetFiltering = (dataset) => {
       lonMax: dataset?.Lon_Max,
       depthMin: dataset?.Depth_Min,
       depthMax: dataset?.Depth_Max,
-      timeMin: dataset?.Time_Min,
-      timeMax: dataset?.Time_Max,
+      timeMin: dataset?.Time_Min ? new Date(dataset.Time_Min) : null,
+      timeMax: dataset?.Time_Max ? new Date(dataset.Time_Max) : null,
       maxDays,
     },
 

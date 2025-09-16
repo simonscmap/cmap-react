@@ -17,6 +17,10 @@ const DateRangeSlider = ({
   disabled = false,
 }) => {
   // Convert Date objects to timestamps for internal slider processing
+  console.log('🐛🐛🐛 DateRangeSlider.js:20 endDate:', endDate);
+  console.log('🐛🐛🐛 DateRangeSlider.js:21 startDate:', startDate);
+  console.log('🐛🐛🐛 DateRangeSlider.js:22 minDate:', minDate);
+  console.log('🐛🐛🐛 DateRangeSlider.js:23 maxDate:', maxDate);
   const startTimestamp = startDate ? startDate.getTime() : null;
   const endTimestamp = endDate ? endDate.getTime() : null;
   const minTimestamp = minDate ? minDate.getTime() : null;
