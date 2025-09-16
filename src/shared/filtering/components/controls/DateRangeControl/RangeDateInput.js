@@ -77,9 +77,9 @@ const RangeDateInput = ({
                 <DateInput>
                   {(segment) => <DateSegment segment={segment} />}
                 </DateInput>
-                {validationMessage && (
+                {/* {validationMessage && (
                   <FieldError>{validationMessage}</FieldError>
-                )}
+                )} */}
               </DateField>
               <div className="date-picker-underline" />
             </div>
