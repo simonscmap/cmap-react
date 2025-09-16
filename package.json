@@ -52,7 +52,6 @@
     "prop-types": "^15.7.2",
     "query-string": "^6.13.7",
     "react": "^16.13.1",
-    "react-aria": "^3.43.2",
     "react-aria-components": "^1.12.2",
     "react-calendar": "^6.0.0",
     "react-date-picker": "^11.0.0",

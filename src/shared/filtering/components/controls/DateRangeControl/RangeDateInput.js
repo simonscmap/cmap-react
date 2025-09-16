@@ -5,10 +5,9 @@ import {
   DateInput,
   DateSegment,
   Label,
-  FieldError,
   I18nProvider,
 } from 'react-aria-components';
-import { parseDate, CalendarDate } from '@internationalized/date';
+import { CalendarDate } from '@internationalized/date';
 import styles from '../../../styles/subsetControlStyles';
 
 // Conversion helpers between Date and CalendarDate objects
@@ -77,9 +76,6 @@ const RangeDateInput = ({
                 <DateInput>
                   {(segment) => <DateSegment segment={segment} />}
                 </DateInput>
-                {/* {validationMessage && (
-                  <FieldError>{validationMessage}</FieldError>
-                )} */}
               </DateField>
               <div className="date-picker-underline" />
             </div>
