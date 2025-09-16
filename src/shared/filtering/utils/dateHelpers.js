@@ -120,6 +120,14 @@ export const dayToSliderDateString = (min, days) => {
   return formatSliderDateString(fullYear, month, day);
 };
 
+export const formatDateToYearMonthDay = (date) => {
+  if (!date || typeof date.getFullYear !== 'function') return date;
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}/${month}/${day}`;
+};
+
 export const getInitialRangeValues = (dataset) => {
   let {
     Lat_Max,

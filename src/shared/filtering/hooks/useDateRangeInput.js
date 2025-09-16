@@ -1,15 +1,5 @@
 import { useState } from 'react';
-
-/**
- * Format date object to YYYY/MM/DD string
- */
-const formatDateToYearMonthDay = (date) => {
-  if (!date || typeof date.getFullYear !== 'function') return date;
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}/${month}/${day}`;
-};
+import { formatDateToYearMonthDay } from '../utils/dateHelpers';
 
 /**
  * Date-based validation and clamping functions
