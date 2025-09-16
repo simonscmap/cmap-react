@@ -136,7 +136,7 @@ const useRangeInput = ({
           setLocalStartValue(String(clampedValue));
           showMessage(
             setMessage,
-            'Start value must be less than or equal to end value',
+            `Start value must be less than or equal to end value (${otherValue})`,
           );
         } else if (!isStart && clampedValue < otherValue) {
           // User is modifying end and it's less than start - clamp end to start
@@ -144,7 +144,7 @@ const useRangeInput = ({
           setLocalEndValue(String(clampedValue));
           showMessage(
             setMessage,
-            'End value must be greater than or equal to start value',
+            `End value must be greater than or equal to start value (${otherValue})`,
           );
         }
       }

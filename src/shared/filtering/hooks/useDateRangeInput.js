@@ -17,13 +17,13 @@ const validateAndClampDateRange = (
   let clampedEnd = end;
 
   if (start !== null && min !== undefined && start < min) {
-    errors.push(`Start date cannot be before minimum date`);
+    errors.push(`Start date cannot be before minimum date (${min})`);
     clampedStart = min;
     setStart(min);
   }
 
   if (end !== null && max !== undefined && end > max) {
-    errors.push(`End date cannot be after maximum date`);
+    errors.push(`End date cannot be after maximum date (${max})`);
     clampedEnd = max;
     setEnd(max);
   }
@@ -36,11 +36,15 @@ const validateAndClampDateRange = (
   ) {
     if (isStartInput) {
       // User is modifying start date and it exceeds end date - clamp start to end
-      errors.push('Start date must be before or equal to end date');
+      errors.push(
+        `Start date must be before or equal to end date (${clampedEnd})`,
+      );
       setStart(clampedEnd);
     } else {
       // User is modifying end date and it's less than start date - clamp end to start
-      errors.push('End date must be after or equal to start date');
+      errors.push(
+        `End date must be after or equal to start date (${clampedStart})`,
+      );
       setEnd(clampedStart);
     }
   }
