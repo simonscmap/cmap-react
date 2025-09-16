@@ -74,9 +74,11 @@ const RangeDateInput = ({
           </DateInput>
         </DateField>
         <div className="date-picker-underline" />
-        <Typography variant="caption" style={styles.validationMessage}>
-          {validationMessage || ''}
-        </Typography>
+        {validationMessage && (
+          <Typography variant="caption" style={styles.validationMessage}>
+            {validationMessage}
+          </Typography>
+        )}
       </div>
     </I18nProvider>
   );
