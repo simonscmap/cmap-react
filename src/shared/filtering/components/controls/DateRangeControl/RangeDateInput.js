@@ -1,8 +1,30 @@
 import React from 'react';
 import { Typography } from '@material-ui/core';
-import DatePicker from 'react-date-picker';
+import {
+  DateField,
+  DateInput,
+  DateSegment,
+  Label,
+  FieldError,
+  I18nProvider,
+} from 'react-aria-components';
+import { parseDate, CalendarDate } from '@internationalized/date';
 import styles from '../../../styles/subsetControlStyles';
-import '../../../styles/DatePickerStyles.css';
+
+// Conversion helpers between Date and CalendarDate objects
+const dateToCalendarDate = (date) => {
+  if (!date) return null;
+  return new CalendarDate(
+    date.getFullYear(),
+    date.getMonth() + 1,
+    date.getDate(),
+  );
+};
+
+const calendarDateToDate = (calendarDate) => {
+  if (!calendarDate) return null;
+  return new Date(calendarDate.year, calendarDate.month - 1, calendarDate.day);
+};
 
 const RangeDateInput = ({
   minDate,
@@ -14,47 +36,60 @@ const RangeDateInput = ({
   label,
   id,
 }) => {
-  // Handle DatePicker change - directly pass Date object
-  const handleDatePickerChange = (date) => {
-    onChange(date);
+  // Convert Date objects to CalendarDate for React ARIA
+  const calendarValue = dateToCalendarDate(value);
+  const calendarMinDate = dateToCalendarDate(minDate);
+  const calendarMaxDate = dateToCalendarDate(maxDate);
+
+  // Handle React ARIA DateField change - convert back to Date object
+  const handleDateFieldChange = (calendarDate) => {
+    const dateValue = calendarDateToDate(calendarDate);
+    onChange(dateValue);
   };
 
-  // Handle DatePicker blur - call onBlur directly
-  const handleDatePickerBlur = () => {
+  // Handle DateField blur
+  const handleDateFieldBlur = () => {
     if (onBlur) {
       onBlur();
     }
   };
 
   return (
-    <div style={styles.latInputContainer}>
-      <div style={styles.datePickerContainer}>
-        <label style={styles.datePickerLabel}>{label}</label>
-        <div style={styles.datePickerField}>
-          <div
-            className={`date-picker-container ${validationMessage ? 'error' : ''}`}
-          >
-            <DatePicker
-              shouldOpenCalendar={() => false}
-              calendarIcon={null}
-              clearIcon={null}
-              value={value}
-              onChange={handleDatePickerChange}
-              onBlur={handleDatePickerBlur}
-              format="yyyy/MM/dd"
-              className="custom-date-picker"
-              minDate={minDate}
-              maxDate={maxDate}
-              id={id}
-            />
-            <div className="date-picker-underline" />
+    <I18nProvider locale="en-US">
+      <div style={styles.latInputContainer}>
+        <div style={styles.datePickerContainer}>
+          <div style={styles.datePickerField}>
+            <div
+              className={`date-picker-container ${validationMessage ? 'error' : ''}`}
+            >
+              <DateField
+                value={calendarValue}
+                onChange={handleDateFieldChange}
+                onBlur={handleDateFieldBlur}
+                minValue={calendarMinDate}
+                maxValue={calendarMaxDate}
+                granularity="day"
+                id={id}
+                aria-label={label}
+                isInvalid={!!validationMessage}
+              >
+                <Label style={styles.datePickerLabel}>{label}</Label>
+                <DateInput>
+                  {(segment) => <DateSegment segment={segment} />}
+                </DateInput>
+                {validationMessage && (
+                  <FieldError>{validationMessage}</FieldError>
+                )}
+              </DateField>
+              <div className="date-picker-underline" />
+            </div>
           </div>
         </div>
+        <Typography variant="caption" style={styles.validationMessage}>
+          {validationMessage || ''}
+        </Typography>
       </div>
-      <Typography variant="caption" style={styles.validationMessage}>
-        {validationMessage || ''}
-      </Typography>
-    </div>
+    </I18nProvider>
   );
 };
 

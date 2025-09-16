@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-date-picker';
 // Note: Intentionally NOT importing default CSS files to avoid default styling
 // Import our custom CSS to style the DatePicker components
-import '../../styles/DatePickerStyles.css';
 import {
   dateToDateString,
   dayToDateString,
