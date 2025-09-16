@@ -2,50 +2,8 @@
 import { apiUrl, postOptions } from '../../../api/config';
 import safeApi from '../../../api/safeApi';
 import logInit from '../../../Services/log-service';
-import { dateToDateString } from '../../../shared/filtering/utils/dateHelpers';
+import { transformFiltersForAPI } from '../../../shared/filtering/utils';
 const log = logInit('bulk-download');
-
-/**
- * Transform filters from Zustand format to API format
- * @param {Object} filters - Filter object from Zustand store
- * @returns {Object} - API-compatible filter object
- */
-const transformFiltersForAPI = (filters) => {
-  const apiFilters = {};
-
-  // Transform temporal filters - convert Date objects to date strings
-  if (filters.Time_Min) {
-    apiFilters.temporal = {
-      startDate: dateToDateString(filters.timeStart),
-      endDate: dateToDateString(filters.timeEnd),
-    };
-  }
-
-  // Transform spatial filters - map to API format
-  if (
-    filters.latStart !== undefined ||
-    filters.latEnd !== undefined ||
-    filters.lonStart !== undefined ||
-    filters.lonEnd !== undefined
-  ) {
-    apiFilters.spatial = {
-      latMin: filters.latStart,
-      latMax: filters.latEnd,
-      lonMin: filters.lonStart,
-      lonMax: filters.lonEnd,
-    };
-  }
-
-  // Transform depth filters - map to API format
-  if (filters.depthStart !== undefined || filters.depthEnd !== undefined) {
-    apiFilters.depth = {
-      min: filters.depthStart,
-      max: filters.depthEnd,
-    };
-  }
-
-  return apiFilters;
-};
 
 /**
  * Trigger a browser download from blob data
