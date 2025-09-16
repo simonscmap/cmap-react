@@ -190,17 +190,15 @@ const ProgramDetail = (props) => {
             </Grid>
           </div>
 
-          {sortedDatasetNames.length > 0 && (
-            <div
-              className={cl.tabContent}
-              style={{ display: tabValue === 1 ? 'block' : 'none' }}
-            >
-              <SectionHeader title={'Multi-Dataset Download'} />
-              <MultiDatasetDownloadContainer
-                datasetShortNames={sortedDatasetNames}
-              />
-            </div>
-          )}
+          <div
+            className={cl.tabContent}
+            style={{ display: tabValue === 1 ? 'block' : 'none' }}
+          >
+            <SectionHeader title={'Multi-Dataset Download'} />
+            <MultiDatasetDownloadContainer
+              datasetShortNames={sortedDatasetNames}
+            />
+          </div>
         </Grid>
       </Grid>
     </Page2>
