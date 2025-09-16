@@ -1,4 +1,4 @@
-import { dayToDateString } from './dateHelpers';
+import { dateToDateString } from './dateHelpers';
 
 /**
  * Transform useSubsetFiltering state into API-compatible filter format
@@ -16,18 +16,15 @@ export const transformSubsetFiltersForAPI = (subsetFiltering) => {
 
   const { filterValues } = subsetFiltering;
 
-  // Transform temporal filters from days to date strings for API
+  // Transform temporal filters from Date objects to date strings for API
   const temporal =
     filterValues.isFiltered &&
     filterValues.Time_Min &&
     filterValues.timeStart !== undefined &&
     filterValues.timeEnd !== undefined
       ? {
-          startDate: dayToDateString(
-            filterValues.Time_Min,
-            filterValues.timeStart,
-          ),
-          endDate: dayToDateString(filterValues.Time_Min, filterValues.timeEnd),
+          startDate: dateToDateString(filterValues.timeStart),
+          endDate: dateToDateString(filterValues.timeEnd),
           timeMin: filterValues.Time_Min,
           timeMax: subsetFiltering.datasetFilterBounds.timeMax,
           timeStart: filterValues.timeStart,

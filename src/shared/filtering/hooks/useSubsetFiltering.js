@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import {
   dateToDateString,
-  dateToDay,
   extractDateFromString,
   getIsMonthlyClimatology,
   getInitialRangeValues,
@@ -75,9 +74,8 @@ const useSubsetFiltering = (dataset) => {
     const date = extractDateFromString(value);
     const shouldUpdate = dateIsWithinBounds(date);
 
-    if (shouldUpdate && dataset?.Time_Min) {
-      const newStartDay = dateToDay(dataset.Time_Min, date);
-      setTimeStart(newStartDay);
+    if (shouldUpdate) {
+      setTimeStart(date);
       setValidTimeMin(true);
       if (validTimeMax) {
         setInvalidFlag(false);
@@ -102,9 +100,8 @@ const useSubsetFiltering = (dataset) => {
     const date = extractDateFromString(value);
     const shouldUpdate = dateIsWithinBounds(date);
 
-    if (shouldUpdate && dataset?.Time_Min) {
-      const newEndDay = dateToDay(dataset.Time_Min, date);
-      setTimeEnd(newEndDay);
+    if (shouldUpdate) {
+      setTimeEnd(date);
       setValidTimeMax(true);
       if (validTimeMin) {
         setInvalidFlag(false);
