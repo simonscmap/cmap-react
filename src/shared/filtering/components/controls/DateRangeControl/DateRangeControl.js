@@ -3,7 +3,7 @@ import { Grid, Typography } from '@material-ui/core';
 import styles from '../../../styles/subsetControlStyles';
 import useDateRangeInput from '../../../hooks/useDateRangeInput';
 import DateRangeSlider from './DateRangeSlider';
-import RangeDateInput from './RangeDateInput';
+import DateRangeInput from './DateDateInput';
 
 /**
  * Date range subset control component
@@ -52,7 +52,7 @@ const DateRangeControl = ({
         </Grid>
 
         <Grid item xs={6} md={4}>
-          <RangeDateInput
+          <DateRangeInput
             minDate={minDate}
             maxDate={maxDate}
             value={startDate}
@@ -65,7 +65,7 @@ const DateRangeControl = ({
         </Grid>
 
         <Grid item xs={6} md={4}>
-          <RangeDateInput
+          <DateRangeInput
             minDate={minDate}
             maxDate={maxDate}
             value={endDate}

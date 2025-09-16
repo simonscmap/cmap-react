@@ -1,10 +1,7 @@
 import temporalResolutions from '../../../enums/temporalResolutions';
 import depthUtils from '../../../Utility/depthCounter';
 import logInit from '../../../Services/log-service';
-import {
-  getIsMonthlyClimatology,
-  dayToDateString,
-} from '../../../shared/filtering/utils/dateHelpers';
+import { getIsMonthlyClimatology } from '../../../shared/filtering/utils/dateHelpers';
 const log = logInit('dowloadDialogHelpers');
 
 // Queries
@@ -28,17 +25,17 @@ export const makeSubsetQuery = (tableName, selection) => {
 
   let timeUnit = isMonthyClimatology ? 'month' : 'cast(time as date)';
 
-  let toTimeEndISO = (day) =>
-    [day]
-      .map((d) => dayToDateString(Time_Min, d))
-      .map((d) => new Date(d))
-      .map((d) => d.toISOString())
-      .map((s) => s.slice(0, 10) + 'T23:59:59Z')
-      .shift();
+  let toTimeEndISO = (date) => {
+    if (!date || typeof date.toISOString !== 'function') {
+      console.error('toTimeEndISO expects a Date object, received:', date);
+      return '';
+    }
+    return date.toISOString().slice(0, 10) + 'T23:59:59Z';
+  };
 
   const _timeStart = isMonthyClimatology
     ? timeStart
-    : dayToDateString(Time_Min, timeStart);
+    : timeStart.toISOString().slice(0, 10);
   const _timeEnd = isMonthyClimatology ? timeEnd : toTimeEndISO(timeEnd);
 
   let query =
@@ -91,10 +88,10 @@ sproc template:
   // convert to 1-indexed month, if unit of time is month
   const _timeStart = isMonthyClimatology
     ? timeStart
-    : dayToDateString(Time_Min, timeStart);
+    : timeStart.toISOString().slice(0, 10);
   const _timeEnd = isMonthyClimatology
     ? timeEnd
-    : dayToDateString(Time_Min, timeEnd);
+    : timeEnd.toISOString().slice(0, 10);
   // + 'T23:59:59Z'
 
   // NOTE: the CIP bit at the end is hard coded for the moment

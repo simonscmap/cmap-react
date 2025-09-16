@@ -17,7 +17,7 @@ const log = logInit('dialog subset controls').addContext({
  * @param {React.ReactNode} children - Required layout component (no default layout)
  * @param {Object} filterValues - Current filter values { timeStart, timeEnd, latStart, latEnd, lonStart, lonEnd, depthStart, depthEnd }
  * @param {Object} filterSetters - Setter functions { setTimeStart, setTimeEnd, setLatStart, setLatEnd, setLonStart, setLonEnd, setDepthStart, setDepthEnd }
- * @param {Object} datasetFilterBounds - Min/max bounds { timeMin, timeMax, latMin, latMax, lonMin, lonMax, depthMin, depthMax, maxDays }
+ * @param {Object} datasetFilterBounds - Min/max bounds { timeMin, timeMax, latMin, latMax, lonMin, lonMax, depthMin, depthMax }
  * @param {Object} dateHandling - Date-specific handlers and validation { isMonthlyClimatology, handleSetStartDate, handleSetEndDate, validTimeMin, validTimeMax }
  */
 const SubsetControls = ({
@@ -36,7 +36,6 @@ const SubsetControls = ({
         data: {
           timeStart: filterValues.timeStart,
           timeEnd: filterValues.timeEnd,
-          maxDays: datasetFilterBounds.maxDays,
           isMonthlyClimatology: dateHandling.isMonthlyClimatology,
           timeMin: datasetFilterBounds.timeMin,
           timeMax: datasetFilterBounds.timeMax,

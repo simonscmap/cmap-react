@@ -105,39 +105,51 @@ const useRangeInput = ({
         }
         showMessage(
           setMessage,
-          isStart ? 'Restored to min' : 'Restored to max',
+          isStart ? 'Restored to minimum value' : 'Restored to maximum value',
         );
         return;
       }
 
       // Round to step
       const roundedValue = roundToStep(value, step);
-      const clampedValue = clampValue(roundedValue, bounds.min, bounds.max);
+      let clampedValue = clampValue(roundedValue, bounds.min, bounds.max);
 
-      // Check if clamping occurred
+      // Check if clamping occurred with clearer messaging
       if (clampedValue > roundedValue) {
-        showMessage(setMessage, `Min is ${bounds.min}`);
+        showMessage(
+          setMessage,
+          `Value cannot be below minimum of ${bounds.min}`,
+        );
       } else if (clampedValue < roundedValue) {
-        showMessage(setMessage, `Max is ${bounds.max}`);
+        showMessage(
+          setMessage,
+          `Value cannot be above maximum of ${bounds.max}`,
+        );
       }
 
-      value = clampedValue;
-
-      // Ensure start <= end constraint
+      // Intelligent clamping for start/end constraints (similar to useDateRangeInput)
       const otherValue = isStart ? end : start;
       if (otherValue !== null) {
-        if (isStart && value > otherValue) {
-          value = otherValue;
-          setLocalStartValue(String(value)); // Immediately update display
-          showMessage(setMessage, `Max is ${otherValue}`);
-        } else if (!isStart && value < otherValue) {
-          value = otherValue;
-          setLocalEndValue(String(value)); // Immediately update display
-          showMessage(setMessage, `Min is ${otherValue}`);
+        if (isStart && clampedValue > otherValue) {
+          // User is modifying start and it exceeds end - clamp start to end
+          clampedValue = otherValue;
+          setLocalStartValue(String(clampedValue));
+          showMessage(
+            setMessage,
+            `Start value must be less than or equal to end value (${otherValue})`,
+          );
+        } else if (!isStart && clampedValue < otherValue) {
+          // User is modifying end and it's less than start - clamp end to start
+          clampedValue = otherValue;
+          setLocalEndValue(String(clampedValue));
+          showMessage(
+            setMessage,
+            `End value must be greater than or equal to start value (${otherValue})`,
+          );
         }
       }
 
-      setValue(value);
+      setValue(clampedValue);
     };
   };
 

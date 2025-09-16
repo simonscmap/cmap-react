@@ -81,6 +81,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
+    fontFamily: 'Lato',
   },
   // Validation message styles
   validationMessage: {
@@ -90,6 +91,7 @@ const styles = {
     height: '18px',
     display: 'flex',
     alignItems: 'center',
+    marginTop: '17px',
   },
   // Custom value label tooltip styles
   customValueLabelTooltip: {
@@ -101,6 +103,16 @@ const styles = {
     whiteSpace: 'nowrap !important',
     minWidth: 'max-content !important',
     boxShadow: 'none !important',
+  },
+  // Date segment styling to match Material-UI input
+  dateSegment: {
+    fontSize: '13px !important',
+    padding: '2px 0 !important',
+    fontFamily: 'inherit !important',
+    color: 'inherit !important',
+    border: 'none !important',
+    background: 'transparent !important',
+    outline: 'none !important',
   },
 };
 

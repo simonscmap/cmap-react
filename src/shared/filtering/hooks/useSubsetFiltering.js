@@ -21,11 +21,10 @@ import {
  */
 const useSubsetFiltering = (dataset) => {
   // Get initial range values from dataset
-  const { maxDays, lat, lon, time, depth } = useMemo(() => {
+  const { lat, lon, time, depth } = useMemo(() => {
     return dataset
       ? getInitialRangeValues(dataset)
       : {
-          maxDays: 0,
           lat: { start: 0, end: 0 },
           lon: { start: 0, end: 0 },
           time: { start: 0, end: 0 },
@@ -214,7 +213,6 @@ const useSubsetFiltering = (dataset) => {
       depthMax: dataset?.Depth_Max,
       timeMin: dataset?.Time_Min ? new Date(dataset.Time_Min) : null,
       timeMax: dataset?.Time_Max ? new Date(dataset.Time_Max) : null,
-      maxDays,
     },
 
     dateHandling: {
