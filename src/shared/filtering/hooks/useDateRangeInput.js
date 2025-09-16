@@ -3,7 +3,7 @@ import { useState } from 'react';
 /**
  * Format date object to YYYY/MM/DD string
  */
-const formatDate = (date) => {
+const formatDateToYearMonthDay = (date) => {
   if (!date || typeof date.getFullYear !== 'function') return date;
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -29,14 +29,16 @@ const validateAndClampDateRange = (
 
   if (start !== null && min !== undefined && start < min) {
     errors.push(
-      `Start date cannot be before minimum date of ${formatDate(min)}`,
+      `Start date cannot be before minimum date of ${formatDateToYearMonthDay(min)}`,
     );
     clampedStart = min;
     setStart(min);
   }
 
   if (end !== null && max !== undefined && end > max) {
-    errors.push(`End date cannot be after maximum date of ${formatDate(max)}`);
+    errors.push(
+      `End date cannot be after maximum date of ${formatDateToYearMonthDay(max)}`,
+    );
     clampedEnd = max;
     setEnd(max);
   }
@@ -50,13 +52,13 @@ const validateAndClampDateRange = (
     if (isStartInput) {
       // User is modifying start date and it exceeds end date - clamp start to end
       errors.push(
-        `Start date must be before or equal to end date: ${formatDate(clampedEnd)}`,
+        `Start date must be before or equal to end date: ${formatDateToYearMonthDay(clampedEnd)}`,
       );
       setStart(clampedEnd);
     } else {
       // User is modifying end date and it's less than start date - clamp end to start
       errors.push(
-        `End date must be after or equal to start date: ${formatDate(clampedStart)}`,
+        `End date must be after or equal to start date: ${formatDateToYearMonthDay(clampedStart)}`,
       );
       setEnd(clampedStart);
     }
