@@ -39,13 +39,12 @@ const DefaultSubsetControlsLayout = ({
           ) : (
             <DateRangeControl
               title="Date"
-              start={controls.date.data.timeStart}
-              end={controls.date.data.timeEnd}
-              setStart={controls.date.handlers.setTimeStart}
-              setEnd={controls.date.handlers.setTimeEnd}
-              min={0}
-              max={controls.date.data.maxDays}
-              timeMin={controls.date.data.timeMin}
+              startDate={controls.date.data.timeStart}
+              endDate={controls.date.data.timeEnd}
+              setStartDate={controls.date.handlers.setTimeStart}
+              setEndDate={controls.date.handlers.setTimeEnd}
+              minDate={controls.date.data.timeMin}
+              maxDate={controls.date.data.timeMax}
             />
           )}
           <RangeSubsetControl
