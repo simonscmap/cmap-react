@@ -62,6 +62,7 @@ const RangeDateInput = ({
               className={`date-picker-container ${validationMessage ? 'error' : ''}`}
             >
               <DateField
+                className="custom-date-field"
                 value={calendarValue}
                 onChange={handleDateFieldChange}
                 onBlur={handleDateFieldBlur}
@@ -74,17 +75,7 @@ const RangeDateInput = ({
               >
                 <Label style={styles.datePickerLabel}>{label}</Label>
                 <DateInput>
-                  {(segment) => (
-                    <DateSegment
-                      segment={segment}
-                      style={{
-                        fontSize: '13px',
-                        padding: '2px 0',
-                        color: 'inherit',
-                        fontFamily: 'inherit',
-                      }}
-                    />
-                  )}
+                  {(segment) => <DateSegment segment={segment} />}
                 </DateInput>
               </DateField>
               <div className="date-picker-underline" />

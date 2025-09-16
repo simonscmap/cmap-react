@@ -102,6 +102,16 @@ const styles = {
     minWidth: 'max-content !important',
     boxShadow: 'none !important',
   },
+  // Date segment styling to match Material-UI input
+  dateSegment: {
+    fontSize: '13px !important',
+    padding: '2px 0 !important',
+    fontFamily: 'inherit !important',
+    color: 'inherit !important',
+    border: 'none !important',
+    background: 'transparent !important',
+    outline: 'none !important',
+  },
 };
 
 export default styles;
