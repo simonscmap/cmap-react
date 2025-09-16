@@ -2,7 +2,8 @@ import React from 'react';
 import { Grid, Typography } from '@material-ui/core';
 import styles from '../../../styles/subsetControlStyles';
 import useDateRangeInput from '../../../hooks/useDateRangeInput';
-import { RangeDateInput, RangeSlider } from '../components';
+import { RangeSlider } from '../components';
+import RangeDateInput from './RangeDateInput';
 
 /**
  * Date range subset control component
