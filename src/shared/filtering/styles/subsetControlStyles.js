@@ -90,6 +90,7 @@ const styles = {
     height: '18px',
     display: 'flex',
     alignItems: 'center',
+    marginTop: '17px',
   },
   // Custom value label tooltip styles
   customValueLabelTooltip: {

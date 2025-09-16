@@ -56,32 +56,24 @@ const RangeDateInput = ({
   return (
     <I18nProvider locale="ja-JP">
       <div style={styles.latInputContainer}>
-        <div style={styles.datePickerContainer}>
-          <div style={styles.datePickerField}>
-            <div
-              className={`date-picker-container ${validationMessage ? 'error' : ''}`}
-            >
-              <DateField
-                className="custom-date-field"
-                value={calendarValue}
-                onChange={handleDateFieldChange}
-                onBlur={handleDateFieldBlur}
-                minValue={calendarMinDate}
-                maxValue={calendarMaxDate}
-                granularity="day"
-                id={id}
-                aria-label={label}
-                isInvalid={!!validationMessage}
-              >
-                <Label style={styles.datePickerLabel}>{label}</Label>
-                <DateInput>
-                  {(segment) => <DateSegment segment={segment} />}
-                </DateInput>
-              </DateField>
-              <div className="date-picker-underline" />
-            </div>
-          </div>
-        </div>
+        <DateField
+          className="custom-date-field"
+          value={calendarValue}
+          onChange={handleDateFieldChange}
+          onBlur={handleDateFieldBlur}
+          minValue={calendarMinDate}
+          maxValue={calendarMaxDate}
+          granularity="day"
+          id={id}
+          aria-label={label}
+          isInvalid={!!validationMessage}
+        >
+          <Label style={styles.datePickerLabel}>{label}</Label>
+          <DateInput>
+            {(segment) => <DateSegment segment={segment} />}
+          </DateInput>
+        </DateField>
+        <div className="date-picker-underline" />
         <Typography variant="caption" style={styles.validationMessage}>
           {validationMessage || ''}
         </Typography>
