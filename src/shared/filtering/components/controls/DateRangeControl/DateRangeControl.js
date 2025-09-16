@@ -5,23 +5,39 @@ import useDateRangeInput from '../../../hooks/useDateRangeInput';
 import { RangeSlider } from '../components';
 import RangeDateInput from './RangeDateInput';
 
+const MILLISECONDS_PER_DAY = 86400000;
+
 /**
  * Date range subset control component
  * Provides date picker inputs and a slider for selecting date ranges
- * Works with day number values internally while displaying formatted dates to users
+ * Uses timestamps internally while maintaining a Date object API
  */
 const DateRangeControl = ({
   title,
-  start,
-  end,
-  setStart,
-  setEnd,
-  min,
-  max,
-  timeMin, // Base date for day number calculations
+  startDate, // Date object
+  endDate, // Date object
+  minDate, // Date object
+  maxDate, // Date object
+  onStartChange, // (date) => void
+  onEndChange, // (date) => void
   startLabel = 'Start Date',
   endLabel = 'End Date',
 }) => {
+  // Convert Date objects to timestamps for internal processing
+  const startTimestamp = startDate ? startDate.getTime() : null;
+  const endTimestamp = endDate ? endDate.getTime() : null;
+  const minTimestamp = minDate ? minDate.getTime() : null;
+  const maxTimestamp = maxDate ? maxDate.getTime() : null;
+
+  // Wrapper functions to convert timestamps back to Date objects
+  const handleStartChange = (timestamp) => {
+    onStartChange(timestamp ? new Date(timestamp) : null);
+  };
+
+  const handleEndChange = (timestamp) => {
+    onEndChange(timestamp ? new Date(timestamp) : null);
+  };
+
   const {
     handleDateStartBlur,
     handleDateEndBlur,
@@ -34,14 +50,13 @@ const DateRangeControl = ({
     formatSliderLabel,
     formatSliderValueLabel,
   } = useDateRangeInput({
-    start,
-    end,
-    setStart,
-    setEnd,
-    min,
-    max,
-    timeMin, // Pass timeMin to the hook
-    step: 1, // Days are discrete units
+    start: startTimestamp,
+    end: endTimestamp,
+    setStart: handleStartChange,
+    setEnd: handleEndChange,
+    min: minTimestamp,
+    max: maxTimestamp,
+    step: MILLISECONDS_PER_DAY,
   });
 
   return (
@@ -53,41 +68,39 @@ const DateRangeControl = ({
 
         <Grid item xs={6} md={4}>
           <RangeDateInput
-            min={min}
-            max={max}
-            displayValue={start}
-            handleChange={(e) => setStart(e.target.value)}
-            handleBlur={handleDateStartBlur}
+            minDate={minDate}
+            maxDate={maxDate}
+            value={startDate}
+            onChange={onStartChange}
+            onBlur={handleDateStartBlur}
             validationMessage={startDateMessage}
             label={startLabel}
             id={`dateInputStart${title.replace(/[^a-zA-Z0-9]/g, '')}`}
-            timeMin={timeMin}
           />
         </Grid>
 
         <Grid item xs={6} md={4}>
           <RangeDateInput
-            min={min}
-            max={max}
-            displayValue={end}
-            handleChange={(e) => setEnd(e.target.value)}
-            handleBlur={handleDateEndBlur}
+            minDate={minDate}
+            maxDate={maxDate}
+            value={endDate}
+            onChange={onEndChange}
+            onBlur={handleDateEndBlur}
             validationMessage={endDateMessage}
             label={endLabel}
             id={`dateInputEnd${title.replace(/[^a-zA-Z0-9]/g, '')}`}
-            timeMin={timeMin}
           />
         </Grid>
       </Grid>
       <RangeSlider
-        min={min}
-        max={max}
+        min={minTimestamp}
+        max={maxTimestamp}
         start={sliderStart}
         end={sliderEnd}
         handleSlider={handleSlider}
         handleSliderCommit={handleSliderCommit}
-        step={1}
-        disabled={min === max}
+        step={MILLISECONDS_PER_DAY}
+        disabled={minTimestamp === maxTimestamp}
         unit=""
         formatLabel={formatSliderLabel}
         formatValueLabel={formatSliderValueLabel}
