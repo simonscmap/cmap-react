@@ -25,7 +25,6 @@ const mapDispatchToProps = {
 
 const severityConfig = {
   info: {
-    backgroundColor: '#2196f3',
     icon: InfoIcon,
   },
   warning: {
