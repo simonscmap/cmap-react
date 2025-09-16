@@ -3,7 +3,15 @@ import { useState } from 'react';
 /**
  * Date-based validation and clamping functions
  */
-const validateAndClampDateRange = (start, end, min, max, setStart, setEnd) => {
+const validateAndClampDateRange = (
+  start,
+  end,
+  min,
+  max,
+  setStart,
+  setEnd,
+  isStartInput = false,
+) => {
   const errors = [];
   let clampedStart = start;
   let clampedEnd = end;
@@ -20,12 +28,21 @@ const validateAndClampDateRange = (start, end, min, max, setStart, setEnd) => {
     setEnd(max);
   }
 
+  // Implement clamping logic based on which input is being modified
   if (
     clampedStart !== null &&
     clampedEnd !== null &&
     clampedStart > clampedEnd
   ) {
-    errors.push('Start date must be before or equal to end date');
+    if (isStartInput) {
+      // User is modifying start date and it exceeds end date - clamp start to end
+      errors.push('Start date must be before or equal to end date');
+      setStart(clampedEnd);
+    } else {
+      // User is modifying end date and it's less than start date - clamp end to start
+      errors.push('End date must be after or equal to start date');
+      setEnd(clampedStart);
+    }
   }
 
   return errors;
@@ -64,6 +81,7 @@ const useDateRangeInput = ({
       max,
       setStart,
       setEnd,
+      true, // isStartInput = true
     );
     if (errors.length > 0) {
       showDateMessage(setStartDateMessage, errors[0]);
@@ -78,6 +96,7 @@ const useDateRangeInput = ({
       max,
       setStart,
       setEnd,
+      false, // isStartInput = false
     );
     if (errors.length > 0) {
       showDateMessage(setEndDateMessage, errors[0]);
