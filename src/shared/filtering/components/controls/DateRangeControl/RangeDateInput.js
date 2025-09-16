@@ -54,7 +54,7 @@ const RangeDateInput = ({
   };
 
   return (
-    <I18nProvider locale="en-US">
+    <I18nProvider locale="ja-JP">
       <div style={styles.latInputContainer}>
         <div style={styles.datePickerContainer}>
           <div style={styles.datePickerField}>
@@ -74,7 +74,17 @@ const RangeDateInput = ({
               >
                 <Label style={styles.datePickerLabel}>{label}</Label>
                 <DateInput>
-                  {(segment) => <DateSegment segment={segment} />}
+                  {(segment) => (
+                    <DateSegment
+                      segment={segment}
+                      style={{
+                        fontSize: '13px',
+                        padding: '2px 0',
+                        color: 'inherit',
+                        fontFamily: 'inherit',
+                      }}
+                    />
+                  )}
                 </DateInput>
               </DateField>
               <div className="date-picker-underline" />
