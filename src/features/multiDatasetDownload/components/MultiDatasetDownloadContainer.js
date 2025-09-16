@@ -189,13 +189,20 @@ const MultiDatasetDownloadContainer = ({ datasetShortNames }) => {
   const { datasetsMetadata, fetchDatasetsMetadata, isLoading } =
     useMultiDatasetDownloadStore();
 
+  // Show spinner immediately if we have datasets to load but no metadata yet
+  const shouldShowSpinner =
+    isLoading ||
+    ((!datasetsMetadata || datasetsMetadata.length === 0) &&
+      datasetShortNames &&
+      datasetShortNames.length > 0);
+
   useEffect(() => {
     if (datasetShortNames && datasetShortNames.length > 0) {
       fetchDatasetsMetadata(datasetShortNames);
     }
   }, [datasetShortNames, fetchDatasetsMetadata]);
 
-  if (isLoading || !datasetsMetadata || datasetsMetadata.length === 0) {
+  if (shouldShowSpinner) {
     return <SpinnerWrapper message="Loading datasets..." />;
   }
 
