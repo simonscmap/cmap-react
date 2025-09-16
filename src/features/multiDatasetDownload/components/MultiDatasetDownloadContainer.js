@@ -14,6 +14,7 @@ import {
   SearchInput,
   useFilteredItems,
 } from '../../../shared/UniversalSearch';
+import { SpinnerWrapper } from '../../../Components/UI/Spinner';
 
 /**
  * Multi-Dataset Download Container Component
@@ -195,7 +196,7 @@ const MultiDatasetDownloadContainer = ({ datasetShortNames }) => {
   }, [datasetShortNames, fetchDatasetsMetadata]);
 
   if (isLoading || !datasetsMetadata || datasetsMetadata.length === 0) {
-    return null;
+    return <SpinnerWrapper message="Loading datasets..." />;
   }
 
   return (

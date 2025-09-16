@@ -73,6 +73,8 @@ export default function (state, action) {
         ...state,
         snackbarIsOpen: true,
         snackbarMessage: action.payload.message,
+        snackbarPosition: action.payload.position,
+        snackbarSeverity: action.payload.severity,
       };
     case SNACKBAR_CLOSE:
       return {

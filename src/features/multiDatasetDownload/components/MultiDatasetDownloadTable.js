@@ -121,12 +121,18 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
         dispatch(
           snackbarOpen(
             `Not all datasets could be selected because they would exceed the ${result.formattedThreshold}M row limit.`,
+            { position: 'bottom', severity: 'warning' },
           ),
         );
       }
     } catch (error) {
       console.error('Failed to select all datasets:', error);
-      dispatch(snackbarOpen('Failed to select datasets. Please try again.'));
+      dispatch(
+        snackbarOpen('Failed to select datasets. Please try again.', {
+          position: 'bottom',
+          severity: 'error',
+        }),
+      );
     }
   };
 
