@@ -2,7 +2,7 @@
 import { apiUrl, postOptions } from '../../../api/config';
 import safeApi from '../../../api/safeApi';
 import logInit from '../../../Services/log-service';
-import { dayToDateString } from '../../../shared/filtering/utils/dateHelpers';
+import { dateToDateString } from '../../../shared/filtering/utils/dateHelpers';
 const log = logInit('bulk-download');
 
 /**
@@ -13,11 +13,11 @@ const log = logInit('bulk-download');
 const transformFiltersForAPI = (filters) => {
   const apiFilters = {};
 
-  // Transform temporal filters - use Time_Min and dayToDateString
+  // Transform temporal filters - convert Date objects to date strings
   if (filters.Time_Min) {
     apiFilters.temporal = {
-      startDate: dayToDateString(filters.Time_Min, filters.timeStart),
-      endDate: dayToDateString(filters.Time_Min, filters.timeEnd),
+      startDate: dateToDateString(filters.timeStart),
+      endDate: dateToDateString(filters.timeEnd),
     };
   }
 
