@@ -140,8 +140,6 @@ export const getInitialRangeValues = (dataset) => {
     Depth_Min,
   } = dataset;
 
-  let maxDays = getMaxDays(dataset);
-
   let initialValues = {
     lat: {
       start: formatLatitude(Lat_Min),
@@ -159,7 +157,6 @@ export const getInitialRangeValues = (dataset) => {
       start: Math.floor(Depth_Min),
       end: Math.ceil(Depth_Max),
     },
-    maxDays,
   };
 
   return initialValues;
