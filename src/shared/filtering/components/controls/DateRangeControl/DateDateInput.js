@@ -25,7 +25,7 @@ const calendarDateToDate = (calendarDate) => {
   return new Date(calendarDate.year, calendarDate.month - 1, calendarDate.day);
 };
 
-const RangeDateInput = ({
+const DateRangeInput = ({
   minDate,
   maxDate,
   value, // Date object
@@ -84,4 +84,4 @@ const RangeDateInput = ({
   );
 };
 
-export default RangeDateInput;
+export default DateRangeInput;
