@@ -17,10 +17,9 @@ const RangeSlider = ({
   formatLabel,
   formatValueLabel,
 }) => {
-  // For timestamp values, skip rounding to preserve exact values
-  const isTimestamp = step === 86400000; // MILLISECONDS_PER_DAY
-  const formattedMin = isTimestamp ? min : roundToStep(min, step);
-  const formattedMax = isTimestamp ? max : roundToStep(max, step);
+  // Format min/max values to match step precision
+  const formattedMin = roundToStep(min, step);
+  const formattedMax = roundToStep(max, step);
 
   // Use custom formatters if provided, otherwise fall back to default behavior
   const getMarkLabel = (value) => {
