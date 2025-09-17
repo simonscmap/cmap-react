@@ -6,6 +6,7 @@ import DefaultSubsetControlsLayout from '../../../shared/filtering/components/De
 import useSubsetFiltering from '../../../shared/filtering/hooks/useSubsetFiltering';
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
 import useRowCountStore from '../stores/useRowCountStore';
+import { aggregateDatasetMetadata } from '../utils/aggregateDatasetMetadata';
 import MultiDatasetDownloadTable from './MultiDatasetDownloadTable';
 import DownloadButton from './DownloadButton';
 import RowCountTotal from './RowCountTotal';
@@ -153,40 +154,8 @@ const MultiDatasetDownloadContainer = ({ datasetShortNames }) => {
     useMultiDatasetDownloadStore();
 
   // Compute aggregate dataset bounds for multi-dataset filtering
-  const aggregateDatasetMetadata = useMemo(() => {
-    if (!datasetsMetadata || datasetsMetadata.length === 0) {
-      return null;
-    }
-
-    const validDatasets = datasetsMetadata.filter(
-      (d) =>
-        d.Lat_Min !== undefined &&
-        d.Lat_Max !== undefined &&
-        d.Lon_Min !== undefined &&
-        d.Lon_Max !== undefined,
-    );
-
-    if (validDatasets.length === 0) return null;
-
-    return {
-      Lat_Min: Math.min(...validDatasets.map((d) => d.Lat_Min)),
-      Lat_Max: Math.max(...validDatasets.map((d) => d.Lat_Max)),
-      Lon_Min: Math.min(...validDatasets.map((d) => d.Lon_Min)),
-      Lon_Max: Math.max(...validDatasets.map((d) => d.Lon_Max)),
-      Depth_Min: Math.min(...validDatasets.map((d) => d.Depth_Min || 0)),
-      Depth_Max: Math.max(...validDatasets.map((d) => d.Depth_Max || 0)),
-      Time_Min: validDatasets.reduce(
-        (min, d) =>
-          !min || (d.Time_Min && d.Time_Min < min) ? d.Time_Min : min,
-        null,
-      ),
-      Time_Max: validDatasets.reduce(
-        (max, d) =>
-          !max || (d.Time_Max && d.Time_Max > max) ? d.Time_Max : max,
-        null,
-      ),
-      Temporal_Resolution: validDatasets[0]?.Temporal_Resolution || 'daily',
-    };
+  const aggregateMetadata = useMemo(() => {
+    return aggregateDatasetMetadata(datasetsMetadata);
   }, [datasetsMetadata]);
 
   useEffect(() => {
@@ -199,14 +168,14 @@ const MultiDatasetDownloadContainer = ({ datasetShortNames }) => {
     return <SpinnerWrapper />;
   }
 
-  if (!aggregateDatasetMetadata) {
+  if (!aggregateMetadata) {
     return <SpinnerWrapper />;
   }
 
   return (
     <SearchProvider items={datasetsMetadata} searchKeys={['Dataset_Name']}>
       <MultiDatasetDownloadContainerInner
-        aggregateDatasetMetadata={aggregateDatasetMetadata}
+        aggregateDatasetMetadata={aggregateMetadata}
       />
     </SearchProvider>
   );
