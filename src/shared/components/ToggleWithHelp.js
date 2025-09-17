@@ -14,7 +14,7 @@ const Template = (props) => {
 
   return (
     <div style={{ padding: '.7em 0' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         <FormControlLabel
           control={
             <Switch
