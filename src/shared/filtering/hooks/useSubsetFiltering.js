@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   dateToDateString,
   extractDateFromString,
@@ -41,6 +41,27 @@ const useSubsetFiltering = (dataset) => {
   const [timeEnd, setTimeEnd] = useState(time.end);
   const [depthStart, setDepthStart] = useState(depth.start);
   const [depthEnd, setDepthEnd] = useState(depth.end);
+
+  // Sync state with dataset bounds when dataset changes
+  useEffect(() => {
+    setLatStart(lat.start);
+    setLatEnd(lat.end);
+    setLonStart(lon.start);
+    setLonEnd(lon.end);
+    setTimeStart(time.start);
+    setTimeEnd(time.end);
+    setDepthStart(depth.start);
+    setDepthEnd(depth.end);
+  }, [
+    lat.start,
+    lat.end,
+    lon.start,
+    lon.end,
+    time.start,
+    time.end,
+    depth.start,
+    depth.end,
+  ]);
 
   const [isInvalid, setInvalidFlag] = useState(false);
 
