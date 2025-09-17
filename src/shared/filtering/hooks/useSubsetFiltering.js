@@ -42,7 +42,19 @@ const useSubsetFiltering = (dataset) => {
   const [depthStart, setDepthStart] = useState(depth.start);
   const [depthEnd, setDepthEnd] = useState(depth.end);
 
-  // Sync state with dataset bounds when dataset changes
+  // Fix for React state initialization race condition:
+  // ISSUE: useState(lat.start) captures initial values, but when isFiltered useMemo runs,
+  // it compares state values against potentially updated lat.start values from a later render.
+  // This caused isFiltered=true during initialization when it should be false, leading to
+  // incorrect row count API calls with "≤" values instead of exact counts.
+  //
+  // SOLUTION: Explicitly sync all filter state values with dataset bounds whenever bounds change.
+  // This ensures state values always match current dataset bounds during initialization,
+  // preventing the timing mismatch that caused the race condition.
+  //
+  // TRADEOFF: This will reset user-applied filters if the dataset reference changes,
+  // but this is acceptable for the multi-dataset download use case where datasets
+  // are loaded once per component lifecycle.
   useEffect(() => {
     setLatStart(lat.start);
     setLatEnd(lat.end);
