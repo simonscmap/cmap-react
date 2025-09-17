@@ -10,6 +10,7 @@ import SampleVisualization from './SampleVisualization/SampleVisualization';
 import Globe from './Globe/Globe';
 import DatasetList2 from './DatasetList';
 import MultiDatasetDownloadContainer from '../../../features/multiDatasetDownload/components/MultiDatasetDownloadContainer';
+import { SpinnerWrapper } from '../../UI/Spinner';
 import { matchProgram } from './programData';
 import {
   trajectorySelector,
@@ -190,17 +191,19 @@ const ProgramDetail = (props) => {
             </Grid>
           </div>
 
-          {sortedDatasetNames.length > 0 && (
-            <div
-              className={cl.tabContent}
-              style={{ display: tabValue === 1 ? 'block' : 'none' }}
-            >
-              <SectionHeader title={'Multi-Dataset Download'} />
+          <div
+            className={cl.tabContent}
+            style={{ display: tabValue === 1 ? 'block' : 'none' }}
+          >
+            <SectionHeader title={'Multi-Dataset Download'} />
+            {sortedDatasetNames.length > 0 ? (
               <MultiDatasetDownloadContainer
                 datasetShortNames={sortedDatasetNames}
               />
-            </div>
-          )}
+            ) : (
+              <SpinnerWrapper message="Loading program data..." />
+            )}
+          </div>
         </Grid>
       </Grid>
     </Page2>
