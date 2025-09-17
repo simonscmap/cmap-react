@@ -36,6 +36,9 @@ export function* fetchProgramDetails(action) {
   }
 
   let response = yield call(api.catalog.fetchProgramDetails, programName);
+
+  yield new Promise((resolve) => setTimeout(resolve, 4000));
+
   if (response && response.ok) {
     let jsonResponse = yield response.json();
     jsonResponse.programName = programName;

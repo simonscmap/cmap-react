@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Box, Typography } from '@material-ui/core';
 import { debounce } from 'throttle-debounce';
+import deepEqual from 'deep-equal';
 import SubsetControls from '../../../shared/filtering/core/SubsetControls';
 import DefaultSubsetControlsLayout from '../../../shared/filtering/components/DefaultSubsetControlsLayout';
 import useSubsetFiltering from '../../../shared/filtering/hooks/useSubsetFiltering';
@@ -149,36 +150,41 @@ const MultiDatasetDownloadContainerInner = ({ aggregateDatasetMetadata }) => {
   );
 };
 
-const MultiDatasetDownloadContainer = ({ datasetShortNames }) => {
-  const { datasetsMetadata, fetchDatasetsMetadata, isLoading } =
-    useMultiDatasetDownloadStore();
+const MultiDatasetDownloadContainer = React.memo(
+  ({ datasetShortNames }) => {
+    const { datasetsMetadata, fetchDatasetsMetadata, isLoading } =
+      useMultiDatasetDownloadStore();
 
-  // Compute aggregate dataset bounds for multi-dataset filtering
-  const aggregateMetadata = useMemo(() => {
-    return aggregateDatasetMetadata(datasetsMetadata);
-  }, [datasetsMetadata]);
+    // Compute aggregate dataset bounds for multi-dataset filtering
+    const aggregateMetadata = useMemo(() => {
+      return aggregateDatasetMetadata(datasetsMetadata);
+    }, [datasetsMetadata]);
 
-  useEffect(() => {
-    if (datasetShortNames && datasetShortNames.length > 0) {
-      fetchDatasetsMetadata(datasetShortNames);
+    useEffect(() => {
+      if (datasetShortNames && datasetShortNames.length > 0) {
+        fetchDatasetsMetadata(datasetShortNames);
+      }
+    }, [datasetShortNames, fetchDatasetsMetadata]);
+
+    if (isLoading || !datasetsMetadata || datasetsMetadata.length === 0) {
+      return <SpinnerWrapper />;
     }
-  }, [datasetShortNames, fetchDatasetsMetadata]);
 
-  if (isLoading || !datasetsMetadata || datasetsMetadata.length === 0) {
-    return <SpinnerWrapper />;
-  }
+    if (!aggregateMetadata) {
+      return <SpinnerWrapper />;
+    }
 
-  if (!aggregateMetadata) {
-    return <SpinnerWrapper />;
-  }
-
-  return (
-    <SearchProvider items={datasetsMetadata} searchKeys={['Dataset_Name']}>
-      <MultiDatasetDownloadContainerInner
-        aggregateDatasetMetadata={aggregateMetadata}
-      />
-    </SearchProvider>
-  );
-};
+    return (
+      <SearchProvider items={datasetsMetadata} searchKeys={['Dataset_Name']}>
+        <MultiDatasetDownloadContainerInner
+          aggregateDatasetMetadata={aggregateMetadata}
+        />
+      </SearchProvider>
+    );
+  },
+  (prevProps, nextProps) => {
+    return deepEqual(prevProps.datasetShortNames, nextProps.datasetShortNames);
+  },
+);
 
 export default MultiDatasetDownloadContainer;
