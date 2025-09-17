@@ -92,7 +92,7 @@ const DownloadButton = ({ subsetFiltering }) => {
         variant="contained"
         color="primary"
         className={classes.downloadButton}
-        disabled={isDisabled && user}
+        disabled={isDisabled && Boolean(user)}
         onClick={handleDownload}
         startIcon={
           isDownloading ? (
