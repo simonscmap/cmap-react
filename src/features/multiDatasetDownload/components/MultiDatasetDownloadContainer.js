@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Box, Typography } from '@material-ui/core';
 import { debounce } from 'throttle-debounce';
+import deepEqual from 'deep-equal';
 import SubsetControls from '../../../shared/filtering/core/SubsetControls';
 import DefaultSubsetControlsLayout from '../../../shared/filtering/components/DefaultSubsetControlsLayout';
 import useSubsetFiltering from '../../../shared/filtering/hooks/useSubsetFiltering';
@@ -151,12 +152,6 @@ const MultiDatasetDownloadContainerInner = ({ aggregateDatasetMetadata }) => {
 
 const MultiDatasetDownloadContainer = React.memo(
   ({ datasetShortNames }) => {
-    console.log(
-      '🐛🐛🐛 MultiDatasetDownloadContainer.js:153 RENDER COUNT:',
-      ++MultiDatasetDownloadContainer.renderCount || 1,
-      'datasetShortNames:',
-      datasetShortNames,
-    );
     const { datasetsMetadata, fetchDatasetsMetadata, isLoading } =
       useMultiDatasetDownloadStore();
 
@@ -188,19 +183,7 @@ const MultiDatasetDownloadContainer = React.memo(
     );
   },
   (prevProps, nextProps) => {
-    // Deep comparison of datasetShortNames array
-    if (
-      prevProps.datasetShortNames?.length !==
-      nextProps.datasetShortNames?.length
-    ) {
-      return false;
-    }
-
-    return (
-      prevProps.datasetShortNames?.every(
-        (name, index) => name === nextProps.datasetShortNames?.[index],
-      ) ?? true
-    );
+    return deepEqual(prevProps.datasetShortNames, nextProps.datasetShortNames);
   },
 );
 
