@@ -11,15 +11,10 @@ import { withStyles } from '@material-ui/core/styles';
 const styles = () => ({
   wrapper: {
     position: 'relative',
-  },
-  link: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
+    marginTop: '10px',
   },
   desc: {
-    // maxWidth: 'calc(300px)',
-    marginLeft: '35px',
+    marginLeft: '20px',
     border: `1px solid ${colors.primary}`,
     borderRadius: '5px',
     padding: '.4em',
@@ -29,8 +24,8 @@ const styles = () => ({
   arrow: {
     position: 'absolute',
     display: 'block',
-    left: '24px',
-    top: '5px',
+    left: '10px',
+    top: '10px',
     width: 0,
     height: 0,
     borderLeft: '.4em solid transparent',
@@ -57,42 +52,33 @@ const Template = (props) => {
 
   return (
     <div style={{ padding: '.7em 0' }}>
-      <Grid
-        container
-        direction="row"
-        justifyContent="flex-start"
-        alignItems="flex-start"
-      >
-        <Grid item xs={showDescription ? 12 : 3} sm={3}>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={switchState}
-                onChange={handler}
-                name={name}
-                color="primary"
-                disabled={disabled}
-              />
-            }
-            label={label}
-          />
-        </Grid>
-        <Grid item xs={showDescription ? 12 : 9} sm={9}>
-          <div className={classes.wrapper}>
-            {showDescription && <div className={classes.arrow}></div>}
-            <Link href="" onClick={handleClick} className={classes.link}>
-              {showDescription ? (
-                <HelpIcon className={classes.icon} />
-              ) : (
-                <HelpOutlineIcon className={classes.icon} />
-              )}
-            </Link>
-            <div hidden={!showDescription} className={classes.desc}>
-              {description}
-            </div>
-          </div>
-        </Grid>
-      </Grid>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={switchState}
+              onChange={handler}
+              name={name}
+              color="primary"
+              disabled={disabled}
+            />
+          }
+          label={label}
+        />
+        <Link href="" onClick={handleClick}>
+          {showDescription ? (
+            <HelpIcon className={classes.icon} />
+          ) : (
+            <HelpOutlineIcon className={classes.icon} />
+          )}
+        </Link>
+      </div>
+      {showDescription && (
+        <div className={classes.wrapper}>
+          <div className={classes.arrow}></div>
+          <div className={classes.desc}>{description}</div>
+        </div>
+      )}
     </div>
   );
 };
