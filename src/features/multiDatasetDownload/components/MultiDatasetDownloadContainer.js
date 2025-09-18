@@ -167,11 +167,11 @@ const MultiDatasetDownloadContainer = React.memo(
     }, [datasetShortNames, fetchDatasetsMetadata]);
 
     if (isLoading || !datasetsMetadata || datasetsMetadata.length === 0) {
-      return <SpinnerWrapper />;
+      return <SpinnerWrapper message={'Loading data for download...'} />;
     }
 
     if (!aggregateMetadata) {
-      return <SpinnerWrapper />;
+      return <SpinnerWrapper message={'Loading data for download...'} />;
     }
 
     return (

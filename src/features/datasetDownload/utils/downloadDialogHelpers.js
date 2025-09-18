@@ -47,14 +47,14 @@ export const makeSubsetQuery = (tableName, selection) => {
     query += ` and depth between ${depthStart} and ${depthEnd}`;
   }
 
-  log.debug('make subset query', {
-    isMonthyClimatology,
-    timeUnit,
-    _timeStart,
-    _timeEnd,
-    query,
-    initialSubsetValues: selection,
-  });
+  // log.debug('make subset query', {
+  //   isMonthyClimatology,
+  //   timeUnit,
+  //   _timeStart,
+  //   _timeEnd,
+  //   query,
+  //   initialSubsetValues: selection,
+  // });
 
   return query;
 };
@@ -102,13 +102,13 @@ sproc template:
     `${depthStart}, ${depthEnd}, ${0}`;
   // This query will be sent to /api/query via the csv download saga
 
-  log.debug('make subset query', {
-    isMonthyClimatology,
-    _timeStart,
-    _timeEnd,
-    query,
-    initialSubsetValues: selection,
-  });
+  // log.debug('make subset query', {
+  //   isMonthyClimatology,
+  //   _timeStart,
+  //   _timeEnd,
+  //   query,
+  //   initialSubsetValues: selection,
+  // });
   return query;
 };
 
