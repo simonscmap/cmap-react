@@ -8,7 +8,7 @@ import {
 import { withStyles, makeStyles } from '@material-ui/core/styles';
 import { ImDownload } from 'react-icons/im';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { debounce } from 'throttle-debounce';
 
@@ -99,15 +99,15 @@ const InfoDialog = (props) => {
 const DownloadDialog = (props) => {
   let { dataset: rawDataset, handleClose, dialogOpen, classes } = props;
 
-  // parse dataset
-  let dataset, error;
-
-  try {
-    dataset = parseDataset(rawDataset);
-  } catch (e) {
-    log.error(`error parsing dataset`, { error: e });
-    error = e;
-  }
+  // parse dataset - memoized to prevent infinite re-render loop
+  const { dataset, error } = useMemo(() => {
+    try {
+      return { dataset: parseDataset(rawDataset), error: null };
+    } catch (e) {
+      log.error(`error parsing dataset`, { error: e });
+      return { dataset: null, error: e };
+    }
+  }, [rawDataset]);
 
   let dispatch = useDispatch();
 
