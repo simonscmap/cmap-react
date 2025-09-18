@@ -77,66 +77,63 @@ export function* downloadDropboxFiles(action) {
   }
 }
 
-// Pagination saga for vault files
-function* fetchVaultFilesPage(action) {
-  const { shortName, paginationParams } = action.payload;
-  const folderType = paginationParams && paginationParams.folderType;
-
-  try {
-    const response = yield call(
-      api.dropbox.fetchDropboxVaultFiles,
-      shortName,
-      paginationParams,
-    );
-    if (response && response.ok) {
-      const jsonResponse = yield response.json();
-      
-      // Handle new auto-download fields from API response
-      const { autoDownloadEligible, directDownloadLink } = jsonResponse;
-      if (typeof autoDownloadEligible === 'boolean') {
-        yield put(dropboxActions.setAutoDownloadEligibility(autoDownloadEligible, directDownloadLink));
-      }
-      
-      yield put(dropboxActions.fetchVaultFilesPageSuccess(jsonResponse));
-    } else {
-      yield put(
-        dropboxActions.fetchVaultFilesPageFailure('Failed to fetch files', folderType),
-      );
-    }
-  } catch (error) {
-    log.error('error fetching vault files page', {
-      shortName,
-      paginationParams,
-      error,
-    });
-    yield put(dropboxActions.fetchVaultFilesPageFailure(error.message, folderType));
-  }
-}
-
-export function* watchFetchVaultFilesPage() {
-  yield takeEvery(
-    dropboxActionTypes.FETCH_DROPBOX_VAULT_FILES_PAGE,
-    fetchVaultFilesPage,
-  );
-}
-
 // Watcher saga
 // Saga to handle folder tab changes
 function* handleFolderTabChange(action) {
   const { folderType } = action.payload;
-  
+
   // Get current state
   const state = yield select();
   const paginationByFolder = state.dropbox.paginationByFolder || {};
   const folderPagination = paginationByFolder[folderType];
-  
+
   // If this folder hasn't been fetched yet, fetch it
   if (!folderPagination || !folderPagination.allCachedFiles.length) {
     // Get the dataset short name from the download dialog
     const shortName = state.downloadDialog.shortName;
-    
+
     if (shortName) {
-      yield put(dropboxActions.fetchVaultFilesPage(shortName, { folderType }));
+      // Fetch files for this folder type directly (no backend pagination)
+      try {
+        const response = yield call(
+          api.dropbox.fetchDropboxVaultFiles,
+          shortName,
+          { folderType },
+        );
+
+        if (response && response.ok) {
+          const jsonResponse = yield response.json();
+
+          // Handle auto-download fields from API response
+          const { autoDownloadEligible, directDownloadLink } = jsonResponse;
+          if (typeof autoDownloadEligible === 'boolean') {
+            yield put(
+              dropboxActions.setAutoDownloadEligibility(
+                autoDownloadEligible,
+                directDownloadLink,
+              ),
+            );
+          }
+
+          yield put(dropboxActions.fetchVaultFilesPageSuccess(jsonResponse));
+        } else {
+          yield put(
+            dropboxActions.fetchVaultFilesPageFailure(
+              'Failed to fetch files',
+              folderType,
+            ),
+          );
+        }
+      } catch (error) {
+        log.error('error fetching vault files for folder tab', {
+          shortName,
+          folderType,
+          error,
+        });
+        yield put(
+          dropboxActions.fetchVaultFilesPageFailure(error.message, folderType),
+        );
+      }
     }
   }
 }
@@ -151,10 +148,10 @@ export function* watchFolderTabChange() {
 // Saga to handle direct download trigger
 function* handleDirectDownload(action) {
   const { downloadLink } = action.payload;
-  
+
   try {
     yield log.info('Triggering direct download', { downloadLink });
-    
+
     // Trigger the download by setting window.location.href
     if (typeof window !== 'undefined' && downloadLink) {
       window.location.href = downloadLink;

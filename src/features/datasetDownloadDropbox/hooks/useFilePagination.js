@@ -1,6 +1,5 @@
 import { useDispatch } from 'react-redux';
 import {
-  fetchVaultFilesPage,
   setLocalPaginationPage,
   setLocalPaginationSize,
 } from '../state/actions';
@@ -9,30 +8,21 @@ export const useFilePagination = (dataset, vaultFilesPagination) => {
   const dispatch = useDispatch();
 
   const handlePageChange = (direction) => {
-    const { local, backend, allCachedFiles, totalFileCount } =
-      vaultFilesPagination;
+    const { local, allCachedFiles, totalFileCount } = vaultFilesPagination;
 
     if (direction === 'next') {
       const nextPage = local.currentPage + 1;
       const requiredFiles = nextPage * local.pageSize;
 
-      // Check if we have enough cached files
+      // Check if we have enough cached files for next page
       if (
         allCachedFiles.length >= requiredFiles ||
         allCachedFiles.length >= totalFileCount
       ) {
-        // Use local pagination
         dispatch(setLocalPaginationPage(nextPage));
-      } else if (backend.hasMore) {
-        // Fetch more from backend
-        dispatch(
-          fetchVaultFilesPage(dataset.Short_Name, {
-            cursor: backend.cursor,
-          }),
-        );
       }
+      // No backend fetching - only navigate if we have enough local files
     } else if (direction === 'prev' && local.currentPage > 1) {
-      // Always use local pagination for previous
       dispatch(setLocalPaginationPage(local.currentPage - 1));
     }
   };

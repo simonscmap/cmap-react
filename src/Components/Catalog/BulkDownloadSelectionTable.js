@@ -184,7 +184,7 @@ const DatasetSelectionTable = (props) => {
           'Your dowload will start momentarily. Please do not close your browser window until it completes.',
         ),
       );
-      api.bulkDownload.post(selected);
+      api.bulkDownload.downloadData(selected);
     }
   };
 

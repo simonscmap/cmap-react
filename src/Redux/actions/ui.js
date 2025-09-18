@@ -44,12 +44,21 @@ export const restoreInterfaceDefaults = () => ({
 
 // TODO consider ability to forward a secondary/followup action
 // e.g. a "click for more info" or "report this error"
-export const snackbarOpen = (message, meta) => {
+export const snackbarOpen = (message, options = {}) => {
+  // Support legacy usage: snackbarOpen(message, meta)
+  const isLegacyCall =
+    typeof options === 'string' ||
+    (typeof options === 'object' &&
+      !options.hasOwnProperty('position') &&
+      !options.hasOwnProperty('severity'));
+
   return {
     type: interfaceActionTypes.SNACKBAR_OPEN,
     payload: {
       message,
-      meta,
+      meta: isLegacyCall ? options : options.meta,
+      position: isLegacyCall ? 'top' : options.position || 'top', // 'top' or 'bottom'
+      severity: isLegacyCall ? 'info' : options.severity || 'info', // 'info', 'warning', 'error'
     },
   };
 };

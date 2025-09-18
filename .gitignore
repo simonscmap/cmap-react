@@ -34,14 +34,15 @@ notes
 .sentryclirc
 .nvmrc
 
-# BMAD
+# BMAD Start
 .bmad-core
 .bmad-infrastructure-devops
 .cursor
 .gemini
 .web-bundles
+.specify
+.claude/commands/
+specs/*
+# BMAD End
 
-.claude/commands/BMad
-.claude/commands/bmadInfraDevOps
-
-docs
+/docs/

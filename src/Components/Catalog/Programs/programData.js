@@ -70,6 +70,20 @@ export const data = {
       'The Atlantic Meridional Transect (AMT) program is a long-term oceanographic research initiative that studies the variability in the physical, chemical, and biological properties of the Atlantic Ocean. The primary aim of the AMT program is to understand the spatial and temporal variability of ocean ecosystems along a meridional transect from the UK to the South Atlantic. This helps in understanding the role of the Atlantic Ocean in global biogeochemical cycles and climate change. The program focuses on various research areas including phytoplankton dynamics, primary productivity, biogeochemical cycling of nutrients and carbon, ocean-atmosphere interactions, and the impacts of climate change on oceanic processes. AMT cruises collect a comprehensive suite of measurements including physical parameters (temperature, salinity), chemical properties (nutrients, dissolved gases), and biological data (plankton biomass, species composition, primary production). These data are collected using a combination of shipboard sensors, water sampling, and autonomous instruments.',
     ],
   },
+  'bios-scope': {
+    title: 'BIOS-SCOPE',
+    fullName: 'BIOS-SCOPE',
+    link: 'https://bios.asu.edu/scope/about',
+    blurb:
+      'The aim of BIOS-SCOPE is to expand knowledge about the BATS ecosystem and achieve a better understanding of ocean food web sources, sinks and transformations of DOM. Advances in knowledge and technology now poise us to investigate the specific mechanisms of DOM incorporation, oxidation and transformation by zooplankton and the distinct microbial plankton communities that have been discovered at BATS.',
+    logo: 'BiosScope-emblem.jpg',
+    detail: [
+      "Marine microbes comprise a remarkably diverse community in the ocean and account for more than 90% of the ocean's total biomass. The organisms that we study in BIOS-SCOPE are broadly defined as plankton. Marine plankton describe those organisms that live in the ocean's water column but that lack the ability to hold their position or swim against a current. Planktonic organisms include all marine microbes like viruses, bacteria and eukaryotic protists (i.e., algae and microzooplankton) in additon to animals like mesozooplankton (i.e., tiny copepods to large gelatinous zooplankton).",
+      "The collective metabolism of this microbial community governs the massive biogeochemical cycles in the global ocean; and, as such, microbes fundamentally influence the ocean's ability to sustain life on Earth. Integrated scientific approaches that combine genomic data with field measurements have been a powerful platform for exploring microbial plankton and advancing knowledge about the oceanic cycling of nutrients, energy and carbon. Driven by a rapid pace of genomic discovery, the scientific community is now honing approaches to assemble a trans-disciplinary knowledge base about complex ocean systems. The greatest progress may lie ahead with new discoveries that surprise us, or alter our vision of how these vast living networks are organized.",
+      'The overarching goal of the BIOS-SCOPE is to form and foster collaborations of cross-disciplinary science that utilize a broad suite of genomic, ecological, oceanographic and biogeochemical approaches to evaluate microbial process, structure and function on various scales. These scales can range from organism-compound and organism-organism interactions to large biogeochemical patterns on the ecosystem scale.',
+      'The fieldwork associated with this research is focused in the vicinity of the Bermuda Atlantic Time-series Study (BATS) site, as it is one of the few locations in the global ocean where resources and opportunity have converged to enable oceanographers to collect the high-resolution, high-quality data necessary for resolving these dynamic microbial processes.',
+    ],
+  },
   'c-comp': {
     title: 'C-CoMP',
     fullName: 'The Center for Chemical Currencies of a Microbial Planet',

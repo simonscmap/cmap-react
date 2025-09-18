@@ -1,0 +1,190 @@
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { Box, Typography } from '@material-ui/core';
+import { debounce } from 'throttle-debounce';
+import deepEqual from 'deep-equal';
+import SubsetControls from '../../../shared/filtering/core/SubsetControls';
+import DefaultSubsetControlsLayout from '../../../shared/filtering/components/DefaultSubsetControlsLayout';
+import useSubsetFiltering from '../../../shared/filtering/hooks/useSubsetFiltering';
+import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
+import useRowCountStore from '../stores/useRowCountStore';
+import { aggregateDatasetMetadata } from '../utils/aggregateDatasetMetadata';
+import MultiDatasetDownloadTable from './MultiDatasetDownloadTable';
+import DownloadButton from './DownloadButton';
+import RowCountTotal from './RowCountTotal';
+import {
+  SearchProvider,
+  SearchInput,
+  useFilteredItems,
+} from '../../../shared/UniversalSearch';
+import { SpinnerWrapper } from '../../../Components/UI/Spinner';
+
+/**
+ * Multi-Dataset Download Container Component
+ * Provides a complete interface for downloading multiple datasets with filtering capabilities
+ *
+ * @param {Array<Object>} props.datasetsMetadata - Array of dataset metadata objects
+ *
+ * Each dataset metadata object should contain the following fields:
+ *
+ * REQUIRED FIELDS:
+ * @param {string} dataset.Dataset_Name - Unique dataset identifier (used for selection/deselection)
+ * @param {number} dataset.Lat_Min - Minimum latitude boundary
+ * @param {number} dataset.Lat_Max - Maximum latitude boundary
+ * @param {number} dataset.Lon_Min - Minimum longitude boundary
+ * @param {number} dataset.Lon_Max - Maximum longitude boundary
+ * @param {string} dataset.Time_Min - Minimum time boundary (ISO date string)
+ * @param {string} dataset.Time_Max - Maximum time boundary (ISO date string)
+ * @param {number} dataset.Row_Count - Initial row count for the dataset (displayed in table)
+ *
+ * OPTIONAL FIELDS:
+ * @param {number} [dataset.Depth_Min=0] - Minimum depth boundary (defaults to 0)
+ * @param {number} [dataset.Depth_Max=0] - Maximum depth boundary (defaults to 0)
+ * @param {string} [dataset.Temporal_Resolution="daily"] - Temporal resolution (e.g., "monthly", "daily")
+ *
+ * The component automatically computes aggregate bounds across all datasets for filtering
+ * and initializes internal Zustand stores for state management.
+ */
+const MultiDatasetDownloadContainerInner = ({ aggregateDatasetMetadata }) => {
+  const { resetStore, getSelectedIds } = useMultiDatasetDownloadStore();
+  const { fetchRowCountsForSelected, cancelPendingRequests } =
+    useRowCountStore();
+  const filteredItems = useFilteredItems();
+
+  // State for toggle controls (required by layout components)
+  const [optionsState, setOptionsState] = useState({
+    subset: false,
+  });
+  // Handle toggle switch for subset controls
+  const handleSwitch = (event) => {
+    const controlType = event.target.name;
+    setOptionsState((prev) => ({
+      ...prev,
+      [controlType]: !prev[controlType],
+    }));
+  };
+
+  const {
+    setInvalidFlag,
+    filterValues,
+    filterSetters,
+    datasetFilterBounds,
+    dateHandling,
+  } = useSubsetFiltering(aggregateDatasetMetadata);
+
+  // Debounced filter change handler for selection-driven row count updates
+  const debouncedFilterChange = useCallback(
+    debounce(300, false, (selectedDatasetIds, filters) => {
+      if (selectedDatasetIds.length > 0) {
+        fetchRowCountsForSelected(selectedDatasetIds, filters);
+      }
+    }),
+    [fetchRowCountsForSelected],
+  );
+
+  // Update row counts when filters change - selection-driven approach
+  useEffect(() => {
+    const selectedDatasetIds = getSelectedIds();
+
+    // Cancel any pending requests on filter changes
+    cancelPendingRequests();
+
+    // Always fetch row counts for selected datasets - let store handle transition logic
+    debouncedFilterChange(selectedDatasetIds, filterValues);
+  }, [
+    filterValues,
+    getSelectedIds,
+    cancelPendingRequests,
+    debouncedFilterChange,
+  ]);
+
+  // Reset store when component unmounts
+  useEffect(() => {
+    return () => {
+      resetStore();
+    };
+  }, [resetStore]);
+
+  return (
+    <Box
+      sx={{ maxWidth: '100vw', overflow: 'hidden', boxSizing: 'border-box' }}
+    >
+      <Box mb={3} p={2}>
+        <SubsetControls
+          setInvalidFlag={setInvalidFlag}
+          filterValues={filterValues}
+          filterSetters={filterSetters}
+          datasetFilterBounds={datasetFilterBounds}
+          dateHandling={dateHandling}
+        >
+          <DefaultSubsetControlsLayout
+            optionsState={optionsState}
+            handleSwitch={handleSwitch}
+          />
+        </SubsetControls>
+      </Box>
+
+      <Box mb={3} p={2}>
+        <SearchInput placeholder="Search datasets..." />
+      </Box>
+
+      <Box mb={3}>
+        <MultiDatasetDownloadTable
+          datasetsMetadata={filteredItems}
+          filterValues={filterValues}
+        />
+      </Box>
+
+      <Box>
+        <RowCountTotal />
+        <DownloadButton
+          subsetFiltering={{
+            setInvalidFlag,
+            filterValues,
+            filterSetters,
+            datasetFilterBounds,
+            dateHandling,
+          }}
+        />
+      </Box>
+    </Box>
+  );
+};
+
+const MultiDatasetDownloadContainer = React.memo(
+  ({ datasetShortNames }) => {
+    const { datasetsMetadata, fetchDatasetsMetadata, isLoading } =
+      useMultiDatasetDownloadStore();
+
+    // Compute aggregate dataset bounds for multi-dataset filtering
+    const aggregateMetadata = useMemo(() => {
+      return aggregateDatasetMetadata(datasetsMetadata);
+    }, [datasetsMetadata]);
+
+    useEffect(() => {
+      if (datasetShortNames && datasetShortNames.length > 0) {
+        fetchDatasetsMetadata(datasetShortNames);
+      }
+    }, [datasetShortNames, fetchDatasetsMetadata]);
+
+    if (isLoading || !datasetsMetadata || datasetsMetadata.length === 0) {
+      return <SpinnerWrapper message={'Loading data for download...'} />;
+    }
+
+    if (!aggregateMetadata) {
+      return <SpinnerWrapper message={'Loading data for download...'} />;
+    }
+
+    return (
+      <SearchProvider items={datasetsMetadata} searchKeys={['Dataset_Name']}>
+        <MultiDatasetDownloadContainerInner
+          aggregateDatasetMetadata={aggregateMetadata}
+        />
+      </SearchProvider>
+    );
+  },
+  (prevProps, nextProps) => {
+    return deepEqual(prevProps.datasetShortNames, nextProps.datasetShortNames);
+  },
+);
+
+export default MultiDatasetDownloadContainer;

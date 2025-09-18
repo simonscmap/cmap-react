@@ -39,15 +39,10 @@ import * as visualizationActionTypes from '../actionTypes/visualization';
 // they are simply referenced in the watcher functions
 import userSaga from './userSagas';
 
-import {
-  watchFetchDatasetNames,
-  watchDownloadDialogOpen,
-  watchFetchVaultLink,
-} from './catalog';
+import { watchFetchDatasetNames, watchDownloadDialogOpen } from './catalog';
 
 import {
   watchDownloadDropboxFiles,
-  watchFetchVaultFilesPage,
   watchFolderTabChange,
 } from '../../features/datasetDownloadDropbox/state/sagas';
 
@@ -81,7 +76,7 @@ import {
   watchReSendNotifications,
 } from './notifications';
 
-import downloadSaga from './downloadSagas';
+import downloadSaga from '../../features/datasetDownload/state/sagas';
 
 import { watchRequestHighlightsSend } from './highlights';
 
@@ -2020,9 +2015,7 @@ function* rootSaga() {
     watchSendNotifications(),
     watchReSendNotifications(),
     watchDownloadDialogOpen(),
-    watchFetchVaultLink(),
     watchDownloadDropboxFiles(),
-    watchFetchVaultFilesPage(),
     watchFolderTabChange(),
     watchCheckVizQuerySize(),
   ]);
