@@ -42,8 +42,7 @@ const bulkDownloadAPI = {};
  *   shortNames: Array<string>,
  *   filters?: {
  *     temporal?: { startDate: string, endDate: string },    // ISO date strings (YYYY-MM-DD)
- *     spatial?: { latMin: number, latMax: number, lonMin: number, lonMax: number },
- *     depth?: { min: number, max: number }
+ *     spatial?: { latMin: number, latMax: number, lonMin: number, lonMax: number, depthMin: number, depthMax: number }
  *   }
  * }
  */
@@ -106,8 +105,7 @@ bulkDownloadAPI.downloadData = async (datasetShortNames, filters = null) => {
  *   shortNames: Array<string>,
  *   filters?: {
  *     temporal?: { startDate: string, endDate: string },    // ISO date strings (YYYY-MM-DD)
- *     spatial?: { latMin: number, latMax: number, lonMin: number, lonMax: number },
- *     depth?: { min: number, max: number }
+ *     spatial?: { latMin: number, latMax: number, lonMin: number, lonMax: number, depthMin: number, depthMax: number }
  *   }
  * }
  */

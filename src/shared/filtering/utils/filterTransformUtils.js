@@ -16,7 +16,9 @@ export const transformFiltersForAPI = (filters) => {
     filters.latStart !== undefined ||
     filters.latEnd !== undefined ||
     filters.lonStart !== undefined ||
-    filters.lonEnd !== undefined
+    filters.lonEnd !== undefined ||
+    filters.depthStart !== undefined ||
+    filters.depthEnd !== undefined
   ) {
     apiFilters.spatial = {
       latMin: filters.latStart,
@@ -26,12 +28,13 @@ export const transformFiltersForAPI = (filters) => {
     };
   }
 
-  // Transform depth filters - map to API format
+  // Transform depth filters - add to spatial filter
   if (filters.depthStart !== undefined || filters.depthEnd !== undefined) {
-    apiFilters.depth = {
-      min: filters.depthStart,
-      max: filters.depthEnd,
-    };
+    if (!apiFilters.spatial) {
+      apiFilters.spatial = {};
+    }
+    apiFilters.spatial.depthMin = filters.depthStart;
+    apiFilters.spatial.depthMax = filters.depthEnd;
   }
 
   return apiFilters;
