@@ -55,6 +55,7 @@ const Cite = lazy(() => import('./Components/Cite'));
 const SubscriptionsPage = lazy(
   () => import('./Components/User/Subscriptions/Subscriptions'),
 );
+const CollectionsPage = lazy(() => import('./pages/CollectionsPage'));
 
 const mapDispatchToProps = {
   toggleShowHelp,
@@ -105,6 +106,9 @@ class App extends Component {
                       ></Route>
                       <Route exact path="/programs">
                         <ProgramIndex />
+                      </Route>
+                      <Route exact path="/collections">
+                        <CollectionsPage />
                       </Route>
                       <Route
                         path="/programs/:programName"
