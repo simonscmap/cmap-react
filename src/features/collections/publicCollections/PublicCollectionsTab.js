@@ -130,7 +130,7 @@ const PublicCollectionsTab = () => {
         <Typography variant="h6" component="h2">
           Public Collections
         </Typography>
-        <TextField
+        {/* <TextField
           label="Search collections"
           variant="outlined"
           size="small"
@@ -144,7 +144,7 @@ const PublicCollectionsTab = () => {
               </InputAdornment>
             ),
           }}
-        />
+        /> */}
       </Box>
 
       {filteredPublicCollections.length === 0 && !isLoading ? (
