@@ -1,6 +1,9 @@
 // Collections Feature - Public API
 // Main entry point for collections functionality
 
+// Main Collections component
+export { default as Collections } from './Collections';
+
 // State exports - Zustand store
 export { default as useCollectionsStore } from './state/collectionsStore';
 
