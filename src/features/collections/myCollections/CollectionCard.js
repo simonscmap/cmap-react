@@ -14,6 +14,8 @@ import {
   Public as PublicIcon,
   Lock as LockIcon,
   Storage as DatasetIcon,
+  CloudDownload as CloudDownloadIcon,
+  Edit as EditIcon,
 } from '@material-ui/icons';
 
 const useStyles = makeStyles((theme) => ({
@@ -37,17 +39,41 @@ const useStyles = makeStyles((theme) => ({
     marginTop: 'auto',
   },
   editButton: {
-    backgroundColor: theme.palette.primary.main,
-    color: theme.palette.primary.contrastText,
+    color: theme.palette.secondary.main,
+    border: `2px solid ${theme.palette.secondary.main}`,
     '&:hover': {
-      backgroundColor: theme.palette.primary.dark,
+      border: `2px solid ${theme.palette.secondary.main}`,
+      backgroundColor: 'rgba(34, 163, 185, 0.1)',
+    },
+    borderRadius: '36px',
+    boxSizing: 'border-box',
+    padding: '6px 16px',
+    fontSize: '16px',
+    fontWeight: 500,
+    lineHeight: 'unset',
+    textTransform: 'none',
+    minWidth: '100px',
+    '& span': {
+      whiteSpace: 'nowrap',
     },
   },
   downloadButton: {
-    backgroundColor: theme.palette.secondary.main,
-    color: theme.palette.secondary.contrastText,
+    color: theme.palette.primary.main,
+    border: `2px solid ${theme.palette.primary.main}`,
     '&:hover': {
-      backgroundColor: theme.palette.secondary.dark,
+      border: `2px solid ${theme.palette.primary.main}`,
+      backgroundColor: 'rgba(157, 209, 98, 0.1)',
+    },
+    borderRadius: '36px',
+    boxSizing: 'border-box',
+    padding: '6px 16px',
+    fontSize: '16px',
+    fontWeight: 500,
+    lineHeight: 'unset',
+    textTransform: 'none',
+    minWidth: '100px',
+    '& span': {
+      whiteSpace: 'nowrap',
     },
   },
   titleRow: {
@@ -62,6 +88,7 @@ const useStyles = makeStyles((theme) => ({
     lineHeight: 1.3,
     flexGrow: 1,
     minWidth: 0,
+    fontSize: '1.4em',
   },
   statusChips: {
     display: 'flex',
@@ -98,8 +125,15 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.text.secondary,
   },
   metadataText: {
-    fontSize: '0.875rem',
+    fontSize: '1rem',
     color: theme.palette.text.secondary,
+  },
+  buttonTextSpacer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: '8px',
+    alignItems: 'center',
   },
 }));
 
@@ -133,7 +167,7 @@ const CollectionCard = ({ collection }) => {
     <Card className={classes.card}>
       <CardContent className={classes.cardContent}>
         <Box className={classes.titleRow}>
-          <Typography variant="h6" className={classes.title}>
+          <Typography variant="h5" className={classes.title}>
             {collection.name}
           </Typography>
           <Box className={classes.statusChips}>
@@ -176,20 +210,26 @@ const CollectionCard = ({ collection }) => {
 
       <CardActions className={classes.cardActions}>
         <Button
-          size="small"
-          variant="contained"
+          size="medium"
+          variant="outlined"
           className={classes.editButton}
           onClick={handleEdit}
         >
-          Edit
+          <div className={classes.buttonTextSpacer}>
+            <EditIcon fontSize="small" />
+            <span>Edit</span>
+          </div>
         </Button>
         <Button
-          size="small"
-          variant="contained"
+          size="medium"
+          variant="outlined"
           className={classes.downloadButton}
           onClick={handleDownload}
         >
-          Download
+          <div className={classes.buttonTextSpacer}>
+            <CloudDownloadIcon fontSize="small" />
+            <span>Download</span>
+          </div>
         </Button>
       </CardActions>
     </Card>

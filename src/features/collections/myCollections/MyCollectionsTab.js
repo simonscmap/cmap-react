@@ -279,9 +279,9 @@ const MyCollectionsTab = () => {
         <Typography variant="h5" gutterBottom>
           My Collections
         </Typography>
-        <Typography variant="body1" color="textSecondary">
+        {/* <Typography variant="body1" color="textSecondary">
           Manage your personal dataset collections
-        </Typography>
+        </Typography> */}
       </Box>
 
       <Box className={classes.statisticsSection}>
