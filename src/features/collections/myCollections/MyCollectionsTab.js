@@ -19,6 +19,17 @@ const useStyles = makeStyles((theme) => ({
   },
   collectionsGrid: {
     marginTop: theme.spacing(2),
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+    gap: theme.spacing(3),
+    gridAutoRows: '1fr',
+    [theme.breakpoints.up('sm')]: {
+      gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+    },
+    [theme.breakpoints.up('md')]: {
+      gridTemplateColumns: 'repeat(3, 1fr)',
+      maxWidth: '100%',
+    },
   },
   emptyState: {
     textAlign: 'center',
@@ -81,11 +92,7 @@ const MyCollectionsTab = () => {
           isPublic: true,
           creatorId: user.id,
           creatorName: user.name || 'Current User',
-          creatorAffiliation: user.affiliation || 'Research Institution',
           datasetIds: ['dataset1', 'dataset2', 'dataset3'],
-          datasets: [],
-          previewCount: 15,
-          copyCount: 3,
           hasInvalidDatasets: false,
         },
         {
@@ -97,11 +104,89 @@ const MyCollectionsTab = () => {
           isPublic: false,
           creatorId: user.id,
           creatorName: user.name || 'Current User',
-          creatorAffiliation: user.affiliation || 'Research Institution',
           datasetIds: ['dataset4', 'dataset5'],
-          datasets: [],
-          previewCount: 8,
-          copyCount: 1,
+          hasInvalidDatasets: true,
+        },
+        {
+          id: '3',
+          name: 'Pacific Salinity Profiles',
+          description:
+            'Comprehensive salinity measurements across Pacific Ocean regions',
+          createdAt: '2025-09-15T12:00:00Z',
+          lastModified: '2025-09-21T09:30:00Z',
+          isPublic: true,
+          creatorId: user.id,
+          creatorName: user.name || 'Current User',
+          datasetIds: ['dataset6', 'dataset7', 'dataset8', 'dataset9'],
+          hasInvalidDatasets: false,
+        },
+        {
+          id: '4',
+          name: 'Marine Biodiversity Index',
+          description: 'Species diversity data from multiple marine ecosystems',
+          createdAt: '2025-09-12T15:45:00Z',
+          lastModified: '2025-09-20T11:00:00Z',
+          isPublic: false,
+          creatorId: user.id,
+          creatorName: user.name || 'Current User',
+          datasetIds: ['dataset10', 'dataset11'],
+          hasInvalidDatasets: false,
+        },
+        {
+          id: '5',
+          name: 'Arctic Ice Coverage',
+          description:
+            'Historical and current Arctic sea ice extent measurements',
+          createdAt: '2025-09-10T09:15:00Z',
+          lastModified: '2025-09-24T13:45:00Z',
+          isPublic: true,
+          creatorId: user.id,
+          creatorName: user.name || 'Current User',
+          datasetIds: [
+            'dataset12',
+            'dataset13',
+            'dataset14',
+            'dataset15',
+            'dataset16',
+          ],
+          hasInvalidDatasets: true,
+        },
+        {
+          id: '6',
+          name: 'Phytoplankton Distribution',
+          description: 'Global phytoplankton biomass and distribution patterns',
+          createdAt: '2025-09-08T14:20:00Z',
+          lastModified: '2025-09-19T10:30:00Z',
+          isPublic: false,
+          creatorId: user.id,
+          creatorName: user.name || 'Current User',
+          datasetIds: ['dataset17'],
+          hasInvalidDatasets: false,
+        },
+        {
+          id: '7',
+          name: 'Deep Ocean Currents',
+          description:
+            'Current velocity and direction measurements from deep ocean monitoring stations',
+          createdAt: '2025-09-05T16:30:00Z',
+          lastModified: '2025-09-18T08:15:00Z',
+          isPublic: true,
+          creatorId: user.id,
+          creatorName: user.name || 'Current User',
+          datasetIds: ['dataset18', 'dataset19', 'dataset20'],
+          hasInvalidDatasets: false,
+        },
+        {
+          id: '8',
+          name: 'Coral Reef Health Monitoring',
+          description:
+            'Long-term monitoring data of coral reef ecosystems and health indicators',
+          createdAt: '2025-09-03T11:00:00Z',
+          lastModified: '2025-09-17T15:45:00Z',
+          isPublic: false,
+          creatorId: user.id,
+          creatorName: user.name || 'Current User',
+          datasetIds: ['dataset21', 'dataset22', 'dataset23', 'dataset24'],
           hasInvalidDatasets: true,
         },
       ];
@@ -203,13 +288,11 @@ const MyCollectionsTab = () => {
         <CollectionStatistics statistics={statistics} />
       </Box>
 
-      <Grid container spacing={3} className={classes.collectionsGrid}>
+      <Box className={classes.collectionsGrid}>
         {paginatedCollections.map((collection) => (
-          <Grid item xs={12} sm={6} md={4} key={collection.id}>
-            <CollectionCard collection={collection} />
-          </Grid>
+          <CollectionCard key={collection.id} collection={collection} />
         ))}
-      </Grid>
+      </Box>
 
       {/* TODO: Add pagination controls in future phase */}
     </Box>

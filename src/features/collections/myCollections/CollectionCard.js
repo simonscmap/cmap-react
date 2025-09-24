@@ -10,8 +10,6 @@ import {
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import {
-  Edit as EditIcon,
-  GetApp as DownloadIcon,
   Warning as WarningIcon,
   Public as PublicIcon,
   Lock as LockIcon,
@@ -20,8 +18,7 @@ import {
 
 const useStyles = makeStyles((theme) => ({
   card: {
-    height: 'auto',
-    minHeight: 180,
+    height: '100%',
     display: 'flex',
     flexDirection: 'column',
     '&:hover': {
@@ -37,6 +34,21 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: theme.spacing(1),
     justifyContent: 'flex-end',
     gap: theme.spacing(1),
+    marginTop: 'auto',
+  },
+  editButton: {
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
+    '&:hover': {
+      backgroundColor: theme.palette.primary.dark,
+    },
+  },
+  downloadButton: {
+    backgroundColor: theme.palette.secondary.main,
+    color: theme.palette.secondary.contrastText,
+    '&:hover': {
+      backgroundColor: theme.palette.secondary.dark,
+    },
   },
   titleRow: {
     display: 'flex',
@@ -165,16 +177,16 @@ const CollectionCard = ({ collection }) => {
       <CardActions className={classes.cardActions}>
         <Button
           size="small"
-          color="primary"
-          startIcon={<EditIcon />}
+          variant="contained"
+          className={classes.editButton}
           onClick={handleEdit}
         >
           Edit
         </Button>
         <Button
           size="small"
-          color="primary"
-          startIcon={<DownloadIcon />}
+          variant="contained"
+          className={classes.downloadButton}
           onClick={handleDownload}
         >
           Download
