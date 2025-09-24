@@ -1,7 +1,7 @@
 import React from 'react';
 import Page2 from '../../Components/Common/Page2';
 import { Collections } from '../../features/collections';
-
+import { Typography } from '@material-ui/core';
 const CollectionsPage = () => {
   return (
     <Page2 bgVariant={'slate2'}>

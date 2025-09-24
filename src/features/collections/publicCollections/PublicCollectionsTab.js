@@ -6,8 +6,8 @@ import {
   TextField,
   InputAdornment,
   CircularProgress,
-  Alert,
 } from '@material-ui/core';
+import { Alert } from '@material-ui/lab';
 import SearchIcon from '@material-ui/icons/Search';
 import useCollectionsStore from '../state/collectionsStore';
 import CollectionsTable from './CollectionsTable';
