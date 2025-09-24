@@ -1,6 +1,5 @@
 // Public Collections Domain - Public API
 // Components for browsing public collections
 
-// To be implemented in Phase 3.3
-// export { PublicCollectionsTab } from './PublicCollectionsTab';
-// export { CollectionsTable } from './CollectionsTable';
+export { default as PublicCollectionsTab } from './PublicCollectionsTab';
+export { default as CollectionsTable } from './CollectionsTable';
