@@ -50,17 +50,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Visualization**: Interactive chart creation with multiple chart types
 - **Data Submission**: Workflow for submitting scientific datasets with validation
 - **Multi-Dataset Download**: Bulk dataset downloads with selection-driven row count optimization
+- **Collections**: Personal and public dataset collection management with card/table views
 - **User Management**: Authentication with Google OAuth integration
 - **Admin Panel**: News management and dataset administration
 
 ### State Management Architecture
 
-- **Redux**: Legacy global state with connect() HOC and hooks (useSelector/useDispatch) patterns
-- **Redux-saga**: Handling async operations and API calls
-- **Zustand**: Modern feature-specific state (multi-dataset download, row counts)
+- **Zustand + React Hooks**: Core state management tool for all new features
+- **Redux**: Legacy global state - ONLY for existing features/implementations, not for new development
+- **Redux-saga**: Legacy async operations - only used with existing Redux features
 - Uses reduceReducers and NOT combineReducers. Thus, reducers take in entire state, not state slices.
 - Initial state lives inside `src/Redux/Reducers/index.js`
-- **Migration Pattern**: New features use Zustand, existing features remain Redux
+- **New Feature Pattern**: All new features must use Zustand + React Hooks, Redux is legacy-only
 
 ### API Configuration
 
@@ -82,6 +83,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **This project uses manual testing only. Do not create or suggest unit tests, integration tests, or automated tests of any kind.** All features and functionality are validated through manual testing in the browser.
 
 ## Recent Features & Patterns
+
+### Collections Management (2025-09)
+
+- **Dual View Pattern**: Card layout for personal collections, table layout for public collections
+- **Client-Side Processing**: Real-time search/filtering, statistics calculation, no optimistic updates
+- **Authentication Integration**: Login requirement for My Collections (uses legacy Redux for existing login dialog only), public access for Public Collections
+- **Domain-Based Organization**: Feature structure follows directory v2 with myCollections/, publicCollections/ domains
+- **Zustand State Management**: All feature logic uses Zustand + React Hooks (core state management), Redux only for existing login dialog integration
 
 ### Multi-Dataset Download Optimization (2025-09)
 
