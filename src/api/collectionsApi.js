@@ -1,0 +1,86 @@
+import { apiUrl, fetchOptions } from './config';
+
+/**
+ * @typedef {Object} CollectionDataset
+ * @property {number} datasetId - Dataset identifier
+ * @property {string} datasetShortName - Dataset short name identifier
+ * @property {string} datasetLongName - Human-readable dataset name
+ * @property {string} datasetVersion - Dataset version
+ * @property {boolean} isValid - Whether dataset still exists in catalog
+ * @property {string} addedDate - ISO 8601 UTC timestamp when added to collection
+ * @property {number|null} displayOrder - Display order within collection
+ */
+
+/**
+ * @typedef {Object} Collection
+ * @property {number} id - Unique collection identifier
+ * @property {string} name - Collection name (max 255 chars)
+ * @property {string|null} description - Collection description (max 2000 chars)
+ * @property {boolean} isPublic - Whether collection is publicly visible
+ * @property {string} createdDate - ISO 8601 UTC timestamp
+ * @property {string} modifiedDate - ISO 8601 UTC timestamp
+ * @property {string} ownerName - Full name of collection owner
+ * @property {string} ownerAffiliation - Owner's institutional affiliation
+ * @property {number} datasetCount - Number of datasets in collection (≥ 0)
+ * @property {boolean} isOwner - Whether current user owns this collection
+ * @property {CollectionDataset[]} [datasets] - Array of dataset objects (only if includeDatasets=true)
+ */
+
+/**
+ * @typedef {Collection} CollectionDetail - Extends Collection with additional fields
+ * @property {number} [totalDownloads] - Total download count (owner only, ≥ 0)
+ * @property {CollectionDataset[]} [datasets] - Always included unless explicitly disabled
+ */
+
+const collectionsAPI = {};
+
+/**
+ * List collections based on user authentication state
+ * @param {Object} [params] - Query parameters
+ * @param {number} [params.limit=20] - Max collections (1-100)
+ * @param {number} [params.offset=0] - Pagination offset (≥ 0)
+ * @param {boolean} [params.includeDatasets=false] - Include dataset details
+ * @returns {Promise<Response>} Array of Collection objects
+ * @throws {Error} 400: Invalid parameters, 500: Server error
+ */
+collectionsAPI.getCollections = async (params = {}) => {
+  const searchParams = new URLSearchParams();
+
+  if (params.limit !== undefined) {
+    searchParams.append('limit', params.limit);
+  }
+  if (params.offset !== undefined) {
+    searchParams.append('offset', params.offset);
+  }
+  if (params.includeDatasets !== undefined) {
+    searchParams.append('includeDatasets', params.includeDatasets);
+  }
+
+  const queryString = searchParams.toString();
+  const endpoint = `${apiUrl}/api/collections${queryString ? `?${queryString}` : ''}`;
+
+  return await fetch(endpoint, fetchOptions);
+};
+
+/**
+ * Retrieve detailed information about a specific collection
+ * @param {number} id - Collection ID (positive integer)
+ * @param {Object} [params] - Query parameters
+ * @param {boolean} [params.includeDatasets=true] - Include dataset details
+ * @returns {Promise<Response>} CollectionDetail object
+ * @throws {Error} 400: Invalid parameters, 404: Not found/access denied, 500: Server error
+ */
+collectionsAPI.getCollectionById = async (id, params = {}) => {
+  const searchParams = new URLSearchParams();
+
+  if (params.includeDatasets !== undefined) {
+    searchParams.append('includeDatasets', params.includeDatasets);
+  }
+
+  const queryString = searchParams.toString();
+  const endpoint = `${apiUrl}/api/collections/${id}${queryString ? `?${queryString}` : ''}`;
+
+  return await fetch(endpoint, fetchOptions);
+};
+
+export default collectionsAPI;
