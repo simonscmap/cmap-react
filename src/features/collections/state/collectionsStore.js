@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import collectionsAPI from '../api/collectionsApi';
 
 const useCollectionsStore = create((set, get) => ({
   // State
@@ -34,6 +35,34 @@ const useCollectionsStore = create((set, get) => ({
 
   // Actions
   setLoading: (loading) => set({ isLoading: loading }),
+
+  // API Actions
+  fetchCollections: async (params = {}) => {
+    set({ isLoading: true, error: null });
+
+    try {
+      const response = await collectionsAPI.getCollections(params);
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to fetch collections: ${response.status} ${response.statusText}`,
+        );
+      }
+
+      const data = await response.json();
+      console.log('Collections API response:', data);
+
+      // Set both user and public collections from the response
+      // The API returns different collections based on auth state
+      get().setUserCollections(data.userCollections || []);
+      get().setPublicCollections(data.publicCollections || data || []);
+    } catch (error) {
+      console.error('Error fetching collections:', error);
+      set({ error: error.message });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
 
   setError: (error) => set({ error }),
 

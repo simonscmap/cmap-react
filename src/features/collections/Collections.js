@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Grid, Typography, Tabs, Tab, Box } from '@material-ui/core';
 import MyCollectionsTab from './myCollections/MyCollectionsTab';
 import PublicCollectionsTab from './publicCollections/PublicCollectionsTab';
+import useCollectionsStore from './state/collectionsStore';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -38,6 +39,14 @@ const TabPanel = ({ children, value, index, ...other }) => {
 const Collections = () => {
   const classes = useStyles();
   const [currentTab, setCurrentTab] = useState(0);
+  const { fetchCollections } = useCollectionsStore();
+
+  // Fetch collections when component mounts
+  // Backend automatically returns public collections for all users
+  // and includes private collections if user is authenticated
+  useEffect(() => {
+    fetchCollections({ includeDatasets: false });
+  }, [fetchCollections]);
 
   const handleTabChange = (_, newValue) => {
     setCurrentTab(newValue);
