@@ -98,14 +98,14 @@ const useStyles = makeStyles((theme) => ({
     height: 22,
   },
   privateChip: {
-    backgroundColor: theme.palette.error.main,
-    color: theme.palette.error.contrastText,
+    backgroundColor: colors.secondary,
+    color: 'white',
     fontSize: '0.7rem',
     height: 22,
   },
   warningChip: {
-    backgroundColor: theme.palette.warning.main,
-    color: theme.palette.warning.contrastText,
+    backgroundColor: colors.errorYellow,
+    color: colors.solidPaper,
     fontSize: '0.7rem',
     height: 22,
   },
