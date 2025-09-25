@@ -52,10 +52,19 @@ const useCollectionsStore = create((set, get) => ({
       const data = await response.json();
       console.log('Collections API response:', data);
 
-      // Set both user and public collections from the response
-      // The API returns different collections based on auth state
-      get().setUserCollections(data.userCollections || []);
-      get().setPublicCollections(data.publicCollections || data || []);
+      // Filter collections based on isPublic and isOwner flags
+      // API returns single array of collections with boolean flags
+      const collections = Array.isArray(data) ? data : [];
+
+      const userCollections = collections.filter(
+        (collection) => collection.isOwner === true,
+      );
+      const publicCollections = collections.filter(
+        (collection) => collection.isPublic === true,
+      );
+
+      get().setUserCollections(userCollections);
+      get().setPublicCollections(publicCollections);
     } catch (error) {
       console.error('Error fetching collections:', error);
       set({ error: error.message });

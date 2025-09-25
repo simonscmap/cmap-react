@@ -11,10 +11,17 @@ const useStyles = makeStyles((theme) => ({
     padding: '20px 25px',
   },
   tabs: {
+    marginTop: '32px',
     borderBottom: `1px solid ${theme.palette.divider}`,
     marginBottom: theme.spacing(2),
     '& .MuiTabs-indicator': {
       backgroundColor: theme.palette.primary.main,
+    },
+    '& .MuiTab-root': {
+      fontSize: '1.2rem',
+      paddingLeft: '16px',
+      paddingRight: '16px',
+      color: 'white',
     },
   },
   tabContent: {
