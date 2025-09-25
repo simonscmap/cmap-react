@@ -129,15 +129,19 @@ const useStyles = makeStyles((theme) => ({
 const CollectionCard = ({ collection }) => {
   const classes = useStyles();
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('sv-SE'); // YYYY-MM-DD format
+  };
+
   const formatDateTime = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
+    const dateStr = date.toLocaleDateString('sv-SE'); // YYYY-MM-DD format
+    const timeStr = date.toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit',
     });
+    return `${dateStr}, ${timeStr}`;
   };
 
   const handleEdit = () => {

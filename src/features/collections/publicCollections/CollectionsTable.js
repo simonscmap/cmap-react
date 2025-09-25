@@ -13,6 +13,7 @@ import {
   Button,
 } from '@material-ui/core';
 import { format, parseISO } from 'date-fns';
+import colors from '../../../enums/colors';
 
 const useStyles = makeStyles(() => ({
   tableContainer: {
@@ -89,6 +90,42 @@ const useStyles = makeStyles(() => ({
     padding: '5px',
     border: 0,
   },
+  previewButton: {
+    color: '#9e9e9e',
+    border: '2px solid #9e9e9e',
+    '&:hover': {
+      border: '2px solid #9e9e9e',
+      backgroundColor: 'rgba(158, 158, 158, 0.1)',
+    },
+    borderRadius: '20px',
+    boxSizing: 'border-box',
+    padding: '4px 12px',
+    fontSize: '12px',
+    fontWeight: 500,
+    lineHeight: 1,
+    textTransform: 'none',
+    minWidth: 'auto',
+    width: 'fit-content',
+    height: '28px',
+  },
+  copyButton: {
+    color: colors.primary,
+    border: `2px solid ${colors.primary}`,
+    '&:hover': {
+      border: `2px solid ${colors.primary}`,
+      backgroundColor: colors.greenHover,
+    },
+    borderRadius: '20px',
+    boxSizing: 'border-box',
+    padding: '4px 12px',
+    fontSize: '12px',
+    fontWeight: 500,
+    lineHeight: 1,
+    textTransform: 'none',
+    minWidth: 'auto',
+    width: 'fit-content',
+    height: '28px',
+  },
 }));
 
 const CollectionsTable = ({ collections = [] }) => {
@@ -96,7 +133,7 @@ const CollectionsTable = ({ collections = [] }) => {
 
   const formatDate = (dateString) => {
     try {
-      return format(parseISO(dateString), 'MMM dd, yyyy');
+      return format(parseISO(dateString), 'yyyy-MM-dd');
     } catch (error) {
       return 'Invalid date';
     }
@@ -277,12 +314,12 @@ const CollectionsTable = ({ collections = [] }) => {
                   </TableCell>
                   <TableCell align="center" className={classes.statsCell}>
                     <Typography variant="body2" noWrap>
-                      {collection.datasetIds?.length || 0}
+                      {collection.datasetCount || 0}
                     </Typography>
                   </TableCell>
                   <TableCell className={classes.dateCell}>
                     <Typography variant="body2" noWrap>
-                      {formatDate(collection.createdAt)}
+                      {formatDate(collection.createdDate)}
                     </Typography>
                   </TableCell>
                   <TableCell align="center" className={classes.statsCell}>
@@ -291,28 +328,18 @@ const CollectionsTable = ({ collections = [] }) => {
                     </Typography>
                   </TableCell>
                   <TableCell className={classes.statsCell}>
-                    <Box display="flex" gap={1}>
+                    <Box display="flex" gap={0.5}>
                       <Button
                         variant="outlined"
-                        size="small"
-                        style={{
-                          color: '#8bc34a',
-                          borderColor: '#8bc34a',
-                          fontSize: '0.75rem',
-                          textTransform: 'none',
-                        }}
+                        size="medium"
+                        className={classes.previewButton}
                       >
                         Preview
                       </Button>
                       <Button
                         variant="outlined"
-                        size="small"
-                        style={{
-                          color: '#8bc34a',
-                          borderColor: '#8bc34a',
-                          fontSize: '0.75rem',
-                          textTransform: 'none',
-                        }}
+                        size="medium"
+                        className={classes.copyButton}
                       >
                         Copy
                       </Button>
