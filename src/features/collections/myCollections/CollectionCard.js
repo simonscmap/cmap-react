@@ -11,6 +11,7 @@ import {
 import { makeStyles } from '@material-ui/core/styles';
 import { Storage as DatasetIcon } from '@material-ui/icons';
 import colors from '../../../enums/colors';
+import MetadataRow from './MetadataRow';
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -108,30 +109,6 @@ const useStyles = makeStyles((theme) => ({
     fontSize: '0.7rem',
     height: 22,
   },
-  metadataRow: {
-    display: 'flex',
-    alignItems: 'flex-start',
-    marginBottom: theme.spacing(0.5),
-    fontSize: '0.9em',
-  },
-  metadataLabel: {
-    color: 'rgb(135, 255, 244)',
-    whiteSpace: 'nowrap',
-    fontSize: '1em',
-    width: '120px',
-    minWidth: '120px',
-    paddingRight: theme.spacing(1),
-  },
-  metadataValue: {
-    fontSize: '1em',
-    color: 'white',
-    flex: 1,
-  },
-  datasetCount: {
-    fontSize: '1em',
-    color: 'white',
-    fontWeight: 600,
-  },
 }));
 
 const CollectionCard = ({ collection }) => {
@@ -193,21 +170,15 @@ const CollectionCard = ({ collection }) => {
           </Typography>
         )}
 
-        <Box className={classes.metadataRow}>
-          <Typography className={classes.metadataLabel}>Datasets</Typography>
-          <Typography className={classes.metadataValue}>
-            <span className={classes.datasetCount}>
-              {collection.datasetIds?.length || 0}
-            </span>
-          </Typography>
-        </Box>
-
-        <Box className={classes.metadataRow}>
-          <Typography className={classes.metadataLabel}>Modified</Typography>
-          <Typography className={classes.metadataValue}>
-            {formatDateTime(collection.lastModified)}
-          </Typography>
-        </Box>
+        <MetadataRow
+          label="Dataset Count"
+          value={collection.datasetIds?.length || 0}
+          isCount={true}
+        />
+        <MetadataRow
+          label="Last Modified"
+          value={formatDateTime(collection.lastModified)}
+        />
       </CardContent>
 
       <CardActions className={classes.cardActions}>
