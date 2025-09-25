@@ -107,6 +107,7 @@ const useStyles = makeStyles(() => ({
     minWidth: 'auto',
     width: 'fit-content',
     height: '28px',
+    marginRight: '8px',
   },
   copyButton: {
     color: colors.primary,
@@ -328,7 +329,7 @@ const CollectionsTable = ({ collections = [] }) => {
                     </Typography>
                   </TableCell>
                   <TableCell className={classes.statsCell}>
-                    <Box display="flex" gap={1.5}>
+                    <Box display="flex">
                       <Button
                         variant="outlined"
                         size="medium"

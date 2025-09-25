@@ -80,7 +80,7 @@ const useStyles = makeStyles((theme) => ({
   },
   titleRow: {
     display: 'flex',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     gap: theme.spacing(1),
     marginBottom: theme.spacing(2),
     flexWrap: 'wrap',
@@ -100,16 +100,20 @@ const useStyles = makeStyles((theme) => ({
     flexWrap: 'wrap',
   },
   publicChip: {
-    backgroundColor: colors.primary,
-    color: 'white',
-    fontSize: '0.7rem',
-    height: 22,
+    backgroundColor: '#c8e6c9',
+    color: '#2e7d32',
+    fontSize: '0.62rem',
+    height: 20,
+    fontWeight: 400,
+    borderRadius: '6px',
   },
   privateChip: {
-    backgroundColor: colors.secondary,
-    color: 'white',
-    fontSize: '0.7rem',
-    height: 22,
+    backgroundColor: '#ffcdd2',
+    color: '#c62828',
+    fontSize: '0.62rem',
+    height: 20,
+    fontWeight: 400,
+    borderRadius: '6px',
   },
   warningSection: {
     display: 'flex',
@@ -163,7 +167,7 @@ const CollectionCard = ({ collection }) => {
           </Typography>
           <Box className={classes.statusChips}>
             <Chip
-              label={collection.isPublic ? 'Public' : 'Private'}
+              label={collection.isPublic ? 'PUBLIC' : 'PRIVATE'}
               size="small"
               className={
                 collection.isPublic ? classes.publicChip : classes.privateChip

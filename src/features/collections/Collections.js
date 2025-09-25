@@ -62,8 +62,8 @@ const Collections = () => {
   return (
     <Grid container className={classes.container}>
       <Grid item xs={12}>
-        <Typography variant="h1" gutterBottom>
-          Collections
+        <Typography variant="h2" gutterBottom>
+          Dataset Collections
         </Typography>
 
         <Tabs
