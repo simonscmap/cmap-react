@@ -9,7 +9,10 @@ import {
   Button,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import { Storage as DatasetIcon } from '@material-ui/icons';
+import {
+  Storage as DatasetIcon,
+  Warning as WarningIcon,
+} from '@material-ui/icons';
 import colors from '../../../enums/colors';
 import MetadataRow from './MetadataRow';
 
@@ -30,9 +33,14 @@ const useStyles = makeStyles((theme) => ({
   cardActions: {
     padding: theme.spacing(2),
     paddingTop: theme.spacing(1),
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     gap: theme.spacing(0.5),
     marginTop: 'auto',
+  },
+  buttonGroup: {
+    display: 'flex',
+    gap: theme.spacing(0.5),
   },
   editButton: {
     color: '#9e9e9e',
@@ -103,11 +111,18 @@ const useStyles = makeStyles((theme) => ({
     fontSize: '0.7rem',
     height: 22,
   },
-  warningChip: {
-    backgroundColor: colors.errorYellow,
-    color: colors.solidPaper,
-    fontSize: '0.7rem',
-    height: 22,
+  warningSection: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: theme.spacing(0.5),
+  },
+  warningText: {
+    color: colors.errorYellow,
+    fontSize: '0.75rem',
+  },
+  warningIcon: {
+    color: colors.errorYellow,
+    fontSize: '1rem',
   },
 }));
 
@@ -144,19 +159,12 @@ const CollectionCard = ({ collection }) => {
           </Typography>
           <Box className={classes.statusChips}>
             <Chip
-              label={collection.isPublic ? 'PUBLIC' : 'PRIVATE'}
+              label={collection.isPublic ? 'Public' : 'Private'}
               size="small"
               className={
                 collection.isPublic ? classes.publicChip : classes.privateChip
               }
             />
-            {collection.hasInvalidDatasets && (
-              <Chip
-                label="Contains inactive datasets"
-                size="small"
-                className={classes.warningChip}
-              />
-            )}
           </Box>
         </Box>
 
@@ -182,22 +190,34 @@ const CollectionCard = ({ collection }) => {
       </CardContent>
 
       <CardActions className={classes.cardActions}>
-        <Button
-          size="medium"
-          variant="outlined"
-          className={classes.editButton}
-          onClick={handleEdit}
-        >
-          Edit
-        </Button>
-        <Button
-          size="medium"
-          variant="outlined"
-          className={classes.downloadButton}
-          onClick={handleDownload}
-        >
-          Download
-        </Button>
+        <Box>
+          {collection.hasInvalidDatasets && (
+            <Box className={classes.warningSection}>
+              <WarningIcon className={classes.warningIcon} />
+              <Typography className={classes.warningText}>
+                Contains inactive datasets
+              </Typography>
+            </Box>
+          )}
+        </Box>
+        <Box className={classes.buttonGroup}>
+          <Button
+            size="medium"
+            variant="outlined"
+            className={classes.editButton}
+            onClick={handleEdit}
+          >
+            Edit
+          </Button>
+          <Button
+            size="medium"
+            variant="outlined"
+            className={classes.downloadButton}
+            onClick={handleDownload}
+          >
+            Download
+          </Button>
+        </Box>
       </CardActions>
     </Card>
   );
