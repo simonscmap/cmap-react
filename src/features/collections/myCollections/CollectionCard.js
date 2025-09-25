@@ -17,6 +17,7 @@ const useStyles = makeStyles((theme) => ({
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
+    border: `1px solid ${colors.secondary}`,
     '&:hover': {
       boxShadow: theme.shadows[4],
     },
@@ -76,7 +77,7 @@ const useStyles = makeStyles((theme) => ({
     flexWrap: 'wrap',
   },
   title: {
-    fontWeight: 600,
+    fontWeight: 400,
     lineHeight: 1.3,
     flexGrow: 1,
     minWidth: 0,
@@ -109,20 +110,25 @@ const useStyles = makeStyles((theme) => ({
   },
   metadataRow: {
     display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(0.5),
+    alignItems: 'flex-start',
     marginBottom: theme.spacing(0.5),
+    fontSize: '0.9em',
   },
-  metadataIcon: {
-    fontSize: 16,
-    color: 'white',
+  metadataLabel: {
+    color: 'rgb(135, 255, 244)',
+    whiteSpace: 'nowrap',
+    fontSize: '1em',
+    width: '120px',
+    minWidth: '120px',
+    paddingRight: theme.spacing(1),
   },
-  metadataText: {
-    fontSize: '1rem',
+  metadataValue: {
+    fontSize: '1em',
     color: 'white',
+    flex: 1,
   },
   datasetCount: {
-    fontSize: '1rem',
+    fontSize: '1em',
     color: 'white',
     fontWeight: 600,
   },
@@ -178,24 +184,28 @@ const CollectionCard = ({ collection }) => {
         </Box>
 
         {collection.description && (
-          <Typography variant="body2" paragraph style={{ color: 'white' }}>
+          <Typography
+            variant="body2"
+            paragraph
+            style={{ color: 'white', fontSize: '1rem' }}
+          >
             {collection.description}
           </Typography>
         )}
 
         <Box className={classes.metadataRow}>
-          <DatasetIcon className={classes.metadataIcon} />
-          <Typography className={classes.metadataText}>
+          <Typography className={classes.metadataLabel}>Datasets</Typography>
+          <Typography className={classes.metadataValue}>
             <span className={classes.datasetCount}>
               {collection.datasetIds?.length || 0}
-            </span>{' '}
-            datasets
+            </span>
           </Typography>
         </Box>
 
         <Box className={classes.metadataRow}>
-          <Typography className={classes.metadataText}>
-            Modified: {formatDateTime(collection.lastModified)}
+          <Typography className={classes.metadataLabel}>Modified</Typography>
+          <Typography className={classes.metadataValue}>
+            {formatDateTime(collection.lastModified)}
           </Typography>
         </Box>
       </CardContent>
