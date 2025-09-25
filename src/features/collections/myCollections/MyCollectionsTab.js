@@ -137,9 +137,9 @@ const MyCollectionsTab = () => {
   return (
     <Box className={classes.container}>
       <Box className={classes.header}>
-        <Typography variant="h5" gutterBottom>
+        {/* <Typography variant="h5" gutterBottom>
           My Collections
-        </Typography>
+        </Typography> */}
         {/* <Typography variant="body1" color="textSecondary">
           Manage your personal dataset collections
         </Typography> */}
