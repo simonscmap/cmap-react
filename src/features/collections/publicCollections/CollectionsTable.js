@@ -35,6 +35,9 @@ const useStyles = makeStyles(() => ({
       zIndex: 2,
       padding: '8px 5px',
       border: 0,
+      '&:first-child': {
+        padding: '8px 5px 8px 16px',
+      },
     },
   },
   table: {
@@ -52,7 +55,7 @@ const useStyles = makeStyles(() => ({
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
-    padding: '5px',
+    padding: '8px 5px 8px 16px',
     border: 0,
     color: '#ffffff',
     lineHeight: '35px',
@@ -140,6 +143,13 @@ const CollectionsTable = ({ collections = [] }) => {
     }
   };
 
+  const truncateDescription = (description, maxLength = 100) => {
+    if (!description || description.length <= maxLength) {
+      return description;
+    }
+    return description.substring(0, maxLength) + '...';
+  };
+
   const handleRowClick = (collection) => {
     // TODO: Navigate to collection detail page when implemented
     console.log('Navigate to collection:', collection.id);
@@ -176,7 +186,7 @@ const CollectionsTable = ({ collections = [] }) => {
             <TableRow>
               <TableCell
                 style={{
-                  padding: '8px 5px',
+                  padding: '8px 5px 8px 16px',
                   border: 0,
                   color: '#8bc34a',
                   fontSize: '0.875rem',
@@ -280,10 +290,9 @@ const CollectionsTable = ({ collections = [] }) => {
                         <Typography
                           variant="caption"
                           style={{ color: 'rgba(255, 255, 255, 0.7)' }}
-                          noWrap
                           title={collection.description}
                         >
-                          {collection.description}
+                          {truncateDescription(collection.description)}
                         </Typography>
                       )}
                     </Box>
