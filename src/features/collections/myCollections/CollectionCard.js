@@ -9,14 +9,8 @@ import {
   Button,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import {
-  Warning as WarningIcon,
-  Public as PublicIcon,
-  Lock as LockIcon,
-  Storage as DatasetIcon,
-  CloudDownload as CloudDownloadIcon,
-  Edit as EditIcon,
-} from '@material-ui/icons';
+import { Storage as DatasetIcon } from '@material-ui/icons';
+import colors from '../../../enums/colors';
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -35,46 +29,44 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2),
     paddingTop: theme.spacing(1),
     justifyContent: 'flex-end',
-    gap: theme.spacing(1),
+    gap: theme.spacing(0.5),
     marginTop: 'auto',
   },
   editButton: {
-    color: theme.palette.secondary.main,
-    border: `2px solid ${theme.palette.secondary.main}`,
+    color: '#9e9e9e',
+    border: '2px solid #9e9e9e',
     '&:hover': {
-      border: `2px solid ${theme.palette.secondary.main}`,
-      backgroundColor: 'rgba(34, 163, 185, 0.1)',
+      border: '2px solid #9e9e9e',
+      backgroundColor: 'rgba(158, 158, 158, 0.1)',
     },
-    borderRadius: '36px',
+    borderRadius: '20px',
     boxSizing: 'border-box',
-    padding: '6px 16px',
-    fontSize: '16px',
+    padding: '4px 12px',
+    fontSize: '12px',
     fontWeight: 500,
-    lineHeight: 'unset',
+    lineHeight: 1,
     textTransform: 'none',
-    minWidth: '100px',
-    '& span': {
-      whiteSpace: 'nowrap',
-    },
+    minWidth: 'auto',
+    width: 'fit-content',
+    height: '28px',
   },
   downloadButton: {
-    color: theme.palette.primary.main,
-    border: `2px solid ${theme.palette.primary.main}`,
+    color: colors.primary,
+    border: `2px solid ${colors.primary}`,
     '&:hover': {
-      border: `2px solid ${theme.palette.primary.main}`,
-      backgroundColor: 'rgba(157, 209, 98, 0.1)',
+      border: `2px solid ${colors.primary}`,
+      backgroundColor: colors.greenHover,
     },
-    borderRadius: '36px',
+    borderRadius: '20px',
     boxSizing: 'border-box',
-    padding: '6px 16px',
-    fontSize: '16px',
+    padding: '4px 12px',
+    fontSize: '12px',
     fontWeight: 500,
-    lineHeight: 'unset',
+    lineHeight: 1,
     textTransform: 'none',
-    minWidth: '100px',
-    '& span': {
-      whiteSpace: 'nowrap',
-    },
+    minWidth: 'auto',
+    width: 'fit-content',
+    height: '28px',
   },
   titleRow: {
     display: 'flex',
@@ -89,6 +81,7 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     minWidth: 0,
     fontSize: '1.4em',
+    color: 'rgb(105, 255, 242)',
   },
   statusChips: {
     display: 'flex',
@@ -97,8 +90,8 @@ const useStyles = makeStyles((theme) => ({
     flexWrap: 'wrap',
   },
   publicChip: {
-    backgroundColor: theme.palette.success.main,
-    color: theme.palette.success.contrastText,
+    backgroundColor: colors.primary,
+    color: 'white',
     fontSize: '0.7rem',
     height: 22,
   },
@@ -122,35 +115,31 @@ const useStyles = makeStyles((theme) => ({
   },
   metadataIcon: {
     fontSize: 16,
-    color: theme.palette.text.secondary,
+    color: 'white',
   },
   metadataText: {
     fontSize: '1rem',
-    color: theme.palette.text.secondary,
+    color: 'white',
   },
-  buttonTextSpacer: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: '8px',
-    alignItems: 'center',
+  datasetCount: {
+    fontSize: '1rem',
+    color: 'white',
+    fontWeight: 600,
   },
 }));
 
 const CollectionCard = ({ collection }) => {
   const classes = useStyles();
 
-  const formatTimeAgo = (dateString) => {
-    const now = new Date();
+  const formatDateTime = (dateString) => {
     const date = new Date(dateString);
-    const diffInDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
-
-    if (diffInDays === 0) return 'today';
-    if (diffInDays === 1) return '1 day ago';
-    if (diffInDays < 7) return `${diffInDays} days ago`;
-    if (diffInDays < 30)
-      return `${Math.floor(diffInDays / 7)} week${Math.floor(diffInDays / 7) > 1 ? 's' : ''} ago`;
-    return `${Math.floor(diffInDays / 30)} month${Math.floor(diffInDays / 30) > 1 ? 's' : ''} ago`;
+    return date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   };
 
   const handleEdit = () => {
@@ -189,7 +178,7 @@ const CollectionCard = ({ collection }) => {
         </Box>
 
         {collection.description && (
-          <Typography variant="body2" color="textSecondary" paragraph>
+          <Typography variant="body2" paragraph style={{ color: 'white' }}>
             {collection.description}
           </Typography>
         )}
@@ -197,13 +186,16 @@ const CollectionCard = ({ collection }) => {
         <Box className={classes.metadataRow}>
           <DatasetIcon className={classes.metadataIcon} />
           <Typography className={classes.metadataText}>
-            {collection.datasetIds?.length || 0} datasets
+            <span className={classes.datasetCount}>
+              {collection.datasetIds?.length || 0}
+            </span>{' '}
+            datasets
           </Typography>
         </Box>
 
         <Box className={classes.metadataRow}>
           <Typography className={classes.metadataText}>
-            Modified: {formatTimeAgo(collection.lastModified)}
+            Modified: {formatDateTime(collection.lastModified)}
           </Typography>
         </Box>
       </CardContent>
@@ -215,10 +207,7 @@ const CollectionCard = ({ collection }) => {
           className={classes.editButton}
           onClick={handleEdit}
         >
-          <div className={classes.buttonTextSpacer}>
-            <EditIcon fontSize="small" />
-            <span>Edit</span>
-          </div>
+          Edit
         </Button>
         <Button
           size="medium"
@@ -226,10 +215,7 @@ const CollectionCard = ({ collection }) => {
           className={classes.downloadButton}
           onClick={handleDownload}
         >
-          <div className={classes.buttonTextSpacer}>
-            <CloudDownloadIcon fontSize="small" />
-            <span>Download</span>
-          </div>
+          Download
         </Button>
       </CardActions>
     </Card>
