@@ -251,22 +251,26 @@ const CollectionsTable = ({ collections = [] }) => {
                     </Box>
                   </TableCell>
                   <TableCell className={classes.creatorCell}>
-                    <Box>
+                    <Box
+                      display="flex"
+                      flexDirection="column"
+                      justifyContent="center"
+                    >
                       <Typography
                         variant="body2"
                         noWrap
                         style={{ color: '#ffffff' }}
                       >
-                        {collection.creatorName}
+                        {collection.ownerName}
                       </Typography>
-                      {collection.creatorAffiliation && (
+                      {collection.ownerAffiliation && (
                         <Typography
                           variant="caption"
                           style={{ color: 'rgba(255, 255, 255, 0.7)' }}
                           noWrap
-                          title={collection.creatorAffiliation}
+                          title={collection.ownerAffiliation}
                         >
-                          {collection.creatorAffiliation}
+                          {collection.ownerAffiliation}
                         </Typography>
                       )}
                     </Box>

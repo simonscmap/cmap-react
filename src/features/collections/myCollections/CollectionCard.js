@@ -180,12 +180,12 @@ const CollectionCard = ({ collection }) => {
 
         <MetadataRow
           label="Dataset Count"
-          value={collection.datasetIds?.length || 0}
+          value={collection.datasetCount || 0}
           isCount={true}
         />
         <MetadataRow
           label="Last Modified"
-          value={formatDateTime(collection.lastModified)}
+          value={formatDateTime(collection.modifiedDate)}
         />
       </CardContent>
 
