@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import collectionsAPI from '../api/collectionsApi';
 
 // Pagination configuration
-const DEFAULT_PAGE_SIZE = 9;
+const DEFAULT_PAGE_SIZE = 3;
 
 const useCollectionsStore = create((set, get) => ({
   // State

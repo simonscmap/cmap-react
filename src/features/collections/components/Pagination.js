@@ -50,7 +50,8 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Box, Pagination as MuiPagination } from '@material-ui/core';
+import { Box } from '@material-ui/core';
+import { Pagination as MuiPagination } from '@material-ui/lab';
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
@@ -91,11 +92,6 @@ const Pagination = ({
   const currentPageNumber =
     currentPage !== undefined ? currentPage : internalPage;
 
-  // Hide pagination if only 1 page or no items
-  if (totalPages <= 1) {
-    return null;
-  }
-
   // Reset to page 1 when resetTrigger changes
   useEffect(() => {
     if (resetTrigger !== undefined) {
@@ -117,6 +113,11 @@ const Pagination = ({
     totalItems,
     currentPageNumber,
   ]);
+
+  // Hide pagination if only 1 page or no items
+  if (totalPages <= 1) {
+    return null;
+  }
 
   const handlePageChange = (event, page) => {
     // Update internal state if uncontrolled
