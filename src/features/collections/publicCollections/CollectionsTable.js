@@ -51,14 +51,12 @@ const useStyles = makeStyles(() => ({
     },
   },
   nameCell: {
-    maxWidth: 200,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
+    minWidth: 275,
+    maxWidth: 400,
     padding: '8px 5px 8px 16px',
     border: 0,
     color: '#ffffff',
-    lineHeight: '35px',
+    verticalAlign: 'top',
   },
   creatorCell: {
     maxWidth: 150,
@@ -143,8 +141,27 @@ const CollectionsTable = ({ collections = [] }) => {
     }
   };
 
-  const truncateDescription = (description, maxLength = 100) => {
-    if (!description || description.length <= maxLength) {
+  const getDynamicCharacterLimit = () => {
+    // Base calculation: 250px min width allows ~100 chars across 2 lines
+    // 400px max width allows ~160 chars across 2 lines
+    // Using viewport width as a proxy for column width responsiveness
+    const viewportWidth = window.innerWidth;
+
+    if (viewportWidth < 768) {
+      return 100; // Mobile/small screens - minimum
+    } else if (viewportWidth < 1200) {
+      return 130; // Medium screens
+    } else {
+      return 160; // Large screens - can show more
+    }
+  };
+
+  const truncateDescription = (description) => {
+    if (!description) return description;
+
+    const maxLength = getDynamicCharacterLimit();
+
+    if (description.length <= maxLength) {
       return description;
     }
     return description.substring(0, maxLength) + '...';
@@ -289,7 +306,15 @@ const CollectionsTable = ({ collections = [] }) => {
                       {collection.description && (
                         <Typography
                           variant="caption"
-                          style={{ color: 'rgba(255, 255, 255, 0.7)' }}
+                          style={{
+                            color: 'rgba(255, 255, 255, 0.7)',
+                            wordWrap: 'break-word',
+                            lineHeight: '1.2',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                          }}
                           title={collection.description}
                         >
                           {truncateDescription(collection.description)}
