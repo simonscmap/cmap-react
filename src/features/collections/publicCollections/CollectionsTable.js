@@ -45,10 +45,6 @@ const useStyles = makeStyles(() => ({
   },
   tableRow: {
     border: 0,
-    '&:hover': {
-      backgroundColor: 'rgba(16, 43, 60, 1)',
-      cursor: 'pointer',
-    },
   },
   nameCell: {
     minWidth: 275,
@@ -139,11 +135,6 @@ const CollectionsTable = ({ collections = [] }) => {
     } catch (error) {
       return 'Invalid date';
     }
-  };
-
-  const handleRowClick = (collection) => {
-    // TODO: Navigate to collection detail page when implemented
-    console.log('Navigate to collection:', collection.id);
   };
 
   const tableContainerStyle = {
@@ -262,11 +253,7 @@ const CollectionsTable = ({ collections = [] }) => {
               </TableRow>
             ) : (
               collections.map((collection) => (
-                <TableRow
-                  key={collection.id}
-                  className={classes.tableRow}
-                  onClick={() => handleRowClick(collection)}
-                >
+                <TableRow key={collection.id} className={classes.tableRow}>
                   <TableCell className={classes.nameCell}>
                     <Box>
                       <Typography
