@@ -64,13 +64,10 @@ const PublicCollectionsTab = () => {
   const {
     publicCollections,
     filteredPublicCollections,
-    publicCollectionsPagination,
     isLoading,
     error,
     searchQuery,
     setSearchQuery,
-    setPublicCollectionsPagination,
-    getPaginatedPublicCollections,
   } = useCollectionsStore();
 
   // Initialize local search with store value
@@ -92,19 +89,6 @@ const PublicCollectionsTab = () => {
   const handleSearchChange = (event) => {
     setLocalSearchQuery(event.target.value);
   };
-
-  const handlePageChange = (newPage) => {
-    setPublicCollectionsPagination({ page: newPage });
-  };
-
-  const handleRowsPerPageChange = (newRowsPerPage) => {
-    setPublicCollectionsPagination({
-      page: 0,
-      rowsPerPage: newRowsPerPage,
-    });
-  };
-
-  const paginatedCollections = getPaginatedPublicCollections();
 
   if (isLoading) {
     return (
@@ -156,12 +140,7 @@ const PublicCollectionsTab = () => {
           </Typography>
         </Box>
       ) : (
-        <CollectionsTable
-          collections={paginatedCollections}
-          pagination={publicCollectionsPagination}
-          onPageChange={handlePageChange}
-          onRowsPerPageChange={handleRowsPerPageChange}
-        />
+        <CollectionsTable collections={filteredPublicCollections} />
       )}
     </Box>
   );
