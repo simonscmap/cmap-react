@@ -11,6 +11,7 @@ import {
   Typography,
   Box,
   Button,
+  Tooltip,
 } from '@material-ui/core';
 import { format, parseISO } from 'date-fns';
 import colors from '../../../enums/colors';
@@ -123,6 +124,9 @@ const useStyles = makeStyles(() => ({
     minWidth: 'auto',
     width: 'fit-content',
     height: '28px',
+  },
+  tooltip: {
+    zIndex: '9901 !important',
   },
 }));
 
@@ -260,26 +264,32 @@ const CollectionsTable = ({ collections = [] }) => {
                         variant="body2"
                         style={{ color: '#ffffff', fontWeight: 500 }}
                         noWrap
-                        title={collection.name}
                       >
                         {collection.name}
                       </Typography>
                       {collection.description && (
-                        <Typography
-                          variant="caption"
-                          style={{
-                            color: 'rgba(255, 255, 255, 0.7)',
-                            wordWrap: 'break-word',
-                            lineHeight: '1.2',
-                            display: '-webkit-box',
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden',
-                          }}
+                        <Tooltip
                           title={collection.description}
+                          classes={{ tooltip: classes.tooltip }}
+                          PopperProps={{
+                            style: { zIndex: 9901 },
+                          }}
                         >
-                          {collection.description}
-                        </Typography>
+                          <Typography
+                            variant="caption"
+                            style={{
+                              color: 'rgba(255, 255, 255, 0.7)',
+                              wordWrap: 'break-word',
+                              lineHeight: '1.2',
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden',
+                            }}
+                          >
+                            {collection.description}
+                          </Typography>
+                        </Tooltip>
                       )}
                     </Box>
                   </TableCell>
@@ -301,7 +311,6 @@ const CollectionsTable = ({ collections = [] }) => {
                           variant="caption"
                           style={{ color: 'rgba(255, 255, 255, 0.7)' }}
                           noWrap
-                          title={collection.ownerAffiliation}
                         >
                           {collection.ownerAffiliation}
                         </Typography>
