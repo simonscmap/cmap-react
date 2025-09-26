@@ -141,32 +141,6 @@ const CollectionsTable = ({ collections = [] }) => {
     }
   };
 
-  const getDynamicCharacterLimit = () => {
-    // Base calculation: 250px min width allows ~100 chars across 2 lines
-    // 400px max width allows ~160 chars across 2 lines
-    // Using viewport width as a proxy for column width responsiveness
-    const viewportWidth = window.innerWidth;
-
-    if (viewportWidth < 768) {
-      return 100; // Mobile/small screens - minimum
-    } else if (viewportWidth < 1200) {
-      return 130; // Medium screens
-    } else {
-      return 160; // Large screens - can show more
-    }
-  };
-
-  const truncateDescription = (description) => {
-    if (!description) return description;
-
-    const maxLength = getDynamicCharacterLimit();
-
-    if (description.length <= maxLength) {
-      return description;
-    }
-    return description.substring(0, maxLength) + '...';
-  };
-
   const handleRowClick = (collection) => {
     // TODO: Navigate to collection detail page when implemented
     console.log('Navigate to collection:', collection.id);
@@ -317,7 +291,7 @@ const CollectionsTable = ({ collections = [] }) => {
                           }}
                           title={collection.description}
                         >
-                          {truncateDescription(collection.description)}
+                          {collection.description}
                         </Typography>
                       )}
                     </Box>
