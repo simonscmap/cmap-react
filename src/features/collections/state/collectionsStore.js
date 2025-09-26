@@ -1,9 +1,6 @@
 import { create } from 'zustand';
 import collectionsAPI from '../api/collectionsApi';
 
-// Pagination configuration
-const DEFAULT_PAGE_SIZE = 3;
-
 const useCollectionsStore = create((set, get) => ({
   // State
   userCollections: [],
@@ -15,18 +12,6 @@ const useCollectionsStore = create((set, get) => ({
   searchQuery: '',
   filteredUserCollections: [],
   filteredPublicCollections: [],
-
-  // Pagination state
-  userCollectionsPagination: {
-    page: 0,
-    rowsPerPage: DEFAULT_PAGE_SIZE,
-    total: 0,
-  },
-  publicCollectionsPagination: {
-    page: 0,
-    rowsPerPage: DEFAULT_PAGE_SIZE,
-    total: 0,
-  },
 
   // Statistics (computed from userCollections)
   statistics: {
@@ -89,10 +74,6 @@ const useCollectionsStore = create((set, get) => ({
       userCollections: collections,
       filteredUserCollections: filteredCollections,
       statistics,
-      userCollectionsPagination: {
-        ...get().userCollectionsPagination,
-        total: filteredCollections.length,
-      },
     });
   },
 
@@ -105,10 +86,6 @@ const useCollectionsStore = create((set, get) => ({
     set({
       publicCollections: collections,
       filteredPublicCollections: filteredCollections,
-      publicCollectionsPagination: {
-        ...get().publicCollectionsPagination,
-        total: filteredCollections.length,
-      },
     });
   },
 
@@ -127,34 +104,6 @@ const useCollectionsStore = create((set, get) => ({
       searchQuery: query,
       filteredUserCollections,
       filteredPublicCollections,
-      userCollectionsPagination: {
-        ...get().userCollectionsPagination,
-        page: 0, // Reset to first page on search
-        total: filteredUserCollections.length,
-      },
-      publicCollectionsPagination: {
-        ...get().publicCollectionsPagination,
-        page: 0, // Reset to first page on search
-        total: filteredPublicCollections.length,
-      },
-    });
-  },
-
-  setUserCollectionsPagination: (pagination) => {
-    set({
-      userCollectionsPagination: {
-        ...get().userCollectionsPagination,
-        ...pagination,
-      },
-    });
-  },
-
-  setPublicCollectionsPagination: (pagination) => {
-    set({
-      publicCollectionsPagination: {
-        ...get().publicCollectionsPagination,
-        ...pagination,
-      },
     });
   },
 
@@ -172,10 +121,6 @@ const useCollectionsStore = create((set, get) => ({
       userCollections: updatedUserCollections,
       filteredUserCollections: updatedFilteredCollections,
       statistics,
-      userCollectionsPagination: {
-        ...get().userCollectionsPagination,
-        total: updatedFilteredCollections.length,
-      },
     });
   },
 
@@ -210,23 +155,6 @@ const useCollectionsStore = create((set, get) => ({
     };
   },
 
-  // Computed getters
-  getPaginatedUserCollections: () => {
-    const { filteredUserCollections, userCollectionsPagination } = get();
-    const { page, rowsPerPage } = userCollectionsPagination;
-    const startIndex = page * rowsPerPage;
-    const endIndex = startIndex + rowsPerPage;
-    return filteredUserCollections.slice(startIndex, endIndex);
-  },
-
-  getPaginatedPublicCollections: () => {
-    const { filteredPublicCollections, publicCollectionsPagination } = get();
-    const { page, rowsPerPage } = publicCollectionsPagination;
-    const startIndex = page * rowsPerPage;
-    const endIndex = startIndex + rowsPerPage;
-    return filteredPublicCollections.slice(startIndex, endIndex);
-  },
-
   getCollectionById: (collectionId) => {
     const { userCollections, publicCollections } = get();
     return [...userCollections, ...publicCollections].find(
@@ -240,16 +168,6 @@ const useCollectionsStore = create((set, get) => ({
       searchQuery: '',
       filteredUserCollections: get().userCollections,
       filteredPublicCollections: get().publicCollections,
-      userCollectionsPagination: {
-        ...get().userCollectionsPagination,
-        page: 0,
-        total: get().userCollections.length,
-      },
-      publicCollectionsPagination: {
-        ...get().publicCollectionsPagination,
-        page: 0,
-        total: get().publicCollections.length,
-      },
     });
   },
 
@@ -262,16 +180,6 @@ const useCollectionsStore = create((set, get) => ({
       searchQuery: '',
       filteredUserCollections: [],
       filteredPublicCollections: [],
-      userCollectionsPagination: {
-        page: 0,
-        rowsPerPage: DEFAULT_PAGE_SIZE,
-        total: 0,
-      },
-      publicCollectionsPagination: {
-        page: 0,
-        rowsPerPage: DEFAULT_PAGE_SIZE,
-        total: 0,
-      },
       statistics: {
         totalCollections: 0,
         publicCollections: 0,
