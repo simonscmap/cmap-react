@@ -1,14 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import {
-  Box,
-  Typography,
-  TextField,
-  InputAdornment,
-  CircularProgress,
-} from '@material-ui/core';
+import { Box, Typography, CircularProgress } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
-import SearchIcon from '@material-ui/icons/Search';
 import useCollectionsStore from '../state/collectionsStore';
 import CollectionsTable from './CollectionsTable';
 
