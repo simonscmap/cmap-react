@@ -6,7 +6,7 @@ import { showLoginDialog } from '../../../Redux/actions/ui';
 import useCollectionsStore from '../state/collectionsStore';
 import CollectionCard from './CollectionCard';
 import CollectionStatistics from './CollectionStatistics';
-import Pagination from '../components/Pagination';
+import { usePagination, Pagination } from '../../../shared/pagination';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -51,26 +51,17 @@ const MyCollectionsTab = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user);
 
-  const {
-    getPaginatedUserCollections,
-    statistics,
-    isLoading,
-    error,
-    userCollectionsPagination,
-    filteredUserCollections,
-    searchQuery,
-    setUserCollectionsPagination,
-  } = useCollectionsStore();
+  const { statistics, isLoading, error, filteredUserCollections } =
+    useCollectionsStore();
 
-  const paginatedCollections = getPaginatedUserCollections();
+  const { paginatedData: paginatedCollections, paginationProps } =
+    usePagination({
+      data: filteredUserCollections,
+      itemsPerPage: 3,
+    });
 
   const handleLoginClick = () => {
     dispatch(showLoginDialog());
-  };
-
-  const handlePageChange = (page, startIndex, endIndex) => {
-    // Convert from 1-based to 0-based page number for store
-    setUserCollectionsPagination({ page: page - 1 });
   };
 
   if (!user) {
@@ -164,13 +155,7 @@ const MyCollectionsTab = () => {
         ))}
       </Box>
 
-      <Pagination
-        totalItems={filteredUserCollections.length}
-        itemsPerPage={userCollectionsPagination.rowsPerPage}
-        currentPage={userCollectionsPagination.page + 1} // Convert 0-based to 1-based
-        onPageChange={handlePageChange}
-        resetTrigger={searchQuery}
-      />
+      {paginationProps.shouldShow && <Pagination {...paginationProps} />}
     </Box>
   );
 };
