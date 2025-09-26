@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Grid, Typography, Tabs, Tab, Box } from '@material-ui/core';
+import { Grid, Typography, Tabs, Tab, Box, Button } from '@material-ui/core';
+import { Add } from '@material-ui/icons';
 import MyCollectionsTab from './myCollections/MyCollectionsTab';
 import PublicCollectionsTab from './publicCollections/PublicCollectionsTab';
 import useCollectionsStore from './state/collectionsStore';
@@ -9,6 +10,25 @@ const useStyles = makeStyles((theme) => ({
   container: {
     color: 'white',
     padding: '20px 25px',
+  },
+  headerRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: 0,
+  },
+  createButton: {
+    borderColor: theme.palette.primary.main,
+    color: theme.palette.primary.main,
+    whiteSpace: 'nowrap',
+    flexShrink: 0,
+    borderRadius: '20px',
+    '&:hover': {
+      borderColor: theme.palette.primary.dark,
+      color: theme.palette.primary.dark,
+      backgroundColor: 'transparent',
+    },
   },
   tabs: {
     marginTop: '32px',
@@ -59,12 +79,24 @@ const Collections = () => {
     setCurrentTab(newValue);
   };
 
+  const handleCreateNewCollection = () => {
+    console.log('create new collection button was clicked');
+  };
+
   return (
     <Grid container className={classes.container}>
       <Grid item xs={12}>
-        <Typography variant="h2" gutterBottom>
-          Dataset Collections
-        </Typography>
+        <div className={classes.headerRow}>
+          <Typography variant="h2">Dataset Collections</Typography>
+          <Button
+            variant="outlined"
+            className={classes.createButton}
+            startIcon={<Add />}
+            onClick={handleCreateNewCollection}
+          >
+            Create New Collection
+          </Button>
+        </div>
 
         <Tabs
           value={currentTab}

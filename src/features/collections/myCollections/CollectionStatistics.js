@@ -10,10 +10,17 @@ const useStyles = makeStyles((theme) => ({
   statisticsCard: {
     background: 'rgba(255, 255, 255, 0.05)',
     border: `1px solid ${theme.palette.divider}`,
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
   },
   cardContent: {
     padding: `${theme.spacing(2)}px !important`,
     textAlign: 'center',
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
   },
   statisticValue: {
     color: theme.palette.primary.main,
@@ -55,7 +62,7 @@ const CollectionStatistics = () => {
   return (
     <Grid container spacing={2} className={classes.statisticsContainer}>
       {stats.map((stat, index) => (
-        <Grid item xs={6} sm={3} key={index}>
+        <Grid item xs={6} md={3} key={index}>
           <Card className={classes.statisticsCard} elevation={0}>
             <CardContent className={classes.cardContent}>
               <Typography variant="h4" className={classes.statisticValue}>
