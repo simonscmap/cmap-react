@@ -1,6 +1,9 @@
 import { create } from 'zustand';
 import collectionsAPI from '../api/collectionsApi';
 
+// Pagination configuration
+const DEFAULT_PAGE_SIZE = 9;
+
 const useCollectionsStore = create((set, get) => ({
   // State
   userCollections: [],
@@ -16,12 +19,12 @@ const useCollectionsStore = create((set, get) => ({
   // Pagination state
   userCollectionsPagination: {
     page: 0,
-    rowsPerPage: 50,
+    rowsPerPage: DEFAULT_PAGE_SIZE,
     total: 0,
   },
   publicCollectionsPagination: {
     page: 0,
-    rowsPerPage: 50,
+    rowsPerPage: DEFAULT_PAGE_SIZE,
     total: 0,
   },
 
@@ -261,12 +264,12 @@ const useCollectionsStore = create((set, get) => ({
       filteredPublicCollections: [],
       userCollectionsPagination: {
         page: 0,
-        rowsPerPage: 50,
+        rowsPerPage: DEFAULT_PAGE_SIZE,
         total: 0,
       },
       publicCollectionsPagination: {
         page: 0,
-        rowsPerPage: 50,
+        rowsPerPage: DEFAULT_PAGE_SIZE,
         total: 0,
       },
       statistics: {

@@ -6,6 +6,7 @@ import { showLoginDialog } from '../../../Redux/actions/ui';
 import useCollectionsStore from '../state/collectionsStore';
 import CollectionCard from './CollectionCard';
 import CollectionStatistics from './CollectionStatistics';
+import Pagination from '../components/Pagination';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -56,12 +57,20 @@ const MyCollectionsTab = () => {
     isLoading,
     error,
     userCollectionsPagination,
+    filteredUserCollections,
+    searchQuery,
+    setUserCollectionsPagination,
   } = useCollectionsStore();
 
   const paginatedCollections = getPaginatedUserCollections();
 
   const handleLoginClick = () => {
     dispatch(showLoginDialog());
+  };
+
+  const handlePageChange = (page, startIndex, endIndex) => {
+    // Convert from 1-based to 0-based page number for store
+    setUserCollectionsPagination({ page: page - 1 });
   };
 
   if (!user) {
@@ -155,7 +164,13 @@ const MyCollectionsTab = () => {
         ))}
       </Box>
 
-      {/* TODO: Add pagination controls in future phase */}
+      <Pagination
+        totalItems={filteredUserCollections.length}
+        itemsPerPage={userCollectionsPagination.rowsPerPage}
+        currentPage={userCollectionsPagination.page + 1} // Convert 0-based to 1-based
+        onPageChange={handlePageChange}
+        resetTrigger={searchQuery}
+      />
     </Box>
   );
 };
