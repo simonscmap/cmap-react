@@ -11,6 +11,7 @@ import {
   Typography,
   Box,
   Button,
+  Tooltip,
 } from '@material-ui/core';
 import { format, parseISO } from 'date-fns';
 import colors from '../../../enums/colors';
@@ -45,20 +46,14 @@ const useStyles = makeStyles(() => ({
   },
   tableRow: {
     border: 0,
-    '&:hover': {
-      backgroundColor: 'rgba(16, 43, 60, 1)',
-      cursor: 'pointer',
-    },
   },
   nameCell: {
-    maxWidth: 200,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
+    minWidth: 275,
+    maxWidth: 400,
     padding: '8px 5px 8px 16px',
     border: 0,
     color: '#ffffff',
-    lineHeight: '35px',
+    verticalAlign: 'top',
   },
   creatorCell: {
     maxWidth: 150,
@@ -130,6 +125,9 @@ const useStyles = makeStyles(() => ({
     width: 'fit-content',
     height: '28px',
   },
+  tooltip: {
+    zIndex: '9901 !important',
+  },
 }));
 
 const CollectionsTable = ({ collections = [] }) => {
@@ -141,18 +139,6 @@ const CollectionsTable = ({ collections = [] }) => {
     } catch (error) {
       return 'Invalid date';
     }
-  };
-
-  const truncateDescription = (description, maxLength = 100) => {
-    if (!description || description.length <= maxLength) {
-      return description;
-    }
-    return description.substring(0, maxLength) + '...';
-  };
-
-  const handleRowClick = (collection) => {
-    // TODO: Navigate to collection detail page when implemented
-    console.log('Navigate to collection:', collection.id);
   };
 
   const tableContainerStyle = {
@@ -271,29 +257,39 @@ const CollectionsTable = ({ collections = [] }) => {
               </TableRow>
             ) : (
               collections.map((collection) => (
-                <TableRow
-                  key={collection.id}
-                  className={classes.tableRow}
-                  onClick={() => handleRowClick(collection)}
-                >
+                <TableRow key={collection.id} className={classes.tableRow}>
                   <TableCell className={classes.nameCell}>
                     <Box>
                       <Typography
                         variant="body2"
                         style={{ color: '#ffffff', fontWeight: 500 }}
                         noWrap
-                        title={collection.name}
                       >
                         {collection.name}
                       </Typography>
                       {collection.description && (
-                        <Typography
-                          variant="caption"
-                          style={{ color: 'rgba(255, 255, 255, 0.7)' }}
+                        <Tooltip
                           title={collection.description}
+                          classes={{ tooltip: classes.tooltip }}
+                          PopperProps={{
+                            style: { zIndex: 9901 },
+                          }}
                         >
-                          {truncateDescription(collection.description)}
-                        </Typography>
+                          <Typography
+                            variant="caption"
+                            style={{
+                              color: 'rgba(255, 255, 255, 0.7)',
+                              wordWrap: 'break-word',
+                              lineHeight: '1.2',
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden',
+                            }}
+                          >
+                            {collection.description}
+                          </Typography>
+                        </Tooltip>
                       )}
                     </Box>
                   </TableCell>
@@ -315,7 +311,6 @@ const CollectionsTable = ({ collections = [] }) => {
                           variant="caption"
                           style={{ color: 'rgba(255, 255, 255, 0.7)' }}
                           noWrap
-                          title={collection.ownerAffiliation}
                         >
                           {collection.ownerAffiliation}
                         </Typography>

@@ -44,9 +44,9 @@ const useStyles = makeStyles((theme) => ({
   },
   editButton: {
     color: '#9e9e9e',
-    border: '2px solid #9e9e9e',
+    border: '1px solid #9e9e9e',
     '&:hover': {
-      border: '2px solid #9e9e9e',
+      border: '1px solid #9e9e9e',
       backgroundColor: 'rgba(158, 158, 158, 0.1)',
     },
     borderRadius: '20px',
@@ -62,9 +62,9 @@ const useStyles = makeStyles((theme) => ({
   },
   downloadButton: {
     color: colors.primary,
-    border: `2px solid ${colors.primary}`,
+    border: `1px solid ${colors.primary}`,
     '&:hover': {
-      border: `2px solid ${colors.primary}`,
+      border: `1px solid ${colors.primary}`,
       backgroundColor: colors.greenHover,
     },
     borderRadius: '20px',

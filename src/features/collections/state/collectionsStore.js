@@ -196,7 +196,7 @@ const useCollectionsStore = create((set, get) => ({
     const publicCollections = collections.filter((c) => c.isPublic).length;
     const privateCollections = totalCollections - publicCollections;
     const totalDatasets = collections.reduce((sum, collection) => {
-      return sum + (collection.datasetIds?.length || 0);
+      return sum + (collection.datasetCount || 0);
     }, 0);
 
     return {
