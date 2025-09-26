@@ -1,4 +1,4 @@
-import { apiUrl, fetchOptions } from './config';
+import { apiUrl, fetchOptions } from '../../../api/config';
 
 /**
  * @typedef {Object} CollectionDataset

@@ -127,9 +127,9 @@ const PublicCollectionsTab = () => {
   return (
     <Box className={classes.container}>
       <Box className={classes.header}>
-        <Typography variant="h6" component="h2">
+        {/* <Typography variant="h6" component="h2">
           Public Collections
-        </Typography>
+        </Typography> */}
         {/* <TextField
           label="Search collections"
           variant="outlined"

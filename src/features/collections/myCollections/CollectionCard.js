@@ -80,7 +80,7 @@ const useStyles = makeStyles((theme) => ({
   },
   titleRow: {
     display: 'flex',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     gap: theme.spacing(1),
     marginBottom: theme.spacing(2),
     flexWrap: 'wrap',
@@ -100,16 +100,20 @@ const useStyles = makeStyles((theme) => ({
     flexWrap: 'wrap',
   },
   publicChip: {
-    backgroundColor: colors.primary,
-    color: 'white',
-    fontSize: '0.7rem',
-    height: 22,
+    backgroundColor: '#c8e6c9',
+    color: '#2e7d32',
+    fontSize: '0.62rem',
+    height: 20,
+    fontWeight: 400,
+    borderRadius: '6px',
   },
   privateChip: {
-    backgroundColor: colors.secondary,
-    color: 'white',
-    fontSize: '0.7rem',
-    height: 22,
+    backgroundColor: '#ffcdd2',
+    color: '#c62828',
+    fontSize: '0.62rem',
+    height: 20,
+    fontWeight: 400,
+    borderRadius: '6px',
   },
   warningSection: {
     display: 'flex',
@@ -129,15 +133,19 @@ const useStyles = makeStyles((theme) => ({
 const CollectionCard = ({ collection }) => {
   const classes = useStyles();
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('sv-SE'); // YYYY-MM-DD format
+  };
+
   const formatDateTime = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
+    const dateStr = date.toLocaleDateString('sv-SE'); // YYYY-MM-DD format
+    const timeStr = date.toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit',
     });
+    return `${dateStr}, ${timeStr}`;
   };
 
   const handleEdit = () => {
@@ -159,7 +167,7 @@ const CollectionCard = ({ collection }) => {
           </Typography>
           <Box className={classes.statusChips}>
             <Chip
-              label={collection.isPublic ? 'Public' : 'Private'}
+              label={collection.isPublic ? 'PUBLIC' : 'PRIVATE'}
               size="small"
               className={
                 collection.isPublic ? classes.publicChip : classes.privateChip
@@ -180,12 +188,12 @@ const CollectionCard = ({ collection }) => {
 
         <MetadataRow
           label="Dataset Count"
-          value={collection.datasetIds?.length || 0}
+          value={collection.datasetCount || 0}
           isCount={true}
         />
         <MetadataRow
           label="Last Modified"
-          value={formatDateTime(collection.lastModified)}
+          value={formatDateTime(collection.modifiedDate)}
         />
       </CardContent>
 

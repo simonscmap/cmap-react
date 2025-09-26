@@ -7,33 +7,46 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TablePagination,
   Paper,
-  Chip,
   Typography,
   Box,
-  Link,
+  Button,
 } from '@material-ui/core';
 import { format, parseISO } from 'date-fns';
+import colors from '../../../enums/colors';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   tableContainer: {
-    backgroundColor: theme.palette.background.paper,
+    maxHeight: 400,
+    backgroundColor: 'rgba(16, 43, 60, 0.6)',
+    borderRadius: '6px',
+    boxShadow:
+      '0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12)',
+    overflow: 'auto',
+    position: 'relative',
+    zIndex: 1,
     '& .MuiTableCell-head': {
-      backgroundColor: theme.palette.primary.dark,
-      color: theme.palette.primary.contrastText,
-      fontWeight: 600,
+      backgroundColor: 'rgba(30, 67, 113, 1)',
+      color: '#8bc34a',
+      fontWeight: 500,
+      fontSize: '0.875rem',
+      position: 'sticky',
+      top: 0,
+      zIndex: 2,
+      padding: '8px 5px',
+      border: 0,
+      '&:first-child': {
+        padding: '8px 5px 8px 16px',
+      },
     },
   },
   table: {
     minWidth: 650,
   },
   tableRow: {
-    '&:nth-of-type(odd)': {
-      backgroundColor: theme.palette.action.hover,
-    },
+    border: 0,
     '&:hover': {
-      backgroundColor: theme.palette.action.selected,
+      backgroundColor: 'rgba(16, 43, 60, 1)',
       cursor: 'pointer',
     },
   },
@@ -42,67 +55,99 @@ const useStyles = makeStyles((theme) => ({
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
-  },
-  descriptionCell: {
-    maxWidth: 250,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
+    padding: '8px 5px 8px 16px',
+    border: 0,
+    color: '#ffffff',
+    lineHeight: '35px',
   },
   creatorCell: {
     maxWidth: 150,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
-  },
-  statusChip: {
-    fontSize: '0.75rem',
-    height: 20,
-  },
-  publicChip: {
-    backgroundColor: theme.palette.success.light,
-    color: theme.palette.success.contrastText,
-  },
-  warningChip: {
-    backgroundColor: theme.palette.warning.light,
-    color: theme.palette.warning.contrastText,
+    padding: '5px',
+    border: 0,
+    color: '#ffffff',
+    lineHeight: '35px',
   },
   statsCell: {
     textAlign: 'center',
+    padding: '5px',
+    border: 0,
+    color: '#ffffff',
+    lineHeight: '35px',
   },
   dateCell: {
     fontSize: '0.875rem',
-    color: theme.palette.text.secondary,
+    color: '#ffffff',
+    padding: '5px',
+    border: 0,
+    lineHeight: '35px',
   },
   emptyRow: {
     height: 200,
   },
   emptyCell: {
     textAlign: 'center',
-    color: theme.palette.text.secondary,
+    color: '#ffffff',
+    padding: '5px',
+    border: 0,
   },
-  pagination: {
-    borderTop: `1px solid ${theme.palette.divider}`,
-    '& .MuiTablePagination-toolbar': {
-      backgroundColor: theme.palette.background.default,
+  previewButton: {
+    color: '#9e9e9e',
+    border: '1px solid #9e9e9e',
+    '&:hover': {
+      border: '1px solid #9e9e9e',
+      backgroundColor: 'rgba(158, 158, 158, 0.1)',
     },
+    borderRadius: '20px',
+    boxSizing: 'border-box',
+    padding: '4px 12px',
+    fontSize: '12px',
+    fontWeight: 500,
+    lineHeight: 1,
+    textTransform: 'none',
+    minWidth: 'auto',
+    width: 'fit-content',
+    height: '28px',
+    marginRight: '8px',
+  },
+  copyButton: {
+    color: colors.primary,
+    border: `1px solid ${colors.primary}`,
+    '&:hover': {
+      border: `1px solid ${colors.primary}`,
+      backgroundColor: colors.greenHover,
+    },
+    borderRadius: '20px',
+    boxSizing: 'border-box',
+    padding: '4px 12px',
+    fontSize: '12px',
+    fontWeight: 500,
+    lineHeight: 1,
+    textTransform: 'none',
+    minWidth: 'auto',
+    width: 'fit-content',
+    height: '28px',
   },
 }));
 
-const CollectionsTable = ({
-  collections = [],
-  pagination,
-  onPageChange,
-  onRowsPerPageChange,
-}) => {
+const CollectionsTable = ({ collections = [] }) => {
   const classes = useStyles();
 
   const formatDate = (dateString) => {
     try {
-      return format(parseISO(dateString), 'MMM dd, yyyy');
+      return format(parseISO(dateString), 'yyyy-MM-dd');
     } catch (error) {
       return 'Invalid date';
     }
+  };
+
+  const truncateDescription = (description, maxLength = 100) => {
+    if (!description || description.length <= maxLength) {
+      return description;
+    }
+    return description.substring(0, maxLength) + '...';
   };
 
   const handleRowClick = (collection) => {
@@ -110,35 +155,115 @@ const CollectionsTable = ({
     console.log('Navigate to collection:', collection.id);
   };
 
-  const handlePageChange = (event, newPage) => {
-    onPageChange(newPage);
-  };
-
-  const handleRowsPerPageChange = (event) => {
-    onRowsPerPageChange(parseInt(event.target.value, 10));
+  const tableContainerStyle = {
+    maxHeight: 400,
+    backgroundColor: 'rgba(16, 43, 60, 0.6)',
+    borderRadius: '6px',
+    boxShadow:
+      '0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12)',
+    overflow: 'auto',
+    position: 'relative',
+    zIndex: 1,
   };
 
   return (
-    <Paper>
-      <TableContainer className={classes.tableContainer}>
-        <Table className={classes.table} aria-label="public collections table">
-          <TableHead>
+    <>
+      <TableContainer component={Paper} style={tableContainerStyle}>
+        <Table
+          stickyHeader
+          size="small"
+          className={classes.table}
+          aria-label="public collections table"
+        >
+          <TableHead
+            style={{
+              backgroundColor: 'rgba(30, 67, 113, 1)',
+              position: 'sticky',
+              top: 0,
+              zIndex: 2,
+            }}
+          >
             <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Description</TableCell>
-              <TableCell>Creator</TableCell>
-              <TableCell align="center">Datasets</TableCell>
-              <TableCell align="center">Status</TableCell>
-              <TableCell align="center">Previews</TableCell>
-              <TableCell align="center">Copies</TableCell>
-              <TableCell>Created</TableCell>
-              <TableCell>Modified</TableCell>
+              <TableCell
+                style={{
+                  padding: '8px 5px 8px 16px',
+                  border: 0,
+                  color: '#8bc34a',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  backgroundColor: 'rgba(30, 67, 113, 1)',
+                }}
+              >
+                Collection Name
+              </TableCell>
+              <TableCell
+                style={{
+                  padding: '8px 5px',
+                  border: 0,
+                  color: '#8bc34a',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  backgroundColor: 'rgba(30, 67, 113, 1)',
+                }}
+              >
+                Creator
+              </TableCell>
+              <TableCell
+                align="center"
+                style={{
+                  padding: '8px 5px',
+                  border: 0,
+                  color: '#8bc34a',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  backgroundColor: 'rgba(30, 67, 113, 1)',
+                }}
+              >
+                Datasets
+              </TableCell>
+              <TableCell
+                style={{
+                  padding: '8px 5px',
+                  border: 0,
+                  color: '#8bc34a',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  backgroundColor: 'rgba(30, 67, 113, 1)',
+                }}
+              >
+                Created
+              </TableCell>
+              <TableCell
+                align="center"
+                style={{
+                  padding: '8px 5px',
+                  border: 0,
+                  color: '#8bc34a',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  backgroundColor: 'rgba(30, 67, 113, 1)',
+                }}
+              >
+                Downloads
+              </TableCell>
+              <TableCell
+                style={{
+                  padding: '8px 5px',
+                  border: 0,
+                  color: '#8bc34a',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  backgroundColor: 'rgba(30, 67, 113, 1)',
+                }}
+              >
+                Actions
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {collections.length === 0 ? (
               <TableRow className={classes.emptyRow}>
-                <TableCell colSpan={9} className={classes.emptyCell}>
+                <TableCell colSpan={6} className={classes.emptyCell}>
                   <Typography variant="body1">
                     No collections to display
                   </Typography>
@@ -152,75 +277,83 @@ const CollectionsTable = ({
                   onClick={() => handleRowClick(collection)}
                 >
                   <TableCell className={classes.nameCell}>
-                    <Link
-                      component="button"
-                      variant="body2"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRowClick(collection);
-                      }}
-                    >
-                      {collection.name}
-                    </Link>
-                  </TableCell>
-                  <TableCell className={classes.descriptionCell}>
-                    <Typography variant="body2" title={collection.description}>
-                      {collection.description || 'No description'}
-                    </Typography>
-                  </TableCell>
-                  <TableCell className={classes.creatorCell}>
                     <Box>
-                      <Typography variant="body2" noWrap>
-                        {collection.creatorName}
+                      <Typography
+                        variant="body2"
+                        style={{ color: '#ffffff', fontWeight: 500 }}
+                        noWrap
+                        title={collection.name}
+                      >
+                        {collection.name}
                       </Typography>
-                      {collection.creatorAffiliation && (
+                      {collection.description && (
                         <Typography
                           variant="caption"
-                          color="textSecondary"
-                          noWrap
-                          title={collection.creatorAffiliation}
+                          style={{ color: 'rgba(255, 255, 255, 0.7)' }}
+                          title={collection.description}
                         >
-                          {collection.creatorAffiliation}
+                          {truncateDescription(collection.description)}
+                        </Typography>
+                      )}
+                    </Box>
+                  </TableCell>
+                  <TableCell className={classes.creatorCell}>
+                    <Box
+                      display="flex"
+                      flexDirection="column"
+                      justifyContent="center"
+                    >
+                      <Typography
+                        variant="body2"
+                        noWrap
+                        style={{ color: '#ffffff' }}
+                      >
+                        {collection.ownerName}
+                      </Typography>
+                      {collection.ownerAffiliation && (
+                        <Typography
+                          variant="caption"
+                          style={{ color: 'rgba(255, 255, 255, 0.7)' }}
+                          noWrap
+                          title={collection.ownerAffiliation}
+                        >
+                          {collection.ownerAffiliation}
                         </Typography>
                       )}
                     </Box>
                   </TableCell>
                   <TableCell align="center" className={classes.statsCell}>
-                    {collection.datasetIds?.length || 0}
+                    <Typography variant="body2" noWrap>
+                      {collection.datasetCount || 0}
+                    </Typography>
                   </TableCell>
-                  <TableCell align="center">
-                    <Box
-                      display="flex"
-                      flexDirection="column"
-                      alignItems="center"
-                      gap={0.5}
-                    >
-                      <Chip
-                        label="Public"
-                        size="small"
-                        className={`${classes.statusChip} ${classes.publicChip}`}
-                      />
-                      {collection.hasInvalidDatasets && (
-                        <Chip
-                          label="Warning"
-                          size="small"
-                          className={`${classes.statusChip} ${classes.warningChip}`}
-                          title="Contains non-active datasets"
-                        />
-                      )}
+                  <TableCell className={classes.dateCell}>
+                    <Typography variant="body2" noWrap>
+                      {formatDate(collection.createdDate)}
+                    </Typography>
+                  </TableCell>
+                  <TableCell align="center" className={classes.statsCell}>
+                    <Typography variant="body2" noWrap>
+                      {collection.copyCount || 0}
+                    </Typography>
+                  </TableCell>
+                  <TableCell className={classes.statsCell}>
+                    <Box display="flex">
+                      <Button
+                        variant="outlined"
+                        size="medium"
+                        className={classes.previewButton}
+                      >
+                        Preview
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        size="medium"
+                        className={classes.copyButton}
+                      >
+                        Copy
+                      </Button>
                     </Box>
-                  </TableCell>
-                  <TableCell align="center" className={classes.statsCell}>
-                    {collection.previewCount || 0}
-                  </TableCell>
-                  <TableCell align="center" className={classes.statsCell}>
-                    {collection.copyCount || 0}
-                  </TableCell>
-                  <TableCell className={classes.dateCell}>
-                    {formatDate(collection.createdAt)}
-                  </TableCell>
-                  <TableCell className={classes.dateCell}>
-                    {formatDate(collection.lastModified)}
                   </TableCell>
                 </TableRow>
               ))
@@ -228,21 +361,7 @@ const CollectionsTable = ({
           </TableBody>
         </Table>
       </TableContainer>
-      <TablePagination
-        component="div"
-        className={classes.pagination}
-        count={pagination.total}
-        page={pagination.page}
-        onPageChange={handlePageChange}
-        rowsPerPage={pagination.rowsPerPage}
-        onRowsPerPageChange={handleRowsPerPageChange}
-        rowsPerPageOptions={[25, 50, 100]}
-        labelRowsPerPage="Collections per page:"
-        labelDisplayedRows={({ from, to, count }) =>
-          `${from}-${to} of ${count !== -1 ? count : `more than ${to}`}`
-        }
-      />
-    </Paper>
+    </>
   );
 };
 
