@@ -127,7 +127,7 @@ const PublicCollectionsTab = () => {
 
       <PaginationController
         data={filteredPublicCollections}
-        itemsPerPage={10}
+        itemsPerPage={6}
         renderItem={(collection) => collection}
         renderContainer={(items) => <CollectionsTable collections={items} />}
         emptyComponent={
