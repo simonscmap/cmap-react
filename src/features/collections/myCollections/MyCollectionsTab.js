@@ -6,7 +6,7 @@ import { showLoginDialog } from '../../../Redux/actions/ui';
 import useCollectionsStore from '../state/collectionsStore';
 import CollectionCard from './CollectionCard';
 import CollectionStatistics from './CollectionStatistics';
-import { usePagination, Pagination } from '../../../shared/pagination';
+import { PaginationController } from '../../../shared/pagination';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -53,12 +53,6 @@ const MyCollectionsTab = () => {
 
   const { statistics, isLoading, error, filteredUserCollections } =
     useCollectionsStore();
-
-  const { paginatedData: paginatedCollections, paginationProps } =
-    usePagination({
-      data: filteredUserCollections,
-      itemsPerPage: 3,
-    });
 
   const handleLoginClick = () => {
     dispatch(showLoginDialog());
@@ -115,25 +109,6 @@ const MyCollectionsTab = () => {
     );
   }
 
-  if (paginatedCollections.length === 0) {
-    return (
-      <Box className={classes.container}>
-        <Box className={classes.statisticsSection}>
-          <CollectionStatistics statistics={statistics} />
-        </Box>
-        <Box className={classes.emptyState}>
-          <Typography variant="h6" gutterBottom>
-            No Collections Found
-          </Typography>
-          <Typography variant="body1" color="textSecondary">
-            You haven't created any collections yet. Start by creating your
-            first collection to organize your datasets.
-          </Typography>
-        </Box>
-      </Box>
-    );
-  }
-
   return (
     <Box className={classes.container}>
       <Box className={classes.header}>
@@ -149,13 +124,30 @@ const MyCollectionsTab = () => {
         <CollectionStatistics statistics={statistics} />
       </Box>
 
-      <Box className={classes.collectionsGrid}>
-        {paginatedCollections.map((collection) => (
+      <PaginationController
+        data={filteredUserCollections}
+        itemsPerPage={3}
+        renderItem={(collection) => (
           <CollectionCard key={collection.id} collection={collection} />
-        ))}
-      </Box>
-
-      {paginationProps.shouldShow && <Pagination {...paginationProps} />}
+        )}
+        renderContainer={(children, pagination) => (
+          <>
+            <Box className={classes.collectionsGrid}>{children}</Box>
+            {pagination}
+          </>
+        )}
+        emptyComponent={
+          <Box className={classes.emptyState}>
+            <Typography variant="h6" gutterBottom>
+              No Collections Found
+            </Typography>
+            <Typography variant="body1" color="textSecondary">
+              You haven't created any collections yet. Start by creating your
+              first collection to organize your datasets.
+            </Typography>
+          </Box>
+        }
+      />
     </Box>
   );
 };

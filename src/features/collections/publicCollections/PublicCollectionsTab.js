@@ -4,6 +4,7 @@ import { Box, Typography, CircularProgress } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 import useCollectionsStore from '../state/collectionsStore';
 import CollectionsTable from './CollectionsTable';
+import { PaginationController } from '../../../shared/pagination';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -124,17 +125,21 @@ const PublicCollectionsTab = () => {
         /> */}
       </Box>
 
-      {filteredPublicCollections.length === 0 && !isLoading ? (
-        <Box className={classes.emptyState}>
-          <Typography variant="body1" color="textSecondary">
-            {searchQuery
-              ? `No collections found matching "${searchQuery}"`
-              : 'No public collections available'}
-          </Typography>
-        </Box>
-      ) : (
-        <CollectionsTable collections={filteredPublicCollections} />
-      )}
+      <PaginationController
+        data={filteredPublicCollections}
+        itemsPerPage={10}
+        renderItem={(collection) => collection}
+        renderContainer={(items) => <CollectionsTable collections={items} />}
+        emptyComponent={
+          <Box className={classes.emptyState}>
+            <Typography variant="body1" color="textSecondary">
+              {searchQuery
+                ? `No collections found matching "${searchQuery}"`
+                : 'No public collections available'}
+            </Typography>
+          </Box>
+        }
+      />
     </Box>
   );
 };

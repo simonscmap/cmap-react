@@ -1,13 +1,13 @@
 /**
- * PaginatedList Compound Component
+ * PaginationController Component
  *
- * A declarative compound component that encapsulates common pagination patterns,
- * providing a simple API for paginated list rendering. Built on top of the
- * usePagination hook foundation.
+ * A controller component that combines pagination state management (via usePagination hook)
+ * with UI rendering (via Pagination component), providing a simple declarative API for
+ * common pagination patterns.
  *
  * BASIC USAGE:
  * ```jsx
- * <PaginatedList
+ * <PaginationController
  *   data={filteredCollections}
  *   itemsPerPage={9}
  *   renderItem={(item) => <ItemCard key={item.id} item={item} />}
@@ -16,7 +16,7 @@
  *
  * ADVANCED USAGE:
  * ```jsx
- * <PaginatedList
+ * <PaginationController
  *   data={filteredCollections}
  *   itemsPerPage={9}
  *   renderItem={(item, index) => <ItemCard key={item.id} item={item} index={index} />}
@@ -35,6 +35,7 @@
  * ```
  *
  * FEATURES:
+ * - Combines state management and UI in a single component
  * - Simple declarative API for common pagination patterns
  * - Built on usePagination hook (no logic duplication)
  * - Loading and empty state support
@@ -59,7 +60,7 @@ import Pagination from './Pagination';
  * @param {ReactNode} [props.loadingComponent] - Component to show during loading
  * @param {ReactNode} [props.emptyComponent] - Component to show when data is empty
  */
-const PaginatedList = ({
+const PaginationController = ({
   data,
   itemsPerPage,
   renderItem,
@@ -111,4 +112,4 @@ const PaginatedList = ({
   );
 };
 
-export default PaginatedList;
+export default PaginationController;
