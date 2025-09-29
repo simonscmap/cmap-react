@@ -129,7 +129,12 @@ const PublicCollectionsTab = () => {
         data={filteredPublicCollections}
         itemsPerPage={6}
         renderItem={(collection) => collection}
-        renderContainer={(items) => <CollectionsTable collections={items} />}
+        renderContainer={(items, pagination) => (
+          <>
+            <CollectionsTable collections={items} />
+            {pagination}
+          </>
+        )}
         emptyComponent={
           <Box className={classes.emptyState}>
             <Typography variant="body1" color="textSecondary">
