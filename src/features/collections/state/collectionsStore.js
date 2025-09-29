@@ -38,7 +38,6 @@ const useCollectionsStore = create((set, get) => ({
       }
 
       const data = await response.json();
-      console.log('Collections API response:', data);
 
       // Filter collections based on isPublic and isOwner flags
       // API returns single array of collections with boolean flags
