@@ -1,16 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import {
-  Box,
-  Typography,
-  TextField,
-  InputAdornment,
-  CircularProgress,
-} from '@material-ui/core';
+import { Box, Typography, CircularProgress } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
-import SearchIcon from '@material-ui/icons/Search';
 import useCollectionsStore from '../state/collectionsStore';
 import CollectionsTable from './CollectionsTable';
+import { PaginationController } from '../../../shared/pagination';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -64,13 +58,10 @@ const PublicCollectionsTab = () => {
   const {
     publicCollections,
     filteredPublicCollections,
-    publicCollectionsPagination,
     isLoading,
     error,
     searchQuery,
     setSearchQuery,
-    setPublicCollectionsPagination,
-    getPaginatedPublicCollections,
   } = useCollectionsStore();
 
   // Initialize local search with store value
@@ -92,19 +83,6 @@ const PublicCollectionsTab = () => {
   const handleSearchChange = (event) => {
     setLocalSearchQuery(event.target.value);
   };
-
-  const handlePageChange = (newPage) => {
-    setPublicCollectionsPagination({ page: newPage });
-  };
-
-  const handleRowsPerPageChange = (newRowsPerPage) => {
-    setPublicCollectionsPagination({
-      page: 0,
-      rowsPerPage: newRowsPerPage,
-    });
-  };
-
-  const paginatedCollections = getPaginatedPublicCollections();
 
   if (isLoading) {
     return (
@@ -147,22 +125,21 @@ const PublicCollectionsTab = () => {
         /> */}
       </Box>
 
-      {filteredPublicCollections.length === 0 && !isLoading ? (
-        <Box className={classes.emptyState}>
-          <Typography variant="body1" color="textSecondary">
-            {searchQuery
-              ? `No collections found matching "${searchQuery}"`
-              : 'No public collections available'}
-          </Typography>
-        </Box>
-      ) : (
-        <CollectionsTable
-          collections={paginatedCollections}
-          pagination={publicCollectionsPagination}
-          onPageChange={handlePageChange}
-          onRowsPerPageChange={handleRowsPerPageChange}
-        />
-      )}
+      <PaginationController
+        data={filteredPublicCollections}
+        itemsPerPage={10}
+        renderItem={(collection) => collection}
+        renderContainer={(items) => <CollectionsTable collections={items} />}
+        emptyComponent={
+          <Box className={classes.emptyState}>
+            <Typography variant="body1" color="textSecondary">
+              {searchQuery
+                ? `No collections found matching "${searchQuery}"`
+                : 'No public collections available'}
+            </Typography>
+          </Box>
+        }
+      />
     </Box>
   );
 };
