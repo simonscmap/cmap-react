@@ -126,7 +126,7 @@ const MyCollectionsTab = () => {
 
       <PaginationController
         data={filteredUserCollections}
-        itemsPerPage={3}
+        itemsPerPage={9}
         renderItem={(collection) => (
           <CollectionCard key={collection.id} collection={collection} />
         )}
