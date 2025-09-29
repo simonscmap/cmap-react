@@ -9,6 +9,7 @@ import {
   FormControlLabel,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { Autocomplete } from '@material-ui/lab';
 import { Search, Clear } from '@material-ui/icons';
 import InfoTooltip from '../../../shared/components/InfoTooltip';
 
@@ -19,6 +20,7 @@ import {
   useIsSearchActive,
   useResultCount,
   useTotalCount,
+  useFilteredItems,
 } from '../state/useSearch';
 import { SEARCH_ENGINES, SEARCH_CONFIG } from '../constants/searchConstants';
 
@@ -37,6 +39,9 @@ const SearchInput = ({
   fullWidth = true,
   showResultCount = true,
   showEngineToggle = true,
+  enableAutocomplete = false,
+  onSelect = null,
+  getOptionLabel = null,
 }) => {
   const classes = useStyles();
 
@@ -46,6 +51,7 @@ const SearchInput = ({
   const isSearchActive = useIsSearchActive();
   const resultCount = useResultCount();
   const totalCount = useTotalCount();
+  const filteredItems = useFilteredItems();
   const { setSearchQuery, clearSearch, setSearchEngine } = useSearchActions();
 
   // Local input state for immediate UI response
@@ -118,35 +124,59 @@ const SearchInput = ({
 
   return (
     <Box>
-      <TextField
-        variant="outlined"
-        size={size}
-        fullWidth={fullWidth}
-        value={inputValue}
-        onChange={handleInputChange}
-        placeholder={placeholderText}
-        style={{ marginBottom: 8 }}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <Search color="action" />
-            </InputAdornment>
-          ),
-          endAdornment: (
-            <InputAdornment position="end">
-              {inputValue && (
-                <IconButton
-                  size="small"
-                  onClick={handleClear}
-                  aria-label="Clear filter"
-                  edge="end"
-                >
-                  <Clear />
-                </IconButton>
-              )}
-            </InputAdornment>
-          ),
+      <Autocomplete
+        freeSolo
+        open={enableAutocomplete ? true : false}
+        options={enableAutocomplete ? filteredItems : []}
+        getOptionLabel={
+          getOptionLabel ||
+          ((option) => (typeof option === 'string' ? option : String(option)))
+        }
+        onChange={(_event, value) => {
+          if (onSelect && value) {
+            onSelect(value);
+          }
         }}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            variant="outlined"
+            size={size}
+            fullWidth={fullWidth}
+            value={inputValue}
+            onChange={handleInputChange}
+            placeholder={placeholderText}
+            style={{ marginBottom: 8 }}
+            InputProps={{
+              ...params.InputProps,
+              startAdornment: (
+                <>
+                  {params.InputProps.startAdornment}
+                  <InputAdornment position="start">
+                    <Search color="action" />
+                  </InputAdornment>
+                </>
+              ),
+              endAdornment: (
+                <>
+                  {params.InputProps.endAdornment}
+                  <InputAdornment position="end">
+                    {inputValue && (
+                      <IconButton
+                        size="small"
+                        onClick={handleClear}
+                        aria-label="Clear filter"
+                        edge="end"
+                      >
+                        <Clear />
+                      </IconButton>
+                    )}
+                  </InputAdornment>
+                </>
+              ),
+            }}
+          />
+        )}
       />
       <Box display="flex" justifyContent="space-between" alignItems="center">
         {showResultCount && (
