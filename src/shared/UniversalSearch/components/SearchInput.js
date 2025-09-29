@@ -90,9 +90,9 @@ const SearchInput = ({
     setInputValue(searchQuery || '');
   }, [searchQuery]);
 
-  // Open dropdown when search becomes active and results are available
+  // Open dropdown when search becomes active (show even with zero results)
   useEffect(() => {
-    if (enableAutocomplete && isSearchActive && filteredItems.length > 0) {
+    if (enableAutocomplete && isSearchActive) {
       setDropdownOpen(true);
     }
   }, [enableAutocomplete, isSearchActive, filteredItems.length]);
@@ -134,12 +134,12 @@ const SearchInput = ({
     setDropdownOpen(false);
   }, []);
 
-  // Handle input focus - reopen dropdown if there are results
+  // Handle input focus - reopen dropdown if search is active
   const handleFocus = useCallback(() => {
-    if (isSearchActive && filteredItems.length > 0) {
+    if (isSearchActive) {
       setDropdownOpen(true);
     }
-  }, [isSearchActive, filteredItems.length]);
+  }, [isSearchActive]);
 
   // Handle search engine toggle
   const handleEngineToggle = useCallback(
@@ -167,6 +167,10 @@ const SearchInput = ({
     };
   }, []);
 
+  // Consolidated search activation logic
+  const shouldShowResults =
+    isSearchActive && inputValue.length >= SEARCH_CONFIG.ACTIVATION_THRESHOLD;
+
   return (
     <Box>
       <Autocomplete
@@ -174,6 +178,8 @@ const SearchInput = ({
         open={dropdownOpen}
         onClose={handleClose}
         options={enableAutocomplete ? filteredItems : []}
+        noOptionsText=""
+        filterOptions={(x) => x}
         getOptionLabel={
           getOptionLabel ||
           ((option) => (typeof option === 'string' ? option : String(option)))
@@ -219,22 +225,19 @@ const SearchInput = ({
         ListboxComponent={React.forwardRef(({ children, ...other }, ref) => (
           <ul {...other} ref={ref}>
             {children}
-            {enableAutocomplete &&
-              isSearchActive &&
-              inputValue.length >= SEARCH_CONFIG.ACTIVATION_THRESHOLD && (
-                <li className={classes.dropdownResultCount}>
-                  {resultCount} {resultCount === 1 ? 'result' : 'results'} found
-                  {totalCount > 0 && ` out of ${totalCount.toLocaleString()}`}
-                </li>
-              )}
+            {enableAutocomplete && shouldShowResults && (
+              <li className={classes.dropdownResultCount}>
+                {resultCount} {resultCount === 1 ? 'result' : 'results'} found
+                {totalCount > 0 && ` out of ${totalCount.toLocaleString()}`}
+              </li>
+            )}
           </ul>
         ))}
       />
       <Box display="flex" justifyContent="space-between" alignItems="center">
         {showResultCount && (
           <Typography className={classes.resultCount}>
-            {isSearchActive &&
-            inputValue.length >= SEARCH_CONFIG.ACTIVATION_THRESHOLD ? (
+            {shouldShowResults ? (
               <>
                 {resultCount} {resultCount === 1 ? 'result' : 'results'} found
                 {totalCount > 0 && ` out of ${totalCount.toLocaleString()}`}
