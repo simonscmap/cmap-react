@@ -2,7 +2,6 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import {
   TextField,
   InputAdornment,
-  IconButton,
   Box,
   Typography,
   Checkbox,
@@ -10,7 +9,7 @@ import {
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { Autocomplete } from '@material-ui/lab';
-import { Search, Clear } from '@material-ui/icons';
+import { Search } from '@material-ui/icons';
 import InfoTooltip from '../../../shared/components/InfoTooltip';
 
 import {
@@ -46,6 +45,15 @@ const useStyles = makeStyles((theme) => ({
   autocompletePaper: {
     backgroundColor: '#1B4156',
     border: '1px solid rgba(157, 209, 98, 0.3)',
+    minHeight: '48px',
+  },
+  dropdownResultCount: {
+    padding: '8px 16px 12px 16px',
+    marginTop: '4px',
+    fontSize: '0.875rem',
+    fontStyle: 'italic',
+    color: 'rgba(255, 255, 255, 0.6)',
+    pointerEvents: 'none',
   },
 }));
 
@@ -72,6 +80,7 @@ const SearchInput = ({
 
   // Local input state for immediate UI response
   const [inputValue, setInputValue] = useState(searchQuery || '');
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   // Refs for managing debounced search
   const debounceTimeoutRef = useRef(null);
@@ -80,6 +89,13 @@ const SearchInput = ({
   useEffect(() => {
     setInputValue(searchQuery || '');
   }, [searchQuery]);
+
+  // Open dropdown when search becomes active and results are available
+  useEffect(() => {
+    if (enableAutocomplete && isSearchActive && filteredItems.length > 0) {
+      setDropdownOpen(true);
+    }
+  }, [enableAutocomplete, isSearchActive, filteredItems.length]);
 
   // Handle input change with immediate UI update
   const handleInputChange = useCallback(
@@ -106,11 +122,24 @@ const SearchInput = ({
   const handleClear = useCallback(() => {
     setInputValue('');
     clearSearch();
+    setDropdownOpen(false);
 
     if (debounceTimeoutRef.current) {
       clearTimeout(debounceTimeoutRef.current);
     }
   }, [clearSearch]);
+
+  // Handle dropdown close (click outside, escape key, etc.)
+  const handleClose = useCallback(() => {
+    setDropdownOpen(false);
+  }, []);
+
+  // Handle input focus - reopen dropdown if there are results
+  const handleFocus = useCallback(() => {
+    if (isSearchActive && filteredItems.length > 0) {
+      setDropdownOpen(true);
+    }
+  }, [isSearchActive, filteredItems.length]);
 
   // Handle search engine toggle
   const handleEngineToggle = useCallback(
@@ -142,13 +171,14 @@ const SearchInput = ({
     <Box>
       <Autocomplete
         freeSolo
-        open={enableAutocomplete && isSearchActive && filteredItems.length > 0}
+        open={dropdownOpen}
+        onClose={handleClose}
         options={enableAutocomplete ? filteredItems : []}
         getOptionLabel={
           getOptionLabel ||
           ((option) => (typeof option === 'string' ? option : String(option)))
         }
-        onInputChange={(_event, value, reason) => {
+        onInputChange={(_event, _value, reason) => {
           if (reason === 'clear') {
             handleClear();
           }
@@ -170,6 +200,7 @@ const SearchInput = ({
             fullWidth={fullWidth}
             value={inputValue}
             onChange={handleInputChange}
+            onFocus={handleFocus}
             placeholder={placeholderText}
             style={{ marginBottom: 8 }}
             InputProps={{
@@ -185,6 +216,19 @@ const SearchInput = ({
             }}
           />
         )}
+        ListboxComponent={React.forwardRef(({ children, ...other }, ref) => (
+          <ul {...other} ref={ref}>
+            {children}
+            {enableAutocomplete &&
+              isSearchActive &&
+              inputValue.length >= SEARCH_CONFIG.ACTIVATION_THRESHOLD && (
+                <li className={classes.dropdownResultCount}>
+                  {resultCount} {resultCount === 1 ? 'result' : 'results'} found
+                  {totalCount > 0 && ` out of ${totalCount.toLocaleString()}`}
+                </li>
+              )}
+          </ul>
+        ))}
       />
       <Box display="flex" justifyContent="space-between" alignItems="center">
         {showResultCount && (
