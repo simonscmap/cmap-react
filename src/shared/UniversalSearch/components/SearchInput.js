@@ -31,6 +31,22 @@ const useStyles = makeStyles((theme) => ({
     fontSize: '0.875rem',
     color: theme.palette.text.secondary,
   },
+  autocompleteListbox: {
+    backgroundColor: '#1B4156',
+    '& .MuiAutocomplete-option': {
+      color: '#ffffff',
+      '&:hover': {
+        backgroundColor: 'rgba(157, 209, 98, 0.2)',
+      },
+      '&[data-focus="true"]': {
+        backgroundColor: 'rgba(157, 209, 98, 0.15)',
+      },
+    },
+  },
+  autocompletePaper: {
+    backgroundColor: '#1B4156',
+    border: '1px solid rgba(157, 209, 98, 0.3)',
+  },
 }));
 
 const SearchInput = ({
@@ -141,6 +157,10 @@ const SearchInput = ({
           if (onSelect && value) {
             onSelect(value);
           }
+        }}
+        classes={{
+          listbox: classes.autocompleteListbox,
+          paper: classes.autocompletePaper,
         }}
         renderInput={(params) => (
           <TextField
