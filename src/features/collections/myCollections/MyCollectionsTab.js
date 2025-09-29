@@ -7,6 +7,11 @@ import useCollectionsStore from '../state/collectionsStore';
 import CollectionCard from './CollectionCard';
 import CollectionStatistics from './CollectionStatistics';
 import { PaginationController } from '../../../shared/pagination';
+import {
+  SearchProvider,
+  SearchInput,
+  useFilteredItems,
+} from '../../../shared/UniversalSearch';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -17,6 +22,9 @@ const useStyles = makeStyles((theme) => ({
   },
   statisticsSection: {
     marginBottom: theme.spacing(4),
+  },
+  searchSection: {
+    marginBottom: theme.spacing(3),
   },
   collectionsGrid: {
     marginTop: theme.spacing(2),
@@ -45,6 +53,53 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(2),
   },
 }));
+
+// Inner component that uses filtered items from UniversalSearch
+const MyCollectionsContent = () => {
+  const classes = useStyles();
+  const filteredCollections = useFilteredItems();
+
+  return (
+    <>
+      <Box className={classes.searchSection}>
+        <SearchInput
+          placeholder="Search collections by name, description, or creator..."
+          enableAutocomplete={true}
+          getOptionLabel={(collection) => collection.name || ''}
+          onSelect={(collection) => {
+            // Optional: handle collection selection from dropdown
+            console.log('Selected collection:', collection);
+          }}
+        />
+      </Box>
+
+      <PaginationController
+        data={filteredCollections}
+        itemsPerPage={9}
+        renderItem={(collection) => (
+          <CollectionCard key={collection.id} collection={collection} />
+        )}
+        renderContainer={(children, pagination) => (
+          <>
+            <Box className={classes.collectionsGrid}>{children}</Box>
+            {pagination}
+          </>
+        )}
+        emptyComponent={
+          <Box className={classes.emptyState}>
+            <Typography variant="h6" gutterBottom>
+              No Collections Found
+            </Typography>
+            <Typography variant="body1" color="textSecondary">
+              You haven't created any collections yet. Start by creating your
+              first collection to organize your datasets.
+            </Typography>
+          </Box>
+        }
+      />
+    </>
+  );
+};
 
 const MyCollectionsTab = () => {
   const classes = useStyles();
@@ -124,30 +179,12 @@ const MyCollectionsTab = () => {
         <CollectionStatistics statistics={statistics} />
       </Box>
 
-      <PaginationController
-        data={filteredUserCollections}
-        itemsPerPage={9}
-        renderItem={(collection) => (
-          <CollectionCard key={collection.id} collection={collection} />
-        )}
-        renderContainer={(children, pagination) => (
-          <>
-            <Box className={classes.collectionsGrid}>{children}</Box>
-            {pagination}
-          </>
-        )}
-        emptyComponent={
-          <Box className={classes.emptyState}>
-            <Typography variant="h6" gutterBottom>
-              No Collections Found
-            </Typography>
-            <Typography variant="body1" color="textSecondary">
-              You haven't created any collections yet. Start by creating your
-              first collection to organize your datasets.
-            </Typography>
-          </Box>
-        }
-      />
+      <SearchProvider
+        items={filteredUserCollections}
+        searchKeys={['name', 'description', 'creatorName']}
+      >
+        <MyCollectionsContent />
+      </SearchProvider>
     </Box>
   );
 };

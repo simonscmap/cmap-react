@@ -126,7 +126,7 @@ const SearchInput = ({
     <Box>
       <Autocomplete
         freeSolo
-        open={enableAutocomplete ? true : false}
+        open={enableAutocomplete && isSearchActive && filteredItems.length > 0}
         options={enableAutocomplete ? filteredItems : []}
         getOptionLabel={
           getOptionLabel ||
