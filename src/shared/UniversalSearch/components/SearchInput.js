@@ -132,6 +132,11 @@ const SearchInput = ({
           getOptionLabel ||
           ((option) => (typeof option === 'string' ? option : String(option)))
         }
+        onInputChange={(_event, value, reason) => {
+          if (reason === 'clear') {
+            handleClear();
+          }
+        }}
         onChange={(_event, value) => {
           if (onSelect && value) {
             onSelect(value);
@@ -154,23 +159,6 @@ const SearchInput = ({
                   {params.InputProps.startAdornment}
                   <InputAdornment position="start">
                     <Search color="action" />
-                  </InputAdornment>
-                </>
-              ),
-              endAdornment: (
-                <>
-                  {params.InputProps.endAdornment}
-                  <InputAdornment position="end">
-                    {inputValue && (
-                      <IconButton
-                        size="small"
-                        onClick={handleClear}
-                        aria-label="Clear filter"
-                        edge="end"
-                      >
-                        <Clear />
-                      </IconButton>
-                    )}
                   </InputAdornment>
                 </>
               ),
