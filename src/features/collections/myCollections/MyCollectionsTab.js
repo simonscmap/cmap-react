@@ -12,6 +12,8 @@ import {
   SearchInput,
   useFilteredItems,
 } from '../../../shared/UniversalSearch';
+import { useSorting } from '../../../shared/sorting/state/useSorting';
+import SortDropdown from '../../../shared/sorting/components/SortDropdown';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -25,6 +27,21 @@ const useStyles = makeStyles((theme) => ({
   },
   searchSection: {
     marginBottom: theme.spacing(3),
+    display: 'flex',
+    gap: theme.spacing(2),
+    alignItems: 'flex-start',
+  },
+  searchInput: {
+    flex: 1,
+  },
+  sortDropdown: {
+    minWidth: '200px',
+    display: 'flex',
+    alignItems: 'center',
+    height: '40px', // Match TextField height for 'small' size
+    '& .MuiFormControl-root': {
+      width: '100%',
+    },
   },
   collectionsGrid: {
     marginTop: theme.spacing(2),
@@ -54,27 +71,60 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+// Sort configuration
+const sortConfig = {
+  fields: [
+    { key: 'name', type: 'string', label: 'Sort by Name', path: 'name' },
+    {
+      key: 'modified',
+      type: 'date',
+      label: 'Sort by Modified Date',
+      path: 'modifiedDate',
+    },
+  ],
+  defaultSort: {
+    field: 'name',
+    direction: 'asc',
+  },
+  uiPattern: 'dropdown-headers',
+};
+
 // Inner component that uses filtered items from UniversalSearch
 const MyCollectionsContent = () => {
   const classes = useStyles();
   const filteredCollections = useFilteredItems();
+  const { activeSort, comparator, setSort } = useSorting(sortConfig);
+
+  // Sort the filtered collections
+  const sortedCollections = [...filteredCollections].sort(comparator);
 
   return (
     <>
       <Box className={classes.searchSection}>
-        <SearchInput
-          placeholder="Search collections by name, description, or creator..."
-          enableAutocomplete={true}
-          getOptionLabel={(collection) => collection.name || ''}
-          onSelect={(collection) => {
-            // Optional: handle collection selection from dropdown
-            console.log('Selected collection:', collection);
-          }}
-        />
+        <Box className={classes.searchInput}>
+          <SearchInput
+            placeholder="Search collections by name, description, or creator..."
+            enableAutocomplete={true}
+            getOptionLabel={(collection) => collection.name || ''}
+            onSelect={(collection) => {
+              // Optional: handle collection selection from dropdown
+              console.log('Selected collection:', collection);
+            }}
+            controlsAlign="left"
+          />
+        </Box>
+        <Box className={classes.sortDropdown}>
+          <SortDropdown
+            fields={sortConfig.fields}
+            activeField={activeSort.field}
+            onFieldChange={setSort}
+            label=""
+          />
+        </Box>
       </Box>
 
       <PaginationController
-        data={filteredCollections}
+        data={sortedCollections}
         itemsPerPage={9}
         renderItem={(collection) => (
           <CollectionCard key={collection.id} collection={collection} />

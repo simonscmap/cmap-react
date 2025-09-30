@@ -10,7 +10,7 @@ import {
 import { makeStyles } from '@material-ui/core/styles';
 import { Autocomplete } from '@material-ui/lab';
 import { Search } from '@material-ui/icons';
-import InfoTooltip from '../../../shared/components/InfoTooltip';
+import InfoTooltip from '../../components/InfoTooltip';
 
 import {
   useSearchQuery,
@@ -66,6 +66,7 @@ const SearchInput = ({
   enableAutocomplete = false,
   onSelect = null,
   getOptionLabel = null,
+  controlsAlign = 'right', // 'left' | 'right'
 }) => {
   const classes = useStyles();
 
@@ -234,7 +235,12 @@ const SearchInput = ({
           </ul>
         ))}
       />
-      <Box display="flex" justifyContent="space-between" alignItems="center">
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        flexDirection={controlsAlign === 'left' ? 'row-reverse' : 'row'}
+      >
         {showResultCount && (
           <Typography className={classes.resultCount}>
             {shouldShowResults ? (
