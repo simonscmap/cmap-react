@@ -13,7 +13,7 @@ import {
   delay,
   select,
 } from 'redux-saga/effects';
-import { makeCheckQuerySizeRequest } from './downloadSagas';
+import { makeCheckQuerySizeRequest } from '../../features/datasetDownload/state/sagas';
 import mapVizType from '../../Components/Visualization/helpers/mapVizType';
 import storedProcedures from '../../enums/storedProcedures';
 import spatialResolutions from '../../enums/spatialResolutions';

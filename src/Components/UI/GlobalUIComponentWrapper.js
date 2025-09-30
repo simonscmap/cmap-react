@@ -9,8 +9,7 @@ import LoginDialog from '../User/LoginDialog';
 import SnackbarWrapper from './SnackbarWrapper';
 import LoadingOverlay from './LoadingOverlay';
 import SubscribeDatasetDialog from '../User/Subscriptions/SubscribeDialog';
-import GlobalDownloadDialog from '../Catalog/DownloadDialog/GlobalDialogWrapper';
-import DropboxModal from '../Catalog/DownloadDialog/DropboxModal';
+import GlobalDownloadDialog from '../../features/datasetDownload/components/DownloadDialog/GlobalDialogWrapper';
 
 import { loginDialogWasCleared } from '../../Redux/actions/user';
 
@@ -49,7 +48,6 @@ class GlobalUIComponentWrapper extends Component {
         <SnackbarWrapper />
         <SubscribeDatasetDialog />
         <GlobalDownloadDialog />
-        <DropboxModal />
         <LoadingOverlay loadingMessage={this.props.loadingMessage} />
       </React.Fragment>
     );

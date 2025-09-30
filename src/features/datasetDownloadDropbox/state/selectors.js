@@ -12,29 +12,43 @@ export const selectVaultFilesPagination = (state) =>
   (state.dropbox && state.dropbox.vaultFilesPagination) || {};
 
 export const selectCurrentPageFiles = (state) =>
-  (state.dropbox && state.dropbox.vaultFilesPagination && state.dropbox.vaultFilesPagination.currentPageFiles) || [];
+  (state.dropbox &&
+    state.dropbox.vaultFilesPagination &&
+    state.dropbox.vaultFilesPagination.currentPageFiles) ||
+  [];
 
 export const selectPaginationInfo = (state) => {
-  const pagination = (state.dropbox && state.dropbox.vaultFilesPagination) || {};
+  const pagination =
+    (state.dropbox && state.dropbox.vaultFilesPagination) || {};
   return {
     currentPage: (pagination.local && pagination.local.currentPage) || 1,
     pageSize: (pagination.local && pagination.local.pageSize) || 25,
     totalPages: (pagination.local && pagination.local.totalPages) || null,
     totalFileCount: pagination.totalFileCount || null,
-    hasMore: (pagination.backend && pagination.backend.hasMore) || false,
-    isLoading: (pagination.backend && pagination.backend.isLoading) || false,
+    hasMore: false, // Always false for local-only pagination
+    isLoading: false, // Always false for local-only pagination
   };
 };
 
 export const selectAllCachedFiles = (state) =>
-  (state.dropbox && state.dropbox.vaultFilesPagination && state.dropbox.vaultFilesPagination.allCachedFiles) || [];
+  (state.dropbox &&
+    state.dropbox.vaultFilesPagination &&
+    state.dropbox.vaultFilesPagination.allCachedFiles) ||
+  [];
 
 export const selectPaginationError = (state) =>
-  (state.dropbox && state.dropbox.vaultFilesPagination && state.dropbox.vaultFilesPagination.error) || null;
+  (state.dropbox &&
+    state.dropbox.vaultFilesPagination &&
+    state.dropbox.vaultFilesPagination.error) ||
+  null;
 
 // New selectors for folder support
 export const selectAvailableFolders = (state) =>
-  (state.dropbox && state.dropbox.availableFolders) || { hasRep: false, hasNrt: false, hasRaw: false };
+  (state.dropbox && state.dropbox.availableFolders) || {
+    hasRep: false,
+    hasNrt: false,
+    hasRaw: false,
+  };
 
 export const selectMainFolder = (state) =>
   (state.dropbox && state.dropbox.mainFolder) || null;
@@ -80,14 +94,16 @@ export const selectFolderPaginationInfo = (state, folderType) => {
       isLoading: false,
     };
   }
-  
+
   return {
-    currentPage: (folderPagination.local && folderPagination.local.currentPage) || 1,
+    currentPage:
+      (folderPagination.local && folderPagination.local.currentPage) || 1,
     pageSize: (folderPagination.local && folderPagination.local.pageSize) || 25,
-    totalPages: (folderPagination.local && folderPagination.local.totalPages) || null,
+    totalPages:
+      (folderPagination.local && folderPagination.local.totalPages) || null,
     totalFileCount: folderPagination.totalFileCount || null,
-    hasMore: (folderPagination.backend && folderPagination.backend.hasMore) || false,
-    isLoading: (folderPagination.backend && folderPagination.backend.isLoading) || false,
+    hasMore: false, // Always false for local-only pagination
+    isLoading: false, // Always false for local-only pagination
   };
 };
 
@@ -126,4 +142,141 @@ export const selectDirectDownloadLink = (state) =>
 export const selectIsVaultFilesLoaded = (state) => {
   const pagination = selectVaultFilesPagination(state);
   return !!(pagination.allCachedFiles && pagination.allCachedFiles.length > 0);
+};
+
+// Search selectors - now per folder like pagination
+export const selectSearchByFolder = (state) =>
+  (state.dropbox && state.dropbox.searchByFolder) || {};
+
+export const selectFolderSearchState = (state, folderType) => {
+  const searchByFolder = selectSearchByFolder(state);
+  return (
+    searchByFolder[folderType] || {
+      isActive: false,
+      query: '',
+      filteredFiles: [],
+      highlightMatches: [],
+      searchStartTime: null,
+      lastSearchDuration: null,
+      useFuzzySearch: false,
+      searchEngine: 'wildcard', // Default to wildcard engine
+    }
+  );
+};
+
+export const selectCurrentFolderSearchState = (state) => {
+  const currentTab =
+    selectCurrentTab(state) || selectMainFolder(state) || 'rep';
+  return selectFolderSearchState(state, currentTab);
+};
+
+// Legacy selector for backward compatibility
+export const selectSearchState = (state) =>
+  selectCurrentFolderSearchState(state);
+
+export const selectSearchQuery = (state, folderType) => {
+  const currentTab =
+    folderType || selectCurrentTab(state) || selectMainFolder(state) || 'rep';
+  const searchState = selectFolderSearchState(state, currentTab);
+  return searchState.query || '';
+};
+
+export const selectIsSearchActive = (state, folderType) => {
+  const currentTab =
+    folderType || selectCurrentTab(state) || selectMainFolder(state) || 'rep';
+  const searchState = selectFolderSearchState(state, currentTab);
+  return searchState.isActive || false;
+};
+
+export const selectSearchResults = (state, folderType) => {
+  const currentTab =
+    folderType || selectCurrentTab(state) || selectMainFolder(state) || 'rep';
+  const searchState = selectFolderSearchState(state, currentTab);
+  return searchState.filteredFiles || [];
+};
+
+export const selectSearchHighlightMatches = (state, folderType) => {
+  const currentTab =
+    folderType || selectCurrentTab(state) || selectMainFolder(state) || 'rep';
+  const searchState = selectFolderSearchState(state, currentTab);
+  return searchState.highlightMatches || [];
+};
+
+export const selectSearchDuration = (state, folderType) => {
+  const currentTab =
+    folderType || selectCurrentTab(state) || selectMainFolder(state) || 'rep';
+  const searchState = selectFolderSearchState(state, currentTab);
+  return searchState.lastSearchDuration;
+};
+
+export const selectSearchPerformanceData = (state, folderType) => {
+  const currentTab =
+    folderType || selectCurrentTab(state) || selectMainFolder(state) || 'rep';
+  const searchState = selectFolderSearchState(state, currentTab);
+  return {
+    startTime: searchState.searchStartTime,
+    duration: searchState.lastSearchDuration,
+  };
+};
+
+// Integration selector to determine which files to display (search results or normal pagination)
+export const selectDisplayFiles = (state, folderType) => {
+  const currentTab =
+    folderType || selectCurrentTab(state) || selectMainFolder(state) || 'rep';
+  const isSearchActive = selectIsSearchActive(state, currentTab);
+  if (isSearchActive) {
+    return selectSearchResults(state, currentTab);
+  }
+  // Return current folder's cached files when search is not active
+  return selectFolderFiles(state, currentTab);
+};
+
+// Selector to get all files available for search from current folder
+export const selectSearchableFiles = (state, folderType) => {
+  const currentTab =
+    folderType || selectCurrentTab(state) || selectMainFolder(state) || 'rep';
+  return selectFolderAllCachedFiles(state, currentTab);
+};
+
+// Dynamic pagination selector based on search state
+export const selectActivePaginationContext = (state, activeTab) => {
+  const isSearchActive = selectIsSearchActive(state, activeTab);
+  if (isSearchActive) {
+    const searchContextKey =
+      activeTab === 'Raw' || activeTab === 'raw' ? 'raw-search' : 'main-search';
+    return searchContextKey;
+  }
+  return (
+    activeTab || selectCurrentTab(state) || selectMainFolder(state) || 'rep'
+  );
+};
+
+export const selectActivePaginationInfo = (state, activeTab) => {
+  const contextKey = selectActivePaginationContext(state, activeTab);
+  return selectFolderPaginationInfo(state, contextKey);
+};
+
+export const selectActivePageFiles = (state, activeTab) => {
+  const contextKey = selectActivePaginationContext(state, activeTab);
+  return selectFolderFiles(state, contextKey);
+};
+
+export const selectFuzzySearchEnabled = (state, folderType) => {
+  const currentTab =
+    folderType || selectCurrentTab(state) || selectMainFolder(state) || 'rep';
+  const searchState = selectFolderSearchState(state, currentTab);
+  return searchState.useFuzzySearch || false;
+};
+
+export const selectSearchEngine = (state, folderType) => {
+  const currentTab =
+    folderType || selectCurrentTab(state) || selectMainFolder(state) || 'rep';
+  const searchState = selectFolderSearchState(state, currentTab);
+  return searchState.searchEngine || 'wildcard';
+};
+
+export const selectCurrentFolderSearchEngine = (state) => {
+  const currentTab =
+    selectCurrentTab(state) || selectMainFolder(state) || 'rep';
+  return selectSearchEngine(state, currentTab);
 };

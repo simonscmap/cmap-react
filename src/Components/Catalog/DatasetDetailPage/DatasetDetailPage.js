@@ -12,7 +12,6 @@ import reactStringReplace from 'react-string-replace';
 
 import DatasetPageAGGrid from '../VariablesTable';
 import DatasetJSONLD from './DatasetJSONLD';
-// import DownloadDialog from '../DownloadDialog';
 import DetailsTable from './DatasetDetailsTable';
 import DatasetMetadata from './DatasetMetadata';
 import Visualization from './DatasetVisualization';
@@ -22,7 +21,7 @@ import ReferencesList from './References';
 import NewsSection from './NewsSection';
 import SectionHeader from './SectionHeader';
 import SubscribeButton from '../../User/Subscriptions/SubscribeButton';
-import { DownloadButtonOutlined } from '../DownloadDialog/DownloadButtons';
+import { DownloadButtonOutlined } from '../../../features/datasetDownload/components/DownloadDialog/DownloadButtons';
 import ScrollHintOverlay from './ScrollHintOverlay';
 
 import SkeletonWrapper from '../../UI/SkeletonWrapper';
@@ -283,7 +282,9 @@ const DatasetFullPage = (props) => {
               </ThirdGridContent>
               <ThirdGridContent data={distributor}>
                 <SectionHeader title={'Distributor'} />
-                <Typography>{urlify(distributor)}</Typography>
+                <Typography className={classes.urlText}>
+                  {urlify(distributor)}
+                </Typography>
               </ThirdGridContent>
               <ThirdGridContent data={acknowledgment}>
                 <SectionHeader title={'Acknowledgement'} />

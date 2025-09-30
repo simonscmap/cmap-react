@@ -6,6 +6,7 @@ import * as interfaceActions from '../actions/ui';
 import * as userActions from '../actions/user';
 import * as userActionTypes from '../actionTypes/user';
 import * as catalogActions from '../actions/catalog';
+import * as datasetDownloadActions from '../../features/datasetDownload/state';
 // import * as communityActions from '../actions/community';
 // import parseError from '../../Utility/parseError';
 import states from '../../enums/asyncRequestStates';
@@ -77,7 +78,7 @@ export function* userLogin(action) {
           // retry the query check if the last request failed (it was probably a 401)
           // TODO: use resumeAction pattern here
           yield put(
-            catalogActions.checkQuerySize(downloadState.currentRequest),
+            datasetDownloadActions.checkQuerySize(downloadState.currentRequest),
           );
         }
       }

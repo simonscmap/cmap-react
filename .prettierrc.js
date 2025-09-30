@@ -11,4 +11,12 @@ module.exports = {
   bracketSpacing: true,
   bracketSameLine: false,
   arrowParens: 'always',
+  overrides: [
+    {
+      files: '*.md',
+      options: {
+        printWidth: Infinity,
+      },
+    },
+  ],
 };

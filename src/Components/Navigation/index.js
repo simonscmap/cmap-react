@@ -155,6 +155,9 @@ const Navigation = (props) => {
                   <Link to="/programs" className={isActive(/\programs/)}>
                     Programs
                   </Link>
+                  <Link to="/collections" className={isActive(/\/collections/)}>
+                    Collections
+                  </Link>
                   <ExpandableItem
                     linkText={'Data Submission'}
                     highlight={isActive(/\/datasubmission/)}

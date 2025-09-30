@@ -55,6 +55,7 @@ const Cite = lazy(() => import('./Components/Cite'));
 const SubscriptionsPage = lazy(
   () => import('./Components/User/Subscriptions/Subscriptions'),
 );
+const CollectionsPage = lazy(() => import('./pages/CollectionsPage'));
 
 const mapDispatchToProps = {
   toggleShowHelp,
@@ -106,10 +107,18 @@ class App extends Component {
                       <Route exact path="/programs">
                         <ProgramIndex />
                       </Route>
+                      <Route exact path="/collections">
+                        <CollectionsPage />
+                      </Route>
                       <Route
                         path="/programs/:programName"
-                        component={ProgramDetailPage}
-                      ></Route>
+                        render={(props) => (
+                          <ProgramDetailPage
+                            key={props.match.params.programName}
+                            {...props}
+                          />
+                        )}
+                      />
                       <Route path="/visualization">
                         <Visualization />
                       </Route>
@@ -124,7 +133,6 @@ class App extends Component {
                         path="/admin/news"
                         component={NewsDashboard}
                       ></Route>
-
                       {/* ABOUT */}
                       <Route exact path="/contact">
                         <ContactUs />
@@ -135,7 +143,6 @@ class App extends Component {
                       <Route path="/how-to-cite">
                         <Cite />
                       </Route>
-
                       <Route exact path="/documentation">
                         <Docs />
                       </Route>
@@ -143,7 +150,6 @@ class App extends Component {
                         <Gallery />
                       </Route>
                       <Route path="/gallery/:slug" component={Galleries} />
-
                       {/* USER */}
                       <Route exact path="/login">
                         <Login />

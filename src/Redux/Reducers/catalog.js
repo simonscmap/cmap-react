@@ -20,10 +20,6 @@ import {
   CRUISE_FULL_PAGE_DATA_STORE,
   CRUISE_FULL_PAGE_DATA_SET_LOADING_STATE,
   FETCH_DATASET_FEATURES_SUCCESS,
-  SET_CHECK_QUERY_SIZE_REQUEST_STATE,
-  STORE_CHECK_QUERY_SIZE_RESULT,
-  CHECK_QUERY_SIZE_SEND,
-  CLEAR_FAILED_SIZE_CHECKS,
   FETCH_RECS_POPULAR_SEND,
   FETCH_RECS_POPULAR_SUCCESS,
   FETCH_RECS_POPULAR_FAILURE,
@@ -49,11 +45,6 @@ import {
   PROGRAM_SAMPLE_VIS_DATA_STORE,
   FETCH_DATASET_NAMES_SUCCESS,
   SET_DATASET_NAMES_REQUEST_STATUS,
-  FETCH_VAULT_LINK_SUCCESS,
-  SET_FETCH_VAULT_LINK_REQUEST_STATUS,
-  DROPBOX_MODAL_OPEN,
-  DROPBOX_MODAL_CLEANUP,
-  DROPBOX_MODAL_CLOSE,
 } from '../actionTypes/catalog';
 import states from '../../enums/asyncRequestStates';
 import { sortResults } from '../../Components/Catalog/SortingControls';
@@ -479,47 +470,7 @@ export default function (state, action) {
     // handle dataset features failure
 
     /************** Dataset Download **********************/
-
-    case CHECK_QUERY_SIZE_SEND:
-      return {
-        ...state,
-        download: {
-          ...state.download,
-          currentRequest: action.payload.query,
-          checkQueryRequestState: states.inProgress,
-        },
-      };
-
-    case SET_CHECK_QUERY_SIZE_REQUEST_STATE:
-      return {
-        ...state,
-        download: {
-          ...state.download,
-          checkQueryRequestState: action.payload,
-        },
-      };
-
-    case STORE_CHECK_QUERY_SIZE_RESULT:
-      return {
-        ...state,
-        download: {
-          ...state.download,
-          querySizeChecks: state.download.querySizeChecks
-            .slice(-200) // keep cache size limited, fifo
-            .concat(action.payload), // { queryString, result }
-        },
-      };
-
-    case CLEAR_FAILED_SIZE_CHECKS:
-      return {
-        ...state,
-        download: {
-          ...state.download,
-          querySizeChecks: state.download.querySizeChecks.filter(
-            (item) => !item.result.status === 500,
-          ),
-        },
-      };
+    // Download state now managed by datasetDownload slice reducer
 
     case FETCH_RECS_POPULAR_SEND:
       return {
@@ -590,57 +541,6 @@ export default function (state, action) {
       return {
         ...state,
         datasetNamesRequestStatus: action.payload,
-      };
-
-    case FETCH_VAULT_LINK_SUCCESS:
-      return {
-        ...state,
-        download: {
-          ...state.download,
-          vaultLink: action.payload,
-          vaultLinkRequestStatus: states.succeeded,
-        },
-      };
-
-    case SET_FETCH_VAULT_LINK_REQUEST_STATUS:
-      return {
-        ...state,
-        download: {
-          ...state.download,
-          vaultLinkRequestStatus: action.payload.status,
-          vaultLink: null, // for any status other than success, null vaultLink
-        },
-      };
-
-    case DROPBOX_MODAL_OPEN:
-      return {
-        ...state,
-        download: {
-          ...state.download,
-          dropboxModalOpen: 'open',
-        },
-        downloadDialog: {
-          ...state.downloadDialog,
-          open: false, // when opening or closing dbx modal, ensure download dialog is closed
-        },
-      };
-
-    case DROPBOX_MODAL_CLEANUP:
-      return {
-        ...state,
-        download: {
-          ...state.download,
-          dropboxModalOpen: 'cleanup',
-        },
-      };
-
-    case DROPBOX_MODAL_CLOSE:
-      return {
-        ...state,
-        download: {
-          ...state.download,
-          dropboxModalOpen: 'closed',
-        },
       };
 
     default:

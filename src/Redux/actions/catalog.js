@@ -224,57 +224,7 @@ export const fetchDatasetFeatures = () => ({
 });
 
 /************** Dataset Download **********************/
-
-export const checkQuerySize = (query) => ({
-  type: catalogActionTypes.CHECK_QUERY_SIZE_SEND,
-  payload: { query },
-});
-
-export const setCheckQueryRequestState = (requestState) => ({
-  type: catalogActionTypes.SET_CHECK_QUERY_SIZE_REQUEST_STATE,
-  payload: requestState,
-});
-
-export const storeCheckQueryResult = (queryString, result) => ({
-  type: catalogActionTypes.STORE_CHECK_QUERY_SIZE_RESULT,
-  payload: {
-    queryString,
-    result,
-  },
-});
-
-export const clearFailedSizeChecks = () => ({
-  type: catalogActionTypes.CLEAR_FAILED_SIZE_CHECKS,
-});
-
-export const datasetDownloadRequestSend = ({
-  subsetParams,
-  ancillaryData,
-  tableName,
-  shortName,
-  fileName,
-}) => ({
-  type: catalogActionTypes.DATASET_DOWNLOAD_REQUEST_SEND,
-  payload: {
-    subsetParams,
-    ancillaryData,
-    tableName,
-    shortName,
-    fileName,
-  },
-});
-
-export const datasetDownloadRequestProcessing = () => ({
-  type: catalogActionTypes.DATASET_DOWNLOAD_REQUEST_PROCESSING,
-  // TODO it would be helpful to have generate a request id and include it here
-});
-
-export const datasetDownloadRequestSuccess = (text) => ({
-  type: catalogActionTypes.DATASET_DOWNLOAD_REQUEST_SUCCESS,
-  payload: {
-    text,
-  },
-});
+// Download actions moved to datasetDownload feature module
 
 /* Recommendations */
 
@@ -460,34 +410,4 @@ export const setDatasetNamesRequestStatus = (status) => ({
 });
 
 // ~~~~~~~~
-
-export const fetchVaultLink = (shortName) => ({
-  type: catalogActionTypes.FETCH_VAULT_LINK,
-  payload: {
-    shortName,
-  },
-});
-
-export const fetchVaultLinkSuccess = (data) => ({
-  type: catalogActionTypes.FETCH_VAULT_LINK_SUCCESS,
-  payload: data,
-});
-
-export const setFetchVaultLinkRequestStatus = (status) => ({
-  type: catalogActionTypes.SET_FETCH_VAULT_LINK_REQUEST_STATUS,
-  payload: {
-    status,
-  },
-});
-
-export const dropboxModalOpen = () => ({
-  type: catalogActionTypes.DROPBOX_MODAL_OPEN,
-});
-
-export const dropboxModalCleanup = () => ({
-  type: catalogActionTypes.DROPBOX_MODAL_CLEANUP,
-});
-
-export const dropboxModalClose = () => ({
-  type: catalogActionTypes.DROPBOX_MODAL_CLOSE,
-});
+// Vault link and dropbox modal actions moved to datasetDownload feature module

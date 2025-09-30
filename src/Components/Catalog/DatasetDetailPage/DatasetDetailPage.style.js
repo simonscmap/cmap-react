@@ -163,6 +163,10 @@ const styles = (theme) => ({
     maxHeight: '30vh',
     ...scrollableStyles,
   },
+  urlText: {
+    wordBreak: 'break-all',
+    overflowWrap: 'break-word',
+  },
 });
 
 export default styles;
