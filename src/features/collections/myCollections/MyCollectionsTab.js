@@ -36,16 +36,11 @@ const useStyles = makeStyles((theme) => ({
     flex: 1,
   },
   sortDropdown: {
-    minWidth: '200px',
     display: 'flex',
     alignItems: 'center',
     height: '40px', // Match TextField height for 'small' size
-    '& .MuiFormControl-root': {
-      width: '100%',
-    },
   },
   filterDropdown: {
-    minWidth: '180px',
     display: 'flex',
     alignItems: 'center',
     height: '40px', // Match TextField height for 'small' size

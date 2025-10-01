@@ -73,6 +73,20 @@ const FilterDropdown = ({
         value={selectedValue || ''}
         onChange={handleChange}
         displayEmpty={isEmpty}
+        autoWidth={true}
+        style={{ textAlign: 'left' }}
+        MenuProps={{
+          disableScrollLock: true,
+          anchorOrigin: {
+            vertical: 'bottom',
+            horizontal: 'right',
+          },
+          transformOrigin: {
+            vertical: 'top',
+            horizontal: 'right',
+          },
+          getContentAnchorEl: null,
+        }}
       >
         {isEmpty ? (
           <MenuItem value="" disabled>

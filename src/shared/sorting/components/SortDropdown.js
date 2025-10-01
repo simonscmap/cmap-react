@@ -70,6 +70,7 @@ const SortDropdown = ({
         autoWidth={true}
         style={{ textAlign: 'left' }}
         MenuProps={{
+          disableScrollLock: true,
           anchorOrigin: {
             vertical: 'bottom',
             horizontal: 'right',
