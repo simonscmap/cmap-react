@@ -31,11 +31,16 @@ const useStyles = makeStyles((theme) => ({
   cardContent: {
     flexGrow: 1,
     paddingBottom: theme.spacing(1),
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  metadataSection: {
+    marginTop: 'auto',
   },
   cardActions: {
     padding: theme.spacing(2),
     paddingTop: theme.spacing(1),
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     gap: theme.spacing(0.5),
     marginTop: 'auto',
@@ -195,15 +200,17 @@ const CollectionCard = ({ collection }) => {
           </Typography>
         )}
 
-        <MetadataRow
-          label="Dataset Count"
-          value={collection.datasetCount || 0}
-          isCount={true}
-        />
-        <MetadataRow
-          label="Last Modified"
-          value={formatDateTime(collection.modifiedDate)}
-        />
+        <Box className={classes.metadataSection}>
+          <MetadataRow
+            label="Dataset Count"
+            value={collection.datasetCount || 0}
+            isCount={true}
+          />
+          <MetadataRow
+            label="Last Modified"
+            value={formatDateTime(collection.modifiedDate)}
+          />
+        </Box>
       </CardContent>
 
       <CardActions className={classes.cardActions}>
@@ -212,7 +219,7 @@ const CollectionCard = ({ collection }) => {
           message="Are you sure you want to delete this collection? This action is permanent and cannot be undone."
           onDelete={handleDelete}
         />
-        <Box style={{ flexGrow: 1 }}>
+        <Box style={{ flexGrow: 1, marginLeft: 'auto' }}>
           {collection.hasInvalidDatasets && (
             <Box className={classes.warningSection}>
               <WarningIcon className={classes.warningIcon} />
