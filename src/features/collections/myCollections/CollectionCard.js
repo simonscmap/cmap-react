@@ -15,6 +15,8 @@ import {
 } from '@material-ui/icons';
 import colors from '../../../enums/colors';
 import MetadataRow from './MetadataRow';
+import DeleteButton from '../components/DeleteButton';
+import useCollectionsStore from '../state/collectionsStore';
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -132,6 +134,9 @@ const useStyles = makeStyles((theme) => ({
 
 const CollectionCard = ({ collection }) => {
   const classes = useStyles();
+  const deleteCollection = useCollectionsStore(
+    (state) => state.deleteCollection,
+  );
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -156,6 +161,10 @@ const CollectionCard = ({ collection }) => {
   const handleDownload = () => {
     // TODO: Implement download functionality
     console.log('Download collection:', collection.id);
+  };
+
+  const handleDelete = async () => {
+    await deleteCollection(collection.id);
   };
 
   return (
@@ -198,7 +207,12 @@ const CollectionCard = ({ collection }) => {
       </CardContent>
 
       <CardActions className={classes.cardActions}>
-        <Box>
+        <DeleteButton
+          title="Delete Collection?"
+          message="Are you sure you want to delete this collection? This action is permanent and cannot be undone."
+          onDelete={handleDelete}
+        />
+        <Box style={{ flexGrow: 1 }}>
           {collection.hasInvalidDatasets && (
             <Box className={classes.warningSection}>
               <WarningIcon className={classes.warningIcon} />
