@@ -14,6 +14,7 @@ import {
 } from '../../../shared/UniversalSearch';
 import { useSorting } from '../../../shared/sorting/state/useSorting';
 import SortDropdown from '../../../shared/sorting/components/SortDropdown';
+import FilterDropdown from '../components/FilterDropdown';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -42,6 +43,12 @@ const useStyles = makeStyles((theme) => ({
     '& .MuiFormControl-root': {
       width: '100%',
     },
+  },
+  filterDropdown: {
+    minWidth: '180px',
+    display: 'flex',
+    alignItems: 'center',
+    height: '40px', // Match TextField height for 'small' size
   },
   collectionsGrid: {
     marginTop: theme.spacing(2),
@@ -89,8 +96,15 @@ const sortConfig = {
   uiPattern: 'dropdown-headers',
 };
 
+// Visibility filter options
+const VISIBILITY_FILTERS = [
+  { value: 'all', label: 'All Collections' },
+  { value: 'public', label: 'Public Only' },
+  { value: 'private', label: 'Private Only' },
+];
+
 // Inner component that uses filtered items from UniversalSearch
-const MyCollectionsContent = () => {
+const MyCollectionsContent = ({ visibilityFilter, setVisibilityFilter }) => {
   const classes = useStyles();
   const filteredCollections = useFilteredItems();
   const { activeSort, comparator, setSort } = useSorting(sortConfig);
@@ -111,6 +125,14 @@ const MyCollectionsContent = () => {
               console.log('Selected collection:', collection);
             }}
             controlsAlign="left"
+          />
+        </Box>
+        <Box className={classes.filterDropdown}>
+          <FilterDropdown
+            options={VISIBILITY_FILTERS}
+            selectedValue={visibilityFilter}
+            onChange={setVisibilityFilter}
+            label=""
           />
         </Box>
         <Box className={classes.sortDropdown}>
@@ -156,8 +178,14 @@ const MyCollectionsTab = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user);
 
-  const { statistics, isLoading, error, filteredUserCollections } =
-    useCollectionsStore();
+  const {
+    statistics,
+    isLoading,
+    error,
+    filteredUserCollections,
+    visibilityFilter,
+    setVisibilityFilter,
+  } = useCollectionsStore();
 
   const handleLoginClick = () => {
     dispatch(showLoginDialog());
@@ -233,7 +261,10 @@ const MyCollectionsTab = () => {
         items={filteredUserCollections}
         searchKeys={['name', 'description', 'creatorName']}
       >
-        <MyCollectionsContent />
+        <MyCollectionsContent
+          visibilityFilter={visibilityFilter}
+          setVisibilityFilter={setVisibilityFilter}
+        />
       </SearchProvider>
     </Box>
   );
