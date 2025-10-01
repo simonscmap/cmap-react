@@ -83,6 +83,7 @@ const DeleteButton = ({ title, message, onDelete }) => {
         open={Boolean(deleteAnchor)}
         anchorEl={deleteAnchor}
         onClose={handleDeleteCancel}
+        disableScrollLock={true}
         anchorOrigin={{
           vertical: 'top',
           horizontal: 'left',
