@@ -258,6 +258,9 @@ const MyCollectionsTab = () => {
       </Box>
 
       <SearchProvider
+        // Force remount when visibility filter changes to sync with new filtered items
+        // SearchProvider creates its store on mount and doesn't react to item prop changes
+        key={`search-${visibilityFilter}`}
         items={filteredUserCollections}
         searchKeys={['name', 'description', 'creatorName']}
       >
