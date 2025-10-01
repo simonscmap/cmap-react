@@ -82,6 +82,65 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **This project uses manual testing only. Do not create or suggest unit tests, integration tests, or automated tests of any kind.** All features and functionality are validated through manual testing in the browser.
 
+## Shared Utilities
+
+### Universal Sorting Subsystem
+
+Location: `src/shared/sorting/`
+
+A reusable, type-aware sorting solution providing consistent sorting behavior across the application.
+
+**When to Use:**
+
+- Any feature requiring sortable data (tables, cards, lists)
+- Client-side sorting with multiple field options
+- Type-specific comparisons (strings, numbers, dates, percentages)
+- Nested field path access
+
+**Key Exports:**
+
+- `useSorting(config)` - Main hook for sort state and comparator generation
+- `SortDropdown` - Material-UI dropdown for field selection
+- `SortableHeader` - Table header component with sort indicators
+- `getNestedValue(obj, path)` - Helper for accessing nested object properties
+
+**Supported Types:**
+
+- String (case-insensitive, locale-aware)
+- Number (numeric comparison)
+- Date (ISO strings or Date objects)
+- Percent (percentage strings like "95%")
+- Custom (provide your own comparator)
+
+**Quick Example:**
+
+```javascript
+import { useSorting, SortDropdown, SortableHeader } from 'shared/sorting';
+
+const sortConfig = {
+  fields: {
+    name: { type: 'string', label: 'Name', path: 'Dataset_Name' },
+    date: { type: 'date', label: 'Date', path: 'Time_Series_Start' },
+  },
+  defaultField: 'name',
+  defaultDirection: 'asc',
+};
+
+function MyComponent({ data }) {
+  const { activeSort, comparator, setSort, toggleDirection } = useSorting(sortConfig);
+  const sortedData = [...data].sort(comparator);
+
+  return (
+    <div>
+      <SortDropdown fields={sortConfig.fields} activeField={activeSort.field} onFieldChange={setSort} />
+      {/* render sortedData */}
+    </div>
+  );
+}
+```
+
+**Documentation:** See `src/shared/sorting/README.md` for complete API reference, configuration schema, common patterns, and integration examples.
+
 ## Recent Features & Patterns
 
 ### Collections Management (2025-09)
