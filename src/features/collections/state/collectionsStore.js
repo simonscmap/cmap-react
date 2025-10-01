@@ -10,6 +10,7 @@ const useCollectionsStore = create((set, get) => ({
 
   // Search and filter state
   searchQuery: '',
+  visibilityFilter: 'all', // 'all' | 'public' | 'private'
   filteredUserCollections: [],
   filteredPublicCollections: [],
 
@@ -64,9 +65,10 @@ const useCollectionsStore = create((set, get) => ({
 
   setUserCollections: (collections) => {
     const statistics = get().calculateStatistics(collections);
-    const filteredCollections = get().applySearchFilter(
+    const filteredCollections = get().applyFilters(
       collections,
       get().searchQuery,
+      get().visibilityFilter,
     );
 
     set({
@@ -77,9 +79,10 @@ const useCollectionsStore = create((set, get) => ({
   },
 
   setPublicCollections: (collections) => {
-    const filteredCollections = get().applySearchFilter(
+    const filteredCollections = get().applyFilters(
       collections,
       get().searchQuery,
+      'all', // Public collections tab doesn't use visibility filter
     );
 
     set({
@@ -89,20 +92,36 @@ const useCollectionsStore = create((set, get) => ({
   },
 
   setSearchQuery: (query) => {
-    const { userCollections, publicCollections } = get();
-    const filteredUserCollections = get().applySearchFilter(
+    const { userCollections, publicCollections, visibilityFilter } = get();
+    const filteredUserCollections = get().applyFilters(
       userCollections,
       query,
+      visibilityFilter,
     );
-    const filteredPublicCollections = get().applySearchFilter(
+    const filteredPublicCollections = get().applyFilters(
       publicCollections,
       query,
+      'all', // Public collections tab doesn't use visibility filter
     );
 
     set({
       searchQuery: query,
       filteredUserCollections,
       filteredPublicCollections,
+    });
+  },
+
+  setVisibilityFilter: (filter) => {
+    const { userCollections } = get();
+    const filteredCollections = get().applyFilters(
+      userCollections,
+      get().searchQuery,
+      filter,
+    );
+
+    set({
+      visibilityFilter: filter,
+      filteredUserCollections: filteredCollections,
     });
   },
 
@@ -124,18 +143,29 @@ const useCollectionsStore = create((set, get) => ({
   },
 
   // Utility functions
-  applySearchFilter: (collections, query) => {
-    if (!query || query.trim() === '') {
-      return collections;
+  applyFilters: (collections, query, visibilityFilter) => {
+    let filtered = collections;
+
+    // Apply visibility filter
+    if (visibilityFilter === 'public') {
+      filtered = filtered.filter((c) => c.isPublic === true);
+    } else if (visibilityFilter === 'private') {
+      filtered = filtered.filter((c) => c.isPublic !== true);
+    }
+    // 'all' shows everything, so no filter needed
+
+    // Apply search filter
+    if (query && query.trim() !== '') {
+      const searchLower = query.toLowerCase();
+      filtered = filtered.filter(
+        (collection) =>
+          collection.name?.toLowerCase().includes(searchLower) ||
+          collection.description?.toLowerCase().includes(searchLower) ||
+          collection.creatorName?.toLowerCase().includes(searchLower),
+      );
     }
 
-    const searchLower = query.toLowerCase();
-    return collections.filter(
-      (collection) =>
-        collection.name?.toLowerCase().includes(searchLower) ||
-        collection.description?.toLowerCase().includes(searchLower) ||
-        collection.creatorName?.toLowerCase().includes(searchLower),
-    );
+    return filtered;
   },
 
   calculateStatistics: (collections) => {
@@ -177,6 +207,7 @@ const useCollectionsStore = create((set, get) => ({
       isLoading: false,
       error: null,
       searchQuery: '',
+      visibilityFilter: 'all',
       filteredUserCollections: [],
       filteredPublicCollections: [],
       statistics: {
