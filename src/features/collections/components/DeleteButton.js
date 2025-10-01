@@ -13,6 +13,7 @@ const useStyles = makeStyles((theme) => ({
   deleteButton: {
     color: '#d32f2f',
     padding: theme.spacing(0.5),
+    marginLeft: -theme.spacing(0.8),
     '&:hover': {
       backgroundColor: 'rgba(211, 47, 47, 0.1)',
     },
