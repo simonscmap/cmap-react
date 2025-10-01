@@ -125,21 +125,60 @@ const useCollectionsStore = create((set, get) => ({
     });
   },
 
-  deleteCollection: (collectionId) => {
-    const { userCollections, filteredUserCollections } = get();
-    const updatedUserCollections = userCollections.filter(
-      (c) => c.id !== collectionId,
-    );
-    const updatedFilteredCollections = filteredUserCollections.filter(
-      (c) => c.id !== collectionId,
-    );
-    const statistics = get().calculateStatistics(updatedUserCollections);
+  deleteCollection: async (collectionId) => {
+    set({ isLoading: true, error: null });
 
-    set({
-      userCollections: updatedUserCollections,
-      filteredUserCollections: updatedFilteredCollections,
-      statistics,
-    });
+    try {
+      const response = await collectionsAPI.deleteCollection(collectionId);
+
+      if (response.status === 204) {
+        // Success - remove from both user and public collections
+        const {
+          userCollections,
+          publicCollections,
+          filteredUserCollections,
+          filteredPublicCollections,
+        } = get();
+
+        const updatedUserCollections = userCollections.filter(
+          (c) => c.id !== collectionId,
+        );
+        const updatedPublicCollections = publicCollections.filter(
+          (c) => c.id !== collectionId,
+        );
+        const updatedFilteredUserCollections = filteredUserCollections.filter(
+          (c) => c.id !== collectionId,
+        );
+        const updatedFilteredPublicCollections =
+          filteredPublicCollections.filter((c) => c.id !== collectionId);
+
+        const statistics = get().calculateStatistics(updatedUserCollections);
+
+        set({
+          userCollections: updatedUserCollections,
+          publicCollections: updatedPublicCollections,
+          filteredUserCollections: updatedFilteredUserCollections,
+          filteredPublicCollections: updatedFilteredPublicCollections,
+          statistics,
+        });
+      } else if (response.status === 404) {
+        throw new Error(
+          "Collection not found or you don't have permission to delete it",
+        );
+      } else if (response.status === 401) {
+        throw new Error('You must be logged in to delete collections');
+      } else if (response.status === 400) {
+        throw new Error('Invalid collection ID');
+      } else {
+        throw new Error('Failed to delete collection. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error deleting collection:', error);
+      set({ error: error.message });
+      throw error;
+    } finally {
+      set({ isLoading: false });
+    }
   },
 
   // Utility functions

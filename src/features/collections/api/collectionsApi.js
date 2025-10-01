@@ -83,4 +83,21 @@ collectionsAPI.getCollectionById = async (id, params = {}) => {
   return await fetch(endpoint, fetchOptions);
 };
 
+/**
+ * Delete a collection and all associated datasets
+ * @param {number} id - Collection ID (positive integer)
+ * @returns {Promise<Response>} Empty response on success (204 No Content)
+ * @throws {Error} 400: Invalid ID format, 401: Unauthorized, 404: Not found or user doesn't own collection, 500: Server error
+ * @description Permanently deletes the collection and all associated dataset relationships.
+ * Only the collection owner can delete it. This operation cannot be undone.
+ */
+collectionsAPI.deleteCollection = async (id) => {
+  const endpoint = `${apiUrl}/api/collections/${id}`;
+
+  return await fetch(endpoint, {
+    ...fetchOptions,
+    method: 'DELETE',
+  });
+};
+
 export default collectionsAPI;
