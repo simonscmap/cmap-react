@@ -1,40 +1,35 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Box, Typography, CircularProgress } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 import useCollectionsStore from '../state/collectionsStore';
 import CollectionsTable from './CollectionsTable';
 import { PaginationController } from '../../../shared/pagination';
+import {
+  SearchProvider,
+  SearchInput,
+  useFilteredItems,
+} from '../../../shared/UniversalSearch';
+import { useSorting } from '../../../shared/sorting/state/useSorting';
+import SortDropdown from '../../../shared/sorting/components/SortDropdown';
 
 const useStyles = makeStyles((theme) => ({
   container: {
-    padding: theme.spacing(2),
+    padding: theme.spacing(3),
   },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  searchSection: {
     marginBottom: theme.spacing(3),
+    display: 'flex',
+    gap: theme.spacing(2),
+    alignItems: 'flex-start',
   },
-  searchField: {
-    minWidth: 300,
-    '& .MuiOutlinedInput-root': {
-      '& fieldset': {
-        borderColor: theme.palette.primary.main,
-      },
-      '&:hover fieldset': {
-        borderColor: theme.palette.primary.light,
-      },
-      '&.Mui-focused fieldset': {
-        borderColor: theme.palette.primary.main,
-      },
-    },
-    '& .MuiInputLabel-root': {
-      color: theme.palette.text.secondary,
-    },
-    '& .MuiInputBase-input': {
-      color: theme.palette.text.primary,
-    },
+  searchInput: {
+    flex: 1,
+  },
+  sortDropdown: {
+    display: 'flex',
+    alignItems: 'center',
+    height: '40px', // Match TextField height for 'small' size
   },
   loadingContainer: {
     display: 'flex',
@@ -51,38 +46,101 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+// Sort configuration
+const sortConfig = {
+  fields: [
+    {
+      key: 'popularity',
+      type: 'number',
+      label: 'Sort by Popularity',
+      path: 'downloads',
+    },
+    {
+      key: 'date',
+      type: 'date',
+      label: 'Sort by Date',
+      path: 'createdDate',
+    },
+    {
+      key: 'datasetCount',
+      type: 'number',
+      label: 'Sort by Dataset Count',
+      path: 'datasetCount',
+    },
+    {
+      key: 'name',
+      type: 'string',
+      label: 'Sort by Name',
+      path: 'name',
+    },
+  ],
+  defaultSort: {
+    field: 'name',
+    direction: 'asc',
+  },
+  uiPattern: 'dropdown-headers',
+};
+
+// Inner component that uses filtered items from UniversalSearch
+const PublicCollectionsContent = () => {
+  const classes = useStyles();
+  const filteredCollections = useFilteredItems();
+  const { activeSort, comparator, setSort } = useSorting(sortConfig);
+
+  // Sort the filtered collections
+  const sortedCollections = [...filteredCollections].sort(comparator);
+
+  return (
+    <>
+      <Box className={classes.searchSection}>
+        <Box className={classes.searchInput}>
+          <SearchInput
+            placeholder="Search collections by name, description, or creator..."
+            enableAutocomplete={true}
+            getOptionLabel={(collection) => collection.name || ''}
+            onSelect={(collection) => {
+              // Optional: handle collection selection from dropdown
+              console.log('Selected collection:', collection);
+            }}
+            controlsAlign="left"
+          />
+        </Box>
+        <Box className={classes.sortDropdown}>
+          <SortDropdown
+            fields={sortConfig.fields}
+            activeField={activeSort.field}
+            onFieldChange={setSort}
+            label=""
+          />
+        </Box>
+      </Box>
+
+      <PaginationController
+        data={sortedCollections}
+        itemsPerPage={6}
+        renderItem={(collection) => collection}
+        renderContainer={(items, pagination) => (
+          <>
+            <CollectionsTable collections={items} />
+            {pagination}
+          </>
+        )}
+        emptyComponent={
+          <Box className={classes.emptyState}>
+            <Typography variant="body1" color="textSecondary">
+              No public collections found
+            </Typography>
+          </Box>
+        }
+      />
+    </>
+  );
+};
+
 const PublicCollectionsTab = () => {
   const classes = useStyles();
-  const [localSearchQuery, setLocalSearchQuery] = useState('');
 
-  const {
-    publicCollections,
-    filteredPublicCollections,
-    isLoading,
-    error,
-    searchQuery,
-    setSearchQuery,
-  } = useCollectionsStore();
-
-  // Initialize local search with store value
-  useEffect(() => {
-    setLocalSearchQuery(searchQuery);
-  }, [searchQuery]);
-
-  // Debounce search input
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (localSearchQuery !== searchQuery) {
-        setSearchQuery(localSearchQuery);
-      }
-    }, 300);
-
-    return () => clearTimeout(timeoutId);
-  }, [localSearchQuery, searchQuery, setSearchQuery]);
-
-  const handleSearchChange = (event) => {
-    setLocalSearchQuery(event.target.value);
-  };
+  const { publicCollections, isLoading, error } = useCollectionsStore();
 
   if (isLoading) {
     return (
@@ -104,47 +162,12 @@ const PublicCollectionsTab = () => {
 
   return (
     <Box className={classes.container}>
-      <Box className={classes.header}>
-        {/* <Typography variant="h6" component="h2">
-          Public Collections
-        </Typography> */}
-        {/* <TextField
-          label="Search collections"
-          variant="outlined"
-          size="small"
-          value={localSearchQuery}
-          onChange={handleSearchChange}
-          className={classes.searchField}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-          }}
-        /> */}
-      </Box>
-
-      <PaginationController
-        data={filteredPublicCollections}
-        itemsPerPage={6}
-        renderItem={(collection) => collection}
-        renderContainer={(items, pagination) => (
-          <>
-            <CollectionsTable collections={items} />
-            {pagination}
-          </>
-        )}
-        emptyComponent={
-          <Box className={classes.emptyState}>
-            <Typography variant="body1" color="textSecondary">
-              {searchQuery
-                ? `No collections found matching "${searchQuery}"`
-                : 'No public collections available'}
-            </Typography>
-          </Box>
-        }
-      />
+      <SearchProvider
+        items={publicCollections}
+        searchKeys={['name', 'description', 'creatorName']}
+      >
+        <PublicCollectionsContent />
+      </SearchProvider>
     </Box>
   );
 };
