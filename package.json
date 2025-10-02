@@ -1,6 +1,6 @@
 {
   "name": "cmap_react",
-  "version": "1.28.0",
+  "version": "1.29.0",
   "private": true,
   "scripts": {
     "start": "export REACT_APP_ENABLE_SENTRY=false && npm run pre-build && react-scripts --max_old_space_size=4096 start",
@@ -24,6 +24,7 @@
     "@react-oauth/google": "^0.12.1",
     "@sentry/react": "^6.19.7",
     "@sentry/tracing": "^6.19.7",
+    "@testing-library/react": "^11.2.7",
     "ag-grid-community": "^22.0.0",
     "ag-grid-enterprise": "^22.0.0",
     "ag-grid-react": "^22.0.0",
@@ -87,6 +88,7 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "@testing-library/react-hooks": "^8.0.1",
     "cheerio": "^1.0.0-rc.12",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",
