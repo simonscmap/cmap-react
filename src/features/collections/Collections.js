@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { Grid, Typography, Tabs, Tab, Box, Button } from '@material-ui/core';
 import { Add } from '@material-ui/icons';
@@ -66,14 +67,15 @@ const TabPanel = ({ children, value, index, ...other }) => {
 const Collections = () => {
   const classes = useStyles();
   const [currentTab, setCurrentTab] = useState(0);
+  const user = useSelector((state) => state.user);
   const { fetchCollections } = useCollectionsStore();
 
-  // Fetch collections when component mounts
+  // Fetch collections when component mounts or when user authentication state changes
   // Backend automatically returns public collections for all users
   // and includes private collections if user is authenticated
   useEffect(() => {
     fetchCollections({ includeDatasets: false });
-  }, [fetchCollections]);
+  }, [user, fetchCollections]);
 
   const handleTabChange = (_, newValue) => {
     setCurrentTab(newValue);
