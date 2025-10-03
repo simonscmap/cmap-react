@@ -16,7 +16,7 @@ import {
 import { useSorting } from '../../../shared/sorting/state/useSorting';
 import SortDropdown from '../../../shared/sorting/components/SortDropdown';
 import FilterDropdown from '../components/FilterDropdown';
-import CollectionButton from '../components/CollectionButton';
+import CollectionButton from '../components/UniversalButton';
 
 const useStyles = makeStyles((theme) => ({
   container: {

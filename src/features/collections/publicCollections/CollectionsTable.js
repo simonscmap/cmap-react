@@ -14,7 +14,7 @@ import {
 } from '@material-ui/core';
 import { format, parseISO } from 'date-fns';
 import colors from '../../../enums/colors';
-import CollectionButton from '../components/CollectionButton';
+import CollectionButton from '../components/UniversalButton';
 
 const useStyles = makeStyles(() => ({
   tableContainer: {

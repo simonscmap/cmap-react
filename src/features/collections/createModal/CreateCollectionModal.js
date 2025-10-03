@@ -21,7 +21,7 @@ import PublicVisibilityWarning from './PublicVisibilityWarning';
 import { useCollectionForm } from './hooks/useCollectionForm';
 import { useCollectionFormValidation } from './hooks/useCollectionFormValidation';
 import { useCreateCollectionModalStyles } from './styles/createCollectionModalStyles';
-import CollectionButton from '../components/CollectionButton';
+import CollectionButton from '../components/UniversalButton';
 
 const CreateCollectionModal = () => {
   const classes = useCreateCollectionModalStyles();
