@@ -15,7 +15,7 @@ import {
 import colors from '../../../enums/colors';
 import MetadataRow from './MetadataRow';
 import DeleteButton from '../components/DeleteButton';
-import CollectionButton from '../components/UniversalButton';
+import CollectionButton from '../../../shared/components/UniversalButton';
 import useCollectionsStore from '../state/collectionsStore';
 
 const useStyles = makeStyles((theme) => ({

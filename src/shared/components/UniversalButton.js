@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import colors from '../../../enums/colors';
+import colors from '../../enums/colors';
 
 const useStyles = makeStyles((theme) => ({
   root: {

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { IconButton, Popover, Typography, Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { Delete as DeleteIcon } from '@material-ui/icons';
-import CollectionButton from './UniversalButton';
+import CollectionButton from '../../../shared/components/UniversalButton';
 
 const useStyles = makeStyles((theme) => ({
   deleteButton: {

@@ -7,7 +7,7 @@ import {
   DialogActions,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import CollectionButton from '../components/UniversalButton';
+import CollectionButton from '../../../shared/components/UniversalButton';
 
 const useStyles = makeStyles((theme) => ({
   dialogTitle: {
