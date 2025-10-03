@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Box, Grid, Typography } from '@material-ui/core';
+import { Box, Typography, Button } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { AccountCircle } from '@material-ui/icons';
 import { showLoginDialog } from '../../../Redux/actions/ui';
 import useCollectionsStore from '../state/collectionsStore';
 import CollectionCard from './CollectionCard';
@@ -70,6 +71,16 @@ const useStyles = makeStyles((theme) => ({
   },
   loginButton: {
     marginTop: theme.spacing(2),
+    borderColor: theme.palette.primary.main,
+    color: theme.palette.primary.main,
+    whiteSpace: 'nowrap',
+    flexShrink: 0,
+    borderRadius: '20px',
+    '&:hover': {
+      borderColor: theme.palette.primary.dark,
+      color: theme.palette.primary.dark,
+      backgroundColor: 'transparent',
+    },
   },
 }));
 
@@ -197,22 +208,16 @@ const MyCollectionsTab = () => {
             Please sign in to view and manage your personal collections.
           </Typography>
           <Box>
-            <button
-              className={classes.loginButton}
+            <Button
+              variant="outlined"
               onClick={handleLoginClick}
-              style={{
-                padding: '12px 24px',
-                backgroundColor: '#1976d2',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: '500',
-              }}
+              className={classes.loginButton}
+              startIcon={<AccountCircle />}
+              disableRipple
+              disableFocusRipple
             >
               Sign In
-            </button>
+            </Button>
           </Box>
         </Box>
       </Box>
