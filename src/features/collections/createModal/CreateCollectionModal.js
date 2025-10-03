@@ -141,7 +141,7 @@ const CreateCollectionModal = () => {
 
     try {
       const requestData = {
-        collection_name: name,
+        collection_name: name.trim(),
         description: description || undefined,
         private: !isPublic,
         datasets: [],
