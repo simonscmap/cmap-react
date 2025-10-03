@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Card,
   CardContent,
@@ -17,6 +17,7 @@ import MetadataRow from './MetadataRow';
 import DeleteButton from '../components/DeleteButton';
 import CollectionButton from '../../../shared/components/UniversalButton';
 import useCollectionsStore from '../state/collectionsStore';
+import CollectionDownloadModal from './CollectionDownloadModal';
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -106,6 +107,7 @@ const CollectionCard = ({ collection }) => {
   const deleteCollection = useCollectionsStore(
     (state) => state.deleteCollection,
   );
+  const [downloadModalOpen, setDownloadModalOpen] = useState(false);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -128,8 +130,11 @@ const CollectionCard = ({ collection }) => {
   };
 
   const handleDownload = () => {
-    // TODO: Implement download functionality
-    console.log('Download collection:', collection.id);
+    setDownloadModalOpen(true);
+  };
+
+  const handleCloseDownloadModal = () => {
+    setDownloadModalOpen(false);
   };
 
   const handleDelete = async () => {
@@ -205,11 +210,18 @@ const CollectionCard = ({ collection }) => {
             variant="primary"
             size="medium"
             onClick={handleDownload}
+            disabled={!collection.datasetCount || collection.datasetCount === 0}
           >
             DOWNLOAD
           </CollectionButton>
         </Box>
       </CardActions>
+
+      <CollectionDownloadModal
+        open={downloadModalOpen}
+        onClose={handleCloseDownloadModal}
+        collection={collection}
+      />
     </Card>
   );
 };

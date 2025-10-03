@@ -44,7 +44,10 @@ import { SpinnerWrapper } from '../../../Components/UI/Spinner';
  * The component automatically computes aggregate bounds across all datasets for filtering
  * and initializes internal Zustand stores for state management.
  */
-const MultiDatasetDownloadContainerInner = ({ aggregateDatasetMetadata }) => {
+const MultiDatasetDownloadContainerInner = ({
+  aggregateDatasetMetadata,
+  onDownloadComplete,
+}) => {
   const { resetStore, getSelectedIds } = useMultiDatasetDownloadStore();
   const { fetchRowCountsForSelected, cancelPendingRequests } =
     useRowCountStore();
@@ -144,6 +147,7 @@ const MultiDatasetDownloadContainerInner = ({ aggregateDatasetMetadata }) => {
             datasetFilterBounds,
             dateHandling,
           }}
+          onDownloadComplete={onDownloadComplete}
         />
       </Box>
     </Box>
@@ -151,7 +155,7 @@ const MultiDatasetDownloadContainerInner = ({ aggregateDatasetMetadata }) => {
 };
 
 const MultiDatasetDownloadContainer = React.memo(
-  ({ datasetShortNames }) => {
+  ({ datasetShortNames, onDownloadComplete }) => {
     const { datasetsMetadata, fetchDatasetsMetadata, isLoading } =
       useMultiDatasetDownloadStore();
 
@@ -178,6 +182,7 @@ const MultiDatasetDownloadContainer = React.memo(
       <SearchProvider items={datasetsMetadata} searchKeys={['Dataset_Name']}>
         <MultiDatasetDownloadContainerInner
           aggregateDatasetMetadata={aggregateMetadata}
+          onDownloadComplete={onDownloadComplete}
         />
       </SearchProvider>
     );
