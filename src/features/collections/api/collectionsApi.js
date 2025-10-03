@@ -1,4 +1,4 @@
-import { apiUrl, fetchOptions } from '../../../api/config';
+import { apiUrl, fetchOptions, postOptions } from '../../../api/config';
 
 /**
  * @typedef {Object} CollectionDataset
@@ -84,6 +84,28 @@ collectionsAPI.getCollectionById = async (id, params = {}) => {
 };
 
 /**
+ * Create a new collection with optional datasets
+ * @param {Object} data - Collection creation data
+ * @param {string} data.collection_name - Collection name (required, 1-200 characters)
+ * @param {string} [data.description] - Collection description (optional, 0-500 characters)
+ * @param {boolean} [data.private=true] - Whether collection is private (default true)
+ * @param {string[]} [data.datasets] - Array of dataset short names to add to collection
+ * @returns {Promise<Response>} Object with collection_id and invalid_dataset_count
+ * @throws {Error} 401: Unauthorized, 500: Server error
+ * @description Creates a new collection. Invalid dataset names are skipped, not rejected.
+ * The invalid_dataset_count indicates how many dataset names didn't exist.
+ */
+collectionsAPI.createCollection = async (data) => {
+  const endpoint = `${apiUrl}/api/collections`;
+
+  return await fetch(endpoint, {
+    ...postOptions,
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+};
+
+/**
  * Delete a collection and all associated datasets
  * @param {number} id - Collection ID (positive integer)
  * @returns {Promise<Response>} Empty response on success (204 No Content)
@@ -98,6 +120,22 @@ collectionsAPI.deleteCollection = async (id) => {
     ...fetchOptions,
     method: 'DELETE',
   });
+};
+
+/**
+ * Verify if a collection name is available for the authenticated user
+ * @param {string} name - Collection name to verify (required)
+ * @returns {Promise<Response>} Object with name and isAvailable boolean
+ * @throws {Error} 401: Unauthorized, 500: Server error
+ * @description Checks if the given name is available for the current user.
+ * Returns true if name is available (not used by this user).
+ * Name availability is scoped per user (same name can exist across different users).
+ */
+collectionsAPI.verifyCollectionName = async (name) => {
+  const searchParams = new URLSearchParams({ name });
+  const endpoint = `${apiUrl}/api/collections/verify-name?${searchParams.toString()}`;
+
+  return await fetch(endpoint, fetchOptions);
 };
 
 export default collectionsAPI;

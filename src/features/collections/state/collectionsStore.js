@@ -125,6 +125,31 @@ const useCollectionsStore = create((set, get) => ({
     });
   },
 
+  createCollection: async (data) => {
+    set({ isLoading: true, error: null });
+
+    try {
+      const response = await collectionsAPI.createCollection(data);
+
+      if (response.status === 201) {
+        const result = await response.json();
+        // Refetch collections to get the updated list with the new collection
+        await get().fetchCollections({ includeDatasets: false });
+        return result;
+      } else if (response.status === 401) {
+        throw new Error('You must be logged in to create collections');
+      } else {
+        throw new Error('Failed to create collection. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error creating collection:', error);
+      set({ error: error.message });
+      throw error;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
   deleteCollection: async (collectionId) => {
     set({ isLoading: true, error: null });
 
@@ -178,6 +203,22 @@ const useCollectionsStore = create((set, get) => ({
       throw error;
     } finally {
       set({ isLoading: false });
+    }
+  },
+
+  verifyCollectionName: async (name) => {
+    try {
+      const response = await collectionsAPI.verifyCollectionName(name);
+
+      if (response.ok) {
+        const data = await response.json();
+        return data.isAvailable;
+      } else {
+        throw new Error('Failed to verify collection name');
+      }
+    } catch (error) {
+      console.error('Error verifying collection name:', error);
+      throw error;
     }
   },
 
