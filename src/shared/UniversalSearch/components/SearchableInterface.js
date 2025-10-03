@@ -48,8 +48,6 @@ const useStyles = makeStyles((theme) => ({
 
 // Internal SearchableInterface implementation (wrapped by SearchProvider)
 const SearchableInterfaceInner = ({
-  items,
-  searchKeys,
   renderItem,
   displayName = 'Items',
   threshold = 25,
