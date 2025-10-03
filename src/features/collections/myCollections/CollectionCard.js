@@ -6,7 +6,6 @@ import {
   Typography,
   Chip,
   Box,
-  Button,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import {
@@ -16,6 +15,7 @@ import {
 import colors from '../../../enums/colors';
 import MetadataRow from './MetadataRow';
 import DeleteButton from '../components/DeleteButton';
+import CollectionButton from '../../../shared/components/UniversalButton';
 import useCollectionsStore from '../state/collectionsStore';
 
 const useStyles = makeStyles((theme) => ({
@@ -48,42 +48,6 @@ const useStyles = makeStyles((theme) => ({
   buttonGroup: {
     display: 'flex',
     gap: theme.spacing(0.5),
-  },
-  editButton: {
-    color: '#9e9e9e',
-    border: '1px solid #9e9e9e',
-    '&:hover': {
-      border: '1px solid #9e9e9e',
-      backgroundColor: 'rgba(158, 158, 158, 0.1)',
-    },
-    borderRadius: '20px',
-    boxSizing: 'border-box',
-    padding: '4px 12px',
-    fontSize: '12px',
-    fontWeight: 500,
-    lineHeight: 1,
-    textTransform: 'none',
-    minWidth: 'auto',
-    width: 'fit-content',
-    height: '28px',
-  },
-  downloadButton: {
-    color: colors.primary,
-    border: `1px solid ${colors.primary}`,
-    '&:hover': {
-      border: `1px solid ${colors.primary}`,
-      backgroundColor: colors.greenHover,
-    },
-    borderRadius: '20px',
-    boxSizing: 'border-box',
-    padding: '4px 12px',
-    fontSize: '12px',
-    fontWeight: 500,
-    lineHeight: 1,
-    textTransform: 'none',
-    minWidth: 'auto',
-    width: 'fit-content',
-    height: '28px',
   },
   titleRow: {
     display: 'flex',
@@ -230,22 +194,20 @@ const CollectionCard = ({ collection }) => {
           )}
         </Box>
         <Box className={classes.buttonGroup}>
-          <Button
+          <CollectionButton
+            variant="secondary"
             size="medium"
-            variant="outlined"
-            className={classes.editButton}
             onClick={handleEdit}
           >
-            Edit
-          </Button>
-          <Button
+            EDIT
+          </CollectionButton>
+          <CollectionButton
+            variant="primary"
             size="medium"
-            variant="outlined"
-            className={classes.downloadButton}
             onClick={handleDownload}
           >
-            Download
-          </Button>
+            DOWNLOAD
+          </CollectionButton>
         </Box>
       </CardActions>
     </Card>

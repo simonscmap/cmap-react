@@ -10,11 +10,11 @@ import {
   Paper,
   Typography,
   Box,
-  Button,
   Tooltip,
 } from '@material-ui/core';
 import { format, parseISO } from 'date-fns';
 import colors from '../../../enums/colors';
+import CollectionButton from '../../../shared/components/UniversalButton';
 
 const useStyles = makeStyles(() => ({
   tableContainer: {
@@ -87,43 +87,6 @@ const useStyles = makeStyles(() => ({
     color: '#ffffff',
     padding: '5px',
     border: 0,
-  },
-  previewButton: {
-    color: '#9e9e9e',
-    border: '1px solid #9e9e9e',
-    '&:hover': {
-      border: '1px solid #9e9e9e',
-      backgroundColor: 'rgba(158, 158, 158, 0.1)',
-    },
-    borderRadius: '20px',
-    boxSizing: 'border-box',
-    padding: '4px 12px',
-    fontSize: '12px',
-    fontWeight: 500,
-    lineHeight: 1,
-    textTransform: 'none',
-    minWidth: 'auto',
-    width: 'fit-content',
-    height: '28px',
-    marginRight: '8px',
-  },
-  copyButton: {
-    color: colors.primary,
-    border: `1px solid ${colors.primary}`,
-    '&:hover': {
-      border: `1px solid ${colors.primary}`,
-      backgroundColor: colors.greenHover,
-    },
-    borderRadius: '20px',
-    boxSizing: 'border-box',
-    padding: '4px 12px',
-    fontSize: '12px',
-    fontWeight: 500,
-    lineHeight: 1,
-    textTransform: 'none',
-    minWidth: 'auto',
-    width: 'fit-content',
-    height: '28px',
   },
   tooltip: {
     zIndex: '9901 !important',
@@ -333,21 +296,13 @@ const CollectionsTable = ({ collections = [] }) => {
                     </Typography>
                   </TableCell>
                   <TableCell className={classes.statsCell}>
-                    <Box display="flex">
-                      <Button
-                        variant="outlined"
-                        size="medium"
-                        className={classes.previewButton}
-                      >
+                    <Box display="flex" gap={1}>
+                      <CollectionButton variant="secondary" size="medium">
                         Preview
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        size="medium"
-                        className={classes.copyButton}
-                      >
+                      </CollectionButton>
+                      <CollectionButton variant="primary" size="medium">
                         Copy
-                      </Button>
+                      </CollectionButton>
                     </Box>
                   </TableCell>
                 </TableRow>

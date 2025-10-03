@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Box, Typography, Button } from '@material-ui/core';
+import { Box, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { AccountCircle } from '@material-ui/icons';
 import { showLoginDialog } from '../../../Redux/actions/ui';
@@ -16,6 +16,7 @@ import {
 import { useSorting } from '../../../shared/sorting/state/useSorting';
 import SortDropdown from '../../../shared/sorting/components/SortDropdown';
 import FilterDropdown from '../components/FilterDropdown';
+import CollectionButton from '../../../shared/components/UniversalButton';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -68,19 +69,6 @@ const useStyles = makeStyles((theme) => ({
   loginPrompt: {
     textAlign: 'center',
     padding: theme.spacing(4),
-  },
-  loginButton: {
-    marginTop: theme.spacing(2),
-    borderColor: theme.palette.primary.main,
-    color: theme.palette.primary.main,
-    whiteSpace: 'nowrap',
-    flexShrink: 0,
-    borderRadius: '20px',
-    '&:hover': {
-      borderColor: theme.palette.primary.dark,
-      color: theme.palette.primary.dark,
-      backgroundColor: 'transparent',
-    },
   },
 }));
 
@@ -208,16 +196,14 @@ const MyCollectionsTab = () => {
             Please sign in to view and manage your personal collections.
           </Typography>
           <Box>
-            <Button
-              variant="outlined"
+            <CollectionButton
+              variant="primary"
+              size="medium"
               onClick={handleLoginClick}
-              className={classes.loginButton}
               startIcon={<AccountCircle />}
-              disableRipple
-              disableFocusRipple
             >
               Sign In
-            </Button>
+            </CollectionButton>
           </Box>
         </Box>
       </Box>

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  Button,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -22,6 +21,7 @@ import PublicVisibilityWarning from './PublicVisibilityWarning';
 import { useCollectionForm } from './hooks/useCollectionForm';
 import { useCollectionFormValidation } from './hooks/useCollectionFormValidation';
 import { useCreateCollectionModalStyles } from './styles/createCollectionModalStyles';
+import CollectionButton from '../../../shared/components/UniversalButton';
 
 const CreateCollectionModal = () => {
   const classes = useCreateCollectionModalStyles();
@@ -178,17 +178,15 @@ const CreateCollectionModal = () => {
 
   return (
     <>
-      <Button
+      <CollectionButton
         ref={triggerButtonRef}
-        variant="outlined"
+        variant="primary"
+        size="large"
         onClick={handleOpen}
-        className={classes.triggerButton}
         startIcon={<Add />}
-        disableRipple
-        disableFocusRipple
       >
-        Create New Collection
-      </Button>
+        CREATE NEW COLLECTION
+      </CollectionButton>
 
       <Dialog
         open={open}
@@ -344,27 +342,29 @@ const CreateCollectionModal = () => {
         </DialogContent>
 
         <DialogActions className={classes.dialogActions}>
-          <Button onClick={handleCancel} color="default">
+          <CollectionButton
+            onClick={handleCancel}
+            variant="default"
+            size="medium"
+          >
             Cancel
-          </Button>
-          <Button
+          </CollectionButton>
+          <CollectionButton
             onClick={handleSubmit}
-            color="primary"
-            variant="contained"
-            className={classes.actionButton}
+            variant="primary"
+            size="medium"
             disabled={!canSubmit}
           >
             {isSubmitting ? 'Creating...' : 'Create Empty Collection'}
-          </Button>
-          <Button
+          </CollectionButton>
+          <CollectionButton
             onClick={handleSubmit}
-            color="primary"
-            variant="contained"
-            className={classes.actionButton}
+            variant="primary"
+            size="medium"
             disabled
           >
             Create & Add Datasets
-          </Button>
+          </CollectionButton>
         </DialogActions>
       </Dialog>
 

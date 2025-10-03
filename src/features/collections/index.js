@@ -13,6 +13,3 @@ export * from './myCollections';
 
 // Public Collections domain
 export * from './publicCollections';
-
-// Shared components (if any)
-export * from './shared';
