@@ -1,20 +1,16 @@
 import React, { useState } from 'react';
-import {
-  IconButton,
-  Popover,
-  Typography,
-  Box,
-  Button,
-} from '@material-ui/core';
+import { IconButton, Popover, Typography, Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { Delete as DeleteIcon } from '@material-ui/icons';
+import CollectionButton from '../../../shared/components/UniversalButton';
 
 const useStyles = makeStyles((theme) => ({
   deleteButton: {
-    color: '#d32f2f',
+    color: 'rgba(255, 255, 255, 0.4)',
     padding: theme.spacing(0.5),
     marginLeft: -theme.spacing(0.8),
     '&:hover': {
+      color: '#d32f2f',
       backgroundColor: 'rgba(211, 47, 47, 0.1)',
     },
   },
@@ -35,16 +31,6 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     justifyContent: 'flex-end',
     gap: theme.spacing(1),
-  },
-  cancelButton: {
-    color: '#9e9e9e',
-  },
-  confirmDeleteButton: {
-    color: '#fff',
-    backgroundColor: '#d32f2f',
-    '&:hover': {
-      backgroundColor: '#b71c1c',
-    },
   },
 }));
 
@@ -99,19 +85,20 @@ const DeleteButton = ({ title, message, onDelete }) => {
             {message}
           </Typography>
           <Box className={classes.popoverActions}>
-            <Button
+            <CollectionButton
               onClick={handleDeleteCancel}
-              className={classes.cancelButton}
+              variant="default"
+              size="medium"
             >
-              Cancel
-            </Button>
-            <Button
+              CANCEL
+            </CollectionButton>
+            <CollectionButton
               onClick={handleDeleteConfirm}
-              className={classes.confirmDeleteButton}
-              variant="contained"
+              variant="danger"
+              size="medium"
             >
-              Delete
-            </Button>
+              DELETE
+            </CollectionButton>
           </Box>
         </Box>
       </Popover>

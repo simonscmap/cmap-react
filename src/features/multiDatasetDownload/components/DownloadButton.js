@@ -1,9 +1,10 @@
 import React from 'react';
-import { Button, CircularProgress, Box } from '@material-ui/core';
+import { CircularProgress, Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector, useDispatch } from 'react-redux';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+import UniversalButton from '../../../shared/components/UniversalButton';
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
 import useRowCountStore from '../stores/useRowCountStore';
 import { showLoginDialog, snackbarOpen } from '../../../Redux/actions/ui';
@@ -12,22 +13,10 @@ const useStyles = makeStyles((theme) => ({
   downloadButton: {
     marginTop: theme.spacing(2),
     minWidth: 200,
-    height: 48,
-    '&.Mui-disabled': {
-      color: '#ccc',
-    },
-  },
-  buttonContent: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(1),
-  },
-  spinner: {
-    size: 20,
   },
 }));
 
-const DownloadButton = ({ subsetFiltering }) => {
+const DownloadButton = ({ subsetFiltering, onDownloadComplete }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const { selectedDatasets, isDownloading, downloadDatasets } =
@@ -56,11 +45,19 @@ const DownloadButton = ({ subsetFiltering }) => {
 
     try {
       await downloadDatasets(subsetFiltering);
+      // Call callback on successful download
+      if (onDownloadComplete) {
+        onDownloadComplete({ success: true });
+      }
     } catch (error) {
       if (error.status === 413) {
         dispatch(snackbarOpen(error.message));
       } else {
         console.error('Download failed:', error);
+      }
+      // Call callback on failed download
+      if (onDownloadComplete) {
+        onDownloadComplete({ success: false, error });
       }
     }
   };
@@ -88,19 +85,15 @@ const DownloadButton = ({ subsetFiltering }) => {
 
   return (
     <Box display="flex" justifyContent="center" mt={2}>
-      <Button
-        variant="contained"
-        color="primary"
+      <UniversalButton
+        variant="containedPrimary"
+        size="xlarge"
         className={classes.downloadButton}
         disabled={isDisabled && Boolean(user)}
         onClick={handleDownload}
         startIcon={
           isDownloading ? (
-            <CircularProgress
-              className={classes.spinner}
-              size={20}
-              color="inherit"
-            />
+            <CircularProgress size={20} color="inherit" />
           ) : !user ? (
             <AccountCircleIcon />
           ) : (
@@ -108,8 +101,8 @@ const DownloadButton = ({ subsetFiltering }) => {
           )
         }
       >
-        <span className={classes.buttonContent}>{getButtonText()}</span>
-      </Button>
+        {getButtonText()}
+      </UniversalButton>
     </Box>
   );
 };

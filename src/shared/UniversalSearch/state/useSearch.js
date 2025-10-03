@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useRef } from 'react';
 import { createStore, useStore } from 'zustand';
 import { performSearch } from '../utils/searchEngines';
+import { SEARCH_CONFIG } from '../constants/searchConstants';
 
 // Factory function creates store instances with props
 const createSearchStore = (initProps) =>
@@ -21,6 +22,17 @@ const createSearchStore = (initProps) =>
         if (!query || query.trim() === '') {
           set({
             searchQuery: '',
+            filteredItems: items,
+            isActive: false,
+            resultCount: items.length,
+          });
+          return;
+        }
+
+        // Check activation threshold - don't execute search below threshold
+        if (query.trim().length < SEARCH_CONFIG.ACTIVATION_THRESHOLD) {
+          set({
+            searchQuery: query,
             filteredItems: items,
             isActive: false,
             resultCount: items.length,

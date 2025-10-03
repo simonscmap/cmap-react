@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Card,
   CardContent,
@@ -6,7 +6,6 @@ import {
   Typography,
   Chip,
   Box,
-  Button,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import {
@@ -16,7 +15,9 @@ import {
 import colors from '../../../enums/colors';
 import MetadataRow from './MetadataRow';
 import DeleteButton from '../components/DeleteButton';
+import CollectionButton from '../../../shared/components/UniversalButton';
 import useCollectionsStore from '../state/collectionsStore';
+import CollectionDownloadModal from './CollectionDownloadModal';
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -48,42 +49,6 @@ const useStyles = makeStyles((theme) => ({
   buttonGroup: {
     display: 'flex',
     gap: theme.spacing(0.5),
-  },
-  editButton: {
-    color: '#9e9e9e',
-    border: '1px solid #9e9e9e',
-    '&:hover': {
-      border: '1px solid #9e9e9e',
-      backgroundColor: 'rgba(158, 158, 158, 0.1)',
-    },
-    borderRadius: '20px',
-    boxSizing: 'border-box',
-    padding: '4px 12px',
-    fontSize: '12px',
-    fontWeight: 500,
-    lineHeight: 1,
-    textTransform: 'none',
-    minWidth: 'auto',
-    width: 'fit-content',
-    height: '28px',
-  },
-  downloadButton: {
-    color: colors.primary,
-    border: `1px solid ${colors.primary}`,
-    '&:hover': {
-      border: `1px solid ${colors.primary}`,
-      backgroundColor: colors.greenHover,
-    },
-    borderRadius: '20px',
-    boxSizing: 'border-box',
-    padding: '4px 12px',
-    fontSize: '12px',
-    fontWeight: 500,
-    lineHeight: 1,
-    textTransform: 'none',
-    minWidth: 'auto',
-    width: 'fit-content',
-    height: '28px',
   },
   titleRow: {
     display: 'flex',
@@ -142,6 +107,7 @@ const CollectionCard = ({ collection }) => {
   const deleteCollection = useCollectionsStore(
     (state) => state.deleteCollection,
   );
+  const [downloadModalOpen, setDownloadModalOpen] = useState(false);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -164,8 +130,11 @@ const CollectionCard = ({ collection }) => {
   };
 
   const handleDownload = () => {
-    // TODO: Implement download functionality
-    console.log('Download collection:', collection.id);
+    setDownloadModalOpen(true);
+  };
+
+  const handleCloseDownloadModal = () => {
+    setDownloadModalOpen(false);
   };
 
   const handleDelete = async () => {
@@ -230,24 +199,29 @@ const CollectionCard = ({ collection }) => {
           )}
         </Box>
         <Box className={classes.buttonGroup}>
-          <Button
+          <CollectionButton
+            variant="secondary"
             size="medium"
-            variant="outlined"
-            className={classes.editButton}
             onClick={handleEdit}
           >
-            Edit
-          </Button>
-          <Button
+            EDIT
+          </CollectionButton>
+          <CollectionButton
+            variant="primary"
             size="medium"
-            variant="outlined"
-            className={classes.downloadButton}
             onClick={handleDownload}
+            disabled={!collection.datasetCount || collection.datasetCount === 0}
           >
-            Download
-          </Button>
+            DOWNLOAD
+          </CollectionButton>
         </Box>
       </CardActions>
+
+      <CollectionDownloadModal
+        open={downloadModalOpen}
+        onClose={handleCloseDownloadModal}
+        collection={collection}
+      />
     </Card>
   );
 };
