@@ -345,25 +345,25 @@ const CreateCollectionModal = () => {
           <CollectionButton
             onClick={handleCancel}
             variant="default"
-            size="medium"
+            size="large"
           >
-            Cancel
+            CANCEL
           </CollectionButton>
           <CollectionButton
             onClick={handleSubmit}
             variant="primary"
-            size="medium"
+            size="large"
             disabled={!canSubmit}
           >
-            {isSubmitting ? 'Creating...' : 'Create Empty Collection'}
+            {isSubmitting ? 'CREATING...' : 'CREATE EMPTY COLLECTION'}
           </CollectionButton>
           <CollectionButton
             onClick={handleSubmit}
             variant="primary"
-            size="medium"
+            size="large"
             disabled
           >
-            Create & Add Datasets
+            CREATE & ADD DATASETS
           </CollectionButton>
         </DialogActions>
       </Dialog>

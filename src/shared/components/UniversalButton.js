@@ -6,7 +6,7 @@ import colors from '../../enums/colors';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    borderRadius: '20px',
+    borderRadius: '24px',
     textTransform: 'none',
     fontWeight: 500,
     lineHeight: 1,
@@ -31,6 +31,11 @@ const useStyles = makeStyles((theme) => ({
     padding: '6px 16px',
     fontSize: '14px',
   },
+  sizeXlarge: {
+    height: '48px',
+    padding: '8px 20px',
+    fontSize: '16px',
+  },
 
   // Variant styles
   primary: {
@@ -39,6 +44,10 @@ const useStyles = makeStyles((theme) => ({
     '&:hover': {
       border: `1px solid ${colors.primary}`,
       backgroundColor: colors.greenHover,
+    },
+    '&.Mui-disabled': {
+      color: 'rgba(105, 255, 242, 0.2)',
+      border: '1px solid rgba(105, 255, 242, 0.2)',
     },
   },
   secondary: {
@@ -56,6 +65,17 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: '#b71c1c',
     },
   },
+  containedPrimary: {
+    color: '#000',
+    backgroundColor: colors.primary,
+    '&:hover': {
+      backgroundColor: colors.greenHover,
+    },
+    '&.Mui-disabled': {
+      color: '#ccc',
+      backgroundColor: 'rgba(157, 209, 98, 0.3)',
+    },
+  },
   // default variant uses Material-UI defaults
 }));
 
@@ -68,6 +88,7 @@ const CollectionButton = ({
   endIcon,
   children,
   fullWidth = false,
+  className,
   ...otherProps
 }) => {
   const classes = useStyles();
@@ -79,9 +100,9 @@ const CollectionButton = ({
 
   return (
     <Button
-      className={`${classes.root} ${variantClass} ${sizeClass}`}
+      className={`${classes.root} ${variantClass} ${sizeClass} ${className || ''}`}
       variant={
-        variant === 'danger'
+        variant === 'danger' || variant === 'containedPrimary'
           ? 'contained'
           : variant === 'default'
             ? 'text'
@@ -100,14 +121,21 @@ const CollectionButton = ({
 };
 
 CollectionButton.propTypes = {
-  variant: PropTypes.oneOf(['primary', 'secondary', 'danger', 'default']),
-  size: PropTypes.oneOf(['small', 'medium', 'large']),
+  variant: PropTypes.oneOf([
+    'primary',
+    'secondary',
+    'danger',
+    'containedPrimary',
+    'default',
+  ]),
+  size: PropTypes.oneOf(['small', 'medium', 'large', 'xlarge']),
   onClick: PropTypes.func,
   disabled: PropTypes.bool,
   startIcon: PropTypes.node,
   endIcon: PropTypes.node,
   children: PropTypes.node.isRequired,
   fullWidth: PropTypes.bool,
+  className: PropTypes.string,
 };
 
 export default CollectionButton;

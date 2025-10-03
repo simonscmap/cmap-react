@@ -62,7 +62,7 @@ const Collections = () => {
   // Backend automatically returns public collections for all users
   // and includes private collections if user is authenticated
   useEffect(() => {
-    fetchCollections({ includeDatasets: false });
+    fetchCollections({ includeDatasets: true });
   }, [user, fetchCollections]);
 
   const handleTabChange = (_, newValue) => {
