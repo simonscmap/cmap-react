@@ -5,9 +5,9 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
-  Button,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import CollectionButton from '../components/CollectionButton';
 
 const useStyles = makeStyles((theme) => ({
   dialogTitle: {
@@ -66,14 +66,14 @@ const PublicVisibilityWarning = ({ open, onKeepPrivate, onMakePublic }) => {
         </DialogContentText>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
-        <Button
+        <CollectionButton
           onClick={onMakePublic}
-          color="primary"
-          variant="contained"
+          variant="primary"
+          size="medium"
           autoFocus
         >
           OK
-        </Button>
+        </CollectionButton>
       </DialogActions>
     </Dialog>
   );
