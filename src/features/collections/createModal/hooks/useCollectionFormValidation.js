@@ -73,7 +73,7 @@ export const useCollectionFormValidation = (
     setNameValidationState('checking');
     setNameErrorMessage('');
     if (debouncedVerifyRef.current) {
-      debouncedVerifyRef.current(name);
+      debouncedVerifyRef.current(name.trim());
     }
   }, [name]);
 
