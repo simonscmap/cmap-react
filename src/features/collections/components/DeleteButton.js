@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { IconButton, Popover, Typography, Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { Delete as DeleteIcon } from '@material-ui/icons';
-import CollectionButton from '../../../shared/components/UniversalButton';
+import UniversalButton from '../../../shared/components/UniversalButton';
 
 const useStyles = makeStyles((theme) => ({
   deleteButton: {
@@ -47,11 +47,13 @@ const DeleteButton = ({ title, message, onDelete }) => {
   };
 
   const handleDeleteConfirm = async () => {
+    // Close popover immediately before delete starts
+    setDeleteAnchor(null);
+
     try {
       await onDelete();
-      setDeleteAnchor(null);
     } catch (error) {
-      setDeleteAnchor(null);
+      // Error is already handled by parent component
     }
   };
 
@@ -85,20 +87,20 @@ const DeleteButton = ({ title, message, onDelete }) => {
             {message}
           </Typography>
           <Box className={classes.popoverActions}>
-            <CollectionButton
+            <UniversalButton
               onClick={handleDeleteCancel}
               variant="default"
               size="medium"
             >
               CANCEL
-            </CollectionButton>
-            <CollectionButton
+            </UniversalButton>
+            <UniversalButton
               onClick={handleDeleteConfirm}
               variant="danger"
               size="medium"
             >
               DELETE
-            </CollectionButton>
+            </UniversalButton>
           </Box>
         </Box>
       </Popover>
