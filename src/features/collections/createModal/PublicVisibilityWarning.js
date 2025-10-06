@@ -7,7 +7,7 @@ import {
   DialogActions,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import CollectionButton from '../../../shared/components/UniversalButton';
+import UniversalButton from '../../../shared/components/UniversalButton';
 
 const useStyles = makeStyles((theme) => ({
   dialogTitle: {
@@ -66,14 +66,14 @@ const PublicVisibilityWarning = ({ open, onKeepPrivate, onMakePublic }) => {
         </DialogContentText>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
-        <CollectionButton
+        <UniversalButton
           onClick={onMakePublic}
           variant="primary"
           size="medium"
           autoFocus
         >
           OK
-        </CollectionButton>
+        </UniversalButton>
       </DialogActions>
     </Dialog>
   );

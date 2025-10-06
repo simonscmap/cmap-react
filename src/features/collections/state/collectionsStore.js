@@ -22,8 +22,124 @@ const useCollectionsStore = create((set, get) => ({
     totalDatasets: 0,
   },
 
+  // Pending deletion state
+  pendingDeletions: new Set(),
+
   // Actions
   setLoading: (loading) => set({ isLoading: loading }),
+
+  // Pending deletion actions
+  setPendingDeletion: (collectionId) => {
+    const { pendingDeletions } = get();
+    const newPendingDeletions = new Set(pendingDeletions);
+    newPendingDeletions.add(collectionId);
+    set({ pendingDeletions: newPendingDeletions });
+  },
+
+  removePendingDeletion: (collectionId) => {
+    const { pendingDeletions } = get();
+    const newPendingDeletions = new Set(pendingDeletions);
+    newPendingDeletions.delete(collectionId);
+    set({ pendingDeletions: newPendingDeletions });
+  },
+
+  // Optimistic collection actions
+  addOptimisticCollection: (optimisticCollection) => {
+    const { userCollections, searchQuery, visibilityFilter } = get();
+
+    // Add optimistic collection to userCollections
+    const updatedUserCollections = [...userCollections, optimisticCollection];
+
+    // Update filtered collections
+    const filteredCollections = get().applyFilters(
+      updatedUserCollections,
+      searchQuery,
+      visibilityFilter,
+    );
+
+    // Recalculate statistics
+    const statistics = get().calculateStatistics(updatedUserCollections);
+
+    set({
+      userCollections: updatedUserCollections,
+      filteredUserCollections: filteredCollections,
+      statistics,
+    });
+  },
+
+  replaceOptimisticCollection: (optimisticId, serverCollection) => {
+    const {
+      userCollections,
+      publicCollections,
+      searchQuery,
+      visibilityFilter,
+    } = get();
+
+    // Replace optimistic collection with server data in userCollections
+    const updatedUserCollections = userCollections.map((collection) =>
+      collection.id === optimisticId ? serverCollection : collection,
+    );
+
+    // If collection is public, also add/update in publicCollections
+    let updatedPublicCollections = publicCollections;
+    if (serverCollection.isPublic) {
+      // Check if already exists in publicCollections (shouldn't, but be safe)
+      const existsInPublic = publicCollections.some(
+        (c) => c.id === serverCollection.id,
+      );
+      if (!existsInPublic) {
+        updatedPublicCollections = [...publicCollections, serverCollection];
+      }
+    }
+
+    // Update filtered collections
+    const filteredUserCollections = get().applyFilters(
+      updatedUserCollections,
+      searchQuery,
+      visibilityFilter,
+    );
+    const filteredPublicCollections = get().applyFilters(
+      updatedPublicCollections,
+      searchQuery,
+      'all',
+    );
+
+    // Recalculate statistics
+    const statistics = get().calculateStatistics(updatedUserCollections);
+
+    set({
+      userCollections: updatedUserCollections,
+      publicCollections: updatedPublicCollections,
+      filteredUserCollections,
+      filteredPublicCollections,
+      statistics,
+    });
+  },
+
+  removeOptimisticCollection: (optimisticId) => {
+    const { userCollections, searchQuery, visibilityFilter } = get();
+
+    // Remove optimistic collection from userCollections
+    const updatedUserCollections = userCollections.filter(
+      (collection) => collection.id !== optimisticId,
+    );
+
+    // Update filtered collections
+    const filteredCollections = get().applyFilters(
+      updatedUserCollections,
+      searchQuery,
+      visibilityFilter,
+    );
+
+    // Recalculate statistics
+    const statistics = get().calculateStatistics(updatedUserCollections);
+
+    set({
+      userCollections: updatedUserCollections,
+      filteredUserCollections: filteredCollections,
+      statistics,
+    });
+  },
 
   // API Actions
   fetchCollections: async (params = {}) => {
@@ -126,38 +242,79 @@ const useCollectionsStore = create((set, get) => ({
   },
 
   createCollection: async (data) => {
-    set({ isLoading: true, error: null });
+    // Generate temporary ID for optimistic collection
+    const optimisticId = `optimistic-${Date.now()}`;
+
+    // Create optimistic collection object with form data
+    const optimisticCollection = {
+      id: optimisticId,
+      name: data.collection_name,
+      description: data.description || null,
+      isPublic: !data.private,
+      createdDate: new Date().toISOString(),
+      modifiedDate: new Date().toISOString(),
+      ownerName: '', // Will be replaced with server data
+      ownerAffiliation: '', // Will be replaced with server data
+      datasetCount: data.datasets?.length || 0,
+      isOwner: true,
+      hasInvalidDatasets: false,
+    };
+
+    // Immediately add to state via optimistic update
+    get().addOptimisticCollection(optimisticCollection);
 
     try {
       const response = await collectionsAPI.createCollection(data);
 
       if (response.status === 201) {
         const result = await response.json();
-        // Refetch collections to get the updated list with the new collection
-        await get().fetchCollections({ includeDatasets: false });
+
+        // Fetch full collection data from server
+        const collectionResponse = await collectionsAPI.getCollectionById(
+          result.collection_id,
+          { includeDatasets: false },
+        );
+
+        if (collectionResponse.ok) {
+          const serverCollection = await collectionResponse.json();
+          // Replace optimistic collection with server data
+          get().replaceOptimisticCollection(optimisticId, serverCollection);
+        } else {
+          // If we can't fetch the full data, remove optimistic and refetch all
+          get().removeOptimisticCollection(optimisticId);
+          await get().fetchCollections({ includeDatasets: false });
+        }
+
         return result;
       } else if (response.status === 401) {
+        // Remove optimistic collection on error
+        get().removeOptimisticCollection(optimisticId);
         throw new Error('You must be logged in to create collections');
       } else {
+        // Remove optimistic collection on error
+        get().removeOptimisticCollection(optimisticId);
         throw new Error('Failed to create collection. Please try again.');
       }
     } catch (error) {
+      // Remove optimistic collection on error
+      get().removeOptimisticCollection(optimisticId);
       console.error('Error creating collection:', error);
-      set({ error: error.message });
+      // Don't set global error state - let component handle display
       throw error;
-    } finally {
-      set({ isLoading: false });
     }
   },
 
   deleteCollection: async (collectionId) => {
-    set({ isLoading: true, error: null });
+    // Set pending deletion state before making API call
+    get().setPendingDeletion(collectionId);
 
     try {
       const response = await collectionsAPI.deleteCollection(collectionId);
 
       if (response.status === 204) {
-        // Success - remove from both user and public collections
+        // Success - remove pending state, then remove from collections
+        get().removePendingDeletion(collectionId);
+
         const {
           userCollections,
           publicCollections,
@@ -198,11 +355,11 @@ const useCollectionsStore = create((set, get) => ({
         throw new Error('Failed to delete collection. Please try again.');
       }
     } catch (error) {
+      // Remove pending state to restore card to normal state
+      get().removePendingDeletion(collectionId);
       console.error('Error deleting collection:', error);
-      set({ error: error.message });
+      // Don't set global error state - let component handle display
       throw error;
-    } finally {
-      set({ isLoading: false });
     }
   },
 
@@ -296,6 +453,7 @@ const useCollectionsStore = create((set, get) => ({
         privateCollections: 0,
         totalDatasets: 0,
       },
+      pendingDeletions: new Set(),
     });
   },
 }));

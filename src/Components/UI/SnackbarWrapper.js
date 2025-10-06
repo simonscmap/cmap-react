@@ -7,6 +7,7 @@ import { withStyles } from '@material-ui/core/styles';
 import InfoIcon from '@material-ui/icons/Info';
 import WarningIcon from '@material-ui/icons/Warning';
 import ErrorIcon from '@material-ui/icons/Error';
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 
 import { snackbarClose } from '../../Redux/actions/ui';
 
@@ -26,6 +27,10 @@ const mapDispatchToProps = {
 const severityConfig = {
   info: {
     icon: InfoIcon,
+  },
+  success: {
+    backgroundColor: '#4caf50',
+    icon: CheckCircleIcon,
   },
   warning: {
     backgroundColor: '#ff9800',

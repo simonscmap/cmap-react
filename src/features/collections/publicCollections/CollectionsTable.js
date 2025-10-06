@@ -14,7 +14,7 @@ import {
 } from '@material-ui/core';
 import { format, parseISO } from 'date-fns';
 import colors from '../../../enums/colors';
-import CollectionButton from '../../../shared/components/UniversalButton';
+import UniversalButton from '../../../shared/components/UniversalButton';
 
 const useStyles = makeStyles(() => ({
   tableContainer: {
@@ -297,12 +297,12 @@ const CollectionsTable = ({ collections = [] }) => {
                   </TableCell>
                   <TableCell className={classes.statsCell}>
                     <Box display="flex" gap={1}>
-                      <CollectionButton variant="secondary" size="medium">
+                      <UniversalButton variant="secondary" size="medium">
                         Preview
-                      </CollectionButton>
-                      <CollectionButton variant="primary" size="medium">
+                      </UniversalButton>
+                      <UniversalButton variant="primary" size="medium">
                         Copy
-                      </CollectionButton>
+                      </UniversalButton>
                     </Box>
                   </TableCell>
                 </TableRow>

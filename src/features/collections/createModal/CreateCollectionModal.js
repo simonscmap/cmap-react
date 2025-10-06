@@ -10,21 +10,22 @@ import {
   RadioGroup,
   FormControlLabel,
   Radio,
-  Snackbar,
   Typography,
   IconButton,
 } from '@material-ui/core';
-import { Alert } from '@material-ui/lab';
 import { Add, Close } from '@material-ui/icons';
+import { useDispatch } from 'react-redux';
 import useCollectionsStore from '../state/collectionsStore';
 import PublicVisibilityWarning from './PublicVisibilityWarning';
 import { useCollectionForm } from './hooks/useCollectionForm';
 import { useCollectionFormValidation } from './hooks/useCollectionFormValidation';
 import { useCreateCollectionModalStyles } from './styles/createCollectionModalStyles';
-import CollectionButton from '../../../shared/components/UniversalButton';
+import UniversalButton from '../../../shared/components/UniversalButton';
+import { snackbarOpen } from '../../../Redux/actions/ui';
 
 const CreateCollectionModal = () => {
   const classes = useCreateCollectionModalStyles();
+  const dispatch = useDispatch();
   const verifyCollectionName = useCollectionsStore(
     (state) => state.verifyCollectionName,
   );
@@ -56,12 +57,6 @@ const CreateCollectionModal = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionError, setSubmissionError] = useState('');
-
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: '',
-    severity: 'success',
-  });
 
   const triggerButtonRef = useRef(null);
 
@@ -107,21 +102,6 @@ const CreateCollectionModal = () => {
     await submitCollection();
   };
 
-  const showSnackbar = (message, severity = 'success') => {
-    setSnackbar({
-      open: true,
-      message,
-      severity,
-    });
-  };
-
-  const handleSnackbarClose = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setSnackbar((prev) => ({ ...prev, open: false }));
-  };
-
   const handleSubmit = async () => {
     if (!canSubmit || isSubmitting) {
       return;
@@ -149,9 +129,13 @@ const CreateCollectionModal = () => {
 
       await createCollection(requestData);
 
+      dispatch(
+        snackbarOpen('Collection created successfully', {
+          position: 'bottom',
+          severity: 'success',
+        }),
+      );
       handleClose();
-
-      showSnackbar('Collection created successfully', 'success');
     } catch (error) {
       console.error('Error creating collection:', error);
 
@@ -163,9 +147,12 @@ const CreateCollectionModal = () => {
         errorMessage = 'Network error. Please check your connection.';
       }
 
-      setSubmissionError(errorMessage);
-
-      showSnackbar(errorMessage, 'error');
+      dispatch(
+        snackbarOpen(errorMessage, {
+          position: 'bottom',
+          severity: 'error',
+        }),
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -178,15 +165,16 @@ const CreateCollectionModal = () => {
 
   return (
     <>
-      <CollectionButton
+      <UniversalButton
         ref={triggerButtonRef}
         variant="primary"
         size="large"
         onClick={handleOpen}
         startIcon={<Add />}
+        disableRipple
       >
         CREATE NEW COLLECTION
-      </CollectionButton>
+      </UniversalButton>
 
       <Dialog
         open={open}
@@ -342,29 +330,29 @@ const CreateCollectionModal = () => {
         </DialogContent>
 
         <DialogActions className={classes.dialogActions}>
-          <CollectionButton
+          <UniversalButton
             onClick={handleCancel}
             variant="default"
             size="large"
           >
             CANCEL
-          </CollectionButton>
-          <CollectionButton
+          </UniversalButton>
+          <UniversalButton
             onClick={handleSubmit}
             variant="primary"
             size="large"
             disabled={!canSubmit}
           >
             {isSubmitting ? 'CREATING...' : 'CREATE EMPTY COLLECTION'}
-          </CollectionButton>
-          <CollectionButton
+          </UniversalButton>
+          <UniversalButton
             onClick={handleSubmit}
             variant="primary"
             size="large"
             disabled
           >
             CREATE & ADD DATASETS
-          </CollectionButton>
+          </UniversalButton>
         </DialogActions>
       </Dialog>
 
@@ -373,22 +361,6 @@ const CreateCollectionModal = () => {
         onKeepPrivate={handleKeepPrivate}
         onMakePublic={handleMakePublic}
       />
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert
-          onClose={handleSnackbarClose}
-          severity={snackbar.severity}
-          variant="filled"
-          elevation={6}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </>
   );
 };
