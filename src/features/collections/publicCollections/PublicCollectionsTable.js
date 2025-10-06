@@ -13,7 +13,6 @@ import {
   Tooltip,
 } from '@material-ui/core';
 import { format, parseISO } from 'date-fns';
-import colors from '../../../enums/colors';
 import UniversalButton from '../../../shared/components/UniversalButton';
 
 const useStyles = makeStyles(() => ({
@@ -93,7 +92,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const CollectionsTable = ({ collections = [] }) => {
+const PublicCollectionsTable = ({ collections = [] }) => {
   const classes = useStyles();
 
   const formatDate = (dateString) => {
@@ -193,7 +192,33 @@ const CollectionsTable = ({ collections = [] }) => {
                   backgroundColor: 'rgba(30, 67, 113, 1)',
                 }}
               >
+                Views
+              </TableCell>
+              <TableCell
+                align="center"
+                style={{
+                  padding: '8px 5px',
+                  border: 0,
+                  color: '#8bc34a',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  backgroundColor: 'rgba(30, 67, 113, 1)',
+                }}
+              >
                 Downloads
+              </TableCell>
+              <TableCell
+                align="center"
+                style={{
+                  padding: '8px 5px',
+                  border: 0,
+                  color: '#8bc34a',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  backgroundColor: 'rgba(30, 67, 113, 1)',
+                }}
+              >
+                Copies
               </TableCell>
               <TableCell
                 style={{
@@ -212,7 +237,7 @@ const CollectionsTable = ({ collections = [] }) => {
           <TableBody>
             {collections.length === 0 ? (
               <TableRow className={classes.emptyRow}>
-                <TableCell colSpan={6} className={classes.emptyCell}>
+                <TableCell colSpan={8} className={classes.emptyCell}>
                   <Typography variant="body1">
                     No collections to display
                   </Typography>
@@ -292,7 +317,17 @@ const CollectionsTable = ({ collections = [] }) => {
                   </TableCell>
                   <TableCell align="center" className={classes.statsCell}>
                     <Typography variant="body2" noWrap>
-                      {collection.copyCount || 0}
+                      {collection.views ?? 0}
+                    </Typography>
+                  </TableCell>
+                  <TableCell align="center" className={classes.statsCell}>
+                    <Typography variant="body2" noWrap>
+                      {collection.downloads ?? 0}
+                    </Typography>
+                  </TableCell>
+                  <TableCell align="center" className={classes.statsCell}>
+                    <Typography variant="body2" noWrap>
+                      {collection.copies ?? 0}
                     </Typography>
                   </TableCell>
                   <TableCell className={classes.statsCell}>
@@ -315,4 +350,4 @@ const CollectionsTable = ({ collections = [] }) => {
   );
 };
 
-export default CollectionsTable;
+export default PublicCollectionsTable;

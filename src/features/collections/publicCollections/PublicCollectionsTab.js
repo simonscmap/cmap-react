@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Box, Typography, CircularProgress } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 import useCollectionsStore from '../state/collectionsStore';
-import CollectionsTable from './CollectionsTable';
+import PublicCollectionsTable from './PublicCollectionsTable';
 import { PaginationController } from '../../../shared/pagination';
 import {
   SearchProvider,
@@ -121,7 +121,7 @@ const PublicCollectionsContent = () => {
         renderItem={(collection) => collection}
         renderContainer={(items, pagination) => (
           <>
-            <CollectionsTable collections={items} />
+            <PublicCollectionsTable collections={items} />
             {pagination}
           </>
         )}
