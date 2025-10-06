@@ -2,4 +2,4 @@
 // Components for browsing public collections
 
 export { default as PublicCollectionsTab } from './PublicCollectionsTab';
-export { default as CollectionsTable } from './CollectionsTable';
+export { default as PublicCollectionsTable } from './PublicCollectionsTable';

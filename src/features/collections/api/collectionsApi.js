@@ -23,6 +23,9 @@ import { apiUrl, fetchOptions, postOptions } from '../../../api/config';
  * @property {string} ownerAffiliation - Owner's institutional affiliation
  * @property {number} datasetCount - Number of datasets in collection (≥ 0)
  * @property {boolean} isOwner - Whether current user owns this collection
+ * @property {number} views - Number of times collection has been viewed (≥ 0)
+ * @property {number} downloads - Number of times collection has been downloaded (≥ 0)
+ * @property {number} copies - Number of times collection has been copied (≥ 0)
  * @property {CollectionDataset[]} [datasets] - Array of dataset objects (only if includeDatasets=true)
  */
 
