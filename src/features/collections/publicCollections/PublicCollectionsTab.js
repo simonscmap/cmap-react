@@ -140,9 +140,11 @@ const PublicCollectionsContent = () => {
 const PublicCollectionsTab = () => {
   const classes = useStyles();
 
-  const { publicCollections, isLoading, error } = useCollectionsStore();
+  const { publicCollections, isLoading, isCopying, error } =
+    useCollectionsStore();
 
-  if (isLoading) {
+  // Only show loading state for initial load, not when copying
+  if (isLoading && !isCopying) {
     return (
       <Box className={classes.loadingContainer}>
         <CircularProgress />
@@ -150,7 +152,8 @@ const PublicCollectionsTab = () => {
     );
   }
 
-  if (error) {
+  // Don't show error in place of table - errors are now handled via snackbar
+  if (error && !isCopying && publicCollections.length === 0) {
     return (
       <Box className={classes.container}>
         <Alert severity="error" className={classes.errorContainer}>
