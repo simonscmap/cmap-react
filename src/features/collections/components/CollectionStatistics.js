@@ -1,7 +1,6 @@
 import React from 'react';
 import { Grid, Card, CardContent, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import useCollectionsStore from '../state/collectionsStore';
 
 const useStyles = makeStyles((theme) => ({
   statisticsContainer: {
@@ -36,33 +35,22 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const CollectionStatistics = () => {
+/**
+ * CollectionStatistics - A reusable statistics display component
+ *
+ * @param {Object} props
+ * @param {Array<{value: string|number, label: string}>} props.stats - Array of stat objects to display
+ *   Each stat should have a value (string or number) and a label (string)
+ * @param {number} [props.itemsPerRow=4] - Number of stat items per row on md+ screens
+ */
+const CollectionStatistics = ({ stats, itemsPerRow = 4 }) => {
   const classes = useStyles();
-  const { statistics } = useCollectionsStore();
-
-  const stats = [
-    {
-      value: statistics.totalCollections,
-      label: 'Total Collections',
-    },
-    {
-      value: statistics.publicCollections,
-      label: 'Public Collections',
-    },
-    {
-      value: statistics.privateCollections,
-      label: 'Private Collections',
-    },
-    {
-      value: statistics.totalDatasets,
-      label: 'Total Datasets',
-    },
-  ];
+  const gridSize = Math.floor(12 / itemsPerRow);
 
   return (
     <Grid container spacing={2} className={classes.statisticsContainer}>
       {stats.map((stat, index) => (
-        <Grid item xs={6} md={3} key={index}>
+        <Grid item xs={6} md={gridSize} key={index}>
           <Card className={classes.statisticsCard} elevation={0}>
             <CardContent className={classes.cardContent}>
               <Typography variant="h4" className={classes.statisticValue}>

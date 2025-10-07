@@ -159,4 +159,25 @@ collectionsAPI.copyCollection = async (id) => {
   });
 };
 
+/**
+ * Get preview metadata for multiple datasets
+ * @param {string[]} datasetShortNames - Array of dataset short names
+ * @returns {Promise<Response>} Array of dataset preview objects
+ * @throws {Error} 401: Unauthorized, 500: Server error
+ * @description Returns metadata for multiple datasets including temporal range, row counts,
+ * sensors, makes, regions, and status flags. Non-existent datasets are silently ignored.
+ */
+collectionsAPI.getCollectionPreview = async (datasetShortNames) => {
+  const searchParams = new URLSearchParams();
+
+  // Add each dataset as a separate parameter
+  datasetShortNames.forEach((name) => {
+    searchParams.append('datasets', name);
+  });
+
+  const endpoint = `${apiUrl}/api/collections/preview?${searchParams.toString()}`;
+
+  return await fetch(endpoint, fetchOptions);
+};
+
 export default collectionsAPI;
