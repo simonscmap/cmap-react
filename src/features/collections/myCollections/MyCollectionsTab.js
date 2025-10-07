@@ -6,7 +6,7 @@ import { AccountCircle } from '@material-ui/icons';
 import { showLoginDialog } from '../../../Redux/actions/ui';
 import useCollectionsStore from '../state/collectionsStore';
 import CollectionCard from './CollectionCard';
-import CollectionStatistics from './CollectionStatistics';
+import CollectionStatistics from '../components/CollectionStatistics';
 import { PaginationController } from '../../../shared/pagination';
 import {
   SearchProvider,
@@ -247,7 +247,26 @@ const MyCollectionsTab = () => {
       </Box>
 
       <Box className={classes.statisticsSection}>
-        <CollectionStatistics statistics={statistics} />
+        <CollectionStatistics
+          stats={[
+            {
+              value: statistics.totalCollections,
+              label: 'Total Collections',
+            },
+            {
+              value: statistics.publicCollections,
+              label: 'Public Collections',
+            },
+            {
+              value: statistics.privateCollections,
+              label: 'Private Collections',
+            },
+            {
+              value: statistics.totalDatasets,
+              label: 'Total Datasets',
+            },
+          ]}
+        />
       </Box>
 
       <SearchProvider

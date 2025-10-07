@@ -18,6 +18,7 @@ import { format, parseISO } from 'date-fns';
 import UniversalButton from '../../../shared/components/UniversalButton';
 import useCollectionsStore from '../state/collectionsStore';
 import { snackbarOpen } from '../../../Redux/actions/ui';
+import PreviewModal from '../previewModal';
 
 const useStyles = makeStyles(() => ({
   tableContainer: {
@@ -101,6 +102,8 @@ const PublicCollectionsTable = ({ collections = [] }) => {
   const dispatch = useDispatch();
   const copyCollection = useCollectionsStore((state) => state.copyCollection);
   const [copyingId, setCopyingId] = useState(null);
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [selectedCollection, setSelectedCollection] = useState(null);
 
   const formatDate = (dateString) => {
     try {
@@ -133,6 +136,16 @@ const PublicCollectionsTable = ({ collections = [] }) => {
     }
   };
 
+  const handlePreview = (collection) => {
+    setSelectedCollection(collection);
+    setPreviewModalOpen(true);
+  };
+
+  const handleClosePreview = () => {
+    setPreviewModalOpen(false);
+    setSelectedCollection(null);
+  };
+
   const tableContainerStyle = {
     maxHeight: 400,
     backgroundColor: 'rgba(16, 43, 60, 0.6)',
@@ -146,6 +159,11 @@ const PublicCollectionsTable = ({ collections = [] }) => {
 
   return (
     <>
+      <PreviewModal
+        open={previewModalOpen}
+        onClose={handleClosePreview}
+        collection={selectedCollection}
+      />
       <TableContainer component={Paper} style={tableContainerStyle}>
         <Table
           stickyHeader
@@ -362,7 +380,11 @@ const PublicCollectionsTable = ({ collections = [] }) => {
                   </TableCell>
                   <TableCell className={classes.statsCell}>
                     <Box display="flex" gap={1}>
-                      <UniversalButton variant="secondary" size="medium">
+                      <UniversalButton
+                        variant="secondary"
+                        size="medium"
+                        onClick={() => handlePreview(collection)}
+                      >
                         Preview
                       </UniversalButton>
                       <UniversalButton

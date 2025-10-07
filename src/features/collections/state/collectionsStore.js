@@ -9,6 +9,11 @@ const useCollectionsStore = create((set, get) => ({
   isCopying: false,
   error: null,
 
+  // Preview modal state
+  previewData: [],
+  isLoadingPreview: false,
+  previewError: null,
+
   // Search and filter state
   searchQuery: '',
   visibilityFilter: 'all', // 'all' | 'public' | 'private'
@@ -403,6 +408,42 @@ const useCollectionsStore = create((set, get) => ({
     } finally {
       set({ isCopying: false });
     }
+  },
+
+  fetchPreviewData: async (datasetShortNames) => {
+    set({ isLoadingPreview: true, previewError: null, previewData: [] });
+
+    try {
+      const response =
+        await collectionsAPI.getCollectionPreview(datasetShortNames);
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch preview data');
+      }
+
+      const data = await response.json();
+
+      // Check for missing datasets
+      const returnedShortNames = data.map((item) => item.shortName);
+      const missingDatasets = datasetShortNames.filter(
+        (name) => !returnedShortNames.includes(name),
+      );
+
+      set({ previewData: data, isLoadingPreview: false });
+
+      return { data, missingDatasets };
+    } catch (error) {
+      console.error('Error fetching preview data:', error);
+      set({
+        previewError: error.message || 'Failed to load preview data',
+        isLoadingPreview: false,
+      });
+      throw error;
+    }
+  },
+
+  clearPreviewData: () => {
+    set({ previewData: [], previewError: null, isLoadingPreview: false });
   },
 
   // Utility functions
