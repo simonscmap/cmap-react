@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Table,
@@ -11,9 +12,12 @@ import {
   Typography,
   Box,
   Tooltip,
+  CircularProgress,
 } from '@material-ui/core';
 import { format, parseISO } from 'date-fns';
 import UniversalButton from '../../../shared/components/UniversalButton';
+import useCollectionsStore from '../state/collectionsStore';
+import { snackbarOpen } from '../../../Redux/actions/ui';
 
 const useStyles = makeStyles(() => ({
   tableContainer: {
@@ -94,12 +98,38 @@ const useStyles = makeStyles(() => ({
 
 const PublicCollectionsTable = ({ collections = [] }) => {
   const classes = useStyles();
+  const dispatch = useDispatch();
+  const copyCollection = useCollectionsStore((state) => state.copyCollection);
+  const [copyingId, setCopyingId] = useState(null);
 
   const formatDate = (dateString) => {
     try {
       return format(parseISO(dateString), 'yyyy-MM-dd');
     } catch (error) {
       return 'Invalid date';
+    }
+  };
+
+  const handleCopy = async (collectionId) => {
+    setCopyingId(collectionId);
+    try {
+      const result = await copyCollection(collectionId);
+      dispatch(
+        snackbarOpen(`Collection "${result.name}" copied successfully`, {
+          severity: 'info',
+          position: 'bottom',
+        }),
+      );
+    } catch (error) {
+      console.error('Failed to copy collection:', error);
+      dispatch(
+        snackbarOpen(error.message || 'Failed to copy collection', {
+          severity: 'error',
+          position: 'bottom',
+        }),
+      );
+    } finally {
+      setCopyingId(null);
     }
   };
 
@@ -335,8 +365,20 @@ const PublicCollectionsTable = ({ collections = [] }) => {
                       <UniversalButton variant="secondary" size="medium">
                         Preview
                       </UniversalButton>
-                      <UniversalButton variant="primary" size="medium">
-                        Copy
+                      <UniversalButton
+                        variant="primary"
+                        size="medium"
+                        onClick={() => handleCopy(collection.id)}
+                        disabled={copyingId === collection.id}
+                      >
+                        {copyingId === collection.id ? (
+                          <CircularProgress
+                            size={14}
+                            style={{ color: 'rgba(105, 255, 242, 0.2)' }}
+                          />
+                        ) : (
+                          'Copy'
+                        )}
                       </UniversalButton>
                     </Box>
                   </TableCell>

@@ -6,6 +6,7 @@ const useCollectionsStore = create((set, get) => ({
   userCollections: [],
   publicCollections: [],
   isLoading: false,
+  isCopying: false,
   error: null,
 
   // Search and filter state
@@ -299,7 +300,6 @@ const useCollectionsStore = create((set, get) => ({
       // Remove optimistic collection on error
       get().removeOptimisticCollection(optimisticId);
       console.error('Error creating collection:', error);
-      // Don't set global error state - let component handle display
       throw error;
     }
   },
@@ -376,6 +376,32 @@ const useCollectionsStore = create((set, get) => ({
     } catch (error) {
       console.error('Error verifying collection name:', error);
       throw error;
+    }
+  },
+
+  copyCollection: async (collectionId) => {
+    set({ isCopying: true });
+
+    try {
+      const response = await collectionsAPI.copyCollection(collectionId);
+
+      if (response.status === 201) {
+        const result = await response.json();
+        // Refetch collections to get the updated list with the new collection
+        await get().fetchCollections({ includeDatasets: true });
+        return result;
+      } else if (response.status === 404) {
+        throw new Error('Collection not found or not accessible');
+      } else if (response.status === 401) {
+        throw new Error('You must be logged in to copy collections');
+      } else {
+        throw new Error('Failed to copy collection. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error copying collection:', error);
+      throw error;
+    } finally {
+      set({ isCopying: false });
     }
   },
 

@@ -141,4 +141,22 @@ collectionsAPI.verifyCollectionName = async (name) => {
   return await fetch(endpoint, fetchOptions);
 };
 
+/**
+ * Copy an existing collection to create a new collection owned by the authenticated user
+ * @param {number} id - Collection ID to copy (positive integer)
+ * @returns {Promise<Response>} Object with collection_id and name
+ * @throws {Error} 401: Unauthorized, 404: Collection not found or not accessible, 500: Server error
+ * @description Creates a copy of the specified collection, including all datasets.
+ * The new collection will be owned by the authenticated user.
+ * The copied collection name will have " copy" appended if needed to avoid conflicts.
+ */
+collectionsAPI.copyCollection = async (id) => {
+  const endpoint = `${apiUrl}/api/collections/${id}/copy`;
+
+  return await fetch(endpoint, {
+    ...postOptions,
+    method: 'POST',
+  });
+};
+
 export default collectionsAPI;
