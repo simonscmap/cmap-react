@@ -6,6 +6,9 @@ const useStyles = makeStyles(() => ({
   datasetLink: {
     color: '#69fff2',
     textDecoration: 'underline',
+    whiteSpace: 'normal',
+    wordBreak: 'break-word',
+    display: 'inline',
     '&:hover': {
       color: '#8bc34a',
     },

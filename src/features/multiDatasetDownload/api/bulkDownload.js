@@ -36,6 +36,7 @@ const bulkDownloadAPI = {};
  * @param {number|string} filters.lonEnd - Maximum longitude (-180 to 180)
  * @param {number|string} filters.depthStart - Minimum depth
  * @param {number|string} filters.depthEnd - Maximum depth
+ * @param {number|string} collectionId - Optional collection ID (must be positive integer)
  *
  * API Request Body (after transformation):
  * {
@@ -43,11 +44,15 @@ const bulkDownloadAPI = {};
  *   filters?: {
  *     temporal?: { startDate: string, endDate: string },    // ISO date strings (YYYY-MM-DD)
  *     spatial?: { latMin: number, latMax: number, lonMin: number, lonMax: number, depthMin: number, depthMax: number }
- *   }
+ *   },
+ *   collectionId?: number
  * }
  */
-bulkDownloadAPI.downloadData = async (datasetShortNames, filters = null) => {
-  log.debug('starting bulk download', { datasetShortNames, filters });
+bulkDownloadAPI.downloadData = async (
+  datasetShortNames,
+  filters = null,
+  collectionId = null,
+) => {
   const endpoint = apiUrl + `/api/data/bulk-download`;
 
   const requestBody = { shortNames: datasetShortNames };
@@ -55,6 +60,14 @@ bulkDownloadAPI.downloadData = async (datasetShortNames, filters = null) => {
   if (filters) {
     requestBody.filters = transformFiltersForAPI(filters);
   }
+
+  // if (collectionId !== null && collectionId !== undefined) {
+  //   const parsedId = parseInt(collectionId, 10);
+  //   if (isNaN(parsedId) || parsedId <= 0) {
+  //     throw new Error('collectionId must be a positive integer');
+  //   }
+  //   requestBody.collectionId = parsedId;
+  // }
 
   const response = await fetch(endpoint, {
     ...postOptions,

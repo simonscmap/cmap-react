@@ -56,6 +56,7 @@ const CollectionDownloadModal = ({ open, onClose, collection }) => {
       <DialogContent className={classes.dialogContent}>
         <MultiDatasetDownloadContainer
           datasetShortNames={datasetShortNames}
+          downloadContext={{ collectionId: collection.id }}
           onDownloadComplete={handleDownloadComplete}
         />
       </DialogContent>

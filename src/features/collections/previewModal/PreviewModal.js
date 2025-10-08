@@ -60,7 +60,10 @@ const PreviewModal = ({ open, onClose, collection }) => {
           (dataset) => dataset.datasetShortName,
         );
 
-        const { missingDatasets } = await fetchPreviewData(datasetShortNames);
+        const { missingDatasets } = await fetchPreviewData(
+          datasetShortNames,
+          collection.id,
+        );
 
         if (missingDatasets.length > 0) {
           dispatch(

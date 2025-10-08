@@ -162,18 +162,28 @@ collectionsAPI.copyCollection = async (id) => {
 /**
  * Get preview metadata for multiple datasets
  * @param {string[]} datasetShortNames - Array of dataset short names
+ * @param {number} [collectionId] - Optional collection ID to track view statistics
  * @returns {Promise<Response>} Array of dataset preview objects
  * @throws {Error} 401: Unauthorized, 500: Server error
  * @description Returns metadata for multiple datasets including temporal range, row counts,
  * sensors, makes, regions, and status flags. Non-existent datasets are silently ignored.
+ * If collectionId is provided, increments the collection's Views count by 1.
  */
-collectionsAPI.getCollectionPreview = async (datasetShortNames) => {
+collectionsAPI.getCollectionPreview = async (
+  datasetShortNames,
+  collectionId,
+) => {
   const searchParams = new URLSearchParams();
 
   // Add each dataset as a separate parameter
   datasetShortNames.forEach((name) => {
     searchParams.append('datasets', name);
   });
+
+  // Add collection_id if provided for views tracking
+  if (collectionId !== undefined && collectionId !== null) {
+    searchParams.append('collectionId', collectionId);
+  }
 
   const endpoint = `${apiUrl}/api/collections/preview?${searchParams.toString()}`;
 

@@ -155,9 +155,13 @@ const MultiDatasetDownloadContainerInner = ({
 };
 
 const MultiDatasetDownloadContainer = React.memo(
-  ({ datasetShortNames, onDownloadComplete }) => {
-    const { datasetsMetadata, fetchDatasetsMetadata, isLoading } =
-      useMultiDatasetDownloadStore();
+  ({ datasetShortNames, downloadContext, onDownloadComplete }) => {
+    const {
+      datasetsMetadata,
+      fetchDatasetsMetadata,
+      isLoading,
+      setDownloadContext,
+    } = useMultiDatasetDownloadStore();
 
     // Compute aggregate dataset bounds for multi-dataset filtering
     const aggregateMetadata = useMemo(() => {
@@ -169,6 +173,13 @@ const MultiDatasetDownloadContainer = React.memo(
         fetchDatasetsMetadata(datasetShortNames);
       }
     }, [datasetShortNames, fetchDatasetsMetadata]);
+
+    // Set download context when provided
+    useEffect(() => {
+      if (downloadContext) {
+        setDownloadContext(downloadContext);
+      }
+    }, [downloadContext, setDownloadContext]);
 
     if (isLoading || !datasetsMetadata || datasetsMetadata.length === 0) {
       return <SpinnerWrapper message={'Loading data for download...'} />;
@@ -188,7 +199,10 @@ const MultiDatasetDownloadContainer = React.memo(
     );
   },
   (prevProps, nextProps) => {
-    return deepEqual(prevProps.datasetShortNames, nextProps.datasetShortNames);
+    return (
+      deepEqual(prevProps.datasetShortNames, nextProps.datasetShortNames) &&
+      deepEqual(prevProps.downloadContext, nextProps.downloadContext)
+    );
   },
 );
 
