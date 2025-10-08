@@ -107,7 +107,8 @@ const PublicCollectionsTable = ({ collections = [] }) => {
 
   const formatDate = (dateString) => {
     try {
-      return format(parseISO(dateString), 'yyyy-MM-dd');
+      const date = new Date(dateString);
+      return date.toLocaleDateString('sv-SE'); // YYYY-MM-DD format
     } catch (error) {
       return 'Invalid date';
     }

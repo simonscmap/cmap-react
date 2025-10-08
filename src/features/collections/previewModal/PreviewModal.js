@@ -98,7 +98,12 @@ const PreviewModal = ({ open, onClose, collection }) => {
 
   const formatCreatedDate = (dateString) => {
     try {
-      return format(parseISO(dateString), 'yyyy MMM dd');
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit',
+      });
     } catch (error) {
       return 'Invalid date';
     }
@@ -110,9 +115,9 @@ const PreviewModal = ({ open, onClose, collection }) => {
         ? format(parseISO(timeStart), 'yyyy-MM-dd')
         : 'N/A';
       const end = timeEnd ? format(parseISO(timeEnd), 'yyyy-MM-dd') : 'N/A';
-      return `${start} to ${end}`;
+      return { start, end };
     } catch (error) {
-      return 'N/A';
+      return { start: 'N/A', end: 'N/A' };
     }
   };
 
@@ -123,11 +128,20 @@ const PreviewModal = ({ open, onClose, collection }) => {
     return regions.join(', ');
   };
 
+  // Calculate total rows from preview data
+  const totalRows = previewData.reduce((sum, dataset) => {
+    return sum + (dataset.Row_Count || 0);
+  }, 0);
+
   // Prepare statistics for CollectionStatistics component
   const stats = [
     {
       value: collection.datasetCount || 0,
       label: 'Datasets',
+    },
+    {
+      value: totalRows.toLocaleString(),
+      label: 'Rows',
     },
     {
       value: collection.downloads || 0,
@@ -149,7 +163,6 @@ const PreviewModal = ({ open, onClose, collection }) => {
           position: 'bottom',
         }),
       );
-      onClose();
     } catch (error) {
       console.error('Failed to copy collection:', error);
       dispatch(
@@ -184,7 +197,9 @@ const PreviewModal = ({ open, onClose, collection }) => {
           id="preview-collection-dialog-title"
           className={classes.dialogTitle}
         >
-          {collection.name}
+          <Typography variant="h4" className={classes.collectionTitle}>
+            {collection.name}
+          </Typography>
           <IconButton
             aria-label="close"
             onClick={onClose}
@@ -198,20 +213,23 @@ const PreviewModal = ({ open, onClose, collection }) => {
           {/* Header Section */}
           <Box className={classes.headerSection}>
             <Typography className={classes.creatorInfo}>
-              {collection.ownerName}
+              Created by {collection.ownerName}
               {collection.ownerAffiliation &&
-                ` • ${collection.ownerAffiliation}`}
+                ` (${collection.ownerAffiliation})`}{' '}
+              • Public Collection
             </Typography>
             {collection.description && (
-              <Typography className={classes.description}>
-                {collection.description}
-              </Typography>
+              <Box className={classes.descriptionBox}>
+                <Typography className={classes.description}>
+                  {collection.description}
+                </Typography>
+              </Box>
             )}
           </Box>
 
           {/* Stats Bar */}
           <Box className={classes.statsSection}>
-            <CollectionStatistics stats={stats} itemsPerRow={3} />
+            <CollectionStatistics stats={stats} itemsPerRow={4} />
           </Box>
 
           {/* Datasets Table */}
@@ -237,6 +255,7 @@ const PreviewModal = ({ open, onClose, collection }) => {
                   <TableHead>
                     <TableRow>
                       <TableCell>Dataset Name</TableCell>
+                      <TableCell>Type</TableCell>
                       <TableCell>Region</TableCell>
                       <TableCell>Date Range</TableCell>
                       <TableCell align="right">Rows</TableCell>
@@ -245,35 +264,49 @@ const PreviewModal = ({ open, onClose, collection }) => {
                   <TableBody>
                     {previewData.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={4} align="center">
+                        <TableCell colSpan={5} align="center">
                           <Typography variant="body2" color="textSecondary">
                             No dataset data available
                           </Typography>
                         </TableCell>
                       </TableRow>
                     ) : (
-                      previewData.map((dataset, index) => (
-                        <TableRow key={index} className={classes.tableRow}>
-                          <TableCell className={classes.tableCell}>
-                            {dataset.shortName}
-                          </TableCell>
-                          <TableCell className={classes.tableCell}>
-                            {formatRegions(dataset.regions)}
-                          </TableCell>
-                          <TableCell className={classes.tableCell}>
-                            {formatDateRange(
-                              dataset.timeStart,
-                              dataset.timeEnd,
-                            )}
-                          </TableCell>
-                          <TableCell
-                            className={classes.tableCell}
-                            align="right"
-                          >
-                            {dataset.Row_Count?.toLocaleString() ?? 'N/A'}
-                          </TableCell>
-                        </TableRow>
-                      ))
+                      previewData.map((dataset, index) => {
+                        const dateRange = formatDateRange(
+                          dataset.timeStart,
+                          dataset.timeEnd,
+                        );
+                        return (
+                          <TableRow key={index} className={classes.tableRow}>
+                            <TableCell
+                              className={`${classes.tableCell} ${classes.datasetNameCell}`}
+                            >
+                              {dataset.shortName}
+                            </TableCell>
+                            <TableCell className={classes.tableCell}>
+                              {dataset.type}
+                            </TableCell>
+                            <TableCell
+                              className={`${classes.tableCell} ${classes.regionCell}`}
+                            >
+                              {formatRegions(dataset.regions)}
+                            </TableCell>
+                            <TableCell
+                              className={`${classes.tableCell} ${classes.dateRangeCell}`}
+                            >
+                              {dateRange.start} to
+                              <br />
+                              {dateRange.end}
+                            </TableCell>
+                            <TableCell
+                              className={`${classes.tableCell} ${classes.rowsCell}`}
+                              align="right"
+                            >
+                              {dataset.Row_Count?.toLocaleString() ?? 'N/A'}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
                     )}
                   </TableBody>
                 </Table>
