@@ -411,12 +411,14 @@ const useCollectionsStore = create((set, get) => ({
     }
   },
 
-  fetchPreviewData: async (datasetShortNames) => {
+  fetchPreviewData: async (datasetShortNames, collectionId) => {
     set({ isLoadingPreview: true, previewError: null, previewData: [] });
 
     try {
-      const response =
-        await collectionsAPI.getCollectionPreview(datasetShortNames);
+      const response = await collectionsAPI.getCollectionPreview(
+        datasetShortNames,
+        collectionId,
+      );
 
       if (!response.ok) {
         throw new Error('Failed to fetch preview data');
