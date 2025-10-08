@@ -84,6 +84,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Shared Utilities
 
+### Dataset Name Link Component
+
+Use `DatasetNameLink` from `src/shared/components` whenever displaying dataset short names to users.
+
 ### Universal Sorting Subsystem
 
 Location: `src/shared/sorting/`

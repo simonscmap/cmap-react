@@ -22,6 +22,7 @@ import { format, parseISO } from 'date-fns';
 import { usePreviewModalStyles } from './previewModalStyles';
 import CollectionStatistics from '../components/CollectionStatistics';
 import UniversalButton from '../../../shared/components/UniversalButton';
+import { DatasetNameLink } from '../../../shared/components';
 import CollectionDownloadModal from '../myCollections/CollectionDownloadModal';
 import useCollectionsStore from '../state/collectionsStore';
 import { snackbarOpen } from '../../../Redux/actions/ui';
@@ -281,7 +282,13 @@ const PreviewModal = ({ open, onClose, collection }) => {
                             <TableCell
                               className={`${classes.tableCell} ${classes.datasetNameCell}`}
                             >
-                              {dataset.shortName}
+                              <DatasetNameLink
+                                datasetShortName={dataset.shortName}
+                                typographyProps={{
+                                  variant: 'body2',
+                                  noWrap: true,
+                                }}
+                              />
                             </TableCell>
                             <TableCell className={classes.tableCell}>
                               {dataset.type}
