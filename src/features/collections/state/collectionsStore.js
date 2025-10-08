@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import collectionsAPI from '../api/collectionsApi';
+import { getDatasetType } from '../../../shared/utility';
 
 const useCollectionsStore = create((set, get) => ({
   // State
@@ -423,15 +424,21 @@ const useCollectionsStore = create((set, get) => ({
 
       const data = await response.json();
 
+      // Add type field to each dataset
+      const dataWithType = data.map((dataset) => ({
+        ...dataset,
+        type: getDatasetType(dataset.makes, dataset.sensors),
+      }));
+
       // Check for missing datasets
-      const returnedShortNames = data.map((item) => item.shortName);
+      const returnedShortNames = dataWithType.map((item) => item.shortName);
       const missingDatasets = datasetShortNames.filter(
         (name) => !returnedShortNames.includes(name),
       );
 
-      set({ previewData: data, isLoadingPreview: false });
+      set({ previewData: dataWithType, isLoadingPreview: false });
 
-      return { data, missingDatasets };
+      return { data: dataWithType, missingDatasets };
     } catch (error) {
       console.error('Error fetching preview data:', error);
       set({
