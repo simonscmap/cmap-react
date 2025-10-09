@@ -134,7 +134,7 @@ const PreviewModal = ({ open, onClose, collection }) => {
 
   // Calculate total rows from preview data
   const totalRows = previewData.reduce((sum, dataset) => {
-    return sum + (dataset.Row_Count || 0);
+    return sum + (dataset.rowCount || 0);
   }, 0);
 
   // Prepare statistics for CollectionStatistics component
@@ -312,7 +312,7 @@ const PreviewModal = ({ open, onClose, collection }) => {
                               className={`${classes.tableCell} ${classes.rowsCell}`}
                               align="right"
                             >
-                              {dataset.Row_Count?.toLocaleString() ?? 'N/A'}
+                              {dataset.rowCount?.toLocaleString() ?? 'N/A'}
                             </TableCell>
                           </TableRow>
                         );
