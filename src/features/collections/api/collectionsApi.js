@@ -31,7 +31,6 @@ import { apiUrl, fetchOptions, postOptions } from '../../../api/config';
 
 /**
  * @typedef {Collection} CollectionDetail - Extends Collection with additional fields
- * @property {number} [totalDownloads] - Total download count (owner only, ≥ 0)
  * @property {CollectionDataset[]} [datasets] - Always included unless explicitly disabled
  */
 
@@ -90,14 +89,14 @@ collectionsAPI.getCollectionById = async (id, params = {}) => {
 /**
  * Create a new collection with optional datasets
  * @param {Object} data - Collection creation data
- * @param {string} data.collection_name - Collection name (required, 1-200 characters)
+ * @param {string} data.collectionName - Collection name (required, 1-200 characters)
  * @param {string} [data.description] - Collection description (optional, 0-500 characters)
  * @param {boolean} [data.private=true] - Whether collection is private (default true)
  * @param {string[]} [data.datasets] - Array of dataset short names to add to collection
- * @returns {Promise<Response>} Object with collection_id and invalid_dataset_count
+ * @returns {Promise<Response>} Response body: { collectionId: number, invalidDatasetCount: number }
  * @throws {Error} 401: Unauthorized, 500: Server error
  * @description Creates a new collection. Invalid dataset names are skipped, not rejected.
- * The invalid_dataset_count indicates how many dataset names didn't exist.
+ * The invalidDatasetCount indicates how many dataset names didn't exist.
  */
 collectionsAPI.createCollection = async (data) => {
   const endpoint = `${apiUrl}/api/collections`;
@@ -145,7 +144,7 @@ collectionsAPI.verifyCollectionName = async (name) => {
 /**
  * Copy an existing collection to create a new collection owned by the authenticated user
  * @param {number} id - Collection ID to copy (positive integer)
- * @returns {Promise<Response>} Object with collection_id and name
+ * @returns {Promise<Response>} Response body: { collectionId: number, name: string }
  * @throws {Error} 401: Unauthorized, 404: Collection not found or not accessible, 500: Server error
  * @description Creates a copy of the specified collection, including all datasets.
  * The new collection will be owned by the authenticated user.
@@ -164,7 +163,7 @@ collectionsAPI.copyCollection = async (id) => {
  * Get preview metadata for multiple datasets
  * @param {string[]} datasetShortNames - Array of dataset short names
  * @param {number} [collectionId] - Optional collection ID to track view statistics
- * @returns {Promise<Response>} Array of dataset preview objects
+ * @returns {Promise<Response>} Response body: Array of dataset preview objects with rowCount property
  * @throws {Error} 401: Unauthorized, 500: Server error
  * @description Returns metadata for multiple datasets including temporal range, row counts,
  * sensors, makes, regions, and status flags. Non-existent datasets are silently ignored.
@@ -181,7 +180,7 @@ collectionsAPI.getCollectionPreview = async (
     searchParams.append('datasets', name);
   });
 
-  // Add collection_id if provided for views tracking
+  // Add collectionId if provided for views tracking
   if (collectionId !== undefined && collectionId !== null) {
     searchParams.append('collectionId', collectionId);
   }

@@ -255,7 +255,7 @@ const useCollectionsStore = create((set, get) => ({
     // Create optimistic collection object with form data
     const optimisticCollection = {
       id: optimisticId,
-      name: data.collection_name,
+      name: data.collectionName,
       description: data.description || null,
       isPublic: !data.private,
       createdDate: new Date().toISOString(),
@@ -278,7 +278,7 @@ const useCollectionsStore = create((set, get) => ({
 
         // Fetch full collection data from server
         const collectionResponse = await collectionsAPI.getCollectionById(
-          result.collection_id,
+          result.collectionId,
           { includeDatasets: false },
         );
 
