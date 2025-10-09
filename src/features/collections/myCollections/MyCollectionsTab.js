@@ -179,14 +179,18 @@ const MyCollectionsTab = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user);
 
-  const {
-    statistics,
-    isLoading,
-    error,
-    filteredUserCollections,
-    visibilityFilter,
-    setVisibilityFilter,
-  } = useCollectionsStore();
+  const statistics = useCollectionsStore((state) => state.statistics);
+  const isLoading = useCollectionsStore((state) => state.isLoading);
+  const error = useCollectionsStore((state) => state.error);
+  const filteredUserCollections = useCollectionsStore(
+    (state) => state.filteredUserCollections,
+  );
+  const visibilityFilter = useCollectionsStore(
+    (state) => state.visibilityFilter,
+  );
+  const setVisibilityFilter = useCollectionsStore(
+    (state) => state.setVisibilityFilter,
+  );
 
   const handleLoginClick = () => {
     dispatch(showLoginDialog());
@@ -270,9 +274,6 @@ const MyCollectionsTab = () => {
       </Box>
 
       <SearchProvider
-        // Force remount when collections or visibility filter changes
-        // SearchProvider creates its store on mount and doesn't react to item prop changes
-        key={`search-${visibilityFilter}-${filteredUserCollections.length}`}
         items={filteredUserCollections}
         searchKeys={['name', 'description', 'creatorName']}
       >

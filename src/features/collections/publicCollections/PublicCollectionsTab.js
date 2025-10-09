@@ -140,8 +140,12 @@ const PublicCollectionsContent = () => {
 const PublicCollectionsTab = () => {
   const classes = useStyles();
 
-  const { publicCollections, isLoading, isCopying, error } =
-    useCollectionsStore();
+  const publicCollections = useCollectionsStore(
+    (state) => state.publicCollections,
+  );
+  const isLoading = useCollectionsStore((state) => state.isLoading);
+  const isCopying = useCollectionsStore((state) => state.isCopying);
+  const error = useCollectionsStore((state) => state.error);
 
   // Only show loading state for initial load, not when copying
   if (isLoading && !isCopying) {

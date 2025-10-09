@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useRef } from 'react';
+import React, { createContext, useContext, useRef, useEffect } from 'react';
 import { createStore, useStore } from 'zustand';
 import { performSearch } from '../utils/searchEngines';
 import { SEARCH_CONFIG } from '../constants/searchConstants';
@@ -90,6 +90,28 @@ const SearchContext = createContext(null);
 
 export function SearchProvider({ children, items, searchKeys }) {
   const store = useRef(createSearchStore({ items, searchKeys })).current;
+
+  // Update store when items prop changes
+  useEffect(() => {
+    const currentState = store.getState();
+    const { searchQuery, searchEngine, isActive } = currentState;
+
+    // Update base items
+    store.setState({
+      items,
+      totalCount: items.length,
+    });
+
+    // Re-run search if active, otherwise update filteredItems
+    if (isActive && searchQuery) {
+      currentState.actions.setSearchQuery(searchQuery);
+    } else {
+      store.setState({
+        filteredItems: items,
+        resultCount: items.length,
+      });
+    }
+  }, [items, store]);
 
   return (
     <SearchContext.Provider value={store}>{children}</SearchContext.Provider>
