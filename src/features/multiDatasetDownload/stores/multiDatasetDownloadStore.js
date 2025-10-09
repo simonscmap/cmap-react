@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { SELECTION_DEBOUNCE_DELAY_MS } from '../constants/constants';
 import bulkDownloadAPI from '../api/bulkDownload';
+import useCollectionsStore from '../../collections/state/collectionsStore';
 
 const useMultiDatasetDownloadStore = create((set, get) => ({
   // State
@@ -292,6 +293,13 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
       // safeApi returns errors as values instead of throwing them
       if (result instanceof Error) {
         throw result;
+      }
+
+      // Increment download count locally since backend incremented it
+      if (collectionId !== undefined && collectionId !== null) {
+        useCollectionsStore
+          .getState()
+          .incrementCollectionStat(collectionId, 'downloads');
       }
     } catch (error) {
       console.error('Download failed:', error);

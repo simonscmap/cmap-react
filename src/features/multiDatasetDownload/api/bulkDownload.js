@@ -61,13 +61,13 @@ bulkDownloadAPI.downloadData = async (
     requestBody.filters = transformFiltersForAPI(filters);
   }
 
-  // if (collectionId !== null && collectionId !== undefined) {
-  //   const parsedId = parseInt(collectionId, 10);
-  //   if (isNaN(parsedId) || parsedId <= 0) {
-  //     throw new Error('collectionId must be a positive integer');
-  //   }
-  //   requestBody.collectionId = parsedId;
-  // }
+  if (collectionId !== null && collectionId !== undefined) {
+    const parsedId = parseInt(collectionId, 10);
+    if (isNaN(parsedId) || parsedId <= 0) {
+      throw new Error('collectionId must be a positive integer');
+    }
+    requestBody.collectionId = parsedId;
+  }
 
   const response = await fetch(endpoint, {
     ...postOptions,

@@ -393,8 +393,28 @@ const useCollectionsStore = create((set, get) => ({
 
       if (response.status === 201) {
         const result = await response.json();
-        // Refetch collections to get the updated list with the new collection
-        await get().fetchCollections({ includeDatasets: true });
+
+        // Add new collection to user collections (prepend to show at top)
+        const { userCollections, filteredUserCollections } = get();
+        const updatedUserCollections = [result, ...userCollections];
+        const updatedFilteredUserCollections = [
+          result,
+          ...filteredUserCollections,
+        ];
+
+        // Recalculate statistics with new collection
+        const statistics = get().calculateStatistics(updatedUserCollections);
+
+        // First, add the new collection to state
+        set({
+          userCollections: updatedUserCollections,
+          filteredUserCollections: updatedFilteredUserCollections,
+          statistics,
+        });
+
+        // Then increment source collection's copies count locally
+        get().incrementCollectionStat(collectionId, 'copies');
+
         return result;
       } else if (response.status === 404) {
         throw new Error('Collection not found or not accessible');
@@ -440,6 +460,11 @@ const useCollectionsStore = create((set, get) => ({
 
       set({ previewData: dataWithType, isLoadingPreview: false });
 
+      // Increment view count locally since backend incremented it
+      if (collectionId !== undefined && collectionId !== null) {
+        get().incrementCollectionStat(collectionId, 'views');
+      }
+
       return { data: dataWithType, missingDatasets };
     } catch (error) {
       console.error('Error fetching preview data:', error);
@@ -453,6 +478,29 @@ const useCollectionsStore = create((set, get) => ({
 
   clearPreviewData: () => {
     set({ previewData: [], previewError: null, isLoadingPreview: false });
+  },
+
+  incrementCollectionStat: (collectionId, statName) => {
+    // Helper to increment a stat in a collection object
+    // statName can be: 'views', 'downloads', 'copies'
+    const incrementStat = (collection) =>
+      collection.id === collectionId
+        ? { ...collection, [statName]: (collection[statName] ?? 0) + 1 }
+        : collection;
+
+    const {
+      publicCollections,
+      userCollections,
+      filteredPublicCollections,
+      filteredUserCollections,
+    } = get();
+
+    set({
+      publicCollections: publicCollections.map(incrementStat),
+      userCollections: userCollections.map(incrementStat),
+      filteredPublicCollections: filteredPublicCollections.map(incrementStat),
+      filteredUserCollections: filteredUserCollections.map(incrementStat),
+    });
   },
 
   // Utility functions
