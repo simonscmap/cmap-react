@@ -40,8 +40,8 @@ const collectionsAPI = {};
 /**
  * List collections based on user authentication state
  * @param {Object} [params] - Query parameters
- * @param {number} [params.limit=20] - Max collections (1-100)
- * @param {number} [params.offset=0] - Pagination offset (≥ 0)
+ * @param {number} [params.limit=20] - Max collections (1-100) - NOT IMPLEMENTED YET
+ * @param {number} [params.offset=0] - Pagination offset (≥ 0) - NOT IMPLEMENTED YET
  * @param {boolean} [params.includeDatasets=false] - Include dataset details
  * @returns {Promise<Response>} Array of Collection objects
  * @throws {Error} 400: Invalid parameters, 500: Server error
@@ -49,12 +49,13 @@ const collectionsAPI = {};
 collectionsAPI.getCollections = async (params = {}) => {
   const searchParams = new URLSearchParams();
 
-  if (params.limit !== undefined) {
-    searchParams.append('limit', params.limit);
-  }
-  if (params.offset !== undefined) {
-    searchParams.append('offset', params.offset);
-  }
+  // TODO: Backend pagination not yet implemented
+  // if (params.limit !== undefined) {
+  //   searchParams.append('limit', params.limit);
+  // }
+  // if (params.offset !== undefined) {
+  //   searchParams.append('offset', params.offset);
+  // }
   if (params.includeDatasets !== undefined) {
     searchParams.append('includeDatasets', params.includeDatasets);
   }
