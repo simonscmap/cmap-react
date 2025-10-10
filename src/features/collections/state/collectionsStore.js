@@ -369,9 +369,12 @@ const useCollectionsStore = create((set, get) => ({
     }
   },
 
-  verifyCollectionName: async (name) => {
+  verifyCollectionName: async (name, collectionId) => {
     try {
-      const response = await collectionsAPI.verifyCollectionName(name);
+      const response = await collectionsAPI.verifyCollectionName(
+        name,
+        collectionId,
+      );
 
       if (response.ok) {
         const data = await response.json();
