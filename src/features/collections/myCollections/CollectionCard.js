@@ -20,6 +20,7 @@ import DeleteButton from '../components/DeleteButton';
 import UniversalButton from '../../../shared/components/UniversalButton';
 import useCollectionsStore from '../state/collectionsStore';
 import CollectionDownloadModal from './CollectionDownloadModal';
+import EditCollectionModal from '../editCollection/EditCollectionModal';
 import { snackbarOpen } from '../../../Redux/actions/ui';
 
 const useStyles = makeStyles((theme) => ({
@@ -129,6 +130,7 @@ const CollectionCard = ({ collection, isPending = false }) => {
     (state) => state.deleteCollection,
   );
   const [downloadModalOpen, setDownloadModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -146,8 +148,11 @@ const CollectionCard = ({ collection, isPending = false }) => {
   };
 
   const handleEdit = () => {
-    // TODO: Implement edit functionality
-    console.log('Edit collection:', collection.id);
+    setEditModalOpen(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setEditModalOpen(false);
   };
 
   const handleDownload = () => {
@@ -259,6 +264,14 @@ const CollectionCard = ({ collection, isPending = false }) => {
             </UniversalButton>
           </Box>
         </CardActions>
+
+        {editModalOpen && (
+          <EditCollectionModal
+            open={editModalOpen}
+            onClose={handleCloseEditModal}
+            collectionId={collection.id}
+          />
+        )}
 
         <CollectionDownloadModal
           open={downloadModalOpen}

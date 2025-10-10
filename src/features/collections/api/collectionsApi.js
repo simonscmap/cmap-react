@@ -87,6 +87,16 @@ collectionsAPI.getCollectionById = async (id, params = {}) => {
 };
 
 /**
+ * Retrieve detailed information about a specific collection (alias for getCollectionById)
+ * @param {number} id - Collection ID (positive integer)
+ * @param {Object} [params] - Query parameters
+ * @param {boolean} [params.includeDatasets=true] - Include dataset details
+ * @returns {Promise<Response>} CollectionDetail object
+ * @throws {Error} 400: Invalid parameters, 404: Not found/access denied, 500: Server error
+ */
+collectionsAPI.getCollection = collectionsAPI.getCollectionById;
+
+/**
  * Create a new collection with optional datasets
  * @param {Object} data - Collection creation data
  * @param {string} data.collectionName - Collection name (required, 1-200 characters)
@@ -126,16 +136,46 @@ collectionsAPI.deleteCollection = async (id) => {
 };
 
 /**
+ * Update an existing collection's metadata and datasets
+ * @param {number} id - Collection ID (positive integer)
+ * @param {Object} data - Collection update data
+ * @param {string} data.collectionName - Collection name (required, 5-200 characters)
+ * @param {string} data.description - Collection description (required, 0-500 characters)
+ * @param {boolean} data.private - Whether collection is private (required)
+ * @param {string[]} data.datasets - Array of dataset short names (required, can be empty)
+ * @returns {Promise<Response>} Response body: { collectionId: number }
+ * @throws {Error} 400: Validation errors, 401: Unauthorized, 403: Not collection owner, 404: Collection not found, 409: Name conflict, 500: Server error
+ * @description Updates all fields of an existing collection. Only the collection owner can update.
+ * Name uniqueness is scoped per user.
+ */
+collectionsAPI.updateCollection = async (id, data) => {
+  const endpoint = `${apiUrl}/api/collections/${id}`;
+
+  return await fetch(endpoint, {
+    ...postOptions,
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+};
+
+/**
  * Verify if a collection name is available for the authenticated user
  * @param {string} name - Collection name to verify (required)
+ * @param {number} [collectionId] - Optional collection ID to exclude from check (for editing)
  * @returns {Promise<Response>} Object with name and isAvailable boolean
  * @throws {Error} 401: Unauthorized, 500: Server error
  * @description Checks if the given name is available for the current user.
  * Returns true if name is available (not used by this user).
+ * When collectionId is provided, that collection is excluded from the check,
+ * allowing users to keep the same name when editing.
  * Name availability is scoped per user (same name can exist across different users).
  */
-collectionsAPI.verifyCollectionName = async (name) => {
+collectionsAPI.verifyCollectionName = async (name, collectionId) => {
   const searchParams = new URLSearchParams({ name });
+  if (collectionId !== undefined && collectionId !== null) {
+    searchParams.append('collectionId', collectionId);
+  }
+
   const endpoint = `${apiUrl}/api/collections/verify-name?${searchParams.toString()}`;
 
   return await fetch(endpoint, fetchOptions);

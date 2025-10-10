@@ -4,6 +4,7 @@ module.exports = {
   testMatch: [
     '<rootDir>/test/**/*.{spec,test}.{js,jsx,ts,tsx}',
     '<rootDir>/src/shared/sorting/tests/**/*.{spec,test}.{js,jsx,ts,tsx}',
+    '<rootDir>/src/features/collections/**/__tests__/**/*.{spec,test}.{js,jsx,ts,tsx}',
     // '<rootDir>/**/**/tests/**/*.{spec,test}.{js,jsx,ts,tsx}',
   ],
   moduleNameMapper: {

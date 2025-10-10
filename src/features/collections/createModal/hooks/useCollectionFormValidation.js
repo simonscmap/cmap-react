@@ -12,6 +12,7 @@ import { debounce } from 'throttle-debounce';
  * @param {string} description - Current description value
  * @param {Function} verifyCollectionName - API function to verify name availability
  * @param {number} [debounceMs=900] - Debounce delay in milliseconds for name verification
+ * @param {number} [collectionId] - Optional collection ID (for edit context to exclude current collection from uniqueness check)
  * @returns {Object} Validation state and utilities
  */
 export const useCollectionFormValidation = (
@@ -19,6 +20,7 @@ export const useCollectionFormValidation = (
   description,
   verifyCollectionName,
   debounceMs = 900,
+  collectionId,
 ) => {
   // Name validation state
   const [nameValidationState, setNameValidationState] = useState('initial'); // 'initial' | 'checking' | 'available' | 'unavailable' | 'warning'
@@ -29,7 +31,10 @@ export const useCollectionFormValidation = (
   useEffect(() => {
     debouncedVerifyRef.current = debounce(debounceMs, async (nameToVerify) => {
       try {
-        const isAvailable = await verifyCollectionName(nameToVerify);
+        const isAvailable = await verifyCollectionName(
+          nameToVerify,
+          collectionId,
+        );
         if (isAvailable) {
           setNameValidationState('available');
           setNameErrorMessage('');
@@ -49,7 +54,7 @@ export const useCollectionFormValidation = (
         debouncedVerifyRef.current.cancel();
       }
     };
-  }, [debounceMs, verifyCollectionName]);
+  }, [debounceMs, verifyCollectionName, collectionId]);
 
   useEffect(() => {
     if (!name) {
