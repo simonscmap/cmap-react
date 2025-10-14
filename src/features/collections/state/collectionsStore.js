@@ -162,24 +162,7 @@ const useCollectionsStore = create((set, get) => ({
       }
 
       const data = await response.json();
-
-      // TEMPORARY: Add fake dataset to collection 147
       const collections = Array.isArray(data) ? data : [];
-      const collection147 = collections.find((c) => c.id === 147);
-      if (collection147) {
-        const fakeDataset = {
-          datasetShortName: 'FAKE_TEST_DATASET',
-          datasetLongName: 'Fake Test Dataset for Development Testing',
-          isValid: false,
-        };
-        if (!collection147.datasets) {
-          collection147.datasets = [];
-        }
-        collection147.datasets.push(fakeDataset);
-        // Update dataset count to reflect the addition
-        collection147.datasetCount = collection147.datasets.length;
-      }
-      // END TEMPORARY
 
       const userCollections = collections.filter(
         (collection) => collection.isOwner === true,
