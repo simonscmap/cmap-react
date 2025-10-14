@@ -147,6 +147,10 @@ const CollectionCard = ({ collection, isPending = false }) => {
     return `${dateStr}, ${timeStr}`;
   };
 
+  const invalidDatasetCount = collection.datasets
+    ? collection.datasets.filter((dataset) => dataset.isValid === false).length
+    : 0;
+
   const handleEdit = () => {
     setEditModalOpen(true);
   };
@@ -225,6 +229,14 @@ const CollectionCard = ({ collection, isPending = false }) => {
               label="Last Modified"
               value={formatDateTime(collection.modifiedDate)}
             />
+            {invalidDatasetCount > 0 && (
+              <MetadataRow
+                label="Invalid Datasets"
+                value={invalidDatasetCount}
+                isCount={true}
+                labelColor={colors.errorYellow}
+              />
+            )}
           </Box>
         </CardContent>
 

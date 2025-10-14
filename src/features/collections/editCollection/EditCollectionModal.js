@@ -1,24 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Box,
   Typography,
   CircularProgress,
-  Paper,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   IconButton,
 } from '@material-ui/core';
-import { Close } from '@material-ui/icons';
+import { Close, Add } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
+import { useDispatch } from 'react-redux';
 import { useEditCollection } from './hooks/useEditCollection';
 import useEditCollectionStore from '../state/editCollectionStore';
 import CollectionFormFields from '../components/CollectionFormFields';
-import CollectionContentsTable from './components/CollectionContentsTable';
+import CollectionStatistics from '../components/CollectionStatistics';
+import CollectionDatasetsTable from '../components/CollectionDatasetsTable';
+import CollectionContentActions from './components/CollectionContentActions';
 import UnsavedChangesWarning from './components/UnsavedChangesWarning';
-import MultiDatasetDownloadContainer from '../../multiDatasetDownload/components/MultiDatasetDownloadContainer';
 import UniversalButton from '../../../shared/components/UniversalButton';
+import { DOWNLOAD_LIMITS } from '../../../shared/constants/downloadConstants';
 
 const useStyles = makeStyles((theme) => ({
   dialogPaper: {
@@ -53,28 +55,47 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2),
     paddingTop: theme.spacing(1),
     gap: theme.spacing(1),
+    display: 'none',
+    [theme.breakpoints.down('md')]: {
+      display: 'flex',
+    },
+  },
+  inlineActions: {
+    [theme.breakpoints.down('md')]: {
+      display: 'none',
+    },
   },
   splitPanelContainer: {
     display: 'grid',
     gridTemplateColumns: '400px 1fr',
     gap: theme.spacing(3),
+    alignItems: 'stretch',
     [theme.breakpoints.down('md')]: {
       gridTemplateColumns: '1fr',
     },
   },
   leftPanel: {
-    backgroundColor: 'rgba(16, 43, 60, 0.6)',
-    borderRadius: theme.shape.borderRadius,
-    padding: theme.spacing(2),
-    height: 'fit-content',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  sectionTitle: {
+    fontWeight: 500,
+    color: 'rgba(255, 255, 255, 0.9)',
+    marginBottom: theme.spacing(2),
+  },
+  sectionTitleRow: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: theme.spacing(2),
   },
   rightPanel: {
     backgroundColor: 'transparent',
     boxShadow: 'none',
     borderRadius: theme.shape.borderRadius,
-    minHeight: '500px',
     display: 'flex',
     flexDirection: 'column',
+    minHeight: 0,
   },
   loadingContainer: {
     display: 'flex',
@@ -92,28 +113,21 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.error.main,
     marginBottom: theme.spacing(2),
   },
-  downloadDialogPaper: {
-    minWidth: '900px',
-    maxWidth: '1200px',
-    [theme.breakpoints.down('md')]: {
-      minWidth: '90vw',
-      maxWidth: '90vw',
+  normalRow: {
+    '&:hover': {
+      backgroundColor: 'rgba(255, 255, 255, 0.05)',
     },
   },
-  downloadDialogTitle: {
-    paddingBottom: theme.spacing(1),
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  downloadDialogContent: {
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(2),
-  },
-  downloadCloseButton: {
-    position: 'absolute',
-    right: theme.spacing(1),
-    top: theme.spacing(1),
+  markedForRemovalRow: {
+    opacity: 0.8,
+    backgroundColor: 'rgba(211, 47, 47, 0.15)',
+    borderLeft: '3px solid rgba(211, 47, 47, 0.6)',
+    '& .MuiTableCell-root:not(:first-child):not(:last-child)': {
+      textDecoration: 'line-through',
+    },
+    '&:hover': {
+      backgroundColor: 'rgba(211, 47, 47, 0.2)',
+    },
   },
 }));
 
@@ -126,9 +140,10 @@ const useStyles = makeStyles((theme) => ({
  */
 const EditCollectionModal = ({ open, onClose, collectionId }) => {
   const classes = useStyles();
+  const dispatch = useDispatch();
 
   const [showUnsavedWarning, setShowUnsavedWarning] = useState(false);
-  const [downloadModalOpen, setDownloadModalOpen] = useState(false);
+  const [tableData, setTableData] = useState([]);
 
   // Store state selectors
   const datasetsToRemove = useEditCollectionStore(
@@ -136,6 +151,9 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
   );
   const selectedDatasets = useEditCollectionStore(
     (state) => state.selectedDatasets,
+  );
+  const originalCollection = useEditCollectionStore(
+    (state) => state.originalCollection,
   );
   const markDatasetForRemoval = useEditCollectionStore(
     (state) => state.markDatasetForRemoval,
@@ -159,6 +177,9 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
     state.isIndeterminate(),
   );
   const resetChanges = useEditCollectionStore((state) => state.resetChanges);
+  const downloadSelected = useEditCollectionStore(
+    (state) => state.downloadSelected,
+  );
 
   // Use the main edit collection hook
   const {
@@ -237,23 +258,42 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
     }
   };
 
-  // Handle download selected datasets
-  const handleDownloadSelected = () => {
-    setDownloadModalOpen(true);
+  // Handle download selected datasets - triggers direct download
+  const handleDownloadSelected = async () => {
+    await downloadSelected(dispatch);
   };
 
-  const handleCloseDownloadModal = () => {
-    setDownloadModalOpen(false);
-  };
-
-  const handleDownloadComplete = ({ success, error }) => {
-    if (success) {
-      // Close modal on successful download
-      handleCloseDownloadModal();
+  // Get row class for marked-for-removal styling
+  const getRowClass = (dataset) => {
+    if (datasetsToRemove.includes(dataset.shortName)) {
+      return classes.markedForRemovalRow;
     }
-    // On error, leave modal open so user can see what happened
-    // Error handling is already done in DownloadButton (snackbar, console.error)
+    return classes.normalRow;
   };
+
+  // Handle checkbox toggle - need to disable for marked-for-removal
+  const handleToggleSelection = (shortName) => {
+    if (!datasetsToRemove.includes(shortName)) {
+      toggleDatasetSelection(shortName);
+    }
+  };
+
+  // Callback when table data is loaded
+  const handleDataLoaded = (previewData) => {
+    setTableData(previewData);
+  };
+
+  // Calculate total selected rows
+  const totalSelectedRows = useMemo(() => {
+    return selectedDatasets.reduce((sum, shortName) => {
+      const dataset = tableData.find((d) => d.shortName === shortName);
+      return sum + (dataset?.rowCount || 0);
+    }, 0);
+  }, [selectedDatasets, tableData]);
+
+  // Check if over download limit
+  const isOverDownloadLimit =
+    totalSelectedRows > DOWNLOAD_LIMITS.MAX_ROW_THRESHOLD;
 
   // Reset warning state when modal closes
   useEffect(() => {
@@ -265,7 +305,6 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
   if (!open) {
     return null;
   }
-
   // Loading state
   if (isLoading) {
     return (
@@ -352,8 +391,12 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
           id="edit-collection-dialog-title"
           className={classes.dialogTitle}
         >
-          <Typography variant="h4" className={classes.modalTitle}>
-            Edit Collection: {collection.name}
+          <Typography
+            variant="h4"
+            component="div"
+            className={classes.modalTitle}
+          >
+            Edit Collection: {originalCollection?.name || collection.name}
           </Typography>
           <IconButton
             aria-label="close"
@@ -366,7 +409,10 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
 
         <DialogContent className={classes.dialogContent}>
           <Box className={classes.splitPanelContainer}>
-            <Paper className={classes.leftPanel}>
+            <Box className={classes.leftPanel}>
+              <Typography variant="h6" className={classes.sectionTitle}>
+                Collection Settings
+              </Typography>
               <CollectionFormFields
                 name={collection.name}
                 description={collection.description || ''}
@@ -380,23 +426,96 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
                 descriptionError={descriptionError}
                 isNameOverLimit={isNameOverLimit}
                 isDescriptionOverLimit={isDescriptionOverLimit}
+                isEdit={true}
               />
-            </Paper>
+              <CollectionStatistics
+                stats={[
+                  {
+                    value: collection.datasets?.length || 0,
+                    label: 'Datasets',
+                  },
+                  {
+                    value: collection.modifiedDate
+                      ? new Date(collection.modifiedDate).toLocaleDateString(
+                          'en-US',
+                          {
+                            month: 'short',
+                            day: 'numeric',
+                          },
+                        )
+                      : 'N/A',
+                    label: 'Last Modified',
+                  },
+                ]}
+                itemsPerRow={2}
+              />
+            </Box>
 
-            <Paper className={classes.rightPanel}>
-              <CollectionContentsTable
-                datasets={collection.datasets || []}
-                datasetsToRemove={datasetsToRemove}
+            <Box className={classes.rightPanel}>
+              <Box className={classes.sectionTitleRow}>
+                <Typography
+                  variant="h6"
+                  className={classes.sectionTitle}
+                  style={{ marginBottom: 0 }}
+                >
+                  Collection Contents
+                </Typography>
+                <UniversalButton
+                  variant="containedPrimary"
+                  size="large"
+                  startIcon={<Add />}
+                  onClick={() => {}}
+                >
+                  ADD DATASETS
+                </UniversalButton>
+              </Box>
+              <CollectionDatasetsTable
+                datasetShortNames={
+                  collection.datasets?.map((d) => d.datasetShortName) || []
+                }
                 selectedDatasets={selectedDatasets}
-                onMarkForRemoval={markDatasetForRemoval}
-                onCancelRemoval={cancelDatasetRemoval}
-                onToggleSelection={toggleDatasetSelection}
+                onToggleSelection={handleToggleSelection}
                 onSelectAll={selectAllDatasets}
                 onClearAll={clearAllSelections}
                 areAllSelected={allDatasetsSelected}
                 areIndeterminate={isIndeterminate}
+                rowClassGetter={getRowClass}
+                columns={['name', 'type', 'dateRange', 'rows']}
+                onDataLoaded={handleDataLoaded}
+                actions={[
+                  {
+                    label: 'Remove',
+                    onClick: (dataset) =>
+                      markDatasetForRemoval(dataset.shortName),
+                    variant: 'secondary',
+                    condition: (dataset) =>
+                      !datasetsToRemove.includes(dataset.shortName),
+                  },
+                  {
+                    label: 'Cancel',
+                    onClick: (dataset) =>
+                      cancelDatasetRemoval(dataset.shortName),
+                    variant: 'secondary',
+                    condition: (dataset) =>
+                      datasetsToRemove.includes(dataset.shortName),
+                  },
+                ]}
+                maxHeight={500}
               />
-            </Paper>
+              <Box className={classes.inlineActions}>
+                <CollectionContentActions
+                  selectedDatasets={selectedDatasets}
+                  totalSelectedRows={totalSelectedRows}
+                  isOverDownloadLimit={isOverDownloadLimit}
+                  canSave={canSave}
+                  isSaving={isSaving}
+                  onRemoveSelected={handleRemoveSelected}
+                  onDownloadSelected={handleDownloadSelected}
+                  onCancel={handleClose}
+                  onSave={handleSaveClick}
+                />
+              </Box>
+            </Box>
           </Box>
         </DialogContent>
 
@@ -411,7 +530,7 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
           </UniversalButton>
           <UniversalButton
             onClick={handleDownloadSelected}
-            variant="containedPrimary"
+            variant="primary"
             size="large"
             disabled={selectedDatasets.length === 0}
           >
@@ -444,39 +563,6 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
         onKeepEditing={handleKeepEditing}
         onDiscardChanges={handleDiscardChanges}
       />
-
-      <Dialog
-        open={downloadModalOpen}
-        onClose={handleCloseDownloadModal}
-        classes={{ paper: classes.downloadDialogPaper }}
-        aria-labelledby="download-selected-dialog-title"
-        disableScrollLock={true}
-        maxWidth={false}
-      >
-        <DialogTitle
-          id="download-selected-dialog-title"
-          className={classes.downloadDialogTitle}
-        >
-          Download Selected Datasets
-          <IconButton
-            aria-label="close"
-            onClick={handleCloseDownloadModal}
-            className={classes.downloadCloseButton}
-          >
-            <Close />
-          </IconButton>
-        </DialogTitle>
-
-        <DialogContent className={classes.downloadDialogContent}>
-          {collection && selectedDatasets.length > 0 && (
-            <MultiDatasetDownloadContainer
-              datasetShortNames={selectedDatasets}
-              downloadContext={{ collectionId: collection.id }}
-              onDownloadComplete={handleDownloadComplete}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
     </>
   );
 };

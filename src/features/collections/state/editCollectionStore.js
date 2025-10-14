@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import collectionsAPI from '../api/collectionsApi';
 import { snackbarOpen } from '../../../Redux/actions/ui';
+import useCollectionsStore from './collectionsStore';
 
 /**
  * Zustand store for managing edit collection feature state.
@@ -209,6 +210,49 @@ const useEditCollectionStore = create((set, get) => ({
   },
 
   /**
+   * Download selected datasets directly as a zip file
+   * @param {Function} dispatch - Redux dispatch function for error notifications
+   * @returns {Promise<void>}
+   */
+  downloadSelected: async (dispatch) => {
+    const { selectedDatasets, collection } = get();
+
+    if (!selectedDatasets || selectedDatasets.length === 0) {
+      dispatch(
+        snackbarOpen('Please select at least one dataset to download', {
+          severity: 'warning',
+          position: 'bottom',
+        }),
+      );
+      return;
+    }
+
+    if (!collection) {
+      console.error('Cannot download: no collection loaded');
+      return;
+    }
+
+    try {
+      // Pass the collection ID for download tracking
+      await collectionsAPI.downloadDatasets(selectedDatasets, collection.id);
+      // Browser download UI provides feedback - no success snackbar needed
+    } catch (error) {
+      console.error('Error downloading datasets:', error);
+
+      // Show error notification only on failure
+      dispatch(
+        snackbarOpen(`Failed to download datasets: ${error.message}`, {
+          severity: 'error',
+          position: 'bottom',
+        }),
+      );
+
+      // Re-throw to allow component-level error handling if needed
+      throw error;
+    }
+  },
+
+  /**
    * Persist all changes to backend
    * @param {Function} dispatch - Redux dispatch function for snackbar notifications
    * @returns {Promise<void>}
@@ -291,6 +335,15 @@ const useEditCollectionStore = create((set, get) => ({
           position: 'bottom',
         }),
       );
+
+      // Update the main collections store to reflect changes immediately
+      useCollectionsStore.getState().updateCollection(collection.id, {
+        name: payload.collectionName,
+        description: payload.description,
+        isPublic: !payload.private,
+        datasetCount: payload.datasets.length,
+        modifiedDate: new Date().toISOString(),
+      });
     } catch (error) {
       console.error('Error saving collection:', error);
 

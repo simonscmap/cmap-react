@@ -2,10 +2,11 @@ import { create } from 'zustand';
 import { debounce } from 'throttle-debounce';
 import { SELECTION_DEBOUNCE_DELAY_MS } from '../constants/constants';
 import bulkDownloadAPI from '../api/bulkDownload';
+import { DOWNLOAD_LIMITS } from '../../../shared/constants/downloadConstants';
 
 // Threshold configuration constants
 const THRESHOLD_CONFIG = {
-  maxRowThreshold: 3000000,
+  maxRowThreshold: DOWNLOAD_LIMITS.MAX_ROW_THRESHOLD,
   warningThreshold: 0.9, // 90% of max threshold
 };
 

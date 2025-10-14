@@ -67,6 +67,9 @@ export const useEditCollection = (collectionId) => {
     collection?.name || '',
     collection?.description || '',
     verifyCollectionName,
+    900, // debounceMs (default value)
+    collectionId,
+    useEditCollectionStore.getState().originalCollection?.name,
   );
 
   // Initialize collection on mount

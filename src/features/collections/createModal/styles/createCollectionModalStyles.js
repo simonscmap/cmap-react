@@ -16,6 +16,6 @@ export const useCreateCollectionModalStyles = makeStyles((theme) => ({
   dialogPaper: {
     minWidth: '500px',
     maxWidth: '600px',
-    backgroundColor: 'rgb(24, 69, 98)',
+    backgroundColor: 'rgb(24, 69, 98) !important',
   },
 }));

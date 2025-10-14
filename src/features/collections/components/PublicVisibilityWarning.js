@@ -10,6 +10,9 @@ import { makeStyles } from '@material-ui/core/styles';
 import UniversalButton from '../../../shared/components/UniversalButton';
 
 const useStyles = makeStyles((theme) => ({
+  dialogPaper: {
+    backgroundColor: 'rgb(24, 69, 98)',
+  },
   dialogTitle: {
     paddingBottom: theme.spacing(1),
   },
@@ -47,6 +50,7 @@ const PublicVisibilityWarning = ({ open, onKeepPrivate, onMakePublic }) => {
     <Dialog
       open={open}
       onClose={handleClose}
+      classes={{ paper: classes.dialogPaper }}
       aria-labelledby="public-visibility-warning-title"
       aria-describedby="public-visibility-warning-description"
       aria-modal="true"
