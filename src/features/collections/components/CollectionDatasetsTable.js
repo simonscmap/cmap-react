@@ -76,6 +76,12 @@ const useStyles = makeStyles((theme) => ({
     minWidth: '200px',
     maxWidth: '350px',
   },
+  datasetDescription: {
+    fontSize: '0.75rem',
+    color: 'rgba(255, 255, 255, 0.5)',
+    marginTop: theme.spacing(0.5),
+    lineHeight: 1.3,
+  },
   regionCell: {
     width: '180px',
   },
@@ -247,13 +253,20 @@ const CollectionDatasetsTable = ({
       header: 'Dataset Name',
       cellClass: classes.datasetNameCell,
       render: (dataset) => (
-        <DatasetNameLink
-          datasetShortName={dataset.shortName}
-          typographyProps={{
-            variant: 'body2',
-            noWrap: true,
-          }}
-        />
+        <Box>
+          <DatasetNameLink
+            datasetShortName={dataset.shortName}
+            typographyProps={{
+              variant: 'body2',
+              noWrap: true,
+            }}
+          />
+          {dataset.description && (
+            <Typography className={classes.datasetDescription}>
+              {dataset.description}
+            </Typography>
+          )}
+        </Box>
       ),
     },
     type: {
