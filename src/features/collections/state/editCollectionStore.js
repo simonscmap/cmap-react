@@ -24,35 +24,33 @@ const useEditCollectionStore = create((set, get) => ({
   // Actions
 
   /**
-   * Load collection data from API and initialize edit state
+   * Load collection data from existing store and initialize edit state
    * @param {number} collectionId - Collection ID to load
-   * @returns {Promise<void>}
+   * @returns {void}
    */
-  loadCollection: async (collectionId) => {
+  loadCollection: (collectionId) => {
     set({ isLoading: true, error: null });
 
     try {
-      const response = await collectionsAPI.getCollection(collectionId, {
-        includeDatasets: true,
-      });
+      // Get collection from existing collectionsStore instead of API
+      const collection = useCollectionsStore
+        .getState()
+        .getCollectionById(collectionId);
 
-      if (!response.ok) {
-        if (response.status === 404) {
-          throw new Error('Collection not found or you do not have access');
-        } else if (response.status === 401) {
-          throw new Error('You must be logged in to edit collections');
-        } else {
-          throw new Error(
-            `Failed to load collection: ${response.status} ${response.statusText}`,
-          );
-        }
+      if (!collection) {
+        throw new Error('Collection not found or you do not have access');
       }
-
-      const collection = await response.json();
 
       // Verify ownership (UX check, backend also enforces)
       if (!collection.isOwner) {
         throw new Error('You do not have permission to edit this collection');
+      }
+
+      // Verify collection has datasets array
+      if (!collection.datasets) {
+        throw new Error(
+          'Collection data is incomplete. Please refresh the page.',
+        );
       }
 
       // Initialize state with loaded collection
