@@ -10,6 +10,9 @@ import { makeStyles } from '@material-ui/core/styles';
 import UniversalButton from '../../../../shared/components/UniversalButton';
 
 const useStyles = makeStyles((theme) => ({
+  dialogPaper: {
+    backgroundColor: 'rgb(24, 69, 98)',
+  },
   dialogTitle: {
     paddingBottom: theme.spacing(1),
   },
@@ -48,6 +51,7 @@ const UnsavedChangesWarning = ({ open, onKeepEditing, onDiscardChanges }) => {
     <Dialog
       open={open}
       onClose={handleClose}
+      classes={{ paper: classes.dialogPaper }}
       aria-labelledby="unsaved-changes-warning-title"
       aria-describedby="unsaved-changes-warning-description"
       aria-modal="true"

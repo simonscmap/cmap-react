@@ -5,6 +5,10 @@ import { makeStyles } from '@material-ui/core/styles';
  * Used by CollectionFormFields and other collection form components
  */
 export const useCollectionFormStyles = makeStyles((theme) => ({
+  sectionTitle: {
+    fontWeight: 500,
+    color: 'rgba(255, 255, 255, 0.9)',
+  },
   formField: {
     marginBottom: theme.spacing(3),
   },
@@ -22,6 +26,9 @@ export const useCollectionFormStyles = makeStyles((theme) => ({
   },
   helperTextAvailable: {
     color: 'rgb(157, 209, 98)',
+  },
+  helperTextUnchanged: {
+    color: 'rgba(255, 255, 255, 0.5)',
   },
   helperTextWarning: {
     color: '#FFD700',
@@ -43,7 +50,7 @@ export const useCollectionFormStyles = makeStyles((theme) => ({
     },
   },
   visibilitySection: {
-    marginTop: theme.spacing(3),
+    marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
     width: '100%',
   },
@@ -72,5 +79,13 @@ export const useCollectionFormStyles = makeStyles((theme) => ({
     fontSize: '0.875rem',
     color: theme.palette.text.secondary,
     fontStyle: 'italic',
+  },
+  compactRadioGroup: {
+    flexDirection: 'row',
+  },
+  compactRadioLabel: {
+    marginBottom: 0,
+    marginLeft: 0,
+    marginRight: theme.spacing(3),
   },
 }));

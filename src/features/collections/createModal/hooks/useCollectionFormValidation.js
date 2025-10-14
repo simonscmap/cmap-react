@@ -13,6 +13,7 @@ import { debounce } from 'throttle-debounce';
  * @param {Function} verifyCollectionName - API function to verify name availability
  * @param {number} [debounceMs=900] - Debounce delay in milliseconds for name verification
  * @param {number} [collectionId] - Optional collection ID (for edit context to exclude current collection from uniqueness check)
+ * @param {string} [originalName] - Optional original name (for edit context to skip validation when name unchanged)
  * @returns {Object} Validation state and utilities
  */
 export const useCollectionFormValidation = (
@@ -21,9 +22,10 @@ export const useCollectionFormValidation = (
   verifyCollectionName,
   debounceMs = 900,
   collectionId,
+  originalName,
 ) => {
   // Name validation state
-  const [nameValidationState, setNameValidationState] = useState('initial'); // 'initial' | 'checking' | 'available' | 'unavailable' | 'warning'
+  const [nameValidationState, setNameValidationState] = useState('initial'); // 'initial' | 'checking' | 'available' | 'unavailable' | 'warning' | 'unchanged'
   const [nameErrorMessage, setNameErrorMessage] = useState('');
   const [descriptionError, setDescriptionError] = useState('');
   const debouncedVerifyRef = useRef(null);
@@ -63,6 +65,13 @@ export const useCollectionFormValidation = (
       return;
     }
 
+    // Skip validation if name matches originalName (edit context with unchanged name)
+    if (originalName && name.trim() === originalName.trim()) {
+      setNameValidationState('unchanged');
+      setNameErrorMessage('');
+      return;
+    }
+
     if (name.length < 5) {
       setNameValidationState('warning');
       setNameErrorMessage('Collection name must be at least 5 characters');
@@ -80,7 +89,7 @@ export const useCollectionFormValidation = (
     if (debouncedVerifyRef.current) {
       debouncedVerifyRef.current(name.trim());
     }
-  }, [name]);
+  }, [name, originalName]);
 
   useEffect(() => {
     if (description.length > 500) {
@@ -97,7 +106,9 @@ export const useCollectionFormValidation = (
   };
 
   const isValid =
-    nameValidationState === 'available' && description.length <= 500;
+    (nameValidationState === 'available' ||
+      nameValidationState === 'unchanged') &&
+    description.length <= 500;
 
   return {
     nameValidationState,

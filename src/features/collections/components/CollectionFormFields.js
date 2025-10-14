@@ -31,6 +31,7 @@ import { useCollectionFormStyles } from './collectionFormStyles';
  * @param {boolean} isNameOverLimit - Name exceeds 200 characters
  * @param {boolean} isDescriptionOverLimit - Description exceeds 500 characters
  * @param {string} className - Additional CSS class
+ * @param {boolean} isEdit - If true, uses compact visibility variant (single line, no borders)
  */
 const CollectionFormFields = ({
   name,
@@ -46,6 +47,7 @@ const CollectionFormFields = ({
   isNameOverLimit,
   isDescriptionOverLimit,
   className,
+  isEdit,
 }) => {
   const classes = useCollectionFormStyles();
   const [showPublicWarning, setShowPublicWarning] = useState(false);
@@ -92,7 +94,7 @@ const CollectionFormFields = ({
             className: classes.fieldLabel,
           }}
           helperText={
-            <div className={classes.helperTextContainer}>
+            <span className={classes.helperTextContainer}>
               <span>
                 {isNameOverLimit ? (
                   <span className={classes.helperTextUnavailable}>
@@ -105,6 +107,10 @@ const CollectionFormFields = ({
                 ) : nameValidationState === 'available' ? (
                   <span className={classes.helperTextAvailable}>
                     Name is available
+                  </span>
+                ) : nameValidationState === 'unchanged' ? (
+                  <span className={classes.helperTextUnchanged}>
+                    Current collection name
                   </span>
                 ) : nameValidationState === 'warning' ? (
                   <span className={classes.helperTextWarning}>
@@ -125,7 +131,7 @@ const CollectionFormFields = ({
               >
                 {name.length}/200 characters
               </span>
-            </div>
+            </span>
           }
         />
 
@@ -145,7 +151,7 @@ const CollectionFormFields = ({
             className: classes.fieldLabel,
           }}
           helperText={
-            <div className={classes.helperTextContainer}>
+            <span className={classes.helperTextContainer}>
               <span>
                 {isDescriptionOverLimit && (
                   <span className={classes.helperTextUnavailable}>
@@ -162,7 +168,7 @@ const CollectionFormFields = ({
               >
                 {description.length}/500 characters
               </span>
-            </div>
+            </span>
           }
         />
 
@@ -173,33 +179,56 @@ const CollectionFormFields = ({
           <RadioGroup
             value={isPublic ? 'public' : 'private'}
             onChange={handleVisibilityChangeAttempt}
+            className={isEdit ? classes.compactRadioGroup : ''}
           >
             <FormControlLabel
               value="private"
               control={<Radio color="primary" />}
               label={
-                <div>
-                  <div>🔒 Private</div>
-                  <Typography className={classes.radioDescription}>
-                    Only you can see and access this collection
-                  </Typography>
-                </div>
+                isEdit ? (
+                  '🔒 Private (only you can see)'
+                ) : (
+                  <span>
+                    <span style={{ display: 'block' }}>🔒 Private</span>
+                    <Typography
+                      component="span"
+                      className={classes.radioDescription}
+                    >
+                      Only you can see and access this collection
+                    </Typography>
+                  </span>
+                )
               }
-              className={`${classes.radioLabel} ${!isPublic ? classes.radioLabelSelected : ''}`}
+              className={
+                isEdit
+                  ? classes.compactRadioLabel
+                  : `${classes.radioLabel} ${!isPublic ? classes.radioLabelSelected : ''}`
+              }
             />
             <FormControlLabel
               value="public"
               control={<Radio color="primary" />}
               label={
-                <div>
-                  <div>🌐 Public</div>
-                  <Typography className={classes.radioDescription}>
-                    Visible to all CMAP users and discoverable in the public
-                    collection browser
-                  </Typography>
-                </div>
+                isEdit ? (
+                  '🌐 Public (visible to all users)'
+                ) : (
+                  <span>
+                    <span style={{ display: 'block' }}>🌐 Public</span>
+                    <Typography
+                      component="span"
+                      className={classes.radioDescription}
+                    >
+                      Visible to all CMAP users and discoverable in the public
+                      collection browser
+                    </Typography>
+                  </span>
+                )
               }
-              className={`${classes.radioLabel} ${isPublic ? classes.radioLabelSelected : ''}`}
+              className={
+                isEdit
+                  ? classes.compactRadioLabel
+                  : `${classes.radioLabel} ${isPublic ? classes.radioLabelSelected : ''}`
+              }
             />
           </RadioGroup>
         </FormControl>
@@ -228,18 +257,21 @@ CollectionFormFields.propTypes = {
     'available',
     'unavailable',
     'warning',
+    'unchanged',
   ]).isRequired,
   nameErrorMessage: PropTypes.string,
   descriptionError: PropTypes.string,
   isNameOverLimit: PropTypes.bool.isRequired,
   isDescriptionOverLimit: PropTypes.bool.isRequired,
   className: PropTypes.string,
+  isEdit: PropTypes.bool,
 };
 
 CollectionFormFields.defaultProps = {
   nameErrorMessage: '',
   descriptionError: '',
   className: '',
+  isEdit: false,
 };
 
 export default CollectionFormFields;

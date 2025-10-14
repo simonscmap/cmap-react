@@ -163,9 +163,23 @@ const useCollectionsStore = create((set, get) => ({
 
       const data = await response.json();
 
-      // Filter collections based on isPublic and isOwner flags
-      // API returns single array of collections with boolean flags
+      // TEMPORARY: Add fake dataset to collection 147
       const collections = Array.isArray(data) ? data : [];
+      const collection147 = collections.find((c) => c.id === 147);
+      if (collection147) {
+        const fakeDataset = {
+          datasetShortName: 'FAKE_TEST_DATASET',
+          datasetLongName: 'Fake Test Dataset for Development Testing',
+          isValid: false,
+        };
+        if (!collection147.datasets) {
+          collection147.datasets = [];
+        }
+        collection147.datasets.push(fakeDataset);
+        // Update dataset count to reflect the addition
+        collection147.datasetCount = collection147.datasets.length;
+      }
+      // END TEMPORARY
 
       const userCollections = collections.filter(
         (collection) => collection.isOwner === true,
@@ -553,6 +567,92 @@ const useCollectionsStore = create((set, get) => ({
     return [...userCollections, ...publicCollections].find(
       (c) => c.id === collectionId,
     );
+  },
+
+  updateCollection: (collectionId, updatedFields) => {
+    const {
+      userCollections,
+      publicCollections,
+      searchQuery,
+      visibilityFilter,
+    } = get();
+
+    // Find the original collection to check previous visibility state
+    const originalInUserCollections = userCollections.find(
+      (c) => c.id === collectionId,
+    );
+    const originalInPublicCollections = publicCollections.find(
+      (c) => c.id === collectionId,
+    );
+
+    if (!originalInUserCollections) {
+      console.warn(
+        `updateCollection: Collection ${collectionId} not found in userCollections`,
+      );
+      return;
+    }
+
+    // Update collection in userCollections
+    const updatedUserCollections = userCollections.map((collection) =>
+      collection.id === collectionId
+        ? { ...collection, ...updatedFields }
+        : collection,
+    );
+
+    // Handle publicCollections based on visibility changes
+    let updatedPublicCollections = publicCollections;
+
+    if (updatedFields.isPublic !== undefined) {
+      if (updatedFields.isPublic && !originalInPublicCollections) {
+        // Changed from private to public - add to publicCollections
+        const updatedCollection = updatedUserCollections.find(
+          (c) => c.id === collectionId,
+        );
+        updatedPublicCollections = [...publicCollections, updatedCollection];
+      } else if (!updatedFields.isPublic && originalInPublicCollections) {
+        // Changed from public to private - remove from publicCollections
+        updatedPublicCollections = publicCollections.filter(
+          (c) => c.id !== collectionId,
+        );
+      } else if (updatedFields.isPublic && originalInPublicCollections) {
+        // Still public - update in publicCollections
+        updatedPublicCollections = publicCollections.map((collection) =>
+          collection.id === collectionId
+            ? { ...collection, ...updatedFields }
+            : collection,
+        );
+      }
+    } else if (originalInPublicCollections) {
+      // No visibility change but collection is in public - update it
+      updatedPublicCollections = publicCollections.map((collection) =>
+        collection.id === collectionId
+          ? { ...collection, ...updatedFields }
+          : collection,
+      );
+    }
+
+    // Update filtered collections by re-applying filters
+    const filteredUserCollections = get().applyFilters(
+      updatedUserCollections,
+      searchQuery,
+      visibilityFilter,
+    );
+    const filteredPublicCollections = get().applyFilters(
+      updatedPublicCollections,
+      searchQuery,
+      'all',
+    );
+
+    // Recalculate statistics
+    const statistics = get().calculateStatistics(updatedUserCollections);
+
+    set({
+      userCollections: updatedUserCollections,
+      publicCollections: updatedPublicCollections,
+      filteredUserCollections,
+      filteredPublicCollections,
+      statistics,
+    });
   },
 
   // Reset functions

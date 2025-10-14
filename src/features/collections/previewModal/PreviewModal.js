@@ -7,23 +7,15 @@ import {
   IconButton,
   Typography,
   Box,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   CircularProgress,
 } from '@material-ui/core';
 import { Close } from '@material-ui/icons';
 import { useDispatch } from 'react-redux';
-import { format, parseISO } from 'date-fns';
 import { usePreviewModalStyles } from './previewModalStyles';
 import CollectionStatistics from '../components/CollectionStatistics';
 import UniversalButton from '../../../shared/components/UniversalButton';
-import { DatasetNameLink } from '../../../shared/components';
 import CollectionDownloadModal from '../myCollections/CollectionDownloadModal';
+import CollectionDatasetsTable from '../components/CollectionDatasetsTable';
 import useCollectionsStore from '../state/collectionsStore';
 import { snackbarOpen } from '../../../Redux/actions/ui';
 
@@ -33,70 +25,11 @@ const PreviewModal = ({ open, onClose, collection }) => {
 
   // Zustand store selectors
   const copyCollection = useCollectionsStore((state) => state.copyCollection);
-  const fetchPreviewData = useCollectionsStore(
-    (state) => state.fetchPreviewData,
-  );
-  const clearPreviewData = useCollectionsStore(
-    (state) => state.clearPreviewData,
-  );
-  const previewData = useCollectionsStore((state) => state.previewData);
-  const isLoadingPreview = useCollectionsStore(
-    (state) => state.isLoadingPreview,
-  );
 
   // Local state (UI-specific)
   const [copying, setCopying] = useState(false);
   const [downloadModalOpen, setDownloadModalOpen] = useState(false);
-
-  // Fetch preview data when modal opens
-  useEffect(() => {
-    if (!open || !collection?.datasets) {
-      return;
-    }
-
-    const loadPreviewData = async () => {
-      try {
-        const datasetShortNames = collection.datasets.map(
-          (dataset) => dataset.datasetShortName,
-        );
-
-        const { missingDatasets } = await fetchPreviewData(
-          datasetShortNames,
-          collection.id,
-        );
-
-        if (missingDatasets.length > 0) {
-          dispatch(
-            snackbarOpen(
-              `The following datasets did not return data or are unavailable: ${missingDatasets.join(', ')}`,
-              {
-                severity: 'warning',
-                position: 'bottom',
-              },
-            ),
-          );
-        }
-      } catch (error) {
-        dispatch(
-          snackbarOpen(error.message || 'Failed to load preview data', {
-            severity: 'error',
-            position: 'bottom',
-          }),
-        );
-        onClose();
-      }
-    };
-
-    loadPreviewData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, collection?.id]);
-
-  // Clear preview data when modal closes
-  useEffect(() => {
-    if (!open) {
-      clearPreviewData();
-    }
-  }, [open, clearPreviewData]);
+  const [totalRows, setTotalRows] = useState(0);
 
   if (!collection) return null;
 
@@ -113,29 +46,20 @@ const PreviewModal = ({ open, onClose, collection }) => {
     }
   };
 
-  const formatDateRange = (timeStart, timeEnd) => {
-    try {
-      const start = timeStart
-        ? format(parseISO(timeStart), 'yyyy-MM-dd')
-        : 'N/A';
-      const end = timeEnd ? format(parseISO(timeEnd), 'yyyy-MM-dd') : 'N/A';
-      return { start, end };
-    } catch (error) {
-      return { start: 'N/A', end: 'N/A' };
-    }
+  // Handle data loaded from table
+  const handleDataLoaded = (data, calculatedTotalRows) => {
+    setTotalRows(calculatedTotalRows);
   };
 
-  const formatRegions = (regions) => {
-    if (!regions || regions.length === 0) {
-      return 'N/A';
-    }
-    return regions.join(', ');
+  // Handle errors from table
+  const handleTableError = (message, severity) => {
+    dispatch(
+      snackbarOpen(message, {
+        severity: severity || 'error',
+        position: 'bottom',
+      }),
+    );
   };
-
-  // Calculate total rows from preview data
-  const totalRows = previewData.reduce((sum, dataset) => {
-    return sum + (dataset.rowCount || 0);
-  }, 0);
 
   // Prepare statistics for CollectionStatistics component
   const stats = [
@@ -201,7 +125,11 @@ const PreviewModal = ({ open, onClose, collection }) => {
           id="preview-collection-dialog-title"
           className={classes.dialogTitle}
         >
-          <Typography variant="h4" className={classes.collectionTitle}>
+          <Typography
+            variant="h4"
+            component="div"
+            className={classes.collectionTitle}
+          >
             {collection.name}
           </Typography>
           <IconButton
@@ -241,87 +169,16 @@ const PreviewModal = ({ open, onClose, collection }) => {
             <Typography variant="h6" className={classes.sectionTitle}>
               Datasets
             </Typography>
-            {isLoadingPreview ? (
-              <Box
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                minHeight={200}
-              >
-                <CircularProgress />
-              </Box>
-            ) : (
-              <TableContainer
-                component={Paper}
-                className={classes.tableContainer}
-              >
-                <Table className={classes.table}>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Dataset Name</TableCell>
-                      <TableCell>Type</TableCell>
-                      <TableCell>Region</TableCell>
-                      <TableCell>Date Range</TableCell>
-                      <TableCell align="right">Rows</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {previewData.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={5} align="center">
-                          <Typography variant="body2" color="textSecondary">
-                            No dataset data available
-                          </Typography>
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      previewData.map((dataset, index) => {
-                        const dateRange = formatDateRange(
-                          dataset.timeStart,
-                          dataset.timeEnd,
-                        );
-                        return (
-                          <TableRow key={index} className={classes.tableRow}>
-                            <TableCell
-                              className={`${classes.tableCell} ${classes.datasetNameCell}`}
-                            >
-                              <DatasetNameLink
-                                datasetShortName={dataset.shortName}
-                                typographyProps={{
-                                  variant: 'body2',
-                                  noWrap: true,
-                                }}
-                              />
-                            </TableCell>
-                            <TableCell className={classes.tableCell}>
-                              {dataset.type}
-                            </TableCell>
-                            <TableCell
-                              className={`${classes.tableCell} ${classes.regionCell}`}
-                            >
-                              {formatRegions(dataset.regions)}
-                            </TableCell>
-                            <TableCell
-                              className={`${classes.tableCell} ${classes.dateRangeCell}`}
-                            >
-                              {dateRange.start} to
-                              <br />
-                              {dateRange.end}
-                            </TableCell>
-                            <TableCell
-                              className={`${classes.tableCell} ${classes.rowsCell}`}
-                              align="right"
-                            >
-                              {dataset.rowCount?.toLocaleString() ?? 'N/A'}
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })
-                    )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            )}
+            <CollectionDatasetsTable
+              collectionId={collection.id}
+              datasetShortNames={
+                collection.datasets?.map((d) => d.datasetShortName) || []
+              }
+              columns={['name', 'type', 'region', 'dateRange', 'rows']}
+              onDataLoaded={handleDataLoaded}
+              onError={handleTableError}
+              maxHeight={400}
+            />
           </Box>
         </DialogContent>
 
