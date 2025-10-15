@@ -6,6 +6,7 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  DialogContentText,
   DialogActions,
   IconButton,
 } from '@material-ui/core';
@@ -133,6 +134,14 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: 'rgba(211, 47, 47, 0.2)',
     },
   },
+  invalidDatasetsList: {
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(3),
+    paddingLeft: theme.spacing(4),
+    maxHeight: '150px',
+    overflow: 'auto',
+    backgroundColor: 'transparent',
+  },
 }));
 
 /**
@@ -147,6 +156,9 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
   const dispatch = useDispatch();
 
   const [showUnsavedWarning, setShowUnsavedWarning] = useState(false);
+  const [showInvalidDatasetsDialog, setShowInvalidDatasetsDialog] =
+    useState(false);
+  const [invalidDatasetsData, setInvalidDatasetsData] = useState(null);
   const [tableData, setTableData] = useState([]);
 
   // Store state selectors
@@ -227,6 +239,11 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
     onClose();
   };
 
+  // Handle close invalid datasets dialog
+  const handleCloseInvalidDatasetsDialog = () => {
+    setShowInvalidDatasetsDialog(false);
+  };
+
   // Handle save button click
   const handleSaveClick = async () => {
     const success = await handleSave();
@@ -303,8 +320,26 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
   useEffect(() => {
     if (!open) {
       setShowUnsavedWarning(false);
+      setShowInvalidDatasetsDialog(false);
+      setInvalidDatasetsData(null);
     }
   }, [open]);
+
+  // Check for invalid datasets when collection loads
+  useEffect(() => {
+    if (collection && !isLoading) {
+      const invalidDatasets =
+        collection.datasets?.filter((d) => d.isInvalid === true) || [];
+
+      if (invalidDatasets.length > 0) {
+        setInvalidDatasetsData({
+          invalidCount: invalidDatasets.length,
+          invalidDatasets: invalidDatasets,
+        });
+        setShowInvalidDatasetsDialog(true);
+      }
+    }
+  }, [collection, isLoading]);
 
   if (!open) {
     return null;
@@ -582,6 +617,43 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
         ]}
         ariaLabelId="unsaved-changes-warning-title"
         ariaDescriptionId="unsaved-changes-warning-description"
+      />
+
+      <ConfirmationDialog
+        open={showInvalidDatasetsDialog}
+        onClose={handleCloseInvalidDatasetsDialog}
+        title="Invalid Datasets"
+        message={
+          <>
+            <DialogContentText>
+              The following {invalidDatasetsData?.invalidCount || 0} dataset
+              {(invalidDatasetsData?.invalidCount || 0) === 1
+                ? ' is'
+                : 's are'}{' '}
+              no longer available:
+            </DialogContentText>
+            <DialogContentText
+              className={classes.invalidDatasetsList}
+              component="ul"
+            >
+              {invalidDatasetsData?.invalidDatasets?.map((dataset, idx) => (
+                <li key={idx}>
+                  <code>{dataset.datasetShortName}</code>
+                </li>
+              ))}
+            </DialogContentText>
+          </>
+        }
+        actions={[
+          {
+            label: 'OK',
+            onClick: handleCloseInvalidDatasetsDialog,
+            variant: 'primary',
+            autoFocus: true,
+          },
+        ]}
+        ariaLabelId="invalid-datasets-title"
+        ariaDescriptionId="invalid-datasets-description"
       />
     </>
   );
