@@ -18,10 +18,21 @@ import CollectionDownloadModal from '../myCollections/CollectionDownloadModal';
 import CollectionDatasetsTable from '../components/CollectionDatasetsTable';
 import useCollectionsStore from '../state/collectionsStore';
 import { snackbarOpen } from '../../../Redux/actions/ui';
-import InvalidDatasetsWarning from '../components/InvalidDatasetsWarning';
+import ConfirmationDialog from '../../../shared/components/ConfirmationDialog';
+import { DialogContentText } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+
+const useBulletListStyles = makeStyles((theme) => ({
+  bulletList: {
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(1),
+    paddingLeft: theme.spacing(2),
+  },
+}));
 
 const PreviewModal = ({ open, onClose, collection }) => {
   const classes = usePreviewModalStyles();
+  const bulletListClasses = useBulletListStyles();
   const dispatch = useDispatch();
 
   // Zustand store selectors
@@ -252,13 +263,56 @@ const PreviewModal = ({ open, onClose, collection }) => {
         collection={collection}
       />
 
-      <InvalidDatasetsWarning
+      <ConfirmationDialog
         open={warningDialogOpen}
-        onCancel={handleWarningCancel}
-        onConfirm={handleWarningConfirm}
-        invalidCount={warningDialogData?.invalidCount || 0}
-        validCount={warningDialogData?.validCount || 0}
-        collectionName={collection.name}
+        onClose={handleWarningCancel}
+        title="Invalid Datasets Warning"
+        message={
+          <>
+            <DialogContentText>
+              This collection contains {warningDialogData?.invalidCount || 0}{' '}
+              dataset
+              {(warningDialogData?.invalidCount || 0) === 1
+                ? ''
+                : 's'} that{' '}
+              {(warningDialogData?.invalidCount || 0) === 1 ? 'is' : 'are'} no
+              longer available and will NOT be included in your copy.
+            </DialogContentText>
+            <DialogContentText
+              className={bulletListClasses.bulletList}
+              component="ul"
+            >
+              <li>
+                {warningDialogData?.validCount || 0} valid dataset
+                {(warningDialogData?.validCount || 0) === 1 ? '' : 's'} WILL be
+                copied
+              </li>
+              <li>
+                {warningDialogData?.invalidCount || 0} invalid dataset
+                {(warningDialogData?.invalidCount || 0) === 1 ? '' : 's'} will
+                be SKIPPED
+              </li>
+            </DialogContentText>
+            <DialogContentText>
+              Do you want to proceed with copying "{collection.name}"?
+            </DialogContentText>
+          </>
+        }
+        actions={[
+          {
+            label: 'Cancel',
+            onClick: handleWarningCancel,
+            variant: 'secondary',
+          },
+          {
+            label: `OK - Copy ${warningDialogData?.validCount || 0} Valid Dataset${(warningDialogData?.validCount || 0) === 1 ? '' : 's'}`,
+            onClick: handleWarningConfirm,
+            variant: 'primary',
+            autoFocus: true,
+          },
+        ]}
+        ariaLabelId="invalid-datasets-warning-title"
+        ariaDescriptionId="invalid-datasets-warning-description"
       />
     </>
   );

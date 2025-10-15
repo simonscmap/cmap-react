@@ -9,7 +9,7 @@ import {
   Radio,
   Typography,
 } from '@material-ui/core';
-import PublicVisibilityWarning from './PublicVisibilityWarning';
+import ConfirmationDialog from '../../../shared/components/ConfirmationDialog';
 import { useCollectionFormStyles } from './collectionFormStyles';
 
 /**
@@ -234,10 +234,21 @@ const CollectionFormFields = ({
         </FormControl>
       </div>
 
-      <PublicVisibilityWarning
+      <ConfirmationDialog
         open={showPublicWarning}
-        onKeepPrivate={handleKeepPrivate}
-        onMakePublic={handleMakePublic}
+        onClose={handleKeepPrivate}
+        title="Public Collection Notice"
+        message="This collection will be public and visible to all CMAP users. Other users will be able to discover and view this collection in the public collection browser."
+        actions={[
+          {
+            label: 'OK',
+            onClick: handleMakePublic,
+            variant: 'primary',
+            autoFocus: true,
+          },
+        ]}
+        ariaLabelId="public-visibility-warning-title"
+        ariaDescriptionId="public-visibility-warning-description"
       />
     </>
   );

@@ -18,7 +18,7 @@ import CollectionFormFields from '../components/CollectionFormFields';
 import CollectionStatistics from '../components/CollectionStatistics';
 import CollectionDatasetsTable from '../components/CollectionDatasetsTable';
 import CollectionContentActions from './components/CollectionContentActions';
-import UnsavedChangesWarning from './components/UnsavedChangesWarning';
+import ConfirmationDialog from '../../../shared/components/ConfirmationDialog';
 import UniversalButton from '../../../shared/components/UniversalButton';
 import { DOWNLOAD_LIMITS } from '../../../shared/constants/downloadConstants';
 import zIndex from '../../../enums/zIndex';
@@ -562,10 +562,26 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
         </DialogActions>
       </Dialog>
 
-      <UnsavedChangesWarning
+      <ConfirmationDialog
         open={showUnsavedWarning}
-        onKeepEditing={handleKeepEditing}
-        onDiscardChanges={handleDiscardChanges}
+        onClose={handleKeepEditing}
+        title="Unsaved Changes"
+        message="You have unsaved changes to this collection. If you leave now, your changes will be lost. Do you want to keep editing or discard your changes?"
+        actions={[
+          {
+            label: 'Keep Editing',
+            onClick: handleKeepEditing,
+            variant: 'primary',
+            autoFocus: true,
+          },
+          {
+            label: 'Discard Changes',
+            onClick: handleDiscardChanges,
+            variant: 'secondary',
+          },
+        ]}
+        ariaLabelId="unsaved-changes-warning-title"
+        ariaDescriptionId="unsaved-changes-warning-description"
       />
     </>
   );
