@@ -189,7 +189,7 @@ const useEditCollectionStore = create((set, get) => ({
       .filter(
         (dataset) =>
           !datasetsToRemove.includes(dataset.datasetShortName) &&
-          dataset.isValid !== false,
+          dataset.isInvalid !== true,
       )
       .map((dataset) => dataset.datasetShortName);
 
@@ -304,22 +304,10 @@ const useEditCollectionStore = create((set, get) => ({
 
       const result = await response.json();
 
-      // Update state on success - create updated collection object
-      const updatedCollection = {
-        ...collection,
-        name: payload.collectionName,
-        description: payload.description,
-        isPublic: !payload.private,
-        datasets: collection.datasets.filter(
-          (dataset) => !datasetsToRemove.includes(dataset.datasetShortName),
-        ),
-        modifiedDate: new Date().toISOString(),
-        datasetCount: payload.datasets.length,
-      };
-
+      // Server response is the single source of truth
       set({
-        collection: updatedCollection,
-        originalCollection: JSON.parse(JSON.stringify(updatedCollection)),
+        collection: result,
+        originalCollection: JSON.parse(JSON.stringify(result)),
         datasetsToRemove: [],
         selectedDatasets: [],
         isSaving: false,
@@ -334,14 +322,8 @@ const useEditCollectionStore = create((set, get) => ({
         }),
       );
 
-      // Update the main collections store to reflect changes immediately
-      useCollectionsStore.getState().updateCollection(collection.id, {
-        name: payload.collectionName,
-        description: payload.description,
-        isPublic: !payload.private,
-        datasetCount: payload.datasets.length,
-        modifiedDate: new Date().toISOString(),
-      });
+      // Update the main collections store with full server response
+      useCollectionsStore.getState().updateCollection(collection.id, result);
     } catch (error) {
       console.error('Error saving collection:', error);
 
@@ -461,7 +443,7 @@ const useEditCollectionStore = create((set, get) => ({
 
     // Filter out unavailable datasets from selectableDatasets
     const availableSelectableDatasets = selectableDatasets.filter(
-      (dataset) => dataset.isValid !== false,
+      (dataset) => dataset.isInvalid !== true,
     );
 
     if (availableSelectableDatasets.length === 0) return false;

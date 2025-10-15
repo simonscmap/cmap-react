@@ -8,10 +8,14 @@ import {
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import UniversalButton from '../../../../shared/components/UniversalButton';
+import zIndex from '../../../../enums/zIndex';
 
 const useStyles = makeStyles((theme) => ({
   dialogPaper: {
     backgroundColor: 'rgb(24, 69, 98)',
+  },
+  dialogRoot: {
+    zIndex: `${zIndex.CONFIRMATION_DIALOG} !important`,
   },
   dialogTitle: {
     paddingBottom: theme.spacing(1),
@@ -51,7 +55,7 @@ const UnsavedChangesWarning = ({ open, onKeepEditing, onDiscardChanges }) => {
     <Dialog
       open={open}
       onClose={handleClose}
-      classes={{ paper: classes.dialogPaper }}
+      classes={{ paper: classes.dialogPaper, root: classes.dialogRoot }}
       aria-labelledby="unsaved-changes-warning-title"
       aria-describedby="unsaved-changes-warning-description"
       aria-modal="true"

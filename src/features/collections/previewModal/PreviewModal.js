@@ -18,6 +18,7 @@ import CollectionDownloadModal from '../myCollections/CollectionDownloadModal';
 import CollectionDatasetsTable from '../components/CollectionDatasetsTable';
 import useCollectionsStore from '../state/collectionsStore';
 import { snackbarOpen } from '../../../Redux/actions/ui';
+import InvalidDatasetsWarning from '../components/InvalidDatasetsWarning';
 
 const PreviewModal = ({ open, onClose, collection }) => {
   const classes = usePreviewModalStyles();
@@ -30,6 +31,8 @@ const PreviewModal = ({ open, onClose, collection }) => {
   const [copying, setCopying] = useState(false);
   const [downloadModalOpen, setDownloadModalOpen] = useState(false);
   const [totalRows, setTotalRows] = useState(0);
+  const [warningDialogOpen, setWarningDialogOpen] = useState(false);
+  const [warningDialogData, setWarningDialogData] = useState(null);
 
   if (!collection) return null;
 
@@ -82,6 +85,27 @@ const PreviewModal = ({ open, onClose, collection }) => {
   ];
 
   const handleCopy = async () => {
+    // Check for invalid datasets (data already loaded)
+    const invalidDatasets =
+      collection.datasets?.filter((d) => d.isInvalid === true) || [];
+    const validDatasets =
+      collection.datasets?.filter((d) => !d.isInvalid) || [];
+
+    if (invalidDatasets.length > 0) {
+      // Show warning dialog - wait for user confirmation
+      setWarningDialogOpen(true);
+      setWarningDialogData({
+        invalidCount: invalidDatasets.length,
+        validCount: validDatasets.length,
+      });
+      return; // Exit and wait for dialog response
+    }
+
+    // No invalid datasets - proceed directly
+    await performCopy();
+  };
+
+  const performCopy = async () => {
     setCopying(true);
     try {
       const result = await copyCollection(collection.id);
@@ -102,6 +126,17 @@ const PreviewModal = ({ open, onClose, collection }) => {
     } finally {
       setCopying(false);
     }
+  };
+
+  const handleWarningConfirm = async () => {
+    setWarningDialogOpen(false);
+    await performCopy();
+    setWarningDialogData(null);
+  };
+
+  const handleWarningCancel = () => {
+    setWarningDialogOpen(false);
+    setWarningDialogData(null);
   };
 
   const handleDownload = () => {
@@ -215,6 +250,15 @@ const PreviewModal = ({ open, onClose, collection }) => {
         open={downloadModalOpen}
         onClose={handleCloseDownloadModal}
         collection={collection}
+      />
+
+      <InvalidDatasetsWarning
+        open={warningDialogOpen}
+        onCancel={handleWarningCancel}
+        onConfirm={handleWarningConfirm}
+        invalidCount={warningDialogData?.invalidCount || 0}
+        validCount={warningDialogData?.validCount || 0}
+        collectionName={collection.name}
       />
     </>
   );

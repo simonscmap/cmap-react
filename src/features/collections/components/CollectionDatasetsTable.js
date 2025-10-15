@@ -13,6 +13,10 @@ import {
   Typography,
   Checkbox,
 } from '@material-ui/core';
+import {
+  CheckCircle as CheckCircleIcon,
+  Warning as WarningIcon,
+} from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import { format, parseISO } from 'date-fns';
 import { DatasetNameLink } from '../../../shared/components';
@@ -54,6 +58,19 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: 'rgba(255, 255, 255, 0.05)',
     },
   },
+  invalidRow: {
+    opacity: 0.8,
+    backgroundColor: 'rgba(255, 193, 7, 0.15)',
+    borderLeft: '3px solid rgba(255, 193, 7, 0.6)',
+  },
+  markedForRemovalRow: {
+    opacity: 0.8,
+    backgroundColor: 'rgba(211, 47, 47, 0.15)',
+    borderLeft: '3px solid rgba(211, 47, 47, 0.6)',
+    '& .MuiTableCell-root:not(:first-child):not(:last-child)': {
+      textDecoration: 'line-through',
+    },
+  },
   tableCell: {
     color: 'rgba(255, 255, 255, 0.85)',
     fontSize: '0.85rem',
@@ -71,6 +88,20 @@ const useStyles = makeStyles((theme) => ({
   },
   checkboxCell: {
     width: '50px',
+  },
+  statusCell: {
+    width: '60px',
+    textAlign: 'center',
+  },
+  statusIcon: {
+    fontSize: '1.25rem',
+    verticalAlign: 'middle',
+  },
+  validIcon: {
+    color: '#8bc34a',
+  },
+  invalidIcon: {
+    color: '#ffc107',
   },
   datasetNameCell: {
     minWidth: '200px',
@@ -150,7 +181,7 @@ const CollectionDatasetsTable = ({
   areIndeterminate = false,
   actions = [],
   rowClassGetter,
-  columns = ['name', 'type', 'region', 'dateRange', 'rows'],
+  columns = ['status', 'name', 'type', 'region', 'dateRange', 'rows'],
   onDataLoaded,
   maxHeight,
   className,
@@ -184,7 +215,7 @@ const CollectionDatasetsTable = ({
     const loadData = async () => {
       setIsLoading(true);
       try {
-        const { data: previewData, missingDatasets } = await fetchPreviewData(
+        const previewData = await fetchPreviewData(
           datasetShortNames,
           collectionId,
         );
@@ -201,10 +232,13 @@ const CollectionDatasetsTable = ({
           onDataLoaded(previewData, totalRows);
         }
 
-        // Notify parent of missing datasets
-        if (missingDatasets.length > 0 && onError) {
+        // Notify parent of invalid datasets
+        const invalidDatasets = previewData.filter(
+          (dataset) => dataset.isInvalid === true,
+        );
+        if (invalidDatasets.length > 0 && onError) {
           onError(
-            `The following datasets did not return data or are unavailable: ${missingDatasets.join(', ')}`,
+            `The following datasets did not return data or are unavailable: ${invalidDatasets.map((d) => d.shortName).join(', ')}`,
             'warning',
           );
         }
@@ -249,22 +283,53 @@ const CollectionDatasetsTable = ({
 
   // Column configuration
   const columnConfig = {
+    status: {
+      header: 'Status',
+      cellClass: classes.statusCell,
+      align: 'center',
+      render: (dataset) => {
+        if (dataset.isInvalid) {
+          return (
+            <WarningIcon
+              className={`${classes.statusIcon} ${classes.invalidIcon}`}
+            />
+          );
+        }
+        return (
+          <CheckCircleIcon
+            className={`${classes.statusIcon} ${classes.validIcon}`}
+          />
+        );
+      },
+    },
     name: {
       header: 'Dataset Name',
       cellClass: classes.datasetNameCell,
       render: (dataset) => (
         <Box>
-          <DatasetNameLink
-            datasetShortName={dataset.shortName}
-            typographyProps={{
-              variant: 'body2',
-              noWrap: true,
-            }}
-          />
-          {dataset.description && (
-            <Typography className={classes.datasetDescription}>
-              {dataset.description}
+          {dataset.isInvalid ? (
+            <Typography variant="body2" noWrap>
+              {dataset.shortName}
             </Typography>
+          ) : (
+            <DatasetNameLink
+              datasetShortName={dataset.shortName}
+              typographyProps={{
+                variant: 'body2',
+                noWrap: true,
+              }}
+            />
+          )}
+          {dataset.isInvalid ? (
+            <Typography className={classes.datasetDescription}>
+              Dataset no longer available
+            </Typography>
+          ) : (
+            dataset.description && (
+              <Typography className={classes.datasetDescription}>
+                {dataset.description}
+              </Typography>
+            )
           )}
         </Box>
       ),
@@ -272,17 +337,22 @@ const CollectionDatasetsTable = ({
     type: {
       header: 'Type',
       cellClass: '',
-      render: (dataset) => dataset.type || 'N/A',
+      render: (dataset) =>
+        dataset.isInvalid ? 'Legacy' : dataset.type || 'N/A',
     },
     region: {
       header: 'Region',
       cellClass: classes.regionCell,
-      render: (dataset) => formatRegions(dataset.regions),
+      render: (dataset) =>
+        dataset.isInvalid ? 'N/A' : formatRegions(dataset.regions),
     },
     dateRange: {
       header: 'Date Range',
       cellClass: classes.dateRangeCell,
       render: (dataset) => {
+        if (dataset.isInvalid) {
+          return <>N/A</>;
+        }
         const dateRange = formatDateRange(dataset.timeStart, dataset.timeEnd);
         return (
           <>
@@ -373,9 +443,26 @@ const CollectionDatasetsTable = ({
         <TableBody>
           {data.map((dataset, index) => {
             const isSelected = selectedDatasets.includes(dataset.shortName);
-            const rowClass = rowClassGetter
-              ? rowClassGetter(dataset)
-              : classes.tableRow;
+
+            // Priority: markedForRemovalRow > invalidRow > normal row
+            let rowClass = classes.tableRow;
+
+            if (rowClassGetter) {
+              const customClass = rowClassGetter(dataset);
+              if (
+                customClass &&
+                customClass.includes &&
+                customClass.includes('markedForRemoval')
+              ) {
+                rowClass = classes.markedForRemovalRow;
+              } else if (dataset.isInvalid) {
+                rowClass = classes.invalidRow;
+              } else {
+                rowClass = customClass;
+              }
+            } else if (dataset.isInvalid) {
+              rowClass = classes.invalidRow;
+            }
 
             return (
               <TableRow key={index} className={rowClass}>
@@ -389,6 +476,7 @@ const CollectionDatasetsTable = ({
                       onChange={() => onToggleSelection(dataset.shortName)}
                       color="primary"
                       size="small"
+                      disabled={dataset.isInvalid}
                     />
                   </TableCell>
                 )}
@@ -462,7 +550,7 @@ CollectionDatasetsTable.propTypes = {
   ),
   rowClassGetter: PropTypes.func,
   columns: PropTypes.arrayOf(
-    PropTypes.oneOf(['name', 'type', 'region', 'dateRange', 'rows']),
+    PropTypes.oneOf(['status', 'name', 'type', 'region', 'dateRange', 'rows']),
   ),
   onDataLoaded: PropTypes.func,
   maxHeight: PropTypes.number,

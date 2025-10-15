@@ -148,7 +148,7 @@ const CollectionCard = ({ collection, isPending = false }) => {
   };
 
   const invalidDatasetCount = collection.datasets
-    ? collection.datasets.filter((dataset) => dataset.isValid === false).length
+    ? collection.datasets.filter((dataset) => dataset.isInvalid === true).length
     : 0;
 
   const handleEdit = () => {

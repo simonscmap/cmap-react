@@ -47,6 +47,7 @@ const useStyles = makeStyles((theme) => ({
  * @param {node} actions - Action buttons (rendered in DialogActions)
  * @param {boolean} showCloseButton - Show X button (default: true)
  * @param {object} dialogClasses - Custom classes for Dialog paper
+ * @param {string} dialogRootClass - Custom class for Dialog root
  * @param {string|boolean} maxWidth - Dialog maxWidth (default: false)
  * @param {boolean} disableScrollLock - Disable scroll lock (default: true)
  * @param {string} ariaLabelledBy - ARIA label ID (default: auto-generated)
@@ -59,6 +60,7 @@ const CollectionDialog = ({
   actions,
   showCloseButton,
   dialogClasses,
+  dialogRootClass,
   maxWidth,
   disableScrollLock,
   ariaLabelledBy,
@@ -70,7 +72,7 @@ const CollectionDialog = ({
     <Dialog
       open={open}
       onClose={onClose}
-      classes={{ paper: dialogClasses }}
+      classes={{ paper: dialogClasses, root: dialogRootClass }}
       maxWidth={maxWidth}
       disableScrollLock={disableScrollLock}
       aria-labelledby={titleId}
@@ -109,6 +111,7 @@ CollectionDialog.propTypes = {
   actions: PropTypes.node,
   showCloseButton: PropTypes.bool,
   dialogClasses: PropTypes.string,
+  dialogRootClass: PropTypes.string,
   maxWidth: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
   disableScrollLock: PropTypes.bool,
   ariaLabelledBy: PropTypes.string,
@@ -118,6 +121,7 @@ CollectionDialog.defaultProps = {
   actions: null,
   showCloseButton: true,
   dialogClasses: '',
+  dialogRootClass: '',
   maxWidth: false,
   disableScrollLock: true,
   ariaLabelledBy: '',

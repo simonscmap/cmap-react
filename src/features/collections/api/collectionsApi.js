@@ -7,7 +7,7 @@ import DownloadService from '../../../shared/services/dataDownload/downloadServi
  * @property {string} datasetShortName - Dataset short name identifier
  * @property {string} datasetLongName - Human-readable dataset name
  * @property {string} datasetVersion - Dataset version
- * @property {boolean} isValid - Whether dataset still exists in catalog
+ * @property {boolean} isInvalid - Whether dataset is orphaned/removed from catalog (true = invalid, false/omitted = valid)
  * @property {string} addedDate - ISO 8601 UTC timestamp when added to collection
  * @property {number|null} displayOrder - Display order within collection
  */
@@ -68,6 +68,9 @@ collectionsAPI.getCollections = async (params = {}) => {
 
 /**
  * Retrieve detailed information about a specific collection
+ * @deprecated This endpoint is deprecated and will be removed in a future version.
+ * The createCollection endpoint now returns the complete collection object.
+ * Use getCollections() to fetch collections or rely on data from createCollection/copyCollection responses.
  * @param {number} id - Collection ID (positive integer)
  * @param {Object} [params] - Query parameters
  * @param {boolean} [params.includeDatasets=true] - Include dataset details
@@ -89,6 +92,9 @@ collectionsAPI.getCollectionById = async (id, params = {}) => {
 
 /**
  * Retrieve detailed information about a specific collection (alias for getCollectionById)
+ * @deprecated This endpoint is deprecated and will be removed in a future version.
+ * The createCollection endpoint now returns the complete collection object.
+ * Use getCollections() to fetch collections or rely on data from createCollection/copyCollection responses.
  * @param {number} id - Collection ID (positive integer)
  * @param {Object} [params] - Query parameters
  * @param {boolean} [params.includeDatasets=true] - Include dataset details
@@ -104,10 +110,11 @@ collectionsAPI.getCollection = collectionsAPI.getCollectionById;
  * @param {string} [data.description] - Collection description (optional, 0-500 characters)
  * @param {boolean} [data.private=true] - Whether collection is private (default true)
  * @param {string[]} [data.datasets] - Array of dataset short names to add to collection
- * @returns {Promise<Response>} Response body: { collectionId: number, invalidDatasetCount: number }
+ * @returns {Promise<Response>} Response body: Complete Collection object (see Collection typedef)
  * @throws {Error} 401: Unauthorized, 500: Server error
  * @description Creates a new collection. Invalid dataset names are skipped, not rejected.
- * The invalidDatasetCount indicates how many dataset names didn't exist.
+ * The response includes the full collection object with all metadata, including the datasets
+ * array with isInvalid flags for any datasets that couldn't be added.
  */
 collectionsAPI.createCollection = async (data) => {
   const endpoint = `${apiUrl}/api/collections`;
@@ -144,10 +151,11 @@ collectionsAPI.deleteCollection = async (id) => {
  * @param {string} data.description - Collection description (required, 0-500 characters)
  * @param {boolean} data.private - Whether collection is private (required)
  * @param {string[]} data.datasets - Array of dataset short names (required, can be empty)
- * @returns {Promise<Response>} Response body: { collectionId: number }
+ * @returns {Promise<Response>} Response body: Complete Collection object (see Collection typedef)
  * @throws {Error} 400: Validation errors, 401: Unauthorized, 403: Not collection owner, 404: Collection not found, 409: Name conflict, 500: Server error
- * @description Updates all fields of an existing collection. Only the collection owner can update.
- * Name uniqueness is scoped per user.
+ * @description Updates all fields of an existing collection. Returns the updated collection
+ * with server-validated timestamps, accurate dataset counts, and complete dataset metadata.
+ * Only the collection owner can update. Name uniqueness is scoped per user.
  */
 collectionsAPI.updateCollection = async (id, data) => {
   const endpoint = `${apiUrl}/api/collections/${id}`;
@@ -185,10 +193,10 @@ collectionsAPI.verifyCollectionName = async (name, collectionId) => {
 /**
  * Copy an existing collection to create a new collection owned by the authenticated user
  * @param {number} id - Collection ID to copy (positive integer)
- * @returns {Promise<Response>} Response body: { collectionId: number, name: string }
+ * @returns {Promise<Response>} Response body: Complete Collection object (see Collection typedef)
  * @throws {Error} 401: Unauthorized, 404: Collection not found or not accessible, 500: Server error
  * @description Creates a copy of the specified collection, including all datasets.
- * The new collection will be owned by the authenticated user.
+ * Returns the complete new collection object owned by the authenticated user.
  * The copied collection name will have " copy" appended if needed to avoid conflicts.
  */
 collectionsAPI.copyCollection = async (id) => {
@@ -207,8 +215,45 @@ collectionsAPI.copyCollection = async (id) => {
  * @returns {Promise<Response>} Response body: Array of dataset preview objects with rowCount property
  * @throws {Error} 401: Unauthorized, 500: Server error
  * @description Returns metadata for multiple datasets including temporal range, row counts,
- * sensors, makes, regions, and status flags. Non-existent datasets are silently ignored.
+ * sensors, makes, regions, and status flags.
+ *
+ * BEHAVIOR CHANGE: Returns ALL requested datasets, including invalid ones.
+ * - Valid datasets: Full metadata with isInvalid: false
+ * - Invalid datasets: Null metadata fields with isInvalid: true
+ *
  * If collectionId is provided, increments the collection's Views count by 1.
+ *
+ * @example
+ * // Valid dataset response
+ * {
+ *   "shortName": "dataset_name",
+ *   "description": "Full dataset description",
+ *   "timeStart": "2020-01-01",
+ *   "timeEnd": "2024-12-31",
+ *   "rowCount": 150000,
+ *   "sensors": ["CTD"],
+ *   "makes": ["SeaBird"],
+ *   "regions": ["Pacific"],
+ *   "isContinuouslyUpdated": true,
+ *   "hasAncillaryData": false,
+ *   "isInvalid": false
+ * }
+ *
+ * @example
+ * // Invalid dataset response
+ * {
+ *   "shortName": "removed_dataset",
+ *   "description": null,
+ *   "timeStart": null,
+ *   "timeEnd": null,
+ *   "rowCount": null,
+ *   "sensors": [],
+ *   "makes": [],
+ *   "regions": [],
+ *   "isContinuouslyUpdated": false,
+ *   "hasAncillaryData": false,
+ *   "isInvalid": true
+ * }
  */
 collectionsAPI.getCollectionPreview = async (
   datasetShortNames,

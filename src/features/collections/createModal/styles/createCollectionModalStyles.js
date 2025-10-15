@@ -1,4 +1,5 @@
 import { makeStyles } from '@material-ui/core/styles';
+import zIndex from '../../../../enums/zIndex';
 
 export const useCreateCollectionModalStyles = makeStyles((theme) => ({
   triggerButton: {
@@ -17,5 +18,8 @@ export const useCreateCollectionModalStyles = makeStyles((theme) => ({
     minWidth: '500px',
     maxWidth: '600px',
     backgroundColor: 'rgb(24, 69, 98) !important',
+  },
+  dialogRoot: {
+    zIndex: `${zIndex.MUI_DIALOG} !important`,
   },
 }));

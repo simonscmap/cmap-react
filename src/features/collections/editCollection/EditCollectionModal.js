@@ -21,6 +21,7 @@ import CollectionContentActions from './components/CollectionContentActions';
 import UnsavedChangesWarning from './components/UnsavedChangesWarning';
 import UniversalButton from '../../../shared/components/UniversalButton';
 import { DOWNLOAD_LIMITS } from '../../../shared/constants/downloadConstants';
+import zIndex from '../../../enums/zIndex';
 
 const useStyles = makeStyles((theme) => ({
   dialogPaper: {
@@ -28,6 +29,9 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: '95vw',
     maxHeight: '90vh',
     backgroundColor: 'rgb(24, 69, 98)',
+  },
+  dialogRoot: {
+    zIndex: `${zIndex.MUI_DIALOG} !important`,
   },
   dialogTitle: {
     paddingBottom: theme.spacing(1),
@@ -311,7 +315,7 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
       <Dialog
         open={open}
         onClose={handleClose}
-        classes={{ paper: classes.dialogPaper }}
+        classes={{ paper: classes.dialogPaper, root: classes.dialogRoot }}
         aria-labelledby="edit-collection-dialog-title"
         disableScrollLock={true}
       >
@@ -331,7 +335,7 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
       <Dialog
         open={open}
         onClose={onClose}
-        classes={{ paper: classes.dialogPaper }}
+        classes={{ paper: classes.dialogPaper, root: classes.dialogRoot }}
         aria-labelledby="edit-collection-dialog-title"
         disableScrollLock={true}
       >
@@ -357,7 +361,7 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
       <Dialog
         open={open}
         onClose={onClose}
-        classes={{ paper: classes.dialogPaper }}
+        classes={{ paper: classes.dialogPaper, root: classes.dialogRoot }}
         aria-labelledby="edit-collection-dialog-title"
         disableScrollLock={true}
       >
@@ -382,7 +386,7 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
       <Dialog
         open={open}
         onClose={handleClose}
-        classes={{ paper: classes.dialogPaper }}
+        classes={{ paper: classes.dialogPaper, root: classes.dialogRoot }}
         aria-labelledby="edit-collection-dialog-title"
         disableScrollLock={true}
         maxWidth={false}
@@ -480,7 +484,7 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
                 areAllSelected={allDatasetsSelected}
                 areIndeterminate={isIndeterminate}
                 rowClassGetter={getRowClass}
-                columns={['name', 'type', 'dateRange', 'rows']}
+                columns={['name', 'status', 'type', 'dateRange', 'rows']}
                 onDataLoaded={handleDataLoaded}
                 actions={[
                   {

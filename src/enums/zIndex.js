@@ -1,8 +1,9 @@
 const options = {
   SNACKBAR: 10000,
   LOADING_OVERLAY: 9999,
-  MUI_DIALOG: 9800,
+  CONFIRMATION_DIALOG: 9850, // Secondary modals that appear on top of primary modals (warnings, confirmations)
   LOGIN_DIALOG: 9850,
+  MUI_DIALOG: 9800, // Primary modals (main content modals)
   SLIDE_OUT_PANEL: 9500,
   TOOLTIP: 9000,
   NAVBAR_DROPDOWN: 8000,

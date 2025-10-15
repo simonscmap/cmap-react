@@ -113,7 +113,7 @@ describe('editCollectionStore.loadCollection', () => {
         datasetShortName: 'bats_temp_001',
         datasetLongName: 'BATS Temperature Profiles 2020',
         datasetVersion: '1.0',
-        isValid: true,
+        isInvalid: false,
         addedDate: '2025-10-01T10:00:00Z',
         displayOrder: 1,
       },
@@ -122,7 +122,7 @@ describe('editCollectionStore.loadCollection', () => {
         datasetShortName: 'bats_temp_002',
         datasetLongName: 'BATS Temperature Profiles 2021',
         datasetVersion: '1.0',
-        isValid: true,
+        isInvalid: false,
         addedDate: '2025-10-02T10:00:00Z',
         displayOrder: 2,
       },
@@ -262,7 +262,7 @@ describe('editCollectionStore.loadCollection', () => {
             datasetShortName: 'bats_temp_001',
             datasetLongName: 'BATS Temperature Profiles 2020',
             datasetVersion: '1.0',
-            isValid: true,
+            isInvalid: false,
             addedDate: '2025-10-01T10:00:00Z',
             displayOrder: 1,
           },
@@ -271,7 +271,7 @@ describe('editCollectionStore.loadCollection', () => {
             datasetShortName: 'deleted_dataset',
             datasetLongName: 'Deleted Dataset',
             datasetVersion: '1.0',
-            isValid: false, // Dataset no longer exists
+            isInvalid: true, // Dataset no longer exists
             addedDate: '2025-10-02T10:00:00Z',
             displayOrder: 2,
           },
@@ -288,7 +288,7 @@ describe('editCollectionStore.loadCollection', () => {
 
       const state = store.getState();
       expect(state.collection.datasets).toHaveLength(2);
-      expect(state.collection.datasets[1].isValid).toBe(false);
+      expect(state.collection.datasets[1].isInvalid).toBe(true);
     });
   });
 
@@ -543,7 +543,7 @@ describe('editCollectionStore.loadCollection', () => {
       expect(dataset.datasetVersion).toBe(
         mockCollection.datasets[0].datasetVersion,
       );
-      expect(dataset.isValid).toBe(mockCollection.datasets[0].isValid);
+      expect(dataset.isInvalid).toBe(mockCollection.datasets[0].isInvalid);
       expect(dataset.addedDate).toBe(mockCollection.datasets[0].addedDate);
       expect(dataset.displayOrder).toBe(
         mockCollection.datasets[0].displayOrder,
@@ -580,7 +580,7 @@ describe('editCollectionStore.loadCollection', () => {
             datasetShortName: 'new_dataset',
             datasetLongName: 'New Dataset',
             datasetVersion: '1.0',
-            isValid: true,
+            isInvalid: false,
             addedDate: '2025-10-09T10:00:00Z',
             displayOrder: 3,
           },
