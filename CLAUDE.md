@@ -32,16 +32,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Project Structure
 
-- `src/Components/` - Main React components organized by feature
+- `src/features/{feature-name}/` - **Isolated modern features** (e.g., collections)
+  - Self-contained with own state, API, and components
+  - When planning/researching, only reference code within feature folder and `src/shared/`
+- `src/shared/` - Reusable utilities and components extracted from features for cross-feature use
+- `src/Components/` - **Legacy** React components (do not reference in new features)
   - `Catalog/` - Data catalog, search, and dataset pages
   - `Visualization/` - Chart creation and visualization tools
   - `DataSubmission/` - Data submission workflow and validation
   - `User/` - Authentication and user management
   - `Navigation/` - Site navigation and help system
   - `Home/` - Landing page components
-- `src/Redux/` - State management (actions, reducers, sagas)
-- `src/api/` - API service layer and request handlers
-- `src/Utility/` - Shared utility functions
+- `src/Redux/` - **Legacy** state management (do not use in new features)
+- `src/api/` - **Legacy** API service layer
+- `src/Utility/` - **Legacy** shared utility functions
 - `docs/` - Additional documentation files
 
 ### Key Features

@@ -18,21 +18,13 @@ import CollectionDownloadModal from '../myCollections/CollectionDownloadModal';
 import CollectionDatasetsTable from '../components/CollectionDatasetsTable';
 import useCollectionsStore from '../state/collectionsStore';
 import { snackbarOpen } from '../../../Redux/actions/ui';
-import ConfirmationDialog from '../../../shared/components/ConfirmationDialog';
-import { DialogContentText } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-
-const useBulletListStyles = makeStyles((theme) => ({
-  bulletList: {
-    marginTop: theme.spacing(1),
-    marginBottom: theme.spacing(1),
-    paddingLeft: theme.spacing(2),
-  },
-}));
+import {
+  checkInvalidDatasets,
+  InvalidDatasetConfirmationDialog,
+} from '../shared/copyCollectionDialogConfig';
 
 const PreviewModal = ({ open, onClose, collection }) => {
   const classes = usePreviewModalStyles();
-  const bulletListClasses = useBulletListStyles();
   const dispatch = useDispatch();
 
   // Zustand store selectors
@@ -96,18 +88,18 @@ const PreviewModal = ({ open, onClose, collection }) => {
   ];
 
   const handleCopy = async () => {
-    // Check for invalid datasets (data already loaded)
-    const invalidDatasets =
-      collection.datasets?.filter((d) => d.isInvalid === true) || [];
-    const validDatasets =
-      collection.datasets?.filter((d) => !d.isInvalid) || [];
+    // Check for invalid datasets using shared helper
+    const { invalidDatasets, validDatasets, hasInvalidDatasets } =
+      checkInvalidDatasets(collection);
 
-    if (invalidDatasets.length > 0) {
+    if (hasInvalidDatasets) {
       // Show warning dialog - wait for user confirmation
       setWarningDialogOpen(true);
       setWarningDialogData({
+        collectionName: collection.name,
         invalidCount: invalidDatasets.length,
         validCount: validDatasets.length,
+        invalidDatasets: invalidDatasets,
       });
       return; // Exit and wait for dialog response
     }
@@ -263,56 +255,11 @@ const PreviewModal = ({ open, onClose, collection }) => {
         collection={collection}
       />
 
-      <ConfirmationDialog
+      <InvalidDatasetConfirmationDialog
         open={warningDialogOpen}
-        onClose={handleWarningCancel}
-        title="Invalid Datasets Warning"
-        message={
-          <>
-            <DialogContentText>
-              This collection contains {warningDialogData?.invalidCount || 0}{' '}
-              dataset
-              {(warningDialogData?.invalidCount || 0) === 1
-                ? ''
-                : 's'} that{' '}
-              {(warningDialogData?.invalidCount || 0) === 1 ? 'is' : 'are'} no
-              longer available and will NOT be included in your copy.
-            </DialogContentText>
-            <DialogContentText
-              className={bulletListClasses.bulletList}
-              component="ul"
-            >
-              <li>
-                {warningDialogData?.validCount || 0} valid dataset
-                {(warningDialogData?.validCount || 0) === 1 ? '' : 's'} WILL be
-                copied
-              </li>
-              <li>
-                {warningDialogData?.invalidCount || 0} invalid dataset
-                {(warningDialogData?.invalidCount || 0) === 1 ? '' : 's'} will
-                be SKIPPED
-              </li>
-            </DialogContentText>
-            <DialogContentText>
-              Do you want to proceed with copying "{collection.name}"?
-            </DialogContentText>
-          </>
-        }
-        actions={[
-          {
-            label: 'Cancel',
-            onClick: handleWarningCancel,
-            variant: 'secondary',
-          },
-          {
-            label: `OK - Copy ${warningDialogData?.validCount || 0} Valid Dataset${(warningDialogData?.validCount || 0) === 1 ? '' : 's'}`,
-            onClick: handleWarningConfirm,
-            variant: 'primary',
-            autoFocus: true,
-          },
-        ]}
-        ariaLabelId="invalid-datasets-warning-title"
-        ariaDescriptionId="invalid-datasets-warning-description"
+        warningDialogData={warningDialogData}
+        onConfirm={handleWarningConfirm}
+        onCancel={handleWarningCancel}
       />
     </>
   );

@@ -13,13 +13,15 @@ import {
   Box,
   Tooltip,
   CircularProgress,
-  DialogContentText,
 } from '@material-ui/core';
 import UniversalButton from '../../../shared/components/UniversalButton';
 import useCollectionsStore from '../state/collectionsStore';
 import { snackbarOpen } from '../../../Redux/actions/ui';
 import PreviewModal from '../previewModal';
-import ConfirmationDialog from '../../../shared/components/ConfirmationDialog';
+import {
+  checkInvalidDatasets,
+  InvalidDatasetConfirmationDialog,
+} from '../shared/copyCollectionDialogConfig';
 
 const useStyles = makeStyles((theme) => ({
   tableContainer: {
@@ -45,19 +47,6 @@ const useStyles = makeStyles((theme) => ({
         padding: '8px 5px 8px 16px',
       },
     },
-  },
-  bulletList: {
-    marginTop: theme.spacing(1),
-    marginBottom: theme.spacing(1),
-    paddingLeft: theme.spacing(2),
-  },
-  invalidDatasetsList: {
-    marginTop: theme.spacing(1),
-    marginBottom: theme.spacing(3),
-    paddingLeft: theme.spacing(4),
-    maxHeight: '150px',
-    overflow: 'auto',
-    backgroundColor: 'transparent',
   },
   table: {
     minWidth: 650,
@@ -137,13 +126,11 @@ const PublicCollectionsTable = ({ collections = [] }) => {
       // Get collection with datasets (already loaded in store)
       const collection = collections.find((c) => c.id === collectionId);
 
-      // Check for invalid datasets
-      const invalidDatasets =
-        collection.datasets?.filter((d) => d.isInvalid === true) || [];
-      const validDatasets =
-        collection.datasets?.filter((d) => !d.isInvalid) || [];
+      // Check for invalid datasets using shared helper
+      const { invalidDatasets, validDatasets, hasInvalidDatasets } =
+        checkInvalidDatasets(collection);
 
-      if (invalidDatasets.length > 0) {
+      if (hasInvalidDatasets) {
         // Show warning dialog - wait for user confirmation
         setWarningDialogOpen(true);
         setWarningDialogData({
@@ -225,53 +212,11 @@ const PublicCollectionsTable = ({ collections = [] }) => {
         onClose={handleClosePreview}
         collection={selectedCollection}
       />
-      <ConfirmationDialog
+      <InvalidDatasetConfirmationDialog
         open={warningDialogOpen}
-        onClose={handleWarningCancel}
-        title="Invalid Datasets Warning"
-        message={
-          <>
-            <DialogContentText>
-              The following {warningDialogData?.invalidCount || 0} dataset
-              {(warningDialogData?.invalidCount || 0) === 1
-                ? ' is'
-                : 's are'}{' '}
-              no longer available:
-            </DialogContentText>
-            <DialogContentText
-              className={classes.invalidDatasetsList}
-              component="ul"
-            >
-              {warningDialogData?.invalidDatasets?.map((dataset, idx) => (
-                <li key={idx}>
-                  <code>{dataset.datasetShortName}</code>
-                </li>
-              ))}
-            </DialogContentText>
-            <DialogContentText>
-              Copy "{warningDialogData?.collectionName || ''}" with{' '}
-              {warningDialogData?.validCount || 0} of{' '}
-              {(warningDialogData?.validCount || 0) +
-                (warningDialogData?.invalidCount || 0)}{' '}
-              datasets?
-            </DialogContentText>
-          </>
-        }
-        actions={[
-          {
-            label: 'Cancel',
-            onClick: handleWarningCancel,
-            variant: 'secondary',
-          },
-          {
-            label: 'Continue',
-            onClick: handleWarningConfirm,
-            variant: 'primary',
-            autoFocus: true,
-          },
-        ]}
-        ariaLabelId="invalid-datasets-warning-title"
-        ariaDescriptionId="invalid-datasets-warning-description"
+        warningDialogData={warningDialogData}
+        onConfirm={handleWarningConfirm}
+        onCancel={handleWarningCancel}
       />
       <TableContainer component={Paper} style={tableContainerStyle}>
         <Table

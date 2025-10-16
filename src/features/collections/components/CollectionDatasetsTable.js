@@ -231,17 +231,6 @@ const CollectionDatasetsTable = ({
         if (onDataLoaded) {
           onDataLoaded(previewData, totalRows);
         }
-
-        // Notify parent of invalid datasets
-        const invalidDatasets = previewData.filter(
-          (dataset) => dataset.isInvalid === true,
-        );
-        if (invalidDatasets.length > 0 && onError) {
-          onError(
-            `The following datasets did not return data or are unavailable: ${invalidDatasets.map((d) => d.shortName).join(', ')}`,
-            'warning',
-          );
-        }
       } catch (error) {
         console.error('Error loading dataset data:', error);
         if (onError) {
