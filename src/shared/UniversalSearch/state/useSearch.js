@@ -138,3 +138,4 @@ export const useResultCount = () =>
   useSearchStore((state) => state.resultCount);
 export const useTotalCount = () => useSearchStore((state) => state.totalCount);
 export const useSearchActions = () => useSearchStore((state) => state.actions);
+export const useAllItems = () => useSearchStore((state) => state.items);

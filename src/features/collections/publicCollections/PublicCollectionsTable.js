@@ -14,13 +14,16 @@ import {
   Tooltip,
   CircularProgress,
 } from '@material-ui/core';
-import { format, parseISO } from 'date-fns';
 import UniversalButton from '../../../shared/components/UniversalButton';
 import useCollectionsStore from '../state/collectionsStore';
 import { snackbarOpen } from '../../../Redux/actions/ui';
 import PreviewModal from '../previewModal';
+import {
+  checkInvalidDatasets,
+  InvalidDatasetConfirmationDialog,
+} from '../shared/copyCollectionDialogConfig';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   tableContainer: {
     maxHeight: 400,
     backgroundColor: 'rgba(16, 43, 60, 0.6)',
@@ -104,6 +107,8 @@ const PublicCollectionsTable = ({ collections = [] }) => {
   const [copyingId, setCopyingId] = useState(null);
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [selectedCollection, setSelectedCollection] = useState(null);
+  const [warningDialogOpen, setWarningDialogOpen] = useState(false);
+  const [warningDialogData, setWarningDialogData] = useState(null);
 
   const formatDate = (dateString) => {
     try {
@@ -116,14 +121,30 @@ const PublicCollectionsTable = ({ collections = [] }) => {
 
   const handleCopy = async (collectionId) => {
     setCopyingId(collectionId);
+
     try {
-      const result = await copyCollection(collectionId);
-      dispatch(
-        snackbarOpen(`Collection "${result.name}" copied successfully`, {
-          severity: 'info',
-          position: 'bottom',
-        }),
-      );
+      // Get collection with datasets (already loaded in store)
+      const collection = collections.find((c) => c.id === collectionId);
+
+      // Check for invalid datasets using shared helper
+      const { invalidDatasets, validDatasets, hasInvalidDatasets } =
+        checkInvalidDatasets(collection);
+
+      if (hasInvalidDatasets) {
+        // Show warning dialog - wait for user confirmation
+        setWarningDialogOpen(true);
+        setWarningDialogData({
+          collectionId,
+          collectionName: collection.name,
+          invalidCount: invalidDatasets.length,
+          validCount: validDatasets.length,
+          invalidDatasets: invalidDatasets,
+        });
+        return; // Exit and wait for dialog response
+      }
+
+      // No invalid datasets - proceed directly with copy
+      await performCopy(collectionId);
     } catch (error) {
       console.error('Failed to copy collection:', error);
       dispatch(
@@ -135,6 +156,32 @@ const PublicCollectionsTable = ({ collections = [] }) => {
     } finally {
       setCopyingId(null);
     }
+  };
+
+  const performCopy = async (collectionId) => {
+    try {
+      const result = await copyCollection(collectionId);
+      dispatch(
+        snackbarOpen(`Collection "${result.name}" copied successfully`, {
+          severity: 'info',
+          position: 'bottom',
+        }),
+      );
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const handleWarningConfirm = async () => {
+    setWarningDialogOpen(false);
+    await performCopy(warningDialogData.collectionId);
+    setWarningDialogData(null);
+  };
+
+  const handleWarningCancel = () => {
+    setWarningDialogOpen(false);
+    setWarningDialogData(null);
+    setCopyingId(null); // Reset copying state
   };
 
   const handlePreview = (collection) => {
@@ -164,6 +211,12 @@ const PublicCollectionsTable = ({ collections = [] }) => {
         open={previewModalOpen}
         onClose={handleClosePreview}
         collection={selectedCollection}
+      />
+      <InvalidDatasetConfirmationDialog
+        open={warningDialogOpen}
+        warningDialogData={warningDialogData}
+        onConfirm={handleWarningConfirm}
+        onCancel={handleWarningCancel}
       />
       <TableContainer component={Paper} style={tableContainerStyle}>
         <Table

@@ -34,7 +34,7 @@ const CollectionDownloadModal = ({ open, onClose, collection }) => {
     <Dialog
       open={open}
       onClose={onClose}
-      classes={{ paper: classes.dialogPaper }}
+      classes={{ paper: classes.dialogPaper, root: classes.dialogRoot }}
       aria-labelledby="collection-download-dialog-title"
       disableScrollLock={true}
       maxWidth={false}

@@ -2,21 +2,39 @@ import { apiUrl, fetchOptions, postOptions } from '../../../api/config';
 import DownloadService from '../../../shared/services/dataDownload/downloadService';
 
 /**
+ * Collections API Client
+ *
+ * Endpoint Authentication Summary:
+ * - GET /api/collections - Optional auth (anonymous users see only public collections)
+ * - GET /api/collections/:id - REQUIRED auth (401 if not authenticated)
+ * - POST /api/collections - REQUIRED auth
+ * - PATCH /api/collections/:id - REQUIRED auth
+ * - DELETE /api/collections/:id - REQUIRED auth
+ * - POST /api/collections/:id/copy - REQUIRED auth
+ * - GET /api/collections/verify-name - REQUIRED auth
+ * - GET /api/collections/preview - NO auth required (public endpoint)
+ *
+ * Response Format Notes:
+ * - List endpoint (GET /collections): Returns Collection objects, downloads/copies only if isOwner=true
+ * - Detail endpoint (GET /collections/:id): Returns CollectionDetail with different dataset format
+ * - Mutation endpoints (POST, PATCH, POST /copy): Return complete collection with all stats
+ */
+
+/**
  * @typedef {Object} CollectionDataset
- * @property {number} datasetId - Dataset identifier
  * @property {string} datasetShortName - Dataset short name identifier
- * @property {string} datasetLongName - Human-readable dataset name
- * @property {string} datasetVersion - Dataset version
- * @property {boolean} isValid - Whether dataset still exists in catalog
- * @property {string} addedDate - ISO 8601 UTC timestamp when added to collection
- * @property {number|null} displayOrder - Display order within collection
+ * @property {string|null} datasetLongName - Human-readable dataset name (null if invalid)
+ * @property {boolean} isInvalid - Whether dataset is orphaned/removed from catalog (true = invalid, false = valid)
+ * @description This typedef represents datasets returned from create, update, copy, and list (with includeDatasets=true) endpoints.
+ * Note: The detail endpoint (GET /api/collections/:id) returns slightly different fields:
+ * it includes datasetName (deprecated) and isValid instead of isInvalid (isValid = !isInvalid).
  */
 
 /**
  * @typedef {Object} Collection
  * @property {number} id - Unique collection identifier
- * @property {string} name - Collection name (max 255 chars)
- * @property {string|null} description - Collection description (max 2000 chars)
+ * @property {string} name - Collection name (max 200 chars)
+ * @property {string|null} description - Collection description (max 500 chars)
  * @property {boolean} isPublic - Whether collection is publicly visible
  * @property {string} createdDate - ISO 8601 UTC timestamp
  * @property {string} modifiedDate - ISO 8601 UTC timestamp
@@ -24,15 +42,32 @@ import DownloadService from '../../../shared/services/dataDownload/downloadServi
  * @property {string} ownerAffiliation - Owner's institutional affiliation
  * @property {number} datasetCount - Number of datasets in collection (≥ 0)
  * @property {boolean} isOwner - Whether current user owns this collection
- * @property {number} views - Number of times collection has been viewed (≥ 0)
- * @property {number} downloads - Number of times collection has been downloaded (≥ 0)
- * @property {number} copies - Number of times collection has been copied (≥ 0)
+ * @property {number} views - Number of times collection has been viewed (≥ 0) - Always included in list endpoint
+ * @property {number} [downloads] - Number of times collection has been downloaded (≥ 0) - Only included if isOwner=true
+ * @property {number} [copies] - Number of times collection has been copied (≥ 0) - Only included if isOwner=true
  * @property {CollectionDataset[]} [datasets] - Array of dataset objects (only if includeDatasets=true)
  */
 
 /**
- * @typedef {Collection} CollectionDetail - Extends Collection with additional fields
- * @property {CollectionDataset[]} [datasets] - Always included unless explicitly disabled
+ * @typedef {Object} CollectionDetail - Detailed collection response (from detail endpoint)
+ * @property {number} id - Unique collection identifier
+ * @property {string} name - Collection name (max 200 chars)
+ * @property {string|null} description - Collection description (max 500 chars)
+ * @property {boolean} isPublic - Whether collection is publicly visible
+ * @property {string} createdDate - ISO 8601 UTC timestamp
+ * @property {string} modifiedDate - ISO 8601 UTC timestamp
+ * @property {string} ownerName - Full name of collection owner
+ * @property {string} ownerAffiliation - Owner's institutional affiliation
+ * @property {number} datasetCount - Number of datasets in collection (≥ 0)
+ * @property {boolean} isOwner - Whether current user owns this collection
+ * @property {number} [downloads] - Number of downloads (only included if isOwner=true)
+ * @property {number} [copies] - Number of copies (only included if isOwner=true)
+ * @property {Object[]} datasets - Array of dataset objects (always included unless includeDatasets=false)
+ * @property {string} datasets[].datasetShortName - Dataset short name
+ * @property {string|null} datasets[].datasetLongName - Dataset long name
+ * @property {string|null} datasets[].datasetName - Dataset name (deprecated, use datasetShortName)
+ * @property {boolean} datasets[].isValid - Whether dataset exists in catalog (true=valid, false=invalid/removed)
+ * @description NOTE: Detail endpoint does NOT include views count
  */
 
 const collectionsAPI = {};
@@ -68,11 +103,16 @@ collectionsAPI.getCollections = async (params = {}) => {
 
 /**
  * Retrieve detailed information about a specific collection
+ * @deprecated This endpoint is deprecated and will be removed in a future version.
+ * The createCollection endpoint now returns the complete collection object.
+ * Use getCollections() to fetch collections or rely on data from createCollection/copyCollection responses.
  * @param {number} id - Collection ID (positive integer)
  * @param {Object} [params] - Query parameters
  * @param {boolean} [params.includeDatasets=true] - Include dataset details
  * @returns {Promise<Response>} CollectionDetail object
- * @throws {Error} 400: Invalid parameters, 404: Not found/access denied, 500: Server error
+ * @throws {Error} 400: Invalid parameters, 401: Unauthorized (authentication required), 404: Collection not found or not accessible, 500: Server error
+ * @description REQUIRES AUTHENTICATION. Anonymous users will receive 401.
+ * Returns 404 if collection doesn't exist or user doesn't have access (private collection owned by another user).
  */
 collectionsAPI.getCollectionById = async (id, params = {}) => {
   const searchParams = new URLSearchParams();
@@ -89,11 +129,16 @@ collectionsAPI.getCollectionById = async (id, params = {}) => {
 
 /**
  * Retrieve detailed information about a specific collection (alias for getCollectionById)
+ * @deprecated This endpoint is deprecated and will be removed in a future version.
+ * The createCollection endpoint now returns the complete collection object.
+ * Use getCollections() to fetch collections or rely on data from createCollection/copyCollection responses.
  * @param {number} id - Collection ID (positive integer)
  * @param {Object} [params] - Query parameters
  * @param {boolean} [params.includeDatasets=true] - Include dataset details
  * @returns {Promise<Response>} CollectionDetail object
- * @throws {Error} 400: Invalid parameters, 404: Not found/access denied, 500: Server error
+ * @throws {Error} 400: Invalid parameters, 401: Unauthorized (authentication required), 404: Collection not found or not accessible, 500: Server error
+ * @description REQUIRES AUTHENTICATION. Anonymous users will receive 401.
+ * Returns 404 if collection doesn't exist or user doesn't have access (private collection owned by another user).
  */
 collectionsAPI.getCollection = collectionsAPI.getCollectionById;
 
@@ -104,10 +149,13 @@ collectionsAPI.getCollection = collectionsAPI.getCollectionById;
  * @param {string} [data.description] - Collection description (optional, 0-500 characters)
  * @param {boolean} [data.private=true] - Whether collection is private (default true)
  * @param {string[]} [data.datasets] - Array of dataset short names to add to collection
- * @returns {Promise<Response>} Response body: { collectionId: number, invalidDatasetCount: number }
+ * @returns {Promise<Response>} Response body: Complete collection object with all metadata
  * @throws {Error} 401: Unauthorized, 500: Server error
  * @description Creates a new collection. Invalid dataset names are skipped, not rejected.
- * The invalidDatasetCount indicates how many dataset names didn't exist.
+ * The response includes the full collection object with all metadata including:
+ * - All standard collection fields (id, name, description, etc.)
+ * - downloads, views, and copies counts (will be 0 for new collection)
+ * - datasets array with isInvalid flags for any datasets that couldn't be added
  */
 collectionsAPI.createCollection = async (data) => {
   const endpoint = `${apiUrl}/api/collections`;
@@ -144,10 +192,14 @@ collectionsAPI.deleteCollection = async (id) => {
  * @param {string} data.description - Collection description (required, 0-500 characters)
  * @param {boolean} data.private - Whether collection is private (required)
  * @param {string[]} data.datasets - Array of dataset short names (required, can be empty)
- * @returns {Promise<Response>} Response body: { collectionId: number }
+ * @returns {Promise<Response>} Response body: Complete collection object with all metadata
  * @throws {Error} 400: Validation errors, 401: Unauthorized, 403: Not collection owner, 404: Collection not found, 409: Name conflict, 500: Server error
- * @description Updates all fields of an existing collection. Only the collection owner can update.
- * Name uniqueness is scoped per user.
+ * @description Updates all fields of an existing collection. Returns the updated collection
+ * with server-validated timestamps, accurate dataset counts, and complete dataset metadata including:
+ * - All standard collection fields (id, name, description, etc.)
+ * - downloads, views, and copies counts
+ * - datasets array with isInvalid flags for any datasets that couldn't be added
+ * Only the collection owner can update. Name uniqueness is scoped per user.
  */
 collectionsAPI.updateCollection = async (id, data) => {
   const endpoint = `${apiUrl}/api/collections/${id}`;
@@ -185,11 +237,17 @@ collectionsAPI.verifyCollectionName = async (name, collectionId) => {
 /**
  * Copy an existing collection to create a new collection owned by the authenticated user
  * @param {number} id - Collection ID to copy (positive integer)
- * @returns {Promise<Response>} Response body: { collectionId: number, name: string }
+ * @returns {Promise<Response>} Response body: Complete collection object with all metadata
  * @throws {Error} 401: Unauthorized, 404: Collection not found or not accessible, 500: Server error
- * @description Creates a copy of the specified collection, including all datasets.
- * The new collection will be owned by the authenticated user.
- * The copied collection name will have " copy" appended if needed to avoid conflicts.
+ * @description Creates a copy of the specified collection, including all valid datasets.
+ * Invalid datasets (removed from catalog) are NOT copied to the new collection.
+ * Returns the complete new collection object owned by the authenticated user including:
+ * - All standard collection fields (id, name, description, etc.)
+ * - downloads, views, and copies counts (will be 0 for new collection)
+ * - datasets array containing only valid datasets from the source collection
+ * The copied collection name will have " copy" appended (or " copy 2", " copy 3", etc.) to avoid conflicts.
+ * The new collection is always private regardless of source collection visibility.
+ * Increments the copies count on the source collection.
  */
 collectionsAPI.copyCollection = async (id) => {
   const endpoint = `${apiUrl}/api/collections/${id}/copy`;
@@ -205,10 +263,49 @@ collectionsAPI.copyCollection = async (id) => {
  * @param {string[]} datasetShortNames - Array of dataset short names
  * @param {number} [collectionId] - Optional collection ID to track view statistics
  * @returns {Promise<Response>} Response body: Array of dataset preview objects with rowCount property
- * @throws {Error} 401: Unauthorized, 500: Server error
+ * @throws {Error} 500: Server error
  * @description Returns metadata for multiple datasets including temporal range, row counts,
- * sensors, makes, regions, and status flags. Non-existent datasets are silently ignored.
- * If collectionId is provided, increments the collection's Views count by 1.
+ * sensors, makes, regions, and status flags.
+ *
+ * NOTE: This endpoint does NOT require authentication.
+ *
+ * BEHAVIOR CHANGE: Returns ALL requested datasets, including invalid ones.
+ * - Valid datasets: Full metadata with isInvalid: false
+ * - Invalid datasets: Null metadata fields with isInvalid: true
+ *
+ * If collectionId is provided, increments the collection's Views count by 1 (fire-and-forget).
+ *
+ * @example
+ * // Valid dataset response
+ * {
+ *   "shortName": "dataset_name",
+ *   "description": "Full dataset description",
+ *   "timeStart": "2020-01-01",
+ *   "timeEnd": "2024-12-31",
+ *   "rowCount": 150000,
+ *   "sensors": ["CTD"],
+ *   "makes": ["SeaBird"],
+ *   "regions": ["Pacific"],
+ *   "isContinuouslyUpdated": true,
+ *   "hasAncillaryData": false,
+ *   "isInvalid": false
+ * }
+ *
+ * @example
+ * // Invalid dataset response
+ * {
+ *   "shortName": "removed_dataset",
+ *   "description": null,
+ *   "timeStart": null,
+ *   "timeEnd": null,
+ *   "rowCount": null,
+ *   "sensors": [],
+ *   "makes": [],
+ *   "regions": [],
+ *   "isContinuouslyUpdated": false,
+ *   "hasAncillaryData": false,
+ *   "isInvalid": true
+ * }
  */
 collectionsAPI.getCollectionPreview = async (
   datasetShortNames,
@@ -216,9 +313,11 @@ collectionsAPI.getCollectionPreview = async (
 ) => {
   const searchParams = new URLSearchParams();
 
-  // Add each dataset as a separate parameter
+  // Add each dataset as a separate parameter, filtering out undefined/null values
   datasetShortNames.forEach((name) => {
-    searchParams.append('datasets', name);
+    if (name !== undefined && name !== null && name !== '') {
+      searchParams.append('datasets', name);
+    }
   });
 
   // Add collectionId if provided for views tracking

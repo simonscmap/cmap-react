@@ -18,6 +18,10 @@ import CollectionDownloadModal from '../myCollections/CollectionDownloadModal';
 import CollectionDatasetsTable from '../components/CollectionDatasetsTable';
 import useCollectionsStore from '../state/collectionsStore';
 import { snackbarOpen } from '../../../Redux/actions/ui';
+import {
+  checkInvalidDatasets,
+  InvalidDatasetConfirmationDialog,
+} from '../shared/copyCollectionDialogConfig';
 
 const PreviewModal = ({ open, onClose, collection }) => {
   const classes = usePreviewModalStyles();
@@ -30,6 +34,8 @@ const PreviewModal = ({ open, onClose, collection }) => {
   const [copying, setCopying] = useState(false);
   const [downloadModalOpen, setDownloadModalOpen] = useState(false);
   const [totalRows, setTotalRows] = useState(0);
+  const [warningDialogOpen, setWarningDialogOpen] = useState(false);
+  const [warningDialogData, setWarningDialogData] = useState(null);
 
   if (!collection) return null;
 
@@ -82,6 +88,27 @@ const PreviewModal = ({ open, onClose, collection }) => {
   ];
 
   const handleCopy = async () => {
+    // Check for invalid datasets using shared helper
+    const { invalidDatasets, validDatasets, hasInvalidDatasets } =
+      checkInvalidDatasets(collection);
+
+    if (hasInvalidDatasets) {
+      // Show warning dialog - wait for user confirmation
+      setWarningDialogOpen(true);
+      setWarningDialogData({
+        collectionName: collection.name,
+        invalidCount: invalidDatasets.length,
+        validCount: validDatasets.length,
+        invalidDatasets: invalidDatasets,
+      });
+      return; // Exit and wait for dialog response
+    }
+
+    // No invalid datasets - proceed directly
+    await performCopy();
+  };
+
+  const performCopy = async () => {
     setCopying(true);
     try {
       const result = await copyCollection(collection.id);
@@ -104,6 +131,17 @@ const PreviewModal = ({ open, onClose, collection }) => {
     }
   };
 
+  const handleWarningConfirm = async () => {
+    setWarningDialogOpen(false);
+    await performCopy();
+    setWarningDialogData(null);
+  };
+
+  const handleWarningCancel = () => {
+    setWarningDialogOpen(false);
+    setWarningDialogData(null);
+  };
+
   const handleDownload = () => {
     setDownloadModalOpen(true);
   };
@@ -117,7 +155,7 @@ const PreviewModal = ({ open, onClose, collection }) => {
       <Dialog
         open={open}
         onClose={onClose}
-        classes={{ paper: classes.dialogPaper }}
+        classes={{ paper: classes.dialogPaper, root: classes.dialogRoot }}
         aria-labelledby="preview-collection-dialog-title"
         disableScrollLock={true}
       >
@@ -172,7 +210,12 @@ const PreviewModal = ({ open, onClose, collection }) => {
             <CollectionDatasetsTable
               collectionId={collection.id}
               datasetShortNames={
-                collection.datasets?.map((d) => d.datasetShortName) || []
+                collection.datasets
+                  ?.map((d) => d.datasetShortName)
+                  .filter(
+                    (name) =>
+                      name !== undefined && name !== null && name !== '',
+                  ) || []
               }
               columns={['name', 'type', 'region', 'dateRange', 'rows']}
               onDataLoaded={handleDataLoaded}
@@ -215,6 +258,13 @@ const PreviewModal = ({ open, onClose, collection }) => {
         open={downloadModalOpen}
         onClose={handleCloseDownloadModal}
         collection={collection}
+      />
+
+      <InvalidDatasetConfirmationDialog
+        open={warningDialogOpen}
+        warningDialogData={warningDialogData}
+        onConfirm={handleWarningConfirm}
+        onCancel={handleWarningCancel}
       />
     </>
   );

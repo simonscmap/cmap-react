@@ -4,16 +4,12 @@ import {
   CardContent,
   CardActions,
   Typography,
-  Chip,
   Box,
   CircularProgress,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { useDispatch } from 'react-redux';
-import {
-  Storage as DatasetIcon,
-  Warning as WarningIcon,
-} from '@material-ui/icons';
+import { Warning as WarningIcon } from '@material-ui/icons';
 import colors from '../../../enums/colors';
 import MetadataRow from './MetadataRow';
 import DeleteButton from '../components/DeleteButton';
@@ -21,6 +17,7 @@ import UniversalButton from '../../../shared/components/UniversalButton';
 import useCollectionsStore from '../state/collectionsStore';
 import CollectionDownloadModal from './CollectionDownloadModal';
 import EditCollectionModal from '../editCollection/EditCollectionModal';
+import CollectionStatusBadge from '../components/CollectionStatusBadge';
 import { snackbarOpen } from '../../../Redux/actions/ui';
 
 const useStyles = makeStyles((theme) => ({
@@ -92,22 +89,6 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     flexWrap: 'wrap',
   },
-  publicChip: {
-    backgroundColor: '#c8e6c9',
-    color: '#2e7d32',
-    fontSize: '0.62rem',
-    height: 20,
-    fontWeight: 400,
-    borderRadius: '6px',
-  },
-  privateChip: {
-    backgroundColor: '#ffcdd2',
-    color: '#c62828',
-    fontSize: '0.62rem',
-    height: 20,
-    fontWeight: 400,
-    borderRadius: '6px',
-  },
   warningSection: {
     display: 'flex',
     alignItems: 'center',
@@ -148,7 +129,7 @@ const CollectionCard = ({ collection, isPending = false }) => {
   };
 
   const invalidDatasetCount = collection.datasets
-    ? collection.datasets.filter((dataset) => dataset.isValid === false).length
+    ? collection.datasets.filter((dataset) => dataset.isInvalid === true).length
     : 0;
 
   const handleEdit = () => {
@@ -199,13 +180,7 @@ const CollectionCard = ({ collection, isPending = false }) => {
               {collection.name}
             </Typography>
             <Box className={classes.statusChips}>
-              <Chip
-                label={collection.isPublic ? 'PUBLIC' : 'PRIVATE'}
-                size="small"
-                className={
-                  collection.isPublic ? classes.publicChip : classes.privateChip
-                }
-              />
+              <CollectionStatusBadge isPublic={collection.isPublic} />
             </Box>
           </Box>
 
