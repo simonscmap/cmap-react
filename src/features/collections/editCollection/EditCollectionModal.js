@@ -23,6 +23,7 @@ import ConfirmationDialog from '../../../shared/components/ConfirmationDialog';
 import UniversalButton from '../../../shared/components/UniversalButton';
 import { DOWNLOAD_LIMITS } from '../../../shared/constants/downloadConstants';
 import zIndex from '../../../enums/zIndex';
+import AddDatasetsModal from '../addDatasets/AddDatasetsModal';
 
 const useStyles = makeStyles((theme) => ({
   dialogPaper: {
@@ -134,6 +135,13 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: 'rgba(211, 47, 47, 0.2)',
     },
   },
+  newlyAddedRow: {
+    backgroundColor: 'rgba(156, 39, 176, 0.1)',
+    borderLeft: '3px solid rgba(156, 39, 176, 0.8)',
+    '&:hover': {
+      backgroundColor: 'rgba(156, 39, 176, 0.15)',
+    },
+  },
   invalidDatasetsList: {
     marginTop: theme.spacing(1),
     marginBottom: theme.spacing(3),
@@ -160,6 +168,7 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
     useState(false);
   const [invalidDatasetsData, setInvalidDatasetsData] = useState(null);
   const [tableData, setTableData] = useState([]);
+  const [isAddDatasetsOpen, setIsAddDatasetsOpen] = useState(false);
 
   // Store state selectors
   const datasetsToRemove = useEditCollectionStore(
@@ -284,11 +293,40 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
     await downloadSelected(dispatch);
   };
 
-  // Get row class for marked-for-removal styling
+  // Handle add datasets from AddDatasetsModal
+  const handleAddDatasets = (newDatasets) => {
+    // Transform datasets from preview format (shortName) to collection format (datasetShortName)
+    // and add isNewlyAdded flag for green highlighting
+    const datasetsWithFlags = newDatasets.map((dataset) => ({
+      ...dataset,
+      datasetShortName: dataset.shortName, // Transform property name for collection format
+      isNewlyAdded: true,
+    }));
+
+    // Call editCollectionStore action to merge datasets into collection
+    useEditCollectionStore.getState().addDatasets(datasetsWithFlags);
+
+    // Close Add Datasets modal
+    setIsAddDatasetsOpen(false);
+  };
+
+  // Get row class for marked-for-removal and newly-added styling
   const getRowClass = (dataset) => {
+    // Priority: markedForRemovalRow > newlyAddedRow > normalRow
     if (datasetsToRemove.includes(dataset.shortName)) {
       return classes.markedForRemovalRow;
     }
+
+    // Check if dataset is newly added by matching short name in collection
+    if (collection?.datasets) {
+      const collectionDataset = collection.datasets.find(
+        (d) => d.datasetShortName === dataset.shortName,
+      );
+      if (collectionDataset?.isNewlyAdded === true) {
+        return classes.newlyAddedRow;
+      }
+    }
+
     return classes.normalRow;
   };
 
@@ -315,6 +353,18 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
   // Check if over download limit
   const isOverDownloadLimit =
     totalSelectedRows > DOWNLOAD_LIMITS.MAX_ROW_THRESHOLD;
+
+  // Calculate new dataset count (accounting for removals and additions)
+  const newDatasetCount = useMemo(() => {
+    if (!collection?.datasets) return 0;
+    // Filter out datasets marked for removal
+    return collection.datasets.filter(
+      (d) => !datasetsToRemove.includes(d.datasetShortName),
+    ).length;
+  }, [collection?.datasets, datasetsToRemove]);
+
+  // Get original dataset count
+  const originalDatasetCount = originalCollection?.datasets?.length || 0;
 
   // Reset warning state when modal closes
   useEffect(() => {
@@ -470,7 +520,8 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
               <CollectionStatistics
                 stats={[
                   {
-                    value: collection.datasets?.length || 0,
+                    currentValue: newDatasetCount,
+                    originalValue: originalDatasetCount,
                     label: 'Datasets',
                   },
                   {
@@ -503,14 +554,19 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
                   variant="containedPrimary"
                   size="large"
                   startIcon={<Add />}
-                  onClick={() => {}}
+                  onClick={() => setIsAddDatasetsOpen(true)}
                 >
                   ADD DATASETS
                 </UniversalButton>
               </Box>
               <CollectionDatasetsTable
                 datasetShortNames={
-                  collection.datasets?.map((d) => d.datasetShortName) || []
+                  collection.datasets
+                    ?.map((d) => d.datasetShortName)
+                    .filter(
+                      (name) =>
+                        name !== undefined && name !== null && name !== '',
+                    ) || []
                 }
                 selectedDatasets={selectedDatasets}
                 onToggleSelection={handleToggleSelection}
@@ -654,6 +710,14 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
         ]}
         ariaLabelId="invalid-datasets-title"
         ariaDescriptionId="invalid-datasets-description"
+      />
+
+      <AddDatasetsModal
+        open={isAddDatasetsOpen}
+        onClose={() => setIsAddDatasetsOpen(false)}
+        onAddDatasets={handleAddDatasets}
+        currentCollectionDatasets={collection?.datasets || []}
+        targetCollectionName={collection?.name}
       />
     </>
   );

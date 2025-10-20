@@ -208,6 +208,28 @@ const useEditCollectionStore = create((set, get) => ({
   },
 
   /**
+   * Add datasets to the collection (from Add Datasets modal)
+   * @param {Array} newDatasets - Array of dataset objects to add
+   */
+  addDatasets: (newDatasets) => {
+    const { collection } = get();
+
+    if (!collection || !newDatasets || newDatasets.length === 0) {
+      return;
+    }
+
+    // Merge new datasets into collection.datasets array
+    const updatedDatasets = [...collection.datasets, ...newDatasets];
+
+    set({
+      collection: {
+        ...collection,
+        datasets: updatedDatasets,
+      },
+    });
+  },
+
+  /**
    * Download selected datasets directly as a zip file
    * @param {Function} dispatch - Redux dispatch function for error notifications
    * @returns {Promise<void>}
@@ -277,6 +299,12 @@ const useEditCollectionStore = create((set, get) => ({
         .map((dataset) => dataset.datasetShortName),
     };
 
+    // Remove isNewlyAdded flags from datasets before saving
+    const datasetsWithoutFlags = collection.datasets.map((dataset) => {
+      const { isNewlyAdded, ...datasetWithoutFlag } = dataset;
+      return datasetWithoutFlag;
+    });
+
     try {
       const response = await collectionsAPI.updateCollection(
         collection.id,
@@ -303,6 +331,14 @@ const useEditCollectionStore = create((set, get) => ({
       }
 
       const result = await response.json();
+
+      // Remove isNewlyAdded flags from result datasets
+      if (result.datasets) {
+        result.datasets = result.datasets.map((dataset) => {
+          const { isNewlyAdded, ...datasetWithoutFlag } = dataset;
+          return datasetWithoutFlag;
+        });
+      }
 
       // Server response is the single source of truth
       set({

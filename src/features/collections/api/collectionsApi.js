@@ -261,9 +261,11 @@ collectionsAPI.getCollectionPreview = async (
 ) => {
   const searchParams = new URLSearchParams();
 
-  // Add each dataset as a separate parameter
+  // Add each dataset as a separate parameter, filtering out undefined/null values
   datasetShortNames.forEach((name) => {
-    searchParams.append('datasets', name);
+    if (name !== undefined && name !== null && name !== '') {
+      searchParams.append('datasets', name);
+    }
   });
 
   // Add collectionId if provided for views tracking
