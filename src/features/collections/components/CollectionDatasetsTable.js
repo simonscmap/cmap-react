@@ -16,6 +16,9 @@ import {
 import {
   CheckCircle as CheckCircleIcon,
   Warning as WarningIcon,
+  AddCircle as AddCircleIcon,
+  RemoveCircle as RemoveCircleIcon,
+  RemoveCircleOutline as RemoveCircleOutlineIcon,
 } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import { format, parseISO } from 'date-fns';
@@ -43,32 +46,54 @@ const useStyles = makeStyles((theme) => ({
       position: 'sticky',
       top: 0,
       zIndex: 2,
-      padding: '8px 5px',
+      padding: '8px 8px',
       border: 0,
-      '&:first-child': {
-        padding: '8px 5px 8px 16px',
-      },
     },
   },
   table: {
     width: '100%',
   },
   tableRow: {
+    boxShadow: 'inset 3px 0 0 transparent',
     '&:hover': {
       backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    },
+    '& .MuiTableCell-root:first-child': {
+      paddingLeft: '16px',
+    },
+    '& .MuiTableCell-root:last-child': {
+      paddingRight: '16px',
+    },
+    '& ::selection': {
+      backgroundColor: 'transparent',
     },
   },
   invalidRow: {
     opacity: 0.8,
     backgroundColor: 'rgba(255, 193, 7, 0.15)',
-    borderLeft: '3px solid rgba(255, 193, 7, 0.6)',
+    boxShadow: 'inset 3px 0 0 rgba(255, 193, 7, 0.6)',
   },
   markedForRemovalRow: {
     opacity: 0.8,
     backgroundColor: 'rgba(211, 47, 47, 0.15)',
-    borderLeft: '3px solid rgba(211, 47, 47, 0.6)',
+    boxShadow: 'inset 3px 0 0 rgba(211, 47, 47, 0.6)',
     '& .MuiTableCell-root:not(:first-child):not(:last-child)': {
       textDecoration: 'line-through',
+    },
+  },
+  alreadyPresentRow: {
+    opacity: 0.6,
+    backgroundColor: 'rgba(128, 128, 128, 0.1)',
+    boxShadow: 'inset 3px 0 0 rgba(128, 128, 128, 0.6)',
+    '&:hover': {
+      backgroundColor: 'rgba(128, 128, 128, 0.15)',
+    },
+  },
+  newlyAddedRow: {
+    backgroundColor: 'rgba(156, 39, 176, 0.1)',
+    boxShadow: 'inset 3px 0 0 rgba(156, 39, 176, 0.8)',
+    '&:hover': {
+      backgroundColor: 'rgba(156, 39, 176, 0.15)',
     },
   },
   tableCell: {
@@ -79,12 +104,7 @@ const useStyles = makeStyles((theme) => ({
     whiteSpace: 'normal',
     wordWrap: 'break-word',
     lineHeight: 1.4,
-    '&:first-child': {
-      paddingLeft: '16px',
-    },
-    '&:last-child': {
-      paddingRight: '16px',
-    },
+    backgroundColor: 'transparent !important',
   },
   checkboxCell: {
     width: '50px',
@@ -102,6 +122,15 @@ const useStyles = makeStyles((theme) => ({
   },
   invalidIcon: {
     color: '#ffc107',
+  },
+  addedIcon: {
+    color: '#9c27b0',
+  },
+  removedIcon: {
+    color: '#d32f2f',
+  },
+  alreadyPresentIcon: {
+    color: '#808080',
   },
   datasetNameCell: {
     minWidth: '200px',
@@ -150,12 +179,14 @@ const useStyles = makeStyles((theme) => ({
 /**
  * CollectionDatasetsTable
  *
- * Shared, self-contained component that displays datasets in a collection.
- * Fetches its own data and manages loading states.
+ * Shared component that displays datasets in a collection.
+ * Can auto-fetch data or accept pre-loaded data.
  * Can be configured for read-only or interactive use cases.
  *
  * @param {number} collectionId - Collection ID for fetching data
  * @param {string[]} datasetShortNames - Array of dataset short names to fetch
+ * @param {Array} data - Pre-loaded dataset objects (optional, bypasses auto-fetch)
+ * @param {string} emptyMessage - Message to show when no data (optional)
  * @param {string[]} selectedDatasets - Selected dataset short names (optional)
  * @param {function} onToggleSelection - Handler for checkbox toggle (optional)
  * @param {function} onSelectAll - Handler for select all (optional)
@@ -173,6 +204,8 @@ const useStyles = makeStyles((theme) => ({
 const CollectionDatasetsTable = ({
   collectionId,
   datasetShortNames,
+  data: preLoadedData,
+  emptyMessage,
   selectedDatasets = [],
   onToggleSelection,
   onSelectAll,
@@ -206,6 +239,23 @@ const CollectionDatasetsTable = ({
 
   // Fetch data when component mounts or dependencies change
   useEffect(() => {
+    // If pre-loaded data is provided, use it directly (no fetch)
+    if (preLoadedData !== undefined && preLoadedData !== null) {
+      setData(preLoadedData);
+      setIsLoading(false);
+
+      // Call onDataLoaded callback if provided
+      if (preLoadedData.length > 0 && onDataLoaded) {
+        const totalRows = preLoadedData.reduce((sum, dataset) => {
+          return sum + (dataset.rowCount || 0);
+        }, 0);
+        onDataLoaded(preLoadedData, totalRows);
+      }
+
+      return;
+    }
+
+    // Auto-fetch mode: fetch data if datasetShortNames provided
     if (!datasetShortNames || datasetShortNames.length === 0) {
       setData([]);
       setIsLoading(false);
@@ -248,7 +298,7 @@ const CollectionDatasetsTable = ({
       clearPreviewData();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [collectionId, datasetShortNamesKey]);
+  }, [preLoadedData, collectionId, datasetShortNamesKey]);
 
   // Format helpers
   const formatDateRange = (timeStart, timeEnd) => {
@@ -276,11 +326,33 @@ const CollectionDatasetsTable = ({
       header: 'Status',
       cellClass: classes.statusCell,
       align: 'center',
-      render: (dataset) => {
-        if (dataset.isInvalid) {
+      render: (dataset, rowState) => {
+        // Priority: markedForRemoval > invalid > newlyAdded > alreadyPresent > valid
+        if (rowState === 'markedForRemoval') {
+          return (
+            <RemoveCircleIcon
+              className={`${classes.statusIcon} ${classes.removedIcon}`}
+            />
+          );
+        }
+        if (rowState === 'invalid' || dataset.isInvalid) {
           return (
             <WarningIcon
               className={`${classes.statusIcon} ${classes.invalidIcon}`}
+            />
+          );
+        }
+        if (rowState === 'newlyAdded') {
+          return (
+            <AddCircleIcon
+              className={`${classes.statusIcon} ${classes.addedIcon}`}
+            />
+          );
+        }
+        if (rowState === 'alreadyPresent') {
+          return (
+            <RemoveCircleOutlineIcon
+              className={`${classes.statusIcon} ${classes.alreadyPresentIcon}`}
             />
           );
         }
@@ -367,25 +439,9 @@ const CollectionDatasetsTable = ({
   // Determine if we should show actions
   const hasActions = actions && actions.length > 0;
 
-  // Loading state
-  if (isLoading) {
-    return (
-      <Box className={classes.loadingContainer}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  // Empty state
-  if (!data || data.length === 0) {
-    return (
-      <Paper className={classes.emptyState}>
-        <Typography variant="body2" color="textSecondary">
-          No dataset data available
-        </Typography>
-      </Paper>
-    );
-  }
+  // Calculate total column count for colSpan in empty state
+  const totalColumnCount =
+    columns.length + (hasSelection ? 1 : 0) + (hasActions ? 1 : 0);
 
   return (
     <TableContainer
@@ -430,90 +486,127 @@ const CollectionDatasetsTable = ({
           </TableRow>
         </TableHead>
         <TableBody>
-          {data.map((dataset, index) => {
-            const isSelected = selectedDatasets.includes(dataset.shortName);
+          {isLoading ? (
+            <TableRow>
+              <TableCell colSpan={totalColumnCount} align="center">
+                <Box className={classes.loadingContainer}>
+                  <CircularProgress />
+                </Box>
+              </TableCell>
+            </TableRow>
+          ) : !data || data.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={totalColumnCount} align="center">
+                <Box className={classes.emptyState}>
+                  <Typography variant="body2" color="textSecondary">
+                    {emptyMessage || 'No dataset data available'}
+                  </Typography>
+                </Box>
+              </TableCell>
+            </TableRow>
+          ) : (
+            data.map((dataset, index) => {
+              const isSelected = selectedDatasets.includes(dataset.shortName);
 
-            // Priority: markedForRemovalRow > invalidRow > normal row
-            let rowClass = classes.tableRow;
+              // Priority: markedForRemovalRow > invalidRow > newlyAddedRow > alreadyPresentRow > normal row
+              let rowClass = classes.tableRow;
+              let isAlreadyPresent = false;
+              let rowState = 'normal'; // Track state for status icon
 
-            if (rowClassGetter) {
-              const customClass = rowClassGetter(dataset);
-              if (
-                customClass &&
-                customClass.includes &&
-                customClass.includes('markedForRemoval')
-              ) {
-                rowClass = classes.markedForRemovalRow;
+              if (rowClassGetter) {
+                const customClass = rowClassGetter(dataset);
+                if (
+                  customClass &&
+                  customClass.includes &&
+                  customClass.includes('markedForRemoval')
+                ) {
+                  rowClass = `${classes.tableRow} ${classes.markedForRemovalRow}`;
+                  rowState = 'markedForRemoval';
+                } else if (customClass === 'invalidRow' || dataset.isInvalid) {
+                  rowClass = `${classes.tableRow} ${classes.invalidRow}`;
+                  rowState = 'invalid';
+                } else if (
+                  customClass &&
+                  customClass.includes &&
+                  customClass.includes('newlyAdded')
+                ) {
+                  rowClass = `${classes.tableRow} ${classes.newlyAddedRow}`;
+                  rowState = 'newlyAdded';
+                } else if (customClass === 'alreadyPresentRow') {
+                  rowClass = `${classes.tableRow} ${classes.alreadyPresentRow}`;
+                  isAlreadyPresent = true;
+                  rowState = 'alreadyPresent';
+                } else if (customClass === 'normalRow') {
+                  rowClass = classes.tableRow;
+                  rowState = 'normal';
+                }
               } else if (dataset.isInvalid) {
-                rowClass = classes.invalidRow;
-              } else {
-                rowClass = customClass;
+                rowClass = `${classes.tableRow} ${classes.invalidRow}`;
+                rowState = 'invalid';
               }
-            } else if (dataset.isInvalid) {
-              rowClass = classes.invalidRow;
-            }
 
-            return (
-              <TableRow key={index} className={rowClass}>
-                {/* Selection checkbox */}
-                {hasSelection && (
-                  <TableCell
-                    className={`${classes.tableCell} ${classes.checkboxCell}`}
-                  >
-                    <Checkbox
-                      checked={isSelected}
-                      onChange={() => onToggleSelection(dataset.shortName)}
-                      color="primary"
-                      size="small"
-                      disabled={dataset.isInvalid}
-                    />
-                  </TableCell>
-                )}
-
-                {/* Data cells */}
-                {columns.map((columnKey) => {
-                  const column = columnConfig[columnKey];
-                  if (!column) return null;
-                  return (
+              return (
+                <TableRow key={index} className={rowClass}>
+                  {/* Selection checkbox */}
+                  {hasSelection && (
                     <TableCell
-                      key={columnKey}
-                      className={`${classes.tableCell} ${column.cellClass}`}
-                      align={column.align}
+                      className={`${classes.tableCell} ${classes.checkboxCell}`}
                     >
-                      {column.render(dataset)}
+                      <Checkbox
+                        checked={isSelected}
+                        onChange={() => onToggleSelection(dataset.shortName)}
+                        color="primary"
+                        size="small"
+                        disabled={dataset.isInvalid || isAlreadyPresent}
+                      />
                     </TableCell>
-                  );
-                })}
+                  )}
 
-                {/* Actions cell */}
-                {hasActions && (
-                  <TableCell
-                    className={`${classes.tableCell} ${classes.actionsCell}`}
-                  >
-                    <div className={classes.actionsCellContent}>
-                      {actions.map((action, actionIndex) => {
-                        // Check if action should be shown based on condition
-                        if (action.condition && !action.condition(dataset)) {
-                          return null;
-                        }
+                  {/* Data cells */}
+                  {columns.map((columnKey) => {
+                    const column = columnConfig[columnKey];
+                    if (!column) return null;
+                    return (
+                      <TableCell
+                        key={columnKey}
+                        className={`${classes.tableCell} ${column.cellClass}`}
+                        align={column.align}
+                      >
+                        {column.render(dataset, rowState)}
+                      </TableCell>
+                    );
+                  })}
 
-                        return (
-                          <UniversalButton
-                            key={actionIndex}
-                            onClick={() => action.onClick(dataset)}
-                            variant={action.variant || 'secondary'}
-                            size="small"
-                          >
-                            {action.label}
-                          </UniversalButton>
-                        );
-                      })}
-                    </div>
-                  </TableCell>
-                )}
-              </TableRow>
-            );
-          })}
+                  {/* Actions cell */}
+                  {hasActions && (
+                    <TableCell
+                      className={`${classes.tableCell} ${classes.actionsCell}`}
+                    >
+                      <div className={classes.actionsCellContent}>
+                        {actions.map((action, actionIndex) => {
+                          // Check if action should be shown based on condition
+                          if (action.condition && !action.condition(dataset)) {
+                            return null;
+                          }
+
+                          return (
+                            <UniversalButton
+                              key={actionIndex}
+                              onClick={() => action.onClick(dataset)}
+                              variant={action.variant || 'secondary'}
+                              size="small"
+                            >
+                              {action.label}
+                            </UniversalButton>
+                          );
+                        })}
+                      </div>
+                    </TableCell>
+                  )}
+                </TableRow>
+              );
+            })
+          )}
         </TableBody>
       </Table>
     </TableContainer>
@@ -523,6 +616,8 @@ const CollectionDatasetsTable = ({
 CollectionDatasetsTable.propTypes = {
   collectionId: PropTypes.number,
   datasetShortNames: PropTypes.arrayOf(PropTypes.string).isRequired,
+  data: PropTypes.array,
+  emptyMessage: PropTypes.string,
   selectedDatasets: PropTypes.arrayOf(PropTypes.string),
   onToggleSelection: PropTypes.func,
   onSelectAll: PropTypes.func,

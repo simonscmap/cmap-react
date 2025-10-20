@@ -155,7 +155,7 @@ const PreviewModal = ({ open, onClose, collection }) => {
       <Dialog
         open={open}
         onClose={onClose}
-        classes={{ paper: classes.dialogPaper }}
+        classes={{ paper: classes.dialogPaper, root: classes.dialogRoot }}
         aria-labelledby="preview-collection-dialog-title"
         disableScrollLock={true}
       >
@@ -210,7 +210,12 @@ const PreviewModal = ({ open, onClose, collection }) => {
             <CollectionDatasetsTable
               collectionId={collection.id}
               datasetShortNames={
-                collection.datasets?.map((d) => d.datasetShortName) || []
+                collection.datasets
+                  ?.map((d) => d.datasetShortName)
+                  .filter(
+                    (name) =>
+                      name !== undefined && name !== null && name !== '',
+                  ) || []
               }
               columns={['name', 'type', 'region', 'dateRange', 'rows']}
               onDataLoaded={handleDataLoaded}

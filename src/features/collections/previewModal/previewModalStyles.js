@@ -1,10 +1,14 @@
 import { makeStyles } from '@material-ui/core/styles';
+import zIndex from '../../../enums/zIndex';
 
 export const usePreviewModalStyles = makeStyles((theme) => ({
   dialogPaper: {
     width: '900px',
     maxWidth: '90vw',
     backgroundColor: 'rgb(24, 69, 98)',
+  },
+  dialogRoot: {
+    zIndex: `${zIndex.MUI_DIALOG} !important`,
   },
   dialogTitle: {
     paddingBottom: theme.spacing(1),

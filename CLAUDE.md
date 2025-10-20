@@ -81,6 +81,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Uses lazy loading for route components to optimize bundle size
 - Custom build process that renames index.html to app.html
 - Material-UI theming system with custom theme configuration
+- **Responsive Design**: Application is responsive for tablet and desktop viewports. Mobile viewport support is intentionally not implemented.
 
 ## Testing
 
