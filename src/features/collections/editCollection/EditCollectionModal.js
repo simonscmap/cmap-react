@@ -6,6 +6,7 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  DialogContentText,
   DialogActions,
   IconButton,
 } from '@material-ui/core';
@@ -18,9 +19,11 @@ import CollectionFormFields from '../components/CollectionFormFields';
 import CollectionStatistics from '../components/CollectionStatistics';
 import CollectionDatasetsTable from '../components/CollectionDatasetsTable';
 import CollectionContentActions from './components/CollectionContentActions';
-import UnsavedChangesWarning from './components/UnsavedChangesWarning';
+import ConfirmationDialog from '../../../shared/components/ConfirmationDialog';
 import UniversalButton from '../../../shared/components/UniversalButton';
 import { DOWNLOAD_LIMITS } from '../../../shared/constants/downloadConstants';
+import zIndex from '../../../enums/zIndex';
+import AddDatasetsModal from '../addDatasets/AddDatasetsModal';
 
 const useStyles = makeStyles((theme) => ({
   dialogPaper: {
@@ -28,6 +31,9 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: '95vw',
     maxHeight: '90vh',
     backgroundColor: 'rgb(24, 69, 98)',
+  },
+  dialogRoot: {
+    zIndex: `${zIndex.MUI_DIALOG} !important`,
   },
   dialogTitle: {
     paddingBottom: theme.spacing(1),
@@ -129,6 +135,21 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: 'rgba(211, 47, 47, 0.2)',
     },
   },
+  newlyAddedRow: {
+    backgroundColor: 'rgba(156, 39, 176, 0.1)',
+    borderLeft: '3px solid rgba(156, 39, 176, 0.8)',
+    '&:hover': {
+      backgroundColor: 'rgba(156, 39, 176, 0.15)',
+    },
+  },
+  invalidDatasetsList: {
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(3),
+    paddingLeft: theme.spacing(4),
+    maxHeight: '150px',
+    overflow: 'auto',
+    backgroundColor: 'transparent',
+  },
 }));
 
 /**
@@ -143,7 +164,11 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
   const dispatch = useDispatch();
 
   const [showUnsavedWarning, setShowUnsavedWarning] = useState(false);
+  const [showInvalidDatasetsDialog, setShowInvalidDatasetsDialog] =
+    useState(false);
+  const [invalidDatasetsData, setInvalidDatasetsData] = useState(null);
   const [tableData, setTableData] = useState([]);
+  const [isAddDatasetsOpen, setIsAddDatasetsOpen] = useState(false);
 
   // Store state selectors
   const datasetsToRemove = useEditCollectionStore(
@@ -223,6 +248,11 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
     onClose();
   };
 
+  // Handle close invalid datasets dialog
+  const handleCloseInvalidDatasetsDialog = () => {
+    setShowInvalidDatasetsDialog(false);
+  };
+
   // Handle save button click
   const handleSaveClick = async () => {
     const success = await handleSave();
@@ -263,11 +293,40 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
     await downloadSelected(dispatch);
   };
 
-  // Get row class for marked-for-removal styling
+  // Handle add datasets from AddDatasetsModal
+  const handleAddDatasets = (newDatasets) => {
+    // Transform datasets from preview format (shortName) to collection format (datasetShortName)
+    // and add isNewlyAdded flag for green highlighting
+    const datasetsWithFlags = newDatasets.map((dataset) => ({
+      ...dataset,
+      datasetShortName: dataset.shortName, // Transform property name for collection format
+      isNewlyAdded: true,
+    }));
+
+    // Call editCollectionStore action to merge datasets into collection
+    useEditCollectionStore.getState().addDatasets(datasetsWithFlags);
+
+    // Close Add Datasets modal
+    setIsAddDatasetsOpen(false);
+  };
+
+  // Get row class for marked-for-removal and newly-added styling
   const getRowClass = (dataset) => {
+    // Priority: markedForRemovalRow > newlyAddedRow > normalRow
     if (datasetsToRemove.includes(dataset.shortName)) {
       return classes.markedForRemovalRow;
     }
+
+    // Check if dataset is newly added by matching short name in collection
+    if (collection?.datasets) {
+      const collectionDataset = collection.datasets.find(
+        (d) => d.datasetShortName === dataset.shortName,
+      );
+      if (collectionDataset?.isNewlyAdded === true) {
+        return classes.newlyAddedRow;
+      }
+    }
+
     return classes.normalRow;
   };
 
@@ -295,12 +354,42 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
   const isOverDownloadLimit =
     totalSelectedRows > DOWNLOAD_LIMITS.MAX_ROW_THRESHOLD;
 
+  // Calculate new dataset count (accounting for removals and additions)
+  const newDatasetCount = useMemo(() => {
+    if (!collection?.datasets) return 0;
+    // Filter out datasets marked for removal
+    return collection.datasets.filter(
+      (d) => !datasetsToRemove.includes(d.datasetShortName),
+    ).length;
+  }, [collection?.datasets, datasetsToRemove]);
+
+  // Get original dataset count
+  const originalDatasetCount = originalCollection?.datasets?.length || 0;
+
   // Reset warning state when modal closes
   useEffect(() => {
     if (!open) {
       setShowUnsavedWarning(false);
+      setShowInvalidDatasetsDialog(false);
+      setInvalidDatasetsData(null);
     }
   }, [open]);
+
+  // Check for invalid datasets when collection loads
+  useEffect(() => {
+    if (collection && !isLoading) {
+      const invalidDatasets =
+        collection.datasets?.filter((d) => d.isInvalid === true) || [];
+
+      if (invalidDatasets.length > 0) {
+        setInvalidDatasetsData({
+          invalidCount: invalidDatasets.length,
+          invalidDatasets: invalidDatasets,
+        });
+        setShowInvalidDatasetsDialog(true);
+      }
+    }
+  }, [collection, isLoading]);
 
   if (!open) {
     return null;
@@ -311,7 +400,7 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
       <Dialog
         open={open}
         onClose={handleClose}
-        classes={{ paper: classes.dialogPaper }}
+        classes={{ paper: classes.dialogPaper, root: classes.dialogRoot }}
         aria-labelledby="edit-collection-dialog-title"
         disableScrollLock={true}
       >
@@ -331,7 +420,7 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
       <Dialog
         open={open}
         onClose={onClose}
-        classes={{ paper: classes.dialogPaper }}
+        classes={{ paper: classes.dialogPaper, root: classes.dialogRoot }}
         aria-labelledby="edit-collection-dialog-title"
         disableScrollLock={true}
       >
@@ -357,7 +446,7 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
       <Dialog
         open={open}
         onClose={onClose}
-        classes={{ paper: classes.dialogPaper }}
+        classes={{ paper: classes.dialogPaper, root: classes.dialogRoot }}
         aria-labelledby="edit-collection-dialog-title"
         disableScrollLock={true}
       >
@@ -382,7 +471,7 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
       <Dialog
         open={open}
         onClose={handleClose}
-        classes={{ paper: classes.dialogPaper }}
+        classes={{ paper: classes.dialogPaper, root: classes.dialogRoot }}
         aria-labelledby="edit-collection-dialog-title"
         disableScrollLock={true}
         maxWidth={false}
@@ -431,7 +520,8 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
               <CollectionStatistics
                 stats={[
                   {
-                    value: collection.datasets?.length || 0,
+                    currentValue: newDatasetCount,
+                    originalValue: originalDatasetCount,
                     label: 'Datasets',
                   },
                   {
@@ -464,14 +554,19 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
                   variant="containedPrimary"
                   size="large"
                   startIcon={<Add />}
-                  onClick={() => {}}
+                  onClick={() => setIsAddDatasetsOpen(true)}
                 >
                   ADD DATASETS
                 </UniversalButton>
               </Box>
               <CollectionDatasetsTable
                 datasetShortNames={
-                  collection.datasets?.map((d) => d.datasetShortName) || []
+                  collection.datasets
+                    ?.map((d) => d.datasetShortName)
+                    .filter(
+                      (name) =>
+                        name !== undefined && name !== null && name !== '',
+                    ) || []
                 }
                 selectedDatasets={selectedDatasets}
                 onToggleSelection={handleToggleSelection}
@@ -480,7 +575,7 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
                 areAllSelected={allDatasetsSelected}
                 areIndeterminate={isIndeterminate}
                 rowClassGetter={getRowClass}
-                columns={['name', 'type', 'dateRange', 'rows']}
+                columns={['name', 'status', 'type', 'dateRange', 'rows']}
                 onDataLoaded={handleDataLoaded}
                 actions={[
                   {
@@ -558,10 +653,71 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
         </DialogActions>
       </Dialog>
 
-      <UnsavedChangesWarning
+      <ConfirmationDialog
         open={showUnsavedWarning}
-        onKeepEditing={handleKeepEditing}
-        onDiscardChanges={handleDiscardChanges}
+        onClose={handleKeepEditing}
+        title="Unsaved Changes"
+        message="You have unsaved changes to this collection. If you leave now, your changes will be lost. Do you want to keep editing or discard your changes?"
+        actions={[
+          {
+            label: 'Keep Editing',
+            onClick: handleKeepEditing,
+            variant: 'primary',
+            autoFocus: true,
+          },
+          {
+            label: 'Discard Changes',
+            onClick: handleDiscardChanges,
+            variant: 'secondary',
+          },
+        ]}
+        ariaLabelId="unsaved-changes-warning-title"
+        ariaDescriptionId="unsaved-changes-warning-description"
+      />
+
+      <ConfirmationDialog
+        open={showInvalidDatasetsDialog}
+        onClose={handleCloseInvalidDatasetsDialog}
+        title="Invalid Datasets"
+        message={
+          <>
+            <DialogContentText>
+              The following {invalidDatasetsData?.invalidCount || 0} dataset
+              {(invalidDatasetsData?.invalidCount || 0) === 1
+                ? ' is'
+                : 's are'}{' '}
+              no longer available:
+            </DialogContentText>
+            <DialogContentText
+              className={classes.invalidDatasetsList}
+              component="ul"
+            >
+              {invalidDatasetsData?.invalidDatasets?.map((dataset, idx) => (
+                <li key={idx}>
+                  <code>{dataset.datasetShortName}</code>
+                </li>
+              ))}
+            </DialogContentText>
+          </>
+        }
+        actions={[
+          {
+            label: 'OK',
+            onClick: handleCloseInvalidDatasetsDialog,
+            variant: 'primary',
+            autoFocus: true,
+          },
+        ]}
+        ariaLabelId="invalid-datasets-title"
+        ariaDescriptionId="invalid-datasets-description"
+      />
+
+      <AddDatasetsModal
+        open={isAddDatasetsOpen}
+        onClose={() => setIsAddDatasetsOpen(false)}
+        onAddDatasets={handleAddDatasets}
+        currentCollectionDatasets={collection?.datasets || []}
+        targetCollectionName={collection?.name}
       />
     </>
   );

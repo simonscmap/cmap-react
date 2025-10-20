@@ -162,24 +162,7 @@ const useCollectionsStore = create((set, get) => ({
       }
 
       const data = await response.json();
-
-      // TEMPORARY: Add fake dataset to collection 147
       const collections = Array.isArray(data) ? data : [];
-      const collection147 = collections.find((c) => c.id === 147);
-      if (collection147) {
-        const fakeDataset = {
-          datasetShortName: 'FAKE_TEST_DATASET',
-          datasetLongName: 'Fake Test Dataset for Development Testing',
-          isValid: false,
-        };
-        if (!collection147.datasets) {
-          collection147.datasets = [];
-        }
-        collection147.datasets.push(fakeDataset);
-        // Update dataset count to reflect the addition
-        collection147.datasetCount = collection147.datasets.length;
-      }
-      // END TEMPORARY
 
       const userCollections = collections.filter(
         (collection) => collection.isOwner === true,
@@ -288,25 +271,13 @@ const useCollectionsStore = create((set, get) => ({
       const response = await collectionsAPI.createCollection(data);
 
       if (response.status === 201) {
-        const result = await response.json();
+        // Backend now returns the complete collection object
+        const serverCollection = await response.json();
 
-        // Fetch full collection data from server
-        const collectionResponse = await collectionsAPI.getCollectionById(
-          result.collectionId,
-          { includeDatasets: false },
-        );
+        // Replace optimistic collection with server data
+        get().replaceOptimisticCollection(optimisticId, serverCollection);
 
-        if (collectionResponse.ok) {
-          const serverCollection = await collectionResponse.json();
-          // Replace optimistic collection with server data
-          get().replaceOptimisticCollection(optimisticId, serverCollection);
-        } else {
-          // If we can't fetch the full data, remove optimistic and refetch all
-          get().removeOptimisticCollection(optimisticId);
-          await get().fetchCollections({ includeDatasets: false });
-        }
-
-        return result;
+        return serverCollection;
       } else if (response.status === 401) {
         // Remove optimistic collection on error
         get().removeOptimisticCollection(optimisticId);
@@ -469,12 +440,6 @@ const useCollectionsStore = create((set, get) => ({
         type: getDatasetType(dataset.makes, dataset.sensors),
       }));
 
-      // Check for missing datasets
-      const returnedShortNames = dataWithType.map((item) => item.shortName);
-      const missingDatasets = datasetShortNames.filter(
-        (name) => !returnedShortNames.includes(name),
-      );
-
       set({ previewData: dataWithType, isLoadingPreview: false });
 
       // Increment view count locally since backend incremented it
@@ -482,7 +447,7 @@ const useCollectionsStore = create((set, get) => ({
         get().incrementCollectionStat(collectionId, 'views');
       }
 
-      return { data: dataWithType, missingDatasets };
+      return dataWithType;
     } catch (error) {
       console.error('Error fetching preview data:', error);
       set({

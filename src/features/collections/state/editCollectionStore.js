@@ -24,35 +24,33 @@ const useEditCollectionStore = create((set, get) => ({
   // Actions
 
   /**
-   * Load collection data from API and initialize edit state
+   * Load collection data from existing store and initialize edit state
    * @param {number} collectionId - Collection ID to load
-   * @returns {Promise<void>}
+   * @returns {void}
    */
-  loadCollection: async (collectionId) => {
+  loadCollection: (collectionId) => {
     set({ isLoading: true, error: null });
 
     try {
-      const response = await collectionsAPI.getCollection(collectionId, {
-        includeDatasets: true,
-      });
+      // Get collection from existing collectionsStore instead of API
+      const collection = useCollectionsStore
+        .getState()
+        .getCollectionById(collectionId);
 
-      if (!response.ok) {
-        if (response.status === 404) {
-          throw new Error('Collection not found or you do not have access');
-        } else if (response.status === 401) {
-          throw new Error('You must be logged in to edit collections');
-        } else {
-          throw new Error(
-            `Failed to load collection: ${response.status} ${response.statusText}`,
-          );
-        }
+      if (!collection) {
+        throw new Error('Collection not found or you do not have access');
       }
-
-      const collection = await response.json();
 
       // Verify ownership (UX check, backend also enforces)
       if (!collection.isOwner) {
         throw new Error('You do not have permission to edit this collection');
+      }
+
+      // Verify collection has datasets array
+      if (!collection.datasets) {
+        throw new Error(
+          'Collection data is incomplete. Please refresh the page.',
+        );
       }
 
       // Initialize state with loaded collection
@@ -191,7 +189,7 @@ const useEditCollectionStore = create((set, get) => ({
       .filter(
         (dataset) =>
           !datasetsToRemove.includes(dataset.datasetShortName) &&
-          dataset.isValid !== false,
+          dataset.isInvalid !== true,
       )
       .map((dataset) => dataset.datasetShortName);
 
@@ -206,6 +204,28 @@ const useEditCollectionStore = create((set, get) => ({
   clearAllSelections: () => {
     set({
       selectedDatasets: [],
+    });
+  },
+
+  /**
+   * Add datasets to the collection (from Add Datasets modal)
+   * @param {Array} newDatasets - Array of dataset objects to add
+   */
+  addDatasets: (newDatasets) => {
+    const { collection } = get();
+
+    if (!collection || !newDatasets || newDatasets.length === 0) {
+      return;
+    }
+
+    // Merge new datasets into collection.datasets array
+    const updatedDatasets = [...collection.datasets, ...newDatasets];
+
+    set({
+      collection: {
+        ...collection,
+        datasets: updatedDatasets,
+      },
     });
   },
 
@@ -279,6 +299,12 @@ const useEditCollectionStore = create((set, get) => ({
         .map((dataset) => dataset.datasetShortName),
     };
 
+    // Remove isNewlyAdded flags from datasets before saving
+    const datasetsWithoutFlags = collection.datasets.map((dataset) => {
+      const { isNewlyAdded, ...datasetWithoutFlag } = dataset;
+      return datasetWithoutFlag;
+    });
+
     try {
       const response = await collectionsAPI.updateCollection(
         collection.id,
@@ -306,22 +332,18 @@ const useEditCollectionStore = create((set, get) => ({
 
       const result = await response.json();
 
-      // Update state on success - create updated collection object
-      const updatedCollection = {
-        ...collection,
-        name: payload.collectionName,
-        description: payload.description,
-        isPublic: !payload.private,
-        datasets: collection.datasets.filter(
-          (dataset) => !datasetsToRemove.includes(dataset.datasetShortName),
-        ),
-        modifiedDate: new Date().toISOString(),
-        datasetCount: payload.datasets.length,
-      };
+      // Remove isNewlyAdded flags from result datasets
+      if (result.datasets) {
+        result.datasets = result.datasets.map((dataset) => {
+          const { isNewlyAdded, ...datasetWithoutFlag } = dataset;
+          return datasetWithoutFlag;
+        });
+      }
 
+      // Server response is the single source of truth
       set({
-        collection: updatedCollection,
-        originalCollection: JSON.parse(JSON.stringify(updatedCollection)),
+        collection: result,
+        originalCollection: JSON.parse(JSON.stringify(result)),
         datasetsToRemove: [],
         selectedDatasets: [],
         isSaving: false,
@@ -336,14 +358,8 @@ const useEditCollectionStore = create((set, get) => ({
         }),
       );
 
-      // Update the main collections store to reflect changes immediately
-      useCollectionsStore.getState().updateCollection(collection.id, {
-        name: payload.collectionName,
-        description: payload.description,
-        isPublic: !payload.private,
-        datasetCount: payload.datasets.length,
-        modifiedDate: new Date().toISOString(),
-      });
+      // Update the main collections store with full server response
+      useCollectionsStore.getState().updateCollection(collection.id, result);
     } catch (error) {
       console.error('Error saving collection:', error);
 
@@ -463,7 +479,7 @@ const useEditCollectionStore = create((set, get) => ({
 
     // Filter out unavailable datasets from selectableDatasets
     const availableSelectableDatasets = selectableDatasets.filter(
-      (dataset) => dataset.isValid !== false,
+      (dataset) => dataset.isInvalid !== true,
     );
 
     if (availableSelectableDatasets.length === 0) return false;

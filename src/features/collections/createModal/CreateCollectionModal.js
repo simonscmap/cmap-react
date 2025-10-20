@@ -152,6 +152,7 @@ const CreateCollectionModal = () => {
         title="Create New Collection"
         showCloseButton={true}
         dialogClasses={classes.dialogPaper}
+        dialogRootClass={classes.dialogRoot}
         maxWidth={false}
         disableScrollLock={true}
         ariaLabelledBy="create-collection-dialog-title"
