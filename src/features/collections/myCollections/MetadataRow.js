@@ -10,7 +10,6 @@ const useStyles = makeStyles((theme) => ({
     fontSize: '0.85em',
   },
   metadataLabel: {
-    color: 'rgb(135, 255, 244)',
     whiteSpace: 'nowrap',
     fontSize: '1em',
     width: '120px',
@@ -28,12 +27,22 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const MetadataRow = ({ label, value, isCount = false }) => {
+const MetadataRow = ({
+  label,
+  value,
+  isCount = false,
+  labelColor = 'rgb(135, 255, 244)',
+}) => {
   const classes = useStyles();
 
   return (
     <Box className={classes.metadataRow}>
-      <Typography className={classes.metadataLabel}>{label}</Typography>
+      <Typography
+        className={classes.metadataLabel}
+        style={{ color: labelColor }}
+      >
+        {label}
+      </Typography>
       <Typography className={classes.metadataValue}>
         {isCount ? (
           <span className={classes.datasetCount}>{value}</span>

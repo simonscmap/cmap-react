@@ -18,6 +18,7 @@ import { useDispatch } from 'react-redux';
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
 import useRowCountStore from '../stores/useRowCountStore';
 import { dateToDateString } from '../../../shared/filtering/utils/dateHelpers';
+import { DatasetNameLink } from '../../../shared/components';
 import SelectAllDropdown from './SelectAllDropdown';
 import { snackbarOpen } from '../../../Redux/actions/ui';
 
@@ -316,9 +317,10 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
                     />
                   </TableCell>
                   <TableCell style={styles.bodyCellStyle}>
-                    <Typography variant="body2" noWrap>
-                      {datasetMetadata.Dataset_Name || ''}
-                    </Typography>
+                    <DatasetNameLink
+                      datasetShortName={datasetMetadata.Dataset_Name}
+                      typographyProps={{ variant: 'body2', noWrap: true }}
+                    />
                   </TableCell>
                   <TableCell align="right" style={styles.bodyCellStyle}>
                     {renderRowCount(datasetMetadata.Dataset_Name, isSelected)}

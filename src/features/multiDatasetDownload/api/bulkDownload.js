@@ -3,23 +3,8 @@ import { apiUrl, postOptions } from '../../../api/config';
 import safeApi from '../../../api/safeApi';
 import logInit from '../../../Services/log-service';
 import { transformFiltersForAPI } from '../../../shared/filtering/utils';
+import DownloadService from '../../../shared/services/dataDownload/downloadService';
 const log = logInit('bulk-download');
-
-/**
- * Trigger a browser download from blob data
- * @param {Blob} blob - The blob containing the download data
- * @param {string} filename - Name for the downloaded file
- */
-const triggerBlobDownload = (blob, filename) => {
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  window.URL.revokeObjectURL(url);
-};
 
 const bulkDownloadAPI = {};
 
@@ -36,6 +21,7 @@ const bulkDownloadAPI = {};
  * @param {number|string} filters.lonEnd - Maximum longitude (-180 to 180)
  * @param {number|string} filters.depthStart - Minimum depth
  * @param {number|string} filters.depthEnd - Maximum depth
+ * @param {number|string} collectionId - Optional collection ID (must be positive integer)
  *
  * API Request Body (after transformation):
  * {
@@ -43,17 +29,29 @@ const bulkDownloadAPI = {};
  *   filters?: {
  *     temporal?: { startDate: string, endDate: string },    // ISO date strings (YYYY-MM-DD)
  *     spatial?: { latMin: number, latMax: number, lonMin: number, lonMax: number, depthMin: number, depthMax: number }
- *   }
+ *   },
+ *   collectionId?: number
  * }
  */
-bulkDownloadAPI.downloadData = async (datasetShortNames, filters = null) => {
-  log.debug('starting bulk download', { datasetShortNames, filters });
+bulkDownloadAPI.downloadData = async (
+  datasetShortNames,
+  filters = null,
+  collectionId = null,
+) => {
   const endpoint = apiUrl + `/api/data/bulk-download`;
 
   const requestBody = { shortNames: datasetShortNames };
 
   if (filters) {
     requestBody.filters = transformFiltersForAPI(filters);
+  }
+
+  if (collectionId !== null && collectionId !== undefined) {
+    const parsedId = parseInt(collectionId, 10);
+    if (isNaN(parsedId) || parsedId <= 0) {
+      throw new Error('collectionId must be a positive integer');
+    }
+    requestBody.collectionId = parsedId;
   }
 
   const response = await fetch(endpoint, {
@@ -80,8 +78,8 @@ bulkDownloadAPI.downloadData = async (datasetShortNames, filters = null) => {
   // Generate a filename (you might want to get this from response headers)
   const filename = `datasets_${Date.now()}.zip`;
 
-  // Trigger the download
-  triggerBlobDownload(blob, filename);
+  // Trigger the download using shared service
+  DownloadService.downloadBlob(blob, filename);
 };
 
 /**

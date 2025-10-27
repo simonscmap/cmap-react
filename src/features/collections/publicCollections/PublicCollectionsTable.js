@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Table,
@@ -11,12 +12,18 @@ import {
   Typography,
   Box,
   Tooltip,
+  CircularProgress,
 } from '@material-ui/core';
-import { format, parseISO } from 'date-fns';
-import colors from '../../../enums/colors';
-import CollectionButton from '../../../shared/components/UniversalButton';
+import UniversalButton from '../../../shared/components/UniversalButton';
+import useCollectionsStore from '../state/collectionsStore';
+import { snackbarOpen } from '../../../Redux/actions/ui';
+import PreviewModal from '../previewModal';
+import {
+  checkInvalidDatasets,
+  InvalidDatasetConfirmationDialog,
+} from '../shared/copyCollectionDialogConfig';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   tableContainer: {
     maxHeight: 400,
     backgroundColor: 'rgba(16, 43, 60, 0.6)',
@@ -93,15 +100,98 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const CollectionsTable = ({ collections = [] }) => {
+const PublicCollectionsTable = ({ collections = [] }) => {
   const classes = useStyles();
+  const dispatch = useDispatch();
+  const copyCollection = useCollectionsStore((state) => state.copyCollection);
+  const [copyingId, setCopyingId] = useState(null);
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [selectedCollection, setSelectedCollection] = useState(null);
+  const [warningDialogOpen, setWarningDialogOpen] = useState(false);
+  const [warningDialogData, setWarningDialogData] = useState(null);
 
   const formatDate = (dateString) => {
     try {
-      return format(parseISO(dateString), 'yyyy-MM-dd');
+      const date = new Date(dateString);
+      return date.toLocaleDateString('sv-SE'); // YYYY-MM-DD format
     } catch (error) {
       return 'Invalid date';
     }
+  };
+
+  const handleCopy = async (collectionId) => {
+    setCopyingId(collectionId);
+
+    try {
+      // Get collection with datasets (already loaded in store)
+      const collection = collections.find((c) => c.id === collectionId);
+
+      // Check for invalid datasets using shared helper
+      const { invalidDatasets, validDatasets, hasInvalidDatasets } =
+        checkInvalidDatasets(collection);
+
+      if (hasInvalidDatasets) {
+        // Show warning dialog - wait for user confirmation
+        setWarningDialogOpen(true);
+        setWarningDialogData({
+          collectionId,
+          collectionName: collection.name,
+          invalidCount: invalidDatasets.length,
+          validCount: validDatasets.length,
+          invalidDatasets: invalidDatasets,
+        });
+        return; // Exit and wait for dialog response
+      }
+
+      // No invalid datasets - proceed directly with copy
+      await performCopy(collectionId);
+    } catch (error) {
+      console.error('Failed to copy collection:', error);
+      dispatch(
+        snackbarOpen(error.message || 'Failed to copy collection', {
+          severity: 'error',
+          position: 'bottom',
+        }),
+      );
+    } finally {
+      setCopyingId(null);
+    }
+  };
+
+  const performCopy = async (collectionId) => {
+    try {
+      const result = await copyCollection(collectionId);
+      dispatch(
+        snackbarOpen(`Collection "${result.name}" copied successfully`, {
+          severity: 'info',
+          position: 'bottom',
+        }),
+      );
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const handleWarningConfirm = async () => {
+    setWarningDialogOpen(false);
+    await performCopy(warningDialogData.collectionId);
+    setWarningDialogData(null);
+  };
+
+  const handleWarningCancel = () => {
+    setWarningDialogOpen(false);
+    setWarningDialogData(null);
+    setCopyingId(null); // Reset copying state
+  };
+
+  const handlePreview = (collection) => {
+    setSelectedCollection(collection);
+    setPreviewModalOpen(true);
+  };
+
+  const handleClosePreview = () => {
+    setPreviewModalOpen(false);
+    setSelectedCollection(null);
   };
 
   const tableContainerStyle = {
@@ -117,6 +207,17 @@ const CollectionsTable = ({ collections = [] }) => {
 
   return (
     <>
+      <PreviewModal
+        open={previewModalOpen}
+        onClose={handleClosePreview}
+        collection={selectedCollection}
+      />
+      <InvalidDatasetConfirmationDialog
+        open={warningDialogOpen}
+        warningDialogData={warningDialogData}
+        onConfirm={handleWarningConfirm}
+        onCancel={handleWarningCancel}
+      />
       <TableContainer component={Paper} style={tableContainerStyle}>
         <Table
           stickyHeader
@@ -193,7 +294,33 @@ const CollectionsTable = ({ collections = [] }) => {
                   backgroundColor: 'rgba(30, 67, 113, 1)',
                 }}
               >
+                Views
+              </TableCell>
+              <TableCell
+                align="center"
+                style={{
+                  padding: '8px 5px',
+                  border: 0,
+                  color: '#8bc34a',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  backgroundColor: 'rgba(30, 67, 113, 1)',
+                }}
+              >
                 Downloads
+              </TableCell>
+              <TableCell
+                align="center"
+                style={{
+                  padding: '8px 5px',
+                  border: 0,
+                  color: '#8bc34a',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  backgroundColor: 'rgba(30, 67, 113, 1)',
+                }}
+              >
+                Copies
               </TableCell>
               <TableCell
                 style={{
@@ -212,7 +339,7 @@ const CollectionsTable = ({ collections = [] }) => {
           <TableBody>
             {collections.length === 0 ? (
               <TableRow className={classes.emptyRow}>
-                <TableCell colSpan={6} className={classes.emptyCell}>
+                <TableCell colSpan={8} className={classes.emptyCell}>
                   <Typography variant="body1">
                     No collections to display
                   </Typography>
@@ -292,17 +419,43 @@ const CollectionsTable = ({ collections = [] }) => {
                   </TableCell>
                   <TableCell align="center" className={classes.statsCell}>
                     <Typography variant="body2" noWrap>
-                      {collection.copyCount || 0}
+                      {collection.views ?? 0}
+                    </Typography>
+                  </TableCell>
+                  <TableCell align="center" className={classes.statsCell}>
+                    <Typography variant="body2" noWrap>
+                      {collection.downloads ?? 0}
+                    </Typography>
+                  </TableCell>
+                  <TableCell align="center" className={classes.statsCell}>
+                    <Typography variant="body2" noWrap>
+                      {collection.copies ?? 0}
                     </Typography>
                   </TableCell>
                   <TableCell className={classes.statsCell}>
                     <Box display="flex" gap={1}>
-                      <CollectionButton variant="secondary" size="medium">
+                      <UniversalButton
+                        variant="primary"
+                        size="medium"
+                        onClick={() => handlePreview(collection)}
+                      >
                         Preview
-                      </CollectionButton>
-                      <CollectionButton variant="primary" size="medium">
-                        Copy
-                      </CollectionButton>
+                      </UniversalButton>
+                      <UniversalButton
+                        variant="primary"
+                        size="medium"
+                        onClick={() => handleCopy(collection.id)}
+                        disabled={copyingId === collection.id}
+                      >
+                        {copyingId === collection.id ? (
+                          <CircularProgress
+                            size={14}
+                            style={{ color: 'rgba(105, 255, 242, 0.2)' }}
+                          />
+                        ) : (
+                          'Copy'
+                        )}
+                      </UniversalButton>
                     </Box>
                   </TableCell>
                 </TableRow>
@@ -315,4 +468,4 @@ const CollectionsTable = ({ collections = [] }) => {
   );
 };
 
-export default CollectionsTable;
+export default PublicCollectionsTable;

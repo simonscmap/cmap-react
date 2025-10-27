@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { SELECTION_DEBOUNCE_DELAY_MS } from '../constants/constants';
-import { debounce } from 'throttle-debounce';
 import bulkDownloadAPI from '../api/bulkDownload';
+import useCollectionsStore from '../../collections/state/collectionsStore';
 
 const useMultiDatasetDownloadStore = create((set, get) => ({
   // State
@@ -14,6 +14,7 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     spatial: null,
     depth: null,
   },
+  downloadContext: null, // Optional metadata for tracking (e.g., collectionId)
   isDownloading: false,
   isLoading: false,
   error: null,
@@ -272,20 +273,33 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
   },
 
   downloadDatasets: async (overrideFilters) => {
-    const { selectedDatasets, filters: storeFilters } = get();
+    const { selectedDatasets, filters: storeFilters, downloadContext } = get();
     const filters = overrideFilters || storeFilters;
 
     try {
       set({ isDownloading: true });
 
+      const collectionId =
+        downloadContext && downloadContext.collectionId
+          ? downloadContext.collectionId
+          : null;
+
       const result = await bulkDownloadAPI.downloadData(
         Array.from(selectedDatasets),
         filters.filterValues,
+        collectionId,
       );
 
       // safeApi returns errors as values instead of throwing them
       if (result instanceof Error) {
         throw result;
+      }
+
+      // Increment download count locally since backend incremented it
+      if (collectionId !== undefined && collectionId !== null) {
+        useCollectionsStore
+          .getState()
+          .incrementCollectionStat(collectionId, 'downloads');
       }
     } catch (error) {
       console.error('Download failed:', error);
@@ -364,6 +378,11 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     }
   },
 
+  // Set download context for tracking metadata
+  setDownloadContext: (context) => {
+    set({ downloadContext: context });
+  },
+
   // Reset all state to initial values
   resetStore: () => {
     const { debounceTimer } = get();
@@ -383,6 +402,7 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
         spatial: null,
         depth: null,
       },
+      downloadContext: null,
       isDownloading: false,
       isLoading: false,
       error: null,

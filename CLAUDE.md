@@ -32,16 +32,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Project Structure
 
-- `src/Components/` - Main React components organized by feature
+- `src/features/{feature-name}/` - **Isolated modern features** (e.g., collections)
+  - Self-contained with own state, API, and components
+  - When planning/researching, only reference code within feature folder and `src/shared/`
+- `src/shared/` - Reusable utilities and components extracted from features for cross-feature use
+- `src/Components/` - **Legacy** React components (do not reference in new features)
   - `Catalog/` - Data catalog, search, and dataset pages
   - `Visualization/` - Chart creation and visualization tools
   - `DataSubmission/` - Data submission workflow and validation
   - `User/` - Authentication and user management
   - `Navigation/` - Site navigation and help system
   - `Home/` - Landing page components
-- `src/Redux/` - State management (actions, reducers, sagas)
-- `src/api/` - API service layer and request handlers
-- `src/Utility/` - Shared utility functions
+- `src/Redux/` - **Legacy** state management (do not use in new features)
+- `src/api/` - **Legacy** API service layer
+- `src/Utility/` - **Legacy** shared utility functions
 - `docs/` - Additional documentation files
 
 ### Key Features
@@ -77,12 +81,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Uses lazy loading for route components to optimize bundle size
 - Custom build process that renames index.html to app.html
 - Material-UI theming system with custom theme configuration
+- **Responsive Design**: Application is responsive for tablet and desktop viewports. Mobile viewport support is intentionally not implemented.
 
 ## Testing
 
 **This project uses manual testing only. Do not create or suggest unit tests, integration tests, or automated tests of any kind.** All features and functionality are validated through manual testing in the browser.
 
+## Logging
+
+**Always use the log service (`src/Services/log-service`) instead of `console.log`.** This provides environment-aware, structured logging with automatic module context and version tracking.
+
+### Key Rules
+
+- **Never use `console.log` directly** - always import and use the log service
+- **Always use `log.debug()`** for development debugging and logging
+- Include the module/feature name when initializing the logger
+- Pass structured data as the second argument for better context
+
 ## Shared Utilities
+
+### Dataset Name Link Component
+
+Use `DatasetNameLink` from `src/shared/components` whenever displaying dataset short names to users.
 
 ### Universal Sorting Subsystem
 

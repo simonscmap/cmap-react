@@ -4,22 +4,27 @@ import {
   CardContent,
   CardActions,
   Typography,
-  Chip,
   Box,
+  CircularProgress,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import {
-  Storage as DatasetIcon,
-  Warning as WarningIcon,
-} from '@material-ui/icons';
+import { useDispatch } from 'react-redux';
+import { Warning as WarningIcon } from '@material-ui/icons';
 import colors from '../../../enums/colors';
 import MetadataRow from './MetadataRow';
 import DeleteButton from '../components/DeleteButton';
-import CollectionButton from '../../../shared/components/UniversalButton';
+import UniversalButton from '../../../shared/components/UniversalButton';
 import useCollectionsStore from '../state/collectionsStore';
 import CollectionDownloadModal from './CollectionDownloadModal';
+import EditCollectionModal from '../editCollection/EditCollectionModal';
+import CollectionStatusBadge from '../components/CollectionStatusBadge';
+import { snackbarOpen } from '../../../Redux/actions/ui';
 
 const useStyles = makeStyles((theme) => ({
+  cardContainer: {
+    position: 'relative',
+    height: '100%',
+  },
   card: {
     height: '100%',
     display: 'flex',
@@ -28,6 +33,19 @@ const useStyles = makeStyles((theme) => ({
     '&:hover': {
       boxShadow: theme.shadows[4],
     },
+  },
+  pendingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1,
+    borderRadius: theme.shape.borderRadius,
   },
   cardContent: {
     flexGrow: 1,
@@ -71,22 +89,6 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     flexWrap: 'wrap',
   },
-  publicChip: {
-    backgroundColor: '#c8e6c9',
-    color: '#2e7d32',
-    fontSize: '0.62rem',
-    height: 20,
-    fontWeight: 400,
-    borderRadius: '6px',
-  },
-  privateChip: {
-    backgroundColor: '#ffcdd2',
-    color: '#c62828',
-    fontSize: '0.62rem',
-    height: 20,
-    fontWeight: 400,
-    borderRadius: '6px',
-  },
   warningSection: {
     display: 'flex',
     alignItems: 'center',
@@ -102,12 +104,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const CollectionCard = ({ collection }) => {
+const CollectionCard = ({ collection, isPending = false }) => {
   const classes = useStyles();
+  const dispatch = useDispatch();
   const deleteCollection = useCollectionsStore(
     (state) => state.deleteCollection,
   );
   const [downloadModalOpen, setDownloadModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -124,9 +128,16 @@ const CollectionCard = ({ collection }) => {
     return `${dateStr}, ${timeStr}`;
   };
 
+  const invalidDatasetCount = collection.datasets
+    ? collection.datasets.filter((dataset) => dataset.isInvalid === true).length
+    : 0;
+
   const handleEdit = () => {
-    // TODO: Implement edit functionality
-    console.log('Edit collection:', collection.id);
+    setEditModalOpen(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setEditModalOpen(false);
   };
 
   const handleDownload = () => {
@@ -138,91 +149,130 @@ const CollectionCard = ({ collection }) => {
   };
 
   const handleDelete = async () => {
-    await deleteCollection(collection.id);
+    try {
+      await deleteCollection(collection.id);
+      dispatch(
+        snackbarOpen(`Collection "${collection.name}" deleted successfully`, {
+          position: 'bottom',
+          severity: 'success',
+        }),
+      );
+    } catch (error) {
+      // Error already logged in store, show user-friendly message
+      const errorMessage = error.message
+        ? `${error.message.replace('collection', `collection "${collection.name}"`)}`
+        : 'Failed to delete collection';
+      dispatch(
+        snackbarOpen(errorMessage, {
+          position: 'bottom',
+          severity: 'error',
+        }),
+      );
+    }
   };
 
   return (
-    <Card className={classes.card}>
-      <CardContent className={classes.cardContent}>
-        <Box className={classes.titleRow}>
-          <Typography variant="h5" className={classes.title}>
-            {collection.name}
-          </Typography>
-          <Box className={classes.statusChips}>
-            <Chip
-              label={collection.isPublic ? 'PUBLIC' : 'PRIVATE'}
-              size="small"
-              className={
-                collection.isPublic ? classes.publicChip : classes.privateChip
-              }
-            />
+    <Box className={classes.cardContainer}>
+      <Card className={classes.card}>
+        <CardContent className={classes.cardContent}>
+          <Box className={classes.titleRow}>
+            <Typography variant="h5" className={classes.title}>
+              {collection.name}
+            </Typography>
+            <Box className={classes.statusChips}>
+              <CollectionStatusBadge isPublic={collection.isPublic} />
+            </Box>
           </Box>
-        </Box>
 
-        {collection.description && (
-          <Typography
-            variant="body2"
-            paragraph
-            style={{ color: 'white', fontSize: '1rem' }}
-          >
-            {collection.description}
-          </Typography>
+          {collection.description && (
+            <Typography
+              variant="body2"
+              paragraph
+              style={{ color: 'white', fontSize: '1rem' }}
+            >
+              {collection.description}
+            </Typography>
+          )}
+
+          <Box className={classes.metadataSection}>
+            <MetadataRow
+              label="Dataset Count"
+              value={collection.datasetCount || 0}
+              isCount={true}
+            />
+            <MetadataRow
+              label="Last Modified"
+              value={formatDateTime(collection.modifiedDate)}
+            />
+            {invalidDatasetCount > 0 && (
+              <MetadataRow
+                label="Invalid Datasets"
+                value={invalidDatasetCount}
+                isCount={true}
+                labelColor={colors.errorYellow}
+              />
+            )}
+          </Box>
+        </CardContent>
+
+        <CardActions className={classes.cardActions}>
+          <DeleteButton
+            title="Delete Collection?"
+            message="Are you sure you want to delete this collection? This action is permanent and cannot be undone."
+            onDelete={handleDelete}
+          />
+          <Box style={{ flexGrow: 1, marginLeft: 'auto' }}>
+            {collection.hasInvalidDatasets && (
+              <Box className={classes.warningSection}>
+                <WarningIcon className={classes.warningIcon} />
+                <Typography className={classes.warningText}>
+                  Contains inactive datasets
+                </Typography>
+              </Box>
+            )}
+          </Box>
+          <Box className={classes.buttonGroup}>
+            <UniversalButton
+              variant="primary"
+              size="medium"
+              onClick={handleEdit}
+            >
+              EDIT
+            </UniversalButton>
+            <UniversalButton
+              variant="primary"
+              size="medium"
+              onClick={handleDownload}
+              disabled={
+                !collection.datasetCount || collection.datasetCount === 0
+              }
+            >
+              DOWNLOAD
+            </UniversalButton>
+          </Box>
+        </CardActions>
+
+        {editModalOpen && (
+          <EditCollectionModal
+            open={editModalOpen}
+            onClose={handleCloseEditModal}
+            collectionId={collection.id}
+          />
         )}
 
-        <Box className={classes.metadataSection}>
-          <MetadataRow
-            label="Dataset Count"
-            value={collection.datasetCount || 0}
-            isCount={true}
-          />
-          <MetadataRow
-            label="Last Modified"
-            value={formatDateTime(collection.modifiedDate)}
-          />
-        </Box>
-      </CardContent>
-
-      <CardActions className={classes.cardActions}>
-        <DeleteButton
-          title="Delete Collection?"
-          message="Are you sure you want to delete this collection? This action is permanent and cannot be undone."
-          onDelete={handleDelete}
+        <CollectionDownloadModal
+          open={downloadModalOpen}
+          onClose={handleCloseDownloadModal}
+          collection={collection}
         />
-        <Box style={{ flexGrow: 1, marginLeft: 'auto' }}>
-          {collection.hasInvalidDatasets && (
-            <Box className={classes.warningSection}>
-              <WarningIcon className={classes.warningIcon} />
-              <Typography className={classes.warningText}>
-                Contains inactive datasets
-              </Typography>
-            </Box>
-          )}
-        </Box>
-        <Box className={classes.buttonGroup}>
-          <CollectionButton
-            variant="secondary"
-            size="medium"
-            onClick={handleEdit}
-          >
-            EDIT
-          </CollectionButton>
-          <CollectionButton
-            variant="primary"
-            size="medium"
-            onClick={handleDownload}
-            disabled={!collection.datasetCount || collection.datasetCount === 0}
-          >
-            DOWNLOAD
-          </CollectionButton>
-        </Box>
-      </CardActions>
+      </Card>
 
-      <CollectionDownloadModal
-        open={downloadModalOpen}
-        onClose={handleCloseDownloadModal}
-        collection={collection}
-      />
-    </Card>
+      {isPending && (
+        <Box className={classes.pendingOverlay}>
+          <CircularProgress size={60} style={{ color: colors.primary }} />
+        </Box>
+      )}
+    </Box>
   );
 };
 

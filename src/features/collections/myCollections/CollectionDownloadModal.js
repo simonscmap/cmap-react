@@ -34,7 +34,7 @@ const CollectionDownloadModal = ({ open, onClose, collection }) => {
     <Dialog
       open={open}
       onClose={onClose}
-      classes={{ paper: classes.dialogPaper }}
+      classes={{ paper: classes.dialogPaper, root: classes.dialogRoot }}
       aria-labelledby="collection-download-dialog-title"
       disableScrollLock={true}
       maxWidth={false}
@@ -56,6 +56,7 @@ const CollectionDownloadModal = ({ open, onClose, collection }) => {
       <DialogContent className={classes.dialogContent}>
         <MultiDatasetDownloadContainer
           datasetShortNames={datasetShortNames}
+          downloadContext={{ collectionId: collection.id }}
           onDownloadComplete={handleDownloadComplete}
         />
       </DialogContent>

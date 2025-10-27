@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Box, Typography, CircularProgress } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 import useCollectionsStore from '../state/collectionsStore';
-import CollectionsTable from './CollectionsTable';
+import PublicCollectionsTable from './PublicCollectionsTable';
 import { PaginationController } from '../../../shared/pagination';
 import {
   SearchProvider,
@@ -121,7 +121,7 @@ const PublicCollectionsContent = () => {
         renderItem={(collection) => collection}
         renderContainer={(items, pagination) => (
           <>
-            <CollectionsTable collections={items} />
+            <PublicCollectionsTable collections={items} />
             {pagination}
           </>
         )}
@@ -140,9 +140,15 @@ const PublicCollectionsContent = () => {
 const PublicCollectionsTab = () => {
   const classes = useStyles();
 
-  const { publicCollections, isLoading, error } = useCollectionsStore();
+  const publicCollections = useCollectionsStore(
+    (state) => state.publicCollections,
+  );
+  const isLoading = useCollectionsStore((state) => state.isLoading);
+  const isCopying = useCollectionsStore((state) => state.isCopying);
+  const error = useCollectionsStore((state) => state.error);
 
-  if (isLoading) {
+  // Only show loading state for initial load, not when copying
+  if (isLoading && !isCopying) {
     return (
       <Box className={classes.loadingContainer}>
         <CircularProgress />
@@ -150,7 +156,8 @@ const PublicCollectionsTab = () => {
     );
   }
 
-  if (error) {
+  // Don't show error in place of table - errors are now handled via snackbar
+  if (error && !isCopying && publicCollections.length === 0) {
     return (
       <Box className={classes.container}>
         <Alert severity="error" className={classes.errorContainer}>

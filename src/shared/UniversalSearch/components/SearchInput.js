@@ -20,6 +20,7 @@ import {
   useResultCount,
   useTotalCount,
   useFilteredItems,
+  useAllItems,
 } from '../state/useSearch';
 import { SEARCH_ENGINES, SEARCH_CONFIG } from '../constants/searchConstants';
 
@@ -32,6 +33,10 @@ const useStyles = makeStyles((theme) => ({
   },
   autocompleteListbox: {
     backgroundColor: '#1B4156',
+    maxHeight: '400px', // Fixed max height to prevent modal resizing
+    overflowY: 'auto',
+    paddingBottom: '44px', // Space for fixed footer
+    paddingRight: '8px', // Space for scrollbar to prevent overlap
     '& .MuiAutocomplete-option': {
       color: '#ffffff',
       '&:hover': {
@@ -41,19 +46,65 @@ const useStyles = makeStyles((theme) => ({
         backgroundColor: 'rgba(157, 209, 98, 0.15)',
       },
     },
+    // For grid layouts, make options use display: contents so their children become grid items
+    '&[style*="display: grid"]': {
+      paddingRight: 0, // Remove padding for grid, handle it differently
+      '& .MuiAutocomplete-option': {
+        display: 'contents',
+        '&:hover > *': {
+          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        },
+        '&[data-focus="true"] > *': {
+          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        },
+      },
+    },
   },
   autocompletePaper: {
     backgroundColor: '#1B4156',
     border: '1px solid rgba(157, 209, 98, 0.3)',
     minHeight: '48px',
+    maxHeight: '444px', // listbox height + footer height
+    position: 'relative',
+    display: 'flex',
+    flexDirection: 'column',
   },
   dropdownResultCount: {
+    position: 'sticky',
+    bottom: 0,
+    left: 0,
+    right: 0,
     padding: '8px 16px 12px 16px',
-    marginTop: '4px',
     fontSize: '0.875rem',
     fontStyle: 'italic',
     color: 'rgba(255, 255, 255, 0.6)',
+    backgroundColor: '#1B4156',
+    borderTop: '1px solid rgba(255, 255, 255, 0.12)',
     pointerEvents: 'none',
+    zIndex: 2,
+    flexShrink: 0,
+  },
+  listboxWrapper: {
+    position: 'relative',
+  },
+  stickyHeader: {
+    position: 'sticky',
+    top: 0,
+    backgroundColor: '#1B4156',
+    zIndex: 3,
+    flexShrink: 0,
+    display: 'contents',
+  },
+  stickyHeaderCell: {
+    position: 'sticky',
+    top: 0,
+    backgroundColor: '#1B4156',
+    zIndex: 3,
+  },
+  scrollableContent: {
+    overflowY: 'auto',
+    flexGrow: 1,
+    backgroundColor: '#1B4156',
   },
 }));
 
@@ -66,7 +117,15 @@ const SearchInput = ({
   enableAutocomplete = false,
   onSelect = null,
   getOptionLabel = null,
+  renderOption = null,
+  popperZIndex = null,
   controlsAlign = 'right', // 'left' | 'right'
+  loadAllOnFocus = false, // New: when true, shows all items on focus before threshold is met
+  disablePortal = false, // When true, Popper renders inside parent instead of document body
+  prependOptions = [], // Array of options to prepend to the results (e.g., headers, group headers)
+  processItems = null, // Optional function to process/group items: (items) => processedItems
+  getOptionDisabled = null, // Optional function to determine if option should be disabled: (option) => boolean
+  listboxGridColumns = null, // Optional grid-template-columns value for grid-based layouts
 }) => {
   const classes = useStyles();
 
@@ -77,11 +136,13 @@ const SearchInput = ({
   const resultCount = useResultCount();
   const totalCount = useTotalCount();
   const filteredItems = useFilteredItems();
+  const allItems = useAllItems();
   const { setSearchQuery, clearSearch, setSearchEngine } = useSearchActions();
 
   // Local input state for immediate UI response
   const [inputValue, setInputValue] = useState(searchQuery || '');
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [showAllOnFocus, setShowAllOnFocus] = useState(false); // Track if we should show all items
 
   // Refs for managing debounced search
   const debounceTimeoutRef = useRef(null);
@@ -106,6 +167,11 @@ const SearchInput = ({
       // Immediate state update for UI responsiveness
       setInputValue(value);
 
+      // Disable showAllOnFocus mode once user starts typing
+      if (showAllOnFocus && value) {
+        setShowAllOnFocus(false);
+      }
+
       // Clear any pending debounced search
       if (debounceTimeoutRef.current) {
         clearTimeout(debounceTimeoutRef.current);
@@ -116,7 +182,7 @@ const SearchInput = ({
         setSearchQuery(value); // Debouncing handled by state management
       }, SEARCH_CONFIG.DEBOUNCE_MS);
     },
-    [setSearchQuery],
+    [setSearchQuery, showAllOnFocus],
   );
 
   // Handle clear button click
@@ -124,6 +190,7 @@ const SearchInput = ({
     setInputValue('');
     clearSearch();
     setDropdownOpen(false);
+    setShowAllOnFocus(false);
 
     if (debounceTimeoutRef.current) {
       clearTimeout(debounceTimeoutRef.current);
@@ -135,12 +202,16 @@ const SearchInput = ({
     setDropdownOpen(false);
   }, []);
 
-  // Handle input focus - reopen dropdown if search is active
+  // Handle input focus - reopen dropdown if search is active or loadAllOnFocus is enabled
   const handleFocus = useCallback(() => {
-    if (isSearchActive) {
+    if (loadAllOnFocus && !inputValue) {
+      // Enable showing all items when focused with empty input
+      setShowAllOnFocus(true);
+      setDropdownOpen(true);
+    } else if (isSearchActive) {
       setDropdownOpen(true);
     }
-  }, [isSearchActive]);
+  }, [isSearchActive, loadAllOnFocus, inputValue]);
 
   // Handle search engine toggle
   const handleEngineToggle = useCallback(
@@ -172,19 +243,34 @@ const SearchInput = ({
   const shouldShowResults =
     isSearchActive && inputValue.length >= SEARCH_CONFIG.ACTIVATION_THRESHOLD;
 
+  // Determine which items to show: all items on focus (before threshold), or filtered items (after threshold)
+  // Prepend any custom options (headers, group headers, etc.) to the items
+  const baseItems = enableAutocomplete
+    ? showAllOnFocus
+      ? allItems
+      : filteredItems
+    : [];
+
+  // Process items if a processing function is provided (e.g., for grouping)
+  const processedItems = processItems ? processItems(baseItems) : baseItems;
+
+  const displayItems = [...prependOptions, ...processedItems];
+
   return (
     <Box>
       <Autocomplete
         freeSolo
         open={dropdownOpen}
         onClose={handleClose}
-        options={enableAutocomplete ? filteredItems : []}
+        options={displayItems}
         noOptionsText=""
         filterOptions={(x) => x}
         getOptionLabel={
           getOptionLabel ||
           ((option) => (typeof option === 'string' ? option : String(option)))
         }
+        getOptionDisabled={getOptionDisabled || undefined}
+        renderOption={renderOption || undefined}
         onInputChange={(_event, _value, reason) => {
           if (reason === 'clear') {
             handleClear();
@@ -199,6 +285,30 @@ const SearchInput = ({
           listbox: classes.autocompleteListbox,
           paper: classes.autocompletePaper,
         }}
+        PaperComponent={({ children, ...props }) => (
+          <div {...props} className={classes.autocompletePaper}>
+            {children}
+            {enableAutocomplete && (showAllOnFocus || shouldShowResults) && (
+              <div className={classes.dropdownResultCount}>
+                {showAllOnFocus
+                  ? `${totalCount.toLocaleString()} ${totalCount === 1 ? 'collection' : 'collections'} available`
+                  : `${resultCount} ${resultCount === 1 ? 'result' : 'results'} found${totalCount > 0 ? ` out of ${totalCount.toLocaleString()}` : ''}`}
+              </div>
+            )}
+          </div>
+        )}
+        disablePortal={disablePortal}
+        PopperComponent={(props) => (
+          <div
+            {...props}
+            style={{
+              ...props.style,
+              ...(popperZIndex && { zIndex: popperZIndex }),
+            }}
+          >
+            {props.children}
+          </div>
+        )}
         renderInput={(params) => (
           <TextField
             {...params}
@@ -223,17 +333,47 @@ const SearchInput = ({
             }}
           />
         )}
-        ListboxComponent={React.forwardRef(({ children, ...other }, ref) => (
-          <ul {...other} ref={ref}>
-            {children}
-            {enableAutocomplete && shouldShowResults && (
-              <li className={classes.dropdownResultCount}>
-                {resultCount} {resultCount === 1 ? 'result' : 'results'} found
-                {totalCount > 0 && ` out of ${totalCount.toLocaleString()}`}
-              </li>
-            )}
-          </ul>
-        ))}
+        ListboxComponent={React.forwardRef(({ children, ...other }, ref) => {
+          // Extract header and content items
+          const childArray = React.Children.toArray(children);
+          const headerItem = prependOptions.length > 0 ? childArray[0] : null;
+          const contentItems =
+            prependOptions.length > 0 ? childArray.slice(1) : childArray;
+
+          // Build style object with optional grid layout
+          const listStyle = {
+            ...other.style,
+            padding: 0,
+          };
+
+          if (listboxGridColumns) {
+            // Grid-based layout for table-like structure
+            listStyle.display = 'grid';
+            listStyle.gridTemplateColumns = listboxGridColumns;
+            listStyle.alignItems = 'stretch';
+          } else {
+            // Default flex layout
+            listStyle.display = 'flex';
+            listStyle.flexDirection = 'column';
+          }
+
+          return (
+            <ul {...other} ref={ref} style={listStyle}>
+              {headerItem && (
+                <li
+                  className={classes.stickyHeader}
+                  style={{
+                    listStyle: 'none',
+                    ...(listboxGridColumns ? { display: 'contents' } : {}),
+                  }}
+                >
+                  {headerItem}
+                </li>
+              )}
+              {contentItems}
+            </ul>
+          );
+        })}
       />
       <Box
         display="flex"
@@ -243,7 +383,12 @@ const SearchInput = ({
       >
         {showResultCount && (
           <Typography className={classes.resultCount}>
-            {shouldShowResults ? (
+            {showAllOnFocus ? (
+              <>
+                {totalCount.toLocaleString()}{' '}
+                {totalCount === 1 ? 'collection' : 'collections'} available
+              </>
+            ) : shouldShowResults ? (
               <>
                 {resultCount} {resultCount === 1 ? 'result' : 'results'} found
                 {totalCount > 0 && ` out of ${totalCount.toLocaleString()}`}

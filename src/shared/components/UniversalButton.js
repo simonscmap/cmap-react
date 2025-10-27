@@ -79,48 +79,54 @@ const useStyles = makeStyles((theme) => ({
   // default variant uses Material-UI defaults
 }));
 
-const CollectionButton = ({
-  variant = 'default',
-  size = 'medium',
-  onClick,
-  disabled = false,
-  startIcon,
-  endIcon,
-  children,
-  fullWidth = false,
-  className,
-  ...otherProps
-}) => {
-  const classes = useStyles();
+const UniversalButton = React.forwardRef(
+  (
+    {
+      variant = 'default',
+      size = 'medium',
+      onClick,
+      disabled = false,
+      startIcon,
+      endIcon,
+      children,
+      fullWidth = false,
+      className,
+      ...otherProps
+    },
+    ref,
+  ) => {
+    const classes = useStyles();
 
-  // Build className based on variant and size
-  const variantClass = variant !== 'default' ? classes[variant] : '';
-  const sizeClass =
-    classes[`size${size.charAt(0).toUpperCase() + size.slice(1)}`];
+    // Build className based on variant and size
+    const variantClass = variant !== 'default' ? classes[variant] : '';
+    const sizeClass =
+      classes[`size${size.charAt(0).toUpperCase() + size.slice(1)}`];
 
-  return (
-    <Button
-      className={`${classes.root} ${variantClass} ${sizeClass} ${className || ''}`}
-      variant={
-        variant === 'danger' || variant === 'containedPrimary'
-          ? 'contained'
-          : variant === 'default'
-            ? 'text'
-            : 'outlined'
-      }
-      onClick={onClick}
-      disabled={disabled}
-      startIcon={startIcon}
-      endIcon={endIcon}
-      fullWidth={fullWidth}
-      {...otherProps}
-    >
-      {children}
-    </Button>
-  );
-};
+    return (
+      <Button
+        ref={ref}
+        className={`${classes.root} ${variantClass} ${sizeClass} ${className || ''}`}
+        variant={
+          variant === 'danger' || variant === 'containedPrimary'
+            ? 'contained'
+            : variant === 'default'
+              ? 'text'
+              : 'outlined'
+        }
+        onClick={onClick}
+        disabled={disabled}
+        startIcon={startIcon}
+        endIcon={endIcon}
+        fullWidth={fullWidth}
+        {...otherProps}
+      >
+        {children}
+      </Button>
+    );
+  },
+);
 
-CollectionButton.propTypes = {
+UniversalButton.propTypes = {
   variant: PropTypes.oneOf([
     'primary',
     'secondary',
@@ -138,4 +144,4 @@ CollectionButton.propTypes = {
   className: PropTypes.string,
 };
 
-export default CollectionButton;
+export default UniversalButton;

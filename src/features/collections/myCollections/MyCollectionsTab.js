@@ -6,7 +6,7 @@ import { AccountCircle } from '@material-ui/icons';
 import { showLoginDialog } from '../../../Redux/actions/ui';
 import useCollectionsStore from '../state/collectionsStore';
 import CollectionCard from './CollectionCard';
-import CollectionStatistics from './CollectionStatistics';
+import CollectionStatistics from '../components/CollectionStatistics';
 import { PaginationController } from '../../../shared/pagination';
 import {
   SearchProvider,
@@ -16,7 +16,7 @@ import {
 import { useSorting } from '../../../shared/sorting/state/useSorting';
 import SortDropdown from '../../../shared/sorting/components/SortDropdown';
 import FilterDropdown from '../components/FilterDropdown';
-import CollectionButton from '../../../shared/components/UniversalButton';
+import UniversalButton from '../../../shared/components/UniversalButton';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -102,6 +102,9 @@ const MyCollectionsContent = ({ visibilityFilter, setVisibilityFilter }) => {
   const classes = useStyles();
   const filteredCollections = useFilteredItems();
   const { activeSort, comparator, setSort } = useSorting(sortConfig);
+  const pendingDeletions = useCollectionsStore(
+    (state) => state.pendingDeletions,
+  );
 
   // Sort the filtered collections
   const sortedCollections = [...filteredCollections].sort(comparator);
@@ -143,7 +146,11 @@ const MyCollectionsContent = ({ visibilityFilter, setVisibilityFilter }) => {
         data={sortedCollections}
         itemsPerPage={9}
         renderItem={(collection) => (
-          <CollectionCard key={collection.id} collection={collection} />
+          <CollectionCard
+            key={collection.id}
+            collection={collection}
+            isPending={pendingDeletions.has(collection.id)}
+          />
         )}
         renderContainer={(children, pagination) => (
           <>
@@ -172,14 +179,18 @@ const MyCollectionsTab = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user);
 
-  const {
-    statistics,
-    isLoading,
-    error,
-    filteredUserCollections,
-    visibilityFilter,
-    setVisibilityFilter,
-  } = useCollectionsStore();
+  const statistics = useCollectionsStore((state) => state.statistics);
+  const isLoading = useCollectionsStore((state) => state.isLoading);
+  const error = useCollectionsStore((state) => state.error);
+  const filteredUserCollections = useCollectionsStore(
+    (state) => state.filteredUserCollections,
+  );
+  const visibilityFilter = useCollectionsStore(
+    (state) => state.visibilityFilter,
+  );
+  const setVisibilityFilter = useCollectionsStore(
+    (state) => state.setVisibilityFilter,
+  );
 
   const handleLoginClick = () => {
     dispatch(showLoginDialog());
@@ -196,14 +207,14 @@ const MyCollectionsTab = () => {
             Please sign in to view and manage your personal collections.
           </Typography>
           <Box>
-            <CollectionButton
+            <UniversalButton
               variant="primary"
               size="medium"
               onClick={handleLoginClick}
               startIcon={<AccountCircle />}
             >
               Sign In
-            </CollectionButton>
+            </UniversalButton>
           </Box>
         </Box>
       </Box>
@@ -240,13 +251,29 @@ const MyCollectionsTab = () => {
       </Box>
 
       <Box className={classes.statisticsSection}>
-        <CollectionStatistics statistics={statistics} />
+        <CollectionStatistics
+          stats={[
+            {
+              value: statistics.totalCollections,
+              label: 'Total Collections',
+            },
+            {
+              value: statistics.publicCollections,
+              label: 'Public Collections',
+            },
+            {
+              value: statistics.privateCollections,
+              label: 'Private Collections',
+            },
+            {
+              value: statistics.totalDatasets,
+              label: 'Total Datasets',
+            },
+          ]}
+        />
       </Box>
 
       <SearchProvider
-        // Force remount when visibility filter changes to sync with new filtered items
-        // SearchProvider creates its store on mount and doesn't react to item prop changes
-        key={`search-${visibilityFilter}`}
         items={filteredUserCollections}
         searchKeys={['name', 'description', 'creatorName']}
       >

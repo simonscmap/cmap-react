@@ -1,5 +1,4 @@
 import XLSX from 'xlsx';
-import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
 
 /**
@@ -10,9 +9,18 @@ class DownloadService {
    * Downloads a file from a blob with the specified filename
    * @param {Blob} blob - The blob to download
    * @param {string} filename - The filename for the download
+   * @description Creates a temporary anchor element to trigger a browser download,
+   * then cleans up the temporary URL and DOM element.
    */
   static downloadBlob(blob, filename) {
-    saveAs(blob, filename);
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
   }
 
   /**

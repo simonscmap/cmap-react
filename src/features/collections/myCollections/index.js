@@ -3,4 +3,4 @@
 
 export { default as MyCollectionsTab } from './MyCollectionsTab';
 export { default as CollectionCard } from './CollectionCard';
-export { default as CollectionStatistics } from './CollectionStatistics';
+export { default as CollectionStatistics } from '../components/CollectionStatistics';
