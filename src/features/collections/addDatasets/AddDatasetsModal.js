@@ -15,12 +15,11 @@ import { makeStyles } from '@material-ui/core/styles';
 import zIndex from '../../../enums/zIndex';
 import { useAddDatasetsStore } from './state/addDatasetsStore';
 import useCollectionsStore from '../state/collectionsStore';
-import CollectionSearchSection from './components/CollectionSearchSection';
-import CollectionSummaryCard from './components/CollectionSummaryCard';
-import DatasetsTableSection from './components/DatasetsTableSection';
+import useCatalogSearchStore from '../../catalogSearch/state/catalogSearchStore';
 import ConfirmationDialog from '../../../shared/components/ConfirmationDialog';
 import UniversalButton from '../../../shared/components/UniversalButton';
-import { SearchProvider } from '../../../shared/UniversalSearch';
+import CatalogSearchSection from '../../catalogSearch/components/CatalogSearchSection';
+import FromCollectionsTab from './components/FromCollectionsTab';
 
 const useStyles = makeStyles((theme) => ({
   dialogPaper: {
@@ -71,15 +70,6 @@ const useStyles = makeStyles((theme) => ({
   selectionCount: {
     color: theme.palette.text.secondary,
   },
-  searchAndButtonRow: {
-    display: 'flex',
-    gap: theme.spacing(2),
-    alignItems: 'flex-start',
-    marginBottom: 0,
-  },
-  searchContainer: {
-    flex: 1,
-  },
 }));
 
 /**
@@ -111,7 +101,7 @@ function TabPanel({ children, value, index, ...other }) {
  * - onAddDatasets: (datasets: Dataset[]) => void - Called when datasets are added successfully
  * - currentCollectionDatasets: Dataset[] - Datasets already in the collection being edited
  * - targetCollectionName: string (optional) - Name of the collection being edited (shown in title)
- * - defaultTab: string (optional) - Initial active tab (default: 'collections')
+ * - defaultTab: string (optional) - Initial active tab (default: 'catalog')
  */
 const AddDatasetsModal = ({
   open,
@@ -119,16 +109,22 @@ const AddDatasetsModal = ({
   onAddDatasets,
   currentCollectionDatasets = [],
   targetCollectionName,
-  defaultTab = 'collections',
+  defaultTab = 'catalog',
 }) => {
   const classes = useStyles();
   const [activeTab, setActiveTab] = useState(0);
   const [showCloseWarning, setShowCloseWarning] = useState(false);
+  const [catalogResultsCount, setCatalogResultsCount] = useState(0);
+
+  // Get resetSearch from catalog search store to reset filters and results
+  const resetCatalogSearch = useCatalogSearchStore(
+    (state) => state.resetSearch,
+  );
 
   // Map defaultTab string to tab index
   const tabMap = {
-    collections: 0,
-    catalog: 1,
+    catalog: 0,
+    collections: 1,
     spatial: 2,
   };
 
@@ -160,6 +156,7 @@ const AddDatasetsModal = ({
     showSwitchWarning,
     confirmSwitch,
     cancelSwitch,
+    loadFullCatalog,
   } = useAddDatasetsStore();
 
   // Get collections from collectionsStore
@@ -198,8 +195,16 @@ const AddDatasetsModal = ({
   React.useEffect(() => {
     if (open) {
       openModal(currentCollectionDatasets);
+      loadFullCatalog();
     }
-  }, [open, currentCollectionDatasets, openModal]);
+  }, [open, currentCollectionDatasets, openModal, loadFullCatalog]);
+
+  // Effect: Reset catalog search (filters and results) when modal closes
+  React.useEffect(() => {
+    if (!open) {
+      resetCatalogSearch();
+    }
+  }, [open, resetCatalogSearch]);
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
@@ -315,70 +320,6 @@ const AddDatasetsModal = ({
     });
   };
 
-  // Transform selectedCollectionSummary to match CollectionSummaryCard's expected format
-  // This includes additional metadata like creator info and description
-  const cardSummary = React.useMemo(() => {
-    if (!selectedCollectionSummary) {
-      return null;
-    }
-
-    // Find the full collection object from allCollections to get all metadata
-    const fullCollection = allCollections.find(
-      (c) => c.id === selectedCollectionSummary.id,
-    );
-
-    const totalDatasets = selectedCollectionSummary.datasetCount || 0;
-
-    // Base data from selectedCollectionSummary
-    const baseData = {
-      collectionName: selectedCollectionSummary.name,
-      isPublic: selectedCollectionSummary.isPublic || false,
-      // Additional fields that might be in the collection object
-      creatorName: fullCollection?.ownerName || 'Unknown',
-      creatorAffiliation: fullCollection?.ownerAffiliation || null,
-      description: fullCollection?.description || null,
-      createdDate: fullCollection?.createdDate || null,
-    };
-
-    if (!sourceCollectionDatasets) {
-      return {
-        ...baseData,
-        totalDatasets,
-        validDatasets: totalDatasets,
-        alreadyInCollection: 0,
-        invalidDatasets: 0,
-      };
-    }
-
-    // Count datasets by category
-    const invalidDatasets = sourceCollectionDatasets.filter(
-      (d) => d.isInvalid === true,
-    ).length;
-
-    const alreadyInCollection = sourceCollectionDatasets.filter(
-      (d) =>
-        d.isInvalid !== true && currentCollectionDatasetIds.has(d.shortName),
-    ).length;
-
-    const validDatasets = sourceCollectionDatasets.filter(
-      (d) =>
-        d.isInvalid !== true && !currentCollectionDatasetIds.has(d.shortName),
-    ).length;
-
-    return {
-      ...baseData,
-      totalDatasets,
-      validDatasets,
-      alreadyInCollection,
-      invalidDatasets,
-    };
-  }, [
-    selectedCollectionSummary,
-    sourceCollectionDatasets,
-    currentCollectionDatasetIds,
-    allCollections,
-  ]);
-
   if (!open) {
     return null;
   }
@@ -420,61 +361,36 @@ const AddDatasetsModal = ({
           textColor="primary"
           aria-label="add datasets tabs"
         >
-          <Tab label="From Collections" id="add-datasets-tab-0" />
-          <Tab label="Catalog Filtering" id="add-datasets-tab-1" disabled />
-          <Tab
-            label="Spatial-Temporal Overlap"
-            id="add-datasets-tab-2"
-            disabled
-          />
+          <Tab label="Catalog Filtering" id="add-datasets-tab-0" />
+          <Tab label="From Collections" id="add-datasets-tab-1" />
+          <Tab label="Spatial-Temporal" id="add-datasets-tab-2" disabled />
         </Tabs>
 
         <TabPanel value={activeTab} index={0}>
-          <Box className={classes.searchAndButtonRow}>
-            <Box className={classes.searchContainer}>
-              <SearchProvider items={allCollections} searchKeys={['name']}>
-                <CollectionSearchSection
-                  collections={allCollections}
-                  selectedCollectionId={selectedCollectionId}
-                  onSelectCollection={handleSelectCollection}
-                />
-              </SearchProvider>
-            </Box>
-            <UniversalButton
-              variant="primary"
-              size="large"
-              onClick={loadError ? handleRetryLoad : handleLoadCollection}
-              disabled={!selectedCollectionId || isLoadingDatasets}
-            >
-              {isLoadingDatasets
-                ? 'LOADING...'
-                : loadError
-                  ? 'RETRY'
-                  : 'LOAD COLLECTION'}
-            </UniversalButton>
-          </Box>
-
-          {sourceCollectionDatasets && (
-            <CollectionSummaryCard
-              summary={cardSummary}
-              isLoading={isLoadingDatasets}
-              loadError={loadError}
-            />
-          )}
-
-          <DatasetsTableSection
-            datasets={sourceCollectionDatasets}
+          <CatalogSearchSection
             selectedDatasetIds={selectedDatasetIds}
             currentCollectionDatasetIds={currentCollectionDatasetIds}
             onToggleSelection={handleToggleDataset}
-            isLoading={isLoadingDatasets}
+            onResultsChange={setCatalogResultsCount}
+            maxHeight={500}
           />
         </TabPanel>
 
         <TabPanel value={activeTab} index={1}>
-          <Typography>
-            Catalog filtering will be available in a future release
-          </Typography>
+          <FromCollectionsTab
+            collections={allCollections}
+            selectedCollectionId={selectedCollectionId}
+            selectedCollectionSummary={selectedCollectionSummary}
+            sourceCollectionDatasets={sourceCollectionDatasets}
+            selectedDatasetIds={selectedDatasetIds}
+            currentCollectionDatasetIds={currentCollectionDatasetIds}
+            isLoadingDatasets={isLoadingDatasets}
+            loadError={loadError}
+            onSelectCollection={handleSelectCollection}
+            onLoadCollection={handleLoadCollection}
+            onRetryLoad={handleRetryLoad}
+            onToggleSelection={handleToggleDataset}
+          />
         </TabPanel>
 
         <TabPanel value={activeTab} index={2}>
@@ -488,6 +404,13 @@ const AddDatasetsModal = ({
         <Typography variant="body2" className={classes.selectionCount}>
           {selectedDatasetIds.size} dataset
           {selectedDatasetIds.size !== 1 ? 's' : ''} selected
+          {activeTab === 0 && catalogResultsCount > 0 && (
+            <>
+              {' '}
+              of {catalogResultsCount} dataset
+              {catalogResultsCount !== 1 ? 's' : ''} found
+            </>
+          )}
         </Typography>
         <Box sx={{ display: 'flex', gap: 1 }}>
           <UniversalButton onClick={handleClose} variant="default" size="large">

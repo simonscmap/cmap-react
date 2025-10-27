@@ -12,6 +12,10 @@ const useStyles = makeStyles((theme) => ({
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
+    position: 'relative',
+  },
+  statisticsCardWithBorder: {
+    borderLeft: '4px solid',
   },
   cardContent: {
     padding: `${theme.spacing(2)}px !important`,
@@ -122,6 +126,7 @@ const useStyles = makeStyles((theme) => ({
  *   - Half the height of standard mode
  *   - Label and value in a row instead of stacked vertically
  *   - Reduced font sizes
+ * @param {string|number} [props.maxWidth] - Optional max width for the container (e.g., '400px', 400)
  *
  * @typedef {Object} StatObject
  * @property {string|number} [value] - The value to display (standard usage)
@@ -129,6 +134,7 @@ const useStyles = makeStyles((theme) => ({
  * @property {string|number} [originalValue] - The original value before changes (only for change indicator pattern)
  *   When both currentValue and originalValue are provided and differ, displays as: ~~originalValue~~ currentValue
  * @property {string} label - The label text for this statistic
+ * @property {string} [borderColor] - Optional left border color (e.g., 'rgba(255, 193, 7, 0.6)' for yellow)
  *
  * IMPORTANT: Use EITHER the standard pattern OR the change indicator pattern, not both:
  * - Standard pattern: Use `value` prop only
@@ -162,7 +168,12 @@ const useStyles = makeStyles((theme) => ({
  *   ]}
  * />
  */
-const CollectionStatistics = ({ stats, itemsPerRow = 4, compact = false }) => {
+const CollectionStatistics = ({
+  stats,
+  itemsPerRow = 4,
+  compact = false,
+  maxWidth,
+}) => {
   const classes = useStyles();
   const gridSize = Math.floor(12 / itemsPerRow);
 
@@ -171,6 +182,7 @@ const CollectionStatistics = ({ stats, itemsPerRow = 4, compact = false }) => {
       container
       spacing={compact ? 1 : 2}
       className={classes.statisticsContainer}
+      style={maxWidth ? { maxWidth } : undefined}
     >
       {stats.map((stat, index) => {
         // Check if using change indicator pattern (currentValue + originalValue)
@@ -186,7 +198,15 @@ const CollectionStatistics = ({ stats, itemsPerRow = 4, compact = false }) => {
 
         return (
           <Grid item xs={6} md={gridSize} key={index}>
-            <Card className={classes.statisticsCard} elevation={0}>
+            <Card
+              className={classes.statisticsCard}
+              elevation={0}
+              style={
+                stat.borderColor
+                  ? { borderLeft: `4px solid ${stat.borderColor}` }
+                  : {}
+              }
+            >
               <CardContent
                 className={
                   compact ? classes.cardContentCompact : classes.cardContent

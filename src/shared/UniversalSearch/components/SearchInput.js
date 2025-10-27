@@ -36,6 +36,7 @@ const useStyles = makeStyles((theme) => ({
     maxHeight: '400px', // Fixed max height to prevent modal resizing
     overflowY: 'auto',
     paddingBottom: '44px', // Space for fixed footer
+    paddingRight: '8px', // Space for scrollbar to prevent overlap
     '& .MuiAutocomplete-option': {
       color: '#ffffff',
       '&:hover': {
@@ -45,6 +46,19 @@ const useStyles = makeStyles((theme) => ({
         backgroundColor: 'rgba(157, 209, 98, 0.15)',
       },
     },
+    // For grid layouts, make options use display: contents so their children become grid items
+    '&[style*="display: grid"]': {
+      paddingRight: 0, // Remove padding for grid, handle it differently
+      '& .MuiAutocomplete-option': {
+        display: 'contents',
+        '&:hover > *': {
+          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        },
+        '&[data-focus="true"] > *': {
+          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        },
+      },
+    },
   },
   autocompletePaper: {
     backgroundColor: '#1B4156',
@@ -52,9 +66,11 @@ const useStyles = makeStyles((theme) => ({
     minHeight: '48px',
     maxHeight: '444px', // listbox height + footer height
     position: 'relative',
+    display: 'flex',
+    flexDirection: 'column',
   },
   dropdownResultCount: {
-    position: 'absolute',
+    position: 'sticky',
     bottom: 0,
     left: 0,
     right: 0,
@@ -65,10 +81,30 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: '#1B4156',
     borderTop: '1px solid rgba(255, 255, 255, 0.12)',
     pointerEvents: 'none',
-    zIndex: 1,
+    zIndex: 2,
+    flexShrink: 0,
   },
   listboxWrapper: {
     position: 'relative',
+  },
+  stickyHeader: {
+    position: 'sticky',
+    top: 0,
+    backgroundColor: '#1B4156',
+    zIndex: 3,
+    flexShrink: 0,
+    display: 'contents',
+  },
+  stickyHeaderCell: {
+    position: 'sticky',
+    top: 0,
+    backgroundColor: '#1B4156',
+    zIndex: 3,
+  },
+  scrollableContent: {
+    overflowY: 'auto',
+    flexGrow: 1,
+    backgroundColor: '#1B4156',
   },
 }));
 
@@ -86,6 +122,10 @@ const SearchInput = ({
   controlsAlign = 'right', // 'left' | 'right'
   loadAllOnFocus = false, // New: when true, shows all items on focus before threshold is met
   disablePortal = false, // When true, Popper renders inside parent instead of document body
+  prependOptions = [], // Array of options to prepend to the results (e.g., headers, group headers)
+  processItems = null, // Optional function to process/group items: (items) => processedItems
+  getOptionDisabled = null, // Optional function to determine if option should be disabled: (option) => boolean
+  listboxGridColumns = null, // Optional grid-template-columns value for grid-based layouts
 }) => {
   const classes = useStyles();
 
@@ -204,11 +244,17 @@ const SearchInput = ({
     isSearchActive && inputValue.length >= SEARCH_CONFIG.ACTIVATION_THRESHOLD;
 
   // Determine which items to show: all items on focus (before threshold), or filtered items (after threshold)
-  const displayItems = enableAutocomplete
+  // Prepend any custom options (headers, group headers, etc.) to the items
+  const baseItems = enableAutocomplete
     ? showAllOnFocus
       ? allItems
       : filteredItems
     : [];
+
+  // Process items if a processing function is provided (e.g., for grouping)
+  const processedItems = processItems ? processItems(baseItems) : baseItems;
+
+  const displayItems = [...prependOptions, ...processedItems];
 
   return (
     <Box>
@@ -223,6 +269,7 @@ const SearchInput = ({
           getOptionLabel ||
           ((option) => (typeof option === 'string' ? option : String(option)))
         }
+        getOptionDisabled={getOptionDisabled || undefined}
         renderOption={renderOption || undefined}
         onInputChange={(_event, _value, reason) => {
           if (reason === 'clear') {
@@ -286,11 +333,47 @@ const SearchInput = ({
             }}
           />
         )}
-        ListboxComponent={React.forwardRef(({ children, ...other }, ref) => (
-          <ul {...other} ref={ref}>
-            {children}
-          </ul>
-        ))}
+        ListboxComponent={React.forwardRef(({ children, ...other }, ref) => {
+          // Extract header and content items
+          const childArray = React.Children.toArray(children);
+          const headerItem = prependOptions.length > 0 ? childArray[0] : null;
+          const contentItems =
+            prependOptions.length > 0 ? childArray.slice(1) : childArray;
+
+          // Build style object with optional grid layout
+          const listStyle = {
+            ...other.style,
+            padding: 0,
+          };
+
+          if (listboxGridColumns) {
+            // Grid-based layout for table-like structure
+            listStyle.display = 'grid';
+            listStyle.gridTemplateColumns = listboxGridColumns;
+            listStyle.alignItems = 'stretch';
+          } else {
+            // Default flex layout
+            listStyle.display = 'flex';
+            listStyle.flexDirection = 'column';
+          }
+
+          return (
+            <ul {...other} ref={ref} style={listStyle}>
+              {headerItem && (
+                <li
+                  className={classes.stickyHeader}
+                  style={{
+                    listStyle: 'none',
+                    ...(listboxGridColumns ? { display: 'contents' } : {}),
+                  }}
+                >
+                  {headerItem}
+                </li>
+              )}
+              {contentItems}
+            </ul>
+          );
+        })}
       />
       <Box
         display="flex"

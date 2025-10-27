@@ -118,19 +118,21 @@ const CollectionSummaryCard = ({ summary, isLoading, loadError }) => {
     },
   ];
 
-  // Add "Already in Collection" if there are any
+  // Add "Already in Collection" if there are any (with gray border)
   if (alreadyInCollection > 0) {
     stats.push({
       value: alreadyInCollection,
       label: 'Already in Collection',
+      borderColor: 'rgba(128, 128, 128, 0.6)',
     });
   }
 
-  // Add "Invalid Datasets" last, only if there are any
+  // Add "Invalid Datasets" last, only if there are any (with yellow border)
   if (invalidDatasets > 0) {
     stats.push({
       value: invalidDatasets,
       label: 'Invalid Datasets',
+      borderColor: 'rgba(255, 193, 7, 0.6)',
     });
   }
 
