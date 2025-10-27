@@ -87,6 +87,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **This project uses manual testing only. Do not create or suggest unit tests, integration tests, or automated tests of any kind.** All features and functionality are validated through manual testing in the browser.
 
+## Logging
+
+**Always use the log service (`src/Services/log-service`) instead of `console.log`.** This provides environment-aware, structured logging with automatic module context and version tracking.
+
+### Key Rules
+
+- **Never use `console.log` directly** - always import and use the log service
+- **Always use `log.debug()`** for development debugging and logging
+- Include the module/feature name when initializing the logger
+- Pass structured data as the second argument for better context
+
 ## Shared Utilities
 
 ### Dataset Name Link Component

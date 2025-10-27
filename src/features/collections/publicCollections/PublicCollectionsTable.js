@@ -435,7 +435,7 @@ const PublicCollectionsTable = ({ collections = [] }) => {
                   <TableCell className={classes.statsCell}>
                     <Box display="flex" gap={1}>
                       <UniversalButton
-                        variant="secondary"
+                        variant="primary"
                         size="medium"
                         onClick={() => handlePreview(collection)}
                       >

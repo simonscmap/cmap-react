@@ -55,7 +55,7 @@ const CollectionContentActions = ({
       <Box className={classes.actionsContainer}>
         <UniversalButton
           onClick={onRemoveSelected}
-          variant="secondary"
+          variant="primary"
           size="large"
           disabled={selectedDatasets.length === 0}
         >

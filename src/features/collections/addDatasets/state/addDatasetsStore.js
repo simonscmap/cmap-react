@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import collectionsAPI from '../../api/collectionsApi';
+import { getSearchService } from '../../../catalogSearch/services/searchService';
 
 /**
  * Zustand store for Add Datasets modal state management
@@ -37,6 +38,11 @@ const initialState = {
   // Confirmation Dialog State
   showSwitchCollectionWarning: false,
   pendingCollectionId: null,
+
+  // Full Catalog State
+  fullCatalog: null, // Array<CatalogDataset> | null
+  isLoadingCatalog: false,
+  catalogLoadError: null,
 };
 
 /**
@@ -276,33 +282,45 @@ export const useAddDatasetsStore = create((set, get) => ({
    *
    * Preconditions:
    * - selectedDatasetIds.size > 0
-   * - sourceCollectionDatasets must not be null
+   * - Either sourceCollectionDatasets or fullCatalog must not be null
    *
    * Side Effects:
    * - Calls callback with full dataset objects for selected IDs
    * - Closes modal via closeModal()
    *
-   * Performance: O(n*m) where n is selectedDatasetIds.size and m is sourceCollectionDatasets.length
+   * Performance: O(n*m) where n is selectedDatasetIds.size and m is sourceCollectionDatasets.length or fullCatalog.length
    * For typical usage: n < 100, m < 1000, total < 100ms
    */
   addSelectedDatasets: (onAddComplete) => {
     const state = get();
-    const { selectedDatasetIds, sourceCollectionDatasets } = state;
-
-    // Validate preconditions
-    if (!sourceCollectionDatasets) {
-      console.error('addSelectedDatasets: sourceCollectionDatasets is null');
-      return;
-    }
+    const { selectedDatasetIds, sourceCollectionDatasets, fullCatalog } = state;
 
     if (selectedDatasetIds.size === 0) {
       console.error('addSelectedDatasets: no datasets selected');
       return;
     }
 
+    // Determine which dataset source to use
+    // Priority: sourceCollectionDatasets (from Collections tab) > fullCatalog (from Catalog Search tab)
+    let datasetsToSearch = null;
+
+    if (sourceCollectionDatasets && sourceCollectionDatasets.length > 0) {
+      datasetsToSearch = sourceCollectionDatasets;
+    } else if (fullCatalog && fullCatalog.length > 0) {
+      datasetsToSearch = fullCatalog;
+    }
+
+    // Validate we have a dataset source
+    if (!datasetsToSearch) {
+      console.error(
+        'addSelectedDatasets: no dataset source available (sourceCollectionDatasets and fullCatalog are both null/empty)',
+      );
+      return;
+    }
+
     // Map selected IDs to full dataset objects
-    // Filter sourceCollectionDatasets to only include datasets whose shortName is in selectedDatasetIds
-    const selectedDatasets = sourceCollectionDatasets.filter((dataset) =>
+    // Filter datasetsToSearch to only include datasets whose shortName is in selectedDatasetIds
+    const selectedDatasets = datasetsToSearch.filter((dataset) =>
       selectedDatasetIds.has(dataset.shortName),
     );
 
@@ -545,5 +563,65 @@ export const useAddDatasetsStore = create((set, get) => ({
     set({
       selectedDatasetIds: new Set(),
     });
+  },
+
+  /**
+   * loadFullCatalog - Fetch the complete dataset catalog using catalogSearch infrastructure
+   *
+   * Side Effects:
+   * - Sets isLoadingCatalog: true at start
+   * - On success: Sets fullCatalog, clears catalogLoadError, sets isLoadingCatalog: false
+   * - On failure: Sets catalogLoadError with user-friendly message, sets isLoadingCatalog: false
+   *
+   * Note: Only fetches if fullCatalog is null (caching behavior)
+   * Note: Uses the catalogSearch searchService which manages the SQLite database
+   */
+  loadFullCatalog: async () => {
+    const state = get();
+
+    // If already loaded, skip
+    if (state.fullCatalog) {
+      return;
+    }
+
+    // If already loading, skip
+    if (state.isLoadingCatalog) {
+      return;
+    }
+
+    set({ isLoadingCatalog: true });
+
+    try {
+      // Get the search service singleton
+      const searchService = getSearchService();
+
+      // Initialize if not already initialized
+      if (!searchService.isInitialized) {
+        await searchService.initialize();
+      }
+
+      // Perform a search with no filters to get all datasets
+      const catalog = await searchService.search({
+        text: '',
+        spatial: null,
+        temporal: null,
+        depth: null,
+        limit: null,
+        offset: 0,
+      });
+
+      set({
+        fullCatalog: catalog,
+        catalogLoadError: null,
+        isLoadingCatalog: false,
+      });
+    } catch (error) {
+      console.error('loadFullCatalog error:', error);
+      set({
+        catalogLoadError:
+          error.message || 'Failed to load catalog. Please try again.',
+        isLoadingCatalog: false,
+      });
+    }
   },
 }));

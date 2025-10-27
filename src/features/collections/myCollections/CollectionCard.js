@@ -233,7 +233,7 @@ const CollectionCard = ({ collection, isPending = false }) => {
           </Box>
           <Box className={classes.buttonGroup}>
             <UniversalButton
-              variant="secondary"
+              variant="primary"
               size="medium"
               onClick={handleEdit}
             >

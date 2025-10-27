@@ -386,9 +386,9 @@ const CollectionDatasetsTable = ({
               Dataset no longer available
             </Typography>
           ) : (
-            dataset.description && (
+            dataset.longName && (
               <Typography className={classes.datasetDescription}>
-                {dataset.description}
+                {dataset.longName}
               </Typography>
             )
           )}
