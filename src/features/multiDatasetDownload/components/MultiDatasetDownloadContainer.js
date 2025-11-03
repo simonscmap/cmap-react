@@ -3,7 +3,7 @@ import { Box, Typography } from '@material-ui/core';
 import { debounce } from 'throttle-debounce';
 import deepEqual from 'deep-equal';
 import SubsetControls from '../../../shared/filtering/core/SubsetControls';
-import DefaultSubsetControlsLayout from '../../../shared/filtering/components/DefaultSubsetControlsLayout';
+import CompactSubsetControlsLayout from '../../../shared/filtering/components/CompactSubsetControlsLayout';
 import useSubsetFiltering from '../../../shared/filtering/hooks/useSubsetFiltering';
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
 import useRowCountStore from '../stores/useRowCountStore';
@@ -119,7 +119,7 @@ const MultiDatasetDownloadContainerInner = ({
           datasetFilterBounds={datasetFilterBounds}
           dateHandling={dateHandling}
         >
-          <DefaultSubsetControlsLayout
+          <CompactSubsetControlsLayout
             optionsState={optionsState}
             handleSwitch={handleSwitch}
           />

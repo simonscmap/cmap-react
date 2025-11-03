@@ -179,6 +179,42 @@ function MyComponent({ data }) {
 - **Zustand State Pattern**: Feature-isolated stores with `useMultiDatasetDownloadStore` and `useRowCountStore`
 - **Performance Threshold**: 2M row limit with smart threshold display for unselected datasets
 
+### Catalog Search (2025-10)
+
+- **Dual-Backend Architecture**: HTTP download of SQLite database + Web Worker query execution
+- **Feature-Folder Pattern**: All data access in `api/`, worker treated as external service
+- **Data Sources**:
+  - HTTP backend (downloads pre-built SQLite database from server)
+  - SQLite backend (queries executed in Web Worker using sqlite-wasm)
+  - IndexedDB (caches database locally for offline access and performance)
+- **Structure**:
+  - `api/catalogDbApi.js` - HTTP download and IndexedDB cache management
+  - `api/searchDatabaseApi.js` - Web Worker lifecycle and communication
+  - `api/queries/` - Structured query construction (SearchQueryBuilder)
+  - `api/transformers/` - Result transformation (raw DB rows → UI format)
+  - `api/index.js` - Unified facade with comprehensive JSDoc
+  - `public/sqlite-wasm/catalogSearchWorker.js` - SQL execution service (outside feature folder)
+- **Key Files**:
+  - `SearchQueryBuilder.js` - Fluent API for query construction
+  - `querySchema.js` - Constants, defaults, validation (SEARCH_MODES, DATE_RANGE_PRESETS, LIMITS)
+  - `searchResultTransformer.js` - Normalizes raw rows into UI-facing format
+- **Security**: Worker as security boundary (structured queries only, no raw SQL, MAX_LIMIT enforcement, validation)
+- **Usage Example**:
+
+  ```javascript
+  import { initializeCatalogSearch, searchCatalog, createSearchQuery } from 'features/catalogSearch/api';
+
+  // Initialize once
+  await initializeCatalogSearch();
+
+  // Build and execute search
+  const query = createSearchQuery().withText('temperature').withSpatialBounds({ latMin: 30, latMax: 50, lonMin: -130, lonMax: -110 }).withDateRangePreset(DATE_RANGE_PRESETS.LAST_YEAR).build();
+
+  const results = await searchCatalog(query);
+  ```
+
+- **Documentation**: See `src/features/catalogSearch/api/README.md` for complete architecture overview
+
 ### Performance Patterns
 
 - **Debouncing**: Use throttle-debounce library, prefer selection-aware debouncing

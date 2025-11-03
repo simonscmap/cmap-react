@@ -101,7 +101,7 @@ const CreateCollectionModal = () => {
 
       dispatch(
         snackbarOpen('Collection created successfully', {
-          position: 'bottom',
+          position: 'top',
           severity: 'success',
         }),
       );
@@ -119,7 +119,7 @@ const CreateCollectionModal = () => {
 
       dispatch(
         snackbarOpen(errorMessage, {
-          position: 'bottom',
+          position: 'top',
           severity: 'error',
         }),
       );

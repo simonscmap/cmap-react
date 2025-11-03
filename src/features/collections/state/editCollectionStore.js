@@ -241,7 +241,7 @@ const useEditCollectionStore = create((set, get) => ({
       dispatch(
         snackbarOpen('Please select at least one dataset to download', {
           severity: 'warning',
-          position: 'bottom',
+          position: 'top',
         }),
       );
       return;
@@ -253,8 +253,17 @@ const useEditCollectionStore = create((set, get) => ({
     }
 
     try {
+      // Filter out invalid datasets as a defensive measure
+      // (selection UI should already prevent this, but this ensures safety)
+      const validDatasets = selectedDatasets.filter((shortName) => {
+        const dataset = collection.datasets?.find(
+          (d) => d.datasetShortName === shortName,
+        );
+        return dataset && dataset.isInvalid !== true;
+      });
+
       // Pass the collection ID for download tracking
-      await collectionsAPI.downloadDatasets(selectedDatasets, collection.id);
+      await collectionsAPI.downloadDatasets(validDatasets, collection.id);
       // Browser download UI provides feedback - no success snackbar needed
     } catch (error) {
       console.error('Error downloading datasets:', error);
@@ -263,7 +272,7 @@ const useEditCollectionStore = create((set, get) => ({
       dispatch(
         snackbarOpen(`Failed to download datasets: ${error.message}`, {
           severity: 'error',
-          position: 'bottom',
+          position: 'top',
         }),
       );
 
@@ -354,7 +363,7 @@ const useEditCollectionStore = create((set, get) => ({
       dispatch(
         snackbarOpen('Collection updated successfully', {
           severity: 'success',
-          position: 'bottom',
+          position: 'top',
         }),
       );
 
@@ -372,7 +381,7 @@ const useEditCollectionStore = create((set, get) => ({
       dispatch(
         snackbarOpen(`Failed to update collection: ${error.message}`, {
           severity: 'error',
-          position: 'bottom',
+          position: 'top',
         }),
       );
 

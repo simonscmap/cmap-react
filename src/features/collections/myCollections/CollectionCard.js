@@ -153,7 +153,7 @@ const CollectionCard = ({ collection, isPending = false }) => {
       await deleteCollection(collection.id);
       dispatch(
         snackbarOpen(`Collection "${collection.name}" deleted successfully`, {
-          position: 'bottom',
+          position: 'top',
           severity: 'success',
         }),
       );
@@ -164,7 +164,7 @@ const CollectionCard = ({ collection, isPending = false }) => {
         : 'Failed to delete collection';
       dispatch(
         snackbarOpen(errorMessage, {
-          position: 'bottom',
+          position: 'top',
           severity: 'error',
         }),
       );

@@ -1,0 +1,308 @@
+/**
+ * Validation utilities for spatial-temporal search constraints
+ *
+ * This module provides JSDoc type definitions for the spatial-temporal overlap feature.
+ * These types are used throughout the feature for type safety and documentation.
+ */
+
+/**
+ * User-defined spatial bounding box
+ * @typedef {Object} BoundingBox
+ * @property {number} latMin - Minimum latitude (-90 to 90)
+ * @property {number} latMax - Maximum latitude (-90 to 90)
+ * @property {number} lonMin - Minimum longitude (-180 to 180)
+ * @property {number} lonMax - Maximum longitude (-180 to 180)
+ */
+
+/**
+ * User-defined temporal constraints
+ * @typedef {Object} TemporalConstraints
+ * @property {boolean} enabled - Whether temporal constraints are active
+ * @property {Date} timeMin - Start date (Date object)
+ * @property {Date} timeMax - End date (Date object)
+ */
+
+/**
+ * User-defined depth constraints
+ * @typedef {Object} DepthConstraints
+ * @property {boolean} enabled - Whether depth constraints are active
+ * @property {number} depthMin - Minimum depth in meters
+ * @property {number} depthMax - Maximum depth in meters
+ */
+
+/**
+ * User preferences for overlap calculation
+ * @typedef {Object} ConstraintConfiguration
+ * @property {boolean} includePartialOverlaps - Include datasets with any overlap vs full containment
+ * @property {boolean} temporalEnabled - Whether temporal filtering is active
+ * @property {boolean} depthEnabled - Whether depth filtering is active
+ * @property {string|null} selectedPreset - Selected geographic boundary label or null
+ */
+
+/**
+ * Complete search query for catalog search API
+ * @typedef {Object} SpatialTemporalQuery
+ * @property {Object} spatial - Spatial bounds (required)
+ * @property {number} spatial.latMin
+ * @property {number} spatial.latMax
+ * @property {number} spatial.lonMin
+ * @property {number} spatial.lonMax
+ * @property {Object|null} temporal - Temporal bounds (optional)
+ * @property {string} temporal.timeMin - ISO 8601 date
+ * @property {string} temporal.timeMax - ISO 8601 date
+ * @property {Object|null} depth - Depth bounds (optional)
+ * @property {number} depth.depthMin
+ * @property {number} depth.depthMax
+ * @property {boolean} includePartialOverlaps - Overlap mode for all dimensions
+ * @property {string} searchMode - 'like' or 'fts'
+ * @property {number} limit - Maximum results (max 2000)
+ */
+
+/**
+ * Overlap metrics for a single dimension
+ * @typedef {Object} DimensionOverlap
+ * @property {number|string} coveragePercent - Percentage coverage (0-100) or "N/A"
+ * @property {string} extent - Formatted range string or "N/A"
+ */
+
+/**
+ * Complete overlap metrics for all dimensions
+ * @typedef {Object} OverlapMetrics
+ * @property {DimensionOverlap} spatial - Spatial overlap (always present)
+ * @property {DimensionOverlap|null} temporal - Temporal overlap (when constraints enabled)
+ * @property {DimensionOverlap|null} depth - Depth overlap (when constraints enabled)
+ */
+
+/**
+ * Dataset result enhanced with overlap calculations
+ * @typedef {Object} DatasetOverlapResult
+ * @property {number} datasetId - Unique dataset ID
+ * @property {string} shortName - Dataset short name
+ * @property {string} longName - Dataset full name
+ * @property {string} description - Dataset description
+ * @property {string} type - Dataset type (In-Situ, Satellite, Model)
+ * @property {string[]} regions - Geographic regions
+ * @property {Object} spatial - Dataset spatial bounds
+ * @property {number} spatial.latMin
+ * @property {number} spatial.latMax
+ * @property {number} spatial.lonMin
+ * @property {number} spatial.lonMax
+ * @property {Object} temporal - Dataset temporal bounds
+ * @property {string} temporal.timeMin - ISO 8601 date
+ * @property {string} temporal.timeMax - ISO 8601 date
+ * @property {Object|null} depth - Dataset depth bounds
+ * @property {number} [depth.depthMin]
+ * @property {number} [depth.depthMax]
+ * @property {OverlapMetrics} overlap - Calculated overlap metrics
+ * @property {Object} metadata - Additional dataset metadata
+ * @property {number} rowCount - Number of data rows
+ */
+
+/**
+ * Zustand store state for spatial-temporal search
+ * @typedef {Object} SpatialTemporalSearchState
+ * @property {boolean} isInitialized - Catalog search initialization status
+ * @property {boolean} isInitializing - Initialization in progress
+ * @property {string|null} initError - Initialization error message
+ * @property {BoundingBox} spatialBounds - User spatial constraints
+ * @property {boolean} temporalEnabled - Temporal constraints active
+ * @property {TemporalConstraints} temporalRange - User temporal constraints
+ * @property {boolean} depthEnabled - Depth constraints active
+ * @property {DepthConstraints} depthRange - User depth constraints
+ * @property {boolean} includePartialOverlaps - Overlap mode
+ * @property {string|null} selectedPreset - Selected preset label
+ * @property {DatasetOverlapResult[]} results - Search results
+ * @property {boolean} isSearching - Search in progress
+ * @property {string|null} searchError - Search error message
+ * @property {Function} initialize - Initialize catalog search
+ * @property {Function} setSpatialBounds - Update spatial bounds
+ * @property {Function} setTemporalConstraints - Update temporal constraints
+ * @property {Function} setDepthConstraints - Update depth constraints
+ * @property {Function} setIncludePartialOverlaps - Update overlap mode
+ * @property {Function} applyPreset - Apply geographic preset
+ * @property {Function} search - Execute search
+ * @property {Function} clearResults - Clear results
+ */
+
+/**
+ * Preset geographic boundary
+ * @typedef {Object} GeographicBoundary
+ * @property {string} label - Display name (e.g., "Arctic Ocean")
+ * @property {number} northLatitude - North boundary
+ * @property {number} southLatitude - South boundary
+ * @property {number} eastLongitude - East boundary
+ * @property {number} westLongitude - West boundary
+ */
+
+/**
+ * Validation result
+ * @typedef {Object} ValidationResult
+ * @property {boolean} valid - Whether validation passed
+ * @property {string[]} errors - Array of error messages
+ */
+
+/**
+ * Validates spatial bounding box constraints
+ *
+ * Rules:
+ * 1. All fields required: latMin, latMax, lonMin, lonMax
+ * 2. Latitude range: -90 to 90 degrees
+ * 3. Longitude range: -180 to 180 degrees
+ * 4. North latitude (latMax) must be greater than South latitude (latMin)
+ * 5. Longitude wrapping: if lonMin > lonMax, treat as date-line crossing (valid)
+ * 6. Empty fields treated as invalid (user must provide values)
+ *
+ * @param {BoundingBox} bounds - Spatial bounds to validate
+ * @returns {ValidationResult} Validation result with errors
+ */
+export function validateSpatialBounds(bounds) {
+  const errors = [];
+
+  // Check if all fields are provided
+  if (
+    bounds.latMin === undefined ||
+    bounds.latMin === null ||
+    bounds.latMin === '' ||
+    bounds.latMax === undefined ||
+    bounds.latMax === null ||
+    bounds.latMax === '' ||
+    bounds.lonMin === undefined ||
+    bounds.lonMin === null ||
+    bounds.lonMin === '' ||
+    bounds.lonMax === undefined ||
+    bounds.lonMax === null ||
+    bounds.lonMax === ''
+  ) {
+    // errors.push('All spatial fields are required');
+    return { valid: false, errors };
+  }
+
+  // Convert to numbers for validation
+  const latMin = Number(bounds.latMin);
+  const latMax = Number(bounds.latMax);
+  const lonMin = Number(bounds.lonMin);
+  const lonMax = Number(bounds.lonMax);
+
+  // Validate latitude range
+  if (latMin < -90 || latMin > 90 || latMax < -90 || latMax > 90) {
+    errors.push('Latitude must be between -90° and 90°');
+  }
+
+  // Validate longitude range
+  if (lonMin < -180 || lonMin > 180 || lonMax < -180 || lonMax > 180) {
+    errors.push('Longitude must be between -180° and 180°');
+  }
+
+  // Validate that north latitude is greater than south latitude
+  if (latMax <= latMin) {
+    errors.push('North latitude must be greater than South latitude');
+  }
+
+  // Note: We do NOT validate lonMin < lonMax because date-line crossing is valid
+
+  return {
+    valid: errors.length === 0,
+    errors,
+  };
+}
+
+/**
+ * Validates temporal range constraints
+ *
+ * Rules (when temporal constraints enabled):
+ * 1. Both timeMin and timeMax required
+ * 2. Must be valid Date objects
+ * 3. Start date must be less than or equal to end date
+ * 4. Dates must not be NaN
+ * 5. Empty/null fields treated as invalid when constraints enabled
+ *
+ * @param {TemporalConstraints} constraints - Temporal constraints to validate
+ * @returns {ValidationResult} Validation result with errors
+ */
+export function validateTemporalRange(constraints) {
+  const errors = [];
+
+  // If not enabled, always valid
+  if (!constraints.enabled) {
+    return { valid: true, errors: [] };
+  }
+
+  // Check if both fields are provided
+  if (!constraints.timeMin || !constraints.timeMax) {
+    errors.push('Both start and end dates are required');
+    return { valid: false, errors };
+  }
+
+  // Validate dates are valid Date objects
+  const startDate = constraints.timeMin;
+  const endDate = constraints.timeMax;
+
+  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+    errors.push('Invalid date');
+    return { valid: false, errors };
+  }
+
+  // Validate start date is less than or equal to end date
+  if (startDate > endDate) {
+    errors.push('End date must be after start date');
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+  };
+}
+
+/**
+ * Validates depth range constraints
+ *
+ * Rules (when depth constraints enabled):
+ * 1. Both depthMin and depthMax required
+ * 2. Must be numeric values
+ * 3. Minimum depth must be less than or equal to maximum depth
+ * 4. Typically positive values (below sea surface)
+ * 5. Empty fields treated as invalid when constraints enabled
+ *
+ * @param {DepthConstraints} constraints - Depth constraints to validate
+ * @returns {ValidationResult} Validation result with errors
+ */
+export function validateDepthRange(constraints) {
+  const errors = [];
+
+  // If not enabled, always valid
+  if (!constraints.enabled) {
+    return { valid: true, errors: [] };
+  }
+
+  // Check if both fields are provided
+  if (
+    constraints.depthMin === undefined ||
+    constraints.depthMin === null ||
+    constraints.depthMin === '' ||
+    constraints.depthMax === undefined ||
+    constraints.depthMax === null ||
+    constraints.depthMax === ''
+  ) {
+    errors.push('Both minimum and maximum depth are required');
+    return { valid: false, errors };
+  }
+
+  // Convert to numbers and validate numeric
+  const depthMin = Number(constraints.depthMin);
+  const depthMax = Number(constraints.depthMax);
+
+  if (isNaN(depthMin) || isNaN(depthMax)) {
+    errors.push('Depth must be a numeric value');
+    return { valid: false, errors };
+  }
+
+  // Validate minimum is less than or equal to maximum
+  if (depthMin > depthMax) {
+    errors.push('Maximum depth must be greater than minimum depth');
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+  };
+}

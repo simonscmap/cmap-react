@@ -15,6 +15,7 @@ const DateRangeSlider = ({
   onStartChange, // (date) => void
   onEndChange, // (date) => void
   disabled = false,
+  showMarks = true,
 }) => {
   // Convert Date objects to timestamps for internal slider processing
   const startTimestamp = startDate ? startDate.getTime() : null;
@@ -67,6 +68,7 @@ const DateRangeSlider = ({
       unit=""
       formatLabel={formatTimestampForSlider}
       formatValueLabel={formatTimestampForSlider}
+      showMarks={showMarks}
     />
   );
 };

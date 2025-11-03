@@ -23,20 +23,25 @@ import {
   Typography,
   CircularProgress,
   InputAdornment,
+  Checkbox,
+  ListItemText,
 } from '@material-ui/core';
 import { Search } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
-import useCatalogSearchStore from '../state/catalogSearchStore';
-import DatasetsTableSection from '../../collections/addDatasets/components/DatasetsTableSection';
-import UniversalButton from '../../../shared/components/UniversalButton';
-import CollectionStatistics from '../../collections/components/CollectionStatistics';
-import zIndex from '../../../enums/zIndex';
+import useCatalogSearchStore from '../../../catalogSearch/state/catalogSearchStore';
+import DatasetsTableSection from '../components/DatasetsTableSection';
+import UniversalButton from '../../../../shared/components/UniversalButton';
+import SingleStatistic from '../../components/SingleStatistic';
+import DateInput from '../../../../shared/components/DateInput';
+import zIndex from '../../../../enums/zIndex';
 
 const useStyles = makeStyles((theme) => ({
   filterRow: {
     display: 'flex',
+    flexWrap: 'wrap',
     gap: theme.spacing(2),
     marginBottom: theme.spacing(2),
+    alignItems: 'center',
   },
   searchRow: {
     display: 'flex',
@@ -48,11 +53,15 @@ const useStyles = makeStyles((theme) => ({
     flex: 1,
   },
   filterControl: {
-    minWidth: 200,
+    maxWidth: 180,
+    minWidth: 140,
   },
-  datePickerRow: {
+  dateInputGroup: {
     display: 'flex',
     gap: theme.spacing(2),
+    flexShrink: 0,
+  },
+  statisticsWrapper: {
     marginBottom: theme.spacing(2),
   },
   loadingContainer: {
@@ -76,7 +85,7 @@ const CatalogSearchSection = ({
   const {
     initialize,
     setSearchText,
-    setDatasetType,
+    setSelectedDataTypes,
     setRegion,
     setDateRangePreset,
     setCustomDateRange,
@@ -86,11 +95,15 @@ const CatalogSearchSection = ({
     isInitializing,
     isSearching,
     searchQuery,
+    selectedDataTypes,
     regions,
     isLoadingRegions,
   } = useCatalogSearchStore();
 
   const [inputText, setInputText] = useState('');
+
+  // Define available data types
+  const dataTypes = ['Model', 'Satellite', 'In-Situ'];
 
   // Calculate "already in collection" count
   const alreadyInCollectionCount = React.useMemo(() => {
@@ -137,8 +150,21 @@ const CatalogSearchSection = ({
   };
 
   const handleDatasetTypeChange = (e) => {
-    setDatasetType(e.target.value);
+    const value = e.target.value;
+    const newSelection = new Set(value);
+    setSelectedDataTypes(newSelection);
     handleSearch();
+  };
+
+  // Calculate display label for data type dropdown
+  const getDataTypeLabel = () => {
+    if (selectedDataTypes.size === 0) {
+      return '-';
+    }
+    if (selectedDataTypes.size === dataTypes.length) {
+      return 'All Types';
+    }
+    return Array.from(selectedDataTypes).join(', ');
   };
 
   const handleRegionChange = (e) => {
@@ -151,16 +177,33 @@ const CatalogSearchSection = ({
     handleSearch();
   };
 
-  const handleCustomDateChange = (field, value) => {
+  // Convert Date object to YYYY-MM-DD string
+  const dateToString = (date) => {
+    if (!date) return '';
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  // Convert YYYY-MM-DD string to Date object
+  const stringToDate = (dateString) => {
+    if (!dateString) return null;
+    const [year, month, day] = dateString.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  };
+
+  const handleCustomDateChange = (field, dateValue) => {
+    const dateString = dateToString(dateValue);
     if (field === 'start') {
-      setCustomDateRange(value, searchQuery.customDateEnd);
+      setCustomDateRange(dateString, searchQuery.customDateEnd);
     } else {
-      setCustomDateRange(searchQuery.customDateStart, value);
+      setCustomDateRange(searchQuery.customDateStart, dateString);
     }
     // Auto-search when both dates are set
     if (
-      (field === 'start' && value && searchQuery.customDateEnd) ||
-      (field === 'end' && value && searchQuery.customDateStart)
+      (field === 'start' && dateString && searchQuery.customDateEnd) ||
+      (field === 'end' && dateString && searchQuery.customDateStart)
     ) {
       setTimeout(() => handleSearch(), 100);
     }
@@ -217,17 +260,25 @@ const CatalogSearchSection = ({
         >
           <InputLabel>Data Type</InputLabel>
           <Select
-            value={searchQuery.datasetType}
+            multiple
+            value={Array.from(selectedDataTypes)}
             onChange={handleDatasetTypeChange}
             label="Data Type"
+            renderValue={getDataTypeLabel}
             MenuProps={{
               style: { zIndex: zIndex.MODAL_LAYER_2_POPPER },
             }}
           >
-            <MenuItem value="All Types">All Types</MenuItem>
-            <MenuItem value="Model">Model</MenuItem>
-            <MenuItem value="Satellite">Satellite</MenuItem>
-            <MenuItem value="In-Situ">In-Situ</MenuItem>
+            {dataTypes.map((type) => (
+              <MenuItem key={type} value={type}>
+                <Checkbox
+                  checked={selectedDataTypes.has(type)}
+                  color="primary"
+                  size="small"
+                />
+                <ListItemText primary={type} />
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
 
@@ -274,46 +325,38 @@ const CatalogSearchSection = ({
             <MenuItem value="Custom Range">Custom Range</MenuItem>
           </Select>
         </FormControl>
-      </Box>
 
-      {/* Custom Date Pickers (conditional) */}
-      {searchQuery.dateRangePreset === 'Custom Range' && (
-        <Box className={classes.datePickerRow}>
-          <TextField
-            type="date"
-            label="Start Date"
-            value={searchQuery.customDateStart || ''}
-            onChange={(e) => handleCustomDateChange('start', e.target.value)}
-            InputLabelProps={{ shrink: true }}
-            disabled={!isInitialized}
-            variant="outlined"
-          />
-          <TextField
-            type="date"
-            label="End Date"
-            value={searchQuery.customDateEnd || ''}
-            onChange={(e) => handleCustomDateChange('end', e.target.value)}
-            InputLabelProps={{ shrink: true }}
-            disabled={!isInitialized}
-            variant="outlined"
-          />
-        </Box>
-      )}
+        {/* Custom Date Pickers - shown inline when Custom Range is selected */}
+        {searchQuery.dateRangePreset === 'Custom Range' && (
+          <Box className={classes.dateInputGroup}>
+            <DateInput
+              label="Start Date"
+              value={stringToDate(searchQuery.customDateStart)}
+              onChange={(date) => handleCustomDateChange('start', date)}
+              width={140}
+            />
+            <DateInput
+              label="End Date"
+              value={stringToDate(searchQuery.customDateEnd)}
+              onChange={(date) => handleCustomDateChange('end', date)}
+              width={140}
+            />
+          </Box>
+        )}
+      </Box>
 
       {/* Statistics - Show when there are results */}
       {results.length > 0 && alreadyInCollectionCount > 0 && (
-        <CollectionStatistics
-          compact
-          stats={[
-            {
-              value: alreadyInCollectionCount,
-              label: 'Already in Collection',
-              borderColor: 'rgba(128, 128, 128, 0.6)',
-            },
-          ]}
-          itemsPerRow={1}
-          maxWidth="250px"
-        />
+        <Box className={classes.statisticsWrapper}>
+          <SingleStatistic
+            value={alreadyInCollectionCount}
+            label="Already in Collection"
+            borderColor="rgba(128, 128, 128, 0.6)"
+            compact
+            maxWidth="280px"
+            noEllipsis
+          />
+        </Box>
       )}
 
       {/* Results Table - Always shown, matching FromCollectionsTab pattern */}

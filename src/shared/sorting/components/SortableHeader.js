@@ -13,6 +13,7 @@ const useStyles = makeStyles((theme) => ({
   },
   headerPatternALabel: {
     fontWeight: (props) => (props.isActive ? 600 : 400),
+    color: (props) => (props.isActive ? '#69fff2' : 'inherit'),
   },
   arrowButton: {
     padding: theme.spacing(0.5),
@@ -25,29 +26,43 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    padding: theme.spacing(1),
+    padding: 0,
     '&:hover': {
-      backgroundColor: theme.palette.grey[100],
+      opacity: 0.8,
     },
   },
   headerPatternBLabel: {
     fontWeight: (props) => (props.isActive ? 600 : 400),
+    color: (props) => (props.isActive ? '#69fff2' : 'inherit'),
+    fontSize: '14px',
+    maxHeight: '2.8em', // ~2 lines at 1.4 line-height
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    display: '-webkit-box',
+    '-webkit-line-clamp': 2,
+    '-webkit-box-orient': 'vertical',
+    lineHeight: 1.4,
+    textAlign: 'center',
   },
   arrowsContainer: {
     display: 'flex',
-    gap: theme.spacing(0.5),
-    marginTop: theme.spacing(0.5),
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginTop: theme.spacing(0.25),
+    gap: 0,
   },
   arrow: {
-    fontSize: '1rem',
+    fontSize: '0.65rem', // Smaller triangles
+    height: '10px',
+    width: '10px',
   },
   arrowActive: {
     opacity: 1,
-    color: theme.palette.primary.main,
+    color: '#69fff2', // Match active header color
   },
   arrowInactive: {
     opacity: 0.3,
-    color: theme.palette.text.secondary,
+    color: '#69fff2',
   },
 }));
 
@@ -164,20 +179,17 @@ const SortableHeader = ({
       >
         <Typography className={classes.headerPatternBLabel}>{label}</Typography>
         <Box className={classes.arrowsContainer}>
-          <ArrowUpward
-            className={`${classes.arrow} ${
-              isActive && validDirection === 'asc'
-                ? classes.arrowActive
-                : classes.arrowInactive
-            }`}
-          />
-          <ArrowDownward
-            className={`${classes.arrow} ${
-              isActive && validDirection === 'desc'
-                ? classes.arrowActive
-                : classes.arrowInactive
-            }`}
-          />
+          {isActive && validDirection === 'asc' ? (
+            <ArrowUpward
+              className={`${classes.arrow} ${classes.arrowActive}`}
+            />
+          ) : (
+            <ArrowDownward
+              className={`${classes.arrow} ${
+                isActive ? classes.arrowActive : classes.arrowInactive
+              }`}
+            />
+          )}
         </Box>
       </Box>
     );

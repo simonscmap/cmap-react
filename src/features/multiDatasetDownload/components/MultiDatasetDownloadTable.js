@@ -21,6 +21,7 @@ import { dateToDateString } from '../../../shared/filtering/utils/dateHelpers';
 import { DatasetNameLink } from '../../../shared/components';
 import SelectAllDropdown from './SelectAllDropdown';
 import { snackbarOpen } from '../../../Redux/actions/ui';
+import temporalResolutions from '../../../enums/temporalResolutions';
 
 const styles = {
   tableContainerStyle: {
@@ -151,8 +152,22 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
     return Math.round(Number(value)).toString();
   };
 
-  const formatTime = (value) => {
-    if (value === null || value === undefined) return 'N/A';
+  const formatTime = (value, datasetMetadata, isStartDate = true) => {
+    // Monthly Climatology datasets have null Time_Min/Time_Max
+    if (value === null || value === undefined) {
+      // Check if this is a Monthly Climatology dataset
+      // Either by explicit Temporal_Resolution field or by null Time_Min AND Time_Max
+      const isMonthlyClimatology =
+        datasetMetadata?.Temporal_Resolution ===
+          temporalResolutions.monthlyClimatology ||
+        (datasetMetadata?.Time_Min === null &&
+          datasetMetadata?.Time_Max === null);
+
+      if (isMonthlyClimatology) {
+        return isStartDate ? 'Monthly' : 'Climatology';
+      }
+      return 'N/A';
+    }
     try {
       return dateToDateString(new Date(value));
     } catch (error) {
@@ -327,12 +342,20 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
                   </TableCell>
                   <TableCell style={styles.bodyCellStyle}>
                     <Typography variant="body2" noWrap>
-                      {formatTime(datasetMetadata.Time_Min)}
+                      {formatTime(
+                        datasetMetadata.Time_Min,
+                        datasetMetadata,
+                        true,
+                      )}
                     </Typography>
                   </TableCell>
                   <TableCell style={styles.bodyCellStyle}>
                     <Typography variant="body2" noWrap>
-                      {formatTime(datasetMetadata.Time_Max)}
+                      {formatTime(
+                        datasetMetadata.Time_Max,
+                        datasetMetadata,
+                        false,
+                      )}
                     </Typography>
                   </TableCell>
                   <TableCell style={styles.bodyCellStyle}>

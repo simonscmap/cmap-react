@@ -75,6 +75,7 @@ export default function (state, action) {
         snackbarMessage: action.payload.message,
         snackbarPosition: action.payload.position,
         snackbarSeverity: action.payload.severity,
+        snackbarShowCloseButton: action.payload.showCloseButton !== false, // default true
       };
     case SNACKBAR_CLOSE:
       return {

@@ -1,8 +1,17 @@
 /**
  * Web Worker for SQLite-based catalog search
  *
- * This worker manages the SQLite WASM instance and executes search queries.
- * It communicates with the main thread via postMessage protocol.
+ * ARCHITECTURE NOTE:
+ * This worker is a simplified SQL execution service that operates as a security boundary.
+ * Business logic is intentionally kept in the feature folder for maintainability:
+ *
+ * - Query construction logic: src/features/catalogSearch/api/queries/
+ * - Result transformation: src/features/catalogSearch/api/transformers/
+ * - Worker interface: src/features/catalogSearch/api/searchDatabaseApi.js
+ *
+ * This worker receives structured query objects (not SQL strings) and returns raw rows.
+ * All query building and result transformation happens in the feature folder.
+ * See src/features/catalogSearch/api/README.md for complete architecture overview.
  *
  * Message Protocol:
  * - From main thread:
@@ -13,9 +22,28 @@
  * - To main thread:
  *   { type: 'init-success' }
  *   { type: 'init-error', error: string }
- *   { type: 'search-results', results: SearchResult[] }
+ *   { type: 'search-results', results: RawRow[] }
  *   { type: 'search-error', error: string }
  */
+
+// Load configuration and helper modules
+// Note: Workers must use importScripts(), not ES6 import
+importScripts('./catalogSearchConfig.js');
+importScripts('./sqlFilterBuilders.js');
+importScripts('./sqlQueryTemplates.js');
+
+// Destructure from global scope (exports from imported scripts)
+const { MESSAGE_TYPES, SEARCHABLE_FIELDS, SEARCH_MODES, QUERY_DEFAULTS } = self.CatalogSearchConfig;
+const {
+  buildTextSearchFilter,
+  buildFtsMatchQuery,
+  buildCombinedFilters,
+} = self.SqlFilterBuilders;
+const {
+  buildLikeQuery,
+  buildFtsQuery,
+  buildFilterOnlyQuery,
+} = self.SqlQueryTemplates;
 
 let sqlite3;
 let db;
@@ -95,11 +123,11 @@ async function initializeDatabase(dbBlob) {
       throw err;
     }
 
-    postMessage({ type: 'init-success' });
+    postMessage({ type: MESSAGE_TYPES.INIT_SUCCESS });
   } catch (error) {
     console.error('[Worker] Initialization error:', error);
     postMessage({
-      type: 'init-error',
+      type: MESSAGE_TYPES.INIT_ERROR,
       error: error.message || 'Failed to initialize database',
     });
   }
@@ -107,17 +135,19 @@ async function initializeDatabase(dbBlob) {
 
 /**
  * Build LIKE-based search query (matches backend exactly)
+ *
+ * Refactored to use modular filter builders for maintainability.
+ *
  * @param {string} text - Search text
  * @param {object} spatial - Spatial filters
  * @param {object} temporal - Temporal filters
  * @param {object} depth - Depth filters
  * @param {array} excludeFields - Fields to exclude from search
- * @param {boolean} phraseMatch - If true, treat entire text as single phrase; if false, split into keywords with AND logic (default: false, matches backend)
- * @param {boolean} includePartialOverlaps - If true, partial overlap mode; if false, full containment mode (default: true)
+ * @param {boolean} phraseMatch - If true, treat entire text as single phrase; if false, split into keywords
+ * @param {boolean} includePartialOverlaps - If true, partial overlap mode; if false, full containment mode
  * @param {string} region - Region filter (null or region name)
  * @param {string} datasetType - Dataset type filter (null or 'Model'/'Satellite'/'In-Situ')
- * @param {string} dateRangePreset - Date range preset (null or 'Last Year'/'Last 5 Years')
- * @returns {object} - SQL query and bindings
+ * @returns {object} - SQL query and bindings { sql, bindings }
  */
 function buildLikeSearch(
   text,
@@ -128,191 +158,44 @@ function buildLikeSearch(
   phraseMatch = false,
   includePartialOverlaps = true,
   region = null,
-  datasetType = null,
-  dateRangePreset = null
+  datasetType = null
 ) {
   // Searchable fields (excludes 'description' to match backend)
-  const searchableFields = [
-    'variableLongNames',   // Backend: Variable_Long_Names
-    'variableShortNames',  // Backend: Variable_Short_Names
-    'longName',            // Backend: Dataset_Long_Name
-    'sensors',             // Backend: Sensors
-    'keywords',            // Backend: Keywords
-    'distributor',         // Backend: Distributor
-    'dataSource',          // Backend: Data_Source
-    'processLevel',        // Backend: Process_Level
-    'studyDomain',         // Backend: Study_Domain
-  ];
+  const searchableFields = excludeFields
+    ? SEARCHABLE_FIELDS.like.filter((f) => !excludeFields.includes(f))
+    : SEARCHABLE_FIELDS.like;
 
-  // Filter out excluded fields
-  const fieldsToSearch = excludeFields
-    ? searchableFields.filter((f) => !excludeFields.includes(f))
-    : searchableFields;
+  let filterSql = '';
+  const filterBindings = {};
 
-  let sql = `
-    SELECT
-      d.datasetId,
-      d.shortName,
-      d.longName,
-      d.description,
-      d.variableLongNames,
-      d.variableShortNames,
-      d.sensors,
-      d.distributor,
-      d.dataSource,
-      d.processLevel,
-      d.studyDomain,
-      d.keywords,
-      d.latMin, d.latMax, d.lonMin, d.lonMax,
-      d.timeMin, d.timeMax, d.depthMin, d.depthMax,
-      d.datasetType,
-      d.regions,
-      d.rowCount,
-      d.metadataJson,
-      0 as rank
-    FROM datasets d
-    WHERE 1=1
-  `;
+  // Build text search filter
+  const textFilter = buildTextSearchFilter(text, searchableFields, phraseMatch, 'd');
+  filterSql += textFilter.sql;
+  Object.assign(filterBindings, textFilter.bindings);
 
-  const bindings = {};
+  // Build combined filters (spatial, temporal, depth, region, datasetType)
+  const combinedFilters = buildCombinedFilters({
+    spatial,
+    temporal,
+    depth,
+    region,
+    datasetType,
+    includePartialOverlaps,
+  }, 'd');
+  filterSql += combinedFilters.sql;
+  Object.assign(filterBindings, combinedFilters.bindings);
 
-  // Add text search conditions
-  if (text && text.trim()) {
-    if (phraseMatch) {
-      // Treat entire text as single phrase (matches backend)
-      const likePattern = `%${text.trim()}%`;
+  // Note: Pagination is added in executeSearch(), not here
+  // This allows the query builder to be reusable for different pagination scenarios
 
-      // Build OR clause across all fields for single phrase
-      const conditions = fieldsToSearch
-        .map((field) => `d.${field} LIKE $phrase`)
-        .join(' OR ');
-
-      sql += `\n  AND (${conditions})`;
-      bindings.$phrase = likePattern;
-    } else {
-      // Keep existing keyword split logic for backward compatibility
-      const keywords = text.trim().split(/\s+/).filter((k) => k.length > 0);
-      keywords.forEach((keyword, idx) => {
-        const bindKey = `keyword${idx}`;
-        const likePattern = `%${keyword}%`;
-
-        // Build OR clause for each keyword across all fields
-        const conditions = fieldsToSearch
-          .map((field) => `d.${field} LIKE $${bindKey}`)
-          .join(' OR ');
-
-        sql += `\n  AND (${conditions})`;
-        bindings[`$${bindKey}`] = likePattern;
-      });
-    }
-  }
-
-  // Add data type filtering
-  if (datasetType && datasetType !== 'All Types') {
-    sql += `\n  AND d.datasetType = $datasetType`;
-    bindings.$datasetType = datasetType; // 'Model', 'Satellite', or 'In-Situ'
-  }
-
-  // Add region filtering
-  if (region && region !== 'All Regions') {
-    sql += `\n  AND d.regions LIKE $region`;
-    bindings.$region = `%${region}%`;
-  }
-
-  // Add date range preset logic
-  if (dateRangePreset && dateRangePreset !== 'Any Date' && dateRangePreset !== 'Custom Range') {
-    const now = new Date();
-    let calculatedTimeStart;
-
-    if (dateRangePreset === 'Last Year') {
-      calculatedTimeStart = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate()).toISOString().slice(0, 10);
-    } else if (dateRangePreset === 'Last 5 Years') {
-      calculatedTimeStart = new Date(now.getFullYear() - 5, now.getMonth(), now.getDate()).toISOString().slice(0, 10);
-    }
-
-    sql += `\n  AND (d.timeMax > $presetTimeStart OR d.timeMax IS NULL)`;
-    bindings.$presetTimeStart = calculatedTimeStart;
-  }
-
-  // Add spatial filters (match backend with NULL handling)
-  if (spatial) {
-    if (spatial.latMin != null && spatial.latMax != null) {
-      if (includePartialOverlaps) {
-        // Partial overlap mode: dataset bounds overlap with user bounds
-        sql += `\n  AND (d.latMax > $latMin OR d.latMin IS NULL)`;
-        sql += `\n  AND (d.latMax IS NULL OR d.latMin < $latMax)`;
-      } else {
-        // Full containment mode: dataset bounds completely within user bounds
-        sql += `\n  AND (d.latMin >= $latMin OR d.latMin IS NULL)`;
-        sql += `\n  AND (d.latMax <= $latMax OR d.latMax IS NULL)`;
-      }
-      bindings.$latMin = spatial.latMin;
-      bindings.$latMax = spatial.latMax;
-    }
-
-    if (spatial.lonMin != null && spatial.lonMax != null) {
-      if (includePartialOverlaps) {
-        // Partial overlap mode
-        sql += `\n  AND (d.lonMax > $lonMin OR d.lonMin IS NULL)`;
-        sql += `\n  AND (d.lonMax IS NULL OR d.lonMin < $lonMax)`;
-      } else {
-        // Full containment mode
-        sql += `\n  AND (d.lonMin >= $lonMin OR d.lonMin IS NULL)`;
-        sql += `\n  AND (d.lonMax <= $lonMax OR d.lonMax IS NULL)`;
-      }
-      bindings.$lonMin = spatial.lonMin;
-      bindings.$lonMax = spatial.lonMax;
-    }
-  }
-
-  // Add temporal filters (match backend with NULL handling)
-  if (temporal && dateRangePreset === 'Custom Range') {
-    if (temporal.timeMin && temporal.timeMax) {
-      if (includePartialOverlaps) {
-        // Partial overlap mode
-        sql += `\n  AND (d.timeMax > $timeMin OR d.timeMax IS NULL)`;
-        sql += `\n  AND (d.timeMax IS NULL OR d.timeMin < $timeMax)`;
-      } else {
-        // Full containment mode
-        sql += `\n  AND (d.timeMin >= $timeMin OR d.timeMin IS NULL)`;
-        sql += `\n  AND (d.timeMax <= $timeMax OR d.timeMax IS NULL)`;
-      }
-      bindings.$timeMin = temporal.timeMin;
-      bindings.$timeMax = temporal.timeMax;
-    }
-  }
-
-  // Add depth filters (match backend with NULL handling)
-  if (depth) {
-    if (depth.hasDepth !== undefined) {
-      if (depth.hasDepth) {
-        sql += `\n  AND d.depthMax IS NOT NULL`;
-      }
-    }
-
-    if (depth.depthMin != null && depth.depthMax != null) {
-      if (includePartialOverlaps) {
-        // Partial overlap mode
-        sql += `\n  AND (d.depthMax >= $depthMin OR d.depthMax IS NULL)`;
-        sql += `\n  AND (d.depthMin <= $depthMax OR d.depthMin IS NULL)`;
-      } else {
-        // Full containment mode
-        sql += `\n  AND (d.depthMin >= $depthMin OR d.depthMin IS NULL)`;
-        sql += `\n  AND (d.depthMax <= $depthMax OR d.depthMax IS NULL)`;
-      }
-      bindings.$depthMin = depth.depthMin;
-      bindings.$depthMax = depth.depthMax;
-    }
-  }
-
-  // Order by shortName ASC (frontend UX preference - backend uses Dataset_ID DESC)
-  sql += `\n  ORDER BY d.shortName ASC`;
-
-  return { sql, bindings };
+  return { filterSql, filterBindings };
 }
 
 /**
  * Execute search query
+ *
+ * Refactored to use modular query builders and filter functions.
+ *
  * @param {SearchQuery} query - Search parameters
  * @param {number} searchId - Unique search identifier
  */
@@ -322,244 +205,171 @@ async function executeSearch(query, searchId) {
       throw new Error('Database not initialized');
     }
 
+    // Extract query parameters (validation/limits handled by feature layer)
     const {
       text,
       spatial,
       temporal,
       depth,
-      limit = 50,
-      offset = 0,
-      useRanking = true,
+      limit,
+      offset = QUERY_DEFAULTS.offset,
+      useRanking = QUERY_DEFAULTS.useRanking,
       excludeFields,
-      searchMode = 'like',      // Default to LIKE mode (matches backend)
-      phraseMatch = false,      // Keyword splitting with AND logic (matches backend)
-      includePartialOverlaps = true,  // Partial overlap vs full containment
-      region = null,            // Region filter
-      datasetType = null,       // Dataset type filter
-      dateRangePreset = null,   // Date range preset filter
+      searchMode = QUERY_DEFAULTS.searchMode,
+      phraseMatch = QUERY_DEFAULTS.phraseMatch,
+      includePartialOverlaps = QUERY_DEFAULTS.includePartialOverlaps,
+      region = null,
+      datasetType = null,
+      sortMode = null,
+      sortDirection = 'desc',
     } = query;
 
-    // Build SQL query
+    // Build user bounds object for coverage calculations
+    let userBounds = null;
+    if (spatial && spatial.latMin != null && spatial.latMax != null &&
+        spatial.lonMin != null && spatial.lonMax != null) {
+      userBounds = {
+        latMin: spatial.latMin,
+        latMax: spatial.latMax,
+        lonMin: spatial.lonMin,
+        lonMax: spatial.lonMax,
+      };
+
+      // Add temporal bounds if present
+      if (temporal && temporal.timeMin && temporal.timeMax) {
+        userBounds.timeMin = temporal.timeMin;
+        userBounds.timeMax = temporal.timeMax;
+      }
+
+      // Add depth bounds if present
+      if (depth && depth.depthMin != null && depth.depthMax != null) {
+        userBounds.depthMin = depth.depthMin;
+        userBounds.depthMax = depth.depthMax;
+      }
+    }
+
+    // Build coverage thresholds based on enabled constraints and overlap mode
+    // Coverage values are 0-1 range: 1.0 = 100%, 0 = any overlap
+    let coverageThresholds = null;
+    if (userBounds) {
+      const threshold = includePartialOverlaps ? 0 : 1.0;
+
+      coverageThresholds = {
+        // Spatial is always enabled when userBounds exists
+        spatial: threshold,
+        // Temporal only if temporal bounds present
+        temporal: (temporal && temporal.timeMin && temporal.timeMax) ? threshold : null,
+        // Depth only if depth bounds present
+        depth: (depth && depth.depthMin != null && depth.depthMax != null) ? threshold : null,
+      };
+    }
+
     let sql;
     let bindings = {};
 
     // LIKE mode (default - matches backend behavior)
-    if (searchMode === 'like') {
-      const likeQuery = buildLikeSearch(
+    if (searchMode === SEARCH_MODES.LIKE) {
+      // Build filters using modular filter builders
+      const { filterSql, filterBindings } = buildLikeSearch(
         text,
         spatial,
         temporal,
         depth,
         excludeFields,
-        phraseMatch,  // Pass phrase matching flag (default: false = keyword AND logic)
+        phraseMatch,
         includePartialOverlaps,
         region,
-        datasetType,
-        dateRangePreset,
+        datasetType
       );
-      sql = likeQuery.sql;
-      bindings = likeQuery.bindings;
 
-      // Add pagination for LIKE mode (only if limit is specified)
-      if (limit !== null && limit !== undefined) {
-        sql += ` LIMIT $limit OFFSET $offset`;
-        bindings.$limit = limit;
-        bindings.$offset = offset;
-      }
+      // Compose complete query using template
+      const queryResult = buildLikeQuery(
+        filterSql,
+        filterBindings,
+        limit,
+        offset,
+        userBounds,
+        sortMode,
+        sortDirection,
+        coverageThresholds
+      );
+      sql = queryResult.sql;
+      bindings = queryResult.bindings;
+
     } else if (text && text.trim()) {
-      // Full-text search with optional filters
-      sql = `
-        SELECT
-          d.datasetId,
-          d.shortName,
-          d.longName,
-          d.description,
-          d.latMin,
-          d.latMax,
-          d.lonMin,
-          d.lonMax,
-          d.timeMin,
-          d.timeMax,
-          d.depthMin,
-          d.depthMax,
-          d.datasetType,
-          d.regions,
-          d.rowCount,
-          d.metadataJson,
-          fts.rank
-        FROM datasets_fts fts
-        JOIN datasets d ON fts.rowid = d.rowid
-        WHERE datasets_fts MATCH $text
-      `;
+      // FTS mode with optional filters
+      const { matchQuery } = buildFtsMatchQuery(text, excludeFields);
 
-      // Build FTS match query with field exclusion support
-      let matchQuery;
-      if (excludeFields && excludeFields.length > 0) {
-        // Build field-specific MATCH query
-        const allFtsFields = [
-          'shortName',
-          'longName',
-          'description',
-          'variableLongNames',
-          'variableShortNames',
-          'sensors',
-          'distributor',
-          'dataSource',
-          'keywords',
-          'processLevel',
-          'studyDomain',
-        ];
+      // Build combined filters for FTS mode
+      const { sql: filterSql, bindings: filterBindings } = buildCombinedFilters({
+        spatial,
+        temporal,
+        depth,
+        region,
+        datasetType,
+        includePartialOverlaps,
+      }, 'd');
 
-        const fieldsToSearch = allFtsFields.filter(
-          (f) => !excludeFields.includes(f),
-        );
+      // Compose complete FTS query using template
+      const queryResult = buildFtsQuery(
+        matchQuery,
+        filterSql,
+        filterBindings,
+        useRanking,
+        limit,
+        offset,
+        userBounds,
+        sortMode,
+        sortDirection,
+        coverageThresholds
+      );
+      sql = queryResult.sql;
+      bindings = queryResult.bindings;
 
-        // FTS5 syntax: {field1 field2}: search_term
-        matchQuery = `{${fieldsToSearch.join(' ')}}: ${text.trim()}`;
-      } else {
-        // Search all fields (default)
-        matchQuery = text.trim();
-      }
-
-      bindings.$text = matchQuery;
     } else {
-      // No text search, just filter by bounds
-      sql = `
-        SELECT
-          datasetId,
-          shortName,
-          longName,
-          description,
-          latMin,
-          latMax,
-          lonMin,
-          lonMax,
-          timeMin,
-          timeMax,
-          depthMin,
-          depthMax,
-          datasetType,
-          regions,
-          rowCount,
-          metadataJson,
-          0 as rank
-        FROM datasets
-        WHERE 1=1
-      `;
+      // Filter-only mode (no text search)
+      const { sql: filterSql, bindings: filterBindings } = buildCombinedFilters({
+        spatial,
+        temporal,
+        depth,
+        region,
+        datasetType,
+        includePartialOverlaps,
+      });
+
+      // Compose complete filter-only query using template
+      const queryResult = buildFilterOnlyQuery(
+        filterSql,
+        filterBindings,
+        limit,
+        offset,
+        userBounds,
+        sortMode,
+        sortDirection,
+        coverageThresholds
+      );
+      sql = queryResult.sql;
+      bindings = queryResult.bindings;
     }
 
-    // Add spatial filters (with NULL handling to match backend)
-    // Only apply filters if not using LIKE mode (LIKE mode handles its own filters)
-    if (searchMode !== 'like') {
-      if (spatial) {
-        if (spatial.latMin != null && spatial.latMax != null) {
-          sql += ` AND (d.latMax > $latMin OR d.latMin IS NULL)`;
-          sql += ` AND (d.latMax IS NULL OR d.latMin < $latMax)`;
-          bindings.$latMin = spatial.latMin;
-          bindings.$latMax = spatial.latMax;
-        }
-        if (spatial.lonMin != null && spatial.lonMax != null) {
-          sql += ` AND (d.lonMax > $lonMin OR d.lonMin IS NULL)`;
-          sql += ` AND (d.lonMax IS NULL OR d.lonMin < $lonMax)`;
-          bindings.$lonMin = spatial.lonMin;
-          bindings.$lonMax = spatial.lonMax;
-        }
-      }
-
-      // Add temporal filters (with NULL handling to match backend)
-      if (temporal) {
-        if (temporal.timeMin && temporal.timeMax) {
-          sql += ` AND (d.timeMax > $timeMin OR d.timeMax IS NULL)`;
-          sql += ` AND (d.timeMax IS NULL OR d.timeMin < $timeMax)`;
-          bindings.$timeMin = temporal.timeMin;
-          bindings.$timeMax = temporal.timeMax;
-        }
-      }
-
-      // Add depth filters (with NULL handling to match backend)
-      if (depth) {
-        if (depth.hasDepth !== undefined) {
-          if (depth.hasDepth) {
-            sql += ` AND d.depthMax IS NOT NULL`;
-          }
-        }
-
-        if (depth.depthMin != null && depth.depthMax != null) {
-          sql += ` AND (d.depthMax >= $depthMin OR d.depthMax IS NULL)`;
-          sql += ` AND (d.depthMin <= $depthMax OR d.depthMin IS NULL)`;
-          bindings.$depthMin = depth.depthMin;
-          bindings.$depthMax = depth.depthMax;
-        }
-      }
-    }
-
-    // Add ordering and pagination (skip if LIKE mode, already added)
-    if (searchMode !== 'like') {
-      // TODO: Make useRanking configurable from UI when ready
-      if (text && text.trim() && useRanking) {
-        sql += ` ORDER BY rank ASC`;
-      } else {
-        // Use the column alias from SELECT (works for both queries)
-        if (text && text.trim()) {
-          sql += ` ORDER BY d.shortName ASC`;
-        } else {
-          sql += ` ORDER BY shortName ASC`;
-        }
-      }
-
-      // Add pagination (only if limit is specified)
-      if (limit !== null && limit !== undefined) {
-        sql += ` LIMIT $limit OFFSET $offset`;
-        bindings.$limit = limit;
-        bindings.$offset = offset;
-      }
-    }
-
-    // Execute query
+    // Execute query and return raw rows
+    // NOTE: Result transformation has been moved to transformers/
     const results = [];
     db.exec({
       sql,
       bind: bindings,
       rowMode: 'object',
       callback: (row) => {
-        results.push({
-          // Original fields
-          datasetId: row.datasetId,
-          shortName: row.shortName,
-          longName: row.longName,
-          description: row.description,
-          rank: row.rank || 0,
-          metadata: row.metadataJson ? JSON.parse(row.metadataJson) : {},
-          spatial: {
-            latMin: row.latMin,
-            latMax: row.latMax,
-            lonMin: row.lonMin,
-            lonMax: row.lonMax,
-          },
-          temporal: {
-            timeMin: row.timeMin,
-            timeMax: row.timeMax,
-          },
-          depth: {
-            depthMin: row.depthMin,
-            depthMax: row.depthMax,
-          },
-          // CollectionDatasetsTable format fields
-          type: row.datasetType || 'Unknown',
-          regions: row.regions ? row.regions.split(',').map(r => r.trim()) : [],
-          timeStart: row.timeMin,
-          timeEnd: row.timeMax,
-          rowCount: row.rowCount || 0,
-          isInvalid: false, // All catalog datasets are valid
-        });
+        // Return raw database row with no transformation
+        results.push(row);
       },
     });
 
-    postMessage({ type: 'search-results', searchId, results });
+    postMessage({ type: MESSAGE_TYPES.SEARCH_RESULTS, searchId, results });
   } catch (error) {
     console.error('[Worker] Search error:', error);
     postMessage({
-      type: 'search-error',
+      type: MESSAGE_TYPES.SEARCH_ERROR,
       searchId,
       error: error.message || 'Search failed',
     });
@@ -587,11 +397,11 @@ function getRegions(searchId) {
       },
     });
 
-    postMessage({ type: 'regions-results', searchId, results });
+    postMessage({ type: MESSAGE_TYPES.REGIONS_RESULTS, searchId, results });
   } catch (error) {
     console.error('[Worker] Get regions error:', error);
     postMessage({
-      type: 'regions-error',
+      type: MESSAGE_TYPES.REGIONS_ERROR,
       searchId,
       error: error.message || 'Failed to fetch regions',
     });
@@ -607,10 +417,10 @@ function cleanup() {
       db.close();
       db = null;
     }
-    postMessage({ type: 'cleanup-success' });
+    postMessage({ type: MESSAGE_TYPES.CLEANUP_SUCCESS });
   } catch (error) {
     postMessage({
-      type: 'cleanup-error',
+      type: MESSAGE_TYPES.CLEANUP_ERROR,
       error: error.message || 'Cleanup failed',
     });
   }
@@ -621,21 +431,21 @@ self.onmessage = (event) => {
   const { type, dbBlob, query, searchId } = event.data;
 
   switch (type) {
-    case 'init':
+    case MESSAGE_TYPES.INIT:
       initializeDatabase(dbBlob);
       break;
-    case 'search':
+    case MESSAGE_TYPES.SEARCH:
       executeSearch(query, searchId);
       break;
-    case 'get-regions':
+    case MESSAGE_TYPES.GET_REGIONS:
       getRegions(searchId);
       break;
-    case 'cleanup':
+    case MESSAGE_TYPES.CLEANUP:
       cleanup();
       break;
     default:
       postMessage({
-        type: 'error',
+        type: MESSAGE_TYPES.ERROR,
         error: `Unknown message type: ${type}`,
       });
   }

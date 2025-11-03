@@ -150,7 +150,7 @@ const PublicCollectionsTable = ({ collections = [] }) => {
       dispatch(
         snackbarOpen(error.message || 'Failed to copy collection', {
           severity: 'error',
-          position: 'bottom',
+          position: 'top',
         }),
       );
     } finally {
@@ -164,7 +164,7 @@ const PublicCollectionsTable = ({ collections = [] }) => {
       dispatch(
         snackbarOpen(`Collection "${result.name}" copied successfully`, {
           severity: 'info',
-          position: 'bottom',
+          position: 'top',
         }),
       );
     } catch (error) {

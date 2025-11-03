@@ -1,0 +1,246 @@
+/**
+ * SpatialBoundsInput - Input component for spatial bounding box constraints
+ *
+ * Provides:
+ * - Four number inputs for latitude/longitude (North, South, East, West)
+ * - Preset dropdown for geographic boundaries
+ * - Inline validation error display
+ * - Integration with spatialTemporalSearchStore
+ *
+ * @module SpatialBoundsInput
+ */
+
+import React, { useState, useEffect } from 'react';
+import {
+  Box,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Typography,
+} from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import { GeographicBoundaries } from '../../../../../shared/enum/geographicBoundaries';
+import useSpatialTemporalSearchStore from '../store/spatialTemporalSearchStore';
+import { validateSpatialBounds } from '../utils/validation';
+import zIndex from '../../../../../enums/zIndex';
+
+const useStyles = makeStyles((theme) => ({
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(1),
+  },
+  headerRow: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: theme.spacing(2),
+    marginBottom: theme.spacing(1),
+  },
+  sectionTitle: {
+    fontWeight: 500,
+    fontSize: '0.75rem',
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+    minWidth: 90,
+    lineHeight: 1.2,
+  },
+  presetControl: {
+    minWidth: 200,
+  },
+  coordsGrid: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(1), // Vertical gap between rows
+    marginLeft: 106, // Align with content after title (90px + 16px gap)
+  },
+  coordRow: {
+    display: 'flex',
+    gap: theme.spacing(1), // Horizontal gap between North/South and East/West pairs
+  },
+  coordField: {
+    width: 140, // Fixed width to accommodate 12 characters
+    '& input[type=number]': {
+      '-moz-appearance': 'textfield',
+    },
+    '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button':
+      {
+        '-webkit-appearance': 'none',
+        margin: 0,
+      },
+  },
+  errorText: {
+    color: theme.palette.error.main,
+    fontSize: '0.75rem',
+    marginTop: theme.spacing(1),
+  },
+}));
+
+/**
+ * SpatialBoundsInput component
+ *
+ * Renders input controls for spatial bounding box (lat/lon) with preset selection.
+ * Connects to spatialTemporalSearchStore for state management.
+ *
+ * @returns {JSX.Element}
+ */
+const SpatialBoundsInput = () => {
+  const classes = useStyles();
+
+  // Store state and actions
+  const { spatialBounds, selectedPreset, setSpatialBounds, applyPreset } =
+    useSpatialTemporalSearchStore();
+
+  // Local state for validation errors
+  const [validationErrors, setValidationErrors] = useState([]);
+
+  // Validate on bounds change
+  useEffect(() => {
+    const result = validateSpatialBounds(spatialBounds);
+    setValidationErrors(result.errors);
+  }, [spatialBounds]);
+
+  /**
+   * Handle preset selection from dropdown
+   * @param {Event} e - Select change event
+   */
+  const handlePresetChange = (e) => {
+    const presetLabel = e.target.value;
+
+    if (presetLabel === '') {
+      // "Select a preset" option - do nothing
+      return;
+    }
+
+    // Find preset by label
+    const preset = GeographicBoundaries.find((p) => p.label === presetLabel);
+
+    if (preset) {
+      applyPreset(preset);
+    }
+  };
+
+  /**
+   * Handle manual coordinate input
+   * @param {string} field - Field name (latMin, latMax, lonMin, lonMax)
+   * @param {string} value - Input value
+   */
+  const handleCoordChange = (field, value) => {
+    // Allow empty string or numeric values
+    if (value === '' || value === '-') {
+      setSpatialBounds({ [field]: value });
+      return;
+    }
+
+    const numValue = Number(value);
+    if (!isNaN(numValue)) {
+      setSpatialBounds({ [field]: numValue });
+    }
+  };
+
+  return (
+    <Box className={classes.container}>
+      {/* Header Row: Title + Preset Dropdown */}
+      <Box className={classes.headerRow}>
+        <Typography variant="subtitle1" className={classes.sectionTitle}>
+          Geographic
+          <br />
+          Bounds
+        </Typography>
+        <FormControl variant="outlined" className={classes.presetControl}>
+          <InputLabel shrink>Preset Geographic Bound</InputLabel>
+          <Select
+            value={selectedPreset || ''}
+            onChange={handlePresetChange}
+            label="Preset Geographic Bound"
+            displayEmpty
+            MenuProps={{
+              style: { zIndex: zIndex.MODAL_LAYER_2_POPPER },
+            }}
+          >
+            <MenuItem value="">
+              <em>Select a preset</em>
+            </MenuItem>
+            {GeographicBoundaries.map((preset) => (
+              <MenuItem key={preset.label} value={preset.label}>
+                {preset.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
+
+      {/* Coordinate Inputs */}
+      <Box className={classes.coordsGrid}>
+        {/* Latitude Row */}
+        <Box className={classes.coordRow}>
+          <TextField
+            type="number"
+            label="N Latitude (°)"
+            variant="outlined"
+            value={spatialBounds.latMax ?? ''}
+            onChange={(e) => handleCoordChange('latMax', e.target.value)}
+            className={classes.coordField}
+            InputLabelProps={{ shrink: true }}
+            inputProps={{
+              step: 'any',
+              min: -90,
+              max: 90,
+            }}
+          />
+
+          <TextField
+            type="number"
+            label="S Latitude (°)"
+            variant="outlined"
+            value={spatialBounds.latMin ?? ''}
+            onChange={(e) => handleCoordChange('latMin', e.target.value)}
+            className={classes.coordField}
+            InputLabelProps={{ shrink: true }}
+            inputProps={{
+              step: 'any',
+              min: -90,
+              max: 90,
+            }}
+          />
+        </Box>
+
+        {/* Longitude Row */}
+        <Box className={classes.coordRow}>
+          <TextField
+            type="number"
+            label="E Longitude (°)"
+            variant="outlined"
+            value={spatialBounds.lonMax ?? ''}
+            onChange={(e) => handleCoordChange('lonMax', e.target.value)}
+            className={classes.coordField}
+            InputLabelProps={{ shrink: true }}
+            inputProps={{
+              step: 'any',
+              min: -180,
+              max: 180,
+            }}
+          />
+
+          <TextField
+            type="number"
+            label="W Longitude (°)"
+            variant="outlined"
+            value={spatialBounds.lonMin ?? ''}
+            onChange={(e) => handleCoordChange('lonMin', e.target.value)}
+            className={classes.coordField}
+            InputLabelProps={{ shrink: true }}
+            inputProps={{
+              step: 'any',
+              min: -180,
+              max: 180,
+            }}
+          />
+        </Box>
+      </Box>
+    </Box>
+  );
+};
+
+export default SpatialBoundsInput;
