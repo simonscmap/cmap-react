@@ -26,10 +26,6 @@ const useRangeInput = ({
   const [localStartValue, setLocalStartValue] = useState('');
   const [localEndValue, setLocalEndValue] = useState('');
 
-  // Local state for slider preview (drag state)
-  const [sliderPreviewStart, setSliderPreviewStart] = useState(null);
-  const [sliderPreviewEnd, setSliderPreviewEnd] = useState(null);
-
   // Validation message state
   const [startMessage, setStartMessage] = useState('');
   const [endMessage, setEndMessage] = useState('');
@@ -43,14 +39,8 @@ const useRangeInput = ({
     setLocalEndValue(end === null ? '' : String(end));
   }, [end]);
 
-  // Slider preview handler - updates local state during drag
+  // Slider handler - applies validation and updates canonical store immediately
   const handleSlider = (e, [startValue, endValue]) => {
-    setSliderPreviewStart(startValue);
-    setSliderPreviewEnd(endValue);
-  };
-
-  // Slider commit handler - applies validation and updates canonical store
-  const handleSliderCommit = (e, [startValue, endValue]) => {
     const bounds = getEffectiveBounds(min, max, step);
 
     // Round and clamp both values
@@ -63,13 +53,18 @@ const useRangeInput = ({
     const finalStart = Math.min(clampedStart, clampedEnd);
     const finalEnd = Math.max(clampedStart, clampedEnd);
 
-    // Update canonical store with same setters as text inputs
-    setStart(finalStart);
-    setEnd(finalEnd);
+    // Update canonical store immediately (like date slider) - only if values changed
+    if (finalStart !== start) {
+      setStart(finalStart);
+    }
+    if (finalEnd !== end) {
+      setEnd(finalEnd);
+    }
+  };
 
-    // Clear preview state
-    setSliderPreviewStart(null);
-    setSliderPreviewEnd(null);
+  // Slider commit handler - use same logic as onChange
+  const handleSliderCommit = (e, value) => {
+    handleSlider(e, value);
   };
 
   // onChange handlers for text inputs - update local state only
@@ -179,9 +174,9 @@ const useRangeInput = ({
     endMessage,
     handleSlider,
     handleSliderCommit,
-    // For slider display - use preview values during drag, canonical values otherwise
-    sliderStart: sliderPreviewStart !== null ? sliderPreviewStart : start,
-    sliderEnd: sliderPreviewEnd !== null ? sliderPreviewEnd : end,
+    // For slider display - use canonical values (updated in real-time)
+    sliderStart: start,
+    sliderEnd: end,
   };
 };
 

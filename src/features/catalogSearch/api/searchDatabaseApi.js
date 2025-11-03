@@ -1,13 +1,14 @@
 /**
- * Search Service
+ * Search Database API
  *
  * Manages the Web Worker lifecycle and provides a clean API for catalog search.
- * Implements the SearchService interface defined in the plan.
+ * Implements structured query interface to the SQLite Web Worker.
  */
 
-import { loadDatabase } from './dbLoader';
+import { loadDatabase } from './catalogDbApi';
+import { transformSearchResults } from './transformers';
 
-class SearchService {
+class SearchDatabaseApi {
   constructor() {
     this.worker = null;
     this.isInitialized = false;
@@ -82,8 +83,8 @@ class SearchService {
 
   /**
    * Execute search query
-   * @param {Object} query - Search query parameters
-   * @returns {Promise<Array>} Search results
+   * @param {Object} query - Structured search query object
+   * @returns {Promise<Array>} Transformed search results
    */
   async search(query) {
     if (!this.isInitialized) {
@@ -92,9 +93,11 @@ class SearchService {
       );
     }
 
-    const results = await this.sendWorkerMessage('search', { query });
+    // Get raw results from worker
+    const rawResults = await this.sendWorkerMessage('search', { query });
 
-    return results;
+    // Transform raw database rows to UI format
+    return transformSearchResults(rawResults);
   }
 
   /**
@@ -258,27 +261,27 @@ class SearchService {
 }
 
 // Singleton instance
-let searchServiceInstance = null;
+let searchDatabaseApiInstance = null;
 
 /**
- * Get singleton search service instance
- * @returns {SearchService}
+ * Get singleton search database API instance
+ * @returns {SearchDatabaseApi}
  */
-export function getSearchService() {
-  if (!searchServiceInstance) {
-    searchServiceInstance = new SearchService();
+export function getSearchDatabaseApi() {
+  if (!searchDatabaseApiInstance) {
+    searchDatabaseApiInstance = new SearchDatabaseApi();
   }
-  return searchServiceInstance;
+  return searchDatabaseApiInstance;
 }
 
 /**
- * Reset search service (for testing)
+ * Reset search database API (for testing)
  */
-export function resetSearchService() {
-  if (searchServiceInstance) {
-    searchServiceInstance.cleanup();
-    searchServiceInstance = null;
+export function resetSearchDatabaseApi() {
+  if (searchDatabaseApiInstance) {
+    searchDatabaseApiInstance.cleanup();
+    searchDatabaseApiInstance = null;
   }
 }
 
-export default SearchService;
+export default SearchDatabaseApi;

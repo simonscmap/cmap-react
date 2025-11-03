@@ -1,6 +1,11 @@
 import { create } from 'zustand';
 import collectionsAPI from '../../api/collectionsApi';
-import { getSearchService } from '../../../catalogSearch/services/searchService';
+import {
+  initializeCatalogSearch,
+  searchCatalog,
+  createSearchQuery,
+  isClientSideSearchAvailable,
+} from '../../../catalogSearch/api';
 
 /**
  * Zustand store for Add Datasets modal state management
@@ -574,7 +579,7 @@ export const useAddDatasetsStore = create((set, get) => ({
    * - On failure: Sets catalogLoadError with user-friendly message, sets isLoadingCatalog: false
    *
    * Note: Only fetches if fullCatalog is null (caching behavior)
-   * Note: Uses the catalogSearch searchService which manages the SQLite database
+   * Note: Uses the catalogSearch API which manages the SQLite database
    */
   loadFullCatalog: async () => {
     const state = get();
@@ -592,23 +597,14 @@ export const useAddDatasetsStore = create((set, get) => ({
     set({ isLoadingCatalog: true });
 
     try {
-      // Get the search service singleton
-      const searchService = getSearchService();
-
       // Initialize if not already initialized
-      if (!searchService.isInitialized) {
-        await searchService.initialize();
+      if (!isClientSideSearchAvailable()) {
+        await initializeCatalogSearch();
       }
 
       // Perform a search with no filters to get all datasets
-      const catalog = await searchService.search({
-        text: '',
-        spatial: null,
-        temporal: null,
-        depth: null,
-        limit: null,
-        offset: 0,
-      });
+      const query = createSearchQuery().build();
+      const catalog = await searchCatalog(query);
 
       set({
         fullCatalog: catalog,

@@ -147,8 +147,11 @@ bulkDownloadAPI.getRowCounts = async (
 
 /**
  * Initialize bulk download feature by getting datasets metadata
- * @param {Array<string>} datasetShortNames - Array of dataset short names
+ * @param {Array<string>} datasetShortNames - Array of dataset short names (may include invalid datasets)
  * @returns {Promise<Object>} Object containing datasets metadata
+ * @note The backend filters out invalid/unavailable datasets from the response.
+ * Only metadata for valid, available datasets will be returned, even if invalid
+ * dataset short names are included in the request.
  */
 bulkDownloadAPI.initBulkDownload = async (datasetShortNames) => {
   log.debug('initializing bulk download', { datasetShortNames });

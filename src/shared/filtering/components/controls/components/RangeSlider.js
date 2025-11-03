@@ -16,6 +16,7 @@ const RangeSlider = ({
   unit = '',
   formatLabel,
   formatValueLabel,
+  showMarks = true,
 }) => {
   // Format min/max values to match step precision
   const formattedMin = roundToStep(min, step);
@@ -43,21 +44,23 @@ const RangeSlider = ({
       ]}
       onChange={handleSlider}
       onChangeCommitted={handleSliderCommit}
-      valueLabelDisplay="auto"
-      valueLabelFormat={getValueLabel}
-      ValueLabelComponent={CustomValueLabel}
+      valueLabelDisplay="off"
       style={styles.slider}
       disabled={disabled}
-      marks={[
-        {
-          value: formattedMin,
-          label: getMarkLabel(formattedMin),
-        },
-        {
-          value: formattedMax,
-          label: getMarkLabel(formattedMax),
-        },
-      ]}
+      marks={
+        showMarks
+          ? [
+              {
+                value: formattedMin,
+                label: getMarkLabel(formattedMin),
+              },
+              {
+                value: formattedMax,
+                label: getMarkLabel(formattedMax),
+              },
+            ]
+          : false
+      }
     />
   );
 };

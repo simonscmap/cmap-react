@@ -5,7 +5,13 @@
  */
 
 import { create } from 'zustand';
-import { getSearchService } from '../services/searchService';
+import {
+  initializeCatalogSearch,
+  searchCatalog,
+  getRegions,
+  cleanupCatalogSearch,
+  createSearchQuery,
+} from '../api';
 
 const useCatalogSearchStore = create((set, get) => ({
   // Initialization state
@@ -31,7 +37,6 @@ const useCatalogSearchStore = create((set, get) => ({
     excludeFields: ['description'], // Exclude description field (matches backend)
 
     // Tab 1 filters
-    datasetType: 'All Types', // 'All Types' | 'Model' | 'Satellite' | 'In-Situ'
     region: 'All Regions', // 'All Regions' | <regionName>
     dateRangePreset: 'Any Date', // 'Any Date' | 'Last Year' | 'Last 5 Years' | 'Custom Range'
     customDateStart: null, // ISO date string (only used when dateRangePreset = 'Custom Range')
@@ -40,6 +45,9 @@ const useCatalogSearchStore = create((set, get) => ({
     // Tab 2 filters (for future)
     includePartialOverlaps: true, // boolean (critical for Tab 2)
   },
+
+  // Selected data types (stored outside searchQuery for Set type compatibility)
+  selectedDataTypes: new Set(['Model', 'Satellite', 'In-Situ']), // All types selected by default
   results: [],
   isSearching: false,
   searchError: null,
@@ -59,8 +67,7 @@ const useCatalogSearchStore = create((set, get) => ({
     set({ isInitializing: true, initError: null });
 
     try {
-      const searchService = getSearchService();
-      await searchService.initialize();
+      await initializeCatalogSearch();
       set({ isInitialized: true, isInitializing: false });
 
       // Load regions after initialization
@@ -87,8 +94,7 @@ const useCatalogSearchStore = create((set, get) => ({
     set({ isLoadingRegions: true, regionsError: null });
 
     try {
-      const searchService = getSearchService();
-      const regions = await searchService.getRegions();
+      const regions = await getRegions();
       set({ regions, isLoadingRegions: false });
     } catch (error) {
       console.error('Failed to load regions:', error);
@@ -154,8 +160,75 @@ const useCatalogSearchStore = create((set, get) => ({
     set({ isSearching: true, searchError: null });
 
     try {
-      const searchService = getSearchService();
-      const results = await searchService.search(searchQuery);
+      // Build query using SearchQueryBuilder fluent API
+      const builder = createSearchQuery();
+
+      // Add text search if provided
+      if (searchQuery.text) {
+        builder.withText(searchQuery.text, {
+          phraseMatch: searchQuery.phraseMatch,
+          searchMode: searchQuery.searchMode,
+        });
+      }
+
+      // Add spatial bounds if provided
+      if (searchQuery.spatial) {
+        builder.withSpatialBounds(
+          searchQuery.spatial,
+          searchQuery.includePartialOverlaps,
+        );
+      }
+
+      // Add temporal range based on preset or custom dates
+      if (searchQuery.dateRangePreset) {
+        builder.withDateRangePreset(searchQuery.dateRangePreset);
+      }
+      if (searchQuery.temporal) {
+        builder.withTemporalRange(
+          searchQuery.temporal.timeMin,
+          searchQuery.temporal.timeMax,
+          searchQuery.includePartialOverlaps,
+        );
+      }
+
+      // Add depth range if provided
+      if (searchQuery.depth) {
+        builder.withDepthRange(
+          searchQuery.depth,
+          searchQuery.includePartialOverlaps,
+        );
+      }
+
+      // Add region filter if provided
+      if (searchQuery.region && searchQuery.region !== 'All Regions') {
+        builder.withRegion(searchQuery.region);
+      }
+
+      // Add dataset type filter if provided (multi-select)
+      const { selectedDataTypes } = get();
+      const allTypes = ['Model', 'Satellite', 'In-Situ'];
+      const hasPartialSelection =
+        selectedDataTypes.size > 0 && selectedDataTypes.size < allTypes.length;
+
+      if (hasPartialSelection) {
+        // Convert Set to array for query builder
+        builder.withDatasetType(Array.from(selectedDataTypes));
+      }
+      // If all types selected or none selected, don't add filter (show all)
+
+      // Add pagination if limit is specified
+      if (searchQuery.limit !== null && searchQuery.limit !== undefined) {
+        builder.withPagination(searchQuery.limit, searchQuery.offset || 0);
+      }
+
+      // Add excluded fields if provided
+      if (searchQuery.excludeFields) {
+        builder.withExcludedFields(searchQuery.excludeFields);
+      }
+
+      // Build and execute query
+      const query = builder.build();
+      const results = await searchCatalog(query);
       set({ results, isSearching: false });
     } catch (error) {
       console.error('Search failed:', error);
@@ -190,13 +263,13 @@ const useCatalogSearchStore = create((set, get) => ({
         searchMode: 'like',
         phraseMatch: false,
         excludeFields: ['description'],
-        datasetType: 'All Types',
         region: 'All Regions',
         dateRangePreset: 'Any Date',
         customDateStart: null,
         customDateEnd: null,
         includePartialOverlaps: true,
       },
+      selectedDataTypes: new Set(['Model', 'Satellite', 'In-Situ']),
       results: [],
       isSearching: false,
       searchError: null,
@@ -217,13 +290,11 @@ const useCatalogSearchStore = create((set, get) => ({
   },
 
   /**
-   * Set data type filter
-   * @param {string} type - 'All Types' | 'Model' | 'Satellite' | 'In-Situ'
+   * Set selected data types (multi-select)
+   * @param {Set<string>} types - Set containing 'Model', 'Satellite', and/or 'In-Situ'
    */
-  setDatasetType: (type) => {
-    set((state) => ({
-      searchQuery: { ...state.searchQuery, datasetType: type },
-    }));
+  setSelectedDataTypes: (types) => {
+    set({ selectedDataTypes: types });
   },
 
   /**
@@ -276,8 +347,7 @@ const useCatalogSearchStore = create((set, get) => ({
    * Reset entire store
    */
   reset: () => {
-    const searchService = getSearchService();
-    searchService.cleanup();
+    cleanupCatalogSearch();
 
     set({
       isInitialized: false,
@@ -297,7 +367,6 @@ const useCatalogSearchStore = create((set, get) => ({
         phraseMatch: false, // Keyword splitting with AND logic (matches backend)
         excludeFields: ['description'], // Exclude description field (matches backend)
         // Tab 1 filters
-        datasetType: 'All Types',
         region: 'All Regions',
         dateRangePreset: 'Any Date',
         customDateStart: null,
@@ -305,6 +374,7 @@ const useCatalogSearchStore = create((set, get) => ({
         // Tab 2 filters (for future)
         includePartialOverlaps: true,
       },
+      selectedDataTypes: new Set(['Model', 'Satellite', 'In-Situ']),
       results: [],
       isSearching: false,
       searchError: null,

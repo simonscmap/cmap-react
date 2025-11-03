@@ -62,7 +62,7 @@ const PreviewModal = ({ open, onClose, collection }) => {
     dispatch(
       snackbarOpen(message, {
         severity: severity || 'error',
-        position: 'bottom',
+        position: 'top',
       }),
     );
   };
@@ -115,7 +115,7 @@ const PreviewModal = ({ open, onClose, collection }) => {
       dispatch(
         snackbarOpen(`Collection "${result.name}" copied successfully`, {
           severity: 'info',
-          position: 'bottom',
+          position: 'top',
         }),
       );
     } catch (error) {
@@ -123,7 +123,7 @@ const PreviewModal = ({ open, onClose, collection }) => {
       dispatch(
         snackbarOpen(error.message || 'Failed to copy collection', {
           severity: 'error',
-          position: 'bottom',
+          position: 'top',
         }),
       );
     } finally {

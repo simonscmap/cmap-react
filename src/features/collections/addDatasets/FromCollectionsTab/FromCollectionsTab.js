@@ -1,9 +1,9 @@
 import React from 'react';
 import { Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import CollectionSearchSection from './CollectionSearchSection';
-import CollectionSummaryCard from './CollectionSummaryCard';
-import DatasetsTableSection from './DatasetsTableSection';
+import CollectionSearchSection from '../components/CollectionSearchSection';
+import CollectionSummaryCard from '../components/CollectionSummaryCard';
+import DatasetsTableSection from '../components/DatasetsTableSection';
 import UniversalButton from '../../../../shared/components/UniversalButton';
 import { SearchProvider } from '../../../../shared/UniversalSearch';
 

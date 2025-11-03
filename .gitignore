@@ -35,12 +35,12 @@ notes
 .nvmrc
 
 # BMAD Start
-.bmad-core
+.bmad-core/*
 .bmad-infrastructure-devops
-.cursor
+.cursor/*
 .gemini
 .web-bundles
-.specify
+.specify/*
 .claude/commands/
 specs/
 # BMAD End

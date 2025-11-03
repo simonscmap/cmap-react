@@ -59,6 +59,7 @@ export const snackbarOpen = (message, options = {}) => {
       meta: isLegacyCall ? options : options.meta,
       position: isLegacyCall ? 'top' : options.position || 'top', // 'top' or 'bottom'
       severity: isLegacyCall ? 'info' : options.severity || 'info', // 'info', 'warning', 'error'
+      showCloseButton: isLegacyCall ? true : options.showCloseButton !== false, // default true
     },
   };
 };

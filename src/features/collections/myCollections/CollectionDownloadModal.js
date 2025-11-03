@@ -16,9 +16,11 @@ const CollectionDownloadModal = ({ open, onClose, collection }) => {
     return null;
   }
 
-  // Extract dataset short names from collection
+  // Extract dataset short names from collection, filtering out invalid datasets
   const datasetShortNames = collection.datasets
-    ? collection.datasets.map((dataset) => dataset.datasetShortName)
+    ? collection.datasets
+        .filter((dataset) => dataset.isInvalid !== true)
+        .map((dataset) => dataset.datasetShortName)
     : [];
 
   const handleDownloadComplete = ({ success, error }) => {
