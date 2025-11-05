@@ -173,6 +173,23 @@ export { default as SortableHeader } from './components/SortableHeader';
  */
 export { getNestedValue } from './utils/helpers';
 
+/**
+ * Creates a comparator that pins a specific item to the top of a sorted list,
+ * then applies the base comparator to all other items.
+ *
+ * @function createPriorityComparator
+ * @param {Function} baseComparator - The original comparator function to use for non-priority items
+ * @param {*} priorityId - The ID of the item to pin to the top (null/undefined disables priority)
+ * @returns {Function} A comparator function that pins the priority item first
+ *
+ * @example
+ * const { comparator } = useSorting(config);
+ * const priorityComparator = createPriorityComparator(comparator, 'item-123');
+ * const sorted = [...items].sort(priorityComparator);
+ * // item-123 will appear first, followed by all other items sorted normally
+ */
+export { createPriorityComparator } from './utils/priorityComparator';
+
 // ============================================================================
 // Type Definitions (for IDE autocomplete and documentation)
 // ============================================================================

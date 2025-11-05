@@ -168,8 +168,12 @@ function buildRegionFilter(region, tableAlias = 'd') {
 /**
  * Build spatial bounds filter (latitude/longitude)
  *
- * Filters for datasets that have any overlap with user bounds.
- * This is a pre-filter; exact coverage percentage filtering happens via coverage threshold filter.
+ * Filters for datasets that have any intersection with user bounds (pre-filter).
+ * Exact dataset utilization percentage filtering happens via coverage threshold filter.
+ *
+ * Dataset utilization = percentage of the dataset's spatial extent within the ROI.
+ * - Partial overlap: 0 < dataset_utilization < 1.0 (some of dataset is in ROI)
+ * - Full containment: dataset_utilization = 1.0 (entire dataset is within ROI)
  *
  * Handles NULL values to match backend behavior.
  *
@@ -187,17 +191,19 @@ function buildSpatialFilter(spatial, includePartialOverlaps = true, tableAlias =
   const bindings = {};
 
   // Latitude bounds - check for any overlap
+  // Uses >= and <= to include boundary points (zero-area datasets like points/lines)
   if (spatial.latMin != null && spatial.latMax != null) {
-    sql += `\n  AND (${tableAlias}.latMax > $latMin OR ${tableAlias}.latMin IS NULL)`;
-    sql += `\n  AND (${tableAlias}.latMax IS NULL OR ${tableAlias}.latMin < $latMax)`;
+    sql += `\n  AND (${tableAlias}.latMax >= $latMin OR ${tableAlias}.latMin IS NULL)`;
+    sql += `\n  AND (${tableAlias}.latMax IS NULL OR ${tableAlias}.latMin <= $latMax)`;
     bindings.$latMin = spatial.latMin;
     bindings.$latMax = spatial.latMax;
   }
 
   // Longitude bounds - check for any overlap
+  // Uses >= and <= to include boundary points (zero-area datasets like points/lines)
   if (spatial.lonMin != null && spatial.lonMax != null) {
-    sql += `\n  AND (${tableAlias}.lonMax > $lonMin OR ${tableAlias}.lonMin IS NULL)`;
-    sql += `\n  AND (${tableAlias}.lonMax IS NULL OR ${tableAlias}.lonMin < $lonMax)`;
+    sql += `\n  AND (${tableAlias}.lonMax >= $lonMin OR ${tableAlias}.lonMin IS NULL)`;
+    sql += `\n  AND (${tableAlias}.lonMax IS NULL OR ${tableAlias}.lonMin <= $lonMax)`;
     bindings.$lonMin = spatial.lonMin;
     bindings.$lonMax = spatial.lonMax;
   }
@@ -208,8 +214,10 @@ function buildSpatialFilter(spatial, includePartialOverlaps = true, tableAlias =
 /**
  * Build temporal bounds filter (date ranges)
  *
- * Filters for datasets that have any overlap with user time range.
- * This is a pre-filter; exact coverage percentage filtering happens via coverage threshold filter.
+ * Filters for datasets that have any intersection with user time range (pre-filter).
+ * Exact temporal coverage percentage filtering happens via coverage threshold filter.
+ *
+ * Temporal coverage = percentage of user time range covered by dataset.
  *
  * Handles NULL values to match backend behavior.
  *
@@ -227,8 +235,9 @@ function buildTemporalFilter(temporal, includePartialOverlaps = true, tableAlias
   const bindings = {};
 
   // Check for any overlap with user time range
-  sql += `\n  AND (${tableAlias}.timeMax > $timeMin OR ${tableAlias}.timeMax IS NULL)`;
-  sql += `\n  AND (${tableAlias}.timeMax IS NULL OR ${tableAlias}.timeMin < $timeMax)`;
+  // Uses >= and <= to include boundary points (datasets at exact boundary timestamps)
+  sql += `\n  AND (${tableAlias}.timeMax >= $timeMin OR ${tableAlias}.timeMax IS NULL)`;
+  sql += `\n  AND (${tableAlias}.timeMax IS NULL OR ${tableAlias}.timeMin <= $timeMax)`;
 
   bindings.$timeMin = temporal.timeMin;
   bindings.$timeMax = temporal.timeMax;
@@ -239,8 +248,10 @@ function buildTemporalFilter(temporal, includePartialOverlaps = true, tableAlias
 /**
  * Build depth bounds filter
  *
- * Filters for datasets that have any overlap with user depth range.
- * This is a pre-filter; exact coverage percentage filtering happens via coverage threshold filter.
+ * Filters for datasets that have any intersection with user depth range (pre-filter).
+ * Exact depth coverage percentage filtering happens via coverage threshold filter.
+ *
+ * Depth coverage = percentage of user depth range covered by dataset.
  *
  * Also supports hasDepth flag to filter only datasets with depth data.
  *
@@ -283,8 +294,15 @@ function buildDepthFilter(depth, includePartialOverlaps = true, tableAlias = 'd'
  *
  * Coverage values are in 0-1 range (e.g., 1.0 = 100%, 0.5 = 50%).
  *
+ * Spatial filtering uses ONLY dataset utilization (percentage of dataset within ROI):
+ * - Partial overlap: 0 < dataset_utilization < 1.0 (some of dataset is in ROI)
+ * - Full containment: dataset_utilization = 1.0 (entire dataset is within ROI)
+ *
+ * This approach ensures we only return datasets where a meaningful portion of the
+ * dataset itself falls within the ROI, regardless of how much of the ROI the dataset covers.
+ *
  * @param {object} coverageThresholds - Coverage thresholds for each dimension
- * @param {number} coverageThresholds.spatial - Minimum spatial coverage (0-1, or null if disabled)
+ * @param {number} coverageThresholds.spatial - Minimum dataset utilization (0-1, or null if disabled)
  * @param {number} coverageThresholds.temporal - Minimum temporal coverage (0-1, or null if disabled)
  * @param {number} coverageThresholds.depth - Minimum depth coverage (0-1, or null if disabled)
  * @returns {{ sql: string, bindings: object }}
@@ -297,10 +315,11 @@ function buildCoverageThresholdFilter(coverageThresholds) {
   let sql = '';
   const bindings = {};
 
-  // Spatial coverage threshold (always checked when provided)
+  // Spatial threshold uses ONLY dataset utilization (not spatial coverage)
+  // This filters based on what percentage of the dataset falls within the ROI
   if (coverageThresholds.spatial != null) {
-    sql += `\n  AND spatial_coverage >= $minSpatialCoverage`;
-    bindings.$minSpatialCoverage = coverageThresholds.spatial;
+    sql += `\n  AND dataset_utilization >= $minDatasetUtilization`;
+    bindings.$minDatasetUtilization = coverageThresholds.spatial;
   }
 
   // Temporal coverage threshold (only if enabled)

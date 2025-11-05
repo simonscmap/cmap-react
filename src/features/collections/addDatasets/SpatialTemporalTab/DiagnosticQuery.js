@@ -214,7 +214,7 @@ const DiagnosticQuery = () => {
           roi_area: rawDataset.roi_area,
           dataset_area: rawDataset.dataset_area,
           intersection_area: rawDataset.intersection_area,
-          area_ratio: rawDataset.area_ratio,
+          dataset_utilization: rawDataset.dataset_utilization,
         });
       });
       console.log('=== END DIAGNOSTIC RESULTS ===');

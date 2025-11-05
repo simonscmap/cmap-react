@@ -13,16 +13,15 @@ import {
   Typography,
   Checkbox,
 } from '@material-ui/core';
-import {
-  CheckCircle as CheckCircleIcon,
-  Warning as WarningIcon,
-  AddCircle as AddCircleIcon,
-  RemoveCircle as RemoveCircleIcon,
-  RemoveCircleOutline as RemoveCircleOutlineIcon,
-} from '@material-ui/icons';
+import { RemoveCircleOutline as RemoveCircleOutlineIcon } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import { format, parseISO } from 'date-fns';
-import { DatasetNameLink } from '../../../shared/components';
+import {
+  DatasetNameLink,
+  useRowStateStyles,
+  ROW_STATES,
+  InfoTooltip,
+} from '../../../shared/components';
 import SelectAllDropdown from '../../multiDatasetDownload/components/SelectAllDropdown';
 import UniversalButton from '../../../shared/components/UniversalButton';
 import useCollectionsStore from '../state/collectionsStore';
@@ -53,49 +52,6 @@ const useStyles = makeStyles((theme) => ({
   table: {
     width: '100%',
   },
-  tableRow: {
-    boxShadow: 'inset 3px 0 0 transparent',
-    '&:hover': {
-      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    },
-    '& .MuiTableCell-root:first-child': {
-      paddingLeft: '16px',
-    },
-    '& .MuiTableCell-root:last-child': {
-      paddingRight: '16px',
-    },
-    '& ::selection': {
-      backgroundColor: 'transparent',
-    },
-  },
-  invalidRow: {
-    opacity: 0.8,
-    backgroundColor: 'rgba(255, 193, 7, 0.15)',
-    boxShadow: 'inset 3px 0 0 rgba(255, 193, 7, 0.6)',
-  },
-  markedForRemovalRow: {
-    opacity: 0.8,
-    backgroundColor: 'rgba(211, 47, 47, 0.15)',
-    boxShadow: 'inset 3px 0 0 rgba(211, 47, 47, 0.6)',
-    '& .MuiTableCell-root:not(:first-child):not(:last-child)': {
-      textDecoration: 'line-through',
-    },
-  },
-  alreadyPresentRow: {
-    opacity: 0.6,
-    backgroundColor: 'rgba(128, 128, 128, 0.1)',
-    boxShadow: 'inset 3px 0 0 rgba(128, 128, 128, 0.6)',
-    '&:hover': {
-      backgroundColor: 'rgba(128, 128, 128, 0.15)',
-    },
-  },
-  newlyAddedRow: {
-    backgroundColor: 'rgba(156, 39, 176, 0.1)',
-    boxShadow: 'inset 3px 0 0 rgba(156, 39, 176, 0.8)',
-    '&:hover': {
-      backgroundColor: 'rgba(156, 39, 176, 0.15)',
-    },
-  },
   tableCell: {
     color: 'rgba(255, 255, 255, 0.85)',
     fontSize: '0.85rem',
@@ -112,25 +68,6 @@ const useStyles = makeStyles((theme) => ({
   statusCell: {
     width: '60px',
     textAlign: 'center',
-  },
-  statusIcon: {
-    fontSize: '1.25rem',
-    verticalAlign: 'middle',
-  },
-  validIcon: {
-    color: '#8bc34a',
-  },
-  invalidIcon: {
-    color: '#ffc107',
-  },
-  addedIcon: {
-    color: '#9c27b0',
-  },
-  removedIcon: {
-    color: '#d32f2f',
-  },
-  alreadyPresentIcon: {
-    color: '#808080',
   },
   datasetNameCell: {
     minWidth: '200px',
@@ -204,6 +141,7 @@ const useStyles = makeStyles((theme) => ({
 const CollectionDatasetsTable = ({
   collectionId,
   datasetShortNames,
+  datasetShortNamesWithStates,
   data: preLoadedData,
   emptyMessage,
   selectedDatasets = [],
@@ -221,6 +159,7 @@ const CollectionDatasetsTable = ({
   onError,
 }) => {
   const classes = useStyles({ maxHeight });
+  const { getRowClassName, getStatusIcon } = useRowStateStyles();
 
   // Zustand store selectors
   const fetchPreviewData = useCollectionsStore(
@@ -234,8 +173,23 @@ const CollectionDatasetsTable = ({
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Determine which format we received and extract short names + state map
+  const shortNamesInput = datasetShortNamesWithStates || datasetShortNames;
+  const rowStateMap = {};
+
+  // If we received the new format, build a map of shortName -> rowState
+  let shortNamesForFetch;
+  if (datasetShortNamesWithStates) {
+    shortNamesForFetch = datasetShortNamesWithStates.map((item) => {
+      rowStateMap[item.shortName] = item.rowState;
+      return item.shortName;
+    });
+  } else {
+    shortNamesForFetch = datasetShortNames;
+  }
+
   // Stringify datasetShortNames to use as stable dependency
-  const datasetShortNamesKey = JSON.stringify(datasetShortNames);
+  const datasetShortNamesKey = JSON.stringify(shortNamesForFetch);
 
   // Fetch data when component mounts or dependencies change
   useEffect(() => {
@@ -255,8 +209,8 @@ const CollectionDatasetsTable = ({
       return;
     }
 
-    // Auto-fetch mode: fetch data if datasetShortNames provided
-    if (!datasetShortNames || datasetShortNames.length === 0) {
+    // Auto-fetch mode: fetch data if shortNamesForFetch provided
+    if (!shortNamesForFetch || shortNamesForFetch.length === 0) {
       setData([]);
       setIsLoading(false);
       return;
@@ -266,7 +220,7 @@ const CollectionDatasetsTable = ({
       setIsLoading(true);
       try {
         const previewData = await fetchPreviewData(
-          datasetShortNames,
+          shortNamesForFetch,
           collectionId,
         );
 
@@ -327,40 +281,7 @@ const CollectionDatasetsTable = ({
       cellClass: classes.statusCell,
       align: 'center',
       render: (dataset, rowState) => {
-        // Priority: markedForRemoval > invalid > newlyAdded > alreadyPresent > valid
-        if (rowState === 'markedForRemoval') {
-          return (
-            <RemoveCircleIcon
-              className={`${classes.statusIcon} ${classes.removedIcon}`}
-            />
-          );
-        }
-        if (rowState === 'invalid' || dataset.isInvalid) {
-          return (
-            <WarningIcon
-              className={`${classes.statusIcon} ${classes.invalidIcon}`}
-            />
-          );
-        }
-        if (rowState === 'newlyAdded') {
-          return (
-            <AddCircleIcon
-              className={`${classes.statusIcon} ${classes.addedIcon}`}
-            />
-          );
-        }
-        if (rowState === 'alreadyPresent') {
-          return (
-            <RemoveCircleOutlineIcon
-              className={`${classes.statusIcon} ${classes.alreadyPresentIcon}`}
-            />
-          );
-        }
-        return (
-          <CheckCircleIcon
-            className={`${classes.statusIcon} ${classes.validIcon}`}
-          />
-        );
+        return getStatusIcon(rowState || 'normal');
       },
     },
     name: {
@@ -474,7 +395,14 @@ const CollectionDatasetsTable = ({
                   align={column.align}
                   className={column.cellClass}
                 >
-                  {column.header}
+                  {column.tooltip ? (
+                    <Box display="flex" alignItems="center">
+                      {column.header}
+                      <InfoTooltip title={column.tooltip} fontSize="small" />
+                    </Box>
+                  ) : (
+                    column.header
+                  )}
                 </TableCell>
               );
             })}
@@ -508,42 +436,45 @@ const CollectionDatasetsTable = ({
             data.map((dataset, index) => {
               const isSelected = selectedDatasets.includes(dataset.shortName);
 
-              // Priority: markedForRemovalRow > invalidRow > newlyAddedRow > alreadyPresentRow > normal row
-              let rowClass = classes.tableRow;
+              // Determine row state - use pre-calculated state from rowStateMap if available,
+              // otherwise fall back to rowClassGetter (legacy), or dataset.isInvalid
+              let rowState = 'normal';
               let isAlreadyPresent = false;
-              let rowState = 'normal'; // Track state for status icon
 
-              if (rowClassGetter) {
+              if (rowStateMap[dataset.shortName]) {
+                // NEW: Use pre-calculated row state from parent
+                rowState = rowStateMap[dataset.shortName];
+              } else if (rowClassGetter) {
+                // LEGACY: Support old rowClassGetter pattern for backward compatibility
                 const customClass = rowClassGetter(dataset);
                 if (
                   customClass &&
                   customClass.includes &&
                   customClass.includes('markedForRemoval')
                 ) {
-                  rowClass = `${classes.tableRow} ${classes.markedForRemovalRow}`;
                   rowState = 'markedForRemoval';
                 } else if (customClass === 'invalidRow' || dataset.isInvalid) {
-                  rowClass = `${classes.tableRow} ${classes.invalidRow}`;
                   rowState = 'invalid';
                 } else if (
                   customClass &&
                   customClass.includes &&
                   customClass.includes('newlyAdded')
                 ) {
-                  rowClass = `${classes.tableRow} ${classes.newlyAddedRow}`;
                   rowState = 'newlyAdded';
                 } else if (customClass === 'alreadyPresentRow') {
-                  rowClass = `${classes.tableRow} ${classes.alreadyPresentRow}`;
-                  isAlreadyPresent = true;
                   rowState = 'alreadyPresent';
-                } else if (customClass === 'normalRow') {
-                  rowClass = classes.tableRow;
-                  rowState = 'normal';
                 }
               } else if (dataset.isInvalid) {
-                rowClass = `${classes.tableRow} ${classes.invalidRow}`;
                 rowState = 'invalid';
               }
+
+              // Set flag for checkbox disabling
+              if (rowState === 'alreadyPresent') {
+                isAlreadyPresent = true;
+              }
+
+              // Get row class from shared hook
+              const rowClass = getRowClassName(rowState);
 
               return (
                 <TableRow key={index} className={rowClass}>
@@ -615,7 +546,13 @@ const CollectionDatasetsTable = ({
 
 CollectionDatasetsTable.propTypes = {
   collectionId: PropTypes.number,
-  datasetShortNames: PropTypes.arrayOf(PropTypes.string).isRequired,
+  datasetShortNames: PropTypes.arrayOf(PropTypes.string), // Optional since datasetShortNamesWithStates can be used instead
+  datasetShortNamesWithStates: PropTypes.arrayOf(
+    PropTypes.shape({
+      shortName: PropTypes.string.isRequired,
+      rowState: PropTypes.string,
+    }),
+  ),
   data: PropTypes.array,
   emptyMessage: PropTypes.string,
   selectedDatasets: PropTypes.arrayOf(PropTypes.string),

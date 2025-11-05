@@ -1,5 +1,12 @@
 export const GeographicBoundaries = Object.freeze([
   {
+    label: 'BATS Region',
+    northLatitude: 32.743847,
+    southLatitude: 30.758824,
+    eastLongitude: -63.1667,
+    westLongitude: -65.166799,
+  },
+  {
     label: 'Global',
     northLatitude: 90,
     southLatitude: -90,
@@ -82,12 +89,5 @@ export const GeographicBoundaries = Object.freeze([
     southLatitude: 18,
     eastLongitude: -80,
     westLongitude: -99,
-  },
-  {
-    label: 'BATS Region',
-    northLatitude: 32.743847,
-    southLatitude: 30.758824,
-    eastLongitude: -63.1667,
-    westLongitude: -65.166799,
   },
 ]);

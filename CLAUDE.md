@@ -82,6 +82,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Custom build process that renames index.html to app.html
 - Material-UI theming system with custom theme configuration
 - **Responsive Design**: Application is responsive for tablet and desktop viewports. Mobile viewport support is intentionally not implemented.
+- **Material-UI Class Names**: Never use string matching or logic based on Material-UI generated class names as they get minified in production builds.
 
 ## Testing
 

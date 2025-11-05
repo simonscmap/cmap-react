@@ -110,8 +110,12 @@ const CollectionCard = ({ collection, isPending = false }) => {
   const deleteCollection = useCollectionsStore(
     (state) => state.deleteCollection,
   );
+  const justCreatedId = useCollectionsStore((state) => state.justCreatedId);
   const [downloadModalOpen, setDownloadModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+
+  // Check if this collection is the newly created one
+  const isNew = collection.id === justCreatedId;
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -180,7 +184,10 @@ const CollectionCard = ({ collection, isPending = false }) => {
               {collection.name}
             </Typography>
             <Box className={classes.statusChips}>
-              <CollectionStatusBadge isPublic={collection.isPublic} />
+              <CollectionStatusBadge
+                isPublic={collection.isPublic}
+                isNew={isNew}
+              />
             </Box>
           </Box>
 

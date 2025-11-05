@@ -2,7 +2,7 @@
  * SpatialBoundsInput - Input component for spatial bounding box constraints
  *
  * Provides:
- * - Four number inputs for latitude/longitude (North, South, East, West)
+ * - Four number inputs for latitude/longitude (Start/End Latitude, Start/End Longitude)
  * - Preset dropdown for geographic boundaries
  * - Inline validation error display
  * - Integration with spatialTemporalSearchStore
@@ -57,7 +57,7 @@ const useStyles = makeStyles((theme) => ({
   },
   coordRow: {
     display: 'flex',
-    gap: theme.spacing(1), // Horizontal gap between North/South and East/West pairs
+    gap: theme.spacing(1), // Horizontal gap between Start/End coordinate pairs
   },
   coordField: {
     width: 140, // Fixed width to accommodate 12 characters
@@ -144,16 +144,16 @@ const SpatialBoundsInput = () => {
       {/* Header Row: Title + Preset Dropdown */}
       <Box className={classes.headerRow}>
         <Typography variant="subtitle1" className={classes.sectionTitle}>
-          Geographic
+          Region of
           <br />
-          Bounds
+          Interest (ROI)
         </Typography>
         <FormControl variant="outlined" className={classes.presetControl}>
-          <InputLabel shrink>Preset Geographic Bound</InputLabel>
+          <InputLabel shrink>Preset ROI</InputLabel>
           <Select
             value={selectedPreset || ''}
             onChange={handlePresetChange}
-            label="Preset Geographic Bound"
+            label="Preset ROI"
             displayEmpty
             MenuProps={{
               style: { zIndex: zIndex.MODAL_LAYER_2_POPPER },
@@ -177,7 +177,7 @@ const SpatialBoundsInput = () => {
         <Box className={classes.coordRow}>
           <TextField
             type="number"
-            label="N Latitude (°)"
+            label="Start Latitude (°)"
             variant="outlined"
             value={spatialBounds.latMax ?? ''}
             onChange={(e) => handleCoordChange('latMax', e.target.value)}
@@ -192,7 +192,7 @@ const SpatialBoundsInput = () => {
 
           <TextField
             type="number"
-            label="S Latitude (°)"
+            label="End Latitude (°)"
             variant="outlined"
             value={spatialBounds.latMin ?? ''}
             onChange={(e) => handleCoordChange('latMin', e.target.value)}
@@ -210,7 +210,7 @@ const SpatialBoundsInput = () => {
         <Box className={classes.coordRow}>
           <TextField
             type="number"
-            label="E Longitude (°)"
+            label="Start Longitude (°)"
             variant="outlined"
             value={spatialBounds.lonMax ?? ''}
             onChange={(e) => handleCoordChange('lonMax', e.target.value)}
@@ -225,7 +225,7 @@ const SpatialBoundsInput = () => {
 
           <TextField
             type="number"
-            label="W Longitude (°)"
+            label="End Longitude (°)"
             variant="outlined"
             value={spatialBounds.lonMin ?? ''}
             onChange={(e) => handleCoordChange('lonMin', e.target.value)}

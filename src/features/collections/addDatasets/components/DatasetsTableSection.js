@@ -29,45 +29,44 @@ const DatasetsTableSection = ({
   onToggleSelection,
   isLoading,
 }) => {
-  /**
-   * getRowClass - Determine row styling class based on dataset state
-   * Contract: AddDatasetsModal.contract.md lines 172-182
-   *
-   * @param {Object} dataset - Dataset object
-   * @returns {string} CSS class name for the row
-   */
-  const getRowClass = (dataset) => {
-    // Priority 1: Invalid datasets (yellow background)
-    if (dataset.isInvalid === true) {
-      return 'invalidRow';
-    }
-
-    // Priority 2: Datasets already in collection (gray, disabled)
-    if (currentCollectionDatasetIds.has(dataset.shortName)) {
-      return 'alreadyPresentRow';
-    }
-
-    // Default: Normal selectable row
-    return 'normalRow';
-  };
-
   // Convert Set to array for CollectionDatasetsTable
   const selectedDatasetsArray = Array.from(selectedDatasetIds);
 
   // Compute selection count
   const selectedCount = selectedDatasetIds.size;
 
-  // Extract dataset short names for CollectionDatasetsTable, filtering out undefined/null values
-  // If datasets is null, use empty array to show table structure
-  const datasetShortNames = datasets
+  // Pre-calculate row states for table rendering
+  // This transforms dataset short names with row state information for styling
+  const datasetShortNamesWithStates = datasets
     ? datasets
-        .map((d) => d.shortName)
-        .filter((name) => name !== undefined && name !== null && name !== '')
+        .map((dataset) => {
+          let rowState = 'normal';
+
+          // Priority 1: Invalid datasets (yellow background)
+          if (dataset.isInvalid === true) {
+            rowState = 'invalid';
+          }
+          // Priority 2: Datasets already in collection (gray, disabled)
+          else if (currentCollectionDatasetIds.has(dataset.shortName)) {
+            rowState = 'alreadyPresent';
+          }
+
+          return {
+            shortName: dataset.shortName,
+            rowState,
+          };
+        })
+        .filter(
+          (item) =>
+            item.shortName !== undefined &&
+            item.shortName !== null &&
+            item.shortName !== '',
+        )
     : [];
 
   return (
     <CollectionDatasetsTable
-      datasetShortNames={datasetShortNames}
+      datasetShortNamesWithStates={datasetShortNamesWithStates}
       data={datasets}
       emptyMessage="No datasets loaded. Click 'LOAD COLLECTION' to fetch data."
       selectedDatasets={selectedDatasetsArray}
@@ -111,7 +110,6 @@ const DatasetsTableSection = ({
             ).length !== selectedCount
           : false
       }
-      rowClassGetter={getRowClass}
       columns={['status', 'name', 'type', 'region', 'dateRange', 'rows']}
       maxHeight={400}
     />

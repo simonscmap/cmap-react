@@ -143,7 +143,7 @@ export const transformSearchResult = (row) => {
     roi_area: row.roi_area,
     dataset_area: row.dataset_area,
     intersection_area: row.intersection_area,
-    area_ratio: row.area_ratio,
+    dataset_utilization: row.dataset_utilization,
     spatial_coverage: row.spatial_coverage,
     temporal_coverage: row.temporal_coverage,
     depth_coverage: row.depth_coverage,

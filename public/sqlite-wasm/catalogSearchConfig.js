@@ -207,10 +207,11 @@ const SEARCH_MODES = {
  * Sort mode constants
  */
 const SORT_MODES = {
-  DEFAULT: 'default',     // Data type → area ratio → spatial coverage → alphabetical
-  SPATIAL: 'spatial',     // Spatial coverage → area ratio → alphabetical
-  TEMPORAL: 'temporal',   // Temporal coverage → area ratio → alphabetical
-  DEPTH: 'depth',         // Depth coverage → area ratio → alphabetical
+  DEFAULT: 'default',         // Data type → dataset utilization → spatial coverage → alphabetical
+  SPATIAL: 'spatial',         // Spatial coverage → data type → dataset utilization → alphabetical
+  TEMPORAL: 'temporal',       // Temporal coverage → data type → dataset utilization → spatial coverage → alphabetical
+  DEPTH: 'depth',             // Depth coverage → data type → dataset utilization → spatial coverage → alphabetical
+  UTILIZATION: 'utilization', // Dataset utilization → data type → spatial coverage → alphabetical
 };
 
 /**

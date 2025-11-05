@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Box, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
@@ -17,6 +17,7 @@ import { useSorting } from '../../../shared/sorting/state/useSorting';
 import SortDropdown from '../../../shared/sorting/components/SortDropdown';
 import FilterDropdown from '../components/FilterDropdown';
 import UniversalButton from '../../../shared/components/UniversalButton';
+import { createPriorityComparator } from '../../../shared/sorting/utils/priorityComparator';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -84,8 +85,8 @@ const sortConfig = {
     },
   ],
   defaultSort: {
-    field: 'name',
-    direction: 'asc',
+    field: 'modified',
+    direction: 'desc',
   },
   uiPattern: 'dropdown-headers',
 };
@@ -105,9 +106,29 @@ const MyCollectionsContent = ({ visibilityFilter, setVisibilityFilter }) => {
   const pendingDeletions = useCollectionsStore(
     (state) => state.pendingDeletions,
   );
+  const justCreatedId = useCollectionsStore((state) => state.justCreatedId);
+  const clearJustCreated = useCollectionsStore(
+    (state) => state.clearJustCreated,
+  );
 
-  // Sort the filtered collections
-  const sortedCollections = [...filteredCollections].sort(comparator);
+  // Clear justCreatedId on unmount
+  useEffect(() => {
+    return () => {
+      clearJustCreated();
+    };
+  }, [clearJustCreated]);
+
+  // Wrap comparator with priority comparator if justCreatedId exists
+  const finalComparator = createPriorityComparator(comparator, justCreatedId);
+
+  // Sort the filtered collections with priority
+  const sortedCollections = [...filteredCollections].sort(finalComparator);
+
+  // Handle sort change - clear justCreatedId when user explicitly changes sort
+  const handleSortChange = (field) => {
+    setSort(field);
+    clearJustCreated();
+  };
 
   return (
     <>
@@ -136,7 +157,7 @@ const MyCollectionsContent = ({ visibilityFilter, setVisibilityFilter }) => {
           <SortDropdown
             fields={sortConfig.fields}
             activeField={activeSort.field}
-            onFieldChange={setSort}
+            onFieldChange={handleSortChange}
             label=""
           />
         </Box>

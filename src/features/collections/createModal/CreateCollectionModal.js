@@ -171,15 +171,7 @@ const CreateCollectionModal = () => {
               size="large"
               disabled={!canSubmit}
             >
-              {isSubmitting ? 'CREATING...' : 'CREATE EMPTY COLLECTION'}
-            </UniversalButton>
-            <UniversalButton
-              onClick={handleSubmit}
-              variant="primary"
-              size="large"
-              disabled
-            >
-              CREATE & ADD DATASETS
+              {isSubmitting ? 'CREATING...' : 'CREATE COLLECTION'}
             </UniversalButton>
           </>
         }
