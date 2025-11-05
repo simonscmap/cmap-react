@@ -12,9 +12,13 @@ import {
   Typography,
   Checkbox,
 } from '@material-ui/core';
-import { CheckCircle as CheckCircleIcon } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
-import { DatasetNameLink } from '../../../../../shared/components';
+import {
+  DatasetNameLink,
+  useRowStateStyles,
+  ROW_STATES,
+  InfoTooltip,
+} from '../../../../../shared/components';
 import SelectAllDropdown from '../../../../multiDatasetDownload/components/SelectAllDropdown';
 import { SortableHeader } from '../../../../../shared/sorting';
 import useSpatialTemporalSearchStore from '../store/spatialTemporalSearchStore';
@@ -42,6 +46,9 @@ const useStyles = makeStyles((theme) => ({
       zIndex: 2,
       padding: '8px 8px',
       border: 0,
+      verticalAlign: 'top',
+    },
+    '& .MuiTableCell-body': {
       verticalAlign: 'top',
     },
   },
@@ -84,11 +91,6 @@ const useStyles = makeStyles((theme) => ({
     width: '60px',
     textAlign: 'center',
   },
-  statusIcon: {
-    fontSize: '1.25rem',
-    verticalAlign: 'middle',
-    color: '#8bc34a',
-  },
   datasetNameCell: {
     minWidth: '200px',
     maxWidth: '350px',
@@ -106,9 +108,15 @@ const useStyles = makeStyles((theme) => ({
     width: '110px',
     textAlign: 'right',
   },
+  // TEMPORARY: Dataset utilization column style - will be deleted later
+  utilizationCell: {
+    width: '120px',
+    textAlign: 'right',
+  },
   overlapCell: {
     width: '160px',
     fontSize: '0.8rem',
+    verticalAlign: 'top',
   },
   rowsCell: {
     width: '100px',
@@ -149,7 +157,7 @@ const useStyles = makeStyles((theme) => ({
  * - Selection management via addDatasetsStore
  *
  * Column Order:
- * 1. Checkbox, Status, Dataset Name, Type
+ * 1. Checkbox, Status, Dataset Name, Type, Dataset Utilization
  * 2. Coverage Group: Spatial %, Temporal %, Depth %
  * 3. Overlap Group: Date Overlap, Spatial Overlap, Depth Overlap
  * 4. Rows
@@ -175,6 +183,7 @@ const SpatialTemporalResultsTable = ({
   maxHeight = 400,
 }) => {
   const classes = useStyles({ maxHeight });
+  const { getStatusIcon } = useRowStateStyles();
 
   // Get data type filter, sort mode, and sort direction from store
   const selectedDataTypes = useSpatialTemporalSearchStore(
@@ -198,14 +207,25 @@ const SpatialTemporalResultsTable = ({
   // Handle header click to change sort mode
   const handleHeaderClick = useCallback(
     (field) => {
-      const newMode =
-        field === 'spatialCoverage'
-          ? 'spatial'
-          : field === 'temporalCoverage'
-            ? 'temporal'
-            : field === 'depthCoverage'
-              ? 'depth'
-              : 'default';
+      let newMode = 'default';
+
+      switch (field) {
+        case 'spatialCoverage':
+          newMode = 'spatial';
+          break;
+        case 'temporalCoverage':
+          newMode = 'temporal';
+          break;
+        case 'depthCoverage':
+          newMode = 'depth';
+          break;
+        case 'datasetUtilization':
+          newMode = 'utilization';
+          break;
+        default:
+          newMode = 'default';
+      }
+
       setSortMode(newMode); // This will trigger search() via setSortMode action
     },
     [setSortMode],
@@ -258,7 +278,7 @@ const SpatialTemporalResultsTable = ({
 
   // Calculate total column count for empty state colspan
   const totalColumnCount =
-    5 + // Base columns: checkbox, status, name, type, rows
+    6 + // Base columns: checkbox, status, name, type, dataset utilization (TEMPORARY), rows
     1 + // Spatial coverage (always shown)
     (temporalEnabled ? 1 : 0) + // Temporal coverage
     (depthEnabled ? 1 : 0) + // Depth coverage
@@ -307,13 +327,52 @@ const SpatialTemporalResultsTable = ({
               </Box>
             </TableCell>
 
+            {/* TEMPORARY: Dataset Coverage - will be deleted later */}
+            <TableCell className={classes.utilizationCell} align="right">
+              <SortableHeader
+                field="datasetUtilization"
+                label={
+                  <Box
+                    component="span"
+                    display="inline-flex"
+                    alignItems="flex-start"
+                    gap={0.375}
+                  >
+                    <span>Dataset Coverage</span>
+                    <InfoTooltip
+                      title="How much of this dataset's extent is within the ROI? 100% means the entire dataset extent falls within your ROI."
+                      fontSize="small"
+                    />
+                  </Box>
+                }
+                isActive={sortMode === 'utilization'}
+                direction={sortMode === 'utilization' ? sortDirection : 'desc'}
+                uiPattern="headers-only"
+                onClick={handleHeaderClick}
+                className={classes.clickableHeader}
+              />
+            </TableCell>
+
             {/* === COVERAGE PERCENTAGES GROUP === */}
 
-            {/* Spatial Coverage - sortable */}
+            {/* ROI Coverage - sortable */}
             <TableCell className={classes.coverageCell} align="right">
               <SortableHeader
                 field="spatialCoverage"
-                label="Spatial Coverage"
+                label={
+                  <Box
+                    component="span"
+                    display="inline-flex"
+                    alignItems="flex-start"
+                    gap={0.375}
+                  >
+                    <span>ROI Coverage</span>
+                    <InfoTooltip
+                      title="How much of the ROI does this dataset's extent cover? 100% means the dataset extent covers your entire ROI."
+                      fontSize="small"
+                    />
+                  </Box>
+                }
                 isActive={sortMode === 'spatial'}
                 direction={sortMode === 'spatial' ? sortDirection : 'desc'}
                 uiPattern="headers-only"
@@ -363,7 +422,18 @@ const SpatialTemporalResultsTable = ({
 
             {/* Spatial Overlap */}
             <TableCell className={classes.overlapCell}>
-              Spatial Overlap
+              <Box
+                component="span"
+                display="inline-flex"
+                alignItems="flex-start"
+                gap={0.375}
+              >
+                <span>Spatial Overlap</span>
+                <InfoTooltip
+                  title="The geographic bounds of the overlapping region between this dataset and your ROI."
+                  fontSize="small"
+                />
+              </Box>
             </TableCell>
 
             {/* Depth Overlap - conditionally visible */}
@@ -422,7 +492,11 @@ const SpatialTemporalResultsTable = ({
                     className={`${classes.tableCell} ${classes.statusCell}`}
                     align="center"
                   >
-                    <CheckCircleIcon className={classes.statusIcon} />
+                    {getStatusIcon(
+                      isAlreadyPresent
+                        ? ROW_STATES.ALREADY_PRESENT
+                        : ROW_STATES.NORMAL,
+                    )}
                   </TableCell>
 
                   {/* Dataset Name with description */}
@@ -450,6 +524,23 @@ const SpatialTemporalResultsTable = ({
                     className={`${classes.tableCell} ${classes.typeCell}`}
                   >
                     {dataset.type || 'N/A'}
+                  </TableCell>
+
+                  {/* TEMPORARY: Dataset Utilization - will be deleted later */}
+                  <TableCell
+                    className={`${classes.tableCell} ${classes.utilizationCell}`}
+                    align="right"
+                  >
+                    {typeof dataset.datasetUtilization === 'number'
+                      ? (() => {
+                          const percent = dataset.datasetUtilization * 100;
+                          const rounded = parseFloat(percent.toFixed(1));
+                          if (rounded === 0 && dataset.datasetUtilization > 0) {
+                            return '< 0.05%';
+                          }
+                          return `${rounded.toFixed(1)}%`;
+                        })()
+                      : 'N/A'}
                   </TableCell>
 
                   {/* === COVERAGE PERCENTAGES GROUP === */}
@@ -511,7 +602,14 @@ const SpatialTemporalResultsTable = ({
                   <TableCell
                     className={`${classes.tableCell} ${classes.overlapCell}`}
                   >
-                    {dataset.overlap.spatial.extent}
+                    {dataset.overlap.spatial.extent
+                      .split('\n')
+                      .map((line, index, array) => (
+                        <React.Fragment key={index}>
+                          {line}
+                          {index < array.length - 1 && <br />}
+                        </React.Fragment>
+                      ))}
                   </TableCell>
 
                   {/* Depth Overlap - conditionally visible */}
@@ -551,6 +649,7 @@ SpatialTemporalResultsTable.propTypes = {
       longName: PropTypes.string,
       type: PropTypes.string,
       rows: PropTypes.number,
+      // NOTE: datasetUtilization not included in PropTypes (temporary field)
       overlap: PropTypes.shape({
         spatial: PropTypes.shape({
           coveragePercent: PropTypes.number.isRequired,

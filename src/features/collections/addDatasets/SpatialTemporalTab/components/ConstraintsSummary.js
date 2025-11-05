@@ -60,7 +60,7 @@ const ConstraintsSummary = () => {
    */
   const formatLatitude = () => {
     const { latMin, latMax } = spatialBounds;
-    return `Latitude: ${latMax}°N ~ ${latMin}°S`;
+    return `Latitude: ${latMax}°N ~ ${latMin}°N`;
   };
 
   /**
@@ -69,7 +69,7 @@ const ConstraintsSummary = () => {
    */
   const formatLongitude = () => {
     const { lonMin, lonMax } = spatialBounds;
-    return `Longitude: ${lonMax}°E ~ ${lonMin}°W`;
+    return `Longitude: ${lonMax}°E ~ ${lonMin}°E`;
   };
 
   /**

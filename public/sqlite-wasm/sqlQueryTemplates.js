@@ -69,23 +69,57 @@ function buildSelectClause(includeRank = false, tableAlias = 'd', ftsAlias = 'ft
         END
       ) AS intersection_area,
 
-      -- Area ratio (intersection / ROI)
+      -- Dataset utilization (intersection / dataset area)
+      -- Shows what percentage of the dataset's spatial extent falls within the ROI
+      -- This is the PRIMARY metric for spatial filtering:
+      --   - Partial overlap: 0 < dataset_utilization < 1.0 (some of dataset is in ROI)
+      --   - Full containment: dataset_utilization = 1.0 (entire dataset is within ROI)
       (
         CASE
+          -- No intersection with ROI
           WHEN ${tableAlias}.${columns.latMax} < $userLatMin OR
                ${tableAlias}.${columns.latMin} > $userLatMax OR
                ${tableAlias}.${columns.lonMax} < $userLonMin OR
                ${tableAlias}.${columns.lonMin} > $userLonMax THEN 0
-          WHEN ($userLatMax - $userLatMin) * ($userLonMax - $userLonMin) = 0 THEN 0
+
+          -- Zero-area dataset (point or line)
+          WHEN (${tableAlias}.${columns.latMax} - ${tableAlias}.${columns.latMin}) *
+               (${tableAlias}.${columns.lonMax} - ${tableAlias}.${columns.lonMin}) = 0 THEN (
+            CASE
+              -- True point (no extent in either dimension) - if we got here, it's in bounds
+              WHEN ${tableAlias}.${columns.latMax} = ${tableAlias}.${columns.latMin} AND
+                   ${tableAlias}.${columns.lonMax} = ${tableAlias}.${columns.lonMin} THEN 1.0
+
+              -- Horizontal line (lat extent = 0, lon has extent)
+              WHEN ${tableAlias}.${columns.latMax} = ${tableAlias}.${columns.latMin} THEN (
+                (MIN(${tableAlias}.${columns.lonMax}, $userLonMax) - MAX(${tableAlias}.${columns.lonMin}, $userLonMin)) /
+                NULLIF((${tableAlias}.${columns.lonMax} - ${tableAlias}.${columns.lonMin}), 0)
+              )
+
+              -- Vertical line (lon extent = 0, lat has extent)
+              WHEN ${tableAlias}.${columns.lonMax} = ${tableAlias}.${columns.lonMin} THEN (
+                (MIN(${tableAlias}.${columns.latMax}, $userLatMax) - MAX(${tableAlias}.${columns.latMin}, $userLatMin)) /
+                NULLIF((${tableAlias}.${columns.latMax} - ${tableAlias}.${columns.latMin}), 0)
+              )
+
+              ELSE 0
+            END
+          )
+
+          -- Normal area dataset
           ELSE (
             ((MIN(${tableAlias}.${columns.latMax}, $userLatMax) - MAX(${tableAlias}.${columns.latMin}, $userLatMin)) *
              (MIN(${tableAlias}.${columns.lonMax}, $userLonMax) - MAX(${tableAlias}.${columns.lonMin}, $userLonMin))) /
-            NULLIF((($userLatMax - $userLatMin) * ($userLonMax - $userLonMin)), 0)
+            NULLIF(((${tableAlias}.${columns.latMax} - ${tableAlias}.${columns.latMin}) *
+                    (${tableAlias}.${columns.lonMax} - ${tableAlias}.${columns.lonMin})), 0)
           )
         END
-      ) AS area_ratio,
+      ) AS dataset_utilization,
 
       -- Spatial coverage ratio (0-1 range, rounded to 2 decimal places)
+      -- Shows what percentage of the ROI is covered by the dataset
+      -- NOTE: This metric is calculated for informational purposes only.
+      --       Spatial filtering uses ONLY dataset_utilization, not spatial_coverage.
       (
         CASE
           WHEN ${tableAlias}.${columns.latMax} < $userLatMin OR
@@ -107,7 +141,7 @@ function buildSelectClause(includeRank = false, tableAlias = 'd', ftsAlias = 'ft
           WHEN $userTimeMin IS NULL OR $userTimeMax IS NULL THEN NULL
           WHEN ${tableAlias}.${columns.timeMax} IS NULL OR ${tableAlias}.${columns.timeMin} IS NULL THEN NULL
           WHEN json_extract(${tableAlias}.${columns.metadataJson}, '$.isClimatology') = 1 THEN 1.0
-          WHEN lower(json_extract(${tableAlias}.${columns.metadataJson}, '$.temporalResolution')) LIKE '%climatology%' THEN 1.0
+          WHEN LOWER(${tableAlias}.${columns.metadataJson}) LIKE '%climatology%' THEN 1.0
           WHEN ${tableAlias}.${columns.timeMax} < $userTimeMin OR
                ${tableAlias}.${columns.timeMin} > $userTimeMax THEN 0.0
           ELSE ROUND(
@@ -198,10 +232,13 @@ function buildOrderByClauseNoAlias(useRanking = false) {
  * Build advanced ORDER BY clause with sort mode support
  *
  * Supports multi-level ordering with tie-breakers:
- * - default: data type → area ratio → spatial coverage → alphabetical
- * - spatial: spatial coverage → area ratio → alphabetical
- * - temporal: temporal coverage → area ratio → alphabetical
- * - depth: depth coverage → area ratio → alphabetical
+ * - default: data type → dataset utilization → spatial coverage → alphabetical
+ * - spatial: spatial coverage → data type → dataset utilization → alphabetical
+ * - temporal: temporal coverage → data type → dataset utilization → alphabetical
+ * - depth: depth coverage → data type → dataset utilization → alphabetical
+ *
+ * Dataset utilization is used as a tie-breaker to prioritize datasets where a higher
+ * percentage of the dataset falls within the ROI.
  *
  * @param {string} sortMode - Sort mode ('default', 'spatial', 'temporal', 'depth', or null for basic)
  * @param {string} tableAlias - Table alias (default: 'd')
@@ -222,7 +259,7 @@ function buildAdvancedOrderByClause(sortMode, tableAlias = 'd', sortDirection = 
 
   switch (sortMode) {
     case SORT_MODES.DEFAULT:
-      // Data type → area ratio → spatial coverage → alphabetical
+      // Data type → dataset utilization → spatial coverage → alphabetical
       return `
   ORDER BY
     CASE ${tableAlias}.${columns.datasetType}
@@ -231,12 +268,12 @@ function buildAdvancedOrderByClause(sortMode, tableAlias = 'd', sortDirection = 
       WHEN 'Model' THEN 3
       ELSE 4
     END ASC,
-    area_ratio ${dir},
+    dataset_utilization ${dir},
     spatial_coverage ${dir},
     ${tableAlias}.${columns.shortName} COLLATE NOCASE ASC`;
 
     case SORT_MODES.SPATIAL:
-      // Spatial coverage → data type → area ratio → alphabetical
+      // Spatial coverage → data type → dataset utilization → alphabetical
       return `
   ORDER BY
     spatial_coverage ${dir},
@@ -246,11 +283,11 @@ function buildAdvancedOrderByClause(sortMode, tableAlias = 'd', sortDirection = 
       WHEN 'Model' THEN 3
       ELSE 4
     END ASC,
-    area_ratio ${dir},
+    dataset_utilization ${dir},
     ${tableAlias}.${columns.shortName} COLLATE NOCASE ASC`;
 
     case SORT_MODES.TEMPORAL:
-      // Temporal coverage → data type → area ratio → alphabetical
+      // Temporal coverage → data type → dataset utilization → spatial coverage → alphabetical
       return `
   ORDER BY
     temporal_coverage ${dir},
@@ -260,11 +297,12 @@ function buildAdvancedOrderByClause(sortMode, tableAlias = 'd', sortDirection = 
       WHEN 'Model' THEN 3
       ELSE 4
     END ASC,
-    area_ratio ${dir},
+    dataset_utilization ${dir},
+    spatial_coverage ${dir},
     ${tableAlias}.${columns.shortName} COLLATE NOCASE ASC`;
 
     case SORT_MODES.DEPTH:
-      // Depth coverage → data type → area ratio → alphabetical
+      // Depth coverage → data type → dataset utilization → spatial coverage → alphabetical
       return `
   ORDER BY
     depth_coverage ${dir},
@@ -274,7 +312,22 @@ function buildAdvancedOrderByClause(sortMode, tableAlias = 'd', sortDirection = 
       WHEN 'Model' THEN 3
       ELSE 4
     END ASC,
-    area_ratio ${dir},
+    dataset_utilization ${dir},
+    spatial_coverage ${dir},
+    ${tableAlias}.${columns.shortName} COLLATE NOCASE ASC`;
+
+    case SORT_MODES.UTILIZATION:
+      // Dataset utilization → data type → spatial coverage → alphabetical
+      return `
+  ORDER BY
+    dataset_utilization ${dir},
+    CASE ${tableAlias}.${columns.datasetType}
+      WHEN 'In-Situ' THEN 1
+      WHEN 'Satellite' THEN 2
+      WHEN 'Model' THEN 3
+      ELSE 4
+    END ASC,
+    spatial_coverage ${dir},
     ${tableAlias}.${columns.shortName} COLLATE NOCASE ASC`;
 
     default:

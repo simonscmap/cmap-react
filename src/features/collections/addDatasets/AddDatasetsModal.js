@@ -119,6 +119,10 @@ const AddDatasetsModal = ({
   const [catalogResultsCount, setCatalogResultsCount] = useState(0);
   const [spatialTemporalResultsCount, setSpatialTemporalResultsCount] =
     useState(0);
+  const [spatialTemporalConstraints, setSpatialTemporalConstraints] = useState({
+    temporalEnabled: false,
+    depthEnabled: false,
+  });
 
   // Get resetSearch from catalog search store to reset filters and results
   const resetCatalogSearch = useCatalogSearchStore(
@@ -343,6 +347,25 @@ const AddDatasetsModal = ({
     });
   };
 
+  // Handler for receiving constraint state updates from SpatialTemporalTab
+  const handleConstraintsChange = (constraints) => {
+    setSpatialTemporalConstraints(constraints);
+  };
+
+  // Build dynamic constraint description for spatial-temporal tab
+  const getSpatialTemporalConstraintText = () => {
+    const constraints = [];
+    constraints.push('spatial region');
+    if (spatialTemporalConstraints.temporalEnabled) {
+      constraints.push('time period');
+    }
+    if (spatialTemporalConstraints.depthEnabled) {
+      constraints.push('depth range');
+    }
+
+    return constraints.join(', ').replace(/, ([^,]*)$/, ' and $1');
+  };
+
   if (!open) {
     return null;
   }
@@ -426,6 +449,7 @@ const AddDatasetsModal = ({
             currentCollectionDatasetIds={currentCollectionDatasetIds}
             onToggleSelection={handleToggleDataset}
             onResultsChange={setSpatialTemporalResultsCount}
+            onConstraintsChange={handleConstraintsChange}
           />
         </TabPanel>
       </DialogContent>
@@ -444,8 +468,9 @@ const AddDatasetsModal = ({
           {activeTab === 2 && spatialTemporalResultsCount > 0 && (
             <>
               {' '}
-              of {spatialTemporalResultsCount} overlapping dataset
-              {spatialTemporalResultsCount !== 1 ? 's' : ''}
+              of {spatialTemporalResultsCount} dataset
+              {spatialTemporalResultsCount !== 1 ? 's' : ''} with overlap in the
+              specified {getSpatialTemporalConstraintText()}
             </>
           )}
         </Typography>

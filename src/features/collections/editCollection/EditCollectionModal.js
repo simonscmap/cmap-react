@@ -119,29 +119,6 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.error.main,
     marginBottom: theme.spacing(2),
   },
-  normalRow: {
-    '&:hover': {
-      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    },
-  },
-  markedForRemovalRow: {
-    opacity: 0.8,
-    backgroundColor: 'rgba(211, 47, 47, 0.15)',
-    borderLeft: '3px solid rgba(211, 47, 47, 0.6)',
-    '& .MuiTableCell-root:not(:first-child):not(:last-child)': {
-      textDecoration: 'line-through',
-    },
-    '&:hover': {
-      backgroundColor: 'rgba(211, 47, 47, 0.2)',
-    },
-  },
-  newlyAddedRow: {
-    backgroundColor: 'rgba(156, 39, 176, 0.1)',
-    borderLeft: '3px solid rgba(156, 39, 176, 0.8)',
-    '&:hover': {
-      backgroundColor: 'rgba(156, 39, 176, 0.15)',
-    },
-  },
   invalidDatasetsList: {
     marginTop: theme.spacing(1),
     marginBottom: theme.spacing(3),
@@ -310,25 +287,41 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
     setIsAddDatasetsOpen(false);
   };
 
-  // Get row class for marked-for-removal and newly-added styling
-  const getRowClass = (dataset) => {
-    // Priority: markedForRemovalRow > newlyAddedRow > normalRow
-    if (datasetsToRemove.includes(dataset.shortName)) {
-      return classes.markedForRemovalRow;
-    }
+  // Pre-calculate row states for table rendering
+  // This transforms dataset short names with row state information for styling
+  const datasetShortNamesWithStates = useMemo(() => {
+    if (!collection?.datasets) return [];
 
-    // Check if dataset is newly added by matching short name in collection
-    if (collection?.datasets) {
-      const collectionDataset = collection.datasets.find(
-        (d) => d.datasetShortName === dataset.shortName,
-      );
-      if (collectionDataset?.isNewlyAdded === true) {
-        return classes.newlyAddedRow;
+    // Get list of short names, filtering out invalid entries
+    const shortNames = collection.datasets
+      .map((d) => d.datasetShortName)
+      .filter((name) => name !== undefined && name !== null && name !== '');
+
+    // Transform each short name into an object with row state
+    return shortNames.map((shortName) => {
+      let rowState = 'normal';
+
+      // Priority: markedForRemoval > newlyAdded > invalid > normal
+      if (datasetsToRemove.includes(shortName)) {
+        rowState = 'markedForRemoval';
+      } else {
+        // Check if dataset is newly added
+        const collectionDataset = collection.datasets.find(
+          (d) => d.datasetShortName === shortName,
+        );
+        if (collectionDataset?.isNewlyAdded === true) {
+          rowState = 'newlyAdded';
+        } else if (collectionDataset?.isInvalid === true) {
+          rowState = 'invalid';
+        }
       }
-    }
 
-    return classes.normalRow;
-  };
+      return {
+        shortName,
+        rowState,
+      };
+    });
+  }, [collection?.datasets, datasetsToRemove]);
 
   // Handle checkbox toggle - need to disable for marked-for-removal
   const handleToggleSelection = (shortName) => {
@@ -560,21 +553,13 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
                 </UniversalButton>
               </Box>
               <CollectionDatasetsTable
-                datasetShortNames={
-                  collection.datasets
-                    ?.map((d) => d.datasetShortName)
-                    .filter(
-                      (name) =>
-                        name !== undefined && name !== null && name !== '',
-                    ) || []
-                }
+                datasetShortNamesWithStates={datasetShortNamesWithStates}
                 selectedDatasets={selectedDatasets}
                 onToggleSelection={handleToggleSelection}
                 onSelectAll={selectAllDatasets}
                 onClearAll={clearAllSelections}
                 areAllSelected={allDatasetsSelected}
                 areIndeterminate={isIndeterminate}
-                rowClassGetter={getRowClass}
                 columns={['name', 'status', 'type', 'dateRange', 'rows']}
                 onDataLoaded={handleDataLoaded}
                 actions={[

@@ -32,6 +32,9 @@ const useCollectionsStore = create((set, get) => ({
   // Pending deletion state
   pendingDeletions: new Set(),
 
+  // Just created collection ID (for showing at top of My Collections)
+  justCreatedId: null,
+
   // Actions
   setLoading: (loading) => set({ isLoading: loading }),
 
@@ -48,6 +51,11 @@ const useCollectionsStore = create((set, get) => ({
     const newPendingDeletions = new Set(pendingDeletions);
     newPendingDeletions.delete(collectionId);
     set({ pendingDeletions: newPendingDeletions });
+  },
+
+  // Just created collection actions
+  clearJustCreated: () => {
+    set({ justCreatedId: null });
   },
 
   // Optimistic collection actions
@@ -120,6 +128,7 @@ const useCollectionsStore = create((set, get) => ({
       filteredUserCollections,
       filteredPublicCollections,
       statistics,
+      justCreatedId: serverCollection.id, // Set flag to show at top of My Collections
     });
   },
 
@@ -646,6 +655,7 @@ const useCollectionsStore = create((set, get) => ({
         totalDatasets: 0,
       },
       pendingDeletions: new Set(),
+      justCreatedId: null,
     });
   },
 }));

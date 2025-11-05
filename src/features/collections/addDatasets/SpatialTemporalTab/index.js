@@ -11,7 +11,7 @@
  * @module SpatialTemporalTab
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import {
   Box,
@@ -130,14 +130,6 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'column',
     gap: theme.spacing(1),
   },
-  selectionMessage: {
-    padding: theme.spacing(1.5),
-    backgroundColor: 'rgba(139, 195, 74, 0.1)',
-    borderRadius: '4px',
-    textAlign: 'center',
-    fontWeight: 500,
-    color: '#8bc34a',
-  },
   loadingContainer: {
     display: 'flex',
     justifyContent: 'center',
@@ -160,7 +152,12 @@ const useStyles = makeStyles((theme) => ({
     gap: theme.spacing(2),
   },
   searchButton: {
-    minWidth: '242px', // Fixed width to accommodate "Find Overlapping Datasets" (longest text)
+    minWidth: '242px', // Fixed width to accommodate "Find Overlapping Datasets" and spinner
+    '& .MuiButton-label': {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
   },
 }));
 
@@ -175,6 +172,7 @@ const useStyles = makeStyles((theme) => ({
  * @param {Set<string>} props.currentCollectionDatasetIds - Datasets already in target collection (for de-duplication)
  * @param {Function} props.onToggleSelection - Callback when user toggles dataset selection checkbox
  * @param {Function} props.onResultsChange - Optional callback when results count changes
+ * @param {Function} props.onConstraintsChange - Optional callback when constraint states change (temporalEnabled, depthEnabled)
  * @returns {JSX.Element}
  */
 const SpatialTemporalTab = ({
@@ -182,6 +180,7 @@ const SpatialTemporalTab = ({
   currentCollectionDatasetIds = new Set(),
   onToggleSelection,
   onResultsChange,
+  onConstraintsChange,
 }) => {
   const classes = useStyles();
 
@@ -203,6 +202,12 @@ const SpatialTemporalTab = ({
     isConstraintsExpanded,
     toggleConstraintsExpanded,
   } = useSpatialTemporalSearchStore();
+
+  // Track previous constraint values to avoid unnecessary callbacks
+  const prevConstraintsRef = useRef({
+    temporalEnabled: false,
+    depthEnabled: false,
+  });
 
   // Calculate "already in collection" count (before any early returns)
   // Apply data type filtering to match what's shown in the results table
@@ -237,6 +242,20 @@ const SpatialTemporalTab = ({
     }
   }, [results, onResultsChange, getResultCount]);
 
+  // Notify parent component when constraint states change (only when values actually change)
+  useEffect(() => {
+    if (onConstraintsChange) {
+      const prev = prevConstraintsRef.current;
+      if (
+        prev.temporalEnabled !== temporalEnabled ||
+        prev.depthEnabled !== depthEnabled
+      ) {
+        prevConstraintsRef.current = { temporalEnabled, depthEnabled };
+        onConstraintsChange({ temporalEnabled, depthEnabled });
+      }
+    }
+  }, [temporalEnabled, depthEnabled, onConstraintsChange]);
+
   /**
    * Handle search button click
    * Validates constraints and executes search
@@ -268,30 +287,6 @@ const SpatialTemporalTab = ({
       </Box>
     );
   }
-
-  // Calculate selection message values
-  const selectedCount = selectedDatasetIds.size;
-  const totalResults = getResultCount();
-  const hasSearched = results !== null;
-
-  // Build dynamic message based on enabled constraints
-  const getSelectionMessage = () => {
-    // Build constraint description
-    const constraints = [];
-    constraints.push('spatial region');
-    if (temporalEnabled) {
-      constraints.push('time period');
-    }
-    if (depthEnabled) {
-      constraints.push('depth range');
-    }
-
-    const constraintText = constraints
-      .join(', ')
-      .replace(/, ([^,]*)$/, ' and $1');
-
-    return `${selectedCount} selected of ${totalResults} datasets with overlap in the specified ${constraintText}`;
-  };
 
   return (
     <Box className={classes.container}>
@@ -344,6 +339,14 @@ const SpatialTemporalTab = ({
                   onClick={handleSearch}
                   disabled={!canSearch() || isSearching}
                   className={classes.searchButton}
+                  startIcon={
+                    isSearching ? (
+                      <CircularProgress
+                        size={16}
+                        style={{ color: 'inherit' }}
+                      />
+                    ) : null
+                  }
                 >
                   {isSearching ? 'Searching...' : 'Find Overlapping Datasets'}
                 </UniversalButton>
@@ -377,13 +380,6 @@ const SpatialTemporalTab = ({
 
       {/* Results Section - Always shown, matching FromCollectionsTab and CatalogSearchTab pattern */}
       <Box className={classes.resultsSection}>
-        {/* Selection Message - Only shown after search is performed */}
-        {hasSearched && (
-          <Typography className={classes.selectionMessage}>
-            {getSelectionMessage()}
-          </Typography>
-        )}
-
         {/* Results Table - Always shown, handles empty/loading states internally */}
         <SpatialTemporalResultsTable
           results={results && results.length > 0 ? results : null}
@@ -405,6 +401,7 @@ SpatialTemporalTab.propTypes = {
   currentCollectionDatasetIds: PropTypes.instanceOf(Set),
   onToggleSelection: PropTypes.func.isRequired,
   onResultsChange: PropTypes.func,
+  onConstraintsChange: PropTypes.func,
 };
 
 export default SpatialTemporalTab;

@@ -204,7 +204,7 @@ const SortableHeader = ({
 
 SortableHeader.propTypes = {
   field: PropTypes.string.isRequired,
-  label: PropTypes.string.isRequired,
+  label: PropTypes.node.isRequired, // Changed from string to node to support React elements
   isActive: PropTypes.bool.isRequired,
   direction: PropTypes.oneOf(['asc', 'desc']),
   uiPattern: PropTypes.oneOf(['dropdown-headers', 'headers-only']).isRequired,

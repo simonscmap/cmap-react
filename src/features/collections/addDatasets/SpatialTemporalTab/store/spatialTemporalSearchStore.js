@@ -36,10 +36,10 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
    * @type {{ latMin: number | null, latMax: number | null, lonMin: number | null, lonMax: number | null }}
    */
   spatialBounds: {
-    latMin: -90,
-    latMax: 90,
-    lonMin: -180,
-    lonMax: 180,
+    latMin: 30.758824,
+    latMax: 32.743847,
+    lonMin: -65.166799,
+    lonMax: -63.1667,
   },
 
   /**
@@ -71,7 +71,7 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
    * Selected preset geographic boundary label
    * @type {string | null}
    */
-  selectedPreset: 'Global',
+  selectedPreset: 'BATS Region',
 
   /**
    * Data type filter (client-side filtering of results)
@@ -81,7 +81,7 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
 
   /**
    * Sort mode for result ordering
-   * @type {string} - 'default' | 'spatial' | 'temporal' | 'depth'
+   * @type {string} - 'default' | 'spatial' | 'temporal' | 'depth' | 'utilization'
    */
   sortMode: 'default',
 
@@ -238,7 +238,7 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
    * Set sort mode and trigger new search
    * If the same mode is clicked, toggle direction; otherwise reset to 'desc'
    *
-   * @param {string} mode - Sort mode ('default', 'spatial', 'temporal', 'depth')
+   * @param {string} mode - Sort mode ('default', 'spatial', 'temporal', 'depth', 'utilization')
    */
   setSortMode: (mode) => {
     const currentSortMode = get().sortMode;
@@ -331,10 +331,12 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
         depth: depthEnabled ? depthRange : null,
       });
 
-      // Auto-collapse constraints if user hasn't manually toggled
-      const { userHasManuallyToggled } = get();
+      // Auto-collapse constraints after search completes (if user hasn't manually toggled)
+      const { userHasManuallyToggled, isConstraintsExpanded } = get();
       const shouldAutoCollapse =
-        !userHasManuallyToggled && enhancedResults.length > 0;
+        !userHasManuallyToggled &&
+        isConstraintsExpanded &&
+        enhancedResults.length > 0;
 
       set({
         results: enhancedResults,
@@ -359,12 +361,14 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
 
   /**
    * Toggle the constraints section expansion state.
-   * Sets userHasManuallyToggled to true to prevent auto-collapse.
+   * Sets userHasManuallyToggled based on the new state:
+   * - true when manually collapsing (prevents auto-collapse)
+   * - false when manually expanding (allows auto-collapse on next search)
    */
   toggleConstraintsExpanded: () => {
     set((state) => ({
       isConstraintsExpanded: !state.isConstraintsExpanded,
-      userHasManuallyToggled: true,
+      userHasManuallyToggled: !state.isConstraintsExpanded ? false : true,
     }));
   },
 
@@ -375,10 +379,10 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
     // TODO: Implement in T024
     set({
       spatialBounds: {
-        latMin: -90,
-        latMax: 90,
-        lonMin: -180,
-        lonMax: 180,
+        latMin: 30.758824,
+        latMax: 32.743847,
+        lonMin: -65.166799,
+        lonMax: -63.1667,
       },
       temporalEnabled: false,
       temporalRange: {
@@ -391,7 +395,7 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
         depthMax: null,
       },
       includePartialOverlaps: true,
-      selectedPreset: 'Global',
+      selectedPreset: 'BATS Region',
       selectedDataTypes: new Set(['Model', 'Satellite', 'In-Situ']),
       results: null,
       searchError: null,
