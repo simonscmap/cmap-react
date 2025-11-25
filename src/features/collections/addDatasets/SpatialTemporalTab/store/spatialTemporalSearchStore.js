@@ -257,6 +257,7 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
   setSortMode: (mode) => {
     const currentSortMode = get().sortMode;
     const currentSortDirection = get().sortDirection;
+    const results = get().results;
 
     // If clicking the same mode, toggle direction
     if (currentSortMode === mode) {
@@ -267,8 +268,10 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
       set({ sortMode: mode, sortDirection: 'desc' });
     }
 
-    // Trigger new search with updated sort mode/direction
-    get().search();
+    // Only trigger search if results already exist (re-sort, not initial search)
+    if (results !== null) {
+      get().search();
+    }
   },
 
   /**
