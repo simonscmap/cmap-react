@@ -289,12 +289,11 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
       sortMode,
       sortDirection,
       selectedDataTypes,
-      hasValidSpatialBounds,
-      canSearch,
+      hasValidConstraints,
     } = get();
 
-    // Validation
-    if (!canSearch()) {
+    // Validation only (no deduplication check - allows sort/filter changes to trigger search)
+    if (!hasValidConstraints()) {
       set({
         searchError:
           'Invalid search constraints. Please check all inputs and try again.',
@@ -456,11 +455,12 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
   },
 
   /**
-   * Check if all required conditions are met to execute a search.
+   * Check if constraints are valid for searching (pure validation, no deduplication).
+   * Used internally by search() to validate before executing.
    *
-   * @returns {boolean} True if search can be executed
+   * @returns {boolean} True if constraints are valid
    */
-  canSearch: () => {
+  hasValidConstraints: () => {
     const {
       isInitialized,
       isSearching,
@@ -469,8 +469,6 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
       temporalRange,
       depthEnabled,
       depthRange,
-      includePartialOverlaps,
-      lastSearchConstraints,
     } = get();
 
     if (!isInitialized || isSearching) {
@@ -493,6 +491,31 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
       if (!isValidDepthRange(depthConstraints)) {
         return false;
       }
+    }
+
+    return true;
+  },
+
+  /**
+   * Check if all required conditions are met to execute a search.
+   * Includes validation AND deduplication check (for UI button state).
+   *
+   * @returns {boolean} True if search can be executed
+   */
+  canSearch: () => {
+    const {
+      hasValidConstraints,
+      spatialBounds,
+      temporalEnabled,
+      temporalRange,
+      depthEnabled,
+      depthRange,
+      includePartialOverlaps,
+      lastSearchConstraints,
+    } = get();
+
+    if (!hasValidConstraints()) {
+      return false;
     }
 
     // Prevent redundant searches: check if current constraints match last search
