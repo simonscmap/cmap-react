@@ -1,17 +1,32 @@
-import { dateToDateString } from './dateHelpers';
+import { dateToDateString, dateToEndOfDayString } from './dateHelpers';
+
+// Small epsilon for floating-point comparison tolerance
+// Ensures we capture boundary values that may have floating-point precision differences
+// Value of 0.000001 (~11cm for lat/lon, 1 micrometer for depth) is well below
+// oceanographic measurement precision while handling binary floating-point errors
+const SPATIAL_EPSILON = 0.000001;
+
+// Expand spatial bounds by epsilon to account for floating-point precision
+// For example: 32.108 in metadata might be 32.10800000000004 in actual data
+const expandSpatialBounds = (min, max) => ({
+  min: min - SPATIAL_EPSILON,
+  max: max + SPATIAL_EPSILON,
+});
 
 export const transformFiltersForAPI = (filters) => {
   const apiFilters = {};
 
   // Transform temporal filters - convert Date objects to date strings
+  // Use dateToEndOfDayString for endDate to include the entire last day (T23:59:59)
   if (filters.Time_Min) {
     apiFilters.temporal = {
       startDate: dateToDateString(filters.timeStart),
-      endDate: dateToDateString(filters.timeEnd),
+      endDate: dateToEndOfDayString(filters.timeEnd),
     };
   }
 
   // Transform spatial filters - map to API format
+  // Expand bounds by epsilon to handle floating-point precision issues
   if (
     filters.latStart !== undefined ||
     filters.latEnd !== undefined ||
@@ -20,11 +35,14 @@ export const transformFiltersForAPI = (filters) => {
     filters.depthStart !== undefined ||
     filters.depthEnd !== undefined
   ) {
+    const latBounds = expandSpatialBounds(filters.latStart, filters.latEnd);
+    const lonBounds = expandSpatialBounds(filters.lonStart, filters.lonEnd);
+
     apiFilters.spatial = {
-      latMin: filters.latStart,
-      latMax: filters.latEnd,
-      lonMin: filters.lonStart,
-      lonMax: filters.lonEnd,
+      latMin: latBounds.min,
+      latMax: latBounds.max,
+      lonMin: lonBounds.min,
+      lonMax: lonBounds.max,
     };
   }
 
@@ -33,8 +51,12 @@ export const transformFiltersForAPI = (filters) => {
     if (!apiFilters.spatial) {
       apiFilters.spatial = {};
     }
-    apiFilters.spatial.depthMin = filters.depthStart;
-    apiFilters.spatial.depthMax = filters.depthEnd;
+    const depthBounds = expandSpatialBounds(
+      filters.depthStart,
+      filters.depthEnd,
+    );
+    apiFilters.spatial.depthMin = depthBounds.min;
+    apiFilters.spatial.depthMax = depthBounds.max;
   }
 
   return apiFilters;

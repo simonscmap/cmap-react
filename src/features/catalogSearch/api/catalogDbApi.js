@@ -318,6 +318,55 @@ async function downloadDatabase() {
 }
 
 /**
+ * Check if cached database is current (schema version and data checksum)
+ * Makes a lightweight HEAD request to check server metadata
+ * @param {object} cachedVersion - Version metadata from cached database
+ * @returns {Promise<boolean>} True if cache matches server (both schema and data)
+ */
+async function hasCurrentVersion(cachedVersion) {
+  try {
+    const endpoint = `${apiUrl}/api/catalog/full-catalog-db`;
+    const response = await fetch(endpoint, {
+      method: 'HEAD',
+      ...fetchOptions,
+    });
+
+    if (!response.ok) {
+      console.warn('[Cache] Failed to check server version, assuming cache is valid');
+      return true; // Fail open - use cache if we can't check
+    }
+
+    const serverSchemaVersion = response.headers.get('X-Catalog-Version');
+    const serverChecksum = response.headers.get('X-Catalog-Checksum');
+    const cachedSchemaVersion = cachedVersion.schemaVersion;
+    const cachedChecksum = cachedVersion.checksum;
+
+    // Check schema version
+    if (serverSchemaVersion && serverSchemaVersion !== cachedSchemaVersion) {
+      console.log('[Cache] Schema version changed - invalidating cache', {
+        cached: cachedSchemaVersion,
+        server: serverSchemaVersion,
+      });
+      return false;
+    }
+
+    // Check data checksum
+    if (serverChecksum && serverChecksum !== cachedChecksum) {
+      console.log('[Cache] Data checksum changed - invalidating cache (datasets added/updated)', {
+        cached: cachedChecksum,
+        server: serverChecksum,
+      });
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.warn('[Cache] Error checking server version:', error);
+    return true; // Fail open - use cache if we can't check
+  }
+}
+
+/**
  * Load database (from cache or download)
  * @returns {Promise<ArrayBuffer>}
  */
@@ -325,10 +374,18 @@ export async function loadDatabase() {
   // Try to load from cache first
   const cached = await getCachedDatabase();
   if (cached) {
-    return cached.blob;
+    // Check if schema version and data checksum are current
+    const isCurrent = await hasCurrentVersion(cached.version);
+    if (isCurrent) {
+      return cached.blob;
+    }
+
+    // Schema or data changed, clear cache and download fresh
+    console.log('[Cache] Clearing outdated cache');
+    await clearCache();
   }
 
-  // Cache miss or expired, download fresh copy
+  // Cache miss, expired, or data changed - download fresh copy
   const { blob, version } = await downloadDatabase();
 
   // Store in cache for next time

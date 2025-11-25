@@ -117,6 +117,27 @@ class SearchDatabaseApi {
   }
 
   /**
+   * Execute raw SQL query with parameter bindings
+   * @param {string} sql - SQL query with ? placeholders
+   * @param {Array|object} bindings - Parameter bindings (array for positional ?, object for named params)
+   * @returns {Promise<Array>} Array of result rows
+   */
+  async executeSql(sql, bindings = []) {
+    if (!this.isInitialized) {
+      throw new Error(
+        'Search service not initialized. Call initialize() first.',
+      );
+    }
+
+    const results = await this.sendWorkerMessage('execute-sql', {
+      sql,
+      bindings,
+    });
+
+    return results;
+  }
+
+  /**
    * Cleanup resources
    */
   cleanup() {
@@ -227,6 +248,22 @@ class SearchDatabaseApi {
         break;
 
       case 'regions-error':
+        if (this.pendingSearches.has(searchId)) {
+          const pending = this.pendingSearches.get(searchId);
+          this.pendingSearches.delete(searchId);
+          pending.reject(new Error(error));
+        }
+        break;
+
+      case 'sql-results':
+        if (this.pendingSearches.has(searchId)) {
+          const pending = this.pendingSearches.get(searchId);
+          this.pendingSearches.delete(searchId);
+          pending.resolve(results);
+        }
+        break;
+
+      case 'sql-error':
         if (this.pendingSearches.has(searchId)) {
           const pending = this.pendingSearches.get(searchId);
           this.pendingSearches.delete(searchId);

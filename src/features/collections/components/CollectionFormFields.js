@@ -81,6 +81,7 @@ const CollectionFormFields = ({
       <div className={className}>
         <TextField
           fullWidth
+          required
           label="Collection Name"
           value={name}
           onChange={onNameChange}
@@ -129,7 +130,7 @@ const CollectionFormFields = ({
                     : classes.characterCount
                 }
               >
-                {name.length}/200 characters
+                {name.trim().length}/200 characters
               </span>
             </span>
           }

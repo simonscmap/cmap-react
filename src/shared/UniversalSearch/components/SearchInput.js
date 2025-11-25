@@ -9,7 +9,7 @@ import {
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { Autocomplete } from '@material-ui/lab';
-import { Search } from '@material-ui/icons';
+import { Search, ExpandMore, ExpandLess } from '@material-ui/icons';
 import InfoTooltip from '../../components/InfoTooltip';
 
 import {
@@ -198,9 +198,29 @@ const SearchInput = ({
   }, [clearSearch]);
 
   // Handle dropdown close (click outside, escape key, etc.)
-  const handleClose = useCallback(() => {
-    setDropdownOpen(false);
+  const handleClose = useCallback((event, reason) => {
+    // Only close on specific reasons, not on toggleInput or other input interactions
+    if (reason === 'escape' || reason === 'blur' || reason === 'selectOption') {
+      setDropdownOpen(false);
+    }
   }, []);
+
+  // Handle chevron icon click to toggle dropdown
+  const handleChevronClick = useCallback(
+    (event) => {
+      event.stopPropagation(); // Prevent event from bubbling
+      if (dropdownOpen) {
+        setDropdownOpen(false);
+      } else {
+        // Open dropdown and show all items if loadAllOnFocus is enabled
+        if (loadAllOnFocus && !inputValue) {
+          setShowAllOnFocus(true);
+        }
+        setDropdownOpen(true);
+      }
+    },
+    [dropdownOpen, loadAllOnFocus, inputValue],
+  );
 
   // Handle input focus - reopen dropdown if search is active or loadAllOnFocus is enabled
   const handleFocus = useCallback(() => {
@@ -328,6 +348,27 @@ const SearchInput = ({
                   <InputAdornment position="start">
                     <Search color="action" />
                   </InputAdornment>
+                </>
+              ),
+              endAdornment: (
+                <>
+                  <InputAdornment
+                    position="end"
+                    onClick={handleChevronClick}
+                    style={{
+                      marginRight: '-32px',
+                      cursor: 'pointer',
+                      zIndex: 1,
+                      pointerEvents: 'auto',
+                    }}
+                  >
+                    {dropdownOpen ? (
+                      <ExpandLess color="action" />
+                    ) : (
+                      <ExpandMore color="action" />
+                    )}
+                  </InputAdornment>
+                  {params.InputProps.endAdornment}
                 </>
               ),
             }}

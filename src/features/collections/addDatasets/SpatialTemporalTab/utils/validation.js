@@ -306,3 +306,30 @@ export function validateDepthRange(constraints) {
     errors,
   };
 }
+
+/**
+ * Check if spatial bounds are valid (boolean only)
+ * @param {BoundingBox} bounds - Spatial bounds to validate
+ * @returns {boolean} True if valid
+ */
+export function isValidSpatialBounds(bounds) {
+  return validateSpatialBounds(bounds).valid;
+}
+
+/**
+ * Check if temporal constraints are valid (boolean only)
+ * @param {TemporalConstraints} constraints - Temporal constraints to validate
+ * @returns {boolean} True if valid
+ */
+export function isValidTemporalRange(constraints) {
+  return validateTemporalRange(constraints).valid;
+}
+
+/**
+ * Check if depth constraints are valid (boolean only)
+ * @param {DepthConstraints} constraints - Depth constraints to validate
+ * @returns {boolean} True if valid
+ */
+export function isValidDepthRange(constraints) {
+  return validateDepthRange(constraints).valid;
+}

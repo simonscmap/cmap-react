@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import {
   Box,
@@ -47,10 +47,34 @@ const useStyles = makeStyles((theme) => ({
       zIndex: 2,
       padding: '8px 8px',
       border: 0,
+      verticalAlign: 'top',
+    },
+    '& .MuiTableCell-body': {
+      verticalAlign: 'top',
     },
   },
   table: {
     width: '100%',
+    // Apply first-child/last-child padding to ALL rows (header and body)
+    '& .MuiTableCell-root:first-child': {
+      paddingLeft: '16px',
+    },
+    '& .MuiTableCell-root:last-child': {
+      paddingRight: '16px',
+    },
+  },
+  tableRow: {
+    transition: 'opacity 300ms ease-out, height 300ms ease-out',
+    overflow: 'hidden',
+    '&.removing': {
+      opacity: 0,
+      height: '0px',
+      '& td': {
+        paddingTop: '0 !important',
+        paddingBottom: '0 !important',
+        borderBottom: 'none',
+      },
+    },
   },
   tableCell: {
     color: 'rgba(255, 255, 255, 0.85)',
@@ -68,6 +92,8 @@ const useStyles = makeStyles((theme) => ({
   statusCell: {
     width: '60px',
     textAlign: 'center',
+    textDecoration: 'none !important', // Prevent line-through on status in marked-for-removal rows
+    lineHeight: 1.1,
   },
   datasetNameCell: {
     minWidth: '200px',
@@ -172,6 +198,17 @@ const CollectionDatasetsTable = ({
   // Local state
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [removingDatasets, setRemovingDatasets] = useState(new Set());
+  const [rowHeights, setRowHeights] = useState({});
+
+  // Track previous dataset short names to detect additions vs removals
+  const prevShortNamesRef = useRef(null);
+
+  // Track timeout for cleanup
+  const removalTimeoutRef = useRef(null);
+
+  // Refs for measuring row heights
+  const rowRefs = useRef({});
 
   // Determine which format we received and extract short names + state map
   const shortNamesInput = datasetShortNamesWithStates || datasetShortNames;
@@ -213,9 +250,115 @@ const CollectionDatasetsTable = ({
     if (!shortNamesForFetch || shortNamesForFetch.length === 0) {
       setData([]);
       setIsLoading(false);
+      prevShortNamesRef.current = [];
       return;
     }
 
+    // Optimize for removals: detect if this is a removal-only operation
+    const prevShortNames = prevShortNamesRef.current;
+    if (prevShortNames && prevShortNames.length > 0) {
+      const currentSet = new Set(shortNamesForFetch);
+      const prevSet = new Set(prevShortNames);
+
+      // Find added and removed datasets
+      const addedDatasets = shortNamesForFetch.filter(
+        (name) => !prevSet.has(name),
+      );
+      const removedDatasets = prevShortNames.filter(
+        (name) => !currentSet.has(name),
+      );
+
+      // If only removals (no additions), filter existing data with animation
+      if (addedDatasets.length === 0 && removedDatasets.length > 0) {
+        // Clear any existing timeout
+        if (removalTimeoutRef.current) {
+          clearTimeout(removalTimeoutRef.current);
+        }
+
+        // Measure heights of rows being removed
+        const heights = {};
+        removedDatasets.forEach((shortName) => {
+          const rowElement = rowRefs.current[shortName];
+          if (rowElement) {
+            heights[shortName] = rowElement.offsetHeight;
+          }
+        });
+
+        // Set explicit heights first
+        setRowHeights(heights);
+
+        // Use requestAnimationFrame to ensure heights are applied before animation starts
+        requestAnimationFrame(() => {
+          // Mark datasets as removing to trigger animation
+          setRemovingDatasets(new Set(removedDatasets));
+
+          // Delay actual removal to allow animation to complete
+          removalTimeoutRef.current = setTimeout(() => {
+            const filteredData = data.filter((dataset) =>
+              currentSet.has(dataset.shortName),
+            );
+            setData(filteredData);
+            setRemovingDatasets(new Set());
+            setRowHeights({});
+            prevShortNamesRef.current = shortNamesForFetch;
+            removalTimeoutRef.current = null;
+
+            // Notify parent of updated data
+            if (onDataLoaded) {
+              const totalRows = filteredData.reduce((sum, dataset) => {
+                return sum + (dataset.rowCount || 0);
+              }, 0);
+              onDataLoaded(filteredData, totalRows);
+            }
+          }, 300); // Match animation duration
+        });
+
+        return;
+      }
+
+      // If mixed (both additions and removals), fetch only new datasets and merge
+      if (addedDatasets.length > 0 && removedDatasets.length > 0) {
+        const loadMixedData = async () => {
+          setIsLoading(true);
+          try {
+            // Fetch only the new datasets
+            const newPreviewData = await fetchPreviewData(
+              addedDatasets,
+              collectionId,
+            );
+
+            // Merge: filter existing data + add new data
+            const filteredExisting = data.filter((dataset) =>
+              currentSet.has(dataset.shortName),
+            );
+            const mergedData = [...filteredExisting, ...newPreviewData];
+
+            setData(mergedData);
+            prevShortNamesRef.current = shortNamesForFetch;
+
+            // Notify parent of loaded data
+            if (onDataLoaded) {
+              const totalRows = mergedData.reduce((sum, dataset) => {
+                return sum + (dataset.rowCount || 0);
+              }, 0);
+              onDataLoaded(mergedData, totalRows);
+            }
+          } catch (error) {
+            console.error('Error loading dataset data:', error);
+            if (onError) {
+              onError(error.message || 'Failed to load dataset data', 'error');
+            }
+          } finally {
+            setIsLoading(false);
+          }
+        };
+
+        loadMixedData();
+        return;
+      }
+    }
+
+    // Default behavior: fetch all datasets (for initial load or additions-only)
     const loadData = async () => {
       setIsLoading(true);
       try {
@@ -225,6 +368,7 @@ const CollectionDatasetsTable = ({
         );
 
         setData(previewData);
+        prevShortNamesRef.current = shortNamesForFetch;
 
         // Calculate total rows
         const totalRows = previewData.reduce((sum, dataset) => {
@@ -250,6 +394,9 @@ const CollectionDatasetsTable = ({
     // Cleanup
     return () => {
       clearPreviewData();
+      if (removalTimeoutRef.current) {
+        clearTimeout(removalTimeoutRef.current);
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [preLoadedData, collectionId, datasetShortNamesKey]);
@@ -476,8 +623,27 @@ const CollectionDatasetsTable = ({
               // Get row class from shared hook
               const rowClass = getRowClassName(rowState);
 
+              // Check if this row is being removed (for animation)
+              const isRemoving = removingDatasets.has(dataset.shortName);
+              const removingClass = isRemoving ? 'removing' : '';
+
+              // Get explicit height if set (for smooth animation)
+              const explicitHeight = rowHeights[dataset.shortName];
+              const rowStyle = explicitHeight
+                ? { height: `${explicitHeight}px` }
+                : {};
+
               return (
-                <TableRow key={index} className={rowClass}>
+                <TableRow
+                  key={dataset.shortName}
+                  ref={(el) => {
+                    if (el) {
+                      rowRefs.current[dataset.shortName] = el;
+                    }
+                  }}
+                  className={`${classes.tableRow} ${rowClass} ${removingClass}`}
+                  style={rowStyle}
+                >
                   {/* Selection checkbox */}
                   {hasSelection && (
                     <TableCell

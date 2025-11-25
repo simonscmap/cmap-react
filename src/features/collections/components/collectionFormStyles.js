@@ -15,6 +15,9 @@ export const useCollectionFormStyles = makeStyles((theme) => ({
   fieldLabel: {
     fontSize: '1.1rem',
     fontWeight: 500,
+    '& .MuiFormLabel-asterisk': {
+      color: '#F44336',
+    },
   },
   helperTextContainer: {
     display: 'flex',
@@ -38,9 +41,11 @@ export const useCollectionFormStyles = makeStyles((theme) => ({
   },
   characterCount: {
     marginLeft: 'auto',
+    fontSize: '0.75rem',
   },
   characterCountOverLimit: {
     marginLeft: 'auto',
+    fontSize: '0.75rem',
     color: '#F44336',
   },
   descriptionField: {

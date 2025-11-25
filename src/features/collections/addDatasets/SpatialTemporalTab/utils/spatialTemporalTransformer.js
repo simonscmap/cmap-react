@@ -375,6 +375,7 @@ export function transformSpatialTemporalResult(rawDataset, userConstraints) {
       overlap.temporal = {
         coveragePercent: temporalCoveragePercent,
         range: temporalRange,
+        utilization: rawDataset.temporal_utilization || 0, // NEW - for future use
       };
     } catch (error) {
       // Graceful degradation: log error but provide default values
@@ -407,6 +408,10 @@ export function transformSpatialTemporalResult(rawDataset, userConstraints) {
       overlap.depth = {
         coveragePercent: depthCoveragePercent,
         range: depthRange,
+        utilization:
+          rawDataset.depth_utilization !== null
+            ? rawDataset.depth_utilization
+            : null, // NEW - for future use
       };
     } catch (error) {
       // Graceful degradation: log error but provide default values

@@ -95,7 +95,7 @@ const DepthConstraintsInput = () => {
     setDepthMax(depthRange.depthMax !== null ? depthRange.depthMax : '');
   }, [depthRange.depthMin, depthRange.depthMax]);
 
-  // Validate and update store when inputs change
+  // Validate inputs for immediate feedback (but don't update store)
   useEffect(() => {
     if (!depthEnabled) {
       setValidationErrors([]);
@@ -109,18 +109,10 @@ const DepthConstraintsInput = () => {
       depthMax: depthMax,
     };
 
-    // Validate
+    // Validate (show errors immediately)
     const validation = validateDepthRange(constraints);
     setValidationErrors(validation.errors);
-
-    // Update store if valid
-    if (validation.valid) {
-      setDepthConstraints(depthEnabled, {
-        depthMin: Number(depthMin),
-        depthMax: Number(depthMax),
-      });
-    }
-  }, [depthEnabled, depthMin, depthMax, setDepthConstraints]);
+  }, [depthEnabled, depthMin, depthMax]);
 
   /**
    * Handle checkbox toggle for enabling/disabling depth constraints
@@ -150,6 +142,32 @@ const DepthConstraintsInput = () => {
    */
   const handleDepthMaxChange = (event) => {
     setDepthMax(event.target.value);
+  };
+
+  /**
+   * Handle blur events - update store only when user finishes editing
+   * This prevents premature constraint snapshot comparisons during typing
+   */
+  const handleBlur = () => {
+    if (!depthEnabled) {
+      return;
+    }
+
+    // Prepare constraints for validation
+    const constraints = {
+      enabled: depthEnabled,
+      depthMin: depthMin,
+      depthMax: depthMax,
+    };
+
+    // Only update store if valid
+    const validation = validateDepthRange(constraints);
+    if (validation.valid) {
+      setDepthConstraints(depthEnabled, {
+        depthMin: Number(depthMin),
+        depthMax: Number(depthMax),
+      });
+    }
   };
 
   return (
@@ -183,6 +201,7 @@ const DepthConstraintsInput = () => {
               type="number"
               value={depthMin}
               onChange={handleDepthMinChange}
+              onBlur={handleBlur}
               variant="outlined"
               size="small"
               InputLabelProps={{ shrink: true }}
@@ -197,6 +216,7 @@ const DepthConstraintsInput = () => {
               type="number"
               value={depthMax}
               onChange={handleDepthMaxChange}
+              onBlur={handleBlur}
               variant="outlined"
               size="small"
               InputLabelProps={{ shrink: true }}

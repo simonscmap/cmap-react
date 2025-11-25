@@ -116,6 +116,34 @@ function buildSelectClause(includeRank = false, tableAlias = 'd', ftsAlias = 'ft
         END
       ) AS dataset_utilization,
 
+      -- Temporal utilization (percentage of dataset's temporal extent within user range)
+      (
+        CASE
+          WHEN $userTimeMin IS NULL OR $userTimeMax IS NULL THEN NULL
+          WHEN ${tableAlias}.${columns.timeMax} IS NULL OR ${tableAlias}.${columns.timeMin} IS NULL THEN NULL
+          WHEN json_extract(${tableAlias}.${columns.metadataJson}, '$.isClimatology') = 1 THEN 1.0
+          WHEN ${tableAlias}.${columns.timeMax} < $userTimeMin OR ${tableAlias}.${columns.timeMin} > $userTimeMax THEN 0.0
+          ELSE ROUND(
+            (julianday(MIN(${tableAlias}.${columns.timeMax}, $userTimeMax)) -
+             julianday(MAX(${tableAlias}.${columns.timeMin}, $userTimeMin))) /
+            NULLIF((julianday(${tableAlias}.${columns.timeMax}) - julianday(${tableAlias}.${columns.timeMin})), 0)
+          , 2)
+        END
+      ) AS temporal_utilization,
+
+      -- Depth utilization (percentage of dataset's depth extent within user range)
+      (
+        CASE
+          WHEN $userDepthMin IS NULL OR $userDepthMax IS NULL THEN NULL
+          WHEN ${tableAlias}.${columns.depthMax} IS NULL OR ${tableAlias}.${columns.depthMin} IS NULL THEN NULL
+          WHEN ${tableAlias}.${columns.depthMax} < $userDepthMin OR ${tableAlias}.${columns.depthMin} > $userDepthMax THEN 0.0
+          ELSE ROUND(
+            (MIN(${tableAlias}.${columns.depthMax}, $userDepthMax) - MAX(${tableAlias}.${columns.depthMin}, $userDepthMin)) /
+            NULLIF((${tableAlias}.${columns.depthMax} - ${tableAlias}.${columns.depthMin}), 0)
+          , 2)
+        END
+      ) AS depth_utilization,
+
       -- Spatial coverage ratio (0-1 range, rounded to 2 decimal places)
       -- Shows what percentage of the ROI is covered by the dataset
       -- NOTE: This metric is calculated for informational purposes only.

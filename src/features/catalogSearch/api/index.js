@@ -60,6 +60,9 @@ import {
   resetSearchDatabaseApi,
 } from './searchDatabaseApi';
 
+// Re-export low-level API access (for advanced use cases like estimation)
+export { getSearchDatabaseApi };
+
 // Re-export query construction and constants
 export {
   createSearchQuery,

@@ -162,6 +162,35 @@ const useEditCollectionStore = create((set, get) => ({
   },
 
   /**
+   * Immediately remove a newly added dataset from collection
+   * Used for datasets with isNewlyAdded flag to provide instant removal UX
+   * @param {string} datasetShortName - Dataset_Short_Name to remove
+   */
+  removeDatasetImmediate: (datasetShortName) => {
+    const { collection, selectedDatasets } = get();
+
+    if (!collection?.datasets) return;
+
+    // Remove from collection.datasets array
+    const updatedDatasets = collection.datasets.filter(
+      (dataset) => dataset.datasetShortName !== datasetShortName,
+    );
+
+    // Remove from selection if selected
+    const updatedSelection = selectedDatasets.filter(
+      (id) => id !== datasetShortName,
+    );
+
+    set({
+      collection: {
+        ...collection,
+        datasets: updatedDatasets,
+      },
+      selectedDatasets: updatedSelection,
+    });
+  },
+
+  /**
    * Toggle dataset selection (for checkbox state)
    * @param {string} datasetShortName - Dataset_Short_Name to toggle
    */

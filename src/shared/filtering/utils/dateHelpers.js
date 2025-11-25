@@ -26,6 +26,24 @@ export const dateToDateString = (date) => {
   return formatDateString(fullYear, month, day);
 };
 
+// Convert Date to ISO date string with end-of-day time for max bounds
+// This ensures that when we filter with "date <= maxDate", we include
+// all data from that entire day, not just midnight
+export const dateToEndOfDayString = (date) => {
+  let value = new Date(date);
+
+  let month = value.getMonth() + 1;
+  month = month > 9 ? month : '0' + month;
+
+  let day = value.getDate();
+  day = day > 9 ? day : '0' + day;
+
+  let fullYear = value.getFullYear();
+
+  // Return date with time set to 23:59:59
+  return `${fullYear}-${month}-${day}T23:59:59`;
+};
+
 export const extractDateFromString = (stringDate) => {
   let [year, month, day] = stringDate.split('-');
   const date = new Date(year, parseInt(month) - 1, day);
@@ -85,20 +103,20 @@ export const getInitialRangeValues = (dataset) => {
 
   let initialValues = {
     lat: {
-      start: formatLatitude(Lat_Min),
-      end: formatLatitude(Lat_Max),
+      start: Lat_Min,
+      end: Lat_Max,
     },
     lon: {
-      start: formatLongitude(Lon_Min),
-      end: formatLongitude(Lon_Max),
+      start: Lon_Min,
+      end: Lon_Max,
     },
     time: {
       start: Time_Min ? new Date(Time_Min) : new Date(),
       end: Time_Max ? new Date(Time_Max) : new Date(),
     },
     depth: {
-      start: Math.floor(Depth_Min),
-      end: Math.ceil(Depth_Max),
+      start: Depth_Min,
+      end: Depth_Max,
     },
   };
 

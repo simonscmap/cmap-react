@@ -409,6 +409,41 @@ function getRegions(searchId) {
 }
 
 /**
+ * Execute raw SQL query with parameter bindings
+ * Used for accessing estimation tables and other custom queries
+ * @param {string} sql - SQL query with ? placeholders
+ * @param {Array|object} bindings - Parameter bindings (array for positional, object for named)
+ * @param {number} searchId - Search ID for response correlation
+ */
+function executeSql(sql, bindings, searchId) {
+  try {
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+
+    const results = [];
+
+    db.exec({
+      sql,
+      bind: bindings,
+      rowMode: 'object',
+      callback: (row) => {
+        results.push(row);
+      },
+    });
+
+    postMessage({ type: MESSAGE_TYPES.SQL_RESULTS, searchId, results });
+  } catch (error) {
+    console.error('[Worker] SQL execution error:', error);
+    postMessage({
+      type: MESSAGE_TYPES.SQL_ERROR,
+      searchId,
+      error: error.message || 'SQL execution failed',
+    });
+  }
+}
+
+/**
  * Cleanup resources
  */
 function cleanup() {
@@ -428,7 +463,7 @@ function cleanup() {
 
 // Message handler
 self.onmessage = (event) => {
-  const { type, dbBlob, query, searchId } = event.data;
+  const { type, dbBlob, query, searchId, sql, bindings } = event.data;
 
   switch (type) {
     case MESSAGE_TYPES.INIT:
@@ -439,6 +474,9 @@ self.onmessage = (event) => {
       break;
     case MESSAGE_TYPES.GET_REGIONS:
       getRegions(searchId);
+      break;
+    case MESSAGE_TYPES.EXECUTE_SQL:
+      executeSql(sql, bindings, searchId);
       break;
     case MESSAGE_TYPES.CLEANUP:
       cleanup();

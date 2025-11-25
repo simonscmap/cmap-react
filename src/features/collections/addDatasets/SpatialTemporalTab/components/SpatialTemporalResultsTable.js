@@ -2,6 +2,7 @@ import React, { useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import {
   Box,
+  Button,
   Table,
   TableBody,
   TableCell,
@@ -22,8 +23,11 @@ import {
 import SelectAllDropdown from '../../../../multiDatasetDownload/components/SelectAllDropdown';
 import { SortableHeader } from '../../../../../shared/sorting';
 import useSpatialTemporalSearchStore from '../store/spatialTemporalSearchStore';
+import useRowCountCalculationStore from '../store/rowCountCalculationStore';
 import { useAddDatasetsStore } from '../../state/addDatasetsStore';
 import DataTypeFilterDropdown from './DataTypeFilterDropdown';
+import RowCountCell from './RowCountCell';
+import { createColumnDefinitions } from '../utils/columnDefinitions';
 
 const useStyles = makeStyles((theme) => ({
   tableContainer: {
@@ -54,16 +58,17 @@ const useStyles = makeStyles((theme) => ({
   },
   table: {
     width: '100%',
-  },
-  tableRow: {
-    '&:hover': {
-      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    },
+    // Apply first-child/last-child padding to ALL rows (header and body)
     '& .MuiTableCell-root:first-child': {
       paddingLeft: '16px',
     },
     '& .MuiTableCell-root:last-child': {
       paddingRight: '16px',
+    },
+  },
+  tableRow: {
+    '&:hover': {
+      backgroundColor: 'rgba(255, 255, 255, 0.05)',
     },
   },
   alreadyPresentRow: {
@@ -90,6 +95,7 @@ const useStyles = makeStyles((theme) => ({
   statusCell: {
     width: '60px',
     textAlign: 'center',
+    textDecoration: 'none !important', // Prevent line-through on status in marked-for-removal rows
   },
   datasetNameCell: {
     minWidth: '200px',
@@ -119,8 +125,28 @@ const useStyles = makeStyles((theme) => ({
     verticalAlign: 'top',
   },
   rowsCell: {
-    width: '100px',
+    width: '120px',
     textAlign: 'right',
+  },
+  rowsHeaderCell: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    gap: theme.spacing(0.5),
+  },
+  recalculateButton: {
+    fontSize: '0.62rem',
+    height: 'auto',
+    minHeight: 32,
+    fontWeight: 700, // Bold text
+    borderRadius: '6px',
+    minWidth: 56,
+    maxWidth: 80, // Forces "Recalculate All" to wrap into two lines at word boundary
+    padding: '4px 8px',
+    textTransform: 'none',
+    whiteSpace: 'normal', // Allows text wrapping
+    lineHeight: 1.2,
+    overflowWrap: 'break-word', // Only breaks at word boundaries, not mid-word
   },
   emptyState: {
     padding: theme.spacing(4),
@@ -185,7 +211,7 @@ const SpatialTemporalResultsTable = ({
   const classes = useStyles({ maxHeight });
   const { getStatusIcon } = useRowStateStyles();
 
-  // Get data type filter, sort mode, and sort direction from store
+  // Get data type filter, sort mode, and sort direction from search store
   const selectedDataTypes = useSpatialTemporalSearchStore(
     (state) => state.selectedDataTypes,
   );
@@ -200,9 +226,58 @@ const SpatialTemporalResultsTable = ({
     (state) => state.setSortMode,
   );
 
+  // Get search constraints from search store (needed for row count calculation)
+  const spatialBounds = useSpatialTemporalSearchStore(
+    (state) => state.spatialBounds,
+  );
+  const temporalRange = useSpatialTemporalSearchStore(
+    (state) => state.temporalRange,
+  );
+  const depthRange = useSpatialTemporalSearchStore((state) => state.depthRange);
+  const includePartialOverlaps = useSpatialTemporalSearchStore(
+    (state) => state.includePartialOverlaps,
+  );
+
+  // Get row count calculation state and action from row count store
+  const calculatedRowCounts = useRowCountCalculationStore(
+    (state) => state.calculatedRowCounts,
+  );
+  const skippedDatasets = useRowCountCalculationStore(
+    (state) => state.skippedDatasets,
+  );
+  const failedRowCounts = useRowCountCalculationStore(
+    (state) => state.failedRowCounts,
+  );
+  const rowCountLoadingDatasets = useRowCountCalculationStore(
+    (state) => state.rowCountLoadingDatasets,
+  );
+  const rowCountsLoading = useRowCountCalculationStore(
+    (state) => state.rowCountsLoading,
+  );
+  const calculateRowCountsForStale = useRowCountCalculationStore(
+    (state) => state.calculateRowCountsForStale,
+  );
+  const buildConstraintsFromStore = useRowCountCalculationStore(
+    (state) => state.buildConstraintsFromStore,
+  );
+  const isDatasetStale = useRowCountCalculationStore(
+    (state) => state.isDatasetStale,
+  );
+  const hasUsedGlobalRecalculation = useRowCountCalculationStore(
+    (state) => state.hasUsedGlobalRecalculation,
+  );
+
   // Handle null results (before first search)
   // SQL filtering now handles all type filtering (1, 2, or 3 types) via IN clause
   const safeResults = results || [];
+
+  // Handle row count calculation button click (header "Recalculate All" button)
+  const handleCalculateRowCounts = useCallback(() => {
+    if (results && results.length > 0) {
+      const constraints = buildConstraintsFromStore();
+      calculateRowCountsForStale(results, constraints);
+    }
+  }, [results, calculateRowCountsForStale, buildConstraintsFromStore]);
 
   // Handle header click to change sort mode
   const handleHeaderClick = useCallback(
@@ -233,6 +308,141 @@ const SpatialTemporalResultsTable = ({
 
   // Use results directly from store (pre-sorted by SQL)
   const sortedResults = safeResults;
+
+  // Define column configuration (single source of truth for headers and body cells)
+  const columnConfig = useMemo(
+    () =>
+      createColumnDefinitions({
+        classes,
+        getStatusIcon,
+        currentCollectionDatasetIds,
+        sortMode,
+        sortDirection,
+        onSortChange: handleHeaderClick,
+        selectedDataTypes,
+        setSelectedDataTypes,
+        resultsCount: safeResults.length,
+      }),
+    [
+      classes,
+      getStatusIcon,
+      currentCollectionDatasetIds,
+      sortMode,
+      sortDirection,
+      handleHeaderClick,
+      selectedDataTypes,
+      setSelectedDataTypes,
+      safeResults.length,
+    ],
+  );
+
+  // Build active columns array based on enabled constraints
+  const activeColumns = useMemo(() => {
+    const columns = [
+      'status',
+      'name',
+      'type',
+      'datasetUtilization',
+      'spatialCoverage',
+    ];
+
+    if (temporalEnabled) {
+      columns.push('temporalCoverage');
+    }
+
+    if (depthEnabled) {
+      columns.push('depthCoverage');
+    }
+
+    // Utilization columns are hidden by default (defined in columnConfig but not shown)
+    // To enable: uncomment the lines below
+    // if (temporalEnabled) {
+    //   columns.push('temporalUtilization');
+    // }
+    //
+    // if (depthEnabled) {
+    //   columns.push('depthUtilization');
+    // }
+
+    if (temporalEnabled) {
+      columns.push('dateOverlap');
+    }
+
+    columns.push('spatialOverlap');
+
+    if (depthEnabled) {
+      columns.push('depthOverlap');
+    }
+
+    return columns;
+  }, [temporalEnabled, depthEnabled]);
+
+  // Check if all datasets have 100% coverage in all enabled dimensions
+  // NOTE: Without temporal_utilization/depth_utilization metrics, we cannot detect
+  // when datasets extend beyond search bounds. Conservative approach: only hide
+  // recalculate button for pure spatial searches with full spatial containment.
+  // When temporal/depth enabled, always show button to avoid false negatives
+  // (hiding button when recalculation would yield different row counts).
+  const allDatasetsFullCoverage = useMemo(() => {
+    if (safeResults.length === 0) return false;
+
+    return safeResults.every((dataset) => {
+      const spatialFull = dataset.datasetUtilization === 1.0;
+      const temporalFull = !temporalEnabled; // Only "full" if not being used
+      const depthFull = !depthEnabled; // Only "full" if not being used
+
+      return spatialFull && temporalFull && depthFull;
+    });
+  }, [safeResults, temporalEnabled, depthEnabled]);
+
+  // Check if all datasets have calculated/skipped/failed row counts
+  const allCountsCalculated = useMemo(() => {
+    if (safeResults.length === 0) return false;
+
+    return safeResults.every((dataset) => {
+      const shortName = dataset.shortName;
+      return (
+        calculatedRowCounts[shortName] !== undefined ||
+        skippedDatasets.includes(shortName) ||
+        failedRowCounts.includes(shortName)
+      );
+    });
+  }, [safeResults, calculatedRowCounts, skippedDatasets, failedRowCounts]);
+
+  // Check if any datasets have stale row counts
+  const hasStaleDatasets = useMemo(() => {
+    if (safeResults.length === 0) return false;
+
+    // Build current constraints object
+    const currentConstraints = {
+      spatialBounds,
+      temporalRange,
+      depthRange,
+      temporalEnabled,
+      depthEnabled,
+      includePartialOverlaps,
+    };
+
+    // Check if any dataset is stale
+    return safeResults.some((dataset) => {
+      const { isStale } = isDatasetStale(
+        dataset.shortName,
+        currentConstraints,
+        dataset.datasetUtilization,
+        dataset.type,
+      );
+      return isStale;
+    });
+  }, [
+    safeResults,
+    spatialBounds,
+    temporalRange,
+    depthRange,
+    temporalEnabled,
+    depthEnabled,
+    includePartialOverlaps,
+    isDatasetStale,
+  ]);
 
   // Determine row class based on dataset state
   const getRowClass = (dataset) => {
@@ -277,17 +487,7 @@ const SpatialTemporalResultsTable = ({
   };
 
   // Calculate total column count for empty state colspan
-  const totalColumnCount =
-    6 + // Base columns: checkbox, status, name, type, dataset utilization (TEMPORARY), rows
-    1 + // Spatial coverage (always shown)
-    (temporalEnabled ? 1 : 0) + // Temporal coverage
-    (depthEnabled ? 1 : 0) + // Depth coverage
-    2 + // Diagnostic: Spatial ratio + Spatial %
-    (temporalEnabled ? 2 : 0) + // Diagnostic: Temporal ratio + Temporal %
-    (depthEnabled ? 2 : 0) + // Diagnostic: Depth ratio + Depth %
-    1 + // Spatial overlap (always shown)
-    (temporalEnabled ? 1 : 0) + // Date overlap
-    (depthEnabled ? 1 : 0); // Depth overlap
+  const totalColumnCount = 1 + activeColumns.length + 1; // checkbox + data columns + rows
 
   return (
     <TableContainer component={Paper} className={classes.tableContainer}>
@@ -305,147 +505,76 @@ const SpatialTemporalResultsTable = ({
               />
             </TableCell>
 
-            {/* Status column */}
-            <TableCell className={classes.statusCell} align="center">
-              Status
-            </TableCell>
-
-            {/* Dataset Name column - not sortable in SQL mode */}
-            <TableCell className={classes.datasetNameCell}>
-              Dataset Name
-            </TableCell>
-
-            {/* Type column with filter dropdown */}
-            <TableCell className={classes.typeCell}>
-              <Box display="flex" alignItems="center">
-                Type
-                <DataTypeFilterDropdown
-                  selectedTypes={selectedDataTypes}
-                  onSelectionChange={setSelectedDataTypes}
-                  disabled={safeResults.length === 0}
-                />
-              </Box>
-            </TableCell>
-
-            {/* TEMPORARY: Dataset Coverage - will be deleted later */}
-            <TableCell className={classes.utilizationCell} align="right">
-              <SortableHeader
-                field="datasetUtilization"
-                label={
-                  <Box
-                    component="span"
-                    display="inline-flex"
-                    alignItems="flex-start"
-                    gap={0.375}
-                  >
-                    <span>Dataset Coverage</span>
-                    <InfoTooltip
-                      title="How much of this dataset's extent is within the ROI? 100% means the entire dataset extent falls within your ROI."
-                      fontSize="small"
-                    />
-                  </Box>
-                }
-                isActive={sortMode === 'utilization'}
-                direction={sortMode === 'utilization' ? sortDirection : 'desc'}
-                uiPattern="headers-only"
-                onClick={handleHeaderClick}
-                className={classes.clickableHeader}
-              />
-            </TableCell>
-
-            {/* === COVERAGE PERCENTAGES GROUP === */}
-
-            {/* ROI Coverage - sortable */}
-            <TableCell className={classes.coverageCell} align="right">
-              <SortableHeader
-                field="spatialCoverage"
-                label={
-                  <Box
-                    component="span"
-                    display="inline-flex"
-                    alignItems="flex-start"
-                    gap={0.375}
-                  >
-                    <span>ROI Coverage</span>
-                    <InfoTooltip
-                      title="How much of the ROI does this dataset's extent cover? 100% means the dataset extent covers your entire ROI."
-                      fontSize="small"
-                    />
-                  </Box>
-                }
-                isActive={sortMode === 'spatial'}
-                direction={sortMode === 'spatial' ? sortDirection : 'desc'}
-                uiPattern="headers-only"
-                onClick={handleHeaderClick}
-                className={classes.clickableHeader}
-              />
-            </TableCell>
-
-            {/* Temporal Coverage - conditionally visible */}
-            {temporalEnabled && (
-              <TableCell className={classes.coverageCell} align="right">
-                <SortableHeader
-                  field="temporalCoverage"
-                  label="Temporal Coverage"
-                  isActive={sortMode === 'temporal'}
-                  direction={sortMode === 'temporal' ? sortDirection : 'desc'}
-                  uiPattern="headers-only"
-                  onClick={handleHeaderClick}
-                  className={classes.clickableHeader}
-                />
-              </TableCell>
-            )}
-
-            {/* Depth Coverage - conditionally visible */}
-            {depthEnabled && (
-              <TableCell className={classes.coverageCell} align="right">
-                <SortableHeader
-                  field="depthCoverage"
-                  label="Depth Coverage"
-                  isActive={sortMode === 'depth'}
-                  direction={sortMode === 'depth' ? sortDirection : 'desc'}
-                  uiPattern="headers-only"
-                  onClick={handleHeaderClick}
-                  className={classes.clickableHeader}
-                />
-              </TableCell>
-            )}
-
-            {/* === OVERLAP VALUES GROUP === */}
-
-            {/* Date Overlap - conditionally visible */}
-            {temporalEnabled && (
-              <TableCell className={classes.overlapCell}>
-                Date Overlap
-              </TableCell>
-            )}
-
-            {/* Spatial Overlap */}
-            <TableCell className={classes.overlapCell}>
-              <Box
-                component="span"
-                display="inline-flex"
-                alignItems="flex-start"
-                gap={0.375}
-              >
-                <span>Spatial Overlap</span>
-                <InfoTooltip
-                  title="The geographic bounds of the overlapping region between this dataset and your ROI."
-                  fontSize="small"
-                />
-              </Box>
-            </TableCell>
-
-            {/* Depth Overlap - conditionally visible */}
-            {depthEnabled && (
-              <TableCell className={classes.overlapCell}>
-                Depth Overlap
-              </TableCell>
-            )}
+            {/* Data columns from config */}
+            {activeColumns.map((columnKey) => {
+              const column = columnConfig[columnKey];
+              return (
+                <TableCell
+                  key={columnKey}
+                  className={column.cellClass}
+                  align={column.align}
+                >
+                  {column.header}
+                </TableCell>
+              );
+            })}
 
             {/* Rows column */}
             <TableCell className={classes.rowsCell} align="right">
-              Rows
+              <Box className={classes.rowsHeaderCell}>
+                <span>Rows</span>
+                <Box display="flex" alignItems="center" gap={0.5}>
+                  {/* Show recalculate button ONLY after a search completes, not after "Recalculate All" is used.
+                      - Results exist
+                      - User has NOT used "Recalculate All" yet (resets on new search)
+                      - Not all datasets have full coverage (indicates recalculation would be useful)
+                      - Not all counts calculated yet (indicates this is right after search, not after constraint change)
+
+                      Important: Button does NOT reappear when "Recalculate All" is clicked.
+                      User must perform a NEW SEARCH to get the "Recalculate All" button again. */}
+                  {results &&
+                    results.length > 0 &&
+                    !hasUsedGlobalRecalculation &&
+                    !allDatasetsFullCoverage &&
+                    !allCountsCalculated && (
+                      <Button
+                        variant="text"
+                        size="small"
+                        onClick={handleCalculateRowCounts}
+                        disabled={rowCountsLoading}
+                        className={classes.recalculateButton}
+                        aria-label="Recalculate row counts for all stale datasets"
+                        style={{
+                          backgroundColor: rowCountsLoading
+                            ? 'rgba(255, 255, 255, 0.2)' // Gray when calculating
+                            : '#bbdefb', // Light blue when enabled
+                          color: rowCountsLoading
+                            ? 'rgba(255, 255, 255, 0.5)' // Gray text when calculating
+                            : '#1565c0', // Dark blue text when enabled
+                        }}
+                      >
+                        {rowCountsLoading
+                          ? 'Calculating...'
+                          : 'Recalculate All'}
+                      </Button>
+                    )}
+                  <InfoTooltip
+                    title={
+                      <>
+                        Row counts show the number of rows in each dataset
+                        within your search constraints. Click 'Recalculate' to
+                        get accurate counts based on your specific region and
+                        time period.
+                        <br />
+                        <br />
+                        Note: Satellite and model datasets are excluded from
+                        calculation due to their large size.
+                      </>
+                    }
+                    fontSize="small"
+                  />
+                </Box>
+              </Box>
             </TableCell>
           </TableRow>
         </TableHead>
@@ -465,7 +594,7 @@ const SpatialTemporalResultsTable = ({
               </TableCell>
             </TableRow>
           ) : (
-            sortedResults.map((dataset, index) => {
+            sortedResults.map((dataset) => {
               const isSelected = selectedDatasetIds.has(dataset.shortName);
               const isAlreadyPresent = currentCollectionDatasetIds.has(
                 dataset.shortName,
@@ -473,7 +602,7 @@ const SpatialTemporalResultsTable = ({
               const rowClass = getRowClass(dataset);
 
               return (
-                <TableRow key={index} className={rowClass}>
+                <TableRow key={dataset.shortName} className={rowClass}>
                   {/* Selection checkbox */}
                   <TableCell
                     className={`${classes.tableCell} ${classes.checkboxCell}`}
@@ -487,150 +616,32 @@ const SpatialTemporalResultsTable = ({
                     />
                   </TableCell>
 
-                  {/* Status icon */}
-                  <TableCell
-                    className={`${classes.tableCell} ${classes.statusCell}`}
-                    align="center"
-                  >
-                    {getStatusIcon(
-                      isAlreadyPresent
-                        ? ROW_STATES.ALREADY_PRESENT
-                        : ROW_STATES.NORMAL,
-                    )}
-                  </TableCell>
+                  {/* Data columns from config */}
+                  {activeColumns.map((columnKey) => {
+                    const column = columnConfig[columnKey];
+                    return (
+                      <TableCell
+                        key={columnKey}
+                        className={`${classes.tableCell} ${column.cellClass}`}
+                        align={column.align}
+                      >
+                        {column.render(dataset)}
+                      </TableCell>
+                    );
+                  })}
 
-                  {/* Dataset Name with description */}
-                  <TableCell
-                    className={`${classes.tableCell} ${classes.datasetNameCell}`}
-                  >
-                    <Box>
-                      <DatasetNameLink
-                        datasetShortName={dataset.shortName}
-                        typographyProps={{
-                          variant: 'body2',
-                          noWrap: true,
-                        }}
-                      />
-                      {dataset.longName && (
-                        <Typography className={classes.datasetDescription}>
-                          {dataset.longName}
-                        </Typography>
-                      )}
-                    </Box>
-                  </TableCell>
-
-                  {/* Type */}
-                  <TableCell
-                    className={`${classes.tableCell} ${classes.typeCell}`}
-                  >
-                    {dataset.type || 'N/A'}
-                  </TableCell>
-
-                  {/* TEMPORARY: Dataset Utilization - will be deleted later */}
-                  <TableCell
-                    className={`${classes.tableCell} ${classes.utilizationCell}`}
-                    align="right"
-                  >
-                    {typeof dataset.datasetUtilization === 'number'
-                      ? (() => {
-                          const percent = dataset.datasetUtilization * 100;
-                          const rounded = parseFloat(percent.toFixed(1));
-                          if (rounded === 0 && dataset.datasetUtilization > 0) {
-                            return '< 0.05%';
-                          }
-                          return `${rounded.toFixed(1)}%`;
-                        })()
-                      : 'N/A'}
-                  </TableCell>
-
-                  {/* === COVERAGE PERCENTAGES GROUP === */}
-
-                  {/* Spatial Coverage % */}
-                  <TableCell
-                    className={`${classes.tableCell} ${classes.coverageCell}`}
-                    align="right"
-                  >
-                    {typeof dataset.overlap.spatial.coveragePercent === 'number'
-                      ? `${Math.round(dataset.overlap.spatial.coveragePercent * 100)}%`
-                      : dataset.overlap.spatial.coveragePercent}
-                  </TableCell>
-
-                  {/* Temporal Coverage % - conditionally visible */}
-                  {temporalEnabled && (
-                    <TableCell
-                      className={`${classes.tableCell} ${classes.coverageCell}`}
-                      align="right"
-                    >
-                      {dataset.overlap.temporal
-                        ? typeof dataset.overlap.temporal.coveragePercent ===
-                          'number'
-                          ? `${Math.round(dataset.overlap.temporal.coveragePercent * 100)}%`
-                          : dataset.overlap.temporal.coveragePercent
-                        : 'N/A'}
-                    </TableCell>
-                  )}
-
-                  {/* Depth Coverage % - conditionally visible */}
-                  {depthEnabled && (
-                    <TableCell
-                      className={`${classes.tableCell} ${classes.coverageCell}`}
-                      align="right"
-                    >
-                      {dataset.overlap.depth
-                        ? typeof dataset.overlap.depth.coveragePercent ===
-                          'number'
-                          ? `${Math.round(dataset.overlap.depth.coveragePercent * 100)}%`
-                          : dataset.overlap.depth.coveragePercent
-                        : 'N/A'}
-                    </TableCell>
-                  )}
-
-                  {/* === OVERLAP VALUES GROUP === */}
-
-                  {/* Date Overlap - conditionally visible */}
-                  {temporalEnabled && (
-                    <TableCell
-                      className={`${classes.tableCell} ${classes.overlapCell}`}
-                    >
-                      {dataset.overlap.temporal
-                        ? dataset.overlap.temporal.range
-                        : 'N/A'}
-                    </TableCell>
-                  )}
-
-                  {/* Spatial Overlap */}
-                  <TableCell
-                    className={`${classes.tableCell} ${classes.overlapCell}`}
-                  >
-                    {dataset.overlap.spatial.extent
-                      .split('\n')
-                      .map((line, index, array) => (
-                        <React.Fragment key={index}>
-                          {line}
-                          {index < array.length - 1 && <br />}
-                        </React.Fragment>
-                      ))}
-                  </TableCell>
-
-                  {/* Depth Overlap - conditionally visible */}
-                  {depthEnabled && (
-                    <TableCell
-                      className={`${classes.tableCell} ${classes.overlapCell}`}
-                    >
-                      {dataset.overlap.depth
-                        ? dataset.overlap.depth.range
-                        : 'N/A'}
-                    </TableCell>
-                  )}
-
-                  {/* Rows */}
+                  {/* Rows column with calculated/original/failed/skipped states */}
                   <TableCell
                     className={`${classes.tableCell} ${classes.rowsCell}`}
                     align="right"
                   >
-                    {typeof dataset.rows === 'number'
-                      ? dataset.rows.toLocaleString()
-                      : 'N/A'}
+                    <RowCountCell
+                      dataset={dataset}
+                      calculatedRowCounts={calculatedRowCounts}
+                      failedRowCounts={failedRowCounts}
+                      skippedDatasets={skippedDatasets}
+                      rowCountLoadingDatasets={rowCountLoadingDatasets}
+                    />
                   </TableCell>
                 </TableRow>
               );
@@ -661,6 +672,7 @@ SpatialTemporalResultsTable.propTypes = {
             PropTypes.string,
           ]),
           range: PropTypes.string,
+          utilization: PropTypes.number, // NEW
         }),
         depth: PropTypes.shape({
           coveragePercent: PropTypes.oneOfType([
@@ -668,6 +680,10 @@ SpatialTemporalResultsTable.propTypes = {
             PropTypes.string,
           ]),
           range: PropTypes.string,
+          utilization: PropTypes.oneOfType([
+            PropTypes.number,
+            PropTypes.oneOf([null]),
+          ]), // NEW
         }),
       }).isRequired,
     }),

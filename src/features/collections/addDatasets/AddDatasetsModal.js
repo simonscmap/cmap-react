@@ -195,6 +195,7 @@ const AddDatasetsModal = ({
           name: collection.name,
           datasetCount: collection.datasetCount || 0,
           isPublic: collection.isPublic || false,
+          isOwner: collection.isOwner || false,
           // Include additional metadata for CollectionSummaryCard
           ownerName: collection.ownerName,
           ownerAffiliation: collection.ownerAffiliation,
