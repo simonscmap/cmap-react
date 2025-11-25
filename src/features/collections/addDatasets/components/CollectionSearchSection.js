@@ -33,27 +33,27 @@ const useStyles = makeStyles((theme) => ({
     wordWrap: 'break-word',
     lineHeight: 1.4,
   },
-  groupHeaderPrivate: {
+  groupHeaderMy: {
     gridColumn: '1 / -1', // Span all columns
     display: 'flex',
     alignItems: 'center',
     width: '100%',
     padding: theme.spacing(1, 2),
-    backgroundColor: '#ffcdd2 !important',
-    color: '#c62828',
+    backgroundColor: '#ffe0b2 !important',
+    color: '#e65100',
     fontWeight: 500,
     fontSize: '0.875rem',
     pointerEvents: 'none',
     cursor: 'default',
   },
-  groupHeaderPublic: {
+  groupHeaderOther: {
     gridColumn: '1 / -1', // Span all columns
     display: 'flex',
     alignItems: 'center',
     width: '100%',
     padding: theme.spacing(1, 2),
-    backgroundColor: '#c8e6c9 !important',
-    color: '#2e7d32',
+    backgroundColor: '#bbdefb !important',
+    color: '#1565c0',
     fontWeight: 500,
     fontSize: '0.875rem',
     pointerEvents: 'none',
@@ -160,10 +160,21 @@ const CollectionSearchSection = ({
               position: 'sticky',
               top: 0,
               zIndex: 3,
-              paddingRight: '16px', // Extra padding for scrollbar space
             }}
           >
             Total Datasets
+          </div>
+          <div
+            className={classes.headerCell}
+            style={{
+              justifyContent: 'center',
+              position: 'sticky',
+              top: 0,
+              zIndex: 3,
+              paddingRight: '16px', // Extra padding for scrollbar space
+            }}
+          >
+            Visibility
           </div>
         </>
       );
@@ -171,11 +182,11 @@ const CollectionSearchSection = ({
 
     // Render group header
     if (option.isGroupHeader) {
-      const isPrivate = option.label === 'Private Collections';
+      const isMyCollections = option.label === 'My Collections';
       return (
         <div
           className={
-            isPrivate ? classes.groupHeaderPrivate : classes.groupHeaderPublic
+            isMyCollections ? classes.groupHeaderMy : classes.groupHeaderOther
           }
         >
           <span>{option.label}</span>
@@ -194,9 +205,15 @@ const CollectionSearchSection = ({
         </div>
         <div
           className={`${classes.dataCell} ${classes.datasetCount}`}
-          style={{ justifyContent: 'flex-end', paddingRight: '16px' }}
+          style={{ justifyContent: 'flex-end' }}
         >
           {option.datasetCount}
+        </div>
+        <div
+          className={classes.dataCell}
+          style={{ justifyContent: 'center', paddingRight: '16px' }}
+        >
+          <CollectionStatusBadge isPublic={option.isPublic} />
         </div>
       </>
     );
@@ -207,37 +224,45 @@ const CollectionSearchSection = ({
     return [{ isHeader: true, id: 'header' }];
   }, []);
 
-  // Process function to insert group headers between private and public collections
+  // Process function to insert group headers between my collections and other public collections
   const processItems = React.useCallback((items) => {
     const processedItems = [];
 
-    // Separate, sort, and add private collections
-    const privateItems = items
-      .filter((item) => !item.isPublic)
+    // Separate my collections (owned by current user)
+    // Sort by visibility (private first, then public) and then alphabetically within each group
+    const myCollections = items
+      .filter((item) => item.isOwner)
+      .sort((a, b) => {
+        // First sort by visibility: private (false) before public (true)
+        if (a.isPublic !== b.isPublic) {
+          return a.isPublic ? 1 : -1;
+        }
+        // Then sort alphabetically by name
+        return a.name.localeCompare(b.name);
+      });
+
+    const otherPublicCollections = items
+      .filter((item) => !item.isOwner)
       .sort((a, b) => a.name.localeCompare(b.name));
 
-    const publicItems = items
-      .filter((item) => item.isPublic)
-      .sort((a, b) => a.name.localeCompare(b.name));
-
-    // Add private section with header
-    if (privateItems.length > 0) {
+    // Add my collections section with header
+    if (myCollections.length > 0) {
       processedItems.push({
         isGroupHeader: true,
-        label: 'Private Collections',
-        id: 'private-header',
+        label: 'My Collections',
+        id: 'my-collections-header',
       });
-      processedItems.push(...privateItems);
+      processedItems.push(...myCollections);
     }
 
-    // Add public section with header
-    if (publicItems.length > 0) {
+    // Add other public collections section with header
+    if (otherPublicCollections.length > 0) {
       processedItems.push({
         isGroupHeader: true,
-        label: 'Public Collections',
-        id: 'public-header',
+        label: 'Other Public Collections',
+        id: 'other-public-header',
       });
-      processedItems.push(...publicItems);
+      processedItems.push(...otherPublicCollections);
     }
 
     return processedItems;
@@ -261,7 +286,7 @@ const CollectionSearchSection = ({
         disablePortal={true}
         prependOptions={prependOptions}
         processItems={processItems}
-        listboxGridColumns="minmax(150px, 1.5fr) minmax(200px, 2.5fr) minmax(100px, 0.5fr)"
+        listboxGridColumns="minmax(150px, 1.5fr) minmax(200px, 2fr) minmax(80px, 0.5fr) minmax(100px, 0.75fr)"
       />
     </Box>
   );

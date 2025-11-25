@@ -5,6 +5,13 @@ import {
   createSearchQuery,
 } from '../../../../catalogSearch/api';
 import { transformSpatialTemporalResults } from '../utils/spatialTemporalTransformer';
+import useRowCountCalculationStore from './rowCountCalculationStore';
+import {
+  isValidSpatialBounds,
+  isValidTemporalRange,
+  isValidDepthRange,
+} from '../utils/validation';
+import { areConstraintsEqual } from '../utils/constraintComparison';
 
 /**
  * Zustand store managing spatial-temporal overlap search state and actions.
@@ -98,6 +105,13 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
   results: null, // null = no search performed yet, [] = search returned 0 results
   isSearching: false,
   searchError: null,
+
+  /**
+   * Snapshot of constraints from last successful search
+   * Used to prevent redundant searches with identical constraints
+   * @type {Object | null}
+   */
+  lastSearchConstraints: null,
 
   /**
    * UI state: Constraints section expansion
@@ -288,8 +302,13 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
       return;
     }
 
-    // Start search
-    set({ isSearching: true, searchError: null });
+    // Start search - reset global recalculation flag to show "Recalculate All" button again
+    // but preserve calculated row counts (they will be marked stale if needed)
+    useRowCountCalculationStore.getState().resetGlobalRecalculation();
+    set({
+      isSearching: true,
+      searchError: null,
+    });
 
     try {
       // Build query
@@ -331,6 +350,22 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
         depth: depthEnabled ? depthRange : null,
       });
 
+      // Store constraint snapshot on successful search
+      const lastSearchConstraints = {
+        spatialBounds: { ...spatialBounds },
+        temporalEnabled,
+        temporalRange: { ...temporalRange },
+        depthEnabled,
+        depthRange: { ...depthRange },
+        includePartialOverlaps,
+      };
+
+      // Track search result dataset IDs for staleness detection
+      const datasetIds = enhancedResults.map((dataset) => dataset.shortName);
+      useRowCountCalculationStore
+        .getState()
+        .setLastSearchDatasetIds(datasetIds);
+
       // Auto-collapse constraints after search completes (if user hasn't manually toggled)
       const { userHasManuallyToggled, isConstraintsExpanded } = get();
       const shouldAutoCollapse =
@@ -341,6 +376,7 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
       set({
         results: enhancedResults,
         isSearching: false,
+        lastSearchConstraints,
         ...(shouldAutoCollapse && { isConstraintsExpanded: false }),
       });
     } catch (error) {
@@ -353,10 +389,11 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
 
   /**
    * Clear search results and error state.
+   * Also clears last search constraints to allow re-searching.
    */
   clearResults: () => {
     // TODO: Implement in T024
-    set({ results: null, searchError: null });
+    set({ results: null, searchError: null, lastSearchConstraints: null });
   },
 
   /**
@@ -414,47 +451,8 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
    * @returns {boolean} True if spatial bounds are valid
    */
   hasValidSpatialBounds: () => {
-    // TODO: Implement in T025
     const { spatialBounds } = get();
-
-    // All fields must be present
-    if (
-      spatialBounds.latMin === null ||
-      spatialBounds.latMax === null ||
-      spatialBounds.lonMin === null ||
-      spatialBounds.lonMax === null
-    ) {
-      return false;
-    }
-
-    // Latitude validation
-    if (
-      spatialBounds.latMin < -90 ||
-      spatialBounds.latMin > 90 ||
-      spatialBounds.latMax < -90 ||
-      spatialBounds.latMax > 90
-    ) {
-      return false;
-    }
-
-    // North > South
-    if (spatialBounds.latMin >= spatialBounds.latMax) {
-      return false;
-    }
-
-    // Longitude validation
-    if (
-      spatialBounds.lonMin < -180 ||
-      spatialBounds.lonMin > 180 ||
-      spatialBounds.lonMax < -180 ||
-      spatialBounds.lonMax > 180
-    ) {
-      return false;
-    }
-
-    // Longitude can wrap (lonMin > lonMax is valid for date line crossing)
-
-    return true;
+    return isValidSpatialBounds(spatialBounds);
   },
 
   /**
@@ -463,44 +461,58 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
    * @returns {boolean} True if search can be executed
    */
   canSearch: () => {
-    // TODO: Implement in T025
     const {
       isInitialized,
       isSearching,
+      spatialBounds,
       temporalEnabled,
       temporalRange,
       depthEnabled,
       depthRange,
-      hasValidSpatialBounds,
+      includePartialOverlaps,
+      lastSearchConstraints,
     } = get();
 
-    // Must be initialized and not currently searching
     if (!isInitialized || isSearching) {
       return false;
     }
 
-    // Spatial bounds must be valid
-    if (!hasValidSpatialBounds()) {
+    if (!isValidSpatialBounds(spatialBounds)) {
       return false;
     }
 
-    // If temporal enabled, range must be valid
     if (temporalEnabled) {
-      if (!temporalRange.timeMin || !temporalRange.timeMax) {
-        return false;
-      }
-      if (temporalRange.timeMin > temporalRange.timeMax) {
+      const temporalConstraints = { enabled: true, ...temporalRange };
+      if (!isValidTemporalRange(temporalConstraints)) {
         return false;
       }
     }
 
-    // If depth enabled, range must be valid
     if (depthEnabled) {
-      if (depthRange.depthMin === null || depthRange.depthMax === null) {
+      const depthConstraints = { enabled: true, ...depthRange };
+      if (!isValidDepthRange(depthConstraints)) {
         return false;
       }
-      if (depthRange.depthMin > depthRange.depthMax) {
-        return false;
+    }
+
+    // Prevent redundant searches: check if current constraints match last search
+    if (lastSearchConstraints) {
+      const currentConstraints = {
+        spatialBounds,
+        temporalEnabled,
+        temporalRange,
+        depthEnabled,
+        depthRange,
+        includePartialOverlaps,
+      };
+
+      const constraintsMatch = areConstraintsEqual(
+        currentConstraints,
+        lastSearchConstraints,
+      );
+
+      if (constraintsMatch) {
+        return false; // Can't search with same constraints as last search
       }
     }
 

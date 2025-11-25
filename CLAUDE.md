@@ -82,7 +82,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Custom build process that renames index.html to app.html
 - Material-UI theming system with custom theme configuration
 - **Responsive Design**: Application is responsive for tablet and desktop viewports. Mobile viewport support is intentionally not implemented.
-- **Material-UI Class Names**: Never use string matching or logic based on Material-UI generated class names as they get minified in production builds.
+- **Material-UI Styling**: Never use string matching on generated class names (minified in production) or class ternaries for state-based styling. Use inline `style` prop for conditional styling to avoid CSS-in-JS specificity conflicts.
 
 ## Testing
 
@@ -215,6 +215,39 @@ function MyComponent({ data }) {
   ```
 
 - **Documentation**: See `src/features/catalogSearch/api/README.md` for complete architecture overview
+
+### Stale Row Count Indicators (2025-11)
+
+- **Per-Dataset Staleness Detection**: Tracks constraint state per dataset when row counts are calculated, enabling intelligent staleness indicators that only appear when counts may be inaccurate
+- **Dual Staleness Logic**:
+  - **Initial (no snapshot)**: Stale if temporal/depth enabled with valid values OR spatial coverage < 100%
+  - **Post-Recalculation (snapshot exists)**: Stale if current constraints differ from dataset's snapshot
+- **Constraint Snapshot Structure**: Per-dataset snapshots capture `{ spatialBounds, temporalRange, depthRange, temporalEnabled, depthEnabled, includePartialOverlaps, timestamp }` in `datasetConstraintSnapshots` map
+- **Refined Recalculation Filtering**: Only recalculates datasets marked as stale (excludes satellite/model types and datasets with accurate counts)
+- **Stale Indicator UI Pattern**:
+  - Material-UI `WarningIcon` (yellow) displayed next to row count when stale
+  - `StaleIndicatorTooltip` component with reason-based message templates
+  - Embedded "Recalculate" button (hidden after "Recalculate All" is used)
+  - Tooltips support multiple staleness reasons: `spatial_partial`, `temporal_enabled`, `depth_enabled`, `constraints_changed`, `dataset_not_in_results`
+- **Constraint Comparison**: Deep equality check via `areConstraintsEqual()` with Date object handling (compares by `.getTime()`), enabled state logic (only compares ranges when enabled in BOTH), and null value support
+- **Usage Example**:
+
+  ```javascript
+  // In Zustand store - check if dataset is stale
+  const { isStale, reason } = get().isDatasetStale(shortName, currentConstraints, datasetUtilization, datasetType);
+  // Returns { isStale: true, reason: 'spatial_partial' }
+
+  // In component - render stale indicator
+  {
+    isStale && (
+      <StaleIndicatorTooltip reason={reason} dataset={dataset} onRecalculate={() => handleRecalculate(dataset)} isRecalculating={isRecalculating} hasUsedGlobalRecalculation={hasUsedGlobalRecalculation}>
+        <WarningIcon style={{ color: '#fdd835', fontSize: 16 }} />
+      </StaleIndicatorTooltip>
+    );
+  }
+  ```
+
+- **Testing**: Manual test scenarios documented in `specs/012-users-howardwkim-src/quickstart.md` covering initial staleness, recalculation triggers, constraint modifications, edge cases, and regression testing
 
 ### Performance Patterns
 

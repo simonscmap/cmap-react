@@ -148,6 +148,10 @@ export const transformSearchResult = (row) => {
     temporal_coverage: row.temporal_coverage,
     depth_coverage: row.depth_coverage,
 
+    // Utilization metrics (for future use)
+    temporal_utilization: row.temporal_utilization,
+    depth_utilization: row.depth_utilization,
+
     // Additional metadata
     metadata,
 

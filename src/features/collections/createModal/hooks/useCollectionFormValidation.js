@@ -72,7 +72,7 @@ export const useCollectionFormValidation = (
       return;
     }
 
-    if (name.length < 5) {
+    if (name.trim().length < 5) {
       setNameValidationState('warning');
       setNameErrorMessage('Collection name must be at least 5 characters');
       return;

@@ -92,14 +92,20 @@ const SpatialBoundsInput = () => {
   const { spatialBounds, selectedPreset, setSpatialBounds, applyPreset } =
     useSpatialTemporalSearchStore();
 
-  // Local state for validation errors
+  // Local state for coordinate inputs and validation
+  const [localBounds, setLocalBounds] = useState(spatialBounds);
   const [validationErrors, setValidationErrors] = useState([]);
 
-  // Validate on bounds change
+  // Sync local state with store when store changes
   useEffect(() => {
-    const result = validateSpatialBounds(spatialBounds);
-    setValidationErrors(result.errors);
+    setLocalBounds(spatialBounds);
   }, [spatialBounds]);
+
+  // Validate local bounds for immediate feedback
+  useEffect(() => {
+    const result = validateSpatialBounds(localBounds);
+    setValidationErrors(result.errors);
+  }, [localBounds]);
 
   /**
    * Handle preset selection from dropdown
@@ -122,20 +128,34 @@ const SpatialBoundsInput = () => {
   };
 
   /**
-   * Handle manual coordinate input
+   * Handle manual coordinate input - update local state only
    * @param {string} field - Field name (latMin, latMax, lonMin, lonMax)
    * @param {string} value - Input value
    */
   const handleCoordChange = (field, value) => {
     // Allow empty string or numeric values
     if (value === '' || value === '-') {
-      setSpatialBounds({ [field]: value });
+      setLocalBounds((prev) => ({ ...prev, [field]: value }));
       return;
     }
 
     const numValue = Number(value);
     if (!isNaN(numValue)) {
-      setSpatialBounds({ [field]: numValue });
+      setLocalBounds((prev) => ({ ...prev, [field]: numValue }));
+    }
+  };
+
+  /**
+   * Handle blur events - update store only when user finishes editing
+   * This prevents premature constraint snapshot comparisons during typing
+   */
+  const handleBlur = () => {
+    // Validate before updating store
+    const result = validateSpatialBounds(localBounds);
+
+    // Only update store if valid
+    if (result.valid) {
+      setSpatialBounds(localBounds);
     }
   };
 
@@ -179,8 +199,9 @@ const SpatialBoundsInput = () => {
             type="number"
             label="Start Latitude (°)"
             variant="outlined"
-            value={spatialBounds.latMax ?? ''}
+            value={localBounds.latMax ?? ''}
             onChange={(e) => handleCoordChange('latMax', e.target.value)}
+            onBlur={handleBlur}
             className={classes.coordField}
             InputLabelProps={{ shrink: true }}
             inputProps={{
@@ -194,8 +215,9 @@ const SpatialBoundsInput = () => {
             type="number"
             label="End Latitude (°)"
             variant="outlined"
-            value={spatialBounds.latMin ?? ''}
+            value={localBounds.latMin ?? ''}
             onChange={(e) => handleCoordChange('latMin', e.target.value)}
+            onBlur={handleBlur}
             className={classes.coordField}
             InputLabelProps={{ shrink: true }}
             inputProps={{
@@ -212,8 +234,9 @@ const SpatialBoundsInput = () => {
             type="number"
             label="Start Longitude (°)"
             variant="outlined"
-            value={spatialBounds.lonMax ?? ''}
+            value={localBounds.lonMax ?? ''}
             onChange={(e) => handleCoordChange('lonMax', e.target.value)}
+            onBlur={handleBlur}
             className={classes.coordField}
             InputLabelProps={{ shrink: true }}
             inputProps={{
@@ -227,8 +250,9 @@ const SpatialBoundsInput = () => {
             type="number"
             label="End Longitude (°)"
             variant="outlined"
-            value={spatialBounds.lonMin ?? ''}
+            value={localBounds.lonMin ?? ''}
             onChange={(e) => handleCoordChange('lonMin', e.target.value)}
+            onBlur={handleBlur}
             className={classes.coordField}
             InputLabelProps={{ shrink: true }}
             inputProps={{

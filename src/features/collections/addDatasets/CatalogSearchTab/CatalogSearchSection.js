@@ -31,7 +31,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import useCatalogSearchStore from '../../../catalogSearch/state/catalogSearchStore';
 import DatasetsTableSection from '../components/DatasetsTableSection';
 import UniversalButton from '../../../../shared/components/UniversalButton';
-import SingleStatistic from '../../components/SingleStatistic';
 import DateInput from '../../../../shared/components/DateInput';
 import zIndex from '../../../../enums/zIndex';
 
@@ -60,9 +59,6 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     gap: theme.spacing(2),
     flexShrink: 0,
-  },
-  statisticsWrapper: {
-    marginBottom: theme.spacing(2),
   },
   loadingContainer: {
     display: 'flex',
@@ -104,14 +100,6 @@ const CatalogSearchSection = ({
 
   // Define available data types
   const dataTypes = ['Model', 'Satellite', 'In-Situ'];
-
-  // Calculate "already in collection" count
-  const alreadyInCollectionCount = React.useMemo(() => {
-    if (results.length === 0) return 0;
-    return results.filter((dataset) =>
-      currentCollectionDatasetIds.has(dataset.shortName),
-    ).length;
-  }, [results, currentCollectionDatasetIds]);
 
   // Sync local input text with store when store is reset
   useEffect(() => {
@@ -344,20 +332,6 @@ const CatalogSearchSection = ({
           </Box>
         )}
       </Box>
-
-      {/* Statistics - Show when there are results */}
-      {results.length > 0 && alreadyInCollectionCount > 0 && (
-        <Box className={classes.statisticsWrapper}>
-          <SingleStatistic
-            value={alreadyInCollectionCount}
-            label="Already in Collection"
-            borderColor="rgba(128, 128, 128, 0.6)"
-            compact
-            maxWidth="280px"
-            noEllipsis
-          />
-        </Box>
-      )}
 
       {/* Results Table - Always shown, matching FromCollectionsTab pattern */}
       <DatasetsTableSection

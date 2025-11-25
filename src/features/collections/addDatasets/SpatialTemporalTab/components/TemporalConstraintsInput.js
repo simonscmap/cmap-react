@@ -127,25 +127,55 @@ const TemporalConstraintsInput = () => {
     }
   };
 
+  // Track local state for date inputs
+  const [localTemporalRange, setLocalTemporalRange] =
+    React.useState(temporalRange);
+
+  // Sync local state with store when store changes
+  React.useEffect(() => {
+    setLocalTemporalRange(temporalRange);
+  }, [temporalRange]);
+
   /**
-   * Handle date input changes
+   * Handle date input changes - validate immediately but don't update store
    * @param {string} field - Field name ('timeMin' or 'timeMax')
    * @param {Date|null} value - Date object value
    */
   const handleDateChange = (field, value) => {
-    // Update store with new value
+    // Update local state only
     const updatedRange = {
-      ...temporalRange,
+      ...localTemporalRange,
       [field]: value,
     };
-    setTemporalConstraints(temporalEnabled, updatedRange);
+    setLocalTemporalRange(updatedRange);
 
-    // Validate
+    // Validate (show errors immediately)
     const newErrors = validateRange(
-      field === 'timeMin' ? value : temporalRange.timeMin,
-      field === 'timeMax' ? value : temporalRange.timeMax,
+      field === 'timeMin' ? value : localTemporalRange.timeMin,
+      field === 'timeMax' ? value : localTemporalRange.timeMax,
     );
     setErrors(newErrors);
+  };
+
+  /**
+   * Handle blur events - update store only when user finishes editing
+   * This prevents premature constraint snapshot comparisons during typing
+   */
+  const handleBlur = () => {
+    if (!temporalEnabled) {
+      return;
+    }
+
+    // Validate before updating store
+    const newErrors = validateRange(
+      localTemporalRange.timeMin,
+      localTemporalRange.timeMax,
+    );
+
+    // Only update store if valid
+    if (!newErrors.timeMin && !newErrors.timeMax) {
+      setTemporalConstraints(temporalEnabled, localTemporalRange);
+    }
   };
 
   return (
@@ -175,16 +205,18 @@ const TemporalConstraintsInput = () => {
           <Box className={classes.inputsRow}>
             <DateInput
               label="Start Date"
-              value={temporalRange.timeMin}
+              value={localTemporalRange.timeMin}
               onChange={(date) => handleDateChange('timeMin', date)}
+              onBlur={handleBlur}
               validationMessage={errors.timeMin}
               width={140}
             />
 
             <DateInput
               label="End Date"
-              value={temporalRange.timeMax}
+              value={localTemporalRange.timeMax}
               onChange={(date) => handleDateChange('timeMax', date)}
+              onBlur={handleBlur}
               validationMessage={errors.timeMax}
               width={140}
             />

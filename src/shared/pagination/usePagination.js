@@ -48,10 +48,10 @@ const usePagination = ({ data, itemsPerPage = 10 }) => {
     return Math.ceil(data.length / validItemsPerPage);
   }, [data, validItemsPerPage]);
 
-  // Auto-reset to page 1 when data changes
+  // Auto-reset to page 1 when data length changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [data]);
+  }, [data.length]);
 
   // Smart page correction when current page exceeds available pages
   useEffect(() => {

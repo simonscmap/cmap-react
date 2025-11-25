@@ -13,6 +13,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
+import { useDispatch } from 'react-redux';
 import {
   Box,
   Typography,
@@ -30,8 +31,8 @@ import OverlapModeCheckbox from './components/OverlapModeCheckbox';
 import SpatialTemporalResultsTable from './components/SpatialTemporalResultsTable';
 import ConstraintsSummary from './components/ConstraintsSummary';
 import UniversalButton from '../../../../shared/components/UniversalButton';
-import SingleStatistic from '../../components/SingleStatistic';
 import DiagnosticQuery from './DiagnosticQuery';
+import { snackbarOpen } from '../../../../Redux/actions/ui';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -119,12 +120,6 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     flexWrap: 'wrap',
   },
-  statisticsWrapper: {
-    flexShrink: 0,
-    display: 'flex',
-    alignItems: 'center',
-    minHeight: '42px', // Match the height of the checkbox/button row
-  },
   resultsSection: {
     display: 'flex',
     flexDirection: 'column',
@@ -159,6 +154,27 @@ const useStyles = makeStyles((theme) => ({
       justifyContent: 'center',
     },
   },
+  rowCountButton: {
+    minWidth: '180px',
+  },
+  warningMessage: {
+    fontSize: '0.875rem',
+    color: theme.palette.text.secondary,
+    fontStyle: 'italic',
+    maxWidth: '400px',
+  },
+  rowCountSection: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(1),
+    marginTop: theme.spacing(2),
+  },
+  rowCountButtonRow: {
+    display: 'flex',
+    gap: theme.spacing(2),
+    alignItems: 'center',
+    flexWrap: 'wrap',
+  },
 }));
 
 /**
@@ -183,6 +199,7 @@ const SpatialTemporalTab = ({
   onConstraintsChange,
 }) => {
   const classes = useStyles();
+  const dispatch = useDispatch();
 
   // Connect to spatialTemporalSearchStore
   const {
@@ -227,12 +244,33 @@ const SpatialTemporalTab = ({
     }).length;
   }, [results, currentCollectionDatasetIds, selectedDataTypes]);
 
+  // Check if results contain satellite or model datasets
+  const hasSatelliteOrModelDatasets = React.useMemo(() => {
+    if (!results || results.length === 0) return false;
+
+    return results.some(
+      (dataset) => dataset.type === 'Satellite' || dataset.type === 'Model',
+    );
+  }, [results]);
+
   // Initialize catalog search on mount
   useEffect(() => {
     if (!isInitialized && !isInitializing) {
       initialize();
     }
   }, [initialize, isInitialized, isInitializing]);
+
+  // Show error snackbar when search fails
+  useEffect(() => {
+    if (searchError) {
+      dispatch(
+        snackbarOpen({
+          message: `Search failed: ${searchError}. Please try again.`,
+          severity: 'error',
+        }),
+      );
+    }
+  }, [searchError, dispatch]);
 
   // Notify parent component when results count changes
   useEffect(() => {
@@ -330,7 +368,7 @@ const SpatialTemporalTab = ({
               </Box>
             </Box>
 
-            {/* Search Button Row: Left side = Search button + checkbox, Right side = Statistics */}
+            {/* Search Button Row */}
             <Box className={classes.searchButtonRow}>
               <Box className={classes.searchButtonGroup}>
                 <UniversalButton
@@ -352,22 +390,6 @@ const SpatialTemporalTab = ({
                 </UniversalButton>
                 <OverlapModeCheckbox />
               </Box>
-
-              {/* Statistics - Show when there are results and items already in collection */}
-              {results &&
-                results.length > 0 &&
-                alreadyInCollectionCount > 0 && (
-                  <Box className={classes.statisticsWrapper}>
-                    <SingleStatistic
-                      value={alreadyInCollectionCount}
-                      label="Already in Collection"
-                      borderColor="rgba(128, 128, 128, 0.6)"
-                      compact
-                      maxWidth="280px"
-                      noEllipsis
-                    />
-                  </Box>
-                )}
             </Box>
           </Box>
         </Collapse>

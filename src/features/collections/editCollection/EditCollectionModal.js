@@ -163,6 +163,9 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
   const cancelDatasetRemoval = useEditCollectionStore(
     (state) => state.cancelDatasetRemoval,
   );
+  const removeDatasetImmediate = useEditCollectionStore(
+    (state) => state.removeDatasetImmediate,
+  );
   const toggleDatasetSelection = useEditCollectionStore(
     (state) => state.toggleDatasetSelection,
   );
@@ -260,7 +263,18 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
   const handleRemoveSelected = () => {
     if (selectedDatasets && selectedDatasets.length > 0) {
       selectedDatasets.forEach((datasetShortName) => {
-        markDatasetForRemoval(datasetShortName);
+        // Check if dataset is newly added
+        const collectionDataset = collection.datasets.find(
+          (d) => d.datasetShortName === datasetShortName,
+        );
+
+        if (collectionDataset?.isNewlyAdded === true) {
+          // Immediate removal for newly added datasets
+          removeDatasetImmediate(datasetShortName);
+        } else {
+          // Mark for removal for existing datasets
+          markDatasetForRemoval(datasetShortName);
+        }
       });
     }
   };
@@ -565,8 +579,20 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
                 actions={[
                   {
                     label: 'Remove',
-                    onClick: (dataset) =>
-                      markDatasetForRemoval(dataset.shortName),
+                    onClick: (dataset) => {
+                      // Check if dataset is newly added
+                      const collectionDataset = collection.datasets.find(
+                        (d) => d.datasetShortName === dataset.shortName,
+                      );
+
+                      if (collectionDataset?.isNewlyAdded === true) {
+                        // Immediate removal for newly added datasets
+                        removeDatasetImmediate(dataset.shortName);
+                      } else {
+                        // Mark for removal for existing datasets
+                        markDatasetForRemoval(dataset.shortName);
+                      }
+                    },
                     variant: 'secondary',
                     condition: (dataset) =>
                       !datasetsToRemove.includes(dataset.shortName),

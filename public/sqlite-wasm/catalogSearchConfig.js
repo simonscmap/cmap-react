@@ -133,18 +133,21 @@ const MESSAGE_TYPES = {
   INIT: 'init',
   SEARCH: 'search',
   GET_REGIONS: 'get-regions',
+  EXECUTE_SQL: 'execute-sql',
   CLEANUP: 'cleanup',
 
   // Outgoing success messages (worker -> main thread)
   INIT_SUCCESS: 'init-success',
   SEARCH_RESULTS: 'search-results',
   REGIONS_RESULTS: 'regions-results',
+  SQL_RESULTS: 'sql-results',
   CLEANUP_SUCCESS: 'cleanup-success',
 
   // Outgoing error messages (worker -> main thread)
   INIT_ERROR: 'init-error',
   SEARCH_ERROR: 'search-error',
   REGIONS_ERROR: 'regions-error',
+  SQL_ERROR: 'sql-error',
   CLEANUP_ERROR: 'cleanup-error',
   ERROR: 'error',
 };
