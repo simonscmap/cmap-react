@@ -84,6 +84,14 @@ const useRowCountCalculationStore = create((set, get) => ({
    */
   lastSearchDatasetIds: new Set(),
 
+  /**
+   * AbortController for cancelling in-flight row count API requests.
+   * Used to cancel requests when modal closes or new calculation starts.
+   *
+   * @type {AbortController|null}
+   */
+  abortController: null,
+
   // ===========================================
   // Selectors
   // ===========================================
@@ -307,6 +315,17 @@ const useRowCountCalculationStore = create((set, get) => ({
       return;
     }
 
+    // Cancel any previous in-flight request
+    const previousController = get().abortController;
+    if (previousController) {
+      previousController.abort();
+      log.debug('cancelled previous row count calculation');
+    }
+
+    // Create new AbortController for this request
+    const controller = new AbortController();
+    set({ abortController: controller });
+
     // Mark all datasets as loading
     const shortNames = datasets.map((d) => d.shortName);
     const loadingSet = new Set(shortNames);
@@ -408,7 +427,9 @@ const useRowCountCalculationStore = create((set, get) => ({
 
         // Remove estimated datasets from loading set (they're done)
         const updatedLoadingSet = new Set(
-          [...loadingSet].filter((name) => !estimated.some((e) => e.shortName === name)),
+          [...loadingSet].filter(
+            (name) => !estimated.some((e) => e.shortName === name),
+          ),
         );
 
         // Track which datasets were estimated (for purple label)
@@ -474,6 +495,7 @@ const useRowCountCalculationStore = create((set, get) => ({
         const response = await collectionsAPI.calculateRowCounts(
           needBackend,
           backendConstraints,
+          controller.signal, // Pass abort signal for cancellation support
         );
 
         if (!response.ok) {
@@ -531,6 +553,13 @@ const useRowCountCalculationStore = create((set, get) => ({
         rowCountLoadingDatasets: new Set(),
       });
     } catch (error) {
+      // Handle AbortError silently - this is expected when modal closes or new calculation starts
+      if (error.name === 'AbortError') {
+        log.debug('row count calculation was cancelled');
+        // Don't update state - let the cleanup or new calculation handle it
+        return;
+      }
+
       set({
         rowCountsLoading: false,
         rowCountLoadingDatasets: new Set(),
@@ -574,9 +603,17 @@ const useRowCountCalculationStore = create((set, get) => ({
 
   /**
    * Clear row count calculation results.
-   * Called when a new search is performed.
+   * Called when a new search is performed or modal closes.
+   * Also cancels any in-flight API requests.
    */
   clearRowCounts: () => {
+    // Cancel any in-flight request
+    const controller = get().abortController;
+    if (controller) {
+      controller.abort();
+      log.debug('cancelled in-flight row count calculation on clear');
+    }
+
     set({
       calculatedRowCounts: {},
       rowCountError: null,
@@ -584,8 +621,10 @@ const useRowCountCalculationStore = create((set, get) => ({
       failedRowCounts: [],
       estimatedRowCounts: new Set(),
       rowCountLoadingDatasets: new Set(),
+      rowCountsLoading: false, // Reset loading state
       datasetConstraintSnapshots: {},
       hasUsedGlobalRecalculation: false, // Reset for new search
+      abortController: null, // Clear the controller reference
     });
   },
 

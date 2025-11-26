@@ -438,6 +438,8 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
       selectedDataTypes: new Set(['Model', 'Satellite', 'In-Situ']),
       results: null,
       searchError: null,
+      isSearching: false, // Reset search state to allow new searches after modal reopen
+      lastSearchConstraints: null, // Clear to allow searching with same constraints after reset
       isConstraintsExpanded: true,
       userHasManuallyToggled: false,
     });

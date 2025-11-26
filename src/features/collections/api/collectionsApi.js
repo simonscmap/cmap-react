@@ -419,7 +419,7 @@ collectionsAPI.downloadDatasets = async (datasetShortNames, collectionId) => {
  * //   metadata: { totalCalculated: 2, totalSkipped: 1, totalFailed: 1 }
  * // }
  */
-collectionsAPI.calculateRowCounts = async (shortNames, constraints) => {
+collectionsAPI.calculateRowCounts = async (shortNames, constraints, signal) => {
   const endpoint = `${apiUrl}/api/collections/calculate-row-counts`;
 
   return await fetch(endpoint, {
@@ -429,6 +429,7 @@ collectionsAPI.calculateRowCounts = async (shortNames, constraints) => {
       shortNames,
       constraints,
     }),
+    signal, // AbortSignal for cancellation support
   });
 };
 
