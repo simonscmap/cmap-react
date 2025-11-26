@@ -92,6 +92,15 @@ const useRowCountCalculationStore = create((set, get) => ({
    */
   abortController: null,
 
+  /**
+   * Array of dataset shortNames that are not eligible for frontend estimation.
+   * These datasets require backend calculation via the "Recalculate All" button.
+   * Updated after each search via calculateEstimatesForDatasets().
+   *
+   * @type {Array<string>}
+   */
+  nonEstimableDatasets: [],
+
   // ===========================================
   // Selectors
   // ===========================================
@@ -602,6 +611,152 @@ const useRowCountCalculationStore = create((set, get) => ({
   },
 
   /**
+   * Calculate row count estimates for eligible datasets only (no backend call).
+   * Called automatically after search completes to provide immediate estimates.
+   *
+   * This action:
+   * - Filters datasets to those eligible for frontend estimation
+   * - Runs estimation for each eligible dataset
+   * - Applies estimated counts immediately
+   * - Creates constraint snapshots for estimated datasets
+   * - Updates nonEstimableDatasets list for button visibility logic
+   *
+   * @param {Array<Object>} datasets - Array of dataset objects with metadata
+   * @param {Object} constraints - Constraint configuration from spatialTemporalSearchStore
+   * @returns {Promise<Array<string>>} Array of non-estimable dataset shortNames
+   */
+  calculateEstimatesForDatasets: async (datasets, constraints) => {
+    // Can't estimate if no datasets
+    if (!datasets || datasets.length === 0) {
+      set({ nonEstimableDatasets: [] });
+      return [];
+    }
+
+    log.debug('auto-calculating estimates for eligible datasets', {
+      datasetCount: datasets.length,
+    });
+
+    try {
+      // Get catalog database API for estimation
+      const catalogDb = getSearchDatabaseApi();
+
+      const estimated = [];
+      const nonEstimable = [];
+
+      for (const dataset of datasets) {
+        try {
+          // Extract metadata fields (backend converts to camelCase before storing in SQLite)
+          const spatialResolution = dataset.metadata.spatialResolution;
+          const temporalResolution = dataset.metadata.temporalResolution;
+          const tableName = dataset.metadata.tableName || dataset.shortName;
+
+          // Check eligibility (pure, synchronous, fast)
+          const eligible = isEligibleForEstimation(
+            {
+              spatialResolution,
+              temporalResolution,
+              tableName,
+            },
+            constraints,
+          );
+
+          if (eligible) {
+            // Build dataset metadata object for estimation
+            const datasetMetadata = {
+              Spatial_Resolution: spatialResolution,
+              Temporal_Resolution: temporalResolution,
+              Table_Name: tableName,
+            };
+
+            // Estimate row count (async, uses catalogDb)
+            const count = await estimateRowCount(
+              datasetMetadata,
+              constraints,
+              catalogDb,
+            );
+            estimated.push({ shortName: dataset.shortName, rowCount: count });
+            log.debug('auto-estimated row count', {
+              shortName: dataset.shortName,
+              count,
+            });
+          } else {
+            nonEstimable.push(dataset.shortName);
+            log.debug('dataset not eligible for auto-estimation', {
+              shortName: dataset.shortName,
+            });
+          }
+        } catch (error) {
+          // Estimation failed, add to non-estimable list
+          log.error('auto-estimation failed for dataset', {
+            shortName: dataset.shortName,
+            error: error.message,
+          });
+          nonEstimable.push(dataset.shortName);
+        }
+      }
+
+      // Apply estimated results if any
+      if (estimated.length > 0) {
+        log.debug('applying auto-estimated row counts', {
+          count: estimated.length,
+        });
+
+        // Build estimated row counts object
+        const estimatedRowCounts = {};
+        estimated.forEach((e) => {
+          estimatedRowCounts[e.shortName] = e.rowCount;
+        });
+
+        // Build snapshots for estimated datasets
+        const newSnapshots = { ...get().datasetConstraintSnapshots };
+        estimated.forEach((e) => {
+          const snapshot = {
+            spatialBounds: { ...constraints.spatialBounds },
+            temporalRange: { ...constraints.temporalRange },
+            depthRange: { ...constraints.depthRange },
+            temporalEnabled: constraints.temporalEnabled,
+            depthEnabled: constraints.depthEnabled,
+            includePartialOverlaps: constraints.includePartialOverlaps,
+            timestamp: new Date(),
+          };
+          newSnapshots[e.shortName] = snapshot;
+        });
+
+        // Track which datasets were estimated (for purple label)
+        const newEstimatedSet = new Set(get().estimatedRowCounts);
+        estimated.forEach((e) => newEstimatedSet.add(e.shortName));
+
+        // Apply estimated results
+        set({
+          calculatedRowCounts: {
+            ...get().calculatedRowCounts,
+            ...estimatedRowCounts,
+          },
+          datasetConstraintSnapshots: newSnapshots,
+          estimatedRowCounts: newEstimatedSet,
+          nonEstimableDatasets: nonEstimable,
+        });
+      } else {
+        // No estimates, just update non-estimable list
+        set({ nonEstimableDatasets: nonEstimable });
+      }
+
+      log.debug('auto-estimation complete', {
+        estimatedCount: estimated.length,
+        nonEstimableCount: nonEstimable.length,
+      });
+
+      return nonEstimable;
+    } catch (error) {
+      log.error('auto-estimation failed', { error: error.message });
+      // On error, mark all datasets as non-estimable
+      const allShortNames = datasets.map((d) => d.shortName);
+      set({ nonEstimableDatasets: allShortNames });
+      return allShortNames;
+    }
+  },
+
+  /**
    * Clear row count calculation results.
    * Called when a new search is performed or modal closes.
    * Also cancels any in-flight API requests.
@@ -625,6 +780,7 @@ const useRowCountCalculationStore = create((set, get) => ({
       datasetConstraintSnapshots: {},
       hasUsedGlobalRecalculation: false, // Reset for new search
       abortController: null, // Clear the controller reference
+      nonEstimableDatasets: [], // Clear for new search
     });
   },
 

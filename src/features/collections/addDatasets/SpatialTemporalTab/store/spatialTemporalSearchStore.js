@@ -381,6 +381,29 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
         lastSearchConstraints,
         ...(shouldAutoCollapse && { isConstraintsExpanded: false }),
       });
+
+      // Auto-calculate estimates for eligible datasets immediately after search
+      // This provides instant row counts for estimable datasets without user action
+      if (enhancedResults.length > 0) {
+        // Build constraints object for estimation
+        const estimationConstraints = {
+          spatialBounds,
+          temporalRange,
+          depthRange,
+          temporalEnabled,
+          depthEnabled,
+          includePartialOverlaps,
+        };
+
+        // Fire-and-forget: don't await to avoid blocking UI
+        // Estimation errors are handled internally by calculateEstimatesForDatasets
+        useRowCountCalculationStore
+          .getState()
+          .calculateEstimatesForDatasets(
+            enhancedResults,
+            estimationConstraints,
+          );
+      }
     } catch (error) {
       set({
         isSearching: false,
