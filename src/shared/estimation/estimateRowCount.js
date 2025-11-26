@@ -185,16 +185,26 @@ async function estimateRowCount(datasetMetadata, constraints, catalogDb) {
     );
 
     // Step 3: Calculate temporal count (pure function)
-    // Convert temporal resolution from seconds to days
-    const temporalResolutionDays = isMonthlyClimatology
-      ? 0 // Not used for Monthly Climatology
-      : temporalMapping.value / 86400; // seconds to days
+    // Skip if temporal constraints are disabled
+    let dateCount = 1; // Default: no temporal dimension
 
-    const dateCount = calculateTemporalCount(
-      constraints,
-      temporalResolutionDays,
-      isMonthlyClimatology,
-    );
+    const hasTemporalConstraints =
+      constraints.temporalEnabled &&
+      constraints.temporalRange.timeMin &&
+      constraints.temporalRange.timeMax;
+
+    if (hasTemporalConstraints) {
+      // Convert temporal resolution from seconds to days
+      const temporalResolutionDays = isMonthlyClimatology
+        ? 0 // Not used for Monthly Climatology
+        : temporalMapping.value / 86400; // seconds to days
+
+      dateCount = calculateTemporalCount(
+        constraints,
+        temporalResolutionDays,
+        isMonthlyClimatology,
+      );
+    }
 
     // Step 4: Calculate depth count (async, queries database)
     let depthCount = 1; // Default: no depth dimension
