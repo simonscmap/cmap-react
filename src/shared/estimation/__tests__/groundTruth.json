@@ -1,0 +1,182 @@
+{
+  "generatedAt": "2025-11-26T23:00:00.000Z",
+  "description": "Ground truth test data for estimateRowCount validation. Row counts collected via /api/collections/calculate-row-counts endpoint. SQLite values from catalog.db.",
+  "testCases": [
+    {
+      "name": "darwin_all_constraints",
+      "dataset": {
+        "shortName": "Darwin_Nutrient",
+        "tableName": "tblDarwin_Nutrient",
+        "spatialResolution": "1/2° X 1/2°",
+        "temporalResolution": "Three Days"
+      },
+      "constraints": {
+        "spatial": {
+          "latMin": 10,
+          "latMax": 11,
+          "lonMin": -120,
+          "lonMax": -119
+        },
+        "temporal": {
+          "startDate": "2010-01-03",
+          "endDate": "2010-01-03"
+        },
+        "depth": {
+          "depthMin": 5,
+          "depthMax": 45
+        }
+      },
+      "sqliteValues": {
+        "spatialResolutionValue": 0.5,
+        "temporalResolutionValue": 259200,
+        "depthModel": "darwin",
+        "depthCount": 5
+      },
+      "actualRowCount": 53560
+    },
+    {
+      "name": "pisces_forecast_daily_depth",
+      "dataset": {
+        "shortName": "Mercator_Pisces_Biogeochemistry_Daily_Forecast",
+        "tableName": "tblPisces_Forecast",
+        "spatialResolution": "1/4° X 1/4°",
+        "temporalResolution": "Daily"
+      },
+      "constraints": {
+        "spatial": {
+          "latMin": 20,
+          "latMax": 20.5,
+          "lonMin": -140,
+          "lonMax": -139.5
+        },
+        "temporal": {
+          "startDate": "2020-06-01",
+          "endDate": "2020-06-02"
+        },
+        "depth": {
+          "depthMin": 0,
+          "depthMax": 50
+        }
+      },
+      "sqliteValues": {
+        "spatialResolutionValue": 0.25,
+        "temporalResolutionValue": 86400,
+        "depthModel": "pisces",
+        "depthCount": 18
+      },
+      "actualRowCount": 324
+    },
+    {
+      "name": "woa_climatology_spatial_only",
+      "dataset": {
+        "shortName": "WOA_2018_1deg_Climatology",
+        "tableName": "tblWOA_2018_1deg_Climatology",
+        "spatialResolution": "1° X 1°",
+        "temporalResolution": "Monthly Climatology"
+      },
+      "constraints": {
+        "spatial": {
+          "latMin": 30,
+          "latMax": 34,
+          "lonMin": -160,
+          "lonMax": -156
+        }
+      },
+      "sqliteValues": {
+        "spatialResolutionValue": 1.0,
+        "temporalResolutionValue": null,
+        "depthModel": null,
+        "depthCount": null
+      },
+      "actualRowCount": 10944
+    },
+    {
+      "name": "wind_hourly_temporal",
+      "dataset": {
+        "shortName": "Wind_NRT_hourly",
+        "tableName": "tblWind_NRT_hourly",
+        "spatialResolution": "1/8° X 1/8°",
+        "temporalResolution": "Hourly"
+      },
+      "constraints": {
+        "spatial": {
+          "latMin": 0,
+          "latMax": 0.5,
+          "lonMin": -170,
+          "lonMax": -169.5
+        },
+        "temporal": {
+          "startDate": "2023-01-01",
+          "endDate": "2023-01-01"
+        }
+      },
+      "sqliteValues": {
+        "spatialResolutionValue": 0.125,
+        "temporalResolutionValue": 3600,
+        "depthModel": null,
+        "depthCount": null
+      },
+      "actualRowCount": 384
+    },
+    {
+      "name": "pisces_climatology_weekly_depth",
+      "dataset": {
+        "shortName": "Mercator_Pisces_Biogeochem_Climatology",
+        "tableName": "tblPisces_NRT",
+        "spatialResolution": "1/2° X 1/2°",
+        "temporalResolution": "Weekly"
+      },
+      "constraints": {
+        "spatial": {
+          "latMin": -10,
+          "latMax": -8,
+          "lonMin": 150,
+          "lonMax": 152
+        },
+        "temporal": {
+          "startDate": "2015-01-01",
+          "endDate": "2015-01-07"
+        },
+        "depth": {
+          "depthMin": 10,
+          "depthMax": 100
+        }
+      },
+      "sqliteValues": {
+        "spatialResolutionValue": 0.5,
+        "temporalResolutionValue": 604800,
+        "depthModel": "pisces",
+        "depthCount": 14
+      },
+      "actualRowCount": 350
+    },
+    {
+      "name": "satellite_chl_8day",
+      "dataset": {
+        "shortName": "Reprocessed_8_Day_Satellite_CHL",
+        "tableName": "tblCHL_REP",
+        "spatialResolution": "1/4° X 1/4°",
+        "temporalResolution": "Eight Days"
+      },
+      "constraints": {
+        "spatial": {
+          "latMin": 40,
+          "latMax": 42,
+          "lonMin": -125,
+          "lonMax": -123
+        },
+        "temporal": {
+          "startDate": "2018-01-01",
+          "endDate": "2018-01-24"
+        }
+      },
+      "sqliteValues": {
+        "spatialResolutionValue": 0.25,
+        "temporalResolutionValue": 691200,
+        "depthModel": null,
+        "depthCount": null
+      },
+      "actualRowCount": 192
+    }
+  ]
+}
