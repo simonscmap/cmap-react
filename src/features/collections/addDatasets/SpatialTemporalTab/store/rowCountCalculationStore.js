@@ -385,11 +385,21 @@ const useRowCountCalculationStore = create((set, get) => ({
               dataset.spatial !== undefined
                 ? dataset.spatial.latMin
                 : dataset.metadata.latMin;
+            const timeMin =
+              dataset.temporal !== undefined
+                ? dataset.temporal.timeMin
+                : dataset.metadata.timeMin;
+            const timeMax =
+              dataset.temporal !== undefined
+                ? dataset.temporal.timeMax
+                : dataset.metadata.timeMax;
             const datasetMetadata = {
               Spatial_Resolution: spatialResolution,
               Temporal_Resolution: temporalResolution,
               Table_Name: tableName,
               Lat_Min: latMin,
+              Time_Min: timeMin,
+              Time_Max: timeMax,
             };
 
             // Estimate row count (async, uses catalogDb)
@@ -687,16 +697,27 @@ const useRowCountCalculationStore = create((set, get) => ({
 
           if (eligible) {
             // Build dataset metadata object for estimation
-            // Include Lat_Min for grid registration detection (cell-centered vs grid-registered)
+            // Lat_Min: for grid registration detection (cell-centered vs grid-registered)
+            // Time_Min/Time_Max: for full temporal range calculation when temporal is disabled
             const latMin =
               dataset.spatial !== undefined
                 ? dataset.spatial.latMin
                 : dataset.metadata.latMin;
+            const timeMin =
+              dataset.temporal !== undefined
+                ? dataset.temporal.timeMin
+                : dataset.metadata.timeMin;
+            const timeMax =
+              dataset.temporal !== undefined
+                ? dataset.temporal.timeMax
+                : dataset.metadata.timeMax;
             const datasetMetadata = {
               Spatial_Resolution: spatialResolution,
               Temporal_Resolution: temporalResolution,
               Table_Name: tableName,
               Lat_Min: latMin,
+              Time_Min: timeMin,
+              Time_Max: timeMax,
             };
 
             // Estimate row count (async, uses catalogDb)
