@@ -154,7 +154,7 @@ const useStyles = makeStyles((theme) => ({
  * @param {Array} actions - Array of action configurations (optional)
  * @param {function} rowClassGetter - Function to get row class based on dataset (optional)
  * @param {string[]} columns - Array of column keys to display (optional)
- * @param {function} onDataLoaded - Callback when data is loaded (optional)
+ * @param {function} onDataLoaded - Callback when data is loaded: (data, totalRows) => void (optional)
  * @param {number} maxHeight - Max height for table container (optional)
  * @param {string} className - Additional CSS class (optional)
  * @param {function} onError - Error callback (optional)
@@ -223,6 +223,15 @@ const CollectionDatasetsTable = ({
   // Stringify datasetShortNames to use as stable dependency
   const datasetShortNamesKey = JSON.stringify(shortNamesForFetch);
 
+  // Helper to calculate total rows from dataset array
+  const calculateTotalRows = (datasets) => {
+    if (!datasets || datasets.length === 0) return 0;
+    return datasets.reduce((sum, dataset) => {
+      const rowCount = dataset.rowCount || 0;
+      return sum + rowCount;
+    }, 0);
+  };
+
   // Fetch data when component mounts or dependencies change
   useEffect(() => {
     // If pre-loaded data is provided, use it directly (no fetch)
@@ -232,7 +241,7 @@ const CollectionDatasetsTable = ({
 
       // Call onDataLoaded callback if provided
       if (preLoadedData.length > 0 && onDataLoaded) {
-        onDataLoaded(preLoadedData);
+        onDataLoaded(preLoadedData, calculateTotalRows(preLoadedData));
       }
 
       return;
@@ -297,7 +306,7 @@ const CollectionDatasetsTable = ({
 
             // Notify parent of updated data
             if (onDataLoaded) {
-              onDataLoaded(filteredData);
+              onDataLoaded(filteredData, calculateTotalRows(filteredData));
             }
           }, 300); // Match animation duration
         });
@@ -327,7 +336,7 @@ const CollectionDatasetsTable = ({
 
             // Notify parent of loaded data
             if (onDataLoaded) {
-              onDataLoaded(mergedData);
+              onDataLoaded(mergedData, calculateTotalRows(mergedData));
             }
           } catch (error) {
             console.error('Error loading dataset data:', error);
@@ -358,7 +367,7 @@ const CollectionDatasetsTable = ({
 
         // Notify parent of loaded data
         if (onDataLoaded) {
-          onDataLoaded(previewData);
+          onDataLoaded(previewData, calculateTotalRows(previewData));
         }
       } catch (error) {
         console.error('Error loading dataset data:', error);
@@ -472,6 +481,12 @@ const CollectionDatasetsTable = ({
           </>
         );
       },
+    },
+    rows: {
+      header: 'Dataset Total Rows',
+      cellClass: '',
+      render: (dataset) =>
+        dataset.isInvalid ? 'N/A' : (dataset.rowCount || 0).toLocaleString(),
     },
   };
 
@@ -712,7 +727,7 @@ CollectionDatasetsTable.propTypes = {
   ),
   rowClassGetter: PropTypes.func,
   columns: PropTypes.arrayOf(
-    PropTypes.oneOf(['status', 'name', 'type', 'region', 'dateRange']),
+    PropTypes.oneOf(['status', 'name', 'type', 'region', 'dateRange', 'rows']),
   ),
   onDataLoaded: PropTypes.func,
   maxHeight: PropTypes.number,
