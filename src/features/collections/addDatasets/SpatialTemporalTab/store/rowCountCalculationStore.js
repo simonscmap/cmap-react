@@ -357,6 +357,16 @@ const useRowCountCalculationStore = create((set, get) => ({
           const spatialResolution = dataset.metadata.spatialResolution;
           const temporalResolution = dataset.metadata.temporalResolution;
           const tableName = dataset.metadata.tableName || dataset.shortName;
+          // Depth bounds from dataset metadata (for depth model eligibility check)
+          // Use dataset.depth if available (transformed search result), fallback to metadata
+          const depthMin =
+            dataset.depth !== undefined
+              ? dataset.depth.depthMin
+              : dataset.metadata.depthMin;
+          const depthMax =
+            dataset.depth !== undefined
+              ? dataset.depth.depthMax
+              : dataset.metadata.depthMax;
 
           // Check eligibility (pure, synchronous, fast)
           const eligible = isEligibleForEstimation(
@@ -364,16 +374,22 @@ const useRowCountCalculationStore = create((set, get) => ({
               spatialResolution,
               temporalResolution,
               tableName,
+              depthMin,
+              depthMax,
             },
             constraints,
           );
 
           if (eligible) {
-            // Build dataset metadata object for estimation
+            const latMin =
+              dataset.spatial !== undefined
+                ? dataset.spatial.latMin
+                : dataset.metadata.latMin;
             const datasetMetadata = {
               Spatial_Resolution: spatialResolution,
               Temporal_Resolution: temporalResolution,
               Table_Name: tableName,
+              Lat_Min: latMin,
             };
 
             // Estimate row count (async, uses catalogDb)
@@ -645,27 +661,42 @@ const useRowCountCalculationStore = create((set, get) => ({
 
       for (const dataset of datasets) {
         try {
-          // Extract metadata fields (backend converts to camelCase before storing in SQLite)
           const spatialResolution = dataset.metadata.spatialResolution;
           const temporalResolution = dataset.metadata.temporalResolution;
           const tableName = dataset.metadata.tableName || dataset.shortName;
 
-          // Check eligibility (pure, synchronous, fast)
+          const depthMin =
+            dataset.depth !== undefined
+              ? dataset.depth.depthMin
+              : dataset.metadata.depthMin;
+          const depthMax =
+            dataset.depth !== undefined
+              ? dataset.depth.depthMax
+              : dataset.metadata.depthMax;
+
           const eligible = isEligibleForEstimation(
             {
               spatialResolution,
               temporalResolution,
               tableName,
+              depthMin,
+              depthMax,
             },
             constraints,
           );
 
           if (eligible) {
             // Build dataset metadata object for estimation
+            // Include Lat_Min for grid registration detection (cell-centered vs grid-registered)
+            const latMin =
+              dataset.spatial !== undefined
+                ? dataset.spatial.latMin
+                : dataset.metadata.latMin;
             const datasetMetadata = {
               Spatial_Resolution: spatialResolution,
               Temporal_Resolution: temporalResolution,
               Table_Name: tableName,
+              Lat_Min: latMin,
             };
 
             // Estimate row count (async, uses catalogDb)

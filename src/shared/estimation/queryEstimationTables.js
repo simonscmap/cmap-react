@@ -140,71 +140,56 @@ export async function queryDatasetDepthModel(searchDatabaseApi, shortName) {
 }
 
 /**
- * Count Darwin depth levels within range
+ * Count depth levels for a given depth model, optionally within a range.
+ * If minDepth and maxDepth are not provided, returns total count of all depth levels.
  * @param {Object} searchDatabaseApi - Initialized SearchDatabaseApi instance
- * @param {number} minDepth - Minimum depth in meters
- * @param {number} maxDepth - Maximum depth in meters
- * @returns {Promise<number>} Count of depth levels within range
+ * @param {string} depthModel - Depth model name ('darwin', 'pisces', or 'woa')
+ * @param {number} [minDepth] - Optional minimum depth in meters
+ * @param {number} [maxDepth] - Optional maximum depth in meters
+ * @returns {Promise<number>} Count of depth levels
  */
-export async function queryDarwinDepthCount(
+export async function queryDepthCount(
   searchDatabaseApi,
+  depthModel,
   minDepth,
   maxDepth,
 ) {
-  try {
-    log.debug('querying darwin depth count', { minDepth, maxDepth });
+  const tableMap = {
+    darwin: 'darwin_depth',
+    pisces: 'pisces_depth',
+    woa: 'woa_depth',
+  };
 
-    const sql =
-      'SELECT COUNT(*) as count FROM darwin_depth WHERE depth_level BETWEEN ? AND ?';
-    const bindings = [minDepth, maxDepth];
-
-    const results = await searchDatabaseApi.executeSql(sql, bindings);
-
-    const count = results[0].count;
-    log.debug('darwin depth count', { minDepth, maxDepth, count });
-
-    return count;
-  } catch (error) {
-    log.error('error querying darwin depth count', {
-      minDepth,
-      maxDepth,
-      error: error.message,
-    });
-    return 0;
+  const tableName = tableMap[depthModel];
+  if (!tableName) {
+    log.debug('unknown depth model, returning 1', { depthModel });
+    return 1;
   }
-}
 
-/**
- * Count PISCES depth levels within range
- * @param {Object} searchDatabaseApi - Initialized SearchDatabaseApi instance
- * @param {number} minDepth - Minimum depth in meters
- * @param {number} maxDepth - Maximum depth in meters
- * @returns {Promise<number>} Count of depth levels within range
- */
-export async function queryPiscesDepthCount(
-  searchDatabaseApi,
-  minDepth,
-  maxDepth,
-) {
+  const hasRange = minDepth !== undefined && maxDepth !== undefined;
+
   try {
-    log.debug('querying pisces depth count', { minDepth, maxDepth });
+    log.debug('querying depth count', { depthModel, tableName, minDepth, maxDepth, hasRange });
 
-    const sql =
-      'SELECT COUNT(*) as count FROM pisces_depth WHERE depth_level BETWEEN ? AND ?';
-    const bindings = [minDepth, maxDepth];
+    const sql = hasRange
+      ? 'SELECT COUNT(*) as count FROM ' + tableName + ' WHERE depth_level BETWEEN ? AND ?'
+      : 'SELECT COUNT(*) as count FROM ' + tableName;
+    const bindings = hasRange ? [minDepth, maxDepth] : [];
 
     const results = await searchDatabaseApi.executeSql(sql, bindings);
 
     const count = results[0].count;
-    log.debug('pisces depth count', { minDepth, maxDepth, count });
+    log.debug('depth count result', { depthModel, minDepth, maxDepth, count });
 
     return count;
   } catch (error) {
-    log.error('error querying pisces depth count', {
+    log.error('error querying depth count', {
+      depthModel,
+      tableName,
       minDepth,
       maxDepth,
       error: error.message,
     });
-    return 0;
+    return 1;
   }
 }
