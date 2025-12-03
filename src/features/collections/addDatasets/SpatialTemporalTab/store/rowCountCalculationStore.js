@@ -699,6 +699,7 @@ const useRowCountCalculationStore = create((set, get) => ({
             // Build dataset metadata object for estimation
             // Lat_Min: for grid registration detection (cell-centered vs grid-registered)
             // Time_Min/Time_Max: for full temporal range calculation when temporal is disabled
+            // Has_Depth/Short_Name: for full depth range calculation when depth is disabled
             const latMin =
               dataset.spatial !== undefined
                 ? dataset.spatial.latMin
@@ -711,13 +712,19 @@ const useRowCountCalculationStore = create((set, get) => ({
               dataset.temporal !== undefined
                 ? dataset.temporal.timeMax
                 : dataset.metadata.timeMax;
+            // Has_Depth: true if depthMin/depthMax exist (dataset has depth dimension)
+            const hasDepth =
+              (depthMin !== null && depthMin !== undefined) ||
+              (depthMax !== null && depthMax !== undefined);
             const datasetMetadata = {
               Spatial_Resolution: spatialResolution,
               Temporal_Resolution: temporalResolution,
               Table_Name: tableName,
+              Short_Name: dataset.shortName,
               Lat_Min: latMin,
               Time_Min: timeMin,
               Time_Max: timeMax,
+              Has_Depth: hasDepth,
             };
 
             // Estimate row count (async, uses catalogDb)
