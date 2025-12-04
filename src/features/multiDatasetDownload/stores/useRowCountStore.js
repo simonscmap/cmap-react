@@ -125,6 +125,11 @@ const useRowCountStore = create((set, get) => ({
         abortController.signal,
       );
 
+      // safeApi returns errors as values instead of throwing them
+      if (rowCounts instanceof Error) {
+        throw rowCounts;
+      }
+
       // Update row counts and clear loading states
       const updatedRowCounts = {};
       const updatedLoadingStates = {};
