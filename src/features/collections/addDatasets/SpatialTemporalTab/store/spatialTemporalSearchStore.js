@@ -456,7 +456,7 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
         depthMin: null,
         depthMax: null,
       },
-      includePartialOverlaps: true,
+      includePartialOverlaps: false,
       selectedPreset: 'BATS Region',
       selectedDataTypes: new Set(['Model', 'Satellite', 'In-Situ']),
       results: null,

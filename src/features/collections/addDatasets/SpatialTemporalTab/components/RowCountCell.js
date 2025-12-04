@@ -134,35 +134,38 @@ const RowCountCell = ({
     return (
       <span>
         {calculatedRowCounts[shortName].toLocaleString()}
-        {isStale ? (
-          // Show stale warning icon (most recent state)
-          <StaleIndicatorTooltip
-            reason={reason}
-            dataset={dataset}
-            onRecalculate={handleRecalculate}
-            isRecalculating={rowCountLoadingDatasets.has(shortName)}
-            hasUsedGlobalRecalculation={hasUsedGlobalRecalculation}
-          >
-            <WarningIcon
-              style={{
-                color: '#fdd835',
-                fontSize: 16,
-                verticalAlign: 'middle',
-                marginLeft: 4,
-              }}
-            />
-          </StaleIndicatorTooltip>
-        ) : (
-          // Show estimate or recalculated label (calculation still valid)
-          <>
-            <br />
-            {estimatedRowCounts.has(shortName) ? (
-              <span className={classes.estimatedRowCount}>(estimate)</span>
-            ) : (
-              <span className={classes.recalculatedRowCount}>(recalculated)</span>
-            )}
-          </>
-        )}
+        {
+          isStale ? (
+            // Show stale warning icon (most recent state)
+            <StaleIndicatorTooltip
+              reason={reason}
+              dataset={dataset}
+              onRecalculate={handleRecalculate}
+              isRecalculating={rowCountLoadingDatasets.has(shortName)}
+              hasUsedGlobalRecalculation={hasUsedGlobalRecalculation}
+            >
+              <WarningIcon
+                style={{
+                  color: '#fdd835',
+                  fontSize: 16,
+                  verticalAlign: 'middle',
+                  marginLeft: 4,
+                }}
+              />
+            </StaleIndicatorTooltip>
+          ) : null
+          // Commented out: estimate/recalculated labels
+          // (
+          //   <>
+          //     <br />
+          //     {estimatedRowCounts.has(shortName) ? (
+          //       <span className={classes.estimatedRowCount}>(estimate)</span>
+          //     ) : (
+          //       <span className={classes.recalculatedRowCount}>(recalculated)</span>
+          //     )}
+          //   </>
+          // )
+        }
       </span>
     );
   }
@@ -197,8 +200,9 @@ const RowCountCell = ({
             }}
           />
         </ClusterOnlyTooltip>
-        <br />
-        <span className={classes.clusterOnlyRowCount}>(cluster only)</span>
+        {/* Commented out: cluster only label */}
+        {/* <br />
+        <span className={classes.clusterOnlyRowCount}>(cluster only)</span> */}
       </span>
     );
   }

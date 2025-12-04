@@ -344,143 +344,13 @@ const useRowCountCalculationStore = create((set, get) => ({
     set({ rowCountsLoading: true, rowCountError: null });
 
     try {
-      // Get catalog database API for estimation
-      const catalogDb = getSearchDatabaseApi();
-
-      // Separate eligible vs non-eligible datasets
-      const estimated = [];
-      const needBackend = [];
-
-      for (const dataset of datasets) {
-        try {
-          // Extract metadata fields (backend converts to camelCase before storing in SQLite)
-          const spatialResolution = dataset.metadata.spatialResolution;
-          const temporalResolution = dataset.metadata.temporalResolution;
-          const tableName = dataset.metadata.tableName || dataset.shortName;
-          // Depth bounds from dataset metadata (for depth model eligibility check)
-          // Use dataset.depth if available (transformed search result), fallback to metadata
-          const depthMin =
-            dataset.depth !== undefined
-              ? dataset.depth.depthMin
-              : dataset.metadata.depthMin;
-          const depthMax =
-            dataset.depth !== undefined
-              ? dataset.depth.depthMax
-              : dataset.metadata.depthMax;
-
-          // Check eligibility (pure, synchronous, fast)
-          const eligible = isEligibleForEstimation(
-            {
-              spatialResolution,
-              temporalResolution,
-              tableName,
-              depthMin,
-              depthMax,
-            },
-            constraints,
-          );
-
-          if (eligible) {
-            const latMin =
-              dataset.spatial !== undefined
-                ? dataset.spatial.latMin
-                : dataset.metadata.latMin;
-            const datasetMetadata = {
-              Spatial_Resolution: spatialResolution,
-              Temporal_Resolution: temporalResolution,
-              Table_Name: tableName,
-              Lat_Min: latMin,
-            };
-
-            // Estimate row count (async, uses catalogDb)
-            const count = await estimateRowCount(
-              datasetMetadata,
-              constraints,
-              catalogDb,
-            );
-            estimated.push({ shortName: dataset.shortName, rowCount: count });
-            log.debug('estimated row count', {
-              shortName: dataset.shortName,
-              count,
-            });
-          } else {
-            needBackend.push(dataset.shortName);
-            log.debug('dataset not eligible for estimation, will use backend', {
-              shortName: dataset.shortName,
-            });
-          }
-        } catch (error) {
-          // Estimation failed, fallback to backend
-          log.error('estimation failed, falling back to backend', {
-            shortName: dataset.shortName,
-            error: error.message,
-          });
-          needBackend.push(dataset.shortName);
-        }
-      }
-
-      // === PHASE 1: Apply estimated results immediately ===
-      if (estimated.length > 0) {
-        log.debug('applying estimated row counts immediately', {
-          count: estimated.length,
-        });
-
-        // Build estimated row counts object
-        const estimatedRowCounts = {};
-        estimated.forEach((e) => {
-          estimatedRowCounts[e.shortName] = e.rowCount;
-        });
-
-        // Build snapshots for estimated datasets
-        const estimatedSnapshots = { ...get().datasetConstraintSnapshots };
-        estimated.forEach((e) => {
-          const snapshot = {
-            spatialBounds: { ...constraints.spatialBounds },
-            temporalRange: { ...constraints.temporalRange },
-            depthRange: { ...constraints.depthRange },
-            temporalEnabled: constraints.temporalEnabled,
-            depthEnabled: constraints.depthEnabled,
-            includePartialOverlaps: constraints.includePartialOverlaps,
-            timestamp: new Date(),
-          };
-          estimatedSnapshots[e.shortName] = snapshot;
-          log.debug('estimation snapshot captured', {
-            shortName: e.shortName,
-            snapshot,
-          });
-        });
-
-        // Remove estimated datasets from loading set (they're done)
-        const updatedLoadingSet = new Set(
-          [...loadingSet].filter(
-            (name) => !estimated.some((e) => e.shortName === name),
-          ),
-        );
-
-        // Track which datasets were estimated (for purple label)
-        const newEstimatedSet = new Set(get().estimatedRowCounts);
-        estimated.forEach((e) => newEstimatedSet.add(e.shortName));
-
-        // Apply estimated results immediately
-        set({
-          calculatedRowCounts: {
-            ...get().calculatedRowCounts,
-            ...estimatedRowCounts,
-          },
-          datasetConstraintSnapshots: estimatedSnapshots,
-          estimatedRowCounts: newEstimatedSet,
-          rowCountLoadingDatasets: updatedLoadingSet,
-          // If no backend datasets, we're fully done
-          rowCountsLoading: needBackend.length > 0,
-        });
-      }
-
-      // === PHASE 2: Send backend request for non-eligible datasets (single bulk call) ===
+      // Send all datasets to backend for calculation
+      // (Frontend estimation already happened via calculateEstimatesForDatasets on search)
       let data = { results: {}, skipped: [], failed: [] };
 
-      if (needBackend.length > 0) {
-        log.debug('sending backend request for non-eligible datasets', {
-          count: needBackend.length,
+      if (shortNames.length > 0) {
+        log.debug('sending backend request for row count calculation', {
+          count: shortNames.length,
         });
 
         // Build constraints object matching backend format
@@ -518,7 +388,7 @@ const useRowCountCalculationStore = create((set, get) => ({
         }
 
         const response = await collectionsAPI.calculateRowCounts(
-          needBackend,
+          shortNames,
           backendConstraints,
           controller.signal, // Pass abort signal for cancellation support
         );
@@ -537,9 +407,8 @@ const useRowCountCalculationStore = create((set, get) => ({
         new Set([...skippedDatasets, ...backendSkipped]),
       );
 
-      // Store per-dataset snapshots for backend-calculated datasets only
-      // (Estimated datasets already have snapshots from Phase 1)
-      const backendSnapshots = { ...get().datasetConstraintSnapshots };
+      // Store per-dataset snapshots for backend-calculated datasets
+      const newSnapshots = { ...get().datasetConstraintSnapshots };
       Object.keys(data.results).forEach((shortName) => {
         // Only store snapshot if calculation was successful (not failed/skipped)
         if (
@@ -555,7 +424,7 @@ const useRowCountCalculationStore = create((set, get) => ({
             includePartialOverlaps: constraints.includePartialOverlaps,
             timestamp: new Date(),
           };
-          backendSnapshots[shortName] = snapshot;
+          newSnapshots[shortName] = snapshot;
           log.debug('recalculation snapshot captured', { shortName, snapshot });
         }
       });
@@ -567,10 +436,10 @@ const useRowCountCalculationStore = create((set, get) => ({
         updatedEstimatedSet.delete(shortName);
       });
 
-      // State update with backend row counts only (estimated results already applied in Phase 1)
+      // State update with backend row counts
       set({
         calculatedRowCounts: { ...get().calculatedRowCounts, ...data.results },
-        datasetConstraintSnapshots: backendSnapshots,
+        datasetConstraintSnapshots: newSnapshots,
         estimatedRowCounts: updatedEstimatedSet,
         skippedDatasets: allSkippedDatasets,
         failedRowCounts: data.failed,
@@ -687,16 +556,34 @@ const useRowCountCalculationStore = create((set, get) => ({
 
           if (eligible) {
             // Build dataset metadata object for estimation
-            // Include Lat_Min for grid registration detection (cell-centered vs grid-registered)
+            // Lat_Min: for grid registration detection (cell-centered vs grid-registered)
+            // Time_Min/Time_Max: for full temporal range calculation when temporal is disabled
+            // Has_Depth/Short_Name: for full depth range calculation when depth is disabled
             const latMin =
               dataset.spatial !== undefined
                 ? dataset.spatial.latMin
                 : dataset.metadata.latMin;
+            const timeMin =
+              dataset.temporal !== undefined
+                ? dataset.temporal.timeMin
+                : dataset.metadata.timeMin;
+            const timeMax =
+              dataset.temporal !== undefined
+                ? dataset.temporal.timeMax
+                : dataset.metadata.timeMax;
+            // Has_Depth: true if depthMin/depthMax exist (dataset has depth dimension)
+            const hasDepth =
+              (depthMin !== null && depthMin !== undefined) ||
+              (depthMax !== null && depthMax !== undefined);
             const datasetMetadata = {
               Spatial_Resolution: spatialResolution,
               Temporal_Resolution: temporalResolution,
               Table_Name: tableName,
+              Short_Name: dataset.shortName,
               Lat_Min: latMin,
+              Time_Min: timeMin,
+              Time_Max: timeMax,
+              Has_Depth: hasDepth,
             };
 
             // Estimate row count (async, uses catalogDb)
