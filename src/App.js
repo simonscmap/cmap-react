@@ -59,6 +59,12 @@ const CollectionsPage = lazy(() => import('./pages/CollectionsPage'));
 const CatalogSearchDevPage = lazy(
   () => import('./features/catalogSearch/pages/CatalogSearchDevPage'),
 );
+const RowCountsDevPage = lazy(
+  () => import('./features/rowCounts/pages/RowCountsDevPage'),
+);
+const TestRowCountsRepPage = lazy(
+  () => import('./features/rowCountsRep/test/TestRowCountsPage'),
+);
 
 const mapDispatchToProps = {
   toggleShowHelp,
@@ -115,6 +121,12 @@ class App extends Component {
                       </Route>
                       <Route exact path="/catalog-search-dev">
                         <CatalogSearchDevPage />
+                      </Route>
+                      <Route exact path="/row-counts-dev">
+                        <RowCountsDevPage />
+                      </Route>
+                      <Route exact path="/test-row-counts-rep">
+                        <TestRowCountsRepPage />
                       </Route>
                       <Route
                         path="/programs/:programName"
