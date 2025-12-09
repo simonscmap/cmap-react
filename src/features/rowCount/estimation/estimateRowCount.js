@@ -7,7 +7,7 @@
  * IMPORTANT: Call isEligibleForEstimation() before calling estimateRowCount.
  */
 
-import logInit from '../../Services/log-service';
+import logInit from '../../../Services/log-service';
 import {
   querySpatialResolutionMapping,
   queryTemporalResolutionMapping,
@@ -262,7 +262,7 @@ function calculateTemporalCount(
  * @param {Object} constraints.temporalRange - Temporal range { timeMin, timeMax }
  * @param {boolean} constraints.depthEnabled - Whether depth constraints are enabled
  * @param {Object} constraints.depthRange - Depth range { depthMin, depthMax }
- * @param {Object} catalogDb - SQLite catalog database 
+ * @param {Object} catalogDb - SQLite catalog database
  */
 async function estimateRowCount(datasetMetadata, constraints, catalogDb) {
   try {

@@ -15,18 +15,17 @@ import {
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import {
-  DatasetNameLink,
   useRowStateStyles,
-  ROW_STATES,
   InfoTooltip,
 } from '../../../../../shared/components';
 import SelectAllDropdown from '../../../../multiDatasetDownload/components/SelectAllDropdown';
-import { SortableHeader } from '../../../../../shared/sorting';
 import useSpatialTemporalSearchStore from '../store/spatialTemporalSearchStore';
-import useRowCountCalculationStore from '../store/rowCountCalculationStore';
-import { useAddDatasetsStore } from '../../state/addDatasetsStore';
-import DataTypeFilterDropdown from './DataTypeFilterDropdown';
-import RowCountCell from './RowCountCell';
+import {
+  useRowCountsLoading,
+  useStaleDatasets,
+  queryRowCounts,
+  RowCountCell,
+} from '../../../../rowCount';
 import { createColumnDefinitions } from '../utils/columnDefinitions';
 
 const useStyles = makeStyles((theme) => ({
@@ -225,47 +224,48 @@ const SpatialTemporalResultsTable = ({
   const setSortMode = useSpatialTemporalSearchStore(
     (state) => state.setSortMode,
   );
-
-  // Get row count calculation state and action from row count store
-  const calculatedRowCounts = useRowCountCalculationStore(
-    (state) => state.calculatedRowCounts,
+  const spatialBounds = useSpatialTemporalSearchStore(
+    (state) => state.spatialBounds,
   );
-  const skippedDatasets = useRowCountCalculationStore(
-    (state) => state.skippedDatasets,
+  const temporalRange = useSpatialTemporalSearchStore(
+    (state) => state.temporalRange,
   );
-  const failedRowCounts = useRowCountCalculationStore(
-    (state) => state.failedRowCounts,
+  const depthRange = useSpatialTemporalSearchStore((state) => state.depthRange);
+  const includePartialOverlaps = useSpatialTemporalSearchStore(
+    (state) => state.includePartialOverlaps,
   );
-  const rowCountLoadingDatasets = useRowCountCalculationStore(
-    (state) => state.rowCountLoadingDatasets,
-  );
-  const rowCountsLoading = useRowCountCalculationStore(
-    (state) => state.rowCountsLoading,
-  );
-  const calculateRowCountsForStale = useRowCountCalculationStore(
-    (state) => state.calculateRowCountsForStale,
-  );
-  const buildConstraintsFromStore = useRowCountCalculationStore(
-    (state) => state.buildConstraintsFromStore,
-  );
-  const hasUsedGlobalRecalculation = useRowCountCalculationStore(
-    (state) => state.hasUsedGlobalRecalculation,
-  );
-  const nonEstimableDatasets = useRowCountCalculationStore(
-    (state) => state.nonEstimableDatasets,
-  );
+  // Get row count calculation state from row count store
+  // (RowCountCell is now self-contained, so we only need state for the header button)
+  const rowCountsLoading = useRowCountsLoading();
+  const staleDatasets = useStaleDatasets();
 
   // Handle null results (before first search)
   // SQL filtering now handles all type filtering (1, 2, or 3 types) via IN clause
   const safeResults = results || [];
-
+  const currentConstraints = React.useMemo(
+    () => ({
+      spatialBounds,
+      temporalRange,
+      depthRange,
+      temporalEnabled,
+      depthEnabled,
+      includePartialOverlaps,
+    }),
+    [
+      spatialBounds,
+      temporalRange,
+      depthRange,
+      temporalEnabled,
+      depthEnabled,
+      includePartialOverlaps,
+    ],
+  );
   // Handle row count calculation button click (header "Recalculate All" button)
   const handleCalculateRowCounts = useCallback(() => {
     if (results && results.length > 0) {
-      const constraints = buildConstraintsFromStore();
-      calculateRowCountsForStale(results, constraints);
+      queryRowCounts(results, currentConstraints);
     }
-  }, [results, calculateRowCountsForStale, buildConstraintsFromStore]);
+  }, [results, currentConstraints]);
 
   // Handle header click to change sort mode
   const handleHeaderClick = useCallback(
@@ -445,20 +445,12 @@ const SpatialTemporalResultsTable = ({
               <Box className={classes.rowsHeaderCell}>
                 <span>Rows</span>
                 <Box display="flex" alignItems="center" gap={0.5}>
-                  {/* Show recalculate button ONLY when there are non-estimable datasets that need backend calculation.
-                      - Results exist
-                      - User has NOT used "Recalculate All" yet (resets on new search)
-                      - There are non-estimable datasets (estimable datasets are auto-calculated)
-
-                      Important: Button does NOT reappear when "Recalculate All" is clicked.
-                      User must perform a NEW SEARCH to get the "Recalculate All" button again.
-
-                      Note: Since estimable datasets are auto-calculated at search time,
-                      the button only appears when there are datasets requiring backend calculation. */}
+                  {/* Show recalculate button when there are stale datasets that need backend calculation.
+                      Note: Estimable datasets are auto-calculated at search time,
+                      so this button only appears for datasets requiring backend calculation. */}
                   {results &&
                     results.length > 0 &&
-                    !hasUsedGlobalRecalculation &&
-                    nonEstimableDatasets.length > 0 && (
+                    staleDatasets.length > 0 && (
                       <Button
                         variant="text"
                         size="small"
@@ -559,10 +551,7 @@ const SpatialTemporalResultsTable = ({
                   >
                     <RowCountCell
                       dataset={dataset}
-                      calculatedRowCounts={calculatedRowCounts}
-                      failedRowCounts={failedRowCounts}
-                      skippedDatasets={skippedDatasets}
-                      rowCountLoadingDatasets={rowCountLoadingDatasets}
+                      currentConstraints={currentConstraints}
                     />
                   </TableCell>
                 </TableRow>

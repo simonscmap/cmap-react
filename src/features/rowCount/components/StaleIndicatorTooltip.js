@@ -2,10 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Tooltip, Button, Box, CircularProgress } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import zIndex from '../../../../../enums/zIndex';
-import logInit from '../../../../../Services/log-service';
+import zIndex from '../../../enums/zIndex';
+import logInit from '../../../Services/log-service';
 
-const log = logInit('SpatialTemporalTab/StaleIndicatorTooltip');
+const log = logInit('rowCount/StaleIndicatorTooltip');
 
 const useStyles = makeStyles(() => ({
   tooltip: {
@@ -61,42 +61,24 @@ const useStyles = makeStyles(() => ({
 
 /**
  * Tooltip message templates for different staleness reasons
- * Each reason has two variants:
- * - body: Shown when recalculate button is available
- * - bodyAfterRecalculation: Shown when user has already used "Recalculate All" (button hidden)
  */
 const TOOLTIP_MESSAGES = {
-  spatial_partial: {
-    body: 'This row count may not reflect your current constraints. Click Recalculate to get an accurate count.',
-    bodyAfterRecalculation:
-      'This row count may not reflect your current constraints. To get accurate counts, you must first perform a new search with your updated constraints, then recalculate.',
-  },
-  temporal_enabled: {
-    body: 'This row count may not reflect your current constraints. Click Recalculate to get an accurate count.',
-    bodyAfterRecalculation:
-      'This row count may not reflect your current constraints. To get accurate counts, you must first perform a new search with your updated constraints, then recalculate.',
-  },
-  depth_enabled: {
-    body: 'This row count may not reflect your current constraints. Click Recalculate to get an accurate count.',
-    bodyAfterRecalculation:
-      'This row count may not reflect your current constraints. To get accurate counts, you must first perform a new search with your updated constraints, then recalculate.',
-  },
-  constraints_changed: {
-    body: 'This row count may not reflect your current constraints. Click Recalculate to get an accurate count.',
-    bodyAfterRecalculation:
-      'This row count may not reflect your current constraints. To get accurate counts, you must first perform a new search with your updated constraints, then recalculate.',
-  },
-  dataset_not_in_results: {
-    body: 'Search results changed - this dataset may no longer match your current constraints. Click Recalculate to confirm this dataset still matches.',
-    bodyAfterRecalculation:
-      'Search results changed - this dataset may no longer match your current constraints. To get accurate counts, you must first perform a new search with your updated constraints, then recalculate.',
-  },
+  spatial_partial:
+    'This row count may not reflect your current constraints. Click Recalculate to get an accurate count.',
+  temporal_enabled:
+    'This row count may not reflect your current constraints. Click Recalculate to get an accurate count.',
+  depth_enabled:
+    'This row count may not reflect your current constraints. Click Recalculate to get an accurate count.',
+  constraints_changed:
+    'This row count may not reflect your current constraints. Click Recalculate to get an accurate count.',
+  dataset_not_in_results:
+    'Search results changed - this dataset may no longer match your current constraints. Click Recalculate to confirm this dataset still matches.',
 };
 
 /**
  * StaleIndicatorTooltip Component
  *
- * Displays a tooltip with an explanation and optionally an embedded recalculate button
+ * Displays a tooltip with an explanation and an embedded recalculate button
  * when a dataset's row count is stale (does not reflect current constraints).
  *
  * @param {Object} props
@@ -104,7 +86,6 @@ const TOOLTIP_MESSAGES = {
  * @param {Object} props.dataset - Dataset object with shortName
  * @param {Function} props.onRecalculate - Callback to trigger recalculation for this dataset
  * @param {boolean} props.isRecalculating - Whether recalculation is in progress
- * @param {boolean} props.hasUsedGlobalRecalculation - Whether the user has already used the "Recalculate All" button
  * @param {React.ReactNode} props.children - The warning icon element
  * @returns {JSX.Element}
  */
@@ -113,7 +94,6 @@ const StaleIndicatorTooltip = ({
   dataset,
   onRecalculate,
   isRecalculating,
-  hasUsedGlobalRecalculation,
   children,
 }) => {
   const classes = useStyles();
@@ -134,38 +114,30 @@ const StaleIndicatorTooltip = ({
     onRecalculate();
   };
 
-  // Select appropriate message based on whether recalculate button is available
-  const messageText = hasUsedGlobalRecalculation
-    ? message.bodyAfterRecalculation
-    : message.body;
-
   const tooltipContent = (
     <Box className={classes.tooltipContent}>
-      <div className={classes.body}>{messageText}</div>
-      {/* Only show recalculate button if user hasn't used "Recalculate All" yet */}
-      {!hasUsedGlobalRecalculation && (
-        <Button
-          className={classes.button}
-          size="small"
-          variant="contained"
-          onClick={handleRecalculate}
-          disabled={isRecalculating}
-          aria-label="Recalculate row count for this dataset"
-        >
-          {isRecalculating ? (
-            <>
-              Recalculating...
-              <CircularProgress
-                size={12}
-                className={classes.spinner}
-                color="inherit"
-              />
-            </>
-          ) : (
-            'Recalculate'
-          )}
-        </Button>
-      )}
+      <div className={classes.body}>{message}</div>
+      <Button
+        className={classes.button}
+        size="small"
+        variant="contained"
+        onClick={handleRecalculate}
+        disabled={isRecalculating}
+        aria-label="Recalculate row count for this dataset"
+      >
+        {isRecalculating ? (
+          <>
+            Recalculating...
+            <CircularProgress
+              size={12}
+              className={classes.spinner}
+              color="inherit"
+            />
+          </>
+        ) : (
+          'Recalculate'
+        )}
+      </Button>
     </Box>
   );
 
@@ -198,7 +170,6 @@ StaleIndicatorTooltip.propTypes = {
   }).isRequired,
   onRecalculate: PropTypes.func.isRequired,
   isRecalculating: PropTypes.bool.isRequired,
-  hasUsedGlobalRecalculation: PropTypes.bool.isRequired,
   children: PropTypes.node.isRequired,
 };
 

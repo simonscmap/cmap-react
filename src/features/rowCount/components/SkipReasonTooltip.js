@@ -2,10 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Tooltip, Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import zIndex from '../../../../../enums/zIndex';
-import logInit from '../../../../../Services/log-service';
+import zIndex from '../../../enums/zIndex';
+import logInit from '../../../Services/log-service';
 
-const log = logInit('SpatialTemporalTab/SkipReasonTooltip');
+const log = logInit('rowCount/SkipReasonTooltip');
 
 const useStyles = makeStyles(() => ({
   tooltip: {
@@ -43,7 +43,8 @@ const ClusterOnlyTooltip = ({ dataset, children }) => {
   const tooltipContent = (
     <Box className={classes.tooltipContent}>
       <div className={classes.body}>
-        This dataset is currently unavailable for download with spatial, temporal, or depth constraints due to its large size.
+        This dataset is currently unavailable for download with spatial,
+        temporal, or depth constraints due to its large size.
       </div>
     </Box>
   );
@@ -59,7 +60,9 @@ const ClusterOnlyTooltip = ({ dataset, children }) => {
         style: { zIndex: zIndex.MODAL_LAYER_2_POPPER },
       }}
     >
-      <span aria-label="Dataset unavailable for constrained queries">{children}</span>
+      <span aria-label="Dataset unavailable for constrained queries">
+        {children}
+      </span>
     </Tooltip>
   );
 };
