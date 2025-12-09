@@ -21,7 +21,7 @@ import {
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import useSpatialTemporalSearchStore from '../store/spatialTemporalSearchStore';
-import { validateDepthRange } from '../utils/validation';
+import { validateDepthRange } from '../../../../../shared/utility/spatialTemporalDepthValidation';
 
 const useStyles = makeStyles((theme) => ({
   container: {

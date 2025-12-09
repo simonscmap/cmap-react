@@ -15,7 +15,7 @@
  * All functions use the catalog search Web Worker's executeSql interface.
  */
 
-import logInit from '../../Services/log-service';
+import logInit from '../../../Services/log-service';
 
 const log = logInit('shared/estimation/queryEstimationTables');
 
@@ -169,10 +169,18 @@ export async function queryDepthCount(
   const hasRange = minDepth !== undefined && maxDepth !== undefined;
 
   try {
-    log.debug('querying depth count', { depthModel, tableName, minDepth, maxDepth, hasRange });
+    log.debug('querying depth count', {
+      depthModel,
+      tableName,
+      minDepth,
+      maxDepth,
+      hasRange,
+    });
 
     const sql = hasRange
-      ? 'SELECT COUNT(*) as count FROM ' + tableName + ' WHERE depth_level BETWEEN ? AND ?'
+      ? 'SELECT COUNT(*) as count FROM ' +
+        tableName +
+        ' WHERE depth_level BETWEEN ? AND ?'
       : 'SELECT COUNT(*) as count FROM ' + tableName;
     const bindings = hasRange ? [minDepth, maxDepth] : [];
 

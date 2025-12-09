@@ -17,7 +17,7 @@ import { useAddDatasetsStore } from './state/addDatasetsStore';
 import useCollectionsStore from '../state/collectionsStore';
 import useCatalogSearchStore from '../../catalogSearch/state/catalogSearchStore';
 import useSpatialTemporalSearchStore from './SpatialTemporalTab/store/spatialTemporalSearchStore';
-import useRowCountCalculationStore from './SpatialTemporalTab/store/rowCountCalculationStore';
+import { clearRowCounts } from '../../rowCount';
 import ConfirmationDialog from '../../../shared/components/ConfirmationDialog';
 import UniversalButton from '../../../shared/components/UniversalButton';
 import CatalogSearchSection from './CatalogSearchTab/CatalogSearchSection';
@@ -136,9 +136,6 @@ const AddDatasetsModal = ({
   );
   const resetSpatialTemporal = useSpatialTemporalSearchStore(
     (state) => state.reset,
-  );
-  const clearRowCounts = useRowCountCalculationStore(
-    (state) => state.clearRowCounts,
   );
 
   // Get spatial-temporal store initialization state for tab enable/disable
