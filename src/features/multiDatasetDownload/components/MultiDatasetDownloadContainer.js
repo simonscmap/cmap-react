@@ -1,22 +1,27 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { Box, Typography } from '@material-ui/core';
-import { debounce } from 'throttle-debounce';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Box } from '@material-ui/core';
 import deepEqual from 'deep-equal';
 import SubsetControls from '../../../shared/filtering/core/SubsetControls';
 import CompactSubsetControlsLayout from '../../../shared/filtering/components/CompactSubsetControlsLayout';
 import useSubsetFiltering from '../../../shared/filtering/hooks/useSubsetFiltering';
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
-import useRowCountStore from '../stores/useRowCountStore';
 import { aggregateDatasetMetadata } from '../utils/aggregateDatasetMetadata';
+import { initializeRowCounts, clearRowCounts, reEstimateWithConstraints } from '../../rowCount';
+import { transformConstraintsForRowCount } from '../utils/constraintTransformer';
 import MultiDatasetDownloadTable from './MultiDatasetDownloadTable';
 import DownloadButton from './DownloadButton';
 import RowCountTotal from './RowCountTotal';
+import logInit from '../../../Services/log-service';
+
 import {
   SearchProvider,
   SearchInput,
   useFilteredItems,
 } from '../../../shared/UniversalSearch';
+
 import { SpinnerWrapper } from '../../../Components/UI/Spinner';
+
+const log = logInit('MultiDatasetDownloadContainer');
 
 /**
  * Multi-Dataset Download Container Component
@@ -48,9 +53,7 @@ const MultiDatasetDownloadContainerInner = ({
   aggregateDatasetMetadata,
   onDownloadComplete,
 }) => {
-  const { resetStore, getSelectedIds } = useMultiDatasetDownloadStore();
-  const { fetchRowCountsForSelected, cancelPendingRequests } =
-    useRowCountStore();
+  const { resetStore } = useMultiDatasetDownloadStore();
   const filteredItems = useFilteredItems();
 
   // State for toggle controls (required by layout components)
@@ -74,38 +77,34 @@ const MultiDatasetDownloadContainerInner = ({
     dateHandling,
   } = useSubsetFiltering(aggregateDatasetMetadata);
 
-  // Debounced filter change handler for selection-driven row count updates
-  const debouncedFilterChange = useCallback(
-    debounce(300, false, (selectedDatasetIds, filters) => {
-      if (selectedDatasetIds.length > 0) {
-        fetchRowCountsForSelected(selectedDatasetIds, filters);
-      }
-    }),
-    [fetchRowCountsForSelected],
-  );
-
-  // Update row counts when filters change - selection-driven approach
-  useEffect(() => {
-    const selectedDatasetIds = getSelectedIds();
-
-    // Cancel any pending requests on filter changes
-    cancelPendingRequests();
-
-    // Always fetch row counts for selected datasets - let store handle transition logic
-    debouncedFilterChange(selectedDatasetIds, filterValues);
-  }, [
-    filterValues,
-    getSelectedIds,
-    cancelPendingRequests,
-    debouncedFilterChange,
-  ]);
-
   // Reset store when component unmounts
   useEffect(() => {
     return () => {
       resetStore();
     };
   }, [resetStore]);
+
+  useEffect(() => {
+    if (filteredItems?.length > 0) {
+      const shortNames = filteredItems.map((d) => d.Dataset_Name);
+      const constraints = transformConstraintsForRowCount(filterValues);
+      log.debug('initializing row count feature', {
+        datasetCount: shortNames.length,
+        constraints,
+      });
+      initializeRowCounts(shortNames, constraints);
+    }
+    return () => {
+      clearRowCounts();
+    };
+  }, [filteredItems]); 
+
+  useEffect(() => {
+    if (filteredItems?.length > 0) {
+      const constraints = transformConstraintsForRowCount(filterValues);
+      reEstimateWithConstraints(constraints);
+    }
+  }, [filterValues]); 
 
   return (
     <Box
@@ -138,7 +137,7 @@ const MultiDatasetDownloadContainerInner = ({
       </Box>
 
       <Box>
-        <RowCountTotal />
+        <RowCountTotal filterValues={filterValues} />
         <DownloadButton
           subsetFiltering={{
             setInvalidFlag,

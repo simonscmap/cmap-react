@@ -26,6 +26,9 @@ const useRangeInput = ({
   const [localStartValue, setLocalStartValue] = useState('');
   const [localEndValue, setLocalEndValue] = useState('');
 
+  const [localSliderStart, setLocalSliderStart] = useState(start);
+  const [localSliderEnd, setLocalSliderEnd] = useState(end);
+
   // Validation message state
   const [startMessage, setStartMessage] = useState('');
   const [endMessage, setEndMessage] = useState('');
@@ -33,14 +36,15 @@ const useRangeInput = ({
   // Update local values when committed values change
   useEffect(() => {
     setLocalStartValue(start === null ? '' : String(start));
+    setLocalSliderStart(start);
   }, [start]);
 
   useEffect(() => {
     setLocalEndValue(end === null ? '' : String(end));
+    setLocalSliderEnd(end);
   }, [end]);
 
-  // Slider handler - applies validation and updates canonical store immediately
-  const handleSlider = (e, [startValue, endValue]) => {
+  const validateSliderValues = (startValue, endValue) => {
     const bounds = getEffectiveBounds(min, max, step);
 
     // Round and clamp both values
@@ -53,18 +57,27 @@ const useRangeInput = ({
     const finalStart = Math.min(clampedStart, clampedEnd);
     const finalEnd = Math.max(clampedStart, clampedEnd);
 
-    // Update canonical store immediately (like date slider) - only if values changed
+    return { finalStart, finalEnd };
+  };
+
+  const handleSlider = (e, [startValue, endValue]) => {
+    const { finalStart, finalEnd } = validateSliderValues(startValue, endValue);
+
+    setLocalSliderStart(finalStart);
+    setLocalSliderEnd(finalEnd);
+    setLocalStartValue(String(finalStart));
+    setLocalEndValue(String(finalEnd));
+  };
+
+  const handleSliderCommit = (e, [startValue, endValue]) => {
+    const { finalStart, finalEnd } = validateSliderValues(startValue, endValue);
+
     if (finalStart !== start) {
       setStart(finalStart);
     }
     if (finalEnd !== end) {
       setEnd(finalEnd);
     }
-  };
-
-  // Slider commit handler - use same logic as onChange
-  const handleSliderCommit = (e, value) => {
-    handleSlider(e, value);
   };
 
   // onChange handlers for text inputs - update local state only
@@ -174,9 +187,8 @@ const useRangeInput = ({
     endMessage,
     handleSlider,
     handleSliderCommit,
-    // For slider display - use canonical values (updated in real-time)
-    sliderStart: start,
-    sliderEnd: end,
+    sliderStart: localSliderStart,
+    sliderEnd: localSliderEnd,
   };
 };
 

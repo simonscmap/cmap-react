@@ -15,7 +15,7 @@ import {
   queryDepthCount,
 } from './queryEstimationTables';
 
-const log = logInit('shared/estimation/estimateRowCount');
+const log = logInit('rowCount/estimation/estimateRowCount');
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
@@ -251,11 +251,11 @@ function calculateTemporalCount(
  * Queries SQLite catalog database for resolution mappings and depth models.
  *
  * @param {Object} datasetMetadata - Dataset metadata
- * @param {string} datasetMetadata.Spatial_Resolution - Spatial resolution (e.g., "1/2° X 1/2°")
- * @param {string} datasetMetadata.Temporal_Resolution - Temporal resolution (e.g., "Weekly")
- * @param {string} datasetMetadata.Table_Name - Dataset table name
- * @param {string} datasetMetadata.Short_Name - Dataset short name (for depth model lookup)
- * @param {boolean} datasetMetadata.Has_Depth - Whether dataset has depth data
+ * @param {string} datasetMetadata.spatialResolution - Spatial resolution (e.g., "1/2° X 1/2°")
+ * @param {string} datasetMetadata.temporalResolution - Temporal resolution (e.g., "Weekly")
+ * @param {string} datasetMetadata.tableName - Dataset table name
+ * @param {string} datasetMetadata.shortName - Dataset short name (for depth model lookup)
+ * @param {boolean} datasetMetadata.hasDepth - Whether dataset has depth data
  * @param {Object} constraints - Store constraints object
  * @param {Object} constraints.spatialBounds - Spatial bounds { latMin, latMax, lonMin, lonMax }
  * @param {boolean} constraints.temporalEnabled - Whether temporal constraints are enabled
@@ -265,19 +265,15 @@ function calculateTemporalCount(
  * @param {Object} catalogDb - SQLite catalog database
  */
 async function estimateRowCount(datasetMetadata, constraints, catalogDb) {
-  try {
-    log.debug('starting row count estimation', {
-      dataset: datasetMetadata.Table_Name,
-      spatialResolution: datasetMetadata.Spatial_Resolution,
-      temporalResolution: datasetMetadata.Temporal_Resolution,
-      constraints,
-    });
+  let result = null;
+  let error = null;
 
+  try {
     const datasetSpatialBounds = {
-      latMin: datasetMetadata.Lat_Min,
-      latMax: datasetMetadata.Lat_Max,
-      lonMin: datasetMetadata.Lon_Min,
-      lonMax: datasetMetadata.Lon_Max,
+      latMin: datasetMetadata.latMin,
+      latMax: datasetMetadata.latMax,
+      lonMin: datasetMetadata.lonMin,
+      lonMax: datasetMetadata.lonMax,
     };
 
     const hasDatasetSpatialBounds =
@@ -295,11 +291,6 @@ async function estimateRowCount(datasetMetadata, constraints, catalogDb) {
       );
 
       if (clampedSpatial === null) {
-        log.debug('no spatial overlap with dataset bounds, returning 0', {
-          dataset: datasetMetadata.Table_Name,
-          queryBounds: constraints.spatialBounds,
-          datasetBounds: datasetSpatialBounds,
-        });
         return 0;
       }
 
@@ -315,23 +306,15 @@ async function estimateRowCount(datasetMetadata, constraints, catalogDb) {
       constraints.temporalRange.timeMax;
 
     const hasDatasetTemporalBounds =
-      datasetMetadata.Time_Min && datasetMetadata.Time_Max;
+      datasetMetadata.timeMin && datasetMetadata.timeMax;
 
     if (hasTemporalConstraints && hasDatasetTemporalBounds) {
       const clampedTemporal = clampTemporalRange(constraints.temporalRange, {
-        timeMin: datasetMetadata.Time_Min,
-        timeMax: datasetMetadata.Time_Max,
+        timeMin: datasetMetadata.timeMin,
+        timeMax: datasetMetadata.timeMax,
       });
 
       if (clampedTemporal === null) {
-        log.debug('no temporal overlap with dataset bounds, returning 0', {
-          dataset: datasetMetadata.Table_Name,
-          queryRange: constraints.temporalRange,
-          datasetRange: {
-            timeMin: datasetMetadata.Time_Min,
-            timeMax: datasetMetadata.Time_Max,
-          },
-        });
         return 0;
       }
 
@@ -350,26 +333,18 @@ async function estimateRowCount(datasetMetadata, constraints, catalogDb) {
       constraints.depthRange.depthMax !== null;
 
     const hasDatasetDepthBounds =
-      datasetMetadata.Depth_Min !== null &&
-      datasetMetadata.Depth_Min !== undefined &&
-      datasetMetadata.Depth_Max !== null &&
-      datasetMetadata.Depth_Max !== undefined;
+      datasetMetadata.depthMin !== null &&
+      datasetMetadata.depthMin !== undefined &&
+      datasetMetadata.depthMax !== null &&
+      datasetMetadata.depthMax !== undefined;
 
     if (hasDepthConstraints && hasDatasetDepthBounds) {
       const clampedDepth = clampDepthRange(constraints.depthRange, {
-        depthMin: datasetMetadata.Depth_Min,
-        depthMax: datasetMetadata.Depth_Max,
+        depthMin: datasetMetadata.depthMin,
+        depthMax: datasetMetadata.depthMax,
       });
 
       if (clampedDepth === null) {
-        log.debug('no depth overlap with dataset bounds, returning 0', {
-          dataset: datasetMetadata.Table_Name,
-          queryRange: constraints.depthRange,
-          datasetRange: {
-            depthMin: datasetMetadata.Depth_Min,
-            depthMax: datasetMetadata.Depth_Max,
-          },
-        });
         return 0;
       }
 
@@ -381,36 +356,36 @@ async function estimateRowCount(datasetMetadata, constraints, catalogDb) {
 
     const spatialMapping = await querySpatialResolutionMapping(
       catalogDb,
-      datasetMetadata.Spatial_Resolution,
+      datasetMetadata.spatialResolution,
     );
     const temporalMapping = await queryTemporalResolutionMapping(
       catalogDb,
-      datasetMetadata.Temporal_Resolution,
+      datasetMetadata.temporalResolution,
     );
 
     if (!spatialMapping || spatialMapping.value === null) {
       throw new Error(
-        `Spatial resolution mapping not found: ${datasetMetadata.Spatial_Resolution}`,
+        `Spatial resolution mapping not found: ${datasetMetadata.spatialResolution}`,
       );
     }
 
     const isMonthlyClimatology =
-      datasetMetadata.Temporal_Resolution === 'Monthly Climatology';
+      datasetMetadata.temporalResolution === 'Monthly Climatology';
 
     if (
       !isMonthlyClimatology &&
       (!temporalMapping || temporalMapping.value === null)
     ) {
       throw new Error(
-        `Temporal resolution mapping not found: ${datasetMetadata.Temporal_Resolution}`,
+        `Temporal resolution mapping not found: ${datasetMetadata.temporalResolution}`,
       );
     }
 
     const { latCount, lonCount } = calculateSpatialCount(
       effectiveConstraints,
       spatialMapping.value,
-      datasetMetadata.Lat_Min,
-      datasetMetadata.Lon_Min,
+      datasetMetadata.latMin,
+      datasetMetadata.lonMin,
     );
 
     let dateCount = 1;
@@ -424,31 +399,31 @@ async function estimateRowCount(datasetMetadata, constraints, catalogDb) {
         effectiveConstraints,
         temporalResolutionDays,
         isMonthlyClimatology,
-        datasetMetadata.Time_Min,
+        datasetMetadata.timeMin,
       );
     } else if (isMonthlyClimatology) {
       dateCount = 12;
-    } else if (datasetMetadata.Time_Min && datasetMetadata.Time_Max) {
+    } else if (datasetMetadata.timeMin && datasetMetadata.timeMax) {
       const datasetTemporalRange = {
         temporalRange: {
-          timeMin: datasetMetadata.Time_Min,
-          timeMax: datasetMetadata.Time_Max,
+          timeMin: datasetMetadata.timeMin,
+          timeMax: datasetMetadata.timeMax,
         },
       };
       dateCount = calculateTemporalCount(
         datasetTemporalRange,
         temporalResolutionDays,
         false,
-        datasetMetadata.Time_Min,
+        datasetMetadata.timeMin,
       );
     }
 
     let depthCount = 1;
 
-    if (datasetMetadata.Has_Depth) {
+    if (datasetMetadata.hasDepth) {
       const depthModel = await queryDatasetDepthModel(
         catalogDb,
-        datasetMetadata.Short_Name,
+        datasetMetadata.shortName,
       );
 
       if (depthModel) {
@@ -465,28 +440,29 @@ async function estimateRowCount(datasetMetadata, constraints, catalogDb) {
       }
     }
 
-    const tableCount = datasetMetadata.Table_Count || 1;
-
+    const tableCount = datasetMetadata.tableCount || 1;
     const pointCount =
       lonCount * latCount * depthCount * dateCount * tableCount;
 
-    log.debug('row count estimation complete', {
-      dataset: datasetMetadata.Table_Name,
-      latCount,
-      lonCount,
-      dateCount,
-      depthCount,
-      tableCount,
-      pointCount,
-    });
-
-    return Math.round(pointCount);
-  } catch (error) {
-    log.error('row count estimation failed', {
-      dataset: datasetMetadata.Table_Name,
-      error: error.message,
-    });
-    throw error;
+    result = Math.round(pointCount);
+    return result;
+  } catch (err) {
+    error = err.message;
+    throw err;
+  } finally {
+    if (result !== null || error !== null) {
+      (error ? log.error : log.debug)('row count estimation', {
+        datasetName: datasetMetadata.shortName,
+        datasetTable: datasetMetadata.tableName,
+        status: error ? 'error' : 'success',
+        spatialRes: datasetMetadata.spatialResolution,
+        temporalRes: datasetMetadata.temporalResolution,
+        hasDepth: datasetMetadata.hasDepth,
+        constraints,
+        estimatedRows: result,
+        ...(error && { error }),
+      });
+    }
   }
 }
 

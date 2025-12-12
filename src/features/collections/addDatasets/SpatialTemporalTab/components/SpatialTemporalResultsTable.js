@@ -1,8 +1,7 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import {
   Box,
-  Button,
   Table,
   TableBody,
   TableCell,
@@ -21,10 +20,9 @@ import {
 import SelectAllDropdown from '../../../../multiDatasetDownload/components/SelectAllDropdown';
 import useSpatialTemporalSearchStore from '../store/spatialTemporalSearchStore';
 import {
-  useRowCountsLoading,
-  useStaleDatasets,
-  queryRowCounts,
+  RecalculateAllButton,
   RowCountCell,
+  reEstimateWithConstraints,
 } from '../../../../rowCount';
 import { createColumnDefinitions } from '../utils/columnDefinitions';
 
@@ -133,20 +131,6 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'flex-end',
     gap: theme.spacing(0.5),
   },
-  recalculateButton: {
-    fontSize: '0.62rem',
-    height: 'auto',
-    minHeight: 32,
-    fontWeight: 700, // Bold text
-    borderRadius: '6px',
-    minWidth: 56,
-    maxWidth: 80, // Forces "Recalculate All" to wrap into two lines at word boundary
-    padding: '4px 8px',
-    textTransform: 'none',
-    whiteSpace: 'normal', // Allows text wrapping
-    lineHeight: 1.2,
-    overflowWrap: 'break-word', // Only breaks at word boundaries, not mid-word
-  },
   emptyState: {
     padding: theme.spacing(4),
     textAlign: 'center',
@@ -234,11 +218,6 @@ const SpatialTemporalResultsTable = ({
   const includePartialOverlaps = useSpatialTemporalSearchStore(
     (state) => state.includePartialOverlaps,
   );
-  // Get row count calculation state from row count store
-  // (RowCountCell is now self-contained, so we only need state for the header button)
-  const rowCountsLoading = useRowCountsLoading();
-  const staleDatasets = useStaleDatasets();
-
   // Handle null results (before first search)
   // SQL filtering now handles all type filtering (1, 2, or 3 types) via IN clause
   const safeResults = results || [];
@@ -260,12 +239,19 @@ const SpatialTemporalResultsTable = ({
       includePartialOverlaps,
     ],
   );
-  // Handle row count calculation button click (header "Recalculate All" button)
-  const handleCalculateRowCounts = useCallback(() => {
-    if (results && results.length > 0) {
-      queryRowCounts(results, currentConstraints);
+
+  const isFirstRender = useRef(true);
+  const hasResults = results && results.length > 0;
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
     }
-  }, [results, currentConstraints]);
+
+    if (hasResults) {
+      reEstimateWithConstraints(currentConstraints);
+    }
+  }, [currentConstraints, hasResults]);
 
   // Handle header click to change sort mode
   const handleHeaderClick = useCallback(
@@ -341,16 +327,6 @@ const SpatialTemporalResultsTable = ({
     if (depthEnabled) {
       columns.push('depthCoverage');
     }
-
-    // Utilization columns are hidden by default (defined in columnConfig but not shown)
-    // To enable: uncomment the lines below
-    // if (temporalEnabled) {
-    //   columns.push('temporalUtilization');
-    // }
-    //
-    // if (depthEnabled) {
-    //   columns.push('depthUtilization');
-    // }
 
     if (temporalEnabled) {
       columns.push('dateOverlap');
@@ -445,46 +421,12 @@ const SpatialTemporalResultsTable = ({
               <Box className={classes.rowsHeaderCell}>
                 <span>Rows</span>
                 <Box display="flex" alignItems="center" gap={0.5}>
-                  {/* Show recalculate button when there are stale datasets that need backend calculation.
-                      Note: Estimable datasets are auto-calculated at search time,
-                      so this button only appears for datasets requiring backend calculation. */}
-                  {results &&
-                    results.length > 0 &&
-                    staleDatasets.length > 0 && (
-                      <Button
-                        variant="text"
-                        size="small"
-                        onClick={handleCalculateRowCounts}
-                        disabled={rowCountsLoading}
-                        className={classes.recalculateButton}
-                        aria-label="Recalculate row counts for all stale datasets"
-                        style={{
-                          backgroundColor: rowCountsLoading
-                            ? 'rgba(255, 255, 255, 0.2)' // Gray when calculating
-                            : '#bbdefb', // Light blue when enabled
-                          color: rowCountsLoading
-                            ? 'rgba(255, 255, 255, 0.5)' // Gray text when calculating
-                            : '#1565c0', // Dark blue text when enabled
-                        }}
-                      >
-                        {rowCountsLoading
-                          ? 'Calculating...'
-                          : 'Recalculate All'}
-                      </Button>
-                    )}
+                  <RecalculateAllButton
+                    results={results}
+                    constraints={currentConstraints}
+                  />
                   <InfoTooltip
-                    title={
-                      <>
-                        Row counts show the number of rows in each dataset
-                        within your search constraints. Click 'Recalculate' to
-                        get accurate counts based on your specific region and
-                        time period.
-                        <br />
-                        <br />
-                        Note: Satellite and model datasets are excluded from
-                        calculation due to their large size.
-                      </>
-                    }
+                    title="Row counts show the number of rows in each dataset within your search constraints. Click 'Recalculate' to get accurate counts based on your specific region and time period."
                     fontSize="small"
                   />
                 </Box>
@@ -550,7 +492,7 @@ const SpatialTemporalResultsTable = ({
                     align="right"
                   >
                     <RowCountCell
-                      dataset={dataset}
+                      shortName={dataset.shortName}
                       currentConstraints={currentConstraints}
                     />
                   </TableCell>

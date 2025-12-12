@@ -63,11 +63,7 @@ const useStyles = makeStyles(() => ({
  * Tooltip message templates for different staleness reasons
  */
 const TOOLTIP_MESSAGES = {
-  spatial_partial:
-    'This row count may not reflect your current constraints. Click Recalculate to get an accurate count.',
-  temporal_enabled:
-    'This row count may not reflect your current constraints. Click Recalculate to get an accurate count.',
-  depth_enabled:
+  constraints_restrict_dataset:
     'This row count may not reflect your current constraints. Click Recalculate to get an accurate count.',
   constraints_changed:
     'This row count may not reflect your current constraints. Click Recalculate to get an accurate count.',
@@ -82,8 +78,8 @@ const TOOLTIP_MESSAGES = {
  * when a dataset's row count is stale (does not reflect current constraints).
  *
  * @param {Object} props
- * @param {string} props.reason - Staleness reason ('spatial_partial', 'temporal_enabled', 'depth_enabled', 'constraints_changed', 'dataset_not_in_results')
- * @param {Object} props.dataset - Dataset object with shortName
+ * @param {string} props.reason - Staleness reason ('constraints_restrict_dataset', 'constraints_changed', 'dataset_not_in_results')
+ * @param {string} props.shortName - Dataset short name
  * @param {Function} props.onRecalculate - Callback to trigger recalculation for this dataset
  * @param {boolean} props.isRecalculating - Whether recalculation is in progress
  * @param {React.ReactNode} props.children - The warning icon element
@@ -91,7 +87,7 @@ const TOOLTIP_MESSAGES = {
  */
 const StaleIndicatorTooltip = ({
   reason,
-  dataset,
+  shortName,
   onRecalculate,
   isRecalculating,
   children,
@@ -102,8 +98,8 @@ const StaleIndicatorTooltip = ({
   // Fallback for unknown reason
   if (!message) {
     log.warn(
-      `StaleIndicatorTooltip: Unknown reason "${reason}" for dataset ${dataset.shortName}`,
-      { reason, dataset: dataset.shortName },
+      `StaleIndicatorTooltip: Unknown reason "${reason}" for dataset ${shortName}`,
+      { reason, shortName },
     );
     return children;
   }
@@ -147,7 +143,7 @@ const StaleIndicatorTooltip = ({
       classes={{ tooltip: classes.tooltip }}
       placement="top"
       interactive
-      aria-describedby={`stale-tooltip-${dataset.shortName}`}
+      aria-describedby={`stale-tooltip-${shortName}`}
       PopperProps={{
         style: { zIndex: zIndex.MODAL_LAYER_2_POPPER },
       }}
@@ -159,15 +155,11 @@ const StaleIndicatorTooltip = ({
 
 StaleIndicatorTooltip.propTypes = {
   reason: PropTypes.oneOf([
-    'spatial_partial',
-    'temporal_enabled',
-    'depth_enabled',
+    'constraints_restrict_dataset',
     'constraints_changed',
     'dataset_not_in_results',
   ]).isRequired,
-  dataset: PropTypes.shape({
-    shortName: PropTypes.string.isRequired,
-  }).isRequired,
+  shortName: PropTypes.string.isRequired,
   onRecalculate: PropTypes.func.isRequired,
   isRecalculating: PropTypes.bool.isRequired,
   children: PropTypes.node.isRequired,

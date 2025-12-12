@@ -30,8 +30,6 @@ export async function querySpatialResolutionMapping(
   resolution,
 ) {
   try {
-    log.debug('querying spatial resolution mapping', { resolution });
-
     const sql =
       'SELECT value, units FROM spatial_resolution_mappings WHERE resolution = ?';
     const bindings = [resolution];
@@ -39,20 +37,13 @@ export async function querySpatialResolutionMapping(
     const results = await searchDatabaseApi.executeSql(sql, bindings);
 
     if (results.length === 0) {
-      log.debug('spatial resolution not found in mappings', { resolution });
       return null;
     }
 
-    const result = {
+    return {
       value: results[0].value,
       units: results[0].units,
     };
-    log.debug('spatial resolution mapping found', {
-      resolution,
-      ...result,
-    });
-
-    return result;
   } catch (error) {
     log.error('error querying spatial resolution mapping', {
       resolution,
@@ -73,8 +64,6 @@ export async function queryTemporalResolutionMapping(
   resolution,
 ) {
   try {
-    log.debug('querying temporal resolution mapping', { resolution });
-
     const sql =
       'SELECT value, units FROM temporal_resolution_mappings WHERE resolution = ?';
     const bindings = [resolution];
@@ -82,20 +71,13 @@ export async function queryTemporalResolutionMapping(
     const results = await searchDatabaseApi.executeSql(sql, bindings);
 
     if (results.length === 0) {
-      log.debug('temporal resolution not found in mappings', { resolution });
       return null;
     }
 
-    const result = {
+    return {
       value: results[0].value,
       units: results[0].units,
     };
-    log.debug('temporal resolution mapping found', {
-      resolution,
-      ...result,
-    });
-
-    return result;
   } catch (error) {
     log.error('error querying temporal resolution mapping', {
       resolution,
@@ -113,8 +95,6 @@ export async function queryTemporalResolutionMapping(
  */
 export async function queryDatasetDepthModel(searchDatabaseApi, shortName) {
   try {
-    log.debug('querying dataset depth model', { shortName });
-
     const sql =
       'SELECT depth_model FROM dataset_depth_models WHERE short_name = ?';
     const bindings = [shortName];
@@ -122,14 +102,10 @@ export async function queryDatasetDepthModel(searchDatabaseApi, shortName) {
     const results = await searchDatabaseApi.executeSql(sql, bindings);
 
     if (results.length === 0) {
-      log.debug('dataset depth model not found', { shortName });
       return null;
     }
 
-    const depthModel = results[0].depth_model;
-    log.debug('dataset depth model found', { shortName, depthModel });
-
-    return depthModel;
+    return results[0].depth_model;
   } catch (error) {
     log.error('error querying dataset depth model', {
       shortName,
@@ -169,14 +145,6 @@ export async function queryDepthCount(
   const hasRange = minDepth !== undefined && maxDepth !== undefined;
 
   try {
-    log.debug('querying depth count', {
-      depthModel,
-      tableName,
-      minDepth,
-      maxDepth,
-      hasRange,
-    });
-
     const sql = hasRange
       ? 'SELECT COUNT(*) as count FROM ' +
         tableName +
@@ -186,10 +154,7 @@ export async function queryDepthCount(
 
     const results = await searchDatabaseApi.executeSql(sql, bindings);
 
-    const count = results[0].count;
-    log.debug('depth count result', { depthModel, minDepth, maxDepth, count });
-
-    return count;
+    return results[0].count;
   } catch (error) {
     log.error('error querying depth count', {
       depthModel,

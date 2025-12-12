@@ -259,15 +259,6 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
         isConstraintsExpanded &&
         enhancedResults.length > 0;
 
-      set({
-        results: enhancedResults,
-        isSearching: false,
-        lastSearchConstraints,
-        ...(shouldAutoCollapse && { isConstraintsExpanded: false }),
-      });
-
-      // Calculate row counts for results (fire-and-forget)
-      // initializeRowCounts handles: tracking dataset IDs, estimating eligible datasets
       const estimationConstraints = {
         spatialBounds,
         temporalRange,
@@ -276,7 +267,17 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
         depthEnabled,
         includePartialOverlaps,
       };
-      initializeRowCounts(enhancedResults, estimationConstraints);
+      await initializeRowCounts(
+        enhancedResults.map((r) => r.shortName),
+        estimationConstraints,
+      );
+
+      set({
+        results: enhancedResults,
+        isSearching: false,
+        lastSearchConstraints,
+        ...(shouldAutoCollapse && { isConstraintsExpanded: false }),
+      });
     } catch (error) {
       set({
         isSearching: false,

@@ -33,11 +33,11 @@ const useStyles = makeStyles(() => ({
  * Displays a tooltip explaining that a dataset is currently unavailable for constrained queries.
  *
  * @param {Object} props
- * @param {Object} props.dataset - Dataset object with shortName
+ * @param {string} props.shortName - Dataset shortName
  * @param {React.ReactNode} props.children - The indicator element (text/icon)
  * @returns {JSX.Element}
  */
-const ClusterOnlyTooltip = ({ dataset, children }) => {
+const ClusterOnlyTooltip = ({ shortName, children }) => {
   const classes = useStyles();
 
   const tooltipContent = (
@@ -55,7 +55,7 @@ const ClusterOnlyTooltip = ({ dataset, children }) => {
       classes={{ tooltip: classes.tooltip }}
       placement="top"
       interactive
-      aria-describedby={`cluster-only-tooltip-${dataset.shortName}`}
+      aria-describedby={`cluster-only-tooltip-${shortName}`}
       PopperProps={{
         style: { zIndex: zIndex.MODAL_LAYER_2_POPPER },
       }}
@@ -68,9 +68,7 @@ const ClusterOnlyTooltip = ({ dataset, children }) => {
 };
 
 ClusterOnlyTooltip.propTypes = {
-  dataset: PropTypes.shape({
-    shortName: PropTypes.string.isRequired,
-  }).isRequired,
+  shortName: PropTypes.string.isRequired,
   children: PropTypes.node.isRequired,
 };
 

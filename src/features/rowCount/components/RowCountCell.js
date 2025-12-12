@@ -8,6 +8,7 @@ import StaleIndicatorTooltip from './StaleIndicatorTooltip';
 import ClusterOnlyTooltip from './SkipReasonTooltip';
 import {
   useCalculatedRowCounts,
+  useOriginalRowCounts,
   useRowCountLoadingDatasets,
   useFailedRowCounts,
   isDatasetStale,
@@ -59,31 +60,29 @@ const useStyles = makeStyles(() => ({
  * - Default state (original count from dataset stats)
  *
  * @param {Object} props
- * @param {Object} props.dataset - Dataset object with shortName and rows
+ * @param {string} props.shortName - Dataset short name
  * @param {Object} props.currentConstraints - Current constraint configuration
  * @returns {JSX.Element}
  */
-const RowCountCell = ({ dataset, currentConstraints }) => {
+const RowCountCell = ({ shortName, currentConstraints }) => {
   const classes = useStyles();
-  const shortName = dataset.shortName;
 
   // Access store state via hooks (self-contained)
   const calculatedRowCounts = useCalculatedRowCounts();
+  const originalRowCounts = useOriginalRowCounts();
   const rowCountLoadingDatasets = useRowCountLoadingDatasets();
   const failedRowCounts = useFailedRowCounts();
 
+  const originalRowCount = originalRowCounts[shortName];
+
   // Check if dataset is stale (action called directly)
-  const { isStale, reason } = isDatasetStale(
-    shortName,
-    currentConstraints,
-    dataset.datasetUtilization || 1.0,
-  );
+  const { isStale, reason } = isDatasetStale(shortName, currentConstraints);
 
   // Callback to recalculate row count for this specific dataset
+  // Recalculate only this dataset - per-dataset snapshot will be stored automatically
+  // Does not consume the global recalculation opportunity (that's only for "Recalculate All")
   const handleRecalculate = () => {
-    // Recalculate only this dataset - per-dataset snapshot will be stored automatically
-    // Does not consume the global recalculation opportunity (that's only for "Recalculate All")
-    queryRowCountsForDatasets([dataset], currentConstraints);
+    queryRowCountsForDatasets([{ shortName }], currentConstraints);
   };
 
   // Check if this dataset is currently being calculated
@@ -104,7 +103,7 @@ const RowCountCell = ({ dataset, currentConstraints }) => {
           // Show stale warning icon (most recent state)
           <StaleIndicatorTooltip
             reason={reason}
-            dataset={dataset}
+            shortName={shortName}
             onRecalculate={handleRecalculate}
             isRecalculating={rowCountLoadingDatasets.has(shortName)}
           >
@@ -126,8 +125,8 @@ const RowCountCell = ({ dataset, currentConstraints }) => {
   if (failedRowCounts.includes(shortName)) {
     return (
       <span>
-        {typeof dataset.rows === 'number'
-          ? dataset.rows.toLocaleString()
+        {typeof originalRowCount === 'number'
+          ? originalRowCount.toLocaleString()
           : 'N/A'}
         <br />
         <span className={classes.failedRowCount}>(failed)</span>
@@ -139,10 +138,10 @@ const RowCountCell = ({ dataset, currentConstraints }) => {
   if (isDatasetSkipped(shortName)) {
     return (
       <span>
-        {typeof dataset.rows === 'number'
-          ? dataset.rows.toLocaleString()
+        {typeof originalRowCount === 'number'
+          ? originalRowCount.toLocaleString()
           : 'N/A'}
-        <ClusterOnlyTooltip dataset={dataset}>
+        <ClusterOnlyTooltip shortName={shortName}>
           <InfoIcon
             style={{
               color: '#90a4ae',
@@ -159,11 +158,13 @@ const RowCountCell = ({ dataset, currentConstraints }) => {
   // Default: show original row count from stats
   return (
     <span>
-      {typeof dataset.rows === 'number' ? dataset.rows.toLocaleString() : 'N/A'}
+      {typeof originalRowCount === 'number'
+        ? originalRowCount.toLocaleString()
+        : 'N/A'}
       {isStale && (
         <StaleIndicatorTooltip
           reason={reason}
-          dataset={dataset}
+          shortName={shortName}
           onRecalculate={handleRecalculate}
           isRecalculating={rowCountLoadingDatasets.has(shortName)}
         >
@@ -182,11 +183,7 @@ const RowCountCell = ({ dataset, currentConstraints }) => {
 };
 
 RowCountCell.propTypes = {
-  dataset: PropTypes.shape({
-    shortName: PropTypes.string.isRequired,
-    rows: PropTypes.number,
-    datasetUtilization: PropTypes.number, // Spatial coverage metric (0.0 to 1.0)
-  }).isRequired,
+  shortName: PropTypes.string.isRequired,
   currentConstraints: PropTypes.shape({
     spatialBounds: PropTypes.object,
     temporalRange: PropTypes.object,
@@ -194,7 +191,7 @@ RowCountCell.propTypes = {
     temporalEnabled: PropTypes.bool,
     depthEnabled: PropTypes.bool,
     includePartialOverlaps: PropTypes.bool,
-  }).isRequired,
+  }),
 };
 
 export default RowCountCell;
