@@ -1,7 +1,10 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Typography, Box } from '@material-ui/core';
+import WarningIcon from '@material-ui/icons/Warning';
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
-import useRowCountStore from '../stores/useRowCountStore';
+import { useDownloadThreshold } from '../stores/useDownloadThreshold';
+import BatchStaleIndicatorTooltip from './BatchStaleIndicatorTooltip';
 import temporalResolutions from '../../../enums/temporalResolutions';
 
 const styles = {
@@ -18,6 +21,16 @@ const styles = {
     fontSize: '0.875rem',
     fontWeight: 500,
   },
+  rowCountLine: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+  },
+  staleIcon: {
+    color: '#fdd835',
+    fontSize: 18,
+    cursor: 'pointer',
+  },
   warningText: {
     fontSize: '0.75rem',
     marginTop: 4,
@@ -25,12 +38,18 @@ const styles = {
   },
 };
 
-const RowCountTotal = () => {
+const RowCountTotal = ({ filterValues }) => {
   const { selectedDatasets, datasetsMetadata } = useMultiDatasetDownloadStore();
-  const { getThresholdStatus } = useRowCountStore();
+  const {
+    totalRows,
+    maxRows,
+    isLoading,
+    isOverThreshold,
+    selectedStaleDatasets,
+  } = useDownloadThreshold(selectedDatasets);
 
-  const thresholdStatus = getThresholdStatus(selectedDatasets);
-  const { totalRows, maxRows, isLoading, isOverThreshold } = thresholdStatus;
+  const hasStaleSelected =
+    selectedStaleDatasets && selectedStaleDatasets.length > 0;
 
   // Check if any selected datasets are Monthly Climatology
   const hasMonthlyClimatology = React.useMemo(() => {
@@ -63,7 +82,7 @@ const RowCountTotal = () => {
 
     // Show climatology info message only when no threshold warning
     if (hasMonthlyClimatology) {
-      return 'One or more Monthly Climatology datasets are included. These use only month values from your date range (ignoring year and day). If you need different months for Monthly Climatology datasets than for other datasets, download them separately.';
+      return '';
     }
 
     return null;
@@ -79,10 +98,20 @@ const RowCountTotal = () => {
           ? 'No datasets selected'
           : `${selectedDatasets.size} dataset${selectedDatasets.size !== 1 ? 's' : ''} selected`}
       </Typography>
-      <Typography variant="body2" style={styles.text}>
-        Total: {isLoading ? 'Calculating...' : totalRows.toLocaleString()} of{' '}
-        {maxRows.toLocaleString()} rows
-      </Typography>
+      <Box style={styles.rowCountLine}>
+        <Typography variant="body2" style={styles.text}>
+          Total: {isLoading ? 'Calculating...' : totalRows.toLocaleString()} of{' '}
+          {maxRows.toLocaleString()} rows
+        </Typography>
+        {hasStaleSelected && !isLoading && (
+          <BatchStaleIndicatorTooltip
+            staleDatasets={selectedStaleDatasets}
+            filterValues={filterValues}
+          >
+            <WarningIcon style={styles.staleIcon} />
+          </BatchStaleIndicatorTooltip>
+        )}
+      </Box>
       <Typography
         variant="body2"
         style={{
@@ -95,6 +124,14 @@ const RowCountTotal = () => {
       </Typography>
     </Box>
   );
+};
+
+RowCountTotal.propTypes = {
+  filterValues: PropTypes.object,
+};
+
+RowCountTotal.defaultProps = {
+  filterValues: null,
 };
 
 export default RowCountTotal;

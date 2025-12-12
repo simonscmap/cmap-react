@@ -106,6 +106,7 @@ export function createColumnDefinitions(deps) {
           uiPattern="headers-only"
           onClick={onSortChange}
           className={classes.clickableHeader}
+          disabled={resultsCount === 0}
         />
       ),
       cellClass: classes.utilizationCell,
@@ -136,6 +137,7 @@ export function createColumnDefinitions(deps) {
           uiPattern="headers-only"
           onClick={onSortChange}
           className={classes.clickableHeader}
+          disabled={resultsCount === 0}
         />
       ),
       cellClass: classes.coverageCell,
@@ -153,6 +155,7 @@ export function createColumnDefinitions(deps) {
           uiPattern="headers-only"
           onClick={onSortChange}
           className={classes.clickableHeader}
+          disabled={resultsCount === 0}
         />
       ),
       cellClass: classes.coverageCell,
@@ -170,6 +173,7 @@ export function createColumnDefinitions(deps) {
           uiPattern="headers-only"
           onClick={onSortChange}
           className={classes.clickableHeader}
+          disabled={resultsCount === 0}
         />
       ),
       cellClass: classes.coverageCell,

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   Table,
   TableBody,
@@ -10,18 +10,18 @@ import {
   Checkbox,
   Typography,
   Box,
-  CircularProgress,
   Chip,
 } from '@material-ui/core';
 import { useDispatch } from 'react-redux';
 
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
-import useRowCountStore from '../stores/useRowCountStore';
 import { dateToDateString } from '../../../shared/filtering/utils/dateHelpers';
 import { DatasetNameLink } from '../../../shared/components';
 import SelectAllDropdown from './SelectAllDropdown';
 import { snackbarOpen } from '../../../Redux/actions/ui';
 import temporalResolutions from '../../../enums/temporalResolutions';
+import { RowCountCell, RecalculateAllButton } from '../../rowCount';
+import { transformConstraintsForRowCount } from '../utils/constraintTransformer';
 
 const styles = {
   tableContainerStyle: {
@@ -47,6 +47,17 @@ const styles = {
     fontSize: '0.875rem',
     fontWeight: 500,
     backgroundColor: 'rgba(30, 67, 113, 1)',
+    verticalAlign: 'top',
+  },
+  rowCountHeaderCell: {
+    padding: '8px 5px',
+    border: 0,
+    color: '#8bc34a',
+    fontSize: '0.875rem',
+    fontWeight: 500,
+    backgroundColor: 'rgba(30, 67, 113, 1)',
+    verticalAlign: 'top',
+    height: 60, // Taller to accommodate button below text
   },
   tableRowStyle: {
     border: 0,
@@ -75,24 +86,11 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
     clearSelections,
     getSelectAllCheckboxState,
   } = useMultiDatasetDownloadStore();
-  const {
-    getEffectiveRowCount,
-    isRowCountLoading,
-    getRowCountError,
-    initializeWithDatasets,
-    resetStore: resetRowCountStore,
-    getThresholdConfig,
-    getTotalSelectedRows,
-  } = useRowCountStore();
   const [hoveredRow, setHoveredRow] = React.useState(null);
 
   const handleToggle = (datasetName) => (event) => {
     event.stopPropagation();
-    toggleDatasetSelection(
-      datasetName,
-      () => useRowCountStore.getState(),
-      filterValues,
-    );
+    toggleDatasetSelection(datasetName);
   };
 
   const handleProgramClick = (program) => (event) => {
@@ -100,33 +98,9 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
     window.open(`/programs/${program}`, '_blank');
   };
 
-  const rowCountStoreActions = useRowCountStore();
-
-  const getRowCountStoreInstance = () => {
-    return {
-      ...rowCountStoreActions,
-      getThresholdConfig: getThresholdConfig,
-      getEffectiveRowCount: getEffectiveRowCount,
-      getTotalSelectedRows: getTotalSelectedRows,
-    };
-  };
-
-  const handleSelectAll = async () => {
+  const handleSelectAll = () => {
     try {
-      const result = await selectAll(
-        getRowCountStoreInstance,
-        datasetsMetadata,
-        filterValues,
-      );
-
-      if (result.wasPartialSelection) {
-        dispatch(
-          snackbarOpen(
-            `Not all datasets could be selected because they would exceed the ${result.formattedThreshold}M row limit.`,
-            { position: 'bottom', severity: 'warning' },
-          ),
-        );
-      }
+      selectAll(datasetsMetadata);
     } catch (error) {
       console.error('Failed to select all datasets:', error);
       dispatch(
@@ -175,69 +149,6 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
     }
   };
 
-  const getOriginalRowCount = (datasetName) => {
-    const { originalRowCounts } = useRowCountStore.getState();
-    return originalRowCounts[datasetName];
-  };
-
-  const renderRowCount = (datasetName, isSelected) => {
-    const effectiveCount = getEffectiveRowCount(datasetName);
-    const isLoading = isRowCountLoading(datasetName);
-    const error = getRowCountError(datasetName);
-    const originalCount = getOriginalRowCount(datasetName);
-
-    // Only show loading indicators for selected datasets
-    if (isSelected && isLoading) {
-      return <CircularProgress size={16} color="primary" />;
-    }
-
-    // Only show errors for selected datasets
-    if (isSelected && error) {
-      return (
-        <Typography variant="body2" color="error">
-          Error
-        </Typography>
-      );
-    }
-
-    // Show "≤ [count]" for unselected datasets when filters are active
-    if (!isSelected && filterValues?.isFiltered && originalCount) {
-      return (
-        <Typography variant="body2" noWrap>
-          ≤ {originalCount.toLocaleString()}
-        </Typography>
-      );
-    }
-
-    // Default display logic
-    return (
-      <Typography variant="body2" noWrap>
-        {effectiveCount !== null && effectiveCount !== undefined
-          ? effectiveCount.toLocaleString()
-          : 'N/A'}
-      </Typography>
-    );
-  };
-
-  useEffect(() => {
-    if (datasetsMetadata?.length > 0) {
-      const rowCountData = {};
-      datasetsMetadata.forEach((dataset) => {
-        if (dataset.Row_Count) {
-          rowCountData[dataset.Dataset_Name] = dataset.Row_Count;
-        }
-      });
-      initializeWithDatasets(rowCountData);
-    }
-  }, []);
-
-  // Reset row count store when component unmounts
-  useEffect(() => {
-    return () => {
-      resetRowCountStore();
-    };
-  }, [resetRowCountStore]);
-
   return (
     <TableContainer component={Paper} style={styles.tableContainerStyle}>
       <Table stickyHeader size="small" aria-label="dataset selection table">
@@ -260,9 +171,6 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
               style={{ ...styles.headerCellStyle, width: 'fit-content' }}
             >
               Dataset Name
-            </TableCell>
-            <TableCell width={120} align="right" style={styles.headerCellStyle}>
-              Row Count
             </TableCell>
             <TableCell width={90} style={styles.headerCellStyle}>
               Start Date
@@ -290,6 +198,14 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
             </TableCell>
             <TableCell width={120} style={styles.headerCellStyle}>
               Programs
+            </TableCell>
+            <TableCell width={120} align="right" style={styles.rowCountHeaderCell}>
+              <Box display="flex" flexDirection="column" alignItems="flex-end" style={{ gap: '4px' }}>
+                <span>Row Count</span>
+                <RecalculateAllButton
+                  constraints={transformConstraintsForRowCount(filterValues)}
+                />
+              </Box>
             </TableCell>
           </TableRow>
         </TableHead>
@@ -336,9 +252,6 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
                       datasetShortName={datasetMetadata.Dataset_Name}
                       typographyProps={{ variant: 'body2', noWrap: true }}
                     />
-                  </TableCell>
-                  <TableCell align="right" style={styles.bodyCellStyle}>
-                    {renderRowCount(datasetMetadata.Dataset_Name, isSelected)}
                   </TableCell>
                   <TableCell style={styles.bodyCellStyle}>
                     <Typography variant="body2" noWrap>
@@ -413,6 +326,12 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
                         </Typography>
                       )}
                     </Box>
+                  </TableCell>
+                  <TableCell align="right" style={styles.bodyCellStyle}>
+                    <RowCountCell
+                      shortName={datasetMetadata.Dataset_Name}
+                      currentConstraints={transformConstraintsForRowCount(filterValues)}
+                    />
                   </TableCell>
                 </TableRow>
               );

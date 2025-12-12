@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -54,7 +54,7 @@ const PreviewModal = ({ open, onClose, collection }) => {
 
   // Handle data loaded from table
   const handleDataLoaded = (data, calculatedTotalRows) => {
-    setTotalRows(calculatedTotalRows);
+    setTotalRows(calculatedTotalRows || 0);
   };
 
   // Handle errors from table

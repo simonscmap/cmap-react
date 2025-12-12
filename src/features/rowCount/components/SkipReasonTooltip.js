@@ -2,10 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Tooltip, Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import zIndex from '../../../../../enums/zIndex';
-import logInit from '../../../../../Services/log-service';
+import zIndex from '../../../enums/zIndex';
+import logInit from '../../../Services/log-service';
 
-const log = logInit('SpatialTemporalTab/SkipReasonTooltip');
+const log = logInit('rowCount/SkipReasonTooltip');
 
 const useStyles = makeStyles(() => ({
   tooltip: {
@@ -33,17 +33,18 @@ const useStyles = makeStyles(() => ({
  * Displays a tooltip explaining that a dataset is currently unavailable for constrained queries.
  *
  * @param {Object} props
- * @param {Object} props.dataset - Dataset object with shortName
+ * @param {string} props.shortName - Dataset shortName
  * @param {React.ReactNode} props.children - The indicator element (text/icon)
  * @returns {JSX.Element}
  */
-const ClusterOnlyTooltip = ({ dataset, children }) => {
+const ClusterOnlyTooltip = ({ shortName, children }) => {
   const classes = useStyles();
 
   const tooltipContent = (
     <Box className={classes.tooltipContent}>
       <div className={classes.body}>
-        This dataset is currently unavailable for download with spatial, temporal, or depth constraints due to its large size.
+        This dataset is currently unavailable for download with spatial,
+        temporal, or depth constraints due to its large size.
       </div>
     </Box>
   );
@@ -54,20 +55,20 @@ const ClusterOnlyTooltip = ({ dataset, children }) => {
       classes={{ tooltip: classes.tooltip }}
       placement="top"
       interactive
-      aria-describedby={`cluster-only-tooltip-${dataset.shortName}`}
+      aria-describedby={`cluster-only-tooltip-${shortName}`}
       PopperProps={{
         style: { zIndex: zIndex.MODAL_LAYER_2_POPPER },
       }}
     >
-      <span aria-label="Dataset unavailable for constrained queries">{children}</span>
+      <span aria-label="Dataset unavailable for constrained queries">
+        {children}
+      </span>
     </Tooltip>
   );
 };
 
 ClusterOnlyTooltip.propTypes = {
-  dataset: PropTypes.shape({
-    shortName: PropTypes.string.isRequired,
-  }).isRequired,
+  shortName: PropTypes.string.isRequired,
   children: PropTypes.node.isRequired,
 };
 

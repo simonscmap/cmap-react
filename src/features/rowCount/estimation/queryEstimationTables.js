@@ -15,7 +15,7 @@
  * All functions use the catalog search Web Worker's executeSql interface.
  */
 
-import logInit from '../../Services/log-service';
+import logInit from '../../../Services/log-service';
 
 const log = logInit('shared/estimation/queryEstimationTables');
 
@@ -30,8 +30,6 @@ export async function querySpatialResolutionMapping(
   resolution,
 ) {
   try {
-    log.debug('querying spatial resolution mapping', { resolution });
-
     const sql =
       'SELECT value, units FROM spatial_resolution_mappings WHERE resolution = ?';
     const bindings = [resolution];
@@ -39,20 +37,13 @@ export async function querySpatialResolutionMapping(
     const results = await searchDatabaseApi.executeSql(sql, bindings);
 
     if (results.length === 0) {
-      log.debug('spatial resolution not found in mappings', { resolution });
       return null;
     }
 
-    const result = {
+    return {
       value: results[0].value,
       units: results[0].units,
     };
-    log.debug('spatial resolution mapping found', {
-      resolution,
-      ...result,
-    });
-
-    return result;
   } catch (error) {
     log.error('error querying spatial resolution mapping', {
       resolution,
@@ -73,8 +64,6 @@ export async function queryTemporalResolutionMapping(
   resolution,
 ) {
   try {
-    log.debug('querying temporal resolution mapping', { resolution });
-
     const sql =
       'SELECT value, units FROM temporal_resolution_mappings WHERE resolution = ?';
     const bindings = [resolution];
@@ -82,20 +71,13 @@ export async function queryTemporalResolutionMapping(
     const results = await searchDatabaseApi.executeSql(sql, bindings);
 
     if (results.length === 0) {
-      log.debug('temporal resolution not found in mappings', { resolution });
       return null;
     }
 
-    const result = {
+    return {
       value: results[0].value,
       units: results[0].units,
     };
-    log.debug('temporal resolution mapping found', {
-      resolution,
-      ...result,
-    });
-
-    return result;
   } catch (error) {
     log.error('error querying temporal resolution mapping', {
       resolution,
@@ -113,8 +95,6 @@ export async function queryTemporalResolutionMapping(
  */
 export async function queryDatasetDepthModel(searchDatabaseApi, shortName) {
   try {
-    log.debug('querying dataset depth model', { shortName });
-
     const sql =
       'SELECT depth_model FROM dataset_depth_models WHERE short_name = ?';
     const bindings = [shortName];
@@ -122,14 +102,10 @@ export async function queryDatasetDepthModel(searchDatabaseApi, shortName) {
     const results = await searchDatabaseApi.executeSql(sql, bindings);
 
     if (results.length === 0) {
-      log.debug('dataset depth model not found', { shortName });
       return null;
     }
 
-    const depthModel = results[0].depth_model;
-    log.debug('dataset depth model found', { shortName, depthModel });
-
-    return depthModel;
+    return results[0].depth_model;
   } catch (error) {
     log.error('error querying dataset depth model', {
       shortName,
@@ -140,71 +116,53 @@ export async function queryDatasetDepthModel(searchDatabaseApi, shortName) {
 }
 
 /**
- * Count Darwin depth levels within range
+ * Count depth levels for a given depth model, optionally within a range.
+ * If minDepth and maxDepth are not provided, returns total count of all depth levels.
  * @param {Object} searchDatabaseApi - Initialized SearchDatabaseApi instance
- * @param {number} minDepth - Minimum depth in meters
- * @param {number} maxDepth - Maximum depth in meters
- * @returns {Promise<number>} Count of depth levels within range
+ * @param {string} depthModel - Depth model name ('darwin', 'pisces', or 'woa')
+ * @param {number} [minDepth] - Optional minimum depth in meters
+ * @param {number} [maxDepth] - Optional maximum depth in meters
+ * @returns {Promise<number>} Count of depth levels
  */
-export async function queryDarwinDepthCount(
+export async function queryDepthCount(
   searchDatabaseApi,
+  depthModel,
   minDepth,
   maxDepth,
 ) {
-  try {
-    log.debug('querying darwin depth count', { minDepth, maxDepth });
+  const tableMap = {
+    darwin: 'darwin_depth',
+    pisces: 'pisces_depth',
+    woa: 'woa_depth',
+  };
 
-    const sql =
-      'SELECT COUNT(*) as count FROM darwin_depth WHERE depth_level BETWEEN ? AND ?';
-    const bindings = [minDepth, maxDepth];
-
-    const results = await searchDatabaseApi.executeSql(sql, bindings);
-
-    const count = results[0].count;
-    log.debug('darwin depth count', { minDepth, maxDepth, count });
-
-    return count;
-  } catch (error) {
-    log.error('error querying darwin depth count', {
-      minDepth,
-      maxDepth,
-      error: error.message,
-    });
-    return 0;
+  const tableName = tableMap[depthModel];
+  if (!tableName) {
+    log.debug('unknown depth model, returning 1', { depthModel });
+    return 1;
   }
-}
 
-/**
- * Count PISCES depth levels within range
- * @param {Object} searchDatabaseApi - Initialized SearchDatabaseApi instance
- * @param {number} minDepth - Minimum depth in meters
- * @param {number} maxDepth - Maximum depth in meters
- * @returns {Promise<number>} Count of depth levels within range
- */
-export async function queryPiscesDepthCount(
-  searchDatabaseApi,
-  minDepth,
-  maxDepth,
-) {
+  const hasRange = minDepth !== undefined && maxDepth !== undefined;
+
   try {
-    log.debug('querying pisces depth count', { minDepth, maxDepth });
-
-    const sql =
-      'SELECT COUNT(*) as count FROM pisces_depth WHERE depth_level BETWEEN ? AND ?';
-    const bindings = [minDepth, maxDepth];
+    const sql = hasRange
+      ? 'SELECT COUNT(*) as count FROM ' +
+        tableName +
+        ' WHERE depth_level BETWEEN ? AND ?'
+      : 'SELECT COUNT(*) as count FROM ' + tableName;
+    const bindings = hasRange ? [minDepth, maxDepth] : [];
 
     const results = await searchDatabaseApi.executeSql(sql, bindings);
 
-    const count = results[0].count;
-    log.debug('pisces depth count', { minDepth, maxDepth, count });
-
-    return count;
+    return results[0].count;
   } catch (error) {
-    log.error('error querying pisces depth count', {
+    log.error('error querying depth count', {
+      depthModel,
+      tableName,
       minDepth,
       maxDepth,
       error: error.message,
     });
-    return 0;
+    return 1;
   }
 }

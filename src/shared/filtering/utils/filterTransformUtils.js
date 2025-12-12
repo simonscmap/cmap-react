@@ -6,12 +6,19 @@ import { dateToDateString, dateToEndOfDayString } from './dateHelpers';
 // oceanographic measurement precision while handling binary floating-point errors
 const SPATIAL_EPSILON = 0.000001;
 
+const LAT_MIN = -90;
+const LAT_MAX = 90;
+const LON_MIN = -180;
+const LON_MAX = 180;
+
 // Expand spatial bounds by epsilon to account for floating-point precision
 // For example: 32.108 in metadata might be 32.10800000000004 in actual data
 const expandSpatialBounds = (min, max) => ({
   min: min - SPATIAL_EPSILON,
   max: max + SPATIAL_EPSILON,
 });
+
+const clampToRange = (value, min, max) => Math.max(min, Math.min(max, value));
 
 export const transformFiltersForAPI = (filters) => {
   const apiFilters = {};
@@ -39,10 +46,10 @@ export const transformFiltersForAPI = (filters) => {
     const lonBounds = expandSpatialBounds(filters.lonStart, filters.lonEnd);
 
     apiFilters.spatial = {
-      latMin: latBounds.min,
-      latMax: latBounds.max,
-      lonMin: lonBounds.min,
-      lonMax: lonBounds.max,
+      latMin: clampToRange(latBounds.min, LAT_MIN, LAT_MAX),
+      latMax: clampToRange(latBounds.max, LAT_MIN, LAT_MAX),
+      lonMin: clampToRange(lonBounds.min, LON_MIN, LON_MAX),
+      lonMax: clampToRange(lonBounds.max, LON_MIN, LON_MAX),
     };
   }
 

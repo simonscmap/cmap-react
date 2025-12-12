@@ -6,6 +6,7 @@ import MyCollectionsTab from './myCollections/MyCollectionsTab';
 import PublicCollectionsTab from './publicCollections/PublicCollectionsTab';
 import useCollectionsStore from './state/collectionsStore';
 import CreateCollectionModal from './createModal/CreateCollectionModal';
+import { initializeCatalogSearch } from '../catalogSearch/api';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -64,6 +65,10 @@ const Collections = () => {
   useEffect(() => {
     fetchCollections({ includeDatasets: true });
   }, [user, fetchCollections]);
+
+  useEffect(() => {
+    initializeCatalogSearch();
+  }, []);
 
   const handleTabChange = (_, newValue) => {
     setCurrentTab(newValue);

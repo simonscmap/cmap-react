@@ -6,7 +6,8 @@ import GetAppIcon from '@material-ui/icons/GetApp';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import UniversalButton from '../../../shared/components/UniversalButton';
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
-import useRowCountStore from '../stores/useRowCountStore';
+import { useDownloadThreshold } from '../stores/useDownloadThreshold';
+import { DOWNLOAD_LIMITS } from '../../../shared/constants/downloadConstants';
 import { showLoginDialog, snackbarOpen } from '../../../Redux/actions/ui';
 
 const useStyles = makeStyles((theme) => ({
@@ -21,19 +22,17 @@ const DownloadButton = ({ subsetFiltering, onDownloadComplete }) => {
   const dispatch = useDispatch();
   const { selectedDatasets, isDownloading, downloadDatasets } =
     useMultiDatasetDownloadStore();
-  const { isAnyRowCountLoading, isOverThreshold, getThresholdConfig } =
-    useRowCountStore();
+  const {
+    isLoading: isRowCountsLoading,
+    isOverThreshold: isOverRowThreshold,
+    hasStaleDatasets,
+    canDownload,
+  } = useDownloadThreshold(selectedDatasets);
 
   const user = useSelector((state) => state.user);
-
-  const isRowCountsLoading = isAnyRowCountLoading();
-  const isOverRowThreshold = isOverThreshold(selectedDatasets);
-  const isDisabled =
-    selectedDatasets.size === 0 ||
-    isDownloading ||
-    isRowCountsLoading ||
-    isOverRowThreshold;
   const selectedCount = selectedDatasets.size;
+
+  const isDisabled = selectedCount === 0 || isDownloading || !canDownload;
 
   const handleDownload = async () => {
     if (!user) {
@@ -73,8 +72,12 @@ const DownloadButton = ({ subsetFiltering, onDownloadComplete }) => {
       return 'Calculating...';
     }
     if (isOverRowThreshold) {
-      const { maxRowThreshold } = getThresholdConfig();
-      const formattedThreshold = (maxRowThreshold / 1000000).toFixed(0);
+      const formattedThreshold = (
+        DOWNLOAD_LIMITS.MAX_ROW_THRESHOLD / 1000000
+      ).toFixed(0);
+      if (hasStaleDatasets) {
+        return `Exceeds ${formattedThreshold}M limit - Recalculate`;
+      }
       return `Selection exceeds ${formattedThreshold}M row limit`;
     }
     if (selectedCount === 0) {

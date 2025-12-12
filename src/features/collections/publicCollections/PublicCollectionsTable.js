@@ -208,6 +208,7 @@ const PublicCollectionsTable = ({ collections = [] }) => {
   return (
     <>
       <PreviewModal
+        key={selectedCollection?.id}
         open={previewModalOpen}
         onClose={handleClosePreview}
         collection={selectedCollection}

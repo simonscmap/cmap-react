@@ -21,7 +21,6 @@ import CollectionDatasetsTable from '../components/CollectionDatasetsTable';
 import CollectionContentActions from './components/CollectionContentActions';
 import ConfirmationDialog from '../../../shared/components/ConfirmationDialog';
 import UniversalButton from '../../../shared/components/UniversalButton';
-import { DOWNLOAD_LIMITS } from '../../../shared/constants/downloadConstants';
 import zIndex from '../../../enums/zIndex';
 import AddDatasetsModal from '../addDatasets/AddDatasetsModal';
 
@@ -144,7 +143,6 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
   const [showInvalidDatasetsDialog, setShowInvalidDatasetsDialog] =
     useState(false);
   const [invalidDatasetsData, setInvalidDatasetsData] = useState(null);
-  const [tableData, setTableData] = useState([]);
   const [isAddDatasetsOpen, setIsAddDatasetsOpen] = useState(false);
 
   // Store state selectors
@@ -182,9 +180,6 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
     state.isIndeterminate(),
   );
   const resetChanges = useEditCollectionStore((state) => state.resetChanges);
-  const downloadSelected = useEditCollectionStore(
-    (state) => state.downloadSelected,
-  );
 
   // Use the main edit collection hook
   const {
@@ -279,11 +274,6 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
     }
   };
 
-  // Handle download selected datasets - triggers direct download
-  const handleDownloadSelected = async () => {
-    await downloadSelected(dispatch);
-  };
-
   // Handle add datasets from AddDatasetsModal
   const handleAddDatasets = (newDatasets) => {
     // Transform datasets from preview format (shortName) to collection format (datasetShortName)
@@ -343,23 +333,6 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
       toggleDatasetSelection(shortName);
     }
   };
-
-  // Callback when table data is loaded
-  const handleDataLoaded = (previewData) => {
-    setTableData(previewData);
-  };
-
-  // Calculate total selected rows
-  const totalSelectedRows = useMemo(() => {
-    return selectedDatasets.reduce((sum, shortName) => {
-      const dataset = tableData.find((d) => d.shortName === shortName);
-      return sum + (dataset?.rowCount || 0);
-    }, 0);
-  }, [selectedDatasets, tableData]);
-
-  // Check if over download limit
-  const isOverDownloadLimit =
-    totalSelectedRows > DOWNLOAD_LIMITS.MAX_ROW_THRESHOLD;
 
   // Calculate new dataset count (accounting for removals and additions)
   const newDatasetCount = useMemo(() => {
@@ -574,8 +547,7 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
                 onClearAll={clearAllSelections}
                 areAllSelected={allDatasetsSelected}
                 areIndeterminate={isIndeterminate}
-                columns={['name', 'status', 'type', 'dateRange', 'rows']}
-                onDataLoaded={handleDataLoaded}
+                columns={['name', 'status', 'type', 'dateRange']}
                 actions={[
                   {
                     label: 'Remove',
@@ -611,12 +583,9 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
               <Box className={classes.inlineActions}>
                 <CollectionContentActions
                   selectedDatasets={selectedDatasets}
-                  totalSelectedRows={totalSelectedRows}
-                  isOverDownloadLimit={isOverDownloadLimit}
                   canSave={canSave}
                   isSaving={isSaving}
                   onRemoveSelected={handleRemoveSelected}
-                  onDownloadSelected={handleDownloadSelected}
                   onCancel={handleClose}
                   onSave={handleSaveClick}
                 />
@@ -633,14 +602,6 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
             disabled={selectedDatasets.length === 0}
           >
             REMOVE SELECTED
-          </UniversalButton>
-          <UniversalButton
-            onClick={handleDownloadSelected}
-            variant="primary"
-            size="large"
-            disabled={selectedDatasets.length === 0}
-          >
-            DOWNLOAD SELECTED
           </UniversalButton>
           <Box style={{ flex: 1 }} />
           <UniversalButton onClick={handleClose} variant="default" size="large">

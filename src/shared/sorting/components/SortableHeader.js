@@ -21,14 +21,15 @@ const useStyles = makeStyles((theme) => ({
 
   // Pattern B: Headers-only style
   headerPatternB: {
-    cursor: 'pointer',
+    cursor: (props) => (props.disabled ? 'default' : 'pointer'),
     userSelect: 'none',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     padding: 0,
+    opacity: (props) => (props.disabled ? 0.5 : 1),
     '&:hover': {
-      opacity: 0.8,
+      opacity: (props) => (props.disabled ? 0.5 : 0.8),
     },
   },
   headerPatternBLabel: {
@@ -115,8 +116,9 @@ const SortableHeader = ({
   onToggle,
   onClick,
   className,
+  disabled = false,
 }) => {
-  const classes = useStyles({ isActive });
+  const classes = useStyles({ isActive, disabled });
 
   // Validate direction prop
   const validDirection =
@@ -156,13 +158,17 @@ const SortableHeader = ({
   // Pattern B: Headers-only (always show both arrows, header clickable)
   if (uiPattern === 'headers-only') {
     const handleClick = () => {
-      if (onClick) {
+      if (onClick && !disabled) {
         onClick(field);
       }
     };
 
     const handleKeyDown = (event) => {
-      if ((event.key === 'Enter' || event.key === ' ') && onClick) {
+      if (
+        (event.key === 'Enter' || event.key === ' ') &&
+        onClick &&
+        !disabled
+      ) {
         event.preventDefault();
         onClick(field);
       }
@@ -171,8 +177,9 @@ const SortableHeader = ({
     return (
       <Box
         role="button"
-        tabIndex={0}
+        tabIndex={disabled ? -1 : 0}
         aria-label={`Sort by ${label} ${isActive ? validDirection : 'ascending'}`}
+        aria-disabled={disabled}
         onClick={handleClick}
         onKeyDown={handleKeyDown}
         className={`${classes.headerPatternB} ${className || ''}`}
@@ -211,6 +218,7 @@ SortableHeader.propTypes = {
   onToggle: PropTypes.func,
   onClick: PropTypes.func,
   className: PropTypes.string,
+  disabled: PropTypes.bool,
 };
 
 export default SortableHeader;
