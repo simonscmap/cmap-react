@@ -50,9 +50,10 @@ const DateRangeSlider = ({
     }
   };
 
-  const handleSliderCommit = (event, newValue) => {
-    // Use the same handler for commit
-    handleSlider(event, newValue);
+  const handleSliderCommit = () => {
+    if (onCommit) {
+      onCommit();
+    }
   };
 
   return (

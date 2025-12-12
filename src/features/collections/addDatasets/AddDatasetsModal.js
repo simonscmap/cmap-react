@@ -17,6 +17,7 @@ import { useAddDatasetsStore } from './state/addDatasetsStore';
 import useCollectionsStore from '../state/collectionsStore';
 import useCatalogSearchStore from '../../catalogSearch/state/catalogSearchStore';
 import useSpatialTemporalSearchStore from './SpatialTemporalTab/store/spatialTemporalSearchStore';
+import { clearRowCounts } from '../../rowCount';
 import ConfirmationDialog from '../../../shared/components/ConfirmationDialog';
 import UniversalButton from '../../../shared/components/UniversalButton';
 import CatalogSearchSection from './CatalogSearchTab/CatalogSearchSection';
@@ -129,6 +130,14 @@ const AddDatasetsModal = ({
     (state) => state.resetSearch,
   );
 
+  // Get reset functions for consistent cleanup across all tabs
+  const resetFromCollections = useAddDatasetsStore(
+    (state) => state.resetFromCollections,
+  );
+  const resetSpatialTemporal = useSpatialTemporalSearchStore(
+    (state) => state.reset,
+  );
+
   // Get spatial-temporal store initialization state for tab enable/disable
   const spatialTemporalInitialized = useSpatialTemporalSearchStore(
     (state) => state.isInitialized,
@@ -227,12 +236,24 @@ const AddDatasetsModal = ({
     initializeSpatialTemporal,
   ]);
 
-  // Effect: Reset catalog search (filters and results) when modal closes
+  // Effect: Reset all tabs when modal closes (consistent declarative cleanup)
   React.useEffect(() => {
     if (!open) {
+      // Tab 0: Catalog Filtering
       resetCatalogSearch();
+      // Tab 1: From Collections
+      resetFromCollections();
+      // Tab 2: Spatial Temporal
+      resetSpatialTemporal();
+      clearRowCounts();
     }
-  }, [open, resetCatalogSearch]);
+  }, [
+    open,
+    resetCatalogSearch,
+    resetFromCollections,
+    resetSpatialTemporal,
+    clearRowCounts,
+  ]);
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);

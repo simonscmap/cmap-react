@@ -9,7 +9,7 @@
  * @module CompactDateRangeInput
  */
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Box, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
@@ -98,6 +98,44 @@ const CompactDateRangeInput = ({
 }) => {
   const classes = useStyles();
 
+  const [localStartDate, setLocalStartDate] = useState(startDate);
+  const [localEndDate, setLocalEndDate] = useState(endDate);
+
+  useEffect(() => {
+    setLocalStartDate(startDate);
+  }, [startDate]);
+
+  useEffect(() => {
+    setLocalEndDate(endDate);
+  }, [endDate]);
+
+  const handleStartInputChange = (date) => {
+    setLocalStartDate(date);
+    setStartDate(date);
+  };
+
+  const handleEndInputChange = (date) => {
+    setLocalEndDate(date);
+    setEndDate(date);
+  };
+
+  const handleSliderStartChange = (date) => {
+    setLocalStartDate(date);
+  };
+
+  const handleSliderEndChange = (date) => {
+    setLocalEndDate(date);
+  };
+
+  const handleSliderCommit = () => {
+    if (localStartDate !== startDate) {
+      setStartDate(localStartDate);
+    }
+    if (localEndDate !== endDate) {
+      setEndDate(localEndDate);
+    }
+  };
+
   // Use validation hook for error handling
   const {
     handleDateStartBlur,
@@ -114,7 +152,7 @@ const CompactDateRangeInput = ({
   });
 
   // Set invalid flag when there are validation errors
-  React.useEffect(() => {
+  useEffect(() => {
     const hasErrors = !!startDateMessage || !!endDateMessage;
     if (setInvalidFlag) {
       setInvalidFlag(hasErrors);
@@ -141,8 +179,8 @@ const CompactDateRangeInput = ({
       <Box className={classes.inputRow}>
         <Box className={classes.inputWrapper}>
           <DateInput
-            value={startDate}
-            onChange={setStartDate}
+            value={localStartDate}
+            onChange={handleStartInputChange}
             onBlur={handleDateStartBlur}
             minDate={minDate}
             maxDate={maxDate}
@@ -153,8 +191,8 @@ const CompactDateRangeInput = ({
         </Box>
         <Box className={classes.inputWrapper}>
           <DateInput
-            value={endDate}
-            onChange={setEndDate}
+            value={localEndDate}
+            onChange={handleEndInputChange}
             onBlur={handleDateEndBlur}
             minDate={minDate}
             maxDate={maxDate}
@@ -168,12 +206,13 @@ const CompactDateRangeInput = ({
       {/* Slider */}
       <Box className={classes.sliderBox}>
         <DateRangeSlider
-          startDate={startDate}
-          endDate={endDate}
+          startDate={localStartDate}
+          endDate={localEndDate}
           minDate={minDate}
           maxDate={maxDate}
-          onStartChange={setStartDate}
-          onEndChange={setEndDate}
+          onStartChange={handleSliderStartChange}
+          onEndChange={handleSliderEndChange}
+          onCommit={handleSliderCommit}
           showMarks={false}
         />
       </Box>

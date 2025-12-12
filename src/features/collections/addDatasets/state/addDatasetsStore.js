@@ -104,6 +104,36 @@ export const useAddDatasetsStore = create((set, get) => ({
   },
 
   /**
+   * resetFromCollections - Reset Tab 1 state without affecting isOpen
+   *
+   * Called from useEffect cleanup in AddDatasetsModal when modal closes.
+   * This follows the same declarative pattern used by Tab 0 (Catalog Filtering)
+   * and Tab 2 (Spatial Temporal) for consistent cleanup behavior.
+   *
+   * Side Effects:
+   * - Clears selected collection and summary
+   * - Clears all dataset selections
+   * - Clears loaded datasets and catalog cache
+   * - Resets loading states and errors
+   * - Clears switch collection warning state
+   */
+  resetFromCollections: () => {
+    set({
+      selectedCollectionId: null,
+      selectedCollectionSummary: null,
+      isLoadingDatasets: false,
+      loadError: null,
+      sourceCollectionDatasets: null,
+      selectedDatasetIds: new Set(),
+      showSwitchCollectionWarning: false,
+      pendingCollectionId: null,
+      fullCatalog: null,
+      isLoadingCatalog: false,
+      catalogLoadError: null,
+    });
+  },
+
+  /**
    * selectCollection - Select a collection from search results (T027)
    *
    * Contract: addDatasetsStore.contract.md lines 87-109

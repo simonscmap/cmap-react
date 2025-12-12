@@ -259,58 +259,6 @@ const useEditCollectionStore = create((set, get) => ({
   },
 
   /**
-   * Download selected datasets directly as a zip file
-   * @param {Function} dispatch - Redux dispatch function for error notifications
-   * @returns {Promise<void>}
-   */
-  downloadSelected: async (dispatch) => {
-    const { selectedDatasets, collection } = get();
-
-    if (!selectedDatasets || selectedDatasets.length === 0) {
-      dispatch(
-        snackbarOpen('Please select at least one dataset to download', {
-          severity: 'warning',
-          position: 'top',
-        }),
-      );
-      return;
-    }
-
-    if (!collection) {
-      console.error('Cannot download: no collection loaded');
-      return;
-    }
-
-    try {
-      // Filter out invalid datasets as a defensive measure
-      // (selection UI should already prevent this, but this ensures safety)
-      const validDatasets = selectedDatasets.filter((shortName) => {
-        const dataset = collection.datasets?.find(
-          (d) => d.datasetShortName === shortName,
-        );
-        return dataset && dataset.isInvalid !== true;
-      });
-
-      // Pass the collection ID for download tracking
-      await collectionsAPI.downloadDatasets(validDatasets, collection.id);
-      // Browser download UI provides feedback - no success snackbar needed
-    } catch (error) {
-      console.error('Error downloading datasets:', error);
-
-      // Show error notification only on failure
-      dispatch(
-        snackbarOpen(`Failed to download datasets: ${error.message}`, {
-          severity: 'error',
-          position: 'top',
-        }),
-      );
-
-      // Re-throw to allow component-level error handling if needed
-      throw error;
-    }
-  },
-
-  /**
    * Persist all changes to backend
    * @param {Function} dispatch - Redux dispatch function for snackbar notifications
    * @returns {Promise<void>}

@@ -84,10 +84,18 @@ export const areConstraintsEqual = (current, snapshot) => {
   // Step 3: Compare temporal range (only if enabled in BOTH)
   if (current.temporalEnabled && snapshot.temporalEnabled) {
     // Compare Date objects by value using .getTime()
-    const currentTimeMin = current.temporalRange.timeMin?.getTime();
-    const snapshotTimeMin = snapshot.temporalRange.timeMin?.getTime();
-    const currentTimeMax = current.temporalRange.timeMax?.getTime();
-    const snapshotTimeMax = snapshot.temporalRange.timeMax?.getTime();
+    const currentTimeMin = current.temporalRange.timeMin
+      ? current.temporalRange.timeMin.getTime()
+      : null;
+    const snapshotTimeMin = snapshot.temporalRange.timeMin
+      ? snapshot.temporalRange.timeMin.getTime()
+      : null;
+    const currentTimeMax = current.temporalRange.timeMax
+      ? current.temporalRange.timeMax.getTime()
+      : null;
+    const snapshotTimeMax = snapshot.temporalRange.timeMax
+      ? snapshot.temporalRange.timeMax.getTime()
+      : null;
 
     if (
       currentTimeMin !== snapshotTimeMin ||

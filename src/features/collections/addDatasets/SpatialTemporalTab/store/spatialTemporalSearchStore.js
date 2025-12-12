@@ -5,43 +5,21 @@ import {
   createSearchQuery,
 } from '../../../../catalogSearch/api';
 import { transformSpatialTemporalResults } from '../utils/spatialTemporalTransformer';
-import useRowCountCalculationStore from './rowCountCalculationStore';
+import { areConstraintsEqual } from '../../../../../shared/utility/constraintComparison';
+import { initializeRowCounts } from '../../../../rowCount';
 import {
   isValidSpatialBounds,
   isValidTemporalRange,
   isValidDepthRange,
-} from '../utils/validation';
-import { areConstraintsEqual } from '../utils/constraintComparison';
-
-/**
- * Zustand store managing spatial-temporal overlap search state and actions.
- *
- * This store provides centralized state management for:
- * - Catalog search subsystem initialization
- * - User input constraints (spatial, temporal, depth)
- * - Overlap mode configuration
- * - Search execution and results
- * - Preset geographic boundaries
- *
- * @module spatialTemporalSearchStore
- */
+} from '../../../../../shared/utility/spatialTemporalDepthValidation';
 
 const useSpatialTemporalSearchStore = create((set, get) => ({
-  // ===========================================
-  // State Fields
-  // ===========================================
-
-  /**
-   * Catalog search initialization state
-   */
+  // Initialization state
   isInitialized: false,
   isInitializing: false,
   initError: null,
 
-  /**
-   * Spatial constraints (required)
-   * @type {{ latMin: number | null, latMax: number | null, lonMin: number | null, lonMax: number | null }}
-   */
+  // Spatial constraints (required)
   spatialBounds: {
     latMin: 30.758824,
     latMax: 32.743847,
@@ -49,94 +27,45 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
     lonMax: -63.1667,
   },
 
-  /**
-   * Temporal constraints (optional)
-   * @type {{ timeMin: Date | null, timeMax: Date | null }}
-   */
+  // Temporal constraints (optional)
   temporalEnabled: false,
   temporalRange: {
-    timeMin: null, // Date object | null
-    timeMax: null, // Date object | null
+    timeMin: null, // Date object
+    timeMax: null, // Date object
   },
 
-  /**
-   * Depth constraints (optional)
-   */
+  // Depth constraints (optional)
   depthEnabled: false,
   depthRange: {
     depthMin: null,
     depthMax: null,
   },
 
-  /**
-   * Overlap mode
-   * @type {boolean} - true: include partial overlaps, false: full containment only
-   */
+  // true: include partial overlaps, false: full containment only
   includePartialOverlaps: false,
 
-  /**
-   * Selected preset geographic boundary label
-   * @type {string | null}
-   */
   selectedPreset: 'BATS Region',
-
-  /**
-   * Data type filter (client-side filtering of results)
-   * @type {Set<string>} - Set containing 'Model', 'Satellite', and/or 'In-Situ'
-   */
-  selectedDataTypes: new Set(['Model', 'Satellite', 'In-Situ']), // All types selected by default
-
-  /**
-   * Sort mode for result ordering
-   * @type {string} - 'default' | 'spatial' | 'temporal' | 'depth' | 'utilization'
-   */
+  selectedDataTypes: new Set(['Model', 'Satellite', 'In-Situ']),
   sortMode: 'default',
-
-  /**
-   * Sort direction for result ordering
-   * @type {string} - 'asc' | 'desc'
-   */
   sortDirection: 'desc',
 
-  /**
-   * Search results and execution state
-   * @type {Array<DatasetOverlapResult> | null}
-   */
-  results: null, // null = no search performed yet, [] = search returned 0 results
+  // null = no search performed yet, [] = search returned 0 results
+  results: null,
   isSearching: false,
   searchError: null,
 
-  /**
-   * Snapshot of constraints from last successful search
-   * Used to prevent redundant searches with identical constraints
-   * @type {Object | null}
-   */
+  // Snapshot of constraints from last successful search (prevents redundant searches)
   lastSearchConstraints: null,
 
-  /**
-   * UI state: Constraints section expansion
-   * @type {boolean} - true: expanded (default), false: collapsed
-   */
   isConstraintsExpanded: true,
-
-  /**
-   * Track if user has manually toggled collapse to prevent auto-collapse
-   * @type {boolean}
-   */
+  // Prevents auto-collapse after manual toggle
   userHasManuallyToggled: false,
-
-  // ===========================================
-  // Actions
-  // ===========================================
 
   /**
    * Initialize the catalog search subsystem.
-   * Must be called before executing searches.
-   *
    * @returns {Promise<void>}
    */
   initialize: async () => {
-    // TODO: Implement in T017
     set({ isInitializing: true, initError: null });
     try {
       await initializeCatalogSearch();
@@ -151,30 +80,25 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
   },
 
   /**
-   * Update spatial constraints from user input.
-   * Clears preset selection if bounds were manually changed.
-   *
-   * @param {Partial<BoundingBox>} bounds - Object with any of: latMin, latMax, lonMin, lonMax
+   * Update spatial constraints. Clears preset selection.
+   * @param {Partial<BoundingBox>} bounds
    */
   setSpatialBounds: (bounds) => {
-    // TODO: Implement in T018
     set((state) => ({
       spatialBounds: {
         ...state.spatialBounds,
         ...bounds,
       },
-      selectedPreset: null, // Clear preset on manual edit
+      selectedPreset: null,
     }));
   },
 
   /**
-   * Enable/disable temporal constraints and update temporal range.
-   *
-   * @param {boolean} enabled - Whether temporal constraints are active
-   * @param {Object} [range] - Optional: { timeMin: Date, timeMax: Date }
+   * Enable/disable temporal constraints and optionally update range.
+   * @param {boolean} enabled
+   * @param {Object} [range] - { timeMin: Date, timeMax: Date }
    */
   setTemporalConstraints: (enabled, range) => {
-    // TODO: Implement in T019
     set((state) => ({
       temporalEnabled: enabled,
       temporalRange: range
@@ -184,13 +108,11 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
   },
 
   /**
-   * Enable/disable depth constraints and update depth range.
-   *
-   * @param {boolean} enabled - Whether depth constraints are active
-   * @param {Object} [range] - Optional: { depthMin: number, depthMax: number }
+   * Enable/disable depth constraints and optionally update range.
+   * @param {boolean} enabled
+   * @param {Object} [range] - { depthMin: number, depthMax: number }
    */
   setDepthConstraints: (enabled, range) => {
-    // TODO: Implement in T020
     set((state) => ({
       depthEnabled: enabled,
       depthRange: range ? { ...state.depthRange, ...range } : state.depthRange,
@@ -198,9 +120,7 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
   },
 
   /**
-   * Toggle overlap mode between partial and full containment.
-   * Does not clear results - filtering will apply when user clicks search button.
-   *
+   * Set overlap mode.
    * @param {boolean} value - true for partial overlaps, false for full containment
    */
   setIncludePartialOverlaps: (value) => {
@@ -210,12 +130,10 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
   },
 
   /**
-   * Apply a preset geographic boundary to spatial bounds.
-   *
-   * @param {GeographicBoundary} preset - Preset object with label and coordinates
+   * Apply a preset geographic boundary.
+   * @param {GeographicBoundary} preset
    */
   applyPreset: (preset) => {
-    // TODO: Implement in T022
     set({
       spatialBounds: {
         latMin: preset.southLatitude,
@@ -224,61 +142,47 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
         lonMax: preset.eastLongitude,
       },
       selectedPreset: preset.label,
-      results: null, // Keep null until search is performed
+      results: null,
       searchError: null,
     });
   },
 
   /**
-   * Update the selected data types and trigger new search.
-   * - If exactly 1 type selected: SQL filtering (efficient)
-   * - If 2-3 types selected: SQL returns all, client-side filtering (current limitation)
-   *
-   * Always triggers a new search to ensure all statistics update consistently.
-   *
-   * @param {Set<string>} selectedTypes - Set of type strings to filter by
+   * Update data types and trigger search to refresh statistics.
+   * @param {Set<string>} selectedTypes
    */
   setSelectedDataTypes: (selectedTypes) => {
     const newTypes = new Set(selectedTypes);
-
     set({ selectedDataTypes: newTypes });
-
-    // Always trigger new search to update all statistics consistently
-    // This ensures "Already in Collection" count and "X selected of Y datasets" reflect current filter
     get().search();
   },
 
   /**
-   * Set sort mode and trigger new search
-   * If the same mode is clicked, toggle direction; otherwise reset to 'desc'
-   *
-   * @param {string} mode - Sort mode ('default', 'spatial', 'temporal', 'depth', 'utilization')
+   * Set sort mode. Toggles direction if same mode clicked, otherwise resets to 'desc'.
+   * @param {string} mode - 'default' | 'spatial' | 'temporal' | 'depth' | 'utilization'
    */
   setSortMode: (mode) => {
     const currentSortMode = get().sortMode;
     const currentSortDirection = get().sortDirection;
+    const results = get().results;
 
-    // If clicking the same mode, toggle direction
     if (currentSortMode === mode) {
       const newDirection = currentSortDirection === 'desc' ? 'asc' : 'desc';
       set({ sortDirection: newDirection });
     } else {
-      // New mode - set it and reset to descending
       set({ sortMode: mode, sortDirection: 'desc' });
     }
 
-    // Trigger new search with updated sort mode/direction
-    get().search();
+    if (results !== null) {
+      get().search();
+    }
   },
 
   /**
    * Execute spatial-temporal search with current constraints.
-   * Validates inputs, builds query, executes search, and transforms results.
-   *
    * @returns {Promise<void>}
    */
   search: async () => {
-    // TODO: Implement in T023
     const {
       spatialBounds,
       temporalEnabled,
@@ -289,12 +193,10 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
       sortMode,
       sortDirection,
       selectedDataTypes,
-      hasValidSpatialBounds,
-      canSearch,
+      hasValidConstraints,
     } = get();
 
-    // Validation
-    if (!canSearch()) {
+    if (!hasValidConstraints()) {
       set({
         searchError:
           'Invalid search constraints. Please check all inputs and try again.',
@@ -302,33 +204,26 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
       return;
     }
 
-    // Start search - reset global recalculation flag to show "Recalculate All" button again
-    // but preserve calculated row counts (they will be marked stale if needed)
-    useRowCountCalculationStore.getState().resetGlobalRecalculation();
     set({
       isSearching: true,
       searchError: null,
     });
 
     try {
-      // Build query
       const query = createSearchQuery()
         .withSpatialBounds(spatialBounds, includePartialOverlaps)
         .withOverlapMode(includePartialOverlaps)
         .withSortMode(sortMode, sortDirection);
 
-      // Add data type filter (supports 1, 2, or 3 types via SQL IN clause)
+      // SQL IN clause filtering when < 3 types selected
       if (selectedDataTypes.size > 0 && selectedDataTypes.size < 3) {
-        // Convert Set to Array for SQL filtering
         query.withDatasetType(Array.from(selectedDataTypes));
       }
-      // If all 3 types selected, no filter needed (optimization - handled in buildDataTypeFilter)
 
       if (temporalEnabled) {
-        // Convert Date objects to ISO strings for API boundary
         query.withTemporalRange(
-          temporalRange.timeMin.toISOString().split('T')[0], // Date → "YYYY-MM-DD"
-          temporalRange.timeMax.toISOString().split('T')[0], // Date → "YYYY-MM-DD"
+          temporalRange.timeMin.toISOString().split('T')[0],
+          temporalRange.timeMax.toISOString().split('T')[0],
           includePartialOverlaps,
         );
       }
@@ -340,17 +235,14 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
         );
       }
 
-      // Execute search
       const rawResults = await searchCatalog(query.build());
 
-      // Transform results
       const enhancedResults = transformSpatialTemporalResults(rawResults, {
         spatial: spatialBounds,
         temporal: temporalEnabled ? temporalRange : null,
         depth: depthEnabled ? depthRange : null,
       });
 
-      // Store constraint snapshot on successful search
       const lastSearchConstraints = {
         spatialBounds: { ...spatialBounds },
         temporalEnabled,
@@ -360,18 +252,25 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
         includePartialOverlaps,
       };
 
-      // Track search result dataset IDs for staleness detection
-      const datasetIds = enhancedResults.map((dataset) => dataset.shortName);
-      useRowCountCalculationStore
-        .getState()
-        .setLastSearchDatasetIds(datasetIds);
-
-      // Auto-collapse constraints after search completes (if user hasn't manually toggled)
+      // Auto-collapse if user hasn't manually toggled
       const { userHasManuallyToggled, isConstraintsExpanded } = get();
       const shouldAutoCollapse =
         !userHasManuallyToggled &&
         isConstraintsExpanded &&
         enhancedResults.length > 0;
+
+      const estimationConstraints = {
+        spatialBounds,
+        temporalRange,
+        depthRange,
+        temporalEnabled,
+        depthEnabled,
+        includePartialOverlaps,
+      };
+      await initializeRowCounts(
+        enhancedResults.map((r) => r.shortName),
+        estimationConstraints,
+      );
 
       set({
         results: enhancedResults,
@@ -388,19 +287,14 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
   },
 
   /**
-   * Clear search results and error state.
-   * Also clears last search constraints to allow re-searching.
+   * Clear search results, error state, and last constraints.
    */
   clearResults: () => {
-    // TODO: Implement in T024
     set({ results: null, searchError: null, lastSearchConstraints: null });
   },
 
   /**
-   * Toggle the constraints section expansion state.
-   * Sets userHasManuallyToggled based on the new state:
-   * - true when manually collapsing (prevents auto-collapse)
-   * - false when manually expanding (allows auto-collapse on next search)
+   * Toggle constraints section. Sets userHasManuallyToggled to prevent/allow auto-collapse.
    */
   toggleConstraintsExpanded: () => {
     set((state) => ({
@@ -413,7 +307,6 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
    * Reset all store state to initial values.
    */
   reset: () => {
-    // TODO: Implement in T024
     set({
       spatialBounds: {
         latMin: 30.758824,
@@ -431,23 +324,19 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
         depthMin: null,
         depthMax: null,
       },
-      includePartialOverlaps: true,
+      includePartialOverlaps: false,
       selectedPreset: 'BATS Region',
       selectedDataTypes: new Set(['Model', 'Satellite', 'In-Situ']),
       results: null,
       searchError: null,
+      isSearching: false,
+      lastSearchConstraints: null,
       isConstraintsExpanded: true,
       userHasManuallyToggled: false,
     });
   },
 
-  // ===========================================
-  // Selectors
-  // ===========================================
-
   /**
-   * Check if spatial bounds are complete and valid for searching.
-   *
    * @returns {boolean} True if spatial bounds are valid
    */
   hasValidSpatialBounds: () => {
@@ -456,11 +345,10 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
   },
 
   /**
-   * Check if all required conditions are met to execute a search.
-   *
-   * @returns {boolean} True if search can be executed
+   * Check if constraints are valid for searching (no deduplication check).
+   * @returns {boolean}
    */
-  canSearch: () => {
+  hasValidConstraints: () => {
     const {
       isInitialized,
       isSearching,
@@ -469,8 +357,6 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
       temporalRange,
       depthEnabled,
       depthRange,
-      includePartialOverlaps,
-      lastSearchConstraints,
     } = get();
 
     if (!isInitialized || isSearching) {
@@ -495,7 +381,29 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
       }
     }
 
-    // Prevent redundant searches: check if current constraints match last search
+    return true;
+  },
+
+  /**
+   * Check if search can be executed (includes deduplication check for UI button state).
+   * @returns {boolean}
+   */
+  canSearch: () => {
+    const {
+      hasValidConstraints,
+      spatialBounds,
+      temporalEnabled,
+      temporalRange,
+      depthEnabled,
+      depthRange,
+      includePartialOverlaps,
+      lastSearchConstraints,
+    } = get();
+
+    if (!hasValidConstraints()) {
+      return false;
+    }
+
     if (lastSearchConstraints) {
       const currentConstraints = {
         spatialBounds,
@@ -512,7 +420,7 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
       );
 
       if (constraintsMatch) {
-        return false; // Can't search with same constraints as last search
+        return false;
       }
     }
 
@@ -520,8 +428,6 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
   },
 
   /**
-   * Get the number of matching datasets.
-   *
    * @returns {number} Count of results (0 if no search performed)
    */
   getResultCount: () => {

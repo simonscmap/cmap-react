@@ -264,8 +264,7 @@ const SpatialTemporalTab = ({
   useEffect(() => {
     if (searchError) {
       dispatch(
-        snackbarOpen({
-          message: `Search failed: ${searchError}. Please try again.`,
+        snackbarOpen(`Search failed: ${searchError}. Please try again.`, {
           severity: 'error',
         }),
       );

@@ -23,7 +23,7 @@ import {
 import { makeStyles } from '@material-ui/core/styles';
 import { GeographicBoundaries } from '../../../../../shared/enum/geographicBoundaries';
 import useSpatialTemporalSearchStore from '../store/spatialTemporalSearchStore';
-import { validateSpatialBounds } from '../utils/validation';
+import { validateSpatialBounds } from '../../../../../shared/utility/spatialTemporalDepthValidation';
 import zIndex from '../../../../../enums/zIndex';
 
 const useStyles = makeStyles((theme) => ({
