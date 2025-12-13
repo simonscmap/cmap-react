@@ -1,5 +1,6 @@
 // api requests specific to the catalog page
 import { apiUrl, postOptions } from '../../../api/config';
+import fetchWithAuth from '../../../api/fetchWithAuth';
 import safeApi from '../../../api/safeApi';
 import logInit from '../../../Services/log-service';
 import { transformFiltersForAPI } from '../../../shared/filtering/utils';
@@ -54,7 +55,7 @@ bulkDownloadAPI.downloadData = async (
     requestBody.collectionId = parsedId;
   }
 
-  const response = await fetch(endpoint, {
+  const response = await fetchWithAuth(endpoint, {
     ...postOptions,
     body: JSON.stringify(requestBody),
   });

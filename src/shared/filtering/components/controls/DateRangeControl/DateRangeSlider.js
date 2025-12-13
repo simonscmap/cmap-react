@@ -14,6 +14,7 @@ const DateRangeSlider = ({
   maxDate, // Date object
   onStartChange, // (date) => void
   onEndChange, // (date) => void
+  onCommit, // () => void - called on slider commit (mouseup/touchend)
   disabled = false,
   showMarks = true,
 }) => {
