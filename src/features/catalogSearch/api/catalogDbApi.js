@@ -321,7 +321,7 @@ async function downloadDatabase() {
  * Check if cached database is current (schema version and data checksum)
  * Makes a lightweight HEAD request to check server metadata
  * @param {object} cachedVersion - Version metadata from cached database
- * @returns {Promise<boolean>} True if cache matches server (both schema and data)
+ * @returns {Promise<boolean|null>} true if current, false if stale, null if couldn't verify
  */
 async function hasCurrentVersion(cachedVersion) {
   try {
@@ -332,8 +332,7 @@ async function hasCurrentVersion(cachedVersion) {
     });
 
     if (!response.ok) {
-      console.warn('[Cache] Failed to check server version, assuming cache is valid');
-      return true; // Fail open - use cache if we can't check
+      return null;
     }
 
     const serverSchemaVersion = response.headers.get('X-Catalog-Version');
@@ -361,8 +360,7 @@ async function hasCurrentVersion(cachedVersion) {
 
     return true;
   } catch (error) {
-    console.warn('[Cache] Error checking server version:', error);
-    return true; // Fail open - use cache if we can't check
+    return null;
   }
 }
 
@@ -371,17 +369,21 @@ async function hasCurrentVersion(cachedVersion) {
  * @returns {Promise<ArrayBuffer>}
  */
 export async function loadDatabase() {
-  // Try to load from cache first
   const cached = await getCachedDatabase();
   if (cached) {
-    // Check if schema version and data checksum are current
-    const isCurrent = await hasCurrentVersion(cached.version);
-    if (isCurrent) {
+    const versionStatus = await hasCurrentVersion(cached.version);
+
+    if (versionStatus === true) {
       return cached.blob;
     }
 
-    // Schema or data changed, clear cache and download fresh
-    console.log('[Cache] Clearing outdated cache');
+    if (versionStatus === null) {
+      // Use cached blob - worker's validateSchema() will catch corruption
+      // This allows offline usage while still protecting against bad data
+      console.log('[Cache] Version check failed (network/server error) - using cached blob, worker will validate');
+      return cached.blob;
+    }
+
     await clearCache();
   }
 
