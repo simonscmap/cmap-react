@@ -52,6 +52,9 @@
 
 import pako from 'pako';
 import { apiUrl, fetchOptions } from '../../../api/config';
+import logInit from '../../../Services/log-service';
+
+const log = logInit('catalogDbApi');
 
 const DB_NAME = 'CatalogSearchDB';
 const DB_VERSION = 1;
@@ -72,7 +75,7 @@ const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
  *
  * Version metadata includes:
  * - checksum: Data content checksum (changes when datasets added/removed/updated)
- * - schemaVersion: Database schema version
+ * - schemaHash: Auto-computed schema hash (changes when schema structure changes)
  * - datasetCount: Total number of datasets in the catalog
  * - generatedAt: ISO timestamp when the catalog was generated
  */
@@ -103,7 +106,7 @@ async function downloadCatalogDb() {
   // Extract version metadata from response headers
   const version = {
     checksum: response.headers.get('X-Catalog-Checksum') || 'unknown',
-    schemaVersion: response.headers.get('X-Catalog-Version') || 'unknown',
+    schemaHash: response.headers.get('X-Catalog-Schema-Hash') || null,
     datasetCount: parseInt(
       response.headers.get('X-Catalog-Dataset-Count') || '0',
       10,
@@ -165,27 +168,19 @@ async function getCachedDatabase() {
         // Check if cache is still valid
         if (data && Date.now() - data.timestamp < CACHE_TTL_MS) {
           const age = (Date.now() - data.timestamp) / 1000 / 60; // minutes
-          console.log(`[Cache] HIT - Age: ${age.toFixed(1)} minutes`, {
-            checksum: data.version?.checksum,
-            datasetCount: data.version?.datasetCount,
+          log.info(`Cache HIT - Age: ${age.toFixed(1)} minutes`, {
+            checksum: data.version && data.version.checksum,
+            schemaHash: data.version && data.version.schemaHash,
+            datasetCount: data.version && data.version.datasetCount,
           });
           resolve(data);
         } else {
-          if (data) {
-            console.log('[Cache] EXPIRED', {
-              age:
-                ((Date.now() - data.timestamp) / 1000 / 60).toFixed(1) +
-                ' minutes',
-            });
-          } else {
-            console.log('[Cache] MISS');
-          }
           resolve(null);
         }
       };
     });
   } catch (error) {
-    console.error('[Cache] Error:', error);
+    log.warn('Cache read error', { error: error.message });
     return null;
   }
 }
@@ -198,12 +193,6 @@ async function getCachedDatabase() {
  */
 async function storeDatabase(blob, version) {
   try {
-    const sizeInMB = (blob.byteLength / 1024 / 1024).toFixed(1);
-    console.log(`[Cache] Storing ${sizeInMB} MB`, {
-      checksum: version.checksum,
-      datasetCount: version.datasetCount,
-      schemaVersion: version.schemaVersion,
-    });
     const db = await openIndexedDB();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([STORE_NAME], 'readwrite');
@@ -218,12 +207,11 @@ async function storeDatabase(blob, version) {
       request.onerror = () => reject(request.error);
       request.onsuccess = () => {
         db.close();
-        console.log('[Cache] Stored successfully');
         resolve();
       };
     });
   } catch (error) {
-    console.error('[Cache] Store error:', error);
+    log.warn('Cache store error', { error: error.message });
     // Non-fatal error, continue without caching
   }
 }
@@ -307,10 +295,10 @@ async function downloadDatabase() {
 
   const blob = await decompressBlob(gzippedBlob);
 
-  console.log('[Download] Received catalog database', {
+  log.info('Downloaded catalog database', {
     checksum: version.checksum,
+    schemaHash: version.schemaHash,
     datasetCount: version.datasetCount,
-    schemaVersion: version.schemaVersion,
     generatedAt: version.generatedAt,
   });
 
@@ -318,15 +306,14 @@ async function downloadDatabase() {
 }
 
 /**
- * Check if cached database is current (schema version and data checksum)
+ * Check if cached database is current (schema hash and data checksum)
  * Makes a lightweight HEAD request to check server metadata
  * @param {object} cachedVersion - Version metadata from cached database
  * @returns {Promise<boolean|null>} true if current, false if stale, null if couldn't verify
  */
 async function hasCurrentVersion(cachedVersion) {
   try {
-    const endpoint = `${apiUrl}/api/catalog/full-catalog-db`;
-    const response = await fetch(endpoint, {
+    const response = await fetch(`${apiUrl}/api/catalog/full-catalog-db`, {
       method: 'HEAD',
       ...fetchOptions,
     });
@@ -335,26 +322,29 @@ async function hasCurrentVersion(cachedVersion) {
       return null;
     }
 
-    const serverSchemaVersion = response.headers.get('X-Catalog-Version');
+    const serverSchemaHash = response.headers.get('X-Catalog-Schema-Hash');
     const serverChecksum = response.headers.get('X-Catalog-Checksum');
-    const cachedSchemaVersion = cachedVersion.schemaVersion;
-    const cachedChecksum = cachedVersion.checksum;
 
-    // Check schema version
-    if (serverSchemaVersion && serverSchemaVersion !== cachedSchemaVersion) {
-      console.log('[Cache] Schema version changed - invalidating cache', {
-        cached: cachedSchemaVersion,
-        server: serverSchemaVersion,
-      });
+    // Server cache is cold (regenerating) - client has hash, server doesn't
+    if (cachedVersion.schemaHash && !serverSchemaHash) {
       return false;
     }
 
-    // Check data checksum
-    if (serverChecksum && serverChecksum !== cachedChecksum) {
-      console.log('[Cache] Data checksum changed - invalidating cache (datasets added/updated)', {
-        cached: cachedChecksum,
-        server: serverChecksum,
-      });
+    // Schema structure changed
+    if (
+      serverSchemaHash &&
+      cachedVersion.schemaHash &&
+      serverSchemaHash !== cachedVersion.schemaHash
+    ) {
+      return false;
+    }
+
+    // Data content changed
+    if (
+      serverChecksum &&
+      cachedVersion.checksum &&
+      serverChecksum !== cachedVersion.checksum
+    ) {
       return false;
     }
 
@@ -380,7 +370,9 @@ export async function loadDatabase() {
     if (versionStatus === null) {
       // Use cached blob - worker's validateSchema() will catch corruption
       // This allows offline usage while still protecting against bad data
-      console.log('[Cache] Version check failed (network/server error) - using cached blob, worker will validate');
+      log.warn(
+        'Version check failed (network/server error) - using cached blob, worker will validate',
+      );
       return cached.blob;
     }
 

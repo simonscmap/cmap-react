@@ -1,5 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Box } from '@material-ui/core';
+import { Box, Typography } from '@material-ui/core';
+import RefreshIcon from '@material-ui/icons/Refresh';
+import UniversalButton from '../../../shared/components/UniversalButton';
 import deepEqual from 'deep-equal';
 import SubsetControls from '../../../shared/filtering/core/SubsetControls';
 import CompactSubsetControlsLayout from '../../../shared/filtering/components/CompactSubsetControlsLayout';
@@ -159,6 +161,7 @@ const MultiDatasetDownloadContainer = React.memo(
       datasetsMetadata,
       fetchDatasetsMetadata,
       isLoading,
+      error,
       setDownloadContext,
     } = useMultiDatasetDownloadStore();
 
@@ -179,6 +182,47 @@ const MultiDatasetDownloadContainer = React.memo(
         setDownloadContext(downloadContext);
       }
     }, [downloadContext, setDownloadContext]);
+
+    // Handler for retrying failed initialization
+    const handleRetry = () => {
+      if (datasetShortNames && datasetShortNames.length > 0) {
+        fetchDatasetsMetadata(datasetShortNames);
+      }
+    };
+
+    // Handle error state with retry option
+    if (error) {
+      return (
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          minHeight="200px"
+          textAlign="center"
+          p={3}
+        >
+          <Typography variant="h6" color="error" gutterBottom>
+            Unable to Load Download Data
+          </Typography>
+          <Typography
+            variant="body2"
+            color="textSecondary"
+            style={{ marginBottom: '16px' }}
+          >
+            {error}
+          </Typography>
+          <UniversalButton
+            variant="primary"
+            size="medium"
+            onClick={handleRetry}
+            startIcon={<RefreshIcon />}
+          >
+            Try Again
+          </UniversalButton>
+        </Box>
+      );
+    }
 
     if (isLoading || !datasetsMetadata || datasetsMetadata.length === 0) {
       return <SpinnerWrapper message={'Loading data for download...'} />;

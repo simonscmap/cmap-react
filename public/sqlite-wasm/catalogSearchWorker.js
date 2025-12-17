@@ -48,30 +48,6 @@ const {
 let sqlite3;
 let db;
 
-const REQUIRED_TABLES = [
-  'datasets',
-  'regions',
-  'spatial_resolution_mappings',
-  'temporal_resolution_mappings',
-  'darwin_depth',
-  'pisces_depth',
-  'woa_depth',
-  'dataset_depth_models',
-];
-
-function validateSchema(database) {
-  for (const table of REQUIRED_TABLES) {
-    const result = database.exec({
-      sql: "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
-      bind: [table],
-      returnValue: 'resultRows',
-    });
-    if (!result || result.length === 0) {
-      throw new Error(`Missing required table: ${table}`);
-    }
-  }
-}
-
 /**
  * Load SQLite WASM module from co-located files
  *
@@ -131,8 +107,6 @@ async function initializeDatabase(dbBlob) {
       if (rc !== sqlite3.capi.SQLITE_OK) {
         throw new Error(`sqlite3_deserialize failed with code ${rc}`);
       }
-
-      validateSchema(db);
 
     } catch (err) {
       // Only free if deserialize failed (otherwise FREEONCLOSE will handle it)

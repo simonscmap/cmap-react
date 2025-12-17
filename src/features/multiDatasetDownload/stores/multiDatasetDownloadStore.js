@@ -1,6 +1,10 @@
 import { create } from 'zustand';
 import bulkDownloadAPI from '../api/bulkDownload';
 import useCollectionsStore from '../../collections/state/collectionsStore';
+import logInit from '../../../Services/log-service';
+import { captureError } from '../../../shared/errorCapture';
+
+const log = logInit('multiDatasetDownloadStore');
 
 const useMultiDatasetDownloadStore = create((set, get) => ({
   // State
@@ -73,7 +77,7 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
         selectedDatasets: new Set(), // Reset selections when new data is fetched
       });
     } catch (error) {
-      console.error('Failed to fetch datasets metadata:', error);
+      log.error('failed to fetch datasets metadata', { error });
       set({
         error: error.message || 'Failed to fetch datasets metadata',
         isLoading: false,
@@ -88,6 +92,7 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
 
     try {
       set({ isDownloading: true });
+      throw new Error('TEST ERROR: Remove this line after testing');
 
       const collectionId =
         downloadContext && downloadContext.collectionId
@@ -112,7 +117,8 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
           .incrementCollectionStat(collectionId, 'downloads');
       }
     } catch (error) {
-      console.error('Download failed:', error);
+      log.error('download failed', { error });
+      captureError(error);
       throw error;
     } finally {
       set({ isDownloading: false });

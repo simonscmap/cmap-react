@@ -66,8 +66,10 @@ const Collections = () => {
     fetchCollections({ includeDatasets: true });
   }, [user, fetchCollections]);
 
+  // Pre-load so modals avoid db init for better UX
+  // downstream stores retry on failure
   useEffect(() => {
-    initializeCatalogSearch();
+    initializeCatalogSearch().catch(() => {});
   }, []);
 
   const handleTabChange = (_, newValue) => {
