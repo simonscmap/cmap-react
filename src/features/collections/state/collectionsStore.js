@@ -412,7 +412,7 @@ const useCollectionsStore = create((set, get) => ({
         throw new Error('Failed to verify collection name');
       }
     } catch (error) {
-      console.error('Error verifying collection name:', error);
+      captureError(error, { action: 'verifyCollectionName', name });
       throw error;
     }
   },
@@ -505,7 +505,7 @@ const useCollectionsStore = create((set, get) => ({
 
       return dataWithType;
     } catch (error) {
-      console.error('Error fetching preview data:', error);
+      captureError(error, { action: 'fetchPreviewData', collectionId });
       set({
         previewError: error.message || 'Failed to load preview data',
         isLoadingPreview: false,

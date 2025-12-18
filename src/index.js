@@ -16,7 +16,7 @@ LicenseManager.setLicenseKey(
 );
 
 var SENTRY_DSN_PRODUCTION = 'https://235dc211fb6c038ff5713280b5172696@o4509317255004160.ingest.us.sentry.io/4509317256249344';
-var SENTRY_DSN_STAGING = 'https://21180e3f5acde2601c05415936b5ebee@o4509317255004160.ingest.us.sentry.io/4510547464683520';
+var SENTRY_DSN_STAGING_DEVELOPMENT = 'https://21180e3f5acde2601c05415936b5ebee@o4509317255004160.ingest.us.sentry.io/4510547464683520';
 
 function getSentryConfig() {
   var hostname = window.location.hostname;
@@ -24,9 +24,9 @@ function getSentryConfig() {
     return { dsn: SENTRY_DSN_PRODUCTION, environment: 'production' };
   }
   if (hostname === 'simonscmap.dev') {
-    return { dsn: SENTRY_DSN_STAGING, environment: 'staging' };
+    return { dsn: SENTRY_DSN_STAGING_DEVELOPMENT, environment: 'staging' };
   }
-  return { dsn: SENTRY_DSN_STAGING, environment: 'development' };
+  return { dsn: SENTRY_DSN_STAGING_DEVELOPMENT, environment: 'development' };
 }
 
 if (

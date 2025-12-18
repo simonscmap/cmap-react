@@ -14,6 +14,7 @@ import MultiDatasetDownloadTable from './MultiDatasetDownloadTable';
 import DownloadButton from './DownloadButton';
 import RowCountTotal from './RowCountTotal';
 import logInit from '../../../Services/log-service';
+import { FeatureErrorBoundary } from '../../../shared/errorCapture';
 
 import {
   SearchProvider,
@@ -249,4 +250,10 @@ const MultiDatasetDownloadContainer = React.memo(
   },
 );
 
-export default MultiDatasetDownloadContainer;
+const MultiDatasetDownloadContainerWithErrorBoundary = (props) => (
+  <FeatureErrorBoundary featureName="multiDatasetDownload">
+    <MultiDatasetDownloadContainer {...props} />
+  </FeatureErrorBoundary>
+);
+
+export default MultiDatasetDownloadContainerWithErrorBoundary;

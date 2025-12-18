@@ -98,16 +98,11 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
           ? downloadContext.collectionId
           : null;
 
-      const result = await bulkDownloadAPI.downloadData(
+      await bulkDownloadAPI.downloadData(
         Array.from(selectedDatasets),
         filters.filterValues,
         collectionId,
       );
-
-      // safeApi returns errors as values instead of throwing them
-      if (result instanceof Error) {
-        throw result;
-      }
 
       // Increment download count locally since backend incremented it
       if (collectionId !== undefined && collectionId !== null) {
@@ -116,7 +111,6 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
           .incrementCollectionStat(collectionId, 'downloads');
       }
     } catch (error) {
-      log.error('download failed', { error });
       captureError(error);
       throw error;
     } finally {

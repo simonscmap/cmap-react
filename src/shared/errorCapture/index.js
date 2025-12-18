@@ -169,9 +169,10 @@ function ErrorDisplayOverlay() {
         ? bc.localTimestamp.split('T')[1].split('.')[0]
         : '';
       const category = bc.category || 'unknown';
+      const method = bc.data && bc.data.method ? bc.data.method + ' ' : '';
       const detail =
         bc.message ||
-        (bc.data && bc.data.url) ||
+        (bc.data && bc.data.url ? method + bc.data.url : null) ||
         (bc.data ? JSON.stringify(bc.data) : 'no details');
       lines.push(time + ' [' + category + '] ' + detail);
     });
@@ -245,3 +246,4 @@ function ErrorDisplayOverlay() {
 
 export { captureError, ErrorDisplayOverlay };
 export { addBreadcrumb, getBreadcrumbs } from './breadcrumbs';
+export { default as FeatureErrorBoundary } from './FeatureErrorBoundary';
