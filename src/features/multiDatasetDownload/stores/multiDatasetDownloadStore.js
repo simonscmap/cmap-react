@@ -77,7 +77,7 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
         selectedDatasets: new Set(), // Reset selections when new data is fetched
       });
     } catch (error) {
-      log.error('failed to fetch datasets metadata', { error });
+      captureError(error, { action: 'fetchDatasetsMetadata' });
       set({
         error: error.message || 'Failed to fetch datasets metadata',
         isLoading: false,
@@ -92,7 +92,6 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
 
     try {
       set({ isDownloading: true });
-      throw new Error('TEST ERROR: Remove this line after testing');
 
       const collectionId =
         downloadContext && downloadContext.collectionId

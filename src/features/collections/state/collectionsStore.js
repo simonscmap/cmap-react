@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import collectionsAPI from '../api/collectionsApi';
 import { getDatasetType } from '../../../shared/utility';
+import { captureError } from '../../../shared/errorCapture';
+import HttpError from '../../../shared/errorCapture/HttpError';
 
 const useCollectionsStore = create((set, get) => ({
   // State
@@ -164,26 +166,34 @@ const useCollectionsStore = create((set, get) => ({
     try {
       const response = await collectionsAPI.getCollections(params);
 
-      if (!response.ok) {
-        throw new Error(
-          `Failed to fetch collections: ${response.status} ${response.statusText}`,
+      if (response.ok) {
+        const data = await response.json();
+        const collections = Array.isArray(data) ? data : [];
+
+        const userCollections = collections.filter(
+          (collection) => collection.isOwner === true,
         );
+        const publicCollections = collections.filter(
+          (collection) => collection.isPublic === true,
+        );
+
+        get().setUserCollections(userCollections);
+        get().setPublicCollections(publicCollections);
+      } else {
+        const error = new HttpError(
+          `Failed to fetch collections: ${response.status} ${response.statusText}`,
+          response.status,
+        );
+        captureError(error, {
+          action: 'fetchCollections',
+          status: response.status,
+        });
+        throw error;
       }
-
-      const data = await response.json();
-      const collections = Array.isArray(data) ? data : [];
-
-      const userCollections = collections.filter(
-        (collection) => collection.isOwner === true,
-      );
-      const publicCollections = collections.filter(
-        (collection) => collection.isPublic === true,
-      );
-
-      get().setUserCollections(userCollections);
-      get().setPublicCollections(publicCollections);
     } catch (error) {
-      console.error('Error fetching collections:', error);
+      if (!(error instanceof HttpError)) {
+        captureError(error, { action: 'fetchCollections' });
+      }
       set({ error: error.message });
     } finally {
       set({ isLoading: false });
@@ -287,19 +297,33 @@ const useCollectionsStore = create((set, get) => ({
         get().replaceOptimisticCollection(optimisticId, serverCollection);
 
         return serverCollection;
-      } else if (response.status === 401) {
-        // Remove optimistic collection on error
+      } else if (response.status === 409) {
         get().removeOptimisticCollection(optimisticId);
-        throw new Error('You must be logged in to create collections');
+        throw new HttpError(
+          'A collection with this name already exists',
+          response.status,
+        );
       } else {
-        // Remove optimistic collection on error
         get().removeOptimisticCollection(optimisticId);
-        throw new Error('Failed to create collection. Please try again.');
+        const error = new HttpError(
+          `Failed to create collection: ${response.status} ${response.statusText}`,
+          response.status,
+        );
+        captureError(error, {
+          action: 'createCollection',
+          name: data.collectionName,
+          status: response.status,
+        });
+        throw error;
       }
     } catch (error) {
-      // Remove optimistic collection on error
       get().removeOptimisticCollection(optimisticId);
-      console.error('Error creating collection:', error);
+      if (!(error instanceof HttpError)) {
+        captureError(error, {
+          action: 'createCollection',
+          name: data.collectionName,
+        });
+      }
       throw error;
     }
   },
@@ -344,21 +368,32 @@ const useCollectionsStore = create((set, get) => ({
           statistics,
         });
       } else if (response.status === 404) {
-        throw new Error(
+        throw new HttpError(
           "Collection not found or you don't have permission to delete it",
+          response.status,
         );
-      } else if (response.status === 401) {
-        throw new Error('You must be logged in to delete collections');
       } else if (response.status === 400) {
-        throw new Error('Invalid collection ID');
+        throw new HttpError('Invalid collection ID', response.status);
+      } else if (response.status === 401) {
+        throw new HttpError('Session expired', response.status);
       } else {
-        throw new Error('Failed to delete collection. Please try again.');
+        const error = new HttpError(
+          `Failed to delete collection: ${response.status} ${response.statusText}`,
+          response.status,
+        );
+        captureError(error, {
+          action: 'deleteCollection',
+          id: collectionId,
+          status: response.status,
+        });
+        throw error;
       }
     } catch (error) {
       // Remove pending state to restore card to normal state
       get().removePendingDeletion(collectionId);
-      console.error('Error deleting collection:', error);
-      // Don't set global error state - let component handle display
+      if (!(error instanceof HttpError)) {
+        captureError(error, { action: 'deleteCollection', id: collectionId });
+      }
       throw error;
     }
   },
@@ -414,14 +449,26 @@ const useCollectionsStore = create((set, get) => ({
 
         return result;
       } else if (response.status === 404) {
-        throw new Error('Collection not found or not accessible');
-      } else if (response.status === 401) {
-        throw new Error('You must be logged in to copy collections');
+        throw new HttpError(
+          'Collection not found or not accessible',
+          response.status,
+        );
       } else {
-        throw new Error('Failed to copy collection. Please try again.');
+        const error = new HttpError(
+          `Failed to copy collection: ${response.status} ${response.statusText}`,
+          response.status,
+        );
+        captureError(error, {
+          action: 'copyCollection',
+          id: collectionId,
+          status: response.status,
+        });
+        throw error;
       }
     } catch (error) {
-      console.error('Error copying collection:', error);
+      if (!(error instanceof HttpError)) {
+        captureError(error, { action: 'copyCollection', id: collectionId });
+      }
       throw error;
     } finally {
       set({ isCopying: false });

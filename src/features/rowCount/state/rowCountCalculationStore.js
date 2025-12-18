@@ -5,6 +5,7 @@ import {
   isValidDepthRange,
 } from '../../../shared/utility/spatialTemporalDepthValidation';
 import logInit from '../../../Services/log-service';
+import { captureError } from '../../../shared/errorCapture';
 import { isEligibleForEstimation, estimateRowCount } from '../estimation';
 import { getSearchDatabaseApi } from '../../catalogSearch/api';
 import { queryRowCountsApi } from '../api/queryRowCountsApi';
@@ -125,7 +126,7 @@ async function queryDatasetMetadata(shortNames) {
     try {
       await searchDatabaseApi.initialize();
     } catch (error) {
-      log.error('failed to initialize catalog DB', { error: error.message });
+      captureError(error, { action: 'initializeCatalogDB' });
       return {};
     }
   }
@@ -377,6 +378,8 @@ export async function queryRowCountsForDatasets(
     if (error.name === 'AbortError') {
       return;
     }
+
+    captureError(error, { action: 'calculateRowCounts', datasets: shortNames });
 
     useRowCountCalculationStore.setState({
       rowCountsLoading: false,

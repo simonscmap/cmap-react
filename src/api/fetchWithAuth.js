@@ -1,5 +1,5 @@
 import store from '../Redux/store';
-import { refreshLogin } from '../Redux/actions/user';
+import { refreshLoginWithMessage } from '../Redux/actions/user';
 
 /**
  * Fetch wrapper that handles 401 (Unauthorized) responses globally.
@@ -17,7 +17,7 @@ const fetchWithAuth = async (url, options) => {
   const response = await fetch(url, options);
 
   if (response.status === 401) {
-    store.dispatch(refreshLogin());
+    store.dispatch(refreshLoginWithMessage());
   }
 
   return response;

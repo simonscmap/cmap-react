@@ -14,23 +14,45 @@ import CloseIcon from '@material-ui/icons/Close';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 import CheckIcon from '@material-ui/icons/Check';
 import zIndex from '../../enums/zIndex';
+import { getBreadcrumbs } from './breadcrumbs';
 
 dayjs.extend(utc);
 dayjs.extend(tz);
 
-var setError = null;
+let setError = null;
 
-function captureError(error) {
-  Sentry.captureException(error);
+// Expected HTTP statuses - filtered out (not bugs, we handle these)
+const EXPECTED_HTTP_STATUSES = [400, 401, 403, 404, 409];
+
+function captureError(error, additionalContext) {
+  const context = additionalContext || {};
+  const status = error.status || context.status;
+
+  if (status && EXPECTED_HTTP_STATUSES.includes(status) && !context.force) {
+    return;
+  }
+
+  const sentryEventId = Sentry.captureException(error);
   if (setError) {
     setError({
       error: error,
-      timestamp: dayjs().tz('America/Los_Angeles').format('MM/DD/YYYY, hh:mm:ss A') + ' PST',
+      stack: error.stack || 'No stack trace available',
+      sentryEventId: sentryEventId,
+      context: {
+        url: window.location.href,
+        route: window.location.pathname,
+        status: status,
+        ...context,
+      },
+      breadcrumbs: getBreadcrumbs(),
+      timestamp:
+        dayjs().tz('America/Los_Angeles').format('MM/DD/YYYY, hh:mm:ss A') +
+        ' PST',
     });
   }
 }
 
-var useStyles = makeStyles(function (theme) {
+const useStyles = makeStyles((theme) => {
   return {
     dialogRoot: {
       zIndex: zIndex.SNACKBAR + ' !important',
@@ -105,32 +127,63 @@ var useStyles = makeStyles(function (theme) {
 });
 
 function ErrorDisplayOverlay() {
-  var classes = useStyles();
-  var [data, setData] = useState(null);
-  var [copySuccess, setCopySuccess] = useState(false);
+  const classes = useStyles();
+  const [data, setData] = useState(null);
+  const [copySuccess, setCopySuccess] = useState(false);
 
-  useEffect(function () {
+  useEffect(() => {
     setError = setData;
-    return function () {
+    return () => {
       setError = null;
     };
   }, []);
 
-  var handleCloseButtonClick = useCallback(function () {
+  const handleCloseButtonClick = useCallback(() => {
     setData(null);
     setCopySuccess(false);
   }, []);
 
-  var getDisplayText = function () {
+  const getDisplayText = () => {
     if (!data) return '';
-    return data.timestamp + '\n' + data.error.stack;
+
+    const context = data.context || {};
+    const breadcrumbs = data.breadcrumbs || [];
+    const lines = [];
+
+    lines.push('=== ERROR REPORT ===');
+    lines.push('Timestamp: ' + (data.timestamp || 'unknown'));
+    lines.push('URL: ' + (context.url || 'unknown'));
+    if (data.sentryEventId) {
+      lines.push('Sentry ID: ' + data.sentryEventId);
+    }
+    lines.push('');
+
+    lines.push('=== ERROR ===');
+    lines.push(data.stack || 'No stack trace available');
+    lines.push('');
+
+    lines.push('=== RECENT ACTIVITY ===');
+    const recentBreadcrumbs = breadcrumbs.slice(-20);
+    recentBreadcrumbs.forEach((bc) => {
+      const time = bc.localTimestamp
+        ? bc.localTimestamp.split('T')[1].split('.')[0]
+        : '';
+      const category = bc.category || 'unknown';
+      const detail =
+        bc.message ||
+        (bc.data && bc.data.url) ||
+        (bc.data ? JSON.stringify(bc.data) : 'no details');
+      lines.push(time + ' [' + category + '] ' + detail);
+    });
+
+    return lines.join('\n');
   };
 
-  var handleCopy = useCallback(function () {
+  const handleCopy = useCallback(() => {
     if (data) {
-      navigator.clipboard.writeText(getDisplayText()).then(function () {
+      navigator.clipboard.writeText(getDisplayText()).then(() => {
         setCopySuccess(true);
-        setTimeout(function () {
+        setTimeout(() => {
           setCopySuccess(false);
         }, 2000);
       });
@@ -144,7 +197,7 @@ function ErrorDisplayOverlay() {
   return (
     <Dialog
       open={true}
-      onClose={function (event, reason) {
+      onClose={(_, reason) => {
         if (reason !== 'backdropClick' && reason !== 'escapeKeyDown') {
           setData(null);
         }
@@ -164,7 +217,8 @@ function ErrorDisplayOverlay() {
       </div>
       <DialogContent className={classes.contentContainer}>
         <div className={classes.instructionText}>
-          Please copy the error details below and share them with the development team.
+          Please copy the error details below and share them with the
+          development team.
         </div>
         <div className={classes.errorText}>{getDisplayText()}</div>
       </DialogContent>
@@ -190,3 +244,4 @@ function ErrorDisplayOverlay() {
 }
 
 export { captureError, ErrorDisplayOverlay };
+export { addBreadcrumb, getBreadcrumbs } from './breadcrumbs';
