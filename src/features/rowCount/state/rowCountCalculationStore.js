@@ -6,7 +6,10 @@ import {
 } from '../../../shared/utility/spatialTemporalDepthValidation';
 import logInit from '../../../Services/log-service';
 import { captureError } from '../../../shared/errorCapture';
-import { isEligibleForEstimation, estimateRowCount } from '../estimation';
+import {
+  isEligibleForEstimation,
+  estimateRowCountForDataset,
+} from '../estimation';
 import { getSearchDatabaseApi } from '../../catalogSearch/api';
 import { queryRowCountsApi } from '../api/queryRowCountsApi';
 
@@ -495,14 +498,17 @@ async function _estimateEligibleDatasets(datasets, constraints) {
 
     for (const dataset of datasets) {
       try {
-        const eligible = isEligibleForEstimation({
-          spatialResolution: dataset.spatialResolution,
-          temporalResolution: dataset.temporalResolution,
-        });
+        const result = await estimateRowCountForDataset(
+          dataset,
+          constraints,
+          catalogDb,
+        );
 
-        if (eligible) {
-          const count = await estimateRowCount(dataset, constraints, catalogDb);
-          estimated.push({ shortName: dataset.shortName, rowCount: count });
+        if (result.eligible) {
+          estimated.push({
+            shortName: dataset.shortName,
+            rowCount: result.rowCount,
+          });
         }
       } catch (error) {
         log.error('estimation failed', {
