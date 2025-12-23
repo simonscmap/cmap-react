@@ -9,7 +9,8 @@ import logInit from '../../../Services/log-service';
 import isEligibleForEstimation from './isEligibleForEstimation';
 import prepareRowCountInputsFromDatabase from './prepareRowCountInputsFromDatabase';
 import performRowCountMath from './performRowCountMath';
-import { queryDepthCount } from './queryEstimationTables';
+import performRowCountMathV2 from './performRowCountMathV2';
+import performRowCountMathV3 from './performRowCountMathV3';
 
 const log = logInit('rowCount/estimation/estimateRowCountForDataset');
 
@@ -70,39 +71,33 @@ async function estimateRowCountForDataset(
       return { eligible: false, reason: 'ineligible' };
     }
 
-    // Step 2: Prepare inputs from database
+    // Step 2: Prepare inputs from database (includes depth count computation)
     const resolvedInputs = await prepareRowCountInputsFromDatabase(
       datasetMetadata,
+      constraints,
       catalogDb,
     );
 
-    // Step 3: Query depth count if needed
-    let depthCountInRange = 1;
+    // Step 3: Perform pure calculation
+    const rowCount = performRowCountMath(resolvedInputs, constraints);
 
-    if (resolvedInputs.hasDepth && resolvedInputs.depthModel.model) {
-      const hasDepthConstraints =
-        constraints.depthEnabled &&
-        constraints.depthRange.depthMin !== null &&
-        constraints.depthRange.depthMax !== null;
+    // Step 3b: V2 comparison (temporary for testing)
+    const rowCountV2 = performRowCountMathV2(resolvedInputs, constraints);
+    log.info('row count v2 comparison', {
+      dataset: datasetMetadata.shortName,
+      original: rowCount,
+      v2: rowCountV2,
+      match: rowCount === rowCountV2,
+    });
 
-      if (hasDepthConstraints) {
-        depthCountInRange = await queryDepthCount(
-          catalogDb,
-          resolvedInputs.depthModel.model,
-          constraints.depthRange.depthMin,
-          constraints.depthRange.depthMax,
-        );
-      } else {
-        depthCountInRange = resolvedInputs.depthModel.totalLevels;
-      }
-    }
-
-    // Step 4: Perform pure calculation
-    const rowCount = performRowCountMath(
-      resolvedInputs,
-      constraints,
-      depthCountInRange,
-    );
+    // Step 3c: V3 comparison (temporary for testing)
+    const rowCountV3 = performRowCountMathV3(resolvedInputs, constraints);
+    log.info('row count v3 comparison', {
+      dataset: datasetMetadata.shortName,
+      original: rowCount,
+      v3: rowCountV3,
+      match: rowCount === rowCountV3,
+    });
 
     result = rowCount;
     return { eligible: true, rowCount };
