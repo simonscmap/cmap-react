@@ -11,7 +11,7 @@ import {
   queryTemporalResolutionMapping,
   queryDatasetDepthModel,
   queryDepthCount,
-} from './queryEstimationTables';
+} from './queryEstimationTables.js';
 
 /**
  * Prepares all inputs needed for row count math by querying the catalog database.

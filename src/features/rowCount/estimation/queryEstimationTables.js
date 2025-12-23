@@ -15,9 +15,6 @@
  * All functions use the catalog search Web Worker's executeSql interface.
  */
 
-import logInit from '../../../Services/log-service';
-
-const log = logInit('shared/estimation/queryEstimationTables');
 
 /**
  * Query spatial resolution mapping table
@@ -45,10 +42,7 @@ export async function querySpatialResolutionMapping(
       units: results[0].units,
     };
   } catch (error) {
-    log.error('error querying spatial resolution mapping', {
-      resolution,
-      error: error.message,
-    });
+    console.error('Error querying spatial resolution mapping:', resolution, error.message);
     return null;
   }
 }
@@ -79,10 +73,7 @@ export async function queryTemporalResolutionMapping(
       units: results[0].units,
     };
   } catch (error) {
-    log.error('error querying temporal resolution mapping', {
-      resolution,
-      error: error.message,
-    });
+    console.error('Error querying temporal resolution mapping:', resolution, error.message);
     return null;
   }
 }
@@ -107,10 +98,7 @@ export async function queryDatasetDepthModel(searchDatabaseApi, shortName) {
 
     return results[0].depth_model;
   } catch (error) {
-    log.error('error querying dataset depth model', {
-      shortName,
-      error: error.message,
-    });
+    console.error('Error querying dataset depth model:', shortName, error.message);
     return null;
   }
 }
@@ -138,7 +126,6 @@ export async function queryDepthCount(
 
   const tableName = tableMap[depthModel];
   if (!tableName) {
-    log.debug('unknown depth model, returning 1', { depthModel });
     return 1;
   }
 
@@ -156,13 +143,7 @@ export async function queryDepthCount(
 
     return results[0].count;
   } catch (error) {
-    log.error('error querying depth count', {
-      depthModel,
-      tableName,
-      minDepth,
-      maxDepth,
-      error: error.message,
-    });
+    console.error('Error querying depth count:', depthModel, minDepth, maxDepth, error.message);
     return 1;
   }
 }
