@@ -1,6 +1,10 @@
 import { create } from 'zustand';
 import bulkDownloadAPI from '../api/bulkDownload';
 import useCollectionsStore from '../../collections/state/collectionsStore';
+import logInit from '../../../Services/log-service';
+import { captureError } from '../../../shared/errorCapture';
+
+const log = logInit('multiDatasetDownloadStore');
 
 const useMultiDatasetDownloadStore = create((set, get) => ({
   // State
@@ -73,7 +77,7 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
         selectedDatasets: new Set(), // Reset selections when new data is fetched
       });
     } catch (error) {
-      console.error('Failed to fetch datasets metadata:', error);
+      captureError(error, { action: 'fetchDatasetsMetadata' });
       set({
         error: error.message || 'Failed to fetch datasets metadata',
         isLoading: false,
@@ -94,16 +98,11 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
           ? downloadContext.collectionId
           : null;
 
-      const result = await bulkDownloadAPI.downloadData(
+      await bulkDownloadAPI.downloadData(
         Array.from(selectedDatasets),
         filters.filterValues,
         collectionId,
       );
-
-      // safeApi returns errors as values instead of throwing them
-      if (result instanceof Error) {
-        throw result;
-      }
 
       // Increment download count locally since backend incremented it
       if (collectionId !== undefined && collectionId !== null) {
@@ -112,7 +111,7 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
           .incrementCollectionStat(collectionId, 'downloads');
       }
     } catch (error) {
-      console.error('Download failed:', error);
+      captureError(error);
       throw error;
     } finally {
       set({ isDownloading: false });

@@ -123,10 +123,10 @@ export const useCreateWithDatasets = () => {
     } catch (error) {
       let errorMessage = 'Failed to create collection. Please try again.';
 
-      if (error.message.includes('logged in')) {
-        errorMessage = 'You must be logged in to create collections';
-      } else if (error.message.includes('Network')) {
+      if (error.message && error.message.includes('Network')) {
         errorMessage = 'Network error. Please check your connection.';
+      } else if (error.message) {
+        errorMessage = error.message;
       }
 
       dispatch(

@@ -9,6 +9,9 @@ import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
 import { useDownloadThreshold } from '../stores/useDownloadThreshold';
 import { DOWNLOAD_LIMITS } from '../../../shared/constants/downloadConstants';
 import { showLoginDialog, snackbarOpen } from '../../../Redux/actions/ui';
+import logInit from '../../../Services/log-service';
+
+const log = logInit('DownloadButton');
 
 const useStyles = makeStyles((theme) => ({
   downloadButton: {
@@ -49,11 +52,21 @@ const DownloadButton = ({ subsetFiltering, onDownloadComplete }) => {
         onDownloadComplete({ success: true });
       }
     } catch (error) {
-      if (error.status === 413) {
-        dispatch(snackbarOpen(error.message));
-      } else {
-        console.error('Download failed:', error);
+      log.error('Download failed', { error });
+
+      let errorMessage = error.message || 'Download failed';
+      // 413 already has actionable guidance; add retry instruction for other errors
+      if (error.status !== 413) {
+        errorMessage += '. Please try again or contact support if the issue persists.';
       }
+
+      dispatch(
+        snackbarOpen(errorMessage, {
+          position: 'top',
+          severity: 'error',
+        }),
+      );
+
       // Call callback on failed download
       if (onDownloadComplete) {
         onDownloadComplete({ success: false, error });

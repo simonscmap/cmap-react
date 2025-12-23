@@ -13,7 +13,7 @@
  * - Log the ratio to analyze if the 1.4x multiplier is correct
  */
 
-import estimateRowCount from '../estimateRowCount';
+import estimateRowCountForDataset from '../estimateRowCountForDataset';
 import * as queryTables from '../queryEstimationTables';
 import groundTruth from './groundTruth.json';
 
@@ -25,9 +25,11 @@ jest.mock('../queryEstimationTables');
  */
 function buildDatasetMetadata(testCase) {
   return {
-    Table_Name: testCase.dataset.tableName,
-    Spatial_Resolution: testCase.dataset.spatialResolution,
-    Temporal_Resolution: testCase.dataset.temporalResolution,
+    shortName: testCase.dataset.tableName,
+    tableName: testCase.dataset.tableName,
+    spatialResolution: testCase.dataset.spatialResolution,
+    temporalResolution: testCase.dataset.temporalResolution,
+    hasDepth: Boolean(testCase.sqliteValues.depthModel),
   };
 }
 
@@ -89,15 +91,10 @@ describe('estimateRowCount - Ground Truth Validation', () => {
           testCase.sqliteValues.depthModel
         );
 
-        if (testCase.sqliteValues.depthModel === 'darwin') {
-          queryTables.queryDarwinDepthCount.mockResolvedValue(
-            testCase.sqliteValues.depthCount
-          );
-        } else if (testCase.sqliteValues.depthModel === 'pisces') {
-          queryTables.queryPiscesDepthCount.mockResolvedValue(
-            testCase.sqliteValues.depthCount
-          );
-        }
+        // queryDepthCount called twice: total levels, then constrained range
+        queryTables.queryDepthCount
+          .mockResolvedValueOnce(testCase.sqliteValues.depthCount || 1)
+          .mockResolvedValueOnce(testCase.sqliteValues.depthCount || 1);
       }
 
       const datasetMetadata = buildDatasetMetadata(testCase);
@@ -105,11 +102,18 @@ describe('estimateRowCount - Ground Truth Validation', () => {
       const mockDb = {};
 
       // Run estimation
-      const estimated = await estimateRowCount(
+      const result = await estimateRowCountForDataset(
         datasetMetadata,
         constraints,
         mockDb
       );
+
+      if (!result.eligible) {
+        console.log(`${testCase.name}: ineligible - ${result.reason}`);
+        return;
+      }
+
+      const estimated = result.rowCount;
 
       // Calculate ratio for analysis
       const ratio = estimated / testCase.actualRowCount;

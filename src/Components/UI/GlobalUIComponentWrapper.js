@@ -10,6 +10,7 @@ import SnackbarWrapper from './SnackbarWrapper';
 import LoadingOverlay from './LoadingOverlay';
 import SubscribeDatasetDialog from '../User/Subscriptions/SubscribeDialog';
 import GlobalDownloadDialog from '../../features/datasetDownload/components/DownloadDialog/GlobalDialogWrapper';
+import { ErrorDisplayOverlay } from '../../shared/errorCapture';
 
 import { loginDialogWasCleared } from '../../Redux/actions/user';
 
@@ -49,6 +50,7 @@ class GlobalUIComponentWrapper extends Component {
         <SubscribeDatasetDialog />
         <GlobalDownloadDialog />
         <LoadingOverlay loadingMessage={this.props.loadingMessage} />
+        <ErrorDisplayOverlay />
       </React.Fragment>
     );
   }

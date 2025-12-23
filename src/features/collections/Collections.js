@@ -7,6 +7,7 @@ import PublicCollectionsTab from './publicCollections/PublicCollectionsTab';
 import useCollectionsStore from './state/collectionsStore';
 import CreateCollectionModal from './createModal/CreateCollectionModal';
 import { initializeCatalogSearch } from '../catalogSearch/api';
+import { FeatureErrorBoundary } from '../../shared/errorCapture';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -66,8 +67,10 @@ const Collections = () => {
     fetchCollections({ includeDatasets: true });
   }, [user, fetchCollections]);
 
+  // Pre-load so modals avoid db init for better UX
+  // downstream stores retry on failure
   useEffect(() => {
-    initializeCatalogSearch();
+    initializeCatalogSearch().catch(() => {});
   }, []);
 
   const handleTabChange = (_, newValue) => {
@@ -106,4 +109,10 @@ const Collections = () => {
   );
 };
 
-export default Collections;
+const CollectionsWithErrorBoundary = (props) => (
+  <FeatureErrorBoundary featureName="collections">
+    <Collections {...props} />
+  </FeatureErrorBoundary>
+);
+
+export default CollectionsWithErrorBoundary;

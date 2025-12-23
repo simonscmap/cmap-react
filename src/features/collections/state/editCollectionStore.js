@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import collectionsAPI from '../api/collectionsApi';
 import { snackbarOpen } from '../../../Redux/actions/ui';
 import useCollectionsStore from './collectionsStore';
+import { captureError } from '../../../shared/errorCapture';
+import HttpError from '../../../shared/errorCapture/HttpError';
 
 /**
  * Zustand store for managing edit collection feature state.
@@ -63,7 +65,14 @@ const useEditCollectionStore = create((set, get) => ({
         error: null,
       });
     } catch (error) {
-      console.error('Error loading collection:', error);
+      const expectedMessages = [
+        'Collection not found or you do not have access',
+        'You do not have permission to edit this collection',
+        'Collection data is incomplete. Please refresh the page.',
+      ];
+      if (!expectedMessages.includes(error.message)) {
+        captureError(error, { action: 'loadCollection', id: collectionId });
+      }
       set({
         isLoading: false,
         error: error.message,
@@ -297,57 +306,69 @@ const useEditCollectionStore = create((set, get) => ({
         payload,
       );
 
-      if (!response.ok) {
-        if (response.status === 400) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Validation error');
-        } else if (response.status === 401) {
-          throw new Error('You must be logged in to update collections');
-        } else if (response.status === 403) {
-          throw new Error('You do not have permission to edit this collection');
-        } else if (response.status === 404) {
-          throw new Error('Collection not found');
-        } else if (response.status === 409) {
-          throw new Error('A collection with this name already exists');
-        } else {
-          throw new Error(
-            `Failed to update collection: ${response.status} ${response.statusText}`,
-          );
+      if (response.ok) {
+        const result = await response.json();
+
+        if (result.datasets) {
+          result.datasets = result.datasets.map((dataset) => {
+            const { isNewlyAdded, ...datasetWithoutFlag } = dataset;
+            return datasetWithoutFlag;
+          });
         }
-      }
 
-      const result = await response.json();
-
-      // Remove isNewlyAdded flags from result datasets
-      if (result.datasets) {
-        result.datasets = result.datasets.map((dataset) => {
-          const { isNewlyAdded, ...datasetWithoutFlag } = dataset;
-          return datasetWithoutFlag;
+        set({
+          collection: result,
+          originalCollection: JSON.parse(JSON.stringify(result)),
+          datasetsToRemove: [],
+          selectedDatasets: [],
+          isSaving: false,
+          error: null,
         });
+
+        // Show success notification
+        dispatch(
+          snackbarOpen('Collection updated successfully', {
+            severity: 'success',
+            position: 'top',
+          }),
+        );
+
+        // Update the main collections store with full server response
+        useCollectionsStore.getState().updateCollection(collection.id, result);
+      } else if (response.status === 400) {
+        const errorData = await response.json();
+        throw new HttpError(
+          errorData.error || 'Validation error',
+          response.status,
+        );
+      } else if (response.status === 403) {
+        throw new HttpError(
+          'You do not have permission to edit this collection',
+          response.status,
+        );
+      } else if (response.status === 404) {
+        throw new HttpError('Collection not found', response.status);
+      } else if (response.status === 409) {
+        throw new HttpError(
+          'A collection with this name already exists',
+          response.status,
+        );
+      } else {
+        const error = new HttpError(
+          `Failed to update collection: ${response.status} ${response.statusText}`,
+          response.status,
+        );
+        captureError(error, {
+          action: 'saveCollection',
+          id: collection.id,
+          status: response.status,
+        });
+        throw error;
       }
-
-      // Server response is the single source of truth
-      set({
-        collection: result,
-        originalCollection: JSON.parse(JSON.stringify(result)),
-        datasetsToRemove: [],
-        selectedDatasets: [],
-        isSaving: false,
-        error: null,
-      });
-
-      // Show success notification
-      dispatch(
-        snackbarOpen('Collection updated successfully', {
-          severity: 'success',
-          position: 'top',
-        }),
-      );
-
-      // Update the main collections store with full server response
-      useCollectionsStore.getState().updateCollection(collection.id, result);
     } catch (error) {
-      console.error('Error saving collection:', error);
+      if (!(error instanceof HttpError)) {
+        captureError(error, { action: 'saveCollection', id: collection.id });
+      }
 
       set({
         isSaving: false,

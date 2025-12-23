@@ -6,6 +6,7 @@ import {
   createSearchQuery,
   isClientSideSearchAvailable,
 } from '../../../catalogSearch/api';
+import { captureError } from '../../../../shared/errorCapture';
 
 /**
  * Zustand store for Add Datasets modal state management
@@ -419,9 +420,6 @@ export const useAddDatasetsStore = create((set, get) => ({
           case 404:
             errorMessage = 'Collection not found';
             break;
-          case 401:
-            errorMessage = 'You must be logged in';
-            break;
           case 403:
             errorMessage = "You don't have access to this collection";
             break;
@@ -486,8 +484,10 @@ export const useAddDatasetsStore = create((set, get) => ({
       // Handle network errors or other exceptions
       let errorMessage = 'Network error. Please check your connection.';
 
-      // Log error for debugging
-      console.error('loadCollectionDatasets error:', error);
+      captureError(error, {
+        action: 'loadCollectionDatasets',
+        id: selectedCollectionId,
+      });
 
       set({
         loadError: errorMessage,
@@ -642,7 +642,7 @@ export const useAddDatasetsStore = create((set, get) => ({
         isLoadingCatalog: false,
       });
     } catch (error) {
-      console.error('loadFullCatalog error:', error);
+      captureError(error, { action: 'loadFullCatalog' });
       set({
         catalogLoadError:
           error.message || 'Failed to load catalog. Please try again.',
