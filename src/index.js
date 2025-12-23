@@ -7,6 +7,7 @@ import { Integrations } from '@sentry/tracing';
 import * as serviceWorker from './serviceWorker';
 import store from './Redux/store';
 import App from './App';
+import { addBreadcrumb } from './shared/errorCapture/breadcrumbs';
 import './Stylesheets/index.css';
 import 'ag-grid-enterprise';
 
@@ -14,28 +15,49 @@ LicenseManager.setLicenseKey(
   'School_of_Oceanography_Simons_CMAP_1Devs_1Deployment_19_June_2020__MTU5MjUyMTIwMDAwMA==aec33f954c06d90afed06467402921bd',
 );
 
-// `npm run start:sentry` will set process.env.REACT_APP_ENABLE_SENTRY to true
-// for enabling Sentry locally
+var SENTRY_DSN_PRODUCTION = 'https://235dc211fb6c038ff5713280b5172696@o4509317255004160.ingest.us.sentry.io/4509317256249344';
+var SENTRY_DSN_STAGING_DEVELOPMENT = 'https://21180e3f5acde2601c05415936b5ebee@o4509317255004160.ingest.us.sentry.io/4510547464683520';
+
+function getSentryConfig() {
+  var hostname = window.location.hostname;
+  if (hostname === 'simonscmap.com') {
+    return { dsn: SENTRY_DSN_PRODUCTION, environment: 'production' };
+  }
+  if (hostname === 'simonscmap.dev') {
+    return { dsn: SENTRY_DSN_STAGING_DEVELOPMENT, environment: 'staging' };
+  }
+  return { dsn: SENTRY_DSN_STAGING_DEVELOPMENT, environment: 'development' };
+}
+
 if (
   process.env.NODE_ENV === 'production' ||
   process.env.REACT_APP_ENABLE_SENTRY === 'true'
 ) {
+  var sentryConfig = getSentryConfig();
   Sentry.init({
-    dsn: process.env.REACT_APP_SENTRY_DSN,
+    dsn: sentryConfig.dsn,
     release: process.env.REACT_APP_SENTRY_RELEASE || 'development',
-    environment: process.env.NODE_ENV,
-
-    // Setting this option to true will send default PII data to Sentry.
-    // For example, automatic IP address collection on events
+    environment: sentryConfig.environment,
     sendDefaultPii: true,
     integrations: [new Integrations.BrowserTracing()],
-    // Tracing
-    tracesSampleRate: 1.0, //  Capture 100% of the transactions
-    // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
+    tracesSampleRate: 1.0,
     tracePropagationTargets: ['localhost', /^https:\/\/yourserver\.io\/api/],
-    // Session Replay
-    replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
-    replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
+    replaysSessionSampleRate: 0.1,
+    replaysOnErrorSampleRate: 1.0,
+    ignoreErrors: [
+      /ResizeObserver loop/,
+    ],
+    beforeSend: function(event, hint) {
+      var error = hint.originalException;
+      if (error && error.message && error.message.includes('ResizeObserver loop')) {
+        return null;
+      }
+      return event;
+    },
+    beforeBreadcrumb: function(breadcrumb) {
+      addBreadcrumb(breadcrumb);
+      return breadcrumb;
+    },
   });
 }
 

@@ -12,6 +12,7 @@ import {
   cleanupCatalogSearch,
   createSearchQuery,
 } from '../api';
+import { captureError } from '../../../shared/errorCapture';
 
 const useCatalogSearchStore = create((set, get) => ({
   // Initialization state
@@ -73,7 +74,7 @@ const useCatalogSearchStore = create((set, get) => ({
       // Load regions after initialization
       get().loadRegions();
     } catch (error) {
-      console.error('Failed to initialize search service:', error);
+      captureError(error, { action: 'initializeSearch' });
       set({
         isInitializing: false,
         initError: error.message || 'Failed to initialize search',
@@ -231,7 +232,7 @@ const useCatalogSearchStore = create((set, get) => ({
       const results = await searchCatalog(query);
       set({ results, isSearching: false });
     } catch (error) {
-      console.error('Search failed:', error);
+      captureError(error, { action: 'search' });
       set({
         isSearching: false,
         searchError: error.message || 'Search failed',

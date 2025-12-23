@@ -1,6 +1,6 @@
 // api requests specific to the catalog page
 import { apiUrl, postOptions } from '../../../api/config';
-import safeApi from '../../../api/safeApi';
+import fetchWithAuth from '../../../api/fetchWithAuth';
 import logInit from '../../../Services/log-service';
 import { transformFiltersForAPI } from '../../../shared/filtering/utils';
 import DownloadService from '../../../shared/services/dataDownload/downloadService';
@@ -54,7 +54,7 @@ bulkDownloadAPI.downloadData = async (
     requestBody.collectionId = parsedId;
   }
 
-  const response = await fetch(endpoint, {
+  const response = await fetchWithAuth(endpoint, {
     ...postOptions,
     body: JSON.stringify(requestBody),
   });
@@ -113,4 +113,4 @@ bulkDownloadAPI.initBulkDownload = async (datasetShortNames) => {
   return response.json();
 };
 
-export default safeApi(bulkDownloadAPI);
+export default bulkDownloadAPI;

@@ -1,5 +1,5 @@
 import { apiUrl, fetchOptions, postOptions } from '../../../api/config';
-import DownloadService from '../../../shared/services/dataDownload/downloadService';
+import fetchWithAuth from '../../../api/fetchWithAuth';
 
 /**
  * Collections API Client
@@ -124,7 +124,7 @@ collectionsAPI.getCollectionById = async (id, params = {}) => {
   const queryString = searchParams.toString();
   const endpoint = `${apiUrl}/api/collections/${id}${queryString ? `?${queryString}` : ''}`;
 
-  return await fetch(endpoint, fetchOptions);
+  return await fetchWithAuth(endpoint, fetchOptions);
 };
 
 /**
@@ -160,7 +160,7 @@ collectionsAPI.getCollection = collectionsAPI.getCollectionById;
 collectionsAPI.createCollection = async (data) => {
   const endpoint = `${apiUrl}/api/collections`;
 
-  return await fetch(endpoint, {
+  return await fetchWithAuth(endpoint, {
     ...postOptions,
     method: 'POST',
     body: JSON.stringify(data),
@@ -178,7 +178,7 @@ collectionsAPI.createCollection = async (data) => {
 collectionsAPI.deleteCollection = async (id) => {
   const endpoint = `${apiUrl}/api/collections/${id}`;
 
-  return await fetch(endpoint, {
+  return await fetchWithAuth(endpoint, {
     ...fetchOptions,
     method: 'DELETE',
   });
@@ -204,7 +204,7 @@ collectionsAPI.deleteCollection = async (id) => {
 collectionsAPI.updateCollection = async (id, data) => {
   const endpoint = `${apiUrl}/api/collections/${id}`;
 
-  return await fetch(endpoint, {
+  return await fetchWithAuth(endpoint, {
     ...postOptions,
     method: 'PATCH',
     body: JSON.stringify(data),
@@ -231,7 +231,7 @@ collectionsAPI.verifyCollectionName = async (name, collectionId) => {
 
   const endpoint = `${apiUrl}/api/collections/verify-name?${searchParams.toString()}`;
 
-  return await fetch(endpoint, fetchOptions);
+  return await fetchWithAuth(endpoint, fetchOptions);
 };
 
 /**
@@ -252,7 +252,7 @@ collectionsAPI.verifyCollectionName = async (name, collectionId) => {
 collectionsAPI.copyCollection = async (id) => {
   const endpoint = `${apiUrl}/api/collections/${id}/copy`;
 
-  return await fetch(endpoint, {
+  return await fetchWithAuth(endpoint, {
     ...postOptions,
     method: 'POST',
   });
@@ -328,57 +328,6 @@ collectionsAPI.getCollectionPreview = async (
   const endpoint = `${apiUrl}/api/collections/preview?${searchParams.toString()}`;
 
   return await fetch(endpoint, fetchOptions);
-};
-
-/**
- * Download datasets as a zip file directly without filters
- * @param {Array<string>} datasetShortNames - Array of dataset short names to download
- * @param {number} [collectionId] - Optional collection ID for tracking download statistics
- * @returns {Promise<void>}
- * @throws {Error} 413: Request too large, other errors for server issues
- * @description Triggers a direct download of multiple datasets as a zip file.
- * This is a simplified version without filter support, intended for collections download.
- * If collectionId is provided, the backend may track download statistics.
- */
-collectionsAPI.downloadDatasets = async (datasetShortNames, collectionId) => {
-  const endpoint = apiUrl + `/api/data/bulk-download`;
-
-  const requestBody = { shortNames: datasetShortNames };
-
-  if (collectionId !== null && collectionId !== undefined) {
-    const parsedId = parseInt(collectionId, 10);
-    if (isNaN(parsedId) || parsedId <= 0) {
-      throw new Error('collectionId must be a positive integer');
-    }
-    requestBody.collectionId = parsedId;
-  }
-
-  const response = await fetch(endpoint, {
-    ...postOptions,
-    body: JSON.stringify(requestBody),
-  });
-
-  if (!response.ok) {
-    if (response.status === 413) {
-      const error = new Error(
-        'Request too large. Please select fewer datasets to download.',
-      );
-      error.status = 413;
-      throw error;
-    }
-    throw new Error(
-      `Download failed: ${response.status} ${response.statusText}`,
-    );
-  }
-
-  // Get the blob from the response
-  const blob = await response.blob();
-
-  // Generate a filename with timestamp
-  const filename = `datasets_${Date.now()}.zip`;
-
-  // Trigger the download using shared service
-  DownloadService.downloadBlob(blob, filename);
 };
 
 export default collectionsAPI;

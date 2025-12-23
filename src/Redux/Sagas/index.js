@@ -272,6 +272,17 @@ function* refreshLogin() {
   // yield put(interfaceActions.snackbarOpen("Your session has expired. Please log in again."));
 }
 
+function* refreshLoginWithMessage() {
+  yield call(api.user.logout);
+  yield put(userActions.destroyInfo());
+  yield put(interfaceActions.showLoginDialog());
+  yield put(
+    interfaceActions.snackbarOpen(
+      'Your session has expired. Please log in again.',
+    ),
+  );
+}
+
 function* updateUserInfoRequest(action) {
   const tag = { tag: 'updateUserInfoRequest' };
   yield put(
@@ -1666,6 +1677,13 @@ function* watchRefreshLogin() {
   yield takeLatest(userActionTypes.REFRESH_LOGIN, refreshLogin);
 }
 
+function* watchRefreshLoginWithMessage() {
+  yield takeLatest(
+    userActionTypes.REFRESH_LOGIN_WITH_MESSAGE,
+    refreshLoginWithMessage,
+  );
+}
+
 function* watchUpdateUserInfoRequest() {
   yield takeLatest(
     userActionTypes.UPDATE_USER_INFO_REQUEST_SEND,
@@ -1938,6 +1956,7 @@ function* rootSaga() {
     watchCruiseListRequest(),
     watchTableStatsRequest(),
     watchRefreshLogin(),
+    watchRefreshLoginWithMessage(),
     watchUpdateUserInfoRequest(),
     watchRecoverPasswordRequest(),
     watchChoosePasswordRequest(),

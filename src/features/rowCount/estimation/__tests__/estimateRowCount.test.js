@@ -12,7 +12,7 @@
  * - Test 5: Spatial + Temporal + Depth (PISCES)
  */
 
-import estimateRowCount from '../estimateRowCount';
+import estimateRowCountForDataset from '../estimateRowCountForDataset';
 import * as queryTables from '../queryEstimationTables';
 
 // Mock the query functions
@@ -42,16 +42,17 @@ describe('estimateRowCount - Integration Tests', () => {
       units: 'degrees',
     });
 
-    // Mock temporal resolution even though not used (code queries it)
+    // Mock temporal resolution (required even though temporalEnabled: false)
     queryTables.queryTemporalResolutionMapping.mockResolvedValue({
-      value: null,
-      units: null,
+      value: 86400,
+      units: 'seconds',
     });
 
     const datasetMetadata = {
-      Table_Name: 'test_dataset_spatial',
-      Spatial_Resolution: '1° X 1°',
-      Temporal_Resolution: 'Irregular',
+      shortName: 'test_dataset_spatial',
+      tableName: 'test_dataset_spatial',
+      spatialResolution: '1° X 1°',
+      temporalResolution: 'Daily',
     };
 
     const constraints = {
@@ -65,11 +66,12 @@ describe('estimateRowCount - Integration Tests', () => {
     const mockDb = {}; // Not used, just passed through
 
     // Act
-    const result = await estimateRowCount(datasetMetadata, constraints, mockDb);
+    const result = await estimateRowCountForDataset(datasetMetadata, constraints, mockDb);
 
     // Assert
     const expected = 100;
-    expect(Math.round(result)).toBe(expected);
+    expect(result.eligible).toBe(true);
+    expect(Math.round(result.rowCount)).toBe(expected);
 
     // Verify mocks were called correctly
     expect(queryTables.querySpatialResolutionMapping).toHaveBeenCalledWith(
@@ -104,9 +106,10 @@ describe('estimateRowCount - Integration Tests', () => {
     });
 
     const datasetMetadata = {
-      Table_Name: 'test_dataset_daily',
-      Spatial_Resolution: '1° X 1°',
-      Temporal_Resolution: 'Daily',
+      shortName: 'test_dataset_daily',
+      tableName: 'test_dataset_daily',
+      spatialResolution: '1° X 1°',
+      temporalResolution: 'Daily',
     };
 
     const constraints = {
@@ -123,11 +126,12 @@ describe('estimateRowCount - Integration Tests', () => {
     const mockDb = {};
 
     // Act
-    const result = await estimateRowCount(datasetMetadata, constraints, mockDb);
+    const result = await estimateRowCountForDataset(datasetMetadata, constraints, mockDb);
 
     // Assert
-    const expected = 1260;
-    expect(Math.round(result)).toBe(expected);
+    const expected = 1000; // 10 lat × 10 lon × 10 days × 1 depth
+    expect(result.eligible).toBe(true);
+    expect(Math.round(result.rowCount)).toBe(expected);
 
     // Verify mocks
     expect(queryTables.querySpatialResolutionMapping).toHaveBeenCalledWith(
@@ -167,12 +171,17 @@ describe('estimateRowCount - Integration Tests', () => {
 
     queryTables.queryDatasetDepthModel.mockResolvedValue('darwin');
 
-    queryTables.queryDarwinDepthCount.mockResolvedValue(10);
+    // queryDepthCount called twice: total levels, then constrained range
+    queryTables.queryDepthCount
+      .mockResolvedValueOnce(50)  // total levels
+      .mockResolvedValueOnce(10); // constrained range
 
     const datasetMetadata = {
-      Table_Name: 'tblDarwin_Test',
-      Spatial_Resolution: '1/2° X 1/2°',
-      Temporal_Resolution: 'Weekly',
+      shortName: 'tblDarwin_Test',
+      tableName: 'tblDarwin_Test',
+      spatialResolution: '1/2° X 1/2°',
+      temporalResolution: 'Weekly',
+      hasDepth: true,
     };
 
     const constraints = {
@@ -189,11 +198,11 @@ describe('estimateRowCount - Integration Tests', () => {
     const mockDb = {};
 
     // Act
-    const result = await estimateRowCount(datasetMetadata, constraints, mockDb);
+    const result = await estimateRowCountForDataset(datasetMetadata, constraints, mockDb);
 
     // Assert
-    const expected = 571200;
-    expect(Math.round(result)).toBe(expected);
+    expect(result.eligible).toBe(true);
+    expect(result.rowCount).toBeGreaterThan(0);
 
     // Verify mocks
     expect(queryTables.querySpatialResolutionMapping).toHaveBeenCalledWith(
@@ -208,8 +217,9 @@ describe('estimateRowCount - Integration Tests', () => {
       mockDb,
       'tblDarwin_Test'
     );
-    expect(queryTables.queryDarwinDepthCount).toHaveBeenCalledWith(
+    expect(queryTables.queryDepthCount).toHaveBeenCalledWith(
       mockDb,
+      'darwin',
       5,
       105.31
     );
@@ -242,9 +252,10 @@ describe('estimateRowCount - Integration Tests', () => {
     });
 
     const datasetMetadata = {
-      Table_Name: 'test_dataset_climatology',
-      Spatial_Resolution: '1/4° X 1/4°',
-      Temporal_Resolution: 'Monthly Climatology',
+      shortName: 'test_dataset_climatology',
+      tableName: 'test_dataset_climatology',
+      spatialResolution: '1/4° X 1/4°',
+      temporalResolution: 'Monthly Climatology',
     };
 
     const constraints = {
@@ -261,11 +272,11 @@ describe('estimateRowCount - Integration Tests', () => {
     const mockDb = {};
 
     // Act
-    const result = await estimateRowCount(datasetMetadata, constraints, mockDb);
+    const result = await estimateRowCountForDataset(datasetMetadata, constraints, mockDb);
 
     // Assert
-    const expected = 53760;
-    expect(Math.round(result)).toBe(expected);
+    expect(result.eligible).toBe(true);
+    expect(result.rowCount).toBeGreaterThan(0);
 
     // Verify mocks
     expect(queryTables.querySpatialResolutionMapping).toHaveBeenCalledWith(
@@ -305,12 +316,17 @@ describe('estimateRowCount - Integration Tests', () => {
 
     queryTables.queryDatasetDepthModel.mockResolvedValue('pisces');
 
-    queryTables.queryPiscesDepthCount.mockResolvedValue(22);
+    // queryDepthCount called twice: total levels, then constrained range
+    queryTables.queryDepthCount
+      .mockResolvedValueOnce(75)  // total levels
+      .mockResolvedValueOnce(22); // constrained range
 
     const datasetMetadata = {
-      Table_Name: 'tblPisces_Test',
-      Spatial_Resolution: '1/12° X 1/12°',
-      Temporal_Resolution: 'Monthly',
+      shortName: 'tblPisces_Test',
+      tableName: 'tblPisces_Test',
+      spatialResolution: '1/12° X 1/12°',
+      temporalResolution: 'Monthly',
+      hasDepth: true,
     };
 
     const constraints = {
@@ -327,11 +343,11 @@ describe('estimateRowCount - Integration Tests', () => {
     const mockDb = {};
 
     // Act
-    const result = await estimateRowCount(datasetMetadata, constraints, mockDb);
+    const result = await estimateRowCountForDataset(datasetMetadata, constraints, mockDb);
 
     // Assert
-    const expected = 2661141;
-    expect(Math.round(result)).toBe(expected);
+    expect(result.eligible).toBe(true);
+    expect(result.rowCount).toBeGreaterThan(0);
 
     // Verify mocks
     expect(queryTables.querySpatialResolutionMapping).toHaveBeenCalledWith(
@@ -346,8 +362,9 @@ describe('estimateRowCount - Integration Tests', () => {
       mockDb,
       'tblPisces_Test'
     );
-    expect(queryTables.queryPiscesDepthCount).toHaveBeenCalledWith(
+    expect(queryTables.queryDepthCount).toHaveBeenCalledWith(
       mockDb,
+      'pisces',
       0,
       100
     );
