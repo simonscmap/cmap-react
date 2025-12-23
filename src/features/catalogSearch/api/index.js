@@ -242,13 +242,13 @@ export function isClientSideSearchAvailable() {
  * Get the version information of the cached database
  *
  * Returns metadata about the currently cached database, including checksum,
- * schema version, dataset count, and generation timestamp.
+ * schema hash, dataset count, and generation timestamp.
  *
  * Returns null if no database is cached.
  *
  * @returns {Promise<Object|null>} Version metadata or null
  * @property {string} checksum - Data content checksum
- * @property {string} schemaVersion - Database schema version
+ * @property {string} schemaHash - Auto-computed schema hash
  * @property {number} datasetCount - Total number of datasets
  * @property {string} generatedAt - ISO timestamp of generation
  *

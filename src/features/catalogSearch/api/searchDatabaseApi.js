@@ -5,7 +5,8 @@
  * Implements structured query interface to the SQLite Web Worker.
  */
 
-import { loadDatabase } from './catalogDbApi';
+import * as Sentry from '@sentry/react';
+import { loadDatabase, clearCache } from './catalogDbApi';
 import { transformSearchResults } from './transformers';
 
 class SearchDatabaseApi {
@@ -18,11 +19,6 @@ class SearchDatabaseApi {
     this.searchIdCounter = 0;
   }
 
-  /**
-   * Initialize the search service
-   * Downloads database and sets up worker
-   * @returns {Promise<void>}
-   */
   async initialize() {
     if (this.isInitialized) {
       return;
@@ -47,23 +43,7 @@ class SearchDatabaseApi {
     this.initError = null;
 
     try {
-      // Load database blob
-      const dbBlob = await loadDatabase();
-
-      // Create and setup worker
-      // Worker is co-located with SQLite files in public/sqlite-wasm/
-      // This allows the library to auto-detect sqlite3.wasm in the same directory
-      this.worker = new Worker(
-        `${process.env.PUBLIC_URL}/sqlite-wasm/catalogSearchWorker.js`,
-      );
-
-      // Setup message handler
-      this.worker.onmessage = this.handleWorkerMessage.bind(this);
-      this.worker.onerror = this.handleWorkerError.bind(this);
-
-      // Initialize worker with database
-      await this.sendWorkerMessage('init', { dbBlob });
-
+      await this.initializeWithRetry();
       this.isInitialized = true;
       this.isInitializing = false;
     } catch (error) {
@@ -71,6 +51,38 @@ class SearchDatabaseApi {
       this.isInitializing = false;
       throw error;
     }
+  }
+
+  async initializeWithRetry() {
+    try {
+      await this.initializeWorker();
+    } catch (error) {
+      if (this.worker) {
+        this.worker.terminate();
+        this.worker = null;
+      }
+      await clearCache();
+
+      try {
+        await this.initializeWorker();
+      } catch (retryError) {
+        Sentry.captureException(retryError, {
+          tags: { feature: 'catalogDb', phase: 'init-retry-failed' },
+          extra: { firstError: error.message, retryError: retryError.message },
+        });
+        throw retryError;
+      }
+    }
+  }
+
+  async initializeWorker() {
+    const dbBlob = await loadDatabase();
+    this.worker = new Worker(
+      `${process.env.PUBLIC_URL}/sqlite-wasm/catalogSearchWorker.js`,
+    );
+    this.worker.onmessage = this.handleWorkerMessage.bind(this);
+    this.worker.onerror = this.handleWorkerError.bind(this);
+    await this.sendWorkerMessage('init', { dbBlob });
   }
 
   /**
@@ -214,7 +226,10 @@ class SearchDatabaseApi {
         break;
 
       case 'init-error':
-        // Reject the pending init promise
+        Sentry.captureException(new Error(error), {
+          tags: { feature: 'catalogDb', phase: 'worker-init' },
+          extra: { errorMessage: error },
+        });
         for (const [id, pending] of this.pendingSearches.entries()) {
           if (pending.type === 'init') {
             this.pendingSearches.delete(id);
@@ -286,10 +301,16 @@ class SearchDatabaseApi {
    * @param {ErrorEvent} event
    */
   handleWorkerError(event) {
-    console.error('Worker error:', event);
     this.initError = new Error(event.message || 'Worker error');
-
-    // Reject all pending operations
+    Sentry.captureException(this.initError, {
+      tags: { feature: 'catalogDb', phase: 'worker-error' },
+      extra: {
+        message: event.message,
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno,
+      },
+    });
     for (const [id, pending] of this.pendingSearches.entries()) {
       this.pendingSearches.delete(id);
       pending.reject(this.initError);

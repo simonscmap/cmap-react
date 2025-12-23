@@ -5,59 +5,20 @@ import {
   isValidDepthRange,
 } from '../../../shared/utility/spatialTemporalDepthValidation';
 import logInit from '../../../Services/log-service';
-import { isEligibleForEstimation, estimateRowCount } from '../estimation';
+import { captureError } from '../../../shared/errorCapture';
+import {
+  isEligibleForEstimation,
+  estimateRowCountForDataset,
+} from '../estimation';
 import { getSearchDatabaseApi } from '../../catalogSearch/api';
 import { queryRowCountsApi } from '../api/queryRowCountsApi';
+import {
+  isDatasetFullyWithinConstraints,
+  queryDatasetMetadata,
+  normalizeAllDatasetsForEstimation,
+} from './rowCountCalculationHelpers';
 
 const log = logInit('rowCount/rowCountCalculationStore');
-
-function isDatasetFullyWithinConstraints(dataset, constraints) {
-  if (!dataset || !constraints) {
-    return true;
-  }
-
-  if (constraints.spatialBounds) {
-    const { latMin, latMax, lonMin, lonMax } = constraints.spatialBounds;
-    const spatiallyContained =
-      dataset.latMin >= latMin &&
-      dataset.latMax <= latMax &&
-      dataset.lonMin >= lonMin &&
-      dataset.lonMax <= lonMax;
-    if (!spatiallyContained) {
-      return false;
-    }
-  }
-
-  if (constraints.temporalEnabled && dataset.timeMin && dataset.timeMax) {
-    const { timeMin, timeMax } = constraints.temporalRange;
-    if (timeMin && timeMax) {
-      const datasetTimeMin = new Date(dataset.timeMin).getTime();
-      const datasetTimeMax = new Date(dataset.timeMax).getTime();
-      const constraintTimeMin = new Date(timeMin).getTime();
-      const constraintTimeMax = new Date(timeMax).getTime();
-
-      const temporallyContained =
-        datasetTimeMin >= constraintTimeMin &&
-        datasetTimeMax <= constraintTimeMax;
-      if (!temporallyContained) {
-        return false;
-      }
-    }
-  }
-
-  if (constraints.depthEnabled && dataset.hasDepth) {
-    const { depthMin, depthMax } = constraints.depthRange;
-    if (depthMin !== null && depthMax !== null) {
-      const depthContained =
-        dataset.depthMin >= depthMin && dataset.depthMax <= depthMax;
-      if (!depthContained) {
-        return false;
-      }
-    }
-  }
-
-  return true;
-}
 
 // Store contains only state (private - not exported)
 const useRowCountCalculationStore = create(() => ({
@@ -112,67 +73,6 @@ export const useStaleDatasets = () =>
 
 export const useHasStaleDatasets = () =>
   useRowCountCalculationStore((state) => state.staleDatasets.length > 0);
-
-async function queryDatasetMetadata(shortNames) {
-  if (!shortNames || shortNames.length === 0) {
-    return {};
-  }
-
-  const searchDatabaseApi = getSearchDatabaseApi();
-
-  if (!searchDatabaseApi.isClientSideAvailable()) {
-    log.debug('catalog DB not initialized, initializing now');
-    try {
-      await searchDatabaseApi.initialize();
-    } catch (error) {
-      log.error('failed to initialize catalog DB', { error: error.message });
-      return {};
-    }
-  }
-
-  try {
-    const placeholders = shortNames.map(() => '?').join(', ');
-    const sql = `
-      SELECT shortName, rowCount, spatialResolution, temporalResolution,
-             latMin, latMax, lonMin, lonMax,
-             timeMin, timeMax, depthMin, depthMax,
-             hasDepth, tableCount
-      FROM datasets
-      WHERE shortName IN (${placeholders})
-    `;
-
-    const results = await searchDatabaseApi.executeSql(sql, shortNames);
-
-    const metadataMap = {};
-    for (const row of results) {
-      metadataMap[row.shortName] = {
-        rowCount: row.rowCount,
-        spatialResolution: row.spatialResolution,
-        temporalResolution: row.temporalResolution,
-        latMin: row.latMin,
-        latMax: row.latMax,
-        lonMin: row.lonMin,
-        lonMax: row.lonMax,
-        timeMin: row.timeMin,
-        timeMax: row.timeMax,
-        depthMin: row.depthMin,
-        depthMax: row.depthMax,
-        hasDepth: row.hasDepth === 1,
-        tableCount: row.tableCount,
-      };
-    }
-
-    log.debug('fetched dataset metadata from catalog DB', {
-      requested: shortNames.length,
-      found: Object.keys(metadataMap).length,
-    });
-
-    return metadataMap;
-  } catch (error) {
-    log.error('failed to query dataset metadata', { error: error.message });
-    return {};
-  }
-}
 
 export function isDatasetStale(shortName, currentConstraints) {
   const {
@@ -378,6 +278,8 @@ export async function queryRowCountsForDatasets(
       return;
     }
 
+    captureError(error, { action: 'calculateRowCounts', datasets: shortNames });
+
     useRowCountCalculationStore.setState({
       rowCountsLoading: false,
       rowCountLoadingDatasets: new Set(),
@@ -447,26 +349,10 @@ async function _estimateMissingRowCountsUsingFullExtent(
     datasets: datasetsNeedingEstimation,
   });
 
-  const normalizedDatasets = datasetsNeedingEstimation.map((shortName) => {
-    const metadata = metadataMap[shortName] || {};
-    return {
-      shortName,
-      rows: metadata.rowCount,
-      spatialResolution: metadata.spatialResolution,
-      temporalResolution: metadata.temporalResolution,
-      tableName: shortName,
-      latMin: metadata.latMin,
-      latMax: metadata.latMax,
-      lonMin: metadata.lonMin,
-      lonMax: metadata.lonMax,
-      timeMin: metadata.timeMin,
-      timeMax: metadata.timeMax,
-      depthMin: metadata.depthMin,
-      depthMax: metadata.depthMax,
-      hasDepth: metadata.hasDepth,
-      tableCount: metadata.tableCount,
-    };
-  });
+  const normalizedDatasets = normalizeAllDatasetsForEstimation(
+    datasetsNeedingEstimation,
+    metadataMap,
+  );
 
   const fullExtentConstraints = {
     spatialBounds: { latMin: -90, latMax: 90, lonMin: -180, lonMax: 180 },
@@ -492,14 +378,17 @@ async function _estimateEligibleDatasets(datasets, constraints) {
 
     for (const dataset of datasets) {
       try {
-        const eligible = isEligibleForEstimation({
-          spatialResolution: dataset.spatialResolution,
-          temporalResolution: dataset.temporalResolution,
-        });
+        const result = await estimateRowCountForDataset(
+          dataset,
+          constraints,
+          catalogDb,
+        );
 
-        if (eligible) {
-          const count = await estimateRowCount(dataset, constraints, catalogDb);
-          estimated.push({ shortName: dataset.shortName, rowCount: count });
+        if (result.eligible) {
+          estimated.push({
+            shortName: dataset.shortName,
+            rowCount: result.rowCount,
+          });
         }
       } catch (error) {
         log.error('estimation failed', {
@@ -621,26 +510,10 @@ export async function initializeRowCounts(shortNames, constraints) {
     return;
   }
 
-  const normalizedDatasets = shortNames.map((shortName) => {
-    const metadata = metadataMap[shortName] || {};
-    return {
-      shortName,
-      rows: metadata.rowCount,
-      spatialResolution: metadata.spatialResolution,
-      temporalResolution: metadata.temporalResolution,
-      tableName: shortName,
-      latMin: metadata.latMin,
-      latMax: metadata.latMax,
-      lonMin: metadata.lonMin,
-      lonMax: metadata.lonMax,
-      timeMin: metadata.timeMin,
-      timeMax: metadata.timeMax,
-      depthMin: metadata.depthMin,
-      depthMax: metadata.depthMax,
-      hasDepth: metadata.hasDepth,
-      tableCount: metadata.tableCount,
-    };
-  });
+  const normalizedDatasets = normalizeAllDatasetsForEstimation(
+    shortNames,
+    metadataMap,
+  );
 
   await _estimateEligibleDatasets(normalizedDatasets, constraints);
   _computeStaleDatasets(normalizedDatasets, constraints);
@@ -682,27 +555,9 @@ export async function reEstimateWithConstraints(constraints) {
     return;
   }
 
-  const normalizedDatasets = Array.from(lastSearchDatasetIds).map(
-    (shortName) => {
-      const metadata = datasetMetadata[shortName] || {};
-      return {
-        shortName,
-        rows: metadata.rowCount,
-        spatialResolution: metadata.spatialResolution,
-        temporalResolution: metadata.temporalResolution,
-        tableName: shortName,
-        latMin: metadata.latMin,
-        latMax: metadata.latMax,
-        lonMin: metadata.lonMin,
-        lonMax: metadata.lonMax,
-        timeMin: metadata.timeMin,
-        timeMax: metadata.timeMax,
-        depthMin: metadata.depthMin,
-        depthMax: metadata.depthMax,
-        hasDepth: metadata.hasDepth,
-        tableCount: metadata.tableCount,
-      };
-    },
+  const normalizedDatasets = normalizeAllDatasetsForEstimation(
+    Array.from(lastSearchDatasetIds),
+    datasetMetadata,
   );
 
   log.debug('re-estimating row counts with new constraints', {

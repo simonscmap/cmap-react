@@ -108,12 +108,6 @@ async function initializeDatabase(dbBlob) {
         throw new Error(`sqlite3_deserialize failed with code ${rc}`);
       }
 
-      // Validate schema - check for required columns
-      const schemaCheck = db.exec({
-        sql: 'PRAGMA table_info(datasets)',
-        returnValue: 'resultRows',
-      });
-
     } catch (err) {
       // Only free if deserialize failed (otherwise FREEONCLOSE will handle it)
       if (db) {
