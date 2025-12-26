@@ -15,13 +15,13 @@ import {
 } from '@material-ui/core';
 import { RemoveCircleOutline as RemoveCircleOutlineIcon } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
-import { format, parseISO } from 'date-fns';
 import {
   DatasetNameLink,
   useRowStateStyles,
   ROW_STATES,
   InfoTooltip,
 } from '../../../shared/components';
+import { dateToUTCDateString } from '../../../shared/filtering/utils/dateHelpers';
 import SelectAllDropdown from '../../multiDatasetDownload/components/SelectAllDropdown';
 import UniversalButton from '../../../shared/components/UniversalButton';
 import useCollectionsStore from '../state/collectionsStore';
@@ -393,15 +393,9 @@ const CollectionDatasetsTable = ({
 
   // Format helpers
   const formatDateRange = (timeStart, timeEnd) => {
-    try {
-      const start = timeStart
-        ? format(parseISO(timeStart), 'yyyy-MM-dd')
-        : 'N/A';
-      const end = timeEnd ? format(parseISO(timeEnd), 'yyyy-MM-dd') : 'N/A';
-      return { start, end };
-    } catch (error) {
-      return { start: 'N/A', end: 'N/A' };
-    }
+    const start = timeStart ? dateToUTCDateString(timeStart) : 'N/A';
+    const end = timeEnd ? dateToUTCDateString(timeEnd) : 'N/A';
+    return { start: start || 'N/A', end: end || 'N/A' };
   };
 
   const formatRegions = (regions) => {
