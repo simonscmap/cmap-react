@@ -14,6 +14,15 @@
  * - Extensible: new strategy = new condition + new function
  */
 
+import { parseUTCDateString } from '../../../shared/filtering/utils/dateHelpers';
+
+// Helper to safely parse dates - handles both Date objects and strings
+function toUTCDate(value) {
+  if (!value) return null;
+  if (value instanceof Date) return value;
+  return parseUTCDateString(value);
+}
+
 // ============ UTILITIES ============
 
 function clamp(value, min, max) {
@@ -41,10 +50,10 @@ function clampSpatialBounds(queryBounds, datasetBounds) {
 }
 
 function clampTemporalRange(queryRange, datasetRange) {
-  const queryMin = new Date(queryRange.timeMin);
-  const queryMax = new Date(queryRange.timeMax);
-  const datasetMin = new Date(datasetRange.timeMin);
-  const datasetMax = new Date(datasetRange.timeMax);
+  const queryMin = toUTCDate(queryRange.timeMin);
+  const queryMax = toUTCDate(queryRange.timeMax);
+  const datasetMin = toUTCDate(datasetRange.timeMin);
+  const datasetMax = toUTCDate(datasetRange.timeMax);
 
   if (queryMin > datasetMax || queryMax < datasetMin) {
     return null;
@@ -209,7 +218,7 @@ function calculateMonthlyCount(startDate, endDate) {
  * Finds first point >= queryStart and last point <= queryEnd using dataset start as anchor.
  */
 function calculateAnchoredCount(startDate, endDate, datasetStartDate, resolutionDays) {
-  const datasetMin = new Date(datasetStartDate);
+  const datasetMin = toUTCDate(datasetStartDate);
   const daysToQueryMin = (startDate - datasetMin) / 86400000;
   const daysToQueryMax = (endDate - datasetMin) / 86400000;
   const firstPointIndex = Math.ceil(daysToQueryMin / resolutionDays);
@@ -249,8 +258,8 @@ function resolveTemporalCount(inputs, effective) {
   if (!hasTemporalConstraints) {
     if (isMonthlyClimatology) return 12;
     if (dsTemporal.timeMin && dsTemporal.timeMax) {
-      const date1 = new Date(dsTemporal.timeMin);
-      const date2 = new Date(dsTemporal.timeMax);
+      const date1 = toUTCDate(dsTemporal.timeMin);
+      const date2 = toUTCDate(dsTemporal.timeMax);
       // Use same decision tree for full dataset range
       if (temporalDays === 30) return calculateMonthlyCount(date1, date2);
       if ([3, 7, 8].includes(temporalDays)) {
@@ -262,8 +271,8 @@ function resolveTemporalCount(inputs, effective) {
   }
 
   // With constraints: apply decision tree
-  const date1 = new Date(effective.temporalRange.timeMin);
-  const date2 = new Date(effective.temporalRange.timeMax);
+  const date1 = toUTCDate(effective.temporalRange.timeMin);
+  const date2 = toUTCDate(effective.temporalRange.timeMax);
 
   // Strategy 1: Monthly Climatology
   if (isMonthlyClimatology) {

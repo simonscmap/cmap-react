@@ -8,6 +8,8 @@
  * This module only handles formatting of overlap ranges for display purposes.
  */
 
+import { dateToUTCDateString } from '../../../../../shared/filtering/utils/dateHelpers';
+
 /**
  * Format the spatial overlap bounds as a human-readable string with cardinal direction indicators.
  *
@@ -90,25 +92,13 @@ export function formatTemporalRange(overlapRange) {
     return 'N/A';
   }
 
-  // Use Date objects directly
-  const startDate = overlapRange.timeMin;
-  const endDate = overlapRange.timeMax;
+  const formattedStart = dateToUTCDateString(overlapRange.timeMin);
+  const formattedEnd = dateToUTCDateString(overlapRange.timeMax);
 
-  // Validate dates
-  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+  // Handle invalid dates
+  if (!formattedStart || !formattedEnd) {
     return 'N/A';
   }
-
-  // Format as ISO date strings (YYYY-MM-DD)
-  const formatDate = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
-
-  const formattedStart = formatDate(startDate);
-  const formattedEnd = formatDate(endDate);
 
   // Combine into range string
   return `${formattedStart} to ${formattedEnd}`;

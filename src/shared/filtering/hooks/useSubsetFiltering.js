@@ -1,9 +1,10 @@
 import { useState, useMemo, useEffect } from 'react';
 import {
-  dateToDateString,
+  dateToUTCDateString,
   extractDateFromString,
   getIsMonthlyClimatology,
   getInitialRangeValues,
+  parseUTCDateString,
 } from '../utils/dateHelpers';
 
 /**
@@ -86,9 +87,9 @@ const useSubsetFiltering = (dataset) => {
     if (!dataset?.Time_Min || !dataset?.Time_Max) return () => true;
 
     return (date) => {
-      const tmin = dateToDateString(dataset.Time_Min);
-      const tmax = dateToDateString(dataset.Time_Max);
-      const d = dateToDateString(date);
+      const tmin = dateToUTCDateString(dataset.Time_Min);
+      const tmax = dateToUTCDateString(dataset.Time_Max);
+      const d = dateToUTCDateString(date);
       return d >= tmin && d <= tmax;
     };
   }, [dataset?.Time_Min, dataset?.Time_Max]);
@@ -244,8 +245,9 @@ const useSubsetFiltering = (dataset) => {
       lonMax: dataset?.Lon_Max,
       depthMin: dataset?.Depth_Min,
       depthMax: dataset?.Depth_Max,
-      timeMin: dataset?.Time_Min ? new Date(dataset.Time_Min) : null,
-      timeMax: dataset?.Time_Max ? new Date(dataset.Time_Max) : null,
+      // Use UTC parser to correctly interpret database date strings
+      timeMin: dataset?.Time_Min ? parseUTCDateString(dataset.Time_Min) : null,
+      timeMax: dataset?.Time_Max ? parseUTCDateString(dataset.Time_Max) : null,
     },
 
     dateHandling: {

@@ -15,7 +15,7 @@ import {
 import { useDispatch } from 'react-redux';
 
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
-import { dateToDateString } from '../../../shared/filtering/utils/dateHelpers';
+import { dateToUTCDateString } from '../../../shared/filtering/utils/dateHelpers';
 import { DatasetNameLink } from '../../../shared/components';
 import SelectAllDropdown from './SelectAllDropdown';
 import { snackbarOpen } from '../../../Redux/actions/ui';
@@ -142,11 +142,9 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
       }
       return 'N/A';
     }
-    try {
-      return dateToDateString(new Date(value));
-    } catch (error) {
-      return 'N/A';
-    }
+    // dateToUTCDateString uses dayjs.utc() internally, which correctly parses
+    // date strings as UTC without timezone shifting
+    return dateToUTCDateString(value) || 'N/A';
   };
 
   return (

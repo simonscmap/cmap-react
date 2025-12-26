@@ -1,6 +1,7 @@
 import logInit from '../../../Services/log-service';
 import { captureError } from '../../../shared/errorCapture';
 import { getSearchDatabaseApi } from '../../catalogSearch/api';
+import { parseUTCDateString } from '../../../shared/filtering/utils/dateHelpers';
 
 const log = logInit('rowCount/rowCountCalculationHelpers');
 
@@ -24,10 +25,14 @@ export function isDatasetFullyWithinConstraints(dataset, constraints) {
   if (constraints.temporalEnabled && dataset.timeMin && dataset.timeMax) {
     const { timeMin, timeMax } = constraints.temporalRange;
     if (timeMin && timeMax) {
-      const datasetTimeMin = new Date(dataset.timeMin).getTime();
-      const datasetTimeMax = new Date(dataset.timeMax).getTime();
-      const constraintTimeMin = new Date(timeMin).getTime();
-      const constraintTimeMax = new Date(timeMax).getTime();
+      // Use UTC parser for dataset dates (strings from database)
+      // Constraint dates may already be Date objects, handle both cases
+      const datasetTimeMin = parseUTCDateString(dataset.timeMin).getTime();
+      const datasetTimeMax = parseUTCDateString(dataset.timeMax).getTime();
+      const constraintTimeMin =
+        timeMin instanceof Date ? timeMin.getTime() : parseUTCDateString(timeMin).getTime();
+      const constraintTimeMax =
+        timeMax instanceof Date ? timeMax.getTime() : parseUTCDateString(timeMax).getTime();
 
       const temporallyContained =
         datasetTimeMin >= constraintTimeMin &&

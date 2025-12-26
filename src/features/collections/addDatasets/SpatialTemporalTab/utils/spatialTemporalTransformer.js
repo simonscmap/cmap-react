@@ -14,18 +14,22 @@ import {
   formatTemporalRange,
   formatDepthRange,
 } from './overlapFormatter.js';
+import { parseUTCDateString } from '../../../../../shared/filtering/utils/dateHelpers';
 
 /**
- * Convert ISO 8601 date string to Date object.
+ * Convert ISO 8601 date string to Date object (UTC).
  * Helper function to convert catalog search API results (ISO strings) to Date objects
  * for use throughout the spatial-temporal feature layer.
  *
+ * Uses parseUTCDateString to ensure consistent UTC interpretation regardless of
+ * user's local timezone. This prevents date shifting for users east of UTC.
+ *
  * @param {string} isoString - ISO 8601 date string (YYYY-MM-DD)
- * @returns {Date} Date object
+ * @returns {Date} Date object representing UTC midnight
  * @private
  */
 const parseISODate = (isoString) => {
-  return new Date(isoString);
+  return parseUTCDateString(isoString);
 };
 
 /**

@@ -12,6 +12,15 @@
  * Adding a rule = adding an object to the appropriate rules array.
  */
 
+import { parseUTCDateString } from '../../../shared/filtering/utils/dateHelpers';
+
+// Helper to safely parse dates - handles both Date objects and strings
+function toUTCDate(value) {
+  if (!value) return null;
+  if (value instanceof Date) return value;
+  return parseUTCDateString(value);
+}
+
 // ============ PHASE DEFINITIONS ============
 
 const PHASES = ['CALCULATE', 'ADJUST', 'CAP'];
@@ -76,10 +85,10 @@ function clampSpatialBounds(queryBounds, datasetBounds) {
 }
 
 function clampTemporalRange(queryRange, datasetRange) {
-  const queryMin = new Date(queryRange.timeMin);
-  const queryMax = new Date(queryRange.timeMax);
-  const datasetMin = new Date(datasetRange.timeMin);
-  const datasetMax = new Date(datasetRange.timeMax);
+  const queryMin = toUTCDate(queryRange.timeMin);
+  const queryMax = toUTCDate(queryRange.timeMax);
+  const datasetMin = toUTCDate(datasetRange.timeMin);
+  const datasetMax = toUTCDate(datasetRange.timeMax);
 
   if (queryMin > datasetMax || queryMax < datasetMin) {
     return null;
@@ -186,7 +195,7 @@ function calculateMonthlyCount(startDate, endDate) {
 }
 
 function calculateAnchoredCount(startDate, endDate, datasetStartDate, resolutionDays) {
-  const datasetMin = new Date(datasetStartDate);
+  const datasetMin = toUTCDate(datasetStartDate);
   const daysToQueryMin = (startDate - datasetMin) / 86400000;
   const daysToQueryMax = (endDate - datasetMin) / 86400000;
   const firstPointIndex = Math.ceil(daysToQueryMin / resolutionDays);
@@ -298,8 +307,8 @@ const temporalRules = [
       inputs.temporalBounds.timeMax,
     apply: (value, inputs) => {
       const { resolutions, temporalBounds } = inputs;
-      const date1 = new Date(temporalBounds.timeMin);
-      const date2 = new Date(temporalBounds.timeMax);
+      const date1 = toUTCDate(temporalBounds.timeMin);
+      const date2 = toUTCDate(temporalBounds.timeMax);
 
       if (resolutions.temporalDays === 30) {
         return calculateMonthlyCount(date1, date2);
@@ -325,8 +334,8 @@ const temporalRules = [
     description: 'Monthly climatology uses month counting',
     appliesWhen: (inputs) => inputs.resolutions.isMonthlyClimatology,
     apply: (value, inputs, effective) => {
-      const date1 = new Date(effective.temporalRange.timeMin);
-      const date2 = new Date(effective.temporalRange.timeMax);
+      const date1 = toUTCDate(effective.temporalRange.timeMin);
+      const date2 = toUTCDate(effective.temporalRange.timeMax);
       return calculateClimatologyCount(date1, date2);
     },
   },
@@ -336,8 +345,8 @@ const temporalRules = [
     description: '30-day resolution uses calendar month counting',
     appliesWhen: (inputs) => inputs.resolutions.temporalDays === 30,
     apply: (value, inputs, effective) => {
-      const date1 = new Date(effective.temporalRange.timeMin);
-      const date2 = new Date(effective.temporalRange.timeMax);
+      const date1 = toUTCDate(effective.temporalRange.timeMin);
+      const date2 = toUTCDate(effective.temporalRange.timeMax);
       return calculateMonthlyCount(date1, date2);
     },
   },
@@ -348,8 +357,8 @@ const temporalRules = [
     appliesWhen: (inputs) =>
       [3, 7, 8].includes(inputs.resolutions.temporalDays) && inputs.temporalBounds.timeMin,
     apply: (value, inputs, effective) => {
-      const date1 = new Date(effective.temporalRange.timeMin);
-      const date2 = new Date(effective.temporalRange.timeMax);
+      const date1 = toUTCDate(effective.temporalRange.timeMin);
+      const date2 = toUTCDate(effective.temporalRange.timeMax);
       return calculateAnchoredCount(date1, date2, inputs.temporalBounds.timeMin, inputs.resolutions.temporalDays);
     },
   },
@@ -359,8 +368,8 @@ const temporalRules = [
     description: 'Simple day division for all other resolutions',
     appliesWhen: () => true,
     apply: (value, inputs, effective) => {
-      const date1 = new Date(effective.temporalRange.timeMin);
-      const date2 = new Date(effective.temporalRange.timeMax);
+      const date1 = toUTCDate(effective.temporalRange.timeMin);
+      const date2 = toUTCDate(effective.temporalRange.timeMax);
       return calculateSimpleTemporalCount(date1, date2, inputs.resolutions.temporalDays);
     },
   },

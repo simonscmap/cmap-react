@@ -8,6 +8,10 @@ import {
   I18nProvider,
 } from 'react-aria-components';
 import { CalendarDate } from '@internationalized/date';
+import {
+  getUTCDateComponents,
+  createUTCDate,
+} from '../filtering/utils/dateHelpers';
 
 // Inline styles to match Material-UI outlined TextField appearance
 const styles = {
@@ -47,18 +51,16 @@ const styles = {
 };
 
 // Conversion helpers between Date and CalendarDate objects
+// Use shared UTC helpers to ensure dates don't shift due to timezone
 const dateToCalendarDate = (date) => {
-  if (!date) return null;
-  return new CalendarDate(
-    date.getFullYear(),
-    date.getMonth() + 1,
-    date.getDate(),
-  );
+  const parts = getUTCDateComponents(date);
+  return parts ? new CalendarDate(parts.year, parts.month, parts.day) : null;
 };
 
 const calendarDateToDate = (calendarDate) => {
-  if (!calendarDate) return null;
-  return new Date(calendarDate.year, calendarDate.month - 1, calendarDate.day);
+  return calendarDate
+    ? createUTCDate(calendarDate.year, calendarDate.month, calendarDate.day)
+    : null;
 };
 
 /**
