@@ -11,53 +11,44 @@ const formatSliderDateString = (year, month, day) => {
   return `${year}/${month}/${day}`;
 };
 
+// :: Date -> DateString
+export const dateToDateString = (date) => {
+  let value = new Date(date);
 
-const isValidDate = (d) => d instanceof Date && !Number.isNaN(d.getTime());
+  let month = value.getMonth() + 1;
+  month = month > 9 ? month : '0' + month;
 
-export const dateToDateString = (value) => {
-  if (value === null || value === undefined) return value;
-  const d = new Date(value);
-  if (!isValidDate(d)) return value;
-  return d.toISOString().slice(0, 10);
+  let day = value.getDate();
+  day = day > 9 ? day : '0' + day;
+
+  let fullYear = value.getFullYear();
+
+  return formatDateString(fullYear, month, day);
+};
+
+// Convert Date to ISO date string with end-of-day time for max bounds
+// This ensures that when we filter with "date <= maxDate", we include
+// all data from that entire day, not just midnight
+export const dateToEndOfDayString = (date) => {
+  let value = new Date(date);
+
+  let month = value.getMonth() + 1;
+  month = month > 9 ? month : '0' + month;
+
+  let day = value.getDate();
+  day = day > 9 ? day : '0' + day;
+
+  let fullYear = value.getFullYear();
+
+  // Return date with time set to 23:59:59
+  return `${fullYear}-${month}-${day}T23:59:59`;
 };
 
 export const extractDateFromString = (stringDate) => {
-  if (!stringDate) return stringDate;
-  const [y, m, d] = stringDate.split('-').map(Number);
-  return new Date(Date.UTC(y, m - 1, d));
+  let [year, month, day] = stringDate.split('-');
+  const date = new Date(year, parseInt(month) - 1, day);
+  return date;
 };
-
-export const utcInstantToLocalMidnight = (value) => {
-  if (value === null || value === undefined) return value;
-  const d = new Date(value);
-  if (!isValidDate(d)) return value;
-  return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
-};
-
-export const localMidnightToUtcInstant = (value) => {
-  if (value === null || value === undefined) return value;
-  const d = new Date(value);
-  if (!isValidDate(d)) return value;
-  return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-};
-
-export const dateToEndOfDayString = (value) => {
-  if (value === null || value === undefined) return value;
-
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return value;
-
-  // Use UTC calendar day, return explicit UTC timestamp
-  const end = new Date(Date.UTC(
-    d.getUTCFullYear(),
-    d.getUTCMonth(),
-    d.getUTCDate(),
-    23, 59, 59, 999,
-  ));
-
-  return end.toISOString();
-};
-
 
 export const emptyStringOrNumber = (val) => {
   return val === '' ? '' : Number(val);
