@@ -68,38 +68,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const isValidDate = (d) => d instanceof Date && !Number.isNaN(d.getTime());
-
-const utcInstantToLocalMidnight = (d) => {
-  if (!isValidDate(d)) return d;
-  return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
-};
-
-const localMidnightToUtcInstant = (d) => {
-  if (!isValidDate(d)) return d;
-  return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-};
-
-const formatUTCDateString = (d) => {
-  if (!isValidDate(d)) return '';
-  return d.toISOString().slice(0, 10);
-};
-
-const toUIDate = (d) => {
-  if (!isValidDate(d)) return d;
-
-  const isUtcMidnight =
-    d.getUTCHours() === 0 &&
-    d.getUTCMinutes() === 0 &&
-    d.getUTCSeconds() === 0 &&
-    d.getUTCMilliseconds() === 0;
-
-  return isUtcMidnight
-    ? new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()) // local midnight of UTC day
-    : new Date(d.getFullYear(), d.getMonth(), d.getDate());        // local midnight of local day
-};
-
-
 /**
  * CompactDateRangeInput component
  *
@@ -109,12 +77,12 @@ const toUIDate = (d) => {
  *
  * @param {Object} props
  * @param {string} props.title - Display label (e.g., "Date")
- * @param {Date} props.startDate - Start date (UTC instant)
- * @param {Date} props.endDate - End date (UTC instant)
- * @param {Function} props.setStartDate - Callback to update start date (expects UTC instant)
- * @param {Function} props.setEndDate - Callback to update end date (expects UTC instant)
- * @param {Date} props.minDate - Minimum allowed date (UTC instant)
- * @param {Date} props.maxDate - Maximum allowed date (UTC instant)
+ * @param {Date} props.startDate - Start date
+ * @param {Date} props.endDate - End date
+ * @param {Function} props.setStartDate - Callback to update start date
+ * @param {Function} props.setEndDate - Callback to update end date
+ * @param {Date} props.minDate - Minimum allowed date
+ * @param {Date} props.maxDate - Maximum allowed date
  * @param {Function} props.setInvalidFlag - Callback to set invalid flag for parent validation
  * @returns {JSX.Element}
  */
@@ -130,75 +98,75 @@ const CompactDateRangeInput = ({
 }) => {
   const classes = useStyles();
 
-  const uiMinDate = utcInstantToLocalMidnight(minDate);
-  const uiMaxDate = utcInstantToLocalMidnight(maxDate);
-  const uiStartFromProps = utcInstantToLocalMidnight(startDate);
-  const uiEndFromProps = utcInstantToLocalMidnight(endDate);
-
-  const [localStartDate, setLocalStartDate] = useState(uiStartFromProps);
-  const [localEndDate, setLocalEndDate] = useState(uiEndFromProps);
+  const [localStartDate, setLocalStartDate] = useState(startDate);
+  const [localEndDate, setLocalEndDate] = useState(endDate);
 
   useEffect(() => {
-    setLocalStartDate(utcInstantToLocalMidnight(startDate));
+    setLocalStartDate(startDate);
   }, [startDate]);
 
   useEffect(() => {
-    setLocalEndDate(utcInstantToLocalMidnight(endDate));
+    setLocalEndDate(endDate);
   }, [endDate]);
 
   const handleStartInputChange = (date) => {
-    const ui = toUIDate(date);
-    setLocalStartDate(ui);
-    setStartDate(localMidnightToUtcInstant(ui));
+    setLocalStartDate(date);
+    setStartDate(date);
   };
 
   const handleEndInputChange = (date) => {
-    const ui = toUIDate(date);
-    setLocalEndDate(ui);
-    setEndDate(localMidnightToUtcInstant(ui));
+    setLocalEndDate(date);
+    setEndDate(date);
   };
 
   const handleSliderStartChange = (date) => {
-    setLocalStartDate(toUIDate(date));
+    setLocalStartDate(date);
   };
 
   const handleSliderEndChange = (date) => {
-    setLocalEndDate(toUIDate(date));
+    setLocalEndDate(date);
   };
 
   const handleSliderCommit = () => {
-    const startUtc = localMidnightToUtcInstant(localStartDate);
-    const endUtc = localMidnightToUtcInstant(localEndDate);
-
-    if (isValidDate(startUtc) && startUtc.getTime() !== startDate.getTime()) {
-      setStartDate(startUtc);
+    if (localStartDate !== startDate) {
+      setStartDate(localStartDate);
     }
-    if (isValidDate(endUtc) && endUtc.getTime() !== endDate.getTime()) {
-      setEndDate(endUtc);
+    if (localEndDate !== endDate) {
+      setEndDate(localEndDate);
     }
   };
 
-
+  // Use validation hook for error handling
   const {
     handleDateStartBlur,
     handleDateEndBlur,
     startDateMessage,
     endDateMessage,
   } = useDateRangeInput({
-    start: localStartDate,
-    end: localEndDate,
-    setStart: handleStartInputChange,
-    setEnd: handleEndInputChange,
-    min: uiMinDate,
-    max: uiMaxDate,
+    start: startDate,
+    end: endDate,
+    setStart: setStartDate,
+    setEnd: setEndDate,
+    min: minDate,
+    max: maxDate,
   });
 
+  // Set invalid flag when there are validation errors
   useEffect(() => {
     const hasErrors = !!startDateMessage || !!endDateMessage;
     if (setInvalidFlag) {
       setInvalidFlag(hasErrors);
     }
   }, [startDateMessage, endDateMessage, setInvalidFlag]);
+
+  // Format dates for bounds display
+  const formatDate = (date) => {
+    if (!date) return '';
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
   return (
     <Box className={classes.container}>
@@ -214,8 +182,8 @@ const CompactDateRangeInput = ({
             value={localStartDate}
             onChange={handleStartInputChange}
             onBlur={handleDateStartBlur}
-            minDate={uiMinDate}
-            maxDate={uiMaxDate}
+            minDate={minDate}
+            maxDate={maxDate}
             label="Start Date"
             validationMessage={startDateMessage}
             width="100%"
@@ -226,8 +194,8 @@ const CompactDateRangeInput = ({
             value={localEndDate}
             onChange={handleEndInputChange}
             onBlur={handleDateEndBlur}
-            minDate={uiMinDate}
-            maxDate={uiMaxDate}
+            minDate={minDate}
+            maxDate={maxDate}
             label="End Date"
             validationMessage={endDateMessage}
             width="100%"
@@ -240,8 +208,8 @@ const CompactDateRangeInput = ({
         <DateRangeSlider
           startDate={localStartDate}
           endDate={localEndDate}
-          minDate={uiMinDate}
-          maxDate={uiMaxDate}
+          minDate={minDate}
+          maxDate={maxDate}
           onStartChange={handleSliderStartChange}
           onEndChange={handleSliderEndChange}
           onCommit={handleSliderCommit}
@@ -252,10 +220,10 @@ const CompactDateRangeInput = ({
       {/* Bounds Row */}
       <Box className={classes.boundsRow}>
         <Typography variant="caption" className={classes.boundLabel}>
-          {formatUTCDateString(minDate)}
+          {formatDate(minDate)}
         </Typography>
         <Typography variant="caption" className={classes.boundLabel}>
-          {formatUTCDateString(maxDate)}
+          {formatDate(maxDate)}
         </Typography>
       </Box>
     </Box>

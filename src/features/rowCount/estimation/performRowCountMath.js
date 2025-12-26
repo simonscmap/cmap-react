@@ -181,34 +181,23 @@ function calculateMonthlyClimatologyCount(startDate, endDate) {
   return Math.min(12, calculateMonthlyCount(startDate, endDate));
 }
 
-
-function countWeeklyDataPoints(queryStart, queryEnd, datasetMin, resolutionDays) {
-  const toUtcDay = (d) =>
-    new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
-
-  const start = toUtcDay(queryStart);
-  const end = toUtcDay(queryEnd);
-
-  const utcDayIndex = (d) =>
-    Math.floor(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()) / 86400000);
-
-  const d0 = utcDayIndex(toUtcDay(datasetMin));
-  const q0 = utcDayIndex(start);
-  const q1 = utcDayIndex(end);
-
-  const daysToQueryMin = q0 - d0;
-  const daysToQueryMax = q1 - d0;
-
+/**
+ * Count data points for multi-day resolution datasets (3-day, weekly, 8-day).
+ * Finds first point >= queryStart and last point <= queryEnd, returns inclusive count.
+ */
+function countWeeklyDataPoints(
+  queryStart,
+  queryEnd,
+  datasetMin,
+  resolutionDays,
+) {
+  const daysToQueryMin = (queryStart - datasetMin) / 86400000;
+  const daysToQueryMax = (queryEnd - datasetMin) / 86400000;
   const firstPointIndex = Math.ceil(daysToQueryMin / resolutionDays);
   const lastPointIndex = Math.floor(daysToQueryMax / resolutionDays);
-
   const count = lastPointIndex - firstPointIndex + 1;
-  return Math.max(0, count);
+  return count < 1 ? 1 : count;
 }
-
-
-
-
 
 /**
  * Calculate temporal data point count based on resolution type.
@@ -219,11 +208,8 @@ function calculateTemporalCount(
   isMonthlyClimatology,
   datasetTimeMin,
 ) {
-  const toUtcDay = (d) =>
-    new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
-
-  const date1 = toUtcDay(new Date(temporalRange.timeMin));
-  const date2 = toUtcDay(new Date(temporalRange.timeMax));
+  const date1 = new Date(temporalRange.timeMin);
+  const date2 = new Date(temporalRange.timeMax);
 
   let dateCount;
 
@@ -245,7 +231,7 @@ function calculateTemporalCount(
       dateCount = countWeeklyDataPoints(
         date1,
         date2,
-        toUtcDay(new Date(datasetTimeMin)),
+        new Date(datasetTimeMin),
         temporalResolutionDays,
       );
     } else {
