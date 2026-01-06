@@ -1,8 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { FormControl, InputLabel, Select, MenuItem } from '@material-ui/core';
+import {
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Tooltip,
+} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { GeographicBoundaries } from '../../../enum/geographicBoundaries';
+import { computePresetDisabledStates } from '../../utils/geographicOverlap';
+import useMultiDatasetDownloadStore from '../../../../features/multiDatasetDownload/stores/multiDatasetDownloadStore';
 import zIndex from '../../../../enums/zIndex';
 
 const useStyles = makeStyles((theme) => ({
@@ -23,9 +31,22 @@ const useStyles = makeStyles((theme) => ({
  * @param {number} props.currentBounds.lonEnd - Eastern longitude
  * @param {Function} props.onPresetApply - Callback when preset is applied with bounds object
  */
+const DISABLED_TOOLTIP_MESSAGE = 'No datasets overlap with this region';
+
 const CompactPresetGeographicBounds = ({ currentBounds, onPresetApply }) => {
   const classes = useStyles();
   const [selectedPreset, setSelectedPreset] = useState('Global');
+
+  const datasetsMetadata = useMultiDatasetDownloadStore(
+    (state) => state.datasetsMetadata,
+  );
+
+  const disabledPresets = useMemo(() => {
+    if (!datasetsMetadata || datasetsMetadata.length === 0) {
+      return new Map();
+    }
+    return computePresetDisabledStates(GeographicBoundaries, datasetsMetadata);
+  }, [datasetsMetadata]);
 
   /**
    * Handle preset selection from dropdown
@@ -88,11 +109,38 @@ const CompactPresetGeographicBounds = ({ currentBounds, onPresetApply }) => {
         <MenuItem value="">
           <em>Select a preset</em>
         </MenuItem>
-        {GeographicBoundaries.map((preset) => (
-          <MenuItem key={preset.label} value={preset.label}>
-            {preset.label}
-          </MenuItem>
-        ))}
+        {GeographicBoundaries.map((preset) => {
+          const isDisabled = disabledPresets.get(preset.label) || false;
+
+          if (isDisabled) {
+            return (
+              <Tooltip
+                key={preset.label}
+                title={DISABLED_TOOLTIP_MESSAGE}
+                placement="right"
+                PopperProps={{
+                  style: { zIndex: zIndex.MODAL_LAYER_3_POPPER },
+                }}
+              >
+                <span style={{ display: 'block' }}>
+                  <MenuItem
+                    value={preset.label}
+                    disabled
+                    style={{ opacity: 0.5 }}
+                  >
+                    {preset.label}
+                  </MenuItem>
+                </span>
+              </Tooltip>
+            );
+          }
+
+          return (
+            <MenuItem key={preset.label} value={preset.label}>
+              {preset.label}
+            </MenuItem>
+          );
+        })}
       </Select>
     </FormControl>
   );
