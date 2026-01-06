@@ -14,6 +14,7 @@ import colors from '../../../enums/colors';
 import MetadataRow from './MetadataRow';
 import DeleteButton from '../components/DeleteButton';
 import UniversalButton from '../../../shared/components/UniversalButton';
+import CollectionDownloadButton from '../shared/CollectionDownloadButton';
 import useCollectionsStore from '../state/collectionsStore';
 import CollectionDownloadModal from './CollectionDownloadModal';
 import EditCollectionModal from '../editCollection/EditCollectionModal';
@@ -246,16 +247,11 @@ const CollectionCard = ({ collection, isPending = false }) => {
             >
               EDIT
             </UniversalButton>
-            <UniversalButton
-              variant="primary"
-              size="medium"
+            <CollectionDownloadButton
+              disabled={!collection.datasetCount}
               onClick={handleDownload}
-              disabled={
-                !collection.datasetCount || collection.datasetCount === 0
-              }
-            >
-              DOWNLOAD
-            </UniversalButton>
+              size="medium"
+            />
           </Box>
         </CardActions>
 

@@ -8,7 +8,11 @@ import CompactSubsetControlsLayout from '../../../shared/filtering/components/Co
 import useSubsetFiltering from '../../../shared/filtering/hooks/useSubsetFiltering';
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
 import { aggregateDatasetMetadata } from '../utils/aggregateDatasetMetadata';
-import { initializeRowCounts, clearRowCounts, reEstimateWithConstraints } from '../../rowCount';
+import {
+  initializeRowCounts,
+  clearRowCounts,
+  reEstimateWithConstraints,
+} from '../../rowCount';
 import { transformConstraintsForRowCount } from '../utils/constraintTransformer';
 import MultiDatasetDownloadTable from './MultiDatasetDownloadTable';
 import DownloadButton from './DownloadButton';
@@ -100,14 +104,14 @@ const MultiDatasetDownloadContainerInner = ({
     return () => {
       clearRowCounts();
     };
-  }, [filteredItems]); 
+  }, [filteredItems]);
 
   useEffect(() => {
     if (filteredItems?.length > 0) {
       const constraints = transformConstraintsForRowCount(filterValues);
       reEstimateWithConstraints(constraints);
     }
-  }, [filterValues]); 
+  }, [filterValues]);
 
   return (
     <Box
@@ -190,6 +194,27 @@ const MultiDatasetDownloadContainer = React.memo(
         fetchDatasetsMetadata(datasetShortNames);
       }
     };
+
+    if (!datasetShortNames || datasetShortNames.length === 0) {
+      return (
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          minHeight="200px"
+          textAlign="center"
+          p={3}
+        >
+          <Typography variant="h6" color="textSecondary" gutterBottom>
+            No Datasets Available
+          </Typography>
+          <Typography variant="body2" color="textSecondary">
+            There are no datasets available for download.
+          </Typography>
+        </Box>
+      );
+    }
 
     // Handle error state with retry option
     if (error) {
