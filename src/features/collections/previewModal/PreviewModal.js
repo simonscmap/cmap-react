@@ -14,6 +14,7 @@ import { useDispatch } from 'react-redux';
 import { usePreviewModalStyles } from './previewModalStyles';
 import CollectionStatistics from '../components/CollectionStatistics';
 import UniversalButton from '../../../shared/components/UniversalButton';
+import CollectionDownloadButton from '../shared/CollectionDownloadButton';
 import CollectionDownloadModal from '../myCollections/CollectionDownloadModal';
 import CollectionDatasetsTable from '../components/CollectionDatasetsTable';
 import useCollectionsStore from '../state/collectionsStore';
@@ -244,13 +245,12 @@ const PreviewModal = ({ open, onClose, collection }) => {
               'COPY TO MY COLLECTIONS'
             )}
           </UniversalButton>
-          <UniversalButton
+          <CollectionDownloadButton
+            disabled={!collection.datasets || collection.datasets.length === 0}
             onClick={handleDownload}
-            variant="primary"
             size="large"
-          >
-            DOWNLOAD COLLECTION
-          </UniversalButton>
+            label="DOWNLOAD COLLECTION"
+          />
         </DialogActions>
       </Dialog>
 
