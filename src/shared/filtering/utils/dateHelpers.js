@@ -1,7 +1,78 @@
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 import temporalResolutions from '../../../enums/temporalResolutions';
 import { formatLatitude, formatLongitude } from './numberFormatting';
 
+dayjs.extend(utc);
+
 const MILLISECONDS_PER_DAY = 86400000;
+
+export const parseUTCDateString = (isoString) => {
+  if (!isoString) {
+    return null;
+  }
+
+  const d = dayjs.utc(isoString);
+  return d.isValid() ? d.toDate() : null;
+};
+
+export const formatUTCDate = (date, formatString = 'YYYY-MM-DD') => {
+  if (!date) {
+    return '';
+  }
+
+  const d = dayjs.utc(date);
+  if (!d.isValid()) {
+    return '';
+  }
+
+  return d.format(formatString);
+};
+
+export const dateToUTCDateString = (date) => formatUTCDate(date, 'YYYY-MM-DD');
+
+export const dateToUTCSlashString = (date) => formatUTCDate(date, 'YYYY/MM/DD');
+
+export const dateToUTCHumanString = (date) => formatUTCDate(date, 'MMM D, YYYY');
+
+export const dateToUTCEndOfDayString = (date) => {
+  if (!date) {
+    return '';
+  }
+
+  const d = dayjs.utc(date);
+  if (!d.isValid()) {
+    return '';
+  }
+
+  return d.format('YYYY-MM-DD') + 'T23:59:59';
+};
+
+export const getUTCDateComponents = (date) => {
+  if (!date) {
+    return null;
+  }
+
+  const d = dayjs.utc(date);
+  if (!d.isValid()) {
+    return null;
+  }
+
+  return {
+    year: d.year(),
+    month: d.month() + 1,
+    day: d.date(),
+  };
+};
+
+export const createUTCDate = (year, month, day) => {
+  if (year === undefined || month === undefined || day === undefined) {
+    return null;
+  }
+
+  const d = dayjs.utc(`${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`);
+  return d.isValid() ? d.toDate() : null;
+};
 
 const formatDateString = (year, month, day) => {
   return `${year}-${month}-${day}`;
@@ -11,7 +82,6 @@ const formatSliderDateString = (year, month, day) => {
   return `${year}/${month}/${day}`;
 };
 
-// :: Date -> DateString
 export const dateToDateString = (date) => {
   let value = new Date(date);
 
@@ -26,9 +96,6 @@ export const dateToDateString = (date) => {
   return formatDateString(fullYear, month, day);
 };
 
-// Convert Date to ISO date string with end-of-day time for max bounds
-// This ensures that when we filter with "date <= maxDate", we include
-// all data from that entire day, not just midnight
 export const dateToEndOfDayString = (date) => {
   let value = new Date(date);
 
@@ -40,14 +107,11 @@ export const dateToEndOfDayString = (date) => {
 
   let fullYear = value.getFullYear();
 
-  // Return date with time set to 23:59:59
   return `${fullYear}-${month}-${day}T23:59:59`;
 };
 
 export const extractDateFromString = (stringDate) => {
-  let [year, month, day] = stringDate.split('-');
-  const date = new Date(year, parseInt(month) - 1, day);
-  return date;
+  return parseUTCDateString(stringDate);
 };
 
 export const emptyStringOrNumber = (val) => {
@@ -58,10 +122,6 @@ export const getIsMonthlyClimatology = (temporalResolution) => {
   return Boolean(temporalResolution === temporalResolutions.monthlyClimatology);
 };
 
-// starting with a min date, return a string representation
-// of the date N days later
-// :: Date -> Days Int -> Date String
-// Note: a Date String is in the format "yyyy-mm-dd"
 export const dayToDateString = (min, days) => {
   if (!min) {
     console.error('dayToDateString received no value for min');
@@ -111,8 +171,8 @@ export const getInitialRangeValues = (dataset) => {
       end: Lon_Max,
     },
     time: {
-      start: Time_Min ? new Date(Time_Min) : new Date(),
-      end: Time_Max ? new Date(Time_Max) : new Date(),
+      start: Time_Min ? parseUTCDateString(Time_Min) : new Date(),
+      end: Time_Max ? parseUTCDateString(Time_Max) : new Date(),
     },
     depth: {
       start: Depth_Min,

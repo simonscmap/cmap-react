@@ -9,7 +9,6 @@ import logInit from '../../../Services/log-service';
 import isEligibleForEstimation from './isEligibleForEstimation';
 import prepareRowCountInputsFromDatabase from './prepareRowCountInputsFromDatabase';
 import performRowCountMath from './performRowCountMath';
-import { queryDepthCount } from './queryEstimationTables';
 
 const log = logInit('rowCount/estimation/estimateRowCountForDataset');
 
@@ -70,39 +69,15 @@ async function estimateRowCountForDataset(
       return { eligible: false, reason: 'ineligible' };
     }
 
-    // Step 2: Prepare inputs from database
+    // Step 2: Prepare inputs from database (includes depth count computation)
     const resolvedInputs = await prepareRowCountInputsFromDatabase(
       datasetMetadata,
+      constraints,
       catalogDb,
     );
 
-    // Step 3: Query depth count if needed
-    let depthCountInRange = 1;
-
-    if (resolvedInputs.hasDepth && resolvedInputs.depthModel.model) {
-      const hasDepthConstraints =
-        constraints.depthEnabled &&
-        constraints.depthRange.depthMin !== null &&
-        constraints.depthRange.depthMax !== null;
-
-      if (hasDepthConstraints) {
-        depthCountInRange = await queryDepthCount(
-          catalogDb,
-          resolvedInputs.depthModel.model,
-          constraints.depthRange.depthMin,
-          constraints.depthRange.depthMax,
-        );
-      } else {
-        depthCountInRange = resolvedInputs.depthModel.totalLevels;
-      }
-    }
-
-    // Step 4: Perform pure calculation
-    const rowCount = performRowCountMath(
-      resolvedInputs,
-      constraints,
-      depthCountInRange,
-    );
+    // Step 3: Perform pure calculation
+    const rowCount = performRowCountMath(resolvedInputs, constraints);
 
     result = rowCount;
     return { eligible: true, rowCount };

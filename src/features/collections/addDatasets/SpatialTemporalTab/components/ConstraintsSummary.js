@@ -2,6 +2,7 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Typography, Chip } from '@material-ui/core';
 import useSpatialTemporalSearchStore from '../store/spatialTemporalSearchStore';
+import { dateToUTCHumanString } from '../../../../../shared/filtering/utils/dateHelpers';
 
 const useStyles = makeStyles((theme) => ({
   summaryContainer: {
@@ -93,16 +94,7 @@ const ConstraintsSummary = () => {
       return null;
     }
 
-    const formatDate = (date) => {
-      const d = new Date(date);
-      return d.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-      });
-    };
-
-    return `Time: ${formatDate(temporalRange.timeMin)} ~ ${formatDate(temporalRange.timeMax)}`;
+    return `Time: ${dateToUTCHumanString(temporalRange.timeMin)} ~ ${dateToUTCHumanString(temporalRange.timeMax)}`;
   };
 
   /**

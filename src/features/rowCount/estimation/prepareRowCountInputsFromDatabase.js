@@ -1,8 +1,9 @@
 /**
- * Prepare Row Count Inputs From Database
+ * Prepare Row Count Inputs
  *
  * Async function that resolves all database values needed for row count math.
- * Resolves resolution strings to numeric values and fetches depth model info.
+ * Resolves resolution strings to numeric values, fetches depth model info,
+ * and computes depth count based on user constraints.
  */
 
 import {
@@ -10,11 +11,12 @@ import {
   queryTemporalResolutionMapping,
   queryDatasetDepthModel,
   queryDepthCount,
-} from './queryEstimationTables';
+} from './queryEstimationTables.js';
 
 /**
  * Prepares all inputs needed for row count math by querying the catalog database.
- * Resolves resolution strings to numeric values and fetches depth model info.
+ * Resolves resolution strings to numeric values, fetches depth model info,
+ * and computes depth count based on user constraints.
  *
  * @param {Object} datasetMetadata - Dataset metadata
  * @param {string} datasetMetadata.shortName - Dataset short name (for depth model lookup)
@@ -30,6 +32,9 @@ import {
  * @param {number} datasetMetadata.depthMax - Dataset maximum depth
  * @param {boolean} datasetMetadata.hasDepth - Whether dataset has depth data
  * @param {number} datasetMetadata.tableCount - Number of tables (default 1)
+ * @param {Object} constraints - User query constraints
+ * @param {boolean} constraints.depthEnabled - Whether depth constraints are enabled
+ * @param {Object} constraints.depthRange - Depth range { depthMin, depthMax }
  * @param {Object} catalogDb - SQLite catalog database (SearchDatabaseApi instance)
  * @returns {Promise<Object>} Resolved inputs for row count math
  *
@@ -50,8 +55,9 @@ import {
  * @property {number} depthModel.totalLevels - Total depth levels in model
  * @property {boolean} hasDepth - Whether dataset has depth data
  * @property {number} tableCount - Number of tables
+ * @property {number} depthCountInRange - Number of depth levels in constrained range
  */
-async function prepareRowCountInputsFromDatabase(datasetMetadata, catalogDb) {
+async function prepareRowCountInputsFromDatabase(datasetMetadata, constraints, catalogDb) {
   const {
     shortName,
     spatialResolution,
@@ -99,15 +105,33 @@ async function prepareRowCountInputsFromDatabase(datasetMetadata, catalogDb) {
   const temporalSeconds = isMonthlyClimatology ? null : temporalMapping.value;
   const temporalDays = isMonthlyClimatology ? 0 : temporalMapping.value / 86400;
 
-  // Query depth model if dataset has depth
+  // Query depth model and compute depth count based on constraints
   let depthModel = null;
   let totalDepthLevels = 1;
+  let depthCountInRange = 1;
 
   if (hasDepth) {
     depthModel = await queryDatasetDepthModel(catalogDb, shortName);
     if (depthModel) {
       // Get total depth levels for this model
       totalDepthLevels = await queryDepthCount(catalogDb, depthModel);
+
+      // Compute depth count based on constraints
+      const hasDepthConstraints =
+        constraints.depthEnabled &&
+        constraints.depthRange.depthMin !== null &&
+        constraints.depthRange.depthMax !== null;
+
+      if (hasDepthConstraints) {
+        depthCountInRange = await queryDepthCount(
+          catalogDb,
+          depthModel,
+          constraints.depthRange.depthMin,
+          constraints.depthRange.depthMax,
+        );
+      } else {
+        depthCountInRange = totalDepthLevels;
+      }
     }
   }
 
@@ -130,6 +154,7 @@ async function prepareRowCountInputsFromDatabase(datasetMetadata, catalogDb) {
     },
     hasDepth: hasDepth || false,
     tableCount: tableCount || 1,
+    depthCountInRange,
   };
 }
 

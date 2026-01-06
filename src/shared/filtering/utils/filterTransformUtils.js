@@ -1,4 +1,4 @@
-import { dateToDateString, dateToEndOfDayString } from './dateHelpers';
+import { dateToUTCDateString, dateToUTCEndOfDayString } from './dateHelpers';
 
 // Small epsilon for floating-point comparison tolerance
 // Ensures we capture boundary values that may have floating-point precision differences
@@ -23,12 +23,12 @@ const clampToRange = (value, min, max) => Math.max(min, Math.min(max, value));
 export const transformFiltersForAPI = (filters) => {
   const apiFilters = {};
 
-  // Transform temporal filters - convert Date objects to date strings
-  // Use dateToEndOfDayString for endDate to include the entire last day (T23:59:59)
+  // Transform temporal filters - convert Date objects to UTC date strings
+  // Use dateToUTCEndOfDayString for endDate to include the entire last day (T23:59:59)
   if (filters.Time_Min) {
     apiFilters.temporal = {
-      startDate: dateToDateString(filters.timeStart),
-      endDate: dateToEndOfDayString(filters.timeEnd),
+      startDate: dateToUTCDateString(filters.timeStart),
+      endDate: dateToUTCEndOfDayString(filters.timeEnd),
     };
   }
 
