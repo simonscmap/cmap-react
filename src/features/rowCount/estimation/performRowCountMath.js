@@ -256,16 +256,16 @@ function calculateTemporalCount(
  * @param {boolean} resolvedInputs.resolutions.isMonthlyClimatology - Whether dataset is monthly climatology
  * @param {boolean} resolvedInputs.hasDepth - Whether dataset has depth data
  * @param {number} resolvedInputs.tableCount - Number of tables (default 1)
+ * @param {number} resolvedInputs.depthCountInRange - Number of depth levels in constrained range
  * @param {Object} constraints - Store constraints object
  * @param {Object} constraints.spatialBounds - Spatial bounds { latMin, latMax, lonMin, lonMax }
  * @param {boolean} constraints.temporalEnabled - Whether temporal constraints are enabled
  * @param {Object} constraints.temporalRange - Temporal range { timeMin, timeMax }
  * @param {boolean} constraints.depthEnabled - Whether depth constraints are enabled
  * @param {Object} constraints.depthRange - Depth range { depthMin, depthMax }
- * @param {number} depthCountInRange - Number of depth levels in constrained range (default 1)
  * @returns {number} Estimated row count
  */
-function performRowCountMath(resolvedInputs, constraints, depthCountInRange) {
+function performRowCountMath(resolvedInputs, constraints) {
   const {
     spatialBounds: datasetSpatialBounds,
     temporalBounds: datasetTemporalBounds,
@@ -273,6 +273,7 @@ function performRowCountMath(resolvedInputs, constraints, depthCountInRange) {
     resolutions,
     hasDepth,
     tableCount,
+    depthCountInRange,
   } = resolvedInputs;
 
   const { spatialDegrees, temporalDays, isMonthlyClimatology } = resolutions;

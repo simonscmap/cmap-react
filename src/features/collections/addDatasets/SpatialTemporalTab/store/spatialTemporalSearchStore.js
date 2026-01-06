@@ -12,6 +12,7 @@ import {
   isValidTemporalRange,
   isValidDepthRange,
 } from '../../../../../shared/utility/spatialTemporalDepthValidation';
+import { dateToUTCDateString } from '../../../../../shared/filtering/utils/dateHelpers';
 
 const useSpatialTemporalSearchStore = create((set, get) => ({
   // Initialization state
@@ -222,8 +223,8 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
 
       if (temporalEnabled) {
         query.withTemporalRange(
-          temporalRange.timeMin.toISOString().split('T')[0],
-          temporalRange.timeMax.toISOString().split('T')[0],
+          dateToUTCDateString(temporalRange.timeMin),
+          dateToUTCDateString(temporalRange.timeMax),
           includePartialOverlaps,
         );
       }

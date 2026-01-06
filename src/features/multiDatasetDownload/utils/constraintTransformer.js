@@ -1,3 +1,5 @@
+import { parseUTCDateString } from '../../../shared/filtering/utils/dateHelpers';
+
 export function transformConstraintsForRowCount(filterValues) {
   if (!filterValues || !filterValues.isFiltered) {
     return null;
@@ -11,8 +13,12 @@ export function transformConstraintsForRowCount(filterValues) {
       lonMax: filterValues.lonEnd,
     },
     temporalRange: {
-      timeMin: filterValues.timeStart ? new Date(filterValues.timeStart) : null,
-      timeMax: filterValues.timeEnd ? new Date(filterValues.timeEnd) : null,
+      timeMin: filterValues.timeStart
+        ? parseUTCDateString(filterValues.timeStart)
+        : null,
+      timeMax: filterValues.timeEnd
+        ? parseUTCDateString(filterValues.timeEnd)
+        : null,
     },
     depthRange: {
       depthMin: filterValues.depthStart,

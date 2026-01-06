@@ -14,19 +14,7 @@ import {
   formatTemporalRange,
   formatDepthRange,
 } from './overlapFormatter.js';
-
-/**
- * Convert ISO 8601 date string to Date object.
- * Helper function to convert catalog search API results (ISO strings) to Date objects
- * for use throughout the spatial-temporal feature layer.
- *
- * @param {string} isoString - ISO 8601 date string (YYYY-MM-DD)
- * @returns {Date} Date object
- * @private
- */
-const parseISODate = (isoString) => {
-  return new Date(isoString);
-};
+import { parseUTCDateString } from '../../../../../shared/filtering/utils/dateHelpers';
 
 /**
  * Detect if a dataset has Monthly Climatology temporal resolution.
@@ -289,8 +277,8 @@ export function transformSpatialTemporalResult(rawDataset, userConstraints) {
   const datasetWithDates = {
     ...rawDataset,
     temporal: {
-      timeMin: parseISODate(rawDataset.temporal.timeMin),
-      timeMax: parseISODate(rawDataset.temporal.timeMax),
+      timeMin: parseUTCDateString(rawDataset.temporal.timeMin),
+      timeMax: parseUTCDateString(rawDataset.temporal.timeMax),
     },
   };
 
