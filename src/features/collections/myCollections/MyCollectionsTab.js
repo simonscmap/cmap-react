@@ -296,7 +296,7 @@ const MyCollectionsTab = () => {
 
       <SearchProvider
         items={filteredUserCollections}
-        searchKeys={['name', 'description', 'creatorName']}
+        searchKeys={['name', 'description', 'ownerName', 'ownerAffiliation']}
       >
         <MyCollectionsContent
           visibilityFilter={visibilityFilter}

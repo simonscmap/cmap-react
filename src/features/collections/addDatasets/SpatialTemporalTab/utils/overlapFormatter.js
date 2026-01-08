@@ -28,7 +28,7 @@ import { dateToUTCDateString } from '../../../../../shared/filtering/utils/dateH
  * @example
  * const overlapBounds = { latMin: 68, latMax: 74, lonMin: -75, lonMax: -55 };
  * const formatted = formatSpatialExtent(overlapBounds);
- * // Returns "Lat: 68.0°N-74.0°N\nLon: 75.0°E-55.0°E"
+ * // Returns "Lat: 68.0° to 74.0°\nLon: -75.0° to -55.0°"
  */
 export function formatSpatialExtent(overlapBounds) {
   // Handle invalid or missing bounds
@@ -43,28 +43,17 @@ export function formatSpatialExtent(overlapBounds) {
   }
 
   /**
-   * Format latitude with N indicator
+   * Format coordinate as signed decimal degrees
    */
-  const formatLat = (lat) => {
-    const absLat = Math.abs(lat).toFixed(1);
-    const direction = 'N';
-    return `${absLat}°${direction}`;
-  };
-
-  /**
-   * Format longitude with E indicator
-   */
-  const formatLon = (lon) => {
-    const absLon = Math.abs(lon).toFixed(1);
-    const direction = 'E';
-    return `${absLon}°${direction}`;
+  const formatCoord = (coord) => {
+    return `${coord.toFixed(1)}°`;
   };
 
   // Format latitude range with label
-  const latRange = `Lat: ${formatLat(overlapBounds.latMin)}-${formatLat(overlapBounds.latMax)}`;
+  const latRange = `Lat: ${formatCoord(overlapBounds.latMin)} to ${formatCoord(overlapBounds.latMax)}`;
 
   // Format longitude range with label
-  const lonRange = `Lon: ${formatLon(overlapBounds.lonMin)}-${formatLon(overlapBounds.lonMax)}`;
+  const lonRange = `Lon: ${formatCoord(overlapBounds.lonMin)} to ${formatCoord(overlapBounds.lonMax)}`;
 
   // Combine with newline separator
   return `${latRange}\n${lonRange}`;
