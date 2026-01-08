@@ -171,7 +171,7 @@ const PublicCollectionsTab = () => {
     <Box className={classes.container}>
       <SearchProvider
         items={publicCollections}
-        searchKeys={['name', 'description', 'creatorName']}
+        searchKeys={['name', 'description', 'ownerName', 'ownerAffiliation']}
       >
         <PublicCollectionsContent />
       </SearchProvider>

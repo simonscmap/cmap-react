@@ -7,7 +7,7 @@ import { getNestedProperty } from './objectUtils';
 /**
  * Convert wildcard pattern to regex
  * Rules:
- * 1. If no asterisk (*) in input, add wildcard at the end
+ * 1. If no asterisk (*) in input, wrap with wildcards for contains matching
  * 2. If asterisk exists in input, treat it as the wildcard (no additional asterisk added)
  * @param {string} pattern - Wildcard pattern with * characters
  * @returns {RegExp} - Compiled regex pattern
@@ -19,9 +19,9 @@ export function wildcardToRegex(pattern) {
 
   let adjustedPattern = pattern;
 
-  // Rule 1: Add * to end only if no asterisk exists anywhere in the pattern
+  // Rule 1: Wrap with * on both sides for contains matching (if no asterisk in input)
   if (!adjustedPattern.includes('*')) {
-    adjustedPattern += '*';
+    adjustedPattern = '*' + adjustedPattern + '*';
   }
   // Rule 2: If asterisk exists, use pattern as-is (no additional asterisk)
 

@@ -199,8 +199,8 @@ const SpatialBoundsInput = () => {
             type="number"
             label="Start Latitude (°)"
             variant="outlined"
-            value={localBounds.latMax ?? ''}
-            onChange={(e) => handleCoordChange('latMax', e.target.value)}
+            value={localBounds.latMin ?? ''}
+            onChange={(e) => handleCoordChange('latMin', e.target.value)}
             onBlur={handleBlur}
             className={classes.coordField}
             InputLabelProps={{ shrink: true }}
@@ -215,8 +215,8 @@ const SpatialBoundsInput = () => {
             type="number"
             label="End Latitude (°)"
             variant="outlined"
-            value={localBounds.latMin ?? ''}
-            onChange={(e) => handleCoordChange('latMin', e.target.value)}
+            value={localBounds.latMax ?? ''}
+            onChange={(e) => handleCoordChange('latMax', e.target.value)}
             onBlur={handleBlur}
             className={classes.coordField}
             InputLabelProps={{ shrink: true }}
@@ -234,8 +234,8 @@ const SpatialBoundsInput = () => {
             type="number"
             label="Start Longitude (°)"
             variant="outlined"
-            value={localBounds.lonMax ?? ''}
-            onChange={(e) => handleCoordChange('lonMax', e.target.value)}
+            value={localBounds.lonMin ?? ''}
+            onChange={(e) => handleCoordChange('lonMin', e.target.value)}
             onBlur={handleBlur}
             className={classes.coordField}
             InputLabelProps={{ shrink: true }}
@@ -250,8 +250,8 @@ const SpatialBoundsInput = () => {
             type="number"
             label="End Longitude (°)"
             variant="outlined"
-            value={localBounds.lonMin ?? ''}
-            onChange={(e) => handleCoordChange('lonMin', e.target.value)}
+            value={localBounds.lonMax ?? ''}
+            onChange={(e) => handleCoordChange('lonMax', e.target.value)}
             onBlur={handleBlur}
             className={classes.coordField}
             InputLabelProps={{ shrink: true }}
