@@ -201,19 +201,6 @@ export function validateQuery(query) {
         );
       }
     }
-
-    if (
-      lonMin !== undefined &&
-      lonMax !== undefined &&
-      lonMin !== null &&
-      lonMax !== null
-    ) {
-      if (lonMin > lonMax) {
-        errors.push(
-          `Invalid spatial bounds: lonMin (${lonMin}) must be <= lonMax (${lonMax}).`,
-        );
-      }
-    }
   }
 
   // Validate temporal bounds

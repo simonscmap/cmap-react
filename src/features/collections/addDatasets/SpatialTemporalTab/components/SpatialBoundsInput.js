@@ -75,6 +75,12 @@ const useStyles = makeStyles((theme) => ({
     fontSize: '0.75rem',
     marginTop: theme.spacing(1),
   },
+  infoText: {
+    color: '#fdd835',
+    fontSize: '0.75rem',
+    marginTop: theme.spacing(1),
+    marginLeft: 106,
+  },
 }));
 
 /**
@@ -106,6 +112,11 @@ const SpatialBoundsInput = () => {
     const result = validateSpatialBounds(localBounds);
     setValidationErrors(result.errors);
   }, [localBounds]);
+
+  const crossesDateline =
+    typeof localBounds.lonMin === 'number' &&
+    typeof localBounds.lonMax === 'number' &&
+    localBounds.lonMin > localBounds.lonMax;
 
   /**
    * Handle preset selection from dropdown
@@ -263,6 +274,12 @@ const SpatialBoundsInput = () => {
           />
         </Box>
       </Box>
+
+      {crossesDateline && (
+        <Typography variant="caption" className={classes.infoText}>
+          The selected longitude values cross the dateline (antimeridian).
+        </Typography>
+      )}
     </Box>
   );
 };
