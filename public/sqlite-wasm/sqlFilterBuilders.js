@@ -199,11 +199,15 @@ function buildSpatialFilter(spatial, includePartialOverlaps = true, tableAlias =
     bindings.$latMax = spatial.latMax;
   }
 
-  // Longitude bounds - check for any overlap
-  // Uses >= and <= to include boundary points (zero-area datasets like points/lines)
   if (spatial.lonMin != null && spatial.lonMax != null) {
-    sql += `\n  AND (${tableAlias}.lonMax >= $lonMin OR ${tableAlias}.lonMin IS NULL)`;
-    sql += `\n  AND (${tableAlias}.lonMax IS NULL OR ${tableAlias}.lonMin <= $lonMax)`;
+    const crossesDateline = spatial.lonMin > spatial.lonMax;
+
+    if (crossesDateline) {
+      sql += `\n  AND NOT (${tableAlias}.lonMin > $lonMax AND ${tableAlias}.lonMax < $lonMin)`;
+    } else {
+      sql += `\n  AND (${tableAlias}.lonMax >= $lonMin OR ${tableAlias}.lonMin IS NULL)`;
+      sql += `\n  AND (${tableAlias}.lonMax IS NULL OR ${tableAlias}.lonMin <= $lonMax)`;
+    }
     bindings.$lonMin = spatial.lonMin;
     bindings.$lonMax = spatial.lonMax;
   }

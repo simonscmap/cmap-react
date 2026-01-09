@@ -16,7 +16,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Box, Collapse, Divider, Typography } from '@material-ui/core';
+import { Box, Collapse, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import CompactDateRangeInput from './compact/CompactDateRangeInput';
 import CompactLatitudeInput from './compact/CompactLatitudeInput';
@@ -104,6 +104,10 @@ const useStyles = makeStyles((theme) => ({
         flex: '1 1 100%',
       },
     },
+  },
+  infoText: {
+    color: '#fdd835',
+    fontSize: '0.75rem',
   },
 }));
 
@@ -206,7 +210,13 @@ const CompactSubsetControlsLayout = ({
                   longitude.handlers.setLonEnd(bounds.lonEnd);
                 }}
               />
-              <Box /> {/* 20% spacer */}
+              <Box style={{ display: 'flex', alignItems: 'flex-end' }}>
+                {longitude.data.lonStart > longitude.data.lonEnd && (
+                  <Typography variant="caption" className={classes.infoText}>
+                    The selected longitude values cross the dateline (antimeridian).
+                  </Typography>
+                )}
+              </Box>
             </Box>
 
             <Box className={classes.geographicGrid}>
