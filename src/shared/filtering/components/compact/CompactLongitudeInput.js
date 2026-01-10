@@ -53,6 +53,15 @@ const useStyles = makeStyles((theme) => ({
       margin: '0 0 8px 0',
     },
   },
+  trackInverted: {
+    '& .MuiSlider-track': {
+      backgroundColor: '#4d6d4d',
+    },
+    '& .MuiSlider-rail': {
+      backgroundColor: '#9dd162',
+      opacity: 1,
+    },
+  },
   boundsRow: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -95,7 +104,6 @@ const CompactLongitudeInput = ({
 }) => {
   const classes = useStyles();
 
-  // Use validation hook for two-phase updates and error handling
   const {
     localStartValue,
     localEndValue,
@@ -109,7 +117,9 @@ const CompactLongitudeInput = ({
     handleSliderCommit,
     sliderStart,
     sliderEnd,
-  } = useRangeInput({ start, end, setStart, setEnd, min, max, step });
+  } = useRangeInput({ start, end, setStart, setEnd, min, max, step, allowInversion: true });
+
+  const isInverted = sliderStart > sliderEnd;
 
   return (
     <Box className={classes.container}>
@@ -182,6 +192,8 @@ const CompactLongitudeInput = ({
           step={step}
           valueLabelDisplay="auto"
           marks={false}
+          track={isInverted ? 'inverted' : 'normal'}
+          classes={{ trackInverted: classes.trackInverted }}
         />
       </Box>
 
