@@ -4,6 +4,11 @@ import { dateToUTCSlashString } from '../../../utils/dateHelpers';
 
 const MILLISECONDS_PER_DAY = 86400000;
 
+// Floor timestamp to start of UTC day to align with calendar day display.
+const floorToDay = (timestamp) => {
+  return Math.floor(timestamp / MILLISECONDS_PER_DAY) * MILLISECONDS_PER_DAY;
+};
+
 /**
  * Date-specific range slider that handles timestamp conversion internally
  * Provides a clean Date object API while using timestamps internally for the slider
@@ -20,10 +25,10 @@ const DateRangeSlider = ({
   showMarks = true,
 }) => {
   // Convert Date objects to timestamps for internal slider processing
-  const startTimestamp = startDate ? startDate.getTime() : null;
-  const endTimestamp = endDate ? endDate.getTime() : null;
-  const minTimestamp = minDate ? minDate.getTime() : null;
-  const maxTimestamp = maxDate ? maxDate.getTime() : null;
+  const startTimestamp = startDate ? floorToDay(startDate.getTime()) : null;
+  const endTimestamp = endDate ? floorToDay(endDate.getTime()) : null;
+  const minTimestamp = minDate ? floorToDay(minDate.getTime()) : null;
+  const maxTimestamp = maxDate ? floorToDay(maxDate.getTime()) : null;
 
   const formatTimestampForSlider = (timestamp) => {
     if (timestamp === null || timestamp === undefined) return '';

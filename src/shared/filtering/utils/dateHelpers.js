@@ -74,42 +74,6 @@ export const createUTCDate = (year, month, day) => {
   return d.isValid() ? d.toDate() : null;
 };
 
-const formatDateString = (year, month, day) => {
-  return `${year}-${month}-${day}`;
-};
-
-const formatSliderDateString = (year, month, day) => {
-  return `${year}/${month}/${day}`;
-};
-
-export const dateToDateString = (date) => {
-  let value = new Date(date);
-
-  let month = value.getMonth() + 1;
-  month = month > 9 ? month : '0' + month;
-
-  let day = value.getDate();
-  day = day > 9 ? day : '0' + day;
-
-  let fullYear = value.getFullYear();
-
-  return formatDateString(fullYear, month, day);
-};
-
-export const dateToEndOfDayString = (date) => {
-  let value = new Date(date);
-
-  let month = value.getMonth() + 1;
-  month = month > 9 ? month : '0' + month;
-
-  let day = value.getDate();
-  day = day > 9 ? day : '0' + day;
-
-  let fullYear = value.getFullYear();
-
-  return `${fullYear}-${month}-${day}T23:59:59`;
-};
-
 export const extractDateFromString = (stringDate) => {
   return parseUTCDateString(stringDate);
 };
@@ -120,25 +84,6 @@ export const emptyStringOrNumber = (val) => {
 
 export const getIsMonthlyClimatology = (temporalResolution) => {
   return Boolean(temporalResolution === temporalResolutions.monthlyClimatology);
-};
-
-export const dayToDateString = (min, days) => {
-  if (!min) {
-    console.error('dayToDateString received no value for min');
-  }
-  let value = new Date(min);
-
-  value.setDate(value.getDate() + days);
-
-  let month = value.getMonth() + 1;
-  month = month > 9 ? month : '0' + month;
-
-  let day = value.getDate();
-  day = day > 9 ? day : '0' + day;
-
-  let fullYear = value.getFullYear();
-
-  return formatDateString(fullYear, month, day);
 };
 
 export const formatDateToYearMonthDay = (date) => {
