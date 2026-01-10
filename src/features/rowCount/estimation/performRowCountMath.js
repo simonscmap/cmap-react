@@ -17,40 +17,74 @@ function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
 
-/**
- * Clamp query spatial bounds to dataset coverage. Returns null if no overlap.
- */
+function longitudeRangesOverlap(queryLonMin, queryLonMax, datasetLonMin, datasetLonMax) {
+  const queryCrossesDateline = queryLonMin > queryLonMax;
+
+  if (queryCrossesDateline) {
+    const overlapsEastSegment = datasetLonMax >= queryLonMin;
+    const overlapsWestSegment = datasetLonMin <= queryLonMax;
+    return overlapsEastSegment || overlapsWestSegment;
+  }
+
+  return datasetLonMin <= queryLonMax && datasetLonMax >= queryLonMin;
+}
+
 export function clampSpatialBounds(queryBounds, datasetBounds) {
   if (
     queryBounds.latMin > datasetBounds.latMax ||
-    queryBounds.latMax < datasetBounds.latMin ||
-    queryBounds.lonMin > datasetBounds.lonMax ||
-    queryBounds.lonMax < datasetBounds.lonMin
+    queryBounds.latMax < datasetBounds.latMin
   ) {
     return null;
   }
 
+  if (!longitudeRangesOverlap(
+    queryBounds.lonMin,
+    queryBounds.lonMax,
+    datasetBounds.lonMin,
+    datasetBounds.lonMax
+  )) {
+    return null;
+  }
+
+  const queryCrossesDateline = queryBounds.lonMin > queryBounds.lonMax;
+
+  const clampedLatMin = clamp(
+    queryBounds.latMin,
+    datasetBounds.latMin,
+    datasetBounds.latMax,
+  );
+  const clampedLatMax = clamp(
+    queryBounds.latMax,
+    datasetBounds.latMin,
+    datasetBounds.latMax,
+  );
+
+  let clampedLonMin, clampedLonMax;
+
+  if (queryCrossesDateline) {
+    const overlapsEast = datasetBounds.lonMax >= queryBounds.lonMin;
+    const overlapsWest = datasetBounds.lonMin <= queryBounds.lonMax;
+
+    if (overlapsEast && overlapsWest) {
+      clampedLonMin = Math.max(queryBounds.lonMin, datasetBounds.lonMin);
+      clampedLonMax = Math.min(queryBounds.lonMax, datasetBounds.lonMax);
+    } else if (overlapsEast) {
+      clampedLonMin = Math.max(queryBounds.lonMin, datasetBounds.lonMin);
+      clampedLonMax = datasetBounds.lonMax;
+    } else {
+      clampedLonMin = datasetBounds.lonMin;
+      clampedLonMax = Math.min(queryBounds.lonMax, datasetBounds.lonMax);
+    }
+  } else {
+    clampedLonMin = Math.max(queryBounds.lonMin, datasetBounds.lonMin);
+    clampedLonMax = Math.min(queryBounds.lonMax, datasetBounds.lonMax);
+  }
+
   return {
-    latMin: clamp(
-      queryBounds.latMin,
-      datasetBounds.latMin,
-      datasetBounds.latMax,
-    ),
-    latMax: clamp(
-      queryBounds.latMax,
-      datasetBounds.latMin,
-      datasetBounds.latMax,
-    ),
-    lonMin: clamp(
-      queryBounds.lonMin,
-      datasetBounds.lonMin,
-      datasetBounds.lonMax,
-    ),
-    lonMax: clamp(
-      queryBounds.lonMax,
-      datasetBounds.lonMin,
-      datasetBounds.lonMax,
-    ),
+    latMin: clampedLatMin,
+    latMax: clampedLatMax,
+    lonMin: clampedLonMin,
+    lonMax: clampedLonMax,
   };
 }
 
@@ -119,6 +153,7 @@ function calculateSpatialCount(
   spatialResolutionDegrees,
   datasetLatMin,
   datasetLonMin,
+  datasetLonMax,
 ) {
   const { latMin, latMax, lonMin, lonMax } = spatialBounds;
 
@@ -136,6 +171,7 @@ function calculateSpatialCount(
 
   let lonCount;
   if (lonMax > lonMin) {
+    // Normal case
     lonCount = countSpatialDataPoints(
       lonMin,
       lonMax,
@@ -143,15 +179,17 @@ function calculateSpatialCount(
       spatialResolutionDegrees,
     );
   } else {
-    // Date line crossing
+    // Date line crossing - cap to dataset's actual bounds
+    const eastEnd = Math.min(180, datasetLonMax);
+    const westStart = Math.max(-180, datasetLonMin);
     const countToDateLine = countSpatialDataPoints(
       lonMin,
-      180,
+      eastEnd,
       effectiveLonMin,
       spatialResolutionDegrees,
     );
     const countFromDateLine = countSpatialDataPoints(
-      -180,
+      westStart,
       lonMax,
       effectiveLonMin,
       spatialResolutionDegrees,
@@ -166,10 +204,10 @@ function calculateSpatialCount(
  * Count calendar months between two dates.
  */
 function calculateMonthlyCount(startDate, endDate) {
-  const startYear = startDate.getFullYear();
-  const startMonth = startDate.getMonth();
-  const endYear = endDate.getFullYear();
-  const endMonth = endDate.getMonth();
+  const startYear = startDate.getUTCFullYear();
+  const startMonth = startDate.getUTCMonth();
+  const endYear = endDate.getUTCFullYear();
+  const endMonth = endDate.getUTCMonth();
 
   return (endYear - startYear) * 12 + (endMonth - startMonth) + 1;
 }
@@ -366,6 +404,7 @@ function performRowCountMath(resolvedInputs, constraints) {
     spatialDegrees,
     datasetSpatialBounds.latMin,
     datasetSpatialBounds.lonMin,
+    datasetSpatialBounds.lonMax,
   );
 
   // Calculate temporal count
