@@ -113,6 +113,11 @@ export function isDatasetStale(shortName, currentConstraints) {
     return { isStale: false, reason: null };
   }
 
+  // No constraints means user wants unfiltered data - not stale
+  if (!currentConstraints) {
+    return { isStale: false, reason: null };
+  }
+
   // Snapshot exists: invalid constraints can't make row counts stale
   if (currentConstraints.temporalEnabled) {
     const temporalConstraints = {
@@ -551,7 +556,20 @@ export async function reEstimateWithConstraints(constraints) {
   }
 
   if (!constraints) {
-    log.debug('no constraints provided, skipping re-estimation');
+    if (Object.keys(datasetMetadata).length === 0) {
+      log.debug('no constraints but metadata not loaded yet, skipping');
+      return;
+    }
+    useRowCountCalculationStore.setState({
+      calculatedRowCounts: {},
+      datasetConstraintSnapshots: {},
+      staleDatasets: [],
+    });
+
+    await _estimateMissingRowCountsUsingFullExtent(
+      Array.from(lastSearchDatasetIds),
+      datasetMetadata,
+    );
     return;
   }
 
