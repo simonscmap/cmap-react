@@ -1259,6 +1259,10 @@ function* vizSearchResultsFetch(action) {
 
   if (searchResponse.ok) {
     const { counts, variables } = yield searchResponse.json();
+
+    // Sync counts with groupDatasetsByMake.js grouping of Assimilation/Model
+    counts.Model = (counts.Model || 0) + (counts.Assimilation || 0);
+
     let options = buildSearchOptionsFromVariablesList(
       variables,
       storedOptions,

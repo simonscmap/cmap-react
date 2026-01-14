@@ -5,7 +5,6 @@ import api from '../../api/api';
 import * as interfaceActions from '../actions/ui';
 import * as userActions from '../actions/user';
 import * as userActionTypes from '../actionTypes/user';
-import * as catalogActions from '../actions/catalog';
 import * as datasetDownloadActions from '../../features/datasetDownload/state';
 // import * as communityActions from '../actions/community';
 // import parseError from '../../Utility/parseError';
@@ -149,7 +148,11 @@ export function* watchUserValidation() {
 function* userLogout() {
   googleLogout(); // this just disables One Tap auto select behavior so that the user insn't logged right back in
   yield put(userActions.destroyInfo()); // clear app state
-  const result = yield call(api.user.logout); // clear jwt
+  // Clear client-side cookies immediately to prevent race condition
+  // when navigation occurs before the API call completes
+  Cookies.remove('UserInfo');
+  Cookies.remove('guestToken');
+  const result = yield call(api.user.logout); // clear jwt (httpOnly cookie)
   if (result.ok) {
     yield put(interfaceActions.snackbarOpen('You have been logged out.'));
   } else {
