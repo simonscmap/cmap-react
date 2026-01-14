@@ -1234,21 +1234,27 @@ class VizControlPanel extends React.Component {
                       plotsActiveTab !== 0 ? 'Return to Globe' : 'Show Charts'
                     }
                   >
-                    <IconButton
-                      disabled={charts.length === 0}
-                      className={classes.popoutButtonBase}
-                      onClick={this.handleShowChartsClick}
-                    >
-                      {plotsActiveTab !== 0 ? (
-                        <Language className={classes.popoutButtonIcon} />
-                      ) : (
-                        <Badge badgeContent={charts.length} color="primary">
-                          {' '}
-                          {/* display chart count*/}
-                          <ShowChart className={classes.popoutButtonIcon} />
-                        </Badge>
-                      )}
-                    </IconButton>
+                    <span>
+                      <IconButton
+                        disabled={charts.length === 0}
+                        className={classes.popoutButtonBase}
+                        onClick={this.handleShowChartsClick}
+                      >
+                        {plotsActiveTab !== 0 ? (
+                          <Language className={classes.popoutButtonIcon} />
+                        ) : (
+                          <Badge
+                            badgeContent={charts.length}
+                            color="primary"
+                            overlap="rectangular"
+                          >
+                            {' '}
+                            {/* display chart count*/}
+                            <ShowChart className={classes.popoutButtonIcon} />
+                          </Badge>
+                        )}
+                      </IconButton>
+                    </span>
                   </Tooltip>
                   <Hint
                     content={RestrictDataHint}

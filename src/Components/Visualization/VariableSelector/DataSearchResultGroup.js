@@ -197,7 +197,7 @@ const Header = ({
                 }}
               >
                 <span>
-                  {make} Data - Showing {options.length} datasets
+                  {make === 'Model' ? 'Model/Assimilation' : make} Data - Showing {options.length} datasets
                   <Tooltip
                     enterDelay={50}
                     placement="top"
@@ -209,7 +209,7 @@ const Header = ({
               </Hint>
             </div>
           ) : (
-            `${make} Data - No variables found for current search parameters`
+            `${make === 'Model' ? 'Model/Assimilation' : make} Data - No variables found for current search parameters`
           )}
         </Typography>
       </Grid>
