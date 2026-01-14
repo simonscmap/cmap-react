@@ -45,23 +45,21 @@ const useRangeInput = ({
     setLocalSliderEnd(end);
   }, [end]);
 
-  const validateSliderValues = (startValue, endValue) => {
+  const handleSlider = (e, [startValue, endValue]) => {
     const bounds = getEffectiveBounds(min, max, step);
 
-    // Round and clamp both values
-    let roundedStart = roundToStep(startValue, step);
-    let roundedEnd = roundToStep(endValue, step);
-    const clampedStart = clampValue(roundedStart, bounds.min, bounds.max);
-    const clampedEnd = clampValue(roundedEnd, bounds.min, bounds.max);
+    let newStart = localSliderStart;
+    let newEnd = localSliderEnd;
 
-    const finalStart = allowInversion ? clampedStart : Math.min(clampedStart, clampedEnd);
-    const finalEnd = allowInversion ? clampedEnd : Math.max(clampedStart, clampedEnd);
+    if (startValue !== localSliderStart) {
+      newStart = clampValue(roundToStep(startValue, step), bounds.min, bounds.max);
+    }
+    if (endValue !== localSliderEnd) {
+      newEnd = clampValue(roundToStep(endValue, step), bounds.min, bounds.max);
+    }
 
-    return { finalStart, finalEnd };
-  };
-
-  const handleSlider = (e, [startValue, endValue]) => {
-    const { finalStart, finalEnd } = validateSliderValues(startValue, endValue);
+    const finalStart = allowInversion ? newStart : Math.min(newStart, newEnd);
+    const finalEnd = allowInversion ? newEnd : Math.max(newStart, newEnd);
 
     setLocalSliderStart(finalStart);
     setLocalSliderEnd(finalEnd);
@@ -70,7 +68,20 @@ const useRangeInput = ({
   };
 
   const handleSliderCommit = (e, [startValue, endValue]) => {
-    const { finalStart, finalEnd } = validateSliderValues(startValue, endValue);
+    const bounds = getEffectiveBounds(min, max, step);
+
+    let newStart = localSliderStart;
+    let newEnd = localSliderEnd;
+
+    if (startValue !== localSliderStart) {
+      newStart = clampValue(roundToStep(startValue, step), bounds.min, bounds.max);
+    }
+    if (endValue !== localSliderEnd) {
+      newEnd = clampValue(roundToStep(endValue, step), bounds.min, bounds.max);
+    }
+
+    const finalStart = allowInversion ? newStart : Math.min(newStart, newEnd);
+    const finalEnd = allowInversion ? newEnd : Math.max(newStart, newEnd);
 
     if (finalStart !== start) {
       setStart(finalStart);
