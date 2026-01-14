@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import temporalResolutions from '../../../enums/temporalResolutions';
 import { formatLatitude, formatLongitude } from './numberFormatting';
+import { floorToStep, ceilToStep } from './rangeValidation';
 
 dayjs.extend(utc);
 
@@ -94,6 +95,8 @@ export const formatDateToYearMonthDay = (date) => {
   return `${year}/${month}/${day}`;
 };
 
+const SLIDER_STEP = 0.1;
+
 export const getInitialRangeValues = (dataset) => {
   let {
     Lat_Max,
@@ -108,20 +111,20 @@ export const getInitialRangeValues = (dataset) => {
 
   let initialValues = {
     lat: {
-      start: Lat_Min,
-      end: Lat_Max,
+      start: Lat_Min != null ? floorToStep(Lat_Min, SLIDER_STEP) : 0,
+      end: Lat_Max != null ? ceilToStep(Lat_Max, SLIDER_STEP) : 0,
     },
     lon: {
-      start: Lon_Min,
-      end: Lon_Max,
+      start: Lon_Min != null ? floorToStep(Lon_Min, SLIDER_STEP) : 0,
+      end: Lon_Max != null ? ceilToStep(Lon_Max, SLIDER_STEP) : 0,
     },
     time: {
       start: Time_Min ? parseUTCDateString(Time_Min) : new Date(),
       end: Time_Max ? parseUTCDateString(Time_Max) : new Date(),
     },
     depth: {
-      start: Depth_Min,
-      end: Depth_Max,
+      start: Depth_Min != null ? floorToStep(Depth_Min, SLIDER_STEP) : 0,
+      end: Depth_Max != null ? ceilToStep(Depth_Max, SLIDER_STEP) : 0,
     },
   };
 

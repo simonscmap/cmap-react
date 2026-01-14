@@ -6,6 +6,9 @@ import {
   getInitialRangeValues,
   parseUTCDateString,
 } from '../utils/dateHelpers';
+import { floorToStep, ceilToStep } from '../utils/rangeValidation';
+
+const SLIDER_STEP = 0.1;
 
 /**
  * Pure filtering hook for managing subset filter parameters
@@ -236,15 +239,13 @@ const useSubsetFiltering = (dataset) => {
     // Core data objects
     filterValues,
     filterSetters,
-
-    // Logical groupings for SubsetControls
     datasetFilterBounds: {
-      latMin: dataset?.Lat_Min,
-      latMax: dataset?.Lat_Max,
-      lonMin: dataset?.Lon_Min,
-      lonMax: dataset?.Lon_Max,
-      depthMin: dataset?.Depth_Min,
-      depthMax: dataset?.Depth_Max,
+      latMin: dataset?.Lat_Min != null ? floorToStep(dataset.Lat_Min, SLIDER_STEP) : null,
+      latMax: dataset?.Lat_Max != null ? ceilToStep(dataset.Lat_Max, SLIDER_STEP) : null,
+      lonMin: dataset?.Lon_Min != null ? floorToStep(dataset.Lon_Min, SLIDER_STEP) : null,
+      lonMax: dataset?.Lon_Max != null ? ceilToStep(dataset.Lon_Max, SLIDER_STEP) : null,
+      depthMin: dataset?.Depth_Min != null ? floorToStep(dataset.Depth_Min, SLIDER_STEP) : null,
+      depthMax: dataset?.Depth_Max != null ? ceilToStep(dataset.Depth_Max, SLIDER_STEP) : null,
       timeMin: dataset?.Time_Min ? parseUTCDateString(dataset.Time_Min) : null,
       timeMax: dataset?.Time_Max ? parseUTCDateString(dataset.Time_Max) : null,
     },

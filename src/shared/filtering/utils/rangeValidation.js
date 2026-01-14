@@ -1,18 +1,11 @@
 // Pure utility functions for range validation and manipulation
-// Extracted from LatitudeSubsetControl.js lines 6-26
 
-const roundToStep = (value, step = 0.1) => {
-  const factor = 1 / step;
-  return Math.round(value * factor) / factor;
-};
+// Clean floating-point noise from multiplication by imprecise step values
+const clean = (n) => Number(n.toFixed(2));
 
-const floorToStep = (value, step = 0.1) => {
-  return Math.floor(value / step) * step;
-};
-
-const ceilToStep = (value, step = 0.1) => {
-  return Math.ceil(value / step) * step;
-};
+const roundToStep = (value, step = 0.1) => clean(Math.round(value / step) * step);
+const floorToStep = (value, step = 0.1) => clean(Math.floor(value / step) * step);
+const ceilToStep = (value, step = 0.1) => clean(Math.ceil(value / step) * step);
 
 const clampValue = (value, min, max) => {
   return Math.max(min, Math.min(max, value));
