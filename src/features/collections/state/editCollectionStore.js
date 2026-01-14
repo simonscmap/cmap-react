@@ -286,7 +286,7 @@ const useEditCollectionStore = create((set, get) => ({
     const payload = {
       collectionName: collection.name.trim(),
       description: collection.description ? collection.description.trim() : '',
-      private: !collection.isPublic,
+      isPublic: collection.isPublic,
       datasets: collection.datasets
         .filter(
           (dataset) => !datasetsToRemove.includes(dataset.datasetShortName),

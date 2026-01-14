@@ -105,7 +105,7 @@ export const useCreateWithDatasets = () => {
       const requestData = {
         collectionName: name.trim(),
         description: description || undefined,
-        private: !isPublic,
+        isPublic,
         datasets: addedDatasets.map((d) => d.shortName),
       };
 
