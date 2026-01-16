@@ -348,6 +348,22 @@ collectionsAPI.followCollection = async (collectionId) => {
 };
 
 /**
+ * Unfollow a collection
+ * @param {number} collectionId - ID of the collection to unfollow
+ * @returns {Promise<Response>} Response body: { collectionId, unfollowed: true }
+ * @throws {Error} 401: Unauthorized, 404: Not following this collection, 500: Server error
+ * @description Removes the follow relationship between the authenticated user and a collection.
+ */
+collectionsAPI.unfollowCollection = async (collectionId) => {
+  const endpoint = `${apiUrl}/api/collections/${collectionId}/follow`;
+
+  return await fetchWithAuth(endpoint, {
+    ...fetchOptions,
+    method: 'DELETE',
+  });
+};
+
+/**
  * Get user's followed collections
  * @returns {Promise<Response>} Response body: Array of FollowedCollection objects
  * @throws {Error} 401: Unauthorized, 500: Server error
