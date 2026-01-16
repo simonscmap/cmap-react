@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Box, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
@@ -6,6 +6,7 @@ import { AccountCircle } from '@material-ui/icons';
 import { showLoginDialog } from '../../../Redux/actions/ui';
 import useCollectionsStore from '../state/collectionsStore';
 import CollectionCard from './CollectionCard';
+import FollowedCollectionCard from './FollowedCollectionCard';
 import CollectionStatistics from '../components/CollectionStatistics';
 import { PaginationController } from '../../../shared/pagination';
 import {
@@ -106,6 +107,9 @@ const MyCollectionsContent = ({ visibilityFilter, setVisibilityFilter }) => {
   const pendingDeletions = useCollectionsStore(
     (state) => state.pendingDeletions,
   );
+  const followPendingIds = useCollectionsStore(
+    (state) => state.followPendingIds,
+  );
   const justCreatedId = useCollectionsStore((state) => state.justCreatedId);
   const clearJustCreated = useCollectionsStore(
     (state) => state.clearJustCreated,
@@ -128,6 +132,25 @@ const MyCollectionsContent = ({ visibilityFilter, setVisibilityFilter }) => {
   const handleSortChange = (field) => {
     setSort(field);
     clearJustCreated();
+  };
+
+  const renderCollectionCard = (collection) => {
+    if (collection.isFollowed) {
+      return (
+        <FollowedCollectionCard
+          key={`followed-${collection.id}`}
+          collection={collection}
+          isPending={followPendingIds.has(collection.id)}
+        />
+      );
+    }
+    return (
+      <CollectionCard
+        key={collection.id}
+        collection={collection}
+        isPending={pendingDeletions.has(collection.id)}
+      />
+    );
   };
 
   return (
@@ -166,13 +189,7 @@ const MyCollectionsContent = ({ visibilityFilter, setVisibilityFilter }) => {
       <PaginationController
         data={sortedCollections}
         itemsPerPage={9}
-        renderItem={(collection) => (
-          <CollectionCard
-            key={collection.id}
-            collection={collection}
-            isPending={pendingDeletions.has(collection.id)}
-          />
-        )}
+        renderItem={renderCollectionCard}
         renderContainer={(children, pagination) => (
           <>
             <Box className={classes.collectionsGrid}>{children}</Box>
@@ -206,12 +223,30 @@ const MyCollectionsTab = () => {
   const filteredUserCollections = useCollectionsStore(
     (state) => state.filteredUserCollections,
   );
+  const followedCollections = useCollectionsStore(
+    (state) => state.followedCollections,
+  );
   const visibilityFilter = useCollectionsStore(
     (state) => state.visibilityFilter,
   );
   const setVisibilityFilter = useCollectionsStore(
     (state) => state.setVisibilityFilter,
   );
+
+  const mergedCollections = useMemo(() => {
+    const markedFollowed = followedCollections.map((c) => ({
+      ...c,
+      isFollowed: true,
+      isPublic: true,
+    }));
+
+    let filteredFollowed = markedFollowed;
+    if (visibilityFilter === 'private') {
+      filteredFollowed = [];
+    }
+
+    return [...filteredUserCollections, ...filteredFollowed];
+  }, [filteredUserCollections, followedCollections, visibilityFilter]);
 
   const handleLoginClick = () => {
     dispatch(showLoginDialog());
@@ -295,7 +330,7 @@ const MyCollectionsTab = () => {
       </Box>
 
       <SearchProvider
-        items={filteredUserCollections}
+        items={mergedCollections}
         searchKeys={['name', 'description', 'ownerName', 'ownerAffiliation']}
       >
         <MyCollectionsContent

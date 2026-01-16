@@ -347,4 +347,16 @@ collectionsAPI.followCollection = async (collectionId) => {
   });
 };
 
+/**
+ * Get user's followed collections
+ * @returns {Promise<Response>} Response body: Array of FollowedCollection objects
+ * @throws {Error} 401: Unauthorized, 500: Server error
+ * @description Returns all collections the authenticated user is following.
+ */
+collectionsAPI.getFollowedCollections = async () => {
+  const endpoint = `${apiUrl}/api/collections/followed`;
+
+  return await fetchWithAuth(endpoint, fetchOptions);
+};
+
 export default collectionsAPI;
