@@ -273,7 +273,7 @@ const useCollectionsStore = create((set, get) => ({
       id: optimisticId,
       name: data.collectionName,
       description: data.description || null,
-      isPublic: !data.private,
+      isPublic: data.isPublic,
       createdDate: new Date().toISOString(),
       modifiedDate: new Date().toISOString(),
       ownerName: '', // Will be replaced with server data

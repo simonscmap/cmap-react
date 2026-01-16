@@ -147,7 +147,7 @@ collectionsAPI.getCollection = collectionsAPI.getCollectionById;
  * @param {Object} data - Collection creation data
  * @param {string} data.collectionName - Collection name (required, 1-200 characters)
  * @param {string} [data.description] - Collection description (optional, 0-500 characters)
- * @param {boolean} [data.private=true] - Whether collection is private (default true)
+ * @param {boolean} [data.isPublic=false] - Whether collection is publicly visible (default false)
  * @param {string[]} [data.datasets] - Array of dataset short names to add to collection
  * @returns {Promise<Response>} Response body: Complete collection object with all metadata
  * @throws {Error} 401: Unauthorized, 500: Server error
@@ -190,7 +190,7 @@ collectionsAPI.deleteCollection = async (id) => {
  * @param {Object} data - Collection update data
  * @param {string} data.collectionName - Collection name (required, 5-200 characters)
  * @param {string} data.description - Collection description (required, 0-500 characters)
- * @param {boolean} data.private - Whether collection is private (required)
+ * @param {boolean} data.isPublic - Whether collection is publicly visible (required)
  * @param {string[]} data.datasets - Array of dataset short names (required, can be empty)
  * @returns {Promise<Response>} Response body: Complete collection object with all metadata
  * @throws {Error} 400: Validation errors, 401: Unauthorized, 403: Not collection owner, 404: Collection not found, 409: Name conflict, 500: Server error
