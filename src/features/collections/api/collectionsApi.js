@@ -330,4 +330,21 @@ collectionsAPI.getCollectionPreview = async (
   return await fetch(endpoint, fetchOptions);
 };
 
+/**
+ * Follow a public collection
+ * @param {number} collectionId - ID of the collection to follow
+ * @returns {Promise<Response>} Response body: { collectionId, followDate, collection }
+ * @throws {Error} 400: Cannot follow own collection or private collection, 401: Unauthorized, 404: Collection not found, 409: Already following, 500: Server error
+ * @description Creates a follow relationship between the authenticated user and a public collection.
+ * Returns 201 on success with the collection info and follow date.
+ */
+collectionsAPI.followCollection = async (collectionId) => {
+  const endpoint = `${apiUrl}/api/collections/${collectionId}/follow`;
+
+  return await fetchWithAuth(endpoint, {
+    ...postOptions,
+    method: 'POST',
+  });
+};
+
 export default collectionsAPI;

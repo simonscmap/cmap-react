@@ -104,6 +104,8 @@ const PublicCollectionsTable = ({ collections = [] }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const copyCollection = useCollectionsStore((state) => state.copyCollection);
+  const followCollection = useCollectionsStore((state) => state.followCollection);
+  const followPendingIds = useCollectionsStore((state) => state.followPendingIds);
   const [copyingId, setCopyingId] = useState(null);
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [selectedCollection, setSelectedCollection] = useState(null);
@@ -182,6 +184,25 @@ const PublicCollectionsTable = ({ collections = [] }) => {
     setWarningDialogOpen(false);
     setWarningDialogData(null);
     setCopyingId(null); // Reset copying state
+  };
+
+  const handleFollow = async (collection) => {
+    try {
+      await followCollection(collection.id);
+      dispatch(
+        snackbarOpen(`Now following "${collection.name}"`, {
+          severity: 'success',
+          position: 'top',
+        }),
+      );
+    } catch (error) {
+      dispatch(
+        snackbarOpen(error.message || 'Failed to follow collection', {
+          severity: 'error',
+          position: 'top',
+        }),
+      );
+    }
   };
 
   const handlePreview = (collection) => {
@@ -434,7 +455,7 @@ const PublicCollectionsTable = ({ collections = [] }) => {
                     </Typography>
                   </TableCell>
                   <TableCell className={classes.statsCell}>
-                    <Box display="flex" gap={1}>
+                    <Box display="flex" flexDirection="row" alignItems="center" style={{ gap: '4px', flexWrap: 'nowrap' }}>
                       <UniversalButton
                         variant="primary"
                         size="medium"
@@ -457,6 +478,25 @@ const PublicCollectionsTable = ({ collections = [] }) => {
                           'Copy'
                         )}
                       </UniversalButton>
+                      {!collection.isOwner && (
+                        <UniversalButton
+                          variant={collection.isFollowing ? 'secondary' : 'primary'}
+                          size="medium"
+                          onClick={() => handleFollow(collection)}
+                          disabled={collection.isFollowing || followPendingIds.has(collection.id)}
+                        >
+                          {followPendingIds.has(collection.id) ? (
+                            <CircularProgress
+                              size={14}
+                              style={{ color: 'rgba(105, 255, 242, 0.2)' }}
+                            />
+                          ) : collection.isFollowing ? (
+                            'Following'
+                          ) : (
+                            'Follow'
+                          )}
+                        </UniversalButton>
+                      )}
                     </Box>
                   </TableCell>
                 </TableRow>

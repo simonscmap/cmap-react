@@ -34,6 +34,8 @@ const useCollectionsStore = create((set, get) => ({
   // Pending deletion state
   pendingDeletions: new Set(),
 
+  followPendingIds: new Set(),
+
   // Just created collection ID (for showing at top of My Collections)
   justCreatedId: null,
 
@@ -53,6 +55,58 @@ const useCollectionsStore = create((set, get) => ({
     const newPendingDeletions = new Set(pendingDeletions);
     newPendingDeletions.delete(collectionId);
     set({ pendingDeletions: newPendingDeletions });
+  },
+
+  setFollowPending: (collectionId) => {
+    const { followPendingIds } = get();
+    const newPendingIds = new Set(followPendingIds);
+    newPendingIds.add(collectionId);
+    set({ followPendingIds: newPendingIds });
+  },
+
+  removeFollowPending: (collectionId) => {
+    const { followPendingIds } = get();
+    const newPendingIds = new Set(followPendingIds);
+    newPendingIds.delete(collectionId);
+    set({ followPendingIds: newPendingIds });
+  },
+
+  followCollection: async (collectionId) => {
+    get().setFollowPending(collectionId);
+
+    try {
+      const response = await collectionsAPI.followCollection(collectionId);
+
+      if (response.status === 201) {
+        const result = await response.json();
+        get().removeFollowPending(collectionId);
+        return result;
+      } else if (response.status === 400) {
+        const error = await response.json();
+        throw new HttpError(error.error || 'Cannot follow this collection', response.status);
+      } else if (response.status === 409) {
+        throw new HttpError('Already following this collection', response.status);
+      } else if (response.status === 404) {
+        throw new HttpError('Collection not found', response.status);
+      } else {
+        const error = new HttpError(
+          `Failed to follow collection: ${response.status} ${response.statusText}`,
+          response.status,
+        );
+        captureError(error, {
+          action: 'followCollection',
+          id: collectionId,
+          status: response.status,
+        });
+        throw error;
+      }
+    } catch (error) {
+      get().removeFollowPending(collectionId);
+      if (!(error instanceof HttpError)) {
+        captureError(error, { action: 'followCollection', id: collectionId });
+      }
+      throw error;
+    }
   },
 
   // Just created collection actions
