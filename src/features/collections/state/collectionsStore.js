@@ -8,6 +8,7 @@ const useCollectionsStore = create((set, get) => ({
   // State
   userCollections: [],
   publicCollections: [],
+  followedCollections: [],
   isLoading: false,
   isCopying: false,
   error: null,
@@ -218,10 +219,16 @@ const useCollectionsStore = create((set, get) => ({
     set({ isLoading: true, error: null });
 
     try {
-      const response = await collectionsAPI.getCollections(params);
+      const [collectionsResponse, followedResponse] = await Promise.all([
+        collectionsAPI.getCollections(params),
+        collectionsAPI.getFollowedCollections().catch((err) => {
+          captureError(err, { action: 'fetchFollowedCollections' });
+          return { ok: false, status: 0, error: err };
+        }),
+      ]);
 
-      if (response.ok) {
-        const data = await response.json();
+      if (collectionsResponse.ok) {
+        const data = await collectionsResponse.json();
         const collections = Array.isArray(data) ? data : [];
 
         const userCollections = collections.filter(
@@ -235,14 +242,27 @@ const useCollectionsStore = create((set, get) => ({
         get().setPublicCollections(publicCollections);
       } else {
         const error = new HttpError(
-          `Failed to fetch collections: ${response.status} ${response.statusText}`,
-          response.status,
+          `Failed to fetch collections: ${collectionsResponse.status} ${collectionsResponse.statusText}`,
+          collectionsResponse.status,
         );
         captureError(error, {
           action: 'fetchCollections',
-          status: response.status,
+          status: collectionsResponse.status,
         });
         throw error;
+      }
+
+      if (followedResponse.ok) {
+        const followedData = await followedResponse.json();
+        const followedCollections = Array.isArray(followedData) ? followedData : [];
+        set({ followedCollections });
+      } else if (followedResponse.status === 401) {
+        // User not authenticated - expected, just clear followed collections
+        set({ followedCollections: [] });
+      } else {
+        // Unexpected error - already captured above, clear followed collections
+        // but don't fail the whole fetch
+        set({ followedCollections: [] });
       }
     } catch (error) {
       if (!(error instanceof HttpError)) {
@@ -644,6 +664,18 @@ const useCollectionsStore = create((set, get) => ({
     );
   },
 
+  isCollectionFollowed: (collectionId) => {
+    const { followedCollections } = get();
+    return followedCollections.some((c) => c.id === collectionId);
+  },
+
+  getAllMyCollections: () => {
+    const { userCollections, followedCollections } = get();
+    // Combine owned and followed collections, with owned collections first
+    // followed collections have isFollowing = true implicitly
+    return [...userCollections, ...followedCollections.map(c => ({ ...c, isFollowing: true }))];
+  },
+
   updateCollection: (collectionId, updatedFields) => {
     const {
       userCollections,
@@ -743,6 +775,7 @@ const useCollectionsStore = create((set, get) => ({
     set({
       userCollections: [],
       publicCollections: [],
+      followedCollections: [],
       isLoading: false,
       error: null,
       searchQuery: '',
