@@ -110,6 +110,45 @@ const useCollectionsStore = create((set, get) => ({
     }
   },
 
+  unfollowCollection: async (collectionId) => {
+    get().setFollowPending(collectionId);
+
+    try {
+      const response = await collectionsAPI.unfollowCollection(collectionId);
+
+      if (response.status === 200) {
+        // Remove from followedCollections
+        const { followedCollections } = get();
+        const updatedFollowedCollections = followedCollections.filter(
+          (c) => c.id !== collectionId,
+        );
+        set({ followedCollections: updatedFollowedCollections });
+
+        get().removeFollowPending(collectionId);
+        return { collectionId, unfollowed: true };
+      } else if (response.status === 404) {
+        throw new HttpError('Not following this collection', response.status);
+      } else {
+        const error = new HttpError(
+          `Failed to unfollow collection: ${response.status} ${response.statusText}`,
+          response.status,
+        );
+        captureError(error, {
+          action: 'unfollowCollection',
+          id: collectionId,
+          status: response.status,
+        });
+        throw error;
+      }
+    } catch (error) {
+      get().removeFollowPending(collectionId);
+      if (!(error instanceof HttpError)) {
+        captureError(error, { action: 'unfollowCollection', id: collectionId });
+      }
+      throw error;
+    }
+  },
+
   // Just created collection actions
   clearJustCreated: () => {
     set({ justCreatedId: null });

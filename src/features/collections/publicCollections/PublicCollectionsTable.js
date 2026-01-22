@@ -345,6 +345,19 @@ const PublicCollectionsTable = ({ collections = [] }) => {
                 Copies
               </TableCell>
               <TableCell
+                align="center"
+                style={{
+                  padding: '8px 5px',
+                  border: 0,
+                  color: '#8bc34a',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  backgroundColor: 'rgba(30, 67, 113, 1)',
+                }}
+              >
+                Follows
+              </TableCell>
+              <TableCell
                 style={{
                   padding: '8px 5px',
                   border: 0,
@@ -361,7 +374,7 @@ const PublicCollectionsTable = ({ collections = [] }) => {
           <TableBody>
             {collections.length === 0 ? (
               <TableRow className={classes.emptyRow}>
-                <TableCell colSpan={8} className={classes.emptyCell}>
+                <TableCell colSpan={9} className={classes.emptyCell}>
                   <Typography variant="body1">
                     No collections to display
                   </Typography>
@@ -452,6 +465,11 @@ const PublicCollectionsTable = ({ collections = [] }) => {
                   <TableCell align="center" className={classes.statsCell}>
                     <Typography variant="body2" noWrap>
                       {collection.copies ?? 0}
+                    </Typography>
+                  </TableCell>
+                  <TableCell align="center" className={classes.statsCell}>
+                    <Typography variant="body2" noWrap>
+                      {collection.follows ?? 0}
                     </Typography>
                   </TableCell>
                   <TableCell className={classes.statsCell}>
