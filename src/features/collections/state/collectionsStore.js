@@ -4,6 +4,21 @@ import { getDatasetType } from '../../../shared/utility';
 import { captureError } from '../../../shared/errorCapture';
 import HttpError from '../../../shared/errorCapture/HttpError';
 
+const markFollowing = (collectionId) => (collection) =>
+  collection.id === collectionId
+    ? { ...collection, isFollowing: true, follows: (collection.follows || 0) + 1 }
+    : collection;
+
+const unmarkFollowing = (collectionId) => (collection) =>
+  collection.id === collectionId
+    ? { ...collection, isFollowing: false, follows: Math.max((collection.follows || 1) - 1, 0) }
+    : collection;
+
+const applyToPublicCollections = (state, transformer) => ({
+  publicCollections: state.publicCollections.map(transformer),
+  filteredPublicCollections: state.filteredPublicCollections.map(transformer),
+});
+
 const useCollectionsStore = create((set, get) => ({
   // State
   userCollections: [],
@@ -75,11 +90,37 @@ const useCollectionsStore = create((set, get) => ({
   followCollection: async (collectionId) => {
     get().setFollowPending(collectionId);
 
+    set(applyToPublicCollections(get(), markFollowing(collectionId)));
+
     try {
       const response = await collectionsAPI.followCollection(collectionId);
 
       if (response.status === 201) {
         const result = await response.json();
+
+        const collection = get().publicCollections.find((c) => c.id === collectionId);
+        if (collection) {
+          const followedCollection = {
+            ...collection,
+            isFollowing: true,
+            followDate: result.followDate,
+            isPublic: true,
+          };
+
+          const { followedCollections, userCollections, searchQuery, visibilityFilter } = get();
+          const updatedFollowedCollections = [followedCollection, ...followedCollections];
+          const filteredUserCollections = get().applyFilters(
+            userCollections,
+            searchQuery,
+            visibilityFilter,
+          );
+
+          set({
+            followedCollections: updatedFollowedCollections,
+            filteredUserCollections,
+          });
+        }
+
         get().removeFollowPending(collectionId);
         return result;
       } else if (response.status === 400) {
@@ -102,7 +143,10 @@ const useCollectionsStore = create((set, get) => ({
         throw error;
       }
     } catch (error) {
+      set(applyToPublicCollections(get(), unmarkFollowing(collectionId)));
+
       get().removeFollowPending(collectionId);
+
       if (!(error instanceof HttpError)) {
         captureError(error, { action: 'followCollection', id: collectionId });
       }
@@ -111,21 +155,34 @@ const useCollectionsStore = create((set, get) => ({
   },
 
   unfollowCollection: async (collectionId) => {
+    const { followedCollections } = get();
+
     get().setFollowPending(collectionId);
+
+    const originalFollowedCollections = [...followedCollections];
+
+    set({
+      followedCollections: followedCollections.filter((c) => c.id !== collectionId),
+      ...applyToPublicCollections(get(), unmarkFollowing(collectionId)),
+    });
 
     try {
       const response = await collectionsAPI.unfollowCollection(collectionId);
 
       if (response.status === 200) {
-        // Remove from followedCollections
-        const { followedCollections } = get();
-        const updatedFollowedCollections = followedCollections.filter(
-          (c) => c.id !== collectionId,
+        const result = await response.json();
+
+        const { userCollections, searchQuery, visibilityFilter } = get();
+        const filteredUserCollections = get().applyFilters(
+          userCollections,
+          searchQuery,
+          visibilityFilter,
         );
-        set({ followedCollections: updatedFollowedCollections });
+
+        set({ filteredUserCollections });
 
         get().removeFollowPending(collectionId);
-        return { collectionId, unfollowed: true };
+        return result;
       } else if (response.status === 404) {
         throw new HttpError('Not following this collection', response.status);
       } else {
@@ -141,7 +198,13 @@ const useCollectionsStore = create((set, get) => ({
         throw error;
       }
     } catch (error) {
+      set({
+        followedCollections: originalFollowedCollections,
+        ...applyToPublicCollections(get(), markFollowing(collectionId)),
+      });
+
       get().removeFollowPending(collectionId);
+
       if (!(error instanceof HttpError)) {
         captureError(error, { action: 'unfollowCollection', id: collectionId });
       }
@@ -710,9 +773,11 @@ const useCollectionsStore = create((set, get) => ({
 
   getAllMyCollections: () => {
     const { userCollections, followedCollections } = get();
-    // Combine owned and followed collections, with owned collections first
-    // followed collections have isFollowing = true implicitly
-    return [...userCollections, ...followedCollections.map(c => ({ ...c, isFollowing: true }))];
+    const markedFollowedCollections = followedCollections.map((c) => ({
+      ...c,
+      isFollowed: true,
+    }));
+    return [...userCollections, ...markedFollowedCollections];
   },
 
   updateCollection: (collectionId, updatedFields) => {
@@ -828,6 +893,7 @@ const useCollectionsStore = create((set, get) => ({
         totalDatasets: 0,
       },
       pendingDeletions: new Set(),
+      followPendingIds: new Set(),
       justCreatedId: null,
     });
   },
