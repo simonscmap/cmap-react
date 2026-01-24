@@ -4,10 +4,26 @@ import { getDatasetType } from '../../../shared/utility';
 import { captureError } from '../../../shared/errorCapture';
 import HttpError from '../../../shared/errorCapture/HttpError';
 
+const markFollowing = (collectionId) => (collection) =>
+  collection.id === collectionId
+    ? { ...collection, isFollowing: true, followerCount: (collection.followerCount || 0) + 1 }
+    : collection;
+
+const unmarkFollowing = (collectionId) => (collection) =>
+  collection.id === collectionId
+    ? { ...collection, isFollowing: false, followerCount: Math.max((collection.followerCount || 1) - 1, 0) }
+    : collection;
+
+const applyToPublicCollections = (state, transformer) => ({
+  publicCollections: state.publicCollections.map(transformer),
+  filteredPublicCollections: state.filteredPublicCollections.map(transformer),
+});
+
 const useCollectionsStore = create((set, get) => ({
   // State
   userCollections: [],
   publicCollections: [],
+  followedCollections: [],
   isLoading: false,
   isCopying: false,
   error: null,
@@ -34,6 +50,8 @@ const useCollectionsStore = create((set, get) => ({
   // Pending deletion state
   pendingDeletions: new Set(),
 
+  followPendingIds: new Set(),
+
   // Just created collection ID (for showing at top of My Collections)
   justCreatedId: null,
 
@@ -53,6 +71,142 @@ const useCollectionsStore = create((set, get) => ({
     const newPendingDeletions = new Set(pendingDeletions);
     newPendingDeletions.delete(collectionId);
     set({ pendingDeletions: newPendingDeletions });
+  },
+
+  setFollowPending: (collectionId) => {
+    const { followPendingIds } = get();
+    const newPendingIds = new Set(followPendingIds);
+    newPendingIds.add(collectionId);
+    set({ followPendingIds: newPendingIds });
+  },
+
+  removeFollowPending: (collectionId) => {
+    const { followPendingIds } = get();
+    const newPendingIds = new Set(followPendingIds);
+    newPendingIds.delete(collectionId);
+    set({ followPendingIds: newPendingIds });
+  },
+
+  followCollection: async (collectionId) => {
+    get().setFollowPending(collectionId);
+
+    set(applyToPublicCollections(get(), markFollowing(collectionId)));
+
+    try {
+      const response = await collectionsAPI.followCollection(collectionId);
+
+      if (response.status === 201) {
+        const result = await response.json();
+
+        const collection = get().publicCollections.find((c) => c.id === collectionId);
+        if (collection) {
+          const followedCollection = {
+            ...collection,
+            isFollowing: true,
+            followDate: result.followDate,
+            isPublic: true,
+          };
+
+          const { followedCollections, userCollections, searchQuery, visibilityFilter } = get();
+          const updatedFollowedCollections = [followedCollection, ...followedCollections];
+          const filteredUserCollections = get().applyFilters(
+            userCollections,
+            searchQuery,
+            visibilityFilter,
+          );
+
+          set({
+            followedCollections: updatedFollowedCollections,
+            filteredUserCollections,
+          });
+        }
+
+        get().removeFollowPending(collectionId);
+        return result;
+      } else if (response.status === 400) {
+        const error = await response.json();
+        throw new HttpError(error.error || 'Cannot follow this collection', response.status);
+      } else if (response.status === 409) {
+        throw new HttpError('Already following this collection', response.status);
+      } else if (response.status === 404) {
+        throw new HttpError('Collection not found', response.status);
+      } else {
+        const error = new HttpError(
+          `Failed to follow collection: ${response.status} ${response.statusText}`,
+          response.status,
+        );
+        captureError(error, {
+          action: 'followCollection',
+          id: collectionId,
+          status: response.status,
+        });
+        throw error;
+      }
+    } catch (error) {
+      set(applyToPublicCollections(get(), unmarkFollowing(collectionId)));
+
+      get().removeFollowPending(collectionId);
+
+      if (!(error instanceof HttpError)) {
+        captureError(error, { action: 'followCollection', id: collectionId });
+      }
+      throw error;
+    }
+  },
+
+  unfollowCollection: async (collectionId) => {
+    const { followedCollections } = get();
+
+    get().setFollowPending(collectionId);
+
+    const originalFollowedCollections = [...followedCollections];
+
+    set({
+      followedCollections: followedCollections.filter((c) => c.id !== collectionId),
+      ...applyToPublicCollections(get(), unmarkFollowing(collectionId)),
+    });
+
+    try {
+      const response = await collectionsAPI.unfollowCollection(collectionId);
+
+      // 404: wasn't following - same end state, treat as success
+      if (response.status === 200 || response.status === 404) {
+        const { userCollections, searchQuery, visibilityFilter } = get();
+        const filteredUserCollections = get().applyFilters(
+          userCollections,
+          searchQuery,
+          visibilityFilter,
+        );
+
+        set({ filteredUserCollections });
+
+        get().removeFollowPending(collectionId);
+        return { collectionId, unfollowed: true };
+      } else {
+        const error = new HttpError(
+          `Failed to unfollow collection: ${response.status} ${response.statusText}`,
+          response.status,
+        );
+        captureError(error, {
+          action: 'unfollowCollection',
+          id: collectionId,
+          status: response.status,
+        });
+        throw error;
+      }
+    } catch (error) {
+      set({
+        followedCollections: originalFollowedCollections,
+        ...applyToPublicCollections(get(), markFollowing(collectionId)),
+      });
+
+      get().removeFollowPending(collectionId);
+
+      if (!(error instanceof HttpError)) {
+        captureError(error, { action: 'unfollowCollection', id: collectionId });
+      }
+      throw error;
+    }
   },
 
   // Just created collection actions
@@ -164,10 +318,16 @@ const useCollectionsStore = create((set, get) => ({
     set({ isLoading: true, error: null });
 
     try {
-      const response = await collectionsAPI.getCollections(params);
+      const [collectionsResponse, followedResponse] = await Promise.all([
+        collectionsAPI.getCollections(params),
+        collectionsAPI.getFollowedCollections().catch((err) => {
+          captureError(err, { action: 'fetchFollowedCollections' });
+          return { ok: false, status: 0, error: err };
+        }),
+      ]);
 
-      if (response.ok) {
-        const data = await response.json();
+      if (collectionsResponse.ok) {
+        const data = await collectionsResponse.json();
         const collections = Array.isArray(data) ? data : [];
 
         const userCollections = collections.filter(
@@ -181,14 +341,27 @@ const useCollectionsStore = create((set, get) => ({
         get().setPublicCollections(publicCollections);
       } else {
         const error = new HttpError(
-          `Failed to fetch collections: ${response.status} ${response.statusText}`,
-          response.status,
+          `Failed to fetch collections: ${collectionsResponse.status} ${collectionsResponse.statusText}`,
+          collectionsResponse.status,
         );
         captureError(error, {
           action: 'fetchCollections',
-          status: response.status,
+          status: collectionsResponse.status,
         });
         throw error;
+      }
+
+      if (followedResponse.ok) {
+        const followedData = await followedResponse.json();
+        const followedCollections = Array.isArray(followedData) ? followedData : [];
+        set({ followedCollections });
+      } else if (followedResponse.status === 401) {
+        // User not authenticated - expected, just clear followed collections
+        set({ followedCollections: [] });
+      } else {
+        // Unexpected error - already captured above, clear followed collections
+        // but don't fail the whole fetch
+        set({ followedCollections: [] });
       }
     } catch (error) {
       if (!(error instanceof HttpError)) {
@@ -590,6 +763,20 @@ const useCollectionsStore = create((set, get) => ({
     );
   },
 
+  isCollectionFollowed: (collectionId) => {
+    const { followedCollections } = get();
+    return followedCollections.some((c) => c.id === collectionId);
+  },
+
+  getAllMyCollections: () => {
+    const { userCollections, followedCollections } = get();
+    const markedFollowedCollections = followedCollections.map((c) => ({
+      ...c,
+      isFollowed: true,
+    }));
+    return [...userCollections, ...markedFollowedCollections];
+  },
+
   updateCollection: (collectionId, updatedFields) => {
     const {
       userCollections,
@@ -689,6 +876,7 @@ const useCollectionsStore = create((set, get) => ({
     set({
       userCollections: [],
       publicCollections: [],
+      followedCollections: [],
       isLoading: false,
       error: null,
       searchQuery: '',
@@ -702,6 +890,7 @@ const useCollectionsStore = create((set, get) => ({
         totalDatasets: 0,
       },
       pendingDeletions: new Set(),
+      followPendingIds: new Set(),
       justCreatedId: null,
     });
   },
