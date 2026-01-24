@@ -60,9 +60,6 @@ const Collections = () => {
   const user = useSelector((state) => state.user);
   const { fetchCollections } = useCollectionsStore();
 
-  // Fetch collections when component mounts or when user authentication state changes
-  // Backend automatically returns public collections for all users
-  // and includes private collections if user is authenticated
   useEffect(() => {
     fetchCollections({ includeDatasets: true });
   }, [user, fetchCollections]);

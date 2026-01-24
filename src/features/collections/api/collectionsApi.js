@@ -330,4 +330,49 @@ collectionsAPI.getCollectionPreview = async (
   return await fetch(endpoint, fetchOptions);
 };
 
+/**
+ * Follow a public collection
+ * @param {number} collectionId - ID of the collection to follow
+ * @returns {Promise<Response>} Response body: { collectionId, followDate, collection }
+ * @throws {Error} 400: Cannot follow own collection or private collection, 401: Unauthorized, 404: Collection not found, 409: Already following, 500: Server error
+ * @description Creates a follow relationship between the authenticated user and a public collection.
+ * Returns 201 on success with the collection info and follow date.
+ */
+collectionsAPI.followCollection = async (collectionId) => {
+  const endpoint = `${apiUrl}/api/collections/${collectionId}/follow`;
+
+  return await fetchWithAuth(endpoint, {
+    ...postOptions,
+    method: 'POST',
+  });
+};
+
+/**
+ * Unfollow a collection
+ * @param {number} collectionId - ID of the collection to unfollow
+ * @returns {Promise<Response>} Response body: { collectionId, unfollowed: true }
+ * @throws {Error} 401: Unauthorized, 404: Not following this collection, 500: Server error
+ * @description Removes the follow relationship between the authenticated user and a collection.
+ */
+collectionsAPI.unfollowCollection = async (collectionId) => {
+  const endpoint = `${apiUrl}/api/collections/${collectionId}/follow`;
+
+  return await fetchWithAuth(endpoint, {
+    ...fetchOptions,
+    method: 'DELETE',
+  });
+};
+
+/**
+ * Get user's followed collections
+ * @returns {Promise<Response>} Response body: Array of FollowedCollection objects
+ * @throws {Error} 401: Unauthorized, 500: Server error
+ * @description Returns all collections the authenticated user is following.
+ */
+collectionsAPI.getFollowedCollections = async () => {
+  const endpoint = `${apiUrl}/api/collections/followed`;
+
+  return await fetchWithAuth(endpoint, fetchOptions);
+};
+
 export default collectionsAPI;
