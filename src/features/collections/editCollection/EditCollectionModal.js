@@ -496,7 +496,7 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
                 isNameOverLimit={isNameOverLimit}
                 isDescriptionOverLimit={isDescriptionOverLimit}
                 isEdit={true}
-                followsCount={collection.follows || 0}
+                followerCount={collection.followerCount || 0}
               />
               <CollectionStatistics
                 stats={[

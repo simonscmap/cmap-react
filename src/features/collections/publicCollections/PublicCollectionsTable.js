@@ -355,7 +355,7 @@ const PublicCollectionsTable = ({ collections = [] }) => {
                   backgroundColor: 'rgba(30, 67, 113, 1)',
                 }}
               >
-                Follows
+                Followers
               </TableCell>
               <TableCell
                 style={{
@@ -469,7 +469,7 @@ const PublicCollectionsTable = ({ collections = [] }) => {
                   </TableCell>
                   <TableCell align="center" className={classes.statsCell}>
                     <Typography variant="body2" noWrap>
-                      {collection.follows ?? 0}
+                      {collection.followerCount ?? 0}
                     </Typography>
                   </TableCell>
                   <TableCell className={classes.statsCell}>

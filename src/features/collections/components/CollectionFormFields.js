@@ -51,7 +51,7 @@ const CollectionFormFields = ({
   isDescriptionOverLimit,
   className,
   isEdit,
-  followsCount = 0,
+  followerCount = 0,
 }) => {
   const classes = useCollectionFormStyles();
   const [showPublicWarning, setShowPublicWarning] = useState(false);
@@ -66,7 +66,7 @@ const CollectionFormFields = ({
       setWasPublic(isPublic);
       setShowPublicWarning(true);
     // If changing from public to private and has followers, show warning
-    } else if (isPublic && !newIsPublic && followsCount > 0) {
+    } else if (isPublic && !newIsPublic && followerCount > 0) {
       setShowPrivateWarning(true);
     } else {
       // No warning needed, allow directly
@@ -262,7 +262,7 @@ const CollectionFormFields = ({
         open={showPrivateWarning}
         onKeepPublic={handleKeepPublic}
         onMakePrivate={handleMakePrivate}
-        followsCount={followsCount}
+        followerCount={followerCount}
       />
     </>
   );
@@ -290,7 +290,7 @@ CollectionFormFields.propTypes = {
   isDescriptionOverLimit: PropTypes.bool.isRequired,
   className: PropTypes.string,
   isEdit: PropTypes.bool,
-  followsCount: PropTypes.number,
+  followerCount: PropTypes.number,
 };
 
 CollectionFormFields.defaultProps = {
@@ -298,7 +298,7 @@ CollectionFormFields.defaultProps = {
   descriptionError: '',
   className: '',
   isEdit: false,
-  followsCount: 0,
+  followerCount: 0,
 };
 
 export default CollectionFormFields;

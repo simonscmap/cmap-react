@@ -6,12 +6,12 @@ import HttpError from '../../../shared/errorCapture/HttpError';
 
 const markFollowing = (collectionId) => (collection) =>
   collection.id === collectionId
-    ? { ...collection, isFollowing: true, follows: (collection.follows || 0) + 1 }
+    ? { ...collection, isFollowing: true, followerCount: (collection.followerCount || 0) + 1 }
     : collection;
 
 const unmarkFollowing = (collectionId) => (collection) =>
   collection.id === collectionId
-    ? { ...collection, isFollowing: false, follows: Math.max((collection.follows || 1) - 1, 0) }
+    ? { ...collection, isFollowing: false, followerCount: Math.max((collection.followerCount || 1) - 1, 0) }
     : collection;
 
 const applyToPublicCollections = (state, transformer) => ({
@@ -169,9 +169,8 @@ const useCollectionsStore = create((set, get) => ({
     try {
       const response = await collectionsAPI.unfollowCollection(collectionId);
 
-      if (response.status === 200) {
-        const result = await response.json();
-
+      // 404: wasn't following - same end state, treat as success
+      if (response.status === 200 || response.status === 404) {
         const { userCollections, searchQuery, visibilityFilter } = get();
         const filteredUserCollections = get().applyFilters(
           userCollections,
@@ -182,9 +181,7 @@ const useCollectionsStore = create((set, get) => ({
         set({ filteredUserCollections });
 
         get().removeFollowPending(collectionId);
-        return result;
-      } else if (response.status === 404) {
-        throw new HttpError('Not following this collection', response.status);
+        return { collectionId, unfollowed: true };
       } else {
         const error = new HttpError(
           `Failed to unfollow collection: ${response.status} ${response.statusText}`,
