@@ -128,6 +128,7 @@ const CompactSubsetControlsLayout = ({
   optionsState,
   handleSwitch,
   controls = {}, // Default to empty object to prevent destructuring errors
+  geographicPresets,
 }) => {
   const classes = useStyles();
 
@@ -209,11 +210,13 @@ const CompactSubsetControlsLayout = ({
                   longitude.handlers.setLonStart(bounds.lonStart);
                   longitude.handlers.setLonEnd(bounds.lonEnd);
                 }}
+                geographicPresets={geographicPresets}
               />
               <Box style={{ display: 'flex', alignItems: 'flex-end' }}>
                 {longitude.data.lonStart > longitude.data.lonEnd && (
                   <Typography variant="caption" className={classes.infoText}>
-                    The selected longitude values cross the dateline (antimeridian).
+                    The selected longitude values cross the dateline
+                    (antimeridian).
                   </Typography>
                 )}
               </Box>
@@ -312,6 +315,7 @@ CompactSubsetControlsLayout.propTypes = {
       }).isRequired,
     }).isRequired,
   }), // Not marked as .isRequired since it's provided via React.cloneElement
+  geographicPresets: PropTypes.array,
 };
 
 export default CompactSubsetControlsLayout;

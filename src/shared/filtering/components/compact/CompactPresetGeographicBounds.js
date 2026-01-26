@@ -8,7 +8,7 @@ import {
   Tooltip,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import { GeographicBoundaries } from '../../../enum/geographicBoundaries';
+import { GeographicBoundaries as DefaultGeographicBoundaries } from '../../../enum/geographicBoundaries';
 import { computePresetDisabledStates } from '../../utils/geographicOverlap';
 import useMultiDatasetDownloadStore from '../../../../features/multiDatasetDownload/stores/multiDatasetDownloadStore';
 import zIndex from '../../../../enums/zIndex';
@@ -33,9 +33,15 @@ const useStyles = makeStyles((theme) => ({
  */
 const DISABLED_TOOLTIP_MESSAGE = 'No datasets overlap with this region';
 
-const CompactPresetGeographicBounds = ({ currentBounds, onPresetApply }) => {
+const CompactPresetGeographicBounds = ({
+  currentBounds,
+  onPresetApply,
+  geographicPresets,
+}) => {
   const classes = useStyles();
   const [selectedPreset, setSelectedPreset] = useState('Global');
+
+  const presets = geographicPresets || DefaultGeographicBoundaries;
 
   const datasetsMetadata = useMultiDatasetDownloadStore(
     (state) => state.datasetsMetadata,
@@ -45,8 +51,8 @@ const CompactPresetGeographicBounds = ({ currentBounds, onPresetApply }) => {
     if (!datasetsMetadata || datasetsMetadata.length === 0) {
       return new Map();
     }
-    return computePresetDisabledStates(GeographicBoundaries, datasetsMetadata);
-  }, [datasetsMetadata]);
+    return computePresetDisabledStates(presets, datasetsMetadata);
+  }, [datasetsMetadata, presets]);
 
   /**
    * Handle preset selection from dropdown
@@ -59,7 +65,7 @@ const CompactPresetGeographicBounds = ({ currentBounds, onPresetApply }) => {
       return;
     }
 
-    const preset = GeographicBoundaries.find((p) => p.label === presetLabel);
+    const preset = presets.find((p) => p.label === presetLabel);
     if (preset) {
       onPresetApply({
         latStart: preset.southLatitude,
@@ -78,9 +84,7 @@ const CompactPresetGeographicBounds = ({ currentBounds, onPresetApply }) => {
   useEffect(() => {
     if (!selectedPreset) return;
 
-    const currentPreset = GeographicBoundaries.find(
-      (p) => p.label === selectedPreset,
-    );
+    const currentPreset = presets.find((p) => p.label === selectedPreset);
     if (!currentPreset) return;
 
     const boundsMatch =
@@ -92,7 +96,7 @@ const CompactPresetGeographicBounds = ({ currentBounds, onPresetApply }) => {
     if (!boundsMatch) {
       setSelectedPreset(null);
     }
-  }, [currentBounds, selectedPreset]);
+  }, [currentBounds, selectedPreset, presets]);
 
   return (
     <FormControl variant="outlined" className={classes.presetControl}>
@@ -109,7 +113,7 @@ const CompactPresetGeographicBounds = ({ currentBounds, onPresetApply }) => {
         <MenuItem value="">
           <em>Select a preset</em>
         </MenuItem>
-        {GeographicBoundaries.map((preset) => {
+        {presets.map((preset) => {
           const isDisabled = disabledPresets.get(preset.label) || false;
 
           if (isDisabled) {
@@ -154,6 +158,7 @@ CompactPresetGeographicBounds.propTypes = {
     lonEnd: PropTypes.number.isRequired,
   }).isRequired,
   onPresetApply: PropTypes.func.isRequired,
+  geographicPresets: PropTypes.array,
 };
 
 export default CompactPresetGeographicBounds;

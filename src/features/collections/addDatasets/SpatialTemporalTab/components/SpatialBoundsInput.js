@@ -21,7 +21,7 @@ import {
   Typography,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import { GeographicBoundaries } from '../../../../../shared/enum/geographicBoundaries';
+import { GeographicBoundaries } from '../../../../../shared/enum/geographicBoundariesCollections';
 import useSpatialTemporalSearchStore from '../store/spatialTemporalSearchStore';
 import { validateSpatialBounds } from '../../../../../shared/utility/spatialTemporalDepthValidation';
 import zIndex from '../../../../../enums/zIndex';
