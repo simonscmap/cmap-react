@@ -10,23 +10,13 @@
  * - Constraint clamping to dataset bounds
  */
 
+import { longitudeRangesOverlap } from '../../../shared/utility/longitudeRange';
+
 /**
  * Clamp a value between min and max bounds.
  */
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
-}
-
-function longitudeRangesOverlap(queryLonMin, queryLonMax, datasetLonMin, datasetLonMax) {
-  const queryCrossesDateline = queryLonMin > queryLonMax;
-
-  if (queryCrossesDateline) {
-    const overlapsEastSegment = datasetLonMax >= queryLonMin;
-    const overlapsWestSegment = datasetLonMin <= queryLonMax;
-    return overlapsEastSegment || overlapsWestSegment;
-  }
-
-  return datasetLonMin <= queryLonMax && datasetLonMax >= queryLonMin;
 }
 
 export function clampSpatialBounds(queryBounds, datasetBounds) {
