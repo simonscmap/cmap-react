@@ -21,7 +21,7 @@ import {
   Typography,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import { GeographicBoundaries } from '../../../../../shared/enum/geographicBoundaries';
+import { GeographicBoundaries } from '../../../../../shared/enum/geographicBoundariesCollections';
 import useSpatialTemporalSearchStore from '../store/spatialTemporalSearchStore';
 import { validateSpatialBounds } from '../../../../../shared/utility/spatialTemporalDepthValidation';
 import zIndex from '../../../../../enums/zIndex';
@@ -156,18 +156,8 @@ const SpatialBoundsInput = () => {
     }
   };
 
-  /**
-   * Handle blur events - update store only when user finishes editing
-   * This prevents premature constraint snapshot comparisons during typing
-   */
   const handleBlur = () => {
-    // Validate before updating store
-    const result = validateSpatialBounds(localBounds);
-
-    // Only update store if valid
-    if (result.valid) {
-      setSpatialBounds(localBounds);
-    }
+    setSpatialBounds(localBounds);
   };
 
   return (
@@ -274,6 +264,12 @@ const SpatialBoundsInput = () => {
           />
         </Box>
       </Box>
+
+      {validationErrors.length > 0 && (
+        <Typography variant="caption" className={classes.errorText}>
+          {validationErrors[0]}
+        </Typography>
+      )}
 
       {crossesDateline && (
         <Typography variant="caption" className={classes.infoText}>

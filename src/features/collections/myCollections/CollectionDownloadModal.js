@@ -8,6 +8,7 @@ import {
 import { Close } from '@material-ui/icons';
 import MultiDatasetDownloadContainer from '../../multiDatasetDownload/components/MultiDatasetDownloadContainer';
 import { useCollectionDownloadModalStyles } from './styles/collectionDownloadModalStyles';
+import { GeographicBoundaries } from '../../../shared/enum/geographicBoundariesCollections';
 
 const CollectionDownloadModal = ({ open, onClose, collection }) => {
   const classes = useCollectionDownloadModalStyles();
@@ -60,6 +61,7 @@ const CollectionDownloadModal = ({ open, onClose, collection }) => {
           datasetShortNames={datasetShortNames}
           downloadContext={{ collectionId: collection.id }}
           onDownloadComplete={handleDownloadComplete}
+          geographicPresets={GeographicBoundaries}
         />
       </DialogContent>
     </Dialog>

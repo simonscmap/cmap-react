@@ -59,6 +59,7 @@ const log = logInit('MultiDatasetDownloadContainer');
 const MultiDatasetDownloadContainerInner = ({
   aggregateDatasetMetadata,
   onDownloadComplete,
+  geographicPresets,
 }) => {
   const { resetStore } = useMultiDatasetDownloadStore();
   const filteredItems = useFilteredItems();
@@ -128,6 +129,7 @@ const MultiDatasetDownloadContainerInner = ({
           <CompactSubsetControlsLayout
             optionsState={optionsState}
             handleSwitch={handleSwitch}
+            geographicPresets={geographicPresets}
           />
         </SubsetControls>
       </Box>
@@ -161,7 +163,12 @@ const MultiDatasetDownloadContainerInner = ({
 };
 
 const MultiDatasetDownloadContainer = React.memo(
-  ({ datasetShortNames, downloadContext, onDownloadComplete }) => {
+  ({
+    datasetShortNames,
+    downloadContext,
+    onDownloadComplete,
+    geographicPresets,
+  }) => {
     const {
       datasetsMetadata,
       fetchDatasetsMetadata,
@@ -263,6 +270,7 @@ const MultiDatasetDownloadContainer = React.memo(
         <MultiDatasetDownloadContainerInner
           aggregateDatasetMetadata={aggregateMetadata}
           onDownloadComplete={onDownloadComplete}
+          geographicPresets={geographicPresets}
         />
       </SearchProvider>
     );
@@ -270,7 +278,8 @@ const MultiDatasetDownloadContainer = React.memo(
   (prevProps, nextProps) => {
     return (
       deepEqual(prevProps.datasetShortNames, nextProps.datasetShortNames) &&
-      deepEqual(prevProps.downloadContext, nextProps.downloadContext)
+      deepEqual(prevProps.downloadContext, nextProps.downloadContext) &&
+      prevProps.geographicPresets === nextProps.geographicPresets
     );
   },
 );
