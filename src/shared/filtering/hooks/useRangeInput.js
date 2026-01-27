@@ -52,7 +52,11 @@ const useRangeInput = ({
     let newEnd = localSliderEnd;
 
     if (startValue !== localSliderStart) {
-      newStart = clampValue(roundToStep(startValue, step), bounds.min, bounds.max);
+      newStart = clampValue(
+        roundToStep(startValue, step),
+        bounds.min,
+        bounds.max,
+      );
     }
     if (endValue !== localSliderEnd) {
       newEnd = clampValue(roundToStep(endValue, step), bounds.min, bounds.max);
@@ -74,7 +78,11 @@ const useRangeInput = ({
     let newEnd = localSliderEnd;
 
     if (startValue !== localSliderStart) {
-      newStart = clampValue(roundToStep(startValue, step), bounds.min, bounds.max);
+      newStart = clampValue(
+        roundToStep(startValue, step),
+        bounds.min,
+        bounds.max,
+      );
     }
     if (endValue !== localSliderEnd) {
       newEnd = clampValue(roundToStep(endValue, step), bounds.min, bounds.max);
@@ -188,6 +196,7 @@ const useRangeInput = ({
     setEndMessage,
   );
 
+  const bounds = getEffectiveBounds(min, max, step);
   return {
     localStartValue,
     localEndValue,
@@ -199,8 +208,9 @@ const useRangeInput = ({
     endMessage,
     handleSlider,
     handleSliderCommit,
-    sliderStart: localSliderStart,
-    sliderEnd: localSliderEnd,
+    sliderStart: clampValue(localSliderStart, bounds.min, bounds.max),
+    sliderEnd: clampValue(localSliderEnd, bounds.min, bounds.max),
+    bounds,
   };
 };
 

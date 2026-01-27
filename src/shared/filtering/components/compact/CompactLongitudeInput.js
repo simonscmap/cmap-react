@@ -117,7 +117,17 @@ const CompactLongitudeInput = ({
     handleSliderCommit,
     sliderStart,
     sliderEnd,
-  } = useRangeInput({ start, end, setStart, setEnd, min, max, step, allowInversion: true });
+    bounds,
+  } = useRangeInput({
+    start,
+    end,
+    setStart,
+    setEnd,
+    min,
+    max,
+    step,
+    allowInversion: true,
+  });
 
   const isInverted = sliderStart > sliderEnd;
 
@@ -187,8 +197,8 @@ const CompactLongitudeInput = ({
           value={[sliderStart, sliderEnd]}
           onChange={handleSlider}
           onChangeCommitted={handleSliderCommit}
-          min={min}
-          max={max}
+          min={bounds.min}
+          max={bounds.max}
           step={step}
           valueLabelDisplay="auto"
           marks={false}
