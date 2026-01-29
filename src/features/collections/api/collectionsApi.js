@@ -1,5 +1,6 @@
 import { apiUrl, fetchOptions, postOptions } from '../../../api/config';
 import fetchWithAuth from '../../../api/fetchWithAuth';
+import { fetchPreviewFromLocalDb } from './localPreviewAdapter';
 
 /**
  * Collections API Client
@@ -307,27 +308,22 @@ collectionsAPI.copyCollection = async (id) => {
  *   "isInvalid": true
  * }
  */
-collectionsAPI.getCollectionPreview = async (
-  datasetShortNames,
-  collectionId,
-) => {
-  const searchParams = new URLSearchParams();
+collectionsAPI.getCollectionPreview = async (datasetShortNames) => {
+  return await fetchPreviewFromLocalDb(datasetShortNames);
+};
 
-  // Add each dataset as a separate parameter, filtering out undefined/null values
-  datasetShortNames.forEach((name) => {
-    if (name !== undefined && name !== null && name !== '') {
-      searchParams.append('datasets', name);
-    }
+/**
+ * @param {number} collectionId - ID of the collection being viewed
+ * @returns {Promise<Response>} Response body: { collectionId, views }
+ * @description Increments the view count for a collection. 
+ */
+collectionsAPI.trackCollectionView = async (collectionId) => {
+  const endpoint = `${apiUrl}/api/collections/${collectionId}/view`;
+
+  return await fetch(endpoint, {
+    ...postOptions,
+    method: 'POST',
   });
-
-  // Add collectionId if provided for views tracking
-  if (collectionId !== undefined && collectionId !== null) {
-    searchParams.append('collectionId', collectionId);
-  }
-
-  const endpoint = `${apiUrl}/api/collections/preview?${searchParams.toString()}`;
-
-  return await fetch(endpoint, fetchOptions);
 };
 
 /**

@@ -178,6 +178,7 @@ const CollectionDatasetsTable = ({
   maxHeight,
   className,
   onError,
+  skipViewTracking = false,
 }) => {
   const classes = useStyles({ maxHeight });
   const { getRowClassName, getStatusIcon } = useRowStateStyles();
@@ -323,6 +324,7 @@ const CollectionDatasetsTable = ({
             const newPreviewData = await fetchPreviewData(
               addedDatasets,
               collectionId,
+              skipViewTracking,
             );
 
             // Merge: filter existing data + add new data
@@ -360,6 +362,7 @@ const CollectionDatasetsTable = ({
         const previewData = await fetchPreviewData(
           shortNamesForFetch,
           collectionId,
+          skipViewTracking,
         );
 
         setData(previewData);
@@ -727,6 +730,7 @@ CollectionDatasetsTable.propTypes = {
   maxHeight: PropTypes.number,
   className: PropTypes.string,
   onError: PropTypes.func,
+  skipViewTracking: PropTypes.bool,
 };
 
 export default CollectionDatasetsTable;
