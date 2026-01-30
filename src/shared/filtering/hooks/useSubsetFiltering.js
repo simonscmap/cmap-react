@@ -164,8 +164,8 @@ const useSubsetFiltering = (dataset) => {
       latEnd !== lat.end ||
       lonStart !== lon.start ||
       lonEnd !== lon.end ||
-      timeStart !== time.start ||
-      timeEnd !== time.end ||
+      dateToUTCDateString(timeStart) > dateToUTCDateString(time.start) ||
+      dateToUTCDateString(timeEnd) < dateToUTCDateString(time.end) ||
       depthStart !== depth.start ||
       depthEnd !== depth.end
     );

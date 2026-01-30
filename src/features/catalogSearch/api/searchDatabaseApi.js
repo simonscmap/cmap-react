@@ -136,9 +136,7 @@ class SearchDatabaseApi {
    */
   async executeSql(sql, bindings = []) {
     if (!this.isInitialized) {
-      throw new Error(
-        'Search service not initialized. Call initialize() first.',
-      );
+      await this.initialize();
     }
 
     const results = await this.sendWorkerMessage('execute-sql', {

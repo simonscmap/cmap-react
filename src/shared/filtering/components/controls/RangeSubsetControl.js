@@ -21,6 +21,7 @@ const RangeSubsetControl = ({
   unit = '',
   startLabel = 'Start',
   endLabel = 'End',
+  fieldType = null,
 }) => {
   const {
     localStartValue,
@@ -43,6 +44,7 @@ const RangeSubsetControl = ({
     min,
     max,
     step,
+    fieldType,
   });
 
   return (

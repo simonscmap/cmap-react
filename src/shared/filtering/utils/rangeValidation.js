@@ -3,12 +3,34 @@
 // Clean floating-point noise from multiplication by imprecise step values
 const clean = (n) => Number(n.toFixed(2));
 
-const roundToStep = (value, step = 0.1) => clean(Math.round(value / step) * step);
-const floorToStep = (value, step = 0.1) => clean(Math.floor(value / step) * step);
-const ceilToStep = (value, step = 0.1) => clean(Math.ceil(value / step) * step);
+// Round division result to avoid floating-point precision issues before floor/ceil
+const cleanDivide = (value, step) => {
+  const divided = value / step;
+  const rounded = Math.round(divided);
+  return Math.abs(divided - rounded) < 1e-9 ? rounded : divided;
+};
+
+const roundToStep = (value, step = 0.1) =>
+  clean(Math.round(cleanDivide(value, step)) * step);
+const floorToStep = (value, step = 0.1) =>
+  clean(Math.floor(cleanDivide(value, step)) * step);
+const ceilToStep = (value, step = 0.1) =>
+  clean(Math.ceil(cleanDivide(value, step)) * step);
 
 const clampValue = (value, min, max) => {
   return Math.max(min, Math.min(max, value));
+};
+
+const ABSOLUTE_BOUNDS = {
+  latitude: { min: -90, max: 90 },
+  longitude: { min: -180, max: 180 },
+};
+
+const getAbsoluteBounds = (fieldType) => {
+  if (!fieldType || !ABSOLUTE_BOUNDS[fieldType]) {
+    return null;
+  }
+  return ABSOLUTE_BOUNDS[fieldType];
 };
 
 const getEffectiveBounds = (min, max, step = 0.1) => ({
@@ -26,6 +48,8 @@ export {
   floorToStep,
   ceilToStep,
   clampValue,
+  ABSOLUTE_BOUNDS,
+  getAbsoluteBounds,
   getEffectiveBounds,
   getDefaultValue,
 };

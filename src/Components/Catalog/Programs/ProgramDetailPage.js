@@ -22,6 +22,7 @@ import {
   fetchProgramDetailsSend,
   setProgramCruiseTrajectoryFocus,
 } from '../../../Redux/actions/catalog';
+import { GeographicBoundaries } from '../../../shared/enum/geographicBoundaries';
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -199,6 +200,7 @@ const ProgramDetail = (props) => {
             {sortedDatasetNames.length > 0 ? (
               <MultiDatasetDownloadContainer
                 datasetShortNames={sortedDatasetNames}
+                geographicPresets={GeographicBoundaries}
               />
             ) : (
               <SpinnerWrapper message="Loading program data..." />
