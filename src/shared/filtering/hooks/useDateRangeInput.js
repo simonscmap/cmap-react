@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { formatDateToYearMonthDay } from '../utils/dateHelpers';
+import { formatDateToYearMonthDay, dateToUTCDateString } from '../utils/dateHelpers';
 
 /**
  * Date-based validation and clamping functions
@@ -17,7 +17,7 @@ const validateAndClampDateRange = (
   let clampedStart = start;
   let clampedEnd = end;
 
-  if (start !== null && min !== undefined && start < min) {
+  if (start !== null && min !== undefined && dateToUTCDateString(start) < dateToUTCDateString(min)) {
     errors.push(
       `Start date cannot be before minimum date of ${formatDateToYearMonthDay(min)}`,
     );
@@ -25,7 +25,7 @@ const validateAndClampDateRange = (
     setStart(min);
   }
 
-  if (end !== null && max !== undefined && end > max) {
+  if (end !== null && max !== undefined && dateToUTCDateString(end) > dateToUTCDateString(max)) {
     errors.push(
       `End date cannot be after maximum date of ${formatDateToYearMonthDay(max)}`,
     );
@@ -37,7 +37,7 @@ const validateAndClampDateRange = (
   if (
     clampedStart !== null &&
     clampedEnd !== null &&
-    clampedStart > clampedEnd
+    dateToUTCDateString(clampedStart) > dateToUTCDateString(clampedEnd)
   ) {
     if (isStartInput) {
       // User is modifying start date and it exceeds end date - clamp start to end

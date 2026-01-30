@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import useEditCollectionStore from '../../state/editCollectionStore';
 import collectionsAPI from '../../api/collectionsApi';
 import { useCollectionFormValidation } from '../../createModal/hooks/useCollectionFormValidation';
+import HttpError from '../../../../shared/errorCapture/HttpError';
 
 /**
  * useEditCollection
@@ -49,7 +50,10 @@ export const useEditCollection = (collectionId) => {
       );
 
       if (!response.ok) {
-        throw new Error('Failed to verify collection name');
+        throw new HttpError(
+          `Failed to verify collection name: ${response.status} ${response.statusText}`,
+          response.status,
+        );
       }
 
       const data = await response.json();

@@ -210,6 +210,7 @@ const PreviewModal = ({ open, onClose, collection }) => {
             </Typography>
             <CollectionDatasetsTable
               collectionId={collection.id}
+              skipViewTracking={collection.isOwner}
               datasetShortNames={
                 collection.datasets
                   ?.map((d) => d.datasetShortName)

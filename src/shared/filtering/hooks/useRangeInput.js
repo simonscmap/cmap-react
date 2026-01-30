@@ -4,6 +4,7 @@ import {
   clampValue,
   getEffectiveBounds,
   getDefaultValue,
+  getAbsoluteBounds,
 } from '../utils/rangeValidation';
 
 /**
@@ -22,6 +23,7 @@ const useRangeInput = ({
   max,
   step = 0.1,
   allowInversion = false,
+  fieldType = null,
 }) => {
   // Local state for typing values (two-phase updates)
   const [localStartValue, setLocalStartValue] = useState('');
@@ -52,7 +54,11 @@ const useRangeInput = ({
     let newEnd = localSliderEnd;
 
     if (startValue !== localSliderStart) {
-      newStart = clampValue(roundToStep(startValue, step), bounds.min, bounds.max);
+      newStart = clampValue(
+        roundToStep(startValue, step),
+        bounds.min,
+        bounds.max,
+      );
     }
     if (endValue !== localSliderEnd) {
       newEnd = clampValue(roundToStep(endValue, step), bounds.min, bounds.max);
@@ -74,7 +80,11 @@ const useRangeInput = ({
     let newEnd = localSliderEnd;
 
     if (startValue !== localSliderStart) {
-      newStart = clampValue(roundToStep(startValue, step), bounds.min, bounds.max);
+      newStart = clampValue(
+        roundToStep(startValue, step),
+        bounds.min,
+        bounds.max,
+      );
     }
     if (endValue !== localSliderEnd) {
       newEnd = clampValue(roundToStep(endValue, step), bounds.min, bounds.max);
@@ -131,20 +141,32 @@ const useRangeInput = ({
 
       // Round to step
       const roundedValue = roundToStep(value, step);
-      let clampedValue = clampValue(roundedValue, bounds.min, bounds.max);
+      const absoluteBounds = getAbsoluteBounds(fieldType);
 
-      // Check if clamping occurred with clearer messaging
-      if (clampedValue > roundedValue) {
-        showMessage(
-          setMessage,
-          `Value cannot be below minimum of ${bounds.min}`,
-        );
-      } else if (clampedValue < roundedValue) {
-        showMessage(
-          setMessage,
-          `Value cannot be above maximum of ${bounds.max}`,
-        );
+      // Validate against absolute bounds (hard rejection)
+      if (absoluteBounds) {
+        if (roundedValue < absoluteBounds.min) {
+          showMessage(setMessage, `Value cannot be below ${absoluteBounds.min}`);
+          if (isStart) {
+            setLocalStartValue(start === null ? '' : String(start));
+          } else {
+            setLocalEndValue(end === null ? '' : String(end));
+          }
+          return;
+        }
+        if (roundedValue > absoluteBounds.max) {
+          showMessage(setMessage, `Value cannot exceed ${absoluteBounds.max}`);
+          if (isStart) {
+            setLocalStartValue(start === null ? '' : String(start));
+          } else {
+            setLocalEndValue(end === null ? '' : String(end));
+          }
+          return;
+        }
       }
+
+      // Text input values can now exceed current slider range (no slider-bound clamping)
+      let clampedValue = roundedValue;
 
       if (!allowInversion) {
         const otherValue = isStart ? end : start;
@@ -188,6 +210,7 @@ const useRangeInput = ({
     setEndMessage,
   );
 
+  const bounds = getEffectiveBounds(min, max, step);
   return {
     localStartValue,
     localEndValue,
@@ -199,8 +222,9 @@ const useRangeInput = ({
     endMessage,
     handleSlider,
     handleSliderCommit,
-    sliderStart: localSliderStart,
-    sliderEnd: localSliderEnd,
+    sliderStart: clampValue(localSliderStart, bounds.min, bounds.max),
+    sliderEnd: clampValue(localSliderEnd, bounds.min, bounds.max),
+    bounds,
   };
 };
 

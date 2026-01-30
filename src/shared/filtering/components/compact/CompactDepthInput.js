@@ -117,7 +117,8 @@ const CompactDepthInput = ({
     handleSliderCommit,
     sliderStart,
     sliderEnd,
-  } = useRangeInput({ start, end, setStart, setEnd, min, max, step });
+    bounds,
+  } = useRangeInput({ start, end, setStart, setEnd, min, max, step, fieldType: 'depth' });
 
   return (
     <Box className={classes.container}>
@@ -190,8 +191,8 @@ const CompactDepthInput = ({
           value={[sliderStart, sliderEnd]}
           onChange={handleSlider}
           onChangeCommitted={handleSliderCommit}
-          min={min}
-          max={max}
+          min={bounds.min}
+          max={bounds.max}
           step={step}
           valueLabelDisplay="auto"
           marks={false}

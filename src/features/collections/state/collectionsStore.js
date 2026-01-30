@@ -31,7 +31,6 @@ const useCollectionsStore = create((set, get) => ({
   // Preview modal state
   previewData: [],
   isLoadingPreview: false,
-  previewError: null,
 
   // Search and filter state
   searchQuery: '',
@@ -582,7 +581,10 @@ const useCollectionsStore = create((set, get) => ({
         const data = await response.json();
         return data.isAvailable;
       } else {
-        throw new Error('Failed to verify collection name');
+        throw new HttpError(
+          `Failed to verify collection name: ${response.status} ${response.statusText}`,
+          response.status,
+        );
       }
     } catch (error) {
       captureError(error, { action: 'verifyCollectionName', name });
@@ -648,22 +650,12 @@ const useCollectionsStore = create((set, get) => ({
     }
   },
 
-  fetchPreviewData: async (datasetShortNames, collectionId) => {
-    set({ isLoadingPreview: true, previewError: null, previewData: [] });
+  fetchPreviewData: async (datasetShortNames, collectionId, skipViewTracking = false) => {
+    set({ isLoadingPreview: true, previewData: [] });
 
     try {
-      const response = await collectionsAPI.getCollectionPreview(
-        datasetShortNames,
-        collectionId,
-      );
+      const data = await collectionsAPI.getCollectionPreview(datasetShortNames);
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch preview data');
-      }
-
-      const data = await response.json();
-
-      // Add type field to each dataset
       const dataWithType = data.map((dataset) => ({
         ...dataset,
         type: getDatasetType(dataset.makes, dataset.sensors),
@@ -671,24 +663,27 @@ const useCollectionsStore = create((set, get) => ({
 
       set({ previewData: dataWithType, isLoadingPreview: false });
 
-      // Increment view count locally since backend incremented it
-      if (collectionId !== undefined && collectionId !== null) {
-        get().incrementCollectionStat(collectionId, 'views');
+      if (collectionId !== undefined && collectionId !== null && !skipViewTracking) {
+        collectionsAPI.trackCollectionView(collectionId)
+          .then((response) => response.json())
+          .then((result) => {
+            if (!result.skipped) {
+              get().incrementCollectionStat(collectionId, 'views');
+            }
+          })
+          .catch(() => {});
       }
 
       return dataWithType;
     } catch (error) {
       captureError(error, { action: 'fetchPreviewData', collectionId });
-      set({
-        previewError: error.message || 'Failed to load preview data',
-        isLoadingPreview: false,
-      });
+      set({ isLoadingPreview: false });
       throw error;
     }
   },
 
   clearPreviewData: () => {
-    set({ previewData: [], previewError: null, isLoadingPreview: false });
+    set({ previewData: [], isLoadingPreview: false });
   },
 
   incrementCollectionStat: (collectionId, statName) => {

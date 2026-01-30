@@ -1,3 +1,5 @@
+import { longitudeRangesOverlap } from '../../utility/longitudeRange';
+
 export function presetOverlapsDataset(preset, dataset) {
   if (!preset || !dataset) return false;
   if (
@@ -13,11 +15,14 @@ export function presetOverlapsDataset(preset, dataset) {
     preset.northLatitude < dataset.Lat_Min ||
     preset.southLatitude > dataset.Lat_Max;
 
-  const noLonOverlap =
-    preset.eastLongitude < dataset.Lon_Min ||
-    preset.westLongitude > dataset.Lon_Max;
+  const lonOverlaps = longitudeRangesOverlap(
+    preset.westLongitude,
+    preset.eastLongitude,
+    dataset.Lon_Min,
+    dataset.Lon_Max,
+  );
 
-  return !(noLatOverlap || noLonOverlap);
+  return !noLatOverlap && lonOverlaps;
 }
 
 export function presetOverlapsAnyDataset(preset, datasets) {

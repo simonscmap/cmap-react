@@ -109,7 +109,8 @@ const CompactLatitudeInput = ({
     handleSliderCommit,
     sliderStart,
     sliderEnd,
-  } = useRangeInput({ start, end, setStart, setEnd, min, max, step });
+    bounds,
+  } = useRangeInput({ start, end, setStart, setEnd, min, max, step, fieldType: 'latitude' });
 
   return (
     <Box className={classes.container}>
@@ -177,8 +178,8 @@ const CompactLatitudeInput = ({
           value={[sliderStart, sliderEnd]}
           onChange={handleSlider}
           onChangeCommitted={handleSliderCommit}
-          min={min}
-          max={max}
+          min={bounds.min}
+          max={bounds.max}
           step={step}
           valueLabelDisplay="auto"
           marks={false}
