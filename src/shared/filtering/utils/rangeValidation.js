@@ -21,6 +21,18 @@ const clampValue = (value, min, max) => {
   return Math.max(min, Math.min(max, value));
 };
 
+const ABSOLUTE_BOUNDS = {
+  latitude: { min: -90, max: 90 },
+  longitude: { min: -180, max: 180 },
+};
+
+const getAbsoluteBounds = (fieldType) => {
+  if (!fieldType || !ABSOLUTE_BOUNDS[fieldType]) {
+    return null;
+  }
+  return ABSOLUTE_BOUNDS[fieldType];
+};
+
 const getEffectiveBounds = (min, max, step = 0.1) => ({
   min: floorToStep(min, step),
   max: ceilToStep(max, step),
@@ -36,6 +48,8 @@ export {
   floorToStep,
   ceilToStep,
   clampValue,
+  ABSOLUTE_BOUNDS,
+  getAbsoluteBounds,
   getEffectiveBounds,
   getDefaultValue,
 };

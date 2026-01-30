@@ -5,6 +5,7 @@ import UniversalButton from '../../../shared/components/UniversalButton';
 import deepEqual from 'deep-equal';
 import SubsetControls from '../../../shared/filtering/core/SubsetControls';
 import CompactSubsetControlsLayout from '../../../shared/filtering/components/CompactSubsetControlsLayout';
+import ResetToCollectionExtentButton from '../../../shared/filtering/components/compact/ResetToCollectionExtentButton';
 import useSubsetFiltering from '../../../shared/filtering/hooks/useSubsetFiltering';
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
 import { aggregateDatasetMetadata } from '../utils/aggregateDatasetMetadata';
@@ -19,6 +20,8 @@ import DownloadButton from './DownloadButton';
 import RowCountTotal from './RowCountTotal';
 import logInit from '../../../Services/log-service';
 import { FeatureErrorBoundary } from '../../../shared/errorCapture';
+import { floorToStep, ceilToStep } from '../../../shared/filtering/utils/rangeValidation';
+import { parseUTCDateString } from '../../../shared/filtering/utils/dateHelpers';
 
 import {
   SearchProvider,
@@ -64,10 +67,34 @@ const MultiDatasetDownloadContainerInner = ({
   const { resetStore } = useMultiDatasetDownloadStore();
   const filteredItems = useFilteredItems();
 
+  const collectionExtent = aggregateDatasetMetadata ? {
+    latMin: floorToStep(aggregateDatasetMetadata.Lat_Min),
+    latMax: ceilToStep(aggregateDatasetMetadata.Lat_Max),
+    lonMin: floorToStep(aggregateDatasetMetadata.Lon_Min),
+    lonMax: ceilToStep(aggregateDatasetMetadata.Lon_Max),
+    // can be null for monthly climatology
+    timeMin: aggregateDatasetMetadata.Time_Min
+      ? parseUTCDateString(aggregateDatasetMetadata.Time_Min)
+      : null,
+    timeMax: aggregateDatasetMetadata.Time_Max
+      ? parseUTCDateString(aggregateDatasetMetadata.Time_Max)
+      : null,
+    depthMin: floorToStep(aggregateDatasetMetadata.Depth_Min || 0),
+    depthMax: ceilToStep(aggregateDatasetMetadata.Depth_Max || 0),
+  } : null;
+
   // State for toggle controls (required by layout components)
   const [optionsState, setOptionsState] = useState({
     subset: false,
   });
+
+  // State for preset dropdown (controlled component pattern)
+  const [selectedPreset, setSelectedPreset] = useState('Collection Extent');
+
+  const handleResetPreset = () => {
+    setSelectedPreset('Collection Extent');
+  };
+
   // Handle toggle switch for subset controls
   const handleSwitch = (event) => {
     const controlType = event.target.name;
@@ -84,6 +111,37 @@ const MultiDatasetDownloadContainerInner = ({
     datasetFilterBounds,
     dateHandling,
   } = useSubsetFiltering(aggregateDatasetMetadata);
+
+  const handlePresetSelect = (presetLabel, bounds) => {
+    setSelectedPreset(presetLabel);
+    filterSetters.setLatStart(bounds.latStart);
+    filterSetters.setLatEnd(bounds.latEnd);
+    filterSetters.setLonStart(bounds.lonStart);
+    filterSetters.setLonEnd(bounds.lonEnd);
+  };
+
+  const wrappedGeoHandlers = {
+    latitude: {
+      setLatStart: (value) => {
+        filterSetters.setLatStart(value);
+        setSelectedPreset('Custom');
+      },
+      setLatEnd: (value) => {
+        filterSetters.setLatEnd(value);
+        setSelectedPreset('Custom');
+      },
+    },
+    longitude: {
+      setLonStart: (value) => {
+        filterSetters.setLonStart(value);
+        setSelectedPreset('Custom');
+      },
+      setLonEnd: (value) => {
+        filterSetters.setLonEnd(value);
+        setSelectedPreset('Custom');
+      },
+    },
+  };
 
   // Reset store when component unmounts
   useEffect(() => {
@@ -114,6 +172,50 @@ const MultiDatasetDownloadContainerInner = ({
     }
   }, [filterValues]);
 
+  const resetButtonControls = {
+    date: {
+      data: {
+        timeStart: filterValues.timeStart,
+        timeEnd: filterValues.timeEnd,
+        isMonthlyClimatology: dateHandling.isMonthlyClimatology,
+      },
+      handlers: {
+        setTimeStart: filterSetters.setTimeStart,
+        setTimeEnd: filterSetters.setTimeEnd,
+      },
+    },
+    latitude: {
+      data: {
+        latStart: filterValues.latStart,
+        latEnd: filterValues.latEnd,
+      },
+      handlers: {
+        setLatStart: filterSetters.setLatStart,
+        setLatEnd: filterSetters.setLatEnd,
+      },
+    },
+    longitude: {
+      data: {
+        lonStart: filterValues.lonStart,
+        lonEnd: filterValues.lonEnd,
+      },
+      handlers: {
+        setLonStart: filterSetters.setLonStart,
+        setLonEnd: filterSetters.setLonEnd,
+      },
+    },
+    depth: {
+      data: {
+        depthStart: filterValues.depthStart,
+        depthEnd: filterValues.depthEnd,
+      },
+      handlers: {
+        setDepthStart: filterSetters.setDepthStart,
+        setDepthEnd: filterSetters.setDepthEnd,
+      },
+    },
+  };
+
   return (
     <Box
       sx={{ maxWidth: '100vw', overflow: 'hidden', boxSizing: 'border-box' }}
@@ -130,9 +232,23 @@ const MultiDatasetDownloadContainerInner = ({
             optionsState={optionsState}
             handleSwitch={handleSwitch}
             geographicPresets={geographicPresets}
+            collectionExtent={collectionExtent}
+            selectedPreset={selectedPreset}
+            onPresetSelect={handlePresetSelect}
+            wrappedGeoHandlers={wrappedGeoHandlers}
           />
         </SubsetControls>
       </Box>
+
+      {optionsState.subset && (
+        <Box mb={3} p={2}>
+          <ResetToCollectionExtentButton
+            controls={resetButtonControls}
+            collectionExtent={collectionExtent}
+            onResetPreset={handleResetPreset}
+          />
+        </Box>
+      )}
 
       <Box mb={3} p={2}>
         <SearchInput placeholder="Search datasets..." />

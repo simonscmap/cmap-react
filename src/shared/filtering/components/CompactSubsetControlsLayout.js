@@ -129,6 +129,10 @@ const CompactSubsetControlsLayout = ({
   handleSwitch,
   controls = {}, // Default to empty object to prevent destructuring errors
   geographicPresets,
+  collectionExtent,
+  selectedPreset,
+  onPresetSelect,
+  wrappedGeoHandlers,
 }) => {
   const classes = useStyles();
 
@@ -198,19 +202,10 @@ const CompactSubsetControlsLayout = ({
 
             <Box className={classes.presetRow}>
               <CompactPresetGeographicBounds
-                currentBounds={{
-                  latStart: latitude.data.latStart,
-                  latEnd: latitude.data.latEnd,
-                  lonStart: longitude.data.lonStart,
-                  lonEnd: longitude.data.lonEnd,
-                }}
-                onPresetApply={(bounds) => {
-                  latitude.handlers.setLatStart(bounds.latStart);
-                  latitude.handlers.setLatEnd(bounds.latEnd);
-                  longitude.handlers.setLonStart(bounds.lonStart);
-                  longitude.handlers.setLonEnd(bounds.lonEnd);
-                }}
+                selectedPreset={selectedPreset}
+                onPresetSelect={onPresetSelect}
                 geographicPresets={geographicPresets}
+                collectionExtent={collectionExtent}
               />
               <Box style={{ display: 'flex', alignItems: 'flex-end' }}>
                 {longitude.data.lonStart > longitude.data.lonEnd && (
@@ -227,8 +222,8 @@ const CompactSubsetControlsLayout = ({
                 title="Latitude [°]"
                 start={latitude.data.latStart}
                 end={latitude.data.latEnd}
-                setStart={latitude.handlers.setLatStart}
-                setEnd={latitude.handlers.setLatEnd}
+                setStart={wrappedGeoHandlers.latitude.setLatStart}
+                setEnd={wrappedGeoHandlers.latitude.setLatEnd}
                 min={latitude.data.latMin}
                 max={latitude.data.latMax}
                 step={0.1}
@@ -239,8 +234,8 @@ const CompactSubsetControlsLayout = ({
                 title="Longitude [°]"
                 start={longitude.data.lonStart}
                 end={longitude.data.lonEnd}
-                setStart={longitude.handlers.setLonStart}
-                setEnd={longitude.handlers.setLonEnd}
+                setStart={wrappedGeoHandlers.longitude.setLonStart}
+                setEnd={wrappedGeoHandlers.longitude.setLonEnd}
                 min={longitude.data.lonMin}
                 max={longitude.data.lonMax}
                 step={0.1}
@@ -316,6 +311,24 @@ CompactSubsetControlsLayout.propTypes = {
     }).isRequired,
   }), // Not marked as .isRequired since it's provided via React.cloneElement
   geographicPresets: PropTypes.array,
+  collectionExtent: PropTypes.shape({
+    latMin: PropTypes.number.isRequired,
+    latMax: PropTypes.number.isRequired,
+    lonMin: PropTypes.number.isRequired,
+    lonMax: PropTypes.number.isRequired,
+  }),
+  selectedPreset: PropTypes.string.isRequired,
+  onPresetSelect: PropTypes.func.isRequired,
+  wrappedGeoHandlers: PropTypes.shape({
+    latitude: PropTypes.shape({
+      setLatStart: PropTypes.func.isRequired,
+      setLatEnd: PropTypes.func.isRequired,
+    }).isRequired,
+    longitude: PropTypes.shape({
+      setLonStart: PropTypes.func.isRequired,
+      setLonEnd: PropTypes.func.isRequired,
+    }).isRequired,
+  }).isRequired,
 };
 
 export default CompactSubsetControlsLayout;

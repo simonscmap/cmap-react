@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import {
   FormControl,
@@ -19,29 +19,34 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-/**
- * Compact preset geographic bounds dropdown
- * Provides quick selection of common geographic regions
- *
- * @param {Object} props
- * @param {Object} props.currentBounds - Current lat/lon bounds
- * @param {number} props.currentBounds.latStart - Southern latitude
- * @param {number} props.currentBounds.latEnd - Northern latitude
- * @param {number} props.currentBounds.lonStart - Western longitude
- * @param {number} props.currentBounds.lonEnd - Eastern longitude
- * @param {Function} props.onPresetApply - Callback when preset is applied with bounds object
- */
+const PSEUDO_PRESET_LABELS = {
+  COLLECTION_EXTENT: 'Collection Extent',
+  CUSTOM: 'Custom',
+};
+
 const DISABLED_TOOLTIP_MESSAGE = 'No datasets overlap with this region';
 
 const CompactPresetGeographicBounds = ({
-  currentBounds,
-  onPresetApply,
+  selectedPreset,
+  onPresetSelect,
   geographicPresets,
+  collectionExtent,
 }) => {
   const classes = useStyles();
-  const [selectedPreset, setSelectedPreset] = useState('Global');
 
-  const presets = geographicPresets || DefaultGeographicBoundaries;
+  const mergedPresets = useMemo(() => {
+    const basePresets = geographicPresets || DefaultGeographicBoundaries;
+    if (!collectionExtent) return basePresets;
+
+    const collectionPreset = {
+      label: PSEUDO_PRESET_LABELS.COLLECTION_EXTENT,
+      southLatitude: collectionExtent.latMin,
+      northLatitude: collectionExtent.latMax,
+      westLongitude: collectionExtent.lonMin,
+      eastLongitude: collectionExtent.lonMax,
+    };
+    return [collectionPreset, ...basePresets];
+  }, [geographicPresets, collectionExtent]);
 
   const datasetsMetadata = useMultiDatasetDownloadStore(
     (state) => state.datasetsMetadata,
@@ -51,52 +56,25 @@ const CompactPresetGeographicBounds = ({
     if (!datasetsMetadata || datasetsMetadata.length === 0) {
       return new Map();
     }
-    return computePresetDisabledStates(presets, datasetsMetadata);
-  }, [datasetsMetadata, presets]);
+    return computePresetDisabledStates(mergedPresets, datasetsMetadata);
+  }, [datasetsMetadata, mergedPresets]);
 
-  /**
-   * Handle preset selection from dropdown
-   * Finds matching preset and calls onPresetApply with bounds
-   */
   const handlePresetChange = (e) => {
     const presetLabel = e.target.value;
-    if (presetLabel === '') {
-      setSelectedPreset(null);
+    if (presetLabel === '' || presetLabel === PSEUDO_PRESET_LABELS.CUSTOM) {
       return;
     }
 
-    const preset = presets.find((p) => p.label === presetLabel);
+    const preset = mergedPresets.find((p) => p.label === presetLabel);
     if (preset) {
-      onPresetApply({
+      onPresetSelect(presetLabel, {
         latStart: preset.southLatitude,
         latEnd: preset.northLatitude,
         lonStart: preset.westLongitude,
         lonEnd: preset.eastLongitude,
       });
-      setSelectedPreset(preset.label);
     }
   };
-
-  /**
-   * Clear preset selection when bounds are manually edited
-   * Detects when current bounds don't match selected preset
-   */
-  useEffect(() => {
-    if (!selectedPreset) return;
-
-    const currentPreset = presets.find((p) => p.label === selectedPreset);
-    if (!currentPreset) return;
-
-    const boundsMatch =
-      currentBounds.latStart === currentPreset.southLatitude &&
-      currentBounds.latEnd === currentPreset.northLatitude &&
-      currentBounds.lonStart === currentPreset.westLongitude &&
-      currentBounds.lonEnd === currentPreset.eastLongitude;
-
-    if (!boundsMatch) {
-      setSelectedPreset(null);
-    }
-  }, [currentBounds, selectedPreset, presets]);
 
   return (
     <FormControl variant="outlined" className={classes.presetControl}>
@@ -110,10 +88,17 @@ const CompactPresetGeographicBounds = ({
           style: { zIndex: zIndex.MODAL_LAYER_2_POPPER },
         }}
       >
-        <MenuItem value="">
-          <em>Select a preset</em>
-        </MenuItem>
-        {presets.map((preset) => {
+        {selectedPreset === PSEUDO_PRESET_LABELS.CUSTOM && (
+          <MenuItem value={PSEUDO_PRESET_LABELS.CUSTOM} disabled>
+            <em>Custom</em>
+          </MenuItem>
+        )}
+        {selectedPreset !== PSEUDO_PRESET_LABELS.CUSTOM && (
+          <MenuItem value="">
+            <em>Select a preset</em>
+          </MenuItem>
+        )}
+        {mergedPresets.map((preset) => {
           const isDisabled = disabledPresets.get(preset.label) || false;
 
           if (isDisabled) {
@@ -151,14 +136,15 @@ const CompactPresetGeographicBounds = ({
 };
 
 CompactPresetGeographicBounds.propTypes = {
-  currentBounds: PropTypes.shape({
-    latStart: PropTypes.number.isRequired,
-    latEnd: PropTypes.number.isRequired,
-    lonStart: PropTypes.number.isRequired,
-    lonEnd: PropTypes.number.isRequired,
-  }).isRequired,
-  onPresetApply: PropTypes.func.isRequired,
+  selectedPreset: PropTypes.string.isRequired,
+  onPresetSelect: PropTypes.func.isRequired,
   geographicPresets: PropTypes.array,
+  collectionExtent: PropTypes.shape({
+    latMin: PropTypes.number.isRequired,
+    latMax: PropTypes.number.isRequired,
+    lonMin: PropTypes.number.isRequired,
+    lonMax: PropTypes.number.isRequired,
+  }),
 };
 
 export default CompactPresetGeographicBounds;

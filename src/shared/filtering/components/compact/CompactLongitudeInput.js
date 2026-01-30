@@ -127,6 +127,7 @@ const CompactLongitudeInput = ({
     max,
     step,
     allowInversion: true,
+    fieldType: 'longitude',
   });
 
   const isInverted = sliderStart > sliderEnd;
