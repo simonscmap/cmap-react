@@ -100,6 +100,7 @@ const CompactDepthInput = ({
   max,
   step,
   unit = '',
+  onExpandEndpoint,
 }) => {
   const classes = useStyles();
 
@@ -118,7 +119,7 @@ const CompactDepthInput = ({
     sliderStart,
     sliderEnd,
     bounds,
-  } = useRangeInput({ start, end, setStart, setEnd, min, max, step, fieldType: 'depth' });
+  } = useRangeInput({ start, end, setStart, setEnd, min, max, step, fieldType: 'depth', onExpandEndpoint });
 
   return (
     <Box className={classes.container}>
@@ -222,6 +223,7 @@ CompactDepthInput.propTypes = {
   max: PropTypes.number.isRequired,
   step: PropTypes.number.isRequired,
   unit: PropTypes.string,
+  onExpandEndpoint: PropTypes.func,
 };
 
 export default CompactDepthInput;

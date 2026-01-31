@@ -24,6 +24,8 @@ const clampValue = (value, min, max) => {
 const ABSOLUTE_BOUNDS = {
   latitude: { min: -90, max: 90 },
   longitude: { min: -180, max: 180 },
+  lat: { min: -90, max: 90 },
+  lon: { min: -180, max: 180 },
 };
 
 const getAbsoluteBounds = (fieldType) => {

@@ -23,8 +23,10 @@ import CompactLatitudeInput from './compact/CompactLatitudeInput';
 import CompactLongitudeInput from './compact/CompactLongitudeInput';
 import CompactDepthInput from './compact/CompactDepthInput';
 import CompactPresetGeographicBounds from './compact/CompactPresetGeographicBounds';
+import SliderStatusMessage from './compact/SliderStatusMessage';
 import MonthlyDateSubsetControl from './controls/MonthlyDateSubsetControl';
 import ToggleWithHelp from '../../components/ToggleWithHelp';
+import { FIELD_TYPES } from '../utils/endpointFields';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -133,6 +135,9 @@ const CompactSubsetControlsLayout = ({
   selectedPreset,
   onPresetSelect,
   wrappedGeoHandlers,
+  sliderEndpoints,
+  sliderMessage,
+  onExpandEndpoint,
 }) => {
   const classes = useStyles();
 
@@ -184,10 +189,11 @@ const CompactSubsetControlsLayout = ({
               end={depth.data.depthEnd}
               setStart={depth.handlers.setDepthStart}
               setEnd={depth.handlers.setDepthEnd}
-              min={depth.data.depthMin}
-              max={depth.data.depthMax}
+              min={sliderEndpoints ? sliderEndpoints.depthMin : depth.data.depthMin}
+              max={sliderEndpoints ? sliderEndpoints.depthMax : depth.data.depthMax}
               step={0.1}
               unit="m"
+              onExpandEndpoint={onExpandEndpoint ? function (fieldName, value) { onExpandEndpoint(FIELD_TYPES.DEPTH, fieldName, value); } : null}
             />
           </Box>
 
@@ -217,6 +223,8 @@ const CompactSubsetControlsLayout = ({
               </Box>
             </Box>
 
+            <SliderStatusMessage message={sliderMessage} />
+
             <Box className={classes.geographicGrid}>
               <CompactLatitudeInput
                 title="Latitude [°]"
@@ -224,10 +232,11 @@ const CompactSubsetControlsLayout = ({
                 end={latitude.data.latEnd}
                 setStart={wrappedGeoHandlers.latitude.setLatStart}
                 setEnd={wrappedGeoHandlers.latitude.setLatEnd}
-                min={latitude.data.latMin}
-                max={latitude.data.latMax}
+                min={sliderEndpoints ? sliderEndpoints.latMin : latitude.data.latMin}
+                max={sliderEndpoints ? sliderEndpoints.latMax : latitude.data.latMax}
                 step={0.1}
                 unit="°"
+                onExpandEndpoint={onExpandEndpoint ? function (fieldName, value) { onExpandEndpoint(FIELD_TYPES.LAT, fieldName, value); } : null}
               />
 
               <CompactLongitudeInput
@@ -236,10 +245,11 @@ const CompactSubsetControlsLayout = ({
                 end={longitude.data.lonEnd}
                 setStart={wrappedGeoHandlers.longitude.setLonStart}
                 setEnd={wrappedGeoHandlers.longitude.setLonEnd}
-                min={longitude.data.lonMin}
-                max={longitude.data.lonMax}
+                min={sliderEndpoints ? sliderEndpoints.lonMin : longitude.data.lonMin}
+                max={sliderEndpoints ? sliderEndpoints.lonMax : longitude.data.lonMax}
                 step={0.1}
                 unit="°"
+                onExpandEndpoint={onExpandEndpoint ? function (fieldName, value) { onExpandEndpoint(FIELD_TYPES.LON, fieldName, value); } : null}
               />
             </Box>
           </Box>
@@ -329,6 +339,16 @@ CompactSubsetControlsLayout.propTypes = {
       setLonEnd: PropTypes.func.isRequired,
     }).isRequired,
   }).isRequired,
+  sliderEndpoints: PropTypes.shape({
+    latMin: PropTypes.number,
+    latMax: PropTypes.number,
+    lonMin: PropTypes.number,
+    lonMax: PropTypes.number,
+    depthMin: PropTypes.number,
+    depthMax: PropTypes.number,
+  }),
+  sliderMessage: PropTypes.string,
+  onExpandEndpoint: PropTypes.func,
 };
 
 export default CompactSubsetControlsLayout;
