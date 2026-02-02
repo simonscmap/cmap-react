@@ -10,6 +10,31 @@ import { floorToStep, ceilToStep } from '../utils/rangeValidation';
 
 const SLIDER_STEP = 0.1;
 
+const initializeSliderEndpoints = (dataset) => {
+  if (!dataset) {
+    return {
+      latMin: null,
+      latMax: null,
+      lonMin: null,
+      lonMax: null,
+      depthMin: null,
+      depthMax: null,
+      timeMin: null,
+      timeMax: null,
+    };
+  }
+  return {
+    latMin: dataset.Lat_Min != null ? floorToStep(dataset.Lat_Min, SLIDER_STEP) : null,
+    latMax: dataset.Lat_Max != null ? ceilToStep(dataset.Lat_Max, SLIDER_STEP) : null,
+    lonMin: dataset.Lon_Min != null ? floorToStep(dataset.Lon_Min, SLIDER_STEP) : null,
+    lonMax: dataset.Lon_Max != null ? ceilToStep(dataset.Lon_Max, SLIDER_STEP) : null,
+    depthMin: dataset.Depth_Min != null ? floorToStep(dataset.Depth_Min, SLIDER_STEP) : null,
+    depthMax: dataset.Depth_Max != null ? ceilToStep(dataset.Depth_Max, SLIDER_STEP) : null,
+    timeMin: dataset.Time_Min ? parseUTCDateString(dataset.Time_Min) : null,
+    timeMax: dataset.Time_Max ? parseUTCDateString(dataset.Time_Max) : null,
+  };
+};
+
 /**
  * Pure filtering hook for managing subset filter parameters
  * @param {Object} dataset - Dataset object containing spatial and temporal bounds
@@ -46,6 +71,10 @@ const useSubsetFiltering = (dataset) => {
   const [depthStart, setDepthStart] = useState(depth.start);
   const [depthEnd, setDepthEnd] = useState(depth.end);
 
+  const [sliderEndpoints, setSliderEndpoints] = useState(() =>
+    initializeSliderEndpoints(dataset),
+  );
+
   // Fix for React state initialization race condition:
   // ISSUE: useState(lat.start) captures initial values, but when isFiltered useMemo runs,
   // it compares state values against potentially updated lat.start values from a later render.
@@ -68,7 +97,9 @@ const useSubsetFiltering = (dataset) => {
     setTimeEnd(time.end);
     setDepthStart(depth.start);
     setDepthEnd(depth.end);
+    setSliderEndpoints(initializeSliderEndpoints(dataset));
   }, [
+    dataset,
     lat.start,
     lat.end,
     lon.start,
@@ -231,6 +262,7 @@ const useSubsetFiltering = (dataset) => {
       setLonEnd,
       setDepthStart,
       setDepthEnd,
+      setSliderEndpoints,
     }),
     [],
   );
@@ -239,6 +271,7 @@ const useSubsetFiltering = (dataset) => {
     // Core data objects
     filterValues,
     filterSetters,
+    sliderEndpoints,
     datasetFilterBounds: {
       latMin: dataset?.Lat_Min != null ? floorToStep(dataset.Lat_Min, SLIDER_STEP) : null,
       latMax: dataset?.Lat_Max != null ? ceilToStep(dataset.Lat_Max, SLIDER_STEP) : null,

@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
     flexWrap: 'wrap',
     gap: theme.spacing(2),
     marginBottom: theme.spacing(2),
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
   searchRow: {
     display: 'flex',
@@ -58,7 +58,15 @@ const useStyles = makeStyles((theme) => ({
   dateInputGroup: {
     display: 'flex',
     gap: theme.spacing(2),
-    flexShrink: 0,
+  },
+  dateSection: {
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: 41 + 8 + 18, // date inputs height + marginTop + error height
+  },
+  dateValidationError: {
+    height: 18,
+    marginTop: theme.spacing(1),
   },
   loadingContainer: {
     display: 'flex',
@@ -121,6 +129,12 @@ const CatalogSearchSection = ({
     return ['All Regions', ...filteredRegions];
   }, [regions]);
 
+  const hasInvalidDateRange =
+    searchQuery.dateRangePreset === 'Custom Range' &&
+    searchQuery.customDateStart &&
+    searchQuery.customDateEnd &&
+    searchQuery.customDateStart > searchQuery.customDateEnd;
+
   // Initialize on mount
   useEffect(() => {
     initialize();
@@ -161,38 +175,43 @@ const CatalogSearchSection = ({
   };
 
   const handleDateRangeChange = (e) => {
-    setDateRangePreset(e.target.value);
-    handleSearch();
+    const preset = e.target.value;
+    setDateRangePreset(preset);
+    if (preset !== 'Custom Range') {
+      handleSearch();
+    }
   };
 
-  // Convert Date object to YYYY-MM-DD string
   const dateToString = (date) => {
     if (!date) return '';
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   };
 
-  // Convert YYYY-MM-DD string to Date object
   const stringToDate = (dateString) => {
     if (!dateString) return null;
     const [year, month, day] = dateString.split('-').map(Number);
-    return new Date(year, month - 1, day);
+    return new Date(Date.UTC(year, month - 1, day));
   };
 
   const handleCustomDateChange = (field, dateValue) => {
     const dateString = dateToString(dateValue);
+    const newStart =
+      field === 'start' ? dateString : searchQuery.customDateStart;
+    const newEnd = field === 'end' ? dateString : searchQuery.customDateEnd;
+
     if (field === 'start') {
       setCustomDateRange(dateString, searchQuery.customDateEnd);
     } else {
       setCustomDateRange(searchQuery.customDateStart, dateString);
     }
-    // Auto-search when both dates are set
-    if (
-      (field === 'start' && dateString && searchQuery.customDateEnd) ||
-      (field === 'end' && dateString && searchQuery.customDateStart)
-    ) {
+
+    const bothDatesSet = newStart && newEnd;
+    const isValidRange = !bothDatesSet || newStart <= newEnd;
+
+    if (bothDatesSet && isValidRange) {
       setTimeout(() => handleSearch(), 100);
     }
   };
@@ -314,23 +333,33 @@ const CatalogSearchSection = ({
           </Select>
         </FormControl>
 
-        {/* Custom Date Pickers - shown inline when Custom Range is selected */}
-        {searchQuery.dateRangePreset === 'Custom Range' && (
-          <Box className={classes.dateInputGroup}>
-            <DateInput
-              label="Start Date"
-              value={stringToDate(searchQuery.customDateStart)}
-              onChange={(date) => handleCustomDateChange('start', date)}
-              width={140}
-            />
-            <DateInput
-              label="End Date"
-              value={stringToDate(searchQuery.customDateEnd)}
-              onChange={(date) => handleCustomDateChange('end', date)}
-              width={140}
-            />
-          </Box>
-        )}
+        {/* Date section - always rendered, contains conditional date inputs + error */}
+        <Box className={classes.dateSection}>
+          {searchQuery.dateRangePreset === 'Custom Range' && (
+            <Box className={classes.dateInputGroup}>
+              <DateInput
+                label="Start Date"
+                value={stringToDate(searchQuery.customDateStart)}
+                onChange={(date) => handleCustomDateChange('start', date)}
+                width={140}
+              />
+              <DateInput
+                label="End Date"
+                value={stringToDate(searchQuery.customDateEnd)}
+                onChange={(date) => handleCustomDateChange('end', date)}
+                width={140}
+              />
+            </Box>
+          )}
+          <Typography
+            color="error"
+            variant="caption"
+            className={classes.dateValidationError}
+            style={{ visibility: hasInvalidDateRange ? 'visible' : 'hidden' }}
+          >
+            Start date must be before end date
+          </Typography>
+        </Box>
       </Box>
 
       {/* Results Table - Always shown, matching FromCollectionsTab pattern */}

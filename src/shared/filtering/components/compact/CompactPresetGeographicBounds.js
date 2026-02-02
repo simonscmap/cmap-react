@@ -72,7 +72,7 @@ const CompactPresetGeographicBounds = ({
         latEnd: preset.northLatitude,
         lonStart: preset.westLongitude,
         lonEnd: preset.eastLongitude,
-      });
+      }, preset);
     }
   };
 
