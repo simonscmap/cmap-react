@@ -314,7 +314,15 @@ const useCatalogSearchStore = create((set, get) => ({
    */
   setDateRangePreset: (preset) => {
     set((state) => ({
-      searchQuery: { ...state.searchQuery, dateRangePreset: preset },
+      searchQuery: {
+        ...state.searchQuery,
+        dateRangePreset: preset,
+        ...(preset !== 'Custom Range' && {
+          customDateStart: null,
+          customDateEnd: null,
+          temporal: null,
+        }),
+      },
     }));
   },
 

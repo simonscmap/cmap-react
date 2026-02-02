@@ -24,6 +24,7 @@ const useRangeInput = ({
   step = 0.1,
   allowInversion = false,
   fieldType = null,
+  onExpandEndpoint = null,
 }) => {
   // Local state for typing values (two-phase updates)
   const [localStartValue, setLocalStartValue] = useState('');
@@ -189,6 +190,13 @@ const useRangeInput = ({
             );
           }
         }
+      }
+
+      if (onExpandEndpoint && fieldType) {
+        var endpointFieldName = isStart
+          ? fieldType + 'Min'
+          : fieldType + 'Max';
+        onExpandEndpoint(endpointFieldName, clampedValue);
       }
 
       setValue(clampedValue);

@@ -101,6 +101,7 @@ const CompactLongitudeInput = ({
   max,
   step,
   unit = '',
+  onExpandEndpoint,
 }) => {
   const classes = useStyles();
 
@@ -127,7 +128,8 @@ const CompactLongitudeInput = ({
     max,
     step,
     allowInversion: true,
-    fieldType: 'longitude',
+    fieldType: 'lon',
+    onExpandEndpoint,
   });
 
   const isInverted = sliderStart > sliderEnd;
@@ -231,6 +233,7 @@ CompactLongitudeInput.propTypes = {
   max: PropTypes.number.isRequired,
   step: PropTypes.number.isRequired,
   unit: PropTypes.string,
+  onExpandEndpoint: PropTypes.func,
 };
 
 export default CompactLongitudeInput;

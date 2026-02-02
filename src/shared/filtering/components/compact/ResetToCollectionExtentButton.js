@@ -74,6 +74,8 @@ const ResetToCollectionExtentButton = ({
   controls,
   collectionExtent,
   onResetPreset,
+  setSliderEndpoints,
+  setSliderMessage,
 }) => {
   const classes = useStyles();
 
@@ -87,6 +89,19 @@ const ResetToCollectionExtentButton = ({
     if (!collectionExtent) return;
 
     const isMonthlyClimatology = date.data.isMonthlyClimatology;
+
+    if (setSliderEndpoints) {
+      setSliderEndpoints({
+        latMin: collectionExtent.latMin,
+        latMax: collectionExtent.latMax,
+        lonMin: collectionExtent.lonMin,
+        lonMax: collectionExtent.lonMax,
+        depthMin: collectionExtent.depthMin,
+        depthMax: collectionExtent.depthMax,
+        timeMin: collectionExtent.timeMin,
+        timeMax: collectionExtent.timeMax,
+      });
+    }
 
     latitude.handlers.setLatStart(collectionExtent.latMin);
     latitude.handlers.setLatEnd(collectionExtent.latMax);
@@ -103,6 +118,10 @@ const ResetToCollectionExtentButton = ({
 
     if (onResetPreset) {
       onResetPreset();
+    }
+
+    if (setSliderMessage) {
+      setSliderMessage('Restored to collection extent');
     }
   };
 
@@ -226,6 +245,8 @@ ResetToCollectionExtentButton.propTypes = {
     depthMax: PropTypes.number,
   }),
   onResetPreset: PropTypes.func,
+  setSliderEndpoints: PropTypes.func,
+  setSliderMessage: PropTypes.func,
 };
 
 export default ResetToCollectionExtentButton;

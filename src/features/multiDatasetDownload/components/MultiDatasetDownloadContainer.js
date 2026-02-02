@@ -22,6 +22,15 @@ import logInit from '../../../Services/log-service';
 import { FeatureErrorBoundary } from '../../../shared/errorCapture';
 import { floorToStep, ceilToStep } from '../../../shared/filtering/utils/rangeValidation';
 import { parseUTCDateString } from '../../../shared/filtering/utils/dateHelpers';
+import {
+  calculatePresetEndpoints,
+  calculateLongitudeEndpoints,
+  expandEndpointIfNeeded,
+} from '../../../shared/filtering/utils/sliderEndpointUtils';
+import {
+  FIELD_TYPES,
+  ENDPOINT_FIELDS,
+} from '../../../shared/filtering/utils/endpointFields';
 
 import {
   SearchProvider,
@@ -91,8 +100,15 @@ const MultiDatasetDownloadContainerInner = ({
   // State for preset dropdown (controlled component pattern)
   const [selectedPreset, setSelectedPreset] = useState('Collection Extent');
 
+  // State for slider status message
+  const [sliderMessage, setSliderMessage] = useState(null);
+
   const handleResetPreset = () => {
     setSelectedPreset('Collection Extent');
+  };
+
+  const clearSliderMessage = () => {
+    setSliderMessage(null);
   };
 
   // Handle toggle switch for subset controls
@@ -110,10 +126,34 @@ const MultiDatasetDownloadContainerInner = ({
     filterSetters,
     datasetFilterBounds,
     dateHandling,
+    sliderEndpoints,
   } = useSubsetFiltering(aggregateDatasetMetadata);
 
-  const handlePresetSelect = (presetLabel, bounds) => {
+  const handlePresetSelect = (presetLabel, bounds, preset) => {
     setSelectedPreset(presetLabel);
+
+    if (preset && collectionExtent) {
+      var newLatEndpoints = calculatePresetEndpoints(preset, collectionExtent);
+      var newLonEndpoints = calculateLongitudeEndpoints(preset, collectionExtent);
+
+      filterSetters.setSliderEndpoints({
+        latMin: newLatEndpoints.latMin,
+        latMax: newLatEndpoints.latMax,
+        lonMin: newLonEndpoints.lonMin,
+        lonMax: newLonEndpoints.lonMax,
+        depthMin: sliderEndpoints.depthMin,
+        depthMax: sliderEndpoints.depthMax,
+        timeMin: sliderEndpoints.timeMin,
+        timeMax: sliderEndpoints.timeMax,
+      });
+
+      if (presetLabel !== 'Collection Extent') {
+        setSliderMessage('Using ' + presetLabel + ' bounds');
+      } else {
+        setSliderMessage(null);
+      }
+    }
+
     filterSetters.setLatStart(bounds.latStart);
     filterSetters.setLatEnd(bounds.latEnd);
     filterSetters.setLonStart(bounds.lonStart);
@@ -125,22 +165,69 @@ const MultiDatasetDownloadContainerInner = ({
       setLatStart: (value) => {
         filterSetters.setLatStart(value);
         setSelectedPreset('Custom');
+        clearSliderMessage();
       },
       setLatEnd: (value) => {
         filterSetters.setLatEnd(value);
         setSelectedPreset('Custom');
+        clearSliderMessage();
       },
     },
     longitude: {
       setLonStart: (value) => {
         filterSetters.setLonStart(value);
         setSelectedPreset('Custom');
+        clearSliderMessage();
       },
       setLonEnd: (value) => {
         filterSetters.setLonEnd(value);
         setSelectedPreset('Custom');
+        clearSliderMessage();
       },
     },
+  };
+
+  var handleExpandEndpoint = function (fieldType, fieldName, value) {
+    if (!sliderEndpoints) return;
+
+    // Longitude antimeridian crossing: need to expand BOTH endpoints to -180/180
+    if (fieldType === FIELD_TYPES.LON) {
+      var lonStart = fieldName === ENDPOINT_FIELDS.LON_MIN ? value : filterValues.lonStart;
+      var lonEnd = fieldName === ENDPOINT_FIELDS.LON_MAX ? value : filterValues.lonEnd;
+
+      if (lonStart > lonEnd) {
+        filterSetters.setSliderEndpoints({
+          [ENDPOINT_FIELDS.LAT_MIN]: sliderEndpoints.latMin,
+          [ENDPOINT_FIELDS.LAT_MAX]: sliderEndpoints.latMax,
+          [ENDPOINT_FIELDS.LON_MIN]: -180,
+          [ENDPOINT_FIELDS.LON_MAX]: 180,
+          [ENDPOINT_FIELDS.DEPTH_MIN]: sliderEndpoints.depthMin,
+          [ENDPOINT_FIELDS.DEPTH_MAX]: sliderEndpoints.depthMax,
+          [ENDPOINT_FIELDS.TIME_MIN]: sliderEndpoints.timeMin,
+          [ENDPOINT_FIELDS.TIME_MAX]: sliderEndpoints.timeMax,
+        });
+        clearSliderMessage();
+        return;
+      }
+    }
+
+    // Normal single-field expansion
+    var expanded = expandEndpointIfNeeded(sliderEndpoints, fieldName, value);
+    if (expanded !== sliderEndpoints[fieldName]) {
+      var updated = {
+        [ENDPOINT_FIELDS.LAT_MIN]: sliderEndpoints.latMin,
+        [ENDPOINT_FIELDS.LAT_MAX]: sliderEndpoints.latMax,
+        [ENDPOINT_FIELDS.LON_MIN]: sliderEndpoints.lonMin,
+        [ENDPOINT_FIELDS.LON_MAX]: sliderEndpoints.lonMax,
+        [ENDPOINT_FIELDS.DEPTH_MIN]: sliderEndpoints.depthMin,
+        [ENDPOINT_FIELDS.DEPTH_MAX]: sliderEndpoints.depthMax,
+        [ENDPOINT_FIELDS.TIME_MIN]: sliderEndpoints.timeMin,
+        [ENDPOINT_FIELDS.TIME_MAX]: sliderEndpoints.timeMax,
+      };
+      updated[fieldName] = expanded;
+      filterSetters.setSliderEndpoints(updated);
+      clearSliderMessage();
+    }
   };
 
   // Reset store when component unmounts
@@ -236,6 +323,9 @@ const MultiDatasetDownloadContainerInner = ({
             selectedPreset={selectedPreset}
             onPresetSelect={handlePresetSelect}
             wrappedGeoHandlers={wrappedGeoHandlers}
+            sliderEndpoints={sliderEndpoints}
+            sliderMessage={sliderMessage}
+            onExpandEndpoint={handleExpandEndpoint}
           />
         </SubsetControls>
       </Box>
@@ -246,6 +336,8 @@ const MultiDatasetDownloadContainerInner = ({
             controls={resetButtonControls}
             collectionExtent={collectionExtent}
             onResetPreset={handleResetPreset}
+            setSliderEndpoints={filterSetters.setSliderEndpoints}
+            setSliderMessage={setSliderMessage}
           />
         </Box>
       )}

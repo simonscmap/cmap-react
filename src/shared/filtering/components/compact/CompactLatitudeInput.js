@@ -92,6 +92,7 @@ const CompactLatitudeInput = ({
   max,
   step,
   unit = '',
+  onExpandEndpoint,
 }) => {
   const classes = useStyles();
 
@@ -110,7 +111,7 @@ const CompactLatitudeInput = ({
     sliderStart,
     sliderEnd,
     bounds,
-  } = useRangeInput({ start, end, setStart, setEnd, min, max, step, fieldType: 'latitude' });
+  } = useRangeInput({ start, end, setStart, setEnd, min, max, step, fieldType: 'lat', onExpandEndpoint });
 
   return (
     <Box className={classes.container}>
@@ -209,6 +210,7 @@ CompactLatitudeInput.propTypes = {
   max: PropTypes.number.isRequired,
   step: PropTypes.number.isRequired,
   unit: PropTypes.string,
+  onExpandEndpoint: PropTypes.func,
 };
 
 export default CompactLatitudeInput;
