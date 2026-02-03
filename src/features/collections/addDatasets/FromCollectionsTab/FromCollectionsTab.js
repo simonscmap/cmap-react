@@ -203,6 +203,7 @@ const FromCollectionsTab = ({
           <SearchProvider
             items={collections}
             searchKeys={['name', 'description']}
+            activationThreshold={2}
           >
             <CollectionSearchSection
               collections={collections}
@@ -239,6 +240,7 @@ const FromCollectionsTab = ({
         currentCollectionDatasetIds={currentCollectionDatasetIds}
         onToggleSelection={onToggleSelection}
         isLoading={isLoadingDatasets}
+        emptyMessage="No datasets loaded. Click 'LOAD COLLECTION' to fetch data."
       />
     </>
   );

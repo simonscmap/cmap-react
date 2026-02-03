@@ -159,12 +159,6 @@ const MyCollectionsContent = ({ visibilityFilter, setVisibilityFilter }) => {
         <Box className={classes.searchInput}>
           <SearchInput
             placeholder="Search collections by name, description, or creator..."
-            enableAutocomplete={true}
-            getOptionLabel={(collection) => collection.name || ''}
-            onSelect={(collection) => {
-              // Optional: handle collection selection from dropdown
-              console.log('Selected collection:', collection);
-            }}
             controlsAlign="left"
           />
         </Box>
@@ -332,6 +326,7 @@ const MyCollectionsTab = () => {
       <SearchProvider
         items={mergedCollections}
         searchKeys={['name', 'description', 'ownerName', 'ownerAffiliation']}
+        activationThreshold={2}
       >
         <MyCollectionsContent
           visibilityFilter={visibilityFilter}

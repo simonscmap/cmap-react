@@ -369,6 +369,7 @@ const CatalogSearchSection = ({
         currentCollectionDatasetIds={currentCollectionDatasetIds}
         onToggleSelection={onToggleSelection}
         isLoading={isSearching}
+        emptyMessage="Search datasets by name, keywords, or description, then click SEARCH."
       />
     </Box>
   );
