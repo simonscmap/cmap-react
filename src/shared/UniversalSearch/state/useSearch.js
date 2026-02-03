@@ -14,10 +14,11 @@ const createSearchStore = (initProps) =>
     isActive: false,
     resultCount: initProps.items?.length || 0,
     totalCount: initProps.items?.length || 0,
+    activationThreshold: initProps.activationThreshold || SEARCH_CONFIG.ACTIVATION_THRESHOLD,
 
     actions: {
       setSearchQuery: (query) => {
-        const { items, searchKeys, searchEngine } = get();
+        const { items, searchKeys, searchEngine, activationThreshold } = get();
 
         if (!query || query.trim() === '') {
           set({
@@ -30,7 +31,7 @@ const createSearchStore = (initProps) =>
         }
 
         // Check activation threshold - don't execute search below threshold
-        if (query.trim().length < SEARCH_CONFIG.ACTIVATION_THRESHOLD) {
+        if (query.trim().length < activationThreshold) {
           set({
             searchQuery: query,
             filteredItems: items,
@@ -88,8 +89,8 @@ const createSearchStore = (initProps) =>
 
 const SearchContext = createContext(null);
 
-export function SearchProvider({ children, items, searchKeys }) {
-  const store = useRef(createSearchStore({ items, searchKeys })).current;
+export function SearchProvider({ children, items, searchKeys, activationThreshold }) {
+  const store = useRef(createSearchStore({ items, searchKeys, activationThreshold })).current;
 
   // Update store when items prop changes
   useEffect(() => {
@@ -139,3 +140,5 @@ export const useResultCount = () =>
 export const useTotalCount = () => useSearchStore((state) => state.totalCount);
 export const useSearchActions = () => useSearchStore((state) => state.actions);
 export const useAllItems = () => useSearchStore((state) => state.items);
+export const useActivationThreshold = () =>
+  useSearchStore((state) => state.activationThreshold);

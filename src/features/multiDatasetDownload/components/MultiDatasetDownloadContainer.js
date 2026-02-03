@@ -343,7 +343,7 @@ const MultiDatasetDownloadContainerInner = ({
       )}
 
       <Box mb={3} p={2}>
-        <SearchInput placeholder="Search datasets..." />
+        <SearchInput placeholder="Search datasets..." showDropdownToggle={false} activationThreshold={2} />
       </Box>
 
       <Box mb={3}>

@@ -6,11 +6,13 @@ import {
   Typography,
   Checkbox,
   FormControlLabel,
+  Popper,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import { Autocomplete } from '@material-ui/lab';
+import { Autocomplete, ToggleButton } from '@material-ui/lab';
 import { Search, ExpandMore, ExpandLess } from '@material-ui/icons';
 import InfoTooltip from '../../components/InfoTooltip';
+import colors from '../../../enums/colors';
 
 import {
   useSearchQuery,
@@ -21,22 +23,23 @@ import {
   useTotalCount,
   useFilteredItems,
   useAllItems,
+  useActivationThreshold,
 } from '../state/useSearch';
 import { SEARCH_ENGINES, SEARCH_CONFIG } from '../constants/searchConstants';
 
 const useStyles = makeStyles((theme) => ({
   resultCount: {
-    minHeight: '24px', // Reserve space to prevent layout shift
+    minHeight: '24px',
     marginBottom: 8,
     fontSize: '0.875rem',
     color: theme.palette.text.secondary,
   },
   autocompleteListbox: {
     backgroundColor: '#1B4156',
-    maxHeight: '400px', // Fixed max height to prevent modal resizing
+    maxHeight: '400px',
     overflowY: 'auto',
-    paddingBottom: '44px', // Space for fixed footer
-    paddingRight: '8px', // Space for scrollbar to prevent overlap
+    paddingBottom: '44px',
+    paddingRight: '8px',
     '& .MuiAutocomplete-option': {
       color: '#ffffff',
       '&:hover': {
@@ -46,9 +49,8 @@ const useStyles = makeStyles((theme) => ({
         backgroundColor: 'rgba(157, 209, 98, 0.15)',
       },
     },
-    // For grid layouts, make options use display: contents so their children become grid items
     '&[style*="display: grid"]': {
-      paddingRight: 0, // Remove padding for grid, handle it differently
+      paddingRight: 0,
       '& .MuiAutocomplete-option': {
         display: 'contents',
         '&:hover > *': {
@@ -64,7 +66,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: '#1B4156',
     border: '1px solid rgba(157, 209, 98, 0.3)',
     minHeight: '48px',
-    maxHeight: '444px', // listbox height + footer height
+    maxHeight: '444px',
     position: 'relative',
     display: 'flex',
     flexDirection: 'column',
@@ -106,6 +108,46 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     backgroundColor: '#1B4156',
   },
+  textFieldRoot: {
+    '& .MuiOutlinedInput-root': {
+      '& fieldset': {
+        borderColor: colors.primary,
+      },
+      '&:hover fieldset': {
+        borderColor: colors.primary,
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: colors.primary,
+      },
+    },
+  },
+  autocompleteRootWithText: {
+    '& .MuiAutocomplete-clearIndicator': {
+      visibility: 'visible !important',
+    },
+  },
+  searchIcon: {
+    color: colors.primary,
+  },
+  toggleButton: {
+    color: colors.secondary,
+    borderColor: colors.secondary,
+    borderRadius: 4,
+    minWidth: 40,
+    height: 40,
+    marginLeft: 8,
+    backgroundColor: 'transparent',
+    '&:hover': {
+      backgroundColor: colors.blueHover,
+    },
+    '&.Mui-selected': {
+      backgroundColor: 'transparent',
+      color: colors.secondary,
+      '&:hover': {
+        backgroundColor: colors.blueHover,
+      },
+    },
+  },
 }));
 
 const SearchInput = ({
@@ -119,73 +161,73 @@ const SearchInput = ({
   getOptionLabel = null,
   renderOption = null,
   popperZIndex = null,
-  controlsAlign = 'right', // 'left' | 'right'
-  loadAllOnFocus = false, // New: when true, shows all items on focus before threshold is met
-  disablePortal = false, // When true, Popper renders inside parent instead of document body
-  prependOptions = [], // Array of options to prepend to the results (e.g., headers, group headers)
-  processItems = null, // Optional function to process/group items: (items) => processedItems
-  getOptionDisabled = null, // Optional function to determine if option should be disabled: (option) => boolean
-  listboxGridColumns = null, // Optional grid-template-columns value for grid-based layouts
+  controlsAlign = 'right',
+  loadAllOnFocus = false,
+  disablePortal = false,
+  prependOptions = [],
+  processItems = null,
+  getOptionDisabled = null,
+  listboxGridColumns = null,
+  showDropdownToggle = true,
+  activationThreshold: propThreshold = null,
 }) => {
   const classes = useStyles();
 
-  // Zustand state hooks
   const searchQuery = useSearchQuery();
   const searchEngine = useSearchEngine();
   const isSearchActive = useIsSearchActive();
   const resultCount = useResultCount();
   const totalCount = useTotalCount();
   const filteredItems = useFilteredItems();
+  const contextThreshold = useActivationThreshold();
+  const activationThreshold = propThreshold !== null ? propThreshold : contextThreshold;
   const allItems = useAllItems();
   const { setSearchQuery, clearSearch, setSearchEngine } = useSearchActions();
 
-  // Local input state for immediate UI response
   const [inputValue, setInputValue] = useState(searchQuery || '');
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [showAllOnFocus, setShowAllOnFocus] = useState(false); // Track if we should show all items
+  const [showAllOnFocus, setShowAllOnFocus] = useState(false);
 
-  // Refs for managing debounced search
   const debounceTimeoutRef = useRef(null);
+  const autocompleteRef = useRef(null);
 
-  // Sync local input state with Zustand when search state changes externally
   useEffect(() => {
     setInputValue(searchQuery || '');
   }, [searchQuery]);
 
-  // Open dropdown when search becomes active (show even with zero results)
   useEffect(() => {
     if (enableAutocomplete && isSearchActive) {
       setDropdownOpen(true);
     }
   }, [enableAutocomplete, isSearchActive, filteredItems.length]);
 
-  // Handle input change with immediate UI update
   const handleInputChange = useCallback(
     (event) => {
-      const value = event.target.value;
+      let value = event.target.value;
 
-      // Immediate state update for UI responsiveness
       setInputValue(value);
 
-      // Disable showAllOnFocus mode once user starts typing
       if (showAllOnFocus && value) {
         setShowAllOnFocus(false);
       }
 
-      // Clear any pending debounced search
       if (debounceTimeoutRef.current) {
         clearTimeout(debounceTimeoutRef.current);
       }
 
-      // Debounced search update - let Zustand state management handle the search logic
+      if (value === '') {
+        clearSearch();
+        setShowAllOnFocus(false);
+        return;
+      }
+
       debounceTimeoutRef.current = setTimeout(() => {
-        setSearchQuery(value); // Debouncing handled by state management
+        setSearchQuery(value);
       }, SEARCH_CONFIG.DEBOUNCE_MS);
     },
-    [setSearchQuery, showAllOnFocus],
+    [setSearchQuery, clearSearch, showAllOnFocus],
   );
 
-  // Handle clear button click
   const handleClear = useCallback(() => {
     setInputValue('');
     clearSearch();
@@ -197,22 +239,17 @@ const SearchInput = ({
     }
   }, [clearSearch]);
 
-  // Handle dropdown close (click outside, escape key, etc.)
   const handleClose = useCallback((event, reason) => {
-    // Only close on specific reasons, not on toggleInput or other input interactions
     if (reason === 'escape' || reason === 'blur' || reason === 'selectOption') {
       setDropdownOpen(false);
     }
   }, []);
 
-  // Handle chevron icon click to toggle dropdown
-  const handleChevronClick = useCallback(
-    (event) => {
-      event.stopPropagation(); // Prevent event from bubbling
+  const handleToggleButtonClick = useCallback(
+    () => {
       if (dropdownOpen) {
         setDropdownOpen(false);
       } else {
-        // Open dropdown and show all items if loadAllOnFocus is enabled
         if (loadAllOnFocus && !inputValue) {
           setShowAllOnFocus(true);
         }
@@ -222,35 +259,41 @@ const SearchInput = ({
     [dropdownOpen, loadAllOnFocus, inputValue],
   );
 
-  // Handle input focus - reopen dropdown if search is active or loadAllOnFocus is enabled
   const handleFocus = useCallback(() => {
+    if (!enableAutocomplete) {
+      return;
+    }
     if (loadAllOnFocus && !inputValue) {
-      // Enable showing all items when focused with empty input
       setShowAllOnFocus(true);
       setDropdownOpen(true);
     } else if (isSearchActive) {
       setDropdownOpen(true);
     }
-  }, [isSearchActive, loadAllOnFocus, inputValue]);
+  }, [enableAutocomplete, isSearchActive, loadAllOnFocus, inputValue]);
 
-  // Handle search engine toggle
+  const handleKeyDown = useCallback((event) => {
+    if (event.key === 'Enter' && !enableAutocomplete) {
+      event.defaultMuiPrevented = true;
+      setDropdownOpen(false);
+      event.target.blur();
+    }
+  }, [enableAutocomplete]);
+
   const handleEngineToggle = useCallback(
     (event) => {
-      const enabled = event.target.checked;
-      const engine = enabled ? SEARCH_ENGINES.FUZZY : SEARCH_ENGINES.WILDCARD;
+      let enabled = event.target.checked;
+      let engine = enabled ? SEARCH_ENGINES.FUZZY : SEARCH_ENGINES.WILDCARD;
       setSearchEngine(engine);
     },
     [setSearchEngine],
   );
 
-  // Dynamic placeholder text based on selected search engine
   const placeholderText =
     placeholder ||
     (searchEngine === SEARCH_ENGINES.WILDCARD
       ? 'Search with wildcards: *.txt, fd*, *10*.txt'
       : 'Search with fuzzy matching: approximate and typo-tolerant');
 
-  // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
       if (debounceTimeoutRef.current) {
@@ -259,163 +302,152 @@ const SearchInput = ({
     };
   }, []);
 
-  // Consolidated search activation logic
   const shouldShowResults =
-    isSearchActive && inputValue.length >= SEARCH_CONFIG.ACTIVATION_THRESHOLD;
+    isSearchActive && inputValue.length >= activationThreshold;
 
-  // Determine which items to show: all items on focus (before threshold), or filtered items (after threshold)
-  // Prepend any custom options (headers, group headers, etc.) to the items
   const baseItems = enableAutocomplete
     ? showAllOnFocus
       ? allItems
       : filteredItems
     : [];
 
-  // Process items if a processing function is provided (e.g., for grouping)
   const processedItems = processItems ? processItems(baseItems) : baseItems;
 
   const displayItems = [...prependOptions, ...processedItems];
 
   return (
     <Box>
-      <Autocomplete
-        freeSolo
-        open={dropdownOpen}
-        onClose={handleClose}
-        options={displayItems}
-        noOptionsText=""
-        filterOptions={(x) => x}
-        getOptionLabel={
-          getOptionLabel ||
-          ((option) => (typeof option === 'string' ? option : String(option)))
-        }
-        getOptionDisabled={getOptionDisabled || undefined}
-        renderOption={renderOption || undefined}
-        onInputChange={(_event, _value, reason) => {
-          if (reason === 'clear') {
-            handleClear();
-          }
-        }}
-        onChange={(_event, value) => {
-          if (onSelect && value) {
-            onSelect(value);
-          }
-        }}
-        classes={{
-          listbox: classes.autocompleteListbox,
-          paper: classes.autocompletePaper,
-        }}
-        PaperComponent={({ children, ...props }) => (
-          <div {...props} className={classes.autocompletePaper}>
-            {children}
-            {enableAutocomplete && (showAllOnFocus || shouldShowResults) && (
-              <div className={classes.dropdownResultCount}>
-                {showAllOnFocus
-                  ? `${totalCount.toLocaleString()} ${totalCount === 1 ? 'collection' : 'collections'} available`
-                  : `${resultCount} ${resultCount === 1 ? 'result' : 'results'} found${totalCount > 0 ? ` out of ${totalCount.toLocaleString()}` : ''}`}
+      <Box display="flex" alignItems="flex-start">
+        <div ref={autocompleteRef} style={{ flex: 1 }}>
+          <Autocomplete
+            freeSolo
+            open={dropdownOpen}
+            onClose={handleClose}
+            options={displayItems}
+            noOptionsText=""
+            filterOptions={(x) => x}
+            getOptionLabel={
+              getOptionLabel ||
+              ((option) => (typeof option === 'string' ? option : String(option)))
+            }
+            getOptionDisabled={getOptionDisabled || undefined}
+            renderOption={renderOption || undefined}
+            onInputChange={(_event, _value, reason) => {
+              if (reason === 'clear') {
+                handleClear();
+              }
+            }}
+            onChange={(_event, value) => {
+              if (onSelect && value) {
+                onSelect(value);
+              }
+            }}
+            classes={{
+              root: inputValue ? classes.autocompleteRootWithText : undefined,
+              listbox: classes.autocompleteListbox,
+              paper: classes.autocompletePaper,
+            }}
+            PaperComponent={({ children, ...props }) => (
+              <div {...props} className={classes.autocompletePaper}>
+                {children}
+                {enableAutocomplete && (showAllOnFocus || shouldShowResults) && (
+                  <div className={classes.dropdownResultCount}>
+                    {showAllOnFocus
+                      ? `${totalCount.toLocaleString()} ${totalCount === 1 ? 'collection' : 'collections'} available`
+                      : `${resultCount} ${resultCount === 1 ? 'result' : 'results'} found${totalCount > 0 ? ` out of ${totalCount.toLocaleString()}` : ''}`}
+                  </div>
+                )}
               </div>
             )}
-          </div>
-        )}
-        disablePortal={disablePortal}
-        PopperComponent={(props) => (
-          <div
-            {...props}
-            style={{
-              ...props.style,
-              ...(popperZIndex && { zIndex: popperZIndex }),
-            }}
-          >
-            {props.children}
-          </div>
-        )}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            variant="outlined"
-            size={size}
-            fullWidth={fullWidth}
-            value={inputValue}
-            onChange={handleInputChange}
-            onFocus={handleFocus}
-            placeholder={placeholderText}
-            style={{ marginBottom: 8 }}
-            InputProps={{
-              ...params.InputProps,
-              startAdornment: (
-                <>
-                  {params.InputProps.startAdornment}
-                  <InputAdornment position="start">
-                    <Search color="action" />
-                  </InputAdornment>
-                </>
-              ),
-              endAdornment: (
-                <>
-                  <InputAdornment
-                    position="end"
-                    onClick={handleChevronClick}
-                    style={{
-                      marginRight: '-32px',
-                      cursor: 'pointer',
-                      zIndex: 1,
-                      pointerEvents: 'auto',
-                    }}
-                  >
-                    {dropdownOpen ? (
-                      <ExpandLess color="action" />
-                    ) : (
-                      <ExpandMore color="action" />
-                    )}
-                  </InputAdornment>
-                  {params.InputProps.endAdornment}
-                </>
-              ),
-            }}
+            disablePortal={disablePortal}
+            PopperComponent={(props) => (
+              <Popper
+                {...props}
+                style={{
+                  ...props.style,
+                  width: autocompleteRef.current ? autocompleteRef.current.offsetWidth : props.style.width,
+                  ...(popperZIndex && { zIndex: popperZIndex }),
+                }}
+              />
+            )}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                variant="outlined"
+                size={size}
+                fullWidth={fullWidth}
+                value={inputValue}
+                onChange={handleInputChange}
+                onFocus={handleFocus}
+                onKeyDown={handleKeyDown}
+                placeholder={placeholderText}
+                style={{ marginBottom: 8 }}
+                className={classes.textFieldRoot}
+                InputProps={{
+                  ...params.InputProps,
+                  startAdornment: (
+                    <>
+                      {params.InputProps.startAdornment}
+                      <InputAdornment position="start">
+                        <Search className={classes.searchIcon} />
+                      </InputAdornment>
+                    </>
+                  ),
+                  endAdornment: params.InputProps.endAdornment,
+                }}
+              />
+            )}
+            ListboxComponent={React.forwardRef(({ children, ...other }, ref) => {
+              const childArray = React.Children.toArray(children);
+              const headerItem = prependOptions.length > 0 ? childArray[0] : null;
+              const contentItems =
+                prependOptions.length > 0 ? childArray.slice(1) : childArray;
+
+              const listStyle = {
+                ...other.style,
+                padding: 0,
+              };
+
+              if (listboxGridColumns) {
+                listStyle.display = 'grid';
+                listStyle.gridTemplateColumns = listboxGridColumns;
+                listStyle.alignItems = 'stretch';
+              } else {
+                listStyle.display = 'flex';
+                listStyle.flexDirection = 'column';
+              }
+
+              return (
+                <ul {...other} ref={ref} style={listStyle}>
+                  {headerItem && (
+                    <li
+                      className={classes.stickyHeader}
+                      style={{
+                        listStyle: 'none',
+                        ...(listboxGridColumns ? { display: 'contents' } : {}),
+                      }}
+                    >
+                      {headerItem}
+                    </li>
+                  )}
+                  {contentItems}
+                </ul>
+              );
+            })}
           />
+        </div>
+        {showDropdownToggle && enableAutocomplete && (
+          <ToggleButton
+            value="dropdown"
+            selected={dropdownOpen}
+            onChange={handleToggleButtonClick}
+            size="small"
+            className={classes.toggleButton}
+          >
+            {dropdownOpen ? <ExpandLess /> : <ExpandMore />}
+          </ToggleButton>
         )}
-        ListboxComponent={React.forwardRef(({ children, ...other }, ref) => {
-          // Extract header and content items
-          const childArray = React.Children.toArray(children);
-          const headerItem = prependOptions.length > 0 ? childArray[0] : null;
-          const contentItems =
-            prependOptions.length > 0 ? childArray.slice(1) : childArray;
-
-          // Build style object with optional grid layout
-          const listStyle = {
-            ...other.style,
-            padding: 0,
-          };
-
-          if (listboxGridColumns) {
-            // Grid-based layout for table-like structure
-            listStyle.display = 'grid';
-            listStyle.gridTemplateColumns = listboxGridColumns;
-            listStyle.alignItems = 'stretch';
-          } else {
-            // Default flex layout
-            listStyle.display = 'flex';
-            listStyle.flexDirection = 'column';
-          }
-
-          return (
-            <ul {...other} ref={ref} style={listStyle}>
-              {headerItem && (
-                <li
-                  className={classes.stickyHeader}
-                  style={{
-                    listStyle: 'none',
-                    ...(listboxGridColumns ? { display: 'contents' } : {}),
-                  }}
-                >
-                  {headerItem}
-                </li>
-              )}
-              {contentItems}
-            </ul>
-          );
-        })}
-      />
+      </Box>
       <Box
         display="flex"
         justifyContent="space-between"
@@ -435,7 +467,6 @@ const SearchInput = ({
                 {totalCount > 0 && ` out of ${totalCount.toLocaleString()}`}
               </>
             ) : (
-              // Empty space to prevent layout shift
               <span>&nbsp;</span>
             )}
           </Typography>
