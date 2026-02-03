@@ -195,7 +195,7 @@ export function validateSpatialBounds(bounds) {
 
   // Validate that north latitude is greater than south latitude
   if (latMax <= latMin) {
-    errors.push('North latitude must be greater than South latitude');
+    errors.push('Start Latitude must be less than End Latitude');
   }
 
   // Note: We do NOT validate lonMin < lonMax because date-line crossing is valid

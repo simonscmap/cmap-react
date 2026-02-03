@@ -21,6 +21,7 @@ import CollectionDatasetsTable from '../../components/CollectionDatasetsTable';
  * @param {Set} props.currentCollectionDatasetIds - Dataset IDs already in collection (for de-duplication)
  * @param {Function} props.onToggleSelection - Callback when dataset checkbox is toggled
  * @param {boolean} props.isLoading - True while datasets are loading
+ * @param {string} props.emptyMessage - Message shown when no datasets
  */
 const DatasetsTableSection = ({
   datasets,
@@ -28,6 +29,7 @@ const DatasetsTableSection = ({
   currentCollectionDatasetIds,
   onToggleSelection,
   isLoading,
+  emptyMessage,
 }) => {
   // Convert Set to array for CollectionDatasetsTable
   const selectedDatasetsArray = Array.from(selectedDatasetIds);
@@ -68,7 +70,7 @@ const DatasetsTableSection = ({
     <CollectionDatasetsTable
       datasetShortNamesWithStates={datasetShortNamesWithStates}
       data={datasets}
-      emptyMessage="No datasets loaded. Click 'LOAD COLLECTION' to fetch data."
+      emptyMessage={emptyMessage}
       selectedDatasets={selectedDatasetsArray}
       onToggleSelection={onToggleSelection}
       onSelectAll={() => {
@@ -122,10 +124,12 @@ DatasetsTableSection.propTypes = {
   currentCollectionDatasetIds: PropTypes.instanceOf(Set).isRequired,
   onToggleSelection: PropTypes.func.isRequired,
   isLoading: PropTypes.bool.isRequired,
+  emptyMessage: PropTypes.string,
 };
 
 DatasetsTableSection.defaultProps = {
   datasets: null,
+  emptyMessage: 'No datasets to display.',
 };
 
 export default DatasetsTableSection;

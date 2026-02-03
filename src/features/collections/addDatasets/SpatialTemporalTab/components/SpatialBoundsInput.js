@@ -24,6 +24,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { GeographicBoundaries } from '../../../../../shared/enum/geographicBoundariesCollections';
 import useSpatialTemporalSearchStore from '../store/spatialTemporalSearchStore';
 import { validateSpatialBounds } from '../../../../../shared/utility/spatialTemporalDepthValidation';
+import ValidationMessages from '../../../../../shared/components/ValidationMessages';
 import zIndex from '../../../../../enums/zIndex';
 
 const useStyles = makeStyles((theme) => ({
@@ -70,14 +71,7 @@ const useStyles = makeStyles((theme) => ({
         margin: 0,
       },
   },
-  errorText: {
-    color: theme.palette.error.main,
-    fontSize: '0.75rem',
-    marginTop: theme.spacing(1),
-  },
-  infoText: {
-    color: '#fdd835',
-    fontSize: '0.75rem',
+  messagesContainer: {
     marginTop: theme.spacing(1),
     marginLeft: 106,
   },
@@ -265,17 +259,16 @@ const SpatialBoundsInput = () => {
         </Box>
       </Box>
 
-      {validationErrors.length > 0 && (
-        <Typography variant="caption" className={classes.errorText}>
-          {validationErrors[0]}
-        </Typography>
-      )}
-
-      {crossesDateline && (
-        <Typography variant="caption" className={classes.infoText}>
-          The selected longitude values cross the dateline (antimeridian).
-        </Typography>
-      )}
+      <Box className={classes.messagesContainer}>
+        <ValidationMessages
+          messages={[
+            ...validationErrors.map((text) => ({ type: 'error', text })),
+            ...(crossesDateline
+              ? [{ type: 'info', text: 'The selected longitude values cross the dateline (antimeridian).' }]
+              : []),
+          ]}
+        />
+      </Box>
     </Box>
   );
 };
