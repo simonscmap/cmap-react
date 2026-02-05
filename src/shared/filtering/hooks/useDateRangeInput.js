@@ -9,8 +9,6 @@ const validateAndClampDateRange = (
   end,
   min,
   max,
-  setStart,
-  setEnd,
   isStartInput = false,
 ) => {
   const errors = [];
@@ -22,7 +20,6 @@ const validateAndClampDateRange = (
       `Start date cannot be before minimum date of ${formatDateToYearMonthDay(min)}`,
     );
     clampedStart = min;
-    setStart(min);
   }
 
   if (end !== null && max !== undefined && dateToUTCDateString(end) > dateToUTCDateString(max)) {
@@ -30,7 +27,6 @@ const validateAndClampDateRange = (
       `End date cannot be after maximum date of ${formatDateToYearMonthDay(max)}`,
     );
     clampedEnd = max;
-    setEnd(max);
   }
 
   // Implement clamping logic based on which input is being modified
@@ -44,17 +40,17 @@ const validateAndClampDateRange = (
       errors.push(
         `Start date must be before or equal to end date: ${formatDateToYearMonthDay(clampedEnd)}`,
       );
-      setStart(clampedEnd);
+      clampedStart = clampedEnd;
     } else {
       // User is modifying end date and it's less than start date - clamp end to start
       errors.push(
         `End date must be after or equal to start date: ${formatDateToYearMonthDay(clampedStart)}`,
       );
-      setEnd(clampedStart);
+      clampedEnd = clampedStart;
     }
   }
 
-  return errors;
+  return { errors, clampedStart, clampedEnd };
 };
 
 /**
@@ -62,14 +58,14 @@ const validateAndClampDateRange = (
  * Works with day numbers, not timestamps
  */
 const useDateRangeInput = ({
-  start,
-  end,
+  localStart,
+  localEnd,
+  committedStart,
+  committedEnd,
   setStart,
   setEnd,
   min,
   max,
-  timeMin,
-  step = 1,
 }) => {
   // Date-specific validation messages
   const [startDateMessage, setStartDateMessage] = useState('');
@@ -83,30 +79,32 @@ const useDateRangeInput = ({
 
   // Date input blur handlers with validation and clamping
   const handleDateStartBlur = () => {
-    const errors = validateAndClampDateRange(
-      start,
-      end,
+    const { errors, clampedStart } = validateAndClampDateRange(
+      localStart,
+      localEnd,
       min,
       max,
-      setStart,
-      setEnd,
       true, // isStartInput = true
     );
+    if (dateToUTCDateString(clampedStart) !== dateToUTCDateString(committedStart)) {
+      setStart(clampedStart);
+    }
     if (errors.length > 0) {
       showDateMessage(setStartDateMessage, errors[0]);
     }
   };
 
   const handleDateEndBlur = () => {
-    const errors = validateAndClampDateRange(
-      start,
-      end,
+    const { errors, clampedEnd } = validateAndClampDateRange(
+      localStart,
+      localEnd,
       min,
       max,
-      setStart,
-      setEnd,
       false, // isStartInput = false
     );
+    if (dateToUTCDateString(clampedEnd) !== dateToUTCDateString(committedEnd)) {
+      setEnd(clampedEnd);
+    }
     if (errors.length > 0) {
       showDateMessage(setEndDateMessage, errors[0]);
     }

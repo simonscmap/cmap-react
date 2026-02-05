@@ -5,12 +5,9 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Tooltip,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { GeographicBoundaries as DefaultGeographicBoundaries } from '../../../enum/geographicBoundaries';
-import { computePresetDisabledStates } from '../../utils/geographicOverlap';
-import useMultiDatasetDownloadStore from '../../../../features/multiDatasetDownload/stores/multiDatasetDownloadStore';
 import zIndex from '../../../../enums/zIndex';
 
 const useStyles = makeStyles((theme) => ({
@@ -23,8 +20,6 @@ const PSEUDO_PRESET_LABELS = {
   COLLECTION_EXTENT: 'Collection Extent',
   CUSTOM: 'Custom',
 };
-
-const DISABLED_TOOLTIP_MESSAGE = 'No datasets overlap with this region';
 
 const CompactPresetGeographicBounds = ({
   selectedPreset,
@@ -47,17 +42,6 @@ const CompactPresetGeographicBounds = ({
     };
     return [collectionPreset, ...basePresets];
   }, [geographicPresets, collectionExtent]);
-
-  const datasetsMetadata = useMultiDatasetDownloadStore(
-    (state) => state.datasetsMetadata,
-  );
-
-  const disabledPresets = useMemo(() => {
-    if (!datasetsMetadata || datasetsMetadata.length === 0) {
-      return new Map();
-    }
-    return computePresetDisabledStates(mergedPresets, datasetsMetadata);
-  }, [datasetsMetadata, mergedPresets]);
 
   const handlePresetChange = (e) => {
     const presetLabel = e.target.value;
@@ -98,38 +82,11 @@ const CompactPresetGeographicBounds = ({
             <em>Select a preset</em>
           </MenuItem>
         )}
-        {mergedPresets.map((preset) => {
-          const isDisabled = disabledPresets.get(preset.label) || false;
-
-          if (isDisabled) {
-            return (
-              <Tooltip
-                key={preset.label}
-                title={DISABLED_TOOLTIP_MESSAGE}
-                placement="right"
-                PopperProps={{
-                  style: { zIndex: zIndex.MODAL_LAYER_3_POPPER },
-                }}
-              >
-                <span style={{ display: 'block' }}>
-                  <MenuItem
-                    value={preset.label}
-                    disabled
-                    style={{ opacity: 0.5 }}
-                  >
-                    {preset.label}
-                  </MenuItem>
-                </span>
-              </Tooltip>
-            );
-          }
-
-          return (
-            <MenuItem key={preset.label} value={preset.label}>
-              {preset.label}
-            </MenuItem>
-          );
-        })}
+        {mergedPresets.map((preset) => (
+          <MenuItem key={preset.label} value={preset.label}>
+            {preset.label}
+          </MenuItem>
+        ))}
       </Select>
     </FormControl>
   );
