@@ -102,38 +102,43 @@ const CompactDateRangeInput = ({
   const [localStartDate, setLocalStartDate] = useState(startDate);
   const [localEndDate, setLocalEndDate] = useState(endDate);
 
+  const [localSliderStart, setLocalSliderStart] = useState(startDate);
+  const [localSliderEnd, setLocalSliderEnd] = useState(endDate);
+
   useEffect(() => {
     setLocalStartDate(startDate);
+    setLocalSliderStart(startDate);
   }, [startDate]);
 
   useEffect(() => {
     setLocalEndDate(endDate);
+    setLocalSliderEnd(endDate);
   }, [endDate]);
 
   const handleStartInputChange = (date) => {
     setLocalStartDate(date);
-    setStartDate(date);
   };
 
   const handleEndInputChange = (date) => {
     setLocalEndDate(date);
-    setEndDate(date);
   };
 
   const handleSliderStartChange = (date) => {
+    setLocalSliderStart(date);
     setLocalStartDate(date);
   };
 
   const handleSliderEndChange = (date) => {
+    setLocalSliderEnd(date);
     setLocalEndDate(date);
   };
 
   const handleSliderCommit = () => {
-    if (localStartDate !== startDate) {
-      setStartDate(localStartDate);
+    if (localSliderStart !== startDate) {
+      setStartDate(localSliderStart);
     }
-    if (localEndDate !== endDate) {
-      setEndDate(localEndDate);
+    if (localSliderEnd !== endDate) {
+      setEndDate(localSliderEnd);
     }
   };
 
@@ -144,8 +149,10 @@ const CompactDateRangeInput = ({
     startDateMessage,
     endDateMessage,
   } = useDateRangeInput({
-    start: startDate,
-    end: endDate,
+    localStart: localStartDate,
+    localEnd: localEndDate,
+    committedStart: startDate,
+    committedEnd: endDate,
     setStart: setStartDate,
     setEnd: setEndDate,
     min: minDate,
@@ -200,8 +207,8 @@ const CompactDateRangeInput = ({
       {/* Slider */}
       <Box className={classes.sliderBox}>
         <DateRangeSlider
-          startDate={localStartDate}
-          endDate={localEndDate}
+          startDate={localSliderStart}
+          endDate={localSliderEnd}
           minDate={minDate}
           maxDate={maxDate}
           onStartChange={handleSliderStartChange}
