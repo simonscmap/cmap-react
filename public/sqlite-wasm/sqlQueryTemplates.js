@@ -163,7 +163,7 @@ function buildSelectClause(includeRank = false, tableAlias = 'd', ftsAlias = 'ft
         END
       ) AS spatial_coverage,
 
-      -- Temporal coverage ratio (0-1 range, rounded to 2 decimal places, 1.0 for climatology)
+      -- Temporal coverage ratio (0-1 range, rounded to 6 decimal places for threshold accuracy, 1.0 for climatology)
       (
         CASE
           WHEN $userTimeMin IS NULL OR $userTimeMax IS NULL THEN NULL
@@ -176,11 +176,11 @@ function buildSelectClause(includeRank = false, tableAlias = 'd', ftsAlias = 'ft
             (julianday(MIN(${tableAlias}.${columns.timeMax}, $userTimeMax)) -
              julianday(MAX(${tableAlias}.${columns.timeMin}, $userTimeMin))) /
             NULLIF((julianday($userTimeMax) - julianday($userTimeMin)), 0)
-          , 2)
+          , 6)
         END
       ) AS temporal_coverage,
 
-      -- Depth coverage ratio (0-1 range, rounded to 2 decimal places)
+      -- Depth coverage ratio (0-1 range, rounded to 6 decimal places for threshold accuracy)
       (
         CASE
           WHEN $userDepthMin IS NULL OR $userDepthMax IS NULL THEN NULL
@@ -191,7 +191,7 @@ function buildSelectClause(includeRank = false, tableAlias = 'd', ftsAlias = 'ft
             (MIN(${tableAlias}.${columns.depthMax}, $userDepthMax) -
              MAX(${tableAlias}.${columns.depthMin}, $userDepthMin)) /
             NULLIF(($userDepthMax - $userDepthMin), 0)
-          , 2)
+          , 6)
         END
       ) AS depth_coverage` : ''}`;
 }
