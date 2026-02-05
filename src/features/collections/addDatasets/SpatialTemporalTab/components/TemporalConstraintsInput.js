@@ -16,10 +16,11 @@
  */
 
 import React from 'react';
-import { Box, Checkbox, FormControlLabel, Typography } from '@material-ui/core';
+import { Box, Checkbox, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import useSpatialTemporalSearchStore from '../store/spatialTemporalSearchStore';
 import DateInput from '../../../../../shared/components/DateInput';
+import ValidationMessages from '../../../../../shared/components/ValidationMessages';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -58,10 +59,10 @@ const useStyles = makeStyles((theme) => ({
   dateField: {
     width: 140, // Match coordinate input width
   },
-  errorText: {
-    color: theme.palette.error.main,
-    fontSize: '0.75rem',
-    marginTop: theme.spacing(0.5),
+  inputsColumn: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(0.5),
   },
 }));
 
@@ -178,6 +179,17 @@ const TemporalConstraintsInput = () => {
     }
   };
 
+  let messages = [];
+  if (temporalEnabled) {
+    if (!localTemporalRange.timeMin || !localTemporalRange.timeMax) {
+      messages = [{ type: 'error', text: 'Both start and end dates are required' }];
+    } else if (errors.timeMax) {
+      messages = [{ type: 'error', text: errors.timeMax }];
+    } else if (errors.timeMin) {
+      messages = [{ type: 'error', text: errors.timeMin }];
+    }
+  }
+
   return (
     <Box className={classes.container}>
       {/* Header Row: Title Column + Inputs */}
@@ -200,15 +212,16 @@ const TemporalConstraintsInput = () => {
           </Box>
         </Box>
 
-        {/* Date Pickers - Only shown when enabled */}
-        {temporalEnabled && (
-          <Box className={classes.inputsRow}>
+        <Box className={classes.inputsColumn}>
+          <Box
+            className={classes.inputsRow}
+            style={temporalEnabled ? undefined : { visibility: 'hidden' }}
+          >
             <DateInput
               label="Start Date"
               value={localTemporalRange.timeMin}
               onChange={(date) => handleDateChange('timeMin', date)}
               onBlur={handleBlur}
-              validationMessage={errors.timeMin}
               width={140}
             />
 
@@ -217,11 +230,11 @@ const TemporalConstraintsInput = () => {
               value={localTemporalRange.timeMax}
               onChange={(date) => handleDateChange('timeMax', date)}
               onBlur={handleBlur}
-              validationMessage={errors.timeMax}
               width={140}
             />
           </Box>
-        )}
+          <ValidationMessages messages={messages} maxMessages={2} />
+        </Box>
       </Box>
     </Box>
   );
