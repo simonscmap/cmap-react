@@ -45,6 +45,11 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
   // true: include partial overlaps, false: full containment only
   includePartialOverlaps: false,
 
+  temporalValidationErrors: {
+    timeMin: '',
+    timeMax: '',
+  },
+
   selectedPreset: 'BATS Region',
   selectedDataTypes: new Set(['Model', 'Satellite', 'In-Situ']),
   sortMode: 'default',
@@ -106,6 +111,37 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
         ? { ...state.temporalRange, ...range }
         : state.temporalRange,
     }));
+    get().validateTemporalRange();
+  },
+
+  validateTemporalRange: () => {
+    const { temporalRange, temporalEnabled } = get();
+    const errors = { timeMin: '', timeMax: '' };
+
+    if (!temporalEnabled) {
+      set({ temporalValidationErrors: errors });
+      return;
+    }
+
+    const { timeMin, timeMax } = temporalRange;
+
+    if (!timeMin || !timeMax) {
+      set({ temporalValidationErrors: errors });
+      return;
+    }
+
+    if (timeMin && isNaN(timeMin.getTime())) {
+      errors.timeMin = 'Invalid date';
+    }
+    if (timeMax && isNaN(timeMax.getTime())) {
+      errors.timeMax = 'Invalid date';
+    }
+
+    if (!errors.timeMin && !errors.timeMax && timeMin > timeMax) {
+      errors.timeMax = 'End date must be after start date';
+    }
+
+    set({ temporalValidationErrors: errors });
   },
 
   /**
@@ -326,6 +362,10 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
         depthMax: null,
       },
       includePartialOverlaps: false,
+      temporalValidationErrors: {
+        timeMin: '',
+        timeMax: '',
+      },
       selectedPreset: 'BATS Region',
       selectedDataTypes: new Set(['Model', 'Satellite', 'In-Situ']),
       results: null,
@@ -369,6 +409,10 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
     }
 
     if (temporalEnabled) {
+      const { temporalValidationErrors } = get();
+      if (temporalValidationErrors.timeMin || temporalValidationErrors.timeMax) {
+        return false;
+      }
       const temporalConstraints = { enabled: true, ...temporalRange };
       if (!isValidTemporalRange(temporalConstraints)) {
         return false;
