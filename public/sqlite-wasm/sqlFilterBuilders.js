@@ -281,8 +281,8 @@ function buildDepthFilter(depth, includePartialOverlaps = true, tableAlias = 'd'
 
   // Depth range filter - check for any overlap
   if (depth.depthMin != null && depth.depthMax != null) {
-    sql += `\n  AND (${tableAlias}.depthMax >= $depthMin OR ${tableAlias}.depthMax IS NULL)`;
-    sql += `\n  AND (${tableAlias}.depthMin <= $depthMax OR ${tableAlias}.depthMin IS NULL)`;
+    sql += `\n  AND ${tableAlias}.depthMax >= $depthMin`;
+    sql += `\n  AND ${tableAlias}.depthMin <= $depthMax`;
     bindings.$depthMin = depth.depthMin;
     bindings.$depthMax = depth.depthMax;
   }

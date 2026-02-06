@@ -16,12 +16,12 @@ import {
   Box,
   TextField,
   Checkbox,
-  FormControlLabel,
   Typography,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import useSpatialTemporalSearchStore from '../store/spatialTemporalSearchStore';
 import { validateDepthRange } from '../../../../../shared/utility/spatialTemporalDepthValidation';
+import ValidationMessages from '../../../../../shared/components/ValidationMessages';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -60,10 +60,10 @@ const useStyles = makeStyles((theme) => ({
   depthField: {
     width: 140, // Match coordinate input width
   },
-  errorText: {
-    color: theme.palette.error.main,
-    fontSize: '0.75rem',
-    marginTop: theme.spacing(0.5),
+  inputsColumn: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(0.5),
   },
 }));
 
@@ -192,9 +192,11 @@ const DepthConstraintsInput = () => {
           </Box>
         </Box>
 
-        {/* Depth Inputs - Only shown when enabled */}
-        {depthEnabled && (
-          <Box className={classes.inputsRow}>
+        <Box className={classes.inputsColumn}>
+          <Box
+            className={classes.inputsRow}
+            style={depthEnabled ? undefined : { visibility: 'hidden' }}
+          >
             <TextField
               className={classes.depthField}
               label="Min Depth (m)"
@@ -226,7 +228,13 @@ const DepthConstraintsInput = () => {
               }}
             />
           </Box>
-        )}
+          <ValidationMessages
+            messages={validationErrors.length > 0
+              ? [{ type: 'error', text: validationErrors[0] }]
+              : []}
+            maxMessages={2}
+          />
+        </Box>
       </Box>
     </Box>
   );

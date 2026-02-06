@@ -3,12 +3,10 @@ import { Box, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
 const LINE_HEIGHT = 18;
-const MAX_MESSAGES = 3;
-const CONTAINER_HEIGHT = LINE_HEIGHT * MAX_MESSAGES;
+const DEFAULT_MAX_MESSAGES = 3;
 
 const useStyles = makeStyles(() => ({
   container: {
-    minHeight: CONTAINER_HEIGHT,
     display: 'flex',
     flexDirection: 'column',
     gap: 0,
@@ -28,13 +26,14 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const ValidationMessages = ({ messages = [] }) => {
+const ValidationMessages = ({ messages = [], maxMessages = DEFAULT_MAX_MESSAGES }) => {
   const classes = useStyles();
+  let containerHeight = LINE_HEIGHT * maxMessages;
 
-  const displayMessages = messages.slice(0, MAX_MESSAGES);
+  let displayMessages = messages.slice(0, maxMessages);
 
   return (
-    <Box className={classes.container}>
+    <Box className={classes.container} style={{ minHeight: containerHeight }}>
       {displayMessages.map((msg, index) => (
         <Typography
           key={index}

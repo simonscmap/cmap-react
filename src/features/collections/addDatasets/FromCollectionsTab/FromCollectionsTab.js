@@ -240,7 +240,7 @@ const FromCollectionsTab = ({
         currentCollectionDatasetIds={currentCollectionDatasetIds}
         onToggleSelection={onToggleSelection}
         isLoading={isLoadingDatasets}
-        emptyMessage="No datasets loaded. Click 'LOAD COLLECTION' to fetch data."
+        emptyMessage="Search and select a collection above, then click 'LOAD COLLECTION' to see its datasets."
       />
     </>
   );
