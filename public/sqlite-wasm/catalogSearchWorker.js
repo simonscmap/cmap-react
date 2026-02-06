@@ -242,21 +242,7 @@ async function executeSearch(query, searchId) {
       }
     }
 
-    // Build coverage thresholds based on enabled constraints and overlap mode
-    // Coverage values are 0-1 range: 1.0 = 100%, 0 = any overlap
-    let coverageThresholds = null;
-    if (userBounds) {
-      const threshold = includePartialOverlaps ? 0 : 1.0;
-
-      coverageThresholds = {
-        // Spatial is always enabled when userBounds exists
-        spatial: threshold,
-        // Temporal only if temporal bounds present
-        temporal: (temporal && temporal.timeMin && temporal.timeMax) ? threshold : null,
-        // Depth only if depth bounds present
-        depth: (depth && depth.depthMin != null && depth.depthMax != null) ? threshold : null,
-      };
-    }
+    const coverageThresholds = null;
 
     let sql;
     let bindings = {};

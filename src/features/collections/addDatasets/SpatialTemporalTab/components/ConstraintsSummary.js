@@ -64,13 +64,14 @@ const ConstraintsSummary = () => {
     return `Latitude: ${latMax}°N ~ ${latMin}°N`;
   };
 
-  /**
-   * Format longitude range for display
-   * @returns {string} Formatted longitude constraint text
-   */
   const formatLongitude = () => {
     const { lonMin, lonMax } = spatialBounds;
-    return `Longitude: ${lonMax}°E ~ ${lonMin}°E`;
+    const crossesDateline = lonMin > lonMax;
+
+    if (crossesDateline) {
+      return `Longitude: ${lonMin}° to ${lonMax}° (crosses dateline)`;
+    }
+    return `Longitude: ${lonMin}° to ${lonMax}°`;
   };
 
   /**

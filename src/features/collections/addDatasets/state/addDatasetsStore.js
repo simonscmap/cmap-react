@@ -7,6 +7,7 @@ import {
   isClientSideSearchAvailable,
 } from '../../../catalogSearch/api';
 import { captureError } from '../../../../shared/errorCapture';
+import { getDatasetType } from '../../../../shared/utility';
 
 /**
  * Zustand store for Add Datasets modal state management
@@ -460,9 +461,13 @@ export const useAddDatasetsStore = create((set, get) => ({
         datasetShortNames,
       );
 
-      // Update state with loaded datasets
+      const datasetsWithType = datasets.map((dataset) => ({
+        ...dataset,
+        type: getDatasetType(dataset.makes, dataset.sensors),
+      }));
+
       set({
-        sourceCollectionDatasets: datasets,
+        sourceCollectionDatasets: datasetsWithType,
         loadError: null,
         isLoadingDatasets: false,
       });
