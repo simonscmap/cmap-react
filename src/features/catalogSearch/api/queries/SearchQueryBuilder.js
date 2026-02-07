@@ -167,17 +167,12 @@ class SearchQueryBuilder {
    * @param {object} depth - Depth filter options
    * @param {number} [depth.depthMin] - Minimum depth
    * @param {number} [depth.depthMax] - Maximum depth
-   * @param {boolean} [depth.hasDepth] - If true, only include datasets with depth data
    * @param {boolean} [includePartialOverlaps=true] - If true, include datasets with partial depth overlap; if false, only fully contained datasets
    * @returns {SearchQueryBuilder} This builder for chaining
    *
    * @example
    * // Filter by depth range
    * builder.withDepthRange({ depthMin: 0, depthMax: 100 });
-   *
-   * @example
-   * // Only datasets with depth data
-   * builder.withDepthRange({ hasDepth: true });
    */
   withDepthRange(depth, includePartialOverlaps = true) {
     this.query.depth = depth;

@@ -14,6 +14,58 @@ import {
 } from '../../../../../shared/utility/spatialTemporalDepthValidation';
 import { dateToUTCDateString } from '../../../../../shared/filtering/utils/dateHelpers';
 
+const FULL_CONTAINMENT_THRESHOLD = 0.9999;
+
+function sortResultsByCoverage(results, sortMode, sortDirection) {
+  const dir = sortDirection === 'desc' ? -1 : 1;
+
+  const typeOrder = { 'In-Situ': 1, Satellite: 2, Model: 3 };
+  const getTypeRank = (type) => typeOrder[type] || 4;
+
+  return [...results].sort((a, b) => {
+    switch (sortMode) {
+      case 'spatial':
+        if (a.overlap.spatial.coveragePercent !== b.overlap.spatial.coveragePercent) {
+          return (b.overlap.spatial.coveragePercent - a.overlap.spatial.coveragePercent) * dir;
+        }
+        break;
+      case 'temporal':
+        const aTemporal = a.overlap.temporal ? a.overlap.temporal.coveragePercent : 0;
+        const bTemporal = b.overlap.temporal ? b.overlap.temporal.coveragePercent : 0;
+        if (aTemporal !== bTemporal) {
+          return (bTemporal - aTemporal) * dir;
+        }
+        break;
+      case 'depth':
+        const aDepth = (a.overlap.depth && typeof a.overlap.depth.coveragePercent === 'number') ? a.overlap.depth.coveragePercent : 0;
+        const bDepth = (b.overlap.depth && typeof b.overlap.depth.coveragePercent === 'number') ? b.overlap.depth.coveragePercent : 0;
+        if (aDepth !== bDepth) {
+          return (bDepth - aDepth) * dir;
+        }
+        break;
+      case 'utilization':
+        if (a.datasetUtilization !== b.datasetUtilization) {
+          return (b.datasetUtilization - a.datasetUtilization) * dir;
+        }
+        break;
+      default:
+        break;
+    }
+
+    // Secondary sort: type → utilization → spatial → alphabetical
+    const typeRankDiff = getTypeRank(a.type) - getTypeRank(b.type);
+    if (typeRankDiff !== 0) return typeRankDiff;
+
+    const utilDiff = (b.datasetUtilization - a.datasetUtilization) * dir;
+    if (Math.abs(utilDiff) > 0.0001) return utilDiff;
+
+    const spatialDiff = (b.overlap.spatial.coveragePercent - a.overlap.spatial.coveragePercent) * dir;
+    if (Math.abs(spatialDiff) > 0.0001) return spatialDiff;
+
+    return a.shortName.localeCompare(b.shortName);
+  });
+}
+
 const useSpatialTemporalSearchStore = create((set, get) => ({
   // Initialization state
   isInitialized: false,
@@ -44,6 +96,11 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
 
   // true: include partial overlaps, false: full containment only
   includePartialOverlaps: false,
+
+  temporalValidationErrors: {
+    timeMin: '',
+    timeMax: '',
+  },
 
   selectedPreset: 'BATS Region',
   selectedDataTypes: new Set(['Model', 'Satellite', 'In-Situ']),
@@ -106,6 +163,37 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
         ? { ...state.temporalRange, ...range }
         : state.temporalRange,
     }));
+    get().validateTemporalRange();
+  },
+
+  validateTemporalRange: () => {
+    const { temporalRange, temporalEnabled } = get();
+    const errors = { timeMin: '', timeMax: '' };
+
+    if (!temporalEnabled) {
+      set({ temporalValidationErrors: errors });
+      return;
+    }
+
+    const { timeMin, timeMax } = temporalRange;
+
+    if (!timeMin || !timeMax) {
+      set({ temporalValidationErrors: errors });
+      return;
+    }
+
+    if (timeMin && isNaN(timeMin.getTime())) {
+      errors.timeMin = 'Invalid date';
+    }
+    if (timeMax && isNaN(timeMax.getTime())) {
+      errors.timeMax = 'Invalid date';
+    }
+
+    if (!errors.timeMin && !errors.timeMax && timeMin > timeMax) {
+      errors.timeMax = 'End date must be after start date';
+    }
+
+    set({ temporalValidationErrors: errors });
   },
 
   /**
@@ -158,24 +246,23 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
     get().search();
   },
 
-  /**
-   * Set sort mode. Toggles direction if same mode clicked, otherwise resets to 'desc'.
-   * @param {string} mode - 'default' | 'spatial' | 'temporal' | 'depth' | 'utilization'
-   */
   setSortMode: (mode) => {
     const currentSortMode = get().sortMode;
     const currentSortDirection = get().sortDirection;
     const results = get().results;
 
+    let newSortMode = mode;
+    let newSortDirection = 'desc';
+
     if (currentSortMode === mode) {
-      const newDirection = currentSortDirection === 'desc' ? 'asc' : 'desc';
-      set({ sortDirection: newDirection });
-    } else {
-      set({ sortMode: mode, sortDirection: 'desc' });
+      newSortDirection = currentSortDirection === 'desc' ? 'asc' : 'desc';
     }
 
-    if (results !== null) {
-      get().search();
+    if (results !== null && results.length > 0) {
+      const sortedResults = sortResultsByCoverage(results, newSortMode, newSortDirection);
+      set({ sortMode: newSortMode, sortDirection: newSortDirection, results: sortedResults });
+    } else {
+      set({ sortMode: newSortMode, sortDirection: newSortDirection });
     }
   },
 
@@ -238,11 +325,24 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
 
       const rawResults = await searchCatalog(query.build());
 
-      const enhancedResults = transformSpatialTemporalResults(rawResults, {
+      let enhancedResults = transformSpatialTemporalResults(rawResults, {
         spatial: spatialBounds,
         temporal: temporalEnabled ? temporalRange : null,
         depth: depthEnabled ? depthRange : null,
       });
+
+      if (!includePartialOverlaps) {
+        enhancedResults = enhancedResults.filter((dataset) => {
+          const spatialOk = dataset.datasetUtilization >= FULL_CONTAINMENT_THRESHOLD;
+          const temporalOk = !temporalEnabled ||
+            (dataset.overlap.temporal && dataset.overlap.temporal.utilization >= FULL_CONTAINMENT_THRESHOLD);
+          const depthOk = !depthEnabled ||
+            (dataset.overlap.depth && dataset.overlap.depth.utilization >= FULL_CONTAINMENT_THRESHOLD);
+          return spatialOk && temporalOk && depthOk;
+        });
+      }
+
+      enhancedResults = sortResultsByCoverage(enhancedResults, sortMode, sortDirection);
 
       const lastSearchConstraints = {
         spatialBounds: { ...spatialBounds },
@@ -326,6 +426,10 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
         depthMax: null,
       },
       includePartialOverlaps: false,
+      temporalValidationErrors: {
+        timeMin: '',
+        timeMax: '',
+      },
       selectedPreset: 'BATS Region',
       selectedDataTypes: new Set(['Model', 'Satellite', 'In-Situ']),
       results: null,
@@ -369,6 +473,10 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
     }
 
     if (temporalEnabled) {
+      const { temporalValidationErrors } = get();
+      if (temporalValidationErrors.timeMin || temporalValidationErrors.timeMax) {
+        return false;
+      }
       const temporalConstraints = { enabled: true, ...temporalRange };
       if (!isValidTemporalRange(temporalConstraints)) {
         return false;

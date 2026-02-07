@@ -95,6 +95,7 @@ const SpatialBoundsInput = () => {
   // Local state for coordinate inputs and validation
   const [localBounds, setLocalBounds] = useState(spatialBounds);
   const [validationErrors, setValidationErrors] = useState([]);
+  const [touched, setTouched] = useState(false);
 
   // Sync local state with store when store changes
   useEffect(() => {
@@ -151,6 +152,7 @@ const SpatialBoundsInput = () => {
   };
 
   const handleBlur = () => {
+    setTouched(true);
     setSpatialBounds(localBounds);
   };
 
@@ -262,7 +264,7 @@ const SpatialBoundsInput = () => {
       <Box className={classes.messagesContainer}>
         <ValidationMessages
           messages={[
-            ...validationErrors.map((text) => ({ type: 'error', text })),
+            ...(touched ? validationErrors.map((text) => ({ type: 'error', text })) : []),
             ...(crossesDateline
               ? [{ type: 'info', text: 'The selected longitude values cross the dateline (antimeridian).' }]
               : []),

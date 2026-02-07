@@ -257,11 +257,9 @@ function buildTemporalFilter(temporal, includePartialOverlaps = true, tableAlias
  *
  * Depth coverage = percentage of user depth range covered by dataset.
  *
- * Also supports hasDepth flag to filter only datasets with depth data.
- *
  * Handles NULL values to match backend behavior.
  *
- * @param {object} depth - Depth bounds { hasDepth, depthMin, depthMax }
+ * @param {object} depth - Depth bounds { depthMin, depthMax }
  * @param {boolean} includePartialOverlaps - DEPRECATED: kept for backward compatibility, no longer used
  * @param {string} tableAlias - Table alias (default: 'd')
  * @returns {{ sql: string, bindings: object }}
@@ -274,15 +272,10 @@ function buildDepthFilter(depth, includePartialOverlaps = true, tableAlias = 'd'
   let sql = '';
   const bindings = {};
 
-  // Filter by hasDepth flag (only datasets with depth data)
-  if (depth.hasDepth !== undefined && depth.hasDepth) {
-    sql += `\n  AND ${tableAlias}.depthMax IS NOT NULL`;
-  }
-
   // Depth range filter - check for any overlap
   if (depth.depthMin != null && depth.depthMax != null) {
-    sql += `\n  AND (${tableAlias}.depthMax >= $depthMin OR ${tableAlias}.depthMax IS NULL)`;
-    sql += `\n  AND (${tableAlias}.depthMin <= $depthMax OR ${tableAlias}.depthMin IS NULL)`;
+    sql += `\n  AND ${tableAlias}.depthMax >= $depthMin`;
+    sql += `\n  AND ${tableAlias}.depthMin <= $depthMax`;
     bindings.$depthMin = depth.depthMin;
     bindings.$depthMax = depth.depthMax;
   }

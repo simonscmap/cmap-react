@@ -74,119 +74,48 @@ const useStyles = makeStyles((theme) => ({
 const TemporalConstraintsInput = () => {
   const classes = useStyles();
 
-  const { temporalEnabled, temporalRange, setTemporalConstraints } =
-    useSpatialTemporalSearchStore();
+  const {
+    temporalEnabled,
+    temporalRange,
+    temporalValidationErrors,
+    setTemporalConstraints,
+  } = useSpatialTemporalSearchStore();
 
-  // Track local validation errors
-  const [errors, setErrors] = React.useState({
-    timeMin: '',
-    timeMax: '',
-  });
-
-  /**
-   * Validate temporal range
-   * @param {Date|null} timeMin - Start date
-   * @param {Date|null} timeMax - End date
-   * @returns {Object} Validation errors object
-   */
-  const validateRange = (timeMin, timeMax) => {
-    const newErrors = {
-      timeMin: '',
-      timeMax: '',
-    };
-
-    // Only validate if both dates are provided
-    if (timeMin && timeMax) {
-      // Check for invalid dates
-      if (isNaN(timeMin.getTime())) {
-        newErrors.timeMin = 'Invalid date';
-      }
-      if (isNaN(timeMax.getTime())) {
-        newErrors.timeMax = 'Invalid date';
-      }
-
-      // Check date order
-      if (!newErrors.timeMin && !newErrors.timeMax && timeMin > timeMax) {
-        newErrors.timeMax = 'End date must be after start date';
-      }
-    }
-
-    return newErrors;
-  };
-
-  /**
-   * Handle checkbox toggle
-   * @param {Object} event - Change event
-   */
   const handleEnabledChange = (event) => {
-    const enabled = event.target.checked;
-    setTemporalConstraints(enabled);
-
-    // Clear errors when disabling
-    if (!enabled) {
-      setErrors({ timeMin: '', timeMax: '' });
-    }
+    setTemporalConstraints(event.target.checked);
   };
 
-  // Track local state for date inputs
+  // Local state buffers input during typing (blur-deferred UX)
   const [localTemporalRange, setLocalTemporalRange] =
     React.useState(temporalRange);
 
-  // Sync local state with store when store changes
+  // Sync local state with store when store changes externally
   React.useEffect(() => {
     setLocalTemporalRange(temporalRange);
   }, [temporalRange]);
 
-  /**
-   * Handle date input changes - validate immediately but don't update store
-   * @param {string} field - Field name ('timeMin' or 'timeMax')
-   * @param {Date|null} value - Date object value
-   */
   const handleDateChange = (field, value) => {
-    // Update local state only
-    const updatedRange = {
-      ...localTemporalRange,
+    setLocalTemporalRange((prev) => ({
+      ...prev,
       [field]: value,
-    };
-    setLocalTemporalRange(updatedRange);
-
-    // Validate (show errors immediately)
-    const newErrors = validateRange(
-      field === 'timeMin' ? value : localTemporalRange.timeMin,
-      field === 'timeMax' ? value : localTemporalRange.timeMax,
-    );
-    setErrors(newErrors);
+    }));
   };
 
-  /**
-   * Handle blur events - update store only when user finishes editing
-   * This prevents premature constraint snapshot comparisons during typing
-   */
   const handleBlur = () => {
     if (!temporalEnabled) {
       return;
     }
-
-    // Validate before updating store
-    const newErrors = validateRange(
-      localTemporalRange.timeMin,
-      localTemporalRange.timeMax,
-    );
-
-    // Only update store if valid
-    if (!newErrors.timeMin && !newErrors.timeMax) {
-      setTemporalConstraints(temporalEnabled, localTemporalRange);
-    }
+    setTemporalConstraints(temporalEnabled, localTemporalRange);
   };
 
   let messages = [];
   if (temporalEnabled) {
     if (!localTemporalRange.timeMin || !localTemporalRange.timeMax) {
       messages = [{ type: 'error', text: 'Both start and end dates are required' }];
-    } else if (errors.timeMax) {
-      messages = [{ type: 'error', text: errors.timeMax }];
-    } else if (errors.timeMin) {
-      messages = [{ type: 'error', text: errors.timeMin }];
+    } else if (temporalValidationErrors.timeMax) {
+      messages = [{ type: 'error', text: temporalValidationErrors.timeMax }];
+    } else if (temporalValidationErrors.timeMin) {
+      messages = [{ type: 'error', text: temporalValidationErrors.timeMin }];
     }
   }
 

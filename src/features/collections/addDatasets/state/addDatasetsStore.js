@@ -456,23 +456,9 @@ export const useAddDatasetsStore = create((set, get) => ({
         return;
       }
 
-      // Now fetch preview data with detailed dataset metadata
-      const previewResponse = await collectionsAPI.getCollectionPreview(
+      const datasets = await collectionsAPI.getCollectionPreview(
         datasetShortNames,
-        selectedCollectionId,
       );
-
-      if (!previewResponse.ok) {
-        set({
-          loadError: 'Failed to load dataset details. Please try again.',
-          isLoadingDatasets: false,
-          sourceCollectionDatasets: null,
-        });
-        return;
-      }
-
-      // Parse preview response to get detailed dataset metadata
-      const datasets = await previewResponse.json();
 
       // Update state with loaded datasets
       set({

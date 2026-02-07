@@ -15,6 +15,12 @@ import {
   formatDepthRange,
 } from './overlapFormatter.js';
 import { parseUTCDateString } from '../../../../../shared/filtering/utils/dateHelpers';
+import {
+  longitudeRangesOverlap,
+  calculateLongitudeIntersection,
+  calculateLongitudeWidth,
+  calculateLongitudeIntersectionWidth,
+} from '../../../../../shared/utility/longitudeRange';
 
 /**
  * Detect if a dataset has Monthly Climatology temporal resolution.
@@ -75,43 +81,69 @@ export function isClimatologyDataset(dataset) {
   return false;
 }
 
-/**
- * Calculate the intersection rectangle of user bounds and dataset bounds.
- *
- * Computes the overlapping spatial region between user-defined bounding box
- * and dataset coverage area. This intersection is used for calculating spatial
- * coverage percentages and formatting extent displays.
- *
- * @param {Object} userBounds - User-defined bounding box
- * @param {number} userBounds.latMin - Minimum latitude (-90 to 90)
- * @param {number} userBounds.latMax - Maximum latitude (-90 to 90)
- * @param {number} userBounds.lonMin - Minimum longitude (-180 to 180)
- * @param {number} userBounds.lonMax - Maximum longitude (-180 to 180)
- * @param {Object} datasetBounds - Dataset spatial coverage
- * @param {number} datasetBounds.latMin - Dataset minimum latitude
- * @param {number} datasetBounds.latMax - Dataset maximum latitude
- * @param {number} datasetBounds.lonMin - Dataset minimum longitude
- * @param {number} datasetBounds.lonMax - Dataset maximum longitude
- * @returns {Object} Intersection bounds { latMin, latMax, lonMin, lonMax }
- *
- * @example
- * const userBounds = { latMin: 65, latMax: 80, lonMin: -80, lonMax: -50 };
- * const datasetBounds = { latMin: 68, latMax: 74, lonMin: -75, lonMax: -55 };
- * const intersection = calculateIntersectionBounds(userBounds, datasetBounds);
- * // Returns { latMin: 68, latMax: 74, lonMin: -75, lonMax: -55 }
- *
- * @example
- * const userBounds = { latMin: 20, latMax: 24, lonMin: -160, lonMax: -155 };
- * const datasetBounds = { latMin: 20.5, latMax: 23.0, lonMin: -158.5, lonMax: -156.0 };
- * const intersection = calculateIntersectionBounds(userBounds, datasetBounds);
- * // Returns { latMin: 20.5, latMax: 23.0, lonMin: -158.5, lonMax: -156.0 }
- */
 export function calculateIntersectionBounds(userBounds, datasetBounds) {
+  const lonIntersection = calculateLongitudeIntersection(
+    userBounds.lonMin,
+    userBounds.lonMax,
+    datasetBounds.lonMin,
+    datasetBounds.lonMax,
+  );
+
   return {
     latMin: Math.max(userBounds.latMin, datasetBounds.latMin),
     latMax: Math.min(userBounds.latMax, datasetBounds.latMax),
-    lonMin: Math.max(userBounds.lonMin, datasetBounds.lonMin),
-    lonMax: Math.min(userBounds.lonMax, datasetBounds.lonMax),
+    lonMin: lonIntersection.lonMin,
+    lonMax: lonIntersection.lonMax,
+  };
+}
+
+export function calculateSpatialCoverage(userBounds, datasetBounds) {
+  const hasOverlap = longitudeRangesOverlap(
+    userBounds.lonMin,
+    userBounds.lonMax,
+    datasetBounds.lonMin,
+    datasetBounds.lonMax,
+  );
+
+  if (!hasOverlap) {
+    return { spatialCoverage: 0, datasetUtilization: 0 };
+  }
+
+  const latOverlap =
+    datasetBounds.latMax >= userBounds.latMin &&
+    datasetBounds.latMin <= userBounds.latMax;
+
+  if (!latOverlap) {
+    return { spatialCoverage: 0, datasetUtilization: 0 };
+  }
+
+  const latIntersection =
+    Math.min(userBounds.latMax, datasetBounds.latMax) -
+    Math.max(userBounds.latMin, datasetBounds.latMin);
+
+  const lonIntersectionWidth = calculateLongitudeIntersectionWidth(
+    userBounds.lonMin,
+    userBounds.lonMax,
+    datasetBounds.lonMin,
+    datasetBounds.lonMax,
+  );
+
+  const intersectionArea = latIntersection * lonIntersectionWidth;
+
+  const roiLatHeight = userBounds.latMax - userBounds.latMin;
+  const roiLonWidth = calculateLongitudeWidth(userBounds.lonMin, userBounds.lonMax);
+  const roiArea = roiLatHeight * roiLonWidth;
+
+  const datasetLatHeight = datasetBounds.latMax - datasetBounds.latMin;
+  const datasetLonWidth = calculateLongitudeWidth(datasetBounds.lonMin, datasetBounds.lonMax);
+  const datasetArea = datasetLatHeight * datasetLonWidth;
+
+  const spatialCoverage = roiArea > 0 ? intersectionArea / roiArea : 0;
+  const datasetUtilization = datasetArea > 0 ? intersectionArea / datasetArea : 1;
+
+  return {
+    spatialCoverage: Math.min(1, Math.max(0, spatialCoverage)),
+    datasetUtilization: Math.min(1, Math.max(0, datasetUtilization)),
   };
 }
 
@@ -285,128 +317,139 @@ export function transformSpatialTemporalResult(rawDataset, userConstraints) {
   // Initialize the overlap object that will be added to the dataset
   const overlap = {};
 
-  // 1. Calculate spatial overlap (always required)
   try {
-    // Use SQL-calculated coverage value (already computed in database query)
-    const spatialCoveragePercent = rawDataset.spatial_coverage || 0;
+    const { spatialCoverage, datasetUtilization } = calculateSpatialCoverage(
+      userConstraints.spatial,
+      rawDataset.spatial,
+    );
 
-    // Calculate intersection bounds for formatting extent string
     const intersectionBounds = calculateIntersectionBounds(
       userConstraints.spatial,
       rawDataset.spatial,
     );
 
-    // Format spatial extent string
     const spatialExtent = formatSpatialExtent(intersectionBounds);
 
-    // Diagnostic logging for zero-area datasets
-    const datasetArea =
-      (rawDataset.spatial.latMax - rawDataset.spatial.latMin) *
-      (rawDataset.spatial.lonMax - rawDataset.spatial.lonMin);
-    const isZeroArea = datasetArea === 0;
-
-    if (isZeroArea) {
-      console.log('[SpatialTemporalTransformer] Zero-area dataset detected:', {
-        shortName: rawDataset.shortName,
-        spatial: rawDataset.spatial,
-        userConstraints: userConstraints.spatial,
-        spatialCoverageFromSQL: spatialCoveragePercent,
-        datasetUtilization: rawDataset.dataset_utilization,
-        intersectionBounds,
-        isPoint:
-          rawDataset.spatial.latMin === rawDataset.spatial.latMax &&
-          rawDataset.spatial.lonMin === rawDataset.spatial.lonMax,
-        isWithinBounds:
-          rawDataset.spatial.latMin >= userConstraints.spatial.latMin &&
-          rawDataset.spatial.latMax <= userConstraints.spatial.latMax &&
-          rawDataset.spatial.lonMin >= userConstraints.spatial.lonMin &&
-          rawDataset.spatial.lonMax <= userConstraints.spatial.lonMax,
-      });
-    }
-
-    // Add spatial overlap to result
     overlap.spatial = {
-      coveragePercent: spatialCoveragePercent,
+      coveragePercent: spatialCoverage,
       extent: spatialExtent,
+      datasetUtilization: datasetUtilization,
     };
   } catch (error) {
-    // Graceful degradation: log error but provide default values
     console.error('Error calculating spatial overlap:', error);
     overlap.spatial = {
       coveragePercent: 0,
       extent: '',
+      datasetUtilization: 0,
     };
   }
 
-  // 2. Calculate temporal overlap (only if temporal constraints enabled)
   if (userConstraints.temporal !== null) {
     try {
-      // Use SQL-calculated coverage value (already computed in database query)
-      const temporalCoveragePercent = rawDataset.temporal_coverage || 0;
-
-      // Detect if dataset is Monthly Climatology
       const isClimatology = isClimatologyDataset(datasetWithDates);
 
-      // Calculate intersection period for formatting range string
+      let temporalCoveragePercent = 0;
+      let temporalUtilization = 0;
+
+      if (isClimatology) {
+        temporalCoveragePercent = 1.0;
+        temporalUtilization = 1.0;
+      } else if (
+        datasetWithDates.temporal.timeMin &&
+        datasetWithDates.temporal.timeMax &&
+        userConstraints.temporal.timeMin &&
+        userConstraints.temporal.timeMax
+      ) {
+        const userStart = userConstraints.temporal.timeMin.getTime();
+        const userEnd = userConstraints.temporal.timeMax.getTime();
+        const datasetStart = datasetWithDates.temporal.timeMin.getTime();
+        const datasetEnd = datasetWithDates.temporal.timeMax.getTime();
+
+        const intersectionStart = Math.max(userStart, datasetStart);
+        const intersectionEnd = Math.min(userEnd, datasetEnd);
+
+        if (intersectionEnd > intersectionStart) {
+          const intersectionDuration = intersectionEnd - intersectionStart;
+          const userDuration = userEnd - userStart;
+          const datasetDuration = datasetEnd - datasetStart;
+
+          temporalCoveragePercent = userDuration > 0 ? intersectionDuration / userDuration : 0;
+          temporalUtilization = datasetDuration > 0 ? intersectionDuration / datasetDuration : 1;
+        }
+      }
+
       const intersectionPeriod = calculateIntersectionPeriod(
         userConstraints.temporal,
         datasetWithDates.temporal,
       );
 
-      // Format temporal range string (Date objects)
-      // Climatology datasets show 'Monthly Climatology' instead of date range since they apply to all time periods
       const temporalRange = isClimatology
         ? 'Monthly Climatology'
         : formatTemporalRange(intersectionPeriod);
 
-      // Add temporal overlap to result
       overlap.temporal = {
-        coveragePercent: temporalCoveragePercent,
+        coveragePercent: Math.min(1, Math.max(0, temporalCoveragePercent)),
         range: temporalRange,
-        utilization: rawDataset.temporal_utilization || 0, // NEW - for future use
+        utilization: Math.min(1, Math.max(0, temporalUtilization)),
       };
     } catch (error) {
-      // Graceful degradation: log error but provide default values
       console.error('Error calculating temporal overlap:', error);
       overlap.temporal = {
         coveragePercent: 0,
         range: 'N/A',
+        utilization: 0,
       };
     }
   }
 
-  // 3. Calculate depth overlap (only if depth constraints enabled)
   if (userConstraints.depth !== null) {
     try {
-      // Use SQL-calculated coverage value (already computed in database query)
-      // SQL returns null for datasets with no depth data
-      const depthCoveragePercent =
-        rawDataset.depth_coverage !== null ? rawDataset.depth_coverage : 'N/A';
+      if (rawDataset.depth === null || rawDataset.depth.depthMin === null) {
+        overlap.depth = {
+          coveragePercent: 'N/A',
+          range: 'N/A',
+          utilization: null,
+        };
+      } else {
+        let depthCoveragePercent = 0;
+        let depthUtilization = 0;
 
-      // Calculate intersection range for formatting range string
-      const intersectionRange = calculateIntersectionRange(
-        userConstraints.depth,
-        rawDataset.depth,
-      );
+        const userMin = userConstraints.depth.depthMin;
+        const userMax = userConstraints.depth.depthMax;
+        const datasetMin = rawDataset.depth.depthMin;
+        const datasetMax = rawDataset.depth.depthMax;
 
-      // Format depth range string (returns "N/A" if intersectionRange is null)
-      const depthRange = formatDepthRange(intersectionRange);
+        const intersectionMin = Math.max(userMin, datasetMin);
+        const intersectionMax = Math.min(userMax, datasetMax);
 
-      // Add depth overlap to result
-      overlap.depth = {
-        coveragePercent: depthCoveragePercent,
-        range: depthRange,
-        utilization:
-          rawDataset.depth_utilization !== null
-            ? rawDataset.depth_utilization
-            : null, // NEW - for future use
-      };
+        if (intersectionMax > intersectionMin) {
+          const intersectionRange = intersectionMax - intersectionMin;
+          const userRange = userMax - userMin;
+          const datasetRange = datasetMax - datasetMin;
+
+          depthCoveragePercent = userRange > 0 ? intersectionRange / userRange : 0;
+          depthUtilization = datasetRange > 0 ? intersectionRange / datasetRange : 1;
+        }
+
+        const intersectionRangeBounds = calculateIntersectionRange(
+          userConstraints.depth,
+          rawDataset.depth,
+        );
+
+        const depthRange = formatDepthRange(intersectionRangeBounds);
+
+        overlap.depth = {
+          coveragePercent: Math.min(1, Math.max(0, depthCoveragePercent)),
+          range: depthRange,
+          utilization: Math.min(1, Math.max(0, depthUtilization)),
+        };
+      }
     } catch (error) {
-      // Graceful degradation: log error but provide default values
       console.error('Error calculating depth overlap:', error);
       overlap.depth = {
         coveragePercent: 'N/A',
         range: 'N/A',
+        utilization: null,
       };
     }
   }
@@ -418,8 +461,7 @@ export function transformSpatialTemporalResult(rawDataset, userConstraints) {
     ...datasetWithDates,
     overlap,
     rows: rawDataset.rowCount || 0,
-    // TEMPORARY: Dataset utilization field - will be deleted later
-    datasetUtilization: rawDataset.dataset_utilization || 0,
+    datasetUtilization: overlap.spatial ? overlap.spatial.datasetUtilization : 0,
   };
 }
 

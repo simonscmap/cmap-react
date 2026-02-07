@@ -88,6 +88,7 @@ const DepthConstraintsInput = () => {
   const [depthMin, setDepthMin] = useState(depthRange.depthMin || '');
   const [depthMax, setDepthMax] = useState(depthRange.depthMax || '');
   const [validationErrors, setValidationErrors] = useState([]);
+  const [touched, setTouched] = useState(false);
 
   // Sync local state with store when store changes
   useEffect(() => {
@@ -122,8 +123,8 @@ const DepthConstraintsInput = () => {
     const enabled = event.target.checked;
     setDepthConstraints(enabled, null);
 
-    // Clear validation errors when disabling
     if (!enabled) {
+      setTouched(false);
       setValidationErrors([]);
     }
   };
@@ -149,25 +150,19 @@ const DepthConstraintsInput = () => {
    * This prevents premature constraint snapshot comparisons during typing
    */
   const handleBlur = () => {
+    setTouched(true);
+
     if (!depthEnabled) {
       return;
     }
 
-    // Prepare constraints for validation
-    const constraints = {
-      enabled: depthEnabled,
-      depthMin: depthMin,
-      depthMax: depthMax,
-    };
+    const minVal = depthMin === '' ? null : Number(depthMin);
+    const maxVal = depthMax === '' ? null : Number(depthMax);
 
-    // Only update store if valid
-    const validation = validateDepthRange(constraints);
-    if (validation.valid) {
-      setDepthConstraints(depthEnabled, {
-        depthMin: Number(depthMin),
-        depthMax: Number(depthMax),
-      });
-    }
+    setDepthConstraints(depthEnabled, {
+      depthMin: minVal,
+      depthMax: maxVal,
+    });
   };
 
   return (
@@ -229,9 +224,16 @@ const DepthConstraintsInput = () => {
             />
           </Box>
           <ValidationMessages
-            messages={validationErrors.length > 0
-              ? [{ type: 'error', text: validationErrors[0] }]
-              : []}
+            messages={(() => {
+              if (!depthEnabled) return [];
+              if (depthMin === '' || depthMax === '') {
+                return [{ type: 'error', text: 'Both min and max depth are required' }];
+              }
+              if (touched && validationErrors.length > 0) {
+                return [{ type: 'error', text: validationErrors[0] }];
+              }
+              return [];
+            })()}
             maxMessages={2}
           />
         </Box>

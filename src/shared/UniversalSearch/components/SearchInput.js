@@ -419,17 +419,7 @@ const SearchInput = ({
 
               return (
                 <ul {...other} ref={ref} style={listStyle}>
-                  {headerItem && (
-                    <li
-                      className={classes.stickyHeader}
-                      style={{
-                        listStyle: 'none',
-                        ...(listboxGridColumns ? { display: 'contents' } : {}),
-                      }}
-                    >
-                      {headerItem}
-                    </li>
-                  )}
+                  {headerItem}
                   {contentItems}
                 </ul>
               );
