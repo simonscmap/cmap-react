@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import colors from '../../enums/colors';
 
 const LINE_HEIGHT = 18;
 const DEFAULT_MAX_MESSAGES = 3;
@@ -16,13 +17,13 @@ const useStyles = makeStyles(() => ({
     lineHeight: `${LINE_HEIGHT}px`,
   },
   error: {
-    color: '#f44336',
+    color: colors.blockingError,
   },
   info: {
-    color: '#fdd835',
+    color: colors.nonBlockingInfo,
   },
   warning: {
-    color: '#ff9800',
+    color: colors.nonBlockingInfo,
   },
 }));
 

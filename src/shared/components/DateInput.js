@@ -12,6 +12,7 @@ import {
   getUTCDateComponents,
   createUTCDate,
 } from '../filtering/utils/dateHelpers';
+import colors from '../../enums/colors';
 
 // Inline styles to match Material-UI outlined TextField appearance
 const styles = {
@@ -36,7 +37,7 @@ const styles = {
     top: '-9px',
     left: '10px',
     fontSize: '0.75rem',
-    color: '#9dd162', // Label always green
+    color: colors.primary, // Label always green
     backgroundColor: 'rgb(24, 69, 98)', // Exact modal background color
     padding: '0 4px',
     lineHeight: '1',
@@ -44,7 +45,7 @@ const styles = {
   },
   validationMessage: {
     fontSize: '0.75rem',
-    color: '#f44336', // Material-UI error red
+    color: colors.blockingError,
     marginTop: '4px',
     marginLeft: '14px',
   },
@@ -139,9 +140,9 @@ const DateInput = ({
   const wrapperStyle = {
     ...styles.dateFieldWrapper,
     borderColor: validationMessage
-      ? '#f44336'
+      ? colors.blockingError
       : isFocused
-        ? '#9dd162'
+        ? colors.primary
         : 'rgb(29, 54, 76)', // Exact MUI border color
     borderWidth: isFocused ? '2px' : '1px',
     padding: isFocused ? '5.5px 13px' : '6.5px 14px', // Match TextField small padding (reduced by 1px when focused due to 2px border)
@@ -149,7 +150,7 @@ const DateInput = ({
 
   const labelStyle = {
     ...styles.datePickerLabel,
-    color: validationMessage ? '#f44336' : '#9dd162', // Green normally, red on error
+    color: validationMessage ? colors.blockingError : colors.primary,
   };
 
   return (
