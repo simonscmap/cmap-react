@@ -13,6 +13,9 @@ import {
  * - Validation messages with auto-hide
  * - Input validation and constraint enforcement
  * - Handlers for text inputs and slider
+ *
+ * Note: Validation uses early returns, so only one error displays at a time.
+ * To show multiple concurrent errors, refactor to accumulate messages.
  */
 const useRangeInput = ({
   start,

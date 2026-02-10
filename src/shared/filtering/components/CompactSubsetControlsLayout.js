@@ -27,6 +27,7 @@ import SliderStatusMessage from './compact/SliderStatusMessage';
 import MonthlyDateSubsetControl from './controls/MonthlyDateSubsetControl';
 import ToggleWithHelp from '../../components/ToggleWithHelp';
 import { FIELD_TYPES } from '../utils/endpointFields';
+import colors from '../../../enums/colors';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -108,7 +109,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   infoText: {
-    color: '#fdd835',
+    color: colors.nonBlockingInfo,
     fontSize: '0.75rem',
   },
 }));

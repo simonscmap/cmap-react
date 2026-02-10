@@ -23,7 +23,6 @@ import {
 import { makeStyles } from '@material-ui/core/styles';
 import { GeographicBoundaries } from '../../../../../shared/enum/geographicBoundariesCollections';
 import useSpatialTemporalSearchStore from '../store/spatialTemporalSearchStore';
-import { validateSpatialBounds } from '../../../../../shared/utility/spatialTemporalDepthValidation';
 import ValidationMessages from '../../../../../shared/components/ValidationMessages';
 import zIndex from '../../../../../enums/zIndex';
 
@@ -88,29 +87,18 @@ const useStyles = makeStyles((theme) => ({
 const SpatialBoundsInput = () => {
   const classes = useStyles();
 
-  // Store state and actions
-  const { spatialBounds, selectedPreset, setSpatialBounds, applyPreset } =
-    useSpatialTemporalSearchStore();
+  const spatialBounds = useSpatialTemporalSearchStore((state) => state.spatialBounds);
+  const selectedPreset = useSpatialTemporalSearchStore((state) => state.selectedPreset);
+  const spatialValidationErrors = useSpatialTemporalSearchStore((state) => state.spatialValidationErrors);
+  const spatialWarnings = useSpatialTemporalSearchStore((state) => state.spatialWarnings);
+  const setSpatialBounds = useSpatialTemporalSearchStore((state) => state.setSpatialBounds);
+  const applyPreset = useSpatialTemporalSearchStore((state) => state.applyPreset);
 
-  // Local state for coordinate inputs and validation
   const [localBounds, setLocalBounds] = useState(spatialBounds);
-  const [validationErrors, setValidationErrors] = useState([]);
 
-  // Sync local state with store when store changes
   useEffect(() => {
     setLocalBounds(spatialBounds);
   }, [spatialBounds]);
-
-  // Validate local bounds for immediate feedback
-  useEffect(() => {
-    const result = validateSpatialBounds(localBounds);
-    setValidationErrors(result.errors);
-  }, [localBounds]);
-
-  const crossesDateline =
-    typeof localBounds.lonMin === 'number' &&
-    typeof localBounds.lonMax === 'number' &&
-    localBounds.lonMin > localBounds.lonMax;
 
   /**
    * Handle preset selection from dropdown
@@ -262,10 +250,8 @@ const SpatialBoundsInput = () => {
       <Box className={classes.messagesContainer}>
         <ValidationMessages
           messages={[
-            ...validationErrors.map((text) => ({ type: 'error', text })),
-            ...(crossesDateline
-              ? [{ type: 'info', text: 'The selected longitude values cross the dateline (antimeridian).' }]
-              : []),
+            ...spatialValidationErrors.map((text) => ({ type: 'error', text })),
+            ...spatialWarnings.map((text) => ({ type: 'info', text })),
           ]}
         />
       </Box>

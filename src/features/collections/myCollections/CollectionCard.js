@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
-    border: `1px solid ${colors.secondary}`,
+    border: `1px solid ${colors.teal}`,
     '&:hover': {
       boxShadow: theme.shadows[4],
     },
@@ -82,7 +82,7 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     minWidth: 0,
     fontSize: '1.4em',
-    color: 'rgb(105, 255, 242)',
+    color: colors.teal,
   },
   statusChips: {
     display: 'flex',

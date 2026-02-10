@@ -6,6 +6,7 @@ import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
 import { useDownloadThreshold } from '../stores/useDownloadThreshold';
 import BatchStaleIndicatorTooltip from './BatchStaleIndicatorTooltip';
 import temporalResolutions from '../../../enums/temporalResolutions';
+import colors from '../../../enums/colors';
 
 const styles = {
   container: {
@@ -68,8 +69,8 @@ const RowCountTotal = ({ filterValues }) => {
     });
   }, [selectedDatasets, datasetsMetadata]);
   const getWarningColor = () => {
-    if (isOverThreshold) return '#f44336'; // Red
-    if (hasMonthlyClimatology) return '#ff9800'; // Orange/amber for info
+    if (isOverThreshold) return colors.blockingError;
+    if (hasMonthlyClimatology) return colors.nonBlockingInfo;
     return null;
   };
 

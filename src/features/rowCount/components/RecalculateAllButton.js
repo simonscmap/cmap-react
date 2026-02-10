@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from '@material-ui/core';
+import { Button, CircularProgress, Box } from '@material-ui/core';
 import {
   useRowCountsLoading,
   useStaleDatasets,
@@ -14,7 +14,7 @@ const baseStyle = {
   fontWeight: 700,
   borderRadius: '6px',
   minWidth: 56,
-  maxWidth: 80,
+  maxWidth: 110,
   padding: '4px 8px',
   textTransform: 'none',
   whiteSpace: 'normal',
@@ -51,7 +51,21 @@ const RecalculateAllButton = ({ constraints, className, style }) => {
       aria-label="Recalculate row counts for all stale datasets"
       style={mergedStyle}
     >
-      {rowCountsLoading ? 'Calculating...' : 'Recalculate All'}
+      {rowCountsLoading ? (
+        <Box display="flex" alignItems="center" justifyContent="center">
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            style={{ width: 16, height: 16, marginRight: 6, flexShrink: 0 }}
+          >
+            <CircularProgress size={16} style={{ color: 'rgba(255, 255, 255, 0.5)' }} thickness={4} />
+          </Box>
+          <span>{staleDatasets.length} datasets remaining...</span>
+        </Box>
+      ) : (
+        'Recalculate All'
+      )}
     </Button>
   );
 };

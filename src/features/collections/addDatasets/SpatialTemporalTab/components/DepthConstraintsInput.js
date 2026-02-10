@@ -20,7 +20,6 @@ import {
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import useSpatialTemporalSearchStore from '../store/spatialTemporalSearchStore';
-import { validateDepthRange } from '../../../../../shared/utility/spatialTemporalDepthValidation';
 import ValidationMessages from '../../../../../shared/components/ValidationMessages';
 
 const useStyles = makeStyles((theme) => ({
@@ -75,99 +74,44 @@ const useStyles = makeStyles((theme) => ({
 const DepthConstraintsInput = () => {
   const classes = useStyles();
 
-  // Get state and actions from store
-  const depthEnabled = useSpatialTemporalSearchStore(
-    (state) => state.depthEnabled,
-  );
+  const depthEnabled = useSpatialTemporalSearchStore((state) => state.depthEnabled);
   const depthRange = useSpatialTemporalSearchStore((state) => state.depthRange);
-  const setDepthConstraints = useSpatialTemporalSearchStore(
-    (state) => state.setDepthConstraints,
-  );
+  const depthValidationErrors = useSpatialTemporalSearchStore((state) => state.depthValidationErrors);
+  const setDepthConstraints = useSpatialTemporalSearchStore((state) => state.setDepthConstraints);
 
-  // Local state for inputs
-  const [depthMin, setDepthMin] = useState(depthRange.depthMin || '');
-  const [depthMax, setDepthMax] = useState(depthRange.depthMax || '');
-  const [validationErrors, setValidationErrors] = useState([]);
+  const [depthMin, setDepthMin] = useState(depthRange.depthMin !== null ? depthRange.depthMin : '');
+  const [depthMax, setDepthMax] = useState(depthRange.depthMax !== null ? depthRange.depthMax : '');
 
-  // Sync local state with store when store changes
   useEffect(() => {
     setDepthMin(depthRange.depthMin !== null ? depthRange.depthMin : '');
     setDepthMax(depthRange.depthMax !== null ? depthRange.depthMax : '');
   }, [depthRange.depthMin, depthRange.depthMax]);
 
-  // Validate inputs for immediate feedback (but don't update store)
-  useEffect(() => {
-    if (!depthEnabled) {
-      setValidationErrors([]);
-      return;
-    }
-
-    // Prepare constraints for validation
-    const constraints = {
-      enabled: depthEnabled,
-      depthMin: depthMin,
-      depthMax: depthMax,
-    };
-
-    // Validate (show errors immediately)
-    const validation = validateDepthRange(constraints);
-    setValidationErrors(validation.errors);
-  }, [depthEnabled, depthMin, depthMax]);
-
-  /**
-   * Handle checkbox toggle for enabling/disabling depth constraints
-   * @param {React.ChangeEvent<HTMLInputElement>} event - Checkbox change event
-   */
   const handleEnabledChange = (event) => {
     const enabled = event.target.checked;
     setDepthConstraints(enabled, null);
-
-    // Clear validation errors when disabling
-    if (!enabled) {
-      setValidationErrors([]);
-    }
   };
 
-  /**
-   * Handle depth minimum input change
-   * @param {React.ChangeEvent<HTMLInputElement>} event - Input change event
-   */
   const handleDepthMinChange = (event) => {
     setDepthMin(event.target.value);
   };
 
-  /**
-   * Handle depth maximum input change
-   * @param {React.ChangeEvent<HTMLInputElement>} event - Input change event
-   */
   const handleDepthMaxChange = (event) => {
     setDepthMax(event.target.value);
   };
 
-  /**
-   * Handle blur events - update store only when user finishes editing
-   * This prevents premature constraint snapshot comparisons during typing
-   */
   const handleBlur = () => {
     if (!depthEnabled) {
       return;
     }
 
-    // Prepare constraints for validation
-    const constraints = {
-      enabled: depthEnabled,
-      depthMin: depthMin,
-      depthMax: depthMax,
-    };
+    const minVal = depthMin === '' ? null : Number(depthMin);
+    const maxVal = depthMax === '' ? null : Number(depthMax);
 
-    // Only update store if valid
-    const validation = validateDepthRange(constraints);
-    if (validation.valid) {
-      setDepthConstraints(depthEnabled, {
-        depthMin: Number(depthMin),
-        depthMax: Number(depthMax),
-      });
-    }
+    setDepthConstraints(depthEnabled, {
+      depthMin: minVal,
+      depthMax: maxVal,
+    });
   };
 
   return (
@@ -229,9 +173,7 @@ const DepthConstraintsInput = () => {
             />
           </Box>
           <ValidationMessages
-            messages={validationErrors.length > 0
-              ? [{ type: 'error', text: validationErrors[0] }]
-              : []}
+            messages={depthValidationErrors.map((text) => ({ type: 'error', text }))}
             maxMessages={2}
           />
         </Box>
