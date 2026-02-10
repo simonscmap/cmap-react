@@ -4,6 +4,7 @@ import {
   DialogTitle,
   DialogContent,
   IconButton,
+  Typography,
 } from '@material-ui/core';
 import { Close } from '@material-ui/icons';
 import MultiDatasetDownloadContainer from '../../multiDatasetDownload/components/MultiDatasetDownloadContainer';
@@ -46,7 +47,9 @@ const CollectionDownloadModal = ({ open, onClose, collection }) => {
         id="collection-download-dialog-title"
         className={classes.dialogTitle}
       >
-        Download Collection: {collection.name}
+        <Typography variant="h6" component="div" className={classes.modalTitle}>
+          Download Collection: {collection.name}
+        </Typography>
         <IconButton
           aria-label="close"
           onClick={onClose}

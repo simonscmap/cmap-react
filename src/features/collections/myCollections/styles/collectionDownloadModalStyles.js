@@ -14,9 +14,15 @@ export const useCollectionDownloadModalStyles = makeStyles((theme) => ({
   },
   dialogTitle: {
     paddingBottom: theme.spacing(1),
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    paddingRight: theme.spacing(6),
+  },
+  modalTitle: {
+    margin: 0,
+    fontWeight: 500,
+    fontSize: '1.25rem',
+    color: '#8bc34a',
+    minWidth: 0,
+    overflowWrap: 'break-word',
   },
   closeButton: {
     position: 'absolute',

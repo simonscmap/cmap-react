@@ -25,6 +25,7 @@ const useStyles = makeStyles((theme) => ({
   cardContainer: {
     position: 'relative',
     height: '100%',
+    minWidth: 0,
   },
   card: {
     height: '100%',
@@ -83,6 +84,7 @@ const useStyles = makeStyles((theme) => ({
     minWidth: 0,
     fontSize: '1.4em',
     color: colors.teal,
+    overflowWrap: 'break-word',
   },
   statusChips: {
     display: 'flex',

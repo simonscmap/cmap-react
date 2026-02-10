@@ -45,6 +45,8 @@ const useStyles = makeStyles((theme) => ({
     fontSize: '1.5rem',
     color: '#8bc34a',
     flex: 1,
+    minWidth: 0,
+    overflowWrap: 'break-word',
   },
   closeButton: {
     position: 'absolute',

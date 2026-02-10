@@ -13,12 +13,15 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     gap: theme.spacing(1.5),
     marginBottom: theme.spacing(1),
+    minWidth: 0,
   },
   collectionTitle: {
     margin: 0,
     fontWeight: 500,
     fontSize: '1.25rem',
     color: 'rgba(255, 255, 255, 0.95)',
+    minWidth: 0,
+    overflowWrap: 'break-word',
   },
   creatorInfo: {
     color: 'rgba(255, 255, 255, 0.7)',
