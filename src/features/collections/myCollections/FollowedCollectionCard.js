@@ -7,13 +7,13 @@ import {
   Typography,
   Box,
   CircularProgress,
-  Popover,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { useDispatch } from 'react-redux';
 import colors from '../../../enums/colors';
 import MetadataRow from './MetadataRow';
 import UniversalButton from '../../../shared/components/UniversalButton';
+import ConfirmationPopover from '../../../shared/components/ConfirmationPopover';
 import CollectionDownloadButton from '../shared/CollectionDownloadButton';
 import useCollectionsStore from '../state/collectionsStore';
 import CollectionDownloadModal from './CollectionDownloadModal';
@@ -90,24 +90,6 @@ const useStyles = makeStyles((theme) => ({
     gap: theme.spacing(0.5),
     alignItems: 'center',
     flexWrap: 'wrap',
-  },
-  popoverContent: {
-    padding: theme.spacing(2),
-    maxWidth: 320,
-  },
-  popoverTitle: {
-    fontWeight: 600,
-    marginBottom: theme.spacing(1),
-    color: '#1565c0',
-  },
-  popoverMessage: {
-    marginBottom: theme.spacing(2),
-    color: 'rgba(0, 0, 0, 0.87)',
-  },
-  popoverActions: {
-    display: 'flex',
-    justifyContent: 'flex-end',
-    gap: theme.spacing(1),
   },
 }));
 
@@ -239,45 +221,17 @@ const FollowedCollectionCard = ({ collection, isPending }) => {
           collection={collection}
         />
 
-        <Popover
+        <ConfirmationPopover
           open={Boolean(unfollowAnchor)}
           anchorEl={unfollowAnchor}
           onClose={handleUnfollowCancel}
-          disableScrollLock={true}
-          anchorOrigin={{
-            vertical: 'top',
-            horizontal: 'left',
-          }}
-          transformOrigin={{
-            vertical: 'bottom',
-            horizontal: 'left',
-          }}
-        >
-          <Box className={classes.popoverContent}>
-            <Typography className={classes.popoverTitle}>
-              Unfollow Collection?
-            </Typography>
-            <Typography variant="body2" className={classes.popoverMessage}>
-              This collection will be removed from your My Collections view.
-            </Typography>
-            <Box className={classes.popoverActions}>
-              <UniversalButton
-                onClick={handleUnfollowCancel}
-                variant="default"
-                size="medium"
-              >
-                CANCEL
-              </UniversalButton>
-              <UniversalButton
-                onClick={handleUnfollowConfirm}
-                variant="secondary"
-                size="medium"
-              >
-                UNFOLLOW
-              </UniversalButton>
-            </Box>
-          </Box>
-        </Popover>
+          title="Unfollow Collection?"
+          message="This collection will be removed from your My Collections view."
+          actions={[
+            { label: 'CANCEL', onClick: handleUnfollowCancel, variant: 'default' },
+            { label: 'UNFOLLOW', onClick: handleUnfollowConfirm, variant: 'secondary' },
+          ]}
+        />
       </Card>
 
       {isPending && (
