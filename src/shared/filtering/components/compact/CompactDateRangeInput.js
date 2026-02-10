@@ -16,6 +16,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import useDateRangeInput from '../../hooks/useDateRangeInput';
 import DateRangeSlider from '../controls/DateRangeControl/DateRangeSlider';
 import DateInput from '../../../components/DateInput';
+import ValidationMessages from '../../../components/ValidationMessages';
 import { dateToUTCDateString } from '../../utils/dateHelpers';
 
 const useStyles = makeStyles((theme) => ({
@@ -186,7 +187,6 @@ const CompactDateRangeInput = ({
             minDate={minDate}
             maxDate={maxDate}
             label="Start Date"
-            validationMessage={startDateMessage}
             width="100%"
           />
         </Box>
@@ -198,11 +198,18 @@ const CompactDateRangeInput = ({
             minDate={minDate}
             maxDate={maxDate}
             label="End Date"
-            validationMessage={endDateMessage}
             width="100%"
           />
         </Box>
       </Box>
+      <ValidationMessages
+        messages={
+          (startDateMessage || endDateMessage)
+            ? [{ type: 'error', text: startDateMessage || endDateMessage }]
+            : []
+        }
+        maxMessages={1}
+      />
 
       {/* Slider */}
       <Box className={classes.sliderBox}>

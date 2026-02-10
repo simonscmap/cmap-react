@@ -296,9 +296,17 @@ export function validateDepthRange(constraints) {
     return { valid: false, errors };
   }
 
+  if (depthMin < 0) {
+    errors.push('Minimum depth cannot be negative');
+  }
+
+  if (depthMax < 0) {
+    errors.push('Maximum depth cannot be negative');
+  }
+
   // Validate minimum is less than or equal to maximum
   if (depthMin > depthMax) {
-    errors.push('Maximum depth must be greater than minimum depth');
+    errors.push('Maximum depth must be greater than or equal to minimum depth');
   }
 
   return {

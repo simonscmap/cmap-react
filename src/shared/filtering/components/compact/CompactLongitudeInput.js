@@ -14,6 +14,7 @@ import PropTypes from 'prop-types';
 import { Box, TextField, Typography, Slider } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import useRangeInput from '../../hooks/useRangeInput';
+import ValidationMessages from '../../../../shared/components/ValidationMessages';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -148,20 +149,11 @@ const CompactLongitudeInput = ({
             onChange={handleSetStart}
             onBlur={handleBlurStart}
             className={classes.textField}
-            error={!!startMessage}
-            helperText={startMessage}
             InputLabelProps={{ shrink: true }}
             inputProps={{
               step,
               min,
               max,
-            }}
-            FormHelperTextProps={{
-              style: {
-                position: 'absolute',
-                top: '100%',
-                whiteSpace: 'nowrap',
-              },
             }}
           />
         </Box>
@@ -175,24 +167,23 @@ const CompactLongitudeInput = ({
             onChange={handleSetEnd}
             onBlur={handleBlurEnd}
             className={classes.textField}
-            error={!!endMessage}
-            helperText={endMessage}
             InputLabelProps={{ shrink: true }}
             inputProps={{
               step,
               min,
               max,
             }}
-            FormHelperTextProps={{
-              style: {
-                position: 'absolute',
-                top: '100%',
-                whiteSpace: 'nowrap',
-              },
-            }}
           />
         </Box>
       </Box>
+      <ValidationMessages
+        messages={
+          (startMessage || endMessage)
+            ? [{ type: 'error', text: startMessage || endMessage }]
+            : []
+        }
+        maxMessages={1}
+      />
 
       {/* Slider */}
       <Box className={classes.sliderBox}>

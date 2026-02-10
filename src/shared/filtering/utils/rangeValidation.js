@@ -26,6 +26,7 @@ const ABSOLUTE_BOUNDS = {
   longitude: { min: -180, max: 180 },
   lat: { min: -90, max: 90 },
   lon: { min: -180, max: 180 },
+  depth: { min: 0 },
 };
 
 const getAbsoluteBounds = (fieldType) => {
