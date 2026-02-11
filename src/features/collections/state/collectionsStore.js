@@ -34,7 +34,7 @@ const useCollectionsStore = create((set, get) => ({
 
   // Search and filter state
   searchQuery: '',
-  visibilityFilter: 'all', // 'all' | 'public' | 'private'
+  visibilityFilter: 'all',
   filteredUserCollections: [],
   filteredPublicCollections: [],
 
