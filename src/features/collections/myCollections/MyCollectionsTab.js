@@ -81,8 +81,8 @@ const sortConfig = {
     {
       key: 'modified',
       type: 'date',
-      label: 'Sort by Modified Date',
-      path: 'modifiedDate',
+      label: 'Sort by Date',
+      path: 'sortDate',
     },
   ],
   defaultSort: {
@@ -228,10 +228,16 @@ const MyCollectionsTab = () => {
   );
 
   const mergedCollections = useMemo(() => {
+    const userCollectionsWithSortDate = filteredUserCollections.map((c) => ({
+      ...c,
+      sortDate: c.modifiedDate,
+    }));
+
     const markedFollowed = followedCollections.map((c) => ({
       ...c,
       isFollowed: true,
       isPublic: true,
+      sortDate: c.followDate || c.modifiedDate,
     }));
 
     let filteredFollowed = markedFollowed;
@@ -239,7 +245,7 @@ const MyCollectionsTab = () => {
       filteredFollowed = [];
     }
 
-    return [...filteredUserCollections, ...filteredFollowed];
+    return [...userCollectionsWithSortDate, ...filteredFollowed];
   }, [filteredUserCollections, followedCollections, visibilityFilter]);
 
   const handleLoginClick = () => {
