@@ -229,6 +229,7 @@ const CollectionCard = ({ collection, isPending = false }) => {
           <DeleteButton
             title="Delete Collection?"
             message="Are you sure you want to delete this collection? This action is permanent and cannot be undone."
+            followerCount={collection.followerCount}
             onDelete={handleDelete}
           />
           <Box style={{ flexGrow: 1, marginLeft: 'auto' }}>
