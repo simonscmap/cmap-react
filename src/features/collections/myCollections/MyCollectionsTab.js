@@ -159,8 +159,9 @@ const MyCollectionsContent = ({ visibilityFilter, setVisibilityFilter }) => {
       <Box className={classes.searchSection}>
         <Box className={classes.searchInput}>
           <SearchInput
-            placeholder="Search collections by name, description, or creator..."
+            placeholder="Search collections by name, description, or creator (use * for wildcards)..."
             controlsAlign="left"
+            showEngineToggle={false}
           />
         </Box>
         <Box className={classes.filterDropdown}>

@@ -343,7 +343,7 @@ const MultiDatasetDownloadContainerInner = ({
       )}
 
       <Box mb={3} p={2}>
-        <SearchInput placeholder="Search datasets..." showDropdownToggle={false} activationThreshold={2} />
+        <SearchInput placeholder="Search datasets by name and program (use * for wildcards)..." showDropdownToggle={false} showEngineToggle={false} activationThreshold={2} />
       </Box>
 
       <Box mb={3}>
@@ -474,7 +474,7 @@ const MultiDatasetDownloadContainer = React.memo(
     }
 
     return (
-      <SearchProvider items={datasetsMetadata} searchKeys={['Dataset_Name']}>
+      <SearchProvider items={datasetsMetadata} searchKeys={['Dataset_Name', 'Programs']}>
         <MultiDatasetDownloadContainerInner
           aggregateDatasetMetadata={aggregateMetadata}
           onDownloadComplete={onDownloadComplete}

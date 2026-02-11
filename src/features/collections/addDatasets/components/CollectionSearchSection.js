@@ -271,7 +271,7 @@ const CollectionSearchSection = ({
   return (
     <Box className={classes.container}>
       <SearchInput
-        placeholder="Search collections by name..."
+        placeholder="Search collections by name, description, or creator (use * for wildcards)..."
         size="small"
         fullWidth
         showResultCount={false}

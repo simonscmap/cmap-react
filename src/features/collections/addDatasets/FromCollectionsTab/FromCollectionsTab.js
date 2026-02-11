@@ -202,7 +202,7 @@ const FromCollectionsTab = ({
         <Box className={classes.searchContainer}>
           <SearchProvider
             items={collections}
-            searchKeys={['name', 'description']}
+            searchKeys={['name', 'description', 'ownerName', 'ownerAffiliation']}
             activationThreshold={2}
           >
             <CollectionSearchSection
