@@ -47,7 +47,7 @@ const styles = {
     fontSize: '0.875rem',
     fontWeight: 500,
     backgroundColor: 'rgba(30, 67, 113, 1)',
-    verticalAlign: 'top',
+    verticalAlign: 'middle',
   },
   rowCountHeaderCell: {
     padding: '8px 5px',
@@ -56,7 +56,7 @@ const styles = {
     fontSize: '0.875rem',
     fontWeight: 500,
     backgroundColor: 'rgba(30, 67, 113, 1)',
-    verticalAlign: 'top',
+    verticalAlign: 'middle',
     height: 60, // Taller to accommodate button below text
   },
   tableRowStyle: {

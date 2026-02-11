@@ -55,11 +55,13 @@ const useStyles = makeStyles((theme) => ({
       },
   },
   sliderBox: {
-    // Add horizontal padding to pull slider circles to input edges
     paddingLeft: 4,
     paddingRight: 4,
     '& .MuiSlider-root': {
       margin: '0 0 8px 0',
+    },
+    '& .MuiSlider-valueLabel': {
+      fontSize: '0.4rem',
     },
   },
   boundsRow: {
@@ -186,7 +188,7 @@ const CompactDepthInput = ({
           max={bounds.max}
           step={step}
           valueLabelDisplay="auto"
-          marks={false}
+                    marks={false}
         />
       </Box>
 

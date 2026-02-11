@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { IconButton, Popover, Typography, Box } from '@material-ui/core';
+import { IconButton } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { Delete as DeleteIcon } from '@material-ui/icons';
-import UniversalButton from '../../../shared/components/UniversalButton';
+import ConfirmationPopover from '../../../shared/components/ConfirmationPopover';
 
 const useStyles = makeStyles((theme) => ({
   deleteButton: {
@@ -13,24 +13,6 @@ const useStyles = makeStyles((theme) => ({
       color: '#d32f2f',
       backgroundColor: 'rgba(211, 47, 47, 0.1)',
     },
-  },
-  popoverContent: {
-    padding: theme.spacing(2),
-    maxWidth: 320,
-  },
-  popoverTitle: {
-    fontWeight: 600,
-    marginBottom: theme.spacing(1),
-    color: '#d32f2f',
-  },
-  popoverMessage: {
-    marginBottom: theme.spacing(2),
-    color: 'rgba(0, 0, 0, 0.87)',
-  },
-  popoverActions: {
-    display: 'flex',
-    justifyContent: 'flex-end',
-    gap: theme.spacing(1),
   },
 }));
 
@@ -46,15 +28,9 @@ const DeleteButton = ({ title, message, onDelete }) => {
     setDeleteAnchor(null);
   };
 
-  const handleDeleteConfirm = async () => {
-    // Close popover immediately before delete starts
+  const handleDeleteConfirm = () => {
     setDeleteAnchor(null);
-
-    try {
-      await onDelete();
-    } catch (error) {
-      // Error is already handled by parent component
-    }
+    onDelete();
   };
 
   return (
@@ -67,43 +43,17 @@ const DeleteButton = ({ title, message, onDelete }) => {
         <DeleteIcon />
       </IconButton>
 
-      <Popover
+      <ConfirmationPopover
         open={Boolean(deleteAnchor)}
         anchorEl={deleteAnchor}
         onClose={handleDeleteCancel}
-        disableScrollLock={true}
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'left',
-        }}
-        transformOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
-      >
-        <Box className={classes.popoverContent}>
-          <Typography className={classes.popoverTitle}>{title}</Typography>
-          <Typography variant="body2" className={classes.popoverMessage}>
-            {message}
-          </Typography>
-          <Box className={classes.popoverActions}>
-            <UniversalButton
-              onClick={handleDeleteCancel}
-              variant="default"
-              size="medium"
-            >
-              CANCEL
-            </UniversalButton>
-            <UniversalButton
-              onClick={handleDeleteConfirm}
-              variant="danger"
-              size="medium"
-            >
-              DELETE
-            </UniversalButton>
-          </Box>
-        </Box>
-      </Popover>
+        title={title}
+        message={message}
+        actions={[
+          { label: 'CANCEL', onClick: handleDeleteCancel, variant: 'default' },
+          { label: 'DELETE', onClick: handleDeleteConfirm, variant: 'danger' },
+        ]}
+      />
     </>
   );
 };

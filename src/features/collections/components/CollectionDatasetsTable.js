@@ -47,7 +47,8 @@ const useStyles = makeStyles((theme) => ({
       zIndex: 2,
       padding: '8px 8px',
       border: 0,
-      verticalAlign: 'top',
+      verticalAlign: 'middle',
+      lineHeight: 1.2,
     },
     '& .MuiTableCell-body': {
       verticalAlign: 'top',
@@ -93,7 +94,6 @@ const useStyles = makeStyles((theme) => ({
     width: '60px',
     textAlign: 'center',
     textDecoration: 'none !important', // Prevent line-through on status in marked-for-removal rows
-    lineHeight: 1.1,
   },
   datasetNameCell: {
     minWidth: '200px',
@@ -110,7 +110,6 @@ const useStyles = makeStyles((theme) => ({
   },
   dateRangeCell: {
     width: '140px',
-    lineHeight: 1.3,
   },
   actionsCell: {
     width: '100px',
