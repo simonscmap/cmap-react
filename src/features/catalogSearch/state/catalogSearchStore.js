@@ -13,6 +13,7 @@ import {
   createSearchQuery,
 } from '../api';
 import { captureError } from '../../../shared/errorCapture';
+import { DATASET_TYPES, createDataTypesSet } from '../../../shared/utility/getDatasetType';
 
 const useCatalogSearchStore = create((set, get) => ({
   // Initialization state
@@ -48,7 +49,7 @@ const useCatalogSearchStore = create((set, get) => ({
   },
 
   // Selected data types (stored outside searchQuery for Set type compatibility)
-  selectedDataTypes: new Set(['Model', 'Satellite', 'In-Situ']), // All types selected by default
+  selectedDataTypes: createDataTypesSet(), // All types selected by default
   results: [],
   isSearching: false,
   searchError: null,
@@ -207,9 +208,8 @@ const useCatalogSearchStore = create((set, get) => ({
 
       // Add dataset type filter if provided (multi-select)
       const { selectedDataTypes } = get();
-      const allTypes = ['Model', 'Satellite', 'In-Situ'];
       const hasPartialSelection =
-        selectedDataTypes.size > 0 && selectedDataTypes.size < allTypes.length;
+        selectedDataTypes.size > 0 && selectedDataTypes.size < DATASET_TYPES.length;
 
       if (hasPartialSelection) {
         // Convert Set to array for query builder
@@ -270,7 +270,7 @@ const useCatalogSearchStore = create((set, get) => ({
         customDateEnd: null,
         includePartialOverlaps: true,
       },
-      selectedDataTypes: new Set(['Model', 'Satellite', 'In-Situ']),
+      selectedDataTypes: createDataTypesSet(),
       results: [],
       isSearching: false,
       searchError: null,
@@ -383,7 +383,7 @@ const useCatalogSearchStore = create((set, get) => ({
         // Tab 2 filters (for future)
         includePartialOverlaps: true,
       },
-      selectedDataTypes: new Set(['Model', 'Satellite', 'In-Situ']),
+      selectedDataTypes: createDataTypesSet(),
       results: [],
       isSearching: false,
       searchError: null,
