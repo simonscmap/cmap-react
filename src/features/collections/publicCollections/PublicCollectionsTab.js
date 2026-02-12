@@ -95,8 +95,9 @@ const PublicCollectionsContent = () => {
       <Box className={classes.searchSection}>
         <Box className={classes.searchInput}>
           <SearchInput
-            placeholder="Search collections by name, description, or creator..."
+            placeholder="Search collections by name, description, or creator. Use * as wildcard."
             controlsAlign="left"
+            showEngineToggle={false}
           />
         </Box>
         <Box className={classes.sortDropdown}>
