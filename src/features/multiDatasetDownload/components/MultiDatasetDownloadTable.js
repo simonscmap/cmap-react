@@ -41,7 +41,18 @@ const styles = {
     zIndex: 2,
   },
   headerCellStyle: {
-    padding: '8px 5px',
+    padding: '8px',
+    border: 0,
+    color: '#8bc34a',
+    fontSize: '0.875rem',
+    fontWeight: 500,
+    backgroundColor: 'rgba(30, 67, 113, 1)',
+    verticalAlign: 'middle',
+    whiteSpace: 'nowrap',
+  },
+  rowCountHeaderCell: {
+    padding: '8px',
+    paddingRight: '16px',
     border: 0,
     color: '#8bc34a',
     fontSize: '0.875rem',
@@ -49,15 +60,16 @@ const styles = {
     backgroundColor: 'rgba(30, 67, 113, 1)',
     verticalAlign: 'middle',
   },
-  rowCountHeaderCell: {
-    padding: '8px 5px',
+  twoLineHeaderCell: {
+    padding: '8px',
     border: 0,
     color: '#8bc34a',
     fontSize: '0.875rem',
     fontWeight: 500,
     backgroundColor: 'rgba(30, 67, 113, 1)',
     verticalAlign: 'middle',
-    height: 60, // Taller to accommodate button below text
+    textAlign: 'right',
+    lineHeight: 1.3,
   },
   tableRowStyle: {
     border: 0,
@@ -67,10 +79,11 @@ const styles = {
     backgroundColor: 'rgba(16, 43, 60, 1)',
   },
   bodyCellStyle: {
-    padding: '5px',
+    padding: '12px 8px',
     border: 0,
     color: '#ffffff',
-    lineHeight: '35px',
+    lineHeight: 1.4,
+    verticalAlign: 'top',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
@@ -123,7 +136,7 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
 
   const formatDepth = (value) => {
     if (value === null || value === undefined) return 'N/A';
-    return Math.round(Number(value)).toString();
+    return Math.round(Number(value)).toLocaleString();
   };
 
   const formatTime = (value, datasetMetadata, isStartDate = true) => {
@@ -174,29 +187,29 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
             <TableCell width={90} style={styles.headerCellStyle}>
               End Date
             </TableCell>
-            <TableCell width={80} style={styles.headerCellStyle}>
-              Lat Min
+            <TableCell width={50} align="right" style={styles.twoLineHeaderCell}>
+              Lat<br />Min
             </TableCell>
-            <TableCell width={80} style={styles.headerCellStyle}>
-              Lat Max
+            <TableCell width={50} align="right" style={styles.twoLineHeaderCell}>
+              Lat<br />Max
             </TableCell>
-            <TableCell width={80} style={styles.headerCellStyle}>
-              Lon Min
+            <TableCell width={50} align="right" style={styles.twoLineHeaderCell}>
+              Lon<br />Min
             </TableCell>
-            <TableCell width={80} style={styles.headerCellStyle}>
-              Lon Max
+            <TableCell width={50} align="right" style={styles.twoLineHeaderCell}>
+              Lon<br />Max
             </TableCell>
-            <TableCell width={80} style={styles.headerCellStyle}>
-              Depth Min
+            <TableCell width={50} align="right" style={styles.twoLineHeaderCell}>
+              Depth<br />Min
             </TableCell>
-            <TableCell width={80} style={styles.headerCellStyle}>
-              Depth Max
+            <TableCell width={50} align="right" style={styles.twoLineHeaderCell}>
+              Depth<br />Max
             </TableCell>
             <TableCell width={120} style={styles.headerCellStyle}>
               Programs
             </TableCell>
             <TableCell width={120} align="right" style={styles.rowCountHeaderCell}>
-              <Box display="flex" flexDirection="column" alignItems="flex-end" style={{ gap: '4px' }}>
+              <Box display="flex" flexDirection="row" flexWrap="wrap" alignItems="center" justifyContent="flex-end" style={{ gap: '4px' }}>
                 <span>Row Count</span>
                 <RecalculateAllButton
                   constraints={transformConstraintsForRowCount(filterValues)}
@@ -267,32 +280,32 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
                       )}
                     </Typography>
                   </TableCell>
-                  <TableCell style={styles.bodyCellStyle}>
+                  <TableCell align="right" style={styles.bodyCellStyle}>
                     <Typography variant="body2" noWrap>
                       {formatLatLon(datasetMetadata.Lat_Min)}
                     </Typography>
                   </TableCell>
-                  <TableCell style={styles.bodyCellStyle}>
+                  <TableCell align="right" style={styles.bodyCellStyle}>
                     <Typography variant="body2" noWrap>
                       {formatLatLon(datasetMetadata.Lat_Max)}
                     </Typography>
                   </TableCell>
-                  <TableCell style={styles.bodyCellStyle}>
+                  <TableCell align="right" style={styles.bodyCellStyle}>
                     <Typography variant="body2" noWrap>
                       {formatLatLon(datasetMetadata.Lon_Min)}
                     </Typography>
                   </TableCell>
-                  <TableCell style={styles.bodyCellStyle}>
+                  <TableCell align="right" style={styles.bodyCellStyle}>
                     <Typography variant="body2" noWrap>
                       {formatLatLon(datasetMetadata.Lon_Max)}
                     </Typography>
                   </TableCell>
-                  <TableCell style={styles.bodyCellStyle}>
+                  <TableCell align="right" style={styles.bodyCellStyle}>
                     <Typography variant="body2" noWrap>
                       {formatDepth(datasetMetadata.Depth_Min)}
                     </Typography>
                   </TableCell>
-                  <TableCell style={styles.bodyCellStyle}>
+                  <TableCell align="right" style={styles.bodyCellStyle}>
                     <Typography variant="body2" noWrap>
                       {formatDepth(datasetMetadata.Depth_Max)}
                     </Typography>
@@ -323,7 +336,7 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
                       )}
                     </Box>
                   </TableCell>
-                  <TableCell align="right" style={styles.bodyCellStyle}>
+                  <TableCell align="right" style={{ ...styles.bodyCellStyle, paddingRight: '16px' }}>
                     <RowCountCell
                       shortName={datasetMetadata.Dataset_Name}
                       currentConstraints={transformConstraintsForRowCount(filterValues)}

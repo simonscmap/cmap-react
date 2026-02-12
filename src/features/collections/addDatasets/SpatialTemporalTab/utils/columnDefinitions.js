@@ -88,18 +88,16 @@ export function createColumnDefinitions(deps) {
         <SortableHeader
           field="datasetUtilization"
           label={
-            <Box
-              component="span"
-              display="inline-flex"
-              alignItems="flex-start"
-              gap={0.375}
-            >
-              <span>Dataset Coverage</span>
-              <InfoTooltip
-                title="How much of this dataset's extent is within the ROI? 100% means the entire dataset extent falls within your ROI."
-                fontSize="small"
-              />
-            </Box>
+            <>
+              Dataset{' '}
+              <span style={{ whiteSpace: 'nowrap' }}>
+                Coverage
+                <InfoTooltip
+                  title="How much of this dataset's extent is within the ROI? 100% means the entire dataset extent falls within your ROI."
+                  fontSize="small"
+                />
+              </span>
+            </>
           }
           isActive={sortMode === 'utilization'}
           direction={sortMode === 'utilization' ? sortDirection : 'desc'}
@@ -110,7 +108,7 @@ export function createColumnDefinitions(deps) {
         />
       ),
       cellClass: classes.utilizationCell,
-      align: 'right',
+      align: 'center',
       render: renderDatasetUtilization,
     },
 
@@ -119,18 +117,16 @@ export function createColumnDefinitions(deps) {
         <SortableHeader
           field="spatialCoverage"
           label={
-            <Box
-              component="span"
-              display="inline-flex"
-              alignItems="flex-start"
-              gap={0.375}
-            >
-              <span>ROI Coverage</span>
-              <InfoTooltip
-                title="How much of the ROI does this dataset's extent cover? 100% means the dataset extent covers your entire ROI."
-                fontSize="small"
-              />
-            </Box>
+            <>
+              ROI{' '}
+              <span style={{ whiteSpace: 'nowrap' }}>
+                Coverage
+                <InfoTooltip
+                  title="How much of the ROI does this dataset's extent cover? 100% means the dataset extent covers your entire ROI."
+                  fontSize="small"
+                />
+              </span>
+            </>
           }
           isActive={sortMode === 'spatial'}
           direction={sortMode === 'spatial' ? sortDirection : 'desc'}
@@ -141,7 +137,7 @@ export function createColumnDefinitions(deps) {
         />
       ),
       cellClass: classes.coverageCell,
-      align: 'right',
+      align: 'center',
       render: renderSpatialCoverage,
     },
 
@@ -159,7 +155,7 @@ export function createColumnDefinitions(deps) {
         />
       ),
       cellClass: classes.coverageCell,
-      align: 'right',
+      align: 'center',
       render: renderTemporalCoverage,
     },
 
@@ -177,47 +173,43 @@ export function createColumnDefinitions(deps) {
         />
       ),
       cellClass: classes.coverageCell,
-      align: 'right',
+      align: 'center',
       render: renderDepthCoverage,
     },
 
     temporalUtilization: {
       header: (
-        <Box
-          component="span"
-          display="inline-flex"
-          alignItems="flex-start"
-          gap={0.375}
-        >
-          <span>Temporal Util</span>
-          <InfoTooltip
-            title="Percentage of dataset's temporal extent within your search range"
-            fontSize="small"
-          />
-        </Box>
+        <>
+          Temporal{' '}
+          <span style={{ whiteSpace: 'nowrap' }}>
+            Util
+            <InfoTooltip
+              title="Percentage of dataset's temporal extent within your search range"
+              fontSize="small"
+            />
+          </span>
+        </>
       ),
       cellClass: classes.coverageCell,
-      align: 'right',
+      align: 'center',
       render: renderTemporalUtilization,
     },
 
     depthUtilization: {
       header: (
-        <Box
-          component="span"
-          display="inline-flex"
-          alignItems="flex-start"
-          gap={0.375}
-        >
-          <span>Depth Util</span>
-          <InfoTooltip
-            title="Percentage of dataset's depth extent within your search range"
-            fontSize="small"
-          />
-        </Box>
+        <>
+          Depth{' '}
+          <span style={{ whiteSpace: 'nowrap' }}>
+            Util
+            <InfoTooltip
+              title="Percentage of dataset's depth extent within your search range"
+              fontSize="small"
+            />
+          </span>
+        </>
       ),
       cellClass: classes.coverageCell,
-      align: 'right',
+      align: 'center',
       render: renderDepthUtilization,
     },
 
@@ -229,20 +221,19 @@ export function createColumnDefinitions(deps) {
 
     spatialOverlap: {
       header: (
-        <Box
-          component="span"
-          display="inline-flex"
-          alignItems="flex-start"
-          gap={0.375}
-        >
-          <span>Spatial Overlap</span>
-          <InfoTooltip
-            title="The geographic bounds of the overlapping region between this dataset and your ROI."
-            fontSize="small"
-          />
-        </Box>
+        <>
+          Spatial{' '}
+          <span style={{ whiteSpace: 'nowrap' }}>
+            Overlap
+            <InfoTooltip
+              title="The geographic bounds of the overlapping region between this dataset and your ROI."
+              fontSize="small"
+            />
+          </span>
+        </>
       ),
       cellClass: classes.overlapCell,
+      align: 'center',
       render: renderSpatialOverlap,
     },
 

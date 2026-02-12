@@ -110,12 +110,12 @@ const useStyles = makeStyles((theme) => ({
   },
   coverageCell: {
     width: '110px',
-    textAlign: 'right',
+    textAlign: 'center',
   },
   // TEMPORARY: Dataset utilization column style - will be deleted later
   utilizationCell: {
     width: '120px',
-    textAlign: 'right',
+    textAlign: 'center',
   },
   overlapCell: {
     width: '160px',
@@ -128,8 +128,10 @@ const useStyles = makeStyles((theme) => ({
   },
   rowsHeaderCell: {
     display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-end',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
     gap: theme.spacing(0.5),
   },
   emptyState: {
@@ -420,17 +422,17 @@ const SpatialTemporalResultsTable = ({
             {/* Rows column */}
             <TableCell className={classes.rowsCell} align="right">
               <Box className={classes.rowsHeaderCell}>
-                <span>Rows</span>
-                <Box display="flex" alignItems="center" gap={0.5}>
-                  <RecalculateAllButton
-                    results={results}
-                    constraints={currentConstraints}
-                  />
+                <Box display="inline-flex" alignItems="center" style={{ whiteSpace: 'nowrap' }}>
+                  <span>Rows</span>
                   <InfoTooltip
                     title="Row counts show the number of rows in each dataset within your search constraints. Click 'Recalculate' to get accurate counts based on your specific region and time period."
                     fontSize="small"
                   />
                 </Box>
+                <RecalculateAllButton
+                  results={results}
+                  constraints={currentConstraints}
+                />
               </Box>
             </TableCell>
           </TableRow>
