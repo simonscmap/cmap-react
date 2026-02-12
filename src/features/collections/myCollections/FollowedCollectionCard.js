@@ -183,8 +183,8 @@ const FollowedCollectionCard = ({ collection, isPending }) => {
               isCount={true}
             />
             <MetadataRow
-              label="Last Modified"
-              value={formatDateTime(collection.modifiedDate)}
+              label="Date Followed"
+              value={formatDateTime(collection.followDate)}
             />
           </Box>
         </CardContent>

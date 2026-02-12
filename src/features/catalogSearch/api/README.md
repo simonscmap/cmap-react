@@ -168,7 +168,8 @@ const results = await searchCatalog(query);
 ### Advanced Query Building
 
 ```javascript
-import { createSearchQuery, DATE_RANGE_PRESETS, SEARCH_MODES, DATASET_TYPES } from 'features/catalogSearch/api';
+import { createSearchQuery, DATE_RANGE_PRESETS, SEARCH_MODES } from 'features/catalogSearch/api';
+import { DATASET_TYPES } from 'shared/utility/getDatasetType';
 
 const query = createSearchQuery()
   // Text search with phrase matching

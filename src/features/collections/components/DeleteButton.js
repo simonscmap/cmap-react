@@ -16,9 +16,15 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const DeleteButton = ({ title, message, onDelete }) => {
+const DeleteButton = ({ title, message, followerCount, onDelete }) => {
   const classes = useStyles();
   const [deleteAnchor, setDeleteAnchor] = useState(null);
+
+  let displayMessage = message;
+  if (followerCount > 0) {
+    const followerText = followerCount === 1 ? 'follower' : 'followers';
+    displayMessage = `This collection has ${followerCount} ${followerText} who will lose access when you delete it. This action is permanent and cannot be undone.`;
+  }
 
   const handleDeleteClick = (event) => {
     setDeleteAnchor(event.currentTarget);
@@ -48,7 +54,7 @@ const DeleteButton = ({ title, message, onDelete }) => {
         anchorEl={deleteAnchor}
         onClose={handleDeleteCancel}
         title={title}
-        message={message}
+        message={displayMessage}
         actions={[
           { label: 'CANCEL', onClick: handleDeleteCancel, variant: 'default' },
           { label: 'DELETE', onClick: handleDeleteConfirm, variant: 'danger' },

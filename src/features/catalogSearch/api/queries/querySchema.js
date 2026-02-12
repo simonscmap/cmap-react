@@ -5,6 +5,8 @@
  * These queries are sent to the SQLite worker for execution.
  */
 
+import { DATASET_TYPES } from '../../../../shared/utility/getDatasetType';
+
 /**
  * Search modes
  * @enum {string}
@@ -32,19 +34,9 @@ export const DATE_RANGE_PRESETS = {
 };
 
 /**
- * Dataset type filters
- * @enum {string}
+ * Special value for "no filtering" in UI dropdowns
  */
-export const DATASET_TYPES = {
-  /** No dataset type filtering */
-  ALL: 'All Types',
-  /** Model-generated datasets */
-  MODEL: 'Model',
-  /** Satellite observation datasets */
-  SATELLITE: 'Satellite',
-  /** In-situ measurement datasets */
-  IN_SITU: 'In-Situ',
-};
+export const ALL_TYPES = 'All Types';
 
 /**
  * Default query values
@@ -117,17 +109,17 @@ export function validateQuery(query) {
     if (Array.isArray(query.datasetType)) {
       // Validate each type in the array
       const invalidTypes = query.datasetType.filter(
-        (type) => !Object.values(DATASET_TYPES).includes(type),
+        (type) => !DATASET_TYPES.includes(type),
       );
       if (invalidTypes.length > 0) {
         errors.push(
-          `Invalid datasetType values: ${invalidTypes.join(', ')}. Must be one of: ${Object.values(DATASET_TYPES).join(', ')}`,
+          `Invalid datasetType values: ${invalidTypes.join(', ')}. Must be one of: ${DATASET_TYPES.join(', ')}`,
         );
       }
-    } else if (!Object.values(DATASET_TYPES).includes(query.datasetType)) {
+    } else if (!DATASET_TYPES.includes(query.datasetType)) {
       // Validate single type string
       errors.push(
-        `Invalid datasetType: ${query.datasetType}. Must be one of: ${Object.values(DATASET_TYPES).join(', ')}`,
+        `Invalid datasetType: ${query.datasetType}. Must be one of: ${DATASET_TYPES.join(', ')}`,
       );
     }
   }

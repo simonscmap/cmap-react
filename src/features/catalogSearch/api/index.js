@@ -69,7 +69,6 @@ export {
   SearchQueryBuilder,
   SEARCH_MODES,
   DATE_RANGE_PRESETS,
-  DATASET_TYPES,
   DEFAULTS,
   LIMITS,
   validateQuery,

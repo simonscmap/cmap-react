@@ -16,6 +16,7 @@ import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import NotInterestedIcon from '@material-ui/icons/NotInterested';
 
 import { buttonStates } from '../../utils/buttonStates';
+import colors from '../../../../enums/colors';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -57,10 +58,10 @@ const useStyles = makeStyles((theme) => ({
 const WarningTheme = createTheme({
   palette: {
     primary: {
-      main: '#d16265;',
+      main: colors.blockingError,
     },
     secondary: {
-      main: '#ffd54f',
+      main: colors.blockingError,
     },
   },
 });

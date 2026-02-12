@@ -15,6 +15,7 @@ import {
   validateDepthRange,
 } from '../../../../../shared/utility/spatialTemporalDepthValidation';
 import { dateToUTCDateString } from '../../../../../shared/filtering/utils/dateHelpers';
+import { DATASET_TYPES, createDataTypesSet } from '../../../../../shared/utility/getDatasetType';
 
 const FULL_CONTAINMENT_THRESHOLD = 0.9999;
 
@@ -109,7 +110,7 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
   depthValidationErrors: [],
 
   selectedPreset: 'BATS Region',
-  selectedDataTypes: new Set(['Model', 'Satellite', 'In-Situ']),
+  selectedDataTypes: createDataTypesSet(),
   sortMode: 'default',
   sortDirection: 'desc',
 
@@ -335,8 +336,8 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
         .withOverlapMode(includePartialOverlaps)
         .withSortMode(sortMode, sortDirection);
 
-      // SQL IN clause filtering when < 3 types selected
-      if (selectedDataTypes.size > 0 && selectedDataTypes.size < 3) {
+      // SQL IN clause filtering when not all types selected
+      if (selectedDataTypes.size > 0 && selectedDataTypes.size < DATASET_TYPES.length) {
         query.withDatasetType(Array.from(selectedDataTypes));
       }
 
@@ -466,7 +467,7 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
       spatialWarnings: [],
       depthValidationErrors: [],
       selectedPreset: 'BATS Region',
-      selectedDataTypes: new Set(['Model', 'Satellite', 'In-Situ']),
+      selectedDataTypes: createDataTypesSet(),
       results: null,
       searchError: null,
       isSearching: false,

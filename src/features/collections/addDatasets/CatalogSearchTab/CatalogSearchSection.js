@@ -33,6 +33,7 @@ import DatasetsTableSection from '../components/DatasetsTableSection';
 import UniversalButton from '../../../../shared/components/UniversalButton';
 import DateInput from '../../../../shared/components/DateInput';
 import zIndex from '../../../../enums/zIndex';
+import { DATASET_TYPES } from '../../../../shared/utility/getDatasetType';
 
 const useStyles = makeStyles((theme) => ({
   filterRow: {
@@ -106,9 +107,6 @@ const CatalogSearchSection = ({
 
   const [inputText, setInputText] = useState('');
 
-  // Define available data types
-  const dataTypes = ['Model', 'Satellite', 'In-Situ'];
-
   // Sync local input text with store when store is reset
   useEffect(() => {
     setInputText(searchQuery.text);
@@ -163,7 +161,7 @@ const CatalogSearchSection = ({
     if (selectedDataTypes.size === 0) {
       return '-';
     }
-    if (selectedDataTypes.size === dataTypes.length) {
+    if (selectedDataTypes.size === DATASET_TYPES.length) {
       return 'All Types';
     }
     return Array.from(selectedDataTypes).join(', ');
@@ -276,7 +274,7 @@ const CatalogSearchSection = ({
               style: { zIndex: zIndex.MODAL_LAYER_2_POPPER },
             }}
           >
-            {dataTypes.map((type) => (
+            {DATASET_TYPES.map((type) => (
               <MenuItem key={type} value={type}>
                 <Checkbox
                   checked={selectedDataTypes.has(type)}

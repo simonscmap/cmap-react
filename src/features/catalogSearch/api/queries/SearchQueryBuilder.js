@@ -26,9 +26,9 @@ import {
   DEFAULTS,
   SEARCH_MODES,
   DATE_RANGE_PRESETS,
-  DATASET_TYPES,
   validateQuery,
 } from './querySchema';
+import { DATASET_TYPES } from '../../../../shared/utility/getDatasetType';
 
 /**
  * SearchQueryBuilder class provides a fluent API for constructing search queries

@@ -81,8 +81,8 @@ const sortConfig = {
     {
       key: 'modified',
       type: 'date',
-      label: 'Sort by Modified Date',
-      path: 'modifiedDate',
+      label: 'Sort by Date',
+      path: 'sortDate',
     },
   ],
   defaultSort: {
@@ -95,8 +95,9 @@ const sortConfig = {
 // Visibility filter options
 const VISIBILITY_FILTERS = [
   { value: 'all', label: 'All Collections' },
-  { value: 'public', label: 'Public Only' },
-  { value: 'private', label: 'Private Only' },
+  { value: 'public', label: 'Public' },
+  { value: 'private', label: 'Private' },
+  { value: 'following', label: 'Following' },
 ];
 
 // Inner component that uses filtered items from UniversalSearch
@@ -158,8 +159,9 @@ const MyCollectionsContent = ({ visibilityFilter, setVisibilityFilter }) => {
       <Box className={classes.searchSection}>
         <Box className={classes.searchInput}>
           <SearchInput
-            placeholder="Search collections by name, description, or creator..."
+            placeholder="Search collections by name, description, or creator (use * for wildcards)..."
             controlsAlign="left"
+            showEngineToggle={false}
           />
         </Box>
         <Box className={classes.filterDropdown}>
@@ -193,11 +195,14 @@ const MyCollectionsContent = ({ visibilityFilter, setVisibilityFilter }) => {
         emptyComponent={
           <Box className={classes.emptyState}>
             <Typography variant="h6" gutterBottom>
-              No Collections Found
+              {visibilityFilter === 'following'
+                ? 'No Followed Collections'
+                : 'No Collections Found'}
             </Typography>
             <Typography variant="body1" color="textSecondary">
-              You haven't created any collections yet. Start by creating your
-              first collection to organize your datasets.
+              {visibilityFilter === 'following'
+                ? 'You are not following any collections yet. Browse public collections to find ones to follow.'
+                : "You haven't created any collections yet. Start by creating your first collection to organize your datasets."}
             </Typography>
           </Box>
         }
@@ -228,18 +233,27 @@ const MyCollectionsTab = () => {
   );
 
   const mergedCollections = useMemo(() => {
+    const userCollectionsWithSortDate = filteredUserCollections.map((c) => ({
+      ...c,
+      sortDate: c.modifiedDate,
+    }));
+
     const markedFollowed = followedCollections.map((c) => ({
       ...c,
       isFollowed: true,
       isPublic: true,
+      sortDate: c.followDate || c.modifiedDate,
     }));
 
-    let filteredFollowed = markedFollowed;
-    if (visibilityFilter === 'private') {
-      filteredFollowed = [];
+    if (visibilityFilter === 'following') {
+      return markedFollowed;
     }
 
-    return [...filteredUserCollections, ...filteredFollowed];
+    if (visibilityFilter === 'public' || visibilityFilter === 'private') {
+      return userCollectionsWithSortDate;
+    }
+
+    return [...userCollectionsWithSortDate, ...markedFollowed];
   }, [filteredUserCollections, followedCollections, visibilityFilter]);
 
   const handleLoginClick = () => {

@@ -4,6 +4,7 @@ import { Menu, MenuItem, IconButton, Box, Checkbox } from '@material-ui/core';
 import { ArrowDropDown } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import zIndex from '../../../../../enums/zIndex';
+import { DATASET_TYPES } from '../../../../../shared/utility/getDatasetType';
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -48,8 +49,6 @@ const DataTypeFilterDropdown = ({
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const dataTypes = ['Model', 'Satellite', 'In-Situ'];
-
   const handleDropdownClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -92,7 +91,7 @@ const DataTypeFilterDropdown = ({
           horizontal: 'left',
         }}
       >
-        {dataTypes.map((type) => (
+        {DATASET_TYPES.map((type) => (
           <MenuItem
             key={type}
             onClick={() => handleToggleType(type)}
