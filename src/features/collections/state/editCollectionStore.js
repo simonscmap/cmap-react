@@ -338,7 +338,7 @@ const useEditCollectionStore = create((set, get) => ({
       } else if (response.status === 400) {
         const errorData = await response.json();
         throw new HttpError(
-          errorData.error || 'Validation error',
+          errorData.message || errorData.error || 'Validation error',
           response.status,
         );
       } else if (response.status === 403) {

@@ -1,9 +1,9 @@
 import { useEffect, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import useEditCollectionStore from '../../state/editCollectionStore';
-import collectionsAPI from '../../api/collectionsApi';
+import useCollectionsStore from '../../state/collectionsStore';
 import { useCollectionFormValidation } from '../../createModal/hooks/useCollectionFormValidation';
-import HttpError from '../../../../shared/errorCapture/HttpError';
+import * as Sentry from '@sentry/react';
 
 /**
  * useEditCollection
@@ -40,26 +40,16 @@ export const useEditCollection = (collectionId) => {
   );
   const saveChanges = useEditCollectionStore((state) => state.saveChanges);
   const resetStore = useEditCollectionStore((state) => state.resetStore);
+  const originalName = useEditCollectionStore(
+    (state) => state.originalCollection?.name,
+  );
 
-  // Form validation integration
+  const storeVerifyName = useCollectionsStore(
+    (state) => state.verifyCollectionName,
+  );
   const verifyCollectionName = useCallback(
-    async (name) => {
-      const response = await collectionsAPI.verifyCollectionName(
-        name,
-        collectionId,
-      );
-
-      if (!response.ok) {
-        throw new HttpError(
-          `Failed to verify collection name: ${response.status} ${response.statusText}`,
-          response.status,
-        );
-      }
-
-      const data = await response.json();
-      return data.isAvailable;
-    },
-    [collectionId],
+    (name) => storeVerifyName(name, collectionId),
+    [storeVerifyName, collectionId],
   );
 
   const {
@@ -71,9 +61,9 @@ export const useEditCollection = (collectionId) => {
     collection?.name || '',
     collection?.description || '',
     verifyCollectionName,
-    900, // debounceMs (default value)
+    900,
     collectionId,
-    useEditCollectionStore.getState().originalCollection?.name,
+    originalName,
   );
 
   // Initialize collection on mount
@@ -110,31 +100,30 @@ export const useEditCollection = (collectionId) => {
     [updateVisibility],
   );
 
+  const isNameOverLimit = collection ? collection.name.length > 200 : false;
+  const isDescriptionOverLimit = collection
+    ? (collection.description || '').length > 500
+    : false;
+
+  const canSaveWithValidation =
+    canSave && !isNameOverLimit && !isDescriptionOverLimit && isFormValid;
+
   const handleSave = useCallback(async () => {
-    if (!canSave) {
+    if (!canSaveWithValidation) {
       return false;
     }
 
     try {
       await saveChanges(dispatch);
-      return true; // Success - modal can close
+      return true;
     } catch (error) {
-      // Error already handled in store, logged here for component-level handling if needed
-      console.error('Save operation failed:', error);
-      return false; // Failure - modal should stay open
+      Sentry.captureException(error);
+      return false;
     }
-  }, [canSave, saveChanges, dispatch]);
+  }, [canSaveWithValidation, saveChanges, dispatch]);
 
   const handleCancel = useCallback(() => {
-    // Reset store when canceling
-    // Modal closing is handled by the component
   }, []);
-
-  // Computed character limit checks
-  const isNameOverLimit = collection ? collection.name.length > 200 : false;
-  const isDescriptionOverLimit = collection
-    ? (collection.description || '').length > 500
-    : false;
 
   return {
     // State
@@ -143,7 +132,7 @@ export const useEditCollection = (collectionId) => {
     error,
     collection,
     hasUnsavedChanges,
-    canSave,
+    canSave: canSaveWithValidation,
 
     // Form validation state
     nameValidationState,
