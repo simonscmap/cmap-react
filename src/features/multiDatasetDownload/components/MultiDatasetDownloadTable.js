@@ -26,6 +26,8 @@ import { transformConstraintsForRowCount } from '../utils/constraintTransformer'
 const styles = {
   tableContainerStyle: {
     maxHeight: 400,
+    maxWidth: 1400,
+    margin: '0 auto',
     backgroundColor: 'rgba(16, 43, 60, 0.6)',
     borderRadius: '6px',
     boxShadow:
@@ -33,6 +35,10 @@ const styles = {
     overflow: 'auto',
     position: 'relative',
     zIndex: 1,
+  },
+  tableStyle: {
+    width: '100%',
+    minWidth: 900,
   },
   tableHeadStyle: {
     backgroundColor: 'rgba(30, 67, 113, 1)',
@@ -87,6 +93,16 @@ const styles = {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
+  },
+  datasetNameCellStyle: {
+    padding: '12px 8px',
+    border: 0,
+    color: '#ffffff',
+    lineHeight: 1.4,
+    verticalAlign: 'top',
+    minWidth: 150,
+    whiteSpace: 'normal',
+    wordBreak: 'break-word',
   },
 };
 
@@ -160,7 +176,7 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
 
   return (
     <TableContainer component={Paper} style={styles.tableContainerStyle}>
-      <Table stickyHeader size="small" aria-label="dataset selection table">
+      <Table stickyHeader size="small" aria-label="dataset selection table" style={styles.tableStyle}>
         <TableHead style={styles.tableHeadStyle}>
           <TableRow>
             <TableCell width={50} style={styles.headerCellStyle}>
@@ -177,9 +193,17 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
               />
             </TableCell>
             <TableCell
-              style={{ ...styles.headerCellStyle, width: 'fit-content' }}
+              style={{ ...styles.headerCellStyle, minWidth: 150 }}
             >
               Dataset Name
+            </TableCell>
+            <TableCell align="right" style={styles.rowCountHeaderCell}>
+              <Box display="flex" flexDirection="row" flexWrap="wrap" alignItems="center" justifyContent="flex-end" style={{ gap: '4px' }}>
+                <span>Row Count</span>
+                <RecalculateAllButton
+                  constraints={transformConstraintsForRowCount(filterValues)}
+                />
+              </Box>
             </TableCell>
             <TableCell width={90} style={styles.headerCellStyle}>
               Start Date
@@ -205,16 +229,8 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
             <TableCell width={50} align="right" style={styles.twoLineHeaderCell}>
               Depth<br />Max
             </TableCell>
-            <TableCell width={120} style={styles.headerCellStyle}>
+            <TableCell width={80} style={styles.headerCellStyle}>
               Programs
-            </TableCell>
-            <TableCell width={120} align="right" style={styles.rowCountHeaderCell}>
-              <Box display="flex" flexDirection="row" flexWrap="wrap" alignItems="center" justifyContent="flex-end" style={{ gap: '4px' }}>
-                <span>Row Count</span>
-                <RecalculateAllButton
-                  constraints={transformConstraintsForRowCount(filterValues)}
-                />
-              </Box>
             </TableCell>
           </TableRow>
         </TableHead>
@@ -256,10 +272,16 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
                       size="small"
                     />
                   </TableCell>
-                  <TableCell style={styles.bodyCellStyle}>
+                  <TableCell style={styles.datasetNameCellStyle}>
                     <DatasetNameLink
                       datasetShortName={datasetMetadata.Dataset_Name}
-                      typographyProps={{ variant: 'body2', noWrap: true }}
+                      typographyProps={{ variant: 'body2' }}
+                    />
+                  </TableCell>
+                  <TableCell align="right" style={{ ...styles.bodyCellStyle, paddingRight: '16px' }}>
+                    <RowCountCell
+                      shortName={datasetMetadata.Dataset_Name}
+                      currentConstraints={transformConstraintsForRowCount(filterValues)}
                     />
                   </TableCell>
                   <TableCell style={styles.bodyCellStyle}>
@@ -335,12 +357,6 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
                         </Typography>
                       )}
                     </Box>
-                  </TableCell>
-                  <TableCell align="right" style={{ ...styles.bodyCellStyle, paddingRight: '16px' }}>
-                    <RowCountCell
-                      shortName={datasetMetadata.Dataset_Name}
-                      currentConstraints={transformConstraintsForRowCount(filterValues)}
-                    />
                   </TableCell>
                 </TableRow>
               );
