@@ -25,7 +25,11 @@ const useStyles = makeStyles((theme) => ({
     userSelect: 'none',
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
+    alignItems: (props) => {
+      if (props.align === 'right') return 'flex-end';
+      if (props.align === 'left') return 'flex-start';
+      return 'center';
+    },
     padding: 0,
     opacity: (props) => (props.disabled ? 0.5 : 1),
     '&:hover': {
@@ -36,14 +40,9 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: (props) => (props.isActive ? 600 : 400),
     color: (props) => (props.isActive ? '#69fff2' : 'inherit'),
     fontSize: '14px',
-    maxHeight: '2.8em', // ~2 lines at 1.4 line-height
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    display: '-webkit-box',
-    '-webkit-line-clamp': 2,
-    '-webkit-box-orient': 'vertical',
+    overflow: 'visible',
     lineHeight: 1.4,
-    textAlign: 'center',
+    textAlign: (props) => props.align || 'center',
   },
   arrowsContainer: {
     display: 'flex',
@@ -117,8 +116,9 @@ const SortableHeader = ({
   onClick,
   className,
   disabled = false,
+  align = 'center',
 }) => {
-  const classes = useStyles({ isActive, disabled });
+  const classes = useStyles({ isActive, disabled, align });
 
   // Validate direction prop
   const validDirection =
@@ -211,7 +211,7 @@ const SortableHeader = ({
 
 SortableHeader.propTypes = {
   field: PropTypes.string.isRequired,
-  label: PropTypes.node.isRequired, // Changed from string to node to support React elements
+  label: PropTypes.node.isRequired,
   isActive: PropTypes.bool.isRequired,
   direction: PropTypes.oneOf(['asc', 'desc']),
   uiPattern: PropTypes.oneOf(['dropdown-headers', 'headers-only']).isRequired,
@@ -219,6 +219,7 @@ SortableHeader.propTypes = {
   onClick: PropTypes.func,
   className: PropTypes.string,
   disabled: PropTypes.bool,
+  align: PropTypes.oneOf(['left', 'center', 'right']),
 };
 
 export default SortableHeader;

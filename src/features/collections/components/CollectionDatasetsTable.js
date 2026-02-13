@@ -481,6 +481,7 @@ const CollectionDatasetsTable = ({
     rows: {
       header: 'Dataset Total Rows',
       cellClass: '',
+      align: 'right',
       render: (dataset) =>
         dataset.isInvalid ? 'N/A' : (dataset.rowCount || 0).toLocaleString(),
     },
