@@ -1,15 +1,3 @@
-/**
- * SpatialBoundsInput - Input component for spatial bounding box constraints
- *
- * Provides:
- * - Four number inputs for latitude/longitude (Start/End Latitude, Start/End Longitude)
- * - Preset dropdown for geographic boundaries
- * - Inline validation error display
- * - Integration with spatialTemporalSearchStore
- *
- * @module SpatialBoundsInput
- */
-
 import React, { useState, useEffect } from 'react';
 import {
   Box,
@@ -25,6 +13,7 @@ import { GeographicBoundaries } from '../../../../../shared/enum/geographicBound
 import useSpatialTemporalSearchStore from '../store/spatialTemporalSearchStore';
 import ValidationMessages from '../../../../../shared/components/ValidationMessages';
 import zIndex from '../../../../../enums/zIndex';
+import colors from '../../../../../enums/colors';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -52,99 +41,164 @@ const useStyles = makeStyles((theme) => ({
   coordsGrid: {
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing(1), // Vertical gap between rows
-    marginLeft: 106, // Align with content after title (90px + 16px gap)
+    gap: theme.spacing(1),
+    marginLeft: 106,
   },
   coordRow: {
     display: 'flex',
-    gap: theme.spacing(1), // Horizontal gap between Start/End coordinate pairs
+    gap: theme.spacing(1),
   },
   coordField: {
-    width: 140, // Fixed width to accommodate 12 characters
-    '& input[type=number]': {
-      '-moz-appearance': 'textfield',
-    },
-    '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button':
-      {
-        '-webkit-appearance': 'none',
-        margin: 0,
-      },
+    width: 140,
   },
   messagesContainer: {
     marginTop: theme.spacing(1),
     marginLeft: 106,
   },
+  coordFieldError: {
+    '& .MuiOutlinedInput-root': {
+      '& fieldset': { borderColor: colors.blockingError },
+      '&:hover fieldset': { borderColor: colors.blockingError },
+      '&.Mui-focused fieldset': { borderColor: colors.blockingError },
+    },
+    '& .MuiInputLabel-root': { color: colors.blockingError },
+  },
 }));
 
-/**
- * SpatialBoundsInput component
- *
- * Renders input controls for spatial bounding box (lat/lon) with preset selection.
- * Connects to spatialTemporalSearchStore for state management.
- *
- * @returns {JSX.Element}
- */
+const isIntermediate = (v) => {
+  let s = String(v).trim();
+  return s === '' || s === '-' || s === '.' || s === '-.' || s === '-0' || s === '0.';
+};
+
 const SpatialBoundsInput = () => {
   const classes = useStyles();
 
   const spatialBounds = useSpatialTemporalSearchStore((state) => state.spatialBounds);
   const selectedPreset = useSpatialTemporalSearchStore((state) => state.selectedPreset);
-  const spatialValidationErrors = useSpatialTemporalSearchStore((state) => state.spatialValidationErrors);
+  const spatialFieldErrors = useSpatialTemporalSearchStore((state) => state.spatialFieldErrors);
+  const spatialFieldInteraction = useSpatialTemporalSearchStore((state) => state.spatialFieldInteraction);
+  const spatialErrorRevealed = useSpatialTemporalSearchStore((state) => state.spatialErrorRevealed);
   const spatialWarnings = useSpatialTemporalSearchStore((state) => state.spatialWarnings);
   const setSpatialBounds = useSpatialTemporalSearchStore((state) => state.setSpatialBounds);
+  const validateSpatialInput = useSpatialTemporalSearchStore((state) => state.validateSpatialInput);
   const applyPreset = useSpatialTemporalSearchStore((state) => state.applyPreset);
+  const markFieldFocused = useSpatialTemporalSearchStore((state) => state.markFieldFocused);
+  const markFieldBlurred = useSpatialTemporalSearchStore((state) => state.markFieldBlurred);
+  const revealError = useSpatialTemporalSearchStore((state) => state.revealError);
+  const clearErrorRevealed = useSpatialTemporalSearchStore((state) => state.clearErrorRevealed);
 
-  const [localBounds, setLocalBounds] = useState(spatialBounds);
+  const [localBounds, setLocalBounds] = useState({
+    latMin: spatialBounds.latMin !== null && spatialBounds.latMin !== undefined ? String(spatialBounds.latMin) : '',
+    latMax: spatialBounds.latMax !== null && spatialBounds.latMax !== undefined ? String(spatialBounds.latMax) : '',
+    lonMin: spatialBounds.lonMin !== null && spatialBounds.lonMin !== undefined ? String(spatialBounds.lonMin) : '',
+    lonMax: spatialBounds.lonMax !== null && spatialBounds.lonMax !== undefined ? String(spatialBounds.lonMax) : '',
+  });
 
   useEffect(() => {
-    setLocalBounds(spatialBounds);
+    setLocalBounds({
+      latMin: spatialBounds.latMin !== null && spatialBounds.latMin !== undefined ? String(spatialBounds.latMin) : '',
+      latMax: spatialBounds.latMax !== null && spatialBounds.latMax !== undefined ? String(spatialBounds.latMax) : '',
+      lonMin: spatialBounds.lonMin !== null && spatialBounds.lonMin !== undefined ? String(spatialBounds.lonMin) : '',
+      lonMax: spatialBounds.lonMax !== null && spatialBounds.lonMax !== undefined ? String(spatialBounds.lonMax) : '',
+    });
+    // Note: Don't reset interaction here - that's handled by applyPreset for external changes.
+    // Internal changes (user blur commits) should preserve interaction state.
   }, [spatialBounds]);
 
-  /**
-   * Handle preset selection from dropdown
-   * @param {Event} e - Select change event
-   */
+  useEffect(() => {
+    validateSpatialInput(localBounds);
+  }, [localBounds, validateSpatialInput]);
+
   const handlePresetChange = (e) => {
-    const presetLabel = e.target.value;
+    let presetLabel = e.target.value;
 
     if (presetLabel === '') {
-      // "Select a preset" option - do nothing
       return;
     }
 
-    // Find preset by label
-    const preset = GeographicBoundaries.find((p) => p.label === presetLabel);
+    let preset = GeographicBoundaries.find((p) => p.label === presetLabel);
 
     if (preset) {
       applyPreset(preset);
     }
   };
 
-  /**
-   * Handle manual coordinate input - update local state only
-   * @param {string} field - Field name (latMin, latMax, lonMin, lonMax)
-   * @param {string} value - Input value
-   */
   const handleCoordChange = (field, value) => {
-    // Allow empty string or numeric values
-    if (value === '' || value === '-') {
-      setLocalBounds((prev) => ({ ...prev, [field]: value }));
-      return;
-    }
+    setLocalBounds((prev) => ({ ...prev, [field]: value }));
+  };
 
-    const numValue = Number(value);
-    if (!isNaN(numValue)) {
-      setLocalBounds((prev) => ({ ...prev, [field]: numValue }));
+  const handleFieldFocus = (field) => {
+    markFieldFocused('spatial', field);
+  };
+
+  const handleFieldBlur = (field) => {
+    markFieldBlurred('spatial', field);
+
+    let boundsToCommit = {};
+    let hasChanges = false;
+    ['latMin', 'latMax', 'lonMin', 'lonMax'].forEach((f) => {
+      let val = localBounds[f];
+      let newVal;
+      if (isIntermediate(val)) {
+        newVal = '';
+      } else {
+        let num = Number(val);
+        newVal = isNaN(num) ? val : num;
+      }
+      boundsToCommit[f] = newVal;
+      if (newVal !== spatialBounds[f]) {
+        hasChanges = true;
+      }
+    });
+
+    if (hasChanges) {
+      setSpatialBounds(boundsToCommit);
     }
   };
 
-  const handleBlur = () => {
-    setSpatialBounds(localBounds);
+  useEffect(() => {
+    ['latMin', 'latMax', 'lonMin', 'lonMax'].forEach((field) => {
+      let err = spatialFieldErrors[field];
+      let interaction = spatialFieldInteraction[field];
+      let revealed = spatialErrorRevealed[field];
+
+      if (err && err.message) {
+        let shouldReveal = !err.blurOnly || interaction === null || interaction === true;
+        if (shouldReveal && !revealed) {
+          revealError('spatial', field);
+        }
+      } else if (revealed) {
+        clearErrorRevealed('spatial', field);
+      }
+    });
+  }, [spatialFieldErrors, spatialFieldInteraction, spatialErrorRevealed, revealError, clearErrorRevealed]);
+
+  let fieldHasDisplayedError = (field) => {
+    let err = spatialFieldErrors[field];
+    let revealed = spatialErrorRevealed[field];
+    return err && err.message && (!err.blurOnly || revealed);
   };
+
+  let displayErrors = [];
+  ['latMin', 'latMax', 'lonMin', 'lonMax'].forEach((field) => {
+    if (fieldHasDisplayedError(field)) {
+      displayErrors.push(spatialFieldErrors[field].message);
+    }
+  });
+
+  let latMinNum = parseFloat(localBounds.latMin);
+  let latMaxNum = parseFloat(localBounds.latMax);
+  let isLatRangeInverted = !isNaN(latMinNum) && !isNaN(latMaxNum) && latMinNum > latMaxNum;
+  let latInversionDisplayed = fieldHasDisplayedError('latMin') && isLatRangeInverted;
+
+  let latMinHasError = fieldHasDisplayedError('latMin') || latInversionDisplayed;
+  let latMaxHasError = fieldHasDisplayedError('latMax') || latInversionDisplayed;
+
+  let lonMinHasError = fieldHasDisplayedError('lonMin');
+  let lonMaxHasError = fieldHasDisplayedError('lonMax');
 
   return (
     <Box className={classes.container}>
-      {/* Header Row: Title + Preset Dropdown */}
       <Box className={classes.headerRow}>
         <Typography variant="subtitle1" className={classes.sectionTitle}>
           Region of
@@ -174,75 +228,64 @@ const SpatialBoundsInput = () => {
         </FormControl>
       </Box>
 
-      {/* Coordinate Inputs */}
       <Box className={classes.coordsGrid}>
-        {/* Latitude Row */}
         <Box className={classes.coordRow}>
           <TextField
-            type="number"
+            type="text"
             label="Start Latitude (°)"
             variant="outlined"
-            value={localBounds.latMin ?? ''}
+            value={localBounds.latMin}
             onChange={(e) => handleCoordChange('latMin', e.target.value)}
-            onBlur={handleBlur}
-            className={classes.coordField}
+            onFocus={() => handleFieldFocus('latMin')}
+            onBlur={() => handleFieldBlur('latMin')}
+            onKeyDown={(e) => { if (e.key === 'Enter') e.target.blur(); }}
+            className={`${classes.coordField} ${latMinHasError ? classes.coordFieldError : ''}`}
             InputLabelProps={{ shrink: true }}
-            inputProps={{
-              step: 'any',
-              min: -90,
-              max: 90,
-            }}
+            inputProps={{ inputMode: 'decimal' }}
           />
 
           <TextField
-            type="number"
+            type="text"
             label="End Latitude (°)"
             variant="outlined"
-            value={localBounds.latMax ?? ''}
+            value={localBounds.latMax}
             onChange={(e) => handleCoordChange('latMax', e.target.value)}
-            onBlur={handleBlur}
-            className={classes.coordField}
+            onFocus={() => handleFieldFocus('latMax')}
+            onBlur={() => handleFieldBlur('latMax')}
+            onKeyDown={(e) => { if (e.key === 'Enter') e.target.blur(); }}
+            className={`${classes.coordField} ${latMaxHasError ? classes.coordFieldError : ''}`}
             InputLabelProps={{ shrink: true }}
-            inputProps={{
-              step: 'any',
-              min: -90,
-              max: 90,
-            }}
+            inputProps={{ inputMode: 'decimal' }}
           />
         </Box>
 
-        {/* Longitude Row */}
         <Box className={classes.coordRow}>
           <TextField
-            type="number"
+            type="text"
             label="Start Longitude (°)"
             variant="outlined"
-            value={localBounds.lonMin ?? ''}
+            value={localBounds.lonMin}
             onChange={(e) => handleCoordChange('lonMin', e.target.value)}
-            onBlur={handleBlur}
-            className={classes.coordField}
+            onFocus={() => handleFieldFocus('lonMin')}
+            onBlur={() => handleFieldBlur('lonMin')}
+            onKeyDown={(e) => { if (e.key === 'Enter') e.target.blur(); }}
+            className={`${classes.coordField} ${lonMinHasError ? classes.coordFieldError : ''}`}
             InputLabelProps={{ shrink: true }}
-            inputProps={{
-              step: 'any',
-              min: -180,
-              max: 180,
-            }}
+            inputProps={{ inputMode: 'decimal' }}
           />
 
           <TextField
-            type="number"
+            type="text"
             label="End Longitude (°)"
             variant="outlined"
-            value={localBounds.lonMax ?? ''}
+            value={localBounds.lonMax}
             onChange={(e) => handleCoordChange('lonMax', e.target.value)}
-            onBlur={handleBlur}
-            className={classes.coordField}
+            onFocus={() => handleFieldFocus('lonMax')}
+            onBlur={() => handleFieldBlur('lonMax')}
+            onKeyDown={(e) => { if (e.key === 'Enter') e.target.blur(); }}
+            className={`${classes.coordField} ${lonMaxHasError ? classes.coordFieldError : ''}`}
             InputLabelProps={{ shrink: true }}
-            inputProps={{
-              step: 'any',
-              min: -180,
-              max: 180,
-            }}
+            inputProps={{ inputMode: 'decimal' }}
           />
         </Box>
       </Box>
@@ -250,9 +293,10 @@ const SpatialBoundsInput = () => {
       <Box className={classes.messagesContainer}>
         <ValidationMessages
           messages={[
-            ...spatialValidationErrors.map((text) => ({ type: 'error', text })),
+            ...displayErrors.map((text) => ({ type: 'error', text })),
             ...spatialWarnings.map((text) => ({ type: 'info', text })),
           ]}
+          maxMessages={4}
         />
       </Box>
     </Box>

@@ -105,12 +105,17 @@ const DateInput = ({
   value,
   onChange,
   onBlur,
+  onFocus,
   validationMessage,
+  hasError,
   label,
   id,
   width,
+  onYearInvalid,
 }) => {
   const [isFocused, setIsFocused] = React.useState(false);
+  const [yearInvalid, setYearInvalid] = React.useState(false);
+  const yearCheckRef = React.useRef({ value: null, isPlaceholder: true });
 
   // Convert Date objects to CalendarDate for React ARIA
   const calendarValue = dateToCalendarDate(value);
@@ -126,6 +131,9 @@ const DateInput = ({
   // Handle DateField focus
   const handleDateFieldFocus = () => {
     setIsFocused(true);
+    if (onFocus) {
+      onFocus();
+    }
   };
 
   // Handle DateField blur
@@ -136,10 +144,34 @@ const DateInput = ({
     }
   };
 
+  // Handle Enter key to blur
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.target.blur();
+    }
+  };
+
+  const renderSegment = (segment) => {
+    if (segment.type === 'year') {
+      yearCheckRef.current = { value: segment.value, isPlaceholder: segment.isPlaceholder };
+    }
+    return <DateSegment segment={segment} />;
+  };
+
+  React.useEffect(() => {
+    let { value: yearValue, isPlaceholder } = yearCheckRef.current;
+    let invalid = !isPlaceholder && yearValue !== null && yearValue < 1000;
+    setYearInvalid(invalid);
+    if (onYearInvalid) {
+      onYearInvalid(invalid);
+    }
+  });
+
   // Compute dynamic styles (only border changes on focus/error)
+  const showError = hasError || validationMessage || yearInvalid;
   const wrapperStyle = {
     ...styles.dateFieldWrapper,
-    borderColor: validationMessage
+    borderColor: showError
       ? colors.blockingError
       : isFocused
         ? colors.primary
@@ -150,7 +182,7 @@ const DateInput = ({
 
   const labelStyle = {
     ...styles.datePickerLabel,
-    color: validationMessage ? colors.blockingError : colors.primary,
+    color: showError ? colors.blockingError : colors.primary,
   };
 
   return (
@@ -165,16 +197,17 @@ const DateInput = ({
             onChange={handleDateFieldChange}
             onFocus={handleDateFieldFocus}
             onBlur={handleDateFieldBlur}
+            onKeyDown={handleKeyDown}
             minValue={calendarMinDate}
             maxValue={calendarMaxDate}
             granularity="day"
             id={id}
             aria-label={label}
-            isInvalid={!!validationMessage}
+            isInvalid={showError}
           >
             <Label style={labelStyle}>{label}</Label>
             <AriaDateInput>
-              {(segment) => <DateSegment segment={segment} />}
+              {renderSegment}
             </AriaDateInput>
           </DateField>
         </div>

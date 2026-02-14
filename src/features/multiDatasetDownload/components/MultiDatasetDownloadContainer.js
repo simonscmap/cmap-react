@@ -92,22 +92,26 @@ const MultiDatasetDownloadContainerInner = ({
     depthMax: ceilToStep(aggregateDatasetMetadata.Depth_Max || 0),
   } : null;
 
-  // State for toggle controls (required by layout components)
   const [optionsState, setOptionsState] = useState({
     subset: false,
   });
 
-  // State for preset dropdown (controlled component pattern)
   const [selectedPreset, setSelectedPreset] = useState('Collection Extent');
 
-  // State for slider status message
   const [sliderMessage, setSliderMessage] = useState(null);
+
+  const [isSubsetValid, setIsSubsetValid] = useState(true);
 
   const handleResetPreset = () => {
     setSelectedPreset('Collection Extent');
   };
 
   const clearSliderMessage = () => {
+    setSliderMessage(null);
+  };
+
+  const handleGeoLocalChange = () => {
+    setSelectedPreset('Custom');
     setSliderMessage(null);
   };
 
@@ -326,6 +330,8 @@ const MultiDatasetDownloadContainerInner = ({
             sliderEndpoints={sliderEndpoints}
             sliderMessage={sliderMessage}
             onExpandEndpoint={handleExpandEndpoint}
+            onSubsetValidationChange={setIsSubsetValid}
+            onGeoLocalChange={handleGeoLocalChange}
           />
         </SubsetControls>
       </Box>
@@ -364,6 +370,7 @@ const MultiDatasetDownloadContainerInner = ({
             dateHandling,
           }}
           onDownloadComplete={onDownloadComplete}
+          isSubsetValid={optionsState.subset ? isSubsetValid : true}
         />
       </Box>
     </Box>

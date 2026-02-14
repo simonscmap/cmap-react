@@ -9,12 +9,13 @@
  * @module CompactLongitudeInput
  */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Box, TextField, Typography, Slider } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import useRangeInput from '../../hooks/useRangeInput';
+import useMultiDatasetRangeInput from '../../hooks/useMultiDatasetRangeInput';
 import ValidationMessages from '../../../../shared/components/ValidationMessages';
+import colors from '../../../../enums/colors';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -37,14 +38,22 @@ const useStyles = makeStyles((theme) => ({
   },
   textField: {
     width: '100%',
-    '& input[type=number]': {
-      '-moz-appearance': 'textfield',
-    },
-    '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button':
-      {
-        '-webkit-appearance': 'none',
-        margin: 0,
+  },
+  textFieldError: {
+    '& .MuiOutlinedInput-root': {
+      '& fieldset': {
+        borderColor: colors.blockingError,
       },
+      '&:hover fieldset': {
+        borderColor: colors.blockingError,
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: colors.blockingError,
+      },
+    },
+    '& .MuiInputLabel-root': {
+      color: colors.blockingError,
+    },
   },
   sliderBox: {
     paddingLeft: 4,
@@ -105,6 +114,8 @@ const CompactLongitudeInput = ({
   step,
   unit = '',
   onExpandEndpoint,
+  onValidationChange,
+  onLocalChange,
 }) => {
   const classes = useStyles();
 
@@ -117,12 +128,14 @@ const CompactLongitudeInput = ({
     handleBlurEnd,
     startMessage,
     endMessage,
+    isRangeInverted,
+    isValid,
     handleSlider,
     handleSliderCommit,
     sliderStart,
     sliderEnd,
     bounds,
-  } = useRangeInput({
+  } = useMultiDatasetRangeInput({
     start,
     end,
     setStart,
@@ -135,7 +148,33 @@ const CompactLongitudeInput = ({
     onExpandEndpoint,
   });
 
-  const isInverted = sliderStart > sliderEnd;
+  const startHasError = Boolean(startMessage) || isRangeInverted;
+  const endHasError = Boolean(endMessage) || isRangeInverted;
+
+  useEffect(() => {
+    if (onValidationChange) {
+      onValidationChange(isValid);
+    }
+  }, [isValid, onValidationChange]);
+
+  const handleStartChange = (e) => {
+    handleSetStart(e);
+    if (onLocalChange) {
+      onLocalChange();
+    }
+  };
+
+  const handleEndChange = (e) => {
+    handleSetEnd(e);
+    if (onLocalChange) {
+      onLocalChange();
+    }
+  };
+
+  const localStartNum = parseFloat(localStartValue);
+  const localEndNum = parseFloat(localEndValue);
+  const showAntimeridianMessage = !isNaN(localStartNum) && !isNaN(localEndNum) && localStartNum > localEndNum;
+  const isSliderInverted = sliderStart > sliderEnd;
 
   return (
     <Box className={classes.container}>
@@ -143,48 +182,46 @@ const CompactLongitudeInput = ({
       <Box className={classes.inputRow}>
         <Box className={classes.inputWrapper}>
           <TextField
-            type="number"
+            type="text"
             size="small"
             variant="outlined"
             label="W Longitude (°)"
             value={localStartValue}
-            onChange={handleSetStart}
+            onChange={handleStartChange}
             onBlur={handleBlurStart}
-            className={classes.textField}
+            onKeyDown={(e) => { if (e.key === 'Enter') e.target.blur(); }}
+            className={`${classes.textField} ${startHasError ? classes.textFieldError : ''}`}
             InputLabelProps={{ shrink: true }}
             inputProps={{
-              step,
-              min,
-              max,
+              inputMode: 'decimal',
             }}
           />
         </Box>
         <Box className={classes.inputWrapper}>
           <TextField
-            type="number"
+            type="text"
             size="small"
             variant="outlined"
             label="E Longitude (°)"
             value={localEndValue}
-            onChange={handleSetEnd}
+            onChange={handleEndChange}
             onBlur={handleBlurEnd}
-            className={classes.textField}
+            onKeyDown={(e) => { if (e.key === 'Enter') e.target.blur(); }}
+            className={`${classes.textField} ${endHasError ? classes.textFieldError : ''}`}
             InputLabelProps={{ shrink: true }}
             inputProps={{
-              step,
-              min,
-              max,
+              inputMode: 'decimal',
             }}
           />
         </Box>
       </Box>
       <ValidationMessages
-        messages={
-          (startMessage || endMessage)
-            ? [{ type: 'error', text: startMessage || endMessage }]
-            : []
-        }
-        maxMessages={1}
+        messages={[
+          startMessage ? { type: 'error', text: startMessage } : null,
+          endMessage ? { type: 'error', text: endMessage } : null,
+          showAntimeridianMessage ? { type: 'info', text: 'Selection crosses the dateline (antimeridian)' } : null,
+        ].filter(Boolean)}
+        maxMessages={3}
       />
 
       {/* Slider */}
@@ -198,8 +235,9 @@ const CompactLongitudeInput = ({
           step={step}
           valueLabelDisplay="auto"
           marks={false}
-          track={isInverted ? 'inverted' : 'normal'}
+          track={isSliderInverted ? 'inverted' : 'normal'}
           classes={{ trackInverted: classes.trackInverted }}
+          ThumbComponent={(props) => <span {...props} tabIndex={-1} />}
         />
       </Box>
 
@@ -227,6 +265,8 @@ CompactLongitudeInput.propTypes = {
   step: PropTypes.number.isRequired,
   unit: PropTypes.string,
   onExpandEndpoint: PropTypes.func,
+  onValidationChange: PropTypes.func,
+  onLocalChange: PropTypes.func,
 };
 
 export default CompactLongitudeInput;

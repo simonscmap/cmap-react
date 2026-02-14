@@ -1,9 +1,4 @@
-/**
- * Validation utilities for spatial-temporal search constraints
- *
- * This module provides JSDoc type definitions for the spatial-temporal overlap feature.
- * These types are used throughout the feature for type safety and documentation.
- */
+import { messages } from '../filtering/utils/validationMessages';
 
 /**
  * User-defined spatial bounding box
@@ -183,19 +178,34 @@ export function validateSpatialBounds(bounds) {
   const lonMin = Number(bounds.lonMin);
   const lonMax = Number(bounds.lonMax);
 
-  // Validate latitude range
-  if (latMin < -90 || latMin > 90 || latMax < -90 || latMax > 90) {
-    errors.push('Latitude must be between -90° and 90°');
+  if (latMin < -90) {
+    errors.push(messages.belowMin('Start Latitude', -90));
+  }
+  if (latMin > 90) {
+    errors.push(messages.aboveMax('Start Latitude', 90));
+  }
+  if (latMax < -90) {
+    errors.push(messages.belowMin('End Latitude', -90));
+  }
+  if (latMax > 90) {
+    errors.push(messages.aboveMax('End Latitude', 90));
   }
 
-  // Validate longitude range
-  if (lonMin < -180 || lonMin > 180 || lonMax < -180 || lonMax > 180) {
-    errors.push('Longitude must be between -180° and 180°');
+  if (lonMin < -180) {
+    errors.push(messages.belowMin('Start Longitude', -180));
+  }
+  if (lonMin > 180) {
+    errors.push(messages.aboveMax('Start Longitude', 180));
+  }
+  if (lonMax < -180) {
+    errors.push(messages.belowMin('End Longitude', -180));
+  }
+  if (lonMax > 180) {
+    errors.push(messages.aboveMax('End Longitude', 180));
   }
 
-  // Validate that north latitude is greater than south latitude
   if (latMax <= latMin) {
-    errors.push('Start Latitude must be less than End Latitude');
+    errors.push(messages.rangeInverted('Start Latitude', 'End Latitude'));
   }
 
   // Note: We do NOT validate lonMin < lonMax because date-line crossing is valid
@@ -227,24 +237,28 @@ export function validateTemporalRange(constraints) {
     return { valid: true, errors: [] };
   }
 
-  // Check if both fields are provided
   if (!constraints.timeMin || !constraints.timeMax) {
-    errors.push('Both start and end dates are required');
+    if (!constraints.timeMin) {
+      errors.push(messages.required('Start Date'));
+    }
+    if (!constraints.timeMax) {
+      errors.push(messages.required('End Date'));
+    }
     return { valid: false, errors };
   }
 
-  // Validate dates are valid Date objects
-  const startDate = constraints.timeMin;
-  const endDate = constraints.timeMax;
+  let startDate = constraints.timeMin;
+  let endDate = constraints.timeMax;
 
-  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-    errors.push('Invalid date');
-    return { valid: false, errors };
+  if (isNaN(startDate.getTime())) {
+    errors.push(messages.invalidDate('Start Date'));
+  }
+  if (isNaN(endDate.getTime())) {
+    errors.push(messages.invalidDate('End Date'));
   }
 
-  // Validate start date is less than or equal to end date
-  if (startDate > endDate) {
-    errors.push('End date must be after start date');
+  if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime()) && startDate > endDate) {
+    errors.push(messages.dateRangeInverted());
   }
 
   return {
@@ -274,39 +288,39 @@ export function validateDepthRange(constraints) {
     return { valid: true, errors: [] };
   }
 
-  // Check if both fields are provided
-  if (
-    constraints.depthMin === undefined ||
-    constraints.depthMin === null ||
-    constraints.depthMin === '' ||
-    constraints.depthMax === undefined ||
-    constraints.depthMax === null ||
-    constraints.depthMax === ''
-  ) {
-    errors.push('Both minimum and maximum depth are required');
+  let minMissing = constraints.depthMin === undefined || constraints.depthMin === null || constraints.depthMin === '';
+  let maxMissing = constraints.depthMax === undefined || constraints.depthMax === null || constraints.depthMax === '';
+
+  if (minMissing || maxMissing) {
+    if (minMissing) {
+      errors.push(messages.required('Min Depth'));
+    }
+    if (maxMissing) {
+      errors.push(messages.required('Max Depth'));
+    }
     return { valid: false, errors };
   }
 
-  // Convert to numbers and validate numeric
-  const depthMin = Number(constraints.depthMin);
-  const depthMax = Number(constraints.depthMax);
+  let depthMin = Number(constraints.depthMin);
+  let depthMax = Number(constraints.depthMax);
 
-  if (isNaN(depthMin) || isNaN(depthMax)) {
-    errors.push('Depth must be a numeric value');
-    return { valid: false, errors };
+  if (isNaN(depthMin)) {
+    errors.push(messages.invalidNumber('Min Depth'));
+  }
+  if (isNaN(depthMax)) {
+    errors.push(messages.invalidNumber('Max Depth'));
   }
 
-  if (depthMin < 0) {
-    errors.push('Minimum depth cannot be negative');
+  if (!isNaN(depthMin) && depthMin < 0) {
+    errors.push(messages.belowMin('Min Depth', 0));
   }
 
-  if (depthMax < 0) {
-    errors.push('Maximum depth cannot be negative');
+  if (!isNaN(depthMax) && depthMax < 0) {
+    errors.push(messages.belowMin('Max Depth', 0));
   }
 
-  // Validate minimum is less than or equal to maximum
-  if (depthMin > depthMax) {
-    errors.push('Maximum depth must be greater than or equal to minimum depth');
+  if (!isNaN(depthMin) && !isNaN(depthMax) && depthMin > depthMax) {
+    errors.push(messages.rangeInverted('Min Depth', 'Max Depth'));
   }
 
   return {

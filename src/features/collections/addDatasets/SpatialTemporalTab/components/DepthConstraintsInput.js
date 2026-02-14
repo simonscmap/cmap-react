@@ -1,17 +1,4 @@
-/**
- * DepthConstraintsInput - Component for enabling/disabling depth constraints and setting depth range
- *
- * This component provides:
- * - Checkbox to enable/disable depth filtering
- * - Number inputs for minimum and maximum depth (meters)
- * - Conditional rendering (inputs only visible when enabled)
- * - Inline validation error display
- * - Integration with spatialTemporalSearchStore
- *
- * @module DepthConstraintsInput
- */
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Box,
   TextField,
@@ -21,6 +8,7 @@ import {
 import { makeStyles } from '@material-ui/core/styles';
 import useSpatialTemporalSearchStore from '../store/spatialTemporalSearchStore';
 import ValidationMessages from '../../../../../shared/components/ValidationMessages';
+import colors from '../../../../../enums/colors';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -49,46 +37,73 @@ const useStyles = makeStyles((theme) => ({
   checkboxContainer: {
     display: 'flex',
     alignItems: 'center',
-    gap: theme.spacing(0.5), // Half the previous spacing
-    marginLeft: -11, // Align checkbox to left edge (compensate for checkbox padding)
+    gap: theme.spacing(0.5),
+    marginLeft: -11,
   },
   inputsRow: {
     display: 'flex',
     gap: theme.spacing(2),
   },
   depthField: {
-    width: 140, // Match coordinate input width
+    width: 140,
   },
   inputsColumn: {
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing(0.5),
   },
+  depthFieldError: {
+    '& .MuiOutlinedInput-root': {
+      '& fieldset': { borderColor: colors.blockingError },
+      '&:hover fieldset': { borderColor: colors.blockingError },
+      '&.Mui-focused fieldset': { borderColor: colors.blockingError },
+    },
+    '& .MuiInputLabel-root': { color: colors.blockingError },
+  },
 }));
 
-/**
- * DepthConstraintsInput component
- *
- * @returns {React.ReactElement} The rendered component
- */
+const isIntermediate = (v) => {
+  let s = String(v).trim();
+  return s === '' || s === '.' || s === '0.';
+};
+
 const DepthConstraintsInput = () => {
   const classes = useStyles();
 
   const depthEnabled = useSpatialTemporalSearchStore((state) => state.depthEnabled);
   const depthRange = useSpatialTemporalSearchStore((state) => state.depthRange);
-  const depthValidationErrors = useSpatialTemporalSearchStore((state) => state.depthValidationErrors);
+  const depthFieldErrors = useSpatialTemporalSearchStore((state) => state.depthFieldErrors);
+  const depthFieldInteraction = useSpatialTemporalSearchStore((state) => state.depthFieldInteraction);
+  const depthErrorRevealed = useSpatialTemporalSearchStore((state) => state.depthErrorRevealed);
   const setDepthConstraints = useSpatialTemporalSearchStore((state) => state.setDepthConstraints);
+  const validateDepthInput = useSpatialTemporalSearchStore((state) => state.validateDepthInput);
+  const markFieldFocused = useSpatialTemporalSearchStore((state) => state.markFieldFocused);
+  const markFieldBlurred = useSpatialTemporalSearchStore((state) => state.markFieldBlurred);
+  const revealError = useSpatialTemporalSearchStore((state) => state.revealError);
+  const clearErrorRevealed = useSpatialTemporalSearchStore((state) => state.clearErrorRevealed);
 
-  const [depthMin, setDepthMin] = useState(depthRange.depthMin !== null ? depthRange.depthMin : '');
-  const [depthMax, setDepthMax] = useState(depthRange.depthMax !== null ? depthRange.depthMax : '');
+  const [depthMin, setDepthMin] = useState(
+    depthRange.depthMin !== null && depthRange.depthMin !== undefined ? String(depthRange.depthMin) : ''
+  );
+  const [depthMax, setDepthMax] = useState(
+    depthRange.depthMax !== null && depthRange.depthMax !== undefined ? String(depthRange.depthMax) : ''
+  );
+
+  const prevBlurOnly = useRef({ depthMin: undefined, depthMax: undefined });
 
   useEffect(() => {
-    setDepthMin(depthRange.depthMin !== null ? depthRange.depthMin : '');
-    setDepthMax(depthRange.depthMax !== null ? depthRange.depthMax : '');
+    setDepthMin(depthRange.depthMin !== null && depthRange.depthMin !== undefined ? String(depthRange.depthMin) : '');
+    setDepthMax(depthRange.depthMax !== null && depthRange.depthMax !== undefined ? String(depthRange.depthMax) : '');
+    // Note: Don't reset interaction here - that's handled by setDepthConstraints when enabling.
+    // Internal changes (user blur commits) should preserve interaction state.
   }, [depthRange.depthMin, depthRange.depthMax]);
 
+  useEffect(() => {
+    validateDepthInput({ depthMin, depthMax });
+  }, [depthMin, depthMax, depthEnabled, validateDepthInput]);
+
   const handleEnabledChange = (event) => {
-    const enabled = event.target.checked;
+    let enabled = event.target.checked;
     setDepthConstraints(enabled, null);
   };
 
@@ -100,13 +115,22 @@ const DepthConstraintsInput = () => {
     setDepthMax(event.target.value);
   };
 
-  const handleBlur = () => {
+  const handleFieldFocus = (field) => {
+    markFieldFocused('depth', field);
+  };
+
+  const handleFieldBlur = (field) => {
+    markFieldBlurred('depth', field);
+
     if (!depthEnabled) {
       return;
     }
 
-    const minVal = depthMin === '' ? null : Number(depthMin);
-    const maxVal = depthMax === '' ? null : Number(depthMax);
+    let minVal = isIntermediate(depthMin) ? null : Number(depthMin);
+    let maxVal = isIntermediate(depthMax) ? null : Number(depthMax);
+
+    if (isNaN(minVal)) minVal = null;
+    if (isNaN(maxVal)) maxVal = null;
 
     setDepthConstraints(depthEnabled, {
       depthMin: minVal,
@@ -114,11 +138,56 @@ const DepthConstraintsInput = () => {
     });
   };
 
+  useEffect(() => {
+    ['depthMin', 'depthMax'].forEach((field) => {
+      let err = depthFieldErrors[field];
+      let interaction = depthFieldInteraction[field];
+      let revealed = depthErrorRevealed[field];
+      let wasBlurOnly = prevBlurOnly.current[field];
+
+      if (err && err.message) {
+        if (err.blurOnly && wasBlurOnly === false && interaction === false && revealed) {
+          clearErrorRevealed('depth', field);
+        } else {
+          let shouldReveal = !err.blurOnly || interaction === null || interaction === true;
+          if (shouldReveal && !revealed) {
+            revealError('depth', field);
+          }
+        }
+        prevBlurOnly.current[field] = err.blurOnly;
+      } else {
+        if (revealed) {
+          clearErrorRevealed('depth', field);
+        }
+        prevBlurOnly.current[field] = undefined;
+      }
+    });
+  }, [depthFieldErrors, depthFieldInteraction, depthErrorRevealed, revealError, clearErrorRevealed]);
+
+  let fieldHasDisplayedError = (field) => {
+    let err = depthFieldErrors[field];
+    let revealed = depthErrorRevealed[field];
+    return err && err.message && (!err.blurOnly || revealed);
+  };
+
+  let displayErrors = [];
+  ['depthMin', 'depthMax'].forEach((field) => {
+    if (fieldHasDisplayedError(field)) {
+      displayErrors.push(depthFieldErrors[field].message);
+    }
+  });
+
+  let depthMinNum = parseFloat(depthMin);
+  let depthMaxNum = parseFloat(depthMax);
+  let isDepthRangeInverted = !isNaN(depthMinNum) && !isNaN(depthMaxNum) && depthMinNum > depthMaxNum;
+  let depthInversionDisplayed = fieldHasDisplayedError('depthMin') && isDepthRangeInverted;
+
+  let depthMinHasError = fieldHasDisplayedError('depthMin') || depthInversionDisplayed;
+  let depthMaxHasError = fieldHasDisplayedError('depthMax') || depthInversionDisplayed;
+
   return (
     <Box className={classes.container}>
-      {/* Header Row: Title Column + Inputs */}
       <Box className={classes.headerRow}>
-        {/* Title and Enable Checkbox Column */}
         <Box className={classes.titleColumn}>
           <Typography variant="subtitle1" className={classes.sectionTitle}>
             Depth
@@ -142,38 +211,36 @@ const DepthConstraintsInput = () => {
             style={depthEnabled ? undefined : { visibility: 'hidden' }}
           >
             <TextField
-              className={classes.depthField}
+              className={`${classes.depthField} ${depthMinHasError ? classes.depthFieldError : ''}`}
               label="Min Depth (m)"
-              type="number"
+              type="text"
               value={depthMin}
               onChange={handleDepthMinChange}
-              onBlur={handleBlur}
+              onFocus={() => handleFieldFocus('depthMin')}
+              onBlur={() => handleFieldBlur('depthMin')}
+              onKeyDown={(e) => { if (e.key === 'Enter') e.target.blur(); }}
               variant="outlined"
               size="small"
               InputLabelProps={{ shrink: true }}
-              inputProps={{
-                step: '0.1',
-                min: '0',
-              }}
+              inputProps={{ inputMode: 'decimal' }}
             />
             <TextField
-              className={classes.depthField}
+              className={`${classes.depthField} ${depthMaxHasError ? classes.depthFieldError : ''}`}
               label="Max Depth (m)"
-              type="number"
+              type="text"
               value={depthMax}
               onChange={handleDepthMaxChange}
-              onBlur={handleBlur}
+              onFocus={() => handleFieldFocus('depthMax')}
+              onBlur={() => handleFieldBlur('depthMax')}
+              onKeyDown={(e) => { if (e.key === 'Enter') e.target.blur(); }}
               variant="outlined"
               size="small"
               InputLabelProps={{ shrink: true }}
-              inputProps={{
-                step: '0.1',
-                min: '0',
-              }}
+              inputProps={{ inputMode: 'decimal' }}
             />
           </Box>
           <ValidationMessages
-            messages={depthValidationErrors.map((text) => ({ type: 'error', text }))}
+            messages={displayErrors.map((text) => ({ type: 'error', text }))}
             maxMessages={2}
           />
         </Box>

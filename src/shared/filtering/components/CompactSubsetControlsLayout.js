@@ -14,7 +14,7 @@
  * @module CompactSubsetControlsLayout
  */
 
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { Box, Collapse, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
@@ -27,7 +27,6 @@ import SliderStatusMessage from './compact/SliderStatusMessage';
 import MonthlyDateSubsetControl from './controls/MonthlyDateSubsetControl';
 import ToggleWithHelp from '../../components/ToggleWithHelp';
 import { FIELD_TYPES } from '../utils/endpointFields';
-import colors from '../../../enums/colors';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -108,10 +107,6 @@ const useStyles = makeStyles((theme) => ({
       },
     },
   },
-  infoText: {
-    color: colors.nonBlockingInfo,
-    fontSize: '0.75rem',
-  },
 }));
 
 /**
@@ -130,7 +125,7 @@ const useStyles = makeStyles((theme) => ({
 const CompactSubsetControlsLayout = ({
   optionsState,
   handleSwitch,
-  controls = {}, // Default to empty object to prevent destructuring errors
+  controls = {},
   geographicPresets,
   collectionExtent,
   selectedPreset,
@@ -139,10 +134,47 @@ const CompactSubsetControlsLayout = ({
   sliderEndpoints,
   sliderMessage,
   onExpandEndpoint,
+  onSubsetValidationChange,
+  onGeoLocalChange,
 }) => {
   const classes = useStyles();
 
   const { date, latitude, longitude, depth } = controls;
+
+  const [latValid, setLatValid] = useState(true);
+  const [lonValid, setLonValid] = useState(true);
+  const [depthValid, setDepthValid] = useState(true);
+  const [dateInvalid, setDateInvalid] = useState(false);
+
+  const isSubsetValid = latValid && lonValid && depthValid && !dateInvalid;
+
+  useEffect(() => {
+    if (onSubsetValidationChange) {
+      onSubsetValidationChange(isSubsetValid);
+    }
+  }, [isSubsetValid, onSubsetValidationChange]);
+
+  const handleLatValidation = useCallback((valid) => {
+    setLatValid(valid);
+  }, []);
+
+  const handleLonValidation = useCallback((valid) => {
+    setLonValid(valid);
+  }, []);
+
+  const handleDepthValidation = useCallback((valid) => {
+    setDepthValid(valid);
+  }, []);
+
+  const handleDateInvalidFlag = useCallback((invalid) => {
+    setDateInvalid(invalid);
+  }, []);
+
+  const handleGeoLocalChange = useCallback(() => {
+    if (onGeoLocalChange) {
+      onGeoLocalChange();
+    }
+  }, [onGeoLocalChange]);
 
   return (
     <React.Fragment>
@@ -179,7 +211,7 @@ const CompactSubsetControlsLayout = ({
                 setEndDate={date.handlers.setTimeEnd}
                 minDate={date.data.timeMin}
                 maxDate={date.data.timeMax}
-                setInvalidFlag={date.setInvalidFlag}
+                setInvalidFlag={handleDateInvalidFlag}
               />
             )}
 
@@ -195,6 +227,7 @@ const CompactSubsetControlsLayout = ({
               step={0.1}
               unit="m"
               onExpandEndpoint={onExpandEndpoint ? function (fieldName, value) { onExpandEndpoint(FIELD_TYPES.DEPTH, fieldName, value); } : null}
+              onValidationChange={handleDepthValidation}
             />
           </Box>
 
@@ -214,14 +247,6 @@ const CompactSubsetControlsLayout = ({
                 geographicPresets={geographicPresets}
                 collectionExtent={collectionExtent}
               />
-              <Box style={{ display: 'flex', alignItems: 'flex-end' }}>
-                {longitude.data.lonStart > longitude.data.lonEnd && (
-                  <Typography variant="caption" className={classes.infoText}>
-                    The selected longitude values cross the dateline
-                    (antimeridian).
-                  </Typography>
-                )}
-              </Box>
             </Box>
 
             <SliderStatusMessage message={sliderMessage} />
@@ -238,6 +263,8 @@ const CompactSubsetControlsLayout = ({
                 step={0.1}
                 unit="°"
                 onExpandEndpoint={onExpandEndpoint ? function (fieldName, value) { onExpandEndpoint(FIELD_TYPES.LAT, fieldName, value); } : null}
+                onValidationChange={handleLatValidation}
+                onLocalChange={handleGeoLocalChange}
               />
 
               <CompactLongitudeInput
@@ -251,6 +278,8 @@ const CompactSubsetControlsLayout = ({
                 step={0.1}
                 unit="°"
                 onExpandEndpoint={onExpandEndpoint ? function (fieldName, value) { onExpandEndpoint(FIELD_TYPES.LON, fieldName, value); } : null}
+                onValidationChange={handleLonValidation}
+                onLocalChange={handleGeoLocalChange}
               />
             </Box>
           </Box>
@@ -350,6 +379,8 @@ CompactSubsetControlsLayout.propTypes = {
   }),
   sliderMessage: PropTypes.string,
   onExpandEndpoint: PropTypes.func,
+  onSubsetValidationChange: PropTypes.func,
+  onGeoLocalChange: PropTypes.func,
 };
 
 export default CompactSubsetControlsLayout;

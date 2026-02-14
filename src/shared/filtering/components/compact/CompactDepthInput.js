@@ -9,12 +9,13 @@
  * @module CompactDepthInput
  */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Box, TextField, Typography, Slider } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import useRangeInput from '../../hooks/useRangeInput';
+import useMultiDatasetRangeInput from '../../hooks/useMultiDatasetRangeInput';
 import ValidationMessages from '../../../../shared/components/ValidationMessages';
+import colors from '../../../../enums/colors';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -45,14 +46,22 @@ const useStyles = makeStyles((theme) => ({
   },
   textField: {
     width: '100%',
-    '& input[type=number]': {
-      '-moz-appearance': 'textfield',
-    },
-    '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button':
-      {
-        '-webkit-appearance': 'none',
-        margin: 0,
+  },
+  textFieldError: {
+    '& .MuiOutlinedInput-root': {
+      '& fieldset': {
+        borderColor: colors.blockingError,
       },
+      '&:hover fieldset': {
+        borderColor: colors.blockingError,
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: colors.blockingError,
+      },
+    },
+    '& .MuiInputLabel-root': {
+      color: colors.blockingError,
+    },
   },
   sliderBox: {
     paddingLeft: 4,
@@ -104,10 +113,10 @@ const CompactDepthInput = ({
   step,
   unit = '',
   onExpandEndpoint,
+  onValidationChange,
 }) => {
   const classes = useStyles();
 
-  // Use validation hook for two-phase updates and error handling
   const {
     localStartValue,
     localEndValue,
@@ -117,12 +126,23 @@ const CompactDepthInput = ({
     handleBlurEnd,
     startMessage,
     endMessage,
+    isRangeInverted,
+    isValid,
     handleSlider,
     handleSliderCommit,
     sliderStart,
     sliderEnd,
     bounds,
-  } = useRangeInput({ start, end, setStart, setEnd, min, max, step, fieldType: 'depth', onExpandEndpoint });
+  } = useMultiDatasetRangeInput({ start, end, setStart, setEnd, min, max, step, fieldType: 'depth', onExpandEndpoint });
+
+  const startHasError = Boolean(startMessage) || isRangeInverted;
+  const endHasError = Boolean(endMessage) || isRangeInverted;
+
+  useEffect(() => {
+    if (onValidationChange) {
+      onValidationChange(isValid);
+    }
+  }, [isValid, onValidationChange]);
 
   return (
     <Box className={classes.container}>
@@ -135,48 +155,45 @@ const CompactDepthInput = ({
       <Box className={classes.inputRow}>
         <Box className={classes.inputWrapper}>
           <TextField
-            type="number"
+            type="text"
             size="small"
             variant="outlined"
             label="Min Depth (m)"
             value={localStartValue}
             onChange={handleSetStart}
             onBlur={handleBlurStart}
-            className={classes.textField}
+            onKeyDown={(e) => { if (e.key === 'Enter') e.target.blur(); }}
+            className={`${classes.textField} ${startHasError ? classes.textFieldError : ''}`}
             InputLabelProps={{ shrink: true }}
             inputProps={{
-              step,
-              min,
-              max,
+              inputMode: 'decimal',
             }}
           />
         </Box>
         <Box className={classes.inputWrapper}>
           <TextField
-            type="number"
+            type="text"
             size="small"
             variant="outlined"
             label="Max Depth (m)"
             value={localEndValue}
             onChange={handleSetEnd}
             onBlur={handleBlurEnd}
-            className={classes.textField}
+            onKeyDown={(e) => { if (e.key === 'Enter') e.target.blur(); }}
+            className={`${classes.textField} ${endHasError ? classes.textFieldError : ''}`}
             InputLabelProps={{ shrink: true }}
             inputProps={{
-              step,
-              min,
-              max,
+              inputMode: 'decimal',
             }}
           />
         </Box>
       </Box>
       <ValidationMessages
-        messages={
-          (startMessage || endMessage)
-            ? [{ type: 'error', text: startMessage || endMessage }]
-            : []
-        }
-        maxMessages={1}
+        messages={[
+          startMessage ? { type: 'error', text: startMessage } : null,
+          endMessage ? { type: 'error', text: endMessage } : null,
+        ].filter(Boolean)}
+        maxMessages={2}
       />
       {/* Slider */}
       <Box className={classes.sliderBox}>
@@ -188,7 +205,8 @@ const CompactDepthInput = ({
           max={bounds.max}
           step={step}
           valueLabelDisplay="auto"
-                    marks={false}
+          marks={false}
+          ThumbComponent={(props) => <span {...props} tabIndex={-1} />}
         />
       </Box>
 
@@ -216,6 +234,7 @@ CompactDepthInput.propTypes = {
   step: PropTypes.number.isRequired,
   unit: PropTypes.string,
   onExpandEndpoint: PropTypes.func,
+  onValidationChange: PropTypes.func,
 };
 
 export default CompactDepthInput;

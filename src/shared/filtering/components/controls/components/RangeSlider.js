@@ -56,6 +56,7 @@ const RangeSlider = ({
             ]
           : false
       }
+      ThumbComponent={(props) => <span {...props} tabIndex={-1} />}
     />
   );
 };
