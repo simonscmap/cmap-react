@@ -72,6 +72,7 @@ const MultiDatasetDownloadContainerInner = ({
   aggregateDatasetMetadata,
   onDownloadComplete,
   geographicPresets,
+  initialSubsetExpanded = false,
 }) => {
   const { resetStore } = useMultiDatasetDownloadStore();
   const filteredItems = useFilteredItems();
@@ -93,7 +94,7 @@ const MultiDatasetDownloadContainerInner = ({
   } : null;
 
   const [optionsState, setOptionsState] = useState({
-    subset: false,
+    subset: initialSubsetExpanded,
   });
 
   const [selectedPreset, setSelectedPreset] = useState('Collection Extent');
@@ -383,6 +384,7 @@ const MultiDatasetDownloadContainer = React.memo(
     downloadContext,
     onDownloadComplete,
     geographicPresets,
+    initialSubsetExpanded,
   }) => {
     const {
       datasetsMetadata,
@@ -486,6 +488,7 @@ const MultiDatasetDownloadContainer = React.memo(
           aggregateDatasetMetadata={aggregateMetadata}
           onDownloadComplete={onDownloadComplete}
           geographicPresets={geographicPresets}
+          initialSubsetExpanded={initialSubsetExpanded}
         />
       </SearchProvider>
     );
