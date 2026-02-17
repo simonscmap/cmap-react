@@ -27,6 +27,7 @@ import SliderStatusMessage from './compact/SliderStatusMessage';
 import MonthlyDateSubsetControl from './controls/MonthlyDateSubsetControl';
 import ToggleWithHelp from '../../components/ToggleWithHelp';
 import { FIELD_TYPES } from '../utils/endpointFields';
+import { MapBoundsSelector } from '../map';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -276,6 +277,17 @@ const CompactSubsetControlsLayout = ({
                 onLocalChange={handleGeoLocalChange}
               />
             </Box>
+
+            <MapBoundsSelector
+              latStart={latitude.data.latStart}
+              latEnd={latitude.data.latEnd}
+              lonStart={longitude.data.lonStart}
+              lonEnd={longitude.data.lonEnd}
+              setLatStart={wrappedGeoHandlers.latitude.setLatStart}
+              setLatEnd={wrappedGeoHandlers.latitude.setLatEnd}
+              setLonStart={wrappedGeoHandlers.longitude.setLonStart}
+              setLonEnd={wrappedGeoHandlers.longitude.setLonEnd}
+            />
           </Box>
         </Box>
       </Collapse>
