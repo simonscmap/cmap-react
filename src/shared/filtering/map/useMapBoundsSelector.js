@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import loadEsriModules from './esriModuleLoader';
 
+const MODE_PAN = 'pan';
+const MODE_SELECT = 'select';
+
 const RECTANGLE_SYMBOL = {
   type: 'simple-fill',
   color: [0, 255, 255, 0.2],
@@ -23,11 +26,18 @@ const useMapBoundsSelector = ({
   let [modules, setModules] = useState(null);
   let [loading, setLoading] = useState(true);
   let [error, setError] = useState(null);
+  let [mode, setModeState] = useState(MODE_PAN);
 
   let viewRef = useRef(null);
+  let sketchViewModelRef = useRef(null);
   let graphicsLayerRef = useRef(null);
   let boundsGraphicRef = useRef(null);
   let containerRef = useRef(null);
+  let isUpdatingFromMapRef = useRef(false);
+  let settersRef = useRef({ setLatStart, setLatEnd, setLonStart, setLonEnd });
+  let updateBoundsRef = useRef(null);
+
+  settersRef.current = { setLatStart, setLatEnd, setLonStart, setLonEnd };
 
   useEffect(() => {
     let cancelled = false;
@@ -104,8 +114,36 @@ const useMapBoundsSelector = ({
     [modules],
   );
 
+  let updateBoundsFromGeometry = function (geometry) {
+    if (!geometry) return;
+
+    isUpdatingFromMapRef.current = true;
+
+    let extent = geometry.extent;
+    if (!extent) {
+      isUpdatingFromMapRef.current = false;
+      return;
+    }
+
+    let minLon = Math.max(-180, Math.min(180, extent.xmin));
+    let maxLon = Math.max(-180, Math.min(180, extent.xmax));
+    let minLat = Math.max(-90, Math.min(90, extent.ymin));
+    let maxLat = Math.max(-90, Math.min(90, extent.ymax));
+
+    settersRef.current.setLatStart(minLat);
+    settersRef.current.setLatEnd(maxLat);
+    settersRef.current.setLonStart(minLon);
+    settersRef.current.setLonEnd(maxLon);
+
+    setTimeout(() => {
+      isUpdatingFromMapRef.current = false;
+    }, 100);
+  };
+
+  updateBoundsRef.current = updateBoundsFromGeometry;
+
   let updateGraphicFromBounds = useCallback(() => {
-    if (!graphicsLayerRef.current || !modules) {
+    if (!graphicsLayerRef.current || !modules || isUpdatingFromMapRef.current) {
       return;
     }
 
@@ -123,6 +161,10 @@ const useMapBoundsSelector = ({
   }, [updateGraphicFromBounds]);
 
   let destroyView = useCallback(() => {
+    if (sketchViewModelRef.current) {
+      sketchViewModelRef.current.destroy();
+      sketchViewModelRef.current = null;
+    }
     if (viewRef.current) {
       viewRef.current.destroy();
       viewRef.current = null;
@@ -159,6 +201,32 @@ const useMapBoundsSelector = ({
       viewRef.current = view;
 
       view.when(() => {
+        let sketchViewModel = new modules.SketchViewModel({
+          view: view,
+          layer: graphicsLayer,
+          updateOnGraphicClick: true,
+          defaultCreateOptions: {
+            mode: 'click',
+          },
+        });
+
+        sketchViewModelRef.current = sketchViewModel;
+
+        sketchViewModel.on('create', (event) => {
+          if (event.state === 'complete') {
+            updateBoundsRef.current(event.graphic.geometry);
+            boundsGraphicRef.current = event.graphic;
+            event.graphic.symbol = RECTANGLE_SYMBOL;
+            setModeState(MODE_PAN);
+          }
+        });
+
+        sketchViewModel.on('update', (event) => {
+          if (event.state === 'complete' && event.graphics && event.graphics.length > 0) {
+            updateBoundsRef.current(event.graphics[0].geometry);
+          }
+        });
+
         updateGraphicFromBounds();
       });
 
@@ -169,12 +237,31 @@ const useMapBoundsSelector = ({
     [modules, destroyView, updateGraphicFromBounds],
   );
 
+  let setMode = useCallback((newMode) => {
+    setModeState(newMode);
+
+    if (newMode === MODE_SELECT && sketchViewModelRef.current) {
+      if (graphicsLayerRef.current) {
+        graphicsLayerRef.current.removeAll();
+      }
+      boundsGraphicRef.current = null;
+      sketchViewModelRef.current.create('rectangle');
+    } else if (newMode === MODE_PAN && sketchViewModelRef.current) {
+      sketchViewModelRef.current.cancel();
+    }
+  }, []);
+
   return {
     modules,
     loading,
     error,
+    mode,
     initializeView,
+    setMode,
+    MODE_PAN,
+    MODE_SELECT,
   };
 };
 
+export { MODE_PAN, MODE_SELECT };
 export default useMapBoundsSelector;

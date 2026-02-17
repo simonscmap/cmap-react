@@ -1,8 +1,8 @@
 import React, { useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Box, CircularProgress, Typography } from '@material-ui/core';
+import { Box, Button, CircularProgress, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import useMapBoundsSelector from './useMapBoundsSelector';
+import useMapBoundsSelector, { MODE_SELECT } from './useMapBoundsSelector';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -25,6 +25,19 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: 4,
     overflow: 'hidden',
     border: '1px solid ' + theme.palette.divider,
+  },
+  buttonOverlay: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    zIndex: 1,
+  },
+  drawButton: {
+    backgroundColor: 'rgba(15, 45, 66, 0.9)',
+    color: '#ffffff',
+    '&:hover': {
+      backgroundColor: 'rgba(15, 45, 66, 1)',
+    },
   },
   loadingContainer: {
     width: '100%',
@@ -63,7 +76,7 @@ const MapBoundsSelector = ({
   let mapContainerRef = useRef(null);
   let initRef = useRef(false);
 
-  let { loading, error, initializeView } = useMapBoundsSelector({
+  let { loading, error, mode, initializeView, setMode } = useMapBoundsSelector({
     latStart,
     latEnd,
     lonStart,
@@ -80,6 +93,10 @@ const MapBoundsSelector = ({
       initializeView(mapContainerRef.current);
     }
   }, [loading, error, initializeView]);
+
+  let handleDrawClick = () => {
+    setMode(MODE_SELECT);
+  };
 
   if (loading) {
     return (
@@ -103,6 +120,17 @@ const MapBoundsSelector = ({
     <Box className={classes.container}>
       <Box className={classes.mapWrapper}>
         <Box ref={mapContainerRef} className={classes.mapContainer} />
+        <Box className={classes.buttonOverlay}>
+          <Button
+            variant="contained"
+            size="small"
+            className={classes.drawButton}
+            onClick={handleDrawClick}
+            disabled={mode === MODE_SELECT}
+          >
+            {mode === MODE_SELECT ? 'Drawing...' : 'Draw Selection'}
+          </Button>
+        </Box>
       </Box>
     </Box>
   );
