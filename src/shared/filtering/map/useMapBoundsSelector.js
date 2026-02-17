@@ -200,6 +200,9 @@ const useMapBoundsSelector = ({
 
       viewRef.current = view;
 
+      view.ui.remove('zoom');
+      view.ui.remove('attribution');
+
       view.when(() => {
         let sketchViewModel = new modules.SketchViewModel({
           view: view,
@@ -251,6 +254,18 @@ const useMapBoundsSelector = ({
     }
   }, []);
 
+  let zoomIn = useCallback(() => {
+    if (viewRef.current) {
+      viewRef.current.zoom = viewRef.current.zoom + 1;
+    }
+  }, []);
+
+  let zoomOut = useCallback(() => {
+    if (viewRef.current) {
+      viewRef.current.zoom = Math.max(0, viewRef.current.zoom - 1);
+    }
+  }, []);
+
   return {
     modules,
     loading,
@@ -258,6 +273,8 @@ const useMapBoundsSelector = ({
     mode,
     initializeView,
     setMode,
+    zoomIn,
+    zoomOut,
     MODE_PAN,
     MODE_SELECT,
   };

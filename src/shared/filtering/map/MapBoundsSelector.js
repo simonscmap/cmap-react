@@ -1,8 +1,9 @@
 import React, { useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Box, Button, CircularProgress, Typography } from '@material-ui/core';
+import { Box, CircularProgress, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import useMapBoundsSelector, { MODE_SELECT } from './useMapBoundsSelector';
+import useMapBoundsSelector from './useMapBoundsSelector';
+import MapToolbar from './MapToolbar';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -26,18 +27,11 @@ const useStyles = makeStyles((theme) => ({
     overflow: 'hidden',
     border: '1px solid ' + theme.palette.divider,
   },
-  buttonOverlay: {
+  toolbarOverlay: {
     position: 'absolute',
     top: 12,
-    right: 12,
+    left: 12,
     zIndex: 1,
-  },
-  drawButton: {
-    backgroundColor: 'rgba(15, 45, 66, 0.9)',
-    color: '#ffffff',
-    '&:hover': {
-      backgroundColor: 'rgba(15, 45, 66, 1)',
-    },
   },
   loadingContainer: {
     width: '100%',
@@ -71,12 +65,21 @@ const MapBoundsSelector = ({
   setLatEnd,
   setLonStart,
   setLonEnd,
+  toolbarOrientation,
 }) => {
   let classes = useStyles();
   let mapContainerRef = useRef(null);
   let initRef = useRef(false);
 
-  let { loading, error, mode, initializeView, setMode } = useMapBoundsSelector({
+  let {
+    loading,
+    error,
+    mode,
+    initializeView,
+    setMode,
+    zoomIn,
+    zoomOut,
+  } = useMapBoundsSelector({
     latStart,
     latEnd,
     lonStart,
@@ -93,10 +96,6 @@ const MapBoundsSelector = ({
       initializeView(mapContainerRef.current);
     }
   }, [loading, error, initializeView]);
-
-  let handleDrawClick = () => {
-    setMode(MODE_SELECT);
-  };
 
   if (loading) {
     return (
@@ -120,16 +119,14 @@ const MapBoundsSelector = ({
     <Box className={classes.container}>
       <Box className={classes.mapWrapper}>
         <Box ref={mapContainerRef} className={classes.mapContainer} />
-        <Box className={classes.buttonOverlay}>
-          <Button
-            variant="contained"
-            size="small"
-            className={classes.drawButton}
-            onClick={handleDrawClick}
-            disabled={mode === MODE_SELECT}
-          >
-            {mode === MODE_SELECT ? 'Drawing...' : 'Draw Selection'}
-          </Button>
+        <Box className={classes.toolbarOverlay}>
+          <MapToolbar
+            orientation={toolbarOrientation}
+            mode={mode}
+            onModeChange={setMode}
+            onZoomIn={zoomIn}
+            onZoomOut={zoomOut}
+          />
         </Box>
       </Box>
     </Box>
@@ -145,6 +142,11 @@ MapBoundsSelector.propTypes = {
   setLatEnd: PropTypes.func.isRequired,
   setLonStart: PropTypes.func.isRequired,
   setLonEnd: PropTypes.func.isRequired,
+  toolbarOrientation: PropTypes.oneOf(['vertical', 'horizontal']),
+};
+
+MapBoundsSelector.defaultProps = {
+  toolbarOrientation: 'vertical',
 };
 
 export default MapBoundsSelector;
