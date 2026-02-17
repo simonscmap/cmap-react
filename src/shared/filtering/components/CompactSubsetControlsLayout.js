@@ -26,6 +26,7 @@ import CompactPresetGeographicBounds from './compact/CompactPresetGeographicBoun
 import SliderStatusMessage from './compact/SliderStatusMessage';
 import MonthlyDateSubsetControl from './controls/MonthlyDateSubsetControl';
 import ToggleWithHelp from '../../components/ToggleWithHelp';
+import useMultiDatasetRangeInput from '../hooks/useMultiDatasetRangeInput';
 import { FIELD_TYPES } from '../utils/endpointFields';
 import { MapBoundsSelector } from '../map';
 
@@ -93,19 +94,28 @@ const useStyles = makeStyles((theme) => ({
       },
     },
   },
-  geographicGrid: {
+  geographicWithMapRow: {
     display: 'flex',
     alignItems: 'flex-start',
-    gap: '20%',
+    gap: theme.spacing(4),
     [theme.breakpoints.down('sm')]: {
       flexDirection: 'column',
-      gap: theme.spacing(3),
     },
-    '& > *': {
-      flex: '0 0 40%',
-      [theme.breakpoints.down('sm')]: {
-        flex: '1 1 100%',
-      },
+  },
+  geographicInputsColumn: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(2),
+    flex: '0 0 40%',
+    [theme.breakpoints.down('sm')]: {
+      flex: '1 1 100%',
+    },
+  },
+  mapColumn: {
+    flex: '1 1 auto',
+    minWidth: 0,
+    [theme.breakpoints.down('sm')]: {
+      width: '100%',
     },
   },
 }));
@@ -147,6 +157,36 @@ const CompactSubsetControlsLayout = ({
   const [depthValid, setDepthValid] = useState(true);
   const [dateInvalid, setDateInvalid] = useState(false);
 
+  const latMin = sliderEndpoints ? sliderEndpoints.latMin : (latitude && latitude.data ? latitude.data.latMin : -90);
+  const latMax = sliderEndpoints ? sliderEndpoints.latMax : (latitude && latitude.data ? latitude.data.latMax : 90);
+  const lonMin = sliderEndpoints ? sliderEndpoints.lonMin : (longitude && longitude.data ? longitude.data.lonMin : -180);
+  const lonMax = sliderEndpoints ? sliderEndpoints.lonMax : (longitude && longitude.data ? longitude.data.lonMax : 180);
+
+  const latRange = useMultiDatasetRangeInput({
+    start: latitude && latitude.data ? latitude.data.latStart : 0,
+    end: latitude && latitude.data ? latitude.data.latEnd : 0,
+    setStart: wrappedGeoHandlers.latitude.setLatStart,
+    setEnd: wrappedGeoHandlers.latitude.setLatEnd,
+    min: latMin,
+    max: latMax,
+    step: 0.1,
+    fieldType: 'lat',
+    onExpandEndpoint: onExpandEndpoint ? function (fieldName, value) { onExpandEndpoint(FIELD_TYPES.LAT, fieldName, value); } : null,
+  });
+
+  const lonRange = useMultiDatasetRangeInput({
+    start: longitude && longitude.data ? longitude.data.lonStart : 0,
+    end: longitude && longitude.data ? longitude.data.lonEnd : 0,
+    setStart: wrappedGeoHandlers.longitude.setLonStart,
+    setEnd: wrappedGeoHandlers.longitude.setLonEnd,
+    min: lonMin,
+    max: lonMax,
+    step: 0.1,
+    allowInversion: true,
+    fieldType: 'lon',
+    onExpandEndpoint: onExpandEndpoint ? function (fieldName, value) { onExpandEndpoint(FIELD_TYPES.LON, fieldName, value); } : null,
+  });
+
   const isSubsetValid = latValid && lonValid && depthValid && !dateInvalid;
 
   useEffect(() => {
@@ -155,13 +195,13 @@ const CompactSubsetControlsLayout = ({
     }
   }, [isSubsetValid, onSubsetValidationChange]);
 
-  const handleLatValidation = useCallback((valid) => {
-    setLatValid(valid);
-  }, []);
+  useEffect(() => {
+    setLatValid(latRange.isValid);
+  }, [latRange.isValid]);
 
-  const handleLonValidation = useCallback((valid) => {
-    setLonValid(valid);
-  }, []);
+  useEffect(() => {
+    setLonValid(lonRange.isValid);
+  }, [lonRange.isValid]);
 
   const handleDepthValidation = useCallback((valid) => {
     setDepthValid(valid);
@@ -250,44 +290,64 @@ const CompactSubsetControlsLayout = ({
 
             <SliderStatusMessage message={sliderMessage} />
 
-            <Box className={classes.geographicGrid}>
-              <CompactLatitudeInput
-                start={latitude.data.latStart}
-                end={latitude.data.latEnd}
-                setStart={wrappedGeoHandlers.latitude.setLatStart}
-                setEnd={wrappedGeoHandlers.latitude.setLatEnd}
-                min={sliderEndpoints ? sliderEndpoints.latMin : latitude.data.latMin}
-                max={sliderEndpoints ? sliderEndpoints.latMax : latitude.data.latMax}
-                step={0.1}
-                onExpandEndpoint={onExpandEndpoint ? function (fieldName, value) { onExpandEndpoint(FIELD_TYPES.LAT, fieldName, value); } : null}
-                onValidationChange={handleLatValidation}
-                onLocalChange={handleGeoLocalChange}
-              />
+            <Box className={classes.geographicWithMapRow}>
+              <Box className={classes.geographicInputsColumn}>
+                <CompactLatitudeInput
+                  min={latMin}
+                  max={latMax}
+                  step={0.1}
+                  localStartValue={latRange.localStartValue}
+                  localEndValue={latRange.localEndValue}
+                  handleSetStart={latRange.handleSetStart}
+                  handleSetEnd={latRange.handleSetEnd}
+                  handleBlurStart={latRange.handleBlurStart}
+                  handleBlurEnd={latRange.handleBlurEnd}
+                  startMessage={latRange.startMessage}
+                  endMessage={latRange.endMessage}
+                  isRangeInverted={latRange.isRangeInverted}
+                  handleSlider={latRange.handleSlider}
+                  handleSliderCommit={latRange.handleSliderCommit}
+                  sliderStart={latRange.sliderStart}
+                  sliderEnd={latRange.sliderEnd}
+                  bounds={latRange.bounds}
+                  onLocalChange={handleGeoLocalChange}
+                />
 
-              <CompactLongitudeInput
-                start={longitude.data.lonStart}
-                end={longitude.data.lonEnd}
-                setStart={wrappedGeoHandlers.longitude.setLonStart}
-                setEnd={wrappedGeoHandlers.longitude.setLonEnd}
-                min={sliderEndpoints ? sliderEndpoints.lonMin : longitude.data.lonMin}
-                max={sliderEndpoints ? sliderEndpoints.lonMax : longitude.data.lonMax}
-                step={0.1}
-                onExpandEndpoint={onExpandEndpoint ? function (fieldName, value) { onExpandEndpoint(FIELD_TYPES.LON, fieldName, value); } : null}
-                onValidationChange={handleLonValidation}
-                onLocalChange={handleGeoLocalChange}
-              />
+                <CompactLongitudeInput
+                  min={lonMin}
+                  max={lonMax}
+                  step={0.1}
+                  localStartValue={lonRange.localStartValue}
+                  localEndValue={lonRange.localEndValue}
+                  handleSetStart={lonRange.handleSetStart}
+                  handleSetEnd={lonRange.handleSetEnd}
+                  handleBlurStart={lonRange.handleBlurStart}
+                  handleBlurEnd={lonRange.handleBlurEnd}
+                  startMessage={lonRange.startMessage}
+                  endMessage={lonRange.endMessage}
+                  isRangeInverted={lonRange.isRangeInverted}
+                  handleSlider={lonRange.handleSlider}
+                  handleSliderCommit={lonRange.handleSliderCommit}
+                  sliderStart={lonRange.sliderStart}
+                  sliderEnd={lonRange.sliderEnd}
+                  bounds={lonRange.bounds}
+                  onLocalChange={handleGeoLocalChange}
+                />
+              </Box>
+
+              <Box className={classes.mapColumn}>
+                <MapBoundsSelector
+                  latStart={latRange.sliderStart}
+                  latEnd={latRange.sliderEnd}
+                  lonStart={lonRange.sliderStart}
+                  lonEnd={lonRange.sliderEnd}
+                  setLatStart={wrappedGeoHandlers.latitude.setLatStart}
+                  setLatEnd={wrappedGeoHandlers.latitude.setLatEnd}
+                  setLonStart={wrappedGeoHandlers.longitude.setLonStart}
+                  setLonEnd={wrappedGeoHandlers.longitude.setLonEnd}
+                />
+              </Box>
             </Box>
-
-            <MapBoundsSelector
-              latStart={latitude.data.latStart}
-              latEnd={latitude.data.latEnd}
-              lonStart={longitude.data.lonStart}
-              lonEnd={longitude.data.lonEnd}
-              setLatStart={wrappedGeoHandlers.latitude.setLatStart}
-              setLatEnd={wrappedGeoHandlers.latitude.setLatEnd}
-              setLonStart={wrappedGeoHandlers.longitude.setLonStart}
-              setLonEnd={wrappedGeoHandlers.longitude.setLonEnd}
-            />
           </Box>
         </Box>
       </Collapse>
@@ -300,8 +360,6 @@ CompactSubsetControlsLayout.propTypes = {
     subset: PropTypes.bool.isRequired,
   }).isRequired,
   handleSwitch: PropTypes.func.isRequired,
-  // Controls prop is provided at runtime via React.cloneElement by SubsetControls
-  // Marking as optional to prevent PropTypes warning during initial render
   controls: PropTypes.shape({
     date: PropTypes.shape({
       data: PropTypes.shape({
@@ -355,7 +413,7 @@ CompactSubsetControlsLayout.propTypes = {
         setDepthEnd: PropTypes.func.isRequired,
       }).isRequired,
     }).isRequired,
-  }), // Not marked as .isRequired since it's provided via React.cloneElement
+  }),
   geographicPresets: PropTypes.array,
   collectionExtent: PropTypes.shape({
     latMin: PropTypes.number.isRequired,
