@@ -256,13 +256,15 @@ const useMapBoundsSelector = ({
 
   let zoomIn = useCallback(() => {
     if (viewRef.current) {
-      viewRef.current.zoom = viewRef.current.zoom + 1;
+      let targetZoom = Math.floor(viewRef.current.zoom) + 1;
+      viewRef.current.goTo({ zoom: targetZoom });
     }
   }, []);
 
   let zoomOut = useCallback(() => {
     if (viewRef.current) {
-      viewRef.current.zoom = Math.max(0, viewRef.current.zoom - 1);
+      let targetZoom = Math.max(0, Math.floor(viewRef.current.zoom) - 1);
+      viewRef.current.goTo({ zoom: targetZoom });
     }
   }, []);
 
