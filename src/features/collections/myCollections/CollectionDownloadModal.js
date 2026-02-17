@@ -11,7 +11,7 @@ import MultiDatasetDownloadContainer from '../../multiDatasetDownload/components
 import { useCollectionDownloadModalStyles } from './styles/collectionDownloadModalStyles';
 import { GeographicBoundaries } from '../../../shared/enum/geographicBoundariesCollections';
 
-const CollectionDownloadModal = ({ open, onClose, collection }) => {
+const CollectionDownloadModal = ({ open, onClose, collection, initialSubsetExpanded }) => {
   const classes = useCollectionDownloadModalStyles();
 
   if (!collection) {
@@ -65,6 +65,7 @@ const CollectionDownloadModal = ({ open, onClose, collection }) => {
           downloadContext={{ collectionId: collection.id }}
           onDownloadComplete={handleDownloadComplete}
           geographicPresets={GeographicBoundaries}
+          initialSubsetExpanded={initialSubsetExpanded}
         />
       </DialogContent>
     </Dialog>

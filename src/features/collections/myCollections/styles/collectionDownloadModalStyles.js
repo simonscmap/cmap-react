@@ -4,8 +4,8 @@ import zIndex from '../../../../enums/zIndex';
 export const useCollectionDownloadModalStyles = makeStyles((theme) => ({
   dialogPaper: {
     minWidth: '800px',
-    maxWidth: '1200px',
-    width: '90vw',
+    maxWidth: '1500px',
+    width: '95vw',
     maxHeight: '90vh',
     backgroundColor: 'rgb(24, 69, 98)',
   },
