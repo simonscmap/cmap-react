@@ -117,7 +117,6 @@ const CompactSpatialBoundsInput = ({
 
       {/* Latitude Input */}
       <CompactLatitudeInput
-        title="Latitude [°]"
         start={latitude.start}
         end={latitude.end}
         setStart={latitude.setStart}
@@ -125,12 +124,10 @@ const CompactSpatialBoundsInput = ({
         min={latitude.min}
         max={latitude.max}
         step={0.1}
-        unit="°"
       />
 
       {/* Longitude Input */}
       <CompactLongitudeInput
-        title="Longitude [°]"
         start={longitude.start}
         end={longitude.end}
         setStart={longitude.setStart}
@@ -138,7 +135,6 @@ const CompactSpatialBoundsInput = ({
         min={longitude.min}
         max={longitude.max}
         step={0.1}
-        unit="°"
       />
     </Box>
   );

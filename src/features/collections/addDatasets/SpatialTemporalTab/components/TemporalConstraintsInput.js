@@ -1,26 +1,10 @@
-/**
- * TemporalConstraintsInput - Date range input for temporal filtering
- *
- * Provides checkbox to enable/disable temporal constraints and date pickers
- * for start and end dates. Connects to spatialTemporalSearchStore for state management.
- *
- * Features:
- * - Enable/disable temporal filtering with checkbox
- * - Segmented date input (YYYY/MM/DD format) using react-aria-components
- * - Conditional rendering: date inputs only shown when enabled
- * - Real-time validation with inline error display
- * - Integration with spatialTemporalSearchStore
- * - Uses Date objects throughout (converted to ISO strings only at API boundary)
- *
- * @module TemporalConstraintsInput
- */
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Checkbox, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import useSpatialTemporalSearchStore from '../store/spatialTemporalSearchStore';
 import DateInput from '../../../../../shared/components/DateInput';
 import ValidationMessages from '../../../../../shared/components/ValidationMessages';
+import useFieldValidation from '../hooks/useFieldValidation';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -49,15 +33,15 @@ const useStyles = makeStyles((theme) => ({
   checkboxContainer: {
     display: 'flex',
     alignItems: 'center',
-    gap: theme.spacing(0.5), // Half the previous spacing
-    marginLeft: -11, // Align checkbox to left edge (compensate for checkbox padding)
+    gap: theme.spacing(0.5),
+    marginLeft: -11,
   },
   inputsRow: {
     display: 'flex',
     gap: theme.spacing(2),
   },
   dateField: {
-    width: 140, // Match coordinate input width
+    width: 140,
   },
   inputsColumn: {
     display: 'flex',
@@ -66,33 +50,40 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-/**
- * TemporalConstraintsInput Component
- *
- * @returns {JSX.Element} Temporal constraints input with checkbox and date pickers
- */
+const TEMPORAL_FIELDS = ['timeMin', 'timeMax'];
+
 const TemporalConstraintsInput = () => {
   const classes = useStyles();
 
   const {
     temporalEnabled,
     temporalRange,
-    temporalValidationErrors,
+    temporalFieldErrors,
+    temporalFieldInteraction,
+    temporalErrorRevealed,
     setTemporalConstraints,
+    validateTemporalInput,
+    markFieldFocused,
+    markFieldBlurred,
+    revealError,
+    clearErrorRevealed,
   } = useSpatialTemporalSearchStore();
+
+  const [localTemporalRange, setLocalTemporalRange] = useState(temporalRange);
+
+  useEffect(() => {
+    setLocalTemporalRange(temporalRange);
+    // Note: Don't reset interaction here - that's handled by setTemporalConstraints when enabling.
+    // Internal changes (user blur commits) should preserve interaction state.
+  }, [temporalRange]);
+
+  useEffect(() => {
+    validateTemporalInput(localTemporalRange);
+  }, [localTemporalRange, temporalEnabled, validateTemporalInput]);
 
   const handleEnabledChange = (event) => {
     setTemporalConstraints(event.target.checked);
   };
-
-  // Local state buffers input during typing (blur-deferred UX)
-  const [localTemporalRange, setLocalTemporalRange] =
-    React.useState(temporalRange);
-
-  // Sync local state with store when store changes externally
-  React.useEffect(() => {
-    setLocalTemporalRange(temporalRange);
-  }, [temporalRange]);
 
   const handleDateChange = (field, value) => {
     setLocalTemporalRange((prev) => ({
@@ -101,29 +92,39 @@ const TemporalConstraintsInput = () => {
     }));
   };
 
-  const handleBlur = () => {
+  const handleDateFocus = (field) => {
+    markFieldFocused('temporal', field);
+  };
+
+  const handleDateBlur = (field) => {
+    markFieldBlurred('temporal', field);
+
     if (!temporalEnabled) {
       return;
     }
     setTemporalConstraints(temporalEnabled, localTemporalRange);
   };
 
-  let messages = [];
-  if (temporalEnabled) {
-    if (!localTemporalRange.timeMin || !localTemporalRange.timeMax) {
-      messages = [{ type: 'error', text: 'Both start and end dates are required' }];
-    } else if (temporalValidationErrors.timeMax) {
-      messages = [{ type: 'error', text: temporalValidationErrors.timeMax }];
-    } else if (temporalValidationErrors.timeMin) {
-      messages = [{ type: 'error', text: temporalValidationErrors.timeMin }];
-    }
-  }
+  const { displayErrors, getFieldHasError } = useFieldValidation({
+    fields: TEMPORAL_FIELDS,
+    fieldErrors: temporalFieldErrors,
+    fieldInteraction: temporalFieldInteraction,
+    errorRevealed: temporalErrorRevealed,
+    revealError,
+    clearErrorRevealed,
+    section: 'temporal',
+    startField: 'timeMin',
+    endField: 'timeMax',
+    localValues: localTemporalRange,
+    parseValue: (v) => (v ? v.getTime() : NaN),
+  });
+
+  let timeMinHasError = getFieldHasError('timeMin');
+  let timeMaxHasError = getFieldHasError('timeMax');
 
   return (
     <Box className={classes.container}>
-      {/* Header Row: Title Column + Inputs */}
       <Box className={classes.headerRow}>
-        {/* Title and Enable Checkbox Column */}
         <Box className={classes.titleColumn}>
           <Typography variant="subtitle1" className={classes.sectionTitle}>
             Temporal
@@ -150,19 +151,26 @@ const TemporalConstraintsInput = () => {
               label="Start Date"
               value={localTemporalRange.timeMin}
               onChange={(date) => handleDateChange('timeMin', date)}
-              onBlur={handleBlur}
+              onFocus={() => handleDateFocus('timeMin')}
+              onBlur={() => handleDateBlur('timeMin')}
               width={140}
+              hasError={timeMinHasError}
             />
 
             <DateInput
               label="End Date"
               value={localTemporalRange.timeMax}
               onChange={(date) => handleDateChange('timeMax', date)}
-              onBlur={handleBlur}
+              onFocus={() => handleDateFocus('timeMax')}
+              onBlur={() => handleDateBlur('timeMax')}
               width={140}
+              hasError={timeMaxHasError}
             />
           </Box>
-          <ValidationMessages messages={messages} maxMessages={2} />
+          <ValidationMessages
+            messages={displayErrors.map((text) => ({ type: 'error', text }))}
+            maxMessages={2}
+          />
         </Box>
       </Box>
     </Box>

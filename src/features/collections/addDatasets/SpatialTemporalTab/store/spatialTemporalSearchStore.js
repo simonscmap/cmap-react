@@ -11,13 +11,126 @@ import {
   isValidSpatialBounds,
   isValidTemporalRange,
   isValidDepthRange,
-  validateSpatialBounds,
-  validateDepthRange,
 } from '../../../../../shared/utility/spatialTemporalDepthValidation';
+import { messages, isIntermediateSigned, isIntermediateUnsigned } from '../../../../../shared/filtering/utils/validationMessages';
 import { dateToUTCDateString } from '../../../../../shared/filtering/utils/dateHelpers';
 import { DATASET_TYPES, createDataTypesSet } from '../../../../../shared/utility/getDatasetType';
 
 const FULL_CONTAINMENT_THRESHOLD = 0.9999;
+
+const SPATIAL_FIELD_LABELS = {
+  latMin: 'Start Latitude',
+  latMax: 'End Latitude',
+  lonMin: 'Start Longitude',
+  lonMax: 'End Longitude',
+};
+
+const SPATIAL_FIELD_BOUNDS = {
+  latMin: { min: -90, max: 90 },
+  latMax: { min: -90, max: 90 },
+  lonMin: { min: -180, max: 180 },
+  lonMax: { min: -180, max: 180 },
+};
+
+const DEPTH_FIELD_LABELS = {
+  depthMin: 'Min Depth',
+  depthMax: 'Max Depth',
+};
+
+const createEmptyFieldError = () => ({ message: '', blurOnly: false });
+
+const createSpatialFieldErrors = () => ({
+  latMin: createEmptyFieldError(),
+  latMax: createEmptyFieldError(),
+  lonMin: createEmptyFieldError(),
+  lonMax: createEmptyFieldError(),
+});
+const createSpatialInteraction = () => ({ latMin: null, latMax: null, lonMin: null, lonMax: null });
+const createSpatialRevealed = () => ({ latMin: false, latMax: false, lonMin: false, lonMax: false });
+
+const createTemporalFieldErrors = () => ({ timeMin: createEmptyFieldError(), timeMax: createEmptyFieldError() });
+const createTemporalInteraction = () => ({ timeMin: null, timeMax: null });
+const createTemporalRevealed = () => ({ timeMin: false, timeMax: false });
+
+const createDepthFieldErrors = () => ({ depthMin: createEmptyFieldError(), depthMax: createEmptyFieldError() });
+const createDepthInteraction = () => ({ depthMin: null, depthMax: null });
+const createDepthRevealed = () => ({ depthMin: false, depthMax: false });
+
+const validateSpatialField = (field, value, allValues) => {
+  let label = SPATIAL_FIELD_LABELS[field];
+  let bounds = SPATIAL_FIELD_BOUNDS[field];
+  let trimmed = String(value).trim();
+
+  if (trimmed === '') {
+    return { message: messages.required(label), blurOnly: true };
+  }
+
+  if (isIntermediateSigned(trimmed)) {
+    return { message: messages.invalidNumber(label), blurOnly: true };
+  }
+
+  let numValue = Number(trimmed);
+  if (isNaN(numValue)) {
+    return { message: messages.invalidNumber(label), blurOnly: false };
+  }
+
+  if (numValue < bounds.min) {
+    return { message: messages.belowMin(label, bounds.min), blurOnly: false };
+  }
+  if (numValue > bounds.max) {
+    return { message: messages.aboveMax(label, bounds.max), blurOnly: false };
+  }
+
+  if (field === 'latMin') {
+    let otherVal = allValues.latMax;
+    if (!isIntermediateSigned(otherVal)) {
+      let otherNum = Number(otherVal);
+      if (!isNaN(otherNum) && numValue > otherNum) {
+        return { message: messages.rangeInverted('Start Latitude', 'End Latitude'), blurOnly: false };
+      }
+    }
+  }
+
+  return { message: '', blurOnly: false };
+};
+
+const validateDepthField = (field, value, allValues) => {
+  let label = DEPTH_FIELD_LABELS[field];
+  let trimmed = String(value).trim();
+
+  if (trimmed === '') {
+    return { message: messages.required(label), blurOnly: true };
+  }
+
+  if (trimmed === '.' || trimmed === '0.') {
+    return { message: messages.invalidNumber(label), blurOnly: true };
+  }
+
+  if (trimmed === '-' || trimmed === '-.' || trimmed === '-0') {
+    return { message: messages.belowMin(label, 0), blurOnly: false };
+  }
+
+  let numValue = Number(trimmed);
+  if (isNaN(numValue)) {
+    return { message: messages.invalidNumber(label), blurOnly: false };
+  }
+
+  if (numValue < 0) {
+    return { message: messages.belowMin(label, 0), blurOnly: false };
+  }
+
+  if (field === 'depthMin') {
+    let otherVal = allValues.depthMax;
+    if (!isIntermediateUnsigned(otherVal) && otherVal !== '') {
+      let otherNum = Number(otherVal);
+      if (!isNaN(otherNum) && numValue > otherNum) {
+        return { message: messages.rangeInverted('Min Depth', 'Max Depth'), blurOnly: false };
+      }
+    }
+  }
+
+  return { message: '', blurOnly: false };
+};
 
 function sortResultsByCoverage(results, sortMode, sortDirection) {
   const dir = sortDirection === 'desc' ? -1 : 1;
@@ -100,14 +213,17 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
   // true: include partial overlaps, false: full containment only
   includePartialOverlaps: false,
 
-  temporalValidationErrors: {
-    timeMin: '',
-    timeMax: '',
-  },
-
-  spatialValidationErrors: [],
+  spatialFieldErrors: createSpatialFieldErrors(),
   spatialWarnings: [],
-  depthValidationErrors: [],
+  spatialFieldInteraction: createSpatialInteraction(),
+  spatialErrorRevealed: createSpatialRevealed(),
+
+  temporalFieldErrors: createTemporalFieldErrors(),
+  depthFieldErrors: createDepthFieldErrors(),
+  temporalFieldInteraction: createTemporalInteraction(),
+  depthFieldInteraction: createDepthInteraction(),
+  temporalErrorRevealed: createTemporalRevealed(),
+  depthErrorRevealed: createDepthRevealed(),
 
   selectedPreset: 'BATS Region',
   selectedDataTypes: createDataTypesSet(),
@@ -156,20 +272,39 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
       },
       selectedPreset: null,
     }));
-    get().validateSpatialBounds();
+    get().updateSpatialWarnings();
   },
 
-  validateSpatialBounds: () => {
+  updateSpatialWarnings: () => {
     const { spatialBounds } = get();
-    const result = validateSpatialBounds(spatialBounds);
-
     const warnings = [];
     const { lonMin, lonMax } = spatialBounds;
     if (typeof lonMin === 'number' && typeof lonMax === 'number' && lonMin > lonMax) {
       warnings.push('The selected longitude values cross the dateline (antimeridian).');
     }
+    set({ spatialWarnings: warnings });
+  },
 
-    set({ spatialValidationErrors: result.errors, spatialWarnings: warnings });
+  validateSpatialInput: (rawValues) => {
+    let errors = {};
+    ['latMin', 'latMax', 'lonMin', 'lonMax'].forEach((field) => {
+      errors[field] = validateSpatialField(field, rawValues[field], rawValues);
+    });
+
+    const { spatialBounds, selectedPreset } = get();
+    if (selectedPreset) {
+      let presetChanged = ['latMin', 'latMax', 'lonMin', 'lonMax'].some((field) => {
+        let rawVal = String(rawValues[field]).trim();
+        let storeVal = String(spatialBounds[field]);
+        return rawVal !== storeVal;
+      });
+      if (presetChanged) {
+        set({ spatialFieldErrors: errors, selectedPreset: null });
+        return;
+      }
+    }
+
+    set({ spatialFieldErrors: errors });
   },
 
   /**
@@ -178,43 +313,47 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
    * @param {Object} [range] - { timeMin: Date, timeMax: Date }
    */
   setTemporalConstraints: (enabled, range) => {
-    set((state) => ({
+    let wasEnabled = get().temporalEnabled;
+    let updates = {
       temporalEnabled: enabled,
-      temporalRange: range
-        ? { ...state.temporalRange, ...range }
-        : state.temporalRange,
-    }));
-    get().validateTemporalRange();
+    };
+    if (range) {
+      updates.temporalRange = { ...get().temporalRange, ...range };
+    }
+    if (enabled && !wasEnabled) {
+      updates.temporalFieldInteraction = { timeMin: null, timeMax: null };
+    }
+    set(updates);
   },
 
-  validateTemporalRange: () => {
-    const { temporalRange, temporalEnabled } = get();
-    const errors = { timeMin: '', timeMax: '' };
+  validateTemporalInput: (localRange) => {
+    const { temporalEnabled } = get();
+    const emptyErrors = {
+      timeMin: { message: '', blurOnly: false },
+      timeMax: { message: '', blurOnly: false },
+    };
 
     if (!temporalEnabled) {
-      set({ temporalValidationErrors: errors });
+      set({ temporalFieldErrors: emptyErrors });
       return;
     }
 
-    const { timeMin, timeMax } = temporalRange;
+    let errors = { ...emptyErrors };
 
-    if (!timeMin || !timeMax) {
-      set({ temporalValidationErrors: errors });
-      return;
+    if (!localRange.timeMin) {
+      errors.timeMin = { message: messages.required('Start Date'), blurOnly: true };
+    }
+    if (!localRange.timeMax) {
+      errors.timeMax = { message: messages.required('End Date'), blurOnly: true };
     }
 
-    if (timeMin && isNaN(timeMin.getTime())) {
-      errors.timeMin = 'Invalid date';
-    }
-    if (timeMax && isNaN(timeMax.getTime())) {
-      errors.timeMax = 'Invalid date';
-    }
-
-    if (!errors.timeMin && !errors.timeMax && timeMin > timeMax) {
-      errors.timeMax = 'End date must be after start date';
+    if (localRange.timeMin && localRange.timeMax) {
+      if (localRange.timeMin > localRange.timeMax) {
+        errors.timeMin = { message: messages.dateRangeInverted(), blurOnly: false };
+      }
     }
 
-    set({ temporalValidationErrors: errors });
+    set({ temporalFieldErrors: errors });
   },
 
   /**
@@ -223,21 +362,115 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
    * @param {Object} [range] - { depthMin: number, depthMax: number }
    */
   setDepthConstraints: (enabled, range) => {
-    set((state) => ({
+    let wasEnabled = get().depthEnabled;
+    let updates = {
       depthEnabled: enabled,
-      depthRange: range ? { ...state.depthRange, ...range } : state.depthRange,
-    }));
-    get().validateDepthBounds();
+    };
+    if (range) {
+      updates.depthRange = { ...get().depthRange, ...range };
+    }
+    if (enabled && !wasEnabled) {
+      updates.depthFieldInteraction = { depthMin: null, depthMax: null };
+    }
+    set(updates);
   },
 
-  validateDepthBounds: () => {
-    const { depthEnabled, depthRange } = get();
+  validateDepthInput: (rawValues) => {
+    const { depthEnabled } = get();
     if (!depthEnabled) {
-      set({ depthValidationErrors: [] });
+      set({
+        depthFieldErrors: {
+          depthMin: { message: '', blurOnly: false },
+          depthMax: { message: '', blurOnly: false },
+        },
+      });
       return;
     }
-    const result = validateDepthRange({ enabled: true, ...depthRange });
-    set({ depthValidationErrors: result.errors });
+    let errors = {
+      depthMin: validateDepthField('depthMin', rawValues.depthMin, rawValues),
+      depthMax: validateDepthField('depthMax', rawValues.depthMax, rawValues),
+    };
+    set({ depthFieldErrors: errors });
+  },
+
+  /**
+   * Mark a field as focused (user clicked into it).
+   * @param {'spatial'|'temporal'|'depth'} section
+   * @param {string} field
+   */
+  markFieldFocused: (section, field) => {
+    let key = section === 'spatial' ? 'spatialFieldInteraction'
+      : section === 'temporal' ? 'temporalFieldInteraction'
+      : 'depthFieldInteraction';
+    set((state) => ({
+      [key]: { ...state[key], [field]: false },
+    }));
+  },
+
+  /**
+   * Mark a field as blurred (user left it).
+   * @param {'spatial'|'temporal'|'depth'} section
+   * @param {string} field
+   */
+  markFieldBlurred: (section, field) => {
+    let key = section === 'spatial' ? 'spatialFieldInteraction'
+      : section === 'temporal' ? 'temporalFieldInteraction'
+      : 'depthFieldInteraction';
+    set((state) => ({
+      [key]: { ...state[key], [field]: true },
+    }));
+  },
+
+  /**
+   * Reset field interaction state to pristine.
+   * @param {'spatial'|'temporal'|'depth'} section
+   */
+  resetFieldInteraction: (section) => {
+    if (section === 'spatial') {
+      set({
+        spatialFieldInteraction: createSpatialInteraction(),
+        spatialErrorRevealed: createSpatialRevealed(),
+      });
+    } else if (section === 'temporal') {
+      set({
+        temporalFieldInteraction: createTemporalInteraction(),
+        temporalErrorRevealed: createTemporalRevealed(),
+      });
+    } else {
+      set({
+        depthFieldInteraction: createDepthInteraction(),
+        depthErrorRevealed: createDepthRevealed(),
+      });
+    }
+  },
+
+  /**
+   * Mark an error as revealed (has been shown to user).
+   * Once revealed, error stays visible until resolved.
+   * @param {'spatial'|'temporal'|'depth'} section
+   * @param {string} field
+   */
+  revealError: (section, field) => {
+    let key = section === 'spatial' ? 'spatialErrorRevealed'
+      : section === 'temporal' ? 'temporalErrorRevealed'
+      : 'depthErrorRevealed';
+    set((state) => ({
+      [key]: { ...state[key], [field]: true },
+    }));
+  },
+
+  /**
+   * Clear the revealed state for a field (when error is resolved).
+   * @param {'spatial'|'temporal'|'depth'} section
+   * @param {string} field
+   */
+  clearErrorRevealed: (section, field) => {
+    let key = section === 'spatial' ? 'spatialErrorRevealed'
+      : section === 'temporal' ? 'temporalErrorRevealed'
+      : 'depthErrorRevealed';
+    set((state) => ({
+      [key]: { ...state[key], [field]: false },
+    }));
   },
 
   /**
@@ -265,8 +498,11 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
       selectedPreset: preset.label,
       results: null,
       searchError: null,
+      spatialFieldErrors: createSpatialFieldErrors(),
+      spatialFieldInteraction: createSpatialInteraction(),
+      spatialErrorRevealed: createSpatialRevealed(),
     });
-    get().validateSpatialBounds();
+    get().updateSpatialWarnings();
   },
 
   /**
@@ -449,23 +685,20 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
         lonMax: -63.1667,
       },
       temporalEnabled: false,
-      temporalRange: {
-        timeMin: null,
-        timeMax: null,
-      },
+      temporalRange: { timeMin: null, timeMax: null },
       depthEnabled: false,
-      depthRange: {
-        depthMin: null,
-        depthMax: null,
-      },
+      depthRange: { depthMin: null, depthMax: null },
       includePartialOverlaps: false,
-      temporalValidationErrors: {
-        timeMin: '',
-        timeMax: '',
-      },
-      spatialValidationErrors: [],
+      spatialFieldErrors: createSpatialFieldErrors(),
       spatialWarnings: [],
-      depthValidationErrors: [],
+      spatialFieldInteraction: createSpatialInteraction(),
+      spatialErrorRevealed: createSpatialRevealed(),
+      temporalFieldErrors: createTemporalFieldErrors(),
+      depthFieldErrors: createDepthFieldErrors(),
+      temporalFieldInteraction: createTemporalInteraction(),
+      depthFieldInteraction: createDepthInteraction(),
+      temporalErrorRevealed: createTemporalRevealed(),
+      depthErrorRevealed: createDepthRevealed(),
       selectedPreset: 'BATS Region',
       selectedDataTypes: createDataTypesSet(),
       results: null,
@@ -498,21 +731,23 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
       temporalRange,
       depthEnabled,
       depthRange,
-      spatialValidationErrors,
-      depthValidationErrors,
+      spatialFieldErrors,
+      temporalFieldErrors,
+      depthFieldErrors,
     } = get();
 
     if (!isInitialized || isSearching) {
       return false;
     }
 
-    if (spatialValidationErrors.length > 0 || !isValidSpatialBounds(spatialBounds)) {
+    let hasSpatialErrors = Object.values(spatialFieldErrors).some((e) => e.message);
+    if (hasSpatialErrors || !isValidSpatialBounds(spatialBounds)) {
       return false;
     }
 
     if (temporalEnabled) {
-      const { temporalValidationErrors } = get();
-      if (temporalValidationErrors.timeMin || temporalValidationErrors.timeMax) {
+      let hasTemporalErrors = Object.values(temporalFieldErrors).some((e) => e.message);
+      if (hasTemporalErrors) {
         return false;
       }
       const temporalConstraints = { enabled: true, ...temporalRange };
@@ -522,7 +757,8 @@ const useSpatialTemporalSearchStore = create((set, get) => ({
     }
 
     if (depthEnabled) {
-      if (depthValidationErrors.length > 0) {
+      let hasDepthErrors = Object.values(depthFieldErrors).some((e) => e.message);
+      if (hasDepthErrors) {
         return false;
       }
       const depthConstraints = { enabled: true, ...depthRange };

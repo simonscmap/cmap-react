@@ -13,7 +13,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Box, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import useDateRangeInput from '../../hooks/useDateRangeInput';
+import useMultiDatasetDateRangeInput from '../../hooks/useMultiDatasetDateRangeInput';
 import DateRangeSlider from '../controls/DateRangeControl/DateRangeSlider';
 import DateInput from '../../../components/DateInput';
 import ValidationMessages from '../../../components/ValidationMessages';
@@ -143,13 +143,14 @@ const CompactDateRangeInput = ({
     }
   };
 
-  // Use validation hook for error handling
   const {
     handleDateStartBlur,
     handleDateEndBlur,
     startDateMessage,
     endDateMessage,
-  } = useDateRangeInput({
+    isDateRangeInverted,
+    isValid,
+  } = useMultiDatasetDateRangeInput({
     localStart: localStartDate,
     localEnd: localEndDate,
     committedStart: startDate,
@@ -160,13 +161,14 @@ const CompactDateRangeInput = ({
     max: maxDate,
   });
 
-  // Set invalid flag when there are validation errors
+  const startHasError = Boolean(startDateMessage) || isDateRangeInverted;
+  const endHasError = Boolean(endDateMessage) || isDateRangeInverted;
+
   useEffect(() => {
-    const hasErrors = !!startDateMessage || !!endDateMessage;
     if (setInvalidFlag) {
-      setInvalidFlag(hasErrors);
+      setInvalidFlag(!isValid);
     }
-  }, [startDateMessage, endDateMessage, setInvalidFlag]);
+  }, [isValid, setInvalidFlag]);
 
   const formatDate = (date) => dateToUTCDateString(date);
 
@@ -188,6 +190,7 @@ const CompactDateRangeInput = ({
             maxDate={maxDate}
             label="Start Date"
             width="100%"
+            hasError={startHasError}
           />
         </Box>
         <Box className={classes.inputWrapper}>
@@ -199,16 +202,16 @@ const CompactDateRangeInput = ({
             maxDate={maxDate}
             label="End Date"
             width="100%"
+            hasError={endHasError}
           />
         </Box>
       </Box>
       <ValidationMessages
-        messages={
-          (startDateMessage || endDateMessage)
-            ? [{ type: 'error', text: startDateMessage || endDateMessage }]
-            : []
-        }
-        maxMessages={1}
+        messages={[
+          startDateMessage ? { type: 'error', text: startDateMessage } : null,
+          endDateMessage ? { type: 'error', text: endDateMessage } : null,
+        ].filter(Boolean)}
+        maxMessages={2}
       />
 
       {/* Slider */}

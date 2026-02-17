@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const DownloadButton = ({ subsetFiltering, onDownloadComplete }) => {
+const DownloadButton = ({ subsetFiltering, onDownloadComplete, isSubsetValid = true }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const { selectedDatasets, isDownloading, downloadDatasets } =
@@ -35,7 +35,7 @@ const DownloadButton = ({ subsetFiltering, onDownloadComplete }) => {
   const user = useSelector((state) => state.user);
   const selectedCount = selectedDatasets.size;
 
-  const isDisabled = selectedCount === 0 || isDownloading || !canDownload;
+  const isDisabled = selectedCount === 0 || isDownloading || !canDownload || !isSubsetValid;
 
   const handleDownload = async () => {
     if (!user) {
@@ -83,6 +83,9 @@ const DownloadButton = ({ subsetFiltering, onDownloadComplete }) => {
     }
     if (isRowCountsLoading) {
       return 'Calculating...';
+    }
+    if (!isSubsetValid) {
+      return 'Fix Validation Errors to Download';
     }
     if (isOverRowThreshold) {
       const formattedThreshold = (
