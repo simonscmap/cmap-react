@@ -17,7 +17,7 @@ let HighlightAltIcon = (props) => (
 const MODE_PAN = 'pan';
 const MODE_SELECT = 'select';
 
-const toolbarBackground = '#0f2d42';
+const toolbarBackground = colors.slate;
 
 const useStyles = makeStyles((theme) => ({
   toolbarVertical: {
@@ -30,6 +30,7 @@ const useStyles = makeStyles((theme) => ({
     width: 'fit-content',
     height: 'fit-content',
     boxShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
+    border: '1px solid ' + colors.primary,
   },
   toolbarHorizontal: {
     display: 'flex',
@@ -41,6 +42,7 @@ const useStyles = makeStyles((theme) => ({
     width: 'fit-content',
     height: 'fit-content',
     boxShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
+    border: '1px solid ' + colors.primary,
   },
   divider: {
     height: '0.5px',

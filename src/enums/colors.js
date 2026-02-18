@@ -15,6 +15,8 @@ const colors = {
   greenHover: 'rgba(97, 149, 38, .4)',
   blueHover: 'rgb(105, 255, 242, 0.4)',
   teal: homeColors.blue.teal,
+  slate: homeColors.blue.slate,
+  deeps: '#03172F',
   blockingError: errorYellow,
   nonBlockingInfo: homeColors.blue.teal ,
 };
