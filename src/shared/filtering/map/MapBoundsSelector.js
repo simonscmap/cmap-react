@@ -5,17 +5,13 @@ import { makeStyles } from '@material-ui/core/styles';
 import useMapBoundsSelector from './useMapBoundsSelector';
 import MapToolbar from './MapToolbar';
 
+const MAP_SIZE = 450;
+
 const useStyles = makeStyles((theme) => ({
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(1),
-    width: '100%',
-  },
   mapWrapper: {
     position: 'relative',
-    width: '100%',
-    height: 300,
+    width: MAP_SIZE,
+    height: MAP_SIZE,
   },
   mapContainer: {
     position: 'absolute',
@@ -26,6 +22,7 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: 4,
     overflow: 'hidden',
     border: '1px solid ' + theme.palette.divider,
+    backgroundColor: 'pink',
   },
   toolbarOverlay: {
     position: 'absolute',
@@ -34,8 +31,8 @@ const useStyles = makeStyles((theme) => ({
     zIndex: 1,
   },
   loadingContainer: {
-    width: '100%',
-    height: 300,
+    width: MAP_SIZE,
+    height: MAP_SIZE,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -44,8 +41,8 @@ const useStyles = makeStyles((theme) => ({
     border: '1px solid ' + theme.palette.divider,
   },
   errorContainer: {
-    width: '100%',
-    height: 300,
+    width: MAP_SIZE,
+    height: MAP_SIZE,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -116,18 +113,16 @@ const MapBoundsSelector = ({
   }
 
   return (
-    <Box className={classes.container}>
-      <Box className={classes.mapWrapper}>
-        <Box ref={mapContainerRef} className={classes.mapContainer} />
-        <Box className={classes.toolbarOverlay}>
-          <MapToolbar
-            orientation={toolbarOrientation}
-            mode={mode}
-            onModeChange={setMode}
-            onZoomIn={zoomIn}
-            onZoomOut={zoomOut}
-          />
-        </Box>
+    <Box className={classes.mapWrapper}>
+      <Box ref={mapContainerRef} className={classes.mapContainer} />
+      <Box className={classes.toolbarOverlay}>
+        <MapToolbar
+          orientation={toolbarOrientation}
+          mode={mode}
+          onModeChange={setMode}
+          onZoomIn={zoomIn}
+          onZoomOut={zoomOut}
+        />
       </Box>
     </Box>
   );

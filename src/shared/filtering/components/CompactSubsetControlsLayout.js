@@ -114,6 +114,8 @@ const useStyles = makeStyles((theme) => ({
   mapColumn: {
     flex: '1 1 auto',
     minWidth: 0,
+    display: 'flex',
+    justifyContent: 'center',
     [theme.breakpoints.down('sm')]: {
       width: '100%',
     },
@@ -271,82 +273,80 @@ const CompactSubsetControlsLayout = ({
           </Box>
 
           {/* Geographic Bounds Section */}
-          <Box className={classes.geographicSection}>
-            <Typography
-              variant="body2"
-              className={classes.geographicSectionTitle}
-            >
-              GEOGRAPHIC BOUNDS
-            </Typography>
+          <Box className={classes.geographicWithMapRow}>
+            <Box className={classes.geographicInputsColumn}>
+              <Typography
+                variant="body2"
+                className={classes.geographicSectionTitle}
+              >
+                GEOGRAPHIC BOUNDS
+              </Typography>
 
-            <Box className={classes.presetRow}>
-              <CompactPresetGeographicBounds
-                selectedPreset={selectedPreset}
-                onPresetSelect={onPresetSelect}
-                geographicPresets={geographicPresets}
-                collectionExtent={collectionExtent}
+              <Box className={classes.presetRow}>
+                <CompactPresetGeographicBounds
+                  selectedPreset={selectedPreset}
+                  onPresetSelect={onPresetSelect}
+                  geographicPresets={geographicPresets}
+                  collectionExtent={collectionExtent}
+                />
+              </Box>
+
+              <SliderStatusMessage message={sliderMessage} />
+
+              <CompactLatitudeInput
+                min={latMin}
+                max={latMax}
+                step={0.1}
+                localStartValue={latRange.localStartValue}
+                localEndValue={latRange.localEndValue}
+                handleSetStart={latRange.handleSetStart}
+                handleSetEnd={latRange.handleSetEnd}
+                handleBlurStart={latRange.handleBlurStart}
+                handleBlurEnd={latRange.handleBlurEnd}
+                startMessage={latRange.startMessage}
+                endMessage={latRange.endMessage}
+                isRangeInverted={latRange.isRangeInverted}
+                handleSlider={latRange.handleSlider}
+                handleSliderCommit={latRange.handleSliderCommit}
+                sliderStart={latRange.sliderStart}
+                sliderEnd={latRange.sliderEnd}
+                bounds={latRange.bounds}
+                onLocalChange={handleGeoLocalChange}
+              />
+
+              <CompactLongitudeInput
+                min={lonMin}
+                max={lonMax}
+                step={0.1}
+                localStartValue={lonRange.localStartValue}
+                localEndValue={lonRange.localEndValue}
+                handleSetStart={lonRange.handleSetStart}
+                handleSetEnd={lonRange.handleSetEnd}
+                handleBlurStart={lonRange.handleBlurStart}
+                handleBlurEnd={lonRange.handleBlurEnd}
+                startMessage={lonRange.startMessage}
+                endMessage={lonRange.endMessage}
+                isRangeInverted={lonRange.isRangeInverted}
+                handleSlider={lonRange.handleSlider}
+                handleSliderCommit={lonRange.handleSliderCommit}
+                sliderStart={lonRange.sliderStart}
+                sliderEnd={lonRange.sliderEnd}
+                bounds={lonRange.bounds}
+                onLocalChange={handleGeoLocalChange}
               />
             </Box>
 
-            <SliderStatusMessage message={sliderMessage} />
-
-            <Box className={classes.geographicWithMapRow}>
-              <Box className={classes.geographicInputsColumn}>
-                <CompactLatitudeInput
-                  min={latMin}
-                  max={latMax}
-                  step={0.1}
-                  localStartValue={latRange.localStartValue}
-                  localEndValue={latRange.localEndValue}
-                  handleSetStart={latRange.handleSetStart}
-                  handleSetEnd={latRange.handleSetEnd}
-                  handleBlurStart={latRange.handleBlurStart}
-                  handleBlurEnd={latRange.handleBlurEnd}
-                  startMessage={latRange.startMessage}
-                  endMessage={latRange.endMessage}
-                  isRangeInverted={latRange.isRangeInverted}
-                  handleSlider={latRange.handleSlider}
-                  handleSliderCommit={latRange.handleSliderCommit}
-                  sliderStart={latRange.sliderStart}
-                  sliderEnd={latRange.sliderEnd}
-                  bounds={latRange.bounds}
-                  onLocalChange={handleGeoLocalChange}
-                />
-
-                <CompactLongitudeInput
-                  min={lonMin}
-                  max={lonMax}
-                  step={0.1}
-                  localStartValue={lonRange.localStartValue}
-                  localEndValue={lonRange.localEndValue}
-                  handleSetStart={lonRange.handleSetStart}
-                  handleSetEnd={lonRange.handleSetEnd}
-                  handleBlurStart={lonRange.handleBlurStart}
-                  handleBlurEnd={lonRange.handleBlurEnd}
-                  startMessage={lonRange.startMessage}
-                  endMessage={lonRange.endMessage}
-                  isRangeInverted={lonRange.isRangeInverted}
-                  handleSlider={lonRange.handleSlider}
-                  handleSliderCommit={lonRange.handleSliderCommit}
-                  sliderStart={lonRange.sliderStart}
-                  sliderEnd={lonRange.sliderEnd}
-                  bounds={lonRange.bounds}
-                  onLocalChange={handleGeoLocalChange}
-                />
-              </Box>
-
-              <Box className={classes.mapColumn}>
-                <MapBoundsSelector
-                  latStart={latRange.sliderStart}
-                  latEnd={latRange.sliderEnd}
-                  lonStart={lonRange.sliderStart}
-                  lonEnd={lonRange.sliderEnd}
-                  setLatStart={wrappedGeoHandlers.latitude.setLatStart}
-                  setLatEnd={wrappedGeoHandlers.latitude.setLatEnd}
-                  setLonStart={wrappedGeoHandlers.longitude.setLonStart}
-                  setLonEnd={wrappedGeoHandlers.longitude.setLonEnd}
-                />
-              </Box>
+            <Box className={classes.mapColumn}>
+              <MapBoundsSelector
+                latStart={latRange.sliderStart}
+                latEnd={latRange.sliderEnd}
+                lonStart={lonRange.sliderStart}
+                lonEnd={lonRange.sliderEnd}
+                setLatStart={wrappedGeoHandlers.latitude.setLatStart}
+                setLatEnd={wrappedGeoHandlers.latitude.setLatEnd}
+                setLonStart={wrappedGeoHandlers.longitude.setLonStart}
+                setLonEnd={wrappedGeoHandlers.longitude.setLonEnd}
+              />
             </Box>
           </Box>
         </Box>
