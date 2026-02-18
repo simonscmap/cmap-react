@@ -42,17 +42,12 @@ const useMapBoundsSelector = ({
   let boundsGraphicRef = useRef(null);
   let containerRef = useRef(null);
   let isUpdatingFromMapRef = useRef(false);
-  let minScaleRef = useRef(null);
+  let minZoomThresholdRef = useRef(null);
   let settersRef = useRef({ setLatStart, setLatEnd, setLonStart, setLonEnd });
   let updateBoundsRef = useRef(null);
 
   settersRef.current = { setLatStart, setLatEnd, setLonStart, setLonEnd };
 
-  let checkMinZoom = () => {
-    if (viewRef.current && minScaleRef.current) {
-      setAtMinZoom(viewRef.current.scale >= minScaleRef.current * 0.95);
-    }
-  };
 
   useEffect(() => {
     let cancelled = false;
@@ -221,15 +216,30 @@ const useMapBoundsSelector = ({
       view.when(() => {
         let targetScale = calcWorldFitScale(container.clientWidth, view.scale);
 
-        view.constraints = {
-          rotationEnabled: false,
-          snapToZoom: false,
-          minScale: targetScale,
-        };
+        view.constraints.snapToZoom = false;
+        view.constraints.minScale = targetScale;
 
-        minScaleRef.current = targetScale;
+        let minZoomLevel = Math.log2(container.clientWidth / TILE_SIZE);
+        minZoomThresholdRef.current = Math.ceil(minZoomLevel);
         view.goTo({ scale: targetScale }, { animate: false });
         setAtMinZoom(true);
+
+        view.watch('zoom', function (newZoom) {
+          setAtMinZoom(newZoom <= minZoomThresholdRef.current);
+          if (newZoom < minZoomLevel - 0.1) {
+            view.goTo({ scale: targetScale }, { animate: false });
+          }
+        });
+
+        view.on('mouse-wheel', function (event) {
+          if (event.deltaY > 0 && view.scale >= targetScale * 0.9) {
+            event.stopPropagation();
+          }
+        });
+
+        container.addEventListener('wheel', function (e) {
+          e.preventDefault();
+        }, { passive: false });
 
         let sketchViewModel = new modules.SketchViewModel({
           view: view,
@@ -283,7 +293,6 @@ const useMapBoundsSelector = ({
 
   let zoomIn = useCallback(() => {
     if (viewRef.current) {
-      setAtMinZoom(false);
       let targetZoom = Math.floor(viewRef.current.zoom) + 1;
       viewRef.current.goTo({ zoom: targetZoom });
     }
@@ -293,7 +302,6 @@ const useMapBoundsSelector = ({
     if (viewRef.current) {
       let targetZoom = Math.max(0, Math.floor(viewRef.current.zoom) - 1);
       viewRef.current.goTo({ zoom: targetZoom });
-      setTimeout(checkMinZoom, 400);
     }
   }, []);
 

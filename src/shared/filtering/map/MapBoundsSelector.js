@@ -22,7 +22,6 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: 4,
     overflow: 'hidden',
     border: '1px solid ' + theme.palette.divider,
-    backgroundColor: 'pink',
   },
   toolbarOverlay: {
     position: 'absolute',
@@ -88,11 +87,19 @@ const MapBoundsSelector = ({
     setLonEnd,
   });
 
+  let cleanupRef = useRef(null);
+
   useEffect(() => {
     if (!loading && !error && mapContainerRef.current && !initRef.current) {
       initRef.current = true;
-      initializeView(mapContainerRef.current);
+      cleanupRef.current = initializeView(mapContainerRef.current);
     }
+    return () => {
+      if (cleanupRef.current) {
+        cleanupRef.current();
+        cleanupRef.current = null;
+      }
+    };
   }, [loading, error, initializeView]);
 
   if (loading) {
