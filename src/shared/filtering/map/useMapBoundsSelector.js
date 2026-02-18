@@ -249,7 +249,12 @@ const useMapBoundsSelector = ({
           layer: graphicsLayer,
           updateOnGraphicClick: true,
           defaultCreateOptions: {
-            mode: 'click',
+            mode: 'freehand',
+          },
+          defaultUpdateOptions: {
+            tool: 'transform',
+            toggleToolOnClick: false,
+            enableRotation: false,
           },
         });
 

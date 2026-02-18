@@ -4,9 +4,15 @@ import { Box, IconButton } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import AddIcon from '@material-ui/icons/Add';
 import RemoveIcon from '@material-ui/icons/Remove';
-import OpenWithIcon from '@material-ui/icons/OpenWith';
-import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
+import PanToolIcon from '@material-ui/icons/PanTool';
+import SvgIcon from '@material-ui/core/SvgIcon';
 import colors from '../../../enums/colors';
+
+let HighlightAltIcon = (props) => (
+  <SvgIcon {...props}>
+    <path d="M17 5h-2V3h2v2zm-2 16h2v-2.59L19.59 21 21 19.59 18.41 17H21v-2h-6v6zm4-12h2V7h-2v2zm0 4h2v-2h-2v2zm-8 8h2v-2h-2v2zM7 5h2V3H7v2zM3 17h2v-2H3v2zm2 4v-2H3c0 1.1.9 2 2 2zM19 3v2h2c0-1.1-.9-2-2-2zm-8 2h2V3h-2v2zM3 9h2V7H3v2zm4 12h2v-2H7v2zm-4-8h2v-2H3v2zm0-8h2V3c-1.1 0-2 .9-2 2z" />
+  </SvgIcon>
+);
 
 const MODE_PAN = 'pan';
 const MODE_SELECT = 'select';
@@ -126,7 +132,7 @@ const MapToolbar = ({
         title="Pan"
         size="small"
       >
-        <OpenWithIcon className={classes.icon} />
+        <PanToolIcon style={{ fontSize: 17 }} />
       </IconButton>
 
       <IconButton
@@ -135,7 +141,7 @@ const MapToolbar = ({
         title="Draw Rectangle"
         size="small"
       >
-        <CheckBoxOutlineBlankIcon className={classes.icon} />
+        <HighlightAltIcon style={{ fontSize: 22 }} />
       </IconButton>
     </Box>
   );
