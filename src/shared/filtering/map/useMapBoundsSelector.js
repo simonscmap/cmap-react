@@ -4,6 +4,13 @@ import loadEsriModules from './esriModuleLoader';
 const MODE_PAN = 'pan';
 const MODE_SELECT = 'select';
 
+const TILE_SIZE = 256;
+const ZOOM1_WORLD_PX = TILE_SIZE * 2;
+
+const calcWorldFitScale = (containerWidth, scaleAtZoom1) => {
+  return scaleAtZoom1 * (ZOOM1_WORLD_PX / containerWidth);
+};
+
 const RECTANGLE_SYMBOL = {
   type: 'simple-fill',
   color: [0, 255, 255, 0.2],
@@ -27,6 +34,7 @@ const useMapBoundsSelector = ({
   let [loading, setLoading] = useState(true);
   let [error, setError] = useState(null);
   let [mode, setModeState] = useState(MODE_PAN);
+  let [atMinZoom, setAtMinZoom] = useState(true);
 
   let viewRef = useRef(null);
   let sketchViewModelRef = useRef(null);
@@ -34,10 +42,17 @@ const useMapBoundsSelector = ({
   let boundsGraphicRef = useRef(null);
   let containerRef = useRef(null);
   let isUpdatingFromMapRef = useRef(false);
+  let minScaleRef = useRef(null);
   let settersRef = useRef({ setLatStart, setLatEnd, setLonStart, setLonEnd });
   let updateBoundsRef = useRef(null);
 
   settersRef.current = { setLatStart, setLatEnd, setLonStart, setLonEnd };
+
+  let checkMinZoom = () => {
+    if (viewRef.current && minScaleRef.current) {
+      setAtMinZoom(viewRef.current.scale >= minScaleRef.current * 0.95);
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -204,6 +219,18 @@ const useMapBoundsSelector = ({
       view.ui.remove('attribution');
 
       view.when(() => {
+        let targetScale = calcWorldFitScale(container.clientWidth, view.scale);
+
+        view.constraints = {
+          rotationEnabled: false,
+          snapToZoom: false,
+          minScale: targetScale,
+        };
+
+        minScaleRef.current = targetScale;
+        view.goTo({ scale: targetScale }, { animate: false });
+        setAtMinZoom(true);
+
         let sketchViewModel = new modules.SketchViewModel({
           view: view,
           layer: graphicsLayer,
@@ -256,6 +283,7 @@ const useMapBoundsSelector = ({
 
   let zoomIn = useCallback(() => {
     if (viewRef.current) {
+      setAtMinZoom(false);
       let targetZoom = Math.floor(viewRef.current.zoom) + 1;
       viewRef.current.goTo({ zoom: targetZoom });
     }
@@ -265,6 +293,7 @@ const useMapBoundsSelector = ({
     if (viewRef.current) {
       let targetZoom = Math.max(0, Math.floor(viewRef.current.zoom) - 1);
       viewRef.current.goTo({ zoom: targetZoom });
+      setTimeout(checkMinZoom, 400);
     }
   }, []);
 
@@ -273,6 +302,7 @@ const useMapBoundsSelector = ({
     loading,
     error,
     mode,
+    atMinZoom,
     initializeView,
     setMode,
     zoomIn,

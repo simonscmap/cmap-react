@@ -56,6 +56,17 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: colors.greenHover,
     },
   },
+  buttonDisabled: {
+    padding: 6,
+    minWidth: 32,
+    minHeight: 32,
+    borderRadius: 2,
+    color: 'rgba(255, 255, 255, 0.3)',
+    cursor: 'default',
+    '&:hover': {
+      backgroundColor: 'transparent',
+    },
+  },
   buttonActive: {
     padding: 6,
     minWidth: 32,
@@ -78,6 +89,7 @@ const MapToolbar = ({
   onModeChange,
   onZoomIn,
   onZoomOut,
+  zoomOutDisabled,
 }) => {
   let classes = useStyles();
 
@@ -97,10 +109,11 @@ const MapToolbar = ({
       </IconButton>
 
       <IconButton
-        className={classes.button}
-        onClick={onZoomOut}
+        className={zoomOutDisabled ? classes.buttonDisabled : classes.button}
+        onClick={zoomOutDisabled ? undefined : onZoomOut}
         title="Zoom Out"
         size="small"
+        disableRipple={zoomOutDisabled}
       >
         <RemoveIcon className={classes.icon} />
       </IconButton>
@@ -134,10 +147,12 @@ MapToolbar.propTypes = {
   onModeChange: PropTypes.func.isRequired,
   onZoomIn: PropTypes.func.isRequired,
   onZoomOut: PropTypes.func.isRequired,
+  zoomOutDisabled: PropTypes.bool,
 };
 
 MapToolbar.defaultProps = {
   orientation: 'vertical',
+  zoomOutDisabled: false,
 };
 
 export { MODE_PAN, MODE_SELECT };

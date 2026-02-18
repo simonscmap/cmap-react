@@ -72,6 +72,7 @@ const MapBoundsSelector = ({
     loading,
     error,
     mode,
+    atMinZoom,
     initializeView,
     setMode,
     zoomIn,
@@ -122,6 +123,7 @@ const MapBoundsSelector = ({
           onModeChange={setMode}
           onZoomIn={zoomIn}
           onZoomOut={zoomOut}
+          zoomOutDisabled={atMinZoom}
         />
       </Box>
     </Box>
