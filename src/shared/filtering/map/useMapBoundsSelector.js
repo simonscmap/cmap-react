@@ -45,6 +45,7 @@ const useMapBoundsSelector = ({
   let minZoomThresholdRef = useRef(null);
   let settersRef = useRef({ setLatStart, setLatEnd, setLonStart, setLonEnd });
   let updateBoundsRef = useRef(null);
+  let updateGraphicRef = useRef(null);
 
   settersRef.current = { setLatStart, setLatEnd, setLonStart, setLonEnd };
 
@@ -166,6 +167,8 @@ const useMapBoundsSelector = ({
     }
   }, [modules, latStart, latEnd, lonStart, lonEnd, createBoundsGraphic]);
 
+  updateGraphicRef.current = updateGraphicFromBounds;
+
   useEffect(() => {
     updateGraphicFromBounds();
   }, [updateGraphicFromBounds]);
@@ -267,14 +270,14 @@ const useMapBoundsSelector = ({
           }
         });
 
-        updateGraphicFromBounds();
+        updateGraphicRef.current();
       });
 
       return () => {
         destroyView();
       };
     },
-    [modules, destroyView, updateGraphicFromBounds],
+    [modules, destroyView],
   );
 
   let setMode = useCallback((newMode) => {
