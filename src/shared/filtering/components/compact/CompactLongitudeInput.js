@@ -1,72 +1,33 @@
-/**
- * CompactLongitudeInput - Compact horizontal control for longitude range input
- *
- * Provides:
- * - Label + Slider + Two text inputs (start/end) in single horizontal line
- * - Integration with useRangeInput hook for validation and state management
- * - Two-phase updates: local preview during slider drag, commit on blur
- *
- * @module CompactLongitudeInput
- */
-
-import React, { useEffect } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Box, TextField, Typography, Slider } from '@material-ui/core';
-import useMultiDatasetRangeInput from '../../hooks/useMultiDatasetRangeInput';
 import useCompactRangeInputStyles from '../../hooks/useCompactRangeInputStyles';
 import ValidationMessages from '../../../../shared/components/ValidationMessages';
 
 const CompactLongitudeInput = ({
-  start,
-  end,
-  setStart,
-  setEnd,
   min,
   max,
   step,
-  onExpandEndpoint,
-  onValidationChange,
+  localStartValue,
+  localEndValue,
+  handleSetStart,
+  handleSetEnd,
+  handleBlurStart,
+  handleBlurEnd,
+  startMessage,
+  endMessage,
+  isRangeInverted,
+  handleSlider,
+  handleSliderCommit,
+  sliderStart,
+  sliderEnd,
+  bounds,
   onLocalChange,
 }) => {
   const classes = useCompactRangeInputStyles();
 
-  const {
-    localStartValue,
-    localEndValue,
-    handleSetStart,
-    handleSetEnd,
-    handleBlurStart,
-    handleBlurEnd,
-    startMessage,
-    endMessage,
-    isRangeInverted,
-    isValid,
-    handleSlider,
-    handleSliderCommit,
-    sliderStart,
-    sliderEnd,
-    bounds,
-  } = useMultiDatasetRangeInput({
-    start,
-    end,
-    setStart,
-    setEnd,
-    min,
-    max,
-    step,
-    allowInversion: true,
-    fieldType: 'lon',
-    onExpandEndpoint,
-  });
-
   const startHasError = Boolean(startMessage) || isRangeInverted;
   const endHasError = Boolean(endMessage) || isRangeInverted;
-
-  useEffect(() => {
-    if (onValidationChange) {
-      onValidationChange(isValid);
-    }
-  }, [isValid, onValidationChange]);
 
   const handleStartChange = (e) => {
     handleSetStart(e);
@@ -166,15 +127,26 @@ const CompactLongitudeInput = ({
 };
 
 CompactLongitudeInput.propTypes = {
-  start: PropTypes.number.isRequired,
-  end: PropTypes.number.isRequired,
-  setStart: PropTypes.func.isRequired,
-  setEnd: PropTypes.func.isRequired,
   min: PropTypes.number.isRequired,
   max: PropTypes.number.isRequired,
   step: PropTypes.number.isRequired,
-  onExpandEndpoint: PropTypes.func,
-  onValidationChange: PropTypes.func,
+  localStartValue: PropTypes.string.isRequired,
+  localEndValue: PropTypes.string.isRequired,
+  handleSetStart: PropTypes.func.isRequired,
+  handleSetEnd: PropTypes.func.isRequired,
+  handleBlurStart: PropTypes.func.isRequired,
+  handleBlurEnd: PropTypes.func.isRequired,
+  startMessage: PropTypes.string,
+  endMessage: PropTypes.string,
+  isRangeInverted: PropTypes.bool,
+  handleSlider: PropTypes.func.isRequired,
+  handleSliderCommit: PropTypes.func.isRequired,
+  sliderStart: PropTypes.number.isRequired,
+  sliderEnd: PropTypes.number.isRequired,
+  bounds: PropTypes.shape({
+    min: PropTypes.number.isRequired,
+    max: PropTypes.number.isRequired,
+  }).isRequired,
   onLocalChange: PropTypes.func,
 };
 
