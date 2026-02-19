@@ -1,5 +1,6 @@
 import { makeStyles } from '@material-ui/core/styles';
 import zIndex from '../../../../enums/zIndex';
+import colors from '../../../../enums/colors';
 
 export const useCollectionDownloadModalStyles = makeStyles((theme) => ({
   dialogPaper: {
@@ -7,7 +8,7 @@ export const useCollectionDownloadModalStyles = makeStyles((theme) => ({
     maxWidth: '1500px',
     width: '95vw',
     maxHeight: '90vh',
-    backgroundColor: 'rgb(24, 69, 98)',
+    backgroundColor: colors.solidPaper,
   },
   dialogRoot: {
     zIndex: `${zIndex.MUI_DIALOG} !important`,
@@ -20,7 +21,7 @@ export const useCollectionDownloadModalStyles = makeStyles((theme) => ({
     margin: 0,
     fontWeight: 500,
     fontSize: '1.25rem',
-    color: '#8bc34a',
+    color: colors.lightGreen,
     minWidth: 0,
     overflowWrap: 'break-word',
   },

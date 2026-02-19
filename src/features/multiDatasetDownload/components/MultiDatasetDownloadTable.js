@@ -22,13 +22,14 @@ import { snackbarOpen } from '../../../Redux/actions/ui';
 import temporalResolutions from '../../../enums/temporalResolutions';
 import { RowCountCell, RecalculateAllButton } from '../../rowCount';
 import { transformConstraintsForRowCount } from '../utils/constraintTransformer';
+import colors from '../../../enums/colors';
 
 const styles = {
   tableContainerStyle: {
     maxHeight: 400,
     maxWidth: 1400,
     margin: '0 auto',
-    backgroundColor: 'rgba(16, 43, 60, 0.6)',
+    backgroundColor: colors.darkBlueLight,
     borderRadius: '6px',
     boxShadow:
       '0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12)',
@@ -41,7 +42,7 @@ const styles = {
     minWidth: 900,
   },
   tableHeadStyle: {
-    backgroundColor: 'rgba(30, 67, 113, 1)',
+    backgroundColor: colors.deepSlate,
     position: 'sticky',
     top: 0,
     zIndex: 2,
@@ -49,10 +50,10 @@ const styles = {
   headerCellStyle: {
     padding: '8px',
     border: 0,
-    color: '#8bc34a',
+    color: colors.lightGreen,
     fontSize: '0.875rem',
     fontWeight: 500,
-    backgroundColor: 'rgba(30, 67, 113, 1)',
+    backgroundColor: colors.deepSlate,
     verticalAlign: 'middle',
     whiteSpace: 'nowrap',
   },
@@ -60,19 +61,19 @@ const styles = {
     padding: '8px',
     paddingRight: '16px',
     border: 0,
-    color: '#8bc34a',
+    color: colors.lightGreen,
     fontSize: '0.875rem',
     fontWeight: 500,
-    backgroundColor: 'rgba(30, 67, 113, 1)',
+    backgroundColor: colors.deepSlate,
     verticalAlign: 'middle',
   },
   twoLineHeaderCell: {
     padding: '8px',
     border: 0,
-    color: '#8bc34a',
+    color: colors.lightGreen,
     fontSize: '0.875rem',
     fontWeight: 500,
-    backgroundColor: 'rgba(30, 67, 113, 1)',
+    backgroundColor: colors.deepSlate,
     verticalAlign: 'middle',
     textAlign: 'right',
     lineHeight: 1.3,
@@ -82,7 +83,7 @@ const styles = {
   },
   tableRowHoverStyle: {
     border: 0,
-    backgroundColor: 'rgba(16, 43, 60, 1)',
+    backgroundColor: colors.darkBlue,
   },
   bodyCellStyle: {
     padding: '12px 8px',
@@ -344,7 +345,7 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
                           clickable
                           onClick={handleProgramClick(program)}
                           style={{
-                            backgroundColor: '#8bc34a',
+                            backgroundColor: colors.lightGreen,
                             color: '#000000',
                             fontSize: '0.75rem',
                             height: '20px',

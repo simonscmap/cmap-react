@@ -18,7 +18,11 @@ const colors = {
   slate: homeColors.blue.slate,
   deeps: '#03172F',
   blockingError: errorYellow,
-  nonBlockingInfo: homeColors.blue.teal ,
+  nonBlockingInfo: homeColors.blue.teal,
+  lightGreen: '#8bc34a',
+  darkBlue: '#102B3C',
+  darkBlueLight: '#19354B',
+  deepSlate: '#1E4371',
 };
 
 export default Object.freeze(colors);
