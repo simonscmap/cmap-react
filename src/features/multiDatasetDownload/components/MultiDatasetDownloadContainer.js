@@ -72,7 +72,6 @@ const MultiDatasetDownloadContainerInner = ({
   aggregateDatasetMetadata,
   onDownloadComplete,
   geographicPresets,
-  initialSubsetExpanded = false,
 }) => {
   const { resetStore } = useMultiDatasetDownloadStore();
   const filteredItems = useFilteredItems();
@@ -94,7 +93,7 @@ const MultiDatasetDownloadContainerInner = ({
   } : null;
 
   const [optionsState, setOptionsState] = useState({
-    subset: initialSubsetExpanded,
+    subset: false,
   });
 
   const [selectedPreset, setSelectedPreset] = useState('Collection Extent');
@@ -333,21 +332,18 @@ const MultiDatasetDownloadContainerInner = ({
             onExpandEndpoint={handleExpandEndpoint}
             onSubsetValidationChange={setIsSubsetValid}
             onGeoLocalChange={handleGeoLocalChange}
+            resetButton={
+              <ResetToCollectionExtentButton
+                controls={resetButtonControls}
+                collectionExtent={collectionExtent}
+                onResetPreset={handleResetPreset}
+                setSliderEndpoints={filterSetters.setSliderEndpoints}
+                setSliderMessage={setSliderMessage}
+              />
+            }
           />
         </SubsetControls>
       </Box>
-
-      {optionsState.subset && (
-        <Box mb={3} p={2}>
-          <ResetToCollectionExtentButton
-            controls={resetButtonControls}
-            collectionExtent={collectionExtent}
-            onResetPreset={handleResetPreset}
-            setSliderEndpoints={filterSetters.setSliderEndpoints}
-            setSliderMessage={setSliderMessage}
-          />
-        </Box>
-      )}
 
       <Box mb={3} p={2}>
         <SearchInput placeholder="Search datasets by name and program (use * for wildcards)..." showDropdownToggle={false} showEngineToggle={false} activationThreshold={2} />
@@ -384,7 +380,6 @@ const MultiDatasetDownloadContainer = React.memo(
     downloadContext,
     onDownloadComplete,
     geographicPresets,
-    initialSubsetExpanded,
   }) => {
     const {
       datasetsMetadata,
@@ -488,7 +483,6 @@ const MultiDatasetDownloadContainer = React.memo(
           aggregateDatasetMetadata={aggregateMetadata}
           onDownloadComplete={onDownloadComplete}
           geographicPresets={geographicPresets}
-          initialSubsetExpanded={initialSubsetExpanded}
         />
       </SearchProvider>
     );

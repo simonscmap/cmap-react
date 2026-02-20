@@ -59,9 +59,6 @@ const CollectionsPage = lazy(() => import('./pages/CollectionsPage'));
 const CatalogSearchDevPage = lazy(
   () => import('./features/catalogSearch/pages/CatalogSearchDevPage'),
 );
-const DownloadModalDevPage = lazy(
-  () => import('./pages/DownloadModalDevPage'),
-);
 
 const mapDispatchToProps = {
   toggleShowHelp,
@@ -118,9 +115,6 @@ class App extends Component {
                       </Route>
                       <Route exact path="/catalog-search-dev">
                         <CatalogSearchDevPage />
-                      </Route>
-                      <Route exact path="/download-modal-dev">
-                        <DownloadModalDevPage />
                       </Route>
                       <Route
                         path="/programs/:programName"

@@ -79,24 +79,9 @@ const useStyles = makeStyles((theme) => ({
     letterSpacing: '0.5px',
     marginBottom: theme.spacing(2),
   },
-  presetRow: {
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: '20%',
-    [theme.breakpoints.down('sm')]: {
-      flexDirection: 'column',
-      gap: theme.spacing(3),
-    },
-    '& > *': {
-      flex: '0 0 40%',
-      [theme.breakpoints.down('sm')]: {
-        flex: '1 1 100%',
-      },
-    },
-  },
   geographicWithMapRow: {
     display: 'flex',
-    alignItems: 'flex-start',
+    alignItems: 'stretch',
     gap: theme.spacing(4),
     [theme.breakpoints.down('sm')]: {
       flexDirection: 'column',
@@ -115,7 +100,7 @@ const useStyles = makeStyles((theme) => ({
     flex: '1 1 auto',
     minWidth: 0,
     display: 'flex',
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
     [theme.breakpoints.down('sm')]: {
       width: '100%',
     },
@@ -149,6 +134,7 @@ const CompactSubsetControlsLayout = ({
   onExpandEndpoint,
   onSubsetValidationChange,
   onGeoLocalChange,
+  resetButton,
 }) => {
   const classes = useStyles();
 
@@ -282,14 +268,12 @@ const CompactSubsetControlsLayout = ({
                 GEOGRAPHIC BOUNDS
               </Typography>
 
-              <Box className={classes.presetRow}>
-                <CompactPresetGeographicBounds
-                  selectedPreset={selectedPreset}
-                  onPresetSelect={onPresetSelect}
-                  geographicPresets={geographicPresets}
-                  collectionExtent={collectionExtent}
-                />
-              </Box>
+              <CompactPresetGeographicBounds
+                selectedPreset={selectedPreset}
+                onPresetSelect={onPresetSelect}
+                geographicPresets={geographicPresets}
+                collectionExtent={collectionExtent}
+              />
 
               <SliderStatusMessage message={sliderMessage} />
 
@@ -334,6 +318,10 @@ const CompactSubsetControlsLayout = ({
                 bounds={lonRange.bounds}
                 onLocalChange={handleGeoLocalChange}
               />
+
+              <Box style={{ marginTop: 'auto' }}>
+                {resetButton}
+              </Box>
             </Box>
 
             <Box className={classes.mapColumn}>

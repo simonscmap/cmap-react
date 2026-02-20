@@ -4,13 +4,6 @@ import loadEsriModules from './esriModuleLoader';
 const MODE_PAN = 'pan';
 const MODE_SELECT = 'select';
 
-const TILE_SIZE = 256;
-const ZOOM1_WORLD_PX = TILE_SIZE * 2;
-
-const calcWorldFitScale = (containerWidth, scaleAtZoom1) => {
-  return scaleAtZoom1 * (ZOOM1_WORLD_PX / containerWidth);
-};
-
 const RECTANGLE_SYMBOL = {
   type: 'simple-fill',
   color: [0, 255, 255, 0.2],
@@ -29,6 +22,7 @@ const useMapBoundsSelector = ({
   setLatEnd,
   setLonStart,
   setLonEnd,
+  spatialReference,
 }) => {
   let [modules, setModules] = useState(null);
   let [loading, setLoading] = useState(true);
@@ -44,9 +38,11 @@ const useMapBoundsSelector = ({
   let isUpdatingFromMapRef = useRef(false);
   let isUpdatingTimeoutRef = useRef(null);
   let minZoomThresholdRef = useRef(null);
+  let modeRef = useRef(MODE_PAN);
   let settersRef = useRef({ setLatStart, setLatEnd, setLonStart, setLonEnd });
   let updateBoundsRef = useRef(null);
   let updateGraphicRef = useRef(null);
+  let transformDebounceRef = useRef(null);
 
   settersRef.current = { setLatStart, setLatEnd, setLonStart, setLonEnd };
 
@@ -171,12 +167,24 @@ const useMapBoundsSelector = ({
       return;
     }
 
+    if (sketchViewModelRef.current) {
+      sketchViewModelRef.current.cancel();
+    }
     graphicsLayerRef.current.removeAll();
 
     let graphic = createBoundsGraphic(latStart, latEnd, lonStart, lonEnd);
     if (graphic) {
       graphicsLayerRef.current.add(graphic);
       boundsGraphicRef.current = graphic;
+      if (transformDebounceRef.current) {
+        clearTimeout(transformDebounceRef.current);
+      }
+      transformDebounceRef.current = setTimeout(function () {
+        if (sketchViewModelRef.current && boundsGraphicRef.current) {
+          sketchViewModelRef.current.update([boundsGraphicRef.current], { tool: 'transform' });
+        }
+        transformDebounceRef.current = null;
+      }, 150);
     }
   }, [modules, latStart, latEnd, lonStart, lonEnd, createBoundsGraphic]);
 
@@ -187,6 +195,10 @@ const useMapBoundsSelector = ({
   }, [updateGraphicFromBounds]);
 
   let destroyView = useCallback(() => {
+    if (transformDebounceRef.current) {
+      clearTimeout(transformDebounceRef.current);
+      transformDebounceRef.current = null;
+    }
     if (isUpdatingTimeoutRef.current) {
       clearTimeout(isUpdatingTimeoutRef.current);
       isUpdatingTimeoutRef.current = null;
@@ -218,91 +230,136 @@ const useMapBoundsSelector = ({
         layers: [graphicsLayer],
       });
 
-      let view = new modules.MapView({
+      let viewOptions = {
         container: container,
         map: map,
         center: [0, 0],
         zoom: 1,
         constraints: {
           rotationEnabled: false,
+          snapToZoom: false,
         },
-      });
+      };
+
+      if (spatialReference) {
+        viewOptions.spatialReference = spatialReference;
+      }
+
+      let view = new modules.MapView(viewOptions);
 
       viewRef.current = view;
 
       view.ui.remove('zoom');
       view.ui.remove('attribution');
 
-      view.when(() => {
-        let targetScale = calcWorldFitScale(container.clientWidth, view.scale);
+      view.when(function () {
+        let baseLayer = view.map.basemap.baseLayers.getItemAt(0);
+        let tileInfo = baseLayer.tileInfo;
+        let lods = view.constraints.effectiveLODs;
+        let tileSize = tileInfo.size[0];
+        let containerWidth = container.clientWidth;
+        let containerHeight = container.clientHeight;
+        let scaleForWidth = lods[0].scale * (tileSize / containerWidth);
+        let scaleForHeight = lods[0].scale * (tileSize / containerHeight);
+        let worldFitScale = Math.max(scaleForWidth, scaleForHeight);
 
-        view.constraints.snapToZoom = false;
-        view.constraints.minScale = targetScale;
+        minZoomThresholdRef.current = worldFitScale;
+        view.constraints.minScale = lods[0].scale;
 
-        let minZoomLevel = Math.log2(container.clientWidth / TILE_SIZE);
-        minZoomThresholdRef.current = Math.ceil(minZoomLevel);
-        view.goTo({ scale: targetScale }, { animate: false });
-        setAtMinZoom(true);
-
-        view.watch('zoom', function (newZoom) {
-          setAtMinZoom(newZoom <= minZoomThresholdRef.current);
-          if (newZoom < minZoomLevel - 0.1) {
-            view.goTo({ scale: targetScale }, { animate: false });
+        view.goTo({ center: [0, 0], scale: worldFitScale }, { animate: false }).then(function () {
+          if (!viewRef.current || viewRef.current !== view) {
+            return;
           }
-        });
 
-        view.on('mouse-wheel', function (event) {
-          if (event.deltaY > 0 && view.scale >= targetScale * 0.9) {
-            event.stopPropagation();
+          setAtMinZoom(true);
+
+          view.watch('scale', function (newScale) {
+            let isAtMin = newScale >= worldFitScale * 0.99;
+            setAtMinZoom(isAtMin);
+            if (newScale > worldFitScale) {
+              view.goTo({ scale: worldFitScale }, { animate: false });
+            }
+          });
+
+          view.on('mouse-wheel', function (event) {
+            if (event.deltaY > 0 && view.scale >= worldFitScale * 0.95) {
+              event.stopPropagation();
+            }
+          });
+
+          container.addEventListener('wheel', function (e) {
+            e.preventDefault();
+          }, { passive: false });
+
+          let sketchViewModel = new modules.SketchViewModel({
+            view: view,
+            layer: graphicsLayer,
+            updateOnGraphicClick: true,
+            defaultCreateOptions: {
+              mode: 'freehand',
+            },
+            defaultUpdateOptions: {
+              tool: 'transform',
+              toggleToolOnClick: false,
+              enableRotation: false,
+            },
+          });
+
+          sketchViewModelRef.current = sketchViewModel;
+
+          sketchViewModel.on('create', (event) => {
+            if (event.state === 'start') {
+              isUpdatingFromMapRef.current = true;
+            } else if (event.state === 'active') {
+              updateBoundsRef.current(event.graphic.geometry);
+            } else if (event.state === 'complete') {
+              updateBoundsRef.current(event.graphic.geometry);
+              boundsGraphicRef.current = event.graphic;
+              event.graphic.symbol = RECTANGLE_SYMBOL;
+              modeRef.current = MODE_PAN;
+              setModeState(MODE_PAN);
+              container.style.cursor = 'grab';
+              sketchViewModel.update([event.graphic], { tool: 'transform' });
+            } else if (event.state === 'cancel') {
+              isUpdatingFromMapRef.current = false;
+            }
+          });
+
+          sketchViewModel.on('update', (event) => {
+            if (event.state === 'active' && event.graphics && event.graphics.length > 0) {
+              isUpdatingFromMapRef.current = true;
+              updateBoundsRef.current(event.graphics[0].geometry);
+            } else if (event.state === 'complete' && event.graphics && event.graphics.length > 0) {
+              if (isUpdatingFromMapRef.current) {
+                updateBoundsRef.current(event.graphics[0].geometry);
+              }
+            }
+          });
+
+          view.on('drag', function (event) {
+            if (event.action === 'end' && modeRef.current === MODE_PAN) {
+              container.style.cursor = 'grab';
+            }
+          });
+
+          view.on('pointer-move', function (event) {
+            if (modeRef.current !== MODE_PAN) {
+              return;
+            }
+            view.hitTest(event).then(function (response) {
+              if (!viewRef.current || viewRef.current !== view) {
+                return;
+              }
+              let overGraphic = response.results && response.results.length > 0;
+              container.style.cursor = overGraphic ? '' : 'grab';
+            });
+          });
+
+          updateGraphicRef.current();
+          if (boundsGraphicRef.current) {
+            sketchViewModel.update([boundsGraphicRef.current], { tool: 'transform' });
           }
-        });
-
-        container.addEventListener('wheel', function (e) {
-          e.preventDefault();
-        }, { passive: false });
-
-        let sketchViewModel = new modules.SketchViewModel({
-          view: view,
-          layer: graphicsLayer,
-          updateOnGraphicClick: true,
-          defaultCreateOptions: {
-            mode: 'freehand',
-          },
-          defaultUpdateOptions: {
-            tool: 'transform',
-            toggleToolOnClick: false,
-            enableRotation: false,
-          },
-        });
-
-        sketchViewModelRef.current = sketchViewModel;
-
-        sketchViewModel.on('create', (event) => {
-          if (event.state === 'start') {
-            isUpdatingFromMapRef.current = true;
-          } else if (event.state === 'active') {
-            updateBoundsRef.current(event.graphic.geometry);
-          } else if (event.state === 'complete') {
-            updateBoundsRef.current(event.graphic.geometry);
-            boundsGraphicRef.current = event.graphic;
-            event.graphic.symbol = RECTANGLE_SYMBOL;
-            setModeState(MODE_PAN);
-          } else if (event.state === 'cancel') {
-            isUpdatingFromMapRef.current = false;
-          }
-        });
-
-        sketchViewModel.on('update', (event) => {
-          if (event.state === 'start') {
-            isUpdatingFromMapRef.current = true;
-          } else if (event.state === 'active' && event.graphics && event.graphics.length > 0) {
-            updateBoundsRef.current(event.graphics[0].geometry);
-          } else if (event.state === 'complete' && event.graphics && event.graphics.length > 0) {
-            updateBoundsRef.current(event.graphics[0].geometry);
-          }
-        });
-
-        updateGraphicRef.current();
+        }).catch(function () {});
       });
 
       return () => {
@@ -314,6 +371,11 @@ const useMapBoundsSelector = ({
 
   let setMode = useCallback((newMode) => {
     setModeState(newMode);
+    modeRef.current = newMode;
+
+    if (containerRef.current) {
+      containerRef.current.style.cursor = '';
+    }
 
     if (newMode === MODE_SELECT && sketchViewModelRef.current) {
       if (graphicsLayerRef.current) {
@@ -335,8 +397,11 @@ const useMapBoundsSelector = ({
 
   let zoomOut = useCallback(() => {
     if (viewRef.current) {
-      let targetZoom = Math.max(0, Math.floor(viewRef.current.zoom) - 1);
-      viewRef.current.goTo({ zoom: targetZoom });
+      let targetScale = viewRef.current.scale * 2;
+      if (minZoomThresholdRef.current && targetScale > minZoomThresholdRef.current) {
+        targetScale = minZoomThresholdRef.current;
+      }
+      viewRef.current.goTo({ scale: targetScale });
     }
   }, []);
 

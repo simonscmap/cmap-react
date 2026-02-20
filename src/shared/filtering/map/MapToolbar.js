@@ -29,8 +29,7 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: 4,
     width: 'fit-content',
     height: 'fit-content',
-    boxShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
-    border: '1px solid ' + colors.primary,
+    boxShadow: '0 3px 12px rgba(0, 0, 0, 0.7), 0 1px 4px rgba(0, 0, 0, 0.5)',
   },
   toolbarHorizontal: {
     display: 'flex',
@@ -41,8 +40,7 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: 4,
     width: 'fit-content',
     height: 'fit-content',
-    boxShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
-    border: '1px solid ' + colors.primary,
+    boxShadow: '0 3px 12px rgba(0, 0, 0, 0.7), 0 1px 4px rgba(0, 0, 0, 0.5)',
   },
   divider: {
     height: '0.5px',

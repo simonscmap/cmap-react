@@ -6,13 +6,25 @@ import useMapBoundsSelector from './useMapBoundsSelector';
 import MapToolbar from './MapToolbar';
 import colors from '../../../enums/colors';
 
-const MAP_SIZE = 450;
+const MAP_LONGEST_SIDE = 530;
+
+const MAP_TYPE = {
+  wkid: 3857,
+  aspectRatio: 1,
+};
+
+let mapWidth = MAP_TYPE.aspectRatio >= 1
+  ? MAP_LONGEST_SIDE
+  : Math.round(MAP_LONGEST_SIDE * MAP_TYPE.aspectRatio);
+let mapHeight = MAP_TYPE.aspectRatio >= 1
+  ? Math.round(MAP_LONGEST_SIDE / MAP_TYPE.aspectRatio)
+  : MAP_LONGEST_SIDE;
 
 const useStyles = makeStyles((theme) => ({
   mapWrapper: {
     position: 'relative',
-    width: MAP_SIZE,
-    height: MAP_SIZE,
+    width: mapWidth,
+    height: mapHeight,
   },
   mapContainer: {
     position: 'absolute',
@@ -23,7 +35,7 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: 4,
     overflow: 'hidden',
     border: '1px solid ' + theme.palette.divider,
-    backgroundColor: colors.slate,
+    backgroundColor: colors.darkBlue,
   },
   toolbarOverlay: {
     position: 'absolute',
@@ -32,8 +44,8 @@ const useStyles = makeStyles((theme) => ({
     zIndex: 1,
   },
   loadingContainer: {
-    width: MAP_SIZE,
-    height: MAP_SIZE,
+    width: mapWidth,
+    height: mapHeight,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -42,8 +54,8 @@ const useStyles = makeStyles((theme) => ({
     border: '1px solid ' + theme.palette.divider,
   },
   errorContainer: {
-    width: MAP_SIZE,
-    height: MAP_SIZE,
+    width: mapWidth,
+    height: mapHeight,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -87,6 +99,7 @@ const MapBoundsSelector = ({
     setLatEnd,
     setLonStart,
     setLonEnd,
+    spatialReference: { wkid: MAP_TYPE.wkid },
   });
 
   let cleanupRef = useRef(null);
