@@ -4,6 +4,7 @@ import { Box, CircularProgress, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import useMapBoundsSelector from './useMapBoundsSelector';
 import MapToolbar from './MapToolbar';
+import colors from '../../../enums/colors';
 
 const MAP_SIZE = 450;
 
@@ -22,6 +23,7 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: 4,
     overflow: 'hidden',
     border: '1px solid ' + theme.palette.divider,
+    backgroundColor: colors.slate,
   },
   toolbarOverlay: {
     position: 'absolute',

@@ -7,7 +7,7 @@ const loadEsriModules = async () => {
     return cachedModules;
   }
 
-  let [Map, MapView, GraphicsLayer, Graphic, Polygon, SketchViewModel] =
+  let [Map, MapView, GraphicsLayer, Graphic, Polygon, SketchViewModel, webMercatorUtils] =
     await loadModules(
       [
         'esri/Map',
@@ -16,6 +16,7 @@ const loadEsriModules = async () => {
         'esri/Graphic',
         'esri/geometry/Polygon',
         'esri/widgets/Sketch/SketchViewModel',
+        'esri/geometry/support/webMercatorUtils',
       ],
       { version: '4.14' },
     );
@@ -27,6 +28,7 @@ const loadEsriModules = async () => {
     Graphic,
     Polygon,
     SketchViewModel,
+    webMercatorUtils,
   };
 
   return cachedModules;

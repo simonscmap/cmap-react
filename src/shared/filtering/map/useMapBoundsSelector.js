@@ -42,12 +42,13 @@ const useMapBoundsSelector = ({
   let boundsGraphicRef = useRef(null);
   let containerRef = useRef(null);
   let isUpdatingFromMapRef = useRef(false);
+  let isUpdatingTimeoutRef = useRef(null);
   let minZoomThresholdRef = useRef(null);
   let settersRef = useRef({ setLatStart, setLatEnd, setLonStart, setLonEnd });
   let updateBoundsRef = useRef(null);
+  let updateGraphicRef = useRef(null);
 
   settersRef.current = { setLatStart, setLatEnd, setLonStart, setLonEnd };
-
 
   useEffect(() => {
     let cancelled = false;
@@ -96,11 +97,13 @@ const useMapBoundsSelector = ({
           [-180, maxLat],
           [-180, minLat],
         ];
+        let geoPolygon = new modules.Polygon({
+          rings: [rings, rings2],
+          spatialReference: { wkid: 4326 },
+        });
+        let mercPolygon = modules.webMercatorUtils.geographicToWebMercator(geoPolygon);
         return new modules.Graphic({
-          geometry: new modules.Polygon({
-            rings: [rings, rings2],
-            spatialReference: { wkid: 4326 },
-          }),
+          geometry: mercPolygon,
           symbol: RECTANGLE_SYMBOL,
         });
       }
@@ -113,11 +116,13 @@ const useMapBoundsSelector = ({
         [minLon, minLat],
       ];
 
+      let geoPolygon = new modules.Polygon({
+        rings: [rings],
+        spatialReference: { wkid: 4326 },
+      });
+      let mercPolygon = modules.webMercatorUtils.geographicToWebMercator(geoPolygon);
       return new modules.Graphic({
-        geometry: new modules.Polygon({
-          rings: [rings],
-          spatialReference: { wkid: 4326 },
-        }),
+        geometry: mercPolygon,
         symbol: RECTANGLE_SYMBOL,
       });
     },
@@ -129,24 +134,33 @@ const useMapBoundsSelector = ({
 
     isUpdatingFromMapRef.current = true;
 
-    let extent = geometry.extent;
+    let geoGeometry = geometry;
+    if (modules && modules.webMercatorUtils && geometry.spatialReference && geometry.spatialReference.isWebMercator) {
+      geoGeometry = modules.webMercatorUtils.webMercatorToGeographic(geometry);
+    }
+
+    let extent = geoGeometry.extent;
     if (!extent) {
       isUpdatingFromMapRef.current = false;
       return;
     }
 
-    let minLon = Math.max(-180, Math.min(180, extent.xmin));
-    let maxLon = Math.max(-180, Math.min(180, extent.xmax));
-    let minLat = Math.max(-90, Math.min(90, extent.ymin));
-    let maxLat = Math.max(-90, Math.min(90, extent.ymax));
+    let minLon = Math.round(Math.max(-180, Math.min(180, extent.xmin)) * 10) / 10;
+    let maxLon = Math.round(Math.max(-180, Math.min(180, extent.xmax)) * 10) / 10;
+    let minLat = Math.round(Math.max(-90, Math.min(90, extent.ymin)) * 10) / 10;
+    let maxLat = Math.round(Math.max(-90, Math.min(90, extent.ymax)) * 10) / 10;
 
     settersRef.current.setLatStart(minLat);
     settersRef.current.setLatEnd(maxLat);
     settersRef.current.setLonStart(minLon);
     settersRef.current.setLonEnd(maxLon);
 
-    setTimeout(() => {
+    if (isUpdatingTimeoutRef.current) {
+      clearTimeout(isUpdatingTimeoutRef.current);
+    }
+    isUpdatingTimeoutRef.current = setTimeout(() => {
       isUpdatingFromMapRef.current = false;
+      isUpdatingTimeoutRef.current = null;
     }, 100);
   };
 
@@ -166,11 +180,17 @@ const useMapBoundsSelector = ({
     }
   }, [modules, latStart, latEnd, lonStart, lonEnd, createBoundsGraphic]);
 
+  updateGraphicRef.current = updateGraphicFromBounds;
+
   useEffect(() => {
     updateGraphicFromBounds();
   }, [updateGraphicFromBounds]);
 
   let destroyView = useCallback(() => {
+    if (isUpdatingTimeoutRef.current) {
+      clearTimeout(isUpdatingTimeoutRef.current);
+      isUpdatingTimeoutRef.current = null;
+    }
     if (sketchViewModelRef.current) {
       sketchViewModelRef.current.destroy();
       sketchViewModelRef.current = null;
@@ -246,35 +266,50 @@ const useMapBoundsSelector = ({
           layer: graphicsLayer,
           updateOnGraphicClick: true,
           defaultCreateOptions: {
-            mode: 'click',
+            mode: 'freehand',
+          },
+          defaultUpdateOptions: {
+            tool: 'transform',
+            toggleToolOnClick: false,
+            enableRotation: false,
           },
         });
 
         sketchViewModelRef.current = sketchViewModel;
 
         sketchViewModel.on('create', (event) => {
-          if (event.state === 'complete') {
+          if (event.state === 'start') {
+            isUpdatingFromMapRef.current = true;
+          } else if (event.state === 'active') {
+            updateBoundsRef.current(event.graphic.geometry);
+          } else if (event.state === 'complete') {
             updateBoundsRef.current(event.graphic.geometry);
             boundsGraphicRef.current = event.graphic;
             event.graphic.symbol = RECTANGLE_SYMBOL;
             setModeState(MODE_PAN);
+          } else if (event.state === 'cancel') {
+            isUpdatingFromMapRef.current = false;
           }
         });
 
         sketchViewModel.on('update', (event) => {
-          if (event.state === 'complete' && event.graphics && event.graphics.length > 0) {
+          if (event.state === 'start') {
+            isUpdatingFromMapRef.current = true;
+          } else if (event.state === 'active' && event.graphics && event.graphics.length > 0) {
+            updateBoundsRef.current(event.graphics[0].geometry);
+          } else if (event.state === 'complete' && event.graphics && event.graphics.length > 0) {
             updateBoundsRef.current(event.graphics[0].geometry);
           }
         });
 
-        updateGraphicFromBounds();
+        updateGraphicRef.current();
       });
 
       return () => {
         destroyView();
       };
     },
-    [modules, destroyView, updateGraphicFromBounds],
+    [modules, destroyView],
   );
 
   let setMode = useCallback((newMode) => {
