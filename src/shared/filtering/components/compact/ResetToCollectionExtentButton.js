@@ -177,10 +177,10 @@ const ResetToCollectionExtentButton = ({
         <span>
           <UniversalButton
             variant="primary"
-            size="small"
+            size="medium"
             onClick={handleResetToCollectionExtent}
             disabled={isDisabled}
-            startIcon={<RestoreIcon />}
+            startIcon={<RestoreIcon style={{ fontSize: 16 }} />}
           >
             Reset to Collection Extent
           </UniversalButton>

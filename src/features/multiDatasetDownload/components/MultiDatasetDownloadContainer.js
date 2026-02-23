@@ -332,21 +332,18 @@ const MultiDatasetDownloadContainerInner = ({
             onExpandEndpoint={handleExpandEndpoint}
             onSubsetValidationChange={setIsSubsetValid}
             onGeoLocalChange={handleGeoLocalChange}
+            resetButton={
+              <ResetToCollectionExtentButton
+                controls={resetButtonControls}
+                collectionExtent={collectionExtent}
+                onResetPreset={handleResetPreset}
+                setSliderEndpoints={filterSetters.setSliderEndpoints}
+                setSliderMessage={setSliderMessage}
+              />
+            }
           />
         </SubsetControls>
       </Box>
-
-      {optionsState.subset && (
-        <Box mb={3} p={2}>
-          <ResetToCollectionExtentButton
-            controls={resetButtonControls}
-            collectionExtent={collectionExtent}
-            onResetPreset={handleResetPreset}
-            setSliderEndpoints={filterSetters.setSliderEndpoints}
-            setSliderMessage={setSliderMessage}
-          />
-        </Box>
-      )}
 
       <Box mb={3} p={2}>
         <SearchInput placeholder="Search datasets by name and program (use * for wildcards)..." showDropdownToggle={false} showEngineToggle={false} activationThreshold={2} />
