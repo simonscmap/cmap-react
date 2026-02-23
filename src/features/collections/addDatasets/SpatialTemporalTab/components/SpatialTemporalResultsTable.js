@@ -96,8 +96,9 @@ const useStyles = makeStyles((theme) => ({
     textDecoration: 'none !important', // Prevent line-through on status in marked-for-removal rows
   },
   datasetNameCell: {
-    minWidth: '200px',
+    minWidth: '150px',
     maxWidth: '350px',
+    wordBreak: 'break-word',
   },
   datasetDescription: {
     fontSize: '0.75rem',
@@ -318,6 +319,7 @@ const SpatialTemporalResultsTable = ({
     const columns = [
       'status',
       'name',
+      'rows',
       'type',
       'datasetUtilization',
       'spatialCoverage',
@@ -387,7 +389,7 @@ const SpatialTemporalResultsTable = ({
   };
 
   // Calculate total column count for empty state colspan
-  const totalColumnCount = 1 + activeColumns.length + 1; // checkbox + data columns + rows
+  const totalColumnCount = 1 + activeColumns.length; // checkbox + data columns (includes rows)
 
   return (
     <TableContainer component={Paper} className={classes.tableContainer}>
@@ -405,8 +407,27 @@ const SpatialTemporalResultsTable = ({
               />
             </TableCell>
 
-            {/* Data columns from config */}
+            {/* Data columns from config, with special handling for rows */}
             {activeColumns.map((columnKey) => {
+              if (columnKey === 'rows') {
+                return (
+                  <TableCell key="rows" className={classes.rowsCell} align="right">
+                    <Box className={classes.rowsHeaderCell}>
+                      <Box display="inline-flex" alignItems="center" style={{ whiteSpace: 'nowrap' }}>
+                        <span>Rows</span>
+                        <InfoTooltip
+                          title="Row counts show the number of rows in each dataset within your search constraints. Click 'Recalculate' to get accurate counts based on your specific region and time period."
+                          fontSize="small"
+                        />
+                      </Box>
+                      <RecalculateAllButton
+                        results={results}
+                        constraints={currentConstraints}
+                      />
+                    </Box>
+                  </TableCell>
+                );
+              }
               const column = columnConfig[columnKey];
               return (
                 <TableCell
@@ -418,23 +439,6 @@ const SpatialTemporalResultsTable = ({
                 </TableCell>
               );
             })}
-
-            {/* Rows column */}
-            <TableCell className={classes.rowsCell} align="right">
-              <Box className={classes.rowsHeaderCell}>
-                <Box display="inline-flex" alignItems="center" style={{ whiteSpace: 'nowrap' }}>
-                  <span>Rows</span>
-                  <InfoTooltip
-                    title="Row counts show the number of rows in each dataset within your search constraints. Click 'Recalculate' to get accurate counts based on your specific region and time period."
-                    fontSize="small"
-                  />
-                </Box>
-                <RecalculateAllButton
-                  results={results}
-                  constraints={currentConstraints}
-                />
-              </Box>
-            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -475,8 +479,22 @@ const SpatialTemporalResultsTable = ({
                     />
                   </TableCell>
 
-                  {/* Data columns from config */}
+                  {/* Data columns from config, with special handling for rows */}
                   {activeColumns.map((columnKey) => {
+                    if (columnKey === 'rows') {
+                      return (
+                        <TableCell
+                          key="rows"
+                          className={`${classes.tableCell} ${classes.rowsCell}`}
+                          align="right"
+                        >
+                          <RowCountCell
+                            shortName={dataset.shortName}
+                            currentConstraints={currentConstraints}
+                          />
+                        </TableCell>
+                      );
+                    }
                     const column = columnConfig[columnKey];
                     return (
                       <TableCell
@@ -488,17 +506,6 @@ const SpatialTemporalResultsTable = ({
                       </TableCell>
                     );
                   })}
-
-                  {/* Rows column with calculated/original/failed/skipped states */}
-                  <TableCell
-                    className={`${classes.tableCell} ${classes.rowsCell}`}
-                    align="right"
-                  >
-                    <RowCountCell
-                      shortName={dataset.shortName}
-                      currentConstraints={currentConstraints}
-                    />
-                  </TableCell>
                 </TableRow>
               );
             })

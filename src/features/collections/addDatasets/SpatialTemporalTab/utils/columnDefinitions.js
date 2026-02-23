@@ -56,7 +56,6 @@ export function createColumnDefinitions(deps) {
             datasetShortName={dataset.shortName}
             typographyProps={{
               variant: 'body2',
-              noWrap: true,
             }}
           />
           {dataset.longName && (
