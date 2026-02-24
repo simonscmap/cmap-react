@@ -23,7 +23,6 @@ import CompactLatitudeInput from './compact/CompactLatitudeInput';
 import CompactLongitudeInput from './compact/CompactLongitudeInput';
 import CompactDepthInput from './compact/CompactDepthInput';
 import CompactPresetGeographicBounds from './compact/CompactPresetGeographicBounds';
-import SliderStatusMessage from './compact/SliderStatusMessage';
 import MonthlyDateSubsetControl from './controls/MonthlyDateSubsetControl';
 import ToggleWithHelp from '../../components/ToggleWithHelp';
 import useMultiDatasetRangeInput from '../hooks/useMultiDatasetRangeInput';
@@ -130,7 +129,6 @@ const CompactSubsetControlsLayout = ({
   onPresetSelect,
   wrappedGeoHandlers,
   sliderEndpoints,
-  sliderMessage,
   onExpandEndpoint,
   onSubsetValidationChange,
   onGeoLocalChange,
@@ -274,8 +272,6 @@ const CompactSubsetControlsLayout = ({
                 geographicPresets={geographicPresets}
                 collectionExtent={collectionExtent}
               />
-
-              <SliderStatusMessage message={sliderMessage} />
 
               <CompactLatitudeInput
                 min={latMin}
@@ -429,7 +425,6 @@ CompactSubsetControlsLayout.propTypes = {
     depthMin: PropTypes.number,
     depthMax: PropTypes.number,
   }),
-  sliderMessage: PropTypes.string,
   onExpandEndpoint: PropTypes.func,
   onSubsetValidationChange: PropTypes.func,
   onGeoLocalChange: PropTypes.func,
