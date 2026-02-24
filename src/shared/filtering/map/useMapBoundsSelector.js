@@ -16,8 +16,31 @@ const RECTANGLE_SYMBOL = {
   },
 };
 
+const MERCATOR_HALF_WORLD = 20037508.34;
+
 function clampAndRound(value, min, max) {
   return Math.round(Math.max(min, Math.min(max, value)) * 10) / 10;
+}
+
+function lonToMercatorX(lon) {
+  return lon * MERCATOR_HALF_WORLD / 180;
+}
+
+function latToMercatorY(lat) {
+  let clamped = Math.max(-89.99, Math.min(89.99, lat));
+  return Math.log(Math.tan((90 + clamped) * Math.PI / 360)) / (Math.PI / 180) * MERCATOR_HALF_WORLD / 180;
+}
+
+function mercatorXToLon(x) {
+  return x * 180 / MERCATOR_HALF_WORLD;
+}
+
+function mercatorYToLat(y) {
+  return (Math.atan(Math.exp(y * Math.PI / MERCATOR_HALF_WORLD)) * 360 / Math.PI) - 90;
+}
+
+function normalizeLon(lon) {
+  return ((lon % 360) + 540) % 360 - 180;
 }
 
 const useMapBoundsSelector = ({
@@ -85,32 +108,33 @@ const useMapBoundsSelector = ({
       let minLon = lon1;
       let maxLon = lon2;
 
-      let rings;
+      let mercPolygon;
       if (minLon > maxLon) {
-        rings = [
-          [
-            [minLon, minLat], [180, minLat], [180, maxLat],
-            [minLon, maxLat], [minLon, minLat],
-          ],
-          [
-            [-180, minLat], [maxLon, minLat], [maxLon, maxLat],
-            [-180, maxLat], [-180, minLat],
-          ],
+        let effectiveMaxLon = maxLon + 360;
+        let mercRing = [
+          [lonToMercatorX(minLon), latToMercatorY(minLat)],
+          [lonToMercatorX(effectiveMaxLon), latToMercatorY(minLat)],
+          [lonToMercatorX(effectiveMaxLon), latToMercatorY(maxLat)],
+          [lonToMercatorX(minLon), latToMercatorY(maxLat)],
+          [lonToMercatorX(minLon), latToMercatorY(minLat)],
         ];
+        mercPolygon = new modules.Polygon({
+          rings: [mercRing],
+          spatialReference: { wkid: 102100 },
+        });
       } else {
-        rings = [
-          [
-            [minLon, minLat], [maxLon, minLat], [maxLon, maxLat],
-            [minLon, maxLat], [minLon, minLat],
+        let geoPolygon = new modules.Polygon({
+          rings: [
+            [
+              [minLon, minLat], [maxLon, minLat], [maxLon, maxLat],
+              [minLon, maxLat], [minLon, minLat],
+            ],
           ],
-        ];
+          spatialReference: { wkid: 4326 },
+        });
+        mercPolygon = modules.webMercatorUtils.geographicToWebMercator(geoPolygon);
       }
 
-      let geoPolygon = new modules.Polygon({
-        rings: rings,
-        spatialReference: { wkid: 4326 },
-      });
-      let mercPolygon = modules.webMercatorUtils.geographicToWebMercator(geoPolygon);
       return new modules.Graphic({
         geometry: mercPolygon,
         symbol: RECTANGLE_SYMBOL,
@@ -124,26 +148,40 @@ const useMapBoundsSelector = ({
 
     isUpdatingFromMapRef.current = true;
 
-    let geoGeometry = geometry;
-    if (modules && modules.webMercatorUtils && geometry.spatialReference && geometry.spatialReference.isWebMercator) {
-      geoGeometry = modules.webMercatorUtils.webMercatorToGeographic(geometry);
-    }
-
-    let extent = geoGeometry.extent;
+    let extent = geometry.extent;
     if (!extent) {
       isUpdatingFromMapRef.current = false;
       return;
     }
 
-    let minLon = clampAndRound(extent.xmin, -180, 180);
-    let maxLon = clampAndRound(extent.xmax, -180, 180);
-    let minLat = clampAndRound(extent.ymin, -90, 90);
-    let maxLat = clampAndRound(extent.ymax, -90, 90);
+    let westLon, eastLon, minLat, maxLat;
+
+    if (geometry.spatialReference && geometry.spatialReference.isWebMercator) {
+      westLon = normalizeLon(mercatorXToLon(extent.xmin));
+      eastLon = normalizeLon(mercatorXToLon(extent.xmax));
+      minLat = mercatorYToLat(extent.ymin);
+      maxLat = mercatorYToLat(extent.ymax);
+    } else {
+      let geoGeometry = geometry;
+      if (modules && modules.webMercatorUtils && geometry.spatialReference && geometry.spatialReference.wkid !== 4326) {
+        geoGeometry = modules.webMercatorUtils.webMercatorToGeographic(geometry);
+        extent = geoGeometry.extent;
+      }
+      westLon = extent.xmin;
+      eastLon = extent.xmax;
+      minLat = extent.ymin;
+      maxLat = extent.ymax;
+    }
+
+    westLon = clampAndRound(westLon, -180, 180);
+    eastLon = clampAndRound(eastLon, -180, 180);
+    minLat = clampAndRound(minLat, -90, 90);
+    maxLat = clampAndRound(maxLat, -90, 90);
 
     settersRef.current.setLatStart(minLat);
     settersRef.current.setLatEnd(maxLat);
-    settersRef.current.setLonStart(minLon);
-    settersRef.current.setLonEnd(maxLon);
+    settersRef.current.setLonStart(westLon);
+    settersRef.current.setLonEnd(eastLon);
 
     if (isUpdatingTimeoutRef.current) {
       clearTimeout(isUpdatingTimeoutRef.current);
@@ -254,6 +292,9 @@ const useMapBoundsSelector = ({
       view.ui.remove('attribution');
 
       view.when(function () {
+        log.debug('lngLatToXY(290, 0):', modules.webMercatorUtils.lngLatToXY(290, 0));
+        log.debug('xyToLngLat(32283263, 0):', modules.webMercatorUtils.xyToLngLat(32283263, 0));
+
         let baseLayer = view.map.basemap.baseLayers.getItemAt(0);
         let tileInfo = baseLayer.tileInfo;
         let lods = view.constraints.effectiveLODs;
