@@ -16,27 +16,20 @@ const RECTANGLE_SYMBOL = {
   },
 };
 
-const MERCATOR_HALF_WORLD = 20037508.34;
+const COASTLINE_URL =
+  'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_land.geojson';
+
+const COASTLINE_SYMBOL = {
+  type: 'simple-fill',
+  color: [60, 80, 60, 0.4],
+  outline: {
+    color: [120, 140, 120, 0.6],
+    width: 0.5,
+  },
+};
 
 function clampAndRound(value, min, max) {
   return Math.round(Math.max(min, Math.min(max, value)) * 10) / 10;
-}
-
-function lonToMercatorX(lon) {
-  return lon * MERCATOR_HALF_WORLD / 180;
-}
-
-function latToMercatorY(lat) {
-  let clamped = Math.max(-89.99, Math.min(89.99, lat));
-  return Math.log(Math.tan((90 + clamped) * Math.PI / 360)) / (Math.PI / 180) * MERCATOR_HALF_WORLD / 180;
-}
-
-function mercatorXToLon(x) {
-  return x * 180 / MERCATOR_HALF_WORLD;
-}
-
-function mercatorYToLat(y) {
-  return (Math.atan(Math.exp(y * Math.PI / MERCATOR_HALF_WORLD)) * 360 / Math.PI) - 90;
 }
 
 function normalizeLon(lon) {
@@ -108,35 +101,22 @@ const useMapBoundsSelector = ({
       let minLon = lon1;
       let maxLon = lon2;
 
-      let mercPolygon;
       if (minLon > maxLon) {
-        let effectiveMaxLon = maxLon + 360;
-        let mercRing = [
-          [lonToMercatorX(minLon), latToMercatorY(minLat)],
-          [lonToMercatorX(effectiveMaxLon), latToMercatorY(minLat)],
-          [lonToMercatorX(effectiveMaxLon), latToMercatorY(maxLat)],
-          [lonToMercatorX(minLon), latToMercatorY(maxLat)],
-          [lonToMercatorX(minLon), latToMercatorY(minLat)],
-        ];
-        mercPolygon = new modules.Polygon({
-          rings: [mercRing],
-          spatialReference: { wkid: 102100 },
-        });
-      } else {
-        let geoPolygon = new modules.Polygon({
-          rings: [
-            [
-              [minLon, minLat], [maxLon, minLat], [maxLon, maxLat],
-              [minLon, maxLat], [minLon, minLat],
-            ],
-          ],
-          spatialReference: { wkid: 4326 },
-        });
-        mercPolygon = modules.webMercatorUtils.geographicToWebMercator(geoPolygon);
+        maxLon = maxLon + 360;
       }
 
+      let polygon = new modules.Polygon({
+        rings: [
+          [
+            [minLon, minLat], [maxLon, minLat], [maxLon, maxLat],
+            [minLon, maxLat], [minLon, minLat],
+          ],
+        ],
+        spatialReference: { wkid: 4326 },
+      });
+
       return new modules.Graphic({
-        geometry: mercPolygon,
+        geometry: polygon,
         symbol: RECTANGLE_SYMBOL,
       });
     },
@@ -154,29 +134,10 @@ const useMapBoundsSelector = ({
       return;
     }
 
-    let westLon, eastLon, minLat, maxLat;
-
-    if (geometry.spatialReference && geometry.spatialReference.isWebMercator) {
-      westLon = normalizeLon(mercatorXToLon(extent.xmin));
-      eastLon = normalizeLon(mercatorXToLon(extent.xmax));
-      minLat = mercatorYToLat(extent.ymin);
-      maxLat = mercatorYToLat(extent.ymax);
-    } else {
-      let geoGeometry = geometry;
-      if (modules && modules.webMercatorUtils && geometry.spatialReference && geometry.spatialReference.wkid !== 4326) {
-        geoGeometry = modules.webMercatorUtils.webMercatorToGeographic(geometry);
-        extent = geoGeometry.extent;
-      }
-      westLon = extent.xmin;
-      eastLon = extent.xmax;
-      minLat = extent.ymin;
-      maxLat = extent.ymax;
-    }
-
-    westLon = clampAndRound(westLon, -180, 180);
-    eastLon = clampAndRound(eastLon, -180, 180);
-    minLat = clampAndRound(minLat, -90, 90);
-    maxLat = clampAndRound(maxLat, -90, 90);
+    let westLon = clampAndRound(normalizeLon(extent.xmin), -180, 180);
+    let eastLon = clampAndRound(normalizeLon(extent.xmax), -180, 180);
+    let minLat = clampAndRound(extent.ymin, -90, 90);
+    let maxLat = clampAndRound(extent.ymax, -90, 90);
 
     settersRef.current.setLatStart(minLat);
     settersRef.current.setLatEnd(maxLat);
@@ -264,27 +225,36 @@ const useMapBoundsSelector = ({
       let graphicsLayer = new modules.GraphicsLayer();
       graphicsLayerRef.current = graphicsLayer;
 
-      let map = new modules.Map({
-        basemap: 'satellite',
-        layers: [graphicsLayer],
+      let coastlineLayer = new modules.GeoJSONLayer({
+        url: COASTLINE_URL,
+        renderer: {
+          type: 'simple',
+          symbol: COASTLINE_SYMBOL,
+        },
       });
 
-      let viewOptions = {
+      let map = new modules.Map({
+        layers: [coastlineLayer, graphicsLayer],
+      });
+
+      let worldExtent = {
+        xmin: -180,
+        ymin: -90,
+        xmax: 180,
+        ymax: 90,
+        spatialReference: { wkid: 4326 },
+      };
+
+      let view = new modules.MapView({
         container: container,
         map: map,
-        center: [0, 0],
-        zoom: 1,
+        extent: worldExtent,
+        spatialReference: spatialReference || { wkid: 4326 },
         constraints: {
           rotationEnabled: false,
           snapToZoom: false,
         },
-      };
-
-      if (spatialReference) {
-        viewOptions.spatialReference = spatialReference;
-      }
-
-      let view = new modules.MapView(viewOptions);
+      });
 
       viewRef.current = view;
 
@@ -292,42 +262,10 @@ const useMapBoundsSelector = ({
       view.ui.remove('attribution');
 
       view.when(function () {
-        log.debug('lngLatToXY(290, 0):', modules.webMercatorUtils.lngLatToXY(290, 0));
-        log.debug('xyToLngLat(32283263, 0):', modules.webMercatorUtils.xyToLngLat(32283263, 0));
-
-        let baseLayer = view.map.basemap.baseLayers.getItemAt(0);
-        let tileInfo = baseLayer.tileInfo;
-        let lods = view.constraints.effectiveLODs;
-        let tileSize = tileInfo.size[0];
-        let containerWidth = container.clientWidth;
-        let containerHeight = container.clientHeight;
-        let scaleForWidth = lods[0].scale * (tileSize / containerWidth);
-        let scaleForHeight = lods[0].scale * (tileSize / containerHeight);
-        let worldFitScale = Math.max(scaleForWidth, scaleForHeight);
-
-        minZoomThresholdRef.current = worldFitScale;
-        view.constraints.minScale = lods[0].scale;
-
-        view.goTo({ center: [0, 0], scale: worldFitScale }, { animate: false }).then(function () {
+        view.goTo(worldExtent, { animate: false }).then(function () {
           if (!viewRef.current || viewRef.current !== view) {
             return;
           }
-
-          setAtMinZoom(true);
-
-          view.watch('scale', function (newScale) {
-            let isAtMin = newScale >= worldFitScale * 0.99;
-            setAtMinZoom(isAtMin);
-            if (newScale > worldFitScale) {
-              view.goTo({ scale: worldFitScale }, { animate: false });
-            }
-          });
-
-          view.on('mouse-wheel', function (event) {
-            if (event.deltaY > 0 && view.scale >= worldFitScale * 0.95) {
-              event.stopPropagation();
-            }
-          });
 
           let wheelHandler = function (e) {
             e.preventDefault();
@@ -447,9 +385,6 @@ const useMapBoundsSelector = ({
   let zoomOut = useCallback(() => {
     if (viewRef.current) {
       let targetScale = viewRef.current.scale * 2;
-      if (minZoomThresholdRef.current && targetScale > minZoomThresholdRef.current) {
-        targetScale = minZoomThresholdRef.current;
-      }
       viewRef.current.goTo({ scale: targetScale });
     }
   }, []);

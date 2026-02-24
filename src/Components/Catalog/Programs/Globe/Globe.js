@@ -28,7 +28,7 @@ const loadEsriModules = async (done) => {
     'esri/geometry/Polyline',
   ];
 
-  const loadedModules = await loadModules(moduleLoadPaths, { version: '4.14' });
+  const loadedModules = await loadModules(moduleLoadPaths, { version: '4.23' });
 
   // create map of { moduleName: loadedModule }
   const esriModules = moduleNames.reduce((acc, curr, index) => {

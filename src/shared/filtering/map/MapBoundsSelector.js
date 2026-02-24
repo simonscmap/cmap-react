@@ -6,12 +6,12 @@ import useMapBoundsSelector from './useMapBoundsSelector';
 import MapToolbar from './MapToolbar';
 import colors from '../../../enums/colors';
 
-const MAP_SIZE = 530;
-const MAP_WKID = 3857;
-const SPATIAL_REFERENCE = { wkid: MAP_WKID };
+const MAP_WIDTH = 530;
+const MAP_HEIGHT = Math.round(MAP_WIDTH / 2);
+const SPATIAL_REFERENCE = { wkid: 4326 };
 
-const mapWidth = MAP_SIZE;
-const mapHeight = MAP_SIZE;
+const mapWidth = MAP_WIDTH;
+const mapHeight = MAP_HEIGHT;
 
 const useStyles = makeStyles((theme) => ({
   mapWrapper: {
