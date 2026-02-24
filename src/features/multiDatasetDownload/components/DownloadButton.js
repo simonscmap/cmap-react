@@ -54,10 +54,14 @@ const DownloadButton = ({ subsetFiltering, onDownloadComplete, isSubsetValid = t
     } catch (error) {
       log.error('Download failed', { error });
 
-      let errorMessage = error.message || 'Download failed';
-      // 413 already has actionable guidance; add retry instruction for other errors
-      if (error.status !== 413) {
-        errorMessage += '. Please try again or contact support if the issue persists.';
+      let errorMessage;
+      if (error.message === 'Failed to fetch') {
+        errorMessage = 'Your download started but couldn\'t be completed. Please try again.';
+      } else {
+        errorMessage = error.message || 'Download failed';
+        if (error.status !== 413) {
+          errorMessage += '. Please try again or contact support if the issue persists.';
+        }
       }
 
       dispatch(
