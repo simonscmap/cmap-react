@@ -1,5 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import loadEsriModules from './esriModuleLoader';
+import initLog from '../../../Services/log-service';
+
+let log = initLog('shared/filtering/map/useMapBoundsSelector');
 
 const MODE_PAN = 'pan';
 const MODE_SELECT = 'select';
@@ -12,6 +15,10 @@ const RECTANGLE_SYMBOL = {
     width: 2,
   },
 };
+
+function clampAndRound(value, min, max) {
+  return Math.round(Math.max(min, Math.min(max, value)) * 10) / 10;
+}
 
 const useMapBoundsSelector = ({
   latStart,
@@ -43,6 +50,7 @@ const useMapBoundsSelector = ({
   let updateBoundsRef = useRef(null);
   let updateGraphicRef = useRef(null);
   let transformDebounceRef = useRef(null);
+  let wheelHandlerRef = useRef(null);
 
   settersRef.current = { setLatStart, setLatEnd, setLonStart, setLonEnd };
 
@@ -77,43 +85,32 @@ const useMapBoundsSelector = ({
       let minLon = lon1;
       let maxLon = lon2;
 
-      let effectiveMaxLon = maxLon;
+      let rings;
       if (minLon > maxLon) {
-        effectiveMaxLon = maxLon + 360;
-      }
-
-      let rings = [
-        [minLon, minLat],
-        [effectiveMaxLon, minLat],
-        [effectiveMaxLon, maxLat],
-        [minLon, maxLat],
-        [minLon, minLat],
-      ];
-
-      let lonToX = function (lon) {
-        return lon * 20037508.34 / 180;
-      };
-      let latToY = function (lat) {
-        return Math.log(Math.tan((90 + lat) * Math.PI / 360)) / (Math.PI / 180) * 20037508.34 / 180;
-      };
-
-      let mercPolygon;
-      if (minLon > maxLon) {
-        let mercRings = rings.map(function (coord) {
-          return [lonToX(coord[0]), latToY(coord[1])];
-        });
-        mercPolygon = new modules.Polygon({
-          rings: [mercRings],
-          spatialReference: { wkid: 102100 },
-        });
+        rings = [
+          [
+            [minLon, minLat], [180, minLat], [180, maxLat],
+            [minLon, maxLat], [minLon, minLat],
+          ],
+          [
+            [-180, minLat], [maxLon, minLat], [maxLon, maxLat],
+            [-180, maxLat], [-180, minLat],
+          ],
+        ];
       } else {
-        let geoPolygon = new modules.Polygon({
-          rings: [rings],
-          spatialReference: { wkid: 4326 },
-        });
-        mercPolygon = modules.webMercatorUtils.geographicToWebMercator(geoPolygon);
+        rings = [
+          [
+            [minLon, minLat], [maxLon, minLat], [maxLon, maxLat],
+            [minLon, maxLat], [minLon, minLat],
+          ],
+        ];
       }
 
+      let geoPolygon = new modules.Polygon({
+        rings: rings,
+        spatialReference: { wkid: 4326 },
+      });
+      let mercPolygon = modules.webMercatorUtils.geographicToWebMercator(geoPolygon);
       return new modules.Graphic({
         geometry: mercPolygon,
         symbol: RECTANGLE_SYMBOL,
@@ -138,22 +135,15 @@ const useMapBoundsSelector = ({
       return;
     }
 
-    let normalizeLon = function (lon) {
-      return ((lon % 360) + 540) % 360 - 180;
-    };
-
-    let westLon = normalizeLon(extent.xmin);
-    let eastLon = normalizeLon(extent.xmax);
-    let minLat = Math.round(Math.max(-90, Math.min(90, extent.ymin)) * 10) / 10;
-    let maxLat = Math.round(Math.max(-90, Math.min(90, extent.ymax)) * 10) / 10;
-
-    westLon = Math.round(Math.max(-180, Math.min(180, westLon)) * 10) / 10;
-    eastLon = Math.round(Math.max(-180, Math.min(180, eastLon)) * 10) / 10;
+    let minLon = clampAndRound(extent.xmin, -180, 180);
+    let maxLon = clampAndRound(extent.xmax, -180, 180);
+    let minLat = clampAndRound(extent.ymin, -90, 90);
+    let maxLat = clampAndRound(extent.ymax, -90, 90);
 
     settersRef.current.setLatStart(minLat);
     settersRef.current.setLatEnd(maxLat);
-    settersRef.current.setLonStart(westLon);
-    settersRef.current.setLonEnd(eastLon);
+    settersRef.current.setLonStart(minLon);
+    settersRef.current.setLonEnd(maxLon);
 
     if (isUpdatingTimeoutRef.current) {
       clearTimeout(isUpdatingTimeoutRef.current);
@@ -206,6 +196,13 @@ const useMapBoundsSelector = ({
     if (isUpdatingTimeoutRef.current) {
       clearTimeout(isUpdatingTimeoutRef.current);
       isUpdatingTimeoutRef.current = null;
+    }
+    if (wheelHandlerRef.current) {
+      wheelHandlerRef.current.container.removeEventListener(
+        'wheel',
+        wheelHandlerRef.current.handler
+      );
+      wheelHandlerRef.current = null;
     }
     if (sketchViewModelRef.current) {
       sketchViewModelRef.current.destroy();
@@ -291,9 +288,11 @@ const useMapBoundsSelector = ({
             }
           });
 
-          container.addEventListener('wheel', function (e) {
+          let wheelHandler = function (e) {
             e.preventDefault();
-          }, { passive: false });
+          };
+          container.addEventListener('wheel', wheelHandler, { passive: false });
+          wheelHandlerRef.current = { container: container, handler: wheelHandler };
 
           let sketchViewModel = new modules.SketchViewModel({
             view: view,
@@ -363,7 +362,12 @@ const useMapBoundsSelector = ({
           if (boundsGraphicRef.current) {
             sketchViewModel.update([boundsGraphicRef.current], { tool: 'transform' });
           }
-        }).catch(function () {});
+        }).catch(function (err) {
+          if (err && err.name !== 'AbortError') {
+            log.error('map view initialization failed', { error: err });
+            setError(err);
+          }
+        });
       });
 
       return () => {
@@ -410,7 +414,6 @@ const useMapBoundsSelector = ({
   }, []);
 
   return {
-    modules,
     loading,
     error,
     mode,
@@ -419,8 +422,6 @@ const useMapBoundsSelector = ({
     setMode,
     zoomIn,
     zoomOut,
-    MODE_PAN,
-    MODE_SELECT,
   };
 };
 
