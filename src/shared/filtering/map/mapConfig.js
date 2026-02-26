@@ -29,18 +29,18 @@ let RECTANGLE_SYMBOL = {
 
 let CREATE_SYMBOL = {
   type: 'simple-fill',
-  color: [255, 0, 0, 0.3],
-  outline: { color: [255, 0, 0, 1], width: 2 },
+  color: [157, 209, 98, 0.3],
+  outline: { color: [157, 209, 98, 1], width: 2 },
 };
 
 let STATIC_SYMBOL = {
   type: 'simple-fill',
-  color: [0, 0, 160, 0.2],
-  outline: { color: [0, 0,160, 1], width: 2 },
+  color: [105, 255, 242, 0.3],
+  outline: { color: [105, 255, 242, 1], width: 2 },
 }
 
 let HIGHLIGHT_OPTIONS = {
-  color: [0, 0, 160, .1],
+  color: [105, 255, 242, .3],
   fillOpacity: 0.1,
   haloOpacity: .5,
 };
