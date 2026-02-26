@@ -6,19 +6,12 @@ import useMapBoundsSelector from './useMapBoundsSelector';
 import MapToolbar from './MapToolbar';
 import colors from '../../../enums/colors';
 
-const MAP_LONGEST_SIDE = 530;
+const MAP_WIDTH = 530;
+const MAP_HEIGHT = Math.round(MAP_WIDTH / 2);
+const SPATIAL_REFERENCE = { wkid: 4326 };
 
-const MAP_TYPE = {
-  wkid: 3857,
-  aspectRatio: 1,
-};
-
-let mapWidth = MAP_TYPE.aspectRatio >= 1
-  ? MAP_LONGEST_SIDE
-  : Math.round(MAP_LONGEST_SIDE * MAP_TYPE.aspectRatio);
-let mapHeight = MAP_TYPE.aspectRatio >= 1
-  ? Math.round(MAP_LONGEST_SIDE / MAP_TYPE.aspectRatio)
-  : MAP_LONGEST_SIDE;
+const mapWidth = MAP_WIDTH;
+const mapHeight = MAP_HEIGHT;
 
 const useStyles = makeStyles((theme) => ({
   mapWrapper: {
@@ -99,7 +92,7 @@ const MapBoundsSelector = ({
     setLatEnd,
     setLonStart,
     setLonEnd,
-    spatialReference: { wkid: MAP_TYPE.wkid },
+    spatialReference: SPATIAL_REFERENCE,
   });
 
   let cleanupRef = useRef(null);

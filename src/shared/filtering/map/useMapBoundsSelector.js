@@ -1,5 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import loadEsriModules from './esriModuleLoader';
+import initLog from '../../../Services/log-service';
+
+let log = initLog('shared/filtering/map/useMapBoundsSelector');
 
 const MODE_PAN = 'pan';
 const MODE_SELECT = 'select';
@@ -12,6 +15,26 @@ const RECTANGLE_SYMBOL = {
     width: 2,
   },
 };
+
+const COASTLINE_URL =
+  'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_land.geojson';
+
+const COASTLINE_SYMBOL = {
+  type: 'simple-fill',
+  color: [60, 80, 60, 0.4],
+  outline: {
+    color: [120, 140, 120, 0.6],
+    width: 0.5,
+  },
+};
+
+function clampAndRound(value, min, max) {
+  return Math.round(Math.max(min, Math.min(max, value)) * 10) / 10;
+}
+
+function normalizeLon(lon) {
+  return ((lon % 360) + 540) % 360 - 180;
+}
 
 const useMapBoundsSelector = ({
   latStart,
@@ -43,6 +66,7 @@ const useMapBoundsSelector = ({
   let updateBoundsRef = useRef(null);
   let updateGraphicRef = useRef(null);
   let transformDebounceRef = useRef(null);
+  let wheelHandlerRef = useRef(null);
 
   settersRef.current = { setLatStart, setLatEnd, setLonStart, setLonEnd };
 
@@ -77,45 +101,22 @@ const useMapBoundsSelector = ({
       let minLon = lon1;
       let maxLon = lon2;
 
-      let effectiveMaxLon = maxLon;
       if (minLon > maxLon) {
-        effectiveMaxLon = maxLon + 360;
+        maxLon = maxLon + 360;
       }
 
-      let rings = [
-        [minLon, minLat],
-        [effectiveMaxLon, minLat],
-        [effectiveMaxLon, maxLat],
-        [minLon, maxLat],
-        [minLon, minLat],
-      ];
-
-      let lonToX = function (lon) {
-        return lon * 20037508.34 / 180;
-      };
-      let latToY = function (lat) {
-        return Math.log(Math.tan((90 + lat) * Math.PI / 360)) / (Math.PI / 180) * 20037508.34 / 180;
-      };
-
-      let mercPolygon;
-      if (minLon > maxLon) {
-        let mercRings = rings.map(function (coord) {
-          return [lonToX(coord[0]), latToY(coord[1])];
-        });
-        mercPolygon = new modules.Polygon({
-          rings: [mercRings],
-          spatialReference: { wkid: 102100 },
-        });
-      } else {
-        let geoPolygon = new modules.Polygon({
-          rings: [rings],
-          spatialReference: { wkid: 4326 },
-        });
-        mercPolygon = modules.webMercatorUtils.geographicToWebMercator(geoPolygon);
-      }
+      let polygon = new modules.Polygon({
+        rings: [
+          [
+            [minLon, minLat], [maxLon, minLat], [maxLon, maxLat],
+            [minLon, maxLat], [minLon, minLat],
+          ],
+        ],
+        spatialReference: { wkid: 4326 },
+      });
 
       return new modules.Graphic({
-        geometry: mercPolygon,
+        geometry: polygon,
         symbol: RECTANGLE_SYMBOL,
       });
     },
@@ -127,28 +128,16 @@ const useMapBoundsSelector = ({
 
     isUpdatingFromMapRef.current = true;
 
-    let geoGeometry = geometry;
-    if (modules && modules.webMercatorUtils && geometry.spatialReference && geometry.spatialReference.isWebMercator) {
-      geoGeometry = modules.webMercatorUtils.webMercatorToGeographic(geometry);
-    }
-
-    let extent = geoGeometry.extent;
+    let extent = geometry.extent;
     if (!extent) {
       isUpdatingFromMapRef.current = false;
       return;
     }
 
-    let normalizeLon = function (lon) {
-      return ((lon % 360) + 540) % 360 - 180;
-    };
-
-    let westLon = normalizeLon(extent.xmin);
-    let eastLon = normalizeLon(extent.xmax);
-    let minLat = Math.round(Math.max(-90, Math.min(90, extent.ymin)) * 10) / 10;
-    let maxLat = Math.round(Math.max(-90, Math.min(90, extent.ymax)) * 10) / 10;
-
-    westLon = Math.round(Math.max(-180, Math.min(180, westLon)) * 10) / 10;
-    eastLon = Math.round(Math.max(-180, Math.min(180, eastLon)) * 10) / 10;
+    let westLon = clampAndRound(normalizeLon(extent.xmin), -180, 180);
+    let eastLon = clampAndRound(normalizeLon(extent.xmax), -180, 180);
+    let minLat = clampAndRound(extent.ymin, -90, 90);
+    let maxLat = clampAndRound(extent.ymax, -90, 90);
 
     settersRef.current.setLatStart(minLat);
     settersRef.current.setLatEnd(maxLat);
@@ -207,6 +196,13 @@ const useMapBoundsSelector = ({
       clearTimeout(isUpdatingTimeoutRef.current);
       isUpdatingTimeoutRef.current = null;
     }
+    if (wheelHandlerRef.current) {
+      wheelHandlerRef.current.container.removeEventListener(
+        'wheel',
+        wheelHandlerRef.current.handler
+      );
+      wheelHandlerRef.current = null;
+    }
     if (sketchViewModelRef.current) {
       sketchViewModelRef.current.destroy();
       sketchViewModelRef.current = null;
@@ -229,27 +225,36 @@ const useMapBoundsSelector = ({
       let graphicsLayer = new modules.GraphicsLayer();
       graphicsLayerRef.current = graphicsLayer;
 
-      let map = new modules.Map({
-        basemap: 'satellite',
-        layers: [graphicsLayer],
+      let coastlineLayer = new modules.GeoJSONLayer({
+        url: COASTLINE_URL,
+        renderer: {
+          type: 'simple',
+          symbol: COASTLINE_SYMBOL,
+        },
       });
 
-      let viewOptions = {
+      let map = new modules.Map({
+        layers: [coastlineLayer, graphicsLayer],
+      });
+
+      let worldExtent = {
+        xmin: -180,
+        ymin: -90,
+        xmax: 180,
+        ymax: 90,
+        spatialReference: { wkid: 4326 },
+      };
+
+      let view = new modules.MapView({
         container: container,
         map: map,
-        center: [0, 0],
-        zoom: 1,
+        extent: worldExtent,
+        spatialReference: spatialReference || { wkid: 4326 },
         constraints: {
           rotationEnabled: false,
           snapToZoom: false,
         },
-      };
-
-      if (spatialReference) {
-        viewOptions.spatialReference = spatialReference;
-      }
-
-      let view = new modules.MapView(viewOptions);
+      });
 
       viewRef.current = view;
 
@@ -257,43 +262,16 @@ const useMapBoundsSelector = ({
       view.ui.remove('attribution');
 
       view.when(function () {
-        let baseLayer = view.map.basemap.baseLayers.getItemAt(0);
-        let tileInfo = baseLayer.tileInfo;
-        let lods = view.constraints.effectiveLODs;
-        let tileSize = tileInfo.size[0];
-        let containerWidth = container.clientWidth;
-        let containerHeight = container.clientHeight;
-        let scaleForWidth = lods[0].scale * (tileSize / containerWidth);
-        let scaleForHeight = lods[0].scale * (tileSize / containerHeight);
-        let worldFitScale = Math.max(scaleForWidth, scaleForHeight);
-
-        minZoomThresholdRef.current = worldFitScale;
-        view.constraints.minScale = lods[0].scale;
-
-        view.goTo({ center: [0, 0], scale: worldFitScale }, { animate: false }).then(function () {
+        view.goTo(worldExtent, { animate: false }).then(function () {
           if (!viewRef.current || viewRef.current !== view) {
             return;
           }
 
-          setAtMinZoom(true);
-
-          view.watch('scale', function (newScale) {
-            let isAtMin = newScale >= worldFitScale * 0.99;
-            setAtMinZoom(isAtMin);
-            if (newScale > worldFitScale) {
-              view.goTo({ scale: worldFitScale }, { animate: false });
-            }
-          });
-
-          view.on('mouse-wheel', function (event) {
-            if (event.deltaY > 0 && view.scale >= worldFitScale * 0.95) {
-              event.stopPropagation();
-            }
-          });
-
-          container.addEventListener('wheel', function (e) {
+          let wheelHandler = function (e) {
             e.preventDefault();
-          }, { passive: false });
+          };
+          container.addEventListener('wheel', wheelHandler, { passive: false });
+          wheelHandlerRef.current = { container: container, handler: wheelHandler };
 
           let sketchViewModel = new modules.SketchViewModel({
             view: view,
@@ -363,7 +341,12 @@ const useMapBoundsSelector = ({
           if (boundsGraphicRef.current) {
             sketchViewModel.update([boundsGraphicRef.current], { tool: 'transform' });
           }
-        }).catch(function () {});
+        }).catch(function (err) {
+          if (err && err.name !== 'AbortError') {
+            log.error('map view initialization failed', { error: err });
+            setError(err);
+          }
+        });
       });
 
       return () => {
@@ -402,15 +385,11 @@ const useMapBoundsSelector = ({
   let zoomOut = useCallback(() => {
     if (viewRef.current) {
       let targetScale = viewRef.current.scale * 2;
-      if (minZoomThresholdRef.current && targetScale > minZoomThresholdRef.current) {
-        targetScale = minZoomThresholdRef.current;
-      }
       viewRef.current.goTo({ scale: targetScale });
     }
   }, []);
 
   return {
-    modules,
     loading,
     error,
     mode,
@@ -419,8 +398,6 @@ const useMapBoundsSelector = ({
     setMode,
     zoomIn,
     zoomOut,
-    MODE_PAN,
-    MODE_SELECT,
   };
 };
 
