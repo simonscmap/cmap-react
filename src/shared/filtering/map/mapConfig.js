@@ -14,9 +14,12 @@ let BASEMAPS = {
   terrainWithLabels: 'ccb943d91c134188a8815452514983fc', // best
   imagery: '52bdc7ab7fb044d98add148764eaa30a', // stretching at extremes lats
   imageryHybrid: '4c2b44abaa4841d08c938f4bbb548561',// stretching at extremes lats
+  natGeoStyleMap: 'f33a34de3a294590ab48f246e99958c9',
+  oceans: '67ab7f7c535c4687b6518e6d2343e8a2',
+  usgsNationalMap: '6d9fa6d159ae4a1f80b9e296ed300767',
 };
 
-let ACTIVE_BASEMAP = BASEMAPS.terrainWithLabels;
+let ACTIVE_BASEMAP = BASEMAPS.imagery;
 
 let RECTANGLE_SYMBOL = {
   type: 'simple-fill',
@@ -35,12 +38,12 @@ let CREATE_SYMBOL = {
 
 let STATIC_SYMBOL = {
   type: 'simple-fill',
-  color: [105, 255, 242, 0.3],
-  outline: { color: [105, 255, 242, 1], width: 2 },
+  color: [157, 209, 98, 0.3],
+  outline: { color: [157, 209, 98, 1], width: 2 },
 }
 
 let HIGHLIGHT_OPTIONS = {
-  color: [105, 255, 242, .3],
+  color: [157, 209, 98, .3],
   fillOpacity: 0.1,
   haloOpacity: .5,
 };
