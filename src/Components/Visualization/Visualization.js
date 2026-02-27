@@ -156,7 +156,7 @@ class Visualization extends Component {
         'esri/Graphic',
         'esri/layers/FeatureLayer',
       ],
-      { version: '4.23' },
+      { version: '4.24' },
     );
 
     var esriModules = esriModuleNames.reduce(
