@@ -1,32 +1,19 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import loadEsriModules from './esriModuleLoader';
+import {
+  SPATIAL_REFERENCE,
+  WORLD_EXTENT,
+  ACTIVE_BASEMAP,
+  CREATE_SYMBOL,
+  STATIC_SYMBOL,
+  HIGHLIGHT_OPTIONS,
+} from './mapConfig';
 import initLog from '../../../Services/log-service';
 
 let log = initLog('shared/filtering/map/useMapBoundsSelector');
 
 const MODE_PAN = 'pan';
 const MODE_SELECT = 'select';
-
-const RECTANGLE_SYMBOL = {
-  type: 'simple-fill',
-  color: [0, 255, 255, 0.2],
-  outline: {
-    color: [0, 255, 255, 1],
-    width: 2,
-  },
-};
-
-const COASTLINE_URL =
-  'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_land.geojson';
-
-const COASTLINE_SYMBOL = {
-  type: 'simple-fill',
-  color: [60, 80, 60, 0.4],
-  outline: {
-    color: [120, 140, 120, 0.6],
-    width: 0.5,
-  },
-};
 
 function clampAndRound(value, min, max) {
   return Math.round(Math.max(min, Math.min(max, value)) * 10) / 10;
@@ -45,7 +32,6 @@ const useMapBoundsSelector = ({
   setLatEnd,
   setLonStart,
   setLonEnd,
-  spatialReference,
 }) => {
   let [modules, setModules] = useState(null);
   let [loading, setLoading] = useState(true);
@@ -112,12 +98,12 @@ const useMapBoundsSelector = ({
             [minLon, maxLat], [minLon, minLat],
           ],
         ],
-        spatialReference: { wkid: 4326 },
+        spatialReference: SPATIAL_REFERENCE,
       });
 
       return new modules.Graphic({
         geometry: polygon,
-        symbol: RECTANGLE_SYMBOL,
+        symbol: STATIC_SYMBOL,
       });
     },
     [modules],
@@ -213,6 +199,7 @@ const useMapBoundsSelector = ({
     }
     graphicsLayerRef.current = null;
     boundsGraphicRef.current = null;
+    minZoomThresholdRef.current = null;
   }, []);
 
   let initializeView = useCallback(
@@ -225,31 +212,19 @@ const useMapBoundsSelector = ({
       let graphicsLayer = new modules.GraphicsLayer();
       graphicsLayerRef.current = graphicsLayer;
 
-      let coastlineLayer = new modules.GeoJSONLayer({
-        url: COASTLINE_URL,
-        renderer: {
-          type: 'simple',
-          symbol: COASTLINE_SYMBOL,
-        },
-      });
-
       let map = new modules.Map({
-        layers: [coastlineLayer, graphicsLayer],
+        basemap: new modules.Basemap({
+          portalItem: { id: ACTIVE_BASEMAP },
+        }),
+        layers: [graphicsLayer],
       });
-
-      let worldExtent = {
-        xmin: -180,
-        ymin: -90,
-        xmax: 180,
-        ymax: 90,
-        spatialReference: { wkid: 4326 },
-      };
 
       let view = new modules.MapView({
         container: container,
         map: map,
-        extent: worldExtent,
-        spatialReference: spatialReference || { wkid: 4326 },
+        extent: WORLD_EXTENT,
+        spatialReference: SPATIAL_REFERENCE,
+        highlightOptions: HIGHLIGHT_OPTIONS,
         constraints: {
           rotationEnabled: false,
           snapToZoom: false,
@@ -262,10 +237,18 @@ const useMapBoundsSelector = ({
       view.ui.remove('attribution');
 
       view.when(function () {
-        view.goTo(worldExtent, { animate: false }).then(function () {
-          if (!viewRef.current || viewRef.current !== view) {
-            return;
-          }
+        modules.reactiveUtils.whenOnce(function () {
+          return !view.updating;
+        }).then(function () {
+          if (!viewRef.current || viewRef.current !== view) return;
+
+          minZoomThresholdRef.current = view.scale;
+          setAtMinZoom(true);
+
+          view.watch('scale', function (newScale) {
+            if (!viewRef.current || viewRef.current !== view) return;
+            setAtMinZoom(newScale >= minZoomThresholdRef.current * 0.95);
+          });
 
           let wheelHandler = function (e) {
             e.preventDefault();
@@ -277,6 +260,7 @@ const useMapBoundsSelector = ({
             view: view,
             layer: graphicsLayer,
             updateOnGraphicClick: true,
+            polygonSymbol: CREATE_SYMBOL,
             defaultCreateOptions: {
               mode: 'freehand',
             },
@@ -289,7 +273,7 @@ const useMapBoundsSelector = ({
 
           sketchViewModelRef.current = sketchViewModel;
 
-          sketchViewModel.on('create', (event) => {
+          sketchViewModel.on('create', function (event) {
             if (event.state === 'start') {
               isUpdatingFromMapRef.current = true;
             } else if (event.state === 'active') {
@@ -297,7 +281,7 @@ const useMapBoundsSelector = ({
             } else if (event.state === 'complete') {
               updateBoundsRef.current(event.graphic.geometry);
               boundsGraphicRef.current = event.graphic;
-              event.graphic.symbol = RECTANGLE_SYMBOL;
+              event.graphic.symbol = STATIC_SYMBOL;
               modeRef.current = MODE_PAN;
               setModeState(MODE_PAN);
               container.style.cursor = 'grab';
@@ -307,7 +291,7 @@ const useMapBoundsSelector = ({
             }
           });
 
-          sketchViewModel.on('update', (event) => {
+          sketchViewModel.on('update', function (event) {
             if (event.state === 'active' && event.graphics && event.graphics.length > 0) {
               isUpdatingFromMapRef.current = true;
               updateBoundsRef.current(event.graphics[0].geometry);
@@ -338,6 +322,7 @@ const useMapBoundsSelector = ({
           });
 
           updateGraphicRef.current();
+
           if (boundsGraphicRef.current) {
             sketchViewModel.update([boundsGraphicRef.current], { tool: 'transform' });
           }
@@ -377,14 +362,17 @@ const useMapBoundsSelector = ({
 
   let zoomIn = useCallback(() => {
     if (viewRef.current) {
-      let targetZoom = Math.floor(viewRef.current.zoom) + 1;
-      viewRef.current.goTo({ zoom: targetZoom });
+      let targetScale = viewRef.current.scale / 2;
+      viewRef.current.goTo({ scale: targetScale });
     }
   }, []);
 
   let zoomOut = useCallback(() => {
-    if (viewRef.current) {
-      let targetScale = viewRef.current.scale * 2;
+    if (viewRef.current && minZoomThresholdRef.current) {
+      let targetScale = Math.min(
+        viewRef.current.scale * 2,
+        minZoomThresholdRef.current
+      );
       viewRef.current.goTo({ scale: targetScale });
     }
   }, []);

@@ -322,6 +322,7 @@ const CompactSubsetControlsLayout = ({
 
             <Box className={classes.mapColumn}>
               <MapBoundsSelector
+                mapWidth={630}
                 latStart={latRange.sliderStart}
                 latEnd={latRange.sliderEnd}
                 lonStart={lonRange.sliderStart}
