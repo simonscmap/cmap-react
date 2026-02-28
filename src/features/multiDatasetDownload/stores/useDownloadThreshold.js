@@ -4,6 +4,7 @@ import {
   useOriginalRowCounts,
   useRowCountsLoading,
   useStaleDatasets,
+  getEffectiveRowCount,
 } from '../../rowCount';
 import { DOWNLOAD_LIMITS } from '../../../shared/constants/downloadConstants';
 
@@ -24,24 +25,11 @@ function getStaleSelectedDatasets(selectedDatasets, staleDatasets) {
   return result;
 }
 
-function calculateHybridSum(
-  selectedDatasets,
-  calculatedRowCounts,
-  originalRowCounts,
-  staleDatasets,
-) {
-  const staleSet = new Set(staleDatasets);
+function calculateTotalRows(selectedDatasets, calculatedRowCounts, originalRowCounts) {
   let total = 0;
-
   for (const shortName of selectedDatasets) {
-    if (staleSet.has(shortName)) {
-      total += originalRowCounts[shortName] || 0;
-    } else {
-      total +=
-        calculatedRowCounts[shortName] ?? originalRowCounts[shortName] ?? 0;
-    }
+    total += getEffectiveRowCount(shortName, calculatedRowCounts, originalRowCounts);
   }
-
   return total;
 }
 
@@ -57,15 +45,14 @@ export function useDownloadThreshold(selectedDatasets) {
   );
   const hasStaleDatasets = selectedStaleDatasets.length > 0;
 
-  const totalRows = calculateHybridSum(
+  const totalRows = calculateTotalRows(
     selectedDatasets,
     calculatedRowCounts,
     originalRowCounts,
-    staleDatasets,
   );
 
   const isOverThreshold = totalRows > MAX_ROW_THRESHOLD;
-  const canDownload = !isLoading && !isOverThreshold;
+  const canDownload = !isLoading && !isOverThreshold && !hasStaleDatasets;
 
   return {
     totalRows,

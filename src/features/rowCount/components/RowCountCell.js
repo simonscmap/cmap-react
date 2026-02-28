@@ -14,6 +14,7 @@ import {
   isDatasetStale,
   isDatasetSkipped,
   queryRowCountsForDatasets,
+  getEffectiveRowCount,
 } from '../state/rowCountCalculationStore';
 
 const useStyles = makeStyles(() => ({
@@ -73,19 +74,15 @@ const RowCountCell = ({ shortName, currentConstraints }) => {
   const rowCountLoadingDatasets = useRowCountLoadingDatasets();
   const failedRowCounts = useFailedRowCounts();
 
-  const originalRowCount = originalRowCounts[shortName];
+  const displayCount = getEffectiveRowCount(shortName, calculatedRowCounts, originalRowCounts);
+  const displayValue = typeof displayCount === 'number' ? displayCount.toLocaleString() : 'N/A';
 
-  // Check if dataset is stale (action called directly)
   const { isStale, reason } = isDatasetStale(shortName, currentConstraints);
 
-  // Callback to recalculate row count for this specific dataset
-  // Recalculate only this dataset - per-dataset snapshot will be stored automatically
-  // Does not consume the global recalculation opportunity (that's only for "Recalculate All")
   const handleRecalculate = () => {
     queryRowCountsForDatasets([{ shortName }], currentConstraints);
   };
 
-  // Check if this dataset is currently being calculated
   if (rowCountLoadingDatasets.has(shortName)) {
     return (
       <Box className={classes.rowCountLoading}>
@@ -94,53 +91,20 @@ const RowCountCell = ({ shortName, currentConstraints }) => {
     );
   }
 
-  // Check if this dataset has a calculated row count
-  if (calculatedRowCounts[shortName] !== undefined) {
+  if (failedRowCounts.includes(shortName) && calculatedRowCounts[shortName] === undefined) {
     return (
       <span>
-        {calculatedRowCounts[shortName].toLocaleString()}
-        {isStale ? (
-          // Show stale warning icon (most recent state)
-          <StaleIndicatorTooltip
-            reason={reason}
-            shortName={shortName}
-            onRecalculate={handleRecalculate}
-            isRecalculating={rowCountLoadingDatasets.has(shortName)}
-          >
-            <WarningIcon
-              style={{
-                color: '#fdd835',
-                fontSize: 16,
-                verticalAlign: 'middle',
-                marginLeft: 4,
-              }}
-            />
-          </StaleIndicatorTooltip>
-        ) : null}
-      </span>
-    );
-  }
-
-  // Check if this dataset failed calculation
-  if (failedRowCounts.includes(shortName)) {
-    return (
-      <span>
-        {typeof originalRowCount === 'number'
-          ? originalRowCount.toLocaleString()
-          : 'N/A'}
+        {displayValue}
         <br />
         <span className={classes.failedRowCount}>(failed)</span>
       </span>
     );
   }
 
-  // Check if this dataset was skipped (cluster-only)
   if (isDatasetSkipped(shortName)) {
     return (
       <span>
-        {typeof originalRowCount === 'number'
-          ? originalRowCount.toLocaleString()
-          : 'N/A'}
+        {displayValue}
         <ClusterOnlyTooltip shortName={shortName}>
           <InfoIcon
             style={{
@@ -155,12 +119,9 @@ const RowCountCell = ({ shortName, currentConstraints }) => {
     );
   }
 
-  // Default: show original row count from stats
   return (
     <span>
-      {typeof originalRowCount === 'number'
-        ? originalRowCount.toLocaleString()
-        : 'N/A'}
+      {displayValue}
       {isStale && (
         <StaleIndicatorTooltip
           reason={reason}

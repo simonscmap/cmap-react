@@ -100,6 +100,9 @@ const DownloadButton = ({ subsetFiltering, onDownloadComplete, isSubsetValid = t
       }
       return `Selection exceeds ${formattedThreshold}M row limit`;
     }
+    if (hasStaleDatasets) {
+      return 'Recalculate to Download';
+    }
     if (selectedCount === 0) {
       return 'Select Datasets to Download';
     }
