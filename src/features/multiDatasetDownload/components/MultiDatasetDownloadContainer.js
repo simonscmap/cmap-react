@@ -98,21 +98,14 @@ const MultiDatasetDownloadContainerInner = ({
 
   const [selectedPreset, setSelectedPreset] = useState('Collection Extent');
 
-  const [sliderMessage, setSliderMessage] = useState(null);
-
   const [isSubsetValid, setIsSubsetValid] = useState(true);
 
   const handleResetPreset = () => {
     setSelectedPreset('Collection Extent');
   };
 
-  const clearSliderMessage = () => {
-    setSliderMessage(null);
-  };
-
   const handleGeoLocalChange = () => {
     setSelectedPreset('Custom');
-    setSliderMessage(null);
   };
 
   // Handle toggle switch for subset controls
@@ -151,11 +144,6 @@ const MultiDatasetDownloadContainerInner = ({
         timeMax: sliderEndpoints.timeMax,
       });
 
-      if (presetLabel !== 'Collection Extent') {
-        setSliderMessage('Using ' + presetLabel + ' bounds');
-      } else {
-        setSliderMessage(null);
-      }
     }
 
     filterSetters.setLatStart(bounds.latStart);
@@ -169,24 +157,20 @@ const MultiDatasetDownloadContainerInner = ({
       setLatStart: (value) => {
         filterSetters.setLatStart(value);
         setSelectedPreset('Custom');
-        clearSliderMessage();
       },
       setLatEnd: (value) => {
         filterSetters.setLatEnd(value);
         setSelectedPreset('Custom');
-        clearSliderMessage();
       },
     },
     longitude: {
       setLonStart: (value) => {
         filterSetters.setLonStart(value);
         setSelectedPreset('Custom');
-        clearSliderMessage();
       },
       setLonEnd: (value) => {
         filterSetters.setLonEnd(value);
         setSelectedPreset('Custom');
-        clearSliderMessage();
       },
     },
   };
@@ -210,7 +194,6 @@ const MultiDatasetDownloadContainerInner = ({
           [ENDPOINT_FIELDS.TIME_MIN]: sliderEndpoints.timeMin,
           [ENDPOINT_FIELDS.TIME_MAX]: sliderEndpoints.timeMax,
         });
-        clearSliderMessage();
         return;
       }
     }
@@ -230,7 +213,6 @@ const MultiDatasetDownloadContainerInner = ({
       };
       updated[fieldName] = expanded;
       filterSetters.setSliderEndpoints(updated);
-      clearSliderMessage();
     }
   };
 
@@ -328,7 +310,6 @@ const MultiDatasetDownloadContainerInner = ({
             onPresetSelect={handlePresetSelect}
             wrappedGeoHandlers={wrappedGeoHandlers}
             sliderEndpoints={sliderEndpoints}
-            sliderMessage={sliderMessage}
             onExpandEndpoint={handleExpandEndpoint}
             onSubsetValidationChange={setIsSubsetValid}
             onGeoLocalChange={handleGeoLocalChange}
@@ -338,7 +319,6 @@ const MultiDatasetDownloadContainerInner = ({
                 collectionExtent={collectionExtent}
                 onResetPreset={handleResetPreset}
                 setSliderEndpoints={filterSetters.setSliderEndpoints}
-                setSliderMessage={setSliderMessage}
               />
             }
           />

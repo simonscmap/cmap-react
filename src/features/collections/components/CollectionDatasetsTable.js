@@ -96,8 +96,9 @@ const useStyles = makeStyles((theme) => ({
     textDecoration: 'none !important', // Prevent line-through on status in marked-for-removal rows
   },
   datasetNameCell: {
-    minWidth: '200px',
+    minWidth: '150px',
     maxWidth: '350px',
+    wordBreak: 'break-word',
   },
   datasetDescription: {
     fontSize: '0.75rem',
@@ -431,7 +432,6 @@ const CollectionDatasetsTable = ({
               datasetShortName={dataset.shortName}
               typographyProps={{
                 variant: 'body2',
-                noWrap: true,
               }}
             />
           )}

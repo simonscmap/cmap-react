@@ -75,7 +75,6 @@ const ResetToCollectionExtentButton = ({
   collectionExtent,
   onResetPreset,
   setSliderEndpoints,
-  setSliderMessage,
 }) => {
   const classes = useStyles();
 
@@ -120,9 +119,6 @@ const ResetToCollectionExtentButton = ({
       onResetPreset();
     }
 
-    if (setSliderMessage) {
-      setSliderMessage('Restored to collection extent');
-    }
   };
 
   const isDisabled = isAtCollectionExtent(controls, collectionExtent);
@@ -246,7 +242,6 @@ ResetToCollectionExtentButton.propTypes = {
   }),
   onResetPreset: PropTypes.func,
   setSliderEndpoints: PropTypes.func,
-  setSliderMessage: PropTypes.func,
 };
 
 export default ResetToCollectionExtentButton;
