@@ -6,25 +6,10 @@ import useMapBoundsSelector from './useMapBoundsSelector';
 import MapToolbar from './MapToolbar';
 import colors from '../../../enums/colors';
 
-const MAP_LONGEST_SIDE = 530;
-
-const MAP_TYPE = {
-  wkid: 3857,
-  aspectRatio: 1,
-};
-
-let mapWidth = MAP_TYPE.aspectRatio >= 1
-  ? MAP_LONGEST_SIDE
-  : Math.round(MAP_LONGEST_SIDE * MAP_TYPE.aspectRatio);
-let mapHeight = MAP_TYPE.aspectRatio >= 1
-  ? Math.round(MAP_LONGEST_SIDE / MAP_TYPE.aspectRatio)
-  : MAP_LONGEST_SIDE;
-
 const useStyles = makeStyles((theme) => ({
   mapWrapper: {
     position: 'relative',
-    width: mapWidth,
-    height: mapHeight,
+    overflow: 'hidden',
   },
   mapContainer: {
     position: 'absolute',
@@ -44,8 +29,6 @@ const useStyles = makeStyles((theme) => ({
     zIndex: 1,
   },
   loadingContainer: {
-    width: mapWidth,
-    height: mapHeight,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -54,8 +37,6 @@ const useStyles = makeStyles((theme) => ({
     border: '1px solid ' + theme.palette.divider,
   },
   errorContainer: {
-    width: mapWidth,
-    height: mapHeight,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -67,6 +48,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const MapBoundsSelector = ({
+  mapWidth,
   latStart,
   latEnd,
   lonStart,
@@ -80,6 +62,7 @@ const MapBoundsSelector = ({
   let classes = useStyles();
   let mapContainerRef = useRef(null);
   let initRef = useRef(false);
+  let mapHeight = Math.round(mapWidth / 2);
 
   let {
     loading,
@@ -99,7 +82,6 @@ const MapBoundsSelector = ({
     setLatEnd,
     setLonStart,
     setLonEnd,
-    spatialReference: { wkid: MAP_TYPE.wkid },
   });
 
   let cleanupRef = useRef(null);
@@ -117,9 +99,11 @@ const MapBoundsSelector = ({
     };
   }, [loading, error, initializeView]);
 
+  let sizeStyle = { width: mapWidth, height: mapHeight };
+
   if (loading) {
     return (
-      <Box className={classes.loadingContainer}>
+      <Box className={classes.loadingContainer} style={sizeStyle}>
         <CircularProgress size={40} />
       </Box>
     );
@@ -127,7 +111,7 @@ const MapBoundsSelector = ({
 
   if (error) {
     return (
-      <Box className={classes.errorContainer}>
+      <Box className={classes.errorContainer} style={sizeStyle}>
         <Typography color="error">
           Failed to load map: {error.message}
         </Typography>
@@ -136,7 +120,7 @@ const MapBoundsSelector = ({
   }
 
   return (
-    <Box className={classes.mapWrapper}>
+    <Box className={classes.mapWrapper} style={sizeStyle}>
       <Box ref={mapContainerRef} className={classes.mapContainer} />
       <Box className={classes.toolbarOverlay}>
         <MapToolbar
@@ -153,6 +137,7 @@ const MapBoundsSelector = ({
 };
 
 MapBoundsSelector.propTypes = {
+  mapWidth: PropTypes.number.isRequired,
   latStart: PropTypes.number.isRequired,
   latEnd: PropTypes.number.isRequired,
   lonStart: PropTypes.number.isRequired,

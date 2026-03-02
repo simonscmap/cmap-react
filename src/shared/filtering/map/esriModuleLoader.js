@@ -1,4 +1,5 @@
 import { loadModules } from 'esri-loader';
+import { ESRI_VERSION } from './mapConfig';
 
 let cachedModules = null;
 
@@ -7,7 +8,7 @@ const loadEsriModules = async () => {
     return cachedModules;
   }
 
-  let [Map, MapView, GraphicsLayer, Graphic, Polygon, SketchViewModel, webMercatorUtils] =
+  let [Map, MapView, GraphicsLayer, Graphic, Polygon, SketchViewModel, Basemap, reactiveUtils] =
     await loadModules(
       [
         'esri/Map',
@@ -16,9 +17,10 @@ const loadEsriModules = async () => {
         'esri/Graphic',
         'esri/geometry/Polygon',
         'esri/widgets/Sketch/SketchViewModel',
-        'esri/geometry/support/webMercatorUtils',
+        'esri/Basemap',
+        'esri/core/reactiveUtils',
       ],
-      { version: '4.14' },
+      { version: ESRI_VERSION },
     );
 
   cachedModules = {
@@ -28,7 +30,8 @@ const loadEsriModules = async () => {
     Graphic,
     Polygon,
     SketchViewModel,
-    webMercatorUtils,
+    Basemap,
+    reactiveUtils,
   };
 
   return cachedModules;
