@@ -4,8 +4,8 @@ import {
   useOriginalRowCounts,
   useRowCountsLoading,
   useStaleDatasets,
+  getEffectiveRowCount,
 } from '../../rowCount';
-import { getThresholdStatus } from '../utils/downloadThreshold';
 import { DOWNLOAD_LIMITS } from '../../../shared/constants/downloadConstants';
 
 const MAX_ROW_THRESHOLD = DOWNLOAD_LIMITS.MAX_ROW_THRESHOLD;
@@ -25,41 +25,25 @@ function getStaleSelectedDatasets(selectedDatasets, staleDatasets) {
   return result;
 }
 
-function calculateHybridSum(
-  selectedDatasets,
-  calculatedRowCounts,
-  originalRowCounts,
-  staleDatasets,
-) {
+function calculateTotalRows(selectedDatasets, calculatedRowCounts, originalRowCounts) {
+  let total = 0;
+  for (const shortName of selectedDatasets) {
+    total += getEffectiveRowCount(shortName, calculatedRowCounts, originalRowCounts);
+  }
+  return total;
+}
+
+function calculateWorstCaseTotal(selectedDatasets, calculatedRowCounts, originalRowCounts, staleDatasets) {
   const staleSet = new Set(staleDatasets);
   let total = 0;
-
   for (const shortName of selectedDatasets) {
     if (staleSet.has(shortName)) {
       total += originalRowCounts[shortName] || 0;
     } else {
-      total +=
-        calculatedRowCounts[shortName] ?? originalRowCounts[shortName] ?? 0;
+      total += getEffectiveRowCount(shortName, calculatedRowCounts, originalRowCounts);
     }
   }
-
   return total;
-}
-
-function isHybridOverThreshold(
-  selectedDatasets,
-  calculatedRowCounts,
-  originalRowCounts,
-  staleDatasets,
-) {
-  const hybridSum = calculateHybridSum(
-    selectedDatasets,
-    calculatedRowCounts,
-    originalRowCounts,
-    staleDatasets,
-  );
-
-  return hybridSum > MAX_ROW_THRESHOLD;
 }
 
 export function useDownloadThreshold(selectedDatasets) {
@@ -74,25 +58,27 @@ export function useDownloadThreshold(selectedDatasets) {
   );
   const hasStaleDatasets = selectedStaleDatasets.length > 0;
 
-  const thresholdStatus = getThresholdStatus(
+  const totalRows = calculateTotalRows(
     selectedDatasets,
     calculatedRowCounts,
     originalRowCounts,
-    isLoading,
   );
 
-  const hybridOverThreshold = isHybridOverThreshold(
-    selectedDatasets,
-    calculatedRowCounts,
-    originalRowCounts,
-    staleDatasets,
+  const worstCaseTotal = calculateWorstCaseTotal(
+    selectedDatasets, calculatedRowCounts, originalRowCounts, staleDatasets
   );
+  const isGuaranteedUnderLimit = worstCaseTotal <= MAX_ROW_THRESHOLD;
 
-  const canDownload = !isLoading && !hybridOverThreshold;
+  const isOverThreshold = totalRows > MAX_ROW_THRESHOLD;
+  const canDownload = !isLoading && !isOverThreshold
+    && (isGuaranteedUnderLimit || !hasStaleDatasets);
 
   return {
-    ...thresholdStatus,
-    isOverThreshold: hybridOverThreshold,
+    totalRows,
+    maxRows: MAX_ROW_THRESHOLD,
+    isLoading,
+    isOverThreshold,
+    isGuaranteedUnderLimit,
     hasStaleDatasets,
     selectedStaleDatasets,
     canDownload,

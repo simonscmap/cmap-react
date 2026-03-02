@@ -54,3 +54,6 @@ export { useHasStaleDatasets } from './state/rowCountCalculationStore';
 
 /** Hook to read the array of stale dataset shortNames */
 export { useStaleDatasets } from './state/rowCountCalculationStore';
+
+/** Single source of truth: which row count to display/sum for a dataset. */
+export { getEffectiveRowCount } from './state/rowCountCalculationStore';

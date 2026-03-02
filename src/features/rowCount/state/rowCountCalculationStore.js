@@ -14,6 +14,7 @@ import { getSearchDatabaseApi } from '../../catalogSearch/api';
 import { queryRowCountsApi } from '../api/queryRowCountsApi';
 import {
   isDatasetFullyWithinConstraints,
+  hasNoOverlapWithConstraints,
   queryDatasetMetadata,
   normalizeAllDatasetsForEstimation,
 } from './rowCountCalculationHelpers';
@@ -73,6 +74,10 @@ export const useStaleDatasets = () =>
 
 export const useHasStaleDatasets = () =>
   useRowCountCalculationStore((state) => state.staleDatasets.length > 0);
+
+export function getEffectiveRowCount(shortName, calculatedRowCounts, originalRowCounts) {
+  return calculatedRowCounts[shortName] ?? originalRowCounts[shortName] ?? 0;
+}
 
 export function isDatasetStale(shortName, currentConstraints) {
   const {
@@ -447,6 +452,7 @@ function _computeStaleDatasets(datasets, constraints) {
   }
 
   const stale = [];
+  const knownZeros = {};
 
   for (const dataset of datasets) {
     const eligible = isEligibleForEstimation({
@@ -463,11 +469,39 @@ function _computeStaleDatasets(datasets, constraints) {
       constraints,
     );
     if (!fullyContained) {
-      stale.push(dataset.shortName);
+      if (hasNoOverlapWithConstraints(dataset, constraints)) {
+        knownZeros[dataset.shortName] = 0;
+      } else {
+        stale.push(dataset.shortName);
+      }
     }
   }
 
-  useRowCountCalculationStore.setState({ staleDatasets: stale });
+  const currentState = useRowCountCalculationStore.getState();
+  let stateUpdate = { staleDatasets: stale };
+
+  if (Object.keys(knownZeros).length > 0) {
+    const newSnapshots = { ...currentState.datasetConstraintSnapshots };
+    Object.keys(knownZeros).forEach((shortName) => {
+      newSnapshots[shortName] = {
+        spatialBounds: { ...constraints.spatialBounds },
+        temporalRange: { ...constraints.temporalRange },
+        depthRange: { ...constraints.depthRange },
+        temporalEnabled: constraints.temporalEnabled,
+        depthEnabled: constraints.depthEnabled,
+        includePartialOverlaps: constraints.includePartialOverlaps,
+        timestamp: new Date(),
+      };
+    });
+
+    stateUpdate.calculatedRowCounts = {
+      ...currentState.calculatedRowCounts,
+      ...knownZeros,
+    };
+    stateUpdate.datasetConstraintSnapshots = newSnapshots;
+  }
+
+  useRowCountCalculationStore.setState(stateUpdate);
 }
 
 /**
