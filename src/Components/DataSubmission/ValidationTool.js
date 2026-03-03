@@ -336,7 +336,6 @@ class ValidationTool extends React.Component {
     }
 
     this.setState({
-      ...this.state,
       loadingFile: {
         status: 'complete',
       },
@@ -354,7 +353,6 @@ class ValidationTool extends React.Component {
   };
 
   resetLocalState = (resetStep = false, callerName) => {
-    // console.log (`resetting local state (caller name: ${callerName})`);
     this.setState({
       ...this.state,
       rawFile: null,
@@ -381,6 +379,9 @@ class ValidationTool extends React.Component {
 
   handleChangeValidationStep = (validationStep) => {
     if (validationStep >= 0 && validationStep < validationSteps.length) {
+      if (this.gridApi) {
+        this.gridApi.stopEditing();
+      }
       this.props.setSubmissionStep(validationStep);
     }
   };
@@ -492,6 +493,9 @@ class ValidationTool extends React.Component {
         changeLog: this.state.changeLog.concat(changeEvent),
       },
       () => {
+        if (!this.gridApi || !event.api) {
+          return;
+        }
         // redraw rows
         console.log('calling redrawRows');
         const row = this.gridApi.getDisplayedRowAtIndex(rowIndex);
@@ -501,7 +505,7 @@ class ValidationTool extends React.Component {
         console.log('calling refreshCells');
         event.api.refreshCells({
           force: true,
-          rowNodes: [event.node], // pass rowNode that was edited
+          rowNodes: [event.node],
         });
       },
     );
@@ -834,6 +838,8 @@ class ValidationTool extends React.Component {
   };
 
   componentWillUnmount = () => {
+    this.gridApi = null;
+    this.columnApi = null;
     this.props.storeSubmissionFile(null);
   };
 
