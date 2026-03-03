@@ -337,7 +337,7 @@ const MultiDatasetDownloadContainerInner = ({
       </Box>
 
       <Box>
-        <RowCountTotal filterValues={filterValues} />
+        <RowCountTotal />
         <DownloadButton
           subsetFiltering={{
             setInvalidFlag,

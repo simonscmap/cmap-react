@@ -1,10 +1,7 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Typography, Box } from '@material-ui/core';
-import WarningIcon from '@material-ui/icons/Warning';
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
 import { useDownloadThreshold } from '../stores/useDownloadThreshold';
-import BatchStaleIndicatorTooltip from './BatchStaleIndicatorTooltip';
 import temporalResolutions from '../../../enums/temporalResolutions';
 import colors from '../../../enums/colors';
 
@@ -27,11 +24,6 @@ const styles = {
     alignItems: 'center',
     gap: 4,
   },
-  staleIcon: {
-    color: '#fdd835',
-    fontSize: 18,
-    cursor: 'pointer',
-  },
   warningText: {
     fontSize: '0.75rem',
     marginTop: 4,
@@ -39,13 +31,14 @@ const styles = {
   },
 };
 
-const RowCountTotal = ({ filterValues }) => {
+const RowCountTotal = () => {
   const { selectedDatasets, datasetsMetadata } = useMultiDatasetDownloadStore();
   const {
     totalRows,
     maxRows,
     isLoading,
     isOverThreshold,
+    isGuaranteedUnderLimit,
     selectedStaleDatasets,
   } = useDownloadThreshold(selectedDatasets);
 
@@ -70,18 +63,34 @@ const RowCountTotal = ({ filterValues }) => {
   }, [selectedDatasets, datasetsMetadata]);
   const getWarningColor = () => {
     if (isOverThreshold) return colors.blockingError;
+    if (hasStaleSelected && !isGuaranteedUnderLimit) return colors.blockingError;
+    if (hasStaleSelected) return colors.nonBlockingInfo;
     if (hasMonthlyClimatology) return colors.nonBlockingInfo;
     return null;
   };
 
   const getWarningMessage = () => {
-    // Priority: Threshold warning takes precedence over climatology info
+    const staleBlockingMessage = 'Some row counts may not reflect your current constraints. Click Recalculate All to update.';
+    const staleAllowedMessage = 'Some row counts may not reflect your current constraints, but your selection is within the download limit. You can still download, or click Recalculate All to update.';
+
+    if (isOverThreshold && hasStaleSelected) {
+      const excessRows = totalRows - maxRows;
+      return `Selection exceeds limit by ${excessRows.toLocaleString()} rows. ${staleBlockingMessage}`;
+    }
+
     if (isOverThreshold) {
       const excessRows = totalRows - maxRows;
       return `Selection exceeds limit by ${excessRows.toLocaleString()} rows`;
     }
 
-    // Show climatology info message only when no threshold warning
+    if (hasStaleSelected && isGuaranteedUnderLimit) {
+      return staleAllowedMessage;
+    }
+
+    if (hasStaleSelected) {
+      return staleBlockingMessage;
+    }
+
     if (hasMonthlyClimatology) {
       return '';
     }
@@ -104,14 +113,6 @@ const RowCountTotal = ({ filterValues }) => {
           Total: {isLoading ? 'Calculating...' : totalRows.toLocaleString()} of{' '}
           {maxRows.toLocaleString()} rows
         </Typography>
-        {hasStaleSelected && !isLoading && (
-          <BatchStaleIndicatorTooltip
-            staleDatasets={selectedStaleDatasets}
-            filterValues={filterValues}
-          >
-            <WarningIcon style={styles.staleIcon} />
-          </BatchStaleIndicatorTooltip>
-        )}
       </Box>
       <Typography
         variant="body2"
@@ -127,12 +128,5 @@ const RowCountTotal = ({ filterValues }) => {
   );
 };
 
-RowCountTotal.propTypes = {
-  filterValues: PropTypes.object,
-};
-
-RowCountTotal.defaultProps = {
-  filterValues: null,
-};
 
 export default RowCountTotal;

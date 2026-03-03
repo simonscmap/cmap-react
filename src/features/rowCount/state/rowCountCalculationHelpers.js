@@ -2,6 +2,11 @@ import logInit from '../../../Services/log-service';
 import { captureError } from '../../../shared/errorCapture';
 import { getSearchDatabaseApi } from '../../catalogSearch/api';
 import { parseUTCDateString } from '../../../shared/filtering/utils/dateHelpers';
+import {
+  clampSpatialBounds,
+  clampTemporalRange,
+  clampDepthRange,
+} from '../estimation/performRowCountMath';
 
 const log = logInit('rowCount/rowCountCalculationHelpers');
 
@@ -53,6 +58,58 @@ export function isDatasetFullyWithinConstraints(dataset, constraints) {
   }
 
   return true;
+}
+
+export function hasNoOverlapWithConstraints(dataset, constraints) {
+  if (!dataset || !constraints) {
+    return false;
+  }
+
+  if (constraints.spatialBounds) {
+    let hasSpatialBounds =
+      dataset.latMin != null && dataset.latMax != null &&
+      dataset.lonMin != null && dataset.lonMax != null;
+
+    if (hasSpatialBounds) {
+      let result = clampSpatialBounds(
+        constraints.spatialBounds,
+        { latMin: dataset.latMin, latMax: dataset.latMax,
+          lonMin: dataset.lonMin, lonMax: dataset.lonMax },
+      );
+      if (result === null) {
+        return true;
+      }
+    }
+  }
+
+  if (constraints.temporalEnabled && constraints.temporalRange) {
+    let { timeMin, timeMax } = constraints.temporalRange;
+    if (timeMin && timeMax && dataset.timeMin && dataset.timeMax) {
+      let result = clampTemporalRange(
+        { timeMin, timeMax },
+        { timeMin: dataset.timeMin, timeMax: dataset.timeMax },
+      );
+      if (result === null) {
+        return true;
+      }
+    }
+  }
+
+  if (constraints.depthEnabled && constraints.depthRange) {
+    let { depthMin, depthMax } = constraints.depthRange;
+    if (depthMin != null && depthMax != null &&
+        dataset.depthMin != null && dataset.depthMax != null) {
+      let result = clampDepthRange(
+        { depthMin, depthMax },
+        { depthMin: dataset.depthMin, depthMax: dataset.depthMax },
+      );
+      if (result === null) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 export async function queryDatasetMetadata(shortNames) {
